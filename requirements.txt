@@ -9,7 +9,7 @@ django-bootstrap4==1.1.1
 django-core==1.4.1
 django-crispy-forms==1.9.1
 django-extensions==2.1.7
-redis==3.5.3
+redis==4.4.4
 six==1.10.0
 rq==1.1.0
 django-allauth==0.45.0
