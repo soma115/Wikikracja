@@ -1,5 +1,5 @@
 Django==3.1.14
-Pillow==8.4.0
+Pillow==9.3.0
 channels==2.4.0
 channels-redis==2.4.2
 daphne==2.5.0
