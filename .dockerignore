@@ -1,0 +1,59 @@
+# Version control
+.git/
+.gitignore
+.hg/
+.svn/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+*.cover
+
+# IDE/editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime*
+*.DS_Store
+
+# Environment and secrets
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.crt
+
+# Temporary and local files
+tmp/
+temp/
+*.tmp
+
+# Documentation
+README.md
+LICENSE
+
+# Docker files
+Dockerfile
+Dockerfile.*
+docker-compose*.yml
+
+# Miscellaneous
+*.bak
+*.old
+*.orig
+
+# Local database
+/db/*.sqlite3
+
+# Locale compiled files (will be compiled in container)
+*.mo
+
+# Coverage reports
+htmlcov/
+coverage.xml
