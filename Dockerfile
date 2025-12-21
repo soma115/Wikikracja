@@ -32,4 +32,4 @@ RUN python manage.py compilemessages -v 0 --ignore=.git/* --ignore=static/* --ig
 
 EXPOSE 8000
 
-CMD sh -c "python manage.py migrate --noinput && daphne -b 0.0.0.0 -p 8000 zzz.asgi:application"
+CMD sh -c "python manage.py migrate --noinput && python manage.py update_site && daphne -b 0.0.0.0 -p 8000 zzz.asgi:application"

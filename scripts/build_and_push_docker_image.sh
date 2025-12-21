@@ -11,7 +11,7 @@ if ! command -v git >/dev/null 2>&1; then
     exit 1
 fi
 
-REGISTRY_IMAGE_DEFAULT="registry.gitlab.com/robert.fialek/wiki-prv"
+REGISTRY_IMAGE_DEFAULT="ghcr.io/wikikracja/wikikracja"
 REGISTRY_IMAGE="${REGISTRY_IMAGE:-$REGISTRY_IMAGE_DEFAULT}"
 
 CONFIRM_OFFICIAL_PUSH="${CONFIRM_OFFICIAL_PUSH:-0}"
@@ -22,7 +22,7 @@ if [ -z "$REGISTRY_IMAGE" ]; then
 REGISTRY_IMAGE is required.
 
 Set REGISTRY_IMAGE explicitly, e.g.:
-  REGISTRY_IMAGE=registry.gitlab.com/<group>/<project> ./scripts/build_and_push_docker_image.sh
+  REGISTRY_IMAGE=ghcr.io/<username>/<project> ./scripts/build_and_push_docker_image.sh
 EOF
     exit 1
 fi
@@ -37,7 +37,12 @@ If you are the maintainer and intentionally want to push the official image, run
   CONFIRM_OFFICIAL_PUSH=1 ./scripts/build_and_push_docker_image.sh
 
 Otherwise, set REGISTRY_IMAGE to your own namespace:
-  REGISTRY_IMAGE=registry.gitlab.com/<group>/<project> ./scripts/build_and_push_docker_image.sh
+  REGISTRY_IMAGE=ghcr.io/<username>/wikikracja ./scripts/build_and_push_docker_image.sh
+
+Alternative registries:
+  - GitHub: REGISTRY_IMAGE=ghcr.io/<username>/wikikracja
+  - GitLab: REGISTRY_IMAGE=registry.gitlab.com/<username>/wikikracja
+  - Docker Hub: REGISTRY_IMAGE=docker.io/<username>/wikikracja
 EOF
     exit 1
 fi
@@ -65,8 +70,12 @@ cat <<EOF
 Done.
 
 Notes:
-- You must be logged in: docker login registry.gitlab.com
-- Override image name: REGISTRY_IMAGE=registry.gitlab.com/<group>/<project>
+- Login to registry first:
+  - GitHub: echo \$GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
+  - GitLab: echo \$GITLAB_TOKEN | docker login registry.gitlab.com -u <username> --password-stdin
+  - Docker Hub: docker login
+- Override image name: REGISTRY_IMAGE=ghcr.io/<username>/wikikracja
 - Override tag: TAG=v1.2.3
 - Disable latest: PUSH_LATEST=0
+- Build only (no push): docker build -t wikikracja:test .
 EOF

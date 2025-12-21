@@ -1,6 +1,6 @@
 # Events Module
 
-A simple Django app for managing cyclical events in the wiki-prv project.
+A simple Django app for managing cyclical events in the Wikikracja project.
 
 ## Features
 
