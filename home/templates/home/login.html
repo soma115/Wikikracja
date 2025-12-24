@@ -18,11 +18,11 @@
             <label for="{{form.password.name}}" class="text-info"> {{form.password.label}}</label><br>
             <input type="password" name="{{form.password.name}}" class="form-control" id="{{form.password.auto_id}}">
           </div>
-          <div class="row">
-            <div class="d-flex justify-content-between">
-              <input type="submit" name="submit" class="btn mr-1 mb-1 btn-info" value={% trans 'Login' %}>
-              <a href="{% url 'account_signup' %}" class="btn mr-1 mb-1 btn-primary">{% trans 'Sign Up' %}</a>
-              <a href="{% url 'password_reset' %}" class="btn mr-1 mb-1 btn-warning">{% trans 'Reset password' %}</a>
+          <div class="text-center">
+            <div class="d-inline-flex flex-wrap justify-content-center" style="gap: 8px;">
+              <input type="submit" name="submit" class="btn btn-info" value={% trans 'Login' %}>
+              <a href="{% url 'account_signup' %}" class="btn btn-primary">{% trans 'Sign Up' %}</a>
+              <a href="{% url 'password_reset' %}" class="btn btn-warning">{% trans 'Reset password' %}</a>
             </div>
           </div>
           {% if form.errors %}
