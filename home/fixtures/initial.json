@@ -1,0 +1,35 @@
+[
+  {
+    "model": "home.feeditem",
+    "pk": 1,
+    "fields": {
+      "content_type": "post",
+      "object_id": 1,
+      "title": "Welcome to the Board",
+      "description": "Getting started with our community board",
+      "author": 1,
+      "timestamp": "2026-04-25T12:00:00Z",
+      "url": "/board/post/1/"
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "step": "email_entered",
+      "completed": true,
+      "completed_at": "2026-04-25T12:00:00Z"
+    }
+  },
+  {
+    "model": "home.readstatus",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "content_type": "post",
+      "object_id": 1,
+      "read_at": "2026-04-25T12:30:00Z"
+    }
+  }
+]

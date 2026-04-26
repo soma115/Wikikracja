@@ -1,0 +1,26 @@
+[
+  {
+    "model": "elibrary.book",
+    "pk": 1,
+    "fields": {
+      "title": "Introduction to Democracy",
+      "author": "John Doe",
+      "abstract": "A comprehensive guide to democratic systems and practices.",
+      "uploader": 1,
+      "uploaded": "2026-04-25T12:00:00Z",
+      "is_public": true
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 2,
+    "fields": {
+      "title": "Community Building",
+      "author": "Jane Smith",
+      "abstract": "How to build and maintain strong communities.",
+      "uploader": 1,
+      "uploaded": "2026-04-26T12:00:00Z",
+      "is_public": true
+    }
+  }
+]

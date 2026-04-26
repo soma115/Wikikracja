@@ -1,25 +1,1802 @@
 [
-    {
-        "model": "glosowania.decyzja",
-        "pk": 4,
-        "fields": {
-            "author": 1,
-            "title": "Zasady podstawowe, głosowania i członkostwo",
-            "tresc": "1. Zasady podstawowe\r\na) Każdy z nas ma jeden głos.\r\nb) Nowe przepisy są akceptowane lub odrzucane zwykłą większością głosów.\r\nc) Każdy z nas jest równy wobec prawa.\r\nd) Prawo nie działa wstecz.\r\ne) Dla obywateli to, co nie jest zabronione, jest dozwolone. Dla przedstawicieli to, co nie jest dozwolone, jest zabronione.\r\n\r\n2. Głosowania\r\na) Nowa propozycja musi zebrać 3 podpisy aby została poddana pod referendum.\r\nb) Maksymalny czas na zebranie podpisów to 30 dni.\r\nc) Dyskusja trwa 7 dni.\r\nd) Referendum trwa 3 dni.\r\n\r\n3. Członkostwo\r\na) Nowa osoba jest akceptowana jeśli uzyska poparcie co najmniej 3 członków.\r\nb) Członek grupy jest usuwany jeśli poparcie spadnie poniżej 3 członków.\r\nc) Kandydat jest usuwany po upływie 60 dni.",
-            "kara": "Banicja na 3 miesiące.",
-            "uzasadnienie": "Potrzebne określenie podstawowych.",
-            "args_for": "Określenie podstawowych zasad i parametrów systemu głosowania oraz członkostwa.",
-            "args_against": "Może być trudniej tworzyć kolejne przepisy w zgodzie z obecnymi.",
-            "znosi": null,
-            "path": "Propozycja",
-            "ile_osob_podpisalo": 0,
-            "data_powstania": "2025-09-03",
-            "data_zebrania_podpisow": null,
-            "data_referendum_start": null,
-            "data_referendum_stop": null,
-            "za": 0,
-            "przeciw": 0,
-            "status": 1
-        }
+  {
+    "model": "glosowania.decyzja",
+    "pk": 1,
+    "fields": {
+      "title": "Bill 1: Test law",
+      "tresc": "Law text 1",
+      "kara": "Penalty 1",
+      "uzasadnienie": "Reasoning 1",
+      "args_for": "For 1",
+      "args_against": "Against 1",
+      "ile_osob_podpisalo": 16,
+      "za": 97,
+      "przeciw": 63,
+      "status": 4,
+      "chat_room": 2,
+      "author": 1
     }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 2,
+    "fields": {
+      "title": "Bill 2: Test law",
+      "tresc": "Law text 2",
+      "kara": "Penalty 2",
+      "uzasadnienie": "Reasoning 2",
+      "args_for": "For 2",
+      "args_against": "Against 2",
+      "ile_osob_podpisalo": 6,
+      "za": 91,
+      "przeciw": 80,
+      "status": 1,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 3,
+    "fields": {
+      "title": "Bill 3: Test law",
+      "tresc": "Law text 3",
+      "kara": "Penalty 3",
+      "uzasadnienie": "Reasoning 3",
+      "args_for": "For 3",
+      "args_against": "Against 3",
+      "ile_osob_podpisalo": 34,
+      "za": 77,
+      "przeciw": 43,
+      "status": 3,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 4,
+    "fields": {
+      "title": "Bill 4: Test law",
+      "tresc": "Law text 4",
+      "kara": "Penalty 4",
+      "uzasadnienie": "Reasoning 4",
+      "args_for": "For 4",
+      "args_against": "Against 4",
+      "ile_osob_podpisalo": 28,
+      "za": 64,
+      "przeciw": 40,
+      "status": 3,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 5,
+    "fields": {
+      "title": "Bill 5: Test law",
+      "tresc": "Law text 5",
+      "kara": "Penalty 5",
+      "uzasadnienie": "Reasoning 5",
+      "args_for": "For 5",
+      "args_against": "Against 5",
+      "ile_osob_podpisalo": 12,
+      "za": 1,
+      "przeciw": 87,
+      "status": 4,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 6,
+    "fields": {
+      "title": "Bill 6: Test law",
+      "tresc": "Law text 6",
+      "kara": "Penalty 6",
+      "uzasadnienie": "Reasoning 6",
+      "args_for": "For 6",
+      "args_against": "Against 6",
+      "ile_osob_podpisalo": 49,
+      "za": 51,
+      "przeciw": 30,
+      "status": 2,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 7,
+    "fields": {
+      "title": "Bill 7: Test law",
+      "tresc": "Law text 7",
+      "kara": "Penalty 7",
+      "uzasadnienie": "Reasoning 7",
+      "args_for": "For 7",
+      "args_against": "Against 7",
+      "ile_osob_podpisalo": 47,
+      "za": 3,
+      "przeciw": 4,
+      "status": 1,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 8,
+    "fields": {
+      "title": "Bill 8: Test law",
+      "tresc": "Law text 8",
+      "kara": "Penalty 8",
+      "uzasadnienie": "Reasoning 8",
+      "args_for": "For 8",
+      "args_against": "Against 8",
+      "ile_osob_podpisalo": 50,
+      "za": 33,
+      "przeciw": 61,
+      "status": 2,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 9,
+    "fields": {
+      "title": "Bill 9: Test law",
+      "tresc": "Law text 9",
+      "kara": "Penalty 9",
+      "uzasadnienie": "Reasoning 9",
+      "args_for": "For 9",
+      "args_against": "Against 9",
+      "ile_osob_podpisalo": 35,
+      "za": 8,
+      "przeciw": 100,
+      "status": 3,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 10,
+    "fields": {
+      "title": "Bill 10: Test law",
+      "tresc": "Law text 10",
+      "kara": "Penalty 10",
+      "uzasadnienie": "Reasoning 10",
+      "args_for": "For 10",
+      "args_against": "Against 10",
+      "ile_osob_podpisalo": 41,
+      "za": 41,
+      "przeciw": 33,
+      "status": 3,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 11,
+    "fields": {
+      "title": "Bill 11: Test law",
+      "tresc": "Law text 11",
+      "kara": "Penalty 11",
+      "uzasadnienie": "Reasoning 11",
+      "args_for": "For 11",
+      "args_against": "Against 11",
+      "ile_osob_podpisalo": 45,
+      "za": 46,
+      "przeciw": 69,
+      "status": 1,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 12,
+    "fields": {
+      "title": "Bill 12: Test law",
+      "tresc": "Law text 12",
+      "kara": "Penalty 12",
+      "uzasadnienie": "Reasoning 12",
+      "args_for": "For 12",
+      "args_against": "Against 12",
+      "ile_osob_podpisalo": 13,
+      "za": 57,
+      "przeciw": 78,
+      "status": 3,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 13,
+    "fields": {
+      "title": "Bill 13: Test law",
+      "tresc": "Law text 13",
+      "kara": "Penalty 13",
+      "uzasadnienie": "Reasoning 13",
+      "args_for": "For 13",
+      "args_against": "Against 13",
+      "ile_osob_podpisalo": 36,
+      "za": 32,
+      "przeciw": 82,
+      "status": 1,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 14,
+    "fields": {
+      "title": "Bill 14: Test law",
+      "tresc": "Law text 14",
+      "kara": "Penalty 14",
+      "uzasadnienie": "Reasoning 14",
+      "args_for": "For 14",
+      "args_against": "Against 14",
+      "ile_osob_podpisalo": 24,
+      "za": 59,
+      "przeciw": 97,
+      "status": 2,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 15,
+    "fields": {
+      "title": "Bill 15: Test law",
+      "tresc": "Law text 15",
+      "kara": "Penalty 15",
+      "uzasadnienie": "Reasoning 15",
+      "args_for": "For 15",
+      "args_against": "Against 15",
+      "ile_osob_podpisalo": 23,
+      "za": 25,
+      "przeciw": 36,
+      "status": 3,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 16,
+    "fields": {
+      "title": "Bill 16: Test law",
+      "tresc": "Law text 16",
+      "kara": "Penalty 16",
+      "uzasadnienie": "Reasoning 16",
+      "args_for": "For 16",
+      "args_against": "Against 16",
+      "ile_osob_podpisalo": 20,
+      "za": 58,
+      "przeciw": 67,
+      "status": 1,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 17,
+    "fields": {
+      "title": "Bill 17: Test law",
+      "tresc": "Law text 17",
+      "kara": "Penalty 17",
+      "uzasadnienie": "Reasoning 17",
+      "args_for": "For 17",
+      "args_against": "Against 17",
+      "ile_osob_podpisalo": 48,
+      "za": 16,
+      "przeciw": 89,
+      "status": 2,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 18,
+    "fields": {
+      "title": "Bill 18: Test law",
+      "tresc": "Law text 18",
+      "kara": "Penalty 18",
+      "uzasadnienie": "Reasoning 18",
+      "args_for": "For 18",
+      "args_against": "Against 18",
+      "ile_osob_podpisalo": 14,
+      "za": 73,
+      "przeciw": 16,
+      "status": 3,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 19,
+    "fields": {
+      "title": "Bill 19: Test law",
+      "tresc": "Law text 19",
+      "kara": "Penalty 19",
+      "uzasadnienie": "Reasoning 19",
+      "args_for": "For 19",
+      "args_against": "Against 19",
+      "ile_osob_podpisalo": 34,
+      "za": 60,
+      "przeciw": 29,
+      "status": 4,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 20,
+    "fields": {
+      "title": "Bill 20: Test law",
+      "tresc": "Law text 20",
+      "kara": "Penalty 20",
+      "uzasadnienie": "Reasoning 20",
+      "args_for": "For 20",
+      "args_against": "Against 20",
+      "ile_osob_podpisalo": 47,
+      "za": 34,
+      "przeciw": 48,
+      "status": 5,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 21,
+    "fields": {
+      "title": "Bill 21: Test law",
+      "tresc": "Law text 21",
+      "kara": "Penalty 21",
+      "uzasadnienie": "Reasoning 21",
+      "args_for": "For 21",
+      "args_against": "Against 21",
+      "ile_osob_podpisalo": 6,
+      "za": 10,
+      "przeciw": 1,
+      "status": 1,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 22,
+    "fields": {
+      "title": "Bill 22: Test law",
+      "tresc": "Law text 22",
+      "kara": "Penalty 22",
+      "uzasadnienie": "Reasoning 22",
+      "args_for": "For 22",
+      "args_against": "Against 22",
+      "ile_osob_podpisalo": 39,
+      "za": 52,
+      "przeciw": 18,
+      "status": 5,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 23,
+    "fields": {
+      "title": "Bill 23: Test law",
+      "tresc": "Law text 23",
+      "kara": "Penalty 23",
+      "uzasadnienie": "Reasoning 23",
+      "args_for": "For 23",
+      "args_against": "Against 23",
+      "ile_osob_podpisalo": 7,
+      "za": 4,
+      "przeciw": 7,
+      "status": 5,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 24,
+    "fields": {
+      "title": "Bill 24: Test law",
+      "tresc": "Law text 24",
+      "kara": "Penalty 24",
+      "uzasadnienie": "Reasoning 24",
+      "args_for": "For 24",
+      "args_against": "Against 24",
+      "ile_osob_podpisalo": 25,
+      "za": 88,
+      "przeciw": 16,
+      "status": 5,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 25,
+    "fields": {
+      "title": "Bill 25: Test law",
+      "tresc": "Law text 25",
+      "kara": "Penalty 25",
+      "uzasadnienie": "Reasoning 25",
+      "args_for": "For 25",
+      "args_against": "Against 25",
+      "ile_osob_podpisalo": 2,
+      "za": 60,
+      "przeciw": 96,
+      "status": 5,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 26,
+    "fields": {
+      "title": "Bill 26: Test law",
+      "tresc": "Law text 26",
+      "kara": "Penalty 26",
+      "uzasadnienie": "Reasoning 26",
+      "args_for": "For 26",
+      "args_against": "Against 26",
+      "ile_osob_podpisalo": 28,
+      "za": 65,
+      "przeciw": 4,
+      "status": 1,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 27,
+    "fields": {
+      "title": "Bill 27: Test law",
+      "tresc": "Law text 27",
+      "kara": "Penalty 27",
+      "uzasadnienie": "Reasoning 27",
+      "args_for": "For 27",
+      "args_against": "Against 27",
+      "ile_osob_podpisalo": 50,
+      "za": 96,
+      "przeciw": 57,
+      "status": 3,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 28,
+    "fields": {
+      "title": "Bill 28: Test law",
+      "tresc": "Law text 28",
+      "kara": "Penalty 28",
+      "uzasadnienie": "Reasoning 28",
+      "args_for": "For 28",
+      "args_against": "Against 28",
+      "ile_osob_podpisalo": 9,
+      "za": 0,
+      "przeciw": 9,
+      "status": 1,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 29,
+    "fields": {
+      "title": "Bill 29: Test law",
+      "tresc": "Law text 29",
+      "kara": "Penalty 29",
+      "uzasadnienie": "Reasoning 29",
+      "args_for": "For 29",
+      "args_against": "Against 29",
+      "ile_osob_podpisalo": 35,
+      "za": 82,
+      "przeciw": 40,
+      "status": 4,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 30,
+    "fields": {
+      "title": "Bill 30: Test law",
+      "tresc": "Law text 30",
+      "kara": "Penalty 30",
+      "uzasadnienie": "Reasoning 30",
+      "args_for": "For 30",
+      "args_against": "Against 30",
+      "ile_osob_podpisalo": 9,
+      "za": 71,
+      "przeciw": 21,
+      "status": 3,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 31,
+    "fields": {
+      "title": "Bill 31: Test law",
+      "tresc": "Law text 31",
+      "kara": "Penalty 31",
+      "uzasadnienie": "Reasoning 31",
+      "args_for": "For 31",
+      "args_against": "Against 31",
+      "ile_osob_podpisalo": 22,
+      "za": 47,
+      "przeciw": 91,
+      "status": 5,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 32,
+    "fields": {
+      "title": "Bill 32: Test law",
+      "tresc": "Law text 32",
+      "kara": "Penalty 32",
+      "uzasadnienie": "Reasoning 32",
+      "args_for": "For 32",
+      "args_against": "Against 32",
+      "ile_osob_podpisalo": 23,
+      "za": 87,
+      "przeciw": 61,
+      "status": 3,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 33,
+    "fields": {
+      "title": "Bill 33: Test law",
+      "tresc": "Law text 33",
+      "kara": "Penalty 33",
+      "uzasadnienie": "Reasoning 33",
+      "args_for": "For 33",
+      "args_against": "Against 33",
+      "ile_osob_podpisalo": 16,
+      "za": 84,
+      "przeciw": 13,
+      "status": 3,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 34,
+    "fields": {
+      "title": "Bill 34: Test law",
+      "tresc": "Law text 34",
+      "kara": "Penalty 34",
+      "uzasadnienie": "Reasoning 34",
+      "args_for": "For 34",
+      "args_against": "Against 34",
+      "ile_osob_podpisalo": 6,
+      "za": 77,
+      "przeciw": 49,
+      "status": 1,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 35,
+    "fields": {
+      "title": "Bill 35: Test law",
+      "tresc": "Law text 35",
+      "kara": "Penalty 35",
+      "uzasadnienie": "Reasoning 35",
+      "args_for": "For 35",
+      "args_against": "Against 35",
+      "ile_osob_podpisalo": 16,
+      "za": 2,
+      "przeciw": 99,
+      "status": 3,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 36,
+    "fields": {
+      "title": "Bill 36: Test law",
+      "tresc": "Law text 36",
+      "kara": "Penalty 36",
+      "uzasadnienie": "Reasoning 36",
+      "args_for": "For 36",
+      "args_against": "Against 36",
+      "ile_osob_podpisalo": 27,
+      "za": 4,
+      "przeciw": 86,
+      "status": 1,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 37,
+    "fields": {
+      "title": "Bill 37: Test law",
+      "tresc": "Law text 37",
+      "kara": "Penalty 37",
+      "uzasadnienie": "Reasoning 37",
+      "args_for": "For 37",
+      "args_against": "Against 37",
+      "ile_osob_podpisalo": 8,
+      "za": 33,
+      "przeciw": 17,
+      "status": 4,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 38,
+    "fields": {
+      "title": "Bill 38: Test law",
+      "tresc": "Law text 38",
+      "kara": "Penalty 38",
+      "uzasadnienie": "Reasoning 38",
+      "args_for": "For 38",
+      "args_against": "Against 38",
+      "ile_osob_podpisalo": 28,
+      "za": 34,
+      "przeciw": 36,
+      "status": 1,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 39,
+    "fields": {
+      "title": "Bill 39: Test law",
+      "tresc": "Law text 39",
+      "kara": "Penalty 39",
+      "uzasadnienie": "Reasoning 39",
+      "args_for": "For 39",
+      "args_against": "Against 39",
+      "ile_osob_podpisalo": 14,
+      "za": 13,
+      "przeciw": 9,
+      "status": 5,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 40,
+    "fields": {
+      "title": "Bill 40: Test law",
+      "tresc": "Law text 40",
+      "kara": "Penalty 40",
+      "uzasadnienie": "Reasoning 40",
+      "args_for": "For 40",
+      "args_against": "Against 40",
+      "ile_osob_podpisalo": 3,
+      "za": 75,
+      "przeciw": 99,
+      "status": 3,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 41,
+    "fields": {
+      "title": "Bill 41: Test law",
+      "tresc": "Law text 41",
+      "kara": "Penalty 41",
+      "uzasadnienie": "Reasoning 41",
+      "args_for": "For 41",
+      "args_against": "Against 41",
+      "ile_osob_podpisalo": 25,
+      "za": 68,
+      "przeciw": 8,
+      "status": 4,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 42,
+    "fields": {
+      "title": "Bill 42: Test law",
+      "tresc": "Law text 42",
+      "kara": "Penalty 42",
+      "uzasadnienie": "Reasoning 42",
+      "args_for": "For 42",
+      "args_against": "Against 42",
+      "ile_osob_podpisalo": 4,
+      "za": 33,
+      "przeciw": 47,
+      "status": 1,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 43,
+    "fields": {
+      "title": "Bill 43: Test law",
+      "tresc": "Law text 43",
+      "kara": "Penalty 43",
+      "uzasadnienie": "Reasoning 43",
+      "args_for": "For 43",
+      "args_against": "Against 43",
+      "ile_osob_podpisalo": 46,
+      "za": 27,
+      "przeciw": 24,
+      "status": 4,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 44,
+    "fields": {
+      "title": "Bill 44: Test law",
+      "tresc": "Law text 44",
+      "kara": "Penalty 44",
+      "uzasadnienie": "Reasoning 44",
+      "args_for": "For 44",
+      "args_against": "Against 44",
+      "ile_osob_podpisalo": 31,
+      "za": 28,
+      "przeciw": 97,
+      "status": 3,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 45,
+    "fields": {
+      "title": "Bill 45: Test law",
+      "tresc": "Law text 45",
+      "kara": "Penalty 45",
+      "uzasadnienie": "Reasoning 45",
+      "args_for": "For 45",
+      "args_against": "Against 45",
+      "ile_osob_podpisalo": 7,
+      "za": 67,
+      "przeciw": 7,
+      "status": 3,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 46,
+    "fields": {
+      "title": "Bill 46: Test law",
+      "tresc": "Law text 46",
+      "kara": "Penalty 46",
+      "uzasadnienie": "Reasoning 46",
+      "args_for": "For 46",
+      "args_against": "Against 46",
+      "ile_osob_podpisalo": 27,
+      "za": 85,
+      "przeciw": 12,
+      "status": 4,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 47,
+    "fields": {
+      "title": "Bill 47: Test law",
+      "tresc": "Law text 47",
+      "kara": "Penalty 47",
+      "uzasadnienie": "Reasoning 47",
+      "args_for": "For 47",
+      "args_against": "Against 47",
+      "ile_osob_podpisalo": 28,
+      "za": 5,
+      "przeciw": 6,
+      "status": 3,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 48,
+    "fields": {
+      "title": "Bill 48: Test law",
+      "tresc": "Law text 48",
+      "kara": "Penalty 48",
+      "uzasadnienie": "Reasoning 48",
+      "args_for": "For 48",
+      "args_against": "Against 48",
+      "ile_osob_podpisalo": 22,
+      "za": 40,
+      "przeciw": 57,
+      "status": 1,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 49,
+    "fields": {
+      "title": "Bill 49: Test law",
+      "tresc": "Law text 49",
+      "kara": "Penalty 49",
+      "uzasadnienie": "Reasoning 49",
+      "args_for": "For 49",
+      "args_against": "Against 49",
+      "ile_osob_podpisalo": 49,
+      "za": 73,
+      "przeciw": 93,
+      "status": 2,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 50,
+    "fields": {
+      "title": "Bill 50: Test law",
+      "tresc": "Law text 50",
+      "kara": "Penalty 50",
+      "uzasadnienie": "Reasoning 50",
+      "args_for": "For 50",
+      "args_against": "Against 50",
+      "ile_osob_podpisalo": 22,
+      "za": 88,
+      "przeciw": 3,
+      "status": 4,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 51,
+    "fields": {
+      "title": "Bill 51: Test law",
+      "tresc": "Law text 51",
+      "kara": "Penalty 51",
+      "uzasadnienie": "Reasoning 51",
+      "args_for": "For 51",
+      "args_against": "Against 51",
+      "ile_osob_podpisalo": 42,
+      "za": 31,
+      "przeciw": 13,
+      "status": 2,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 52,
+    "fields": {
+      "title": "Bill 52: Test law",
+      "tresc": "Law text 52",
+      "kara": "Penalty 52",
+      "uzasadnienie": "Reasoning 52",
+      "args_for": "For 52",
+      "args_against": "Against 52",
+      "ile_osob_podpisalo": 46,
+      "za": 44,
+      "przeciw": 31,
+      "status": 1,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 53,
+    "fields": {
+      "title": "Bill 53: Test law",
+      "tresc": "Law text 53",
+      "kara": "Penalty 53",
+      "uzasadnienie": "Reasoning 53",
+      "args_for": "For 53",
+      "args_against": "Against 53",
+      "ile_osob_podpisalo": 10,
+      "za": 100,
+      "przeciw": 33,
+      "status": 5,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 54,
+    "fields": {
+      "title": "Bill 54: Test law",
+      "tresc": "Law text 54",
+      "kara": "Penalty 54",
+      "uzasadnienie": "Reasoning 54",
+      "args_for": "For 54",
+      "args_against": "Against 54",
+      "ile_osob_podpisalo": 29,
+      "za": 25,
+      "przeciw": 57,
+      "status": 5,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 55,
+    "fields": {
+      "title": "Bill 55: Test law",
+      "tresc": "Law text 55",
+      "kara": "Penalty 55",
+      "uzasadnienie": "Reasoning 55",
+      "args_for": "For 55",
+      "args_against": "Against 55",
+      "ile_osob_podpisalo": 6,
+      "za": 60,
+      "przeciw": 73,
+      "status": 3,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 56,
+    "fields": {
+      "title": "Bill 56: Test law",
+      "tresc": "Law text 56",
+      "kara": "Penalty 56",
+      "uzasadnienie": "Reasoning 56",
+      "args_for": "For 56",
+      "args_against": "Against 56",
+      "ile_osob_podpisalo": 49,
+      "za": 43,
+      "przeciw": 13,
+      "status": 1,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 57,
+    "fields": {
+      "title": "Bill 57: Test law",
+      "tresc": "Law text 57",
+      "kara": "Penalty 57",
+      "uzasadnienie": "Reasoning 57",
+      "args_for": "For 57",
+      "args_against": "Against 57",
+      "ile_osob_podpisalo": 13,
+      "za": 50,
+      "przeciw": 5,
+      "status": 3,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 58,
+    "fields": {
+      "title": "Bill 58: Test law",
+      "tresc": "Law text 58",
+      "kara": "Penalty 58",
+      "uzasadnienie": "Reasoning 58",
+      "args_for": "For 58",
+      "args_against": "Against 58",
+      "ile_osob_podpisalo": 3,
+      "za": 48,
+      "przeciw": 84,
+      "status": 5,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 59,
+    "fields": {
+      "title": "Bill 59: Test law",
+      "tresc": "Law text 59",
+      "kara": "Penalty 59",
+      "uzasadnienie": "Reasoning 59",
+      "args_for": "For 59",
+      "args_against": "Against 59",
+      "ile_osob_podpisalo": 30,
+      "za": 72,
+      "przeciw": 99,
+      "status": 2,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 60,
+    "fields": {
+      "title": "Bill 60: Test law",
+      "tresc": "Law text 60",
+      "kara": "Penalty 60",
+      "uzasadnienie": "Reasoning 60",
+      "args_for": "For 60",
+      "args_against": "Against 60",
+      "ile_osob_podpisalo": 0,
+      "za": 76,
+      "przeciw": 22,
+      "status": 2,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 61,
+    "fields": {
+      "title": "Bill 61: Test law",
+      "tresc": "Law text 61",
+      "kara": "Penalty 61",
+      "uzasadnienie": "Reasoning 61",
+      "args_for": "For 61",
+      "args_against": "Against 61",
+      "ile_osob_podpisalo": 17,
+      "za": 59,
+      "przeciw": 66,
+      "status": 3,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 62,
+    "fields": {
+      "title": "Bill 62: Test law",
+      "tresc": "Law text 62",
+      "kara": "Penalty 62",
+      "uzasadnienie": "Reasoning 62",
+      "args_for": "For 62",
+      "args_against": "Against 62",
+      "ile_osob_podpisalo": 12,
+      "za": 11,
+      "przeciw": 58,
+      "status": 3,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 63,
+    "fields": {
+      "title": "Bill 63: Test law",
+      "tresc": "Law text 63",
+      "kara": "Penalty 63",
+      "uzasadnienie": "Reasoning 63",
+      "args_for": "For 63",
+      "args_against": "Against 63",
+      "ile_osob_podpisalo": 33,
+      "za": 0,
+      "przeciw": 49,
+      "status": 2,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 64,
+    "fields": {
+      "title": "Bill 64: Test law",
+      "tresc": "Law text 64",
+      "kara": "Penalty 64",
+      "uzasadnienie": "Reasoning 64",
+      "args_for": "For 64",
+      "args_against": "Against 64",
+      "ile_osob_podpisalo": 3,
+      "za": 42,
+      "przeciw": 13,
+      "status": 2,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 65,
+    "fields": {
+      "title": "Bill 65: Test law",
+      "tresc": "Law text 65",
+      "kara": "Penalty 65",
+      "uzasadnienie": "Reasoning 65",
+      "args_for": "For 65",
+      "args_against": "Against 65",
+      "ile_osob_podpisalo": 13,
+      "za": 28,
+      "przeciw": 1,
+      "status": 4,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 66,
+    "fields": {
+      "title": "Bill 66: Test law",
+      "tresc": "Law text 66",
+      "kara": "Penalty 66",
+      "uzasadnienie": "Reasoning 66",
+      "args_for": "For 66",
+      "args_against": "Against 66",
+      "ile_osob_podpisalo": 12,
+      "za": 90,
+      "przeciw": 72,
+      "status": 3,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 67,
+    "fields": {
+      "title": "Bill 67: Test law",
+      "tresc": "Law text 67",
+      "kara": "Penalty 67",
+      "uzasadnienie": "Reasoning 67",
+      "args_for": "For 67",
+      "args_against": "Against 67",
+      "ile_osob_podpisalo": 4,
+      "za": 5,
+      "przeciw": 48,
+      "status": 2,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 68,
+    "fields": {
+      "title": "Bill 68: Test law",
+      "tresc": "Law text 68",
+      "kara": "Penalty 68",
+      "uzasadnienie": "Reasoning 68",
+      "args_for": "For 68",
+      "args_against": "Against 68",
+      "ile_osob_podpisalo": 43,
+      "za": 85,
+      "przeciw": 83,
+      "status": 5,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 69,
+    "fields": {
+      "title": "Bill 69: Test law",
+      "tresc": "Law text 69",
+      "kara": "Penalty 69",
+      "uzasadnienie": "Reasoning 69",
+      "args_for": "For 69",
+      "args_against": "Against 69",
+      "ile_osob_podpisalo": 24,
+      "za": 24,
+      "przeciw": 84,
+      "status": 1,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 70,
+    "fields": {
+      "title": "Bill 70: Test law",
+      "tresc": "Law text 70",
+      "kara": "Penalty 70",
+      "uzasadnienie": "Reasoning 70",
+      "args_for": "For 70",
+      "args_against": "Against 70",
+      "ile_osob_podpisalo": 1,
+      "za": 13,
+      "przeciw": 34,
+      "status": 1,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 71,
+    "fields": {
+      "title": "Bill 71: Test law",
+      "tresc": "Law text 71",
+      "kara": "Penalty 71",
+      "uzasadnienie": "Reasoning 71",
+      "args_for": "For 71",
+      "args_against": "Against 71",
+      "ile_osob_podpisalo": 27,
+      "za": 71,
+      "przeciw": 19,
+      "status": 4,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 72,
+    "fields": {
+      "title": "Bill 72: Test law",
+      "tresc": "Law text 72",
+      "kara": "Penalty 72",
+      "uzasadnienie": "Reasoning 72",
+      "args_for": "For 72",
+      "args_against": "Against 72",
+      "ile_osob_podpisalo": 45,
+      "za": 84,
+      "przeciw": 37,
+      "status": 3,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 73,
+    "fields": {
+      "title": "Bill 73: Test law",
+      "tresc": "Law text 73",
+      "kara": "Penalty 73",
+      "uzasadnienie": "Reasoning 73",
+      "args_for": "For 73",
+      "args_against": "Against 73",
+      "ile_osob_podpisalo": 21,
+      "za": 3,
+      "przeciw": 64,
+      "status": 4,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 74,
+    "fields": {
+      "title": "Bill 74: Test law",
+      "tresc": "Law text 74",
+      "kara": "Penalty 74",
+      "uzasadnienie": "Reasoning 74",
+      "args_for": "For 74",
+      "args_against": "Against 74",
+      "ile_osob_podpisalo": 1,
+      "za": 36,
+      "przeciw": 7,
+      "status": 1,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 75,
+    "fields": {
+      "title": "Bill 75: Test law",
+      "tresc": "Law text 75",
+      "kara": "Penalty 75",
+      "uzasadnienie": "Reasoning 75",
+      "args_for": "For 75",
+      "args_against": "Against 75",
+      "ile_osob_podpisalo": 43,
+      "za": 26,
+      "przeciw": 9,
+      "status": 3,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 76,
+    "fields": {
+      "title": "Bill 76: Test law",
+      "tresc": "Law text 76",
+      "kara": "Penalty 76",
+      "uzasadnienie": "Reasoning 76",
+      "args_for": "For 76",
+      "args_against": "Against 76",
+      "ile_osob_podpisalo": 24,
+      "za": 28,
+      "przeciw": 3,
+      "status": 1,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 77,
+    "fields": {
+      "title": "Bill 77: Test law",
+      "tresc": "Law text 77",
+      "kara": "Penalty 77",
+      "uzasadnienie": "Reasoning 77",
+      "args_for": "For 77",
+      "args_against": "Against 77",
+      "ile_osob_podpisalo": 14,
+      "za": 2,
+      "przeciw": 75,
+      "status": 3,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 78,
+    "fields": {
+      "title": "Bill 78: Test law",
+      "tresc": "Law text 78",
+      "kara": "Penalty 78",
+      "uzasadnienie": "Reasoning 78",
+      "args_for": "For 78",
+      "args_against": "Against 78",
+      "ile_osob_podpisalo": 48,
+      "za": 52,
+      "przeciw": 57,
+      "status": 5,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 79,
+    "fields": {
+      "title": "Bill 79: Test law",
+      "tresc": "Law text 79",
+      "kara": "Penalty 79",
+      "uzasadnienie": "Reasoning 79",
+      "args_for": "For 79",
+      "args_against": "Against 79",
+      "ile_osob_podpisalo": 26,
+      "za": 69,
+      "przeciw": 24,
+      "status": 3,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 80,
+    "fields": {
+      "title": "Bill 80: Test law",
+      "tresc": "Law text 80",
+      "kara": "Penalty 80",
+      "uzasadnienie": "Reasoning 80",
+      "args_for": "For 80",
+      "args_against": "Against 80",
+      "ile_osob_podpisalo": 45,
+      "za": 35,
+      "przeciw": 86,
+      "status": 1,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 81,
+    "fields": {
+      "title": "Bill 81: Test law",
+      "tresc": "Law text 81",
+      "kara": "Penalty 81",
+      "uzasadnienie": "Reasoning 81",
+      "args_for": "For 81",
+      "args_against": "Against 81",
+      "ile_osob_podpisalo": 1,
+      "za": 17,
+      "przeciw": 20,
+      "status": 4,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 82,
+    "fields": {
+      "title": "Bill 82: Test law",
+      "tresc": "Law text 82",
+      "kara": "Penalty 82",
+      "uzasadnienie": "Reasoning 82",
+      "args_for": "For 82",
+      "args_against": "Against 82",
+      "ile_osob_podpisalo": 0,
+      "za": 51,
+      "przeciw": 88,
+      "status": 1,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 83,
+    "fields": {
+      "title": "Bill 83: Test law",
+      "tresc": "Law text 83",
+      "kara": "Penalty 83",
+      "uzasadnienie": "Reasoning 83",
+      "args_for": "For 83",
+      "args_against": "Against 83",
+      "ile_osob_podpisalo": 5,
+      "za": 83,
+      "przeciw": 98,
+      "status": 2,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 84,
+    "fields": {
+      "title": "Bill 84: Test law",
+      "tresc": "Law text 84",
+      "kara": "Penalty 84",
+      "uzasadnienie": "Reasoning 84",
+      "args_for": "For 84",
+      "args_against": "Against 84",
+      "ile_osob_podpisalo": 7,
+      "za": 23,
+      "przeciw": 9,
+      "status": 1,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 85,
+    "fields": {
+      "title": "Bill 85: Test law",
+      "tresc": "Law text 85",
+      "kara": "Penalty 85",
+      "uzasadnienie": "Reasoning 85",
+      "args_for": "For 85",
+      "args_against": "Against 85",
+      "ile_osob_podpisalo": 20,
+      "za": 75,
+      "przeciw": 23,
+      "status": 2,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 86,
+    "fields": {
+      "title": "Bill 86: Test law",
+      "tresc": "Law text 86",
+      "kara": "Penalty 86",
+      "uzasadnienie": "Reasoning 86",
+      "args_for": "For 86",
+      "args_against": "Against 86",
+      "ile_osob_podpisalo": 42,
+      "za": 61,
+      "przeciw": 72,
+      "status": 1,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 87,
+    "fields": {
+      "title": "Bill 87: Test law",
+      "tresc": "Law text 87",
+      "kara": "Penalty 87",
+      "uzasadnienie": "Reasoning 87",
+      "args_for": "For 87",
+      "args_against": "Against 87",
+      "ile_osob_podpisalo": 13,
+      "za": 62,
+      "przeciw": 62,
+      "status": 4,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 88,
+    "fields": {
+      "title": "Bill 88: Test law",
+      "tresc": "Law text 88",
+      "kara": "Penalty 88",
+      "uzasadnienie": "Reasoning 88",
+      "args_for": "For 88",
+      "args_against": "Against 88",
+      "ile_osob_podpisalo": 34,
+      "za": 90,
+      "przeciw": 39,
+      "status": 1,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 89,
+    "fields": {
+      "title": "Bill 89: Test law",
+      "tresc": "Law text 89",
+      "kara": "Penalty 89",
+      "uzasadnienie": "Reasoning 89",
+      "args_for": "For 89",
+      "args_against": "Against 89",
+      "ile_osob_podpisalo": 44,
+      "za": 38,
+      "przeciw": 13,
+      "status": 1,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 90,
+    "fields": {
+      "title": "Bill 90: Test law",
+      "tresc": "Law text 90",
+      "kara": "Penalty 90",
+      "uzasadnienie": "Reasoning 90",
+      "args_for": "For 90",
+      "args_against": "Against 90",
+      "ile_osob_podpisalo": 42,
+      "za": 97,
+      "przeciw": 1,
+      "status": 3,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 91,
+    "fields": {
+      "title": "Bill 91: Test law",
+      "tresc": "Law text 91",
+      "kara": "Penalty 91",
+      "uzasadnienie": "Reasoning 91",
+      "args_for": "For 91",
+      "args_against": "Against 91",
+      "ile_osob_podpisalo": 38,
+      "za": 38,
+      "przeciw": 58,
+      "status": 2,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 92,
+    "fields": {
+      "title": "Bill 92: Test law",
+      "tresc": "Law text 92",
+      "kara": "Penalty 92",
+      "uzasadnienie": "Reasoning 92",
+      "args_for": "For 92",
+      "args_against": "Against 92",
+      "ile_osob_podpisalo": 12,
+      "za": 51,
+      "przeciw": 98,
+      "status": 1,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 93,
+    "fields": {
+      "title": "Bill 93: Test law",
+      "tresc": "Law text 93",
+      "kara": "Penalty 93",
+      "uzasadnienie": "Reasoning 93",
+      "args_for": "For 93",
+      "args_against": "Against 93",
+      "ile_osob_podpisalo": 12,
+      "za": 93,
+      "przeciw": 26,
+      "status": 3,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 94,
+    "fields": {
+      "title": "Bill 94: Test law",
+      "tresc": "Law text 94",
+      "kara": "Penalty 94",
+      "uzasadnienie": "Reasoning 94",
+      "args_for": "For 94",
+      "args_against": "Against 94",
+      "ile_osob_podpisalo": 13,
+      "za": 5,
+      "przeciw": 37,
+      "status": 5,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 95,
+    "fields": {
+      "title": "Bill 95: Test law",
+      "tresc": "Law text 95",
+      "kara": "Penalty 95",
+      "uzasadnienie": "Reasoning 95",
+      "args_for": "For 95",
+      "args_against": "Against 95",
+      "ile_osob_podpisalo": 19,
+      "za": 68,
+      "przeciw": 22,
+      "status": 4,
+      "chat_room": 1,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 96,
+    "fields": {
+      "title": "Bill 96: Test law",
+      "tresc": "Law text 96",
+      "kara": "Penalty 96",
+      "uzasadnienie": "Reasoning 96",
+      "args_for": "For 96",
+      "args_against": "Against 96",
+      "ile_osob_podpisalo": 20,
+      "za": 90,
+      "przeciw": 62,
+      "status": 2,
+      "chat_room": 2,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 97,
+    "fields": {
+      "title": "Bill 97: Test law",
+      "tresc": "Law text 97",
+      "kara": "Penalty 97",
+      "uzasadnienie": "Reasoning 97",
+      "args_for": "For 97",
+      "args_against": "Against 97",
+      "ile_osob_podpisalo": 7,
+      "za": 61,
+      "przeciw": 4,
+      "status": 4,
+      "chat_room": 3,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 98,
+    "fields": {
+      "title": "Bill 98: Test law",
+      "tresc": "Law text 98",
+      "kara": "Penalty 98",
+      "uzasadnienie": "Reasoning 98",
+      "args_for": "For 98",
+      "args_against": "Against 98",
+      "ile_osob_podpisalo": 42,
+      "za": 10,
+      "przeciw": 95,
+      "status": 4,
+      "chat_room": 4,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 99,
+    "fields": {
+      "title": "Bill 99: Test law",
+      "tresc": "Law text 99",
+      "kara": "Penalty 99",
+      "uzasadnienie": "Reasoning 99",
+      "args_for": "For 99",
+      "args_against": "Against 99",
+      "ile_osob_podpisalo": 27,
+      "za": 83,
+      "przeciw": 10,
+      "status": 5,
+      "chat_room": 5,
+      "author": 1
+    }
+  },
+  {
+    "model": "glosowania.decyzja",
+    "pk": 100,
+    "fields": {
+      "title": "Bill 100: Test law",
+      "tresc": "Law text 100",
+      "kara": "Penalty 100",
+      "uzasadnienie": "Reasoning 100",
+      "args_for": "For 100",
+      "args_against": "Against 100",
+      "ile_osob_podpisalo": 18,
+      "za": 10,
+      "przeciw": 62,
+      "status": 4,
+      "chat_room": 1,
+      "author": 1
+    }
+  }
 ]

@@ -1,0 +1,202 @@
+[
+  {
+    "model": "home.onboardingprogress",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "step_argued": false,
+      "step_chatted": false,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 2,
+    "fields": {
+      "user": 2,
+      "step_argued": true,
+      "step_chatted": false,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 3,
+    "fields": {
+      "user": 3,
+      "step_argued": false,
+      "step_chatted": true,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 4,
+    "fields": {
+      "user": 4,
+      "step_argued": true,
+      "step_chatted": false,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 5,
+    "fields": {
+      "user": 5,
+      "step_argued": false,
+      "step_chatted": false,
+      "step_voted": true
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 6,
+    "fields": {
+      "user": 6,
+      "step_argued": true,
+      "step_chatted": true,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 7,
+    "fields": {
+      "user": 7,
+      "step_argued": false,
+      "step_chatted": false,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 8,
+    "fields": {
+      "user": 8,
+      "step_argued": true,
+      "step_chatted": false,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 9,
+    "fields": {
+      "user": 9,
+      "step_argued": false,
+      "step_chatted": true,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 10,
+    "fields": {
+      "user": 10,
+      "step_argued": true,
+      "step_chatted": false,
+      "step_voted": true
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 11,
+    "fields": {
+      "user": 11,
+      "step_argued": false,
+      "step_chatted": false,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 12,
+    "fields": {
+      "user": 12,
+      "step_argued": true,
+      "step_chatted": true,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 13,
+    "fields": {
+      "user": 13,
+      "step_argued": false,
+      "step_chatted": false,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 14,
+    "fields": {
+      "user": 14,
+      "step_argued": true,
+      "step_chatted": false,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 15,
+    "fields": {
+      "user": 15,
+      "step_argued": false,
+      "step_chatted": true,
+      "step_voted": true
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 16,
+    "fields": {
+      "user": 16,
+      "step_argued": true,
+      "step_chatted": false,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 17,
+    "fields": {
+      "user": 17,
+      "step_argued": false,
+      "step_chatted": false,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 18,
+    "fields": {
+      "user": 18,
+      "step_argued": true,
+      "step_chatted": true,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 19,
+    "fields": {
+      "user": 19,
+      "step_argued": false,
+      "step_chatted": false,
+      "step_voted": false
+    }
+  },
+  {
+    "model": "home.onboardingprogress",
+    "pk": 20,
+    "fields": {
+      "user": 20,
+      "step_argued": true,
+      "step_chatted": false,
+      "step_voted": true
+    }
+  }
+]

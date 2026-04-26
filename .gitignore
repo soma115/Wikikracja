@@ -22,6 +22,7 @@ node_modules/
 .idea/
 .env
 .python-version
+.coverage
 
 $RECYCLE.BIN/
 Desktop.ini
@@ -47,6 +48,6 @@ out.csv
 data/*
 *.lock
 *.bak
-*.json
+/*.json
 /locale/en/LC_MESSAGES/django.mo
 /locale/pl/LC_MESSAGES/django.mo

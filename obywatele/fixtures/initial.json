@@ -1,0 +1,92 @@
+[
+  {
+    "model": "obywatele.uzytkownik",
+    "pk": 1,
+    "fields": {
+      "uid": 1,
+      "reputation": 10,
+      "onboarding_status": "form_completed",
+      "polecajacy": null,
+      "data_przyjecia": "2026-04-01",
+      "phone": "+48123456789",
+      "city": "Warsaw",
+      "responsibilities": "Community organizer",
+      "hobby": "Reading, hiking",
+      "to_give_away": "Books, gardening tools",
+      "to_borrow": "Ladder, drill",
+      "for_sale": "Old bicycle",
+      "i_need": "Help with moving",
+      "skills": "Programming, cooking",
+      "knowledge": "Democracy, community building",
+      "want_to_learn": "Gardening, photography",
+      "business": "IT Consulting",
+      "job": "Software Developer",
+      "gift": "Handmade crafts",
+      "other": "Active community member",
+      "why": "To build a better community together",
+      "avatar": "",
+      "language": "en",
+      "last_broadcast": "2026-04-25T12:00:00Z",
+      "email_notifications_obywatele": true,
+      "email_notifications_glosowania": true,
+      "email_notifications_chat": true,
+      "email_notifications_chat_participated": false
+    }
+  },
+  {
+    "model": "obywatele.uzytkownik",
+    "pk": 2,
+    "fields": {
+      "uid": 2,
+      "reputation": 5,
+      "onboarding_status": "email_entered",
+      "polecajacy": 1,
+      "data_przyjecia": "2026-04-10",
+      "phone": null,
+      "city": "Krakow",
+      "responsibilities": null,
+      "hobby": null,
+      "to_give_away": null,
+      "to_borrow": null,
+      "for_sale": null,
+      "i_need": null,
+      "skills": null,
+      "knowledge": null,
+      "want_to_learn": null,
+      "business": null,
+      "job": null,
+      "gift": null,
+      "other": null,
+      "why": null,
+      "avatar": "",
+      "language": "pl",
+      "last_broadcast": "2026-04-24T10:00:00Z",
+      "email_notifications_obywatele": true,
+      "email_notifications_glosowania": true,
+      "email_notifications_chat": true,
+      "email_notifications_chat_participated": false
+    }
+  },
+  {
+    "model": "obywatele.citizenactivity",
+    "pk": 1,
+    "fields": {
+      "citizen": 1,
+      "activity_type": "post_created",
+      "description": "Created a new board post",
+      "timestamp": "2026-04-25T12:00:00Z",
+      "points": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 1,
+    "fields": {
+      "kandydat": 2,
+      "obywatel": 1,
+      "rate": 4,
+      "comment": "Helpful community member",
+      "created_at": "2026-04-25T13:00:00Z"
+    }
+  }
+]

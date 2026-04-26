@@ -1,0 +1,1352 @@
+[
+  {
+    "model": "glosowania.votecode",
+    "pk": 1,
+    "fields": {
+      "project": 2,
+      "code": "CODE0001",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 2,
+    "fields": {
+      "project": 3,
+      "code": "CODE0002",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 3,
+    "fields": {
+      "project": 4,
+      "code": "CODE0003",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 4,
+    "fields": {
+      "project": 5,
+      "code": "CODE0004",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 5,
+    "fields": {
+      "project": 6,
+      "code": "CODE0005",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 6,
+    "fields": {
+      "project": 7,
+      "code": "CODE0006",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 7,
+    "fields": {
+      "project": 8,
+      "code": "CODE0007",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 8,
+    "fields": {
+      "project": 9,
+      "code": "CODE0008",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 9,
+    "fields": {
+      "project": 10,
+      "code": "CODE0009",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 10,
+    "fields": {
+      "project": 11,
+      "code": "CODE0010",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 11,
+    "fields": {
+      "project": 12,
+      "code": "CODE0011",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 12,
+    "fields": {
+      "project": 13,
+      "code": "CODE0012",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 13,
+    "fields": {
+      "project": 14,
+      "code": "CODE0013",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 14,
+    "fields": {
+      "project": 15,
+      "code": "CODE0014",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 15,
+    "fields": {
+      "project": 16,
+      "code": "CODE0015",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 16,
+    "fields": {
+      "project": 17,
+      "code": "CODE0016",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 17,
+    "fields": {
+      "project": 18,
+      "code": "CODE0017",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 18,
+    "fields": {
+      "project": 19,
+      "code": "CODE0018",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 19,
+    "fields": {
+      "project": 20,
+      "code": "CODE0019",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 20,
+    "fields": {
+      "project": 21,
+      "code": "CODE0020",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 21,
+    "fields": {
+      "project": 22,
+      "code": "CODE0021",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 22,
+    "fields": {
+      "project": 23,
+      "code": "CODE0022",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 23,
+    "fields": {
+      "project": 24,
+      "code": "CODE0023",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 24,
+    "fields": {
+      "project": 25,
+      "code": "CODE0024",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 25,
+    "fields": {
+      "project": 26,
+      "code": "CODE0025",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 26,
+    "fields": {
+      "project": 27,
+      "code": "CODE0026",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 27,
+    "fields": {
+      "project": 28,
+      "code": "CODE0027",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 28,
+    "fields": {
+      "project": 29,
+      "code": "CODE0028",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 29,
+    "fields": {
+      "project": 30,
+      "code": "CODE0029",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 30,
+    "fields": {
+      "project": 31,
+      "code": "CODE0030",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 31,
+    "fields": {
+      "project": 32,
+      "code": "CODE0031",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 32,
+    "fields": {
+      "project": 33,
+      "code": "CODE0032",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 33,
+    "fields": {
+      "project": 34,
+      "code": "CODE0033",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 34,
+    "fields": {
+      "project": 35,
+      "code": "CODE0034",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 35,
+    "fields": {
+      "project": 36,
+      "code": "CODE0035",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 36,
+    "fields": {
+      "project": 37,
+      "code": "CODE0036",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 37,
+    "fields": {
+      "project": 38,
+      "code": "CODE0037",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 38,
+    "fields": {
+      "project": 39,
+      "code": "CODE0038",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 39,
+    "fields": {
+      "project": 40,
+      "code": "CODE0039",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 40,
+    "fields": {
+      "project": 41,
+      "code": "CODE0040",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 41,
+    "fields": {
+      "project": 42,
+      "code": "CODE0041",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 42,
+    "fields": {
+      "project": 43,
+      "code": "CODE0042",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 43,
+    "fields": {
+      "project": 44,
+      "code": "CODE0043",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 44,
+    "fields": {
+      "project": 45,
+      "code": "CODE0044",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 45,
+    "fields": {
+      "project": 46,
+      "code": "CODE0045",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 46,
+    "fields": {
+      "project": 47,
+      "code": "CODE0046",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 47,
+    "fields": {
+      "project": 48,
+      "code": "CODE0047",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 48,
+    "fields": {
+      "project": 49,
+      "code": "CODE0048",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 49,
+    "fields": {
+      "project": 50,
+      "code": "CODE0049",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 50,
+    "fields": {
+      "project": 51,
+      "code": "CODE0050",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 51,
+    "fields": {
+      "project": 52,
+      "code": "CODE0051",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 52,
+    "fields": {
+      "project": 53,
+      "code": "CODE0052",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 53,
+    "fields": {
+      "project": 54,
+      "code": "CODE0053",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 54,
+    "fields": {
+      "project": 55,
+      "code": "CODE0054",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 55,
+    "fields": {
+      "project": 56,
+      "code": "CODE0055",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 56,
+    "fields": {
+      "project": 57,
+      "code": "CODE0056",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 57,
+    "fields": {
+      "project": 58,
+      "code": "CODE0057",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 58,
+    "fields": {
+      "project": 59,
+      "code": "CODE0058",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 59,
+    "fields": {
+      "project": 60,
+      "code": "CODE0059",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 60,
+    "fields": {
+      "project": 61,
+      "code": "CODE0060",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 61,
+    "fields": {
+      "project": 62,
+      "code": "CODE0061",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 62,
+    "fields": {
+      "project": 63,
+      "code": "CODE0062",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 63,
+    "fields": {
+      "project": 64,
+      "code": "CODE0063",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 64,
+    "fields": {
+      "project": 65,
+      "code": "CODE0064",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 65,
+    "fields": {
+      "project": 66,
+      "code": "CODE0065",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 66,
+    "fields": {
+      "project": 67,
+      "code": "CODE0066",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 67,
+    "fields": {
+      "project": 68,
+      "code": "CODE0067",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 68,
+    "fields": {
+      "project": 69,
+      "code": "CODE0068",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 69,
+    "fields": {
+      "project": 70,
+      "code": "CODE0069",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 70,
+    "fields": {
+      "project": 71,
+      "code": "CODE0070",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 71,
+    "fields": {
+      "project": 72,
+      "code": "CODE0071",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 72,
+    "fields": {
+      "project": 73,
+      "code": "CODE0072",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 73,
+    "fields": {
+      "project": 74,
+      "code": "CODE0073",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 74,
+    "fields": {
+      "project": 75,
+      "code": "CODE0074",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 75,
+    "fields": {
+      "project": 76,
+      "code": "CODE0075",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 76,
+    "fields": {
+      "project": 77,
+      "code": "CODE0076",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 77,
+    "fields": {
+      "project": 78,
+      "code": "CODE0077",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 78,
+    "fields": {
+      "project": 79,
+      "code": "CODE0078",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 79,
+    "fields": {
+      "project": 80,
+      "code": "CODE0079",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 80,
+    "fields": {
+      "project": 81,
+      "code": "CODE0080",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 81,
+    "fields": {
+      "project": 82,
+      "code": "CODE0081",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 82,
+    "fields": {
+      "project": 83,
+      "code": "CODE0082",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 83,
+    "fields": {
+      "project": 84,
+      "code": "CODE0083",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 84,
+    "fields": {
+      "project": 85,
+      "code": "CODE0084",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 85,
+    "fields": {
+      "project": 86,
+      "code": "CODE0085",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 86,
+    "fields": {
+      "project": 87,
+      "code": "CODE0086",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 87,
+    "fields": {
+      "project": 88,
+      "code": "CODE0087",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 88,
+    "fields": {
+      "project": 89,
+      "code": "CODE0088",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 89,
+    "fields": {
+      "project": 90,
+      "code": "CODE0089",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 90,
+    "fields": {
+      "project": 91,
+      "code": "CODE0090",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 91,
+    "fields": {
+      "project": 92,
+      "code": "CODE0091",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 92,
+    "fields": {
+      "project": 93,
+      "code": "CODE0092",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 93,
+    "fields": {
+      "project": 94,
+      "code": "CODE0093",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 94,
+    "fields": {
+      "project": 95,
+      "code": "CODE0094",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 95,
+    "fields": {
+      "project": 96,
+      "code": "CODE0095",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 96,
+    "fields": {
+      "project": 97,
+      "code": "CODE0096",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 97,
+    "fields": {
+      "project": 98,
+      "code": "CODE0097",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 98,
+    "fields": {
+      "project": 99,
+      "code": "CODE0098",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 99,
+    "fields": {
+      "project": 100,
+      "code": "CODE0099",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 100,
+    "fields": {
+      "project": 1,
+      "code": "CODE0100",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 101,
+    "fields": {
+      "project": 2,
+      "code": "CODE0101",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 102,
+    "fields": {
+      "project": 3,
+      "code": "CODE0102",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 103,
+    "fields": {
+      "project": 4,
+      "code": "CODE0103",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 104,
+    "fields": {
+      "project": 5,
+      "code": "CODE0104",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 105,
+    "fields": {
+      "project": 6,
+      "code": "CODE0105",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 106,
+    "fields": {
+      "project": 7,
+      "code": "CODE0106",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 107,
+    "fields": {
+      "project": 8,
+      "code": "CODE0107",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 108,
+    "fields": {
+      "project": 9,
+      "code": "CODE0108",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 109,
+    "fields": {
+      "project": 10,
+      "code": "CODE0109",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 110,
+    "fields": {
+      "project": 11,
+      "code": "CODE0110",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 111,
+    "fields": {
+      "project": 12,
+      "code": "CODE0111",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 112,
+    "fields": {
+      "project": 13,
+      "code": "CODE0112",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 113,
+    "fields": {
+      "project": 14,
+      "code": "CODE0113",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 114,
+    "fields": {
+      "project": 15,
+      "code": "CODE0114",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 115,
+    "fields": {
+      "project": 16,
+      "code": "CODE0115",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 116,
+    "fields": {
+      "project": 17,
+      "code": "CODE0116",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 117,
+    "fields": {
+      "project": 18,
+      "code": "CODE0117",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 118,
+    "fields": {
+      "project": 19,
+      "code": "CODE0118",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 119,
+    "fields": {
+      "project": 20,
+      "code": "CODE0119",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 120,
+    "fields": {
+      "project": 21,
+      "code": "CODE0120",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 121,
+    "fields": {
+      "project": 22,
+      "code": "CODE0121",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 122,
+    "fields": {
+      "project": 23,
+      "code": "CODE0122",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 123,
+    "fields": {
+      "project": 24,
+      "code": "CODE0123",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 124,
+    "fields": {
+      "project": 25,
+      "code": "CODE0124",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 125,
+    "fields": {
+      "project": 26,
+      "code": "CODE0125",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 126,
+    "fields": {
+      "project": 27,
+      "code": "CODE0126",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 127,
+    "fields": {
+      "project": 28,
+      "code": "CODE0127",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 128,
+    "fields": {
+      "project": 29,
+      "code": "CODE0128",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 129,
+    "fields": {
+      "project": 30,
+      "code": "CODE0129",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 130,
+    "fields": {
+      "project": 31,
+      "code": "CODE0130",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 131,
+    "fields": {
+      "project": 32,
+      "code": "CODE0131",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 132,
+    "fields": {
+      "project": 33,
+      "code": "CODE0132",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 133,
+    "fields": {
+      "project": 34,
+      "code": "CODE0133",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 134,
+    "fields": {
+      "project": 35,
+      "code": "CODE0134",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 135,
+    "fields": {
+      "project": 36,
+      "code": "CODE0135",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 136,
+    "fields": {
+      "project": 37,
+      "code": "CODE0136",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 137,
+    "fields": {
+      "project": 38,
+      "code": "CODE0137",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 138,
+    "fields": {
+      "project": 39,
+      "code": "CODE0138",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 139,
+    "fields": {
+      "project": 40,
+      "code": "CODE0139",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 140,
+    "fields": {
+      "project": 41,
+      "code": "CODE0140",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 141,
+    "fields": {
+      "project": 42,
+      "code": "CODE0141",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 142,
+    "fields": {
+      "project": 43,
+      "code": "CODE0142",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 143,
+    "fields": {
+      "project": 44,
+      "code": "CODE0143",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 144,
+    "fields": {
+      "project": 45,
+      "code": "CODE0144",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 145,
+    "fields": {
+      "project": 46,
+      "code": "CODE0145",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 146,
+    "fields": {
+      "project": 47,
+      "code": "CODE0146",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 147,
+    "fields": {
+      "project": 48,
+      "code": "CODE0147",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 148,
+    "fields": {
+      "project": 49,
+      "code": "CODE0148",
+      "vote": true
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 149,
+    "fields": {
+      "project": 50,
+      "code": "CODE0149",
+      "vote": false
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 150,
+    "fields": {
+      "project": 51,
+      "code": "CODE0150",
+      "vote": true
+    }
+  }
+]

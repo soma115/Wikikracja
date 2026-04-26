@@ -1,0 +1,2102 @@
+[
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 1,
+    "fields": {
+      "type": "O",
+      "category": 2,
+      "partner": 2,
+      "amount": 2953.17973392,
+      "note": "Transaction 1",
+      "author": 1,
+      "created_date": "2026-04-24",
+      "payment_received_date": "2026-04-25"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 2,
+    "fields": {
+      "type": "I",
+      "category": 3,
+      "partner": 3,
+      "amount": 9917.9040085,
+      "note": "Transaction 2",
+      "author": 1,
+      "created_date": "2026-04-23",
+      "payment_received_date": "2026-04-24"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 3,
+    "fields": {
+      "type": "O",
+      "category": 4,
+      "partner": 4,
+      "amount": 871.42362265,
+      "note": "Transaction 3",
+      "author": 1,
+      "created_date": "2026-04-22",
+      "payment_received_date": "2026-04-23"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 4,
+    "fields": {
+      "type": "I",
+      "category": 5,
+      "partner": 5,
+      "amount": 6431.97420041,
+      "note": "Transaction 4",
+      "author": 1,
+      "created_date": "2026-04-21",
+      "payment_received_date": "2026-04-22"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 5,
+    "fields": {
+      "type": "O",
+      "category": 6,
+      "partner": 6,
+      "amount": 9284.57036436,
+      "note": "Transaction 5",
+      "author": 1,
+      "created_date": "2026-04-20",
+      "payment_received_date": "2026-04-21"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 6,
+    "fields": {
+      "type": "O",
+      "category": 7,
+      "partner": 7,
+      "amount": 1543.28447051,
+      "note": "Transaction 6",
+      "author": 1,
+      "created_date": "2026-04-19",
+      "payment_received_date": "2026-04-20"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 7,
+    "fields": {
+      "type": "I",
+      "category": 8,
+      "partner": 8,
+      "amount": 3052.85548904,
+      "note": "Transaction 7",
+      "author": 1,
+      "created_date": "2026-04-18",
+      "payment_received_date": "2026-04-19"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 8,
+    "fields": {
+      "type": "I",
+      "category": 9,
+      "partner": 9,
+      "amount": 6185.13426691,
+      "note": "Transaction 8",
+      "author": 1,
+      "created_date": "2026-04-17",
+      "payment_received_date": "2026-04-18"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 9,
+    "fields": {
+      "type": "O",
+      "category": 10,
+      "partner": 10,
+      "amount": 1788.84880317,
+      "note": "Transaction 9",
+      "author": 1,
+      "created_date": "2026-04-16",
+      "payment_received_date": "2026-04-17"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 10,
+    "fields": {
+      "type": "I",
+      "category": 11,
+      "partner": 11,
+      "amount": 9494.39057249,
+      "note": "Transaction 10",
+      "author": 1,
+      "created_date": "2026-04-15",
+      "payment_received_date": "2026-04-16"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 11,
+    "fields": {
+      "type": "O",
+      "category": 12,
+      "partner": 12,
+      "amount": 2843.67236254,
+      "note": "Transaction 11",
+      "author": 1,
+      "created_date": "2026-04-14",
+      "payment_received_date": "2026-04-15"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 12,
+    "fields": {
+      "type": "I",
+      "category": 13,
+      "partner": 13,
+      "amount": 2685.56736588,
+      "note": "Transaction 12",
+      "author": 1,
+      "created_date": "2026-04-13",
+      "payment_received_date": "2026-04-14"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 13,
+    "fields": {
+      "type": "I",
+      "category": 14,
+      "partner": 14,
+      "amount": 6347.17784058,
+      "note": "Transaction 13",
+      "author": 1,
+      "created_date": "2026-04-12",
+      "payment_received_date": "2026-04-13"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 14,
+    "fields": {
+      "type": "I",
+      "category": 15,
+      "partner": 15,
+      "amount": 6648.12637827,
+      "note": "Transaction 14",
+      "author": 1,
+      "created_date": "2026-04-11",
+      "payment_received_date": "2026-04-12"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 15,
+    "fields": {
+      "type": "I",
+      "category": 16,
+      "partner": 16,
+      "amount": 9872.60898081,
+      "note": "Transaction 15",
+      "author": 1,
+      "created_date": "2026-04-10",
+      "payment_received_date": "2026-04-11"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 16,
+    "fields": {
+      "type": "O",
+      "category": 17,
+      "partner": 17,
+      "amount": 3019.57256099,
+      "note": "Transaction 16",
+      "author": 1,
+      "created_date": "2026-04-09",
+      "payment_received_date": "2026-04-10"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 17,
+    "fields": {
+      "type": "I",
+      "category": 18,
+      "partner": 18,
+      "amount": 6956.05284216,
+      "note": "Transaction 17",
+      "author": 1,
+      "created_date": "2026-04-08",
+      "payment_received_date": "2026-04-09"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 18,
+    "fields": {
+      "type": "I",
+      "category": 19,
+      "partner": 19,
+      "amount": 5694.59466738,
+      "note": "Transaction 18",
+      "author": 1,
+      "created_date": "2026-04-07",
+      "payment_received_date": "2026-04-08"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 19,
+    "fields": {
+      "type": "O",
+      "category": 20,
+      "partner": 20,
+      "amount": 3846.28917672,
+      "note": "Transaction 19",
+      "author": 1,
+      "created_date": "2026-04-06",
+      "payment_received_date": "2026-04-07"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 20,
+    "fields": {
+      "type": "O",
+      "category": 21,
+      "partner": 21,
+      "amount": 6397.43888299,
+      "note": "Transaction 20",
+      "author": 1,
+      "created_date": "2026-04-05",
+      "payment_received_date": "2026-04-06"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 21,
+    "fields": {
+      "type": "I",
+      "category": 22,
+      "partner": 22,
+      "amount": 6907.67934031,
+      "note": "Transaction 21",
+      "author": 1,
+      "created_date": "2026-04-04",
+      "payment_received_date": "2026-04-05"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 22,
+    "fields": {
+      "type": "I",
+      "category": 23,
+      "partner": 23,
+      "amount": 4250.0173288,
+      "note": "Transaction 22",
+      "author": 1,
+      "created_date": "2026-04-03",
+      "payment_received_date": "2026-04-04"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 23,
+    "fields": {
+      "type": "O",
+      "category": 24,
+      "partner": 24,
+      "amount": 4876.61806542,
+      "note": "Transaction 23",
+      "author": 1,
+      "created_date": "2026-04-02",
+      "payment_received_date": "2026-04-03"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 24,
+    "fields": {
+      "type": "I",
+      "category": 25,
+      "partner": 25,
+      "amount": 2524.93044137,
+      "note": "Transaction 24",
+      "author": 1,
+      "created_date": "2026-04-01",
+      "payment_received_date": "2026-04-02"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 25,
+    "fields": {
+      "type": "O",
+      "category": 26,
+      "partner": 26,
+      "amount": 8075.07848088,
+      "note": "Transaction 25",
+      "author": 1,
+      "created_date": "2026-03-31",
+      "payment_received_date": "2026-04-01"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 26,
+    "fields": {
+      "type": "O",
+      "category": 27,
+      "partner": 27,
+      "amount": 4308.50232438,
+      "note": "Transaction 26",
+      "author": 1,
+      "created_date": "2026-03-30",
+      "payment_received_date": "2026-03-31"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 27,
+    "fields": {
+      "type": "O",
+      "category": 28,
+      "partner": 28,
+      "amount": 8749.57038371,
+      "note": "Transaction 27",
+      "author": 1,
+      "created_date": "2026-03-29",
+      "payment_received_date": "2026-03-30"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 28,
+    "fields": {
+      "type": "O",
+      "category": 29,
+      "partner": 29,
+      "amount": 425.83183656,
+      "note": "Transaction 28",
+      "author": 1,
+      "created_date": "2026-03-28",
+      "payment_received_date": "2026-03-29"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 29,
+    "fields": {
+      "type": "I",
+      "category": 30,
+      "partner": 30,
+      "amount": 4933.10081776,
+      "note": "Transaction 29",
+      "author": 1,
+      "created_date": "2026-03-27",
+      "payment_received_date": "2026-03-28"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 30,
+    "fields": {
+      "type": "O",
+      "category": 31,
+      "partner": 31,
+      "amount": 8056.19373498,
+      "note": "Transaction 30",
+      "author": 1,
+      "created_date": "2026-03-26",
+      "payment_received_date": "2026-03-27"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 31,
+    "fields": {
+      "type": "I",
+      "category": 32,
+      "partner": 32,
+      "amount": 2101.06892821,
+      "note": "Transaction 31",
+      "author": 1,
+      "created_date": "2026-03-25",
+      "payment_received_date": "2026-03-26"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 32,
+    "fields": {
+      "type": "O",
+      "category": 33,
+      "partner": 33,
+      "amount": 8532.863624,
+      "note": "Transaction 32",
+      "author": 1,
+      "created_date": "2026-03-24",
+      "payment_received_date": "2026-03-25"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 33,
+    "fields": {
+      "type": "I",
+      "category": 34,
+      "partner": 34,
+      "amount": 2429.40008239,
+      "note": "Transaction 33",
+      "author": 1,
+      "created_date": "2026-03-23",
+      "payment_received_date": "2026-03-24"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 34,
+    "fields": {
+      "type": "O",
+      "category": 35,
+      "partner": 35,
+      "amount": 8817.66637981,
+      "note": "Transaction 34",
+      "author": 1,
+      "created_date": "2026-03-22",
+      "payment_received_date": "2026-03-23"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 35,
+    "fields": {
+      "type": "O",
+      "category": 36,
+      "partner": 36,
+      "amount": 2295.72130509,
+      "note": "Transaction 35",
+      "author": 1,
+      "created_date": "2026-03-21",
+      "payment_received_date": "2026-03-22"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 36,
+    "fields": {
+      "type": "I",
+      "category": 37,
+      "partner": 37,
+      "amount": 2689.35449917,
+      "note": "Transaction 36",
+      "author": 1,
+      "created_date": "2026-03-20",
+      "payment_received_date": "2026-03-21"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 37,
+    "fields": {
+      "type": "I",
+      "category": 38,
+      "partner": 38,
+      "amount": 1473.6334745,
+      "note": "Transaction 37",
+      "author": 1,
+      "created_date": "2026-03-19",
+      "payment_received_date": "2026-03-20"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 38,
+    "fields": {
+      "type": "O",
+      "category": 39,
+      "partner": 39,
+      "amount": 1583.63221528,
+      "note": "Transaction 38",
+      "author": 1,
+      "created_date": "2026-03-18",
+      "payment_received_date": "2026-03-19"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 39,
+    "fields": {
+      "type": "O",
+      "category": 40,
+      "partner": 40,
+      "amount": 6598.91747873,
+      "note": "Transaction 39",
+      "author": 1,
+      "created_date": "2026-03-17",
+      "payment_received_date": "2026-03-18"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 40,
+    "fields": {
+      "type": "I",
+      "category": 41,
+      "partner": 41,
+      "amount": 7649.50971473,
+      "note": "Transaction 40",
+      "author": 1,
+      "created_date": "2026-03-16",
+      "payment_received_date": "2026-03-17"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 41,
+    "fields": {
+      "type": "O",
+      "category": 42,
+      "partner": 42,
+      "amount": 2891.61964541,
+      "note": "Transaction 41",
+      "author": 1,
+      "created_date": "2026-03-15",
+      "payment_received_date": "2026-03-16"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 42,
+    "fields": {
+      "type": "I",
+      "category": 43,
+      "partner": 43,
+      "amount": 736.53820251,
+      "note": "Transaction 42",
+      "author": 1,
+      "created_date": "2026-03-14",
+      "payment_received_date": "2026-03-15"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 43,
+    "fields": {
+      "type": "I",
+      "category": 44,
+      "partner": 44,
+      "amount": 2548.7814567,
+      "note": "Transaction 43",
+      "author": 1,
+      "created_date": "2026-03-13",
+      "payment_received_date": "2026-03-14"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 44,
+    "fields": {
+      "type": "O",
+      "category": 45,
+      "partner": 45,
+      "amount": 4318.53588154,
+      "note": "Transaction 44",
+      "author": 1,
+      "created_date": "2026-03-12",
+      "payment_received_date": "2026-03-13"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 45,
+    "fields": {
+      "type": "O",
+      "category": 46,
+      "partner": 46,
+      "amount": 998.28032186,
+      "note": "Transaction 45",
+      "author": 1,
+      "created_date": "2026-03-11",
+      "payment_received_date": "2026-03-12"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 46,
+    "fields": {
+      "type": "I",
+      "category": 47,
+      "partner": 47,
+      "amount": 5384.42613647,
+      "note": "Transaction 46",
+      "author": 1,
+      "created_date": "2026-03-10",
+      "payment_received_date": "2026-03-11"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 47,
+    "fields": {
+      "type": "I",
+      "category": 48,
+      "partner": 48,
+      "amount": 7604.03529649,
+      "note": "Transaction 47",
+      "author": 1,
+      "created_date": "2026-03-09",
+      "payment_received_date": "2026-03-10"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 48,
+    "fields": {
+      "type": "I",
+      "category": 49,
+      "partner": 49,
+      "amount": 3540.55275219,
+      "note": "Transaction 48",
+      "author": 1,
+      "created_date": "2026-03-08",
+      "payment_received_date": "2026-03-09"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 49,
+    "fields": {
+      "type": "I",
+      "category": 50,
+      "partner": 50,
+      "amount": 2781.45026593,
+      "note": "Transaction 49",
+      "author": 1,
+      "created_date": "2026-03-07",
+      "payment_received_date": "2026-03-08"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 50,
+    "fields": {
+      "type": "O",
+      "category": 51,
+      "partner": 51,
+      "amount": 1346.61532774,
+      "note": "Transaction 50",
+      "author": 1,
+      "created_date": "2026-03-06",
+      "payment_received_date": "2026-03-07"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 51,
+    "fields": {
+      "type": "O",
+      "category": 52,
+      "partner": 52,
+      "amount": 940.3759651,
+      "note": "Transaction 51",
+      "author": 1,
+      "created_date": "2026-03-05",
+      "payment_received_date": "2026-03-06"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 52,
+    "fields": {
+      "type": "I",
+      "category": 53,
+      "partner": 53,
+      "amount": 5415.6084397,
+      "note": "Transaction 52",
+      "author": 1,
+      "created_date": "2026-03-04",
+      "payment_received_date": "2026-03-05"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 53,
+    "fields": {
+      "type": "I",
+      "category": 54,
+      "partner": 54,
+      "amount": 7169.39207778,
+      "note": "Transaction 53",
+      "author": 1,
+      "created_date": "2026-03-03",
+      "payment_received_date": "2026-03-04"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 54,
+    "fields": {
+      "type": "O",
+      "category": 55,
+      "partner": 55,
+      "amount": 6491.02507703,
+      "note": "Transaction 54",
+      "author": 1,
+      "created_date": "2026-03-02",
+      "payment_received_date": "2026-03-03"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 55,
+    "fields": {
+      "type": "I",
+      "category": 56,
+      "partner": 56,
+      "amount": 7969.69942551,
+      "note": "Transaction 55",
+      "author": 1,
+      "created_date": "2026-03-01",
+      "payment_received_date": "2026-03-02"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 56,
+    "fields": {
+      "type": "O",
+      "category": 57,
+      "partner": 57,
+      "amount": 4004.75411446,
+      "note": "Transaction 56",
+      "author": 1,
+      "created_date": "2026-02-28",
+      "payment_received_date": "2026-03-01"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 57,
+    "fields": {
+      "type": "O",
+      "category": 58,
+      "partner": 58,
+      "amount": 1549.88423205,
+      "note": "Transaction 57",
+      "author": 1,
+      "created_date": "2026-02-27",
+      "payment_received_date": "2026-02-28"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 58,
+    "fields": {
+      "type": "O",
+      "category": 59,
+      "partner": 59,
+      "amount": 5400.55902235,
+      "note": "Transaction 58",
+      "author": 1,
+      "created_date": "2026-02-26",
+      "payment_received_date": "2026-02-27"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 59,
+    "fields": {
+      "type": "O",
+      "category": 60,
+      "partner": 60,
+      "amount": 4337.46642043,
+      "note": "Transaction 59",
+      "author": 1,
+      "created_date": "2026-02-25",
+      "payment_received_date": "2026-02-26"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 60,
+    "fields": {
+      "type": "I",
+      "category": 61,
+      "partner": 61,
+      "amount": 8536.42845963,
+      "note": "Transaction 60",
+      "author": 1,
+      "created_date": "2026-02-24",
+      "payment_received_date": "2026-02-25"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 61,
+    "fields": {
+      "type": "I",
+      "category": 62,
+      "partner": 62,
+      "amount": 7993.25141906,
+      "note": "Transaction 61",
+      "author": 1,
+      "created_date": "2026-02-23",
+      "payment_received_date": "2026-02-24"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 62,
+    "fields": {
+      "type": "O",
+      "category": 63,
+      "partner": 63,
+      "amount": 6337.86664661,
+      "note": "Transaction 62",
+      "author": 1,
+      "created_date": "2026-02-22",
+      "payment_received_date": "2026-02-23"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 63,
+    "fields": {
+      "type": "O",
+      "category": 64,
+      "partner": 64,
+      "amount": 4683.99721247,
+      "note": "Transaction 63",
+      "author": 1,
+      "created_date": "2026-02-21",
+      "payment_received_date": "2026-02-22"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 64,
+    "fields": {
+      "type": "O",
+      "category": 65,
+      "partner": 65,
+      "amount": 6033.65455571,
+      "note": "Transaction 64",
+      "author": 1,
+      "created_date": "2026-02-20",
+      "payment_received_date": "2026-02-21"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 65,
+    "fields": {
+      "type": "O",
+      "category": 66,
+      "partner": 66,
+      "amount": 1424.15043658,
+      "note": "Transaction 65",
+      "author": 1,
+      "created_date": "2026-02-19",
+      "payment_received_date": "2026-02-20"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 66,
+    "fields": {
+      "type": "O",
+      "category": 67,
+      "partner": 67,
+      "amount": 2312.05384698,
+      "note": "Transaction 66",
+      "author": 1,
+      "created_date": "2026-02-18",
+      "payment_received_date": "2026-02-19"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 67,
+    "fields": {
+      "type": "O",
+      "category": 68,
+      "partner": 68,
+      "amount": 7387.21596755,
+      "note": "Transaction 67",
+      "author": 1,
+      "created_date": "2026-02-17",
+      "payment_received_date": "2026-02-18"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 68,
+    "fields": {
+      "type": "O",
+      "category": 69,
+      "partner": 69,
+      "amount": 1144.93437513,
+      "note": "Transaction 68",
+      "author": 1,
+      "created_date": "2026-02-16",
+      "payment_received_date": "2026-02-17"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 69,
+    "fields": {
+      "type": "I",
+      "category": 70,
+      "partner": 70,
+      "amount": 4571.08451513,
+      "note": "Transaction 69",
+      "author": 1,
+      "created_date": "2026-02-15",
+      "payment_received_date": "2026-02-16"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 70,
+    "fields": {
+      "type": "I",
+      "category": 71,
+      "partner": 71,
+      "amount": 5509.15047258,
+      "note": "Transaction 70",
+      "author": 1,
+      "created_date": "2026-02-14",
+      "payment_received_date": "2026-02-15"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 71,
+    "fields": {
+      "type": "I",
+      "category": 72,
+      "partner": 72,
+      "amount": 3143.61577765,
+      "note": "Transaction 71",
+      "author": 1,
+      "created_date": "2026-02-13",
+      "payment_received_date": "2026-02-14"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 72,
+    "fields": {
+      "type": "I",
+      "category": 73,
+      "partner": 73,
+      "amount": 6123.02479633,
+      "note": "Transaction 72",
+      "author": 1,
+      "created_date": "2026-02-12",
+      "payment_received_date": "2026-02-13"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 73,
+    "fields": {
+      "type": "I",
+      "category": 74,
+      "partner": 74,
+      "amount": 1935.1482166,
+      "note": "Transaction 73",
+      "author": 1,
+      "created_date": "2026-02-11",
+      "payment_received_date": "2026-02-12"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 74,
+    "fields": {
+      "type": "I",
+      "category": 75,
+      "partner": 75,
+      "amount": 9233.71197878,
+      "note": "Transaction 74",
+      "author": 1,
+      "created_date": "2026-02-10",
+      "payment_received_date": "2026-02-11"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 75,
+    "fields": {
+      "type": "O",
+      "category": 76,
+      "partner": 76,
+      "amount": 1205.90117714,
+      "note": "Transaction 75",
+      "author": 1,
+      "created_date": "2026-02-09",
+      "payment_received_date": "2026-02-10"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 76,
+    "fields": {
+      "type": "O",
+      "category": 77,
+      "partner": 77,
+      "amount": 9054.43492909,
+      "note": "Transaction 76",
+      "author": 1,
+      "created_date": "2026-02-08",
+      "payment_received_date": "2026-02-09"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 77,
+    "fields": {
+      "type": "O",
+      "category": 78,
+      "partner": 78,
+      "amount": 8601.68227274,
+      "note": "Transaction 77",
+      "author": 1,
+      "created_date": "2026-02-07",
+      "payment_received_date": "2026-02-08"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 78,
+    "fields": {
+      "type": "O",
+      "category": 79,
+      "partner": 79,
+      "amount": 8746.34813406,
+      "note": "Transaction 78",
+      "author": 1,
+      "created_date": "2026-02-06",
+      "payment_received_date": "2026-02-07"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 79,
+    "fields": {
+      "type": "O",
+      "category": 80,
+      "partner": 80,
+      "amount": 1763.39371391,
+      "note": "Transaction 79",
+      "author": 1,
+      "created_date": "2026-02-05",
+      "payment_received_date": "2026-02-06"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 80,
+    "fields": {
+      "type": "I",
+      "category": 81,
+      "partner": 81,
+      "amount": 170.74405541,
+      "note": "Transaction 80",
+      "author": 1,
+      "created_date": "2026-02-04",
+      "payment_received_date": "2026-02-05"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 81,
+    "fields": {
+      "type": "O",
+      "category": 82,
+      "partner": 82,
+      "amount": 8803.17685851,
+      "note": "Transaction 81",
+      "author": 1,
+      "created_date": "2026-02-03",
+      "payment_received_date": "2026-02-04"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 82,
+    "fields": {
+      "type": "O",
+      "category": 83,
+      "partner": 83,
+      "amount": 2548.019171,
+      "note": "Transaction 82",
+      "author": 1,
+      "created_date": "2026-02-02",
+      "payment_received_date": "2026-02-03"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 83,
+    "fields": {
+      "type": "I",
+      "category": 84,
+      "partner": 84,
+      "amount": 4742.52505602,
+      "note": "Transaction 83",
+      "author": 1,
+      "created_date": "2026-02-01",
+      "payment_received_date": "2026-02-02"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 84,
+    "fields": {
+      "type": "O",
+      "category": 85,
+      "partner": 85,
+      "amount": 5598.38282043,
+      "note": "Transaction 84",
+      "author": 1,
+      "created_date": "2026-01-31",
+      "payment_received_date": "2026-02-01"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 85,
+    "fields": {
+      "type": "I",
+      "category": 86,
+      "partner": 86,
+      "amount": 9465.31324151,
+      "note": "Transaction 85",
+      "author": 1,
+      "created_date": "2026-01-30",
+      "payment_received_date": "2026-01-31"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 86,
+    "fields": {
+      "type": "I",
+      "category": 87,
+      "partner": 87,
+      "amount": 1455.87426571,
+      "note": "Transaction 86",
+      "author": 1,
+      "created_date": "2026-01-29",
+      "payment_received_date": "2026-01-30"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 87,
+    "fields": {
+      "type": "O",
+      "category": 88,
+      "partner": 88,
+      "amount": 50.52161658,
+      "note": "Transaction 87",
+      "author": 1,
+      "created_date": "2026-01-28",
+      "payment_received_date": "2026-01-29"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 88,
+    "fields": {
+      "type": "I",
+      "category": 89,
+      "partner": 89,
+      "amount": 6879.36103812,
+      "note": "Transaction 88",
+      "author": 1,
+      "created_date": "2026-01-27",
+      "payment_received_date": "2026-01-28"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 89,
+    "fields": {
+      "type": "I",
+      "category": 90,
+      "partner": 90,
+      "amount": 6633.56949381,
+      "note": "Transaction 89",
+      "author": 1,
+      "created_date": "2026-01-26",
+      "payment_received_date": "2026-01-27"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 90,
+    "fields": {
+      "type": "O",
+      "category": 91,
+      "partner": 91,
+      "amount": 2900.74086066,
+      "note": "Transaction 90",
+      "author": 1,
+      "created_date": "2026-01-25",
+      "payment_received_date": "2026-01-26"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 91,
+    "fields": {
+      "type": "I",
+      "category": 92,
+      "partner": 92,
+      "amount": 8214.63531639,
+      "note": "Transaction 91",
+      "author": 1,
+      "created_date": "2026-01-24",
+      "payment_received_date": "2026-01-25"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 92,
+    "fields": {
+      "type": "O",
+      "category": 93,
+      "partner": 93,
+      "amount": 3004.24933228,
+      "note": "Transaction 92",
+      "author": 1,
+      "created_date": "2026-01-23",
+      "payment_received_date": "2026-01-24"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 93,
+    "fields": {
+      "type": "I",
+      "category": 94,
+      "partner": 94,
+      "amount": 7390.12814231,
+      "note": "Transaction 93",
+      "author": 1,
+      "created_date": "2026-01-22",
+      "payment_received_date": "2026-01-23"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 94,
+    "fields": {
+      "type": "I",
+      "category": 95,
+      "partner": 95,
+      "amount": 5657.16308897,
+      "note": "Transaction 94",
+      "author": 1,
+      "created_date": "2026-01-21",
+      "payment_received_date": "2026-01-22"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 95,
+    "fields": {
+      "type": "I",
+      "category": 96,
+      "partner": 96,
+      "amount": 357.91090389,
+      "note": "Transaction 95",
+      "author": 1,
+      "created_date": "2026-01-20",
+      "payment_received_date": "2026-01-21"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 96,
+    "fields": {
+      "type": "I",
+      "category": 97,
+      "partner": 97,
+      "amount": 9837.80282597,
+      "note": "Transaction 96",
+      "author": 1,
+      "created_date": "2026-01-19",
+      "payment_received_date": "2026-01-20"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 97,
+    "fields": {
+      "type": "O",
+      "category": 98,
+      "partner": 98,
+      "amount": 2762.43532937,
+      "note": "Transaction 97",
+      "author": 1,
+      "created_date": "2026-01-18",
+      "payment_received_date": "2026-01-19"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 98,
+    "fields": {
+      "type": "O",
+      "category": 99,
+      "partner": 99,
+      "amount": 7851.72750878,
+      "note": "Transaction 98",
+      "author": 1,
+      "created_date": "2026-01-17",
+      "payment_received_date": "2026-01-18"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 99,
+    "fields": {
+      "type": "O",
+      "category": 100,
+      "partner": 100,
+      "amount": 4809.70039274,
+      "note": "Transaction 99",
+      "author": 1,
+      "created_date": "2026-01-16",
+      "payment_received_date": "2026-01-17"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 100,
+    "fields": {
+      "type": "I",
+      "category": 1,
+      "partner": 1,
+      "amount": 587.95944467,
+      "note": "Transaction 100",
+      "author": 1,
+      "created_date": "2026-01-15",
+      "payment_received_date": "2026-01-16"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 101,
+    "fields": {
+      "type": "O",
+      "category": 2,
+      "partner": 2,
+      "amount": 6980.6547693,
+      "note": "Transaction 101",
+      "author": 1,
+      "created_date": "2026-01-14",
+      "payment_received_date": "2026-01-15"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 102,
+    "fields": {
+      "type": "O",
+      "category": 3,
+      "partner": 3,
+      "amount": 1892.29717616,
+      "note": "Transaction 102",
+      "author": 1,
+      "created_date": "2026-01-13",
+      "payment_received_date": "2026-01-14"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 103,
+    "fields": {
+      "type": "O",
+      "category": 4,
+      "partner": 4,
+      "amount": 7329.18924463,
+      "note": "Transaction 103",
+      "author": 1,
+      "created_date": "2026-01-12",
+      "payment_received_date": "2026-01-13"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 104,
+    "fields": {
+      "type": "O",
+      "category": 5,
+      "partner": 5,
+      "amount": 7154.79936707,
+      "note": "Transaction 104",
+      "author": 1,
+      "created_date": "2026-01-11",
+      "payment_received_date": "2026-01-12"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 105,
+    "fields": {
+      "type": "O",
+      "category": 6,
+      "partner": 6,
+      "amount": 1120.67799867,
+      "note": "Transaction 105",
+      "author": 1,
+      "created_date": "2026-01-10",
+      "payment_received_date": "2026-01-11"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 106,
+    "fields": {
+      "type": "I",
+      "category": 7,
+      "partner": 7,
+      "amount": 1152.48379102,
+      "note": "Transaction 106",
+      "author": 1,
+      "created_date": "2026-01-09",
+      "payment_received_date": "2026-01-10"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 107,
+    "fields": {
+      "type": "I",
+      "category": 8,
+      "partner": 8,
+      "amount": 3361.86670489,
+      "note": "Transaction 107",
+      "author": 1,
+      "created_date": "2026-01-08",
+      "payment_received_date": "2026-01-09"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 108,
+    "fields": {
+      "type": "O",
+      "category": 9,
+      "partner": 9,
+      "amount": 9443.85046169,
+      "note": "Transaction 108",
+      "author": 1,
+      "created_date": "2026-01-07",
+      "payment_received_date": "2026-01-08"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 109,
+    "fields": {
+      "type": "O",
+      "category": 10,
+      "partner": 10,
+      "amount": 4502.84817498,
+      "note": "Transaction 109",
+      "author": 1,
+      "created_date": "2026-01-06",
+      "payment_received_date": "2026-01-07"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 110,
+    "fields": {
+      "type": "O",
+      "category": 11,
+      "partner": 11,
+      "amount": 1552.42968203,
+      "note": "Transaction 110",
+      "author": 1,
+      "created_date": "2026-01-05",
+      "payment_received_date": "2026-01-06"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 111,
+    "fields": {
+      "type": "O",
+      "category": 12,
+      "partner": 12,
+      "amount": 5946.73682185,
+      "note": "Transaction 111",
+      "author": 1,
+      "created_date": "2026-01-04",
+      "payment_received_date": "2026-01-05"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 112,
+    "fields": {
+      "type": "I",
+      "category": 13,
+      "partner": 13,
+      "amount": 4480.57314512,
+      "note": "Transaction 112",
+      "author": 1,
+      "created_date": "2026-01-03",
+      "payment_received_date": "2026-01-04"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 113,
+    "fields": {
+      "type": "I",
+      "category": 14,
+      "partner": 14,
+      "amount": 7608.1561095,
+      "note": "Transaction 113",
+      "author": 1,
+      "created_date": "2026-01-02",
+      "payment_received_date": "2026-01-03"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 114,
+    "fields": {
+      "type": "I",
+      "category": 15,
+      "partner": 15,
+      "amount": 402.94621942,
+      "note": "Transaction 114",
+      "author": 1,
+      "created_date": "2026-01-01",
+      "payment_received_date": "2026-01-02"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 115,
+    "fields": {
+      "type": "O",
+      "category": 16,
+      "partner": 16,
+      "amount": 6262.14475571,
+      "note": "Transaction 115",
+      "author": 1,
+      "created_date": "2025-12-31",
+      "payment_received_date": "2026-01-01"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 116,
+    "fields": {
+      "type": "I",
+      "category": 17,
+      "partner": 17,
+      "amount": 8097.4696999,
+      "note": "Transaction 116",
+      "author": 1,
+      "created_date": "2025-12-30",
+      "payment_received_date": "2025-12-31"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 117,
+    "fields": {
+      "type": "O",
+      "category": 18,
+      "partner": 18,
+      "amount": 1660.34861423,
+      "note": "Transaction 117",
+      "author": 1,
+      "created_date": "2025-12-29",
+      "payment_received_date": "2025-12-30"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 118,
+    "fields": {
+      "type": "I",
+      "category": 19,
+      "partner": 19,
+      "amount": 6132.10000185,
+      "note": "Transaction 118",
+      "author": 1,
+      "created_date": "2025-12-28",
+      "payment_received_date": "2025-12-29"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 119,
+    "fields": {
+      "type": "O",
+      "category": 20,
+      "partner": 20,
+      "amount": 7644.36242307,
+      "note": "Transaction 119",
+      "author": 1,
+      "created_date": "2025-12-27",
+      "payment_received_date": "2025-12-28"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 120,
+    "fields": {
+      "type": "I",
+      "category": 21,
+      "partner": 21,
+      "amount": 8461.66158491,
+      "note": "Transaction 120",
+      "author": 1,
+      "created_date": "2025-12-26",
+      "payment_received_date": "2025-12-27"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 121,
+    "fields": {
+      "type": "O",
+      "category": 22,
+      "partner": 22,
+      "amount": 148.65683689,
+      "note": "Transaction 121",
+      "author": 1,
+      "created_date": "2025-12-25",
+      "payment_received_date": "2025-12-26"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 122,
+    "fields": {
+      "type": "O",
+      "category": 23,
+      "partner": 23,
+      "amount": 1981.10647907,
+      "note": "Transaction 122",
+      "author": 1,
+      "created_date": "2025-12-24",
+      "payment_received_date": "2025-12-25"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 123,
+    "fields": {
+      "type": "I",
+      "category": 24,
+      "partner": 24,
+      "amount": 5546.42248012,
+      "note": "Transaction 123",
+      "author": 1,
+      "created_date": "2025-12-23",
+      "payment_received_date": "2025-12-24"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 124,
+    "fields": {
+      "type": "O",
+      "category": 25,
+      "partner": 25,
+      "amount": 5189.49890727,
+      "note": "Transaction 124",
+      "author": 1,
+      "created_date": "2025-12-22",
+      "payment_received_date": "2025-12-23"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 125,
+    "fields": {
+      "type": "I",
+      "category": 26,
+      "partner": 26,
+      "amount": 5725.11310135,
+      "note": "Transaction 125",
+      "author": 1,
+      "created_date": "2025-12-21",
+      "payment_received_date": "2025-12-22"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 126,
+    "fields": {
+      "type": "I",
+      "category": 27,
+      "partner": 27,
+      "amount": 3064.36700837,
+      "note": "Transaction 126",
+      "author": 1,
+      "created_date": "2025-12-20",
+      "payment_received_date": "2025-12-21"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 127,
+    "fields": {
+      "type": "O",
+      "category": 28,
+      "partner": 28,
+      "amount": 4199.87966608,
+      "note": "Transaction 127",
+      "author": 1,
+      "created_date": "2025-12-19",
+      "payment_received_date": "2025-12-20"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 128,
+    "fields": {
+      "type": "O",
+      "category": 29,
+      "partner": 29,
+      "amount": 2378.85609551,
+      "note": "Transaction 128",
+      "author": 1,
+      "created_date": "2025-12-18",
+      "payment_received_date": "2025-12-19"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 129,
+    "fields": {
+      "type": "O",
+      "category": 30,
+      "partner": 30,
+      "amount": 8554.20401101,
+      "note": "Transaction 129",
+      "author": 1,
+      "created_date": "2025-12-17",
+      "payment_received_date": "2025-12-18"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 130,
+    "fields": {
+      "type": "I",
+      "category": 31,
+      "partner": 31,
+      "amount": 5160.83296491,
+      "note": "Transaction 130",
+      "author": 1,
+      "created_date": "2025-12-16",
+      "payment_received_date": "2025-12-17"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 131,
+    "fields": {
+      "type": "O",
+      "category": 32,
+      "partner": 32,
+      "amount": 8149.4197011,
+      "note": "Transaction 131",
+      "author": 1,
+      "created_date": "2025-12-15",
+      "payment_received_date": "2025-12-16"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 132,
+    "fields": {
+      "type": "I",
+      "category": 33,
+      "partner": 33,
+      "amount": 4025.42423638,
+      "note": "Transaction 132",
+      "author": 1,
+      "created_date": "2025-12-14",
+      "payment_received_date": "2025-12-15"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 133,
+    "fields": {
+      "type": "O",
+      "category": 34,
+      "partner": 34,
+      "amount": 9281.07672102,
+      "note": "Transaction 133",
+      "author": 1,
+      "created_date": "2025-12-13",
+      "payment_received_date": "2025-12-14"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 134,
+    "fields": {
+      "type": "O",
+      "category": 35,
+      "partner": 35,
+      "amount": 3366.86343744,
+      "note": "Transaction 134",
+      "author": 1,
+      "created_date": "2025-12-12",
+      "payment_received_date": "2025-12-13"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 135,
+    "fields": {
+      "type": "I",
+      "category": 36,
+      "partner": 36,
+      "amount": 2657.93417946,
+      "note": "Transaction 135",
+      "author": 1,
+      "created_date": "2025-12-11",
+      "payment_received_date": "2025-12-12"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 136,
+    "fields": {
+      "type": "O",
+      "category": 37,
+      "partner": 37,
+      "amount": 3316.05291471,
+      "note": "Transaction 136",
+      "author": 1,
+      "created_date": "2025-12-10",
+      "payment_received_date": "2025-12-11"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 137,
+    "fields": {
+      "type": "I",
+      "category": 38,
+      "partner": 38,
+      "amount": 7695.97344748,
+      "note": "Transaction 137",
+      "author": 1,
+      "created_date": "2025-12-09",
+      "payment_received_date": "2025-12-10"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 138,
+    "fields": {
+      "type": "I",
+      "category": 39,
+      "partner": 39,
+      "amount": 1840.36031116,
+      "note": "Transaction 138",
+      "author": 1,
+      "created_date": "2025-12-08",
+      "payment_received_date": "2025-12-09"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 139,
+    "fields": {
+      "type": "O",
+      "category": 40,
+      "partner": 40,
+      "amount": 2839.47664751,
+      "note": "Transaction 139",
+      "author": 1,
+      "created_date": "2025-12-07",
+      "payment_received_date": "2025-12-08"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 140,
+    "fields": {
+      "type": "O",
+      "category": 41,
+      "partner": 41,
+      "amount": 9024.00498413,
+      "note": "Transaction 140",
+      "author": 1,
+      "created_date": "2025-12-06",
+      "payment_received_date": "2025-12-07"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 141,
+    "fields": {
+      "type": "O",
+      "category": 42,
+      "partner": 42,
+      "amount": 3184.64332905,
+      "note": "Transaction 141",
+      "author": 1,
+      "created_date": "2025-12-05",
+      "payment_received_date": "2025-12-06"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 142,
+    "fields": {
+      "type": "I",
+      "category": 43,
+      "partner": 43,
+      "amount": 5596.06646379,
+      "note": "Transaction 142",
+      "author": 1,
+      "created_date": "2025-12-04",
+      "payment_received_date": "2025-12-05"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 143,
+    "fields": {
+      "type": "O",
+      "category": 44,
+      "partner": 44,
+      "amount": 7184.52863244,
+      "note": "Transaction 143",
+      "author": 1,
+      "created_date": "2025-12-03",
+      "payment_received_date": "2025-12-04"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 144,
+    "fields": {
+      "type": "I",
+      "category": 45,
+      "partner": 45,
+      "amount": 9109.38008211,
+      "note": "Transaction 144",
+      "author": 1,
+      "created_date": "2025-12-02",
+      "payment_received_date": "2025-12-03"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 145,
+    "fields": {
+      "type": "O",
+      "category": 46,
+      "partner": 46,
+      "amount": 3774.72837751,
+      "note": "Transaction 145",
+      "author": 1,
+      "created_date": "2025-12-01",
+      "payment_received_date": "2025-12-02"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 146,
+    "fields": {
+      "type": "O",
+      "category": 47,
+      "partner": 47,
+      "amount": 6968.47658303,
+      "note": "Transaction 146",
+      "author": 1,
+      "created_date": "2025-11-30",
+      "payment_received_date": "2025-12-01"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 147,
+    "fields": {
+      "type": "I",
+      "category": 48,
+      "partner": 48,
+      "amount": 5028.03947087,
+      "note": "Transaction 147",
+      "author": 1,
+      "created_date": "2025-11-29",
+      "payment_received_date": "2025-11-30"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 148,
+    "fields": {
+      "type": "O",
+      "category": 49,
+      "partner": 49,
+      "amount": 7096.14407182,
+      "note": "Transaction 148",
+      "author": 1,
+      "created_date": "2025-11-28",
+      "payment_received_date": "2025-11-29"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 149,
+    "fields": {
+      "type": "I",
+      "category": 50,
+      "partner": 50,
+      "amount": 8173.52444763,
+      "note": "Transaction 149",
+      "author": 1,
+      "created_date": "2025-11-27",
+      "payment_received_date": "2025-11-28"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 150,
+    "fields": {
+      "type": "I",
+      "category": 51,
+      "partner": 51,
+      "amount": 8060.55622751,
+      "note": "Transaction 150",
+      "author": 1,
+      "created_date": "2025-11-26",
+      "payment_received_date": "2025-11-27"
+    }
+  }
+]

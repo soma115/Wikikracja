@@ -1,0 +1,1602 @@
+[
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 1,
+    "fields": {
+      "projekt": 2,
+      "ktory_uzytkownik_juz_zaglosowal": 2
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 2,
+    "fields": {
+      "projekt": 3,
+      "ktory_uzytkownik_juz_zaglosowal": 3
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 3,
+    "fields": {
+      "projekt": 4,
+      "ktory_uzytkownik_juz_zaglosowal": 4
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 4,
+    "fields": {
+      "projekt": 5,
+      "ktory_uzytkownik_juz_zaglosowal": 5
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 5,
+    "fields": {
+      "projekt": 6,
+      "ktory_uzytkownik_juz_zaglosowal": 6
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 6,
+    "fields": {
+      "projekt": 7,
+      "ktory_uzytkownik_juz_zaglosowal": 7
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 7,
+    "fields": {
+      "projekt": 8,
+      "ktory_uzytkownik_juz_zaglosowal": 8
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 8,
+    "fields": {
+      "projekt": 9,
+      "ktory_uzytkownik_juz_zaglosowal": 9
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 9,
+    "fields": {
+      "projekt": 10,
+      "ktory_uzytkownik_juz_zaglosowal": 10
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 10,
+    "fields": {
+      "projekt": 11,
+      "ktory_uzytkownik_juz_zaglosowal": 11
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 11,
+    "fields": {
+      "projekt": 12,
+      "ktory_uzytkownik_juz_zaglosowal": 12
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 12,
+    "fields": {
+      "projekt": 13,
+      "ktory_uzytkownik_juz_zaglosowal": 13
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 13,
+    "fields": {
+      "projekt": 14,
+      "ktory_uzytkownik_juz_zaglosowal": 14
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 14,
+    "fields": {
+      "projekt": 15,
+      "ktory_uzytkownik_juz_zaglosowal": 15
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 15,
+    "fields": {
+      "projekt": 16,
+      "ktory_uzytkownik_juz_zaglosowal": 16
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 16,
+    "fields": {
+      "projekt": 17,
+      "ktory_uzytkownik_juz_zaglosowal": 17
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 17,
+    "fields": {
+      "projekt": 18,
+      "ktory_uzytkownik_juz_zaglosowal": 18
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 18,
+    "fields": {
+      "projekt": 19,
+      "ktory_uzytkownik_juz_zaglosowal": 19
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 19,
+    "fields": {
+      "projekt": 20,
+      "ktory_uzytkownik_juz_zaglosowal": 20
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 20,
+    "fields": {
+      "projekt": 21,
+      "ktory_uzytkownik_juz_zaglosowal": 1
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 21,
+    "fields": {
+      "projekt": 22,
+      "ktory_uzytkownik_juz_zaglosowal": 2
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 22,
+    "fields": {
+      "projekt": 23,
+      "ktory_uzytkownik_juz_zaglosowal": 3
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 23,
+    "fields": {
+      "projekt": 24,
+      "ktory_uzytkownik_juz_zaglosowal": 4
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 24,
+    "fields": {
+      "projekt": 25,
+      "ktory_uzytkownik_juz_zaglosowal": 5
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 25,
+    "fields": {
+      "projekt": 26,
+      "ktory_uzytkownik_juz_zaglosowal": 6
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 26,
+    "fields": {
+      "projekt": 27,
+      "ktory_uzytkownik_juz_zaglosowal": 7
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 27,
+    "fields": {
+      "projekt": 28,
+      "ktory_uzytkownik_juz_zaglosowal": 8
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 28,
+    "fields": {
+      "projekt": 29,
+      "ktory_uzytkownik_juz_zaglosowal": 9
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 29,
+    "fields": {
+      "projekt": 30,
+      "ktory_uzytkownik_juz_zaglosowal": 10
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 30,
+    "fields": {
+      "projekt": 31,
+      "ktory_uzytkownik_juz_zaglosowal": 11
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 31,
+    "fields": {
+      "projekt": 32,
+      "ktory_uzytkownik_juz_zaglosowal": 12
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 32,
+    "fields": {
+      "projekt": 33,
+      "ktory_uzytkownik_juz_zaglosowal": 13
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 33,
+    "fields": {
+      "projekt": 34,
+      "ktory_uzytkownik_juz_zaglosowal": 14
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 34,
+    "fields": {
+      "projekt": 35,
+      "ktory_uzytkownik_juz_zaglosowal": 15
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 35,
+    "fields": {
+      "projekt": 36,
+      "ktory_uzytkownik_juz_zaglosowal": 16
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 36,
+    "fields": {
+      "projekt": 37,
+      "ktory_uzytkownik_juz_zaglosowal": 17
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 37,
+    "fields": {
+      "projekt": 38,
+      "ktory_uzytkownik_juz_zaglosowal": 18
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 38,
+    "fields": {
+      "projekt": 39,
+      "ktory_uzytkownik_juz_zaglosowal": 19
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 39,
+    "fields": {
+      "projekt": 40,
+      "ktory_uzytkownik_juz_zaglosowal": 20
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 40,
+    "fields": {
+      "projekt": 41,
+      "ktory_uzytkownik_juz_zaglosowal": 1
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 41,
+    "fields": {
+      "projekt": 42,
+      "ktory_uzytkownik_juz_zaglosowal": 2
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 42,
+    "fields": {
+      "projekt": 43,
+      "ktory_uzytkownik_juz_zaglosowal": 3
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 43,
+    "fields": {
+      "projekt": 44,
+      "ktory_uzytkownik_juz_zaglosowal": 4
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 44,
+    "fields": {
+      "projekt": 45,
+      "ktory_uzytkownik_juz_zaglosowal": 5
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 45,
+    "fields": {
+      "projekt": 46,
+      "ktory_uzytkownik_juz_zaglosowal": 6
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 46,
+    "fields": {
+      "projekt": 47,
+      "ktory_uzytkownik_juz_zaglosowal": 7
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 47,
+    "fields": {
+      "projekt": 48,
+      "ktory_uzytkownik_juz_zaglosowal": 8
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 48,
+    "fields": {
+      "projekt": 49,
+      "ktory_uzytkownik_juz_zaglosowal": 9
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 49,
+    "fields": {
+      "projekt": 50,
+      "ktory_uzytkownik_juz_zaglosowal": 10
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 50,
+    "fields": {
+      "projekt": 51,
+      "ktory_uzytkownik_juz_zaglosowal": 11
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 51,
+    "fields": {
+      "projekt": 52,
+      "ktory_uzytkownik_juz_zaglosowal": 12
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 52,
+    "fields": {
+      "projekt": 53,
+      "ktory_uzytkownik_juz_zaglosowal": 13
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 53,
+    "fields": {
+      "projekt": 54,
+      "ktory_uzytkownik_juz_zaglosowal": 14
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 54,
+    "fields": {
+      "projekt": 55,
+      "ktory_uzytkownik_juz_zaglosowal": 15
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 55,
+    "fields": {
+      "projekt": 56,
+      "ktory_uzytkownik_juz_zaglosowal": 16
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 56,
+    "fields": {
+      "projekt": 57,
+      "ktory_uzytkownik_juz_zaglosowal": 17
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 57,
+    "fields": {
+      "projekt": 58,
+      "ktory_uzytkownik_juz_zaglosowal": 18
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 58,
+    "fields": {
+      "projekt": 59,
+      "ktory_uzytkownik_juz_zaglosowal": 19
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 59,
+    "fields": {
+      "projekt": 60,
+      "ktory_uzytkownik_juz_zaglosowal": 20
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 60,
+    "fields": {
+      "projekt": 61,
+      "ktory_uzytkownik_juz_zaglosowal": 1
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 61,
+    "fields": {
+      "projekt": 62,
+      "ktory_uzytkownik_juz_zaglosowal": 2
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 62,
+    "fields": {
+      "projekt": 63,
+      "ktory_uzytkownik_juz_zaglosowal": 3
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 63,
+    "fields": {
+      "projekt": 64,
+      "ktory_uzytkownik_juz_zaglosowal": 4
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 64,
+    "fields": {
+      "projekt": 65,
+      "ktory_uzytkownik_juz_zaglosowal": 5
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 65,
+    "fields": {
+      "projekt": 66,
+      "ktory_uzytkownik_juz_zaglosowal": 6
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 66,
+    "fields": {
+      "projekt": 67,
+      "ktory_uzytkownik_juz_zaglosowal": 7
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 67,
+    "fields": {
+      "projekt": 68,
+      "ktory_uzytkownik_juz_zaglosowal": 8
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 68,
+    "fields": {
+      "projekt": 69,
+      "ktory_uzytkownik_juz_zaglosowal": 9
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 69,
+    "fields": {
+      "projekt": 70,
+      "ktory_uzytkownik_juz_zaglosowal": 10
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 70,
+    "fields": {
+      "projekt": 71,
+      "ktory_uzytkownik_juz_zaglosowal": 11
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 71,
+    "fields": {
+      "projekt": 72,
+      "ktory_uzytkownik_juz_zaglosowal": 12
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 72,
+    "fields": {
+      "projekt": 73,
+      "ktory_uzytkownik_juz_zaglosowal": 13
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 73,
+    "fields": {
+      "projekt": 74,
+      "ktory_uzytkownik_juz_zaglosowal": 14
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 74,
+    "fields": {
+      "projekt": 75,
+      "ktory_uzytkownik_juz_zaglosowal": 15
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 75,
+    "fields": {
+      "projekt": 76,
+      "ktory_uzytkownik_juz_zaglosowal": 16
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 76,
+    "fields": {
+      "projekt": 77,
+      "ktory_uzytkownik_juz_zaglosowal": 17
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 77,
+    "fields": {
+      "projekt": 78,
+      "ktory_uzytkownik_juz_zaglosowal": 18
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 78,
+    "fields": {
+      "projekt": 79,
+      "ktory_uzytkownik_juz_zaglosowal": 19
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 79,
+    "fields": {
+      "projekt": 80,
+      "ktory_uzytkownik_juz_zaglosowal": 20
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 80,
+    "fields": {
+      "projekt": 81,
+      "ktory_uzytkownik_juz_zaglosowal": 1
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 81,
+    "fields": {
+      "projekt": 82,
+      "ktory_uzytkownik_juz_zaglosowal": 2
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 82,
+    "fields": {
+      "projekt": 83,
+      "ktory_uzytkownik_juz_zaglosowal": 3
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 83,
+    "fields": {
+      "projekt": 84,
+      "ktory_uzytkownik_juz_zaglosowal": 4
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 84,
+    "fields": {
+      "projekt": 85,
+      "ktory_uzytkownik_juz_zaglosowal": 5
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 85,
+    "fields": {
+      "projekt": 86,
+      "ktory_uzytkownik_juz_zaglosowal": 6
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 86,
+    "fields": {
+      "projekt": 87,
+      "ktory_uzytkownik_juz_zaglosowal": 7
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 87,
+    "fields": {
+      "projekt": 88,
+      "ktory_uzytkownik_juz_zaglosowal": 8
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 88,
+    "fields": {
+      "projekt": 89,
+      "ktory_uzytkownik_juz_zaglosowal": 9
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 89,
+    "fields": {
+      "projekt": 90,
+      "ktory_uzytkownik_juz_zaglosowal": 10
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 90,
+    "fields": {
+      "projekt": 91,
+      "ktory_uzytkownik_juz_zaglosowal": 11
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 91,
+    "fields": {
+      "projekt": 92,
+      "ktory_uzytkownik_juz_zaglosowal": 12
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 92,
+    "fields": {
+      "projekt": 93,
+      "ktory_uzytkownik_juz_zaglosowal": 13
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 93,
+    "fields": {
+      "projekt": 94,
+      "ktory_uzytkownik_juz_zaglosowal": 14
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 94,
+    "fields": {
+      "projekt": 95,
+      "ktory_uzytkownik_juz_zaglosowal": 15
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 95,
+    "fields": {
+      "projekt": 96,
+      "ktory_uzytkownik_juz_zaglosowal": 16
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 96,
+    "fields": {
+      "projekt": 97,
+      "ktory_uzytkownik_juz_zaglosowal": 17
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 97,
+    "fields": {
+      "projekt": 98,
+      "ktory_uzytkownik_juz_zaglosowal": 18
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 98,
+    "fields": {
+      "projekt": 99,
+      "ktory_uzytkownik_juz_zaglosowal": 19
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 99,
+    "fields": {
+      "projekt": 100,
+      "ktory_uzytkownik_juz_zaglosowal": 20
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 100,
+    "fields": {
+      "projekt": 1,
+      "ktory_uzytkownik_juz_zaglosowal": 1
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 101,
+    "fields": {
+      "projekt": 2,
+      "ktory_uzytkownik_juz_zaglosowal": 2
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 102,
+    "fields": {
+      "projekt": 3,
+      "ktory_uzytkownik_juz_zaglosowal": 3
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 103,
+    "fields": {
+      "projekt": 4,
+      "ktory_uzytkownik_juz_zaglosowal": 4
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 104,
+    "fields": {
+      "projekt": 5,
+      "ktory_uzytkownik_juz_zaglosowal": 5
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 105,
+    "fields": {
+      "projekt": 6,
+      "ktory_uzytkownik_juz_zaglosowal": 6
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 106,
+    "fields": {
+      "projekt": 7,
+      "ktory_uzytkownik_juz_zaglosowal": 7
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 107,
+    "fields": {
+      "projekt": 8,
+      "ktory_uzytkownik_juz_zaglosowal": 8
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 108,
+    "fields": {
+      "projekt": 9,
+      "ktory_uzytkownik_juz_zaglosowal": 9
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 109,
+    "fields": {
+      "projekt": 10,
+      "ktory_uzytkownik_juz_zaglosowal": 10
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 110,
+    "fields": {
+      "projekt": 11,
+      "ktory_uzytkownik_juz_zaglosowal": 11
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 111,
+    "fields": {
+      "projekt": 12,
+      "ktory_uzytkownik_juz_zaglosowal": 12
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 112,
+    "fields": {
+      "projekt": 13,
+      "ktory_uzytkownik_juz_zaglosowal": 13
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 113,
+    "fields": {
+      "projekt": 14,
+      "ktory_uzytkownik_juz_zaglosowal": 14
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 114,
+    "fields": {
+      "projekt": 15,
+      "ktory_uzytkownik_juz_zaglosowal": 15
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 115,
+    "fields": {
+      "projekt": 16,
+      "ktory_uzytkownik_juz_zaglosowal": 16
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 116,
+    "fields": {
+      "projekt": 17,
+      "ktory_uzytkownik_juz_zaglosowal": 17
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 117,
+    "fields": {
+      "projekt": 18,
+      "ktory_uzytkownik_juz_zaglosowal": 18
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 118,
+    "fields": {
+      "projekt": 19,
+      "ktory_uzytkownik_juz_zaglosowal": 19
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 119,
+    "fields": {
+      "projekt": 20,
+      "ktory_uzytkownik_juz_zaglosowal": 20
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 120,
+    "fields": {
+      "projekt": 21,
+      "ktory_uzytkownik_juz_zaglosowal": 1
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 121,
+    "fields": {
+      "projekt": 22,
+      "ktory_uzytkownik_juz_zaglosowal": 2
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 122,
+    "fields": {
+      "projekt": 23,
+      "ktory_uzytkownik_juz_zaglosowal": 3
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 123,
+    "fields": {
+      "projekt": 24,
+      "ktory_uzytkownik_juz_zaglosowal": 4
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 124,
+    "fields": {
+      "projekt": 25,
+      "ktory_uzytkownik_juz_zaglosowal": 5
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 125,
+    "fields": {
+      "projekt": 26,
+      "ktory_uzytkownik_juz_zaglosowal": 6
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 126,
+    "fields": {
+      "projekt": 27,
+      "ktory_uzytkownik_juz_zaglosowal": 7
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 127,
+    "fields": {
+      "projekt": 28,
+      "ktory_uzytkownik_juz_zaglosowal": 8
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 128,
+    "fields": {
+      "projekt": 29,
+      "ktory_uzytkownik_juz_zaglosowal": 9
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 129,
+    "fields": {
+      "projekt": 30,
+      "ktory_uzytkownik_juz_zaglosowal": 10
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 130,
+    "fields": {
+      "projekt": 31,
+      "ktory_uzytkownik_juz_zaglosowal": 11
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 131,
+    "fields": {
+      "projekt": 32,
+      "ktory_uzytkownik_juz_zaglosowal": 12
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 132,
+    "fields": {
+      "projekt": 33,
+      "ktory_uzytkownik_juz_zaglosowal": 13
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 133,
+    "fields": {
+      "projekt": 34,
+      "ktory_uzytkownik_juz_zaglosowal": 14
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 134,
+    "fields": {
+      "projekt": 35,
+      "ktory_uzytkownik_juz_zaglosowal": 15
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 135,
+    "fields": {
+      "projekt": 36,
+      "ktory_uzytkownik_juz_zaglosowal": 16
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 136,
+    "fields": {
+      "projekt": 37,
+      "ktory_uzytkownik_juz_zaglosowal": 17
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 137,
+    "fields": {
+      "projekt": 38,
+      "ktory_uzytkownik_juz_zaglosowal": 18
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 138,
+    "fields": {
+      "projekt": 39,
+      "ktory_uzytkownik_juz_zaglosowal": 19
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 139,
+    "fields": {
+      "projekt": 40,
+      "ktory_uzytkownik_juz_zaglosowal": 20
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 140,
+    "fields": {
+      "projekt": 41,
+      "ktory_uzytkownik_juz_zaglosowal": 1
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 141,
+    "fields": {
+      "projekt": 42,
+      "ktory_uzytkownik_juz_zaglosowal": 2
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 142,
+    "fields": {
+      "projekt": 43,
+      "ktory_uzytkownik_juz_zaglosowal": 3
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 143,
+    "fields": {
+      "projekt": 44,
+      "ktory_uzytkownik_juz_zaglosowal": 4
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 144,
+    "fields": {
+      "projekt": 45,
+      "ktory_uzytkownik_juz_zaglosowal": 5
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 145,
+    "fields": {
+      "projekt": 46,
+      "ktory_uzytkownik_juz_zaglosowal": 6
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 146,
+    "fields": {
+      "projekt": 47,
+      "ktory_uzytkownik_juz_zaglosowal": 7
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 147,
+    "fields": {
+      "projekt": 48,
+      "ktory_uzytkownik_juz_zaglosowal": 8
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 148,
+    "fields": {
+      "projekt": 49,
+      "ktory_uzytkownik_juz_zaglosowal": 9
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 149,
+    "fields": {
+      "projekt": 50,
+      "ktory_uzytkownik_juz_zaglosowal": 10
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 150,
+    "fields": {
+      "projekt": 51,
+      "ktory_uzytkownik_juz_zaglosowal": 11
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 151,
+    "fields": {
+      "projekt": 52,
+      "ktory_uzytkownik_juz_zaglosowal": 12
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 152,
+    "fields": {
+      "projekt": 53,
+      "ktory_uzytkownik_juz_zaglosowal": 13
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 153,
+    "fields": {
+      "projekt": 54,
+      "ktory_uzytkownik_juz_zaglosowal": 14
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 154,
+    "fields": {
+      "projekt": 55,
+      "ktory_uzytkownik_juz_zaglosowal": 15
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 155,
+    "fields": {
+      "projekt": 56,
+      "ktory_uzytkownik_juz_zaglosowal": 16
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 156,
+    "fields": {
+      "projekt": 57,
+      "ktory_uzytkownik_juz_zaglosowal": 17
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 157,
+    "fields": {
+      "projekt": 58,
+      "ktory_uzytkownik_juz_zaglosowal": 18
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 158,
+    "fields": {
+      "projekt": 59,
+      "ktory_uzytkownik_juz_zaglosowal": 19
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 159,
+    "fields": {
+      "projekt": 60,
+      "ktory_uzytkownik_juz_zaglosowal": 20
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 160,
+    "fields": {
+      "projekt": 61,
+      "ktory_uzytkownik_juz_zaglosowal": 1
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 161,
+    "fields": {
+      "projekt": 62,
+      "ktory_uzytkownik_juz_zaglosowal": 2
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 162,
+    "fields": {
+      "projekt": 63,
+      "ktory_uzytkownik_juz_zaglosowal": 3
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 163,
+    "fields": {
+      "projekt": 64,
+      "ktory_uzytkownik_juz_zaglosowal": 4
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 164,
+    "fields": {
+      "projekt": 65,
+      "ktory_uzytkownik_juz_zaglosowal": 5
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 165,
+    "fields": {
+      "projekt": 66,
+      "ktory_uzytkownik_juz_zaglosowal": 6
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 166,
+    "fields": {
+      "projekt": 67,
+      "ktory_uzytkownik_juz_zaglosowal": 7
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 167,
+    "fields": {
+      "projekt": 68,
+      "ktory_uzytkownik_juz_zaglosowal": 8
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 168,
+    "fields": {
+      "projekt": 69,
+      "ktory_uzytkownik_juz_zaglosowal": 9
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 169,
+    "fields": {
+      "projekt": 70,
+      "ktory_uzytkownik_juz_zaglosowal": 10
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 170,
+    "fields": {
+      "projekt": 71,
+      "ktory_uzytkownik_juz_zaglosowal": 11
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 171,
+    "fields": {
+      "projekt": 72,
+      "ktory_uzytkownik_juz_zaglosowal": 12
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 172,
+    "fields": {
+      "projekt": 73,
+      "ktory_uzytkownik_juz_zaglosowal": 13
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 173,
+    "fields": {
+      "projekt": 74,
+      "ktory_uzytkownik_juz_zaglosowal": 14
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 174,
+    "fields": {
+      "projekt": 75,
+      "ktory_uzytkownik_juz_zaglosowal": 15
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 175,
+    "fields": {
+      "projekt": 76,
+      "ktory_uzytkownik_juz_zaglosowal": 16
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 176,
+    "fields": {
+      "projekt": 77,
+      "ktory_uzytkownik_juz_zaglosowal": 17
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 177,
+    "fields": {
+      "projekt": 78,
+      "ktory_uzytkownik_juz_zaglosowal": 18
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 178,
+    "fields": {
+      "projekt": 79,
+      "ktory_uzytkownik_juz_zaglosowal": 19
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 179,
+    "fields": {
+      "projekt": 80,
+      "ktory_uzytkownik_juz_zaglosowal": 20
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 180,
+    "fields": {
+      "projekt": 81,
+      "ktory_uzytkownik_juz_zaglosowal": 1
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 181,
+    "fields": {
+      "projekt": 82,
+      "ktory_uzytkownik_juz_zaglosowal": 2
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 182,
+    "fields": {
+      "projekt": 83,
+      "ktory_uzytkownik_juz_zaglosowal": 3
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 183,
+    "fields": {
+      "projekt": 84,
+      "ktory_uzytkownik_juz_zaglosowal": 4
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 184,
+    "fields": {
+      "projekt": 85,
+      "ktory_uzytkownik_juz_zaglosowal": 5
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 185,
+    "fields": {
+      "projekt": 86,
+      "ktory_uzytkownik_juz_zaglosowal": 6
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 186,
+    "fields": {
+      "projekt": 87,
+      "ktory_uzytkownik_juz_zaglosowal": 7
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 187,
+    "fields": {
+      "projekt": 88,
+      "ktory_uzytkownik_juz_zaglosowal": 8
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 188,
+    "fields": {
+      "projekt": 89,
+      "ktory_uzytkownik_juz_zaglosowal": 9
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 189,
+    "fields": {
+      "projekt": 90,
+      "ktory_uzytkownik_juz_zaglosowal": 10
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 190,
+    "fields": {
+      "projekt": 91,
+      "ktory_uzytkownik_juz_zaglosowal": 11
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 191,
+    "fields": {
+      "projekt": 92,
+      "ktory_uzytkownik_juz_zaglosowal": 12
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 192,
+    "fields": {
+      "projekt": 93,
+      "ktory_uzytkownik_juz_zaglosowal": 13
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 193,
+    "fields": {
+      "projekt": 94,
+      "ktory_uzytkownik_juz_zaglosowal": 14
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 194,
+    "fields": {
+      "projekt": 95,
+      "ktory_uzytkownik_juz_zaglosowal": 15
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 195,
+    "fields": {
+      "projekt": 96,
+      "ktory_uzytkownik_juz_zaglosowal": 16
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 196,
+    "fields": {
+      "projekt": 97,
+      "ktory_uzytkownik_juz_zaglosowal": 17
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 197,
+    "fields": {
+      "projekt": 98,
+      "ktory_uzytkownik_juz_zaglosowal": 18
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 198,
+    "fields": {
+      "projekt": 99,
+      "ktory_uzytkownik_juz_zaglosowal": 19
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 199,
+    "fields": {
+      "projekt": 100,
+      "ktory_uzytkownik_juz_zaglosowal": 20
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 200,
+    "fields": {
+      "projekt": 1,
+      "ktory_uzytkownik_juz_zaglosowal": 1
+    }
+  }
+]

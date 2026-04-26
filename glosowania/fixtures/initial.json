@@ -1,0 +1,70 @@
+[
+  {
+    "model": "glosowania.decyzja",
+    "pk": 1,
+    "fields": {
+      "author": 1,
+      "title": "Community Garden Project",
+      "tresc": "Establish a community garden in the central square.",
+      "kara": "Temporary ban from voting for 1 month",
+      "uzasadnienie": "This will improve community engagement and provide fresh produce.",
+      "args_for": "Improves community spirit, Provides fresh food",
+      "args_against": "Maintenance costs, Space requirements",
+      "znosi": "",
+      "path": "Proposition",
+      "ile_osob_podpisalo": 5,
+      "data_powstania": "2026-04-20",
+      "status": 2,
+      "chat_room": 1
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 1,
+    "fields": {
+      "decyzja": 1,
+      "author": 1,
+      "argument_type": "FOR",
+      "content": "This will bring the community together.",
+      "created_at": "2026-04-21T10:00:00Z",
+      "modified_at": "2026-04-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 2,
+    "fields": {
+      "decyzja": 1,
+      "author": 2,
+      "argument_type": "AGAINST",
+      "content": "We don't have budget for maintenance.",
+      "created_at": "2026-04-21T11:00:00Z",
+      "modified_at": "2026-04-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "glosowania.zebranepodpisy",
+    "pk": 1,
+    "fields": {
+      "projekt": 1,
+      "podpis_uzytkownika": 1
+    }
+  },
+  {
+    "model": "glosowania.ktojuzglosowal",
+    "pk": 1,
+    "fields": {
+      "projekt": 1,
+      "ktory_uzytkownik_juz_zaglosowal": 1
+    }
+  },
+  {
+    "model": "glosowania.votecode",
+    "pk": 1,
+    "fields": {
+      "project": 1,
+      "code": "VOTE001",
+      "vote": true
+    }
+  }
+]

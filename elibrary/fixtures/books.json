@@ -1,0 +1,1102 @@
+[
+  {
+    "model": "elibrary.book",
+    "pk": 1,
+    "fields": {
+      "title": "Book Title 1",
+      "author": "Author 1",
+      "abstract": "Abstract for book 1",
+      "uploader": 1,
+      "uploaded": "2026-04-24T23:36:30.769290Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 2,
+    "fields": {
+      "title": "Book Title 2",
+      "author": "Author 2",
+      "abstract": "Abstract for book 2",
+      "uploader": 1,
+      "uploaded": "2026-04-23T23:36:30.769315Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 3,
+    "fields": {
+      "title": "Book Title 3",
+      "author": "Author 3",
+      "abstract": "Abstract for book 3",
+      "uploader": 1,
+      "uploaded": "2026-04-22T23:36:30.769322Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 4,
+    "fields": {
+      "title": "Book Title 4",
+      "author": "Author 4",
+      "abstract": "Abstract for book 4",
+      "uploader": 1,
+      "uploaded": "2026-04-21T23:36:30.769327Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 5,
+    "fields": {
+      "title": "Book Title 5",
+      "author": "Author 5",
+      "abstract": "Abstract for book 5",
+      "uploader": 1,
+      "uploaded": "2026-04-20T23:36:30.769331Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 6,
+    "fields": {
+      "title": "Book Title 6",
+      "author": "Author 6",
+      "abstract": "Abstract for book 6",
+      "uploader": 1,
+      "uploaded": "2026-04-19T23:36:30.769335Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 7,
+    "fields": {
+      "title": "Book Title 7",
+      "author": "Author 7",
+      "abstract": "Abstract for book 7",
+      "uploader": 1,
+      "uploaded": "2026-04-18T23:36:30.769340Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 8,
+    "fields": {
+      "title": "Book Title 8",
+      "author": "Author 8",
+      "abstract": "Abstract for book 8",
+      "uploader": 1,
+      "uploaded": "2026-04-17T23:36:30.769344Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 9,
+    "fields": {
+      "title": "Book Title 9",
+      "author": "Author 9",
+      "abstract": "Abstract for book 9",
+      "uploader": 1,
+      "uploaded": "2026-04-16T23:36:30.769348Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 10,
+    "fields": {
+      "title": "Book Title 10",
+      "author": "Author 0",
+      "abstract": "Abstract for book 10",
+      "uploader": 1,
+      "uploaded": "2026-04-15T23:36:30.769352Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 11,
+    "fields": {
+      "title": "Book Title 11",
+      "author": "Author 1",
+      "abstract": "Abstract for book 11",
+      "uploader": 1,
+      "uploaded": "2026-04-14T23:36:30.769357Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 12,
+    "fields": {
+      "title": "Book Title 12",
+      "author": "Author 2",
+      "abstract": "Abstract for book 12",
+      "uploader": 1,
+      "uploaded": "2026-04-13T23:36:30.769361Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 13,
+    "fields": {
+      "title": "Book Title 13",
+      "author": "Author 3",
+      "abstract": "Abstract for book 13",
+      "uploader": 1,
+      "uploaded": "2026-04-12T23:36:30.769365Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 14,
+    "fields": {
+      "title": "Book Title 14",
+      "author": "Author 4",
+      "abstract": "Abstract for book 14",
+      "uploader": 1,
+      "uploaded": "2026-04-11T23:36:30.769368Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 15,
+    "fields": {
+      "title": "Book Title 15",
+      "author": "Author 5",
+      "abstract": "Abstract for book 15",
+      "uploader": 1,
+      "uploaded": "2026-04-10T23:36:30.769372Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 16,
+    "fields": {
+      "title": "Book Title 16",
+      "author": "Author 6",
+      "abstract": "Abstract for book 16",
+      "uploader": 1,
+      "uploaded": "2026-04-09T23:36:30.769376Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 17,
+    "fields": {
+      "title": "Book Title 17",
+      "author": "Author 7",
+      "abstract": "Abstract for book 17",
+      "uploader": 1,
+      "uploaded": "2026-04-08T23:36:30.769380Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 18,
+    "fields": {
+      "title": "Book Title 18",
+      "author": "Author 8",
+      "abstract": "Abstract for book 18",
+      "uploader": 1,
+      "uploaded": "2026-04-07T23:36:30.769384Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 19,
+    "fields": {
+      "title": "Book Title 19",
+      "author": "Author 9",
+      "abstract": "Abstract for book 19",
+      "uploader": 1,
+      "uploaded": "2026-04-06T23:36:30.769388Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 20,
+    "fields": {
+      "title": "Book Title 20",
+      "author": "Author 0",
+      "abstract": "Abstract for book 20",
+      "uploader": 1,
+      "uploaded": "2026-04-05T23:36:30.769392Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 21,
+    "fields": {
+      "title": "Book Title 21",
+      "author": "Author 1",
+      "abstract": "Abstract for book 21",
+      "uploader": 1,
+      "uploaded": "2026-04-04T23:36:30.769396Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 22,
+    "fields": {
+      "title": "Book Title 22",
+      "author": "Author 2",
+      "abstract": "Abstract for book 22",
+      "uploader": 1,
+      "uploaded": "2026-04-03T23:36:30.769400Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 23,
+    "fields": {
+      "title": "Book Title 23",
+      "author": "Author 3",
+      "abstract": "Abstract for book 23",
+      "uploader": 1,
+      "uploaded": "2026-04-02T23:36:30.769403Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 24,
+    "fields": {
+      "title": "Book Title 24",
+      "author": "Author 4",
+      "abstract": "Abstract for book 24",
+      "uploader": 1,
+      "uploaded": "2026-04-01T23:36:30.769407Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 25,
+    "fields": {
+      "title": "Book Title 25",
+      "author": "Author 5",
+      "abstract": "Abstract for book 25",
+      "uploader": 1,
+      "uploaded": "2026-03-31T23:36:30.769411Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 26,
+    "fields": {
+      "title": "Book Title 26",
+      "author": "Author 6",
+      "abstract": "Abstract for book 26",
+      "uploader": 1,
+      "uploaded": "2026-03-30T23:36:30.769415Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 27,
+    "fields": {
+      "title": "Book Title 27",
+      "author": "Author 7",
+      "abstract": "Abstract for book 27",
+      "uploader": 1,
+      "uploaded": "2026-03-29T23:36:30.769419Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 28,
+    "fields": {
+      "title": "Book Title 28",
+      "author": "Author 8",
+      "abstract": "Abstract for book 28",
+      "uploader": 1,
+      "uploaded": "2026-03-28T23:36:30.769423Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 29,
+    "fields": {
+      "title": "Book Title 29",
+      "author": "Author 9",
+      "abstract": "Abstract for book 29",
+      "uploader": 1,
+      "uploaded": "2026-03-27T23:36:30.769427Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 30,
+    "fields": {
+      "title": "Book Title 30",
+      "author": "Author 0",
+      "abstract": "Abstract for book 30",
+      "uploader": 1,
+      "uploaded": "2026-03-26T23:36:30.769431Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 31,
+    "fields": {
+      "title": "Book Title 31",
+      "author": "Author 1",
+      "abstract": "Abstract for book 31",
+      "uploader": 1,
+      "uploaded": "2026-03-25T23:36:30.769435Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 32,
+    "fields": {
+      "title": "Book Title 32",
+      "author": "Author 2",
+      "abstract": "Abstract for book 32",
+      "uploader": 1,
+      "uploaded": "2026-03-24T23:36:30.769439Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 33,
+    "fields": {
+      "title": "Book Title 33",
+      "author": "Author 3",
+      "abstract": "Abstract for book 33",
+      "uploader": 1,
+      "uploaded": "2026-03-23T23:36:30.769442Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 34,
+    "fields": {
+      "title": "Book Title 34",
+      "author": "Author 4",
+      "abstract": "Abstract for book 34",
+      "uploader": 1,
+      "uploaded": "2026-03-22T23:36:30.769446Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 35,
+    "fields": {
+      "title": "Book Title 35",
+      "author": "Author 5",
+      "abstract": "Abstract for book 35",
+      "uploader": 1,
+      "uploaded": "2026-03-21T23:36:30.769450Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 36,
+    "fields": {
+      "title": "Book Title 36",
+      "author": "Author 6",
+      "abstract": "Abstract for book 36",
+      "uploader": 1,
+      "uploaded": "2026-03-20T23:36:30.769454Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 37,
+    "fields": {
+      "title": "Book Title 37",
+      "author": "Author 7",
+      "abstract": "Abstract for book 37",
+      "uploader": 1,
+      "uploaded": "2026-03-19T23:36:30.769458Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 38,
+    "fields": {
+      "title": "Book Title 38",
+      "author": "Author 8",
+      "abstract": "Abstract for book 38",
+      "uploader": 1,
+      "uploaded": "2026-03-18T23:36:30.769462Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 39,
+    "fields": {
+      "title": "Book Title 39",
+      "author": "Author 9",
+      "abstract": "Abstract for book 39",
+      "uploader": 1,
+      "uploaded": "2026-03-17T23:36:30.769465Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 40,
+    "fields": {
+      "title": "Book Title 40",
+      "author": "Author 0",
+      "abstract": "Abstract for book 40",
+      "uploader": 1,
+      "uploaded": "2026-03-16T23:36:30.769469Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 41,
+    "fields": {
+      "title": "Book Title 41",
+      "author": "Author 1",
+      "abstract": "Abstract for book 41",
+      "uploader": 1,
+      "uploaded": "2026-03-15T23:36:30.769473Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 42,
+    "fields": {
+      "title": "Book Title 42",
+      "author": "Author 2",
+      "abstract": "Abstract for book 42",
+      "uploader": 1,
+      "uploaded": "2026-03-14T23:36:30.769476Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 43,
+    "fields": {
+      "title": "Book Title 43",
+      "author": "Author 3",
+      "abstract": "Abstract for book 43",
+      "uploader": 1,
+      "uploaded": "2026-03-13T23:36:30.769480Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 44,
+    "fields": {
+      "title": "Book Title 44",
+      "author": "Author 4",
+      "abstract": "Abstract for book 44",
+      "uploader": 1,
+      "uploaded": "2026-03-12T23:36:30.769484Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 45,
+    "fields": {
+      "title": "Book Title 45",
+      "author": "Author 5",
+      "abstract": "Abstract for book 45",
+      "uploader": 1,
+      "uploaded": "2026-03-11T23:36:30.769488Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 46,
+    "fields": {
+      "title": "Book Title 46",
+      "author": "Author 6",
+      "abstract": "Abstract for book 46",
+      "uploader": 1,
+      "uploaded": "2026-03-10T23:36:30.769492Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 47,
+    "fields": {
+      "title": "Book Title 47",
+      "author": "Author 7",
+      "abstract": "Abstract for book 47",
+      "uploader": 1,
+      "uploaded": "2026-03-09T23:36:30.769496Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 48,
+    "fields": {
+      "title": "Book Title 48",
+      "author": "Author 8",
+      "abstract": "Abstract for book 48",
+      "uploader": 1,
+      "uploaded": "2026-03-08T23:36:30.769500Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 49,
+    "fields": {
+      "title": "Book Title 49",
+      "author": "Author 9",
+      "abstract": "Abstract for book 49",
+      "uploader": 1,
+      "uploaded": "2026-03-07T23:36:30.769504Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 50,
+    "fields": {
+      "title": "Book Title 50",
+      "author": "Author 0",
+      "abstract": "Abstract for book 50",
+      "uploader": 1,
+      "uploaded": "2026-03-06T23:36:30.769508Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 51,
+    "fields": {
+      "title": "Book Title 51",
+      "author": "Author 1",
+      "abstract": "Abstract for book 51",
+      "uploader": 1,
+      "uploaded": "2026-03-05T23:36:30.769512Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 52,
+    "fields": {
+      "title": "Book Title 52",
+      "author": "Author 2",
+      "abstract": "Abstract for book 52",
+      "uploader": 1,
+      "uploaded": "2026-03-04T23:36:30.769516Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 53,
+    "fields": {
+      "title": "Book Title 53",
+      "author": "Author 3",
+      "abstract": "Abstract for book 53",
+      "uploader": 1,
+      "uploaded": "2026-03-03T23:36:30.769520Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 54,
+    "fields": {
+      "title": "Book Title 54",
+      "author": "Author 4",
+      "abstract": "Abstract for book 54",
+      "uploader": 1,
+      "uploaded": "2026-03-02T23:36:30.769524Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 55,
+    "fields": {
+      "title": "Book Title 55",
+      "author": "Author 5",
+      "abstract": "Abstract for book 55",
+      "uploader": 1,
+      "uploaded": "2026-03-01T23:36:30.769528Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 56,
+    "fields": {
+      "title": "Book Title 56",
+      "author": "Author 6",
+      "abstract": "Abstract for book 56",
+      "uploader": 1,
+      "uploaded": "2026-02-28T23:36:30.769531Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 57,
+    "fields": {
+      "title": "Book Title 57",
+      "author": "Author 7",
+      "abstract": "Abstract for book 57",
+      "uploader": 1,
+      "uploaded": "2026-02-27T23:36:30.769535Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 58,
+    "fields": {
+      "title": "Book Title 58",
+      "author": "Author 8",
+      "abstract": "Abstract for book 58",
+      "uploader": 1,
+      "uploaded": "2026-02-26T23:36:30.769539Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 59,
+    "fields": {
+      "title": "Book Title 59",
+      "author": "Author 9",
+      "abstract": "Abstract for book 59",
+      "uploader": 1,
+      "uploaded": "2026-02-25T23:36:30.769543Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 60,
+    "fields": {
+      "title": "Book Title 60",
+      "author": "Author 0",
+      "abstract": "Abstract for book 60",
+      "uploader": 1,
+      "uploaded": "2026-02-24T23:36:30.769547Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 61,
+    "fields": {
+      "title": "Book Title 61",
+      "author": "Author 1",
+      "abstract": "Abstract for book 61",
+      "uploader": 1,
+      "uploaded": "2026-02-23T23:36:30.769551Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 62,
+    "fields": {
+      "title": "Book Title 62",
+      "author": "Author 2",
+      "abstract": "Abstract for book 62",
+      "uploader": 1,
+      "uploaded": "2026-02-22T23:36:30.769554Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 63,
+    "fields": {
+      "title": "Book Title 63",
+      "author": "Author 3",
+      "abstract": "Abstract for book 63",
+      "uploader": 1,
+      "uploaded": "2026-02-21T23:36:30.769558Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 64,
+    "fields": {
+      "title": "Book Title 64",
+      "author": "Author 4",
+      "abstract": "Abstract for book 64",
+      "uploader": 1,
+      "uploaded": "2026-02-20T23:36:30.769561Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 65,
+    "fields": {
+      "title": "Book Title 65",
+      "author": "Author 5",
+      "abstract": "Abstract for book 65",
+      "uploader": 1,
+      "uploaded": "2026-02-19T23:36:30.769565Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 66,
+    "fields": {
+      "title": "Book Title 66",
+      "author": "Author 6",
+      "abstract": "Abstract for book 66",
+      "uploader": 1,
+      "uploaded": "2026-02-18T23:36:30.769569Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 67,
+    "fields": {
+      "title": "Book Title 67",
+      "author": "Author 7",
+      "abstract": "Abstract for book 67",
+      "uploader": 1,
+      "uploaded": "2026-02-17T23:36:30.769573Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 68,
+    "fields": {
+      "title": "Book Title 68",
+      "author": "Author 8",
+      "abstract": "Abstract for book 68",
+      "uploader": 1,
+      "uploaded": "2026-02-16T23:36:30.769576Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 69,
+    "fields": {
+      "title": "Book Title 69",
+      "author": "Author 9",
+      "abstract": "Abstract for book 69",
+      "uploader": 1,
+      "uploaded": "2026-02-15T23:36:30.769580Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 70,
+    "fields": {
+      "title": "Book Title 70",
+      "author": "Author 0",
+      "abstract": "Abstract for book 70",
+      "uploader": 1,
+      "uploaded": "2026-02-14T23:36:30.769584Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 71,
+    "fields": {
+      "title": "Book Title 71",
+      "author": "Author 1",
+      "abstract": "Abstract for book 71",
+      "uploader": 1,
+      "uploaded": "2026-02-13T23:36:30.769588Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 72,
+    "fields": {
+      "title": "Book Title 72",
+      "author": "Author 2",
+      "abstract": "Abstract for book 72",
+      "uploader": 1,
+      "uploaded": "2026-02-12T23:36:30.769591Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 73,
+    "fields": {
+      "title": "Book Title 73",
+      "author": "Author 3",
+      "abstract": "Abstract for book 73",
+      "uploader": 1,
+      "uploaded": "2026-02-11T23:36:30.769595Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 74,
+    "fields": {
+      "title": "Book Title 74",
+      "author": "Author 4",
+      "abstract": "Abstract for book 74",
+      "uploader": 1,
+      "uploaded": "2026-02-10T23:36:30.769599Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 75,
+    "fields": {
+      "title": "Book Title 75",
+      "author": "Author 5",
+      "abstract": "Abstract for book 75",
+      "uploader": 1,
+      "uploaded": "2026-02-09T23:36:30.769602Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 76,
+    "fields": {
+      "title": "Book Title 76",
+      "author": "Author 6",
+      "abstract": "Abstract for book 76",
+      "uploader": 1,
+      "uploaded": "2026-02-08T23:36:30.769606Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 77,
+    "fields": {
+      "title": "Book Title 77",
+      "author": "Author 7",
+      "abstract": "Abstract for book 77",
+      "uploader": 1,
+      "uploaded": "2026-02-07T23:36:30.769610Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 78,
+    "fields": {
+      "title": "Book Title 78",
+      "author": "Author 8",
+      "abstract": "Abstract for book 78",
+      "uploader": 1,
+      "uploaded": "2026-02-06T23:36:30.769614Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 79,
+    "fields": {
+      "title": "Book Title 79",
+      "author": "Author 9",
+      "abstract": "Abstract for book 79",
+      "uploader": 1,
+      "uploaded": "2026-02-05T23:36:30.769618Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 80,
+    "fields": {
+      "title": "Book Title 80",
+      "author": "Author 0",
+      "abstract": "Abstract for book 80",
+      "uploader": 1,
+      "uploaded": "2026-02-04T23:36:30.769622Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 81,
+    "fields": {
+      "title": "Book Title 81",
+      "author": "Author 1",
+      "abstract": "Abstract for book 81",
+      "uploader": 1,
+      "uploaded": "2026-02-03T23:36:30.769626Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 82,
+    "fields": {
+      "title": "Book Title 82",
+      "author": "Author 2",
+      "abstract": "Abstract for book 82",
+      "uploader": 1,
+      "uploaded": "2026-02-02T23:36:30.769635Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 83,
+    "fields": {
+      "title": "Book Title 83",
+      "author": "Author 3",
+      "abstract": "Abstract for book 83",
+      "uploader": 1,
+      "uploaded": "2026-02-01T23:36:30.769642Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 84,
+    "fields": {
+      "title": "Book Title 84",
+      "author": "Author 4",
+      "abstract": "Abstract for book 84",
+      "uploader": 1,
+      "uploaded": "2026-01-31T23:36:30.769645Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 85,
+    "fields": {
+      "title": "Book Title 85",
+      "author": "Author 5",
+      "abstract": "Abstract for book 85",
+      "uploader": 1,
+      "uploaded": "2026-01-30T23:36:30.769650Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 86,
+    "fields": {
+      "title": "Book Title 86",
+      "author": "Author 6",
+      "abstract": "Abstract for book 86",
+      "uploader": 1,
+      "uploaded": "2026-01-29T23:36:30.769654Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 87,
+    "fields": {
+      "title": "Book Title 87",
+      "author": "Author 7",
+      "abstract": "Abstract for book 87",
+      "uploader": 1,
+      "uploaded": "2026-01-28T23:36:30.769657Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 88,
+    "fields": {
+      "title": "Book Title 88",
+      "author": "Author 8",
+      "abstract": "Abstract for book 88",
+      "uploader": 1,
+      "uploaded": "2026-01-27T23:36:30.769661Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 89,
+    "fields": {
+      "title": "Book Title 89",
+      "author": "Author 9",
+      "abstract": "Abstract for book 89",
+      "uploader": 1,
+      "uploaded": "2026-01-26T23:36:30.769665Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 90,
+    "fields": {
+      "title": "Book Title 90",
+      "author": "Author 0",
+      "abstract": "Abstract for book 90",
+      "uploader": 1,
+      "uploaded": "2026-01-25T23:36:30.769669Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 91,
+    "fields": {
+      "title": "Book Title 91",
+      "author": "Author 1",
+      "abstract": "Abstract for book 91",
+      "uploader": 1,
+      "uploaded": "2026-01-24T23:36:30.769673Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 92,
+    "fields": {
+      "title": "Book Title 92",
+      "author": "Author 2",
+      "abstract": "Abstract for book 92",
+      "uploader": 1,
+      "uploaded": "2026-01-23T23:36:30.769676Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 93,
+    "fields": {
+      "title": "Book Title 93",
+      "author": "Author 3",
+      "abstract": "Abstract for book 93",
+      "uploader": 1,
+      "uploaded": "2026-01-22T23:36:30.769680Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 94,
+    "fields": {
+      "title": "Book Title 94",
+      "author": "Author 4",
+      "abstract": "Abstract for book 94",
+      "uploader": 1,
+      "uploaded": "2026-01-21T23:36:30.769684Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 95,
+    "fields": {
+      "title": "Book Title 95",
+      "author": "Author 5",
+      "abstract": "Abstract for book 95",
+      "uploader": 1,
+      "uploaded": "2026-01-20T23:36:30.769688Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 96,
+    "fields": {
+      "title": "Book Title 96",
+      "author": "Author 6",
+      "abstract": "Abstract for book 96",
+      "uploader": 1,
+      "uploaded": "2026-01-19T23:36:30.769692Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 97,
+    "fields": {
+      "title": "Book Title 97",
+      "author": "Author 7",
+      "abstract": "Abstract for book 97",
+      "uploader": 1,
+      "uploaded": "2026-01-18T23:36:30.769696Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 98,
+    "fields": {
+      "title": "Book Title 98",
+      "author": "Author 8",
+      "abstract": "Abstract for book 98",
+      "uploader": 1,
+      "uploaded": "2026-01-17T23:36:30.769699Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 99,
+    "fields": {
+      "title": "Book Title 99",
+      "author": "Author 9",
+      "abstract": "Abstract for book 99",
+      "uploader": 1,
+      "uploaded": "2026-01-16T23:36:30.769703Z"
+    }
+  },
+  {
+    "model": "elibrary.book",
+    "pk": 100,
+    "fields": {
+      "title": "Book Title 100",
+      "author": "Author 0",
+      "abstract": "Abstract for book 100",
+      "uploader": 1,
+      "uploaded": "2026-01-15T23:36:30.769707Z"
+    }
+  }
+]

@@ -1,14 +1,1102 @@
 [
-    {
-        "model": "chat.room",
-        "pk": 1,
-        "fields": {
-            "public": true,
-            "archived": false,
-            "title": "start",
-            "allowed": [],
-            "seen_by": [],
-            "muted_by": []
-        }
+  {
+    "model": "chat.room",
+    "pk": 1000,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 1",
+      "public": false,
+      "archived": false,
+      "protected": false
     }
+  },
+  {
+    "model": "chat.room",
+    "pk": 2000,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 2",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 3000,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 3",
+      "public": false,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 4000,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 4",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 5000,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 5",
+      "public": false,
+      "archived": false,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 6,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 6",
+      "public": true,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 7,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 7",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 8,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 8",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 9,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 9",
+      "public": false,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 10,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 10",
+      "public": true,
+      "archived": false,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 11,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 11",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 12,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 12",
+      "public": true,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 13,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 13",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 14,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 14",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 15,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 15",
+      "public": false,
+      "archived": true,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 16,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 16",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 17,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 17",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 18,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 18",
+      "public": true,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 19,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 19",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 20,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 20",
+      "public": true,
+      "archived": false,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 21,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 21",
+      "public": false,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 22,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 22",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 23,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 23",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 24,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 24",
+      "public": true,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 25,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 25",
+      "public": false,
+      "archived": false,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 26,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 26",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 27,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 27",
+      "public": false,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 28,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 28",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 29,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 29",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 30,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 30",
+      "public": true,
+      "archived": true,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 31,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 31",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 32,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 32",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 33,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 33",
+      "public": false,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 34,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 34",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 35,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 35",
+      "public": false,
+      "archived": false,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 36,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 36",
+      "public": true,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 37,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 37",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 38,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 38",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 39,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 39",
+      "public": false,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 40,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 40",
+      "public": true,
+      "archived": false,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 41,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 41",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 42,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 42",
+      "public": true,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 43,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 43",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 44,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 44",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 45,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 45",
+      "public": false,
+      "archived": true,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 46,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 46",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 47,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 47",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 48,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 48",
+      "public": true,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 49,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 49",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 50,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 50",
+      "public": true,
+      "archived": false,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 51,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 51",
+      "public": false,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 52,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 52",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 53,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 53",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 54,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 54",
+      "public": true,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 55,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 55",
+      "public": false,
+      "archived": false,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 56,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 56",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 57,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 57",
+      "public": false,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 58,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 58",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 59,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 59",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 60,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 60",
+      "public": true,
+      "archived": true,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 61,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 61",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 62,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 62",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 63,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 63",
+      "public": false,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 64,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 64",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 65,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 65",
+      "public": false,
+      "archived": false,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 66,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 66",
+      "public": true,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 67,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 67",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 68,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 68",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 69,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 69",
+      "public": false,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 70,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 70",
+      "public": true,
+      "archived": false,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 71,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 71",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 72,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 72",
+      "public": true,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 73,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 73",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 74,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 74",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 75,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 75",
+      "public": false,
+      "archived": true,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 76,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 76",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 77,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 77",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 78,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 78",
+      "public": true,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 79,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 79",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 80,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 80",
+      "public": true,
+      "archived": false,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 81,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 81",
+      "public": false,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 82,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 82",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 83,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 83",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 84,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 84",
+      "public": true,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 85,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 85",
+      "public": false,
+      "archived": false,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 86,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 86",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 87,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 87",
+      "public": false,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 88,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 88",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 89,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 89",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 90,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 90",
+      "public": true,
+      "archived": true,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 91,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 91",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 92,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 92",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 93,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 93",
+      "public": false,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 94,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 94",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 95,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 95",
+      "public": false,
+      "archived": false,
+      "protected": true
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 96,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 96",
+      "public": true,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 97,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 97",
+      "public": false,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 98,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 98",
+      "public": true,
+      "archived": false,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 99,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 99",
+      "public": false,
+      "archived": true,
+      "protected": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 100,
+    "fields": {
+      "last_activity": "2026-01-01T00:00:00.000Z",
+      "title": "ChatRoom 100",
+      "public": true,
+      "archived": false,
+      "protected": true
+    }
+  }
 ]

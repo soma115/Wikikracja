@@ -1,0 +1,1802 @@
+[
+  {
+    "model": "obywatele.rate",
+    "pk": 1,
+    "fields": {
+      "kandydat": 2,
+      "obywatel": 52,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 2,
+    "fields": {
+      "kandydat": 3,
+      "obywatel": 53,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 3,
+    "fields": {
+      "kandydat": 4,
+      "obywatel": 54,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 4,
+    "fields": {
+      "kandydat": 5,
+      "obywatel": 55,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 5,
+    "fields": {
+      "kandydat": 6,
+      "obywatel": 56,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 6,
+    "fields": {
+      "kandydat": 7,
+      "obywatel": 57,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 7,
+    "fields": {
+      "kandydat": 8,
+      "obywatel": 58,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 8,
+    "fields": {
+      "kandydat": 9,
+      "obywatel": 59,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 9,
+    "fields": {
+      "kandydat": 10,
+      "obywatel": 60,
+      "rate": 2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 10,
+    "fields": {
+      "kandydat": 11,
+      "obywatel": 61,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 11,
+    "fields": {
+      "kandydat": 12,
+      "obywatel": 62,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 12,
+    "fields": {
+      "kandydat": 13,
+      "obywatel": 63,
+      "rate": 4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 13,
+    "fields": {
+      "kandydat": 14,
+      "obywatel": 64,
+      "rate": 2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 14,
+    "fields": {
+      "kandydat": 15,
+      "obywatel": 65,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 15,
+    "fields": {
+      "kandydat": 16,
+      "obywatel": 66,
+      "rate": 4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 16,
+    "fields": {
+      "kandydat": 17,
+      "obywatel": 67,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 17,
+    "fields": {
+      "kandydat": 18,
+      "obywatel": 68,
+      "rate": 2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 18,
+    "fields": {
+      "kandydat": 19,
+      "obywatel": 69,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 19,
+    "fields": {
+      "kandydat": 20,
+      "obywatel": 70,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 20,
+    "fields": {
+      "kandydat": 21,
+      "obywatel": 71,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 21,
+    "fields": {
+      "kandydat": 22,
+      "obywatel": 72,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 22,
+    "fields": {
+      "kandydat": 23,
+      "obywatel": 73,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 23,
+    "fields": {
+      "kandydat": 24,
+      "obywatel": 74,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 24,
+    "fields": {
+      "kandydat": 25,
+      "obywatel": 75,
+      "rate": 2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 25,
+    "fields": {
+      "kandydat": 26,
+      "obywatel": 76,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 26,
+    "fields": {
+      "kandydat": 27,
+      "obywatel": 77,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 27,
+    "fields": {
+      "kandydat": 28,
+      "obywatel": 78,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 28,
+    "fields": {
+      "kandydat": 29,
+      "obywatel": 79,
+      "rate": -5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 29,
+    "fields": {
+      "kandydat": 30,
+      "obywatel": 80,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 30,
+    "fields": {
+      "kandydat": 31,
+      "obywatel": 81,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 31,
+    "fields": {
+      "kandydat": 32,
+      "obywatel": 82,
+      "rate": 4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 32,
+    "fields": {
+      "kandydat": 33,
+      "obywatel": 83,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 33,
+    "fields": {
+      "kandydat": 34,
+      "obywatel": 84,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 34,
+    "fields": {
+      "kandydat": 35,
+      "obywatel": 85,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 35,
+    "fields": {
+      "kandydat": 36,
+      "obywatel": 86,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 36,
+    "fields": {
+      "kandydat": 37,
+      "obywatel": 87,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 37,
+    "fields": {
+      "kandydat": 38,
+      "obywatel": 88,
+      "rate": 4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 38,
+    "fields": {
+      "kandydat": 39,
+      "obywatel": 89,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 39,
+    "fields": {
+      "kandydat": 40,
+      "obywatel": 90,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 40,
+    "fields": {
+      "kandydat": 41,
+      "obywatel": 91,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 41,
+    "fields": {
+      "kandydat": 42,
+      "obywatel": 92,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 42,
+    "fields": {
+      "kandydat": 43,
+      "obywatel": 93,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 43,
+    "fields": {
+      "kandydat": 44,
+      "obywatel": 94,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 44,
+    "fields": {
+      "kandydat": 45,
+      "obywatel": 95,
+      "rate": 2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 45,
+    "fields": {
+      "kandydat": 46,
+      "obywatel": 96,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 46,
+    "fields": {
+      "kandydat": 47,
+      "obywatel": 97,
+      "rate": 2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 47,
+    "fields": {
+      "kandydat": 48,
+      "obywatel": 98,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 48,
+    "fields": {
+      "kandydat": 49,
+      "obywatel": 99,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 49,
+    "fields": {
+      "kandydat": 50,
+      "obywatel": 100,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 50,
+    "fields": {
+      "kandydat": 51,
+      "obywatel": 1,
+      "rate": 2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 51,
+    "fields": {
+      "kandydat": 52,
+      "obywatel": 2,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 52,
+    "fields": {
+      "kandydat": 53,
+      "obywatel": 3,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 53,
+    "fields": {
+      "kandydat": 54,
+      "obywatel": 4,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 54,
+    "fields": {
+      "kandydat": 55,
+      "obywatel": 5,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 55,
+    "fields": {
+      "kandydat": 56,
+      "obywatel": 6,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 56,
+    "fields": {
+      "kandydat": 57,
+      "obywatel": 7,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 57,
+    "fields": {
+      "kandydat": 58,
+      "obywatel": 8,
+      "rate": 4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 58,
+    "fields": {
+      "kandydat": 59,
+      "obywatel": 9,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 59,
+    "fields": {
+      "kandydat": 60,
+      "obywatel": 10,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 60,
+    "fields": {
+      "kandydat": 61,
+      "obywatel": 11,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 61,
+    "fields": {
+      "kandydat": 62,
+      "obywatel": 12,
+      "rate": 2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 62,
+    "fields": {
+      "kandydat": 63,
+      "obywatel": 13,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 63,
+    "fields": {
+      "kandydat": 64,
+      "obywatel": 14,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 64,
+    "fields": {
+      "kandydat": 65,
+      "obywatel": 15,
+      "rate": -5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 65,
+    "fields": {
+      "kandydat": 66,
+      "obywatel": 16,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 66,
+    "fields": {
+      "kandydat": 67,
+      "obywatel": 17,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 67,
+    "fields": {
+      "kandydat": 68,
+      "obywatel": 18,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 68,
+    "fields": {
+      "kandydat": 69,
+      "obywatel": 19,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 69,
+    "fields": {
+      "kandydat": 70,
+      "obywatel": 20,
+      "rate": -5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 70,
+    "fields": {
+      "kandydat": 71,
+      "obywatel": 21,
+      "rate": -5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 71,
+    "fields": {
+      "kandydat": 72,
+      "obywatel": 22,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 72,
+    "fields": {
+      "kandydat": 73,
+      "obywatel": 23,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 73,
+    "fields": {
+      "kandydat": 74,
+      "obywatel": 24,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 74,
+    "fields": {
+      "kandydat": 75,
+      "obywatel": 25,
+      "rate": 4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 75,
+    "fields": {
+      "kandydat": 76,
+      "obywatel": 26,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 76,
+    "fields": {
+      "kandydat": 77,
+      "obywatel": 27,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 77,
+    "fields": {
+      "kandydat": 78,
+      "obywatel": 28,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 78,
+    "fields": {
+      "kandydat": 79,
+      "obywatel": 29,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 79,
+    "fields": {
+      "kandydat": 80,
+      "obywatel": 30,
+      "rate": 4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 80,
+    "fields": {
+      "kandydat": 81,
+      "obywatel": 31,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 81,
+    "fields": {
+      "kandydat": 82,
+      "obywatel": 32,
+      "rate": -5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 82,
+    "fields": {
+      "kandydat": 83,
+      "obywatel": 33,
+      "rate": -5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 83,
+    "fields": {
+      "kandydat": 84,
+      "obywatel": 34,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 84,
+    "fields": {
+      "kandydat": 85,
+      "obywatel": 35,
+      "rate": -5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 85,
+    "fields": {
+      "kandydat": 86,
+      "obywatel": 36,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 86,
+    "fields": {
+      "kandydat": 87,
+      "obywatel": 37,
+      "rate": -5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 87,
+    "fields": {
+      "kandydat": 88,
+      "obywatel": 38,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 88,
+    "fields": {
+      "kandydat": 89,
+      "obywatel": 39,
+      "rate": -5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 89,
+    "fields": {
+      "kandydat": 90,
+      "obywatel": 40,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 90,
+    "fields": {
+      "kandydat": 91,
+      "obywatel": 41,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 91,
+    "fields": {
+      "kandydat": 92,
+      "obywatel": 42,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 92,
+    "fields": {
+      "kandydat": 93,
+      "obywatel": 43,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 93,
+    "fields": {
+      "kandydat": 94,
+      "obywatel": 44,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 94,
+    "fields": {
+      "kandydat": 95,
+      "obywatel": 45,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 95,
+    "fields": {
+      "kandydat": 96,
+      "obywatel": 46,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 96,
+    "fields": {
+      "kandydat": 97,
+      "obywatel": 47,
+      "rate": 4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 97,
+    "fields": {
+      "kandydat": 98,
+      "obywatel": 48,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 98,
+    "fields": {
+      "kandydat": 99,
+      "obywatel": 49,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 99,
+    "fields": {
+      "kandydat": 100,
+      "obywatel": 50,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 100,
+    "fields": {
+      "kandydat": 1,
+      "obywatel": 51,
+      "rate": -5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 101,
+    "fields": {
+      "kandydat": 2,
+      "obywatel": 52,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 102,
+    "fields": {
+      "kandydat": 3,
+      "obywatel": 53,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 103,
+    "fields": {
+      "kandydat": 4,
+      "obywatel": 54,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 104,
+    "fields": {
+      "kandydat": 5,
+      "obywatel": 55,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 105,
+    "fields": {
+      "kandydat": 6,
+      "obywatel": 56,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 106,
+    "fields": {
+      "kandydat": 7,
+      "obywatel": 57,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 107,
+    "fields": {
+      "kandydat": 8,
+      "obywatel": 58,
+      "rate": 4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 108,
+    "fields": {
+      "kandydat": 9,
+      "obywatel": 59,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 109,
+    "fields": {
+      "kandydat": 10,
+      "obywatel": 60,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 110,
+    "fields": {
+      "kandydat": 11,
+      "obywatel": 61,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 111,
+    "fields": {
+      "kandydat": 12,
+      "obywatel": 62,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 112,
+    "fields": {
+      "kandydat": 13,
+      "obywatel": 63,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 113,
+    "fields": {
+      "kandydat": 14,
+      "obywatel": 64,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 114,
+    "fields": {
+      "kandydat": 15,
+      "obywatel": 65,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 115,
+    "fields": {
+      "kandydat": 16,
+      "obywatel": 66,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 116,
+    "fields": {
+      "kandydat": 17,
+      "obywatel": 67,
+      "rate": 2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 117,
+    "fields": {
+      "kandydat": 18,
+      "obywatel": 68,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 118,
+    "fields": {
+      "kandydat": 19,
+      "obywatel": 69,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 119,
+    "fields": {
+      "kandydat": 20,
+      "obywatel": 70,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 120,
+    "fields": {
+      "kandydat": 21,
+      "obywatel": 71,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 121,
+    "fields": {
+      "kandydat": 22,
+      "obywatel": 72,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 122,
+    "fields": {
+      "kandydat": 23,
+      "obywatel": 73,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 123,
+    "fields": {
+      "kandydat": 24,
+      "obywatel": 74,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 124,
+    "fields": {
+      "kandydat": 25,
+      "obywatel": 75,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 125,
+    "fields": {
+      "kandydat": 26,
+      "obywatel": 76,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 126,
+    "fields": {
+      "kandydat": 27,
+      "obywatel": 77,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 127,
+    "fields": {
+      "kandydat": 28,
+      "obywatel": 78,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 128,
+    "fields": {
+      "kandydat": 29,
+      "obywatel": 79,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 129,
+    "fields": {
+      "kandydat": 30,
+      "obywatel": 80,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 130,
+    "fields": {
+      "kandydat": 31,
+      "obywatel": 81,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 131,
+    "fields": {
+      "kandydat": 32,
+      "obywatel": 82,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 132,
+    "fields": {
+      "kandydat": 33,
+      "obywatel": 83,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 133,
+    "fields": {
+      "kandydat": 34,
+      "obywatel": 84,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 134,
+    "fields": {
+      "kandydat": 35,
+      "obywatel": 85,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 135,
+    "fields": {
+      "kandydat": 36,
+      "obywatel": 86,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 136,
+    "fields": {
+      "kandydat": 37,
+      "obywatel": 87,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 137,
+    "fields": {
+      "kandydat": 38,
+      "obywatel": 88,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 138,
+    "fields": {
+      "kandydat": 39,
+      "obywatel": 89,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 139,
+    "fields": {
+      "kandydat": 40,
+      "obywatel": 90,
+      "rate": -5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 140,
+    "fields": {
+      "kandydat": 41,
+      "obywatel": 91,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 141,
+    "fields": {
+      "kandydat": 42,
+      "obywatel": 92,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 142,
+    "fields": {
+      "kandydat": 43,
+      "obywatel": 93,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 143,
+    "fields": {
+      "kandydat": 44,
+      "obywatel": 94,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 144,
+    "fields": {
+      "kandydat": 45,
+      "obywatel": 95,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 145,
+    "fields": {
+      "kandydat": 46,
+      "obywatel": 96,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 146,
+    "fields": {
+      "kandydat": 47,
+      "obywatel": 97,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 147,
+    "fields": {
+      "kandydat": 48,
+      "obywatel": 98,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 148,
+    "fields": {
+      "kandydat": 49,
+      "obywatel": 99,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 149,
+    "fields": {
+      "kandydat": 50,
+      "obywatel": 100,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 150,
+    "fields": {
+      "kandydat": 51,
+      "obywatel": 1,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 151,
+    "fields": {
+      "kandydat": 52,
+      "obywatel": 2,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 152,
+    "fields": {
+      "kandydat": 53,
+      "obywatel": 3,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 153,
+    "fields": {
+      "kandydat": 54,
+      "obywatel": 4,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 154,
+    "fields": {
+      "kandydat": 55,
+      "obywatel": 5,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 155,
+    "fields": {
+      "kandydat": 56,
+      "obywatel": 6,
+      "rate": 4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 156,
+    "fields": {
+      "kandydat": 57,
+      "obywatel": 7,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 157,
+    "fields": {
+      "kandydat": 58,
+      "obywatel": 8,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 158,
+    "fields": {
+      "kandydat": 59,
+      "obywatel": 9,
+      "rate": 4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 159,
+    "fields": {
+      "kandydat": 60,
+      "obywatel": 10,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 160,
+    "fields": {
+      "kandydat": 61,
+      "obywatel": 11,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 161,
+    "fields": {
+      "kandydat": 62,
+      "obywatel": 12,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 162,
+    "fields": {
+      "kandydat": 63,
+      "obywatel": 13,
+      "rate": -4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 163,
+    "fields": {
+      "kandydat": 64,
+      "obywatel": 14,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 164,
+    "fields": {
+      "kandydat": 65,
+      "obywatel": 15,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 165,
+    "fields": {
+      "kandydat": 66,
+      "obywatel": 16,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 166,
+    "fields": {
+      "kandydat": 67,
+      "obywatel": 17,
+      "rate": 2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 167,
+    "fields": {
+      "kandydat": 68,
+      "obywatel": 18,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 168,
+    "fields": {
+      "kandydat": 69,
+      "obywatel": 19,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 169,
+    "fields": {
+      "kandydat": 70,
+      "obywatel": 20,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 170,
+    "fields": {
+      "kandydat": 71,
+      "obywatel": 21,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 171,
+    "fields": {
+      "kandydat": 72,
+      "obywatel": 22,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 172,
+    "fields": {
+      "kandydat": 73,
+      "obywatel": 23,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 173,
+    "fields": {
+      "kandydat": 74,
+      "obywatel": 24,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 174,
+    "fields": {
+      "kandydat": 75,
+      "obywatel": 25,
+      "rate": 4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 175,
+    "fields": {
+      "kandydat": 76,
+      "obywatel": 26,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 176,
+    "fields": {
+      "kandydat": 77,
+      "obywatel": 27,
+      "rate": -5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 177,
+    "fields": {
+      "kandydat": 78,
+      "obywatel": 28,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 178,
+    "fields": {
+      "kandydat": 79,
+      "obywatel": 29,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 179,
+    "fields": {
+      "kandydat": 80,
+      "obywatel": 30,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 180,
+    "fields": {
+      "kandydat": 81,
+      "obywatel": 31,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 181,
+    "fields": {
+      "kandydat": 82,
+      "obywatel": 32,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 182,
+    "fields": {
+      "kandydat": 83,
+      "obywatel": 33,
+      "rate": 2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 183,
+    "fields": {
+      "kandydat": 84,
+      "obywatel": 34,
+      "rate": 2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 184,
+    "fields": {
+      "kandydat": 85,
+      "obywatel": 35,
+      "rate": 4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 185,
+    "fields": {
+      "kandydat": 86,
+      "obywatel": 36,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 186,
+    "fields": {
+      "kandydat": 87,
+      "obywatel": 37,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 187,
+    "fields": {
+      "kandydat": 88,
+      "obywatel": 38,
+      "rate": 5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 188,
+    "fields": {
+      "kandydat": 89,
+      "obywatel": 39,
+      "rate": 4
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 189,
+    "fields": {
+      "kandydat": 90,
+      "obywatel": 40,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 190,
+    "fields": {
+      "kandydat": 91,
+      "obywatel": 41,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 191,
+    "fields": {
+      "kandydat": 92,
+      "obywatel": 42,
+      "rate": -2
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 192,
+    "fields": {
+      "kandydat": 93,
+      "obywatel": 43,
+      "rate": -1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 193,
+    "fields": {
+      "kandydat": 94,
+      "obywatel": 44,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 194,
+    "fields": {
+      "kandydat": 95,
+      "obywatel": 45,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 195,
+    "fields": {
+      "kandydat": 96,
+      "obywatel": 46,
+      "rate": 0
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 196,
+    "fields": {
+      "kandydat": 97,
+      "obywatel": 47,
+      "rate": 3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 197,
+    "fields": {
+      "kandydat": 98,
+      "obywatel": 48,
+      "rate": 1
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 198,
+    "fields": {
+      "kandydat": 99,
+      "obywatel": 49,
+      "rate": -5
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 199,
+    "fields": {
+      "kandydat": 100,
+      "obywatel": 50,
+      "rate": -3
+    }
+  },
+  {
+    "model": "obywatele.rate",
+    "pk": 200,
+    "fields": {
+      "kandydat": 1,
+      "obywatel": 51,
+      "rate": 3
+    }
+  }
+]

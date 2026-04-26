@@ -1,0 +1,65 @@
+[
+  {
+    "model": "chat.room",
+    "pk": 1,
+    "fields": {
+      "title": "General Chat",
+      "public": true,
+      "archived": false
+    }
+  },
+  {
+    "model": "chat.room",
+    "pk": 2,
+    "fields": {
+      "title": "Important Discussions",
+      "public": true,
+      "archived": false
+    }
+  },
+  {
+    "model": "chat.message",
+    "pk": 1,
+    "fields": {
+      "sender": 1,
+      "text": "Welcome to the chat room!",
+      "room": 1,
+      "anonymous": false,
+      "reactions": {"upvotes": [], "downvotes": []},
+      "created_at": "2026-04-25T12:00:00Z",
+      "updated_at": "2026-04-25T12:00:00Z"
+    }
+  },
+  {
+    "model": "chat.messageattachment",
+    "pk": 1,
+    "fields": {
+      "message": 1,
+      "type": "document",
+      "filename": "welcome.pdf"
+    }
+  },
+  {
+    "model": "chat.messagehistory",
+    "pk": 1,
+    "fields": {
+      "message": 1
+    }
+  },
+  {
+    "model": "chat.messagehistoryentry",
+    "pk": 1,
+    "fields": {
+      "history": 1,
+      "text": "Previous version of welcome message"
+    }
+  },
+  {
+    "model": "chat.messagereadby",
+    "pk": 1,
+    "fields": {
+      "message": 1,
+      "user": 1
+    }
+  }
+]

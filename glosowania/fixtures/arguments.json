@@ -1,0 +1,2002 @@
+[
+  {
+    "model": "glosowania.argument",
+    "pk": 1,
+    "fields": {
+      "decyzja": 2,
+      "author": 2,
+      "argument_type": "AGAINST",
+      "content": "Argument 1 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 2,
+    "fields": {
+      "decyzja": 3,
+      "author": 3,
+      "argument_type": "FOR",
+      "content": "Argument 2 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 3,
+    "fields": {
+      "decyzja": 4,
+      "author": 4,
+      "argument_type": "AGAINST",
+      "content": "Argument 3 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 4,
+    "fields": {
+      "decyzja": 5,
+      "author": 5,
+      "argument_type": "FOR",
+      "content": "Argument 4 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 5,
+    "fields": {
+      "decyzja": 6,
+      "author": 6,
+      "argument_type": "FOR",
+      "content": "Argument 5 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 6,
+    "fields": {
+      "decyzja": 7,
+      "author": 7,
+      "argument_type": "AGAINST",
+      "content": "Argument 6 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 7,
+    "fields": {
+      "decyzja": 8,
+      "author": 8,
+      "argument_type": "FOR",
+      "content": "Argument 7 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 8,
+    "fields": {
+      "decyzja": 9,
+      "author": 9,
+      "argument_type": "AGAINST",
+      "content": "Argument 8 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 9,
+    "fields": {
+      "decyzja": 10,
+      "author": 10,
+      "argument_type": "FOR",
+      "content": "Argument 9 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 10,
+    "fields": {
+      "decyzja": 11,
+      "author": 11,
+      "argument_type": "AGAINST",
+      "content": "Argument 10 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 11,
+    "fields": {
+      "decyzja": 12,
+      "author": 12,
+      "argument_type": "FOR",
+      "content": "Argument 11 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 12,
+    "fields": {
+      "decyzja": 13,
+      "author": 13,
+      "argument_type": "FOR",
+      "content": "Argument 12 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 13,
+    "fields": {
+      "decyzja": 14,
+      "author": 14,
+      "argument_type": "AGAINST",
+      "content": "Argument 13 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 14,
+    "fields": {
+      "decyzja": 15,
+      "author": 15,
+      "argument_type": "AGAINST",
+      "content": "Argument 14 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 15,
+    "fields": {
+      "decyzja": 16,
+      "author": 16,
+      "argument_type": "FOR",
+      "content": "Argument 15 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 16,
+    "fields": {
+      "decyzja": 17,
+      "author": 17,
+      "argument_type": "AGAINST",
+      "content": "Argument 16 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 17,
+    "fields": {
+      "decyzja": 18,
+      "author": 18,
+      "argument_type": "AGAINST",
+      "content": "Argument 17 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 18,
+    "fields": {
+      "decyzja": 19,
+      "author": 19,
+      "argument_type": "FOR",
+      "content": "Argument 18 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 19,
+    "fields": {
+      "decyzja": 20,
+      "author": 20,
+      "argument_type": "AGAINST",
+      "content": "Argument 19 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 20,
+    "fields": {
+      "decyzja": 21,
+      "author": 1,
+      "argument_type": "FOR",
+      "content": "Argument 20 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 21,
+    "fields": {
+      "decyzja": 22,
+      "author": 2,
+      "argument_type": "FOR",
+      "content": "Argument 21 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 22,
+    "fields": {
+      "decyzja": 23,
+      "author": 3,
+      "argument_type": "FOR",
+      "content": "Argument 22 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 23,
+    "fields": {
+      "decyzja": 24,
+      "author": 4,
+      "argument_type": "FOR",
+      "content": "Argument 23 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 24,
+    "fields": {
+      "decyzja": 25,
+      "author": 5,
+      "argument_type": "AGAINST",
+      "content": "Argument 24 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 25,
+    "fields": {
+      "decyzja": 26,
+      "author": 6,
+      "argument_type": "AGAINST",
+      "content": "Argument 25 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 26,
+    "fields": {
+      "decyzja": 27,
+      "author": 7,
+      "argument_type": "FOR",
+      "content": "Argument 26 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 27,
+    "fields": {
+      "decyzja": 28,
+      "author": 8,
+      "argument_type": "AGAINST",
+      "content": "Argument 27 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 28,
+    "fields": {
+      "decyzja": 29,
+      "author": 9,
+      "argument_type": "FOR",
+      "content": "Argument 28 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 29,
+    "fields": {
+      "decyzja": 30,
+      "author": 10,
+      "argument_type": "FOR",
+      "content": "Argument 29 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 30,
+    "fields": {
+      "decyzja": 31,
+      "author": 11,
+      "argument_type": "FOR",
+      "content": "Argument 30 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 31,
+    "fields": {
+      "decyzja": 32,
+      "author": 12,
+      "argument_type": "FOR",
+      "content": "Argument 31 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 32,
+    "fields": {
+      "decyzja": 33,
+      "author": 13,
+      "argument_type": "FOR",
+      "content": "Argument 32 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 33,
+    "fields": {
+      "decyzja": 34,
+      "author": 14,
+      "argument_type": "AGAINST",
+      "content": "Argument 33 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 34,
+    "fields": {
+      "decyzja": 35,
+      "author": 15,
+      "argument_type": "FOR",
+      "content": "Argument 34 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 35,
+    "fields": {
+      "decyzja": 36,
+      "author": 16,
+      "argument_type": "AGAINST",
+      "content": "Argument 35 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 36,
+    "fields": {
+      "decyzja": 37,
+      "author": 17,
+      "argument_type": "AGAINST",
+      "content": "Argument 36 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 37,
+    "fields": {
+      "decyzja": 38,
+      "author": 18,
+      "argument_type": "FOR",
+      "content": "Argument 37 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 38,
+    "fields": {
+      "decyzja": 39,
+      "author": 19,
+      "argument_type": "FOR",
+      "content": "Argument 38 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 39,
+    "fields": {
+      "decyzja": 40,
+      "author": 20,
+      "argument_type": "FOR",
+      "content": "Argument 39 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 40,
+    "fields": {
+      "decyzja": 41,
+      "author": 1,
+      "argument_type": "AGAINST",
+      "content": "Argument 40 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 41,
+    "fields": {
+      "decyzja": 42,
+      "author": 2,
+      "argument_type": "AGAINST",
+      "content": "Argument 41 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 42,
+    "fields": {
+      "decyzja": 43,
+      "author": 3,
+      "argument_type": "FOR",
+      "content": "Argument 42 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 43,
+    "fields": {
+      "decyzja": 44,
+      "author": 4,
+      "argument_type": "AGAINST",
+      "content": "Argument 43 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 44,
+    "fields": {
+      "decyzja": 45,
+      "author": 5,
+      "argument_type": "AGAINST",
+      "content": "Argument 44 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 45,
+    "fields": {
+      "decyzja": 46,
+      "author": 6,
+      "argument_type": "FOR",
+      "content": "Argument 45 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 46,
+    "fields": {
+      "decyzja": 47,
+      "author": 7,
+      "argument_type": "AGAINST",
+      "content": "Argument 46 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 47,
+    "fields": {
+      "decyzja": 48,
+      "author": 8,
+      "argument_type": "FOR",
+      "content": "Argument 47 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 48,
+    "fields": {
+      "decyzja": 49,
+      "author": 9,
+      "argument_type": "FOR",
+      "content": "Argument 48 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 49,
+    "fields": {
+      "decyzja": 50,
+      "author": 10,
+      "argument_type": "FOR",
+      "content": "Argument 49 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 50,
+    "fields": {
+      "decyzja": 51,
+      "author": 11,
+      "argument_type": "AGAINST",
+      "content": "Argument 50 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 51,
+    "fields": {
+      "decyzja": 52,
+      "author": 12,
+      "argument_type": "FOR",
+      "content": "Argument 51 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 52,
+    "fields": {
+      "decyzja": 53,
+      "author": 13,
+      "argument_type": "FOR",
+      "content": "Argument 52 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 53,
+    "fields": {
+      "decyzja": 54,
+      "author": 14,
+      "argument_type": "FOR",
+      "content": "Argument 53 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 54,
+    "fields": {
+      "decyzja": 55,
+      "author": 15,
+      "argument_type": "FOR",
+      "content": "Argument 54 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 55,
+    "fields": {
+      "decyzja": 56,
+      "author": 16,
+      "argument_type": "FOR",
+      "content": "Argument 55 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 56,
+    "fields": {
+      "decyzja": 57,
+      "author": 17,
+      "argument_type": "AGAINST",
+      "content": "Argument 56 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 57,
+    "fields": {
+      "decyzja": 58,
+      "author": 18,
+      "argument_type": "AGAINST",
+      "content": "Argument 57 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 58,
+    "fields": {
+      "decyzja": 59,
+      "author": 19,
+      "argument_type": "FOR",
+      "content": "Argument 58 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 59,
+    "fields": {
+      "decyzja": 60,
+      "author": 20,
+      "argument_type": "FOR",
+      "content": "Argument 59 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 60,
+    "fields": {
+      "decyzja": 61,
+      "author": 1,
+      "argument_type": "FOR",
+      "content": "Argument 60 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 61,
+    "fields": {
+      "decyzja": 62,
+      "author": 2,
+      "argument_type": "AGAINST",
+      "content": "Argument 61 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 62,
+    "fields": {
+      "decyzja": 63,
+      "author": 3,
+      "argument_type": "AGAINST",
+      "content": "Argument 62 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 63,
+    "fields": {
+      "decyzja": 64,
+      "author": 4,
+      "argument_type": "FOR",
+      "content": "Argument 63 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 64,
+    "fields": {
+      "decyzja": 65,
+      "author": 5,
+      "argument_type": "AGAINST",
+      "content": "Argument 64 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 65,
+    "fields": {
+      "decyzja": 66,
+      "author": 6,
+      "argument_type": "AGAINST",
+      "content": "Argument 65 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 66,
+    "fields": {
+      "decyzja": 67,
+      "author": 7,
+      "argument_type": "AGAINST",
+      "content": "Argument 66 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 67,
+    "fields": {
+      "decyzja": 68,
+      "author": 8,
+      "argument_type": "AGAINST",
+      "content": "Argument 67 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 68,
+    "fields": {
+      "decyzja": 69,
+      "author": 9,
+      "argument_type": "FOR",
+      "content": "Argument 68 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 69,
+    "fields": {
+      "decyzja": 70,
+      "author": 10,
+      "argument_type": "FOR",
+      "content": "Argument 69 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 70,
+    "fields": {
+      "decyzja": 71,
+      "author": 11,
+      "argument_type": "FOR",
+      "content": "Argument 70 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 71,
+    "fields": {
+      "decyzja": 72,
+      "author": 12,
+      "argument_type": "FOR",
+      "content": "Argument 71 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 72,
+    "fields": {
+      "decyzja": 73,
+      "author": 13,
+      "argument_type": "AGAINST",
+      "content": "Argument 72 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 73,
+    "fields": {
+      "decyzja": 74,
+      "author": 14,
+      "argument_type": "FOR",
+      "content": "Argument 73 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 74,
+    "fields": {
+      "decyzja": 75,
+      "author": 15,
+      "argument_type": "AGAINST",
+      "content": "Argument 74 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 75,
+    "fields": {
+      "decyzja": 76,
+      "author": 16,
+      "argument_type": "FOR",
+      "content": "Argument 75 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 76,
+    "fields": {
+      "decyzja": 77,
+      "author": 17,
+      "argument_type": "AGAINST",
+      "content": "Argument 76 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 77,
+    "fields": {
+      "decyzja": 78,
+      "author": 18,
+      "argument_type": "AGAINST",
+      "content": "Argument 77 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 78,
+    "fields": {
+      "decyzja": 79,
+      "author": 19,
+      "argument_type": "FOR",
+      "content": "Argument 78 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 79,
+    "fields": {
+      "decyzja": 80,
+      "author": 20,
+      "argument_type": "FOR",
+      "content": "Argument 79 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 80,
+    "fields": {
+      "decyzja": 81,
+      "author": 1,
+      "argument_type": "AGAINST",
+      "content": "Argument 80 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 81,
+    "fields": {
+      "decyzja": 82,
+      "author": 2,
+      "argument_type": "AGAINST",
+      "content": "Argument 81 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 82,
+    "fields": {
+      "decyzja": 83,
+      "author": 3,
+      "argument_type": "AGAINST",
+      "content": "Argument 82 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 83,
+    "fields": {
+      "decyzja": 84,
+      "author": 4,
+      "argument_type": "FOR",
+      "content": "Argument 83 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 84,
+    "fields": {
+      "decyzja": 85,
+      "author": 5,
+      "argument_type": "AGAINST",
+      "content": "Argument 84 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 85,
+    "fields": {
+      "decyzja": 86,
+      "author": 6,
+      "argument_type": "AGAINST",
+      "content": "Argument 85 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 86,
+    "fields": {
+      "decyzja": 87,
+      "author": 7,
+      "argument_type": "FOR",
+      "content": "Argument 86 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 87,
+    "fields": {
+      "decyzja": 88,
+      "author": 8,
+      "argument_type": "FOR",
+      "content": "Argument 87 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 88,
+    "fields": {
+      "decyzja": 89,
+      "author": 9,
+      "argument_type": "AGAINST",
+      "content": "Argument 88 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 89,
+    "fields": {
+      "decyzja": 90,
+      "author": 10,
+      "argument_type": "AGAINST",
+      "content": "Argument 89 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 90,
+    "fields": {
+      "decyzja": 91,
+      "author": 11,
+      "argument_type": "FOR",
+      "content": "Argument 90 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 91,
+    "fields": {
+      "decyzja": 92,
+      "author": 12,
+      "argument_type": "FOR",
+      "content": "Argument 91 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 92,
+    "fields": {
+      "decyzja": 93,
+      "author": 13,
+      "argument_type": "FOR",
+      "content": "Argument 92 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 93,
+    "fields": {
+      "decyzja": 94,
+      "author": 14,
+      "argument_type": "AGAINST",
+      "content": "Argument 93 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 94,
+    "fields": {
+      "decyzja": 95,
+      "author": 15,
+      "argument_type": "FOR",
+      "content": "Argument 94 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 95,
+    "fields": {
+      "decyzja": 96,
+      "author": 16,
+      "argument_type": "AGAINST",
+      "content": "Argument 95 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 96,
+    "fields": {
+      "decyzja": 97,
+      "author": 17,
+      "argument_type": "FOR",
+      "content": "Argument 96 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 97,
+    "fields": {
+      "decyzja": 98,
+      "author": 18,
+      "argument_type": "AGAINST",
+      "content": "Argument 97 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 98,
+    "fields": {
+      "decyzja": 99,
+      "author": 19,
+      "argument_type": "AGAINST",
+      "content": "Argument 98 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 99,
+    "fields": {
+      "decyzja": 100,
+      "author": 20,
+      "argument_type": "FOR",
+      "content": "Argument 99 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 100,
+    "fields": {
+      "decyzja": 1,
+      "author": 1,
+      "argument_type": "FOR",
+      "content": "Argument 100 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 101,
+    "fields": {
+      "decyzja": 2,
+      "author": 2,
+      "argument_type": "FOR",
+      "content": "Argument 101 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 102,
+    "fields": {
+      "decyzja": 3,
+      "author": 3,
+      "argument_type": "FOR",
+      "content": "Argument 102 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 103,
+    "fields": {
+      "decyzja": 4,
+      "author": 4,
+      "argument_type": "AGAINST",
+      "content": "Argument 103 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 104,
+    "fields": {
+      "decyzja": 5,
+      "author": 5,
+      "argument_type": "AGAINST",
+      "content": "Argument 104 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 105,
+    "fields": {
+      "decyzja": 6,
+      "author": 6,
+      "argument_type": "AGAINST",
+      "content": "Argument 105 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 106,
+    "fields": {
+      "decyzja": 7,
+      "author": 7,
+      "argument_type": "FOR",
+      "content": "Argument 106 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 107,
+    "fields": {
+      "decyzja": 8,
+      "author": 8,
+      "argument_type": "AGAINST",
+      "content": "Argument 107 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 108,
+    "fields": {
+      "decyzja": 9,
+      "author": 9,
+      "argument_type": "FOR",
+      "content": "Argument 108 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 109,
+    "fields": {
+      "decyzja": 10,
+      "author": 10,
+      "argument_type": "FOR",
+      "content": "Argument 109 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 110,
+    "fields": {
+      "decyzja": 11,
+      "author": 11,
+      "argument_type": "FOR",
+      "content": "Argument 110 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 111,
+    "fields": {
+      "decyzja": 12,
+      "author": 12,
+      "argument_type": "AGAINST",
+      "content": "Argument 111 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 112,
+    "fields": {
+      "decyzja": 13,
+      "author": 13,
+      "argument_type": "AGAINST",
+      "content": "Argument 112 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 113,
+    "fields": {
+      "decyzja": 14,
+      "author": 14,
+      "argument_type": "FOR",
+      "content": "Argument 113 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 114,
+    "fields": {
+      "decyzja": 15,
+      "author": 15,
+      "argument_type": "FOR",
+      "content": "Argument 114 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 115,
+    "fields": {
+      "decyzja": 16,
+      "author": 16,
+      "argument_type": "AGAINST",
+      "content": "Argument 115 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 116,
+    "fields": {
+      "decyzja": 17,
+      "author": 17,
+      "argument_type": "AGAINST",
+      "content": "Argument 116 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 117,
+    "fields": {
+      "decyzja": 18,
+      "author": 18,
+      "argument_type": "AGAINST",
+      "content": "Argument 117 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 118,
+    "fields": {
+      "decyzja": 19,
+      "author": 19,
+      "argument_type": "AGAINST",
+      "content": "Argument 118 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 119,
+    "fields": {
+      "decyzja": 20,
+      "author": 20,
+      "argument_type": "AGAINST",
+      "content": "Argument 119 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 120,
+    "fields": {
+      "decyzja": 21,
+      "author": 1,
+      "argument_type": "AGAINST",
+      "content": "Argument 120 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 121,
+    "fields": {
+      "decyzja": 22,
+      "author": 2,
+      "argument_type": "AGAINST",
+      "content": "Argument 121 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 122,
+    "fields": {
+      "decyzja": 23,
+      "author": 3,
+      "argument_type": "FOR",
+      "content": "Argument 122 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 123,
+    "fields": {
+      "decyzja": 24,
+      "author": 4,
+      "argument_type": "FOR",
+      "content": "Argument 123 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 124,
+    "fields": {
+      "decyzja": 25,
+      "author": 5,
+      "argument_type": "FOR",
+      "content": "Argument 124 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 125,
+    "fields": {
+      "decyzja": 26,
+      "author": 6,
+      "argument_type": "AGAINST",
+      "content": "Argument 125 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 126,
+    "fields": {
+      "decyzja": 27,
+      "author": 7,
+      "argument_type": "FOR",
+      "content": "Argument 126 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 127,
+    "fields": {
+      "decyzja": 28,
+      "author": 8,
+      "argument_type": "FOR",
+      "content": "Argument 127 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 128,
+    "fields": {
+      "decyzja": 29,
+      "author": 9,
+      "argument_type": "FOR",
+      "content": "Argument 128 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 129,
+    "fields": {
+      "decyzja": 30,
+      "author": 10,
+      "argument_type": "FOR",
+      "content": "Argument 129 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 130,
+    "fields": {
+      "decyzja": 31,
+      "author": 11,
+      "argument_type": "FOR",
+      "content": "Argument 130 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 131,
+    "fields": {
+      "decyzja": 32,
+      "author": 12,
+      "argument_type": "AGAINST",
+      "content": "Argument 131 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 132,
+    "fields": {
+      "decyzja": 33,
+      "author": 13,
+      "argument_type": "FOR",
+      "content": "Argument 132 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 133,
+    "fields": {
+      "decyzja": 34,
+      "author": 14,
+      "argument_type": "FOR",
+      "content": "Argument 133 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 134,
+    "fields": {
+      "decyzja": 35,
+      "author": 15,
+      "argument_type": "AGAINST",
+      "content": "Argument 134 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 135,
+    "fields": {
+      "decyzja": 36,
+      "author": 16,
+      "argument_type": "AGAINST",
+      "content": "Argument 135 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 136,
+    "fields": {
+      "decyzja": 37,
+      "author": 17,
+      "argument_type": "AGAINST",
+      "content": "Argument 136 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 137,
+    "fields": {
+      "decyzja": 38,
+      "author": 18,
+      "argument_type": "FOR",
+      "content": "Argument 137 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 138,
+    "fields": {
+      "decyzja": 39,
+      "author": 19,
+      "argument_type": "FOR",
+      "content": "Argument 138 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 139,
+    "fields": {
+      "decyzja": 40,
+      "author": 20,
+      "argument_type": "FOR",
+      "content": "Argument 139 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 140,
+    "fields": {
+      "decyzja": 41,
+      "author": 1,
+      "argument_type": "AGAINST",
+      "content": "Argument 140 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 141,
+    "fields": {
+      "decyzja": 42,
+      "author": 2,
+      "argument_type": "FOR",
+      "content": "Argument 141 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 142,
+    "fields": {
+      "decyzja": 43,
+      "author": 3,
+      "argument_type": "FOR",
+      "content": "Argument 142 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 143,
+    "fields": {
+      "decyzja": 44,
+      "author": 4,
+      "argument_type": "AGAINST",
+      "content": "Argument 143 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 144,
+    "fields": {
+      "decyzja": 45,
+      "author": 5,
+      "argument_type": "AGAINST",
+      "content": "Argument 144 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 145,
+    "fields": {
+      "decyzja": 46,
+      "author": 6,
+      "argument_type": "FOR",
+      "content": "Argument 145 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 146,
+    "fields": {
+      "decyzja": 47,
+      "author": 7,
+      "argument_type": "FOR",
+      "content": "Argument 146 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 147,
+    "fields": {
+      "decyzja": 48,
+      "author": 8,
+      "argument_type": "AGAINST",
+      "content": "Argument 147 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 148,
+    "fields": {
+      "decyzja": 49,
+      "author": 9,
+      "argument_type": "FOR",
+      "content": "Argument 148 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 149,
+    "fields": {
+      "decyzja": 50,
+      "author": 10,
+      "argument_type": "FOR",
+      "content": "Argument 149 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 150,
+    "fields": {
+      "decyzja": 51,
+      "author": 11,
+      "argument_type": "AGAINST",
+      "content": "Argument 150 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 151,
+    "fields": {
+      "decyzja": 52,
+      "author": 12,
+      "argument_type": "FOR",
+      "content": "Argument 151 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 152,
+    "fields": {
+      "decyzja": 53,
+      "author": 13,
+      "argument_type": "AGAINST",
+      "content": "Argument 152 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 153,
+    "fields": {
+      "decyzja": 54,
+      "author": 14,
+      "argument_type": "FOR",
+      "content": "Argument 153 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 154,
+    "fields": {
+      "decyzja": 55,
+      "author": 15,
+      "argument_type": "FOR",
+      "content": "Argument 154 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 155,
+    "fields": {
+      "decyzja": 56,
+      "author": 16,
+      "argument_type": "FOR",
+      "content": "Argument 155 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 156,
+    "fields": {
+      "decyzja": 57,
+      "author": 17,
+      "argument_type": "FOR",
+      "content": "Argument 156 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 157,
+    "fields": {
+      "decyzja": 58,
+      "author": 18,
+      "argument_type": "AGAINST",
+      "content": "Argument 157 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 158,
+    "fields": {
+      "decyzja": 59,
+      "author": 19,
+      "argument_type": "FOR",
+      "content": "Argument 158 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 159,
+    "fields": {
+      "decyzja": 60,
+      "author": 20,
+      "argument_type": "FOR",
+      "content": "Argument 159 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 160,
+    "fields": {
+      "decyzja": 61,
+      "author": 1,
+      "argument_type": "FOR",
+      "content": "Argument 160 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 161,
+    "fields": {
+      "decyzja": 62,
+      "author": 2,
+      "argument_type": "AGAINST",
+      "content": "Argument 161 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 162,
+    "fields": {
+      "decyzja": 63,
+      "author": 3,
+      "argument_type": "FOR",
+      "content": "Argument 162 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 163,
+    "fields": {
+      "decyzja": 64,
+      "author": 4,
+      "argument_type": "FOR",
+      "content": "Argument 163 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 164,
+    "fields": {
+      "decyzja": 65,
+      "author": 5,
+      "argument_type": "FOR",
+      "content": "Argument 164 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 165,
+    "fields": {
+      "decyzja": 66,
+      "author": 6,
+      "argument_type": "AGAINST",
+      "content": "Argument 165 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 166,
+    "fields": {
+      "decyzja": 67,
+      "author": 7,
+      "argument_type": "FOR",
+      "content": "Argument 166 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 167,
+    "fields": {
+      "decyzja": 68,
+      "author": 8,
+      "argument_type": "FOR",
+      "content": "Argument 167 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 168,
+    "fields": {
+      "decyzja": 69,
+      "author": 9,
+      "argument_type": "AGAINST",
+      "content": "Argument 168 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 169,
+    "fields": {
+      "decyzja": 70,
+      "author": 10,
+      "argument_type": "AGAINST",
+      "content": "Argument 169 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 170,
+    "fields": {
+      "decyzja": 71,
+      "author": 11,
+      "argument_type": "FOR",
+      "content": "Argument 170 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 171,
+    "fields": {
+      "decyzja": 72,
+      "author": 12,
+      "argument_type": "FOR",
+      "content": "Argument 171 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 172,
+    "fields": {
+      "decyzja": 73,
+      "author": 13,
+      "argument_type": "FOR",
+      "content": "Argument 172 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 173,
+    "fields": {
+      "decyzja": 74,
+      "author": 14,
+      "argument_type": "AGAINST",
+      "content": "Argument 173 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 174,
+    "fields": {
+      "decyzja": 75,
+      "author": 15,
+      "argument_type": "AGAINST",
+      "content": "Argument 174 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 175,
+    "fields": {
+      "decyzja": 76,
+      "author": 16,
+      "argument_type": "FOR",
+      "content": "Argument 175 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 176,
+    "fields": {
+      "decyzja": 77,
+      "author": 17,
+      "argument_type": "FOR",
+      "content": "Argument 176 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 177,
+    "fields": {
+      "decyzja": 78,
+      "author": 18,
+      "argument_type": "FOR",
+      "content": "Argument 177 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 178,
+    "fields": {
+      "decyzja": 79,
+      "author": 19,
+      "argument_type": "FOR",
+      "content": "Argument 178 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 179,
+    "fields": {
+      "decyzja": 80,
+      "author": 20,
+      "argument_type": "AGAINST",
+      "content": "Argument 179 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 180,
+    "fields": {
+      "decyzja": 81,
+      "author": 1,
+      "argument_type": "AGAINST",
+      "content": "Argument 180 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 181,
+    "fields": {
+      "decyzja": 82,
+      "author": 2,
+      "argument_type": "FOR",
+      "content": "Argument 181 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 182,
+    "fields": {
+      "decyzja": 83,
+      "author": 3,
+      "argument_type": "AGAINST",
+      "content": "Argument 182 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 183,
+    "fields": {
+      "decyzja": 84,
+      "author": 4,
+      "argument_type": "AGAINST",
+      "content": "Argument 183 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 184,
+    "fields": {
+      "decyzja": 85,
+      "author": 5,
+      "argument_type": "FOR",
+      "content": "Argument 184 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 185,
+    "fields": {
+      "decyzja": 86,
+      "author": 6,
+      "argument_type": "FOR",
+      "content": "Argument 185 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 186,
+    "fields": {
+      "decyzja": 87,
+      "author": 7,
+      "argument_type": "AGAINST",
+      "content": "Argument 186 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 187,
+    "fields": {
+      "decyzja": 88,
+      "author": 8,
+      "argument_type": "AGAINST",
+      "content": "Argument 187 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 188,
+    "fields": {
+      "decyzja": 89,
+      "author": 9,
+      "argument_type": "AGAINST",
+      "content": "Argument 188 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 189,
+    "fields": {
+      "decyzja": 90,
+      "author": 10,
+      "argument_type": "FOR",
+      "content": "Argument 189 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 190,
+    "fields": {
+      "decyzja": 91,
+      "author": 11,
+      "argument_type": "FOR",
+      "content": "Argument 190 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 191,
+    "fields": {
+      "decyzja": 92,
+      "author": 12,
+      "argument_type": "AGAINST",
+      "content": "Argument 191 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 192,
+    "fields": {
+      "decyzja": 93,
+      "author": 13,
+      "argument_type": "FOR",
+      "content": "Argument 192 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 193,
+    "fields": {
+      "decyzja": 94,
+      "author": 14,
+      "argument_type": "AGAINST",
+      "content": "Argument 193 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 194,
+    "fields": {
+      "decyzja": 95,
+      "author": 15,
+      "argument_type": "AGAINST",
+      "content": "Argument 194 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 195,
+    "fields": {
+      "decyzja": 96,
+      "author": 16,
+      "argument_type": "FOR",
+      "content": "Argument 195 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 196,
+    "fields": {
+      "decyzja": 97,
+      "author": 17,
+      "argument_type": "FOR",
+      "content": "Argument 196 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 197,
+    "fields": {
+      "decyzja": 98,
+      "author": 18,
+      "argument_type": "AGAINST",
+      "content": "Argument 197 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 198,
+    "fields": {
+      "decyzja": 99,
+      "author": 19,
+      "argument_type": "AGAINST",
+      "content": "Argument 198 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 199,
+    "fields": {
+      "decyzja": 100,
+      "author": 20,
+      "argument_type": "AGAINST",
+      "content": "Argument 199 content"
+    }
+  },
+  {
+    "model": "glosowania.argument",
+    "pk": 200,
+    "fields": {
+      "decyzja": 1,
+      "author": 1,
+      "argument_type": "FOR",
+      "content": "Argument 200 content"
+    }
+  }
+]

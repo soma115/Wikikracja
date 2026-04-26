@@ -1,0 +1,30 @@
+[
+  {
+    "model": "events.event",
+    "pk": 1,
+    "fields": {
+      "title": "Community Meeting",
+      "description": "Monthly community meeting to discuss ongoing projects.",
+      "place": "Main Hall",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-01",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 2,
+    "fields": {
+      "title": "Book Club",
+      "description": "Discussion of this month's selected book.",
+      "place": "Library Room",
+      "start_date": "2026-05-15",
+      "end_date": "2026-05-15",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  }
+]

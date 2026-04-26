@@ -171,3 +171,10 @@ branch = "main"
 upload_to_pypi = false
 upload_to_release = true
 build_command = false
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "zzz.settings"
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short"

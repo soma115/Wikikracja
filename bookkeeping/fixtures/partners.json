@@ -1,0 +1,1102 @@
+[
+  {
+    "model": "bookkeeping.partner",
+    "pk": 1,
+    "fields": {
+      "name": "Partner 1",
+      "email": "partner1@example.com",
+      "phone": "+48 446747676",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 2,
+    "fields": {
+      "name": "Partner 2",
+      "email": "partner2@example.com",
+      "phone": "+48 545085881",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 3,
+    "fields": {
+      "name": "Partner 3",
+      "email": "partner3@example.com",
+      "phone": "+48 438095723",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 4,
+    "fields": {
+      "name": "Partner 4",
+      "email": "partner4@example.com",
+      "phone": "+48 923437751",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 5,
+    "fields": {
+      "name": "Partner 5",
+      "email": "partner5@example.com",
+      "phone": "+48 243658151",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 6,
+    "fields": {
+      "name": "Partner 6",
+      "email": "partner6@example.com",
+      "phone": "+48 884979629",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 7,
+    "fields": {
+      "name": "Partner 7",
+      "email": "partner7@example.com",
+      "phone": "+48 527568840",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 8,
+    "fields": {
+      "name": "Partner 8",
+      "email": "partner8@example.com",
+      "phone": "+48 904620021",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 9,
+    "fields": {
+      "name": "Partner 9",
+      "email": "partner9@example.com",
+      "phone": "+48 546746628",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 10,
+    "fields": {
+      "name": "Partner 10",
+      "email": "partner10@example.com",
+      "phone": "+48 467896400",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 11,
+    "fields": {
+      "name": "Partner 11",
+      "email": "partner11@example.com",
+      "phone": "+48 142877417",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 12,
+    "fields": {
+      "name": "Partner 12",
+      "email": "partner12@example.com",
+      "phone": "+48 567032198",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 13,
+    "fields": {
+      "name": "Partner 13",
+      "email": "partner13@example.com",
+      "phone": "+48 108528716",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 14,
+    "fields": {
+      "name": "Partner 14",
+      "email": "partner14@example.com",
+      "phone": "+48 271365427",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 15,
+    "fields": {
+      "name": "Partner 15",
+      "email": "partner15@example.com",
+      "phone": "+48 906725653",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 16,
+    "fields": {
+      "name": "Partner 16",
+      "email": "partner16@example.com",
+      "phone": "+48 470451373",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 17,
+    "fields": {
+      "name": "Partner 17",
+      "email": "partner17@example.com",
+      "phone": "+48 483449612",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 18,
+    "fields": {
+      "name": "Partner 18",
+      "email": "partner18@example.com",
+      "phone": "+48 220042824",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 19,
+    "fields": {
+      "name": "Partner 19",
+      "email": "partner19@example.com",
+      "phone": "+48 368587970",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 20,
+    "fields": {
+      "name": "Partner 20",
+      "email": "partner20@example.com",
+      "phone": "+48 192571693",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 21,
+    "fields": {
+      "name": "Partner 21",
+      "email": "partner21@example.com",
+      "phone": "+48 869014694",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 22,
+    "fields": {
+      "name": "Partner 22",
+      "email": "partner22@example.com",
+      "phone": "+48 366659466",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 23,
+    "fields": {
+      "name": "Partner 23",
+      "email": "partner23@example.com",
+      "phone": "+48 839093505",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 24,
+    "fields": {
+      "name": "Partner 24",
+      "email": "partner24@example.com",
+      "phone": "+48 305650962",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 25,
+    "fields": {
+      "name": "Partner 25",
+      "email": "partner25@example.com",
+      "phone": "+48 714237956",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 26,
+    "fields": {
+      "name": "Partner 26",
+      "email": "partner26@example.com",
+      "phone": "+48 795799870",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 27,
+    "fields": {
+      "name": "Partner 27",
+      "email": "partner27@example.com",
+      "phone": "+48 210385099",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 28,
+    "fields": {
+      "name": "Partner 28",
+      "email": "partner28@example.com",
+      "phone": "+48 900591828",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 29,
+    "fields": {
+      "name": "Partner 29",
+      "email": "partner29@example.com",
+      "phone": "+48 589141580",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 30,
+    "fields": {
+      "name": "Partner 30",
+      "email": "partner30@example.com",
+      "phone": "+48 730372176",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 31,
+    "fields": {
+      "name": "Partner 31",
+      "email": "partner31@example.com",
+      "phone": "+48 840669046",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 32,
+    "fields": {
+      "name": "Partner 32",
+      "email": "partner32@example.com",
+      "phone": "+48 278743959",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 33,
+    "fields": {
+      "name": "Partner 33",
+      "email": "partner33@example.com",
+      "phone": "+48 643334575",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 34,
+    "fields": {
+      "name": "Partner 34",
+      "email": "partner34@example.com",
+      "phone": "+48 520628211",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 35,
+    "fields": {
+      "name": "Partner 35",
+      "email": "partner35@example.com",
+      "phone": "+48 688811941",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 36,
+    "fields": {
+      "name": "Partner 36",
+      "email": "partner36@example.com",
+      "phone": "+48 434514793",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 37,
+    "fields": {
+      "name": "Partner 37",
+      "email": "partner37@example.com",
+      "phone": "+48 906055542",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 38,
+    "fields": {
+      "name": "Partner 38",
+      "email": "partner38@example.com",
+      "phone": "+48 830409121",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 39,
+    "fields": {
+      "name": "Partner 39",
+      "email": "partner39@example.com",
+      "phone": "+48 840639083",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 40,
+    "fields": {
+      "name": "Partner 40",
+      "email": "partner40@example.com",
+      "phone": "+48 797856298",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 41,
+    "fields": {
+      "name": "Partner 41",
+      "email": "partner41@example.com",
+      "phone": "+48 979214258",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 42,
+    "fields": {
+      "name": "Partner 42",
+      "email": "partner42@example.com",
+      "phone": "+48 720526011",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 43,
+    "fields": {
+      "name": "Partner 43",
+      "email": "partner43@example.com",
+      "phone": "+48 966400462",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 44,
+    "fields": {
+      "name": "Partner 44",
+      "email": "partner44@example.com",
+      "phone": "+48 541017780",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 45,
+    "fields": {
+      "name": "Partner 45",
+      "email": "partner45@example.com",
+      "phone": "+48 806944113",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 46,
+    "fields": {
+      "name": "Partner 46",
+      "email": "partner46@example.com",
+      "phone": "+48 864851589",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 47,
+    "fields": {
+      "name": "Partner 47",
+      "email": "partner47@example.com",
+      "phone": "+48 205476636",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 48,
+    "fields": {
+      "name": "Partner 48",
+      "email": "partner48@example.com",
+      "phone": "+48 956420530",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 49,
+    "fields": {
+      "name": "Partner 49",
+      "email": "partner49@example.com",
+      "phone": "+48 740581896",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 50,
+    "fields": {
+      "name": "Partner 50",
+      "email": "partner50@example.com",
+      "phone": "+48 352578833",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 51,
+    "fields": {
+      "name": "Partner 51",
+      "email": "partner51@example.com",
+      "phone": "+48 838756738",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 52,
+    "fields": {
+      "name": "Partner 52",
+      "email": "partner52@example.com",
+      "phone": "+48 644367991",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 53,
+    "fields": {
+      "name": "Partner 53",
+      "email": "partner53@example.com",
+      "phone": "+48 547411802",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 54,
+    "fields": {
+      "name": "Partner 54",
+      "email": "partner54@example.com",
+      "phone": "+48 547863779",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 55,
+    "fields": {
+      "name": "Partner 55",
+      "email": "partner55@example.com",
+      "phone": "+48 752901671",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 56,
+    "fields": {
+      "name": "Partner 56",
+      "email": "partner56@example.com",
+      "phone": "+48 665964659",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 57,
+    "fields": {
+      "name": "Partner 57",
+      "email": "partner57@example.com",
+      "phone": "+48 254487691",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 58,
+    "fields": {
+      "name": "Partner 58",
+      "email": "partner58@example.com",
+      "phone": "+48 482872288",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 59,
+    "fields": {
+      "name": "Partner 59",
+      "email": "partner59@example.com",
+      "phone": "+48 602422754",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 60,
+    "fields": {
+      "name": "Partner 60",
+      "email": "partner60@example.com",
+      "phone": "+48 517558027",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 61,
+    "fields": {
+      "name": "Partner 61",
+      "email": "partner61@example.com",
+      "phone": "+48 733374886",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 62,
+    "fields": {
+      "name": "Partner 62",
+      "email": "partner62@example.com",
+      "phone": "+48 806654875",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 63,
+    "fields": {
+      "name": "Partner 63",
+      "email": "partner63@example.com",
+      "phone": "+48 231876558",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 64,
+    "fields": {
+      "name": "Partner 64",
+      "email": "partner64@example.com",
+      "phone": "+48 996291217",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 65,
+    "fields": {
+      "name": "Partner 65",
+      "email": "partner65@example.com",
+      "phone": "+48 112981149",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 66,
+    "fields": {
+      "name": "Partner 66",
+      "email": "partner66@example.com",
+      "phone": "+48 945880371",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 67,
+    "fields": {
+      "name": "Partner 67",
+      "email": "partner67@example.com",
+      "phone": "+48 806311041",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 68,
+    "fields": {
+      "name": "Partner 68",
+      "email": "partner68@example.com",
+      "phone": "+48 932850412",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 69,
+    "fields": {
+      "name": "Partner 69",
+      "email": "partner69@example.com",
+      "phone": "+48 982280215",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 70,
+    "fields": {
+      "name": "Partner 70",
+      "email": "partner70@example.com",
+      "phone": "+48 972832896",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 71,
+    "fields": {
+      "name": "Partner 71",
+      "email": "partner71@example.com",
+      "phone": "+48 823441535",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 72,
+    "fields": {
+      "name": "Partner 72",
+      "email": "partner72@example.com",
+      "phone": "+48 773086826",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 73,
+    "fields": {
+      "name": "Partner 73",
+      "email": "partner73@example.com",
+      "phone": "+48 315685142",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 74,
+    "fields": {
+      "name": "Partner 74",
+      "email": "partner74@example.com",
+      "phone": "+48 999877948",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 75,
+    "fields": {
+      "name": "Partner 75",
+      "email": "partner75@example.com",
+      "phone": "+48 651706610",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 76,
+    "fields": {
+      "name": "Partner 76",
+      "email": "partner76@example.com",
+      "phone": "+48 809175266",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 77,
+    "fields": {
+      "name": "Partner 77",
+      "email": "partner77@example.com",
+      "phone": "+48 546020083",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 78,
+    "fields": {
+      "name": "Partner 78",
+      "email": "partner78@example.com",
+      "phone": "+48 623898536",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 79,
+    "fields": {
+      "name": "Partner 79",
+      "email": "partner79@example.com",
+      "phone": "+48 192069014",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 80,
+    "fields": {
+      "name": "Partner 80",
+      "email": "partner80@example.com",
+      "phone": "+48 264923386",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 81,
+    "fields": {
+      "name": "Partner 81",
+      "email": "partner81@example.com",
+      "phone": "+48 586243261",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 82,
+    "fields": {
+      "name": "Partner 82",
+      "email": "partner82@example.com",
+      "phone": "+48 367831044",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 83,
+    "fields": {
+      "name": "Partner 83",
+      "email": "partner83@example.com",
+      "phone": "+48 837675197",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 84,
+    "fields": {
+      "name": "Partner 84",
+      "email": "partner84@example.com",
+      "phone": "+48 643740467",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 85,
+    "fields": {
+      "name": "Partner 85",
+      "email": "partner85@example.com",
+      "phone": "+48 214948128",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 86,
+    "fields": {
+      "name": "Partner 86",
+      "email": "partner86@example.com",
+      "phone": "+48 590471296",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 87,
+    "fields": {
+      "name": "Partner 87",
+      "email": "partner87@example.com",
+      "phone": "+48 796227382",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 88,
+    "fields": {
+      "name": "Partner 88",
+      "email": "partner88@example.com",
+      "phone": "+48 485258433",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 89,
+    "fields": {
+      "name": "Partner 89",
+      "email": "partner89@example.com",
+      "phone": "+48 897060924",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 90,
+    "fields": {
+      "name": "Partner 90",
+      "email": "partner90@example.com",
+      "phone": "+48 834869172",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 91,
+    "fields": {
+      "name": "Partner 91",
+      "email": "partner91@example.com",
+      "phone": "+48 117125901",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 92,
+    "fields": {
+      "name": "Partner 92",
+      "email": "partner92@example.com",
+      "phone": "+48 730868814",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 93,
+    "fields": {
+      "name": "Partner 93",
+      "email": "partner93@example.com",
+      "phone": "+48 891710207",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 94,
+    "fields": {
+      "name": "Partner 94",
+      "email": "partner94@example.com",
+      "phone": "+48 147844172",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 95,
+    "fields": {
+      "name": "Partner 95",
+      "email": "partner95@example.com",
+      "phone": "+48 323973286",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 96,
+    "fields": {
+      "name": "Partner 96",
+      "email": "partner96@example.com",
+      "phone": "+48 442627190",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 97,
+    "fields": {
+      "name": "Partner 97",
+      "email": "partner97@example.com",
+      "phone": "+48 423680274",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 98,
+    "fields": {
+      "name": "Partner 98",
+      "email": "partner98@example.com",
+      "phone": "+48 774424423",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 99,
+    "fields": {
+      "name": "Partner 99",
+      "email": "partner99@example.com",
+      "phone": "+48 599232977",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 100,
+    "fields": {
+      "name": "Partner 100",
+      "email": "partner100@example.com",
+      "phone": "+48 546587602",
+      "city": "Warsaw",
+      "country": "Poland"
+    }
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "model": "bookkeeping.category",
+    "pk": 1,
+    "fields": {
+      "name": "Office Supplies",
+      "description": "Office supplies and equipment"
+    }
+  },
+  {
+    "model": "bookkeeping.category",
+    "pk": 2,
+    "fields": {
+      "name": "Services",
+      "description": "Professional services"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 1,
+    "fields": {
+      "name": "ABC Company",
+      "description": "Main service provider",
+      "contact_info": "contact@abccompany.com"
+    }
+  },
+  {
+    "model": "bookkeeping.partner",
+    "pk": 2,
+    "fields": {
+      "name": "XYZ Supplies",
+      "description": "Office supplies vendor",
+      "contact_info": "sales@xyzsupplies.com"
+    }
+  },
+  {
+    "model": "bookkeeping.transaction",
+    "pk": 1,
+    "fields": {
+      "type": "I",
+      "category": 1,
+      "partner": 1,
+      "amount": "1500.50",
+      "note": "Initial office setup",
+      "author": 1,
+      "created_date": "2026-04-01",
+      "payment_received_date": "2026-04-05"
+    }
+  }
+]

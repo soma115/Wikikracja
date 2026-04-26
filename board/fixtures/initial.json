@@ -1,0 +1,34 @@
+[
+  {
+    "model": "board.postcategory",
+    "pk": 1,
+    "fields": {
+      "name": "General Discussion",
+      "priority": 1
+    }
+  },
+  {
+    "model": "board.postcategory",
+    "pk": 2,
+    "fields": {
+      "name": "Announcements",
+      "priority": 2
+    }
+  },
+  {
+    "model": "board.post",
+    "pk": 1,
+    "fields": {
+      "title": "Welcome to the Board",
+      "subtitle": "Getting started",
+      "text": "<p>Welcome to our community board!</p>",
+      "author": 1,
+      "category": 1,
+      "is_public": true,
+      "is_archived": false,
+      "is_important": true,
+      "created": "2026-04-25T12:00:00Z",
+      "updated": "2026-04-25T12:00:00Z"
+    }
+  }
+]

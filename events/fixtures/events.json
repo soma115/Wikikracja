@@ -1,0 +1,1402 @@
+[
+  {
+    "model": "events.event",
+    "pk": 1,
+    "fields": {
+      "title": "Event 1",
+      "description": "Description for event 1",
+      "place": "Online",
+      "start_date": "2026-04-26",
+      "end_date": "2026-04-27",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 2,
+    "fields": {
+      "title": "Event 2",
+      "description": "Description for event 2",
+      "place": "Online",
+      "start_date": "2026-04-27",
+      "end_date": "2026-04-28",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 3,
+    "fields": {
+      "title": "Event 3",
+      "description": "Description for event 3",
+      "place": "Online",
+      "start_date": "2026-04-28",
+      "end_date": "2026-04-29",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 4,
+    "fields": {
+      "title": "Event 4",
+      "description": "Description for event 4",
+      "place": "Online",
+      "start_date": "2026-04-29",
+      "end_date": "2026-04-30",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 5,
+    "fields": {
+      "title": "Event 5",
+      "description": "Description for event 5",
+      "place": "Online",
+      "start_date": "2026-04-30",
+      "end_date": "2026-05-01",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 6,
+    "fields": {
+      "title": "Event 6",
+      "description": "Description for event 6",
+      "place": "Online",
+      "start_date": "2026-05-01",
+      "end_date": "2026-05-02",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 7,
+    "fields": {
+      "title": "Event 7",
+      "description": "Description for event 7",
+      "place": "Online",
+      "start_date": "2026-05-02",
+      "end_date": "2026-05-03",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 8,
+    "fields": {
+      "title": "Event 8",
+      "description": "Description for event 8",
+      "place": "Online",
+      "start_date": "2026-05-03",
+      "end_date": "2026-05-04",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 9,
+    "fields": {
+      "title": "Event 9",
+      "description": "Description for event 9",
+      "place": "Online",
+      "start_date": "2026-05-04",
+      "end_date": "2026-05-05",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 10,
+    "fields": {
+      "title": "Event 10",
+      "description": "Description for event 10",
+      "place": "Online",
+      "start_date": "2026-05-05",
+      "end_date": "2026-05-06",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 11,
+    "fields": {
+      "title": "Event 11",
+      "description": "Description for event 11",
+      "place": "Online",
+      "start_date": "2026-05-06",
+      "end_date": "2026-05-07",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 12,
+    "fields": {
+      "title": "Event 12",
+      "description": "Description for event 12",
+      "place": "Online",
+      "start_date": "2026-05-07",
+      "end_date": "2026-05-08",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 13,
+    "fields": {
+      "title": "Event 13",
+      "description": "Description for event 13",
+      "place": "Online",
+      "start_date": "2026-05-08",
+      "end_date": "2026-05-09",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 14,
+    "fields": {
+      "title": "Event 14",
+      "description": "Description for event 14",
+      "place": "Online",
+      "start_date": "2026-05-09",
+      "end_date": "2026-05-10",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 15,
+    "fields": {
+      "title": "Event 15",
+      "description": "Description for event 15",
+      "place": "Online",
+      "start_date": "2026-05-10",
+      "end_date": "2026-05-11",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 16,
+    "fields": {
+      "title": "Event 16",
+      "description": "Description for event 16",
+      "place": "Online",
+      "start_date": "2026-05-11",
+      "end_date": "2026-05-12",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 17,
+    "fields": {
+      "title": "Event 17",
+      "description": "Description for event 17",
+      "place": "Online",
+      "start_date": "2026-05-12",
+      "end_date": "2026-05-13",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 18,
+    "fields": {
+      "title": "Event 18",
+      "description": "Description for event 18",
+      "place": "Online",
+      "start_date": "2026-05-13",
+      "end_date": "2026-05-14",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 19,
+    "fields": {
+      "title": "Event 19",
+      "description": "Description for event 19",
+      "place": "Online",
+      "start_date": "2026-05-14",
+      "end_date": "2026-05-15",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 20,
+    "fields": {
+      "title": "Event 20",
+      "description": "Description for event 20",
+      "place": "Online",
+      "start_date": "2026-05-15",
+      "end_date": "2026-05-16",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 21,
+    "fields": {
+      "title": "Event 21",
+      "description": "Description for event 21",
+      "place": "Online",
+      "start_date": "2026-05-16",
+      "end_date": "2026-05-17",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 22,
+    "fields": {
+      "title": "Event 22",
+      "description": "Description for event 22",
+      "place": "Online",
+      "start_date": "2026-05-17",
+      "end_date": "2026-05-18",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 23,
+    "fields": {
+      "title": "Event 23",
+      "description": "Description for event 23",
+      "place": "Online",
+      "start_date": "2026-05-18",
+      "end_date": "2026-05-19",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 24,
+    "fields": {
+      "title": "Event 24",
+      "description": "Description for event 24",
+      "place": "Online",
+      "start_date": "2026-05-19",
+      "end_date": "2026-05-20",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 25,
+    "fields": {
+      "title": "Event 25",
+      "description": "Description for event 25",
+      "place": "Online",
+      "start_date": "2026-05-20",
+      "end_date": "2026-05-21",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 26,
+    "fields": {
+      "title": "Event 26",
+      "description": "Description for event 26",
+      "place": "Online",
+      "start_date": "2026-05-21",
+      "end_date": "2026-05-22",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 27,
+    "fields": {
+      "title": "Event 27",
+      "description": "Description for event 27",
+      "place": "Online",
+      "start_date": "2026-05-22",
+      "end_date": "2026-05-23",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 28,
+    "fields": {
+      "title": "Event 28",
+      "description": "Description for event 28",
+      "place": "Online",
+      "start_date": "2026-05-23",
+      "end_date": "2026-05-24",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 29,
+    "fields": {
+      "title": "Event 29",
+      "description": "Description for event 29",
+      "place": "Online",
+      "start_date": "2026-05-24",
+      "end_date": "2026-05-25",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 30,
+    "fields": {
+      "title": "Event 30",
+      "description": "Description for event 30",
+      "place": "Online",
+      "start_date": "2026-05-25",
+      "end_date": "2026-05-26",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 31,
+    "fields": {
+      "title": "Event 31",
+      "description": "Description for event 31",
+      "place": "Online",
+      "start_date": "2026-05-26",
+      "end_date": "2026-05-27",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 32,
+    "fields": {
+      "title": "Event 32",
+      "description": "Description for event 32",
+      "place": "Online",
+      "start_date": "2026-05-27",
+      "end_date": "2026-05-28",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 33,
+    "fields": {
+      "title": "Event 33",
+      "description": "Description for event 33",
+      "place": "Online",
+      "start_date": "2026-05-28",
+      "end_date": "2026-05-29",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 34,
+    "fields": {
+      "title": "Event 34",
+      "description": "Description for event 34",
+      "place": "Online",
+      "start_date": "2026-05-29",
+      "end_date": "2026-05-30",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 35,
+    "fields": {
+      "title": "Event 35",
+      "description": "Description for event 35",
+      "place": "Online",
+      "start_date": "2026-05-30",
+      "end_date": "2026-05-31",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 36,
+    "fields": {
+      "title": "Event 36",
+      "description": "Description for event 36",
+      "place": "Online",
+      "start_date": "2026-05-31",
+      "end_date": "2026-06-01",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 37,
+    "fields": {
+      "title": "Event 37",
+      "description": "Description for event 37",
+      "place": "Online",
+      "start_date": "2026-06-01",
+      "end_date": "2026-06-02",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 38,
+    "fields": {
+      "title": "Event 38",
+      "description": "Description for event 38",
+      "place": "Online",
+      "start_date": "2026-06-02",
+      "end_date": "2026-06-03",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 39,
+    "fields": {
+      "title": "Event 39",
+      "description": "Description for event 39",
+      "place": "Online",
+      "start_date": "2026-06-03",
+      "end_date": "2026-06-04",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 40,
+    "fields": {
+      "title": "Event 40",
+      "description": "Description for event 40",
+      "place": "Online",
+      "start_date": "2026-06-04",
+      "end_date": "2026-06-05",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 41,
+    "fields": {
+      "title": "Event 41",
+      "description": "Description for event 41",
+      "place": "Online",
+      "start_date": "2026-06-05",
+      "end_date": "2026-06-06",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 42,
+    "fields": {
+      "title": "Event 42",
+      "description": "Description for event 42",
+      "place": "Online",
+      "start_date": "2026-06-06",
+      "end_date": "2026-06-07",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 43,
+    "fields": {
+      "title": "Event 43",
+      "description": "Description for event 43",
+      "place": "Online",
+      "start_date": "2026-06-07",
+      "end_date": "2026-06-08",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 44,
+    "fields": {
+      "title": "Event 44",
+      "description": "Description for event 44",
+      "place": "Online",
+      "start_date": "2026-06-08",
+      "end_date": "2026-06-09",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 45,
+    "fields": {
+      "title": "Event 45",
+      "description": "Description for event 45",
+      "place": "Online",
+      "start_date": "2026-06-09",
+      "end_date": "2026-06-10",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 46,
+    "fields": {
+      "title": "Event 46",
+      "description": "Description for event 46",
+      "place": "Online",
+      "start_date": "2026-06-10",
+      "end_date": "2026-06-11",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 47,
+    "fields": {
+      "title": "Event 47",
+      "description": "Description for event 47",
+      "place": "Online",
+      "start_date": "2026-06-11",
+      "end_date": "2026-06-12",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 48,
+    "fields": {
+      "title": "Event 48",
+      "description": "Description for event 48",
+      "place": "Online",
+      "start_date": "2026-06-12",
+      "end_date": "2026-06-13",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 49,
+    "fields": {
+      "title": "Event 49",
+      "description": "Description for event 49",
+      "place": "Online",
+      "start_date": "2026-06-13",
+      "end_date": "2026-06-14",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 50,
+    "fields": {
+      "title": "Event 50",
+      "description": "Description for event 50",
+      "place": "Online",
+      "start_date": "2026-06-14",
+      "end_date": "2026-06-15",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 51,
+    "fields": {
+      "title": "Event 51",
+      "description": "Description for event 51",
+      "place": "Online",
+      "start_date": "2026-06-15",
+      "end_date": "2026-06-16",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 52,
+    "fields": {
+      "title": "Event 52",
+      "description": "Description for event 52",
+      "place": "Online",
+      "start_date": "2026-06-16",
+      "end_date": "2026-06-17",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 53,
+    "fields": {
+      "title": "Event 53",
+      "description": "Description for event 53",
+      "place": "Online",
+      "start_date": "2026-06-17",
+      "end_date": "2026-06-18",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 54,
+    "fields": {
+      "title": "Event 54",
+      "description": "Description for event 54",
+      "place": "Online",
+      "start_date": "2026-06-18",
+      "end_date": "2026-06-19",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 55,
+    "fields": {
+      "title": "Event 55",
+      "description": "Description for event 55",
+      "place": "Online",
+      "start_date": "2026-06-19",
+      "end_date": "2026-06-20",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 56,
+    "fields": {
+      "title": "Event 56",
+      "description": "Description for event 56",
+      "place": "Online",
+      "start_date": "2026-06-20",
+      "end_date": "2026-06-21",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 57,
+    "fields": {
+      "title": "Event 57",
+      "description": "Description for event 57",
+      "place": "Online",
+      "start_date": "2026-06-21",
+      "end_date": "2026-06-22",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 58,
+    "fields": {
+      "title": "Event 58",
+      "description": "Description for event 58",
+      "place": "Online",
+      "start_date": "2026-06-22",
+      "end_date": "2026-06-23",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 59,
+    "fields": {
+      "title": "Event 59",
+      "description": "Description for event 59",
+      "place": "Online",
+      "start_date": "2026-06-23",
+      "end_date": "2026-06-24",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 60,
+    "fields": {
+      "title": "Event 60",
+      "description": "Description for event 60",
+      "place": "Online",
+      "start_date": "2026-06-24",
+      "end_date": "2026-06-25",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 61,
+    "fields": {
+      "title": "Event 61",
+      "description": "Description for event 61",
+      "place": "Online",
+      "start_date": "2026-06-25",
+      "end_date": "2026-06-26",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 62,
+    "fields": {
+      "title": "Event 62",
+      "description": "Description for event 62",
+      "place": "Online",
+      "start_date": "2026-06-26",
+      "end_date": "2026-06-27",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 63,
+    "fields": {
+      "title": "Event 63",
+      "description": "Description for event 63",
+      "place": "Online",
+      "start_date": "2026-06-27",
+      "end_date": "2026-06-28",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 64,
+    "fields": {
+      "title": "Event 64",
+      "description": "Description for event 64",
+      "place": "Online",
+      "start_date": "2026-06-28",
+      "end_date": "2026-06-29",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 65,
+    "fields": {
+      "title": "Event 65",
+      "description": "Description for event 65",
+      "place": "Online",
+      "start_date": "2026-06-29",
+      "end_date": "2026-06-30",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 66,
+    "fields": {
+      "title": "Event 66",
+      "description": "Description for event 66",
+      "place": "Online",
+      "start_date": "2026-06-30",
+      "end_date": "2026-07-01",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 67,
+    "fields": {
+      "title": "Event 67",
+      "description": "Description for event 67",
+      "place": "Online",
+      "start_date": "2026-07-01",
+      "end_date": "2026-07-02",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 68,
+    "fields": {
+      "title": "Event 68",
+      "description": "Description for event 68",
+      "place": "Online",
+      "start_date": "2026-07-02",
+      "end_date": "2026-07-03",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 69,
+    "fields": {
+      "title": "Event 69",
+      "description": "Description for event 69",
+      "place": "Online",
+      "start_date": "2026-07-03",
+      "end_date": "2026-07-04",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 70,
+    "fields": {
+      "title": "Event 70",
+      "description": "Description for event 70",
+      "place": "Online",
+      "start_date": "2026-07-04",
+      "end_date": "2026-07-05",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 71,
+    "fields": {
+      "title": "Event 71",
+      "description": "Description for event 71",
+      "place": "Online",
+      "start_date": "2026-07-05",
+      "end_date": "2026-07-06",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 72,
+    "fields": {
+      "title": "Event 72",
+      "description": "Description for event 72",
+      "place": "Online",
+      "start_date": "2026-07-06",
+      "end_date": "2026-07-07",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 73,
+    "fields": {
+      "title": "Event 73",
+      "description": "Description for event 73",
+      "place": "Online",
+      "start_date": "2026-07-07",
+      "end_date": "2026-07-08",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 74,
+    "fields": {
+      "title": "Event 74",
+      "description": "Description for event 74",
+      "place": "Online",
+      "start_date": "2026-07-08",
+      "end_date": "2026-07-09",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 75,
+    "fields": {
+      "title": "Event 75",
+      "description": "Description for event 75",
+      "place": "Online",
+      "start_date": "2026-07-09",
+      "end_date": "2026-07-10",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 76,
+    "fields": {
+      "title": "Event 76",
+      "description": "Description for event 76",
+      "place": "Online",
+      "start_date": "2026-07-10",
+      "end_date": "2026-07-11",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 77,
+    "fields": {
+      "title": "Event 77",
+      "description": "Description for event 77",
+      "place": "Online",
+      "start_date": "2026-07-11",
+      "end_date": "2026-07-12",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 78,
+    "fields": {
+      "title": "Event 78",
+      "description": "Description for event 78",
+      "place": "Online",
+      "start_date": "2026-07-12",
+      "end_date": "2026-07-13",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 79,
+    "fields": {
+      "title": "Event 79",
+      "description": "Description for event 79",
+      "place": "Online",
+      "start_date": "2026-07-13",
+      "end_date": "2026-07-14",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 80,
+    "fields": {
+      "title": "Event 80",
+      "description": "Description for event 80",
+      "place": "Online",
+      "start_date": "2026-07-14",
+      "end_date": "2026-07-15",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 81,
+    "fields": {
+      "title": "Event 81",
+      "description": "Description for event 81",
+      "place": "Online",
+      "start_date": "2026-07-15",
+      "end_date": "2026-07-16",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 82,
+    "fields": {
+      "title": "Event 82",
+      "description": "Description for event 82",
+      "place": "Online",
+      "start_date": "2026-07-16",
+      "end_date": "2026-07-17",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 83,
+    "fields": {
+      "title": "Event 83",
+      "description": "Description for event 83",
+      "place": "Online",
+      "start_date": "2026-07-17",
+      "end_date": "2026-07-18",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 84,
+    "fields": {
+      "title": "Event 84",
+      "description": "Description for event 84",
+      "place": "Online",
+      "start_date": "2026-07-18",
+      "end_date": "2026-07-19",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 85,
+    "fields": {
+      "title": "Event 85",
+      "description": "Description for event 85",
+      "place": "Online",
+      "start_date": "2026-07-19",
+      "end_date": "2026-07-20",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 86,
+    "fields": {
+      "title": "Event 86",
+      "description": "Description for event 86",
+      "place": "Online",
+      "start_date": "2026-07-20",
+      "end_date": "2026-07-21",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 87,
+    "fields": {
+      "title": "Event 87",
+      "description": "Description for event 87",
+      "place": "Online",
+      "start_date": "2026-07-21",
+      "end_date": "2026-07-22",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 88,
+    "fields": {
+      "title": "Event 88",
+      "description": "Description for event 88",
+      "place": "Online",
+      "start_date": "2026-07-22",
+      "end_date": "2026-07-23",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 89,
+    "fields": {
+      "title": "Event 89",
+      "description": "Description for event 89",
+      "place": "Online",
+      "start_date": "2026-07-23",
+      "end_date": "2026-07-24",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 90,
+    "fields": {
+      "title": "Event 90",
+      "description": "Description for event 90",
+      "place": "Online",
+      "start_date": "2026-07-24",
+      "end_date": "2026-07-25",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 91,
+    "fields": {
+      "title": "Event 91",
+      "description": "Description for event 91",
+      "place": "Online",
+      "start_date": "2026-07-25",
+      "end_date": "2026-07-26",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 92,
+    "fields": {
+      "title": "Event 92",
+      "description": "Description for event 92",
+      "place": "Online",
+      "start_date": "2026-07-26",
+      "end_date": "2026-07-27",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 93,
+    "fields": {
+      "title": "Event 93",
+      "description": "Description for event 93",
+      "place": "Online",
+      "start_date": "2026-07-27",
+      "end_date": "2026-07-28",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 94,
+    "fields": {
+      "title": "Event 94",
+      "description": "Description for event 94",
+      "place": "Online",
+      "start_date": "2026-07-28",
+      "end_date": "2026-07-29",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 95,
+    "fields": {
+      "title": "Event 95",
+      "description": "Description for event 95",
+      "place": "Online",
+      "start_date": "2026-07-29",
+      "end_date": "2026-07-30",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 96,
+    "fields": {
+      "title": "Event 96",
+      "description": "Description for event 96",
+      "place": "Online",
+      "start_date": "2026-07-30",
+      "end_date": "2026-07-31",
+      "frequency": "daily",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 97,
+    "fields": {
+      "title": "Event 97",
+      "description": "Description for event 97",
+      "place": "Online",
+      "start_date": "2026-07-31",
+      "end_date": "2026-08-01",
+      "frequency": "monthly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 98,
+    "fields": {
+      "title": "Event 98",
+      "description": "Description for event 98",
+      "place": "Online",
+      "start_date": "2026-08-01",
+      "end_date": "2026-08-02",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 99,
+    "fields": {
+      "title": "Event 99",
+      "description": "Description for event 99",
+      "place": "Online",
+      "start_date": "2026-08-02",
+      "end_date": "2026-08-03",
+      "frequency": "once",
+      "is_active": true,
+      "is_public": true
+    }
+  },
+  {
+    "model": "events.event",
+    "pk": 100,
+    "fields": {
+      "title": "Event 100",
+      "description": "Description for event 100",
+      "place": "Online",
+      "start_date": "2026-08-03",
+      "end_date": "2026-08-04",
+      "frequency": "weekly",
+      "is_active": true,
+      "is_public": true
+    }
+  }
+]
