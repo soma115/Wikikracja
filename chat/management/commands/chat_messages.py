@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 
 from chat.models import Message, Room
 from obywatele.models import Uzytkownik
-from zzz.utils import get_site_domain
+from zzz.utils import build_site_url, get_site_domain
 
 log = logging.getLogger(__name__)
 
@@ -34,12 +34,13 @@ class Command(BaseCommand):
 
             subject = _("{HOST} New messages on chat").format(HOST=HOST)
             header = _("New messages on {HOST}/chat").format(HOST=HOST)
-            footer1 = _("You can disable those messages by unchecking bell icon next to chat room name.")
-            footer2 = _("Go to chat to do so {HOST}/chat").format(HOST=HOST)
+            footer1 = _("Go to chat to do so {HOST}/chat").format(HOST=HOST)
+            footer2 = _("You can disable those messages by unchecking bell icon next to chat room name.")
+            footer3 = _("You can manage your email notifications here: {url}").format(url=build_site_url('/obywatele/settings/'))
 
             email_message = EmailMessage(
                 subject=subject,
-                body=header + "\n\n" + message + "\n\n" + footer1 + "\n" + footer2,
+                body=header + "\n\n" + message + "\n\n" + footer1 + "\n\n" + footer2 + "\n" + footer3,
                 from_email=str(s.DEFAULT_FROM_EMAIL),
                 bcc=recipients,
             )

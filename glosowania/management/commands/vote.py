@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 
 from chat.models import Room
 from glosowania.models import Decyzja
-from zzz.utils import get_site_domain
+from zzz.utils import build_site_url, get_site_domain
 
 log = logging.getLogger(__name__)
 
@@ -27,8 +27,6 @@ class Command(BaseCommand):
         translation.activate(s.LANGUAGE_CODE)
 
         HOST = get_site_domain()
-
-        INFO_URL = "https://wikikracja.pl/powiadomienia-email/"
 
         def zliczaj_wszystko():
 
@@ -165,7 +163,7 @@ class Command(BaseCommand):
             # message: Custom
             translation.activate(s.LANGUAGE_CODE)
 
-            email_footer = _("Why you received this email? Here is explanation: {url}").format(url=INFO_URL)
+            email_footer = _("You can manage your email notifications here: {url}").format(url=build_site_url('/obywatele/settings/'))
             email_message = EmailMessage(
                 from_email=str(s.DEFAULT_FROM_EMAIL),
                 bcc=list(User.objects.filter(is_active=True, uzytkownik__email_notifications_glosowania=True).values_list('email', flat=True)),

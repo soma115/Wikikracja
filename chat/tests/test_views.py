@@ -2,6 +2,7 @@
 import json
 
 # Third party imports
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
@@ -91,8 +92,14 @@ class ChatViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["Content-Type"], "application/json")
 
-    def test_upload_image_no_auth_returns_json(self):
-        # upload_image jest @csrf_exempt bez @login_required — celowo publiczny
+    def test_upload_image_requires_login(self):
+        # upload_image wymaga zalogowania — anonim jest przekierowany do logowania
+        response = self.client.post("/chat/upload/")
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(settings.LOGIN_URL, response["Location"])
+
+    def test_upload_image_authenticated_returns_json(self):
+        self.client.force_login(self.user)
         response = self.client.post("/chat/upload/")
         self.assertEqual(response.status_code, 200)
         self.assertIn("filenames", response.json())

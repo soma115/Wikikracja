@@ -304,8 +304,8 @@ def SendEmailToAll(subject, message, notification_type='obywatele'):
     # Strip HTML tags from message, preserving newlines
     message = strip_html_tags(message)
 
-    info_url = "https://wikikracja.pl/powiadomienia-email/"
-    email_footer = _("Why you received this email? Here is explanation: {url}").format(url=info_url)
+    settings_url = build_site_url('/obywatele/settings/')
+    email_footer = _("You can manage your email notifications here: {url}").format(url=settings_url)
 
     def _get_recipients():
         if notification_type == 'obywatele':

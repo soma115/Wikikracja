@@ -964,60 +964,6 @@ def candidate_edit(request: HttpRequest, pk: int):
     })
 
 
-@csrf_exempt
-@require_POST
-def sendpulse_webhook(request: HttpRequest):
-    """
-    Handle SendPulse webhook events, particularly unsubscribe events.
-    When a user unsubscribes via email client (Gmail, etc.), SendPulse sends
-    a webhook notification to this endpoint.
-
-    SendPulse sends data as an array of JSON objects:
-    [
-      {
-        "task_id": "3668141",
-        "timestamp": "1496827872",
-        "from_all": "1",
-        "email": "john.doe@sendpulse.com",
-        "reason": null,
-        "book_id": "490686",
-        "event": "unsubscribe",
-        "categories": ""
-      }
-    ]
-    """
-    try:
-        data = json.loads(request.body)
-
-        # SendPulse sends an array of events
-        if not isinstance(data, list):
-            log.error(f'SendPulse webhook: expected array, got {type(data)}')
-            return JsonResponse({'status': 'error', 'message': 'Expected array of events'}, status=400)
-
-        for event in data:
-            event_type = event.get('event')
-            email = event.get('email')
-
-            if event_type == 'unsubscribe' and email:
-                # Find user by email and disable all email notifications
-                user = User.objects.filter(email__iexact=email).first()
-                if user and hasattr(user, 'uzytkownik'):
-                    profile = user.uzytkownik
-                    profile.email_notifications_obywatele = False
-                    profile.email_notifications_glosowania = False
-                    profile.email_notifications_chat = False
-                    profile.save(update_fields=['email_notifications_obywatele', 'email_notifications_glosowania', 'email_notifications_chat'])
-                    log.info(f'SendPulse webhook: disabled all email notifications for user {user.username} ({email})')
-                else:
-                    log.warning(f'SendPulse webhook: user not found for email {email}')
-
-        return JsonResponse({'status': 'ok'}, status=200)
-
-    except (json.JSONDecodeError, KeyError) as e:
-        log.error(f'SendPulse webhook error: {e}')
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-
-
 @receiver(user_signed_up)
 def DeactivateNewUser(sender, **kwargs):
     user = kwargs.get('user')

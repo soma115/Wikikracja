@@ -167,6 +167,7 @@ MAX_LONG_SIDE = 1920
 
 
 @csrf_exempt
+@login_required
 def upload_image(request: HttpRequest):
     filenames = []
     for image in request.FILES.getlist('images'):

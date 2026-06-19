@@ -80,10 +80,9 @@ class ChatRepository:
         if not self.user.is_authenticated:
             raise ClientError("USER_HAS_TO_LOGIN")
         try:
-            room = Room.objects.get(pk=room_id)
+            return Room.objects.get(pk=room_id)
         except Room.DoesNotExist:
-            room = Room.objects.first()
-        return room
+            raise ClientError("ROOM_INVALID") from None
 
     @database_sync_to_async
     def get_room(self, room_id):

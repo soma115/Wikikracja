@@ -1,4 +1,5 @@
 # OGÓLNE
+- Nie wysyłać treści z czatu
 - Pokoje w czacie nie rozwijają się jeśli klinie się 2 razy
 - Zadania: termin zakończenia
 - Zadania: co blokuje wykonanie

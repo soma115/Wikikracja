@@ -385,8 +385,8 @@ def SendEmail(subject: str, message: str):
     # message: Custom
     translation.activate(s.LANGUAGE_CODE)
 
-    info_url = "https://wikikracja.pl/powiadomienia-email/"
-    email_footer = _("Why you received this email? Here is explanation: {url}").format(url=info_url)
+    settings_url = build_site_url('/obywatele/settings/')
+    email_footer = _("You can manage your email notifications here: {url}").format(url=settings_url)
 
     # Filter users based on voting notification preferences
     recipients = list(User.objects.filter(is_active=True, uzytkownik__email_notifications_glosowania=True).values_list('email', flat=True))
