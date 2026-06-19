@@ -286,6 +286,10 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
         <p>{% trans "Are you sure you want to request deletion of your account and all your data?" %}</p>
         <p><strong>{% trans "Your account will remain active for 30 days. After that, all data will be permanently removed and cannot be recovered." %}</strong></p>
         <p>{% trans "You can cancel this request at any time during the 30-day period." %}</p>
+        <div class="mb-3">
+          <label for="deletionReason" class="form-label">{% trans "We would be very grateful if you could provide a reason for deleting your account (optional)." %}</label>
+          <textarea class="form-control" id="deletionReason" name="reason" rows="3" placeholder="{% trans 'Your feedback helps us improve...' %}"></textarea>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>

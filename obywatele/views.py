@@ -1288,9 +1288,10 @@ def request_deletion(request: HttpRequest):
         error(request, _('A deletion request already exists for your account.'))
         return redirect('obywatele:my_profile')
 
+    reason = request.POST.get('reason', '').strip()
     scheduled = timezone.now() + timedelta(days=30)
-    DeletionRequest.objects.create(user=user, scheduled_for=scheduled)
-    log.info(f'User {user.username} (id={user.id}) requested account deletion, scheduled for {scheduled.date()}')
+    DeletionRequest.objects.create(user=user, scheduled_for=scheduled, reason=reason)
+    log.info(f'User {user.username} (id={user.id}) requested account deletion, scheduled for {scheduled.date()}, reason: {reason[:100] if reason else "not provided"}')
     success(request, _('Your account deletion has been scheduled. Your data will be permanently removed in 30 days. You can cancel this request at any time before then.'))
     return redirect('obywatele:my_profile')
 

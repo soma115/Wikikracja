@@ -132,6 +132,7 @@ class DeletionRequest(models.Model):
     )
     requested_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Requested at'))
     scheduled_for = models.DateTimeField(verbose_name=_('Scheduled for'))
+    reason = models.TextField(blank=True, null=True, verbose_name=_('Reason for deletion'))
 
     class Meta:
         verbose_name = _('Deletion request')

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-18 21:25+0200\n"
+"POT-Creation-Date: 2026-06-19 11:39+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -214,7 +214,7 @@ msgstr "Usuń"
 #: .\obywatele\templates\obywatele\change_email.html:24
 #: .\obywatele\templates\obywatele\change_username.html:19
 #: .\obywatele\templates\obywatele\my_assets.html:99
-#: .\obywatele\templates\obywatele\my_profile.html:291
+#: .\obywatele\templates\obywatele\my_profile.html:295
 #: .\tasks\templates\tasks\task_close.html:21
 #: .\tasks\templates\tasks\task_detail.html:245
 #: .\tasks\templates\tasks\task_list.html:327
@@ -3150,11 +3150,15 @@ msgstr "Żądanie złożone dnia"
 msgid "Scheduled for"
 msgstr "Zaplanowane na"
 
-#: .\obywatele\models.py:137
+#: .\obywatele\models.py:135
+msgid "Reason for deletion"
+msgstr ""
+
+#: .\obywatele\models.py:138
 msgid "Deletion request"
 msgstr "Żądanie usunięcia"
 
-#: .\obywatele\models.py:138
+#: .\obywatele\models.py:139
 msgid "Deletion requests"
 msgstr "Żądanie usunięcia"
 
@@ -3421,7 +3425,15 @@ msgstr "Twoje konto pozostanie aktywne przez 30 dni. Po tym czasie wszystkie dan
 msgid "You can cancel this request at any time during the 30-day period."
 msgstr "Możesz anulować to żądanie w dowolnym momencie w ciągu 30 dni."
 
-#: .\obywatele\templates\obywatele\my_profile.html:295
+#: .\obywatele\templates\obywatele\my_profile.html:290
+msgid "We would be very grateful if you could provide a reason for deleting your account (optional)."
+msgstr "Będziemy bardzo wdzięczni, jeśli podasz nam powód usunięcia konta (opcjonalnie)."
+
+#: .\obywatele\templates\obywatele\my_profile.html:291
+msgid "Your feedback helps us improve..."
+msgstr "Twoja opinia pomaga nam się rozwijać..."
+
+#: .\obywatele\templates\obywatele\my_profile.html:299
 msgid "Yes, schedule deletion"
 msgstr "Tak, zaplanuj usunięcie"
 
@@ -3844,15 +3856,15 @@ msgstr "Propozycja głosowania"
 msgid "A deletion request already exists for your account."
 msgstr "Żądanie usunięcia konta już istnieje."
 
-#: .\obywatele\views.py:1294
+#: .\obywatele\views.py:1295
 msgid "Your account deletion has been scheduled. Your data will be permanently removed in 30 days. You can cancel this request at any time before then."
 msgstr "Usunięcie Twojego konta zostało zaplanowane. Twoje dane zostaną trwale usunięte za 30 dni. Możesz anulować to żądanie w dowolnym momencie przed tym czasem."
 
-#: .\obywatele\views.py:1306
+#: .\obywatele\views.py:1307
 msgid "Your account deletion request has been cancelled."
 msgstr "Twoje żądanie usunięcia konta zostało anulowane."
 
-#: .\obywatele\views.py:1308
+#: .\obywatele\views.py:1309
 msgid "No active deletion request found."
 msgstr "Brak aktywnego żądania usunięcia."
 
@@ -4673,10 +4685,10 @@ msgstr "Godzina"
 msgid "Reminder"
 msgstr "Przypomnienie"
 
-#: .\zzz\settings.py:101
+#: .\zzz\settings.py:106
 msgid "English"
 msgstr "Angielski"
 
-#: .\zzz\settings.py:102
+#: .\zzz\settings.py:107
 msgid "Polish"
 msgstr "Polski"
