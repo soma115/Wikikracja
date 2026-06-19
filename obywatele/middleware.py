@@ -1,9 +1,33 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from django.http import HttpResponsePermanentRedirect
 from django.utils import timezone
 from django.utils import translation
 
 User = get_user_model()
+
+
+class CanonicalDomainMiddleware:
+    """
+    Przekierowuje (301) kazdy request, ktorego host znajduje sie na scisle
+    okreslonej liscie DOMAIN_ALIASES, na glowna domene SITE_DOMAIN.
+
+    Bez regex - dopasowanie po dokladnej nazwie hosta. Sciezka, query string
+    i scheme sa zachowane.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+        self.site_domain = getattr(settings, "SITE_DOMAIN", "")
+        self.aliases = set(getattr(settings, "DOMAIN_ALIASES", []))
+
+    def __call__(self, request):
+        if self.site_domain and self.aliases:
+            host = request.get_host().split(":")[0]
+            if host in self.aliases:
+                target = f"{request.scheme}://{self.site_domain}{request.get_full_path()}"
+                return HttpResponsePermanentRedirect(target)
+        return self.get_response(request)
 
 
 class UserLanguageMiddleware:

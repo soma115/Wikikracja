@@ -59,6 +59,11 @@ if not SECRET_KEY:
         raise RuntimeError("SECRET_KEY is required when DEBUG is False")
 
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+
+# Canonical domain redirect: any host in DOMAIN_ALIASES is permanently
+# redirected to SITE_DOMAIN. Strict list, no regex matching.
+SITE_DOMAIN = getenv("SITE_DOMAIN", "")
+DOMAIN_ALIASES = env_list("DOMAIN_ALIASES", default=[])
 CSRF_TRUSTED_ORIGINS = env_list(
     "CSRF_TRUSTED_ORIGINS",
     default=["http://localhost", "http://127.0.0.1"],
@@ -151,6 +156,7 @@ X_FRAME_OPTIONS = 'DENY'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'obywatele.middleware.CanonicalDomainMiddleware',  # redirect aliases -> SITE_DOMAIN
     'whitenoise.middleware.WhiteNoiseMiddleware',  # above all other middleware apart from Django’s SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
