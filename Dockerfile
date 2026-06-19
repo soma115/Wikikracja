@@ -2,7 +2,7 @@
 # check=skip=SecretsUsedInArgOrEnv
 
 # 1. Builder stage - dependencies first (better cache utilization)
-FROM python:3.14-alpine AS builder
+FROM python:3.13-alpine AS builder
 WORKDIR /app
 
 # Build environment
@@ -28,7 +28,7 @@ RUN python manage.py collectstatic --noinput -v 2 \
 RUN python manage.py compilemessages --ignore=.git/* --ignore=static/* --ignore=.mypy_cache/* --ignore=.venv/*
 
 # 2. Runtime stage - minimal Alpine image
-FROM python:3.14-alpine AS runtime
+FROM python:3.13-alpine AS runtime
 WORKDIR /app
 
 # Runtime environment
