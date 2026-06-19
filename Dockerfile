@@ -2,7 +2,7 @@
 # check=skip=SecretsUsedInArgOrEnv
 
 # 1. Builder stage - dependencies first (better cache utilization)
-FROM python:3.13-alpine AS builder
+FROM python:3.14-alpine AS builder
 WORKDIR /app
 
 # Build environment
@@ -16,8 +16,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN apk add --no-cache gettext-dev
 
 # Install Python dependencies to user directory
+# AUTOBAHN_USE_NVX=0 forces pure-Python autobahn (its NVX C extension has no
+# musllinux wheel and would otherwise need a full C toolchain to compile)
 COPY requirements.txt /app/
-RUN pip install --no-cache-dir --no-compile --user -r requirements.txt
+RUN AUTOBAHN_USE_NVX=0 pip install --no-cache-dir --no-compile --user -r requirements.txt
 
 # Copy application code (after dependencies for better caching)
 COPY . /app/
@@ -28,7 +30,7 @@ RUN python manage.py collectstatic --noinput -v 2 \
 RUN python manage.py compilemessages --ignore=.git/* --ignore=static/* --ignore=.mypy_cache/* --ignore=.venv/*
 
 # 2. Runtime stage - minimal Alpine image
-FROM python:3.13-alpine AS runtime
+FROM python:3.14-alpine AS runtime
 WORKDIR /app
 
 # Runtime environment
