@@ -26,7 +26,13 @@ class CanonicalDomainMiddleware:
             host = request.get_host().split(":")[0]
             if host in self.aliases:
                 target = f"{request.scheme}://{self.site_domain}{request.get_full_path()}"
-                return HttpResponsePermanentRedirect(target)
+                response = HttpResponsePermanentRedirect(target)
+                # Empty body + explicit Content-Length stops daphne from using
+                # Transfer-Encoding: chunked, which Traefik rejects (HTTP 500)
+                # when proxying a 3xx response over HTTP/2.
+                response.content = b""
+                response["Content-Length"] = "0"
+                return response
         return self.get_response(request)
 
 
