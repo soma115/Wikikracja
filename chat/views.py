@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.db.models import Count, Exists, OuterRef, Prefetch
+from django.db.models.functions import Lower
 from django.dispatch import receiver
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -92,7 +93,7 @@ def chat(request: HttpRequest):
     Root page view. This is essentially a single-page app, if you ignore the
     login and admin parts.
     """
-    base_rooms = Room.objects.filter(allowed=request.user.id).select_related('last_message_sender').annotate(messages_count=Count('messages'), is_seen=Exists(Room.seen_by.through.objects.filter(room_id=OuterRef('pk'), user_id=request.user.id))).order_by("title")
+    base_rooms = Room.objects.filter(allowed=request.user.id).select_related('last_message_sender').annotate(messages_count=Count('messages'), is_seen=Exists(Room.seen_by.through.objects.filter(room_id=OuterRef('pk'), user_id=request.user.id))).order_by(Lower("title"))
 
     # Public rooms can have hundreds of `allowed` users — keep that prefetch lean.
     public_allowed = Prefetch('allowed', queryset=User.objects.only('id', 'username'))
