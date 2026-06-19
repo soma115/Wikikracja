@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-19 11:39+0200\n"
+"POT-Creation-Date: 2026-06-19 12:15+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -59,7 +59,7 @@ msgstr "Kategoria"
 msgid "Post Categories"
 msgstr "Kategorie"
 
-#: .\board\models.py:21 .\chat\views.py:220 .\events\models.py:40
+#: .\board\models.py:21 .\chat\views.py:221 .\events\models.py:40
 #: .\glosowania\models.py:25
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:7
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:7
@@ -865,7 +865,7 @@ msgstr "Nie można usunąć partnera, ponieważ jest w użyciu. Usuń najpierw w
 
 #: .\categories\templates\categories\_category_modal.html:9
 #: .\chat\templates\chat\chat.html:189 .\chat\templates\chat\chat.html:248
-#: .\chat\views.py:211 .\obywatele\templates\obywatele\my_profile.html:283
+#: .\chat\views.py:212 .\obywatele\templates\obywatele\my_profile.html:283
 #: .\tasks\templates\tasks\task_detail.html:238
 #: .\tasks\templates\tasks\task_list.html:171
 msgid "Close"
@@ -934,7 +934,7 @@ msgstr "Nowy pokój"
 msgid "Search rooms"
 msgstr "Szukaj pokoi"
 
-#: .\chat\templates\chat\chat.html:35 .\chat\views.py:241
+#: .\chat\templates\chat\chat.html:35 .\chat\views.py:242
 msgid "Show only unread rooms"
 msgstr "Pokaż tylko nieprzeczytane pokoje"
 
@@ -1040,12 +1040,12 @@ msgstr "Archiwa"
 msgid "Click the archive button (folder icon) next to each category to show archived rooms."
 msgstr "Kliknij przycisk archiwum (ikona folderu) obok każdej kategorii, aby pokazać zarchiwizowane pokoje."
 
-#: .\chat\templates\chat\room_link.html:31 .\chat\views.py:240
+#: .\chat\templates\chat\room_link.html:31 .\chat\views.py:241
 #: .\home\templates\home\activity.html:16 .\home\templates\home\home.html:635
 msgid "Unread"
 msgstr "Nieprzeczytane"
 
-#: .\chat\templates\chat\room_link.html:46 .\chat\views.py:205
+#: .\chat\templates\chat\room_link.html:46 .\chat\views.py:206
 #: .\home\views.py:766
 msgid "Anonymous"
 msgstr "Anonim"
@@ -1054,7 +1054,7 @@ msgstr "Anonim"
 msgid "System"
 msgstr "System"
 
-#: .\chat\templates\chat\room_link.html:48 .\chat\views.py:245
+#: .\chat\templates\chat\room_link.html:48 .\chat\views.py:246
 msgid "attachment"
 msgstr "załącznik"
 
@@ -1070,186 +1070,186 @@ msgstr "Działania"
 msgid "Mark as unread"
 msgstr "Oznacz jako nieprzeczytane"
 
-#: .\chat\templates\chat\room_link.html:78 .\chat\views.py:247
+#: .\chat\templates\chat\room_link.html:78 .\chat\views.py:248
 msgid "Unmute room"
 msgstr "Cofnij wyciszenie"
 
-#: .\chat\templates\chat\room_link.html:78 .\chat\views.py:246
+#: .\chat\templates\chat\room_link.html:78 .\chat\views.py:247
 msgid "Mute room"
 msgstr "Wycisz pokój"
 
-#: .\chat\templates\chat\room_link.html:85 .\chat\views.py:213
+#: .\chat\templates\chat\room_link.html:85 .\chat\views.py:214
 msgid "Copy link"
 msgstr "Skopiuj link"
 
-#: .\chat\templatetags\filters.py:23 .\chat\views.py:203
+#: .\chat\templatetags\filters.py:23 .\chat\views.py:204
 msgid "Yesterday"
 msgstr "Wczoraj"
 
-#: .\chat\views.py:202
+#: .\chat\views.py:203
 #: .\obywatele\templates\obywatele\_calendar_partial.html:12
 msgid "Today"
 msgstr "Dziś"
 
-#: .\chat\views.py:204
+#: .\chat\views.py:205
 msgid "Tomorrow"
 msgstr "Jutro"
 
-#: .\chat\views.py:206 .\home\templates\home\base.html:332
+#: .\chat\views.py:207 .\home\templates\home\base.html:332
 msgid "Enable Notifications"
 msgstr "Włącz powiadomienia"
 
-#: .\chat\views.py:207 .\glosowania\templates\glosowania\szczegoly.html:82
+#: .\chat\views.py:208 .\glosowania\templates\glosowania\szczegoly.html:82
 #: .\obywatele\templates\obywatele\szczegoly.html:71
 msgid "Yes"
 msgstr "Tak"
 
-#: .\chat\views.py:208
+#: .\chat\views.py:209
 msgid "edit"
 msgstr "edytuj"
 
-#: .\chat\views.py:209
+#: .\chat\views.py:210
 msgid "edited"
 msgstr "edytowano"
 
-#: .\chat\views.py:210
+#: .\chat\views.py:211
 msgid "Changes History"
 msgstr "Historia zmian"
 
-#: .\chat\views.py:212
+#: .\chat\views.py:213
 msgid "Loading..."
 msgstr "Ładowanie…"
 
-#: .\chat\views.py:214
+#: .\chat\views.py:215
 msgid "Copy message link"
 msgstr "Skopiuj link do wiadomości"
 
-#: .\chat\views.py:215
+#: .\chat\views.py:216
 msgid "Link copied"
 msgstr "Link skopiowany"
 
-#: .\chat\views.py:216
+#: .\chat\views.py:217
 msgid "Could not copy link"
 msgstr "Nie udało się skopiować linku"
 
-#: .\chat\views.py:217
+#: .\chat\views.py:218
 msgid "Reply to the appropriate message..."
 msgstr "Odpowiedz na odpowiednią wiadomość..."
 
-#: .\chat\views.py:218
+#: .\chat\views.py:219
 msgid "Upvote"
 msgstr "Plus"
 
-#: .\chat\views.py:219
+#: .\chat\views.py:220
 msgid "Downvote"
 msgstr "Minus"
 
-#: .\chat\views.py:221 .\events\forms.py:49 .\events\models.py:37
+#: .\chat\views.py:222 .\events\forms.py:49 .\events\models.py:37
 msgid "Sunday"
 msgstr "Niedziela"
 
-#: .\chat\views.py:222 .\events\forms.py:43 .\events\models.py:31
+#: .\chat\views.py:223 .\events\forms.py:43 .\events\models.py:31
 msgid "Monday"
 msgstr "Poniedziałek"
 
-#: .\chat\views.py:223 .\events\forms.py:44 .\events\models.py:32
+#: .\chat\views.py:224 .\events\forms.py:44 .\events\models.py:32
 msgid "Tuesday"
 msgstr "Wtorek"
 
-#: .\chat\views.py:224 .\events\forms.py:45 .\events\models.py:33
+#: .\chat\views.py:225 .\events\forms.py:45 .\events\models.py:33
 msgid "Wednesday"
 msgstr "Środa"
 
-#: .\chat\views.py:225 .\events\forms.py:46 .\events\models.py:34
+#: .\chat\views.py:226 .\events\forms.py:46 .\events\models.py:34
 msgid "Thursday"
 msgstr "Czwartek"
 
-#: .\chat\views.py:226 .\events\forms.py:47 .\events\models.py:35
+#: .\chat\views.py:227 .\events\forms.py:47 .\events\models.py:35
 msgid "Friday"
 msgstr "Piątek"
 
-#: .\chat\views.py:227 .\events\forms.py:48 .\events\models.py:36
+#: .\chat\views.py:228 .\events\forms.py:48 .\events\models.py:36
 msgid "Saturday"
 msgstr "Sobota"
 
-#: .\chat\views.py:228
+#: .\chat\views.py:229
 msgid "Jan"
 msgstr "sty"
 
-#: .\chat\views.py:229
+#: .\chat\views.py:230
 msgid "Feb"
 msgstr "lut"
 
-#: .\chat\views.py:230
+#: .\chat\views.py:231
 msgid "Mar"
 msgstr "mar"
 
-#: .\chat\views.py:231
+#: .\chat\views.py:232
 msgid "Apr"
 msgstr "kwi"
 
-#: .\chat\views.py:232
+#: .\chat\views.py:233
 msgid "May"
 msgstr "maj"
 
-#: .\chat\views.py:233
+#: .\chat\views.py:234
 msgid "Jun"
 msgstr "cze"
 
-#: .\chat\views.py:234
+#: .\chat\views.py:235
 msgid "Jul"
 msgstr "lip"
 
-#: .\chat\views.py:235
+#: .\chat\views.py:236
 msgid "Aug"
 msgstr "sie"
 
-#: .\chat\views.py:236
+#: .\chat\views.py:237
 msgid "Sep"
 msgstr "wrz"
 
-#: .\chat\views.py:237
+#: .\chat\views.py:238
 msgid "Oct"
 msgstr "paź"
 
-#: .\chat\views.py:238
+#: .\chat\views.py:239
 msgid "Nov"
 msgstr "lis"
 
-#: .\chat\views.py:239
+#: .\chat\views.py:240
 msgid "Dec"
 msgstr "gru"
 
-#: .\chat\views.py:242
+#: .\chat\views.py:243
 msgid "Sorting and filter"
 msgstr "Sortowanie i filtry"
 
-#: .\chat\views.py:243
+#: .\chat\views.py:244
 msgid "Likes"
 msgstr "Polubienia"
 
-#: .\chat\views.py:244
+#: .\chat\views.py:245
 msgid "Popular"
 msgstr "Popularne"
 
-#: .\chat\views.py:248
+#: .\chat\views.py:249
 msgid "Shift+↵ new line · Ctrl+B bold · Ctrl+I italic · - or * list"
 msgstr "Shift+↵ nowa linia · Ctrl+B pogrubienie · Ctrl+I kursywa · - lub * lista"
 
-#: .\chat\views.py:249
+#: .\chat\views.py:250
 msgid "Select a room from the list"
 msgstr "Wybierz pokój z listy"
 
-#: .\chat\views.py:250
+#: .\chat\views.py:251
 msgid "No unread messages"
 msgstr "Brak nieprzeczytanych wiadomości"
 
-#: .\chat\views.py:251
+#: .\chat\views.py:252
 #, python-brace-format
 msgid "Tap {icon} above the list to disable the unread filter"
 msgstr "Kliknij {icon} nad listą, aby wyłączyć filtr nieprzeczytanych"
 
-#: .\chat\views.py:252
+#: .\chat\views.py:253
 msgid "Disable the unread filter"
 msgstr "Wyłącz filtr nieprzeczytanych"
 
@@ -3152,7 +3152,7 @@ msgstr "Zaplanowane na"
 
 #: .\obywatele\models.py:135
 msgid "Reason for deletion"
-msgstr ""
+msgstr "Powód usunięcia"
 
 #: .\obywatele\models.py:138
 msgid "Deletion request"
