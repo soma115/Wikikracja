@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-19 13:03+0200\n"
+"POT-Creation-Date: 2026-06-21 09:58+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -186,8 +186,8 @@ msgstr "Czy na pewno chcesz usunąć ten załącznik?"
 #: .\bookkeeping\templates\bookkeeping\partner_list.html:55
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:77
 #: .\events\templates\events\event_detail.html:18
-#: .\glosowania\templates\glosowania\szczegoly.html:170
-#: .\glosowania\templates\glosowania\szczegoly.html:213
+#: .\glosowania\templates\glosowania\szczegoly.html:171
+#: .\glosowania\templates\glosowania\szczegoly.html:214
 #: .\tasks\templates\tasks\task_list.html:329
 msgid "Delete"
 msgstr "Usuń"
@@ -307,9 +307,9 @@ msgstr "Brak dokumentów"
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:76
 #: .\events\templates\events\_event_card.html:65
 #: .\events\templates\events\event_detail.html:14
-#: .\glosowania\templates\glosowania\szczegoly.html:72
-#: .\glosowania\templates\glosowania\szczegoly.html:169
-#: .\glosowania\templates\glosowania\szczegoly.html:212
+#: .\glosowania\templates\glosowania\szczegoly.html:73
+#: .\glosowania\templates\glosowania\szczegoly.html:170
+#: .\glosowania\templates\glosowania\szczegoly.html:213
 #: .\obywatele\templates\obywatele\my_profile.html:140
 #: .\obywatele\templates\obywatele\szczegoly.html:192
 #: .\tasks\templates\tasks\task_detail.html:133
@@ -892,13 +892,13 @@ msgid "New messages on {HOST}/chat"
 msgstr "Nowe wiadomości na {HOST}/chat"
 
 #: .\chat\management\commands\chat_messages.py:37
-msgid "You can disable those messages by unchecking bell icon next to chat room name."
-msgstr "Możesz wyłączyć te powiadomienia odznaczając ikonę dzwonka obok nazwy pokoju."
-
-#: .\chat\management\commands\chat_messages.py:38
 #, python-brace-format
 msgid "Go to chat to do so {HOST}/chat"
 msgstr "Skocz do czatu żeby to zrobić {HOST}/chat"
+
+#: .\chat\management\commands\chat_messages.py:38
+msgid "You can disable those messages by unchecking bell icon next to chat room name."
+msgstr "Możesz wyłączyć te powiadomienia odznaczając ikonę dzwonka obok nazwy pokoju."
 
 #: .\chat\management\commands\chat_messages.py:39
 #: .\glosowania\management\commands\vote.py:166 .\glosowania\views.py:389
@@ -910,7 +910,7 @@ msgstr "Możesz zarządzać swoimi powiadomieniami e-mailowymi tutaj: {url}"
 #: .\chat\templates\chat\_embedded_chat.html:16
 #: .\glosowania\templates\glosowania\_proposal_card.html:40
 #: .\glosowania\templates\glosowania\_proposal_card.html:50
-#: .\glosowania\templates\glosowania\szczegoly.html:42
+#: .\glosowania\templates\glosowania\szczegoly.html:43
 #: .\home\templates\home\base.html:130 .\home\templates\home\base.html:133
 #: .\home\templates\home\base.html:212 .\home\templates\home\base.html:258
 #: .\home\templates\home\home.html:79 .\home\templates\home\home.html:109
@@ -1106,7 +1106,7 @@ msgstr "Jutro"
 msgid "Enable Notifications"
 msgstr "Włącz powiadomienia"
 
-#: .\chat\views.py:209 .\glosowania\templates\glosowania\szczegoly.html:82
+#: .\chat\views.py:209 .\glosowania\templates\glosowania\szczegoly.html:83
 #: .\obywatele\templates\obywatele\szczegoly.html:71
 msgid "Yes"
 msgstr "Tak"
@@ -1609,7 +1609,7 @@ msgstr "Podpisana"
 #: .\glosowania\management\commands\vote.py:92
 #: .\glosowania\templates\glosowania\_proposal_card.html:26
 #: .\glosowania\templates\glosowania\menu.html:29
-#: .\glosowania\templates\glosowania\szczegoly.html:34
+#: .\glosowania\templates\glosowania\szczegoly.html:35
 #: .\glosowania\views.py:229 .\home\views.py:672
 msgid "Discussion"
 msgstr "Dyskusja"
@@ -1622,8 +1622,7 @@ msgstr "Nie zabrała podpisów"
 #: .\glosowania\templates\glosowania\_proposal_card.html:28
 #: .\glosowania\templates\glosowania\_proposal_card.html:144
 #: .\glosowania\templates\glosowania\menu.html:36
-#: .\glosowania\templates\glosowania\szczegoly.html:30
-#: .\glosowania\templates\glosowania\szczegoly.html:35
+#: .\glosowania\templates\glosowania\szczegoly.html:36
 #: .\glosowania\views.py:230 .\home\views.py:673
 msgid "Referendum"
 msgstr "Referendum"
@@ -1631,7 +1630,7 @@ msgstr "Referendum"
 #: .\glosowania\management\commands\vote.py:137
 #: .\glosowania\templates\glosowania\_proposal_card.html:32
 #: .\glosowania\templates\glosowania\menu.html:43
-#: .\glosowania\templates\glosowania\szczegoly.html:37
+#: .\glosowania\templates\glosowania\szczegoly.html:38
 #: .\glosowania\views.py:232 .\home\views.py:675
 msgid "Approved"
 msgstr "Zatwierdzone"
@@ -1639,7 +1638,7 @@ msgstr "Zatwierdzone"
 #: .\glosowania\management\commands\vote.py:153
 #: .\glosowania\templates\glosowania\_proposal_card.html:30
 #: .\glosowania\templates\glosowania\menu.html:53
-#: .\glosowania\templates\glosowania\szczegoly.html:36
+#: .\glosowania\templates\glosowania\szczegoly.html:37
 #: .\glosowania\views.py:231 .\home\views.py:674 .\tasks\models.py:53
 #: .\tasks\templates\tasks\_task_card.html:29
 #: .\tasks\templates\tasks\task_list.html:150 .\tasks\views.py:94
@@ -1656,7 +1655,7 @@ msgstr "Wpisz krótki tytuł opisujący nowe prawo."
 
 #: .\glosowania\models.py:26
 #: .\glosowania\templates\glosowania\_proposal_card.html:117
-#: .\glosowania\templates\glosowania\szczegoly.html:116
+#: .\glosowania\templates\glosowania\szczegoly.html:117
 msgid "Law text"
 msgstr "Treść przepisu"
 
@@ -1674,7 +1673,7 @@ msgstr "Wypełnij tylko wtedy, gdy realizacja przepisu zależy od człowieka i n
 
 #: .\glosowania\models.py:28
 #: .\glosowania\templates\glosowania\_proposal_card.html:135
-#: .\glosowania\templates\glosowania\szczegoly.html:131 .\home\views.py:686
+#: .\glosowania\templates\glosowania\szczegoly.html:132 .\home\views.py:686
 msgid "Reasoning"
 msgstr "Uzasadnienie"
 
@@ -1781,12 +1780,12 @@ msgstr ""
 "Dyskutuj, dziel się opiniami, pytaj tutaj."
 
 #: .\glosowania\templates\glosowania\_proposal_card.html:24
-#: .\glosowania\templates\glosowania\szczegoly.html:33
+#: .\glosowania\templates\glosowania\szczegoly.html:34
 msgid "Proposal"
 msgstr "Propozycja"
 
 #: .\glosowania\templates\glosowania\_proposal_card.html:126
-#: .\glosowania\templates\glosowania\szczegoly.html:125
+#: .\glosowania\templates\glosowania\szczegoly.html:126
 msgid "Consequences"
 msgstr "Konsekwencje"
 
@@ -1799,8 +1798,8 @@ msgid "End"
 msgstr "Koniec"
 
 #: .\glosowania\templates\glosowania\_view_toggle.html:10
-#: .\glosowania\templates\glosowania\szczegoly.html:187
-#: .\glosowania\templates\glosowania\szczegoly.html:230
+#: .\glosowania\templates\glosowania\szczegoly.html:188
+#: .\glosowania\templates\glosowania\szczegoly.html:231
 msgid "Add"
 msgstr "Dodaj"
 
@@ -1813,7 +1812,6 @@ msgstr "Najnowsze"
 
 #: .\glosowania\templates\glosowania\_view_toggle.html:36
 #: .\glosowania\templates\glosowania\_view_toggle.html:41
-#: .\glosowania\templates\glosowania\szczegoly.html:29
 msgid "Signatures"
 msgstr "Podpisy"
 
@@ -1922,7 +1920,27 @@ msgstr "zaznaczonych"
 msgid "parameters - create referendum."
 msgstr "parametrów - utwórz referendum."
 
-#: .\glosowania\templates\glosowania\szczegoly.html:46
+#: .\glosowania\templates\glosowania\szczegoly.html:27
+msgid "Creation date"
+msgstr "Data utworzenia"
+
+#: .\glosowania\templates\glosowania\szczegoly.html:28
+msgid "Last modification date"
+msgstr "Data ostatniej modyfikacji"
+
+#: .\glosowania\templates\glosowania\szczegoly.html:30
+msgid "Date signatures were collected"
+msgstr "Data zebrania podpisów"
+
+#: .\glosowania\templates\glosowania\szczegoly.html:30
+msgid "Signatures collected"
+msgstr "Podpisów zebranych"
+
+#: .\glosowania\templates\glosowania\szczegoly.html:31
+msgid "Referendum period"
+msgstr "Czas trwania referendum"
+
+#: .\glosowania\templates\glosowania\szczegoly.html:47
 #: .\obywatele\templates\obywatele\szczegoly.html:10
 #: .\obywatele\templates\obywatele\szczegoly.html:12
 #: .\obywatele\templates\obywatele\szczegoly.html:21
@@ -1930,7 +1948,7 @@ msgstr "parametrów - utwórz referendum."
 msgid "Previous"
 msgstr "Poprzedni"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:48
+#: .\glosowania\templates\glosowania\szczegoly.html:49
 #: .\obywatele\templates\obywatele\szczegoly.html:15
 #: .\obywatele\templates\obywatele\szczegoly.html:17
 #: .\obywatele\templates\obywatele\szczegoly.html:26
@@ -1938,49 +1956,49 @@ msgstr "Poprzedni"
 msgid "Next"
 msgstr "Następny"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:56
+#: .\glosowania\templates\glosowania\szczegoly.html:57
 msgid "I support"
 msgstr "Popieram"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:56
+#: .\glosowania\templates\glosowania\szczegoly.html:57
 msgid "I do not support"
 msgstr "Nie popieram"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:59
+#: .\glosowania\templates\glosowania\szczegoly.html:60
 msgid "Do you support submitting this proposal to a referendum?"
 msgstr "Czy popierasz skierowanie tej propozycji pod referendum?"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:63
+#: .\glosowania\templates\glosowania\szczegoly.html:64
 msgid "I sign"
 msgstr "Podpisuję"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:68
+#: .\glosowania\templates\glosowania\szczegoly.html:69
 msgid "Withdraw signature"
 msgstr "Wycofaj podpis"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:79
+#: .\glosowania\templates\glosowania\szczegoly.html:80
 msgid "Would you like to implement this rule?"
 msgstr "Czy chcesz wprowadzić ten przepis?"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:83
+#: .\glosowania\templates\glosowania\szczegoly.html:84
 #: .\obywatele\templates\obywatele\szczegoly.html:73
 msgid "No"
 msgstr "Nie"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:87
+#: .\glosowania\templates\glosowania\szczegoly.html:88
 #: .\home\templates\home\home.html:480
 msgid "You have already voted in this referendum"
 msgstr "Już zagłosowałeś w tym referendum"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:92
+#: .\glosowania\templates\glosowania\szczegoly.html:93
 msgid "Results"
 msgstr "Wyniki"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:97 .\tasks\models.py:129
+#: .\glosowania\templates\glosowania\szczegoly.html:98 .\tasks\models.py:129
 msgid "For"
 msgstr "Za"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:98 .\tasks\models.py:128
+#: .\glosowania\templates\glosowania\szczegoly.html:99 .\tasks\models.py:128
 #: .\tasks\templates\tasks\_task_card.html:251
 #: .\tasks\templates\tasks\_task_card.html:260
 #: .\tasks\templates\tasks\task_detail.html:89
@@ -1988,39 +2006,39 @@ msgstr "Za"
 msgid "Against"
 msgstr "Przeciw"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:137
+#: .\glosowania\templates\glosowania\szczegoly.html:138
 msgid "Abolishes regulations"
 msgstr "Znosi przepisy"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:152
+#: .\glosowania\templates\glosowania\szczegoly.html:153
 msgid "Arguments FOR"
 msgstr "Argumenty ZA"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:176
+#: .\glosowania\templates\glosowania\szczegoly.html:177
 msgid "No arguments for."
 msgstr "Brak argumentów za."
 
-#: .\glosowania\templates\glosowania\szczegoly.html:180
+#: .\glosowania\templates\glosowania\szczegoly.html:181
 msgid "Add an argument for"
 msgstr "Dodaj argument za"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:186
+#: .\glosowania\templates\glosowania\szczegoly.html:187
 msgid "Your argument for..."
 msgstr "Twój argument za..."
 
-#: .\glosowania\templates\glosowania\szczegoly.html:195
+#: .\glosowania\templates\glosowania\szczegoly.html:196
 msgid "Arguments AGAINST"
 msgstr "Argumenty PRZECIW"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:219
+#: .\glosowania\templates\glosowania\szczegoly.html:220
 msgid "No arguments against."
 msgstr "Brak argumentów przeciw."
 
-#: .\glosowania\templates\glosowania\szczegoly.html:223
+#: .\glosowania\templates\glosowania\szczegoly.html:224
 msgid "Add an argument against"
 msgstr "Dodaj argument przeciw"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:229
+#: .\glosowania\templates\glosowania\szczegoly.html:230
 msgid "Your argument against..."
 msgstr "Twój argument przeciw..."
 

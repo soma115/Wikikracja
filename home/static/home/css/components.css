@@ -967,6 +967,11 @@ button.proposal-against-btn:focus-visible {
 .detail-meta-sep {
   opacity: .35;
 }
+.detail-meta-arrow {
+  opacity: .7;
+  font-size: .9em;
+  color: var(--accent);
+}
 .detail-author-link {
   display: inline-flex;
   align-items: center;

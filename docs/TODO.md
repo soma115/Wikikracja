@@ -1,5 +1,9 @@
 # OGÓLNE
+- favicon przez .env
 - Nie wysyłać treści z czatu
+- wyczyścić http://127.0.0.1:8000/site-settings/
+- "Pierwsze kroki" na Pulpicie zamienić na listę linków
+- rekurencyjne głosowania
 - Pokoje w czacie nie rozwijają się jeśli klinie się 2 razy
 - Zadania: termin zakończenia
 - Zadania: co blokuje wykonanie

@@ -24,10 +24,11 @@
         </a>
         <span class="detail-meta-sep">·</span>
         {% endif %}
-        {% if id.data_powstania %}<span>{{ id.data_powstania|date:"d.m.Y" }}</span><span class="detail-meta-sep">·</span>{% endif %}
-        <span><i class="fas fa-pen-nib fa-fw"></i> {{ id.ile_osob_podpisalo|default:"0" }}</span>
-        {% if id.data_zebrania_podpisow %}<span class="detail-meta-sep">·</span><span>{% trans 'Signatures' %}: {{ id.data_zebrania_podpisow|date:"d.m.Y" }}</span>{% endif %}
-        {% if id.data_referendum_start %}<span class="detail-meta-sep">·</span><span>{% trans 'Referendum' %}: {{ id.data_referendum_start|date:"d.m.Y" }}{% if data_referendum_stop %}–{{ data_referendum_stop|date:"d.m.Y" }}{% endif %}</span>{% endif %}
+        {% if id.data_powstania %}<span title="{% trans 'Creation date' %}"><i class="fas fa-calendar-plus fa-fw"></i> {{ id.data_powstania|date:"d.m.Y" }}</span>{% endif %}
+        {% if id.data_ostatniej_modyfikacji and id.data_ostatniej_modyfikacji|date:"d.m.Y" != id.data_powstania|date:"d.m.Y" %}<span class="detail-meta-arrow">→</span><span title="{% trans 'Last modification date' %}"><i class="fas fa-pen fa-fw"></i> {{ id.data_ostatniej_modyfikacji|date:"d.m.Y" }}</span>{% endif %}
+        <span class="detail-meta-sep">·</span>
+        <span title="{% if id.data_zebrania_podpisow %}{% trans 'Date signatures were collected' %}{% else %}{% trans 'Signatures collected' %}{% endif %}">{{ id.ile_osob_podpisalo|default:"0" }} <i class="fas fa-pen-nib fa-fw"></i>{% if id.data_zebrania_podpisow %} · {{ id.data_zebrania_podpisow|date:"d.m.Y" }}{% endif %}</span>
+        {% if id.data_referendum_start %}<span class="detail-meta-arrow">→</span><span title="{% trans 'Referendum period' %}"><i class="fas fa-person-booth fa-fw"></i> {{ id.data_referendum_start|date:"d.m.Y" }}{% if data_referendum_stop %}–{{ data_referendum_stop|date:"d.m.Y" }}{% endif %}</span>{% endif %}
         <span class="detail-meta-sep">·</span>
         <span class="detail-status-badge s{{ id.status }}">
           {% if id.status == 1 %}<i class="fas fa-file-pen"></i> {% trans 'Proposal' %}
