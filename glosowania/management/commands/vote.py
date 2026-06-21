@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+import smtplib
 import time
 from datetime import datetime, timedelta
 
@@ -172,8 +173,11 @@ class Command(BaseCommand):
             )
             log.warning(f"subject: {subject} \n message: {message}")
 
+            try:
+                email_message.send()
+            except smtplib.SMTPException as e:
+                log.error(f"Failed to send email '{subject}': {e}")
             time.sleep(s.EMAIL_SEND_DELAY_SECONDS)
-            email_message.send()
 
         zliczaj_wszystko()
 
