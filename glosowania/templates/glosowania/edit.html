@@ -3,7 +3,16 @@
 {% load crispy_forms_tags %}
 {% load i18n %}
 
-{% block extra_css %}{{ form.media }}{% endblock %}
+{% block extra_css %}{{ form.media }}
+<style>
+  .post-form .richtext-wrapper { overflow: visible; }
+  .post-form .message-input-rich {
+    resize: vertical;
+    max-height: none;
+    overflow-y: auto;
+  }
+</style>
+{% endblock %}
 
 {% block glosowania %}
 <div class="card">

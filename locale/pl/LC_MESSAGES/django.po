@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-21 09:58+0200\n"
+"POT-Creation-Date: 2026-06-21 17:08+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -901,7 +901,7 @@ msgid "You can disable those messages by unchecking bell icon next to chat room 
 msgstr "Możesz wyłączyć te powiadomienia odznaczając ikonę dzwonka obok nazwy pokoju."
 
 #: .\chat\management\commands\chat_messages.py:39
-#: .\glosowania\management\commands\vote.py:166 .\glosowania\views.py:389
+#: .\glosowania\management\commands\vote.py:175 .\glosowania\views.py:389
 #: .\obywatele\forms.py:308
 #, python-brace-format
 msgid "You can manage your email notifications here: {url}"
@@ -1526,87 +1526,87 @@ msgstr "Brak wydarzeń w tym okresie czasu"
 msgid "Add the first event"
 msgstr "Stwórz pierwsze wydarzenie"
 
-#: .\glosowania\management\commands\vote.py:53
+#: .\glosowania\management\commands\vote.py:57
 msgid "is approved for referendum"
 msgstr "została dopuszczona do referendum"
 
-#: .\glosowania\management\commands\vote.py:54
+#: .\glosowania\management\commands\vote.py:58
 msgid "became abiding law today"
 msgstr "stała się dziś obowiązującym prawem"
 
-#: .\glosowania\management\commands\vote.py:55
+#: .\glosowania\management\commands\vote.py:59
 msgid "Click here to read it"
 msgstr "Kliknij tutaj, aby ją przeczytać"
 
-#: .\glosowania\management\commands\vote.py:56
+#: .\glosowania\management\commands\vote.py:60
 msgid "Referendum ends at"
 msgstr "Referendum kończy się"
 
-#: .\glosowania\management\commands\vote.py:57
+#: .\glosowania\management\commands\vote.py:61
 msgid "Feel free to improve it and send it again"
 msgstr "Możesz ją poprawić i wysłać ponownie"
 
-#: .\glosowania\management\commands\vote.py:58
+#: .\glosowania\management\commands\vote.py:62
 msgid "gathered required amount of signatures and will be voted from"
 msgstr "zebrała wymaganą liczbę podpisów i zostanie poddana pod głosowanie od"
 
-#: .\glosowania\management\commands\vote.py:59
+#: .\glosowania\management\commands\vote.py:63
 msgid "is in efect from today"
 msgstr "obowiązuje od dzisiaj"
 
-#: .\glosowania\management\commands\vote.py:60
+#: .\glosowania\management\commands\vote.py:64
 msgid "Last day to vote on proposal no."
 msgstr "Ostatni dzień głosowania nad propozycją nr."
 
-#: .\glosowania\management\commands\vote.py:61
+#: .\glosowania\management\commands\vote.py:65
 msgid "This is the last day to vote!"
 msgstr "Dzisiaj jest ostatni dzień głosowania!"
 
-#: .\glosowania\management\commands\vote.py:62
+#: .\glosowania\management\commands\vote.py:66
 msgid "did not gathered required amount of signatures"
 msgstr "nie zebrał wymaganej liczby podpisów"
 
-#: .\glosowania\management\commands\vote.py:63
+#: .\glosowania\management\commands\vote.py:67
 msgid "Proposal no."
 msgstr "Propozycja numer"
 
-#: .\glosowania\management\commands\vote.py:64
+#: .\glosowania\management\commands\vote.py:68
 msgid "Referendum on proposal no."
 msgstr "Referendum w sprawie propozycji nr."
 
-#: .\glosowania\management\commands\vote.py:65
+#: .\glosowania\management\commands\vote.py:69
 msgid "was rejected"
 msgstr "została odrzucona"
 
-#: .\glosowania\management\commands\vote.py:66
+#: .\glosowania\management\commands\vote.py:70
 msgid "was rejected in referendum."
 msgstr "została odrzucona w referendum"
 
-#: .\glosowania\management\commands\vote.py:67
+#: .\glosowania\management\commands\vote.py:71
 msgid "is starting now"
 msgstr "zaczyna się teraz"
 
-#: .\glosowania\management\commands\vote.py:68
+#: .\glosowania\management\commands\vote.py:72
 msgid "It is time to vote on proposal no."
 msgstr "Czas na głosowanie nad propozycją nr."
 
-#: .\glosowania\management\commands\vote.py:69
+#: .\glosowania\management\commands\vote.py:73
 msgid "to"
 msgstr "do"
 
-#: .\glosowania\management\commands\vote.py:70
+#: .\glosowania\management\commands\vote.py:74
 msgid "was approved"
 msgstr "została zatwierdzona"
 
-#: .\glosowania\management\commands\vote.py:71
+#: .\glosowania\management\commands\vote.py:75
 msgid "and was removed from queue"
 msgstr "i został usunięty z kolejki"
 
-#: .\glosowania\management\commands\vote.py:92
+#: .\glosowania\management\commands\vote.py:98
 msgid "Signed"
 msgstr "Podpisana"
 
-#: .\glosowania\management\commands\vote.py:92
+#: .\glosowania\management\commands\vote.py:98
 #: .\glosowania\templates\glosowania\_proposal_card.html:26
 #: .\glosowania\templates\glosowania\menu.html:29
 #: .\glosowania\templates\glosowania\szczegoly.html:35
@@ -1614,11 +1614,11 @@ msgstr "Podpisana"
 msgid "Discussion"
 msgstr "Dyskusja"
 
-#: .\glosowania\management\commands\vote.py:109
+#: .\glosowania\management\commands\vote.py:115
 msgid "Not enough signatures"
 msgstr "Nie zabrała podpisów"
 
-#: .\glosowania\management\commands\vote.py:119
+#: .\glosowania\management\commands\vote.py:125
 #: .\glosowania\templates\glosowania\_proposal_card.html:28
 #: .\glosowania\templates\glosowania\_proposal_card.html:144
 #: .\glosowania\templates\glosowania\menu.html:36
@@ -1627,7 +1627,7 @@ msgstr "Nie zabrała podpisów"
 msgid "Referendum"
 msgstr "Referendum"
 
-#: .\glosowania\management\commands\vote.py:137
+#: .\glosowania\management\commands\vote.py:143
 #: .\glosowania\templates\glosowania\_proposal_card.html:32
 #: .\glosowania\templates\glosowania\menu.html:43
 #: .\glosowania\templates\glosowania\szczegoly.html:38
@@ -1635,7 +1635,7 @@ msgstr "Referendum"
 msgid "Approved"
 msgstr "Zatwierdzone"
 
-#: .\glosowania\management\commands\vote.py:153
+#: .\glosowania\management\commands\vote.py:159
 #: .\glosowania\templates\glosowania\_proposal_card.html:30
 #: .\glosowania\templates\glosowania\menu.html:53
 #: .\glosowania\templates\glosowania\szczegoly.html:37

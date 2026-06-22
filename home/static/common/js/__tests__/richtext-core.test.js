@@ -112,6 +112,19 @@ describe('getInputHtml — bloki zawierające <br>', () => {
         // A + 1 nowa linia + 2 puste linie + B = A + 3 <br> + B
         expect(core.getInputHtml(el)).toBe('A<br><br><br>B');
     });
+
+    test('regresja: <br> + blok nie podwaja złamania (edycja przepisu)', () => {
+        // Przeglądarka miesza <br> i <div> przy edycji wczytanej treści "A<br>B":
+        // klik w drugą linię i edycja daje "A<br><div>B</div>". Bez fix-a serializowało
+        // się to do "A<br><br>B" → ghost pusta linia nad edytowaną linią.
+        const el = makeEditable('A<br><div>B</div>');
+        expect(core.getInputHtml(el)).toBe('A<br>B');
+    });
+
+    test('regresja: <br> + blok na top-level (wiele linii)', () => {
+        const el = makeEditable('A<br><div>B</div><div>C</div>');
+        expect(core.getInputHtml(el)).toBe('A<br>B<br>C');
+    });
 });
 
 // ── Bug C: text node z surowym \n (stary content z DB) ───────────────────────

@@ -2,14 +2,12 @@ import logging
 import re
 import threading
 from collections import defaultdict
-from datetime import datetime as dt
 from time import sleep
 
-import pytz
 from django.conf import settings as s
 from django.core.mail import EmailMessage
 from django.core.management.base import BaseCommand
-from django.utils import translation
+from django.utils import timezone, translation
 from django.utils.translation import gettext_lazy as _
 
 from chat.models import Message, Room
@@ -98,7 +96,7 @@ class Command(BaseCommand):
                 SendEmail([
                     u.uid.email,
                 ], body)
-            u.last_broadcast = dt.now(pytz.timezone('Europe/Warsaw'))  # TODO: Wziąć to z settings.py
+            u.last_broadcast = timezone.now()
             u.save()
 
         for t in threads:

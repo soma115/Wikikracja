@@ -96,6 +96,7 @@ async function initEmbeddedChat(container) {
     // ── 2. Local helpers ─────────────────────────────────────────────────────
 
     function appendMessage(msg) {
+        messagesEl.querySelector('.ec-empty, .ec-loading')?.remove();
         const dateStr = formatDate(msg.timestamp);
         if (dateStr !== lastDateBanner) {
             lastDateBanner = dateStr;

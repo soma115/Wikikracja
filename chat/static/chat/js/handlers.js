@@ -237,12 +237,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (mod && e.key === 'i') { e.preventDefault(); document.execCommand('italic'); updateToolbarState(); return; }
             if (mod && e.key === 'u') { e.preventDefault(); document.execCommand('underline'); updateToolbarState(); return; }
             if (handleListTrigger(e)) return;
-            // Enter = wyślij, Shift+Enter = nowa linia (na mobile Enter = nowa linia)
+            // Enter = nowa linia; wysyłanie przez Ctrl+Enter lub Shift+Enter
             if (e.key === 'Enter') {
-                const isMobile = navigator.maxTouchPoints > 0;
                 e.preventDefault();
-                if (e.shiftKey || isMobile) { document.execCommand('insertLineBreak'); }
-                else { onSubmitMessage(DOM_API.getEnteredText(), DOM_API.getEditedMessageId()); }
+                if (mod || e.shiftKey) { onSubmitMessage(DOM_API.getEnteredText(), DOM_API.getEditedMessageId()); }
+                else { document.execCommand('insertLineBreak'); }
                 return;
             }
             return;

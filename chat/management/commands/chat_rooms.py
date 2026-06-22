@@ -53,7 +53,6 @@ class Command(BaseCommand):
                 room.delete()  # delete
                 room.save()
 
-        # TODO: Should be a Cron Job. Now it is called with every refresh.
         # Archive/Delete old private chat room
         for room in private_rooms:
             for user in room.allowed.all():

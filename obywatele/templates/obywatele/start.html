@@ -137,7 +137,7 @@
             {% for i in uid %}
             <tr class="user-row{% if i.near_threshold %} near-threshold{% endif %}"
                 data-user-id="{{ i.pk }}"
-                data-href="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}"
+                data-href="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}{% if sort_param %}?{{ sort_param }}{% endif %}"
                 data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
               <td>
                 <div class="username-container">

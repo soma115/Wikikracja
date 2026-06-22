@@ -15,7 +15,7 @@ import {
     removeNotification,
     setCaretPosition
 } from './utility.js';
-import { formatMessage as coreFormatMessage } from './chat-core.js';
+import { formatMessage as coreFormatMessage, getInputHtml } from './chat-core.js';
 
 /**
  * DOM API class for managing chat interface DOM operations
@@ -266,27 +266,10 @@ export default class DomApi {
         const el = this.getMessageInput();
         if (!el) return '';
         if (el.isContentEditable) {
-            const ALLOWED_TAGS = ['b', 'i', 'u', 'br'];
-            // Walk the DOM and serialize to HTML, converting block elements to <br>
-            // so that newlines entered by the user are preserved.
-            const BLOCK = new Set(['DIV', 'P', 'SECTION', 'ARTICLE', 'BLOCKQUOTE', 'LI']);
-            function serialize(node, isFirst) {
-                if (node.nodeType === Node.TEXT_NODE) return node.textContent;
-                if (node.nodeType !== Node.ELEMENT_NODE) return '';
-                const tag = node.tagName.toUpperCase();
-                if (tag === 'BR') return '<br>';
-                const inner = Array.from(node.childNodes).map((c, i) => serialize(c, i === 0)).join('');
-                if (BLOCK.has(tag)) return (isFirst ? '' : '<br>') + inner;
-                if (tag === 'B') return `<b>${inner}</b>`;
-                if (tag === 'I') return `<i>${inner}</i>`;
-                if (tag === 'U') return `<u>${inner}</u>`;
-                return inner;
-            }
-            const html = Array.from(el.childNodes).map((c, i) => serialize(c, i === 0)).join('');
-            const sanitized = (typeof DOMPurify !== 'undefined')
-                ? DOMPurify.sanitize(html, { ALLOWED_TAGS, ALLOWED_ATTR: [] })
-                : html.replace(/<(?!\/?(?:b|i|u|br)\b)[^>]*>/gi, '');
-            return sanitized.replace(/(<br\s*\/?>\s*)+$/, '');
+            // Canonical serializer (richtext-core.js) — single source of truth so newline
+            // handling matches chat-embedded.js (empty-line blocks → single <br>, trailing
+            // filler <br> stripped). Avoids the double-spacing divergence of the old inline impl.
+            return getInputHtml(el).replace(/(<br\s*\/?>\s*)+$/, '');
         }
         return el.value ?? '';
     }

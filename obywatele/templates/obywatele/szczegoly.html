@@ -7,23 +7,23 @@
   <div class="mb-3">
     {% if active %}
       {% if next %}
-        <a href="{% url 'obywatele:obywatele_szczegoly' pk=next.id %}" class="btn btn-sm btn-outline-success">← {% trans 'Previous' %}</a>
+        <a href="{% url 'obywatele:obywatele_szczegoly' pk=next.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="btn btn-sm btn-outline-success">← {% trans 'Previous' %}</a>
       {% else %}
         <button class="btn btn-sm btn-outline-secondary" disabled>← {% trans 'Previous' %}</button>
       {% endif %}
       {% if prev %}
-        <a href="{% url 'obywatele:obywatele_szczegoly' pk=prev.id %}" class="btn btn-sm btn-outline-success">{% trans 'Next' %} →</a>
+        <a href="{% url 'obywatele:obywatele_szczegoly' pk=prev.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="btn btn-sm btn-outline-success">{% trans 'Next' %} →</a>
       {% else %}
         <button class="btn btn-sm btn-outline-secondary" disabled>{% trans 'Next' %} →</button>
       {% endif %}
     {% else %}
       {% if next %}
-        <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=next.id %}" class="btn btn-sm btn-outline-secondary">← {% trans 'Previous' %}</a>
+        <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=next.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="btn btn-sm btn-outline-secondary">← {% trans 'Previous' %}</a>
       {% else %}
         <button class="btn btn-sm btn-outline-secondary" disabled>← {% trans 'Previous' %}</button>
       {% endif %}
       {% if prev %}
-        <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=prev.id %}" class="btn btn-sm btn-outline-secondary">{% trans 'Next' %} →</a>
+        <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=prev.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="btn btn-sm btn-outline-secondary">{% trans 'Next' %} →</a>
       {% else %}
         <button class="btn btn-sm btn-outline-secondary" disabled>{% trans 'Next' %} →</button>
       {% endif %}

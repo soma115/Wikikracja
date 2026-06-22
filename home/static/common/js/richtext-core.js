@@ -28,7 +28,13 @@ export function getInputHtml(inputEl) {
         return node && node.nodeType === Node.ELEMENT_NODE && node.tagName.toUpperCase() === 'BR';
     }
 
-    function serialize(node, isFirst) {
+    // Serialize a list of sibling nodes, tracking whether the previous sibling
+    // already emitted a trailing <br> so a following block doesn't double it.
+    function serializeChildren(nodes) {
+        return nodes.map((c, i) => serialize(c, i === 0, isBr(nodes[i - 1]))).join('');
+    }
+
+    function serialize(node, isFirst, prevWasBr) {
         if (node.nodeType === Node.TEXT_NODE) {
             // Legacy DB content (sprzed paste fix-a) może mieć surowe \n w tekście —
             // normalizujemy na <br>, żeby render po save nie produkował ghost empty lines.
@@ -53,8 +59,11 @@ export function getInputHtml(inputEl) {
             }
         }
 
-        const inner = children.map((c, i) => serialize(c, i === 0)).join('');
-        if (BLOCK.has(tag)) return (isFirst ? '' : '<br>') + inner;
+        const inner = serializeChildren(children);
+        // A block opens a new line — but only if the previous sibling didn't already
+        // emit a <br>. Browsers mix <br> and <div> when editing (e.g. "A<br><div>B</div>"),
+        // which would otherwise serialize to "A<br><br>B" → ghost line above edited line.
+        if (BLOCK.has(tag)) return ((isFirst || prevWasBr) ? '' : '<br>') + inner;
         if (tag === 'B') return `<b>${inner}</b>`;
         if (tag === 'I') return `<i>${inner}</i>`;
         if (tag === 'U') return `<u>${inner}</u>`;
@@ -65,7 +74,7 @@ export function getInputHtml(inputEl) {
         return inner;
     }
 
-    const html = Array.from(inputEl.childNodes).map((c, i) => serialize(c, i === 0)).join('');
+    const html = serializeChildren(Array.from(inputEl.childNodes));
     return (typeof DOMPurify !== 'undefined')
         ? DOMPurify.sanitize(html, { ALLOWED_TAGS, ALLOWED_ATTR })
         : html.replace(/<(?!\/?(?:b|i|u|br|a)\b)[^>]*>/gi, '');
@@ -168,18 +177,18 @@ export function updateCounter(inputEl, counterEl, counterVal, sendBtn, maxLength
 }
 
 /**
- * WhatsApp-style Enter handling:
- *   Enter          → send
- *   Shift+Enter    → new line (insertLineBreak)
+ * Enter handling:
+ *   Enter                  → new line (insertLineBreak)
+ *   Ctrl/Cmd+Enter, Shift+Enter → send
  * @returns {boolean} true if handled
  */
 export function handleEnterKey(e, submitCallback) {
     if (e.key !== 'Enter') return false;
     e.preventDefault();
-    if (e.shiftKey) {
-        document.execCommand('insertLineBreak');
-    } else {
+    if (e.ctrlKey || e.metaKey || e.shiftKey) {
         submitCallback();
+    } else {
+        document.execCommand('insertLineBreak');
     }
     return true;
 }

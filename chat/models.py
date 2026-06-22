@@ -80,30 +80,19 @@ class Room(models.Model):
     @staticmethod
     def find_all_with_users(*users):
         """
-        Returns generator of Room objects
+        Returns queryset of private Room objects containing all given users.
         """
-        # TODO: replace with better query
-        # look through all rooms
-        for room in Room.objects.filter(public=False):
-            # get all members of the room
-            room_members = room.allowed.all()
-            # look through users, who must be present in the room
-            all_in = True
-            for user in users:
-                assert isinstance(user, get_user_model())
-                if user not in room_members:
-                    all_in = False
-                    break
-            if all_in:
-                yield room
+        qs = Room.objects.filter(public=False)
+        for user in users:
+            qs = qs.filter(allowed=user)
+        return qs
 
     @staticmethod
     def find_with_users(*users):
         """
         Returns first matching room.
         """
-        for room in Room.find_all_with_users(*users):
-            return room
+        return Room.find_all_with_users(*users).first()
 
     @staticmethod
     def find_private_rooms_for_user_pairs(user, other_user_ids):

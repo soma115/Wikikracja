@@ -912,10 +912,59 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
 
     # Previous and Next
     obj = get_object_or_404(User, pk=pk)
-    # kandydaci czy obywatele? Na razie wszyscy.
-    # TODO: Zrobić tak żeby przewijanie było tylko po Kandydatach albo tylko po Obywatelach
-    prev = User.objects.filter(pk__lt=obj.pk, is_active=obj.is_active).order_by('-pk').first()
-    next = User.objects.filter(pk__gt=obj.pk, is_active=obj.is_active).order_by('pk').first()
+    # Przewijaj w tej samej kolejności co lista obywateli, honorując parametr
+    # 'sort' (przekazywany z listy), zachowując filtr po is_active.
+    allowed_sort_fields = {
+        'username': 'username',
+        'email': 'email',
+        'phone': 'uzytkownik__phone',
+        'last_login': 'last_login',
+        'city': 'uzytkownik__city',
+        'first_name': 'first_name',
+        'last_name': 'last_name',
+        'joined': 'uzytkownik__data_przyjecia',
+    }
+    blank_annotations = {
+        'username': Q(username__isnull=True) | Q(username__exact=''),
+        'email': Q(email__isnull=True) | Q(email__exact=''),
+        'phone': Q(uzytkownik__phone__isnull=True) | Q(uzytkownik__phone__exact=''),
+        'last_login': Q(last_login__isnull=True),
+        'city': Q(uzytkownik__city__isnull=True) | Q(uzytkownik__city__exact=''),
+        'first_name': Q(first_name__isnull=True) | Q(first_name__exact=''),
+        'last_name': Q(last_name__isnull=True) | Q(last_name__exact=''),
+        'joined': Q(uzytkownik__data_przyjecia__isnull=True),
+    }
+    default_sort = '-joined'
+    requested_sort = request.GET.get('sort', default_sort)
+    requested_field = requested_sort.lstrip('-')
+    if requested_field not in allowed_sort_fields:
+        requested_sort = default_sort
+        requested_field = default_sort.lstrip('-')
+
+    order_prefix = '-' if requested_sort.startswith('-') else ''
+    ordered_qs = User.objects.filter(is_active=obj.is_active).annotate(
+        sort_is_blank=Case(
+            When(blank_annotations[requested_field], then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField(),
+        ),
+    ).order_by('sort_is_blank', f'{order_prefix}{allowed_sort_fields[requested_field]}', 'id')
+    ordered_pks = list(ordered_qs.values_list('pk', flat=True))
+    try:
+        idx = ordered_pks.index(obj.pk)
+    except ValueError:
+        idx = -1
+
+    # 'next' => przycisk "← Previous" (w górę listy, do poprzedniego)
+    # 'prev' => przycisk "Next →" (w dół listy, do następnego)
+    # Pierwsza osoba na liście (idx == 0) => brak "Previous", dostępny "Next".
+    next = User.objects.filter(pk=ordered_pks[idx - 1]).first() if idx > 0 else None
+    prev = (
+        User.objects.filter(pk=ordered_pks[idx + 1]).first()
+        if 0 <= idx < len(ordered_pks) - 1
+        else None
+    )
+    sort_param = f'sort={requested_sort}' if requested_sort != default_sort else ''
 
     candidate_deletion_request = getattr(candidate_user, 'deletion_request', None)
 
@@ -932,6 +981,7 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
         'form_completion_percent': form_completion_percent,
         'total_rate_count': total_rate_count,
         'candidate_deletion_request': candidate_deletion_request,
+        'sort_param': sort_param,
     })
 
 
