@@ -252,6 +252,7 @@ def get_translations():
         "No unread messages": _("No unread messages"),
         "Tap {icon} above the list to disable the unread filter": _("Tap {icon} above the list to disable the unread filter"),
         "Disable the unread filter": _("Disable the unread filter"),
+        "This room is empty, be the first one to write something.": _("This room is empty, be the first one to write something."),
     }
 
 
