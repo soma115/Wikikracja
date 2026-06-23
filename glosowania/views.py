@@ -167,15 +167,15 @@ def details(request: HttpRequest, pk: int):
             VoteCode.objects.create(project=nowy_projekt, code=code, vote=True)
 
         message1 = str(_('Your vote has been saved. You voted Yes.'))
-        messages.success(request, (message1))
+        messages.success(request, (message1), extra_tags='persist')
 
         message2 = _('Your verification code is: %(code)s') % {
             'code': code
         }
-        messages.error(request, (message2))
+        messages.error(request, (message2), extra_tags='persist')
 
         message3 = str(_('Write down your code or create screenshot to verify it when the referendum is over. This code will be presented just once and will be not related to you.'))
-        messages.info(request, (message3))
+        messages.info(request, (message3), extra_tags='persist')
 
         return redirect('glosowania:details', pk)
 
@@ -199,15 +199,15 @@ def details(request: HttpRequest, pk: int):
             VoteCode.objects.create(project=nowy_projekt, code=code, vote=False)
 
         message1 = str(_('Your vote has been saved. You voted No.'))
-        messages.success(request, (message1))
+        messages.success(request, (message1), extra_tags='persist')
 
         message2 = _('Your verification code is: %(code)s') % {
             'code': code
         }
-        messages.error(request, (message2))
+        messages.error(request, (message2), extra_tags='persist')
 
         message3 = str(_('Write down your code or create screenshot to verify it when the referendum is over. This code will be presented just once and will be not related to you.'))
-        messages.info(request, (message3))
+        messages.info(request, (message3), extra_tags='persist')
 
         return redirect('glosowania:details', pk)
 

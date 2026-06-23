@@ -1982,7 +1982,7 @@ msgstr "Wycofaj podpis"
 
 #: .\glosowania\templates\glosowania\szczegoly.html:80
 msgid "Would you like to implement this rule?"
-msgstr "Czy chcesz wprowadzić ten przepis?"
+msgstr "Czy chcesz wprowadzenia tego przepisu?"
 
 #: .\glosowania\templates\glosowania\szczegoly.html:84
 #: .\obywatele\templates\obywatele\szczegoly.html:73

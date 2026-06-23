@@ -76,9 +76,9 @@
 
       {% elif id.status == 3 and id.is_author_signed %}
       {% if not voted %}
-      <div class="d-flex align-items-center gap-2 flex-wrap">
-        <span style="font-size:.78rem;color:var(--text-muted);">{% trans 'Would you like to implement this rule?' %}</span>
-        <form method="post" class="mb-0 d-inline">
+      <div class="d-flex flex-column gap-2">
+        <span style="font-size:1rem;font-weight:600;color:var(--text-color);">{% trans 'Would you like to implement this rule?' %}</span>
+        <form method="post" class="mb-0 d-flex gap-2">
           {% csrf_token %}
           <button type="submit" name="tak" value="1" class="action-btn action-btn-yes"><i class="fas fa-check"></i> {% trans 'Yes' %}</button>
           <button type="submit" name="nie" value="1" class="action-btn action-btn-no"><i class="fas fa-xmark"></i> {% trans 'No' %}</button>

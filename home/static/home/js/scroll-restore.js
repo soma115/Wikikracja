@@ -2,7 +2,7 @@
 // Użycie: dodaj data-preserve-scroll do <form>.
 // Dodatkowo: auto-ukrywa toast messages po 4 sekundach.
 document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('#django-toasts .toast-msg').forEach(function (el) {
+  document.querySelectorAll('#django-toasts .toast-msg:not(.toast-persist)').forEach(function (el) {
     setTimeout(function () {
       el.style.transition = 'opacity .4s';
       el.style.opacity = '0';

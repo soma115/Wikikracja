@@ -349,7 +349,7 @@
     {% if messages %}
     <div class="toast-container" id="django-toasts">
       {% for message in messages %}
-      <div class="toast-msg toast-{{ message.level_tag }}" role="alert">
+      <div class="toast-msg toast-{{ message.level_tag }}{% if 'persist' in message.tags %} toast-persist{% endif %}" role="alert">
         {{ message }}
         <button type="button" class="toast-close" onclick="this.parentElement.remove()">×</button>
       </div>

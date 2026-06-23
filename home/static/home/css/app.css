@@ -738,11 +738,11 @@ textarea.form-control:focus {
   animation: toast-in .2s ease;
 }
 /* Semi-transparent rgba zamiast zmiennych — celowo, żeby toast wyglądał spójnie na wszystkich 4 tematach */
-.toast-msg.toast-success { background: rgba(0,188,140,.55);  color: #d0fff5; border-color: rgba(0,188,140,.7); }
+.toast-msg.toast-success { background: rgb(0,188,140);  color: #d0fff5; border-color: rgb(0,188,140); }
 .toast-msg.toast-error,
-.toast-msg.toast-danger  { background: rgba(239,68,68,.55);  color: #ffe0e0; border-color: rgba(239,68,68,.7); }
-.toast-msg.toast-warning { background: rgba(243,156,18,.55); color: #fff0c0; border-color: rgba(243,156,18,.7); }
-.toast-msg.toast-info    { background: rgba(52,152,219,.55); color: #daf0ff; border-color: rgba(52,152,219,.7); }
+.toast-msg.toast-danger  { background: rgb(239,68,68);  color: #ffe0e0; border-color: rgb(239,68,68); }
+.toast-msg.toast-warning { background: rgb(243,156,18); color: #fff0c0; border-color: rgb(243,156,18); }
+.toast-msg.toast-info    { background: rgb(52,152,219); color: #daf0ff; border-color: rgb(52,152,219); }
 .toast-close {
   background: none;
   border: none;
