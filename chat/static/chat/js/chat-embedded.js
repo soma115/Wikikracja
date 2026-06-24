@@ -44,7 +44,7 @@ async function initEmbeddedChat(container) {
                     <div id="ec-input-${roomId}" class="message-input-rich" role="textbox"
                          contenteditable="true" aria-multiline="true"
                          data-placeholder="${_('Reply to the appropriate message...')}"
-                         data-hint="${_('Shift+↵ new line · Ctrl+B bold · Ctrl+I italic · - or * list')}"></div>
+                         data-hint="${_('Shift/Ctrl+↵ send · Ctrl+B bold · Ctrl+I italic · - or * list')}"></div>
                     <div class="compose-bar">
                         <div class="compose-bar-left">
                             <input type="file" id="ec-file-input-${roomId}" class="file-input ec-file-input" multiple="multiple" style="display:none;"/>

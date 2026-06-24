@@ -1240,7 +1240,7 @@ msgid "Popular"
 msgstr "Popularne"
 
 #: .\chat\views.py:250
-msgid "Shift+↵ new line · Ctrl+B bold · Ctrl+I italic · - or * list"
+msgid "Shift/Ctrl+↵ send · Ctrl+B bold · Ctrl+I italic · - or * list"
 msgstr "Shift+↵ nowa linia · Ctrl+B pogrubienie · Ctrl+I kursywa · - lub * lista"
 
 #: .\chat\views.py:251
