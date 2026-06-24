@@ -441,12 +441,29 @@ DEBUG_SKIP_AUTH = env_bool("DEBUG_SKIP_AUTH", False)
 
 VAPID_PUBLIC_KEY = getenv('VAPID_PUBLIC_KEY', '')
 
-# Initialize the default app (either use `GOOGLE_APPLICATION_CREDENTIALS` environment variable, or pass a firebase_admin.credentials.Certificate instance)
-FIREBASE_CERT_PATH = getenv('FIREBASE_CERT_PATH', '')
-if FIREBASE_CERT_PATH != '' and path.exists(FIREBASE_CERT_PATH):
-    serviceAccount = credentials.Certificate(FIREBASE_CERT_PATH)
-    import firebase_admin
-    firebase_app = firebase_admin.initialize_app(credential=serviceAccount)
+# Firebase Admin SDK initialization
+# Production (Kubernetes): uses GOOGLE_APPLICATION_CREDENTIALS env var (auto-detected)
+# Development (local): uses FIREBASE_CERT_PATH to local JSON file
+import firebase_admin
+
+# Check if already initialized (e.g., by GOOGLE_APPLICATION_CREDENTIALS)
+try:
+    firebase_admin.get_app()
+except ValueError:
+    # Not initialized yet
+    FIREBASE_CERT_PATH = getenv('FIREBASE_CERT_PATH', '')
+    if FIREBASE_CERT_PATH != '' and path.exists(FIREBASE_CERT_PATH):
+        # Local development: use explicit cert path
+        serviceAccount = credentials.Certificate(FIREBASE_CERT_PATH)
+        firebase_admin.initialize_app(credential=serviceAccount)
+    else:
+        # Production: GOOGLE_APPLICATION_CREDENTIALS env var (auto-detected)
+        # or no Firebase (dev without push notifications)
+        try:
+            firebase_admin.initialize_app()
+        except ValueError:
+            # No credentials available - Firebase won't work
+            pass
 
 PUSH_NOTIFICATIONS_SETTINGS = {
     "WP_PRIVATE_KEY": getenv('VAPID_PRIVATE_KEY', ''),

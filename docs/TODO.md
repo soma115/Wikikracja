@@ -1,4 +1,6 @@
 # OGÓLNE
+- nie zapisane wiadomości znikają jak się przełączy z pokoju na pokój
+- bardzo długie wiadomości czasem się nie wysyłają ale nie mogę tego odtworzyć
 - favicon przez .env
 - Nie wysyłać treści z czatu
 - wyczyścić http://127.0.0.1:8000/site-settings/
