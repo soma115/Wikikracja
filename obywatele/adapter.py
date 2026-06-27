@@ -1,8 +1,12 @@
 import logging
+from urllib.parse import urlencode
 
 from allauth.account.adapter import DefaultAccountAdapter
+from django.core.signing import TimestampSigner
+from django.urls import reverse
 
 log = logging.getLogger(__name__)
+signer = TimestampSigner()
 
 
 class CustomAccountAdapter(DefaultAccountAdapter):
@@ -61,6 +65,21 @@ class CustomAccountAdapter(DefaultAccountAdapter):
             return '/obywatele/onboarding/'
 
         return super().get_login_redirect_url(request)
+
+    def get_email_verification_redirect_url(self, email_address):
+        """
+        CRITICAL: After email confirmation, redirect directly to onboarding form with token.
+
+        DESIGN NOTE: Default allauth behavior redirects to ACCOUNT_EMAIL_CONFIRMATION_*_REDIRECT_URL
+        which is /obywatele/onboarding/ — but without a token and with a fresh session,
+        so get_onboarding_user_from_request returns None and user sees an error.
+        We generate a signed token here and embed it in the redirect URL.
+        """
+        user = email_address.user
+        token = signer.sign(str(user.id))
+        query_params = urlencode({'token': token})
+        url = reverse('obywatele:onboarding_details') + f'?{query_params}'
+        return url
 
     def add_message(self, request, level, message_template, message_context=None, *args, **kwargs):
         """
