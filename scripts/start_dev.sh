@@ -57,7 +57,6 @@ pip install --no-cache-dir -q -r requirements.txt
 
 ./manage.py makemigrations obywatele
 ./manage.py makemigrations glosowania
-./manage.py makemigrations elibrary
 ./manage.py makemigrations chat
 ./manage.py makemigrations home
 ./manage.py makemigrations bookkeeping
