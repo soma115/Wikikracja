@@ -31,6 +31,15 @@ class SchedulerConfig(AppConfig):
         Called when Django starts.
         This is where we start the APScheduler for background tasks.
         """
+        from django.db.backends.signals import connection_created
+
+        def set_sqlite_wal(sender, connection, **kwargs):
+            if connection.vendor == 'sqlite':
+                cursor = connection.cursor()
+                cursor.execute('PRAGMA journal_mode=WAL;')
+
+        connection_created.connect(set_sqlite_wal)
+
         # Only start scheduler in the main process, not in Django management commands
         # and not during migrations or other special operations
         if os.environ.get('RUN_MAIN') == 'true' or os.environ.get('SCHEDULER_ENABLED') == 'true':
