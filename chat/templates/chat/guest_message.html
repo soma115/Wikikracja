@@ -1,0 +1,29 @@
+{% extends 'home/base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block head_title %}{% trans "Send a message" %}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row d-flex justify-content-center">
+    <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6 col-xl-4">
+      <h3 class="text-center text-info m-2">{% trans "Send a message to the group" %}</h3>
+
+      {% if sent %}
+        <div class="alert alert-success" role="alert">
+          {% trans "Your message has been sent. Thank you!" %}
+        </div>
+      {% endif %}
+
+      <form method="post" action="{% url 'chat:guest_message' %}">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-info d-block w-100 m-2 btn-sm">
+          {% trans "Send message" %}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

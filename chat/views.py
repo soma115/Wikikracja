@@ -19,7 +19,11 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from PIL import Image
 
-from chat.forms import RoomForm
+from django.core.cache import cache
+from django.views.decorators.http import require_http_methods
+from zzz.richtext import sanitize
+
+from chat.forms import GuestMessageForm, RoomForm
 from chat.models import Room
 from chat.utils import send_message_to_room
 from chat.signals import user_accepted, user_deleted
@@ -420,3 +424,49 @@ def rename_room(request: HttpRequest, room_id: int):
             anonymous=False,
         )
     return JsonResponse({'success': True, 'title': room.title})
+
+
+@require_http_methods(['GET', 'POST'])
+def guest_message(request: HttpRequest):
+    """Anonymous guest message submission to the Inbox room."""
+    if request.method == 'POST':
+        form = GuestMessageForm(request.POST)
+        if form.is_valid():
+            # Rate limit by remote IP
+            remote_ip = request.META.get('REMOTE_ADDR') or 'unknown'
+            cache_key = f'guest_message_limit:{remote_ip}'
+            attempts = cache.get(cache_key, 0)
+            if attempts >= 3:
+                form.add_error(None, _('Too many messages. Please try again later.'))
+            else:
+                try:
+                    inbox = Room.objects.get(is_inbox=True, public=True)
+                except Room.DoesNotExist:
+                    form.add_error(None, _('The public inbox is not available at the moment.'))
+                else:
+                    message_text = sanitize(
+                        f"Od: {form.cleaned_data['guest_name']} "
+                        f"({form.cleaned_data['guest_email']})\n\n"
+                        f"{form.cleaned_data['message']}",
+                        linkify=True,
+                    )
+                    send_message_to_room(
+                        room_title=inbox.title,
+                        message_text=message_text,
+                        sender=None,
+                        anonymous=True,
+                        guest_email=form.cleaned_data['guest_email'],
+                        guest_name=form.cleaned_data['guest_name'],
+                    )
+                    cache.set(cache_key, attempts + 1, timeout=300)
+                    return render(request, 'chat/guest_message.html', {
+                        'form': GuestMessageForm(),
+                        'sent': True,
+                    })
+    else:
+        form = GuestMessageForm()
+
+    return render(request, 'chat/guest_message.html', {
+        'form': form,
+        'sent': False,
+    })

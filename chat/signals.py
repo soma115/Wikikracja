@@ -1,10 +1,19 @@
 from django.db.models import F
 from django.db.models.functions import Greatest
-from django.db.models.signals import post_save
+from django.db.models.signals import post_migrate, post_save
 from django.dispatch import Signal, receiver
 
 user_accepted = Signal()
 user_deleted = Signal()
+
+
+@receiver(post_migrate)
+def create_inbox_room(sender, **kwargs):
+    """Create the guest-facing Inbox room when the app is initialized."""
+    if sender.name != 'chat':
+        return
+    from chat.models import Room
+    Room.create_inbox()
 
 
 @receiver(post_save, sender='chat.Message')

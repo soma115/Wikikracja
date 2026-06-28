@@ -2,12 +2,15 @@
 import json
 
 # Third party imports
+from captcha.models import CaptchaStore
 from django.conf import settings
-from django.test import TestCase
+from django.core.cache import cache
+from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 # Local folder imports
-from chat.models import Room
+from chat.models import Message, Room
 from chat.tests.utils import make_user
 
 
@@ -232,4 +235,69 @@ class RenameRoomViewTest(TestCase):
         self.client.force_login(self.user)
         response = self.client.get(reverse("chat:rename_room", kwargs={"room_id": self.public_room.id}))
         self.assertEqual(response.status_code, 405)
+
+
+@override_settings(CACHES={
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+})
+class GuestMessageViewTest(TestCase):
+    def setUp(self):
+        cache.clear()
+        Room.objects.filter(is_inbox=True).delete()
+        self.inbox = Room.objects.create(
+            title="Inbox",
+            public=True,
+            protected=True,
+            is_inbox=True,
+        )
+
+    def _captcha_data(self):
+        store = CaptchaStore.objects.create(challenge='test', response='test')
+        return {
+            'guest_email': 'guest@example.com',
+            'guest_name': 'Jan Kowalski',
+            'message': 'Hello from a guest',
+            'captcha_0': store.hashkey,
+            'captcha_1': 'test',
+        }
+
+    def test_guest_message_get(self):
+        response = self.client.get(reverse("chat:guest_message"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Send a message"))
+
+    def test_guest_message_post_creates_message(self):
+        response = self.client.post(reverse("chat:guest_message"), self._captcha_data())
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context.get('sent'))
+        self.assertTrue(Message.objects.filter(room=self.inbox, anonymous=True).exists())
+        message = Message.objects.get(room=self.inbox, anonymous=True)
+        self.assertEqual(message.guest_email, 'guest@example.com')
+        self.assertEqual(message.guest_name, 'Jan Kowalski')
+        self.assertIn('Jan Kowalski', message.text)
+        self.assertIn('guest@example.com', message.text)
+        self.assertIn('Hello from a guest', message.text)
+
+    def test_guest_message_post_invalid_captcha(self):
+        data = self._captcha_data()
+        data['captcha_1'] = 'wrong'
+        response = self.client.post(reverse("chat:guest_message"), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Message.objects.filter(room=self.inbox).exists())
+
+    def test_guest_message_rate_limit(self):
+        for i in range(3):
+            data = self._captcha_data()
+            data['message'] = f'Message {i}'
+            self.client.post(reverse("chat:guest_message"), data)
+        self.assertEqual(Message.objects.filter(room=self.inbox).count(), 3)
+
+        # Fourth message should be rejected by the rate limiter
+        data = self._captcha_data()
+        data['message'] = 'Message 4'
+        response = self.client.post(reverse("chat:guest_message"), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Message.objects.filter(room=self.inbox).count(), 3)
 

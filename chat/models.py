@@ -41,6 +41,29 @@ class Room(models.Model):
     # User who created this room (null for rooms created before this field was added)
     founder = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='founded_rooms')
 
+    # Marks the special guest-facing room automatically created for public groups
+    is_inbox = models.BooleanField(default=False)
+
+    @staticmethod
+    def create_inbox():
+        """Create the guest-facing Inbox room if it doesn't exist. Returns the room or None."""
+        from django.conf import settings
+        from django.contrib.auth.models import User
+        from django.db import IntegrityError, OperationalError
+        if not getattr(settings, 'GROUP_IS_PUBLIC', True):
+            return None
+        try:
+            if Room.objects.filter(is_inbox=True).exists():
+                return None
+        except OperationalError:
+            return None
+        try:
+            room = Room.objects.create(title='Inbox', public=True, protected=True, is_inbox=True)
+        except IntegrityError:
+            return None
+        room.allowed.set(User.objects.filter(is_active=True))
+        return room
+
     def __str__(self):
         return self.title
 
@@ -199,6 +222,10 @@ class Message(models.Model):
     text = models.TextField()
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="messages")
     anonymous = models.BooleanField(default=False)
+
+    # Guest contact details for messages submitted by non-logged-in users
+    guest_email = models.EmailField(blank=True, default='')
+    guest_name = models.CharField(max_length=255, blank=True, default='')
 
     # ZMIANA 2 — cytowanie: opcjonalne odwołanie do wiadomości-rodzica
     reply_to = models.ForeignKey(

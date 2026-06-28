@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-27 20:32+0200\n"
+"POT-Creation-Date: 2026-06-28 14:58+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -59,7 +59,7 @@ msgstr "Kategoria"
 msgid "Post Categories"
 msgstr "Kategorie"
 
-#: .\board\models.py:21 .\chat\views.py:222 .\events\models.py:40
+#: .\board\models.py:21 .\chat\views.py:226 .\events\models.py:40
 #: .\glosowania\models.py:25
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:7
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:7
@@ -746,9 +746,9 @@ msgid "Are you sure you want to delete this partner?"
 msgstr "Czy na pewno chcesz skasować tego partnera?"
 
 #: .\bookkeeping\templates\bookkeeping\partner_confirm_delete.html:77
-#: .\bookkeeping\templates\bookkeeping\partner_list.html:23 .\home\forms.py:16
-#: .\home\templates\home\login.html:16 .\obywatele\forms.py:29
-#: .\obywatele\templates\obywatele\poczekalnia.html:43
+#: .\bookkeeping\templates\bookkeeping\partner_list.html:23 .\chat\forms.py:38
+#: .\home\forms.py:16 .\home\templates\home\login.html:16
+#: .\obywatele\forms.py:29 .\obywatele\templates\obywatele\poczekalnia.html:43
 #: .\obywatele\templates\obywatele\start.html:80
 #: .\obywatele\templates\obywatele\szczegoly.html:60
 msgid "Email"
@@ -865,7 +865,7 @@ msgstr "Nie można usunąć partnera, ponieważ jest w użyciu. Usuń najpierw w
 
 #: .\categories\templates\categories\_category_modal.html:9
 #: .\chat\templates\chat\chat.html:189 .\chat\templates\chat\chat.html:248
-#: .\chat\views.py:213 .\obywatele\templates\obywatele\my_profile.html:283
+#: .\chat\views.py:217 .\obywatele\templates\obywatele\my_profile.html:283
 #: .\tasks\templates\tasks\task_detail.html:238
 #: .\tasks\templates\tasks\task_list.html:171
 msgid "Close"
@@ -880,6 +880,20 @@ msgstr "Nazwa kategorii"
 #: .\tasks\templates\tasks\task_list.html:180
 msgid "Description (optional)"
 msgstr "Opis (opcjonalny)"
+
+#: .\chat\forms.py:20
+msgid "The Inbox room cannot be renamed."
+msgstr ""
+
+#: .\chat\forms.py:43
+msgid "Name and surname"
+msgstr "Imię i nazwisko"
+
+#: .\chat\forms.py:48 .\home\models.py:14 .\home\models.py:43
+#: .\home\templates\home\base.html:308 .\home\templatetags\feed_filters.py:33
+#: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:8
+msgid "Message"
+msgstr "Wiadomość"
 
 #: .\chat\management\commands\chat_messages.py:33
 #, python-brace-format
@@ -941,7 +955,7 @@ msgstr "Nowy pokój"
 msgid "Search rooms"
 msgstr "Szukaj pokoi"
 
-#: .\chat\templates\chat\chat.html:35 .\chat\views.py:243
+#: .\chat\templates\chat\chat.html:35 .\chat\views.py:247
 msgid "Show only unread rooms"
 msgstr "Pokaż tylko nieprzeczytane pokoje"
 
@@ -1047,12 +1061,29 @@ msgstr "Archiwa"
 msgid "Click the archive button (folder icon) next to each category to show archived rooms."
 msgstr "Kliknij przycisk archiwum (ikona folderu) obok każdej kategorii, aby pokazać zarchiwizowane pokoje."
 
-#: .\chat\templates\chat\room_link.html:31 .\chat\views.py:242
+#: .\chat\templates\chat\guest_message.html:5
+msgid "Send a message"
+msgstr "Wyślij wiadomość"
+
+#: .\chat\templates\chat\guest_message.html:11
+#: .\home\templates\home\base.html:306
+msgid "Send a message to the group"
+msgstr "Wyślij wiadomość do grupy"
+
+#: .\chat\templates\chat\guest_message.html:15
+msgid "Your message has been sent. Thank you!"
+msgstr "Twoja wiadomość została wysłana. Dziękujemy!"
+
+#: .\chat\templates\chat\guest_message.html:23
+msgid "Send message"
+msgstr "Wyślij wiadomość"
+
+#: .\chat\templates\chat\room_link.html:31 .\chat\views.py:246
 #: .\home\templates\home\activity.html:16 .\home\templates\home\home.html:635
 msgid "Unread"
 msgstr "Nieprzeczytane"
 
-#: .\chat\templates\chat\room_link.html:46 .\chat\views.py:207
+#: .\chat\templates\chat\room_link.html:46 .\chat\views.py:211
 #: .\home\views.py:766
 msgid "Anonymous"
 msgstr "Anonim"
@@ -1061,7 +1092,7 @@ msgstr "Anonim"
 msgid "System"
 msgstr "System"
 
-#: .\chat\templates\chat\room_link.html:48 .\chat\views.py:247
+#: .\chat\templates\chat\room_link.html:48 .\chat\views.py:251
 msgid "attachment"
 msgstr "załącznik"
 
@@ -1077,192 +1108,200 @@ msgstr "Działania"
 msgid "Mark as unread"
 msgstr "Oznacz jako nieprzeczytane"
 
-#: .\chat\templates\chat\room_link.html:78 .\chat\views.py:249
+#: .\chat\templates\chat\room_link.html:78 .\chat\views.py:253
 msgid "Unmute room"
 msgstr "Cofnij wyciszenie"
 
-#: .\chat\templates\chat\room_link.html:78 .\chat\views.py:248
+#: .\chat\templates\chat\room_link.html:78 .\chat\views.py:252
 msgid "Mute room"
 msgstr "Wycisz pokój"
 
-#: .\chat\templates\chat\room_link.html:85 .\chat\views.py:215
+#: .\chat\templates\chat\room_link.html:85 .\chat\views.py:219
 msgid "Copy link"
 msgstr "Skopiuj link"
 
-#: .\chat\templatetags\filters.py:23 .\chat\views.py:205
+#: .\chat\templatetags\filters.py:23 .\chat\views.py:209
 msgid "Yesterday"
 msgstr "Wczoraj"
 
-#: .\chat\views.py:204
+#: .\chat\views.py:208
 #: .\obywatele\templates\obywatele\_calendar_partial.html:12
 msgid "Today"
 msgstr "Dziś"
 
-#: .\chat\views.py:206
+#: .\chat\views.py:210
 msgid "Tomorrow"
 msgstr "Jutro"
 
-#: .\chat\views.py:208 .\home\templates\home\base.html:332
+#: .\chat\views.py:212 .\home\templates\home\base.html:337
 msgid "Enable Notifications"
 msgstr "Włącz powiadomienia"
 
-#: .\chat\views.py:209 .\glosowania\templates\glosowania\szczegoly.html:83
+#: .\chat\views.py:213 .\glosowania\templates\glosowania\szczegoly.html:83
 #: .\obywatele\templates\obywatele\szczegoly.html:71
 msgid "Yes"
 msgstr "Tak"
 
-#: .\chat\views.py:210
+#: .\chat\views.py:214
 msgid "edit"
 msgstr "edytuj"
 
-#: .\chat\views.py:211
+#: .\chat\views.py:215
 msgid "edited"
 msgstr "edytowano"
 
-#: .\chat\views.py:212
+#: .\chat\views.py:216
 msgid "Changes History"
 msgstr "Historia zmian"
 
-#: .\chat\views.py:214
+#: .\chat\views.py:218
 msgid "Loading..."
 msgstr "Ładowanie…"
 
-#: .\chat\views.py:216
+#: .\chat\views.py:220
 msgid "Copy message link"
 msgstr "Skopiuj link do wiadomości"
 
-#: .\chat\views.py:217
+#: .\chat\views.py:221
 msgid "Link copied"
 msgstr "Link skopiowany"
 
-#: .\chat\views.py:218
+#: .\chat\views.py:222
 msgid "Could not copy link"
 msgstr "Nie udało się skopiować linku"
 
-#: .\chat\views.py:219
+#: .\chat\views.py:223
 msgid "Reply to the appropriate message..."
 msgstr "Odpowiedz na odpowiednią wiadomość..."
 
-#: .\chat\views.py:220
+#: .\chat\views.py:224
 msgid "Upvote"
 msgstr "Plus"
 
-#: .\chat\views.py:221
+#: .\chat\views.py:225
 msgid "Downvote"
 msgstr "Minus"
 
-#: .\chat\views.py:223 .\events\forms.py:49 .\events\models.py:37
+#: .\chat\views.py:227 .\events\forms.py:49 .\events\models.py:37
 msgid "Sunday"
 msgstr "Niedziela"
 
-#: .\chat\views.py:224 .\events\forms.py:43 .\events\models.py:31
+#: .\chat\views.py:228 .\events\forms.py:43 .\events\models.py:31
 msgid "Monday"
 msgstr "Poniedziałek"
 
-#: .\chat\views.py:225 .\events\forms.py:44 .\events\models.py:32
+#: .\chat\views.py:229 .\events\forms.py:44 .\events\models.py:32
 msgid "Tuesday"
 msgstr "Wtorek"
 
-#: .\chat\views.py:226 .\events\forms.py:45 .\events\models.py:33
+#: .\chat\views.py:230 .\events\forms.py:45 .\events\models.py:33
 msgid "Wednesday"
 msgstr "Środa"
 
-#: .\chat\views.py:227 .\events\forms.py:46 .\events\models.py:34
+#: .\chat\views.py:231 .\events\forms.py:46 .\events\models.py:34
 msgid "Thursday"
 msgstr "Czwartek"
 
-#: .\chat\views.py:228 .\events\forms.py:47 .\events\models.py:35
+#: .\chat\views.py:232 .\events\forms.py:47 .\events\models.py:35
 msgid "Friday"
 msgstr "Piątek"
 
-#: .\chat\views.py:229 .\events\forms.py:48 .\events\models.py:36
+#: .\chat\views.py:233 .\events\forms.py:48 .\events\models.py:36
 msgid "Saturday"
 msgstr "Sobota"
 
-#: .\chat\views.py:230
+#: .\chat\views.py:234
 msgid "Jan"
 msgstr "sty"
 
-#: .\chat\views.py:231
+#: .\chat\views.py:235
 msgid "Feb"
 msgstr "lut"
 
-#: .\chat\views.py:232
+#: .\chat\views.py:236
 msgid "Mar"
 msgstr "mar"
 
-#: .\chat\views.py:233
+#: .\chat\views.py:237
 msgid "Apr"
 msgstr "kwi"
 
-#: .\chat\views.py:234
+#: .\chat\views.py:238
 msgid "May"
 msgstr "maj"
 
-#: .\chat\views.py:235
+#: .\chat\views.py:239
 msgid "Jun"
 msgstr "cze"
 
-#: .\chat\views.py:236
+#: .\chat\views.py:240
 msgid "Jul"
 msgstr "lip"
 
-#: .\chat\views.py:237
+#: .\chat\views.py:241
 msgid "Aug"
 msgstr "sie"
 
-#: .\chat\views.py:238
+#: .\chat\views.py:242
 msgid "Sep"
 msgstr "wrz"
 
-#: .\chat\views.py:239
+#: .\chat\views.py:243
 msgid "Oct"
 msgstr "paź"
 
-#: .\chat\views.py:240
+#: .\chat\views.py:244
 msgid "Nov"
 msgstr "lis"
 
-#: .\chat\views.py:241
+#: .\chat\views.py:245
 msgid "Dec"
 msgstr "gru"
 
-#: .\chat\views.py:244
+#: .\chat\views.py:248
 msgid "Sorting and filter"
 msgstr "Sortowanie i filtry"
 
-#: .\chat\views.py:245
+#: .\chat\views.py:249
 msgid "Likes"
 msgstr "Polubienia"
 
-#: .\chat\views.py:246
+#: .\chat\views.py:250
 msgid "Popular"
 msgstr "Popularne"
 
-#: .\chat\views.py:250
+#: .\chat\views.py:254
 msgid "Shift/Ctrl+↵ send · Ctrl+B bold · Ctrl+I italic · - or * list"
 msgstr "Shift+↵ nowa linia · Ctrl+B pogrubienie · Ctrl+I kursywa · - lub * lista"
 
-#: .\chat\views.py:251
+#: .\chat\views.py:255
 msgid "Select a room from the list"
 msgstr "Wybierz pokój z listy"
 
-#: .\chat\views.py:252
+#: .\chat\views.py:256
 msgid "No unread messages"
 msgstr "Brak nieprzeczytanych wiadomości"
 
-#: .\chat\views.py:253
+#: .\chat\views.py:257
 #, python-brace-format
 msgid "Tap {icon} above the list to disable the unread filter"
 msgstr "Kliknij {icon} nad listą, aby wyłączyć filtr nieprzeczytanych"
 
-#: .\chat\views.py:254
+#: .\chat\views.py:258
 msgid "Disable the unread filter"
 msgstr "Wyłącz filtr nieprzeczytanych"
 
-#: .\chat\views.py:255
+#: .\chat\views.py:259
 msgid "This room is empty, be the first one to write something."
 msgstr "Ten pokój jest pusty, napisz coś jako pierwszy."
+
+#: .\chat\views.py:440
+msgid "Too many messages. Please try again later."
+msgstr ""
+
+#: .\chat\views.py:445
+msgid "The public inbox is not available at the moment."
+msgstr ""
 
 #: .\events\forms.py:32 .\events\models.py:47
 msgid "Week of month"
@@ -1444,7 +1483,7 @@ msgid "Add to Google Calendar"
 msgstr "Dodaj do Kalendarza"
 
 #: .\events\templates\events\_event_card.html:60
-#: .\home\templates\home\base.html:209 .\home\templates\home\base.html:311
+#: .\home\templates\home\base.html:209 .\home\templates\home\base.html:316
 #: .\home\templates\home\home.html:39 .\home\views.py:424
 #: .\obywatele\templates\obywatele\wspolnota.html:141
 msgid "Calendar"
@@ -2157,12 +2196,6 @@ msgstr "Nie wylogowuj mnie"
 msgid "Task"
 msgstr "Zadanie"
 
-#: .\home\models.py:14 .\home\models.py:43
-#: .\home\templatetags\feed_filters.py:33
-#: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:8
-msgid "Message"
-msgstr "Wiadomość"
-
 #: .\home\models.py:16 .\home\models.py:45
 msgid "Citizen Activity"
 msgstr "Aktywność obywatela"
@@ -2257,7 +2290,7 @@ msgstr "Szukaj"
 msgid "Search filters"
 msgstr "Filtry wyszukiwania"
 
-#: .\home\templates\home\base.html:282 .\home\templates\home\base.html:316
+#: .\home\templates\home\base.html:282 .\home\templates\home\base.html:321
 msgid "Toggle light / dark mode"
 msgstr "Przełącz tryb jasny/ciemny"
 
@@ -2267,34 +2300,34 @@ msgstr "Przełącz tryb jasny/ciemny"
 msgid "Activity"
 msgstr "Aktywność"
 
-#: .\home\templates\home\base.html:307 .\home\views.py:421
+#: .\home\templates\home\base.html:312 .\home\views.py:421
 msgid "Announcements"
 msgstr "Ogłoszenia"
 
-#: .\home\templates\home\base.html:320 .\home\templates\home\home.html:13
+#: .\home\templates\home\base.html:325 .\home\templates\home\home.html:13
 #: .\home\templates\home\login.html:4 .\home\templates\home\login.html:13
 #: .\home\templates\home\login.html:46
 #: .\obywatele\templates\obywatele\szczegoly.html:57
 msgid "Login"
 msgstr "Zaloguj"
 
-#: .\home\templates\home\base.html:321
+#: .\home\templates\home\base.html:326
 msgid "Register"
 msgstr "Zarejestruj"
 
-#: .\home\templates\home\base.html:330
+#: .\home\templates\home\base.html:335
 msgid "Enable notifications to stay updated with new messages and activities"
 msgstr "Włącz powiadomienia, aby być na bieżąco z nowymi wiadomościami i aktywnościami"
 
-#: .\home\templates\home\base.html:335
+#: .\home\templates\home\base.html:340
 msgid "Not now"
 msgstr "Nie teraz"
 
-#: .\home\templates\home\base.html:342
+#: .\home\templates\home\base.html:347
 msgid "Notifications are blocked. Please enable them in your browser settings"
 msgstr "Powiadomienia są zablokowane. Włącz je w ustawieniach przeglądarki"
 
-#: .\home\templates\home\base.html:344
+#: .\home\templates\home\base.html:349
 msgid "Dismiss"
 msgstr "Odrzuć"
 
@@ -2939,28 +2972,28 @@ msgstr "Użytkownik %(username)s właśnie poprosił/a o dołączenie do grupy"
 msgid "Candidate has been accepted as a citizen"
 msgstr "Kandydat został zaakceptowany"
 
-#: .\obywatele\management\commands\count_citizens.py:249
+#: .\obywatele\management\commands\count_citizens.py:248
 msgid "Your account has been blocked"
 msgstr "Twoje konto zostało zablokowane"
 
-#: .\obywatele\management\commands\count_citizens.py:251
+#: .\obywatele\management\commands\count_citizens.py:250
 msgid "Welcome"
 msgstr "Witaj"
 
-#: .\obywatele\management\commands\count_citizens.py:252
+#: .\obywatele\management\commands\count_citizens.py:251
 msgid "Your account on"
 msgstr "Twoje konto na"
 
-#: .\obywatele\management\commands\count_citizens.py:252
-#: .\obywatele\management\commands\count_citizens.py:261
+#: .\obywatele\management\commands\count_citizens.py:251
+#: .\obywatele\management\commands\count_citizens.py:260
 msgid "has been blocked"
 msgstr "zostało zablokowane"
 
-#: .\obywatele\management\commands\count_citizens.py:261
+#: .\obywatele\management\commands\count_citizens.py:260
 msgid "Citizen has been banned"
 msgstr "Ta osoba została zbanowana"
 
-#: .\obywatele\management\commands\count_citizens.py:261
+#: .\obywatele\management\commands\count_citizens.py:260
 #: .\obywatele\models.py:131
 msgid "User"
 msgstr "Użytkownik"
@@ -4498,6 +4531,10 @@ msgstr "Zaloguj się"
 #: .\templates\allauth\account\password_change.html:14
 msgid "Forgot Password?"
 msgstr "Zapomniałeś hasła?"
+
+#: .\templates\allauth\account\login.html:31
+msgid "Send a message without logging in"
+msgstr ""
 
 #: .\templates\allauth\account\logout.html:8
 #: .\templates\allauth\account\logout.html:11

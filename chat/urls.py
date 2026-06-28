@@ -26,4 +26,7 @@ urlpatterns = [
 
     # Rename room
     path('api/room/<int:room_id>/rename/', views.rename_room, name='rename_room'),
+
+    # Anonymous guest message submission
+    path('guest-message/', views.guest_message, name='guest_message'),
 ]

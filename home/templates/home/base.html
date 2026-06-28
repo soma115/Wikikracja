@@ -301,6 +301,11 @@
         </a>
       </div>
       <div class="anon-nav">
+        <a href="{% url 'chat:guest_message' %}"
+           title="{% trans 'Send a message to the group' %}"
+           class="anon-nav-link {% if request.resolver_match.url_name == 'guest_message' %}active{% endif %}">
+          <i class="fas fa-envelope"></i><span class="anon-nav-text">{% trans "Message" %}</span>
+        </a>
         <a href="{% url 'board:start' %}"
            class="anon-nav-link {% if request.resolver_match.namespace == 'board' %}active{% endif %}">
           <i class="fas fa-bullhorn"></i><span class="anon-nav-text">{% trans "Announcements" %}</span>

@@ -169,7 +169,14 @@ def helper_method(helper):
     return inner
 
 
-def send_message_to_room(room_title, message_text, sender=None, anonymous=True):
+def send_message_to_room(
+    room_title,
+    message_text,
+    sender=None,
+    anonymous=True,
+    guest_email='',
+    guest_name='',
+):
     """
     Send a message to a specific chat room
     Args:
@@ -177,6 +184,8 @@ def send_message_to_room(room_title, message_text, sender=None, anonymous=True):
         message_text (str): The message text to send
         sender (User, optional): The user sending the message. Defaults to None (system message)
         anonymous (bool, optional): Whether the message should be anonymous. Defaults to True.
+        guest_email (str, optional): Email provided by a non-logged-in guest.
+        guest_name (str, optional): Name and surname provided by a non-logged-in guest.
     Returns:
         Message: The created message object or None if room not found
     """
@@ -193,7 +202,14 @@ def send_message_to_room(room_title, message_text, sender=None, anonymous=True):
         except Room.DoesNotExist:
             log.error(f"Room '{room_title}' does not exist")
             return None
-        message = Message.objects.create(sender=sender, text=message_text, room=room, anonymous=anonymous)
+        message = Message.objects.create(
+            sender=sender,
+            text=message_text,
+            room=room,
+            anonymous=anonymous,
+            guest_email=guest_email,
+            guest_name=guest_name,
+        )
         log.info(f"Message sent to room '{room_title}': {message_text[:50]}...")
 
         # Mark the room as unseen for all users except the sender
