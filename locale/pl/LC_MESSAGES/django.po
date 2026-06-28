@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-28 14:58+0200\n"
+"POT-Creation-Date: 2026-06-28 23:58+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -881,6 +881,10 @@ msgstr "Nazwa kategorii"
 msgid "Description (optional)"
 msgstr "Opis (opcjonalny)"
 
+#: .\chat\consumers.py:681
+msgid "New message"
+msgstr "Nowa wiadomość"
+
 #: .\chat\forms.py:20
 msgid "The Inbox room cannot be renamed."
 msgstr ""
@@ -895,26 +899,26 @@ msgstr "Imię i nazwisko"
 msgid "Message"
 msgstr "Wiadomość"
 
-#: .\chat\management\commands\chat_messages.py:33
+#: .\chat\management\commands\chat_messages.py:35
 #, python-brace-format
 msgid "{HOST} New messages on chat"
 msgstr "{HOST} Nowe wiadomości na czacie"
 
-#: .\chat\management\commands\chat_messages.py:34
+#: .\chat\management\commands\chat_messages.py:36
 #, python-brace-format
 msgid "New messages on {HOST}/chat"
 msgstr "Nowe wiadomości na {HOST}/chat"
 
-#: .\chat\management\commands\chat_messages.py:35
+#: .\chat\management\commands\chat_messages.py:37
 #, python-brace-format
 msgid "Go to chat to do so {HOST}/chat"
 msgstr "Skocz do czatu żeby to zrobić {HOST}/chat"
 
-#: .\chat\management\commands\chat_messages.py:36
+#: .\chat\management\commands\chat_messages.py:38
 msgid "You can disable those messages by unchecking bell icon next to chat room name."
 msgstr "Możesz wyłączyć te powiadomienia odznaczając ikonę dzwonka obok nazwy pokoju."
 
-#: .\chat\management\commands\chat_messages.py:37
+#: .\chat\management\commands\chat_messages.py:39
 #: .\glosowania\management\commands\vote.py:175 .\glosowania\views.py:389
 #: .\obywatele\forms.py:308
 #, python-brace-format
@@ -1061,7 +1065,7 @@ msgstr "Archiwa"
 msgid "Click the archive button (folder icon) next to each category to show archived rooms."
 msgstr "Kliknij przycisk archiwum (ikona folderu) obok każdej kategorii, aby pokazać zarchiwizowane pokoje."
 
-#: .\chat\templates\chat\guest_message.html:5
+#: .\chat\templates\chat\guest_message.html:5 .\chat\tests\test_views.py:269
 msgid "Send a message"
 msgstr "Wyślij wiadomość"
 

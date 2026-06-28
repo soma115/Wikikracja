@@ -11,7 +11,9 @@ from django.utils import timezone, translation
 from django.utils.translation import gettext_lazy as _
 
 from chat.models import Message, Room
+from glosowania.models import Decyzja
 from obywatele.models import Uzytkownik
+from tasks.models import Task
 from zzz.utils import build_site_url, get_site_domain
 
 log = logging.getLogger(__name__)
@@ -32,15 +34,15 @@ class Command(BaseCommand):
 
             subject = _("{HOST} New messages on chat").format(HOST=HOST)
             header = _("New messages on {HOST}/chat").format(HOST=HOST)
-            footer1 = _("Go to chat to do so {HOST}/chat").format(HOST=HOST)
-            footer2 = _("You can disable those messages by unchecking bell icon next to chat room name.")
+            footer2 = _("Go to chat to do so {HOST}/chat").format(HOST=HOST)
+            footer1 = _("You can disable those messages by unchecking bell icon next to chat room name.")
             footer3 = _("You can manage your email notifications here: {url}").format(url=build_site_url('/obywatele/settings/'))
 
             # Send individual email to each recipient
             for recipient in recipients:
                 email_message = EmailMessage(
                     subject=subject,
-                    body=header + "\n\n" + message + "\n\n" + footer1 + "\n\n" + footer2 + "\n" + footer3,
+                    body=header + "\n\n" + message + "\n\n" + footer1 + "\n" + footer2 + "\n" + footer3,
                     from_email=str(s.DEFAULT_FROM_EMAIL),
                     to=[recipient],
                 )
@@ -74,24 +76,62 @@ class Command(BaseCommand):
             for m in message_list.order_by('room', 'time'):
                 messages_by_room[m.room].append(m)
 
+            # Group rooms by type
+            rooms_by_type = {
+                'tasks': [],
+                'votings': [],
+                'public': [],
+                'private': []
+            }
+
+            for room in messages_by_room.keys():
+                if Task.objects.filter(chat_room=room).exists():
+                    rooms_by_type['tasks'].append(room)
+                elif Decyzja.objects.filter(chat_room=room).exists():
+                    rooms_by_type['votings'].append(room)
+                elif room.public:
+                    rooms_by_type['public'].append(room)
+                else:
+                    rooms_by_type['private'].append(room)
+
             b: list[str] = []
-            for room, messages in messages_by_room.items():
-                # Add room header with name as link
-                room_link = f"{HOST}/chat#room_id={room.id}"
-                room_name = room.displayed_name(u.uid)
-                b.append(f"## {room_name}: {room_link}")
+
+            # Process each category
+            if rooms_by_type['votings']:
+                b.append("## Głosowania")
+                b.append("")
+                for room in rooms_by_type['votings']:
+                    room_link = f"{HOST}/chat#room_id={room.id}"
+                    room_name = room.displayed_name(u.uid)
+                    b.append(f"- {room_name}: {room_link}")
                 b.append("")
 
-                # Add messages without date/time/room
-                for m in messages:
-                    log.info(f'Found messages for user {u.uid}: {m.text}')
-                    if m.anonymous:
-                        m.sender = None
-                    plain = re.sub(r'<br\s*/?>', '\n', m.text)
-                    plain = re.sub(r'<[^>]+>', '', plain)
-                    b.append(f'{m.sender}: {plain}')
+            if rooms_by_type['tasks']:
+                b.append("## Zadania")
+                b.append("")
+                for room in rooms_by_type['tasks']:
+                    room_link = f"{HOST}/chat#room_id={room.id}"
+                    room_name = room.displayed_name(u.uid)
+                    b.append(f"- {room_name}: {room_link}")
+                b.append("")
 
-                b.append("")  # Empty line between rooms
+            if rooms_by_type['public']:
+                b.append("## Pokoje publiczne")
+                b.append("")
+                for room in rooms_by_type['public']:
+                    room_link = f"{HOST}/chat#room_id={room.id}"
+                    room_name = room.displayed_name(u.uid)
+                    b.append(f"- {room_name}: {room_link}")
+                b.append("")
+
+            if rooms_by_type['private']:
+                b.append("## Pokoje prywatne")
+                b.append("")
+                for room in rooms_by_type['private']:
+                    room_link = f"{HOST}/chat#room_id={room.id}"
+                    room_name = room.displayed_name(u.uid)
+                    b.append(f"- {room_name}: {room_link}")
+                b.append("")
 
             body = "\n".join(b)
             if body:

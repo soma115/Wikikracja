@@ -658,7 +658,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         proxy.send_json({
             "notification": {
                 'title': "Anonymous User" if message.anonymous else sender.username,
-                'body': message.text[:100],
+                'body': "New message",
                 'link': None,
                 'room_id': (await self.repo.get_room_by_message(message.id)).id
             }
@@ -678,7 +678,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             if await self.repo.user_has_muted_room(user.id, room_id):
                 return
             title = "Anonymous User" if message.anonymous else message.sender.username
-            body = message.text[:100]
+            body = _("New message")
             site_url = f"https://{domain}"
             deep_link = f"{site_url}/chat#room_id={room_id}"
             success = await self.repo.send_push_notification_sync(user=user, title=title, body=body, deep_link=deep_link, room_id=room_id)

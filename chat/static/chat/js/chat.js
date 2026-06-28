@@ -742,7 +742,7 @@ export async function onReceiveMessages(messages) {
         if (message.new) DOM_API.updateSidebarForMessage(message);
         requestAnimationFrame(() => DOM_API.markOverflow(DOM_API.getMessageDiv(message.message_id)));
         if (message.new && document.hidden && !message.own) {
-            makeNotification({ title: message.username, body: message.message });
+            makeNotification({ title: message.username, body: message.message, room_id: message.room_id });
         }
     } else {
         // Batch load (join room) — build all HTML at once, single DOM insertion
