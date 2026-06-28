@@ -402,9 +402,6 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     await consumer.push_unread_count()
                     await consumer.send_unsee_room(proxy=proxy, room=room)
 
-                if not prefs['muted']:
-                    await consumer.send_notification(proxy, message_id)
-
             await self._dispatch_proxy(proxy)
         except Exception as e:
             log.error(f"Error in post-send processing for message {message_id}: {e}", exc_info=True)
