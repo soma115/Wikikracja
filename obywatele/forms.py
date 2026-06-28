@@ -293,7 +293,7 @@ def strip_html_tags(text):
 
 
 def SendEmailToAll(subject, message, notification_type='obywatele'):
-    # bcc: all active users with enabled notifications for this type
+    # to: all active users with enabled notifications for this type (individual emails)
     # subject: Custom
     # message: Custom
     # CRITICAL: Recipients are fetched in the thread just before sending to avoid race conditions
@@ -323,15 +323,20 @@ def SendEmailToAll(subject, message, notification_type='obywatele'):
             time.sleep(s.EMAIL_SEND_DELAY_SECONDS)
             # CRITICAL: Fetch recipients just before sending to avoid race conditions
             recipients = _get_recipients()
-            email_message = EmailMessage(
-                from_email=str(s.DEFAULT_FROM_EMAIL),
-                bcc=recipients,
-                subject=f'[{HOST}] {subject}',
-                body=f"{message}\n\n{email_footer}",
-            )
-            log.info(f'Sending email to {len(recipients)} recipients; subject: {subject}')
-            email_message.send(fail_silently=False)
-            log.info(f'Email sent successfully; subject: {subject}')
+            
+            # Send individual email to each recipient
+            for recipient in recipients:
+                email_message = EmailMessage(
+                    from_email=str(s.DEFAULT_FROM_EMAIL),
+                    to=[recipient],
+                    subject=f'[{HOST}] {subject}',
+                    body=f"{message}\n\n{email_footer}",
+                )
+                email_message.send(fail_silently=False)
+                log.info(f'Email sent to {recipient}; subject: {subject}')
+                time.sleep(s.EMAIL_SEND_DELAY_SECONDS)
+            
+            log.info(f'All emails sent successfully; subject: {subject}')
         except Exception as e:
             log.error(f'Failed to send email; subject: {subject}; error: {e}', exc_info=True)
 

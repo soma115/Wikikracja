@@ -244,7 +244,6 @@ class Command(BaseCommand):
 
                 uname = str(i.uid.username)
                 sender = str(s.DEFAULT_FROM_EMAIL)
-                bcc = [i.uid.email]
 
                 subject = '[' + host + '] ' + _('Your account has been blocked')
                 message = f"""\
@@ -253,7 +252,7 @@ class Command(BaseCommand):
 """
                 try:
                     time.sleep(s.EMAIL_SEND_DELAY_SECONDS)
-                    send_mail(subject, message, sender, bcc, fail_silently=False)
+                    send_mail(subject, message, sender, [i.uid.email], fail_silently=False)
                     log.info(f'Sent account blocked notification to {i.uid.email}')
                 except Exception as e:
                     log.error(f'Failed to send account blocked notification to {i.uid.email}: {str(e)}')

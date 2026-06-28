@@ -380,7 +380,7 @@ def delete_argument(request: HttpRequest, argument_id: int):
 
 
 def SendEmail(subject: str, message: str):
-    # bcc: all active users with voting notifications enabled
+    # to: all active users with voting notifications enabled (individual emails)
     # subject: Custom
     # message: Custom
     translation.activate(s.LANGUAGE_CODE)
@@ -390,19 +390,25 @@ def SendEmail(subject: str, message: str):
 
     # Filter users based on voting notification preferences
     recipients = list(User.objects.filter(is_active=True, uzytkownik__email_notifications_glosowania=True).values_list('email', flat=True))
-    email_message = EmailMessage(
-        from_email=str(s.DEFAULT_FROM_EMAIL),
-        bcc=recipients,
-        subject=f'[{HOST}] {subject}',
-        body=message + "\n\n" + email_footer,
-    )
     log.info(f'Sending email to {len(recipients)} recipients; subject: {subject}')
 
     def _send_with_delay():
         try:
             time.sleep(s.EMAIL_SEND_DELAY_SECONDS)
-            email_message.send(fail_silently=False)
-            log.info(f'Email sent successfully; subject: {subject}')
+            
+            # Send individual email to each recipient
+            for recipient in recipients:
+                email_message = EmailMessage(
+                    from_email=str(s.DEFAULT_FROM_EMAIL),
+                    to=[recipient],
+                    subject=f'[{HOST}] {subject}',
+                    body=message + "\n\n" + email_footer,
+                )
+                email_message.send(fail_silently=False)
+                log.info(f'Email sent to {recipient}; subject: {subject}')
+                time.sleep(s.EMAIL_SEND_DELAY_SECONDS)
+            
+            log.info(f'All emails sent successfully; subject: {subject}')
         except Exception as e:
             log.error(f'Failed to send email; subject: {subject}; error: {e}', exc_info=True)
 

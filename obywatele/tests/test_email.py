@@ -1,6 +1,6 @@
 """
-Tests for email deduplication:
-  1. New person sign-up → SendEmailToAll fires exactly once.
+Tests for email sending:
+  1. New person sign-up → SendEmailToAll sends one email per active user.
   2. chat_messages command → each user receives exactly one email per run.
 
 EMAIL_SEND_DELAY_SECONDS is overridden to 0 so threads finish quickly.
@@ -56,20 +56,20 @@ class NewPersonEmailTest(TransactionTestCase):
         make_active_user('citizen1', 'citizen1@example.com')
         make_active_user('citizen2', 'citizen2@example.com')
         self._call_send_email_to_all('Test subject', 'Test message')
-        self.assertEqual(len(mail.outbox), 1,
-            f"Expected 1 email, got {len(mail.outbox)}. Double-sending would produce 2 or more.")
+        self.assertEqual(len(mail.outbox), 2,
+            f"Expected 2 emails (one per user), got {len(mail.outbox)}. Double-sending would produce 4 or more.")
 
     def test_send_email_to_all_sends_exactly_one_email_on_repeated_calls(self):
         make_active_user('citizen3', 'citizen3@example.com')
         self._call_send_email_to_all('First event', 'First message')
         self._call_send_email_to_all('Second event', 'Second message')
         self.assertEqual(len(mail.outbox), 2,
-            f"Expected 2 emails (one per event), got {len(mail.outbox)}.")
+            f"Expected 2 emails (one per event), got {len(mail.outbox)}. Each event sends 1 email per user.")
 
     def test_no_email_when_no_active_users(self):
         self._call_send_email_to_all('Empty subject', 'Empty message')
-        self.assertLessEqual(len(mail.outbox), 1,
-            f"Expected at most 1 email with no active users, got {len(mail.outbox)}.")
+        self.assertEqual(len(mail.outbox), 0,
+            f"Expected 0 emails with no active users, got {len(mail.outbox)}.")
 
 
 @override_settings(**FAST_EMAIL_SETTINGS)
@@ -93,14 +93,14 @@ class ChatMessagesEmailTest(TestCase):
     def test_one_email_per_user_with_new_messages(self):
         self._add_message('Hello there')
         self._run_chat_messages_command()
-        recipient_emails = [e for e in mail.outbox if self.recipient.email in e.bcc]
+        recipient_emails = [e for e in mail.outbox if self.recipient.email in e.to]
         self.assertEqual(len(recipient_emails), 1,
             f"Expected 1 email for recipient, got {len(recipient_emails)}.")
 
     def test_no_email_when_no_new_messages(self):
         Uzytkownik.objects.filter(uid=self.recipient).update(last_broadcast=now())
         self._run_chat_messages_command()
-        recipient_emails = [e for e in mail.outbox if self.recipient.email in e.bcc]
+        recipient_emails = [e for e in mail.outbox if self.recipient.email in e.to]
         self.assertEqual(len(recipient_emails), 0,
             f"Expected 0 emails when no new messages, got {len(recipient_emails)}.")
 
@@ -109,7 +109,7 @@ class ChatMessagesEmailTest(TestCase):
         self._add_message('Message 2')
         self._add_message('Message 3')
         self._run_chat_messages_command()
-        recipient_emails = [e for e in mail.outbox if self.recipient.email in e.bcc]
+        recipient_emails = [e for e in mail.outbox if self.recipient.email in e.to]
         self.assertEqual(len(recipient_emails), 1,
             f"Expected 1 aggregated email, got {len(recipient_emails)}.")
 
@@ -120,7 +120,7 @@ class ChatMessagesEmailTest(TestCase):
         Uzytkownik.objects.filter(uid=self.recipient).update(last_broadcast=past)
         self._add_message('Second batch')
         self._run_chat_messages_command()
-        recipient_emails = [e for e in mail.outbox if self.recipient.email in e.bcc]
+        recipient_emails = [e for e in mail.outbox if self.recipient.email in e.to]
         self.assertEqual(len(recipient_emails), 2,
             f"Expected 2 emails (one per run), got {len(recipient_emails)}.")
 
@@ -128,13 +128,13 @@ class ChatMessagesEmailTest(TestCase):
         self.room.muted_by.add(self.recipient)
         self._add_message('Should not be notified')
         self._run_chat_messages_command()
-        recipient_emails = [e for e in mail.outbox if self.recipient.email in e.bcc]
+        recipient_emails = [e for e in mail.outbox if self.recipient.email in e.to]
         self.assertEqual(len(recipient_emails), 0,
             f"Expected 0 emails for muted room, got {len(recipient_emails)}.")
 
     def test_sender_does_not_receive_own_message_email(self):
         self._add_message('My own message')
         self._run_chat_messages_command()
-        sender_emails = [e for e in mail.outbox if self.sender.email in e.bcc]
+        sender_emails = [e for e in mail.outbox if self.sender.email in e.to]
         self.assertEqual(len(sender_emails), 0,
             f"Sender should not receive email for own message, got {len(sender_emails)}.")

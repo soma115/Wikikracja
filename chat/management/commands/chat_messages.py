@@ -36,25 +36,27 @@ class Command(BaseCommand):
             footer2 = _("You can disable those messages by unchecking bell icon next to chat room name.")
             footer3 = _("You can manage your email notifications here: {url}").format(url=build_site_url('/obywatele/settings/'))
 
-            email_message = EmailMessage(
-                subject=subject,
-                body=header + "\n\n" + message + "\n\n" + footer1 + "\n\n" + footer2 + "\n" + footer3,
-                from_email=str(s.DEFAULT_FROM_EMAIL),
-                bcc=recipients,
-            )
-            log.info(f'Sending email to {recipients}; subject: {email_message.subject}')
+            # Send individual email to each recipient
+            for recipient in recipients:
+                email_message = EmailMessage(
+                    subject=subject,
+                    body=header + "\n\n" + message + "\n\n" + footer1 + "\n\n" + footer2 + "\n" + footer3,
+                    from_email=str(s.DEFAULT_FROM_EMAIL),
+                    to=[recipient],
+                )
+                log.info(f'Sending email to {recipient}; subject: {email_message.subject}')
 
-            def _send_with_delay():
-                try:
-                    sleep(s.EMAIL_SEND_DELAY_SECONDS)
-                    email_message.send(fail_silently=False)
-                    log.info(f'Email sent successfully to {recipients}; subject: {email_message.subject}')
-                except Exception as e:
-                    log.error(f'Failed to send email to {recipients}; subject: {email_message.subject}; error: {e}', exc_info=True)
+                def _send_with_delay():
+                    try:
+                        sleep(s.EMAIL_SEND_DELAY_SECONDS)
+                        email_message.send(fail_silently=False)
+                        log.info(f'Email sent successfully to {recipient}; subject: {email_message.subject}')
+                    except Exception as e:
+                        log.error(f'Failed to send email to {recipient}; subject: {email_message.subject}; error: {e}', exc_info=True)
 
-            t = threading.Thread(target=_send_with_delay)
-            threads.append(t)
-            t.start()
+                t = threading.Thread(target=_send_with_delay)
+                threads.append(t)
+                t.start()
 
         user_list = Uzytkownik.objects.filter(uid__is_active=True, email_notifications_chat=True)
         log.info(f'chat_messages: found {user_list.count()} active users with chat notifications enabled')
