@@ -15,7 +15,7 @@ urlpatterns: List[URLPattern | URLResolver] = [
     path('logout/', auth_views.LogoutView.as_view(), {
         'next_page': '/login/'
     }, name='logout'),
-    path('login/', hv.RememberLoginView.as_view(), name='login'),
+    path('login/', RedirectView.as_view(url='/accounts/login/'), name='login'),
     path('haslo/', hv.haslo, name='haslo'),
     path('change_email/', ov.change_email, name='change_email'),
     path('accounts/confirm-email/', RedirectView.as_view(url='/obywatele/onboarding/', permanent=False)),

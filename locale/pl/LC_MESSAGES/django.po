@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-29 12:10+0200\n"
+"POT-Creation-Date: 2026-06-29 13:04+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -748,8 +748,8 @@ msgstr "Czy na pewno chcesz skasować tego partnera?"
 
 #: .\bookkeeping\templates\bookkeeping\partner_confirm_delete.html:77
 #: .\bookkeeping\templates\bookkeeping\partner_list.html:23 .\chat\forms.py:38
-#: .\home\forms.py:16 .\home\templates\home\login.html:16
-#: .\obywatele\forms.py:29 .\obywatele\templates\obywatele\poczekalnia.html:43
+#: .\home\forms.py:16 .\obywatele\forms.py:29
+#: .\obywatele\templates\obywatele\poczekalnia.html:43
 #: .\obywatele\templates\obywatele\start.html:80
 #: .\obywatele\templates\obywatele\szczegoly.html:60
 msgid "Email"
@@ -2364,8 +2364,6 @@ msgid "Announcements"
 msgstr "Ogłoszenia"
 
 #: .\home\templates\home\base.html:325 .\home\templates\home\home.html:13
-#: .\home\templates\home\login.html:4 .\home\templates\home\login.html:13
-#: .\home\templates\home\login.html:46
 #: .\obywatele\templates\obywatele\szczegoly.html:57
 msgid "Login"
 msgstr "Zaloguj"
@@ -2409,12 +2407,12 @@ msgstr "Hasło"
 msgid "Change password"
 msgstr "Zmień hasło"
 
-#: .\home\templates\home\home.html:16 .\home\templates\home\login.html:47
+#: .\home\templates\home\home.html:16
 #: .\templates\allauth\account\signup.html:28
 msgid "Sign Up"
 msgstr "Załóż konto"
 
-#: .\home\templates\home\home.html:19 .\home\templates\home\login.html:48
+#: .\home\templates\home\home.html:19
 #: .\home\templates\home\password_reset_form.html:5
 msgid "Reset password"
 msgstr "Odzyskaj hasło"
@@ -2658,22 +2656,6 @@ msgstr "Bilans"
 #: .\home\templates\home\home.html:619
 msgid "No financial data yet. Add your first asset to start tracking community finances."
 msgstr "Brak danych finansowych. Dodaj pierwsze aktywo, aby zacząć śledzić finanse społeczności."
-
-#: .\home\templates\home\login.html:27
-msgid "Show / hide password"
-msgstr "Pokaż / ukryj hasło"
-
-#: .\home\templates\home\login.html:54
-msgid "The username or password is incorrect."
-msgstr "Nazwa użytkownika lub hasło są nieprawidłowe."
-
-#: .\home\templates\home\login.html:55
-msgid "Your account may not be active yet."
-msgstr "Twoje konto może nie być jeszcze aktywne."
-
-#: .\home\templates\home\login.html:56
-msgid "Please try again or reset your password."
-msgstr "Spróbuj ponownie lub odzyskaj hasło."
 
 #: .\home\templates\home\password_reset_complete.html:7
 msgid "A new password has been set. You can log in"
