@@ -72,6 +72,9 @@
         {% if id.author == None or id.author == current_user %}
         <a href="{% url 'glosowania:edit' id.pk %}" class="action-btn action-btn-edit"><i class="fas fa-pen"></i> {% trans 'Edit' %}</a>
         {% endif %}
+        {% if id.wersje.exists %}
+        <a href="{% url 'glosowania:historia' id.pk %}" class="action-btn" style="font-size:.78rem;"><i class="fas fa-clock-rotate-left"></i> {% trans 'Changes' %} ({{ id.wersje.count }})</a>
+        {% endif %}
       </div>
 
       {% elif id.status == 3 and id.is_author_signed %}

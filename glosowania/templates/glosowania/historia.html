@@ -1,0 +1,134 @@
+{% extends 'glosowania/menu.html' %}
+{% load i18n %}
+
+{% block extra_css %}
+<style>
+.diff-block {
+  font-family: monospace;
+  font-size: .82rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--card-bg, #1e2430);
+  border: 1px solid var(--border-color, #2e3545);
+  border-radius: 6px;
+  padding: .75rem 1rem;
+  line-height: 1.6;
+}
+.diff-add {
+  display: block;
+  background: rgba(0, 188, 140, .18);
+  color: #00bc8c;
+  border-left: 3px solid #00bc8c;
+  padding-left: .4rem;
+  margin: 1px 0;
+}
+.diff-remove {
+  display: block;
+  background: rgba(231, 76, 60, .18);
+  color: #e74c3c;
+  border-left: 3px solid #e74c3c;
+  padding-left: .4rem;
+  margin: 1px 0;
+  text-decoration: line-through;
+}
+.diff-context {
+  display: block;
+  color: var(--text-muted, #888);
+  padding-left: .4rem;
+  margin: 1px 0;
+}
+.historia-badge {
+  display: inline-block;
+  background: var(--accent, #375a7f);
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 8px;
+  font-size: .76rem;
+  font-weight: 600;
+}
+.historia-meta {
+  font-size: .78rem;
+  color: var(--text-muted, #888);
+}
+.historia-current-badge {
+  display: inline-block;
+  background: #00bc8c;
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 8px;
+  font-size: .76rem;
+  font-weight: 600;
+}
+</style>
+{% endblock %}
+
+{% block glosowania %}
+<div class="d-flex flex-column gap-3 mb-3">
+
+  <div class="card">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+        <a href="{% url 'glosowania:details' pk=decision.id %}" class="btn btn-sm btn-secondary">
+          <i class="fas fa-arrow-left"></i> {% trans 'Back' %}
+        </a>
+        <span style="font-size:.85rem;color:var(--text-muted);">
+          #{{ decision.id }} — {% trans 'Edit history' %}
+        </span>
+      </div>
+      <p class="mb-0 fw-semibold" style="font-size:.95rem;">{{ decision.title }}</p>
+    </div>
+  </div>
+
+  {% if not entries %}
+    <div class="card">
+      <div class="card-body">
+        <p class="mb-0" style="color:var(--text-muted);font-size:.85rem;">{% trans 'No previous versions recorded yet.' %}</p>
+      </div>
+    </div>
+  {% endif %}
+
+  {% for entry in entries %}
+  <div class="card">
+    <div class="card-body d-flex flex-column gap-2">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="historia-badge">v{{ entry.version.version_number }}</span>
+        <span class="historia-meta">
+          {{ entry.version.modified_at|date:"d.m.Y H:i" }}
+          {% if entry.version.modified_by %}
+            · <strong>{{ entry.version.modified_by.username }}</strong>
+          {% endif %}
+        </span>
+      </div>
+      {% if entry.diffs %}
+        {% for diff in entry.diffs %}
+        <div>
+          <div class="historia-meta mb-1"><i class="fas fa-pen fa-fw"></i> {{ diff.label }}</div>
+          <div class="diff-block">{{ diff.html|safe }}</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="historia-meta">{% trans '(Initial version — no previous state to compare)' %}</div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if current_diffs %}
+  <div class="card" style="border-color:#00bc8c;">
+    <div class="card-body d-flex flex-column gap-2">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="historia-current-badge">{% trans 'Current version' %}</span>
+        <span class="historia-meta">{% trans 'Changes since last saved version' %}</span>
+      </div>
+      {% for diff in current_diffs %}
+      <div>
+        <div class="historia-meta mb-1"><i class="fas fa-pen fa-fw"></i> {{ diff.label }}</div>
+        <div class="diff-block">{{ diff.html|safe }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock glosowania %}

@@ -129,6 +129,26 @@ class Argument(models.Model):
         return f"{self.get_argument_type_display()}: {self.content[:50]}..."
 
 
+class DecyzjaWersja(models.Model):
+    decyzja = models.ForeignKey(Decyzja, on_delete=models.CASCADE, related_name='wersje', verbose_name=_('Decision'))
+    modified_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('Modified by'))
+    modified_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Modified at'))
+    version_number = models.PositiveSmallIntegerField(verbose_name=_('Version'))
+    title = models.TextField(max_length=200, null=True)
+    tresc = models.TextField(max_length=3000, null=True)
+    kara = models.TextField(max_length=500, null=True, blank=True)
+    uzasadnienie = models.TextField(max_length=4000, null=True)
+    znosi = models.CharField(max_length=50, null=True, blank=True)
+
+    class Meta:
+        ordering = ['version_number']
+        verbose_name = _('Decision version')
+        verbose_name_plural = _('Decision versions')
+
+    def __str__(self):
+        return f"v{self.version_number} – {self.decyzja_id}"
+
+
 class ZebranePodpisy(models.Model):
     '''Lista podpisów pod wnioskiem o referendum'''
     projekt = models.ForeignKey(Decyzja, on_delete=models.SET_NULL, null=True)

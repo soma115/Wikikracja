@@ -19,4 +19,5 @@ urlpatterns = (
     path('details/<int:pk>/add-argument/', v.add_argument, name='add_argument'),
     path('argument/<int:argument_id>/edit/', v.edit_argument, name='edit_argument'),
     path('argument/<int:argument_id>/delete/', v.delete_argument, name='delete_argument'),
+    path('details/<int:pk>/historia/', v.historia, name='historia'),
 )

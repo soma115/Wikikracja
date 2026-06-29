@@ -1,5 +1,8 @@
+import difflib
+import html
 import logging
 import random
+import re
 import threading
 import time
 from datetime import datetime, timedelta
@@ -18,7 +21,7 @@ from django.utils.translation import gettext_lazy as _
 
 from chat.views import get_translations as get_chat_translations
 from glosowania.forms import ArgumentForm, DecyzjaForm
-from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
+from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 from zzz.utils import build_site_url, get_site_domain
 
 log = logging.getLogger(__name__)
@@ -76,6 +79,17 @@ def edit(request: HttpRequest, pk: int):
     if request.method == 'POST':
         form = DecyzjaForm(request.POST)
         if form.is_valid():
+            next_version = decision.wersje.count() + 1
+            DecyzjaWersja.objects.create(
+                decyzja=decision,
+                modified_by=request.user,
+                version_number=next_version,
+                title=decision.title,
+                tresc=decision.tresc,
+                kara=decision.kara,
+                uzasadnienie=decision.uzasadnienie,
+                znosi=decision.znosi,
+            )
             decision.title = form.cleaned_data['title']
             decision.tresc = form.cleaned_data['tresc']
             decision.kara = form.cleaned_data['kara']
@@ -376,6 +390,90 @@ def delete_argument(request: HttpRequest, argument_id: int):
     return render(request, 'glosowania/delete_argument.html', {
         'argument': argument,
         'decyzja': argument.decyzja,
+    })
+
+
+def _strip_html(text):
+    """Usuwa tagi HTML przed diffem, zachowując nowe linie z tagów blokowych"""
+    if not text:
+        return ''
+    text = re.sub(r'<br\s*/?>', '\n', text, flags=re.IGNORECASE)
+    text = re.sub(r'</?(p|div|li|h[1-6]|blockquote|tr)[^>]*>', '\n', text, flags=re.IGNORECASE)
+    text = re.sub(r'<[^>]+>', '', text)
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    return text.strip()
+
+
+def _make_diff_html(old_text, new_text):
+    """Zwraca HTML z zaznaczonymi różnicami (unified diff styl inline)."""
+    old_lines = _strip_html(old_text or '').splitlines(keepends=True)
+    new_lines = _strip_html(new_text or '').splitlines(keepends=True)
+    diff = list(difflib.ndiff(old_lines, new_lines))
+    result = []
+    for line in diff:
+        if line.startswith('+ '):
+            result.append(f'<span class="diff-add">{html.escape(line[2:].rstrip())}</span>')
+        elif line.startswith('- '):
+            result.append(f'<span class="diff-remove">{html.escape(line[2:].rstrip())}</span>')
+        elif line.startswith('  '):
+            result.append(f'<span class="diff-context">{html.escape(line[2:].rstrip())}</span>')
+    return '\n'.join(result) or '—'
+
+
+@login_required
+def historia(request: HttpRequest, pk: int):
+    decision = get_object_or_404(Decyzja, pk=pk)
+    versions = list(decision.wersje.select_related('modified_by').order_by('version_number'))
+
+    FIELDS = [
+        ('title', _('Title')),
+        ('tresc', _('Law text')),
+        ('uzasadnienie', _('Reasoning')),
+        ('kara', _('Penalty')),
+        ('znosi', _('Abolishes')),
+    ]
+
+    entries = []
+    for i, ver in enumerate(versions):
+        if i == 0:
+            prev = None
+        else:
+            prev = versions[i - 1]
+
+        diffs = []
+        for field, label in FIELDS:
+            old_val = getattr(prev, field) if prev else ''
+            new_val = getattr(ver, field) or ''
+            if old_val != new_val:
+                diffs.append({
+                    'label': label,
+                    'html': _make_diff_html(old_val, new_val),
+                })
+
+        entries.append({
+            'version': ver,
+            'diffs': diffs,
+        })
+
+    # Ostatnia wersja (aktualna) vs. ostatni snapshot
+    if versions:
+        last = versions[-1]
+        current_diffs = []
+        for field, label in FIELDS:
+            old_val = getattr(last, field) or ''
+            new_val = getattr(decision, field) or ''
+            if old_val != new_val:
+                current_diffs.append({
+                    'label': label,
+                    'html': _make_diff_html(old_val, new_val),
+                })
+    else:
+        current_diffs = []
+
+    return render(request, 'glosowania/historia.html', {
+        'decision': decision,
+        'entries': entries,
+        'current_diffs': current_diffs,
     })
 
 
