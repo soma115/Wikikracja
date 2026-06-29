@@ -12,7 +12,6 @@ import {
     createReactionHandler,
     createReplyHandler,
     createVoteHandler,
-    handleListTrigger,
     initFormattingToolbar,
     initGlobalPasteImageHandler,
     insertPlainTextAtCaret,
@@ -236,7 +235,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (mod && e.key === 'b') { e.preventDefault(); document.execCommand('bold'); updateToolbarState(); return; }
             if (mod && e.key === 'i') { e.preventDefault(); document.execCommand('italic'); updateToolbarState(); return; }
             if (mod && e.key === 'u') { e.preventDefault(); document.execCommand('underline'); updateToolbarState(); return; }
-            if (handleListTrigger(e)) return;
             // Enter = nowa linia; wysyłanie przez Ctrl+Enter lub Shift+Enter
             if (e.key === 'Enter') {
                 e.preventDefault();

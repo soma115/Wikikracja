@@ -10,7 +10,6 @@ export {
     updateCounter,
     formatMessage,
     handleEnterKey,
-    handleListTrigger,
     getVisibleTextLength,
     initGlobalPasteImageHandler,
     insertPlainTextAtCaret,

@@ -251,7 +251,7 @@ def get_translations():
         "attachment": _("attachment"),
         "Mute room": _("Mute room"),
         "Unmute room": _("Unmute room"),
-        "Shift/Ctrl+↵ send · Ctrl+B bold · Ctrl+I italic · - or * list": _("Shift/Ctrl+↵ send · Ctrl+B bold · Ctrl+I italic · - or * list"),
+        "Shift/Ctrl+↵ send · Ctrl+B bold · Ctrl+I italic": _("Shift/Ctrl+↵ send · Ctrl+B bold · Ctrl+I italic"),
         "Select a room from the list": _("Select a room from the list"),
         "No unread messages": _("No unread messages"),
         "Tap {icon} above the list to disable the unread filter": _("Tap {icon} above the list to disable the unread filter"),

@@ -194,31 +194,6 @@ export function handleEnterKey(e, submitCallback) {
 }
 
 /**
- * Auto-convert `- ` or `* ` typed at the start of a line into `• `.
- * Call on keydown with e.key === ' '.
- * @returns {boolean} true if handled
- */
-export function handleListTrigger(e) {
-    if (e.key !== ' ') return false;
-    const sel = window.getSelection();
-    if (!sel || !sel.rangeCount) return false;
-    const range = sel.getRangeAt(0);
-    if (!range.collapsed) return false;
-    const node = range.startContainer;
-    if (node.nodeType !== Node.TEXT_NODE) return false;
-    const textBefore = node.textContent.slice(0, range.startOffset);
-    if (textBefore !== '-' && textBefore !== '*') return false;
-    e.preventDefault();
-    const newRange = document.createRange();
-    newRange.setStart(node, 0);
-    newRange.setEnd(node, range.startOffset);
-    sel.removeAllRanges();
-    sel.addRange(newRange);
-    document.execCommand('insertText', false, '• ');
-    return true;
-}
-
-/**
  * Visible text length for either contenteditable or textarea.
  * @returns {number}
  */
