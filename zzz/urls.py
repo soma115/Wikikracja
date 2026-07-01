@@ -7,6 +7,7 @@ from django.urls import URLPattern, URLResolver, include, path, re_path
 from django.views.generic import RedirectView
 from django.views.static import serve
 
+from board import views as bv
 from home import views as hv
 from obywatele import views as ov
 
@@ -31,6 +32,7 @@ urlpatterns: List[URLPattern | URLResolver] = [
     path('tasks/', include('tasks.urls', namespace='tasks')),
     path('i18n/', include('django.conf.urls.i18n')),
     path("__reload__/", include("django_browser_reload.urls")),
+    path('<slug:slug>/', bv.view_post_by_slug, name='board_post_by_slug'),
 ]
 
 # Serve static files only in DEBUG mode (WhiteNoise handles this in production)

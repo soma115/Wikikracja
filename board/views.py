@@ -162,6 +162,13 @@ def view_post(request: HttpRequest, pk: int):
     })
 
 
+def view_post_by_slug(request: HttpRequest, slug: str):
+    post = get_object_or_404(Post, slug=slug)
+    return render(request, 'board/post_detail.html', {
+        'post': post
+    })
+
+
 @login_required
 def delete_post(request: HttpRequest, pk: int):
     post = get_object_or_404(Post, pk=pk)

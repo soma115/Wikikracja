@@ -14,6 +14,16 @@
         {% csrf_token %}
         {{ form.title|as_crispy_field }}
         {{ form.subtitle|as_crispy_field }}
+        <div class="mb-3">
+          <label for="{{ form.slug.id_for_label }}" class="form-label">{{ form.slug.label }}</label>
+          <div class="input-group">
+            <span class="input-group-text">{{ request.scheme }}://{{ request.get_host }}/</span>
+            <input type="text" name="{{ form.slug.name }}" class="form-control" id="{{ form.slug.id_for_label }}" value="{{ form.slug.value|default:'' }}">
+          </div>
+          {% if form.slug.help_text %}
+            <small class="form-text text-muted">{{ form.slug.help_text }}</small>
+          {% endif %}
+        </div>
         {{ form.category|as_crispy_field }}
         {{ form.featured_image|as_crispy_field }}
         <div class="mb-3">
