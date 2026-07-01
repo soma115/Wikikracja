@@ -1,5 +1,4 @@
 # OGÓLNE
-- aliasy do linków - przydaje się do ładnych URLi
 - Błędy na Discord
 - nie zapisane wiadomości znikają jak się przełączy z pokoju na pokój
 - bardzo długie wiadomości czasem się nie wysyłają ale nie mogę tego odtworzyć
