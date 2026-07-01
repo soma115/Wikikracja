@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-29 13:04+0200\n"
+"POT-Creation-Date: 2026-07-02 01:04+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -895,7 +895,7 @@ msgid "Name and surname"
 msgstr "Imię i nazwisko"
 
 #: .\chat\forms.py:48 .\home\models.py:14 .\home\models.py:43
-#: .\home\templates\home\base.html:308 .\home\templatetags\feed_filters.py:33
+#: .\home\templatetags\feed_filters.py:33
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:8
 msgid "Message"
 msgstr "Wiadomość"
@@ -2359,6 +2359,11 @@ msgstr "Przełącz tryb jasny/ciemny"
 msgid "Activity"
 msgstr "Aktywność"
 
+#: .\home\templates\home\base.html:308
+#: .\obywatele\templates\obywatele\start.html:88
+msgid "Contact"
+msgstr "Kontakt"
+
 #: .\home\templates\home\base.html:312 .\home\views.py:421
 msgid "Announcements"
 msgstr "Ogłoszenia"
@@ -3697,10 +3702,6 @@ msgstr "Aktywni 30 dni"
 msgid "Inactive 30+ days"
 msgstr "Nieaktywni 30+ dni"
 
-#: .\obywatele\templates\obywatele\start.html:88
-msgid "Contact"
-msgstr "Kontakt"
-
 #: .\obywatele\templates\obywatele\start.html:120
 #: .\obywatele\templates\obywatele\szczegoly.html:66
 msgid "Joined at"
@@ -4574,8 +4575,8 @@ msgid "Forgot Password?"
 msgstr "Zapomniałeś hasła?"
 
 #: .\templates\allauth\account\login.html:31
-msgid "Send a message without logging in"
-msgstr "Wyślij wiadomość bez logowania"
+msgid "Send a message to a group"
+msgstr "Wyślij wiadomość do grupy"
 
 #: .\templates\allauth\account\logout.html:8
 #: .\templates\allauth\account\logout.html:11
@@ -4683,8 +4684,8 @@ msgid "Confirm your email by clicking the link sent to your inbox."
 msgstr "Potwierdź swój email klikając link."
 
 #: .\templates\allauth\account\signup.html:16
-msgid "Fill out onboarding questions (available right after signup)."
-msgstr "Wypełnij formularz (następny krok)."
+msgid "Fill out onboarding questions."
+msgstr "Wypełnij formularz rejestracyjny"
 
 #: .\templates\allauth\account\signup.html:17
 msgid "Wait until group approves your application."

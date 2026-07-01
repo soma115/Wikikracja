@@ -519,6 +519,19 @@ textarea.form-control:focus {
 .form-control.is-invalid {
   border-color: #f87171 !important;
 }
+/* ── Captcha (signup form) ───────────────────────────────────── */
+/* szerokość = CAPTCHA_IMAGE_SIZE[0] w settings.py (170px), input +2px na obramowanie.
+   Input dziedziczy resztę stylów z .form-control. */
+form.signup img.captcha {
+  display: block;
+  width: 170px;
+  border: 1px solid var(--border);
+  border-radius: .375rem;
+  margin-bottom: .4rem;
+}
+form.signup input[name*="captcha"] {
+  width: 172px;
+}
 /* ── Checkbox styling for better visibility in dark mode ────────── */
 .form-check-input {
   background-color: var(--input-bg) !important;

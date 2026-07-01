@@ -6,7 +6,7 @@ import threading
 import time
 
 from allauth.account.forms import SignupForm
-from captcha.fields import CaptchaField
+from captcha.fields import CaptchaField, CaptchaTextInput
 from django import forms
 from django.conf import settings as s
 from django.contrib.auth.models import User
@@ -192,7 +192,7 @@ class CustomSignupForm(SignupForm):
     - After email confirmation: second email with onboarding link sent
     """
     email = forms.CharField(max_length=100, label='Email', required=True)
-    captcha = CaptchaField()
+    captcha = CaptchaField(widget=CaptchaTextInput(attrs={'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
         super(CustomSignupForm, self).__init__(*args, **kwargs)
