@@ -1096,7 +1096,7 @@ export async function onSubmitMessage(message, editing_message_id) {
             ? { id: currentReplyData.id, username: currentReplyData.username, text_snippet: currentReplyData.snippet }
             : null;
         const ownUsername = is_anonymous
-            ? 'Anonymous User'
+            ? 'Anonymous'
             : (document.querySelector('.user-name')?.textContent?.trim() || '');
         const now = Date.now();
 

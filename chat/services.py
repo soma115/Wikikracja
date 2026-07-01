@@ -1,7 +1,5 @@
 import json
 import logging
-import os
-from datetime import datetime
 
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
@@ -396,13 +394,13 @@ class ChatRepository:
         """Get quoted message data for display."""
         try:
             msg = Message.objects.select_related('sender').get(pk=message_id)
-            username = 'Anonymous User' if msg.anonymous else (msg.sender.username if msg.sender else 'Unknown')
+            username = 'Anonymous' if msg.anonymous else (msg.sender.username if msg.sender else 'Unknown')
             snippet = strip_tags(msg.text)[:120]
             return {
                 'id': msg.id,
                 'username': username,
                 'text_snippet': snippet,
-                f'author_color': _username_to_color(username),
+                'author_color': _username_to_color(username),
             }
         except Message.DoesNotExist:
             return None
@@ -509,7 +507,7 @@ class ChatRepository:
             reply_to_data = None
             if msg.reply_to_id and msg.reply_to:
                 rm = msg.reply_to
-                ru = 'Anonymous User' if rm.anonymous else (rm.sender.username if rm.sender else 'Unknown')
+                ru = 'Anonymous' if rm.anonymous else (rm.sender.username if rm.sender else 'Unknown')
                 reply_to_data = {
                     'id': rm.id,
                     'username': ru,

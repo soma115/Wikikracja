@@ -53,72 +53,6 @@
   --input-bg: #252d4a;
   --input-border: rgba(255, 255, 255, .25);
 }
-/* Civic theme — niebieskawa, formalna, instytucjonalna */
-[data-theme="civic"] {
-  color-scheme: dark;
-  --bg-base: #111827;
-  --bg-sidebar: #1a2332;
-  --bg-card: #1e2d42;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --accent-muted: rgba(59, 130, 246, .12);
-  --accent-glow: rgba(59, 130, 246, .35);
-  --color-accent: #3b82f6;
-  --text-primary: #e2e8f0;
-  --text-muted: rgba(226, 232, 240, .5);
-  --border: rgba(59, 130, 246, .15);
-  --btn-glass-bg: rgba(59, 130, 246, .08);
-  --btn-glass-border: rgba(59, 130, 246, .2);
-  --btn-glass-color: rgba(226, 232, 240, .65);
-  --btn-glass-hover-bg: rgba(59, 130, 246, .15);
-  --btn-glass-hover-border: rgba(59, 130, 246, .4);
-  --btn-glass-hover-color: rgba(226, 232, 240, .95);
-  --badge-proposition-bg: rgba(59, 130, 246, .15);
-  --badge-proposition-color: #93c5fd;
-  --badge-discussion-bg: rgba(168, 85, 247, .15);
-  --badge-discussion-color: #c084fc;
-  --badge-referendum-bg: rgba(249, 115, 22, .15);
-  --badge-referendum-color: #fb923c;
-  --badge-approved-bg: rgba(34, 197, 94, .12);
-  --badge-approved-color: #4ade80;
-  --badge-rejected-bg: rgba(239, 68, 68, .12);
-  --badge-rejected-color: #f87171;
-  --input-bg: #1e3050;
-  --input-border: rgba(59, 130, 246, .3);
-}
-/* Official theme — granatowy sidebar, pomarańczowy akcent */
-[data-theme="official"] {
-  color-scheme: light;
-  --bg-base: #F9FAFB;
-  --bg-sidebar: #0E1726;
-  --bg-card: #ffffff;
-  --accent: #D95F0D;
-  --accent-hover: #b84f0a;
-  --accent-muted: rgba(217, 95, 13, .1);
-  --accent-glow: rgba(217, 95, 13, .25);
-  --color-accent: #D95F0D;
-  --text-primary: #1F2937;
-  --text-muted: #6B7280;
-  --border: rgba(0, 0, 0, .09);
-  --btn-glass-bg: rgba(0, 0, 0, .04);
-  --btn-glass-border: rgba(0, 0, 0, .12);
-  --btn-glass-color: #6B7280;
-  --btn-glass-hover-bg: rgba(217, 95, 13, .07);
-  --btn-glass-hover-border: rgba(217, 95, 13, .3);
-  --btn-glass-hover-color: #1F2937;
-  --badge-proposition-bg: rgba(59, 130, 246, .1);
-  --badge-proposition-color: #1d4ed8;
-  --badge-discussion-bg: rgba(168, 85, 247, .1);
-  --badge-discussion-color: #6d28d9;
-  --badge-referendum-bg: rgba(217, 95, 13, .1);
-  --badge-referendum-color: #D95F0D;
-  --badge-approved-bg: rgba(0, 188, 140, .1);
-  --badge-approved-color: #047a6a;
-  --badge-rejected-bg: rgba(239, 68, 68, .1);
-  --badge-rejected-color: #dc2626;
-  --input-bg: #ffffff;
-  --input-border: rgba(0, 0, 0, .18);
-}
 /* Light theme */
 [data-theme="light"] {
   color-scheme: light;
@@ -1034,8 +968,7 @@ hr {
 [data-theme="light"] .stepper-step:hover {
   color: var(--text-primary);
 }
-[data-theme="light"] .stepper-step-count,
-[data-theme="official"] .stepper-step-count {
+[data-theme="light"] .stepper-step-count {
   background: rgba(0, 0, 0, .08);
 }
 /* Nav tabs */
@@ -1062,28 +995,6 @@ hr {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
-/* Official theme — sidebar override (dark navy sidebar on light bg) */
-[data-theme="official"] .sidebar {
-  --text-primary: #e8eaf0;
-  --text-muted: rgba(232, 234, 240, .6);
-  --border: rgba(255, 255, 255, .08);
-  --accent: #f4874b;
-}
-[data-theme="official"] .sidebar .nav-link {
-  color: rgba(232, 234, 240, .75);
-}
-[data-theme="official"] .sidebar .nav-link:hover,
-[data-theme="official"] .sidebar .nav-link.active {
-  color: #f4874b;
-}
-[data-theme="official"] .sidebar-logo .logo-title {
-  color: #f4874b;
-}
-[data-theme="official"] .sidebar-logo .logo-sub {
-  color: rgba(232, 234, 240, .5);
-}
-
-
 /* ── board view helpers ── */
 /* ── domyślny widok: lista ── */
 .board-posts-grid {
@@ -1371,17 +1282,15 @@ html, body {
   line-height: 1.6;
   margin-bottom: 1rem;
 }
-/* domyślnie (themy ciemne: dark + civic) pokazujemy wariant dark, light ukryty */
+/* domyślnie (theme ciemny) pokazujemy wariant dark, light ukryty */
 .brand-mark-light {
   display: none;
 }
-/* themy jasne (light + official): odwrotnie */
-[data-theme="light"] .brand-mark-light,
-[data-theme="official"] .brand-mark-light {
+/* theme jasny: odwrotnie */
+[data-theme="light"] .brand-mark-light {
   display: inline-block;
 }
-[data-theme="light"] .brand-mark-dark,
-[data-theme="official"] .brand-mark-dark {
+[data-theme="light"] .brand-mark-dark {
   display: none;
 }
 .sidebar-logo .logo-sub {

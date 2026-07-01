@@ -23,7 +23,7 @@
 <script src="{% static 'obywatele/js/profile.js' %}"></script>
 <script>
 function updateThemeBtns(active) {
-  ['dark','light','civic','official'].forEach(function(t) {
+  ['dark','light'].forEach(function(t) {
     var el = document.getElementById('theme-btn-' + t);
     if (el) el.className = 'btn btn-sm ' + (active === t ? 'btn-primary' : 'btn-outline-secondary');
   });
@@ -209,14 +209,6 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
         <button type="button" id="theme-btn-light" class="btn btn-sm btn-outline-secondary"
                 onclick="toggleTheme('light');">
           <i class="fas fa-sun me-1"></i>{% trans "Bright" %}
-        </button>
-        <button type="button" id="theme-btn-civic" class="btn btn-sm btn-outline-secondary"
-                onclick="toggleTheme('civic');">
-          <i class="fas fa-landmark me-1"></i>{% trans "Civil" %}
-        </button>
-        <button type="button" id="theme-btn-official" class="btn btn-sm btn-outline-secondary"
-                onclick="toggleTheme('official');">
-          <i class="fas fa-building-columns me-1"></i>{% trans "Official" %}
         </button>
       </div>
     </div>

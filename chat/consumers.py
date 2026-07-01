@@ -1,5 +1,4 @@
 import asyncio
-import json
 import logging
 import os
 import re
@@ -9,6 +8,7 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from django.conf import settings
 from django.core.cache import cache
+from django.utils.translation import gettext as _
 
 from zzz.richtext import sanitize
 from zzz.utils import get_site_domain
@@ -408,7 +408,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
     async def _dispatch_proxy(self, proxy: HandledMessage):
         """Flush a proxy outside of receive_json — used by background tasks that build messages via helpers."""
-        for group, message, to_consumer, _ in proxy.get_messages():
+        for group, message, to_consumer, _meta in proxy.get_messages():
             try:
                 if group is not None:
                     await self.channel_layer.group_send(group, message)
@@ -654,7 +654,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         sender = await self.repo.get_message_sender(message_id)
         proxy.send_json({
             "notification": {
-                'title': "Anonymous User" if message.anonymous else sender.username,
+                'title': "Anonymous" if message.anonymous else sender.username,
                 'body': "New message",
                 'link': None,
                 'room_id': (await self.repo.get_room_by_message(message.id)).id
@@ -674,7 +674,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         try:
             if await self.repo.user_has_muted_room(user.id, room_id):
                 return
-            title = "Anonymous User" if message.anonymous else message.sender.username
+            title = "Anonymous" if message.anonymous else message.sender.username
             body = _("New message")
             site_url = f"https://{domain}"
             deep_link = f"{site_url}/chat#room_id={room_id}"

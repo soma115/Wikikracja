@@ -1,8 +1,6 @@
-import calendar as cal_mod
 import datetime
 import json
 import logging
-import time
 from datetime import date, timedelta
 from urllib.parse import urlencode
 
@@ -26,7 +24,6 @@ from django.utils import timezone, translation
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import check_for_language
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django_filters.views import FilterView
 from django_tables2.views import SingleTableMixin

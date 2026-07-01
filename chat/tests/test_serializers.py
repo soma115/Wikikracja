@@ -37,7 +37,7 @@ class BuildChatMessagePayloadTest(TestCase):
             current_user=self.viewer,
         )
         self.assertIsNone(payload["user_id"])
-        self.assertEqual(payload["username"], "Anonymous User")
+        self.assertEqual(payload["username"], "Anonymous")
 
     def test_payload_user_id_is_none_when_user_missing(self):
         payload = build_chat_message_payload(
