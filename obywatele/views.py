@@ -585,6 +585,13 @@ def dodaj(request: HttpRequest):
                 rate.rate = 1
                 rate.save()
 
+                # Create EmailAddress with verified=True for manually invited users
+                EmailAddress.objects.get_or_create(
+                    user=candidate,
+                    email=candidate.email,
+                    defaults={'verified': True, 'primary': True}
+                )
+
                 message = _('The new user has been saved')
                 success(request, (message))
 

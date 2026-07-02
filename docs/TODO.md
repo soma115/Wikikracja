@@ -1,7 +1,10 @@
 # OGÓLNE
-- W Zadaniach suma punktów Sukces/Porażka jest podwojona.
+- Zmienić Miejscowość/Powiat
+- Dodać Województwo wybiernalne
+- Dlazcego jest Bitcoin na starcie?
+- Powiadomienia email i wydarzeniach z kalendarza powinny być.
 
-- favicon przez .env
+- W Zadaniach suma punktów Sukces/Porażka jest podwojona.
 - wyczyścić http://127.0.0.1:8000/site-settings/
 - "Pierwsze kroki" na Pulpicie zamienić na listę linków
 - rekurencyjne głosowania
