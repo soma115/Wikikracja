@@ -94,6 +94,12 @@ def get_onboarding_user_from_request(request: HttpRequest):
         if profile.onboarding_status in [Uzytkownik.OnboardingStatus.EMAIL_ENTERED, Uzytkownik.OnboardingStatus.EMAIL_CONFIRMED]:
             return user
 
+    # METHOD 4: Fallback for already accepted users (is_active=True)
+    # Allow access for users who have already been accepted and completed onboarding
+    user = User.objects.filter(pk=onboarding_user_id, is_active=True).first()
+    if user and hasattr(user, 'uzytkownik'):
+        return user
+
     return None
 
 
