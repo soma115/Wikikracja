@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
-from django.db import transaction
+from django.db import OperationalError, transaction
 from django.db.models import Count, F
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect, render
@@ -125,8 +125,7 @@ def generate_code():
 def details(request: HttpRequest, pk: int):
     # Pokaż szczegóły przepisu
 
-    szczegoly = get_object_or_404(Decyzja, pk=pk)
-
+    # Handle POST requests first (sign, withdraw, vote)
     if request.POST.get('sign'):
         with transaction.atomic():
             try:
@@ -225,10 +224,23 @@ def details(request: HttpRequest, pk: int):
 
         return redirect('glosowania:details', pk)
 
-    # check if already signed
-    signed = ZebranePodpisy.objects.filter(projekt=pk, podpis_uzytkownika=request.user).exists()
+    # GET request - fetch details with retry logic for database lock errors
+    max_retries = 3
+    retry_delay = 0.5
 
-    # check if already voted
+    for attempt in range(max_retries):
+        try:
+            szczegoly = get_object_or_404(Decyzja.objects.select_related('chat_room'), pk=pk)
+            break
+        except OperationalError as e:
+            if 'database is locked' in str(e) and attempt < max_retries - 1:
+                time.sleep(retry_delay)
+                retry_delay *= 2
+                continue
+            raise
+
+    # check if already signed and voted in single query
+    signed = ZebranePodpisy.objects.filter(projekt=pk, podpis_uzytkownika=request.user).exists()
     voted = KtoJuzGlosowal.objects.filter(projekt=pk, ktory_uzytkownik_juz_zaglosowal=request.user).exists()
 
     # Report
@@ -246,10 +258,9 @@ def details(request: HttpRequest, pk: int):
         5: _('Approved'),
     }
 
-    # Previous and Next
-    obj = get_object_or_404(Decyzja, pk=pk)
-    prev = Decyzja.objects.filter(pk__lt=obj.pk, status=szczegoly.status).order_by('-pk').first()
-    next = Decyzja.objects.filter(pk__gt=obj.pk, status=szczegoly.status).order_by('pk').first()
+    # Previous and Next - use szczegoly instead of another query
+    prev = Decyzja.objects.filter(pk__lt=szczegoly.pk, status=szczegoly.status).order_by('-pk').first()
+    next = Decyzja.objects.filter(pk__gt=szczegoly.pk, status=szczegoly.status).order_by('pk').first()
 
     # Find associated chat room using model method
     chat_room = szczegoly.get_chat_room()

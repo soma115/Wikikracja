@@ -27,7 +27,8 @@ class Command(BaseCommand):
 
         HOST = get_site_domain()
 
-        threads = []
+        # Queue all emails to send in background thread sequentially
+        email_queue = []
 
         def SendEmail(recipients: list[str], message: str) -> None:
 
@@ -37,27 +38,12 @@ class Command(BaseCommand):
             footer1 = _("You can disable those messages by unchecking bell icon next to chat room name.")
             footer3 = _("You can manage your email notifications here: {url}").format(url=build_site_url('/obywatele/settings/'))
 
-            # Send individual email to each recipient
             for recipient in recipients:
-                email_message = EmailMessage(
-                    subject=subject,
-                    body=header + "\n\n" + message + "\n\n" + footer1 + "\n" + footer2 + "\n" + footer3,
-                    from_email=str(s.DEFAULT_FROM_EMAIL),
-                    to=[recipient],
-                )
-                log.info(f'Sending email to {recipient}; subject: {email_message.subject}')
-
-                def _send_with_delay():
-                    try:
-                        sleep(s.EMAIL_SEND_DELAY_SECONDS)
-                        email_message.send(fail_silently=False)
-                        log.info(f'Email sent successfully to {recipient}; subject: {email_message.subject}')
-                    except Exception as e:
-                        log.error(f'Failed to send email to {recipient}; subject: {email_message.subject}; error: {e}', exc_info=True)
-
-                t = threading.Thread(target=_send_with_delay)
-                threads.append(t)
-                t.start()
+                email_queue.append({
+                    'recipient': recipient,
+                    'subject': subject,
+                    'body': header + "\n\n" + message + "\n\n" + footer1 + "\n" + footer2 + "\n" + footer3,
+                })
 
         user_list = Uzytkownik.objects.filter(uid__is_active=True, email_notifications_chat=True)
         log.info(f'chat_messages: found {user_list.count()} active users with chat notifications enabled')
@@ -140,5 +126,24 @@ class Command(BaseCommand):
             u.last_broadcast = timezone.now()
             u.save()
 
-        for t in threads:
-            t.join()
+        # Send all queued emails in background thread sequentially
+        def _send_queued_emails():
+            for email_data in email_queue:
+                email_message = EmailMessage(
+                    subject=email_data['subject'],
+                    body=email_data['body'],
+                    from_email=str(s.DEFAULT_FROM_EMAIL),
+                    to=[email_data['recipient']],
+                )
+                log.info(f'Sending email to {email_data["recipient"]}; subject: {email_message.subject}')
+                try:
+                    sleep(s.EMAIL_SEND_DELAY_SECONDS)
+                    email_message.send(fail_silently=False)
+                    log.info(f'Email sent successfully to {email_data["recipient"]}; subject: {email_message.subject}')
+                except Exception as e:
+                    log.error(f'Failed to send email to {email_data["recipient"]}; subject: {email_message.subject}; error: {e}', exc_info=True)
+
+        if email_queue:
+            send_thread = threading.Thread(target=_send_queued_emails)
+            send_thread.start()
+
