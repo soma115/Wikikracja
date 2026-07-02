@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-02 03:04+0200\n"
+"POT-Creation-Date: 2026-07-02 03:45+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -599,8 +599,6 @@ msgstr "Kategorie"
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:13
 #: .\bookkeeping\templates\bookkeeping\transaction_form.html:12
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:15
-#: .\obywatele\templates\obywatele\assets.html:10
-#: .\obywatele\templates\obywatele\menu.html:20
 msgid "Assets"
 msgstr "Aktywa"
 
@@ -1764,7 +1762,7 @@ msgid "The path this bill took."
 msgstr "Historia propozycji"
 
 #: .\glosowania\models.py:60 .\home\templatetags\feed_filters.py:34
-#: .\home\views.py:753 .\obywatele\views.py:1261 .\tasks\models.py:91
+#: .\home\views.py:753 .\obywatele\views.py:1262 .\tasks\models.py:91
 msgid "Chat room"
 msgstr "Pokój czatu"
 
@@ -2255,7 +2253,7 @@ msgstr "Nie wylogowuj mnie"
 
 #: .\home\models.py:12 .\home\models.py:41
 #: .\home\templatetags\feed_filters.py:31 .\home\views.py:657
-#: .\obywatele\views.py:1241
+#: .\obywatele\views.py:1242
 msgid "Task"
 msgstr "Zadanie"
 
@@ -3064,11 +3062,11 @@ msgstr "Email potwierdzony"
 msgid "Form completed"
 msgstr "Formularz wypełniony"
 
-#: .\obywatele\models.py:26
+#: .\obywatele\models.py:26 .\obywatele\tables.py:10
 #: .\obywatele\templates\obywatele\change_username.html:9
 #: .\obywatele\templates\obywatele\my_profile.html:103
 msgid "Username"
-msgstr "Nazwa użytkownika"
+msgstr "Użytkownik"
 
 #: .\obywatele\models.py:38
 msgid "Preferred communicator or phone number"
@@ -3276,6 +3274,10 @@ msgstr "Został zaproponowany nowy użytkownik"
 msgid "Citizen has been blocked"
 msgstr "Ta osoba została zbanowana"
 
+#: .\obywatele\tables.py:11
+msgid "Why?"
+msgstr "Dlaczego?"
+
 #: .\obywatele\templates\obywatele\_calendar_partial.html:8
 msgid "Previous month"
 msgstr "Poprzedni miesiąc"
@@ -3360,6 +3362,23 @@ msgstr "Brak wpisów."
 #: .\obywatele\templates\obywatele\_citizen_zalozono_partial.html:32
 msgid "Nothing created yet."
 msgstr "Brak założonych treści."
+
+#: .\obywatele\templates\obywatele\assets.html:10
+#: .\obywatele\templates\obywatele\menu.html:20
+msgid "Resources"
+msgstr "Zasoby"
+
+#: .\obywatele\templates\obywatele\assets.html:14
+msgid "Columns"
+msgstr "Kolumny"
+
+#: .\obywatele\templates\obywatele\assets.html:17
+msgid "Visible columns"
+msgstr "Widoczne kolumny"
+
+#: .\obywatele\templates\obywatele\assets.html:25
+msgid "Search all fields..."
+msgstr "Przeszukaj wszystkie pola..."
 
 #: .\obywatele\templates\obywatele\candidate_edit.html:10
 msgid "Edit candidate profile"
@@ -3858,7 +3877,7 @@ msgstr ""
 "zaproponował/a nową osobę\n"
 "Możesz ją zatwierdzić tutaj:"
 
-#: .\obywatele\views.py:598 .\obywatele\views.py:1000
+#: .\obywatele\views.py:598 .\obywatele\views.py:1001
 msgid "Please correct the highlighted errors."
 msgstr "Popraw podświetlone błędy."
 
@@ -3882,20 +3901,20 @@ msgstr "Nowe wiadomości z pokoi, których nie wyciszyłeś"
 msgid "Changes was saved"
 msgstr "Zmiany zostały zapisane"
 
-#: .\obywatele\views.py:997
+#: .\obywatele\views.py:998
 msgid "Candidate profile has been updated."
 msgstr "Profil kandydata został zaktualizowany."
 
-#: .\obywatele\views.py:1035
+#: .\obywatele\views.py:1036
 #, python-format
 msgid "You have confirmed %(email)s."
 msgstr "Potwierdziłeś emial %(email)s."
 
-#: .\obywatele\views.py:1044
+#: .\obywatele\views.py:1045
 msgid "Fill out your onboarding form"
 msgstr "Wypełnij formularz rejestracyjny"
 
-#: .\obywatele\views.py:1045
+#: .\obywatele\views.py:1046
 #, python-format
 msgid ""
 "Your email has been confirmed.\n"
@@ -3906,55 +3925,55 @@ msgstr ""
 "\n"
 "Wypełnij proszę swój formularz rejestracyjny tutaj: %(link)s"
 
-#: .\obywatele\views.py:1139
+#: .\obywatele\views.py:1140
 msgid "Created task"
 msgstr "Utworzone zadanie"
 
-#: .\obywatele\views.py:1150
+#: .\obywatele\views.py:1151
 msgid "Assigned task"
 msgstr "Przydzielone zadanie"
 
-#: .\obywatele\views.py:1161
+#: .\obywatele\views.py:1162
 msgid "Voted on task"
 msgstr "Zagłosowano na zadanie"
 
-#: .\obywatele\views.py:1172
+#: .\obywatele\views.py:1173
 msgid "Evaluated task"
 msgstr "Oceniono zadanie"
 
-#: .\obywatele\views.py:1183
+#: .\obywatele\views.py:1184
 msgid "Added argument"
 msgstr "Dodano argument"
 
-#: .\obywatele\views.py:1195
+#: .\obywatele\views.py:1196
 msgid "Signed proposal"
 msgstr "Podpisano propozycję"
 
-#: .\obywatele\views.py:1206
+#: .\obywatele\views.py:1207
 msgid "Voted in referendum"
 msgstr "Zagłosowano w referendum"
 
-#: .\obywatele\views.py:1217
+#: .\obywatele\views.py:1218
 msgid "Citizenship event"
 msgstr "Zdarzenie obywatelskie"
 
-#: .\obywatele\views.py:1251
+#: .\obywatele\views.py:1252
 msgid "Voting proposal"
 msgstr "Propozycja głosowania"
 
-#: .\obywatele\views.py:1281
+#: .\obywatele\views.py:1282
 msgid "A deletion request already exists for your account."
 msgstr "Żądanie usunięcia konta już istnieje."
 
-#: .\obywatele\views.py:1288
+#: .\obywatele\views.py:1289
 msgid "Your account deletion has been scheduled. Your data will be permanently removed in 30 days. You can cancel this request at any time before then."
 msgstr "Usunięcie Twojego konta zostało zaplanowane. Twoje dane zostaną trwale usunięte za 30 dni. Możesz anulować to żądanie w dowolnym momencie przed tym czasem."
 
-#: .\obywatele\views.py:1300
+#: .\obywatele\views.py:1301
 msgid "Your account deletion request has been cancelled."
 msgstr "Twoje żądanie usunięcia konta zostało anulowane."
 
-#: .\obywatele\views.py:1302
+#: .\obywatele\views.py:1303
 msgid "No active deletion request found."
 msgstr "Brak aktywnego żądania usunięcia."
 

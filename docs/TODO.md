@@ -1,4 +1,5 @@
 # OGÓLNE
+- prywatne notatki o człowieku
 - favicon przez .env
 - wyczyścić http://127.0.0.1:8000/site-settings/
 - "Pierwsze kroki" na Pulpicie zamienić na listę linków

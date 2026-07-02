@@ -17,7 +17,7 @@
     <a href="{% url 'obywatele:poczekalnia' %}" class="stepper-step">{% trans "Candidates" %}</a>
   </div>
   <div class="stepper-step-wrap {% if request.resolver_match.url_name == 'assets' %}active{% endif %}">
-    <a href="{% url 'obywatele:assets' %}" class="stepper-step">{% trans "Assets" %}</a>
+    <a href="{% url 'obywatele:assets' %}" class="stepper-step">{% trans "Resources" %}</a>
   </div>
   <a href="{% url 'obywatele:zaproponuj_osobe' %}"
      class="toolbar-add-btn ms-auto">

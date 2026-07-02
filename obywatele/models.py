@@ -91,6 +91,10 @@ class Uzytkownik(models.Model):
         verbose_name = _("Citizen")
         verbose_name_plural = _("Citizens")
 
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('obywatele:obywatele_szczegoly', args=[self.uid.pk])
+
     # https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html#onetoone
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):

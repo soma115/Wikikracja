@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
 
 from obywatele.models import Uzytkownik
 
@@ -6,10 +7,15 @@ from obywatele.models import Uzytkownik
 
 
 class UzytkownikTable(tables.Table):
+    uid = tables.Column(accessor='uid.username', verbose_name=_('Username'), linkify=lambda record: record.get_absolute_url())
+    why = tables.Column(verbose_name=_('Why?'))
+    
     class Meta:
         model = Uzytkownik
         fields = ('uid', 'city', 'responsibilities', 'hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'skills', 'knowledge', 'want_to_learn', 'business', 'job', 'other', 'why')
         template_name = "django_tables2/bootstrap5.html"
         attrs = {
-            'class': 'table table-hover table-sm align-middle mb-0'
+            'class': 'table table-hover table-sm align-middle mb-0',
+            'data-column-toggle': 'true',
+            'style': 'table-layout: auto;'
         }
