@@ -563,6 +563,10 @@ class ChatRepository:
             fcm_devices = GCMDevice.objects.filter(user=user, active=True)
             if fcm_devices.exists():
                 try:
+                    import firebase_admin
+                    if not firebase_admin._apps:
+                        log.warning(f"FCM skipped for user {user.id}: Firebase not initialized")
+                        return any_sent
                     message = messaging.Message(
                         notification=messaging.Notification(title=title, body=body),
                         webpush=messaging.WebpushConfig(
@@ -573,7 +577,7 @@ class ChatRepository:
                     fcm_devices.send_message(message)
                     any_sent = True
                 except Exception as e:
-                    log.error(f"FCM failed for user {user.id}: {e}")
+                    log.warning(f"FCM failed for user {user.id}: {e}")
 
             return any_sent
         except Exception as e:

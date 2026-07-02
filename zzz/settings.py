@@ -452,24 +452,39 @@ try:
 except ValueError:
     # Not initialized yet
     FIREBASE_CERT_PATH = getenv('FIREBASE_CERT_PATH', '')
+    GOOGLE_APPLICATION_CREDENTIALS = getenv('GOOGLE_APPLICATION_CREDENTIALS', '')
+    
     if FIREBASE_CERT_PATH != '' and path.exists(FIREBASE_CERT_PATH):
         # Local development: use explicit cert path
         serviceAccount = credentials.Certificate(FIREBASE_CERT_PATH)
         firebase_admin.initialize_app(credential=serviceAccount)
+        logging.info(f"Firebase initialized using FIREBASE_CERT_PATH: {FIREBASE_CERT_PATH}")
+    elif GOOGLE_APPLICATION_CREDENTIALS != '' and path.exists(GOOGLE_APPLICATION_CREDENTIALS):
+        # Production: use GOOGLE_APPLICATION_CREDENTIALS env var
+        serviceAccount = credentials.Certificate(GOOGLE_APPLICATION_CREDENTIALS)
+        firebase_admin.initialize_app(credential=serviceAccount)
+        logging.info(f"Firebase initialized using GOOGLE_APPLICATION_CREDENTIALS: {GOOGLE_APPLICATION_CREDENTIALS}")
     else:
-        # Production: GOOGLE_APPLICATION_CREDENTIALS env var (auto-detected)
-        # or no Firebase (dev without push notifications)
-        try:
-            firebase_admin.initialize_app()
-        except ValueError:
-            # No credentials available - Firebase won't work
-            pass
+        # No credentials available - Firebase won't work
+        logging.warning("Firebase not initialized: No valid credentials found (FIREBASE_CERT_PATH or GOOGLE_APPLICATION_CREDENTIALS)")
+        pass
 
 PUSH_NOTIFICATIONS_SETTINGS = {
     "WP_PRIVATE_KEY": getenv('VAPID_PRIVATE_KEY', ''),
     "WP_CLAIMS": {
         'sub': f"mailto:{getenv('VAPID_ADMIN_EMAIL', 'admin@example.com')}"
-    }
+    },
+    "FIREBASE_APP": firebase_admin.get_app() if firebase_admin._apps else None
+}
+
+# Firebase Client Configuration (for Web/Android FCM)
+FIREBASE_CONFIG = {
+    'apiKey': getenv('FIREBASE_API_KEY', ''),
+    'authDomain': getenv('FIREBASE_AUTH_DOMAIN', ''),
+    'projectId': getenv('FIREBASE_PROJECT_ID', ''),
+    'storageBucket': getenv('FIREBASE_STORAGE_BUCKET', ''),
+    'messagingSenderId': getenv('FIREBASE_MESSAGING_SENDER_ID', ''),
+    'appId': getenv('FIREBASE_APP_ID', ''),
 }
 
 # Onboarding: pk of the Board post 'Zasady wspólnoty'

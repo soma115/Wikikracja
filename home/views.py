@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from datetime import timedelta as td
@@ -893,6 +894,11 @@ def firebase_messaging_sw(request):
     with open(sw_path, 'r', encoding='utf-8') as f:
         sw_content = f.read()
 
+    # Inject Firebase config from settings
+    firebase_config = getattr(settings, 'FIREBASE_CONFIG', {})
+    config_str = f"const firebaseConfig = {json.dumps(firebase_config)};"
+    sw_content = sw_content.replace('const firebaseConfig = {', config_str)
+
     response = HttpResponse(sw_content, content_type='application/javascript')
     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response['Pragma'] = 'no-cache'
@@ -903,7 +909,9 @@ def firebase_messaging_sw(request):
 
 def vapid_config(request: HttpRequest):
     """Serve dynamic JS file with various settings for js scripts"""
+    firebase_config = getattr(settings, 'FIREBASE_CONFIG', {})
     js_content = f"export const VAPID_PUBLIC_KEY = '{settings.VAPID_PUBLIC_KEY}';\n"
+    js_content += f"export const FIREBASE_CONFIG = {json.dumps(firebase_config)};\n"
     response = HttpResponse(js_content, content_type='application/javascript')
     response['Cache-Control'] = 'public, max-age=3600'  # Cache for 1 hour
     return response

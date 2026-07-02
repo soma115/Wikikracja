@@ -1,4 +1,4 @@
-import { VAPID_PUBLIC_KEY } from '/dynamic-settings.js';
+import { VAPID_PUBLIC_KEY, FIREBASE_CONFIG } from '/dynamic-settings.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
     const enabled = await PushNotificationManager.initialize();
@@ -50,15 +50,11 @@ const PushNotificationManager = {
 
     async initFCM() {
         try {
-            const firebaseConfig = {
-                apiKey: "AIzaSyCJkEiqWunGmb48IKtvW4SoGdOfPnee1t8",
-                authDomain: "push-notif-demo-c3d86.firebaseapp.com",
-                projectId: "push-notif-demo-c3d86",
-                storageBucket: "push-notif-demo-c3d86.appspot.com",
-                messagingSenderId: "1076973263661",
-                appId: "1:1076973263661:web:84dc765e6b92c65ab9d1a4",
+            if (!FIREBASE_CONFIG || !FIREBASE_CONFIG.apiKey) {
+                console.error('Firebase config is empty or missing. Please set FIREBASE_* environment variables.');
+                return false;
             }
-            const app = firebase.initializeApp(firebaseConfig);
+            const app = firebase.initializeApp(FIREBASE_CONFIG);
             const messaging = firebase.messaging();
             const token = await messaging.getToken();
             // console.log('FCM token obtained:', token);
