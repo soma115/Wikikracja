@@ -1,13 +1,8 @@
 # OGÓLNE
-- Błędy na Discord
-- nie zapisane wiadomości znikają jak się przełączy z pokoju na pokój
-- bardzo długie wiadomości czasem się nie wysyłają ale nie mogę tego odtworzyć
 - favicon przez .env
-- Nie wysyłać treści z czatu
 - wyczyścić http://127.0.0.1:8000/site-settings/
 - "Pierwsze kroki" na Pulpicie zamienić na listę linków
 - rekurencyjne głosowania
-- Pokoje w czacie nie rozwijają się jeśli klinie się 2 razy
 - Zadania: termin zakończenia
 - Zadania: co blokuje wykonanie
 - Domyślnie czaty wyciszone, powiadomienia włączają się dopiero jak ktoś się odezwie.

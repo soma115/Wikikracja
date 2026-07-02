@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-02 01:25+0200\n"
+"POT-Creation-Date: 2026-07-02 03:04+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -26,8 +26,8 @@ msgid "Attachments"
 msgstr "Załączniki"
 
 #: .\board\forms.py:23 .\board\templates\board\board.html:283
-#: .\board\templates\board\create_post.html:33
-#: .\board\templates\board\edit_post.html:33 .\bookkeeping\forms.py:21
+#: .\board\templates\board\create_post.html:43
+#: .\board\templates\board\edit_post.html:43 .\bookkeeping\forms.py:21
 #: .\bookkeeping\forms.py:34 .\bookkeeping\forms.py:47
 #: .\bookkeeping\forms.py:92 .\chat\templates\chat\add.html:15
 #: .\chat\templates\chat\chat.html:210
@@ -198,8 +198,8 @@ msgstr "Usuń"
 
 #: .\board\templates\board\attachment_confirm_delete.html:15
 #: .\board\templates\board\board.html:282
-#: .\board\templates\board\create_post.html:34
-#: .\board\templates\board\edit_post.html:34
+#: .\board\templates\board\create_post.html:44
+#: .\board\templates\board\edit_post.html:44
 #: .\board\templates\board\post_confirm_delete.html:20
 #: .\bookkeeping\templates\bookkeeping\asset_confirm_delete.html:84
 #: .\bookkeeping\templates\bookkeeping\asset_form.html:54
@@ -363,7 +363,7 @@ msgstr "Utwórz ogłoszenie"
 msgid "Edit post"
 msgstr "Edytuj ogłoszenie"
 
-#: .\board\templates\board\edit_post.html:40
+#: .\board\templates\board\edit_post.html:50
 msgid "Existing attachments"
 msgstr "Załączniki"
 

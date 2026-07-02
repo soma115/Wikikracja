@@ -44,6 +44,8 @@ let currentReplyData = null;
 const pendingTimeouts = new Map();
 const PENDING_TIMEOUT_MS = 10000;
 
+let isClearingInput = false;
+
 /**
  * Message ID to scroll to when joining a room (e.g., from link)
  * @type {number|null}
@@ -61,14 +63,12 @@ function resetSortState() {
 }
 
 function saveDraft() {
+    if (isClearingInput) return;
     const input = DOM_API?.getMessageInput();
     if (!input || !CurrentRoomId) return;
     const content = input.isContentEditable ? input.innerHTML : input.value;
-    if (content.replace(/<[^>]*>/g, '').trim()) {
-        localStorage.setItem(`chat_draft_${CurrentRoomId}`, content);
-    } else {
-        localStorage.removeItem(`chat_draft_${CurrentRoomId}`);
-    }
+    // Always save draft (even if empty) - it will be cleared when message is sent
+    localStorage.setItem(`chat_draft_${CurrentRoomId}`, content);
 }
 
 function restoreDraft(roomId) {
@@ -76,6 +76,8 @@ function restoreDraft(roomId) {
     if (!input) return;
     const draft = localStorage.getItem(`chat_draft_${roomId}`);
     if (!draft) return;
+    // Don't restore empty drafts
+    if (!draft.replace(/<[^>]*>/g, '').trim()) return;
     if (input.isContentEditable) {
         input.innerHTML = draft;
     } else {
@@ -661,6 +663,8 @@ export async function onRoomTryJoin(room_id) {
     bindSortToolbar();
     DOM_API.updateBreadcrumb(deriveBreadcrumb(room_id));
     DOM_API.showFoldedRoomHeader();
+    // Restore draft after DOM is fully updated
+    requestAnimationFrame(() => restoreDraft(room_id));
 
     // Auto-expand category and archive section if needed
     const roomLink = DOM_API.getRoomLinkDiv(room_id);
@@ -672,7 +676,6 @@ export async function onRoomTryJoin(room_id) {
     if (window.innerWidth >= 768) {
         DOM_API.getMessageInput()?.focus();
     }
-    restoreDraft(room_id);
 }
 
 /**
@@ -680,6 +683,8 @@ export async function onRoomTryJoin(room_id) {
  */
 export async function onRoomTryLeave(sync_with_server) {
     if (RoomLock.locked()) await RoomLock.wait();
+    saveDraft();
+    isClearingInput = true;
     if (sync_with_server) {
         RoomLock.lock();
         await WS_API.leaveRoom(CurrentRoomId);
@@ -692,6 +697,7 @@ export async function onRoomTryLeave(sync_with_server) {
     for (const t of pendingTimeouts.values()) clearTimeout(t);
     pendingTimeouts.clear();
     CurrentRoomId = null;
+    isClearingInput = false;
 }
 
 
