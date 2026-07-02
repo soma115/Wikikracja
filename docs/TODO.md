@@ -1,5 +1,6 @@
 # OGÓLNE
-- prywatne notatki o człowieku
+- W Zadaniach suma punktów Sukces/Porażka jest podwojona.
+
 - favicon przez .env
 - wyczyścić http://127.0.0.1:8000/site-settings/
 - "Pierwsze kroki" na Pulpicie zamienić na listę linków
@@ -9,23 +10,17 @@
 - Domyślnie czaty wyciszone, powiadomienia włączają się dopiero jak ktoś się odezwie.
 - Chat: Mniej powiadomień - tylko tam gdzie się wypowiedziałem.
 - Czat: powiadomienia przychodzą wielokrotnie na Windows - trzeba to jakoś ograniczyć.
-- W Zadaniach suma punktów Sukces/Porażka jest podwojona.
 - Do formularza wstępnego: Czy jesteś zwolennikiem DB? Czy zgadzasz się na przestrzeganie naszych zasad?
-- Do emaila powitalnego dodać https://lobbyobywatelskie.wikikracja.pl/board/view/25/
 - Zalogowanie się w systemie oznacza zgodę na warunki. Będąc członkiem grupy masz wpływ na przepisy w takim samym stopniu jak każdy inny obywatel.
-
-- Chat: Przenieś pokoje z Czat do odpowiednich działów do: Zadania, Głosowania, Ludzie
-- Bookkeeping: reguły cykliczne: składka, abonament z i do nas
+- prywatne notatki o człowieku
 - Dokończyć Fixtures i dodać je do skryptu instalacyjnego. Fixtures z przepisami, pokojami i ogłoszeniami. Start: (publiczna strona startowa dla niezalogowanych) i Footer: (publiczna stopka). Customowy email. Wszystkie te elementy dać do nowego działu.
+
+- Bookkeeping: reguły cykliczne: składka, abonament z i do nas
 - Backup kontaktów, przepisów, ogłoszeń, itd. Każdy powinien móc zrobić w postaci fixtures i md.
 - Wszędzie: Ograniczyć możliwość dodawania treść po to żeby uniknąć manipulacji polegającej na tym, że zły aktor zarzuca grupę dużą ilością głosowań i przemyca w ten sposób niekorzystne dla grupy rozwiązania.
 - Mobile: ? swipe left right żeby przejść do różnych działów
 - Mapa ze społecznościami. Zlinkować otwarte grupy.
 - Pakiet ustaw - powinno dać się zaznaczyć w przepisie, że ten przepis wchodzi w życie razem z innymi przepisami. Może np. dopiero jak wszystkie zbiorą wymagane podpisy.
-- Data ostatniej modyfikacji to 2026-04-17.
-  Musi minąć 2 dni od tej daty,
-  A ja muszę dodać datę modyfikacji i opis do interfejsu...
-- Nie da się usunąć obrazka podczas edycji wiadomości.
 
 # ZADANIA (TASKS)
 

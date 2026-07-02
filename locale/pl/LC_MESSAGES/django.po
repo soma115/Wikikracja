@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-02 03:45+0200\n"
+"POT-Creation-Date: 2026-07-02 11:20+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr "Treść"
 msgid "Attachments"
 msgstr "Załączniki"
 
-#: .\board\forms.py:23 .\board\templates\board\board.html:283
+#: .\board\forms.py:23 .\board\templates\board\board.html:285
 #: .\board\templates\board\create_post.html:43
 #: .\board\templates\board\edit_post.html:43 .\bookkeeping\forms.py:21
 #: .\bookkeeping\forms.py:34 .\bookkeeping\forms.py:47
@@ -99,7 +99,7 @@ msgid "Updated"
 msgstr "Zaktualizowane"
 
 #: .\board\models.py:27 .\board\templates\board\board.html:43
-#: .\board\templates\board\board.html:190 .\bookkeeping\forms.py:66
+#: .\board\templates\board\board.html:192 .\bookkeeping\forms.py:66
 #: .\bookkeeping\models.py:116
 #: .\bookkeeping\templates\bookkeeping\_report_pivot.html:23
 #: .\bookkeeping\templates\bookkeeping\_report_pivot.html:61
@@ -182,7 +182,7 @@ msgid "Are you sure you want to delete the attachment"
 msgstr "Czy na pewno chcesz usunąć ten załącznik?"
 
 #: .\board\templates\board\attachment_confirm_delete.html:14
-#: .\board\templates\board\board.html:284
+#: .\board\templates\board\board.html:286
 #: .\board\templates\board\post_confirm_delete.html:19
 #: .\board\templates\board\post_detail.html:53
 #: .\bookkeeping\templates\bookkeeping\asset_list.html:55
@@ -197,7 +197,7 @@ msgid "Delete"
 msgstr "Usuń"
 
 #: .\board\templates\board\attachment_confirm_delete.html:15
-#: .\board\templates\board\board.html:282
+#: .\board\templates\board\board.html:284
 #: .\board\templates\board\create_post.html:44
 #: .\board\templates\board\edit_post.html:44
 #: .\board\templates\board\post_confirm_delete.html:20
@@ -291,16 +291,16 @@ msgstr "Bez kategorii"
 msgid "Create"
 msgstr "Utwórz"
 
-#: .\board\templates\board\board.html:162 .\home\templates\home\base.html:112
+#: .\board\templates\board\board.html:164 .\home\templates\home\base.html:112
 #: .\home\templates\home\base.html:115 .\home\templates\home\base.html:207
 msgid "Documents"
 msgstr "Dokumenty"
 
-#: .\board\templates\board\board.html:166
+#: .\board\templates\board\board.html:168
 msgid "No documents"
 msgstr "Brak dokumentów"
 
-#: .\board\templates\board\board.html:281
+#: .\board\templates\board\board.html:283
 #: .\board\templates\board\post_detail.html:52
 #: .\bookkeeping\templates\bookkeeping\asset_confirm_delete.html:57
 #: .\bookkeeping\templates\bookkeeping\asset_list.html:54
@@ -321,36 +321,36 @@ msgstr "Brak dokumentów"
 msgid "Edit"
 msgstr "Edytuj"
 
-#: .\board\templates\board\board.html:285
+#: .\board\templates\board\board.html:287
 msgid "documents"
 msgstr "dokumenty"
 
-#: .\board\templates\board\board.html:286
+#: .\board\templates\board\board.html:288
 #: .\tasks\templates\tasks\task_list.html:331
 msgid "Protected — cannot be deleted"
 msgstr "Chroniona — nie można usunąć"
 
-#: .\board\templates\board\board.html:287
+#: .\board\templates\board\board.html:289
 #, python-brace-format
 msgid "This category has {n} document(s). Deleting it will leave those documents without a category. Continue?"
 msgstr "Ta kategoria ma {n} dokument(ów). Usunięcie jej pozostawi te dokumenty bez kategorii. Kontynuować?"
 
-#: .\board\templates\board\board.html:288
+#: .\board\templates\board\board.html:290
 #, python-brace-format
 msgid "…and {n} more"
 msgstr "…i jeszcze {n}"
 
-#: .\board\templates\board\board.html:289
+#: .\board\templates\board\board.html:291
 #: .\tasks\templates\tasks\task_list.html:333
 msgid "Category name is required."
 msgstr "Nazwa kategorii jest wymagana."
 
-#: .\board\templates\board\board.html:290
+#: .\board\templates\board\board.html:292
 #: .\tasks\templates\tasks\task_list.html:334
 msgid "Failed to load categories."
 msgstr "Nie udało się wczytać kategorii."
 
-#: .\board\templates\board\board.html:291
+#: .\board\templates\board\board.html:293
 #: .\tasks\templates\tasks\task_list.html:335
 msgid "An error occurred."
 msgstr "Wystąpił błąd."
@@ -2403,9 +2403,9 @@ msgstr "Hasło"
 #: .\home\templates\home\password_reset_confirm.html:7
 #: .\home\templates\home\password_reset_confirm.html:20
 #: .\obywatele\templates\obywatele\my_profile.html:123
-#: .\templates\allauth\account\password_change.html:5
-#: .\templates\allauth\account\password_change.html:8
-#: .\templates\allauth\account\password_change.html:13
+#: .\templates\allauth\account\password_change.html:6
+#: .\templates\allauth\account\password_change.html:9
+#: .\templates\allauth\account\password_change.html:14
 #: .\templates\allauth\account\password_reset_from_key.html:4
 #: .\templates\allauth\account\password_reset_from_key.html:7
 #: .\templates\allauth\account\password_reset_from_key.html:17
@@ -2816,7 +2816,7 @@ msgstr "Branding"
 msgid "Upload a PNG graphic mark (longest side 512-1024 px, max 1 MB, transparent background recommended). Non-square images are letterboxed to a square on save. The mark replaces the default icon in the header and is the source for favicon and PWA icons."
 msgstr "Wgraj logo PNG (najdłuższy bok 512-1024 px, max 1 MB, przezroczyste tło zalecane). Obrazy nie-kwadratowe są wyrównywane do kwadratu przy zapisie. Logo zastępuje domyślną ikonę w nagłówku oraz jest źródłem dla faviconu i ikon PWA."
 
-#: .\home\templates\home\site_admin.html:184 .\site_settings\models.py:27
+#: .\home\templates\home\site_admin.html:184 .\site_settings\models.py:30
 msgid "Branding text"
 msgstr "Tekst marki"
 
@@ -2829,7 +2829,7 @@ msgstr "Nazwa wyświetlana obok logo. Pozostaw puste, aby użyć nazwy strony z 
 msgid "Max %(max)s characters."
 msgstr "Max %(max)s znaków."
 
-#: .\home\templates\home\site_admin.html:195 .\site_settings\models.py:35
+#: .\home\templates\home\site_admin.html:195 .\site_settings\models.py:38
 msgid "Brand mark"
 msgstr "Logo"
 
@@ -2853,7 +2853,7 @@ msgstr "Usuń"
 msgid "Used on light themes (Light, Official) and as source for favicon/PWA icons."
 msgstr "Używane na tematach jasnych (Light, Official) oraz jako źródło faviconu i ikon PWA."
 
-#: .\home\templates\home\site_admin.html:226 .\site_settings\models.py:43
+#: .\home\templates\home\site_admin.html:226 .\site_settings\models.py:46
 msgid "Brand mark (dark themes)"
 msgstr "Logo (tematy ciemne)"
 
@@ -3042,7 +3042,7 @@ msgid "Citizen has been banned"
 msgstr "Ta osoba została zbanowana"
 
 #: .\obywatele\management\commands\count_citizens.py:260
-#: .\obywatele\models.py:131
+#: .\obywatele\models.py:135
 msgid "User"
 msgstr "Użytkownik"
 
@@ -3234,35 +3234,35 @@ msgstr "Powiadomienia o nowych wiadomościach na czacie"
 msgid "Chat notifications"
 msgstr "Powiadomienia na czacie"
 
-#: .\obywatele\models.py:106
+#: .\obywatele\models.py:110
 msgid "New Candidate"
 msgstr "Nowy kandydat"
 
-#: .\obywatele\models.py:107
+#: .\obywatele\models.py:111
 msgid "User Activated"
 msgstr "Nowa osoba została zaakceptowana"
 
-#: .\obywatele\models.py:108
+#: .\obywatele\models.py:112
 msgid "User Blocked"
 msgstr "Osoba została zablokowana"
 
-#: .\obywatele\models.py:133
+#: .\obywatele\models.py:137
 msgid "Requested at"
 msgstr "Żądanie złożone dnia"
 
-#: .\obywatele\models.py:134
+#: .\obywatele\models.py:138
 msgid "Scheduled for"
 msgstr "Zaplanowane na"
 
-#: .\obywatele\models.py:135
+#: .\obywatele\models.py:139
 msgid "Reason for deletion"
 msgstr "Powód usunięcia"
 
-#: .\obywatele\models.py:138
+#: .\obywatele\models.py:142
 msgid "Deletion request"
 msgstr "Żądanie usunięcia"
 
-#: .\obywatele\models.py:139
+#: .\obywatele\models.py:143
 msgid "Deletion requests"
 msgstr "Żądanie usunięcia"
 
@@ -3977,35 +3977,35 @@ msgstr "Twoje żądanie usunięcia konta zostało anulowane."
 msgid "No active deletion request found."
 msgstr "Brak aktywnego żądania usunięcia."
 
-#: .\site_settings\models.py:13
+#: .\site_settings\models.py:16
 msgid "Onboarding category"
 msgstr "Formularz rejestracyjny"
 
-#: .\site_settings\models.py:14
+#: .\site_settings\models.py:17
 msgid "Posts from this category can be marked as required reading"
 msgstr "Posty z tej kategorii można oznaczyć jako lekturę obowiązkową"
 
-#: .\site_settings\models.py:19
+#: .\site_settings\models.py:22
 msgid "Onboarding documents"
 msgstr "Formularz rejestracyjny"
 
-#: .\site_settings\models.py:20
+#: .\site_settings\models.py:23
 msgid "Posts the user must read during onboarding"
 msgstr "Posty, które użytkownik musi przeczytać podczas wdrażania"
 
-#: .\site_settings\models.py:28
+#: .\site_settings\models.py:31
 msgid "Optional name displayed in the header next to the brand mark. Defaults to the site name from Django Sites if empty."
 msgstr "Opcjonalna nazwa wyświetlana w nagłówku obok logo. Domyślnie używa nazwy strony z Django Sites, gdy puste."
 
-#: .\site_settings\models.py:36
+#: .\site_settings\models.py:39
 msgid "Graphic mark (longest side 512-1024 px, max 1 MB). Non-square images are letterboxed to a square on save. Source for favicon and PWA icons."
 msgstr "Logo (najdłuższy bok 512-1024 px, max 1 MB). Obrazy nie-kwadratowe są wyrównywane do kwadratu przy zapisie. Źródło dla faviconu i ikon PWA."
 
-#: .\site_settings\models.py:44
+#: .\site_settings\models.py:47
 msgid "Optional variant for dark themes. Falls back to the main brand mark if empty."
 msgstr "Opcjonalny wariant dla tematów ciemnych. Fallback do głównego logo, gdy puste."
 
-#: .\site_settings\models.py:49
+#: .\site_settings\models.py:52
 msgid "Site settings"
 msgstr "Ustawienia witryny"
 
@@ -4584,12 +4584,7 @@ msgstr "Ten link wygasł lub jest nieprawidłowy. <a href=\"%(email_url)s\">Wyś
 msgid "Sign In"
 msgstr "Zaloguj się"
 
-#: .\templates\allauth\account\login.html:26
-#: .\templates\allauth\account\password_change.html:14
-msgid "Forgot Password?"
-msgstr "Zapomniałeś hasła?"
-
-#: .\templates\allauth\account\login.html:31
+#: .\templates\allauth\account\login.html:30
 msgid "Send a message to a group"
 msgstr "Wyślij wiadomość do grupy"
 
@@ -4643,24 +4638,29 @@ msgstr "Ustawiono podstawowy adres e-mail."
 msgid "Your primary e-mail address must be verified."
 msgstr "Twój podstawowy adres e-mail musi zostać zweryfikowany."
 
-#: .\templates\allauth\account\password_reset.html:6
-#: .\templates\allauth\account\password_reset.html:10
+#: .\templates\allauth\account\password_change.html:15
+msgid "Forgot Password?"
+msgstr "Zapomniałeś hasła?"
+
+#: .\templates\allauth\account\password_reset.html:7
+#: .\templates\allauth\account\password_reset.html:11
 #: .\templates\allauth\account\password_reset_done.html:6
 #: .\templates\allauth\account\password_reset_done.html:9
 msgid "Password Reset"
 msgstr "Zresetowanie hasła"
 
-#: .\templates\allauth\account\password_reset.html:15
+#: .\templates\allauth\account\password_reset.html:16
 msgid "Forgotten your password? Enter your e-mail address below, and we'll send you an e-mail allowing you to reset it."
 msgstr "Zapomniałeś swojego hasła? Wpisz poniżej swój adres e-mail, a wyślemy Ci wiadomość e-mail umożliwiającą jego zresetowanie."
 
-#: .\templates\allauth\account\password_reset.html:20
+#: .\templates\allauth\account\password_reset.html:22
 msgid "Reset My Password"
 msgstr "Odzyskaj hasło"
 
-#: .\templates\allauth\account\password_reset.html:23
-msgid "Please contact us if you have any trouble resetting your password."
-msgstr "Skontaktuj się z nami, jeśli masz problemy ze zresetowaniem hasła."
+#: .\templates\allauth\account\password_reset.html:27
+#, python-format
+msgid "Please <a href=\"%(contact_url)s\">contact us</a> if you have any trouble resetting your password."
+msgstr "<a href=\"%(contact_url)s\">Skontaktuj</a> się z nami jeśli masz problem z odzyskaniem hasła."
 
 #: .\templates\allauth\account\password_reset_done.html:15
 msgid "We have sent you an e-mail. Please contact us if you do not receive it within a few minutes."

@@ -1,3 +1,6 @@
+import os
+
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -67,6 +70,14 @@ class SiteSettings(models.Model):
         # bo favicon w karcie przeglądarki i ikony PWA są theme-independent (rządzi system OS, nie app theme)
         if self.brand_mark_dark:
             letterbox_to_square(self.brand_mark_dark.path)
+
+    def has_brand_derivatives(self):
+        """Check if derived branding files (favicon, apple-touch-icon, etc.) exist on disk."""
+        if not self.brand_mark:
+            return False
+        derived_dir = os.path.join(settings.MEDIA_ROOT, 'site_branding', 'derived')
+        favicon_path = os.path.join(derived_dir, 'favicon.ico')
+        return os.path.isfile(favicon_path)
 
     @classmethod
     def get(cls):

@@ -19,3 +19,4 @@ class UzytkownikTable(tables.Table):
             'data-column-toggle': 'true',
             'style': 'table-layout: auto;'
         }
+        paginate_by = False

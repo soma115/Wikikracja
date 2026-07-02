@@ -96,27 +96,29 @@
     <div class="board-posts-list">
       {% for post in group.posts %}
       <a href="{% url 'board:view_post' post.pk %}" class="board-post-row post-row-link">
+        <div class="d-flex align-items-center gap-2 w-100">
+          <div class="flex-fill min-w-0">
+            <div class="fw-semibold text-title-clamp">{{ post.title }}</div>
+            {% if post.subtitle %}
+            <div class="text-subtitle-clamp">{{ post.subtitle }}</div>
+            {% endif %}
+          </div>
+          <div class="d-flex align-items-center gap-2 flex-shrink-0">
+            {% if post.author %}
+              {% if post.author.uzytkownik.avatar %}
+                <img src="{{ post.author.uzytkownik.avatar.url }}" alt="{{ post.author.username }}" class="rounded-circle avatar-xs">
+              {% else %}
+                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white avatar-xs-fallback" style="background:{{ post.author.username|citizen_color }};">
+                  {{ post.author.username|slice:":2"|upper }}
+                </div>
+              {% endif %}
+            {% endif %}
+            <span class="text-meta">{{ post.updated|date:"d.m.Y" }}</span>
+          </div>
+        </div>
         {% if post.featured_image %}
         <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-featured-thumb flex-shrink-0">
         {% endif %}
-        <div class="flex-fill min-w-0">
-          <div class="fw-semibold text-title-clamp">{{ post.title }}</div>
-          {% if post.subtitle %}
-          <div class="text-subtitle-clamp">{{ post.subtitle }}</div>
-          {% endif %}
-        </div>
-        <div class="d-flex align-items-center gap-2 flex-shrink-0">
-          {% if post.author %}
-            {% if post.author.uzytkownik.avatar %}
-              <img src="{{ post.author.uzytkownik.avatar.url }}" alt="{{ post.author.username }}" class="rounded-circle avatar-xs">
-            {% else %}
-              <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white avatar-xs-fallback" style="background:{{ post.author.username|citizen_color }};">
-                {{ post.author.username|slice:":2"|upper }}
-              </div>
-            {% endif %}
-          {% endif %}
-          <span class="text-meta">{{ post.updated|date:"d.m.Y" }}</span>
-        </div>
       </a>
       {% endfor %}
     </div>
@@ -127,15 +129,12 @@
         {% for post in group.posts %}
         <div class="col-12 col-sm-6 col-lg-3">
           <a href="{% url 'board:view_post' post.pk %}" class="post-card-link">
-            {% if post.featured_image %}
-            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-featured-card-img">
-            {% endif %}
             <div class="card-body p-3 d-flex flex-column gap-2 flex-fill">
               <div class="fw-semibold text-title-clamp-2">{{ post.title }}</div>
               {% if post.subtitle %}
               <div class="text-subtitle-clamp-2">{{ post.subtitle }}</div>
               {% endif %}
-              <div class="d-flex align-items-center gap-2 mt-auto">
+              <div class="d-flex align-items-center gap-2">
                 {% if post.author %}
                   {% if post.author.uzytkownik.avatar %}
                     <img src="{{ post.author.uzytkownik.avatar.url }}" alt="{{ post.author.username }}" class="rounded-circle avatar-sm">
@@ -145,8 +144,11 @@
                     </div>
                   {% endif %}
                 {% endif %}
-                <span class="ms-auto text-meta">{{ post.updated|date:"d.m.Y" }}</span>
+                <span class="text-meta">{{ post.updated|date:"d.m.Y" }}</span>
               </div>
+              {% if post.featured_image %}
+              <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-featured-card-img">
+              {% endif %}
             </div>
           </a>
         </div>

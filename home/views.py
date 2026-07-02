@@ -817,7 +817,7 @@ def haslo(request: HttpRequest):
 def manifest(request):
     """Serve dynamic PWA manifest JSON"""
     ss = SiteSettings.get()
-    if ss.brand_mark:
+    if ss.has_brand_derivatives():
         derived_url = settings.MEDIA_URL + 'site_branding/derived/'
         version_q = f'?v={get_branding_version(ss)}'
         favicon_src = derived_url + 'favicon.ico' + version_q

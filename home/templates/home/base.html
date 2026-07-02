@@ -13,8 +13,8 @@
 
 	<!-- PWA Meta Tags -->
 	<link rel="manifest" href="{% url 'manifest' %}">
-	<link rel="icon" type="image/x-icon" href="{% if branding.brand_mark %}{{ MEDIA_URL }}site_branding/derived/favicon.ico?v={{ branding_version }}{% else %}{% static 'home/images/favicon.ico' %}{% endif %}">
-	<link rel="apple-touch-icon" href="{% if branding.brand_mark %}{{ MEDIA_URL }}site_branding/derived/apple-touch-icon.png?v={{ branding_version }}{% else %}{% static 'home/images/favicon.ico' %}{% endif %}">
+	<link rel="icon" type="image/x-icon" href="{% if branding.has_brand_derivatives %}{{ MEDIA_URL }}site_branding/derived/favicon.ico?v={{ branding_version }}{% else %}{% static 'home/images/favicon.ico' %}{% endif %}">
+	<link rel="apple-touch-icon" href="{% if branding.has_brand_derivatives %}{{ MEDIA_URL }}site_branding/derived/apple-touch-icon.png?v={{ branding_version }}{% else %}{% static 'home/images/favicon.ico' %}{% endif %}">
 	<meta name="theme-color" content="#00d1b2">
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
