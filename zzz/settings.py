@@ -274,8 +274,16 @@ _log_to_file = LOGGING_DESTINATION == "file"
 _active_handler = "file" if _log_to_file else "console"
 
 # Just for suppressing "Using selector: EpollSelector"
-logging.getLogger('asyncio').setLevel(logging.ERROR)
 logging.getLogger('urllib3.connectionpool').setLevel(logging.ERROR)
+
+
+class CancelledErrorFilter(logging.Filter):
+    """Filter to suppress asyncio CancelledError logs from normal client disconnects."""
+    def filter(self, record):
+        # Suppress only the specific CancelledError message from asyncio
+        if record.name == 'asyncio' and 'CancelledError' in record.getMessage():
+            return False
+        return True
 
 LOGGING_HANDLERS = {
     'console': {
@@ -283,6 +291,7 @@ LOGGING_HANDLERS = {
         'class': 'logging.StreamHandler',
         'formatter': 'verbose',
         'stream': 'ext://sys.stdout',
+        'filters': ['cancelled_error_filter'],
     },
 }
 if _log_to_file:
@@ -291,6 +300,7 @@ if _log_to_file:
         'class': 'logging.FileHandler',
         'filename': LOG_FILE,
         'formatter': 'verbose',
+        'filters': ['cancelled_error_filter'],
     }
 
 LOGGING = {
@@ -302,34 +312,22 @@ LOGGING = {
             'datefmt': '%D %H:%M:%S'
         },
     },
+    'filters': {
+        'cancelled_error_filter': {
+            '()': CancelledErrorFilter,
+        },
+    },
     'handlers': LOGGING_HANDLERS,
     'loggers': {
         '': {
             'handlers': [_active_handler],
             'level': LOG_LEVEL
         },
-        # 'django': {
-        #     'handlers': [_active_handler],
-        #     'level': 'INFO'
-        # },
         # Urls:
         'django.channels.server': {
             'handlers': [_active_handler],
             'level': 'ERROR'
         },
-        # SQL logs:
-        # 'django.db.backends': {
-        #     'handlers': [_active_handler],
-        #     'level': 'DEBUG'
-        # }
-        # 'glosowania': {
-        #     'handlers': [_active_handler],
-        #     'level': 'INFO'
-        # },
-        # 'obywatele': {
-        #     'handlers': [_active_handler],
-        #     'level': 'INFO'
-        # },
     },
 }
 
