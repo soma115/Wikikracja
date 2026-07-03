@@ -139,7 +139,7 @@ class ProfileForm(forms.ModelForm):
         self.fields['first_name'].error_messages['required'] = _('First name is required.')
         self.fields['last_name'].error_messages['required'] = _('Last name is required.')
         self.fields['phone'].error_messages['required'] = _('Phone number is required.')
-        self.fields['city'].error_messages['required'] = _('City is required.')
+        self.fields['city'].error_messages['required'] = _('City / Commune is required.')
         self.fields['job'].error_messages['required'] = _('Job is required.')
 
 
@@ -185,7 +185,7 @@ class OnboardingDetailsForm(forms.ModelForm):
         self.fields['first_name'].error_messages['required'] = _('First name is required.')
         self.fields['last_name'].error_messages['required'] = _('Last name is required.')
         self.fields['phone'].error_messages['required'] = _('Phone number is required.')
-        self.fields['city'].error_messages['required'] = _('City is required.')
+        self.fields['city'].error_messages['required'] = _('City / Commune is required.')
         self.fields['job'].error_messages['required'] = _('Job is required.')
 
 

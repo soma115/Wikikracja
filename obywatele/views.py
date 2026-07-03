@@ -628,7 +628,7 @@ def my_profile(request: HttpRequest):
     asset_fields = [
         {
             'field': 'city',
-            'label': _('City')
+            'label': _('City / Commune')
         },
         {
             'field': 'phone',

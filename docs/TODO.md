@@ -1,23 +1,14 @@
 # OGÓLNE
-- Zmienić Miejscowość/Powiat
-- Dodaj Województwo wybiernalne z rozwijanej listy
-- Dlazcego jest Bitcoin na starcie?
+- Dlaczego jest Bitcoin na starcie?
 - Powiadomienia email i wydarzeniach z kalendarza powinny być.
-
-- W Zadaniach suma punktów Sukces/Porażka jest podwojona.
 - wyczyścić http://127.0.0.1:8000/site-settings/
 - "Pierwsze kroki" na Pulpicie zamienić na listę linków
 - rekurencyjne głosowania
-- Zadania: termin zakończenia
-- Zadania: co blokuje wykonanie
 - Domyślnie czaty wyciszone, powiadomienia włączają się dopiero jak ktoś się odezwie.
-- Chat: Mniej powiadomień - tylko tam gdzie się wypowiedziałem.
-- Czat: powiadomienia przychodzą wielokrotnie na Windows - trzeba to jakoś ograniczyć.
 - Do formularza wstępnego: Czy jesteś zwolennikiem DB? Czy zgadzasz się na przestrzeganie naszych zasad?
 - Zalogowanie się w systemie oznacza zgodę na warunki. Będąc członkiem grupy masz wpływ na przepisy w takim samym stopniu jak każdy inny obywatel.
 - prywatne notatki o człowieku
 - Dokończyć Fixtures i dodać je do skryptu instalacyjnego. Fixtures z przepisami, pokojami i ogłoszeniami. Start: (publiczna strona startowa dla niezalogowanych) i Footer: (publiczna stopka). Customowy email. Wszystkie te elementy dać do nowego działu.
-
 - Bookkeeping: reguły cykliczne: składka, abonament z i do nas
 - Backup kontaktów, przepisów, ogłoszeń, itd. Każdy powinien móc zrobić w postaci fixtures i md.
 - Wszędzie: Ograniczyć możliwość dodawania treść po to żeby uniknąć manipulacji polegającej na tym, że zły aktor zarzuca grupę dużą ilością głosowań i przemyca w ten sposób niekorzystne dla grupy rozwiązania.
@@ -27,6 +18,9 @@
 
 # ZADANIA (TASKS)
 
+- W Zadaniach suma punktów Sukces/Porażka jest podwojona.
+- Zadania: termin zakończenia
+- Zadania: co blokuje wykonanie
 - Design szczegółów zadania do poprawienia (wygląd strony szczegółów)
 - Opis do Tasks: Pomysł przechodzi do działu "W realizacji" jeśli zaistnieją 2 warunki: - ktoś wziął na siebie realizację projektu - zwolenników realizacji jest o 2 więcej niż przeciwników.
 - Filtr, który pokazuje tylko moje zadania
@@ -34,6 +28,9 @@
 - Task jaki eksperyment: hipoteza, test, wynik. Spodziewamy efekt, eksperymenty, rzeczywisty efekt.
 
 # CHAT
+
+- Chat: Mniej powiadomień - tylko tam gdzie się wypowiedziałem.
+- Czat: powiadomienia przychodzą wielokrotnie na Windows - trzeba to jakoś ograniczyć.
 
 ## Błędy
 

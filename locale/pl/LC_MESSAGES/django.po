@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-03 01:55+0200\n"
+"POT-Creation-Date: 2026-07-03 21:01+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -522,9 +522,7 @@ msgstr "Adres"
 
 #: .\bookkeeping\models.py:96
 #: .\bookkeeping\templates\bookkeeping\partner_list.html:27
-#: .\obywatele\models.py:66 .\obywatele\templates\obywatele\my_profile.html:144
-#: .\obywatele\templates\obywatele\start.html:96
-#: .\obywatele\templates\obywatele\szczegoly.html:209 .\obywatele\views.py:631
+#: .\obywatele\models.py:66
 msgid "City"
 msgstr "Miejscowość"
 
@@ -3002,8 +3000,8 @@ msgid "Phone number is required."
 msgstr "Numer telefonu jest wymagany"
 
 #: .\obywatele\forms.py:142 .\obywatele\forms.py:188
-msgid "City is required."
-msgstr "Miejscowość jest wymagana"
+msgid "City / Commune is required."
+msgstr "Miejscowość / Powiat jest wymagany"
 
 #: .\obywatele\forms.py:143 .\obywatele\forms.py:189
 msgid "Job is required."
@@ -3120,7 +3118,7 @@ msgid "Skills, knowledge, and hobbies"
 msgstr "Umiejętności, wiedza i hobby"
 
 #: .\obywatele\models.py:69 .\obywatele\templates\obywatele\my_profile.html:150
-#: .\obywatele\views.py:651
+#: .\obywatele\templates\obywatele\szczegoly.html:217 .\obywatele\views.py:651
 msgid "Skills / Knowledge / Hobby"
 msgstr "Umiejętności / Wiedza / Hobby"
 
@@ -3165,7 +3163,7 @@ msgid "Things one would like to learn"
 msgstr "Czego chce się nauczyć"
 
 #: .\obywatele\models.py:74 .\obywatele\templates\obywatele\my_profile.html:151
-#: .\obywatele\templates\obywatele\szczegoly.html:245 .\obywatele\views.py:671
+#: .\obywatele\templates\obywatele\szczegoly.html:237 .\obywatele\views.py:671
 msgid "I want to learn"
 msgstr "Chcę się nauczyć"
 
@@ -3174,7 +3172,7 @@ msgid "If running a business"
 msgstr "Jaki prowadzisz biznes. Np adres www."
 
 #: .\obywatele\models.py:75 .\obywatele\templates\obywatele\my_profile.html:149
-#: .\obywatele\templates\obywatele\szczegoly.html:249 .\obywatele\views.py:647
+#: .\obywatele\templates\obywatele\szczegoly.html:241 .\obywatele\views.py:647
 msgid "Business"
 msgstr "Biznes"
 
@@ -3192,7 +3190,7 @@ msgid "In your own words please explain why do you want join our group"
 msgstr "Wyjaśnij własnymi słowami dlaczego chcesz dołączyć do naszej grupy"
 
 #: .\obywatele\models.py:77 .\obywatele\templates\obywatele\my_profile.html:156
-#: .\obywatele\templates\obywatele\szczegoly.html:261 .\obywatele\views.py:675
+#: .\obywatele\templates\obywatele\szczegoly.html:245 .\obywatele\views.py:675
 msgid "Why do you want to join?"
 msgstr "Dlaczego chcesz należeć do grupy?"
 
@@ -3469,6 +3467,12 @@ msgstr "Wprowadzony przez"
 #: .\obywatele\templates\obywatele\my_profile.html:138
 msgid "Contact & Resources"
 msgstr "Kontakt i Zasoby"
+
+#: .\obywatele\templates\obywatele\my_profile.html:144
+#: .\obywatele\templates\obywatele\start.html:96
+#: .\obywatele\templates\obywatele\szczegoly.html:209 .\obywatele\views.py:631
+msgid "City / Commune"
+msgstr "Miejscowość / Powiat"
 
 #: .\obywatele\templates\obywatele\my_profile.html:188
 msgid "Auto (browser)"
@@ -3790,26 +3794,6 @@ msgstr "Szczegóły"
 #: .\obywatele\templates\obywatele\szczegoly.html:201 .\obywatele\views.py:635
 msgid "Communicator / Phone"
 msgstr "Komunikator / Telefon"
-
-#: .\obywatele\templates\obywatele\szczegoly.html:217
-msgid "Hobby"
-msgstr "Hobby"
-
-#: .\obywatele\templates\obywatele\szczegoly.html:237
-msgid "Skills"
-msgstr "Umiejętności"
-
-#: .\obywatele\templates\obywatele\szczegoly.html:241
-msgid "Knowledge"
-msgstr "Wiedza"
-
-#: .\obywatele\templates\obywatele\szczegoly.html:253
-msgid "Gift"
-msgstr "Prezent"
-
-#: .\obywatele\templates\obywatele\szczegoly.html:257
-msgid "Other"
-msgstr "Inne"
 
 #: .\obywatele\templates\obywatele\wspolnota.html:11
 msgid "Community Review"

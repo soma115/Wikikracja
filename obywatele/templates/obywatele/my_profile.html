@@ -141,7 +141,7 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
       </a>
     </div>
     <div class="card-body">
-      <div class="profile-row"><span class="profile-key">{% trans "City" %}</span><span class="profile-val {% if not profile.city %}empty{% endif %}">{{ profile.city|default:"—" }}</span></div>
+      <div class="profile-row"><span class="profile-key">{% trans "City / Commune" %}</span><span class="profile-val {% if not profile.city %}empty{% endif %}">{{ profile.city|default:"—" }}</span></div>
       <div class="profile-row"><span class="profile-key">{% trans "Voivodeship" %}</span><span class="profile-val {% if not profile.voivodeship %}empty{% endif %}">{{ profile.voivodeship.name|default:"—" }}</span></div>
       <div class="profile-row"><span class="profile-key">{% trans "Communicator or Phone" %}</span><span class="profile-val {% if not profile.phone %}empty{% endif %}">{{ profile.phone|default:"—" }}</span></div>
       <div class="profile-row"><span class="profile-key">{% trans "Job" %}</span><span class="profile-val {% if not profile.job %}empty{% endif %}">{{ profile.job|default:"—" }}</span></div>

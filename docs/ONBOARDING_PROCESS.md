@@ -29,8 +29,8 @@ Proces przyjmowania nowej osoby składa się z następujących etapów:
 - Email (wymagany, unikalny)
 
 **Powiadomienia:**
-- Email z linkiem potwierdzającym jest wysyłany automatycznie
-- Po potwierdzeniu emaila wysyłany jest drugi email z linkiem do formularzu onboarding
+- Email z linkiem potwierdzającym jest wysyłany za pomocą `CustomSignupForm.save()` (AllAuth nie wysyła automatycznie dla custom form)
+- Po potwierdzeniu emaila wysyłany jest drugi email z linkiem do formularzu onboarding (signal handler `email_confirmed`)
 - Wszyscy aktywni obywatele z włączonymi powiadomieniami otrzymują informację o nowym kandydacie
 
 **Konfiguracja:**
@@ -49,7 +49,8 @@ Proces przyjmowania nowej osoby składa się z następujących etapów:
 
 **Bezpieczeństwo:**
 - Linki potwierdzające są podpisywane cyfrowo (EmailConfirmationHMAC)
-- Linki mają ograniczony czas ważności (konfigurowalne przez `DELETE_INACTIVE_USER_AFTER`)
+- Linki mają ograniczony czas ważności: 7 dni (konfigurowalne przez `ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS`)
+- Po potwierdzeniu emaila użytkownik jest przekierowany do formularza onboarding z podpisanym tokenem
 
 ### 3. Formularz onboarding
 
@@ -61,7 +62,7 @@ Proces przyjmowania nowej osoby składa się z następujących etapów:
 - Imię (first_name)
 - Nazwisko (last_name)
 - Telefon / komunikator (phone)
-- Miasto (city)
+- Miejscowość (city)
 - Zawód (job)
 - Dlaczego chcesz dołączyć? (why)
 
@@ -141,7 +142,8 @@ Istnieje możliwość polecenia nowej osoby przez istniejącego obywatela:
 4. Polecający automatycznie przyznaje kandydatowi +1 akceptację
 5. Wszyscy obywatele otrzymują powiadomienie o nowym kandydacie
 6. Kandydat nie musi potwierdzać email (jeśli jest polecony)
-7. Pozostałe kroki są takie same jak w standardowym procesie
+7. EmailAddress jest tworzony z `verified=True` dla poleconych użytkowników
+8. Pozostałe kroki są takie same jak w standardowym procesie
 
 ## Konfiguracja
 
@@ -167,6 +169,26 @@ DEFAULT_FROM_EMAIL=noreply@yourdomain.com
 EMAIL_SEND_DELAY_SECONDS=2
 ```
 
+Kluczowe ustawienia AllAuth w `settings.py`:
+
+```python
+# Email verification
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # Wymaga potwierdzenia emaila
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 7  # Linki ważne 7 dni
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True  # Pozwala na GET requests
+
+# Login
+ACCOUNT_LOGIN_METHODS = {'email'}  # Logowanie tylko przez email
+
+# Signup
+ACCOUNT_SIGNUP_PASSWORD_GENERATION = True  # Auto-generuj hasło
+ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = False  # Nie wymaga powtórnego hasła
+
+# Custom components
+ACCOUNT_FORMS = {'signup': 'obywatele.forms.CustomSignupForm'}
+ACCOUNT_ADAPTER = 'obywatele.adapter.CustomAccountAdapter'
+```
+
 ## Modele danych
 
 ### Uzytkownik (Citizen)
@@ -177,6 +199,17 @@ Kluczowe pola związane z onboarding:
 - `polecajacy` - Nazwa użytkownika polecającego (jeśli dotyczy)
 - `data_przyjecia` - Data przyjęcia do społeczności
 - `reputation` - Punkty reputacji
+
+### EmailAddress (AllAuth)
+
+Model AllAuth do zarządzania emailami użytkowników:
+
+- `user` - FK do User
+- `email` - adres email
+- `verified` - boolean (czy email został potwierdzony)
+- `primary` - boolean (czy to główny email)
+
+**Uwaga:** Migracja `0027_auto_verify_email_addresses` naprawia brakujące rekordy EmailAddress dla aktywnych użytkowników.
 
 ### Rate (Głos)
 
@@ -212,9 +245,10 @@ Użytkownicy mogą zarządzać preferencjami powiadomień w swoim profilu:
 ## Bezpieczeństwo
 
 ### Ochrona przed duplikatami
-- Unikalne ograniczenie na polu `email` w bazie danych
-- Obsługa błędu `MultipleObjectsReturned` w backendzie autoryzacji
-- Mechanizm usuwania duplikatów w migracjach
+- Unikalne ograniczenie na polu `email` w bazie danych (migracja `0012_alter_user_email_unique`)
+- Obsługa błędu `MultipleObjectsReturned` w `CaseInsensitiveEmailBackend`
+- Mechanizm usuwania duplikatów w migracji `0011_remove_duplicate_emails`
+- Migracja `0027_auto_verify_email_addresses` naprawia brakujące EmailAddress dla aktywnych użytkowników
 
 ### Ochrona przed botami
 - CAPTCHA w formularzu rejestracyjnym
