@@ -15,15 +15,22 @@ def create_and_verify_email_addresses(apps, schema_editor):
     # 1. Tworzy brakujące EmailAddress dla aktywnych użytkowników
     created_count = 0
     for user in User.objects.filter(is_active=True):
-        email_address, created = EmailAddress.objects.get_or_create(
-            user=user,
-            email=user.email,
-            defaults={
-                'verified': True,
-                'primary': True
-            }
-        )
-        if created:
+        # Sprawdź czy użytkownik ma już EmailAddress
+        existing = EmailAddress.objects.filter(user=user).first()
+        
+        if existing:
+            # Zaktualizuj istniejący, jeśli nie jest zweryfikowany
+            if not existing.verified:
+                existing.verified = True
+                existing.save()
+        else:
+            # Utwórz nowy EmailAddress
+            EmailAddress.objects.create(
+                user=user,
+                email=user.email,
+                verified=True,
+                primary=True
+            )
             created_count += 1
 
     # 2. Ustawia verified=True dla niepotwierdzonych EmailAddress aktywnych użytkowników
