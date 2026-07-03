@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
                 'unique_together': {('country', 'name')},
             },
         ),
-        migrations.AlterField(
+        migrations.AddField(
             model_name='uzytkownik',
             name='voivodeship',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='citizens', to='obywatele.region', verbose_name='Voivodeship'),
