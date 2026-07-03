@@ -142,20 +142,17 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
     </div>
     <div class="card-body">
       <div class="profile-row"><span class="profile-key">{% trans "City" %}</span><span class="profile-val {% if not profile.city %}empty{% endif %}">{{ profile.city|default:"—" }}</span></div>
+      <div class="profile-row"><span class="profile-key">{% trans "Voivodeship" %}</span><span class="profile-val {% if not profile.voivodeship %}empty{% endif %}">{{ profile.voivodeship.name|default:"—" }}</span></div>
       <div class="profile-row"><span class="profile-key">{% trans "Communicator or Phone" %}</span><span class="profile-val {% if not profile.phone %}empty{% endif %}">{{ profile.phone|default:"—" }}</span></div>
       <div class="profile-row"><span class="profile-key">{% trans "Job" %}</span><span class="profile-val {% if not profile.job %}empty{% endif %}">{{ profile.job|default:"—" }}</span></div>
       <div class="profile-row"><span class="profile-key">{% trans "Responsibilities" %}</span><span class="profile-val {% if not profile.responsibilities %}empty{% endif %}">{{ profile.responsibilities|default:"—" }}</span></div>
       <div class="profile-row"><span class="profile-key">{% trans "Business" %}</span><span class="profile-val {% if not profile.business %}empty{% endif %}">{{ profile.business|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "Hobby" %}</span><span class="profile-val {% if not profile.hobby %}empty{% endif %}">{{ profile.hobby|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "Skills" %}</span><span class="profile-val {% if not profile.skills %}empty{% endif %}">{{ profile.skills|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "Knowledge" %}</span><span class="profile-val {% if not profile.knowledge %}empty{% endif %}">{{ profile.knowledge|default:"—" }}</span></div>
+      <div class="profile-row"><span class="profile-key">{% trans "Skills / Knowledge / Hobby" %}</span><span class="profile-val {% if not profile.skills_knowledge_hobby %}empty{% endif %}">{{ profile.skills_knowledge_hobby|default:"—" }}</span></div>
       <div class="profile-row"><span class="profile-key">{% trans "I want to learn" %}</span><span class="profile-val {% if not profile.want_to_learn %}empty{% endif %}">{{ profile.want_to_learn|default:"—" }}</span></div>
       <div class="profile-row"><span class="profile-key">{% trans "To give away" %}</span><span class="profile-val {% if not profile.to_give_away %}empty{% endif %}">{{ profile.to_give_away|default:"—" }}</span></div>
       <div class="profile-row"><span class="profile-key">{% trans "To borrow" %}</span><span class="profile-val {% if not profile.to_borrow %}empty{% endif %}">{{ profile.to_borrow|default:"—" }}</span></div>
       <div class="profile-row"><span class="profile-key">{% trans "For sale" %}</span><span class="profile-val {% if not profile.for_sale %}empty{% endif %}">{{ profile.for_sale|default:"—" }}</span></div>
       <div class="profile-row"><span class="profile-key">{% trans "I need" %}</span><span class="profile-val {% if not profile.i_need %}empty{% endif %}">{{ profile.i_need|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "Gift" %}</span><span class="profile-val {% if not profile.gift %}empty{% endif %}">{{ profile.gift|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "Other" %}</span><span class="profile-val {% if not profile.other %}empty{% endif %}">{{ profile.other|default:"—" }}</span></div>
       <div class="profile-row"><span class="profile-key">{% trans "Why do you want to join?" %}</span><span class="profile-val {% if not profile.why %}empty{% endif %}">{{ profile.why|default:"—" }}</span></div>
     </div>
   </div>

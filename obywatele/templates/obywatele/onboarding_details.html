@@ -24,11 +24,10 @@
   {{ form.last_name|as_crispy_field }}
   {{ form.phone|as_crispy_field }}
   {{ form.city|as_crispy_field }}
+  {{ form.voivodeship|as_crispy_field }}
   {{ form.job|as_crispy_field }}
-  {{ form.hobby|as_crispy_field }}
+  {{ form.skills_knowledge_hobby|as_crispy_field }}
   {{ form.business|as_crispy_field }}
-  {{ form.skills|as_crispy_field }}
-  {{ form.knowledge|as_crispy_field }}
   {{ form.why|as_crispy_field }}
 
   <button type="submit" class="btn btn-info btn-sm">{% trans "Save form" %}</button>

@@ -32,6 +32,12 @@
 			{{ profile_form.city|as_crispy_field }}
 		</div>
 		<div class="col-lg-4 col-sm-12">
+			{{ profile_form.voivodeship|as_crispy_field }}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-lg-4 col-sm-12">
 			{{ profile_form.job|as_crispy_field }}
 		</div>
 	</div>
@@ -42,7 +48,7 @@
 
 	<div class="row">
 		<div class="col-lg-6 col-sm-12">
-			{{ profile_form.hobby|as_crispy_field }}
+			{{ profile_form.skills_knowledge_hobby|as_crispy_field }}
 		</div>
 		<div class="col-lg-6 col-sm-12">
 			{{ profile_form.business|as_crispy_field }}
@@ -51,19 +57,7 @@
 
 	<div class="row">
 		<div class="col-lg-6 col-sm-12">
-			{{ profile_form.skills|as_crispy_field }}
-		</div>
-		<div class="col-lg-6 col-sm-12">
-			{{ profile_form.knowledge|as_crispy_field }}
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="col-lg-6 col-sm-12">
 			{{ profile_form.want_to_learn|as_crispy_field }}
-		</div>
-		<div class="col-lg-6 col-sm-12">
-			{{ profile_form.other|as_crispy_field }}
 		</div>
 	</div>
 

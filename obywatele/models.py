@@ -12,6 +12,33 @@ from django.utils.translation import gettext_lazy as _
 User = get_user_model()
 
 
+class Country(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name=_('Country name'))
+    code = models.CharField(max_length=2, unique=True, verbose_name=_('ISO code'))
+
+    class Meta:
+        verbose_name = _('Country')
+        verbose_name_plural = _('Countries')
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+
+class Region(models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name='regions', verbose_name=_('Country'))
+    name = models.CharField(max_length=100, verbose_name=_('Region name'))
+
+    class Meta:
+        verbose_name = _('Region')
+        verbose_name_plural = _('Regions')
+        ordering = ('country', 'name')
+        unique_together = ('country', 'name')
+
+    def __str__(self):
+        return f"{self.name} ({self.country.code})"
+
+
 class Uzytkownik(models.Model):
     class OnboardingStatus(models.TextChoices):
         EMAIL_ENTERED = 'email_entered', _('Email entered')
@@ -37,19 +64,16 @@ class Uzytkownik(models.Model):
 
     phone = models.CharField(null=True, blank=True, max_length=72, help_text=_('Preferred communicator or phone number'), verbose_name=_('Phone number'))
     city = models.CharField(null=True, blank=True, max_length=72, help_text=_('Where one spend most of their time'), verbose_name=_('City'))
+    voivodeship = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True, blank=True, related_name='citizens', verbose_name=_('Voivodeship'))
     responsibilities = models.CharField(null=True, blank=True, max_length=622, help_text=_('Tasks performed in our group'), verbose_name=_('Responsibilities'))
-    hobby = models.CharField(null=True, blank=True, max_length=622, help_text=_('Hobbies one have'), verbose_name=_('Hobby'))
+    skills_knowledge_hobby = models.CharField(null=True, blank=True, max_length=1866, help_text=_('Skills, knowledge, and hobbies'), verbose_name=_('Skills / Knowledge / Hobby'))
     to_give_away = models.CharField(null=True, blank=True, max_length=622, help_text=_('Things you are willing to give away for free'), verbose_name=_('To give away'))
     to_borrow = models.CharField(null=True, blank=True, max_length=622, help_text=_('Stuff you can borrow to others'), verbose_name=_('To borrow'))
     for_sale = models.CharField(null=True, blank=True, max_length=622, help_text=_('Stuff you have for sale'), verbose_name=_('For sale'))
     i_need = models.CharField(null=True, blank=True, max_length=622, help_text=_('What do you need'), verbose_name=_('I need'))
-    skills = models.CharField(null=True, blank=True, max_length=622, help_text=_('Practical skills one have'), verbose_name=_('Skills'))
-    knowledge = models.CharField(null=True, blank=True, max_length=622, help_text=_('Knowledge one have'), verbose_name=_('Knowledge'))
     want_to_learn = models.CharField(null=True, blank=True, max_length=622, help_text=_('Things one would like to learn'), verbose_name=_('I want to learn'))
     business = models.CharField(null=True, blank=True, max_length=622, help_text=_('If running a business'), verbose_name=_('Business'))
     job = models.CharField(null=True, blank=True, max_length=622, help_text=_('Profession'), verbose_name=_('Job'))
-    gift = models.CharField(null=True, blank=True, max_length=622, help_text=_('What gift would you like to receive'), verbose_name=_('Gift'))
-    other = models.CharField(null=True, blank=True, max_length=622, help_text=_('Other things worth mentioning'), verbose_name=_('Other'))
     why = models.CharField(null=True, blank=True, max_length=662, help_text=_("In your own words please explain why do you want join our group"), verbose_name=_("Why do you want to join?"))
 
     avatar = models.ImageField(
@@ -74,7 +98,7 @@ class Uzytkownik(models.Model):
     email_notifications_glosowania = models.BooleanField(default=True, help_text=_('Receive notifications about law proposals and voting'), verbose_name=_('Voting notifications'))
     email_notifications_chat = models.BooleanField(default=True, help_text=_('Receive notifications about new chat messages'), verbose_name=_('Chat notifications'))
 
-    ONBOARDING_FORM_FIELDS = ('phone', 'responsibilities', 'city', 'hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'skills', 'knowledge', 'want_to_learn', 'business', 'job', 'gift', 'other', 'why')
+    ONBOARDING_FORM_FIELDS = ('phone', 'responsibilities', 'city', 'voivodeship', 'skills_knowledge_hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'want_to_learn', 'business', 'job', 'why')
 
     @property
     def form_completion_percent(self) -> int:

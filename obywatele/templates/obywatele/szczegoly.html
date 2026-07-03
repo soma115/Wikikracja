@@ -214,8 +214,8 @@
               <td>{{ b.responsibilities|default:"—" }}</td>
             </tr>
             <tr>
-              <th scope="row">{% trans "Hobby" %}</th>
-              <td>{{ b.hobby|default:"—" }}</td>
+              <th scope="row">{% trans "Skills / Knowledge / Hobby" %}</th>
+              <td>{{ b.skills_knowledge_hobby|default:"—" }}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "To give away" %}</th>
@@ -234,28 +234,12 @@
               <td>{{ b.i_need|default:"—" }}</td>
             </tr>
             <tr>
-              <th scope="row">{% trans "Skills" %}</th>
-              <td>{{ b.skills|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Knowledge" %}</th>
-              <td>{{ b.knowledge|default:"—" }}</td>
-            </tr>
-            <tr>
               <th scope="row">{% trans "I want to learn" %}</th>
               <td>{{ b.want_to_learn|default:"—" }}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "Business" %}</th>
               <td>{{ b.business|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Gift" %}</th>
-              <td>{{ b.gift|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Other" %}</th>
-              <td>{{ b.other|default:"—" }}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "Why do you want to join?" %}</th>

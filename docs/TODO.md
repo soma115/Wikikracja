@@ -1,6 +1,6 @@
 # OGÓLNE
 - Zmienić Miejscowość/Powiat
-- Dodać Województwo wybiernalne
+- Dodaj Województwo wybiernalne z rozwijanej listy
 - Dlazcego jest Bitcoin na starcie?
 - Powiadomienia email i wydarzeniach z kalendarza powinny być.
 

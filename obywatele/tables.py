@@ -12,7 +12,7 @@ class UzytkownikTable(tables.Table):
     
     class Meta:
         model = Uzytkownik
-        fields = ('uid', 'city', 'responsibilities', 'hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'skills', 'knowledge', 'want_to_learn', 'business', 'job', 'other', 'why')
+        fields = ('uid', 'city', 'responsibilities', 'skills_knowledge_hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'want_to_learn', 'business', 'job', 'why')
         template_name = "django_tables2/bootstrap5.html"
         attrs = {
             'class': 'table table-hover table-sm align-middle mb-0',

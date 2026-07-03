@@ -181,8 +181,7 @@ def wspolnota(request: HttpRequest):
     pending_count = User.objects.filter(is_active=False).count()
 
     # --- assets & skills ---
-    skills_count = Uzytkownik.objects.exclude(skills__isnull=True).exclude(skills='').count()
-    knowledge_count = Uzytkownik.objects.exclude(knowledge__isnull=True).exclude(knowledge='').count()
+    skills_knowledge_hobby_count = Uzytkownik.objects.exclude(skills_knowledge_hobby__isnull=True).exclude(skills_knowledge_hobby='').count()
     give_away_count = Uzytkownik.objects.exclude(to_give_away__isnull=True).exclude(to_give_away='').count()
     borrow_count = Uzytkownik.objects.exclude(to_borrow__isnull=True).exclude(to_borrow='').count()
     for_sale_count = Uzytkownik.objects.exclude(for_sale__isnull=True).exclude(for_sale='').count()
@@ -209,8 +208,7 @@ def wspolnota(request: HttpRequest):
         'member_count': pop,
         'active_pct': active_pct,
         'pending_count': pending_count,
-        'skills_count': skills_count,
-        'knowledge_count': knowledge_count,
+        'skills_knowledge_hobby_count': skills_knowledge_hobby_count,
         'give_away_count': give_away_count,
         'borrow_count': borrow_count,
         'for_sale_count': for_sale_count,
@@ -567,13 +565,11 @@ def dodaj(request: HttpRequest):
                 candidate_profile.phone = profile_form.cleaned_data['phone']
                 candidate_profile.responsibilities = profile_form.cleaned_data['responsibilities']
                 candidate_profile.city = profile_form.cleaned_data['city']
-                candidate_profile.hobby = profile_form.cleaned_data['hobby']
-                candidate_profile.skills = profile_form.cleaned_data['skills']
-                candidate_profile.knowledge = profile_form.cleaned_data['knowledge']
+                candidate_profile.voivodeship = profile_form.cleaned_data['voivodeship']
+                candidate_profile.skills_knowledge_hobby = profile_form.cleaned_data['skills_knowledge_hobby']
                 candidate_profile.want_to_learn = profile_form.cleaned_data['want_to_learn']
                 candidate_profile.business = profile_form.cleaned_data['business']
                 candidate_profile.job = profile_form.cleaned_data['job']
-                candidate_profile.other = profile_form.cleaned_data['other']
                 candidate_profile.save()
 
                 # Since you proposed new person,
@@ -651,8 +647,8 @@ def my_profile(request: HttpRequest):
             'label': _('Business')
         },
         {
-            'field': 'hobby',
-            'label': _('Hobby')
+            'field': 'skills_knowledge_hobby',
+            'label': _('Skills / Knowledge / Hobby')
         },
         {
             'field': 'to_give_away',
@@ -673,22 +669,6 @@ def my_profile(request: HttpRequest):
         {
             'field': 'want_to_learn',
             'label': _('I want to learn')
-        },
-        {
-            'field': 'skills',
-            'label': _('Skills')
-        },
-        {
-            'field': 'knowledge',
-            'label': _('Knowledge')
-        },
-        {
-            'field': 'gift',
-            'label': _('Gift')
-        },
-        {
-            'field': 'other',
-            'label': _('Other')
         },
         {
             'field': 'why',
@@ -723,18 +703,15 @@ def my_profile(request: HttpRequest):
         'phone': profile.phone,
         'responsibilities': profile.responsibilities,
         'city': profile.city,
-        'hobby': profile.hobby,
+        'voivodeship': profile.voivodeship,
+        'skills_knowledge_hobby': profile.skills_knowledge_hobby,
         'to_give_away': profile.to_give_away,
         'to_borrow': profile.to_borrow,
         'for_sale': profile.for_sale,
         'i_need': profile.i_need,
-        'skills': profile.skills,
-        'knowledge': profile.knowledge,
         'want_to_learn': profile.want_to_learn,
         'business': profile.business,
         'job': profile.job,
-        'gift': profile.gift,
-        'other': profile.other,
         'why': profile.why,
     })
 
@@ -815,18 +792,15 @@ def my_assets(request: HttpRequest):
             profile.phone = form.cleaned_data['phone']
             profile.responsibilities = form.cleaned_data['responsibilities']
             profile.city = form.cleaned_data['city']
-            profile.hobby = form.cleaned_data['hobby']
+            profile.voivodeship = form.cleaned_data['voivodeship']
+            profile.skills_knowledge_hobby = form.cleaned_data['skills_knowledge_hobby']
             profile.to_give_away = form.cleaned_data['to_give_away']
             profile.to_borrow = form.cleaned_data['to_borrow']
             profile.for_sale = form.cleaned_data['for_sale']
             profile.i_need = form.cleaned_data['i_need']
-            profile.skills = form.cleaned_data['skills']
-            profile.knowledge = form.cleaned_data['knowledge']
             profile.want_to_learn = form.cleaned_data['want_to_learn']
             profile.business = form.cleaned_data['business']
             profile.job = form.cleaned_data['job']
-            profile.gift = form.cleaned_data['gift']
-            profile.other = form.cleaned_data['other']
             profile.why = form.cleaned_data['why']
             profile.save()
 
@@ -842,17 +816,15 @@ def my_assets(request: HttpRequest):
             'phone': profile.phone,
             'responsibilities': profile.responsibilities,
             'city': profile.city,
-            'hobby': profile.hobby,
+            'voivodeship': profile.voivodeship,
+            'skills_knowledge_hobby': profile.skills_knowledge_hobby,
             'to_give_away': profile.to_give_away,
             'to_borrow': profile.to_borrow,
             'for_sale': profile.for_sale,
             'i_need': profile.i_need,
-            'skills': profile.skills,
-            'knowledge': profile.knowledge,
             'want_to_learn': profile.want_to_learn,
             'business': profile.business,
             'job': profile.job,
-            'other': profile.other,
             'why': profile.why,
         })
 

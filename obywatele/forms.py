@@ -16,7 +16,7 @@ from django.http import HttpRequest
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
-from obywatele.models import Uzytkownik
+from obywatele.models import Region, Uzytkownik
 from zzz.richtext import strip_tags
 from zzz.utils import build_site_url, get_site_domain
 
@@ -122,7 +122,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Uzytkownik
-        fields = ('phone', 'responsibilities', 'city', 'hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'skills', 'knowledge', 'want_to_learn', 'business', 'job', 'gift', 'other', 'why')
+        fields = ('phone', 'responsibilities', 'city', 'voivodeship', 'skills_knowledge_hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'want_to_learn', 'business', 'job', 'why')
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
@@ -130,6 +130,11 @@ class ProfileForm(forms.ModelForm):
         self.fields['phone'].required = True
         self.fields['city'].required = True
         self.fields['job'].required = True
+
+        # Filter voivodeship to show regions from Poland (can be extended for other countries)
+        self.fields['voivodeship'].queryset = Region.objects.filter(country__code='PL').order_by('name')
+        self.fields['voivodeship'].label = _('Voivodeship')
+        self.fields['voivodeship'].required = False
 
         self.fields['first_name'].error_messages['required'] = _('First name is required.')
         self.fields['last_name'].error_messages['required'] = _('Last name is required.')
@@ -163,7 +168,7 @@ class OnboardingDetailsForm(forms.ModelForm):
 
     class Meta:
         model = Uzytkownik
-        fields = ('why', 'phone', 'city', 'job', 'hobby', 'business', 'skills', 'knowledge')
+        fields = ('why', 'phone', 'city', 'voivodeship', 'job', 'skills_knowledge_hobby', 'business')
 
     def __init__(self, *args, **kwargs):
         super(OnboardingDetailsForm, self).__init__(*args, **kwargs)
@@ -171,6 +176,11 @@ class OnboardingDetailsForm(forms.ModelForm):
         self.fields['phone'].required = True
         self.fields['city'].required = True
         self.fields['job'].required = True
+
+        # Filter voivodeship to show regions from Poland (can be extended for other countries)
+        self.fields['voivodeship'].queryset = Region.objects.filter(country__code='PL').order_by('name')
+        self.fields['voivodeship'].label = _('Voivodeship')
+        self.fields['voivodeship'].required = False
 
         self.fields['first_name'].error_messages['required'] = _('First name is required.')
         self.fields['last_name'].error_messages['required'] = _('Last name is required.')

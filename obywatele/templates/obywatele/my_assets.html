@@ -11,80 +11,65 @@
 		<div class="container">
 
 			<div class="row">
-				<div class="col">
+				<div class="col-lg-6 col-sm-12">
 					{{ form.first_name|as_crispy_field }}
 				</div>
-				<div class="col">
+				<div class="col-lg-6 col-sm-12">
 					{{ form.last_name|as_crispy_field }}
 				</div>
 			</div>
 
 			<div class="row">
-				<div class="col">
+				<div class="col-lg-6 col-sm-12">
 					{{ form.city|as_crispy_field }}
 				</div>
-				<div class="col">
+				<div class="col-lg-6 col-sm-12">
+					{{ form.voivodeship|as_crispy_field }}
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-lg-6 col-sm-12">
 					{{ form.phone|as_crispy_field }}
 				</div>
-			</div>
-
-			<div class="row">
-				<div class="col">
+				<div class="col-lg-6 col-sm-12">
 					{{ form.job|as_crispy_field }}
 				</div>
-				<div class="col">
-					{{ form.responsibilities|as_crispy_field }}
-				</div>
 			</div>
 
 			<div class="row">
-				<div class="col">
-					{{ form.hobby|as_crispy_field }}
+				<div class="col-lg-6 col-sm-12">
+					{{ form.responsibilities|as_crispy_field }}
 				</div>
-				<div class="col">
+				<div class="col-lg-6 col-sm-12">
 					{{ form.business|as_crispy_field }}
 				</div>
 			</div>
 
 			<div class="row">
-				<div class="col">
+				<div class="col-lg-6 col-sm-12">
 					{{ form.to_give_away|as_crispy_field }}
 				</div>
-				<div class="col">
+				<div class="col-lg-6 col-sm-12">
 					{{ form.to_borrow|as_crispy_field }}
 				</div>
 			</div>
 
 			<div class="row">
-				<div class="col">
+				<div class="col-lg-6 col-sm-12">
 					{{ form.for_sale|as_crispy_field }}
 				</div>
-				<div class="col">
+				<div class="col-lg-6 col-sm-12">
 					{{ form.i_need|as_crispy_field }}
 				</div>
 			</div>
 
 			<div class="row">
-				<div class="col">
+				<div class="col-lg-6 col-sm-12">
 					{{ form.want_to_learn|as_crispy_field }}
 				</div>
-				<div class="col">
-					{{ form.skills|as_crispy_field }}
-				</div>
-			</div>
-
-			<div class="row">
-				<div class="col">
-					{{ form.knowledge|as_crispy_field }}
-				</div>
-				<div class="col">
-					{{ form.gift|as_crispy_field }}
-				</div>
-			</div>
-
-			<div class="row">
-				<div class="col">
-					{{ form.other|as_crispy_field }}
+				<div class="col-lg-6 col-sm-12">
+					{{ form.skills_knowledge_hobby|as_crispy_field }}
 				</div>
 			</div>
 
