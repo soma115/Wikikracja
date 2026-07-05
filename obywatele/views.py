@@ -840,7 +840,7 @@ class AssetListView(LoginRequiredMixin, SingleTableMixin, FilterView):
     model = Uzytkownik
     template_name = 'obywatele/assets.html'
     filterset_class = UzytkownikFilter
-    paginate_by = False
+    table_pagination = False
 
     def get_queryset(self):
         return Uzytkownik.objects.filter(uid__is_active=True)
