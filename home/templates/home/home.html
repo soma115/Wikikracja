@@ -138,13 +138,13 @@
 {# ══ Rząd 1: Pierwsze kroki + Aktywność + Najbliższe wydarzenia ════════════ #}
 <div class="row g-3 mb-3">
 
-  {# Pierwsze kroki (tylko dla nowych) #}
-  {% if onboarding %}
+  {# Pierwsze kroki (tylko gdy są quick links) #}
+  {% if quick_links %}
   <style>
-  #onboarding-scroll { scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
-  #onboarding-scroll::-webkit-scrollbar { width: 3px; }
-  #onboarding-scroll::-webkit-scrollbar-track { background: transparent; }
-  #onboarding-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; opacity: .5; }
+  #quick-links-scroll { scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
+  #quick-links-scroll::-webkit-scrollbar { width: 3px; }
+  #quick-links-scroll::-webkit-scrollbar-track { background: transparent; }
+  #quick-links-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; opacity: .5; }
   </style>
   <div class="col-12 col-lg-4">
     <div class="card h-100" id="onboarding-card" style="overflow:hidden;">
@@ -153,77 +153,123 @@
           <i class="fas fa-rocket" style="color:var(--accent);font-size:.85rem;"></i>
           <span class="section-heading" style="font-size:.85rem;">{% trans "First steps" %}</span>
         </div>
-        <div id="onboarding-scroll" style="overflow-x:hidden;overflow-y:auto;min-height:0;flex:1;padding-right:4px;max-height:calc(5 * 2rem);">
+        <div id="quick-links-scroll" style="overflow-x:hidden;overflow-y:auto;min-height:0;flex:1;padding-right:4px;max-height:calc(5 * 2rem);">
         <ul class="list-unstyled mb-0 d-flex flex-column gap-1" style="font-size:.82rem;">
 
-          {# Dokumenty do przeczytania #}
-          {% for doc in onboarding_docs %}
-          <li class="task-dash-row d-flex align-items-center gap-2 onboarding-doc-row" data-post-id="{{ doc.id }}" data-url="{% url 'mark_doc_read' doc.pk %}" style="min-width:0;">
-            {% if doc.id in onboarding_docs_read_ids %}
-            <i class="flex-shrink-0 onboarding-circle fas fa-check-circle" style="font-size:.85rem;color:#00bc8c;"></i>
-            <a href="{% url 'board:view_post' doc.pk %}" class="task-dash-link" style="color:var(--text-muted);text-decoration:none;flex:1;">{{ doc.title }}</a>
-            <button class="btn btn-sm btn-outline-secondary onboarding-read-btn flex-shrink-0" style="font-size:.72rem;padding:1px 7px;color:#00bc8c;border-color:#00bc8c;">{% trans "I haven't read it" %}</button>
-            {% else %}
-            <i class="flex-shrink-0 onboarding-circle fas fa-circle" style="font-size:.85rem;color:var(--text-muted);opacity:.4;"></i>
-            <a href="{% url 'board:view_post' doc.pk %}" class="task-dash-link" style="color:var(--accent);text-decoration:none;flex:1;">{{ doc.title }}</a>
-            <button class="btn btn-sm btn-outline-secondary onboarding-read-btn flex-shrink-0" style="font-size:.72rem;padding:1px 7px;">{% trans "I read it" %}</button>
-            {% endif %}
+          {% for link in quick_links %}
+          <li class="task-dash-row d-flex align-items-center gap-2 quick-link-row" data-link-id="{{ link.id }}" style="min-width:0;">
+            <i class="flex-shrink-0 quick-link-circle far fa-circle" data-link-id="{{ link.id }}" style="font-size:.85rem;cursor:pointer;color:#ff6b6b;opacity:1;"></i>
+            <a href="{{ link.url }}" class="task-dash-link" style="color:var(--accent);text-decoration:none;flex:1;">{{ link.title }}</a>
           </li>
           {% endfor %}
 
-          {# Take part in the discussion #}
-          <li class="task-dash-row d-flex align-items-center gap-2" style="min-width:0;">
-            {% if onboarding.step_argued %}
-              <i class="fas fa-check-circle flex-shrink-0" style="color:#00bc8c;font-size:.85rem;"></i>
-              <span style="color:var(--text-muted);">{% trans "Take part in the discussion" %}</span>
-            {% else %}
-              <i class="fas fa-circle flex-shrink-0" style="color:var(--text-muted);opacity:.4;font-size:.85rem;"></i>
-              <a href="{% url 'glosowania:discussion' %}" class="task-dash-link" style="color:var(--accent);text-decoration:none;flex:1;">{% trans "Take part in the discussion" %}</a>
-            {% endif %}
-          </li>
-
-          {# Write in the chat #}
-          <li class="task-dash-row d-flex align-items-center gap-2" style="min-width:0;">
-            {% if onboarding.step_chatted %}
-              <i class="fas fa-check-circle flex-shrink-0" style="color:#00bc8c;font-size:.85rem;"></i>
-              <span style="color:var(--text-muted);">{% trans "Write in the chat" %}</span>
-            {% else %}
-              <i class="fas fa-circle flex-shrink-0" style="color:var(--text-muted);opacity:.4;font-size:.85rem;"></i>
-              <a href="{% url 'chat:chat' %}" class="task-dash-link" style="color:var(--accent);text-decoration:none;flex:1;">{% trans "Write in the chat" %}</a>
-            {% endif %}
-          </li>
-
-          {# Oddaj głos w referendum #}
-          <li class="task-dash-row d-flex align-items-center gap-2" style="min-width:0;">
-            {% if onboarding.step_voted %}
-              <i class="fas fa-check-circle flex-shrink-0" style="color:#00bc8c;font-size:.85rem;"></i>
-              <span style="color:var(--text-muted);">{% trans "Cast your first vote" %}</span>
-            {% else %}
-              <i class="fas fa-circle flex-shrink-0" style="color:var(--text-muted);opacity:.4;font-size:.85rem;"></i>
-              <a href="{% url 'glosowania:referendum' %}" class="task-dash-link" style="color:var(--accent);text-decoration:none;flex:1;">{% trans "Cast your first vote" %}</a>
-            {% endif %}
-          </li>
-
         </ul>
-        </div>{# /onboarding-scroll #}
+        </div>{# /quick-links-scroll #}
       </div>
       {# Pasek postępu #}
       <div class="card-footer px-3 py-2">
-        {% with total=onboarding_docs|length|add:3 %}
-        {% with done_docs=onboarding_docs_read_ids|length %}
-        {% with done_steps=onboarding.step_argued|add:onboarding.step_chatted|add:onboarding.step_voted %}
-        <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px;">{% trans "Progress" %}: <span class="progress-label">{{ done_docs|add:done_steps }}/{{ total }}</span></div>
+        {% with total=quick_links|length %}
+        <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px;">{% trans "Progress" %}: <span class="progress-label">0/{{ total }}</span></div>
         <div class="progress" style="height:5px;">
-          <div class="progress-bar" style="background:var(--accent);width:{% widthratio done_docs|add:done_steps total 100 %}%;"></div>
+          <div class="progress-bar" style="background:var(--accent);width:0%;"></div>
         </div>
-        {% endwith %}{% endwith %}{% endwith %}
+        {% endwith %}
       </div>
     </div>
   </div>
   {% endif %}
 
+  <script>
+  (function() {
+    var STORAGE_KEY = 'quick_links_read';
+    
+    function getReadLinks() {
+      var stored = localStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    }
+    
+    function saveReadLinks(readLinks) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(readLinks));
+    }
+    
+    function toggleReadStatus(linkId) {
+      var readLinks = getReadLinks();
+      var index = readLinks.indexOf(linkId);
+      if (index > -1) {
+        readLinks.splice(index, 1);
+      } else {
+        readLinks.push(linkId);
+      }
+      saveReadLinks(readLinks);
+      return readLinks;
+    }
+    
+    function updateUI(readLinks) {
+      var total = document.querySelectorAll('.quick-link-row').length;
+      var done = readLinks.length;
+      
+      document.querySelectorAll('.quick-link-circle').forEach(function(circle) {
+        var linkId = parseInt(circle.dataset.linkId);
+        var row = circle.closest('.quick-link-row');
+        var link = row.querySelector('a');
+        
+        if (readLinks.includes(linkId)) {
+          circle.className = 'flex-shrink-0 quick-link-circle fas fa-check-circle';
+          circle.style.color = '#00bc8c';
+          circle.style.opacity = '1';
+          link.style.color = 'var(--text-muted)';
+        } else {
+          circle.className = 'flex-shrink-0 quick-link-circle far fa-circle';
+          circle.style.color = '#ff6b6b';
+          circle.style.opacity = '1';
+          link.style.color = 'var(--accent)';
+        }
+      });
+      
+      var bar = document.querySelector('#onboarding-card .progress-bar');
+      var label = document.querySelector('#onboarding-card .progress-label');
+      if (bar) {
+        bar.style.width = Math.round(done / total * 100) + '%';
+      }
+      if (label) {
+        label.textContent = done + '/' + total;
+      }
+    }
+    
+    // Initialize UI from localStorage
+    var readLinks = getReadLinks();
+    updateUI(readLinks);
+    
+    // Attach click handlers to circles
+    document.querySelectorAll('.quick-link-circle').forEach(function(circle) {
+      circle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var linkId = parseInt(this.dataset.linkId);
+        var newReadLinks = toggleReadStatus(linkId);
+        updateUI(newReadLinks);
+      });
+    });
+    
+    // Attach mousedown handlers to links to mark as read before navigation
+    document.querySelectorAll('.quick-link-row a').forEach(function(link) {
+      link.addEventListener('mousedown', function(e) {
+        var row = this.closest('.quick-link-row');
+        var circle = row.querySelector('.quick-link-circle');
+        var linkId = parseInt(circle.dataset.linkId);
+        var readLinks = getReadLinks();
+        if (!readLinks.includes(linkId)) {
+          var newReadLinks = toggleReadStatus(linkId);
+          updateUI(newReadLinks);
+        }
+      });
+    });
+  })();
+  </script>
+
+
   {# Aktywność #}
-  <div class="col-12 {% if onboarding %}col-lg-4{% else %}col-lg-8{% endif %}">
+  <div class="col-12 {% if quick_links %}col-lg-4{% else %}col-lg-8{% endif %}">
     <div class="card h-100" style="position:relative;">
       <div class="card-header d-flex align-items-center justify-content-between gap-2">
         <span class="section-heading" style="font-size:.85rem;">
@@ -628,50 +674,6 @@
 
 </div>
 
-{% endif %}
-
-{% if onboarding %}
-<script>
-{% trans "Unread" as t_label_read %}{% trans "I read it" as t_label_unread %}var LABEL_READ = "{{ t_label_read|escapejs }}";
-var LABEL_UNREAD = "{{ t_label_unread|escapejs }}";
-document.querySelectorAll('.onboarding-read-btn').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    var row = btn.closest('.onboarding-doc-row');
-    var url = row.dataset.url;
-    fetch(url, {
-      method: 'POST',
-      headers: {'X-CSRFToken': '{{ csrf_token }}'},
-    }).then(function(r) { return r.json(); }).then(function(data) {
-      if (!data.ok) { console.error('mark_doc_read returned ok=false', data); return; }
-      var icon = row.querySelector('.onboarding-circle');
-      var link = row.querySelector('a');
-      if (data.is_read) {
-        icon.className = 'flex-shrink-0 onboarding-circle fas fa-check-circle';
-        icon.style.color = '#00bc8c';
-        icon.style.opacity = '1';
-        link.style.color = 'var(--text-muted)';
-        btn.textContent = LABEL_READ;
-        btn.style.color = '#00bc8c';
-        btn.style.borderColor = '#00bc8c';
-      } else {
-        icon.className = 'flex-shrink-0 onboarding-circle fas fa-circle';
-        icon.style.color = 'var(--text-muted)';
-        icon.style.opacity = '.4';
-        link.style.color = 'var(--accent)';
-        btn.textContent = LABEL_UNREAD;
-        btn.style.color = '';
-        btn.style.borderColor = '';
-      }
-      var bar = document.querySelector('#onboarding-card .progress-bar');
-      var label = document.querySelector('#onboarding-card .progress-label');
-      if (bar && data.total) {
-        bar.style.width = Math.round(data.done / data.total * 100) + '%';
-      }
-      if (label) label.textContent = data.done + '/' + data.total;
-    }).catch(function(err) { console.error('onboarding fetch error', err); });
-  });
-});
-</script>
 {% endif %}
 
 <script>

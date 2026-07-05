@@ -218,109 +218,164 @@
     </script>
   </div>
 
-  <style>
-  /* dark + civic: jasna ikonka */
-  :root #onboarding-accordion .accordion-button::after,
-  [data-theme="dark"] #onboarding-accordion .accordion-button::after,
-  [data-theme="civic"] #onboarding-accordion .accordion-button::after {
-    filter: brightness(0) invert(1);
-    opacity: .7;
-  }
-  /* official + light: ciemna ikonka */
-  [data-theme="official"] #onboarding-accordion .accordion-button::after,
-  [data-theme="light"] #onboarding-accordion .accordion-button::after {
-    filter: brightness(0);
-    opacity: .5;
-  }
-  </style>
-  {# ── ONBOARDING ── #}
+  {# ── QUICK LINKS ── #}
   <div class="card mb-4">
     <div class="card-header d-flex align-items-center gap-2">
-      <i class="fas fa-user-check" style="color:var(--accent);opacity:.8;font-size:.85rem;"></i>
-      <span class="section-heading" style="font-size:.85rem;">{% trans "Onboarding" %}</span>
+      <i class="fas fa-link" style="color:var(--accent);opacity:.8;font-size:.85rem;"></i>
+      <span class="section-heading" style="font-size:.85rem;">{% trans "Quick links" %}</span>
     </div>
     <div class="card-body">
-      <form method="post" data-preserve-scroll>
+      <form method="post" id="quick-link-form" data-preserve-scroll>
         {% csrf_token %}
-        <input type="hidden" name="save_onboarding" value="1">
+        <input type="hidden" name="save_quick_link" value="1" id="form-action">
+        <input type="hidden" name="edit_link_id" value="" id="edit-link-id">
 
         <div class="mb-3">
           <div class="fw-semibold mb-2" style="font-size:.875rem;">
-            <i class="fas fa-file-circle-check me-2" style="color:var(--accent);opacity:.7;"></i>
-            {% trans "Mandatory documents" %}
+            <i class="fas fa-plus me-2" style="color:var(--accent);opacity:.7;"></i>
+            <span id="form-title">{% trans "Add new link" %}</span>
           </div>
-          {% if categories_with_posts %}
-          <div class="accordion" id="onboarding-accordion" style="max-width:520px;">
-            {% for group in categories_with_posts %}
-            {% with cat_id=group.category.id total=group.posts|length %}
-            {% comment %}count pre-selected in this category{% endcomment %}
-            {% with checked_count=0 %}
-            <div class="accordion-item" style="border:1px solid var(--border-color);border-radius:6px;margin-bottom:4px;overflow:hidden;">
-              <h2 class="accordion-header" id="oh-{{ cat_id }}">
-                <button class="accordion-button {% if not group.has_selected %}collapsed{% endif %} d-flex align-items-center gap-2"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#oc-{{ cat_id }}"
-                        aria-expanded="{{ group.has_selected|yesno:'true,false' }}"
-                        aria-controls="oc-{{ cat_id }}"
-                        style="font-size:.82rem;padding:8px 12px;background:var(--card-bg);color:var(--text-primary);">
-                  <span class="flex-grow-1">{{ group.category.name }}</span>
-                  <span class="badge onboarding-cat-badge"
-                        data-cat="{{ cat_id }}"
-                        style="font-size:.72rem;background:var(--accent);opacity:.85;">
-                    {{ group.selected_count }}/{{ total }}
-                  </span>
-                </button>
-              </h2>
-              <div id="oc-{{ cat_id }}"
-                   class="accordion-collapse collapse {% if group.has_selected %}show{% endif %}"
-                   aria-labelledby="oh-{{ cat_id }}"
-                   data-bs-parent="">
-                <div class="accordion-body d-flex flex-column gap-1" style="padding:8px 12px;">
-                  {% for doc in group.posts %}
-                  <label class="d-flex align-items-center gap-2" style="font-size:.875rem;cursor:pointer;">
-                    <input type="checkbox"
-                           name="onboarding_posts"
-                           value="{{ doc.id }}"
-                           data-cat="{{ cat_id }}"
-                           data-total="{{ total }}"
-                           class="onboarding-post-cb"
-                           style="width:15px;height:15px;flex-shrink:0;"
-                           {% if doc.id in selected_onboarding_post_ids %}checked{% endif %}>
-                    <span>{{ doc.title }}</span>
-                  </label>
-                  {% endfor %}
-                </div>
-              </div>
-            </div>
-            {% endwith %}
-            {% endwith %}
-            {% endfor %}
+          <div class="d-flex gap-2 flex-wrap">
+            <input type="text" name="quick_link_title" id="quick_link_title" placeholder="{% trans 'Title' %}" class="form-control form-control-sm" style="max-width:200px;" required>
+            <input type="text" name="quick_link_url" id="quick_link_url" placeholder="{% trans 'URL' %}" class="form-control form-control-sm" style="max-width:300px;" required>
+            <input type="text" name="quick_link_icon" id="quick_link_icon" placeholder="{% trans 'Icon (e.g. fa-book)' %}" class="form-control form-control-sm" style="max-width:150px;">
+            <input type="number" name="quick_link_order" id="quick_link_order" placeholder="{% trans 'Order' %}" class="form-control form-control-sm" style="max-width:80px;" value="0">
+            <button type="submit" class="btn btn-sm btn-primary" id="submit-btn">{% trans "Add" %}</button>
+            <button type="button" class="btn btn-sm btn-secondary" id="cancel-edit-btn" style="display:none;">{% trans "Cancel" %}</button>
           </div>
-          <script>
-          document.querySelectorAll('.onboarding-post-cb').forEach(function(cb) {
-            cb.addEventListener('change', function() {
-              var cat = this.dataset.cat;
-              var total = parseInt(this.dataset.total);
-              var checked = document.querySelectorAll('.onboarding-post-cb[data-cat="' + cat + '"]:checked').length;
-              var badge = document.querySelector('.onboarding-cat-badge[data-cat="' + cat + '"]');
-              if (badge) badge.textContent = checked + '/' + total;
-            });
-          });
-          </script>
-          {% else %}
-          <div style="font-size:.82rem;color:var(--text-muted);">
-            <i class="fas fa-circle-info me-1"></i>{% trans "No documents in any category." %}
-          </div>
-          {% endif %}
         </div>
-
-        <button type="submit" class="btn btn-sm btn-primary">
-          {% trans "Save" %}
-        </button>
       </form>
+
+      {% if quick_links %}
+      <div class="mt-3 pt-3" style="border-top:1px solid rgba(255,255,255,.07);">
+        <div class="fw-semibold mb-2" style="font-size:.875rem;">
+          <i class="fas fa-list me-2" style="color:var(--accent);opacity:.7;"></i>
+          {% trans "Existing links" %}
+        </div>
+        <div id="quick-links-list" class="d-flex flex-column gap-2">
+          {% for link in quick_links %}
+          <div class="quick-link-item d-flex align-items-center gap-2 p-2" style="background:rgba(255,255,255,.03);border-radius:4px;cursor:move;" data-link-id="{{ link.id }}" draggable="true">
+            <i class="fas fa-grip-vertical" style="color:var(--text-muted);opacity:.5;font-size:.75rem;"></i>
+            {% if link.icon %}
+            <i class="fas {{ link.icon }}" style="color:var(--accent);font-size:.85rem;"></i>
+            {% endif %}
+            <span style="flex:1;font-size:.85rem;">{{ link.title }}</span>
+            <span style="font-size:.75rem;color:var(--text-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ link.url }}</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary edit-link-btn" style="font-size:.72rem;padding:2px 8px;" data-link-id="{{ link.id }}" data-title="{{ link.title }}" data-url="{{ link.url }}" data-icon="{{ link.icon|default:'' }}" data-order="{{ link.order }}">{% trans "Edit" %}</button>
+            <form method="post" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" name="delete_quick_link" value="{{ link.id }}">
+              <button type="submit" class="btn btn-sm btn-outline-danger" style="font-size:.72rem;padding:2px 8px;">{% trans "Delete" %}</button>
+            </form>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
+
+  <script>
+  // Edit functionality
+  document.querySelectorAll('.edit-link-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var linkId = this.dataset.linkId;
+      var title = this.dataset.title;
+      var url = this.dataset.url;
+      var icon = this.dataset.icon;
+      var order = this.dataset.order;
+
+      document.getElementById('edit-link-id').value = linkId;
+      document.getElementById('quick_link_title').value = title;
+      document.getElementById('quick_link_url').value = url;
+      document.getElementById('quick_link_icon').value = icon;
+      document.getElementById('quick_link_order').value = order;
+      
+      document.getElementById('form-action').name = 'edit_quick_link';
+      document.getElementById('form-action').value = linkId;
+      document.getElementById('form-title').textContent = '{% trans "Edit link" %}';
+      document.getElementById('submit-btn').textContent = '{% trans "Update" %}';
+      document.getElementById('cancel-edit-btn').style.display = 'inline-block';
+    });
+  });
+
+  document.getElementById('cancel-edit-btn').addEventListener('click', function() {
+    document.getElementById('edit-link-id').value = '';
+    document.getElementById('quick_link_title').value = '';
+    document.getElementById('quick_link_url').value = '';
+    document.getElementById('quick_link_icon').value = '';
+    document.getElementById('quick_link_order').value = '0';
+    
+    document.getElementById('form-action').name = 'save_quick_link';
+    document.getElementById('form-action').value = '1';
+    document.getElementById('form-title').textContent = '{% trans "Add new link" %}';
+    document.getElementById('submit-btn').textContent = '{% trans "Add" %}';
+    this.style.display = 'none';
+  });
+
+  // Drag and drop reordering
+  var list = document.getElementById('quick-links-list');
+  var draggedItem = null;
+
+  list.addEventListener('dragstart', function(e) {
+    if (e.target.classList.contains('quick-link-item')) {
+      draggedItem = e.target;
+      e.target.style.opacity = '0.5';
+      e.dataTransfer.effectAllowed = 'move';
+    }
+  });
+
+  list.addEventListener('dragend', function(e) {
+    if (e.target.classList.contains('quick-link-item')) {
+      e.target.style.opacity = '1';
+      draggedItem = null;
+      saveOrder();
+    }
+  });
+
+  list.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    var target = e.target.closest('.quick-link-item');
+    if (target && target !== draggedItem) {
+      var rect = target.getBoundingClientRect();
+      var midY = rect.top + rect.height / 2;
+      if (e.clientY < midY) {
+        list.insertBefore(draggedItem, target);
+      } else {
+        list.insertBefore(draggedItem, target.nextSibling);
+      }
+    }
+  });
+
+  function saveOrder() {
+    var items = list.querySelectorAll('.quick-link-item');
+    var orderData = [];
+    items.forEach(function(item, index) {
+      orderData.push(item.dataset.linkId);
+    });
+    
+    // Send order to server
+    fetch('{% url "site_admin" %}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      },
+      body: 'reorder_quick_links=1&order=' + JSON.stringify(orderData)
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (data.ok) {
+        // Update order numbers in UI
+        items.forEach(function(item, index) {
+          var orderSpan = item.querySelector('.order-number');
+          if (orderSpan) orderSpan.textContent = '#' + index;
+        });
+      }
+    }).catch(function(err) {
+      console.error('Error saving order:', err);
+    });
+  }
+  </script>
 
 </div>
 {% endblock %}

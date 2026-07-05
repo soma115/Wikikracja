@@ -8,21 +8,6 @@ from site_settings.validators import validate_brand_mark_dimensions, validate_br
 
 
 class SiteSettings(models.Model):
-    onboarding_category = models.ForeignKey(
-        'board.PostCategory',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        verbose_name=_('Onboarding category'),
-        help_text=_('Posts from this category can be marked as required reading'),
-    )
-    onboarding_posts = models.ManyToManyField(
-        'board.Post',
-        blank=True,
-        verbose_name=_('Onboarding documents'),
-        help_text=_('Posts the user must read during onboarding'),
-    )
-
     branding_text = models.CharField(
         max_length=50,
         blank=True,
@@ -83,3 +68,18 @@ class SiteSettings(models.Model):
     def get(cls):
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
+
+
+class QuickLink(models.Model):
+    title = models.CharField(max_length=100, verbose_name=_('Title'))
+    url = models.CharField(max_length=500, verbose_name=_('URL'))
+    icon = models.CharField(max_length=50, blank=True, default='', verbose_name=_('Icon (FontAwesome class)'))
+    order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = _('Quick link')
+        verbose_name_plural = _('Quick links')
+
+    def __str__(self):
+        return self.title

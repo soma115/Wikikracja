@@ -1,9 +1,4 @@
 # OGÓLNE
-- Wyłączyć paginację w tabeli Zasoby
-- Dlaczego jest Bitcoin na starcie?
-- Powiadomienia email i wydarzeniach z kalendarza powinny być.
-- wyczyścić http://127.0.0.1:8000/site-settings/
-- "Pierwsze kroki" na Pulpicie zamienić na listę linków
 - rekurencyjne głosowania
 - Domyślnie czaty wyciszone, powiadomienia włączają się dopiero jak ktoś się odezwie.
 - Do formularza wstępnego: Czy jesteś zwolennikiem DB? Czy zgadzasz się na przestrzeganie naszych zasad?

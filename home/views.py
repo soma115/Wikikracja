@@ -36,7 +36,7 @@ from site_settings.services import get_branding_version
 from tasks.models import Task
 
 from .forms import RememberLoginForm
-from .models import OnboardingProgress, ReadStatus
+from .models import ReadStatus
 
 log = logging.getLogger(__name__)
 
@@ -188,16 +188,9 @@ def home(request: HttpRequest):
     ).distinct().count()
 
     ss = SiteSettings.get()
-    onboarding_docs = list(ss.onboarding_posts.order_by('title'))
-    onboarding = None
-    onboarding_docs_read_ids = set()
-    try:
-        op = OnboardingProgress.objects.prefetch_related('docs_read').get(user=request.user)
-        onboarding_docs_read_ids = set(op.docs_read.values_list('id', flat=True))
-        if not op.is_completed(onboarding_docs):
-            onboarding = op
-    except OnboardingProgress.DoesNotExist:
-        onboarding = OnboardingProgress.objects.create(user=request.user)
+    from site_settings.models import QuickLink
+
+    quick_links = list(QuickLink.objects.order_by('order'))
 
     return render(request, 'home/home.html', {
         'feed_items': feed_items,
@@ -210,9 +203,7 @@ def home(request: HttpRequest):
         'signatures_count': signatures_count,
         'active_referendum': active_referendum,
         'my_tasks': my_tasks,
-        'onboarding': onboarding,
-        'onboarding_docs': onboarding_docs,
-        'onboarding_docs_read_ids': onboarding_docs_read_ids,
+        'quick_links': quick_links,
         'upcoming_events': upcoming_events,
         'default_asset': default_asset,
         'default_income': default_income,
@@ -435,34 +426,6 @@ def activity_page(request):
         'filter_unread': filter_unread,
         'unread_count': unread_count,
         'content_types': content_types,
-    })
-
-
-@login_required
-@require_POST
-def mark_doc_read(request, post_id):
-    try:
-        post = Post.objects.get(pk=post_id)
-    except Post.DoesNotExist:
-        return JsonResponse({
-            'ok': False
-        }, status=404)
-    obj, _ = OnboardingProgress.objects.get_or_create(user=request.user)
-    if obj.docs_read.filter(pk=post.pk).exists():
-        obj.docs_read.remove(post)
-        is_read = False
-    else:
-        obj.docs_read.add(post)
-        is_read = True
-    required_docs = SiteSettings.get().onboarding_posts.count()
-    done_docs = obj.docs_read.filter(pk__in=SiteSettings.get().onboarding_posts.values_list('pk', flat=True)).count()
-    done = done_docs + (1 if obj.step_argued else 0) + (1 if obj.step_chatted else 0) + (1 if obj.step_voted else 0)
-    total = required_docs + 3
-    return JsonResponse({
-        'ok': True,
-        'is_read': is_read,
-        'done': done,
-        'total': total
     })
 
 
@@ -918,30 +881,10 @@ def vapid_config(request: HttpRequest):
 
 
 @login_required
-def onboarding_posts_for_category(request):
-    cat_id = request.GET.get('cat_id')
-    if not cat_id:
-        return JsonResponse({
-            'posts': []
-        })
-    posts = list(Post.objects.filter(category_id=cat_id).order_by('title').values('id', 'title'))
-    selected = list(SiteSettings.get().onboarding_posts.values_list('id', flat=True))
-    return JsonResponse({
-        'posts': posts,
-        'selected': selected
-    })
-
-
-@login_required
 def site_admin(request: HttpRequest) -> HttpResponse:
+    from site_settings.models import QuickLink
+
     ss = SiteSettings.get()
-
-    if request.method == 'POST' and 'save_onboarding' in request.POST:
-        post_ids = request.POST.getlist('onboarding_posts')
-        ss.onboarding_posts.set(post_ids)
-        messages.success(request, _('Onboarding zapisany.'))
-        return redirect('site_admin')
-
 
     if request.method == 'POST' and 'save_branding' in request.POST:
         form = SiteSettingsBrandingForm(request.POST, request.FILES, instance=ss)
@@ -954,24 +897,61 @@ def site_admin(request: HttpRequest) -> HttpResponse:
                     messages.error(request, f'{field}: {error}')
         return redirect('site_admin')
 
-    selected_ids = set(ss.onboarding_posts.values_list('id', flat=True))
-    categories_with_posts = []
-    for cat in PostCategory.objects.order_by('name'):
-        posts = list(Post.objects.filter(category=cat).order_by('title'))
-        if posts:
-            selected_count = sum(1 for p in posts if p.id in selected_ids)
-            categories_with_posts.append({
-                'category': cat,
-                'posts': posts,
-                'selected_count': selected_count,
-                'has_selected': selected_count > 0,
-            })
+    if request.method == 'POST' and 'save_quick_link' in request.POST:
+        title = request.POST.get('quick_link_title')
+        url = request.POST.get('quick_link_url')
+        icon = request.POST.get('quick_link_icon', '')
+        order = request.POST.get('quick_link_order', 0)
+        if title and url:
+            QuickLink.objects.create(title=title, url=url, icon=icon, order=order)
+            messages.success(request, _('Link dodany.'))
+        return redirect('site_admin')
+
+    if request.method == 'POST' and 'edit_quick_link' in request.POST:
+        link_id = request.POST.get('edit_quick_link')
+        title = request.POST.get('quick_link_title')
+        url = request.POST.get('quick_link_url')
+        icon = request.POST.get('quick_link_icon', '')
+        order = request.POST.get('quick_link_order', 0)
+        try:
+            link = QuickLink.objects.get(id=link_id)
+            link.title = title
+            link.url = url
+            link.icon = icon
+            link.order = order
+            link.save()
+            messages.success(request, _('Link zaktualizowany.'))
+        except QuickLink.DoesNotExist:
+            messages.error(request, _('Link nie istnieje.'))
+        return redirect('site_admin')
+
+    if request.method == 'POST' and 'reorder_quick_links' in request.POST:
+        order_data = json.loads(request.POST.get('order', '[]'))
+        for index, link_id in enumerate(order_data):
+            try:
+                link = QuickLink.objects.get(id=link_id)
+                link.order = index
+                link.save()
+            except QuickLink.DoesNotExist:
+                continue
+        return JsonResponse({'ok': True})
+
+    if request.method == 'POST' and 'delete_quick_link' in request.POST:
+        link_id = request.POST.get('delete_quick_link')
+        try:
+            link = QuickLink.objects.get(id=link_id)
+            link.delete()
+            messages.success(request, _('Link usunięty.'))
+        except QuickLink.DoesNotExist:
+            messages.error(request, _('Link nie istnieje.'))
+        return redirect('site_admin')
+
+    quick_links = QuickLink.objects.all()
 
     return render(request, 'home/site_admin.html', {
         'ss': ss,
         'branding_form': SiteSettingsBrandingForm(instance=ss),
-        'categories_with_posts': categories_with_posts,
-        'selected_onboarding_post_ids': selected_ids,
+        'quick_links': quick_links,
     })
 
 
