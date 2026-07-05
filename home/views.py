@@ -968,16 +968,10 @@ def site_admin(request: HttpRequest) -> HttpResponse:
             })
 
     return render(request, 'home/site_admin.html', {
-        'signatures': settings.WYMAGANYCH_PODPISOW,
-        'signatures_span': settings.CZAS_NA_ZEBRANIE_PODPISOW,
-        'discussion_span': settings.DYSKUSJA,
-        'referendum_span': settings.CZAS_TRWANIA_REFERENDUM,
-        'documents': Post.objects.all().order_by('title'),
         'ss': ss,
         'branding_form': SiteSettingsBrandingForm(instance=ss),
         'categories_with_posts': categories_with_posts,
         'selected_onboarding_post_ids': selected_ids,
-        'message_max_length': settings.MESSAGE_MAX_LENGTH,
     })
 
 
