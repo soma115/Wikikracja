@@ -1,4 +1,5 @@
 # OGÓLNE
+- Wyłączyć paginację w tabeli Zasoby
 - Dlaczego jest Bitcoin na starcie?
 - Powiadomienia email i wydarzeniach z kalendarza powinny być.
 - wyczyścić http://127.0.0.1:8000/site-settings/

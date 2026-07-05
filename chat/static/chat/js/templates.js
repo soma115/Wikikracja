@@ -208,15 +208,28 @@ const message_template = `
         </button>
       <% } %>
 
-      <% if (read_by && read_by.length) { %>
-        <% const _vis = read_by.slice(0,3); const _extra = read_by.length - _vis.length; %>
-        <div class="msg-read-by">
-          <% for (const _u of _vis) { %><img class="msg-avatar" src="<%- _u.avatar_url %>" title="<%- _u.username %>" alt="<%- _u.username %>"><% } %>
-          <% if (_extra > 0) { %><span class="msg-read-extra">+<%- _extra %></span><% } %>
+      <button type="button" class="reaction-btn read-by-toggle" data-message-id="<%- message_id %>" title="<%- (read_by && read_by.length) ? read_by.length + ' osób przeczytało tę wiadomość' : 'Nikt jeszcze nie przeczytał' %>">
+        <i class="fas fa-eye"></i>
+        <% if (read_by && read_by.length) { %><span class="read-by-count"><%- read_by.length %></span><% } %>
+      </button>
+      <div class="read-by-dropdown" id="read-by-dropdown-<%- message_id %>" style="display:none">
+        <div class="read-by-list">
+          <% if (read_by && read_by.length) { %>
+            <% for (const _u of read_by) { %>
+              <div class="read-by-item">
+                <% if (_u.avatar_url) { %>
+                  <img class="read-by-avatar" src="<%- _u.avatar_url %>" alt="<%- _u.username %>">
+                <% } else { %>
+                  <span class="read-by-avatar read-by-initials"><%= (_u.username || '').slice(0, 2).toUpperCase() %></span>
+                <% } %>
+                <span class="read-by-username"><%- _u.username %></span>
+              </div>
+            <% } %>
+          <% } else { %>
+            <div class="read-by-item" style="color:var(--color-text-muted);font-style:italic">Nikt jeszcze nie przeczytał</div>
+          <% } %>
         </div>
-      <% } else { %>
-        <div class="msg-read-by"></div>
-      <% } %>
+      </div>
     </div>
 
   </div>

@@ -701,6 +701,7 @@ body:has(.chat-rooms) .main-area {
     margin-top: .4rem;
     padding-top: .3rem;
     border-top: 1px solid var(--border);
+    position: relative;
 }
 /* Vote bar — pasek poparcia */
 .vote-bar-wrap {
@@ -768,27 +769,66 @@ body:has(.chat-rooms) .main-area {
 .reaction-btn:hover:not(.reaction-btn--active) {
     background: var(--color-surface-dynamic);
 }
-.reaction-count {
+.reaction-count,
+.read-by-count {
     font-size: .72rem;
     color: var(--color-text-muted);
 }
-/* Read by avatars */
-.msg-read-by {
+/* Read by dropdown */
+.read-by-dropdown {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: .5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+    z-index: 100;
+    min-width: 200px;
+    max-width: 300px;
+    margin-bottom: .25rem;
+}
+.read-by-list {
+    padding: .5rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.read-by-item {
     display: flex;
     align-items: center;
-    gap: .2rem;
-    margin-left: auto;
+    gap: .5rem;
+    padding: .3rem .4rem;
+    border-radius: .25rem;
+    transition: background .15s;
 }
-.msg-avatar {
-    width: 20px;
-    height: 20px;
+.read-by-item:hover {
+    background: var(--color-surface-offset);
+}
+.read-by-avatar {
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     border: 1px solid var(--border);
     object-fit: cover;
+    flex-shrink: 0;
 }
-.msg-read-extra {
-    font-size: .65rem;
-    color: var(--color-text-muted);
+.read-by-initials {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-accent, var(--accent));
+    color: #fff;
+    font-weight: 700;
+    font-size: .75rem;
+    line-height: 1;
+    text-transform: uppercase;
+}
+.read-by-username {
+    font-size: .85rem;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 /* ============================================================ */
 /* ROOM LIST — CONTROLS                                        */

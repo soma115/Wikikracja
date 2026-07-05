@@ -374,6 +374,21 @@ class ChatRepository:
         )
 
     @database_sync_to_async
+    def mark_messages_read_bulk(self, message_ids: list) -> list:
+        """Mark multiple messages as read; return ids that were newly created."""
+        existing = set(
+            MessageReadBy.objects.filter(message_id__in=message_ids, user=self.user)
+            .values_list('message_id', flat=True)
+        )
+        new_ids = [mid for mid in message_ids if mid not in existing]
+        if new_ids:
+            MessageReadBy.objects.bulk_create(
+                [MessageReadBy(message_id=mid, user=self.user) for mid in new_ids],
+                ignore_conflicts=True,
+            )
+        return new_ids
+
+    @database_sync_to_async
     def get_read_by_data(self, message_id: int) -> list:
         """Return list of {user_id, username, avatar_url} for message."""
         entries = MessageReadBy.objects.filter(message_id=message_id).select_related('user__uzytkownik').order_by('id')[:10]
@@ -490,6 +505,14 @@ class ChatRepository:
         sender_ids = {msg.sender_id for msg in messages if msg.sender_id}
         users = {u.id: u for u in User.objects.filter(id__in=sender_ids).select_related('uzytkownik')} if sender_ids else {}
 
+        message_ids = [msg.id for msg in messages]
+        read_by_qs = MessageReadBy.objects.filter(message_id__in=message_ids).select_related('user__uzytkownik').order_by('id')
+        read_by_map = {}
+        for entry in read_by_qs:
+            read_by_map.setdefault(entry.message_id, []).append(entry)
+        for mid, entries in read_by_map.items():
+            read_by_map[mid] = entries[:10]
+
         user_votes = {}
         for msg in messages:
             r = _reactions(msg)
@@ -516,6 +539,15 @@ class ChatRepository:
                 }
 
             r = _reactions(msg)
+            rb_entries = read_by_map.get(msg.id, [])
+            rb_data = []
+            for entry in rb_entries:
+                u = entry.user
+                rb_data.append({
+                    'user_id': u.id,
+                    'username': u.username,
+                    'avatar_url': get_avatar_url(u) or '/static/home/images/favicon.ico',
+                })
             result.append({
                 'id': msg.id,
                 'sender_id': msg.sender_id,
@@ -530,6 +562,7 @@ class ChatRepository:
                 'reply_to': reply_to_data,
                 'bulb_count': len(r.get('bulb', [])),
                 'question_count': len(r.get('question', [])),
+                'read_by': rb_data,
             })
 
         return {'messages': result, 'users': users, 'user_votes': user_votes}

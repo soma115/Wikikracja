@@ -746,6 +746,7 @@ export async function onReceiveMessages(messages) {
             message.read_by ?? []
         );
         if (message.new) DOM_API.updateSidebarForMessage(message);
+        if (message.new && !message.own) WS_API?.markMessageRead(message.message_id);
         requestAnimationFrame(() => DOM_API.markOverflow(DOM_API.getMessageDiv(message.message_id)));
         if (message.new && document.hidden && !message.own) {
             makeNotification({ title: message.username, body: message.message, room_id: message.room_id });
@@ -780,6 +781,8 @@ export async function onReceiveMessages(messages) {
                 DOM_API.getVoteDiv(message.message_id, message.your_vote)?.classList.add('active');
             }
         }
+        const toMarkRead = messages.filter(m => !m.own).map(m => m.message_id);
+        WS_API?.markMessagesReadBulk(toMarkRead, messages[0].room_id);
         requestAnimationFrame(() => DOM_API.markOverflow(msgdiv));
     }
 
@@ -888,20 +891,33 @@ export async function onReceiveReactions(event) {
 }
 
 /**
- * update "read by" avatars for a message.
+ * Update "read by" button and dropdown for a message after someone reads it.
  */
 export async function onReceiveReadBy(event) {
     const msgDiv = DOM_API.getMessageDiv(event.message_id);
     if (!msgDiv) return;
-    const readByDiv = $('.msg-read-by', msgDiv);
-    if (!readByDiv) return;
 
     const readBy = event.read_by || [];
-    const visible = readBy.slice(0, 3);
-    const extra = readBy.length - visible.length;
-    readByDiv.innerHTML = visible.map(u =>
-        `<img class="msg-avatar" src="${u.avatar_url}" title="${u.username}" alt="${u.username}">`
-    ).join('') + (extra > 0 ? `<span class="msg-read-extra">+${extra}</span>` : '');
+    const btn = msgDiv.querySelector('.read-by-toggle');
+    const dropdown = document.getElementById(`read-by-dropdown-${event.message_id}`);
+    if (!btn || !dropdown) return;
+
+    const listHtml = readBy.map(u => {
+        const avatar = u.avatar_url
+            ? `<img class="read-by-avatar" src="${u.avatar_url}" alt="${u.username}">`
+            : `<span class="read-by-avatar read-by-initials">${(u.username || '').slice(0, 2).toUpperCase()}</span>`;
+        return `<div class="read-by-item">${avatar}<span class="read-by-username">${u.username}</span></div>`;
+    }).join('');
+
+    let countEl = btn.querySelector('.read-by-count');
+    if (!countEl) {
+        countEl = document.createElement('span');
+        countEl.className = 'read-by-count';
+        btn.appendChild(countEl);
+    }
+    countEl.textContent = readBy.length;
+    btn.title = `${readBy.length} osób przeczytało tę wiadomość`;
+    dropdown.querySelector('.read-by-list').innerHTML = listHtml;
 }
 
 export async function onReceiveEdit(edit_info) {

@@ -140,6 +140,15 @@ export default class WsApi {
         this.sendJson({ command: 'message-react', reaction, message_id });
     }
 
+    markMessageRead(message_id) {
+        this.sendJson({ command: 'message-mark-read', message_id });
+    }
+
+    markMessagesReadBulk(message_ids, room_id) {
+        if (!message_ids.length) return;
+        this.sendJson({ command: 'messages-mark-read-bulk', message_ids, room_id });
+    }
+
     /**
      * Edits an existing message
      * @param {number} message_id - ID of message to edit

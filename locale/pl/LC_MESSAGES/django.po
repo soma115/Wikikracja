@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-03 21:01+0200\n"
+"POT-Creation-Date: 2026-07-05 21:52+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -883,7 +883,7 @@ msgstr "Nazwa kategorii"
 msgid "Description (optional)"
 msgstr "Opis (opcjonalny)"
 
-#: .\chat\consumers.py:678
+#: .\chat\consumers.py:694
 msgid "New message"
 msgstr "Nowa wiadomość"
 

@@ -583,5 +583,33 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     renameInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') renameConfirm?.click(); });
+
+    // ── Read by dropdown toggle ─────────────────────────────────────────────────
+    let openReadByDropdown = null;
+
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.read-by-toggle');
+        if (btn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const messageId = btn.dataset.messageId;
+            const dropdown = document.getElementById(`read-by-dropdown-${messageId}`);
+            if (!dropdown) return;
+
+            // Close previously open dropdown
+            if (openReadByDropdown && openReadByDropdown !== dropdown) {
+                openReadByDropdown.style.display = 'none';
+            }
+
+            // Toggle current dropdown
+            const isHidden = dropdown.style.display === 'none';
+            dropdown.style.display = isHidden ? 'block' : 'none';
+            openReadByDropdown = isHidden ? dropdown : null;
+        } else if (openReadByDropdown && !e.target.closest('.read-by-dropdown')) {
+            // Close dropdown when clicking outside
+            openReadByDropdown.style.display = 'none';
+            openReadByDropdown = null;
+        }
+    });
 });
 

@@ -227,6 +227,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                         'bulb': msg_data.get('bulb_count', 0),
                         'question': msg_data.get('question_count', 0)
                     },
+                    read_by=msg_data.get('read_by', []),
                 )
             except TypeError:
                 data = None
@@ -294,6 +295,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                         'bulb': msg_data.get('bulb_count', 0),
                         'question': msg_data.get('question_count', 0)
                     },
+                    read_by=msg_data.get('read_by', []),
                 )
             except TypeError:
                 continue
@@ -548,6 +550,20 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 "read_by": read_by,
             }
         })
+
+    @handlers.register("messages-mark-read-bulk")
+    async def handle_mark_read_bulk(self, proxy: HandledMessage, message_ids: list, room_id: int):
+        room = await self.repo.get_room(room_id)
+        new_ids = await self.repo.mark_messages_read_bulk(message_ids)
+        for message_id in new_ids:
+            read_by = await self.repo.get_read_by_data(message_id)
+            proxy.group_send(room.group_name, {
+                "type": "chat.read",
+                "messages_read": {
+                    "message_id": message_id,
+                    "read_by": read_by,
+                }
+            })
 
     @handlers.register("edit-message")
     async def handle_edit_message(self, proxy: HandledMessage, message_id: int, new_message: str = None, attachments: dict = None, removed_attachments: list = None):
