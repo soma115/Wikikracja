@@ -71,11 +71,11 @@ CSRF_TRUSTED_ORIGINS = env_list(
 INTERNAL_IPS = ['127.0.0.1', '192.168.1.3', '192.168.178.79', '10.1.77.31', '10.0.0.0/8']
 
 CSRF_COOKIE_SECURE = False if DEBUG else True
-CSRF_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = getenv("CSRF_COOKIE_SAMESITE", "Lax")
 
 # Session cookie settings - must match CSRF settings for WebSocket to work
 SESSION_COOKIE_SECURE = False if DEBUG else True
-SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SAMESITE = getenv("SESSION_COOKIE_SAMESITE", "Lax")
 # SESSION_COOKIE_HTTPONLY = True
 
 # Reverse proxy configuration (required when behind Traefik/nginx)
