@@ -1,0 +1,62 @@
+{% extends 'glosowania/menu.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block extra_css %}{{ form.media }}
+<style>
+  .post-form .richtext-wrapper { overflow: visible; }
+  .post-form .message-input-rich {
+    resize: vertical;
+    max-height: none;
+    overflow-y: auto;
+  }
+</style>
+{% endblock %}
+
+{% block glosowania %}
+<div class="container mt-3">
+  <h2>{% if decyzja %}{% trans 'Edit system parameters referendum' %}{% else %}{% trans 'Change system parameters' %}{% endif %}</h2>
+  <p class="text-muted">
+    {% trans 'Adjust the values below. Only the parameters you change will be included in the referendum.' %}
+  </p>
+
+  <form action="." method="POST" class="post-form" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    {% for label, fields in form.grouped_fields %}
+      <fieldset class="border rounded p-3 mb-3">
+        <legend class="fs-6 fw-bold">{{ label }}</legend>
+        {% for field in fields %}
+          {{ field|as_crispy_field }}
+          {% if field.field.spec.warning %}
+            <div class="alert alert-warning py-1 px-2 small">{{ field.field.spec.warning }}</div>
+          {% endif %}
+        {% endfor %}
+      </fieldset>
+    {% endfor %}
+
+    <fieldset class="border rounded p-3 mb-3">
+      <legend class="fs-6 fw-bold">{% trans 'Logo' %}</legend>
+      {% if decyzja.proposed_brand_mark %}
+        <div class="mb-2">
+          <div class="small text-muted">{% trans 'Currently proposed logo:' %}</div>
+          <img src="{{ decyzja.proposed_brand_mark.url }}" alt="{% trans 'Proposed logo' %}" style="max-height:64px;width:auto;" class="border rounded p-1 bg-white">
+        </div>
+      {% endif %}
+      {{ form.brand_mark|as_crispy_field }}
+    </fieldset>
+
+    <div class="mb-3">
+      {{ form.uzasadnienie|as_crispy_field }}
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-sm">{% if decyzja %}{% trans 'Save' %}{% else %}{% trans 'Create referendum' %}{% endif %}</button>
+    <a href="{% url 'glosowania:parameters' %}" class="btn btn-secondary btn-sm">{% trans 'Back' %}</a>
+  </form>
+</div>
+{% endblock %}

@@ -166,7 +166,8 @@ def run_meeting_notification():
                 body_parts.append(f"{_('Description')}: {description}")
 
             body_text = " | ".join(body_parts)
-            title = f"{settings.SITE_NAME} {_('Reminder')}"
+            from site_settings.params import get_param
+            title = f"{get_param('site_name') or settings.SITE_NAME} {_('Reminder')}"
             click_action = event.link if event.link else f"{settings.HOST}/events/{event.id}/"
 
             # Send WebPush notifications

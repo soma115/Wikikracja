@@ -51,6 +51,21 @@ class Decyzja(models.Model):
     za = models.SmallIntegerField(default=0, editable=False)
     przeciw = models.SmallIntegerField(default=0, editable=False)
     status = models.SmallIntegerField(default=1, editable=False)
+    proposed_parameters = models.JSONField(
+        null=True,
+        blank=True,
+        editable=False,
+        verbose_name=_('Proposed system parameters'),
+        help_text=_('If set, this referendum changes system parameters. Applied when approved.'),
+    )
+    proposed_brand_mark = models.ImageField(
+        upload_to='site_branding/proposed/',
+        null=True,
+        blank=True,
+        editable=False,
+        verbose_name=_('Proposed logo'),
+        help_text=_('If set, this referendum changes the site logo. Applied when approved.'),
+    )
     chat_room = models.ForeignKey(
         "chat.Room",
         null=True,

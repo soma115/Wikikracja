@@ -36,6 +36,7 @@ from obywatele.filters import UzytkownikFilter
 from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, SendEmailToAll, UserForm, UsernameChangeForm
 from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
 from obywatele.tables import UzytkownikTable
+from site_settings.params import get_param
 from tasks.models import Task, TaskEvaluation, TaskVote
 from zzz.utils import build_site_url, get_site_domain
 
@@ -71,7 +72,7 @@ def get_onboarding_user_from_request(request: HttpRequest):
     token = request.GET.get('token')
     if token:
         try:
-            signed_value = signer.unsign(token, max_age=s.DELETE_INACTIVE_USER_AFTER * 24 * 60 * 60)
+            signed_value = signer.unsign(token, max_age=get_param('delete_inactive_user_after') * 24 * 60 * 60)
             onboarding_user_id = int(signed_value)
             request.session['onboarding_user_id'] = onboarding_user_id
             request.session.modified = True
@@ -139,17 +140,18 @@ def required_reputation():
     grant_automatic_reputation()
     '''
     pop = population()
-    if pop < s.ACCEPTANCE * 2:
-        return pop - s.ACCEPTANCE
-    return s.ACCEPTANCE
+    acceptance = get_param('acceptance')
+    if pop < acceptance * 2:
+        return pop - acceptance
+    return acceptance
 
 
 @login_required
 def parameters(request: HttpRequest):
     return render(request, 'obywatele/parameters.html', {
         'population': population(),
-        'acceptance': s.ACCEPTANCE,
-        'delete_inactive_user_after': s.DELETE_INACTIVE_USER_AFTER,
+        'acceptance': get_param('acceptance'),
+        'delete_inactive_user_after': get_param('delete_inactive_user_after'),
     })
 
 
@@ -487,8 +489,8 @@ def poczekalnia(request: HttpRequest):
         {
             'uid': users_with_ratings,  # Users with ratings attached
             'population': population(),
-            'acceptance': s.ACCEPTANCE,
-            'delete_inactive_user_after': s.DELETE_INACTIVE_USER_AFTER,
+            'acceptance': get_param('acceptance'),
+            'delete_inactive_user_after': get_param('delete_inactive_user_after'),
             'required_reputation': required_reputation(),
         }
     )

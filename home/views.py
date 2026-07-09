@@ -792,10 +792,11 @@ def manifest(request):
         icon_192_src = '/static/home/images/icon-192.png'
         icon_512_src = '/static/home/images/icon-512.png'
 
+    from site_settings.params import get_param
     data = {
-        'name': settings.SITE_NAME,
-        'short_name': settings.SITE_NAME_MAX_12_CHARS,
-        'description': settings.SITE_DESCRIPTION,
+        'name': get_param('site_name') or settings.SITE_NAME,
+        'short_name': get_param('site_name_max_12_chars') or settings.SITE_NAME_MAX_12_CHARS,
+        'description': get_param('site_description') or settings.SITE_DESCRIPTION,
         'start_url': '/',
         'display': 'standalone',
         'orientation': 'any',
@@ -820,9 +821,13 @@ def manifest(request):
             "purpose": "any"
         }],
     }
-    return JsonResponse(data, json_dumps_params={
+    response = JsonResponse(data, json_dumps_params={
         'ensure_ascii': False
     })
+    # Let browsers revalidate so PWA name/description changes are picked up
+    # without an app restart or manual cache clearing.
+    response['Cache-Control'] = 'no-cache'
+    return response
 
 
 def service_worker(request):
@@ -890,7 +895,7 @@ def site_admin(request: HttpRequest) -> HttpResponse:
         form = SiteSettingsBrandingForm(request.POST, request.FILES, instance=ss)
         if form.is_valid():
             form.save()
-            messages.success(request, _('Branding zapisany.'))
+            messages.success(request, _('Branding saved.'))
         else:
             for field, errors in form.errors.items():
                 for error in errors:
@@ -904,7 +909,7 @@ def site_admin(request: HttpRequest) -> HttpResponse:
         order = request.POST.get('quick_link_order', 0)
         if title and url:
             QuickLink.objects.create(title=title, url=url, icon=icon, order=order)
-            messages.success(request, _('Link dodany.'))
+            messages.success(request, _('Link added.'))
         return redirect('site_admin')
 
     if request.method == 'POST' and 'edit_quick_link' in request.POST:
@@ -920,9 +925,9 @@ def site_admin(request: HttpRequest) -> HttpResponse:
             link.icon = icon
             link.order = order
             link.save()
-            messages.success(request, _('Link zaktualizowany.'))
+            messages.success(request, _('Link updated.'))
         except QuickLink.DoesNotExist:
-            messages.error(request, _('Link nie istnieje.'))
+            messages.error(request, _("Link doesn't exist."))
         return redirect('site_admin')
 
     if request.method == 'POST' and 'reorder_quick_links' in request.POST:
@@ -941,9 +946,9 @@ def site_admin(request: HttpRequest) -> HttpResponse:
         try:
             link = QuickLink.objects.get(id=link_id)
             link.delete()
-            messages.success(request, _('Link usunięty.'))
+            messages.success(request, _('Link deleted.'))
         except QuickLink.DoesNotExist:
-            messages.error(request, _('Link nie istnieje.'))
+            messages.error(request, _("Link doesn't exist."))
         return redirect('site_admin')
 
     quick_links = QuickLink.objects.all()

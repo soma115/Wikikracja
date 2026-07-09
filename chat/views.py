@@ -28,6 +28,7 @@ from chat.models import Room
 from chat.utils import send_message_to_room
 from chat.signals import user_accepted, user_deleted
 from glosowania.models import Decyzja
+from site_settings.params import get_param
 from tasks.models import Task
 
 log = logging.getLogger(__name__)
@@ -153,8 +154,8 @@ def chat(request: HttpRequest):
         'private_active': private_active,
         'private_archived': private_archived,
         'user': request.user,
-        'ARCHIVE_PUBLIC_CHAT_ROOM': td(days=settings.ARCHIVE_PUBLIC_CHAT_ROOM).days,
-        'DELETE_PUBLIC_CHAT_ROOM': td(days=settings.DELETE_PUBLIC_CHAT_ROOM).days,
+        'ARCHIVE_PUBLIC_CHAT_ROOM': td(days=get_param('archive_public_chat_room')).days,
+        'DELETE_PUBLIC_CHAT_ROOM': td(days=get_param('delete_public_chat_room')).days,
         'MESSAGE_MAX_LENGTH': settings.MESSAGE_MAX_LENGTH,
     })
 

@@ -15,6 +15,8 @@ urlpatterns = (
     path('rejected/', v.rejected, name='rejected'),
     path('approved/', v.approved, name='approved'),
     path('parameters/', v.parameters, name='parameters'),
+    path('parameters/propose/', v.parameters_propose, name='parameters_propose'),
+    path('parameters/propose/<int:pk>/', v.parameters_propose, name='parameters_edit'),
     # Argument management
     path('details/<int:pk>/add-argument/', v.add_argument, name='add_argument'),
     path('argument/<int:argument_id>/edit/', v.edit_argument, name='edit_argument'),

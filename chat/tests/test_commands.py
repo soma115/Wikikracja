@@ -1,9 +1,10 @@
 from io import StringIO
 
 from django.core.management import call_command
-from django.test import TestCase, override_settings
+from django.test import TestCase
 
 from chat.models import Room
+from site_settings.models import SiteParameters
 
 
 class CreateInboxCommandTest(TestCase):
@@ -28,8 +29,10 @@ class CreateInboxCommandTest(TestCase):
         self.assertEqual(Room.objects.filter(is_inbox=True).count(), 1)
         self.assertIn('already exists', out.getvalue())
 
-    @override_settings(GROUP_IS_PUBLIC=False)
     def test_skips_when_group_is_not_public(self):
+        sp = SiteParameters.get()
+        sp.group_is_public = False
+        sp.save()
         out = StringIO()
         call_command('create_inbox', stdout=out)
         self.assertFalse(Room.objects.filter(is_inbox=True).exists())

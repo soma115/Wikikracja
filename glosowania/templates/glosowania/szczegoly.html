@@ -142,6 +142,12 @@
         <div class="detail-section-text" style="font-size:.82rem;">{{ id.znosi }}</div>
       </div>
       {% endif %}
+      {% if id.proposed_brand_mark %}
+      <div class="detail-subsection">
+        <div class="detail-section-label"><i class="fas fa-image"></i>{% trans 'Proposed logo' %}</div>
+        <img src="{{ id.proposed_brand_mark.url }}" alt="{% trans 'Proposed logo' %}" style="max-height:96px;width:auto;" class="border rounded p-1 bg-white">
+      </div>
+      {% endif %}
     </div>
   </div>
   {% endif %}

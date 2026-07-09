@@ -41,7 +41,11 @@
 				
 				{% trans "If you want to change Acceptance threshold - create referendum." %}
 			</p>
-			<a href="https://wikikracja.pl/obrona-przed-wrogim-przejeciem/" target="_blank" >{% trans "Read explanation for this mechanism" %}</a>
+			<a href="{% url 'glosowania:parameters_propose' %}" class="btn btn-primary btn-sm mb-2">
+				<i class="fas fa-sliders-h me-1"></i>{% trans 'Create referendum on system parameters' %}
+			</a>
+			<br>
+			<a href="https://wikikracja.pl/obrona-przed-wrogim-przejeciem/" target="_blank" rel="noopener">{% trans "Read explanation for this mechanism" %}</a>
 		</li>
 	</ul>
 

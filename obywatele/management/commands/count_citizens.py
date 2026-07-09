@@ -125,8 +125,9 @@ class Command(BaseCommand):
         Only applies when group size is <= ACCEPTANCE * 2.
         For larger groups this mechanism is disabled.
         """
+        from site_settings.params import get_param
         current_population = population()
-        if current_population > s.ACCEPTANCE * 2:
+        if current_population > get_param('acceptance') * 2:
             return
         for k in Uzytkownik.objects.filter(uid__is_active=True):
             if new_citizen == k:  # but not yourself
@@ -288,7 +289,8 @@ class Command(BaseCommand):
 
     def delete_inactive_users(self):
         """Delete inactive users who haven't logged in for a while"""
-        inactive_period = s.DELETE_INACTIVE_USER_AFTER if hasattr(s, 'DELETE_INACTIVE_USER_AFTER') else 30
+        from site_settings.params import get_param
+        inactive_period = get_param('delete_inactive_user_after')
 
         for user in User.objects.filter(is_active=False):
             if user.last_login is None:

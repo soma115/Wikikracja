@@ -20,8 +20,10 @@ from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from chat.views import get_translations as get_chat_translations
-from glosowania.forms import ArgumentForm, DecyzjaForm
+from glosowania.forms import ArgumentForm, DecyzjaForm, ParametersProposalForm
 from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
+from site_settings.models import SiteParameters
+from site_settings.params import describe_changes, specs_by_category
 from zzz.utils import build_site_url, get_site_domain
 
 log = logging.getLogger(__name__)
@@ -75,6 +77,10 @@ def edit(request: HttpRequest, pk: int):
 
     if decision.status != 1:
         return redirect('glosowania:details', pk)
+
+    # Parameter referenda use a dedicated form pre-filled with proposed values.
+    if decision.proposed_parameters is not None or decision.proposed_brand_mark:
+        return redirect('glosowania:parameters_edit', pk)
 
     if request.method == 'POST':
         form = DecyzjaForm(request.POST)
@@ -535,11 +541,96 @@ def SendEmail(subject: str, message: str):
 
 @login_required
 def parameters(request: HttpRequest):
+    sp = SiteParameters.get()
+
+    # Grouped current values for display (category label -> [(spec, value), ...]).
+    groups = []
+    for _key, label, specs in specs_by_category():
+        groups.append((label, [(spec, getattr(sp, spec.name)) for spec in specs]))
+
     return render(request, 'glosowania/parameters.html', {
-        'signatures': s.WYMAGANYCH_PODPISOW,
-        'signatures_span': timedelta(days=s.CZAS_NA_ZEBRANIE_PODPISOW).days,
-        'queue_span': timedelta(days=s.DYSKUSJA).days,
-        'referendum_span': timedelta(days=s.CZAS_TRWANIA_REFERENDUM).days,
+        'signatures': sp.wymaganych_podpisow,
+        'signatures_span': sp.czas_na_zebranie_podpisow,
+        'queue_span': sp.dyskusja,
+        'referendum_span': sp.czas_trwania_referendum,
+        'parameter_groups': groups,
+    })
+
+
+@login_required
+def parameters_propose(request: HttpRequest, pk: int = None):
+    """Show a pre-filled form of all system parameters and create (or edit) a
+    referendum (Decyzja) from the changed values.
+
+    When ``pk`` is given, an existing parameter referendum is edited in place
+    (a DecyzjaWersja snapshot is stored), instead of creating a new one.
+    """
+    decyzja = None
+    if pk is not None:
+        decyzja = get_object_or_404(Decyzja, pk=pk)
+        # Only the author may edit, and only while it is still a proposition.
+        if decyzja.author != request.user or decyzja.status != 1:
+            return redirect('glosowania:details', pk)
+
+    if request.method == 'POST':
+        form = ParametersProposalForm(request.POST, request.FILES, decyzja=decyzja)
+        if form.is_valid():
+            changes = form.changed_parameters()
+            new_logo = form.cleaned_data.get('brand_mark')
+
+            # Build a human readable change list used as the referendum body.
+            # NOTE: the |richtext filter only keeps b/i/u/br/a tags, so we use <br>/<b>.
+            rows = describe_changes(changes)
+            lines = [f'{html.escape(str(label))}: <b>{html.escape(str(old))}</b> → <b>{html.escape(str(new))}</b>'
+                     for label, old, new in rows]
+            keeps_logo = bool(decyzja and decyzja.proposed_brand_mark)
+            if new_logo or keeps_logo:
+                lines.append(f'{html.escape(str(_("Logo")))}: <b>{html.escape(str(_("new logo")))}</b>')
+            tresc = str(_('Proposed change of system parameters:')) + '<br>' + '<br>'.join(lines)
+
+            if decyzja is None:
+                decyzja = Decyzja(
+                    author=request.user,
+                    title=str(_('System parameters change')),
+                    data_powstania=datetime.today(),
+                    status=1,
+                    path=str(_('Proposition')),
+                )
+            else:
+                # Snapshot the current version before overwriting.
+                DecyzjaWersja.objects.create(
+                    decyzja=decyzja,
+                    modified_by=request.user,
+                    version_number=decyzja.wersje.count() + 1,
+                    title=decyzja.title,
+                    tresc=decyzja.tresc,
+                    kara=decyzja.kara,
+                    uzasadnienie=decyzja.uzasadnienie,
+                    znosi=decyzja.znosi,
+                )
+
+            decyzja.tresc = tresc
+            decyzja.uzasadnienie = form.cleaned_data['uzasadnienie']
+            decyzja.proposed_parameters = changes
+            if new_logo:
+                decyzja.proposed_brand_mark = new_logo
+            decyzja.save()
+
+            if pk is None:
+                log.info(f'New parameters referendum {decyzja.id} added by {request.user} changes={changes}')
+                messages.success(request, _('New proposal has been saved.'))
+                SendEmail(str(_('New law proposal')), str(_('{user} added new law proposal: "{title}"\nYou can read it here: {url}')).format(
+                    user=request.user.username.capitalize(), title=decyzja.title, url=build_site_url(f'/glosowania/details/{decyzja.id}')))
+            else:
+                log.info(f'Parameters referendum {decyzja.id} edited by {request.user} changes={changes}')
+                messages.success(request, _('Saved.'))
+            return redirect('glosowania:proposition')
+    else:
+        form = ParametersProposalForm(decyzja=decyzja)
+
+    return render(request, 'glosowania/parameters_propose.html', {
+        'form': form,
+        'decyzja': decyzja,
     })
 
 

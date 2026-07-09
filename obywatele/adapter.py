@@ -48,8 +48,8 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         """
         Allow signup if configured
         """
-        from django.conf import settings
-        return getattr(settings, 'GROUP_IS_PUBLIC', True)
+        from site_settings.params import get_param
+        return get_param('group_is_public')
 
     def get_login_redirect_url(self, request):
         """

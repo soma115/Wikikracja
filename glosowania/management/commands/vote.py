@@ -15,6 +15,8 @@ from django.utils.translation import gettext_lazy as _
 
 from chat.models import Room
 from glosowania.models import Decyzja
+from site_settings.models import SiteParameters
+from site_settings.params import apply_brand_mark, apply_parameters
 from zzz.utils import build_site_url, get_site_domain
 
 log = logging.getLogger(__name__)
@@ -52,6 +54,7 @@ class Command(BaseCommand):
             approved = 5
 
             dzisiaj = datetime.today().date()
+            sp = SiteParameters.get()
 
             approved_for = _("is approved for referendum")
             became = _('became abiding law today')
@@ -85,7 +88,7 @@ class Command(BaseCommand):
                     if i.status == proposition:
                         if not i.is_author_signed:
                             log.info(f"Proposition {i.id} is still a draft because the author has not signed it yet.")
-                        elif i.ile_osob_podpisalo >= s.WYMAGANYCH_PODPISOW:
+                        elif i.ile_osob_podpisalo >= sp.wymaganych_podpisow:
                             # Check if 2 days have passed since last modification
                             if i.data_ostatniej_modyfikacji:
                                 days_since_modification = (dzisiaj - i.data_ostatniej_modyfikacji.date()).days
@@ -96,8 +99,8 @@ class Command(BaseCommand):
                             i.status = discussion
                             i.path = str(i.path) + " -> " + _("Signed") + " -> " + _("Discussion")
                             i.data_zebrania_podpisow = dzisiaj
-                            i.data_referendum_start = i.data_zebrania_podpisow + timedelta(days=s.DYSKUSJA)
-                            i.data_referendum_stop = i.data_referendum_start + timedelta(days=s.CZAS_TRWANIA_REFERENDUM)
+                            i.data_referendum_start = i.data_zebrania_podpisow + timedelta(days=sp.dyskusja)
+                            i.data_referendum_stop = i.data_referendum_start + timedelta(days=sp.czas_trwania_referendum)
                             i.save()
                             details_url = f"http://{HOST}/glosowania/details/{i.id}"
                             pending_emails.append((f"{prop_number} {i.id} {approved_for}", f"{prop_number} {i.id} '{i.title}' {gathered} {i.data_referendum_start} {to} {i.data_referendum_stop}\n{click}: {details_url}"))
@@ -109,7 +112,7 @@ class Command(BaseCommand):
                     # Reached when: (a) author has NOT signed (if not is_author_signed), OR
                     # (b) author signed but not enough signatures gathered (elif was False).
                     # When elif was True and proposal moved to discussion — continue skips this block.
-                        if i.data_powstania + timedelta(days=s.CZAS_NA_ZEBRANIE_PODPISOW) <= dzisiaj:
+                        if i.data_powstania + timedelta(days=sp.czas_na_zebranie_podpisow) <= dzisiaj:
                             i.status = rejected
                             i.path = str(i.path) + " -> " + _("Not enough signatures")
                             i.save()
@@ -140,6 +143,20 @@ class Command(BaseCommand):
                         if i.za > i.przeciw:
                             i.status = approved
                             i.path = i.path + " -> " + _("Approved")
+                            # Apply system parameter changes if this is a parameter referendum
+                            if i.proposed_parameters:
+                                try:
+                                    apply_parameters(i.proposed_parameters)
+                                    log.info(f"Applied system parameters from referendum {i.id}: {i.proposed_parameters}")
+                                except Exception as e:
+                                    log.error(f"Failed to apply parameters from referendum {i.id}: {e}")
+                            # Apply logo change if this referendum proposed a new logo
+                            if i.proposed_brand_mark:
+                                try:
+                                    apply_brand_mark(i.proposed_brand_mark)
+                                    log.info(f"Applied logo from referendum {i.id}")
+                                except Exception as e:
+                                    log.error(f"Failed to apply logo from referendum {i.id}: {e}")
                             # Reject bills
                             if i.znosi:
                                 separated = re.split(r'\W+', i.znosi)

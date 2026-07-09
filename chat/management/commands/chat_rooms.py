@@ -30,17 +30,20 @@ class Command(BaseCommand):
         # create_one2one_rooms(user_accepted)  # use it if there is no private rooms
 
         # Archive/Delete old public chat rooms
+        from site_settings.params import get_param
+        archive_after = get_param('archive_public_chat_room')
+        delete_after = get_param('delete_public_chat_room')
         for room in public_rooms:
             try:
                 last_message = Message.objects.filter(room_id=room.id).latest('time')
             except Message.DoesNotExist:
                 # logger.info(f'Message.DoesNotExist1 in {room}')
                 continue
-            if last_message.time < (timezone.now() - td(days=s.ARCHIVE_PUBLIC_CHAT_ROOM)):  # archive public after 3 months
+            if last_message.time < (timezone.now() - td(days=archive_after)):  # archive public after 3 months
                 log.info(f'Chat room {room.title} archived.')
                 room.archived = True  # archive
                 room.save()
-            elif last_message.time > (timezone.now() - td(days=s.ARCHIVE_PUBLIC_CHAT_ROOM)):  # unarchive
+            elif last_message.time > (timezone.now() - td(days=archive_after)):  # unarchive
                 room.archived = False  # unarchive
                 room.save()
 
@@ -48,7 +51,7 @@ class Command(BaseCommand):
             if room.protected:
                 continue
 
-            if last_message.time < (timezone.now() - td(days=s.DELETE_PUBLIC_CHAT_ROOM)):  # delete after 1 year
+            if last_message.time < (timezone.now() - td(days=delete_after)):  # delete after 1 year
                 log.info(f'Chat room {room.title} deleted.')
                 room.delete()  # delete
                 room.save()
@@ -65,7 +68,7 @@ class Command(BaseCommand):
                         # TODO This happens only for rooms without messages so not really needed
                         # logger.info(f'Message.DoesNotExist2 in {room}')
                         continue
-                    if last_message.time < (timezone.now() - td(days=s.DELETE_INACTIVE_USER_AFTER)):  # delete inactive users private room
+                    if last_message.time < (timezone.now() - td(days=get_param('delete_inactive_user_after'))):  # delete inactive users private room
                         log.info(f'Chat room {room.title} deleted.')
                         room.delete()  # delete
                 elif user.is_active:

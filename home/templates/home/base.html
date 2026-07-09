@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html lang="{{ request.LANGUAGE_CODE }}" data-theme="dark" data-prefs-scope="{% block prefs_scope %}{% endblock %}">
 <head>
-	<title>{{ branding.branding_text|default:request.site.name }}</title>
+	<title>{{ branding.branding_text|default:site_name }}</title>
 	<meta charset="utf-8">
 	<meta name="description" content="{{ site_description|default:'' }}">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
@@ -67,7 +67,7 @@
     <!-- Logo -->
     <div class="sidebar-logo">
       <a href="{% url 'home' %}" style="text-decoration:none;">
-        <span class="logo-title">{% include 'home/_brand_mark.html' %}<span class="logo-label ms-1">{{ branding.branding_text|default:request.site.name }}</span></span>
+        <span class="logo-title">{% include 'home/_brand_mark.html' %}<span class="logo-label ms-1">{{ branding.branding_text|default:site_name }}</span></span>
       </a>
       <a href="{% url 'site_admin' %}" style="text-decoration:none;"><span class="logo-sub">Wikikracja v.{{ app_version }}</span></a>
     </div>
@@ -197,7 +197,7 @@
         </button>
         <a href="{% url 'home' %}" class="topbar-logo">
           {% include 'home/_brand_mark.html' %}
-          <span class="logo-label ms-1">{{ branding.branding_text|default:request.site.name }}</span>
+          <span class="logo-label ms-1">{{ branding.branding_text|default:site_name }}</span>
         </a>
         <span class="sep">›</span>
         <span class="current">
@@ -297,7 +297,7 @@
     <nav class="topbar">
       <div class="topbar-breadcrumb">
         <a href="{% url 'home' %}" style="color:var(--accent);font-weight:700;font-size:1rem;">
-          <i class="fas fa-building-columns me-1"></i>{{ request.site.name }}
+          <i class="fas fa-building-columns me-1"></i>{{ site_name }}
         </a>
       </div>
       <div class="anon-nav">

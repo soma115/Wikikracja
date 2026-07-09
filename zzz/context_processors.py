@@ -17,13 +17,17 @@ def footer(request: HttpRequest):
 
 
 def site_description(request):
+    from site_settings.params import get_param
+    site = getattr(request, 'site', None)
     return {
-        'site_description': settings.SITE_DESCRIPTION,
+        'site_name': get_param('site_name') or getattr(site, 'name', '') or settings.SITE_NAME,
+        'site_description': get_param('site_description') or settings.SITE_DESCRIPTION,
         'app_version': zzz.__version__,
     }
 
 
 def group_is_public(request):
+    from site_settings.params import get_param
     return {
-        'group_is_public': getattr(settings, 'GROUP_IS_PUBLIC', True),
+        'group_is_public': get_param('group_is_public'),
     }
