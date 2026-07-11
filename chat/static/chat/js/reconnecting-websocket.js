@@ -173,6 +173,7 @@
         var forcedClose = false;
         var timedOut = false;
         var eventTarget = document.createElement('div');
+        var messageQueue = [];
 
         // Wire up "on*" properties as event handlers
 
@@ -245,6 +246,15 @@
                 e.isReconnect = reconnectAttempt;
                 reconnectAttempt = false;
                 eventTarget.dispatchEvent(e);
+
+                // Flush any messages queued while the connection was still opening
+                while (messageQueue.length > 0) {
+                    var queuedData = messageQueue.shift();
+                    if (self.debug || ReconnectingWebSocket.debugAll) {
+                        console.debug('ReconnectingWebSocket', 'send (queued)', self.url, queuedData);
+                    }
+                    ws.send(queuedData);
+                }
             };
 
             ws.onclose = function(event) {
@@ -301,13 +311,18 @@
          * @param data a text string, ArrayBuffer or Blob to send to the server.
          */
         this.send = function(data) {
-            if (ws) {
+            if (ws && self.readyState === WebSocket.OPEN) {
                 if (self.debug || ReconnectingWebSocket.debugAll) {
                     console.debug('ReconnectingWebSocket', 'send', self.url, data);
                 }
                 return ws.send(data);
             } else {
-                throw 'INVALID_STATE_ERR : Pausing to reconnect websocket';
+                // Connection not open yet (still CONNECTING) — queue and flush on open
+                // instead of throwing a native InvalidStateError.
+                if (self.debug || ReconnectingWebSocket.debugAll) {
+                    console.debug('ReconnectingWebSocket', 'queue (not open yet)', self.url, data);
+                }
+                messageQueue.push(data);
             }
         };
 

@@ -1189,6 +1189,21 @@ body:has(.chat-rooms) .main-area {
     border-color: var(--accent);
     transform: scale(0.98);
 }
+.room-link.connecting .room-link__avatar {
+    position: relative;
+}
+.room-link.connecting .room-link__avatar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: var(--color-primary);
+    animation: room-link-connecting-spin 0.7s linear infinite;
+}
+@keyframes room-link-connecting-spin {
+    to { transform: rotate(360deg); }
+}
 .room-link .room-name {
     flex: 1 1 auto;
     min-width: 0;

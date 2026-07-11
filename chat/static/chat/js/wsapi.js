@@ -90,6 +90,16 @@ export default class WsApi {
     }
 
     /**
+     * Checks whether the underlying WebSocket connection is currently open.
+     * Useful for showing a "connecting..." indicator before commands that
+     * would otherwise be queued until the connection opens.
+     * @returns {boolean}
+     */
+    isConnected() {
+        return this.ws.socket.readyState === WebSocket.OPEN;
+    }
+
+    /**
      * Joins a chat room
      * @param {number} room_id - ID of the room to join
      * @returns {Promise<Object>} - Room data from server

@@ -635,11 +635,19 @@ export async function onRoomTryJoin(room_id) {
     if (CurrentRoomId) return; // joined another room while awaiting confirmation
 
     RoomLock.lock();
+    // WS może być jeszcze w trakcie łączenia (np. tuż po otwarciu strony albo
+    // reconnect po zerwaniu połączenia) — komenda "join" zostanie zakolejkowana
+    // i wyslana automatycznie po otwarciu socketu, ale to moze potrwac chwile.
+    // Pokazujemy prosty spinner na linku do pokoju, zeby user wiedzial, ze cos sie dzieje.
+    const joiningRoomLink = DOM_API.getRoomLinkDiv(room_id);
+    const showConnectingSpinner = !WS_API.isConnected();
+    if (showConnectingSpinner) joiningRoomLink?.classList.add("connecting");
     let response;
     try {
         response = await WS_API.joinRoom(room_id);
     } catch (error) {
         RoomLock.unlock();
+        if (showConnectingSpinner) joiningRoomLink?.classList.remove("connecting");
         if (error === 'ROOM_INVALID' || error === 'ACCESS_DENIED') {
             delete localStorage.lastUsedRoomID;
             DOM_API.getRoomLinkDiv(room_id)?.classList.remove("joined");
@@ -651,6 +659,7 @@ export async function onRoomTryJoin(room_id) {
         return;
     }
     RoomLock.unlock();
+    if (showConnectingSpinner) joiningRoomLink?.classList.remove("connecting");
 
     localStorage.lastUsedRoomID = room_id;
     CurrentRoomId = room_id;
