@@ -386,7 +386,7 @@ ACCOUNT_RATE_LIMITS = {
     'confirm_email': '0/m',  # Disable cooldown (0 per minute = no cooldown)
 }
 ACCOUNT_INACTIVE_REDIRECT_URL = '/obywatele/onboarding/'
-ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_LOGIN_METHODS = set(env_list("ACCOUNT_LOGIN_METHODS", default=["email"]))
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']  # , 'password2*'*/]
 ACCOUNT_UNIQUE_EMAIL = True
 # CRITICAL: Email verification settings for onboarding flow
