@@ -73,8 +73,9 @@ class NewPersonEmailTest(TransactionTestCase):
 
 
 @override_settings(**FAST_EMAIL_SETTINGS)
-class ChatMessagesEmailTest(TestCase):
+class ChatMessagesEmailTest(TransactionTestCase):
     def setUp(self):
+        mail.outbox = []
         self.sender = make_active_user('sender', 'sender@example.com')
         self.recipient = make_active_user('recipient', 'recipient@example.com')
         self.room = Room.objects.create(title='Test Room', public=True)

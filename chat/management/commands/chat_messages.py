@@ -146,4 +146,5 @@ class Command(BaseCommand):
         if email_queue:
             send_thread = threading.Thread(target=_send_queued_emails)
             send_thread.start()
+            send_thread.join()
 
