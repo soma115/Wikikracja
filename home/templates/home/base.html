@@ -213,66 +213,21 @@
         </span>
       </div>
 
-      <!-- Search + Filter -->
-      <div class="d-none d-sm-block" style="position:relative;" id="topbar-search-wrapper">
+      <!-- Search (always searches everywhere) -->
+      <div class="d-none d-sm-block" id="topbar-search-wrapper">
         <form method="get" action="{% url 'search' %}" id="topbar-search-form" autocomplete="off">
-
-          <!-- Filter dropdown (inside form so checkboxes are submitted) -->
-          <div id="topbar-filter-panel" style="display:none;position:absolute;top:calc(100% + 6px);right:0;
-               background:var(--bg-sidebar);border:1px solid var(--border);border-radius:.6rem;
-               padding:.85rem 1rem;z-index:300;min-width:340px;
-               box-shadow:0 8px 32px rgba(0,0,0,.45);">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span style="font-size:.75rem;color:var(--text-muted);">
-                <i class="fas fa-filter me-1"></i>{% trans "Search in categories" %}
-              </span>
-              <button type="button" id="topbar-select-all"
-                      style="font-size:.72rem;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;">
-                {% trans "Everywhere" %}
-              </button>
-            </div>
-            <div class="d-flex flex-wrap gap-2">
-              <label class="tb-chip" data-color="primary">
-                <input type="checkbox" name="cat" value="post" class="d-none tb-cb">
-                <i class="fas fa-chalkboard me-1"></i>{% trans "Board" %}
-              </label>
-              <label class="tb-chip" data-color="warning">
-                <input type="checkbox" name="cat" value="task" class="d-none tb-cb">
-                <i class="fas fa-list-check me-1"></i>{% trans "Tasks" %}
-              </label>
-              <label class="tb-chip" data-color="danger">
-                <input type="checkbox" name="cat" value="decision" class="d-none tb-cb">
-                <i class="fas fa-landmark me-1"></i>{% trans "Votings" %}
-              </label>
-              <label class="tb-chip" data-color="success">
-                <input type="checkbox" name="cat" value="event" class="d-none tb-cb">
-                <i class="fas fa-calendar me-1"></i>{% trans "Event" %}
-              </label>
-              <label class="tb-chip" data-color="secondary">
-                <input type="checkbox" name="cat" value="citizen" class="d-none tb-cb">
-                <i class="fas fa-users me-1"></i>{% trans "Citizens" %}
-              </label>
-              <label class="tb-chip" data-color="primary">
-                <input type="checkbox" name="cat" value="chat" class="d-none tb-cb">
-                <i class="fas fa-comments me-1"></i>{% trans "Chat" %}
-              </label>
-            </div>
-          </div>
-
-          <!-- Input row -->
           <div style="display:flex;gap:.35rem;align-items:center;">
             <input type="search" name="q" id="topbar-q" class="search-box"
                    value="{{ request.GET.q|default:'' }}"
                    placeholder="{% trans 'Search' %}…" aria-label="{% trans 'Search' %}">
-            <button type="button" id="topbar-filter-btn"
-                    title="{% trans 'Search filters' %}"
+            <button type="submit"
+                    title="{% trans 'Search' %}"
                     style="background:transparent;border:1px solid var(--border);border-radius:.4rem;
                            padding:.36rem .55rem;cursor:pointer;color:var(--text-muted);
                            transition:color .15s,border-color .15s;flex-shrink:0;">
-              <i class="fas fa-sliders"></i>
+              <i class="fas fa-magnifying-glass"></i>
             </button>
           </div>
-
         </form>
       </div>
 

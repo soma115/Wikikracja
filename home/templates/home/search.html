@@ -23,6 +23,7 @@
 
   <!-- Search form + filters -->
   <form method="get" action="{% url 'search' %}" id="search-form">
+    <input type="hidden" name="filtered" value="1">
     <div class="card mb-3 p-3">
 
       <!-- Query input -->
@@ -49,6 +50,12 @@
           - no cats selected  → active_cats == ALL  → every chip gets its color (on)
           - some cats selected → chip colored if in active_cats, grayed if not
         {% endcomment %}
+
+        <label id="sp-select-all" class="sp-chip{% if 'post' in active_cats and 'task' in active_cats and 'decision' in active_cats and 'event' in active_cats and 'citizen' in active_cats and 'chat' in active_cats %} on{% endif %}" data-color="accent">
+          <input type="checkbox" value="all" class="d-none sp-cb"
+                 {% if 'post' in active_cats and 'task' in active_cats and 'decision' in active_cats and 'event' in active_cats and 'citizen' in active_cats and 'chat' in active_cats %}checked{% endif %}>
+          <i class="fas fa-globe me-1"></i>{% trans "Everywhere" %}
+        </label>
 
         <label class="sp-chip{% if 'post' in active_cats %} on{% endif %}" data-color="primary">
           <input type="checkbox" name="cat" value="post" class="d-none sp-cb"
@@ -80,18 +87,11 @@
           <i class="fas fa-users me-1"></i>{% trans "Citizens" %}
         </label>
 
-        <label class="sp-chip{% if 'chat' in active_cats %} on{% endif %}" data-color="primary">
+        <label class="sp-chip{% if 'chat' in active_cats %} on{% endif %}" data-color="info">
           <input type="checkbox" name="cat" value="chat" class="d-none sp-cb"
                  {% if 'chat' in active_cats %}checked{% endif %}>
           <i class="fas fa-comments me-1"></i>{% trans "Chat" %}
         </label>
-
-        <button type="button" id="sp-select-all"
-                class="btn btn-sm ms-1"
-                style="font-size:.72rem;background:transparent;border:1px solid var(--border);
-                       color:var(--text-muted);padding:.25rem .6rem;">
-          {% trans "Everywhere" %}
-        </button>
       </div>
     </div>
   </form>
@@ -158,12 +158,14 @@
 }
 .sp-chip:hover { opacity:.65; }
 .sp-chip.on { opacity:1; }
-.sp-chip.on[data-color="primary"]  { background:rgba(59,130,246,.15); color:#60a5fa; border-color:rgba(59,130,246,.35); }
-.sp-chip.on[data-color="warning"]  { background:rgba(243,156,18,.12); color:#f39c12; border-color:rgba(243,156,18,.35); }
-.sp-chip.on[data-color="danger"]   { background:rgba(231,76,60,.12);  color:#e74c3c; border-color:rgba(231,76,60,.35); }
-.sp-chip.on[data-color="success"]  { background:rgba(0,188,140,.12);  color:#00bc8c; border-color:rgba(0,188,140,.35); }
-.sp-chip.on[data-color="info"]     { background:rgba(52,152,219,.12); color:#3498db; border-color:rgba(52,152,219,.35); }
-.sp-chip.on[data-color="secondary"]{ background:rgba(120,120,140,.15);color:#aaa;   border-color:rgba(255,255,255,.15); }
+/* Colors mirror the badges used on module items below (text-bg-primary/warning/danger/success/secondary) */
+.sp-chip.on[data-color="primary"]   { background:rgba(var(--bs-primary-rgb),.18);   color:#7fa8d4; border-color:rgba(var(--bs-primary-rgb),.5); }
+.sp-chip.on[data-color="warning"]   { background:rgba(var(--bs-warning-rgb),.15);   color:#f39c12; border-color:rgba(var(--bs-warning-rgb),.5); }
+.sp-chip.on[data-color="danger"]    { background:rgba(var(--bs-danger-rgb),.15);    color:#e74c3c; border-color:rgba(var(--bs-danger-rgb),.5); }
+.sp-chip.on[data-color="success"]   { background:rgba(var(--bs-success-rgb),.15);   color:#00bc8c; border-color:rgba(var(--bs-success-rgb),.5); }
+.sp-chip.on[data-color="secondary"] { background:rgba(var(--bs-secondary-rgb),.35); color:#adb5bd; border-color:rgba(var(--bs-secondary-rgb),.7); }
+.sp-chip.on[data-color="info"]      { background:rgba(var(--bs-info-rgb),.15);      color:#3498db; border-color:rgba(var(--bs-info-rgb),.5); }
+.sp-chip.on[data-color="accent"]    { background:var(--accent-muted); color:var(--accent); border-color:var(--accent); }
 
 /* ── Result rows ── */
 .sr-row { transition:background .15s; }
@@ -172,9 +174,11 @@
 
 <script>
 (function () {
+  var CATS_KEY  = 'wk_search_cats';
+  var QUERY_KEY = 'wk_last_search_q'; // shared with the topbar search box, see app.js
   var form   = document.getElementById('search-form');
   var allBtn = document.getElementById('sp-select-all');
-  var cbs    = document.querySelectorAll('.sp-cb');
+  var cbs    = document.querySelectorAll('.sp-cb:not([value="all"])');
   var qInput = document.getElementById('sq');
 
   function setChip(cb, on) {
@@ -183,18 +187,95 @@
     if (on) chip.classList.add('on'); else chip.classList.remove('on');
   }
 
+  function syncSelectAll() {
+    var allChecked = Array.prototype.every.call(cbs, function (cb) { return cb.checked; });
+    setChip(allBtn.querySelector('.sp-cb'), allChecked);
+  }
+
+  function currentCats() {
+    return Array.prototype.filter.call(cbs, function (cb) { return cb.checked; })
+                                  .map(function (cb) { return cb.value; });
+  }
+
+  function saveCats() {
+    try { localStorage.setItem(CATS_KEY, JSON.stringify(currentCats())); } catch (e) { /* storage unavailable */ }
+  }
+
+  function loadCats() {
+    try { return JSON.parse(localStorage.getItem(CATS_KEY)); } catch (e) { return null; }
+  }
+
+  // Restore the remembered query + categories when landing on the page from
+  // outside the filter form (e.g. the topbar search, or a fresh /search/ visit
+  // with no query at all — "resume last search"). Once restored, the form
+  // always resubmits with 'filtered=1', so this only ever runs once even if
+  // the remembered category selection is empty (avoids an infinite reload loop).
+  (function restoreFromStorage() {
+    if (new URLSearchParams(window.location.search).has('filtered')) return;
+    var restored = false;
+
+    if (qInput && !qInput.value.trim()) {
+      try {
+        var storedQuery = localStorage.getItem(QUERY_KEY);
+        if (storedQuery) { qInput.value = storedQuery; restored = true; }
+      } catch (e) { /* storage unavailable */ }
+    }
+
+    var storedCats = loadCats();
+    if (Array.isArray(storedCats) && storedCats.length < cbs.length) {
+      cbs.forEach(function (cb) { setChip(cb, storedCats.indexOf(cb.value) !== -1); });
+      syncSelectAll();
+      restored = true;
+    }
+
+    if (restored && qInput && qInput.value.trim()) submitForm();
+  })();
+
+  // form.submit() deliberately does NOT fire the 'submit' event (per spec),
+  // so programmatic auto-submits must go through requestSubmit() instead,
+  // otherwise the query-persist listener below would never run for them.
+  function submitForm() {
+    if (typeof form.requestSubmit === 'function') {
+      form.requestSubmit();
+    } else {
+      persistQuery();
+      form.submit();
+    }
+  }
+
+  function persistQuery() {
+    if (!qInput) return;
+    try {
+      var v = qInput.value.trim();
+      if (v) localStorage.setItem(QUERY_KEY, v);
+      else localStorage.removeItem(QUERY_KEY);
+    } catch (e) { /* storage unavailable */ }
+  }
+
+  // Remember the query on every search submission; clear it if the user
+  // manually emptied the field before searching.
+  form.addEventListener('submit', function () {
+    persistQuery();
+  });
+
   // Auto-submit when chip toggled and query present
   cbs.forEach(function (cb) {
     cb.addEventListener('change', function () {
       setChip(cb, cb.checked);
+      syncSelectAll();
+      saveCats();
       if (qInput && qInput.value.trim())
-        setTimeout(function () { form.submit(); }, 80);
+        setTimeout(submitForm, 80);
     });
   });
 
-  allBtn.addEventListener('click', function () {
-    cbs.forEach(function (cb) { setChip(cb, true); });
-    if (qInput && qInput.value.trim()) form.submit();
+  allBtn.addEventListener('change', function () {
+    var allCb = allBtn.querySelector('.sp-cb');
+    setChip(allCb, allCb.checked);
+    cbs.forEach(function (cb) { setChip(cb, allCb.checked); });
+    saveCats();
+    if (qInput && qInput.value.trim())
+      setTimeout(submitForm, 80);
   });
 })();
 </script>

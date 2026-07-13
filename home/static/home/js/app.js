@@ -4,6 +4,33 @@
  */
 
 // ============================================================
+// Topbar search: remember the last query in localStorage so the field
+// isn't cleared when navigating between pages. Shared key with the
+// search page's own input, see search.html.
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    var QUERY_KEY = 'wk_last_search_q';
+    var input = document.getElementById('topbar-q');
+    var form = document.getElementById('topbar-search-form');
+    if (!input || !form) return;
+
+    if (!input.value.trim()) {
+        try {
+            var stored = localStorage.getItem(QUERY_KEY);
+            if (stored) input.value = stored;
+        } catch (e) { /* storage unavailable */ }
+    }
+
+    form.addEventListener('submit', function() {
+        try {
+            var v = input.value.trim();
+            if (v) localStorage.setItem(QUERY_KEY, v);
+            else localStorage.removeItem(QUERY_KEY);
+        } catch (e) { /* storage unavailable */ }
+    });
+});
+
+// ============================================================
 // Global notification permission banner handler - from base.html
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
@@ -312,57 +339,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.addEventListener('DOMContentLoaded', init);
 })();
-
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('topbar-search-form');
-    const btn = document.getElementById('topbar-filter-btn');
-    const panel = document.getElementById('topbar-filter-panel');
-    const allBtn = document.getElementById('topbar-select-all');
-    const qInput = document.getElementById('topbar-q');
-    const cbs = document.querySelectorAll('.tb-cb');
-    if (!form || !btn) return;
-
-    const urlCats = new URLSearchParams(window.location.search).getAll('cat');
-
-    function setChip(cb, on) {
-        cb.checked = on;
-        const chip = cb.closest('.tb-chip');
-        if (on) chip.classList.add('on'); else chip.classList.remove('on');
-    }
-    function syncBtn() {
-        const n = document.querySelectorAll('.tb-cb:checked').length;
-        const partial = n < cbs.length;
-        btn.style.color = partial ? 'var(--accent)' : 'var(--text-muted)';
-        btn.style.borderColor = partial ? 'var(--accent)' : 'var(--border)';
-    }
-
-    cbs.forEach(function(cb) {
-        setChip(cb, urlCats.length === 0 || urlCats.indexOf(cb.value) !== -1);
-    });
-    syncBtn();
-
-    btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-    });
-    document.addEventListener('click', function(e) {
-        if (!panel.contains(e.target) && e.target !== btn)
-            panel.style.display = 'none';
-    });
-    cbs.forEach(function(cb) {
-        cb.addEventListener('change', function() {
-            setChip(cb, cb.checked);
-            syncBtn();
-            if (qInput && qInput.value.trim())
-                setTimeout(function() { form.submit(); }, 80);
-        });
-    });
-    allBtn.addEventListener('click', function() {
-        cbs.forEach(function(cb) { setChip(cb, true); });
-        syncBtn();
-        if (qInput && qInput.value.trim()) form.submit();
-    });
-});
 
 document.addEventListener('DOMContentLoaded', function() {
     // Board category filter

@@ -592,9 +592,15 @@ ALL_SEARCH_CATS = ['post', 'task', 'decision', 'event', 'citizen', 'chat']
 def global_search(request: HttpRequest):
     query = request.GET.get('q', '').strip()
 
-    # Determine active categories (empty = all)
+    # Determine active categories.
+    # When the request comes from the filter form (filtered=1), an empty
+    # selection means the user explicitly deselected every category.
+    # Otherwise (e.g. topbar search with no filter UI), empty = search everywhere.
     selected = [c for c in request.GET.getlist('cat') if c in ALL_SEARCH_CATS]
-    active_cats = set(selected) if selected else set(ALL_SEARCH_CATS)
+    if request.GET.get('filtered') == '1':
+        active_cats = set(selected)
+    else:
+        active_cats = set(selected) if selected else set(ALL_SEARCH_CATS)
 
     results = []
 
@@ -715,8 +721,8 @@ def global_search(request: HttpRequest):
                 results.append({
                     'cat': 'chat',
                     'type': _('Chat room'),
-                    'type_color': 'primary',
-                    'title': obj.title,
+                    'type_color': 'info',
+                    'title': obj.displayed_name(request.user),
                     'description': '',
                     'url': f'/chat/#room_id={obj.pk}',
                 })
@@ -731,8 +737,8 @@ def global_search(request: HttpRequest):
                 results.append({
                     'cat': 'chat',
                     'type': _('Chat message'),
-                    'type_color': 'primary',
-                    'title': f'{obj.room.title}',
+                    'type_color': 'info',
+                    'title': obj.room.displayed_name(request.user),
                     'description': f'{sender_name}: {strip_tags(obj.text)[:100]}',
                     'url': f'/chat/#room_id={obj.room.pk}',
                 })
@@ -741,8 +747,6 @@ def global_search(request: HttpRequest):
         'query': query,
         'results': results,
         'active_cats': active_cats,
-        'all_cats': ALL_SEARCH_CATS,
-        'selected_cats': selected,
     })
 
 

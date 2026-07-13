@@ -8,15 +8,16 @@ register = template.Library()
 
 @register.filter
 def content_type_color(content_type):
-    """Return Bootstrap color class for content type"""
+    """Return Bootstrap color class for content type (kept in sync with the
+    category colors used on the search page, see home/templates/home/search.html)"""
     color_map = {
         'post': 'primary',
-        'task': 'success',
-        'event': 'primary',
-        'message': 'primary',
+        'task': 'warning',
+        'event': 'success',
+        'message': 'info',
         'room_messages': 'info',  # New content type for grouped room messages
         'decision': 'danger',
-        'citizen': 'danger',
+        'citizen': 'secondary',
         'membership': 'secondary',
         'transaction': 'primary',
     }

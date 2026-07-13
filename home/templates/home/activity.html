@@ -67,13 +67,7 @@
       {% for item in feed_items %}
       <a href="{{ item.url }}" class="feed-row {% if not item.is_read %}unread-item{% endif %}" data-content-type="{{ item.content_type }}" data-object-id="{{ item.object_id }}" style="{% if not item.is_read %}background:rgba(96,165,250,.08);border-left:3px solid #60a5fa;{% endif %}">
 
-        <span class="badge-status flex-shrink-0 mt-1
-          {% if item.content_type == 'decision' %}badge-referendum
-          {% elif item.content_type == 'task' %}badge-discussion
-          {% elif item.content_type == 'event' %}badge-approved
-          {% elif item.content_type == 'citizen' %}badge-rejected
-          {% else %}badge-proposition
-          {% endif %}" style="font-size:.65rem;padding:1px 5px;">
+        <span class="badge text-bg-{{ item.content_type|content_type_color }} flex-shrink-0 mt-1" style="font-size:.65rem;padding:1px 5px;">
           {{ item.content_type|content_type_label }}
         </span>
 
@@ -81,7 +75,7 @@
           <div class="feed-title {% if not item.is_read %}fw-semibold{% endif %}">
             {{ item.title }}
             {% if item.content_type == 'room_messages' and item.message_count > 1 %}
-            <span class="badge-status badge-discussion ms-1" style="font-size:.6rem;vertical-align:middle;">{{ item.message_count }}</span>
+            <span class="badge text-bg-{{ item.content_type|content_type_color }} ms-1" style="font-size:.6rem;vertical-align:middle;">{{ item.message_count }}</span>
             {% endif %}
           </div>
           {% if item.description and item.content_type != 'event' %}
