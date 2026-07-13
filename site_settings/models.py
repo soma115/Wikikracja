@@ -57,12 +57,27 @@ class SiteSettings(models.Model):
             letterbox_to_square(self.brand_mark_dark.path)
 
     def has_brand_derivatives(self):
-        """Check if derived branding files (favicon, apple-touch-icon, etc.) exist on disk."""
+        """Check if derived branding files (favicon, apple-touch-icon, etc.) exist on disk.
+        
+        Regenerates missing derivatives automatically to prevent fallback to default favicon.
+        """
         if not self.brand_mark:
             return False
         derived_dir = os.path.join(settings.MEDIA_ROOT, 'site_branding', 'derived')
         favicon_path = os.path.join(derived_dir, 'favicon.ico')
-        return os.path.isfile(favicon_path)
+        
+        # If file exists, return True
+        if os.path.isfile(favicon_path):
+            return True
+        
+        # If file is missing but brand_mark exists, regenerate it
+        from site_settings.services import regenerate_brand_derivatives
+        try:
+            regenerate_brand_derivatives(self)
+            return os.path.isfile(favicon_path)
+        except Exception:
+            # If regeneration fails, fall back to False (use default favicon)
+            return False
 
     @classmethod
     def get(cls):
