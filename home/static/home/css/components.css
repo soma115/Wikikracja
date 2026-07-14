@@ -369,12 +369,11 @@
   color: var(--text-muted);
   line-height: 1.5;
   margin: 0 0 .55rem 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 .proposal-card.open .proposal-preview {
+  display: none;
+}
+.proposal-card.open .proposal-details-inline {
   display: none;
 }
 .proposal-card-meta {
