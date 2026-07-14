@@ -733,7 +733,7 @@ def global_search(request: HttpRequest):
                 room__in=accessible_rooms,
             ).select_related('sender', 'room').order_by('-time').distinct()[:15]
             for obj in messages_qs:
-                sender_name = obj.sender.username if obj.sender else str(_('Anonymous'))
+                sender_name = str(_('System')) if obj.sender is None else (str(_('Anonymous')) if obj.anonymous else obj.sender.username)
                 results.append({
                     'cat': 'chat',
                     'type': _('Chat message'),

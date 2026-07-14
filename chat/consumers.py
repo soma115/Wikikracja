@@ -690,7 +690,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         try:
             if await self.repo.user_has_muted_room(user.id, room_id):
                 return
-            title = "Anonymous" if message.anonymous else message.sender.username
+            title = "System" if message.sender is None else ("Anonymous" if message.anonymous else message.sender.username)
             body = _("New message")
             site_url = f"https://{domain}"
             deep_link = f"{site_url}/chat#room_id={room_id}"

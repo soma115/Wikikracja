@@ -10,7 +10,7 @@ def build_chat_message_payload(event, *, user, vote_value, current_user, your_re
     anonymous = event.get("anonymous", False)
     payload = {k: v for k, v in event.items() if k not in ("type",)}
     payload["user_id"] = None if anonymous or user is None else user.id
-    payload["username"] = "Anonymous" if anonymous else (user.username if user else "System")
+    payload["username"] = "System" if user is None else ("Anonymous" if anonymous else user.username)
     payload["avatar_url"] = "/static/home/images/anonymous.svg" if anonymous else avatar_url
     payload["new"] = event["new"] if current_user != user else False
     payload["your_vote"] = vote_value if vote_value else None

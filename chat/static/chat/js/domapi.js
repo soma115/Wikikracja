@@ -527,7 +527,7 @@ export default class DomApi {
         }
 
         const senderEl = roomLink.querySelector('.room-link__sender');
-        if (senderEl) senderEl.textContent = (msg.anonymous ? _('Anonymous') : (msg.username || '—')) + ':';
+        if (senderEl) senderEl.textContent = (msg.username || '—') + ':';
 
         const snippetEl = roomLink.querySelector('.room-link__snippet');
         if (snippetEl) {

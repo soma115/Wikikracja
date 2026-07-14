@@ -264,7 +264,7 @@ def send_message_to_room(
                     # Send notification in the same format as regular chat notifications
                     async_to_sync(consumer.send_json)({
                         "notification": {
-                            'title': "Anonymous" if anonymous else (sender.username if sender else "System"),
+                            'title': "System" if sender is None else ("Anonymous" if anonymous else sender.username),
                             'body': message_text[:100],
                             'link': None,
                             'room_id': room.id

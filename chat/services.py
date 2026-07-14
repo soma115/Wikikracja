@@ -409,7 +409,7 @@ class ChatRepository:
         """Get quoted message data for display."""
         try:
             msg = Message.objects.select_related('sender').get(pk=message_id)
-            username = 'Anonymous' if msg.anonymous else (msg.sender.username if msg.sender else 'Unknown')
+            username = 'System' if msg.sender is None else ('Anonymous' if msg.anonymous else msg.sender.username)
             snippet = strip_tags(msg.text)[:120]
             return {
                 'id': msg.id,
@@ -530,7 +530,7 @@ class ChatRepository:
             reply_to_data = None
             if msg.reply_to_id and msg.reply_to:
                 rm = msg.reply_to
-                ru = 'Anonymous' if rm.anonymous else (rm.sender.username if rm.sender else 'Unknown')
+                ru = 'System' if rm.sender is None else ('Anonymous' if rm.anonymous else rm.sender.username)
                 reply_to_data = {
                     'id': rm.id,
                     'username': ru,
