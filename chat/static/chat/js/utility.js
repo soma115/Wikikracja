@@ -53,11 +53,19 @@ export function makeNotification(notif) {
     }
 }
 
+// Favicon href as rendered by the server (respects custom brand mark) — captured lazily
+// on first use, before any notification badge overwrites it.
+let originalIconHref = null;
+
 /**
- * Removes notification indicator (changes favicon back)
+ * Removes notification indicator (restores the site's original favicon,
+ * which may be a custom brand mark instead of the default icon)
  */
 export function removeNotification() {
-    changeIcon('/static/chat/images/notification-off.ico');
+    if (originalIconHref === null) {
+        originalIconHref = $("link[rel~='icon']")?.href ?? '/static/chat/images/notification-off.ico';
+    }
+    changeIcon(originalIconHref);
 }
 
 /**
@@ -70,6 +78,9 @@ export function changeIcon(resource) {
         link = document.createElement('link');
         link.rel = 'icon';
         document.getElementsByTagName('head')[0].appendChild(link);
+    }
+    if (originalIconHref === null) {
+        originalIconHref = link.href;
     }
     link.href = resource;
 }
