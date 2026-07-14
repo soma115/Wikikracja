@@ -129,6 +129,16 @@
         {{ task.created_at|date:"d.m.Y" }}
       </span>
 
+      {% if task.category %}
+      <span class="proposal-meta-sep">·</span>
+      <span class="proposal-category"
+            data-bs-toggle="tooltip"
+            title="{% trans 'Category' %}: {{ task.category.name }}">
+        <i class="fas fa-tag proposal-role-icon" aria-hidden="true"></i>
+        {{ task.category.name }}
+      </span>
+      {% endif %}
+
       <span class="proposal-meta-sep">·</span>
       <button type="button"
               class="proposal-signatures proposal-helpers-btn"

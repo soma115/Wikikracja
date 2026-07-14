@@ -261,6 +261,10 @@
   background: var(--badge-rejected-bg);
   color: var(--badge-rejected-color);
 }
+.badge-category {
+  background: var(--badge-proposition-bg);
+  color: var(--badge-proposition-color);
+}
 /* ══════════════════════════════════════════════════
    PROPOSAL CARD (glosowania)
    ══════════════════════════════════════════════════ */

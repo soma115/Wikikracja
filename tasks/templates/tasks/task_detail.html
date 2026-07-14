@@ -42,6 +42,9 @@
       <p class="text-muted small mb-1">{% trans "Author" %}: {{ task.created_by|default:_("Unknown") }}</p>
       <p class="text-muted small mb-1">{% trans "Coordinator" %}: <span data-coord-label>{{ task.assigned_to|default:_("None") }}</span></p>
       <p class="text-muted small mb-1">{% trans "Status" %}: {{ task.get_status_display }}</p>
+      {% if task.category %}
+      <p class="text-muted small mb-1">{% trans "Category" %}: {{ task.category.name }}</p>
+      {% endif %}
       <p class="text-muted small mb-1">{% trans "Created" %}: {{ task.created_at|date:"Y-m-d H:i" }}</p>
 
       <p>{{ task.description|richtext }}</p>
