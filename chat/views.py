@@ -244,6 +244,7 @@ def get_translations():
         "Oct": _("Oct"),
         "Nov": _("Nov"),
         "Dec": _("Dec"),
+        "Date": _("Date"),
         "Unread": _("Unread"),
         "Show only unread rooms": _("Show only unread rooms"),
         "Sorting and filter": _("Sorting and filter"),

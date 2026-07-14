@@ -183,7 +183,7 @@ function decideUnreadFilterOverride({ urlFilter, isActive, userToggled }) {
     // Reczna decyzja usera jest ostateczna — nie nadpisujemy jej intencja z URL.
     if (userToggled) return 'none';
     if (urlFilter === 'on' && !isActive) return 'enable';
-    if (urlFilter === 'off' && isActive) return 'disable';
+    // Nie wyłączamy filtra dla urlFilter === 'off' — pozwalamy na przywracanie z localStorage
     return 'none';
 }
 
@@ -293,15 +293,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let userToggledFilter = false;
 
     // Restore filter state from localStorage. URL params bija zapisany stan:
-    //   ?view=rooms   -> wymuszamy filtr OFF (sidebar)
     //   ?view=unread  -> wymuszamy filtr ON  (dashboard badge; ?unread=1 to legacy alias)
     // Robimy to juz tu (nie tylko w wsOnConnect), zeby unikac wizualnego migniecia.
     const initialParams = new URLSearchParams(location.search);
     const initialView = initialParams.get('view');
     const wantsUnreadStart = initialView === 'unread' || initialParams.get('unread') === '1';
     const savedFilterState = localStorage.getItem('chat-unread-filter');
-    const shouldRestoreFilter = wantsUnreadStart
-        || (savedFilterState === 'active' && initialView !== 'rooms');
+    const shouldRestoreFilter = wantsUnreadStart || savedFilterState === 'active';
     if (shouldRestoreFilter) {
         isUnreadFilterActive = true;
         unreadFilterBtn?.classList.add('active');
