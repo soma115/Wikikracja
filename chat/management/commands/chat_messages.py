@@ -82,10 +82,10 @@ class Command(BaseCommand):
             b: list[str] = []
 
             # Process each category
-            if rooms_by_type['votings']:
-                b.append("## Głosowania")
+            if rooms_by_type['public']:
+                b.append("## Pokoje publiczne")
                 b.append("")
-                for room in rooms_by_type['votings']:
+                for room in rooms_by_type['public']:
                     room_link = f"{HOST}/chat#room_id={room.id}"
                     room_name = room.displayed_name(u.uid)
                     b.append(f"- {room_name}: {room_link}")
@@ -100,10 +100,10 @@ class Command(BaseCommand):
                     b.append(f"- {room_name}: {room_link}")
                 b.append("")
 
-            if rooms_by_type['public']:
-                b.append("## Pokoje publiczne")
+            if rooms_by_type['votings']:
+                b.append("## Głosowania")
                 b.append("")
-                for room in rooms_by_type['public']:
+                for room in rooms_by_type['votings']:
                     room_link = f"{HOST}/chat#room_id={room.id}"
                     room_name = room.displayed_name(u.uid)
                     b.append(f"- {room_name}: {room_link}")
