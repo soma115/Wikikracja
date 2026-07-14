@@ -62,7 +62,17 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         if request.user.is_authenticated and not request.user.is_active:
             # IMPORTANT: Redirect inactive users to onboarding, not /accounts/inactive/
             # This prevents "Your account is inactive" dead-end
+            # Preserve the original URL with token if present (e.g., from email link)
+            next_url = request.GET.get('next') or request.POST.get('next')
+            if next_url and 'token=' in next_url:
+                return next_url
             return '/obywatele/onboarding/'
+
+        # Preserve the original URL with token for authenticated users too
+        # This handles the case where users click email links and need to login
+        next_url = request.GET.get('next') or request.POST.get('next')
+        if next_url and 'token=' in next_url:
+            return next_url
 
         return super().get_login_redirect_url(request)
 
