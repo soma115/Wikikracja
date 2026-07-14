@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.db import OperationalError, transaction
-from django.db.models import Count, F
+from django.db.models import Count, Exists, F, OuterRef
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import translation
@@ -638,11 +638,11 @@ def _apply_sort(queryset, sort, order='desc'):
     """Zastosuj sortowanie do querysetu Decyzja."""
     p = '' if order == 'asc' else '-'
     if sort == 'signatures':
-        return queryset.order_by(f'{p}ile_osob_podpisalo', '-data_powstania')
+        return queryset.order_by(f'{p}ile_osob_podpisalo', '-pk')
     elif sort == 'buzz':
-        return queryset.annotate(chat_msg_count=Count('chat_room__messages', distinct=True)).order_by(f'{p}chat_msg_count', '-data_powstania')
+        return queryset.annotate(chat_msg_count=Count('chat_room__messages', distinct=True)).order_by(f'{p}chat_msg_count', '-pk')
     else:  # 'date' — domyślne
-        return queryset.order_by(f'{p}data_powstania')
+        return queryset.order_by(f'{p}pk')
 
 
 def _sort_context(request):
@@ -680,8 +680,14 @@ def proposition(request: HttpRequest):
 @login_required
 def discussion(request: HttpRequest):
     sort, order = _sort_context(request)
-    qs = _apply_sort(Decyzja.objects.filter(status=2), sort, order)
-    votings = [v for v in qs if v.is_author_signed]
+    author_signed = Exists(
+        ZebranePodpisy.objects.filter(
+            projekt=OuterRef("pk"),
+            podpis_uzytkownika_id=OuterRef("author_id"),
+        )
+    )
+    qs = _apply_sort(Decyzja.objects.filter(status=2).annotate(_signed=author_signed).filter(_signed=True), sort, order)
+    votings = list(qs)
     for voting in votings:
         voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
     return render(request, 'glosowania/discussion.html', {
@@ -694,8 +700,14 @@ def discussion(request: HttpRequest):
 @login_required
 def referendum(request: HttpRequest):
     sort, order = _sort_context(request)
-    qs = _apply_sort(Decyzja.objects.filter(status=3), sort, order)
-    votings = [v for v in qs if v.is_author_signed]
+    author_signed = Exists(
+        ZebranePodpisy.objects.filter(
+            projekt=OuterRef("pk"),
+            podpis_uzytkownika_id=OuterRef("author_id"),
+        )
+    )
+    qs = _apply_sort(Decyzja.objects.filter(status=3).annotate(_signed=author_signed).filter(_signed=True), sort, order)
+    votings = list(qs)
     for voting in votings:
         voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
     return render(request, 'glosowania/referendum.html', {
