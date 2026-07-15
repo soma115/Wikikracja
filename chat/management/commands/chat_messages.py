@@ -10,6 +10,7 @@ from django.utils import timezone, translation
 from django.utils.translation import gettext_lazy as _
 
 from chat.models import Message, Room
+from chat.services import extract_mentions
 from glosowania.models import Decyzja
 from obywatele.models import Uzytkownik
 from tasks.models import Task
@@ -56,10 +57,14 @@ class Command(BaseCommand):
                 log.info(f'No new messages for user {u.uid}')
                 continue
 
-            # Group messages by room
+            # Group messages by room and track mentions
             messages_by_room = defaultdict(list)
+            mentioned_rooms = set()
             for m in message_list.order_by('room', 'time'):
                 messages_by_room[m.room].append(m)
+                # Check if user was mentioned in this message
+                if u.uid.username in extract_mentions(m.text):
+                    mentioned_rooms.add(m.room)
 
             # Group rooms by type
             rooms_by_type = {
@@ -83,7 +88,7 @@ class Command(BaseCommand):
 
             # Process each category
             if rooms_by_type['public']:
-                b.append("## Pokoje publiczne")
+                b.append(_("## Public rooms"))
                 b.append("")
                 for room in rooms_by_type['public']:
                     room_link = f"{HOST}/chat#room_id={room.id}"
@@ -92,7 +97,7 @@ class Command(BaseCommand):
                 b.append("")
 
             if rooms_by_type['tasks']:
-                b.append("## Zadania")
+                b.append(_("## Tasks"))
                 b.append("")
                 for room in rooms_by_type['tasks']:
                     room_link = f"{HOST}/chat#room_id={room.id}"
@@ -101,7 +106,7 @@ class Command(BaseCommand):
                 b.append("")
 
             if rooms_by_type['votings']:
-                b.append("## Głosowania")
+                b.append(_("## Votings"))
                 b.append("")
                 for room in rooms_by_type['votings']:
                     room_link = f"{HOST}/chat#room_id={room.id}"
@@ -110,7 +115,7 @@ class Command(BaseCommand):
                 b.append("")
 
             if rooms_by_type['private']:
-                b.append("## Pokoje prywatne")
+                b.append(_("## Private rooms"))
                 b.append("")
                 for room in rooms_by_type['private']:
                     room_link = f"{HOST}/chat#room_id={room.id}"
@@ -118,7 +123,18 @@ class Command(BaseCommand):
                     b.append(f"- {room_name}: {room_link}")
                 b.append("")
 
-            body = "\n".join(b)
+            # Add mention information if user was mentioned
+            if mentioned_rooms:
+                b.append("")
+                b.append(_("## You were mentioned here"))
+                b.append("")
+                for room in mentioned_rooms:
+                    room_link = f"{HOST}/chat#room_id={room.id}"
+                    room_name = room.displayed_name(u.uid)
+                    b.append(_("- {room_name}: {room_link}").format(room_name=room_name, room_link=room_link))
+                b.append("")
+
+            body = "\n".join(str(item) for item in b)
             if body:
                 SendEmail([
                     u.uid.email,

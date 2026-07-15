@@ -10,14 +10,14 @@ from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import gettext as _
 
-from zzz.richtext import sanitize
+from zzz.richtext import sanitize, strip_tags
 from zzz.utils import get_site_domain
 
 from .exceptions import ClientError
 from .group_messages import format_chat_message
 from .models import Message, Room
 from .serializers import build_chat_message_payload
-from .services import CHAT_UNREAD_CACHE_KEY, ChatRepository, get_avatar_url
+from .services import CHAT_UNREAD_CACHE_KEY, ChatRepository, extract_mentions, get_avatar_url
 from .utils import HandledMessage, Handlers, OnlineUserRegistry, RoomRegistry, helper_method
 
 log = logging.getLogger(__name__)
@@ -367,6 +367,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         ))
 
         asyncio.create_task(self._post_send_processing(sender, room, msg, message_id))
+        asyncio.create_task(self._notify_mentions(sender, room, msg, message_clean))
 
     async def _post_send_processing(self, sender, room, msg, message_id):
         try:
@@ -407,6 +408,52 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             await self._dispatch_proxy(proxy)
         except Exception as e:
             log.error(f"Error in post-send processing for message {message_id}: {e}", exc_info=True)
+
+    async def _notify_mentions(self, sender, room, msg, message_text):
+        """Notify users explicitly mentioned with @username in the message."""
+        try:
+            mentioned_usernames = extract_mentions(message_text)
+            if not mentioned_usernames:
+                return
+            mentioned_users = await self.repo.get_mentioned_users(room, mentioned_usernames)
+            for user in mentioned_users:
+                if user.id == sender.id:
+                    continue
+                asyncio.create_task(self._send_mention_notification(sender, room, user, msg))
+        except Exception as e:
+            log.error(f"Error in mention notification for message {msg.id}: {e}", exc_info=True)
+
+    async def _send_mention_notification(self, sender, room, user, msg):
+        """Send a WebSocket notification and a push for a single mention."""
+        try:
+            title = "Anonymous" if msg.anonymous else (sender.username or "System")
+            body = strip_tags(msg.text)[:100] or _("New mention")
+            site_url = f"https://{domain}"
+            deep_link = f"{site_url}/chat#room_id={room.id}"
+
+            # WebSocket notification for online clients (skipped if they are already in the room).
+            await self.channel_layer.group_send(
+                f"user_{user.id}",
+                {
+                    "type": "chat.mention",
+                    "notification": {
+                        "title": title,
+                        "body": body,
+                        "link": None,
+                        "room_id": room.id,
+                    },
+                    "room_id": room.id,
+                }
+            )
+
+            # Push notification (bypasses room mute because it is a direct mention).
+            success = await self.repo.send_push_notification_sync(user, title, body, deep_link, room.id)
+            if success:
+                log.info(f"Mention notification sent to user {user.id} for message {msg.id}")
+            else:
+                log.debug(f"No push devices active for mention to user {user.id}")
+        except Exception as e:
+            log.error(f"Error sending mention notification to user {user.id}: {e}", exc_info=True)
 
     async def _dispatch_proxy(self, proxy: HandledMessage):
         """Flush a proxy outside of receive_json — used by background tasks that build messages via helpers."""
@@ -470,6 +517,15 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def chat_unread_count(self, event):
         """Channel layer handler — relays unread count to the WebSocket client."""
         await self.send_json({"unread_count": event["count"]})
+
+    async def chat_mention(self, event):
+        """Channel layer handler — relay a mention notification to the client.
+
+        Skip if the user is already in the room where the mention happened.
+        """
+        if event["room_id"] in self.rooms.items():
+            return
+        await self.send_json({"notification": event["notification"]})
 
     @handlers.register("message-add-vote")
     async def handle_add_vote(self, proxy: HandledMessage, vote: str, message_id: int):

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-14 11:09+0200\n"
+"POT-Creation-Date: 2026-07-15 02:16+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -891,7 +891,11 @@ msgstr "Nazwa kategorii"
 msgid "Description (optional)"
 msgstr "Opis (opcjonalny)"
 
-#: .\chat\consumers.py:694
+#: .\chat\consumers.py:430
+msgid "New mention"
+msgstr "Nowe wzmianki"
+
+#: .\chat\consumers.py:750
 msgid "New message"
 msgstr "Nowa wiadomość"
 
@@ -909,31 +913,56 @@ msgstr "Imię i nazwisko"
 msgid "Message"
 msgstr "Wiadomość"
 
-#: .\chat\management\commands\chat_messages.py:35
+#: .\chat\management\commands\chat_messages.py:36
 #, python-brace-format
 msgid "{HOST} New messages on chat"
 msgstr "{HOST} Nowe wiadomości na czacie"
 
-#: .\chat\management\commands\chat_messages.py:36
+#: .\chat\management\commands\chat_messages.py:37
 #, python-brace-format
 msgid "New messages on {HOST}/chat"
 msgstr "Nowe wiadomości na {HOST}/chat"
 
-#: .\chat\management\commands\chat_messages.py:37
+#: .\chat\management\commands\chat_messages.py:38
 #, python-brace-format
 msgid "Go to chat to do so {HOST}/chat"
 msgstr "Skocz do czatu żeby to zrobić {HOST}/chat"
 
-#: .\chat\management\commands\chat_messages.py:38
+#: .\chat\management\commands\chat_messages.py:39
 msgid "You can disable those messages by unchecking bell icon next to chat room name."
 msgstr "Możesz wyłączyć te powiadomienia odznaczając ikonę dzwonka obok nazwy pokoju."
 
-#: .\chat\management\commands\chat_messages.py:39
+#: .\chat\management\commands\chat_messages.py:40
 #: .\glosowania\management\commands\vote.py:191 .\glosowania\views.py:504
 #: .\obywatele\forms.py:318
 #, python-brace-format
 msgid "You can manage your email notifications here: {url}"
 msgstr "Możesz zarządzać swoimi powiadomieniami e-mailowymi tutaj: {url}"
+
+#: .\chat\management\commands\chat_messages.py:91
+msgid "## Public rooms"
+msgstr "## Pokoje publiczne"
+
+#: .\chat\management\commands\chat_messages.py:100
+msgid "## Tasks"
+msgstr "## Zadania"
+
+#: .\chat\management\commands\chat_messages.py:109
+msgid "## Votings"
+msgstr "## Głosowania"
+
+#: .\chat\management\commands\chat_messages.py:118
+msgid "## Private rooms"
+msgstr "## Pokoje prywatne"
+
+#: .\chat\management\commands\chat_messages.py:129
+msgid "## You were mentioned here"
+msgstr "## Zostałeś wspomniany tutaj"
+
+#: .\chat\management\commands\chat_messages.py:134
+#, python-brace-format
+msgid "- {room_name}: {room_link}"
+msgstr "- {room_name}: {room_link}"
 
 #: .\chat\templates\chat\_embedded_chat.html:16
 #: .\glosowania\templates\glosowania\_proposal_card.html:40

@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
@@ -26,6 +27,19 @@ domain = get_site_domain()
 
 CHAT_UNREAD_CACHE_KEY = "chat_unread:{user_id}"
 CHAT_UNREAD_CACHE_TTL = 300
+
+# Matches @username in message text. User must type the exact nickname; no autocomplete.
+_MENTION_RE = re.compile(r'(?<!\w)@([\w@.+-]+)')
+
+
+def extract_mentions(text: str) -> set:
+    """Return set of unique usernames mentioned with @ in the given HTML/text."""
+    if not text:
+        return set()
+    # Normalize <br> tags to spaces so line breaks don't join usernames.
+    normalized = re.sub(r'<br\s*/?>', ' ', text, flags=re.IGNORECASE)
+    plain = strip_tags(normalized)
+    return set(_MENTION_RE.findall(plain))
 
 
 def get_unread_count_for_user(user) -> int:
@@ -168,6 +182,13 @@ class ChatRepository:
         except User.DoesNotExist:
             log.error(f"User {username} does not exist")
             return None
+
+    @database_sync_to_async
+    def get_mentioned_users(self, room, usernames):
+        """Return active users in the room whose username is in usernames."""
+        if not usernames:
+            return []
+        return list(room.allowed.filter(username__in=usernames, is_active=True))
 
     # -- Message methods --
     @database_sync_to_async
