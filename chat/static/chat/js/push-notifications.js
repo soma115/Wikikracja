@@ -78,6 +78,19 @@ const PushNotificationManager = {
                 return false;
             }
             const messaging = firebase.messaging();
+
+            // Foreground messages are not auto-displayed by the FCM SDK; show them manually.
+            messaging.onMessage((payload) => {
+                console.log('FCM foreground message:', payload);
+                this.showNotification({
+                    title: payload.notification?.title,
+                    body: payload.notification?.body,
+                    icon: payload.notification?.icon,
+                    room_id: payload.data?.room_id,
+                    click_action: payload.fcmOptions?.link || payload.data?.click_action,
+                });
+            });
+
             const token = await messaging.getToken({
                 vapidKey: FIREBASE_VAPID_KEY,
                 serviceWorkerRegistration: swRegistration,

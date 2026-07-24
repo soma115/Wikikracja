@@ -19,20 +19,23 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
 // Handle background messages
-// messaging.onBackgroundMessage((payload) => {
-//     console.log('FCM background message:', payload);
+messaging.onBackgroundMessage((payload) => {
+    console.log('FCM background message:', payload);
 
-//     const notificationTitle = payload.notification?.title || 'Chat Message';
-//     const notificationOptions = {
-//         body: payload.notification?.body || '',
-//         icon: payload.notification?.icon || '/favicon.ico',
-//         badge: payload.notification?.badge || '/favicon.ico',
-//         data: payload.data || {},
-//         requireInteraction: true
-//     };
+    const notificationTitle = payload.notification?.title || 'Chat Message';
+    const notificationOptions = {
+        body: payload.notification?.body || '',
+        icon: payload.notification?.icon || '/favicon.ico',
+        badge: payload.notification?.badge || '/favicon.ico',
+        data: {
+            click_action: payload.fcmOptions?.link || payload.data?.click_action || '/chat',
+            ...payload.data,
+        },
+        requireInteraction: true
+    };
 
-//     self.registration.showNotification(notificationTitle, notificationOptions);
-// });
+    self.registration.showNotification(notificationTitle, notificationOptions);
+});
 
 
 // Handle notification click
