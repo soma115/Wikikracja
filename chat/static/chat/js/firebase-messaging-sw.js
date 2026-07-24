@@ -22,14 +22,16 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
     console.log('FCM background message:', payload);
 
-    const notificationTitle = payload.notification?.title || 'Chat Message';
+    const data = payload.data || {};
+    const notificationTitle = data.title || 'Chat Message';
     const notificationOptions = {
-        body: payload.notification?.body || '',
-        icon: payload.notification?.icon || '/favicon.ico',
-        badge: payload.notification?.badge || '/favicon.ico',
+        body: data.body || '',
+        icon: data.icon || '/favicon.ico',
+        badge: '/favicon.ico',
+        tag: `chat-${data.room_id || 'general'}`,
         data: {
-            click_action: payload.fcmOptions?.link || payload.data?.click_action || '/chat',
-            ...payload.data,
+            room_id: data.room_id ? parseInt(data.room_id, 10) : 0,
+            click_action: data.click_action || '/chat',
         },
         requireInteraction: true
     };

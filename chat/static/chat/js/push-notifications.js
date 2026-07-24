@@ -84,16 +84,17 @@ const PushNotificationManager = {
             // ("Illegal constructor"); must use ServiceWorkerRegistration.showNotification().
             messaging.onMessage((payload) => {
                 console.log('FCM foreground message:', payload);
-                const roomId = payload.data?.room_id ?? 0;
-                swRegistration.showNotification(payload.notification?.title || 'Chat Message', {
-                    body: payload.notification?.body || '',
-                    icon: payload.notification?.icon || '/favicon.ico',
+                const data = payload.data || {};
+                const roomId = data.room_id ? parseInt(data.room_id, 10) : 0;
+                swRegistration.showNotification(data.title || 'Chat Message', {
+                    body: data.body || '',
+                    icon: data.icon || '/favicon.ico',
                     badge: '/favicon.ico',
-                    tag: `chat-${roomId || 'general'}`,
+                    tag: `chat-${data.room_id || 'general'}`,
                     requireInteraction: true,
                     data: {
                         room_id: roomId,
-                        click_action: payload.fcmOptions?.link || payload.data?.click_action || '/chat',
+                        click_action: data.click_action || '/chat',
                     },
                 });
             });

@@ -622,10 +622,15 @@ class ChatRepository:
                         log.warning(f"FCM skipped for user {user.id}: Firebase not initialized")
                         return any_sent
                     message = messaging.Message(
-                        notification=messaging.Notification(title=title, body=body),
+                        data={
+                            'title': title,
+                            'body': body,
+                            'room_id': str(room_id),
+                            'icon': f"https://{domain}/favicon.ico",
+                            'click_action': deep_link,
+                        },
                         webpush=messaging.WebpushConfig(
-                            notification=messaging.WebpushNotification(icon=f"https://{domain}/favicon.ico"),
-                            fcm_options=messaging.WebpushFCMOptions(link=deep_link),
+                            headers={'Urgency': 'high'},
                         )
                     )
                     fcm_devices.send_message(message)
