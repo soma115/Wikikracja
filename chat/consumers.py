@@ -366,11 +366,16 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             temp_id=temp_id,
         ))
 
-        asyncio.create_task(self._post_send_processing(sender, room, msg, message_id))
-        asyncio.create_task(self._notify_mentions(sender, room, msg, message_clean))
+        mentioned_usernames = extract_mentions(message_clean)
+        mentioned_users = await self.repo.get_mentioned_users(room, mentioned_usernames) if mentioned_usernames else []
+        mentioned_user_ids = {u.id for u in mentioned_users}
+        asyncio.create_task(self._post_send_processing(sender, room, msg, message_id, mentioned_user_ids))
+        asyncio.create_task(self._notify_mentions(sender, room, msg, mentioned_users))
 
-    async def _post_send_processing(self, sender, room, msg, message_id):
+    async def _post_send_processing(self, sender, room, msg, message_id, mentioned_user_ids=None):
         try:
+            if mentioned_user_ids is None:
+                mentioned_user_ids = set()
             room_members = await database_sync_to_async(lambda: list(room.allowed.all()))()
             other_members = [m for m in room_members if m.id != sender.id]
             if not other_members:
@@ -388,16 +393,36 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             membership_prefs = await database_sync_to_async(lambda: Room.get_membership_preferences_bulk(room.id, other_member_ids))()
 
             proxy = HandledMessage()
+            notify_title = "Anonymous" if msg.anonymous else (sender.username or "System")
+            notify_body = strip_tags(msg.text)[:100] or _("New message")
             for member in other_members:
                 prefs = membership_prefs.get(member.id, {'seen': False, 'muted': True})
                 consumer = ChatConsumer.online_registry.get_consumer(member)
+                is_present = bool(consumer) and consumer.rooms.present(room)
+
+                is_mentioned = member.id in mentioned_user_ids
+                if not is_present and not prefs['muted'] and not is_mentioned:
+                    asyncio.create_task(self.send_push_notification_async(proxy, member, msg, room.id))
+                    # Play in-app sound/favicon (push will show the OS notification)
+                    await self.channel_layer.group_send(
+                        f"user_{member.id}",
+                        {
+                            "type": "chat.notification",
+                            "room_id": room.id,
+                            "notification": {
+                                "title": notify_title,
+                                "body": notify_body,
+                                "link": None,
+                                "room_id": room.id,
+                                "silent": True,
+                            },
+                        }
+                    )
 
                 if not consumer:
-                    if not prefs['muted']:
-                        asyncio.create_task(self.send_push_notification_async(proxy, member, msg, room.id))
                     continue
 
-                if consumer.rooms.present(room):
+                if is_present:
                     continue
 
                 if prefs['seen']:
@@ -409,13 +434,11 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         except Exception as e:
             log.error(f"Error in post-send processing for message {message_id}: {e}", exc_info=True)
 
-    async def _notify_mentions(self, sender, room, msg, message_text):
+    async def _notify_mentions(self, sender, room, msg, mentioned_users):
         """Notify users explicitly mentioned with @username in the message."""
         try:
-            mentioned_usernames = extract_mentions(message_text)
-            if not mentioned_usernames:
+            if not mentioned_users:
                 return
-            mentioned_users = await self.repo.get_mentioned_users(room, mentioned_usernames)
             for user in mentioned_users:
                 if user.id == sender.id:
                     continue
@@ -431,18 +454,19 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             site_url = f"https://{domain}"
             deep_link = f"{site_url}/chat#room_id={room.id}"
 
-            # WebSocket notification for online clients (skipped if they are already in the room).
+            # In-app sound/favicon for online clients (silent, push will show the OS notification).
             await self.channel_layer.group_send(
                 f"user_{user.id}",
                 {
                     "type": "chat.mention",
+                    "room_id": room.id,
                     "notification": {
                         "title": title,
                         "body": body,
                         "link": None,
                         "room_id": room.id,
+                        "silent": True,
                     },
-                    "room_id": room.id,
                 }
             )
 
@@ -518,10 +542,22 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         """Channel layer handler — relays unread count to the WebSocket client."""
         await self.send_json({"unread_count": event["count"]})
 
+    async def chat_notification(self, event):
+        """Channel layer handler — relay a new-message notification to the client.
+
+        Skip if the user is already in the room. The notification is silent
+        so it only plays sound and changes favicon; the OS notification comes from push.
+        """
+        if event["room_id"] in self.rooms.items():
+            return
+        await self.send_json({"notification": event["notification"]})
+
     async def chat_mention(self, event):
         """Channel layer handler — relay a mention notification to the client.
 
         Skip if the user is already in the room where the mention happened.
+        The notification is marked silent so it only plays sound/favicon,
+        not a duplicate OS notification (push handles that).
         """
         if event["room_id"] in self.rooms.items():
             return
@@ -747,7 +783,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             if await self.repo.user_has_muted_room(user.id, room_id):
                 return
             title = "System" if message.sender is None else ("Anonymous" if message.anonymous else message.sender.username)
-            body = _("New message")
+            body = strip_tags(message.text)[:100] or _("New message")
             site_url = f"https://{domain}"
             deep_link = f"{site_url}/chat#room_id={room_id}"
             success = await self.repo.send_push_notification_sync(user=user, title=title, body=body, deep_link=deep_link, room_id=room_id)

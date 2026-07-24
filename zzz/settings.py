@@ -437,8 +437,12 @@ DEBUG_SKIP_AUTH = env_bool("DEBUG_SKIP_AUTH", False)
 # Push Notifications Configuration
 #########################
 
-VAPID_PUBLIC_KEY = getenv('VAPID_PUBLIC_KEY', '')
+def _clean_env_value(value: str) -> str:
+    if not value:
+        return value
+    return value.strip().strip('"').strip("'")
 
+VAPID_PUBLIC_KEY = _clean_env_value(getenv('VAPID_PUBLIC_KEY', ''))
 # Firebase Admin SDK initialization
 # Production (Kubernetes): uses GOOGLE_APPLICATION_CREDENTIALS env var (auto-detected)
 # Development (local): uses FIREBASE_CERT_PATH to local JSON file
@@ -468,7 +472,7 @@ except ValueError:
         pass
 
 PUSH_NOTIFICATIONS_SETTINGS = {
-    "WP_PRIVATE_KEY": getenv('VAPID_PRIVATE_KEY', ''),
+    "WP_PRIVATE_KEY": _clean_env_value(getenv('VAPID_PRIVATE_KEY', '')),
     "WP_CLAIMS": {
         'sub': f"mailto:{getenv('VAPID_ADMIN_EMAIL', 'admin@example.com')}"
     },
@@ -477,13 +481,17 @@ PUSH_NOTIFICATIONS_SETTINGS = {
 
 # Firebase Client Configuration (for Web/Android FCM)
 FIREBASE_CONFIG = {
-    'apiKey': getenv('FIREBASE_API_KEY', ''),
-    'authDomain': getenv('FIREBASE_AUTH_DOMAIN', ''),
-    'projectId': getenv('FIREBASE_PROJECT_ID', ''),
-    'storageBucket': getenv('FIREBASE_STORAGE_BUCKET', ''),
-    'messagingSenderId': getenv('FIREBASE_MESSAGING_SENDER_ID', ''),
-    'appId': getenv('FIREBASE_APP_ID', ''),
+    'apiKey': _clean_env_value(getenv('FIREBASE_API_KEY', '')),
+    'authDomain': _clean_env_value(getenv('FIREBASE_AUTH_DOMAIN', '')),
+    'projectId': _clean_env_value(getenv('FIREBASE_PROJECT_ID', '')),
+    'storageBucket': _clean_env_value(getenv('FIREBASE_STORAGE_BUCKET', '')),
+    'messagingSenderId': _clean_env_value(getenv('FIREBASE_MESSAGING_SENDER_ID', '')),
+    'appId': _clean_env_value(getenv('FIREBASE_APP_ID', '')),
 }
+
+# FCM Web Push certificate (key pair) from Firebase Console > Cloud Messaging.
+# Required by messaging.getToken({ vapidKey }) for browsers (incl. Android Chrome).
+FIREBASE_VAPID_KEY = _clean_env_value(getenv('FIREBASE_VAPID_KEY', ''))
 
 # Onboarding: pk of the Board post 'Zasady wspólnoty'
 ONBOARDING_RULES_POST_ID = None  # set to the pk after creating the post

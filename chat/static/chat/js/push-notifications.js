@@ -1,4 +1,19 @@
-import { VAPID_PUBLIC_KEY, FIREBASE_CONFIG } from '/dynamic-settings.js';
+import { VAPID_PUBLIC_KEY, FIREBASE_CONFIG, FIREBASE_VAPID_KEY } from '/dynamic-settings.js';
+
+function urlBase64ToUint8Array(base64String) {
+    if (!base64String) return new Uint8Array(0);
+    const clean = base64String.trim().replace(/^["']|["']$/g, '');
+    const padding = '='.repeat((4 - clean.length % 4) % 4);
+    const base64 = (clean + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
 
 document.addEventListener('DOMContentLoaded', async function() {
     const enabled = await PushNotificationManager.initialize();
@@ -38,7 +53,7 @@ const PushNotificationManager = {
             }
             const subscription = await swRegistration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: VAPID_PUBLIC_KEY
+                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
             });
             await this.registerDevice('webpush', subscription);
             return true;
@@ -54,9 +69,19 @@ const PushNotificationManager = {
                 console.error('Firebase config is empty or missing. Please set FIREBASE_* environment variables.');
                 return false;
             }
-            const app = firebase.initializeApp(FIREBASE_CONFIG);
+            const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+            if (!firebase.apps.length) {
+                firebase.initializeApp(FIREBASE_CONFIG);
+            }
+            if (!FIREBASE_VAPID_KEY) {
+                console.error('FIREBASE_VAPID_KEY is missing. Set the Web Push certificate key from Firebase Console > Cloud Messaging.');
+                return false;
+            }
             const messaging = firebase.messaging();
-            const token = await messaging.getToken();
+            const token = await messaging.getToken({
+                vapidKey: FIREBASE_VAPID_KEY,
+                serviceWorkerRegistration: swRegistration,
+            });
             // console.log('FCM token obtained:', token);
             if (!token) {
                 console.warn('FCM token retrieval failed');

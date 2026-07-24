@@ -38,7 +38,7 @@ export function makeNotification(notif) {
         new Audio('/static/chat/sounds/notification.mp3').play();
     } catch (e) { }
 
-    if (Notification?.permission === 'granted') {
+    if (Notification?.permission === 'granted' && !notif.silent) {
         let notification = new Notification(notif.title, {
             body: notif.body,
             icon: notif.link ?? '/favicon.ico',

@@ -167,15 +167,19 @@ self.addEventListener('pushsubscriptionchange', (event) => {
             self.registration.pushManager.subscribe(event.oldSubscription.options)
                 .then((newSubscription) => {
                     console.log('New subscription obtained:', newSubscription);
+                    const subscriptionJson = newSubscription.toJSON ? newSubscription.toJSON() : {};
                     // Send new subscription to server
                     return fetch('/chat/api/push/register/', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
+                        credentials: 'same-origin',
                         body: JSON.stringify({
                             platform: 'webpush',
-                            registration_id: newSubscription
+                            registration_id: newSubscription.endpoint,
+                            p256dh: subscriptionJson.keys?.p256dh || '',
+                            auth: subscriptionJson.keys?.auth || '',
                         })
                     });
                 })
