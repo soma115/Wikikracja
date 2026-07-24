@@ -631,7 +631,11 @@ class ChatRepository:
                     fcm_devices.send_message(message)
                     any_sent = True
                 except Exception as e:
-                    log.warning(f"FCM failed for user {user.id}: {e}")
+                    cause = getattr(e, 'cause', None)
+                    log.error(
+                        f"FCM failed for user {user.id}: {e!r} | cause={cause!r}",
+                        exc_info=True,
+                    )
 
             return any_sent
         except Exception as e:
