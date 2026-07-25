@@ -39,8 +39,15 @@ class PushDeviceRegisterView(View):
 
             user = request.user
 
-            # Check if device already exists for this user and registration_id
+            # A registration_id (FCM token / WebPush endpoint) identifies one physical
+            # browser/device install. It is NOT guaranteed unique per-user in the DB, so if
+            # a different user previously registered this same token (e.g. someone else
+            # logged in on this browser before), we must reassign it to the current user -
+            # otherwise both users would end up with an active device row for the same
+            # physical endpoint, and pushes meant for "the other user" would show up on
+            # this device too (looks like "I get notified when I send a message myself").
             if platform == 'webpush':
+                WebPushDevice.objects.filter(registration_id=registration_id).exclude(user=user).delete()
                 device, created = WebPushDevice.objects.get_or_create(user=user, registration_id=registration_id, defaults={
                     'p256dh': p256dh,
                     'auth': auth,
@@ -53,6 +60,7 @@ class PushDeviceRegisterView(View):
                     device.active = True
                     device.save()
             elif platform == 'fcm':
+                GCMDevice.objects.filter(registration_id=registration_id).exclude(user=user).delete()
                 device, created = GCMDevice.objects.get_or_create(user=user, registration_id=registration_id, defaults={
                     'active': True,
                     'device_id': "",

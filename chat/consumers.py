@@ -400,6 +400,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             for member in other_members:
                 prefs = membership_prefs.get(member.id, {'seen': False, 'muted': True})
                 consumer = ChatConsumer.online_registry.get_consumer(member)
+                is_present = bool(consumer) and consumer.rooms.present(room)
 
                 is_mentioned = member.id in mentioned_user_ids
                 # Notify always (foreground/background/in-room) unless muted or already handled by mention flow.
