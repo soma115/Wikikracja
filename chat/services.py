@@ -614,7 +614,6 @@ class ChatRepository:
                         webpush=messaging.WebpushConfig(
                             notification=messaging.WebpushNotification(
                                 icon=f"https://{domain}/favicon.ico",
-                                click_action=deep_link,
                             ),
                             fcm_options=messaging.WebpushFCMOptions(link=deep_link),
                             headers={'Urgency': 'high'},
