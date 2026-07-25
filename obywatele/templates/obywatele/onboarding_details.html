@@ -32,4 +32,8 @@
 
   <button type="submit" class="btn btn-info btn-sm">{% trans "Save form" %}</button>
 </form>
+
+<div class="mt-4">
+  {% include "home/_registration_timeline.html" with registration_step=3 %}
+</div>
 {% endblock %}

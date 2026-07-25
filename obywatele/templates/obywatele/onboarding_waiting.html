@@ -2,13 +2,11 @@
 {% load i18n %}
 
 {% block content %}
-<h1>{% trans "Application sent" %}</h1>
+{% include "home/_registration_timeline.html" with registration_step=email_confirmed|yesno:"4,2" %}
 
 {% if not email_confirmed %}
   <div class="alert alert-warning">
     {% trans "You still need to confirm your email address using the link sent to your inbox." %}
   </div>
 {% endif %}
-
-<p>{% trans "We will contact you soon." %}</p>
 {% endblock %}

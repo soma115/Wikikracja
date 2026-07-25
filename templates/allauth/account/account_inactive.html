@@ -5,8 +5,5 @@
 {% block head_title %}{% trans "Account Inactive" %}{% endblock %}
 
 {% block content %}
-<h2>{% trans "Please confirm your email" %}</h2>
-<br>
-<h4>{% trans "We have sent an email with a confirmation link to your inbox." %}</h4>
-<h4>{% trans "Please click this link to confirm your email address." %}</h4>
+{% include "home/_registration_timeline.html" with registration_step=2 %}
 {% endblock %}

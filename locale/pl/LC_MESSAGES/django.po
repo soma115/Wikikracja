@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-25 20:17+0200\n"
+"POT-Creation-Date: 2026-07-25 21:44+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -2395,6 +2395,42 @@ msgstr "Aktywność obywatela"
 msgid "Change language"
 msgstr "Zmień język"
 
+#: .\home\templates\home\_registration_timeline.html:10
+msgid "Registration process:"
+msgstr "Proces rejestracji:"
+
+#: .\home\templates\home\_registration_timeline.html:18
+msgid "Enter your email and solve captcha"
+msgstr "Wpisz swój email i rozwiąż captcha"
+
+#: .\home\templates\home\_registration_timeline.html:20
+msgid "Enter your email address and confirm you are not a robot."
+msgstr "Podaj adres e-mail i potwierdź, że nie jesteś robotem."
+
+#: .\home\templates\home\_registration_timeline.html:29
+msgid "Confirm your email"
+msgstr "Potwierdź twój email"
+
+#: .\home\templates\home\_registration_timeline.html:31
+msgid "Check your inbox and click the verification link."
+msgstr "Sprawdź pocztę i kliknij link weryfikacyjny."
+
+#: .\home\templates\home\_registration_timeline.html:40
+msgid "Fill out the registration form"
+msgstr "Wypełnij formularz rejestracyjny"
+
+#: .\home\templates\home\_registration_timeline.html:42
+msgid "Answer the onboarding questions."
+msgstr "Odpowiedz na pytania onboardingowe."
+
+#: .\home\templates\home\_registration_timeline.html:51
+msgid "Wait for the group to approve your application"
+msgstr "Poczekaj aż grupa zaakceptuje Twoje zgłoszenie"
+
+#: .\home\templates\home\_registration_timeline.html:53
+msgid "The group will review your application and grant access."
+msgstr "Grupa zweryfikuje Twoje zgłoszenie i przyzna dostęp."
+
 #: .\home\templates\home\activity.html:37
 msgid "Mark as read"
 msgstr "Oznacz jako przeczytane"
@@ -2527,7 +2563,7 @@ msgid "Change password"
 msgstr "Zmień hasło"
 
 #: .\home\templates\home\home.html:16
-#: .\templates\allauth\account\signup.html:28
+#: .\templates\allauth\account\signup.html:22
 msgid "Sign Up"
 msgstr "Załóż konto"
 
@@ -3632,17 +3668,9 @@ msgstr "Pola obowiązkowe oznaczone są gwiazdką*."
 msgid "Save form"
 msgstr "Zapisz formularz"
 
-#: .\obywatele\templates\obywatele\onboarding_waiting.html:5
-msgid "Application sent"
-msgstr "Zgłoszenie wysłane"
-
 #: .\obywatele\templates\obywatele\onboarding_waiting.html:9
 msgid "You still need to confirm your email address using the link sent to your inbox."
 msgstr "Twój email nie został jeszcze potwierdzony. Poprosimy o potwierdzenie go poprzez kliknięcie linka z emaila wysłanego do Ciebie."
-
-#: .\obywatele\templates\obywatele\onboarding_waiting.html:13
-msgid "We will contact you soon."
-msgstr "Skontaktujemy się z Tobą wkrótce."
 
 #: .\obywatele\templates\obywatele\parameters.html:13
 msgid "Population"
@@ -4647,18 +4675,6 @@ msgstr "Wikikracja Administration"
 msgid "Account Inactive"
 msgstr "Konto Wyłączone"
 
-#: .\templates\allauth\account\account_inactive.html:8
-msgid "Please confirm your email"
-msgstr "Potwierdź proszę swój email"
-
-#: .\templates\allauth\account\account_inactive.html:10
-msgid "We have sent an email with a confirmation link to your inbox."
-msgstr "Wysłaliśmy email z linkiem potwierdzającym na Twoją skrzynkę."
-
-#: .\templates\allauth\account\account_inactive.html:11
-msgid "Please click this link to confirm your email address."
-msgstr "Kliknij ten link, aby potwierdzić swój adres email."
-
 #: .\templates\allauth\account\email.html:5
 #: .\templates\allauth\account\email.html:8
 msgid "E-mail Addresses"
@@ -4880,26 +4896,6 @@ msgstr "Twoje hasło zostało zmienione."
 #: .\templates\allauth\account\password_set.html:13
 msgid "Set Password"
 msgstr "Ustaw hasło"
-
-#: .\templates\allauth\account\signup.html:13
-msgid "Account is created in 4 steps:"
-msgstr "Konto jest tworzone w 4 krokach:"
-
-#: .\templates\allauth\account\signup.html:14
-msgid "Enter your email and solve captcha."
-msgstr "Wpisz swój email i rozwiąż captcha."
-
-#: .\templates\allauth\account\signup.html:15
-msgid "Confirm your email by clicking the link sent to your inbox."
-msgstr "Potwierdź swój email klikając link."
-
-#: .\templates\allauth\account\signup.html:16
-msgid "Fill out onboarding questions."
-msgstr "Wypełnij formularz rejestracyjny"
-
-#: .\templates\allauth\account\signup.html:17
-msgid "Wait until group approves your application."
-msgstr "Poczekaj aż grupa zaakceptuje Twoje zgłoszenie."
 
 #: .\templates\allauth\account\signup_closed.html:5
 #: .\templates\allauth\account\signup_closed.html:8

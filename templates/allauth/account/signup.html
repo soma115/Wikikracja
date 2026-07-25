@@ -9,13 +9,7 @@
 
 
 {% block content %}
-<div class="fw-bold">
-<p>{% blocktrans %}Account is created in 4 steps:{% endblocktrans %}</p>
-<p>1. {% blocktrans %}Enter your email and solve captcha.{% endblocktrans %}</p>
-<p>2. {% blocktrans %}Confirm your email by clicking the link sent to your inbox.{% endblocktrans %}</p>
-<p>3. {% blocktrans %}Fill out onboarding questions.{% endblocktrans %}</p>
-<p>4. {% blocktrans %}Wait until group approves your application.{% endblocktrans %}</p>
-</div>
+{% include "home/_registration_timeline.html" with registration_step=1 %}
 <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
   {% csrf_token %}
 

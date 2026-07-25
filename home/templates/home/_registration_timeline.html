@@ -1,0 +1,59 @@
+{% load i18n %}
+{% comment %}
+  Reużywalny timeline procesu rejestracji.
+  Parametr: registration_step (1|2|3|4) — oznacza aktualny krok użytkownika.
+  Kroki 1..(step-1) są zakończone, krok `step` jest aktywny, pozostałe przyszłe.
+{% endcomment %}
+
+{% with step=registration_step|default:1|add:0 %}
+<div class="registration-timeline">
+  <h4 class="registration-timeline__heading">{% trans "Registration process:" %}</h4>
+  <ol class="registration-timeline__list">
+
+    <li class="registration-timeline__item {% if step > 1 %}completed{% elif step == 1 %}current{% else %}future{% endif %}">
+      <div class="registration-timeline__marker" aria-hidden="true"><i class="fas fa-check registration-timeline__marker-icon"></i></div>
+      <div class="registration-timeline__content">
+        <span class="registration-timeline__title">
+          <i class="fas fa-envelope registration-timeline__icon registration-timeline__icon--email" aria-hidden="true"></i>
+          {% trans "Enter your email and solve captcha" %}
+        </span>
+        <span class="registration-timeline__desc">{% trans "Enter your email address and confirm you are not a robot." %}</span>
+      </div>
+    </li>
+
+    <li class="registration-timeline__item {% if step > 2 %}completed{% elif step == 2 %}current{% else %}future{% endif %}">
+      <div class="registration-timeline__marker" aria-hidden="true"><i class="fas fa-check registration-timeline__marker-icon"></i></div>
+      <div class="registration-timeline__content">
+        <span class="registration-timeline__title">
+          <i class="fas fa-check-double registration-timeline__icon registration-timeline__icon--verify" aria-hidden="true"></i>
+          {% trans "Confirm your email" %}
+        </span>
+        <span class="registration-timeline__desc">{% trans "Check your inbox and click the verification link." %}</span>
+      </div>
+    </li>
+
+    <li class="registration-timeline__item {% if step > 3 %}completed{% elif step == 3 %}current{% else %}future{% endif %}">
+      <div class="registration-timeline__marker" aria-hidden="true"><i class="fas fa-check registration-timeline__marker-icon"></i></div>
+      <div class="registration-timeline__content">
+        <span class="registration-timeline__title">
+          <i class="fas fa-id-card registration-timeline__icon registration-timeline__icon--form" aria-hidden="true"></i>
+          {% trans "Fill out the registration form" %}
+        </span>
+        <span class="registration-timeline__desc">{% trans "Answer the onboarding questions." %}</span>
+      </div>
+    </li>
+
+    <li class="registration-timeline__item {% if step > 4 %}completed{% elif step == 4 %}current{% else %}future{% endif %}">
+      <div class="registration-timeline__marker" aria-hidden="true"><i class="fas fa-check registration-timeline__marker-icon"></i></div>
+      <div class="registration-timeline__content">
+        <span class="registration-timeline__title">
+          <i class="fas fa-users registration-timeline__icon registration-timeline__icon--approval" aria-hidden="true"></i>
+          {% trans "Wait for the group to approve your application" %}
+        </span>
+        <span class="registration-timeline__desc">{% trans "The group will review your application and grant access." %}</span>
+      </div>
+    </li>
+
+  </ol>
+</div>
+{% endwith %}
