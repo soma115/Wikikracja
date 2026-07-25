@@ -51,8 +51,8 @@ class PostSendProcessingUnseenTest(TestCase):
                     )
                     return mock_create_task
 
-    async def test_seen_receiver_gets_unseen_and_count_push(self):
-        """Receiver had seen the room — repo.unsee_room and push_unread_count must be called."""
+    async def test_seen_receiver_gets_unseen_count_and_push(self):
+        """Receiver had seen the room — repo.unsee_room, push_unread_count and push task must be called."""
         await database_sync_to_async(self.room.seen_by.add)(self.receiver)
         sender = self._make_sender_consumer()
         receiver = self._make_receiver_consumer()
@@ -61,10 +61,10 @@ class PostSendProcessingUnseenTest(TestCase):
 
         receiver.repo.unsee_room.assert_called_once_with(self.room)
         receiver.push_unread_count.assert_called_once()
-        mock_create_task.assert_not_called()
+        mock_create_task.assert_called_once()
 
-    async def test_not_seen_receiver_skips_unseen_and_push(self):
-        """Receiver had NOT seen the room — repo.unsee_room and push_unread_count must NOT be called."""
+    async def test_not_seen_receiver_skips_unseen_and_count_but_pushes(self):
+        """Receiver had NOT seen the room — repo.unsee_room and push_unread_count must NOT be called, but push is still sent."""
         # seen_by is empty — receiver not in it
         sender = self._make_sender_consumer()
         receiver = self._make_receiver_consumer()
@@ -73,7 +73,7 @@ class PostSendProcessingUnseenTest(TestCase):
 
         receiver.repo.unsee_room.assert_not_called()
         receiver.push_unread_count.assert_not_called()
-        mock_create_task.assert_not_called()
+        mock_create_task.assert_called_once()
 
     async def test_race_no_consumer_muted_seen_does_not_crash(self):
         """Regression: race condition where online_registry reports member as online

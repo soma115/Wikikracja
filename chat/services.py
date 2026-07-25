@@ -607,27 +607,40 @@ class ChatRepository:
                     if not firebase_admin._apps:
                         log.warning(f"FCM skipped for user {user.id}: Firebase not initialized")
                         return any_sent
-                    # IMPORTANT: send as a data-only message (no top-level `notification` and
-                    # no `webpush.notification`). If FCM carries a notification payload,
-                    # Chrome tries to auto-display it natively and bypasses our
-                    # onBackgroundMessage handler in firebase-messaging-sw.js entirely. Since
-                    # our webpush.notification previously had only an icon (no title/body),
-                    # that native auto-display silently failed, and Chrome/Android showed a
-                    # generic "site updated in the background" fallback instead. Keeping this
-                    # data-only guarantees onBackgroundMessage always runs and builds the
-                    # notification (title, body, icon, tag, click_action) ourselves.
+                    # Send both a `webpush.notification` and a `data` payload.
+                    #
+                    # `webpush.notification` is required for the killed-browser case on
+                    # Android Chrome: if the browser process is gone, the FCM SDK cannot
+                    # always wake the service worker to call `showNotification()`, in which
+                    # case Chrome shows a generic "site updated in the background" fallback.
+                    # When `webpush.notification` is present, Chrome/Firebase SDK display the
+                    # notification natively using the supplied title, body, icon and click
+                    # data, so the user sees the real content even in that state.
+                    #
+                    # `data` is still kept for the foreground tab (`onMessage`) and for the
+                    # service worker `onBackgroundMessage` path when the SW is alive.
+                    icon_url = f"https://{domain}/favicon.ico"
                     message = messaging.Message(
                         data={
                             'title': title,
                             'body': body,
                             'room_id': str(room_id),
                             'room_name': room_name,
-                            'icon': f"https://{domain}/favicon.ico",
+                            'icon': icon_url,
                             'click_action': deep_link,
                         },
                         webpush=messaging.WebpushConfig(
-                            fcm_options=messaging.WebpushFCMOptions(link=deep_link),
                             headers={'Urgency': 'high'},
+                            notification=messaging.WebpushNotification(
+                                title=title,
+                                body=body,
+                                icon=icon_url,
+                                badge=icon_url,
+                                tag=f"chat-{room_id}",
+                                require_interaction=True,
+                                data={'click_action': deep_link, 'room_id': str(room_id)},
+                            ),
+                            fcm_options=messaging.WebpushFCMOptions(link=deep_link),
                         )
                     )
                     result = fcm_devices.send_message(message)
