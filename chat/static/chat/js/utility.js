@@ -25,34 +25,14 @@ export function $$(selector, context = document) {
 }
 
 /**
- * Displays a desktop notification for chat events
- * @param {Object} notif - Notification data
- * @param {string} notif.title - Notification title
- * @param {string} notif.body - Notification body text
- * @param {string} notif.link - Notification icon image link
- * @param {number} [notif.room_id] - Optional room ID
+ * Updates the favicon as an in-app unread indicator.
+ * System notifications and sounds are handled by FCM/WebPush.
+ * @param {Object} notif - Notification data (kept for compatibility)
  */
 export function makeNotification(notif) {
+    // System notifications (with sound) are now handled by FCM/WebPush.
+    // This function only updates the favicon as an in-app unread indicator.
     changeIcon('/static/chat/images/notification-on.ico');
-    try {
-        new Audio('/static/chat/sounds/notification.mp3').play();
-    } catch (e) { }
-
-    // Android Chrome does not allow the Notification constructor from page context.
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    if (Notification?.permission === 'granted' && !notif.silent && !isAndroid) {
-        let notification = new Notification(notif.title, {
-            body: notif.body,
-            icon: notif.link ?? '/favicon.ico',
-            badge: notif.badge ?? '/favicon.ico',
-            requireInteraction: true,
-        });
-        notification.onclick = function() {
-            if (window.location.pathname !== "/chat/") {
-                window.location.href = "/chat/#room_id=" + notif.room_id;
-            }
-        };
-    }
 }
 
 // Favicon href as rendered by the server (respects custom brand mark) — captured lazily

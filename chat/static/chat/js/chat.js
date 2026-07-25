@@ -755,14 +755,6 @@ export async function onReceiveMessages(messages) {
         if (message.new) DOM_API.updateSidebarForMessage(message);
         if (message.new && !message.own) WS_API?.markMessageRead(message.message_id);
         requestAnimationFrame(() => DOM_API.markOverflow(DOM_API.getMessageDiv(message.message_id)));
-        if (message.new && !message.own) {
-            makeNotification({
-                title: message.username,
-                body: message.message,
-                room_id: message.room_id,
-                silent: !document.hidden,
-            });
-        }
     } else {
         // Batch load (join room) — build all HTML at once, single DOM insertion
         let batchHtml = '';

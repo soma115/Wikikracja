@@ -400,12 +400,12 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             for member in other_members:
                 prefs = membership_prefs.get(member.id, {'seen': False, 'muted': True})
                 consumer = ChatConsumer.online_registry.get_consumer(member)
-                is_present = bool(consumer) and consumer.rooms.present(room)
 
                 is_mentioned = member.id in mentioned_user_ids
-                if not is_present and not prefs['muted'] and not is_mentioned:
+                # Notify always (foreground/background/in-room) unless muted or already handled by mention flow.
+                if not prefs['muted'] and not is_mentioned:
                     asyncio.create_task(self.send_push_notification_async(proxy, member, msg, room.id, notify_room_name))
-                    # Play in-app sound/favicon (push will show the OS notification)
+                    # In-app favicon update (push will show the OS notification)
                     await self.channel_layer.group_send(
                         f"user_{member.id}",
                         {
