@@ -41,11 +41,7 @@ if (messaging) {
 
         const notification = payload.notification || {};
         const data = payload.data || {};
-        // title = author, body = room name (server no longer sends message content)
-        let notificationTitle = notification.title || data.title || 'Chat Message';
-        if (data.room_name && data.room_name !== notificationTitle) {
-            notificationTitle += ' — ' + data.room_name;
-        }
+        const notificationTitle = notification.title || data.title || 'Chat Message';
         const notificationOptions = {
             body: notification.body || data.body || '',
             icon: data.icon || '/favicon.ico',

@@ -83,11 +83,7 @@ const PushNotificationManager = {
                 const notification = payload.notification || {};
                 const data = payload.data || {};
                 const roomId = data.room_id ? parseInt(data.room_id, 10) : 0;
-                // title = author, body = room name (server no longer sends message content)
-                let title = notification.title || data.title || 'Chat Message';
-                if (data.room_name && data.room_name !== title) {
-                    title += ' — ' + data.room_name;
-                }
+                const title = notification.title || data.title || 'Chat Message';
                 const options = {
                     body: notification.body || data.body || '',
                     icon: data.icon || '/favicon.ico',
