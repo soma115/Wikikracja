@@ -24,6 +24,21 @@ log = logging.getLogger(__name__)
 domain = get_site_domain()
 
 
+def _build_chat_notification(author, room_id, room_name=None):
+    """Build the title/body/icon/click_action shared by WS and FCM chat notifications.
+
+    `room_name` should be the public room title, or the other participant's
+    username for private chats. Pass None/"" to fall back to a generic "Chat" title.
+    """
+    site_url = f"https://{domain}"
+    return {
+        'title': _("Room: %(room)s") % {'room': room_name} if room_name else _("Chat"),
+        'body': _("Sender: %(author)s") % {'author': author},
+        'icon': f"{site_url}/favicon.ico",
+        'click_action': f"{site_url}/chat#room_id={room_id}",
+    }
+
+
 class ChatConsumer(AsyncJsonWebsocketConsumer):
     """
     This chat consumer handles websocket connections for chat clients.
@@ -396,10 +411,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             author = "Anonymous" if msg.anonymous else (sender.username or "System")
             # Room name to display: public room title, private chat = sender (matches displayed_name for the recipient)
             notify_room_name = room.title if room.public else (sender.username or "System")
-            notify_body = _("Sender: %(author)s") % {'author': author}
-            site_url = f"https://{domain}"
-            deep_link = f"{site_url}/chat#room_id={room.id}"
-            notify_icon = f"{site_url}/favicon.ico"
+            notification = _build_chat_notification(author, room.id, notify_room_name)
             for member in other_members:
                 prefs = membership_prefs.get(member.id, {'seen': False, 'muted': True})
                 consumer = ChatConsumer.online_registry.get_consumer(member)
@@ -418,13 +430,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                         {
                             "type": "chat.notification",
                             "room_id": room.id,
-                            "notification": {
-                                "title": _("Room: %(room)s") % {'room': notify_room_name},
-                                "body": notify_body,
-                                "icon": notify_icon,
-                                "click_action": deep_link,
-                                "room_id": room.id,
-                            },
+                            "notification": {**notification, "room_id": room.id},
                         }
                     )
 
@@ -459,11 +465,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         """Send a WebSocket notification and a push for a single mention."""
         try:
             author = "Anonymous" if msg.anonymous else (sender.username or "System")
-            title = _("Room: %(room)s") % {'room': room.name} if room.name else _("Chat")
-            body = _("Sender: %(author)s") % {'author': author}
-            site_url = f"https://{domain}"
-            deep_link = f"{site_url}/chat#room_id={room.id}"
-            icon = f"{site_url}/favicon.ico"
+            notification = _build_chat_notification(author, room.id, room.name)
 
             # Show a real OS notification via the shared WebSocket connection too, so it
             # appears immediately even while the tab is in the foreground (push/FCM still
@@ -473,18 +475,14 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 {
                     "type": "chat.mention",
                     "room_id": room.id,
-                    "notification": {
-                        "title": title,
-                        "body": body,
-                        "icon": icon,
-                        "click_action": deep_link,
-                        "room_id": room.id,
-                    },
+                    "notification": {**notification, "room_id": room.id},
                 }
             )
 
             # Push notification (bypasses room mute because it is a direct mention).
-            success = await self.repo.send_push_notification_sync(user, title, body, deep_link, room.id)
+            success = await self.repo.send_push_notification_sync(
+                user, notification['title'], notification['body'], notification['click_action'], room.id
+            )
             if success:
                 log.info(f"Mention notification sent to user {user.id} for message {msg.id}")
             else:
@@ -798,11 +796,11 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             if await self.repo.user_has_muted_room(user.id, room_id):
                 return
             author = "System" if message.sender is None else ("Anonymous" if message.anonymous else message.sender.username)
-            title = _("Room: %(room)s") % {'room': room_name} if room_name else _("Chat")
-            body = _("Sender: %(author)s") % {'author': author}
-            site_url = f"https://{domain}"
-            deep_link = f"{site_url}/chat#room_id={room_id}"
-            success = await self.repo.send_push_notification_sync(user=user, title=title, body=body, deep_link=deep_link, room_id=room_id, room_name=room_name or "")
+            notification = _build_chat_notification(author, room_id, room_name)
+            success = await self.repo.send_push_notification_sync(
+                user=user, title=notification['title'], body=notification['body'],
+                deep_link=notification['click_action'], room_id=room_id, room_name=room_name or "",
+            )
             if success:
                 log.info(f"Push notification sent to user {user.id} for message {message.id}")
             else:
