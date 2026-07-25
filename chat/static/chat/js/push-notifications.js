@@ -14,7 +14,26 @@ const PushNotificationManager = {
         return false;
     },
 
+    // Guards against concurrent initFCM() calls (e.g. Android reloading/resuming a
+    // backgrounded tab multiple times in quick succession). Without this, overlapping
+    // calls can race on the service worker lifecycle and rotate/invalidate the push
+    // subscription right after it was created, causing FCM to report the freshly
+    // registered token as "Device unregistered" a few seconds later.
+    _initPromise: null,
+
     async initFCM() {
+        if (this._initPromise) {
+            return this._initPromise;
+        }
+        this._initPromise = this._doInitFCM();
+        try {
+            return await this._initPromise;
+        } finally {
+            this._initPromise = null;
+        }
+    },
+
+    async _doInitFCM() {
         try {
             if (Notification.permission !== 'granted') {
                 console.log('Notification permission not granted yet; skipping FCM token retrieval.');
@@ -31,8 +50,11 @@ const PushNotificationManager = {
                 return false;
             }
             const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-            // Force the browser to check for a new service worker (updates may not auto-install).
-            await swRegistration.update();
+            // NOTE: do NOT call swRegistration.update() here. Forcing a SW update check on
+            // every init raced with itself when this ran concurrently (e.g. Android
+            // reloading a backgrounded tab), which appeared to rotate/invalidate the push
+            // subscription right after registration. The browser already checks for SW
+            // updates on its own (on navigation / periodically).
             // Ensure the active (not just registered) SW is used before requesting the FCM token.
             if (swRegistration.installing) {
                 await new Promise(resolve => swRegistration.installing.addEventListener('statechange', function wait(e) {
