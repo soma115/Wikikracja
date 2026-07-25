@@ -1,7 +1,11 @@
+from unittest.mock import MagicMock, patch
+
+import firebase_admin
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from firebase_admin import messaging as firebase_messaging
 
-from chat.services import extract_mentions, get_avatar_url
+from chat.services import ChatRepository, extract_mentions, get_avatar_url
 from chat.tests.utils import make_user
 
 
@@ -54,3 +58,65 @@ class ExtractMentionsTest(TestCase):
 
     def test_deduplicates_mentions(self):
         self.assertEqual(extract_mentions("@alice @alice"), {"alice"})
+
+
+class SendPushNotificationSyncTest(TestCase):
+    """Regression tests for the FCM message built by send_push_notification_sync."""
+
+    def setUp(self):
+        self.user = make_user("pushuser")
+        self.repo = ChatRepository(self.user)
+
+        self.mock_queryset = MagicMock()
+        self.mock_queryset.exists.return_value = True
+        self.mock_queryset.send_message.return_value = MagicMock(
+            success_count=1,
+            responses=[MagicMock(success=True)],
+        )
+
+    async def test_builds_full_fcm_message(self):
+        """The message must contain top-level notification, data payload and webpush notification."""
+        with patch("chat.services.GCMDevice") as mock_gcm:
+            mock_gcm.objects.filter.return_value = self.mock_queryset
+            with patch.object(firebase_admin, "_apps", {"[DEFAULT]": MagicMock()}):
+                await self.repo.send_push_notification_sync(
+                    self.user,
+                    "Room: Test",
+                    "Sender: Alice",
+                    "https://example.com/chat#room_id=1",
+                    1,
+                    room_name="Test",
+                )
+
+        self.assertTrue(self.mock_queryset.send_message.called)
+        message = self.mock_queryset.send_message.call_args[0][0]
+        self.assertIsInstance(message, firebase_messaging.Message)
+
+        # Top-level notification lets the FCM SDK display the notification automatically.
+        self.assertEqual(message.notification.title, "Room: Test")
+        self.assertEqual(message.notification.body, "Sender: Alice")
+
+        # Data payload is used by onMessage and onBackgroundMessage.
+        self.assertEqual(message.data["title"], "Room: Test")
+        self.assertEqual(message.data["body"], "Sender: Alice")
+        self.assertEqual(message.data["room_id"], "1")
+        self.assertEqual(message.data["room_name"], "Test")
+        self.assertEqual(message.data["click_action"], "https://example.com/chat#room_id=1")
+        self.assertIn("favicon.ico", message.data["icon"])
+
+        # webpush.notification is needed for the killed-browser/PWA case.
+        webpush_notification = message.webpush.notification
+        self.assertEqual(webpush_notification.title, "Room: Test")
+        self.assertEqual(webpush_notification.body, "Sender: Alice")
+        self.assertEqual(webpush_notification.tag, "chat-1")
+        self.assertTrue(webpush_notification.require_interaction)
+        self.assertEqual(webpush_notification.data["room_id"], "1")
+        self.assertEqual(webpush_notification.data["click_action"], "https://example.com/chat#room_id=1")
+        self.assertIn("favicon.ico", webpush_notification.icon)
+        self.assertIn("favicon.ico", webpush_notification.badge)
+
+        # webpush.fcm_options.link handles notification click.
+        self.assertEqual(
+            message.webpush.fcm_options.link,
+            "https://example.com/chat#room_id=1",
+        )

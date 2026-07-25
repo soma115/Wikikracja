@@ -58,10 +58,16 @@ FIREBASE_VAPID_KEY=BN...   # Web Push certificate z Firebase Console > Cloud Mes
 4. `push-notifications.js` rejestruje `/firebase-messaging-sw.js`, inicjalizuje Firebase i pobiera token `messaging.getToken({ serviceWorkerRegistration: swRegistration, vapidKey: FIREBASE_VAPID_KEY })`.
 5. Token FCM jest wysyłany na `/chat/api/push/register/` i zapisywany w bazie jako `GCMDevice`.
 
+Po każdej zmianie `firebase-messaging-sw.js` na produkcji użytkownik musi raz zamknąć PWA/przeglądarkę i wyczyścić jej pamięć podręczną (lub odinstalować/zainstalować PWA), żeby nowa wersja service workera zastąpiła starą. `skipWaiting()`/`clients.claim()` przyspieszają aktualizację, ale tylko gdy aplikacja jest otwarta; zabita aplikacja trzyma poprzedni SW aż do kolejnego uruchomienia z nowym źródłem.
+
 ## Wysyłka
 
 - `GCMDevice.send_message(message)` używa `firebase_admin.messaging` do wysyłki przez FCM. `firebase_admin` jest inicjalizowany w `zzz/settings.py` z certyfikatu service account.
-- `firebase-messaging-sw.js` odbiera wiadomości w tle i wywołuje `self.registration.showNotification()`.
+- `chat/services.py::send_push_notification_sync` buduje `messaging.Message` z trzema warstwami:
+  - `notification` (title/body) – wymagane, żeby FCM SDK w service workerze automatycznie wyświetliło powiadomienie.
+  - `data` (title, body, room_id, room_name, icon, click_action) – dla pierwszego planu (`onMessage`) i dla `onBackgroundMessage` gdy SW jest aktywny.
+  - `webpush.notification` (title, body, icon, badge, tag, require_interaction, data) oraz `webpush.fcm_options.link` – dla natywnego wyświetlenia gdy przeglądarka/PWA jest zabita i FCM SDK nie może obudzić SW.
+- `firebase-messaging-sw.js` odbiera wiadomości przez `onBackgroundMessage` (gdy FCM SDK jest załadowane) lub bezpośrednio przez `push` (fallback, gdy SDK nie startuje w zabitej przeglądarce). W obu przypadkach wywołuje `self.registration.showNotification()`.
 - Wiadomości pierwszego planu są obsługiwane przez `messaging.onMessage` w `push-notifications.js` i przekazywane do service worker przez `postMessage`.
 
 ## Troubleshooting
@@ -72,13 +78,14 @@ FIREBASE_VAPID_KEY=BN...   # Web Push certificate z Firebase Console > Cloud Mes
 | Na Androidzie FCM nie działa | Brak `/firebase-messaging-sw.js` w roocie, brak `FIREBASE_API_KEY` w `.env` lub zły `serviceWorkerRegistration` |
 | `messaging.getToken()` rzuca błąd / brak tokenu | Brak `FIREBASE_VAPID_KEY` (Web Push certificate) — dodaj go w Firebase Console i w konfiguracji |
 | `firebase-messaging-sw.js` ma błąd składni | Widok `firebase_messaging_sw` musi zamieniać cały blok `const firebaseConfig = {...}` a nie tylko początek linii |
+| Generyczny komunikat "Ta witryna została zaktualizowana w tle" po zamknięciu PWA | Stary service worker na urządzeniu — wyczyść pamięć podręczną lub odinstaluj/zainstaluj PWA ponownie |
 | Backend nie wysyła FCM | Brak certyfikatu service account lub brak `GOOGLE_APPLICATION_CREDENTIALS` |
 | Po zmianie tokenu nie przychodzą powiadomienia | `/chat/api/push/register/` musi otrzymać nowy token FCM |
 
 ## Pliki objaśnione
 
 - `chat/static/chat/js/push-notifications.js` — inicjalizacja Firebase i rejestracja tokenu FCM.
-- `chat/static/chat/js/firebase-messaging-sw.js` — szablon FCM SW z wstrzykiwaną konfiguracją.
+- `chat/static/chat/js/firebase-messaging-sw.js` — szablon FCM SW z wstrzykiwaną konfiguracją. Obsługuje `onBackgroundMessage` oraz fallbackowy `push` dla przypadku, gdy FCM SDK nie zdąży się załadować w zabitej przeglądarce/PWA.
 - `home/views.py` — widoki `firebase_messaging_sw`, `dynamic_settings_js`, `manifest`.
 - `chat/services.py` — logika wysyłania powiadomień przez FCM.
 
@@ -136,15 +143,19 @@ Poniższe problemy zostały już zdiagnozowane i naprawione. **Nie cofaj tych zm
    poprawnego tokenu. Naprawione w `home/views.py::manifest` (`"gcm_sender_id": "103953800507"`
    — to stała wartość Google, nie ID projektu Firebase).
 4. **Komunikat "Ta witryna została zaktualizowana w tle" zamiast właściwego powiadomienia** —
-   przyczyna: wiadomość FCM miała jednocześnie `notification` (title/body) i
-   `webpush.notification` z samym `icon` (bez title/body). Przeglądarka próbowała wyświetlić
-   powiadomienie natywnie z niekompletnego payloadu i cicho się wywalała, więc Chrome
-   pokazywał generyczny fallback. **Naprawione: FCM wysyłane jest teraz WYŁĄCZNIE jako
-   `data`-only** (`chat/services.py::send_push_notification_sync`) — bez pól `notification`
-   i `webpush.notification`. Dzięki temu ZAWSZE wywołuje się nasz `onBackgroundMessage`
-   w `firebase-messaging-sw.js`, który sam buduje powiadomienie (title, body, icon, tag,
-   click_action). **NIE dodawaj z powrotem pola `notification` do `messaging.Message` —
-   to spowoduje powrót tego samego, już naprawionego błędu.**
+   przyczyna: różne przeglądarki/PWA w różnych stanach (karta w tle, zabita przeglądarka,
+   PWA zamknięte) potrzebują różnych pól FCM. Data-only działało, gdy SW był aktywny,
+   ale przy zabitej przeglądarce Chrome/PWA nie zawsze obudził SW i pokazywał generyczny
+   fallback. **Naprawione: FCM wysyła teraz pełny zestaw payloadów:**
+   - top-level `notification` (title/body) – żeby FCM SDK wyświetliło powiadomienie,
+     gdy tylko jest w stanie je przetworzyć;
+   - `data` – dla `onMessage` na pierwszym planie i dla `onBackgroundMessage` w aktywnym SW;
+   - `webpush.notification` (z title, body, icon, badge, tag, `requireInteraction`, `data`)
+     oraz `webpush.fcm_options.link` – żeby Chrome/PWA potrafiły wyświetlić powiadomienie
+     natywnie nawet bez obudzenia naszego kodu.
+   Dodatkowo `firebase-messaging-sw.js` ma fallbackowy `push`, który sam parsuje payload
+   i woła `showNotification()`, jeśli FCM SDK nie zdoła się załadować w zabitej aplikacji.
+   Nie usuwaj żadnej z tych trzech warstw bez przetestowania na prawdziwym telefonie.
 5. **Powiadomienia działały tylko w tle, nie na pierwszym planie karty** — poleganie
    wyłącznie na `messaging.onMessage()` (foreground routing FCM) jest zawodne między
    przeglądarkami. Naprawione: dodano niezależną ścieżkę przez WebSocket (patrz tabela
@@ -155,6 +166,12 @@ Poniższe problemy zostały już zdiagnozowane i naprawione. **Nie cofaj tych zm
 6. **Deduplikacja** — obie ścieżki (WS i FCM) używają tego samego `tag: chat-${room_id}`,
    więc jeśli obie zadziałają dla tej samej wiadomości, przeglądarka scala je w jedno
    powiadomienie zamiast pokazywać duplikat.
+
+7. **Powiadomienia działają po zamknięciu przeglądarki/PWA** — po wdrożeniu punktu 4 oraz
+   fallbackowego `push` w `firebase-messaging-sw.js` powiadomienia na Android Chrome
+   pokazują poprawny tytuł i treść także wtedy, gdy przeglądarka lub PWA jest zabita.
+   Kluczowe było wyczyszczenie pamięci podręcznej/ponowna instalacja PWA na urządzeniu,
+   żeby nowa wersja SW została załadowana.
 
 ## ⚠️ ZDIAGNOZOWANE 2026-07-25: FCM + Firefox = niewiarygodne, traktuj jako ograniczenie platformy
 
