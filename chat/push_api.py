@@ -46,10 +46,12 @@ class PushDeviceRegisterView(View):
                 device, created = GCMDevice.objects.get_or_create(user=user, registration_id=registration_id, defaults={
                     'active': True,
                     'device_id': "",
+                    'cloud_message_type': 'FCM',
                 })
                 if not created:
                     device.active = True
                     device.device_id = ""
+                    device.cloud_message_type = 'FCM'
                     device.save()
                 # Deactivate any other active FCM tokens for this user so only the
                 # most recent installation (browser or PWA) receives push.

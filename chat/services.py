@@ -596,6 +596,12 @@ class ChatRepository:
 
             fcm_devices = GCMDevice.objects.filter(user=user, active=True)
             if fcm_devices.exists():
+                # Ensure any legacy GCM rows are converted to FCM; we no longer support GCM.
+                fcm_devices.filter(cloud_message_type='GCM').update(cloud_message_type='FCM')
+                fcm_devices = GCMDevice.objects.filter(user=user, active=True, cloud_message_type='FCM')
+                if not fcm_devices.exists():
+                    log.debug(f"No FCM devices for user {user.id}")
+                    return any_sent
                 try:
                     import firebase_admin
                     if not firebase_admin._apps:
@@ -619,8 +625,16 @@ class ChatRepository:
                             headers={'Urgency': 'high'},
                         )
                     )
-                    fcm_devices.send_message(message)
-                    any_sent = True
+                    result = fcm_devices.send_message(message)
+                    if result and result.success_count > 0:
+                        any_sent = True
+                        log.info(f"FCM sent {result.success_count} notification(s) to user {user.id}")
+                    else:
+                        log.debug(f"No FCM notifications delivered to user {user.id}")
+                    if result:
+                        for idx, resp in enumerate(result.responses):
+                            if not resp.success:
+                                log.warning(f"FCM response {idx} failed for user {user.id}: {resp.exception}")
                 except Exception as e:
                     cause = getattr(e, 'cause', None)
                     log.error(

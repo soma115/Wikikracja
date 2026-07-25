@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-25 16:30+0200\n"
+"POT-Creation-Date: 2026-07-25 18:07+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -891,13 +891,24 @@ msgstr "Nazwa kategorii"
 msgid "Description (optional)"
 msgstr "Opis (opcjonalny)"
 
-#: .\chat\consumers.py:397 .\chat\consumers.py:789
+#: .\chat\consumers.py:397
 msgid "New message"
 msgstr "Nowa wiadomość"
 
-#: .\chat\consumers.py:456
-msgid "New mention"
-msgstr "Nowe wzmianki"
+#: .\chat\consumers.py:456 .\chat\consumers.py:790
+#: .\chat\templates\chat\_embedded_chat.html:16
+#: .\glosowania\templates\glosowania\_proposal_card.html:40
+#: .\glosowania\templates\glosowania\_proposal_card.html:50
+#: .\glosowania\templates\glosowania\szczegoly.html:43
+#: .\home\templates\home\base.html:134 .\home\templates\home\base.html:137
+#: .\home\templates\home\base.html:216 .\home\templates\home\home.html:79
+#: .\home\templates\home\home.html:109 .\home\templates\home\home.html:681
+#: .\home\templates\home\search.html:94 .\home\views.py:418
+#: .\obywatele\templates\obywatele\wspolnota.html:80 .\obywatele\views.py:696
+#: .\tasks\templates\tasks\_task_card.html:43
+#: .\tasks\templates\tasks\task_detail.html:19
+msgid "Chat"
+msgstr "Czat"
 
 #: .\chat\forms.py:20
 msgid "The Inbox room cannot be renamed."
@@ -963,20 +974,6 @@ msgstr "## Zostałeś wspomniany tutaj"
 #, python-brace-format
 msgid "- {room_name}: {room_link}"
 msgstr "- {room_name}: {room_link}"
-
-#: .\chat\templates\chat\_embedded_chat.html:16
-#: .\glosowania\templates\glosowania\_proposal_card.html:40
-#: .\glosowania\templates\glosowania\_proposal_card.html:50
-#: .\glosowania\templates\glosowania\szczegoly.html:43
-#: .\home\templates\home\base.html:134 .\home\templates\home\base.html:137
-#: .\home\templates\home\base.html:216 .\home\templates\home\home.html:79
-#: .\home\templates\home\home.html:109 .\home\templates\home\home.html:681
-#: .\home\templates\home\search.html:94 .\home\views.py:418
-#: .\obywatele\templates\obywatele\wspolnota.html:80 .\obywatele\views.py:696
-#: .\tasks\templates\tasks\_task_card.html:43
-#: .\tasks\templates\tasks\task_detail.html:19
-msgid "Chat"
-msgstr "Czat"
 
 #: .\chat\templates\chat\_embedded_chat.html:18
 msgid "Open in chat"
@@ -2975,23 +2972,23 @@ msgstr "Twoje hasło zostało zmienione."
 msgid "You typed something wrong. See what error appeared above and try again."
 msgstr "Coś źle wpisałeś. Zobacz, jaki błąd pojawił się powyżej i spróbuj ponownie."
 
-#: .\home\views.py:886
+#: .\home\views.py:888
 msgid "Branding saved."
 msgstr "Branding zapisany."
 
-#: .\home\views.py:900
+#: .\home\views.py:902
 msgid "Link added."
 msgstr "Link dodany."
 
-#: .\home\views.py:916
+#: .\home\views.py:918
 msgid "Link updated."
 msgstr "Link zaktualizowany."
 
-#: .\home\views.py:918 .\home\views.py:939
+#: .\home\views.py:920 .\home\views.py:941
 msgid "Link doesn't exist."
 msgstr "Link nie istenieje."
 
-#: .\home\views.py:937
+#: .\home\views.py:939
 msgid "Link deleted."
 msgstr "Link usunięty."
 

@@ -72,14 +72,28 @@ self.addEventListener('message', (event) => {
     }
 });
 
-// Handle notification click
+// Handle notification click: focus an already-open tab/PWA window if one exists,
+// otherwise open a new one. Important on Android where the PWA is often already
+// running in the background.
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 
     const clickAction = event.notification.data?.click_action;
-    if (clickAction) {
-        event.waitUntil(
-            clients.openWindow(clickAction)
-        );
+    if (!clickAction) {
+        return;
     }
+
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+            for (const client of windowClients) {
+                if ('focus' in client) {
+                    if ('navigate' in client) {
+                        client.navigate(clickAction);
+                    }
+                    return client.focus();
+                }
+            }
+            return clients.openWindow(clickAction);
+        })
+    );
 });

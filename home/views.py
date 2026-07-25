@@ -808,6 +808,10 @@ def manifest(request):
         'background_color': '#000',
         "prefer_related_applications": False,
         "related_applications": [],
+        # Required by Chrome on Android for FCM push to work reliably when the PWA
+        # is installed to the home screen. 103953800507 is Google's fixed sender ID
+        # used for the legacy GCM/FCM handshake; it is NOT your Firebase project ID.
+        "gcm_sender_id": "103953800507",
         'icons': [{
             'src': favicon_src,
             'sizes': "16x16 32x32 48x48",

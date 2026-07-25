@@ -16,6 +16,10 @@ const PushNotificationManager = {
 
     async initFCM() {
         try {
+            if (Notification.permission !== 'granted') {
+                console.log('Notification permission not granted yet; skipping FCM token retrieval.');
+                return false;
+            }
             if (!FIREBASE_CONFIG ||
                 !FIREBASE_CONFIG.apiKey ||
                 !FIREBASE_CONFIG.authDomain ||
