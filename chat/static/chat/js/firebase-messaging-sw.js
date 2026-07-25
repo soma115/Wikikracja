@@ -40,10 +40,16 @@ if (messaging) {
         console.log('FCM background message:', payload);
 
         const notification = payload.notification || {};
+        // If the FCM SDK parsed a real notification payload, it already displays it
+        // automatically in the background. Avoid a second duplicate notification.
+        if (notification.title && notification.body) {
+            return;
+        }
+
         const data = payload.data || {};
-        const notificationTitle = notification.title || data.title || 'Chat Message';
+        const notificationTitle = data.title || 'Chat Message';
         const notificationOptions = {
-            body: notification.body || data.body || '',
+            body: data.body || '',
             icon: data.icon || '/favicon.ico',
             badge: '/favicon.ico',
             tag: `chat-${data.room_id || 'general'}`,
@@ -54,7 +60,44 @@ if (messaging) {
             requireInteraction: true
         };
 
-        self.registration.showNotification(notificationTitle, notificationOptions);
+        return self.registration.showNotification(notificationTitle, notificationOptions);
+    });
+}
+
+// Fallback for the killed-browser case: if Firebase SDK did not load (or
+// `messaging` could not be initialized), the FCM SDK `push` listener is not
+// registered, and Chrome/Android shows the generic "site updated in the
+// background" fallback. We register our own `push` listener when `messaging` is
+// missing. It parses the raw Web Push payload and displays the notification.
+if (!messaging) {
+    self.addEventListener('push', (event) => {
+        console.log('Fallback push handler received event:', event);
+        try {
+            const payload = event.data ? event.data.json() : {};
+            const notification = payload.notification || {};
+            const data = payload.data || {};
+            const title = notification.title || data.title || 'Chat Message';
+            const body = notification.body || data.body || '';
+            const icon = data.icon || '/favicon.ico';
+            const clickAction = data.click_action || '/chat';
+            const roomId = data.room_id ? parseInt(data.room_id, 10) : 0;
+
+            const options = {
+                body: body,
+                icon: icon,
+                badge: '/favicon.ico',
+                tag: `chat-${data.room_id || 'general'}`,
+                requireInteraction: true,
+                data: {
+                    room_id: roomId,
+                    click_action: clickAction,
+                },
+            };
+
+            event.waitUntil(self.registration.showNotification(title, options));
+        } catch (e) {
+            console.error('Fallback push handler error:', e);
+        }
     });
 }
 

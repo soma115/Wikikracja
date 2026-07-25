@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-25 19:28+0200\n"
+"POT-Creation-Date: 2026-07-25 20:17+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -891,18 +891,12 @@ msgstr "Nazwa kategorii"
 msgid "Description (optional)"
 msgstr "Opis (opcjonalny)"
 
-#: .\chat\consumers.py:399 .\chat\consumers.py:463 .\chat\consumers.py:802
-#, python-format
-msgid "Sender: %(author)s"
-msgstr "Nadawca: %(author)s"
-
-#: .\chat\consumers.py:422 .\chat\consumers.py:462 .\chat\consumers.py:801
+#: .\chat\consumers.py:35
 #, python-format
 msgid "Room: %(room)s"
 msgstr "Pokój: %(room)s"
 
-#: .\chat\consumers.py:462 .\chat\consumers.py:801
-#: .\chat\templates\chat\_embedded_chat.html:16
+#: .\chat\consumers.py:35 .\chat\templates\chat\_embedded_chat.html:16
 #: .\glosowania\templates\glosowania\_proposal_card.html:40
 #: .\glosowania\templates\glosowania\_proposal_card.html:50
 #: .\glosowania\templates\glosowania\szczegoly.html:43
@@ -915,6 +909,11 @@ msgstr "Pokój: %(room)s"
 #: .\tasks\templates\tasks\task_detail.html:19
 msgid "Chat"
 msgstr "Czat"
+
+#: .\chat\consumers.py:36
+#, python-format
+msgid "Sender: %(author)s"
+msgstr "Nadawca: %(author)s"
 
 #: .\chat\forms.py:20
 msgid "The Inbox room cannot be renamed."

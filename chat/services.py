@@ -621,6 +621,7 @@ class ChatRepository:
                     # service worker `onBackgroundMessage` path when the SW is alive.
                     icon_url = f"https://{domain}/favicon.ico"
                     message = messaging.Message(
+                        notification=messaging.Notification(title=title, body=body),
                         data={
                             'title': title,
                             'body': body,
