@@ -5,7 +5,6 @@ from os import getenv, path
 
 
 from dotenv import load_dotenv
-from firebase_admin import credentials
 
 from zzz.settings_base import BASE_DIR, DATABASES  # noqa: F401
 
@@ -443,55 +442,13 @@ def _clean_env_value(value: str) -> str:
     return value.strip().strip('"').strip("'")
 
 VAPID_PUBLIC_KEY = _clean_env_value(getenv('VAPID_PUBLIC_KEY', ''))
-# Firebase Admin SDK initialization
-# Production (Kubernetes): uses GOOGLE_APPLICATION_CREDENTIALS env var (auto-detected)
-# Development (local): uses FIREBASE_CERT_PATH to local JSON file
-import firebase_admin
-
-# Check if already initialized (e.g., by GOOGLE_APPLICATION_CREDENTIALS)
-try:
-    firebase_admin.get_app()
-except ValueError:
-    # Not initialized yet
-    FIREBASE_CERT_PATH = getenv('FIREBASE_CERT_PATH', '')
-    GOOGLE_APPLICATION_CREDENTIALS = getenv('GOOGLE_APPLICATION_CREDENTIALS', '')
-    
-    if FIREBASE_CERT_PATH != '' and path.exists(FIREBASE_CERT_PATH):
-        # Local development: use explicit cert path
-        serviceAccount = credentials.Certificate(FIREBASE_CERT_PATH)
-        firebase_admin.initialize_app(credential=serviceAccount)
-        logging.info(f"Firebase initialized using FIREBASE_CERT_PATH: {FIREBASE_CERT_PATH}")
-    elif GOOGLE_APPLICATION_CREDENTIALS != '' and path.exists(GOOGLE_APPLICATION_CREDENTIALS):
-        # Production: use GOOGLE_APPLICATION_CREDENTIALS env var
-        serviceAccount = credentials.Certificate(GOOGLE_APPLICATION_CREDENTIALS)
-        firebase_admin.initialize_app(credential=serviceAccount)
-        logging.info(f"Firebase initialized using GOOGLE_APPLICATION_CREDENTIALS: {GOOGLE_APPLICATION_CREDENTIALS}")
-    else:
-        # No credentials available - Firebase won't work
-        logging.warning("Firebase not initialized: No valid credentials found (FIREBASE_CERT_PATH or GOOGLE_APPLICATION_CREDENTIALS)")
-        pass
 
 PUSH_NOTIFICATIONS_SETTINGS = {
     "WP_PRIVATE_KEY": _clean_env_value(getenv('VAPID_PRIVATE_KEY', '')),
     "WP_CLAIMS": {
         'sub': f"mailto:{getenv('VAPID_ADMIN_EMAIL', 'admin@example.com')}"
     },
-    "FIREBASE_APP": firebase_admin.get_app() if firebase_admin._apps else None
 }
-
-# Firebase Client Configuration (for Web/Android FCM)
-FIREBASE_CONFIG = {
-    'apiKey': _clean_env_value(getenv('FIREBASE_API_KEY', '')),
-    'authDomain': _clean_env_value(getenv('FIREBASE_AUTH_DOMAIN', '')),
-    'projectId': _clean_env_value(getenv('FIREBASE_PROJECT_ID', '')),
-    'storageBucket': _clean_env_value(getenv('FIREBASE_STORAGE_BUCKET', '')),
-    'messagingSenderId': _clean_env_value(getenv('FIREBASE_MESSAGING_SENDER_ID', '')),
-    'appId': _clean_env_value(getenv('FIREBASE_APP_ID', '')),
-}
-
-# FCM Web Push certificate (key pair) from Firebase Console > Cloud Messaging.
-# Required by messaging.getToken({ vapidKey }) for browsers (incl. Android Chrome).
-FIREBASE_VAPID_KEY = _clean_env_value(getenv('FIREBASE_VAPID_KEY', ''))
 
 # Onboarding: pk of the Board post 'Zasady wspólnoty'
 ONBOARDING_RULES_POST_ID = None  # set to the pk after creating the post

@@ -20,6 +20,7 @@ class PostSendProcessingUnseenTest(TestCase):
         self.receiver = make_user("receiver")
         self.room = Room.objects.create(title="test-room", public=False)
         self.room.allowed.add(self.sender, self.receiver)
+        self.room.muted_by.add(self.receiver)
 
     def _make_sender_consumer(self):
         consumer = ChatConsumer.__new__(ChatConsumer)
@@ -41,6 +42,7 @@ class PostSendProcessingUnseenTest(TestCase):
     async def _run(self, sender_consumer, receiver_consumer):
         msg = MagicMock()
         msg.time = None
+        msg.text = ''
         with patch.object(ChatConsumer.online_registry, 'get_online',
                           return_value=[self.receiver.id]):
             with patch.object(ChatConsumer.online_registry, 'get_consumer',

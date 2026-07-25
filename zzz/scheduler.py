@@ -8,8 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from django.conf import settings
 from django.core.management import call_command
-from firebase_admin import messaging
-from push_notifications.models import GCMDevice, WebPushDevice
+from push_notifications.models import WebPushDevice
 
 log = logging.getLogger(__name__)
 
@@ -135,12 +134,6 @@ def run_meeting_notification():
     webpush_devices = WebPushDevice.objects.filter(active=True)
     if not webpush_devices.exists():
         log.info("No active webpush devices found")
-
-    fcm_devices = GCMDevice.objects.filter(active=True)
-    if not fcm_devices.exists():
-        log.info("No active FCM devices found")
-
-    if not webpush_devices.exists() and not fcm_devices.exists():
         return
 
     for event in starting_events:
@@ -187,27 +180,6 @@ def run_meeting_notification():
                     log.info(f"WebPush notification sent for event: {event.title}")
                 except Exception as e:
                     log.error(f"WebPush failed for event {event.id}: {e}")
-
-            # Send FCM notifications (Android/iOS)
-            if fcm_devices.exists():
-                try:
-                    import firebase_admin
-                    if not firebase_admin._apps:
-                        log.warning(f"FCM skipped for event {event.id}: Firebase not initialized")
-                    else:
-                        from zzz.utils import get_site_domain
-                        domain = get_site_domain()
-                        message = messaging.Message(
-                            notification=messaging.Notification(title=title, body=body_text),
-                            webpush=messaging.WebpushConfig(
-                                notification=messaging.WebpushNotification(icon=f"https://{domain}/favicon.ico"),
-                                fcm_options=messaging.WebpushFCMOptions(link=click_action),
-                            )
-                        )
-                        fcm_devices.send_message(message)
-                        log.info(f"FCM notification sent for event: {event.title}")
-                except Exception as e:
-                    log.error(f"FCM failed for event {event.id}: {e}")
 
         except Exception as e:
             log.error(f"Notification failed for event {event.id}: {e}")

@@ -1,4 +1,4 @@
-import { VAPID_PUBLIC_KEY, FIREBASE_CONFIG, FIREBASE_VAPID_KEY } from '/dynamic-settings.js';
+import { VAPID_PUBLIC_KEY } from '/dynamic-settings.js';
 
 function urlBase64ToUint8Array(base64String) {
     if (!base64String) return new Uint8Array(0);
@@ -22,9 +22,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 const PushNotificationManager = {
     async initialize() {
-        if (/Android/i.test(navigator.userAgent)) {
-            return await this.initFCM();
-        } else if ('Notification' in window && 'serviceWorker' in navigator) {
+        if ('Notification' in window && 'serviceWorker' in navigator) {
             return await this.initWebPush();
         }
         console.warn('No supported push notification platform detected');
@@ -63,94 +61,12 @@ const PushNotificationManager = {
         }
     },
 
-    async initFCM() {
-        try {
-            if (!FIREBASE_CONFIG || !FIREBASE_CONFIG.apiKey) {
-                console.error('Firebase config is empty or missing. Please set FIREBASE_* environment variables.');
-                return false;
-            }
-            const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-            // Force the browser to check for a new service worker (updates may not auto-install).
-            await swRegistration.update();
-            // Ensure the active (not just registered) SW is used before requesting the FCM token.
-            if (swRegistration.installing) {
-                await new Promise(resolve => swRegistration.installing.addEventListener('statechange', function wait(e) {
-                    if (e.target.state === 'activated') {
-                        e.target.removeEventListener('statechange', wait);
-                        resolve();
-                    }
-                }));
-            } else if (!swRegistration.active) {
-                await navigator.serviceWorker.ready;
-            }
-            if (!firebase.apps.length) {
-                firebase.initializeApp(FIREBASE_CONFIG);
-            }
-            if (!FIREBASE_VAPID_KEY) {
-                console.error('FIREBASE_VAPID_KEY is missing. Set the Web Push certificate key from Firebase Console > Cloud Messaging.');
-                return false;
-            }
-            const messaging = firebase.messaging();
-
-            // Foreground messages are not auto-displayed by the FCM SDK; show them manually.
-            // On Android Chrome, showNotification is more reliable when triggered from the
-            // service worker context. We post a message to the SW and let it display.
-            messaging.onMessage((payload) => {
-                console.log('FCM foreground message:', payload);
-                const data = payload.data || {};
-                const roomId = data.room_id ? parseInt(data.room_id, 10) : 0;
-                let title = data.title || 'Chat Message';
-                if (data.room_name && data.room_name !== data.title) {
-                    title += ' — ' + data.room_name;
-                }
-                const options = {
-                    body: data.body || '',
-                    icon: data.icon || '/favicon.ico',
-                    badge: '/favicon.ico',
-                    tag: `chat-${data.room_id || 'general'}`,
-                    requireInteraction: true,
-                    data: {
-                        room_id: roomId,
-                        click_action: data.click_action || '/chat',
-                    },
-                };
-                const activeWorker = swRegistration.active || navigator.serviceWorker.controller;
-                if (activeWorker) {
-                    activeWorker.postMessage({
-                        type: 'SHOW_NOTIFICATION',
-                        title: title,
-                        options: options,
-                    });
-                } else {
-                    // Fallback: try directly from the page context.
-                    swRegistration.showNotification(title, options);
-                }
-            });
-
-            const token = await messaging.getToken({
-                vapidKey: FIREBASE_VAPID_KEY,
-                serviceWorkerRegistration: swRegistration,
-            });
-            // console.log('FCM token obtained:', token);
-            if (!token) {
-                console.warn('FCM token retrieval failed');
-                return false;
-            }
-            // Send token to server (no device_type for FCM - device_id field is for Android native ID)
-            await this.registerDevice('fcm', token);
-            return true;
-        } catch (error) {
-            console.error('Error initializing FCM:', error);
-            return false;
-        }
-    },
-
     /**
      * Register device with server
      * @async
      * @private
-     * @param {'webpush'|'fcm'} platform - Platform name
-     * @param {PushSubscription|string} registration - Push subscription or token
+     * @param {'webpush'} platform - Platform name
+     * @param {PushSubscription} registration - Push subscription
      * @returns {Promise<Object|null>} - Server response on success, null on failure
      */
     async registerDevice(platform, registration) {
@@ -186,7 +102,7 @@ const PushNotificationManager = {
     /**
      * Unregister device from server
      * @async
-     * @param {'webpush'|'fcm'} platform - Platform name
+     * @param {'webpush'} platform - Platform name
      * @param {string} registrationId - Device registration ID
      * @returns {Promise<Object|null>} - Server response on success, null on failure
      */

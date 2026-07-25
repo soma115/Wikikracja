@@ -6,11 +6,9 @@ from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db.models import Count, Prefetch
-from firebase_admin import messaging
-from push_notifications.models import GCMDevice, WebPushDevice
+from push_notifications.models import WebPushDevice
 
 from zzz.richtext import strip_tags
-from zzz.utils import get_site_domain
 
 from .exceptions import ClientError
 from .models import (
@@ -23,7 +21,6 @@ from .models import (
 )
 
 log = logging.getLogger(__name__)
-domain = get_site_domain()
 
 CHAT_UNREAD_CACHE_KEY = "chat_unread:{user_id}"
 CHAT_UNREAD_CACHE_TTL = 300
@@ -591,7 +588,7 @@ class ChatRepository:
     # -- Push notification methods --
     @database_sync_to_async
     def send_push_notification_sync(self, user, title, body, deep_link, room_id, room_name=""):
-        """Synchronous push notification sending via django-push-notifications."""
+        """Synchronous push notification sending via django-push-notifications (Web Push)."""
         try:
             any_sent = False
 
@@ -614,35 +611,6 @@ class ChatRepository:
                     any_sent = True
                 except Exception as e:
                     log.error(f"WebPush failed for user {user.id}: {e}")
-
-            fcm_devices = GCMDevice.objects.filter(user=user, active=True)
-            if fcm_devices.exists():
-                try:
-                    import firebase_admin
-                    if not firebase_admin._apps:
-                        log.warning(f"FCM skipped for user {user.id}: Firebase not initialized")
-                        return any_sent
-                    message = messaging.Message(
-                        data={
-                            'title': title,
-                            'body': body,
-                            'room_id': str(room_id),
-                            'room_name': room_name,
-                            'icon': f"https://{domain}/favicon.ico",
-                            'click_action': deep_link,
-                        },
-                        webpush=messaging.WebpushConfig(
-                            headers={'Urgency': 'high'},
-                        )
-                    )
-                    fcm_devices.send_message(message)
-                    any_sent = True
-                except Exception as e:
-                    cause = getattr(e, 'cause', None)
-                    log.error(
-                        f"FCM failed for user {user.id}: {e!r} | cause={cause!r}",
-                        exc_info=True,
-                    )
 
             return any_sent
         except Exception as e:

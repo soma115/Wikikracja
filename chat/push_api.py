@@ -1,6 +1,6 @@
 """
 Push Notification API endpoints for device registration and management.
-Supports WebPush, FCM (Android)
+Supports Web Push.
 """
 import json
 import logging
@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
-from push_notifications.models import GCMDevice, WebPushDevice
+from push_notifications.models import WebPushDevice
 
 log = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class PushDeviceRegisterView(View):
     """
     Register a device for push notifications.
     POST parameters:
-    - platform: 'webpush', 'fcm'
+    - platform: 'webpush'
     - registration_id: device token / endpoint URL
     - p256dh: (WebPush only) p256dh public key
     - auth: (WebPush only) authentication secret
@@ -39,7 +39,7 @@ class PushDeviceRegisterView(View):
 
             user = request.user
 
-            # A registration_id (FCM token / WebPush endpoint) identifies one physical
+            # A registration_id (WebPush endpoint) identifies one physical
             # browser/device install. It is NOT guaranteed unique per-user in the DB, so if
             # a different user previously registered this same token (e.g. someone else
             # logged in on this browser before), we must reassign it to the current user -
@@ -59,19 +59,6 @@ class PushDeviceRegisterView(View):
                     device.auth = auth
                     device.active = True
                     device.save()
-            elif platform == 'fcm':
-                GCMDevice.objects.filter(registration_id=registration_id).exclude(user=user).delete()
-                device, created = GCMDevice.objects.get_or_create(user=user, registration_id=registration_id, defaults={
-                    'active': True,
-                    'device_id': "",
-                })
-                if not created:
-                    device.active = True
-                    device.device_id = ""
-                    device.save()
-                # Deactivate any other active FCM tokens for this user so only the
-                # most recent installation (browser or PWA) receives push.
-                GCMDevice.objects.filter(user=user, active=True).exclude(pk=device.pk).update(active=False)
             else:
                 return JsonResponse({
                     'error': f'Unsupported platform: {platform}'
@@ -102,7 +89,7 @@ class PushDeviceUnregisterView(View):
     """
     Unregister a device (deactivate it).
     POST parameters:
-    - platform: 'webpush', 'fcm'
+    - platform: 'webpush'
     - registration_id: device token / endpoint URL
     """
     def post(self, request: HttpRequest):
@@ -121,8 +108,6 @@ class PushDeviceUnregisterView(View):
             # Find and deactivate the device
             if platform == 'webpush':
                 devices = WebPushDevice.objects.filter(user=user, registration_id=registration_id)
-            elif platform == 'fcm':
-                devices = GCMDevice.objects.filter(user=user, registration_id=registration_id)
             else:
                 return JsonResponse({
                     'error': f'Unsupported platform: {platform}'

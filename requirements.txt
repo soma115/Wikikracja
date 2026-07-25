@@ -19,7 +19,6 @@ django-simple-captcha==0.6.3
 django-tables2==3.0.0
 django-tinymce==5.0.0
 django-watchfiles==1.4.0
-firebase-admin==7.4.0
 python-dotenv==1.2.2
 pytz==2026.1.post1
 pywebpush==2.3.0

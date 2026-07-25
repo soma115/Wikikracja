@@ -16,8 +16,12 @@
 	<link rel="icon" type="image/x-icon" href="{% if branding.has_brand_derivatives %}{{ MEDIA_URL }}site_branding/derived/favicon.ico?v={{ branding_version }}{% else %}{% static 'home/images/favicon.ico' %}{% endif %}">
 	<link rel="apple-touch-icon" href="{% if branding.has_brand_derivatives %}{{ MEDIA_URL }}site_branding/derived/apple-touch-icon.png?v={{ branding_version }}{% else %}{% static 'home/images/favicon.ico' %}{% endif %}">
 	<meta name="theme-color" content="#00d1b2">
+	<!-- Android/Chrome PWA install -->
 	<meta name="mobile-web-app-capable" content="yes">
+	<!-- iOS "Add to Home Screen" support (Safari ignores manifest.json for these) -->
+	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="{{ branding.branding_text|default:site_name }}">
 
 	<!-- Anti-FOUC: restore theme before CSS loads -->
 	<script>(function(){var t=localStorage.getItem('app-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
@@ -47,10 +51,7 @@
 	<!-- Chat rooms engine: -->
 	<script src="{% static 'chat/js/reconnecting-websocket.js' %}"></script>
 
-	<!-- Firebase SDK (for FCM on Android) , needed for initFCM -->
-  <script src="https://www.gstatic.com/firebasejs/12.10.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.10.0/firebase-messaging-compat.js"></script>
-  <script src="{% static 'chat/js/push-notifications.js' %}" type="module"></script>
+	<script src="{% static 'chat/js/push-notifications.js' %}" type="module"></script>
   <script src="{% static 'chat/js/notifications.js' %}" type="module"></script>
 
   {% block extra_css %}{% endblock %}

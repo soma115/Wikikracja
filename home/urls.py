@@ -30,6 +30,5 @@ urlpatterns = [
 
     # Service Worker - serve with correct MIME type
     path('sw.js', views.service_worker, name='service_worker'),
-    path('firebase-messaging-sw.js', views.firebase_messaging_sw, name='firebase-messaging-sw'),
     path('dynamic-settings.js', views.vapid_config, name='dynamic-settings'),
 ]

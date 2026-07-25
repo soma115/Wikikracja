@@ -72,7 +72,5 @@ data/*
 *.json
 !package.json
 !package-lock.json
-!firebase-service-account.json.example
-firebase-service-account.json
 /locale/en/LC_MESSAGES/django.mo
 /locale/pl/LC_MESSAGES/django.mo
