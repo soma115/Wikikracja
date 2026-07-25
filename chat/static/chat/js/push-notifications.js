@@ -70,6 +70,19 @@ const PushNotificationManager = {
                 return false;
             }
             const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+            // Force the browser to check for a new service worker (updates may not auto-install).
+            await swRegistration.update();
+            // Ensure the active (not just registered) SW is used before requesting the FCM token.
+            if (swRegistration.installing) {
+                await new Promise(resolve => swRegistration.installing.addEventListener('statechange', function wait(e) {
+                    if (e.target.state === 'activated') {
+                        e.target.removeEventListener('statechange', wait);
+                        resolve();
+                    }
+                }));
+            } else if (!swRegistration.active) {
+                await navigator.serviceWorker.ready;
+            }
             if (!firebase.apps.length) {
                 firebase.initializeApp(FIREBASE_CONFIG);
             }

@@ -61,6 +61,9 @@ class PushDeviceRegisterView(View):
                     device.active = True
                     device.device_id = ""
                     device.save()
+                # Deactivate any other active FCM tokens for this user so only the
+                # most recent installation (browser or PWA) receives push.
+                GCMDevice.objects.filter(user=user, active=True).exclude(pk=device.pk).update(active=False)
             else:
                 return JsonResponse({
                     'error': f'Unsupported platform: {platform}'

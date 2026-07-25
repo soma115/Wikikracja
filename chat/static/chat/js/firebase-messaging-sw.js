@@ -18,6 +18,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
+// Activate the new service worker immediately so updates (e.g. data-only FCM handling)
+// take effect without the user having to close the tab/app first.
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
+
 // Handle background messages
 messaging.onBackgroundMessage((payload) => {
     console.log('FCM background message:', payload);
