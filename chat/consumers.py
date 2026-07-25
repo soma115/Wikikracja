@@ -10,7 +10,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import gettext as _
 
-from zzz.richtext import sanitize, strip_tags
+from zzz.richtext import sanitize
 from zzz.utils import get_site_domain
 
 from .exceptions import ClientError
@@ -393,10 +393,13 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             membership_prefs = await database_sync_to_async(lambda: Room.get_membership_preferences_bulk(room.id, other_member_ids))()
 
             proxy = HandledMessage()
-            notify_title = "Anonymous" if msg.anonymous else (sender.username or "System")
-            notify_body = strip_tags(msg.text)[:100] or _("New message")
+            author = "Anonymous" if msg.anonymous else (sender.username or "System")
             # Room name to display: public room title, private chat = sender (matches displayed_name for the recipient)
             notify_room_name = room.title if room.public else (sender.username or "System")
+            notify_body = f"{author} wysłał wiadomość"
+            site_url = f"https://{domain}"
+            deep_link = f"{site_url}/chat#room_id={room.id}"
+            notify_icon = f"{site_url}/favicon.ico"
             for member in other_members:
                 prefs = membership_prefs.get(member.id, {'seen': False, 'muted': True})
                 consumer = ChatConsumer.online_registry.get_consumer(member)
@@ -406,18 +409,21 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 # Notify always (foreground/background/in-room) unless muted or already handled by mention flow.
                 if not prefs['muted'] and not is_mentioned:
                     asyncio.create_task(self.send_push_notification_async(proxy, member, msg, room.id, notify_room_name))
-                    # In-app favicon update (push will show the OS notification)
+                    # Show a real OS notification via the shared WebSocket connection too, so
+                    # it appears immediately even while the tab is in the foreground (FCM's
+                    # foreground routing is unreliable across browsers). Push (FCM) still
+                    # covers the case where the tab/browser is fully closed.
                     await self.channel_layer.group_send(
                         f"user_{member.id}",
                         {
                             "type": "chat.notification",
                             "room_id": room.id,
                             "notification": {
-                                "title": notify_title,
+                                "title": notify_room_name,
                                 "body": notify_body,
-                                "link": None,
+                                "icon": notify_icon,
+                                "click_action": deep_link,
                                 "room_id": room.id,
-                                "silent": True,
                             },
                         }
                     )
@@ -457,8 +463,11 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             body = f"{author} wysłał wiadomość"
             site_url = f"https://{domain}"
             deep_link = f"{site_url}/chat#room_id={room.id}"
+            icon = f"{site_url}/favicon.ico"
 
-            # In-app sound/favicon for online clients (silent, push will show the OS notification).
+            # Show a real OS notification via the shared WebSocket connection too, so it
+            # appears immediately even while the tab is in the foreground (push/FCM still
+            # covers the case where the tab/browser is fully closed).
             await self.channel_layer.group_send(
                 f"user_{user.id}",
                 {
@@ -467,9 +476,9 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     "notification": {
                         "title": title,
                         "body": body,
-                        "link": None,
+                        "icon": icon,
+                        "click_action": deep_link,
                         "room_id": room.id,
-                        "silent": True,
                     },
                 }
             )
@@ -549,8 +558,10 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def chat_notification(self, event):
         """Channel layer handler — relay a new-message notification to the client.
 
-        Skip if the user is already in the room. The notification is silent
-        so it only plays sound and changes favicon; the OS notification comes from push.
+        Skip if the user is already in the room. The client shows an actual OS
+        notification via the service worker (see utility.js::makeNotification),
+        so it appears immediately even while the tab is in the foreground.
+        Push (FCM) is a fallback for when the tab/browser is fully closed.
         """
         if event["room_id"] in self.rooms.items():
             return
@@ -560,8 +571,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         """Channel layer handler — relay a mention notification to the client.
 
         Skip if the user is already in the room where the mention happened.
-        The notification is marked silent so it only plays sound/favicon,
-        not a duplicate OS notification (push handles that).
+        Same dual delivery as chat_notification: WS for foreground, push for
+        when the tab/browser is closed.
         """
         if event["room_id"] in self.rooms.items():
             return

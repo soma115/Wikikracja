@@ -25,14 +25,48 @@ export function $$(selector, context = document) {
 }
 
 /**
- * Updates the favicon as an in-app unread indicator.
- * System notifications and sounds are handled by FCM.
- * @param {Object} notif - Notification data (kept for compatibility)
+ * Updates the favicon as an in-app unread indicator and shows an OS
+ * notification via the service worker. Shown over the shared WebSocket
+ * connection so it appears immediately even while the tab is focused
+ * (foreground) — FCM's foreground routing is unreliable across browsers.
+ * Uses the same `tag` scheme as the FCM-triggered notifications so the two
+ * paths de-duplicate instead of stacking if both happen to fire.
+ * @param {Object} notif - Notification data
+ * @param {string} notif.title - Notification title
+ * @param {string} notif.body - Notification body text
+ * @param {string} [notif.icon] - Notification icon URL
+ * @param {string} [notif.click_action] - URL to open on notification click
+ * @param {number} [notif.room_id] - Optional room ID associated with notification
  */
-export function makeNotification(notif) {
-    // System notifications (with sound) are now handled by FCM.
-    // This function only updates the favicon as an in-app unread indicator.
+export async function makeNotification(notif) {
     changeIcon('/static/chat/images/notification-on.ico');
+
+    if (!('Notification' in window) || Notification.permission !== 'granted') {
+        return;
+    }
+    if (!('serviceWorker' in navigator)) {
+        return;
+    }
+    try {
+        // Android Chrome does not support `new Notification(...)` from page context
+        // (throws "Illegal constructor"); showing via the SW registration works on
+        // both desktop and mobile.
+        const registration = await navigator.serviceWorker.ready;
+        const roomId = notif.room_id || 0;
+        await registration.showNotification(notif.title || _('Chat'), {
+            body: notif.body || '',
+            icon: notif.icon || '/favicon.ico',
+            badge: '/favicon.ico',
+            tag: `chat-${roomId || 'general'}`,
+            requireInteraction: true,
+            data: {
+                room_id: roomId,
+                click_action: notif.click_action || '/chat',
+            },
+        });
+    } catch (e) {
+        console.error('Error showing notification:', e);
+    }
 }
 
 // Favicon href as rendered by the server (respects custom brand mark) — captured lazily

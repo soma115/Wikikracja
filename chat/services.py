@@ -607,8 +607,16 @@ class ChatRepository:
                     if not firebase_admin._apps:
                         log.warning(f"FCM skipped for user {user.id}: Firebase not initialized")
                         return any_sent
+                    # IMPORTANT: send as a data-only message (no top-level `notification` and
+                    # no `webpush.notification`). If FCM carries a notification payload,
+                    # Chrome tries to auto-display it natively and bypasses our
+                    # onBackgroundMessage handler in firebase-messaging-sw.js entirely. Since
+                    # our webpush.notification previously had only an icon (no title/body),
+                    # that native auto-display silently failed, and Chrome/Android showed a
+                    # generic "site updated in the background" fallback instead. Keeping this
+                    # data-only guarantees onBackgroundMessage always runs and builds the
+                    # notification (title, body, icon, tag, click_action) ourselves.
                     message = messaging.Message(
-                        notification=messaging.Notification(title=title, body=body),
                         data={
                             'title': title,
                             'body': body,
@@ -618,9 +626,6 @@ class ChatRepository:
                             'click_action': deep_link,
                         },
                         webpush=messaging.WebpushConfig(
-                            notification=messaging.WebpushNotification(
-                                icon=f"https://{domain}/favicon.ico",
-                            ),
                             fcm_options=messaging.WebpushFCMOptions(link=deep_link),
                             headers={'Urgency': 'high'},
                         )
