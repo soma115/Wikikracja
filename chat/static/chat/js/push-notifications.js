@@ -100,7 +100,7 @@ const PushNotificationManager = {
                 const data = payload.data || {};
                 const roomId = data.room_id ? parseInt(data.room_id, 10) : 0;
                 let title = data.title || 'Chat Message';
-                if (data.room_name) {
+                if (data.room_name && data.room_name !== data.title) {
                     title += ' — ' + data.room_name;
                 }
                 const options = {

@@ -29,7 +29,7 @@ messaging.onBackgroundMessage((payload) => {
 
     const data = payload.data || {};
     let notificationTitle = data.title || 'Chat Message';
-    if (data.room_name) {
+    if (data.room_name && data.room_name !== data.title) {
         notificationTitle += ' — ' + data.room_name;
     }
     const notificationOptions = {

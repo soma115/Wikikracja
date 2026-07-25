@@ -70,7 +70,7 @@ self.addEventListener('push', (event) => {
 
     let title = notificationData.title || 'Chat Message';
     const roomName = notificationData.data?.room_name || '';
-    if (roomName) {
+    if (roomName && roomName !== title) {
         title += ' — ' + roomName;
     }
     const options = {

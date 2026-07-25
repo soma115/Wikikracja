@@ -395,6 +395,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             proxy = HandledMessage()
             notify_title = "Anonymous" if msg.anonymous else (sender.username or "System")
             notify_body = strip_tags(msg.text)[:100] or _("New message")
+            # Room name to display: public room title, private chat = sender (matches displayed_name for the recipient)
+            notify_room_name = room.title if room.public else (sender.username or "System")
             for member in other_members:
                 prefs = membership_prefs.get(member.id, {'seen': False, 'muted': True})
                 consumer = ChatConsumer.online_registry.get_consumer(member)
@@ -402,7 +404,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
                 is_mentioned = member.id in mentioned_user_ids
                 if not is_present and not prefs['muted'] and not is_mentioned:
-                    asyncio.create_task(self.send_push_notification_async(proxy, member, msg, room.id, room.name))
+                    asyncio.create_task(self.send_push_notification_async(proxy, member, msg, room.id, notify_room_name))
                     # Play in-app sound/favicon (push will show the OS notification)
                     await self.channel_layer.group_send(
                         f"user_{member.id}",
