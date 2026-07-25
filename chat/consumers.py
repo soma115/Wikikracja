@@ -452,8 +452,9 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def _send_mention_notification(self, sender, room, user, msg):
         """Send a WebSocket notification and a push for a single mention."""
         try:
-            title = "Anonymous" if msg.anonymous else (sender.username or "System")
-            body = strip_tags(msg.text)[:100] or _("New mention")
+            author = "Anonymous" if msg.anonymous else (sender.username or "System")
+            title = room.name or _("Chat")
+            body = f"{author} wysłał wiadomość"
             site_url = f"https://{domain}"
             deep_link = f"{site_url}/chat#room_id={room.id}"
 
@@ -785,8 +786,9 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         try:
             if await self.repo.user_has_muted_room(user.id, room_id):
                 return
-            title = "System" if message.sender is None else ("Anonymous" if message.anonymous else message.sender.username)
-            body = strip_tags(message.text)[:100] or _("New message")
+            author = "System" if message.sender is None else ("Anonymous" if message.anonymous else message.sender.username)
+            title = room_name or _("Chat")
+            body = f"{author} wysłał wiadomość"
             site_url = f"https://{domain}"
             deep_link = f"{site_url}/chat#room_id={room_id}"
             success = await self.repo.send_push_notification_sync(user=user, title=title, body=body, deep_link=deep_link, room_id=room_id, room_name=room_name or "")

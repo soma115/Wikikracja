@@ -51,7 +51,10 @@
 	<!-- Chat rooms engine: -->
 	<script src="{% static 'chat/js/reconnecting-websocket.js' %}"></script>
 
-	<script src="{% static 'chat/js/push-notifications.js' %}" type="module"></script>
+	<!-- Firebase SDK (for FCM on Android) , needed for initFCM -->
+  <script src="https://www.gstatic.com/firebasejs/12.10.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.10.0/firebase-messaging-compat.js"></script>
+  <script src="{% static 'chat/js/push-notifications.js' %}" type="module"></script>
   <script src="{% static 'chat/js/notifications.js' %}" type="module"></script>
 
   {% block extra_css %}{% endblock %}

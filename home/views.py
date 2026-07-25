@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import re
 from datetime import timedelta as td
 from decimal import Decimal
 
@@ -11,7 +12,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
-from django.contrib.staticfiles import finders
 from django.core.cache import cache
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
@@ -834,19 +834,25 @@ def manifest(request):
     return response
 
 
-def service_worker(request):
-    """Serve the service worker JavaScript file with correct MIME type"""
-    sw_path = os.path.join(settings.BASE_DIR, 'chat', 'static', 'chat', 'js', 'sw.js')
+def firebase_messaging_sw(request):
+    """Serve the Firebase Messaging service worker JavaScript file with injected Firebase config"""
+    sw_path = os.path.join(settings.BASE_DIR, 'chat', 'static', 'chat', 'js', 'firebase-messaging-sw.js')
 
-    # For development, serve from staticfiles dirs
     if not os.path.exists(sw_path):
-        # Try finding in staticfiles dirs
-        sw_path = finders.find('chat/js/sw.js')
-        if not sw_path:
-            return HttpResponse("Service Worker not found", status=404)
+        return HttpResponse("Firebase Messaging Service Worker not found", status=404)
 
     with open(sw_path, 'r', encoding='utf-8') as f:
         sw_content = f.read()
+
+    # Inject Firebase config from settings, replacing the entire JS object block
+    firebase_config = getattr(settings, 'FIREBASE_CONFIG', {})
+    config_str = f"const firebaseConfig = {json.dumps(firebase_config)};"
+    sw_content = re.sub(
+        r'const\s+firebaseConfig\s*=\s*\{[\s\S]*?\};',
+        config_str,
+        sw_content,
+        count=1,
+    )
 
     response = HttpResponse(sw_content, content_type='application/javascript')
     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
@@ -856,9 +862,12 @@ def service_worker(request):
     return response
 
 
-def vapid_config(request: HttpRequest):
-    """Serve dynamic JS file with various settings for js scripts"""
-    js_content = f"export const VAPID_PUBLIC_KEY = {json.dumps(settings.VAPID_PUBLIC_KEY)};\n"
+def dynamic_settings_js(request: HttpRequest):
+    """Serve dynamic JS file with Firebase client config for FCM"""
+    firebase_config = getattr(settings, 'FIREBASE_CONFIG', {})
+    firebase_vapid_key = getattr(settings, 'FIREBASE_VAPID_KEY', '')
+    js_content = f"export const FIREBASE_CONFIG = {json.dumps(firebase_config)};\n"
+    js_content += f"export const FIREBASE_VAPID_KEY = {json.dumps(firebase_vapid_key)};\n"
     response = HttpResponse(js_content, content_type='application/javascript')
     response['Cache-Control'] = 'public, max-age=3600'  # Cache for 1 hour
     return response

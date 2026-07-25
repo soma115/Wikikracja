@@ -26,11 +26,11 @@ export function $$(selector, context = document) {
 
 /**
  * Updates the favicon as an in-app unread indicator.
- * System notifications and sounds are handled by Web Push.
+ * System notifications and sounds are handled by FCM.
  * @param {Object} notif - Notification data (kept for compatibility)
  */
 export function makeNotification(notif) {
-    // System notifications (with sound) are now handled by Web Push.
+    // System notifications (with sound) are now handled by FCM.
     // This function only updates the favicon as an in-app unread indicator.
     changeIcon('/static/chat/images/notification-on.ico');
 }

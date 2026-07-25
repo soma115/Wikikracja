@@ -5,6 +5,7 @@ from os import getenv, path
 
 
 from dotenv import load_dotenv
+from firebase_admin import credentials
 
 from zzz.settings_base import BASE_DIR, DATABASES  # noqa: F401
 
@@ -441,14 +442,113 @@ def _clean_env_value(value: str) -> str:
         return value
     return value.strip().strip('"').strip("'")
 
-VAPID_PUBLIC_KEY = _clean_env_value(getenv('VAPID_PUBLIC_KEY', ''))
+import base64
+import firebase_admin
+
+
+def _normalize_service_account_key(data: dict) -> dict:
+    """Ensure private_key has real newlines, not escaped \\n strings."""
+    if "private_key" in data and isinstance(data["private_key"], str):
+        # First convert literal \\n (two chars) to real newlines, then normalize line endings.
+        key = data["private_key"].replace("\\n", "\n").replace("\r\n", "\n")
+        data["private_key"] = key
+    return data
+
+
+def _load_firebase_credentials():
+    """Load Firebase service account credentials from various formats:
+    - FIREBASE_CERT_PATH / GOOGLE_APPLICATION_CREDENTIALS: path to JSON file
+    - FIREBASE_CERT_JSON: raw JSON string (e.g. pasted into .env or secret)
+    - FIREBASE_CERT_BASE64: base64-encoded JSON string
+    """
+    cert_path = getenv('FIREBASE_CERT_PATH', '')
+    google_app_creds = getenv('GOOGLE_APPLICATION_CREDENTIALS', '')
+    cert_json = getenv('FIREBASE_CERT_JSON', '')
+    cert_b64 = getenv('FIREBASE_CERT_BASE64', '')
+
+    # 1) base64-encoded JSON
+    if cert_b64:
+        try:
+            raw = base64.b64decode(cert_b64).decode('utf-8')
+            data = json.loads(raw)
+            logging.info("Firebase credentials loaded from FIREBASE_CERT_BASE64")
+            return credentials.Certificate(_normalize_service_account_key(data))
+        except Exception as e:
+            logging.warning(f"FIREBASE_CERT_BASE64 decoding failed: {e}")
+
+    # 2) raw JSON string
+    if cert_json:
+        try:
+            data = json.loads(cert_json)
+            logging.info("Firebase credentials loaded from FIREBASE_CERT_JSON")
+            return credentials.Certificate(_normalize_service_account_key(data))
+        except Exception as e:
+            logging.warning(f"FIREBASE_CERT_JSON parsing failed: {e}")
+
+    # 3) paths - may also be JSON strings if someone pasted the JSON into the env var
+    for name, value in (
+        ('FIREBASE_CERT_PATH', cert_path),
+        ('GOOGLE_APPLICATION_CREDENTIALS', google_app_creds),
+    ):
+        if not value:
+            continue
+
+        # It looks like a JSON string (someone pasted the whole file content)
+        if value.strip().startswith('{'):
+            try:
+                data = json.loads(value)
+                logging.info(f"Firebase credentials loaded from {name} as JSON string")
+                return credentials.Certificate(_normalize_service_account_key(data))
+            except Exception as e:
+                logging.warning(f"{name} looked like JSON but failed to parse: {e}")
+
+        # Treat as file path
+        if path.exists(value):
+            try:
+                with open(value, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                logging.info(f"Firebase credentials loaded from {name} file: {value}")
+                return credentials.Certificate(_normalize_service_account_key(data))
+            except Exception as e:
+                logging.warning(f"Failed to load Firebase credentials from {name}={value}: {e}")
+
+    return None
+
+
+# Check if already initialized
+try:
+    firebase_admin.get_app()
+except ValueError:
+    # Not initialized yet
+    firebase_creds = _load_firebase_credentials()
+    if firebase_creds:
+        firebase_admin.initialize_app(credential=firebase_creds)
+        logging.info("Firebase Admin SDK initialized for FCM")
+    else:
+        logging.warning(
+            "Firebase not initialized: No valid credentials found. "
+            "Set FIREBASE_CERT_PATH (file path or JSON), GOOGLE_APPLICATION_CREDENTIALS, "
+            "FIREBASE_CERT_JSON or FIREBASE_CERT_BASE64."
+        )
 
 PUSH_NOTIFICATIONS_SETTINGS = {
-    "WP_PRIVATE_KEY": _clean_env_value(getenv('VAPID_PRIVATE_KEY', '')),
-    "WP_CLAIMS": {
-        'sub': f"mailto:{getenv('VAPID_ADMIN_EMAIL', 'admin@example.com')}"
-    },
+    "FIREBASE_APP": firebase_admin.get_app() if firebase_admin._apps else None,
+    "FCM_MAX_RECIPIENTS": 1000,
 }
+
+# Firebase Client Configuration (for Web/Android FCM)
+FIREBASE_CONFIG = {
+    'apiKey': _clean_env_value(getenv('FIREBASE_API_KEY', '')),
+    'authDomain': _clean_env_value(getenv('FIREBASE_AUTH_DOMAIN', '')),
+    'projectId': _clean_env_value(getenv('FIREBASE_PROJECT_ID', '')),
+    'storageBucket': _clean_env_value(getenv('FIREBASE_STORAGE_BUCKET', '')),
+    'messagingSenderId': _clean_env_value(getenv('FIREBASE_MESSAGING_SENDER_ID', '')),
+    'appId': _clean_env_value(getenv('FIREBASE_APP_ID', '')),
+}
+
+# FCM Web Push certificate (key pair) from Firebase Console > Cloud Messaging.
+# Required by messaging.getToken({ vapidKey }) for browsers (incl. Android Chrome).
+FIREBASE_VAPID_KEY = _clean_env_value(getenv('FIREBASE_VAPID_KEY', ''))
 
 # Onboarding: pk of the Board post 'Zasady wspólnoty'
 ONBOARDING_RULES_POST_ID = None  # set to the pk after creating the post

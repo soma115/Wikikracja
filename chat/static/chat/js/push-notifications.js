@@ -1,75 +1,112 @@
-import { VAPID_PUBLIC_KEY } from '/dynamic-settings.js';
-
-function urlBase64ToUint8Array(base64String) {
-    if (!base64String) return new Uint8Array(0);
-    const clean = base64String.trim().replace(/^["']|["']$/g, '');
-    const padding = '='.repeat((4 - clean.length % 4) % 4);
-    const base64 = (clean + padding)
-        .replace(/\-/g, '+')
-        .replace(/_/g, '/');
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-    for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
-}
+import { FIREBASE_CONFIG, FIREBASE_VAPID_KEY } from '/dynamic-settings.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
     const enabled = await PushNotificationManager.initialize();
+    console.log('Push notifications enabled:', enabled);
 });
 
 const PushNotificationManager = {
     async initialize() {
         if ('Notification' in window && 'serviceWorker' in navigator) {
-            return await this.initWebPush();
+            return await this.initFCM();
         }
-        console.warn('[Push] No supported push notification platform detected');
+        console.warn('No supported push notification platform detected');
         return false;
     },
 
-    async initWebPush() {
+    async initFCM() {
         try {
-            // Register service worker FIRST (needed for PWA and push notifications)
-            // This happens regardless of notification permission to enable PWA functionality
-            if (!navigator.serviceWorker.controller) {
-                const registration = await navigator.serviceWorker.register('/sw.js');
-                await this.waitForServiceWorkerActive(registration, 3000);
-            }
-            const swRegistration = await navigator.serviceWorker.ready;
-
-            if (Notification.permission !== 'granted') {
+            if (!FIREBASE_CONFIG || !FIREBASE_CONFIG.apiKey) {
+                console.error('Firebase config is empty or missing. Please set FIREBASE_* environment variables.');
                 return false;
             }
-
-            if (!VAPID_PUBLIC_KEY || VAPID_PUBLIC_KEY.trim() === '') {
-                console.error('[Push] VAPID public key is empty or missing. Please set VAPID_PUBLIC_KEY in your .env file.');
+            const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+            // Force the browser to check for a new service worker (updates may not auto-install).
+            await swRegistration.update();
+            // Ensure the active (not just registered) SW is used before requesting the FCM token.
+            if (swRegistration.installing) {
+                await new Promise(resolve => swRegistration.installing.addEventListener('statechange', function wait(e) {
+                    if (e.target.state === 'activated') {
+                        e.target.removeEventListener('statechange', wait);
+                        resolve();
+                    }
+                }));
+            } else if (!swRegistration.active) {
+                await navigator.serviceWorker.ready;
+            }
+            if (!firebase.apps.length) {
+                firebase.initializeApp(FIREBASE_CONFIG);
+            }
+            if (!FIREBASE_VAPID_KEY) {
+                console.error('FIREBASE_VAPID_KEY is missing. Set the FCM Web Push certificate key from Firebase Console > Cloud Messaging.');
                 return false;
             }
-            const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
-            const subscription = await swRegistration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: applicationServerKey
+            const messaging = firebase.messaging();
+
+            // Foreground messages are not auto-displayed by the FCM SDK; show them manually.
+            // On Android Chrome, showNotification is more reliable when triggered from the
+            // service worker context. We post a message to the SW and let it display.
+            messaging.onMessage((payload) => {
+                console.log('FCM foreground message:', payload);
+                const notification = payload.notification || {};
+                const data = payload.data || {};
+                const roomId = data.room_id ? parseInt(data.room_id, 10) : 0;
+                // title = author, body = room name (server no longer sends message content)
+                let title = notification.title || data.title || 'Chat Message';
+                if (data.room_name && data.room_name !== title) {
+                    title += ' — ' + data.room_name;
+                }
+                const options = {
+                    body: notification.body || data.body || '',
+                    icon: data.icon || '/favicon.ico',
+                    badge: '/favicon.ico',
+                    tag: `chat-${data.room_id || 'general'}`,
+                    requireInteraction: true,
+                    data: {
+                        room_id: roomId,
+                        click_action: data.click_action || '/chat',
+                    },
+                };
+                const activeWorker = swRegistration.active || navigator.serviceWorker.controller;
+                if (activeWorker) {
+                    activeWorker.postMessage({
+                        type: 'SHOW_NOTIFICATION',
+                        title: title,
+                        options: options,
+                    });
+                } else {
+                    // Fallback: try directly from the page context.
+                    swRegistration.showNotification(title, options);
+                }
             });
-            await this.registerDevice('webpush', subscription);
+
+            const token = await messaging.getToken({
+                vapidKey: FIREBASE_VAPID_KEY,
+                serviceWorkerRegistration: swRegistration,
+            });
+            // console.log('FCM token obtained:', token);
+            if (!token) {
+                console.warn('FCM token retrieval failed');
+                return false;
+            }
+            // Send token to server
+            await this.registerDevice(token);
             return true;
         } catch (error) {
-            console.error('[Push] Error initializing WebPush:', error.name, error.message, error.stack);
+            console.error('Error initializing FCM:', error);
             return false;
         }
     },
 
     /**
-     * Register device with server
+     * Register FCM device with server
      * @async
      * @private
-     * @param {'webpush'} platform - Platform name
-     * @param {PushSubscription} registration - Push subscription
+     * @param {string} token - FCM registration token
      * @returns {Promise<Object|null>} - Server response on success, null on failure
      */
-    async registerDevice(platform, registration) {
+    async registerDevice(token) {
         try {
-            const registrationJson = registration.toJSON ? registration.toJSON() : registration;
             const response = await fetch('/chat/api/push/register/', {
                 method: 'POST',
                 headers: {
@@ -77,33 +114,31 @@ const PushNotificationManager = {
                     'X-CSRFToken': this.getCSRFToken()
                 },
                 body: JSON.stringify({
-                    platform: platform,
-                    registration_id: registration.endpoint || registration,
-                    p256dh: registrationJson.keys?.p256dh || '',
-                    auth: registrationJson.keys?.auth || '',
+                    platform: 'fcm',
+                    registration_id: token,
                 })
             });
             const data = await response.json();
             if (response.ok && data.success) {
+                console.log('Device registered successfully:', data);
                 return data;
             } else {
-                console.error('[Push] Device registration failed. status:', response.status, 'data:', data);
+                console.error('Device registration failed:', data);
                 return null;
             }
         } catch (error) {
-            console.error('[Push] Error registering device:', error.name, error.message);
+            console.error('Error registering device:', error);
             return null;
         }
     },
 
     /**
-     * Unregister device from server
+     * Unregister FCM device from server
      * @async
-     * @param {'webpush'} platform - Platform name
-     * @param {string} registrationId - Device registration ID
+     * @param {string} registrationId - FCM registration token
      * @returns {Promise<Object|null>} - Server response on success, null on failure
      */
-    async unregisterDevice(platform, registrationId) {
+    async unregisterDevice(registrationId) {
         try {
             const response = await fetch('/chat/api/push/unregister/', {
                 method: 'POST',
@@ -112,54 +147,23 @@ const PushNotificationManager = {
                     'X-CSRFToken': this.getCSRFToken()
                 },
                 body: JSON.stringify({
-                    platform: platform,
+                    platform: 'fcm',
                     registration_id: registrationId
                 })
             });
             const data = await response.json();
             if (response.ok && data.success) {
+                console.log('Device unregistered:', data);
                 return data;
             } else {
-                console.error('[Push] Device unregistration failed. status:', response.status, 'data:', data);
+                console.error('Device unregistration failed:', data);
                 return null;
             }
 
         } catch (error) {
-            console.error('[Push] Error unregistering device:', error.name, error.message);
+            console.error('Error unregistering device:', error);
             return null;
         }
-    },
-
-    /**
-     * Display a push notification
-     * Shows notification using Web Push API or basic Notification constructor
-     * @param {Object} notification - Notification data
-     * @param {string} notification.title - Notification title
-     * @param {string} notification.body - Notification body text
-     * @param {string} [notification.icon] - URL to notification icon
-     * @param {string} [notification.badge] - URL to notification badge
-     * @param {Object} [notification.data] - Additional data (room_id, click_action, url)
-     * @returns {Notification|null} - Notification object if shown, null otherwise
-     */
-    showNotification(notification) {
-        if (Notification.permission !== 'granted')
-            return;
-
-        const notif = new Notification(notification.title || 'Chat Message', {
-            body: notification.body || '',
-            icon: notification.icon || '/favicon.ico',
-            badge: notification.badge || '/favicon.ico',
-            tag: `chat-${notification.room_id || 'general'}`,
-            requireInteraction: true
-        });
-
-        if (notification.click_action) {
-            notif.onclick = () => {
-                window.location.href = notification.click_action;
-                notif.close();
-            };
-        }
-        return notif;
     },
 
     // Utility: Get CSRF token from cookie
@@ -196,70 +200,6 @@ const PushNotificationManager = {
         }
     },
 
-    async waitForServiceWorkerActive(registration, timeout = 3000) {
-        return new Promise((resolve, reject) => {
-            // If already has controller, it's active
-            if (navigator.serviceWorker.controller) {
-                resolve();
-                return;
-            }
-
-            // Wait for controllerchange event (SW became active)
-            const controllerChangeListener = () => {
-                console.log('Service Worker became active (controllerchange)');
-                navigator.serviceWorker.removeEventListener('controllerchange', controllerChangeListener);
-                clearTimeout(timeoutId);
-                resolve();
-            };
-
-            navigator.serviceWorker.addEventListener('controllerchange', controllerChangeListener);
-
-            // Also check registration.state periodically
-            const checkState = () => {
-                if (registration.installing) {
-                    console.log('SW state: installing');
-                } else if (registration.waiting) {
-                    console.log('SW state: waiting');
-                } else if (registration.active) {
-                    console.log('SW state: active');
-                }
-            };
-
-            // Check state immediately and periodically
-            checkState();
-            const stateInterval = setInterval(checkState, 500);
-
-            // Also check periodically if controller exists (additional safety)
-            const checkController = setInterval(() => {
-                if (navigator.serviceWorker.controller) {
-                    console.log('Service Worker detected as active via controller');
-                    clearInterval(stateInterval);
-                    clearInterval(checkController);
-                    navigator.serviceWorker.removeEventListener('controllerchange', controllerChangeListener);
-                    resolve();
-                }
-            }, 100);
-
-            // Timeout fallback - check if registration became active
-            const timeoutId = setTimeout(() => {
-                console.log(`Service Worker activation timeout after ${timeout}ms`);
-                console.log(`Final SW state: ${registration.state}`);
-                clearInterval(stateInterval);
-                clearInterval(checkController);
-                navigator.serviceWorker.removeEventListener('controllerchange', controllerChangeListener);
-
-                // If still no controller but registration is active, try to use it anyway
-                if (registration.active && !navigator.serviceWorker.controller) {
-                    // console.log('Registration is active but no controller - forcing activation');
-                    // Calling skipWaiting may help
-                    if (registration.waiting) {
-                        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-                    }
-                }
-                resolve();
-            }, timeout);
-        });
-    },
 };
 // Export for ES modules
 export { PushNotificationManager };
