@@ -16,8 +16,14 @@ const PushNotificationManager = {
 
     async initFCM() {
         try {
-            if (!FIREBASE_CONFIG || !FIREBASE_CONFIG.apiKey) {
-                console.error('Firebase config is empty or missing. Please set FIREBASE_* environment variables.');
+            if (!FIREBASE_CONFIG ||
+                !FIREBASE_CONFIG.apiKey ||
+                !FIREBASE_CONFIG.authDomain ||
+                !FIREBASE_CONFIG.projectId ||
+                !FIREBASE_CONFIG.storageBucket ||
+                !FIREBASE_CONFIG.messagingSenderId ||
+                !FIREBASE_CONFIG.appId) {
+                console.error('Firebase config is incomplete or missing. Please set FIREBASE_* environment variables.');
                 return false;
             }
             const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');

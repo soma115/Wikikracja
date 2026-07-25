@@ -869,7 +869,9 @@ def dynamic_settings_js(request: HttpRequest):
     js_content = f"export const FIREBASE_CONFIG = {json.dumps(firebase_config)};\n"
     js_content += f"export const FIREBASE_VAPID_KEY = {json.dumps(firebase_vapid_key)};\n"
     response = HttpResponse(js_content, content_type='application/javascript')
-    response['Cache-Control'] = 'public, max-age=3600'  # Cache for 1 hour
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
     return response
 
 
