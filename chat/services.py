@@ -591,9 +591,13 @@ class ChatRepository:
         """Synchronous push notification sending via django-push-notifications (Web Push)."""
         try:
             any_sent = False
+            all_devices = WebPushDevice.objects.filter(user=user)
+            active_devices = all_devices.filter(active=True)
+            inactive_count = all_devices.filter(active=False).count()
+            active_count = active_devices.count()
+            log.info(f"[Push] send for user {user.id}: total={all_devices.count()}, active={active_count}, inactive={inactive_count}")
 
-            webpush_devices = WebPushDevice.objects.filter(user=user, active=True)
-            if webpush_devices.exists():
+            if active_devices.exists():
                 try:
                     message = json.dumps({
                         "title": title,
@@ -607,12 +611,16 @@ class ChatRepository:
                             'platform': 'webpush',
                         }
                     })
-                    webpush_devices.send_message(message)
+                    log.info(f"[Push] payload for user {user.id} room {room_id}: {len(message)} bytes")
+                    active_devices.send_message(message)
                     any_sent = True
+                    log.info(f"[Push] sent to user {user.id} active devices={active_count}")
                 except Exception as e:
-                    log.error(f"WebPush failed for user {user.id}: {e}")
+                    log.error(f"[Push] WebPush failed for user {user.id}: {type(e).__name__}: {e}")
+            else:
+                log.debug(f"[Push] no active devices for user {user.id}")
 
             return any_sent
         except Exception as e:
-            log.error(f"Error in send_push_notification_sync: {e}")
+            log.error(f"[Push] Error in send_push_notification_sync for user {user.id}: {type(e).__name__}: {e}")
             return False

@@ -20,7 +20,6 @@ const STATIC_CACHE = 'chat-static-v1';
  * @param {ExtendableEvent} event - Install event object
  */
 self.addEventListener('install', (event) => {
-    console.log('Service Worker installing...');
     event.waitUntil(
         caches.open(STATIC_CACHE)
             .then((cache) => {
@@ -36,7 +35,6 @@ self.addEventListener('install', (event) => {
  * @param {ExtendableEvent} event - Activate event object
  */
 self.addEventListener('activate', (event) => {
-    console.log('Service Worker activating...');
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
@@ -58,12 +56,12 @@ self.addEventListener('activate', (event) => {
  * @param {PushEvent} event - Push event object
  */
 self.addEventListener('push', (event) => {
-    console.log('Push event received:', event);
     let notificationData = {};
     if (event.data) {
         try {
             notificationData = event.data.json();
         } catch (e) {
+            console.error('[SW] Failed to parse push payload:', e);
             return;
         }
     }
@@ -104,7 +102,6 @@ self.addEventListener('push', (event) => {
  * @param {NotificationEvent} event - Notification click event object
  */
 self.addEventListener('notificationclick', (event) => {
-    console.log('Notification click received:', event);
 
     const action = event.action;
     const data = event.notification.data || {};
@@ -143,7 +140,6 @@ self.addEventListener('notificationclick', (event) => {
  * @param {MessageEvent} event - Message event object
  */
 self.addEventListener('message', (event) => {
-    console.log('Service Worker message received:', event.data);
 
     if (event.data && event.data.type === 'SKIP_WAITING') {
         self.skipWaiting();
@@ -165,7 +161,6 @@ self.addEventListener('message', (event) => {
  * @param {PushSubscriptionChangeEvent} event - Subscription change event object
  */
 self.addEventListener('pushsubscriptionchange', (event) => {
-    console.log('Push subscription change detected:', event);
 
     if (event.oldSubscription)
         event.waitUntil(

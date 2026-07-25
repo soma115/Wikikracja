@@ -31,8 +31,11 @@ class PushDeviceRegisterView(View):
             registration_id = data.get('registration_id', '')
             p256dh = data.get('p256dh', '')
             auth = data.get('auth', '')
+            user = request.user
+            log.info(f"[Push] register request from user {user.id}: platform={platform} endpoint_len={len(registration_id)} p256dh_len={len(p256dh)} auth_len={len(auth)}")
 
             if not platform or not registration_id:
+                log.warning(f"[Push] register missing params for user {user.id}: platform={platform} endpoint_len={len(registration_id)}")
                 return JsonResponse({
                     'error': 'Missing required parameters'
                 }, status=400)
@@ -60,11 +63,12 @@ class PushDeviceRegisterView(View):
                     device.active = True
                     device.save()
             else:
+                log.warning(f"[Push] unsupported platform from user {user.id}: {platform}")
                 return JsonResponse({
                     'error': f'Unsupported platform: {platform}'
                 }, status=400)
 
-            log.info(f"User {user.id} registered push device: {platform}")
+            log.info(f"[Push] user {user.id} registered {platform} device id={device.id} created={created}")
 
             return JsonResponse({
                 'success': True,
@@ -74,11 +78,12 @@ class PushDeviceRegisterView(View):
             })
 
         except json.JSONDecodeError:
+            log.warning(f"[Push] invalid JSON in register request from user {user.id}")
             return JsonResponse({
                 'error': 'Invalid JSON'
             }, status=400)
         except Exception as e:
-            log.error(f"Error registering push device: {e}")
+            log.error(f"[Push] Error registering push device for user {user.id}: {type(e).__name__}: {e}")
             return JsonResponse({
                 'error': str(e)
             }, status=500)
@@ -97,8 +102,11 @@ class PushDeviceUnregisterView(View):
             data = json.loads(request.body.decode('utf-8'))
             platform = data.get('platform', '').lower()
             registration_id = data.get('registration_id', '')
+            user = request.user
+            log.info(f"[Push] unregister request from user {user.id}: platform={platform} endpoint_len={len(registration_id)}")
 
             if not platform or not registration_id:
+                log.warning(f"[Push] unregister missing params for user {user.id}")
                 return JsonResponse({
                     'error': 'Missing required parameters'
                 }, status=400)
@@ -109,6 +117,7 @@ class PushDeviceUnregisterView(View):
             if platform == 'webpush':
                 devices = WebPushDevice.objects.filter(user=user, registration_id=registration_id)
             else:
+                log.warning(f"[Push] unregister unsupported platform from user {user.id}: {platform}")
                 return JsonResponse({
                     'error': f'Unsupported platform: {platform}'
                 }, status=400)
@@ -119,7 +128,7 @@ class PushDeviceUnregisterView(View):
                 device.save()
                 count += 1
 
-            log.info(f"User {user.id} unregistered {count} {platform} device(s)")
+            log.info(f"[Push] user {user.id} unregistered {count} {platform} device(s)")
 
             return JsonResponse({
                 'success': True,
@@ -127,11 +136,12 @@ class PushDeviceUnregisterView(View):
             })
 
         except json.JSONDecodeError:
+            log.warning(f"[Push] invalid JSON in unregister request from user {user.id}")
             return JsonResponse({
                 'error': 'Invalid JSON'
             }, status=400)
         except Exception as e:
-            log.error(f"Error unregistering push device: {e}")
+            log.error(f"[Push] Error unregistering push device for user {user.id}: {type(e).__name__}: {e}")
             return JsonResponse({
                 'error': str(e)
             }, status=500)

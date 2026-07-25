@@ -17,7 +17,6 @@ function urlBase64ToUint8Array(base64String) {
 
 document.addEventListener('DOMContentLoaded', async function() {
     const enabled = await PushNotificationManager.initialize();
-    console.log('Push notifications enabled:', enabled);
 });
 
 const PushNotificationManager = {
@@ -25,7 +24,7 @@ const PushNotificationManager = {
         if ('Notification' in window && 'serviceWorker' in navigator) {
             return await this.initWebPush();
         }
-        console.warn('No supported push notification platform detected');
+        console.warn('[Push] No supported push notification platform detected');
         return false;
     },
 
@@ -40,23 +39,22 @@ const PushNotificationManager = {
             const swRegistration = await navigator.serviceWorker.ready;
 
             if (Notification.permission !== 'granted') {
-                console.log('Service Worker registered, but notification permission not granted');
-                // console.log('Permission status:', Notification.permission);
                 return false;
             }
 
             if (!VAPID_PUBLIC_KEY || VAPID_PUBLIC_KEY.trim() === '') {
-                console.error('VAPID public key is empty or missing. Please set VAPID_PUBLIC_KEY in your .env file.');
+                console.error('[Push] VAPID public key is empty or missing. Please set VAPID_PUBLIC_KEY in your .env file.');
                 return false;
             }
+            const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
             const subscription = await swRegistration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+                applicationServerKey: applicationServerKey
             });
             await this.registerDevice('webpush', subscription);
             return true;
         } catch (error) {
-            console.error('Error initializing WebPush:', error);
+            console.error('[Push] Error initializing WebPush:', error.name, error.message, error.stack);
             return false;
         }
     },
@@ -87,14 +85,13 @@ const PushNotificationManager = {
             });
             const data = await response.json();
             if (response.ok && data.success) {
-                console.log(`Device registered successfully: ${platform}`, data);
                 return data;
             } else {
-                console.error('Device registration failed:', data);
+                console.error('[Push] Device registration failed. status:', response.status, 'data:', data);
                 return null;
             }
         } catch (error) {
-            console.error('Error registering device:', error);
+            console.error('[Push] Error registering device:', error.name, error.message);
             return null;
         }
     },
@@ -121,15 +118,14 @@ const PushNotificationManager = {
             });
             const data = await response.json();
             if (response.ok && data.success) {
-                console.log(`Device unregistered: ${platform}`, data);
                 return data;
             } else {
-                console.error('Device unregistration failed:', data);
+                console.error('[Push] Device unregistration failed. status:', response.status, 'data:', data);
                 return null;
             }
 
         } catch (error) {
-            console.error('Error unregistering device:', error);
+            console.error('[Push] Error unregistering device:', error.name, error.message);
             return null;
         }
     },
@@ -204,7 +200,6 @@ const PushNotificationManager = {
         return new Promise((resolve, reject) => {
             // If already has controller, it's active
             if (navigator.serviceWorker.controller) {
-                console.log('Service Worker already active');
                 resolve();
                 return;
             }
