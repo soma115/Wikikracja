@@ -402,7 +402,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
                 is_mentioned = member.id in mentioned_user_ids
                 if not is_present and not prefs['muted'] and not is_mentioned:
-                    asyncio.create_task(self.send_push_notification_async(proxy, member, msg, room.id))
+                    asyncio.create_task(self.send_push_notification_async(proxy, member, msg, room.id, room.name))
                     # Play in-app sound/favicon (push will show the OS notification)
                     await self.channel_layer.group_send(
                         f"user_{member.id}",
@@ -778,7 +778,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         })
 
     @helper_method
-    async def send_push_notification_async(self, proxy, user, message, room_id):
+    async def send_push_notification_async(self, proxy, user, message, room_id, room_name=""):
         try:
             if await self.repo.user_has_muted_room(user.id, room_id):
                 return
@@ -786,7 +786,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             body = strip_tags(message.text)[:100] or _("New message")
             site_url = f"https://{domain}"
             deep_link = f"{site_url}/chat#room_id={room_id}"
-            success = await self.repo.send_push_notification_sync(user=user, title=title, body=body, deep_link=deep_link, room_id=room_id)
+            success = await self.repo.send_push_notification_sync(user=user, title=title, body=body, deep_link=deep_link, room_id=room_id, room_name=room_name or "")
             if success:
                 log.info(f"Push notification sent to user {user.id} for message {message.id}")
             else:

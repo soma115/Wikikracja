@@ -590,7 +590,7 @@ class ChatRepository:
 
     # -- Push notification methods --
     @database_sync_to_async
-    def send_push_notification_sync(self, user, title, body, deep_link, room_id):
+    def send_push_notification_sync(self, user, title, body, deep_link, room_id, room_name=""):
         """Synchronous push notification sending via django-push-notifications."""
         try:
             any_sent = False
@@ -606,6 +606,7 @@ class ChatRepository:
                         "data": {
                             'click_action': deep_link,
                             'room_id': room_id,
+                            'room_name': room_name,
                             'platform': 'webpush',
                         }
                     })
@@ -626,6 +627,7 @@ class ChatRepository:
                             'title': title,
                             'body': body,
                             'room_id': str(room_id),
+                            'room_name': room_name,
                             'icon': f"https://{domain}/favicon.ico",
                             'click_action': deep_link,
                         },

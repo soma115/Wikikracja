@@ -93,13 +93,17 @@ const PushNotificationManager = {
             const messaging = firebase.messaging();
 
             // Foreground messages are not auto-displayed by the FCM SDK; show them manually.
-            // NOTE: On Android Chrome, `new Notification()` from page context is disallowed
-            // ("Illegal constructor"); must use ServiceWorkerRegistration.showNotification().
+            // On Android Chrome, showNotification is more reliable when triggered from the
+            // service worker context. We post a message to the SW and let it display.
             messaging.onMessage((payload) => {
                 console.log('FCM foreground message:', payload);
                 const data = payload.data || {};
                 const roomId = data.room_id ? parseInt(data.room_id, 10) : 0;
-                swRegistration.showNotification(data.title || 'Chat Message', {
+                let title = data.title || 'Chat Message';
+                if (data.room_name) {
+                    title += ' — ' + data.room_name;
+                }
+                const options = {
                     body: data.body || '',
                     icon: data.icon || '/favicon.ico',
                     badge: '/favicon.ico',
@@ -109,7 +113,18 @@ const PushNotificationManager = {
                         room_id: roomId,
                         click_action: data.click_action || '/chat',
                     },
-                });
+                };
+                const activeWorker = swRegistration.active || navigator.serviceWorker.controller;
+                if (activeWorker) {
+                    activeWorker.postMessage({
+                        type: 'SHOW_NOTIFICATION',
+                        title: title,
+                        options: options,
+                    });
+                } else {
+                    // Fallback: try directly from the page context.
+                    swRegistration.showNotification(title, options);
+                }
             });
 
             const token = await messaging.getToken({

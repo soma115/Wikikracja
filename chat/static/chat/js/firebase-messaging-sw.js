@@ -28,7 +28,10 @@ messaging.onBackgroundMessage((payload) => {
     console.log('FCM background message:', payload);
 
     const data = payload.data || {};
-    const notificationTitle = data.title || 'Chat Message';
+    let notificationTitle = data.title || 'Chat Message';
+    if (data.room_name) {
+        notificationTitle += ' — ' + data.room_name;
+    }
     const notificationOptions = {
         body: data.body || '',
         icon: data.icon || '/favicon.ico',
@@ -44,6 +47,15 @@ messaging.onBackgroundMessage((payload) => {
     self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
+
+// Display a notification triggered by the foreground page via postMessage.
+// This is more reliable than showing from the page context on Android Chrome.
+self.addEventListener('message', (event) => {
+    if (event.data?.type === 'SHOW_NOTIFICATION') {
+        const { title, options } = event.data;
+        self.registration.showNotification(title, options);
+    }
+});
 
 // Handle notification click
 self.addEventListener('notificationclick', (event) => {

@@ -68,7 +68,11 @@ self.addEventListener('push', (event) => {
         }
     }
 
-    const title = notificationData.title || 'Chat Message';
+    let title = notificationData.title || 'Chat Message';
+    const roomName = notificationData.data?.room_name || '';
+    if (roomName) {
+        title += ' — ' + roomName;
+    }
     const options = {
         body: notificationData.body || '',
         icon: notificationData.icon || '/favicon.ico',
@@ -77,6 +81,7 @@ self.addEventListener('push', (event) => {
         requireInteraction: true,
         data: {
             room_id: notificationData.data?.room_id ?? 0,
+            room_name: roomName,
             click_action: notificationData.data?.click_action || '/chat',
             url: notificationData.data?.click_action || '/chat'
         },
