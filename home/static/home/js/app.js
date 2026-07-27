@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Per-scope JSON w localStorage: { view, filters, tab }
 //   - scope ustawia szablon przez `data-prefs-scope` na <html>
 //   - filtry (URL params) restore'owane są w head-script (anti-FOUC)
-//   - widok lista/grid: data-view="list|grid" + [data-view-container]
+//   - widok lista/grid/compact: data-view="list|grid|compact" + [data-view-container]
 //   - tab persistence: Bootstrap tabs auto-wired
 // ============================================================
 (function() {
@@ -247,10 +247,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function applyView(mode) {
         var container = document.querySelector('[data-view-container]');
         if (!container) return;
-        container.classList.toggle('view-grid', mode === 'grid');
+        container.classList.remove('view-grid', 'view-compact');
+        if (mode === 'grid') container.classList.add('view-grid');
+        else if (mode === 'compact') container.classList.add('view-compact');
         document.querySelectorAll('[data-view]').forEach(function(btn) {
             btn.classList.toggle('active', btn.dataset.view === mode);
         });
+        if (mode === 'compact') {
+            container.querySelectorAll('.proposal-card.open').forEach(function(card) {
+                card.classList.remove('open');
+                var body = card.querySelector('.proposal-card-body');
+                if (body) body.style.display = 'none';
+            });
+        }
     }
 
     function setView(mode) {

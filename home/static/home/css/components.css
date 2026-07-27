@@ -287,6 +287,25 @@
     grid-template-columns: 1fr;
   }
 }
+.proposals-list.view-compact {
+  gap: .35rem;
+}
+.proposals-list.view-compact .proposal-card {
+  border-radius: var(--radius-sm, .35rem);
+}
+.proposals-list.view-compact .proposal-card-header {
+  padding: .55rem .75rem .45rem;
+}
+.proposals-list.view-compact .proposal-preview,
+.proposals-list.view-compact .proposal-card-body {
+  display: none;
+}
+.proposals-list.view-compact .proposal-card-title-row {
+  margin-bottom: .1rem;
+}
+.proposals-list.view-compact .proposal-card-badges-row {
+  margin-bottom: .25rem;
+}
 .proposal-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -369,6 +388,10 @@
   color: var(--text-muted);
   line-height: 1.5;
   margin: 0 0 .55rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 .proposal-card.open .proposal-preview {
   display: none;
