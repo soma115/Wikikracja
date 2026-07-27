@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-25 21:44+0200\n"
+"POT-Creation-Date: 2026-07-27 13:27+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -44,7 +44,7 @@ msgstr "Załączniki"
 #: .\obywatele\templates\obywatele\dodaj.html:64
 #: .\obywatele\templates\obywatele\my_assets.html:83
 #: .\tasks\templates\tasks\task_form.html:48
-#: .\tasks\templates\tasks\task_list.html:328
+#: .\tasks\templates\tasks\task_list.html:331
 msgid "Save"
 msgstr "Zapisz"
 
@@ -111,7 +111,7 @@ msgstr "Zaktualizowane"
 #: .\tasks\templates\tasks\task_detail.html:46
 #: .\tasks\templates\tasks\task_form.html:34
 #: .\tasks\templates\tasks\task_list.html:62
-#: .\tasks\templates\tasks\task_list.html:215
+#: .\tasks\templates\tasks\task_list.html:218
 msgid "Category"
 msgstr "Kategoria"
 
@@ -197,7 +197,7 @@ msgstr "Czy na pewno chcesz usunąć ten załącznik?"
 #: .\glosowania\templates\glosowania\szczegoly.html:180
 #: .\glosowania\templates\glosowania\szczegoly.html:223
 #: .\home\templates\home\site_admin.html:268
-#: .\tasks\templates\tasks\task_list.html:329
+#: .\tasks\templates\tasks\task_list.html:332
 msgid "Delete"
 msgstr "Usuń"
 
@@ -227,7 +227,7 @@ msgstr "Usuń"
 #: .\obywatele\templates\obywatele\my_profile.html:284
 #: .\tasks\templates\tasks\task_close.html:21
 #: .\tasks\templates\tasks\task_detail.html:248
-#: .\tasks\templates\tasks\task_list.html:327
+#: .\tasks\templates\tasks\task_list.html:330
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -269,23 +269,23 @@ msgstr "Wszystkie"
 #: .\board\templates\board\board.html:60
 #: .\categories\templates\categories\_category_modal.html:7
 #: .\tasks\templates\tasks\task_list.html:79
-#: .\tasks\templates\tasks\task_list.html:169
+#: .\tasks\templates\tasks\task_list.html:172
 msgid "Manage categories"
 msgstr "Zarządzaj kategoriami"
 
 #: .\board\templates\board\board.html:70
 #: .\events\templates\events\event_list.html:25
-#: .\glosowania\templates\glosowania\_view_toggle.html:62
+#: .\glosowania\templates\glosowania\_view_toggle.html:65
 #: .\home\templates\home\activity.html:54
-#: .\tasks\templates\tasks\task_list.html:88
+#: .\tasks\templates\tasks\task_list.html:91
 msgid "List"
 msgstr "Lista"
 
 #: .\board\templates\board\board.html:73
 #: .\events\templates\events\event_list.html:28
-#: .\glosowania\templates\glosowania\_view_toggle.html:65
+#: .\glosowania\templates\glosowania\_view_toggle.html:68
 #: .\home\templates\home\activity.html:57
-#: .\tasks\templates\tasks\task_list.html:91
+#: .\tasks\templates\tasks\task_list.html:94
 msgid "Grid"
 msgstr "Siatka"
 
@@ -324,7 +324,7 @@ msgstr "Brak dokumentów"
 #: .\obywatele\templates\obywatele\my_profile.html:140
 #: .\obywatele\templates\obywatele\szczegoly.html:192
 #: .\tasks\templates\tasks\task_detail.html:136
-#: .\tasks\templates\tasks\task_list.html:326
+#: .\tasks\templates\tasks\task_list.html:329
 msgid "Edit"
 msgstr "Edytuj"
 
@@ -333,7 +333,7 @@ msgid "documents"
 msgstr "dokumenty"
 
 #: .\board\templates\board\board.html:288
-#: .\tasks\templates\tasks\task_list.html:331
+#: .\tasks\templates\tasks\task_list.html:334
 msgid "Protected — cannot be deleted"
 msgstr "Chroniona — nie można usunąć"
 
@@ -348,17 +348,17 @@ msgid "…and {n} more"
 msgstr "…i jeszcze {n}"
 
 #: .\board\templates\board\board.html:291
-#: .\tasks\templates\tasks\task_list.html:333
+#: .\tasks\templates\tasks\task_list.html:336
 msgid "Category name is required."
 msgstr "Nazwa kategorii jest wymagana."
 
 #: .\board\templates\board\board.html:292
-#: .\tasks\templates\tasks\task_list.html:334
+#: .\tasks\templates\tasks\task_list.html:337
 msgid "Failed to load categories."
 msgstr "Nie udało się wczytać kategorii."
 
 #: .\board\templates\board\board.html:293
-#: .\tasks\templates\tasks\task_list.html:335
+#: .\tasks\templates\tasks\task_list.html:338
 msgid "An error occurred."
 msgstr "Wystąpił błąd."
 
@@ -731,7 +731,7 @@ msgstr "Zapisz Kategorię"
 
 #: .\bookkeeping\templates\bookkeeping\category_list.html:14
 #: .\categories\templates\categories\_category_modal.html:18
-#: .\tasks\templates\tasks\task_list.html:182
+#: .\tasks\templates\tasks\task_list.html:185
 msgid "Add category"
 msgstr "Dodaj kategorię"
 
@@ -877,17 +877,17 @@ msgstr "Nie można usunąć partnera, ponieważ jest w użyciu. Usuń najpierw w
 #: .\chat\templates\chat\chat.html:189 .\chat\templates\chat\chat.html:248
 #: .\chat\views.py:218 .\obywatele\templates\obywatele\my_profile.html:272
 #: .\tasks\templates\tasks\task_detail.html:241
-#: .\tasks\templates\tasks\task_list.html:171
+#: .\tasks\templates\tasks\task_list.html:174
 msgid "Close"
 msgstr "Zamknij"
 
 #: .\categories\templates\categories\_category_modal.html:15
-#: .\tasks\templates\tasks\task_list.html:179
+#: .\tasks\templates\tasks\task_list.html:182
 msgid "Category name"
 msgstr "Nazwa kategorii"
 
 #: .\categories\templates\categories\_category_modal.html:16
-#: .\tasks\templates\tasks\task_list.html:180
+#: .\tasks\templates\tasks\task_list.html:183
 msgid "Description (optional)"
 msgstr "Opis (opcjonalny)"
 
@@ -1758,7 +1758,7 @@ msgstr "Zatwierdzone"
 #: .\glosowania\templates\glosowania\szczegoly.html:37
 #: .\glosowania\views.py:263 .\home\views.py:644 .\tasks\models.py:53
 #: .\tasks\templates\tasks\_task_card.html:29
-#: .\tasks\templates\tasks\task_list.html:150 .\tasks\views.py:94
+#: .\tasks\templates\tasks\task_list.html:153 .\tasks\views.py:94
 msgid "Rejected"
 msgstr "Odrzucone"
 
@@ -1974,6 +1974,11 @@ msgstr "Podpisy"
 #: .\tasks\templates\tasks\task_list.html:52
 msgid "Buzz"
 msgstr "Gwar"
+
+#: .\glosowania\templates\glosowania\_view_toggle.html:62
+#: .\tasks\templates\tasks\task_list.html:88
+msgid "Compact"
+msgstr "Kompaktowy"
 
 #: .\glosowania\templates\glosowania\approved.html:18
 #: .\glosowania\templates\glosowania\discussion.html:18
@@ -2644,7 +2649,7 @@ msgstr "propozycje"
 
 #: .\home\templates\home\home.html:128 .\home\templates\home\home.html:558
 #: .\obywatele\templates\obywatele\citizen_zadania.html:16
-#: .\tasks\templates\tasks\task_list.html:103
+#: .\tasks\templates\tasks\task_list.html:106
 msgid "My tasks"
 msgstr "Moje zadania"
 
@@ -4265,12 +4270,12 @@ msgstr "Nieprawidłowy status zamknięcia."
 
 #: .\tasks\models.py:51 .\tasks\templates\tasks\_task_card.html:33
 #: .\tasks\templates\tasks\task_help.html:38
-#: .\tasks\templates\tasks\task_list.html:142
+#: .\tasks\templates\tasks\task_list.html:145
 msgid "Completed"
 msgstr "Ukończone"
 
 #: .\tasks\models.py:52 .\tasks\templates\tasks\_task_card.html:35
-#: .\tasks\templates\tasks\task_list.html:146
+#: .\tasks\templates\tasks\task_list.html:149
 msgid "Cancelled"
 msgstr "Anulowane"
 
@@ -4576,53 +4581,53 @@ msgstr "Dodaj zadanie"
 msgid "Score"
 msgstr "Poparcie"
 
-#: .\tasks\templates\tasks\task_list.html:107
+#: .\tasks\templates\tasks\task_list.html:110
 msgid "Supporting"
 msgstr "Wspieram"
 
-#: .\tasks\templates\tasks\task_list.html:113
+#: .\tasks\templates\tasks\task_list.html:116
 msgid "You have no tasks yet."
 msgstr "Nie masz jeszcze żadnych zadań."
 
-#: .\tasks\templates\tasks\task_list.html:124
+#: .\tasks\templates\tasks\task_list.html:127
 msgid "No tasks awaiting pickup."
 msgstr "Brak zadań oczekujących na podjęcie."
 
-#: .\tasks\templates\tasks\task_list.html:135
+#: .\tasks\templates\tasks\task_list.html:138
 msgid "No tasks in progress."
 msgstr "Brak zadań w realizacji."
 
-#: .\tasks\templates\tasks\task_list.html:156
+#: .\tasks\templates\tasks\task_list.html:159
 msgid "No finished tasks yet."
 msgstr "Brak ukończonych zadań."
 
-#: .\tasks\templates\tasks\task_list.html:195
+#: .\tasks\templates\tasks\task_list.html:198
 msgid "No one helps yet"
 msgstr "Nikt jeszcze nie pomaga"
 
-#: .\tasks\templates\tasks\task_list.html:196
-#: .\tasks\templates\tasks\task_list.html:201
+#: .\tasks\templates\tasks\task_list.html:199
+#: .\tasks\templates\tasks\task_list.html:204
 #, python-brace-format
 msgid "and {n} more — see all"
 msgstr "…i jeszcze {n} — zobacz wszystkich"
 
-#: .\tasks\templates\tasks\task_list.html:197
+#: .\tasks\templates\tasks\task_list.html:200
 msgid "Could not load helpers"
 msgstr "Nie udało się załadować listy"
 
-#: .\tasks\templates\tasks\task_list.html:200
+#: .\tasks\templates\tasks\task_list.html:203
 msgid "No one is against yet"
 msgstr "Nikt jeszcze nie zgłosił sprzeciwu"
 
-#: .\tasks\templates\tasks\task_list.html:202
+#: .\tasks\templates\tasks\task_list.html:205
 msgid "Could not load opponents"
 msgstr "Nie udało się załadować listy"
 
-#: .\tasks\templates\tasks\task_list.html:330
+#: .\tasks\templates\tasks\task_list.html:333
 msgid "tasks"
 msgstr "zadania"
 
-#: .\tasks\templates\tasks\task_list.html:332
+#: .\tasks\templates\tasks\task_list.html:335
 #, python-brace-format
 msgid "This category has {n} task(s). Deleting it will leave those tasks without a category. Continue?"
 msgstr "Ta kategoria ma {n} zadanie/zadań. Usunięcie jej pozostawi te zadania bez kategorii. Kontynuować?"

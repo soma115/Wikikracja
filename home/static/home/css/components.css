@@ -296,15 +296,19 @@
 .proposals-list.view-compact .proposal-card-header {
   padding: .55rem .75rem .45rem;
 }
+.proposals-list.view-compact .proposal-card-num,
+.proposals-list.view-compact .proposal-card-badges-row,
+.proposals-list.view-compact .proposal-card-meta,
 .proposals-list.view-compact .proposal-preview,
 .proposals-list.view-compact .proposal-card-body {
   display: none;
 }
-.proposals-list.view-compact .proposal-card-title-row {
-  margin-bottom: .1rem;
+.proposals-list.view-compact .proposal-card.open .proposal-card-num {
+  display: inline;
 }
-.proposals-list.view-compact .proposal-card-badges-row {
-  margin-bottom: .25rem;
+.proposals-list.view-compact .proposal-card.open .proposal-card-badges-row,
+.proposals-list.view-compact .proposal-card.open .proposal-card-meta {
+  display: flex;
 }
 .proposal-card {
   background: var(--bg-card);
