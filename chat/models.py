@@ -2,6 +2,23 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Prefetch
+from django.utils.translation import gettext_lazy as _
+
+
+class ChatRoomModel(models.Model):
+    """Abstract base for models that have an optional associated chat room."""
+
+    chat_room = models.ForeignKey(
+        "chat.Room",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="%(class)s",
+        verbose_name=_("Chat room"),
+    )
+
+    class Meta:
+        abstract = True
 
 
 class Room(models.Model):
@@ -116,6 +133,44 @@ class Room(models.Model):
         Returns first matching room.
         """
         return Room.find_all_with_users(*users).first()
+
+    @classmethod
+    def get_or_create_for_users(cls, *users):
+        """
+        Get or create a private 1-to-1 room for the given users.
+        Uses sorted usernames as the room title and ensures all users are in `allowed`.
+        """
+        from django.db import IntegrityError
+
+        title = '-'.join(sorted(u.username for u in users))
+        room = cls.find_with_users(*users)
+        if room is not None:
+            if room.title != title:
+                room.title = title
+                room.save(update_fields=['title'])
+            return room
+
+        try:
+            room = cls.objects.create(title=title, public=False)
+        except IntegrityError:
+            room = cls.objects.get(title__iexact=title)
+            room.public = False
+            room.save(update_fields=['public'])
+
+        if room.allowed.count() != len(users):
+            room.allowed.set(users)
+        return room
+
+    @classmethod
+    def create_all_one2one_rooms(cls):
+        """Create or update private 1-to-1 rooms for every pair of active users."""
+        User = get_user_model()
+        active_users = User.objects.filter(is_active=True)
+        for i in active_users:
+            for j in active_users:
+                if i == j:
+                    continue
+                cls.get_or_create_for_users(i, j)
 
     @staticmethod
     def find_private_rooms_for_user_pairs(user, other_user_ids):

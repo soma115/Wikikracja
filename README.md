@@ -325,7 +325,7 @@ See `.env.example` for complete list and descriptions.
 - **Issues**: [GitHub Issues](https://github.com/soma115/wikikracja/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/soma115/wikikracja/discussions)
 - **Demo**: https://demo.wikikracja.pl/
-- **Production**: https://wikikracja.pl
+- **Philosophy**: https://wikikracja.pl
 
 ---
 

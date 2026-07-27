@@ -157,19 +157,9 @@ def parameters(request: HttpRequest):
 
 @login_required
 def wspolnota_calendar(request: HttpRequest):
-    from events.calendar import adjacent_months, build_calendar_grid, parse_month_param
+    from events.views import calendar_partial_context
 
-    cal_year, cal_month = parse_month_param(request.GET.get('month', ''))
-    cal_weeks = build_calendar_grid(cal_year, cal_month, Event.objects.filter(is_active=True))
-    prev_month, next_month = adjacent_months(cal_year, cal_month)
-    return render(request, 'obywatele/_calendar_partial.html', {
-        'cal_weeks': cal_weeks,
-        'cal_year': cal_year,
-        'cal_month': cal_month,
-        'cal_first_day': date(cal_year, cal_month, 1),
-        'prev_month': prev_month,
-        'next_month': next_month,
-    })
+    return render(request, 'obywatele/_calendar_partial.html', calendar_partial_context(request))
 
 
 @login_required

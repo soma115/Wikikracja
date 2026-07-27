@@ -93,23 +93,29 @@ def events_agenda_chunk(request: HttpRequest):
     return render(request, 'events/_agenda_chunk.html', {'occurrences': occurrences, 'now': now})
 
 
-def events_calendar(request: HttpRequest):
-    """Renders just the month-grid partial. AJAX-loaded by the events list page (and reused
-    by `obywatele:wspolnota_calendar`)."""
+def calendar_partial_context(request: HttpRequest, events_qs=None):
+    """Build context dict for the shared month-grid partial."""
     cal_year, cal_month = parse_month_param(request.GET.get('month', ''))
-    events_qs = Event.objects.filter(is_active=True)
+    if events_qs is None:
+        events_qs = Event.objects.filter(is_active=True)
     if not request.user.is_authenticated:
         events_qs = events_qs.filter(is_public=True)
     cal_weeks = build_calendar_grid(cal_year, cal_month, events_qs)
     prev_month, next_month = adjacent_months(cal_year, cal_month)
-    return render(request, 'obywatele/_calendar_partial.html', {
+    return {
         'cal_weeks': cal_weeks,
         'cal_year': cal_year,
         'cal_month': cal_month,
         'cal_first_day': _date(cal_year, cal_month, 1),
         'prev_month': prev_month,
         'next_month': next_month,
-    })
+    }
+
+
+def events_calendar(request: HttpRequest):
+    """Renders just the month-grid partial. AJAX-loaded by the events list page (and reused
+    by `obywatele:wspolnota_calendar`)."""
+    return render(request, 'obywatele/_calendar_partial.html', calendar_partial_context(request))
 
 
 class EventDetailView(DetailView):

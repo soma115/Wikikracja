@@ -25,6 +25,7 @@ class PostSendProcessingUnseenTest(TestCase):
         consumer = ChatConsumer.__new__(ChatConsumer)
         consumer.scope = {'user': self.sender}
         consumer.channel_layer = AsyncMock()
+        consumer.send_push_notification_async = MagicMock(return_value=None)
         return consumer
 
     def _make_receiver_consumer(self):

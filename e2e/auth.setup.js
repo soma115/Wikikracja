@@ -17,7 +17,7 @@ setup('login as dev user', async ({ page }) => {
 
     await Promise.all([
         page.waitForURL(url => !url.pathname.startsWith('/accounts/login'), { timeout: 15000 }),
-        page.click('form button[type="submit"]'),
+        page.click('form.login button[type="submit"]'),
     ]);
     // Poczekaj na sidebar — renderowany tylko dla zalogowanych ({% if user.is_authenticated %}).
     // networkidle odpada bo WebSockety nigdy nie milkną. Sidebar = pewny sygnał że sesja

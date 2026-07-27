@@ -7,6 +7,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from chat.models import ChatRoomModel
+
 User = get_user_model()
 
 
@@ -20,7 +22,7 @@ def does_it_exist(value):
     return True
 
 
-class Decyzja(models.Model):
+class Decyzja(ChatRoomModel, models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True)
     title = models.TextField(max_length=200, null=True, verbose_name=_('Title'), help_text=_('Enter short title describing new law.'))
     tresc = models.TextField(max_length=3000, null=True, verbose_name=_('Law text'), help_text=_('Enter the exact wording of the law as it is to be applied.'))
@@ -66,15 +68,6 @@ class Decyzja(models.Model):
         verbose_name=_('Proposed logo'),
         help_text=_('If set, this referendum changes the site logo. Applied when approved.'),
     )
-    chat_room = models.ForeignKey(
-        "chat.Room",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="decyzja",
-        verbose_name=_("Chat room"),
-    )
-
     # 1.Proposition
     # 2.Discussion
     # 3.Referendum

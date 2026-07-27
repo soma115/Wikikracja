@@ -2,23 +2,19 @@ import logging
 import re
 import secrets
 import string
-import threading
-import time
 
 from allauth.account.forms import SignupForm
 from captcha.fields import CaptchaField, CaptchaTextInput
 from django import forms
-from django.conf import settings as s
 from django.contrib.auth.models import User
-from django.core.mail import EmailMessage
 from django.db import IntegrityError
 from django.http import HttpRequest
-from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from obywatele.models import Region, Uzytkownik
+from zzz.email import send_notification_email_to_active_users
 from zzz.richtext import strip_tags
-from zzz.utils import build_site_url, get_site_domain
+from zzz.utils import build_site_url
 
 log = logging.getLogger(__name__)
 
@@ -302,54 +298,16 @@ def strip_html_tags(text):
     return strip_tags(text)
 
 
+
 def SendEmailToAll(subject, message, notification_type='obywatele'):
     # to: all active users with enabled notifications for this type (individual emails)
     # subject: Custom
     # message: Custom
     # CRITICAL: Recipients are fetched in the thread just before sending to avoid race conditions
     # with signals that change user is_active status (e.g., DeactivateNewUser)
-    translation.activate(s.LANGUAGE_CODE)
-    HOST = get_site_domain()
-
-    # Strip HTML tags from message, preserving newlines
-    message = strip_html_tags(message)
-
-    settings_url = build_site_url('/obywatele/settings/')
-    email_footer = _("You can manage your email notifications here: {url}").format(url=settings_url)
-
-    def _get_recipients():
-        if notification_type == 'obywatele':
-            return list(User.objects.filter(is_active=True, uzytkownik__email_notifications_obywatele=True).values_list('email', flat=True))
-        elif notification_type == 'glosowania':
-            return list(User.objects.filter(is_active=True, uzytkownik__email_notifications_glosowania=True).values_list('email', flat=True))
-        elif notification_type == 'chat':
-            return list(User.objects.filter(is_active=True, uzytkownik__email_notifications_chat=True).values_list('email', flat=True))
-        else:
-            # Default to all active users for unknown types
-            return list(User.objects.filter(is_active=True).values_list('email', flat=True))
-
-    def _send_with_delay():
-        try:
-            time.sleep(s.EMAIL_SEND_DELAY_SECONDS)
-            # CRITICAL: Fetch recipients just before sending to avoid race conditions
-            recipients = _get_recipients()
-            
-            # Send individual email to each recipient
-            for recipient in recipients:
-                email_message = EmailMessage(
-                    from_email=str(s.DEFAULT_FROM_EMAIL),
-                    to=[recipient],
-                    subject=f'[{HOST}] {subject}',
-                    body=f"{message}\n\n{email_footer}",
-                )
-                email_message.send(fail_silently=False)
-                log.info(f'Email sent to {recipient}; subject: {subject}')
-                time.sleep(s.EMAIL_SEND_DELAY_SECONDS)
-            
-            log.info(f'All emails sent successfully; subject: {subject}')
-        except Exception as e:
-            log.error(f'Failed to send email; subject: {subject}; error: {e}', exc_info=True)
-
-    t = threading.Thread(target=_send_with_delay)
-    t.setDaemon(True)
-    t.start()
+    send_notification_email_to_active_users(
+        subject,
+        message,
+        notification_type=notification_type,
+        strip_html=True,
+    )

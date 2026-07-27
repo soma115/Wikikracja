@@ -3,20 +3,16 @@ import html
 import logging
 import random
 import re
-import threading
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from django.conf import settings as s
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.core.mail import EmailMessage
 from django.db import OperationalError, transaction
 from django.db.models import Count, Exists, F, OuterRef
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from chat.views import get_translations as get_chat_translations
@@ -24,11 +20,10 @@ from glosowania.forms import ArgumentForm, DecyzjaForm, ParametersProposalForm
 from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 from site_settings.models import SiteParameters
 from site_settings.params import describe_changes, specs_by_category
-from zzz.utils import build_site_url, get_site_domain
+from zzz.email import send_notification_email_to_active_users
+from zzz.utils import build_site_url
 
 log = logging.getLogger(__name__)
-
-HOST = get_site_domain()
 
 
 @login_required
@@ -498,38 +493,12 @@ def SendEmail(subject: str, message: str):
     # to: all active users with voting notifications enabled (individual emails)
     # subject: Custom
     # message: Custom
-    translation.activate(s.LANGUAGE_CODE)
-
-    settings_url = build_site_url('/obywatele/settings/')
-    email_footer = _("You can manage your email notifications here: {url}").format(url=settings_url)
-
-    # Filter users based on voting notification preferences
-    recipients = list(User.objects.filter(is_active=True, uzytkownik__email_notifications_glosowania=True).values_list('email', flat=True))
-    log.info(f'Sending email to {len(recipients)} recipients; subject: {subject}')
-
-    def _send_with_delay():
-        try:
-            time.sleep(s.EMAIL_SEND_DELAY_SECONDS)
-            
-            # Send individual email to each recipient
-            for recipient in recipients:
-                email_message = EmailMessage(
-                    from_email=str(s.DEFAULT_FROM_EMAIL),
-                    to=[recipient],
-                    subject=f'[{HOST}] {subject}',
-                    body=message + "\n\n" + email_footer,
-                )
-                email_message.send(fail_silently=False)
-                log.info(f'Email sent to {recipient}; subject: {subject}')
-                time.sleep(s.EMAIL_SEND_DELAY_SECONDS)
-            
-            log.info(f'All emails sent successfully; subject: {subject}')
-        except Exception as e:
-            log.error(f'Failed to send email; subject: {subject}; error: {e}', exc_info=True)
-
-    t = threading.Thread(target=_send_with_delay)
-    t.setDaemon(True)
-    t.start()
+    send_notification_email_to_active_users(
+        subject,
+        message,
+        notification_type='glosowania',
+        log_prefix='glosowania: ',
+    )
 
 
 # proposition = 1

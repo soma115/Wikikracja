@@ -7,6 +7,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from categories.models import AbstractCategory
+from chat.models import ChatRoomModel
 
 User = settings.AUTH_USER_MODEL
 
@@ -45,7 +46,7 @@ class TaskQuerySet(models.QuerySet):
         )
 
 
-class Task(models.Model):
+class Task(ChatRoomModel, models.Model):
     class Status(models.TextChoices):
         ACTIVE = "active", _("Active")
         COMPLETED = "completed", _("Completed")
@@ -82,14 +83,6 @@ class Task(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    chat_room = models.ForeignKey(
-        "chat.Room",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="task",
-        verbose_name=_("Chat room"),
-    )
 
     objects = TaskQuerySet.as_manager()
 

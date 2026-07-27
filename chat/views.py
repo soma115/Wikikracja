@@ -265,37 +265,7 @@ def get_translations():
 @receiver(user_accepted)
 def create_one2one_rooms(sender, **kwargs):
     # Create all 1to1 rooms
-    active_users = User.objects.filter(is_active=True)
-    # i = request.user
-    # i = kwargs['user']
-    for i in active_users:
-        for j in active_users:
-            # User A will not talk to user A
-            if i == j:
-                continue
-            # Avoid A-B B-A because it is the same thing
-            t = sorted([i.username, j.username])
-            title = '-'.join(t)
-            existing_room = Room.find_with_users(i, j)
-
-            # check if room for user i and j exists, if so make sure room name is correct
-            if existing_room is not None:
-                existing_room.title = title
-                existing_room.save()
-            # if not - create new room
-            else:
-                try:
-                    r = Room.objects.create(title=title, public=False)
-                    r.allowed.set((
-                        i,
-                        j,
-                    ))
-                except IntegrityError:
-                    r = Room.objects.get(title__iexact=title)
-                    r.allowed.set((
-                        i,
-                        j,
-                    ))
+    Room.create_all_one2one_rooms()
 
 
 @receiver(user_deleted)

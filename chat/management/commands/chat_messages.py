@@ -1,12 +1,8 @@
 import logging
-import threading
 from collections import defaultdict
-from time import sleep
 
 from django.conf import settings as s
-from django.core.mail import EmailMessage
-from django.core.management.base import BaseCommand
-from django.utils import timezone, translation
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from chat.models import Message, Room
@@ -14,19 +10,18 @@ from chat.services import extract_mentions
 from glosowania.models import Decyzja
 from obywatele.models import Uzytkownik
 from tasks.models import Task
-from zzz.utils import build_site_url, get_site_domain
+from zzz.email import send_bulk_email_in_thread
+from zzz.management.base_command import TranslatedCommand
+from zzz.utils import build_site_url
 
 log = logging.getLogger(__name__)
 
 
-class Command(BaseCommand):
-    args = ''
+class Command(TranslatedCommand):
     help = 'Send chat messages through email'
 
-    def handle(self, *args, **options):
-        translation.activate(s.LANGUAGE_CODE)
-
-        HOST = get_site_domain()
+    def run(self, *args, **options):
+        HOST = self.host
 
         # Queue all emails to send in background thread sequentially
         email_queue = []
@@ -142,25 +137,14 @@ class Command(BaseCommand):
             u.last_broadcast = timezone.now()
             u.save()
 
-        # Send all queued emails in background thread sequentially
-        def _send_queued_emails():
-            for email_data in email_queue:
-                email_message = EmailMessage(
-                    subject=email_data['subject'],
-                    body=email_data['body'],
-                    from_email=str(s.DEFAULT_FROM_EMAIL),
-                    to=[email_data['recipient']],
-                )
-                log.info(f'Sending email to {email_data["recipient"]}; subject: {email_message.subject}')
-                try:
-                    sleep(s.EMAIL_SEND_DELAY_SECONDS)
-                    email_message.send(fail_silently=False)
-                    log.info(f'Email sent successfully to {email_data["recipient"]}; subject: {email_message.subject}')
-                except Exception as e:
-                    log.error(f'Failed to send email to {email_data["recipient"]}; subject: {email_message.subject}; error: {e}', exc_info=True)
-
-        if email_queue:
-            send_thread = threading.Thread(target=_send_queued_emails)
-            send_thread.start()
-            send_thread.join()
+        # Send all queued emails sequentially
+        for email_data in email_queue:
+            send_bulk_email_in_thread(
+                [email_data['recipient']],
+                subject=email_data['subject'],
+                body=email_data['body'],
+                sleep_before=s.EMAIL_SEND_DELAY_SECONDS,
+                raise_on_error=False,
+                daemon=False,
+            ).join()
 

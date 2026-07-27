@@ -1,35 +1,25 @@
 import logging
 import re
-import smtplib
-import threading
-import time
 from datetime import datetime, timedelta
 
-from django.conf import settings as s
 from django.db import transaction
-from django.contrib.auth.models import User
-from django.core.mail import EmailMessage
-from django.core.management.base import BaseCommand
-from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
 from chat.models import Room
 from glosowania.models import Decyzja
 from site_settings.models import SiteParameters
 from site_settings.params import apply_brand_mark, apply_parameters
-from zzz.utils import build_site_url, get_site_domain
+from zzz.email import send_notification_email_to_active_users
+from zzz.management.base_command import TranslatedCommand
 
 log = logging.getLogger(__name__)
 
 
-class Command(BaseCommand):
-    args = ''
+class Command(TranslatedCommand):
     help = 'Send chat messages through email'
 
-    def handle(self, *args, **options):
-        translation.activate(s.LANGUAGE_CODE)
-
-        HOST = get_site_domain()
+    def run(self, *args, **options):
+        HOST = self.host
 
         threads = []
 
@@ -186,61 +176,21 @@ class Command(BaseCommand):
             # to: all active users, one email per recipient with delay between each
             # subject: Custom
             # message: Custom
-            translation.activate(s.LANGUAGE_CODE)
-
-            email_footer = _("You can manage your email notifications here: {url}").format(url=build_site_url('/obywatele/settings/'))
-            recipients = list(User.objects.filter(is_active=True, uzytkownik__email_notifications_glosowania=True).values_list('email', flat=True))
-            log.warning(f"subject: {subject} \n message: {message} \n recipients: {len(recipients)}")
-
-            def _send_all():
-                for recipient in recipients:
-                    try:
-                        email_message = EmailMessage(
-                            from_email=str(s.DEFAULT_FROM_EMAIL),
-                            to=[recipient],
-                            subject=f'[{HOST}] {subject}',
-                            body=message + "\n\n" + email_footer,
-                        )
-                        email_message.send()
-                        log.info(f"Email sent to {recipient}: '{subject}'")
-                    except smtplib.SMTPException as e:
-                        log.error(f"Failed to send email to {recipient} '{subject}': {e}")
-                    time.sleep(s.EMAIL_SEND_DELAY_SECONDS)
-
-            t = threading.Thread(target=_send_all)
+            t = send_notification_email_to_active_users(
+                subject,
+                message,
+                notification_type='glosowania',
+                log_prefix='glosowania: ',
+                raise_on_error=False,
+                daemon=False,
+            )
+            log.warning(f"subject: {subject} \n message: {message}")
             threads.append(t)
-            t.start()
 
         zliczaj_wszystko()
 
         # Create all 1to1 rooms
-        active_users = User.objects.filter(is_active=True)
-        # i = request.user
-        # i = kwargs['user']
-        for i in active_users:
-            for j in active_users:
-                # User A will not talk to user A
-                if i == j:
-                    continue
-                # Avoid A-B B-A because it is the same thing
-                t = sorted([i.username, j.username])
-                title = '-'.join(t)
-                existing_room = Room.find_with_users(i, j)
-
-                # check if room for user i and j exists, if so make sure room name is correct
-                if existing_room is not None:
-                    existing_room.title = title
-                    existing_room.save()
-                # if not - create new room (use get_or_create to handle race conditions)
-                else:
-                    r, created = Room.objects.get_or_create(title=title, defaults={
-                        'public': False
-                    })
-                    if created or r.allowed.count() != 2:
-                        r.allowed.set((
-                            i,
-                            j,
-                        ))
+        Room.create_all_one2one_rooms()
 
         for t in threads:
             t.join()
