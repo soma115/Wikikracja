@@ -83,7 +83,11 @@
                   <i class="fas fa-copy"></i>
                 </button>
               </td>
-              <td class="text-center">{{ i.ratings_count }}</td>
+              <td class="text-center">
+                <span data-bs-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
+                  {{ i.ratings_positive }}/{{ i.ratings_neutral }}/{{ i.ratings_negative }}
+                </span>
+              </td>
               <td>{% if i.email_confirmed %}<i class="fas fa-check text-success"></i>{% else %}<i class="fas fa-times text-danger"></i>{% endif %}</td>
               <td>
                 <div class="d-flex align-items-center gap-1" style="min-width:5rem;">
@@ -141,7 +145,9 @@
         <div class="citizen-card-city mt-1">
           {% if i.email_confirmed %}<i class="fas fa-envelope text-success" title="{% trans 'Email confirmed' %}"></i>{% else %}<i class="fas fa-envelope text-danger" title="{% trans 'Email confirmed' %}"></i>{% endif %}
           {% if i.form_completed %}<i class="fas fa-file-alt text-success ms-1" title="{% trans 'Form completed' %}"></i>{% else %}<i class="fas fa-file-alt text-danger ms-1" title="{% trans 'Form completed' %}"></i>{% endif %}
-          <span class="ms-1">{{ i.ratings_count }} <i class="fas fa-star"></i></span>
+          <span class="ms-1" data-bs-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
+            {{ i.ratings_positive }}/{{ i.ratings_neutral }}/{{ i.ratings_negative }} <i class="fas fa-star"></i>
+          </span>
         </div>
         <div class="citizen-card-city">{{ i.date_joined|date:"Y-m-d" }}</div>
       </div>

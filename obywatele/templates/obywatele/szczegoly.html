@@ -89,7 +89,10 @@
         </div>
         {% if not active %}
         <div class="col-md-6 mb-2">
-          <strong>{% trans 'Ratings' %}:</strong> {{ total_rate_count }}
+          <strong>{% trans 'Ratings' %}:</strong>
+          <span data-bs-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
+            {{ ratings_positive }}/{{ ratings_neutral }}/{{ ratings_negative }}
+          </span>
         </div>
         {% endif %}
       </div>

@@ -456,11 +456,23 @@ def poczekalnia(request: HttpRequest):
     existing_rates = {
         rate.kandydat_id: rate for rate in Rate.objects.filter(obywatel=citizen_profile, kandydat_id__in=candidate_profile_ids)
     }
-    ratings_count_map = {
-        row['kandydat_id']: row['total'] for row in Rate.objects.filter(kandydat_id__in=candidate_profile_ids).values('kandydat_id').annotate(total=Count('id'))
+
+    # Count explicit ratings per candidate by type. A neutral rating (rate=0)
+    # only exists when a citizen explicitly clicked "Indifferent"; we no longer
+    # auto-create Rate rows just by viewing the list.
+    ratings_positive_map = {
+        row['kandydat_id']: row['total']
+        for row in Rate.objects.filter(kandydat_id__in=candidate_profile_ids, rate=1).values('kandydat_id').annotate(total=Count('id'))
+    }
+    ratings_neutral_map = {
+        row['kandydat_id']: row['total']
+        for row in Rate.objects.filter(kandydat_id__in=candidate_profile_ids, rate=0).values('kandydat_id').annotate(total=Count('id'))
+    }
+    ratings_negative_map = {
+        row['kandydat_id']: row['total']
+        for row in Rate.objects.filter(kandydat_id__in=candidate_profile_ids, rate=-1).values('kandydat_id').annotate(total=Count('id'))
     }
 
-    # Get ratings from the current user for all candidates
     # Process users and add rating directly to each user object for easy access in template
     users_with_ratings = []
     for user in uid:
@@ -468,16 +480,14 @@ def poczekalnia(request: HttpRequest):
         if not candidate_profile:
             continue
 
+        # Show current user's rating for this candidate, but do not create a
+        # Rate record just by opening the waiting room.
         rate = existing_rates.get(candidate_profile.id)
-        if rate is None:
-            rate, _created = Rate.objects.get_or_create(kandydat=candidate_profile, obywatel=citizen_profile)
-            existing_rates[candidate_profile.id] = rate
+        user.rating = rate.rate if rate else 0
 
-        # Add rating directly to user object as a custom attribute
-        user.rating = rate.rate
-
-        # Count number of reputation votes from all citizens
-        user.ratings_count = ratings_count_map.get(candidate_profile.id, 0)
+        user.ratings_positive = ratings_positive_map.get(candidate_profile.id, 0)
+        user.ratings_neutral = ratings_neutral_map.get(candidate_profile.id, 0)
+        user.ratings_negative = ratings_negative_map.get(candidate_profile.id, 0)
 
         user.email_confirmed = (user.id in verified_user_ids) or bool(candidate_profile.polecajacy)
         user.form_completion_percent = candidate_profile.form_completion_percent
@@ -871,29 +881,42 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
     citizen_profile = request.user.uzytkownik
     polecajacy = citizen_profile.polecajacy
 
-    rate = Rate.objects.get_or_create(kandydat=candidate_profile, obywatel=citizen_profile)[0]
+    # Do not auto-create a Rate record on GET; only create one when the citizen
+    # explicitly casts a vote. This keeps the neutral rating counter accurate.
+    rate = Rate.objects.filter(kandydat=candidate_profile, obywatel=citizen_profile).first()
 
     if request.method == 'POST' and candidate_profile != citizen_profile:
         action = request.POST.get('action')
         if action == 'accept':
-            rate.rate = 1
-            rate.save(update_fields=['rate'])
+            if rate is None:
+                rate = Rate.objects.create(kandydat=candidate_profile, obywatel=citizen_profile, rate=1)
+            else:
+                rate.rate = 1
+                rate.save(update_fields=['rate'])
         elif action == 'reject':
-            rate.rate = -1
-            rate.save(update_fields=['rate'])
+            if rate is None:
+                rate = Rate.objects.create(kandydat=candidate_profile, obywatel=citizen_profile, rate=-1)
+            else:
+                rate.rate = -1
+                rate.save(update_fields=['rate'])
         elif action == 'reset':
-            rate.rate = 0
-            rate.save(update_fields=['rate'])
+            if rate is None:
+                rate = Rate.objects.create(kandydat=candidate_profile, obywatel=citizen_profile, rate=0)
+            else:
+                rate.rate = 0
+                rate.save(update_fields=['rate'])
         return redirect(request.path)
 
-    if rate.rate == 1:
-        r1 = 'positive'
-    elif rate.rate == -1:
-        r1 = 'negative'
-    else:
+    if rate is None or rate.rate == 0:
         r1 = 'neutral'
+    elif rate.rate == 1:
+        r1 = 'positive'
+    else:
+        r1 = 'negative'
 
-    total_rate_count = Rate.objects.filter(kandydat=candidate_profile).count()
+    ratings_positive = Rate.objects.filter(kandydat=candidate_profile, rate=1).count()
+    ratings_neutral = Rate.objects.filter(kandydat=candidate_profile, rate=0).count()
+    ratings_negative = Rate.objects.filter(kandydat=candidate_profile, rate=-1).count()
 
     # Previous and Next
     obj = get_object_or_404(User, pk=pk)
@@ -964,7 +987,9 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
         'active': obj.is_active,
         'email_confirmed': email_confirmed,
         'form_completion_percent': form_completion_percent,
-        'total_rate_count': total_rate_count,
+        'ratings_positive': ratings_positive,
+        'ratings_neutral': ratings_neutral,
+        'ratings_negative': ratings_negative,
         'candidate_deletion_request': candidate_deletion_request,
         'sort_param': sort_param,
     })
