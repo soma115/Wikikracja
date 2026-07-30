@@ -40,8 +40,11 @@ class PushDeviceRegisterView(View):
                 # Android reloads/resumes tabs in quick succession, which can cause
                 # multiple register calls for the same token within a few seconds.
                 # Each call used to rotate the push subscription and invalidate the
-                # token before the backend could use it.
-                if cache.get(debounce_key):
+                # token before the backend could use it. Debounce only real duplicates
+                # (same token already active for this user); allow re-activation of
+                # previously unregistered devices.
+                existing = GCMDevice.objects.filter(user=user, registration_id=registration_id).first()
+                if existing and existing.active and cache.get(debounce_key):
                     log.info(f"User {user.id} debounced duplicate push registration: {platform}")
                     return JsonResponse({
                         'success': True,
@@ -131,6 +134,11 @@ class PushDeviceUnregisterView(View):
                 device.active = False
                 device.save()
                 count += 1
+
+            if platform == 'fcm':
+                # Allow the same token to be re-registered immediately
+                # (e.g. user toggled notifications off and back on).
+                cache.delete(f'push_reg_debounce:{registration_id}')
 
             log.info(f"User {user.id} unregistered {count} {platform} device(s)")
 
