@@ -22,7 +22,8 @@ from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
 from obywatele.views import population
 from obywatele.signals import track_user_blocked
 from obywatele.views import SendEmailToAll, required_reputation
-from zzz.utils import get_site_domain
+from zzz.notifications import build_notification, send_notification_to_all_sync
+from zzz.utils import build_site_url, get_site_domain
 
 log = logging.getLogger(__name__)
 
@@ -259,6 +260,17 @@ class Command(BaseCommand):
                     log.error(f'Failed to send account blocked notification to {i.uid.email}: {str(e)}')
 
                 SendEmailToAll(_('Citizen has been banned'), f"{_('User')} {uname} {_('has been blocked')}")
+                send_notification_to_all_sync(
+                    build_notification(
+                        _('Citizen has been banned'),
+                        f"{_('User')} {uname} {_('has been blocked')}",
+                        build_site_url('/obywatele/'),
+                        f'citizen-{i.uid.id}',
+                        citizen_id=i.uid.id,
+                    ),
+                    ws_type='citizen.notification',
+                    notification_type='obywatele',
+                )
 
     def process_deletion_requests(self):
         """Delete accounts where the 30-day grace period has expired."""

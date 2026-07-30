@@ -83,16 +83,29 @@ const PushNotificationManager = {
                 const notification = payload.notification || {};
                 const data = payload.data || {};
                 const roomId = data.room_id ? parseInt(data.room_id, 10) : 0;
-                const title = notification.title || data.title || 'Chat Message';
+                const eventId = data.event_id ? parseInt(data.event_id, 10) : 0;
+
+                let tag;
+                if (data.tag) {
+                    tag = data.tag;
+                } else if (eventId) {
+                    tag = `event-${eventId}`;
+                } else {
+                    tag = `chat-${data.room_id || 'general'}`;
+                }
+
+                const clickAction = data.click_action || (eventId ? `/events/${eventId}/` : '/chat');
+                const title = notification.title || data.title || (eventId ? 'Event' : 'Chat Message');
                 const options = {
                     body: notification.body || data.body || '',
                     icon: data.icon || '/favicon.ico',
                     badge: '/favicon.ico',
-                    tag: `chat-${data.room_id || 'general'}`,
+                    tag: tag,
                     requireInteraction: true,
                     data: {
                         room_id: roomId,
-                        click_action: data.click_action || '/chat',
+                        event_id: eventId,
+                        click_action: clickAction,
                     },
                 };
                 const activeWorker = swRegistration.active || navigator.serviceWorker.controller;

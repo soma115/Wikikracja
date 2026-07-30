@@ -47,15 +47,21 @@ if (messaging) {
         }
 
         const data = payload.data || {};
-        const notificationTitle = data.title || 'Chat Message';
+        const eventId = data.event_id ? parseInt(data.event_id, 10) : 0;
+        const roomId = data.room_id ? parseInt(data.room_id, 10) : 0;
+        const tag = data.tag || (eventId ? `event-${eventId}` : `chat-${data.room_id || 'general'}`);
+        const clickAction = data.click_action || (eventId ? `/events/${eventId}/` : '/chat');
+
+        const notificationTitle = data.title || (eventId ? 'Event' : 'Chat Message');
         const notificationOptions = {
             body: data.body || '',
             icon: data.icon || '/favicon.ico',
             badge: '/favicon.ico',
-            tag: `chat-${data.room_id || 'general'}`,
+            tag: tag,
             data: {
-                room_id: data.room_id ? parseInt(data.room_id, 10) : 0,
-                click_action: data.click_action || '/chat',
+                room_id: roomId,
+                event_id: eventId,
+                click_action: clickAction,
             },
             requireInteraction: true
         };
@@ -76,20 +82,23 @@ if (!messaging) {
             const payload = event.data ? event.data.json() : {};
             const notification = payload.notification || {};
             const data = payload.data || {};
-            const title = notification.title || data.title || 'Chat Message';
+            const roomId = data.room_id ? parseInt(data.room_id, 10) : 0;
+            const eventId = data.event_id ? parseInt(data.event_id, 10) : 0;
+            const title = notification.title || data.title || (eventId ? 'Event' : 'Chat Message');
             const body = notification.body || data.body || '';
             const icon = data.icon || '/favicon.ico';
-            const clickAction = data.click_action || '/chat';
-            const roomId = data.room_id ? parseInt(data.room_id, 10) : 0;
+            const tag = data.tag || (eventId ? `event-${eventId}` : `chat-${data.room_id || 'general'}`);
+            const clickAction = data.click_action || (eventId ? `/events/${eventId}/` : '/chat');
 
             const options = {
                 body: body,
                 icon: icon,
                 badge: '/favicon.ico',
-                tag: `chat-${data.room_id || 'general'}`,
+                tag: tag,
                 requireInteraction: true,
                 data: {
                     room_id: roomId,
+                    event_id: eventId,
                     click_action: clickAction,
                 },
             };

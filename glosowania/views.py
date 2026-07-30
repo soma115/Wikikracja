@@ -21,6 +21,7 @@ from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, 
 from site_settings.models import SiteParameters
 from site_settings.params import describe_changes, specs_by_category
 from zzz.email import send_notification_email_to_active_users
+from zzz.notifications import build_notification, send_notification_to_all_in_thread
 from zzz.utils import build_site_url
 
 log = logging.getLogger(__name__)
@@ -48,6 +49,16 @@ def dodaj(request: HttpRequest):
 
             log.info(f'EMAIL_DIAG trigger=new_law_proposal source=glosowania.views.dodaj actor_user_id={request.user.id} actor_username={request.user.username} decision_id={form.id} subject={_("New law proposal")}')
             SendEmail(_('New law proposal'), _('{user} added new law proposal: "{title}"\nYou can read it here: {url}').format(user=request.user.username.capitalize(), title=form.title, url=build_site_url(f'/glosowania/details/{form.id}')))
+
+            notification = build_notification(
+                _('New law proposal'),
+                f'{request.user.username.capitalize()}: {form.title}',
+                build_site_url(f'/glosowania/details/{form.id}'),
+                f'vote-{form.id}',
+                vote_id=form.id,
+            )
+            send_notification_to_all_in_thread(notification, ws_type='vote.notification', notification_type='glosowania')
+
             return redirect('glosowania:proposition')
         else:
             return render(request, 'glosowania/dodaj.html', {
@@ -590,6 +601,15 @@ def parameters_propose(request: HttpRequest, pk: int = None):
                 messages.success(request, _('New proposal has been saved.'))
                 SendEmail(str(_('New law proposal')), str(_('{user} added new law proposal: "{title}"\nYou can read it here: {url}')).format(
                     user=request.user.username.capitalize(), title=decyzja.title, url=build_site_url(f'/glosowania/details/{decyzja.id}')))
+
+                notification = build_notification(
+                    str(_('New law proposal')),
+                    f'{request.user.username.capitalize()}: {decyzja.title}',
+                    build_site_url(f'/glosowania/details/{decyzja.id}'),
+                    f'vote-{decyzja.id}',
+                    vote_id=decyzja.id,
+                )
+                send_notification_to_all_in_thread(notification, ws_type='vote.notification', notification_type='glosowania')
             else:
                 log.info(f'Parameters referendum {decyzja.id} edited by {request.user} changes={changes}')
                 messages.success(request, _('Saved.'))

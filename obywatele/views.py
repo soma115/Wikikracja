@@ -38,6 +38,8 @@ from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
 from obywatele.tables import UzytkownikTable
 from site_settings.params import get_param
 from tasks.models import Task, TaskEvaluation, TaskVote
+from zzz.email import send_notification_email_to_active_users
+from zzz.notifications import build_notification, send_notification_to_all_in_thread
 from zzz.utils import build_site_url, get_site_domain
 
 HOST = get_site_domain()
@@ -594,7 +596,19 @@ def dodaj(request: HttpRequest):
                 success(request, (message))
 
                 log.info(f'EMAIL_DIAG trigger=new_citizen_proposed source=obywatele.views.dodaj actor_user_id={request.user.id} actor_username={request.user.username} candidate_user_id={candidate.id} candidate_username={candidate.username} subject={_("New citizen has been proposed")}')
-                SendEmailToAll(_('New citizen has been proposed'), f'{request.user.username} ' + str(_('proposed new citizen\nYou can approve him/her here:')) + f' {build_site_url(f"/obywatele/poczekalnia/{candidate.id}")}')
+                click_action = build_site_url(f'/obywatele/poczekalnia/{candidate.id}')
+                SendEmailToAll(_('New citizen has been proposed'), f'{request.user.username} ' + str(_('proposed new citizen\nYou can approve him/her here:')) + f' {click_action}')
+                send_notification_to_all_in_thread(
+                    build_notification(
+                        _('New citizen has been proposed'),
+                        f'{request.user.username} {_("proposed new citizen")}',
+                        click_action,
+                        f'citizen-{candidate.id}',
+                        citizen_id=candidate.id,
+                    ),
+                    ws_type='citizen.notification',
+                    notification_type='obywatele',
+                )
 
                 return redirect('obywatele:poczekalnia')
         else:
@@ -692,10 +706,43 @@ def my_profile(request: HttpRequest):
             'enabled': profile.email_notifications_glosowania,
         },
         {
+            'type': 'events',
+            'title': _('Events'),
+            'description': _('Upcoming events, reminders'),
+            'enabled': profile.email_notifications_events,
+        },
+        {
             'type': 'chat',
             'title': _('Chat'),
             'description': _('New messages from rooms you haven\'t muted'),
             'enabled': profile.email_notifications_chat,
+        },
+    ]
+
+    push_notifications = [
+        {
+            'type': 'push_obywatele',
+            'title': _('Citizenship'),
+            'description': _('New citizens, membership requests'),
+            'enabled': profile.push_notifications_obywatele,
+        },
+        {
+            'type': 'push_glosowania',
+            'title': _('Voting'),
+            'description': _('Law proposals, voting reminders, results'),
+            'enabled': profile.push_notifications_glosowania,
+        },
+        {
+            'type': 'push_events',
+            'title': _('Events'),
+            'description': _('Upcoming events, reminders'),
+            'enabled': profile.push_notifications_events,
+        },
+        {
+            'type': 'push_chat',
+            'title': _('Chat'),
+            'description': _('New messages from rooms you haven\'t muted'),
+            'enabled': profile.push_notifications_chat,
         },
     ]
 
@@ -726,6 +773,7 @@ def my_profile(request: HttpRequest):
         'required_reputation': required_reputation(),
         'asset_fields': asset_fields,
         'notifications': notifications,
+        'push_notifications': push_notifications,
         'avatar_form': AvatarForm(),
         'profile_form': profile_form,
         'deletion_request': deletion_request,
@@ -749,7 +797,12 @@ def toggle_notification(request: HttpRequest):
     NOTIFICATION_FIELDS = {
         'obywatele': 'email_notifications_obywatele',
         'glosowania': 'email_notifications_glosowania',
+        'events': 'email_notifications_events',
         'chat': 'email_notifications_chat',
+        'push_obywatele': 'push_notifications_obywatele',
+        'push_glosowania': 'push_notifications_glosowania',
+        'push_events': 'push_notifications_events',
+        'push_chat': 'push_notifications_chat',
     }
 
     try:

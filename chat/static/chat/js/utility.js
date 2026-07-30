@@ -53,15 +53,48 @@ export async function makeNotification(notif) {
         // both desktop and mobile.
         const registration = await navigator.serviceWorker.ready;
         const roomId = notif.room_id || 0;
+        const eventId = notif.event_id || 0;
+        const voteId = notif.vote_id || 0;
+        const citizenId = notif.citizen_id || 0;
+
+        let tag;
+        if (notif.tag) {
+            tag = notif.tag;
+        } else if (citizenId) {
+            tag = `citizen-${citizenId}`;
+        } else if (voteId) {
+            tag = `vote-${voteId}`;
+        } else if (eventId) {
+            tag = `event-${eventId}`;
+        } else {
+            tag = `chat-${roomId || 'general'}`;
+        }
+
+        let clickAction;
+        if (notif.click_action) {
+            clickAction = notif.click_action;
+        } else if (citizenId) {
+            clickAction = `/obywatele/poczekalnia/${citizenId}/`;
+        } else if (voteId) {
+            clickAction = `/glosowania/details/${voteId}/`;
+        } else if (eventId) {
+            clickAction = `/events/${eventId}/`;
+        } else {
+            clickAction = '/chat';
+        }
+
         await registration.showNotification(notif.title || _('Chat'), {
             body: notif.body || '',
             icon: notif.icon || '/favicon.ico',
             badge: '/favicon.ico',
-            tag: `chat-${roomId || 'general'}`,
+            tag: tag,
             requireInteraction: true,
             data: {
                 room_id: roomId,
-                click_action: notif.click_action || '/chat',
+                event_id: eventId,
+                vote_id: voteId,
+                citizen_id: citizenId,
+                click_action: clickAction,
             },
         });
     } catch (e) {

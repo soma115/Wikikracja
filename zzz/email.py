@@ -112,6 +112,8 @@ def send_notification_email_to_active_users(
             return list(User.objects.filter(is_active=True, uzytkownik__email_notifications_glosowania=True).values_list('email', flat=True))
         elif notification_type == 'chat':
             return list(User.objects.filter(is_active=True, uzytkownik__email_notifications_chat=True).values_list('email', flat=True))
+        elif notification_type == 'events':
+            return list(User.objects.filter(is_active=True, uzytkownik__email_notifications_events=True).values_list('email', flat=True))
         else:
             return list(User.objects.filter(is_active=True).values_list('email', flat=True))
 

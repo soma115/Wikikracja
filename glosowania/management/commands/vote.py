@@ -11,6 +11,7 @@ from site_settings.models import SiteParameters
 from site_settings.params import apply_brand_mark, apply_parameters
 from zzz.email import send_notification_email_to_active_users
 from zzz.management.base_command import TranslatedCommand
+from zzz.notifications import build_notification, send_notification_to_all_sync
 
 log = logging.getLogger(__name__)
 
@@ -67,6 +68,7 @@ class Command(TranslatedCommand):
             was_removed = _('and was removed from queue')
 
             pending_emails = []
+            pending_notifications = []
 
             with transaction.atomic():
                 decyzje = Decyzja.objects.select_for_update().filter(
@@ -94,6 +96,7 @@ class Command(TranslatedCommand):
                             i.save()
                             details_url = f"http://{HOST}/glosowania/details/{i.id}"
                             pending_emails.append((f"{prop_number} {i.id} {approved_for}", f"{prop_number} {i.id} '{i.title}' {gathered} {i.data_referendum_start} {to} {i.data_referendum_stop}\n{click}: {details_url}"))
+                            pending_notifications.append(build_notification(f"{prop_number} {i.id} {approved_for}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
                             log.info(f"Proposition {i.id} changed status from PROPOSITION to DISCUSSION.")
                             continue
                     # FROM PROPOSITION TO REJECTED
@@ -108,16 +111,17 @@ class Command(TranslatedCommand):
                             i.save()
                             details_url = f"http://{HOST}/glosowania/details/{i.id}"
                             pending_emails.append((f"{prop_number} {i.id} {not_gathered}", f"{prop_number} {i.id} '{i.title}' {not_gathered} {was_removed}. {feel_free}\n{click}: {details_url}"))
+                            pending_notifications.append(build_notification(f"{prop_number} {i.id} {not_gathered}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
                             log.info(f"Proposition {i.id} changed status from PROPOSITION to NOT_INTRESTED.")
                             continue
 
-                    # FROM DISCUSSION TO REFERENDUM
                     if i.status == discussion and i.data_referendum_start <= dzisiaj:
                         i.status = referendum
                         i.path = i.path + " -> " + _("Referendum")
                         i.save()
                         details_url = f"http://{HOST}/glosowania/details/{i.id}"
                         pending_emails.append((f"{ref_num} {i.id} {starting_now}", f"{time_to_vote} {i.id} '{i.title}'\n{ends_at} {i.data_referendum_stop}\n{click}: {details_url}"))
+                        pending_notifications.append(build_notification(f"{ref_num} {i.id} {starting_now}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
                         log.info(f"Proposition {i.id} changed status from DISCUSSION to REFERENDUM.")
                         continue
 
@@ -125,6 +129,7 @@ class Command(TranslatedCommand):
                     if i.status == referendum and i.data_referendum_stop == dzisiaj:
                         details_url = f"http://{HOST}/glosowania/details/{i.id}"
                         pending_emails.append((f"{last_day} {i.id}", f"{last_day_reminder}\n{ref_num} {i.id} '{i.title}' {ends_at} {i.data_referendum_stop}\n{click}: {details_url}"))
+                        pending_notifications.append(build_notification(f"{last_day} {i.id}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
                         log.info(f"Last day reminder sent for referendum {i.id}.")
                         continue
 
@@ -158,6 +163,7 @@ class Command(TranslatedCommand):
                             i.save()
                             details_url = f"http://{HOST}/glosowania/details/{i.id}"
                             pending_emails.append((f"{prop_number} {i.id} {in_effect}", f"{prop_number} {i.id} '{i.title}' {became}\n{click}: {details_url}"))
+                            pending_notifications.append(build_notification(f"{prop_number} {i.id} {in_effect}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
                             log.info("Proposition {i.id} changed status from REFERENDUM to VALID.")
                             continue
                         else:
@@ -166,6 +172,7 @@ class Command(TranslatedCommand):
                             i.save()
                             details_url = f"http://{HOST}/glosowania/details/{i.id}"
                             pending_emails.append((f"{prop_number} {i.id} {was_rejected}", f"{prop_number} {i.id} '{i.title}' {rejected_in}\n{feel_free}\n{click}: {details_url}"))
+                            pending_notifications.append(build_notification(f"{prop_number} {i.id} {was_rejected}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
                             log.info("Proposition {i.id} changed status from REFERENDUM to REJECTED.")
                             continue
 
@@ -188,6 +195,9 @@ class Command(TranslatedCommand):
             threads.append(t)
 
         zliczaj_wszystko()
+
+        for notif in pending_notifications:
+            send_notification_to_all_sync(notif, ws_type='vote.notification', notification_type='glosowania')
 
         # Create all 1to1 rooms
         Room.create_all_one2one_rooms()

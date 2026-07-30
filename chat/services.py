@@ -5,11 +5,8 @@ from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db.models import Count, Prefetch
-from firebase_admin import messaging
-from push_notifications.models import GCMDevice
 
 from zzz.richtext import strip_tags
-from zzz.utils import get_site_domain
 
 from .exceptions import ClientError
 from .models import (
@@ -22,7 +19,6 @@ from .models import (
 )
 
 log = logging.getLogger(__name__)
-domain = get_site_domain()
 
 CHAT_UNREAD_CACHE_KEY = "chat_unread:{user_id}"
 CHAT_UNREAD_CACHE_TTL = 300
@@ -590,78 +586,19 @@ class ChatRepository:
     # -- Push notification methods --
     @database_sync_to_async
     def send_push_notification_sync(self, user, title, body, deep_link, room_id, room_name=""):
-        """Synchronous push notification sending via django-push-notifications."""
+        """Synchronous push notification sending via the shared notifications backend."""
         try:
-            any_sent = False
+            from zzz.notifications import build_notification, send_fcm_to_user_sync
 
-            fcm_devices = GCMDevice.objects.filter(user=user, active=True)
-            if fcm_devices.exists():
-                # Ensure any legacy GCM rows are converted to FCM; we no longer support GCM.
-                fcm_devices.filter(cloud_message_type='GCM').update(cloud_message_type='FCM')
-                fcm_devices = GCMDevice.objects.filter(user=user, active=True, cloud_message_type='FCM')
-                if not fcm_devices.exists():
-                    log.debug(f"No FCM devices for user {user.id}")
-                    return any_sent
-                try:
-                    import firebase_admin
-                    if not firebase_admin._apps:
-                        log.warning(f"FCM skipped for user {user.id}: Firebase not initialized")
-                        return any_sent
-                    # Send both a `webpush.notification` and a `data` payload.
-                    #
-                    # `webpush.notification` is required for the killed-browser case on
-                    # Android Chrome: if the browser process is gone, the FCM SDK cannot
-                    # always wake the service worker to call `showNotification()`, in which
-                    # case Chrome shows a generic "site updated in the background" fallback.
-                    # When `webpush.notification` is present, Chrome/Firebase SDK display the
-                    # notification natively using the supplied title, body, icon and click
-                    # data, so the user sees the real content even in that state.
-                    #
-                    # `data` is still kept for the foreground tab (`onMessage`) and for the
-                    # service worker `onBackgroundMessage` path when the SW is alive.
-                    icon_url = f"https://{domain}/favicon.ico"
-                    message = messaging.Message(
-                        notification=messaging.Notification(title=title, body=body),
-                        data={
-                            'title': title,
-                            'body': body,
-                            'room_id': str(room_id),
-                            'room_name': room_name,
-                            'icon': icon_url,
-                            'click_action': deep_link,
-                        },
-                        webpush=messaging.WebpushConfig(
-                            headers={'Urgency': 'high'},
-                            notification=messaging.WebpushNotification(
-                                title=title,
-                                body=body,
-                                icon=icon_url,
-                                badge=icon_url,
-                                tag=f"chat-{room_id}",
-                                require_interaction=True,
-                                data={'click_action': deep_link, 'room_id': str(room_id)},
-                            ),
-                            fcm_options=messaging.WebpushFCMOptions(link=deep_link),
-                        )
-                    )
-                    result = fcm_devices.send_message(message)
-                    if result and result.success_count > 0:
-                        any_sent = True
-                        log.info(f"FCM sent {result.success_count} notification(s) to user {user.id}")
-                    else:
-                        log.debug(f"No FCM notifications delivered to user {user.id}")
-                    if result:
-                        for idx, resp in enumerate(result.responses):
-                            if not resp.success:
-                                log.warning(f"FCM response {idx} failed for user {user.id}: {resp.exception}")
-                except Exception as e:
-                    cause = getattr(e, 'cause', None)
-                    log.error(
-                        f"FCM failed for user {user.id}: {e!r} | cause={cause!r}",
-                        exc_info=True,
-                    )
-
-            return any_sent
+            notification = build_notification(
+                title,
+                body,
+                deep_link,
+                f"chat-{room_id}",
+                room_id=room_id,
+                room_name=room_name,
+            )
+            return send_fcm_to_user_sync(user, notification, notification_type='chat')
         except Exception as e:
-            log.error(f"Error in send_push_notification_sync: {e}")
+            log.error(f"Error in send_push_notification_sync: {e}", exc_info=True)
             return False

@@ -112,16 +112,15 @@ def start_scheduler():
 
 
 def run_meeting_notification():
-    """Send push notifications for events that are starting now"""
+    """Send push and WebSocket notifications for events that are starting now."""
     from datetime import timedelta
 
-    from django.conf import settings
     from django.utils import timezone
     from django.utils.translation import gettext_lazy as _
 
     from events.models import Event
+    from events.services import notify_event_starting
 
-    # Get events that are starting now (within the current minute)
     now = timezone.now()
     start_of_minute = now.replace(second=0, microsecond=0)
     end_of_minute = start_of_minute + timedelta(minutes=1)
@@ -131,27 +130,15 @@ def run_meeting_notification():
     if not starting_events.exists():
         return  # Silent return - no events starting this minute
 
-    fcm_devices = GCMDevice.objects.filter(active=True)
-    if not fcm_devices.exists():
-        log.info("No active FCM devices found")
-        return
-
     for event in starting_events:
         try:
-            # Format event time for display (convert to local timezone first)
+            # Format detailed notification body (time, place, description)
             event_time = timezone.localtime(event.start_date).strftime('%H:%M')
+            body_parts = [f"{_('Time')}: {event_time}"]
 
-            # Build detailed notification message
-            body_parts = [event.title]
-
-            # Add time
-            body_parts.append(f"{_('Time')}: {event_time}")
-
-            # Add place if available
             if event.place:
                 body_parts.append(f"{_('Place')}: {event.place}")
 
-            # Add description (truncated if too long)
             if event.description:
                 description = event.description.strip()
                 if len(description) > 200:
@@ -159,31 +146,7 @@ def run_meeting_notification():
                 body_parts.append(f"{_('Description')}: {description}")
 
             body_text = " | ".join(body_parts)
-            from site_settings.params import get_param
-            title = f"{get_param('site_name') or settings.SITE_NAME} {_('Reminder')}"
-            click_action = event.link if event.link else f"{settings.HOST}/events/{event.id}/"
-
-            # Send FCM notifications (Android/iOS)
-            if fcm_devices.exists():
-                try:
-                    import firebase_admin
-                    if not firebase_admin._apps:
-                        log.warning(f"FCM skipped for event {event.id}: Firebase not initialized")
-                    else:
-                        from zzz.utils import get_site_domain
-                        domain = get_site_domain()
-                        message = messaging.Message(
-                            notification=messaging.Notification(title=title, body=body_text),
-                            webpush=messaging.WebpushConfig(
-                                notification=messaging.WebpushNotification(icon=f"https://{domain}/favicon.ico"),
-                                fcm_options=messaging.WebpushFCMOptions(link=click_action),
-                            )
-                        )
-                        fcm_devices.send_message(message)
-                        log.info(f"FCM notification sent for event: {event.title}")
-                except Exception as e:
-                    log.error(f"FCM failed for event {event.id}: {e}")
-
+            notify_event_starting(event, body=body_text)
         except Exception as e:
             log.error(f"Notification failed for event {event.id}: {e}")
 

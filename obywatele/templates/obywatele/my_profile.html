@@ -229,6 +229,24 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
     </div>
   </div>
 
+  {# ── POWIADOMIENIA PUSH ── #}
+  <div class="card">
+    <div class="card-header">
+      <span class="section-heading">{% trans "Push Notifications" %}</span>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <tbody>
+            {% for notif in push_notifications %}
+            {% notification_row notif.type notif.title notif.description notif.enabled %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   {# ── USUNIĘCIE KONTA ── #}
   <div class="card border-danger" style="border-color:var(--bs-danger)!important;">
     <div class="card-header">
