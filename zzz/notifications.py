@@ -1,20 +1,28 @@
 import logging
+import os
 import threading
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from firebase_admin import messaging
 from push_notifications.models import GCMDevice
 
-from zzz.utils import get_site_domain
+from site_settings.models import SiteSettings
+from site_settings.services import get_branding_version
+from zzz.utils import build_site_url
 
 log = logging.getLogger(__name__)
-domain = get_site_domain()
 
 
 def _icon_url():
-    return f"https://{domain}/favicon.ico"
+    ss = SiteSettings.get()
+    derived_favicon = os.path.join(settings.MEDIA_ROOT, 'site_branding', 'derived', 'favicon.ico')
+    if ss.brand_mark and os.path.isfile(derived_favicon):
+        version = get_branding_version(ss)
+        return build_site_url(f'/media/site_branding/derived/favicon.ico?v={version}')
+    return build_site_url('/static/home/images/favicon.ico')
 
 
 def build_notification(title, body, click_action, tag, icon=None, **extra):
