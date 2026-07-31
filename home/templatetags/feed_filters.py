@@ -3,25 +3,17 @@ import hashlib
 from django import template
 from django.utils.translation import gettext_lazy as _
 
+from home.colors import category_color
+
 register = template.Library()
 
 
 @register.filter
 def content_type_color(content_type):
-    """Return Bootstrap color class for content type (kept in sync with the
-    category colors used on the search page, see home/templates/home/search.html)"""
-    color_map = {
-        'post': 'primary',
-        'task': 'warning',
-        'event': 'success',
-        'message': 'info',
-        'room_messages': 'info',  # New content type for grouped room messages
-        'decision': 'danger',
-        'citizen': 'secondary',
-        'membership': 'secondary',
-        'transaction': 'primary',
-    }
-    return color_map.get(content_type, 'secondary')
+    """Return Bootstrap color class for content type. Backed by the single
+    source of truth in home/colors.py (CATEGORY_COLORS), also used by
+    home.views.global_search and home/templates/home/search.html."""
+    return category_color(content_type)
 
 
 @register.filter

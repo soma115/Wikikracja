@@ -1,5 +1,6 @@
 {% extends "home/base.html" %}
 {% load i18n %}
+{% load feed_filters %}
 
 {% block content %}
 <div class="container-fluid px-0">
@@ -57,37 +58,37 @@
           <i class="fas fa-globe me-1"></i>{% trans "Everywhere" %}
         </label>
 
-        <label class="sp-chip{% if 'post' in active_cats %} on{% endif %}" data-color="primary">
+        <label class="sp-chip{% if 'post' in active_cats %} on{% endif %}" data-color="{{ 'post'|content_type_color }}">
           <input type="checkbox" name="cat" value="post" class="d-none sp-cb"
                  {% if 'post' in active_cats %}checked{% endif %}>
           <i class="fas fa-chalkboard me-1"></i>{% trans "Board" %}
         </label>
 
-        <label class="sp-chip{% if 'task' in active_cats %} on{% endif %}" data-color="warning">
+        <label class="sp-chip{% if 'task' in active_cats %} on{% endif %}" data-color="{{ 'task'|content_type_color }}">
           <input type="checkbox" name="cat" value="task" class="d-none sp-cb"
                  {% if 'task' in active_cats %}checked{% endif %}>
           <i class="fas fa-list-check me-1"></i>{% trans "Tasks" %}
         </label>
 
-        <label class="sp-chip{% if 'decision' in active_cats %} on{% endif %}" data-color="danger">
+        <label class="sp-chip{% if 'decision' in active_cats %} on{% endif %}" data-color="{{ 'decision'|content_type_color }}">
           <input type="checkbox" name="cat" value="decision" class="d-none sp-cb"
                  {% if 'decision' in active_cats %}checked{% endif %}>
           <i class="fas fa-landmark me-1"></i>{% trans "Votings" %}
         </label>
 
-        <label class="sp-chip{% if 'event' in active_cats %} on{% endif %}" data-color="success">
+        <label class="sp-chip{% if 'event' in active_cats %} on{% endif %}" data-color="{{ 'event'|content_type_color }}">
           <input type="checkbox" name="cat" value="event" class="d-none sp-cb"
                  {% if 'event' in active_cats %}checked{% endif %}>
           <i class="fas fa-calendar me-1"></i>{% trans "Event" %}
         </label>
 
-        <label class="sp-chip{% if 'citizen' in active_cats %} on{% endif %}" data-color="secondary">
+        <label class="sp-chip{% if 'citizen' in active_cats %} on{% endif %}" data-color="{{ 'citizen'|content_type_color }}">
           <input type="checkbox" name="cat" value="citizen" class="d-none sp-cb"
                  {% if 'citizen' in active_cats %}checked{% endif %}>
           <i class="fas fa-users me-1"></i>{% trans "Citizens" %}
         </label>
 
-        <label class="sp-chip{% if 'chat' in active_cats %} on{% endif %}" data-color="info">
+        <label class="sp-chip{% if 'chat' in active_cats %} on{% endif %}" data-color="{{ 'chat'|content_type_color }}">
           <input type="checkbox" name="cat" value="chat" class="d-none sp-cb"
                  {% if 'chat' in active_cats %}checked{% endif %}>
           <i class="fas fa-comments me-1"></i>{% trans "Chat" %}
@@ -158,7 +159,9 @@
 }
 .sp-chip:hover { opacity:.65; }
 .sp-chip.on { opacity:1; }
-/* Colors mirror the badges used on module items below (text-bg-primary/warning/danger/success/secondary) */
+/* Styling for each Bootstrap color name; which category maps to which color name
+   is decided once in home/colors.py (CATEGORY_COLORS) via the content_type_color
+   filter above and in the badges rendered from item.type_color below - not here. */
 .sp-chip.on[data-color="primary"]   { background:rgba(var(--bs-primary-rgb),.18);   color:#7fa8d4; border-color:rgba(var(--bs-primary-rgb),.5); }
 .sp-chip.on[data-color="warning"]   { background:rgba(var(--bs-warning-rgb),.15);   color:#f39c12; border-color:rgba(var(--bs-warning-rgb),.5); }
 .sp-chip.on[data-color="danger"]    { background:rgba(var(--bs-danger-rgb),.15);    color:#e74c3c; border-color:rgba(var(--bs-danger-rgb),.5); }
@@ -174,8 +177,8 @@
 
 <script>
 (function () {
-  var CATS_KEY  = 'wk_search_cats';
-  var QUERY_KEY = 'wk_last_search_q'; // shared with the topbar search box, see app.js
+  var CATS_KEY  = window.WK_SEARCH_KEYS.CATS;
+  var QUERY_KEY = window.WK_SEARCH_KEYS.QUERY; // shared with the topbar search box, see app.js and search-keys.js
   var form   = document.getElementById('search-form');
   var allBtn = document.getElementById('sp-select-all');
   var cbs    = document.querySelectorAll('.sp-cb:not([value="all"])');

@@ -34,6 +34,7 @@ from site_settings.models import SiteSettings
 from site_settings.services import get_branding_version
 from tasks.models import Task
 
+from .colors import category_color
 from .forms import RememberLoginForm
 from .models import ReadStatus
 
@@ -618,7 +619,7 @@ def global_search(request: HttpRequest):
                 results.append({
                     'cat': 'post',
                     'type': _('Post'),
-                    'type_color': 'primary',
+                    'type_color': category_color('post'),
                     'title': obj.title,
                     'description': (strip_tags(obj.text) or '')[:120],
                     'url': f'/board/view/{obj.pk}/',
@@ -631,7 +632,7 @@ def global_search(request: HttpRequest):
                 results.append({
                     'cat': 'task',
                     'type': _('Task'),
-                    'type_color': 'warning',
+                    'type_color': category_color('task'),
                     'title': obj.title,
                     'description': (strip_tags(obj.description) or '')[:120],
                     'url': f'/tasks/{obj.pk}/',
@@ -665,7 +666,7 @@ def global_search(request: HttpRequest):
                 results.append({
                     'cat': 'decision',
                     'type': _('Voting'),
-                    'type_color': 'danger',
+                    'type_color': category_color('decision'),
                     'title': obj.title,
                     'description': snippet[:120],
                     'meta': (STATUS_LABELS.get(obj.status, '') + (f' · {matched_field}' if matched_field else '')),
@@ -684,7 +685,7 @@ def global_search(request: HttpRequest):
                 results.append({
                     'cat': 'decision',
                     'type': _('Voting'),
-                    'type_color': 'danger',
+                    'type_color': category_color('decision'),
                     'title': arg.decyzja.title,
                     'description': arg.content[:120],
                     'meta': f'{status_label} · {arg_type_label} · {author_name}',
@@ -698,7 +699,7 @@ def global_search(request: HttpRequest):
                 results.append({
                     'cat': 'event',
                     'type': _('Event'),
-                    'type_color': 'success',
+                    'type_color': category_color('event'),
                     'title': obj.title,
                     'description': (strip_tags(obj.description) or '')[:120],
                     'url': f'/events/{obj.pk}/',
@@ -711,7 +712,7 @@ def global_search(request: HttpRequest):
                 results.append({
                     'cat': 'citizen',
                     'type': _('Citizen'),
-                    'type_color': 'secondary',
+                    'type_color': category_color('citizen'),
                     'title': obj.get_full_name() or obj.username,
                     'description': f'@{obj.username}',
                     'url': f'/obywatele/{obj.pk}/',
@@ -727,7 +728,7 @@ def global_search(request: HttpRequest):
                 results.append({
                     'cat': 'chat',
                     'type': _('Chat'),
-                    'type_color': 'info',
+                    'type_color': category_color('chat'),
                     'title': obj.displayed_name(request.user),
                     'description': '',
                     'url': f'/chat/#room_id={obj.pk}',
@@ -743,7 +744,7 @@ def global_search(request: HttpRequest):
                 results.append({
                     'cat': 'chat',
                     'type': _('Chat message'),
-                    'type_color': 'info',
+                    'type_color': category_color('chat'),
                     'title': obj.room.displayed_name(request.user),
                     'description': f'{sender_name}: {strip_tags(obj.text)[:100]}',
                     'url': f'/chat/#room_id={obj.room.pk}',

@@ -6,10 +6,10 @@
 // ============================================================
 // Topbar search: remember the last query in localStorage so the field
 // isn't cleared when navigating between pages. Shared key with the
-// search page's own input, see search.html.
+// search page's own input, see search.html and search-keys.js.
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
-    var QUERY_KEY = 'wk_last_search_q';
+    var QUERY_KEY = window.WK_SEARCH_KEYS.QUERY;
     var input = document.getElementById('topbar-q');
     var form = document.getElementById('topbar-search-form');
     if (!input || !form) return;
