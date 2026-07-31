@@ -16,7 +16,7 @@
     </div>
   </div>
 
-  <table class="table table-sm">
+  <table class="table table-hover align-middle">
     <thead>
       <tr>
         <th>
@@ -69,7 +69,7 @@
             <a href="{% url 'bookkeeping:partner_detail' partner.pk %}" class="partner-name-link">{{ partner.name }}</a>
           </td>
           <td>{{ partner.city|default:"—" }}</td>
-          <td>
+          <td class="text-break">
             {% if partner.web_page %}
               {% if partner.web_page|slice:":4" == "http" %}
                 <u><a href="{{ partner.web_page }}" target="_blank" rel="noopener noreferrer">{{ partner.web_page }}</a></u>
@@ -90,9 +90,9 @@
             {% endif %}
           </td>
           <td>
-            <div class="btn-group float-end" role="group">
-              <a href="{% url 'bookkeeping:partner_update' partner.pk %}" class="btn btn-sm me-1 mb-1 btn-primary">{% trans 'Edit' %}</a>
-              <a href="{% url 'bookkeeping:partner_delete' partner.pk %}" class="btn btn-sm me-1 mb-1 btn-danger">{% trans 'Delete' %}</a>
+            <div class="d-flex gap-2 justify-content-end">
+              <a href="{% url 'bookkeeping:partner_update' partner.pk %}" class="btn btn-sm btn-primary">{% trans 'Edit' %}</a>
+              <a href="{% url 'bookkeeping:partner_delete' partner.pk %}" class="btn btn-sm btn-danger">{% trans 'Delete' %}</a>
             </div>
           </td>
         </tr>
