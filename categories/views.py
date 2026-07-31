@@ -8,7 +8,18 @@ from django.shortcuts import get_object_or_404
 from django.views import View
 
 
-class CategoryAPIBase(LoginRequiredMixin, View):
+class CategoryAPIMixin(LoginRequiredMixin, View):
+    """Shared no-op write hook for the Category API views below.
+
+    Override `after_write()` in a subclass to invalidate caches or trigger other
+    side effects after a create/update/delete/reorder.
+    """
+
+    def after_write(self):
+        pass
+
+
+class CategoryAPIBase(CategoryAPIMixin):
     """GET: list categories with item count. POST: create new category."""
     model = None
     related_count_field = None  # e.g. 'tasks' or 'post_set'
@@ -32,9 +43,6 @@ class CategoryAPIBase(LoginRequiredMixin, View):
             "item_count": getattr(cat, "item_count", 0),
         }
 
-    def after_write(self):
-        """Override to invalidate caches or trigger side effects after any write."""
-
     def get(self, request):
         cats = [self.serialize(c) for c in self._get_queryset()]
         return JsonResponse({"categories": cats})
@@ -51,7 +59,7 @@ class CategoryAPIBase(LoginRequiredMixin, View):
         return JsonResponse(data)
 
 
-class CategoryEditAPI(LoginRequiredMixin, View):
+class CategoryEditAPI(CategoryAPIMixin):
     """POST: update name and description."""
     model = None
 
@@ -61,9 +69,6 @@ class CategoryEditAPI(LoginRequiredMixin, View):
             "name": cat.name,
             "description": cat.description,
         }
-
-    def after_write(self):
-        pass
 
     def post(self, request, pk):
         cat = get_object_or_404(self.model, pk=pk)
@@ -78,14 +83,11 @@ class CategoryEditAPI(LoginRequiredMixin, View):
         return JsonResponse(self.serialize(cat))
 
 
-class CategoryDeleteAPI(LoginRequiredMixin, View):
+class CategoryDeleteAPI(CategoryAPIMixin):
     """POST: delete category. Blocks if protected or (block_if_in_use and has items)."""
     model = None
     related_count_field = None
     block_if_in_use = False
-
-    def after_write(self):
-        pass
 
     def post(self, request, pk):
         cat = get_object_or_404(self.model, pk=pk)
@@ -129,13 +131,10 @@ class CategoryItemsAPI(LoginRequiredMixin, View):
         return JsonResponse({"items": labels, "count": total})
 
 
-class CategoryReorderAPI(LoginRequiredMixin, View):
+class CategoryReorderAPI(CategoryAPIMixin):
     """POST body: JSON array [{id, order}, ...]. Updates order of categories."""
     model = None
     order_field = "order"
-
-    def after_write(self):
-        pass
 
     def post(self, request):
         try:

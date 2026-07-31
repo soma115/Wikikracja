@@ -15,15 +15,9 @@ class PostCategoryAPI(CategoryAPIBase):
     related_count_field = "posts"
     order_field = "priority"
 
-    def after_write(self):
-        pass
-
 
 class PostCategoryEditAPI(CategoryEditAPI):
     model = PostCategory
-
-    def after_write(self):
-        pass
 
 
 class PostCategoryDeleteAPI(CategoryDeleteAPI):
@@ -32,9 +26,6 @@ class PostCategoryDeleteAPI(CategoryDeleteAPI):
     # Deleting a category that documents use is allowed: FK Post.category is SET_NULL,
     # so those documents simply become uncategorized. The UI confirms first (lists titles).
     block_if_in_use = False
-
-    def after_write(self):
-        pass
 
 
 class PostCategoryItemsAPI(CategoryItemsAPI):
@@ -47,9 +38,6 @@ class PostCategoryItemsAPI(CategoryItemsAPI):
 class PostCategoryReorderAPI(CategoryReorderAPI):
     model = PostCategory
     order_field = "priority"
-
-    def after_write(self):
-        pass
 
 
 def board(request: HttpRequest) -> HttpResponse:

@@ -11,6 +11,45 @@ from .forms import AssetForm, TransactionForm
 from .models import Asset, Category, Partner, Transaction
 from .services import asset_balances, category_breakdown
 
+
+class ProtectedDeleteView(LoginRequiredMixin, DeleteView):
+    """DeleteView that refuses to delete an object still referenced by transactions.
+
+    Subclasses set `protect_field` (the Transaction FK name pointing at `model`)
+    and `protect_message` (shown to the user when deletion is blocked).
+    """
+    protect_field = None
+    protect_message = None
+
+    def _related_transactions(self):
+        return Transaction.objects.filter(**{self.protect_field: self.object})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        related_transactions = self._related_transactions()
+        context['related_transactions'] = related_transactions
+        context['has_dependencies'] = related_transactions.exists()
+
+        if 'delete_error' in self.request.session:
+            context['error'] = self.request.session.pop('delete_error')
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self._related_transactions().exists():
+            request.session['delete_error'] = self.protect_message
+            return redirect(request.path)
+
+        try:
+            return super().delete(request, *args, **kwargs)
+        except Exception as e:
+            request.session['delete_error'] = str(e)
+            return redirect(request.path)
+
+
 # #########################  Asset ###########################
 
 
@@ -33,38 +72,12 @@ class AssetUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('bookkeeping:asset_list')
 
 
-class AssetDeleteView(LoginRequiredMixin, DeleteView):
+class AssetDeleteView(ProtectedDeleteView):
     model = Asset
     template_name = 'bookkeeping/asset_confirm_delete.html'
     success_url = reverse_lazy('bookkeeping:asset_list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        related_transactions = Transaction.objects.filter(asset=self.object)
-
-        context['related_transactions'] = related_transactions
-        context['has_dependencies'] = related_transactions.exists()
-
-        if 'delete_error' in self.request.session:
-            context['error'] = self.request.session.pop('delete_error')
-
-        return context
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        if Transaction.objects.filter(asset=self.object).exists():
-            request.session['delete_error'] = _(
-                "Cannot delete asset because it is in use. Remove all transactions that use it first."
-            )
-            return redirect('bookkeeping:asset_delete', pk=self.object.pk)
-
-        try:
-            return super().delete(request, *args, **kwargs)
-        except Exception as e:
-            request.session['delete_error'] = str(e)
-            return redirect('bookkeeping:asset_delete', pk=self.object.pk)
+    protect_field = 'asset'
+    protect_message = _("Cannot delete asset because it is in use. Remove all transactions that use it first.")
 
 
 # #########################  Category ###########################
@@ -87,33 +100,11 @@ class CategoryUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('bookkeeping:category_list')
 
 
-class CategoryDeleteView(LoginRequiredMixin, DeleteView):
+class CategoryDeleteView(ProtectedDeleteView):
     model = Category
     success_url = reverse_lazy('bookkeeping:category_list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        related_transactions = Transaction.objects.filter(category=self.object)
-        context['related_transactions'] = related_transactions
-        context['has_dependencies'] = related_transactions.exists()
-        if 'delete_error' in self.request.session:
-            context['error'] = self.request.session.pop('delete_error')
-
-        return context
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        if Transaction.objects.filter(category=self.object).exists():
-            request.session['delete_error'] = _("Cannot delete category because it is in use. Remove all transactions that use it first.")
-            return redirect('bookkeeping:category_delete', pk=self.object.pk)
-
-        try:
-            return super().delete(request, *args, **kwargs)
-        except Exception as e:
-            request.session['delete_error'] = str(e)
-            return redirect('bookkeeping:category_delete', pk=self.object.pk)
+    protect_field = 'category'
+    protect_message = _("Cannot delete category because it is in use. Remove all transactions that use it first.")
 
 
 # #########################  Partner ###########################
@@ -167,33 +158,11 @@ class PartnerUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('bookkeeping:partner_list')
 
 
-class PartnerDeleteView(LoginRequiredMixin, DeleteView):
+class PartnerDeleteView(ProtectedDeleteView):
     model = Partner
     success_url = reverse_lazy('bookkeeping:partner_list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        related_transactions = Transaction.objects.filter(partner=self.object)
-        context['related_transactions'] = related_transactions
-        context['has_dependencies'] = related_transactions.exists()
-        if 'delete_error' in self.request.session:
-            context['error'] = self.request.session.pop('delete_error')
-
-        return context
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
-        if Transaction.objects.filter(partner=self.object).exists():
-            request.session['delete_error'] = _("Cannot delete partner because it is in use. Remove all transactions that use it first.")
-            return redirect('bookkeeping:partner_delete', pk=self.object.pk)
-
-        try:
-            return super().delete(request, *args, **kwargs)
-        except Exception as e:
-            request.session['delete_error'] = str(e)
-            return redirect('bookkeeping:partner_delete', pk=self.object.pk)
+    protect_field = 'partner'
+    protect_message = _("Cannot delete partner because it is in use. Remove all transactions that use it first.")
 
 
 # #########################  Transaction ###########################
