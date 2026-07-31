@@ -25,10 +25,10 @@ def test_version_module_matches_pyproject():
 
 
 def test_context_processor_exposes_app_version(rf):
-    """site_description() wystawia app_version równy zzz.__version__."""
-    from zzz.context_processors import site_description
+    """site_name() wystawia app_version równy zzz.__version__."""
+    from zzz.context_processors import site_name
 
-    ctx = site_description(rf.get("/"))
+    ctx = site_name(rf.get("/"))
     assert ctx["app_version"] == zzz.__version__
 
 

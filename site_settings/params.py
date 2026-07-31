@@ -103,12 +103,6 @@ PARAM_SPECS = [
     ParamSpec('site_name', 'SITE_NAME', 'str', CATEGORY_SITE,
               _('Site name'),
               _('Full name of the instance shown across the site.')),
-    ParamSpec('site_name_max_12_chars', 'SITE_NAME_MAX_12_CHARS', 'str', CATEGORY_SITE,
-              _('Short site name (PWA)'),
-              _('Short name (max 12 characters) used by the installable PWA.')),
-    ParamSpec('site_description', 'SITE_DESCRIPTION', 'str', CATEGORY_SITE,
-              _('Site description'),
-              _('Short description of the instance.')),
 ]
 
 SPECS_BY_NAME = {spec.name: spec for spec in PARAM_SPECS}

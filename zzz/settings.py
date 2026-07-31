@@ -45,9 +45,6 @@ load_dotenv(path.join(BASE_DIR, '.env'))
 DEBUG = env_bool("DEBUG", False)
 DEBUG_TOOLBAR = env_bool("DEBUG_TOOLBAR", False)
 SITE_PROTOCOL = "http" if DEBUG else "https"
-SITE_NAME = getenv("SITE_NAME", "")
-SITE_NAME_MAX_12_CHARS = getenv("SITE_NAME_MAX_12_CHARS", SITE_NAME[:12])
-SITE_DESCRIPTION = getenv("SITE_DESCRIPTION", SITE_NAME)
 
 SECRET_KEY = getenv("SECRET_KEY")
 if not SECRET_KEY:
@@ -63,6 +60,7 @@ ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 # Canonical domain redirect: any host in DOMAIN_ALIASES is permanently
 # redirected to SITE_DOMAIN. Strict list, no regex matching.
 SITE_DOMAIN = getenv("SITE_DOMAIN", "")
+SITE_NAME = getenv("SITE_NAME") or SITE_DOMAIN
 DOMAIN_ALIASES = env_list("DOMAIN_ALIASES", default=[])
 CSRF_TRUSTED_ORIGINS = env_list(
     "CSRF_TRUSTED_ORIGINS",
@@ -129,24 +127,11 @@ CACHES = {
     }
 }
 
-WYMAGANYCH_PODPISOW = env_int("WYMAGANYCH_PODPISOW", 2)
-CZAS_NA_ZEBRANIE_PODPISOW = env_int("CZAS_NA_ZEBRANIE_PODPISOW", 365)
-DYSKUSJA = env_int("DYSKUSJA", 3)
-CZAS_TRWANIA_REFERENDUM = env_int("CZAS_TRWANIA_REFERENDUM", 3)
-
-ARCHIVE_PUBLIC_CHAT_ROOM = env_int("ARCHIVE_PUBLIC_CHAT_ROOM", 9)
-DELETE_PUBLIC_CHAT_ROOM = env_int("DELETE_PUBLIC_CHAT_ROOM", 360)
-
 UPLOAD_IMAGE_MAX_SIZE_MB = env_int("UPLOAD_IMAGE_MAX_SIZE_MB", 5)
 
 # ZMIANA 5: maksymalna długość wiadomości czatu (konfigurowalna)
 MESSAGE_MAX_LENGTH = env_int("MESSAGE_MAX_LENGTH", 1500)
 DATA_UPLOAD_MAX_MEMORY_SIZE = env_int("DATA_UPLOAD_MAX_MEMORY_SIZE", 10485760)
-
-ACCEPTANCE = env_int("ACCEPTANCE", 3)
-DELETE_INACTIVE_USER_AFTER = env_int("DELETE_INACTIVE_USER_AFTER", 30)
-
-GROUP_IS_PUBLIC = env_bool("GROUP_IS_PUBLIC", True)
 
 # X_FRAME_OPTIONS = 'SAMEORIGIN'
 # X_FRAME_OPTIONS = 'ALLOW'
@@ -191,7 +176,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
                 'zzz.context_processors.footer',
-                'zzz.context_processors.site_description',
+                'zzz.context_processors.site_name',
                 'site_settings.context_processors.branding',
                 'zzz.context_processors.group_is_public',
             ],

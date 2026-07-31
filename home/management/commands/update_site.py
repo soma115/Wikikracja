@@ -14,9 +14,9 @@ When it runs:
     Automatically on every container startup (see Dockerfile CMD).
     Can also be run manually: python manage.py update_site
 """
-import os
 from types import SimpleNamespace
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 
@@ -33,7 +33,7 @@ class Command(BaseCommand):
             self.stderr.write(self.style.WARNING(f'Could not load SiteParameters: {e}. Using environment fallback.'))
             sp = SimpleNamespace(site_name='')
 
-        _sync_django_site(sp, fallback_name=os.getenv('SITE_NAME'))
+        _sync_django_site(sp, fallback_name=settings.SITE_NAME)
 
         from django.contrib.sites.models import Site
         site = Site.objects.get(id=1)

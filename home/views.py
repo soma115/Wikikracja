@@ -803,10 +803,10 @@ def manifest(request):
         icon_512_src = '/static/home/images/icon-512.png'
 
     from site_settings.params import get_param
+    site_name = get_param('site_name') or settings.SITE_NAME
     data = {
-        'name': get_param('site_name') or settings.SITE_NAME,
-        'short_name': get_param('site_name_max_12_chars') or settings.SITE_NAME_MAX_12_CHARS,
-        'description': get_param('site_description') or settings.SITE_DESCRIPTION,
+        'name': site_name,
+        'short_name': site_name[:12],
         'start_url': '/',
         'display': 'standalone',
         'orientation': 'any',

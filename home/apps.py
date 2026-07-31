@@ -1,6 +1,5 @@
-import os
-
 from django.apps import AppConfig
+from django.conf import settings
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 
@@ -19,7 +18,7 @@ class HomeConfig(AppConfig):
                 sp = SiteParameters.get()
                 _sync_django_site(
                     sp,
-                    fallback_name=os.getenv('SITE_NAME'),
+                    fallback_name=settings.SITE_NAME,
                 )
             except Exception:
                 pass

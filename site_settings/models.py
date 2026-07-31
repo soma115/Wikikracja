@@ -87,8 +87,6 @@ class SiteParameters(models.Model):
     group_is_public = models.BooleanField(default=True, verbose_name=_('Group is public'))
     # Site identity
     site_name = models.CharField(max_length=255, blank=True, default='', verbose_name=_('Site name'))
-    site_name_max_12_chars = models.CharField(max_length=12, blank=True, default='', verbose_name=_('Short site name (PWA)'))
-    site_description = models.CharField(max_length=500, blank=True, default='', verbose_name=_('Site description'))
 
     updated_at = models.DateTimeField(auto_now=True, null=True)
 

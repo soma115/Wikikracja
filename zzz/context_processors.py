@@ -16,12 +16,11 @@ def footer(request: HttpRequest):
     }
 
 
-def site_description(request):
+def site_name(request):
     from site_settings.params import get_param
     site = getattr(request, 'site', None)
     return {
         'site_name': get_param('site_name') or getattr(site, 'name', '') or settings.SITE_NAME,
-        'site_description': get_param('site_description') or settings.SITE_DESCRIPTION,
         'app_version': zzz.__version__,
     }
 

@@ -75,8 +75,7 @@ class ParametersProposalForm(forms.Form):
             elif spec.kind == 'bool':
                 field = forms.BooleanField(required=False, initial=value)
             else:
-                max_length = 12 if spec.name == 'site_name_max_12_chars' else 500
-                field = forms.CharField(required=False, initial=value, max_length=max_length)
+                field = forms.CharField(required=False, initial=value, max_length=255)
             field.label = spec.label
             field.help_text = help_text
             field.spec = spec

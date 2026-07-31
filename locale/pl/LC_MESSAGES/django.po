@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-31 15:16+0200\n"
+"POT-Creation-Date: 2026-07-31 16:54+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -65,7 +65,7 @@ msgstr "Kategorie"
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:7
 #: .\obywatele\templates\obywatele\_citizen_zalozono_partial.html:7
 #: .\obywatele\templates\obywatele\citizen_zadania.html:28
-#: .\site_settings\models.py:115 .\tasks\templates\tasks\task_form.html:21
+#: .\site_settings\models.py:113 .\tasks\templates\tasks\task_form.html:21
 msgid "Title"
 msgstr "Tytuł"
 
@@ -294,8 +294,8 @@ msgstr "Bez kategorii"
 msgid "Create"
 msgstr "Utwórz"
 
-#: .\board\templates\board\board.html:164 .\home\templates\home\base.html:116
-#: .\home\templates\home\base.html:119 .\home\templates\home\base.html:211
+#: .\board\templates\board\board.html:164 .\home\templates\home\base.html:115
+#: .\home\templates\home\base.html:118 .\home\templates\home\base.html:210
 msgid "Documents"
 msgstr "Dokumenty"
 
@@ -897,8 +897,8 @@ msgstr "Pokój: %(room)s"
 #: .\glosowania\templates\glosowania\_proposal_card.html:40
 #: .\glosowania\templates\glosowania\_proposal_card.html:50
 #: .\glosowania\templates\glosowania\szczegoly.html:43
-#: .\home\templates\home\base.html:134 .\home\templates\home\base.html:137
-#: .\home\templates\home\base.html:216 .\home\templates\home\home.html:79
+#: .\home\templates\home\base.html:133 .\home\templates\home\base.html:136
+#: .\home\templates\home\base.html:215 .\home\templates\home\home.html:79
 #: .\home\templates\home\home.html:109 .\home\templates\home\home.html:681
 #: .\home\templates\home\search.html:94 .\home\templatetags\feed_filters.py:35
 #: .\home\views.py:424 .\home\views.py:729
@@ -1046,7 +1046,7 @@ msgid "None"
 msgstr "Brak"
 
 #: .\chat\templates\chat\chat.html:96 .\chat\templates\chat\chat.html:231
-#: .\home\templates\home\base.html:212 .\home\templates\home\home.html:47
+#: .\home\templates\home\base.html:211 .\home\templates\home\home.html:47
 #: .\home\templates\home\search.html:70 .\home\views.py:420
 #: .\obywatele\templates\obywatele\szczegoly.html:143
 msgid "Tasks"
@@ -1111,7 +1111,7 @@ msgid "Send a message"
 msgstr "Wyślij wiadomość"
 
 #: .\chat\templates\chat\guest_message.html:11
-#: .\home\templates\home\base.html:265
+#: .\home\templates\home\base.html:264
 msgid "Send a message to the group"
 msgstr "Wyślij wiadomość do grupy"
 
@@ -1178,14 +1178,14 @@ msgstr "Dziś"
 msgid "Tomorrow"
 msgstr "Jutro"
 
-#: .\chat\views.py:213 .\home\templates\home\base.html:296
+#: .\chat\views.py:213 .\home\templates\home\base.html:295
 msgid "Enable Notifications"
 msgstr "Włącz powiadomienia"
 
 #: .\chat\views.py:214 .\glosowania\templates\glosowania\parameters.html:49
 #: .\glosowania\templates\glosowania\szczegoly.html:86
 #: .\obywatele\templates\obywatele\szczegoly.html:71
-#: .\site_settings\params.py:159
+#: .\site_settings\params.py:153
 msgid "Yes"
 msgstr "Tak"
 
@@ -1534,7 +1534,7 @@ msgid "Add to Google Calendar"
 msgstr "Dodaj do swojego Kalendarza Google"
 
 #: .\events\templates\events\_event_card.html:60
-#: .\home\templates\home\base.html:213 .\home\templates\home\base.html:275
+#: .\home\templates\home\base.html:212 .\home\templates\home\base.html:274
 #: .\home\templates\home\home.html:39 .\home\views.py:422
 #: .\obywatele\templates\obywatele\wspolnota.html:141
 msgid "Calendar"
@@ -1643,91 +1643,91 @@ msgstr "PNG, najdłuższy bok 512–1024 px, maks. 1 MB. Zastosowane jako logo w
 msgid "allowed range"
 msgstr "dozwolony zakres"
 
-#: .\glosowania\forms.py:104
+#: .\glosowania\forms.py:103
 msgid "You did not change any parameter."
 msgstr "Nie zmieniłeś żadnych parametrów."
 
-#: .\glosowania\management\commands\vote.py:50
+#: .\glosowania\management\commands\vote.py:43
 msgid "is approved for referendum"
 msgstr "została dopuszczona do referendum"
 
-#: .\glosowania\management\commands\vote.py:51
+#: .\glosowania\management\commands\vote.py:44
 msgid "became abiding law today"
 msgstr "stała się dziś obowiązującym prawem"
 
-#: .\glosowania\management\commands\vote.py:52
+#: .\glosowania\management\commands\vote.py:45
 msgid "Click here to read it"
 msgstr "Kliknij tutaj, aby ją przeczytać"
 
-#: .\glosowania\management\commands\vote.py:53
+#: .\glosowania\management\commands\vote.py:46
 msgid "Referendum ends at"
 msgstr "Referendum kończy się"
 
-#: .\glosowania\management\commands\vote.py:54
+#: .\glosowania\management\commands\vote.py:47
 msgid "Feel free to improve it and send it again"
 msgstr "Możesz ją poprawić i wysłać ponownie"
 
-#: .\glosowania\management\commands\vote.py:55
+#: .\glosowania\management\commands\vote.py:48
 msgid "gathered required amount of signatures and will be voted from"
 msgstr "zebrała wymaganą liczbę podpisów i zostanie poddana pod głosowanie od"
 
-#: .\glosowania\management\commands\vote.py:56
+#: .\glosowania\management\commands\vote.py:49
 msgid "is in efect from today"
 msgstr "obowiązuje od dzisiaj"
 
-#: .\glosowania\management\commands\vote.py:57
+#: .\glosowania\management\commands\vote.py:50
 msgid "Last day to vote on proposal no."
 msgstr "Ostatni dzień głosowania nad propozycją nr."
 
-#: .\glosowania\management\commands\vote.py:58
+#: .\glosowania\management\commands\vote.py:51
 msgid "This is the last day to vote!"
 msgstr "Dzisiaj jest ostatni dzień głosowania!"
 
-#: .\glosowania\management\commands\vote.py:59
+#: .\glosowania\management\commands\vote.py:52
 msgid "did not gathered required amount of signatures"
 msgstr "nie zebrał wymaganej liczby podpisów"
 
-#: .\glosowania\management\commands\vote.py:60
+#: .\glosowania\management\commands\vote.py:53
 msgid "Proposal no."
 msgstr "Propozycja numer"
 
-#: .\glosowania\management\commands\vote.py:61
+#: .\glosowania\management\commands\vote.py:54
 msgid "Referendum on proposal no."
 msgstr "Referendum w sprawie propozycji nr."
 
-#: .\glosowania\management\commands\vote.py:62
+#: .\glosowania\management\commands\vote.py:55
 msgid "was rejected"
 msgstr "została odrzucona"
 
-#: .\glosowania\management\commands\vote.py:63
+#: .\glosowania\management\commands\vote.py:56
 msgid "was rejected in referendum."
 msgstr "została odrzucona w referendum"
 
-#: .\glosowania\management\commands\vote.py:64
+#: .\glosowania\management\commands\vote.py:57
 msgid "is starting now"
 msgstr "zaczyna się teraz"
 
-#: .\glosowania\management\commands\vote.py:65
+#: .\glosowania\management\commands\vote.py:58
 msgid "It is time to vote on proposal no."
 msgstr "Czas na głosowanie nad propozycją nr."
 
-#: .\glosowania\management\commands\vote.py:66
+#: .\glosowania\management\commands\vote.py:59
 msgid "to"
 msgstr "do"
 
-#: .\glosowania\management\commands\vote.py:67
+#: .\glosowania\management\commands\vote.py:60
 msgid "was approved"
 msgstr "została zatwierdzona"
 
-#: .\glosowania\management\commands\vote.py:68
+#: .\glosowania\management\commands\vote.py:61
 msgid "and was removed from queue"
 msgstr "i został usunięty z kolejki"
 
-#: .\glosowania\management\commands\vote.py:92
+#: .\glosowania\management\commands\vote.py:82
 msgid "Signed"
 msgstr "Podpisana"
 
-#: .\glosowania\management\commands\vote.py:92
+#: .\glosowania\management\commands\vote.py:82
 #: .\glosowania\templates\glosowania\_proposal_card.html:26
 #: .\glosowania\templates\glosowania\menu.html:29
 #: .\glosowania\templates\glosowania\szczegoly.html:35
@@ -1735,11 +1735,11 @@ msgstr "Podpisana"
 msgid "Discussion"
 msgstr "Dyskusja"
 
-#: .\glosowania\management\commands\vote.py:110
+#: .\glosowania\management\commands\vote.py:100
 msgid "Not enough signatures"
 msgstr "Nie zabrała podpisów"
 
-#: .\glosowania\management\commands\vote.py:120
+#: .\glosowania\management\commands\vote.py:110
 #: .\glosowania\templates\glosowania\_proposal_card.html:28
 #: .\glosowania\templates\glosowania\_proposal_card.html:144
 #: .\glosowania\templates\glosowania\menu.html:36
@@ -1748,7 +1748,7 @@ msgstr "Nie zabrała podpisów"
 msgid "Referendum"
 msgstr "Referendum"
 
-#: .\glosowania\management\commands\vote.py:140
+#: .\glosowania\management\commands\vote.py:130
 #: .\glosowania\templates\glosowania\_proposal_card.html:32
 #: .\glosowania\templates\glosowania\menu.html:43
 #: .\glosowania\templates\glosowania\szczegoly.html:38
@@ -1756,7 +1756,7 @@ msgstr "Referendum"
 msgid "Approved"
 msgstr "Zatwierdzone"
 
-#: .\glosowania\management\commands\vote.py:171
+#: .\glosowania\management\commands\vote.py:161
 #: .\glosowania\templates\glosowania\_proposal_card.html:30
 #: .\glosowania\templates\glosowania\menu.html:53
 #: .\glosowania\templates\glosowania\szczegoly.html:37
@@ -2109,7 +2109,7 @@ msgstr "Otwórz formularz, aby rozpocząć referendum zmieniające parametry sys
 #: .\glosowania\templates\glosowania\parameters.html:49
 #: .\glosowania\templates\glosowania\szczegoly.html:87
 #: .\obywatele\templates\obywatele\szczegoly.html:73
-#: .\site_settings\params.py:159
+#: .\site_settings\params.py:153
 msgid "No"
 msgstr "Nie"
 
@@ -2444,107 +2444,107 @@ msgstr "Oznacz jako przeczytane"
 msgid "No activity"
 msgstr "Brak aktywności"
 
-#: .\home\templates\home\base.html:85 .\home\templates\home\base.html:88
-#: .\home\templates\home\base.html:209 .\home\templates\home\home.html:92
+#: .\home\templates\home\base.html:84 .\home\templates\home\base.html:87
+#: .\home\templates\home\base.html:208 .\home\templates\home\home.html:92
 msgid "Desktop"
 msgstr "Pulpit"
 
-#: .\home\templates\home\base.html:98 .\home\templates\home\base.html:101
+#: .\home\templates\home\base.html:97 .\home\templates\home\base.html:100
 msgid "Agora / Democracy"
 msgstr "Agora / Demokracja"
 
-#: .\home\templates\home\base.html:107 .\home\templates\home\base.html:110
+#: .\home\templates\home\base.html:106 .\home\templates\home\base.html:109
 msgid "Action"
 msgstr "Działania"
 
-#: .\home\templates\home\base.html:125 .\home\templates\home\base.html:128
+#: .\home\templates\home\base.html:124 .\home\templates\home\base.html:127
 #: .\obywatele\templates\obywatele\wspolnota.html:9
 msgid "Community"
 msgstr "Społeczności"
 
-#: .\home\templates\home\base.html:149 .\home\templates\home\base.html:152
+#: .\home\templates\home\base.html:148 .\home\templates\home\base.html:151
 msgid "Settings"
 msgstr "Ustawienia"
 
-#: .\home\templates\home\base.html:156 .\home\templates\home\base.html:158
+#: .\home\templates\home\base.html:155 .\home\templates\home\base.html:157
 msgid "Log out"
 msgstr "Wyloguj"
 
-#: .\home\templates\home\base.html:176 .\home\templatetags\feed_filters.py:37
+#: .\home\templates\home\base.html:175 .\home\templatetags\feed_filters.py:37
 #: .\home\views.py:713 .\obywatele\models.py:122
 msgid "Citizen"
 msgstr "Ludzie"
 
-#: .\home\templates\home\base.html:182
+#: .\home\templates\home\base.html:181
 msgid "Collapse/expand menu"
 msgstr "Zwiń/rozwiń menu"
 
-#: .\home\templates\home\base.html:184
+#: .\home\templates\home\base.html:183
 msgid "Collapse"
 msgstr "Zwiń"
 
-#: .\home\templates\home\base.html:210 .\home\templates\home\search.html:76
+#: .\home\templates\home\base.html:209 .\home\templates\home\search.html:76
 #: .\home\views.py:421
 msgid "Votings"
 msgstr "Głosowania"
 
-#: .\home\templates\home\base.html:214 .\home\templates\home\home.html:55
+#: .\home\templates\home\base.html:213 .\home\templates\home\home.html:55
 #: .\home\templates\home\search.html:88 .\home\views.py:423
 #: .\obywatele\models.py:123 .\obywatele\templates\obywatele\menu.html:14
 #: .\obywatele\templates\obywatele\start.html:9
 msgid "Citizens"
 msgstr "Ludzie"
 
-#: .\home\templates\home\base.html:215 .\home\templates\home\home.html:71
+#: .\home\templates\home\base.html:214 .\home\templates\home\home.html:71
 msgid "Bookkeeping"
 msgstr "Finanse"
 
-#: .\home\templates\home\base.html:227 .\home\templates\home\base.html:229
+#: .\home\templates\home\base.html:226 .\home\templates\home\base.html:228
 #: .\home\templates\home\search.html:14 .\home\templates\home\search.html:38
 msgid "Search"
 msgstr "Szukaj"
 
-#: .\home\templates\home\base.html:241 .\home\templates\home\base.html:280
+#: .\home\templates\home\base.html:240 .\home\templates\home\base.html:279
 msgid "Toggle light / dark mode"
 msgstr "Przełącz tryb jasny/ciemny"
 
-#: .\home\templates\home\base.html:247 .\home\templates\home\home.html:276
+#: .\home\templates\home\base.html:246 .\home\templates\home\home.html:276
 #: .\obywatele\templates\obywatele\szczegoly.html:132
 #: .\obywatele\templates\obywatele\szczegoly.html:148
 msgid "Activity"
 msgstr "Aktywność"
 
-#: .\home\templates\home\base.html:267
+#: .\home\templates\home\base.html:266
 #: .\obywatele\templates\obywatele\start.html:88
 msgid "Contact"
 msgstr "Kontakt"
 
-#: .\home\templates\home\base.html:271 .\home\views.py:419
+#: .\home\templates\home\base.html:270 .\home\views.py:419
 msgid "Announcements"
 msgstr "Ogłoszenia"
 
-#: .\home\templates\home\base.html:284 .\home\templates\home\home.html:13
+#: .\home\templates\home\base.html:283 .\home\templates\home\home.html:13
 #: .\obywatele\templates\obywatele\szczegoly.html:57
 msgid "Login"
 msgstr "Zaloguj"
 
-#: .\home\templates\home\base.html:285
+#: .\home\templates\home\base.html:284
 msgid "Register"
 msgstr "Zarejestruj"
 
-#: .\home\templates\home\base.html:294
+#: .\home\templates\home\base.html:293
 msgid "Enable notifications to stay updated with new messages and activities"
 msgstr "Włącz powiadomienia, aby być na bieżąco z nowymi wiadomościami i aktywnościami"
 
-#: .\home\templates\home\base.html:299
+#: .\home\templates\home\base.html:298
 msgid "Not now"
 msgstr "Nie teraz"
 
-#: .\home\templates\home\base.html:306
+#: .\home\templates\home\base.html:305
 msgid "Notifications are blocked. Please enable them in your browser settings"
 msgstr "Powiadomienia są zablokowane. Włącz je w ustawieniach przeglądarki"
 
-#: .\home\templates\home\base.html:308
+#: .\home\templates\home\base.html:307
 msgid "Dismiss"
 msgstr "Odrzuć"
 
@@ -2871,7 +2871,7 @@ msgstr "Brak wyników dla podanej frazy w wybranych kategoriach."
 msgid "Site administration and global settings"
 msgstr "Administracja strony i ustawień globalnych"
 
-#: .\home\templates\home\site_admin.html:18 .\site_settings\models.py:123
+#: .\home\templates\home\site_admin.html:18 .\site_settings\models.py:121
 msgid "Quick links"
 msgstr "Pierwsze kroki"
 
@@ -2880,7 +2880,7 @@ msgstr "Pierwsze kroki"
 msgid "Add new link"
 msgstr "Dodaj nowy link"
 
-#: .\home\templates\home\site_admin.html:33 .\site_settings\models.py:116
+#: .\home\templates\home\site_admin.html:33 .\site_settings\models.py:114
 msgid "URL"
 msgstr "URL"
 
@@ -2888,7 +2888,7 @@ msgstr "URL"
 msgid "Icon (e.g. fa-book)"
 msgstr "Ikona (np. fa-book)"
 
-#: .\home\templates\home\site_admin.html:35 .\site_settings\models.py:118
+#: .\home\templates\home\site_admin.html:35 .\site_settings\models.py:116
 msgid "Order"
 msgstr "Kolejność"
 
@@ -4089,23 +4089,15 @@ msgstr "Grupa jest publiczna"
 msgid "Site name"
 msgstr "Nazwa strony"
 
-#: .\site_settings\models.py:90 .\site_settings\params.py:107
-msgid "Short site name (PWA)"
-msgstr "Krótka nazwa strony (PWA)"
-
-#: .\site_settings\models.py:91 .\site_settings\params.py:110
-msgid "Site description"
-msgstr "Opis"
-
-#: .\site_settings\models.py:96 .\site_settings\models.py:97
+#: .\site_settings\models.py:94 .\site_settings\models.py:95
 msgid "Site parameters"
 msgstr "Parametry strony"
 
-#: .\site_settings\models.py:117
+#: .\site_settings\models.py:115
 msgid "Icon (FontAwesome class)"
 msgstr "Ikona (klasa FontAwesome)"
 
-#: .\site_settings\models.py:122
+#: .\site_settings\models.py:120
 msgid "Quick link"
 msgstr "Pierwsze kroki"
 
@@ -4163,7 +4155,7 @@ msgstr "Publiczne pokoje czatu są archiwizowane po tej liczbie dni bez aktywno�
 
 #: .\site_settings\params.py:86
 msgid "Delete public chat room after"
-msgstr "Skasuj publicznt po upływie"
+msgstr "Skasuj publiczny pokój po upływie"
 
 #: .\site_settings\params.py:87
 msgid "Public chat rooms are deleted after this many days without activity."
@@ -4188,14 +4180,6 @@ msgstr "Zaznaczenie tej opcja pozwala każdemu zapisać się do grupy."
 #: .\site_settings\params.py:105
 msgid "Full name of the instance shown across the site."
 msgstr "Pełna nazwa instancji widoczna wszędzie w witrynie."
-
-#: .\site_settings\params.py:108
-msgid "Short name (max 12 characters) used by the installable PWA."
-msgstr "Krótk nazwa (maks. 12 znaków) używana przez powiadomienia PWA."
-
-#: .\site_settings\params.py:111
-msgid "Short description of the instance."
-msgstr "Krótki opis instancji."
 
 #: .\site_settings\validators.py:14
 msgid "Branding image file is too large (max 1 MB)."
@@ -4958,10 +4942,10 @@ msgstr "Zespół %(site_name)s"
 msgid "Time"
 msgstr "Godzina"
 
-#: .\zzz\settings.py:106
+#: .\zzz\settings.py:104
 msgid "English"
 msgstr "Angielski"
 
-#: .\zzz\settings.py:107
+#: .\zzz\settings.py:105
 msgid "Polish"
 msgstr "Polski"
