@@ -229,22 +229,33 @@ def apply_brand_mark(image_field_file):
     ss.brand_mark.save(os.path.basename(image_field_file.name), image_field_file, save=True)
 
 
-def _sync_django_site(sp):
+def _sync_django_site(sp, fallback_domain=None, fallback_name=None):
     from contextlib import suppress
 
     from django.contrib.sites.models import Site
 
     with suppress(Exception):
-        site = Site.objects.get(id=1)
-        changed = False
-        if sp.site_domain and site.domain != sp.site_domain:
-            site.domain = sp.site_domain
-            changed = True
-        if sp.site_name and site.name != sp.site_name:
-            site.name = sp.site_name
-            changed = True
-        if changed:
-            site.save()
+        domain = sp.site_domain or fallback_domain
+        name = sp.site_name or fallback_name or domain
+
+        if not domain:
+            return
+
+        try:
+            site = Site.objects.get(id=1)
+        except Site.DoesNotExist:
+            Site.objects.create(id=1, domain=domain, name=name or domain)
+        else:
+            changed = False
+            if site.domain != domain:
+                site.domain = domain
+                changed = True
+            if name and site.name != name:
+                site.name = name
+                changed = True
+            if changed:
+                site.save()
+
         # Drop the per-process Sites cache so request.site reflects the new
         # values without an application restart.
         Site.objects.clear_cache()

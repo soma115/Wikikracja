@@ -9,26 +9,20 @@ class HomeConfig(AppConfig):
     name = 'home'
 
     def ready(self):
-        from django.contrib.sites.models import Site  # noqa: I001
-
         @receiver(post_migrate)
         def update_site_domain(sender, **kwargs):
-            """Update Site domain from environment variables after migrations."""
+            """Update Django Site from the voted SiteParameters after migrations."""
+            from site_settings.models import SiteParameters
+            from site_settings.params import _sync_django_site
 
-            site_domain = os.getenv('SITE_DOMAIN')
-            site_name = os.getenv('SITE_NAME')
-
-            if site_domain:
-                try:
-                    site = Site.objects.get(id=1)
-                    if site.domain != site_domain or (site_name and site.name != site_name):
-                        site.domain = site_domain
-                        if site_name:
-                            site.name = site_name
-                        site.save()
-                except Site.DoesNotExist:
-                    Site.objects.create(id=1, domain=site_domain, name=site_name or site_domain)
-                except Exception:
-                    pass
+            try:
+                sp = SiteParameters.get()
+                _sync_django_site(
+                    sp,
+                    fallback_domain=os.getenv('SITE_DOMAIN'),
+                    fallback_name=os.getenv('SITE_NAME'),
+                )
+            except Exception:
+                pass
 
         import home.signals  # noqa
