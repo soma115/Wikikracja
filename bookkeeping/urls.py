@@ -11,6 +11,7 @@ from .views import (
     CategoryUpdateView,
     PartnerCreateView,
     PartnerDeleteView,
+    PartnerDetailView,
     PartnerListView,
     PartnerUpdateView,
     ReportView,
@@ -38,6 +39,7 @@ urlpatterns = [
     # Partner URLs
     path('partner/', PartnerListView.as_view(), name='partner_list'),
     path('partner/create/', PartnerCreateView.as_view(), name='partner_create'),
+    path('partner/<int:pk>/', PartnerDetailView.as_view(), name='partner_detail'),
     path('partner/<int:pk>/update/', PartnerUpdateView.as_view(), name='partner_update'),
     path('partner/<int:pk>/delete/', PartnerDeleteView.as_view(), name='partner_delete'),
 

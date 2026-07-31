@@ -16,25 +16,59 @@
     </div>
   </div>
 
-  <table class="table">
+  <table class="table table-sm">
     <thead>
       <tr>
-        <th>{% trans 'Name' %}</th>
-        <th>{% trans 'Email' %}</th>
-        <th>{% trans 'Phone number' %}</th>
-        <th>{% trans 'Web Page' %}</th>
-        <th>{% trans 'Address' %}</th>
-        <th>{% trans 'City' %}</th>
-        <th>{% trans 'Country' %}</th>
+        <th>
+          <a href="?sort=name&order={% if current_sort == 'name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-reset text-nowrap">
+            {% trans 'Name' %}
+            {% if current_sort == 'name' %}
+              <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+            {% else %}
+              <i class="fas fa-sort text-muted"></i>
+            {% endif %}
+          </a>
+        </th>
+        <th>
+          <a href="?sort=city&order={% if current_sort == 'city' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-reset text-nowrap">
+            {% trans 'City' %}
+            {% if current_sort == 'city' %}
+              <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+            {% else %}
+              <i class="fas fa-sort text-muted"></i>
+            {% endif %}
+          </a>
+        </th>
+        <th>
+          <a href="?sort=web_page&order={% if current_sort == 'web_page' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-reset text-nowrap">
+            {% trans 'Web Page' %}
+            {% if current_sort == 'web_page' %}
+              <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+            {% else %}
+              <i class="fas fa-sort text-muted"></i>
+            {% endif %}
+          </a>
+        </th>
+        <th class="notes-col">
+          <a href="?sort=notes&order={% if current_sort == 'notes' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-reset text-nowrap">
+            {% trans 'Notes' %}
+            {% if current_sort == 'notes' %}
+              <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
+            {% else %}
+              <i class="fas fa-sort text-muted"></i>
+            {% endif %}
+          </a>
+        </th>
         <th class="text-end">{% trans "Actions" %}</th>
       </tr>
     </thead>
     <tbody>
-      {% for partner in object_list %}
+      {% for partner in partners %}
         <tr>
-          <td>{{ partner.name }}</td>
-          <td>{{ partner.email }}</td>
-          <td>{{ partner.phone }}</td>
+          <td>
+            <a href="{% url 'bookkeeping:partner_detail' partner.pk %}" class="partner-name-link">{{ partner.name }}</a>
+          </td>
+          <td>{{ partner.city|default:"—" }}</td>
           <td>
             {% if partner.web_page %}
               {% if partner.web_page|slice:":4" == "http" %}
@@ -46,9 +80,15 @@
               —
             {% endif %}
           </td>
-          <td>{{ partner.address }}</td>
-          <td>{{ partner.city }}</td>
-          <td>{{ partner.country }}</td>
+          <td class="notes-col">
+            {% if partner.notes %}
+              <span class="partner-notes">
+                {{ partner.notes|linebreaksbr }}
+              </span>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
           <td>
             <div class="btn-group float-end" role="group">
               <a href="{% url 'bookkeeping:partner_update' partner.pk %}" class="btn btn-sm me-1 mb-1 btn-primary">{% trans 'Edit' %}</a>
@@ -58,7 +98,7 @@
         </tr>
       {% empty %}
         <tr>
-          <td colspan="9">{% trans 'No records found.' %}</td>
+          <td colspan="5">{% trans 'No records found.' %}</td>
         </tr>
       {% endfor %}
     </tbody>

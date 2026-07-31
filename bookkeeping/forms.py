@@ -25,7 +25,7 @@ class PartnerForm(forms.ModelForm):
     """Form for creating and updating Partner records."""
     class Meta:
         model = Partner
-        fields = '__all__'
+        fields = ['name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'notes']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

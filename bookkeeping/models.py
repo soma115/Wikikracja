@@ -95,6 +95,7 @@ class Partner(models.Model):
     address = models.CharField(max_length=200, null=True, blank=True, verbose_name=_("Address"))
     city = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("City"))
     country = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Country"))
+    notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
 
     def __str__(self):
         return self.name

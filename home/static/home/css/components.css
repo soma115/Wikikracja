@@ -394,6 +394,7 @@
   margin: 0 0 .55rem 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -1846,6 +1847,7 @@ button.proposal-against-btn:focus-visible {
 .activity-list.view-grid .feed-desc {
   white-space: normal;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -2955,4 +2957,27 @@ a.wspol-section-title {
   .registration-timeline__item.current .registration-timeline__title {
     font-size: 0.97rem;
   }
+}
+
+/* Bookkeeping partner notes column */
+.partner-notes {
+  display: inline-block;
+  width: 100%;
+  white-space: normal;
+  word-break: break-word;
+}
+th.notes-col,
+td.notes-col {
+  width: 100%;
+}
+
+/* Bookkeeping partner name link */
+.partner-name-link {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+.partner-name-link:hover {
+  color: var(--accent);
+  text-decoration: underline;
 }

@@ -1,0 +1,72 @@
+{% extends 'home/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row mb-4">
+    <div>
+      <a href="{% url 'bookkeeping:transaction_list' %}" class="btn btn-sm me-1 mb-1 btn-secondary">{% trans 'Transactions' %}</a>
+      <a href="{% url 'bookkeeping:partner_list' %}" class="btn btn-sm me-1 mb-1 btn-primary">{% trans 'Partners' %}</a>
+      <a href="{% url 'bookkeeping:category_list' %}" class="btn btn-sm me-1 mb-1 btn-secondary">{% trans 'Categories' %}</a>
+      <a href="{% url 'bookkeeping:asset_list' %}" class="btn btn-sm me-1 mb-1 btn-secondary">{% trans 'Assets' %}</a>
+      <a href="{% url 'bookkeeping:report_list' %}" class="btn btn-sm me-1 mb-1 btn-secondary">{% trans 'Reports' %}</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">{{ partner.name }}</h4>
+      <div>
+        {% if prev_partner %}
+          <a href="{% url 'bookkeeping:partner_detail' prev_partner.pk %}" class="btn btn-sm btn-light me-1">&larr; {% trans 'Previous' %}</a>
+        {% endif %}
+        {% if next_partner %}
+          <a href="{% url 'bookkeeping:partner_detail' next_partner.pk %}" class="btn btn-sm btn-light">{% trans 'Next' %} &rarr;</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card-body">
+      <dl class="row">
+        <dt class="col-sm-3">{% trans 'Name' %}</dt>
+        <dd class="col-sm-9">{{ partner.name }}</dd>
+
+        <dt class="col-sm-3">{% trans 'Email' %}</dt>
+        <dd class="col-sm-9">{{ partner.email|default:"—" }}</dd>
+
+        <dt class="col-sm-3">{% trans 'Phone number' %}</dt>
+        <dd class="col-sm-9">{{ partner.phone|default:"—" }}</dd>
+
+        <dt class="col-sm-3">{% trans 'Web Page' %}</dt>
+        <dd class="col-sm-9">
+          {% if partner.web_page %}
+            {% if partner.web_page|slice:":4" == "http" %}
+              <a href="{{ partner.web_page }}" target="_blank" rel="noopener noreferrer">{{ partner.web_page }}</a>
+            {% else %}
+              <a href="https://{{ partner.web_page }}" target="_blank" rel="noopener noreferrer">{{ partner.web_page }}</a>
+            {% endif %}
+          {% else %}
+            —
+          {% endif %}
+        </dd>
+
+        <dt class="col-sm-3">{% trans 'Address' %}</dt>
+        <dd class="col-sm-9">{{ partner.address|default:"—" }}</dd>
+
+        <dt class="col-sm-3">{% trans 'City' %}</dt>
+        <dd class="col-sm-9">{{ partner.city|default:"—" }}</dd>
+
+        <dt class="col-sm-3">{% trans 'Country' %}</dt>
+        <dd class="col-sm-9">{{ partner.country|default:"—" }}</dd>
+
+        <dt class="col-sm-3">{% trans 'Notes' %}</dt>
+        <dd class="col-sm-9">{{ partner.notes|default:"—"|linebreaks }}</dd>
+      </dl>
+
+      <div class="mt-3">
+        <a href="{% url 'bookkeeping:partner_update' partner.pk %}" class="btn btn-primary">{% trans 'Edit' %}</a>
+        <a href="{% url 'bookkeeping:partner_list' %}" class="btn btn-secondary">{% trans 'Back to list' %}</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

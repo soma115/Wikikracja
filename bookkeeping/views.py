@@ -5,7 +5,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView, View
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
 
 from .forms import AssetForm, TransactionForm
 from .models import Asset, Category, Partner, Transaction
@@ -122,6 +122,37 @@ class CategoryDeleteView(LoginRequiredMixin, DeleteView):
 class PartnerListView(LoginRequiredMixin, ListView):
     model = Partner
     template_name = 'bookkeeping/partner_list.html'
+    context_object_name = 'partners'
+
+    def get_queryset(self):
+        sort = self.request.GET.get('sort', 'name')
+        order = self.request.GET.get('order', 'asc')
+        allowed = ['name', 'city', 'country', 'web_page', 'notes']
+        if sort not in allowed:
+            sort = 'name'
+        prefix = '-' if order == 'desc' else ''
+        return Partner.objects.order_by(f'{prefix}{sort}')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_sort'] = self.request.GET.get('sort', 'name')
+        context['current_order'] = self.request.GET.get('order', 'asc')
+        return context
+
+
+class PartnerDetailView(LoginRequiredMixin, DetailView):
+    model = Partner
+    template_name = 'bookkeeping/partner_detail.html'
+    context_object_name = 'partner'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_ordering = Partner.objects.order_by('pk')
+        ids = list(current_ordering.values_list('pk', flat=True))
+        current_index = ids.index(self.object.pk)
+        context['prev_partner'] = current_ordering[current_index - 1] if current_index > 0 else None
+        context['next_partner'] = current_ordering[current_index + 1] if current_index < len(ids) - 1 else None
+        return context
 
 
 class PartnerCreateView(LoginRequiredMixin, CreateView):
