@@ -235,17 +235,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (mod && e.key === 'b') { e.preventDefault(); document.execCommand('bold'); updateToolbarState(); return; }
             if (mod && e.key === 'i') { e.preventDefault(); document.execCommand('italic'); updateToolbarState(); return; }
             if (mod && e.key === 'u') { e.preventDefault(); document.execCommand('underline'); updateToolbarState(); return; }
-            // Enter = nowa linia; wysyłanie przez Ctrl+Enter lub Shift+Enter
+            // Enter = wyślij; nowa linia przez Ctrl+Enter lub Shift+Enter
             if (e.key === 'Enter') {
                 e.preventDefault();
-                if (mod || e.shiftKey) { onSubmitMessage(DOM_API.getEnteredText(), DOM_API.getEditedMessageId()); }
-                else { document.execCommand('insertLineBreak'); }
+                if (mod || e.shiftKey) { document.execCommand('insertLineBreak'); }
+                else { onSubmitMessage(DOM_API.getEnteredText(), DOM_API.getEditedMessageId()); }
                 return;
             }
             return;
         }
 
-        if (e.key === 'Enter' && !e.shiftKey) {
+        if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
             e.preventDefault();
             onSubmitMessage(DOM_API.getEnteredText(), DOM_API.getEditedMessageId());
         }

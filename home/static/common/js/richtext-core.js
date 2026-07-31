@@ -178,17 +178,17 @@ export function updateCounter(inputEl, counterEl, counterVal, sendBtn, maxLength
 
 /**
  * Enter handling:
- *   Enter                  → new line (insertLineBreak)
- *   Ctrl/Cmd+Enter, Shift+Enter → send
+ *   Enter                  → send
+ *   Ctrl/Cmd+Enter, Shift+Enter → new line (insertLineBreak)
  * @returns {boolean} true if handled
  */
 export function handleEnterKey(e, submitCallback) {
     if (e.key !== 'Enter') return false;
     e.preventDefault();
     if (e.ctrlKey || e.metaKey || e.shiftKey) {
-        submitCallback();
-    } else {
         document.execCommand('insertLineBreak');
+    } else {
+        submitCallback();
     }
     return true;
 }

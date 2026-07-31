@@ -62,7 +62,7 @@ const room_template = `
       <div id="message-input" class="message-input-rich" contenteditable="true"
            role="textbox" aria-multiline="true" aria-label="${_("Reply to the appropriate message...")}"
            data-placeholder="${_("Reply to the appropriate message...")}"
-           data-hint="${_("Shift/Ctrl+↵ send · Ctrl+B bold · Ctrl+I italic")}"></div>
+           data-hint="${_("Enter send · Shift/Ctrl+Enter new line · Ctrl+B bold · Ctrl+I italic")}"></div>
 
       <!-- Bottom bar: tools left, counter+send right -->
       <div class="compose-bar">

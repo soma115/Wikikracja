@@ -44,7 +44,7 @@ async function initEmbeddedChat(container) {
                     <div id="ec-input-${roomId}" class="message-input-rich" role="textbox"
                          contenteditable="true" aria-multiline="true"
                          data-placeholder="${_('Reply to the appropriate message...')}"
-                         data-hint="${_('Shift/Ctrl+↵ send · Ctrl+B bold · Ctrl+I italic')}"></div>
+                         data-hint="${_('Enter send · Shift/Ctrl+Enter new line · Ctrl+B bold · Ctrl+I italic')}"></div>
                     <div class="compose-bar">
                         <div class="compose-bar-left">
                             <input type="file" id="ec-file-input-${roomId}" class="file-input ec-file-input" multiple="multiple" style="display:none;"/>
@@ -371,7 +371,7 @@ async function initEmbeddedChat(container) {
         if (mod && e.key === 'b') { e.preventDefault(); document.execCommand('bold'); updateToolbarState(); return; }
         if (mod && e.key === 'i') { e.preventDefault(); document.execCommand('italic'); updateToolbarState(); return; }
         if (mod && e.key === 'u') { e.preventDefault(); document.execCommand('underline'); updateToolbarState(); return; }
-        // Enter = wyślij, Shift+Enter = nowa linia
+        // Enter = wyślij, Shift/Ctrl+Enter = nowa linia
         if (handleEnterKey(e, submitInput)) return;
     });
 
