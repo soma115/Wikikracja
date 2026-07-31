@@ -76,7 +76,7 @@ class SendPushNotificationSyncTest(TestCase):
 
     async def test_builds_full_fcm_message(self):
         """The message must contain top-level notification, data payload and webpush notification."""
-        with patch("chat.services.GCMDevice") as mock_gcm:
+        with patch("zzz.notifications.GCMDevice") as mock_gcm:
             mock_gcm.objects.filter.return_value = self.mock_queryset
             with patch.object(firebase_admin, "_apps", {"[DEFAULT]": MagicMock()}):
                 await self.repo.send_push_notification_sync(

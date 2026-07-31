@@ -100,10 +100,6 @@ PARAM_SPECS = [
               _('Group is public'),
               _('If enabled, anyone can register and the public inbox is available.')),
     # --- Site identity ---
-    ParamSpec('site_domain', 'SITE_DOMAIN', 'str', CATEGORY_SITE,
-              _('Site domain'),
-              _('Domain part before .wikikracja.pl, without spaces (e.g. example.wikikracja.pl).'),
-              warning=_('Warning: changing the domain can make the instance unreachable. Change only if you know what you are doing.')),
     ParamSpec('site_name', 'SITE_NAME', 'str', CATEGORY_SITE,
               _('Site name'),
               _('Full name of the instance shown across the site.')),
@@ -194,8 +190,9 @@ def get_param(name):
 def apply_parameters(proposed):
     """Apply a ``{name: value}`` mapping of approved changes to the singleton.
 
-    Also syncs the Django Sites entry when ``site_domain`` / ``site_name`` change,
-    since those are read from the ``django_site`` table at runtime.
+    Also syncs the Django Sites entry when ``site_name`` changes,
+    since it is read from the ``django_site`` table at runtime.
+    The domain is always taken from ``settings.SITE_DOMAIN``.
     """
     from site_settings.models import SiteParameters
 
@@ -207,7 +204,7 @@ def apply_parameters(proposed):
         setattr(sp, name, clamp(spec, coerce(spec, value)))
     sp.save()
 
-    if 'site_domain' in proposed or 'site_name' in proposed:
+    if 'site_name' in proposed:
         _sync_django_site(sp)
     return sp
 
@@ -235,7 +232,9 @@ def _sync_django_site(sp, fallback_domain=None, fallback_name=None):
     from django.contrib.sites.models import Site
 
     with suppress(Exception):
-        domain = sp.site_domain or fallback_domain
+        from django.conf import settings
+
+        domain = getattr(settings, 'SITE_DOMAIN', '') or fallback_domain
         name = sp.site_name or fallback_name or domain
 
         if not domain:

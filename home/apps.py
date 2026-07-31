@@ -10,8 +10,8 @@ class HomeConfig(AppConfig):
 
     def ready(self):
         @receiver(post_migrate)
-        def update_site_domain(sender, **kwargs):
-            """Update Django Site from the voted SiteParameters after migrations."""
+        def update_site(sender, **kwargs):
+            """Update django.contrib.sites.models.Site from settings and SiteParameters after migrations."""
             from site_settings.models import SiteParameters
             from site_settings.params import _sync_django_site
 
@@ -19,7 +19,6 @@ class HomeConfig(AppConfig):
                 sp = SiteParameters.get()
                 _sync_django_site(
                     sp,
-                    fallback_domain=os.getenv('SITE_DOMAIN'),
                     fallback_name=os.getenv('SITE_NAME'),
                 )
             except Exception:

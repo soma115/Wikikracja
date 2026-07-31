@@ -11,8 +11,6 @@ urlpatterns = [
     path('save-filter-state/', views.save_filter_state, name='save_filter_state'),
     path('aktywnosc/', views.activity_page, name='activity'),
     path('site-settings/', views.site_admin, name='site_admin'),
-    path('site-settings/remove-brand-mark/', views.remove_brand_mark, name='remove_brand_mark'),
-    path('site-settings/remove-brand-mark-dark/', views.remove_brand_mark_dark, name='remove_brand_mark_dark'),
     path('search/', views.global_search, name='search'),
 
     # not in use at this point. Contact through https://wikikracja.pl/kontakt/

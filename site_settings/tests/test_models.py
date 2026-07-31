@@ -23,13 +23,6 @@ class SiteSettingsBrandingFieldsTest(TestCase):
         self.assertTrue(field.null)
         self.assertEqual(field.upload_to, 'site_branding/')
 
-    def test_brand_mark_dark_is_optional_image_field(self):
-        field = SiteSettings._meta.get_field('brand_mark_dark')
-        self.assertIsInstance(field, ImageField)
-        self.assertTrue(field.blank)
-        self.assertTrue(field.null)
-        self.assertEqual(field.upload_to, 'site_branding/')
-
     def test_updated_at_is_auto_now_datetime(self):
         field = SiteSettings._meta.get_field('updated_at')
         self.assertIsInstance(field, DateTimeField)
@@ -37,18 +30,10 @@ class SiteSettingsBrandingFieldsTest(TestCase):
 
     def test_singleton_get_returns_settings_with_empty_branding_and_timestamp(self):
         ss = SiteSettings.get()
-        # nowe pola brandingowe — opcjonalne, na świeżym singletonie są puste
+        # brand_mark jest opcjonalne, na świeżym singletonie jest puste
         self.assertFalse(bool(ss.brand_mark))
-        self.assertFalse(bool(ss.brand_mark_dark))
         # updated_at musi być ustawiony automatycznie przez auto_now przy create
         self.assertIsNotNone(ss.updated_at)
-
-    def test_branding_text_is_optional_char_field(self):
-        from django.db.models import CharField
-        field = SiteSettings._meta.get_field('branding_text')
-        self.assertIsInstance(field, CharField)
-        self.assertTrue(field.blank)
-        self.assertEqual(field.max_length, 50)
 
 
 class SiteSettingsBrandingSizeValidatorTest(TestCase):
@@ -79,11 +64,6 @@ class SiteSettingsBrandingSizeValidatorTest(TestCase):
     def test_brand_mark_field_has_size_validator_attached(self):
         from site_settings.validators import validate_branding_image_size
         field = SiteSettings._meta.get_field('brand_mark')
-        self.assertIn(validate_branding_image_size, field.validators)
-
-    def test_brand_mark_dark_field_has_size_validator_attached(self):
-        from site_settings.validators import validate_branding_image_size
-        field = SiteSettings._meta.get_field('brand_mark_dark')
         self.assertIn(validate_branding_image_size, field.validators)
 
 
@@ -120,13 +100,8 @@ class SiteSettingsBrandingDimensionsValidatorTest(TestCase):
         field = SiteSettings._meta.get_field('brand_mark')
         self.assertIn(validate_brand_mark_dimensions, field.validators)
 
-    def test_brand_mark_dark_field_has_dimensions_validator_attached(self):
-        from site_settings.validators import validate_brand_mark_dimensions
-        field = SiteSettings._meta.get_field('brand_mark_dark')
-        self.assertIn(validate_brand_mark_dimensions, field.validators)
 
-
-class SiteSettingsBrandingFormatValidatorTest(TestCase):
+class SiteSettingsBrandMarkFormatValidatorTest(TestCase):
     """Test: walidator akceptuje wyłącznie PNG (cały pipeline derivatives produkuje PNG)."""
 
     @staticmethod
@@ -159,11 +134,6 @@ class SiteSettingsBrandingFormatValidatorTest(TestCase):
     def test_brand_mark_field_has_format_validator_attached(self):
         from site_settings.validators import validate_brand_mark_format
         field = SiteSettings._meta.get_field('brand_mark')
-        self.assertIn(validate_brand_mark_format, field.validators)
-
-    def test_brand_mark_dark_field_has_format_validator_attached(self):
-        from site_settings.validators import validate_brand_mark_format
-        field = SiteSettings._meta.get_field('brand_mark_dark')
         self.assertIn(validate_brand_mark_format, field.validators)
 
 
@@ -223,7 +193,7 @@ class SiteSettingsBrandingDerivativesTest(TestCase):
 
 
 class SiteSettingsBrandingLetterboxTest(TestCase):
-    """Test: po zapisie brand_mark/brand_mark_dark jako prostokąt, plik na dysku jest letterbox'em do kwadratu."""
+    """Test: po zapisie brand_mark jako prostokąt, plik na dysku jest letterbox'em do kwadratu."""
 
     def setUp(self):
         self.tmp_media = tempfile.mkdtemp(prefix='wikikracja_test_media_')
@@ -248,12 +218,4 @@ class SiteSettingsBrandingLetterboxTest(TestCase):
         ss.brand_mark = make_branding_png(600, 1024, color=(255, 0, 0, 255))
         ss.save()
         with Image.open(ss.brand_mark.path) as img:
-            self.assertEqual(img.size, (1024, 1024))
-
-    def test_save_letterboxes_brand_mark_dark_to_square(self):
-        from PIL import Image
-        ss = SiteSettings.get()
-        ss.brand_mark_dark = make_branding_png(1024, 700, color=(255, 0, 0, 255))
-        ss.save()
-        with Image.open(ss.brand_mark_dark.path) as img:
             self.assertEqual(img.size, (1024, 1024))

@@ -1220,7 +1220,6 @@ html, body {
   padding: 1.25rem 1.25rem 1rem;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-  /* constraint: sidebar.width=max-content rozszerza się do najszerszego dziecka — bez tego długie branding_text rozciąga cały sidebar */
   max-width: var(--sidebar-width);
   box-sizing: border-box;
 }
@@ -1250,55 +1249,6 @@ html, body {
   height: 1em;
   object-fit: contain;
   vertical-align: -.125em;
-}
-/* pomocniczy hint pod polem formularza — używany w site_admin (karta Branding) */
-.field-hint {
-  font-size: .72rem;
-  color: var(--text-muted);
-  margin-top: .25rem;
-}
-/* label małego rozmiaru w formularzach site_admin — alternatywa dla powtarzanego inline style="font-size:.875rem;" */
-.form-label-sm {
-  font-size: .875rem;
-}
-/* wiersz: [thumbnail] [file input] [clear checkbox] — używany w site_admin karta Branding */
-.brand-mark-field-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-.brand-mark-preview {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  background: rgba(255, 255, 255, .05);
-  border-radius: 4px;
-  border: 1px solid var(--border);
-  flex-shrink: 0;
-}
-/* ikona obok labela pola w formularzu site_admin (karta Branding) */
-.field-label-icon {
-  color: var(--accent);
-  opacity: .7;
-}
-/* paragraph wprowadzenia (intro) w karcie site_admin — opisuje czym jest sekcja */
-.card-intro {
-  font-size: .82rem;
-  color: var(--text-muted);
-  line-height: 1.6;
-  margin-bottom: 1rem;
-}
-/* domyślnie (theme ciemny) pokazujemy wariant dark, light ukryty */
-.brand-mark-light {
-  display: none;
-}
-/* theme jasny: odwrotnie */
-[data-theme="light"] .brand-mark-light {
-  display: inline-block;
-}
-[data-theme="light"] .brand-mark-dark {
-  display: none;
 }
 .sidebar-logo .logo-sub {
   color: var(--text-muted);

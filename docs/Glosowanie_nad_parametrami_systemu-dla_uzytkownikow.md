@@ -24,7 +24,6 @@ Wcześniej wiele ustawień systemu (jak nazwa strony, opis, czas trwania głosow
 - **Grupa jest publiczna** - czy każdy może się zarejestrować i czy publiczny Inbox jest dostępny
 
 ### Tożsamość strony
-- **Domena strony** - subdomena (np. `przyklad.wikikracja.pl`)
 - **Nazwa strony** - pełna nazwa widoczna w całej witrynie
 - **Krótka nazwa (PWA)** - nazwa używana przez zainstalowaną aplikację (maks. 12 znaków)
 - **Opis** - krótki opis instancji
@@ -70,12 +69,7 @@ Zmiany wchodzą w życie **natychmiast po zatwierdzeniu referendum** przez społ
 - Logo jest stosowane tylko po zatwierdzeniu referendum
 
 ### Nazwa strony
-- Jeśli administrator ustawił "Branding text" w panelu administracyjnym, to on ma pierwszeństwo przed nazwą z referendum
-- Żeby zobaczyć zmianę nazwy z referendum, "Branding text" musi być pusty
-
-### Domena
-- Zmiana domeny jest ryzykowna - może sprawić, że poprzedni adres będzie niedostępny
-- Zmieniaj domenę tylko jeśli na pewno wiesz, co robisz
+- Nazwa strony jest ustawiana przez referendum i widać ją od razu po zatwierdzeniu
 
 ### Zainstalowana aplikacja PWA
 - Nazwa i ikona w już zainstalowanej aplikacji PWA mogą pozostać stare do ponownej instalacji

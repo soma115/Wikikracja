@@ -1,12 +1,7 @@
-{% if branding.brand_mark or branding.brand_mark_dark %}
-  {% spaceless %}
-    <img class="brand-mark brand-mark-light"
-         src="{% if branding.brand_mark %}{{ branding.brand_mark.url }}{% else %}{{ branding.brand_mark_dark.url }}{% endif %}?v={{ branding_version }}"
-         alt="">
-    <img class="brand-mark brand-mark-dark"
-         src="{% if branding.brand_mark_dark %}{{ branding.brand_mark_dark.url }}{% else %}{{ branding.brand_mark.url }}{% endif %}?v={{ branding_version }}"
-         alt="">
-  {% endspaceless %}
+{% if branding.brand_mark %}
+  <img class="brand-mark"
+       src="{{ branding.brand_mark.url }}?v={{ branding_version }}"
+       alt="">
 {% else %}
   <i class="fas fa-fw fa-building-columns"></i>
 {% endif %}

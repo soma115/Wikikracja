@@ -32,7 +32,6 @@ class SiteParameters(models.Model):
     group_is_public = models.BooleanField(default=True)
     
     # Tożsamość strony
-    site_domain = models.CharField(max_length=255, blank=True, default='')
     site_name = models.CharField(max_length=255, blank=True, default='')
     site_name_max_12_chars = models.CharField(max_length=12, blank=True, default='')
     site_description = models.CharField(max_length=500, blank=True, default='')
@@ -227,9 +226,8 @@ Zaktualizowano test `CreateInboxCommandTest.test_skips_when_group_is_not_public`
 
 ### Nazwa strony w UI
 
-1. `branding_text` z `SiteSettings` (panel `site_admin`) - najwyższy priorytet
-2. `site_name` z `SiteParameters` (referendum)
-3. `settings.SITE_NAME` (env var) - fallback
+1. `site_name` z `SiteParameters` (referendum)
+2. `settings.SITE_NAME` (env var) - fallback
 
 ### Opis i krótka nazwa PWA
 
@@ -245,8 +243,7 @@ Zaktualizowano test `CreateInboxCommandTest.test_skips_when_group_is_not_public`
 ## Ograniczenia
 
 - **Zainstalowane PWA**: Nazwa i ikona w już zainstalowanej aplikacji PWA mogą pozostać stare do ponownej instalacji (ograniczenie systemu operacyjnego)
-- **Branding text**: Jeśli użytkownik ustawił `branding_text` w panelu `site_admin`, to on nadpisuje parametr `site_name` z referendum
-- **Domena**: Zmiana domeny może sprawić, że poprzedni adres będzie niedostępny - wymaga ostrożności
+- **Nazwa strony**: Zmiana `site_name` wchodzi w życie po zatwierdzeniu referendum i synchronizuje się z Django Sites
 
 ## Migracje
 

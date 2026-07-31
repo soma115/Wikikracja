@@ -30,7 +30,6 @@ from events.models import Event
 from glosowania.models import Argument as DecyzjaArgument
 from glosowania.models import Decyzja, KtoJuzGlosowal
 from obywatele.models import CitizenActivity, Uzytkownik
-from site_settings.forms import SiteSettingsBrandingForm
 from site_settings.models import SiteSettings
 from site_settings.services import get_branding_version
 from tasks.models import Task
@@ -890,19 +889,6 @@ def dynamic_settings_js(request: HttpRequest):
 def site_admin(request: HttpRequest) -> HttpResponse:
     from site_settings.models import QuickLink
 
-    ss = SiteSettings.get()
-
-    if request.method == 'POST' and 'save_branding' in request.POST:
-        form = SiteSettingsBrandingForm(request.POST, request.FILES, instance=ss)
-        if form.is_valid():
-            form.save()
-            messages.success(request, _('Branding saved.'))
-        else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
-        return redirect('site_admin')
-
     if request.method == 'POST' and 'save_quick_link' in request.POST:
         title = request.POST.get('quick_link_title')
         url = request.POST.get('quick_link_url')
@@ -955,27 +941,6 @@ def site_admin(request: HttpRequest) -> HttpResponse:
     quick_links = QuickLink.objects.all()
 
     return render(request, 'home/site_admin.html', {
-        'ss': ss,
-        'branding_form': SiteSettingsBrandingForm(instance=ss),
         'quick_links': quick_links,
     })
 
-
-@login_required
-def remove_brand_mark(request: HttpRequest) -> JsonResponse:
-    if request.method != 'POST':
-        return JsonResponse({'ok': False}, status=405)
-    ss = SiteSettings.get()
-    if ss.brand_mark:
-        ss.brand_mark.delete(save=True)
-    return JsonResponse({'ok': True})
-
-
-@login_required
-def remove_brand_mark_dark(request: HttpRequest) -> JsonResponse:
-    if request.method != 'POST':
-        return JsonResponse({'ok': False}, status=405)
-    ss = SiteSettings.get()
-    if ss.brand_mark_dark:
-        ss.brand_mark_dark.delete(save=True)
-    return JsonResponse({'ok': True})

@@ -23,19 +23,12 @@ class Command(TranslatedCommand):
         HOST = self.host
 
         threads = []
+        pending_emails = []
+        pending_notifications = []
 
         def zliczaj_wszystko():
 
             log.info('zliczaj_wszystko() run ok')
-
-            # POPRZEDNIO:
-            # propozycja = 1
-            # brak_poparcia = 2
-            # w_kolejce = 3
-            # referendum = 4
-            # odrzucone = 5
-            # zatwierdzone = 6
-            # obowiazuje = 7
 
             # OBECNIE:
             proposition = 1
@@ -66,9 +59,6 @@ class Command(TranslatedCommand):
             to = _('to')
             _was = _('was approved')
             was_removed = _('and was removed from queue')
-
-            pending_emails = []
-            pending_notifications = []
 
             with transaction.atomic():
                 decyzje = Decyzja.objects.select_for_update().filter(

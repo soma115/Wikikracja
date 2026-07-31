@@ -8,13 +8,6 @@ from site_settings.validators import validate_brand_mark_dimensions, validate_br
 
 
 class SiteSettings(models.Model):
-    branding_text = models.CharField(
-        max_length=50,
-        blank=True,
-        default='',
-        verbose_name=_('Branding text'),
-        help_text=_('Optional name displayed in the header next to the brand mark. Defaults to the site name from Django Sites if empty.'),
-    )
     brand_mark = models.ImageField(
         upload_to='site_branding/',
         blank=True,
@@ -22,14 +15,6 @@ class SiteSettings(models.Model):
         validators=[validate_branding_image_size, validate_brand_mark_dimensions, validate_brand_mark_format],
         verbose_name=_('Brand mark'),
         help_text=_('Graphic mark (longest side 512-1024 px, max 1 MB). Non-square images are letterboxed to a square on save. Source for favicon and PWA icons.'),
-    )
-    brand_mark_dark = models.ImageField(
-        upload_to='site_branding/',
-        blank=True,
-        null=True,
-        validators=[validate_branding_image_size, validate_brand_mark_dimensions, validate_brand_mark_format],
-        verbose_name=_('Brand mark (dark themes)'),
-        help_text=_('Optional variant for dark themes. Falls back to the main brand mark if empty.'),
     )
     updated_at = models.DateTimeField(auto_now=True, null=True)
 
@@ -51,10 +36,6 @@ class SiteSettings(models.Model):
             regenerate_brand_derivatives(self)
         else:
             cleanup_brand_derivatives(self)
-        # brand_mark_dark dostaje tylko letterbox — derivatives (favicon/PWA) zawsze z brand_mark (jasna wersja),
-        # bo favicon w karcie przeglądarki i ikony PWA są theme-independent (rządzi system OS, nie app theme)
-        if self.brand_mark_dark:
-            letterbox_to_square(self.brand_mark_dark.path)
 
     def has_brand_derivatives(self):
         """Check if derived branding files (favicon, apple-touch-icon, etc.) exist on disk.
@@ -105,7 +86,6 @@ class SiteParameters(models.Model):
     # Group settings
     group_is_public = models.BooleanField(default=True, verbose_name=_('Group is public'))
     # Site identity
-    site_domain = models.CharField(max_length=255, blank=True, default='', verbose_name=_('Site domain'))
     site_name = models.CharField(max_length=255, blank=True, default='', verbose_name=_('Site name'))
     site_name_max_12_chars = models.CharField(max_length=12, blank=True, default='', verbose_name=_('Short site name (PWA)'))
     site_description = models.CharField(max_length=500, blank=True, default='', verbose_name=_('Site description'))
