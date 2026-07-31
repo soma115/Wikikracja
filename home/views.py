@@ -298,6 +298,7 @@ def _generate_feed_raw():
                 clean_text = strip_tags(msg.text)
                 author_name = msg.sender.username if msg.sender else 'System'
                 message_list.append(f"- <strong>{author_name}:</strong> {clean_text}")
+            allowed_users = list(room.allowed.all())
             feed_items.append({
                 'content_type': 'room_messages',
                 'title': _("Messages in %(room_title)s") % {
@@ -311,7 +312,8 @@ def _generate_feed_raw():
                 'room_id': room.id,
                 'message_count': len(recent_msgs),
                 '_is_public': room.public,
-                '_allowed_user_ids': {u.id for u in room.allowed.all()},
+                '_allowed_user_ids': {u.id for u in allowed_users},
+                '_allowed_usernames': {u.id: u.username for u in allowed_users},
             })
 
     decisions = Decyzja.objects.filter(data_ostatniej_modyfikacji__gte=timezone.now() - td(days=30)).order_by('-data_ostatniej_modyfikacji')
@@ -373,9 +375,14 @@ def generate_feed_items(user):
         if ct == 'room_messages':
             if not item.get('_is_public') and user.id not in item.get('_allowed_user_ids', set()):
                 continue
-            item = {
-                **item, 'is_read': item['object_id'] in seen_room_ids
-            }
+            if not item.get('_is_public'):
+                other = next(
+                    (name for uid, name in item.get('_allowed_usernames', {}).items() if uid != user.id),
+                    None,
+                )
+                if other:
+                    item = {**item, 'title': _("Messages in %(room_title)s") % {'room_title': other}}
+            item = {**item, 'is_read': item['object_id'] in seen_room_ids}
         else:
             rs_ct = ct_map.get(ct)
             is_read = (item['object_id'] in read_status_map[rs_ct]) if rs_ct else False
@@ -720,7 +727,7 @@ def global_search(request: HttpRequest):
             for obj in rooms:
                 results.append({
                     'cat': 'chat',
-                    'type': _('Chat room'),
+                    'type': _('Chat'),
                     'type_color': 'info',
                     'title': obj.displayed_name(request.user),
                     'description': '',

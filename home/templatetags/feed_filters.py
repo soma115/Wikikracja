@@ -32,7 +32,7 @@ def content_type_label(content_type):
         'task': _('Task'),
         'event': _('Event'),
         'message': _('Message'),
-        'room_messages': _('Chat room'),  # New content type for grouped room messages
+        'room_messages': _('Chat'),  # New content type for grouped room messages
         'decision': _('Decision'),
         'citizen': _('Citizen'),
         'membership': _('Membership'),
