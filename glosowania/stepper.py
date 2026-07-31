@@ -17,10 +17,11 @@ def get_stepper_counts():
             podpis_uzytkownika_id=OuterRef("author_id"),
         )
     )
+    Status = Decyzja.Status
     return Decyzja.objects.annotate(_signed=author_signed).aggregate(
-        proposition=Count("id", filter=Q(status=1)),
-        discussion=Count("id", filter=Q(status=2, _signed=True)),
-        referendum=Count("id", filter=Q(status=3, _signed=True)),
-        rejected=Count("id", filter=Q(status=4)),
-        approved=Count("id", filter=Q(status=5)),
+        proposition=Count("id", filter=Q(status=Status.PROPOSITION)),
+        discussion=Count("id", filter=Q(status=Status.DISCUSSION, _signed=True)),
+        referendum=Count("id", filter=Q(status=Status.REFERENDUM, _signed=True)),
+        rejected=Count("id", filter=Q(status=Status.REJECTED)),
+        approved=Count("id", filter=Q(status=Status.APPROVED)),
     )

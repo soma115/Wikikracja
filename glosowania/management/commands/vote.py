@@ -30,12 +30,11 @@ class Command(TranslatedCommand):
 
             log.info('zliczaj_wszystko() run ok')
 
-            # OBECNIE:
-            proposition = 1
-            discussion = 2
-            referendum = 3
-            rejected = 4
-            approved = 5
+            proposition = Decyzja.Status.PROPOSITION
+            discussion = Decyzja.Status.DISCUSSION
+            referendum = Decyzja.Status.REFERENDUM
+            rejected = Decyzja.Status.REJECTED
+            approved = Decyzja.Status.APPROVED
 
             dzisiaj = datetime.today().date()
             sp = SiteParameters.get()

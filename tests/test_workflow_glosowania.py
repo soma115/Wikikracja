@@ -1,7 +1,7 @@
 """Smoke tests workflow glosowania.
 
 UWAGA: `glosowania.signals.create_or_update_chat_room_for_referendum` AUTOMATYCZNIE tworzy
-chat_room przy każdym nowym Decyzja(status=1). Nie podawaj `chat_room=` w create() —
+chat_room przy każdym nowym Decyzja(status=PROPOSITION). Nie podawaj `chat_room=` w create() —
 sygnał i tak go nadpisze.
 """
 import pytest
@@ -14,7 +14,7 @@ def test_complete_voting_workflow(sample_users):
 
     author = sample_users[0]
 
-    decyzja = Decyzja.objects.create(title='Workflow Test Bill', tresc='Test law text', kara='Test penalty', author=author, status=1)
+    decyzja = Decyzja.objects.create(title='Workflow Test Bill', tresc='Test law text', kara='Test penalty', author=author, status=Decyzja.Status.PROPOSITION)
     assert Decyzja.objects.filter(title='Workflow Test Bill').exists()
 
     for i in range(5):
@@ -49,20 +49,20 @@ def test_complete_voting_workflow(sample_users):
         VoteCode.objects.create(project=decyzja, code=f'WF{i:04d}', vote=(i % 2 == 0))
     assert VoteCode.objects.filter(project=decyzja).count() == 5
 
-    decyzja.status = 2
+    decyzja.status = Decyzja.Status.DISCUSSION
     decyzja.save()
     decyzja.refresh_from_db()
-    assert decyzja.status == 2
+    assert decyzja.status == Decyzja.Status.DISCUSSION
 
 
 @pytest.mark.django_db
 def test_signal_auto_creates_chat_room_for_new_decyzja(sample_users):
-    """Każda nowa Decyzja(status=1) ma auto-utworzony chat_room (sygnał) z properties: public, protected, founder=author + welcome message."""
+    """Każda nowa Decyzja(status=PROPOSITION) ma auto-utworzony chat_room (sygnał) z properties: public, protected, founder=author + welcome message."""
     from chat.models import Message
     from glosowania.models import Decyzja
 
     author = sample_users[0]
-    decyzja = Decyzja.objects.create(title='Auto Room Bill', tresc='Auto law', kara='Auto penalty', author=author, status=1)
+    decyzja = Decyzja.objects.create(title='Auto Room Bill', tresc='Auto law', kara='Auto penalty', author=author, status=Decyzja.Status.PROPOSITION)
     decyzja.refresh_from_db()
 
     # Signal stworzył pokój

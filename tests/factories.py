@@ -7,6 +7,8 @@ import factory
 from django.contrib.auth import get_user_model
 from factory.django import DjangoModelFactory
 
+from glosowania.models import Decyzja
+
 User = get_user_model()
 
 
@@ -66,7 +68,7 @@ class RoomFactory(DjangoModelFactory):
 
 class DecyzjaFactory(DjangoModelFactory):
     """UWAGA: NIE ustawiamy chat_room — sygnał glosowania.signals.create_or_update_chat_room_for_referendum
-    automatycznie utworzy chat_room przy save() (gdy status=1). Podawanie chat_room SubFactory utworzy
+    automatycznie utworzy chat_room przy save() (gdy status=PROPOSITION). Podawanie chat_room SubFactory utworzy
     orphan'a — sygnał i tak go nadpisze."""
     class Meta:
         model = 'glosowania.Decyzja'
@@ -78,6 +80,6 @@ class DecyzjaFactory(DjangoModelFactory):
     ile_osob_podpisalo = 0
     za = 0
     przeciw = 0
-    status = 1
+    status = Decyzja.Status.PROPOSITION
 
     author = factory.SubFactory(UserFactory)

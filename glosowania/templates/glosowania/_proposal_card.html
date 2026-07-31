@@ -20,16 +20,16 @@
     </div>
 
     <div class="proposal-card-badges-row">
-      {% if i.status == 1 %}
-        <span class="badge-status badge-proposition">{% trans 'Proposal' %}</span>
-      {% elif i.status == 2 %}
-        <span class="badge-status badge-discussion">{% trans 'Discussion' %}</span>
-      {% elif i.status == 3 %}
-        <span class="badge-status badge-referendum">{% trans 'Referendum' %}</span>
-      {% elif i.status == 4 %}
-        <span class="badge-status badge-rejected">{% trans 'Rejected' %}</span>
-      {% elif i.status == 5 %}
-        <span class="badge-status badge-approved">{% trans 'Approved' %}</span>
+      {% if i.status == i.Status.PROPOSITION %}
+        <span class="badge-status badge-proposition">{{ i.get_status_display }}</span>
+      {% elif i.status == i.Status.DISCUSSION %}
+        <span class="badge-status badge-discussion">{{ i.get_status_display }}</span>
+      {% elif i.status == i.Status.REFERENDUM %}
+        <span class="badge-status badge-referendum">{{ i.get_status_display }}</span>
+      {% elif i.status == i.Status.REJECTED %}
+        <span class="badge-status badge-rejected">{{ i.get_status_display }}</span>
+      {% elif i.status == i.Status.APPROVED %}
+        <span class="badge-status badge-approved">{{ i.get_status_display }}</span>
       {% endif %}
 
       {% if i.chat_room_pulse_class %}

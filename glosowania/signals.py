@@ -19,8 +19,8 @@ def create_or_update_chat_room_for_referendum(sender, instance, created, **kwarg
     Create a public chat room for each new project (Decyzja) when it is created
     and update room title when project title changes.
     """
-    # Only create room when a new Decyzja is created (status 1 = Proposition)
-    if created and instance.status == 1:
+    # Only create room when a new Decyzja is created
+    if created and instance.status == Decyzja.Status.PROPOSITION:
         # Create room title based on project ID and title
         # Use English prefix (not translated) for consistency in room categorization
         room_title = instance.get_chat_room_title()

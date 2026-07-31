@@ -23,6 +23,13 @@ def does_it_exist(value):
 
 
 class Decyzja(ChatRoomModel, models.Model):
+    class Status(models.IntegerChoices):
+        PROPOSITION = 1, _('Proposition')
+        DISCUSSION = 2, _('Discussion')
+        REFERENDUM = 3, _('Referendum')
+        REJECTED = 4, _('Rejected')
+        APPROVED = 5, _('Approved')
+
     author = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True)
     title = models.TextField(max_length=200, null=True, verbose_name=_('Title'), help_text=_('Enter short title describing new law.'))
     tresc = models.TextField(max_length=3000, null=True, verbose_name=_('Law text'), help_text=_('Enter the exact wording of the law as it is to be applied.'))
@@ -52,7 +59,7 @@ class Decyzja(ChatRoomModel, models.Model):
     data_referendum_stop = models.DateField(editable=False, null=True)
     za = models.SmallIntegerField(default=0, editable=False)
     przeciw = models.SmallIntegerField(default=0, editable=False)
-    status = models.SmallIntegerField(default=1, editable=False)
+    status = models.SmallIntegerField(choices=Status.choices, default=Status.PROPOSITION, editable=False)
     proposed_parameters = models.JSONField(
         null=True,
         blank=True,
@@ -68,12 +75,6 @@ class Decyzja(ChatRoomModel, models.Model):
         verbose_name=_('Proposed logo'),
         help_text=_('If set, this referendum changes the site logo. Applied when approved.'),
     )
-    # 1.Proposition
-    # 2.Discussion
-    # 3.Referendum
-    # 4.Reject
-    # 5.Approved
-
     def __str__(self):
         return '%s: %s on %s' % (self.pk, self.tresc, self.status)
 
@@ -113,6 +114,12 @@ class Decyzja(ChatRoomModel, models.Model):
         if self.is_author_signed:
             return self.title
         return f"{self.title} [{_('draft')}]"
+
+    @property
+    def voting_has_ended(self):
+        """True once the decision has been rejected or approved (arguments
+        can no longer be added/edited/deleted)."""
+        return self.status in (self.Status.REJECTED, self.Status.APPROVED)
     
 
 class Argument(models.Model):

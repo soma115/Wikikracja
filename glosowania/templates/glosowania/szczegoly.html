@@ -31,11 +31,11 @@
         {% if id.data_referendum_start %}<span class="detail-meta-arrow">→</span><span title="{% trans 'Referendum period' %}"><i class="fas fa-person-booth fa-fw"></i> {{ id.data_referendum_start|date:"d.m.Y" }}{% if data_referendum_stop %}–{{ data_referendum_stop|date:"d.m.Y" }}{% endif %}</span>{% endif %}
         <span class="detail-meta-sep">·</span>
         <span class="detail-status-badge s{{ id.status }}">
-          {% if id.status == 1 %}<i class="fas fa-file-pen"></i> {% trans 'Proposal' %}
-          {% elif id.status == 2 %}<i class="fas fa-comments"></i> {% trans 'Discussion' %}
-          {% elif id.status == 3 %}<i class="fas fa-person-booth"></i> {% trans 'Referendum' %}
-          {% elif id.status == 4 %}<i class="fas fa-ban"></i> {% trans 'Rejected' %}
-          {% elif id.status == 5 %}<i class="fas fa-check-circle"></i> {% trans 'Approved' %}
+          {% if id.status == id.Status.PROPOSITION %}<i class="fas fa-file-pen"></i> {{ id.get_status_display }}
+          {% elif id.status == id.Status.DISCUSSION %}<i class="fas fa-comments"></i> {{ id.get_status_display }}
+          {% elif id.status == id.Status.REFERENDUM %}<i class="fas fa-person-booth"></i> {{ id.get_status_display }}
+          {% elif id.status == id.Status.REJECTED %}<i class="fas fa-ban"></i> {{ id.get_status_display }}
+          {% elif id.status == id.Status.APPROVED %}<i class="fas fa-check-circle"></i> {{ id.get_status_display }}
           {% endif %}
         </span>
         {% if chat_room %}
@@ -51,7 +51,7 @@
         </div>
       </div>
 
-      {% if id.status == 1 %}
+      {% if id.status == id.Status.PROPOSITION %}
       <div class="d-flex align-items-center gap-1" style="font-size:.78rem;color:var(--text-muted);">
         <i class="fas fa-pen-nib" style="color:{% if signed %}#00bc8c{% else %}var(--accent){% endif %};"></i>
         {% if signed %}{% trans 'I support' %}{% else %}{% trans 'I do not support' %}{% endif %}
@@ -77,7 +77,7 @@
         {% endif %}
       </div>
 
-      {% elif id.status == 3 and id.is_author_signed %}
+      {% elif id.status == id.Status.REFERENDUM and id.is_author_signed %}
       {% if not voted %}
       <div class="d-flex flex-column gap-2">
         <span style="font-size:1rem;font-weight:600;color:var(--text-color);">{% trans 'Would you like to implement this rule?' %}</span>
@@ -91,7 +91,7 @@
       <span style="font-size:.78rem;color:var(--text-muted);"><i class="fas fa-check-circle" style="color:#00bc8c;"></i> {% trans 'You have already voted in this referendum' %}</span>
       {% endif %}
 
-      {% elif id.status == 4 or id.status == 5 %}
+      {% elif id.voting_has_ended %}
       <div class="d-flex align-items-center gap-1" style="font-size:.78rem;color:var(--text-muted);">
         <i class="fas fa-chart-bar" style="color:var(--accent);"></i> {% trans 'Results' %}
       </div>
@@ -174,7 +174,7 @@
           </div>
         {% if arg.author %}</a>{% else %}</span>{% endif %}
         <div class="arg-card-content">{{ arg.content|richtext }}</div>
-        {% if arg.author == current_user and id.status not in "4,5"|make_list %}
+        {% if arg.author == current_user and not id.voting_has_ended %}
         <div class="arg-card-footer">
           <a href="{% url 'glosowania:edit_argument' arg.id %}" class="arg-edit-btn">{% trans 'Edit' %}</a>
           <a href="{% url 'glosowania:delete_argument' arg.id %}" class="arg-edit-btn danger">{% trans 'Delete' %}</a>
@@ -185,7 +185,7 @@
     {% else %}
       <p class="args-empty">{% trans 'No arguments for.' %}</p>
     {% endif %}
-    {% if user.is_authenticated and id.status not in "4,5"|make_list %}
+    {% if user.is_authenticated and not id.voting_has_ended %}
     <button class="arg-add-toggle for" onclick="toggleArgForm('form-for')">
       <i class="fas fa-plus"></i> {% trans 'Add an argument for' %}
     </button>
@@ -217,7 +217,7 @@
           </div>
         {% if arg.author %}</a>{% else %}</span>{% endif %}
         <div class="arg-card-content">{{ arg.content|richtext }}</div>
-        {% if arg.author == current_user and id.status not in "4,5"|make_list %}
+        {% if arg.author == current_user and not id.voting_has_ended %}
         <div class="arg-card-footer">
           <a href="{% url 'glosowania:edit_argument' arg.id %}" class="arg-edit-btn">{% trans 'Edit' %}</a>
           <a href="{% url 'glosowania:delete_argument' arg.id %}" class="arg-edit-btn danger">{% trans 'Delete' %}</a>
@@ -228,7 +228,7 @@
     {% else %}
       <p class="args-empty">{% trans 'No arguments against.' %}</p>
     {% endif %}
-    {% if user.is_authenticated and id.status not in "4,5"|make_list %}
+    {% if user.is_authenticated and not id.voting_has_ended %}
     <button class="arg-add-toggle against" onclick="toggleArgForm('form-against')">
       <i class="fas fa-plus"></i> {% trans 'Add an argument against' %}
     </button>

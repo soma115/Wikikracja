@@ -97,22 +97,22 @@ def home(request: HttpRequest):
         feed_items = [item for item in feed_items if not item['is_read']]
 
     # Get counts for each section
-    ongoing_count = Decyzja.objects.filter(status=3).count()
-    upcoming_count = Decyzja.objects.filter(status=2).count()
-    signatures_count = Decyzja.objects.filter(status=1).count()
+    ongoing_count = Decyzja.objects.filter(status=Decyzja.Status.REFERENDUM).count()
+    upcoming_count = Decyzja.objects.filter(status=Decyzja.Status.DISCUSSION).count()
+    signatures_count = Decyzja.objects.filter(status=Decyzja.Status.PROPOSITION).count()
 
-    # Propozycje głosowań widget (max 3, zbierające podpisy, status=1)
-    new_proposals = Decyzja.objects.filter(status=1).select_related('author').order_by('-data_ostatniej_modyfikacji')[:3]
+    # Propozycje głosowań widget (max 3, zbierające podpisy)
+    new_proposals = Decyzja.objects.filter(status=Decyzja.Status.PROPOSITION).select_related('author').order_by('-data_ostatniej_modyfikacji')[:3]
 
-    # Dyskutowane głosowania widget (max 3, status=2)
-    discussed_proposals = Decyzja.objects.filter(status=2).select_related('author').order_by('-data_ostatniej_modyfikacji')[:3]
+    # Dyskutowane głosowania widget (max 3)
+    discussed_proposals = Decyzja.objects.filter(status=Decyzja.Status.DISCUSSION).select_related('author').order_by('-data_ostatniej_modyfikacji')[:3]
 
     # My tasks widget (max 3, active — assigned to me or supported by me)
     my_tasks = Task.objects.filter(Q(assigned_to=request.user) | Q(votes__user=request.user, votes__value=1)).filter(status=Task.Status.ACTIVE).distinct().order_by('updated_at')[:3]
 
     # Active referendum widget
     active_referendum = None
-    referendum_obj = Decyzja.objects.filter(status=3).select_related('author').order_by('-data_referendum_start').first()
+    referendum_obj = Decyzja.objects.filter(status=Decyzja.Status.REFERENDUM).select_related('author').order_by('-data_referendum_start').first()
     if referendum_obj and referendum_obj.data_referendum_start and referendum_obj.data_referendum_stop:
         today = timezone.now().date()
         days_remaining = max(0, (referendum_obj.data_referendum_stop - today).days)
@@ -638,19 +638,11 @@ def global_search(request: HttpRequest):
                     'url': f'/tasks/{obj.pk}/',
                 })
 
-        # ── Voting / decisions – all statuses (1=Proposal … 5=Approved) ──
+        # ── Voting / decisions – all statuses ──
         if 'decision' in active_cats:
 
             # 1. Search main decision fields
             decisions = Decyzja.objects.filter(Q(title__icontains=query) | Q(tresc__icontains=query) | Q(uzasadnienie__icontains=query) | Q(args_for__icontains=query) | Q(args_against__icontains=query)).distinct()[:10]
-
-            STATUS_LABELS = {
-                1: str(_('Proposition')),
-                2: str(_('Discussion')),
-                3: str(_('Referendum')),
-                4: str(_('Rejected')),
-                5: str(_('Approved')),
-            }
 
             for obj in decisions:
                 matched_field = ''
@@ -669,7 +661,7 @@ def global_search(request: HttpRequest):
                     'type_color': category_color('decision'),
                     'title': obj.title,
                     'description': snippet[:120],
-                    'meta': (STATUS_LABELS.get(obj.status, '') + (f' · {matched_field}' if matched_field else '')),
+                    'meta': (obj.get_status_display() + (f' · {matched_field}' if matched_field else '')),
                     'url': f'/glosowania/details/{obj.pk}/',
                 })
 
@@ -679,7 +671,7 @@ def global_search(request: HttpRequest):
             # seen_decision_ids = {r['url'] for r in results if r['cat'] == 'decision'}
             for arg in arguments_qs:
                 arg_type_label = (str(_('argument for')) if arg.argument_type == 'FOR' else str(_('argument against')))
-                status_label = STATUS_LABELS.get(arg.decyzja.status, '')
+                status_label = arg.decyzja.get_status_display()
                 url = f'/glosowania/details/{arg.decyzja.pk}/'
                 author_name = arg.author.username if arg.author else str(_('Unknown'))
                 results.append({

@@ -38,7 +38,7 @@ def dodaj(request: HttpRequest):
             form.author = request.user
             form.data_powstania = datetime.today()
             # form.ile_osob_podpisalo += 1
-            form.status = 1
+            form.status = Decyzja.Status.PROPOSITION
             form.path = _("Proposition")
             form.save()
             # signed = ZebranePodpisy.objects.create(projekt=form, podpis_uzytkownika = request.user)
@@ -81,7 +81,7 @@ def edit(request: HttpRequest, pk: int):
     if decision.author != request.user:
         return redirect('glosowania:details', pk)
 
-    if decision.status != 1:
+    if decision.status != Decyzja.Status.PROPOSITION:
         return redirect('glosowania:details', pk)
 
     # Parameter referenda use a dedicated form pre-filled with proposed values.
@@ -261,15 +261,6 @@ def details(request: HttpRequest, pk: int):
     # List of voters
     voters = KtoJuzGlosowal.objects.filter(projekt=pk).select_related('ktory_uzytkownik_juz_zaglosowal').order_by('ktory_uzytkownik_juz_zaglosowal__username')
 
-    # State dictionary
-    state = {
-        1: _('Proposition'),
-        2: _('Discussion'),
-        3: _('Referendum'),
-        4: _('Rejected'),
-        5: _('Approved'),
-    }
-
     # Previous and Next - use szczegoly instead of another query
     prev = Decyzja.objects.filter(pk__lt=szczegoly.pk, status=szczegoly.status).order_by('-pk').first()
     next = Decyzja.objects.filter(pk__gt=szczegoly.pk, status=szczegoly.status).order_by('pk').first()
@@ -313,7 +304,7 @@ def details(request: HttpRequest, pk: int):
         'report': report,
         'voters': voters,
         'current_user': request.user,
-        'state': state[szczegoly.status],
+        'state': szczegoly.get_status_display(),
         'data_referendum_stop': szczegoly.data_referendum_stop,
         'prev': prev,
         'next': next,
@@ -332,8 +323,8 @@ def add_argument(request: HttpRequest, pk: int):
     """Add a new argument to decision pk"""
     decyzja = get_object_or_404(Decyzja, pk=pk)
 
-    # Block adding arguments after voting has ended (status 4=Rejected or 5=Approved)
-    if decyzja.status in [4, 5]:
+    # Block adding arguments after voting has ended
+    if decyzja.voting_has_ended:
         messages.error(request, _("Arguments cannot be added after voting has ended."))
         return redirect('glosowania:details', pk)
 
@@ -366,8 +357,8 @@ def edit_argument(request: HttpRequest, argument_id: int):
         messages.error(request, _("You can only edit your own arguments."))
         return redirect('glosowania:details', argument.decyzja.pk)
 
-    # Block editing after voting has ended (status 4=Rejected or 5=Approved)
-    if argument.decyzja.status in [4, 5]:
+    # Block editing after voting has ended
+    if argument.decyzja.voting_has_ended:
         messages.error(request, _("Arguments cannot be edited after voting has ended."))
         return redirect('glosowania:details', argument.decyzja.pk)
 
@@ -399,8 +390,8 @@ def delete_argument(request: HttpRequest, argument_id: int):
         messages.error(request, _("You can only delete your own arguments."))
         return redirect('glosowania:details', decyzja_pk)
 
-    # Block deletion after voting has ended (status 4=Rejected or 5=Approved)
-    if argument.decyzja.status in [4, 5]:
+    # Block deletion after voting has ended
+    if argument.decyzja.voting_has_ended:
         messages.error(request, _("Arguments cannot be deleted after voting has ended."))
         return redirect('glosowania:details', decyzja_pk)
 
@@ -549,7 +540,7 @@ def parameters_propose(request: HttpRequest, pk: int = None):
     if pk is not None:
         decyzja = get_object_or_404(Decyzja, pk=pk)
         # Only the author may edit, and only while it is still a proposition.
-        if decyzja.author != request.user or decyzja.status != 1:
+        if decyzja.author != request.user or decyzja.status != Decyzja.Status.PROPOSITION:
             return redirect('glosowania:details', pk)
 
     if request.method == 'POST':
@@ -573,7 +564,7 @@ def parameters_propose(request: HttpRequest, pk: int = None):
                     author=request.user,
                     title=str(_('System parameters change')),
                     data_powstania=datetime.today(),
-                    status=1,
+                    status=Decyzja.Status.PROPOSITION,
                     path=str(_('Proposition')),
                 )
             else:
@@ -645,7 +636,7 @@ def _sort_context(request):
 @login_required
 def rejected(request: HttpRequest):
     sort, order = _sort_context(request)
-    votings = _apply_sort(Decyzja.objects.filter(status=4), sort, order)
+    votings = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.REJECTED), sort, order)
     return render(request, 'glosowania/rejected.html', {
         'votings': votings,
         'current_sort': sort,
@@ -656,7 +647,7 @@ def rejected(request: HttpRequest):
 @login_required
 def proposition(request: HttpRequest):
     sort, order = _sort_context(request)
-    votings = _apply_sort(Decyzja.objects.filter(status=1), sort, order)
+    votings = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.PROPOSITION), sort, order)
     for voting in votings:
         voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
     return render(request, 'glosowania/proposition.html', {
@@ -675,7 +666,7 @@ def discussion(request: HttpRequest):
             podpis_uzytkownika_id=OuterRef("author_id"),
         )
     )
-    qs = _apply_sort(Decyzja.objects.filter(status=2).annotate(_signed=author_signed).filter(_signed=True), sort, order)
+    qs = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.DISCUSSION).annotate(_signed=author_signed).filter(_signed=True), sort, order)
     votings = list(qs)
     for voting in votings:
         voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
@@ -695,7 +686,7 @@ def referendum(request: HttpRequest):
             podpis_uzytkownika_id=OuterRef("author_id"),
         )
     )
-    qs = _apply_sort(Decyzja.objects.filter(status=3).annotate(_signed=author_signed).filter(_signed=True), sort, order)
+    qs = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.REFERENDUM).annotate(_signed=author_signed).filter(_signed=True), sort, order)
     votings = list(qs)
     for voting in votings:
         voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
@@ -709,7 +700,7 @@ def referendum(request: HttpRequest):
 @login_required
 def approved(request: HttpRequest):
     sort, order = _sort_context(request)
-    votings = _apply_sort(Decyzja.objects.filter(status=5), sort, order)
+    votings = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.APPROVED), sort, order)
     return render(request, 'glosowania/approved.html', {
         'votings': votings,
         'current_sort': sort,

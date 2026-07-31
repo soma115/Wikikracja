@@ -23,7 +23,7 @@ def test_details_view_retries_on_database_lock(sample_users):
         tresc='Test law text',
         kara='Test penalty',
         author=author,
-        status=1
+        status=Decyzja.Status.PROPOSITION
     )
     
     factory = RequestFactory()
@@ -62,7 +62,7 @@ def test_details_view_with_chat_room(sample_users):
         tresc='Test law text',
         kara='Test penalty',
         author=author,
-        status=1
+        status=Decyzja.Status.PROPOSITION
     )
     
     # Add some arguments

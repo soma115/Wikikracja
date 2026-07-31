@@ -1,6 +1,7 @@
 """Smoke test fundamentów: weryfikuje że factories + conftest działają."""
 import pytest
 
+from glosowania.models import Decyzja
 from tests.factories import DecyzjaFactory, PostFactory, RoomFactory, UserFactory
 
 
@@ -34,7 +35,7 @@ def test_decyzja_factory_with_chat_room():
     assert decyzja.id is not None
     assert decyzja.chat_room is not None
     assert decyzja.author is not None
-    assert decyzja.status == 1
+    assert decyzja.status == Decyzja.Status.PROPOSITION
 
 
 @pytest.mark.django_db
