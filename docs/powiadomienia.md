@@ -321,3 +321,43 @@ Gdy powiadomienia "nie przychodzą", zanim zmienisz kod:
 5. **Dopiero teraz**, jeśli powyższe nie wyjaśnia problemu, patrz w kod — i zacznij od
    sekcji "Historia zmian" wyżej, żeby nie naprawiać czegoś, co już zostało naprawione
    (albo przypadkiem cofnąć naprawę).
+
+## Kiedy użytkownik przestaje dostawać powiadomienia bez własnej akcji
+
+Raz zarejestrowany push nie jest gwarantowany na zawsze. Bez żadnego działania samego
+użytkownika może on przestać dostawać powiadomienia z tych powodów:
+
+1. **Ktoś inny zaloguje się na tym samym urządzeniu/przeglądarce i włączy powiadomienia.**
+   Zamierzone zachowanie (`chat/push_api.py::PushDeviceRegisterView`): token FCM jest
+   przypisany do instalacji przeglądarki, nie do konta, więc rejestracja push przez drugą
+   osobę **kasuje** aktywne `GCMDevice` pierwszej (patrz sekcja "NAJCZĘSTSZA PUŁAPKA" wyżej).
+2. **Token FCM zostaje unieważniony przez Google/przeglądarkę** — po dłuższej nieaktywności,
+   przy czyszczeniu danych przez system (niska pamięć), aktualizacji przeglądarki. Backend
+   dowiaduje się o tym dopiero przy próbie wysyłki (`Device unregistered`) i nie ma
+   automatycznego mechanizmu odświeżenia tokenu — urządzenie zostaje martwe.
+3. **Chrome/Android automatycznie cofa uprawnienie do powiadomień** dla stron rzadko
+   odwiedzanych ("unused site permissions" / Safety Check) — poza kontrolą aplikacji.
+4. **Konto zostaje dezaktywowane administracyjnie** (`is_active=False`) — filtrowane w
+   `_push_enabled_for_user` / `send_fcm_to_all_sync`.
+5. **Preferencje push (`push_notifications_chat` itp.) zmienią się nie przez użytkownika** —
+   np. import danych albo błąd w innym miejscu kodu.
+6. **Stary service worker po zmianie `firebase-messaging-sw.js`** — jeśli użytkownik długo
+   nie otwiera aplikacji, przeglądarka może nie zdążyć pobrać nowej wersji SW.
+
+Najczęstsze w praktyce: punkt 1 (współdzielone urządzenie) i punkt 2 (token po prostu padł).
+
+### Czy instalacja jako PWA pomaga?
+
+Tylko częściowo:
+
+- **Pomaga na punkt 3** — zainstalowane PWA jest przez Chrome traktowane jako osobna
+  aplikacja i **jest wyłączone** z automatycznego cofania uprawnień dla "nieużywanych" stron.
+- **Pomaga częściowo na punkt 2** — system rzadziej agresywnie czyści dane zainstalowanej
+  aplikacji niż zwykłej karty, a `gcm_sender_id` w `manifest.json` (patrz "Historia zmian",
+  pkt. 3) jest wręcz **wymagany** przez Android Chrome w trybie standalone/PWA, żeby push
+  w ogóle dochodził.
+- **Nie pomaga na punkty 1, 4, 5, 6** — to sprawy współdzielonego profilu przeglądarki albo
+  czysto serwerowe; instalacja jako PWA niczego tu nie zmienia.
+
+Wniosek: warto rekomendować instalację jako PWA (zmniejsza ryzyko punktów 2 i 3), ale to nie
+rozwiązuje problemu współdzielonego urządzenia (pkt. 1), który i tak jest zamierzony.
