@@ -25,6 +25,44 @@ export function $$(selector, context = document) {
 }
 
 /**
+ * Reads the Django CSRF token from the `csrftoken` cookie.
+ * @returns {string}
+ */
+export function getCSRFToken() {
+    const match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]*)/);
+    return match ? decodeURIComponent(match[1]) : '';
+}
+
+/**
+ * Sends a "delivery ack" back to the server so notification reliability can be
+ * debugged: the server logs a `notification_id` when it builds/sends a
+ * notification (see zzz/notifications.py, chat/consumers.py), and this tells it
+ * what actually happened on the client (shown, skipped, errored, or clicked).
+ * Fire-and-forget — never throws, never blocks the caller.
+ * @param {Object} info
+ * @param {string} [info.notification_id] - Server-assigned notification ID.
+ * @param {string} [info.tag] - Notification tag, if known.
+ * @param {'shown'|'skipped'|'error'|'clicked'} info.status
+ * @param {string} info.source - Which code path produced this ack, e.g. 'ws-foreground'.
+ * @param {string} [info.reason] - Free-form explanation (mainly for skipped/error).
+ */
+export function sendNotificationAck(info) {
+    try {
+        fetch('/chat/api/push/ack/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken(),
+            },
+            body: JSON.stringify({ user_agent: navigator.userAgent, ...info }),
+            keepalive: true,
+        }).catch((e) => console.debug('[NOTIFDBG] ack failed to send:', e));
+    } catch (e) {
+        console.debug('[NOTIFDBG] ack failed to send:', e);
+    }
+}
+
+/**
  * Updates the favicon as an in-app unread indicator and shows an OS
  * notification via the service worker. Shown over the shared WebSocket
  * connection so it appears immediately even while the tab is focused
@@ -37,14 +75,30 @@ export function $$(selector, context = document) {
  * @param {string} [notif.icon] - Notification icon URL
  * @param {string} [notif.click_action] - URL to open on notification click
  * @param {number} [notif.room_id] - Optional room ID associated with notification
+ * @param {string} [notif.notification_id] - Server-assigned ID, echoed back in the delivery ack.
  */
 export async function makeNotification(notif) {
     changeIcon('/static/chat/images/notification-on.ico');
 
-    if (!('Notification' in window) || Notification.permission !== 'granted') {
+    const notificationId = notif.notification_id || null;
+    const ack = (status, extra = {}) =>
+        sendNotificationAck({ notification_id: notificationId, status, source: 'ws-foreground', ...extra });
+
+    console.debug('[NOTIFDBG] makeNotification called', { notificationId, title: notif.title, room_id: notif.room_id });
+
+    if (!('Notification' in window)) {
+        console.debug('[NOTIFDBG] skipped: Notification API unsupported');
+        ack('skipped', { reason: 'notification-api-unsupported' });
+        return;
+    }
+    if (Notification.permission !== 'granted') {
+        console.debug('[NOTIFDBG] skipped: permission is', Notification.permission);
+        ack('skipped', { reason: `permission-${Notification.permission}` });
         return;
     }
     if (!('serviceWorker' in navigator)) {
+        console.debug('[NOTIFDBG] skipped: no serviceWorker support');
+        ack('skipped', { reason: 'no-service-worker-support' });
         return;
     }
     try {
@@ -83,6 +137,7 @@ export async function makeNotification(notif) {
             clickAction = '/chat';
         }
 
+        console.debug('[NOTIFDBG] showing via service worker', { tag, registrationScope: registration.scope });
         await registration.showNotification(notif.title || _('Chat'), {
             body: notif.body || '',
             icon: notif.icon || '/favicon.ico',
@@ -90,6 +145,7 @@ export async function makeNotification(notif) {
             tag: tag,
             requireInteraction: true,
             data: {
+                notification_id: notificationId,
                 room_id: roomId,
                 event_id: eventId,
                 vote_id: voteId,
@@ -97,8 +153,11 @@ export async function makeNotification(notif) {
                 click_action: clickAction,
             },
         });
+        console.debug('[NOTIFDBG] shown', { tag, notificationId });
+        ack('shown', { tag });
     } catch (e) {
-        console.error('Error showing notification:', e);
+        console.error('[NOTIFDBG] Error showing notification:', e);
+        ack('error', { reason: String(e && e.message || e) });
     }
 }
 

@@ -1,8 +1,9 @@
 import { FIREBASE_CONFIG, FIREBASE_VAPID_KEY } from '/dynamic-settings.js';
+import { sendNotificationAck } from './utility.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
     const enabled = await PushNotificationManager.initialize();
-    console.log('Push notifications enabled:', enabled);
+    console.log('[NOTIFDBG] Push notifications enabled:', enabled);
 });
 
 const PushNotificationManager = {
@@ -10,7 +11,7 @@ const PushNotificationManager = {
         if ('Notification' in window && 'serviceWorker' in navigator) {
             return await this.initFCM();
         }
-        console.warn('No supported push notification platform detected');
+        console.warn('[NOTIFDBG] No supported push notification platform detected');
         return false;
     },
 
@@ -36,7 +37,7 @@ const PushNotificationManager = {
     async _doInitFCM() {
         try {
             if (Notification.permission !== 'granted') {
-                console.log('Notification permission not granted yet; skipping FCM token retrieval.');
+                console.log('[NOTIFDBG] Notification permission not granted yet; skipping FCM token retrieval.');
                 return false;
             }
             if (!FIREBASE_CONFIG ||
@@ -46,7 +47,7 @@ const PushNotificationManager = {
                 !FIREBASE_CONFIG.storageBucket ||
                 !FIREBASE_CONFIG.messagingSenderId ||
                 !FIREBASE_CONFIG.appId) {
-                console.error('Firebase config is incomplete or missing. Please set FIREBASE_* environment variables.');
+                console.error('[NOTIFDBG] Firebase config is incomplete or missing. Please set FIREBASE_* environment variables.');
                 return false;
             }
             const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
@@ -70,7 +71,7 @@ const PushNotificationManager = {
                 firebase.initializeApp(FIREBASE_CONFIG);
             }
             if (!FIREBASE_VAPID_KEY) {
-                console.error('FIREBASE_VAPID_KEY is missing. Set the FCM Web Push certificate key from Firebase Console > Cloud Messaging.');
+                console.error('[NOTIFDBG] FIREBASE_VAPID_KEY is missing. Set the FCM Web Push certificate key from Firebase Console > Cloud Messaging.');
                 return false;
             }
             const messaging = firebase.messaging();
@@ -79,9 +80,10 @@ const PushNotificationManager = {
             // On Android Chrome, showNotification is more reliable when triggered from the
             // service worker context. We post a message to the SW and let it display.
             messaging.onMessage((payload) => {
-                console.log('FCM foreground message:', payload);
+                console.log('[NOTIFDBG] FCM foreground message:', payload);
                 const notification = payload.notification || {};
                 const data = payload.data || {};
+                const notificationId = data.notification_id || null;
                 const roomId = data.room_id ? parseInt(data.room_id, 10) : 0;
                 const eventId = data.event_id ? parseInt(data.event_id, 10) : 0;
 
@@ -103,6 +105,7 @@ const PushNotificationManager = {
                     tag: tag,
                     requireInteraction: true,
                     data: {
+                        notification_id: notificationId,
                         room_id: roomId,
                         event_id: eventId,
                         click_action: clickAction,
@@ -110,6 +113,10 @@ const PushNotificationManager = {
                 };
                 const activeWorker = swRegistration.active || navigator.serviceWorker.controller;
                 if (activeWorker) {
+                    console.debug('[NOTIFDBG] FCM foreground: dispatching to SW for display', { notificationId, tag });
+                    // The SW acks 'shown'/'error' once it has actually called showNotification()
+                    // (see firebase-messaging-sw.js's 'message' listener) — postMessage itself
+                    // doesn't guarantee display, so we don't ack here.
                     activeWorker.postMessage({
                         type: 'SHOW_NOTIFICATION',
                         title: title,
@@ -117,7 +124,13 @@ const PushNotificationManager = {
                     });
                 } else {
                     // Fallback: try directly from the page context.
-                    swRegistration.showNotification(title, options);
+                    console.debug('[NOTIFDBG] FCM foreground: no active SW, showing directly', { notificationId, tag });
+                    swRegistration.showNotification(title, options)
+                        .then(() => sendNotificationAck({ notification_id: notificationId, tag, status: 'shown', source: 'fcm-foreground-direct' }))
+                        .catch((e) => {
+                            console.error('[NOTIFDBG] FCM foreground direct showNotification failed:', e);
+                            sendNotificationAck({ notification_id: notificationId, tag, status: 'error', source: 'fcm-foreground-direct', reason: String(e) });
+                        });
                 }
             });
 
@@ -125,16 +138,16 @@ const PushNotificationManager = {
                 vapidKey: FIREBASE_VAPID_KEY,
                 serviceWorkerRegistration: swRegistration,
             });
-            // console.log('FCM token obtained:', token);
+            console.debug('[NOTIFDBG] FCM token obtained (len=' + (token ? token.length : 0) + ')');
             if (!token) {
-                console.warn('FCM token retrieval failed');
+                console.warn('[NOTIFDBG] FCM token retrieval failed');
                 return false;
             }
             // Send token to server
             await this.registerDevice(token);
             return true;
         } catch (error) {
-            console.error('Error initializing FCM:', error);
+            console.error('[NOTIFDBG] Error initializing FCM:', error);
             return false;
         }
     },
@@ -161,14 +174,14 @@ const PushNotificationManager = {
             });
             const data = await response.json();
             if (response.ok && data.success) {
-                console.log('Device registered successfully:', data);
+                console.log('[NOTIFDBG] Device registered successfully:', data);
                 return data;
             } else {
-                console.error('Device registration failed:', data);
+                console.error('[NOTIFDBG] Device registration failed:', data);
                 return null;
             }
         } catch (error) {
-            console.error('Error registering device:', error);
+            console.error('[NOTIFDBG] Error registering device:', error);
             return null;
         }
     },
@@ -194,15 +207,15 @@ const PushNotificationManager = {
             });
             const data = await response.json();
             if (response.ok && data.success) {
-                console.log('Device unregistered:', data);
+                console.log('[NOTIFDBG] Device unregistered:', data);
                 return data;
             } else {
-                console.error('Device unregistration failed:', data);
+                console.error('[NOTIFDBG] Device unregistration failed:', data);
                 return null;
             }
 
         } catch (error) {
-            console.error('Error unregistering device:', error);
+            console.error('[NOTIFDBG] Error unregistering device:', error);
             return null;
         }
     },

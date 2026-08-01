@@ -588,7 +588,7 @@ class ChatRepository:
     def send_push_notification_sync(self, user, title, body, deep_link, room_id, room_name=""):
         """Synchronous push notification sending via the shared notifications backend."""
         try:
-            from zzz.notifications import build_notification, send_fcm_to_user_sync
+            from zzz.notifications import NOTIF_LOG_TAG, build_notification, send_fcm_to_user_sync
 
             notification = build_notification(
                 title,
@@ -600,5 +600,5 @@ class ChatRepository:
             )
             return send_fcm_to_user_sync(user, notification, notification_type='chat')
         except Exception as e:
-            log.error(f"Error in send_push_notification_sync: {e}", exc_info=True)
+            log.error(f"{NOTIF_LOG_TAG} Error in send_push_notification_sync: {e}", exc_info=True)
             return False

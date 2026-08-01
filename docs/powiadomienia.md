@@ -12,9 +12,10 @@ Wikikracja wysyła powiadomienia o nowych wiadomościach czatu i wydarzeniach wy
 
 ### Backend
 
-- `chat/push_api.py` — endpointy `POST /chat/api/push/register/` i `/chat/api/push/unregister/` zapisują tokeny w modelu `GCMDevice` z biblioteki `django-push-notifications`.
+- `chat/push_api.py` — endpointy `POST /chat/api/push/register/` i `/chat/api/push/unregister/` zapisują tokeny w modelu `GCMDevice` z biblioteki `django-push-notifications`; `POST /chat/api/push/ack/` przyjmuje potwierdzenia dostarczenia z klienta (patrz niżej).
 - `chat/services.py` — wysyła powiadomienia metodą `send_push_notification_sync` przy nowych wiadomościach i wzmiankach.
 - `chat/consumers.py` — `ChatConsumer._post_send_processing` / `_notify_mentions` decydują, komu wysłać push i WebSocket-owe powiadomienia.
+- `zzz/notifications.py` — współdzielone funkcje budowania i wysyłki (`build_notification`, `send_fcm_to_*`, `send_websocket_to_*`); tu też żyje `NOTIF_LOG_TAG`.
 - `home/views.py` — serwuje `/firebase-messaging-sw.js`, `/dynamic-settings.js` i `/manifest.json`.
 - `zzz/scheduler.py` — wysyła powiadomienia o rozpoczynających się wydarzeniach.
 
@@ -81,11 +82,16 @@ Po każdej zmianie `firebase-messaging-sw.js` na produkcji użytkownik musi raz 
 | Generyczny komunikat "Ta witryna została zaktualizowana w tle" po zamknięciu PWA | Stary service worker na urządzeniu — wyczyść pamięć podręczną lub odinstaluj/zainstaluj PWA ponownie |
 | Backend nie wysyła FCM | Brak certyfikatu service account lub brak `GOOGLE_APPLICATION_CREDENTIALS` |
 | Po zmianie tokenu nie przychodzą powiadomienia | `/chat/api/push/register/` musi otrzymać nowy token FCM |
+| Nie wiadomo, czy powiadomienie faktycznie dotarło | Filtruj logi/konsolę po `NOTIFDBG` i śledź `notification_id` (patrz sekcja niżej) — ack ze statusem `shown`/`clicked` to twarde potwierdzenie |
 
 ## Pliki objaśnione
 
-- `chat/static/chat/js/push-notifications.js` — inicjalizacja Firebase i rejestracja tokenu FCM.
-- `chat/static/chat/js/firebase-messaging-sw.js` — szablon FCM SW z wstrzykiwaną konfiguracją. Obsługuje `onBackgroundMessage` oraz fallbackowy `push` dla przypadku, gdy FCM SDK nie zdąży się załadować w zabitej przeglądarce/PWA.
+- `chat/static/chat/js/push-notifications.js` — inicjalizacja Firebase, rejestracja tokenu FCM, obsługa `onMessage` (pierwszy plan).
+- `chat/static/chat/js/firebase-messaging-sw.js` — szablon FCM SW z wstrzykiwaną konfiguracją. Obsługuje `onBackgroundMessage`, fallbackowy `push`, `postMessage` z karty i `notificationclick`; każda ścieżka wysyła ack.
+- `chat/static/chat/js/utility.js` — `makeNotification()` (WS → `showNotification()`) i `sendNotificationAck()`.
+- `chat/static/chat/js/notifications.js` — odbiór powiadomień WS i rejestracja handlera.
+- `chat/push_api.py` — rejestracja/wyrejestrowanie urządzenia FCM oraz `PushNotificationAckView`.
+- `zzz/notifications.py` — budowanie (`notification_id`) i wysyłka FCM/WS, `NOTIF_LOG_TAG`.
 - `home/views.py` — widoki `firebase_messaging_sw`, `dynamic_settings_js`, `manifest`.
 - `chat/services.py` — logika wysyłania powiadomień przez FCM.
 
@@ -102,6 +108,34 @@ obie muszą działać niezależnie:
 **Log `"No push devices active for user X"` dotyczy WYŁĄCZNIE ścieżki FCM.** Jeśli WS-owa
 ścieżka też nie działa, przyczyna jest zupełnie inna (błąd w `chat_notification`/`makeNotification`,
 brak zgody `Notification.permission`, SW nie aktywny) — nie szukaj jej w kodzie FCM.
+
+## Śledzenie po `notification_id` i potwierdzenie odbioru (ack)
+
+Serwer sam z siebie widzi tylko wysyłkę — nie wie, czy powiadomienie faktycznie pojawiło się
+na ekranie użytkownika. Dlatego każde powiadomienie (czat, wzmianka, event, głosowanie,
+poczekalnia) dostaje unikalne **`notification_id`** (`zzz/notifications.py::build_notification`
+i `chat/consumers.py::_build_chat_notification`), które towarzyszy mu przez cały pipeline —
+WS i FCM — i wraca od klienta jako potwierdzenie.
+
+**Ack.** Klient zgłasza rzeczywisty wynik do `POST /chat/api/push/ack/`
+(`chat/push_api.py::PushNotificationAckView`, bez CSRF bo woła go też service worker) z każdego
+miejsca, w którym próbuje pokazać powiadomienie: `utility.js::makeNotification` (WS, pierwszy
+plan), `push-notifications.js` (`onMessage`, FCM pierwszy plan) i `firebase-messaging-sw.js`
+(`onBackgroundMessage`, fallback `push`, `postMessage` z karty, `notificationclick`). Payload:
+`notification_id`, `status` (`shown` / `skipped` / `error` / `clicked`), `source` (skąd w
+pipeline), opcjonalnie `reason`. Serwer loguje `Notification ACK: user=... notification_id=...
+status=... source=...`.
+
+**Tag logów `[NOTIFDBG]`.** Wszystkie logi związane z powiadomieniami — po stronie serwera
+(stała `NOTIF_LOG_TAG` w `zzz/notifications.py`, importowana w `consumers.py`/`push_api.py`/
+`services.py`) i w konsoli przeglądarki (wszystkie pliki JS z listy wyżej) — mają ten sam
+prefiks `[NOTIFDBG]`. Jedno wyszukanie w logach k8s i filtr `NOTIFDBG` w devtools pokazują
+komplet zdarzeń dla powiadomień, bez szumu z reszty aplikacji.
+
+**Jak z tego korzystać:** znajdź `notification_id` w logu wysyłki (serwer) albo w logu ack
+(klient), potem `grep notification_id=<ID>` po obu stronach — zobaczysz całą podróż: zbudowane
+→ wysłane (WS `group_send` / FCM) → pominięte / pokazane / błąd / kliknięte na kliencie.
+To zastępuje zgadywanie "czy w ogóle doszło" pewnym potwierdzeniem z przeglądarki odbiorcy.
 
 ## ⚠️ NAJCZĘSTSZA PUŁAPKA PRZY TESTOWANIU: jeden token FCM = jedno urządzenie/przeglądarka
 
@@ -273,15 +307,17 @@ Gdy powiadomienia "nie przychodzą", zanim zmienisz kod:
    ```
 1. **Ustal, której ścieżki dotyczy problem** — WS (pierwszy plan / otwarta karta) czy
    FCM (karta zamknięta)? To zupełnie inny kod.
-2. **Sprawdź konsolę przeglądarki PO STRONIE ODBIORCY** (nie nadawcy!) — szukaj:
-   - `Push notifications enabled: true/false`
-   - `Device registered successfully: {...}` z `device_id`
-   - błędów z `initFCM`, `makeNotification`, `firebase-messaging-sw.js`
+2. **Sprawdź konsolę przeglądarki PO STRONIE ODBIORCY** (nie nadawcy!) — odfiltruj po
+   `NOTIFDBG`, zobaczysz cały pipeline: rejestrację FCM, odbiór WS/FCM, `showNotification()`,
+   pominięcia i błędy z konkretnym powodem.
 3. **Sprawdź czy odbiorca ma aktywne `GCMDevice`** w bazie (patrz zapytanie wyżej).
    Jeśli nie — sprawdź, czy nie testujesz dwóch kont w jednej przeglądarce (patrz pułapka wyżej).
-4. **Sprawdź logi serwera** dla obu ścieżek:
-   - `chat.consumers` → `Push notification sent to user X` / `No push devices active for user X`
-   - `chat.services` (jeśli podniesiesz log level) → `FCM sent X notification(s)` / `FCM failed...` / `FCM response N failed...`
+4. **Sprawdź logi serwera pod kątem `NOTIFDBG`** — pokażą budowanie (`notification_id`),
+   wysyłkę WS/FCM i przychodzące ack-i od klienta (`Notification ACK: ... status=...`).
+   Weź `notification_id` z jednej linii i przefiltruj po nim, żeby zobaczyć całą podróż
+   jednego powiadomienia (patrz sekcja "Śledzenie po `notification_id`" wyżej) — status
+   `shown`/`clicked` w acku to twarde potwierdzenie, że dotarło; brak acku wskazuje, na
+   którym etapie klienta utknęło.
 5. **Dopiero teraz**, jeśli powyższe nie wyjaśnia problemu, patrz w kod — i zacznij od
    sekcji "Historia zmian" wyżej, żeby nie naprawiać czegoś, co już zostało naprawione
    (albo przypadkiem cofnąć naprawę).

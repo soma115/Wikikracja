@@ -16,6 +16,11 @@ import { getSharedWebSocket } from './websocket-manager.js';
  * @param {number} [notification.room_id] - Optional room ID associated with notification
  */
 export function onReceiveNotification(notification) {
+    console.debug('[NOTIFDBG] WebSocket notification received', {
+        notification_id: notification?.notification_id,
+        title: notification?.title,
+        room_id: notification?.room_id,
+    });
     makeNotification(notification);
 }
 
@@ -34,7 +39,7 @@ export function onRoomUnsee() {
 function handleNotificationMessage(data) {
     // Handle errors
     if (data.error) {
-        console.error(data.error);
+        console.error('[NOTIFDBG] WebSocket error:', data.error);
         return;
     }
 
@@ -48,10 +53,13 @@ function handleNotificationMessage(data) {
 
 // Initialize shared WebSocket connection for notifications when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    if (Notification?.permission !== 'granted')
+    if (Notification?.permission !== 'granted') {
+        console.debug('[NOTIFDBG] notification handler NOT registered: permission is', Notification?.permission);
         return;
+    }
 
     // Get shared WebSocket connection and register handler
     let ws = getSharedWebSocket();
     ws.addMessageHandler(handleNotificationMessage);
+    console.debug('[NOTIFDBG] WebSocket notification handler registered');
 });

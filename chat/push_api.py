@@ -9,7 +9,10 @@ from django.core.cache import cache
 from django.http import HttpRequest, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from push_notifications.models import GCMDevice
+
+from zzz.notifications import NOTIF_LOG_TAG
 
 log = logging.getLogger(__name__)
 
@@ -45,7 +48,7 @@ class PushDeviceRegisterView(View):
                 # previously unregistered devices.
                 existing = GCMDevice.objects.filter(user=user, registration_id=registration_id).first()
                 if existing and existing.active and cache.get(debounce_key):
-                    log.info(f"User {user.id} debounced duplicate push registration: {platform}")
+                    log.info(f"{NOTIF_LOG_TAG} User {user.id} debounced duplicate push registration: {platform}")
                     return JsonResponse({
                         'success': True,
                         'platform': platform,
@@ -80,7 +83,7 @@ class PushDeviceRegisterView(View):
                     'error': f'Unsupported platform: {platform}'
                 }, status=400)
 
-            log.info(f"User {user.id} registered push device: {platform}")
+            log.info(f"{NOTIF_LOG_TAG} User {user.id} registered push device: {platform}")
 
             return JsonResponse({
                 'success': True,
@@ -94,7 +97,7 @@ class PushDeviceRegisterView(View):
                 'error': 'Invalid JSON'
             }, status=400)
         except Exception as e:
-            log.error(f"Error registering push device: {e}")
+            log.error(f"{NOTIF_LOG_TAG} Error registering push device: {e}")
             return JsonResponse({
                 'error': str(e)
             }, status=500)
@@ -140,7 +143,7 @@ class PushDeviceUnregisterView(View):
                 # (e.g. user toggled notifications off and back on).
                 cache.delete(f'push_reg_debounce:{registration_id}')
 
-            log.info(f"User {user.id} unregistered {count} {platform} device(s)")
+            log.info(f"{NOTIF_LOG_TAG} User {user.id} unregistered {count} {platform} device(s)")
 
             return JsonResponse({
                 'success': True,
@@ -152,7 +155,64 @@ class PushDeviceUnregisterView(View):
                 'error': 'Invalid JSON'
             }, status=400)
         except Exception as e:
-            log.error(f"Error unregistering push device: {e}")
+            log.error(f"{NOTIF_LOG_TAG} Error unregistering push device: {e}")
             return JsonResponse({
                 'error': str(e)
             }, status=500)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(login_required, name='dispatch')
+class PushNotificationAckView(View):
+    """
+    Client-side confirmation that a notification was (or wasn't) actually
+    displayed to the user. This is the delivery-confirmation half of the
+    notification pipeline: the server logs a `notification_id` when a
+    notification is built and sent (see zzz/notifications.py and
+    chat/consumers.py), and the client posts back here once it knows the
+    real outcome (OS notification shown, skipped, errored, or clicked).
+
+    Grep the logs for a given `notification_id` to see its full journey.
+
+    Exempt from CSRF because the call can originate from the service worker
+    (firebase-messaging-sw.js), which has no straightforward way to read the
+    CSRF cookie/token. `login_required` still restricts it to authenticated
+    sessions; the endpoint has no side effects beyond logging.
+
+    POST parameters:
+    - notification_id: ID assigned server-side to the notification (may be absent
+      for older/edge-case payloads)
+    - tag: notification tag (used for de-duplication), if known
+    - status: 'shown' | 'skipped' | 'error' | 'clicked'
+    - source: where in the client pipeline this ack came from, e.g.
+      'ws-foreground', 'fcm-foreground', 'fcm-background', 'sw-click'
+    - reason: free-form explanation, mainly for 'skipped'/'error'
+    """
+    def post(self, request: HttpRequest):
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        notification_id = data.get('notification_id') or '?'
+        tag = data.get('tag', '')
+        status = data.get('status', 'unknown')
+        source = data.get('source', 'unknown')
+        reason = data.get('reason', '')
+        user_agent = data.get('user_agent', '')
+
+        log_line = (
+            f"{NOTIF_LOG_TAG} Notification ACK: user={request.user.id} notification_id={notification_id} "
+            f"status={status} source={source} tag={tag}"
+        )
+        if reason:
+            log_line += f" reason={reason!r}"
+        if user_agent:
+            log_line += f" ua={user_agent!r}"
+
+        if status == 'error':
+            log.warning(log_line)
+        else:
+            log.info(log_line)
+
+        return JsonResponse({'success': True})

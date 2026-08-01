@@ -12,7 +12,7 @@ try {
     importScripts('https://www.gstatic.com/firebasejs/12.10.0/firebase-messaging-compat.js');
     firebaseLoaded = true;
 } catch (e) {
-    console.error('Firebase SDK scripts failed to load in service worker:', e);
+    console.error('[NOTIFDBG] Firebase SDK scripts failed to load in service worker:', e);
 }
 
 let messaging = null;
@@ -26,7 +26,7 @@ if (firebaseLoaded &&
     firebase.initializeApp(firebaseConfig);
     messaging = firebase.messaging();
 } else {
-    console.warn('Firebase config incomplete or SDK not loaded; service worker will not handle FCM.');
+    console.warn('[NOTIFDBG] Firebase config incomplete or SDK not loaded; service worker will not handle FCM.');
 }
 
 // Activate the new service worker immediately so updates take effect
@@ -34,19 +34,40 @@ if (firebaseLoaded &&
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
 
+// Sends a delivery ack back to the server so notification reliability can be
+// debugged from the server logs (correlated by `notification_id` — see
+// chat/push_api.py PushNotificationAckView). No CSRF token: this endpoint is
+// intentionally CSRF-exempt because a service worker has no simple way to read
+// the CSRF cookie. Fire-and-forget; never throws.
+function postAck(info) {
+    try {
+        fetch('/chat/api/push/ack/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_agent: self.navigator ? self.navigator.userAgent : '', ...info }),
+        }).catch((e) => console.debug('[NOTIFDBG] ack failed to send:', e));
+    } catch (e) {
+        console.debug('[NOTIFDBG] ack failed to send:', e);
+    }
+}
+
 // Handle background messages only if FCM was initialized
 if (messaging) {
     messaging.onBackgroundMessage((payload) => {
-        console.log('FCM background message:', payload);
+        console.log('[NOTIFDBG] FCM background message:', payload);
 
         const notification = payload.notification || {};
+        const data = payload.data || {};
+        const notificationId = data.notification_id || null;
+
         // If the FCM SDK parsed a real notification payload, it already displays it
         // automatically in the background. Avoid a second duplicate notification.
         if (notification.title && notification.body) {
+            console.debug('[NOTIFDBG] background message auto-displayed by FCM SDK', { notificationId });
+            postAck({ notification_id: notificationId, tag: data.tag, status: 'shown', source: 'fcm-background-auto' });
             return;
         }
 
-        const data = payload.data || {};
         const eventId = data.event_id ? parseInt(data.event_id, 10) : 0;
         const roomId = data.room_id ? parseInt(data.room_id, 10) : 0;
         const tag = data.tag || (eventId ? `event-${eventId}` : `chat-${data.room_id || 'general'}`);
@@ -59,6 +80,7 @@ if (messaging) {
             badge: '/favicon.ico',
             tag: tag,
             data: {
+                notification_id: notificationId,
                 room_id: roomId,
                 event_id: eventId,
                 click_action: clickAction,
@@ -66,7 +88,13 @@ if (messaging) {
             requireInteraction: true
         };
 
-        return self.registration.showNotification(notificationTitle, notificationOptions);
+        console.debug('[NOTIFDBG] showing background message manually', { notificationId, tag });
+        return self.registration.showNotification(notificationTitle, notificationOptions)
+            .then(() => postAck({ notification_id: notificationId, tag, status: 'shown', source: 'fcm-background-manual' }))
+            .catch((e) => {
+                console.error('[NOTIFDBG] background showNotification failed:', e);
+                postAck({ notification_id: notificationId, tag, status: 'error', source: 'fcm-background-manual', reason: String(e) });
+            });
     });
 }
 
@@ -77,17 +105,20 @@ if (messaging) {
 // missing. It parses the raw Web Push payload and displays the notification.
 if (!messaging) {
     self.addEventListener('push', (event) => {
-        console.log('Fallback push handler received event:', event);
+        console.log('[NOTIFDBG] Fallback push handler received event:', event);
+        let notificationId = null;
+        let tag = 'unknown';
         try {
             const payload = event.data ? event.data.json() : {};
             const notification = payload.notification || {};
             const data = payload.data || {};
+            notificationId = data.notification_id || null;
             const roomId = data.room_id ? parseInt(data.room_id, 10) : 0;
             const eventId = data.event_id ? parseInt(data.event_id, 10) : 0;
             const title = notification.title || data.title || (eventId ? 'Event' : 'Chat Message');
             const body = notification.body || data.body || '';
             const icon = data.icon || '/favicon.ico';
-            const tag = data.tag || (eventId ? `event-${eventId}` : `chat-${data.room_id || 'general'}`);
+            tag = data.tag || (eventId ? `event-${eventId}` : `chat-${data.room_id || 'general'}`);
             const clickAction = data.click_action || (eventId ? `/events/${eventId}/` : '/chat');
 
             const options = {
@@ -97,15 +128,25 @@ if (!messaging) {
                 tag: tag,
                 requireInteraction: true,
                 data: {
+                    notification_id: notificationId,
                     room_id: roomId,
                     event_id: eventId,
                     click_action: clickAction,
                 },
             };
 
-            event.waitUntil(self.registration.showNotification(title, options));
+            console.debug('[NOTIFDBG] showing via fallback push handler', { notificationId, tag });
+            event.waitUntil(
+                self.registration.showNotification(title, options)
+                    .then(() => postAck({ notification_id: notificationId, tag, status: 'shown', source: 'fallback-push' }))
+                    .catch((e) => {
+                        console.error('[NOTIFDBG] fallback showNotification failed:', e);
+                        postAck({ notification_id: notificationId, tag, status: 'error', source: 'fallback-push', reason: String(e) });
+                    })
+            );
         } catch (e) {
-            console.error('Fallback push handler error:', e);
+            console.error('[NOTIFDBG] Fallback push handler error:', e);
+            postAck({ notification_id: notificationId, tag, status: 'error', source: 'fallback-push', reason: String(e) });
         }
     });
 }
@@ -116,7 +157,14 @@ if (!messaging) {
 self.addEventListener('message', (event) => {
     if (event.data?.type === 'SHOW_NOTIFICATION') {
         const { title, options } = event.data;
-        self.registration.showNotification(title, options);
+        const notificationId = options?.data?.notification_id || null;
+        console.debug('[NOTIFDBG] SHOW_NOTIFICATION message received', { notificationId, tag: options?.tag });
+        self.registration.showNotification(title, options)
+            .then(() => postAck({ notification_id: notificationId, tag: options?.tag, status: 'shown', source: 'fcm-foreground-sw-postmessage' }))
+            .catch((e) => {
+                console.error('[NOTIFDBG] postMessage showNotification failed:', e);
+                postAck({ notification_id: notificationId, tag: options?.tag, status: 'error', source: 'fcm-foreground-sw-postmessage', reason: String(e) });
+            });
     }
 });
 
@@ -125,6 +173,17 @@ self.addEventListener('message', (event) => {
 // running in the background.
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
+
+    console.debug('[NOTIFDBG] notification clicked', {
+        notification_id: event.notification.data?.notification_id,
+        tag: event.notification.tag,
+    });
+    postAck({
+        notification_id: event.notification.data?.notification_id,
+        tag: event.notification.tag,
+        status: 'clicked',
+        source: 'sw-click',
+    });
 
     const clickAction = event.notification.data?.click_action;
     if (!clickAction) {

@@ -1,6 +1,7 @@
 import logging
 import os
 import threading
+import uuid
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
@@ -15,6 +16,13 @@ from zzz.utils import build_site_url
 
 log = logging.getLogger(__name__)
 
+# Prefix for every log line in the notification build/send/receive pipeline so the
+# whole journey of a notification can be found with a single search — in server logs
+# and in the browser console (see chat/static/chat/js/*.js, which use the same tag) —
+# regardless of which of the many code paths (FCM, WebSocket, chat, events, votes,
+# citizens...) it went through.
+NOTIF_LOG_TAG = "[NOTIFDBG]"
+
 
 def _icon_url():
     ss = SiteSettings.get()
@@ -26,8 +34,16 @@ def _icon_url():
 
 
 def build_notification(title, body, click_action, tag, icon=None, **extra):
-    """Build a notification payload shared by FCM and WebSocket dispatchers."""
-    return {
+    """Build a notification payload shared by FCM and WebSocket dispatchers.
+
+    Every notification gets a unique `notification_id` so its journey (built ->
+    sent via FCM/WebSocket -> shown/clicked/skipped/errored on the client) can be
+    traced end-to-end by grepping logs for that ID. See chat/push_api.py's
+    PushNotificationAckView for the client-side "it was actually shown" half.
+    """
+    notification_id = uuid.uuid4().hex
+    notification = {
+        'notification_id': notification_id,
         'title': title,
         'body': body,
         'icon': icon or _icon_url(),
@@ -35,6 +51,8 @@ def build_notification(title, body, click_action, tag, icon=None, **extra):
         'tag': tag,
         **extra,
     }
+    log.debug(f"{NOTIF_LOG_TAG} Built notification {notification_id}: tag={tag} title={title!r}")
+    return notification
 
 
 def _build_fcm_message(notification):
@@ -124,39 +142,43 @@ def _push_user_ids(notification_type):
 
 def send_fcm_to_user_sync(user, notification, notification_type=None):
     """Send an FCM push notification to a single user's active devices."""
+    notification_id = notification.get('notification_id', '?')
     if not _fcm_ready():
-        log.warning(f"FCM skipped for user {user.id}: Firebase not initialized")
+        log.warning(f"{NOTIF_LOG_TAG} FCM skipped for user {user.id} (notification_id={notification_id}): Firebase not initialized")
         return 0
 
     if not _push_enabled_for_user(user, notification_type):
-        log.debug(f"Push disabled for user {user.id} ({notification_type})")
+        log.debug(f"{NOTIF_LOG_TAG} Push disabled for user {user.id} ({notification_type}), notification_id={notification_id}")
         return 0
 
     _migrate_legacy_gcm_devices()
     fcm_devices = GCMDevice.objects.filter(user=user, active=True, cloud_message_type='FCM')
-    if not fcm_devices.exists():
-        log.debug(f"No FCM devices for user {user.id}")
+    device_count = fcm_devices.count()
+    if not device_count:
+        log.debug(f"{NOTIF_LOG_TAG} No FCM devices for user {user.id}, notification_id={notification_id}")
         return 0
 
     try:
         message = _build_fcm_message(notification)
+        log.debug(f"{NOTIF_LOG_TAG} Sending FCM notification_id={notification_id} to user {user.id} ({device_count} device(s))")
         result = fcm_devices.send_message(message)
         if result and result.success_count > 0:
-            log.info(f"FCM sent {result.success_count} notification(s) to user {user.id}")
+            log.info(f"{NOTIF_LOG_TAG} FCM sent {result.success_count}/{device_count} notification(s) to user {user.id}, notification_id={notification_id}")
         if result:
             for idx, resp in enumerate(result.responses):
                 if not resp.success:
-                    log.warning(f"FCM response {idx} failed for user {user.id}: {resp.exception}")
+                    log.warning(f"{NOTIF_LOG_TAG} FCM response {idx} failed for user {user.id}, notification_id={notification_id}: {resp.exception}")
         return result.success_count if result else 0
     except Exception as e:
-        log.error(f"FCM failed for user {user.id}: {e}", exc_info=True)
+        log.error(f"{NOTIF_LOG_TAG} FCM failed for user {user.id}, notification_id={notification_id}: {e}", exc_info=True)
     return 0
 
 
 def send_fcm_to_all_sync(notification, user_ids=None, notification_type=None):
     """Broadcast an FCM push notification to all active users or a subset of user IDs."""
+    notification_id = notification.get('notification_id', '?')
     if not _fcm_ready():
-        log.warning("FCM skipped: Firebase not initialized")
+        log.warning(f"{NOTIF_LOG_TAG} FCM broadcast skipped (notification_id={notification_id}): Firebase not initialized")
         return 0
 
     if user_ids is None and notification_type:
@@ -167,38 +189,40 @@ def send_fcm_to_all_sync(notification, user_ids=None, notification_type=None):
     if user_ids is not None:
         qs = qs.filter(user_id__in=user_ids)
     if not qs.exists():
-        log.debug("No active FCM devices found")
+        log.debug(f"{NOTIF_LOG_TAG} No active FCM devices found (notification_id={notification_id})")
         return 0
 
     try:
         message = _build_fcm_message(notification)
         result = qs.send_message(message)
         if result and result.success_count > 0:
-            log.info(f"FCM sent {result.success_count} notification(s)")
+            log.info(f"{NOTIF_LOG_TAG} FCM broadcast sent {result.success_count} notification(s), notification_id={notification_id}")
         if result:
             for idx, resp in enumerate(result.responses):
                 if not resp.success:
-                    log.warning(f"FCM response {idx} failed: {resp.exception}")
+                    log.warning(f"{NOTIF_LOG_TAG} FCM broadcast response {idx} failed, notification_id={notification_id}: {resp.exception}")
         return result.success_count if result else 0
     except Exception as e:
-        log.error(f"FCM broadcast failed: {e}", exc_info=True)
+        log.error(f"{NOTIF_LOG_TAG} FCM broadcast failed, notification_id={notification_id}: {e}", exc_info=True)
     return 0
 
 
 def send_websocket_to_user_sync(user_id, notification, ws_type='notification'):
     """Send a WebSocket notification to a single user's personal group."""
+    notification_id = notification.get('notification_id', '?')
     channel_layer = get_channel_layer()
     if channel_layer is None:
-        log.warning("Channel layer not configured; skipping WebSocket notification")
+        log.warning(f"{NOTIF_LOG_TAG} Channel layer not configured; skipping WebSocket notification_id={notification_id} for user {user_id}")
         return
 
     try:
+        log.debug(f"{NOTIF_LOG_TAG} group_send notification_id={notification_id} to user_{user_id} (type={ws_type})")
         async_to_sync(channel_layer.group_send)(
             f"user_{user_id}",
             {"type": ws_type, "notification": notification}
         )
     except Exception as e:
-        log.warning(f"WebSocket notification failed for user {user_id}: {e}")
+        log.warning(f"{NOTIF_LOG_TAG} WebSocket notification_id={notification_id} failed for user {user_id}: {e}")
 
 
 def send_websocket_to_all_sync(notification, ws_type='notification', notification_type=None, user_ids=None):
@@ -207,9 +231,10 @@ def send_websocket_to_all_sync(notification, ws_type='notification', notificatio
     Pass `user_ids` to reuse an already-computed set (e.g. from `send_notification_to_all_sync`)
     and skip a redundant preference lookup query.
     """
+    notification_id = notification.get('notification_id', '?')
     channel_layer = get_channel_layer()
     if channel_layer is None:
-        log.warning("Channel layer not configured; skipping WebSocket broadcast")
+        log.warning(f"{NOTIF_LOG_TAG} Channel layer not configured; skipping WebSocket broadcast, notification_id={notification_id}")
         return
 
     if user_ids is None:
@@ -219,14 +244,17 @@ def send_websocket_to_all_sync(notification, ws_type='notification', notificatio
     queryset = User.objects.filter(is_active=True)
     if user_ids is not None:
         queryset = queryset.filter(id__in=user_ids)
+    sent = 0
     for user_id in queryset.values_list('id', flat=True):
         try:
             async_to_sync(channel_layer.group_send)(
                 f"user_{user_id}",
                 {"type": ws_type, "notification": notification}
             )
+            sent += 1
         except Exception as e:
-            log.warning(f"WebSocket broadcast failed for user {user_id}: {e}")
+            log.warning(f"{NOTIF_LOG_TAG} WebSocket broadcast failed for user {user_id}, notification_id={notification_id}: {e}")
+    log.debug(f"{NOTIF_LOG_TAG} WebSocket broadcast notification_id={notification_id} group_send to {sent} user(s)")
 
 
 def send_notification_to_all_sync(notification, ws_type='notification', notification_type=None):

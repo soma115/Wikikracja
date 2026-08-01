@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import re
+import uuid
 from datetime import datetime
 
 from channels.db import database_sync_to_async
@@ -10,6 +11,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.utils.translation import gettext as _
 
+from zzz.notifications import NOTIF_LOG_TAG
 from zzz.richtext import sanitize
 from zzz.utils import get_site_domain
 
@@ -31,7 +33,10 @@ def _build_chat_notification(author, room_id, room_name=None):
     username for private chats. Pass None/"" to fall back to a generic "Chat" title.
     """
     site_url = f"https://{domain}"
+    notification_id = uuid.uuid4().hex
+    log.debug(f"{NOTIF_LOG_TAG} Built chat notification {notification_id} for room {room_id} (author={author})")
     return {
+        'notification_id': notification_id,
         'title': _("Room: %(room)s") % {'room': room_name} if room_name else _("Chat"),
         'body': _("Sender: %(author)s") % {'author': author},
         'icon': f"{site_url}/favicon.ico",
@@ -425,6 +430,10 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     # it appears immediately even while the tab is in the foreground (FCM's
                     # foreground routing is unreliable across browsers). Push (FCM) still
                     # covers the case where the tab/browser is fully closed.
+                    log.debug(
+                        f"{NOTIF_LOG_TAG} group_send chat.notification notification_id={notification['notification_id']} "
+                        f"to user_{member.id} for message {message_id} (present={is_present})"
+                    )
                     await self.channel_layer.group_send(
                         f"user_{member.id}",
                         {
@@ -459,7 +468,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     continue
                 asyncio.create_task(self._send_mention_notification(sender, room, user, msg))
         except Exception as e:
-            log.error(f"Error in mention notification for message {msg.id}: {e}", exc_info=True)
+            log.error(f"{NOTIF_LOG_TAG} Error in mention notification for message {msg.id}: {e}", exc_info=True)
 
     async def _send_mention_notification(self, sender, room, user, msg):
         """Send a WebSocket notification and a push for a single mention."""
@@ -467,6 +476,10 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             author = "Anonymous" if msg.anonymous else (sender.username or "System")
             notification = _build_chat_notification(author, room.id, room.name)
 
+            log.debug(
+                f"{NOTIF_LOG_TAG} group_send chat.mention notification_id={notification['notification_id']} "
+                f"to user_{user.id} for message {msg.id}"
+            )
             # Show a real OS notification via the shared WebSocket connection too, so it
             # appears immediately even while the tab is in the foreground (push/FCM still
             # covers the case where the tab/browser is fully closed).
@@ -484,11 +497,11 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 user, notification['title'], notification['body'], notification['click_action'], room.id
             )
             if success:
-                log.info(f"Mention notification sent to user {user.id} for message {msg.id}")
+                log.info(f"{NOTIF_LOG_TAG} Mention notification sent to user {user.id} for message {msg.id} (ws notification_id={notification['notification_id']})")
             else:
-                log.debug(f"No push devices active for mention to user {user.id}")
+                log.debug(f"{NOTIF_LOG_TAG} No push devices active for mention to user {user.id} (ws notification_id={notification['notification_id']})")
         except Exception as e:
-            log.error(f"Error sending mention notification to user {user.id}: {e}", exc_info=True)
+            log.error(f"{NOTIF_LOG_TAG} Error sending mention notification to user {user.id}: {e}", exc_info=True)
 
     async def _dispatch_proxy(self, proxy: HandledMessage):
         """Flush a proxy outside of receive_json — used by background tasks that build messages via helpers."""
@@ -561,8 +574,14 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         so it appears immediately even while the tab is in the foreground.
         Push (FCM) is a fallback for when the tab/browser is fully closed.
         """
+        notification_id = event["notification"].get("notification_id", "?")
         if event["room_id"] in self.rooms.items():
+            log.debug(
+                f"{NOTIF_LOG_TAG} chat_notification notification_id={notification_id} skipped for user "
+                f"{self.scope['user'].id}: already present in room {event['room_id']}"
+            )
             return
+        log.debug(f"{NOTIF_LOG_TAG} chat_notification notification_id={notification_id} relayed to user {self.scope['user'].id} over WebSocket")
         await self.send_json({"notification": event["notification"]})
 
     async def chat_mention(self, event):
@@ -572,8 +591,14 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         Same dual delivery as chat_notification: WS for foreground, push for
         when the tab/browser is closed.
         """
+        notification_id = event["notification"].get("notification_id", "?")
         if event["room_id"] in self.rooms.items():
+            log.debug(
+                f"{NOTIF_LOG_TAG} chat_mention notification_id={notification_id} skipped for user "
+                f"{self.scope['user'].id}: already present in room {event['room_id']}"
+            )
             return
+        log.debug(f"{NOTIF_LOG_TAG} chat_mention notification_id={notification_id} relayed to user {self.scope['user'].id} over WebSocket")
         await self.send_json({"notification": event["notification"]})
 
     async def event_notification(self, event):
@@ -814,11 +839,11 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 deep_link=notification['click_action'], room_id=room_id, room_name=room_name or "",
             )
             if success:
-                log.info(f"Push notification sent to user {user.id} for message {message.id}")
+                log.info(f"{NOTIF_LOG_TAG} Push notification sent to user {user.id} for message {message.id} (ws notification_id={notification['notification_id']})")
             else:
-                log.debug(f"No push devices active for user {user.id}")
+                log.debug(f"{NOTIF_LOG_TAG} No push devices active for user {user.id} (ws notification_id={notification['notification_id']})")
         except Exception as e:
-            log.error(f"Error sending push notification: {e}")
+            log.error(f"{NOTIF_LOG_TAG} Error sending push notification: {e}")
 
     async def handle_leave_room(self, room):
         self.rooms.leave(room.id)
