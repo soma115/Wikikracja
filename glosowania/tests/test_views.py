@@ -1,5 +1,6 @@
 """Tests for glosowania views."""
 import pytest
+import redis
 from django.contrib.auth import get_user_model
 from django.db import OperationalError
 from django.test import Client
@@ -120,6 +121,32 @@ def test_voting_does_not_write_vote_code_directly(sample_users):
     decyzja.refresh_from_db()
     assert decyzja.za == 0
     assert decyzja.przeciw == 0
+
+
+@pytest.mark.django_db
+def test_voting_when_vote_storage_is_down_does_not_mark_user_as_voted(sample_users):
+    """If vote storage (Redis) is unreachable while casting a vote, the whole
+    transaction - including the KtoJuzGlosowal row - must roll back, so the
+    user isn't marked as having voted for a vote that was never recorded.
+    They should see a friendly error instead of a 500."""
+    author = sample_users[0]
+    voter = sample_users[1]
+    decyzja = Decyzja.objects.create(
+        title='Referendum Bill',
+        tresc='Test law text',
+        kara='Test penalty',
+        author=author,
+        status=Decyzja.Status.REFERENDUM,
+    )
+
+    client = Client()
+    client.force_login(voter)
+
+    with patch('glosowania.views.push_pending_vote', side_effect=redis.RedisError('boom')):
+        response = client.post(f'/glosowania/details/{decyzja.pk}/', {'tak': '1'})
+
+    assert response.status_code == 302
+    assert not KtoJuzGlosowal.objects.filter(projekt=decyzja, ktory_uzytkownik_juz_zaglosowal=voter).exists()
 
 
 @pytest.mark.django_db

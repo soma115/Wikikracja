@@ -6,6 +6,7 @@ import re
 import time
 from datetime import datetime
 
+import redis
 from django.conf import settings as s
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -174,28 +175,36 @@ def details(request: HttpRequest, pk: int):
         return redirect('glosowania:details', pk)
 
     if request.POST.get('tak'):
-        with transaction.atomic():
-            try:
-                nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
-            except Decyzja.DoesNotExist:
-                return redirect('glosowania:index')
-            osoba_glosujaca = request.user
-            already_voted = KtoJuzGlosowal.objects.filter(
-                projekt=nowy_projekt,
-                ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca,
-            ).exists()
-            if already_voted:
-                return redirect('glosowania:details', pk)
-            glos = KtoJuzGlosowal(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca)
-            glos.save()
-            code = generate_code()
-            # The vote's content is queued outside the SQL database (see
-            # glosowania.vote_buffer) instead of being written to VoteCode
-            # here, so it isn't created in the same instant/order as the
-            # KtoJuzGlosowal row above. It is shuffled into VoteCode - and
-            # counted into za/przeciw - only once the referendum closes
-            # (glosowania.management.commands.vote).
-            push_pending_vote(nowy_projekt.id, code, True)
+        try:
+            with transaction.atomic():
+                try:
+                    nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
+                except Decyzja.DoesNotExist:
+                    return redirect('glosowania:index')
+                osoba_glosujaca = request.user
+                already_voted = KtoJuzGlosowal.objects.filter(
+                    projekt=nowy_projekt,
+                    ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca,
+                ).exists()
+                if already_voted:
+                    return redirect('glosowania:details', pk)
+                glos = KtoJuzGlosowal(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca)
+                glos.save()
+                code = generate_code()
+                # The vote's content is queued outside the SQL database (see
+                # glosowania.vote_buffer) instead of being written to VoteCode
+                # here, so it isn't created in the same instant/order as the
+                # KtoJuzGlosowal row above. It is shuffled into VoteCode - and
+                # counted into za/przeciw - only once the referendum closes
+                # (glosowania.management.commands.vote).
+                push_pending_vote(nowy_projekt.id, code, True)
+        except redis.RedisError:
+            # If vote storage is unreachable, the KtoJuzGlosowal row above is
+            # rolled back with the rest of the transaction, so the user isn't
+            # marked as having voted without their vote being recorded.
+            log.error(f"Vote storage unavailable while casting a vote on decyzja {pk}", exc_info=True)
+            messages.error(request, str(_('Voting is temporarily unavailable. Please try again in a moment.')))
+            return redirect('glosowania:details', pk)
 
         message1 = str(_('Your vote has been saved. You voted Yes.'))
         messages.success(request, (message1), extra_tags='persist')
@@ -211,23 +220,28 @@ def details(request: HttpRequest, pk: int):
         return redirect('glosowania:details', pk)
 
     if request.POST.get('nie'):
-        with transaction.atomic():
-            try:
-                nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
-            except Decyzja.DoesNotExist:
-                return redirect('glosowania:index')
-            osoba_glosujaca = request.user
-            already_voted = KtoJuzGlosowal.objects.filter(
-                projekt=nowy_projekt,
-                ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca,
-            ).exists()
-            if already_voted:
-                return redirect('glosowania:details', pk)
-            glos = KtoJuzGlosowal(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca)
-            glos.save()
-            code = generate_code()
-            # See the 'tak' branch above for why this isn't a VoteCode.objects.create() here.
-            push_pending_vote(nowy_projekt.id, code, False)
+        try:
+            with transaction.atomic():
+                try:
+                    nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
+                except Decyzja.DoesNotExist:
+                    return redirect('glosowania:index')
+                osoba_glosujaca = request.user
+                already_voted = KtoJuzGlosowal.objects.filter(
+                    projekt=nowy_projekt,
+                    ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca,
+                ).exists()
+                if already_voted:
+                    return redirect('glosowania:details', pk)
+                glos = KtoJuzGlosowal(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca)
+                glos.save()
+                code = generate_code()
+                # See the 'tak' branch above for why this isn't a VoteCode.objects.create() here.
+                push_pending_vote(nowy_projekt.id, code, False)
+        except redis.RedisError:
+            log.error(f"Vote storage unavailable while casting a vote on decyzja {pk}", exc_info=True)
+            messages.error(request, str(_('Voting is temporarily unavailable. Please try again in a moment.')))
+            return redirect('glosowania:details', pk)
 
         message1 = str(_('Your vote has been saved. You voted No.'))
         messages.success(request, (message1), extra_tags='persist')

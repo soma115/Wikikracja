@@ -927,7 +927,12 @@ def site_admin(request: HttpRequest) -> HttpResponse:
 
     quick_links = QuickLink.objects.all()
 
+    restarted_referendums = Decyzja.objects.filter(referendum_restart_count__gt=0).order_by('-referendum_restart_count')
+    total_referendum_restarts = sum(d.referendum_restart_count for d in restarted_referendums)
+
     return render(request, 'home/site_admin.html', {
         'quick_links': quick_links,
+        'restarted_referendums': restarted_referendums,
+        'total_referendum_restarts': total_referendum_restarts,
     })
 

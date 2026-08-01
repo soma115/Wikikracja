@@ -91,10 +91,13 @@ def test_closing_referendum_rejects_when_no_votes_cast(sample_users):
 
 
 @pytest.mark.django_db
-def test_closing_referendum_warns_on_buffer_mismatch(sample_users, caplog):
+def test_closing_referendum_restarts_on_buffer_mismatch(sample_users, caplog):
     """If fewer (or more) votes come back from the buffer than KtoJuzGlosowal
-    recorded voters, this should be logged loudly instead of silently
-    producing a wrong tally."""
+    recorded voters, some votes were lost (e.g. the vote storage service
+    restarted). Instead of tallying a wrong/partial result, the referendum
+    must restart from scratch: no result is recorded, everyone is cleared
+    from the who-voted list so they can vote again, and the voting window
+    is reset to a full new period."""
     author = sample_users[0]
     today = timezone.now().date()
 
@@ -119,3 +122,16 @@ def test_closing_referendum_warns_on_buffer_mismatch(sample_users, caplog):
         call_command('vote')
 
     assert any('vote buffer' in message.lower() for message in caplog.messages)
+
+    decyzja.refresh_from_db()
+    # No result was ever tallied or revealed.
+    assert decyzja.status == Decyzja.Status.REFERENDUM
+    assert decyzja.za == 0
+    assert decyzja.przeciw == 0
+    assert VoteCode.objects.filter(project=decyzja).count() == 0
+    # Nobody is marked as having voted anymore - everyone can vote again.
+    assert KtoJuzGlosowal.objects.filter(projekt=decyzja).count() == 0
+    # The voting window restarts from today for a full new period.
+    assert decyzja.data_referendum_start == today
+    assert decyzja.data_referendum_stop > today
+    assert decyzja.referendum_restart_count == 1

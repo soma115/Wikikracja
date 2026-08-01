@@ -170,5 +170,50 @@
   }
   </script>
 
+  {# ── VOTE STORAGE RELIABILITY ── #}
+  <div class="card mb-4">
+    <div class="card-header d-flex align-items-center gap-2">
+      <i class="fas fa-shield-halved" style="color:var(--accent);opacity:.8;font-size:.85rem;"></i>
+      <span class="section-heading" style="font-size:.85rem;">{% trans "Vote storage reliability" %}</span>
+    </div>
+    <div class="card-body">
+      <p style="font-size:.85rem;color:var(--text-muted);">
+        {% trans "While a referendum is open, votes are stored outside the main database." %}
+        {% trans "This way nobody can see who voted for what, or the running result." %}
+        {% trans "Votes are written to the database and counted only after the referendum closes." %}
+      </p>
+      <p style="font-size:.85rem;color:var(--text-muted);">
+        {% trans "If that storage fails before the referendum closes, the votes cast so far are lost." %}
+        {% trans "The system does not count a partial result in that case." %}
+        {% trans "Everyone who voted is removed from the list of people who already voted." %}
+        {% trans "All verification codes issued so far become invalid." %}
+        {% trans "Voting restarts from scratch for a full new period." %}
+        {% trans "Everyone is notified by email." %}
+      </p>
+
+      {% if restarted_referendums %}
+      <div class="mt-3 pt-3" style="border-top:1px solid rgba(255,255,255,.07);">
+        <div class="fw-semibold mb-2" style="font-size:.875rem;">
+          <i class="fas fa-triangle-exclamation me-2" style="color:var(--accent);opacity:.7;"></i>
+          {% trans "Restarts so far:" %} {{ total_referendum_restarts }}
+        </div>
+        <div class="d-flex flex-column gap-2">
+          {% for decyzja in restarted_referendums %}
+          <div class="d-flex align-items-center gap-2 p-2" style="background:rgba(255,255,255,.03);border-radius:4px;">
+            <a href="{% url 'glosowania:details' decyzja.id %}" style="flex:1;font-size:.85rem;">{{ decyzja.id }}. {{ decyzja.title }}</a>
+            <span style="font-size:.75rem;color:var(--text-muted);">{% trans "Restarts:" %} {{ decyzja.referendum_restart_count }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% else %}
+      <p style="font-size:.85rem;color:var(--text-muted);" class="mb-0">
+        <i class="fas fa-circle-check me-2" style="color:var(--accent);opacity:.7;"></i>
+        {% trans "No referendum has ever had to restart because of a vote storage failure." %}
+      </p>
+      {% endif %}
+    </div>
+  </div>
+
 </div>
 {% endblock %}

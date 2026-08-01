@@ -60,6 +60,12 @@ class Decyzja(ChatRoomModel, models.Model):
     za = models.SmallIntegerField(default=0, editable=False)
     przeciw = models.SmallIntegerField(default=0, editable=False)
     status = models.SmallIntegerField(choices=Status.choices, default=Status.PROPOSITION, editable=False)
+    referendum_restart_count = models.SmallIntegerField(
+        default=0,
+        editable=False,
+        verbose_name=_('Referendum restart count'),
+        help_text=_('How many times voting had to restart from scratch because the vote buffer was lost (e.g. Redis restart) before it closed.'),
+    )
     proposed_parameters = models.JSONField(
         null=True,
         blank=True,
