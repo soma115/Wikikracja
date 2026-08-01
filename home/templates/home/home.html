@@ -491,11 +491,6 @@
         </p>
 
         <p class="mb-0" style="font-size:.82rem;color:var(--text-muted);">
-          <i class="fas fa-users me-1"></i>
-          {{ active_referendum.voters_count }} {% trans "of" %} {{ active_referendum.total_citizens }} {% trans "citizens voted" %} ({{ active_referendum.turnout_pct }}%)
-        </p>
-
-        <p class="mb-0" style="font-size:.82rem;color:var(--text-muted);">
           <i class="fas fa-clock me-1"></i>
           {% if active_referendum.days_remaining == 0 %}
             {% trans "Last day of voting" %}

@@ -1,4 +1,5 @@
 import logging
+import random
 import re
 from datetime import datetime, timedelta
 
@@ -6,7 +7,8 @@ from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 
 from chat.models import Room
-from glosowania.models import Decyzja
+from glosowania.models import Decyzja, KtoJuzGlosowal, VoteCode
+from glosowania.vote_buffer import pop_all_pending_votes
 from site_settings.models import SiteParameters
 from site_settings.params import apply_brand_mark, apply_parameters
 from zzz.email import send_notification_email_to_active_users
@@ -124,6 +126,29 @@ class Command(TranslatedCommand):
 
                     # FROM REFERENDUM TO APPROVED OR REJECTED
                     if i.status == referendum and i.data_referendum_stop < dzisiaj:
+                        # Reveal the votes now: pop everything buffered outside the
+                        # database for this referendum, shuffle it so on-disk order
+                        # says nothing about voting order, and only now write the
+                        # verification codes and tally them. Until this point za/przeciw
+                        # stay at 0, i.e. no one (not even someone with DB access) could
+                        # see a running tally while the referendum was open.
+                        pending_votes = pop_all_pending_votes(i.id)
+                        random.SystemRandom().shuffle(pending_votes)
+                        VoteCode.objects.bulk_create([
+                            VoteCode(project=i, code=v['code'], vote=v['vote'])
+                            for v in pending_votes
+                        ])
+                        i.za = sum(1 for v in pending_votes if v['vote'])
+                        i.przeciw = sum(1 for v in pending_votes if not v['vote'])
+
+                        expected_voters = KtoJuzGlosowal.objects.filter(projekt=i).count()
+                        if expected_voters != len(pending_votes):
+                            log.warning(
+                                f"Referendum {i.id}: vote buffer had {len(pending_votes)} entries "
+                                f"but {expected_voters} users are recorded as having voted. "
+                                "Some votes may have been lost (e.g. Redis restart)."
+                            )
+
                         if i.za > i.przeciw:
                             i.status = approved
                             i.path = i.path + " -> " + _("Approved")

@@ -18,6 +18,7 @@ from django.utils.translation import gettext_lazy as _
 from chat.views import get_translations as get_chat_translations
 from glosowania.forms import ArgumentForm, DecyzjaForm, ParametersProposalForm
 from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
+from glosowania.vote_buffer import push_pending_vote
 from site_settings.models import SiteParameters
 from site_settings.params import describe_changes, specs_by_category
 from zzz.email import send_notification_email_to_active_users
@@ -186,10 +187,15 @@ def details(request: HttpRequest, pk: int):
             if already_voted:
                 return redirect('glosowania:details', pk)
             glos = KtoJuzGlosowal(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca)
-            Decyzja.objects.filter(pk=pk).update(za=F('za') + 1)
             glos.save()
             code = generate_code()
-            VoteCode.objects.create(project=nowy_projekt, code=code, vote=True)
+            # The vote's content is queued outside the SQL database (see
+            # glosowania.vote_buffer) instead of being written to VoteCode
+            # here, so it isn't created in the same instant/order as the
+            # KtoJuzGlosowal row above. It is shuffled into VoteCode - and
+            # counted into za/przeciw - only once the referendum closes
+            # (glosowania.management.commands.vote).
+            push_pending_vote(nowy_projekt.id, code, True)
 
         message1 = str(_('Your vote has been saved. You voted Yes.'))
         messages.success(request, (message1), extra_tags='persist')
@@ -218,10 +224,10 @@ def details(request: HttpRequest, pk: int):
             if already_voted:
                 return redirect('glosowania:details', pk)
             glos = KtoJuzGlosowal(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca)
-            Decyzja.objects.filter(pk=pk).update(przeciw=F('przeciw') + 1)
             glos.save()
             code = generate_code()
-            VoteCode.objects.create(project=nowy_projekt, code=code, vote=False)
+            # See the 'tak' branch above for why this isn't a VoteCode.objects.create() here.
+            push_pending_vote(nowy_projekt.id, code, False)
 
         message1 = str(_('Your vote has been saved. You voted No.'))
         messages.success(request, (message1), extra_tags='persist')

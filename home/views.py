@@ -118,9 +118,6 @@ def home(request: HttpRequest):
         days_remaining = max(0, (referendum_obj.data_referendum_stop - today).days)
         total_days = max(1, (referendum_obj.data_referendum_stop - referendum_obj.data_referendum_start).days)
         time_pct = min(100, round(days_remaining / total_days * 100))
-        voters_count = referendum_obj.za + referendum_obj.przeciw
-        total_citizens = User.objects.filter(is_active=True).count()
-        turnout_pct = round(voters_count / total_citizens * 100) if total_citizens > 0 else 0
         if time_pct > 50:
             bar_color = 'success'
         elif time_pct >= 20:
@@ -133,9 +130,6 @@ def home(request: HttpRequest):
         ).exists()
         active_referendum = {
             'obj': referendum_obj,
-            'voters_count': voters_count,
-            'total_citizens': total_citizens,
-            'turnout_pct': turnout_pct,
             'days_remaining': days_remaining,
             'total_days': total_days,
             'time_pct': time_pct,
