@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-01 17:39+0200\n"
+"POT-Creation-Date: 2026-08-03 23:46+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -143,7 +143,7 @@ msgstr "Dokumenty systemowe nie mogą być usunięte"
 #: .\board\models.py:48 .\home\models.py:11 .\home\models.py:40
 #: .\home\templatetags\feed_filters.py:23 .\home\views.py:615
 msgid "Post"
-msgstr "Ogłoszenie"
+msgstr "Dokument"
 
 #: .\board\models.py:49
 msgid "File"
@@ -926,12 +926,12 @@ msgstr "Nazwa kategorii"
 msgid "Description (optional)"
 msgstr "Opis (opcjonalny)"
 
-#: .\chat\consumers.py:35
+#: .\chat\consumers.py:40
 #, python-format
 msgid "Room: %(room)s"
 msgstr "Pokój: %(room)s"
 
-#: .\chat\consumers.py:35 .\chat\templates\chat\_embedded_chat.html:16
+#: .\chat\consumers.py:40 .\chat\templates\chat\_embedded_chat.html:16
 #: .\glosowania\templates\glosowania\_proposal_card.html:40
 #: .\glosowania\templates\glosowania\_proposal_card.html:50
 #: .\glosowania\templates\glosowania\szczegoly.html:43
@@ -946,7 +946,7 @@ msgstr "Pokój: %(room)s"
 msgid "Chat"
 msgstr "Czat"
 
-#: .\chat\consumers.py:36
+#: .\chat\consumers.py:41
 #, python-format
 msgid "Sender: %(author)s"
 msgstr "Nadawca: %(author)s"
