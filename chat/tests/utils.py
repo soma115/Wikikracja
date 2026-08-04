@@ -1,5 +1,7 @@
 import secrets
+
 from django.contrib.auth.models import User
+
 
 def make_user(username, email=None):
     """Helper to create an active user with a random password for testing."""

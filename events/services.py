@@ -1,6 +1,7 @@
 import logging
 
 from django.utils.translation import gettext as _
+
 from zzz.email import send_notification_email_to_active_users
 from zzz.notifications import build_notification, send_notification_to_all_sync
 from zzz.utils import get_site_domain

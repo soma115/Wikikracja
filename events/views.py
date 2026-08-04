@@ -1,4 +1,5 @@
-from datetime import date as _date, datetime, timedelta
+from datetime import date as _date
+from datetime import datetime, timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpRequest

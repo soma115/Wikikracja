@@ -3,7 +3,6 @@ import logging
 import mimetypes
 from os import getenv, path
 
-
 from dotenv import load_dotenv
 from firebase_admin import credentials
 
@@ -428,6 +427,7 @@ def _clean_env_value(value: str) -> str:
     return value.strip().strip('"').strip("'")
 
 import base64
+
 import firebase_admin
 
 

@@ -9,14 +9,7 @@ from django.db.models import Count, Prefetch
 from zzz.richtext import strip_tags
 
 from .exceptions import ClientError
-from .models import (
-    Message,
-    MessageAttachment,
-    MessageHistory,
-    MessageHistoryEntry,
-    MessageReadBy,
-    Room,
-)
+from .models import Message, MessageAttachment, MessageHistory, MessageHistoryEntry, MessageReadBy, Room
 
 log = logging.getLogger(__name__)
 

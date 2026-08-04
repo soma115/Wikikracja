@@ -14,7 +14,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.management import call_command
-from django.test import TestCase, TransactionTestCase, override_settings
+from django.test import TransactionTestCase, override_settings
 from django.utils.timezone import make_aware, now
 
 from chat.models import Message, Room

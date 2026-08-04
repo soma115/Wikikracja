@@ -2,8 +2,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.http import HttpResponsePermanentRedirect
-from django.utils import timezone
-from django.utils import translation
+from django.utils import timezone, translation
 
 User = get_user_model()
 

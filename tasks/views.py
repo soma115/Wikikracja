@@ -594,8 +594,9 @@ class TaskStatsView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        from django.utils import timezone
         from datetime import timedelta
+
+        from django.utils import timezone
 
         completed_tasks = Task.objects.filter(status=Task.Status.COMPLETED).with_metrics()
 

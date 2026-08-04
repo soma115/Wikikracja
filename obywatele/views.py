@@ -4,13 +4,13 @@ import logging
 from datetime import date, timedelta
 from urllib.parse import urlencode
 
+import django.contrib.messages as messages
 from allauth.account.models import EmailAddress
 from allauth.account.signals import email_confirmed, user_signed_up
 from django.conf import settings as s
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-import django.contrib.messages as messages
 from django.contrib.messages import error, success
 from django.core.mail import send_mail
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
@@ -38,7 +38,6 @@ from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
 from obywatele.tables import UzytkownikTable
 from site_settings.params import get_param
 from tasks.models import Task, TaskEvaluation, TaskVote
-from zzz.email import send_notification_email_to_active_users
 from zzz.notifications import build_notification, send_notification_to_all_in_thread
 from zzz.utils import build_site_url, get_site_domain
 

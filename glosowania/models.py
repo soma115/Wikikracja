@@ -126,7 +126,7 @@ class Decyzja(ChatRoomModel, models.Model):
         """True once the decision has been rejected or approved (arguments
         can no longer be added/edited/deleted)."""
         return self.status in (self.Status.REJECTED, self.Status.APPROVED)
-    
+
 
 class Argument(models.Model):
     ARGUMENT_TYPE_CHOICES = [

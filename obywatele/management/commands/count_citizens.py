@@ -19,9 +19,8 @@ from board.models import Post
 from chat import signals
 from chat.models import Room
 from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
-from obywatele.views import population
 from obywatele.signals import track_user_blocked
-from obywatele.views import SendEmailToAll, required_reputation
+from obywatele.views import SendEmailToAll, population, required_reputation
 from zzz.notifications import build_notification, send_notification_to_all_sync
 from zzz.utils import build_site_url, get_site_domain
 

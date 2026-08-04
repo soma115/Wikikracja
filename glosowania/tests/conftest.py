@@ -1,5 +1,6 @@
 """Fixtures for glosowania tests."""
 import pytest
+
 from tests.factories import UserFactory
 
 

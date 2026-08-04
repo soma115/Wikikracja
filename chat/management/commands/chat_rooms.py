@@ -1,7 +1,6 @@
 import logging
 from datetime import timedelta as td
 
-from django.conf import settings as s
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.utils import timezone

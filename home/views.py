@@ -21,7 +21,7 @@ from django.utils.html import strip_tags
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
-from board.models import Post, PostCategory
+from board.models import Post
 from bookkeeping.models import Asset
 from bookkeeping.services import asset_balances
 from chat.models import Message, Room

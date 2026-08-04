@@ -46,11 +46,11 @@ class SiteSettings(models.Model):
             return False
         derived_dir = os.path.join(settings.MEDIA_ROOT, 'site_branding', 'derived')
         favicon_path = os.path.join(derived_dir, 'favicon.ico')
-        
+
         # If file exists, return True
         if os.path.isfile(favicon_path):
             return True
-        
+
         # If file is missing but brand_mark exists, regenerate it
         from site_settings.services import regenerate_brand_derivatives
         try:

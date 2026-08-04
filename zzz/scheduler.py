@@ -7,8 +7,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from django.conf import settings
 from django.core.management import call_command
-from firebase_admin import messaging
-from push_notifications.models import GCMDevice
 
 log = logging.getLogger(__name__)
 

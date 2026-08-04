@@ -4,10 +4,9 @@ from django.dispatch import receiver
 from board.models import Post
 from chat.models import Message, Room
 from events.models import Event
-from glosowania.models import Argument, Decyzja, KtoJuzGlosowal
+from glosowania.models import Decyzja
 from obywatele.models import CitizenActivity
 from tasks.models import Task
-
 
 # Feed cache invalidation — clear global feed cache when any feed-related model changes
 _FEED_SIGNAL_SENDERS = (Post, Task, Event, Decyzja, CitizenActivity, Message)
