@@ -209,7 +209,7 @@
     </div>
     <div class="card">
       <div class="card-body">
-        <h2 class="h5 mb-3">{% trans "Evaluate outcome" %}</h2>
+        <h2 class="h5 mb-3">{% blocktrans with status=task.get_status_display %}Was it good that this task was {{ status }}?{% endblocktrans %}</h2>
         <div class="d-flex gap-2">
           <form method="post" action="{% url 'tasks:evaluate' task.pk %}">
             {% csrf_token %}

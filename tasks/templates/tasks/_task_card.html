@@ -14,6 +14,13 @@
     <div class="proposal-card-title-row">
       <span class="proposal-card-num">#{{ task.pk }}</span>
       <span class="proposal-card-title">{{ task.title }}</span>
+      <a href="{% url 'tasks:detail' pk=task.pk %}"
+         class="proposal-details-btn proposal-detail-compact"
+         onclick="event.stopPropagation()"
+         data-bs-toggle="tooltip"
+         title="{% trans 'Open task details' %}">
+        <i class="fas fa-arrow-up-right-from-square fa-fw"></i> {% trans 'Details' %}
+      </a>
       <i class="fas fa-chevron-down proposal-card-chevron" id="chevron-{{ task.pk }}"></i>
     </div>
 
@@ -186,13 +193,6 @@
   <div class="proposal-card-body" id="body-{{ task.pk }}" style="display:none;cursor:pointer;"
        onclick="window.location.href='{% url 'tasks:detail' pk=task.pk %}'"
        role="link">
-
-    <div class="proposal-body-topbar">
-      <a href="{% url 'tasks:detail' pk=task.pk %}" class="proposal-details-btn"
-         onclick="event.stopPropagation()">
-        <i class="fas fa-arrow-up-right-from-square fa-fw"></i> {% trans 'Details' %}
-      </a>
-    </div>
 
     {# Pełny opis #}
     {% if task.description %}

@@ -342,7 +342,8 @@
 }
 .proposal-card-header:has(.proposal-author-link:hover),
 .proposal-card-header:has(.proposal-details-inline:hover),
-.proposal-card-header:has(.proposal-chat-link:hover) {
+.proposal-card-header:has(.proposal-chat-link:hover),
+.proposal-card-header:has(.proposal-detail-compact:hover) {
   background: transparent;
 }
 .proposal-card-header:focus-visible {
@@ -721,6 +722,13 @@ button.proposal-against-btn:focus-visible {
   background: var(--accent-muted);
   border-color: var(--accent);
   box-shadow: 0 0 8px rgba(0, 209, 178, .2);
+}
+.proposal-detail-compact {
+  display: none;
+}
+.proposals-list.view-compact .proposal-card:not(.open) .proposal-detail-compact {
+  display: inline-flex;
+  white-space: nowrap;
 }
 .proposal-section-label {
   font-size: .72rem;

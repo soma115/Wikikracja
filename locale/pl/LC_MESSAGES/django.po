@@ -3136,7 +3136,7 @@ msgstr "Twoje konto na"
 #: .\obywatele\management\commands\count_citizens.py:262
 #: .\obywatele\management\commands\count_citizens.py:266
 msgid "has been blocked"
-msgstr "zostało zablokowane"
+msgstr "został zablokowany"
 
 #: .\obywatele\management\commands\count_citizens.py:262
 #: .\obywatele\management\commands\count_citizens.py:265
@@ -4553,8 +4553,9 @@ msgid "Reopen task"
 msgstr "Otwórz ponownie zadanie"
 
 #: .\tasks\templates\tasks\task_detail.html:212
-msgid "Evaluate outcome"
-msgstr "Oceń rezultat"
+#, python-format
+msgid "Was it good that this task was %(status)s?"
+msgstr "Czy dobrze się stało, że to zadanie zostało %(status)s?"
 
 #: .\tasks\templates\tasks\task_detail.html:245
 msgid "Are you sure you want to delete this task? This action cannot be undone."
