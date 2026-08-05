@@ -9,7 +9,7 @@ from obywatele.models import CitizenActivity
 from tasks.models import Task
 
 # Feed cache invalidation — clear global feed cache when any feed-related model changes
-_FEED_SIGNAL_SENDERS = (Post, Task, Event, Decyzja, CitizenActivity, Message)
+_FEED_SIGNAL_SENDERS = (Post, Task, Event, Decyzja, CitizenActivity, Message, Room)
 
 for _sender in _FEED_SIGNAL_SENDERS:
 

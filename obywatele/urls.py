@@ -27,8 +27,6 @@ urlpatterns = (
     path('change_email/', v.change_email, name='change_email'),
     path("assets/", login_required(v.AssetListView.as_view()), name='assets'),
     path('parameters/', v.parameters, name='parameters'),
-    path('wspolnota/', v.wspolnota, name='wspolnota'),
-    path('wspolnota/calendar/', v.wspolnota_calendar, name='wspolnota_calendar'),
     path('settings/delete/', v.request_deletion, name='request_deletion'),
     path('settings/delete/cancel/', v.cancel_deletion, name='cancel_deletion'),
 )

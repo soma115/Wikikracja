@@ -29,7 +29,7 @@ class CancelledErrorMiddleware:
 django_asgi_app = get_asgi_application()
 django_asgi_app = CancelledErrorMiddleware(django_asgi_app)
 
-from chat.consumers import ChatConsumer
+from chat.consumers import ChatConsumer  # noqa: E402
 
 # from channels.http import AsgiHandler
 # from chat.consumers import Consumer

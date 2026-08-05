@@ -86,27 +86,33 @@
              class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
             <i class="fas fa-fw fa-house nav-icon"></i>
             <span class="nav-text">{% trans "Desktop" %}</span>
-            {% comment %} {% if unread_items %}
-              <span class="nav-badge">{{ unread_items|length }}</span>
-            {% endif %} {% endcomment %}
           </a>
         </li>
 
         <li class="nav-item">
-          <a href="{% url 'glosowania:proposition' %}"
-             title="{% trans 'Agora / Democracy' %}"
+          <a href="{% url 'glosowania:approved' %}"
+             title="{% trans 'Votings' %}"
              class="{% if request.resolver_match.namespace == 'glosowania' %}active{% endif %}">
             <i class="fas fa-fw fa-landmark nav-icon"></i>
-            <span class="nav-text">{% trans "Agora / Democracy" %}</span>
+            <span class="nav-text">{% trans "Votings" %}</span>
           </a>
         </li>
-        
+
+        <li class="nav-item">
+          <a href="{% url 'obywatele:obywatele' %}"
+             title="{% trans 'Citizens' %}"
+             class="{% if request.resolver_match.namespace == 'obywatele' and request.resolver_match.url_name != 'my_profile' and request.resolver_match.url_name != 'haslo' and request.resolver_match.url_name != 'my_assets' and request.resolver_match.url_name != 'change_email' and request.resolver_match.url_name != 'change_username' and request.resolver_match.url_name != 'upload_avatar' and request.resolver_match.url_name != 'set_language' and request.resolver_match.url_name != 'toggle_notification' and request.resolver_match.url_name != 'request_deletion' and request.resolver_match.url_name != 'cancel_deletion' %}active{% endif %}">
+            <i class="fas fa-fw fa-users nav-icon"></i>
+            <span class="nav-text">{% trans "Citizens" %}</span>
+          </a>
+        </li>
+
         <li class="nav-item">
           <a href="{% url 'tasks:list' %}"
-             title="{% trans 'Action' %}"
-             class="{% if request.resolver_match.namespace == 'tasks' or request.resolver_match.namespace == 'events' %}active{% endif %}">
+             title="{% trans 'Tasks' %}"
+             class="{% if request.resolver_match.namespace == 'tasks' %}active{% endif %}">
             <i class="fas fa-fw fa-bolt nav-icon"></i>
-            <span class="nav-text">{% trans "Action" %}</span>
+            <span class="nav-text">{% trans "Tasks" %}</span>
           </a>
         </li>
 
@@ -118,13 +124,22 @@
             <span class="nav-text">{% trans "Documents" %}</span>
           </a>
         </li>
-        
+
         <li class="nav-item">
-          <a href="{% url 'obywatele:wspolnota' %}"
-             title="{% trans 'Community' %}"
-             class="{% if request.resolver_match.namespace == 'obywatele' and request.resolver_match.url_name != 'my_profile' and request.resolver_match.url_name != 'haslo' and request.resolver_match.url_name != 'my_assets' and request.resolver_match.url_name != 'change_email' and request.resolver_match.url_name != 'change_username' %}active{% endif %}">
-            <i class="fas fa-fw fa-users nav-icon"></i>
-            <span class="nav-text">{% trans "Community" %}</span>
+          <a href="{% url 'events:list' %}"
+             title="{% trans 'Calendar' %}"
+             class="{% if request.resolver_match.namespace == 'events' %}active{% endif %}">
+            <i class="fas fa-fw fa-calendar-days nav-icon"></i>
+            <span class="nav-text">{% trans "Calendar" %}</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="{% url 'bookkeeping:report_list' %}"
+             title="{% trans 'Finance' %}"
+             class="{% if request.resolver_match.namespace == 'bookkeeping' %}active{% endif %}">
+            <i class="fas fa-fw fa-wallet nav-icon"></i>
+            <span class="nav-text">{% trans "Finance" %}</span>
           </a>
         </li>
 
@@ -210,8 +225,9 @@
           {% elif request.resolver_match.namespace == 'board' %}{% trans "Documents" %}
           {% elif request.resolver_match.namespace == 'tasks' %}{% trans "Tasks" %}
           {% elif request.resolver_match.namespace == 'events' %}{% trans "Calendar" %}
-          {% elif request.resolver_match.namespace == 'obywatele' %}{% trans "Citizens" %}
-          {% elif request.resolver_match.namespace == 'bookkeeping' %}{% trans "Bookkeeping" %}
+          {% elif request.resolver_match.namespace == 'obywatele' %}
+            {% if request.resolver_match.url_name == 'my_profile' or request.resolver_match.url_name == 'haslo' or request.resolver_match.url_name == 'my_assets' or request.resolver_match.url_name == 'change_email' or request.resolver_match.url_name == 'change_username' or request.resolver_match.url_name == 'upload_avatar' or request.resolver_match.url_name == 'set_language' or request.resolver_match.url_name == 'toggle_notification' or request.resolver_match.url_name == 'request_deletion' or request.resolver_match.url_name == 'cancel_deletion' %}{% trans "Settings" %}{% else %}{% trans "Citizens" %}{% endif %}
+          {% elif request.resolver_match.namespace == 'bookkeeping' %}{% trans "Finance" %}
           {% elif request.resolver_match.namespace == 'chat' %}{% trans "Chat" %}
           {% else %}…{% endif %}
         </span>
@@ -245,7 +261,7 @@
       <!-- Notification bell -->
       <a href="{% url 'activity' %}" class="notif-bell" title="{% trans 'Activity' %}">
         <i class="far fa-bell"></i>
-        {% if unread_items %}<span class="notif-dot"></span>{% endif %}
+        {% if unread_count %}<span class="notif-count">{{ unread_count }}</span>{% endif %}
       </a>
 
     </header>

@@ -1,4 +1,4 @@
-"""Reusable calendar helpers — used by `/events/` (this app) and `/obywatele/wspolnota/`."""
+"""Reusable calendar helpers — used by `/events/` (this app) and the desktop calendar tile."""
 import calendar as _cal
 from datetime import date
 

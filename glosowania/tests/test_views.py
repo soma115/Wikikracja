@@ -18,6 +18,7 @@ def test_details_view_retries_on_database_lock(sample_users):
     from django.test import RequestFactory
 
     from glosowania.views import details
+    from glosowania.views import get_object_or_404 as original_get_object_or_404
 
     author = sample_users[0]
     decyzja = Decyzja.objects.create(
@@ -34,7 +35,6 @@ def test_details_view_retries_on_database_lock(sample_users):
 
     # Mock get_object_or_404 to raise OperationalError on first call, succeed on second
     call_count = [0]
-    original_get_object_or_404 = __import__('django.shortcuts', fromlist=['get_object_or_404']).get_object_or_404
 
     def mock_get_object_or_404(*args, **kwargs):
         call_count[0] += 1
@@ -42,7 +42,7 @@ def test_details_view_retries_on_database_lock(sample_users):
             raise OperationalError('database is locked')
         return original_get_object_or_404(*args, **kwargs)
 
-    with patch('django.shortcuts.get_object_or_404', side_effect=mock_get_object_or_404):
+    with patch('glosowania.views.get_object_or_404', side_effect=mock_get_object_or_404):
         response = details(request, decyzja.pk)
 
     # Should have retried and succeeded

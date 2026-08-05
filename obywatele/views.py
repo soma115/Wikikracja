@@ -1,7 +1,7 @@
 import datetime
 import json
 import logging
-from datetime import date, timedelta
+from datetime import timedelta
 from urllib.parse import urlencode
 
 import django.contrib.messages as messages
@@ -28,9 +28,7 @@ from django.views.decorators.http import require_POST
 from django_filters.views import FilterView
 from django_tables2.views import SingleTableMixin
 
-from bookkeeping.models import Transaction
 from chat.models import Message, Room
-from events.models import Event
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, ZebranePodpisy
 from obywatele.filters import UzytkownikFilter
 from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, SendEmailToAll, UserForm, UsernameChangeForm
@@ -153,70 +151,6 @@ def parameters(request: HttpRequest):
         'population': population(),
         'acceptance': get_param('acceptance'),
         'delete_inactive_user_after': get_param('delete_inactive_user_after'),
-    })
-
-
-@login_required
-def wspolnota_calendar(request: HttpRequest):
-    from events.views import calendar_partial_context
-
-    return render(request, 'obywatele/_calendar_partial.html', calendar_partial_context(request))
-
-
-@login_required
-def wspolnota(request: HttpRequest):
-
-    # --- stats ---
-    thirty_days_ago = timezone.now() - timedelta(days=30)
-    pop = population()
-    active_last_month = User.objects.filter(is_active=True, last_login__gte=thirty_days_ago).count()
-    active_pct = round(active_last_month / pop * 100) if pop else 0
-    pending_count = User.objects.filter(is_active=False).count()
-
-    # --- assets & skills ---
-    skills_knowledge_hobby_count = Uzytkownik.objects.exclude(skills_knowledge_hobby__isnull=True).exclude(skills_knowledge_hobby='').count()
-    give_away_count = Uzytkownik.objects.exclude(to_give_away__isnull=True).exclude(to_give_away='').count()
-    borrow_count = Uzytkownik.objects.exclude(to_borrow__isnull=True).exclude(to_borrow='').count()
-    for_sale_count = Uzytkownik.objects.exclude(for_sale__isnull=True).exclude(for_sale='').count()
-
-    # --- recent members ---
-    recent_members = (User.objects.filter(is_active=True).select_related('uzytkownik').order_by('-uzytkownik__data_przyjecia')[:5])
-
-    # --- recent chat messages ---
-    recent_chat_messages = (Message.objects.filter(room__public=True, room__allowed=request.user).select_related('sender', 'sender__uzytkownik', 'room').order_by('-time')[:4])
-
-    # --- finances ---
-    this_year = timezone.now().year
-    income = Transaction.objects.filter(type=Transaction.INCOMING, created_date__year=this_year).aggregate(total=Sum('amount'))['total'] or 0
-    expense = Transaction.objects.filter(type=Transaction.OUTGOING, created_date__year=this_year).aggregate(total=Sum('amount'))['total'] or 0
-
-    # --- calendar ---
-    from events.calendar import adjacent_months, build_calendar_grid, parse_month_param
-
-    cal_year, cal_month = parse_month_param(request.GET.get('month', ''))
-    cal_weeks = build_calendar_grid(cal_year, cal_month, Event.objects.filter(is_active=True))
-    prev_month, next_month = adjacent_months(cal_year, cal_month)
-
-    return render(request, 'obywatele/wspolnota.html', {
-        'member_count': pop,
-        'active_pct': active_pct,
-        'pending_count': pending_count,
-        'skills_knowledge_hobby_count': skills_knowledge_hobby_count,
-        'give_away_count': give_away_count,
-        'borrow_count': borrow_count,
-        'for_sale_count': for_sale_count,
-        'recent_members': recent_members,
-        'recent_chat_messages': recent_chat_messages,
-        'income': income,
-        'expense': expense,
-        'balance': income - expense,
-        'current_year': this_year,
-        'cal_weeks': cal_weeks,
-        'cal_year': cal_year,
-        'cal_month': cal_month,
-        'cal_first_day': date(cal_year, cal_month, 1),
-        'prev_month': prev_month,
-        'next_month': next_month,
     })
 
 

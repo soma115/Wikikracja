@@ -1055,6 +1055,7 @@ hr {
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -1063,6 +1064,7 @@ hr {
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -1071,6 +1073,7 @@ hr {
   color: var(--text-muted);
   display: -webkit-box;
   -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -1079,6 +1082,7 @@ hr {
   color: var(--text-muted);
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -1174,6 +1178,7 @@ hr {
   line-height: 1.2;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -1186,6 +1191,7 @@ hr {
   color: var(--text-muted);
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin-top: .2rem;
@@ -1463,6 +1469,26 @@ html, body {
   background: #3b82f6;
   border-radius: 50%;
   border: 1px solid var(--bg-sidebar);
+}
+.topbar .notif-bell .notif-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background: #ef4444;
+  color: #fff;
+  border-radius: 9px;
+  font-size: .65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-sidebar);
+  box-sizing: border-box;
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 8px rgba(239, 68, 68, .55);
 }
 .topbar .btn-cta {
   background: var(--accent);

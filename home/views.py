@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import re
+from datetime import date
 from datetime import timedelta as td
 from decimal import Decimal
 
@@ -13,7 +14,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
@@ -22,15 +23,16 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from board.models import Post
-from bookkeeping.models import Asset
+from bookkeeping.models import Asset, Transaction
 from bookkeeping.services import asset_balances
 from chat.models import Message, Room
 from chat.services import CHAT_UNREAD_CACHE_KEY, get_unread_count_for_user
+from events.calendar import adjacent_months, build_calendar_grid, parse_month_param
 from events.models import Event
 from glosowania.models import Argument as DecyzjaArgument
 from glosowania.models import Decyzja, KtoJuzGlosowal
 from obywatele.models import CitizenActivity, Uzytkownik
-from site_settings.models import SiteSettings
+from site_settings.models import QuickLink, SiteSettings
 from site_settings.services import get_branding_version
 from tasks.models import Task
 
@@ -76,6 +78,7 @@ def home(request: HttpRequest):
 
     # Generate unified feed
     feed_items = generate_feed_items(request.user)
+    request._unread_count = get_unread_count(request.user, feed_items)
 
     # Check if we should filter to show only unread items
     # Priority: URL parameter > session (synced from localStorage)
@@ -168,6 +171,30 @@ def home(request: HttpRequest):
     new_citizens = list(Uzytkownik.objects.filter(uid__is_active=True).select_related('uid').order_by('-uid__date_joined')[:7])
     candidates_count = (Uzytkownik.objects.filter(uid__is_active=False).count() if request.user.is_staff else None)
 
+    # Community stats (moved from /obywatele/wspolnota/)
+    pop = User.objects.filter(is_active=True).count()
+    thirty_days_ago = timezone.now() - td(days=30)
+    active_last_month = User.objects.filter(is_active=True, last_login__gte=thirty_days_ago).count()
+    active_pct = round(active_last_month / pop * 100) if pop else 0
+    pending_count = User.objects.filter(is_active=False).count()
+
+    skills_knowledge_hobby_count = Uzytkownik.objects.exclude(skills_knowledge_hobby__isnull=True).exclude(skills_knowledge_hobby='').count()
+    give_away_count = Uzytkownik.objects.exclude(to_give_away__isnull=True).exclude(to_give_away='').count()
+    borrow_count = Uzytkownik.objects.exclude(to_borrow__isnull=True).exclude(to_borrow='').count()
+    for_sale_count = Uzytkownik.objects.exclude(for_sale__isnull=True).exclude(for_sale='').count()
+
+    recent_chat_messages = Message.objects.filter(room__public=True, room__allowed=request.user).select_related('sender', 'sender__uzytkownik', 'room').order_by('-time')[:4]
+
+    this_year = timezone.now().year
+    community_income = Transaction.objects.filter(type=Transaction.INCOMING, created_date__year=this_year).aggregate(total=Sum('amount'))['total'] or 0
+    community_expense = Transaction.objects.filter(type=Transaction.OUTGOING, created_date__year=this_year).aggregate(total=Sum('amount'))['total'] or 0
+    community_balance = community_income - community_expense
+
+    # Calendar month grid
+    cal_year, cal_month = parse_month_param(request.GET.get('month', ''))
+    cal_weeks = build_calendar_grid(cal_year, cal_month, Event.objects.filter(is_active=True))
+    prev_month, next_month = adjacent_months(cal_year, cal_month)
+
     last_feed_items = [i for i in feed_items if i['content_type'] != 'event'][:6]
 
     # Unread count without events (for home page display)
@@ -180,9 +207,6 @@ def home(request: HttpRequest):
         Q(assigned_to=request.user) | Q(votes__user=request.user, votes__value=1),
         status=Task.Status.ACTIVE,
     ).distinct().count()
-
-    ss = SiteSettings.get()
-    from site_settings.models import QuickLink
 
     quick_links = list(QuickLink.objects.order_by('order'))
 
@@ -209,6 +233,26 @@ def home(request: HttpRequest):
         'last_feed_items': last_feed_items,
         'new_proposals': new_proposals,
         'discussed_proposals': discussed_proposals,
+        'member_count': pop,
+        'pending_count': pending_count,
+        'active_pct': active_pct,
+        'skills_knowledge_hobby_count': skills_knowledge_hobby_count,
+        'skills_count': skills_knowledge_hobby_count,
+        'knowledge_count': skills_knowledge_hobby_count,
+        'give_away_count': give_away_count,
+        'borrow_count': borrow_count,
+        'for_sale_count': for_sale_count,
+        'recent_chat_messages': recent_chat_messages,
+        'community_income': community_income,
+        'community_expense': community_expense,
+        'community_balance': community_balance,
+        'current_year': this_year,
+        'cal_weeks': cal_weeks,
+        'cal_year': cal_year,
+        'cal_month': cal_month,
+        'cal_first_day': date(cal_year, cal_month, 1),
+        'prev_month': prev_month,
+        'next_month': next_month,
     })
 
 
@@ -272,8 +316,9 @@ def _generate_feed_raw():
         })
 
     # Rooms: per-user (allowed=user) so we keep room items global but mark room_id;
-    # is_read attached later per-request from ReadStatus
-    all_rooms = Room.objects.prefetch_related(
+    # is_read attached later per-request from Room.seen_by.
+    # Only non-archived rooms with recent messages appear in the feed.
+    all_rooms = Room.objects.filter(archived=False).prefetch_related(
         'allowed',
         'messages',
         'messages__sender',
@@ -357,10 +402,7 @@ def generate_feed_items(user):
         'decision': ReadStatus.ContentType.DECISION,
         'citizen': ReadStatus.ContentType.CITIZEN,
     }
-    seen_room_ids = set(ReadStatus.objects.filter(
-        user=user,
-        content_type=ReadStatus.ContentType.MESSAGE,
-    ).values_list('object_id', flat=True))
+    seen_room_ids = set(user.seen_rooms.values_list('id', flat=True))
 
     feed_items = []
     for item in raw_items:
@@ -388,10 +430,18 @@ def generate_feed_items(user):
     return feed_items
 
 
+def get_unread_count(user, items=None):
+    """Return the number of unread feed items for a user."""
+    if items is None:
+        items = generate_feed_items(user)
+    return sum(1 for item in items if not item['is_read'])
+
+
 @login_required
 def activity_page(request):
     all_items = generate_feed_items(request.user)
-    unread_count = sum(1 for i in all_items if not i['is_read'])
+    unread_count = get_unread_count(request.user, all_items)
+    request._unread_count = unread_count
 
     # Filter unread only
     filter_unread = request.GET.get('filter') == 'unread'
@@ -452,9 +502,8 @@ def mark_as_read(request):
                 'error': 'Invalid content type'
             })
 
-        read_status, created = ReadStatus.objects.get_or_create(user=request.user, content_type=read_status_content_type, object_id=object_id)
-
-        # For room messages, also update room.seen_by for chat consistency
+        # Chat rooms use Room.seen_by as the single source of truth;
+        # other content types use ReadStatus.
         if content_type in ['message', 'room_messages'] and read_status_content_type == ReadStatus.ContentType.MESSAGE:
             try:
                 room = Room.objects.get(id=object_id)
@@ -462,6 +511,12 @@ def mark_as_read(request):
                 cache.delete(CHAT_UNREAD_CACHE_KEY.format(user_id=request.user.id))
             except Room.DoesNotExist:
                 pass  # Room might not exist, ignore
+        else:
+            ReadStatus.objects.get_or_create(
+                user=request.user,
+                content_type=read_status_content_type,
+                object_id=object_id
+            )
 
         return JsonResponse({
             'success': True
@@ -490,14 +545,19 @@ def mark_all_read(request):
         for item in feed_items:
             if not item['is_read']:
                 read_status_content_type = _CONTENT_TYPE_MAP.get(item['content_type'])
-                if read_status_content_type:
-                    read_status, created = ReadStatus.objects.get_or_create(user=user, content_type=read_status_content_type, object_id=item['object_id'])
+                if not read_status_content_type:
+                    continue
+
+                if item['content_type'] in ['message', 'room_messages'] and read_status_content_type == ReadStatus.ContentType.MESSAGE:
+                    room_ids_to_mark.append(item['object_id'])
+                else:
+                    read_status, created = ReadStatus.objects.get_or_create(
+                        user=user,
+                        content_type=read_status_content_type,
+                        object_id=item['object_id']
+                    )
                     if created:
                         created_count += 1
-
-                    # Collect room IDs for batch seen_by update
-                    if item['content_type'] in ['message', 'room_messages'] and read_status_content_type == ReadStatus.ContentType.MESSAGE:
-                        room_ids_to_mark.append(item['object_id'])
 
         # Batch update room.seen_by for all rooms
         if room_ids_to_mark:
@@ -563,10 +623,7 @@ def mark_unread(request):
                 'error': 'Invalid content type'
             })
 
-        # Delete read status to mark as unread
-        deleted_count, _ = ReadStatus.objects.filter(user=request.user, content_type=read_status_content_type, object_id=object_id).delete()
-
-        # For room messages, also remove from room.seen_by for chat consistency
+        # Chat rooms use Room.seen_by as the single source of truth.
         if content_type in ['message', 'room_messages'] and read_status_content_type == ReadStatus.ContentType.MESSAGE:
             try:
                 room = Room.objects.get(id=object_id)
@@ -574,6 +631,12 @@ def mark_unread(request):
                 cache.delete(CHAT_UNREAD_CACHE_KEY.format(user_id=request.user.id))
             except Room.DoesNotExist:
                 pass  # Room might not exist, ignore
+        else:
+            ReadStatus.objects.filter(
+                user=request.user,
+                content_type=read_status_content_type,
+                object_id=object_id
+            ).delete()
 
         return JsonResponse({
             'success': True

@@ -39,7 +39,7 @@ class SiteSettings(models.Model):
 
     def has_brand_derivatives(self):
         """Check if derived branding files (favicon, apple-touch-icon, etc.) exist on disk.
-        
+
         Regenerates missing derivatives automatically to prevent fallback to default favicon.
         """
         if not self.brand_mark:

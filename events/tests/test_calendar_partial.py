@@ -15,7 +15,7 @@ class CalendarPartialEmptyDayTest(TestCase):
         self.user = User.objects.create_user(username='testowy', password='pass')
         self.client.login(username='testowy', password='pass')
         # Czerwiec 2026: dzień 10 na pewno nie ma eventów w domyślnej konfiguracji
-        self.cal_url = reverse('obywatele:wspolnota_calendar') + '?month=2026-06'
+        self.cal_url = reverse('events:calendar') + '?month=2026-06'
 
     def test_day_with_events_has_data_day_attribute(self):
         """Baseline: dzień z eventem ma data-day."""

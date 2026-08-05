@@ -96,45 +96,6 @@
   </div>
 </div>
 
-{# ══ Skróty ════════════════════════════════════════════════════════════════ #}
-<div class="d-flex gap-2 flex-wrap align-items-center mb-3">
-  <a href="{% url 'activity' %}" class="badge-status" style="text-decoration:none;{% if unread_items_no_events %}background:rgba(59,130,246,.15);color:#60a5fa;border-color:rgba(59,130,246,.3);{% endif %}">
-    <i class="{% if unread_items_no_events %}fas{% else %}far{% endif %} fa-bell me-1"></i>{% if unread_items_no_events %}{{ unread_items_no_events|length }}{% else %}0{% endif %}
-  </a>
-  <a id="chat-unread-badge"
-     href="{% url 'chat:chat' %}?view=unread"
-     class="badge-status"
-     style="text-decoration:none;{% if chat_unread_count %}background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.3);{% endif %}">
-    <i class="fas fa-comments me-1"></i>
-    <span id="chat-unread-label">{% if chat_unread_count %}{{ chat_unread_count }} {% trans "unread" %}{% else %}{% trans "Chat" %}{% endif %}</span>
-  </a>
-  {% if ongoing_count %}
-  <a href="{% url 'glosowania:referendum' %}" class="badge-status badge-referendum" style="text-decoration:none;">
-    <i class="fas fa-landmark me-1"></i>{{ ongoing_count }} {% trans "referendums" %}
-  </a>
-  {% endif %}
-  {% if upcoming_count %}
-  <a href="{% url 'glosowania:discussion' %}" class="badge-status badge-discussion" style="text-decoration:none;">
-    <i class="fas fa-comments me-1"></i>{{ upcoming_count }} {% trans "discussions" %}
-  </a>
-  {% endif %}
-  {% if signatures_count %}
-  <a href="{% url 'glosowania:proposition' %}" class="badge-status badge-proposition" style="text-decoration:none;">
-    <i class="fas fa-file-signature me-1"></i>{{ signatures_count }} {% trans "suggestions" %}
-  </a>
-  {% endif %}
-  {% if my_tasks_count %}
-  <a href="{% url 'tasks:list' %}" class="badge-status badge-discussion" style="text-decoration:none;">
-    <i class="fas fa-list-check me-1"></i>{{ my_tasks_count }} {% trans "My tasks" %}
-  </a>
-  {% endif %}
-  {% if default_asset %}
-  <a href="{% url 'bookkeeping:transaction_list' %}" class="badge-status {% if default_balance >= 0 %}badge-approved{% else %}badge-rejected{% endif %}" style="text-decoration:none;">
-    <i class="fas fa-wallet me-1"></i>{{ default_balance|floatformat:2 }} {{ default_symbol }}
-  </a>
-  {% endif %}
-</div>
-
 {# ══ Rząd 1: Pierwsze kroki + Aktywność + Najbliższe wydarzenia ════════════ #}
 <div class="row g-3 mb-3">
 
@@ -662,6 +623,172 @@
   </div>
 
 </div>
+
+{# ══ Community stats ═══════════════════════════════════════════════════════ #}
+<div class="row g-3 mb-4">
+
+  <div class="col-sm-6 col-xl-3">
+    <a href="{% url 'obywatele:obywatele' %}" class="card h-100 text-decoration-none">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="wspol-stat-icon accent"><i class="fas fa-users"></i></div>
+        <div>
+          <div class="wspol-stat-value">{{ member_count }}</div>
+          <div class="wspol-stat-label">{% trans "active citizens" %}</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <a href="{% url 'obywatele:poczekalnia' %}" class="card h-100 text-decoration-none">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="wspol-stat-icon warning"><i class="fas fa-user-clock"></i></div>
+        <div>
+          <div class="wspol-stat-value">{{ pending_count }}</div>
+          <div class="wspol-stat-label">{% trans "candidates in the waiting room" %}</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <a href="{% url 'obywatele:assets' %}" class="card h-100 text-decoration-none">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <div class="wspol-stat-icon blue"><i class="fas fa-brain"></i></div>
+          <div class="wspol-stat-label">{% trans "Skills and resources" %}</div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="asset-chip"><i class="fas fa-brain" style="color:var(--accent);"></i> <strong>{{ skills_count }}</strong> {% trans "skills" %}</span>
+          <span class="asset-chip"><i class="fas fa-book" style="color:var(--accent);"></i> <strong>{{ knowledge_count }}</strong> {% trans "knowledge" %}</span>
+          <span class="asset-chip">🎁 <strong>{{ give_away_count }}</strong></span>
+          <span class="asset-chip">🤝 <strong>{{ borrow_count }}</strong></span>
+          <span class="asset-chip">🛒 <strong>{{ for_sale_count }}</strong></span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <a href="{% url 'obywatele:obywatele' %}?aktywnosc=30d" class="card h-100 text-decoration-none">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="wspol-stat-icon success"><i class="fas fa-chart-line"></i></div>
+        <div>
+          <div class="wspol-stat-value">{{ active_pct }}%</div>
+          <div class="wspol-stat-label">{% trans "logged in within 30 days" %}</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+</div>
+
+{# ══ Community chat + Yearly finances ══════════════════════════════════════ #}
+<div class="row g-3 mb-3">
+
+  <div class="col-lg-8">
+    <div class="card h-100" style="position:relative;">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="wspol-section-title mb-0">
+          <i class="fas fa-comments"></i>{% trans "Chat" %}
+        </span>
+        <a id="chat-unread-badge"
+           href="{% url 'chat:chat' %}?view=unread"
+           class="btn btn-sm btn-outline-primary"
+           style="{% if chat_unread_count %}background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.3);{% endif %}">
+          <i class="fas fa-comments me-1"></i>
+          <span id="chat-unread-label">{% if chat_unread_count %}{{ chat_unread_count }} {% trans "unread" %}{% else %}{% trans "Open chat" %} &rarr;{% endif %}</span>
+        </a>
+      </div>
+      <div class="card-body p-3 d-flex flex-column gap-1">
+        {% for msg in recent_chat_messages %}
+        <div class="chat-msg-row d-flex align-items-center gap-2" style="min-width:0; position:relative; z-index:1;">
+          <div class="wspol-avatar flex-shrink-0">
+            {% if msg.sender.uzytkownik.avatar %}
+              <img src="{{ msg.sender.uzytkownik.avatar.url }}" alt="">
+            {% else %}
+              {{ msg.sender.username|slice:":2"|upper }}
+            {% endif %}
+          </div>
+          <span class="chat-msg-sender">{{ msg.sender.username }}</span>
+          <span class="chat-msg-link">{{ msg.text|striptags|truncatechars:60 }}</span>
+          <span class="chat-msg-room">{{ msg.room.title|truncatechars:18 }}</span>
+          <span class="chat-msg-meta">{{ msg.time|date:"H:i" }}</span>
+          <a href="{% url 'chat:chat' %}#room_id={{ msg.room.id }}" class="stretched-link"></a>
+        </div>
+        {% empty %}
+        <p class="text-center" style="color:var(--text-muted);font-size:.85rem;padding:1rem 0;">{% trans "No news" %}</p>
+        {% endfor %}
+      </div>
+      <a href="{% url 'chat:chat' %}" class="stretched-link"></a>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card h-100" style="position:relative;">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="wspol-section-title mb-0">
+          <i class="fas fa-wallet"></i>{% trans "Finances" %} {{ current_year }}
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="finance-row">
+          <span class="finance-label"><i class="fas fa-arrow-down" style="color:#00bc8c;"></i> {% trans "Revenues" %}</span>
+          <span class="finance-value inc">{{ community_income|floatformat:2 }}</span>
+        </div>
+        <div class="finance-row">
+          <span class="finance-label"><i class="fas fa-arrow-up" style="color:#f87171;"></i> {% trans "Expenses" %}</span>
+          <span class="finance-value exp">{{ community_expense|floatformat:2 }}</span>
+        </div>
+        <div class="finance-row">
+          <span class="finance-label" style="font-weight:600;color:var(--text-primary);">{% trans "Balance" %}</span>
+          <span class="finance-value bal {% if community_balance >= 0 %}inc{% else %}exp{% endif %}">{{ community_balance|floatformat:2 }}</span>
+        </div>
+      </div>
+      <a href="{% url 'bookkeeping:report_list' %}" class="stretched-link"></a>
+    </div>
+  </div>
+
+</div>
+
+{# ══ Calendar ═══════════════════════════════════════════════════════════════ #}
+<div class="card mb-3">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <a href="{% url 'events:list' %}" class="wspol-section-title mb-0">
+      <i class="fas fa-calendar-days"></i>{% trans "Calendar" %}
+    </a>
+    <a href="{% url 'events:create' %}" class="btn btn-sm btn-outline-primary">
+      <i class="fas fa-plus me-1"></i>{% trans "Add event" %} &rarr;
+    </a>
+  </div>
+  <div class="card-body p-0" id="calendar">
+    {% include 'obywatele/_calendar_partial.html' %}
+  </div>
+</div>
+<script>
+(function(){
+  var calendarEl = document.getElementById('calendar');
+  var calendarUrl = '{% url "events:calendar" %}';
+  function loadMonth(month) {
+    fetch(calendarUrl + '?month=' + month, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+      .then(function(r){ return r.text(); })
+      .then(function(html){
+        calendarEl.innerHTML = html;
+        bindNav();
+        history.replaceState(null, '', '?month=' + month + '#calendar');
+      });
+  }
+  function bindNav() {
+    calendarEl.querySelectorAll('.cal-nav').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        loadMonth(btn.dataset.month);
+      });
+    });
+  }
+  bindNav();
+})();
+</script>
 
 {% endif %}
 

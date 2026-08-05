@@ -10,6 +10,8 @@ Kontrakt (Wariant A):
 import tomllib
 from pathlib import Path
 
+import pytest
+
 import zzz
 
 
@@ -24,6 +26,7 @@ def test_version_module_matches_pyproject():
     assert zzz.__version__ == _pyproject_version()
 
 
+@pytest.mark.django_db
 def test_context_processor_exposes_app_version(rf):
     """site_name() wystawia app_version równy zzz.__version__."""
     from zzz.context_processors import site_name

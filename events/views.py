@@ -114,8 +114,7 @@ def calendar_partial_context(request: HttpRequest, events_qs=None):
 
 
 def events_calendar(request: HttpRequest):
-    """Renders just the month-grid partial. AJAX-loaded by the events list page (and reused
-    by `obywatele:wspolnota_calendar`)."""
+    """Renders just the month-grid partial. AJAX-loaded by the events list page and the desktop calendar tile."""
     return render(request, 'obywatele/_calendar_partial.html', calendar_partial_context(request))
 
 

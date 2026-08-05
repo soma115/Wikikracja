@@ -1,8 +1,10 @@
+import base64
 import json
 import logging
 import mimetypes
 from os import getenv, path
 
+import firebase_admin
 from dotenv import load_dotenv
 from firebase_admin import credentials
 
@@ -98,7 +100,8 @@ ROOT_URLCONF = 'zzz.urls'
 if DEBUG:
     ASGI_THREADS = 1
 
-gettext_lazy = lambda s: s
+def gettext_lazy(s):
+    return s
 LANGUAGES = (
     ('en', gettext_lazy('English')),
     ('pl', gettext_lazy('Polish')),
@@ -178,6 +181,7 @@ TEMPLATES = [
                 'zzz.context_processors.site_name',
                 'site_settings.context_processors.branding',
                 'zzz.context_processors.group_is_public',
+                'zzz.context_processors.unread_count',
             ],
             'debug': False
         },
@@ -425,10 +429,6 @@ def _clean_env_value(value: str) -> str:
     if not value:
         return value
     return value.strip().strip('"').strip("'")
-
-import base64
-
-import firebase_admin
 
 
 def _normalize_service_account_key(data: dict) -> dict:
