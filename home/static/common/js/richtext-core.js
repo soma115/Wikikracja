@@ -99,7 +99,7 @@ export function insertPlainTextAtCaret(inputEl, text, maxLength = Infinity) {
 
     const normalized = String(text ?? '').replace(/\r\n?/g, '\n');
     const selLen = sel.toString().length;
-    const currentLen = (inputEl.textContent || '').length;
+    const currentLen = getInputHtml(inputEl).length;
     const available = maxLength - currentLen + selLen;
     const toInsert = normalized.slice(0, Math.max(0, available));
     if (!toInsert) return;
@@ -166,7 +166,7 @@ export function formatMessage(raw) {
  * @param {number} maxLength
  */
 export function updateCounter(inputEl, counterEl, counterVal, sendBtn, maxLength) {
-    const len = (inputEl?.textContent || '').length;
+    const len = getInputHtml(inputEl).length;
     const rem = maxLength - len;
     if (counterVal) counterVal.textContent = rem;
     if (!counterEl) return;
