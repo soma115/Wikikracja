@@ -2991,3 +2991,36 @@ td.notes-col {
   color: var(--accent);
   text-decoration: underline;
 }
+
+/* ══════════════════════════════════════════════════
+   UTILITY CLASSES — replacing common inline styles
+   ══════════════════════════════════════════════════ */
+.text-accent { color: var(--accent); }
+.text-accent-70 { color: var(--accent); opacity: .7; }
+.text-accent-80 { color: var(--accent); opacity: .8; }
+.text-xs { font-size: .78rem; }
+.text-sm { font-size: .82rem; }
+.text-md { font-size: .875rem; }
+.text-muted-xs { font-size: .78rem; color: var(--text-muted); }
+.text-muted-sm { font-size: .82rem; color: var(--text-muted); }
+.text-muted-md { font-size: .875rem; color: var(--text-muted); }
+.min-w-0 { min-width: 0; }
+.flex-1 { flex: 1; }
+.dashboard-link {
+  font-size: .82rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+  position: relative;
+  z-index: 2;
+  transition: color .15s;
+}
+.dashboard-link:hover { color: var(--accent); }
+.card-footer-link { font-size: .78rem; color: var(--accent); opacity: .8; margin-top: auto; }
+.badge-status-xs { font-size: .62rem; padding: 1px 5px; }
+.text-success-custom { color: #00bc8c; }
+.fw-500 { font-weight: 500; }

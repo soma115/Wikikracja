@@ -479,6 +479,38 @@ form.signup input[name*="captcha"] {
   background-color: var(--accent) !important;
   border-color: var(--accent) !important;
 }
+/* ── Toggle switch (used in notification settings) ──────────────── */
+.form-switch .form-check-input {
+  width: 3em;
+  height: 1.5em;
+  margin-left: -2.5em;
+  border-radius: 1.5em;
+  transition: background-position .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='currentColor'/%3e%3c/svg%3e");
+  background-position: left center;
+  color: var(--text-muted);
+}
+.form-switch .form-check-input:checked {
+  background-position: right center;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+.form-switch .form-check-input:focus {
+  border-color: var(--accent);
+  outline: 0;
+  box-shadow: 0 0 0 .25rem var(--accent-muted);
+}
+.form-switch .form-check-input:not(:checked):hover {
+  background-color: var(--bs-gray-600);
+  border-color: var(--bs-gray-600);
+}
+.form-switch .form-check-input:checked:hover {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
 /* ── Login page ─────────────────────────────────────────────── */
 #login-box {
   background: var(--bg-card);
@@ -1589,57 +1621,6 @@ a.card:hover {
 .card-footer {
   background: transparent !important;
   border-top: 1px solid var(--border) !important;
-}
-/* Globalne style interakcji */
-/* badge statusu (używane w glosowania i innych modułach) */
-.badge-status {
-  display: inline-block;
-  font-size: .68rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 2rem;
-  white-space: nowrap;
-}
-.badge-proposition {
-  background: rgba(59, 130, 246, .15);
-  color: #60a5fa;
-}
-.badge-discussion {
-  background: rgba(168, 85, 247, .15);
-  color: #c084fc;
-}
-.badge-referendum {
-  background: rgba(249, 115, 22, .15);
-  color: #fb923c;
-}
-.badge-approved {
-  background: rgba(0, 188, 140, .15);
-  color: #00bc8c;
-}
-.badge-rejected {
-  background: rgba(239, 68, 68, .15);
-  color: #f87171;
-}
-/* chat link — globalna pigułka czatu */
-.proposal-chat-link {
-  display: inline-flex;
-  align-items: center;
-  gap: .3rem;
-  color: var(--accent);
-  text-decoration: none !important;
-  font-size: .78rem;
-  font-weight: 500;
-  padding: 2px 7px 2px 5px;
-  border-radius: 2rem;
-  border: 1px solid var(--accent-glow);
-  background: var(--accent-muted);
-  transition: background .15s, border-color .15s, box-shadow .15s;
-}
-.proposal-chat-link:hover {
-  background: var(--accent-muted);
-  border-color: var(--accent);
-  box-shadow: 0 0 8px var(--accent-glow);
-  opacity: 1;
 }
 /* linki — globalne */
 a {

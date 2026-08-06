@@ -28,7 +28,7 @@
     <div class="col-sm-6 col-lg-3">
       <div class="card h-100">
         <div class="card-body">
-          <h6 class="mb-1" style="color:var(--accent);"><i class="fas fa-chalkboard me-2"></i>{% trans "Board" %}</h6>
+          <h6 class="mb-1 text-accent"><i class="fas fa-chalkboard me-2"></i>{% trans "Board" %}</h6>
           <p class="mb-0 small">{% trans "Community bulletin board — post announcements, share information and discuss topics with other members." %}</p>
         </div>
       </div>
@@ -36,7 +36,7 @@
     <div class="col-sm-6 col-lg-3">
       <div class="card h-100">
         <div class="card-body">
-          <h6 class="mb-1" style="color:var(--accent);"><i class="fas fa-calendar-days me-2"></i>{% trans "Calendar" %}</h6>
+          <h6 class="mb-1 text-accent"><i class="fas fa-calendar-days me-2"></i>{% trans "Calendar" %}</h6>
           <p class="mb-0 small">{% trans "Upcoming community events — one-off and recurring. Stay informed about meetings, deadlines and activities." %}</p>
         </div>
       </div>
@@ -44,7 +44,7 @@
     <div class="col-sm-6 col-lg-3">
       <div class="card h-100">
         <div class="card-body">
-          <h6 class="mb-1" style="color:var(--accent);"><i class="fas fa-list-check me-2"></i>{% trans "Tasks" %}</h6>
+          <h6 class="mb-1 text-accent"><i class="fas fa-list-check me-2"></i>{% trans "Tasks" %}</h6>
           <p class="mb-0 small">{% trans "Task management — create, assign and track tasks within the community. See who is responsible for what." %}</p>
         </div>
       </div>
@@ -52,7 +52,7 @@
     <div class="col-sm-6 col-lg-3">
       <div class="card h-100">
         <div class="card-body">
-          <h6 class="mb-1" style="color:var(--accent);"><i class="fas fa-users me-2"></i>{% trans "Citizens" %}</h6>
+          <h6 class="mb-1 text-accent"><i class="fas fa-users me-2"></i>{% trans "Citizens" %}</h6>
           <p class="mb-0 small">{% trans "Member directory — browse citizen profiles, check roles and track community activity." %}</p>
         </div>
       </div>
@@ -60,7 +60,7 @@
     <div class="col-sm-6 col-lg-3">
       <div class="card h-100">
         <div class="card-body">
-          <h6 class="mb-1" style="color:var(--accent);"><i class="fas fa-vote-yea me-2"></i>{% trans "Voting" %}</h6>
+          <h6 class="mb-1 text-accent"><i class="fas fa-vote-yea me-2"></i>{% trans "Voting" %}</h6>
           <p class="mb-0 small">{% trans "Democratic decision-making — submit proposals, collect signatures, vote on ongoing referendums and track results." %}</p>
         </div>
       </div>
@@ -68,7 +68,7 @@
     <div class="col-sm-6 col-lg-3">
       <div class="card h-100">
         <div class="card-body">
-          <h6 class="mb-1" style="color:var(--accent);"><i class="fas fa-coins me-2"></i>{% trans "Bookkeeping" %}</h6>
+          <h6 class="mb-1 text-accent"><i class="fas fa-coins me-2"></i>{% trans "Bookkeeping" %}</h6>
           <p class="mb-0 small">{% trans "Community finances — record income and expenses, maintain transparency over shared funds and budgets." %}</p>
         </div>
       </div>
@@ -76,7 +76,7 @@
     <div class="col-sm-6 col-lg-3">
       <div class="card h-100">
         <div class="card-body">
-          <h6 class="mb-1" style="color:var(--accent);"><i class="fas fa-comments me-2"></i>{% trans "Chat" %}</h6>
+          <h6 class="mb-1 text-accent"><i class="fas fa-comments me-2"></i>{% trans "Chat" %}</h6>
           <p class="mb-0 small">{% trans "Real-time messaging — communicate in topic-based chat rooms linked to referendums and community groups." %}</p>
         </div>
       </div>
@@ -90,7 +90,7 @@
 <div class="section d-flex align-items-start justify-content-between gap-3 flex-wrap">
   <div>
     <h1 class="section-heading mb-1" style="font-size:1.25rem;">{% trans "Desktop" %}</h1>
-    <p class="mb-0" style="font-size:.875rem;color:var(--text-muted);">
+    <p class="mb-0 text-muted-md">
       {% trans "Hi" %}, <strong style="color:var(--accent);">{{ user.username }}</strong> — {% trans "here's what's new in your community" %}.
     </p>
   </div>
@@ -115,7 +115,7 @@
           <span class="section-heading tile-heading">{% trans "First steps" %}</span>
         </div>
         <div id="quick-links-scroll" style="overflow-x:hidden;overflow-y:auto;min-height:0;flex:1;padding-right:4px;max-height:calc(5 * 2rem);">
-        <ul class="list-unstyled mb-0 d-flex flex-column gap-1" style="font-size:.82rem;">
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 text-sm">
 
           {% for link in quick_links %}
           <li class="task-dash-row d-flex align-items-center gap-2 quick-link-row" data-link-id="{{ link.id }}" style="min-width:0;">
@@ -234,7 +234,7 @@
     <div class="card h-100" style="position:relative;">
       <div class="card-header d-flex align-items-center justify-content-between gap-2">
         <span class="section-heading tile-heading">
-          <i class="fas fa-stream me-1" style="color:var(--accent);opacity:.7;"></i>{% trans "Activity" %}
+          <i class="fas fa-stream me-1 text-accent-70"></i>{% trans "Activity" %}
         </span>
         {% if unread_items_no_events %}
         <span class="badge-status" style="background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.3);position:relative;z-index:2;">
@@ -345,7 +345,7 @@
         <a href="{% url 'events:list' %}" class="stretched-link"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
-          <p class="mb-0 text-center" style="font-size:.875rem;color:var(--text-muted);">{% trans "No upcoming events" %}</p>
+          <p class="mb-0 text-center text-muted-md">{% trans "No upcoming events" %}</p>
           <a href="{% url 'events:create' %}" style="font-size:.82rem;color:var(--accent);position:relative;z-index:2;">{% trans "Add an event" %} →</a>
         </div>
         <a href="{% url 'events:list' %}" class="stretched-link"></a>
@@ -385,7 +385,7 @@
         <a href="{% url 'glosowania:proposition' %}" class="stretched-link" title="{% trans "All suggestions" %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
-          <p class="mb-0 text-center" style="font-size:.875rem;color:var(--text-muted);">{% trans "No voting proposals" %}</p>
+          <p class="mb-0 text-center text-muted-md">{% trans "No voting proposals" %}</p>
           <a href="{% url 'glosowania:proposition' %}" style="font-size:.82rem;color:var(--accent);position:relative;z-index:2;">{% trans "Go to Agora" %} →</a>
         </div>
         <a href="{% url 'glosowania:proposition' %}" class="stretched-link" title="{% trans "All suggestions" %}"></a>
@@ -420,7 +420,7 @@
         <a href="{% url 'glosowania:discussion' %}" class="stretched-link" title="{% trans "All discussions" %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
-          <p class="mb-0 text-center" style="font-size:.875rem;color:var(--text-muted);">{% trans "No discussed votings" %}</p>
+          <p class="mb-0 text-center text-muted-md">{% trans "No discussed votings" %}</p>
           <a href="{% url 'glosowania:discussion' %}" style="font-size:.82rem;color:var(--accent);position:relative;z-index:2;">{% trans "Go to Agora" %} →</a>
         </div>
         <a href="{% url 'glosowania:discussion' %}" class="stretched-link" title="{% trans "All discussions" %}"></a>
@@ -453,7 +453,7 @@
         <a href="{% url 'glosowania:approved' %}" class="stretched-link" title="{% trans "Go to Agora" %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
-          <p class="mb-0 text-center" style="font-size:.875rem;color:var(--text-muted);">{% trans "No active votings" %}</p>
+          <p class="mb-0 text-center text-muted-md">{% trans "No active votings" %}</p>
           <a href="{% url 'glosowania:approved' %}" style="font-size:.82rem;color:var(--accent);position:relative;z-index:2;">{% trans "Go to Agora" %} →</a>
         </div>
         <a href="{% url 'glosowania:approved' %}" class="stretched-link" title="{% trans "Go to Agora" %}"></a>
@@ -491,7 +491,7 @@
         <a href="{% url 'tasks:list' %}?tab=mine" class="stretched-link"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
-          <p class="mb-0 text-center" style="font-size:.875rem;color:var(--text-muted);">{% trans "You have no assigned tasks" %}</p>
+          <p class="mb-0 text-center text-muted-md">{% trans "You have no assigned tasks" %}</p>
           <span style="font-size:.82rem;color:var(--accent);">{% trans "See group tasks" %} →</span>
         </div>
         <a href="{% url 'tasks:list' %}" class="stretched-link"></a>
@@ -532,7 +532,7 @@
           {% trans "Newest candidate" %}: <i class="fas fa-user me-1"></i><strong>{{ new_people.0.uid.username }}</strong> · {{ new_people.0.uid.date_joined|date:"d.m.Y" }}
         </p>
         {% else %}
-        <p class="mb-0" style="font-size:.875rem;color:var(--text-muted);">{% trans "No new people" %}</p>
+        <p class="mb-0 text-muted-md">{% trans "No new people" %}</p>
         {% endif %}
       </div>
     </div>
@@ -548,7 +548,7 @@
           {% if default_asset %}<span style="font-size:.7rem;color:var(--text-muted);">— {% trans "All time" %} ({{ default_asset.code }})</span>{% endif %}
         </div>
         {% if default_asset %}
-          <div class="d-flex flex-column gap-1" style="font-size:.82rem;">
+          <div class="d-flex flex-column gap-1 text-sm">
             <div class="d-flex justify-content-between align-items-center">
               <span class="tile-text-muted"><i class="fas fa-arrow-down me-1" style="color:#00bc8c;"></i>{% trans "Revenues" %}</span>
               <span style="color:#00bc8c;font-weight:500;">{{ default_income|floatformat:2 }} {{ default_symbol }}</span>
