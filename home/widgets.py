@@ -71,8 +71,6 @@ class RichTextWidget(forms.Textarea):
 
     def value_from_datadict(self, data, files, name):
         # JS keeps the hidden <input name="..."> in sync, so the standard
-        # Textarea/CharField data path Just Works. Run sanitize as defense in
-        # depth: if JS is disabled or POST is crafted manually, we still strip
-        # disallowed tags before the value reaches the form's clean step.
-        raw = data.get(name, '')
-        return sanitize(raw, linkify=True) if raw else raw
+        # Textarea/CharField data path Just Works. The value already is the
+        # exact HTML counted by the widget, so we use it raw for length.
+        return data.get(name, '')
