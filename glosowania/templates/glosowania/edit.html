@@ -20,7 +20,7 @@
     <span class="section-heading">{% trans 'Edit law proposal' %}</span>
   </div>
   <div class="card-body">
-    <form action="." method="POST" class="post-form">
+    <form action="." method="POST" class="post-form" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
       {% csrf_token %}
       {{ form.title|as_crispy_field }}
       {{ form.tresc|as_crispy_field }}
@@ -34,4 +34,8 @@
     </form>
   </div>
 </div>
-{% endblock %}
+{% endblock glosowania %}
+
+{% block extra_js %}
+<script src="{% static 'common/js/form-autosave.js' %}"></script>
+{% endblock extra_js %}

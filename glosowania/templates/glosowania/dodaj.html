@@ -17,7 +17,7 @@
 
 {% block glosowania %}
 <h2>{% trans 'Add new law proposal' %}</h2>
-<form action="." method="POST" class="post-form">
+<form action="." method="POST" class="post-form" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
     {% csrf_token %}
     <div class="row">
         <div class="col-12">
@@ -47,4 +47,8 @@
     <button type="submit" class="btn btn-primary btn-sm">{% trans 'Save' %}</button>
     <button onclick="window.history.back();" class="btn btn-secondary btn-sm" type="button">{% trans 'Back' %}</button>
 </form>
-{% endblock %}
+{% endblock glosowania %}
+
+{% block extra_js %}
+<script src="{% static 'common/js/form-autosave.js' %}"></script>
+{% endblock extra_js %}
