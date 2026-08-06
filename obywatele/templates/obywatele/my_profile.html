@@ -257,8 +257,9 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
         <p class="mb-2" style="font-size:.9rem;">
           {% blocktrans with date=deletion_request.scheduled_for|date:"Y-m-d" %}
             Your account is scheduled for permanent deletion on <strong>{{ date }}</strong>.
-            You can cancel this request before that date.
           {% endblocktrans %}
+          <br>
+          {% trans "You can cancel this request before that date." %}
         </p>
         <form method="post" action="{% url 'obywatele:cancel_deletion' %}">
           {% csrf_token %}
@@ -268,7 +269,9 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
         </form>
       {% else %}
         <p class="mb-2" style="font-size:.9rem;color:var(--text-muted);">
-          {% trans "Permanently delete your account and all associated data. This action has a 30-day grace period — you can cancel any time before the deadline." %}
+          {% trans "Permanently delete your account and all associated data." %}
+          <br>
+          {% trans "This action has a 30-day grace period — you can cancel any time before the deadline." %}
         </p>
         <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deletionModal">
           <i class="fas fa-trash-alt me-1"></i>{% trans "Delete all my data" %}

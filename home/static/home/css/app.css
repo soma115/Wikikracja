@@ -1807,6 +1807,20 @@ a:hover {
     max-height: 60vh;
   }
 }
+
+/* Dashboard tile helpers */
+.tile-header > i { color: var(--accent); font-size: .85rem; }
+.tile-heading { font-size: .85rem; }
+.tile-title { color: var(--text-primary); font-size: 1rem; line-height: 1.35; }
+.tile-meta { font-size: .78rem; color: var(--text-muted); }
+.tile-desc { font-size: .82rem; color: var(--text-muted); }
+.tile-success { font-size: .75rem; color: #00bc8c; }
+.tile-accent { font-size: .75rem; color: var(--accent); opacity: .8; }
+.tile-text-muted { color: var(--text-muted); }
+.onboarding-hint { font-size: .82rem; }
+.new-people-avatar { width: 36px; height: 36px; font-size: .75rem; flex-shrink: 0; background: var(--bg, #6c757d); }
+.tile-empty { font-size: .875rem; color: var(--text-muted); text-align: center; }
+.tile-link { font-size: .82rem; }
 /* ── Citizens list ── */
 .near-threshold {
   background-color: var(--status-warning-bg) !important;

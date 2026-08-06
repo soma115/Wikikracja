@@ -14,7 +14,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
 from django.core.cache import cache
-from django.db.models import Q, Sum
+from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
@@ -23,7 +23,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from board.models import Post
-from bookkeeping.models import Asset, Transaction
+from bookkeeping.models import Asset
 from bookkeeping.services import asset_balances
 from chat.models import Message, Room
 from chat.services import CHAT_UNREAD_CACHE_KEY, get_unread_count_for_user
@@ -110,8 +110,8 @@ def home(request: HttpRequest):
     # Dyskutowane głosowania widget (max 3)
     discussed_proposals = Decyzja.objects.filter(status=Decyzja.Status.DISCUSSION).select_related('author').order_by('-data_ostatniej_modyfikacji')[:3]
 
-    # My tasks widget (max 3, active — assigned to me or supported by me)
-    my_tasks = Task.objects.filter(Q(assigned_to=request.user) | Q(votes__user=request.user, votes__value=1)).filter(status=Task.Status.ACTIVE).distinct().order_by('updated_at')[:3]
+    # My tasks widget (max 3, active — only where the viewer is the coordinator)
+    my_tasks = Task.objects.filter(assigned_to=request.user, status=Task.Status.ACTIVE).order_by('updated_at')[:3]
 
     # Active referendum widget
     active_referendum = None
@@ -140,13 +140,14 @@ def home(request: HttpRequest):
             'user_voted': user_voted,
         }
 
-    # Karta 4 — Kalendarz: 3 najbliższe wystąpienia (eventy jednorazowe i cykliczne, każde wystąpienie osobno)
+    # Karta 4 — Kalendarz: najbliższe wystąpienia (dla każdego wydarzenia tylko jedno najbliższe)
     today_dt = timezone.now()
     _events_horizon_end = today_dt + td(days=90)
     _occurrences = []
     for _ev in Event.objects.filter(is_active=True):
-        for _date in _ev.get_occurrences(today_dt, _events_horizon_end):
-            _occurrences.append({'event': _ev, 'date': _date})
+        _event_occurrences = _ev.get_occurrences(today_dt, _events_horizon_end)
+        if _event_occurrences:
+            _occurrences.append({'event': _ev, 'date': _event_occurrences[0]})
     _occurrences.sort(key=lambda o: o['date'])
     upcoming_events = _occurrences[:5]
 
@@ -167,16 +168,14 @@ def home(request: HttpRequest):
             default_income = default_expenses = default_balance = Decimal('0')
         default_symbol = default_asset.symbol
 
-    # Karta 6 — Nowi obywatele: 6 ostatnio dołączonych aktywnych
-    new_citizens = list(Uzytkownik.objects.filter(uid__is_active=True).select_related('uid').order_by('-uid__date_joined')[:7])
-    candidates_count = (Uzytkownik.objects.filter(uid__is_active=False).count() if request.user.is_staff else None)
+    # Karta 6 — Nowi ludzie: 6 ostatnio dołączonych kandydatów
+    new_people = list(Uzytkownik.objects.filter(uid__is_active=False).select_related('uid').order_by('-uid__date_joined')[:7])
 
     # Community stats (moved from /obywatele/wspolnota/)
     pop = User.objects.filter(is_active=True).count()
     thirty_days_ago = timezone.now() - td(days=30)
     active_last_month = User.objects.filter(is_active=True, last_login__gte=thirty_days_ago).count()
     active_pct = round(active_last_month / pop * 100) if pop else 0
-    pending_count = User.objects.filter(is_active=False).count()
 
     skills_knowledge_hobby_count = Uzytkownik.objects.exclude(skills_knowledge_hobby__isnull=True).exclude(skills_knowledge_hobby='').count()
     give_away_count = Uzytkownik.objects.exclude(to_give_away__isnull=True).exclude(to_give_away='').count()
@@ -184,11 +183,6 @@ def home(request: HttpRequest):
     for_sale_count = Uzytkownik.objects.exclude(for_sale__isnull=True).exclude(for_sale='').count()
 
     recent_chat_messages = Message.objects.filter(room__public=True, room__allowed=request.user).select_related('sender', 'sender__uzytkownik', 'room').order_by('-time')[:4]
-
-    this_year = timezone.now().year
-    community_income = Transaction.objects.filter(type=Transaction.INCOMING, created_date__year=this_year).aggregate(total=Sum('amount'))['total'] or 0
-    community_expense = Transaction.objects.filter(type=Transaction.OUTGOING, created_date__year=this_year).aggregate(total=Sum('amount'))['total'] or 0
-    community_balance = community_income - community_expense
 
     # Calendar month grid
     cal_year, cal_month = parse_month_param(request.GET.get('month', ''))
@@ -228,13 +222,10 @@ def home(request: HttpRequest):
         'default_expenses': default_expenses,
         'default_balance': default_balance,
         'default_symbol': default_symbol,
-        'new_citizens': new_citizens,
-        'candidates_count': candidates_count,
+        'new_people': new_people,
         'last_feed_items': last_feed_items,
         'new_proposals': new_proposals,
         'discussed_proposals': discussed_proposals,
-        'member_count': pop,
-        'pending_count': pending_count,
         'active_pct': active_pct,
         'skills_knowledge_hobby_count': skills_knowledge_hobby_count,
         'skills_count': skills_knowledge_hobby_count,
@@ -243,10 +234,6 @@ def home(request: HttpRequest):
         'borrow_count': borrow_count,
         'for_sale_count': for_sale_count,
         'recent_chat_messages': recent_chat_messages,
-        'community_income': community_income,
-        'community_expense': community_expense,
-        'community_balance': community_balance,
-        'current_year': this_year,
         'cal_weeks': cal_weeks,
         'cal_year': cal_year,
         'cal_month': cal_month,

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-06 13:58+0200\n"
+"POT-Creation-Date: 2026-08-06 17:36+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -31,10 +31,10 @@ msgstr "Załączniki"
 #: .\bookkeeping\forms.py:34 .\bookkeeping\forms.py:47
 #: .\bookkeeping\forms.py:92 .\chat\templates\chat\add.html:15
 #: .\chat\templates\chat\chat.html:210
-#: .\glosowania\templates\glosowania\dodaj.html:47
-#: .\glosowania\templates\glosowania\edit.html:31
+#: .\glosowania\templates\glosowania\dodaj.html:38
+#: .\glosowania\templates\glosowania\edit.html:22
 #: .\glosowania\templates\glosowania\edit_argument.html:33
-#: .\glosowania\templates\glosowania\parameters_propose.html:58
+#: .\glosowania\templates\glosowania\parameters_propose.html:49
 #: .\home\templates\home\haslo.html:25 .\home\templates\home\site_admin.html:90
 #: .\obywatele\templates\obywatele\candidate_edit.html:56
 #: .\obywatele\templates\obywatele\change_email.html:23
@@ -141,7 +141,7 @@ msgid "System posts cannot be deleted."
 msgstr "Dokumenty systemowe nie mogą być usunięte"
 
 #: .\board\models.py:48 .\home\models.py:11 .\home\models.py:40
-#: .\home\templatetags\feed_filters.py:23 .\home\views.py:678
+#: .\home\templatetags\feed_filters.py:23 .\home\views.py:665
 msgid "Post"
 msgstr "Dokument"
 
@@ -221,7 +221,7 @@ msgstr "Usuń"
 #: .\obywatele\templates\obywatele\change_email.html:24
 #: .\obywatele\templates\obywatele\change_username.html:19
 #: .\obywatele\templates\obywatele\my_assets.html:84
-#: .\obywatele\templates\obywatele\my_profile.html:302
+#: .\obywatele\templates\obywatele\my_profile.html:305
 #: .\tasks\templates\tasks\task_close.html:21
 #: .\tasks\templates\tasks\task_detail.html:248
 #: .\tasks\templates\tasks\task_list.html:330
@@ -255,7 +255,7 @@ msgid "Date"
 msgstr "Data"
 
 #: .\board\templates\board\board.html:47 .\board\templates\board\board.html:49
-#: .\home\templates\home\activity.html:21 .\home\views.py:463
+#: .\home\templates\home\activity.html:21 .\home\views.py:450
 #: .\obywatele\templates\obywatele\start.html:24
 #: .\obywatele\templates\obywatele\start.html:30
 #: .\tasks\templates\tasks\task_list.html:66
@@ -383,10 +383,10 @@ msgstr "Czy na pewno chcesz usunąć to ogłoszenie?"
 #: .\board\templates\board\post_detail.html:10
 #: .\board\templates\board\post_detail.html:55
 #: .\chat\templates\chat\add.html:16
-#: .\glosowania\templates\glosowania\dodaj.html:48
-#: .\glosowania\templates\glosowania\edit.html:32
+#: .\glosowania\templates\glosowania\dodaj.html:39
+#: .\glosowania\templates\glosowania\edit.html:23
 #: .\glosowania\templates\glosowania\historia.html:72
-#: .\glosowania\templates\glosowania\parameters_propose.html:59
+#: .\glosowania\templates\glosowania\parameters_propose.html:50
 #: .\obywatele\templates\obywatele\dodaj.html:65
 #: .\tasks\templates\tasks\task_form.html:50
 msgid "Back"
@@ -683,7 +683,7 @@ msgid "Save Asset"
 msgstr "Zapisz aktywo"
 
 #: .\bookkeeping\templates\bookkeeping\asset_list.html:14
-#: .\home\templates\home\home.html:617
+#: .\home\templates\home\home.html:572
 msgid "Add asset"
 msgstr "Dodaj aktywo"
 
@@ -881,12 +881,12 @@ msgid "Balance per asset"
 msgstr "Saldo per aktywo"
 
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:28
-#: .\home\templates\home\home.html:598 .\home\templates\home\home.html:736
+#: .\home\templates\home\home.html:553
 msgid "Revenues"
 msgstr "Przychody"
 
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:28
-#: .\home\templates\home\home.html:602 .\home\templates\home\home.html:740
+#: .\home\templates\home\home.html:557
 msgid "Expenses"
 msgstr "Wydatki"
 
@@ -908,7 +908,7 @@ msgstr "Nie można usunąć partnera, ponieważ jest w użyciu. Usuń najpierw w
 
 #: .\categories\templates\categories\_category_modal.html:9
 #: .\chat\templates\chat\chat.html:189 .\chat\templates\chat\chat.html:248
-#: .\chat\views.py:217 .\obywatele\templates\obywatele\my_profile.html:290
+#: .\chat\views.py:217 .\obywatele\templates\obywatele\my_profile.html:293
 #: .\tasks\templates\tasks\task_detail.html:241
 #: .\tasks\templates\tasks\task_list.html:174
 msgid "Close"
@@ -935,9 +935,9 @@ msgstr "Pokój: %(room)s"
 #: .\glosowania\templates\glosowania\szczegoly.html:43
 #: .\home\templates\home\base.html:148 .\home\templates\home\base.html:151
 #: .\home\templates\home\base.html:231 .\home\templates\home\home.html:79
-#: .\home\templates\home\home.html:693 .\home\templates\home\home.html:803
+#: .\home\templates\home\home.html:619 .\home\templates\home\home.html:704
 #: .\home\templates\home\search.html:95 .\home\templatetags\feed_filters.py:27
-#: .\home\views.py:469 .\home\views.py:779 .\obywatele\views.py:649
+#: .\home\views.py:456 .\home\views.py:766 .\obywatele\views.py:649
 #: .\obywatele\views.py:676 .\tasks\templates\tasks\_task_card.html:50
 #: .\tasks\templates\tasks\task_detail.html:19
 msgid "Chat"
@@ -1083,7 +1083,7 @@ msgstr "Brak"
 #: .\chat\templates\chat\chat.html:96 .\chat\templates\chat\chat.html:231
 #: .\home\templates\home\base.html:112 .\home\templates\home\base.html:115
 #: .\home\templates\home\base.html:226 .\home\templates\home\home.html:47
-#: .\home\templates\home\search.html:71 .\home\views.py:465
+#: .\home\templates\home\search.html:71 .\home\views.py:452
 #: .\obywatele\templates\obywatele\szczegoly.html:143
 msgid "Tasks"
 msgstr "Zadania"
@@ -1165,11 +1165,11 @@ msgid "Unread"
 msgstr "Nieprzeczytane"
 
 #: .\chat\templates\chat\room_link.html:46 .\chat\views.py:211
-#: .\home\views.py:792
+#: .\home\views.py:779
 msgid "Anonymous"
 msgstr "Anonim"
 
-#: .\chat\templates\chat\room_link.html:46 .\home\views.py:792
+#: .\chat\templates\chat\room_link.html:46 .\home\views.py:779
 msgid "System"
 msgstr "System"
 
@@ -1522,7 +1522,7 @@ msgid "For monthly ordinal events: which day of the week? (e.g., Monday, Tuesday
 msgstr "Dla wydarzeń powtarzających się w określonym dniu tygodnia: który dzień tygodnia? (np., Poniedziałek, Wtorek)"
 
 #: .\events\models.py:49 .\events\templates\events\event_detail.html:32
-#: .\home\templates\home\home.html:520 .\tasks\models.py:51
+#: .\home\templates\home\home.html:482 .\tasks\models.py:51
 msgid "Active"
 msgstr "Aktywne"
 
@@ -1536,7 +1536,7 @@ msgstr "Wydarzenia publiczne są widoczne dla wszystkich. Wydarzenia prywatne s�
 
 #: .\events\models.py:56 .\home\models.py:13 .\home\models.py:42
 #: .\home\templates\home\search.html:83 .\home\templatetags\feed_filters.py:25
-#: .\home\views.py:750
+#: .\home\views.py:737
 msgid "Event"
 msgstr "Wydarzenie"
 
@@ -1572,8 +1572,8 @@ msgstr "Dodaj do swojego Kalendarza Google"
 #: .\events\templates\events\_event_card.html:60
 #: .\home\templates\home\base.html:130 .\home\templates\home\base.html:133
 #: .\home\templates\home\base.html:227 .\home\templates\home\base.html:290
-#: .\home\templates\home\home.html:39 .\home\templates\home\home.html:758
-#: .\home\views.py:467
+#: .\home\templates\home\home.html:39 .\home\templates\home\home.html:659
+#: .\home\views.py:454
 msgid "Calendar"
 msgstr "Kalendarz"
 
@@ -1659,7 +1659,7 @@ msgstr "Stwórz pierwsze wydarzenie"
 #: .\glosowania\forms.py:41 .\glosowania\models.py:37
 #: .\glosowania\templates\glosowania\_proposal_card.html:135
 #: .\glosowania\templates\glosowania\szczegoly.html:135
-#: .\glosowania\views.py:465 .\home\views.py:712
+#: .\glosowania\views.py:465 .\home\views.py:699
 msgid "Reasoning"
 msgstr "Uzasadnienie"
 
@@ -1799,6 +1799,7 @@ msgstr "Nie zabrała podpisów"
 #: .\glosowania\management\commands\vote.py:112 .\glosowania\models.py:29
 #: .\glosowania\templates\glosowania\_proposal_card.html:144
 #: .\glosowania\templates\glosowania\menu.html:36
+#: .\home\templates\home\home.html:444
 msgid "Referendum"
 msgstr "Referendum"
 
@@ -1894,7 +1895,7 @@ msgid "If set, this referendum changes system parameters. Applied when approved.
 msgstr "Jeśli zostanie użyte, referendum zmieni ustawienia systemu. Zmiana zostanie zastosowana po zatwierdzeniu."
 
 #: .\glosowania\models.py:81
-#: .\glosowania\templates\glosowania\parameters_propose.html:48
+#: .\glosowania\templates\glosowania\parameters_propose.html:39
 #: .\glosowania\templates\glosowania\szczegoly.html:147
 #: .\glosowania\templates\glosowania\szczegoly.html:148
 msgid "Proposed logo"
@@ -2062,11 +2063,11 @@ msgstr "Tak, skasuj"
 msgid "No, Cancel"
 msgstr "Nie, anuluj"
 
-#: .\glosowania\templates\glosowania\dodaj.html:19
+#: .\glosowania\templates\glosowania\dodaj.html:10
 msgid "Add new law proposal"
 msgstr "Dodaj nową propozycję przepisu"
 
-#: .\glosowania\templates\glosowania\edit.html:20
+#: .\glosowania\templates\glosowania\edit.html:11
 msgid "Edit law proposal"
 msgstr "Nowa propozycja przepisu"
 
@@ -2168,28 +2169,28 @@ msgstr "Otwórz formularz, aby rozpocząć referendum zmieniające parametry sys
 msgid "No"
 msgstr "Nie"
 
-#: .\glosowania\templates\glosowania\parameters_propose.html:19
+#: .\glosowania\templates\glosowania\parameters_propose.html:10
 msgid "Edit system parameters referendum"
 msgstr "Edytuj referendum zmieniające parametry systemu"
 
-#: .\glosowania\templates\glosowania\parameters_propose.html:19
+#: .\glosowania\templates\glosowania\parameters_propose.html:10
 msgid "Change system parameters"
 msgstr "Zmień parametry systemu"
 
-#: .\glosowania\templates\glosowania\parameters_propose.html:21
+#: .\glosowania\templates\glosowania\parameters_propose.html:12
 msgid "Adjust the values below. Only the parameters you change will be included in the referendum."
 msgstr "Dostosuj poniższe wartości. Tylko zmienione przez Ciebie parametry zostaną uwzględnione w referendum."
 
-#: .\glosowania\templates\glosowania\parameters_propose.html:44
+#: .\glosowania\templates\glosowania\parameters_propose.html:35
 #: .\glosowania\views.py:579
 msgid "Logo"
 msgstr "Logo"
 
-#: .\glosowania\templates\glosowania\parameters_propose.html:47
+#: .\glosowania\templates\glosowania\parameters_propose.html:38
 msgid "Currently proposed logo:"
 msgstr "Obecnie proponowane logo:"
 
-#: .\glosowania\templates\glosowania\parameters_propose.html:58
+#: .\glosowania\templates\glosowania\parameters_propose.html:49
 msgid "Create referendum"
 msgstr "Utwórz referendum"
 
@@ -2242,7 +2243,6 @@ msgid "Would you like to implement this rule?"
 msgstr "Czy chcesz wprowadzenia tego przepisu?"
 
 #: .\glosowania\templates\glosowania\szczegoly.html:91
-#: .\home\templates\home\home.html:476
 msgid "You have already voted in this referendum"
 msgstr "Już zagłosowałeś w tym referendum"
 
@@ -2425,7 +2425,7 @@ msgid "Keep me signed in"
 msgstr "Nie wylogowuj mnie"
 
 #: .\home\models.py:12 .\home\models.py:41
-#: .\home\templatetags\feed_filters.py:24 .\home\views.py:691
+#: .\home\templatetags\feed_filters.py:24 .\home\views.py:678
 #: .\obywatele\views.py:1230
 msgid "Task"
 msgstr "Zadanie"
@@ -2489,13 +2489,13 @@ msgstr "Pulpit"
 
 #: .\home\templates\home\base.html:94 .\home\templates\home\base.html:97
 #: .\home\templates\home\base.html:224 .\home\templates\home\search.html:77
-#: .\home\views.py:466
+#: .\home\views.py:453
 msgid "Votings"
 msgstr "Głosowania"
 
 #: .\home\templates\home\base.html:103 .\home\templates\home\base.html:106
 #: .\home\templates\home\base.html:229 .\home\templates\home\home.html:55
-#: .\home\templates\home\search.html:89 .\home\views.py:468
+#: .\home\templates\home\search.html:89 .\home\views.py:455
 #: .\obywatele\models.py:123 .\obywatele\templates\obywatele\menu.html:14
 #: .\obywatele\templates\obywatele\start.html:9
 msgid "Citizens"
@@ -2516,7 +2516,7 @@ msgid "Log out"
 msgstr "Wyloguj"
 
 #: .\home\templates\home\base.html:190 .\home\templatetags\feed_filters.py:29
-#: .\home\views.py:763 .\obywatele\models.py:122
+#: .\home\views.py:750 .\obywatele\models.py:122
 msgid "Citizen"
 msgstr "Ludzie"
 
@@ -2548,7 +2548,7 @@ msgstr "Aktywność"
 msgid "Contact"
 msgstr "Kontakt"
 
-#: .\home\templates\home\base.html:286 .\home\views.py:464
+#: .\home\templates\home\base.html:286 .\home\views.py:451
 msgid "Announcements"
 msgstr "Ogłoszenia"
 
@@ -2634,7 +2634,7 @@ msgstr "Zarządzanie zadaniami — twórz, przypisuj i śledź zadania w społec
 msgid "Member directory — browse citizen profiles, check roles and track community activity."
 msgstr "Katalog członków — przeglądaj profile obywateli, sprawdzaj role i śledź aktywność społeczności."
 
-#: .\home\templates\home\home.html:63 .\home\views.py:717 .\home\views.py:736
+#: .\home\templates\home\home.html:63 .\home\views.py:704 .\home\views.py:723
 #: .\obywatele\views.py:637 .\obywatele\views.py:664
 msgid "Voting"
 msgstr "Głosowania"
@@ -2671,8 +2671,8 @@ msgstr "Pierwsze kroki"
 msgid "Progress"
 msgstr "Postęp"
 
-#: .\home\templates\home\home.html:241 .\home\templates\home\home.html:700
-#: .\home\templates\home\home.html:802
+#: .\home\templates\home\home.html:241 .\home\templates\home\home.html:626
+#: .\home\templates\home\home.html:703
 msgid "unread"
 msgstr "nieprzeczytanych"
 
@@ -2704,7 +2704,8 @@ msgstr "Propozycje głosowań"
 msgid "signatures"
 msgstr "podpisy"
 
-#: .\home\templates\home\home.html:384
+#: .\home\templates\home\home.html:384 .\home\templates\home\home.html:385
+#: .\home\templates\home\home.html:391
 msgid "All suggestions"
 msgstr "Wszystkie propozycje"
 
@@ -2713,7 +2714,8 @@ msgid "No voting proposals"
 msgstr "Brak propozycji głosowań"
 
 #: .\home\templates\home\home.html:389 .\home\templates\home\home.html:424
-#: .\home\templates\home\home.html:496
+#: .\home\templates\home\home.html:452 .\home\templates\home\home.html:453
+#: .\home\templates\home\home.html:457 .\home\templates\home\home.html:459
 msgid "Go to Agora"
 msgstr "Przejdź do Agory"
 
@@ -2725,7 +2727,8 @@ msgstr "Dyskutowane głosowania"
 msgid "discussion"
 msgstr "dyskusja"
 
-#: .\home\templates\home\home.html:419
+#: .\home\templates\home\home.html:419 .\home\templates\home\home.html:420
+#: .\home\templates\home\home.html:426
 msgid "All discussions"
 msgstr "Wszystkie dyskusje"
 
@@ -2733,118 +2736,85 @@ msgstr "Wszystkie dyskusje"
 msgid "No discussed votings"
 msgstr "Brak dyskutowanych głosowań"
 
-#: .\home\templates\home\home.html:442 .\home\templates\home\home.html:490
-msgid "Active referendum"
-msgstr "Aktywne referendum"
+#: .\home\templates\home\home.html:438
+msgid "Active voting"
+msgstr "Aktywne głosowanie"
 
-#: .\home\templates\home\home.html:451
-msgid "from"
-msgstr "od"
-
-#: .\home\templates\home\home.html:457
-msgid "Last day of voting"
-msgstr "Ostatni dzień głosowania"
-
-#: .\home\templates\home\home.html:459
-msgid "1 day left"
-msgstr "Pozostał 1 dzień"
-
-#: .\home\templates\home\home.html:461
-#, python-format
-msgid "%(n)s days remaining"
-msgstr "Pozostało %(n)s dni"
-
-#: .\home\templates\home\home.html:480
-msgid "Click to see details and vote"
-msgstr "Kliknij aby zobaczyć szczegóły i zagłosować"
-
-#: .\home\templates\home\home.html:493
+#: .\home\templates\home\home.html:456
 msgid "No active votings"
 msgstr "Brak aktywnych głosowań"
 
-#: .\home\templates\home\home.html:514
+#: .\home\templates\home\home.html:476
 #: .\obywatele\templates\obywatele\citizen_zadania.html:16
 #: .\tasks\templates\tasks\task_list.html:106
 msgid "My tasks"
 msgstr "Moje zadania"
 
-#: .\home\templates\home\home.html:528
+#: .\home\templates\home\home.html:490
 msgid "All my tasks"
 msgstr "Wszystkie moje zadania"
 
-#: .\home\templates\home\home.html:532
+#: .\home\templates\home\home.html:494
 msgid "You have no assigned tasks"
 msgstr "Nie masz przypisanych zadań"
 
-#: .\home\templates\home\home.html:533
+#: .\home\templates\home\home.html:495
 msgid "See group tasks"
 msgstr "Zobacz zadania grupy"
 
-#: .\home\templates\home\home.html:547 .\home\templates\home\home.html:549
-msgid "New citizens"
+#: .\home\templates\home\home.html:509 .\home\templates\home\home.html:511
+msgid "New people"
 msgstr "Nowi ludzie"
 
-#: .\home\templates\home\home.html:570
-msgid "Recently joined"
-msgstr "Ostatnio dołączył/a"
+#: .\home\templates\home\home.html:532
+msgid "Newest candidate"
+msgstr "Nowy kandydat"
 
-#: .\home\templates\home\home.html:573
-msgid "No citizens"
-msgstr "Brak obywateli"
+#: .\home\templates\home\home.html:535
+msgid "No new people"
+msgstr "Brak nowych osób"
 
-#: .\home\templates\home\home.html:578
-msgid "waiting"
-msgstr "oczekujących"
-
-#: .\home\templates\home\home.html:592 .\home\templates\home\home.html:731
+#: .\home\templates\home\home.html:547
 msgid "Finances"
 msgstr "Finanse"
 
-#: .\home\templates\home\home.html:593
+#: .\home\templates\home\home.html:548
 msgid "All time"
 msgstr "Cały okres"
 
-#: .\home\templates\home\home.html:607 .\home\templates\home\home.html:744
+#: .\home\templates\home\home.html:562
 msgid "Balance"
 msgstr "Bilans"
 
-#: .\home\templates\home\home.html:615
+#: .\home\templates\home\home.html:570
 msgid "No financial data yet. Add your first asset to start tracking community finances."
 msgstr "Brak danych finansowych. Dodaj pierwsze aktywo, aby zacząć śledzić finanse społeczności."
 
-#: .\home\templates\home\home.html:636
-msgid "active citizens"
-msgstr "aktywnych obywateli"
-
-#: .\home\templates\home\home.html:648
-msgid "candidates in the waiting room"
-msgstr "kandydatów w poczekalni"
-
-#: .\home\templates\home\home.html:659
+#: .\home\templates\home\home.html:590
 msgid "Skills and resources"
 msgstr "Umiejętności i zasoby"
 
-#: .\home\templates\home\home.html:662
+#: .\home\templates\home\home.html:593
 msgid "skills"
 msgstr "umiejętności"
 
-#: .\home\templates\home\home.html:663
+#: .\home\templates\home\home.html:594
 msgid "knowledge"
 msgstr "wiedzy"
 
-#: .\home\templates\home\home.html:678
+#: .\home\templates\home\home.html:609
 msgid "logged in within 30 days"
 msgstr "zalogowanych w ciągu 30 dni"
 
-#: .\home\templates\home\home.html:700
+#: .\home\templates\home\home.html:626
 msgid "Open chat"
 msgstr "Otwórz czat"
 
-#: .\home\templates\home\home.html:720
+#: .\home\templates\home\home.html:646
 msgid "No news"
 msgstr "Brak wiadomości"
 
-#: .\home\templates\home\home.html:761
+#: .\home\templates\home\home.html:662
 msgid "Add event"
 msgstr "Dodaj wydarzenie"
 
@@ -3007,48 +2977,48 @@ msgstr "Członkostwo"
 msgid "Transaction"
 msgstr "Transakcja"
 
-#: .\home\views.py:343 .\home\views.py:420
+#: .\home\views.py:330 .\home\views.py:407
 #, python-format
 msgid "Messages in %(room_title)s"
 msgstr "Wiadomości w %(room_title)s"
 
-#: .\home\views.py:708 .\home\views.py:730
+#: .\home\views.py:695 .\home\views.py:717
 msgid "argument for"
 msgstr "argumenty za"
 
-#: .\home\views.py:710 .\home\views.py:730
+#: .\home\views.py:697 .\home\views.py:717
 msgid "argument against"
 msgstr "argumenty przeciw"
 
-#: .\home\views.py:733 .\tasks\templates\tasks\task_detail.html:42
+#: .\home\views.py:720 .\tasks\templates\tasks\task_detail.html:42
 msgid "Unknown"
 msgstr "Nieznane"
 
-#: .\home\views.py:795
+#: .\home\views.py:782
 msgid "Chat message"
 msgstr "Wiadomość"
 
-#: .\home\views.py:830
+#: .\home\views.py:817
 msgid "Your password has been changed."
 msgstr "Twoje hasło zostało zmienione."
 
-#: .\home\views.py:833
+#: .\home\views.py:820
 msgid "You typed something wrong. See what error appeared above and try again."
 msgstr "Coś źle wpisałeś. Zobacz, jaki błąd pojawił się powyżej i spróbuj ponownie."
 
-#: .\home\views.py:949
+#: .\home\views.py:936
 msgid "Link added."
 msgstr "Link dodany."
 
-#: .\home\views.py:965
+#: .\home\views.py:952
 msgid "Link updated."
 msgstr "Link zaktualizowany."
 
-#: .\home\views.py:967 .\home\views.py:988
+#: .\home\views.py:954 .\home\views.py:975
 msgid "Link doesn't exist."
 msgstr "Link nie istnieje."
 
-#: .\home\views.py:986
+#: .\home\views.py:973
 msgid "Link deleted."
 msgstr "Link usunięty."
 
@@ -3653,16 +3623,20 @@ msgid "Push Notifications"
 msgstr "Powiadomienia Push"
 
 #: .\obywatele\templates\obywatele\my_profile.html:253
-#: .\obywatele\templates\obywatele\my_profile.html:288
+#: .\obywatele\templates\obywatele\my_profile.html:291
 msgid "Delete account"
 msgstr "Usuń konto"
 
 #: .\obywatele\templates\obywatele\my_profile.html:258
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "            Your account is scheduled for permanent deletion on <strong>%(date)s</strong>.\n"
+#| "            You can cancel this request before that date.\n"
+#| "          "
 msgid ""
 "\n"
 "            Your account is scheduled for permanent deletion on <strong>%(date)s</strong>.\n"
-"            You can cancel this request before that date.\n"
 "          "
 msgstr ""
 "\n"
@@ -3670,39 +3644,53 @@ msgstr ""
 "            Możesz anulować to żądanie przed tą datą.\n"
 "          "
 
-#: .\obywatele\templates\obywatele\my_profile.html:266
+#: .\obywatele\templates\obywatele\my_profile.html:262
+#, fuzzy
+#| msgid "You can cancel this request at any time during the 30-day period."
+msgid "You can cancel this request before that date."
+msgstr "Możesz anulować to żądanie w dowolnym momencie w ciągu 30 dni."
+
+#: .\obywatele\templates\obywatele\my_profile.html:267
 msgid "Cancel deletion request"
 msgstr "Anuluj żądanie usunięcia"
 
-#: .\obywatele\templates\obywatele\my_profile.html:271
-msgid "Permanently delete your account and all associated data. This action has a 30-day grace period — you can cancel any time before the deadline."
-msgstr "Trwale usuń swoje konto i wszystkie powiązane dane. Ta czynność ma 30-dniowy okres karencji — możesz anulować w dowolnym momencie przed upływem terminu."
+#: .\obywatele\templates\obywatele\my_profile.html:272
+#, fuzzy
+#| msgid "Are you sure you want to request deletion of your account and all your data?"
+msgid "Permanently delete your account and all associated data."
+msgstr "Czy na pewno chcesz zarządać usunięcia twojego konta i danych?"
 
 #: .\obywatele\templates\obywatele\my_profile.html:274
+#, fuzzy
+#| msgid "Permanently delete your account and all associated data. This action has a 30-day grace period — you can cancel any time before the deadline."
+msgid "This action has a 30-day grace period — you can cancel any time before the deadline."
+msgstr "Trwale usuń swoje konto i wszystkie powiązane dane. Ta czynność ma 30-dniowy okres karencji — możesz anulować w dowolnym momencie przed upływem terminu."
+
+#: .\obywatele\templates\obywatele\my_profile.html:277
 msgid "Delete all my data"
 msgstr "Skasuj wszystkie moje dane"
 
-#: .\obywatele\templates\obywatele\my_profile.html:293
+#: .\obywatele\templates\obywatele\my_profile.html:296
 msgid "Are you sure you want to request deletion of your account and all your data?"
 msgstr "Czy na pewno chcesz zarządać usunięcia twojego konta i danych?"
 
-#: .\obywatele\templates\obywatele\my_profile.html:294
+#: .\obywatele\templates\obywatele\my_profile.html:297
 msgid "Your account will remain active for 30 days. After that, all data will be permanently removed and cannot be recovered."
 msgstr "Twoje konto pozostanie aktywne przez 30 dni. Po tym czasie wszystkie dane zostaną trwale usunięte i nie będą mogły być przywrócone."
 
-#: .\obywatele\templates\obywatele\my_profile.html:295
+#: .\obywatele\templates\obywatele\my_profile.html:298
 msgid "You can cancel this request at any time during the 30-day period."
 msgstr "Możesz anulować to żądanie w dowolnym momencie w ciągu 30 dni."
 
-#: .\obywatele\templates\obywatele\my_profile.html:297
+#: .\obywatele\templates\obywatele\my_profile.html:300
 msgid "We would be very grateful if you could provide a reason for deleting your account (optional)."
 msgstr "Będziemy bardzo wdzięczni, jeśli podasz nam powód usunięcia konta (opcjonalnie)."
 
-#: .\obywatele\templates\obywatele\my_profile.html:298
+#: .\obywatele\templates\obywatele\my_profile.html:301
 msgid "Your feedback helps us improve..."
 msgstr "Twoja opinia pomaga nam się rozwijać..."
 
-#: .\obywatele\templates\obywatele\my_profile.html:306
+#: .\obywatele\templates\obywatele\my_profile.html:309
 msgid "Yes, schedule deletion"
 msgstr "Tak, zaplanuj usunięcie"
 
@@ -4681,66 +4669,77 @@ msgid "Wikicracy Administration"
 msgstr "Wikikracja Administration"
 
 #: .\templates\allauth\account\account_inactive.html:5
+#, fuzzy
+#| msgid "Inactive"
 msgid "Account Inactive"
-msgstr "Konto Wyłączone"
+msgstr "Nieaktywne"
 
 #: .\templates\allauth\account\email.html:5
 #: .\templates\allauth\account\email.html:8
+#, fuzzy
+#| msgid "New email address"
 msgid "E-mail Addresses"
-msgstr "Adres email"
+msgstr "Nowy email"
 
 #: .\templates\allauth\account\email.html:10
 msgid "The following e-mail addresses are associated with your account:"
-msgstr "Z Twoim kontem powiązane są następujące adresy e-mail:"
+msgstr ""
 
 #: .\templates\allauth\account\email.html:24
 msgid "Verified"
-msgstr "Zweryfikowany"
+msgstr ""
 
 #: .\templates\allauth\account\email.html:26
 msgid "Unverified"
-msgstr "Niezweryfikowany"
+msgstr ""
 
 #: .\templates\allauth\account\email.html:28
 msgid "Primary"
-msgstr "Podstawowy"
+msgstr ""
 
 #: .\templates\allauth\account\email.html:34
 msgid "Make Primary"
-msgstr "Ustaw jako podstawowy"
+msgstr ""
 
 #: .\templates\allauth\account\email.html:35
+#, fuzzy
+#| msgid "Event notifications"
 msgid "Re-send Verification"
-msgstr "Wyślij ponownie email weryfikacyjny"
+msgstr "Powiadomienia o wydarzeniach"
 
 #: .\templates\allauth\account\email.html:36
 msgid "Remove"
-msgstr "Usuń"
+msgstr ""
 
 #: .\templates\allauth\account\email.html:43
 msgid "Warning:"
-msgstr "Ostrzeżenie:"
+msgstr ""
 
 #: .\templates\allauth\account\email.html:43
 msgid "You currently do not have any e-mail address set up. You should really add an e-mail address so you can receive notifications, reset your password, etc."
-msgstr "Obecnie nie masz skonfigurowanego żadnego adresu e-mail. Naprawdę powinieneś dodać adres e-mail, aby otrzymywać powiadomienia, resetować hasło itp."
+msgstr ""
 
 #: .\templates\allauth\account\email.html:48
+#, fuzzy
+#| msgid "New email address"
 msgid "Add E-mail Address"
-msgstr "Dodaj nowy email"
+msgstr "Nowy email"
 
 #: .\templates\allauth\account\email.html:53
+#, fuzzy
+#| msgid "Email"
 msgid "Add E-mail"
-msgstr "Dodaj email"
+msgstr "Email"
 
 #: .\templates\allauth\account\email.html:63
 msgid "Do you really want to remove the selected e-mail address?"
-msgstr "Czy na pewno chcesz usunąć wybrany adres e-mail?"
+msgstr ""
 
 #: .\templates\allauth\account\email\base_message.txt:1
-#, python-format
+#, fuzzy, python-format
+#| msgid "The %(site_name)s team"
 msgid "Hello from %(site_name)s!"
-msgstr "Od %(site_name)s"
+msgstr "Zespół %(site_name)s"
 
 #: .\templates\allauth\account\email\base_message.txt:5
 #, python-format
@@ -4748,8 +4747,6 @@ msgid ""
 "Thank you for using %(site_name)s!\n"
 "%(site_domain)s"
 msgstr ""
-"Dziękujemy za korzystanie z %(site_name)s\n"
-"%(site_domain)s"
 
 #: .\templates\allauth\account\email\email_confirmation_message.txt:5
 #, python-format
@@ -4758,194 +4755,224 @@ msgid ""
 "\n"
 "To confirm this is correct, go to %(activate_url)s"
 msgstr ""
-"Otrzymujesz tę wiadomość e-mail, ponieważ użytkownik %(user_display)s podał Twój adres e-mail do rejestracji konta na %(site_domain)s.\n"
-"\n"
-"Aby potwierdzić, że jest to twoje konto kliknij ten link %(activate_url)s"
 
 #: .\templates\allauth\account\email\email_confirmation_subject.txt:3
+#, fuzzy
+#| msgid "Confirm your email"
 msgid "Please Confirm Your E-mail Address"
-msgstr "Potwierdź proszę swój adres E-mail"
+msgstr "Potwierdź twój email"
 
 #: .\templates\allauth\account\email\password_reset_key_message.txt:4
 msgid ""
 "You're receiving this e-mail because you or someone else has requested a password for your user account.\n"
 "It can be safely ignored if you did not request a password reset. Click the link below to reset your password."
 msgstr ""
-"Otrzymujesz tę wiadomość e-mail, ponieważ Ty lub ktoś inny zażądał hasło do Twojego konta użytkownika.\n"
-"Można go bezpiecznie zignorować, jeśli nie zażądałeś resetowania hasła. Kliknij link poniżej, aby zresetować hasło."
 
 #: .\templates\allauth\account\email\password_reset_key_message.txt:9
 #, python-format
 msgid "In case you forgot, your username is %(username)s."
-msgstr "Jeśli zapomniałeś, Twoja nazwa użytkownika to %(username)s."
+msgstr ""
 
 #: .\templates\allauth\account\email\password_reset_key_subject.txt:3
 msgid "Password Reset E-mail"
-msgstr "E-mail resetowania hasła"
+msgstr ""
 
 #: .\templates\allauth\account\email_confirm.html:6
 #: .\templates\allauth\account\email_confirm.html:10
+#, fuzzy
+#| msgid "New email address"
 msgid "Confirm E-mail Address"
-msgstr "Potwierdź adres email"
+msgstr "Nowy email"
 
 #: .\templates\allauth\account\email_confirm.html:18
 #, python-format
 msgid "Please confirm that <a href=\"mailto:%(email)s\">%(email)s</a> is your e-mail."
-msgstr "Potwierdź, że <a href=\"mailto:%(email)s\">%(email)s</a> to twój e-mail"
+msgstr ""
 
 #: .\templates\allauth\account\email_confirm.html:22
+#, fuzzy
+#| msgid "Confirm close"
 msgid "Confirm"
-msgstr "Potwierdzam"
+msgstr "Potwierdź zamknięcie"
 
 #: .\templates\allauth\account\email_confirm.html:29
 #, python-format
 msgid "This e-mail confirmation link expired or is invalid. Please <a href=\"%(email_url)s\">issue a new e-mail confirmation request</a>."
-msgstr "Ten link wygasł lub jest nieprawidłowy. <a href=\"%(email_url)s\">Wyślij nową prośbę o potwierdzenie emaila</a>."
+msgstr ""
 
 #: .\templates\allauth\account\login.html:6
 #: .\templates\allauth\account\login.html:15
 #: .\templates\allauth\account\login.html:25
+#, fuzzy
+#| msgid "Sign Up"
 msgid "Sign In"
-msgstr "Zaloguj się"
+msgstr "Załóż konto"
 
 #: .\templates\allauth\account\login.html:30
+#, fuzzy
+#| msgid "Send a message to the group"
 msgid "Send a message to a group"
 msgstr "Wyślij wiadomość do grupy"
 
 #: .\templates\allauth\account\logout.html:8
 #: .\templates\allauth\account\logout.html:11
 #: .\templates\allauth\account\logout.html:20
+#, fuzzy
+#| msgid "Sign Up"
 msgid "Sign Out"
-msgstr "Wyloguj"
+msgstr "Załóż konto"
 
 #: .\templates\allauth\account\logout.html:13
+#, fuzzy
+#| msgid "Are you sure you want to delete this post?"
 msgid "Are you sure you want to sign out?"
-msgstr "Czy na pewno chcesz się wylogować?"
+msgstr "Czy na pewno chcesz usunąć to ogłoszenie?"
 
 #: .\templates\allauth\account\messages\cannot_delete_primary_email.txt:2
 #, python-format
 msgid "You cannot remove your primary e-mail address (%(email)s)."
-msgstr "Nie możesz usunąć swojego podstawowego adresu e-mail (%(email)s)."
+msgstr ""
 
 #: .\templates\allauth\account\messages\email_confirmation_sent.txt:2
 #, python-format
 msgid "Confirmation e-mail sent to %(email)s"
-msgstr "Potwierdzenie zostało wysłane na adres %(email)s."
+msgstr ""
 
 #: .\templates\allauth\account\messages\email_deleted.txt:2
-#, python-format
+#, fuzzy, python-format
+#| msgid "New email address confirmation"
 msgid "Removed e-mail address %(email)s."
-msgstr "Usunięto adres e-mail %(email)s."
+msgstr "Potwierdź nowy email"
 
 #: .\templates\allauth\account\messages\logged_in.txt:4
 #, python-format
 msgid "Successfully signed in as %(name)s."
-msgstr "Pomyślnie zalogoałeś się jako %(name)s."
+msgstr ""
 
 #: .\templates\allauth\account\messages\logged_out.txt:2
+#, fuzzy
+#| msgid "You have no assigned tasks"
 msgid "You have signed out."
-msgstr "Wylogowałeś się."
+msgstr "Nie masz przypisanych zadań"
 
 #: .\templates\allauth\account\messages\password_changed.txt:2
+#, fuzzy
+#| msgid "Your password has been changed."
 msgid "Password successfully changed."
 msgstr "Twoje hasło zostało zmienione."
 
 #: .\templates\allauth\account\messages\password_set.txt:2
 msgid "Password successfully set."
-msgstr "Hasło zostało ustawione pomyślnie."
+msgstr ""
 
 #: .\templates\allauth\account\messages\primary_email_set.txt:2
+#, fuzzy
+#| msgid "New email address"
 msgid "Primary e-mail address set."
-msgstr "Ustawiono podstawowy adres e-mail."
+msgstr "Nowy email"
 
 #: .\templates\allauth\account\messages\unverified_primary_email.txt:2
 msgid "Your primary e-mail address must be verified."
-msgstr "Twój podstawowy adres e-mail musi zostać zweryfikowany."
+msgstr ""
 
 #: .\templates\allauth\account\password_change.html:15
+#, fuzzy
+#| msgid "Password"
 msgid "Forgot Password?"
-msgstr "Zapomniałeś hasła?"
+msgstr "Hasło"
 
 #: .\templates\allauth\account\password_reset.html:7
 #: .\templates\allauth\account\password_reset.html:11
 #: .\templates\allauth\account\password_reset_done.html:6
 #: .\templates\allauth\account\password_reset_done.html:9
+#, fuzzy
+#| msgid "Password"
 msgid "Password Reset"
-msgstr "Zresetowanie hasła"
+msgstr "Hasło"
 
 #: .\templates\allauth\account\password_reset.html:16
 msgid "Forgotten your password? Enter your e-mail address below, and we'll send you an e-mail allowing you to reset it."
-msgstr "Zapomniałeś swojego hasła? Wpisz poniżej swój adres e-mail, a wyślemy Ci wiadomość e-mail umożliwiającą jego zresetowanie."
+msgstr ""
 
 #: .\templates\allauth\account\password_reset.html:22
+#, fuzzy
+#| msgid "Reset password"
 msgid "Reset My Password"
 msgstr "Odzyskaj hasło"
 
 #: .\templates\allauth\account\password_reset.html:27
 #, python-format
 msgid "Please <a href=\"%(contact_url)s\">contact us</a> if you have any trouble resetting your password."
-msgstr "<a href=\"%(contact_url)s\">Skontaktuj</a> się z nami jeśli masz problem z odzyskaniem hasła."
+msgstr ""
 
 #: .\templates\allauth\account\password_reset_done.html:15
 msgid "We have sent you an e-mail. Please contact us if you do not receive it within a few minutes."
-msgstr "Wysłaliśmy Ci e-mail. Skontaktuj się z nami, jeśli nie otrzymasz go w ciągu kilku minut."
+msgstr ""
 
 #: .\templates\allauth\account\password_reset_from_key.html:7
 msgid "Bad Token"
-msgstr "Nieprawidłowy token"
+msgstr ""
 
 #: .\templates\allauth\account\password_reset_from_key.html:11
 #, python-format
 msgid "The password reset link was invalid, possibly because it has already been used.  Please request a <a href=\"%(passwd_reset_url)s\">new password reset</a>."
-msgstr "Link do resetowania hasła był nieprawidłowy, prawdopodobnie dlatego, że został już użyty. Poproś o <a href=\"%(passwd_reset_url)s\">zresetowanie nowego hasła</a>."
+msgstr ""
 
 #: .\templates\allauth\account\password_reset_from_key.html:20
 #: .\templates\allauth\account\password_reset_from_key_done.html:8
+#, fuzzy
+#| msgid "Your password has been changed."
 msgid "Your password is now changed."
 msgstr "Twoje hasło zostało zmienione."
 
 #: .\templates\allauth\account\password_set.html:5
 #: .\templates\allauth\account\password_set.html:8
 #: .\templates\allauth\account\password_set.html:13
+#, fuzzy
+#| msgid "Password"
 msgid "Set Password"
-msgstr "Ustaw hasło"
+msgstr "Hasło"
 
 #: .\templates\allauth\account\signup_closed.html:5
 #: .\templates\allauth\account\signup_closed.html:8
+#, fuzzy
+#| msgid "Sign Up"
 msgid "Sign Up Closed"
-msgstr "Zapisy zamknięte"
+msgstr "Załóż konto"
 
 #: .\templates\allauth\account\signup_closed.html:10
 msgid "We are sorry, but the sign up is currently closed."
-msgstr "Przepraszamy, ale rejestracja jest obecnie zamknięta."
+msgstr ""
 
 #: .\templates\allauth\account\snippets\already_logged_in.html:5
 #, python-format
 msgid "you are already logged in as %(user_display)s."
-msgstr "jesteś już zalogowany jako %(user_display)s."
+msgstr ""
 
 #: .\templates\allauth\account\verification_sent.html:5
 #: .\templates\allauth\account\verification_sent.html:8
 #: .\templates\allauth\account\verified_email_required.html:5
 #: .\templates\allauth\account\verified_email_required.html:8
+#, fuzzy
+#| msgid "New email address"
 msgid "Verify Your E-mail Address"
-msgstr "Zweryfikuj swój adres email"
+msgstr "Nowy email"
 
 #: .\templates\allauth\account\verification_sent.html:10
 msgid "We have sent an e-mail to you for verification. Follow the link provided to finalize the signup process."
-msgstr "Wysłaliśmy do Ciebie e-mail w celu weryfikacji. Kliknij link z emaila aby dokończyć rejestrację."
+msgstr ""
 
 #: .\templates\allauth\account\verification_sent.html:11
 msgid "After you verify your email, you will receive another email with a special link to fill out your onboarding form."
-msgstr "Po zweryfikowaniu maila otrzymasz kolejny email z linkiem do wypełnienia formularza onboarding."
+msgstr ""
 
 #: .\templates\allauth\account\verification_sent.html:12
 msgid "The onboarding form link will contain the required access token. Please check your inbox after email verification."
-msgstr "Link do formularza onboarding będzie zawierał wymagany token dostępu. Sprawdź skrzynkę po weryfikacji emaila."
+msgstr ""
 
 #: .\templates\allauth\account\verification_sent.html:13
 msgid "After verifying your email and submitting the onboarding form, you still need to wait for group approval."
-msgstr "Po zweryfikowaniu maila i wypełnieniu formularza, musisz poczekać, aż grupa zaakceptuje Twoje zgłoszenie."
+msgstr ""
 
 #: .\templates\allauth\account\verified_email_required.html:12
 msgid ""
@@ -4953,9 +4980,6 @@ msgid ""
 "you are who you claim to be. For this purpose, we require that you\n"
 "verify ownership of your e-mail address. "
 msgstr ""
-"Ta część witryny wymaga od nas potwierdzenia,\n"
-"że jesteś tym, za kogo się podajesz. W tym celu wymagamy, abyś\n"
-"zweryfikował własność swojego adresu e-mail. "
 
 #: .\templates\allauth\account\verified_email_required.html:16
 msgid ""
@@ -4963,14 +4987,11 @@ msgid ""
 "verification. Please click on the link inside this e-mail. Please\n"
 "contact us if you do not receive it within a few minutes."
 msgstr ""
-"Wysłaliśmy do Ciebie wiadomość e-mail w celu\n"
-"weryfikacji. Proszę kliknąć na link znajdujący się w tej wiadomości e-mail. Jeśli nie otrzymasz go w ciągu kilku minut,\n"
-"skontaktuj się z nami."
 
 #: .\templates\allauth\account\verified_email_required.html:20
 #, python-format
 msgid "<strong>Note:</strong> you can still <a href=\"%(email_url)s\">change your e-mail address</a>."
-msgstr "<strong>Uwaga:</strong> nadal możesz <a href=\"%(email_url)s\">zmienić swój adres e-mail</a>."
+msgstr ""
 
 #: .\templates\registration\password_reset_email.html:2
 #, python-format

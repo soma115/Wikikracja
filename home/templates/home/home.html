@@ -110,9 +110,9 @@
   <div class="col-12 col-lg-4">
     <div class="card h-100" id="onboarding-card" style="overflow:hidden;">
       <div class="card-body d-flex flex-column gap-2" style="overflow:hidden;min-height:0;">
-        <div class="d-flex align-items-center gap-2 mb-1 flex-shrink-0">
-          <i class="fas fa-rocket" style="color:var(--accent);font-size:.85rem;"></i>
-          <span class="section-heading" style="font-size:.85rem;">{% trans "First steps" %}</span>
+        <div class="d-flex align-items-center gap-2 mb-1 tile-header flex-shrink-0">
+          <i class="fas fa-rocket"></i>
+          <span class="section-heading tile-heading">{% trans "First steps" %}</span>
         </div>
         <div id="quick-links-scroll" style="overflow-x:hidden;overflow-y:auto;min-height:0;flex:1;padding-right:4px;max-height:calc(5 * 2rem);">
         <ul class="list-unstyled mb-0 d-flex flex-column gap-1" style="font-size:.82rem;">
@@ -233,7 +233,7 @@
   <div class="col-12 {% if quick_links %}col-lg-4{% else %}col-lg-8{% endif %}">
     <div class="card h-100" style="position:relative;">
       <div class="card-header d-flex align-items-center justify-content-between gap-2">
-        <span class="section-heading" style="font-size:.85rem;">
+        <span class="section-heading tile-heading">
           <i class="fas fa-stream me-1" style="color:var(--accent);opacity:.7;"></i>{% trans "Activity" %}
         </span>
         {% if unread_items_no_events %}
@@ -244,7 +244,7 @@
       </div>
       <div class="card-body p-0" id="activity-feed-body" style="overflow:hidden;min-height:0;">
         {% for item in last_feed_items %}
-        <div class="task-dash-row d-flex align-items-center gap-2 px-3 py-2 activity-feed-row {% if not item.is_read %}unread-item{% endif %}" style="min-width:0;{% if not item.is_read %}background:rgba(96,165,250,.08);border-left:3px solid #60a5fa;{% endif %}">
+        <div class="task-dash-row d-flex align-items-center gap-2 px-3 py-2 activity-feed-row {% if not item.is_read %}unread-item{% endif %}" {% if not item.is_read %}style="min-width:0;background:rgba(96,165,250,.08);border-left:3px solid #60a5fa;"{% else %}style="min-width:0;"{% endif %}>
           <span class="badge text-bg-{{ item.content_type|content_type_color }} flex-shrink-0" style="font-size:.62rem;padding:1px 5px;">
             {{ item.content_type|content_type_label }}
           </span>
@@ -322,15 +322,15 @@
   <div class="col-12 col-lg-4">
     <div class="card h-100" style="position:relative;">
       <div class="card-body d-flex flex-column gap-2">
-        <div class="d-flex align-items-center gap-2 mb-1">
-          <i class="fas fa-calendar-days" style="color:var(--accent);font-size:.85rem;"></i>
-          <span class="section-heading" style="font-size:.85rem;">{% trans "Upcoming events" %}</span>
+        <div class="d-flex align-items-center gap-2 mb-1 tile-header">
+          <i class="fas fa-calendar-days"></i>
+          <span class="section-heading tile-heading">{% trans "Upcoming events" %}</span>
         </div>
         {% if upcoming_events %}
         <ul class="list-unstyled mb-0 d-flex flex-column gap-2" style="flex:1;font-size:.82rem;">
           {% for occ in upcoming_events %}
           <li class="task-dash-row d-flex align-items-center gap-2" style="min-width:0;">
-            <span class="flex-shrink-0" style="width:.55rem;height:.55rem;border-radius:50%;background:{% if occ.event.is_public %}#00bc8c{% else %}var(--text-muted){% endif %};opacity:.8;"></span>
+            <span class="flex-shrink-0" {% if occ.event.is_public %}style="width:.55rem;height:.55rem;border-radius:50%;background:#00bc8c;opacity:.8;"{% else %}style="width:.55rem;height:.55rem;border-radius:50%;background:var(--text-muted);opacity:.8;"{% endif %}></span>
             <span class="flex-shrink-0" style="color:var(--text-muted);white-space:nowrap;">{{ occ.date|date:"D d M · H:i" }}</span>
             <a href="{% url 'events:detail' occ.event.pk %}"
                class="task-dash-link"
@@ -356,16 +356,16 @@
 
 </div>
 
-{# ══ Rząd 2: Propozycje głosowań + Dyskutowane głosowania + Aktywne referendum ══ #}
+{# ══ Rząd 2: Propozycje głosowań + Dyskutowane głosowania + Aktywne głosowanie ══ #}
 <div class="row g-3 mb-3">
 
   {# Propozycje głosowań #}
   <div class="col-12 col-lg-4">
     <div class="card h-100" style="position:relative;">
       <div class="card-body d-flex flex-column gap-2">
-        <div class="d-flex align-items-center gap-2 mb-1">
-          <i class="fas fa-file-signature" style="color:var(--accent);font-size:.85rem;"></i>
-          <span class="section-heading" style="font-size:.85rem;">{% trans "Voting proposals" %}</span>
+        <div class="d-flex align-items-center gap-2 mb-1 tile-header">
+          <i class="fas fa-file-signature"></i>
+          <span class="section-heading tile-heading">{% trans "Voting proposals" %}</span>
         </div>
         {% if new_proposals %}
         <ul class="list-unstyled mb-0 d-flex flex-column gap-1" style="flex:1;">
@@ -382,13 +382,13 @@
           {% endfor %}
         </ul>
         <span style="font-size:.78rem;color:var(--accent);opacity:.8;margin-top:auto;">{% trans "All suggestions" %} →</span>
-        <a href="{% url 'glosowania:proposition' %}" class="stretched-link"></a>
+        <a href="{% url 'glosowania:proposition' %}" class="stretched-link" title="{% trans "All suggestions" %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center" style="font-size:.875rem;color:var(--text-muted);">{% trans "No voting proposals" %}</p>
           <a href="{% url 'glosowania:proposition' %}" style="font-size:.82rem;color:var(--accent);position:relative;z-index:2;">{% trans "Go to Agora" %} →</a>
         </div>
-        <a href="{% url 'glosowania:proposition' %}" class="stretched-link"></a>
+        <a href="{% url 'glosowania:proposition' %}" class="stretched-link" title="{% trans "All suggestions" %}"></a>
         {% endif %}
       </div>
     </div>
@@ -398,9 +398,9 @@
   <div class="col-12 col-lg-4">
     <div class="card h-100" style="position:relative;">
       <div class="card-body d-flex flex-column gap-2">
-        <div class="d-flex align-items-center gap-2 mb-1">
-          <i class="fas fa-comments" style="color:var(--accent);font-size:.85rem;"></i>
-          <span class="section-heading" style="font-size:.85rem;">{% trans "Discussed votings" %}</span>
+        <div class="d-flex align-items-center gap-2 mb-1 tile-header">
+          <i class="fas fa-comments"></i>
+          <span class="section-heading tile-heading">{% trans "Discussed votings" %}</span>
         </div>
         {% if discussed_proposals %}
         <ul class="list-unstyled mb-0 d-flex flex-column gap-1" style="flex:1;">
@@ -417,87 +417,49 @@
           {% endfor %}
         </ul>
         <span style="font-size:.78rem;color:var(--accent);opacity:.8;margin-top:auto;">{% trans "All discussions" %} →</span>
-        <a href="{% url 'glosowania:discussion' %}" class="stretched-link"></a>
+        <a href="{% url 'glosowania:discussion' %}" class="stretched-link" title="{% trans "All discussions" %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center" style="font-size:.875rem;color:var(--text-muted);">{% trans "No discussed votings" %}</p>
           <a href="{% url 'glosowania:discussion' %}" style="font-size:.82rem;color:var(--accent);position:relative;z-index:2;">{% trans "Go to Agora" %} →</a>
         </div>
-        <a href="{% url 'glosowania:discussion' %}" class="stretched-link"></a>
+        <a href="{% url 'glosowania:discussion' %}" class="stretched-link" title="{% trans "All discussions" %}"></a>
         {% endif %}
       </div>
     </div>
   </div>
 
-  {# Aktywne referendum #}
+  {# Aktywne głosowanie #}
   <div class="col-12 col-lg-4">
-    {% if active_referendum %}
-    <a href="{% url 'glosowania:details' active_referendum.obj.pk %}"
-       class="card h-100"
-       style="text-decoration:none;cursor:pointer;display:block;">
+    <div class="card h-100" style="position:relative;">
       <div class="card-body d-flex flex-column gap-2">
-
-        <div>
-          <span class="badge-status badge-referendum d-inline-block mb-2">
-            <i class="fas fa-landmark me-1"></i>{% trans "Active referendum" %}
-          </span>
-          <h5 class="mb-0" style="color:var(--text-primary);font-size:1rem;line-height:1.35;">
-            {{ active_referendum.obj.title }}
-          </h5>
+        <div class="d-flex align-items-center gap-2 mb-1 tile-header">
+          <i class="fas fa-landmark"></i>
+          <span class="section-heading tile-heading">{% trans "Active voting" %}</span>
         </div>
-
-        <p class="mb-0" style="font-size:.78rem;color:var(--text-muted);">
-          {% if active_referendum.obj.author %}<i class="fas fa-user me-1"></i>{{ active_referendum.obj.author.username }}{% endif %}
-          {% if active_referendum.obj.data_referendum_start %} · {% trans "from" %} {{ active_referendum.obj.data_referendum_start|date:"d.m.Y" }}{% endif %}
-        </p>
-
-        <p class="mb-0" style="font-size:.82rem;color:var(--text-muted);">
-          <i class="fas fa-clock me-1"></i>
-          {% if active_referendum.days_remaining == 0 %}
-            {% trans "Last day of voting" %}
-          {% elif active_referendum.days_remaining == 1 %}
-            {% trans "1 day left" %}
-          {% else %}
-            {% blocktrans with n=active_referendum.days_remaining %}{{ n }} days remaining{% endblocktrans %}
-          {% endif %}
-        </p>
-
-        <div class="progress" style="height:5px;background:rgba(255,255,255,.08);border-radius:3px;">
-          <div class="progress-bar bg-{{ active_referendum.bar_color }}"
-               role="progressbar"
-               style="width:{{ active_referendum.time_pct }}%;border-radius:3px;"
-               aria-valuenow="{{ active_referendum.time_pct }}"
-               aria-valuemin="0" aria-valuemax="100">
-          </div>
-        </div>
-
-        {% if active_referendum.user_voted %}
-        <p class="mb-0 mt-auto" style="font-size:.75rem;color:#00bc8c;">
-          <i class="fas fa-check-circle me-1"></i>{% trans "You have already voted in this referendum" %}
-        </p>
+        {% if active_referendum %}
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-1" style="flex:1;">
+          <li class="task-dash-row d-flex align-items-center gap-2" style="min-width:0;">
+            <span class="badge-status badge-referendum flex-shrink-0" style="font-size:.62rem;padding:1px 5px;">
+              {% trans "Referendum" %}
+            </span>
+            <a href="{% url 'glosowania:details' active_referendum.obj.pk %}"
+               class="task-dash-link"
+               style="font-size:.82rem;color:var(--text-primary);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;position:relative;z-index:2;transition:color .15s;"
+               title="{{ active_referendum.obj.title }}">{{ active_referendum.obj.title }}</a>
+          </li>
+        </ul>
+        <span style="font-size:.78rem;color:var(--accent);opacity:.8;margin-top:auto;">{% trans "Go to Agora" %} →</span>
+        <a href="{% url 'glosowania:approved' %}" class="stretched-link" title="{% trans "Go to Agora" %}"></a>
         {% else %}
-        <p class="mb-0 mt-auto" style="font-size:.75rem;color:var(--accent);opacity:.8;">
-          {% trans "Click to see details and vote" %} →
-        </p>
+        <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
+          <p class="mb-0 text-center" style="font-size:.875rem;color:var(--text-muted);">{% trans "No active votings" %}</p>
+          <a href="{% url 'glosowania:approved' %}" style="font-size:.82rem;color:var(--accent);position:relative;z-index:2;">{% trans "Go to Agora" %} →</a>
+        </div>
+        <a href="{% url 'glosowania:approved' %}" class="stretched-link" title="{% trans "Go to Agora" %}"></a>
         {% endif %}
-
-      </div>
-    </a>
-    {% else %}
-    <div class="card h-100">
-      <div class="card-body d-flex flex-column justify-content-center align-items-center gap-2 py-4">
-        <span class="badge-status badge-referendum">
-          <i class="fas fa-landmark me-1"></i>{% trans "Active referendum" %}
-        </span>
-        <p class="mb-0 text-center" style="font-size:.875rem;color:var(--text-muted);">
-          {% trans "No active votings" %}
-        </p>
-        <a href="{% url 'glosowania:approved' %}" style="font-size:.82rem;">
-          {% trans "Go to Agora" %} →
-        </a>
       </div>
     </div>
-    {% endif %}
   </div>
 
 </div>
@@ -509,9 +471,9 @@
   <div class="col-12 col-lg-4">
     <div class="card h-100" style="position:relative;">
       <div class="card-body d-flex flex-column gap-2">
-        <div class="d-flex align-items-center gap-2 mb-1">
-          <i class="fas fa-bolt" style="color:var(--accent);font-size:.85rem;"></i>
-          <span class="section-heading" style="font-size:.85rem;">{% trans "My tasks" %}</span>
+        <div class="d-flex align-items-center gap-2 mb-1 tile-header">
+          <i class="fas fa-bolt"></i>
+          <span class="section-heading tile-heading">{% trans "My tasks" %}</span>
         </div>
         {% if my_tasks %}
         <ul class="list-unstyled mb-0 d-flex flex-column gap-1" style="flex:1;">
@@ -538,46 +500,39 @@
     </div>
   </div>
 
-  {# Nowi obywatele #}
+  {# Nowi ludzie #}
   <div class="col-12 col-lg-4">
-    <div class="card h-100" style="cursor:pointer;">
+    <div class="card h-100">
       <div class="card-body d-flex flex-column gap-2">
-        <div class="d-flex align-items-center gap-2 mb-1">
-          <i class="fas fa-users" style="color:var(--accent);font-size:.85rem;"></i>
-          <span class="section-heading" style="font-size:.85rem;">{% trans "New citizens" %}</span>
+        <div class="d-flex align-items-center gap-2 mb-1 tile-header">
+          <i class="fas fa-users"></i>
+          <span class="section-heading tile-heading">{% trans "New people" %}</span>
         </div>
-        <a href="{% url 'obywatele:obywatele' %}" class="stretched-link" aria-label="{% trans 'New citizens' %}"></a>
-        {% if new_citizens %}
+        <a href="{% url 'kandydaci' %}" class="stretched-link" aria-label="{% trans 'New people' %}"></a>
+        {% if new_people %}
         <div class="d-flex flex-wrap gap-2 align-items-center">
-          {% for cit in new_citizens|slice:":6" %}
-          <a href="{% url 'obywatele:obywatele_szczegoly' pk=cit.pk %}" title="{{ cit.uid.username }}" style="text-decoration:none;flex-shrink:0;position:relative;">
+          {% for cit in new_people|slice:":6" %}
+          <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=cit.pk %}" title="{{ cit.uid.username }}" style="text-decoration:none;flex-shrink:0;position:relative;z-index:2;">
             {% if cit.avatar %}
               <img src="{{ cit.avatar.url }}" alt="{{ cit.uid.username }}" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">
             {% else %}
-              <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white" style="width:36px;height:36px;font-size:.75rem;flex-shrink:0;background:{{ cit.uid.username|citizen_color }};">
+              <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white new-people-avatar" data-bg="{{ cit.uid.username|citizen_color }}">
                 {{ cit.uid.username|slice:":2"|upper }}
               </div>
             {% endif %}
           </a>
           {% endfor %}
-          {% if new_citizens|length > 6 %}
+          {% if new_people|length > 6 %}
           <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width:36px;height:36px;font-size:.72rem;background:var(--bg-card);color:var(--text-muted);border:1px solid var(--border);">
-            +{{ new_citizens|length|add:"-6" }}
+            +{{ new_people|length|add:"-6" }}
           </div>
           {% endif %}
         </div>
-        <p class="mb-0 mt-1" style="font-size:.75rem;color:var(--text-muted);">
-          {% trans "Recently joined" %}: <strong>{{ new_citizens.0.uid.username }}</strong> · {{ new_citizens.0.uid.date_joined|date:"d.m.Y" }}
+        <p class="mb-0 mt-1 tile-meta">
+          {% trans "Newest candidate" %}: <i class="fas fa-user me-1"></i><strong>{{ new_people.0.uid.username }}</strong> · {{ new_people.0.uid.date_joined|date:"d.m.Y" }}
         </p>
         {% else %}
-        <p class="mb-0" style="font-size:.875rem;color:var(--text-muted);">{% trans "No citizens" %}</p>
-        {% endif %}
-        {% if candidates_count %}
-        <div class="mt-auto">
-          <a href="{% url 'obywatele:poczekalnia' %}" class="badge-status" style="background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3);text-decoration:none;position:relative;">
-            <i class="fas fa-clock me-1"></i>{{ candidates_count }} {% trans "waiting" %} →
-          </a>
-        </div>
+        <p class="mb-0" style="font-size:.875rem;color:var(--text-muted);">{% trans "No new people" %}</p>
         {% endif %}
       </div>
     </div>
@@ -587,32 +542,32 @@
   <div class="col-12 col-lg-4">
     <div class="card h-100" style="position:relative;">
       <div class="card-body d-flex flex-column gap-2">
-        <div class="d-flex align-items-center gap-2 mb-1">
-          <i class="fas fa-wallet" style="color:var(--accent);font-size:.85rem;"></i>
-          <span class="section-heading" style="font-size:.85rem;">{% trans "Finances" %}</span>
+        <div class="d-flex align-items-center gap-2 mb-1 tile-header">
+          <i class="fas fa-wallet"></i>
+          <span class="section-heading tile-heading">{% trans "Finances" %}</span>
           {% if default_asset %}<span style="font-size:.7rem;color:var(--text-muted);">— {% trans "All time" %} ({{ default_asset.code }})</span>{% endif %}
         </div>
         {% if default_asset %}
           <div class="d-flex flex-column gap-1" style="font-size:.82rem;">
             <div class="d-flex justify-content-between align-items-center">
-              <span style="color:var(--text-muted);"><i class="fas fa-arrow-down me-1" style="color:#00bc8c;"></i>{% trans "Revenues" %}</span>
+              <span class="tile-text-muted"><i class="fas fa-arrow-down me-1" style="color:#00bc8c;"></i>{% trans "Revenues" %}</span>
               <span style="color:#00bc8c;font-weight:500;">{{ default_income|floatformat:2 }} {{ default_symbol }}</span>
             </div>
             <div class="d-flex justify-content-between align-items-center">
-              <span style="color:var(--text-muted);"><i class="fas fa-arrow-up me-1" style="color:#e74c3c;"></i>{% trans "Expenses" %}</span>
+              <span class="tile-text-muted"><i class="fas fa-arrow-up me-1" style="color:#e74c3c;"></i>{% trans "Expenses" %}</span>
               <span style="color:#e74c3c;font-weight:500;">{{ default_expenses|floatformat:2 }} {{ default_symbol }}</span>
             </div>
             <hr class="my-1" style="border-color:var(--border);opacity:.4;">
             <div class="d-flex justify-content-between align-items-center">
-              <span style="color:var(--text-muted);">{% trans "Balance" %}</span>
-              <span style="font-weight:600;color:{% if default_balance >= 0 %}#00bc8c{% else %}#e74c3c{% endif %};">{{ default_balance|floatformat:2 }} {{ default_symbol }}</span>
+              <span class="tile-text-muted">{% trans "Balance" %}</span>
+              <span {% if default_balance >= 0 %}style="font-weight:600;color:#00bc8c;"{% else %}style="font-weight:600;color:#e74c3c;"{% endif %}>{{ default_balance|floatformat:2 }} {{ default_symbol }}</span>
             </div>
           </div>
           <a href="{% url 'bookkeeping:report_list' %}" class="stretched-link"></a>
         {% else %}
           {# Onboarding CTA — brak default assetu (pusta baza aktywów) #}
-          <div class="d-flex flex-column gap-2" style="font-size:.82rem;">
-            <p class="mb-0" style="color:var(--text-muted);">{% trans "No financial data yet. Add your first asset to start tracking community finances." %}</p>
+          <div class="d-flex flex-column gap-2 onboarding-hint">
+            <p class="mb-0 tile-text-muted">{% trans "No financial data yet. Add your first asset to start tracking community finances." %}</p>
             <a href="{% url 'bookkeeping:asset_create' %}" class="btn btn-sm btn-outline-primary align-self-start">
               <i class="fas fa-plus-circle me-1"></i>{% trans "Add asset" %}
             </a>
@@ -626,30 +581,6 @@
 
 {# ══ Community stats ═══════════════════════════════════════════════════════ #}
 <div class="row g-3 mb-4">
-
-  <div class="col-sm-6 col-xl-3">
-    <a href="{% url 'obywatele:obywatele' %}" class="card h-100 text-decoration-none">
-      <div class="card-body d-flex align-items-center gap-3">
-        <div class="wspol-stat-icon accent"><i class="fas fa-users"></i></div>
-        <div>
-          <div class="wspol-stat-value">{{ member_count }}</div>
-          <div class="wspol-stat-label">{% trans "active citizens" %}</div>
-        </div>
-      </div>
-    </a>
-  </div>
-
-  <div class="col-sm-6 col-xl-3">
-    <a href="{% url 'obywatele:poczekalnia' %}" class="card h-100 text-decoration-none">
-      <div class="card-body d-flex align-items-center gap-3">
-        <div class="wspol-stat-icon warning"><i class="fas fa-user-clock"></i></div>
-        <div>
-          <div class="wspol-stat-value">{{ pending_count }}</div>
-          <div class="wspol-stat-label">{% trans "candidates in the waiting room" %}</div>
-        </div>
-      </div>
-    </a>
-  </div>
 
   <div class="col-sm-6 col-xl-3">
     <a href="{% url 'obywatele:assets' %}" class="card h-100 text-decoration-none">
@@ -681,12 +612,7 @@
     </a>
   </div>
 
-</div>
-
-{# ══ Community chat + Yearly finances ══════════════════════════════════════ #}
-<div class="row g-3 mb-3">
-
-  <div class="col-lg-8">
+  <div class="col-12 col-sm-6 col-xl-6">
     <div class="card h-100" style="position:relative;">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span class="wspol-section-title mb-0">
@@ -695,7 +621,7 @@
         <a id="chat-unread-badge"
            href="{% url 'chat:chat' %}?view=unread"
            class="btn btn-sm btn-outline-primary"
-           style="{% if chat_unread_count %}background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.3);{% endif %}">
+           {% if chat_unread_count %}style="background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.3);"{% endif %}>
           <i class="fas fa-comments me-1"></i>
           <span id="chat-unread-label">{% if chat_unread_count %}{{ chat_unread_count }} {% trans "unread" %}{% else %}{% trans "Open chat" %} &rarr;{% endif %}</span>
         </a>
@@ -721,31 +647,6 @@
         {% endfor %}
       </div>
       <a href="{% url 'chat:chat' %}" class="stretched-link"></a>
-    </div>
-  </div>
-
-  <div class="col-lg-4">
-    <div class="card h-100" style="position:relative;">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span class="wspol-section-title mb-0">
-          <i class="fas fa-wallet"></i>{% trans "Finances" %} {{ current_year }}
-        </span>
-      </div>
-      <div class="card-body">
-        <div class="finance-row">
-          <span class="finance-label"><i class="fas fa-arrow-down" style="color:#00bc8c;"></i> {% trans "Revenues" %}</span>
-          <span class="finance-value inc">{{ community_income|floatformat:2 }}</span>
-        </div>
-        <div class="finance-row">
-          <span class="finance-label"><i class="fas fa-arrow-up" style="color:#f87171;"></i> {% trans "Expenses" %}</span>
-          <span class="finance-value exp">{{ community_expense|floatformat:2 }}</span>
-        </div>
-        <div class="finance-row">
-          <span class="finance-label" style="font-weight:600;color:var(--text-primary);">{% trans "Balance" %}</span>
-          <span class="finance-value bal {% if community_balance >= 0 %}inc{% else %}exp{% endif %}">{{ community_balance|floatformat:2 }}</span>
-        </div>
-      </div>
-      <a href="{% url 'bookkeeping:report_list' %}" class="stretched-link"></a>
     </div>
   </div>
 
@@ -842,6 +743,19 @@
       } catch (_) {}
     };
   } catch (_) {}
+})();
+</script>
+
+<script>
+(function () {
+  document.querySelectorAll('[data-width]').forEach(function (el) {
+    var w = el.dataset.width;
+    if (w) el.style.setProperty('--w', w + '%');
+  });
+  document.querySelectorAll('[data-bg]').forEach(function (el) {
+    var bg = el.dataset.bg;
+    if (bg) el.style.setProperty('--bg', bg);
+  });
 })();
 </script>
 

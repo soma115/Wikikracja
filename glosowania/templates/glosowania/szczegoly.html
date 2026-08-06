@@ -53,7 +53,7 @@
 
       {% if id.status == id.Status.PROPOSITION %}
       <div class="d-flex align-items-center gap-1" style="font-size:.78rem;color:var(--text-muted);">
-        <i class="fas fa-pen-nib" style="color:{% if signed %}#00bc8c{% else %}var(--accent){% endif %};"></i>
+        <i class="fas fa-pen-nib" {% if signed %}style="color:#00bc8c;"{% else %}style="color:var(--accent);"{% endif %}></i>
         {% if signed %}{% trans 'I support' %}{% else %}{% trans 'I do not support' %}{% endif %}
       </div>
       <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -95,13 +95,13 @@
       <div class="d-flex align-items-center gap-1" style="font-size:.78rem;color:var(--text-muted);">
         <i class="fas fa-chart-bar" style="color:var(--accent);"></i> {% trans 'Results' %}
       </div>
-      {% with total=id.za|add:id.przeciw %}{% if total %}
+      {% with total=id.za|add:id.przeciw %}{% if total %}{% widthratio id.za total 100 as fill_pct %}
       <div class="result-bar">
         <div class="result-bar-labels">
           <span style="color:#00bc8c;"><i class="fas fa-check fa-fw"></i> {% trans 'For' %} {{ id.za }}</span>
           <span style="color:#f87171;">{% trans 'Against' %} {{ id.przeciw }} <i class="fas fa-xmark fa-fw"></i></span>
         </div>
-        <div class="result-bar-track"><div class="result-bar-fill" style="width:{% widthratio id.za total 100 %}%;"></div></div>
+        <div class="result-bar-track"><div class="result-bar-fill" data-width="{{ fill_pct }}" style="width:var(--w,0%);"></div></div>
       </div>
       {% endif %}{% endwith %}
       {% if voters %}<div style="font-size:.75rem;color:var(--text-muted);"><i class="fas fa-users me-1"></i>{% for voter in voters %}{{ voter.ktory_uzytkownik_juz_zaglosowal.username }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
@@ -251,6 +251,17 @@ function toggleArgForm(id) {
   el.classList.toggle('visible');
   if (el.classList.contains('visible')) el.querySelector('textarea').focus();
 }
+
+(function () {
+  document.querySelectorAll('[data-width]').forEach(function (el) {
+    var w = el.dataset.width;
+    if (w) el.style.setProperty('--w', w + '%');
+  });
+  document.querySelectorAll('[data-bg]').forEach(function (el) {
+    var bg = el.dataset.bg;
+    if (bg) el.style.setProperty('--bg', bg);
+  });
+})();
 </script>
 
 {% with chat_room=chat_room %}
