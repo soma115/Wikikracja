@@ -299,9 +299,6 @@ body:has(.chat-rooms) .main-area {
 .msg-quote>* {
     pointer-events: none;
 }
-.msg-quote-jump {
-    pointer-events: auto;
-}
 .msg-quote-mark {
     color: var(--color-primary);
     font-size: 1rem;
@@ -319,6 +316,7 @@ body:has(.chat-rooms) .main-area {
     font-style: italic;
 }
 .msg-quote-jump {
+    pointer-events: auto;
     min-width: 32px;
     min-height: 32px;
     display: inline-flex;

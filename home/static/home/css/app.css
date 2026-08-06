@@ -18,6 +18,9 @@
   --status-dormant-color: #f59e0b;
   --status-warning-color: #f39c12;
   --status-warning-bg: rgba(243, 156, 18, .08);
+  /* Layout limits */
+  --app-max-width: 1200px;
+  --table-stripe-bg: color-mix(in srgb, var(--bg-card) 93%, #3b82f6 7%);
 }
 /* Dark theme (default) */
 :root,
@@ -86,10 +89,6 @@
   --input-bg: #ffffff;
   --input-border: rgba(0, 0, 0, .18);
 }
-:root {
-  --app-max-width: 1200px;
-  --table-stripe-bg: color-mix(in srgb, var(--bg-card) 93%, #3b82f6 7%);
-}
 /* Bootstrap variable overrides — higher specificity than darkly.css :root */
 html[data-theme] {
   --bs-body-bg: var(--bg-base);
@@ -113,10 +112,6 @@ body {
 .body-content {
   max-width: var(--app-max-width);
 }
-.section {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-}
 .section-heading {
   font-size: .9rem;
   font-weight: 700;
@@ -128,6 +123,8 @@ body {
   text-transform: uppercase;
   font-size: 0.8rem;
   letter-spacing: 0.04em;
+  color: var(--text-muted) !important;
+  border-bottom: 1px solid var(--border) !important;
 }
 .table-hover tbody tr:hover {
   background-color: rgba(255, 255, 255, 0.04);
@@ -354,37 +351,15 @@ img {
     opacity: 0.5;
   }
 }
-.badge.bg-danger {
-  animation: pulse 2s infinite;
-}
+
 /* ═══════════════════════════════════════════════════════════════
    AGORA DESIGN SYSTEM — Bootstrap overrides
    Nakłada ciemny design system Agory na wszystkie strony.
    Zmienne CSS zdefiniowane w base.html :root { }
    ═══════════════════════════════════════════════════════════════ */
 /* ── Karty ──────────────────────────────────────────────────── */
-.card {
-  background: var(--bg-card) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: .65rem !important;
-  color: var(--text-primary) !important;
-  transition: border-color .2s, box-shadow .2s;
-}
-.card:hover {
-  border-color: rgba(0, 209, 178, .35) !important;
-  box-shadow: 0 0 0 1px rgba(0, 209, 178, .18), 0 4px 20px rgba(0, 0, 0, .35) !important;
-}
-.card-header {
-  background: transparent !important;
-  border-bottom: 1px solid var(--border) !important;
-  color: var(--text-primary) !important;
-}
 .card-body {
   color: var(--text-primary) !important;
-}
-.card-footer {
-  background: transparent !important;
-  border-top: 1px solid var(--border) !important;
 }
 /* ── Dropdown ───────────────────────────────────────────────── */
 .dropdown-menu {
@@ -627,6 +602,7 @@ form.signup input[name*="captcha"] {
 }
 /* ── Odznaki (badge) ────────────────────────────────────────── */
 .badge.bg-danger {
+  animation: pulse 2s infinite;
   background: rgba(239, 68, 68, .2) !important;
   color: #f87171 !important;
   border: 1px solid rgba(239, 68, 68, .3);
@@ -756,10 +732,6 @@ form.signup input[name*="captcha"] {
 .table> :not(caption)>*>* {
   border-color: var(--border) !important;
   color: var(--text-primary) !important;
-}
-.table thead th {
-  color: var(--text-muted) !important;
-  border-bottom: 1px solid var(--border) !important;
 }
 /* ── Modalne okna ───────────────────────────────────────────── */
 .modal-content {
@@ -1253,6 +1225,7 @@ html, body {
   border-right: 1px solid var(--border);
   overflow: hidden;
   flex-shrink: 0;
+  transition: width .2s ease;
 }
 .sidebar-logo {
   padding: 1.25rem 1.25rem 1rem;
@@ -1423,6 +1396,7 @@ html, body {
   flex-direction: column;
   min-height: 100vh;
   min-width: 0;
+  transition: none;
 }
 /* topbar */
 .topbar {
@@ -1600,6 +1574,7 @@ html, body {
   background: var(--bg-card) !important;
   border: 1px solid var(--border) !important;
   border-radius: .6rem !important;
+  color: var(--text-primary) !important;
   transition: border-color .2s, box-shadow .2s;
 }
 .card:hover {
@@ -1617,10 +1592,12 @@ a.card:hover {
 .card-header {
   background: transparent !important;
   border-bottom: 1px solid var(--border) !important;
+  color: var(--text-primary) !important;
 }
 .card-footer {
   background: transparent !important;
   border-top: 1px solid var(--border) !important;
+  color: var(--text-primary) !important;
 }
 /* linki — globalne */
 a {
@@ -1671,10 +1648,6 @@ a:hover {
   }
 }
 /* ===== SIDEBAR COLLAPSE ===== */
-.sidebar {
-  transition: width .2s ease;
-  overflow: hidden;
-}
 .sidebar.collapsed {
   width: var(--sidebar-collapsed-width);
 }
@@ -1737,9 +1710,6 @@ a:hover {
 }
 .sidebar.collapsed .sidebar-toggle-label {
   display: none !important;
-}
-.main-area {
-  transition: none;
 }
 .main-area.sidebar-collapsed {
   margin-left: 0;

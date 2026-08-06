@@ -89,9 +89,9 @@
 
 <div class="section d-flex align-items-start justify-content-between gap-3 flex-wrap">
   <div>
-    <h1 class="section-heading mb-1" style="font-size:1.25rem;">{% trans "Desktop" %}</h1>
+    <h1 class="section-heading fs-5 mb-1">{% trans "Desktop" %}</h1>
     <p class="mb-0 text-muted-md">
-      {% trans "Hi" %}, <strong style="color:var(--accent);">{{ user.username }}</strong> — {% trans "here's what's new in your community" %}.
+      {% trans "Hi" %}, <strong class="text-accent">{{ user.username }}</strong> — {% trans "here's what's new in your community" %}.
     </p>
   </div>
 </div>
@@ -108,19 +108,19 @@
   #quick-links-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; opacity: .5; }
   </style>
   <div class="col-12 col-lg-4">
-    <div class="card h-100" id="onboarding-card" style="overflow:hidden;">
-      <div class="card-body d-flex flex-column gap-2" style="overflow:hidden;min-height:0;">
+    <div class="card h-100 overflow-hidden" id="onboarding-card">
+      <div class="card-body d-flex flex-column gap-2 overflow-hidden-mh0">
         <div class="d-flex align-items-center gap-2 mb-1 tile-header flex-shrink-0">
           <i class="fas fa-rocket"></i>
           <span class="section-heading tile-heading">{% trans "First steps" %}</span>
         </div>
-        <div id="quick-links-scroll" style="overflow-x:hidden;overflow-y:auto;min-height:0;flex:1;padding-right:4px;max-height:calc(5 * 2rem);">
+        <div id="quick-links-scroll" class="quick-links-scroll">
         <ul class="list-unstyled mb-0 d-flex flex-column gap-1 text-sm">
 
           {% for link in quick_links %}
-          <li class="task-dash-row d-flex align-items-center gap-2 quick-link-row" data-link-id="{{ link.id }}" style="min-width:0;">
-            <i class="flex-shrink-0 quick-link-circle far fa-circle" data-link-id="{{ link.id }}" style="font-size:.85rem;cursor:pointer;color:#ff6b6b;opacity:1;"></i>
-            <a href="{{ link.url }}" class="task-dash-link" style="color:var(--accent);text-decoration:none;flex:1;">{{ link.title }}</a>
+          <li class="task-dash-row d-flex align-items-center gap-2 quick-link-row min-w-0" data-link-id="{{ link.id }}">
+            <i class="flex-shrink-0 quick-link-circle far fa-circle" data-link-id="{{ link.id }}"></i>
+            <a href="{{ link.url }}" class="task-dash-link link-accent">{{ link.title }}</a>
           </li>
           {% endfor %}
 
@@ -130,9 +130,9 @@
       {# Pasek postępu #}
       <div class="card-footer px-3 py-2">
         {% with total=quick_links|length %}
-        <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px;">{% trans "Progress" %}: <span class="progress-label">0/{{ total }}</span></div>
-        <div class="progress" style="height:5px;">
-          <div class="progress-bar" style="background:var(--accent);width:0%;"></div>
+        <div class="progress-label">{% trans "Progress" %}: <span class="progress-label">0/{{ total }}</span></div>
+        <div class="progress progress-thin">
+          <div class="progress-bar progress-bar-accent"></div>
         </div>
         {% endwith %}
       </div>
@@ -231,41 +231,40 @@
 
   {# Aktywność #}
   <div class="col-12 {% if quick_links %}col-lg-4{% else %}col-lg-8{% endif %}">
-    <div class="card h-100" style="position:relative;">
+    <div class="card h-100 position-relative">
       <div class="card-header d-flex align-items-center justify-content-between gap-2">
         <span class="section-heading tile-heading">
           <i class="fas fa-stream me-1 text-accent-70"></i>{% trans "Activity" %}
         </span>
         {% if unread_items_no_events %}
-        <span class="badge-status" style="background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.3);position:relative;z-index:2;">
+        <span class="badge-status activity-badge">
           <i class="fas fa-bell me-1"></i>{{ unread_items_no_events|length }} {% trans "unread" %}
         </span>
         {% endif %}
       </div>
-      <div class="card-body p-0" id="activity-feed-body" style="overflow:hidden;min-height:0;">
+      <div class="card-body p-0 overflow-hidden-mh0" id="activity-feed-body">
         {% for item in last_feed_items %}
-        <div class="task-dash-row d-flex align-items-center gap-2 px-3 py-2 activity-feed-row {% if not item.is_read %}unread-item{% endif %}" {% if not item.is_read %}style="min-width:0;background:rgba(96,165,250,.08);border-left:3px solid #60a5fa;"{% else %}style="min-width:0;"{% endif %}>
-          <span class="badge text-bg-{{ item.content_type|content_type_color }} flex-shrink-0" style="font-size:.62rem;padding:1px 5px;">
+        <div class="task-dash-row d-flex align-items-center gap-2 px-3 py-2 activity-feed-row min-w-0 {% if not item.is_read %}unread-item unread-row{% endif %}">
+          <span class="badge text-bg-{{ item.content_type|content_type_color }} flex-shrink-0 badge-status-xs">
             {{ item.content_type|content_type_label }}
           </span>
           <a href="{{ item.url }}"
-             class="task-dash-link {% if not item.is_read %}fw-semibold{% endif %}"
+             class="task-dash-link text-primary-link {% if not item.is_read %}fw-semibold{% endif %}"
              data-content-type="{{ item.content_type }}"
              data-object-id="{{ item.object_id }}"
-             style="font-size:.82rem;color:var(--text-primary);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;position:relative;z-index:2;transition:color .15s;"
              title="{{ item.title }}">
             {{ item.title }}
           </a>
-          <span class="flex-shrink-0" style="font-size:.72rem;color:var(--text-muted);">
+          <span class="flex-shrink-0 text-2xs-muted">
             {{ item.timestamp|date:"d.m H:i" }}
           </span>
         </div>
         {% empty %}
-        <div class="px-3 py-3 text-center" style="font-size:.82rem;color:var(--text-muted);">
+        <div class="px-3 py-3 text-center text-muted-sm">
           {% trans "No activity in the last 30 days" %}
         </div>
         {% endfor %}
-        <div id="activity-feed-more" style="display:none;font-size:.78rem;color:var(--text-muted);padding:2px 12px 4px;">…</div>
+        <div id="activity-feed-more" class="activity-more">…</div>
       </div>
       <a href="{% url 'activity' %}" class="stretched-link"></a>
       <script>
@@ -320,33 +319,33 @@
 
   {# Najbliższe wydarzenia #}
   <div class="col-12 col-lg-4">
-    <div class="card h-100" style="position:relative;">
+    <div class="card h-100 position-relative">
       <div class="card-body d-flex flex-column gap-2">
         <div class="d-flex align-items-center gap-2 mb-1 tile-header">
           <i class="fas fa-calendar-days"></i>
           <span class="section-heading tile-heading">{% trans "Upcoming events" %}</span>
         </div>
         {% if upcoming_events %}
-        <ul class="list-unstyled mb-0 d-flex flex-column gap-2" style="flex:1;font-size:.82rem;">
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-2 flex-1 text-sm">
           {% for occ in upcoming_events %}
-          <li class="task-dash-row d-flex align-items-center gap-2" style="min-width:0;">
-            <span class="flex-shrink-0" {% if occ.event.is_public %}style="width:.55rem;height:.55rem;border-radius:50%;background:#00bc8c;opacity:.8;"{% else %}style="width:.55rem;height:.55rem;border-radius:50%;background:var(--text-muted);opacity:.8;"{% endif %}></span>
-            <span class="flex-shrink-0" style="color:var(--text-muted);white-space:nowrap;">{{ occ.date|date:"D d M · H:i" }}</span>
+          <li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
+            <span class="flex-shrink-0 {% if occ.event.is_public %}dot-public{% else %}dot-private{% endif %}"></span>
+            <span class="flex-shrink-0 text-muted-nowrap">{{ occ.date|date:"D d M · H:i" }}</span>
             <a href="{% url 'events:detail' occ.event.pk %}"
                class="task-dash-link"
-               style="color:var(--text-primary);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;position:relative;z-index:2;transition:color .15s;"
+               class="text-primary-link"
                title="{{ occ.event.title }}">{{ occ.event.title }}</a>
           </li>
           {% endfor %}
         </ul>
-        <a href="{% url 'events:list' %}" class="task-dash-row d-flex align-items-center gap-2 mt-auto" style="text-decoration:none;font-size:.78rem;color:var(--accent);position:relative;z-index:2;">
-          <i class="fas fa-calendar-days" style="font-size:.75rem;opacity:.7;"></i>{% trans "Full calendar" %} →
+        <a href="{% url 'events:list' %}" class="task-dash-row d-flex align-items-center gap-2 mt-auto calendar-link">
+          <i class="fas fa-calendar-days font-75 opacity-70"></i>{% trans "Full calendar" %} →
         </a>
         <a href="{% url 'events:list' %}" class="stretched-link"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center text-muted-md">{% trans "No upcoming events" %}</p>
-          <a href="{% url 'events:create' %}" style="font-size:.82rem;color:var(--accent);position:relative;z-index:2;">{% trans "Add an event" %} →</a>
+          <a href="{% url 'events:create' %}" class="link-more">{% trans "Add an event" %} →</a>
         </div>
         <a href="{% url 'events:list' %}" class="stretched-link"></a>
         {% endif %}
@@ -361,32 +360,31 @@
 
   {# Propozycje głosowań #}
   <div class="col-12 col-lg-4">
-    <div class="card h-100" style="position:relative;">
+    <div class="card h-100 position-relative">
       <div class="card-body d-flex flex-column gap-2">
         <div class="d-flex align-items-center gap-2 mb-1 tile-header">
           <i class="fas fa-file-signature"></i>
           <span class="section-heading tile-heading">{% trans "Voting proposals" %}</span>
         </div>
         {% if new_proposals %}
-        <ul class="list-unstyled mb-0 d-flex flex-column gap-1" style="flex:1;">
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 flex-1">
           {% for prop in new_proposals %}
-          <li class="task-dash-row d-flex align-items-center gap-2" style="min-width:0;">
-            <span class="badge-status badge-proposition flex-shrink-0" style="font-size:.62rem;padding:1px 5px;">
+          <li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
+            <span class="badge-status badge-proposition flex-shrink-0 badge-status-xs">
               {% trans "signatures" %}
             </span>
             <a href="{% url 'glosowania:details' prop.pk %}"
-               class="task-dash-link"
-               style="font-size:.82rem;color:var(--text-primary);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;position:relative;z-index:2;transition:color .15s;"
+               class="task-dash-link dashboard-link"
                title="{{ prop.title }}">{{ prop.title }}</a>
           </li>
           {% endfor %}
         </ul>
-        <span style="font-size:.78rem;color:var(--accent);opacity:.8;margin-top:auto;">{% trans "All suggestions" %} →</span>
+        <span class="card-footer-link">{% trans "All suggestions" %} →</span>
         <a href="{% url 'glosowania:proposition' %}" class="stretched-link" title="{% trans "All suggestions" %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center text-muted-md">{% trans "No voting proposals" %}</p>
-          <a href="{% url 'glosowania:proposition' %}" style="font-size:.82rem;color:var(--accent);position:relative;z-index:2;">{% trans "Go to Agora" %} →</a>
+          <a href="{% url 'glosowania:proposition' %}" class="link-more">{% trans "Go to Agora" %} →</a>
         </div>
         <a href="{% url 'glosowania:proposition' %}" class="stretched-link" title="{% trans "All suggestions" %}"></a>
         {% endif %}
@@ -396,32 +394,31 @@
 
   {# Dyskutowane głosowania #}
   <div class="col-12 col-lg-4">
-    <div class="card h-100" style="position:relative;">
+    <div class="card h-100 position-relative">
       <div class="card-body d-flex flex-column gap-2">
         <div class="d-flex align-items-center gap-2 mb-1 tile-header">
           <i class="fas fa-comments"></i>
           <span class="section-heading tile-heading">{% trans "Discussed votings" %}</span>
         </div>
         {% if discussed_proposals %}
-        <ul class="list-unstyled mb-0 d-flex flex-column gap-1" style="flex:1;">
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 flex-1">
           {% for prop in discussed_proposals %}
-          <li class="task-dash-row d-flex align-items-center gap-2" style="min-width:0;">
-            <span class="badge-status badge-discussion flex-shrink-0" style="font-size:.62rem;padding:1px 5px;">
+          <li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
+            <span class="badge-status badge-discussion flex-shrink-0 badge-status-xs">
               {% trans "discussion" %}
             </span>
             <a href="{% url 'glosowania:details' prop.pk %}"
-               class="task-dash-link"
-               style="font-size:.82rem;color:var(--text-primary);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;position:relative;z-index:2;transition:color .15s;"
+               class="task-dash-link dashboard-link"
                title="{{ prop.title }}">{{ prop.title }}</a>
           </li>
           {% endfor %}
         </ul>
-        <span style="font-size:.78rem;color:var(--accent);opacity:.8;margin-top:auto;">{% trans "All discussions" %} →</span>
+        <span class="card-footer-link">{% trans "All discussions" %} →</span>
         <a href="{% url 'glosowania:discussion' %}" class="stretched-link" title="{% trans "All discussions" %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center text-muted-md">{% trans "No discussed votings" %}</p>
-          <a href="{% url 'glosowania:discussion' %}" style="font-size:.82rem;color:var(--accent);position:relative;z-index:2;">{% trans "Go to Agora" %} →</a>
+          <a href="{% url 'glosowania:discussion' %}" class="link-more">{% trans "Go to Agora" %} →</a>
         </div>
         <a href="{% url 'glosowania:discussion' %}" class="stretched-link" title="{% trans "All discussions" %}"></a>
         {% endif %}
@@ -431,30 +428,29 @@
 
   {# Aktywne głosowanie #}
   <div class="col-12 col-lg-4">
-    <div class="card h-100" style="position:relative;">
+    <div class="card h-100 position-relative">
       <div class="card-body d-flex flex-column gap-2">
         <div class="d-flex align-items-center gap-2 mb-1 tile-header">
           <i class="fas fa-landmark"></i>
           <span class="section-heading tile-heading">{% trans "Active voting" %}</span>
         </div>
         {% if active_referendum %}
-        <ul class="list-unstyled mb-0 d-flex flex-column gap-1" style="flex:1;">
-          <li class="task-dash-row d-flex align-items-center gap-2" style="min-width:0;">
-            <span class="badge-status badge-referendum flex-shrink-0" style="font-size:.62rem;padding:1px 5px;">
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 flex-1">
+          <li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
+            <span class="badge-status badge-referendum flex-shrink-0 badge-status-xs">
               {% trans "Referendum" %}
             </span>
             <a href="{% url 'glosowania:details' active_referendum.obj.pk %}"
-               class="task-dash-link"
-               style="font-size:.82rem;color:var(--text-primary);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;position:relative;z-index:2;transition:color .15s;"
+               class="task-dash-link dashboard-link"
                title="{{ active_referendum.obj.title }}">{{ active_referendum.obj.title }}</a>
           </li>
         </ul>
-        <span style="font-size:.78rem;color:var(--accent);opacity:.8;margin-top:auto;">{% trans "Go to Agora" %} →</span>
+        <span class="card-footer-link">{% trans "Go to Agora" %} →</span>
         <a href="{% url 'glosowania:approved' %}" class="stretched-link" title="{% trans "Go to Agora" %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center text-muted-md">{% trans "No active votings" %}</p>
-          <a href="{% url 'glosowania:approved' %}" style="font-size:.82rem;color:var(--accent);position:relative;z-index:2;">{% trans "Go to Agora" %} →</a>
+          <a href="{% url 'glosowania:approved' %}" class="link-more">{% trans "Go to Agora" %} →</a>
         </div>
         <a href="{% url 'glosowania:approved' %}" class="stretched-link" title="{% trans "Go to Agora" %}"></a>
         {% endif %}
@@ -469,30 +465,29 @@
 
   {# My tasks #}
   <div class="col-12 col-lg-4">
-    <div class="card h-100" style="position:relative;">
+    <div class="card h-100 position-relative">
       <div class="card-body d-flex flex-column gap-2">
         <div class="d-flex align-items-center gap-2 mb-1 tile-header">
           <i class="fas fa-bolt"></i>
           <span class="section-heading tile-heading">{% trans "My tasks" %}</span>
         </div>
         {% if my_tasks %}
-        <ul class="list-unstyled mb-0 d-flex flex-column gap-1" style="flex:1;">
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 flex-1">
           {% for task in my_tasks %}
-          <li class="task-dash-row d-flex align-items-center gap-2" style="min-width:0;">
-            <span class="badge-status badge-approved flex-shrink-0" style="font-size:.65rem;padding:1px 6px;">{% trans "Active" %}</span>
+          <li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
+            <span class="badge-status badge-approved flex-shrink-0 badge-status-sm">{% trans "Active" %}</span>
             <a href="{% url 'tasks:detail' task.pk %}"
-               class="task-dash-link"
-               style="font-size:.82rem;color:var(--text-primary);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;position:relative;z-index:2;transition:color .15s;"
+               class="task-dash-link dashboard-link"
                title="{{ task.title }}">{{ task.title }}</a>
           </li>
           {% endfor %}
         </ul>
-        <span style="font-size:.78rem;color:var(--accent);opacity:.8;margin-top:auto;">{% trans "All my tasks" %} →</span>
+        <span class="card-footer-link">{% trans "All my tasks" %} →</span>
         <a href="{% url 'tasks:list' %}?tab=mine" class="stretched-link"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center text-muted-md">{% trans "You have no assigned tasks" %}</p>
-          <span style="font-size:.82rem;color:var(--accent);">{% trans "See group tasks" %} →</span>
+          <span class="text-sm text-accent">{% trans "See group tasks" %} →</span>
         </div>
         <a href="{% url 'tasks:list' %}" class="stretched-link"></a>
         {% endif %}
@@ -512,9 +507,9 @@
         {% if new_people %}
         <div class="d-flex flex-wrap gap-2 align-items-center">
           {% for cit in new_people|slice:":6" %}
-          <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=cit.pk %}" title="{{ cit.uid.username }}" style="text-decoration:none;flex-shrink:0;position:relative;z-index:2;">
+          <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=cit.pk %}" title="{{ cit.uid.username }}" class="new-people-link">
             {% if cit.avatar %}
-              <img src="{{ cit.avatar.url }}" alt="{{ cit.uid.username }}" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">
+              <img src="{{ cit.avatar.url }}" alt="{{ cit.uid.username }}" class="rounded-circle tile-avatar">
             {% else %}
               <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white new-people-avatar" data-bg="{{ cit.uid.username|citizen_color }}">
                 {{ cit.uid.username|slice:":2"|upper }}
@@ -523,7 +518,7 @@
           </a>
           {% endfor %}
           {% if new_people|length > 6 %}
-          <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width:36px;height:36px;font-size:.72rem;background:var(--bg-card);color:var(--text-muted);border:1px solid var(--border);">
+          <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold new-people-counter">
             +{{ new_people|length|add:"-6" }}
           </div>
           {% endif %}
@@ -540,27 +535,27 @@
 
   {# Finances #}
   <div class="col-12 col-lg-4">
-    <div class="card h-100" style="position:relative;">
+    <div class="card h-100 position-relative">
       <div class="card-body d-flex flex-column gap-2">
         <div class="d-flex align-items-center gap-2 mb-1 tile-header">
           <i class="fas fa-wallet"></i>
           <span class="section-heading tile-heading">{% trans "Finances" %}</span>
-          {% if default_asset %}<span style="font-size:.7rem;color:var(--text-muted);">— {% trans "All time" %} ({{ default_asset.code }})</span>{% endif %}
+          {% if default_asset %}<span class="text-muted-70">— {% trans "All time" %} ({{ default_asset.code }})</span>{% endif %}
         </div>
         {% if default_asset %}
           <div class="d-flex flex-column gap-1 text-sm">
             <div class="d-flex justify-content-between align-items-center">
-              <span class="tile-text-muted"><i class="fas fa-arrow-down me-1" style="color:#00bc8c;"></i>{% trans "Revenues" %}</span>
-              <span style="color:#00bc8c;font-weight:500;">{{ default_income|floatformat:2 }} {{ default_symbol }}</span>
+              <span class="tile-text-muted"><i class="fas fa-arrow-down me-1 text-success-custom"></i>{% trans "Revenues" %}</span>
+              <span class="text-success-custom fw-500">{{ default_income|floatformat:2 }} {{ default_symbol }}</span>
             </div>
             <div class="d-flex justify-content-between align-items-center">
-              <span class="tile-text-muted"><i class="fas fa-arrow-up me-1" style="color:#e74c3c;"></i>{% trans "Expenses" %}</span>
-              <span style="color:#e74c3c;font-weight:500;">{{ default_expenses|floatformat:2 }} {{ default_symbol }}</span>
+              <span class="tile-text-muted"><i class="fas fa-arrow-up me-1 text-danger-custom"></i>{% trans "Expenses" %}</span>
+              <span class="text-danger-custom fw-500">{{ default_expenses|floatformat:2 }} {{ default_symbol }}</span>
             </div>
-            <hr class="my-1" style="border-color:var(--border);opacity:.4;">
+            <hr class="my-1 hr-subtle">
             <div class="d-flex justify-content-between align-items-center">
               <span class="tile-text-muted">{% trans "Balance" %}</span>
-              <span {% if default_balance >= 0 %}style="font-weight:600;color:#00bc8c;"{% else %}style="font-weight:600;color:#e74c3c;"{% endif %}>{{ default_balance|floatformat:2 }} {{ default_symbol }}</span>
+              <span class="{% if default_balance >= 0 %}balance-positive{% else %}balance-negative{% endif %}">{{ default_balance|floatformat:2 }} {{ default_symbol }}</span>
             </div>
           </div>
           <a href="{% url 'bookkeeping:report_list' %}" class="stretched-link"></a>
@@ -590,8 +585,8 @@
           <div class="wspol-stat-label">{% trans "Skills and resources" %}</div>
         </div>
         <div class="d-flex flex-wrap gap-2">
-          <span class="asset-chip"><i class="fas fa-brain" style="color:var(--accent);"></i> <strong>{{ skills_count }}</strong> {% trans "skills" %}</span>
-          <span class="asset-chip"><i class="fas fa-book" style="color:var(--accent);"></i> <strong>{{ knowledge_count }}</strong> {% trans "knowledge" %}</span>
+          <span class="asset-chip"><i class="fas fa-brain text-accent"></i> <strong>{{ skills_count }}</strong> {% trans "skills" %}</span>
+          <span class="asset-chip"><i class="fas fa-book text-accent"></i> <strong>{{ knowledge_count }}</strong> {% trans "knowledge" %}</span>
           <span class="asset-chip">🎁 <strong>{{ give_away_count }}</strong></span>
           <span class="asset-chip">🤝 <strong>{{ borrow_count }}</strong></span>
           <span class="asset-chip">🛒 <strong>{{ for_sale_count }}</strong></span>
@@ -613,22 +608,21 @@
   </div>
 
   <div class="col-12 col-sm-6 col-xl-6">
-    <div class="card h-100" style="position:relative;">
+    <div class="card h-100 position-relative">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span class="wspol-section-title mb-0">
           <i class="fas fa-comments"></i>{% trans "Chat" %}
         </span>
         <a id="chat-unread-badge"
            href="{% url 'chat:chat' %}?view=unread"
-           class="btn btn-sm btn-outline-primary"
-           {% if chat_unread_count %}style="background:rgba(99,102,241,.15);color:#818cf8;border:1px solid rgba(99,102,241,.3);"{% endif %}>
+           class="btn btn-sm btn-outline-primary {% if chat_unread_count %}chat-unread-btn{% endif %}">
           <i class="fas fa-comments me-1"></i>
           <span id="chat-unread-label">{% if chat_unread_count %}{{ chat_unread_count }} {% trans "unread" %}{% else %}{% trans "Open chat" %} &rarr;{% endif %}</span>
         </a>
       </div>
       <div class="card-body p-3 d-flex flex-column gap-1">
         {% for msg in recent_chat_messages %}
-        <div class="chat-msg-row d-flex align-items-center gap-2" style="min-width:0; position:relative; z-index:1;">
+        <div class="chat-msg-row d-flex align-items-center gap-2 min-w-0 position-relative z-1">
           <div class="wspol-avatar flex-shrink-0">
             {% if msg.sender.uzytkownik.avatar %}
               <img src="{{ msg.sender.uzytkownik.avatar.url }}" alt="">
@@ -643,7 +637,7 @@
           <a href="{% url 'chat:chat' %}#room_id={{ msg.room.id }}" class="stretched-link"></a>
         </div>
         {% empty %}
-        <p class="text-center" style="color:var(--text-muted);font-size:.85rem;padding:1rem 0;">{% trans "No news" %}</p>
+        <p class="text-center text-muted-85">{% trans "No news" %}</p>
         {% endfor %}
       </div>
       <a href="{% url 'chat:chat' %}" class="stretched-link"></a>
