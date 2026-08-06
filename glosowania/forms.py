@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from home.widgets import RichTextWidget
+from home.widgets import CounterTextarea
 from site_settings.models import SiteParameters
 from site_settings.params import PARAM_SPECS, coerce, specs_by_category
 from site_settings.validators import validate_brand_mark_dimensions, validate_brand_mark_format, validate_branding_image_size
@@ -15,9 +15,9 @@ class DecyzjaForm(forms.ModelForm):
         fields = ('title', 'tresc', 'uzasadnienie', 'kara', 'znosi')
         widgets = {
             'title': forms.TextInput(),
-            'tresc': RichTextWidget(max_length=3000),
-            'uzasadnienie': RichTextWidget(max_length=4000),
-            'kara': RichTextWidget(max_length=500),
+            'tresc': CounterTextarea(attrs={'rows': 8}, max_length=3000),
+            'uzasadnienie': CounterTextarea(attrs={'rows': 8}, max_length=4000),
+            'kara': CounterTextarea(attrs={'rows': 3}, max_length=500),
         }
 
 
@@ -26,7 +26,7 @@ class ArgumentForm(forms.ModelForm):
         model = Argument
         fields = ('argument_type', 'content')
         widgets = {
-            'content': RichTextWidget(max_length=1000),
+            'content': CounterTextarea(attrs={'rows': 4}, max_length=1000),
         }
 
 
@@ -40,7 +40,7 @@ class ParametersProposalForm(forms.Form):
     uzasadnienie = forms.CharField(
         label=_('Reasoning'),
         help_text=_('Why should these parameters change?'),
-        widget=RichTextWidget(max_length=4000),
+        widget=CounterTextarea(attrs={'rows': 8}, max_length=4000),
         max_length=4000,
     )
 

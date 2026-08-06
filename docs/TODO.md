@@ -1,3 +1,7 @@
+
+
+
+
 # OGÓLNE
 - rekurencyjne głosowania
 - Domyślnie czaty wyciszone, powiadomienia włączają się dopiero jak ktoś się odezwie.

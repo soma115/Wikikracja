@@ -193,7 +193,7 @@
       <form method="POST" action="{% url 'glosowania:add_argument' id.pk %}">
         {% csrf_token %}
         <input type="hidden" name="argument_type" value="FOR">
-        <textarea name="content" rows="3" placeholder="{% trans 'Your argument for...' %}" required></textarea>
+        <textarea name="content" rows="3" maxlength="1000" placeholder="{% trans 'Your argument for...' %}" required></textarea>
         <button type="submit" class="arg-inline-submit for"><i class="fas fa-check"></i> {% trans 'Add' %}</button>
       </form>
     </div>
@@ -236,7 +236,7 @@
       <form method="POST" action="{% url 'glosowania:add_argument' id.pk %}">
         {% csrf_token %}
         <input type="hidden" name="argument_type" value="AGAINST">
-        <textarea name="content" rows="3" placeholder="{% trans 'Your argument against...' %}" required></textarea>
+        <textarea name="content" rows="3" maxlength="1000" placeholder="{% trans 'Your argument against...' %}" required></textarea>
         <button type="submit" class="arg-inline-submit against"><i class="fas fa-check"></i> {% trans 'Add' %}</button>
       </form>
     </div>
