@@ -99,7 +99,7 @@
   </div>{# /.proposal-card-header #}
 
   {# ── CIAŁO (zwinięte domyślnie) — klikalne → szczegóły ── #}
-  <div class="proposal-card-body" id="body-{{ i.pk }}" style="display:none;cursor:pointer;"
+  <div class="proposal-card-body proposal-card-body--collapsible" id="body-{{ i.pk }}"
        onclick="window.location.href='{% url 'glosowania:details' pk=i.pk %}'"
        role="link">
 

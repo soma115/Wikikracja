@@ -194,16 +194,8 @@ document.addEventListener('DOMContentLoaded', function() {
     /* ── toggle pojedynczego kafelka ── */
     window.toggleCard = function(pk) {
         const card = document.getElementById('card-' + pk);
-        const body = document.getElementById('body-' + pk);
-        if (!card || !body) return;
-        const isOpen = card.classList.contains('open');
-        if (isOpen) {
-            card.classList.remove('open');
-            body.style.display = 'none';
-        } else {
-            card.classList.add('open');
-            body.style.display = 'flex';
-        }
+        if (!card) return;
+        card.classList.toggle('open');
     };
 });
 
@@ -256,8 +248,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (mode === 'compact') {
             container.querySelectorAll('.proposal-card.open').forEach(function(card) {
                 card.classList.remove('open');
-                var body = card.querySelector('.proposal-card-body');
-                if (body) body.style.display = 'none';
             });
         }
     }

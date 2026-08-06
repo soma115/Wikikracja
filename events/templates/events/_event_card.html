@@ -71,7 +71,7 @@
     </div>
   </div>{# /.proposal-card-header #}
 
-  <div class="proposal-card-body" id="body-evt-{{ pk }}-{{ dt }}" style="display:none;cursor:pointer;"
+  <div class="proposal-card-body proposal-card-body--collapsible" id="body-evt-{{ pk }}-{{ dt }}"
        onclick="window.location.href='{% url 'events:detail' occ.event.pk %}'"
        role="link">
 

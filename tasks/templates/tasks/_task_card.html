@@ -15,7 +15,7 @@
       <span class="proposal-card-num">#{{ task.pk }}</span>
       <span class="proposal-card-title">{{ task.title }}</span>
       <a href="{% url 'tasks:detail' pk=task.pk %}"
-         class="proposal-details-btn proposal-detail-compact"
+         class="proposal-details-btn"
          onclick="event.stopPropagation()"
          data-bs-toggle="tooltip"
          title="{% trans 'Open task details' %}">
@@ -178,19 +178,12 @@
         <i class="fas fa-ban fa-fw"></i>
         <span class="proposal-against-count">{{ task.votes_down|default:0 }}</span>
       </button>
-
-      <a href="{% url 'tasks:detail' pk=task.pk %}"
-         class="proposal-details-inline" onclick="event.stopPropagation()"
-         data-bs-toggle="tooltip"
-         title="{% trans 'Open task details' %}">
-        {% trans 'Details' %} <i class="fas fa-arrow-right fa-fw"></i>
-      </a>
     </div>
 
   </div>{# /.proposal-card-header #}
 
   {# ── CIAŁO (rozwijalne, klikalne → szczegóły) ── #}
-  <div class="proposal-card-body" id="body-{{ task.pk }}" style="display:none;cursor:pointer;"
+  <div class="proposal-card-body proposal-card-body--collapsible" id="body-{{ task.pk }}"
        onclick="window.location.href='{% url 'tasks:detail' pk=task.pk %}'"
        role="link">
 
