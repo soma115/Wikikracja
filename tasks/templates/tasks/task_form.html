@@ -1,5 +1,6 @@
 {% extends "home/base.html" %}
 {% load i18n %}
+{% load static %}
 
 {% block extra_css %}{{ form.media }}{% endblock %}
 
@@ -13,7 +14,7 @@
     {% endif %}
   </h1>
 
-  <form method="post" class="card p-4">
+  <form method="post" class="card p-4" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
     {% csrf_token %}
     {{ form.non_field_errors }}
 
@@ -51,6 +52,7 @@
   </form>
 </div>
 {% block extra_js %}
+<script src="{% static 'common/js/form-autosave.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
