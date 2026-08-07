@@ -18,7 +18,10 @@ FEED_DAYS = 90
 
 
 def invalidate_feed_cache():
-    cache.delete(FEED_CACHE_KEY)
+    try:
+        cache.delete(FEED_CACHE_KEY)
+    except Exception:
+        log.warning("Could not invalidate feed cache; cache backend unavailable.", exc_info=True)
 
 
 def build_read_status_map(user):
