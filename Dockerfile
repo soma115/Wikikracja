@@ -58,6 +58,7 @@ COPY --from=builder /app/board /app/board
 COPY --from=builder /app/chat /app/chat
 COPY --from=builder /app/events /app/events
 COPY --from=builder /app/tasks /app/tasks
+COPY --from=builder /app/ankiety /app/ankiety
 COPY --from=builder /app/glosowania /app/glosowania
 COPY --from=builder /app/bookkeeping /app/bookkeeping
 COPY --from=builder /app/site_settings /app/site_settings
