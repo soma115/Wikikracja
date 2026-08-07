@@ -1,0 +1,118 @@
+{% extends 'home/base.html' %}
+{% load i18n %}
+
+{% block content %}
+
+{# ── TOOLBAR ── #}
+<div class="proposals-toolbar">
+  <a href="{% url 'ankiety:create' %}" class="toolbar-add-btn">
+    <i class="fas fa-plus"></i> {% trans 'Add survey' %}
+  </a>
+
+  <span class="toolbar-divider"></span>
+
+  <div class="toolbar-sort">
+    {% if current_tab == 'active' %}
+      <a href="{% url 'ankiety:list' %}?tab=active" class="sort-btn active">
+        {% trans 'Ongoing' %}
+      </a>
+      <a href="{% url 'ankiety:list' %}?tab=finished" class="sort-btn">
+        {% trans 'Finished' %}
+      </a>
+    {% else %}
+      <a href="{% url 'ankiety:list' %}?tab=active" class="sort-btn">
+        {% trans 'Ongoing' %}
+      </a>
+      <a href="{% url 'ankiety:list' %}?tab=finished" class="sort-btn active">
+        {% trans 'Finished' %}
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+{# ── LIST ── #}
+<div class="proposals-list">
+  {% if surveys %}
+    {% for survey in surveys %}
+      <a href="{% url 'ankiety:detail' survey.pk %}" class="proposal-card text-decoration-none">
+        <div class="proposal-card-header">
+          <div class="proposal-card-title-row">
+            <span class="proposal-card-num">#{{ survey.pk }}</span>
+            <span class="proposal-card-title">{{ survey.title }}</span>
+            {% if survey.is_active %}
+              <span class="badge-status badge-discussion">{% trans 'Ongoing' %}</span>
+            {% else %}
+              <span class="badge-status badge-approved">{% trans 'Finished' %}</span>
+            {% endif %}
+          </div>
+
+          {% if survey.description %}
+            <div class="mt-1 text-muted small">
+              {{ survey.description|striptags|truncatewords:30 }}
+            </div>
+          {% endif %}
+
+          <div class="proposal-card-badges-row">
+            <span class="proposal-date" title="{% trans 'End date' %}">
+              <i class="fas fa-clock nav-icon" aria-hidden="true"></i>
+              {{ survey.end_date|date:'d.m.Y H:i' }}
+            </span>
+            <span class="proposal-meta-sep">·</span>
+            <span class="proposal-signatures" title="{% trans 'Votes' %}">
+              <i class="fas fa-check-to-slot nav-icon" aria-hidden="true"></i>
+              {{ survey.total_votes }}
+            </span>
+            <span class="proposal-meta-sep">·</span>
+            <span class="proposal-signatures" title="{% trans 'Options' %}">
+              <i class="fas fa-list-ul nav-icon" aria-hidden="true"></i>
+              {{ survey.options.all|length }}
+            </span>
+            <span class="proposal-meta-sep">·</span>
+            {% if survey.author %}
+              <span class="proposal-author-name">
+                <i class="fas fa-user-pen proposal-role-icon" aria-hidden="true"></i>
+                {{ survey.author.username }}
+              </span>
+            {% else %}
+              <span class="proposal-author-name">—</span>
+            {% endif %}
+          </div>
+          <div class="survey-results mt-2">
+            {% for option in survey.options.all %}
+              <div class="mb-2">
+                <div class="d-flex justify-content-between small">
+                  <span>{{ option.text }}</span>
+                  <span>
+                    <strong>{{ option.vote_count }}</strong>
+                    {% if survey.total_votes %}
+                      <span class="text-muted">({{ option.percentage }}%)</span>
+                    {% endif %}
+                  </span>
+                </div>
+                <progress class="w-100" value="{{ option.vote_count }}" max="{{ survey.total_votes|default:1 }}"></progress>
+              </div>
+            {% empty %}
+              <p class="text-muted small mb-0">{% trans 'No options' %}</p>
+            {% endfor %}
+          </div>
+        </div>
+      </a>
+    {% endfor %}
+  {% else %}
+    <div class="tasks-empty">
+      <i class="fas fa-clipboard-question fa-2x"></i>
+      <div>
+        {% if current_tab == 'active' %}
+          {% trans 'No ongoing surveys.' %}
+        {% else %}
+          {% trans 'No finished surveys.' %}
+        {% endif %}
+      </div>
+      <a href="{% url 'ankiety:create' %}" class="toolbar-add-btn mt-2">
+        <i class="fas fa-plus"></i> {% trans 'Add the first survey' %}
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 FEED_CACHE_KEY = "feed_raw_v1"
 FEED_CACHE_TTL = 3600
-FEED_DAYS = 30
+FEED_DAYS = 90
 
 
 def invalidate_feed_cache():

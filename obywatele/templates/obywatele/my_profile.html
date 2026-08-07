@@ -254,9 +254,7 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
     <div class="card-body">
       {% if deletion_request %}
         <p class="mb-2" style="font-size:.9rem;">
-          {% blocktrans with date=deletion_request.scheduled_for|date:"Y-m-d" %}
-            Your account is scheduled for permanent deletion on <strong>{{ date }}</strong>.
-          {% endblocktrans %}
+          {% trans "Your account is scheduled for permanent deletion on" %} <strong>{{ deletion_request.scheduled_for|date:"Y-m-d" }}</strong>.
           <br>
           {% trans "You can cancel this request before that date." %}
         </p>

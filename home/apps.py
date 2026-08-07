@@ -23,6 +23,12 @@ class HomeConfig(AppConfig):
             except Exception:
                 pass
 
+        # Ensure the global activity feed cache is rebuilt on every process
+        # start (e.g. after deploying or restarting the dev server) so the
+        # feed does not serve stale data left over from an older cache entry.
+        from home.services.feed import invalidate_feed_cache
+        invalidate_feed_cache()
+
         # Cache-invalidation signals for the feed now live in the apps that
         # own the feed-related models (board, chat, events, glosowania,
         # obywatele, tasks).  home.signals is no longer needed.

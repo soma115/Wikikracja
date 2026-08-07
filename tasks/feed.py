@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.html import strip_tags
 
@@ -5,8 +6,15 @@ from .models import Task
 
 
 def get_feed_items(since: timezone.datetime) -> list[dict]:
-    """Return feed items for tasks modified since `since`."""
-    tasks = Task.objects.filter(updated_at__gte=since).select_related('created_by', 'assigned_to').order_by('-updated_at')
+    """Return feed items for tasks modified since `since` or active assigned tasks.
+
+    Active tasks assigned to a citizen are always shown so users can track
+    their own open tasks even if they have not been modified recently.
+    """
+    tasks = Task.objects.filter(
+        Q(updated_at__gte=since)
+        | Q(assigned_to__isnull=False, status=Task.Status.ACTIVE)
+    ).select_related('created_by', 'assigned_to').order_by('-updated_at')
     items = []
     for task in tasks:
         clean_description = strip_tags(task.description)

@@ -1,0 +1,137 @@
+{% extends 'home/base.html' %}
+{% load i18n %}
+{% load richtext %}
+
+{% block content %}
+<div class="container my-4">
+
+  {# ── HEADER ── #}
+  <div class="d-flex align-items-start justify-content-between mb-3">
+    <h1 class="h3">{{ survey.title }}</h1>
+    <div class="d-flex gap-2">
+      {% if can_edit %}
+        <a href="{% url 'ankiety:edit' survey.pk %}" class="btn btn-sm btn-outline-primary">
+          <i class="fas fa-pen"></i> {% trans 'Edit' %}
+        </a>
+        <form method="post" action="{% url 'ankiety:delete' survey.pk %}" data-confirm="{% trans 'Are you sure you want to delete this survey?' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-danger">
+            <i class="fas fa-trash"></i> {% trans 'Delete' %}
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if survey.description %}
+    <div class="mb-3">
+      {{ survey.description|richtext }}
+    </div>
+  {% endif %}
+
+  <div class="proposal-card-meta mb-4">
+    <span class="proposal-date" title="{% trans 'End date' %}">
+      <i class="fas fa-clock proposal-role-icon" aria-hidden="true"></i>
+      {{ survey.end_date|date:'d.m.Y H:i' }}
+    </span>
+    <span class="proposal-meta-sep">·</span>
+    <span class="proposal-signatures" title="{% trans 'Votes' %}">
+      <i class="fas fa-check-to-slot proposal-role-icon" aria-hidden="true"></i>
+      {{ total_votes }}
+    </span>
+    <span class="proposal-meta-sep">·</span>
+    {% if survey.is_active %}
+      <span class="badge-status badge-discussion">{% trans 'Ongoing' %}</span>
+    {% else %}
+      <span class="badge-status badge-approved">{% trans 'Finished' %}</span>
+    {% endif %}
+    <span class="proposal-meta-sep">·</span>
+    {% if survey.author %}
+      <a href="{% url 'obywatele:obywatele_szczegoly' survey.author.pk %}" class="proposal-author-link">
+        <i class="fas fa-user-pen proposal-role-icon" aria-hidden="true"></i>
+        {{ survey.author.username }}
+      </a>
+    {% else %}
+      <span class="proposal-author-name">—</span>
+    {% endif %}
+  </div>
+
+  {# ── VOTING FORM ── #}
+  {% if is_active %}
+    {% if user_vote %}
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        {% blocktrans with option=user_vote.option.text %}You have voted: <strong>{{ option }}</strong>. You can change your vote below.{% endblocktrans %}
+      </div>
+    {% endif %}
+    <form method="post" class="card p-4 mb-4">
+      {% csrf_token %}
+      <h5 class="mb-3">
+        {% if user_vote %}{% trans 'Change vote' %}{% else %}{% trans 'Vote' %}{% endif %}
+      </h5>
+      <div class="mb-3">
+        {% for option in options %}
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="option" id="option_{{ option.pk }}" value="{{ option.pk }}" required
+                   {% if user_vote and user_vote.option.pk == option.pk %}checked{% endif %}>
+            <label class="form-check-label" for="option_{{ option.pk }}">
+              {{ option.text }}
+            </label>
+          </div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-check-to-slot"></i>
+        {% if user_vote %}{% trans 'Change vote' %}{% else %}{% trans 'Send vote' %}{% endif %}
+      </button>
+    </form>
+  {% endif %}
+
+  {# ── RESULTS ── #}
+  {% if not is_active %}
+    <h5 class="mb-3">{% trans 'Results' %}</h5>
+    {% if options %}
+      <div class="card p-4">
+        {% for option in options %}
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span>{{ option.text }}</span>
+              <span>
+                <strong>{{ option.vote_count }}</strong>
+                {% if total_votes %}
+                  <span class="text-muted">({{ option.percentage }}%)</span>
+                {% endif %}
+              </span>
+            </div>
+            <progress class="w-100" value="{{ option.vote_count }}" max="{{ total_votes|default:1 }}">
+              {{ option.percentage }}%
+            </progress>
+          </div>
+        {% endfor %}
+        <div class="mt-2 text-muted text-end">
+          {% trans 'Total votes' %}: {{ total_votes }}
+        </div>
+      </div>
+    {% else %}
+      <p class="text-muted">{% trans 'No options.' %}</p>
+    {% endif %}
+  {% endif %}
+
+  <a href="{% url 'ankiety:list' %}" class="btn btn-secondary mt-4">
+    <i class="fas fa-arrow-left"></i> {% trans 'Back' %}
+  </a>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.querySelectorAll('form[data-confirm]').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+      if (!confirm(form.dataset.confirm)) {
+        e.preventDefault();
+      }
+    });
+  });
+</script>
+{% endblock %}

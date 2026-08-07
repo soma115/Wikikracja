@@ -91,13 +91,22 @@
 
         <li class="nav-item">
           <a href="{% url 'glosowania:approved' %}"
-             title="{% trans 'Votings' %}"
-             class="{% if request.resolver_match.namespace == 'glosowania' %}active{% endif %}">
-            <i class="fas fa-fw fa-landmark nav-icon"></i>
-            <span class="nav-text">{% trans "Votings" %}</span>
-          </a>
-        </li>
-
+          title="{% trans 'Votings' %}"
+          class="{% if request.resolver_match.namespace == 'glosowania' %}active{% endif %}">
+          <i class="fas fa-fw fa-landmark nav-icon"></i>
+          <span class="nav-text">{% trans "Votings" %}</span>
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a href="{% url 'ankiety:list' %}"
+           title="{% trans 'Surveys' %}"
+           class="{% if request.resolver_match.namespace == 'ankiety' %}active{% endif %}">
+          <i class="fas fa-fw fa-clipboard-question nav-icon"></i>
+          <span class="nav-text">{% trans "Surveys" %}</span>
+        </a>
+      </li>
+      
         <li class="nav-item">
           <a href="{% url 'obywatele:obywatele' %}"
              title="{% trans 'Citizens' %}"
@@ -224,6 +233,7 @@
           {% elif request.resolver_match.namespace == 'glosowania' %}{% trans "Votings" %}
           {% elif request.resolver_match.namespace == 'board' %}{% trans "Documents" %}
           {% elif request.resolver_match.namespace == 'tasks' %}{% trans "Tasks" %}
+          {% elif request.resolver_match.namespace == 'ankiety' %}{% trans "Surveys" %}
           {% elif request.resolver_match.namespace == 'events' %}{% trans "Calendar" %}
           {% elif request.resolver_match.namespace == 'obywatele' %}
             {% if request.resolver_match.url_name == 'my_profile' or request.resolver_match.url_name == 'haslo' or request.resolver_match.url_name == 'my_assets' or request.resolver_match.url_name == 'change_email' or request.resolver_match.url_name == 'change_username' or request.resolver_match.url_name == 'upload_avatar' or request.resolver_match.url_name == 'set_language' or request.resolver_match.url_name == 'toggle_notification' or request.resolver_match.url_name == 'request_deletion' or request.resolver_match.url_name == 'cancel_deletion' %}{% trans "Settings" %}{% else %}{% trans "Citizens" %}{% endif %}

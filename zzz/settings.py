@@ -224,6 +224,7 @@ INSTALLED_APPS = [
     'board',
     'events',
     'tasks',
+    'ankiety',
     'captcha',
     'push_notifications',
     'site_settings',

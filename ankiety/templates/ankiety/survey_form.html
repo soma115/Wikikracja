@@ -1,0 +1,59 @@
+{% extends 'home/base.html' %}
+{% load i18n %}
+{% load richtext %}
+
+{% block extra_css %}{{ form.media }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+  <h1 class="h3 mb-4">
+    {% if form.instance.pk %}
+      {% trans 'Edit survey' %}
+    {% else %}
+      {% trans 'Add survey' %}
+    {% endif %}
+  </h1>
+
+  <form method="post" class="card p-4">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.title.id_for_label }}">{% trans 'Title' %}</label>
+      {{ form.title }}
+      {{ form.title.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.description.id_for_label }}">{% trans 'Description' %}</label>
+      {{ form.description }}
+      {{ form.description.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.end_date.id_for_label }}">{% trans 'End date' %}</label>
+      {{ form.end_date }}
+      <div class="form-text">{{ form.end_date.help_text }}</div>
+      {{ form.end_date.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.options_text.id_for_label }}">{% trans 'Options' %}</label>
+      {{ form.options_text }}
+      <div class="form-text">{{ form.options_text.help_text }}</div>
+      {{ form.options_text.errors }}
+      {% if form.instance.pk and form.instance.votes.exists %}
+        <p class="form-text text-warning">
+          <i class="fas fa-lock"></i>
+          {% trans 'Options are locked because the survey already has votes.' %}
+        </p>
+      {% endif %}
+    </div>
+
+    <div class="d-flex">
+      <button type="submit" class="btn btn-primary me-2">{% trans 'Save' %}</button>
+      <a href="{% url 'ankiety:list' %}" class="btn btn-secondary">{% trans 'Back' %}</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

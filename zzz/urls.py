@@ -31,6 +31,7 @@ urlpatterns: List[URLPattern | URLResolver] = [
     path('board/', include('board.urls', namespace='board')),
     path('events/', include('events.urls', namespace='events')),
     path('tasks/', include('tasks.urls', namespace='tasks')),
+    path('ankiety/', include('ankiety.urls', namespace='ankiety')),
     path('i18n/', include('django.conf.urls.i18n')),
     path("__reload__/", include("django_browser_reload.urls")),
     path('<slug:slug>/', bv.view_post_by_slug, name='board_post_by_slug'),
