@@ -11,10 +11,10 @@
   <div class="proposals-toolbar mb-1" style="flex-wrap:wrap;">
     <div class="toolbar-sort" style="flex-wrap:wrap;gap:.35rem;">
       <a href="?filter=unread&sort={{ sort }}&order={{ order }}"
-         class="sort-btn {% if filter_unread %}active{% endif %}"
-         style="color:#60a5fa;border-color:rgba(96,165,250,.35);{% if filter_unread %}background:rgba(96,165,250,.12);{% endif %}">
+         class="sort-btn {% if filter_unread %}active unread-filter-active{% endif %}"
+         style="color:#60a5fa;border-color:rgba(96,165,250,.35);">
         <i class="fas fa-bell"></i>{% trans "Unread" %}
-        {% if unread_count %}<span style="font-size:.7rem;">({{ unread_count }})</span>{% endif %}
+        <span id="unread-count-badge" class="{% if not unread_count %}d-none{% endif %}" style="font-size:.7rem;">{% if unread_count %}({{ unread_count }}){% endif %}</span>
       </a>
       <a href="?sort={{ sort }}&order={{ order }}"
          class="sort-btn {% if not ct_filter and not filter_unread %}active{% endif %}">
@@ -40,7 +40,6 @@
     <span class="toolbar-divider"></span>
 
     <div class="toolbar-sort">
-      <span class="toolbar-sort-label">{% trans "Sort" %}:</span>
       <a href="?type={{ ct_filter }}&sort=date&order={% if sort == 'date' and order == 'desc' %}asc{% else %}desc{% endif %}{% if filter_unread %}&filter=unread{% endif %}"
          class="sort-btn {% if sort == 'date' %}active{% endif %}">
         {% trans "Date" %}
@@ -65,7 +64,7 @@
   <div class="card">
     <div class="activity-list" id="activity-list" data-view-container>
       {% for item in feed_items %}
-      <a href="{{ item.url }}" class="feed-row {% if not item.is_read %}unread-item{% endif %}" data-content-type="{{ item.content_type }}" data-object-id="{{ item.object_id }}" style="{% if not item.is_read %}background:rgba(96,165,250,.08);border-left:3px solid #60a5fa;{% endif %}">
+      <a href="{{ item.url }}" class="feed-row {% if not item.is_read %}unread-item{% endif %}" data-content-type="{{ item.content_type }}" data-object-id="{{ item.object_id }}">
 
         <span class="badge text-bg-{{ item.content_type|content_type_color }} flex-shrink-0 mt-1" style="font-size:.65rem;padding:1px 5px;">
           {{ item.content_type|content_type_label }}
@@ -75,7 +74,7 @@
           <div class="feed-title {% if not item.is_read %}fw-semibold{% endif %}">
             {{ item.title }}
             {% if item.content_type == 'room_messages' and item.message_count > 1 %}
-            <span class="badge text-bg-{{ item.content_type|content_type_color }} ms-1" style="font-size:.6rem;vertical-align:middle;">{{ item.message_count }}</span>
+            <span class="badge chat-message-count text-bg-{{ item.content_type|content_type_color }} ms-1 {% if item.is_read %}d-none{% endif %}" style="font-size:.6rem;vertical-align:middle;">{{ item.message_count }}</span>
             {% endif %}
           </div>
           {% if item.description and item.content_type != 'event' %}
@@ -87,6 +86,18 @@
           {% if item.author %}
           <span style="font-size:.72rem;color:var(--text-muted);">{{ item.author.username }}</span>
           {% endif %}
+          <span class="feed-toggle-read"
+                role="button"
+                tabindex="0"
+                data-content-type="{{ item.content_type }}"
+                data-object-id="{{ item.object_id }}"
+                data-is-read="{{ item.is_read|yesno:"true,false" }}"
+                data-mark-read-title="{% trans 'Mark as read' %}"
+                data-mark-unread-title="{% trans 'Mark as unread' %}"
+                aria-label="{% if item.is_read %}{% trans 'Mark as unread' %}{% else %}{% trans 'Mark as read' %}{% endif %}"
+                title="{% if item.is_read %}{% trans 'Mark as unread' %}{% else %}{% trans 'Mark as read' %}{% endif %}">
+            <i class="fas {% if item.is_read %}fa-eye-slash{% else %}fa-eye{% endif %}"></i>
+          </span>
           <span style="font-size:.72rem;color:var(--text-muted);white-space:nowrap;">{{ item.timestamp|date:"d.m H:i" }}</span>
         </div>
 
@@ -115,6 +126,9 @@ document.getElementById('btn-mark-all')?.addEventListener('click', function() {
 // Initialize mark-as-read for activity page
 window.CSRF_TOKEN = '{{ csrf_token }}';
 window.MARK_AS_READ_URL = "{% url 'mark_as_read' %}";
+window.MARK_UNREAD_URL = "{% url 'mark_unread' %}";
+window.ACTIVITY_FILTER_UNREAD = '{{ filter_unread|yesno:"true,false" }}' === 'true';
 window.initActivityFeedMarkRead('#activity-list', '.feed-row');
+window.initActivityFeedToggleRead('#activity-list');
 </script>
 {% endblock %}

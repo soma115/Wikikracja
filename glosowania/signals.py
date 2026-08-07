@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.utils.translation import gettext as _
 
@@ -72,3 +72,10 @@ def delete_decyzja_chat_room(sender, instance, **kwargs):
         log.info(f"Deleted chat room '{room.title}' for referendum #{instance.pk}")
     else:
         log.info(f"No chat room linked to referendum #{instance.pk}, nothing to delete")
+
+
+@receiver(post_save, sender=Decyzja)
+@receiver(post_delete, sender=Decyzja)
+def _invalidate_feed_cache_on_decyzja_change(sender, **kwargs):
+    from home.services.feed import invalidate_feed_cache
+    invalidate_feed_cache()

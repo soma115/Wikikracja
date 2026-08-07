@@ -38,5 +38,5 @@ def unread_count(request):
     cached = getattr(request, '_unread_count', None)
     if cached is not None:
         return {'unread_count': cached}
-    from home.views import get_unread_count
+    from home.services.feed import get_unread_count
     return {'unread_count': get_unread_count(request.user)}

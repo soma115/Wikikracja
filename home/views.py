@@ -2,68 +2,31 @@ import json
 import logging
 import os
 import re
-from datetime import date
-from datetime import timedelta as td
-from decimal import Decimal
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
-from django.core.cache import cache
-from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
-from django.utils import timezone
-from django.utils.html import strip_tags
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from board.models import Post
-from bookkeeping.models import Asset
-from bookkeeping.services import asset_balances
-from chat.models import Message, Room
-from chat.services import CHAT_UNREAD_CACHE_KEY, get_unread_count_for_user
-from events.calendar import adjacent_months, build_calendar_grid, parse_month_param
-from events.models import Event
-from glosowania.models import Argument as DecyzjaArgument
-from glosowania.models import Decyzja, KtoJuzGlosowal
-from obywatele.models import CitizenActivity, Uzytkownik
+from glosowania.models import Decyzja
 from site_settings.models import QuickLink, SiteSettings
 from site_settings.services import get_branding_version
-from tasks.models import Task
 
-from .colors import category_color
 from .forms import RememberLoginForm
-from .models import ReadStatus
+from .services import dashboard as dashboard_service
+from .services import feed as feed_service
+from .services import search as search_service
 
 log = logging.getLogger(__name__)
 
-_CONTENT_TYPE_MAP = {
-    'post': ReadStatus.ContentType.POST,
-    'task': ReadStatus.ContentType.TASK,
-    'event': ReadStatus.ContentType.EVENT,
-    'message': ReadStatus.ContentType.MESSAGE,
-    'room_messages': ReadStatus.ContentType.MESSAGE,
-    'decision': ReadStatus.ContentType.DECISION,
-    'citizen': ReadStatus.ContentType.CITIZEN,
-}
-
-FEED_CACHE_KEY = "feed_raw_v1"
-FEED_CACHE_TTL = 3600
-
-
-def invalidate_feed_cache():
-    cache.delete(FEED_CACHE_KEY)
-
-
-def build_read_status_map(user):
-    return {
-        content_type: set(object_ids) for content_type, object_ids in ((content_type, ReadStatus.objects.filter(user=user, content_type=content_type).values_list('object_id', flat=True)) for content_type in ReadStatus.ContentType.values)
-    }
+ALL_SEARCH_CATS = ['post', 'task', 'decision', 'event', 'citizen', 'chat']
 
 
 def home(request: HttpRequest):
@@ -75,10 +38,6 @@ def home(request: HttpRequest):
         return render(request, 'home/home.html', {
             'start': start
         })
-
-    # Generate unified feed
-    feed_items = generate_feed_items(request.user)
-    request._unread_count = get_unread_count(request.user, feed_items)
 
     # Check if we should filter to show only unread items
     # Priority: URL parameter > session (synced from localStorage)
@@ -96,338 +55,21 @@ def home(request: HttpRequest):
         # Default: show all items
         filter_unread = False
 
-    if filter_unread:
-        feed_items = [item for item in feed_items if not item['is_read']]
-
-    # Get counts for each section
-    ongoing_count = Decyzja.objects.filter(status=Decyzja.Status.REFERENDUM).count()
-    upcoming_count = Decyzja.objects.filter(status=Decyzja.Status.DISCUSSION).count()
-    signatures_count = Decyzja.objects.filter(status=Decyzja.Status.PROPOSITION).count()
-
-    # Propozycje głosowań widget (max 3, zbierające podpisy)
-    new_proposals = Decyzja.objects.filter(status=Decyzja.Status.PROPOSITION).select_related('author').order_by('-data_ostatniej_modyfikacji')[:3]
-
-    # Dyskutowane głosowania widget (max 3)
-    discussed_proposals = Decyzja.objects.filter(status=Decyzja.Status.DISCUSSION).select_related('author').order_by('-data_ostatniej_modyfikacji')[:3]
-
-    # My tasks widget (max 3, active — only where the viewer is the coordinator)
-    my_tasks = Task.objects.filter(assigned_to=request.user, status=Task.Status.ACTIVE).order_by('updated_at')[:3]
-
-    # Active referendum widget
-    active_referendum = None
-    referendum_obj = Decyzja.objects.filter(status=Decyzja.Status.REFERENDUM).select_related('author').order_by('-data_referendum_start').first()
-    if referendum_obj and referendum_obj.data_referendum_start and referendum_obj.data_referendum_stop:
-        today = timezone.now().date()
-        days_remaining = max(0, (referendum_obj.data_referendum_stop - today).days)
-        total_days = max(1, (referendum_obj.data_referendum_stop - referendum_obj.data_referendum_start).days)
-        time_pct = min(100, round(days_remaining / total_days * 100))
-        if time_pct > 50:
-            bar_color = 'success'
-        elif time_pct >= 20:
-            bar_color = 'warning'
-        else:
-            bar_color = 'danger'
-        user_voted = KtoJuzGlosowal.objects.filter(
-            projekt=referendum_obj,
-            ktory_uzytkownik_juz_zaglosowal=request.user,
-        ).exists()
-        active_referendum = {
-            'obj': referendum_obj,
-            'days_remaining': days_remaining,
-            'total_days': total_days,
-            'time_pct': time_pct,
-            'bar_color': bar_color,
-            'user_voted': user_voted,
-        }
-
-    # Karta 4 — Kalendarz: najbliższe wystąpienia (dla każdego wydarzenia tylko jedno najbliższe)
-    today_dt = timezone.now()
-    _events_horizon_end = today_dt + td(days=90)
-    _occurrences = []
-    for _ev in Event.objects.filter(is_active=True):
-        _event_occurrences = _ev.get_occurrences(today_dt, _events_horizon_end)
-        if _event_occurrences:
-            _occurrences.append({'event': _ev, 'date': _event_occurrences[0]})
-    _occurrences.sort(key=lambda o: o['date'])
-    upcoming_events = _occurrences[:5]
-
-    # Karta 5 — Finanse: salda CAŁEJ historii w walucie domyślnej (default asset).
-    # Jeśli default asset nie istnieje (pusta baza assetów) → wszystkie pola = None i template
-    # pokazuje onboarding CTA "dodaj aktywo". Jeśli default istnieje, ale 0 transakcji →
-    # asset_balances() zwraca pustą listę → wyświetlamy 0/0/0 w symbolu defaultu.
-    default_asset = Asset.get_default()
-    if default_asset is None:
-        default_income = default_expenses = default_balance = None
-        default_symbol = None
-    else:
-        balances = asset_balances(asset=default_asset)
-        if balances:
-            row = balances[0]
-            default_income, default_expenses, default_balance = row['income'], row['expenses'], row['balance']
-        else:
-            default_income = default_expenses = default_balance = Decimal('0')
-        default_symbol = default_asset.symbol
-
-    # Karta 6 — Nowi ludzie: 6 ostatnio dołączonych kandydatów
-    new_people = list(Uzytkownik.objects.filter(uid__is_active=False).select_related('uid').order_by('-uid__date_joined')[:7])
-
-    # Community stats (moved from /obywatele/wspolnota/)
-    pop = User.objects.filter(is_active=True).count()
-    thirty_days_ago = timezone.now() - td(days=30)
-    active_last_month = User.objects.filter(is_active=True, last_login__gte=thirty_days_ago).count()
-    active_pct = round(active_last_month / pop * 100) if pop else 0
-
-    skills_knowledge_hobby_count = Uzytkownik.objects.exclude(skills_knowledge_hobby__isnull=True).exclude(skills_knowledge_hobby='').count()
-    give_away_count = Uzytkownik.objects.exclude(to_give_away__isnull=True).exclude(to_give_away='').count()
-    borrow_count = Uzytkownik.objects.exclude(to_borrow__isnull=True).exclude(to_borrow='').count()
-    for_sale_count = Uzytkownik.objects.exclude(for_sale__isnull=True).exclude(for_sale='').count()
-
-    recent_chat_messages = Message.objects.filter(room__public=True, room__allowed=request.user).select_related('sender', 'sender__uzytkownik', 'room').order_by('-time')[:4]
-
-    # Calendar month grid
-    cal_year, cal_month = parse_month_param(request.GET.get('month', ''))
-    cal_weeks = build_calendar_grid(cal_year, cal_month, Event.objects.filter(is_active=True))
-    prev_month, next_month = adjacent_months(cal_year, cal_month)
-
-    last_feed_items = [i for i in feed_items if i['content_type'] != 'event'][:6]
-
-    # Unread count without events (for home page display)
-    unread_items_no_events = [item for item in feed_items if not item['is_read'] and item['content_type'] != 'event']
-
-    chat_unread_count = get_unread_count_for_user(request.user)
-
-    # Licznik aktywnych zadań użytkownika
-    my_tasks_count = Task.objects.filter(
-        Q(assigned_to=request.user) | Q(votes__user=request.user, votes__value=1),
-        status=Task.Status.ACTIVE,
-    ).distinct().count()
-
-    quick_links = list(QuickLink.objects.order_by('order'))
-
-    return render(request, 'home/home.html', {
-        'feed_items': feed_items,
-        'unread_items_no_events': unread_items_no_events,
-        'filter_unread': filter_unread,
-        'chat_unread_count': chat_unread_count,
-        'my_tasks_count': my_tasks_count,
-        'ongoing_count': ongoing_count,
-        'upcoming_count': upcoming_count,
-        'signatures_count': signatures_count,
-        'active_referendum': active_referendum,
-        'my_tasks': my_tasks,
-        'quick_links': quick_links,
-        'upcoming_events': upcoming_events,
-        'default_asset': default_asset,
-        'default_income': default_income,
-        'default_expenses': default_expenses,
-        'default_balance': default_balance,
-        'default_symbol': default_symbol,
-        'new_people': new_people,
-        'last_feed_items': last_feed_items,
-        'new_proposals': new_proposals,
-        'discussed_proposals': discussed_proposals,
-        'active_pct': active_pct,
-        'skills_knowledge_hobby_count': skills_knowledge_hobby_count,
-        'skills_count': skills_knowledge_hobby_count,
-        'knowledge_count': skills_knowledge_hobby_count,
-        'give_away_count': give_away_count,
-        'borrow_count': borrow_count,
-        'for_sale_count': for_sale_count,
-        'recent_chat_messages': recent_chat_messages,
-        'cal_weeks': cal_weeks,
-        'cal_year': cal_year,
-        'cal_month': cal_month,
-        'cal_first_day': date(cal_year, cal_month, 1),
-        'prev_month': prev_month,
-        'next_month': next_month,
-    })
-
-
-def _generate_feed_raw():
-    """
-    Fetch all feed data WITHOUT user-specific is_read flags.
-    Result is cached globally in Redis (TTL 1h). Each item stores
-    content_type + object_id so is_read can be attached per-request.
-    Invalidated by signals on Post/Task/Decyzja/CitizenActivity/Event/Message.
-    """
-    cached = cache.get(FEED_CACHE_KEY)
-    if cached is not None:
-        return cached
-
-    feed_items = []
-
-    posts = Post.objects.filter(updated__gte=timezone.now() - td(days=30)).select_related('author').order_by('-updated')
-    for post in posts:
-        clean_text = strip_tags(post.text)
-        feed_items.append({
-            'content_type': 'post',
-            'title': post.title,
-            'description': clean_text[:125] + '...' if len(clean_text) > 125 else clean_text,
-            'author': post.author,
-            'timestamp': post.updated,
-            'url': f"/board/view/{post.pk}/",
-            'object_id': post.pk,
-        })
-
-    tasks = Task.objects.filter(updated_at__gte=timezone.now() - td(days=30)).select_related('created_by', 'assigned_to').order_by('-updated_at')
-    for task in tasks:
-        clean_description = strip_tags(task.description)
-        feed_items.append({
-            'content_type': 'task',
-            'title': task.title,
-            'description': clean_description[:125] + '...' if len(clean_description) > 125 else clean_description,
-            'author': task.created_by or task.assigned_to,
-            'timestamp': task.updated_at,
-            'url': f"/tasks/{task.pk}/",
-            'object_id': task.pk,
-        })
-
-    events = Event.objects.filter(is_active=True).select_related()
-    upcoming_events = []
-    for event in events:
-        next_occurrence = event.get_next_occurrence()
-        if next_occurrence and next_occurrence >= timezone.now() - td(days=1):
-            upcoming_events.append((event, next_occurrence))
-    upcoming_events.sort(key=lambda x: x[1])
-
-    for event, next_occurrence in upcoming_events:
-        clean_description = strip_tags(event.description) if event.description else ''
-        feed_items.append({
-            'content_type': 'event',
-            'title': event.title,
-            'description': clean_description[:125] + '...' if clean_description and len(clean_description) > 125 else clean_description,
-            'author': None,
-            'timestamp': next_occurrence,
-            'url': f"/events/{event.pk}/",
-            'object_id': event.pk,
-        })
-
-    # Rooms: per-user (allowed=user) so we keep room items global but mark room_id;
-    # is_read attached later per-request from Room.seen_by.
-    # Only non-archived rooms with recent messages appear in the feed.
-    all_rooms = Room.objects.filter(archived=False).prefetch_related(
-        'allowed',
-        'messages',
-        'messages__sender',
+    context = dashboard_service.build_dashboard_context(
+        request.user,
+        filter_unread=filter_unread,
+        month_param=request.GET.get('month', ''),
     )
-    cutoff = timezone.now() - td(days=30)
-    for room in all_rooms:
-        recent_msgs = sorted(
-            [m for m in room.messages.all() if m.time >= cutoff],
-            key=lambda m: m.time,
-            reverse=True,
-        )[:5]
-        if recent_msgs:
-            latest_message = recent_msgs[0]
-            message_list = []
-            for msg in reversed(recent_msgs):
-                clean_text = strip_tags(msg.text)
-                author_name = msg.sender.username if msg.sender else 'System'
-                message_list.append(f"- <strong>{author_name}:</strong> {clean_text}")
-            allowed_users = list(room.allowed.all())
-            feed_items.append({
-                'content_type': 'room_messages',
-                'title': _("Messages in %(room_title)s") % {
-                    'room_title': room.title
-                },
-                'description': '\n'.join(message_list),
-                'author': latest_message.sender,
-                'timestamp': latest_message.time,
-                'url': f"/chat/#room_id={room.id}",
-                'object_id': room.id,
-                'room_id': room.id,
-                'message_count': len(recent_msgs),
-                '_is_public': room.public,
-                '_allowed_user_ids': {u.id for u in allowed_users},
-                '_allowed_usernames': {u.id: u.username for u in allowed_users},
-            })
+    # Expose feed unread count for context processors (e.g. topbar notif bell).
+    request._unread_count = context.pop('_unread_count')
 
-    decisions = Decyzja.objects.filter(data_ostatniej_modyfikacji__gte=timezone.now() - td(days=30)).order_by('-data_ostatniej_modyfikacji')
-    for decision in decisions:
-        clean_tresc = strip_tags(decision.tresc) if decision.tresc else ''
-        feed_items.append({
-            'content_type': 'decision',
-            'title': decision.title,
-            'description': clean_tresc[:125] + '...' if clean_tresc and len(clean_tresc) > 125 else clean_tresc,
-            'author': decision.author,
-            'timestamp': decision.data_ostatniej_modyfikacji,
-            'url': f"/glosowania/details/{decision.pk}/",
-            'object_id': decision.pk,
-        })
-
-    citizen_activities = CitizenActivity.objects.filter(timestamp__gte=timezone.now() - td(days=30)).select_related('uzytkownik', 'uzytkownik__uid').order_by('-timestamp')
-    for activity in citizen_activities:
-        feed_items.append({
-            'content_type': 'citizen',
-            'title': activity.get_activity_type_display(),
-            'description': f"{activity.uzytkownik.uid.username} - {_(activity.description)}",
-            'author': activity.uzytkownik.uid,
-            'timestamp': activity.timestamp,
-            'url': f"/obywatele/{activity.uzytkownik.uid.id}/",
-            'object_id': activity.pk,
-        })
-
-    events_items = [i for i in feed_items if i['content_type'] == 'event']
-    other_items = [i for i in feed_items if i['content_type'] != 'event']
-    events_items.sort(key=lambda x: x['timestamp'])
-    other_items.sort(key=lambda x: x['timestamp'], reverse=True)
-    feed_items = events_items + other_items
-
-    cache.set(FEED_CACHE_KEY, feed_items, FEED_CACHE_TTL)
-    return feed_items
-
-
-def generate_feed_items(user):
-    """Generate unified chronological feed for a user, with is_read attached per-request."""
-    raw_items = _generate_feed_raw()
-    read_status_map = build_read_status_map(user)
-
-    ct_map = {
-        'post': ReadStatus.ContentType.POST,
-        'task': ReadStatus.ContentType.TASK,
-        'event': ReadStatus.ContentType.EVENT,
-        'decision': ReadStatus.ContentType.DECISION,
-        'citizen': ReadStatus.ContentType.CITIZEN,
-    }
-    seen_room_ids = set(user.seen_rooms.values_list('id', flat=True))
-
-    feed_items = []
-    for item in raw_items:
-        ct = item['content_type']
-        # rooms: filter to rooms the user has access to
-        if ct == 'room_messages':
-            if not item.get('_is_public') and user.id not in item.get('_allowed_user_ids', set()):
-                continue
-            if not item.get('_is_public'):
-                other = next(
-                    (name for uid, name in item.get('_allowed_usernames', {}).items() if uid != user.id),
-                    None,
-                )
-                if other:
-                    item = {**item, 'title': _("Messages in %(room_title)s") % {'room_title': other}}
-            item = {**item, 'is_read': item['object_id'] in seen_room_ids}
-        else:
-            rs_ct = ct_map.get(ct)
-            is_read = (item['object_id'] in read_status_map[rs_ct]) if rs_ct else False
-            item = {
-                **item, 'is_read': is_read
-            }
-        feed_items.append(item)
-
-    return feed_items
-
-
-def get_unread_count(user, items=None):
-    """Return the number of unread feed items for a user."""
-    if items is None:
-        items = generate_feed_items(user)
-    return sum(1 for item in items if not item['is_read'])
+    return render(request, 'home/home.html', context)
 
 
 @login_required
 def activity_page(request):
-    all_items = generate_feed_items(request.user)
-    unread_count = get_unread_count(request.user, all_items)
+    all_items = feed_service.generate_feed_items(request.user)
+    unread_count = feed_service.get_unread_count(request.user, all_items)
     request._unread_count = unread_count
 
     # Filter unread only
@@ -482,34 +124,12 @@ def mark_as_read(request):
 
     try:
         object_id = int(object_id)
-        read_status_content_type = _CONTENT_TYPE_MAP.get(content_type)
-        if not read_status_content_type:
-            return JsonResponse({
-                'success': False,
-                'error': 'Invalid content type'
-            })
-
-        # Chat rooms use Room.seen_by as the single source of truth;
-        # other content types use ReadStatus.
-        if content_type in ['message', 'room_messages'] and read_status_content_type == ReadStatus.ContentType.MESSAGE:
-            try:
-                room = Room.objects.get(id=object_id)
-                room.seen_by.add(request.user)
-                cache.delete(CHAT_UNREAD_CACHE_KEY.format(user_id=request.user.id))
-            except Room.DoesNotExist:
-                pass  # Room might not exist, ignore
-        else:
-            ReadStatus.objects.get_or_create(
-                user=request.user,
-                content_type=read_status_content_type,
-                object_id=object_id
-            )
-
+        feed_service.mark_feed_item_as_read(content_type, object_id, request.user)
         return JsonResponse({
             'success': True
         })
 
-    except (ValueError, KeyError):
+    except ValueError:
         return JsonResponse({
             'success': False,
             'error': 'Invalid parameters'
@@ -521,44 +141,10 @@ def mark_as_read(request):
 def mark_all_read(request):
     """Mark all feed items as read for the current user"""
     try:
-        user = request.user
-
-        # Get all current feed items and mark them as read
-        feed_items = generate_feed_items(user)
-        # Create read statuses for all unread items
-        created_count = 0
-        room_ids_to_mark = []  # Collect room IDs for batch update
-
-        for item in feed_items:
-            if not item['is_read']:
-                read_status_content_type = _CONTENT_TYPE_MAP.get(item['content_type'])
-                if not read_status_content_type:
-                    continue
-
-                if item['content_type'] in ['message', 'room_messages'] and read_status_content_type == ReadStatus.ContentType.MESSAGE:
-                    room_ids_to_mark.append(item['object_id'])
-                else:
-                    read_status, created = ReadStatus.objects.get_or_create(
-                        user=user,
-                        content_type=read_status_content_type,
-                        object_id=item['object_id']
-                    )
-                    if created:
-                        created_count += 1
-
-        # Batch update room.seen_by for all rooms
-        if room_ids_to_mark:
-            try:
-                rooms = Room.objects.filter(id__in=room_ids_to_mark)
-                for room in rooms:
-                    room.seen_by.add(user)
-                cache.delete(CHAT_UNREAD_CACHE_KEY.format(user_id=user.id))
-            except Exception as e:
-                log.warning(f"Could not update room.seen_by: {e}")
-
+        count = feed_service.mark_all_feed_items_as_read(request.user)
         return JsonResponse({
             'success': True,
-            'marked_count': created_count
+            'marked_count': count
         })
 
     except Exception as e:
@@ -603,40 +189,16 @@ def mark_unread(request):
 
     try:
         object_id = int(object_id)
-        read_status_content_type = _CONTENT_TYPE_MAP.get(content_type)
-        if not read_status_content_type:
-            return JsonResponse({
-                'success': False,
-                'error': 'Invalid content type'
-            })
-
-        # Chat rooms use Room.seen_by as the single source of truth.
-        if content_type in ['message', 'room_messages'] and read_status_content_type == ReadStatus.ContentType.MESSAGE:
-            try:
-                room = Room.objects.get(id=object_id)
-                room.seen_by.remove(request.user)
-                cache.delete(CHAT_UNREAD_CACHE_KEY.format(user_id=request.user.id))
-            except Room.DoesNotExist:
-                pass  # Room might not exist, ignore
-        else:
-            ReadStatus.objects.filter(
-                user=request.user,
-                content_type=read_status_content_type,
-                object_id=object_id
-            ).delete()
-
+        feed_service.mark_feed_item_as_unread(content_type, object_id, request.user)
         return JsonResponse({
             'success': True
         })
 
-    except (ValueError, KeyError):
+    except ValueError:
         return JsonResponse({
             'success': False,
             'error': 'Invalid parameters'
         })
-
-
-ALL_SEARCH_CATS = ['post', 'task', 'decision', 'event', 'citizen', 'chat']
 
 
 @login_required
@@ -653,138 +215,7 @@ def global_search(request: HttpRequest):
     else:
         active_cats = set(selected) if selected else set(ALL_SEARCH_CATS)
 
-    results = []
-
-    if query:
-        # ── Board posts ──────────────────────────────────────────────
-        if 'post' in active_cats:
-            posts = Post.objects.filter(Q(title__icontains=query) | Q(subtitle__icontains=query) | Q(text__icontains=query)).distinct()[:10]
-            for obj in posts:
-                results.append({
-                    'cat': 'post',
-                    'type': _('Post'),
-                    'type_color': category_color('post'),
-                    'title': obj.title,
-                    'description': (strip_tags(obj.text) or '')[:120],
-                    'url': f'/board/view/{obj.pk}/',
-                })
-
-        # ── Tasks ────────────────────────────────────────────────────
-        if 'task' in active_cats:
-            tasks = Task.objects.filter(Q(title__icontains=query) | Q(description__icontains=query)).distinct()[:10]
-            for obj in tasks:
-                results.append({
-                    'cat': 'task',
-                    'type': _('Task'),
-                    'type_color': category_color('task'),
-                    'title': obj.title,
-                    'description': (strip_tags(obj.description) or '')[:120],
-                    'url': f'/tasks/{obj.pk}/',
-                })
-
-        # ── Voting / decisions – all statuses ──
-        if 'decision' in active_cats:
-
-            # 1. Search main decision fields
-            decisions = Decyzja.objects.filter(Q(title__icontains=query) | Q(tresc__icontains=query) | Q(uzasadnienie__icontains=query) | Q(args_for__icontains=query) | Q(args_against__icontains=query)).distinct()[:10]
-
-            for obj in decisions:
-                matched_field = ''
-                q_low = query.lower()
-                if q_low in (obj.args_for or '').lower():
-                    matched_field = str(_('argument for'))
-                elif q_low in (obj.args_against or '').lower():
-                    matched_field = str(_('argument against'))
-                elif q_low in (obj.uzasadnienie or '').lower():
-                    matched_field = str(_('Reasoning'))
-
-                snippet = strip_tags(obj.tresc or obj.uzasadnienie or '') or ''
-                results.append({
-                    'cat': 'decision',
-                    'type': _('Voting'),
-                    'type_color': category_color('decision'),
-                    'title': obj.title,
-                    'description': snippet[:120],
-                    'meta': (obj.get_status_display() + (f' · {matched_field}' if matched_field else '')),
-                    'url': f'/glosowania/details/{obj.pk}/',
-                })
-
-            # 2. Search Argument model (user-added arguments across all statuses)
-            arguments_qs = DecyzjaArgument.objects.filter(content__icontains=query).select_related('decyzja', 'author').distinct()[:15]
-
-            # seen_decision_ids = {r['url'] for r in results if r['cat'] == 'decision'}
-            for arg in arguments_qs:
-                arg_type_label = (str(_('argument for')) if arg.argument_type == 'FOR' else str(_('argument against')))
-                status_label = arg.decyzja.get_status_display()
-                url = f'/glosowania/details/{arg.decyzja.pk}/'
-                author_name = arg.author.username if arg.author else str(_('Unknown'))
-                results.append({
-                    'cat': 'decision',
-                    'type': _('Voting'),
-                    'type_color': category_color('decision'),
-                    'title': arg.decyzja.title,
-                    'description': arg.content[:120],
-                    'meta': f'{status_label} · {arg_type_label} · {author_name}',
-                    'url': url,
-                })
-
-        # ── Events ───────────────────────────────────────────────────
-        if 'event' in active_cats:
-            events = Event.objects.filter(Q(title__icontains=query) | Q(description__icontains=query) | Q(place__icontains=query)).distinct()[:10]
-            for obj in events:
-                results.append({
-                    'cat': 'event',
-                    'type': _('Event'),
-                    'type_color': category_color('event'),
-                    'title': obj.title,
-                    'description': (strip_tags(obj.description) or '')[:120],
-                    'url': f'/events/{obj.pk}/',
-                })
-
-        # ── Citizens ─────────────────────────────────────────────────
-        if 'citizen' in active_cats:
-            users = User.objects.filter(Q(username__icontains=query) | Q(first_name__icontains=query) | Q(last_name__icontains=query)).distinct()[:10]
-            for obj in users:
-                results.append({
-                    'cat': 'citizen',
-                    'type': _('Citizen'),
-                    'type_color': category_color('citizen'),
-                    'title': obj.get_full_name() or obj.username,
-                    'description': f'@{obj.username}',
-                    'url': f'/obywatele/{obj.pk}/',
-                })
-
-        # ── Chat (rooms + messages user has access to) ────────────────
-        if 'chat' in active_cats:
-            accessible_rooms = Room.objects.filter(allowed=request.user)
-
-            # Rooms by title
-            rooms = accessible_rooms.filter(title__icontains=query).distinct()[:5]
-            for obj in rooms:
-                results.append({
-                    'cat': 'chat',
-                    'type': _('Chat'),
-                    'type_color': category_color('chat'),
-                    'title': obj.displayed_name(request.user),
-                    'description': '',
-                    'url': f'/chat/#room_id={obj.pk}',
-                })
-
-            # Messages in accessible rooms
-            messages_qs = Message.objects.filter(
-                Q(text__icontains=query),
-                room__in=accessible_rooms,
-            ).select_related('sender', 'room').order_by('-time').distinct()[:15]
-            for obj in messages_qs:
-                sender_name = str(_('System')) if obj.sender is None else (str(_('Anonymous')) if obj.anonymous else obj.sender.username)
-                results.append({
-                    'cat': 'chat',
-                    'type': _('Chat message'),
-                    'type_color': category_color('chat'),
-                    'title': obj.room.displayed_name(request.user),
-                    'description': f'{sender_name}: {strip_tags(obj.text)[:100]}',
-                    'url': f'/chat/#room_id={obj.room.pk}',
-                })
+    results = search_service.run_global_search(query, active_cats, request.user)
 
     return render(request, 'home/search.html', {
         'query': query,
@@ -924,8 +355,6 @@ def dynamic_settings_js(request: HttpRequest):
 
 @login_required
 def site_admin(request: HttpRequest) -> HttpResponse:
-    from site_settings.models import QuickLink
-
     if request.method == 'POST' and 'save_quick_link' in request.POST:
         title = request.POST.get('quick_link_title')
         url = request.POST.get('quick_link_url')
@@ -951,7 +380,7 @@ def site_admin(request: HttpRequest) -> HttpResponse:
             link.save()
             messages.success(request, _('Link updated.'))
         except QuickLink.DoesNotExist:
-            messages.error(request, _("Link doesn't exist."))
+            messages.error(request, _("Link doesn\'t exist."))
         return redirect('site_admin')
 
     if request.method == 'POST' and 'reorder_quick_links' in request.POST:
@@ -972,7 +401,7 @@ def site_admin(request: HttpRequest) -> HttpResponse:
             link.delete()
             messages.success(request, _('Link deleted.'))
         except QuickLink.DoesNotExist:
-            messages.error(request, _("Link doesn't exist."))
+            messages.error(request, _("Link doesn\'t exist."))
         return redirect('site_admin')
 
     quick_links = QuickLink.objects.all()
@@ -985,4 +414,3 @@ def site_admin(request: HttpRequest) -> HttpResponse:
         'restarted_referendums': restarted_referendums,
         'total_referendum_restarts': total_referendum_restarts,
     })
-

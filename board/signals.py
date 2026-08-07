@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.db.models.signals import post_save
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -54,3 +54,10 @@ def notify_important_chat_on_important_post(sender, instance, created, **kwargs)
     # Send a message to the "Ważne" room with the post author as sender
     # Set anonymous=False to ensure the sender is properly attributed in the UI
     send_message_to_room(room_title="Ważne", message_text=message, sender=instance.author, anonymous=False)  # This ensures the message is NOT anonymous
+
+
+@receiver(post_save, sender=Post)
+@receiver(post_delete, sender=Post)
+def _invalidate_feed_cache_on_post_change(sender, **kwargs):
+    from home.services.feed import invalidate_feed_cache
+    invalidate_feed_cache()

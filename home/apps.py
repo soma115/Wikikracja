@@ -23,4 +23,6 @@ class HomeConfig(AppConfig):
             except Exception:
                 pass
 
-        import home.signals  # noqa
+        # Cache-invalidation signals for the feed now live in the apps that
+        # own the feed-related models (board, chat, events, glosowania,
+        # obywatele, tasks).  home.signals is no longer needed.

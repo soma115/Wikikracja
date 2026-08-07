@@ -412,6 +412,9 @@ window.initActivityFeedMarkRead = function(containerSelector, linkSelector) {
     if (!container) return;
 
     container.addEventListener('click', function(e) {
+        // Don't navigate when the user clicked the read/unread toggle.
+        if (e.target.closest('.feed-toggle-read')) return;
+
         var link = e.target.closest(linkSelector);
         if (!link) return;
         e.preventDefault();
@@ -435,6 +438,116 @@ window.initActivityFeedMarkRead = function(containerSelector, linkSelector) {
         }).finally(function() {
             window.location.href = url;
         });
+    });
+};
+
+// ============================================================
+// Toggle activity feed items read/unread - small per-row control
+// ============================================================
+window.initActivityFeedToggleRead = function(containerSelector) {
+    var container = document.querySelector(containerSelector);
+    if (!container) return;
+
+    function toggle(btn) {
+        var contentType = btn.getAttribute('data-content-type');
+        var objectId = btn.getAttribute('data-object-id');
+        var isRead = btn.getAttribute('data-is-read') === 'true';
+        if (!contentType || !objectId) return;
+
+        var url = isRead
+            ? (window.MARK_UNREAD_URL || '/mark-unread/')
+            : (window.MARK_AS_READ_URL || '/mark-as-read/');
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': window.CSRF_TOKEN || '',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                content_type: contentType,
+                object_id: objectId
+            })
+        }).then(function(r) { return r.json(); }).then(function(data) {
+            if (!data.success) return;
+
+            var row = btn.closest('.feed-row');
+            var newRead = !isRead;
+            btn.setAttribute('data-is-read', newRead ? 'true' : 'false');
+
+            // Update icon, title and aria-label
+            var icon = btn.querySelector('i');
+            var readTitle = btn.getAttribute('data-mark-read-title') || 'Mark as read';
+            var unreadTitle = btn.getAttribute('data-mark-unread-title') || 'Mark as unread';
+            var label = newRead ? unreadTitle : readTitle;
+            if (icon) {
+                icon.classList.toggle('fa-eye', !newRead);
+                icon.classList.toggle('fa-eye-slash', newRead);
+            }
+            btn.setAttribute('title', label);
+            btn.setAttribute('aria-label', label);
+
+            if (row) {
+                // Visual unread styling
+                if (newRead) {
+                    row.classList.remove('unread-item');
+                    var title = row.querySelector('.feed-title');
+                    if (title) title.classList.remove('fw-semibold');
+                } else {
+                    row.classList.add('unread-item');
+                    var title = row.querySelector('.feed-title');
+                    if (title) title.classList.add('fw-semibold');
+                }
+
+                // For chat rooms, also show/hide the message-count badge
+                if (row.getAttribute('data-content-type') === 'room_messages') {
+                    var chatCount = row.querySelector('.chat-message-count');
+                    if (chatCount) {
+                        chatCount.classList.toggle('d-none', newRead);
+                    }
+                }
+            }
+
+            // If the user is filtering to unread only and just marked as read,
+            // reload so the row disappears from the filtered list.
+            if (newRead && window.ACTIVITY_FILTER_UNREAD) {
+                window.location.reload();
+                return;
+            }
+
+            // Update unread counter badge in the filter toolbar
+            var counter = document.querySelector('#unread-count-badge');
+            if (counter) {
+                var current = parseInt(counter.textContent.replace(/[()]/g, ''), 10) || 0;
+                var delta = newRead ? -1 : 1;
+                var next = Math.max(0, current + delta);
+                if (next === 0) {
+                    counter.textContent = '';
+                    counter.classList.add('d-none');
+                } else {
+                    counter.textContent = '(' + next + ')';
+                    counter.classList.remove('d-none');
+                }
+            }
+        });
+    }
+
+    container.addEventListener('click', function(e) {
+        var btn = e.target.closest('.feed-toggle-read');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        toggle(btn);
+    });
+
+    container.addEventListener('keydown', function(e) {
+        var btn = e.target.closest('.feed-toggle-read');
+        if (!btn) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            e.stopPropagation();
+            toggle(btn);
+        }
     });
 };
 

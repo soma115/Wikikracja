@@ -251,6 +251,11 @@
         </form>
       </div>
 
+      <!-- Mobile search icon -->
+      <a href="{% url 'search' %}" class="notif-bell d-sm-none" title="{% trans 'Search' %}" aria-label="{% trans 'Search' %}">
+        <i class="fas fa-magnifying-glass"></i>
+      </a>
+
       <!-- Theme toggle -->
       <button id="theme-toggle-btn" class="notif-bell"
               title="{% trans 'Toggle light / dark mode' %}"

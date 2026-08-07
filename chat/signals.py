@@ -1,7 +1,9 @@
 from django.db.models import F
 from django.db.models.functions import Greatest
-from django.db.models.signals import post_migrate, post_save
+from django.db.models.signals import m2m_changed, post_delete, post_migrate, post_save
 from django.dispatch import Signal, receiver
+
+from .models import Message, Room
 
 user_accepted = Signal()
 user_deleted = Signal()
@@ -12,15 +14,13 @@ def create_inbox_room(sender, **kwargs):
     """Create the guest-facing Inbox room when the app is initialized."""
     if sender.name != 'chat':
         return
-    from chat.models import Room
     Room.create_inbox()
 
 
-@receiver(post_save, sender='chat.Message')
+@receiver(post_save, sender=Message)
 def _sync_room_last_message(sender, instance, created, **kwargs):
     # Denormalizujemy ostatnią wiadomość do Room, żeby sidebar mógł renderować podgląd bez JOIN-a.
     # last_activity przez Greatest() — nigdy nie cofamy czasu (room mógł być bumpowany później przez inną akcję).
-    from chat.models import Message, Room
     if created:
         Room.objects.filter(id=instance.room_id).update(
             last_message_text=instance.text[:200],
@@ -42,3 +42,18 @@ def _sync_room_last_message(sender, instance, created, **kwargs):
             Room.objects.filter(id=instance.room_id).update(
                 last_message_text=instance.text[:200],
             )
+
+
+@receiver(post_save, sender=Message)
+@receiver(post_delete, sender=Message)
+def _invalidate_feed_cache_on_message_change(sender, **kwargs):
+    from home.services.feed import invalidate_feed_cache
+    invalidate_feed_cache()
+
+
+@receiver(post_save, sender=Room)
+@receiver(post_delete, sender=Room)
+@receiver(m2m_changed, sender=Room.allowed.through)
+def _invalidate_feed_cache_on_room_change(sender, **kwargs):
+    from home.services.feed import invalidate_feed_cache
+    invalidate_feed_cache()

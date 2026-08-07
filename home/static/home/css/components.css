@@ -1817,6 +1817,27 @@ button.proposal-against-btn:focus-visible {
 .activity-list .feed-row:hover .feed-title {
   color: var(--accent);
 }
+.feed-toggle-read {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: .25rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: .8rem;
+  transition: color .12s, background .12s;
+}
+.feed-row:hover .feed-toggle-read,
+.feed-toggle-read:hover,
+.feed-toggle-read:focus {
+  color: var(--accent);
+  background: rgba(0, 209, 178, .1);
+  outline: none;
+}
 .feed-title {
   font-size: .875rem;
   color: var(--text-primary);
@@ -1844,9 +1865,20 @@ button.proposal-against-btn:focus-visible {
   flex-direction: column;
   align-items: flex-start;
   gap: .4rem;
+  position: relative;
 }
 .activity-list.view-grid .feed-row:hover {
   border-color: rgba(0, 209, 178, .35);
+}
+.activity-list.view-grid .feed-toggle-read {
+  position: absolute;
+  top: .55rem;
+  right: .7rem;
+  z-index: 2;
+}
+.activity-list.view-grid .feed-row > div:last-child {
+  width: 100%;
+  margin-top: auto;
 }
 .activity-list.view-grid .feed-title {
   white-space: normal;
@@ -3051,6 +3083,8 @@ td.notes-col {
 .link-accent { color: var(--accent); text-decoration: none; flex: 1; }
 .activity-badge { background: rgba(59, 130, 246, .15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, .3); position: relative; z-index: 2; }
 .unread-row { min-width: 0; background: rgba(96, 165, 250, .08); border-left: 3px solid #60a5fa; }
+.feed-row.unread-item { background: rgba(96, 165, 250, .08); border-left: 3px solid #60a5fa; }
+.unread-filter-active { background: rgba(96, 165, 250, .12); }
 .activity-more { display: none; font-size: .78rem; color: var(--text-muted); padding: 2px 12px 4px; }
 .calendar-link { text-decoration: none; font-size: .78rem; color: var(--accent); position: relative; z-index: 2; }
 .text-muted-nowrap { color: var(--text-muted); white-space: nowrap; }

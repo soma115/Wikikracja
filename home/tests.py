@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from chat.models import Message, Room
 from chat.services import get_unread_count_for_user
-from home.views import FEED_CACHE_KEY, generate_feed_items
+from home.services.feed import FEED_CACHE_KEY, generate_feed_items
 
 
 class ActivityFeedChatTest(TestCase):
@@ -77,8 +77,8 @@ class HomeChatBadgeTest(TestCase):
         self.assertNotContains(response, '?notify=no-unread')
 
     def test_badge_style_accentuated_when_unread(self):
-        """Sam href jest staly, ale styl badge'a (background accent + licznik
-        w label'u) musi sie wlaczac tylko gdy sa nieprzeczytane."""
+        """Sam href jest staly, ale styl badge'a (.chat-unread-btn) musi
+        byc obecny w label'u tylko gdy sa nieprzeczytane."""
         room = Room.objects.create(title='Pokój A', public=False)
         room.allowed.add(self.user)
         Message.objects.create(sender=self.user, text='hej', room=room)
@@ -86,13 +86,13 @@ class HomeChatBadgeTest(TestCase):
         self.client.force_login(self.user)
         response = self.client.get(reverse('home'))
 
-        self.assertContains(response, 'background:rgba(99,102,241,.15)')
+        self.assertContains(response, 'chat-unread-btn')
 
     def test_badge_style_neutral_without_unread(self):
         self.client.force_login(self.user)
         response = self.client.get(reverse('home'))
 
-        self.assertNotContains(response, 'background:rgba(99,102,241,.15)')
+        self.assertNotContains(response, 'chat-unread-btn')
 
     def test_dynamic_badge_js_uses_view_unread_in_both_branches(self):
         """JS w home.html aktualizuje badge.href po nadejsciu WS event'u — w obu

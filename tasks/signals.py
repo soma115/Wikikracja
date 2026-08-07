@@ -100,3 +100,10 @@ def delete_task_chat_room(sender, instance, **kwargs):
         log.info(f"Deleted chat room '{room}' for task #{instance.id}")
     else:
         log.info(f"No chat room linked to task #{instance.id}, nothing to delete")
+
+
+@receiver(post_save, sender=Task)
+@receiver(post_delete, sender=Task)
+def _invalidate_feed_cache_on_task_change(sender, **kwargs):
+    from home.services.feed import invalidate_feed_cache
+    invalidate_feed_cache()
