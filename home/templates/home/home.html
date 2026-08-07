@@ -577,8 +577,8 @@
 {# ══ Community stats ═══════════════════════════════════════════════════════ #}
 <div class="row g-3 mb-4">
 
-  <div class="col-12 col-lg-4">
-    <a href="{% url 'obywatele:assets' %}" class="card h-100 text-decoration-none">
+  <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+    <a href="{% url 'obywatele:assets' %}" class="card text-decoration-none">
       <div class="card-body">
         <div class="d-flex align-items-center gap-3 mb-2">
           <div class="wspol-stat-icon blue"><i class="fas fa-brain"></i></div>
@@ -593,10 +593,8 @@
         </div>
       </div>
     </a>
-  </div>
 
-  <div class="col-12 col-lg-4">
-    <a href="{% url 'obywatele:obywatele' %}?aktywnosc=30d" class="card h-100 text-decoration-none">
+    <a href="{% url 'obywatele:obywatele' %}?aktywnosc=30d" class="card text-decoration-none">
       <div class="card-body d-flex align-items-center gap-3">
         <div class="wspol-stat-icon success"><i class="fas fa-chart-line"></i></div>
         <div>
@@ -607,7 +605,7 @@
     </a>
   </div>
 
-  <div class="col-12 col-lg-4">
+  <div class="col-12 col-lg-8">
     <div class="card h-100 position-relative">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span class="wspol-section-title mb-0">
