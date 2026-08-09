@@ -1,4 +1,6 @@
+import html
 import logging
+import re
 
 from django.utils.translation import gettext as _
 
@@ -25,6 +27,7 @@ def build_event_notification(event, body=None, reminder=False):
 
         body = formats.localize(event.start_date, use_l10n=True)
 
+    body = re.sub(r'(?i)<br\s*/?>', '\n', html.unescape(body).replace('\xa0', ' '))
     return build_notification(title, body, click_action, f"event-{event.id}", event_id=event.id)
 
 
@@ -34,5 +37,5 @@ def notify_event_starting(event, body=None):
     send_notification_to_all_sync(notification, ws_type='event.notification', notification_type='events')
 
     subject = f"{event.title} — {_('starting now')}"
-    message = body if body else notification['body']
+    message = notification['body']
     send_notification_email_to_active_users(subject, f"{message}\n\n{notification['click_action']}", notification_type='events', log_prefix='events: ')

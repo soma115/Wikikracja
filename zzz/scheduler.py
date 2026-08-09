@@ -104,8 +104,8 @@ def run_meeting_notification():
 
             if event.description:
                 description = event.description.strip()
-                if len(description) > 200:
-                    description = description[:200] + "..."
+                if len(description) > 400:
+                    description = description[:400] + "..."
                 body_parts.append(f"{_('Description')}: {description}")
 
             body_text = " | ".join(body_parts)
