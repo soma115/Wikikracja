@@ -11,6 +11,7 @@ from chat.tests.utils import make_user
 
 class _UserWithoutProfile:
     """Stub user where accessing .uzytkownik raises (simulating broken/missing relation)."""
+
     @property
     def uzytkownik(self):
         raise AttributeError("no related profile")
@@ -30,9 +31,7 @@ class GetAvatarUrlTest(TestCase):
 
     def test_returns_url_when_avatar_uploaded(self):
         user = make_user("withavatar")
-        user.uzytkownik.avatar = SimpleUploadedFile(
-            "test.png", b"fake-bytes", content_type="image/png"
-        )
+        user.uzytkownik.avatar = SimpleUploadedFile("test.png", b"fake-bytes", content_type="image/png")
         user.uzytkownik.save()
         result = get_avatar_url(user)
         self.assertIsNotNone(result)
@@ -69,24 +68,14 @@ class SendPushNotificationSyncTest(TestCase):
 
         self.mock_queryset = MagicMock()
         self.mock_queryset.exists.return_value = True
-        self.mock_queryset.send_message.return_value = MagicMock(
-            success_count=1,
-            responses=[MagicMock(success=True)],
-        )
+        self.mock_queryset.send_message.return_value = MagicMock(success_count=1, responses=[MagicMock(success=True)])
 
     async def test_builds_full_fcm_message(self):
         """The message must contain top-level notification, data payload and webpush notification."""
         with patch("zzz.notifications.GCMDevice") as mock_gcm:
             mock_gcm.objects.filter.return_value = self.mock_queryset
             with patch.object(firebase_admin, "_apps", {"[DEFAULT]": MagicMock()}):
-                await self.repo.send_push_notification_sync(
-                    self.user,
-                    "Room: Test",
-                    "Sender: Alice",
-                    "https://example.com/chat#room_id=1",
-                    1,
-                    room_name="Test",
-                )
+                await self.repo.send_push_notification_sync(self.user, "Room: Test", "Sender: Alice", "https://example.com/chat#room_id=1", 1, room_name="Test")
 
         self.assertTrue(self.mock_queryset.send_message.called)
         message = self.mock_queryset.send_message.call_args[0][0]
@@ -116,7 +105,4 @@ class SendPushNotificationSyncTest(TestCase):
         self.assertIn("favicon.ico", webpush_notification.badge)
 
         # webpush.fcm_options.link handles notification click.
-        self.assertEqual(
-            message.webpush.fcm_options.link,
-            "https://example.com/chat#room_id=1",
-        )
+        self.assertEqual(message.webpush.fcm_options.link, "https://example.com/chat#room_id=1")

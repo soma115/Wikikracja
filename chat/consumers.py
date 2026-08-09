@@ -75,10 +75,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             ChatConsumer.online_registry.make_online(self.scope['user'], self)
 
             # join personal group for user-targeted pushes (e.g. unread count)
-            await self.channel_layer.group_add(
-                f"user_{self.scope['user'].id}",
-                self.channel_name,
-            )
+            await self.channel_layer.group_add(f"user_{self.scope['user'].id}", self.channel_name)
 
             # send current unread count immediately on connect
             count = await self.repo.get_unread_count()
@@ -108,10 +105,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 pass
 
         # leave personal group
-        await self.channel_layer.group_discard(
-            f"user_{self.scope['user'].id}",
-            self.channel_name,
-        )
+        await self.channel_layer.group_discard(f"user_{self.scope['user'].id}", self.channel_name)
 
         # remove user from online list
         ChatConsumer.online_registry.make_offline(self)
@@ -146,9 +140,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         for arg_name in required_args:
             arg = content.get(arg_name)
             if arg is None:
-                return await self.send_json({
-                    "error": "DATA_MISSING"
-                })
+                return await self.send_json({"error": "DATA_MISSING"})
             args[arg_name] = arg
 
         # Add optional parameters if provided
@@ -172,10 +164,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 else:
                     await self.channel_layer.group_send(group, message)
         except ClientError as e:
-            await self.send_json({
-                "error": e.code,
-                "__TRACE_ID": trace_id
-            })
+            await self.send_json({"error": e.code, "__TRACE_ID": trace_id})
 
     #################################################
     # Command helper methods called by receive_json #
@@ -204,17 +193,9 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
         self.rooms.join(room_id)
 
-        await self.channel_layer.group_add(
-            room.group_name,
-            self.channel_name,
-        )
+        await self.channel_layer.group_add(room.group_name, self.channel_name)
 
-        proxy.send_json({
-            "join": str(room.id),
-            "title": room.title,
-            "public": room.public,
-            "notifications": not await self.repo.has_muted_room(room.id)
-        })
+        proxy.send_json({"join": str(room.id), "title": room.title, "public": room.public, "notifications": not await self.repo.has_muted_room(room.id)})
 
         batch_data = await self.repo.get_recent_messages_batch(room_id, self.scope['user'].id, limit=100)
         messages_list = batch_data['messages']
@@ -243,10 +224,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     latest_date=msg_data['time'],
                     attachments=attachments,
                     reply_to=msg_data.get('reply_to'),
-                    reactions={
-                        'bulb': msg_data.get('bulb_count', 0),
-                        'question': msg_data.get('question_count', 0)
-                    },
+                    reactions={'bulb': msg_data.get('bulb_count', 0), 'question': msg_data.get('question_count', 0)},
                     read_by=msg_data.get('read_by', []),
                 )
             except TypeError:
@@ -256,17 +234,13 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             to_send.append(self.format_chat_message_data_batch(data, users_dict, user_votes_dict))
 
         if to_send:
-            proxy.send_json({
-                'messages': to_send
-            })
+            proxy.send_json({'messages': to_send})
 
     @handlers.register("leave")
     async def leave_room(self, proxy: HandledMessage, room_id):
         room = await self.repo.get_room_or_error(room_id)
         await self.handle_leave_room(room)
-        proxy.send_json({
-            "leave": str(room.id)
-        })
+        proxy.send_json({"leave": str(room.id)})
 
     @handlers.register("fetch-messages")
     async def fetch_messages(self, proxy: HandledMessage, room_id, sort_by='date', order='desc', popular_only=False):
@@ -282,14 +256,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             order = 'desc'
         popular_only = bool(popular_only)
 
-        batch_data = await self.repo.get_recent_messages_batch(
-            room_id,
-            self.scope['user'].id,
-            limit=100,
-            sort_by=sort_by,
-            order=order,
-            popular_only=popular_only,
-        )
+        batch_data = await self.repo.get_recent_messages_batch(room_id, self.scope['user'].id, limit=100, sort_by=sort_by, order=order, popular_only=popular_only)
         messages_list = batch_data['messages']
         users_dict = batch_data['users']
         user_votes_dict = batch_data['user_votes']
@@ -311,10 +278,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     latest_date=msg_data['time'],
                     attachments=msg_data['attachments'],
                     reply_to=msg_data.get('reply_to'),
-                    reactions={
-                        'bulb': msg_data.get('bulb_count', 0),
-                        'question': msg_data.get('question_count', 0)
-                    },
+                    reactions={'bulb': msg_data.get('bulb_count', 0), 'question': msg_data.get('question_count', 0)},
                     read_by=msg_data.get('read_by', []),
                 )
             except TypeError:
@@ -322,11 +286,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
             to_send.append(self.format_chat_message_data_batch(data, users_dict, user_votes_dict))
 
-        proxy.send_json({
-            'replace_messages': True,
-            'room_id': str(room_id),
-            'messages': to_send,
-        })
+        proxy.send_json({'replace_messages': True, 'room_id': str(room_id), 'messages': to_send})
 
     @handlers.register("send")
     async def send_message_to_room(self, proxy: HandledMessage, room_id, message, is_anonymous, attachments, reply_to_id=None, temp_id=None):
@@ -368,23 +328,26 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
         # Broadcast directly (not via proxy) so subscribers receive the message before this handler returns.
         # Per-recipient bookkeeping (unread state, push notifications) runs in a background task.
-        await self.channel_layer.group_send(room.group_name, format_chat_message(
-            room_id=room_id,
-            user_id=sender.id,
-            anonymous=is_anonymous,
-            message=message_clean,
-            message_id=message_id,
-            upvotes=0,
-            downvotes=0,
-            new=True,
-            edited=False,
-            date=msg.time,
-            latest_date=msg.time,
-            attachments=attachments,
-            reply_to=reply_to_data,
-            reactions={'bulb': 0, 'question': 0},
-            temp_id=temp_id,
-        ))
+        await self.channel_layer.group_send(
+            room.group_name,
+            format_chat_message(
+                room_id=room_id,
+                user_id=sender.id,
+                anonymous=is_anonymous,
+                message=message_clean,
+                message_id=message_id,
+                upvotes=0,
+                downvotes=0,
+                new=True,
+                edited=False,
+                date=msg.time,
+                latest_date=msg.time,
+                attachments=attachments,
+                reply_to=reply_to_data,
+                reactions={'bulb': 0, 'question': 0},
+                temp_id=temp_id,
+            ),
+        )
 
         mentioned_usernames = extract_mentions(message_clean)
         mentioned_users = await self.repo.get_mentioned_users(room, mentioned_usernames) if mentioned_usernames else []
@@ -406,9 +369,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             offline_ids = [mid for mid in other_member_ids if mid not in online_ids]
             if offline_ids:
                 await database_sync_to_async(lambda: Room.seen_by.through.objects.filter(room_id=room.id, user_id__in=offline_ids).delete())()
-                await database_sync_to_async(cache.delete_many)(
-                    [CHAT_UNREAD_CACHE_KEY.format(user_id=uid) for uid in offline_ids]
-                )
+                await database_sync_to_async(cache.delete_many)([CHAT_UNREAD_CACHE_KEY.format(user_id=uid) for uid in offline_ids])
 
             membership_prefs = await database_sync_to_async(lambda: Room.get_membership_preferences_bulk(room.id, other_member_ids))()
 
@@ -430,18 +391,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     # it appears immediately even while the tab is in the foreground (FCM's
                     # foreground routing is unreliable across browsers). Push (FCM) still
                     # covers the case where the tab/browser is fully closed.
-                    log.debug(
-                        f"{NOTIF_LOG_TAG} group_send chat.notification notification_id={notification['notification_id']} "
-                        f"to user_{member.id} for message {message_id} (present={is_present})"
-                    )
-                    await self.channel_layer.group_send(
-                        f"user_{member.id}",
-                        {
-                            "type": "chat.notification",
-                            "room_id": room.id,
-                            "notification": {**notification, "room_id": room.id},
-                        }
-                    )
+                    log.debug(f"{NOTIF_LOG_TAG} group_send chat.notification notification_id={notification['notification_id']} to user_{member.id} for message {message_id} (present={is_present})")
+                    await self.channel_layer.group_send(f"user_{member.id}", {"type": "chat.notification", "room_id": room.id, "notification": {**notification, "room_id": room.id}})
 
                 if not consumer:
                     continue
@@ -476,26 +427,14 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             author = "Anonymous" if msg.anonymous else (sender.username or "System")
             notification = _build_chat_notification(author, room.id, room.name)
 
-            log.debug(
-                f"{NOTIF_LOG_TAG} group_send chat.mention notification_id={notification['notification_id']} "
-                f"to user_{user.id} for message {msg.id}"
-            )
+            log.debug(f"{NOTIF_LOG_TAG} group_send chat.mention notification_id={notification['notification_id']} to user_{user.id} for message {msg.id}")
             # Show a real OS notification via the shared WebSocket connection too, so it
             # appears immediately even while the tab is in the foreground (push/FCM still
             # covers the case where the tab/browser is fully closed).
-            await self.channel_layer.group_send(
-                f"user_{user.id}",
-                {
-                    "type": "chat.mention",
-                    "room_id": room.id,
-                    "notification": {**notification, "room_id": room.id},
-                }
-            )
+            await self.channel_layer.group_send(f"user_{user.id}", {"type": "chat.mention", "room_id": room.id, "notification": {**notification, "room_id": room.id}})
 
             # Push notification (bypasses room mute because it is a direct mention).
-            success = await self.repo.send_push_notification_sync(
-                user, notification['title'], notification['body'], notification['click_action'], room.id
-            )
+            success = await self.repo.send_push_notification_sync(user, notification['title'], notification['body'], notification['click_action'], room.id)
             if success:
                 log.info(f"{NOTIF_LOG_TAG} Mention notification sent to user {user.id} for message {msg.id} (ws notification_id={notification['notification_id']})")
             else:
@@ -526,14 +465,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         for online_user_id in other_user_ids:
             room = rooms_dict.get(online_user_id)
             if room is not None:
-                online_data.append({
-                    'user_id': online_user_id,
-                    'room_id': room.id,
-                    'online': True,
-                })
-        proxy.send_json({
-            'online_data': online_data
-        })
+                online_data.append({'user_id': online_user_id, 'room_id': room.id, 'online': True})
+        proxy.send_json({'online_data': online_data})
 
     @handlers.register("room-seen")
     async def handle_seen_room(self, proxy: HandledMessage, room_id):
@@ -557,10 +490,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def push_unread_count(self):
         """Push updated unread room count to all connections of this user."""
         count = await self.repo.get_unread_count()
-        await self.channel_layer.group_send(
-            f"user_{self.scope['user'].id}",
-            {"type": "chat.unread_count", "count": count},
-        )
+        await self.channel_layer.group_send(f"user_{self.scope['user'].id}", {"type": "chat.unread_count", "count": count})
 
     async def chat_unread_count(self, event):
         """Channel layer handler — relays unread count to the WebSocket client."""
@@ -576,10 +506,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         """
         notification_id = event["notification"].get("notification_id", "?")
         if event["room_id"] in self.rooms.items():
-            log.debug(
-                f"{NOTIF_LOG_TAG} chat_notification notification_id={notification_id} skipped for user "
-                f"{self.scope['user'].id}: already present in room {event['room_id']}"
-            )
+            log.debug(f"{NOTIF_LOG_TAG} chat_notification notification_id={notification_id} skipped for user {self.scope['user'].id}: already present in room {event['room_id']}")
             return
         log.debug(f"{NOTIF_LOG_TAG} chat_notification notification_id={notification_id} relayed to user {self.scope['user'].id} over WebSocket")
         await self.send_json({"notification": event["notification"]})
@@ -593,10 +520,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         """
         notification_id = event["notification"].get("notification_id", "?")
         if event["room_id"] in self.rooms.items():
-            log.debug(
-                f"{NOTIF_LOG_TAG} chat_mention notification_id={notification_id} skipped for user "
-                f"{self.scope['user'].id}: already present in room {event['room_id']}"
-            )
+            log.debug(f"{NOTIF_LOG_TAG} chat_mention notification_id={notification_id} skipped for user {self.scope['user'].id}: already present in room {event['room_id']}")
             return
         log.debug(f"{NOTIF_LOG_TAG} chat_mention notification_id={notification_id} relayed to user {self.scope['user'].id} over WebSocket")
         await self.send_json({"notification": event["notification"]})
@@ -616,10 +540,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     @handlers.register("message-add-vote")
     async def handle_add_vote(self, proxy: HandledMessage, vote: str, message_id: int):
         existing_vote = await self.repo.get_vote(message_id)
-        opposite_vote_events = {
-            "upvote": "downvote",
-            "downvote": "upvote",
-        }
+        opposite_vote_events = {"upvote": "downvote", "downvote": "upvote"}
 
         if existing_vote is not None:
             if existing_vote.vote == vote:
@@ -631,33 +552,17 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         upvotes, downvotes = await self.repo.add_vote(vote, message_id)
         room = await self.repo.get_room_by_message(message_id)
 
-        proxy.group_send(room.group_name, {
-            "type": "chat.vote",
-            "update_votes": {
-                "message_id": message_id,
-                "upvotes": upvotes,
-                "downvotes": downvotes,
-                "user_id": self.scope['user'].id,
-                "vote": vote,
-                "add": True,
-            }
-        })
+        proxy.group_send(
+            room.group_name, {"type": "chat.vote", "update_votes": {"message_id": message_id, "upvotes": upvotes, "downvotes": downvotes, "user_id": self.scope['user'].id, "vote": vote, "add": True}}
+        )
 
     @handlers.register("message-remove-vote")
     async def handle_remove_vote(self, proxy: HandledMessage, vote: str, message_id: int):
         upvotes, downvotes = await self.repo.remove_vote(vote, message_id)
         room = await self.repo.get_room_by_message(message_id)
-        proxy.group_send(room.group_name, {
-            "type": "chat.vote",
-            "update_votes": {
-                "message_id": message_id,
-                "upvotes": upvotes,
-                "downvotes": downvotes,
-                "user_id": self.scope['user'].id,
-                "vote": vote,
-                "add": False,
-            }
-        })
+        proxy.group_send(
+            room.group_name, {"type": "chat.vote", "update_votes": {"message_id": message_id, "upvotes": upvotes, "downvotes": downvotes, "user_id": self.scope['user'].id, "vote": vote, "add": False}}
+        )
 
     @handlers.register("message-react")
     async def handle_message_react(self, proxy: HandledMessage, reaction: str, message_id: int):
@@ -669,29 +574,14 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         counts = await self.repo.get_reaction_counts(message_id)
         room = await self.repo.get_room_by_message(message_id)
 
-        proxy.group_send(room.group_name, {
-            "type": "chat.reaction",
-            "update_reactions": {
-                "message_id": message_id,
-                "reaction": reaction,
-                "counts": counts,
-                "user_id": self.scope['user'].id,
-                "added": added,
-            }
-        })
+        proxy.group_send(room.group_name, {"type": "chat.reaction", "update_reactions": {"message_id": message_id, "reaction": reaction, "counts": counts, "user_id": self.scope['user'].id, "added": added}})
 
     @handlers.register("message-mark-read")
     async def handle_mark_read(self, proxy: HandledMessage, message_id: int):
         await self.repo.mark_message_read(message_id)
         read_by = await self.repo.get_read_by_data(message_id)
         room = await self.repo.get_room_by_message(message_id)
-        proxy.group_send(room.group_name, {
-            "type": "chat.read",
-            "messages_read": {
-                "message_id": message_id,
-                "read_by": read_by,
-            }
-        })
+        proxy.group_send(room.group_name, {"type": "chat.read", "messages_read": {"message_id": message_id, "read_by": read_by}})
 
     @handlers.register("messages-mark-read-bulk")
     async def handle_mark_read_bulk(self, proxy: HandledMessage, message_ids: list, room_id: int):
@@ -699,13 +589,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         new_ids = await self.repo.mark_messages_read_bulk(message_ids)
         for message_id in new_ids:
             read_by = await self.repo.get_read_by_data(message_id)
-            proxy.group_send(room.group_name, {
-                "type": "chat.read",
-                "messages_read": {
-                    "message_id": message_id,
-                    "read_by": read_by,
-                }
-            })
+            proxy.group_send(room.group_name, {"type": "chat.read", "messages_read": {"message_id": message_id, "read_by": read_by}})
 
     @handlers.register("edit-message")
     async def handle_edit_message(self, proxy: HandledMessage, message_id: int, new_message: str = None, attachments: dict = None, removed_attachments: list = None):
@@ -750,27 +634,28 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             timestamp = int(datetime.now().timestamp()) * 1000
 
         is_last = await self.repo.is_last_message_in_room(message_id, room.id)
-        proxy.group_send(room.group_name, {
-            "type": "chat.edit",
-            "edit_message": {
-                "message_id": message_id,
-                "room_id": room.id,
-                "user_id": self.scope['user'].id,
-                "username": self.scope['user'].username,
-                "anonymous": message.anonymous,
-                "is_last_message": is_last,
-                "text": new_message,
-                "timestamp": timestamp,
-                "attachments": updated_attachments
-            }
-        })
+        proxy.group_send(
+            room.group_name,
+            {
+                "type": "chat.edit",
+                "edit_message": {
+                    "message_id": message_id,
+                    "room_id": room.id,
+                    "user_id": self.scope['user'].id,
+                    "username": self.scope['user'].username,
+                    "anonymous": message.anonymous,
+                    "is_last_message": is_last,
+                    "text": new_message,
+                    "timestamp": timestamp,
+                    "attachments": updated_attachments,
+                },
+            },
+        )
 
     @handlers.register("get-message-history")
     async def send_message_history(self, proxy: HandledMessage, message_id):
         message_states = await self.repo.get_message_states(message_id)
-        proxy.send_json({
-            "message_history": message_states
-        })
+        proxy.send_json({"message_history": message_states})
 
     @handlers.register("toggle-notifications")
     async def toggle_notifications(self, proxy, room_id, enabled):
@@ -782,9 +667,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     @handlers.register("get-notifications-data")
     async def get_notifications_data(self, proxy):
         rooms = await self.repo.get_rooms_with_notifications_enabled()
-        proxy.send_json({
-            'rooms': [room.id for room in rooms]
-        })
+        proxy.send_json({'rooms': [room.id for room in rooms]})
 
     ##########################################################
     # Helper functions called by custom or built-in handlers #
@@ -798,34 +681,19 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             if not ChatConsumer.online_registry.is_online(user_to_notify):
                 continue
             consumer = ChatConsumer.online_registry.get_consumer(user_to_notify)
-            proxy.send_json({
-                'online_data': [{
-                    'user_id': updated_user.id,
-                    'room_id': room_with_user.id,
-                    'online': is_online
-                }]
-            }, to_consumer=consumer)
+            proxy.send_json({'online_data': [{'user_id': updated_user.id, 'room_id': room_with_user.id, 'online': is_online}]}, to_consumer=consumer)
 
     @helper_method
     async def send_notification(self, proxy: HandledMessage, message_id):
         message = await self.repo.get_message(message_id)
         sender = await self.repo.get_message_sender(message_id)
-        proxy.send_json({
-            "notification": {
-                'title': "Anonymous" if message.anonymous else sender.username,
-                'body': "New message",
-                'link': None,
-                'room_id': (await self.repo.get_room_by_message(message.id)).id
-            }
-        })
+        proxy.send_json({"notification": {'title': "Anonymous" if message.anonymous else sender.username, 'body': "New message", 'link': None, 'room_id': (await self.repo.get_room_by_message(message.id)).id}})
 
     @helper_method
     async def send_unsee_room(self, proxy, room):
         if self.rooms.present(room):
             return
-        proxy.send_json({
-            "unsee_room": room.id,
-        })
+        proxy.send_json({"unsee_room": room.id})
 
     @helper_method
     async def send_push_notification_async(self, proxy, user, message, room_id, room_name=""):
@@ -835,8 +703,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             author = "System" if message.sender is None else ("Anonymous" if message.anonymous else message.sender.username)
             notification = _build_chat_notification(author, room_id, room_name)
             success = await self.repo.send_push_notification_sync(
-                user=user, title=notification['title'], body=notification['body'],
-                deep_link=notification['click_action'], room_id=room_id, room_name=room_name or "",
+                user=user, title=notification['title'], body=notification['body'], deep_link=notification['click_action'], room_id=room_id, room_name=room_name or ""
             )
             if success:
                 log.info(f"{NOTIF_LOG_TAG} Push notification sent to user {user.id} for message {message.id} (ws notification_id={notification['notification_id']})")
@@ -847,37 +714,21 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
     async def handle_leave_room(self, room):
         self.rooms.leave(room.id)
-        await self.channel_layer.group_discard(
-            room.group_name,
-            self.channel_name,
-        )
+        await self.channel_layer.group_discard(room.group_name, self.channel_name)
 
     async def format_chat_message_data(self, event):
         user = await self.repo.get_user_by_id(event["user_id"])
         vote = await self.repo.get_vote(event['message_id'])
         vote_value = vote.vote if vote is not None else None
         avatar_url = get_avatar_url(user)
-        return build_chat_message_payload(
-            event,
-            user=user,
-            vote_value=vote_value,
-            current_user=self.scope['user'],
-            avatar_url=avatar_url,
-        )
+        return build_chat_message_payload(event, user=user, vote_value=vote_value, current_user=self.scope['user'], avatar_url=avatar_url)
 
     def format_chat_message_data_batch(self, event, users_dict, user_votes_dict, user_reactions_dict=None):
         user = users_dict.get(event["user_id"])
         vote_value = user_votes_dict.get(event["message_id"])
         your_reactions = (user_reactions_dict or {}).get(event["message_id"], [])
         avatar_url = get_avatar_url(user)
-        return build_chat_message_payload(
-            event,
-            user=user,
-            vote_value=vote_value,
-            current_user=self.scope['user'],
-            your_reactions=your_reactions,
-            avatar_url=avatar_url,
-        )
+        return build_chat_message_payload(event, user=user, vote_value=vote_value, current_user=self.scope['user'], your_reactions=your_reactions, avatar_url=avatar_url)
 
     ###########################################################
     # Handlers for messages sent over the channel layer       #
@@ -885,38 +736,24 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
     async def chat_message(self, event):
         message = await self.format_chat_message_data(event)
-        await self.send_json({
-            "messages": [message]
-        })
+        await self.send_json({"messages": [message]})
 
     async def chat_vote(self, event):
-        update = {
-            **event['update_votes']
-        }
+        update = {**event['update_votes']}
         who_triggered = update['user_id']
         update["your_vote"] = update['vote'] if who_triggered == self.scope["user"].id else None
         del update['vote']
-        await self.send_json({
-            "update_votes": update
-        })
+        await self.send_json({"update_votes": update})
 
     async def chat_edit(self, event):
         edit = event['edit_message']
-        await self.send_json({
-            "edit_message": edit
-        })
+        await self.send_json({"edit_message": edit})
 
     async def chat_reaction(self, event):
-        update = {
-            **event['update_reactions']
-        }
+        update = {**event['update_reactions']}
         who_triggered = update['user_id']
         update['your_reaction'] = update['reaction'] if who_triggered == self.scope['user'].id else None
-        await self.send_json({
-            "update_reactions": update
-        })
+        await self.send_json({"update_reactions": update})
 
     async def chat_read(self, event):
-        await self.send_json({
-            "messages_read": event['messages_read']
-        })
+        await self.send_json({"messages_read": event['messages_read']})

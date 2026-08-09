@@ -21,6 +21,7 @@ class EventListView(ListView):
     """Renders an agenda-style list of all occurrences in [now-PAST .. now+FUTURE]
     horizon. Day clicks in the calendar widget scroll to in-page anchors
     `#day-YYYY-MM-DD` (no server-side day filter)."""
+
     template_name = 'events/event_list.html'
     context_object_name = 'occurrences'
 
@@ -36,11 +37,7 @@ class EventListView(ListView):
         occurrences = []
         for event in queryset:
             for date in event.get_occurrences(range_start, range_end):
-                occurrences.append({
-                    'event': event,
-                    'date': date,
-                    'is_past': date < now,
-                })
+                occurrences.append({'event': event, 'date': date, 'is_past': date < now})
         occurrences.sort(key=lambda o: o['date'])
         return occurrences
 
@@ -56,15 +53,17 @@ class EventListView(ListView):
         if not self.request.user.is_authenticated:
             events_qs = events_qs.filter(is_public=True)
         prev_month, next_month = adjacent_months(local_now.year, local_now.month)
-        context.update({
-            'current_month_iso': f'{local_now.year}-{local_now.month:02d}',
-            'current_month_weeks': build_calendar_grid(local_now.year, local_now.month, events_qs),
-            'current_month_first_day': _date(local_now.year, local_now.month, 1),
-            'current_month_year': local_now.year,
-            'current_month_num': local_now.month,
-            'current_month_prev': prev_month,
-            'current_month_next': next_month,
-        })
+        context.update(
+            {
+                'current_month_iso': f'{local_now.year}-{local_now.month:02d}',
+                'current_month_weeks': build_calendar_grid(local_now.year, local_now.month, events_qs),
+                'current_month_first_day': _date(local_now.year, local_now.month, 1),
+                'current_month_year': local_now.year,
+                'current_month_num': local_now.month,
+                'current_month_prev': prev_month,
+                'current_month_next': next_month,
+            }
+        )
         return context
 
 
@@ -103,14 +102,7 @@ def calendar_partial_context(request: HttpRequest, events_qs=None):
         events_qs = events_qs.filter(is_public=True)
     cal_weeks = build_calendar_grid(cal_year, cal_month, events_qs)
     prev_month, next_month = adjacent_months(cal_year, cal_month)
-    return {
-        'cal_weeks': cal_weeks,
-        'cal_year': cal_year,
-        'cal_month': cal_month,
-        'cal_first_day': _date(cal_year, cal_month, 1),
-        'prev_month': prev_month,
-        'next_month': next_month,
-    }
+    return {'cal_weeks': cal_weeks, 'cal_year': cal_year, 'cal_month': cal_month, 'cal_first_day': _date(cal_year, cal_month, 1), 'prev_month': prev_month, 'next_month': next_month}
 
 
 def events_calendar(request: HttpRequest):

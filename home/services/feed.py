@@ -27,13 +27,7 @@ def invalidate_feed_cache():
 def build_read_status_map(user):
     return {
         content_type: set(object_ids)
-        for content_type, object_ids in (
-            (content_type, ReadStatus.objects.filter(
-                user=user,
-                content_type=content_type,
-            ).values_list('object_id', flat=True))
-            for content_type in ReadStatus.ContentType.values
-        )
+        for content_type, object_ids in ((content_type, ReadStatus.objects.filter(user=user, content_type=content_type).values_list('object_id', flat=True)) for content_type in ReadStatus.ContentType.values)
     }
 
 
@@ -75,26 +69,9 @@ def _unread_chat_message_counts(user, room_ids):
     from chat.models import Message, MessageReadBy
 
     since = timezone.now() - td(days=FEED_DAYS)
-    latest_id_subq = (
-        MessageReadBy.objects.filter(
-            user=user,
-            message__room_id=OuterRef('room_id'),
-        )
-        .values('message__room_id')
-        .annotate(latest_id=Max('message__id'))
-        .values('latest_id')
-    )
+    latest_id_subq = MessageReadBy.objects.filter(user=user, message__room_id=OuterRef('room_id')).values('message__room_id').annotate(latest_id=Max('message__id')).values('latest_id')
 
-    counts = (
-        Message.objects.filter(
-            room_id__in=room_ids,
-            time__gte=since,
-        )
-        .exclude(sender=user)
-        .filter(id__gt=Coalesce(Subquery(latest_id_subq), Value(0)))
-        .values('room_id')
-        .annotate(unread=Count('id'))
-    )
+    counts = Message.objects.filter(room_id__in=room_ids, time__gte=since).exclude(sender=user).filter(id__gt=Coalesce(Subquery(latest_id_subq), Value(0))).values('room_id').annotate(unread=Count('id'))
     return {c['room_id']: c['unread'] for c in counts}
 
 
@@ -123,24 +100,15 @@ def generate_feed_items(user):
             if not item.get('_is_public') and user.id not in item.get('_allowed_user_ids', set()):
                 continue
             if not item.get('_is_public'):
-                other = next(
-                    (name for uid, name in item.get('_allowed_usernames', {}).items() if uid != user.id),
-                    None,
-                )
+                other = next((name for uid, name in item.get('_allowed_usernames', {}).items() if uid != user.id), None)
                 if other:
                     item = {**item, 'title': _("Messages in %(room_title)s") % {'room_title': other}}
             is_read = item['object_id'] in seen_room_ids
-            item = {
-                **item,
-                'is_read': is_read,
-                'message_count': unread_chat_counts.get(item['object_id'], 0),
-            }
+            item = {**item, 'is_read': is_read, 'message_count': unread_chat_counts.get(item['object_id'], 0)}
         else:
             rs_ct = ct_map.get(ct)
             is_read = (item['object_id'] in read_status_map[rs_ct]) if rs_ct else False
-            item = {
-                **item, 'is_read': is_read
-            }
+            item = {**item, 'is_read': is_read}
         feed_items.append(item)
 
     return feed_items

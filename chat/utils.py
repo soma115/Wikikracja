@@ -12,7 +12,8 @@ log = logging.getLogger(__name__)
 # added those wrappers to encapsulate underlying data structure
 # in case we want to change a way data is stored
 class OnlineUserRegistry:
-    """ Utility class to keep track of users who are currently connected to websocket """
+    """Utility class to keep track of users who are currently connected to websocket"""
+
     def __init__(self):
         self._reg = {}
 
@@ -49,9 +50,7 @@ class RoomRegistry:
         self._reg = {}
 
     def join(self, room_id):
-        self._reg[int(room_id)] = {
-            'joined_at': datetime.datetime.now()
-        }
+        self._reg[int(room_id)] = {'joined_at': datetime.datetime.now()}
 
     def leave(self, room_id):
         if self._reg.get(int(room_id)):
@@ -133,12 +132,7 @@ class Handlers:
             required_params = all_params[:num_required]
             optional_params = all_params[num_required:]
 
-            self.map[command] = {
-                'handler': func,
-                'args': all_params,
-                'required': required_params,
-                'optional': optional_params
-            }
+            self.map[command] = {'handler': func, 'args': all_params, 'required': required_params, 'optional': optional_params}
             return func
 
         return inner
@@ -160,6 +154,7 @@ def helper_method(helper):
     This way we can avoid the need to specify to_consumer=self every time
     that would make overall code shorter by half length of this comment.
     """
+
     async def inner(consumer, proxy, *args, **kwargs):
         proxy.set_explicit_consumer_mode(consumer)
         return_value = await helper(consumer, proxy, *args, **kwargs)
@@ -169,14 +164,7 @@ def helper_method(helper):
     return inner
 
 
-def send_message_to_room(
-    room_title,
-    message_text,
-    sender=None,
-    anonymous=True,
-    guest_email='',
-    guest_name='',
-):
+def send_message_to_room(room_title, message_text, sender=None, anonymous=True, guest_email='', guest_name=''):
     """
     Send a message to a specific chat room
     Args:
@@ -202,14 +190,7 @@ def send_message_to_room(
         except Room.DoesNotExist:
             log.error(f"Room '{room_title}' does not exist")
             return None
-        message = Message.objects.create(
-            sender=sender,
-            text=message_text,
-            room=room,
-            anonymous=anonymous,
-            guest_email=guest_email,
-            guest_name=guest_name,
-        )
+        message = Message.objects.create(sender=sender, text=message_text, room=room, anonymous=anonymous, guest_email=guest_email, guest_name=guest_name)
         log.info(f"Message sent to room '{room_title}': {message_text[:50]}...")
 
         # Mark the room as unseen for all users except the sender
@@ -240,10 +221,7 @@ def send_message_to_room(
 
         # Send the message to the room group
         try:
-            async_to_sync(channel_layer.group_send)(f"room-{room.id}", {
-                "type": "chat.message",
-                **message_data
-            })
+            async_to_sync(channel_layer.group_send)(f"room-{room.id}", {"type": "chat.message", **message_data})
         except Exception as e:
             log.warning(f"Could not push chat.message to channel layer for room {room.id}: {e}")
 
@@ -262,19 +240,12 @@ def send_message_to_room(
 
                 try:
                     # Send notification in the same format as regular chat notifications
-                    async_to_sync(consumer.send_json)({
-                        "notification": {
-                            'title': "System" if sender is None else ("Anonymous" if anonymous else sender.username),
-                            'body': message_text[:100],
-                            'link': None,
-                            'room_id': room.id
-                        }
-                    })
+                    async_to_sync(consumer.send_json)(
+                        {"notification": {'title': "System" if sender is None else ("Anonymous" if anonymous else sender.username), 'body': message_text[:100], 'link': None, 'room_id': room.id}}
+                    )
 
                     # Also trigger the onRoomUnsee function to highlight the chat link
-                    async_to_sync(consumer.send_json)({
-                        "unsee_room": room.id
-                    })
+                    async_to_sync(consumer.send_json)({"unsee_room": room.id})
                 except Exception as e:
                     log.warning(f"Could not push WebSocket notification to user {user.id}: {e}")
 

@@ -1,4 +1,5 @@
 """Smoke test fundamentów: weryfikuje że factories + conftest działają."""
+
 import pytest
 
 from glosowania.models import Decyzja

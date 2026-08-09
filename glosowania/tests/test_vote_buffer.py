@@ -4,6 +4,7 @@ Uses a small in-memory fake instead of a real Redis server - this repo's
 tests don't spin up Redis (see zzz/test_settings.py, which swaps the cache
 backend to LocMemCache for the same reason).
 """
+
 from unittest.mock import patch
 
 from glosowania import vote_buffer
@@ -64,10 +65,7 @@ def test_push_and_pop_round_trip():
 
         votes = vote_buffer.pop_all_pending_votes(1)
 
-    assert votes == [
-        {'code': 'aaaaa', 'vote': True},
-        {'code': 'bbbbb', 'vote': False},
-    ]
+    assert votes == [{'code': 'aaaaa', 'vote': True}, {'code': 'bbbbb', 'vote': False}]
 
 
 def test_pop_clears_the_buffer():

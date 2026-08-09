@@ -87,7 +87,9 @@ class Command(TranslatedCommand):
                         i.data_referendum_stop = i.data_referendum_start + timedelta(days=sp.czas_trwania_referendum)
                         i.save()
                         details_url = f"http://{HOST}/glosowania/details/{i.id}"
-                        pending_emails.append((f"{prop_number} {i.id} {approved_for}", f"{prop_number} {i.id} '{i.title}' {gathered} {i.data_referendum_start} {to} {i.data_referendum_stop}\n{click}: {details_url}"))
+                        pending_emails.append(
+                            (f"{prop_number} {i.id} {approved_for}", f"{prop_number} {i.id} '{i.title}' {gathered} {i.data_referendum_start} {to} {i.data_referendum_stop}\n{click}: {details_url}")
+                        )
                         pending_notifications.append(build_notification(f"{prop_number} {i.id} {approved_for}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
                         log.info(f"Proposition {i.id} changed status from PROPOSITION to DISCUSSION.")
                         return
@@ -152,21 +154,20 @@ class Command(TranslatedCommand):
                         i.referendum_restart_count += 1
                         i.save()
                         details_url = f"http://{HOST}/glosowania/details/{i.id}"
-                        pending_emails.append((
-                            f"{ref_num} {i.id}: {buffer_lost_subject}",
-                            f"{ref_num} {i.id} '{i.title}': {buffer_lost_subject}.\n"
-                            f"{buffer_lost_reason}. {buffer_lost_no_leak}. {buffer_lost_codes_void}. "
-                            f"{buffer_lost_restart}. {buffer_lost_please_vote}.\n"
-                            f"{ends_at} {i.data_referendum_stop}\n{click}: {details_url}"
-                        ))
+                        pending_emails.append(
+                            (
+                                f"{ref_num} {i.id}: {buffer_lost_subject}",
+                                f"{ref_num} {i.id} '{i.title}': {buffer_lost_subject}.\n"
+                                f"{buffer_lost_reason}. {buffer_lost_no_leak}. {buffer_lost_codes_void}. "
+                                f"{buffer_lost_restart}. {buffer_lost_please_vote}.\n"
+                                f"{ends_at} {i.data_referendum_stop}\n{click}: {details_url}",
+                            )
+                        )
                         pending_notifications.append(build_notification(f"{ref_num} {i.id}: {buffer_lost_subject}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
                         return
 
                     random.SystemRandom().shuffle(pending_votes)
-                    VoteCode.objects.bulk_create([
-                        VoteCode(project=i, code=v['code'], vote=v['vote'])
-                        for v in pending_votes
-                    ])
+                    VoteCode.objects.bulk_create([VoteCode(project=i, code=v['code'], vote=v['vote']) for v in pending_votes])
                     i.za = sum(1 for v in pending_votes if v['vote'])
                     i.przeciw = sum(1 for v in pending_votes if not v['vote'])
 
@@ -213,9 +214,7 @@ class Command(TranslatedCommand):
             # failure handling one of them (e.g. the vote storage being
             # unreachable) cannot roll back unrelated status changes made to
             # other decisions earlier in the same run.
-            decyzja_ids = list(
-                Decyzja.objects.filter(status__in=[proposition, discussion, referendum]).values_list('id', flat=True)
-            )
+            decyzja_ids = list(Decyzja.objects.filter(status__in=[proposition, discussion, referendum]).values_list('id', flat=True))
 
             for decyzja_id in decyzja_ids:
                 try:
@@ -232,14 +231,7 @@ class Command(TranslatedCommand):
             # to: all active users, one email per recipient with delay between each
             # subject: Custom
             # message: Custom
-            t = send_notification_email_to_active_users(
-                subject,
-                message,
-                notification_type='glosowania',
-                log_prefix='glosowania: ',
-                raise_on_error=False,
-                daemon=False,
-            )
+            t = send_notification_email_to_active_users(subject, message, notification_type='glosowania', log_prefix='glosowania: ', raise_on_error=False, daemon=False)
             log.warning(f"subject: {subject} \n message: {message}")
             threads.append(t)
 

@@ -45,20 +45,10 @@ class Uzytkownik(models.Model):
         EMAIL_CONFIRMED = 'email_confirmed', _('Email confirmed')
         FORM_COMPLETED = 'form_completed', _('Form completed')
 
-    uid = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        editable=False,
-        null=True,
-        verbose_name=_('Username'),
-    )
+    uid = models.OneToOneField(User, on_delete=models.CASCADE, editable=False, null=True, verbose_name=_('Username'))
 
     reputation = models.SmallIntegerField(null=True, default=0)
-    onboarding_status = models.CharField(
-        max_length=32,
-        choices=OnboardingStatus.choices,
-        default=OnboardingStatus.EMAIL_ENTERED,
-    )
+    onboarding_status = models.CharField(max_length=32, choices=OnboardingStatus.choices, default=OnboardingStatus.EMAIL_ENTERED)
     polecajacy = models.CharField(editable=False, null=True, max_length=64)
     data_przyjecia = models.DateField(null=True, editable=False)
 
@@ -76,19 +66,9 @@ class Uzytkownik(models.Model):
     job = models.CharField(null=True, blank=True, max_length=622, help_text=_('Profession'), verbose_name=_('Job'))
     why = models.CharField(null=True, blank=True, max_length=662, help_text=_("In your own words please explain why do you want join our group"), verbose_name=_("Why do you want to join?"))
 
-    avatar = models.ImageField(
-        upload_to='avatars/',
-        blank=True,
-        null=True,
-        verbose_name=_('Avatar'),
-    )
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name=_('Avatar'))
 
-    language = models.CharField(
-        max_length=10,
-        blank=True,
-        default='',
-        verbose_name=_('Language'),
-    )
+    language = models.CharField(max_length=10, blank=True, default='', verbose_name=_('Language'))
 
     # Last broadcast time
     last_broadcast = models.DateTimeField(default=make_aware(datetime(1900, 1, 1)))
@@ -124,6 +104,7 @@ class Uzytkownik(models.Model):
 
     def get_absolute_url(self):
         from django.urls import reverse
+
         return reverse('obywatele:obywatele_szczegoly', args=[self.uid.pk])
 
     # https://simpleisbetterthancomplex.com/tutorial/2016/07/22/how-to-extend-django-user-model.html#onetoone
@@ -134,9 +115,9 @@ class Uzytkownik(models.Model):
             Uzytkownik.objects.create(uid=instance)
 
 
-
 class CitizenActivity(models.Model):
     """Track activities related to citizens"""
+
     class ActivityType(models.TextChoices):
         NEW_CANDIDATE = 'new_candidate', _('New Candidate')
         USER_ACTIVATED = 'user_activated', _('User Activated')
@@ -149,22 +130,14 @@ class CitizenActivity(models.Model):
 
     class Meta:
         ordering = ['-timestamp']
-        indexes = [
-            models.Index(fields=['timestamp'], name='citizen_activity_timestamp_idx'),
-            models.Index(fields=['activity_type'], name='citizen_activity_type_idx'),
-        ]
+        indexes = [models.Index(fields=['timestamp'], name='citizen_activity_timestamp_idx'), models.Index(fields=['activity_type'], name='citizen_activity_type_idx')]
 
     def __str__(self):
         return f"{self.uzytkownik.uid.username}: {self.get_activity_type_display()}"
 
 
 class DeletionRequest(models.Model):
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name='deletion_request',
-        verbose_name=_('User'),
-    )
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='deletion_request', verbose_name=_('User'))
     requested_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Requested at'))
     scheduled_for = models.DateTimeField(verbose_name=_('Scheduled for'))
     reason = models.TextField(blank=True, null=True, verbose_name=_('Reason for deletion'))
@@ -172,9 +145,7 @@ class DeletionRequest(models.Model):
     class Meta:
         verbose_name = _('Deletion request')
         verbose_name_plural = _('Deletion requests')
-        indexes = [
-            models.Index(fields=['scheduled_for'], name='deletion_request_scheduled_idx'),
-        ]
+        indexes = [models.Index(fields=['scheduled_for'], name='deletion_request_scheduled_idx')]
 
     def __str__(self):
         return f"{self.user.username} (scheduled: {self.scheduled_for.date()})"

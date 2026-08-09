@@ -58,21 +58,16 @@ class EmailChangeForm(forms.Form):
     A form that lets a user change set their email while checking for a change in the
     e-mail.
     """
+
     error_messages = {
         'email_mismatch': _("The two email addresses fields didn't match."),
         'not_changed': _("The email address is the same as the one already defined."),
         'already_exists': _("An account with this email address already exists."),
     }
 
-    new_email1 = forms.EmailField(
-        label=_("New email address"),
-        widget=forms.EmailInput,
-    )
+    new_email1 = forms.EmailField(label=_("New email address"), widget=forms.EmailInput)
 
-    new_email2 = forms.EmailField(
-        label=_("New email address confirmation"),
-        widget=forms.EmailInput,
-    )
+    new_email2 = forms.EmailField(label=_("New email address confirmation"), widget=forms.EmailInput)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
@@ -83,15 +78,9 @@ class EmailChangeForm(forms.Form):
         new_email1 = self.cleaned_data.get('new_email1')
         if new_email1 and old_email:
             if new_email1 == old_email:
-                raise forms.ValidationError(
-                    self.error_messages['not_changed'],
-                    code='not_changed',
-                )
+                raise forms.ValidationError(self.error_messages['not_changed'], code='not_changed')
         if new_email1 and User.objects.filter(email__iexact=new_email1).exclude(pk=self.user.pk).exists():
-            raise forms.ValidationError(
-                self.error_messages['already_exists'],
-                code='already_exists',
-            )
+            raise forms.ValidationError(self.error_messages['already_exists'], code='already_exists')
         return new_email1
 
     def clean_new_email2(self):
@@ -99,10 +88,7 @@ class EmailChangeForm(forms.Form):
         new_email2 = self.cleaned_data.get('new_email2')
         if new_email1 and new_email2:
             if new_email1 != new_email2:
-                raise forms.ValidationError(
-                    self.error_messages['email_mismatch'],
-                    code='email_mismatch',
-                )
+                raise forms.ValidationError(self.error_messages['email_mismatch'], code='email_mismatch')
         return new_email2
 
     def save(self, commit=True):
@@ -198,6 +184,7 @@ class CustomSignupForm(SignupForm):
     - After signup: user redirected to onboarding form
     - After email confirmation: second email with onboarding link sent
     """
+
     email = forms.CharField(max_length=100, label='Email', required=True)
     captcha = CaptchaField(widget=CaptchaTextInput(attrs={'class': 'form-control'}))
 
@@ -266,10 +253,7 @@ class CustomSignupForm(SignupForm):
             from allauth.account.models import EmailAddress, EmailConfirmationHMAC
 
             # Ensure EmailAddress exists (allauth requirement for email confirmation)
-            email_address, created = EmailAddress.objects.get_or_create(user=user, email=user.email, defaults={
-                'verified': False,
-                'primary': True
-            })
+            email_address, created = EmailAddress.objects.get_or_create(user=user, email=user.email, defaults={'verified': False, 'primary': True})
 
             if created or not email_address.verified:
                 # IMPORTANT: Use EmailConfirmationHMAC (not EmailConfirmation)
@@ -283,18 +267,11 @@ class CustomSignupForm(SignupForm):
             log.error(f'Failed to send confirmation email: {e}', exc_info=True)
 
         click_action = build_site_url('/obywatele/poczekalnia/')
-        SendEmailToAll(_('New person requested membership'),
-                       _('User %(username)s just requested membership') % {
-                           'username': user.username
-                       } + '\n' + click_action)
+        SendEmailToAll(_('New person requested membership'), _('User %(username)s just requested membership') % {'username': user.username} + '\n' + click_action)
 
         send_notification_to_all_in_thread(
             build_notification(
-                _('New person requested membership'),
-                _('User %(username)s just requested membership') % {'username': user.username},
-                click_action,
-                f'citizen-signup-{user.id}',
-                citizen_id=user.id,
+                _('New person requested membership'), _('User %(username)s just requested membership') % {'username': user.username}, click_action, f'citizen-signup-{user.id}', citizen_id=user.id
             ),
             ws_type='citizen.notification',
             notification_type='obywatele',
@@ -312,16 +289,10 @@ def strip_html_tags(text):
     return strip_tags(text)
 
 
-
 def SendEmailToAll(subject, message, notification_type='obywatele'):
     # to: all active users with enabled notifications for this type (individual emails)
     # subject: Custom
     # message: Custom
     # CRITICAL: Recipients are fetched in the thread just before sending to avoid race conditions
     # with signals that change user is_active status (e.g., DeactivateNewUser)
-    send_notification_email_to_active_users(
-        subject,
-        message,
-        notification_type=notification_type,
-        strip_html=True,
-    )
+    send_notification_email_to_active_users(subject, message, notification_type=notification_type, strip_html=True)

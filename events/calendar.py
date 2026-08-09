@@ -1,4 +1,5 @@
 """Reusable calendar helpers — used by `/events/` (this app) and the desktop calendar tile."""
+
 import calendar as _cal
 from datetime import date
 
@@ -52,12 +53,7 @@ def build_calendar_grid(year, month, events):
             if day_num == 0:
                 week.append({'day': None, 'events': [], 'is_today': False, 'iso_date': None})
             else:
-                week.append({
-                    'day': day_num,
-                    'events': events_by_day.get(day_num, []),
-                    'is_today': date(year, month, day_num) == today,
-                    'iso_date': f'{year}-{month:02d}-{day_num:02d}',
-                })
+                week.append({'day': day_num, 'events': events_by_day.get(day_num, []), 'is_today': date(year, month, day_num) == today, 'iso_date': f'{year}-{month:02d}-{day_num:02d}'})
         weeks.append(week)
     return weeks
 
@@ -70,7 +66,7 @@ def parse_month_param(month_param):
         if not (1 <= m <= 12):
             raise ValueError
         return y, m
-    except (ValueError, AttributeError):
+    except ValueError, AttributeError:
         return now.year, now.month
 
 

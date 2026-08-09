@@ -19,11 +19,7 @@ class CalendarPartialEmptyDayTest(TestCase):
 
     def test_day_with_events_has_data_day_attribute(self):
         """Baseline: dzień z eventem ma data-day."""
-        Event.objects.create(
-            title='Wydarzenie',
-            start_date=timezone.make_aware(datetime(2026, 6, 15, 10, 0)),
-            frequency='once',
-        )
+        Event.objects.create(title='Wydarzenie', start_date=timezone.make_aware(datetime(2026, 6, 15, 10, 0)), frequency='once')
         response = self.client.get(self.cal_url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'data-day="2026-06-15"')

@@ -43,26 +43,21 @@ class SiteSettingsBrandingSizeValidatorTest(TestCase):
 
     def test_validator_rejects_file_just_over_1mb(self):
         from site_settings.validators import validate_branding_image_size
-        big_file = SimpleUploadedFile(
-            'big.png',
-            b'x' * (self.LIMIT_BYTES + 1),
-            content_type='image/png',
-        )
+
+        big_file = SimpleUploadedFile('big.png', b'x' * (self.LIMIT_BYTES + 1), content_type='image/png')
         with self.assertRaises(ValidationError):
             validate_branding_image_size(big_file)
 
     def test_validator_accepts_file_at_exactly_1mb(self):
         from site_settings.validators import validate_branding_image_size
-        ok_file = SimpleUploadedFile(
-            'ok.png',
-            b'x' * self.LIMIT_BYTES,
-            content_type='image/png',
-        )
+
+        ok_file = SimpleUploadedFile('ok.png', b'x' * self.LIMIT_BYTES, content_type='image/png')
         # boundary inclusive — nie powinno rzucać
         validate_branding_image_size(ok_file)
 
     def test_brand_mark_field_has_size_validator_attached(self):
         from site_settings.validators import validate_branding_image_size
+
         field = SiteSettings._meta.get_field('brand_mark')
         self.assertIn(validate_branding_image_size, field.validators)
 
@@ -72,31 +67,37 @@ class SiteSettingsBrandingDimensionsValidatorTest(TestCase):
 
     def test_validator_accepts_minimum_square_512x512(self):
         from site_settings.validators import validate_brand_mark_dimensions
+
         validate_brand_mark_dimensions(make_branding_png(512, 512))
 
     def test_validator_accepts_maximum_square_1024x1024(self):
         from site_settings.validators import validate_brand_mark_dimensions
+
         validate_brand_mark_dimensions(make_branding_png(1024, 1024))
 
     def test_validator_accepts_non_square_rectangle_within_range(self):
         from site_settings.validators import validate_brand_mark_dimensions
+
         # prostokąt 1024×500: longest=1024 (≤max), akceptowany — letterbox dorobi kwadrat przy save
         validate_brand_mark_dimensions(make_branding_png(1024, 500))
 
     def test_validator_rejects_too_small_square(self):
         from site_settings.validators import validate_brand_mark_dimensions
+
         with self.assertRaises(ValidationError) as ctx:
             validate_brand_mark_dimensions(make_branding_png(511, 511))
         self.assertEqual(ctx.exception.code, 'branding_too_small')
 
     def test_validator_rejects_too_large_square(self):
         from site_settings.validators import validate_brand_mark_dimensions
+
         with self.assertRaises(ValidationError) as ctx:
             validate_brand_mark_dimensions(make_branding_png(1025, 1025))
         self.assertEqual(ctx.exception.code, 'branding_too_large')
 
     def test_brand_mark_field_has_dimensions_validator_attached(self):
         from site_settings.validators import validate_brand_mark_dimensions
+
         field = SiteSettings._meta.get_field('brand_mark')
         self.assertIn(validate_brand_mark_dimensions, field.validators)
 
@@ -107,6 +108,7 @@ class SiteSettingsBrandMarkFormatValidatorTest(TestCase):
     @staticmethod
     def _make_image(format: str, mode: str = 'RGBA') -> SimpleUploadedFile:
         from PIL import Image
+
         img = Image.new(mode, (512, 512), (0, 128, 255, 255) if mode == 'RGBA' else (0, 128, 255))
         buf = io.BytesIO()
         img.save(buf, format=format)
@@ -116,23 +118,27 @@ class SiteSettingsBrandMarkFormatValidatorTest(TestCase):
 
     def test_validator_accepts_png(self):
         from site_settings.validators import validate_brand_mark_format
+
         validate_brand_mark_format(self._make_image('PNG'))
 
     def test_validator_rejects_webp(self):
         # WebP zawiera alpha, ale cały pipeline derivatives produkuje PNG — akceptujemy tylko PNG dla spójności
         from site_settings.validators import validate_brand_mark_format
+
         with self.assertRaises(ValidationError) as ctx:
             validate_brand_mark_format(self._make_image('WEBP'))
         self.assertEqual(ctx.exception.code, 'branding_unsupported_format')
 
     def test_validator_rejects_jpeg(self):
         from site_settings.validators import validate_brand_mark_format
+
         with self.assertRaises(ValidationError) as ctx:
             validate_brand_mark_format(self._make_image('JPEG', mode='RGB'))
         self.assertEqual(ctx.exception.code, 'branding_unsupported_format')
 
     def test_brand_mark_field_has_format_validator_attached(self):
         from site_settings.validators import validate_brand_mark_format
+
         field = SiteSettings._meta.get_field('brand_mark')
         self.assertIn(validate_brand_mark_format, field.validators)
 
@@ -162,6 +168,7 @@ class SiteSettingsBrandingDerivativesTest(TestCase):
 
     def test_save_creates_apple_touch_icon_180x180(self):
         from PIL import Image
+
         self._save_brand_mark()
         path = os.path.join(settings.MEDIA_ROOT, 'site_branding', 'derived', 'apple-touch-icon.png')
         self.assertTrue(os.path.exists(path))
@@ -170,6 +177,7 @@ class SiteSettingsBrandingDerivativesTest(TestCase):
 
     def test_save_creates_pwa_icon_192x192(self):
         from PIL import Image
+
         self._save_brand_mark()
         path = os.path.join(settings.MEDIA_ROOT, 'site_branding', 'derived', 'icon-192.png')
         self.assertTrue(os.path.exists(path))
@@ -178,6 +186,7 @@ class SiteSettingsBrandingDerivativesTest(TestCase):
 
     def test_save_creates_pwa_icon_512x512(self):
         from PIL import Image
+
         self._save_brand_mark()
         path = os.path.join(settings.MEDIA_ROOT, 'site_branding', 'derived', 'icon-512.png')
         self.assertTrue(os.path.exists(path))
@@ -206,6 +215,7 @@ class SiteSettingsBrandingLetterboxTest(TestCase):
 
     def test_save_letterboxes_wide_brand_mark_to_square(self):
         from PIL import Image
+
         ss = SiteSettings.get()
         ss.brand_mark = make_branding_png(1024, 500, color=(255, 0, 0, 255))
         ss.save()
@@ -214,6 +224,7 @@ class SiteSettingsBrandingLetterboxTest(TestCase):
 
     def test_save_letterboxes_tall_brand_mark_to_square(self):
         from PIL import Image
+
         ss = SiteSettings.get()
         ss.brand_mark = make_branding_png(600, 1024, color=(255, 0, 0, 255))
         ss.save()

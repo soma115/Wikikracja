@@ -1,4 +1,5 @@
 """Base classes for project management commands."""
+
 from django.conf import settings as s
 from django.core.management.base import BaseCommand
 

@@ -11,11 +11,13 @@ from django.urls import path
 
 log = logging.getLogger(__name__)
 
+
 class CancelledErrorMiddleware:
     """
     Suppress asyncio.CancelledError logs from Django ASGI middleware.
     CancelledError is normal when clients disconnect mid-request and should not be logged as ERROR.
     """
+
     def __init__(self, app):
         self.app = app
 
@@ -25,6 +27,7 @@ class CancelledErrorMiddleware:
         except asyncio.CancelledError:
             log.debug("ASGI request cancelled by client (normal disconnect)")
             raise
+
 
 django_asgi_app = get_asgi_application()
 django_asgi_app = CancelledErrorMiddleware(django_asgi_app)
@@ -38,21 +41,24 @@ from chat.consumers import ChatConsumer  # noqa: E402
 # selecting on either the connection type (ProtocolTypeRouter) or properties
 # of the connection's scope (like URLRouter, which looks at scope["path"])
 # For more, see http://channels.readthedocs.io/en/latest/topics/routing.html
-application = ProtocolTypeRouter({
-    # Channels will do this for you automatically. It's included here as
-    # an example.
-    # "http": AsgiHandler,
-    "http": django_asgi_app,
-
-    # Route all WebSocket requests to our custom chat handler.
-    # We actually don't need the URLRouter here, but we've put it in for
-    # illustration. Also note the inclusion of the AuthMiddlewareStack to
-    # add users and sessions
-    # see http://channels.readthedocs.io/en/latest/topics/authentication.html
-    "websocket": AuthMiddlewareStack(
-        URLRouter([
-            # URLRouter just takes standard Django path() or url() entries.
-            path("chat/stream/", ChatConsumer.as_asgi()),
-        ]),
-    ),
-})
+application = ProtocolTypeRouter(
+    {
+        # Channels will do this for you automatically. It's included here as
+        # an example.
+        # "http": AsgiHandler,
+        "http": django_asgi_app,
+        # Route all WebSocket requests to our custom chat handler.
+        # We actually don't need the URLRouter here, but we've put it in for
+        # illustration. Also note the inclusion of the AuthMiddlewareStack to
+        # add users and sessions
+        # see http://channels.readthedocs.io/en/latest/topics/authentication.html
+        "websocket": AuthMiddlewareStack(
+            URLRouter(
+                [
+                    # URLRouter just takes standard Django path() or url() entries.
+                    path("chat/stream/", ChatConsumer.as_asgi())
+                ]
+            )
+        ),
+    }
+)

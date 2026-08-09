@@ -17,13 +17,10 @@ ALLOWED_ATTRS = {'a': ['href', 'rel', 'target']}
 def _set_link_target(attrs, new=False):
     """bleach.linkify callback: external links open in a new tab."""
     from zzz.utils import get_site_domain
+
     href = attrs.get((None, 'href'), '')
     domain = get_site_domain()
-    is_internal = (
-        href.startswith('/')
-        or href.startswith(f'http://{domain}')
-        or href.startswith(f'https://{domain}')
-    )
+    is_internal = href.startswith('/') or href.startswith(f'http://{domain}') or href.startswith(f'https://{domain}')
     if not is_internal:
         attrs[(None, 'target')] = '_blank'
         attrs[(None, 'rel')] = 'noopener'

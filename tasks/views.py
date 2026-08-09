@@ -74,7 +74,7 @@ def _filter_by_category(tasks, categories):
 
 
 def _apply_task_sort(tasks, sort, order):
-    reverse = (order == 'desc')
+    reverse = order == 'desc'
     if sort == 'date':
         return sorted(tasks, key=lambda t: t.created_at, reverse=reverse)
     elif sort == 'score':
@@ -87,12 +87,7 @@ def _apply_task_sort(tasks, sort, order):
     return tasks
 
 
-PRIORITY_LABELS = {
-    "critical": gettext_lazy("Critical"),
-    "important": gettext_lazy("Important"),
-    "beneficial": gettext_lazy("Beneficial"),
-    "rejected": gettext_lazy("Rejected"),
-}
+PRIORITY_LABELS = {"critical": gettext_lazy("Critical"), "important": gettext_lazy("Important"), "beneficial": gettext_lazy("Beneficial"), "rejected": gettext_lazy("Rejected")}
 
 
 def _assign_priorities(tasks):
@@ -139,7 +134,7 @@ def _load_task_lists(user):
     if cached is not None:
         return cached
 
-    queryset = (Task.objects.with_metrics().annotate(chat_msg_count=Count('chat_room__messages', distinct=True)).order_by("-votes_score", "-updated_at"))
+    queryset = Task.objects.with_metrics().annotate(chat_msg_count=Count('chat_room__messages', distinct=True)).order_by("-votes_score", "-updated_at")
 
     active_tasks = list(queryset.filter(status=Task.Status.ACTIVE))
     _assign_priorities(active_tasks)
@@ -157,10 +152,7 @@ def _load_task_lists(user):
     all_tasks = active_tasks + finished_tasks
 
     # Batch: user votes (1 query)
-    vote_by_task_id = dict(TaskVote.objects.filter(
-        user=user,
-        task_id__in=[t.id for t in all_tasks],
-    ).values_list("task_id", "value"))
+    vote_by_task_id = dict(TaskVote.objects.filter(user=user, task_id__in=[t.id for t in all_tasks]).values_list("task_id", "value"))
     for t in all_tasks:
         t.user_vote_value = vote_by_task_id.get(t.id)
 
@@ -170,11 +162,15 @@ def _load_task_lists(user):
         t.chat_room_pulse_class = "chat-room-pulse" if t.chat_room_id in pulse_room_ids else ""
 
     # My tasks (separate queryset — user-specific, also annotated)
-    my_tasks_qs = list(Task.objects.filter(Q(assigned_to=user) | Q(votes__user=user, votes__value=1)).filter(status=Task.Status.ACTIVE).distinct().with_metrics().annotate(chat_msg_count=Count('chat_room__messages', distinct=True)).order_by("-votes_score", "-updated_at"))
-    my_vote_map = dict(TaskVote.objects.filter(
-        user=user,
-        task_id__in=[t.id for t in my_tasks_qs],
-    ).values_list("task_id", "value"))
+    my_tasks_qs = list(
+        Task.objects.filter(Q(assigned_to=user) | Q(votes__user=user, votes__value=1))
+        .filter(status=Task.Status.ACTIVE)
+        .distinct()
+        .with_metrics()
+        .annotate(chat_msg_count=Count('chat_room__messages', distinct=True))
+        .order_by("-votes_score", "-updated_at")
+    )
+    my_vote_map = dict(TaskVote.objects.filter(user=user, task_id__in=[t.id for t in my_tasks_qs]).values_list("task_id", "value"))
     for t in my_tasks_qs:
         t.user_vote_value = my_vote_map.get(t.id)
         t.chat_room_pulse_class = "chat-room-pulse" if t.chat_room_id in pulse_room_ids else ""
@@ -205,20 +201,22 @@ class TaskListView(LoginRequiredMixin, TemplateView):
         def prepare(tasks):
             return _apply_task_sort(_filter_by_category(tasks, categories), sort, order)
 
-        context.update({
-            "active_tasks": prepare(data["active_with_owner"]),
-            "awaiting_tasks": prepare(data["awaiting_tasks"]),
-            "finished_completed": prepare(data["completed_tasks"]),
-            "finished_rejected": prepare(data["rejected_tasks"] + data["rejected_active"]),
-            "finished_cancelled": prepare(data["cancelled_tasks"]),
-            "my_tasks_own": prepare(data["my_tasks_own"]),
-            "my_tasks_supporting": prepare(data["my_tasks_supporting"]),
-            "current_tab": tab,
-            "current_sort": sort,
-            "current_order": order,
-            "current_categories": categories,
-            "category_list": list(Category.objects.values("id", "slug", "name", "description", "order", "is_protected")),
-        })
+        context.update(
+            {
+                "active_tasks": prepare(data["active_with_owner"]),
+                "awaiting_tasks": prepare(data["awaiting_tasks"]),
+                "finished_completed": prepare(data["completed_tasks"]),
+                "finished_rejected": prepare(data["rejected_tasks"] + data["rejected_active"]),
+                "finished_cancelled": prepare(data["cancelled_tasks"]),
+                "my_tasks_own": prepare(data["my_tasks_own"]),
+                "my_tasks_supporting": prepare(data["my_tasks_supporting"]),
+                "current_tab": tab,
+                "current_sort": sort,
+                "current_order": order,
+                "current_categories": categories,
+                "category_list": list(Category.objects.values("id", "slug", "name", "description", "order", "is_protected")),
+            }
+        )
         return context
 
 
@@ -243,13 +241,7 @@ class TaskCreateView(CategoryContextMixin, LoginRequiredMixin, CreateView):
         form.instance.created_by = self.request.user
         form.instance.assigned_to = self.request.user
         response = super().form_valid(form)
-        TaskVote.objects.get_or_create(
-            task=self.object,
-            user=self.request.user,
-            defaults={
-                "value": TaskVote.Value.UP
-            },
-        )
+        TaskVote.objects.get_or_create(task=self.object, user=self.request.user, defaults={"value": TaskVote.Value.UP})
         return response
 
 
@@ -264,27 +256,14 @@ def _serialize_user(user):
             avatar_url = uzy.avatar.url
         except ValueError:
             avatar_url = ""
-    return {
-        "id": user.id,
-        "username": user.username,
-        "avatar_url": avatar_url,
-        "profile_url": reverse("obywatele:obywatele_szczegoly", args=[user.pk]),
-    }
+    return {"id": user.id, "username": user.username, "avatar_url": avatar_url, "profile_url": reverse("obywatele:obywatele_szczegoly", args=[user.pk])}
 
 
 def _voters_json(task: Task, value: int) -> dict:
-    qs = (TaskVote.objects
-          .filter(task=task, value=value)
-          .select_related("user", "user__uzytkownik")
-          .order_by("updated_at", "id"))
+    qs = TaskVote.objects.filter(task=task, value=value).select_related("user", "user__uzytkownik").order_by("updated_at", "id")
     total = qs.count()
     helpers = [_serialize_user(vote.user) for vote in qs[:HELPERS_POPOVER_LIMIT]]
-    return {
-        "helpers": helpers,
-        "total": total,
-        "extra": max(0, total - HELPERS_POPOVER_LIMIT),
-        "task_url": reverse("tasks:detail", args=[task.pk]),
-    }
+    return {"helpers": helpers, "total": total, "extra": max(0, total - HELPERS_POPOVER_LIMIT), "task_url": reverse("tasks:detail", args=[task.pk])}
 
 
 @login_required
@@ -349,28 +328,15 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
         else:
             reference_tasks = list(Task.objects.with_metrics().exclude(status=Task.Status.ACTIVE).order_by("-votes_score", "-updated_at"))
         _assign_priorities(reference_tasks)
-        priority_map = {
-            t.id: getattr(t, "priority_label", None) for t in reference_tasks
-        }
+        priority_map = {t.id: getattr(t, "priority_label", None) for t in reference_tasks}
         current_label = getattr(task, "priority_label", None)
         task.priority_label = priority_map.get(task.id, current_label or task.get_status_display())
-        priority_map = {
-            t.id: (
-                getattr(t, "priority_label", None),
-                getattr(t, "priority_category", None),
-            ) for t in reference_tasks
-        }
-        current_label, current_category = priority_map.get(
-            task.id,
-            (
-                getattr(task, "priority_label", None),
-                getattr(task, "priority_category", None),
-            ),
-        )
+        priority_map = {t.id: (getattr(t, "priority_label", None), getattr(t, "priority_category", None)) for t in reference_tasks}
+        current_label, current_category = priority_map.get(task.id, (getattr(task, "priority_label", None), getattr(task, "priority_category", None)))
         task.priority_label = current_label or task.get_status_display()
         task.priority_category = current_category
-        context["helping_votes"] = (TaskVote.objects.filter(task=task, value=TaskVote.Value.UP).select_related("user", "user__uzytkownik").order_by("updated_at", "id"))
-        context["against_votes"] = (TaskVote.objects.filter(task=task, value=TaskVote.Value.DOWN).select_related("user", "user__uzytkownik").order_by("updated_at", "id"))
+        context["helping_votes"] = TaskVote.objects.filter(task=task, value=TaskVote.Value.UP).select_related("user", "user__uzytkownik").order_by("updated_at", "id")
+        context["against_votes"] = TaskVote.objects.filter(task=task, value=TaskVote.Value.DOWN).select_related("user", "user__uzytkownik").order_by("updated_at", "id")
         if self.request.user.is_authenticated:
             vote = TaskVote.objects.filter(task=task, user=self.request.user).first()
             context["user_vote_value"] = vote.value if vote else None
@@ -395,9 +361,7 @@ class TaskEditView(CategoryContextMixin, LoginRequiredMixin, UpdateView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse_lazy("tasks:detail", kwargs={
-            "pk": self.object.pk
-        })
+        return reverse_lazy("tasks:detail", kwargs={"pk": self.object.pk})
 
 
 class TaskCloseView(LoginRequiredMixin, UpdateView):
@@ -415,9 +379,7 @@ class TaskCloseView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy("tasks:detail", kwargs={
-            "pk": self.object.pk
-        })
+        return reverse_lazy("tasks:detail", kwargs={"pk": self.object.pk})
 
 
 @require_POST
@@ -427,7 +389,7 @@ def vote_task(request: HttpRequest, pk: int) -> HttpResponse:
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     try:
         value = int(request.POST.get("value", 0))
-    except (ValueError, TypeError):
+    except ValueError, TypeError:
         value = 0
     if value not in (TaskVote.Value.DOWN, TaskVote.Value.UP):
         if is_ajax:
@@ -452,11 +414,7 @@ def vote_task(request: HttpRequest, pk: int) -> HttpResponse:
         task.refresh_from_db(fields=["status", "updated_at"])
         metrics = (
             Task.objects.filter(pk=task.pk)
-            .annotate(
-                votes_score=Coalesce(Sum("votes__value"), 0),
-                votes_up=Count("votes", filter=Q(votes__value=1)),
-                votes_down=Count("votes", filter=Q(votes__value=-1)),
-            )
+            .annotate(votes_score=Coalesce(Sum("votes__value"), 0), votes_up=Count("votes", filter=Q(votes__value=1)), votes_down=Count("votes", filter=Q(votes__value=-1)))
             .values("votes_score", "votes_up", "votes_down", "status")
             .first()
         )
@@ -494,10 +452,7 @@ def reopen_task(request: HttpRequest, pk: int) -> HttpResponse:
 def evaluate_task(request: HttpRequest, pk: int) -> HttpResponse:
     task = get_object_or_404(Task, pk=pk)
     value = request.POST.get("value")
-    if value not in (
-        TaskEvaluation.Value.SUCCESS,
-        TaskEvaluation.Value.FAILURE,
-    ):
+    if value not in (TaskEvaluation.Value.SUCCESS, TaskEvaluation.Value.FAILURE):
         return redirect(request.POST.get("next") or "tasks:list")
 
     evaluation = TaskEvaluation.objects.filter(task=task, user=request.user).first()
@@ -610,18 +565,17 @@ class TaskStatsView(LoginRequiredMixin, TemplateView):
         success_rate = (success_count / total_completed * 100) if total_completed > 0 else 0
 
         one_week_ago = timezone.now() - timedelta(days=7)
-        completed_last_week = Task.objects.filter(
-            status=Task.Status.COMPLETED,
-            updated_at__gte=one_week_ago
-        ).count()
+        completed_last_week = Task.objects.filter(status=Task.Status.COMPLETED, updated_at__gte=one_week_ago).count()
 
-        context.update({
-            "total_completed": total_completed,
-            "success_count": success_count,
-            "failure_count": failure_count,
-            "mixed_count": mixed_count,
-            "no_eval_count": no_eval_count,
-            "success_rate": int(success_rate),
-            "completed_last_week": completed_last_week,
-        })
+        context.update(
+            {
+                "total_completed": total_completed,
+                "success_count": success_count,
+                "failure_count": failure_count,
+                "mixed_count": mixed_count,
+                "no_eval_count": no_eval_count,
+                "success_rate": int(success_rate),
+                "completed_last_week": completed_last_week,
+            }
+        )
         return context

@@ -12,7 +12,11 @@ class Asset(models.Model):
     symbol = models.CharField(max_length=10, verbose_name=_("Symbol"))
     decimal_places = models.PositiveSmallIntegerField(default=2, verbose_name=_("Decimal places"))
     is_currency = models.BooleanField(default=True, verbose_name=_("Is currency"))
-    is_default = models.BooleanField(default=False, verbose_name=_("Default asset"), help_text=_("Main asset shown on the dashboard. Only one asset can be marked as default at a time — selecting a new one automatically unmarks the previous."))
+    is_default = models.BooleanField(
+        default=False,
+        verbose_name=_("Default asset"),
+        help_text=_("Main asset shown on the dashboard. Only one asset can be marked as default at a time — selecting a new one automatically unmarks the previous."),
+    )
 
     def __str__(self):
         return f"{self.code} ({self.symbol})"
@@ -65,10 +69,7 @@ class Asset(models.Model):
         Fallback: pierwszy dodany (najmniejsze pk) — założenie, że user dodaje
         najważniejszą walutę jako pierwszą. Zwraca None tylko gdy baza assetów jest pusta.
         """
-        return (
-            cls.objects.filter(is_default=True).first()
-            or cls.objects.order_by('pk').first()
-        )
+        return cls.objects.filter(is_default=True).first() or cls.objects.order_by('pk').first()
 
     class Meta:
         ordering = ['code']
@@ -76,7 +77,7 @@ class Asset(models.Model):
             # Defense-in-depth dla auto-unset z save(). Łapie bypass (QuerySet.update,
             # bulk_create) oraz teoretyczne race conditions. Partial unique index — tylko
             # wiersze z is_default=True muszą być unique, False mogą się powtarzać.
-            models.UniqueConstraint(fields=['is_default'], condition=Q(is_default=True), name='unique_default_asset'),
+            models.UniqueConstraint(fields=['is_default'], condition=Q(is_default=True), name='unique_default_asset')
         ]
 
 
@@ -104,10 +105,7 @@ class Partner(models.Model):
 class Transaction(models.Model):
     INCOMING = 'I'
     OUTGOING = 'O'
-    TYPES = [
-        (INCOMING, _('Incoming')),
-        (OUTGOING, _('Outgoing')),
-    ]
+    TYPES = [(INCOMING, _('Incoming')), (OUTGOING, _('Outgoing'))]
     type = models.CharField(max_length=1, choices=TYPES, default=INCOMING, verbose_name=_("Type"))
 
     created_date = models.DateField(auto_now_add=True, verbose_name=_("Created"))

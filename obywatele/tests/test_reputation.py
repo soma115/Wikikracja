@@ -3,6 +3,7 @@
 Reputation jest pochodną sumy Rate.rate gdzie kandydat = ten user. Test sprawdza że można
 zbudować ten flow w ORM i że unique_together(kandydat, obywatel) zabezpiecza przed multi-vote.
 """
+
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.test import TestCase

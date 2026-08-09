@@ -18,6 +18,7 @@ class ProtectedDeleteView(LoginRequiredMixin, DeleteView):
     Subclasses set `protect_field` (the Transaction FK name pointing at `model`)
     and `protect_message` (shown to the user when deletion is blocked).
     """
+
     protect_field = None
     protect_message = None
 
@@ -174,11 +175,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
     context_object_name = 'transactions'
 
     def get_queryset(self):
-        return (
-            Transaction.objects
-            .select_related('partner', 'category', 'asset')
-            .order_by('-payment_received_date', '-id')
-        )
+        return Transaction.objects.select_related('partner', 'category', 'asset').order_by('-payment_received_date', '-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -197,10 +194,7 @@ class TransactionCreateView(LoginRequiredMixin, View):
 
     def get(self, request):
         transaction_form = TransactionForm()
-        return render(request, self.template_name, {
-            'transaction_form': transaction_form,
-            'asset_decimal_places_json': _asset_decimal_places_json(),
-        })
+        return render(request, self.template_name, {'transaction_form': transaction_form, 'asset_decimal_places_json': _asset_decimal_places_json()})
 
     def post(self, request):
         transaction_form = TransactionForm(request.POST)
@@ -208,16 +202,22 @@ class TransactionCreateView(LoginRequiredMixin, View):
         if transaction_form.is_valid():
             transaction_data = transaction_form.cleaned_data
 
-            transaction = Transaction(type=transaction_data['type'], asset=transaction_data['asset'], partner=transaction_data['partner'], category=transaction_data['category'], amount=transaction_data['amount'], payment_received_date=transaction_data['payment_received_date'], note=transaction_data['note'], author=request.user)
+            transaction = Transaction(
+                type=transaction_data['type'],
+                asset=transaction_data['asset'],
+                partner=transaction_data['partner'],
+                category=transaction_data['category'],
+                amount=transaction_data['amount'],
+                payment_received_date=transaction_data['payment_received_date'],
+                note=transaction_data['note'],
+                author=request.user,
+            )
             transaction.created_date = timezone.now()
             transaction.save()
 
             return redirect('bookkeeping:transaction_list')
 
-        return render(request, self.template_name, {
-            'transaction_form': transaction_form,
-            'asset_decimal_places_json': _asset_decimal_places_json(),
-        })
+        return render(request, self.template_name, {'transaction_form': transaction_form, 'asset_decimal_places_json': _asset_decimal_places_json()})
 
 
 class TransactionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -266,18 +266,13 @@ class ReportView(LoginRequiredMixin, View):
     def get(self, request, year=None):
         try:
             year = int(request.GET.get('year', year)) if year or request.GET.get('year') else timezone.now().year
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             year = timezone.now().year
 
         year_pivot, year_assets, year_totals = category_breakdown(year=year)
         all_pivot, all_assets, all_totals = category_breakdown()
 
-        available_years = (
-            Transaction.objects.dates('payment_received_date', 'year')
-            .values_list('payment_received_date__year', flat=True)
-            .distinct()
-            .order_by('-payment_received_date__year')
-        )
+        available_years = Transaction.objects.dates('payment_received_date', 'year').values_list('payment_received_date__year', flat=True).distinct().order_by('-payment_received_date__year')
 
         context = {
             'year_pivot': year_pivot,

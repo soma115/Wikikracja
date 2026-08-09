@@ -39,17 +39,9 @@ def notify_important_chat_on_important_post(sender, instance, created, **kwargs)
     post_url = f"{protocol}://{get_site_domain()}{post_path}"
 
     if created:
-        message = _("New important document by %(username)s: %(title)s - %(post_url)s") % {
-            'username': instance.author.username,
-            'post_url': post_url,
-            'title': instance.title,
-        }
+        message = _("New important document by %(username)s: %(title)s - %(post_url)s") % {'username': instance.author.username, 'post_url': post_url, 'title': instance.title}
     else:
-        message = _("Updated important document by %(username)s: %(title)s - %(post_url)s") % {
-            'username': instance.author.username,
-            'post_url': post_url,
-            'title': instance.title,
-        }
+        message = _("Updated important document by %(username)s: %(title)s - %(post_url)s") % {'username': instance.author.username, 'post_url': post_url, 'title': instance.title}
 
     # Send a message to the "Ważne" room with the post author as sender
     # Set anonymous=False to ensure the sender is properly attributed in the UI
@@ -60,4 +52,5 @@ def notify_important_chat_on_important_post(sender, instance, created, **kwargs)
 @receiver(post_delete, sender=Post)
 def _invalidate_feed_cache_on_post_change(sender, **kwargs):
     from home.services.feed import invalidate_feed_cache
+
     invalidate_feed_cache()

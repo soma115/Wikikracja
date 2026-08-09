@@ -42,7 +42,9 @@ def create_or_update_chat_room_for_referendum(sender, instance, created, **kwarg
             HOST = get_site_domain()
             protocol = getattr(settings, 'SITE_PROTOCOL', 'http')
             details_url = f"{protocol}://{HOST}/glosowania/details/{instance.pk}"
-            welcome_message = _("This chat room has been created for project #{id} \"{title}\".\nView details: {details_url}\nDiscuss the proposal, share your thoughts, and ask questions here.").format(id=instance.pk, title=instance.title, details_url=details_url)
+            welcome_message = _("This chat room has been created for project #{id} \"{title}\".\nView details: {details_url}\nDiscuss the proposal, share your thoughts, and ask questions here.").format(
+                id=instance.pk, title=instance.title, details_url=details_url
+            )
 
             Message.objects.create(room=room, text=welcome_message, anonymous=True, sender=None)
 
@@ -78,4 +80,5 @@ def delete_decyzja_chat_room(sender, instance, **kwargs):
 @receiver(post_delete, sender=Decyzja)
 def _invalidate_feed_cache_on_decyzja_change(sender, **kwargs):
     from home.services.feed import invalidate_feed_cache
+
     invalidate_feed_cache()

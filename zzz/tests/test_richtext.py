@@ -25,16 +25,10 @@ class SanitizeNormalizesNewlinesTests(TestCase):
 
     def test_mixed_br_and_newline(self):
         # Legacy content: <br> already present, \n powinno też być znormalizowane.
-        self.assertEqual(
-            sanitize('A<br>B\nC', linkify=False),
-            'A<br>B<br>C',
-        )
+        self.assertEqual(sanitize('A<br>B\nC', linkify=False), 'A<br>B<br>C')
 
     def test_newline_inside_bold(self):
-        self.assertEqual(
-            sanitize('<b>A\nB</b>', linkify=False),
-            '<b>A<br>B</b>',
-        )
+        self.assertEqual(sanitize('<b>A\nB</b>', linkify=False), '<b>A<br>B</b>')
 
     def test_empty_input_returns_empty(self):
         self.assertEqual(sanitize('', linkify=False), '')
@@ -48,17 +42,11 @@ class SanitizeKeepsAllowedTagsTests(TestCase):
     """Regresja — fix \\n nie może złamać whitelistu tagów."""
 
     def test_allowed_tags_survive(self):
-        self.assertEqual(
-            sanitize('<b>x</b><i>y</i><u>z</u><br>', linkify=False),
-            '<b>x</b><i>y</i><u>z</u><br>',
-        )
+        self.assertEqual(sanitize('<b>x</b><i>y</i><u>z</u><br>', linkify=False), '<b>x</b><i>y</i><u>z</u><br>')
 
     def test_disallowed_tags_stripped(self):
         # <script> stripped, content kept (strip=True w bleach)
-        self.assertEqual(
-            sanitize('<script>alert(1)</script>A', linkify=False),
-            'alert(1)A',
-        )
+        self.assertEqual(sanitize('<script>alert(1)</script>A', linkify=False), 'alert(1)A')
 
     def test_newline_in_href_attribute_does_not_crash(self):
         # Edge case: \n w atrybucie href (np. z import/migration legacy data).
@@ -69,10 +57,7 @@ class SanitizeKeepsAllowedTagsTests(TestCase):
 
     def test_newline_between_tags_normalized(self):
         # \n między tagami (typowy whitespace formatowania w legacy content).
-        self.assertEqual(
-            sanitize('<b>A</b>\n<b>B</b>', linkify=False),
-            '<b>A</b><br><b>B</b>',
-        )
+        self.assertEqual(sanitize('<b>A</b>\n<b>B</b>', linkify=False), '<b>A</b><br><b>B</b>')
 
 
 class StripTagsTests(TestCase):

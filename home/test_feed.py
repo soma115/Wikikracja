@@ -34,39 +34,17 @@ def test_generate_feed_raw_sorts_events_ascending_others_descending(feed_user, a
 
     category = PostCategoryFactory()
     # Post updated in the past
-    post = PostFactory(
-        author=feed_user,
-        category=category,
-        title='Post A',
-        text='Post body',
-    )
+    post = PostFactory(author=feed_user, category=category, title='Post A', text='Post body')
     Post.objects.filter(pk=post.pk).update(updated=timezone.now() - timezone.timedelta(days=1))
 
     # Decision updated now
-    Decyzja.objects.create(
-        title='Decision Z',
-        tresc='Content',
-        author=feed_user,
-        status=Decyzja.Status.PROPOSITION,
-    )
+    Decyzja.objects.create(title='Decision Z', tresc='Content', author=feed_user, status=Decyzja.Status.PROPOSITION)
 
     # Event in the future (events sort ascending by next occurrence)
-    Event.objects.create(
-        title='Event M',
-        description='Description',
-        start_date=timezone.now() + timezone.timedelta(days=2),
-        frequency='once',
-        is_active=True,
-    )
+    Event.objects.create(title='Event M', description='Description', start_date=timezone.now() + timezone.timedelta(days=2), frequency='once', is_active=True)
 
     # Task updated two days ago
-    task = Task.objects.create(
-        title='Task B',
-        description='Task body',
-        created_by=feed_user,
-        assigned_to=another_user,
-        status=Task.Status.ACTIVE,
-    )
+    task = Task.objects.create(title='Task B', description='Task body', created_by=feed_user, assigned_to=another_user, status=Task.Status.ACTIVE)
     Task.objects.filter(pk=task.pk).update(updated_at=timezone.now() - timezone.timedelta(days=2))
 
     items = generate_feed_raw()
@@ -145,11 +123,7 @@ def test_get_unread_count_uses_readstatus(feed_user):
     Post.objects.filter(pk=post.pk).update(updated=timezone.now())
 
     before = get_unread_count(feed_user)
-    ReadStatus.objects.create(
-        user=feed_user,
-        content_type=ReadStatus.ContentType.POST,
-        object_id=post.pk,
-    )
+    ReadStatus.objects.create(user=feed_user, content_type=ReadStatus.ContentType.POST, object_id=post.pk)
     after = get_unread_count(feed_user)
     assert after == before - 1
 

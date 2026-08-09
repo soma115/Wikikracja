@@ -2,6 +2,7 @@
 Tests for UpdateLastSeenMiddleware: aktualizuje user.last_login przy kazdym
 requeście zalogowanego usera, ale max raz na 5 min (throttling przez cache).
 """
+
 from datetime import timedelta
 
 from django.contrib.auth.models import AnonymousUser, User
@@ -30,10 +31,7 @@ class UpdateLastSeenMiddlewareUnitTest(TestCase):
         before = timezone.now()
         self._process(self.user)
         self.user.refresh_from_db()
-        self.assertIsNotNone(
-            self.user.last_login,
-            "last_login should be set after first authenticated request",
-        )
+        self.assertIsNotNone(self.user.last_login, "last_login should be set after first authenticated request")
         self.assertGreaterEqual(self.user.last_login, before)
 
     def test_throttle_prevents_second_update_within_window(self):
@@ -43,11 +41,7 @@ class UpdateLastSeenMiddlewareUnitTest(TestCase):
 
         self._process(self.user)
         self.user.refresh_from_db()
-        self.assertEqual(
-            self.user.last_login,
-            first_login,
-            "Second request within throttle window must NOT update last_login",
-        )
+        self.assertEqual(self.user.last_login, first_login, "Second request within throttle window must NOT update last_login")
 
     def test_update_after_throttle_window_expires(self):
         self._process(self.user)
@@ -58,38 +52,22 @@ class UpdateLastSeenMiddlewareUnitTest(TestCase):
 
         self._process(self.user)
         self.user.refresh_from_db()
-        self.assertGreater(
-            self.user.last_login,
-            past,
-            "After cache expiry, last_login should update again",
-        )
+        self.assertGreater(self.user.last_login, past, "After cache expiry, last_login should update again")
 
     def test_anonymous_user_does_not_break(self):
         response = self._process(AnonymousUser())
-        self.assertEqual(
-            response,
-            'response',
-            "Middleware must pass through anonymous users without error",
-        )
+        self.assertEqual(response, 'response', "Middleware must pass through anonymous users without error")
 
     def test_returns_response_for_authenticated(self):
         response = self._process(self.user)
-        self.assertEqual(
-            response,
-            'response',
-            "Middleware must return the response from get_response",
-        )
+        self.assertEqual(response, 'response', "Middleware must return the response from get_response")
 
     def test_does_not_overwrite_other_fields(self):
         self.user.first_name = 'TestName'
         self.user.save()
         self._process(self.user)
         self.user.refresh_from_db()
-        self.assertEqual(
-            self.user.first_name,
-            'TestName',
-            "QuerySet.update(last_login=...) must only touch the last_login column",
-        )
+        self.assertEqual(self.user.first_name, 'TestName', "QuerySet.update(last_login=...) must only touch the last_login column")
 
     def test_inactive_user_does_not_update_last_login(self):
         """User z is_active=False nie powinien aktualizowac last_login -
@@ -100,10 +78,7 @@ class UpdateLastSeenMiddlewareUnitTest(TestCase):
 
         self._process(self.user)
         self.user.refresh_from_db()
-        self.assertIsNone(
-            self.user.last_login,
-            "Inactive users must not have last_login updated by middleware",
-        )
+        self.assertIsNone(self.user.last_login, "Inactive users must not have last_login updated by middleware")
 
 
 class UpdateLastSeenMiddlewareDbEfficiencyTest(TestCase):
@@ -137,16 +112,10 @@ class UpdateLastSeenIntegrationTest(TestCase):
 
     def setUp(self):
         cache.clear()
-        self.old_user = User.objects.create_user(
-            username='old', password='secret', is_active=True
-        )
-        self.fresh_user = User.objects.create_user(
-            username='fresh', password='secret', is_active=True
-        )
+        self.old_user = User.objects.create_user(username='old', password='secret', is_active=True)
+        self.fresh_user = User.objects.create_user(username='fresh', password='secret', is_active=True)
         # Stary user ma last_login sprzed tygodnia
-        User.objects.filter(pk=self.old_user.pk).update(
-            last_login=timezone.now() - timedelta(days=7)
-        )
+        User.objects.filter(pk=self.old_user.pk).update(last_login=timezone.now() - timedelta(days=7))
 
     def test_recently_seen_user_appears_first_in_sort(self):
         """Po request przez middleware, fresh_user jest na gorze listy sortowanej po -last_login."""
@@ -161,11 +130,7 @@ class UpdateLastSeenIntegrationTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         usernames = [u.username for u in response.context['uid']]
-        self.assertEqual(
-            usernames[0],
-            'fresh',
-            f"Expected 'fresh' first (middleware should update last_login), got: {usernames}",
-        )
+        self.assertEqual(usernames[0], 'fresh', f"Expected 'fresh' first (middleware should update last_login), got: {usernames}")
 
 
 class FormalLoginBypassThrottleTest(TestCase):
@@ -184,7 +149,4 @@ class FormalLoginBypassThrottleTest(TestCase):
         self.assertTrue(success, "Login should succeed")
 
         self.user.refresh_from_db()
-        self.assertIsNotNone(
-            self.user.last_login,
-            "Django signal user_logged_in must update last_login even when our throttle is active",
-        )
+        self.assertIsNotNone(self.user.last_login, "Django signal user_logged_in must update last_login even when our throttle is active")

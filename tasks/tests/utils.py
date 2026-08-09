@@ -18,10 +18,4 @@ def make_user(username):
 
 
 def make_task(title="Zadanie", created_by=None, assigned_to=None, status=Task.Status.ACTIVE):
-    return Task.objects.create(
-        title=title,
-        description="Opis zadania",
-        status=status,
-        created_by=created_by,
-        assigned_to=assigned_to,
-    )
+    return Task.objects.create(title=title, description="Opis zadania", status=status, created_by=created_by, assigned_to=assigned_to)

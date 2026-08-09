@@ -14,6 +14,7 @@ When it runs:
     Automatically on every container startup (see Dockerfile CMD).
     Can also be run manually: python manage.py update_site
 """
+
 from types import SimpleNamespace
 
 from django.conf import settings
@@ -36,5 +37,6 @@ class Command(BaseCommand):
         _sync_django_site(sp, fallback_name=settings.SITE_NAME)
 
         from django.contrib.sites.models import Site
+
         site = Site.objects.get(id=1)
         self.stdout.write(self.style.SUCCESS(f'Site: {site.domain} - {site.name}'))

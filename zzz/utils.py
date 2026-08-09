@@ -12,6 +12,7 @@ def get_site_domain():
     """
     try:
         from django.contrib.sites.models import Site
+
         return Site.objects.get_current().domain
     except Exception:
         return 'localhost'
@@ -26,6 +27,7 @@ def build_site_url(path: str) -> str:
         str: Absolute URL including scheme and host.
     """
     from django.conf import settings
+
     scheme = getattr(settings, "SITE_PROTOCOL", "http")
     host = get_site_domain()
     return f"{scheme}://{host}{path}"

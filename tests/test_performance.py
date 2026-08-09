@@ -4,6 +4,7 @@ Asercja na liczbie zapytań (CaptureQueriesContext), nie na czasie wykonania —
 czas w SQLite testowej jest zbyt zmienny i nigdy nie wykryje N+1 w sensownym progu.
 N+1 dla bulk_create(100) dałoby 100+ INSERT queries; poprawny bulk_create wykonuje 1-2.
 """
+
 import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
@@ -34,6 +35,7 @@ def test_bulk_create_transactions_uses_minimal_queries(bookkeeping_category, boo
 
     user = UserFactory()
     from bookkeeping.models import Asset
+
     asset = Asset.get_default()
     transactions = [Transaction(type='I', category=bookkeeping_category, partner=bookkeeping_partner, asset=asset, amount=100.00, note=f'Bulk {i}', author=user) for i in range(150)]
 

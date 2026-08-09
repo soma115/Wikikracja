@@ -119,6 +119,7 @@ class MessageReadByTest(TestCase):
 
     def test_unique_constraint_read_twice(self):
         from django.db import IntegrityError
+
         MessageReadBy.objects.create(message=self.msg, user=self.user)
         with self.assertRaises(IntegrityError):
             MessageReadBy.objects.create(message=self.msg, user=self.user)
@@ -193,6 +194,7 @@ class RoomLastMessageSignalTest(TestCase):
         from datetime import timedelta
 
         from django.utils import timezone
+
         future = timezone.now() + timedelta(hours=1)
         Room.objects.filter(id=self.room.id).update(last_activity=future)
         Message.objects.create(sender=self.user, room=self.room, text="Hi")

@@ -52,6 +52,7 @@ if not SECRET_KEY:
     if DEBUG:
         # Generate a random key for development
         import secrets
+
         SECRET_KEY = secrets.token_urlsafe(50)
     else:
         raise RuntimeError("SECRET_KEY is required when DEBUG is False")
@@ -63,10 +64,7 @@ ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 SITE_DOMAIN = getenv("SITE_DOMAIN", "")
 SITE_NAME = getenv("SITE_NAME") or SITE_DOMAIN
 DOMAIN_ALIASES = env_list("DOMAIN_ALIASES", default=[])
-CSRF_TRUSTED_ORIGINS = env_list(
-    "CSRF_TRUSTED_ORIGINS",
-    default=["http://localhost", "http://127.0.0.1"],
-)
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", default=["http://localhost", "http://127.0.0.1"])
 INTERNAL_IPS = ['127.0.0.1', '192.168.1.3', '192.168.178.79', '10.1.77.31', '10.0.0.0/8']
 
 CSRF_COOKIE_SECURE = False if DEBUG else True
@@ -100,12 +98,12 @@ ROOT_URLCONF = 'zzz.urls'
 if DEBUG:
     ASGI_THREADS = 1
 
+
 def gettext_lazy(s):
     return s
-LANGUAGES = (
-    ('en', gettext_lazy('English')),
-    ('pl', gettext_lazy('Polish')),
-)
+
+
+LANGUAGES = (('en', gettext_lazy('English')), ('pl', gettext_lazy('Polish')))
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = env_bool("SESSION_EXPIRE_AT_BROWSER_CLOSE", False)
 SESSION_COOKIE_AGE = env_int("SESSION_COOKIE_AGE", 60 * 60 * 24 * 90)  # default 90 days
@@ -113,21 +111,9 @@ REMEMBER_ME_DAYS = env_int("REMEMBER_ME_DAYS", 90)
 REMEMBER_ME_COOKIE_AGE = env_int("REMEMBER_ME_COOKIE_AGE", 60 * 60 * 24 * REMEMBER_ME_DAYS)
 
 REDIS_HOST = getenv("REDIS_HOST", "redis://redis:6379/1")
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [REDIS_HOST],
-        },
-    },
-}
+CHANNEL_LAYERS = {'default': {'BACKEND': 'channels_redis.core.RedisChannelLayer', 'CONFIG': {'hosts': [REDIS_HOST]}}}
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': REDIS_HOST
-    }
-}
+CACHES = {'default': {'BACKEND': 'django.core.cache.backends.redis.RedisCache', 'LOCATION': REDIS_HOST}}
 
 UPLOAD_IMAGE_MAX_SIZE_MB = env_int("UPLOAD_IMAGE_MAX_SIZE_MB", 5)
 
@@ -183,16 +169,12 @@ TEMPLATES = [
                 'zzz.context_processors.group_is_public',
                 'zzz.context_processors.unread_count',
             ],
-            'debug': False
+            'debug': False,
         },
-    },
+    }
 ]
 
-AUTHENTICATION_BACKENDS = [
-    'obywatele.auth_backends.CaseInsensitiveEmailBackend',
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-]
+AUTHENTICATION_BACKENDS = ['obywatele.auth_backends.CaseInsensitiveEmailBackend', 'django.contrib.auth.backends.ModelBackend', 'allauth.account.auth_backends.AuthenticationBackend']
 
 INSTALLED_APPS = [
     'zzz.apps.SchedulerConfig',
@@ -231,26 +213,12 @@ INSTALLED_APPS = [
 ]
 
 if DEBUG:
-    INSTALLED_APPS = [
-        *INSTALLED_APPS,
-        'django_extensions',
-        'django_browser_reload',
-        "django_watchfiles",
-    ]
-    MIDDLEWARE = [
-        *MIDDLEWARE,
-        'django_browser_reload.middleware.BrowserReloadMiddleware',
-    ]
+    INSTALLED_APPS = [*INSTALLED_APPS, 'django_extensions', 'django_browser_reload', "django_watchfiles"]
+    MIDDLEWARE = [*MIDDLEWARE, 'django_browser_reload.middleware.BrowserReloadMiddleware']
 
     if DEBUG_TOOLBAR:
-        INSTALLED_APPS = [
-            *INSTALLED_APPS,
-            'debug_toolbar',
-        ]
-        MIDDLEWARE = [
-            'debug_toolbar.middleware.DebugToolbarMiddleware',
-            *MIDDLEWARE,
-        ]
+        INSTALLED_APPS = [*INSTALLED_APPS, 'debug_toolbar']
+        MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware', *MIDDLEWARE]
 
 # LOGGING_DESTINATION: 'console' (default) or 'file'
 # When 'file', logs are written to LOG_FILE (default: /var/log/wiki.log)
@@ -268,55 +236,28 @@ logging.getLogger('urllib3.connectionpool').setLevel(logging.ERROR)
 
 class CancelledErrorFilter(logging.Filter):
     """Filter to suppress asyncio CancelledError logs from normal client disconnects."""
+
     def filter(self, record):
         # Suppress only the specific CancelledError message from asyncio
         if record.name == 'asyncio' and 'CancelledError' in record.getMessage():
             return False
         return True
 
-LOGGING_HANDLERS = {
-    'console': {
-        'level': LOG_LEVEL,
-        'class': 'logging.StreamHandler',
-        'formatter': 'verbose',
-        'stream': 'ext://sys.stdout',
-        'filters': ['cancelled_error_filter'],
-    },
-}
+
+LOGGING_HANDLERS = {'console': {'level': LOG_LEVEL, 'class': 'logging.StreamHandler', 'formatter': 'verbose', 'stream': 'ext://sys.stdout', 'filters': ['cancelled_error_filter']}}
 if _log_to_file:
-    LOGGING_HANDLERS['file'] = {
-        'level': LOG_LEVEL,
-        'class': 'logging.FileHandler',
-        'filename': LOG_FILE,
-        'formatter': 'verbose',
-        'filters': ['cancelled_error_filter'],
-    }
+    LOGGING_HANDLERS['file'] = {'level': LOG_LEVEL, 'class': 'logging.FileHandler', 'filename': LOG_FILE, 'formatter': 'verbose', 'filters': ['cancelled_error_filter']}
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '%(asctime)s %(levelname)s %(name)s %(message)s',
-            'datefmt': '%D %H:%M:%S'
-        },
-    },
-    'filters': {
-        'cancelled_error_filter': {
-            '()': CancelledErrorFilter,
-        },
-    },
+    'formatters': {'verbose': {'format': '%(asctime)s %(levelname)s %(name)s %(message)s', 'datefmt': '%D %H:%M:%S'}},
+    'filters': {'cancelled_error_filter': {'()': CancelledErrorFilter}},
     'handlers': LOGGING_HANDLERS,
     'loggers': {
-        '': {
-            'handlers': [_active_handler],
-            'level': LOG_LEVEL
-        },
+        '': {'handlers': [_active_handler], 'level': LOG_LEVEL},
         # Urls:
-        'django.channels.server': {
-            'handlers': [_active_handler],
-            'level': 'ERROR'
-        },
+        'django.channels.server': {'handlers': [_active_handler], 'level': 'ERROR'},
     },
 }
 
@@ -330,10 +271,7 @@ if LOGGING_JSON:
         print(err)
         raise RuntimeError(err) from None
 
-EMAIL_BACKEND = getenv(
-    "EMAIL_BACKEND",
-    "django.core.mail.backends.console.EmailBackend" if DEBUG else "django.core.mail.backends.smtp.EmailBackend",
-)
+EMAIL_BACKEND = getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend" if DEBUG else "django.core.mail.backends.smtp.EmailBackend")
 EMAIL_HOST = getenv("EMAIL_HOST", "")
 EMAIL_PORT = env_int("EMAIL_PORT", 587)
 EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
@@ -360,7 +298,7 @@ if not DEBUG and EMAIL_BACKEND == "django.core.mail.backends.smtp.EmailBackend":
 #########################
 # CRITICAL: Custom signup form and adapter for Wikikracja onboarding flow
 ACCOUNT_FORMS = {
-    'signup': 'obywatele.forms.CustomSignupForm',  # Custom form: email + captcha only
+    'signup': 'obywatele.forms.CustomSignupForm'  # Custom form: email + captcha only
 }
 ACCOUNT_ADAPTER = 'obywatele.adapter.CustomAccountAdapter'  # Handles session and redirects
 LOGIN_URL = 'login'
@@ -401,13 +339,11 @@ CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
 # WhiteNoise Configuration
 #########################
 STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {
         # In development: serve source files directly via finders (no hashing, no collectstatic needed)
         # In production: compress + hash for optimal caching
-        "BACKEND": ("django.contrib.staticfiles.storage.StaticFilesStorage" if DEBUG else "whitenoise.storage.CompressedStaticFilesStorage"),
+        "BACKEND": ("django.contrib.staticfiles.storage.StaticFilesStorage" if DEBUG else "whitenoise.storage.CompressedStaticFilesStorage")
     },
 }
 WHITENOISE_AUTOREFRESH = DEBUG
@@ -425,6 +361,7 @@ DEBUG_SKIP_AUTH = env_bool("DEBUG_SKIP_AUTH", False)
 #########################
 # Push Notifications Configuration
 #########################
+
 
 def _clean_env_value(value: str) -> str:
     if not value:
@@ -472,10 +409,7 @@ def _load_firebase_credentials():
             logging.warning(f"FIREBASE_CERT_JSON parsing failed: {e}")
 
     # 3) paths - may also be JSON strings if someone pasted the JSON into the env var
-    for name, value in (
-        ('FIREBASE_CERT_PATH', cert_path),
-        ('GOOGLE_APPLICATION_CREDENTIALS', google_app_creds),
-    ):
+    for name, value in (('FIREBASE_CERT_PATH', cert_path), ('GOOGLE_APPLICATION_CREDENTIALS', google_app_creds)):
         if not value:
             continue
 
@@ -511,16 +445,9 @@ except ValueError:
         firebase_admin.initialize_app(credential=firebase_creds)
         logging.info("Firebase Admin SDK initialized for FCM")
     else:
-        logging.warning(
-            "Firebase not initialized: No valid credentials found. "
-            "Set FIREBASE_CERT_PATH (file path or JSON), GOOGLE_APPLICATION_CREDENTIALS, "
-            "FIREBASE_CERT_JSON or FIREBASE_CERT_BASE64."
-        )
+        logging.warning("Firebase not initialized: No valid credentials found. Set FIREBASE_CERT_PATH (file path or JSON), GOOGLE_APPLICATION_CREDENTIALS, FIREBASE_CERT_JSON or FIREBASE_CERT_BASE64.")
 
-PUSH_NOTIFICATIONS_SETTINGS = {
-    "FIREBASE_APP": firebase_admin.get_app() if firebase_admin._apps else None,
-    "FCM_MAX_RECIPIENTS": 1000,
-}
+PUSH_NOTIFICATIONS_SETTINGS = {"FIREBASE_APP": firebase_admin.get_app() if firebase_admin._apps else None, "FCM_MAX_RECIPIENTS": 1000}
 
 # Firebase Client Configuration (for Web/Android FCM)
 FIREBASE_CONFIG = {

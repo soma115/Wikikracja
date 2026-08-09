@@ -22,15 +22,10 @@ def build_event_notification(event, body=None, reminder=False):
 
     if body is None:
         from django.utils import formats
+
         body = formats.localize(event.start_date, use_l10n=True)
 
-    return build_notification(
-        title,
-        body,
-        click_action,
-        f"event-{event.id}",
-        event_id=event.id,
-    )
+    return build_notification(title, body, click_action, f"event-{event.id}", event_id=event.id)
 
 
 def notify_event_starting(event, body=None):
@@ -40,9 +35,4 @@ def notify_event_starting(event, body=None):
 
     subject = f"{event.title} — {_('starting now')}"
     message = body if body else notification['body']
-    send_notification_email_to_active_users(
-        subject,
-        f"{message}\n\n{notification['click_action']}",
-        notification_type='events',
-        log_prefix='events: ',
-    )
+    send_notification_email_to_active_users(subject, f"{message}\n\n{notification['click_action']}", notification_type='events', log_prefix='events: ')

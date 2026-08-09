@@ -1,5 +1,5 @@
 # OGÓLNE
-- Domyślnie czaty wyciszone, powiadomienia włączają się dopiero jak ktoś się odezwie.
+- 
 - Do formularza wstępnego: Czy jesteś zwolennikiem DB? Czy zgadzasz się na przestrzeganie naszych zasad?
 - Zalogowanie się w systemie oznacza zgodę na warunki. Będąc członkiem grupy masz wpływ na przepisy w takim samym stopniu jak każdy inny obywatel.
 - prywatne notatki o człowieku

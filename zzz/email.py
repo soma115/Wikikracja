@@ -1,4 +1,5 @@
 """Helpers for sending bulk emails asynchronously."""
+
 import logging
 import threading
 import time
@@ -14,19 +15,7 @@ from zzz.utils import build_site_url, get_site_domain
 log = logging.getLogger(__name__)
 
 
-def send_bulk_email_in_thread(
-    recipients,
-    subject,
-    body,
-    *,
-    from_email=None,
-    fail_silently=False,
-    sleep_before=0,
-    per_recipient_sleep=0,
-    raise_on_error=True,
-    log_prefix="",
-    daemon=True,
-):
+def send_bulk_email_in_thread(recipients, subject, body, *, from_email=None, fail_silently=False, sleep_before=0, per_recipient_sleep=0, raise_on_error=True, log_prefix="", daemon=True):
     """Send the same email to a list of recipients in a background thread.
 
     Args:
@@ -52,12 +41,7 @@ def send_bulk_email_in_thread(
             recipient_list = recipients() if callable(recipients) else recipients
             for recipient in recipient_list:
                 try:
-                    email_message = EmailMessage(
-                        from_email=from_email,
-                        to=[recipient],
-                        subject=subject,
-                        body=body,
-                    )
+                    email_message = EmailMessage(from_email=from_email, to=[recipient], subject=subject, body=body)
                     email_message.send(fail_silently=fail_silently)
                     log.info(f"{log_prefix}Email sent to {recipient}; subject: {subject}")
                 except Exception as e:
@@ -75,15 +59,7 @@ def send_bulk_email_in_thread(
     return t
 
 
-def send_notification_email_to_active_users(
-    subject,
-    message,
-    notification_type=None,
-    *,
-    strip_html=False,
-    log_prefix="",
-    **thread_kwargs,
-):
+def send_notification_email_to_active_users(subject, message, notification_type=None, *, strip_html=False, log_prefix="", **thread_kwargs):
     """Send a notification email to active users filtered by notification preference.
 
     Args:

@@ -33,23 +33,38 @@ class Decyzja(ChatRoomModel, models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True)
     title = models.TextField(max_length=200, null=True, verbose_name=_('Title'), help_text=_('Enter short title describing new law.'))
     tresc = models.TextField(max_length=3000, null=True, verbose_name=_('Law text'), help_text=_('Enter the exact wording of the law as it is to be applied.'))
-    kara = models.TextField(max_length=500, null=True, blank=True, verbose_name=_('Penalty for non-compliance (optional)'), help_text=_('Fill in only if the rule execution depends on human action and is not automatic. What is the penalty for non-compliance? This can be, for example: "Banishment for 3 months", "Banishment forever", etc.'))
+    kara = models.TextField(
+        max_length=500,
+        null=True,
+        blank=True,
+        verbose_name=_('Penalty for non-compliance (optional)'),
+        help_text=_(
+            'Fill in only if the rule execution depends on human action and is not automatic. What is the penalty for non-compliance? This can be, for example: "Banishment for 3 months", "Banishment forever", etc.'
+        ),
+    )
     uzasadnienie = models.TextField(max_length=4000, null=True, verbose_name=_('Reasoning'), help_text=_('Why do we need this law? What events or thoughts inspired this bill? What are the expected results?'))
     args_for = models.TextField(
         # TODO: This field should be filled out by anyone - like comments or chat:
         max_length=1500,
         null=True,
         verbose_name=_('Positive Aspects of the Idea'),
-        help_text=_('Enter the benefits for the group, environment, economy, etc. resulting from the introduction of the idea.')
+        help_text=_('Enter the benefits for the group, environment, economy, etc. resulting from the introduction of the idea.'),
     )
     args_against = models.TextField(
         # TODO: This field should be filled out by anyone - like comments or chat:
         max_length=1500,
         null=True,
         verbose_name=_('Negative Aspects of the Idea'),
-        help_text=_('Enter the potential threat associated with the proposal.')
+        help_text=_('Enter the potential threat associated with the proposal.'),
     )
-    znosi = models.CharField(max_length=50, null=True, blank=True, verbose_name=_('Abolishes the rules'), help_text=_('If the proposed law supersedes other bills, enter their comma separated numbers here.'), validators=[validate_comma_separated_integer_list, does_it_exist])
+    znosi = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        verbose_name=_('Abolishes the rules'),
+        help_text=_('If the proposed law supersedes other bills, enter their comma separated numbers here.'),
+        validators=[validate_comma_separated_integer_list, does_it_exist],
+    )
     path = models.CharField(max_length=1000, null=True, verbose_name=_('The path this bill took.'))
     ile_osob_podpisalo = models.SmallIntegerField(editable=False, default=0)
     data_powstania = models.DateField(auto_now_add=True, editable=False, null=True)
@@ -67,20 +82,12 @@ class Decyzja(ChatRoomModel, models.Model):
         help_text=_('How many times voting had to restart from scratch because the vote buffer was lost (e.g. Redis restart) before it closed.'),
     )
     proposed_parameters = models.JSONField(
-        null=True,
-        blank=True,
-        editable=False,
-        verbose_name=_('Proposed system parameters'),
-        help_text=_('If set, this referendum changes system parameters. Applied when approved.'),
+        null=True, blank=True, editable=False, verbose_name=_('Proposed system parameters'), help_text=_('If set, this referendum changes system parameters. Applied when approved.')
     )
     proposed_brand_mark = models.ImageField(
-        upload_to='site_branding/proposed/',
-        null=True,
-        blank=True,
-        editable=False,
-        verbose_name=_('Proposed logo'),
-        help_text=_('If set, this referendum changes the site logo. Applied when approved.'),
+        upload_to='site_branding/proposed/', null=True, blank=True, editable=False, verbose_name=_('Proposed logo'), help_text=_('If set, this referendum changes the site logo. Applied when approved.')
     )
+
     def __str__(self):
         return '%s: %s on %s' % (self.pk, self.tresc, self.status)
 
@@ -105,7 +112,7 @@ class Decyzja(ChatRoomModel, models.Model):
     def get_chat_room_pulse_class(self, user):
         """Return CSS class for chat room pulse indicator if there are unseen messages"""
         chat_room = self.chat_room
-        if (chat_room and chat_room.messages.exists() and not chat_room.seen_by.filter(id=user.id).exists()):
+        if chat_room and chat_room.messages.exists() and not chat_room.seen_by.filter(id=user.id).exists():
             return "chat-room-pulse"
         return ""
 
@@ -129,10 +136,7 @@ class Decyzja(ChatRoomModel, models.Model):
 
 
 class Argument(models.Model):
-    ARGUMENT_TYPE_CHOICES = [
-        ('FOR', _('Positive')),
-        ('AGAINST', _('Negative')),
-    ]
+    ARGUMENT_TYPE_CHOICES = [('FOR', _('Positive')), ('AGAINST', _('Negative'))]
 
     decyzja = models.ForeignKey(Decyzja, on_delete=models.CASCADE, related_name='arguments', verbose_name=_('Decision'))
     author = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_('Author'))
@@ -172,6 +176,7 @@ class DecyzjaWersja(models.Model):
 
 class ZebranePodpisy(models.Model):
     '''Lista podpisów pod wnioskiem o referendum'''
+
     projekt = models.ForeignKey(Decyzja, on_delete=models.SET_NULL, null=True)
 
     # Lets note who signed proposal:
@@ -196,6 +201,7 @@ class VoteCode(models.Model):
     - Jednorazowy kod
     - Tak/Nie
     '''
+
     project = models.ForeignKey(Decyzja, on_delete=models.CASCADE)
     code = models.CharField(editable=False, null=True, max_length=20)
     vote = models.BooleanField(editable=False, null=True)

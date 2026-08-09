@@ -4,11 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class RememberLoginForm(AuthenticationForm):
-    remember_me = forms.BooleanField(
-        required=False,
-        label=_("Keep me signed in"),
-        widget=forms.CheckboxInput(),
-    )
+    remember_me = forms.BooleanField(required=False, label=_("Keep me signed in"), widget=forms.CheckboxInput())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

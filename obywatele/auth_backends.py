@@ -15,6 +15,7 @@ class CaseInsensitiveEmailBackend(ModelBackend):
     to make email lookup case-insensitive, addressing the issue where users
     can't login with emails containing different capitalization than registration.
     """
+
     def authenticate(self, request, username=None, password=None, **kwargs):
         UserModel = get_user_model()
 

@@ -109,6 +109,7 @@ class TaskVoteModelTest(TestCase):
 
     def test_unique_constraint_one_vote_per_user_per_task(self):
         from django.db import IntegrityError
+
         TaskVote.objects.create(task=self.task, user=self.user, value=TaskVote.Value.UP)
         with self.assertRaises(IntegrityError):
             TaskVote.objects.create(task=self.task, user=self.user, value=TaskVote.Value.DOWN)
@@ -135,6 +136,7 @@ class TaskEvaluationModelTest(TestCase):
 
     def test_unique_constraint_one_evaluation_per_user_per_task(self):
         from django.db import IntegrityError
+
         TaskEvaluation.objects.create(task=self.task, user=self.user, value=TaskEvaluation.Value.SUCCESS)
         with self.assertRaises(IntegrityError):
             TaskEvaluation.objects.create(task=self.task, user=self.user, value=TaskEvaluation.Value.FAILURE)

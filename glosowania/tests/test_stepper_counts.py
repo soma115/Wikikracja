@@ -19,13 +19,7 @@ class StepperCountsTest(TestCase):
 
     def test_empty_db_returns_zeros(self):
         counts = get_stepper_counts()
-        self.assertEqual(counts, {
-            "proposition": 0,
-            "discussion": 0,
-            "referendum": 0,
-            "approved": 0,
-            "rejected": 0,
-        })
+        self.assertEqual(counts, {"proposition": 0, "discussion": 0, "referendum": 0, "approved": 0, "rejected": 0})
 
     def test_proposition_counts_all_status_1(self):
         self._decyzja(self.alice, status=Decyzja.Status.PROPOSITION, signed_by_author=False)

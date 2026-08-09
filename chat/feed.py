@@ -9,19 +9,11 @@ from .services import CHAT_UNREAD_CACHE_KEY
 
 def get_feed_items(since: timezone.datetime) -> list[dict]:
     """Return feed items for non-archived chat rooms with recent messages."""
-    all_rooms = Room.objects.filter(archived=False).prefetch_related(
-        'allowed',
-        'messages',
-        'messages__sender',
-    )
+    all_rooms = Room.objects.filter(archived=False).prefetch_related('allowed', 'messages', 'messages__sender')
 
     items = []
     for room in all_rooms:
-        recent_msgs = sorted(
-            [m for m in room.messages.all() if m.time >= since],
-            key=lambda m: m.time,
-            reverse=True,
-        )[:5]
+        recent_msgs = sorted([m for m in room.messages.all() if m.time >= since], key=lambda m: m.time, reverse=True)[:5]
         if recent_msgs:
             latest_message = recent_msgs[0]
             message_list = []
@@ -30,22 +22,22 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
                 author_name = msg.sender.username if msg.sender else 'System'
                 message_list.append(f"- <strong>{author_name}:</strong> {clean_text}")
             allowed_users = list(room.allowed.all())
-            items.append({
-                'content_type': 'room_messages',
-                'title': _("Messages in %(room_title)s") % {
-                    'room_title': room.title
-                },
-                'description': '\n'.join(message_list),
-                'author': latest_message.sender,
-                'timestamp': latest_message.time,
-                'url': f"/chat/#room_id={room.id}",
-                'object_id': room.id,
-                'room_id': room.id,
-                'message_count': len(recent_msgs),
-                '_is_public': room.public,
-                '_allowed_user_ids': {u.id for u in allowed_users},
-                '_allowed_usernames': {u.id: u.username for u in allowed_users},
-            })
+            items.append(
+                {
+                    'content_type': 'room_messages',
+                    'title': _("Messages in %(room_title)s") % {'room_title': room.title},
+                    'description': '\n'.join(message_list),
+                    'author': latest_message.sender,
+                    'timestamp': latest_message.time,
+                    'url': f"/chat/#room_id={room.id}",
+                    'object_id': room.id,
+                    'room_id': room.id,
+                    'message_count': len(recent_msgs),
+                    '_is_public': room.public,
+                    '_allowed_user_ids': {u.id for u in allowed_users},
+                    '_allowed_usernames': {u.id: u.username for u in allowed_users},
+                }
+            )
     return items
 
 

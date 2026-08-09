@@ -29,64 +29,19 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            '--dry-run',
-            action='store_true',
-            default=True,
-            help='Show what would be fixed without making changes (default: enabled)',
-        )
-        parser.add_argument(
-            '--no-dry-run',
-            action='store_false',
-            dest='dry_run',
-            help='Apply changes to database',
-        )
-        parser.add_argument(
-            '--force',
-            action='store_true',
-            help='Force re-linking even if already linked',
-        )
-        parser.add_argument(
-            '--debug',
-            action='store_true',
-            help='Enable detailed debug output',
-        )
-        parser.add_argument(
-            '--tasks-only',
-            action='store_true',
-            help='Process only tasks (skip votes)',
-        )
-        parser.add_argument(
-            '--votes-only',
-            action='store_true',
-            help='Process only votes (skip tasks)',
-        )
-        parser.add_argument(
-            '--batch-size',
-            type=int,
-            default=100,
-            help='Process items in batches to avoid memory issues (default: 100)',
-        )
+        parser.add_argument('--dry-run', action='store_true', default=True, help='Show what would be fixed without making changes (default: enabled)')
+        parser.add_argument('--no-dry-run', action='store_false', dest='dry_run', help='Apply changes to database')
+        parser.add_argument('--force', action='store_true', help='Force re-linking even if already linked')
+        parser.add_argument('--debug', action='store_true', help='Enable detailed debug output')
+        parser.add_argument('--tasks-only', action='store_true', help='Process only tasks (skip votes)')
+        parser.add_argument('--votes-only', action='store_true', help='Process only votes (skip tasks)')
+        parser.add_argument('--batch-size', type=int, default=100, help='Process items in batches to avoid memory issues (default: 100)')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.stats = {
-            'tasks': {
-                'total': 0,
-                'already_linked': 0,
-                'newly_linked': 0,
-                'fixed_broken_links': 0,
-                'missing_rooms': 0,
-                'multiple_rooms': 0,
-                'errors': 0
-            },
-            'votes': {
-                'total': 0,
-                'already_linked': 0,
-                'newly_linked': 0,
-                'missing_rooms': 0,
-                'errors': 0
-            }
+            'tasks': {'total': 0, 'already_linked': 0, 'newly_linked': 0, 'fixed_broken_links': 0, 'missing_rooms': 0, 'multiple_rooms': 0, 'errors': 0},
+            'votes': {'total': 0, 'already_linked': 0, 'newly_linked': 0, 'missing_rooms': 0, 'errors': 0},
         }
         self.debug_enabled = False
         self.dry_run = True  # Default to safe mode
@@ -126,8 +81,8 @@ class Command(BaseCommand):
 
         batch_size = self.batch_size
         for i in range(0, decisions.count(), batch_size):
-            batch = decisions[i:i + batch_size]
-            self.debug(f"Processing vote batch {i//batch_size + 1}: {batch.count()} items")
+            batch = decisions[i : i + batch_size]
+            self.debug(f"Processing vote batch {i // batch_size + 1}: {batch.count()} items")
 
             for decyzja in batch:
                 self.safe_execute(f"vote_{decyzja.pk}", self._process_single_vote, decyzja)
@@ -183,8 +138,8 @@ class Command(BaseCommand):
 
         batch_size = self.batch_size
         for i in range(0, tasks.count(), batch_size):
-            batch = tasks[i:i + batch_size]
-            self.debug(f"Processing task batch {i//batch_size + 1}: {batch.count()} items")
+            batch = tasks[i : i + batch_size]
+            self.debug(f"Processing task batch {i // batch_size + 1}: {batch.count()} items")
 
             for task in batch:
                 self.safe_execute(f"task_{task.pk}", self._process_single_task, task)
@@ -204,7 +159,7 @@ class Command(BaseCommand):
         # Find rooms that match the pattern for this task ID
         matching_rooms = Room.objects.filter(
             title__startswith=expected_pattern,
-            protected=True  # Task rooms are protected
+            protected=True,  # Task rooms are protected
         )
 
         if not matching_rooms.exists():
@@ -328,11 +283,9 @@ class Command(BaseCommand):
         self.stdout.write(f"  Total errors: {total_errors}")
 
         if self.dry_run:
-            self.stdout.write(self.style.WARNING("\nDRY RUN MODE - No changes were made. "
-                                                 "Use --no-dry-run to apply changes."))
+            self.stdout.write(self.style.WARNING("\nDRY RUN MODE - No changes were made. Use --no-dry-run to apply changes."))
         else:
-            self.stdout.write(self.style.SUCCESS(f"\nOperations completed! "
-                                                 f"New links: {total_new_links}, Fixed: {total_fixed}, Errors: {total_errors}"))
+            self.stdout.write(self.style.SUCCESS(f"\nOperations completed! New links: {total_new_links}, Fixed: {total_fixed}, Errors: {total_errors}"))
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.HTTP_INFO("Chat Room Connection Fixer"))

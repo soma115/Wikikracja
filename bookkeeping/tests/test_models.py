@@ -1,4 +1,5 @@
 """Testy modeli aplikacji bookkeeping."""
+
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
@@ -136,17 +137,7 @@ class AssetDefaultTests(TestCase):
         pln = Asset.objects.create(code='PLN', name='Polish Zloty', symbol='zł', is_default=False)
         Asset.objects.create(code='BTC', name='Bitcoin', symbol='₿', is_default=True)
 
-        form = AssetForm(
-            data={
-                'code': pln.code,
-                'name': pln.name,
-                'symbol': pln.symbol,
-                'decimal_places': pln.decimal_places,
-                'is_currency': True,
-                'is_default': True,
-            },
-            instance=pln,
-        )
+        form = AssetForm(data={'code': pln.code, 'name': pln.name, 'symbol': pln.symbol, 'decimal_places': pln.decimal_places, 'is_currency': True, 'is_default': True}, instance=pln)
         self.assertTrue(form.is_valid(), f"Form should validate, got errors: {form.errors.as_json()}")
         form.save()
 

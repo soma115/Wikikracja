@@ -57,23 +57,11 @@ class GuestMessageFormTest(TestCase):
 
     def test_valid_form(self):
         store = self._valid_captcha()
-        form = GuestMessageForm(data={
-            'guest_email': 'guest@example.com',
-            'guest_name': 'Jan Kowalski',
-            'message': 'Hello',
-            'captcha_0': store.hashkey,
-            'captcha_1': 'test',
-        })
+        form = GuestMessageForm(data={'guest_email': 'guest@example.com', 'guest_name': 'Jan Kowalski', 'message': 'Hello', 'captcha_0': store.hashkey, 'captcha_1': 'test'})
         self.assertTrue(form.is_valid())
 
     def test_invalid_captcha(self):
-        form = GuestMessageForm(data={
-            'guest_email': 'guest@example.com',
-            'guest_name': 'Jan Kowalski',
-            'message': 'Hello',
-            'captcha_0': 'bad',
-            'captcha_1': 'bad',
-        })
+        form = GuestMessageForm(data={'guest_email': 'guest@example.com', 'guest_name': 'Jan Kowalski', 'message': 'Hello', 'captcha_0': 'bad', 'captcha_1': 'bad'})
         self.assertFalse(form.is_valid())
 
     def test_missing_fields_invalid(self):

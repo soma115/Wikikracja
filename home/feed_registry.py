@@ -10,6 +10,7 @@ Each application that contributes items to the unified activity feed:
 `home` no longer needs to import models from other apps to build, mark or unmark
 feed items.
 """
+
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Callable, Optional
@@ -29,19 +30,8 @@ class FeedEntry:
 _providers: dict[str, FeedEntry] = {}
 
 
-def register_feed_provider(
-    content_type: str,
-    *,
-    get_items: FeedProvider,
-    mark_as_read: Optional[MarkHook] = None,
-    mark_as_unread: Optional[MarkHook] = None,
-) -> None:
-    _providers[content_type] = FeedEntry(
-        content_type=content_type,
-        get_items=get_items,
-        mark_as_read=mark_as_read,
-        mark_as_unread=mark_as_unread,
-    )
+def register_feed_provider(content_type: str, *, get_items: FeedProvider, mark_as_read: Optional[MarkHook] = None, mark_as_unread: Optional[MarkHook] = None) -> None:
+    _providers[content_type] = FeedEntry(content_type=content_type, get_items=get_items, mark_as_read=mark_as_read, mark_as_unread=mark_as_unread)
 
 
 def get_provider(content_type: str) -> Optional[FeedEntry]:

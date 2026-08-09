@@ -15,6 +15,7 @@ class CanonicalDomainMiddleware:
     Bez regex - dopasowanie po dokladnej nazwie hosta. Sciezka, query string
     i scheme sa zachowane.
     """
+
     def __init__(self, get_response):
         self.get_response = get_response
         self.site_domain = getattr(settings, "SITE_DOMAIN", "")
@@ -41,6 +42,7 @@ class UserLanguageMiddleware:
     Runs after LocaleMiddleware so it can override the auto-detected language
     for authenticated users who have set an explicit preference.
     """
+
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -69,6 +71,7 @@ class UpdateLastSeenMiddleware:
     konta - user z is_active=False moze nadal miec aktywna sesje, a jego
     aktualizacje odraczalyby usuniecie przez count_citizens.delete_inactive_users().
     """
+
     THROTTLE_SECONDS = 300
 
     def __init__(self, get_response):

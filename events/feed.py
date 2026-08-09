@@ -23,31 +23,27 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
     items = []
     for event, next_occurrence in upcoming_events:
         clean_description = strip_tags(event.description) if event.description else ''
-        items.append({
-            'content_type': 'event',
-            'title': event.title,
-            'description': clean_description[:125] + '...' if clean_description and len(clean_description) > 125 else clean_description,
-            'author': None,
-            'timestamp': next_occurrence,
-            'url': f"/events/{event.pk}/",
-            'object_id': event.pk,
-        })
+        items.append(
+            {
+                'content_type': 'event',
+                'title': event.title,
+                'description': clean_description[:125] + '...' if clean_description and len(clean_description) > 125 else clean_description,
+                'author': None,
+                'timestamp': next_occurrence,
+                'url': f"/events/{event.pk}/",
+                'object_id': event.pk,
+            }
+        )
     return items
 
 
 def mark_as_read(object_id: int, user) -> None:
     from home.models import ReadStatus
-    ReadStatus.objects.get_or_create(
-        user=user,
-        content_type=ReadStatus.ContentType.EVENT,
-        object_id=object_id,
-    )
+
+    ReadStatus.objects.get_or_create(user=user, content_type=ReadStatus.ContentType.EVENT, object_id=object_id)
 
 
 def mark_as_unread(object_id: int, user) -> None:
     from home.models import ReadStatus
-    ReadStatus.objects.filter(
-        user=user,
-        content_type=ReadStatus.ContentType.EVENT,
-        object_id=object_id,
-    ).delete()
+
+    ReadStatus.objects.filter(user=user, content_type=ReadStatus.ContentType.EVENT, object_id=object_id).delete()

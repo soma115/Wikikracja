@@ -34,13 +34,7 @@ def test_search_post_category(searcher):
 
 @pytest.mark.django_db
 def test_search_task_category(searcher, other_user):
-    Task.objects.create(
-        title='Task with xyz',
-        description='description',
-        created_by=searcher,
-        assigned_to=other_user,
-        status=Task.Status.ACTIVE,
-    )
+    Task.objects.create(title='Task with xyz', description='description', created_by=searcher, assigned_to=other_user, status=Task.Status.ACTIVE)
 
     results = run_global_search('xyz', {'task'}, searcher)
     assert any(r['cat'] == 'task' for r in results)
@@ -48,12 +42,7 @@ def test_search_task_category(searcher, other_user):
 
 @pytest.mark.django_db
 def test_search_decision_category(searcher):
-    decision = Decyzja.objects.create(
-        title='Decision with xyz',
-        tresc='Some content',
-        author=searcher,
-        status=Decyzja.Status.PROPOSITION,
-    )
+    decision = Decyzja.objects.create(title='Decision with xyz', tresc='Some content', author=searcher, status=Decyzja.Status.PROPOSITION)
 
     results = run_global_search('xyz', {'decision'}, searcher)
     assert any(r['cat'] == 'decision' and r['title'] == decision.title for r in results)
@@ -61,18 +50,8 @@ def test_search_decision_category(searcher):
 
 @pytest.mark.django_db
 def test_search_decision_argument(searcher):
-    decision = Decyzja.objects.create(
-        title='Decision title',
-        tresc='Content',
-        author=searcher,
-        status=Decyzja.Status.PROPOSITION,
-    )
-    Argument.objects.create(
-        decyzja=decision,
-        author=searcher,
-        argument_type='FOR',
-        content='argument xyz',
-    )
+    decision = Decyzja.objects.create(title='Decision title', tresc='Content', author=searcher, status=Decyzja.Status.PROPOSITION)
+    Argument.objects.create(decyzja=decision, author=searcher, argument_type='FOR', content='argument xyz')
 
     results = run_global_search('xyz', {'decision'}, searcher)
     assert any(r['cat'] == 'decision' for r in results)
@@ -80,13 +59,7 @@ def test_search_decision_argument(searcher):
 
 @pytest.mark.django_db
 def test_search_event_category(searcher):
-    Event.objects.create(
-        title='Event xyz',
-        description='desc',
-        start_date=timezone.now() + timezone.timedelta(days=1),
-        frequency='once',
-        is_active=True,
-    )
+    Event.objects.create(title='Event xyz', description='desc', start_date=timezone.now() + timezone.timedelta(days=1), frequency='once', is_active=True)
 
     results = run_global_search('xyz', {'event'}, searcher)
     assert any(r['cat'] == 'event' for r in results)
@@ -114,13 +87,7 @@ def test_search_chat_category(searcher, other_user):
 def test_search_active_cats_filtering(searcher):
     category = PostCategoryFactory()
     PostFactory(author=searcher, category=category, title='Post xyz', text='<p>xyz</p>')
-    Task.objects.create(
-        title='Task xyz',
-        description='desc',
-        created_by=searcher,
-        assigned_to=searcher,
-        status=Task.Status.ACTIVE,
-    )
+    Task.objects.create(title='Task xyz', description='desc', created_by=searcher, assigned_to=searcher, status=Task.Status.ACTIVE)
 
     post_results = run_global_search('xyz', {'post'}, searcher)
     assert all(r['cat'] == 'post' for r in post_results)

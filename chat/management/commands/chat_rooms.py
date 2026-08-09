@@ -30,6 +30,7 @@ class Command(BaseCommand):
 
         # Archive/Delete old public chat rooms
         from site_settings.params import get_param
+
         archive_after = get_param('archive_public_chat_room')
         delete_after = get_param('delete_public_chat_room')
         for room in public_rooms:

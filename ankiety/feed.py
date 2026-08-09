@@ -10,36 +10,20 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
     items = []
     for survey in surveys:
         clean_description = strip_tags(survey.description) if survey.description else ""
-        description = (
-            clean_description[:125] + "..."
-            if clean_description and len(clean_description) > 125
-            else clean_description
+        description = clean_description[:125] + "..." if clean_description and len(clean_description) > 125 else clean_description
+        items.append(
+            {"content_type": "survey", "title": survey.title, "description": description, "author": survey.author, "timestamp": survey.created_at, "url": f"/ankiety/{survey.pk}/", "object_id": survey.pk}
         )
-        items.append({
-            "content_type": "survey",
-            "title": survey.title,
-            "description": description,
-            "author": survey.author,
-            "timestamp": survey.created_at,
-            "url": f"/ankiety/{survey.pk}/",
-            "object_id": survey.pk,
-        })
     return items
 
 
 def mark_as_read(object_id: int, user) -> None:
     from home.models import ReadStatus
-    ReadStatus.objects.get_or_create(
-        user=user,
-        content_type=ReadStatus.ContentType.SURVEY,
-        object_id=object_id,
-    )
+
+    ReadStatus.objects.get_or_create(user=user, content_type=ReadStatus.ContentType.SURVEY, object_id=object_id)
 
 
 def mark_as_unread(object_id: int, user) -> None:
     from home.models import ReadStatus
-    ReadStatus.objects.filter(
-        user=user,
-        content_type=ReadStatus.ContentType.SURVEY,
-        object_id=object_id,
-    ).delete()
+
+    ReadStatus.objects.filter(user=user, content_type=ReadStatus.ContentType.SURVEY, object_id=object_id).delete()

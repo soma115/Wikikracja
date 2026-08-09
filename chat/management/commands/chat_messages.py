@@ -35,11 +35,7 @@ class Command(TranslatedCommand):
             footer3 = _("You can manage your email notifications here: {url}").format(url=build_site_url('/obywatele/settings/'))
 
             for recipient in recipients:
-                email_queue.append({
-                    'recipient': recipient,
-                    'subject': subject,
-                    'body': header + "\n\n" + message + "\n\n" + footer1 + "\n" + footer2 + "\n" + footer3,
-                })
+                email_queue.append({'recipient': recipient, 'subject': subject, 'body': header + "\n\n" + message + "\n\n" + footer1 + "\n" + footer2 + "\n" + footer3})
 
         user_list = Uzytkownik.objects.filter(uid__is_active=True, email_notifications_chat=True)
         log.info(f'chat_messages: found {user_list.count()} active users with chat notifications enabled')
@@ -62,12 +58,7 @@ class Command(TranslatedCommand):
                     mentioned_rooms.add(m.room)
 
             # Group rooms by type
-            rooms_by_type = {
-                'tasks': [],
-                'votings': [],
-                'public': [],
-                'private': []
-            }
+            rooms_by_type = {'tasks': [], 'votings': [], 'public': [], 'private': []}
 
             for room in messages_by_room.keys():
                 if Task.objects.filter(chat_room=room).exists():
@@ -131,20 +122,10 @@ class Command(TranslatedCommand):
 
             body = "\n".join(str(item) for item in b)
             if body:
-                SendEmail([
-                    u.uid.email,
-                ], body)
+                SendEmail([u.uid.email], body)
             u.last_broadcast = timezone.now()
             u.save()
 
         # Send all queued emails sequentially
         for email_data in email_queue:
-            send_bulk_email_in_thread(
-                [email_data['recipient']],
-                subject=email_data['subject'],
-                body=email_data['body'],
-                sleep_before=s.EMAIL_SEND_DELAY_SECONDS,
-                raise_on_error=False,
-                daemon=False,
-            ).join()
-
+            send_bulk_email_in_thread([email_data['recipient']], subject=email_data['subject'], body=email_data['body'], sleep_before=s.EMAIL_SEND_DELAY_SECONDS, raise_on_error=False, daemon=False).join()

@@ -4,6 +4,7 @@ UWAGA: `glosowania.signals.create_or_update_chat_room_for_referendum` AUTOMATYCZ
 chat_room przy każdym nowym Decyzja(status=PROPOSITION). Nie podawaj `chat_room=` w create() —
 sygnał i tak go nadpisze.
 """
+
 import pytest
 
 
@@ -82,6 +83,7 @@ def test_signal_auto_creates_chat_room_for_new_decyzja(sample_users):
 
     # Zaproszeni są wszyscy aktywni userzy (signal wywołuje room.allowed.set(active_users))
     from django.contrib.auth import get_user_model
+
     User = get_user_model()
     active_count = User.objects.filter(is_active=True).count()
     assert room.allowed.count() == active_count

@@ -37,18 +37,12 @@ def test_mark_as_read_and_unread_endpoints_work_for_post(client, activity_user):
     post = PostFactory(author=activity_user, category=category, title='Toggle post', text='<p>body</p>')
     Post.objects.filter(pk=post.pk).update(updated=timezone.now())
 
-    response = client.post(reverse('mark_as_read'), {
-        'content_type': 'post',
-        'object_id': post.pk,
-    })
+    response = client.post(reverse('mark_as_read'), {'content_type': 'post', 'object_id': post.pk})
     assert response.status_code == 200
     assert response.json()['success'] is True
     assert ReadStatus.objects.filter(user=activity_user, content_type=ReadStatus.ContentType.POST, object_id=post.pk).exists()
 
-    response = client.post(reverse('mark_unread'), {
-        'content_type': 'post',
-        'object_id': post.pk,
-    })
+    response = client.post(reverse('mark_unread'), {'content_type': 'post', 'object_id': post.pk})
     assert response.status_code == 200
     assert response.json()['success'] is True
     assert not ReadStatus.objects.filter(user=activity_user, content_type=ReadStatus.ContentType.POST, object_id=post.pk).exists()
@@ -94,10 +88,7 @@ def test_chat_badge_not_shown_when_all_messages_read_and_marked_unread(client, a
     room.seen_by.add(activity_user)
 
     # Mark the room as unread from the activity feed.
-    response = client.post(reverse('mark_unread'), {
-        'content_type': 'room_messages',
-        'object_id': room.id,
-    })
+    response = client.post(reverse('mark_unread'), {'content_type': 'room_messages', 'object_id': room.id})
     assert response.status_code == 200
     assert response.json()['success'] is True
     assert activity_user not in room.seen_by.all()

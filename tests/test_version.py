@@ -7,6 +7,7 @@ Kontrakt (Wariant A):
 - Context processor wystawia go do szablonów jako `app_version`.
 - Sidebar renderuje wartość dynamicznie, NIE sztywny string.
 """
+
 import tomllib
 from pathlib import Path
 

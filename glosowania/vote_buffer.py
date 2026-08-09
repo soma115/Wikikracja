@@ -24,6 +24,7 @@ cast, could still observe the pairing. It does eliminate the much bigger,
 much easier risk of anyone with (possibly much later, offline) database
 access reconstructing the vote.
 """
+
 import json
 
 import redis

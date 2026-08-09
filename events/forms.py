@@ -29,25 +29,19 @@ class DateTimeLocalInput(forms.DateTimeInput):
 
 class EventForm(forms.ModelForm):
     # Separate fields for ordinal and weekday selection
-    ordinal = forms.ChoiceField(required=False, label=_('Week of month'), help_text=_('Which occurrence in the month?'), choices=[
-        ('', '----'),
-        ('1', _('First')),
-        ('2', _('Second')),
-        ('3', _('Third')),
-        ('4', _('Fourth')),
-        ('-1', _('Last')),
-    ])
+    ordinal = forms.ChoiceField(
+        required=False,
+        label=_('Week of month'),
+        help_text=_('Which occurrence in the month?'),
+        choices=[('', '----'), ('1', _('First')), ('2', _('Second')), ('3', _('Third')), ('4', _('Fourth')), ('-1', _('Last'))],
+    )
 
-    weekday = forms.ChoiceField(required=False, label=_('Day of week'), help_text=_('Which day of the week?'), choices=[
-        ('', '----'),
-        ('0', _('Monday')),
-        ('1', _('Tuesday')),
-        ('2', _('Wednesday')),
-        ('3', _('Thursday')),
-        ('4', _('Friday')),
-        ('5', _('Saturday')),
-        ('6', _('Sunday')),
-    ])
+    weekday = forms.ChoiceField(
+        required=False,
+        label=_('Day of week'),
+        help_text=_('Which day of the week?'),
+        choices=[('', '----'), ('0', _('Monday')), ('1', _('Tuesday')), ('2', _('Wednesday')), ('3', _('Thursday')), ('4', _('Friday')), ('5', _('Saturday')), ('6', _('Sunday'))],
+    )
 
     class Meta:
         model = Event
@@ -56,12 +50,8 @@ class EventForm(forms.ModelForm):
             'start_date': DateTimeLocalInput(),
             'end_date': DateTimeLocalInput(),
             'description': RichTextWidget(),
-            'link': forms.URLInput(attrs={
-                'placeholder': 'https://example.com'
-            }),
-            'place': forms.TextInput(attrs={
-                'placeholder': _('Event location or venue')
-            }),
+            'link': forms.URLInput(attrs={'placeholder': 'https://example.com'}),
+            'place': forms.TextInput(attrs={'placeholder': _('Event location or venue')}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -80,16 +70,16 @@ class EventForm(forms.ModelForm):
 
         self.helper = FormHelper()
         self.helper.form_method = 'post'
-        self.helper.layout = Layout(Field('title', css_class='form-control'), Field('description', css_class='form-control'), Row(
-            Column('link', css_class='mb-3 col-md-6'),
-            Column('place', css_class='mb-3 col-md-6'),
-        ), Row(
-            Column('start_date', css_class='mb-3 col-md-6'),
-            Column('end_date', css_class='mb-3 col-md-6'),
-        ), Field('frequency', css_class='form-control', wrapper_class='mb-3'), Row(Column('ordinal', css_class='mb-3 col-md-6'), Column('weekday', css_class='mb-3 col-md-6'), css_id='ordinal-fields-row', css_class='ordinal-fields-row'), Row(
-            Column('is_active', css_class='mb-3 col-md-6'),
-            Column('is_public', css_class='mb-3 col-md-6'),
-        ), Submit('submit', _('Save Event'), css_class='btn btn-primary'))
+        self.helper.layout = Layout(
+            Field('title', css_class='form-control'),
+            Field('description', css_class='form-control'),
+            Row(Column('link', css_class='mb-3 col-md-6'), Column('place', css_class='mb-3 col-md-6')),
+            Row(Column('start_date', css_class='mb-3 col-md-6'), Column('end_date', css_class='mb-3 col-md-6')),
+            Field('frequency', css_class='form-control', wrapper_class='mb-3'),
+            Row(Column('ordinal', css_class='mb-3 col-md-6'), Column('weekday', css_class='mb-3 col-md-6'), css_id='ordinal-fields-row', css_class='ordinal-fields-row'),
+            Row(Column('is_active', css_class='mb-3 col-md-6'), Column('is_public', css_class='mb-3 col-md-6')),
+            Submit('submit', _('Save Event'), css_class='btn btn-primary'),
+        )
 
     def clean_start_date(self):
         start_date = self.cleaned_data.get('start_date')

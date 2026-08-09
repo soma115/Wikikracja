@@ -3,6 +3,7 @@
 Pokrywają: rejekcję anonymous, sukces auth, join public/private, send w/bez join,
 multi-user broadcast, invalid reaction, get-notifications-data.
 """
+
 import pytest
 from asgiref.sync import sync_to_async
 from channels.testing import WebsocketCommunicator
@@ -108,13 +109,7 @@ async def test_send_to_unjoined_room_denied(public_room_with_user):
     assert connected is True
     await _consume_initial(communicator)
 
-    await communicator.send_json_to({
-        "command": "send",
-        "room_id": room.id,
-        "message": "Hello",
-        "is_anonymous": False,
-        "attachments": {}
-    })
+    await communicator.send_json_to({"command": "send", "room_id": room.id, "message": "Hello", "is_anonymous": False, "attachments": {}})
     response = await communicator.receive_json_from()
 
     assert response.get('error') == 'ROOM_ACCESS_DENIED'
@@ -133,13 +128,10 @@ async def test_invalid_reaction_rejected(public_room_with_user):
     await _consume_initial(communicator)
 
     from chat.models import Message
+
     message = await sync_to_async(Message.objects.create)(sender=user, text='Test', room=room, anonymous=False)
 
-    await communicator.send_json_to({
-        "command": "message-react",
-        "reaction": "invalid_reaction_xyz",
-        "message_id": message.id
-    })
+    await communicator.send_json_to({"command": "message-react", "reaction": "invalid_reaction_xyz", "message_id": message.id})
     response = await communicator.receive_json_from()
 
     assert response.get('error') == 'INVALID_REACTION'
@@ -188,13 +180,7 @@ async def test_multi_user_broadcast(private_room_with_users):
     await comm2.send_json_to({"command": "join", "room_id": room.id})
     await comm2.receive_json_from()
 
-    await comm1.send_json_to({
-        "command": "send",
-        "room_id": room.id,
-        "message": "Hello from member",
-        "is_anonymous": False,
-        "attachments": {}
-    })
+    await comm1.send_json_to({"command": "send", "room_id": room.id, "message": "Hello from member", "is_anonymous": False, "attachments": {}})
 
     # User2 może dostać kilka różnych eventów (online_data, unread_count update) przed właściwą wiadomością.
     # Czytamy do skutku (max 10 wiadomości / timeout 1s każda) i szukamy konkretnej treści.

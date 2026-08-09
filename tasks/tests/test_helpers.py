@@ -9,8 +9,7 @@ from tasks.models import Task
 from tasks.views import _apply_task_sort, _assign_priorities
 
 
-def make_annotated_task(title, votes_score, votes_up=0, votes_down=0,
-                        status=Task.Status.ACTIVE, updated_at=None, chat_msg_count=0):
+def make_annotated_task(title, votes_score, votes_up=0, votes_down=0, status=Task.Status.ACTIVE, updated_at=None, chat_msg_count=0):
     """In-memory Task-like object with annotated fields — nie zapisuje do bazy."""
     task = Task(title=title, description="", status=status)
     task.votes_score = votes_score
@@ -89,16 +88,8 @@ class AssignPrioritiesTest(SimpleTestCase):
 # ---------------------------------------------------------------------------
 class ApplyTaskSortTest(SimpleTestCase):
     def setUp(self):
-        self.t1 = make_annotated_task(
-            "A", votes_score=5, votes_up=5,
-            updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
-            chat_msg_count=10,
-        )
-        self.t2 = make_annotated_task(
-            "B", votes_score=1, votes_up=1,
-            updated_at=datetime(2024, 6, 1, tzinfo=timezone.utc),
-            chat_msg_count=2,
-        )
+        self.t1 = make_annotated_task("A", votes_score=5, votes_up=5, updated_at=datetime(2024, 1, 1, tzinfo=timezone.utc), chat_msg_count=10)
+        self.t2 = make_annotated_task("B", votes_score=1, votes_up=1, updated_at=datetime(2024, 6, 1, tzinfo=timezone.utc), chat_msg_count=2)
         self.tasks = [self.t1, self.t2]
 
     def test_sort_by_date_desc(self):

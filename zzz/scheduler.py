@@ -36,6 +36,7 @@ def start_scheduler():
         _scheduler_lock_fd = open(lock_file_path, 'w')
         if os.name != 'nt':
             import fcntl
+
             fcntl.flock(_scheduler_lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
             log.info(f"Acquired scheduler lock: {lock_file_path}")
     except IOError as e:
@@ -45,63 +46,27 @@ def start_scheduler():
     scheduler = BackgroundScheduler(timezone=settings.TIME_ZONE)
 
     # Chat messages - runs at 12, 18
-    scheduler.add_job(
-        run_chat_messages,
-        trigger=CronTrigger(hour='12,18', minute=1),
-        id='chat_messages',
-        name='Send chat message emails',
-        replace_existing=True,
-    )
+    scheduler.add_job(run_chat_messages, trigger=CronTrigger(hour='12,18', minute=1), id='chat_messages', name='Send chat message emails', replace_existing=True)
     log.info("Scheduled job: chat_messages at 12, 18")
 
     # Chat rooms - runs every 5 minutes
-    scheduler.add_job(
-        run_chat_rooms,
-        trigger=CronTrigger(minute='*/5'),
-        id='chat_rooms',
-        name='Create/Delete/Archive chat rooms',
-        replace_existing=True,
-    )
+    scheduler.add_job(run_chat_rooms, trigger=CronTrigger(minute='*/5'), id='chat_rooms', name='Create/Delete/Archive chat rooms', replace_existing=True)
     log.info("Scheduled job: chat_rooms every 5 minutes")
 
     # Vote - runs daily at 08:05
-    scheduler.add_job(
-        run_vote,
-        trigger=CronTrigger(hour=8, minute=5),
-        id='vote',
-        name='Process voting and create 1-to-1 rooms',
-        replace_existing=True,
-    )
+    scheduler.add_job(run_vote, trigger=CronTrigger(hour=8, minute=5), id='vote', name='Process voting and create 1-to-1 rooms', replace_existing=True)
     log.info("Scheduled job: vote at 08:05 daily")
 
     # Count citizens - runs every 5 minutes
-    scheduler.add_job(
-        run_count_citizens,
-        trigger=CronTrigger(minute='*/5'),
-        id='count_citizens',
-        name='Count citizens and manage reputation',
-        replace_existing=True,
-    )
+    scheduler.add_job(run_count_citizens, trigger=CronTrigger(minute='*/5'), id='count_citizens', name='Count citizens and manage reputation', replace_existing=True)
     log.info("Scheduled job: count_citizens every 5 minutes")
 
     # Update site - runs every hour
-    scheduler.add_job(
-        run_update_site,
-        trigger=CronTrigger(minute=2),
-        id='update_site',
-        name='Update Site domain and name from environment variables',
-        replace_existing=True,
-    )
+    scheduler.add_job(run_update_site, trigger=CronTrigger(minute=2), id='update_site', name='Update Site domain and name from environment variables', replace_existing=True)
     log.info("Scheduled job: update_site every hour")
 
     # Check for events starting every minute
-    scheduler.add_job(
-        run_meeting_notification,
-        trigger=CronTrigger(minute='*'),
-        id='meeting_notification',
-        name='Send notification when event starts',
-        replace_existing=True,
-    )
+    scheduler.add_job(run_meeting_notification, trigger=CronTrigger(minute='*'), id='meeting_notification', name='Send notification when event starts', replace_existing=True)
 
     scheduler.start()
     log.info("APScheduler started successfully")

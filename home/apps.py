@@ -16,10 +16,7 @@ class HomeConfig(AppConfig):
 
             try:
                 sp = SiteParameters.get()
-                _sync_django_site(
-                    sp,
-                    fallback_name=settings.SITE_NAME,
-                )
+                _sync_django_site(sp, fallback_name=settings.SITE_NAME)
             except Exception:
                 pass
 
@@ -27,6 +24,7 @@ class HomeConfig(AppConfig):
         # start (e.g. after deploying or restarting the dev server) so the
         # feed does not serve stale data left over from an older cache entry.
         from home.services.feed import invalidate_feed_cache
+
         invalidate_feed_cache()
 
         # Cache-invalidation signals for the feed now live in the apps that

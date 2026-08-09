@@ -46,10 +46,7 @@ def format_chat_message(
         # ZMIANA 2 — cytowanie
         "reply_to": reply_to,
         # ZMIANA 4 — reakcje + przeczytane
-        "reactions": reactions or {
-            "bulb": 0,
-            "question": 0
-        },
+        "reactions": reactions or {"bulb": 0, "question": 0},
         "read_by": read_by or [],
         "temp_id": temp_id,
     }

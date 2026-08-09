@@ -14,7 +14,7 @@ CATEGORY_COLORS = {
     'event': 'success',
     'message': 'info',
     'room_messages': 'info',  # grouped room messages content type
-    'chat': 'info',           # global search "chat" category (rooms + messages)
+    'chat': 'info',  # global search "chat" category (rooms + messages)
     'decision': 'danger',
     'citizen': 'secondary',
     'membership': 'secondary',

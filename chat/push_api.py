@@ -1,6 +1,7 @@
 """
 Push Notification API endpoints for FCM device registration and management.
 """
+
 import json
 import logging
 
@@ -25,6 +26,7 @@ class PushDeviceRegisterView(View):
     - platform: 'fcm'
     - registration_id: FCM device token
     """
+
     def post(self, request: HttpRequest):
         try:
             data = json.loads(request.body.decode('utf-8'))
@@ -32,9 +34,7 @@ class PushDeviceRegisterView(View):
             registration_id = data.get('registration_id', '')
 
             if not platform or not registration_id:
-                return JsonResponse({
-                    'error': 'Missing required parameters'
-                }, status=400)
+                return JsonResponse({'error': 'Missing required parameters'}, status=400)
 
             user = request.user
 
@@ -49,11 +49,7 @@ class PushDeviceRegisterView(View):
                 existing = GCMDevice.objects.filter(user=user, registration_id=registration_id).first()
                 if existing and existing.active and cache.get(debounce_key):
                     log.info(f"{NOTIF_LOG_TAG} User {user.id} debounced duplicate push registration: {platform}")
-                    return JsonResponse({
-                        'success': True,
-                        'platform': platform,
-                        'debounced': True,
-                    })
+                    return JsonResponse({'success': True, 'platform': platform, 'debounced': True})
 
                 # A registration_id (FCM token) identifies one physical
                 # browser/device install. It is NOT guaranteed unique per-user in the DB, so if
@@ -63,11 +59,7 @@ class PushDeviceRegisterView(View):
                 # physical endpoint, and pushes meant for "the other user" would show up on
                 # this device too (looks like "I get notified when I send a message myself").
                 GCMDevice.objects.filter(registration_id=registration_id).exclude(user=user).delete()
-                device, created = GCMDevice.objects.get_or_create(user=user, registration_id=registration_id, defaults={
-                    'active': True,
-                    'device_id': "",
-                    'cloud_message_type': 'FCM',
-                })
+                device, created = GCMDevice.objects.get_or_create(user=user, registration_id=registration_id, defaults={'active': True, 'device_id': "", 'cloud_message_type': 'FCM'})
                 if not created:
                     device.active = True
                     device.device_id = ""
@@ -79,28 +71,17 @@ class PushDeviceRegisterView(View):
                 # Mark this token as recently registered so rapid repeats are ignored.
                 cache.set(debounce_key, True, timeout=30)
             else:
-                return JsonResponse({
-                    'error': f'Unsupported platform: {platform}'
-                }, status=400)
+                return JsonResponse({'error': f'Unsupported platform: {platform}'}, status=400)
 
             log.info(f"{NOTIF_LOG_TAG} User {user.id} registered push device: {platform}")
 
-            return JsonResponse({
-                'success': True,
-                'device_id': device.id,
-                'platform': platform,
-                'created': created,
-            })
+            return JsonResponse({'success': True, 'device_id': device.id, 'platform': platform, 'created': created})
 
         except json.JSONDecodeError:
-            return JsonResponse({
-                'error': 'Invalid JSON'
-            }, status=400)
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
         except Exception as e:
             log.error(f"{NOTIF_LOG_TAG} Error registering push device: {e}")
-            return JsonResponse({
-                'error': str(e)
-            }, status=500)
+            return JsonResponse({'error': str(e)}, status=500)
 
 
 @method_decorator(login_required, name='dispatch')
@@ -111,6 +92,7 @@ class PushDeviceUnregisterView(View):
     - platform: 'fcm'
     - registration_id: FCM device token
     """
+
     def post(self, request: HttpRequest):
         try:
             data = json.loads(request.body.decode('utf-8'))
@@ -118,9 +100,7 @@ class PushDeviceUnregisterView(View):
             registration_id = data.get('registration_id', '')
 
             if not platform or not registration_id:
-                return JsonResponse({
-                    'error': 'Missing required parameters'
-                }, status=400)
+                return JsonResponse({'error': 'Missing required parameters'}, status=400)
 
             user = request.user
 
@@ -128,9 +108,7 @@ class PushDeviceUnregisterView(View):
             if platform == 'fcm':
                 devices = GCMDevice.objects.filter(user=user, registration_id=registration_id)
             else:
-                return JsonResponse({
-                    'error': f'Unsupported platform: {platform}'
-                }, status=400)
+                return JsonResponse({'error': f'Unsupported platform: {platform}'}, status=400)
 
             count = 0
             for device in devices:
@@ -145,20 +123,13 @@ class PushDeviceUnregisterView(View):
 
             log.info(f"{NOTIF_LOG_TAG} User {user.id} unregistered {count} {platform} device(s)")
 
-            return JsonResponse({
-                'success': True,
-                'deactivated': count,
-            })
+            return JsonResponse({'success': True, 'deactivated': count})
 
         except json.JSONDecodeError:
-            return JsonResponse({
-                'error': 'Invalid JSON'
-            }, status=400)
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
         except Exception as e:
             log.error(f"{NOTIF_LOG_TAG} Error unregistering push device: {e}")
-            return JsonResponse({
-                'error': str(e)
-            }, status=500)
+            return JsonResponse({'error': str(e)}, status=500)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -188,6 +159,7 @@ class PushNotificationAckView(View):
       'ws-foreground', 'fcm-foreground', 'fcm-background', 'sw-click'
     - reason: free-form explanation, mainly for 'skipped'/'error'
     """
+
     def post(self, request: HttpRequest):
         try:
             data = json.loads(request.body.decode('utf-8'))
@@ -201,10 +173,7 @@ class PushNotificationAckView(View):
         reason = data.get('reason', '')
         user_agent = data.get('user_agent', '')
 
-        log_line = (
-            f"{NOTIF_LOG_TAG} Notification ACK: user={request.user.id} notification_id={notification_id} "
-            f"status={status} source={source} tag={tag}"
-        )
+        log_line = f"{NOTIF_LOG_TAG} Notification ACK: user={request.user.id} notification_id={notification_id} status={status} source={source} tag={tag}"
         if reason:
             log_line += f" reason={reason!r}"
         if user_agent:

@@ -126,15 +126,14 @@ class Command(BaseCommand):
         For larger groups this mechanism is disabled.
         """
         from site_settings.params import get_param
+
         current_population = population()
         if current_population > get_param('acceptance') * 2:
             return
         for k in Uzytkownik.objects.filter(uid__is_active=True):
             if new_citizen == k:  # but not yourself
                 continue
-            obj, created = Rate.objects.update_or_create(obywatel=new_citizen, kandydat=k, defaults={
-                'rate': '1'
-            })
+            obj, created = Rate.objects.update_or_create(obywatel=new_citizen, kandydat=k, defaults={'rate': '1'})
             obj.save()
 
     def activate_eligible_users(self):
@@ -197,14 +196,7 @@ class Command(BaseCommand):
                 if welcome_post and welcome_post.text:
                     # Use system post content with placeholders
                     try:
-                        message = welcome_post.text.format(
-                            username=uname,
-                            email=uemail,
-                            password=password,
-                            host=host,
-                            login_url=f"{host}/login/",
-                            password_url=f"{host}/haslo/"
-                        )
+                        message = welcome_post.text.format(username=uname, email=uemail, password=password, host=host, login_url=f"{host}/login/", password_url=f"{host}/haslo/")
                         # Convert HTML <br> to newlines for plain text email
                         message = message.replace('<br>', '\n').replace('<p>', '').replace('</p>', '')
                         subject = f"[{host}] {welcome_post.title}"
@@ -260,13 +252,7 @@ class Command(BaseCommand):
 
                 SendEmailToAll(_('Citizen has been banned'), f"{_('User')} {uname} {_('has been blocked')}")
                 send_notification_to_all_sync(
-                    build_notification(
-                        _('Citizen has been banned'),
-                        f"{_('User')} {uname} {_('has been blocked')}",
-                        build_site_url('/obywatele/'),
-                        f'citizen-{i.uid.id}',
-                        citizen_id=i.uid.id,
-                    ),
+                    build_notification(_('Citizen has been banned'), f"{_('User')} {uname} {_('has been blocked')}", build_site_url('/obywatele/'), f'citizen-{i.uid.id}', citizen_id=i.uid.id),
                     ws_type='citizen.notification',
                     notification_type='obywatele',
                 )
@@ -301,6 +287,7 @@ class Command(BaseCommand):
     def delete_inactive_users(self):
         """Delete inactive users who haven't logged in for a while"""
         from site_settings.params import get_param
+
         inactive_period = get_param('delete_inactive_user_after')
 
         for user in User.objects.filter(is_active=False):

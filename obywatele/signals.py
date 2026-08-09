@@ -24,4 +24,5 @@ def track_user_blocked(uzytkownik, was_previously_active=False):
 @receiver(post_delete, sender=CitizenActivity)
 def _invalidate_feed_cache_on_citizen_activity_change(sender, **kwargs):
     from home.services.feed import invalidate_feed_cache
+
     invalidate_feed_cache()

@@ -10,6 +10,7 @@ from .models import Asset, Category, Partner, Transaction
 
 class AssetForm(forms.ModelForm):
     """Form for creating and updating Asset records."""
+
     class Meta:
         model = Asset
         fields = ['code', 'name', 'symbol', 'decimal_places', 'is_currency', 'is_default']
@@ -23,6 +24,7 @@ class AssetForm(forms.ModelForm):
 
 class PartnerForm(forms.ModelForm):
     """Form for creating and updating Partner records."""
+
     class Meta:
         model = Partner
         fields = ['name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'notes']
@@ -36,6 +38,7 @@ class PartnerForm(forms.ModelForm):
 
 class CategoryForm(forms.ModelForm):
     """Form for creating and updating Category records."""
+
     class Meta:
         model = Category
         fields = '__all__'
@@ -50,14 +53,9 @@ class CategoryForm(forms.ModelForm):
 class TransactionForm(forms.ModelForm):
     """Form for creating and updating Transaction records."""
 
-    TYPE_CHOICES = [
-        ('I', _('Incoming')),
-        ('O', _('Outgoing')),
-    ]
+    TYPE_CHOICES = [('I', _('Incoming')), ('O', _('Outgoing'))]
 
-    type = forms.ChoiceField(choices=TYPE_CHOICES, label=_('Type'), widget=forms.RadioSelect(attrs={
-        'class': 'form-check-inline'
-    }))
+    type = forms.ChoiceField(choices=TYPE_CHOICES, label=_('Type'), widget=forms.RadioSelect(attrs={'class': 'form-check-inline'}))
 
     asset = forms.ModelChoiceField(queryset=Asset.objects.all().order_by('code'), label=_('Asset'), empty_label=None)
 
@@ -65,21 +63,11 @@ class TransactionForm(forms.ModelForm):
 
     category = forms.ModelChoiceField(queryset=Category.objects.all().order_by('name'), required=True, label=_('Category'))
 
-    amount = forms.DecimalField(label=_('Amount'), min_value=0, decimal_places=8, widget=forms.NumberInput(attrs={
-        'class': 'form-control',
-        'step': 'any',
-        'id': 'id_amount',
-    }))
+    amount = forms.DecimalField(label=_('Amount'), min_value=0, decimal_places=8, widget=forms.NumberInput(attrs={'class': 'form-control', 'step': 'any', 'id': 'id_amount'}))
 
-    payment_received_date = forms.DateField(initial=datetime.now, label=_('Payment received date'), widget=forms.DateInput(attrs={
-        'type': 'date',
-        'class': 'form-control',
-    }), input_formats=['%Y-%m-%d'])
+    payment_received_date = forms.DateField(initial=datetime.now, label=_('Payment received date'), widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), input_formats=['%Y-%m-%d'])
 
-    note = forms.CharField(required=False, widget=forms.Textarea(attrs={
-        'rows': 3,
-        'class': 'form-control'
-    }), label=_('Note'))
+    note = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}), label=_('Note'))
 
     class Meta:
         model = Transaction

@@ -2,6 +2,7 @@
 
 Weryfikuje że relacje między modelami chatu się trzymają i pole reactions (JSONField) przechowuje słownik.
 """
+
 import pytest
 
 

@@ -8,8 +8,8 @@ DERIVED_SUBDIR = 'site_branding/derived'
 # wymiary PNG derivatives — używane przez przeglądarki/iOS/Android/PWA
 PNG_DERIVATIVES = {
     'apple-touch-icon.png': 180,  # iOS Safari "Dodaj do ekranu głównego"
-    'icon-192.png': 192,           # Android PWA install
-    'icon-512.png': 512,           # PWA splash screen
+    'icon-192.png': 192,  # Android PWA install
+    'icon-512.png': 512,  # PWA splash screen
 }
 FAVICON_SIZES = [(16, 16), (32, 32), (48, 48)]  # multi-size ICO
 

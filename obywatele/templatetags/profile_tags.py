@@ -33,9 +33,4 @@ def notification_row(notification_type, title, description, is_enabled):
         description: Description text for the notification
         is_enabled: Boolean indicating if notification is currently enabled
     """
-    return {
-        'notification_type': notification_type,
-        'title': title,
-        'description': description,
-        'is_enabled': is_enabled,
-    }
+    return {'notification_type': notification_type, 'title': title, 'description': description, 'is_enabled': is_enabled}

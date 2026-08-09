@@ -41,10 +41,7 @@ def _cast_vote(request, survey):
 
     with transaction.atomic():
         SurveyVote.objects.filter(survey=survey, user=request.user).delete()
-        SurveyVote.objects.bulk_create(
-            SurveyVote(survey=survey, user=request.user, option=opt)
-            for opt in options
-        )
+        SurveyVote.objects.bulk_create(SurveyVote(survey=survey, user=request.user, option=opt) for opt in options)
     messages.success(request, _("Your vote has been saved."))
     return True
 
@@ -61,14 +58,7 @@ def survey_list(request):
         return redirect(f"{reverse('ankiety:list')}?tab={tab}")
 
     now = timezone.now()
-    base_qs = Survey.objects.select_related("author").prefetch_related(
-        Prefetch(
-            "options",
-            queryset=SurveyOption.objects.annotate(
-                vote_count=Count("votes")
-            ).order_by("order", "id"),
-        )
-    )
+    base_qs = Survey.objects.select_related("author").prefetch_related(Prefetch("options", queryset=SurveyOption.objects.annotate(vote_count=Count("votes")).order_by("order", "id")))
 
     if tab == "active":
         surveys = base_qs.filter(end_date__gte=now).order_by("end_date")
@@ -78,20 +68,14 @@ def survey_list(request):
     surveys = list(surveys)
 
     user_votes_by_survey = {}
-    for vote in SurveyVote.objects.filter(
-        survey_id__in=[s.pk for s in surveys], user=request.user
-    ).order_by("-created_at"):
+    for vote in SurveyVote.objects.filter(survey_id__in=[s.pk for s in surveys], user=request.user).order_by("-created_at"):
         user_votes_by_survey.setdefault(vote.survey_id, []).append(vote)
 
     for survey in surveys:
-        total_votes = sum(
-            getattr(opt, "vote_count", 0) for opt in survey.options.all()
-        )
+        total_votes = sum(getattr(opt, "vote_count", 0) for opt in survey.options.all())
         survey.total_votes = total_votes
         for opt in survey.options.all():
-            opt.percentage = (
-                round(opt.vote_count / total_votes * 100, 1) if total_votes else 0
-            )
+            opt.percentage = round(opt.vote_count / total_votes * 100, 1) if total_votes else 0
         survey_votes = user_votes_by_survey.get(survey.pk, [])
         if survey.allow_multiple_choice:
             survey.user_vote_ids = {v.option_id for v in survey_votes}
@@ -100,14 +84,7 @@ def survey_list(request):
         survey.has_voted = bool(survey.user_vote_ids)
         survey.can_edit = request.user == survey.author and survey.is_active
 
-    return render(
-        request,
-        "ankiety/survey_list.html",
-        {
-            "surveys": surveys,
-            "current_tab": tab,
-        },
-    )
+    return render(request, "ankiety/survey_list.html", {"surveys": surveys, "current_tab": tab})
 
 
 @login_required
@@ -152,34 +129,20 @@ def survey_edit(request, pk):
 
 @login_required
 def survey_detail(request, pk):
-    survey = get_object_or_404(
-        Survey.objects.select_related("author").prefetch_related("options"),
-        pk=pk,
-    )
+    survey = get_object_or_404(Survey.objects.select_related("author").prefetch_related("options"), pk=pk)
 
-    options = list(
-        survey.options.annotate(vote_count=Count("votes")).order_by("order", "id")
-    )
+    options = list(survey.options.annotate(vote_count=Count("votes")).order_by("order", "id"))
     total_votes = sum(getattr(opt, "vote_count", 0) for opt in options)
     for opt in options:
-        opt.percentage = (
-            round(opt.vote_count / total_votes * 100, 1) if total_votes else 0
-        )
+        opt.percentage = round(opt.vote_count / total_votes * 100, 1) if total_votes else 0
 
-    user_votes = list(
-        SurveyVote.objects.filter(survey=survey, user=request.user)
-        .select_related("option")
-        .order_by("-created_at")
-    )
+    user_votes = list(SurveyVote.objects.filter(survey=survey, user=request.user).select_related("option").order_by("-created_at"))
     if survey.allow_multiple_choice:
         user_vote_ids = {v.option_id for v in user_votes}
     else:
         user_vote_ids = {user_votes[0].option_id} if user_votes else set()
 
-    all_votes = list(
-        SurveyVote.objects.filter(survey=survey)
-        .select_related("user", "option")
-    )
+    all_votes = list(SurveyVote.objects.filter(survey=survey).select_related("user", "option"))
     voter_choices = {}
     for v in all_votes:
         voter_choices.setdefault(v.user, []).append(v.option.text)

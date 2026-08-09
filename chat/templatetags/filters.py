@@ -77,7 +77,7 @@ def is_muted_by(room, user):
 
 @register.filter("has_messages")
 def has_messages(user):
-    rooms_with_new_messages = (Room.objects.filter(allowed=user.id, archived=False).exclude(seen_by=user.id).annotate(messages_count=Count('messages')).filter(messages_count__gt=0))
+    rooms_with_new_messages = Room.objects.filter(allowed=user.id, archived=False).exclude(seen_by=user.id).annotate(messages_count=Count('messages')).filter(messages_count__gt=0)
     count = rooms_with_new_messages.count()
     return "chat-has-messages" if count > 0 else ""
 

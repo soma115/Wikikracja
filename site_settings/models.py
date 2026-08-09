@@ -28,6 +28,7 @@ class SiteSettings(models.Model):
         super().save(*args, **kwargs)
         # late import — services.py importuje PIL, niepotrzebnie ładować przy każdym ładowaniu modelu
         from site_settings.services import cleanup_brand_derivatives, letterbox_to_square, regenerate_brand_derivatives
+
         # I/O na dysku po super().save() — przy rollbacku transakcji pliki pozostają orphan w MEDIA_ROOT.
         # Akceptujemy tę cenę: SiteSettings to singleton edytowany rzadko (admin manual), prawdziwy rollback prawie nie występuje.
         # letterbox prostokątów do kwadratu PRZED regen derivatives (żeby favicon/PWA wynikały z kwadratu)
@@ -53,6 +54,7 @@ class SiteSettings(models.Model):
 
         # If file is missing but brand_mark exists, regenerate it
         from site_settings.services import regenerate_brand_derivatives
+
         try:
             regenerate_brand_derivatives(self)
             return os.path.isfile(favicon_path)
@@ -72,6 +74,7 @@ class SiteParameters(models.Model):
     Seeded from ``django.conf.settings`` (env defaults) on first access. See
     ``site_settings/params.py`` for the parameter registry and apply logic.
     """
+
     # Voting parameters
     wymaganych_podpisow = models.PositiveIntegerField(default=2, verbose_name=_('Required signatures'))
     czas_na_zebranie_podpisow = models.PositiveIntegerField(default=365, verbose_name=_('Time to gather signatures (days)'))

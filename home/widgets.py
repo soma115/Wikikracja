@@ -26,12 +26,8 @@ class RichTextWidget(forms.Textarea):
     class Media:
         # DOMPurify is loaded globally by home/base.html (used by both chat and
         # this widget), so we only declare the widget-specific JS here.
-        js = (
-            'common/js/richtext-input.js',
-        )
-        css = {
-            'all': ('chat/css/chat.css',),
-        }
+        js = ('common/js/richtext-input.js',)
+        css = {'all': ('chat/css/chat.css',)}
 
     def __init__(self, attrs=None, max_length=None, placeholder=''):
         super().__init__(attrs)
@@ -53,36 +49,14 @@ class RichTextWidget(forms.Textarea):
         final_attrs = self.build_attrs(self.attrs, attrs)
         is_invalid = 'is-invalid' in final_attrs.get('class', '').split()
 
-        wrapper_attrs = (
-            format_html(' data-max-length="{}"', int(self.max_length))
-            if self.max_length else ''
-        )
-        placeholder_attr = (
-            format_html(' data-placeholder="{}"', self.placeholder)
-            if self.placeholder else ''
-        )
-        counter = (
-            format_html(
-                '<div class="msg-counter"><span class="msg-counter-val">{0}</span> / {0}</div>',
-                int(self.max_length),
-            )
-            if self.max_length else ''
-        )
+        wrapper_attrs = format_html(' data-max-length="{}"', int(self.max_length)) if self.max_length else ''
+        placeholder_attr = format_html(' data-placeholder="{}"', self.placeholder) if self.placeholder else ''
+        counter = format_html('<div class="msg-counter"><span class="msg-counter-val">{0}</span> / {0}</div>', int(self.max_length)) if self.max_length else ''
         hidden = format_html('<input type="hidden" name="{}" value="{}">', name, value)
-        editable_open = format_html(
-            '<div class="richtext-input message-input-rich" contenteditable="true"'
-            ' role="textbox" aria-multiline="true"{}>',
-            placeholder_attr,
-        )
-        wrapper_open = format_html(
-            '<div class="richtext-wrapper{}" data-richtext{}>',
-            ' is-invalid' if is_invalid else '',
-            wrapper_attrs,
-        )
+        editable_open = format_html('<div class="richtext-input message-input-rich" contenteditable="true" role="textbox" aria-multiline="true"{}>', placeholder_attr)
+        wrapper_open = format_html('<div class="richtext-wrapper{}" data-richtext{}>', ' is-invalid' if is_invalid else '', wrapper_attrs)
 
-        return mark_safe(
-            f'{wrapper_open}{TOOLBAR_HTML}{editable_open}{initial_html}</div>{hidden}{counter}</div>'
-        )
+        return mark_safe(f'{wrapper_open}{TOOLBAR_HTML}{editable_open}{initial_html}</div>{hidden}{counter}</div>')
 
     def value_from_datadict(self, data, files, name):
         # JS keeps the hidden <input name="..."> in sync, so the standard
@@ -105,9 +79,7 @@ class CounterTextarea(forms.Textarea):
         js = ('common/js/textarea-counter.js',)
         # Reuses the .msg-counter/.counter--warn/.counter--error styles
         # already defined for the chat composer.
-        css = {
-            'all': ('chat/css/chat.css',),
-        }
+        css = {'all': ('chat/css/chat.css',)}
 
     def __init__(self, attrs=None, max_length=None):
         self.max_length = max_length
@@ -130,10 +102,7 @@ class CounterTextarea(forms.Textarea):
         textarea_html = super().render(name, value, attrs, renderer)
         if not self.max_length:
             return textarea_html
-        counter = format_html(
-            '<div class="msg-counter"><span class="msg-counter-val">{0}</span> / {0}</div>',
-            int(self.max_length),
-        )
+        counter = format_html('<div class="msg-counter"><span class="msg-counter-val">{0}</span> / {0}</div>', int(self.max_length))
         wrapper_class = 'textarea-counter-wrapper is-invalid' if is_invalid else 'textarea-counter-wrapper'
         return mark_safe(format_html('<div class="{}">{}{}</div>', wrapper_class, textarea_html, counter))
 

@@ -61,18 +61,8 @@ def build_dashboard_context(user, feed_items=None, filter_unread=False, month_pa
             bar_color = 'warning'
         else:
             bar_color = 'danger'
-        user_voted = KtoJuzGlosowal.objects.filter(
-            projekt=referendum_obj,
-            ktory_uzytkownik_juz_zaglosowal=user,
-        ).exists()
-        active_referendum = {
-            'obj': referendum_obj,
-            'days_remaining': days_remaining,
-            'total_days': total_days,
-            'time_pct': time_pct,
-            'bar_color': bar_color,
-            'user_voted': user_voted,
-        }
+        user_voted = KtoJuzGlosowal.objects.filter(projekt=referendum_obj, ktory_uzytkownik_juz_zaglosowal=user).exists()
+        active_referendum = {'obj': referendum_obj, 'days_remaining': days_remaining, 'total_days': total_days, 'time_pct': time_pct, 'bar_color': bar_color, 'user_voted': user_voted}
 
     # Kalendarz: najbliższe wystąpienia (dla każdego wydarzenia tylko jedno najbliższe)
     today_dt = timezone.now()
@@ -128,10 +118,7 @@ def build_dashboard_context(user, feed_items=None, filter_unread=False, month_pa
     chat_unread_count = get_unread_count_for_user(user)
 
     # Licznik aktywnych zadań użytkownika
-    my_tasks_count = Task.objects.filter(
-        Q(assigned_to=user) | Q(votes__user=user, votes__value=1),
-        status=Task.Status.ACTIVE,
-    ).distinct().count()
+    my_tasks_count = Task.objects.filter(Q(assigned_to=user) | Q(votes__user=user, votes__value=1), status=Task.Status.ACTIVE).distinct().count()
 
     quick_links = list(QuickLink.objects.order_by('order'))
 

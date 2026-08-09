@@ -49,28 +49,25 @@ def dodaj(request: HttpRequest):
             message = _("New proposal has been saved.")
             messages.success(request, (message))
 
-            log.info(f'EMAIL_DIAG trigger=new_law_proposal source=glosowania.views.dodaj actor_user_id={request.user.id} actor_username={request.user.username} decision_id={form.id} subject={_("New law proposal")}')
-            SendEmail(_('New law proposal'), _('{user} added new law proposal: "{title}"\nYou can read it here: {url}').format(user=request.user.username.capitalize(), title=form.title, url=build_site_url(f'/glosowania/details/{form.id}')))
-
-            notification = build_notification(
-                _('New law proposal'),
-                f'{request.user.username.capitalize()}: {form.title}',
-                build_site_url(f'/glosowania/details/{form.id}'),
-                f'vote-{form.id}',
-                vote_id=form.id,
+            log.info(
+                f'EMAIL_DIAG trigger=new_law_proposal source=glosowania.views.dodaj actor_user_id={request.user.id} actor_username={request.user.username} decision_id={form.id} subject={_("New law proposal")}'
             )
+            SendEmail(
+                _('New law proposal'),
+                _('{user} added new law proposal: "{title}"\nYou can read it here: {url}').format(
+                    user=request.user.username.capitalize(), title=form.title, url=build_site_url(f'/glosowania/details/{form.id}')
+                ),
+            )
+
+            notification = build_notification(_('New law proposal'), f'{request.user.username.capitalize()}: {form.title}', build_site_url(f'/glosowania/details/{form.id}'), f'vote-{form.id}', vote_id=form.id)
             send_notification_to_all_in_thread(notification, ws_type='vote.notification', notification_type='glosowania')
 
             return redirect('glosowania:proposition')
         else:
-            return render(request, 'glosowania/dodaj.html', {
-                'form': form
-            })
+            return render(request, 'glosowania/dodaj.html', {'form': form})
     else:
         form = DecyzjaForm()
-    return render(request, 'glosowania/dodaj.html', {
-        'form': form
-    })
+    return render(request, 'glosowania/dodaj.html', {'form': form})
 
 
 @login_required
@@ -95,14 +92,7 @@ def edit(request: HttpRequest, pk: int):
         if form.is_valid():
             next_version = decision.wersje.count() + 1
             DecyzjaWersja.objects.create(
-                decyzja=decision,
-                modified_by=request.user,
-                version_number=next_version,
-                title=decision.title,
-                tresc=decision.tresc,
-                kara=decision.kara,
-                uzasadnienie=decision.uzasadnienie,
-                znosi=decision.znosi,
+                decyzja=decision, modified_by=request.user, version_number=next_version, title=decision.title, tresc=decision.tresc, kara=decision.kara, uzasadnienie=decision.uzasadnienie, znosi=decision.znosi
             )
             decision.title = form.cleaned_data['title']
             decision.tresc = form.cleaned_data['tresc']
@@ -113,22 +103,18 @@ def edit(request: HttpRequest, pk: int):
             message = _("Saved.")
             messages.success(request, (message))
 
-            SendEmail(_("Proposal no. {} has been modified").format(decision.id), _('{user} modified proposal: "{title}"\nYou can read new version here: {url}').format(user=request.user.username.capitalize(), title=decision.title, url=build_site_url(f'/glosowania/details/{decision.id}')))
+            SendEmail(
+                _("Proposal no. {} has been modified").format(decision.id),
+                _('{user} modified proposal: "{title}"\nYou can read new version here: {url}').format(
+                    user=request.user.username.capitalize(), title=decision.title, url=build_site_url(f'/glosowania/details/{decision.id}')
+                ),
+            )
             return redirect('glosowania:proposition')
     else:  # request.method != 'POST':
-        form = DecyzjaForm(initial={
-            'author': decision.author,
-            'title': decision.title,
-            'tresc': decision.tresc,
-            'kara': decision.kara,
-            'uzasadnienie': decision.uzasadnienie,
-            'znosi': decision.znosi,
-        })
+        form = DecyzjaForm(initial={'author': decision.author, 'title': decision.title, 'tresc': decision.tresc, 'kara': decision.kara, 'uzasadnienie': decision.uzasadnienie, 'znosi': decision.znosi})
 
     # log.info(f"Proposal {decision.id} modified by {request.user}") # Can't log that because it kicks in on form open (not on save)
-    return render(request, 'glosowania/edit.html', {
-        'form': form
-    })
+    return render(request, 'glosowania/edit.html', {'form': form})
 
 
 def generate_code():
@@ -147,10 +133,7 @@ def details(request: HttpRequest, pk: int):
             except Decyzja.DoesNotExist:
                 return redirect('glosowania:index')
             osoba_podpisujaca = request.user
-            __, created = ZebranePodpisy.objects.get_or_create(
-                projekt=nowy_projekt,
-                podpis_uzytkownika=osoba_podpisujaca,
-            )
+            __, created = ZebranePodpisy.objects.get_or_create(projekt=nowy_projekt, podpis_uzytkownika=osoba_podpisujaca)
             if created:
                 Decyzja.objects.filter(pk=pk).update(ile_osob_podpisalo=F('ile_osob_podpisalo') + 1)
         message = _('You signed this motion for a referendum.')
@@ -164,10 +147,7 @@ def details(request: HttpRequest, pk: int):
             except Decyzja.DoesNotExist:
                 return redirect('glosowania:index')
             osoba_podpisujaca = request.user
-            deleted, __ = ZebranePodpisy.objects.filter(
-                projekt=nowy_projekt,
-                podpis_uzytkownika=osoba_podpisujaca,
-            ).delete()
+            deleted, __ = ZebranePodpisy.objects.filter(projekt=nowy_projekt, podpis_uzytkownika=osoba_podpisujaca).delete()
             if deleted:
                 Decyzja.objects.filter(pk=pk).update(ile_osob_podpisalo=F('ile_osob_podpisalo') - 1)
         message = _('Not signed.')
@@ -182,10 +162,7 @@ def details(request: HttpRequest, pk: int):
                 except Decyzja.DoesNotExist:
                     return redirect('glosowania:index')
                 osoba_glosujaca = request.user
-                already_voted = KtoJuzGlosowal.objects.filter(
-                    projekt=nowy_projekt,
-                    ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca,
-                ).exists()
+                already_voted = KtoJuzGlosowal.objects.filter(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca).exists()
                 if already_voted:
                     return redirect('glosowania:details', pk)
                 glos = KtoJuzGlosowal(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca)
@@ -209,9 +186,7 @@ def details(request: HttpRequest, pk: int):
         message1 = str(_('Your vote has been saved. You voted Yes.'))
         messages.success(request, (message1), extra_tags='persist')
 
-        message2 = _('Your verification code is: %(code)s') % {
-            'code': code
-        }
+        message2 = _('Your verification code is: %(code)s') % {'code': code}
         messages.error(request, (message2), extra_tags='persist')
 
         message3 = str(_('Write down your code or create screenshot to verify it when the referendum is over. This code will be presented just once and will be not related to you.'))
@@ -227,10 +202,7 @@ def details(request: HttpRequest, pk: int):
                 except Decyzja.DoesNotExist:
                     return redirect('glosowania:index')
                 osoba_glosujaca = request.user
-                already_voted = KtoJuzGlosowal.objects.filter(
-                    projekt=nowy_projekt,
-                    ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca,
-                ).exists()
+                already_voted = KtoJuzGlosowal.objects.filter(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca).exists()
                 if already_voted:
                     return redirect('glosowania:details', pk)
                 glos = KtoJuzGlosowal(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca)
@@ -246,9 +218,7 @@ def details(request: HttpRequest, pk: int):
         message1 = str(_('Your vote has been saved. You voted No.'))
         messages.success(request, (message1), extra_tags='persist')
 
-        message2 = _('Your verification code is: %(code)s') % {
-            'code': code
-        }
+        message2 = _('Your verification code is: %(code)s') % {'code': code}
         messages.error(request, (message2), extra_tags='persist')
 
         message3 = str(_('Write down your code or create screenshot to verify it when the referendum is over. This code will be presented just once and will be not related to you.'))
@@ -300,6 +270,7 @@ def details(request: HttpRequest, pk: int):
 
     # Count arguments per author for this decision
     from collections import Counter
+
     author_counts = Counter(arg.author_id for arg in all_arguments if arg.author_id)
 
     # Sort by: 1) content length (shorter first), 2) author's argument count (fewer first)
@@ -317,25 +288,29 @@ def details(request: HttpRequest, pk: int):
     # Create argument form for adding new arguments
     argument_form = ArgumentForm()
 
-    return render(request, 'glosowania/szczegoly.html', {
-        'id': szczegoly,
-        'signed': signed,
-        'voted': voted,
-        'report': report,
-        'voters': voters,
-        'current_user': request.user,
-        'state': szczegoly.get_status_display(),
-        'data_referendum_stop': szczegoly.data_referendum_stop,
-        'prev': prev,
-        'next': next,
-        'chat_room': chat_room,
-        'chat_room_pulse_class': chat_room_pulse_class,
-        'positive_arguments': positive_arguments,
-        'negative_arguments': negative_arguments,
-        'argument_form': argument_form,
-        'MESSAGE_MAX_LENGTH': s.MESSAGE_MAX_LENGTH,
-        'ec_translations': get_chat_translations(),
-    })
+    return render(
+        request,
+        'glosowania/szczegoly.html',
+        {
+            'id': szczegoly,
+            'signed': signed,
+            'voted': voted,
+            'report': report,
+            'voters': voters,
+            'current_user': request.user,
+            'state': szczegoly.get_status_display(),
+            'data_referendum_stop': szczegoly.data_referendum_stop,
+            'prev': prev,
+            'next': next,
+            'chat_room': chat_room,
+            'chat_room_pulse_class': chat_room_pulse_class,
+            'positive_arguments': positive_arguments,
+            'negative_arguments': negative_arguments,
+            'argument_form': argument_form,
+            'MESSAGE_MAX_LENGTH': s.MESSAGE_MAX_LENGTH,
+            'ec_translations': get_chat_translations(),
+        },
+    )
 
 
 @login_required
@@ -392,11 +367,7 @@ def edit_argument(request: HttpRequest, argument_id: int):
     else:
         form = ArgumentForm(instance=argument)
 
-    return render(request, 'glosowania/edit_argument.html', {
-        'form': form,
-        'argument': argument,
-        'decyzja': argument.decyzja,
-    })
+    return render(request, 'glosowania/edit_argument.html', {'form': form, 'argument': argument, 'decyzja': argument.decyzja})
 
 
 @login_required
@@ -421,10 +392,7 @@ def delete_argument(request: HttpRequest, argument_id: int):
         messages.success(request, _("Your argument has been deleted."))
         return redirect('glosowania:details', decyzja_pk)
 
-    return render(request, 'glosowania/delete_argument.html', {
-        'argument': argument,
-        'decyzja': argument.decyzja,
-    })
+    return render(request, 'glosowania/delete_argument.html', {'argument': argument, 'decyzja': argument.decyzja})
 
 
 def _strip_html(text):
@@ -459,13 +427,7 @@ def historia(request: HttpRequest, pk: int):
     decision = get_object_or_404(Decyzja, pk=pk)
     versions = list(decision.wersje.select_related('modified_by').order_by('version_number'))
 
-    FIELDS = [
-        ('title', _('Title')),
-        ('tresc', _('Law text')),
-        ('uzasadnienie', _('Reasoning')),
-        ('kara', _('Penalty')),
-        ('znosi', _('Abolishes')),
-    ]
+    FIELDS = [('title', _('Title')), ('tresc', _('Law text')), ('uzasadnienie', _('Reasoning')), ('kara', _('Penalty')), ('znosi', _('Abolishes'))]
 
     entries = []
     for i, ver in enumerate(versions):
@@ -479,15 +441,9 @@ def historia(request: HttpRequest, pk: int):
             old_val = getattr(prev, field) if prev else ''
             new_val = getattr(ver, field) or ''
             if old_val != new_val:
-                diffs.append({
-                    'label': label,
-                    'html': _make_diff_html(old_val, new_val),
-                })
+                diffs.append({'label': label, 'html': _make_diff_html(old_val, new_val)})
 
-        entries.append({
-            'version': ver,
-            'diffs': diffs,
-        })
+        entries.append({'version': ver, 'diffs': diffs})
 
     # Ostatnia wersja (aktualna) vs. ostatni snapshot
     if versions:
@@ -497,30 +453,18 @@ def historia(request: HttpRequest, pk: int):
             old_val = getattr(last, field) or ''
             new_val = getattr(decision, field) or ''
             if old_val != new_val:
-                current_diffs.append({
-                    'label': label,
-                    'html': _make_diff_html(old_val, new_val),
-                })
+                current_diffs.append({'label': label, 'html': _make_diff_html(old_val, new_val)})
     else:
         current_diffs = []
 
-    return render(request, 'glosowania/historia.html', {
-        'decision': decision,
-        'entries': entries,
-        'current_diffs': current_diffs,
-    })
+    return render(request, 'glosowania/historia.html', {'decision': decision, 'entries': entries, 'current_diffs': current_diffs})
 
 
 def SendEmail(subject: str, message: str):
     # to: all active users with voting notifications enabled (individual emails)
     # subject: Custom
     # message: Custom
-    send_notification_email_to_active_users(
-        subject,
-        message,
-        notification_type='glosowania',
-        log_prefix='glosowania: ',
-    )
+    send_notification_email_to_active_users(subject, message, notification_type='glosowania', log_prefix='glosowania: ')
 
 
 # proposition = 1
@@ -539,13 +483,11 @@ def parameters(request: HttpRequest):
     for _key, label, specs in specs_by_category():
         groups.append((label, [(spec, getattr(sp, spec.name)) for spec in specs]))
 
-    return render(request, 'glosowania/parameters.html', {
-        'signatures': sp.wymaganych_podpisow,
-        'signatures_span': sp.czas_na_zebranie_podpisow,
-        'queue_span': sp.dyskusja,
-        'referendum_span': sp.czas_trwania_referendum,
-        'parameter_groups': groups,
-    })
+    return render(
+        request,
+        'glosowania/parameters.html',
+        {'signatures': sp.wymaganych_podpisow, 'signatures_span': sp.czas_na_zebranie_podpisow, 'queue_span': sp.dyskusja, 'referendum_span': sp.czas_trwania_referendum, 'parameter_groups': groups},
+    )
 
 
 @login_required
@@ -572,21 +514,14 @@ def parameters_propose(request: HttpRequest, pk: int = None):
             # Build a human readable change list used as the referendum body.
             # NOTE: the |richtext filter only keeps b/i/u/br/a tags, so we use <br>/<b>.
             rows = describe_changes(changes)
-            lines = [f'{html.escape(str(label))}: <b>{html.escape(str(old))}</b> → <b>{html.escape(str(new))}</b>'
-                     for label, old, new in rows]
+            lines = [f'{html.escape(str(label))}: <b>{html.escape(str(old))}</b> → <b>{html.escape(str(new))}</b>' for label, old, new in rows]
             keeps_logo = bool(decyzja and decyzja.proposed_brand_mark)
             if new_logo or keeps_logo:
                 lines.append(f'{html.escape(str(_("Logo")))}: <b>{html.escape(str(_("new logo")))}</b>')
             tresc = str(_('Proposed change of system parameters:')) + '<br>' + '<br>'.join(lines)
 
             if decyzja is None:
-                decyzja = Decyzja(
-                    author=request.user,
-                    title=str(_('System parameters change')),
-                    data_powstania=datetime.today(),
-                    status=Decyzja.Status.PROPOSITION,
-                    path=str(_('Proposition')),
-                )
+                decyzja = Decyzja(author=request.user, title=str(_('System parameters change')), data_powstania=datetime.today(), status=Decyzja.Status.PROPOSITION, path=str(_('Proposition')))
             else:
                 # Snapshot the current version before overwriting.
                 DecyzjaWersja.objects.create(
@@ -610,15 +545,15 @@ def parameters_propose(request: HttpRequest, pk: int = None):
             if pk is None:
                 log.info(f'New parameters referendum {decyzja.id} added by {request.user} changes={changes}')
                 messages.success(request, _('New proposal has been saved.'))
-                SendEmail(str(_('New law proposal')), str(_('{user} added new law proposal: "{title}"\nYou can read it here: {url}')).format(
-                    user=request.user.username.capitalize(), title=decyzja.title, url=build_site_url(f'/glosowania/details/{decyzja.id}')))
+                SendEmail(
+                    str(_('New law proposal')),
+                    str(_('{user} added new law proposal: "{title}"\nYou can read it here: {url}')).format(
+                        user=request.user.username.capitalize(), title=decyzja.title, url=build_site_url(f'/glosowania/details/{decyzja.id}')
+                    ),
+                )
 
                 notification = build_notification(
-                    str(_('New law proposal')),
-                    f'{request.user.username.capitalize()}: {decyzja.title}',
-                    build_site_url(f'/glosowania/details/{decyzja.id}'),
-                    f'vote-{decyzja.id}',
-                    vote_id=decyzja.id,
+                    str(_('New law proposal')), f'{request.user.username.capitalize()}: {decyzja.title}', build_site_url(f'/glosowania/details/{decyzja.id}'), f'vote-{decyzja.id}', vote_id=decyzja.id
                 )
                 send_notification_to_all_in_thread(notification, ws_type='vote.notification', notification_type='glosowania')
             else:
@@ -628,10 +563,7 @@ def parameters_propose(request: HttpRequest, pk: int = None):
     else:
         form = ParametersProposalForm(decyzja=decyzja)
 
-    return render(request, 'glosowania/parameters_propose.html', {
-        'form': form,
-        'decyzja': decyzja,
-    })
+    return render(request, 'glosowania/parameters_propose.html', {'form': form, 'decyzja': decyzja})
 
 
 def _apply_sort(queryset, sort, order='desc'):
@@ -657,11 +589,7 @@ def _sort_context(request):
 def rejected(request: HttpRequest):
     sort, order = _sort_context(request)
     votings = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.REJECTED), sort, order)
-    return render(request, 'glosowania/rejected.html', {
-        'votings': votings,
-        'current_sort': sort,
-        'current_order': order,
-    })
+    return render(request, 'glosowania/rejected.html', {'votings': votings, 'current_sort': sort, 'current_order': order})
 
 
 @login_required
@@ -670,59 +598,33 @@ def proposition(request: HttpRequest):
     votings = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.PROPOSITION), sort, order)
     for voting in votings:
         voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
-    return render(request, 'glosowania/proposition.html', {
-        'votings': votings,
-        'current_sort': sort,
-        'current_order': order,
-    })
+    return render(request, 'glosowania/proposition.html', {'votings': votings, 'current_sort': sort, 'current_order': order})
 
 
 @login_required
 def discussion(request: HttpRequest):
     sort, order = _sort_context(request)
-    author_signed = Exists(
-        ZebranePodpisy.objects.filter(
-            projekt=OuterRef("pk"),
-            podpis_uzytkownika_id=OuterRef("author_id"),
-        )
-    )
+    author_signed = Exists(ZebranePodpisy.objects.filter(projekt=OuterRef("pk"), podpis_uzytkownika_id=OuterRef("author_id")))
     qs = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.DISCUSSION).annotate(_signed=author_signed).filter(_signed=True), sort, order)
     votings = list(qs)
     for voting in votings:
         voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
-    return render(request, 'glosowania/discussion.html', {
-        'votings': votings,
-        'current_sort': sort,
-        'current_order': order,
-    })
+    return render(request, 'glosowania/discussion.html', {'votings': votings, 'current_sort': sort, 'current_order': order})
 
 
 @login_required
 def referendum(request: HttpRequest):
     sort, order = _sort_context(request)
-    author_signed = Exists(
-        ZebranePodpisy.objects.filter(
-            projekt=OuterRef("pk"),
-            podpis_uzytkownika_id=OuterRef("author_id"),
-        )
-    )
+    author_signed = Exists(ZebranePodpisy.objects.filter(projekt=OuterRef("pk"), podpis_uzytkownika_id=OuterRef("author_id")))
     qs = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.REFERENDUM).annotate(_signed=author_signed).filter(_signed=True), sort, order)
     votings = list(qs)
     for voting in votings:
         voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
-    return render(request, 'glosowania/referendum.html', {
-        'votings': votings,
-        'current_sort': sort,
-        'current_order': order,
-    })
+    return render(request, 'glosowania/referendum.html', {'votings': votings, 'current_sort': sort, 'current_order': order})
 
 
 @login_required
 def approved(request: HttpRequest):
     sort, order = _sort_context(request)
     votings = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.APPROVED), sort, order)
-    return render(request, 'glosowania/approved.html', {
-        'votings': votings,
-        'current_sort': sort,
-        'current_order': order,
-    })
+    return render(request, 'glosowania/approved.html', {'votings': votings, 'current_sort': sort, 'current_order': order})

@@ -1,4 +1,5 @@
 """Testy serwisów aplikacji bookkeeping (agregacje per asset)."""
+
 from datetime import date
 from decimal import Decimal
 
@@ -46,13 +47,7 @@ class AssetBalancesTests(TestCase):
     def _make_txn(self, asset, txn_type, amount, year=2026, category=None, partner=None):
         """Helper: tworzy transakcję z domyślnym category/partner z setUp."""
         return Transaction.objects.create(
-            type=txn_type,
-            asset=asset,
-            amount=Decimal(str(amount)),
-            payment_received_date=date(year, 6, 15),
-            category=category or self.cat_skladki,
-            partner=partner or self.partner_a,
-            author=self.user,
+            type=txn_type, asset=asset, amount=Decimal(str(amount)), payment_received_date=date(year, 6, 15), category=category or self.cat_skladki, partner=partner or self.partner_a, author=self.user
         )
 
     # ─── core behavior ────────────────────────────────────────────────
@@ -451,8 +446,7 @@ class CategoryBreakdownTests(TestCase):
 
             # Bug: both ghost IDs → cat_name='—' → setdefault('—') merges them → 1 row, 1500
             # Fix: key by cat_id → 2 separate rows
-            self.assertEqual(len(pivot_rows), 2,
-                             "Each deleted category must produce its own pivot row")
+            self.assertEqual(len(pivot_rows), 2, "Each deleted category must produce its own pivot row")
             self.assertEqual(asset_totals[self.pln.pk], Decimal('1500'))
             by_asset_values = sorted(r['by_asset'].get(self.pln.pk) for r in pivot_rows)
             self.assertEqual(by_asset_values, [Decimal('500'), Decimal('1000')])

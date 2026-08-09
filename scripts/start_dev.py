@@ -6,6 +6,7 @@ run migrations and start Daphne.
 With --full: additionally pip install -r requirements.txt, makemigrations for
 listed apps, makemessages/compilemessages and collectstatic.
 """
+
 import argparse
 import os
 import secrets
@@ -54,6 +55,7 @@ def db_path():
     try:
         sys.path.insert(0, str(BASE_DIR))
         from zzz.settings_base import DATABASES
+
         return str(DATABASES["default"]["NAME"])
     except Exception:
         return str(DB_DEFAULT)
@@ -72,11 +74,7 @@ def run(cmd, allow_failure=False):
 
 def main():
     parser = argparse.ArgumentParser(description="Start dev environment quickly; use --full for slow/setup tasks.")
-    parser.add_argument(
-        "--full",
-        action="store_true",
-        help="Run full setup (pip install, makemigrations, i18n messages, collectstatic) before start.",
-    )
+    parser.add_argument("--full", action="store_true", help="Run full setup (pip install, makemigrations, i18n messages, collectstatic) before start.")
     args = parser.parse_args()
 
     if sys.prefix == sys.base_prefix:

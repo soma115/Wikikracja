@@ -27,13 +27,7 @@ class SurveyForm(forms.ModelForm):
         required=False,
         label=_("Options"),
         help_text=_("One option per line. At least 2 options are required."),
-        widget=forms.Textarea(
-            attrs={
-                "rows": 6,
-                "class": "form-control",
-                "placeholder": _("e.g.\nOption A\nOption B\nOption C"),
-            }
-        ),
+        widget=forms.Textarea(attrs={"rows": 6, "class": "form-control", "placeholder": _("e.g.\nOption A\nOption B\nOption C")}),
     )
 
     class Meta:
@@ -41,10 +35,7 @@ class SurveyForm(forms.ModelForm):
         fields = ["title", "description", "end_date", "allow_multiple_choice"]
         widgets = {
             "title": forms.TextInput(attrs={"class": "form-control"}),
-            "description": RichTextWidget(
-                placeholder=_("Describe the survey."),
-                max_length=3000,
-            ),
+            "description": RichTextWidget(placeholder=_("Describe the survey."), max_length=3000),
             "end_date": DateTimeLocalInput(attrs={"class": "form-control"}),
             "allow_multiple_choice": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
@@ -52,19 +43,12 @@ class SurveyForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
-            self.fields["options_text"].initial = self._options_to_text(
-                self.instance.options.order_by("order", "id")
-            )
+            self.fields["options_text"].initial = self._options_to_text(self.instance.options.order_by("order", "id"))
             if not self.instance.is_active:
                 self.fields["options_text"].disabled = True
-                self.fields["options_text"].help_text = _(
-                    "The survey is closed; options cannot be changed."
-                )
+                self.fields["options_text"].help_text = _("The survey is closed; options cannot be changed.")
             elif self.instance.votes.exists():
-                self.fields["options_text"].help_text = _(
-                    "You can change options while the survey is ongoing. "
-                    "Renaming or removing an option will delete votes cast for it."
-                )
+                self.fields["options_text"].help_text = _("You can change options while the survey is ongoing. Renaming or removing an option will delete votes cast for it.")
 
     @staticmethod
     def _options_to_text(options):
@@ -122,9 +106,7 @@ class SurveyForm(forms.ModelForm):
                     opt.save(update_fields=["order"])
                 kept_ids.add(opt.pk)
             else:
-                to_create.append(
-                    SurveyOption(survey=survey, text=text, order=idx)
-                )
+                to_create.append(SurveyOption(survey=survey, text=text, order=idx))
 
         # Remove options that no longer appear (and their votes via CASCADE).
         survey.options.exclude(pk__in=kept_ids).delete()

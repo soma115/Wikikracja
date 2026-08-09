@@ -19,6 +19,7 @@ class CustomAccountAdapter(DefaultAccountAdapter):
     - Preserves session data across allauth redirects
     - Critical for onboarding form access after signup
     """
+
     def save_user(self, request, user, form, commit=True):
         """
         CRITICAL: Set onboarding_user_id in session immediately after user creation.
@@ -49,6 +50,7 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         Allow signup if configured
         """
         from site_settings.params import get_param
+
         return get_param('group_is_public')
 
     def get_login_redirect_url(self, request):

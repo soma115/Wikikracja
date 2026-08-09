@@ -1,4 +1,5 @@
 """Wspólne fixtures dla testów cross-cutting w katalogu /tests/."""
+
 import pytest
 from django.test import Client
 
@@ -28,18 +29,21 @@ def chat_room(db):
 @pytest.fixture
 def board_category(db):
     from board.models import PostCategory
+
     return PostCategory.objects.create(name='Test Category', priority=1)
 
 
 @pytest.fixture
 def bookkeeping_category(db):
     from bookkeeping.models import Category
+
     return Category.objects.create(name='Test BK Category')
 
 
 @pytest.fixture
 def bookkeeping_partner(db):
     from bookkeeping.models import Partner
+
     return Partner.objects.create(name='Test Partner', email='partner@example.com', phone='+48123456789', city='Warsaw', country='Poland')
 
 

@@ -65,11 +65,7 @@ def test_dashboard_no_active_referendum(dashboard_user):
 def test_dashboard_feed_filter_unread(dashboard_user):
     from board.models import Post
 
-    post = Post.objects.create(
-        title='Unread post',
-        text='<p>body</p>',
-        author=dashboard_user,
-    )
+    post = Post.objects.create(title='Unread post', text='<p>body</p>', author=dashboard_user)
 
     ctx_all = build_dashboard_context(dashboard_user, filter_unread=False)
     assert any(i['object_id'] == post.pk for i in ctx_all['feed_items'])
@@ -79,10 +75,6 @@ def test_dashboard_feed_filter_unread(dashboard_user):
     assert ctx_unread['filter_unread'] is True
 
     # Mark as read
-    ReadStatus.objects.create(
-        user=dashboard_user,
-        content_type=ReadStatus.ContentType.POST,
-        object_id=post.pk,
-    )
+    ReadStatus.objects.create(user=dashboard_user, content_type=ReadStatus.ContentType.POST, object_id=post.pk)
     ctx_unread_after = build_dashboard_context(dashboard_user, filter_unread=True)
     assert not any(i['object_id'] == post.pk for i in ctx_unread_after['feed_items'])

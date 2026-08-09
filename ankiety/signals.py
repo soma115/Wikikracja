@@ -8,4 +8,5 @@ from .models import Survey
 @receiver(post_delete, sender=Survey)
 def _invalidate_feed_cache_on_survey_change(sender, **kwargs):
     from home.services.feed import invalidate_feed_cache
+
     invalidate_feed_cache()

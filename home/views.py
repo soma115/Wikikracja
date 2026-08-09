@@ -35,9 +35,7 @@ def home(request: HttpRequest):
         if not start:
             log.info('Add Board Message title Start.')
             start = ''
-        return render(request, 'home/home.html', {
-            'start': start
-        })
+        return render(request, 'home/home.html', {'start': start})
 
     # Check if we should filter to show only unread items
     # Priority: URL parameter > session (synced from localStorage)
@@ -55,11 +53,7 @@ def home(request: HttpRequest):
         # Default: show all items
         filter_unread = False
 
-    context = dashboard_service.build_dashboard_context(
-        request.user,
-        filter_unread=filter_unread,
-        month_param=request.GET.get('month', ''),
-    )
+    context = dashboard_service.build_dashboard_context(request.user, filter_unread=filter_unread, month_param=request.GET.get('month', ''))
     # Expose feed unread count for context processors (e.g. topbar notif bell).
     request._unread_count = context.pop('_unread_count')
 
@@ -88,25 +82,13 @@ def activity_page(request):
     if sort == 'date':
         all_items.sort(key=lambda x: x['timestamp'], reverse=(order == 'desc'))
 
-    content_types = [
-        ('', _('All')),
-        ('post', _('Announcements')),
-        ('task', _('Tasks')),
-        ('decision', _('Votings')),
-        ('event', _('Calendar')),
-        ('citizen', _('Citizens')),
-        ('room_messages', _('Chat')),
-    ]
+    content_types = [('', _('All')), ('post', _('Announcements')), ('task', _('Tasks')), ('decision', _('Votings')), ('event', _('Calendar')), ('citizen', _('Citizens')), ('room_messages', _('Chat'))]
 
-    return render(request, 'home/activity.html', {
-        'feed_items': all_items,
-        'ct_filter': ct_filter,
-        'sort': sort,
-        'order': order,
-        'filter_unread': filter_unread,
-        'unread_count': unread_count,
-        'content_types': content_types,
-    })
+    return render(
+        request,
+        'home/activity.html',
+        {'feed_items': all_items, 'ct_filter': ct_filter, 'sort': sort, 'order': order, 'filter_unread': filter_unread, 'unread_count': unread_count, 'content_types': content_types},
+    )
 
 
 @login_required
@@ -117,23 +99,15 @@ def mark_as_read(request):
     object_id = request.POST.get('object_id')
 
     if not content_type or not object_id:
-        return JsonResponse({
-            'success': False,
-            'error': 'Missing parameters'
-        })
+        return JsonResponse({'success': False, 'error': 'Missing parameters'})
 
     try:
         object_id = int(object_id)
         feed_service.mark_feed_item_as_read(content_type, object_id, request.user)
-        return JsonResponse({
-            'success': True
-        })
+        return JsonResponse({'success': True})
 
     except ValueError:
-        return JsonResponse({
-            'success': False,
-            'error': 'Invalid parameters'
-        })
+        return JsonResponse({'success': False, 'error': 'Invalid parameters'})
 
 
 @login_required
@@ -142,17 +116,11 @@ def mark_all_read(request):
     """Mark all feed items as read for the current user"""
     try:
         count = feed_service.mark_all_feed_items_as_read(request.user)
-        return JsonResponse({
-            'success': True,
-            'marked_count': count
-        })
+        return JsonResponse({'success': True, 'marked_count': count})
 
     except Exception as e:
         log.error(f"Error marking all as read for user {request.user.id}: {e}")
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        })
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 @login_required
@@ -163,15 +131,10 @@ def save_filter_state(request):
         filter_state = request.POST.get('show_unread_only', 'false').lower() == 'true'
         request.session['show_unread_only'] = filter_state
         request.session.modified = True
-        return JsonResponse({
-            'success': True
-        })
+        return JsonResponse({'success': True})
     except Exception as e:
         log.error(f"Error saving filter state: {e}")
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        })
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 @login_required
@@ -182,23 +145,15 @@ def mark_unread(request):
     object_id = request.POST.get('object_id')
 
     if not content_type or not object_id:
-        return JsonResponse({
-            'success': False,
-            'error': 'Missing parameters'
-        })
+        return JsonResponse({'success': False, 'error': 'Missing parameters'})
 
     try:
         object_id = int(object_id)
         feed_service.mark_feed_item_as_unread(content_type, object_id, request.user)
-        return JsonResponse({
-            'success': True
-        })
+        return JsonResponse({'success': True})
 
     except ValueError:
-        return JsonResponse({
-            'success': False,
-            'error': 'Invalid parameters'
-        })
+        return JsonResponse({'success': False, 'error': 'Invalid parameters'})
 
 
 @login_required
@@ -217,11 +172,7 @@ def global_search(request: HttpRequest):
 
     results = search_service.run_global_search(query, active_cats, request.user)
 
-    return render(request, 'home/search.html', {
-        'query': query,
-        'results': results,
-        'active_cats': active_cats,
-    })
+    return render(request, 'home/search.html', {'query': query, 'results': results, 'active_cats': active_cats})
 
 
 class RememberLoginView(LoginView):
@@ -251,9 +202,7 @@ def haslo(request: HttpRequest):
             messages.error(request, _('You typed something wrong. See what error appeared above and try again.'))
     else:
         form = PasswordChangeForm(request.user)
-    return render(request, 'home/haslo.html', {
-        'form': form
-    })
+    return render(request, 'home/haslo.html', {'form': form})
 
 
 def manifest(request):
@@ -271,6 +220,7 @@ def manifest(request):
         icon_512_src = '/static/home/images/icon-512.png'
 
     from site_settings.params import get_param
+
     site_name = get_param('site_name') or settings.SITE_NAME
     data = {
         'name': site_name,
@@ -286,26 +236,13 @@ def manifest(request):
         # is installed to the home screen. 103953800507 is Google's fixed sender ID
         # used for the legacy GCM/FCM handshake; it is NOT your Firebase project ID.
         "gcm_sender_id": "103953800507",
-        'icons': [{
-            'src': favicon_src,
-            'sizes': "16x16 32x32 48x48",
-            'type': 'image/x-icon',
-            "purpose": "any"
-        }, {
-            'src': icon_192_src,
-            'sizes': "192x192",
-            'type': 'image/png',
-            "purpose": "any"
-        }, {
-            'src': icon_512_src,
-            'sizes': "512x512",
-            'type': 'image/png',
-            "purpose": "any"
-        }],
+        'icons': [
+            {'src': favicon_src, 'sizes': "16x16 32x32 48x48", 'type': 'image/x-icon', "purpose": "any"},
+            {'src': icon_192_src, 'sizes': "192x192", 'type': 'image/png', "purpose": "any"},
+            {'src': icon_512_src, 'sizes': "512x512", 'type': 'image/png', "purpose": "any"},
+        ],
     }
-    response = JsonResponse(data, json_dumps_params={
-        'ensure_ascii': False
-    })
+    response = JsonResponse(data, json_dumps_params={'ensure_ascii': False})
     # Let browsers revalidate so PWA name/description changes are picked up
     # without an app restart or manual cache clearing.
     response['Cache-Control'] = 'no-cache'
@@ -325,12 +262,7 @@ def firebase_messaging_sw(request):
     # Inject Firebase config from settings, replacing the entire JS object block
     firebase_config = getattr(settings, 'FIREBASE_CONFIG', {})
     config_str = f"const firebaseConfig = {json.dumps(firebase_config)};"
-    sw_content = re.sub(
-        r'const\s+firebaseConfig\s*=\s*\{[\s\S]*?\};',
-        config_str,
-        sw_content,
-        count=1,
-    )
+    sw_content = re.sub(r'const\s+firebaseConfig\s*=\s*\{[\s\S]*?\};', config_str, sw_content, count=1)
 
     response = HttpResponse(sw_content, content_type='application/javascript')
     response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
@@ -380,7 +312,7 @@ def site_admin(request: HttpRequest) -> HttpResponse:
             link.save()
             messages.success(request, _('Link updated.'))
         except QuickLink.DoesNotExist:
-            messages.error(request, _("Link doesn\'t exist."))
+            messages.error(request, _("Link doesn't exist."))
         return redirect('site_admin')
 
     if request.method == 'POST' and 'reorder_quick_links' in request.POST:
@@ -401,7 +333,7 @@ def site_admin(request: HttpRequest) -> HttpResponse:
             link.delete()
             messages.success(request, _('Link deleted.'))
         except QuickLink.DoesNotExist:
-            messages.error(request, _("Link doesn\'t exist."))
+            messages.error(request, _("Link doesn't exist."))
         return redirect('site_admin')
 
     quick_links = QuickLink.objects.all()
@@ -409,8 +341,4 @@ def site_admin(request: HttpRequest) -> HttpResponse:
     restarted_referendums = Decyzja.objects.filter(referendum_restart_count__gt=0).order_by('-referendum_restart_count')
     total_referendum_restarts = sum(d.referendum_restart_count for d in restarted_referendums)
 
-    return render(request, 'home/site_admin.html', {
-        'quick_links': quick_links,
-        'restarted_referendums': restarted_referendums,
-        'total_referendum_restarts': total_referendum_restarts,
-    })
+    return render(request, 'home/site_admin.html', {'quick_links': quick_links, 'restarted_referendums': restarted_referendums, 'total_referendum_restarts': total_referendum_restarts})

@@ -33,16 +33,8 @@ class TaskQuerySet(models.QuerySet):
             votes_up=Count("votes", filter=Q(votes__value=TaskVote.Value.UP), distinct=True),
             votes_down=Count("votes", filter=Q(votes__value=TaskVote.Value.DOWN), distinct=True),
             votes_score=Coalesce(Sum("votes__value"), 0),
-            eval_success=Count(
-                "evaluations",
-                filter=Q(evaluations__value=TaskEvaluation.Value.SUCCESS),
-                distinct=True,
-            ),
-            eval_failure=Count(
-                "evaluations",
-                filter=Q(evaluations__value=TaskEvaluation.Value.FAILURE),
-                distinct=True,
-            ),
+            eval_success=Count("evaluations", filter=Q(evaluations__value=TaskEvaluation.Value.SUCCESS), distinct=True),
+            eval_failure=Count("evaluations", filter=Q(evaluations__value=TaskEvaluation.Value.FAILURE), distinct=True),
         )
 
 
@@ -55,32 +47,10 @@ class Task(ChatRoomModel, models.Model):
 
     title = models.CharField(max_length=200)
     description = models.TextField()
-    status = models.CharField(
-        max_length=16,
-        choices=Status.choices,
-        default=Status.ACTIVE,
-    )
-    category = models.ForeignKey(
-        Category,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="tasks",
-    )
-    created_by = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        related_name="tasks_created",
-        null=True,
-        blank=True,
-    )
-    assigned_to = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        related_name="tasks_assigned",
-        null=True,
-        blank=True,
-    )
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
+    category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL, related_name="tasks")
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="tasks_created", null=True, blank=True)
+    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="tasks_assigned", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -111,7 +81,7 @@ class Task(ChatRoomModel, models.Model):
     def get_chat_room_pulse_class(self, user):
         """Return CSS class for chat room pulse indicator if there are unseen messages"""
         room = self.chat_room
-        if (room and room.messages.exists() and not room.seen_by.filter(id=user.id).exists()):
+        if room and room.messages.exists() and not room.seen_by.filter(id=user.id).exists():
             return "chat-room-pulse"
         return ""
 
@@ -121,16 +91,8 @@ class TaskVote(models.Model):
         DOWN = -1, _("Against")
         UP = 1, _("For")
 
-    task = models.ForeignKey(
-        Task,
-        related_name="votes",
-        on_delete=models.CASCADE,
-    )
-    user = models.ForeignKey(
-        User,
-        related_name="task_votes",
-        on_delete=models.CASCADE,
-    )
+    task = models.ForeignKey(Task, related_name="votes", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="task_votes", on_delete=models.CASCADE)
     value = models.IntegerField(choices=Value.choices)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -146,16 +108,8 @@ class TaskEvaluation(models.Model):
         SUCCESS = "success", _("Success")
         FAILURE = "failure", _("Failure")
 
-    task = models.ForeignKey(
-        Task,
-        related_name="evaluations",
-        on_delete=models.CASCADE,
-    )
-    user = models.ForeignKey(
-        User,
-        related_name="task_evaluations",
-        on_delete=models.CASCADE,
-    )
+    task = models.ForeignKey(Task, related_name="evaluations", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="task_evaluations", on_delete=models.CASCADE)
     value = models.CharField(max_length=16, choices=Value.choices)
     updated_at = models.DateTimeField(auto_now=True)
 

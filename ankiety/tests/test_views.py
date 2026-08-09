@@ -14,26 +14,12 @@ User = get_user_model()
 class SurveyViewsTests(TestCase):
     def setUp(self):
         self.client = Client()
-        self.author = User.objects.create_user(
-            username="author", email="author@example.com", password="pass"
-        )
-        self.other = User.objects.create_user(
-            username="other", email="other@example.com", password="pass"
-        )
+        self.author = User.objects.create_user(username="author", email="author@example.com", password="pass")
+        self.other = User.objects.create_user(username="other", email="other@example.com", password="pass")
 
     def _create_survey(self, user, end_delta=timedelta(days=1), title="Test survey"):
-        survey = Survey.objects.create(
-            title=title,
-            description="Description",
-            end_date=timezone.now() + end_delta,
-            author=user,
-        )
-        SurveyOption.objects.bulk_create(
-            [
-                SurveyOption(survey=survey, text="Yes", order=0),
-                SurveyOption(survey=survey, text="No", order=1),
-            ]
-        )
+        survey = Survey.objects.create(title=title, description="Description", end_date=timezone.now() + end_delta, author=user)
+        SurveyOption.objects.bulk_create([SurveyOption(survey=survey, text="Yes", order=0), SurveyOption(survey=survey, text="No", order=1)])
         return survey
 
     def test_create_survey_requires_login(self):
@@ -43,15 +29,7 @@ class SurveyViewsTests(TestCase):
     def test_create_survey(self):
         self.client.login(username="author", password="pass")
         future = (timezone.now() + timedelta(days=2)).strftime("%Y-%m-%dT%H:%M")
-        self.client.post(
-            reverse("ankiety:create"),
-            {
-                "title": "New survey",
-                "description": "",
-                "end_date": future,
-                "options_text": "Red\nBlue",
-            },
-        )
+        self.client.post(reverse("ankiety:create"), {"title": "New survey", "description": "", "end_date": future, "options_text": "Red\nBlue"})
         self.assertEqual(Survey.objects.count(), 1)
         survey = Survey.objects.first()
         self.assertEqual(survey.author, self.author)
@@ -67,15 +45,7 @@ class SurveyViewsTests(TestCase):
         survey = self._create_survey(self.author)
         self.client.login(username="author", password="pass")
         future = (timezone.now() + timedelta(days=3)).strftime("%Y-%m-%dT%H:%M")
-        response = self.client.post(
-            reverse("ankiety:edit", args=[survey.pk]),
-            {
-                "title": "Updated title",
-                "description": "",
-                "end_date": future,
-                "options_text": "One\nTwo",
-            },
-        )
+        response = self.client.post(reverse("ankiety:edit", args=[survey.pk]), {"title": "Updated title", "description": "", "end_date": future, "options_text": "One\nTwo"})
         self.assertRedirects(response, reverse("ankiety:detail", args=[survey.pk]))
         survey.refresh_from_db()
         self.assertEqual(survey.title, "Updated title")
@@ -89,30 +59,14 @@ class SurveyViewsTests(TestCase):
         future = (timezone.now() + timedelta(days=3)).strftime("%Y-%m-%dT%H:%M")
 
         # Add a new option while keeping existing ones – votes should be preserved.
-        self.client.post(
-            reverse("ankiety:edit", args=[survey.pk]),
-            {
-                "title": "Updated title",
-                "description": "",
-                "end_date": future,
-                "options_text": "Yes\nNo\nMaybe",
-            },
-        )
+        self.client.post(reverse("ankiety:edit", args=[survey.pk]), {"title": "Updated title", "description": "", "end_date": future, "options_text": "Yes\nNo\nMaybe"})
         survey.refresh_from_db()
         self.assertEqual(survey.options.count(), 3)
         self.assertTrue(survey.options.filter(text="Yes").exists())
         self.assertEqual(SurveyVote.objects.filter(survey=survey).count(), 1)
 
         # Remove "Yes" (which has a vote) – the vote should be deleted.
-        self.client.post(
-            reverse("ankiety:edit", args=[survey.pk]),
-            {
-                "title": "Updated title",
-                "description": "",
-                "end_date": future,
-                "options_text": "No\nMaybe",
-            },
-        )
+        self.client.post(reverse("ankiety:edit", args=[survey.pk]), {"title": "Updated title", "description": "", "end_date": future, "options_text": "No\nMaybe"})
         survey.refresh_from_db()
         self.assertEqual(survey.options.count(), 2)
         self.assertFalse(survey.options.filter(text="Yes").exists())
@@ -125,15 +79,7 @@ class SurveyViewsTests(TestCase):
         future = (timezone.now() + timedelta(days=3)).strftime("%Y-%m-%dT%H:%M")
 
         # Rename the first option and add a new one in the middle.
-        self.client.post(
-            reverse("ankiety:edit", args=[survey.pk]),
-            {
-                "title": "Updated title",
-                "description": "",
-                "end_date": future,
-                "options_text": "Maybe\nNew\nNo",
-            },
-        )
+        self.client.post(reverse("ankiety:edit", args=[survey.pk]), {"title": "Updated title", "description": "", "end_date": future, "options_text": "Maybe\nNew\nNo"})
         survey.refresh_from_db()
         texts = list(survey.options.order_by("order", "id").values_list("text", flat=True))
         self.assertEqual(texts, ["Maybe", "New", "No"])
@@ -158,18 +104,12 @@ class SurveyViewsTests(TestCase):
         second_option = survey.options.last()
         self.client.login(username="other", password="pass")
 
-        response = self.client.post(
-            reverse("ankiety:detail", args=[survey.pk]),
-            {"option": first_option.pk},
-        )
+        response = self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"option": first_option.pk})
         self.assertRedirects(response, reverse("ankiety:detail", args=[survey.pk]))
         self.assertEqual(SurveyVote.objects.filter(survey=survey).count(), 1)
 
         # User can change the vote while the survey is active.
-        response = self.client.post(
-            reverse("ankiety:detail", args=[survey.pk]),
-            {"option": second_option.pk},
-        )
+        response = self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"option": second_option.pk})
         self.assertRedirects(response, reverse("ankiety:detail", args=[survey.pk]))
         self.assertEqual(SurveyVote.objects.filter(survey=survey).count(), 1)
         vote = SurveyVote.objects.get(survey=survey, user=self.other)
@@ -180,10 +120,7 @@ class SurveyViewsTests(TestCase):
         option = survey.options.first()
         self.client.login(username="other", password="pass")
 
-        self.client.post(
-            reverse("ankiety:detail", args=[survey.pk]),
-            {"option": option.pk},
-        )
+        self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"option": option.pk})
         self.assertEqual(SurveyVote.objects.count(), 0)
 
     def test_delete_only_by_author(self):
@@ -205,15 +142,7 @@ class SurveyViewsTests(TestCase):
 
         self.client.login(username="author", password="pass")
         past = (timezone.now() + timedelta(days=-3)).strftime("%Y-%m-%dT%H:%M")
-        response = self.client.post(
-            reverse("ankiety:edit", args=[survey.pk]),
-            {
-                "title": "Updated title",
-                "description": "",
-                "end_date": past,
-                "options_text": "Changed\nOptions",
-            },
-        )
+        response = self.client.post(reverse("ankiety:edit", args=[survey.pk]), {"title": "Updated title", "description": "", "end_date": past, "options_text": "Changed\nOptions"})
         self.assertEqual(response.status_code, 403)
         survey.refresh_from_db()
         self.assertEqual(survey.title, original_title)
@@ -221,27 +150,13 @@ class SurveyViewsTests(TestCase):
 
 class SurveyFormTests(TestCase):
     def test_options_text_parsing(self):
-        data = {
-            "title": "Test",
-            "description": "",
-            "end_date": (timezone.now() + timedelta(days=1)).strftime(
-                "%Y-%m-%dT%H:%M"
-            ),
-            "options_text": " A \n B \n A \n",
-        }
+        data = {"title": "Test", "description": "", "end_date": (timezone.now() + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M"), "options_text": " A \n B \n A \n"}
         form = SurveyForm(data)
         self.assertFalse(form.is_valid())
         self.assertIn("options_text", form.errors)
 
     def test_end_date_naive_is_made_aware(self):
-        data = {
-            "title": "Test",
-            "description": "",
-            "end_date": (timezone.now() + timedelta(days=1)).strftime(
-                "%Y-%m-%dT%H:%M"
-            ),
-            "options_text": "A\nB",
-        }
+        data = {"title": "Test", "description": "", "end_date": (timezone.now() + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M"), "options_text": "A\nB"}
         form = SurveyForm(data)
         self.assertTrue(form.is_valid())
         self.assertIsNotNone(form.cleaned_data["end_date"].tzinfo)

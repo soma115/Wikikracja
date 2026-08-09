@@ -8,14 +8,7 @@ from django.utils.translation import gettext_lazy as _
 class ChatRoomModel(models.Model):
     """Abstract base for models that have an optional associated chat room."""
 
-    chat_room = models.ForeignKey(
-        "chat.Room",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="%(class)s",
-        verbose_name=_("Chat room"),
-    )
+    chat_room = models.ForeignKey("chat.Room", null=True, blank=True, on_delete=models.SET_NULL, related_name="%(class)s", verbose_name=_("Chat room"))
 
     class Meta:
         abstract = True
@@ -25,6 +18,7 @@ class Room(models.Model):
     """
     A room for people to chat in.
     """
+
     # Allowed users
     allowed = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="rooms")
 
@@ -67,6 +61,7 @@ class Room(models.Model):
         from django.conf import settings
         from django.contrib.auth.models import User
         from django.db import IntegrityError, OperationalError
+
         if not getattr(settings, 'GROUP_IS_PUBLIC', True):
             return None
         try:
@@ -250,22 +245,23 @@ class Room(models.Model):
         #     return {user_id: {'seen': False, 'muted': False} for user_id in user_ids}
 
         # Get all users with their relationships in 2 queries
-        users = get_user_model().objects.filter(id__in=user_ids).prefetch_related(Prefetch('seen_rooms', queryset=cls.objects.filter(id=room_id), to_attr='prefetched_seen_rooms'), Prefetch('muted_rooms', queryset=cls.objects.filter(id=room_id), to_attr='prefetched_muted_rooms'))
+        users = (
+            get_user_model()
+            .objects.filter(id__in=user_ids)
+            .prefetch_related(
+                Prefetch('seen_rooms', queryset=cls.objects.filter(id=room_id), to_attr='prefetched_seen_rooms'),
+                Prefetch('muted_rooms', queryset=cls.objects.filter(id=room_id), to_attr='prefetched_muted_rooms'),
+            )
+        )
 
         result = {}
         for user in users:
-            result[user.id] = {
-                'seen': bool(user.prefetched_seen_rooms),
-                'muted': bool(user.prefetched_muted_rooms)
-            }
+            result[user.id] = {'seen': bool(user.prefetched_seen_rooms), 'muted': bool(user.prefetched_muted_rooms)}
 
         # Fill in missing users (shouldn't happen but defensive)
         for user_id in user_ids:
             if user_id not in result:
-                result[user_id] = {
-                    'seen': False,
-                    'muted': False
-                }
+                result[user_id] = {'seen': False, 'muted': False}
 
         return result
 
@@ -283,22 +279,14 @@ class Message(models.Model):
     guest_name = models.CharField(max_length=255, blank=True, default='')
 
     # ZMIANA 2 — cytowanie: opcjonalne odwołanie do wiadomości-rodzica
-    reply_to = models.ForeignKey(
-        'self',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name='replies',
-    )
+    reply_to = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='replies')
 
     # JSONField to store reactions: {upvotes: [user_ids], downvotes: [user_ids], bulb: [user_ids], question: [user_ids]}
     reactions = models.JSONField(default=dict, null=True, blank=True)
 
     class Meta:
         unique_together = ('sender', 'text', 'room', 'time')
-        indexes = [
-            models.Index(fields=['room', 'time'], name='chat_message_room_time_asc_idx'),
-        ]
+        indexes = [models.Index(fields=['room', 'time'], name='chat_message_room_time_asc_idx')]
 
 
 # Store changes history separately,
@@ -308,11 +296,13 @@ class MessageHistory(models.Model):
     All states of given message will be associated with this object.
     They can be easily retrieved like MessageHistory#entries.
     """
+
     message = models.OneToOneField(Message, on_delete=models.CASCADE)
 
 
 class MessageHistoryEntry(models.Model):
-    """ Stores state of message that is no longer relevant """
+    """Stores state of message that is no longer relevant"""
+
     history = models.ForeignKey(MessageHistory, on_delete=models.CASCADE, related_name="entries")
     text = models.TextField()
     time = models.DateTimeField(auto_now=True)
@@ -324,9 +314,7 @@ class MessageAttachment(models.Model):
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="attachments")
 
     class Meta:
-        indexes = [
-            models.Index(fields=['message'], name='chat_messageattachment_msg_idx'),
-        ]
+        indexes = [models.Index(fields=['message'], name='chat_messageattachment_msg_idx')]
 
 
 # ZMIANA 4C — "przeczytane przez": śledzenie kto przeczytał daną wiadomość
@@ -336,6 +324,4 @@ class MessageReadBy(models.Model):
 
     class Meta:
         unique_together = ('message', 'user')
-        indexes = [
-            models.Index(fields=['message'], name='chat_msgreadby_message_idx'),
-        ]
+        indexes = [models.Index(fields=['message'], name='chat_msgreadby_message_idx')]

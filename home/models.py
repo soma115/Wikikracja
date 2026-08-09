@@ -7,6 +7,7 @@ User = get_user_model()
 
 class FeedItem(models.Model):
     """A unified feed item that can represent any activity in the system"""
+
     class ContentType(models.TextChoices):
         POST = 'post', _('Post')
         TASK = 'task', _('Task')
@@ -26,10 +27,7 @@ class FeedItem(models.Model):
 
     class Meta:
         ordering = ['-timestamp']
-        indexes = [
-            models.Index(fields=['timestamp'], name='feed_item_timestamp_idx'),
-            models.Index(fields=['content_type', 'object_id'], name='feed_item_content_idx'),
-        ]
+        indexes = [models.Index(fields=['timestamp'], name='feed_item_timestamp_idx'), models.Index(fields=['content_type', 'object_id'], name='feed_item_content_idx')]
 
     def __str__(self):
         return f"{self.content_type}: {self.title}"
@@ -37,6 +35,7 @@ class FeedItem(models.Model):
 
 class ReadStatus(models.Model):
     """Track which users have read which content"""
+
     class ContentType(models.TextChoices):
         POST = 'post', _('Post')
         TASK = 'task', _('Task')
@@ -53,9 +52,7 @@ class ReadStatus(models.Model):
 
     class Meta:
         unique_together = ['user', 'content_type', 'object_id']
-        indexes = [
-            models.Index(fields=['user', 'content_type'], name='readstatus_user_content_idx'),
-        ]
+        indexes = [models.Index(fields=['user', 'content_type'], name='readstatus_user_content_idx')]
 
     def __str__(self):
         return f"{self.user.username} read {self.content_type} #{self.object_id}"

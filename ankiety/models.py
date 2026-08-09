@@ -8,26 +8,10 @@ from django.utils.translation import gettext_lazy as _
 
 class Survey(models.Model):
     title = models.CharField(max_length=200, verbose_name=_("Title"))
-    description = models.TextField(
-        blank=True,
-        verbose_name=_("Description"),
-        validators=[MaxLengthValidator(3000)],
-    )
-    end_date = models.DateTimeField(
-        verbose_name=_("End date"),
-        help_text=_("After this moment the survey will be closed."),
-    )
-    author = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="surveys",
-        verbose_name=_("Author"),
-    )
-    allow_multiple_choice = models.BooleanField(
-        default=False,
-        verbose_name=_("Allow multiple choice"),
-        help_text=_("If enabled, users can select more than one option when voting."),
-    )
+    description = models.TextField(blank=True, verbose_name=_("Description"), validators=[MaxLengthValidator(3000)])
+    end_date = models.DateTimeField(verbose_name=_("End date"), help_text=_("After this moment the survey will be closed."))
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="surveys", verbose_name=_("Author"))
+    allow_multiple_choice = models.BooleanField(default=False, verbose_name=_("Allow multiple choice"), help_text=_("If enabled, users can select more than one option when voting."))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -48,12 +32,7 @@ class Survey(models.Model):
 
 
 class SurveyOption(models.Model):
-    survey = models.ForeignKey(
-        Survey,
-        on_delete=models.CASCADE,
-        related_name="options",
-        verbose_name=_("Survey"),
-    )
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name="options", verbose_name=_("Survey"))
     text = models.CharField(max_length=200, verbose_name=_("Option text"))
     order = models.PositiveSmallIntegerField(default=0, verbose_name=_("Order"))
 
@@ -67,33 +46,13 @@ class SurveyOption(models.Model):
 
 
 class SurveyVote(models.Model):
-    survey = models.ForeignKey(
-        Survey,
-        on_delete=models.CASCADE,
-        related_name="votes",
-        verbose_name=_("Survey"),
-    )
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="survey_votes",
-        verbose_name=_("User"),
-    )
-    option = models.ForeignKey(
-        SurveyOption,
-        on_delete=models.CASCADE,
-        related_name="votes",
-        verbose_name=_("Chosen option"),
-    )
+    survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name="votes", verbose_name=_("Survey"))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="survey_votes", verbose_name=_("User"))
+    option = models.ForeignKey(SurveyOption, on_delete=models.CASCADE, related_name="votes", verbose_name=_("Chosen option"))
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["survey", "user", "option"],
-                name="%(app_label)s_%(class)s_unique_vote",
-            )
-        ]
+        constraints = [models.UniqueConstraint(fields=["survey", "user", "option"], name="%(app_label)s_%(class)s_unique_vote")]
         ordering = ["-created_at"]
         verbose_name = _("Survey vote")
         verbose_name_plural = _("Survey votes")

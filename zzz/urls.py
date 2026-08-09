@@ -13,9 +13,7 @@ from obywatele import views as ov
 
 urlpatterns: List[URLPattern | URLResolver] = [
     path('', include('home.urls')),
-    path('logout/', auth_views.LogoutView.as_view(), {
-        'next_page': '/login/'
-    }, name='logout'),
+    path('logout/', auth_views.LogoutView.as_view(), {'next_page': '/login/'}, name='logout'),
     path('login/', RedirectView.as_view(url='/accounts/login/'), name='login'),
     path('haslo/', hv.haslo, name='haslo'),
     path('change_email/', ov.change_email, name='change_email'),
@@ -42,17 +40,14 @@ if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     if settings.DEBUG_TOOLBAR:
         from debug_toolbar.toolbar import debug_toolbar_urls
+
         urlpatterns += debug_toolbar_urls()
 
 # Media files (user uploads) - must be served in all environments
 # In production, Django will serve these (inefficient but works)
 # TODO: Consider adding nginx sidecar for better performance
 
-urlpatterns += [
-    re_path(r'^media/(?P<path>.*)$', serve, {
-        'document_root': settings.MEDIA_ROOT,
-    }),
-]
+urlpatterns += [re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT})]
 '''
 allauth:
 Note that you do not necessarily need the URLs provided by django.contrib.auth.urls.

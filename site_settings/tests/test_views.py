@@ -46,6 +46,7 @@ class SidebarBrandMarkRenderingTest(TestCase):
         # URL z MEDIA_URL
         self.assertIn('/media/site_branding/', content)
 
+
 class ManifestAndAppleTouchIconBrandTest(TestCase):
     """Test 9 (TDD red): manifest icons + apple-touch-icon link używają derivatives gdy brand_mark istnieje."""
 
@@ -160,5 +161,3 @@ class CacheBustVersioningTest(TestCase):
         content = response.content.decode('utf-8')
         expected_ts = str(int(ss.updated_at.timestamp()))
         self.assertIn(f'apple-touch-icon.png?v={expected_ts}', content)
-
-

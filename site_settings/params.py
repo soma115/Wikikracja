@@ -15,6 +15,7 @@ Parameter kinds:
     ``bool`` -> boolean
     ``str``  -> free text
 """
+
 from django.utils.translation import gettext_lazy as _
 
 # Category keys used to group parameters in the proposal form / display.
@@ -24,22 +25,10 @@ CATEGORY_CITIZENS = 'citizens'
 CATEGORY_GROUP = 'group'
 CATEGORY_SITE = 'site'
 
-CATEGORY_LABELS = {
-    CATEGORY_VOTING: _('Voting parameters'),
-    CATEGORY_CHAT: _('Chat settings'),
-    CATEGORY_CITIZENS: _('Citizens settings'),
-    CATEGORY_GROUP: _('Group settings'),
-    CATEGORY_SITE: _('Site identity'),
-}
+CATEGORY_LABELS = {CATEGORY_VOTING: _('Voting parameters'), CATEGORY_CHAT: _('Chat settings'), CATEGORY_CITIZENS: _('Citizens settings'), CATEGORY_GROUP: _('Group settings'), CATEGORY_SITE: _('Site identity')}
 
 # Ordered category list controls display / form ordering.
-CATEGORY_ORDER = [
-    CATEGORY_VOTING,
-    CATEGORY_CHAT,
-    CATEGORY_CITIZENS,
-    CATEGORY_GROUP,
-    CATEGORY_SITE,
-]
+CATEGORY_ORDER = [CATEGORY_VOTING, CATEGORY_CHAT, CATEGORY_CITIZENS, CATEGORY_GROUP, CATEGORY_SITE]
 
 
 class ParamSpec:
@@ -61,48 +50,64 @@ class ParamSpec:
 
 PARAM_SPECS = [
     # --- Voting parameters ---
-    ParamSpec('wymaganych_podpisow', 'WYMAGANYCH_PODPISOW', 'int', CATEGORY_VOTING,
-              _('Required signatures'),
-              _('Number of signatures a new proposal must gather to trigger a referendum.'),
-              min_value=2, max_value=20),
-    ParamSpec('czas_na_zebranie_podpisow', 'CZAS_NA_ZEBRANIE_PODPISOW', 'int', CATEGORY_VOTING,
-              _('Time to gather signatures'),
-              _('Maximum number of days to gather signatures before a proposal is rejected.'),
-              unit=_('days'), min_value=1, max_value=3650),
-    ParamSpec('dyskusja', 'DYSKUSJA', 'int', CATEGORY_VOTING,
-              _('Discussion period'),
-              _('Number of days a proposal stays in queue/discussion before the referendum starts.'),
-              unit=_('days'), min_value=1, max_value=365),
-    ParamSpec('czas_trwania_referendum', 'CZAS_TRWANIA_REFERENDUM', 'int', CATEGORY_VOTING,
-              _('Referendum duration'),
-              _('Number of days a referendum lasts.'),
-              unit=_('days'), min_value=1, max_value=365),
+    ParamSpec(
+        'wymaganych_podpisow', 'WYMAGANYCH_PODPISOW', 'int', CATEGORY_VOTING, _('Required signatures'), _('Number of signatures a new proposal must gather to trigger a referendum.'), min_value=2, max_value=20
+    ),
+    ParamSpec(
+        'czas_na_zebranie_podpisow',
+        'CZAS_NA_ZEBRANIE_PODPISOW',
+        'int',
+        CATEGORY_VOTING,
+        _('Time to gather signatures'),
+        _('Maximum number of days to gather signatures before a proposal is rejected.'),
+        unit=_('days'),
+        min_value=1,
+        max_value=3650,
+    ),
+    ParamSpec(
+        'dyskusja', 'DYSKUSJA', 'int', CATEGORY_VOTING, _('Discussion period'), _('Number of days a proposal stays in queue/discussion before the referendum starts.'), unit=_('days'), min_value=1, max_value=365
+    ),
+    ParamSpec('czas_trwania_referendum', 'CZAS_TRWANIA_REFERENDUM', 'int', CATEGORY_VOTING, _('Referendum duration'), _('Number of days a referendum lasts.'), unit=_('days'), min_value=1, max_value=365),
     # --- Chat settings ---
-    ParamSpec('archive_public_chat_room', 'ARCHIVE_PUBLIC_CHAT_ROOM', 'int', CATEGORY_CHAT,
-              _('Archive public chat room after'),
-              _('Public chat rooms are archived after this many days without activity.'),
-              unit=_('days'), min_value=1, max_value=3650),
-    ParamSpec('delete_public_chat_room', 'DELETE_PUBLIC_CHAT_ROOM', 'int', CATEGORY_CHAT,
-              _('Delete public chat room after'),
-              _('Public chat rooms are deleted after this many days without activity.'),
-              unit=_('days'), min_value=1, max_value=3650),
+    ParamSpec(
+        'archive_public_chat_room',
+        'ARCHIVE_PUBLIC_CHAT_ROOM',
+        'int',
+        CATEGORY_CHAT,
+        _('Archive public chat room after'),
+        _('Public chat rooms are archived after this many days without activity.'),
+        unit=_('days'),
+        min_value=1,
+        max_value=3650,
+    ),
+    ParamSpec(
+        'delete_public_chat_room',
+        'DELETE_PUBLIC_CHAT_ROOM',
+        'int',
+        CATEGORY_CHAT,
+        _('Delete public chat room after'),
+        _('Public chat rooms are deleted after this many days without activity.'),
+        unit=_('days'),
+        min_value=1,
+        max_value=3650,
+    ),
     # --- Citizens settings ---
-    ParamSpec('acceptance', 'ACCEPTANCE', 'int', CATEGORY_CITIZENS,
-              _('Acceptance threshold'),
-              _('Reputation threshold for accepting new members and protecting existing ones.'),
-              min_value=1, max_value=100),
-    ParamSpec('delete_inactive_user_after', 'DELETE_INACTIVE_USER_AFTER', 'int', CATEGORY_CITIZENS,
-              _('Delete inactive user after'),
-              _('Inactive/unconfirmed users are removed after this many days.'),
-              unit=_('days'), min_value=1, max_value=3650),
+    ParamSpec('acceptance', 'ACCEPTANCE', 'int', CATEGORY_CITIZENS, _('Acceptance threshold'), _('Reputation threshold for accepting new members and protecting existing ones.'), min_value=1, max_value=100),
+    ParamSpec(
+        'delete_inactive_user_after',
+        'DELETE_INACTIVE_USER_AFTER',
+        'int',
+        CATEGORY_CITIZENS,
+        _('Delete inactive user after'),
+        _('Inactive/unconfirmed users are removed after this many days.'),
+        unit=_('days'),
+        min_value=1,
+        max_value=3650,
+    ),
     # --- Group settings ---
-    ParamSpec('group_is_public', 'GROUP_IS_PUBLIC', 'bool', CATEGORY_GROUP,
-              _('Group is public'),
-              _('If enabled, anyone can register and the public inbox is available.')),
+    ParamSpec('group_is_public', 'GROUP_IS_PUBLIC', 'bool', CATEGORY_GROUP, _('Group is public'), _('If enabled, anyone can register and the public inbox is available.')),
     # --- Site identity ---
-    ParamSpec('site_name', 'SITE_NAME', 'str', CATEGORY_SITE,
-              _('Site name'),
-              _('Full name of the instance shown across the site.')),
+    ParamSpec('site_name', 'SITE_NAME', 'str', CATEGORY_SITE, _('Site name'), _('Full name of the instance shown across the site.')),
 ]
 
 SPECS_BY_NAME = {spec.name: spec for spec in PARAM_SPECS}
@@ -119,6 +124,7 @@ def specs_by_category():
 def seed_defaults():
     """Return a dict of ``{name: default}`` seeded from ``django.conf.settings``."""
     from django.conf import settings
+
     defaults = {}
     for spec in PARAM_SPECS:
         defaults[spec.name] = getattr(settings, spec.settings_name, None)
@@ -178,6 +184,7 @@ def describe_changes(proposed):
 def get_param(name):
     """Return the current value of a single parameter from the singleton."""
     from site_settings.models import SiteParameters
+
     return getattr(SiteParameters.get(), name)
 
 

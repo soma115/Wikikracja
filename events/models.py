@@ -10,32 +10,11 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Event(models.Model):
-    FREQUENCY_CHOICES = [
-        ('once', _('One-time')),
-        ('daily', _('Daily')),
-        ('weekly', _('Weekly')),
-        ('monthly', _('Monthly')),
-        ('monthly_ordinal', _('Monthly (specific weekday)')),
-        ('yearly', _('Yearly')),
-    ]
+    FREQUENCY_CHOICES = [('once', _('One-time')), ('daily', _('Daily')), ('weekly', _('Weekly')), ('monthly', _('Monthly')), ('monthly_ordinal', _('Monthly (specific weekday)')), ('yearly', _('Yearly'))]
 
-    ORDINAL_CHOICES = [
-        (1, _('First')),
-        (2, _('Second')),
-        (3, _('Third')),
-        (4, _('Fourth')),
-        (-1, _('Last')),
-    ]
+    ORDINAL_CHOICES = [(1, _('First')), (2, _('Second')), (3, _('Third')), (4, _('Fourth')), (-1, _('Last'))]
 
-    WEEKDAY_CHOICES = [
-        (0, _('Monday')),
-        (1, _('Tuesday')),
-        (2, _('Wednesday')),
-        (3, _('Thursday')),
-        (4, _('Friday')),
-        (5, _('Saturday')),
-        (6, _('Sunday')),
-    ]
+    WEEKDAY_CHOICES = [(0, _('Monday')), (1, _('Tuesday')), (2, _('Wednesday')), (3, _('Thursday')), (4, _('Friday')), (5, _('Saturday')), (6, _('Sunday'))]
 
     title = models.CharField(max_length=200, verbose_name=_('Title'), help_text=_('Enter a descriptive name for the event'))
     description = models.TextField(blank=True, verbose_name=_('Description'), help_text=_('Optional description of the event'))
@@ -45,7 +24,9 @@ class Event(models.Model):
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_('End Date'), help_text=_('When does the event end? (optional)'))
     frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, default='once', verbose_name=_('Frequency'), help_text=_('How often does this event repeat?'))
     monthly_ordinal = models.IntegerField(blank=True, null=True, choices=ORDINAL_CHOICES, verbose_name=_('Week of month'), help_text=_('For monthly ordinal events: which week? (e.g., First, Second, Last)'))
-    monthly_weekday = models.IntegerField(blank=True, null=True, choices=WEEKDAY_CHOICES, verbose_name=_('Day of week'), help_text=_('For monthly ordinal events: which day of the week? (e.g., Monday, Tuesday)'))
+    monthly_weekday = models.IntegerField(
+        blank=True, null=True, choices=WEEKDAY_CHOICES, verbose_name=_('Day of week'), help_text=_('For monthly ordinal events: which day of the week? (e.g., Monday, Tuesday)')
+    )
     is_active = models.BooleanField(default=True, verbose_name=_('Active'), help_text=_('Uncheck to disable this event'))
     is_public = models.BooleanField(default=True, verbose_name=_('Public'), help_text=_('Public events are visible to everyone. Private events are only visible to logged-in users.'))
     created_at = models.DateTimeField(auto_now_add=True)
@@ -60,9 +41,7 @@ class Event(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('events:detail', kwargs={
-            'pk': self.pk
-        })
+        return reverse('events:detail', kwargs={'pk': self.pk})
 
     def _get_nth_weekday_of_month(self, year, month, weekday, nth):
         """
@@ -324,11 +303,7 @@ class Event(models.Model):
             recurrence = 'RRULE:FREQ=YEARLY'
 
         # Build parameters for new Google Calendar URL format
-        params = {
-            'action': 'TEMPLATE',
-            'text': self.title,
-            'dates': f'{start_dt}/{end_dt}',
-        }
+        params = {'action': 'TEMPLATE', 'text': self.title, 'dates': f'{start_dt}/{end_dt}'}
 
         # Only add non-empty optional parameters
         if description:

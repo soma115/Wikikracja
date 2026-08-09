@@ -11,12 +11,7 @@ def get_stepper_counts():
     """
     # Orphaned decyzjas (author=NULL after user deletion) are excluded:
     # SQL NULL comparison in Exists is falsy, matching Decyzja.is_author_signed.
-    author_signed = Exists(
-        ZebranePodpisy.objects.filter(
-            projekt=OuterRef("pk"),
-            podpis_uzytkownika_id=OuterRef("author_id"),
-        )
-    )
+    author_signed = Exists(ZebranePodpisy.objects.filter(projekt=OuterRef("pk"), podpis_uzytkownika_id=OuterRef("author_id")))
     Status = Decyzja.Status
     return Decyzja.objects.annotate(_signed=author_signed).aggregate(
         proposition=Count("id", filter=Q(status=Status.PROPOSITION)),

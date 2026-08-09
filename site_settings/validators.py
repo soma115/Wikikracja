@@ -10,10 +10,7 @@ ALLOWED_BRAND_FORMATS = {'PNG'}  # wyłącznie PNG — cały pipeline derivative
 def validate_branding_image_size(file):
     """Odrzuca pliki brandingowe przekraczające 1 MB."""
     if file.size > MAX_BRANDING_FILE_SIZE:
-        raise ValidationError(
-            _('Branding image file is too large (max 1 MB).'),
-            code='branding_file_too_large',
-        )
+        raise ValidationError(_('Branding image file is too large (max 1 MB).'), code='branding_file_too_large')
 
 
 def validate_brand_mark_dimensions(file):
@@ -24,10 +21,7 @@ def validate_brand_mark_dimensions(file):
         with Image.open(file) as img:
             width, height = img.size
     except (UnidentifiedImageError, OSError) as e:
-        raise ValidationError(
-            _('Could not read image file.'),
-            code='branding_image_unreadable',
-        ) from e
+        raise ValidationError(_('Could not read image file.'), code='branding_image_unreadable') from e
     finally:
         # rewind, żeby Django mogło ponownie odczytać plik do zapisu na dysk
         if hasattr(file, 'seek'):
@@ -37,18 +31,10 @@ def validate_brand_mark_dimensions(file):
     longest = max(width, height)
 
     if longest < MIN_BRAND_MARK_DIMENSION:
-        raise ValidationError(
-            _('Brand mark longest side must be at least %(min)d pixels.'),
-            code='branding_too_small',
-            params={'min': MIN_BRAND_MARK_DIMENSION},
-        )
+        raise ValidationError(_('Brand mark longest side must be at least %(min)d pixels.'), code='branding_too_small', params={'min': MIN_BRAND_MARK_DIMENSION})
 
     if longest > MAX_BRAND_MARK_DIMENSION:
-        raise ValidationError(
-            _('Brand mark longest side must be at most %(max)d pixels.'),
-            code='branding_too_large',
-            params={'max': MAX_BRAND_MARK_DIMENSION},
-        )
+        raise ValidationError(_('Brand mark longest side must be at most %(max)d pixels.'), code='branding_too_large', params={'max': MAX_BRAND_MARK_DIMENSION})
 
 
 def validate_brand_mark_format(file):
@@ -59,17 +45,10 @@ def validate_brand_mark_format(file):
         with Image.open(file) as img:
             fmt = img.format
     except (UnidentifiedImageError, OSError) as e:
-        raise ValidationError(
-            _('Could not read image file.'),
-            code='branding_image_unreadable',
-        ) from e
+        raise ValidationError(_('Could not read image file.'), code='branding_image_unreadable') from e
     finally:
         if hasattr(file, 'seek'):
             file.seek(0)
 
     if fmt not in ALLOWED_BRAND_FORMATS:
-        raise ValidationError(
-            _('Brand mark must be a PNG file (format supporting transparency). Got %(fmt)s.'),
-            code='branding_unsupported_format',
-            params={'fmt': fmt or 'unknown'},
-        )
+        raise ValidationError(_('Brand mark must be a PNG file (format supporting transparency). Got %(fmt)s.'), code='branding_unsupported_format', params={'fmt': fmt or 'unknown'})

@@ -75,7 +75,7 @@ def get_onboarding_user_from_request(request: HttpRequest):
             onboarding_user_id = int(signed_value)
             request.session['onboarding_user_id'] = onboarding_user_id
             request.session.modified = True
-        except (BadSignature, SignatureExpired, ValueError):
+        except BadSignature, SignatureExpired, ValueError:
             onboarding_user_id = None
 
     if not onboarding_user_id:
@@ -147,11 +147,7 @@ def required_reputation():
 
 @login_required
 def parameters(request: HttpRequest):
-    return render(request, 'obywatele/parameters.html', {
-        'population': population(),
-        'acceptance': get_param('acceptance'),
-        'delete_inactive_user_after': get_param('delete_inactive_user_after'),
-    })
+    return render(request, 'obywatele/parameters.html', {'population': population(), 'acceptance': get_param('acceptance'), 'delete_inactive_user_after': get_param('delete_inactive_user_after')})
 
 
 @login_required()
@@ -169,9 +165,7 @@ def change_email(request: HttpRequest):
             error(request, (message))
             return redirect('obywatele:my_profile')
     else:
-        return render(request, 'obywatele/change_email.html', {
-            'form': form
-        })
+        return render(request, 'obywatele/change_email.html', {'form': form})
 
 
 @login_required()
@@ -189,9 +183,7 @@ def change_username(request: HttpRequest):
             error(request, (message))
             return redirect('obywatele:my_profile')
     else:
-        return render(request, 'obywatele/change_username.html', {
-            'form': form
-        })
+        return render(request, 'obywatele/change_username.html', {'form': form})
 
 
 @login_required
@@ -246,48 +238,21 @@ def obywatele(request: HttpRequest):
     order_by_fields.append(f'{order_prefix}{sort_expression}')
     order_by_fields.append('id')
 
-    uid = (User.objects.filter(is_active=True).select_related('uzytkownik').annotate(
-        username_is_blank=Case(
-            When(Q(username__isnull=True) | Q(username__exact=''), then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
-        ),
-        email_is_blank=Case(
-            When(Q(email__isnull=True) | Q(email__exact=''), then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
-        ),
-        phone_is_blank=Case(
-            When(Q(uzytkownik__phone__isnull=True) | Q(uzytkownik__phone__exact=''), then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
-        ),
-        last_login_is_blank=Case(
-            When(last_login__isnull=True, then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
-        ),
-        city_is_blank=Case(
-            When(Q(uzytkownik__city__isnull=True) | Q(uzytkownik__city__exact=''), then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
-        ),
-        first_name_is_blank=Case(
-            When(Q(first_name__isnull=True) | Q(first_name__exact=''), then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
-        ),
-        last_name_is_blank=Case(
-            When(Q(last_name__isnull=True) | Q(last_name__exact=''), then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
-        ),
-        joined_is_blank=Case(
-            When(Q(uzytkownik__data_przyjecia__isnull=True), then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
-        ),
-    ).order_by(*order_by_fields))
+    uid = (
+        User.objects.filter(is_active=True)
+        .select_related('uzytkownik')
+        .annotate(
+            username_is_blank=Case(When(Q(username__isnull=True) | Q(username__exact=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
+            email_is_blank=Case(When(Q(email__isnull=True) | Q(email__exact=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
+            phone_is_blank=Case(When(Q(uzytkownik__phone__isnull=True) | Q(uzytkownik__phone__exact=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
+            last_login_is_blank=Case(When(last_login__isnull=True, then=Value(1)), default=Value(0), output_field=IntegerField()),
+            city_is_blank=Case(When(Q(uzytkownik__city__isnull=True) | Q(uzytkownik__city__exact=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
+            first_name_is_blank=Case(When(Q(first_name__isnull=True) | Q(first_name__exact=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
+            last_name_is_blank=Case(When(Q(last_name__isnull=True) | Q(last_name__exact=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
+            joined_is_blank=Case(When(Q(uzytkownik__data_przyjecia__isnull=True), then=Value(1)), default=Value(0), output_field=IntegerField()),
+        )
+        .order_by(*order_by_fields)
+    )
     if aktywnosc in _aktywnosc_filters:
         uid = uid.filter(_aktywnosc_filters[aktywnosc])
 
@@ -315,16 +280,7 @@ def obywatele(request: HttpRequest):
 
         users_with_reputation.append(user)
 
-    default_directions = {
-        'username': 'asc',
-        'email': 'asc',
-        'phone': 'asc',
-        'last_login': 'desc',
-        'city': 'asc',
-        'first_name': 'asc',
-        'last_name': 'asc',
-        'joined': 'desc',
-    }
+    default_directions = {'username': 'asc', 'email': 'asc', 'phone': 'asc', 'last_login': 'desc', 'city': 'asc', 'first_name': 'asc', 'last_name': 'asc', 'joined': 'desc'}
 
     sort_meta = {}
     for field in allowed_sort_fields:
@@ -337,11 +293,7 @@ def obywatele(request: HttpRequest):
             default_direction = default_directions.get(field, 'asc')
             next_param = f'-{field}' if default_direction == 'desc' else field
 
-        sort_meta[field] = {
-            'is_current': is_current,
-            'direction': current_direction,
-            'next_param': next_param,
-        }
+        sort_meta[field] = {'is_current': is_current, 'direction': current_direction, 'next_param': next_param}
 
     _aktywnosc_ctx = aktywnosc if aktywnosc in _aktywnosc_filters else ''
     sort_url_suffix = f'&aktywnosc={_aktywnosc_ctx}' if _aktywnosc_ctx else ''
@@ -357,7 +309,7 @@ def obywatele(request: HttpRequest):
             'aktywnosc': _aktywnosc_ctx,
             'sort_url_suffix': sort_url_suffix,
             'sort_param': sort_param,
-        }
+        },
     )
 
 
@@ -374,29 +326,16 @@ def poczekalnia(request: HttpRequest):
         error(request, _('Your profile does not exist. Please contact administrator.'))
         return redirect('home:index')
 
-    candidate_profiles = {
-        user.id: user.uzytkownik for user in uid if hasattr(user, 'uzytkownik')
-    }
+    candidate_profiles = {user.id: user.uzytkownik for user in uid if hasattr(user, 'uzytkownik')}
     candidate_profile_ids = [profile.id for profile in candidate_profiles.values()]
-    existing_rates = {
-        rate.kandydat_id: rate for rate in Rate.objects.filter(obywatel=citizen_profile, kandydat_id__in=candidate_profile_ids)
-    }
+    existing_rates = {rate.kandydat_id: rate for rate in Rate.objects.filter(obywatel=citizen_profile, kandydat_id__in=candidate_profile_ids)}
 
     # Count explicit ratings per candidate by type. A neutral rating (rate=0)
     # only exists when a citizen explicitly clicked "Indifferent"; we no longer
     # auto-create Rate rows just by viewing the list.
-    ratings_positive_map = {
-        row['kandydat_id']: row['total']
-        for row in Rate.objects.filter(kandydat_id__in=candidate_profile_ids, rate=1).values('kandydat_id').annotate(total=Count('id'))
-    }
-    ratings_neutral_map = {
-        row['kandydat_id']: row['total']
-        for row in Rate.objects.filter(kandydat_id__in=candidate_profile_ids, rate=0).values('kandydat_id').annotate(total=Count('id'))
-    }
-    ratings_negative_map = {
-        row['kandydat_id']: row['total']
-        for row in Rate.objects.filter(kandydat_id__in=candidate_profile_ids, rate=-1).values('kandydat_id').annotate(total=Count('id'))
-    }
+    ratings_positive_map = {row['kandydat_id']: row['total'] for row in Rate.objects.filter(kandydat_id__in=candidate_profile_ids, rate=1).values('kandydat_id').annotate(total=Count('id'))}
+    ratings_neutral_map = {row['kandydat_id']: row['total'] for row in Rate.objects.filter(kandydat_id__in=candidate_profile_ids, rate=0).values('kandydat_id').annotate(total=Count('id'))}
+    ratings_negative_map = {row['kandydat_id']: row['total'] for row in Rate.objects.filter(kandydat_id__in=candidate_profile_ids, rate=-1).values('kandydat_id').annotate(total=Count('id'))}
 
     # Process users and add rating directly to each user object for easy access in template
     users_with_ratings = []
@@ -427,7 +366,7 @@ def poczekalnia(request: HttpRequest):
             'acceptance': get_param('acceptance'),
             'delete_inactive_user_after': get_param('delete_inactive_user_after'),
             'required_reputation': required_reputation(),
-        }
+        },
     )
 
 
@@ -453,15 +392,9 @@ def onboarding_details(request: HttpRequest):
             success(request, _('Your onboarding form has been saved.'))
             return redirect('obywatele:onboarding_waiting')
     else:
-        form = OnboardingDetailsForm(instance=profile, initial={
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-        })
+        form = OnboardingDetailsForm(instance=profile, initial={'first_name': user.first_name, 'last_name': user.last_name})
 
-    return render(request, 'obywatele/onboarding_details.html', {
-        'form': form,
-        'email_confirmed': EmailAddress.objects.filter(user=user, verified=True).exists(),
-    })
+    return render(request, 'obywatele/onboarding_details.html', {'form': form, 'email_confirmed': EmailAddress.objects.filter(user=user, verified=True).exists()})
 
 
 def onboarding_waiting(request: HttpRequest):
@@ -470,9 +403,7 @@ def onboarding_waiting(request: HttpRequest):
         error(request, _('Could not find your onboarding account.'))
         return redirect('account_signup')
 
-    return render(request, 'obywatele/onboarding_waiting.html', {
-        'email_confirmed': EmailAddress.objects.filter(user=user, verified=True).exists(),
-    })
+    return render(request, 'obywatele/onboarding_waiting.html', {'email_confirmed': EmailAddress.objects.filter(user=user, verified=True).exists()})
 
 
 @login_required
@@ -482,7 +413,6 @@ def dodaj(request: HttpRequest):
         profile_form = ProfileForm(request.POST, request.FILES)
 
         if user_form.is_valid() and profile_form.is_valid():
-
             mail = user_form.cleaned_data['email']
             if User.objects.filter(email__iexact=mail).exists():
                 # is_valid doesn't check if email exist
@@ -519,26 +449,18 @@ def dodaj(request: HttpRequest):
                 rate.save()
 
                 # Create EmailAddress with verified=True for manually invited users
-                EmailAddress.objects.get_or_create(
-                    user=candidate,
-                    email=candidate.email,
-                    defaults={'verified': True, 'primary': True}
-                )
+                EmailAddress.objects.get_or_create(user=candidate, email=candidate.email, defaults={'verified': True, 'primary': True})
 
                 message = _('The new user has been saved')
                 success(request, (message))
 
-                log.info(f'EMAIL_DIAG trigger=new_citizen_proposed source=obywatele.views.dodaj actor_user_id={request.user.id} actor_username={request.user.username} candidate_user_id={candidate.id} candidate_username={candidate.username} subject={_("New citizen has been proposed")}')
+                log.info(
+                    f'EMAIL_DIAG trigger=new_citizen_proposed source=obywatele.views.dodaj actor_user_id={request.user.id} actor_username={request.user.username} candidate_user_id={candidate.id} candidate_username={candidate.username} subject={_("New citizen has been proposed")}'
+                )
                 click_action = build_site_url(f'/obywatele/poczekalnia/{candidate.id}')
                 SendEmailToAll(_('New citizen has been proposed'), f'{request.user.username} ' + str(_('proposed new citizen\nYou can approve him/her here:')) + f' {click_action}')
                 send_notification_to_all_in_thread(
-                    build_notification(
-                        _('New citizen has been proposed'),
-                        f'{request.user.username} {_("proposed new citizen")}',
-                        click_action,
-                        f'citizen-{candidate.id}',
-                        citizen_id=candidate.id,
-                    ),
+                    build_notification(_('New citizen has been proposed'), f'{request.user.username} {_("proposed new citizen")}', click_action, f'citizen-{candidate.id}', citizen_id=candidate.id),
                     ws_type='citizen.notification',
                     notification_type='obywatele',
                 )
@@ -559,14 +481,7 @@ def dodaj(request: HttpRequest):
         user_form = UserForm()
         profile_form = ProfileForm()
 
-    return render(
-        request,
-        'obywatele/dodaj.html',
-        {
-            'user_form': user_form,
-            'profile_form': profile_form,
-        },
-    )
+    return render(request, 'obywatele/dodaj.html', {'user_form': user_form, 'profile_form': profile_form})
 
 
 @login_required
@@ -575,142 +490,72 @@ def my_profile(request: HttpRequest):
     profile = request.user.uzytkownik
 
     asset_fields = [
-        {
-            'field': 'city',
-            'label': _('City / Commune')
-        },
-        {
-            'field': 'phone',
-            'label': _('Communicator / Phone')
-        },
-        {
-            'field': 'job',
-            'label': _('Job')
-        },
-        {
-            'field': 'responsibilities',
-            'label': _('Responsibilities')
-        },
-        {
-            'field': 'business',
-            'label': _('Business')
-        },
-        {
-            'field': 'skills_knowledge_hobby',
-            'label': _('Skills / Knowledge / Hobby')
-        },
-        {
-            'field': 'to_give_away',
-            'label': _('To give away')
-        },
-        {
-            'field': 'to_borrow',
-            'label': _('To borrow')
-        },
-        {
-            'field': 'for_sale',
-            'label': _('For sale')
-        },
-        {
-            'field': 'i_need',
-            'label': _('I need')
-        },
-        {
-            'field': 'want_to_learn',
-            'label': _('I want to learn')
-        },
-        {
-            'field': 'why',
-            'label': _('Why do you want to join?')
-        },
+        {'field': 'city', 'label': _('City / Commune')},
+        {'field': 'phone', 'label': _('Communicator / Phone')},
+        {'field': 'job', 'label': _('Job')},
+        {'field': 'responsibilities', 'label': _('Responsibilities')},
+        {'field': 'business', 'label': _('Business')},
+        {'field': 'skills_knowledge_hobby', 'label': _('Skills / Knowledge / Hobby')},
+        {'field': 'to_give_away', 'label': _('To give away')},
+        {'field': 'to_borrow', 'label': _('To borrow')},
+        {'field': 'for_sale', 'label': _('For sale')},
+        {'field': 'i_need', 'label': _('I need')},
+        {'field': 'want_to_learn', 'label': _('I want to learn')},
+        {'field': 'why', 'label': _('Why do you want to join?')},
     ]
 
     notifications = [
-        {
-            'type': 'obywatele',
-            'title': _('Citizenship'),
-            'description': _('New citizens, membership requests'),
-            'enabled': profile.email_notifications_obywatele,
-        },
-        {
-            'type': 'glosowania',
-            'title': _('Voting'),
-            'description': _('Law proposals, voting reminders, results'),
-            'enabled': profile.email_notifications_glosowania,
-        },
-        {
-            'type': 'events',
-            'title': _('Events'),
-            'description': _('Upcoming events, reminders'),
-            'enabled': profile.email_notifications_events,
-        },
-        {
-            'type': 'chat',
-            'title': _('Chat'),
-            'description': _('New messages from rooms you haven\'t muted'),
-            'enabled': profile.email_notifications_chat,
-        },
+        {'type': 'obywatele', 'title': _('Citizenship'), 'description': _('New citizens, membership requests'), 'enabled': profile.email_notifications_obywatele},
+        {'type': 'glosowania', 'title': _('Voting'), 'description': _('Law proposals, voting reminders, results'), 'enabled': profile.email_notifications_glosowania},
+        {'type': 'events', 'title': _('Events'), 'description': _('Upcoming events, reminders'), 'enabled': profile.email_notifications_events},
+        {'type': 'chat', 'title': _('Chat'), 'description': _('New messages from rooms you haven\'t muted'), 'enabled': profile.email_notifications_chat},
     ]
 
     push_notifications = [
-        {
-            'type': 'push_obywatele',
-            'title': _('Citizenship'),
-            'description': _('New citizens, membership requests'),
-            'enabled': profile.push_notifications_obywatele,
-        },
-        {
-            'type': 'push_glosowania',
-            'title': _('Voting'),
-            'description': _('Law proposals, voting reminders, results'),
-            'enabled': profile.push_notifications_glosowania,
-        },
-        {
-            'type': 'push_events',
-            'title': _('Events'),
-            'description': _('Upcoming events, reminders'),
-            'enabled': profile.push_notifications_events,
-        },
-        {
-            'type': 'push_chat',
-            'title': _('Chat'),
-            'description': _('New messages from rooms you haven\'t muted'),
-            'enabled': profile.push_notifications_chat,
-        },
+        {'type': 'push_obywatele', 'title': _('Citizenship'), 'description': _('New citizens, membership requests'), 'enabled': profile.push_notifications_obywatele},
+        {'type': 'push_glosowania', 'title': _('Voting'), 'description': _('Law proposals, voting reminders, results'), 'enabled': profile.push_notifications_glosowania},
+        {'type': 'push_events', 'title': _('Events'), 'description': _('Upcoming events, reminders'), 'enabled': profile.push_notifications_events},
+        {'type': 'push_chat', 'title': _('Chat'), 'description': _('New messages from rooms you haven\'t muted'), 'enabled': profile.push_notifications_chat},
     ]
 
-    profile_form = ProfileForm(initial={
-        'first_name': user.first_name,
-        'last_name': user.last_name,
-        'phone': profile.phone,
-        'responsibilities': profile.responsibilities,
-        'city': profile.city,
-        'voivodeship': profile.voivodeship,
-        'skills_knowledge_hobby': profile.skills_knowledge_hobby,
-        'to_give_away': profile.to_give_away,
-        'to_borrow': profile.to_borrow,
-        'for_sale': profile.for_sale,
-        'i_need': profile.i_need,
-        'want_to_learn': profile.want_to_learn,
-        'business': profile.business,
-        'job': profile.job,
-        'why': profile.why,
-    })
+    profile_form = ProfileForm(
+        initial={
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'phone': profile.phone,
+            'responsibilities': profile.responsibilities,
+            'city': profile.city,
+            'voivodeship': profile.voivodeship,
+            'skills_knowledge_hobby': profile.skills_knowledge_hobby,
+            'to_give_away': profile.to_give_away,
+            'to_borrow': profile.to_borrow,
+            'for_sale': profile.for_sale,
+            'i_need': profile.i_need,
+            'want_to_learn': profile.want_to_learn,
+            'business': profile.business,
+            'job': profile.job,
+            'why': profile.why,
+        }
+    )
 
     deletion_request = getattr(user, 'deletion_request', None)
 
-    return render(request, 'obywatele/my_profile.html', {
-        'profile': profile,
-        'user': user,
-        'population': population(),
-        'required_reputation': required_reputation(),
-        'asset_fields': asset_fields,
-        'notifications': notifications,
-        'push_notifications': push_notifications,
-        'avatar_form': AvatarForm(),
-        'profile_form': profile_form,
-        'deletion_request': deletion_request,
-    })
+    return render(
+        request,
+        'obywatele/my_profile.html',
+        {
+            'profile': profile,
+            'user': user,
+            'population': population(),
+            'required_reputation': required_reputation(),
+            'asset_fields': asset_fields,
+            'notifications': notifications,
+            'push_notifications': push_notifications,
+            'avatar_form': AvatarForm(),
+            'profile_form': profile_form,
+            'deletion_request': deletion_request,
+        },
+    )
 
 
 @login_required
@@ -745,24 +590,16 @@ def toggle_notification(request: HttpRequest):
 
         field_name = NOTIFICATION_FIELDS.get(notification_type)
         if not field_name:
-            return JsonResponse({
-                'success': False,
-                'error': 'Invalid notification type'
-            })
+            return JsonResponse({'success': False, 'error': 'Invalid notification type'})
 
         profile = request.user.uzytkownik
         setattr(profile, field_name, enabled)
         profile.save()
 
-        return JsonResponse({
-            'success': True
-        })
+        return JsonResponse({'success': True})
 
-    except (json.JSONDecodeError, AttributeError):
-        return JsonResponse({
-            'success': False,
-            'error': 'Invalid request'
-        })
+    except json.JSONDecodeError, AttributeError:
+        return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 
 @login_required
@@ -798,29 +635,27 @@ def my_assets(request: HttpRequest):
             error(request, form.errors)
             return redirect('obywatele:my_profile')
     else:  # request.method != 'POST':
-        form = ProfileForm(initial={  # pre-populate fields from database
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'phone': profile.phone,
-            'responsibilities': profile.responsibilities,
-            'city': profile.city,
-            'voivodeship': profile.voivodeship,
-            'skills_knowledge_hobby': profile.skills_knowledge_hobby,
-            'to_give_away': profile.to_give_away,
-            'to_borrow': profile.to_borrow,
-            'for_sale': profile.for_sale,
-            'i_need': profile.i_need,
-            'want_to_learn': profile.want_to_learn,
-            'business': profile.business,
-            'job': profile.job,
-            'why': profile.why,
-        })
+        form = ProfileForm(
+            initial={  # pre-populate fields from database
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'phone': profile.phone,
+                'responsibilities': profile.responsibilities,
+                'city': profile.city,
+                'voivodeship': profile.voivodeship,
+                'skills_knowledge_hobby': profile.skills_knowledge_hobby,
+                'to_give_away': profile.to_give_away,
+                'to_borrow': profile.to_borrow,
+                'for_sale': profile.for_sale,
+                'i_need': profile.i_need,
+                'want_to_learn': profile.want_to_learn,
+                'business': profile.business,
+                'job': profile.job,
+                'why': profile.why,
+            }
+        )
 
-        return render(request, 'obywatele/my_assets.html', {
-            'user': user,
-            'profile': profile,
-            'form': form,
-        })
+        return render(request, 'obywatele/my_assets.html', {'user': user, 'profile': profile, 'form': form})
 
 
 class AssetListView(LoginRequiredMixin, SingleTableMixin, FilterView):
@@ -926,13 +761,11 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
         requested_field = default_sort.lstrip('-')
 
     order_prefix = '-' if requested_sort.startswith('-') else ''
-    ordered_qs = User.objects.filter(is_active=obj.is_active).annotate(
-        sort_is_blank=Case(
-            When(blank_annotations[requested_field], then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
-        ),
-    ).order_by('sort_is_blank', f'{order_prefix}{allowed_sort_fields[requested_field]}', 'id')
+    ordered_qs = (
+        User.objects.filter(is_active=obj.is_active)
+        .annotate(sort_is_blank=Case(When(blank_annotations[requested_field], then=Value(1)), default=Value(0), output_field=IntegerField()))
+        .order_by('sort_is_blank', f'{order_prefix}{allowed_sort_fields[requested_field]}', 'id')
+    )
     ordered_pks = list(ordered_qs.values_list('pk', flat=True))
     try:
         idx = ordered_pks.index(obj.pk)
@@ -943,32 +776,32 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
     # 'prev' => przycisk "Next →" (w dół listy, do następnego)
     # Pierwsza osoba na liście (idx == 0) => brak "Previous", dostępny "Next".
     next = User.objects.filter(pk=ordered_pks[idx - 1]).first() if idx > 0 else None
-    prev = (
-        User.objects.filter(pk=ordered_pks[idx + 1]).first()
-        if 0 <= idx < len(ordered_pks) - 1
-        else None
-    )
+    prev = User.objects.filter(pk=ordered_pks[idx + 1]).first() if 0 <= idx < len(ordered_pks) - 1 else None
     sort_param = f'sort={requested_sort}' if requested_sort != default_sort else ''
 
     candidate_deletion_request = getattr(candidate_user, 'deletion_request', None)
 
-    return render(request, 'obywatele/szczegoly.html', {
-        'b': candidate_profile,
-        'd': citizen_profile,
-        'wr': required_reputation(),
-        'rate': r1,
-        'p': polecajacy,
-        'prev': prev,
-        'next': next,
-        'active': obj.is_active,
-        'email_confirmed': email_confirmed,
-        'form_completion_percent': form_completion_percent,
-        'ratings_positive': ratings_positive,
-        'ratings_neutral': ratings_neutral,
-        'ratings_negative': ratings_negative,
-        'candidate_deletion_request': candidate_deletion_request,
-        'sort_param': sort_param,
-    })
+    return render(
+        request,
+        'obywatele/szczegoly.html',
+        {
+            'b': candidate_profile,
+            'd': citizen_profile,
+            'wr': required_reputation(),
+            'rate': r1,
+            'p': polecajacy,
+            'prev': prev,
+            'next': next,
+            'active': obj.is_active,
+            'email_confirmed': email_confirmed,
+            'form_completion_percent': form_completion_percent,
+            'ratings_positive': ratings_positive,
+            'ratings_neutral': ratings_neutral,
+            'ratings_negative': ratings_negative,
+            'candidate_deletion_request': candidate_deletion_request,
+            'sort_param': sort_param,
+        },
+    )
 
 
 @login_required
@@ -988,16 +821,9 @@ def candidate_edit(request: HttpRequest, pk: int):
         else:
             error(request, _('Please correct the highlighted errors.'))
     else:
-        form = ProfileForm(instance=candidate_profile, initial={
-            'first_name': candidate_user.first_name,
-            'last_name': candidate_user.last_name,
-        })
+        form = ProfileForm(instance=candidate_profile, initial={'first_name': candidate_user.first_name, 'last_name': candidate_user.last_name})
 
-    return render(request, 'obywatele/candidate_edit.html', {
-        'form': form,
-        'candidate_user': candidate_user,
-        'candidate_profile': candidate_profile,
-    })
+    return render(request, 'obywatele/candidate_edit.html', {'form': form, 'candidate_user': candidate_user, 'candidate_profile': candidate_profile})
 
 
 @receiver(user_signed_up)
@@ -1026,9 +852,7 @@ def set_onboarding_email_confirmed(sender, request, email_address, **kwargs):
         # Send onboarding email with link to form
         onboarding_token = signer.sign(str(user.id))
         query_params = urlencode({'token': onboarding_token})
-        onboarding_url = request.build_absolute_uri(
-            reverse('obywatele:onboarding_details') + f'?{query_params}'
-        )
+        onboarding_url = request.build_absolute_uri(reverse('obywatele:onboarding_details') + f'?{query_params}')
 
         subject = _('Fill out your onboarding form')
         body = _('Your email has been confirmed.\n\nPlease fill out your onboarding form here: %(link)s') % {'link': onboarding_url}
@@ -1048,9 +872,7 @@ def set_user_language(request: HttpRequest):
     lang = request.POST.get('language', '').strip()
     next_url = request.POST.get('next', '/')
     # Endpoint is reachable by anonymous users, so guard against open redirects.
-    if not url_has_allowed_host_and_scheme(
-        next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()
-    ):
+    if not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
         next_url = '/'
 
     # Only authenticated users have a profile to persist the choice to.
@@ -1088,30 +910,18 @@ def set_user_language(request: HttpRequest):
 @login_required
 def citizen_czaty(request: HttpRequest, pk: int):
     target_user = get_object_or_404(User, pk=pk)
-    messages = (Message.objects.filter(sender=target_user, room__public=True).select_related('room').order_by('-time'))
-    rows = [{
-        'room': msg.room,
-        'room_name': msg.room.displayed_name(request.user),
-        'msg': msg,
-    } for msg in messages]
+    messages = Message.objects.filter(sender=target_user, room__public=True).select_related('room').order_by('-time')
+    rows = [{'room': msg.room, 'room_name': msg.room.displayed_name(request.user), 'msg': msg} for msg in messages]
     template = 'obywatele/_citizen_czaty_partial.html' if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else 'obywatele/citizen_czaty.html'
-    return render(request, template, {
-        'target_user': target_user,
-        'rows': rows,
-        'is_own': request.user.pk == pk,
-    })
+    return render(request, template, {'target_user': target_user, 'rows': rows, 'is_own': request.user.pk == pk})
 
 
 @login_required
 def citizen_zadania(request: HttpRequest, pk: int):
     target_user = get_object_or_404(User, pk=pk)
-    tasks = (Task.objects.filter(Q(created_by=target_user) | Q(assigned_to=target_user)).distinct().order_by('-created_at'))
+    tasks = Task.objects.filter(Q(created_by=target_user) | Q(assigned_to=target_user)).distinct().order_by('-created_at')
     template = 'obywatele/_citizen_zadania_partial.html' if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else 'obywatele/citizen_zadania.html'
-    return render(request, template, {
-        'target_user': target_user,
-        'tasks': tasks,
-        'is_own': request.user.pk == pk,
-    })
+    return render(request, template, {'target_user': target_user, 'tasks': tasks, 'is_own': request.user.pk == pk})
 
 
 @login_required
@@ -1121,101 +931,35 @@ def citizen_aktywnosc(request: HttpRequest, pk: int):
     items = []
 
     for t in Task.objects.filter(created_by=target_user).order_by('-created_at'):
-        items.append({
-            'type': 'task_created',
-            'title': t.title,
-            'ts': t.created_at,
-            'label': _('Created task'),
-            'url': reverse('tasks:detail', kwargs={
-                'pk': t.pk
-            }),
-        })
+        items.append({'type': 'task_created', 'title': t.title, 'ts': t.created_at, 'label': _('Created task'), 'url': reverse('tasks:detail', kwargs={'pk': t.pk})})
 
     for t in Task.objects.filter(assigned_to=target_user).order_by('-updated_at'):
-        items.append({
-            'type': 'task_assigned',
-            'title': t.title,
-            'ts': t.updated_at,
-            'label': _('Assigned task'),
-            'url': reverse('tasks:detail', kwargs={
-                'pk': t.pk
-            }),
-        })
+        items.append({'type': 'task_assigned', 'title': t.title, 'ts': t.updated_at, 'label': _('Assigned task'), 'url': reverse('tasks:detail', kwargs={'pk': t.pk})})
 
     for tv in TaskVote.objects.filter(user=target_user).select_related('task').order_by('-updated_at'):
-        items.append({
-            'type': 'task_vote',
-            'title': tv.task.title,
-            'ts': tv.updated_at,
-            'label': _('Voted on task'),
-            'url': reverse('tasks:detail', kwargs={
-                'pk': tv.task_id
-            }),
-        })
+        items.append({'type': 'task_vote', 'title': tv.task.title, 'ts': tv.updated_at, 'label': _('Voted on task'), 'url': reverse('tasks:detail', kwargs={'pk': tv.task_id})})
 
     for te in TaskEvaluation.objects.filter(user=target_user).select_related('task').order_by('-updated_at'):
-        items.append({
-            'type': 'task_eval',
-            'title': te.task.title,
-            'ts': te.updated_at,
-            'label': _('Evaluated task'),
-            'url': reverse('tasks:detail', kwargs={
-                'pk': te.task_id
-            }),
-        })
+        items.append({'type': 'task_eval', 'title': te.task.title, 'ts': te.updated_at, 'label': _('Evaluated task'), 'url': reverse('tasks:detail', kwargs={'pk': te.task_id})})
 
     for arg in Argument.objects.filter(author=target_user).select_related('decyzja').order_by('-created_at'):
-        items.append({
-            'type': 'argument',
-            'title': arg.decyzja.title,
-            'ts': arg.created_at,
-            'label': _('Added argument'),
-            'url': reverse('glosowania:details', kwargs={
-                'pk': arg.decyzja_id
-            }),
-        })
+        items.append({'type': 'argument', 'title': arg.decyzja.title, 'ts': arg.created_at, 'label': _('Added argument'), 'url': reverse('glosowania:details', kwargs={'pk': arg.decyzja_id})})
 
     for zp in ZebranePodpisy.objects.filter(podpis_uzytkownika=target_user).select_related('projekt'):
         if zp.projekt:
-            items.append({
-                'type': 'signature',
-                'title': zp.projekt.title,
-                'ts': None,
-                'label': _('Signed proposal'),
-                'url': reverse('glosowania:details', kwargs={
-                    'pk': zp.projekt_id
-                }),
-            })
+            items.append({'type': 'signature', 'title': zp.projekt.title, 'ts': None, 'label': _('Signed proposal'), 'url': reverse('glosowania:details', kwargs={'pk': zp.projekt_id})})
 
     for kg in KtoJuzGlosowal.objects.filter(ktory_uzytkownik_juz_zaglosowal=target_user).select_related('projekt'):
-        items.append({
-            'type': 'voted',
-            'title': kg.projekt.title,
-            'ts': None,
-            'label': _('Voted in referendum'),
-            'url': reverse('glosowania:details', kwargs={
-                'pk': kg.projekt_id
-            }),
-        })
+        items.append({'type': 'voted', 'title': kg.projekt.title, 'ts': None, 'label': _('Voted in referendum'), 'url': reverse('glosowania:details', kwargs={'pk': kg.projekt_id})})
 
     for ca in CitizenActivity.objects.filter(uzytkownik=target_profile).order_by('-timestamp'):
-        items.append({
-            'type': 'citizen',
-            'title': ca.get_activity_type_display(),
-            'ts': ca.timestamp,
-            'label': _('Citizenship event'),
-            'url': None,
-        })
+        items.append({'type': 'citizen', 'title': ca.get_activity_type_display(), 'ts': ca.timestamp, 'label': _('Citizenship event'), 'url': None})
 
     epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
     items.sort(key=lambda x: x['ts'] or epoch, reverse=True)
 
     template = 'obywatele/_citizen_aktywnosc_partial.html' if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else 'obywatele/citizen_aktywnosc.html'
-    return render(request, template, {
-        'target_user': target_user,
-        'items': items,
-        'is_own': request.user.pk == pk,
-    })
+    return render(request, template, {'target_user': target_user, 'items': items, 'is_own': request.user.pk == pk})
 
 
 @login_required
@@ -1224,42 +968,26 @@ def citizen_zalozono(request: HttpRequest, pk: int):
     items = []
 
     for t in Task.objects.filter(created_by=target_user).order_by('-created_at'):
-        items.append({
-            'title': t.title,
-            'ts': t.created_at,
-            'label': _('Task'),
-            'url': reverse('tasks:detail', kwargs={
-                'pk': t.pk
-            }),
-        })
+        items.append({'title': t.title, 'ts': t.created_at, 'label': _('Task'), 'url': reverse('tasks:detail', kwargs={'pk': t.pk})})
 
     for d in Decyzja.objects.filter(author=target_user).order_by('-data_powstania'):
-        items.append({
-            'title': d.title or '—',
-            'ts': datetime.datetime(d.data_powstania.year, d.data_powstania.month, d.data_powstania.day, tzinfo=datetime.timezone.utc) if d.data_powstania else None,
-            'label': _('Voting proposal'),
-            'url': reverse('glosowania:details', kwargs={
-                'pk': d.pk
-            }),
-        })
+        items.append(
+            {
+                'title': d.title or '—',
+                'ts': datetime.datetime(d.data_powstania.year, d.data_powstania.month, d.data_powstania.day, tzinfo=datetime.timezone.utc) if d.data_powstania else None,
+                'label': _('Voting proposal'),
+                'url': reverse('glosowania:details', kwargs={'pk': d.pk}),
+            }
+        )
 
     for room in Room.objects.filter(founder=target_user, public=True).order_by('-last_activity'):
-        items.append({
-            'title': room.displayed_name(target_user),
-            'ts': room.last_activity,
-            'label': _('Chat room'),
-            'url': reverse('chat:chat') + f'#room_id={room.pk}',
-        })
+        items.append({'title': room.displayed_name(target_user), 'ts': room.last_activity, 'label': _('Chat room'), 'url': reverse('chat:chat') + f'#room_id={room.pk}'})
 
     epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
     items.sort(key=lambda x: x['ts'] or epoch, reverse=True)
 
     template = 'obywatele/_citizen_zalozono_partial.html' if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else 'obywatele/_citizen_zalozono_partial.html'
-    return render(request, template, {
-        'target_user': target_user,
-        'items': items,
-        'is_own': request.user.pk == pk,
-    })
+    return render(request, template, {'target_user': target_user, 'items': items, 'is_own': request.user.pk == pk})
 
 
 @login_required

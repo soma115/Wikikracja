@@ -41,15 +41,10 @@ def create_task_chat_room(sender, instance, created, **kwargs):
 
             # Send initial message with link back to the task
             domain = get_site_domain()
-            task_path = reverse('tasks:detail', kwargs={
-                'pk': instance.pk
-            })
+            task_path = reverse('tasks:detail', kwargs={'pk': instance.pk})
             protocol = getattr(settings, 'SITE_PROTOCOL', 'http')
             task_url = f"{protocol}://{domain}{task_path}"
-            message_text = _('Discussion room for task "%(task_title)s": %(task_url)s') % {
-                'task_title': instance.title,
-                'task_url': task_url
-            }
+            message_text = _('Discussion room for task "%(task_title)s": %(task_url)s') % {'task_title': instance.title, 'task_url': task_url}
 
             Message.objects.create(sender=instance.created_by, text=message_text, room=room, anonymous=False)
 
@@ -62,6 +57,7 @@ def create_task_chat_room(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=Task)
 def invalidate_task_list_on_task_change(sender, instance, **kwargs):
     from .views import invalidate_task_list_cache
+
     invalidate_task_list_cache()
 
 
@@ -69,6 +65,7 @@ def invalidate_task_list_on_task_change(sender, instance, **kwargs):
 @receiver(post_delete, sender=TaskVote)
 def invalidate_task_list_on_vote_change(sender, instance, **kwargs):
     from .views import invalidate_task_list_cache
+
     invalidate_task_list_cache(user_id=instance.user_id)
 
 
@@ -81,6 +78,7 @@ def invalidate_task_list_on_seen_by_change(sender, instance, action, pk_set, **k
     if not hasattr(instance, 'task') or not instance.task.exists():
         return
     from .views import invalidate_task_list_cache
+
     if pk_set:
         for user_id in pk_set:
             invalidate_task_list_cache(user_id=user_id)
@@ -106,4 +104,5 @@ def delete_task_chat_room(sender, instance, **kwargs):
 @receiver(post_delete, sender=Task)
 def _invalidate_feed_cache_on_task_change(sender, **kwargs):
     from home.services.feed import invalidate_feed_cache
+
     invalidate_feed_cache()

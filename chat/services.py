@@ -35,12 +35,7 @@ def get_unread_count_for_user(user) -> int:
     cached = cache.get(key)
     if cached is not None:
         return cached
-    count = (Room.objects
-             .filter(allowed=user, archived=False)
-             .exclude(seen_by=user)
-             .annotate(messages_count=Count('messages'))
-             .filter(messages_count__gt=0)
-             .count())
+    count = Room.objects.filter(allowed=user, archived=False).exclude(seen_by=user).annotate(messages_count=Count('messages')).filter(messages_count__gt=0).count()
     cache.set(key, count, CHAT_UNREAD_CACHE_TTL)
     return count
 
@@ -230,10 +225,7 @@ class ChatRepository:
         if not history.exists():
             return []
         history = history.first()
-        states = [{
-            "text": state.text,
-            "timestamp": int(state.time.timestamp()) * 1000
-        } for state in history.entries.all().order_by("time")]
+        states = [{"text": state.text, "timestamp": int(state.time.timestamp()) * 1000} for state in history.entries.all().order_by("time")]
         return states
 
     # -- Attachment methods --
@@ -353,10 +345,7 @@ class ChatRepository:
             return {'bulb': 0, 'question': 0}
 
         reactions_dict = _reactions(m)
-        return {
-            'bulb': len(reactions_dict.get('bulb', [])),
-            'question': len(reactions_dict.get('question', []))
-        }
+        return {'bulb': len(reactions_dict.get('bulb', [])), 'question': len(reactions_dict.get('question', []))}
 
     @database_sync_to_async
     def get_user_reactions(self, user_id: int, message_id: int) -> list:
@@ -377,24 +366,15 @@ class ChatRepository:
     @database_sync_to_async
     def mark_message_read(self, message_id: int):
         """Mark message as read by current user."""
-        MessageReadBy.objects.get_or_create(
-            message_id=message_id,
-            user=self.user,
-        )
+        MessageReadBy.objects.get_or_create(message_id=message_id, user=self.user)
 
     @database_sync_to_async
     def mark_messages_read_bulk(self, message_ids: list) -> list:
         """Mark multiple messages as read; return ids that were newly created."""
-        existing = set(
-            MessageReadBy.objects.filter(message_id__in=message_ids, user=self.user)
-            .values_list('message_id', flat=True)
-        )
+        existing = set(MessageReadBy.objects.filter(message_id__in=message_ids, user=self.user).values_list('message_id', flat=True))
         new_ids = [mid for mid in message_ids if mid not in existing]
         if new_ids:
-            MessageReadBy.objects.bulk_create(
-                [MessageReadBy(message_id=mid, user=self.user) for mid in new_ids],
-                ignore_conflicts=True,
-            )
+            MessageReadBy.objects.bulk_create([MessageReadBy(message_id=mid, user=self.user) for mid in new_ids], ignore_conflicts=True)
         return new_ids
 
     @database_sync_to_async
@@ -405,11 +385,7 @@ class ChatRepository:
         for entry in entries:
             user = entry.user
             avatar_url = get_avatar_url(user) or "/static/home/images/favicon.ico"
-            result.append({
-                'user_id': user.id,
-                'username': user.username,
-                'avatar_url': avatar_url,
-            })
+            result.append({'user_id': user.id, 'username': user.username, 'avatar_url': avatar_url})
         return result
 
     # -- Reply to methods --
@@ -420,22 +396,14 @@ class ChatRepository:
             msg = Message.objects.select_related('sender').get(pk=message_id)
             username = 'System' if msg.sender is None else ('Anonymous' if msg.anonymous else msg.sender.username)
             snippet = strip_tags(msg.text)[:120]
-            return {
-                'id': msg.id,
-                'username': username,
-                'text_snippet': snippet,
-                'author_color': _username_to_color(username),
-            }
+            return {'id': msg.id, 'username': username, 'text_snippet': snippet, 'author_color': _username_to_color(username)}
         except Message.DoesNotExist:
             return None
 
     # -- Recent messages methods --
     @database_sync_to_async
     def get_recent_messages(self, room_id, limit=100):
-        messages = Message.objects.filter(room=room_id).select_related('sender').prefetch_related(
-            Prefetch('attachments', queryset=MessageAttachment.objects.all()),
-            'messagehistory'
-        ).order_by('-time')[:limit]
+        messages = Message.objects.filter(room=room_id).select_related('sender').prefetch_related(Prefetch('attachments', queryset=MessageAttachment.objects.all()), 'messagehistory').order_by('-time')[:limit]
 
         result = []
         for msg in reversed(list(messages)):
@@ -452,30 +420,27 @@ class ChatRepository:
             bulb = len(reactions_dict.get('bulb', []))
             question = len(reactions_dict.get('question', []))
 
-            result.append({
-                'id': msg.id,
-                'sender_id': msg.sender_id,
-                'time': msg.time,
-                'text': msg.text,
-                'room_id': msg.room_id,
-                'anonymous': msg.anonymous,
-                'upvotes': upvotes,
-                'downvotes': downvotes,
-                'bulb': bulb,
-                'question': question,
-                'edited': edited,
-                'attachments': attachments,
-            })
+            result.append(
+                {
+                    'id': msg.id,
+                    'sender_id': msg.sender_id,
+                    'time': msg.time,
+                    'text': msg.text,
+                    'room_id': msg.room_id,
+                    'anonymous': msg.anonymous,
+                    'upvotes': upvotes,
+                    'downvotes': downvotes,
+                    'bulb': bulb,
+                    'question': question,
+                    'edited': edited,
+                    'attachments': attachments,
+                }
+            )
         return result
 
     @database_sync_to_async
     def get_recent_messages_batch(self, room_id, user_id, limit=100, sort_by='date', order='desc', popular_only=False):
-        qs = Message.objects.filter(room=room_id) \
-            .select_related('sender', 'reply_to__sender') \
-            .prefetch_related(
-                Prefetch('attachments', queryset=MessageAttachment.objects.all()),
-                'messagehistory'
-            )
+        qs = Message.objects.filter(room=room_id).select_related('sender', 'reply_to__sender').prefetch_related(Prefetch('attachments', queryset=MessageAttachment.objects.all()), 'messagehistory')
 
         if sort_by == 'date' and not popular_only:
             # Fast path: DB handles ORDER BY + LIMIT using the (room, time) index
@@ -498,7 +463,7 @@ class ChatRepository:
             if popular_only:
                 all_messages = [msg for msg in all_messages if msg.upvotes >= 1]
 
-            reverse = (order == 'desc')
+            reverse = order == 'desc'
             if sort_by == 'likes':
                 all_messages.sort(key=lambda m: (m.upvotes, m.time), reverse=reverse)
             else:
@@ -540,39 +505,32 @@ class ChatRepository:
             if msg.reply_to_id and msg.reply_to:
                 rm = msg.reply_to
                 ru = 'System' if rm.sender is None else ('Anonymous' if rm.anonymous else rm.sender.username)
-                reply_to_data = {
-                    'id': rm.id,
-                    'username': ru,
-                    'text_snippet': strip_tags(rm.text)[:120],
-                    'author_color': _username_to_color(ru),
-                }
+                reply_to_data = {'id': rm.id, 'username': ru, 'text_snippet': strip_tags(rm.text)[:120], 'author_color': _username_to_color(ru)}
 
             r = _reactions(msg)
             rb_entries = read_by_map.get(msg.id, [])
             rb_data = []
             for entry in rb_entries:
                 u = entry.user
-                rb_data.append({
-                    'user_id': u.id,
-                    'username': u.username,
-                    'avatar_url': get_avatar_url(u) or '/static/home/images/favicon.ico',
-                })
-            result.append({
-                'id': msg.id,
-                'sender_id': msg.sender_id,
-                'time': msg.time,
-                'text': msg.text,
-                'room_id': msg.room_id,
-                'anonymous': msg.anonymous,
-                'upvotes': msg.upvotes,
-                'downvotes': msg.downvotes,
-                'edited': hasattr(msg, 'messagehistory'),
-                'attachments': attachments,
-                'reply_to': reply_to_data,
-                'bulb_count': len(r.get('bulb', [])),
-                'question_count': len(r.get('question', [])),
-                'read_by': rb_data,
-            })
+                rb_data.append({'user_id': u.id, 'username': u.username, 'avatar_url': get_avatar_url(u) or '/static/home/images/favicon.ico'})
+            result.append(
+                {
+                    'id': msg.id,
+                    'sender_id': msg.sender_id,
+                    'time': msg.time,
+                    'text': msg.text,
+                    'room_id': msg.room_id,
+                    'anonymous': msg.anonymous,
+                    'upvotes': msg.upvotes,
+                    'downvotes': msg.downvotes,
+                    'edited': hasattr(msg, 'messagehistory'),
+                    'attachments': attachments,
+                    'reply_to': reply_to_data,
+                    'bulb_count': len(r.get('bulb', [])),
+                    'question_count': len(r.get('question', [])),
+                    'read_by': rb_data,
+                }
+            )
 
         return {'messages': result, 'users': users, 'user_votes': user_votes}
 
@@ -583,14 +541,7 @@ class ChatRepository:
         try:
             from zzz.notifications import NOTIF_LOG_TAG, build_notification, send_fcm_to_user_sync
 
-            notification = build_notification(
-                title,
-                body,
-                deep_link,
-                f"chat-{room_id}",
-                room_id=room_id,
-                room_name=room_name,
-            )
+            notification = build_notification(title, body, deep_link, f"chat-{room_id}", room_id=room_id, room_name=room_name)
             return send_fcm_to_user_sync(user, notification, notification_type='chat')
         except Exception as e:
             log.error(f"{NOTIF_LOG_TAG} Error in send_push_notification_sync: {e}", exc_info=True)

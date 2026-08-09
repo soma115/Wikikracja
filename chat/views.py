@@ -61,15 +61,11 @@ def add_room(request: HttpRequest):
     Add public chat room
     """
     if request.method != 'POST':
-        return render(request, 'chat/add.html', {
-            'form': RoomForm()
-        })
+        return render(request, 'chat/add.html', {'form': RoomForm()})
 
     form = RoomForm(request.POST)
     if not form.is_valid():
-        return render(request, 'chat/add.html', {
-            'form': form
-        })
+        return render(request, 'chat/add.html', {'form': form})
 
     room = form.save(commit=False)
     room.last_activity = timezone.now()
@@ -85,10 +81,7 @@ def add_room(request: HttpRequest):
 
 
 def _chat_room_prefetches():
-    return [
-        Prefetch('chat_room__seen_by', queryset=User.objects.only('id')),
-        Prefetch('chat_room__muted_by', queryset=User.objects.only('id')),
-    ]
+    return [Prefetch('chat_room__seen_by', queryset=User.objects.only('id')), Prefetch('chat_room__muted_by', queryset=User.objects.only('id'))]
 
 
 @login_required
@@ -97,7 +90,12 @@ def chat(request: HttpRequest):
     Root page view. This is essentially a single-page app, if you ignore the
     login and admin parts.
     """
-    base_rooms = Room.objects.filter(allowed=request.user.id).select_related('last_message_sender').annotate(messages_count=Count('messages'), is_seen=Exists(Room.seen_by.through.objects.filter(room_id=OuterRef('pk'), user_id=request.user.id))).order_by(Lower("title"))
+    base_rooms = (
+        Room.objects.filter(allowed=request.user.id)
+        .select_related('last_message_sender')
+        .annotate(messages_count=Count('messages'), is_seen=Exists(Room.seen_by.through.objects.filter(room_id=OuterRef('pk'), user_id=request.user.id)))
+        .order_by(Lower("title"))
+    )
 
     # Public rooms can have hundreds of `allowed` users — keep that prefetch lean.
     public_allowed = Prefetch('allowed', queryset=User.objects.only('id', 'username'))
@@ -118,45 +116,53 @@ def chat(request: HttpRequest):
     public_rooms_active = public_active.exclude(id__in=task_room_ids).exclude(id__in=vote_room_ids)
     public_rooms_archived = public_archived.exclude(id__in=task_room_ids).exclude(id__in=vote_room_ids)
 
-    tasks_tree_active = Task.objects.filter(
-        chat_room__isnull=False,
-        chat_room__allowed=request.user,
-        chat_room__archived=False,
-    ).select_related('chat_room', 'chat_room__last_message_sender').prefetch_related(*_chat_room_prefetches()).order_by('title')
+    tasks_tree_active = (
+        Task.objects.filter(chat_room__isnull=False, chat_room__allowed=request.user, chat_room__archived=False)
+        .select_related('chat_room', 'chat_room__last_message_sender')
+        .prefetch_related(*_chat_room_prefetches())
+        .order_by('title')
+    )
 
-    tasks_tree_archived = Task.objects.filter(
-        chat_room__isnull=False,
-        chat_room__allowed=request.user,
-        chat_room__archived=True,
-    ).select_related('chat_room', 'chat_room__last_message_sender').prefetch_related(*_chat_room_prefetches()).order_by('title')
+    tasks_tree_archived = (
+        Task.objects.filter(chat_room__isnull=False, chat_room__allowed=request.user, chat_room__archived=True)
+        .select_related('chat_room', 'chat_room__last_message_sender')
+        .prefetch_related(*_chat_room_prefetches())
+        .order_by('title')
+    )
 
-    votes_tree_active = Decyzja.objects.filter(
-        chat_room__isnull=False,
-        chat_room__allowed=request.user,
-        chat_room__archived=False,
-    ).select_related('chat_room', 'chat_room__last_message_sender').prefetch_related(*_chat_room_prefetches()).order_by('title')
+    votes_tree_active = (
+        Decyzja.objects.filter(chat_room__isnull=False, chat_room__allowed=request.user, chat_room__archived=False)
+        .select_related('chat_room', 'chat_room__last_message_sender')
+        .prefetch_related(*_chat_room_prefetches())
+        .order_by('title')
+    )
 
-    votes_tree_archived = Decyzja.objects.filter(
-        chat_room__isnull=False,
-        chat_room__allowed=request.user,
-        chat_room__archived=True,
-    ).select_related('chat_room', 'chat_room__last_message_sender').prefetch_related(*_chat_room_prefetches()).order_by('title')
+    votes_tree_archived = (
+        Decyzja.objects.filter(chat_room__isnull=False, chat_room__allowed=request.user, chat_room__archived=True)
+        .select_related('chat_room', 'chat_room__last_message_sender')
+        .prefetch_related(*_chat_room_prefetches())
+        .order_by('title')
+    )
 
-    return render(request, "chat/chat.html", {
-        'translations': get_translations(),
-        'public_rooms_active': public_rooms_active,
-        'public_rooms_archived': public_rooms_archived,
-        'tasks_tree_active': tasks_tree_active,
-        'tasks_tree_archived': tasks_tree_archived,
-        'votes_tree_active': votes_tree_active,
-        'votes_tree_archived': votes_tree_archived,
-        'private_active': private_active,
-        'private_archived': private_archived,
-        'user': request.user,
-        'ARCHIVE_PUBLIC_CHAT_ROOM': td(days=get_param('archive_public_chat_room')).days,
-        'DELETE_PUBLIC_CHAT_ROOM': td(days=get_param('delete_public_chat_room')).days,
-        'MESSAGE_MAX_LENGTH': settings.MESSAGE_MAX_LENGTH,
-    })
+    return render(
+        request,
+        "chat/chat.html",
+        {
+            'translations': get_translations(),
+            'public_rooms_active': public_rooms_active,
+            'public_rooms_archived': public_rooms_archived,
+            'tasks_tree_active': tasks_tree_active,
+            'tasks_tree_archived': tasks_tree_archived,
+            'votes_tree_active': votes_tree_active,
+            'votes_tree_archived': votes_tree_archived,
+            'private_active': private_active,
+            'private_archived': private_archived,
+            'user': request.user,
+            'ARCHIVE_PUBLIC_CHAT_ROOM': td(days=get_param('archive_public_chat_room')).days,
+            'DELETE_PUBLIC_CHAT_ROOM': td(days=get_param('delete_public_chat_room')).days,
+            'MESSAGE_MAX_LENGTH': settings.MESSAGE_MAX_LENGTH,
+        },
+    )
 
 
 def check_image_type(file_path):
@@ -284,15 +290,9 @@ def room_data(request: HttpRequest, room_id: int):
     try:
         room = Room.objects.get(id=room_id, allowed=request.user)
     except Room.DoesNotExist:
-        return JsonResponse({
-            'error': 'Not found'
-        }, status=404)
+        return JsonResponse({'error': 'Not found'}, status=404)
 
-    return JsonResponse({
-        'room_id': room.id,
-        'title': room.title,
-        'translations': get_translations(),
-    })
+    return JsonResponse({'room_id': room.id, 'title': room.title, 'translations': get_translations()})
 
 
 @login_required
@@ -304,9 +304,7 @@ def toggle_notifications(request: HttpRequest):
     - enabled: boolean (true/false) - true to enable, false to disable
     """
     if request.method != 'POST':
-        return JsonResponse({
-            'error': 'Method not allowed'
-        }, status=405)
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
     try:
         data = json.loads(request.body)
@@ -314,17 +312,13 @@ def toggle_notifications(request: HttpRequest):
         enabled = data.get('enabled')
 
         if room_id is None or enabled is None:
-            return JsonResponse({
-                'error': 'Missing room_id or enabled parameter'
-            }, status=400)
+            return JsonResponse({'error': 'Missing room_id or enabled parameter'}, status=400)
 
         room = Room.objects.get(id=room_id)
 
         # Check if user is allowed in this room
         if not room.allowed.filter(id=request.user.id).exists():
-            return JsonResponse({
-                'error': 'Access denied'
-            }, status=403)
+            return JsonResponse({'error': 'Access denied'}, status=403)
 
         # Add or remove user from muted_by list
         if enabled:
@@ -338,30 +332,21 @@ def toggle_notifications(request: HttpRequest):
                 room.muted_by.add(request.user)
                 log.info(f"User {request.user.id} muted notifications for room {room_id}")
 
-        return JsonResponse({
-            'success': True,
-            'room_id': room_id,
-            'notifications_enabled': not room.muted_by.filter(id=request.user.id).exists()
-        })
+        return JsonResponse({'success': True, 'room_id': room_id, 'notifications_enabled': not room.muted_by.filter(id=request.user.id).exists()})
 
     except json.JSONDecodeError:
-        return JsonResponse({
-            'error': 'Invalid JSON'
-        }, status=400)
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
     except Room.DoesNotExist:
-        return JsonResponse({
-            'error': 'Room not found'
-        }, status=404)
+        return JsonResponse({'error': 'Room not found'}, status=404)
     except Exception as e:
         log.error(f"Error toggling notifications: {e}")
-        return JsonResponse({
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @login_required
 def unread_count(request: HttpRequest):
     from chat.services import get_unread_count_for_user
+
     count = get_unread_count_for_user(request.user)
     return JsonResponse({"count": count})
 
@@ -388,12 +373,7 @@ def rename_room(request: HttpRequest, room_id: int):
     room = form.save()
     if room.title != old_title:
         log.info(f"Room {room_id} renamed from '{old_title}' to '{room.title}' by user {request.user.id}")
-        send_message_to_room(
-            room_title=room.title,
-            message_text=f'📝 {request.user.username} zmienił(a) nazwę pokoju z "{old_title}" na "{room.title}".',
-            sender=None,
-            anonymous=False,
-        )
+        send_message_to_room(room_title=room.title, message_text=f'📝 {request.user.username} zmienił(a) nazwę pokoju z "{old_title}" na "{room.title}".', sender=None, anonymous=False)
     return JsonResponse({'success': True, 'title': room.title})
 
 
@@ -415,29 +395,11 @@ def guest_message(request: HttpRequest):
                 except Room.DoesNotExist:
                     form.add_error(None, _('The public inbox is not available at the moment.'))
                 else:
-                    message_text = sanitize(
-                        f"Od: {form.cleaned_data['guest_name']} "
-                        f"({form.cleaned_data['guest_email']})\n\n"
-                        f"{form.cleaned_data['message']}",
-                        linkify=True,
-                    )
-                    send_message_to_room(
-                        room_title=inbox.title,
-                        message_text=message_text,
-                        sender=None,
-                        anonymous=True,
-                        guest_email=form.cleaned_data['guest_email'],
-                        guest_name=form.cleaned_data['guest_name'],
-                    )
+                    message_text = sanitize(f"Od: {form.cleaned_data['guest_name']} ({form.cleaned_data['guest_email']})\n\n{form.cleaned_data['message']}", linkify=True)
+                    send_message_to_room(room_title=inbox.title, message_text=message_text, sender=None, anonymous=True, guest_email=form.cleaned_data['guest_email'], guest_name=form.cleaned_data['guest_name'])
                     cache.set(cache_key, attempts + 1, timeout=300)
-                    return render(request, 'chat/guest_message.html', {
-                        'form': GuestMessageForm(),
-                        'sent': True,
-                    })
+                    return render(request, 'chat/guest_message.html', {'form': GuestMessageForm(), 'sent': True})
     else:
         form = GuestMessageForm()
 
-    return render(request, 'chat/guest_message.html', {
-        'form': form,
-        'sent': False,
-    })
+    return render(request, 'chat/guest_message.html', {'form': form, 'sent': False})

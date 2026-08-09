@@ -14,9 +14,5 @@ class UzytkownikTable(tables.Table):
         model = Uzytkownik
         fields = ('uid', 'city', 'responsibilities', 'skills_knowledge_hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'want_to_learn', 'business', 'job', 'why')
         template_name = "django_tables2/bootstrap5.html"
-        attrs = {
-            'class': 'table table-hover table-sm align-middle mb-0',
-            'data-column-toggle': 'true',
-            'style': 'table-layout: auto;'
-        }
+        attrs = {'class': 'table table-hover table-sm align-middle mb-0', 'data-column-toggle': 'true', 'style': 'table-layout: auto;'}
         paginate_by = False

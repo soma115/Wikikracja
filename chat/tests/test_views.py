@@ -61,11 +61,7 @@ class ChatViewsTest(TestCase):
     def test_toggle_notifications_disables_notifications(self):
         # enabled=False → dodaje do muted_by
         self.client.force_login(self.user)
-        response = self.client.post(
-            reverse("chat:toggle_notifications"),
-            data=json.dumps({"room_id": self.room.id, "enabled": False}),
-            content_type="application/json",
-        )
+        response = self.client.post(reverse("chat:toggle_notifications"), data=json.dumps({"room_id": self.room.id, "enabled": False}), content_type="application/json")
         self.assertEqual(response.status_code, 200)
         self.assertIn(self.user, self.room.muted_by.all())
 
@@ -73,20 +69,12 @@ class ChatViewsTest(TestCase):
         # enabled=True → usuwa z muted_by
         self.room.muted_by.add(self.user)
         self.client.force_login(self.user)
-        self.client.post(
-            reverse("chat:toggle_notifications"),
-            data=json.dumps({"room_id": self.room.id, "enabled": True}),
-            content_type="application/json",
-        )
+        self.client.post(reverse("chat:toggle_notifications"), data=json.dumps({"room_id": self.room.id, "enabled": True}), content_type="application/json")
         self.assertNotIn(self.user, self.room.muted_by.all())
 
     def test_toggle_notifications_missing_params_returns_400(self):
         self.client.force_login(self.user)
-        response = self.client.post(
-            reverse("chat:toggle_notifications"),
-            data=json.dumps({"room_id": self.room.id}),
-            content_type="application/json",
-        )
+        response = self.client.post(reverse("chat:toggle_notifications"), data=json.dumps({"room_id": self.room.id}), content_type="application/json")
         self.assertEqual(response.status_code, 400)
 
     def test_room_data_api_returns_json(self):
@@ -180,11 +168,7 @@ class RenameRoomViewTest(TestCase):
         self.private_room.allowed.add(self.user)
 
     def _rename(self, room, title):
-        return self.client.post(
-            reverse("chat:rename_room", kwargs={"room_id": room.id}),
-            data=json.dumps({"title": title}),
-            content_type="application/json",
-        )
+        return self.client.post(reverse("chat:rename_room", kwargs={"room_id": room.id}), data=json.dumps({"title": title}), content_type="application/json")
 
     def test_rename_requires_login(self):
         response = self._rename(self.public_room, "Nowa")
@@ -237,31 +221,16 @@ class RenameRoomViewTest(TestCase):
         self.assertEqual(response.status_code, 405)
 
 
-@override_settings(CACHES={
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    }
-})
+@override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}})
 class GuestMessageViewTest(TestCase):
     def setUp(self):
         cache.clear()
         Room.objects.filter(is_inbox=True).delete()
-        self.inbox = Room.objects.create(
-            title="Inbox",
-            public=True,
-            protected=True,
-            is_inbox=True,
-        )
+        self.inbox = Room.objects.create(title="Inbox", public=True, protected=True, is_inbox=True)
 
     def _captcha_data(self):
         store = CaptchaStore.objects.create(challenge='test', response='test')
-        return {
-            'guest_email': 'guest@example.com',
-            'guest_name': 'Jan Kowalski',
-            'message': 'Hello from a guest',
-            'captcha_0': store.hashkey,
-            'captcha_1': 'test',
-        }
+        return {'guest_email': 'guest@example.com', 'guest_name': 'Jan Kowalski', 'message': 'Hello from a guest', 'captcha_0': store.hashkey, 'captcha_1': 'test'}
 
     def test_guest_message_get(self):
         response = self.client.get(reverse("chat:guest_message"))
@@ -300,4 +269,3 @@ class GuestMessageViewTest(TestCase):
         response = self.client.post(reverse("chat:guest_message"), data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Message.objects.filter(room=self.inbox).count(), 3)
-

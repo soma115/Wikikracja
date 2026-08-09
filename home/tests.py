@@ -9,7 +9,6 @@ from home.services.feed import FEED_CACHE_KEY, generate_feed_items
 
 
 class ActivityFeedChatTest(TestCase):
-
     def setUp(self):
         cache.delete(FEED_CACHE_KEY)
         self.user = User.objects.create_user(username='testowy', password='pass')
@@ -120,10 +119,7 @@ class UnreadCountConsistencyTest(TestCase):
 
     def _unread_chat_rooms(self, user):
         """Liczba nieprzeczytanych pozycji room_messages w feed."""
-        return sum(
-            1 for item in generate_feed_items(user)
-            if item['content_type'] == 'room_messages' and not item['is_read']
-        )
+        return sum(1 for item in generate_feed_items(user) if item['content_type'] == 'room_messages' and not item['is_read'])
 
     def test_feed_and_chat_agree_when_unread(self):
         room = Room.objects.create(title='Pokoj A', public=False)
@@ -153,10 +149,7 @@ class UnreadCountConsistencyTest(TestCase):
         Message.objects.create(sender=self.user, text='hej', room=room)
 
         self.client.force_login(self.user)
-        response = self.client.post(
-            reverse('mark_as_read'),
-            {'content_type': 'room_messages', 'object_id': room.id}
-        )
+        response = self.client.post(reverse('mark_as_read'), {'content_type': 'room_messages', 'object_id': room.id})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(get_unread_count_for_user(self.user), 0)
@@ -171,10 +164,7 @@ class UnreadCountConsistencyTest(TestCase):
         room.seen_by.add(self.user)
 
         self.client.force_login(self.user)
-        response = self.client.post(
-            reverse('mark_unread'),
-            {'content_type': 'room_messages', 'object_id': room.id}
-        )
+        response = self.client.post(reverse('mark_unread'), {'content_type': 'room_messages', 'object_id': room.id})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(get_unread_count_for_user(self.user), 1)

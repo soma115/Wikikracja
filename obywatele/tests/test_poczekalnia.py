@@ -1,4 +1,5 @@
 """Testy widoku poczekalnia i liczenia ocen kandydatów."""
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -10,17 +11,11 @@ User = get_user_model()
 
 class PoczekalniaRatingsTest(TestCase):
     def setUp(self):
-        self.citizen_user = User.objects.create_user(
-            username='citizen', email='citizen@example.com', password='secret', is_active=True
-        )
+        self.citizen_user = User.objects.create_user(username='citizen', email='citizen@example.com', password='secret', is_active=True)
         self.citizen = Uzytkownik.objects.get(uid=self.citizen_user)
 
-        self.candidate1_user = User.objects.create_user(
-            username='cand1', email='cand1@example.com', password='secret', is_active=False
-        )
-        self.candidate2_user = User.objects.create_user(
-            username='cand2', email='cand2@example.com', password='secret', is_active=False
-        )
+        self.candidate1_user = User.objects.create_user(username='cand1', email='cand1@example.com', password='secret', is_active=False)
+        self.candidate2_user = User.objects.create_user(username='cand2', email='cand2@example.com', password='secret', is_active=False)
         self.candidate1 = Uzytkownik.objects.get(uid=self.candidate1_user)
         self.candidate2 = Uzytkownik.objects.get(uid=self.candidate2_user)
 
@@ -35,16 +30,10 @@ class PoczekalniaRatingsTest(TestCase):
     def test_rating_counts_are_individual_per_candidate(self):
         """Głos na jednego kandydata nie powinien zmieniać liczników innych."""
         # Głos pozytywny na kandydata 1
-        self.client.post(
-            reverse('obywatele:poczekalnia_szczegoly', kwargs={'pk': self.candidate1_user.pk}),
-            {'action': 'accept'},
-        )
+        self.client.post(reverse('obywatele:poczekalnia_szczegoly', kwargs={'pk': self.candidate1_user.pk}), {'action': 'accept'})
 
         # Głos neutralny na kandydata 2
-        self.client.post(
-            reverse('obywatele:poczekalnia_szczegoly', kwargs={'pk': self.candidate2_user.pk}),
-            {'action': 'reset'},
-        )
+        self.client.post(reverse('obywatele:poczekalnia_szczegoly', kwargs={'pk': self.candidate2_user.pk}), {'action': 'reset'})
 
         response = self.client.get(reverse('obywatele:poczekalnia'))
 

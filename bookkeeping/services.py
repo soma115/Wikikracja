@@ -5,6 +5,7 @@ Single source of truth dla "ile mamy w PLN / BTC / EUR / ..." — wszystkie miej
 które kiedyś sumowały transakcje per asset (ReportView, pulpit, transaction_list),
 docelowo wołają stąd, żeby nie powielać logiki i nie ryzykować mieszania walut.
 """
+
 from decimal import Decimal
 
 from django.db.models import Count, Q, Sum
@@ -44,14 +45,7 @@ def asset_balances(year=None, category=None, partner=None, asset=None):
         qs = qs.filter(asset=asset)
 
     # Jedno zapytanie group-by asset, conditional sum dla I/O — żeby nie robić 2 query per asset.
-    aggregated = (
-        qs.values('asset')
-        .annotate(
-            income=Sum('amount', filter=Q(type=Transaction.INCOMING)),
-            expenses=Sum('amount', filter=Q(type=Transaction.OUTGOING)),
-            txn_count=Count('id'),
-        )
-    )
+    aggregated = qs.values('asset').annotate(income=Sum('amount', filter=Q(type=Transaction.INCOMING)), expenses=Sum('amount', filter=Q(type=Transaction.OUTGOING)), txn_count=Count('id'))
 
     # Materializujemy do dict, żeby raz pobrać Asset-y (jedno IN-query) zamiast N+1.
     by_asset_id = {row['asset']: row for row in aggregated}
@@ -64,13 +58,7 @@ def asset_balances(year=None, category=None, partner=None, asset=None):
             continue
         income = row['income'] or Decimal('0')
         expenses = row['expenses'] or Decimal('0')
-        result.append({
-            'asset': asset_obj,
-            'income': income,
-            'expenses': expenses,
-            'balance': income - expenses,
-            'txn_count': row['txn_count'],
-        })
+        result.append({'asset': asset_obj, 'income': income, 'expenses': expenses, 'balance': income - expenses, 'txn_count': row['txn_count']})
 
     # Sort: default first, reszta alfabetycznie po code.
     result.sort(key=lambda r: (not r['asset'].is_default, r['asset'].code))
@@ -100,10 +88,7 @@ def category_breakdown(year=None):
         qs = qs.filter(payment_received_date__year=year)
 
     # Agregat per (category, asset, type) — jedno query, suma per typ transakcji.
-    aggregated = (
-        qs.values('category', 'asset', 'type')
-        .annotate(total=Sum('amount'))
-    )
+    aggregated = qs.values('category', 'asset', 'type').annotate(total=Sum('amount'))
 
     # net[(category_id_or_None, asset_id)] = Decimal (income - expenses)
     net = {}
@@ -121,19 +106,13 @@ def category_breakdown(year=None):
     asset_map = {a.id: a for a in Asset.objects.filter(pk__in=used_asset_ids)}
 
     # Asset columns: default first, reszta wg code (spójne z asset_balances).
-    asset_columns = sorted(
-        asset_map.values(),
-        key=lambda a: (not a.is_default, a.code),
-    )
+    asset_columns = sorted(asset_map.values(), key=lambda a: (not a.is_default, a.code))
 
     # Buduj pivot_rows: dict per kategoria → {category_name, by_asset}
     rows_by_cat = {}
     for (cat_id, asset_id), value in net.items():
         cat_name = cat_map.get(cat_id, '—') if cat_id is not None else '—'
-        row = rows_by_cat.setdefault(cat_id, {
-            'category_name': cat_name,
-            'by_asset': {},
-        })
+        row = rows_by_cat.setdefault(cat_id, {'category_name': cat_name, 'by_asset': {}})
         # Brakujące pary (zero net) pomijamy żeby template renderował '—' przez `not in`.
         # Edge case: net dokładnie 0 (income == expenses) — wtedy też pomijamy, bo
         # "0,00" i "—" niosą tę samą informację (brak salda netto).

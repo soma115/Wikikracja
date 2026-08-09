@@ -30,9 +30,7 @@ class TaskFormTest(TestCase):
 class TaskStatusFormTest(TestCase):
     def setUp(self):
         user = make_user("statususer")
-        self.task = Task.objects.create(
-            title="T", description="D", status=Task.Status.ACTIVE, created_by=user
-        )
+        self.task = Task.objects.create(title="T", description="D", status=Task.Status.ACTIVE, created_by=user)
 
     def test_completed_status_valid(self):
         form = TaskStatusForm(data={"status": Task.Status.COMPLETED}, instance=self.task)

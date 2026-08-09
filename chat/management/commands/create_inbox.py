@@ -8,6 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         from site_settings.params import get_param
+
         if not get_param('group_is_public'):
             self.stdout.write(self.style.WARNING('GROUP_IS_PUBLIC is False; skipping Inbox creation.'))
             return

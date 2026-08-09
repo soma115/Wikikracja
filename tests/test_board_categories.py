@@ -4,6 +4,7 @@ Regresja głównego buga: kategoria używana przez dokumenty MUSI dać się usun
 `Post.category` ma `on_delete=SET_NULL`, więc dokumenty stają się nieskategoryzowane.
 Plus generyczny endpoint listy elementów kategorii (tytuły + count, z limitem).
 """
+
 import pytest
 from django.urls import reverse
 

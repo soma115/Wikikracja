@@ -42,14 +42,10 @@ class PostSendProcessingUnseenTest(TestCase):
     async def _run(self, sender_consumer, receiver_consumer):
         msg = MagicMock()
         msg.time = None
-        with patch.object(ChatConsumer.online_registry, 'get_online',
-                          return_value=[self.receiver.id]):
-            with patch.object(ChatConsumer.online_registry, 'get_consumer',
-                              return_value=receiver_consumer):
+        with patch.object(ChatConsumer.online_registry, 'get_online', return_value=[self.receiver.id]):
+            with patch.object(ChatConsumer.online_registry, 'get_consumer', return_value=receiver_consumer):
                 with patch('chat.consumers.asyncio.create_task') as mock_create_task:
-                    await sender_consumer._post_send_processing(
-                        self.sender, self.room, msg, message_id=1
-                    )
+                    await sender_consumer._post_send_processing(self.sender, self.room, msg, message_id=1)
                     return mock_create_task
 
     async def test_seen_receiver_gets_unseen_count_and_push(self):
@@ -88,5 +84,5 @@ class PostSendProcessingUnseenTest(TestCase):
         with patch('chat.consumers.log') as mock_log:
             mock_create_task = await self._run(sender, None)  # get_consumer → None
 
-        mock_log.error.assert_not_called()   # bug: crash is swallowed into log.error
+        mock_log.error.assert_not_called()  # bug: crash is swallowed into log.error
         mock_create_task.assert_not_called()  # muted → no push

@@ -3,6 +3,7 @@ Testy widoku set_user_language: wybór języka musi działać dla NIEzalogowanyc
 (strona startowa + cały proces zakładania konta), z trwałością przez cookie
 `django_language`, a dla zalogowanych dodatkowo zapisywać się do profilu.
 """
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -32,9 +33,7 @@ class SetLanguageAnonymousTest(TestCase):
 
     def test_external_next_is_rejected(self):
         """Otwarty endpoint nie może być wektorem open-redirect."""
-        response = self.client.post(
-            self.url, {'language': 'en', 'next': 'https://evil.example/'}
-        )
+        response = self.client.post(self.url, {'language': 'en', 'next': 'https://evil.example/'})
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/')
@@ -46,9 +45,7 @@ class SetLanguageAuthenticatedTest(TestCase):
     def setUp(self):
         self.url = reverse('obywatele:set_language')
         self.cookie_name = settings.LANGUAGE_COOKIE_NAME
-        self.user = User.objects.create_user(
-            username='lang', password='secret', is_active=True
-        )
+        self.user = User.objects.create_user(username='lang', password='secret', is_active=True)
         self.client.force_login(self.user)
 
     def test_authenticated_persists_to_profile_and_cookie(self):
@@ -99,9 +96,7 @@ class LanguageSwitcherRenderTest(TestCase):
 
     def test_onboarding_renders_language_switcher(self):
         # Onboarding biegnie bez @login_required — dostęp z onboarding_user_id w sesji.
-        user = User.objects.create_user(
-            username='onb', email='onb@example.com', password='secret', is_active=False
-        )
+        user = User.objects.create_user(username='onb', email='onb@example.com', password='secret', is_active=False)
         session = self.client.session
         session['onboarding_user_id'] = user.id
         session.save()

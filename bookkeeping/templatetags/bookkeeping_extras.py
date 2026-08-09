@@ -10,7 +10,7 @@ def normalize_decimal(value):
     try:
         normalized = Decimal(value).normalize()
         return f"{normalized:f}"
-    except (InvalidOperation, TypeError):
+    except InvalidOperation, TypeError:
         return value
 
 

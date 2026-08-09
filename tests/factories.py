@@ -3,6 +3,7 @@
 Tylko factories dla modeli aktualnie używanych w testach. Nowe dodawaj na żądanie — patrz
 [[feedback-test-factories-yagni]]: nie kopiuj wholesale z innych branchy.
 """
+
 import factory
 from django.contrib.auth import get_user_model
 from factory.django import DjangoModelFactory
@@ -70,6 +71,7 @@ class DecyzjaFactory(DjangoModelFactory):
     """UWAGA: NIE ustawiamy chat_room — sygnał glosowania.signals.create_or_update_chat_room_for_referendum
     automatycznie utworzy chat_room przy save() (gdy status=PROPOSITION). Podawanie chat_room SubFactory utworzy
     orphan'a — sygnał i tak go nadpisze."""
+
     class Meta:
         model = 'glosowania.Decyzja'
 

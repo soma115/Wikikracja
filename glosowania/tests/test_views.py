@@ -1,4 +1,5 @@
 """Tests for glosowania views."""
+
 from unittest.mock import patch
 
 import pytest
@@ -21,13 +22,7 @@ def test_details_view_retries_on_database_lock(sample_users):
     from glosowania.views import get_object_or_404 as original_get_object_or_404
 
     author = sample_users[0]
-    decyzja = Decyzja.objects.create(
-        title='Test Bill',
-        tresc='Test law text',
-        kara='Test penalty',
-        author=author,
-        status=Decyzja.Status.PROPOSITION
-    )
+    decyzja = Decyzja.objects.create(title='Test Bill', tresc='Test law text', kara='Test penalty', author=author, status=Decyzja.Status.PROPOSITION)
 
     factory = RequestFactory()
     request = factory.get(f'/glosowania/details/{decyzja.pk}/')
@@ -59,27 +54,11 @@ def test_details_view_with_chat_room(sample_users):
     client = Client()
     client.force_login(author)
 
-    decyzja = Decyzja.objects.create(
-        title='Test Bill',
-        tresc='Test law text',
-        kara='Test penalty',
-        author=author,
-        status=Decyzja.Status.PROPOSITION
-    )
+    decyzja = Decyzja.objects.create(title='Test Bill', tresc='Test law text', kara='Test penalty', author=author, status=Decyzja.Status.PROPOSITION)
 
     # Add some arguments
-    Argument.objects.create(
-        decyzja=decyzja,
-        author=author,
-        argument_type='FOR',
-        content='Test argument for'
-    )
-    Argument.objects.create(
-        decyzja=decyzja,
-        author=sample_users[1],
-        argument_type='AGAINST',
-        content='Test argument against'
-    )
+    Argument.objects.create(decyzja=decyzja, author=author, argument_type='FOR', content='Test argument for')
+    Argument.objects.create(decyzja=decyzja, author=sample_users[1], argument_type='AGAINST', content='Test argument against')
 
     response = client.get(f'/glosowania/details/{decyzja.pk}/')
 
@@ -96,13 +75,7 @@ def test_voting_does_not_write_vote_code_directly(sample_users):
     to be revealed later, shuffled, once the referendum closes."""
     author = sample_users[0]
     voter = sample_users[1]
-    decyzja = Decyzja.objects.create(
-        title='Referendum Bill',
-        tresc='Test law text',
-        kara='Test penalty',
-        author=author,
-        status=Decyzja.Status.REFERENDUM,
-    )
+    decyzja = Decyzja.objects.create(title='Referendum Bill', tresc='Test law text', kara='Test penalty', author=author, status=Decyzja.Status.REFERENDUM)
 
     client = Client()
     client.force_login(voter)
@@ -132,13 +105,7 @@ def test_voting_when_vote_storage_is_down_does_not_mark_user_as_voted(sample_use
     They should see a friendly error instead of a 500."""
     author = sample_users[0]
     voter = sample_users[1]
-    decyzja = Decyzja.objects.create(
-        title='Referendum Bill',
-        tresc='Test law text',
-        kara='Test penalty',
-        author=author,
-        status=Decyzja.Status.REFERENDUM,
-    )
+    decyzja = Decyzja.objects.create(title='Referendum Bill', tresc='Test law text', kara='Test penalty', author=author, status=Decyzja.Status.REFERENDUM)
 
     client = Client()
     client.force_login(voter)
@@ -155,13 +122,7 @@ def test_double_voting_is_still_blocked_without_writing_a_second_pending_vote(sa
     """A second vote attempt must be rejected before it reaches the buffer."""
     author = sample_users[0]
     voter = sample_users[1]
-    decyzja = Decyzja.objects.create(
-        title='Referendum Bill',
-        tresc='Test law text',
-        kara='Test penalty',
-        author=author,
-        status=Decyzja.Status.REFERENDUM,
-    )
+    decyzja = Decyzja.objects.create(title='Referendum Bill', tresc='Test law text', kara='Test penalty', author=author, status=Decyzja.Status.REFERENDUM)
     KtoJuzGlosowal.objects.create(projekt=decyzja, ktory_uzytkownik_juz_zaglosowal=voter)
 
     client = Client()

@@ -105,10 +105,7 @@ class TaskEditViewTest(TestCase):
 
     def test_edit_updates_title(self):
         self.client.login(username=self.owner.username, password=self.owner._plain_password)
-        self.client.post(
-            reverse("tasks:edit", kwargs={"pk": self.task.pk}),
-            {"title": "Zmieniony tytuł", "description": "Nowy opis"},
-        )
+        self.client.post(reverse("tasks:edit", kwargs={"pk": self.task.pk}), {"title": "Zmieniony tytuł", "description": "Nowy opis"})
         self.task.refresh_from_db()
         self.assertEqual(self.task.title, "Zmieniony tytuł")
 
@@ -132,19 +129,13 @@ class TaskCloseViewTest(TestCase):
 
     def test_close_sets_completed_status(self):
         self.client.login(username=self.owner.username, password=self.owner._plain_password)
-        self.client.post(
-            reverse("tasks:close", kwargs={"pk": self.task.pk}),
-            {"status": Task.Status.COMPLETED},
-        )
+        self.client.post(reverse("tasks:close", kwargs={"pk": self.task.pk}), {"status": Task.Status.COMPLETED})
         self.task.refresh_from_db()
         self.assertEqual(self.task.status, Task.Status.COMPLETED)
 
     def test_close_sets_cancelled_status(self):
         self.client.login(username=self.owner.username, password=self.owner._plain_password)
-        self.client.post(
-            reverse("tasks:close", kwargs={"pk": self.task.pk}),
-            {"status": Task.Status.CANCELLED},
-        )
+        self.client.post(reverse("tasks:close", kwargs={"pk": self.task.pk}), {"status": Task.Status.CANCELLED})
         self.task.refresh_from_db()
         self.assertEqual(self.task.status, Task.Status.CANCELLED)
 
@@ -185,10 +176,7 @@ class TakeResignTaskTest(TestCase):
 
     def test_take_task_ajax_returns_user_data(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)
-        response = self.client.post(
-            reverse("tasks:take", kwargs={"pk": self.task.pk}),
-            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
-        )
+        response = self.client.post(reverse("tasks:take", kwargs={"pk": self.task.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertTrue(data["ok"])
@@ -200,10 +188,7 @@ class TakeResignTaskTest(TestCase):
         self.task.assigned_to = self.user
         self.task.save()
         self.client.login(username=self.user.username, password=self.user._plain_password)
-        response = self.client.post(
-            reverse("tasks:resign", kwargs={"pk": self.task.pk}),
-            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
-        )
+        response = self.client.post(reverse("tasks:resign", kwargs={"pk": self.task.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertTrue(data["ok"])
@@ -213,10 +198,7 @@ class TakeResignTaskTest(TestCase):
         self.task.assigned_to = self.other
         self.task.save()
         self.client.login(username=self.user.username, password=self.user._plain_password)
-        response = self.client.post(
-            reverse("tasks:resign", kwargs={"pk": self.task.pk}),
-            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
-        )
+        response = self.client.post(reverse("tasks:resign", kwargs={"pk": self.task.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(response.status_code, 403)
 
     def test_resign_unassigned_task_does_nothing(self):
@@ -404,20 +386,14 @@ class CategoryAPITest(TestCase):
 
     def test_edit_category(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)
-        response = self.client.post(
-            reverse("tasks:api_category_edit", kwargs={"pk": self.cat.pk}),
-            {"name": "Zmieniona", "description": "Nowy opis"},
-        )
+        response = self.client.post(reverse("tasks:api_category_edit", kwargs={"pk": self.cat.pk}), {"name": "Zmieniona", "description": "Nowy opis"})
         self.assertEqual(response.status_code, 200)
         self.cat.refresh_from_db()
         self.assertEqual(self.cat.name, "Zmieniona")
 
     def test_edit_category_empty_name_returns_400(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)
-        response = self.client.post(
-            reverse("tasks:api_category_edit", kwargs={"pk": self.cat.pk}),
-            {"name": "", "description": ""},
-        )
+        response = self.client.post(reverse("tasks:api_category_edit", kwargs={"pk": self.cat.pk}), {"name": "", "description": ""})
         self.assertEqual(response.status_code, 400)
 
     def test_delete_category(self):
@@ -473,4 +449,3 @@ class TaskAgainstJsonTest(TestCase):
         data = response.json()
         self.assertEqual(data["total"], 0)
         self.assertEqual(data["helpers"], [])
-

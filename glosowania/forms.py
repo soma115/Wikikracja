@@ -25,9 +25,7 @@ class ArgumentForm(forms.ModelForm):
     class Meta:
         model = Argument
         fields = ('argument_type', 'content')
-        widgets = {
-            'content': CounterTextarea(attrs={'rows': 4}, max_length=1000),
-        }
+        widgets = {'content': CounterTextarea(attrs={'rows': 4}, max_length=1000)}
 
 
 class ParametersProposalForm(forms.Form):
@@ -37,12 +35,7 @@ class ParametersProposalForm(forms.Form):
     changed parameters, used to create a parameter referendum (Decyzja).
     """
 
-    uzasadnienie = forms.CharField(
-        label=_('Reasoning'),
-        help_text=_('Why should these parameters change?'),
-        widget=CounterTextarea(attrs={'rows': 8}, max_length=4000),
-        max_length=4000,
-    )
+    uzasadnienie = forms.CharField(label=_('Reasoning'), help_text=_('Why should these parameters change?'), widget=CounterTextarea(attrs={'rows': 8}, max_length=4000), max_length=4000)
 
     brand_mark = forms.ImageField(
         required=False,

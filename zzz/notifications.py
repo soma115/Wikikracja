@@ -42,15 +42,7 @@ def build_notification(title, body, click_action, tag, icon=None, **extra):
     PushNotificationAckView for the client-side "it was actually shown" half.
     """
     notification_id = uuid.uuid4().hex
-    notification = {
-        'notification_id': notification_id,
-        'title': title,
-        'body': body,
-        'icon': icon or _icon_url(),
-        'click_action': click_action,
-        'tag': tag,
-        **extra,
-    }
+    notification = {'notification_id': notification_id, 'title': title, 'body': body, 'icon': icon or _icon_url(), 'click_action': click_action, 'tag': tag, **extra}
     log.debug(f"{NOTIF_LOG_TAG} Built notification {notification_id}: tag={tag} title={title!r}")
     return notification
 
@@ -70,18 +62,17 @@ def _build_fcm_message(notification):
                 badge=notification['icon'],
                 tag=notification['tag'],
                 require_interaction=True,
-                data={k: str(v) for k, v in notification.items() if k in (
-                    'click_action', 'room_id', 'room_name', 'event_id', 'vote_id', 'citizen_id'
-                )},
+                data={k: str(v) for k, v in notification.items() if k in ('click_action', 'room_id', 'room_name', 'event_id', 'vote_id', 'citizen_id')},
             ),
             fcm_options=messaging.WebpushFCMOptions(link=notification['click_action']),
-        )
+        ),
     )
 
 
 def _fcm_ready():
     try:
         import firebase_admin
+
         return bool(firebase_admin._apps)
     except Exception:
         return False
@@ -105,12 +96,7 @@ def _migrate_legacy_gcm_devices():
 
 
 # Maps a notification category to the Uzytkownik push preference field.
-_PUSH_FIELDS = {
-    'obywatele': 'push_notifications_obywatele',
-    'glosowania': 'push_notifications_glosowania',
-    'chat': 'push_notifications_chat',
-    'events': 'push_notifications_events',
-}
+_PUSH_FIELDS = {'obywatele': 'push_notifications_obywatele', 'glosowania': 'push_notifications_glosowania', 'chat': 'push_notifications_chat', 'events': 'push_notifications_events'}
 
 
 def _push_enabled_for_user(user, notification_type):
@@ -134,10 +120,7 @@ def _push_user_ids(notification_type):
     if not field:
         return None
     User = get_user_model()
-    return set(User.objects.filter(
-        is_active=True,
-        **{f'uzytkownik__{field}': True}
-    ).values_list('id', flat=True))
+    return set(User.objects.filter(is_active=True, **{f'uzytkownik__{field}': True}).values_list('id', flat=True))
 
 
 def send_fcm_to_user_sync(user, notification, notification_type=None):
@@ -217,10 +200,7 @@ def send_websocket_to_user_sync(user_id, notification, ws_type='notification'):
 
     try:
         log.debug(f"{NOTIF_LOG_TAG} group_send notification_id={notification_id} to user_{user_id} (type={ws_type})")
-        async_to_sync(channel_layer.group_send)(
-            f"user_{user_id}",
-            {"type": ws_type, "notification": notification}
-        )
+        async_to_sync(channel_layer.group_send)(f"user_{user_id}", {"type": ws_type, "notification": notification})
     except Exception as e:
         log.warning(f"{NOTIF_LOG_TAG} WebSocket notification_id={notification_id} failed for user {user_id}: {e}")
 
@@ -247,10 +227,7 @@ def send_websocket_to_all_sync(notification, ws_type='notification', notificatio
     sent = 0
     for user_id in queryset.values_list('id', flat=True):
         try:
-            async_to_sync(channel_layer.group_send)(
-                f"user_{user_id}",
-                {"type": ws_type, "notification": notification}
-            )
+            async_to_sync(channel_layer.group_send)(f"user_{user_id}", {"type": ws_type, "notification": notification})
             sent += 1
         except Exception as e:
             log.warning(f"{NOTIF_LOG_TAG} WebSocket broadcast failed for user {user_id}, notification_id={notification_id}: {e}")
@@ -272,11 +249,6 @@ def send_notification_to_all_in_thread(notification, ws_type='notification', not
     Mirrors the pattern used by `send_bulk_email_in_thread` for emails. Management commands
     that already run out-of-band can keep using `send_notification_to_all_sync` directly.
     """
-    t = threading.Thread(
-        target=send_notification_to_all_sync,
-        args=(notification,),
-        kwargs={'ws_type': ws_type, 'notification_type': notification_type},
-        daemon=daemon,
-    )
+    t = threading.Thread(target=send_notification_to_all_sync, args=(notification,), kwargs={'ws_type': ws_type, 'notification_type': notification_type}, daemon=daemon)
     t.start()
     return t

@@ -43,14 +43,14 @@ class PostCategoryReorderAPI(CategoryReorderAPI):
 def board(request: HttpRequest) -> HttpResponse:
     sort = request.GET.get('sort', 'date')
     order = request.GET.get('order', 'desc')
-    reverse_order = (order == 'desc')
+    reverse_order = order == 'desc'
 
     raw_pks = request.GET.getlist('category')
     active_categories = []
     for pk in raw_pks:
         try:
             active_categories.append(int(pk))
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             pass
 
     if request.user.is_authenticated:
@@ -77,17 +77,7 @@ def board(request: HttpRequest) -> HttpResponse:
         sorted_uncategorized = sorted(uncategorized, key=lambda p: p.updated, reverse=reverse_order)
         category_groups.append({'category': None, 'posts': sorted_uncategorized})
 
-    return render(
-        request,
-        'board/board.html',
-        {
-            'category_groups': category_groups,
-            'categories': categories,
-            'current_sort': sort,
-            'current_order': order,
-            'active_categories': active_categories,
-        },
-    )
+    return render(request, 'board/board.html', {'category_groups': category_groups, 'categories': categories, 'current_sort': sort, 'current_order': order, 'active_categories': active_categories})
 
 
 @login_required
@@ -101,18 +91,12 @@ def create_post(request: HttpRequest):
 
             attachments = request.FILES.getlist('attachments')
             for attachment in attachments:
-                PostAttachment.objects.create(
-                    post=post,
-                    file=attachment,
-                    filename=attachment.name
-                )
+                PostAttachment.objects.create(post=post, file=attachment, filename=attachment.name)
 
             return redirect('board:view_post', post.pk)
     else:
         form = PostForm()
-    return render(request, 'board/create_post.html', {
-        'form': form
-    })
+    return render(request, 'board/create_post.html', {'form': form})
 
 
 @login_required
@@ -128,33 +112,22 @@ def edit_post(request: HttpRequest, pk: int):
 
             attachments = request.FILES.getlist('attachments')
             for attachment in attachments:
-                PostAttachment.objects.create(
-                    post=post,
-                    file=attachment,
-                    filename=attachment.name
-                )
+                PostAttachment.objects.create(post=post, file=attachment, filename=attachment.name)
 
             return redirect('board:view_post', pk)
     else:
         form = PostForm(instance=post)
-    return render(request, 'board/edit_post.html', {
-        'form': form,
-        'post': post
-    })
+    return render(request, 'board/edit_post.html', {'form': form, 'post': post})
 
 
 def view_post(request: HttpRequest, pk: int):
     post = get_object_or_404(Post, pk=pk)  # Only published documents can be viewed
-    return render(request, 'board/post_detail.html', {
-        'post': post
-    })
+    return render(request, 'board/post_detail.html', {'post': post})
 
 
 def view_post_by_slug(request: HttpRequest, slug: str):
     post = get_object_or_404(Post, slug=slug)
-    return render(request, 'board/post_detail.html', {
-        'post': post
-    })
+    return render(request, 'board/post_detail.html', {'post': post})
 
 
 @login_required
@@ -167,9 +140,7 @@ def delete_post(request: HttpRequest, pk: int):
         except ValidationError as e:
             messages.error(request, str(e))
             return redirect('board:view_post', pk=pk)
-    return render(request, 'board/post_confirm_delete.html', {
-        'post': post
-    })
+    return render(request, 'board/post_confirm_delete.html', {'post': post})
 
 
 @login_required
@@ -179,7 +150,4 @@ def delete_attachment(request: HttpRequest, pk: int, attachment_id: int):
     if request.method == 'POST':
         attachment.delete()
         return redirect('board:edit_post', pk=pk)
-    return render(request, 'board/attachment_confirm_delete.html', {
-        'attachment': attachment,
-        'post': post
-    })
+    return render(request, 'board/attachment_confirm_delete.html', {'attachment': attachment, 'post': post})
