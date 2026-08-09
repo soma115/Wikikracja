@@ -159,6 +159,7 @@ użytkowników na tym samym urządzeniu dostawało nawzajem swoje powiadomienia.
 Zanim uznasz FCM za zepsute, sprawdź w bazie stan urządzeń:
 ```python
 from push_notifications.models import GCMDevice
+
 GCMDevice.objects.filter(user__username="nazwa_konta").values("id", "active", "cloud_message_type", "registration_id", "date_created")
 ```
 

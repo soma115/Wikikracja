@@ -33,7 +33,7 @@ jobs:
         with:
           python-version: "3.14"
       - name: Install Ruff
-        run: pip install ruff
+        run: pip install -r requirements.txt
       - name: Ruff check
         run: ruff check .
       - name: Ruff format check

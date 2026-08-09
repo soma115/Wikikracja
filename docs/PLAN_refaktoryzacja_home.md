@@ -108,9 +108,11 @@ To jest właściwa naprawa problemu #1: `home` przestaje wiedzieć, że istniej�
    FeedProvider = Callable[[datetime], list[dict]]  # since -> items
    _providers: list[FeedProvider] = []
 
+
    def register_feed_provider(fn: FeedProvider) -> FeedProvider:
        _providers.append(fn)
        return fn
+
 
    def collect_feed_items(since: datetime) -> list[FeedItem]:
        items = []
@@ -127,6 +129,7 @@ To jest właściwa naprawa problemu #1: `home` przestaje wiedzieć, że istniej�
    def ready(self):
        from home.feed_registry import register_feed_provider
        from board.feed import get_feed_items
+
        register_feed_provider(get_feed_items)
    ```
 3. `home/services/feed.py::_generate_feed_raw()` zamienia 6 bloków
