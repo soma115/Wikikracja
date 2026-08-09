@@ -42,12 +42,15 @@
       {{ form.options_text }}
       <div class="form-text">{{ form.options_text.help_text }}</div>
       {{ form.options_text.errors }}
-      {% if form.instance.pk and form.instance.votes.exists %}
-        <p class="form-text text-warning">
-          <i class="fas fa-lock"></i>
-          {% trans 'Options are locked because the survey already has votes.' %}
-        </p>
-      {% endif %}
+    </div>
+
+    <div class="mb-3 form-check">
+      {{ form.allow_multiple_choice }}
+      <label class="form-check-label" for="{{ form.allow_multiple_choice.id_for_label }}">
+        {{ form.allow_multiple_choice.label }}
+      </label>
+      <div class="form-text">{{ form.allow_multiple_choice.help_text }}</div>
+      {{ form.allow_multiple_choice.errors }}
     </div>
 
     <div class="d-flex">

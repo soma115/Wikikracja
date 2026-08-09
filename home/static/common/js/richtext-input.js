@@ -53,6 +53,29 @@
 
         input.addEventListener('input', sync);
         input.addEventListener('blur', sync);
+
+        // Block typing/pasting beyond maxLength; formatting commands and deletions are allowed.
+        input.addEventListener('beforeinput', (e) => {
+            if (!maxLength || maxLength === Infinity) return;
+            if (!e.inputType || e.inputType.startsWith('delete') || e.inputType.startsWith('format') ||
+                e.inputType === 'historyUndo' || e.inputType === 'historyRedo' ||
+                e.inputType === 'insertFromPaste' || e.inputType === 'insertFromDrop') {
+                return;
+            }
+            const sel = window.getSelection();
+            const selLen = sel ? sel.toString().length : 0;
+            const currentLen = getInputHtml(inputEl).length;
+            let extra = 0;
+            if (e.data) {
+                extra = e.data.length;
+            } else if (e.inputType === 'insertLineBreak' || e.inputType === 'insertParagraph') {
+                extra = 4; // <br>
+            }
+            if (currentLen - selLen + extra > maxLength) {
+                e.preventDefault();
+            }
+        });
+
         document.addEventListener('selectionchange', () => {
             if (document.activeElement === input) updateToolbarState();
         });

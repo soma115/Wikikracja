@@ -19,6 +19,7 @@ CATEGORY_COLORS = {
     'citizen': 'secondary',
     'membership': 'secondary',
     'transaction': 'primary',
+    'survey': 'dark',
 }
 
 DEFAULT_COLOR = 'secondary'

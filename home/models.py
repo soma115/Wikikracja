@@ -14,6 +14,7 @@ class FeedItem(models.Model):
         MESSAGE = 'message', _('Message')
         DECISION = 'decision', _('Decision')
         CITIZEN = 'citizen', _('Citizen Activity')
+        SURVEY = 'survey', _('Survey')
 
     content_type = models.CharField(max_length=20, choices=ContentType.choices)
     object_id = models.PositiveIntegerField()
@@ -43,6 +44,7 @@ class ReadStatus(models.Model):
         MESSAGE = 'message', _('Message')
         DECISION = 'decision', _('Decision')
         CITIZEN = 'citizen', _('Citizen Activity')
+        SURVEY = 'survey', _('Survey')
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     content_type = models.CharField(max_length=20, choices=ContentType.choices)

@@ -58,22 +58,29 @@
 
   {# ── VOTING FORM ── #}
   {% if is_active %}
-    {% if user_vote %}
+    {% if has_voted %}
       <div class="alert alert-info">
         <i class="fas fa-info-circle"></i>
-        {% blocktrans with option=user_vote.option.text %}You have voted: <strong>{{ option }}</strong>. You can change your vote below.{% endblocktrans %}
+        {% trans 'You can change your vote.' %}
       </div>
     {% endif %}
     <form method="post" class="card p-4 mb-4">
       {% csrf_token %}
       <h5 class="mb-3">
-        {% if user_vote %}{% trans 'Change vote' %}{% else %}{% trans 'Vote' %}{% endif %}
+        {% if has_voted %}{% trans 'Change vote' %}{% else %}{% trans 'Vote' %}{% endif %}
       </h5>
+      {% if survey.allow_multiple_choice %}
+        <p class="form-text">
+          <i class="fas fa-info-circle"></i> {% trans 'You can select more than one option.' %}
+        </p>
+      {% endif %}
       <div class="mb-3">
         {% for option in options %}
           <div class="form-check">
-            <input class="form-check-input" type="radio" name="option" id="option_{{ option.pk }}" value="{{ option.pk }}" required
-                   {% if user_vote and user_vote.option.pk == option.pk %}checked{% endif %}>
+            <input class="form-check-input"
+                   type="{% if survey.allow_multiple_choice %}checkbox{% else %}radio{% endif %}"
+                   name="option" id="option_{{ option.pk }}" value="{{ option.pk }}"
+                   {% if option.pk in user_vote_ids %}checked{% endif %}>
             <label class="form-check-label" for="option_{{ option.pk }}">
               {{ option.text }}
             </label>
@@ -82,7 +89,7 @@
       </div>
       <button type="submit" class="btn btn-primary">
         <i class="fas fa-check-to-slot"></i>
-        {% if user_vote %}{% trans 'Change vote' %}{% else %}{% trans 'Send vote' %}{% endif %}
+        {% if has_voted %}{% trans 'Change vote' %}{% else %}{% trans 'Send vote' %}{% endif %}
       </button>
     </form>
   {% endif %}
@@ -112,6 +119,20 @@
           {% trans 'Total votes' %}: {{ total_votes }}
         </div>
       </div>
+
+      {% if voter_choices %}
+        <h5 class="mb-3 mt-4">{% trans 'Voters' %}</h5>
+        <div class="card p-0">
+          <div class="list-group list-group-flush">
+            {% for user, choices in voter_choices.items %}
+              <div class="list-group-item d-flex justify-content-between align-items-start">
+                <span>{{ user.username }}</span>
+                <span class="text-muted text-end">{{ choices|join:", " }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
     {% else %}
       <p class="text-muted">{% trans 'No options.' %}</p>
     {% endif %}

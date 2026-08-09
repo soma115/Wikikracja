@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-07 23:56+0200\n"
+"POT-Creation-Date: 2026-08-09 11:58+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 
 #: .\ankiety\forms.py:28 .\ankiety\templates\ankiety\survey_form.html:41
-#: .\ankiety\templates\ankiety\survey_list.html:66
+#: .\ankiety\templates\ankiety\survey_list.html:136
 msgid "Options"
 msgstr "Opcje"
 
@@ -42,23 +42,27 @@ msgstr ""
 msgid "Describe the survey."
 msgstr "Opisz ankietę."
 
-#: .\ankiety\forms.py:59
+#: .\ankiety\forms.py:61
 msgid "The survey is closed; options cannot be changed."
 msgstr "Amkieta jest zamknięta; opcje nie mogą być zmienione."
 
-#: .\ankiety\forms.py:63
+#: .\ankiety\forms.py:65
 msgid "You can change options while the survey is ongoing. Renaming or removing an option will delete votes cast for it."
 msgstr "Możesz zmieniać opcje w trakcie trwania ankiety. Zmiana nazwy lub usunięcie opcji spowoduje usunięcie głosów oddanych na nią."
 
-#: .\ankiety\forms.py:85
+#: .\ankiety\forms.py:79
+msgid "End date must be in the future."
+msgstr "Data końca musi być w przyszłości."
+
+#: .\ankiety\forms.py:89
 msgid "Enter at least 2 options."
 msgstr "Wprowadź przynajmniej 2 opcje."
 
-#: .\ankiety\forms.py:95
+#: .\ankiety\forms.py:99
 msgid "Each option must be unique."
 msgstr "Każda opcja musi być unikalna."
 
-#: .\ankiety\models.py:9 .\ankiety\templates\ankiety\survey_form.html:22
+#: .\ankiety\models.py:10 .\ankiety\templates\ankiety\survey_form.html:22
 #: .\board\models.py:21 .\chat\views.py:226 .\events\models.py:40
 #: .\glosowania\models.py:34 .\glosowania\views.py:463
 #: .\home\templates\home\site_admin.html:32
@@ -70,24 +74,24 @@ msgstr "Każda opcja musi być unikalna."
 msgid "Title"
 msgstr "Tytuł"
 
-#: .\ankiety\models.py:10 .\ankiety\templates\ankiety\survey_form.html:28
+#: .\ankiety\models.py:13 .\ankiety\templates\ankiety\survey_form.html:28
 #: .\events\models.py:41 .\events\templates\events\_event_card.html:88
 #: .\tasks\templates\tasks\_task_card.html:194
 #: .\tasks\templates\tasks\task_form.html:28 .\zzz\scheduler.py:144
 msgid "Description"
 msgstr "Opis"
 
-#: .\ankiety\models.py:12 .\ankiety\templates\ankiety\survey_detail.html:33
+#: .\ankiety\models.py:17 .\ankiety\templates\ankiety\survey_detail.html:33
 #: .\ankiety\templates\ankiety\survey_form.html:34
-#: .\ankiety\templates\ankiety\survey_list.html:56
+#: .\ankiety\templates\ankiety\survey_list.html:126
 msgid "End date"
 msgstr "Data końca"
 
-#: .\ankiety\models.py:13
+#: .\ankiety\models.py:18
 msgid "After this moment the survey will be closed."
 msgstr "Po tym czasie ankieta zostanie zamknięta."
 
-#: .\ankiety\models.py:19 .\board\models.py:24
+#: .\ankiety\models.py:24 .\board\models.py:24
 #: .\board\templates\board\post_detail.html:49 .\bookkeeping\models.py:121
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:44
 #: .\glosowania\models.py:138
@@ -98,51 +102,62 @@ msgstr "Po tym czasie ankieta zostanie zamknięta."
 msgid "Author"
 msgstr "Autor"
 
-#: .\ankiety\models.py:26 .\ankiety\models.py:45 .\ankiety\models.py:64
+#: .\ankiety\models.py:28
+msgid "Allow multiple choice"
+msgstr "Zezwól na wybór wielu opcji"
+
+#: .\ankiety\models.py:29
+msgid "If enabled, users can select more than one option when voting."
+msgstr "Jeśli ta opcja jest włączona, użytkownicy będą mogli wybrać więcej niż jedną opcję podczas głosowania."
+
+#: .\ankiety\models.py:36 .\ankiety\models.py:55 .\ankiety\models.py:74
+#: .\home\models.py:17 .\home\models.py:47
+#: .\home\templatetags\feed_filters.py:32
 msgid "Survey"
 msgstr "Ankieta"
 
-#: .\ankiety\models.py:27 .\home\templates\home\base.html:103
+#: .\ankiety\models.py:37 .\home\templates\home\base.html:103
 #: .\home\templates\home\base.html:106 .\home\templates\home\base.html:236
 msgid "Surveys"
 msgstr "Ankiety"
 
-#: .\ankiety\models.py:47
+#: .\ankiety\models.py:57
 msgid "Option text"
 msgstr "Tekst opcji"
 
-#: .\ankiety\models.py:48 .\home\templates\home\site_admin.html:35
+#: .\ankiety\models.py:58 .\home\templates\home\site_admin.html:35
 #: .\site_settings\models.py:116
 msgid "Order"
 msgstr "Kolejność"
 
-#: .\ankiety\models.py:52
+#: .\ankiety\models.py:62
 msgid "Survey option"
 msgstr "Opcje ankiety"
 
-#: .\ankiety\models.py:53
+#: .\ankiety\models.py:63
 msgid "Survey options"
 msgstr "Opcje ankiety"
 
-#: .\ankiety\models.py:70 .\obywatele\management\commands\count_citizens.py:261
+#: .\ankiety\models.py:80 .\obywatele\management\commands\count_citizens.py:261
 #: .\obywatele\management\commands\count_citizens.py:265
 #: .\obywatele\models.py:166
 msgid "User"
 msgstr "Użytkownik"
 
-#: .\ankiety\models.py:76
+#: .\ankiety\models.py:86
 msgid "Chosen option"
 msgstr "Wybierz opcję"
 
-#: .\ankiety\models.py:88
+#: .\ankiety\models.py:98
 msgid "Survey vote"
 msgstr "Głos w ankiecie"
 
-#: .\ankiety\models.py:89
+#: .\ankiety\models.py:99
 msgid "Survey votes"
 msgstr "Głosy w ankiecie"
 
 #: .\ankiety\templates\ankiety\survey_detail.html:14
+#: .\ankiety\templates\ankiety\survey_list.html:51
 #: .\board\templates\board\board.html:283
 #: .\board\templates\board\post_detail.html:52
 #: .\bookkeeping\templates\bookkeeping\asset_confirm_delete.html:57
@@ -188,7 +203,7 @@ msgid "Delete"
 msgstr "Usuń"
 
 #: .\ankiety\templates\ankiety\survey_detail.html:38
-#: .\ankiety\templates\ankiety\survey_list.html:61
+#: .\ankiety\templates\ankiety\survey_list.html:131
 #: .\tasks\templates\tasks\task_detail.html:53
 msgid "Votes"
 msgstr "Głosy"
@@ -196,51 +211,64 @@ msgstr "Głosy"
 #: .\ankiety\templates\ankiety\survey_detail.html:44
 #: .\ankiety\templates\ankiety\survey_list.html:17
 #: .\ankiety\templates\ankiety\survey_list.html:24
-#: .\ankiety\templates\ankiety\survey_list.html:43
+#: .\ankiety\templates\ankiety\survey_list.html:45
 msgid "Ongoing"
 msgstr "Trwające"
 
 #: .\ankiety\templates\ankiety\survey_detail.html:46
 #: .\ankiety\templates\ankiety\survey_list.html:20
 #: .\ankiety\templates\ankiety\survey_list.html:27
-#: .\ankiety\templates\ankiety\survey_list.html:45
+#: .\ankiety\templates\ankiety\survey_list.html:47
 #: .\tasks\templates\tasks\menu.html:34
 msgid "Finished"
 msgstr "Zakończone"
 
 #: .\ankiety\templates\ankiety\survey_detail.html:64
-#, python-format
-msgid "You have voted: <strong>%(option)s</strong>. You can change your vote below."
-msgstr "Zagłosowałeś: <strong>%(option)s</strong>. Możesz zmienić swój głos poniżej."
+#: .\ankiety\templates\ankiety\survey_list.html:95
+msgid "You can change your vote."
+msgstr "Możesz zmienić swój głos."
 
 #: .\ankiety\templates\ankiety\survey_detail.html:70
-#: .\ankiety\templates\ankiety\survey_detail.html:85
+#: .\ankiety\templates\ankiety\survey_detail.html:92
+#: .\ankiety\templates\ankiety\survey_list.html:90
 msgid "Change vote"
 msgstr "Zmień głos"
 
 #: .\ankiety\templates\ankiety\survey_detail.html:70
+#: .\ankiety\templates\ankiety\survey_list.html:90
 msgid "Vote"
 msgstr "Głosuj"
 
-#: .\ankiety\templates\ankiety\survey_detail.html:85
+#: .\ankiety\templates\ankiety\survey_detail.html:74
+#: .\ankiety\templates\ankiety\survey_list.html:100
+msgid "You can select more than one option."
+msgstr "Możesz wybrać więcej niż jedną opcję."
+
+#: .\ankiety\templates\ankiety\survey_detail.html:92
 msgid "Send vote"
 msgstr "Wyślij głos"
 
-#: .\ankiety\templates\ankiety\survey_detail.html:92
+#: .\ankiety\templates\ankiety\survey_detail.html:99
 #: .\glosowania\templates\glosowania\szczegoly.html:96
 msgid "Results"
 msgstr "Wyniki"
 
-#: .\ankiety\templates\ankiety\survey_detail.html:112
+#: .\ankiety\templates\ankiety\survey_detail.html:119
 msgid "Total votes"
 msgstr "Wszystkich głosów"
 
-#: .\ankiety\templates\ankiety\survey_detail.html:116
+#: .\ankiety\templates\ankiety\survey_detail.html:124
+#, fuzzy
+#| msgid "Votes"
+msgid "Voters"
+msgstr "Głosy"
+
+#: .\ankiety\templates\ankiety\survey_detail.html:137
 msgid "No options."
 msgstr "Brak opcji."
 
-#: .\ankiety\templates\ankiety\survey_detail.html:121
-#: .\ankiety\templates\ankiety\survey_form.html:55
+#: .\ankiety\templates\ankiety\survey_detail.html:142
+#: .\ankiety\templates\ankiety\survey_form.html:58
 #: .\board\templates\board\post_detail.html:10
 #: .\board\templates\board\post_detail.html:55
 #: .\chat\templates\chat\add.html:16
@@ -262,11 +290,7 @@ msgstr "Edytuj ankietę"
 msgid "Add survey"
 msgstr "Dodaj ankietę"
 
-#: .\ankiety\templates\ankiety\survey_form.html:48
-msgid "Options are locked because the survey already has votes."
-msgstr "Opcje są zablokowane, ponieważ ankieta już ma głosy."
-
-#: .\ankiety\templates\ankiety\survey_form.html:54 .\board\forms.py:23
+#: .\ankiety\templates\ankiety\survey_form.html:57 .\board\forms.py:23
 #: .\board\templates\board\board.html:285
 #: .\board\templates\board\create_post.html:43
 #: .\board\templates\board\edit_post.html:43 .\bookkeeping\forms.py:21
@@ -288,55 +312,68 @@ msgstr "Opcje są zablokowane, ponieważ ankieta już ma głosy."
 msgid "Save"
 msgstr "Zapisz"
 
-#: .\ankiety\templates\ankiety\survey_list.html:95
-#, fuzzy
-#| msgid "No options."
+#: .\ankiety\templates\ankiety\survey_list.html:86
+#: .\ankiety\templates\ankiety\survey_list.html:120
 msgid "No options"
 msgstr "Brak opcji."
 
-#: .\ankiety\templates\ankiety\survey_list.html:106
+#: .\ankiety\templates\ankiety\survey_list.html:158
 msgid "No ongoing surveys."
 msgstr "Brak trwających ankiet."
 
-#: .\ankiety\templates\ankiety\survey_list.html:108
+#: .\ankiety\templates\ankiety\survey_list.html:160
 msgid "No finished surveys."
 msgstr "Brak ukończonych ankiet."
 
-#: .\ankiety\templates\ankiety\survey_list.html:112
+#: .\ankiety\templates\ankiety\survey_list.html:164
 msgid "Add the first survey"
 msgstr "Stwórz pierwszą ankietę"
 
-#: .\ankiety\views.py:66
-msgid "The survey has been created."
-msgstr "Ankieta została utworzona."
+#: .\ankiety\views.py:19
+msgid "The survey is closed and votes cannot be cast."
+msgstr "Amkieta jest zamknięta, nie można już głosować."
 
-#: .\ankiety\views.py:78
-msgid "Only the author can edit this survey."
-msgstr "Tylko autor może edytować tę ankietę."
-
-#: .\ankiety\views.py:80
+#: .\ankiety\views.py:32
 #, fuzzy
-#| msgid "The survey is closed; options cannot be changed."
-msgid "The survey is closed and cannot be edited."
-msgstr "Amkieta jest zamknięta; opcje nie mogą być zmienione."
+#| msgid "Your vote has been saved."
+msgid "Your vote has been withdrawn."
+msgstr "Twój głos został zapisany."
 
-#: .\ankiety\views.py:88
-msgid "The survey has been updated."
-msgstr "Ankieta została zaktualizowana."
+#: .\ankiety\views.py:34
+#, fuzzy
+#| msgid "You have already voted in this referendum"
+msgid "You have not voted in this survey yet."
+msgstr "Już zagłosowałeś w tym referendum"
 
-#: .\ankiety\views.py:121
-msgid "Select one of the options."
-msgstr "Wybierz jedną z opcji."
+#: .\ankiety\views.py:39
+msgid "Invalid option selected."
+msgstr "Wybrana opcja jest nieprawidłowa."
 
-#: .\ankiety\views.py:131
+#: .\ankiety\views.py:48
 msgid "Your vote has been saved."
 msgstr "Twój głos został zapisany."
 
-#: .\ankiety\views.py:153
+#: .\ankiety\views.py:123
+msgid "The survey has been created."
+msgstr "Ankieta została utworzona."
+
+#: .\ankiety\views.py:135
+msgid "Only the author can edit this survey."
+msgstr "Tylko autor może edytować tę ankietę."
+
+#: .\ankiety\views.py:137
+msgid "The survey is closed and cannot be edited."
+msgstr "Amkieta jest zamknięta i nie może być edytowana."
+
+#: .\ankiety\views.py:145
+msgid "The survey has been updated."
+msgstr "Ankieta została zaktualizowana."
+
+#: .\ankiety\views.py:214
 msgid "Only the author can delete this survey."
 msgstr "Tylko autor może usunąć tę ankietę."
 
-#: .\ankiety\views.py:156
+#: .\ankiety\views.py:217
 msgid "The survey has been deleted."
 msgstr "Ankieta została usunięta."
 
@@ -420,7 +457,7 @@ msgstr "Alias linku"
 msgid "System posts cannot be deleted."
 msgstr "Dokumenty systemowe nie mogą być usunięte"
 
-#: .\board\models.py:48 .\home\models.py:11 .\home\models.py:40
+#: .\board\models.py:48 .\home\models.py:11 .\home\models.py:41
 #: .\home\services\search.py:33 .\home\templatetags\feed_filters.py:23
 msgid "Post"
 msgstr "Dokument"
@@ -1163,8 +1200,8 @@ msgstr "Pokój: %(room)s"
 #: .\glosowania\templates\glosowania\szczegoly.html:43
 #: .\home\services\search.py:151 .\home\templates\home\base.html:157
 #: .\home\templates\home\base.html:160 .\home\templates\home\base.html:241
-#: .\home\templates\home\home.html:79 .\home\templates\home\home.html:614
-#: .\home\templates\home\home.html:698 .\home\templates\home\search.html:95
+#: .\home\templates\home\home.html:79 .\home\templates\home\home.html:612
+#: .\home\templates\home\home.html:696 .\home\templates\home\search.html:95
 #: .\home\templatetags\feed_filters.py:27 .\home\views.py:98
 #: .\obywatele\views.py:649 .\obywatele\views.py:676
 #: .\tasks\templates\tasks\_task_card.html:50
@@ -1177,7 +1214,7 @@ msgstr "Czat"
 msgid "Sender: %(author)s"
 msgstr "Nadawca: %(author)s"
 
-#: .\chat\feed.py:35 .\home\services\feed.py:127
+#: .\chat\feed.py:35 .\home\services\feed.py:131
 #, python-format
 msgid "Messages in %(room_title)s"
 msgstr "Wiadomości w %(room_title)s"
@@ -1190,7 +1227,7 @@ msgstr "Pokój Inbox nie może być zmieniony."
 msgid "Name and surname"
 msgstr "Imię i nazwisko"
 
-#: .\chat\forms.py:48 .\home\models.py:14 .\home\models.py:43
+#: .\chat\forms.py:48 .\home\models.py:14 .\home\models.py:44
 #: .\home\templatetags\feed_filters.py:26
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:8
 msgid "Message"
@@ -1765,7 +1802,7 @@ msgstr "Odznacz aby wyłączyć to wydarzenie"
 msgid "Public events are visible to everyone. Private events are only visible to logged-in users."
 msgstr "Wydarzenia publiczne są widoczne dla wszystkich. Wydarzenia prywatne są widoczne tylko dla zalogowanych użytkowników."
 
-#: .\events\models.py:56 .\home\models.py:13 .\home\models.py:42
+#: .\events\models.py:56 .\home\models.py:13 .\home\models.py:43
 #: .\home\services\search.py:118 .\home\templates\home\search.html:83
 #: .\home\templatetags\feed_filters.py:25
 msgid "Event"
@@ -1803,7 +1840,7 @@ msgstr "Dodaj do swojego Kalendarza Google"
 #: .\events\templates\events\_event_card.html:60
 #: .\home\templates\home\base.html:139 .\home\templates\home\base.html:142
 #: .\home\templates\home\base.html:237 .\home\templates\home\base.html:305
-#: .\home\templates\home\home.html:39 .\home\templates\home\home.html:653
+#: .\home\templates\home\home.html:39 .\home\templates\home\home.html:651
 #: .\home\views.py:96
 msgid "Calendar"
 msgstr "Kalendarz"
@@ -2151,7 +2188,7 @@ msgstr "Argument Przeciw"
 #: .\glosowania\models.py:137 .\glosowania\models.py:154
 #: .\glosowania\templates\glosowania\delete_argument.html:14
 #: .\glosowania\templates\glosowania\edit_argument.html:12 .\home\models.py:15
-#: .\home\models.py:44 .\home\templatetags\feed_filters.py:28
+#: .\home\models.py:45 .\home\templatetags\feed_filters.py:28
 msgid "Decision"
 msgstr "Referendum"
 
@@ -2651,12 +2688,12 @@ msgstr "Zmiana parametrów systemu"
 msgid "Keep me signed in"
 msgstr "Nie wylogowuj mnie"
 
-#: .\home\models.py:12 .\home\models.py:41 .\home\services\search.py:48
+#: .\home\models.py:12 .\home\models.py:42 .\home\services\search.py:48
 #: .\home\templatetags\feed_filters.py:24 .\obywatele\views.py:1230
 msgid "Task"
 msgstr "Zadanie"
 
-#: .\home\models.py:16 .\home\models.py:45
+#: .\home\models.py:16 .\home\models.py:46
 msgid "Citizen Activity"
 msgstr "Aktywność obywatela"
 
@@ -2918,8 +2955,8 @@ msgstr "Pierwsze kroki"
 msgid "Progress"
 msgstr "Postęp"
 
-#: .\home\templates\home\home.html:241 .\home\templates\home\home.html:620
-#: .\home\templates\home\home.html:697
+#: .\home\templates\home\home.html:241 .\home\templates\home\home.html:618
+#: .\home\templates\home\home.html:695
 msgid "unread"
 msgstr "nieprzeczytanych"
 
@@ -3049,19 +3086,19 @@ msgstr "umiejętności"
 msgid "knowledge"
 msgstr "wiedzy"
 
-#: .\home\templates\home\home.html:604
+#: .\home\templates\home\home.html:602
 msgid "logged in within 30 days"
 msgstr "zalogowanych w ciągu 30 dni"
 
-#: .\home\templates\home\home.html:620
+#: .\home\templates\home\home.html:618
 msgid "Open chat"
 msgstr "Otwórz czat"
 
-#: .\home\templates\home\home.html:640
+#: .\home\templates\home\home.html:638
 msgid "No news"
 msgstr "Brak wiadomości"
 
-#: .\home\templates\home\home.html:656
+#: .\home\templates\home\home.html:654
 msgid "Add event"
 msgstr "Dodaj wydarzenie"
 

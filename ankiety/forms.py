@@ -38,13 +38,15 @@ class SurveyForm(forms.ModelForm):
 
     class Meta:
         model = Survey
-        fields = ["title", "description", "end_date"]
+        fields = ["title", "description", "end_date", "allow_multiple_choice"]
         widgets = {
             "title": forms.TextInput(attrs={"class": "form-control"}),
             "description": RichTextWidget(
                 placeholder=_("Describe the survey."),
+                max_length=3000,
             ),
             "end_date": DateTimeLocalInput(attrs={"class": "form-control"}),
+            "allow_multiple_choice": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -73,6 +75,8 @@ class SurveyForm(forms.ModelForm):
         if end_date:
             if timezone.is_naive(end_date):
                 end_date = timezone.make_aware(end_date)
+            if end_date <= timezone.now():
+                raise forms.ValidationError(_("End date must be in the future."))
         return end_date
 
     def clean_options_text(self):

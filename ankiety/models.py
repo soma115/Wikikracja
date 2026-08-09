@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -7,7 +8,11 @@ from django.utils.translation import gettext_lazy as _
 
 class Survey(models.Model):
     title = models.CharField(max_length=200, verbose_name=_("Title"))
-    description = models.TextField(blank=True, verbose_name=_("Description"))
+    description = models.TextField(
+        blank=True,
+        verbose_name=_("Description"),
+        validators=[MaxLengthValidator(3000)],
+    )
     end_date = models.DateTimeField(
         verbose_name=_("End date"),
         help_text=_("After this moment the survey will be closed."),
@@ -17,6 +22,11 @@ class Survey(models.Model):
         on_delete=models.CASCADE,
         related_name="surveys",
         verbose_name=_("Author"),
+    )
+    allow_multiple_choice = models.BooleanField(
+        default=False,
+        verbose_name=_("Allow multiple choice"),
+        help_text=_("If enabled, users can select more than one option when voting."),
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -80,7 +90,7 @@ class SurveyVote(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["survey", "user"],
+                fields=["survey", "user", "option"],
                 name="%(app_label)s_%(class)s_unique_vote",
             )
         ]

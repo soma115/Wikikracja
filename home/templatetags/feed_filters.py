@@ -29,6 +29,7 @@ def content_type_label(content_type):
         'citizen': _('Citizen'),
         'membership': _('Membership'),
         'transaction': _('Transaction'),
+        'survey': _('Survey'),
     }
     return label_map.get(content_type, content_type.title())
 

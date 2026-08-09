@@ -109,6 +109,7 @@ def generate_feed_items(user):
         'event': ReadStatus.ContentType.EVENT,
         'decision': ReadStatus.ContentType.DECISION,
         'citizen': ReadStatus.ContentType.CITIZEN,
+        'survey': ReadStatus.ContentType.SURVEY,
     }
     seen_room_ids = set(user.seen_rooms.values_list('id', flat=True))
     room_ids = [item['object_id'] for item in raw_items if item['content_type'] == 'room_messages']
