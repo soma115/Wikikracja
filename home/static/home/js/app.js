@@ -593,3 +593,43 @@ document.addEventListener('DOMContentLoaded', function () {
         new bootstrap.Tooltip(el, { trigger: 'hover' });
     });
 });
+
+// Live countdown for surveys — updates [data-countdown] every second.
+document.addEventListener('DOMContentLoaded', function () {
+    var elements = document.querySelectorAll('[data-countdown]');
+    if (!elements.length) return;
+
+    function formatRemaining(ms) {
+        var totalSeconds = Math.max(0, Math.floor(ms / 1000));
+        var days = Math.floor(totalSeconds / 86400);
+        var hours = Math.floor((totalSeconds % 86400) / 3600);
+        var minutes = Math.floor((totalSeconds % 3600) / 60);
+        var seconds = totalSeconds % 60;
+        var parts = [];
+        if (days > 0) {
+            parts.push(days + ' ' + (days === 1 ? 'dzień' : 'dni'));
+        }
+        parts.push(
+            String(hours).padStart(2, '0') + ':' +
+            String(minutes).padStart(2, '0') + ':' +
+            String(seconds).padStart(2, '0')
+        );
+        return parts.join(' ');
+    }
+
+    function update() {
+        var now = Date.now();
+        elements.forEach(function (el) {
+            var end = new Date(el.dataset.end.replace(/\.\d+/, '')).getTime();
+            var remaining = end - now;
+            if (remaining <= 0) {
+                el.textContent = '00:00:00';
+            } else {
+                el.textContent = formatRemaining(remaining);
+            }
+        });
+    }
+
+    update();
+    setInterval(update, 1000);
+});

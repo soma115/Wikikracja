@@ -124,8 +124,8 @@
 
           <div class="proposal-card-badges-row">
             <span class="proposal-date" title="{% trans 'End date' %}">
-              <i class="fas fa-clock nav-icon" aria-hidden="true"></i>
-              {{ survey.end_date|date:'d.m.Y H:i' }}
+              <i class="fas fa-stopwatch nav-icon" aria-hidden="true"></i>
+              {% if survey.is_active %}<span data-countdown data-end="{{ survey.end_date|date:'c' }}">{{ survey.end_date|timeuntil }}</span>{% else %}{{ survey.end_date|date:'d.m.Y H:i' }}{% endif %}
             </span>
             <span class="proposal-meta-sep">·</span>
             <span class="proposal-signatures" title="{% trans 'Votes' %}">
