@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-09 12:45+0200\n"
+"POT-Creation-Date: 2026-08-09 22:39+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -257,17 +257,17 @@ msgstr "Wyniki"
 msgid "Total votes"
 msgstr "Wszystkich głosów"
 
-#: .\ankiety\templates\ankiety\survey_detail.html:124
+#: .\ankiety\templates\ankiety\survey_detail.html:123
+msgid "No options."
+msgstr "Brak opcji."
+
+#: .\ankiety\templates\ankiety\survey_detail.html:129
 #, fuzzy
 #| msgid "Votes"
 msgid "Voters"
 msgstr "Głosy"
 
-#: .\ankiety\templates\ankiety\survey_detail.html:137
-msgid "No options."
-msgstr "Brak opcji."
-
-#: .\ankiety\templates\ankiety\survey_detail.html:142
+#: .\ankiety\templates\ankiety\survey_detail.html:143
 #: .\ankiety\templates\ankiety\survey_form.html:58
 #: .\board\templates\board\post_detail.html:10
 #: .\board\templates\board\post_detail.html:55
@@ -1812,7 +1812,7 @@ msgstr "Wydarzenie"
 msgid "Events"
 msgstr "Wydarzenia"
 
-#: .\events\services.py:19 .\events\services.py:36
+#: .\events\services.py:21 .\events\services.py:39
 msgid "starting now"
 msgstr "zaczyna się teraz"
 

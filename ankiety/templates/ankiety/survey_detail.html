@@ -119,23 +119,24 @@
           {% trans 'Total votes' %}: {{ total_votes }}
         </div>
       </div>
-
-      {% if voter_choices %}
-        <h5 class="mb-3 mt-4">{% trans 'Voters' %}</h5>
-        <div class="card p-0">
-          <div class="list-group list-group-flush">
-            {% for user, choices in voter_choices.items %}
-              <div class="list-group-item d-flex justify-content-between align-items-start">
-                <span>{{ user.username }}</span>
-                <span class="text-muted text-end">{{ choices|join:", " }}</span>
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-      {% endif %}
     {% else %}
       <p class="text-muted">{% trans 'No options.' %}</p>
     {% endif %}
+  {% endif %}
+
+  {# ── VOTERS ── #}
+  {% if voter_choices %}
+    <h5 class="mb-3 mt-4">{% trans 'Voters' %}</h5>
+    <div class="card p-0">
+      <div class="list-group list-group-flush">
+        {% for user, choices in voter_choices.items %}
+          <div class="list-group-item d-flex justify-content-between align-items-start">
+            <span>{{ user.username }}</span>
+            <span class="text-muted text-end">{{ choices|join:", " }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
   {% endif %}
 
   <a href="{% url 'ankiety:list' %}" class="btn btn-secondary mt-4">
