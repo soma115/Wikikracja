@@ -45,7 +45,9 @@
   transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
   white-space: nowrap;
 }
-.sort-btn:hover {
+.sort-btn:hover,
+.view-toggle-btn:hover,
+.arg-edit-btn:hover {
   color: var(--text-primary);
   border-color: rgba(255, 255, 255, .2);
 }
@@ -60,7 +62,8 @@
   opacity: .8;
   margin-left: 1px;
 }
-.toolbar-view {
+.toolbar-view,
+.cat-mgr-actions {
   display: flex;
   gap: .3rem;
   flex-shrink: 0;
@@ -78,12 +81,9 @@
   cursor: pointer;
   font-size: .82rem;
   transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
-}
-.view-toggle-btn:hover {
-  color: var(--text-primary);
-  border-color: rgba(255, 255, 255, .2);
-}
-.view-toggle-btn.active {
+}.view-toggle-btn.active,
+.cal-trigger-btn[aria-expanded="true"],
+.show-earlier-btn:hover {
   color: var(--accent);
   border-color: var(--accent);
   background: var(--accent-muted);
@@ -241,7 +241,8 @@
   border-radius: var(--radius-badge);
   white-space: nowrap;
 }
-.badge-proposition {
+.badge-proposition,
+.badge-category {
   background: var(--badge-proposition-bg);
   color: var(--badge-proposition-color);
 }
@@ -249,23 +250,26 @@
   background: var(--badge-discussion-bg);
   color: var(--badge-discussion-color);
 }
-.badge-referendum {
+.badge-referendum,
+.badge-important {
   background: var(--badge-referendum-bg);
   color: var(--badge-referendum-color);
 }
-.badge-approved {
+.badge-approved,
+.arg-inline-submit.for,
+.badge-beneficial,
+.wspol-stat-icon.success {
   background: var(--badge-approved-bg);
   color: var(--badge-approved-color);
 }
-.badge-rejected {
+.badge-rejected,
+.stepper-rejected .stepper-step-count,
+.arg-inline-submit.against,
+/* Task priority badges */
+.badge-critical {
   background: var(--badge-rejected-bg);
   color: var(--badge-rejected-color);
-}
-.badge-category {
-  background: var(--badge-proposition-bg);
-  color: var(--badge-proposition-color);
-}
-/* ══════════════════════════════════════════════════
+}/* ══════════════════════════════════════════════════
    PROPOSAL CARD (glosowania)
    ══════════════════════════════════════════════════ */
 .proposals-list {
@@ -362,7 +366,8 @@
   flex-shrink: 0;
   padding-top: 2px;
 }
-.proposal-card-title {
+.proposal-card-title,
+.event-card-title {
   font-size: .95rem;
   font-weight: 600;
   color: var(--text-primary);
@@ -412,7 +417,8 @@
   color: var(--text-muted);
   flex-wrap: wrap;
 }
-.proposal-author-link {
+.proposal-author-link,
+.proposal-coordinator-link {
   display: inline-flex;
   align-items: center;
   gap: .35rem;
@@ -442,7 +448,13 @@
   flex-shrink: 0;
   overflow: hidden;
 }
-.proposal-author-avatar img {
+.proposal-author-avatar img,
+.proposal-coordinator-avatar img,
+.helpers-popover-avatar img,
+.detail-author-avatar img,
+.arg-author-avatar img,
+.task-assignee-avatar img,
+.wspol-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -458,7 +470,9 @@
 .proposal-date {
   color: var(--text-muted);
 }
-.proposal-signatures {
+.proposal-signatures,
+/* ── Against popover trigger (analogous to helpers, neutral-colored) ─ */
+.proposal-against {
   display: inline-flex;
   align-items: center;
   gap: .2rem;
@@ -489,18 +503,7 @@
   font-size: .65rem;
   opacity: .35;
   margin: 0 -.15rem;
-}
-.proposal-coordinator-link {
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
-  text-decoration: none !important;
-  border-radius: .35rem;
-  padding: 2px 5px 2px 2px;
-  margin: -2px -5px -2px -2px;
-  transition: background var(--transition-fast);
-}
-.proposal-coordinator-link:hover {
+}.proposal-coordinator-link:hover {
   background: rgba(255, 255, 255, .07);
 }
 .proposal-coordinator-link:hover .proposal-coordinator-name {
@@ -519,13 +522,7 @@
   font-weight: 700;
   overflow: hidden;
   flex-shrink: 0;
-}
-.proposal-coordinator-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.proposal-coordinator-name {
+}.proposal-coordinator-name {
   color: var(--text-primary);
   font-weight: 500;
   transition: color var(--transition-fast);
@@ -540,30 +537,7 @@
 }
 
 /* ── Helpers popover trigger button (looks like a span) ─────────── */
-button.proposal-helpers-btn {
-  background: transparent;
-  border: none;
-  padding: 2px 4px;
-  margin: -2px -4px;
-  border-radius: .35rem;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast);
-}
-button.proposal-helpers-btn:hover,
-button.proposal-helpers-btn:focus-visible {
-  background: rgba(255, 255, 255, .07);
-  color: var(--text-primary);
-  outline: none;
-}
-
-/* ── Against popover trigger (analogous to helpers, neutral-colored) ─ */
-.proposal-against {
-  display: inline-flex;
-  align-items: center;
-  gap: .2rem;
-}
+button.proposal-helpers-btn,
 button.proposal-against-btn {
   background: transparent;
   border: none;
@@ -575,14 +549,14 @@ button.proposal-against-btn {
   cursor: pointer;
   transition: background var(--transition-fast), color var(--transition-fast);
 }
+button.proposal-helpers-btn:hover,
+button.proposal-helpers-btn:focus-visible,
 button.proposal-against-btn:hover,
 button.proposal-against-btn:focus-visible {
   background: rgba(255, 255, 255, .07);
   color: var(--text-primary);
   outline: none;
-}
-
-/* ── Helpers popover content ───────────────────────────────────── */
+}* ── Helpers popover content ───────────────────────────────────── */
 .helpers-popover {
   --bs-popover-bg: var(--bg-card);
   --bs-popover-border-color: var(--border);
@@ -634,13 +608,7 @@ button.proposal-against-btn:focus-visible {
   font-weight: 700;
   overflow: hidden;
   flex-shrink: 0;
-}
-.helpers-popover-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.helpers-popover-name {
+}.helpers-popover-name {
   font-size: .85rem;
   font-weight: 500;
 }
@@ -853,12 +821,7 @@ button.proposal-against-btn:focus-visible {
 .stepper-step-wrap.active .stepper-step-count {
   background: var(--stepper-color);
   color: #111;
-}
-.stepper-rejected .stepper-step-count {
-  background: var(--badge-rejected-bg);
-  color: var(--badge-rejected-color);
-}
-.stepper-sep {
+}.stepper-sep {
   width: 1px;
   height: 20px;
   background: var(--border);
@@ -919,7 +882,8 @@ button.proposal-against-btn:focus-visible {
   transition: color var(--transition-fast), border-color var(--transition-fast);
   white-space: nowrap;
 }
-.stepper-rejected:hover {
+.stepper-rejected:hover,
+.arg-edit-btn.danger:hover {
   color: var(--badge-rejected-color);
   border-color: rgba(239, 68, 68, .4);
 }
@@ -988,7 +952,8 @@ button.proposal-against-btn:focus-visible {
   font-size: .8rem;
   transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
 }
-.detail-nav-btn:hover {
+.detail-nav-btn:hover,
+.task-vote-btn.down:hover {
   color: var(--text-primary);
   border-color: rgba(255, 255, 255, .2);
   background: rgba(255, 255, 255, .04);
@@ -1039,13 +1004,7 @@ button.proposal-against-btn:focus-visible {
   font-weight: 700;
   overflow: hidden;
   flex-shrink: 0;
-}
-.detail-author-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.detail-author-name {
+}.detail-author-name {
   color: rgba(232, 234, 240, .75);
   font-weight: 500;
 }
@@ -1172,13 +1131,7 @@ button.proposal-against-btn:focus-visible {
   justify-content: center;
   flex-shrink: 0;
   overflow: hidden;
-}
-.arg-author-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.arg-author-info {
+}.arg-author-info {
   display: flex;
   align-items: baseline;
   gap: .45rem;
@@ -1224,14 +1177,6 @@ button.proposal-against-btn:focus-visible {
   text-decoration: none !important;
   background: transparent;
   transition: color var(--transition-fast), border-color var(--transition-fast);
-}
-.arg-edit-btn:hover {
-  color: var(--text-primary);
-  border-color: rgba(255, 255, 255, .2);
-}
-.arg-edit-btn.danger:hover {
-  color: var(--badge-rejected-color);
-  border-color: rgba(239, 68, 68, .4);
 }
 .args-empty {
   color: var(--text-muted);
@@ -1289,7 +1234,8 @@ button.proposal-against-btn:focus-visible {
   min-height: 80px;
   margin-bottom: .55rem;
 }
-.arg-inline-form textarea:focus {
+.arg-inline-form textarea:focus,
+.cat-mgr-input:focus {
   outline: none;
   border-color: var(--accent);
 }
@@ -1304,19 +1250,9 @@ button.proposal-against-btn:focus-visible {
   font-weight: 600;
   cursor: pointer;
   transition: background var(--transition-fast);
-}
-.arg-inline-submit.for {
-  background: var(--badge-approved-bg);
-  color: var(--badge-approved-color);
-}
-.arg-inline-submit.for:hover {
+}.arg-inline-submit.for:hover {
   filter: brightness(1.2);
-}
-.arg-inline-submit.against {
-  background: var(--badge-rejected-bg);
-  color: var(--badge-rejected-color);
-}
-.arg-inline-submit.against:hover {
+}.arg-inline-submit.against:hover {
   filter: brightness(1.2);
 }
 .sidebar-card {
@@ -1465,7 +1401,8 @@ button.proposal-against-btn:focus-visible {
   color: var(--badge-proposition-color) !important;
   border: 1px solid color-mix(in srgb, var(--badge-proposition-color) 35%, transparent);
 }
-.action-btn-take:hover {
+.action-btn-take:hover,
+.task-take-btn:hover {
   filter: brightness(1.2);
   border-color: var(--badge-proposition-color);
 }
@@ -1526,21 +1463,7 @@ button.proposal-against-btn:focus-visible {
 }
 .protocol-no {
   color: var(--badge-rejected-color);
-}
-/* Task priority badges */
-.badge-critical {
-  background: var(--badge-rejected-bg);
-  color: var(--badge-rejected-color);
-}
-.badge-important {
-  background: var(--badge-referendum-bg);
-  color: var(--badge-referendum-color);
-}
-.badge-beneficial {
-  background: var(--badge-approved-bg);
-  color: var(--badge-approved-color);
-}
-/* ══════════════════════════════════════════════════
+} ══════════════════════════════════════════════════
    TASKS
    ══════════════════════════════════════════════════ */
 .tasks-empty {
@@ -1597,13 +1520,7 @@ button.proposal-against-btn:focus-visible {
   font-weight: 700;
   flex-shrink: 0;
   overflow: hidden;
-}
-.task-assignee-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.task-assignee-name {
+}.task-assignee-name {
   color: var(--text-primary);
   font-weight: 500;
 }
@@ -1637,28 +1554,18 @@ button.proposal-against-btn:focus-visible {
 .task-vote-btn.up {
   color: var(--badge-approved-color);
 }
-.task-vote-btn.up.active-vote {
-  background: var(--badge-approved-bg);
-  border-color: rgba(0, 188, 140, .4);
-}
+.task-vote-btn.up.active-vote,
 .task-vote-btn.up:hover {
-  border-color: rgba(0, 188, 140, .4);
   background: var(--badge-approved-bg);
-}
-.task-vote-btn.down {
+  border-color: rgba(0, 188, 140, .4);
+}.task-vote-btn.down {
   color: var(--text-muted);
 }
 .task-vote-btn.down.active-vote {
   background: rgba(255, 255, 255, .08);
   border-color: rgba(255, 255, 255, .2);
   color: var(--text-primary);
-}
-.task-vote-btn.down:hover {
-  color: var(--text-primary);
-  border-color: rgba(255, 255, 255, .2);
-  background: rgba(255, 255, 255, .04);
-}
-.task-take-btn {
+}.task-take-btn {
   display: inline-flex;
   align-items: center;
   gap: .3rem;
@@ -1671,12 +1578,7 @@ button.proposal-against-btn:focus-visible {
   font-weight: 500;
   cursor: pointer;
   transition: background var(--transition-fast), border-color var(--transition-fast);
-}
-.task-take-btn:hover {
-  filter: brightness(1.2);
-  border-color: var(--badge-proposition-color);
-}
-.task-resign-btn {
+}.task-resign-btn {
   display: inline-flex;
   align-items: center;
   gap: .3rem;
@@ -1695,7 +1597,8 @@ button.proposal-against-btn:focus-visible {
   margin: 0 -6px;
   transition: background var(--transition-fast), border-color var(--transition-fast);
 }
-.task-dash-row:hover {
+.task-dash-row:hover,
+.chat-msg-row:hover {
   background: var(--accent-muted);
   border-color: rgba(0, 209, 178, .35);
 }
@@ -1846,7 +1749,8 @@ button.proposal-against-btn:focus-visible {
   text-overflow: ellipsis;
   transition: color .12s;
 }
-.feed-desc {
+.feed-desc,
+.cat-mgr-desc {
   font-size: .75rem;
   color: var(--text-muted);
   white-space: nowrap;
@@ -1904,19 +1808,15 @@ button.proposal-against-btn:focus-visible {
   font-size: 1.1rem;
   flex-shrink: 0;
 }
-.wspol-stat-icon.accent {
+.wspol-stat-icon.accent,
+.event-meta-link:hover {
   background: var(--accent-muted);
   color: var(--accent);
 }
 .wspol-stat-icon.warning {
   background: rgba(243, 156, 18, .12);
   color: #f39c12;
-}
-.wspol-stat-icon.success {
-  background: var(--badge-approved-bg);
-  color: var(--badge-approved-color);
-}
-.wspol-stat-icon.blue {
+}.wspol-stat-icon.blue {
   background: rgba(96, 165, 250, .12);
   color: var(--badge-proposition-color);
 }
@@ -1972,13 +1872,7 @@ a.wspol-section-title {
   font-weight: 700;
   flex-shrink: 0;
   overflow: hidden;
-}
-.wspol-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.wspol-member-name {
+}.wspol-member-name {
   font-size: .875rem;
   color: var(--accent);
   font-weight: 500;
@@ -2040,7 +1934,8 @@ a.wspol-section-title {
   border: 1px solid var(--border);
   padding: .25rem;
 }
-.cal-day {
+.cal-day,
+.text-muted-sm {
   font-size: .82rem;
   color: var(--text-muted);
 }
@@ -2149,12 +2044,7 @@ a.wspol-section-title {
   margin: 0 -6px;
   transition: background var(--transition-fast), border-color var(--transition-fast);
   cursor: pointer;
-}
-.chat-msg-row:hover {
-  background: var(--accent-muted);
-  border-color: rgba(0, 209, 178, .35);
-}
-.chat-msg-row:hover .chat-msg-link {
+}.chat-msg-row:hover .chat-msg-link {
   color: var(--accent) !important;
 }
 .chat-msg-link {
@@ -2207,17 +2097,12 @@ a.wspol-section-title {
   white-space: nowrap;
   cursor: pointer;
 }
-.category-chip:hover {
-  background: var(--accent-muted);
-  color: var(--accent);
-  border-color: rgba(0, 209, 178, .35);
-}
+.category-chip:hover,
 .category-chip.active {
   background: var(--accent-muted);
   color: var(--accent);
   border-color: rgba(0, 209, 178, .35);
-}
-/* ── cat-filter manage button ── */
+}/* ── cat-filter manage button ── */
 .cat-filter__manage-sep {
   width: 100%;
   height: 1px;
@@ -2265,7 +2150,8 @@ a.wspol-section-title {
   flex-wrap: wrap;
   background: var(--bg-hover);
 }
-.cat-mgr-info {
+.cat-mgr-info,
+.event-card-content {
   flex: 1;
   min-width: 0;
 }
@@ -2276,15 +2162,7 @@ a.wspol-section-title {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.cat-mgr-desc {
-  font-size: .75rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.cat-mgr-badge {
+}.cat-mgr-badge {
   font-size: .7rem;
   padding: .1rem .45rem;
   border-radius: .3rem;
@@ -2292,13 +2170,7 @@ a.wspol-section-title {
   color: var(--accent);
   white-space: nowrap;
   flex-shrink: 0;
-}
-.cat-mgr-actions {
-  display: flex;
-  gap: .3rem;
-  flex-shrink: 0;
-}
-.cat-mgr-btn {
+}.cat-mgr-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2344,12 +2216,7 @@ a.wspol-section-title {
   background: var(--input-bg);
   color: var(--text-primary);
   font-size: .82rem;
-}
-.cat-mgr-input:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-.cat-mgr-add-row {
+}.cat-mgr-add-row {
   display: flex;
   flex-direction: column;
   gap: .3rem;
@@ -2417,7 +2284,8 @@ a.wspol-section-title {
   border: 1px solid var(--accent);
   line-height: 1;
 }
-.event-card-date-pill--past {
+.event-card-date-pill--past,
+.agenda-event-chip--private {
   background: transparent;
   border-color: var(--border);
 }
@@ -2443,26 +2311,12 @@ a.wspol-section-title {
   color: var(--text-muted);
   margin-top: .25rem;
   font-variant-numeric: tabular-nums;
-}
-.event-card-content {
-  flex: 1;
-  min-width: 0;
-}
-.event-card-title-row {
+}.event-card-title-row {
   display: flex;
   align-items: flex-start;
   gap: .5rem;
   margin-bottom: .35rem;
-}
-.event-card-title {
-  font-size: .95rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  flex: 1;
-  min-width: 0;
-  line-height: 1.35;
-}
-.event-card-badges-row {
+}.event-card-badges-row {
   display: flex;
   align-items: center;
   gap: .3rem;
@@ -2522,11 +2376,6 @@ a.wspol-section-title {
   z-index: 2;
   transition: color var(--transition-fast), background var(--transition-fast);
 }
-.event-meta-link:hover {
-  color: var(--accent);
-  background: var(--accent-muted);
-}
-
 /* Grid view: bardziej kompaktowa karta, data jako poziomy pasek na górze */
 .proposals-list.view-grid .event-card-inner {
   flex-direction: column;
@@ -2591,13 +2440,7 @@ a.wspol-section-title {
 .cal-trigger-btn:hover {
   color: var(--accent);
   border-color: var(--accent);
-}
-.cal-trigger-btn[aria-expanded="true"] {
-  color: var(--accent);
-  border-color: var(--accent);
-  background: var(--accent-muted);
-}
-.agenda-month-chevron {
+}.agenda-month-chevron {
   font-size: .7rem;
   color: var(--text-muted);
   transition: transform var(--transition-med) ease;
@@ -2761,11 +2604,6 @@ a.wspol-section-title {
 .agenda-event-chip--past:hover {
   opacity: 1;
 }
-.agenda-event-chip--private {
-  background: transparent;
-  border-color: var(--border);
-}
-
 @media (max-width: 540px) {
   .agenda-day {
     grid-template-columns: 48px 1fr;
@@ -2796,12 +2634,6 @@ a.wspol-section-title {
   cursor: pointer;
   transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
 }
-.show-earlier-btn:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-  background: var(--accent-muted);
-}
-
 /* Empty state spójny z resztą */
 .events-empty {
   display: flex;
@@ -3030,12 +2862,12 @@ td.notes-col {
 .text-xs { font-size: .78rem; }
 .text-sm { font-size: .82rem; }
 .text-md { font-size: .875rem; }
-.text-muted-xs { font-size: .78rem; color: var(--text-muted); }
-.text-muted-sm { font-size: .82rem; color: var(--text-muted); }
-.text-muted-md { font-size: .875rem; color: var(--text-muted); }
+.text-muted-xs,
+.profile-email { font-size: .78rem; color: var(--text-muted); }.text-muted-md { font-size: .875rem; color: var(--text-muted); }
 .min-w-0 { min-width: 0; }
 .flex-1 { flex: 1; }
-.dashboard-link {
+.dashboard-link,
+.text-primary-link {
   font-size: .82rem;
   color: var(--text-primary);
   text-decoration: none;
@@ -3088,14 +2920,13 @@ td.notes-col {
 .activity-more { display: none; font-size: .78rem; color: var(--text-muted); padding: 2px 12px 4px; }
 .calendar-link { text-decoration: none; font-size: .78rem; color: var(--accent); position: relative; z-index: 2; }
 .text-muted-nowrap { color: var(--text-muted); white-space: nowrap; }
-.text-muted-85 { color: var(--text-muted); font-size: .85rem; }
+.text-muted-85,
+.admin-muted { color: var(--text-muted); font-size: .85rem; }
 .font-75 { font-size: .75rem; }
 .opacity-70 { opacity: .7; }
 .text-2xs-muted { font-size: .72rem; color: var(--text-muted); }
 .dot-public { width: .55rem; height: .55rem; border-radius: 50%; background: #00bc8c; opacity: .8; }
-.dot-private { width: .55rem; height: .55rem; border-radius: 50%; background: var(--text-muted); opacity: .8; }
-.text-primary-link { font-size: .82rem; color: var(--text-primary); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; position: relative; z-index: 2; transition: color .15s; }
-.text-primary-link:hover { color: var(--accent); }
+.dot-private { width: .55rem; height: .55rem; border-radius: 50%; background: var(--text-muted); opacity: .8; }.text-primary-link:hover { color: var(--accent); }
 
 /* Additional utility classes for migrated inline styles */
 .filter-btn-unread { color: #60a5fa; border-color: rgba(96, 165, 250, .35); }
@@ -3105,10 +2936,9 @@ td.notes-col {
 .avatar-56 { width: 56px; height: 56px; object-fit: cover; flex-shrink: 0; }
 .avatar-64 { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); display: block; }
 .avatar-64-fallback { width: 64px; height: 64px; border-radius: 50%; background: var(--accent-muted); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; }
-.profile-name { font-weight: 700; font-size: 1rem; }
-.profile-email { font-size: .78rem; color: var(--text-muted); }
-.calendar-nav { width: auto; padding: 0 .7rem; font-size: .78rem; }
-.text-muted-75 { font-size: .75rem; color: var(--text-muted); }
+.profile-name { font-weight: 700; font-size: 1rem; }.calendar-nav { width: auto; padding: 0 .7rem; font-size: .78rem; }
+.text-muted-75,
+.restart-count { font-size: .75rem; color: var(--text-muted); }
 .vote-question { font-size: 1rem; font-weight: 600; color: var(--text-color); }
 .vote-for { color: #00bc8c; }
 .vote-against { color: #f87171; }
@@ -3121,7 +2951,8 @@ td.notes-col {
 .progress-fill { width: var(--progress); }
 .quick-link-item { background: rgba(255, 255, 255, .03); border-radius: 4px; cursor: move; }
 .quick-link-icon { color: var(--accent); font-size: .85rem; }
-.quick-link-title { flex: 1; font-size: .85rem; }
+.quick-link-title,
+.decision-link { flex: 1; font-size: .85rem; }
 .quick-link-url { font-size: .75rem; color: var(--text-muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .quick-link-edit { font-size: .72rem; padding: 2px 8px; }
 .site-admin-version { font-size: .72rem; color: var(--text-muted); font-family: var(--font-mono); }
@@ -3129,9 +2960,6 @@ td.notes-col {
 .mw-150 { max-width: 150px; }
 .mw-200 { max-width: 200px; }
 .mw-300 { max-width: 300px; }
-.admin-muted { font-size: .85rem; color: var(--text-muted); }
-.decision-link { flex: 1; font-size: .85rem; }
-.restart-count { font-size: .75rem; color: var(--text-muted); }
 .btn-icon-clean { background: none; border: none; cursor: pointer; }
 .pen-signed { color: #00bc8c; }
 .pen-unsigned { color: var(--accent); }
@@ -3143,7 +2971,6 @@ td.notes-col {
 .nav-link-clean { text-decoration: none; transition: background .15s; }
 .sidebar-avatar { object-fit: cover; }
 .quick-links-wrapper { display: flex; gap: .35rem; align-items: center; }
-.user-menu-toggle { background: transparent; border: 1px solid var(--border); border-radius: .4rem; padding: .36rem .55rem; cursor: pointer; color: var(--text-muted); transition: color .15s, border-color .15s; flex-shrink: 0; }
 .search-submit-btn { background: transparent; border: 1px solid var(--border); border-radius: .4rem; padding: .36rem .55rem; cursor: pointer; color: var(--text-muted); transition: color .15s, border-color .15s; flex-shrink: 0; }
 .border-radius-0 { border-radius: 0 !important; }
 .progress-w-120 { width: 120px !important; flex-grow: 0 !important; }

@@ -1,4 +1,4 @@
-{% if branding.brand_mark %}
+{% if branding.has_brand_mark_file %}
   <img class="brand-mark"
        src="{{ branding.brand_mark.url }}?v={{ branding_version }}"
        alt="">

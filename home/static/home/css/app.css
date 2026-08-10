@@ -378,16 +378,14 @@ img {
   transition: background-color .1s, color .1s;
 }
 .dropdown-item:hover,
-.dropdown-item:focus {
-  background: var(--accent-muted);
-  color: var(--accent);
-}
+.dropdown-item:focus,
 .dropdown-item.active,
-.dropdown-item:active {
+.dropdown-item:active,
+.anon-nav-link.active,
+.sidebar-toggle-btn:hover {
   background: var(--accent-muted);
   color: var(--accent);
-}
-.dropdown-divider {
+}.dropdown-divider {
   border-color: var(--border);
   margin: .25rem 0;
 }
@@ -766,7 +764,8 @@ form.signup input[name*="captcha"] {
 .list-group-item:hover {
   background: rgba(0, 209, 178, .05) !important;
 }
-.list-group-item.active {
+.list-group-item.active,
+.pagination .page-link:hover {
   background: var(--accent-muted) !important;
   border-color: rgba(0, 209, 178, .35) !important;
   color: var(--accent) !important;
@@ -799,7 +798,8 @@ form.signup input[name*="captcha"] {
 .text-white {
   color: var(--text-primary) !important;
 }
-small, .small {
+small, .small,
+.tile-desc {
   color: var(--text-muted);
   font-size: .82rem;
 }
@@ -819,13 +819,7 @@ hr {
   border: 1px solid var(--border) !important;
   color: var(--text-muted) !important;
   transition: background .15s, color .15s;
-}
-.pagination .page-link:hover {
-  background: var(--accent-muted) !important;
-  color: var(--accent) !important;
-  border-color: rgba(0, 209, 178, .35) !important;
-}
-.pagination .page-item.active .page-link {
+}.pagination .page-item.active .page-link {
   background: var(--accent-muted) !important;
   border-color: var(--accent-glow) !important;
   color: var(--accent) !important;
@@ -912,7 +906,9 @@ hr {
   background: rgba(0, 0, 0, .05);
 }
 [data-theme="light"] .sort-btn.active,
-[data-theme="light"] .view-toggle-btn.active {
+[data-theme="light"] .view-toggle-btn.active,
+.citizens-filter-btn:hover,
+.citizens-filter-btn.active {
   color: var(--accent);
   border-color: var(--accent);
   background: var(--accent-muted);
@@ -1293,7 +1289,8 @@ html, body {
   transition: background .15s, color .15s;
   font-size: .875rem;
 }
-.sidebar-nav .nav-item a:hover {
+.sidebar-nav .nav-item a:hover,
+.sidebar-bottom .nav-item a:hover {
   background: var(--accent-muted);
   color: var(--text-primary) !important;
 }
@@ -1301,7 +1298,8 @@ html, body {
   background: var(--accent-muted);
   color: var(--accent) !important;
 }
-.sidebar-nav .nav-item a .nav-icon {
+.sidebar-nav .nav-item a .nav-icon,
+.sidebar-bottom .nav-icon {
   width: 1.1rem;
   text-align: center;
   flex-shrink: 0;
@@ -1335,16 +1333,6 @@ html, body {
   margin: .1rem .65rem;
   transition: background .15s, color .15s;
   font-size: .875rem;
-}
-.sidebar-bottom .nav-item a:hover {
-  background: var(--accent-muted);
-  color: var(--text-primary) !important;
-}
-.sidebar-bottom .nav-icon {
-  width: 1.1rem;
-  text-align: center;
-  flex-shrink: 0;
-  font-size: .9rem;
 }
 .sidebar-user {
   flex-shrink: 0;
@@ -1538,12 +1526,7 @@ html, body {
 .anon-nav-link:hover {
   color: var(--text-primary);
   background: var(--btn-glass-bg);
-}
-.anon-nav-link.active {
-  color: var(--accent);
-  background: var(--accent-muted);
-}
-@media (max-width: 768px) {
+}@media (max-width: 768px) {
   .topbar {
     padding: 0 .75rem;
     gap: .35rem;
@@ -1700,12 +1683,7 @@ a:hover {
   font-size: .85rem;
   transition: color .15s, background .15s;
   flex-shrink: 0;
-}
-.sidebar-toggle-btn:hover {
-  color: var(--accent);
-  background: var(--accent-muted);
-}
-.sidebar.collapsed .sidebar-toggle-label {
+}.sidebar.collapsed .sidebar-toggle-label {
   display: none !important;
 }
 .main-area.sidebar-collapsed {
@@ -1760,9 +1738,7 @@ a:hover {
 .tile-header > i { color: var(--accent); font-size: .85rem; }
 .tile-heading { font-size: .85rem; }
 .tile-title { color: var(--text-primary); font-size: 1rem; line-height: 1.35; }
-.tile-meta { font-size: .78rem; color: var(--text-muted); }
-.tile-desc { font-size: .82rem; color: var(--text-muted); }
-.tile-success { font-size: .75rem; color: #00bc8c; }
+.tile-meta { font-size: .78rem; color: var(--text-muted); }.tile-success { font-size: .75rem; color: #00bc8c; }
 .tile-accent { font-size: .75rem; color: var(--accent); opacity: .8; }
 .tile-text-muted { color: var(--text-muted); }
 .onboarding-hint { font-size: .82rem; }
@@ -1806,21 +1782,15 @@ a:hover {
   transition: all .15s;
   white-space: nowrap;
   cursor: pointer;
-}
-.citizens-filter-btn:hover,
-.citizens-filter-btn.active {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-muted);
-}
-/* ── Citizens — list view mini-avatar ── */
+}/* ── Citizens — list view mini-avatar ── */
 .username-container {
   display: flex;
   align-items: center;
   gap: .45rem;
   white-space: nowrap;
 }
-.citizen-list-avatar-wrap {
+.citizen-list-avatar-wrap,
+.citizen-card-top {
   position: relative;
   display: inline-flex;
 }
@@ -1838,7 +1808,8 @@ a:hover {
   flex-shrink: 0;
   overflow: hidden;
 }
-.citizen-list-avatar img {
+.citizen-list-avatar img,
+.citizen-card-avatar-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1893,12 +1864,7 @@ a:hover {
   border-color: var(--accent);
   box-shadow: 0 2px 12px var(--accent-glow);
   background: var(--accent-muted);
-}
-.citizen-card-top {
-  position: relative;
-  display: inline-flex;
-}
-.citizen-card-avatar {
+}.citizen-card-avatar {
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -1918,13 +1884,7 @@ a:hover {
   height: 10px;
   border: 2px solid var(--bg-card);
   margin: 0;
-}
-.citizen-card-avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.citizen-card-name {
+}.citizen-card-name {
   font-size: .85rem;
   font-weight: 600;
   color: var(--text-primary);
@@ -2027,15 +1987,11 @@ a:hover {
 }
 
 /* from glosowania\templates\glosowania\szczegoly.html */
-.color-var-text-muted-font-size-78rem {
-  color:var(--text-muted);font-size:.78rem;
-}
-
+.color-var-text-muted-font-size-78rem,
 /* from glosowania\templates\glosowania\szczegoly.html */
 .font-size-78rem-color-var-text-muted {
-  font-size:.78rem;color:var(--text-muted);
+  color:var(--text-muted);font-size:.78rem;
 }
-
 /* from glosowania\templates\glosowania\szczegoly.html */
 .color-00bc8c {
   color:#00bc8c;

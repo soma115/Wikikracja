@@ -38,6 +38,19 @@ class SiteSettings(models.Model):
         else:
             cleanup_brand_derivatives(self)
 
+    def has_brand_mark_file(self):
+        """Check that brand_mark points to a file which actually exists on disk.
+
+        Guards against a stale DB reference (e.g. media not restored/synced)
+        rendering a broken <img> in templates instead of the icon fallback.
+        """
+        if not self.brand_mark:
+            return False
+        try:
+            return os.path.isfile(self.brand_mark.path)
+        except ValueError, OSError:
+            return False
+
     def has_brand_derivatives(self):
         """Check if derived branding files (favicon, apple-touch-icon, etc.) exist on disk.
 
