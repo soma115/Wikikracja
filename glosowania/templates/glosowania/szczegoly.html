@@ -10,17 +10,17 @@
 
   {# Karta: info + akcja #}
   <div class="card">
-    <div class="card-body d-flex flex-column gap-2" style="font-size:.82rem;">
+    <div class="card-body d-flex flex-column gap-2 font-size-82rem">
 
-      <p class="mb-0 fw-semibold" style="font-size:1rem;color:var(--text-primary);line-height:1.35;">
-        <span style="color:var(--text-muted);font-weight:400;">#{{ id.id }}</span> {{ id.display_title }}
+      <p class="mb-0 fw-semibold font-size-1rem-color-var-text-primary-line-hei">
+        <span class="text-muted fw-normal">#{{ id.id }}</span> {{ id.display_title }}
       </p>
 
-      <div class="d-flex flex-wrap align-items-center gap-2" style="color:var(--text-muted);font-size:.78rem;">
+      <div class="d-flex flex-wrap align-items-center gap-2 color-var-text-muted-font-size-78rem">
         {% if id.author %}
-        <a href="{% url 'obywatele:obywatele_szczegoly' pk=id.author.pk %}" class="detail-author-link d-flex align-items-center gap-1" style="text-decoration:none;">
+        <a href="{% url 'obywatele:obywatele_szczegoly' pk=id.author.pk %}" class="detail-author-link d-flex align-items-center gap-1 text-decoration-none">
           <span class="detail-author-avatar">{% if id.author.uzytkownik.avatar %}<img src="{{ id.author.uzytkownik.avatar.url }}" alt="">{% else %}{{ id.author.username|slice:":2"|upper }}{% endif %}</span>
-          <span style="color:var(--accent);">{{ id.author.username }}</span>
+          <span class="text-accent">{{ id.author.username }}</span>
         </a>
         <span class="detail-meta-sep">·</span>
         {% endif %}
@@ -39,7 +39,7 @@
           {% endif %}
         </span>
         {% if chat_room %}
-        <a href="{% url 'chat:chat' %}#room_id={{ chat_room.id }}" class="proposal-chat-link {{ chat_room_pulse_class }}" style="text-decoration:none;">
+        <a href="{% url 'chat:chat' %}#room_id={{ chat_room.id }}" class="proposal-chat-link {{ chat_room_pulse_class }} text-decoration-none">
           <i class="fas fa-comment-dots"></i> {% trans 'Chat' %}
         </a>
         {% endif %}
@@ -52,12 +52,12 @@
       </div>
 
       {% if id.status == id.Status.PROPOSITION %}
-      <div class="d-flex align-items-center gap-1" style="font-size:.78rem;color:var(--text-muted);">
-        <i class="fas fa-pen-nib" {% if signed %}style="color:#00bc8c;"{% else %}style="color:var(--accent);"{% endif %}></i>
+      <div class="d-flex align-items-center gap-1 font-size-78rem-color-var-text-muted">
+        <i class="fas fa-pen-nib {% if signed %}pen-signed{% else %}pen-unsigned{% endif %}"></i>
         {% if signed %}{% trans 'I support' %}{% else %}{% trans 'I do not support' %}{% endif %}
       </div>
       <div class="d-flex align-items-center gap-2 flex-wrap">
-        <span style="font-size:.78rem;color:var(--text-muted);">{% trans 'Do you support submitting this proposal to a referendum?' %}</span>
+        <span class="text-muted-xs">{% trans 'Do you support submitting this proposal to a referendum?' %}</span>
         {% if not signed %}
         <form method="post" class="mb-0 d-inline">
           {% csrf_token %}
@@ -73,14 +73,14 @@
         <a href="{% url 'glosowania:edit' id.pk %}" class="action-btn action-btn-edit"><i class="fas fa-pen"></i> {% trans 'Edit' %}</a>
         {% endif %}
         {% if id.wersje.exists %}
-        <a href="{% url 'glosowania:historia' id.pk %}" class="action-btn" style="font-size:.78rem;"><i class="fas fa-clock-rotate-left"></i> {% trans 'Changes' %} ({{ id.wersje.count }})</a>
+        <a href="{% url 'glosowania:historia' id.pk %}" class="action-btn text-xs"><i class="fas fa-clock-rotate-left"></i> {% trans 'Changes' %} ({{ id.wersje.count }})</a>
         {% endif %}
       </div>
 
       {% elif id.status == id.Status.REFERENDUM and id.is_author_signed %}
       {% if not voted %}
       <div class="d-flex flex-column gap-2">
-        <span style="font-size:1rem;font-weight:600;color:var(--text-color);">{% trans 'Would you like to implement this rule?' %}</span>
+        <span class="vote-question">{% trans 'Would you like to implement this rule?' %}</span>
         <form method="post" class="mb-0 d-flex gap-2">
           {% csrf_token %}
           <button type="submit" name="tak" value="1" class="action-btn action-btn-yes"><i class="fas fa-check"></i> {% trans 'Yes' %}</button>
@@ -88,24 +88,24 @@
         </form>
       </div>
       {% else %}
-      <span style="font-size:.78rem;color:var(--text-muted);"><i class="fas fa-check-circle" style="color:#00bc8c;"></i> {% trans 'You have already voted in this referendum' %}</span>
+      <span class="text-muted-xs"><i class="fas fa-check-circle text-success-custom"></i> {% trans 'You have already voted in this referendum' %}</span>
       {% endif %}
 
       {% elif id.voting_has_ended %}
-      <div class="d-flex align-items-center gap-1" style="font-size:.78rem;color:var(--text-muted);">
-        <i class="fas fa-chart-bar" style="color:var(--accent);"></i> {% trans 'Results' %}
+      <div class="d-flex align-items-center gap-1 font-size-78rem-color-var-text-muted">
+        <i class="fas fa-chart-bar color-var-accent"></i> {% trans 'Results' %}
       </div>
       {% with total=id.za|add:id.przeciw %}{% if total %}{% widthratio id.za total 100 as fill_pct %}
       <div class="result-bar">
         <div class="result-bar-labels">
-          <span style="color:#00bc8c;"><i class="fas fa-check fa-fw"></i> {% trans 'For' %} {{ id.za }}</span>
-          <span style="color:#f87171;">{% trans 'Against' %} {{ id.przeciw }} <i class="fas fa-xmark fa-fw"></i></span>
+          <span class="vote-for"><i class="fas fa-check fa-fw"></i> {% trans 'For' %} {{ id.za }}</span>
+          <span class="vote-against">{% trans 'Against' %} {{ id.przeciw }} <i class="fas fa-xmark fa-fw"></i></span>
         </div>
-        <div class="result-bar-track"><div class="result-bar-fill" data-width="{{ fill_pct }}" style="width:var(--w,0%);"></div></div>
+        <div class="result-bar-track"><div class="result-bar-fill" data-width="{{ fill_pct }}"></div></div>
       </div>
       {% endif %}{% endwith %}
-      {% if voters %}<div style="font-size:.75rem;color:var(--text-muted);"><i class="fas fa-users me-1"></i>{% for voter in voters %}{{ voter.ktory_uzytkownik_juz_zaglosowal.username }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
-      {% if report %}<div class="protocol-list" style="font-size:.72rem;">{% for r in report %}<span class="{% if r.vote %}protocol-yes{% else %}protocol-no{% endif %}">{% if r.vote %}✓{% else %}✗{% endif %} {{ r.code }}</span><br>{% endfor %}</div>{% endif %}
+      {% if voters %}<div class="text-muted-75"><i class="fas fa-users me-1"></i>{% for voter in voters %}{{ voter.ktory_uzytkownik_juz_zaglosowal.username }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+      {% if report %}<div class="protocol-list font-size-72rem">{% for r in report %}<span class="{% if r.vote %}protocol-yes{% else %}protocol-no{% endif %}">{% if r.vote %}✓{% else %}✗{% endif %} {{ r.code }}</span><br>{% endfor %}</div>{% endif %}
       {% endif %}
 
     </div>
@@ -116,36 +116,36 @@
   <div class="card">
     <div class="card-body d-flex flex-column gap-2">
       <div class="d-flex align-items-center gap-2">
-        <i class="fas fa-scroll" style="color:var(--accent);font-size:.85rem;"></i>
-        <span class="section-heading" style="font-size:.85rem;">{% trans 'Law text' %}</span>
+        <i class="fas fa-scroll color-var-accent-font-size-85rem"></i>
+        <span class="section-heading font-size-85rem">{% trans 'Law text' %}</span>
       </div>
       {% if id.tresc %}
       <div class="detail-subsection">
-        <div class="detail-section-text" style="font-size:.82rem;">{{ id.tresc|richtext }}</div>
+        <div class="detail-section-text font-size-82rem">{{ id.tresc|richtext }}</div>
       </div>
       {% endif %}
       {% if id.kara %}
       <div class="detail-subsection">
         <div class="detail-section-label"><i class="fas fa-triangle-exclamation"></i>{% trans 'Consequences' %}</div>
-        <div class="detail-section-text" style="font-size:.82rem;">{{ id.kara|richtext }}</div>
+        <div class="detail-section-text font-size-82rem">{{ id.kara|richtext }}</div>
       </div>
       {% endif %}
       {% if id.uzasadnienie %}
       <div class="detail-subsection">
         <div class="detail-section-label"><i class="fas fa-lightbulb"></i>{% trans 'Reasoning' %}</div>
-        <div class="detail-section-text" style="font-size:.82rem;">{{ id.uzasadnienie|richtext }}</div>
+        <div class="detail-section-text font-size-82rem">{{ id.uzasadnienie|richtext }}</div>
       </div>
       {% endif %}
       {% if id.znosi %}
       <div class="detail-subsection">
         <div class="detail-section-label"><i class="fas fa-ban"></i>{% trans 'Abolishes regulations' %}</div>
-        <div class="detail-section-text" style="font-size:.82rem;">{{ id.znosi }}</div>
+        <div class="detail-section-text font-size-82rem">{{ id.znosi }}</div>
       </div>
       {% endif %}
       {% if id.proposed_brand_mark %}
       <div class="detail-subsection">
         <div class="detail-section-label"><i class="fas fa-image"></i>{% trans 'Proposed logo' %}</div>
-        <img src="{{ id.proposed_brand_mark.url }}" alt="{% trans 'Proposed logo' %}" style="max-height:96px;width:auto;" class="border rounded p-1 bg-white">
+        <img src="{{ id.proposed_brand_mark.url }}" alt="{% trans 'Proposed logo' %}" class="border rounded p-1 bg-white brand-mark-lg">
       </div>
       {% endif %}
     </div>

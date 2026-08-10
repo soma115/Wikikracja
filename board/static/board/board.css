@@ -193,3 +193,16 @@
     font-size: 0.9rem;
   }
 }
+
+/* Migrated from inline styles */
+.post-featured-image img {
+  width: 66%;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 4px;
+  display: block;
+  margin: 0 auto;
+}
+.attachment-uploaded-at {
+  font-size: .8rem;
+}

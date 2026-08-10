@@ -8,13 +8,12 @@
 <div class="section">
 
   {# ── Toolbar linia 1: filtry typów + nieprzeczytane ── #}
-  <div class="proposals-toolbar mb-1" style="flex-wrap:wrap;">
-    <div class="toolbar-sort" style="flex-wrap:wrap;gap:.35rem;">
+  <div class="proposals-toolbar mb-1 flex-wrap-wrap">
+    <div class="toolbar-sort flex-wrap-wrap-gap-35rem">
       <a href="?filter=unread&sort={{ sort }}&order={{ order }}"
-         class="sort-btn {% if filter_unread %}active unread-filter-active{% endif %}"
-         style="color:#60a5fa;border-color:rgba(96,165,250,.35);">
+         class="sort-btn filter-btn-unread {% if filter_unread %}active unread-filter-active{% endif %}">
         <i class="fas fa-bell"></i>{% trans "Unread" %}
-        <span id="unread-count-badge" class="{% if not unread_count %}d-none{% endif %}" style="font-size:.7rem;">{% if unread_count %}({{ unread_count }}){% endif %}</span>
+        <span id="unread-count-badge" class="{% if not unread_count %}d-none{% endif %} text-70">{% if unread_count %}({{ unread_count }}){% endif %}</span>
       </a>
       <a href="?sort={{ sort }}&order={{ order }}"
          class="sort-btn {% if not ct_filter and not filter_unread %}active{% endif %}">
@@ -32,8 +31,7 @@
   {# ── Toolbar linia 2: akcje + sortowanie + widok ── #}
   <div class="proposals-toolbar mb-3">
 
-    <button type="button" class="sort-btn" id="btn-mark-all"
-            style="color:#60a5fa;border-color:rgba(96,165,250,.35);">
+    <button type="button" class="sort-btn color-60a5fa-border-color-rgba-96-165-250-35" id="btn-mark-all">
       <i class="fas fa-check-double"></i>{% trans "Mark as read" %}
     </button>
 
@@ -66,15 +64,15 @@
       {% for item in feed_items %}
       <a href="{{ item.url }}" class="feed-row {% if not item.is_read %}unread-item{% endif %}" data-content-type="{{ item.content_type }}" data-object-id="{{ item.object_id }}">
 
-        <span class="badge text-bg-{{ item.content_type|content_type_color }} flex-shrink-0 mt-1" style="font-size:.65rem;padding:1px 5px;">
+        <span class="badge text-bg-{{ item.content_type|content_type_color }} flex-shrink-0 mt-1 badge-activity-type">
           {{ item.content_type|content_type_label }}
         </span>
 
-        <div style="min-width:0;flex:1;">
+        <div class="min-w-0 flex-1">
           <div class="feed-title {% if not item.is_read %}fw-semibold{% endif %}">
             {{ item.title }}
             {% if item.content_type == 'room_messages' and item.message_count > 1 %}
-            <span class="badge chat-message-count text-bg-{{ item.content_type|content_type_color }} ms-1 {% if item.is_read %}d-none{% endif %}" style="font-size:.6rem;vertical-align:middle;">{{ item.message_count }}</span>
+            <span class="badge chat-message-count text-bg-{{ item.content_type|content_type_color }} ms-1 {% if item.is_read %}d-none{% endif %} badge-activity-count">{{ item.message_count }}</span>
             {% endif %}
           </div>
           {% if item.description and item.content_type != 'event' %}
@@ -84,7 +82,7 @@
 
         <div class="d-flex flex-column align-items-end flex-shrink-0 gap-1">
           {% if item.author %}
-          <span style="font-size:.72rem;color:var(--text-muted);">{{ item.author.username }}</span>
+          <span class="text-2xs-muted">{{ item.author.username }}</span>
           {% endif %}
           <span class="feed-toggle-read"
                 role="button"
@@ -98,14 +96,14 @@
                 title="{% if item.is_read %}{% trans 'Mark as unread' %}{% else %}{% trans 'Mark as read' %}{% endif %}">
             <i class="fas {% if item.is_read %}fa-eye-slash{% else %}fa-eye{% endif %}"></i>
           </span>
-          <span style="font-size:.72rem;color:var(--text-muted);white-space:nowrap;">{{ item.timestamp|date:"d.m H:i" }}</span>
+          <span class="text-2xs text-muted-nowrap">{{ item.timestamp|date:"d.m H:i" }}</span>
         </div>
 
       </a>
       {% empty %}
       <div class="p-5 text-center">
-        <i class="fas fa-inbox fa-2x d-block mb-2" style="color:var(--text-muted);opacity:.35;"></i>
-        <span style="font-size:.875rem;color:var(--text-muted);">{% trans "No activity" %}</span>
+        <i class="fas fa-inbox fa-2x d-block mb-2 color-var-text-muted-opacity-35"></i>
+        <span class="text-muted-md">{% trans "No activity" %}</span>
       </div>
       {% endfor %}
     </div>

@@ -69,32 +69,31 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
 </script>
 {% endblock %}
 {% block content %}
-<div class="section d-flex flex-column gap-3" style="max-width:640px;">
+<div class="section d-flex flex-column gap-3 max-width-640px">
 
   {# ── PROFIL ── #}
   <div class="card">
     <div class="card-header d-flex align-items-center gap-3">
       {# Avatar z inline upload overlay #}
-      <form id="avatar-form" method="post" action="{% url 'obywatele:upload_avatar' %}" enctype="multipart/form-data" style="flex-shrink:0;">
+      <form id="avatar-form" method="post" action="{% url 'obywatele:upload_avatar' %}" enctype="multipart/form-data" class="flex-shrink-0">
         {% csrf_token %}
-        <input type="file" id="avatar-input" name="avatar" accept="image/*" style="display:none;">
-        <div id="avatar-wrap" style="position:relative;width:64px;height:64px;cursor:pointer;" onclick="document.getElementById('avatar-input').click()">
+        <input class="mig-hidden" type="file" id="avatar-input" name="avatar" accept="image/*">
+        <div class="position-relative-width-64px-height-64px-curso" id="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
           {% if profile.avatar %}
-            <img id="avatar-img" src="{{ profile.avatar.url }}" alt="avatar"
-                 style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--border);display:block;">
+            <img id="avatar-img" src="{{ profile.avatar.url }}" alt="avatar" class="avatar-64">
           {% else %}
-            <div id="avatar-img" style="width:64px;height:64px;border-radius:50%;background:var(--accent-muted);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;">
-              <i class="fas fa-user" style="font-size:1.4rem;color:var(--accent);"></i>
+            <div class="width-64px-height-64px-border-radius-50-backgr" id="avatar-img">
+              <i class="fas fa-user font-size-1-4rem-color-var-accent"></i>
             </div>
           {% endif %}
-          <div id="avatar-overlay" style="position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;">
-            <i class="fas fa-camera" style="color:#fff;font-size:1.1rem;"></i>
+          <div class="position-absolute-inset-0-border-radius-50-bac" id="avatar-overlay">
+            <i class="fas fa-camera color-fff-font-size-1-1rem"></i>
           </div>
         </div>
       </form>
       <div>
-        <div style="font-weight:700;font-size:1rem;">{{ user.get_full_name|default:user.username }}</div>
-        <div style="font-size:.78rem;color:var(--text-muted);">{{ user.email }}</div>
+        <div class="profile-name">{{ user.get_full_name|default:user.username }}</div>
+        <div class="profile-email">{{ user.email }}</div>
       </div>
     </div>
     <div class="card-body">
@@ -247,13 +246,13 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
   </div>
 
   {# ── USUNIĘCIE KONTA ── #}
-  <div class="card border-danger" style="border-color:var(--bs-danger)!important;">
+  <div class="card border-danger border-color-var-bs-danger-important">
     <div class="card-header">
       <span class="section-heading text-danger">{% trans "Delete account" %}</span>
     </div>
     <div class="card-body">
       {% if deletion_request %}
-        <p class="mb-2" style="font-size:.9rem;">
+        <p class="mb-2 font-size-9rem">
           {% trans "Your account is scheduled for permanent deletion on" %} <strong>{{ deletion_request.scheduled_for|date:"Y-m-d" }}</strong>.
           <br>
           {% trans "You can cancel this request before that date." %}
@@ -265,7 +264,7 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
           </button>
         </form>
       {% else %}
-        <p class="mb-2" style="font-size:.9rem;color:var(--text-muted);">
+        <p class="mb-2 font-size-9rem-color-var-text-muted">
           {% trans "Permanently delete your account and all associated data." %}
           <br>
           {% trans "This action has a 30-day grace period — you can cancel any time before the deadline." %}
@@ -300,7 +299,7 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
-        <form method="post" action="{% url 'obywatele:request_deletion' %}" style="display:inline;">
+        <form method="post" action="{% url 'obywatele:request_deletion' %}" class="d-inline">
           {% csrf_token %}
           <button type="submit" class="btn btn-danger">
             <i class="fas fa-trash-alt me-1"></i>{% trans "Yes, schedule deletion" %}

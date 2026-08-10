@@ -33,9 +33,9 @@
   <div class="card mb-3">
     <div class="card-header d-flex align-items-center gap-3">
       {% if b.avatar %}
-        <img src="{{ b.avatar.url }}" alt="avatar" class="rounded-circle" style="width:56px;height:56px;object-fit:cover;flex-shrink:0;">
+        <img src="{{ b.avatar.url }}" alt="avatar" class="rounded-circle avatar-56">
       {% else %}
-        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white" style="width:56px;height:56px;font-size:1.4rem;background:var(--color-accent);flex-shrink:0;">
+        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white width-56px-height-56px-font-size-1-4rem-backgr">
           {{ b.uid.username|slice:":2"|upper }}
         </div>
       {% endif %}
@@ -45,13 +45,13 @@
         {% endif %}
       </h5>
       {% if active %}
-      <a href="{% url 'chat:open_dm' pk=b.uid.pk %}" class="proposal-chat-link ms-2" style="font-size:.78rem;">
+      <a href="{% url 'chat:open_dm' pk=b.uid.pk %}" class="proposal-chat-link ms-2 text-xs">
         <i class="fas fa-comment-dots"></i>
         <span>{% trans 'Send a private message' %}</span>
       </a>
       {% endif %}
     </div>
-    <div class="card-body" style="font-size:.875rem;">
+    <div class="card-body font-size-875rem">
       <div class="row">
         <div class="col-md-6 mb-2">
           <strong>{% trans 'Login' %}:</strong> {{ b.uid }}
@@ -76,15 +76,15 @@
         <div class="col-md-6 mb-2">
           <strong>{% trans 'Form completed' %}:</strong>
           <div class="d-flex align-items-center gap-2 mt-1">
-            <div class="progress flex-grow-1" style="height:8px;">
-              <div class="progress-bar {% if form_completion_percent == 100 %}bg-success{% elif form_completion_percent >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
+            <div class="progress flex-grow-1 height-8px">
+              <div class="progress-bar {% if form_completion_percent == 100 %}bg-success{% elif form_completion_percent >= 50 %}bg-warning{% else %}bg-danger{% endif %} progress-fill"
                    role="progressbar"
-                   style="width:{{ form_completion_percent }}%"
+                   style="--progress:{{ form_completion_percent }}%"
                    aria-valuenow="{{ form_completion_percent }}"
                    aria-valuemin="0"
                    aria-valuemax="100"></div>
             </div>
-            <span class="text-nowrap" style="min-width:3rem;">{{ form_completion_percent }}%</span>
+            <span class="text-nowrap min-width-3rem">{{ form_completion_percent }}%</span>
           </div>
         </div>
         {% if not active %}
@@ -153,10 +153,10 @@
         <i class="fas fa-plus-circle me-1"></i>{% trans "Founded" %}
       </button>
     </div>
-    <div id="section-czaty" class="citizen-section" style="display:none;"></div>
-    <div id="section-zadania" class="citizen-section" style="display:none;"></div>
-    <div id="section-aktywnosc" class="citizen-section" style="display:none;"></div>
-    <div id="section-zalozono" class="citizen-section" style="display:none;"></div>
+    <div id="section-czaty" class="citizen-section mig-hidden"></div>
+    <div id="section-zadania" class="citizen-section mig-hidden"></div>
+    <div id="section-aktywnosc" class="citizen-section mig-hidden"></div>
+    <div id="section-zalozono" class="citizen-section mig-hidden"></div>
   </div>
   <script>
   (function(){
@@ -173,7 +173,7 @@
           section.style.display = 'block';
           return;
         }
-        section.innerHTML = '<div class="p-3 text-muted" style="font-size:.82rem;">...</div>';
+        section.innerHTML = '<div class="p-3 text-muted font-size-82rem">...</div>';
         section.style.display = 'block';
         fetch(btn.dataset.url, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
           .then(function(r){ return r.text(); })
@@ -198,10 +198,10 @@
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-sm table-striped mb-0" style="font-size:.875rem;">
+        <table class="table table-sm table-striped mb-0 font-size-875rem">
           <tbody>
             <tr>
-              <th scope="row" style="width: 30%;">{% trans "Communicator / Phone" %}</th>
+              <th class="width-30" scope="row">{% trans "Communicator / Phone" %}</th>
               <td>{{ b.phone|default:"—" }}</td>
             </tr>
             <tr>

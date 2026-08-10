@@ -77,9 +77,9 @@
                       {{ option.text }}
                     </label>
                   </div>
-                  <div class="d-flex align-items-center gap-2" style="min-width: 180px;">
+                  <div class="d-flex align-items-center gap-2 min-width-180px">
                     <span class="text-nowrap text-muted">{{ option.vote_count }} ({{ option.percentage }}%)</span>
-                    <progress class="flex-grow-1" style="width: 120px;" value="{{ option.vote_count }}" max="{{ survey.total_votes|default:1 }}"></progress>
+                    <progress class="progress-w-120" value="{{ option.vote_count }}" max="{{ survey.total_votes|default:1 }}"></progress>
                   </div>
                 </div>
               {% empty %}

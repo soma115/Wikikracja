@@ -2,14 +2,14 @@
 {% load i18n %}
 
 {% block tasks %}
-<div class="container mt-4" style="max-width:680px;">
+<div class="container mt-4 max-width-680px">
 
   <h5 class="mb-4">{% trans "How do tasks work?" %}</h5>
 
   <div class="card mb-3">
     <div class="card-body">
-      <h6 class="mb-2"><i class="fas fa-user me-2" style="color:var(--accent);"></i>{% trans "Mine" %}</h6>
-      <p class="mb-0" style="font-size:.88rem;">
+      <h6 class="mb-2"><i class="fas fa-user me-2 color-var-accent"></i>{% trans "Mine" %}</h6>
+      <p class="mb-0 font-size-88rem">
         {% blocktrans %}The tab collects tasks that directly concern you: tasks that you have undertaken (you are the owner) and tasks in which you have declared your help (you have clicked "I want to help").{% endblocktrans %}
       </p>
     </div>
@@ -17,8 +17,8 @@
 
   <div class="card mb-3">
     <div class="card-body">
-      <h6 class="mb-2"><i class="fas fa-inbox me-2" style="color:var(--accent);"></i>{% trans "Pending" %}</h6>
-      <p class="mb-0" style="font-size:.88rem;">
+      <h6 class="mb-2"><i class="fas fa-inbox me-2 color-var-accent"></i>{% trans "Pending" %}</h6>
+      <p class="mb-0 font-size-88rem">
         {% blocktrans %}Active tasks that do not yet have an owner or have an owner but have not gathered enough support (the difference in votes "I want to help" minus "we are not doing this" is less than 2). Anyone can take such a task using the "Take" button.{% endblocktrans %}
       </p>
     </div>
@@ -26,8 +26,8 @@
 
   <div class="card mb-3">
     <div class="card-body">
-      <h6 class="mb-2"><i class="fas fa-spinner me-2" style="color:var(--accent);"></i>{% trans "In progress" %}</h6>
-      <p class="mb-0" style="font-size:.88rem;">
+      <h6 class="mb-2"><i class="fas fa-spinner me-2 color-var-accent"></i>{% trans "In progress" %}</h6>
+      <p class="mb-0 font-size-88rem">
         {% blocktrans %}Tasks that have an owner and have collected at least 2 net declarations of help (votes "I want to help" minus votes against ≥ 2). The owner can resign - the task then returns to the waiting list. Votes ≤ −2 automatically reject the task.{% endblocktrans %}
       </p>
     </div>
@@ -35,8 +35,8 @@
 
   <div class="card mb-3">
     <div class="card-body">
-      <h6 class="mb-2"><i class="fas fa-check-circle me-2" style="color:var(--accent);"></i>{% trans "Completed" %}</h6>
-      <p class="mb-0" style="font-size:.88rem;">
+      <h6 class="mb-2"><i class="fas fa-check-circle me-2 color-var-accent"></i>{% trans "Completed" %}</h6>
+      <p class="mb-0 font-size-88rem">
         {% blocktrans %}Tasks closed by the owner (completed or canceled) and tasks rejected by the community (total votes ≤ −2). A completed task can be reopened.{% endblocktrans %}
       </p>
     </div>
@@ -44,8 +44,8 @@
 
   <div class="card mb-3">
     <div class="card-body">
-      <h6 class="mb-2"><i class="fas fa-hand-holding-heart me-2" style="color:var(--accent);"></i>{% trans "Declaration of aid" %}</h6>
-      <p class="mb-0" style="font-size:.88rem;">
+      <h6 class="mb-2"><i class="fas fa-hand-holding-heart me-2 color-var-accent"></i>{% trans "Declaration of aid" %}</h6>
+      <p class="mb-0 font-size-88rem">
         {% blocktrans %}The "I want to help" button is a declaration of commitment - not a like. The number of people who clicked it is visible on the task tile. Sufficient support (≥ 2 net) is a condition for the task to be implemented.{% endblocktrans %}
       </p>
     </div>

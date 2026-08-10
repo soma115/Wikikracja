@@ -17,7 +17,7 @@
           {% if post.author.uzytkownik.avatar %}
             <img src="{{ post.author.uzytkownik.avatar.url }}" alt="{{ post.author.username }}" class="rounded-circle avatar-md">
           {% else %}
-            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white avatar-md-fallback" style="background:{{ post.author.username|citizen_color }};">
+            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white avatar-md-fallback avatar-fallback" style="--citizen-color:{{ post.author.username|citizen_color }};">
               {{ post.author.username|slice:":2"|upper }}
             </div>
           {% endif %}

@@ -108,7 +108,7 @@
               {% if post.author.uzytkownik.avatar %}
                 <img src="{{ post.author.uzytkownik.avatar.url }}" alt="{{ post.author.username }}" class="rounded-circle avatar-xs">
               {% else %}
-                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white avatar-xs-fallback" style="background:{{ post.author.username|citizen_color }};">
+                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white avatar-xs-fallback avatar-fallback" style="--citizen-color:{{ post.author.username|citizen_color }};">
                   {{ post.author.username|slice:":2"|upper }}
                 </div>
               {% endif %}
@@ -139,7 +139,7 @@
                   {% if post.author.uzytkownik.avatar %}
                     <img src="{{ post.author.uzytkownik.avatar.url }}" alt="{{ post.author.username }}" class="rounded-circle avatar-sm">
                   {% else %}
-                    <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white avatar-sm-fallback" style="background:{{ post.author.username|citizen_color }};">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white avatar-sm-fallback avatar-fallback" style="--citizen-color:{{ post.author.username|citizen_color }};">
                       {{ post.author.username|slice:":2"|upper }}
                     </div>
                   {% endif %}

@@ -37,7 +37,7 @@
     {% endfor %}
   {% endwith %}
 {% endfor %}
-<div data-chunk-grid style="display:none">
+<div class="mig-hidden" data-chunk-grid>
   {% for occ in occurrences %}
     <div data-date="{{ occ.date|date:'Y-m-d' }}">
       {% include 'events/_event_card.html' %}

@@ -11,10 +11,10 @@
     <div class="detail-header-top">
       <h1 class="detail-title">
         {% if form.instance.pk %}
-          <i class="fas fa-pen fa-fw" style="color:var(--accent);"></i>
+          <i class="fas fa-pen fa-fw color-var-accent"></i>
           {% trans "Edit Event" %}: {{ form.instance.title }}
         {% else %}
-          <i class="fas fa-plus fa-fw" style="color:var(--accent);"></i>
+          <i class="fas fa-plus fa-fw color-var-accent"></i>
           {% trans "Create New Event" %}
         {% endif %}
       </h1>
@@ -22,17 +22,17 @@
   </div>
 
   <div class="proposal-card">
-    <div class="proposal-card-body" style="display:block;cursor:default;">
+    <div class="proposal-card-body display-block-cursor-default">
       {% crispy form %}
     </div>
   </div>
 
-  <div class="proposals-toolbar" style="margin-top:1rem;">
-    <a href="{% url 'events:list' %}" class="view-toggle-btn" style="width:auto;padding:0 .85rem;gap:.4rem;" title="{% trans 'Back to Calendar' %}">
+  <div class="proposals-toolbar margin-top-1rem">
+    <a href="{% url 'events:list' %}" class="view-toggle-btn event-back-link" title="{% trans 'Back to Calendar' %}">
       <i class="fas fa-arrow-left"></i> {% trans "Back to Calendar" %}
     </a>
     {% if form.instance.pk %}
-      <a href="{% url 'events:detail' form.instance.pk %}" class="view-toggle-btn" style="width:auto;padding:0 .85rem;gap:.4rem;" title="{% trans 'View Event' %}">
+      <a href="{% url 'events:detail' form.instance.pk %}" class="view-toggle-btn event-back-link" title="{% trans 'View Event' %}">
         <i class="fas fa-eye"></i> {% trans "View Event" %}
       </a>
     {% endif %}

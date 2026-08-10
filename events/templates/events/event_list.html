@@ -43,17 +43,15 @@
     {% regroup occurrences by date|date:"Y-m" as months %}
     {% for month_group in months %}
       {% with month_iso=month_group.grouper today_ym=now|date:"Y-m" today_ymd=now|date:"Y-m-d" %}
-        <div class="agenda-month-header"
-             data-month-label="{{ month_iso }}"
-             {% if month_iso < today_ym %}style="display:none;"{% endif %}>
+        <div class="agenda-month-header{% if month_iso < today_ym %} d-none{% endif %}"
+             data-month-label="{{ month_iso }}">
           {{ month_group.list.0.date|date:"F Y" }}
         </div>
 
         {% regroup month_group.list by date|date:"Y-m-d" as days %}
         {% for day_group in days %}
-          <section class="agenda-day{% if day_group.list.0.is_past %} agenda-day--past{% endif %}{% if day_group.grouper == today_ymd %} agenda-day--today{% endif %}"
-                   id="day-{{ day_group.grouper }}"
-                   {% if day_group.grouper < today_ymd %}style="display:none;"{% endif %}>
+          <section class="agenda-day{% if day_group.list.0.is_past %} agenda-day--past{% endif %}{% if day_group.grouper == today_ymd %} agenda-day--today{% endif %}{% if day_group.grouper < today_ymd %} d-none{% endif %}"
+                   id="day-{{ day_group.grouper }}">
             <div class="agenda-day-label">
               <div class="agenda-day-name">{{ day_group.list.0.date|date:"D" }}</div>
               <div class="agenda-day-num">{{ day_group.list.0.date|date:"j" }}</div>
@@ -85,7 +83,7 @@
   </div>
 
   {# ── GRID (alternative view) ── #}
-  <div class="proposals-list" data-view-container data-view-only="grid" style="display:none;">
+  <div class="proposals-list mig-hidden" data-view-container data-view-only="grid">
     {% for occ in occurrences %}
       <div data-date="{{ occ.date|date:'Y-m-d' }}">
         {% include 'events/_event_card.html' %}

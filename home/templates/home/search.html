@@ -7,8 +7,8 @@
 
   <!-- Header -->
   <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-    <h4 class="mb-0" style="color:var(--text-primary);">
-      <i class="fas fa-magnifying-glass me-2" style="color:var(--accent);"></i>
+    <h4 class="mb-0 color-var-text-primary">
+      <i class="fas fa-magnifying-glass me-2 color-var-accent"></i>
       {% if query %}
         {% blocktrans with q=query %}Results for „{{ q }}"{% endblocktrans %}
       {% else %}
@@ -16,7 +16,7 @@
       {% endif %}
     </h4>
     {% if query %}
-      <span class="badge" style="background:var(--accent-muted);color:var(--accent);font-size:.8rem;padding:.4rem .75rem;">
+      <span class="badge background-var-accent-muted-color-var-accent-f">
         {{ results|length }} {% trans "results" %}
       </span>
     {% endif %}
@@ -30,19 +30,17 @@
       <!-- Query input -->
       <div class="input-group mb-3">
         <input type="search" name="q" id="sq" value="{{ query }}"
-               class="form-control"
-               style="background:var(--bg-base);border-color:var(--border);color:var(--text-primary);"
+               class="form-control search-input"
                placeholder="{% trans 'Search by title, content, author…' %}"
                autofocus>
-        <button class="btn fw-semibold" type="submit"
-                style="background:var(--accent);color:#111;border:none;">
+        <button class="btn fw-semibold background-var-accent-color-111-border-none" type="submit">
           <i class="fas fa-magnifying-glass me-1"></i>{% trans "Search" %}
         </button>
       </div>
 
       <!-- Category filter chips -->
       <div class="d-flex flex-wrap gap-2 align-items-center">
-        <span style="color:var(--text-muted);font-size:.78rem;flex-shrink:0;">
+        <span class="text-muted-xs flex-shrink-0">
           <i class="fas fa-filter me-1"></i>{% trans "Search in:" %}
         </span>
 
@@ -99,14 +97,14 @@
 
   <!-- Results -->
   {% if not query %}
-    <p style="color:var(--text-muted);">
+    <p class="text-muted">
       {% trans "Enter a phrase, select categories and press Search." %}
     </p>
 
   {% elif not results %}
     <div class="card p-4 text-center">
-      <i class="fas fa-circle-xmark fa-2x mb-3" style="color:var(--text-muted);"></i>
-      <p class="mb-0" style="color:var(--text-muted);">
+      <i class="fas fa-circle-xmark fa-2x mb-3 color-var-text-muted"></i>
+      <p class="mb-0 color-var-text-muted">
         {% trans "No results for the specified phrase in the selected categories." %}
       </p>
     </div>
@@ -116,29 +114,25 @@
       {% for item in results %}
         <a href="{{ item.url }}" class="text-decoration-none">
           <div class="card px-3 py-2 d-flex flex-row align-items-center gap-3 sr-row">
-            <span class="badge text-bg-{{ item.type_color }}"
-                  style="min-width:90px;text-align:center;flex-shrink:0;">
+            <span class="badge text-bg-{{ item.type_color }} sr-type-badge">
               {{ item.type }}
             </span>
             <div class="overflow-hidden flex-grow-1">
-              <div style="color:var(--text-primary);font-weight:500;
-                          white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              <div class="sr-title">
                 {{ item.title }}
                 {% if item.meta %}
-                  <span style="color:var(--text-muted);font-size:.73rem;font-weight:400;">
+                  <span class="text-2xs text-muted">
                     &nbsp;· {{ item.meta }}
                   </span>
                 {% endif %}
               </div>
               {% if item.description %}
-                <div style="color:var(--text-muted);font-size:.8rem;
-                            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                <div class="sr-desc">
                   {{ item.description|striptags }}
                 </div>
               {% endif %}
             </div>
-            <i class="fas fa-chevron-right"
-               style="color:var(--text-muted);font-size:.75rem;flex-shrink:0;"></i>
+            <i class="fas fa-chevron-right color-var-text-muted-font-size-75rem-flex-shrink-0"></i>
           </div>
         </a>
       {% endfor %}

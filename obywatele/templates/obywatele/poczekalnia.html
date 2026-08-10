@@ -90,11 +90,10 @@
               </td>
               <td>{% if i.email_confirmed %}<i class="fas fa-check text-success"></i>{% else %}<i class="fas fa-times text-danger"></i>{% endif %}</td>
               <td>
-                <div class="d-flex align-items-center gap-1" style="min-width:5rem;">
-                  <div class="progress flex-grow-1" style="height:6px;">
-                    <div class="progress-bar {% if i.form_completion_percent == 100 %}bg-success{% elif i.form_completion_percent >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
-                         role="progressbar"
-                         style="width:{{ i.form_completion_percent }}%"
+                <div class="d-flex align-items-center gap-1 min-width-5rem">
+                  <div class="progress flex-grow-1 height-6px">
+                    <div class="progress-bar {% if i.form_completion_percent == 100 %}bg-success{% elif i.form_completion_percent >= 50 %}bg-warning{% else %}bg-danger{% endif %} progress-fill" role="progressbar"
+                         style="--progress:{{ i.form_completion_percent }}%"
                          aria-valuenow="{{ i.form_completion_percent }}"
                          aria-valuemin="0"
                          aria-valuemax="100"></div>

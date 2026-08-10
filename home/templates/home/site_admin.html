@@ -5,17 +5,17 @@
 <div class="section">
 
   <div class="d-flex align-items-center justify-content-between gap-2 mb-4 flex-wrap">
-      <span class="section-heading" style="font-size:.9rem;">
-      <i class="fas fa-screwdriver-wrench me-2" style="color:var(--accent);opacity:.8;"></i>{% trans "Site administration and global settings" %}
+      <span class="section-heading font-size-9rem">
+      <i class="fas fa-screwdriver-wrench me-2 color-var-accent-opacity-8"></i>{% trans "Site administration and global settings" %}
     </span>
-    <span style="font-size:.72rem;color:var(--text-muted);font-family:var(--font-mono);">Wikikracja v.{{ app_version }}</span>
+    <span class="site-admin-version">Wikikracja v.{{ app_version }}</span>
   </div>
 
   {# ── QUICK LINKS ── #}
   <div class="card mb-4">
     <div class="card-header d-flex align-items-center gap-2">
-      <i class="fas fa-link" style="color:var(--accent);opacity:.8;font-size:.85rem;"></i>
-      <span class="section-heading" style="font-size:.85rem;">{% trans "Quick links" %}</span>
+      <i class="fas fa-link color-var-accent-opacity-8-font-size-85rem"></i>
+      <span class="section-heading font-size-85rem">{% trans "Quick links" %}</span>
     </div>
     <div class="card-body">
       <form method="post" id="quick-link-form" data-preserve-scroll>
@@ -24,41 +24,41 @@
         <input type="hidden" name="edit_link_id" value="" id="edit-link-id">
 
         <div class="mb-3">
-          <div class="fw-semibold mb-2" style="font-size:.875rem;">
-            <i class="fas fa-plus me-2" style="color:var(--accent);opacity:.7;"></i>
+          <div class="fw-semibold mb-2 font-size-875rem">
+            <i class="fas fa-plus me-2 color-var-accent-opacity-7"></i>
             <span id="form-title">{% trans "Add new link" %}</span>
           </div>
           <div class="d-flex gap-2 flex-wrap">
-            <input type="text" name="quick_link_title" id="quick_link_title" placeholder="{% trans 'Title' %}" class="form-control form-control-sm" style="max-width:200px;" required>
-            <input type="text" name="quick_link_url" id="quick_link_url" placeholder="{% trans 'URL' %}" class="form-control form-control-sm" style="max-width:300px;" required>
-            <input type="text" name="quick_link_icon" id="quick_link_icon" placeholder="{% trans 'Icon (e.g. fa-book)' %}" class="form-control form-control-sm" style="max-width:150px;">
-            <input type="number" name="quick_link_order" id="quick_link_order" placeholder="{% trans 'Order' %}" class="form-control form-control-sm" style="max-width:80px;" value="0">
+            <input type="text" name="quick_link_title" id="quick_link_title" placeholder="{% trans 'Title' %}" class="form-control form-control-sm mw-200" required>
+            <input type="text" name="quick_link_url" id="quick_link_url" placeholder="{% trans 'URL' %}" class="form-control form-control-sm mw-300" required>
+            <input type="text" name="quick_link_icon" id="quick_link_icon" placeholder="{% trans 'Icon (e.g. fa-book)' %}" class="form-control form-control-sm mw-150">
+            <input type="number" name="quick_link_order" id="quick_link_order" placeholder="{% trans 'Order' %}" class="form-control form-control-sm mw-80" value="0">
             <button type="submit" class="btn btn-sm btn-primary" id="submit-btn">{% trans "Add" %}</button>
-            <button type="button" class="btn btn-sm btn-secondary" id="cancel-edit-btn" style="display:none;">{% trans "Cancel" %}</button>
+            <button type="button" class="btn btn-sm btn-secondary mig-hidden" id="cancel-edit-btn">{% trans "Cancel" %}</button>
           </div>
         </div>
       </form>
 
       {% if quick_links %}
-      <div class="mt-3 pt-3" style="border-top:1px solid rgba(255,255,255,.07);">
-        <div class="fw-semibold mb-2" style="font-size:.875rem;">
-          <i class="fas fa-list me-2" style="color:var(--accent);opacity:.7;"></i>
+      <div class="mt-3 pt-3 border-top-1px-solid-rgba-255-255-255-07">
+        <div class="fw-semibold mb-2 font-size-875rem">
+          <i class="fas fa-list me-2 color-var-accent-opacity-7"></i>
           {% trans "Existing links" %}
         </div>
         <div id="quick-links-list" class="d-flex flex-column gap-2">
           {% for link in quick_links %}
-          <div class="quick-link-item d-flex align-items-center gap-2 p-2" style="background:rgba(255,255,255,.03);border-radius:4px;cursor:move;" data-link-id="{{ link.id }}" draggable="true">
-            <i class="fas fa-grip-vertical" style="color:var(--text-muted);opacity:.5;font-size:.75rem;"></i>
+          <div class="quick-link-item d-flex align-items-center gap-2 p-2" data-link-id="{{ link.id }}" draggable="true">
+            <i class="fas fa-grip-vertical color-var-text-muted-opacity-5-font-size-75rem"></i>
             {% if link.icon %}
-            <i class="fas {{ link.icon }}" style="color:var(--accent);font-size:.85rem;"></i>
+            <i class="fas {{ link.icon }} quick-link-icon"></i>
             {% endif %}
-            <span style="flex:1;font-size:.85rem;">{{ link.title }}</span>
-            <span style="font-size:.75rem;color:var(--text-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ link.url }}</span>
-            <button type="button" class="btn btn-sm btn-outline-secondary edit-link-btn" style="font-size:.72rem;padding:2px 8px;" data-link-id="{{ link.id }}" data-title="{{ link.title }}" data-url="{{ link.url }}" data-icon="{{ link.icon|default:'' }}" data-order="{{ link.order }}">{% trans "Edit" %}</button>
-            <form method="post" style="display:inline;">
+            <span class="quick-link-title">{{ link.title }}</span>
+            <span class="quick-link-url">{{ link.url }}</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary edit-link-btn quick-link-edit" data-link-id="{{ link.id }}" data-title="{{ link.title }}" data-url="{{ link.url }}" data-icon="{{ link.icon|default:'' }}" data-order="{{ link.order }}">{% trans "Edit" %}</button>
+            <form class="mig-inline" method="post">
               {% csrf_token %}
               <input type="hidden" name="delete_quick_link" value="{{ link.id }}">
-              <button type="submit" class="btn btn-sm btn-outline-danger" style="font-size:.72rem;padding:2px 8px;">{% trans "Delete" %}</button>
+              <button type="submit" class="btn btn-sm btn-outline-danger font-size-72rem-padding-2px-8px">{% trans "Delete" %}</button>
             </form>
           </div>
           {% endfor %}
@@ -173,16 +173,16 @@
   {# ── VOTE STORAGE RELIABILITY ── #}
   <div class="card mb-4">
     <div class="card-header d-flex align-items-center gap-2">
-      <i class="fas fa-shield-halved" style="color:var(--accent);opacity:.8;font-size:.85rem;"></i>
-      <span class="section-heading" style="font-size:.85rem;">{% trans "Vote storage reliability" %}</span>
+      <i class="fas fa-shield-halved color-var-accent-opacity-8-font-size-85rem"></i>
+      <span class="section-heading font-size-85rem">{% trans "Vote storage reliability" %}</span>
     </div>
     <div class="card-body">
-      <p style="font-size:.85rem;color:var(--text-muted);">
+      <p class="admin-muted">
         {% trans "While a referendum is open, votes are stored outside the main database." %}
         {% trans "This way nobody can see who voted for what, or the running result." %}
         {% trans "Votes are written to the database and counted only after the referendum closes." %}
       </p>
-      <p style="font-size:.85rem;color:var(--text-muted);">
+      <p class="admin-muted">
         {% trans "If that storage fails before the referendum closes, the votes cast so far are lost." %}
         {% trans "The system does not count a partial result in that case." %}
         {% trans "Everyone who voted is removed from the list of people who already voted." %}
@@ -192,23 +192,23 @@
       </p>
 
       {% if restarted_referendums %}
-      <div class="mt-3 pt-3" style="border-top:1px solid rgba(255,255,255,.07);">
-        <div class="fw-semibold mb-2" style="font-size:.875rem;">
-          <i class="fas fa-triangle-exclamation me-2" style="color:var(--accent);opacity:.7;"></i>
+      <div class="mt-3 pt-3 border-top-1px-solid-rgba-255-255-255-07">
+        <div class="fw-semibold mb-2 font-size-875rem">
+          <i class="fas fa-triangle-exclamation me-2 color-var-accent-opacity-7"></i>
           {% trans "Restarts so far:" %} {{ total_referendum_restarts }}
         </div>
         <div class="d-flex flex-column gap-2">
           {% for decyzja in restarted_referendums %}
-          <div class="d-flex align-items-center gap-2 p-2" style="background:rgba(255,255,255,.03);border-radius:4px;">
-            <a href="{% url 'glosowania:details' decyzja.id %}" style="flex:1;font-size:.85rem;">{{ decyzja.id }}. {{ decyzja.title }}</a>
-            <span style="font-size:.75rem;color:var(--text-muted);">{% trans "Restarts:" %} {{ decyzja.referendum_restart_count }}</span>
+          <div class="d-flex align-items-center gap-2 p-2 background-rgba-255-255-255-03-border-radius-4px">
+            <a href="{% url 'glosowania:details' decyzja.id %}" class="decision-link">{{ decyzja.id }}. {{ decyzja.title }}</a>
+            <span class="restart-count">{% trans "Restarts:" %} {{ decyzja.referendum_restart_count }}</span>
           </div>
           {% endfor %}
         </div>
       </div>
       {% else %}
-      <p style="font-size:.85rem;color:var(--text-muted);" class="mb-0">
-        <i class="fas fa-circle-check me-2" style="color:var(--accent);opacity:.7;"></i>
+      <p class="admin-muted mb-0">
+        <i class="fas fa-circle-check me-2 color-var-accent-opacity-7"></i>
         {% trans "No referendum has ever had to restart because of a vote storage failure." %}
       </p>
       {% endif %}

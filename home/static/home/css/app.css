@@ -1146,7 +1146,7 @@ hr {
   white-space: nowrap;
 }
 .post-featured-thumb {
-  width: 16.5%;
+  width: 66%;
   height: auto;
   object-fit: contain;
   object-position: top center;
@@ -1958,3 +1958,275 @@ a:hover {
 .status-dot--active   { background: var(--accent); }
 .status-dot--dormant  { background: var(--status-dormant-color); }
 .status-dot--inactive { background: var(--text-muted); opacity: .5; }
+
+
+/* === Migrated from inline style attributes === */
+/* from ankiety\templates\ankiety\survey_list.html */
+.min-width-180px {
+  min-width: 180px;
+}
+
+/* from bookkeeping\templates\bookkeeping\_report_pivot.html */
+.font-size-85rem {
+  font-size:.85rem;
+}
+
+/* from events\templates\events\event_detail.html */
+.display-flex {
+  display:flex;
+}
+
+/* from events\templates\events\event_detail.html */
+.color-var-accent {
+  color:var(--accent);
+}
+
+/* from events\templates\events\event_detail.html */
+.color-var-text-muted {
+  color:var(--text-muted);
+}
+
+/* from events\templates\events\event_detail.html */
+.margin-top-4rem {
+  margin-top:.4rem;
+}
+
+/* from events\templates\events\event_detail.html */
+.margin-top-1rem {
+  margin-top:1rem;
+}
+
+/* from events\templates\events\event_form.html */
+.display-block-cursor-default {
+  display:block;cursor:default;
+}
+
+/* from glosowania\templates\glosowania\historia.html */
+.font-size-95rem {
+  font-size:.95rem;
+}
+
+/* from glosowania\templates\glosowania\historia.html */
+.color-var-text-muted-font-size-85rem {
+  color:var(--text-muted);font-size:.85rem;
+}
+
+/* from glosowania\templates\glosowania\historia.html */
+.border-color-00bc8c {
+  border-color:#00bc8c;
+}
+
+/* from glosowania\templates\glosowania\szczegoly.html */
+.font-size-82rem {
+  font-size:.82rem;
+}
+
+/* from glosowania\templates\glosowania\szczegoly.html */
+.font-size-1rem-color-var-text-primary-line-hei {
+  font-size:1rem;color:var(--text-primary);line-height:1.35;
+}
+
+/* from glosowania\templates\glosowania\szczegoly.html */
+.color-var-text-muted-font-size-78rem {
+  color:var(--text-muted);font-size:.78rem;
+}
+
+/* from glosowania\templates\glosowania\szczegoly.html */
+.font-size-78rem-color-var-text-muted {
+  font-size:.78rem;color:var(--text-muted);
+}
+
+/* from glosowania\templates\glosowania\szczegoly.html */
+.color-00bc8c {
+  color:#00bc8c;
+}
+
+/* from glosowania\templates\glosowania\szczegoly.html */
+.font-size-72rem {
+  font-size:.72rem;
+}
+
+/* from glosowania\templates\glosowania\szczegoly.html */
+.color-var-accent-font-size-85rem {
+  color:var(--accent);font-size:.85rem;
+}
+
+/* from home\templates\home\activity.html */
+.flex-wrap-wrap {
+  flex-wrap:wrap;
+}
+
+/* from home\templates\home\activity.html */
+.flex-wrap-wrap-gap-35rem {
+  flex-wrap:wrap;gap:.35rem;
+}
+
+/* from home\templates\home\activity.html */
+.color-60a5fa-border-color-rgba-96-165-250-35 {
+  color:#60a5fa;border-color:rgba(96,165,250,.35);
+}
+
+/* from home\templates\home\activity.html */
+.color-var-text-muted-opacity-35 {
+  color:var(--text-muted);opacity:.35;
+}
+
+/* from home\templates\home\base.html */
+.border-radius-0 {
+  border-radius:0;
+}
+
+/* from home\templates\home\base.html */
+.color-var-text-muted-font-size-0-78rem {
+  color:var(--text-muted);font-size:0.78rem;
+}
+
+/* from home\templates\home\base.html */
+.display-none-position-fixed-inset-0-background {
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99;
+}
+
+/* from home\templates\home\search.html */
+.color-var-text-primary {
+  color:var(--text-primary);
+}
+
+/* from home\templates\home\search.html */
+.background-var-accent-muted-color-var-accent-f {
+  background:var(--accent-muted);color:var(--accent);font-size:.8rem;padding:.4rem .75rem;
+}
+
+/* from home\templates\home\search.html */
+.background-var-accent-color-111-border-none {
+  background:var(--accent);color:#111;border:none;
+}
+
+/* from home\templates\home\search.html */
+.color-var-text-muted-font-size-75rem-flex-shrink-0 {
+  color:var(--text-muted);font-size:.75rem;flex-shrink:0;
+}
+
+/* from home\templates\home\site_admin.html */
+.font-size-9rem {
+  font-size:.9rem;
+}
+
+/* from home\templates\home\site_admin.html */
+.color-var-accent-opacity-8 {
+  color:var(--accent);opacity:.8;
+}
+
+/* from home\templates\home\site_admin.html */
+.color-var-accent-opacity-8-font-size-85rem {
+  color:var(--accent);opacity:.8;font-size:.85rem;
+}
+
+/* from home\templates\home\site_admin.html */
+.font-size-875rem {
+  font-size:.875rem;
+}
+
+/* from home\templates\home\site_admin.html */
+.color-var-accent-opacity-7 {
+  color:var(--accent);opacity:.7;
+}
+
+/* from home\templates\home\site_admin.html */
+.border-top-1px-solid-rgba-255-255-255-07 {
+  border-top:1px solid rgba(255,255,255,.07);
+}
+
+/* from home\templates\home\site_admin.html */
+.color-var-text-muted-opacity-5-font-size-75rem {
+  color:var(--text-muted);opacity:.5;font-size:.75rem;
+}
+
+/* from home\templates\home\site_admin.html */
+.font-size-72rem-padding-2px-8px {
+  font-size:.72rem;padding:2px 8px;
+}
+
+/* from home\templates\home\site_admin.html */
+.background-rgba-255-255-255-03-border-radius-4px {
+  background:rgba(255,255,255,.03);border-radius:4px;
+}
+
+/* from obywatele\templates\obywatele\my_profile.html */
+.max-width-640px {
+  max-width:640px;
+}
+
+/* from obywatele\templates\obywatele\my_profile.html */
+.position-relative-width-64px-height-64px-curso {
+  position:relative;width:64px;height:64px;cursor:pointer;
+}
+
+/* from obywatele\templates\obywatele\my_profile.html */
+.width-64px-height-64px-border-radius-50-backgr {
+  width:64px;height:64px;border-radius:50%;background:var(--accent-muted);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;
+}
+
+/* from obywatele\templates\obywatele\my_profile.html */
+.font-size-1-4rem-color-var-accent {
+  font-size:1.4rem;color:var(--accent);
+}
+
+/* from obywatele\templates\obywatele\my_profile.html */
+.position-absolute-inset-0-border-radius-50-bac {
+  position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;
+}
+
+/* from obywatele\templates\obywatele\my_profile.html */
+.color-fff-font-size-1-1rem {
+  color:#fff;font-size:1.1rem;
+}
+
+/* from obywatele\templates\obywatele\my_profile.html */
+.border-color-var-bs-danger-important {
+  border-color:var(--bs-danger)!important;
+}
+
+/* from obywatele\templates\obywatele\my_profile.html */
+.font-size-9rem-color-var-text-muted {
+  font-size:.9rem;color:var(--text-muted);
+}
+
+/* from obywatele\templates\obywatele\poczekalnia.html */
+.min-width-5rem {
+  min-width:5rem;
+}
+
+/* from obywatele\templates\obywatele\poczekalnia.html */
+.height-6px {
+  height:6px;
+}
+
+/* from obywatele\templates\obywatele\szczegoly.html */
+.width-56px-height-56px-font-size-1-4rem-backgr {
+  width:56px;height:56px;font-size:1.4rem;background:var(--color-accent);flex-shrink:0;
+}
+
+/* from obywatele\templates\obywatele\szczegoly.html */
+.height-8px {
+  height:8px;
+}
+
+/* from obywatele\templates\obywatele\szczegoly.html */
+.min-width-3rem {
+  min-width:3rem;
+}
+
+/* from obywatele\templates\obywatele\szczegoly.html */
+.width-30 {
+  width: 30%;
+}
+
+/* from tasks\templates\tasks\task_help.html */
+.max-width-680px {
+  max-width:680px;
+}
+
+/* from tasks\templates\tasks\task_help.html */
+.font-size-88rem {
+  font-size:.88rem;
+}

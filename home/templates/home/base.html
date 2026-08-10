@@ -70,10 +70,10 @@
 
     <!-- Logo -->
     <div class="sidebar-logo">
-      <a href="{% url 'home' %}" style="text-decoration:none;">
+      <a href="{% url 'home' %}" class="text-decoration-none">
         <span class="logo-title">{% include 'home/_brand_mark.html' %}<span class="logo-label ms-1">{{ site_name }}</span></span>
       </a>
-      <a href="{% url 'site_admin' %}" style="text-decoration:none;"><span class="logo-sub">Wikikracja v.{{ app_version }}</span></a>
+      <a href="{% url 'site_admin' %}" class="text-decoration-none"><span class="logo-sub">Wikikracja v.{{ app_version }}</span></a>
     </div>
 
     <!-- Main navigation -->
@@ -185,12 +185,11 @@
     </div>
 
     <!-- User card -->
-    <a href="{% url 'obywatele:obywatele_szczegoly' pk=user.pk %}" class="sidebar-user"
-       style="text-decoration:none;transition:background .15s;"
+    <a href="{% url 'obywatele:obywatele_szczegoly' pk=user.pk %}" class="sidebar-user nav-link-clean"
        onmouseover="this.style.background='var(--accent-muted)'"
        onmouseout="this.style.background=''">
       {% if user.uzytkownik.avatar %}
-      <img class="user-avatar" src="{{ user.uzytkownik.avatar.url }}" alt="avatar" style="object-fit:cover;">
+      <img class="user-avatar sidebar-avatar" src="{{ user.uzytkownik.avatar.url }}" alt="avatar">
       {% else %}
       <div class="user-avatar">{{ user.username|slice:":2"|upper }}</div>
       {% endif %}
@@ -246,15 +245,13 @@
       <!-- Search (always searches everywhere) -->
       <div class="d-none d-sm-block" id="topbar-search-wrapper">
         <form method="get" action="{% url 'search' %}" id="topbar-search-form" autocomplete="off">
-          <div style="display:flex;gap:.35rem;align-items:center;">
+          <div class="quick-links-wrapper">
             <input type="search" name="q" id="topbar-q" class="search-box"
                    value="{{ request.GET.q|default:'' }}"
                    placeholder="{% trans 'Search' %}…" aria-label="{% trans 'Search' %}">
             <button type="submit"
                     title="{% trans 'Search' %}"
-                    style="background:transparent;border:1px solid var(--border);border-radius:.4rem;
-                           padding:.36rem .55rem;cursor:pointer;color:var(--text-muted);
-                           transition:color .15s,border-color .15s;flex-shrink:0;">
+                    class="search-submit-btn">
               <i class="fas fa-magnifying-glass"></i>
             </button>
           </div>
@@ -267,9 +264,8 @@
       </a>
 
       <!-- Theme toggle -->
-      <button id="theme-toggle-btn" class="notif-bell"
-              title="{% trans 'Toggle light / dark mode' %}"
-              style="background:none;border:none;cursor:pointer;">
+      <button id="theme-toggle-btn" class="notif-bell btn-icon-clean"
+              title="{% trans 'Toggle light / dark mode' %}">
         <i id="theme-toggle-icon" class="fas fa-circle-half-stroke"></i>
       </button>
 
@@ -286,7 +282,7 @@
     <!-- Minimal top bar for unauthenticated users -->
     <nav class="topbar">
       <div class="topbar-breadcrumb">
-        <a href="{% url 'home' %}" style="color:var(--accent);font-weight:700;font-size:1rem;">
+        <a href="{% url 'home' %}" class="text-accent fw-bold fs-6">
           <i class="fas fa-building-columns me-1"></i>{{ site_name }}
         </a>
       </div>
@@ -306,9 +302,8 @@
         </a>
       </div>
       {% include 'home/_language_switcher.html' %}
-      <button id="theme-toggle-btn" class="notif-bell"
-              title="{% trans 'Toggle light / dark mode' %}"
-              style="background:none;border:none;cursor:pointer;">
+      <button id="theme-toggle-btn" class="notif-bell btn-icon-clean"
+              title="{% trans 'Toggle light / dark mode' %}">
         <i id="theme-toggle-icon" class="fas fa-circle-half-stroke"></i>
       </button>
       <a href="{% url 'login' %}" class="btn btn-sm btn-outline-secondary me-1">{% trans "Login" %}</a>
@@ -319,7 +314,7 @@
     <!-- Global notification permission banner -->
     {% if user.is_authenticated %}
     <div class="notif-banner-wrap">
-      <div id="notification-permission-banner" class="alert alert-info m-0 text-center" style="border-radius:0;">
+      <div id="notification-permission-banner" class="alert alert-info m-0 text-center border-radius-0">
         <i class="far fa-bell-slash"></i>
         <span id="notification-banner-message">{% trans "Enable notifications to stay updated with new messages and activities" %}</span>
         <button type="button" class="btn btn-sm btn-primary mx-2" id="enable-notifications-global">
@@ -331,7 +326,7 @@
       </div>
     </div>
     <div class="notif-banner-wrap">
-      <div id="notification-blocked-banner" class="alert alert-warning m-0 text-center" style="border-radius:0;">
+      <div id="notification-blocked-banner" class="alert alert-warning m-0 text-center border-radius-0">
         <i class="fas fa-exclamation-triangle"></i>
         <span>{% trans "Notifications are blocked. Please enable them in your browser settings" %}</span>
         <button type="button" class="btn btn-sm btn-secondary mx-2" id="dismiss-blocked-banner">
@@ -395,7 +390,7 @@
     </main>
 
     {% if request.resolver_match.namespace != 'chat' %}
-    <footer class="px-4 pb-3 mt-auto" style="color:var(--text-muted);font-size:0.78rem;">{{ footer.text|safe }}</footer>
+    <footer class="px-4 pb-3 mt-auto color-var-text-muted-font-size-0-78rem">{{ footer.text|safe }}</footer>
     {% endif %}
 
   </div>
@@ -403,8 +398,7 @@
 
 </div>
 
-<div id="sidebar-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99;"
-  onclick="document.getElementById('sidebar').classList.remove('sidebar-open');this.style.display='none';">
+<div class="display-none-position-fixed-inset-0-background" id="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('sidebar-open');this.style.display='none';">
 </div>
 
 {% block extra_body %}{% endblock %}

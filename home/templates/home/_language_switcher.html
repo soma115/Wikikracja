@@ -7,9 +7,8 @@ django_language cookie. Active language is highlighted via get_current_language,
 so it works without a user profile.
 {% endcomment %}
 <div class="dropdown">
-  <button class="notif-bell" type="button" data-bs-toggle="dropdown" aria-expanded="false"
-          title="{% trans 'Change language' %}"
-          style="background:none;border:none;cursor:pointer;">
+  <button class="notif-bell btn-icon-clean" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+          title="{% trans 'Change language' %}">
     <i class="fas fa-globe"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">

@@ -21,7 +21,7 @@
 
   {% if post.featured_image %}
   <div class="post-featured-image mb-3">
-    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" style="width:66%;max-height:400px;object-fit:contain;border-radius:4px;display:block;margin:0 auto;">
+    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
   </div>
   {% endif %}
 
@@ -38,7 +38,7 @@
         <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}">
           <i class="fas fa-paperclip me-2"></i>{{ attachment.filename }}
         </a>
-        <span class="text-muted" style="font-size:.8rem;">{{ attachment.uploaded_at|date:"Y-m-d H:i" }}</span>
+        <span class="text-muted attachment-uploaded-at">{{ attachment.uploaded_at|date:"Y-m-d H:i" }}</span>
       </li>
       {% endfor %}
     </ul>
