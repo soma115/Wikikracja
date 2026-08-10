@@ -1146,7 +1146,7 @@ hr {
   white-space: nowrap;
 }
 .post-featured-thumb {
-  width: 66%;
+  width: 16.5%;
   height: auto;
   object-fit: contain;
   object-position: top center;
@@ -1155,7 +1155,7 @@ hr {
   margin: 0 auto;
 }
 .post-featured-card-img {
-  width: 100%;
+  width: 25%;
   height: auto;
   object-fit: contain;
   object-position: top center;
