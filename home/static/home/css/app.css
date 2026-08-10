@@ -1162,6 +1162,7 @@ hr {
   margin: 0 auto;
 }
 .post-featured-card-img {
+  width: 95%;
   height: auto;
   object-fit: contain;
   object-position: top center;
