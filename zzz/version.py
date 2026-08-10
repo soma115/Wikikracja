@@ -28,14 +28,7 @@ def get_short_sha(fallback: str = "unknown") -> str:
         return sha
 
     try:
-        result = subprocess.run(
-            ["git", "rev-parse", "--short", "HEAD"],
-            cwd=_repo_root(),
-            capture_output=True,
-            text=True,
-            check=True,
-            timeout=5,
-        )
+        result = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=_repo_root(), capture_output=True, text=True, check=True, timeout=5)
         return result.stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError, OSError, subprocess.TimeoutExpired) as exc:
         log.debug("Unable to determine short SHA: %s", exc)
