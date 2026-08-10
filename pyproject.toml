@@ -1,6 +1,6 @@
 [project]
 name = "wikikracja"
-version = "1.5.0"
+version = "0.0.0"
 requires-python = ">= 3.14"
 
 [tool.ruff]
@@ -163,14 +163,6 @@ ignore_patterns = [
   "temp/**/*.py",
   "legacy/*.py"
 ]
-
-[tool.semantic_release]
-version_toml = ["pyproject.toml:project.version"]
-version_variables = ["zzz/__init__.py:__version__"]
-branch = "main"
-upload_to_pypi = false
-upload_to_release = true
-build_command = ""
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "zzz.test_settings"

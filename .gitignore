@@ -76,3 +76,7 @@ data/*
 firebase-service-account.json
 /locale/en/LC_MESSAGES/django.mo
 /locale/pl/LC_MESSAGES/django.mo
+
+# Build-time SHA injected by CI (never commit this)
+BUILD_SHA
+
