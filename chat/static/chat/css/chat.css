@@ -33,11 +33,7 @@ body:has(.chat-rooms) {
     height: 100dvh;
     overflow: hidden;
 }
-body:has(.chat-rooms) .layout-wrapper {
-    min-height: 0;
-    height: 100%;
-    overflow: hidden;
-}
+body:has(.chat-rooms) .layout-wrapper,
 body:has(.chat-rooms) .main-area {
     min-height: 0;
     height: 100%;
@@ -160,7 +156,8 @@ body:has(.chat-rooms) .main-area {
     justify-content: space-between;
     align-items: center;
 }
-.message-header-left {
+.message-header-left,
+.message-header-right {
     display: flex;
     align-items: center;
     gap: 0.1rem;
@@ -205,11 +202,6 @@ body:has(.chat-rooms) .main-area {
     gap: 0.25rem;
     flex: 1;
     justify-content: center;
-}
-.message-header-right {
-    display: flex;
-    align-items: center;
-    gap: 0.1rem;
 }
 .message .message-content .message-header .message-header-left .message-timestamp {
     display: inline-flex;
@@ -479,7 +471,9 @@ body:has(.chat-rooms) .main-area {
     border-top: 1px solid var(--border);
     background-color: var(--bg-card);
 }
-.compose-bar-left {
+.compose-bar-left,
+.msg-reactions-group,
+.nav-cat-header {
     display: flex;
     align-items: center;
     gap: .2rem;
@@ -742,11 +736,6 @@ body:has(.chat-rooms) .main-area {
     flex-shrink: 0;
 }
 /* Emoji reactions (💡 ❓) */
-.msg-reactions-group {
-    display: flex;
-    align-items: center;
-    gap: .2rem;
-}
 .reaction-btn {
     display: inline-flex;
     align-items: center;
@@ -921,11 +910,6 @@ body:has(.chat-rooms) .main-area {
 .nav-category {
     margin-bottom: .1rem;
 }
-.nav-cat-header {
-    display: flex;
-    align-items: center;
-    gap: .2rem;
-}
 .nav-cat-btn {
     flex: 1;
     min-width: 0;
@@ -959,7 +943,8 @@ body:has(.chat-rooms) .main-area {
     transform: rotate(-90deg);
 }
 /* Collapse/expand container — NO display:none */
-.nav-cat-content {
+.nav-cat-content,
+.nav-item-threads {
     overflow: hidden;
     max-height: 0;
     transition: max-height 250ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -989,7 +974,8 @@ body:has(.chat-rooms) .main-area {
 .nav-item-btn:hover {
     background: var(--color-surface-offset);
 }
-.nav-item-label {
+.nav-item-label,
+.nav-thread-label {
     flex: 1;
     min-width: 0;
     white-space: nowrap;
@@ -997,11 +983,6 @@ body:has(.chat-rooms) .main-area {
     text-overflow: ellipsis;
 }
 /* L2 — Thread container */
-.nav-item-threads {
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 250ms cubic-bezier(0.16, 1, 0.3, 1);
-}
 .nav-item-threads.open {
     max-height: 500px;
 }
@@ -1027,13 +1008,6 @@ body:has(.chat-rooms) .main-area {
     background: var(--color-primary-highlight);
     border-left-color: var(--color-primary);
     font-weight: 500;
-}
-.nav-thread-label {
-    flex: 1;
-    min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 /* Status indicators (right side of any node) */
 .nav-status {
@@ -1098,12 +1072,8 @@ body:has(.chat-rooms) .main-area {
     font-size: .85rem;
     overflow: hidden;
 }
-.room-link__avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.room-link__status {
+.room-link__status,
+.room-link__actions {
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -1127,10 +1097,6 @@ body:has(.chat-rooms) .main-area {
     font-size: .7rem;
     color: var(--color-text-muted);
     white-space: nowrap;
-}
-.room-link.room-not-seen .room-link__date {
-    color: var(--accent);
-    font-weight: 500;
 }
 .room-link__preview {
     font-size: .75rem;
@@ -1173,7 +1139,8 @@ body:has(.chat-rooms) .main-area {
     color: var(--bg-base);
     border-color: var(--color-primary);
 }
-#unread-filter-btn.active:hover {
+#unread-filter-btn.active:hover,
+.chat-no-unread-inline-btn:hover {
     background-color: var(--accent-hover);
     color: var(--bg-base);
     border-color: var(--accent-hover);
@@ -1212,11 +1179,6 @@ body:has(.chat-rooms) .main-area {
 .room-link.room-not-seen .room-name {
     font-weight: 600;
     color: var(--color-text);
-}
-.room-link__actions {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
 }
 .room-link__chevron {
     background: transparent;
@@ -1635,11 +1597,6 @@ body:has(.chat-rooms) .main-area {
     cursor: pointer;
     vertical-align: middle;
     transition: background-color var(--transition-fast), border-color var(--transition-fast);
-}
-.chat-no-unread-inline-btn:hover {
-    background-color: var(--accent-hover);
-    border-color: var(--accent-hover);
-    color: var(--bg-base);
 }
 .chat-no-unread-inline-btn:focus-visible {
     outline: 2px solid var(--accent);
