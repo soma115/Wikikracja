@@ -147,24 +147,13 @@ Istnieje możliwość polecenia nowej osoby przez istniejącego obywatela:
 
 ## Konfiguracja
 
-Kluczowe ustawienia w pliku `.env`:
+Parametry członkostwa (`ACCEPTANCE`, `DELETE_INACTIVE_USER_AFTER`) oraz pozostałe parametry systemu są zarządzane przez referendum. Szczegółowy opis dla użytkowników znajduje się w [Glosowanie_nad_parametrami_systemu-dla_uzytkownikow.md](Glosowanie_nad_parametrami_systemu-dla_uzytkownikow.md), a opis techniczny w [Glosowanie_nad_parametrami_systemu-dla_developerow.md](Glosowanie_nad_parametrami_systemu-dla_developerow.md).
+
+Podstawowa konfiguracja SMTP i zmiennych środowiskowych (`EMAIL_*`, `SECRET_KEY`, `REDIS_HOST` itp.) opisana jest w [DEPLOYMENT_INSTRUCTIONS.md](DEPLOYMENT_INSTRUCTIONS.md).
+
+Ustawienie specyficzne dla onboarding:
 
 ```bash
-# Liczba wymaganych akceptacji (domyślnie 3)
-ACCEPTANCE=3
-
-# Maksymalny czas w poczekalni w dniach (domyślnie 30)
-DELETE_INACTIVE_USER_AFTER=30
-
-# Ustawienia email
-EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-EMAIL_HOST=smtp.example.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=your-email@example.com
-EMAIL_HOST_PASSWORD=your-password
-DEFAULT_FROM_EMAIL=noreply@yourdomain.com
-
 # Opóźnienie wysyłania email w sekundach (dla uniknięcia race conditions)
 EMAIL_SEND_DELAY_SECONDS=2
 ```

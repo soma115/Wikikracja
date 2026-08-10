@@ -4,6 +4,8 @@
 
 Wprowadzono kompleksowy system zarządzania parametrami systemowymi przez referendum. Parametry, które wcześniej były zahardcodowane w `settings.py`, są teraz przechowywane w bazie danych i mogą być zmieniane przez społeczność poprzez głosowanie.
 
+Opis poszczególnych parametrów dla użytkowników końcowych znajduje się w [Glosowanie_nad_parametrami_systemu-dla_uzytkownikow.md](Glosowanie_nad_parametrami_systemu-dla_uzytkownikow.md). Ten dokument opisuje implementację.
+
 ## Główne komponenty
 
 ### 1. Model `SiteParameters` (singleton)

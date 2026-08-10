@@ -1,6 +1,42 @@
 # CHANGELOG
 
 
+## v1.6.0 (2026-08-10)
+
+### Features
+
+- **polls**: Add poll/survey module with live countdown, stopwatch icon and voting results view.
+- **site parameters**: Move system parameters from `settings.py` to the database with a referendum-based management interface.
+- **notifications**: Reintroduce Firebase Cloud Messaging (FCM) push notifications with debounce, delivery acknowledgements and mobile (Android/iOS) event reminders.
+- **assets**: Add asset/resource view with filtering, searching and configurable columns.
+- **onboarding**: Replace onboarding with Quick Links dashboard supporting drag-and-drop and localStorage.
+- **chat**: Auto-save message drafts, Enter / Ctrl+Enter to send, persistent unread filter, per-row read/unread toggle and chat tile on dashboard.
+- **voting**: Rich-text character counter, better handling of cached votes, `Status.IntegerChoices` for decision status, restart referendum on lost cached votes and delayed vote saving.
+- **board**: Add post slug field with SEO-friendly URLs and featured image size handling.
+- **email**: Queue individual emails, order email sections, catch/deliver errors and improve test coverage.
+- **search**: Add global search.
+- **users**: Auto-verify emails for invited users, add Voivodeship/Country fields and clean up profile form.
+- **decisions**: Add version history with diff visualization.
+
+### Bug Fixes
+
+- Fix missing `verified=True` on `account_emailaddress` records.
+- Fix "account not found" signup issue.
+- Fix demo environment issue.
+- Suppress `asyncio.CancelledError` logs from ASGI disconnects.
+- Fix 301 redirect for email login links.
+- Fix chat room sorting case-insensitivity.
+- Fix lost newline formatting in voting descriptions.
+
+### Refactor
+
+- Consolidate CSS variables and utility classes, remove inline styles and unused themes.
+- Refactor dashboard tiles and top navigation.
+- Remove custom login template, redirect to allauth default.
+- Remove unused admin sections.
+- Update docs and changelog.
+
+
 ## v1.5.0 (2026-06-10)
 
 ### Bug Fixes
