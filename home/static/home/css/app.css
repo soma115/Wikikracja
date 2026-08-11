@@ -35,7 +35,7 @@
   --accent-glow: rgba(0, 209, 178, .35);
   --color-accent: #00d1b2;
   --text-primary: #e8eaf0;
-  --text-muted: rgba(232, 234, 240, .55);
+  --text-muted: rgb(232, 234, 240);
   --border: rgba(255, 255, 255, .08);
   --btn-glass-bg: rgba(255, 255, 255, .06);
   --btn-glass-border: rgba(255, 255, 255, .12);
@@ -68,7 +68,7 @@
   --accent-glow: rgba(5, 153, 132, .3);
   --color-accent: #059984;
   --text-primary: #1e2030;
-  --text-muted: rgba(30, 32, 48, .5);
+  --text-muted: rgb(48, 30, 30);
   --border: rgba(0, 0, 0, .1);
   --btn-glass-bg: rgba(0, 0, 0, .04);
   --btn-glass-border: rgba(0, 0, 0, .14);
