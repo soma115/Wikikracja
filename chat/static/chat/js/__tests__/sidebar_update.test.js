@@ -21,6 +21,25 @@ function updateSidebarForMessage(msg, {reorder = true, bumpActivity = reorder} =
     const roomLink = document.querySelector(`.room-link[data-room-id="${msg.room_id}"]`);
     if (!roomLink) return;
 
+    // Pull the room out of archive as soon as a new message arrives.
+    // `new` is true for other users; for the sender `new` is false and `own` is true.
+    if ((msg.new || msg.own) && roomLink.dataset.roomArchived === 'true') {
+        roomLink.dataset.roomArchived = 'false';
+        if (msg.own) {
+            roomLink.classList.remove('room-not-seen');
+        } else {
+            roomLink.classList.add('room-not-seen');
+        }
+        const statusEl = roomLink.querySelector('.room-link__status');
+        if (statusEl) {
+            if (msg.own) {
+                statusEl.innerHTML = '<span class="nav-status nav-status--read" aria-hidden="true"></span>';
+            } else {
+                statusEl.innerHTML = '<span class="nav-status nav-status--unread" aria-label="' + _('Unread') + '"></span>';
+            }
+        }
+    }
+
     if (bumpActivity) {
         roomLink.dataset.lastActivity = Math.floor(msg.timestamp / 1000);
         const dateEl = roomLink.querySelector('.room-link__date');
@@ -28,7 +47,7 @@ function updateSidebarForMessage(msg, {reorder = true, bumpActivity = reorder} =
     }
 
     const senderEl = roomLink.querySelector('.room-link__sender');
-    if (senderEl) senderEl.textContent = (msg.anonymous ? _('Anonymous') : (msg.username || '—')) + ':';
+    if (senderEl) senderEl.textContent = (msg.username || '—') + ':';
 
     const snippetEl = roomLink.querySelector('.room-link__snippet');
     if (snippetEl) {
@@ -47,11 +66,16 @@ function updateSidebarForMessage(msg, {reorder = true, bumpActivity = reorder} =
 }
 
 // ── helpers ────────────────────────────────────────────────────────────────
-function makeRoomLink(roomId, snippetText = 'old text') {
+function makeRoomLink(roomId, snippetText = 'old text', archived = false) {
     const div = document.createElement('div');
     div.className = 'room-link';
     div.dataset.roomId = String(roomId);
+    div.dataset.roomArchived = archived ? 'true' : 'false';
+    const statusIcon = archived
+        ? '<i class="fas fa-lock nav-status nav-status--locked" aria-hidden="true"></i>'
+        : '<span class="nav-status nav-status--read" aria-hidden="true"></span>';
     div.innerHTML = `
+        <div class="room-link__status">${statusIcon}</div>
         <span class="room-link__date">yesterday</span>
         <span class="room-link__sender">Alice:</span>
         <span class="room-link__snippet">${snippetText}</span>
@@ -59,8 +83,8 @@ function makeRoomLink(roomId, snippetText = 'old text') {
     return div;
 }
 
-function makeMsg(roomId, text = 'new text') {
-    return { room_id: roomId, username: 'Bob', anonymous: false, message: text, timestamp: Date.now() };
+function makeMsg(roomId, text = 'new text', {new: isNew = true, own = false, username = 'Bob'} = {}) {
+    return { room_id: roomId, username, message: text, timestamp: Date.now(), new: isNew, own };
 }
 
 // ── testy ──────────────────────────────────────────────────────────────────
@@ -125,5 +149,61 @@ describe('updateSidebarForMessage', () => {
 
     test('brak rooma w DOM: nie rzuca', () => {
         expect(() => updateSidebarForMessage(makeMsg(999))).not.toThrow();
+    });
+
+    test('zarchiwizowany pokój wraca do aktywnych po nowej wiadomości', () => {
+        document.body.innerHTML = `
+            <div class="nav-cat-content" id="cat-public">
+                <p class="text-muted text-center small">None</p>
+                <div class="archive-section visible" id="content-pub-rooms-archive"></div>
+            </div>
+        `;
+        const cat = document.getElementById('cat-public');
+        const archive = document.getElementById('content-pub-rooms-archive');
+        const room = makeRoomLink(1, 'old text', true);
+        archive.appendChild(room);
+
+        updateSidebarForMessage(makeMsg(1, 'nowy tekst', { new: true, own: false }));
+
+        expect(room.dataset.roomArchived).toBe('false');
+        expect(room.closest('.archive-section')).toBeNull();
+        expect(cat.firstElementChild).toBe(room);
+        expect(room.querySelector('.nav-status--unread')).not.toBeNull();
+        expect(room.classList.contains('room-not-seen')).toBe(true);
+    });
+
+    test('nowa własna wiadomość w archiwum pokazuje ikonę przeczytanej', () => {
+        document.body.innerHTML = `
+            <div class="nav-cat-content" id="cat-public">
+                <div class="archive-section visible" id="content-pub-rooms-archive"></div>
+            </div>
+        `;
+        const archive = document.getElementById('content-pub-rooms-archive');
+        const room = makeRoomLink(2, 'old text', true);
+        archive.appendChild(room);
+
+        // Serwer dla nadawcy ustawia new=false, own=true.
+        updateSidebarForMessage(makeMsg(2, 'nowy tekst', { new: false, own: true }));
+
+        expect(room.dataset.roomArchived).toBe('false');
+        expect(room.querySelector('.nav-status--read')).not.toBeNull();
+        expect(room.classList.contains('room-not-seen')).toBe(false);
+    });
+
+    test('edycja nie wyjmuje pokoju z archiwum', () => {
+        document.body.innerHTML = `
+            <div class="nav-cat-content" id="cat-public">
+                <div class="archive-section visible" id="content-pub-rooms-archive"></div>
+            </div>
+        `;
+        const archive = document.getElementById('content-pub-rooms-archive');
+        const room = makeRoomLink(3, 'old text', true);
+        archive.appendChild(room);
+
+        updateSidebarForMessage(makeMsg(3, 'edytowana tresc', { new: false }), { reorder: false });
+
+        expect(room.dataset.roomArchived).toBe('true');
+        expect(room.closest('.archive-section')).toBe(archive);
+        expect(room.querySelector('.nav-status--locked')).not.toBeNull();
     });
 });

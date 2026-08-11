@@ -28,6 +28,7 @@ def _sync_room_last_message(sender, instance, created, **kwargs):
             last_message_at=instance.time,
             last_message_anonymous=instance.anonymous,
             last_activity=Greatest(F('last_activity'), instance.time),
+            archived=False,
         )
     else:
         # Na edycji: interesuje nas tylko zmiana tekstu.

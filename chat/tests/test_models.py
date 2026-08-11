@@ -163,6 +163,13 @@ class RoomLastMessageSignalTest(TestCase):
         self.room.refresh_from_db()
         self.assertEqual(self.room.last_message_at, msg.time)
 
+    def test_creating_message_unarchives_room(self):
+        self.room.archived = True
+        self.room.save(update_fields=['archived'])
+        Message.objects.create(sender=self.user, room=self.room, text="Hi")
+        self.room.refresh_from_db()
+        self.assertFalse(self.room.archived)
+
     def test_creating_message_updates_last_message_text(self):
         Message.objects.create(sender=self.user, room=self.room, text="Hello world")
         self.room.refresh_from_db()

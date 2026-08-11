@@ -520,6 +520,25 @@ export default class DomApi {
         const roomLink = document.querySelector(`.room-link[data-room-id="${msg.room_id}"]`);
         if (!roomLink) return;
 
+        // Pull the room out of archive as soon as a new message arrives.
+        // `new` is true for other users; for the sender `new` is false and `own` is true.
+        if ((msg.new || msg.own) && roomLink.dataset.roomArchived === 'true') {
+            roomLink.dataset.roomArchived = 'false';
+            if (msg.own) {
+                roomLink.classList.remove('room-not-seen');
+            } else {
+                roomLink.classList.add('room-not-seen');
+            }
+            const statusEl = roomLink.querySelector('.room-link__status');
+            if (statusEl) {
+                if (msg.own) {
+                    statusEl.innerHTML = '<span class="nav-status nav-status--read" aria-hidden="true"></span>';
+                } else {
+                    statusEl.innerHTML = '<span class="nav-status nav-status--unread" aria-label="' + _('Unread') + '"></span>';
+                }
+            }
+        }
+
         if (bumpActivity) {
             roomLink.dataset.lastActivity = Math.floor(msg.timestamp / 1000);
             const dateEl = roomLink.querySelector('.room-link__date');

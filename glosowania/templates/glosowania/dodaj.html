@@ -8,6 +8,15 @@
 
 {% block glosowania %}
 <h2>{% trans 'Add new law proposal' %}</h2>
+
+<p>
+  <div class="text-center">
+    <div class="alert alert-warning">
+      {% trans 'Note: The regulations should be formulated in their final wording.' %}
+    </div>
+  </div>
+</p>
+
 <form action="." method="POST" class="post-form" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
     {% csrf_token %}
     <div class="row">

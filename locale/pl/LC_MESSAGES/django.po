@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-10 16:08+0200\n"
+"POT-Creation-Date: 2026-08-10 21:45+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -262,17 +262,15 @@ msgid "No options."
 msgstr "Brak opcji."
 
 #: .\ankiety\templates\ankiety\survey_detail.html:129
-#, fuzzy
-#| msgid "Votes"
 msgid "Voters"
-msgstr "Głosy"
+msgstr "Głosujący"
 
 #: .\ankiety\templates\ankiety\survey_detail.html:143
 #: .\ankiety\templates\ankiety\survey_form.html:58
 #: .\board\templates\board\post_detail.html:10
 #: .\board\templates\board\post_detail.html:55
 #: .\chat\templates\chat\add.html:16
-#: .\glosowania\templates\glosowania\dodaj.html:39
+#: .\glosowania\templates\glosowania\dodaj.html:48
 #: .\glosowania\templates\glosowania\edit.html:23
 #: .\glosowania\templates\glosowania\historia.html:72
 #: .\glosowania\templates\glosowania\parameters_propose.html:50
@@ -297,7 +295,7 @@ msgstr "Dodaj ankietę"
 #: .\bookkeeping\forms.py:36 .\bookkeeping\forms.py:50
 #: .\bookkeeping\forms.py:80 .\chat\templates\chat\add.html:15
 #: .\chat\templates\chat\chat.html:210
-#: .\glosowania\templates\glosowania\dodaj.html:38
+#: .\glosowania\templates\glosowania\dodaj.html:47
 #: .\glosowania\templates\glosowania\edit.html:22
 #: .\glosowania\templates\glosowania\edit_argument.html:33
 #: .\glosowania\templates\glosowania\parameters_propose.html:49
@@ -334,16 +332,12 @@ msgid "The survey is closed and votes cannot be cast."
 msgstr "Amkieta jest zamknięta, nie można już głosować."
 
 #: .\ankiety\views.py:32
-#, fuzzy
-#| msgid "Your vote has been saved."
 msgid "Your vote has been withdrawn."
-msgstr "Twój głos został zapisany."
+msgstr "Twój głos został wycofany."
 
 #: .\ankiety\views.py:34
-#, fuzzy
-#| msgid "You have already voted in this referendum"
 msgid "You have not voted in this survey yet."
-msgstr "Już zagłosowałeś w tym referendum"
+msgstr "Jeszcze nie głosowałeś w tej ankicie."
 
 #: .\ankiety\views.py:39
 msgid "Invalid option selected."
@@ -2334,6 +2328,10 @@ msgstr "Nie, anuluj"
 #: .\glosowania\templates\glosowania\dodaj.html:10
 msgid "Add new law proposal"
 msgstr "Dodaj nową propozycję przepisu"
+
+#: .\glosowania\templates\glosowania\dodaj.html:15
+msgid "Note: The regulations should be formulated in their final wording."
+msgstr "Uwaga: Przepisy powinny być formułowane w ich ostatecznym brzmieniu."
 
 #: .\glosowania\templates\glosowania\edit.html:11
 msgid "Edit law proposal"
