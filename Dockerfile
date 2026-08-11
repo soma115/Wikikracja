@@ -50,6 +50,7 @@ COPY --from=builder /app/static /app/static
 COPY --from=builder /app/locale /app/locale
 COPY --from=builder /app/manage.py /app/
 COPY --from=builder /app/requirements.txt /app/
+COPY --from=builder /app/BUILD_SHA /app/
 
 # Copy application modules (exclude development files)
 COPY --from=builder /app/obywatele /app/obywatele
