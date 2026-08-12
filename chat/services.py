@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db.models import Count, Prefetch
 
+from home.templatetags.feed_filters import citizen_color_class
 from zzz.richtext import strip_tags
 
 from .exceptions import ClientError
@@ -59,7 +60,7 @@ def get_avatar_url(user):
         profile = user.uzytkownik
         if profile.avatar:
             return profile.avatar.url
-    except (Exception):
+    except Exception:
         pass
     return None
 
@@ -76,14 +77,14 @@ class ChatRepository:
             raise ClientError("USER_HAS_TO_LOGIN")
         try:
             return Room.objects.get(pk=room_id)
-        except (Room.DoesNotExist):
+        except Room.DoesNotExist:
             raise ClientError("ROOM_INVALID") from None
 
     @database_sync_to_async
     def get_room(self, room_id):
         try:
             return Room.objects.get(id=room_id)
-        except (Room.DoesNotExist):
+        except Room.DoesNotExist:
             raise ClientError("ROOM_INVALID") from None
 
     @database_sync_to_async
@@ -154,7 +155,7 @@ class ChatRepository:
             return None
         try:
             return User.objects.select_related('uzytkownik').get(id=id)
-        except (User.DoesNotExist):
+        except User.DoesNotExist:
             log.error(f"User with ID {id} does not exist")
             return None
 
@@ -162,7 +163,7 @@ class ChatRepository:
     def get_user_by_name(self, username):
         try:
             return User.objects.get(username=username)
-        except (User.DoesNotExist):
+        except User.DoesNotExist:
             log.error(f"User {username} does not exist")
             return None
 
@@ -183,7 +184,7 @@ class ChatRepository:
     def get_message(self, message_id):
         try:
             return Message.objects.get(pk=message_id)
-        except (Message.DoesNotExist):
+        except Message.DoesNotExist:
             log.error(f"Message with ID {message_id} does not exist")
             return None
 
@@ -201,7 +202,7 @@ class ChatRepository:
     def get_room_by_message(self, message_id: int):
         try:
             return Message.objects.get(pk=message_id).room
-        except (Message.DoesNotExist):
+        except Message.DoesNotExist:
             log.error(f"Message with ID {message_id} does not exist")
             return None
 
@@ -303,7 +304,7 @@ class ChatRepository:
         """Check the reactions JSONField on the message."""
         try:
             m = Message.objects.get(pk=message_id)
-        except (Message.DoesNotExist):
+        except Message.DoesNotExist:
             return None
         reactions_dict = _reactions(m)
         user_id = self.user.id
@@ -341,7 +342,7 @@ class ChatRepository:
         """Return {reaction: count} for message."""
         try:
             m = Message.objects.get(pk=message_id)
-        except (Message.DoesNotExist):
+        except Message.DoesNotExist:
             return {'bulb': 0, 'question': 0}
 
         reactions_dict = _reactions(m)
@@ -352,7 +353,7 @@ class ChatRepository:
         """Return list of reactions for user on message."""
         try:
             m = Message.objects.get(pk=message_id)
-        except (Message.DoesNotExist):
+        except Message.DoesNotExist:
             return []
 
         reactions_dict = _reactions(m)
@@ -397,7 +398,7 @@ class ChatRepository:
             username = 'System' if msg.sender is None else ('Anonymous' if msg.anonymous else msg.sender.username)
             snippet = strip_tags(msg.text)[:120]
             return {'id': msg.id, 'username': username, 'text_snippet': snippet, 'author_color': _username_to_color(username)}
-        except (Message.DoesNotExist):
+        except Message.DoesNotExist:
             return None
 
     # -- Recent messages methods --
