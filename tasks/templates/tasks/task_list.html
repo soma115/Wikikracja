@@ -15,7 +15,6 @@
   <span class="toolbar-divider"></span>
 
   <div class="toolbar-sort">
-    <span class="toolbar-sort-label">{% trans 'Sort' %}:</span>
 
     {% if current_sort == 'date' %}
       <a href="{% url 'tasks:list' %}?tab={{ current_tab }}&sort=date&order={% if current_order == 'asc' %}desc{% else %}asc{% endif %}{% for c in current_categories %}&category={{ c }}{% endfor %}"

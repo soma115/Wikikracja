@@ -20,16 +20,16 @@ def content_type_color(content_type):
 def content_type_label(content_type):
     """Return translated label for content type"""
     label_map = {
-        'post': _('Post'),
+        'post': _('Dokumenty'),
         'task': _('Task'),
-        'event': _('Event'),
+        'event': _('Kalendarz'),
         'message': _('Message'),
         'room_messages': _('Chat'),  # New content type for grouped room messages
-        'decision': _('Decision'),
+        'decision': _('Głosowania'),
         'citizen': _('Citizen'),
         'membership': _('Membership'),
         'transaction': _('Transaction'),
-        'survey': _('Survey'),
+        'survey': _('Ankiety'),
     }
     return label_map.get(content_type, content_type.title())
 

@@ -49,8 +49,7 @@
   <span class="stepper-sep"></span>
   <a href="{% url 'glosowania:rejected' %}"
      class="stepper-rejected {% if p == '/glosowania/rejected/' %}active{% endif %}">
-    <i class="fas fa-ban fa-fw"></i>
-    <span>{% trans 'Rejected' %}</span>
+    <i class="fas fa-trash-alt fa-fw"></i>
     {% if counts.rejected %}<span class="stepper-step-count">{{ counts.rejected }}</span>{% endif %}
   </a>
 

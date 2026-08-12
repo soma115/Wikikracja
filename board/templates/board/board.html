@@ -20,7 +20,6 @@
   {% endif %}
 
   <div class="toolbar-sort">
-    <span class="toolbar-sort-label">{% trans 'Sort' %}:</span>
     {% if current_sort == 'date' %}
       <a href="{% url 'board:start' %}?sort=date&order={% if current_order == 'asc' %}desc{% else %}asc{% endif %}{% for pk in active_categories %}&category={{ pk }}{% endfor %}"
          class="sort-btn active">
