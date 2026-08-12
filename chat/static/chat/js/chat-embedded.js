@@ -184,7 +184,7 @@ async function initEmbeddedChat(container) {
                 currentReplyId = clearReplyTarget(replyPreview);
                 selectedFiles = [];
                 fileInput.value = '';
-                if (previewContainer) previewContainer.style.display = 'none';
+                if (previewContainer) previewContainer.classList.add('d-none');
                 if (previewImagesDiv) previewImagesDiv.innerHTML = '';
                 updateCounter(inputEl, counterEl, counterVal, sendBtn, EC_MAX);
             }).catch((err) => {
@@ -298,7 +298,7 @@ async function initEmbeddedChat(container) {
         if (!files || files.length === 0) return;
 
         selectedFiles = Array.from(files);
-        if (previewContainer) previewContainer.style.display = '';
+        if (previewContainer) previewContainer.classList.remove('d-none');
         if (previewImagesDiv) previewImagesDiv.innerHTML = '';
 
         for (let i = 0; i < files.length; i++) {
@@ -327,7 +327,7 @@ async function initEmbeddedChat(container) {
     deleteImagesBtn?.addEventListener('click', () => {
         selectedFiles = [];
         fileInput.value = '';
-        if (previewContainer) previewContainer.style.display = 'none';
+        if (previewContainer) previewContainer.classList.add('d-none');
         if (previewImagesDiv) previewImagesDiv.innerHTML = '';
     });
 
@@ -341,7 +341,7 @@ async function initEmbeddedChat(container) {
             if (previewImagesDiv && previewImagesDiv.children.length === 0) {
                 selectedFiles = [];
                 fileInput.value = '';
-                if (previewContainer) previewContainer.style.display = 'none';
+                if (previewContainer) previewContainer.classList.add('d-none');
             }
         }
     });

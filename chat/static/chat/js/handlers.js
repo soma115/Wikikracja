@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const files = e.target.files;
         const preview_container = DOM_API.getPreviewDiv();
         if (!DOM_API.isEditing() && preview_container) preview_container.innerHTML = '';
-        if (files.length > 0) DOM_API.getPreviewContainer().style.display = '';
+        if (files.length > 0) DOM_API.getPreviewContainer().classList.remove('d-none');
         for (let i = 0; i < files.length; ++i) {
             const file = files.item(i);
             const fr = new FileReader();
@@ -392,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
             DOM_API.addRemovedAttachment(btn.dataset.filename);
             btn.closest('.image-preview-wrapper')?.remove();
             if (DOM_API.getPreviewDiv()?.children.length === 0) {
-                DOM_API.getPreviewContainer().style.display = 'none';
+                DOM_API.getPreviewContainer().classList.add('d-none');
             }
         }
     });
@@ -408,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 DOM_API.getFileInput().value = "";
             }
             if (previewDiv?.children.length === 0) {
-                DOM_API.getPreviewContainer().style.display = 'none';
+                DOM_API.getPreviewContainer().classList.add('d-none');
             }
         }
     });
@@ -597,16 +597,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Close previously open dropdown
             if (openReadByDropdown && openReadByDropdown !== dropdown) {
-                openReadByDropdown.style.display = 'none';
+                openReadByDropdown.classList.add('d-none');
             }
 
             // Toggle current dropdown
-            const isHidden = dropdown.style.display === 'none';
-            dropdown.style.display = isHidden ? 'block' : 'none';
+            const isHidden = dropdown.classList.contains('d-none');
+            dropdown.classList.toggle('d-none', !isHidden);
             openReadByDropdown = isHidden ? dropdown : null;
         } else if (openReadByDropdown && !e.target.closest('.read-by-dropdown')) {
             // Close dropdown when clicking outside
-            openReadByDropdown.style.display = 'none';
+            openReadByDropdown.classList.add('d-none');
             openReadByDropdown = null;
         }
     });

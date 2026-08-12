@@ -66,6 +66,7 @@ tr.user-row:hover .copy-btn {
   background: var(--btn-glass-bg);
   border: 1px solid var(--btn-glass-border);
   color: var(--btn-glass-color);
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
@@ -80,6 +81,7 @@ tr.user-row:hover .copy-btn {
   background: var(--accent-muted);
   border: 1px solid var(--accent);
   color: var(--accent);
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }

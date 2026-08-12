@@ -9,7 +9,7 @@
           <h3 class="h6 mb-0">
             <a class="text-break text-decoration-none" href="{% url 'tasks:detail' task.pk %}">{{ task.title }}</a>
 {% if task.chat_room_url %}
-              <a href="{{ task.chat_room_url }}"  class="text-decoration-none ms-3 {{ task.chat_room_pulse_class }}">
+              <a href="{{ task.chat_room_url }}" aria-label="{% trans 'Chat room' %}" class="text-decoration-none ms-3 {{ task.chat_room_pulse_class }}">
                 <i class="fas fa-comments"></i>
               </a>
             {% endif %}

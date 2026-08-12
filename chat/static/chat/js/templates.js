@@ -159,7 +159,7 @@ const message_template = `
           class='btn btn-sm ms-1 message-btn reply-btn'
           data-message-id='<%-message_id%>'
           data-username='<%=username%>'
-          data-snippet='<%-message.replace(/<[^>]*>/g,"").slice(0,160)%>'
+          data-snippet='<%-raw_message.replace(/<[^>]*>/g,"").slice(0,320)%>'
           title='Odpowiedz'>
           <i class='fas fa-reply'></i>
         </button>

@@ -1,9 +1,5 @@
-- największe możliwe bezpieczne uproszczenie w kodzie, plikach i katalogach.
 
-Błędy:
-- chat: podgląd obrazków nie działa przez co nie da się ich też usunąć podczas edycji
-- chat: Cytowanie wiadomości w czacie — bez "pokaż więcej" w momencie pokazywania cytowanej wiadomości.
-- 
+- największe możliwe bezpieczne uproszczenie w kodzie, plikach i katalogach.
 
 Refaktoryzacje:
 - board > docuemnts

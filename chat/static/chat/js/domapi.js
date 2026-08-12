@@ -176,7 +176,7 @@ export default class DomApi {
     showHistoryButton(message_id) {
         const msgDiv = this.getMessageDiv(message_id);
         if (msgDiv) {
-            $(".show-history", msgDiv).style.display = '';
+            $(".show-history", msgDiv).classList.remove('d-none');
         }
     }
 
@@ -295,7 +295,7 @@ export default class DomApi {
     clearFiles() {
         const fileInput = $(`#file-input`);
         if (fileInput) fileInput.value = "";
-        this.getPreviewContainer().style.display = 'none';
+        this.getPreviewContainer().classList.add('d-none');
         this.getPreviewDiv().innerHTML = '';
     }
 
@@ -455,10 +455,10 @@ export default class DomApi {
         const preview_container = this.getPreviewDiv();
         if (preview_container) preview_container.innerHTML = '';
         if (!attachments?.images?.length) {
-            this.getPreviewContainer().style.display = 'none';
+            this.getPreviewContainer().classList.add('d-none');
             return;
         }
-        this.getPreviewContainer().style.display = '';
+        this.getPreviewContainer().classList.remove('d-none');
         for (let i = 0; i < attachments.images.length; i++) {
             const filename = attachments.images[i];
             preview_container?.insertAdjacentHTML('beforeend', `<div class="image-preview-wrapper">

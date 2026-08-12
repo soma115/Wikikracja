@@ -2747,6 +2747,7 @@ td.notes-col {
   padding: 1.25rem;
   margin: 0.75rem;
   background: var(--bg-card);
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   box-shadow: var(--shadow-overlay);
   transition: transform 180ms ease, box-shadow 200ms ease;
@@ -2763,6 +2764,7 @@ td.notes-col {
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
+  -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
 }
 .post-title {

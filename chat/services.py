@@ -31,6 +31,15 @@ def extract_mentions(text: str) -> set:
     return set(_MENTION_RE.findall(plain))
 
 
+def _reply_snippet(text: str, max_len: int = 240) -> str:
+    """Plain-text snippet for quoted message; strips HTML and expandable hint."""
+    if not text:
+        return ''
+    plain = strip_tags(text)
+    plain = plain.replace('… pokaż więcej', '').strip()
+    return plain[:max_len]
+
+
 def get_unread_count_for_user(user) -> int:
     key = CHAT_UNREAD_CACHE_KEY.format(user_id=user.id)
     cached = cache.get(key)
@@ -396,8 +405,7 @@ class ChatRepository:
         try:
             msg = Message.objects.select_related('sender').get(pk=message_id)
             username = 'System' if msg.sender is None else ('Anonymous' if msg.anonymous else msg.sender.username)
-            snippet = strip_tags(msg.text)[:120]
-            return {'id': msg.id, 'username': username, 'text_snippet': snippet, 'author_color': _username_to_color(username)}
+            return {'id': msg.id, 'username': username, 'text_snippet': _reply_snippet(msg.text), 'author_color': _username_to_color(username)}
         except Message.DoesNotExist:
             return None
 
@@ -506,7 +514,7 @@ class ChatRepository:
             if msg.reply_to_id and msg.reply_to:
                 rm = msg.reply_to
                 ru = 'System' if rm.sender is None else ('Anonymous' if rm.anonymous else rm.sender.username)
-                reply_to_data = {'id': rm.id, 'username': ru, 'text_snippet': strip_tags(rm.text)[:120], 'author_color': _username_to_color(ru)}
+                reply_to_data = {'id': rm.id, 'username': ru, 'text_snippet': _reply_snippet(rm.text), 'author_color': _username_to_color(ru)}
 
             r = _reactions(msg)
             rb_entries = read_by_map.get(msg.id, [])

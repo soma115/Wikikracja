@@ -30,15 +30,13 @@
   {% if post.attachments.all %}
   <div class="post-attachments mt-4">
     <h4>{% trans 'Attachments' %}</h4>
-    <ul class="list-group">
-      {% for attachment in post.attachments.all %}
+    <ul class="list-group">{% for attachment in post.attachments.all %}
       <li class="list-group-item d-flex justify-content-between align-items-center">
         <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}">
           <i class="fas fa-paperclip me-2"></i>{{ attachment.filename }}
         </a>
         <span class="text-muted attachment-uploaded-at">{{ attachment.uploaded_at|date:"Y-m-d H:i" }}</span>
-      </li>
-      {% endfor %}
+      </li>{% endfor %}
     </ul>
   </div>
   {% endif %}

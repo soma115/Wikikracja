@@ -211,11 +211,12 @@ body:has(.chat-rooms) .main-area {
 .message .message-content .msg-body .attachment-image-container {
     cursor: pointer;
     width: fit-content;
+    max-width: 100%;
 }
 .message .message-content .msg-body .attachment-image-container .attached-image {
     max-height: 15dvh;
     height: auto;
-    max-width: 30dvh;
+    max-width: 100%;
     width: auto;
     object-fit: contain;
 }
