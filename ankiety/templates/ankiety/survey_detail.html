@@ -110,9 +110,7 @@
                 {% endif %}
               </span>
             </div>
-            <progress class="w-100" value="{{ option.vote_count }}" max="{{ total_votes|default:1 }}">
-              {{ option.percentage }}%
-            </progress>
+            <div class="result-bar-track w-100"><div class="result-bar-fill" data-progress="{{ option.percentage }}"></div></div>
           </div>
         {% endfor %}
         <div class="mt-2 text-muted text-end">

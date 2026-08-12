@@ -34,6 +34,9 @@
   --accent-hover: #00b09b;
   --accent-muted: color-mix(in srgb, var(--accent) 12%, transparent);
   --accent-glow: color-mix(in srgb, var(--accent) 35%, transparent);
+  --accent-glow-soft: color-mix(in srgb, var(--accent) 20%, transparent);
+  --accent-glow-medium: color-mix(in srgb, var(--accent) 15%, transparent);
+  --accent-glow-faint: color-mix(in srgb, var(--accent) 8%, transparent);
   --accent-border: color-mix(in srgb, var(--accent) 45%, transparent);
   --text-primary: #e8eaf0;
   --text-muted: rgb(232, 234, 240);
@@ -59,6 +62,9 @@
   --badge-rejected-bg: rgba(239, 68, 68, .15);
   --badge-rejected-color: #f87171;
   --badge-rejected-border: rgba(239, 68, 68, .3);
+  --btn-danger-bg: color-mix(in srgb, var(--badge-rejected-color) 85%, transparent);
+  --btn-success-bg: color-mix(in srgb, var(--badge-approved-color) 85%, transparent);
+  --btn-warning-bg: color-mix(in srgb, var(--status-warning-color) 85%, transparent);
   --input-bg: #252d4a;
   --input-border: rgba(255, 255, 255, .25);
 }
@@ -72,6 +78,9 @@
   --accent-hover: #047a6a;
   --accent-muted: color-mix(in srgb, var(--accent) 10%, transparent);
   --accent-glow: color-mix(in srgb, var(--accent) 30%, transparent);
+  --accent-glow-soft: color-mix(in srgb, var(--accent) 20%, transparent);
+  --accent-glow-medium: color-mix(in srgb, var(--accent) 15%, transparent);
+  --accent-glow-faint: color-mix(in srgb, var(--accent) 8%, transparent);
   --accent-border: color-mix(in srgb, var(--accent) 45%, transparent);
   --text-primary: #1e2030;
   --text-muted: rgb(48, 30, 30);
@@ -97,6 +106,9 @@
   --badge-rejected-bg: rgba(239, 68, 68, .12);
   --badge-rejected-color: #dc2626;
   --badge-rejected-border: rgba(220, 38, 38, .3);
+  --btn-danger-bg: color-mix(in srgb, var(--badge-rejected-color) 85%, transparent);
+  --btn-success-bg: color-mix(in srgb, var(--badge-approved-color) 85%, transparent);
+  --btn-warning-bg: color-mix(in srgb, var(--status-warning-color) 85%, transparent);
   --input-bg: #ffffff;
   --input-border: rgba(0, 0, 0, .18);
 }
@@ -535,7 +547,7 @@ form.signup input[name*="captcha"] {
   color: var(--badge-rejected-color);
 }
 .btn-danger {
-  background: color-mix(in srgb, var(--badge-rejected-color) 85%, transparent);
+  background: var(--btn-danger-bg);
   border-color: var(--badge-rejected-color);
   color: #111;
 }
@@ -544,7 +556,7 @@ form.signup input[name*="captcha"] {
   border-color: var(--badge-rejected-color);
 }
 .btn-success {
-  background: color-mix(in srgb, var(--badge-approved-color) 85%, transparent);
+  background: var(--btn-success-bg);
   border-color: var(--badge-approved-color);
   color: #111;
 }
@@ -553,7 +565,7 @@ form.signup input[name*="captcha"] {
   border-color: #00a07a;
 }
 .btn-warning {
-  background: color-mix(in srgb, var(--status-warning-color) 85%, transparent);
+  background: var(--btn-warning-bg);
   border-color: var(--status-warning-color);
   color: #111;
 }
@@ -1507,8 +1519,8 @@ a.wspol-section-title {
   border-color: var(--accent);
   box-shadow:
     0 0 0 1px var(--accent-glow),
-    0 0 12px color-mix(in srgb, var(--accent) 20%, transparent),
-    0 0 32px color-mix(in srgb, var(--accent) 8%, transparent),
+    0 0 12px var(--accent-glow-soft),
+    0 0 32px var(--accent-glow-faint),
     0 4px 20px rgba(0, 0, 0, .35);
 }
 /* karty będące linkami — cursor pointer zamiast domyślnego */
@@ -2279,12 +2291,12 @@ a:hover {
   box-shadow:
     0 0 0 1px var(--accent-border),
     0 0 12px var(--accent-glow),
-    0 0 32px color-mix(in srgb, var(--accent) 15%, transparent),
+    0 0 32px var(--accent-glow-medium),
     0 6px 24px rgba(0, 0, 0, .4);
 }
 .proposal-card.open {
   border-color: var(--accent-border);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent), 0 0 12px color-mix(in srgb, var(--accent) 10%, transparent);
+  box-shadow: 0 0 0 1px var(--accent-glow-soft), 0 0 12px var(--accent-glow-soft);
 }
 .proposal-card-header {
   position: relative;
@@ -2600,7 +2612,7 @@ button.proposal-against-btn:focus-visible {
 .proposal-details-btn:hover {
   background: var(--accent-muted);
   border-color: var(--accent);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 20%, transparent);
+  box-shadow: 0 0 8px var(--accent-glow-soft);
 }
 
 .proposal-section-label {

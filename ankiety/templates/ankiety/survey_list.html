@@ -79,7 +79,7 @@
                   </div>
                   <div class="d-flex align-items-center gap-2 min-width-180px">
                     <span class="text-nowrap text-muted">{{ option.vote_count }} ({{ option.percentage }}%)</span>
-                    <progress class="progress-w-120" value="{{ option.vote_count }}" max="{{ survey.total_votes|default:1 }}"></progress>
+                    <div class="result-bar-track progress-w-120"><div class="result-bar-fill" data-progress="{{ option.percentage }}"></div></div>
                   </div>
                 </div>
               {% empty %}
@@ -114,7 +114,7 @@
                       {% endif %}
                     </span>
                   </div>
-                  <progress class="w-100" value="{{ option.vote_count }}" max="{{ survey.total_votes|default:1 }}"></progress>
+                  <div class="result-bar-track w-100"><div class="result-bar-fill" data-progress="{{ option.percentage }}"></div></div>
                 </div>
               {% empty %}
                 <p class="text-muted small mb-0">{% trans 'No options' %}</p>
