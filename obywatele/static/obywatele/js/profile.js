@@ -3,18 +3,6 @@
 document.addEventListener('DOMContentLoaded', function() {
 	const toggles = document.querySelectorAll('[id^="toggle-"]');
 
-	function updateBadge(badge, isEnabled) {
-		badge.className = isEnabled ? 'badge bg-success' : 'badge bg-secondary';
-		badge.textContent = isEnabled ? badge.dataset.enabledText : badge.dataset.disabledText;
-	}
-
-	function handleError(toggle, badge, wasChecked) {
-		toggle.checked = !wasChecked;
-		badge.className = 'badge bg-danger';
-		badge.textContent = badge.dataset.errorText;
-		setTimeout(() => updateBadge(badge, !wasChecked), 2000);
-	}
-
 	function getCookie(name) {
 		const value = `; ${document.cookie}`;
 		const parts = value.split(`; ${name}=`);
@@ -23,12 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	toggles.forEach(toggle => {
 		toggle.addEventListener('change', function() {
-			const type = this.dataset.url.split('type=')[1];
-			const statusBadge = document.getElementById('status-' + type);
+			const wasChecked = !this.checked;
 			const isChecked = this.checked;
-
-			statusBadge.className = 'badge bg-warning';
-			statusBadge.textContent = statusBadge.dataset.savingText;
 
 			fetch(this.dataset.url, {
 				method: 'POST',
@@ -40,13 +24,13 @@ document.addEventListener('DOMContentLoaded', function() {
 			})
 				.then(response => response.json())
 				.then(data => {
-					if (data.success) {
-						updateBadge(statusBadge, isChecked);
-					} else {
-						handleError(this, statusBadge, isChecked);
+					if (!data.success) {
+						this.checked = wasChecked;
 					}
 				})
-				.catch(() => handleError(this, statusBadge, isChecked));
+				.catch(() => {
+					this.checked = wasChecked;
+				});
 		});
 	});
 });

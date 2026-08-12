@@ -9,7 +9,7 @@
 
   {# ── Toolbar linia 1: filtry typów + nieprzeczytane ── #}
   <div class="proposals-toolbar mb-1 flex-wrap-wrap">
-    <div class="toolbar-sort flex-wrap-wrap-gap-35rem">
+    <div class="toolbar-sort flex-wrap-wrap gap-35">
       <a href="?filter=unread&sort={{ sort }}&order={{ order }}"
          class="sort-btn filter-btn-unread {% if filter_unread %}active unread-filter-active{% endif %}">
         <i class="fas fa-bell"></i>{% trans "Unread" %}
@@ -31,7 +31,7 @@
   {# ── Toolbar linia 2: akcje + sortowanie + widok ── #}
   <div class="proposals-toolbar mb-3">
 
-    <button type="button" class="sort-btn color-60a5fa-border-color-rgba-96-165-250-35" id="btn-mark-all">
+    <button type="button" class="sort-btn btn-mark-all" id="btn-mark-all">
       <i class="fas fa-check-double"></i>{% trans "Mark as read" %}
     </button>
 
@@ -64,7 +64,7 @@
       {% for item in feed_items %}
       <a href="{{ item.url }}" class="feed-row {% if not item.is_read %}unread-item{% endif %}" data-content-type="{{ item.content_type }}" data-object-id="{{ item.object_id }}">
 
-        <span class="badge text-bg-{{ item.content_type|content_type_color }} flex-shrink-0 mt-1 badge-activity-type">
+        <span class="badge text-bg-{{ item.content_type|content_type_color }} flex-shrink-0 mt-1 badge-status-xs">
           {{ item.content_type|content_type_label }}
         </span>
 
@@ -82,7 +82,18 @@
 
         <div class="d-flex flex-column align-items-end flex-shrink-0 gap-1">
           {% if item.author %}
-          <span class="text-2xs-muted">{{ item.author.username }}</span>
+          <div class="d-flex align-items-center gap-1">
+            <div class="feed-avatar">
+              {% if item.author.uzytkownik and item.author.uzytkownik.avatar %}
+                <img src="{{ item.author.uzytkownik.avatar.url }}" alt="{{ item.author.username }}" class="activity-avatar">
+              {% else %}
+                <div class="activity-avatar-fallback avatar-fallback citizen-color-{{ item.author.username|citizen_color_class }}">
+                  {{ item.author.username|slice:":2"|upper }}
+                </div>
+              {% endif %}
+            </div>
+            <span class="text-2xs-muted">{{ item.author.username }}</span>
+          </div>
           {% endif %}
           <span class="feed-toggle-read"
                 role="button"
@@ -102,7 +113,7 @@
       </a>
       {% empty %}
       <div class="p-5 text-center">
-        <i class="fas fa-inbox fa-2x d-block mb-2 color-var-text-muted-opacity-35"></i>
+        <i class="fas fa-inbox fa-2x d-block mb-2 empty-state-icon"></i>
         <span class="text-muted-md">{% trans "No activity" %}</span>
       </div>
       {% endfor %}

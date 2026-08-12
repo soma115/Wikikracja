@@ -7,8 +7,8 @@
 
   <!-- Header -->
   <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-    <h4 class="mb-0 color-var-text-primary">
-      <i class="fas fa-magnifying-glass me-2 color-var-accent"></i>
+    <h4 class="mb-0 text-main">
+      <i class="fas fa-magnifying-glass me-2 text-accent"></i>
       {% if query %}
         {% blocktrans with q=query %}Results for „{{ q }}"{% endblocktrans %}
       {% else %}
@@ -16,7 +16,7 @@
       {% endif %}
     </h4>
     {% if query %}
-      <span class="badge background-var-accent-muted-color-var-accent-f">
+      <span class="badge search-result-link">
         {{ results|length }} {% trans "results" %}
       </span>
     {% endif %}
@@ -33,7 +33,7 @@
                class="form-control search-input"
                placeholder="{% trans 'Search by title, content, author…' %}"
                autofocus>
-        <button class="btn fw-semibold background-var-accent-color-111-border-none" type="submit">
+        <button class="btn fw-semibold search-page-submit" type="submit">
           <i class="fas fa-magnifying-glass me-1"></i>{% trans "Search" %}
         </button>
       </div>
@@ -103,8 +103,8 @@
 
   {% elif not results %}
     <div class="card p-4 text-center">
-      <i class="fas fa-circle-xmark fa-2x mb-3 color-var-text-muted"></i>
-      <p class="mb-0 color-var-text-muted">
+      <i class="fas fa-circle-xmark fa-2x mb-3 text-muted"></i>
+      <p class="mb-0 text-muted">
         {% trans "No results for the specified phrase in the selected categories." %}
       </p>
     </div>
@@ -132,7 +132,7 @@
                 </div>
               {% endif %}
             </div>
-            <i class="fas fa-chevron-right color-var-text-muted-font-size-75rem-flex-shrink-0"></i>
+            <i class="fas fa-chevron-right search-result-meta"></i>
           </div>
         </a>
       {% endfor %}

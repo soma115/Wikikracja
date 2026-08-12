@@ -6,7 +6,7 @@ from .models import Decyzja
 
 def get_feed_items(since: timezone.datetime) -> list[dict]:
     """Return feed items for decisions modified since `since`."""
-    decisions = Decyzja.objects.filter(data_ostatniej_modyfikacji__gte=since).order_by('-data_ostatniej_modyfikacji')
+    decisions = Decyzja.objects.filter(data_ostatniej_modyfikacji__gte=since).select_related('author', 'author__uzytkownik').order_by('-data_ostatniej_modyfikacji')
     items = []
     for decision in decisions:
         clean_tresc = strip_tags(decision.tresc) if decision.tresc else ''

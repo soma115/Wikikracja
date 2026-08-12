@@ -6,7 +6,7 @@ from .models import Post
 
 def get_feed_items(since: timezone.datetime) -> list[dict]:
     """Return feed items for board posts modified since `since`."""
-    posts = Post.objects.filter(updated__gte=since).select_related('author').order_by('-updated')
+    posts = Post.objects.filter(updated__gte=since).select_related('author', 'author__uzytkownik').order_by('-updated')
     items = []
     for post in posts:
         clean_text = strip_tags(post.text)

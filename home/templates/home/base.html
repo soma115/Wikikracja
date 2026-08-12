@@ -31,7 +31,6 @@
 
 	<link rel="stylesheet" type="text/css" href="{% static 'home/css/darkly.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'home/css/app.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/components.css' %}">
 
   <!-- Main app script with config data -->
   <script src="{% static 'home/js/search-keys.js' %}"></script>
@@ -390,7 +389,7 @@
     </main>
 
     {% if request.resolver_match.namespace != 'chat' %}
-    <footer class="px-4 pb-3 mt-auto color-var-text-muted-font-size-0-78rem">{{ footer.text|safe }}</footer>
+    <footer class="px-4 pb-3 mt-auto text-muted-78">{{ footer.text|safe }}</footer>
     {% endif %}
 
   </div>
@@ -398,7 +397,7 @@
 
 </div>
 
-<div class="display-none-position-fixed-inset-0-background" id="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('sidebar-open');this.style.display='none';">
+<div class="modal-backdrop-custom" id="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('sidebar-open');this.style.display='none';">
 </div>
 
 {% block extra_body %}{% endblock %}

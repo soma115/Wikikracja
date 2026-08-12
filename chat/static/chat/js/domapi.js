@@ -461,10 +461,9 @@ export default class DomApi {
         this.getPreviewContainer().style.display = '';
         for (let i = 0; i < attachments.images.length; i++) {
             const filename = attachments.images[i];
-            preview_container?.insertAdjacentHTML('beforeend', `<div class="image-preview-wrapper" style="position: relative; display: inline-block;">
+            preview_container?.insertAdjacentHTML('beforeend', `<div class="image-preview-wrapper">
                 <img class='image-preview' id='preview-existing-${i}' src='/media/uploads/${filename}' data-filename='${filename}'>
-                <button class="btn btn-sm btn-danger remove-existing-attachment"
-                    style="position: absolute; top: 2px; right: 2px; padding: 0 4px; font-size: 12px;"
+                <button class="btn btn-sm btn-danger remove-existing-attachment image-preview-remove"
                     data-filename="${filename}" type="button">×</button>
             </div>`);
         }

@@ -78,16 +78,16 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
       <form id="avatar-form" method="post" action="{% url 'obywatele:upload_avatar' %}" enctype="multipart/form-data" class="flex-shrink-0">
         {% csrf_token %}
         <input class="mig-hidden" type="file" id="avatar-input" name="avatar" accept="image/*">
-        <div class="position-relative-width-64px-height-64px-curso" id="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
+        <div class="avatar-upload-wrap" id="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
           {% if profile.avatar %}
             <img id="avatar-img" src="{{ profile.avatar.url }}" alt="avatar" class="avatar-64">
           {% else %}
-            <div class="width-64px-height-64px-border-radius-50-backgr" id="avatar-img">
-              <i class="fas fa-user font-size-1-4rem-color-var-accent"></i>
+            <div class="avatar-64-placeholder" id="avatar-img">
+              <i class="fas fa-user text-accent-14"></i>
             </div>
           {% endif %}
-          <div class="position-absolute-inset-0-border-radius-50-bac" id="avatar-overlay">
-            <i class="fas fa-camera color-fff-font-size-1-1rem"></i>
+          <div class="avatar-overlay" id="avatar-overlay">
+            <i class="fas fa-camera avatar-overlay-icon"></i>
           </div>
         </div>
       </form>
@@ -246,13 +246,13 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
   </div>
 
   {# ── USUNIĘCIE KONTA ── #}
-  <div class="card border-danger border-color-var-bs-danger-important">
+  <div class="card border-danger border-danger-var">
     <div class="card-header">
       <span class="section-heading text-danger">{% trans "Delete account" %}</span>
     </div>
     <div class="card-body">
       {% if deletion_request %}
-        <p class="mb-2 font-size-9rem">
+        <p class="mb-2 text-9">
           {% trans "Your account is scheduled for permanent deletion on" %} <strong>{{ deletion_request.scheduled_for|date:"Y-m-d" }}</strong>.
           <br>
           {% trans "You can cancel this request before that date." %}
@@ -264,7 +264,7 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
           </button>
         </form>
       {% else %}
-        <p class="mb-2 font-size-9rem-color-var-text-muted">
+        <p class="mb-2 text-muted-9">
           {% trans "Permanently delete your account and all associated data." %}
           <br>
           {% trans "This action has a 30-day grace period — you can cancel any time before the deadline." %}

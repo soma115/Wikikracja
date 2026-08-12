@@ -511,7 +511,7 @@
             {% if cit.avatar %}
               <img src="{{ cit.avatar.url }}" alt="{{ cit.uid.username }}" class="rounded-circle tile-avatar">
             {% else %}
-              <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white new-people-avatar" data-bg="{{ cit.uid.username|citizen_color }}">
+              <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white new-people-avatar citizen-color-{{ cit.uid.username|citizen_color_class }}">
                 {{ cit.uid.username|slice:":2"|upper }}
               </div>
             {% endif %}
@@ -743,10 +743,6 @@
   document.querySelectorAll('[data-width]').forEach(function (el) {
     var w = el.dataset.width;
     if (w) el.style.setProperty('--w', w + '%');
-  });
-  document.querySelectorAll('[data-bg]').forEach(function (el) {
-    var bg = el.dataset.bg;
-    if (bg) el.style.setProperty('--bg', bg);
   });
 })();
 </script>

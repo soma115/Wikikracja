@@ -6,7 +6,7 @@ from .models import Survey
 
 def get_feed_items(since: timezone.datetime) -> list[dict]:
     """Return feed items for surveys created since `since`."""
-    surveys = Survey.objects.filter(created_at__gte=since).select_related("author").order_by("-created_at")
+    surveys = Survey.objects.filter(created_at__gte=since).select_related("author", "author__uzytkownik").order_by("-created_at")
     items = []
     for survey in surveys:
         clean_description = strip_tags(survey.description) if survey.description else ""

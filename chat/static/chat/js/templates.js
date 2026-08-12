@@ -26,7 +26,7 @@ const room_template = `
       <button type="button" class="sort-btn" id="chat-sort-likes" data-sort="likes" data-order="desc">
         <i class="fas fa-thumbs-up fa-fw"></i>
         <span>${_("Likes")}</span>
-        <i class="fas fa-arrow-down sort-arrow" style="visibility:hidden"></i>
+        <i class="fas fa-arrow-down sort-arrow invisible"></i>
       </button>
       <button type="button" class="sort-btn" id="chat-filter-popular" data-filter="popular">
         <i class="fas fa-fire fa-fw"></i>
@@ -44,7 +44,7 @@ const room_template = `
     </div>
   </div>
 
-  <div class='image-preview-container' style='display:none'>
+  <div class='image-preview-container d-none'>
     <div class='preview-images'></div>
     <div class='delete-images-preview'>
       <i class='fas fa fa-times'></i>
@@ -52,7 +52,7 @@ const room_template = `
   </div>
 
   <div class='chat-controls'>
-    <div class="reply-preview" id="reply-preview" style="display:none">
+    <div class="reply-preview d-none" id="reply-preview">
       <span class="reply-preview-label">↩ </span>
       <span class="reply-preview-text" id="reply-preview-text"></span>
       <button class="reply-preview-close" id="reply-preview-close" type="button" title="Anuluj odpowiedź">✕</button>
@@ -144,7 +144,7 @@ const message_template = `
           <% } %><%= username %>
         <% if (_hasProfileLink) { %></a><% } else { %></span><% } %>
         <span class='message-timestamp ms-2' data-message-id='<%-message_id%>'><%- latest_ts %></span>
-        <button type='button' class='btn btn-sm ms-1 message-btn show-history' <% if (!edited) { %> style='display:none' <% } %>
+        <button type='button' class='btn btn-sm ms-1 message-btn show-history <% if (!edited) { %>d-none<% } %>'
           data-message-id='<%-message_id%>'
           title='${_("edited")}'>
           <i class='fas fa-history'></i>
@@ -212,7 +212,7 @@ const message_template = `
         <i class="fas fa-eye"></i>
         <% if (read_by && read_by.length) { %><span class="read-by-count"><%- read_by.length %></span><% } %>
       </button>
-      <div class="read-by-dropdown" id="read-by-dropdown-<%- message_id %>" style="display:none">
+      <div class="read-by-dropdown d-none" id="read-by-dropdown-<%- message_id %>">
         <div class="read-by-list">
           <% if (read_by && read_by.length) { %>
             <% for (const _u of read_by) { %>
@@ -226,7 +226,7 @@ const message_template = `
               </div>
             <% } %>
           <% } else { %>
-            <div class="read-by-item" style="color:var(--color-text-muted);font-style:italic">Nikt jeszcze nie przeczytał</div>
+            <div class="read-by-item read-by-empty">Nikt jeszcze nie przeczytał</div>
           <% } %>
         </div>
       </div>
@@ -242,12 +242,12 @@ const message_template = `
  * @type {string}
  */
 const history_template = `
-<table class='table' style='border-bottom: 1px solid #dee2e6;'>
+<table class='table chat-history-table'>
 <% for (let [i, entry] of Object.entries(history)) { %>
   <tr>
-    <td style='width: 0'><%- parseInt(i) + 1 %>.</td>
+    <td class='chat-history-index'><%- parseInt(i) + 1 %>.</td>
     <td> <%- entry.text %> </td>
-    <td style='text-align: end; font-size: smaller; color: gray;'>
+    <td class='chat-history-meta'>
       <%- entry.formattedTime %>
     </td>
   </tr>

@@ -5,8 +5,8 @@
 <div class="section">
 
   <div class="d-flex align-items-center justify-content-between gap-2 mb-4 flex-wrap">
-      <span class="section-heading font-size-9rem">
-      <i class="fas fa-screwdriver-wrench me-2 color-var-accent-opacity-8"></i>{% trans "Site administration and global settings" %}
+      <span class="section-heading text-9">
+      <i class="fas fa-screwdriver-wrench me-2 text-accent-80"></i>{% trans "Site administration and global settings" %}
     </span>
     <span class="site-admin-version">Wikikracja v.{{ app_version }}</span>
   </div>
@@ -14,8 +14,8 @@
   {# ── QUICK LINKS ── #}
   <div class="card mb-4">
     <div class="card-header d-flex align-items-center gap-2">
-      <i class="fas fa-link color-var-accent-opacity-8-font-size-85rem"></i>
-      <span class="section-heading font-size-85rem">{% trans "Quick links" %}</span>
+      <i class="fas fa-link text-accent-80-85"></i>
+      <span class="section-heading text-85">{% trans "Quick links" %}</span>
     </div>
     <div class="card-body">
       <form method="post" id="quick-link-form" data-preserve-scroll>
@@ -24,8 +24,8 @@
         <input type="hidden" name="edit_link_id" value="" id="edit-link-id">
 
         <div class="mb-3">
-          <div class="fw-semibold mb-2 font-size-875rem">
-            <i class="fas fa-plus me-2 color-var-accent-opacity-7"></i>
+          <div class="fw-semibold mb-2 text-875">
+            <i class="fas fa-plus me-2 text-accent-70"></i>
             <span id="form-title">{% trans "Add new link" %}</span>
           </div>
           <div class="d-flex gap-2 flex-wrap">
@@ -40,15 +40,15 @@
       </form>
 
       {% if quick_links %}
-      <div class="mt-3 pt-3 border-top-1px-solid-rgba-255-255-255-07">
-        <div class="fw-semibold mb-2 font-size-875rem">
-          <i class="fas fa-list me-2 color-var-accent-opacity-7"></i>
+      <div class="mt-3 pt-3 section-divider">
+        <div class="fw-semibold mb-2 text-875">
+          <i class="fas fa-list me-2 text-accent-70"></i>
           {% trans "Existing links" %}
         </div>
         <div id="quick-links-list" class="d-flex flex-column gap-2">
           {% for link in quick_links %}
           <div class="quick-link-item d-flex align-items-center gap-2 p-2" data-link-id="{{ link.id }}" draggable="true">
-            <i class="fas fa-grip-vertical color-var-text-muted-opacity-5-font-size-75rem"></i>
+            <i class="fas fa-grip-vertical text-muted-50"></i>
             {% if link.icon %}
             <i class="fas {{ link.icon }} quick-link-icon"></i>
             {% endif %}
@@ -58,7 +58,7 @@
             <form class="mig-inline" method="post">
               {% csrf_token %}
               <input type="hidden" name="delete_quick_link" value="{{ link.id }}">
-              <button type="submit" class="btn btn-sm btn-outline-danger font-size-72rem-padding-2px-8px">{% trans "Delete" %}</button>
+              <button type="submit" class="btn btn-sm btn-outline-danger badge-xs">{% trans "Delete" %}</button>
             </form>
           </div>
           {% endfor %}
@@ -173,8 +173,8 @@
   {# ── VOTE STORAGE RELIABILITY ── #}
   <div class="card mb-4">
     <div class="card-header d-flex align-items-center gap-2">
-      <i class="fas fa-shield-halved color-var-accent-opacity-8-font-size-85rem"></i>
-      <span class="section-heading font-size-85rem">{% trans "Vote storage reliability" %}</span>
+      <i class="fas fa-shield-halved text-accent-80-85"></i>
+      <span class="section-heading text-85">{% trans "Vote storage reliability" %}</span>
     </div>
     <div class="card-body">
       <p class="admin-muted">
@@ -192,14 +192,14 @@
       </p>
 
       {% if restarted_referendums %}
-      <div class="mt-3 pt-3 border-top-1px-solid-rgba-255-255-255-07">
-        <div class="fw-semibold mb-2 font-size-875rem">
-          <i class="fas fa-triangle-exclamation me-2 color-var-accent-opacity-7"></i>
+      <div class="mt-3 pt-3 section-divider">
+        <div class="fw-semibold mb-2 text-875">
+          <i class="fas fa-triangle-exclamation me-2 text-accent-70"></i>
           {% trans "Restarts so far:" %} {{ total_referendum_restarts }}
         </div>
         <div class="d-flex flex-column gap-2">
           {% for decyzja in restarted_referendums %}
-          <div class="d-flex align-items-center gap-2 p-2 background-rgba-255-255-255-03-border-radius-4px">
+          <div class="d-flex align-items-center gap-2 p-2 bg-glass-sm">
             <a href="{% url 'glosowania:details' decyzja.id %}" class="decision-link">{{ decyzja.id }}. {{ decyzja.title }}</a>
             <span class="restart-count">{% trans "Restarts:" %} {{ decyzja.referendum_restart_count }}</span>
           </div>
@@ -208,7 +208,7 @@
       </div>
       {% else %}
       <p class="admin-muted mb-0">
-        <i class="fas fa-circle-check me-2 color-var-accent-opacity-7"></i>
+        <i class="fas fa-circle-check me-2 text-accent-70"></i>
         {% trans "No referendum has ever had to restart because of a vote storage failure." %}
       </p>
       {% endif %}

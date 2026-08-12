@@ -11,7 +11,11 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
     Active tasks assigned to a citizen are always shown so users can track
     their own open tasks even if they have not been modified recently.
     """
-    tasks = Task.objects.filter(Q(updated_at__gte=since) | Q(assigned_to__isnull=False, status=Task.Status.ACTIVE)).select_related('created_by', 'assigned_to').order_by('-updated_at')
+    tasks = (
+        Task.objects.filter(Q(updated_at__gte=since) | Q(assigned_to__isnull=False, status=Task.Status.ACTIVE))
+        .select_related('created_by', 'created_by__uzytkownik', 'assigned_to', 'assigned_to__uzytkownik')
+        .order_by('-updated_at')
+    )
     items = []
     for task in tasks:
         clean_description = strip_tags(task.description)

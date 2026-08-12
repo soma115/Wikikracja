@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-10 21:45+0200\n"
+"POT-Creation-Date: 2026-08-12 02:18+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -116,8 +116,8 @@ msgstr "Jeśli ta opcja jest włączona, użytkownicy będą mogli wybrać więc
 msgid "Survey"
 msgstr "Ankieta"
 
-#: .\ankiety\models.py:21 .\home\templates\home\base.html:103
-#: .\home\templates\home\base.html:106 .\home\templates\home\base.html:235
+#: .\ankiety\models.py:21 .\home\templates\home\base.html:102
+#: .\home\templates\home\base.html:105 .\home\templates\home\base.html:234
 msgid "Surveys"
 msgstr "Ankiety"
 
@@ -588,8 +588,8 @@ msgstr "Bez kategorii"
 msgid "Create"
 msgstr "Utwórz"
 
-#: .\board\templates\board\board.html:164 .\home\templates\home\base.html:130
-#: .\home\templates\home\base.html:133 .\home\templates\home\base.html:233
+#: .\board\templates\board\board.html:164 .\home\templates\home\base.html:129
+#: .\home\templates\home\base.html:132 .\home\templates\home\base.html:232
 msgid "Documents"
 msgstr "Dokumenty"
 
@@ -1192,8 +1192,8 @@ msgstr "Pokój: %(room)s"
 #: .\glosowania\templates\glosowania\_proposal_card.html:40
 #: .\glosowania\templates\glosowania\_proposal_card.html:50
 #: .\glosowania\templates\glosowania\szczegoly.html:43
-#: .\home\services\search.py:106 .\home\templates\home\base.html:157
-#: .\home\templates\home\base.html:160 .\home\templates\home\base.html:240
+#: .\home\services\search.py:106 .\home\templates\home\base.html:156
+#: .\home\templates\home\base.html:159 .\home\templates\home\base.html:239
 #: .\home\templates\home\home.html:79 .\home\templates\home\home.html:612
 #: .\home\templates\home\home.html:696 .\home\templates\home\search.html:93
 #: .\home\templatetags\feed_filters.py:27 .\home\views.py:85
@@ -1346,8 +1346,8 @@ msgid "None"
 msgstr "Brak"
 
 #: .\chat\templates\chat\chat.html:96 .\chat\templates\chat\chat.html:231
-#: .\home\templates\home\base.html:121 .\home\templates\home\base.html:124
-#: .\home\templates\home\base.html:234 .\home\templates\home\home.html:47
+#: .\home\templates\home\base.html:120 .\home\templates\home\base.html:123
+#: .\home\templates\home\base.html:233 .\home\templates\home\home.html:47
 #: .\home\templates\home\search.html:69 .\home\views.py:85
 #: .\obywatele\templates\obywatele\szczegoly.html:143
 msgid "Tasks"
@@ -1412,7 +1412,7 @@ msgid "Send a message"
 msgstr "Wyślij wiadomość"
 
 #: .\chat\templates\chat\guest_message.html:11
-#: .\home\templates\home\base.html:299
+#: .\home\templates\home\base.html:298
 msgid "Send a message to the group"
 msgstr "Wyślij wiadomość do grupy"
 
@@ -1451,9 +1451,9 @@ msgid "Room actions"
 msgstr "Działania"
 
 #: .\chat\templates\chat\room_link.html:70
-#: .\home\templates\home\activity.html:94
-#: .\home\templates\home\activity.html:95
-#: .\home\templates\home\activity.html:96
+#: .\home\templates\home\activity.html:105
+#: .\home\templates\home\activity.html:106
+#: .\home\templates\home\activity.html:107
 msgid "Mark as unread"
 msgstr "Oznacz jako nieprzeczytane"
 
@@ -1482,7 +1482,7 @@ msgstr "Dziś"
 msgid "Tomorrow"
 msgstr "Jutro"
 
-#: .\chat\views.py:218 .\home\templates\home\base.html:321
+#: .\chat\views.py:218 .\home\templates\home\base.html:320
 msgid "Enable Notifications"
 msgstr "Włącz powiadomienia"
 
@@ -1832,8 +1832,8 @@ msgid "Add to Google Calendar"
 msgstr "Dodaj do swojego Kalendarza Google"
 
 #: .\events\templates\events\_event_card.html:60
-#: .\home\templates\home\base.html:139 .\home\templates\home\base.html:142
-#: .\home\templates\home\base.html:236 .\home\templates\home\base.html:296
+#: .\home\templates\home\base.html:138 .\home\templates\home\base.html:141
+#: .\home\templates\home\base.html:235 .\home\templates\home\base.html:295
 #: .\home\templates\home\home.html:39 .\home\templates\home\home.html:651
 #: .\home\views.py:85
 msgid "Calendar"
@@ -2713,7 +2713,7 @@ msgstr "Głosowania"
 msgid "Unknown"
 msgstr "Nieznane"
 
-#: .\home\services\search.py:96 .\home\templates\home\base.html:198
+#: .\home\services\search.py:96 .\home\templates\home\base.html:197
 #: .\home\templatetags\feed_filters.py:29 .\obywatele\models.py:102
 msgid "Citizen"
 msgstr "Ludzie"
@@ -2763,104 +2763,104 @@ msgid "The group will review your application and grant access."
 msgstr "Grupa zweryfikuje Twoje zgłoszenie i przyzna dostęp."
 
 #: .\home\templates\home\activity.html:35
-#: .\home\templates\home\activity.html:93
-#: .\home\templates\home\activity.html:95
-#: .\home\templates\home\activity.html:96
+#: .\home\templates\home\activity.html:104
+#: .\home\templates\home\activity.html:106
+#: .\home\templates\home\activity.html:107
 msgid "Mark as read"
 msgstr "Oznacz jako przeczytane"
 
-#: .\home\templates\home\activity.html:106
+#: .\home\templates\home\activity.html:117
 msgid "No activity"
 msgstr "Brak aktywności"
 
-#: .\home\templates\home\base.html:85 .\home\templates\home\base.html:88
-#: .\home\templates\home\base.html:231 .\home\templates\home\home.html:92
+#: .\home\templates\home\base.html:84 .\home\templates\home\base.html:87
+#: .\home\templates\home\base.html:230 .\home\templates\home\home.html:92
 msgid "Desktop"
 msgstr "Pulpit"
 
-#: .\home\templates\home\base.html:94 .\home\templates\home\base.html:97
-#: .\home\templates\home\base.html:232 .\home\templates\home\search.html:75
+#: .\home\templates\home\base.html:93 .\home\templates\home\base.html:96
+#: .\home\templates\home\base.html:231 .\home\templates\home\search.html:75
 #: .\home\views.py:85
 msgid "Votings"
 msgstr "Głosowania"
 
-#: .\home\templates\home\base.html:112 .\home\templates\home\base.html:115
-#: .\home\templates\home\base.html:238 .\home\templates\home\home.html:55
+#: .\home\templates\home\base.html:111 .\home\templates\home\base.html:114
+#: .\home\templates\home\base.html:237 .\home\templates\home\home.html:55
 #: .\home\templates\home\search.html:87 .\home\views.py:85
 #: .\obywatele\models.py:103 .\obywatele\templates\obywatele\menu.html:14
 #: .\obywatele\templates\obywatele\start.html:9
 msgid "Citizens"
 msgstr "Ludzie"
 
-#: .\home\templates\home\base.html:148 .\home\templates\home\base.html:151
-#: .\home\templates\home\base.html:239
+#: .\home\templates\home\base.html:147 .\home\templates\home\base.html:150
+#: .\home\templates\home\base.html:238
 msgid "Finance"
 msgstr "Finanse"
 
-#: .\home\templates\home\base.html:172 .\home\templates\home\base.html:175
-#: .\home\templates\home\base.html:238
+#: .\home\templates\home\base.html:171 .\home\templates\home\base.html:174
+#: .\home\templates\home\base.html:237
 msgid "Settings"
 msgstr "Ustawienia"
 
-#: .\home\templates\home\base.html:179 .\home\templates\home\base.html:181
+#: .\home\templates\home\base.html:178 .\home\templates\home\base.html:180
 msgid "Log out"
 msgstr "Wyloguj"
 
-#: .\home\templates\home\base.html:204
+#: .\home\templates\home\base.html:203
 msgid "Collapse/expand menu"
 msgstr "Zwiń/rozwiń menu"
 
-#: .\home\templates\home\base.html:206
+#: .\home\templates\home\base.html:205
 msgid "Collapse"
 msgstr "Zwiń"
 
-#: .\home\templates\home\base.html:251 .\home\templates\home\base.html:253
-#: .\home\templates\home\base.html:262 .\home\templates\home\search.html:15
+#: .\home\templates\home\base.html:250 .\home\templates\home\base.html:252
+#: .\home\templates\home\base.html:261 .\home\templates\home\search.html:15
 #: .\home\templates\home\search.html:37
 msgid "Search"
 msgstr "Szukaj"
 
-#: .\home\templates\home\base.html:268 .\home\templates\home\base.html:306
+#: .\home\templates\home\base.html:267 .\home\templates\home\base.html:305
 msgid "Toggle light / dark mode"
 msgstr "Przełącz tryb jasny/ciemny"
 
-#: .\home\templates\home\base.html:273 .\home\templates\home\home.html:237
+#: .\home\templates\home\base.html:272 .\home\templates\home\home.html:237
 #: .\obywatele\templates\obywatele\szczegoly.html:132
 #: .\obywatele\templates\obywatele\szczegoly.html:148
 msgid "Activity"
 msgstr "Aktywność"
 
-#: .\home\templates\home\base.html:292 .\home\views.py:85
+#: .\home\templates\home\base.html:291 .\home\views.py:85
 msgid "Announcements"
 msgstr "Ogłoszenia"
 
-#: .\home\templates\home\base.html:301
+#: .\home\templates\home\base.html:300
 #: .\obywatele\templates\obywatele\start.html:88
 msgid "Contact"
 msgstr "Kontakt"
 
-#: .\home\templates\home\base.html:309 .\home\templates\home\home.html:13
+#: .\home\templates\home\base.html:308 .\home\templates\home\home.html:13
 #: .\obywatele\templates\obywatele\szczegoly.html:57
 msgid "Login"
 msgstr "Zaloguj"
 
-#: .\home\templates\home\base.html:310
+#: .\home\templates\home\base.html:309
 msgid "Register"
 msgstr "Zarejestruj"
 
-#: .\home\templates\home\base.html:319
+#: .\home\templates\home\base.html:318
 msgid "Enable notifications to stay updated with new messages and activities"
 msgstr "Włącz powiadomienia, aby być na bieżąco z nowymi wiadomościami i aktywnościami"
 
-#: .\home\templates\home\base.html:324
+#: .\home\templates\home\base.html:323
 msgid "Not now"
 msgstr "Nie teraz"
 
-#: .\home\templates\home\base.html:331
+#: .\home\templates\home\base.html:330
 msgid "Notifications are blocked. Please enable them in your browser settings"
 msgstr "Powiadomienia są zablokowane. Włącz je w ustawieniach przeglądarki"
 
-#: .\home\templates\home\base.html:333
+#: .\home\templates\home\base.html:332
 msgid "Dismiss"
 msgstr "Odrzuć"
 
@@ -3795,20 +3795,6 @@ msgstr "Zadania %(name)s"
 #: .\obywatele\templates\obywatele\dodaj.html:46
 msgid "Below fields are not mandatory but they will help us with cooperate."
 msgstr "Pola poniżej nie są obowiązkowe, ale ich wypełnienie pomoże nam we współpracy."
-
-#: .\obywatele\templates\obywatele\includes\notification_row.html:19
-#: .\obywatele\templates\obywatele\includes\notification_row.html:22
-msgid "Enabled"
-msgstr "Włączone"
-
-#: .\obywatele\templates\obywatele\includes\notification_row.html:20
-#: .\obywatele\templates\obywatele\includes\notification_row.html:22
-msgid "Disabled"
-msgstr "Wyłączone"
-
-#: .\obywatele\templates\obywatele\includes\notification_row.html:21
-msgid "Error"
-msgstr "Błąd"
 
 #: .\obywatele\templates\obywatele\menu.html:10
 msgid "Parameters"

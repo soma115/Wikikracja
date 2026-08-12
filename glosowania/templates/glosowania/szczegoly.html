@@ -10,13 +10,13 @@
 
   {# Karta: info + akcja #}
   <div class="card">
-    <div class="card-body d-flex flex-column gap-2 font-size-82rem">
+    <div class="card-body d-flex flex-column gap-2 text-sm">
 
-      <p class="mb-0 fw-semibold font-size-1rem-color-var-text-primary-line-hei">
+      <p class="mb-0 fw-semibold text-body">
         <span class="text-muted fw-normal">#{{ id.id }}</span> {{ id.display_title }}
       </p>
 
-      <div class="d-flex flex-wrap align-items-center gap-2 color-var-text-muted-font-size-78rem">
+      <div class="d-flex flex-wrap align-items-center gap-2 text-muted-78">
         {% if id.author %}
         <a href="{% url 'obywatele:obywatele_szczegoly' pk=id.author.pk %}" class="detail-author-link d-flex align-items-center gap-1 text-decoration-none">
           <span class="detail-author-avatar">{% if id.author.uzytkownik.avatar %}<img src="{{ id.author.uzytkownik.avatar.url }}" alt="">{% else %}{{ id.author.username|slice:":2"|upper }}{% endif %}</span>
@@ -52,7 +52,7 @@
       </div>
 
       {% if id.status == id.Status.PROPOSITION %}
-      <div class="d-flex align-items-center gap-1 font-size-78rem-color-var-text-muted">
+      <div class="d-flex align-items-center gap-1 text-muted-78">
         <i class="fas fa-pen-nib {% if signed %}pen-signed{% else %}pen-unsigned{% endif %}"></i>
         {% if signed %}{% trans 'I support' %}{% else %}{% trans 'I do not support' %}{% endif %}
       </div>
@@ -92,8 +92,8 @@
       {% endif %}
 
       {% elif id.voting_has_ended %}
-      <div class="d-flex align-items-center gap-1 font-size-78rem-color-var-text-muted">
-        <i class="fas fa-chart-bar color-var-accent"></i> {% trans 'Results' %}
+      <div class="d-flex align-items-center gap-1 text-muted-78">
+        <i class="fas fa-chart-bar text-accent"></i> {% trans 'Results' %}
       </div>
       {% with total=id.za|add:id.przeciw %}{% if total %}{% widthratio id.za total 100 as fill_pct %}
       <div class="result-bar">
@@ -105,7 +105,7 @@
       </div>
       {% endif %}{% endwith %}
       {% if voters %}<div class="text-muted-75"><i class="fas fa-users me-1"></i>{% for voter in voters %}{{ voter.ktory_uzytkownik_juz_zaglosowal.username }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
-      {% if report %}<div class="protocol-list font-size-72rem">{% for r in report %}<span class="{% if r.vote %}protocol-yes{% else %}protocol-no{% endif %}">{% if r.vote %}✓{% else %}✗{% endif %} {{ r.code }}</span><br>{% endfor %}</div>{% endif %}
+      {% if report %}<div class="protocol-list text-72">{% for r in report %}<span class="{% if r.vote %}protocol-yes{% else %}protocol-no{% endif %}">{% if r.vote %}✓{% else %}✗{% endif %} {{ r.code }}</span><br>{% endfor %}</div>{% endif %}
       {% endif %}
 
     </div>
@@ -116,30 +116,30 @@
   <div class="card">
     <div class="card-body d-flex flex-column gap-2">
       <div class="d-flex align-items-center gap-2">
-        <i class="fas fa-scroll color-var-accent-font-size-85rem"></i>
-        <span class="section-heading font-size-85rem">{% trans 'Law text' %}</span>
+        <i class="fas fa-scroll text-accent-85"></i>
+        <span class="section-heading text-85">{% trans 'Law text' %}</span>
       </div>
       {% if id.tresc %}
       <div class="detail-subsection">
-        <div class="detail-section-text font-size-82rem">{{ id.tresc|richtext }}</div>
+        <div class="detail-section-text text-sm">{{ id.tresc|richtext }}</div>
       </div>
       {% endif %}
       {% if id.kara %}
       <div class="detail-subsection">
         <div class="detail-section-label"><i class="fas fa-triangle-exclamation"></i>{% trans 'Consequences' %}</div>
-        <div class="detail-section-text font-size-82rem">{{ id.kara|richtext }}</div>
+        <div class="detail-section-text text-sm">{{ id.kara|richtext }}</div>
       </div>
       {% endif %}
       {% if id.uzasadnienie %}
       <div class="detail-subsection">
         <div class="detail-section-label"><i class="fas fa-lightbulb"></i>{% trans 'Reasoning' %}</div>
-        <div class="detail-section-text font-size-82rem">{{ id.uzasadnienie|richtext }}</div>
+        <div class="detail-section-text text-sm">{{ id.uzasadnienie|richtext }}</div>
       </div>
       {% endif %}
       {% if id.znosi %}
       <div class="detail-subsection">
         <div class="detail-section-label"><i class="fas fa-ban"></i>{% trans 'Abolishes regulations' %}</div>
-        <div class="detail-section-text font-size-82rem">{{ id.znosi }}</div>
+        <div class="detail-section-text text-sm">{{ id.znosi }}</div>
       </div>
       {% endif %}
       {% if id.proposed_brand_mark %}
@@ -256,10 +256,6 @@ function toggleArgForm(id) {
   document.querySelectorAll('[data-width]').forEach(function (el) {
     var w = el.dataset.width;
     if (w) el.style.setProperty('--w', w + '%');
-  });
-  document.querySelectorAll('[data-bg]').forEach(function (el) {
-    var bg = el.dataset.bg;
-    if (bg) el.style.setProperty('--bg', bg);
   });
 })();
 </script>

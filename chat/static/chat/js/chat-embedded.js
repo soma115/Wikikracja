@@ -29,12 +29,12 @@ async function initEmbeddedChat(container) {
                 <div class="ec-loading">Ładowanie…</div>
             </div>
             <div class="ec-input-area">
-                <div class="reply-preview" id="ec-reply-preview-${roomId}" style="display:none">
+                <div class="reply-preview d-none" id="ec-reply-preview-${roomId}">
                     <span class="reply-preview-label">↩ </span>
                     <span class="reply-preview-text" id="ec-reply-preview-text-${roomId}"></span>
                     <button class="reply-preview-close ec-reply-cancel" type="button" title="Anuluj odpowiedź">✕</button>
                 </div>
-                <div class="image-preview-container ec-image-preview-container" id="ec-image-preview-${roomId}" style="display:none">
+                <div class="image-preview-container ec-image-preview-container d-none" id="ec-image-preview-${roomId}">
                     <div class="preview-images ec-preview-images" id="ec-preview-images-${roomId}"></div>
                     <div class="delete-images-preview ec-delete-images-preview" id="ec-delete-images-${roomId}">
                         <i class="fas fa fa-times"></i>
@@ -47,7 +47,7 @@ async function initEmbeddedChat(container) {
                          data-hint="${_('Enter send · Shift/Ctrl+Enter new line · Ctrl+B bold · Ctrl+I italic')}"></div>
                     <div class="compose-bar">
                         <div class="compose-bar-left">
-                            <input type="file" id="ec-file-input-${roomId}" class="file-input ec-file-input" multiple="multiple" style="display:none;"/>
+                            <input type="file" id="ec-file-input-${roomId}" class="file-input ec-file-input d-none" multiple="multiple"/>
                             <label class="fmt-btn" for="ec-file-input-${roomId}" title="${_('Attach image')}">
                                 <i class="fas fa-image"></i>
                             </label>
@@ -307,9 +307,9 @@ async function initEmbeddedChat(container) {
 
             if (previewImagesDiv) {
                 previewImagesDiv.insertAdjacentHTML('beforeend', `
-                    <div class="image-preview-wrapper" style="position: relative; display: inline-block;">
-                        <img class="image-preview new-attachment" id="${previewId}" style="max-width: 100px; max-height: 100px; margin: 5px;">
-                        <button class="btn btn-sm btn-danger ec-remove-preview" data-preview-id="${previewId}" type="button" style="position: absolute; top: 2px; right: 2px; padding: 0 4px; font-size: 12px;">×</button>
+                    <div class="image-preview-wrapper ec-image-preview-wrapper">
+                        <img class="image-preview new-attachment" id="${previewId}">
+                        <button class="btn btn-sm btn-danger ec-remove-preview image-preview-remove" data-preview-id="${previewId}" type="button">×</button>
                     </div>
                 `);
             }

@@ -74,14 +74,14 @@
               <div class="proposal-section-label">
                 <i class="fas fa-clock fa-fw"></i> {% trans "Next Occurrence" %}
               </div>
-              <div class="proposal-section-text color-var-accent">{{ next_occurrence|date:"l, Y-m-d H:i" }}</div>
+              <div class="proposal-section-text text-accent">{{ next_occurrence|date:"l, Y-m-d H:i" }}</div>
             </div>
           {% else %}
             <div class="proposal-section">
               <div class="proposal-section-label">
                 <i class="fas fa-clock fa-fw"></i> {% trans "Next Occurrence" %}
               </div>
-              <div class="proposal-section-text color-var-text-muted">{% trans "No upcoming occurrences" %}</div>
+              <div class="proposal-section-text text-muted">{% trans "No upcoming occurrences" %}</div>
             </div>
           {% endif %}
         {% endwith %}

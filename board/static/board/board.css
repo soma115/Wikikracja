@@ -1,18 +1,9 @@
-.board-section {
-  position: relative;
-}
-.board-section--pinned {
-  margin-bottom: 1.75rem;
-}
-.board-section--regular {
-  padding-top: 0.5rem;
-}
 .board-post-card {
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 1.25rem;
   margin: 0.75rem;
-  background: rgba(16, 20, 27, 0.85);
+  background: var(--bg-card);
   backdrop-filter: blur(4px);
   box-shadow: 0 14px 30px rgba(6, 8, 12, 0.35);
   transition: transform 180ms ease, box-shadow 200ms ease;
@@ -21,50 +12,23 @@
   transform: translateY(-4px);
   box-shadow: 0 20px 40px rgba(6, 8, 12, 0.45);
 }
-.board-post-card--pinned {
-  border: none;
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 255, 255, 0.08));
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
-  position: relative;
-  overflow: hidden;
-}
-.board-post-card--pinned::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 2px;
-  background: linear-gradient(135deg, #00ff11cc, rgba(255, 255, 255, 0.2));
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-}
-.board-post-card--pinned h3 a {
-  color: #00ff229d;
-}
 /* Post detail styling */
 .post-header {
-  border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 2px solid var(--border);
   padding-bottom: 1.5rem;
   margin-bottom: 2rem;
   text-align: center;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  background: linear-gradient(135deg, var(--border), rgba(255, 255, 255, 0.02));
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
   backdrop-filter: blur(2px);
 }
 .post-title {
-  color: var(--text-primary) !important;
+  color: var(--badge-proposition-color) !important;
   font-size: 2.5rem;
   font-weight: 700;
   margin: 0 0 1rem 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(135deg, #3498db, #2980b9);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   letter-spacing: 0.5px;
 }
 .post-subtitle {
@@ -74,7 +38,6 @@
   margin: 0;
   font-style: italic;
   opacity: 0.9;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 .post-content {
   color: var(--text-primary);
@@ -88,7 +51,7 @@
 .post-content h4,
 .post-content h5,
 .post-content h6 {
-  color: var(--bs-info);
+  color: var(--badge-proposition-color);
   margin-top: 2rem;
   margin-bottom: 1rem;
   font-weight: 600;
@@ -121,18 +84,18 @@
   padding-left: 2rem;
 }
 .post-content blockquote {
-  border-left: 4px solid var(--bs-info);
+  border-left: 4px solid var(--badge-proposition-color);
   padding-left: 1.5rem;
   margin: 2rem 0;
   font-style: italic;
   color: var(--text-muted);
 }
 .post-content code {
-  background: rgba(52, 152, 219, 0.2);
+  background: var(--badge-proposition-bg);
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
   font-family: 'Courier New', monospace;
-  color: var(--bs-info);
+  color: var(--badge-proposition-color);
 }
 .post-content pre {
   background: rgba(0, 0, 0, 0.3);
@@ -140,7 +103,7 @@
   border-radius: 8px;
   overflow-x: auto;
   margin: 2rem 0;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
 }
 /* Simple table styling - only cell borders */
 .board-post-card table,
@@ -152,7 +115,7 @@
 .board-post-card table th,
 .board-post-card .table td,
 .board-post-card .table th {
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--border);
   padding: 8px;
 }
 /* Mobile responsive styles */

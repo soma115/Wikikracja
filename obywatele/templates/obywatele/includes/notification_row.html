@@ -13,13 +13,4 @@
 				   data-url="{% url 'obywatele:toggle_notification' %}?type={{ notification_type }}">
 		</div>
 	</td>
-	<td class="text-center">
-		<span id="status-{{ notification_type }}" 
-			  class="badge {% if is_enabled %}bg-success{% else %}bg-secondary{% endif %}"
-			  data-enabled-text="{% trans 'Enabled' %}"
-			  data-disabled-text="{% trans 'Disabled' %}"
-			  data-error-text="{% trans 'Error' %}">
-			{% if is_enabled %}{% trans "Enabled" %}{% else %}{% trans "Disabled" %}{% endif %}
-		</span>
-	</td>
 </tr>

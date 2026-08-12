@@ -9,7 +9,7 @@ from .services import CHAT_UNREAD_CACHE_KEY
 
 def get_feed_items(since: timezone.datetime) -> list[dict]:
     """Return feed items for non-archived chat rooms with recent messages."""
-    all_rooms = Room.objects.filter(archived=False).prefetch_related('allowed', 'messages', 'messages__sender')
+    all_rooms = Room.objects.filter(archived=False).prefetch_related('allowed', 'messages', 'messages__sender', 'messages__sender__uzytkownik')
 
     items = []
     for room in all_rooms:

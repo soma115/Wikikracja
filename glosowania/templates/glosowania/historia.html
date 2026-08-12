@@ -75,14 +75,14 @@
           #{{ decision.id }} — {% trans 'Edit history' %}
         </span>
       </div>
-      <p class="mb-0 fw-semibold font-size-95rem">{{ decision.title }}</p>
+      <p class="mb-0 fw-semibold text-95">{{ decision.title }}</p>
     </div>
   </div>
 
   {% if not entries %}
     <div class="card">
       <div class="card-body">
-        <p class="mb-0 color-var-text-muted-font-size-85rem">{% trans 'No previous versions recorded yet.' %}</p>
+        <p class="mb-0 text-muted-85">{% trans 'No previous versions recorded yet.' %}</p>
       </div>
     </div>
   {% endif %}
@@ -114,7 +114,7 @@
   {% endfor %}
 
   {% if current_diffs %}
-  <div class="card border-color-00bc8c">
+  <div class="card border-approved">
     <div class="card-body d-flex flex-column gap-2">
       <div class="d-flex align-items-center gap-2 flex-wrap">
         <span class="historia-current-badge">{% trans 'Current version' %}</span>

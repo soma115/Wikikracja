@@ -352,10 +352,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const file = files.item(i);
             const fr = new FileReader();
             const preview_id = `preview-new-${i}-${Date.now()}`;
-            preview_container?.insertAdjacentHTML('beforeend', `<div class="image-preview-wrapper" style="position: relative; display: inline-block;">
+            preview_container?.insertAdjacentHTML('beforeend', `<div class="image-preview-wrapper">
                 <img class='image-preview new-attachment' id='${preview_id}'>
-                <button class="btn btn-sm btn-danger remove-new-attachment"
-                    style="position: absolute; top: 2px; right: 2px; padding: 0 4px; font-size: 12px;"
+                <button class="btn btn-sm btn-danger remove-new-attachment image-preview-remove"
                     data-preview-id="${preview_id}" type="button">×</button>
             </div>`);
             fr.onload = (e) => {

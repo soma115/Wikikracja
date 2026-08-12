@@ -11,10 +11,10 @@
     <div class="detail-header-top">
       <h1 class="detail-title">
         {% if form.instance.pk %}
-          <i class="fas fa-pen fa-fw color-var-accent"></i>
+          <i class="fas fa-pen fa-fw text-accent"></i>
           {% trans "Edit Event" %}: {{ form.instance.title }}
         {% else %}
-          <i class="fas fa-plus fa-fw color-var-accent"></i>
+          <i class="fas fa-plus fa-fw text-accent"></i>
           {% trans "Create New Event" %}
         {% endif %}
       </h1>
