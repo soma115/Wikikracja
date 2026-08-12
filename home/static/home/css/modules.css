@@ -534,7 +534,7 @@ button.proposal-against-btn:focus-visible {
   padding: .35rem .5rem;
   border-radius: .35rem;
   text-decoration: none;
-  color: var(--text-primary) !important;
+  color: var(--text-primary);
   transition: background var(--transition-fast);
 }
 .helpers-popover-item:hover {
@@ -549,7 +549,7 @@ button.proposal-against-btn:focus-visible {
   margin-top: .25rem;
   padding: .35rem .5rem;
   font-size: .75rem;
-  color: var(--accent) !important;
+  color: var(--accent);
   text-decoration: none;
   border-top: 1px solid var(--border);
   text-align: center;
@@ -572,7 +572,7 @@ button.proposal-against-btn:focus-visible {
   gap: .25rem;
   font-size: .75rem;
   font-weight: 500;
-  color: var(--text-muted) !important;
+  color: var(--text-muted);
   text-decoration: none;
   padding: 3px 8px;
   border-radius: .35rem;
@@ -581,7 +581,7 @@ button.proposal-against-btn:focus-visible {
   white-space: nowrap;
 }
 .proposal-details-inline:hover {
-  color: var(--accent) !important;
+  color: var(--accent);
   border-color: var(--accent-glow);
   background: var(--accent-muted);
 }
@@ -617,7 +617,7 @@ button.proposal-against-btn:focus-visible {
   gap: .35rem;
   font-size: .8rem;
   font-weight: 600;
-  color: var(--accent) !important;
+  color: var(--accent);
   text-decoration: none;
   padding: .3rem .75rem;
   border: 1px solid var(--accent-glow);
@@ -770,7 +770,7 @@ button.proposal-against-btn:focus-visible {
   flex-shrink: 0;
   border-radius: var(--radius-btn);
   background: var(--stepper-color);
-  color: var(--text-on-accent) !important;
+  color: var(--text-on-accent);
   font-size: .8rem;
   font-weight: 700;
   text-decoration: none;
@@ -1249,7 +1249,7 @@ button.proposal-against-btn:focus-visible {
 }
 .action-btn-sign {
   background: var(--accent);
-  color: var(--text-on-accent) !important;
+  color: var(--text-on-accent);
 }
 .action-btn-sign:hover {
   background: var(--accent-hover);
@@ -1257,7 +1257,7 @@ button.proposal-against-btn:focus-visible {
 }
 .action-btn-withdraw {
   background: transparent;
-  color: var(--badge-rejected-color) !important;
+  color: var(--badge-rejected-color);
   border: 1px solid rgba(239, 68, 68, .4);
 }
 .action-btn-withdraw:hover {
@@ -1266,7 +1266,7 @@ button.proposal-against-btn:focus-visible {
 }
 .action-btn-yes {
   background: var(--badge-approved-bg);
-  color: var(--badge-approved-color) !important;
+  color: var(--badge-approved-color);
   border: 1px solid rgba(0, 188, 140, .4);
 }
 .action-btn-yes:hover {
@@ -1274,7 +1274,7 @@ button.proposal-against-btn:focus-visible {
 }
 .action-btn-no {
   background: var(--badge-rejected-bg);
-  color: var(--badge-rejected-color) !important;
+  color: var(--badge-rejected-color);
   border: 1px solid rgba(239, 68, 68, .3);
 }
 .action-btn-no:hover {
@@ -1282,12 +1282,12 @@ button.proposal-against-btn:focus-visible {
 }
 .action-btn-edit {
   background: transparent;
-  color: var(--text-muted) !important;
+  color: var(--text-muted);
   border: 1px solid var(--border);
   font-weight: 500;
 }
 .action-btn-edit:hover {
-  color: var(--text-primary) !important;
+  color: var(--text-primary);
   border-color: rgba(255, 255, 255, .2);
   background: rgba(255, 255, 255, .04);
 }
@@ -1299,7 +1299,7 @@ button.proposal-against-btn:focus-visible {
 
 .action-btn-take {
   background: var(--badge-proposition-bg);
-  color: var(--badge-proposition-color) !important;
+  color: var(--badge-proposition-color);
   border: 1px solid var(--badge-proposition-border);
 }
 .action-btn-take:hover,
@@ -1489,7 +1489,7 @@ button.proposal-against-btn:focus-visible {
   border-color: var(--accent-glow);
 }
 .task-dash-row:hover .task-dash-link {
-  color: var(--accent) !important;
+  color: var(--accent);
 }
 /* ══════════════════════════════════════════════════
    EMBEDDED CHAT
@@ -1852,7 +1852,7 @@ button.proposal-against-btn:focus-visible {
   transition: background var(--transition-fast), border-color var(--transition-fast);
   cursor: pointer;
 }.chat-msg-row:hover .chat-msg-link {
-  color: var(--accent) !important;
+  color: var(--accent);
 }
 .chat-msg-link {
   font-size: .82rem;
@@ -2578,16 +2578,16 @@ button.proposal-against-btn:focus-visible {
   color: var(--text-primary);
 }
 .registration-timeline__icon--email {
-  color: var(--badge-proposition-color) !important;
+  color: var(--badge-proposition-color);
 }
 .registration-timeline__icon--verify {
-  color: var(--badge-discussion-color) !important;
+  color: var(--badge-discussion-color);
 }
 .registration-timeline__icon--form {
-  color: var(--badge-referendum-color) !important;
+  color: var(--badge-referendum-color);
 }
 .registration-timeline__icon--approval {
-  color: var(--status-online-color) !important;
+  color: var(--status-online-color);
 }
 .registration-timeline__desc {
   font-size: 0.82rem;

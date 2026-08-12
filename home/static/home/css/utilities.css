@@ -368,7 +368,7 @@
 }
 
 .sr-row:hover {
- background: var(--accent-muted) !important;
+ background: var(--accent-muted);
 }
 
 .nav-link-clean {
@@ -751,11 +751,11 @@
 }
 
 .quick-link-row .task-dash-link {
- color: var(--accent) !important;
+ color: var(--accent);
 }
 
 .quick-link-row.is-read .task-dash-link {
- color: var(--text-muted) !important;
+ color: var(--text-muted);
 }
 
 /* ══════════════════════════════════════════════════

@@ -30,8 +30,8 @@ hr {
   text-transform: uppercase;
   font-size: 0.8rem;
   letter-spacing: 0.04em;
-  color: var(--text-muted) !important;
-  border-bottom: 1px solid var(--border) !important;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
 }
 .table-hover tbody tr:hover {
   background-color: rgba(255, 255, 255, 0.04);
@@ -125,7 +125,7 @@ td a:hover {
   white-space: nowrap;
 }
 .table-hover-rows tbody tr:hover {
-  background: var(--accent-muted) !important;
+  background: var(--accent-muted);
 }
 .table-hover-rows tbody tr:hover td a {
   color: var(--accent);

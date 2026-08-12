@@ -35,13 +35,13 @@
   color: var(--text-primary);
 }
 .list-group-item:hover {
-  background: var(--accent-muted) !important;
+  background: var(--accent-muted);
 }
 .list-group-item.active,
 .pagination .page-link:hover {
-  background: var(--accent-muted) !important;
-  border-color: var(--accent-glow) !important;
-  color: var(--accent) !important;
+  background: var(--accent-muted);
+  border-color: var(--accent-glow);
+  color: var(--accent);
 }
 /* ── Nawigacja zakładek ─────────────────────────────────────── */
 .nav-tabs {

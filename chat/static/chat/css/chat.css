@@ -30,7 +30,7 @@ body:has(.chat-rooms) .main-area {
     display: flex;
     flex: 1;
     min-height: 0;
-    margin: 0 !important;
+    margin: 0;
 }
 .chat-rooms>div[class*="col-"] {
     display: flex;

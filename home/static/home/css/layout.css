@@ -209,15 +209,15 @@ img.avatar {
 }
 
 html, body {
-  background: var(--bg-base) !important;
-  color: var(--text-primary) !important;
+  background: var(--bg-base);
+  color: var(--text-primary);
   margin: 0;
 }
 
 /* layout */
 
 .layout-wrapper {
-  display: flex !important;
+  display: flex;
   min-height: 100vh;
 }
 
@@ -226,7 +226,7 @@ html, body {
 .sidebar {
   width: max-content;
   background: var(--bg-sidebar);
-  display: flex !important;
+  display: flex;
   flex-direction: column;
   position: sticky;
   top: 0;
@@ -305,12 +305,12 @@ html, body {
 }
 
 .sidebar-nav .nav-item a {
-  display: flex !important;
+  display: flex;
   align-items: center;
   gap: .75rem;
   padding: .6rem 1.1rem;
-  color: var(--text-muted) !important;
-  text-decoration: none !important;
+  color: var(--text-muted);
+  text-decoration: none;
   border-radius: .4rem;
   margin: .1rem .65rem;
   transition: background .15s, color .15s;
@@ -319,12 +319,12 @@ html, body {
 
 .sidebar-nav .nav-item a:hover, .sidebar-bottom .nav-item a:hover {
   background: var(--accent-muted);
-  color: var(--text-primary) !important;
+  color: var(--text-primary);
 }
 
 .sidebar-nav .nav-item a.active {
   background: var(--accent-muted);
-  color: var(--accent) !important;
+  color: var(--accent);
 }
 
 .sidebar-nav .nav-item a .nav-icon, .sidebar-bottom .nav-icon {
@@ -355,12 +355,12 @@ html, body {
 }
 
 .sidebar-bottom .nav-item a {
-  display: flex !important;
+  display: flex;
   align-items: center;
   gap: .75rem;
   padding: .55rem 1.1rem;
-  color: var(--text-muted) !important;
-  text-decoration: none !important;
+  color: var(--text-muted);
+  text-decoration: none;
   border-radius: .4rem;
   margin: .1rem .65rem;
   transition: background .15s, color .15s;
@@ -406,7 +406,7 @@ html, body {
 .main-area {
   margin-left: 0;
   flex: 1;
-  display: flex !important;
+  display: flex;
   flex-direction: column;
   min-height: 100vh;
   min-width: 0;
@@ -419,7 +419,7 @@ html, body {
   height: var(--topbar-height);
   background: var(--bg-sidebar);
   border-bottom: 1px solid var(--border);
-  display: flex !important;
+  display: flex;
   align-items: center;
   padding: 0 1.5rem;
   gap: 1rem;
@@ -535,7 +535,7 @@ html, body {
   font-size: .82rem;
   font-weight: 600;
   white-space: nowrap;
-  text-decoration: none !important;
+  text-decoration: none;
   transition: background .15s;
   display: inline-flex;
   align-items: center;
@@ -563,7 +563,7 @@ html, body {
   padding: .35rem .65rem;
   border-radius: .45rem;
   color: var(--text-muted);
-  text-decoration: none !important;
+  text-decoration: none;
   font-size: .83rem;
   font-weight: 500;
   white-space: nowrap;
@@ -876,8 +876,8 @@ a:hover {
 /* ── Citizens list ── */
 
 .near-threshold {
-  background-color: var(--status-warning-bg) !important;
-  border-left: 3px solid var(--status-warning-color) !important;
+  background-color: var(--status-warning-bg);
+  border-left: 3px solid var(--status-warning-color);
 }
 
 /* ── Citizens toolbar ── */
@@ -952,11 +952,11 @@ a:hover {
 /* ── Citizens list — zebra stripes ── */
 
 #citizens-list-view tbody tr > td {
-  background-color: var(--bg-card) !important;
+  background-color: var(--bg-card);
 }
 
 #citizens-list-view tbody tr:nth-child(even) > td {
-  background-color: var(--table-stripe-bg) !important;
+  background-color: var(--table-stripe-bg);
 }
 
 #citizens-list-view .table {
