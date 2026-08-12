@@ -1,0 +1,121 @@
+/* ===== DESIGN TOKENS — single source of truth ===== */
+/* Layout (theme-independent) */
+:root {
+  --font-mono: 'Courier New', monospace;
+  --shadow-overlay: 0 8px 32px rgba(0,0,0,.55);
+  --sidebar-width: 240px;
+  --topbar-height: 60px;
+  --sidebar-collapsed-width: 52px;
+  --radius-card: .65rem;
+  --radius-btn: .45rem;
+  --radius-badge: 2rem;
+  --transition-fast: .15s;
+  --transition-med: .2s;
+  --transition-slow: .25s;
+  /* Semantic status colors — universal across themes (traffic-light convention) */
+  --status-online-color: #22c55e;
+  --status-online-glow: rgba(34, 197, 94, .55);
+  --status-dormant-color: #f39c12;
+  --status-warning-color: #f39c12;
+  --status-warning-bg: rgba(243, 156, 18, .08);
+  --status-warning-border: rgba(243, 156, 18, .25);
+  /* Layout limits */
+  --app-max-width: 1200px;
+  --table-stripe-bg: color-mix(in srgb, var(--bg-card) 93%, #3b82f6 7%);
+}
+/* Dark theme (default) */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-base: #161b2e;
+  --bg-sidebar: #1c2035;
+  --bg-card: #1e2340;
+  --accent: #00d1b2;
+  --accent-hover: #00b09b;
+  --accent-muted: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-glow: color-mix(in srgb, var(--accent) 35%, transparent);
+  --accent-glow-soft: color-mix(in srgb, var(--accent) 20%, transparent);
+  --accent-glow-medium: color-mix(in srgb, var(--accent) 15%, transparent);
+  --accent-glow-faint: color-mix(in srgb, var(--accent) 8%, transparent);
+  --accent-border: color-mix(in srgb, var(--accent) 45%, transparent);
+  --text-primary: #e8eaf0;
+  --text-muted: rgb(232, 234, 240);
+  --border: rgba(255, 255, 255, .08);
+  --btn-glass-bg: rgba(255, 255, 255, .06);
+  --btn-glass-border: rgba(255, 255, 255, .12);
+  --color-surface-offset: rgba(255, 255, 255, .04);
+  --color-surface-dynamic: rgba(255, 255, 255, .07);
+  --btn-glass-color: rgba(255, 255, 255, .65);
+  --btn-glass-hover-bg: rgba(255, 255, 255, .11);
+  --btn-glass-hover-border: rgba(255, 255, 255, .2);
+  --btn-glass-hover-color: rgba(255, 255, 255, .9);
+  --badge-proposition-bg: rgba(59, 130, 246, .15);
+  --badge-proposition-color: #60a5fa;
+  --badge-proposition-border: rgba(59, 130, 246, .3);
+  --badge-discussion-bg: rgba(168, 85, 247, .15);
+  --badge-discussion-color: #c084fc;
+  --badge-referendum-bg: rgba(249, 115, 22, .15);
+  --badge-referendum-color: #fb923c;
+  --badge-approved-bg: rgba(0, 188, 140, .15);
+  --badge-approved-color: #00bc8c;
+  --badge-approved-border: rgba(0, 188, 140, .25);
+  --badge-rejected-bg: rgba(239, 68, 68, .15);
+  --badge-rejected-color: #f87171;
+  --badge-rejected-border: rgba(239, 68, 68, .3);
+  --btn-danger-bg: color-mix(in srgb, var(--badge-rejected-color) 85%, transparent);
+  --btn-success-bg: color-mix(in srgb, var(--badge-approved-color) 85%, transparent);
+  --btn-warning-bg: color-mix(in srgb, var(--status-warning-color) 85%, transparent);
+  --input-bg: #252d4a;
+  --input-border: rgba(255, 255, 255, .25);
+}
+/* Light theme */
+[data-theme="light"] {
+  color-scheme: light;
+  --bg-base: #f0f2f5;
+  --bg-sidebar: #ffffff;
+  --bg-card: #ffffff;
+  --accent: #059984;
+  --accent-hover: #047a6a;
+  --accent-muted: color-mix(in srgb, var(--accent) 10%, transparent);
+  --accent-glow: color-mix(in srgb, var(--accent) 30%, transparent);
+  --accent-glow-soft: color-mix(in srgb, var(--accent) 20%, transparent);
+  --accent-glow-medium: color-mix(in srgb, var(--accent) 15%, transparent);
+  --accent-glow-faint: color-mix(in srgb, var(--accent) 8%, transparent);
+  --accent-border: color-mix(in srgb, var(--accent) 45%, transparent);
+  --text-primary: #1e2030;
+  --text-muted: rgb(48, 30, 30);
+  --border: rgba(0, 0, 0, .1);
+  --btn-glass-bg: rgba(0, 0, 0, .04);
+  --btn-glass-border: rgba(0, 0, 0, .14);
+  --color-surface-offset: rgba(0, 0, 0, .04);
+  --color-surface-dynamic: rgba(0, 0, 0, .07);
+  --btn-glass-color: rgba(0, 0, 0, .6);
+  --btn-glass-hover-bg: rgba(0, 0, 0, .08);
+  --btn-glass-hover-border: rgba(0, 0, 0, .22);
+  --btn-glass-hover-color: rgba(0, 0, 0, .85);
+  --badge-proposition-bg: rgba(59, 130, 246, .12);
+  --badge-proposition-color: #2563eb;
+  --badge-proposition-border: rgba(37, 99, 235, .3);
+  --badge-discussion-bg: rgba(168, 85, 247, .12);
+  --badge-discussion-color: #7c3aed;
+  --badge-referendum-bg: rgba(249, 115, 22, .12);
+  --badge-referendum-color: #ea580c;
+  --badge-approved-bg: rgba(0, 188, 140, .12);
+  --badge-approved-color: #047a6a;
+  --badge-approved-border: rgba(4, 122, 106, .25);
+  --badge-rejected-bg: rgba(239, 68, 68, .12);
+  --badge-rejected-color: #dc2626;
+  --badge-rejected-border: rgba(220, 38, 38, .3);
+  --btn-danger-bg: color-mix(in srgb, var(--badge-rejected-color) 85%, transparent);
+  --btn-success-bg: color-mix(in srgb, var(--badge-approved-color) 85%, transparent);
+  --btn-warning-bg: color-mix(in srgb, var(--status-warning-color) 85%, transparent);
+  --input-bg: #ffffff;
+  --input-border: rgba(0, 0, 0, .18);
+}
+/* Bootstrap variable overrides — higher specificity than darkly.css :root */
+html[data-theme] {
+  --bs-body-bg: var(--bg-base);
+  --bs-body-color: var(--text-primary);
+  --bs-primary: var(--accent);
+  --bs-border-color: var(--border);
+}

@@ -1,0 +1,214 @@
+body {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.page-main {
+  flex: 1 0 auto;
+}
+.page-footer {
+  margin-top: auto;
+}
+.body-content {
+  max-width: var(--app-max-width);
+}
+.section-heading {
+  font-size: .9rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+/* Card styles handled by Darkly theme */
+/* list-group-item colors handled by Agora design system below */
+.table thead th {
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--text-muted) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+.table-hover tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+.table-action {
+  min-width: 90px;
+}
+/* Citizens table shared behaviors */
+tr.user-row {
+  cursor: pointer;
+}
+tr.user-row .copy-btn {
+  padding: 2px 8px;
+  margin-left: 6px;
+  font-size: 0.9em;
+  cursor: pointer;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+tr.user-row:hover {
+  background-color: var(--accent-muted);
+}
+tr.user-row:hover .copy-btn {
+  opacity: 1;
+}
+.email-cell {
+  white-space: nowrap;
+}
+/* Nav tab buttons — glassmorphism style (uses design tokens) */
+.btn.btn-secondary {
+  background: var(--btn-glass-bg);
+  border: 1px solid var(--btn-glass-border);
+  color: var(--btn-glass-color);
+  backdrop-filter: blur(4px);
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+.btn.btn-secondary:hover,
+.btn.btn-secondary:focus {
+  background: var(--btn-glass-hover-bg);
+  border-color: var(--btn-glass-hover-border);
+  color: var(--btn-glass-hover-color);
+  box-shadow: none;
+}
+.btn.btn-primary {
+  background: var(--accent-muted);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  backdrop-filter: blur(4px);
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+.btn.btn-primary:hover,
+.btn.btn-primary:focus {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 14px var(--accent-muted);
+}
+/* Button styles handled by Bootstrap */
+.copy-btn {
+  background: transparent;
+  color: inherit;
+  border: 1px solid var(--bs-gray-700);
+}
+.copy-btn:hover {
+  background: var(--bs-gray-800);
+}
+/* Make table rows clickable */
+td a {
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: color .15s;
+}
+td a:hover {
+  color: var(--accent);
+}
+.table-hover-rows {
+  font-size: .875rem;
+}
+.table-hover-rows tbody tr {
+  cursor: default;
+  transition: background var(--transition-fast);
+}
+.citizen-tab-empty {
+  font-size: .875rem;
+}
+.td-truncate {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.table-hover-rows tbody tr:hover {
+  background: var(--accent-muted) !important;
+}
+.table-hover-rows tbody tr:hover td a {
+  color: var(--accent);
+}
+.table-hover-rows tbody tr td a {
+  cursor: pointer;
+}
+.table-hover-rows td.td-link {
+  padding: 0;
+}
+.table-hover-rows td.td-link a {
+  display: block;
+  padding: .25rem .5rem;
+  height: 100%;
+}
+/* Overwrite bootstrap - borders */
+.list-group-item+.list-group-item {
+  border-top-width: 1px;
+}
+/* For Board and TinyMCE. Makes pictures responsive */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.chat-has-messages {
+  background-color: var(--bs-success);
+}
+/* Notification banner styles */
+.notif-banner-wrap {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .3s ease;
+}
+
+#notification-permission-banner,
+#notification-blocked-banner {
+  border-radius: 0;
+}
+/* Owner highlight for task cards */
+.owner-highlight {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+/* Line clamp for task descriptions */
+.description-truncate {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* Chat room pulse animation */
+.chat-room-pulse {
+  animation: text-flash 2s infinite;
+}
+@keyframes text-flash {
+  0%, 100% {
+    opacity: 1;
+    color: var(--accent);
+  }
+  50% {
+    opacity: 0.3;
+    color: var(--accent);
+  }
+}
+/* Task actions layout */
+.task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.task-actions form {
+  margin: 0;
+  display: inline-flex;
+}
+.task-actions .btn {
+  white-space: nowrap;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
