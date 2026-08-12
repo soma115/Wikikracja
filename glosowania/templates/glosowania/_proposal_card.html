@@ -67,7 +67,7 @@
       <a href="{% url 'obywatele:obywatele_szczegoly' pk=i.author.pk %}"
          class="proposal-author-link" onclick="event.stopPropagation()"
          title="{{ i.author.username }}">
-        <span class="proposal-author-avatar">
+        <span class="avatar avatar-md avatar-accent">
           {% if i.author.uzytkownik.avatar %}
             <img src="{{ i.author.uzytkownik.avatar.url }}" alt="">
           {% else %}

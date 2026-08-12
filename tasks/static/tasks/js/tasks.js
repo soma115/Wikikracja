@@ -98,7 +98,7 @@
     item.dataset.userId = user.id;
 
     var avatar = document.createElement('span');
-    avatar.className = 'helpers-popover-avatar';
+    avatar.className = 'avatar avatar-xl avatar-accent';
     if (user.avatar_url) {
       var img = document.createElement('img');
       img.src = user.avatar_url;
@@ -251,7 +251,7 @@
         ? '<img src="' + escapeHtml(h.avatar_url) + '" alt="">'
         : escapeHtml(h.username.slice(0, 2).toUpperCase());
       return '<a class="helpers-popover-item" href="' + escapeHtml(h.profile_url) + '">'
-        + '<span class="helpers-popover-avatar">' + avatar + '</span>'
+        + '<span class="avatar avatar-xl avatar-accent">' + avatar + '</span>'
         + '<span class="helpers-popover-name">' + escapeHtml(h.username) + '</span>'
         + '</a>';
     }).join('');

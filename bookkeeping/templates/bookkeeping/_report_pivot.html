@@ -102,7 +102,7 @@
     {% for row in pivot_rows %}
       <div class="border-bottom px-3 py-2">
         <div class="fw-semibold mb-1">{{ row.category_name }}</div>
-        <div class="d-flex flex-column gap-1 text-85">
+        <div class="d-flex flex-column gap-1 text-sm">
           {% for asset in asset_columns %}
             {% with value=row.by_asset|get_item:asset.pk %}
               {% if value is not None %}
@@ -121,7 +121,7 @@
     {# Mobile totals — osobna sekcja na końcu list kart #}
     <div class="px-3 py-2 bg-body-tertiary">
       <div class="fw-bold mb-1">{{ totals_label }}</div>
-      <div class="d-flex flex-column gap-1 text-85">
+      <div class="d-flex flex-column gap-1 text-sm">
         {% for asset in asset_columns %}
           {% with total=asset_totals|get_item:asset.pk %}
             <div class="d-flex justify-content-between">

@@ -19,7 +19,7 @@
       <div class="d-flex flex-wrap align-items-center gap-2 text-muted-78">
         {% if id.author %}
         <a href="{% url 'obywatele:obywatele_szczegoly' pk=id.author.pk %}" class="detail-author-link d-flex align-items-center gap-1 text-decoration-none">
-          <span class="detail-author-avatar">{% if id.author.uzytkownik.avatar %}<img src="{{ id.author.uzytkownik.avatar.url }}" alt="">{% else %}{{ id.author.username|slice:":2"|upper }}{% endif %}</span>
+          <span class="avatar avatar-sm avatar-accent">{% if id.author.uzytkownik.avatar %}<img src="{{ id.author.uzytkownik.avatar.url }}" alt="">{% else %}{{ id.author.username|slice:":2"|upper }}{% endif %}</span>
           <span class="text-accent">{{ id.author.username }}</span>
         </a>
         <span class="detail-meta-sep">·</span>
@@ -101,11 +101,11 @@
           <span class="vote-for"><i class="fas fa-check fa-fw"></i> {% trans 'For' %} {{ id.za }}</span>
           <span class="vote-against">{% trans 'Against' %} {{ id.przeciw }} <i class="fas fa-xmark fa-fw"></i></span>
         </div>
-        <div class="result-bar-track"><div class="result-bar-fill" data-width="{{ fill_pct }}"></div></div>
+        <div class="result-bar-track"><div class="result-bar-fill" style="width: {{ fill_pct }}%"></div></div>
       </div>
       {% endif %}{% endwith %}
       {% if voters %}<div class="text-muted-75"><i class="fas fa-users me-1"></i>{% for voter in voters %}{{ voter.ktory_uzytkownik_juz_zaglosowal.username }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
-      {% if report %}<div class="protocol-list text-72">{% for r in report %}<span class="{% if r.vote %}protocol-yes{% else %}protocol-no{% endif %}">{% if r.vote %}✓{% else %}✗{% endif %} {{ r.code }}</span><br>{% endfor %}</div>{% endif %}
+      {% if report %}<div class="protocol-list text-xs">{% for r in report %}<span class="{% if r.vote %}protocol-yes{% else %}protocol-no{% endif %}">{% if r.vote %}✓{% else %}✗{% endif %} {{ r.code }}</span><br>{% endfor %}</div>{% endif %}
       {% endif %}
 
     </div>
@@ -117,7 +117,7 @@
     <div class="card-body d-flex flex-column gap-2">
       <div class="d-flex align-items-center gap-2">
         <i class="fas fa-scroll text-accent-85"></i>
-        <span class="section-heading text-85">{% trans 'Law text' %}</span>
+        <span class="section-heading text-sm">{% trans 'Law text' %}</span>
       </div>
       {% if id.tresc %}
       <div class="detail-subsection">
@@ -165,7 +165,7 @@
       {% for arg in positive_arguments %}
       <div class="arg-card for">
         {% if arg.author %}<a href="{% url 'obywatele:obywatele_szczegoly' pk=arg.author.pk %}" class="arg-card-author">{% else %}<span class="arg-card-author">{% endif %}
-          <div class="arg-author-avatar">
+          <div class="avatar avatar-lg avatar-accent">
             {% if arg.author.uzytkownik.avatar %}<img src="{{ arg.author.uzytkownik.avatar.url }}" alt="">{% else %}{{ arg.author.username|slice:":2"|upper }}{% endif %}
           </div>
           <div class="arg-author-info">
@@ -208,7 +208,7 @@
       {% for arg in negative_arguments %}
       <div class="arg-card against">
         {% if arg.author %}<a href="{% url 'obywatele:obywatele_szczegoly' pk=arg.author.pk %}" class="arg-card-author">{% else %}<span class="arg-card-author">{% endif %}
-          <div class="arg-author-avatar">
+          <div class="avatar avatar-lg avatar-accent">
             {% if arg.author.uzytkownik.avatar %}<img src="{{ arg.author.uzytkownik.avatar.url }}" alt="">{% else %}{{ arg.author.username|slice:":2"|upper }}{% endif %}
           </div>
           <div class="arg-author-info">
@@ -252,12 +252,6 @@ function toggleArgForm(id) {
   if (el.classList.contains('visible')) el.querySelector('textarea').focus();
 }
 
-(function () {
-  document.querySelectorAll('[data-width]').forEach(function (el) {
-    var w = el.dataset.width;
-    if (w) el.style.setProperty('--w', w + '%');
-  });
-})();
 </script>
 
 {% with chat_room=chat_room %}

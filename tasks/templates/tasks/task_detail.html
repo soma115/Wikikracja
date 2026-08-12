@@ -161,7 +161,7 @@
       <div class="helpers-popover-list" data-voter-list="helpers"{% if not helping_votes %} hidden{% endif %}>
         {% for vote in helping_votes %}
           <a class="helpers-popover-item" href="{% url 'obywatele:obywatele_szczegoly' vote.user_id %}" data-user-id="{{ vote.user_id }}">
-            <span class="helpers-popover-avatar">
+            <span class="avatar avatar-xl avatar-accent">
               {% if vote.user.uzytkownik.avatar %}
                 <img src="{{ vote.user.uzytkownik.avatar.url }}" alt="">
               {% else %}
@@ -182,7 +182,7 @@
       <div class="helpers-popover-list" data-voter-list="against"{% if not against_votes %} hidden{% endif %}>
         {% for vote in against_votes %}
           <a class="helpers-popover-item" href="{% url 'obywatele:obywatele_szczegoly' vote.user_id %}" data-user-id="{{ vote.user_id }}">
-            <span class="helpers-popover-avatar">
+            <span class="avatar avatar-xl avatar-accent">
               {% if vote.user.uzytkownik.avatar %}
                 <img src="{{ vote.user.uzytkownik.avatar.url }}" alt="">
               {% else %}

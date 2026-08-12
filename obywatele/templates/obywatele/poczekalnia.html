@@ -59,9 +59,9 @@
               <td>
                 <div class="username-container">
                   <div class="citizen-list-avatar-wrap flex-shrink-0">
-                    <div class="citizen-list-avatar">
+                    <div class="avatar avatar-lg {% if not i.uzytkownik.avatar %}avatar-fallback{% endif %}">
                       {% if i.uzytkownik.avatar %}
-                        <img src="{{ i.uzytkownik.avatar.url }}" alt="{{ i.username }}" class="rounded-circle">
+                        <img src="{{ i.uzytkownik.avatar.url }}" alt="{{ i.username }}">
                       {% else %}
                         {{ i.username|slice:":1"|upper }}
                       {% endif %}
@@ -91,9 +91,9 @@
               <td>{% if i.email_confirmed %}<i class="fas fa-check text-success"></i>{% else %}<i class="fas fa-times text-danger"></i>{% endif %}</td>
               <td>
                 <div class="d-flex align-items-center gap-1 min-width-5rem">
-                  <div class="progress flex-grow-1 height-6px">
-                    <div class="progress-bar {% if i.form_completion_percent == 100 %}bg-success{% elif i.form_completion_percent >= 50 %}bg-warning{% else %}bg-danger{% endif %} progress-fill" role="progressbar"
-                         style="--progress:{{ i.form_completion_percent }}%"
+                  <div class="progress flex-grow-1" style="height: 6px;">
+                    <div class="progress-bar {% if i.form_completion_percent == 100 %}bg-success{% elif i.form_completion_percent >= 50 %}bg-warning{% else %}bg-danger{% endif %}" role="progressbar"
+                         style="width: {{ i.form_completion_percent }}%"
                          aria-valuenow="{{ i.form_completion_percent }}"
                          aria-valuemin="0"
                          aria-valuemax="100"></div>
@@ -120,9 +120,9 @@
            data-href="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}"
            data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
         <div class="citizen-card-top">
-          <div class="citizen-card-avatar">
+          <div class="avatar avatar-5xl {% if not i.uzytkownik.avatar %}avatar-fallback{% endif %}">
             {% if i.uzytkownik.avatar %}
-              <img src="{{ i.uzytkownik.avatar.url }}" alt="{{ i.username }}" class="rounded-circle citizen-card-avatar-img">
+              <img src="{{ i.uzytkownik.avatar.url }}" alt="{{ i.username }}">
             {% else %}
               {{ i.username|slice:":1"|upper }}
             {% endif %}

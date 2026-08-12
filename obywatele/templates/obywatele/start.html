@@ -142,9 +142,9 @@
               <td>
                 <div class="username-container">
                   <div class="citizen-list-avatar-wrap flex-shrink-0">
-                    <div class="citizen-list-avatar">
+                    <div class="avatar avatar-lg {% if not i.uzytkownik.avatar %}avatar-fallback{% endif %}">
                       {% if i.uzytkownik.avatar %}
-                        <img src="{{ i.uzytkownik.avatar.url }}" alt="{{ i.username }}" class="rounded-circle">
+                        <img src="{{ i.uzytkownik.avatar.url }}" alt="{{ i.username }}">
                       {% else %}
                         {{ i.username|slice:":1"|upper }}
                       {% endif %}
@@ -193,9 +193,9 @@
            data-href="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}"
            data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
         <div class="citizen-card-top">
-          <div class="citizen-card-avatar">
+          <div class="avatar avatar-5xl {% if not i.uzytkownik.avatar %}avatar-fallback{% endif %}">
             {% if i.uzytkownik.avatar %}
-              <img src="{{ i.uzytkownik.avatar.url }}" alt="{{ i.username }}" class="rounded-circle citizen-card-avatar-img">
+              <img src="{{ i.uzytkownik.avatar.url }}" alt="{{ i.username }}">
             {% else %}
               {{ i.username|slice:":1"|upper }}
             {% endif %}

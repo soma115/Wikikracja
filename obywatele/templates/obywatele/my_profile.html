@@ -58,7 +58,8 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
         img.id = 'avatar-img';
         img.src = e.target.result;
         img.alt = 'avatar';
-        img.style.cssText = 'width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--border);display:block;';
+        img.className = 'avatar avatar-7xl avatar-bordered';
+        img.style.cssText = 'display:block;';
         existing.replaceWith(img);
       }
     };
@@ -80,9 +81,9 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
         <input class="mig-hidden" type="file" id="avatar-input" name="avatar" accept="image/*">
         <div class="avatar-upload-wrap" id="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
           {% if profile.avatar %}
-            <img id="avatar-img" src="{{ profile.avatar.url }}" alt="avatar" class="avatar-64">
+            <img id="avatar-img" src="{{ profile.avatar.url }}" alt="avatar" class="avatar avatar-7xl avatar-bordered">
           {% else %}
-            <div class="avatar-64-placeholder" id="avatar-img">
+            <div class="avatar avatar-7xl avatar-bordered" id="avatar-img">
               <i class="fas fa-user text-accent-14"></i>
             </div>
           {% endif %}
@@ -252,7 +253,7 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
     </div>
     <div class="card-body">
       {% if deletion_request %}
-        <p class="mb-2 text-9">
+        <p class="mb-2 text-md">
           {% trans "Your account is scheduled for permanent deletion on" %} <strong>{{ deletion_request.scheduled_for|date:"Y-m-d" }}</strong>.
           <br>
           {% trans "You can cancel this request before that date." %}

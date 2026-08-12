@@ -68,7 +68,7 @@
          data-bs-toggle="tooltip"
          title="{% trans 'Author' %}: {{ task.created_by.username }}">
         <i class="fas fa-user-pen proposal-role-icon" aria-hidden="true"></i>
-        <span class="proposal-author-avatar">
+        <span class="avatar avatar-md avatar-accent">
           {% if task.created_by.uzytkownik.avatar %}
             <img src="{{ task.created_by.uzytkownik.avatar.url }}" alt="">
           {% else %}
@@ -94,7 +94,7 @@
            data-bs-toggle="tooltip"
            title="{% trans 'Coordinator' %}: {{ task.assigned_to.username }}">
           <i class="fas fa-user-gear proposal-role-icon" aria-hidden="true"></i>
-          <span class="proposal-coordinator-avatar">
+          <span class="avatar avatar-md avatar-accent">
             {% if task.assigned_to.uzytkownik.avatar %}
               <img src="{{ task.assigned_to.uzytkownik.avatar.url }}" alt="">
             {% else %}
@@ -111,7 +111,7 @@
            data-bs-toggle="tooltip"
            title="{% trans 'Coordinator' %}: {{ request.user.username }}">
           <i class="fas fa-user-gear proposal-role-icon" aria-hidden="true"></i>
-          <span class="proposal-coordinator-avatar">
+          <span class="avatar avatar-md avatar-accent">
             {% if request.user.uzytkownik.avatar %}
               <img src="{{ request.user.uzytkownik.avatar.url }}" alt="">
             {% else %}
@@ -204,7 +204,7 @@
         <a href="{% url 'obywatele:obywatele_szczegoly' pk=task.assigned_to.pk %}"
            class="task-assignee-link"
            onclick="event.stopPropagation()">
-          <span class="task-assignee-avatar">
+          <span class="avatar avatar-md avatar-discussion">
             {% if task.assigned_to.uzytkownik.avatar %}
               <img src="{{ task.assigned_to.uzytkownik.avatar.url }}" alt="">
             {% else %}

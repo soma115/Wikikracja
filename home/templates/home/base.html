@@ -188,9 +188,9 @@
        onmouseover="this.style.background='var(--accent-muted)'"
        onmouseout="this.style.background=''">
       {% if user.uzytkownik.avatar %}
-      <img class="user-avatar sidebar-avatar" src="{{ user.uzytkownik.avatar.url }}" alt="avatar">
+      <img class="avatar avatar-3xl avatar-accent" src="{{ user.uzytkownik.avatar.url }}" alt="avatar">
       {% else %}
-      <div class="user-avatar">{{ user.username|slice:":2"|upper }}</div>
+      <div class="avatar avatar-3xl avatar-accent">{{ user.username|slice:":2"|upper }}</div>
       {% endif %}
       <div class="user-info">
         <span class="user-name">{{ user.username }}</span>

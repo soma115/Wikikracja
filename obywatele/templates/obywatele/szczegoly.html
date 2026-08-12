@@ -33,9 +33,9 @@
   <div class="card mb-3">
     <div class="card-header d-flex align-items-center gap-3">
       {% if b.avatar %}
-        <img src="{{ b.avatar.url }}" alt="avatar" class="rounded-circle avatar-56">
+        <img src="{{ b.avatar.url }}" alt="avatar" class="avatar avatar-6xl">
       {% else %}
-        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white avatar-56-fallback">
+        <div class="avatar avatar-6xl avatar-fallback">
           {{ b.uid.username|slice:":2"|upper }}
         </div>
       {% endif %}
@@ -51,7 +51,7 @@
       </a>
       {% endif %}
     </div>
-    <div class="card-body text-875">
+    <div class="card-body text-md">
       <div class="row">
         <div class="col-md-6 mb-2">
           <strong>{% trans 'Login' %}:</strong> {{ b.uid }}
@@ -76,10 +76,10 @@
         <div class="col-md-6 mb-2">
           <strong>{% trans 'Form completed' %}:</strong>
           <div class="d-flex align-items-center gap-2 mt-1">
-            <div class="progress flex-grow-1 height-8px">
-              <div class="progress-bar {% if form_completion_percent == 100 %}bg-success{% elif form_completion_percent >= 50 %}bg-warning{% else %}bg-danger{% endif %} progress-fill"
+            <div class="progress flex-grow-1" style="height: 8px;">
+              <div class="progress-bar {% if form_completion_percent == 100 %}bg-success{% elif form_completion_percent >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
                    role="progressbar"
-                   style="--progress:{{ form_completion_percent }}%"
+                   style="width: {{ form_completion_percent }}%"
                    aria-valuenow="{{ form_completion_percent }}"
                    aria-valuemin="0"
                    aria-valuemax="100"></div>
@@ -198,7 +198,7 @@
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-sm table-striped mb-0 text-875">
+        <table class="table table-sm table-striped mb-0 text-md">
           <tbody>
             <tr>
               <th class="width-30" scope="row">{% trans "Communicator / Phone" %}</th>

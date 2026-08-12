@@ -908,8 +908,8 @@ export async function onReceiveReadBy(event) {
 
     const listHtml = readBy.map(u => {
         const avatar = u.avatar_url
-            ? `<img class="read-by-avatar" src="${u.avatar_url}" alt="${u.username}">`
-            : `<span class="read-by-avatar read-by-initials">${(u.username || '').slice(0, 2).toUpperCase()}</span>`;
+            ? `<img class="avatar avatar-xl" src="${u.avatar_url}" alt="${u.username}">`
+            : `<span class="avatar avatar-xl avatar-fallback">${(u.username || '').slice(0, 2).toUpperCase()}</span>`;
         return `<div class="read-by-item">${avatar}<span class="read-by-username">${u.username}</span></div>`;
     }).join('');
 

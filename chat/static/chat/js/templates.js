@@ -138,9 +138,9 @@ const message_template = `
         <% const _hasProfileLink = (typeof user_id !== 'undefined' && user_id); %>
         <% if (_hasProfileLink) { %><a class='username username-link' href='/obywatele/<%- user_id %>/'><% } else { %><span class='username'><% } %>
           <% if (typeof avatar_url !== 'undefined' && avatar_url) { %>
-            <img class='msg-author-avatar' src='<%- avatar_url %>' alt=''>
+            <img class='avatar avatar-2xl' src='<%- avatar_url %>' alt=''>
           <% } else { %>
-            <span class='msg-author-avatar msg-author-initials'><%= (username || '').slice(0, 2).toUpperCase() %></span>
+            <span class='avatar avatar-2xl avatar-fallback'><%= (username || '').slice(0, 2).toUpperCase() %></span>
           <% } %><%= username %>
         <% if (_hasProfileLink) { %></a><% } else { %></span><% } %>
         <span class='message-timestamp ms-2' data-message-id='<%-message_id%>'><%- latest_ts %></span>
@@ -218,9 +218,9 @@ const message_template = `
             <% for (const _u of read_by) { %>
               <div class="read-by-item">
                 <% if (_u.avatar_url) { %>
-                  <img class="read-by-avatar" src="<%- _u.avatar_url %>" alt="<%- _u.username %>">
+                  <img class="avatar avatar-xl" src="<%- _u.avatar_url %>" alt="<%- _u.username %>">
                 <% } else { %>
-                  <span class="read-by-avatar read-by-initials"><%= (_u.username || '').slice(0, 2).toUpperCase() %></span>
+                  <span class="avatar avatar-xl avatar-fallback"><%= (_u.username || '').slice(0, 2).toUpperCase() %></span>
                 <% } %>
                 <span class="read-by-username"><%- _u.username %></span>
               </div>

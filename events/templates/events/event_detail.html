@@ -119,7 +119,7 @@
       {% endif %}
 
       <div class="proposal-section margin-top-4rem">
-        <small class="text-2xs-muted">
+        <small class="text-xs text-muted">
           {% trans "Created" %}: {{ event.created_at|date:"Y-m-d H:i" }}
           {% if event.updated_at != event.created_at %}
             · {% trans "Updated" %}: {{ event.updated_at|date:"Y-m-d H:i" }}

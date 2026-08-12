@@ -6,7 +6,7 @@
   data-room-archived="{{ room.archived }}"
   data-last-activity="{{ room.last_message_at|default_if_none:room.last_activity|date:'U' }}">
 
-  <div class="room-link__avatar room-link__avatar--{{ room_kind|default:'public' }}">
+  <div class="avatar avatar-xl">
     {% if room_kind == 'task' %}
       <i class="fas fa-tasks" aria-hidden="true"></i>
     {% elif room_kind == 'vote' %}
