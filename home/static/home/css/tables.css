@@ -1,0 +1,35 @@
+/* ── Tabele ─────────────────────────────────────────────────── */
+/* Bootstrap 5 używa box-shadow inset + CSS variables zamiast background,
+   więc nadpisujemy zmienne a nie background bezpośrednio */
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text-primary);
+  --bs-table-border-color: var(--border);
+  --bs-table-striped-bg: rgba(255, 255, 255, .02);
+  --bs-table-striped-color: var(--text-primary);
+  --bs-table-hover-bg: var(--accent-muted);
+  --bs-table-hover-color: var(--text-primary);
+  --bs-table-accent-bg: transparent;
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+.table> :not(caption)>*>* {
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+/* ── Paginacja ──────────────────────────────────────────────── */
+.pagination .page-link {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition: background .15s, color .15s;
+}.pagination .page-item.active .page-link {
+  background: var(--accent-muted);
+  border-color: var(--accent-glow);
+  color: var(--accent);
+}
+.pagination .page-item.disabled .page-link {
+  background: transparent;
+  color: var(--text-muted);
+  opacity: .4;
+}

@@ -1,0 +1,8 @@
+/*   AGORA DESIGN SYSTEM — Bootstrap overrides
+   Nakłada ciemny design system Agory na wszystkie strony.
+   Zmienne CSS zdefiniowane w base.html :root { }
+   ═══════════════════════════════════════════════════════════════ */
+/* ── Karty ──────────────────────────────────────────────────── */
+.card-body {
+  color: var(--text-primary);
+}

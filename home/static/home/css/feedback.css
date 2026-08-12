@@ -1,0 +1,160 @@
+/* ── Odznaki (badge) ────────────────────────────────────────── */
+.badge.bg-danger {
+  animation: pulse 2s infinite;
+  background: var(--badge-rejected-bg);
+  color: var(--badge-danger-text);
+  border: 1px solid var(--badge-rejected-border);
+}
+.badge.bg-warning {
+  background: var(--status-warning-bg);
+  color: var(--badge-warning-text);
+  border: 1px solid var(--status-warning-border);
+}
+.badge.bg-success {
+  background: var(--badge-approved-bg);
+  color: var(--badge-success-text);
+  border: 1px solid var(--badge-approved-border);
+}
+.badge.bg-info {
+  background: var(--badge-proposition-bg);
+  color: var(--badge-info-text);
+  border: 1px solid var(--badge-proposition-border);
+}
+.badge.bg-secondary {
+  background: rgba(120, 120, 140, .15);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.badge.bg-light {
+  background: var(--btn-glass-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+.badge.bg-primary {
+  background: var(--badge-proposition-bg);
+  color: var(--badge-primary-text);
+  border: 1px solid var(--badge-proposition-border);
+}
+/* ── Alerty ─────────────────────────────────────────────────── */
+.alert {
+  border-radius: .55rem;
+  border: 1px solid var(--border);
+  font-size: .875rem;
+}
+.alert-info {
+  background: var(--alert-info-bg);
+  color: var(--alert-info-color);
+  border-color: var(--alert-info-border);
+}
+.alert-success {
+  background: var(--alert-success-bg);
+  color: var(--alert-success-color);
+  border-color: var(--alert-success-border);
+}
+.alert-warning {
+  background: var(--alert-warning-bg);
+  color: var(--alert-warning-color);
+  border-color: var(--alert-warning-border);
+}
+.alert-danger {
+  background: var(--alert-danger-bg);
+  color: var(--alert-danger-color);
+  border-color: var(--alert-danger-border);
+}
+.toast-container {
+  position: fixed;
+  top: 33%;
+  left: 50%;
+  transform: translateX(-50%);
+  /* Ukryty do czasu, aż JS ustawi pozycję nad kartą — bez przeskoku z top:33% */
+  visibility: hidden;
+  z-index: 1090;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  min-width: 280px;
+  max-width: min(480px, 90vw);
+}
+.toast-msg {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .75rem 1.1rem;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
+  font-size: .9rem;
+  font-weight: 500;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-overlay);
+  animation: toast-in .2s ease;
+}
+.toast-msg.toast-success { background: var(--badge-approved-color);  color: var(--text-primary); border-color: var(--badge-approved-color); }
+.toast-msg.toast-error,
+.toast-msg.toast-danger  { background: var(--badge-rejected-color);  color: var(--text-primary); border-color: var(--badge-rejected-color); }
+.toast-msg.toast-warning { background: var(--status-warning-color); color: var(--text-primary); border-color: var(--status-warning-color); }
+.toast-msg.toast-info    { background: var(--badge-proposition-color); color: var(--text-primary); border-color: var(--badge-proposition-color); }
+.toast-close {
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: .6;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+.toast-close:hover { opacity: 1; }
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(.5rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Chat toast pill (shared with other modules via components.css) */
+.toast-chat {
+  position: fixed;
+  bottom: 5.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(.5rem);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: .45rem 1.1rem;
+  border-radius: 9999px;
+  font-size: .82rem;
+  z-index: 1100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s, transform .2s;
+}
+.toast-chat.toast-chat--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── Modalne okna ───────────────────────────────────────────── */
+.modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: .75rem;
+  color: var(--text-primary);
+}
+.modal-header {
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+}
+.modal-footer {
+  border-top: 1px solid var(--border);
+  background: transparent;
+}
+.modal-title {
+  color: var(--text-primary);
+}
+.btn-close {
+  filter: invert(1) opacity(.6);
+}
+.btn-close:hover {
+  filter: invert(1) opacity(1);
+}

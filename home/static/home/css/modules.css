@@ -1,481 +1,3 @@
-   AGORA DESIGN SYSTEM — Bootstrap overrides
-   Nakłada ciemny design system Agory na wszystkie strony.
-   Zmienne CSS zdefiniowane w base.html :root { }
-   ═══════════════════════════════════════════════════════════════ */
-/* ── Karty ──────────────────────────────────────────────────── */
-.card-body {
-  color: var(--text-primary);
-}
-/* ── Dropdown ───────────────────────────────────────────────── */
-.dropdown-menu {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
-  padding: .25rem 0;
-  min-width: 180px;
-  z-index: 1050;
-}
-.dropdown-item {
-  color: var(--text-primary);
-  font-size: .875rem;
-  padding: .45rem .9rem;
-  transition: background-color .1s, color .1s;
-}
-.dropdown-item:hover,
-.dropdown-item:focus,
-.dropdown-item.active,
-.dropdown-item:active,
-.anon-nav-link.active,
-.sidebar-toggle-btn:hover,
-.wspol-stat-icon.accent,
-.event-meta-link:hover {
-  background: var(--accent-muted);
-  color: var(--accent);
-}.dropdown-divider {
-  border-color: var(--border);
-  margin: .25rem 0;
-}
-/* ── Formularze ─────────────────────────────────────────────── */
-.form-control,
-.form-select,
-textarea.form-control {
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
-  color: var(--text-primary);
-  border-radius: .45rem;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, .15);
-  transition: border-color .15s;
-}
-.form-control::placeholder {
-  color: var(--text-muted);
-  opacity: 1;
-}
-.form-control:focus,
-.form-select:focus,
-textarea.form-control:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-muted);
-  background: var(--input-bg);
-  color: var(--text-primary);
-}
-.form-label {
-  color: var(--text-primary);
-  font-size: .875rem;
-}
-.form-text {
-  color: var(--text-muted);
-}
-.invalid-feedback {
-  color: var(--badge-rejected-color);
-}
-.form-control.is-invalid {
-  border-color: var(--badge-rejected-color);
-}
-/* ── Captcha (signup form) ───────────────────────────────────── */
-/* szerokość = CAPTCHA_IMAGE_SIZE[0] w settings.py (170px), input +2px na obramowanie.
-   Input dziedziczy resztę stylów z .form-control. */
-form.signup img.captcha {
-  display: block;
-  width: 170px;
-  border: 1px solid var(--border);
-  border-radius: .375rem;
-  margin-bottom: .4rem;
-}
-form.signup input[name*="captcha"] {
-  width: 172px;
-}
-/* ── Checkbox styling for better visibility in dark mode ────────── */
-.form-check-input {
-  background-color: var(--input-bg);
-  border-color: var(--input-border);
-}
-.form-check-input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 0.25rem var(--accent-muted);
-}
-.form-check-input:checked {
-  background-color: var(--accent);
-  border-color: var(--accent);
-}
-/* ── Toggle switch (used in notification settings) ──────────────── */
-.form-switch .form-check-input {
-  width: 3em;
-  height: 1.5em;
-  margin-left: -2.5em;
-  border-radius: 1.5em;
-  transition: background-position .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-  background-color: var(--input-bg);
-  border-color: var(--input-border);
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='currentColor'/%3e%3c/svg%3e");
-  background-position: left center;
-  color: var(--text-muted);
-}
-.form-switch .form-check-input:checked {
-  background-position: right center;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
-  background-color: var(--accent);
-  border-color: var(--accent);
-}
-.form-switch .form-check-input:focus {
-  border-color: var(--accent);
-  outline: 0;
-  box-shadow: 0 0 0 .25rem var(--accent-muted);
-}
-.form-switch .form-check-input:not(:checked):hover {
-  background-color: var(--bs-gray-600);
-  border-color: var(--bs-gray-600);
-}
-.form-switch .form-check-input:checked:hover {
-  background-color: var(--accent-hover);
-  border-color: var(--accent-hover);
-}
-/* ── Login page ─────────────────────────────────────────────── */
-#login-box {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  padding: 2rem 2.25rem;
-  margin-top: 3rem;
-  box-shadow: 0 4px 32px rgba(0, 0, 0, .18);
-}
-#login-box h3 {
-  color: var(--accent);
-  font-weight: 700;
-  letter-spacing: -.01em;
-  margin-bottom: 1.5rem;
-}
-#login-box .form-check-label {
-  color: var(--text-muted);
-  font-size: .875rem;
-}
-#login-box .password-wrapper {
-  position: relative;
-}
-#login-box .password-wrapper .form-control {
-  padding-right: 2.75rem;
-}
-#login-box .password-toggle {
-  position: absolute;
-  right: .65rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  padding: 0;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: color var(--transition-fast);
-  line-height: 1;
-}
-#login-box .password-toggle:hover {
-  color: var(--accent);
-}
-/* ── Przyciski ──────────────────────────────────────────────── */
-.btn-outline-primary,
-.btn-info {
-  background: transparent;
-  border-color: var(--accent-border);
-  color: var(--accent);
-  transition: background .15s, border-color .15s, box-shadow .15s;
-}
-.btn-outline-primary:hover,
-.btn-info:hover {
-  background: var(--accent-muted);
-  border-color: var(--accent);
-  box-shadow: 0 0 8px var(--accent-glow);
-  color: var(--accent);
-}
-.btn-outline-secondary,
-.btn-outline-light {
-  background: transparent;
-  border-color: var(--border);
-  color: var(--text-muted);
-  transition: background .15s, color .15s;
-}
-.btn-outline-secondary:hover,
-.btn-outline-light:hover {
-  background: var(--btn-glass-hover-bg);
-  color: var(--text-primary);
-  border-color: var(--btn-glass-hover-border);
-}
-.btn-outline-danger {
-  background: transparent;
-  border-color: var(--badge-rejected-border);
-  color: var(--badge-rejected-color);
-  transition: background .15s, border-color .15s;
-}
-.btn-outline-danger:hover {
-  background: var(--badge-rejected-bg);
-  border-color: var(--badge-rejected-color);
-  color: var(--badge-rejected-color);
-}
-.btn-danger {
-  background: var(--btn-danger-bg);
-  border-color: var(--badge-rejected-color);
-  color: #111;
-}
-.btn-danger:hover {
-  background: var(--badge-rejected-color);
-  border-color: var(--badge-rejected-color);
-}
-.btn-success {
-  background: var(--btn-success-bg);
-  border-color: var(--badge-approved-color);
-  color: #111;
-}
-.btn-success:hover {
-  background: #00a07a;
-  border-color: #00a07a;
-}
-.btn-warning {
-  background: var(--btn-warning-bg);
-  border-color: var(--status-warning-color);
-  color: #111;
-}
-.btn-warning:hover {
-  background: var(--status-warning-color);
-  border-color: var(--status-warning-color);
-}
-.btn-link {
-  color: var(--accent);
-  text-decoration: none;
-}
-.btn-link:hover {
-  opacity: .8;
-}
-/* ── Odznaki (badge) ────────────────────────────────────────── */
-.badge.bg-danger {
-  animation: pulse 2s infinite;
-  background: var(--badge-rejected-bg);
-  color: var(--badge-rejected-color);
-  border: 1px solid var(--badge-rejected-border);
-}
-.badge.bg-warning {
-  background: var(--status-warning-bg);
-  color: var(--status-warning-color);
-  border: 1px solid var(--status-warning-border);
-}
-.badge.bg-success {
-  background: var(--badge-approved-bg);
-  color: var(--badge-approved-color);
-  border: 1px solid var(--badge-approved-border);
-}
-.badge.bg-info {
-  background: var(--badge-proposition-bg);
-  color: var(--badge-proposition-color);
-  border: 1px solid var(--badge-proposition-border);
-}
-.badge.bg-secondary {
-  background: rgba(120, 120, 140, .15);
-  color: #aaa;
-  border: 1px solid var(--border);
-}
-.badge.bg-light {
-  background: var(--btn-glass-bg);
-  color: var(--text-primary);
-  border: 1px solid var(--border);
-}
-.badge.bg-primary {
-  background: var(--badge-proposition-bg);
-  color: var(--badge-proposition-color);
-  border: 1px solid var(--badge-proposition-border);
-}
-/* ── Alerty ─────────────────────────────────────────────────── */
-.alert {
-  border-radius: .55rem;
-  border: 1px solid var(--border);
-  font-size: .875rem;
-}
-.alert-info {
-  background: var(--badge-proposition-bg);
-  color: var(--badge-proposition-color);
-  border-color: var(--badge-proposition-border);
-}
-.alert-success {
-  background: var(--badge-approved-bg);
-  color: var(--badge-approved-color);
-  border-color: var(--badge-approved-border);
-}
-.alert-warning {
-  background: var(--status-warning-bg);
-  color: var(--status-warning-color);
-  border-color: var(--status-warning-border);
-}
-.alert-danger {
-  background: var(--badge-rejected-bg);
-  color: var(--badge-rejected-color);
-  border-color: var(--badge-rejected-border);
-}
-.toast-container {
-  position: fixed;
-  top: 33%;
-  left: 50%;
-  transform: translateX(-50%);
-  /* Ukryty do czasu, aż JS ustawi pozycję nad kartą — bez przeskoku z top:33% */
-  visibility: hidden;
-  z-index: 1090;
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
-  min-width: 280px;
-  max-width: min(480px, 90vw);
-}
-.toast-msg {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: .75rem;
-  padding: .75rem 1.1rem;
-  border-radius: var(--radius-card);
-  border: 1px solid var(--border);
-  font-size: .9rem;
-  font-weight: 500;
-  background: var(--bg-card);
-  color: var(--text-primary);
-  box-shadow: var(--shadow-overlay);
-  animation: toast-in .2s ease;
-}
-.toast-msg.toast-success { background: var(--badge-approved-color);  color: var(--text-primary); border-color: var(--badge-approved-color); }
-.toast-msg.toast-error,
-.toast-msg.toast-danger  { background: var(--badge-rejected-color);  color: var(--text-primary); border-color: var(--badge-rejected-color); }
-.toast-msg.toast-warning { background: var(--status-warning-color); color: var(--text-primary); border-color: var(--status-warning-color); }
-.toast-msg.toast-info    { background: var(--badge-proposition-color); color: var(--text-primary); border-color: var(--badge-proposition-color); }
-.toast-close {
-  background: none;
-  border: none;
-  color: inherit;
-  opacity: .6;
-  font-size: 1.1rem;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0;
-  flex-shrink: 0;
-}
-.toast-close:hover { opacity: 1; }
-@keyframes toast-in {
-  from { opacity: 0; transform: translateY(.5rem); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-/* ── Tabele ─────────────────────────────────────────────────── */
-/* Bootstrap 5 używa box-shadow inset + CSS variables zamiast background,
-   więc nadpisujemy zmienne a nie background bezpośrednio */
-.table {
-  --bs-table-bg: transparent;
-  --bs-table-color: var(--text-primary);
-  --bs-table-border-color: var(--border);
-  --bs-table-striped-bg: rgba(255, 255, 255, .02);
-  --bs-table-striped-color: var(--text-primary);
-  --bs-table-hover-bg: var(--accent-muted);
-  --bs-table-hover-color: var(--text-primary);
-  --bs-table-accent-bg: transparent;
-  color: var(--text-primary);
-  border-color: var(--border);
-}
-.table> :not(caption)>*>* {
-  border-color: var(--border);
-  color: var(--text-primary);
-}
-/* ── Modalne okna ───────────────────────────────────────────── */
-.modal-content {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: .75rem;
-  color: var(--text-primary);
-}
-.modal-header {
-  border-bottom: 1px solid var(--border);
-  background: transparent;
-}
-.modal-footer {
-  border-top: 1px solid var(--border);
-  background: transparent;
-}
-.modal-title {
-  color: var(--text-primary);
-}
-.btn-close {
-  filter: invert(1) opacity(.6);
-}
-.btn-close:hover {
-  filter: invert(1) opacity(1);
-}
-/* ── Listy ──────────────────────────────────────────────────── */
-.list-group-item {
-  background: var(--bg-card);
-  border-color: var(--border);
-  color: var(--text-primary);
-}
-.list-group-item:hover {
-  background: var(--accent-muted) !important;
-}
-.list-group-item.active,
-.pagination .page-link:hover {
-  background: var(--accent-muted) !important;
-  border-color: var(--accent-glow) !important;
-  color: var(--accent) !important;
-}
-/* ── Nawigacja zakładek ─────────────────────────────────────── */
-.nav-tabs {
-  border-bottom: 1px solid var(--border);
-}
-.nav-tabs .nav-link {
-  color: var(--text-muted);
-  border: none;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  font-size: .85rem;
-  padding: .5rem 1rem;
-  transition: color .15s;
-}
-.nav-tabs .nav-link:hover {
-  color: var(--text-primary);
-}
-.nav-tabs .nav-link.active {
-  background: transparent;
-  border-bottom: 2px solid var(--accent);
-  color: var(--accent);
-}
-/* ── Małe etykiety tekstowe ─────────────────────────────────── */
-.text-muted {
-  color: var(--text-muted) !important;
-}
-.text-white {
-  color: var(--text-primary) !important;
-}
-small, .small,
-.tile-desc,
-.cal-day {
-  color: var(--text-muted);
-  font-size: .82rem;
-}
-/* ── Inputy w trybie dark (select2, datepicker itp.) ────────── */
-select.form-select option {
-  background: var(--bg-card);
-  color: var(--text-primary);
-}
-/* ── Separatory ─────────────────────────────────────────────── */
-hr {
-  border-color: var(--border);
-  opacity: 1;
-}
-/* ── Paginacja ──────────────────────────────────────────────── */
-.pagination .page-link {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  transition: background .15s, color .15s;
-}.pagination .page-item.active .page-link {
-  background: var(--accent-muted);
-  border-color: var(--accent-glow);
-  color: var(--accent);
-}
-.pagination .page-item.disabled .page-link {
-  background: transparent;
-  color: var(--text-muted);
-  opacity: .4;
-}
 /* ═══════════════════════════════════════════════════════════════
    TOOLBAR
    ══════════════════════════════════════════════════ */
@@ -515,7 +37,7 @@ hr {
   background: transparent;
   color: var(--text-muted);
   font-size: .78rem;
-  text-decoration: none !important;
+  text-decoration: none;
   transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
   white-space: nowrap;
 }
@@ -882,7 +404,7 @@ hr {
   display: inline-flex;
   align-items: center;
   gap: .35rem;
-  text-decoration: none !important;
+  text-decoration: none;
   border-radius: .35rem;
   padding: 2px 5px 2px 2px;
   margin: -2px -5px -2px -2px;
@@ -1011,7 +533,7 @@ button.proposal-against-btn:focus-visible {
   gap: .5rem;
   padding: .35rem .5rem;
   border-radius: .35rem;
-  text-decoration: none !important;
+  text-decoration: none;
   color: var(--text-primary) !important;
   transition: background var(--transition-fast);
 }
@@ -1028,7 +550,7 @@ button.proposal-against-btn:focus-visible {
   padding: .35rem .5rem;
   font-size: .75rem;
   color: var(--accent) !important;
-  text-decoration: none !important;
+  text-decoration: none;
   border-top: 1px solid var(--border);
   text-align: center;
 }
@@ -1051,7 +573,7 @@ button.proposal-against-btn:focus-visible {
   font-size: .75rem;
   font-weight: 500;
   color: var(--text-muted) !important;
-  text-decoration: none !important;
+  text-decoration: none;
   padding: 3px 8px;
   border-radius: .35rem;
   border: 1px solid transparent;
@@ -1096,7 +618,7 @@ button.proposal-against-btn:focus-visible {
   font-size: .8rem;
   font-weight: 600;
   color: var(--accent) !important;
-  text-decoration: none !important;
+  text-decoration: none;
   padding: .3rem .75rem;
   border: 1px solid var(--accent-glow);
   border-radius: .4rem;
@@ -1137,7 +659,7 @@ button.proposal-against-btn:focus-visible {
   align-items: center;
   gap: .3rem;
   color: var(--accent);
-  text-decoration: none !important;
+  text-decoration: none;
   font-size: .78rem;
   font-weight: 500;
   padding: 2px 7px 2px 5px;
@@ -1198,7 +720,7 @@ button.proposal-against-btn:focus-visible {
   height: 100%;
   padding: 0 calc(var(--arrow-tip) + .65rem) 0 calc(var(--arrow-tip) + .65rem);
   color: var(--text-muted);
-  text-decoration: none !important;
+  text-decoration: none;
   font-size: .82rem;
   white-space: nowrap;
   transition: color var(--transition-fast);
@@ -1230,7 +752,7 @@ button.proposal-against-btn:focus-visible {
 }
 .stepper-step-wrap.active .stepper-step-count {
   background: var(--stepper-color);
-  color: #111;
+  color: var(--text-on-accent);
 }.stepper-sep {
   width: 1px;
   height: 20px;
@@ -1248,10 +770,10 @@ button.proposal-against-btn:focus-visible {
   flex-shrink: 0;
   border-radius: var(--radius-btn);
   background: var(--stepper-color);
-  color: #111 !important;
+  color: var(--text-on-accent) !important;
   font-size: .8rem;
   font-weight: 700;
-  text-decoration: none !important;
+  text-decoration: none;
   transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 .stepper-add-btn:hover {
@@ -1268,7 +790,7 @@ button.proposal-against-btn:focus-visible {
   background: var(--stepper-color-muted);
   border: 1px solid var(--stepper-color);
   color: var(--stepper-color);
-  text-decoration: none !important;
+  text-decoration: none;
   font-size: .95rem;
   font-weight: 700;
   transition: background var(--transition-fast), box-shadow var(--transition-fast);
@@ -1287,7 +809,7 @@ button.proposal-against-btn:focus-visible {
   border-radius: .4rem;
   border: 1px solid var(--border);
   color: var(--text-muted);
-  text-decoration: none !important;
+  text-decoration: none;
   font-size: .78rem;
   transition: color var(--transition-fast), border-color var(--transition-fast);
   white-space: nowrap;
@@ -1358,7 +880,7 @@ button.proposal-against-btn:focus-visible {
   border-radius: .4rem;
   border: 1px solid var(--border);
   color: var(--text-muted);
-  text-decoration: none !important;
+  text-decoration: none;
   font-size: .8rem;
   transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
 }
@@ -1392,7 +914,7 @@ button.proposal-against-btn:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: .3rem;
-  text-decoration: none !important;
+  text-decoration: none;
   border-radius: .3rem;
   padding: 1px 5px 1px 1px;
   margin: -1px -5px -1px -1px;
@@ -1510,7 +1032,7 @@ button.proposal-against-btn:focus-visible {
   align-items: center;
   gap: .5rem;
   margin-bottom: .6rem;
-  text-decoration: none !important;
+  text-decoration: none;
 }
 .arg-card-author:hover .arg-author-name {
   color: var(--accent);
@@ -1558,7 +1080,7 @@ button.proposal-against-btn:focus-visible {
   border-radius: .3rem;
   border: 1px solid var(--border);
   color: var(--text-muted);
-  text-decoration: none !important;
+  text-decoration: none;
   background: transparent;
   transition: color var(--transition-fast), border-color var(--transition-fast);
 }
@@ -1721,13 +1243,13 @@ button.proposal-against-btn:focus-visible {
   font-weight: 600;
   border: none;
   cursor: pointer;
-  text-decoration: none !important;
+  text-decoration: none;
   transition: background var(--transition-fast), box-shadow var(--transition-fast);
   margin-bottom: .4rem;
 }
 .action-btn-sign {
   background: var(--accent);
-  color: #111 !important;
+  color: var(--text-on-accent) !important;
 }
 .action-btn-sign:hover {
   background: var(--accent-hover);
@@ -1843,7 +1365,7 @@ button.proposal-against-btn:focus-visible {
 }
 .protocol-no {
   color: var(--badge-rejected-color);
-} ══════════════════════════════════════════════════
+} /* ══════════════════════════════════════════════════
    TASKS
    ══════════════════════════════════════════════════ */
 .tasks-empty {
@@ -1995,7 +1517,7 @@ button.proposal-against-btn:focus-visible {
   margin-left: auto;
   color: var(--text-muted);
   font-size: .75rem;
-  text-decoration: none !important;
+  text-decoration: none;
   transition: color var(--transition-fast);
 }
 .ec-open-full:hover {
@@ -2204,58 +1726,6 @@ button.proposal-against-btn:focus-visible {
 .wspol-section-title i {
   color: var(--accent);
 }
-.wspol-member-row {
-  display: flex;
-  align-items: center;
-  gap: .75rem;
-  padding: .55rem 0;
-  border-bottom: 1px solid var(--border);
-}
-.wspol-member-row:last-child {
-  border-bottom: none;
-}
-.wspol-member-name {
-  font-size: .875rem;
-  color: var(--accent);
-  font-weight: 500;
-}
-.wspol-member-meta {
-  font-size: .75rem;
-  color: var(--text-muted);
-  margin-left: auto;
-  white-space: nowrap;
-}
-.finance-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: .55rem 0;
-  border-bottom: 1px solid var(--border);
-}
-.finance-row:last-child {
-  border-bottom: none;
-}
-.finance-label {
-  font-size: .82rem;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: .4rem;
-}
-.finance-value {
-  font-size: .9rem;
-  font-weight: 600;
-}
-.finance-value.inc {
-  color: var(--badge-approved-color);
-}
-.finance-value.exp {
-  color: var(--badge-rejected-color);
-}
-.finance-value.bal {
-  color: var(--text-primary);
-  font-size: 1.1rem;
-}
 .cal-table {
   width: 100%;
   border-collapse: collapse;
@@ -2278,7 +1748,7 @@ button.proposal-against-btn:focus-visible {
 }
 .cal-day.today {
   background: var(--accent);
-  color: #111;
+  color: var(--text-on-accent);
   font-weight: 700;
   width: 22px;
   height: 22px;
@@ -2317,7 +1787,7 @@ button.proposal-against-btn:focus-visible {
   flex-direction: column;
   align-items: center;
   gap: 0;
-  text-decoration: none !important;
+  text-decoration: none;
   padding: 2px;
   border-radius: .35rem;
   transition: background var(--transition-fast), box-shadow var(--transition-fast);
@@ -2415,12 +1885,6 @@ button.proposal-against-btn:focus-visible {
 /* ══════════════════════════════════════════════════
    BOARD CATEGORY CHIPS
    ══════════════════════════════════════════════════ */
-.toolbar-categories {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .35rem;
-  align-items: center;
-}
 .category-chip {
   display: inline-flex;
   align-items: center;
@@ -2463,7 +1927,7 @@ button.proposal-against-btn:focus-visible {
 }
 .cat-filter__manage-btn:hover {
   color: var(--text-primary);
-  background: var(--bg-hover);
+  background: var(--color-surface-dynamic);
 }
 /* ── categories manage modal ── */
 .cat-mgr-list {
@@ -2485,7 +1949,7 @@ button.proposal-against-btn:focus-visible {
 }
 .cat-mgr-row--editing {
   flex-wrap: wrap;
-  background: var(--bg-hover);
+  background: var(--color-surface-dynamic);
 }
 .cat-mgr-info,
 .event-card-content {
@@ -2523,7 +1987,7 @@ button.proposal-against-btn:focus-visible {
 }
 .cat-mgr-btn:hover {
   color: var(--text-primary);
-  background: var(--bg-hover);
+  background: var(--color-surface-dynamic);
   border-color: rgba(255,255,255,.2);
 }
 .cat-mgr-btn--delete:hover {
@@ -2586,7 +2050,7 @@ button.proposal-against-btn:focus-visible {
 }
 .cat-mgr-row.sortable-ghost {
   opacity: .4;
-  background: var(--bg-elevated, var(--bg-card));
+  background: var(--bg-card);
 }
 .cat-mgr-row.sortable-chosen {
   cursor: grabbing;
@@ -2884,7 +2348,7 @@ button.proposal-against-btn:focus-visible {
   background: var(--accent-muted);
   border: 1px solid transparent;
   color: var(--text-primary);
-  text-decoration: none !important;
+  text-decoration: none;
   font-size: .85rem;
   transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
   min-width: 0;
@@ -2956,23 +2420,6 @@ button.proposal-against-btn:focus-visible {
   }
 }
 
-/* "Show earlier events" — pokazuje przeszłe dni które są domyślnie ukryte */
-.show-earlier-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: .4rem;
-  width: 100%;
-  margin: 0 0 .85rem;
-  padding: .5rem .9rem;
-  background: transparent;
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-btn);
-  color: var(--text-muted);
-  font-size: .82rem;
-  cursor: pointer;
-  transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
-}
 /* Empty state spójny z resztą */
 .events-empty {
   display: flex;
@@ -3062,7 +2509,7 @@ button.proposal-against-btn:focus-visible {
 .registration-timeline__marker-icon {
   display: none;
   font-size: 0.72rem;
-  color: #fff;
+  color: var(--text-inverse);
   line-height: 1;
 }
 .registration-timeline__item.completed .registration-timeline__marker {
@@ -3191,5 +2638,3 @@ td.notes-col {
   color: var(--accent);
   text-decoration: underline;
 }
-
-/* ══════════════════════════════════════════════════

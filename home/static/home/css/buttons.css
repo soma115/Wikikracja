@@ -1,0 +1,118 @@
+/* ── Przyciski ──────────────────────────────────────────────── */
+.btn-outline-primary,
+.btn-info {
+  background: transparent;
+  border-color: var(--btn-outline-primary-border);
+  color: var(--accent);
+  transition: background .15s, border-color .15s, box-shadow .15s;
+}
+.btn-outline-primary:hover,
+.btn-info:hover {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  box-shadow: var(--btn-outline-primary-hover-shadow);
+  color: var(--accent);
+}
+.btn-outline-secondary,
+.btn-outline-light {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-muted);
+  transition: background .15s, color .15s;
+}
+.btn-outline-secondary:hover,
+.btn-outline-light:hover {
+  background: var(--btn-outline-secondary-hover-bg);
+  color: var(--text-primary);
+  border-color: var(--btn-outline-secondary-hover-border);
+}
+.btn-outline-danger {
+  background: transparent;
+  border-color: var(--badge-rejected-border);
+  color: var(--badge-rejected-color);
+  transition: background .15s, border-color .15s;
+}
+.btn-outline-danger:hover {
+  background: var(--badge-rejected-bg);
+  border-color: var(--badge-rejected-color);
+  color: var(--badge-rejected-color);
+}
+.btn-danger {
+  background: var(--btn-danger-bg);
+  border-color: var(--badge-rejected-color);
+  color: var(--btn-danger-color);
+}
+.btn-danger:hover {
+  background: var(--badge-rejected-color);
+  border-color: var(--badge-rejected-color);
+}
+.btn-success {
+  background: var(--btn-success-bg);
+  border-color: var(--badge-approved-color);
+  color: var(--btn-success-color);
+}
+.btn-success:hover {
+  background: #00a07a;
+  border-color: #00a07a;
+}
+.btn-warning {
+  background: var(--btn-warning-bg);
+  border-color: var(--status-warning-color);
+  color: var(--text-on-accent);
+}
+.btn-warning:hover {
+  background: var(--status-warning-color);
+  border-color: var(--status-warning-color);
+}
+.btn-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+.btn-link:hover {
+  opacity: .8;
+}
+
+/* ── Rich text toolbar (shared by chat and home/richtext-input) ── */
+.fmt-toolbar {
+  display: flex;
+  gap: .2rem;
+  flex-shrink: 0;
+}
+.fmt-btn {
+  background: var(--color-surface-offset);
+  border: 1px solid var(--border);
+  border-radius: .25rem;
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, border-color .15s;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: .9rem;
+  flex-shrink: 0;
+}
+.fmt-btn:hover,
+.fmt-btn.active {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+.msg-counter {
+  font-size: .82rem;
+  color: var(--text-muted);
+  text-align: right;
+  justify-content: flex-end;
+  padding: .1rem .5rem .0rem;
+  flex-shrink: 0;
+  line-height: 1.2;
+  transition: color .15s;
+}
+.msg-counter.counter--warn {
+  color: var(--status-warning-color);
+}
+.msg-counter.counter--error {
+  color: var(--badge-rejected-color);
+  font-weight: 600;
+}

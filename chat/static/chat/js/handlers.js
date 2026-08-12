@@ -71,12 +71,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (existing) existing.remove();
         const toast = document.createElement('div');
         toast.id = 'chat-toast';
-        toast.className = 'chat-toast';
+        toast.className = 'toast-chat';
         toast.textContent = message;
         document.body.appendChild(toast);
-        requestAnimationFrame(() => toast.classList.add('chat-toast--visible'));
+        requestAnimationFrame(() => toast.classList.add('toast-chat--visible'));
         setTimeout(() => {
-            toast.classList.remove('chat-toast--visible');
+            toast.classList.remove('toast-chat--visible');
             setTimeout(() => toast.remove(), 300);
         }, 2500);
     }

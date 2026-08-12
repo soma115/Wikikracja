@@ -107,6 +107,7 @@ async function initEmbeddedChat(container) {
             room_id: roomId,
             user_id: msg.user_id ?? null,
             avatar_url: msg.avatar_url ?? null,
+            citizen_color_class: msg.citizen_color_class ?? '',
             message_id: msg.message_id,
             username: msg.username,
             message: formatMessage(msg.message),
@@ -403,7 +404,7 @@ async function initEmbeddedChat(container) {
         const msgText = msgDiv?.querySelector('.msg-text')?.innerHTML ?? '';
         inputElRef.dataset.editMessage = messageId;
         inputElRef.innerHTML = msgText;
-        inputElRef.style.borderColor = 'var(--color-warning)';
+        inputElRef.style.borderColor = 'var(--status-warning-color)';
         inputElRef.focus();
         updateCounter(inputElRef, counterEl, counterVal, sendBtn, EC_MAX);
     }

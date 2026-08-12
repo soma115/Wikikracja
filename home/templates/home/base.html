@@ -26,14 +26,26 @@
 	<script>(function(){var t=localStorage.getItem('app-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 	<!-- Anti-FOUC: restore page filters from localStorage when URL has none (PagePrefs) -->
 	<script>(function(){var s=document.documentElement.dataset.prefsScope;if(!s||window.location.search)return;try{var d=JSON.parse(localStorage.getItem('wikikracja:prefs:'+s)||'{}');if(d.filters)window.location.replace(window.location.pathname+d.filters);}catch(e){}})();</script>
+	<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
 	<!-- https://fontawesome.com/ -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 	<link rel="stylesheet" type="text/css" href="{% static 'home/css/darkly.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'home/css/tokens.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'home/css/base.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/components.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'home/css/cards.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'home/css/navigation.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'home/css/forms.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'home/css/buttons.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'home/css/feedback.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'home/css/tables.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'home/css/typography.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'home/css/modules.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'home/css/utilities.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'home/css/layout.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'home/css/light-mode.css' %}">
 
   <!-- Main app script with config data -->

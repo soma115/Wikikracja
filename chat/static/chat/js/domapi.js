@@ -315,7 +315,7 @@ export default class DomApi {
             } else {
                 input.value = text;
             }
-            input.style.borderColor = 'var(--color-warning)';
+            input.style.borderColor = 'var(--status-warning-color)';
         }
         this.loadEditingAttachments(message_id, this.getMessageAttachments(message_id));
         if (input?.isContentEditable) {

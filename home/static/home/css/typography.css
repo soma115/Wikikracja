@@ -1,0 +1,12 @@
+/* ── Małe etykiety tekstowe ─────────────────────────────────── */
+.text-muted {
+  color: var(--text-muted) !important;
+}
+.text-white {
+  color: var(--text-primary) !important;
+}
+small, .small,
+.cal-day {
+  color: var(--text-muted);
+  font-size: .82rem;
+}

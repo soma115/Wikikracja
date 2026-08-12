@@ -187,7 +187,7 @@
       var bar = document.querySelector('#onboarding-card .progress-bar');
       var label = document.querySelector('#onboarding-card .progress-label');
       if (bar) {
-        bar.style.setProperty('--progress', Math.round(done / total * 100) + '%');
+        bar.dataset.progress = Math.round(done / total * 100);
       }
       if (label) {
         label.textContent = done + '/' + total;
@@ -536,12 +536,12 @@
         {% if default_asset %}
           <div class="d-flex flex-column gap-1 text-sm">
             <div class="d-flex justify-content-between align-items-center">
-              <span class="tile-text-muted"><i class="fas fa-arrow-down me-1 text-success-custom"></i>{% trans "Revenues" %}</span>
-              <span class="text-success-custom fw-500">{{ default_income|floatformat:2 }} {{ default_symbol }}</span>
+              <span class="tile-text-muted"><i class="fas fa-arrow-down me-1 text-success"></i>{% trans "Revenues" %}</span>
+              <span class="text-success fw-500">{{ default_income|floatformat:2 }} {{ default_symbol }}</span>
             </div>
             <div class="d-flex justify-content-between align-items-center">
-              <span class="tile-text-muted"><i class="fas fa-arrow-up me-1 text-danger-custom"></i>{% trans "Expenses" %}</span>
-              <span class="text-danger-custom fw-500">{{ default_expenses|floatformat:2 }} {{ default_symbol }}</span>
+              <span class="tile-text-muted"><i class="fas fa-arrow-up me-1 text-danger"></i>{% trans "Expenses" %}</span>
+              <span class="text-danger fw-500">{{ default_expenses|floatformat:2 }} {{ default_symbol }}</span>
             </div>
             <hr class="my-1 hr-subtle">
             <div class="d-flex justify-content-between align-items-center">

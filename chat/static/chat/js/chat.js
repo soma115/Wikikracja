@@ -907,9 +907,10 @@ export async function onReceiveReadBy(event) {
     if (!btn || !dropdown) return;
 
     const listHtml = readBy.map(u => {
+        const colorClass = u.citizen_color_class ? `citizen-color-${u.citizen_color_class}` : '';
         const avatar = u.avatar_url
             ? `<img class="avatar avatar-xl" src="${u.avatar_url}" alt="${u.username}">`
-            : `<span class="avatar avatar-xl avatar-fallback">${(u.username || '').slice(0, 2).toUpperCase()}</span>`;
+            : `<span class="avatar avatar-xl avatar-fallback ${colorClass}">${(u.username || '').slice(0, 2).toUpperCase()}</span>`;
         return `<div class="read-by-item">${avatar}<span class="read-by-username">${u.username}</span></div>`;
     }).join('');
 

@@ -22,6 +22,9 @@
   /* Layout limits */
   --app-max-width: 1200px;
   --table-stripe-bg: color-mix(in srgb, var(--bg-card) 93%, #3b82f6 7%);
+  /* Text on solid accent / inverse surfaces */
+  --text-on-accent: #111;
+  --text-inverse: #fff;
 }
 /* Dark theme (default) */
 :root,
@@ -65,6 +68,30 @@
   --btn-danger-bg: color-mix(in srgb, var(--badge-rejected-color) 85%, transparent);
   --btn-success-bg: color-mix(in srgb, var(--badge-approved-color) 85%, transparent);
   --btn-warning-bg: color-mix(in srgb, var(--status-warning-color) 85%, transparent);
+  /* Alert & badge tokens — dark theme uses solid, light theme uses subtle pastels */
+  --alert-info-bg: #3498db;
+  --alert-info-color: #fff;
+  --alert-info-border: var(--border);
+  --alert-success-bg: #00bc8c;
+  --alert-success-color: #fff;
+  --alert-success-border: var(--border);
+  --alert-warning-bg: #f39c12;
+  --alert-warning-color: #fff;
+  --alert-warning-border: var(--border);
+  --alert-danger-bg: #e74c3c;
+  --alert-danger-color: #fff;
+  --alert-danger-border: var(--border);
+  --badge-danger-text: var(--text-inverse);
+  --badge-warning-text: var(--text-inverse);
+  --badge-success-text: var(--text-inverse);
+  --badge-info-text: var(--text-inverse);
+  --badge-primary-text: var(--text-inverse);
+  --btn-danger-color: var(--text-on-accent);
+  --btn-success-color: var(--text-on-accent);
+  --btn-outline-primary-border: var(--accent-border);
+  --btn-outline-primary-hover-shadow: 0 0 8px var(--accent-glow);
+  --btn-outline-secondary-hover-bg: var(--btn-glass-hover-bg);
+  --btn-outline-secondary-hover-border: var(--btn-glass-hover-border);
   --input-bg: #252d4a;
   --input-border: rgba(255, 255, 255, .25);
 }
@@ -83,7 +110,7 @@
   --accent-glow-faint: color-mix(in srgb, var(--accent) 8%, transparent);
   --accent-border: color-mix(in srgb, var(--accent) 45%, transparent);
   --text-primary: #1e2030;
-  --text-muted: rgb(48, 30, 30);
+  --text-muted: rgba(0, 0, 0, .55);
   --border: rgba(0, 0, 0, .1);
   --btn-glass-bg: rgba(0, 0, 0, .04);
   --btn-glass-border: rgba(0, 0, 0, .14);
@@ -109,6 +136,30 @@
   --btn-danger-bg: color-mix(in srgb, var(--badge-rejected-color) 85%, transparent);
   --btn-success-bg: color-mix(in srgb, var(--badge-approved-color) 85%, transparent);
   --btn-warning-bg: color-mix(in srgb, var(--status-warning-color) 85%, transparent);
+  /* Alert & badge tokens — light theme uses subtle pastels */
+  --alert-info-bg: rgba(52, 152, 219, .07);
+  --alert-info-color: #1a6e9e;
+  --alert-info-border: rgba(52, 152, 219, .2);
+  --alert-success-bg: rgba(0, 153, 132, .07);
+  --alert-success-color: #065f50;
+  --alert-success-border: rgba(0, 153, 132, .2);
+  --alert-warning-bg: rgba(243, 156, 18, .07);
+  --alert-warning-color: #8a5d00;
+  --alert-warning-border: rgba(243, 156, 18, .2);
+  --alert-danger-bg: rgba(239, 68, 68, .07);
+  --alert-danger-color: #991b1b;
+  --alert-danger-border: rgba(239, 68, 68, .2);
+  --badge-danger-text: #991b1b;
+  --badge-warning-text: #78420a;
+  --badge-success-text: #065f50;
+  --badge-info-text: #1a5c8a;
+  --badge-primary-text: #1d4ed8;
+  --btn-danger-color: var(--text-inverse);
+  --btn-success-color: var(--text-inverse);
+  --btn-outline-primary-border: var(--accent);
+  --btn-outline-primary-hover-shadow: none;
+  --btn-outline-secondary-hover-bg: rgba(0, 0, 0, .06);
+  --btn-outline-secondary-hover-border: rgba(0, 0, 0, .2);
   --input-bg: #ffffff;
   --input-border: rgba(0, 0, 0, .18);
 }

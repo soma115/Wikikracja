@@ -25,14 +25,14 @@
   backdrop-filter: blur(2px);
 }
 .post-title {
-  color: var(--badge-proposition-color) !important;
+  color: var(--badge-proposition-color);
   font-size: 2.5rem;
   font-weight: 700;
   margin: 0 0 1rem 0;
   letter-spacing: 0.5px;
 }
 .post-subtitle {
-  color: var(--text-muted) !important;
+  color: var(--text-muted);
   font-size: 1.5rem;
   font-weight: 400;
   margin: 0;

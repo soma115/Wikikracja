@@ -1,0 +1,66 @@
+/* ── Dropdown ───────────────────────────────────────────────── */
+.dropdown-menu {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+  padding: .25rem 0;
+  min-width: 180px;
+  z-index: 1050;
+}
+.dropdown-item {
+  color: var(--text-primary);
+  font-size: .875rem;
+  padding: .45rem .9rem;
+  transition: background-color .1s, color .1s;
+}
+.dropdown-item:hover,
+.dropdown-item:focus,
+.dropdown-item.active,
+.dropdown-item:active,
+.anon-nav-link.active,
+.sidebar-toggle-btn:hover,
+.wspol-stat-icon.accent,
+.event-meta-link:hover {
+  background: var(--accent-muted);
+  color: var(--accent);
+}.dropdown-divider {
+  border-color: var(--border);
+  margin: .25rem 0;
+}
+/* ── Listy ──────────────────────────────────────────────────── */
+.list-group-item {
+  background: var(--bg-card);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+.list-group-item:hover {
+  background: var(--accent-muted) !important;
+}
+.list-group-item.active,
+.pagination .page-link:hover {
+  background: var(--accent-muted) !important;
+  border-color: var(--accent-glow) !important;
+  color: var(--accent) !important;
+}
+/* ── Nawigacja zakładek ─────────────────────────────────────── */
+.nav-tabs {
+  border-bottom: 1px solid var(--border);
+}
+.nav-tabs .nav-link {
+  color: var(--text-muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: .85rem;
+  padding: .5rem 1rem;
+  transition: color .15s;
+}
+.nav-tabs .nav-link:hover {
+  color: var(--text-primary);
+}
+.nav-tabs .nav-link.active {
+  background: transparent;
+  border-bottom: 2px solid var(--accent);
+  color: var(--accent);
+}

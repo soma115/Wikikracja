@@ -166,9 +166,8 @@ body:has(.chat-rooms) .main-area {
     font-size: smaller;
     color: var(--text-muted);
 }
-/* Chat small icon buttons (history, edit, reply, vote, format, anonymous) */
+/* Chat small icon buttons (history, edit, reply, vote, anonymous) */
 .message-btn,
-.fmt-btn,
 .anonymous-toggle {
     background: var(--color-surface-offset);
     border: 1px solid var(--border);
@@ -400,72 +399,16 @@ body:has(.chat-rooms) .main-area {
     border-color: var(--badge-rejected-color);
 }
 /* ============================================================ */
-/* FORMATTING TOOLBAR                               */
+/* ANONYMOUS TOGGLE                                */
 /* ============================================================ */
-.fmt-toolbar {
-    display: flex;
-    gap: .2rem;
-    flex-shrink: 0;
-}
-.fmt-btn {
-    width: 28px;
-    height: 28px;
-    cursor: pointer;
-    font-size: .9rem;
-    flex-shrink: 0;
-}
 .anonymous-toggle {
     color: var(--text-muted);
 }
-.fmt-btn:hover,
-.fmt-btn.active,
 .anonymous-toggle:hover,
 .anonymous-toggle.active {
     background: var(--accent-muted);
     border-color: var(--accent);
     color: var(--text-primary);
-}
-/* ============================================================ */
-/* CHARACTER COUNTER                               */
-/* ============================================================ */
-.msg-counter {
-    font-size: .82rem;
-    color: var(--text-muted);
-    text-align: right;
-    justify-content: flex-end;
-    /* when inside a flex parent */
-    padding: .1rem .5rem .0rem;
-    flex-shrink: 0;
-    line-height: 1.2;
-    transition: color .15s;
-}
-.msg-counter.counter--warn {
-    color: var(--status-warning-color);
-}
-.msg-counter.counter--error {
-    color: var(--badge-rejected-color);
-    font-weight: 600;
-}
-/* Toast notification */
-.chat-toast {
-    position: fixed;
-    bottom: 5.5rem;
-    left: 50%;
-    transform: translateX(-50%) translateY(.5rem);
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
-    padding: .45rem 1.1rem;
-    border-radius: 9999px;
-    font-size: .82rem;
-    z-index: 200;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .2s, transform .2s;
-}
-.chat-toast.chat-toast--visible {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
 }
 /* ============================================================ */
 /* BREADCRUMB                                       */
