@@ -101,7 +101,7 @@
           <span class="vote-for"><i class="fas fa-check fa-fw"></i> {% trans 'For' %} {{ id.za }}</span>
           <span class="vote-against">{% trans 'Against' %} {{ id.przeciw }} <i class="fas fa-xmark fa-fw"></i></span>
         </div>
-        <div class="result-bar-track"><div class="result-bar-fill" style="--w: {{ fill_pct }}%"></div></div>
+        <div class="result-bar-track"><div class="result-bar-fill" data-width="{{ fill_pct }}"></div></div>
       </div>
       {% endif %}{% endwith %}
       {% if voters %}<div class="text-muted-75"><i class="fas fa-users me-1"></i>{% for voter in voters %}{{ voter.ktory_uzytkownik_juz_zaglosowal.username }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}

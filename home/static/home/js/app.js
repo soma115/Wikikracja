@@ -633,3 +633,13 @@ document.addEventListener('DOMContentLoaded', function () {
     update();
     setInterval(update, 1000);
 });
+
+// Apply CSS custom properties from data-* attributes (avoids inline styles in HTML)
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[data-progress]').forEach(function (el) {
+        el.style.setProperty('--progress', el.dataset.progress + '%');
+    });
+    document.querySelectorAll('[data-width]').forEach(function (el) {
+        el.style.setProperty('--w', el.dataset.width + '%');
+    });
+});

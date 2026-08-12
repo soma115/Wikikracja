@@ -79,7 +79,7 @@
             <div class="progress flex-grow-1 progress-h-8">
               <div class="progress-bar {% if form_completion_percent == 100 %}bg-success{% elif form_completion_percent >= 50 %}bg-warning{% else %}bg-danger{% endif %} progress-fill"
                    role="progressbar"
-                   style="--progress: {{ form_completion_percent }}%"
+                   data-progress="{{ form_completion_percent }}"
                    aria-valuenow="{{ form_completion_percent }}"
                    aria-valuemin="0"
                    aria-valuemax="100"></div>
