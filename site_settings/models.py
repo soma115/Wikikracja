@@ -14,7 +14,7 @@ class SiteSettings(models.Model):
         null=True,
         validators=[validate_branding_image_size, validate_brand_mark_dimensions, validate_brand_mark_format],
         verbose_name=_('Brand mark'),
-        help_text=_('Graphic mark (longest side 512-1024 px, max 1 MB). Non-square images are letterboxed to a square on save. Source for favicon and PWA icons.'),
+        help_text=_('Graphic mark (PNG/JPEG/WebP/GIF, max 5 MB, source 64-4096 px). Resized to 1024×1024 px PNG with letterbox and converted to favicon/PWA icons on save.'),
     )
     updated_at = models.DateTimeField(auto_now=True, null=True)
 
@@ -25,15 +25,19 @@ class SiteSettings(models.Model):
         return 'Site Settings'
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
         # late import — services.py importuje PIL, niepotrzebnie ładować przy każdym ładowaniu modelu
-        from site_settings.services import cleanup_brand_derivatives, letterbox_to_square, regenerate_brand_derivatives
+        from site_settings.services import cleanup_brand_derivatives, normalize_brand_mark, regenerate_brand_derivatives
 
-        # I/O na dysku po super().save() — przy rollbacku transakcji pliki pozostają orphan w MEDIA_ROOT.
-        # Akceptujemy tę cenę: SiteSettings to singleton edytowany rzadko (admin manual), prawdziwy rollback prawie nie występuje.
-        # letterbox prostokątów do kwadratu PRZED regen derivatives (żeby favicon/PWA wynikały z kwadratu)
+        # Normalizujemy do 1024×1024 px PNG PRZED super().save(), żeby na dysk trafił
+        # tylko gotowy plik (unikamy kolizji nazw i podwójnego zapisu).
         if self.brand_mark:
-            letterbox_to_square(self.brand_mark.path)
+            old_name = self.brand_mark.name
+            new_name = os.path.splitext(os.path.basename(old_name))[0] + '.png' if old_name else 'brand_mark.png'
+            self.brand_mark = normalize_brand_mark(self.brand_mark, target_name=new_name)
+
+        super().save(*args, **kwargs)
+
+        if self.brand_mark:
             regenerate_brand_derivatives(self)
         else:
             cleanup_brand_derivatives(self)
@@ -48,7 +52,7 @@ class SiteSettings(models.Model):
             return False
         try:
             return os.path.isfile(self.brand_mark.path)
-        except (ValueError, OSError):
+        except (ValueError, OSError) as _:
             return False
 
     def has_brand_derivatives(self):
@@ -71,7 +75,7 @@ class SiteSettings(models.Model):
         try:
             regenerate_brand_derivatives(self)
             return os.path.isfile(favicon_path)
-        except (Exception):
+        except Exception:
             # If regeneration fails, fall back to False (use default favicon)
             return False
 

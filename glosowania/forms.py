@@ -40,7 +40,7 @@ class ParametersProposalForm(forms.Form):
     brand_mark = forms.ImageField(
         required=False,
         label=_('New logo (optional)'),
-        help_text=_('PNG, longest side 512-1024 px, max 1 MB. Applied as the site logo if the referendum is approved.'),
+        help_text=_('PNG/JPEG/WebP/GIF, max 5 MB, any longest side 64-4096 px. Automatically resized to 1024×1024 px PNG and applied as the site logo if the referendum is approved.'),
         validators=[validate_branding_image_size, validate_brand_mark_dimensions, validate_brand_mark_format],
     )
 
@@ -89,6 +89,14 @@ class ParametersProposalForm(forms.Form):
             if new_value != old_value:
                 changes[spec.name] = new_value
         return changes
+
+    def clean_brand_mark(self):
+        file = self.cleaned_data.get('brand_mark')
+        if not file:
+            return file
+        from site_settings.services import normalize_brand_mark
+
+        return normalize_brand_mark(file)
 
     def clean(self):
         cleaned = super().clean()

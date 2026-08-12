@@ -1,4 +1,3 @@
-import io
 import os
 import shutil
 import tempfile
@@ -10,7 +9,7 @@ from django.db.models import DateTimeField, ImageField
 from django.test import TestCase, override_settings
 
 from site_settings.models import SiteSettings
-from site_settings.tests.utils import make_branding_png
+from site_settings.tests.utils import make_branding_image, make_branding_png
 
 
 class SiteSettingsBrandingFieldsTest(TestCase):
@@ -37,18 +36,18 @@ class SiteSettingsBrandingFieldsTest(TestCase):
 
 
 class SiteSettingsBrandingSizeValidatorTest(TestCase):
-    """Test 2 (TDD red): walidator rozmiaru pliku — limit 1 MB dla pól brandingowych."""
+    """Test 2 (TDD red): walidator rozmiaru pliku — limit 5 MB dla pól brandingowych."""
 
-    LIMIT_BYTES = 1024 * 1024  # 1 MB
+    LIMIT_BYTES = 5 * 1024 * 1024  # 5 MB
 
-    def test_validator_rejects_file_just_over_1mb(self):
+    def test_validator_rejects_file_just_over_5mb(self):
         from site_settings.validators import validate_branding_image_size
 
         big_file = SimpleUploadedFile('big.png', b'x' * (self.LIMIT_BYTES + 1), content_type='image/png')
         with self.assertRaises(ValidationError):
             validate_branding_image_size(big_file)
 
-    def test_validator_accepts_file_at_exactly_1mb(self):
+    def test_validator_accepts_file_at_exactly_5mb(self):
         from site_settings.validators import validate_branding_image_size
 
         ok_file = SimpleUploadedFile('ok.png', b'x' * self.LIMIT_BYTES, content_type='image/png')
@@ -63,36 +62,36 @@ class SiteSettingsBrandingSizeValidatorTest(TestCase):
 
 
 class SiteSettingsBrandingDimensionsValidatorTest(TestCase):
-    """Test 3 (TDD red): walidator wymiarów — najdłuższy bok 512-1024 px (prostokąty OK, letterbox dorabia kwadrat przy zapisie)."""
+    """Test 3 (TDD red): walidator wymiarów źródła — rozsądny zakres 64-4096 px."""
 
-    def test_validator_accepts_minimum_square_512x512(self):
+    def test_validator_accepts_minimum_source_64px(self):
         from site_settings.validators import validate_brand_mark_dimensions
 
-        validate_brand_mark_dimensions(make_branding_png(512, 512))
+        validate_brand_mark_dimensions(make_branding_png(64, 64))
 
-    def test_validator_accepts_maximum_square_1024x1024(self):
+    def test_validator_accepts_maximum_source_4096px(self):
         from site_settings.validators import validate_brand_mark_dimensions
 
-        validate_brand_mark_dimensions(make_branding_png(1024, 1024))
+        validate_brand_mark_dimensions(make_branding_png(4096, 4096))
 
-    def test_validator_accepts_non_square_rectangle_within_range(self):
+    def test_validator_accepts_large_non_square_rectangle(self):
         from site_settings.validators import validate_brand_mark_dimensions
 
-        # prostokąt 1024×500: longest=1024 (≤max), akceptowany — letterbox dorobi kwadrat przy save
-        validate_brand_mark_dimensions(make_branding_png(1024, 500))
+        # prostokąt 4096×500: longest=4096, akceptowany — zostanie przeskalowany do 1024×1024
+        validate_brand_mark_dimensions(make_branding_png(4096, 500))
 
-    def test_validator_rejects_too_small_square(self):
+    def test_validator_rejects_too_small_image(self):
         from site_settings.validators import validate_brand_mark_dimensions
 
         with self.assertRaises(ValidationError) as ctx:
-            validate_brand_mark_dimensions(make_branding_png(511, 511))
+            validate_brand_mark_dimensions(make_branding_png(63, 63))
         self.assertEqual(ctx.exception.code, 'branding_too_small')
 
-    def test_validator_rejects_too_large_square(self):
+    def test_validator_rejects_too_large_image(self):
         from site_settings.validators import validate_brand_mark_dimensions
 
         with self.assertRaises(ValidationError) as ctx:
-            validate_brand_mark_dimensions(make_branding_png(1025, 1025))
+            validate_brand_mark_dimensions(make_branding_png(4097, 4097))
         self.assertEqual(ctx.exception.code, 'branding_too_large')
 
     def test_brand_mark_field_has_dimensions_validator_attached(self):
@@ -103,38 +102,34 @@ class SiteSettingsBrandingDimensionsValidatorTest(TestCase):
 
 
 class SiteSettingsBrandMarkFormatValidatorTest(TestCase):
-    """Test: walidator akceptuje wyłącznie PNG (cały pipeline derivatives produkuje PNG)."""
-
-    @staticmethod
-    def _make_image(format: str, mode: str = 'RGBA') -> SimpleUploadedFile:
-        from PIL import Image
-
-        img = Image.new(mode, (512, 512), (0, 128, 255, 255) if mode == 'RGBA' else (0, 128, 255))
-        buf = io.BytesIO()
-        img.save(buf, format=format)
-        buf.seek(0)
-        ext = format.lower()
-        return SimpleUploadedFile(f'test.{ext}', buf.getvalue(), content_type=f'image/{ext}')
+    """Test: walidator akceptuje PNG/JPEG/WebP/GIF — pipeline konwertuje do PNG."""
 
     def test_validator_accepts_png(self):
         from site_settings.validators import validate_brand_mark_format
 
-        validate_brand_mark_format(self._make_image('PNG'))
+        validate_brand_mark_format(make_branding_image('PNG'))
 
-    def test_validator_rejects_webp(self):
-        # WebP zawiera alpha, ale cały pipeline derivatives produkuje PNG — akceptujemy tylko PNG dla spójności
+    def test_validator_accepts_jpeg(self):
+        from site_settings.validators import validate_brand_mark_format
+
+        validate_brand_mark_format(make_branding_image('JPEG'))
+
+    def test_validator_accepts_webp(self):
+        from site_settings.validators import validate_brand_mark_format
+
+        validate_brand_mark_format(make_branding_image('WEBP'))
+
+    def test_validator_accepts_gif(self):
+        from site_settings.validators import validate_brand_mark_format
+
+        validate_brand_mark_format(make_branding_image('GIF'))
+
+    def test_validator_rejects_unreadable_file(self):
         from site_settings.validators import validate_brand_mark_format
 
         with self.assertRaises(ValidationError) as ctx:
-            validate_brand_mark_format(self._make_image('WEBP'))
-        self.assertEqual(ctx.exception.code, 'branding_unsupported_format')
-
-    def test_validator_rejects_jpeg(self):
-        from site_settings.validators import validate_brand_mark_format
-
-        with self.assertRaises(ValidationError) as ctx:
-            validate_brand_mark_format(self._make_image('JPEG', mode='RGB'))
-        self.assertEqual(ctx.exception.code, 'branding_unsupported_format')
+            validate_brand_mark_format(SimpleUploadedFile('test.txt', b'not an image', content_type='text/plain'))
+        self.assertEqual(ctx.exception.code, 'branding_image_unreadable')
 
     def test_brand_mark_field_has_format_validator_attached(self):
         from site_settings.validators import validate_brand_mark_format
@@ -201,8 +196,8 @@ class SiteSettingsBrandingDerivativesTest(TestCase):
         self.assertFalse(has_files, 'derived dir should be empty without brand_mark')
 
 
-class SiteSettingsBrandingLetterboxTest(TestCase):
-    """Test: po zapisie brand_mark jako prostokąt, plik na dysku jest letterbox'em do kwadratu."""
+class SiteSettingsBrandingNormalizationTest(TestCase):
+    """Test: po zapisie brand_mark jest zawsze normalizowany do 1024×1024 PNG."""
 
     def setUp(self):
         self.tmp_media = tempfile.mkdtemp(prefix='wikikracja_test_media_')
@@ -212,6 +207,26 @@ class SiteSettingsBrandingLetterboxTest(TestCase):
     def tearDown(self):
         self.override.disable()
         shutil.rmtree(self.tmp_media, ignore_errors=True)
+
+    def test_save_normalizes_small_image_to_1024(self):
+        from PIL import Image
+
+        ss = SiteSettings.get()
+        ss.brand_mark = make_branding_png(300, 200, color=(255, 0, 0, 255))
+        ss.save()
+        with Image.open(ss.brand_mark.path) as img:
+            self.assertEqual(img.size, (1024, 1024))
+            self.assertEqual(img.format, 'PNG')
+
+    def test_save_normalizes_jpeg_to_png(self):
+        from PIL import Image
+
+        ss = SiteSettings.get()
+        ss.brand_mark = make_branding_image('JPEG', 3000, 2000)
+        ss.save()
+        with Image.open(ss.brand_mark.path) as img:
+            self.assertEqual(img.size, (1024, 1024))
+            self.assertEqual(img.format, 'PNG')
 
     def test_save_letterboxes_wide_brand_mark_to_square(self):
         from PIL import Image

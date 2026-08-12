@@ -1,9 +1,14 @@
+import io
 import os
 
 from django.conf import settings
-from PIL import Image
+from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.utils.translation import gettext_lazy as _
+from PIL import Image, UnidentifiedImageError
 
 DERIVED_SUBDIR = 'site_branding/derived'
+TARGET_BRAND_MARK_SIZE = 1024
 
 # wymiary PNG derivatives — używane przez przeglądarki/iOS/Android/PWA
 PNG_DERIVATIVES = {
@@ -12,6 +17,42 @@ PNG_DERIVATIVES = {
     'icon-512.png': 512,  # PWA splash screen
 }
 FAVICON_SIZES = [(16, 16), (32, 32), (48, 48)]  # multi-size ICO
+
+
+def _process_brand_mark_image(img: Image.Image) -> Image.Image:
+    """Skaluj obraz do TARGET_BRAND_MARK_SIZE najdłuższego boku i letterboxuj do kwadratu."""
+    img = img.convert('RGBA')
+    width, height = img.size
+    longest = max(width, height)
+    scale = TARGET_BRAND_MARK_SIZE / longest
+    new_size = (int(round(width * scale)), int(round(height * scale)))
+    if new_size != (width, height):
+        img = img.resize(new_size, Image.Resampling.LANCZOS)
+
+    if img.width != TARGET_BRAND_MARK_SIZE or img.height != TARGET_BRAND_MARK_SIZE:
+        canvas = Image.new('RGBA', (TARGET_BRAND_MARK_SIZE, TARGET_BRAND_MARK_SIZE), (0, 0, 0, 0))
+        canvas.paste(img, ((TARGET_BRAND_MARK_SIZE - img.width) // 2, (TARGET_BRAND_MARK_SIZE - img.height) // 2))
+        img = canvas
+    return img
+
+
+def normalize_brand_mark(file, *, target_name='brand_mark.png'):
+    """Znormalizuj wczytany obrazek do kwadratowego PNG 1024×1024 px.
+
+    Obsługuje UploadedFile, FieldFile i ścieżki. Zwraca InMemoryUploadedFile.
+    """
+    try:
+        if hasattr(file, 'seek'):
+            file.seek(0)
+        with Image.open(file) as img:
+            normalized = _process_brand_mark_image(img)
+            output = io.BytesIO()
+            normalized.save(output, format='PNG')
+    except (UnidentifiedImageError, OSError) as e:
+        raise ValidationError(_('Could not process image file.'), code='branding_image_unreadable') from e
+
+    output.seek(0)
+    return InMemoryUploadedFile(output, field_name='brand_mark', name=target_name, content_type='image/png', size=len(output.getvalue()), charset=None)
 
 
 def regenerate_brand_derivatives(site_settings):
@@ -32,24 +73,6 @@ def regenerate_brand_derivatives(site_settings):
 
         # multi-size ICO — Pillow natywnie generuje wszystkie rozmiary z listy
         rgba.save(os.path.join(derived_dir, 'favicon.ico'), format='ICO', sizes=FAVICON_SIZES)
-
-
-def letterbox_to_square(file_path):
-    """Letterboxuje obraz do kwadratu max(w,h)×max(w,h) z transparentnym tłem, nadpisując plik jako PNG.
-
-    Prostokąt → kwadrat: oryginał na środku, dookoła transparentne tło.
-    Kwadrat → bez zmian (skip).
-    """
-    with Image.open(file_path) as img:
-        width, height = img.size
-        if width == height:
-            return
-        side = max(width, height)
-        rgba = img.convert('RGBA')
-
-    canvas = Image.new('RGBA', (side, side), (0, 0, 0, 0))
-    canvas.paste(rgba, ((side - width) // 2, (side - height) // 2))
-    canvas.save(file_path, format='PNG')
 
 
 def cleanup_brand_derivatives(site_settings):

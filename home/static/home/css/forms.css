@@ -35,6 +35,23 @@ textarea.form-control:focus {
 .form-control.is-invalid {
   border-color: var(--badge-rejected-color);
 }
+
+/* Bootstrap feedback blocks are hidden by default and shown next to invalid/valid
+   elements. PurgeCSS removed these rules because it could not see the dynamic
+   sibling combinations, so we restore them explicitly. */
+.is-invalid ~ .invalid-feedback,
+.is-invalid ~ .invalid-tooltip,
+.was-validated :invalid ~ .invalid-feedback,
+.was-validated :invalid ~ .invalid-tooltip {
+  display: block;
+}
+
+.is-valid ~ .valid-feedback,
+.is-valid ~ .valid-tooltip,
+.was-validated :valid ~ .valid-feedback,
+.was-validated :valid ~ .valid-tooltip {
+  display: block;
+}
 /* ── Captcha (signup form) ───────────────────────────────────── */
 /* szerokość = CAPTCHA_IMAGE_SIZE[0] w settings.py (170px), input +2px na obramowanie.
    Input dziedziczy resztę stylów z .form-control. */
