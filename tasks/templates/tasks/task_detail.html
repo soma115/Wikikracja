@@ -253,12 +253,11 @@
 {% load static %}
 {% block extra_js %}
 <script>
-  window.CURRENT_USER = {
-    id: {{ request.user.id|default:"null" }},
-    username: "{{ request.user.username|escapejs }}",
-    avatar_url: "{% if request.user.uzytkownik.avatar %}{{ request.user.uzytkownik.avatar.url|escapejs }}{% endif %}",
-    profile_url: "{% url 'obywatele:obywatele_szczegoly' request.user.id %}",
-  };
+  window.CURRENT_USER = {};
+  window.CURRENT_USER.id = {{ request.user.id|default:"null" }};
+  window.CURRENT_USER.username = "{{ request.user.username|escapejs }}";
+  window.CURRENT_USER.avatar_url = "{% if request.user.uzytkownik.avatar %}{{ request.user.uzytkownik.avatar.url|escapejs }}{% endif %}";
+  window.CURRENT_USER.profile_url = "{% url 'obywatele:obywatele_szczegoly' request.user.id %}";
   window.TASK_COORD_I18N = { none_label: "{% trans 'None' %}" };
 </script>
 <script src="{% static 'tasks/js/tasks.js' %}"></script>
