@@ -26,7 +26,7 @@ from .services import search as search_service
 
 log = logging.getLogger(__name__)
 
-ALL_SEARCH_CATS = ['post', 'task', 'decision', 'event', 'citizen', 'chat']
+ALL_SEARCH_CATS = ['post', 'task', 'decision', 'survey', 'event', 'citizen', 'chat']
 
 
 def home(request: HttpRequest):
@@ -82,7 +82,16 @@ def activity_page(request):
     if sort == 'date':
         all_items.sort(key=lambda x: x['timestamp'], reverse=(order == 'desc'))
 
-    content_types = [('', _('All')), ('post', _('Announcements')), ('task', _('Tasks')), ('decision', _('Votings')), ('event', _('Calendar')), ('citizen', _('Citizens')), ('room_messages', _('Chat'))]
+    content_types = [
+        ('', _('All')),
+        ('post', _('Announcements')),
+        ('task', _('Tasks')),
+        ('decision', _('Votings')),
+        ('survey', _('Ankiety')),
+        ('event', _('Calendar')),
+        ('citizen', _('Citizens')),
+        ('room_messages', _('Chat')),
+    ]
 
     return render(
         request,

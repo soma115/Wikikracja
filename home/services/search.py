@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.utils.html import strip_tags
 from django.utils.translation import gettext_lazy as _
 
+from ankiety.models import Survey
 from board.models import Post
 from chat.models import Message, Room
 from events.models import Event
@@ -80,6 +81,14 @@ def run_global_search(query: str, active_cats: set, user) -> list:
                     'meta': f'{status_label} · {arg_type_label} · {author_name}',
                     'url': url,
                 }
+            )
+
+    # ── Surveys ──────────────────────────────────────────────────
+    if 'survey' in active_cats:
+        surveys = Survey.objects.filter(Q(title__icontains=query) | Q(description__icontains=query)).distinct()[:10]
+        for obj in surveys:
+            results.append(
+                {'cat': 'survey', 'type': _('Ankiety'), 'type_color': category_color('survey'), 'title': obj.title, 'description': (strip_tags(obj.description) or '')[:120], 'url': f'/ankiety/{obj.pk}/'}
             )
 
     # ── Events ───────────────────────────────────────────────────

@@ -300,13 +300,13 @@
           <i class="fas fa-envelope"></i><span class="anon-nav-text">{% trans "Contact" %}</span>
         </a>
       </div>
+      <a href="{% url 'login' %}" class="btn btn-sm btn-outline-secondary me-1">{% trans "Login" %}</a>
+      {% if group_is_public %}<a href="{% url 'account_signup' %}" class="btn-cta me-1">{% trans "Register" %}</a>{% endif %}
       {% include 'home/_language_switcher.html' %}
       <button id="theme-toggle-btn" class="notif-bell btn-icon-clean"
               title="{% trans 'Toggle light / dark mode' %}">
         <i id="theme-toggle-icon" class="fas fa-circle-half-stroke"></i>
       </button>
-      <a href="{% url 'login' %}" class="btn btn-sm btn-outline-secondary me-1">{% trans "Login" %}</a>
-      {% if group_is_public %}<a href="{% url 'account_signup' %}" class="btn-cta">{% trans "Register" %}</a>{% endif %}
     </nav>
     {% endif %}
 

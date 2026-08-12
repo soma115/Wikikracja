@@ -50,9 +50,9 @@
           - some cats selected → chip colored if in active_cats, grayed if not
         {% endcomment %}
 
-        <label id="sp-select-all" class="sp-chip{% if 'post' in active_cats and 'task' in active_cats and 'decision' in active_cats and 'event' in active_cats and 'citizen' in active_cats and 'chat' in active_cats %} on{% endif %}" data-color="accent">
+        <label id="sp-select-all" class="sp-chip{% if 'post' in active_cats and 'task' in active_cats and 'decision' in active_cats and 'survey' in active_cats and 'event' in active_cats and 'citizen' in active_cats and 'chat' in active_cats %} on{% endif %}" data-color="accent">
           <input type="checkbox" value="all" class="d-none sp-cb"
-                 {% if 'post' in active_cats and 'task' in active_cats and 'decision' in active_cats and 'event' in active_cats and 'citizen' in active_cats and 'chat' in active_cats %}checked{% endif %}>
+                 {% if 'post' in active_cats and 'task' in active_cats and 'decision' in active_cats and 'survey' in active_cats and 'event' in active_cats and 'citizen' in active_cats and 'chat' in active_cats %}checked{% endif %}>
           <i class="fas fa-globe me-1"></i>{% trans "Everywhere" %}
         </label>
 
@@ -72,6 +72,12 @@
           <input type="checkbox" name="cat" value="decision" class="d-none sp-cb"
                  {% if 'decision' in active_cats %}checked{% endif %}>
           <i class="fas fa-landmark me-1"></i>{% trans "Votings" %}
+        </label>
+
+        <label class="sp-chip{% if 'survey' in active_cats %} on{% endif %}" data-color="{{ 'survey'|content_type_color }}">
+          <input type="checkbox" name="cat" value="survey" class="d-none sp-cb"
+                 {% if 'survey' in active_cats %}checked{% endif %}>
+          <i class="fas fa-square-poll me-1"></i>{% trans "Surveys" %}
         </label>
 
         <label class="sp-chip{% if 'event' in active_cats %} on{% endif %}" data-color="{{ 'event'|content_type_color }}">
@@ -163,6 +169,7 @@
 .sp-chip.on[data-color="secondary"] { background:rgba(var(--bs-secondary-rgb),.35); color:#adb5bd; border-color:rgba(var(--bs-secondary-rgb),.7); }
 .sp-chip.on[data-color="info"]      { background:rgba(var(--bs-info-rgb),.15);      color:#3498db; border-color:rgba(var(--bs-info-rgb),.5); }
 .sp-chip.on[data-color="accent"]    { background:var(--accent-muted); color:var(--accent); border-color:var(--accent); }
+.sp-chip.on[data-color="dark"]      { background:rgba(var(--bs-dark-rgb),.25); color:#f8f9fa; border-color:rgba(var(--bs-dark-rgb),.7); }
 
 /* ── Result rows ── */
 .sr-row { transition:background .15s; }
