@@ -24,13 +24,13 @@
   }
 
   function updateVoteCounts(form, data) {
-    var card = form.closest('.proposal-card');
+    var card = form.closest('.task-card');
     if (card) {
-      var countEl = card.querySelector('.proposal-signatures-count');
+      var countEl = card.querySelector('.task-helpers-count');
       if (countEl) {
         countEl.textContent = data.votes_up;
       }
-      var againstEl = card.querySelector('.proposal-against-count');
+      var againstEl = card.querySelector('.task-against-count');
       if (againstEl && typeof data.votes_down !== 'undefined') {
         againstEl.textContent = data.votes_down;
       }
@@ -175,8 +175,8 @@
 
   function updateCoordinatorUI(form, data) {
     var isAssigned = data.assigned_to !== null;
-    // Scope to enclosing card on task list; document elsewhere (detail page has no .proposal-card)
-    var card = form.closest('.proposal-card');
+    // Scope to enclosing card on task list; document elsewhere (detail page has no .task-card)
+    var card = form.closest('.task-card');
     var scope = card || document;
 
     scope.querySelectorAll('[data-coord-state="empty"]').forEach(function (el) {

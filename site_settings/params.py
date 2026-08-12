@@ -243,7 +243,7 @@ def _sync_django_site(sp, fallback_domain=None, fallback_name=None):
 
         try:
             site = Site.objects.get(id=1)
-        except (Site.DoesNotExist):
+        except Site.DoesNotExist:
             Site.objects.create(id=1, domain=domain, name=name or domain)
         else:
             changed = False

@@ -39,7 +39,7 @@
         {% endif %}
       </h5>
       {% if active %}
-      <a href="{% url 'chat:open_dm' pk=b.uid.pk %}" class="proposal-chat-link ms-2 text-xs">
+      <a href="{% url 'chat:open_dm' pk=b.uid.pk %}" class="chat-link ms-2 text-xs">
         <i class="fas fa-comment-dots"></i>
         <span>{% trans 'Send a private message' %}</span>
       </a>
@@ -152,33 +152,7 @@
     <div id="section-aktywnosc" class="citizen-section mig-hidden"></div>
     <div id="section-zalozono" class="citizen-section mig-hidden"></div>
   </div>
-  <script>
-  (function(){
-    document.querySelectorAll('.citizen-section-btn').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        var targetId = btn.dataset.target;
-        var section = document.getElementById(targetId);
-        var isOpen = section.style.display !== 'none';
-        document.querySelectorAll('.citizen-section').forEach(function(s){ s.style.display = 'none'; });
-        document.querySelectorAll('.citizen-section-btn').forEach(function(b){ b.classList.remove('active'); });
-        if (isOpen) return;
-        btn.classList.add('active');
-        if (section.dataset.loaded) {
-          section.style.display = 'block';
-          return;
-        }
-        section.innerHTML = '<div class="p-3 text-muted text-sm">...</div>';
-        section.style.display = 'block';
-        fetch(btn.dataset.url, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
-          .then(function(r){ return r.text(); })
-          .then(function(html){
-            section.innerHTML = html;
-            section.dataset.loaded = '1';
-          });
-      });
-    });
-  })();
-  </script>
+
   {% endif %}
 
   <div class="card">
@@ -251,11 +225,4 @@
 
 {% endblock citizens %}
 
-{% block extra_js %}
-<script>
-document.addEventListener('click', function(e) {
-  const tr = e.target.closest('.table-hover-rows tbody tr[data-href]');
-  if (tr && !e.target.closest('a')) window.location = tr.dataset.href;
-});
-</script>
 {% endblock %}

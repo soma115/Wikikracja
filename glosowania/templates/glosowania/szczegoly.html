@@ -39,7 +39,7 @@
           {% endif %}
         </span>
         {% if chat_room %}
-        <a href="{% url 'chat:chat' %}#room_id={{ chat_room.id }}" class="proposal-chat-link {{ chat_room_pulse_class }} text-decoration-none">
+        <a href="{% url 'chat:chat' %}#room_id={{ chat_room.id }}" class="chat-link {{ chat_room_pulse_class }} text-decoration-none">
           <i class="fas fa-comment-dots"></i> {% trans 'Chat' %}
         </a>
         {% endif %}
@@ -240,15 +240,6 @@
   </div>
 
 </div>
-
-<script>
-function toggleArgForm(id) {
-  var el = document.getElementById(id);
-  el.classList.toggle('visible');
-  if (el.classList.contains('visible')) el.querySelector('textarea').focus();
-}
-
-</script>
 
 {% with chat_room=chat_room %}
   {% include 'chat/_embedded_chat.html' %}

@@ -1,0 +1,9 @@
+{% load i18n %}
+<div class="col-sm-6 col-lg-3">
+  <{% if module.url %}a href="{% url module.url %}"{% else %}div{% endif %} class="card h-100{% if module.url %} text-decoration-none{% endif %}">
+    <div class="card-body">
+      <h6 class="mb-1 text-accent"><i class="fas {{ module.icon }} me-2"></i>{{ module.name }}</h6>
+      <p class="mb-0 small">{{ module.description }}</p>
+    </div>
+  </{% if module.url %}a{% else %}div{% endif %}>
+</div>

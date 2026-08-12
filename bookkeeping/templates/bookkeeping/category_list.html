@@ -3,20 +3,9 @@
 
 {% block content %}
 <div class="container mt-4">
-  <div class="row mb-4">
-    <div>
-      <a href="{% url 'bookkeeping:transaction_list' %}" class="btn btn-sm me-1 mb-1 btn-secondary">{% trans 'Transactions' %}</a>
-      <a href="{% url 'bookkeeping:partner_list' %}" class="btn btn-sm me-1 mb-1 btn-secondary">{% trans 'Partners' %}</a>
-      <a href="{% url 'bookkeeping:category_list' %}" class="btn btn-sm me-1 mb-1 btn-primary">{% trans 'Categories' %}</a>
-      <a href="{% url 'bookkeeping:asset_list' %}" class="btn btn-sm me-1 mb-1 btn-secondary">{% trans 'Assets' %}</a>
-      <a href="{% url 'bookkeeping:report_list' %}" class="btn btn-sm me-1 mb-1 btn-secondary">{% trans 'Reports' %}</a>
-      <a href="{% url 'bookkeeping:category_create' %}" class="btn btn-sm me-1 mb-1 btn-success float-end">
-        <i class="fas fa-plus-circle"></i> {% trans 'Add category' %}
-      </a>
-    </div>
-  </div>
+  {% include 'home/includes/toolbar.html' %}
 
-  <table class="table">
+  <table class="table table-hover-rows">
     <thead>
       <tr>
         <th>{% trans 'Name' %}</th>
@@ -28,9 +17,9 @@
         <tr>
           <td>{{ category.name }}</td>
           <td>
-            <div class="btn-group float-end" role="group">
-              <a href="{% url 'bookkeeping:category_update' category.id %}" class="btn btn-sm me-1 mb-1 btn-primary">{% trans 'Edit' %}</a>
-              <a href="{% url 'bookkeeping:category_delete' category.id %}" class="btn btn-sm me-1 mb-1 btn-danger">{% trans 'Delete' %}</a>
+            <div class="d-flex gap-2 justify-content-end">
+              <a href="{% url 'bookkeeping:category_update' category.id %}" class="btn btn-sm btn-outline-secondary">{% trans 'Edit' %}</a>
+              <a href="{% url 'bookkeeping:category_delete' category.id %}" class="btn btn-sm btn-outline-danger">{% trans 'Delete' %}</a>
             </div>
           </td>
         </tr>

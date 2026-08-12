@@ -4,31 +4,8 @@
 {% block content %}
 
 {# ── TOOLBAR ── #}
-<div class="proposals-toolbar">
-  <a href="{% url 'ankiety:create' %}" class="btn-cta">
-    <i class="fas fa-plus"></i> {% trans 'Add survey' %}
-  </a>
-
-  <span class="toolbar-divider"></span>
-
-  <div class="toolbar-sort">
-    {% if current_tab == 'active' %}
-      <a href="{% url 'ankiety:list' %}?tab=active" class="sort-btn active">
-        {% trans 'Ongoing' %}
-      </a>
-      <a href="{% url 'ankiety:list' %}?tab=finished" class="sort-btn">
-        {% trans 'Finished' %}
-      </a>
-    {% else %}
-      <a href="{% url 'ankiety:list' %}?tab=active" class="sort-btn">
-        {% trans 'Ongoing' %}
-      </a>
-      <a href="{% url 'ankiety:list' %}?tab=finished" class="sort-btn active">
-        {% trans 'Finished' %}
-      </a>
-    {% endif %}
-  </div>
-</div>
+{% url 'ankiety:create' as cta_url %}
+{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add survey') sort_items=toolbar_sort_items %}
 
 {# ── LIST ── #}
 <div class="proposals-list">

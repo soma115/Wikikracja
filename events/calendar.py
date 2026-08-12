@@ -66,7 +66,7 @@ def parse_month_param(month_param):
         if not (1 <= m <= 12):
             raise ValueError
         return y, m
-    except (ValueError, AttributeError):
+    except ValueError, AttributeError:
         return now.year, now.month
 
 

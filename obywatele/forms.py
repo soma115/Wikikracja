@@ -139,7 +139,7 @@ class AvatarForm(forms.ModelForm):
                 old = Uzytkownik.objects.get(pk=instance.pk)
                 if old.avatar and old.avatar != instance.avatar:
                     old.avatar.delete(save=False)
-            except (Uzytkownik.DoesNotExist):
+            except Uzytkownik.DoesNotExist:
                 pass
             instance.save()
         return instance
@@ -231,7 +231,7 @@ class CustomSignupForm(SignupForm):
 
         try:
             user.save()
-        except (IntegrityError):
+        except IntegrityError:
             # Handle unique constraint violation
             # Delete this user if a duplicate with the same email already exists
             existing = User.objects.filter(email__iexact=user.email).exclude(id=user.id).first()

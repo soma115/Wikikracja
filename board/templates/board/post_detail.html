@@ -3,8 +3,6 @@
 {% load i18n %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'board/board.css' %}">
-
 <div class="mb-3">
   <a href="#" onclick="document.referrer.includes('/edit/') ? history.go(-2) : history.back(); return false;" class="btn btn-sm btn-outline-secondary">
     <i class="fas fa-arrow-left me-1"></i>{% trans "Back" %}

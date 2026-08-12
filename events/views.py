@@ -6,6 +6,7 @@ from django.http import HttpRequest
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.translation import gettext_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from .calendar import adjacent_months, build_calendar_grid, parse_month_param
@@ -53,6 +54,8 @@ class EventListView(ListView):
         if not self.request.user.is_authenticated:
             events_qs = events_qs.filter(is_public=True)
         prev_month, next_month = adjacent_months(local_now.year, local_now.month)
+        toolbar_views = [{'name': 'list', 'icon': 'list', 'title': gettext_lazy('List')}, {'name': 'grid', 'icon': 'grip', 'title': gettext_lazy('Grid')}]
+
         context.update(
             {
                 'current_month_iso': f'{local_now.year}-{local_now.month:02d}',
@@ -62,6 +65,7 @@ class EventListView(ListView):
                 'current_month_num': local_now.month,
                 'current_month_prev': prev_month,
                 'current_month_next': next_month,
+                'toolbar_views': toolbar_views,
             }
         )
         return context

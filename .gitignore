@@ -38,6 +38,7 @@ test-results/
 e2e/.auth/
 .python-version
 .pytest_cache/
+.ruff_cache/
 
 # Local AI agent rules/docs
 .cursorrules

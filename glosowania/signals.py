@@ -8,6 +8,7 @@ from django.utils.translation import gettext as _
 
 from chat.models import Message, Room
 from glosowania.models import Decyzja
+from home.services.feed import invalidate_feed_cache_on_change
 from zzz.utils import get_site_domain
 
 log = logging.getLogger(__name__)
@@ -79,6 +80,4 @@ def delete_decyzja_chat_room(sender, instance, **kwargs):
 @receiver(post_save, sender=Decyzja)
 @receiver(post_delete, sender=Decyzja)
 def _invalidate_feed_cache_on_decyzja_change(sender, **kwargs):
-    from home.services.feed import invalidate_feed_cache
-
-    invalidate_feed_cache()
+    invalidate_feed_cache_on_change(sender, **kwargs)

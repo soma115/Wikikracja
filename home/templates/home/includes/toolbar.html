@@ -1,0 +1,48 @@
+{% load i18n %}
+<div class="proposals-toolbar{% if toolbar_class %} {{ toolbar_class }}{% endif %}">
+  {% if cta_url %}
+  <a href="{{ cta_url }}" class="btn-cta"{% if cta_title %} title="{{ cta_title }}"{% endif %}>
+    <i class="fas fa-{{ cta_icon|default:'plus' }}"></i> {{ cta_label }}
+  </a>
+  <span class="toolbar-divider"></span>
+  {% elif cta_button %}
+  <button type="button" class="sort-btn {{ cta_button_class|default:'' }}" id="{{ cta_button }}">
+    <i class="fas fa-{{ cta_icon|default:'plus' }}"></i> {{ cta_label }}
+  </button>
+  <span class="toolbar-divider"></span>
+  {% endif %}
+
+  <div class="toolbar-sort">
+    {% for item in sort_items %}
+    <a href="{{ item.url }}" class="sort-btn{% if item.active %} active{% endif %}">
+      {% if item.pre_icon %}<i class="fas fa-{{ item.pre_icon }} fa-fw me-1"></i>{% endif %}
+      {{ item.label }}
+      {% if item.icon %}<i class="fas fa-arrow-{{ item.icon }} sort-arrow"></i>{% endif %}
+    </a>
+    {% endfor %}
+
+    {% if extra %}
+    {{ extra }}
+    {% endif %}
+    {% if extra_include %}
+    {% include extra_include %}
+    {% endif %}
+
+    {% if show_category_filter %}
+    <span class="toolbar-sort-sep"></span>
+    {% include 'categories/_category_filter.html' with categories=categories key_attr=key_attr %}
+    {% endif %}
+  </div>
+
+  <span class="toolbar-divider"></span>
+
+  {% if views %}
+  <div class="toolbar-view{% if view_class %} {{ view_class }}{% endif %}">
+    {% for view in views %}
+    <button class="view-toggle-btn{% if view.active %} active{% endif %}" data-view="{{ view.name }}" title="{{ view.title }}">
+      <i class="fas fa-{{ view.icon }}"></i>
+    </button>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>

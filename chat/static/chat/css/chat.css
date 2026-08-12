@@ -232,7 +232,7 @@ body:has(.chat-rooms) .main-area {
     right: .3rem;
     background: var(--accent);
     border: none;
-    color: #fff;
+    color: var(--text-inverse);
     width: 1.6rem;
     height: 1.6rem;
     border-radius: 50%;
@@ -294,18 +294,6 @@ body:has(.chat-rooms) .main-area {
 /* ============================================================ */
 /* COMPOSE BOX — unified input container                        */
 /* ============================================================ */
-.richtext-wrapper {
-    border: 1px solid var(--input-border);
-    border-radius: .45rem;
-    background-color: var(--input-bg);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, .15);
-    overflow: hidden;
-    transition: border-color .15s;
-}
-.richtext-wrapper:focus-within {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-muted);
-}
 .compose-box {
     display: flex;
     flex-direction: column;
@@ -361,40 +349,6 @@ body:has(.chat-rooms) .main-area {
     color: var(--text-muted);
 }
 
-/* ============================================================ */
-/* RICH TEXT INPUT (contenteditable)               */
-/* ============================================================ */
-.message-input-rich {
-    border: none;
-    background-color: transparent;
-    color: var(--text-primary);
-    flex: 1;
-    padding: 0.5rem 0.6rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    font-family: inherit;
-    overflow-y: auto;
-    min-height: 4rem;
-    max-height: 180px;
-    outline: none;
-    word-break: break-word;
-}
-.message-input-rich:empty::before {
-    content: attr(data-placeholder);
-    color: var(--text-muted);
-    pointer-events: none;
-    opacity: .6;
-    display: block;
-}
-.message-input-rich:empty::after {
-    content: attr(data-hint);
-    display: block;
-    font-size: .7rem;
-    color: var(--text-muted);
-    opacity: .4;
-    pointer-events: none;
-    margin-top: .2rem;
-}
 .compose-box.input--error {
     border-color: var(--badge-rejected-color);
 }
@@ -1033,11 +987,6 @@ body:has(.chat-rooms) .main-area {
     .chat-rooms.room-active .chat-root-messages {
         bottom: env(safe-area-inset-bottom, 0px);
     }
-    /* Mobile: compact input height */
-    .message-input-rich {
-        min-height: 2.5rem;
-        max-height: 120px;
-    }
     /* Mobile: wrap compose bar if too narrow — send button always visible */
     .compose-bar {
         flex-wrap: wrap;
@@ -1082,7 +1031,7 @@ body:has(.chat-rooms) .main-area {
     top: 10px;
     right: 15px;
     font-size: 2rem;
-    color: #fff;
+    color: var(--text-inverse);
     background: none;
     border: none;
     cursor: pointer;
@@ -1099,8 +1048,8 @@ body:has(.chat-rooms) .main-area {
     top: 50%;
     transform: translateY(-50%);
     font-size: 2.5rem;
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-inverse);
+    background: rgba(255, 255, 255, .1);
     border: none;
     cursor: pointer;
     z-index: 10000;
@@ -1112,7 +1061,7 @@ body:has(.chat-rooms) .main-area {
 }
 .image-viewer-nav:hover {
     opacity: 1;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, .2);
 }
 .image-viewer-prev {
     left: 15px;
@@ -1152,8 +1101,8 @@ body:has(.chat-rooms) .main-area {
     bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
-    color: #fff;
-    background: rgba(0, 0, 0, 0.6);
+    color: var(--text-inverse);
+    background: rgba(0, 0, 0, .6);
     padding: 5px 12px;
     border-radius: 10px;
     font-size: 0.9rem;

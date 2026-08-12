@@ -53,7 +53,7 @@ class UserLanguageMiddleware:
                 if lang:
                     translation.activate(lang)
                     request.LANGUAGE_CODE = lang
-            except (Exception):
+            except Exception:
                 pass
         return self.get_response(request)
 
@@ -85,6 +85,6 @@ class UpdateLastSeenMiddleware:
                 # rownolegle requesty tego samego usera trafia w pusty klucz.
                 if cache.add(cache_key, True, self.THROTTLE_SECONDS):
                     User.objects.filter(pk=request.user.pk).update(last_login=timezone.now())
-            except (Exception):
+            except Exception:
                 pass
         return self.get_response(request)

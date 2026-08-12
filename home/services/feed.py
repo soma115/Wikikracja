@@ -20,7 +20,7 @@ FEED_DAYS = 90
 def invalidate_feed_cache():
     try:
         cache.delete(FEED_CACHE_KEY)
-    except (Exception):
+    except Exception:
         log.warning("Could not invalidate feed cache; cache backend unavailable.", exc_info=True)
 
 
@@ -157,3 +157,25 @@ def mark_all_feed_items_as_read(user) -> int:
             provider.mark_as_read(item['object_id'], user)
             count += 1
     return count
+
+
+def make_read_status_markers(content_type: str):
+    """Return a generic (mark_as_read, mark_as_unread) pair backed by ReadStatus.
+
+    Most feed providers only differ by their ``ReadStatus.ContentType`` constant,
+    so this factory removes the duplicated marker functions in ``<app>/feed.py``.
+    """
+    from home.models import ReadStatus
+
+    def mark_as_read(object_id: int, user) -> None:
+        ReadStatus.objects.get_or_create(user=user, content_type=content_type, object_id=object_id)
+
+    def mark_as_unread(object_id: int, user) -> None:
+        ReadStatus.objects.filter(user=user, content_type=content_type, object_id=object_id).delete()
+
+    return mark_as_read, mark_as_unread
+
+
+def invalidate_feed_cache_on_change(sender, **kwargs) -> None:
+    """Generic signal receiver that invalidates the global feed cache."""
+    invalidate_feed_cache()

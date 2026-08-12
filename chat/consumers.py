@@ -101,7 +101,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 proxy = HandledMessage()
                 await self.leave_room(proxy, room_id)
                 await proxy.send_all(self)
-            except (ClientError):
+            except ClientError:
                 pass
 
         # leave personal group
@@ -186,7 +186,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         for room_id_to_leave in self.rooms.items():
             try:
                 room_to_leave = await self.repo.get_room(room_id_to_leave)
-            except (ClientError):
+            except ClientError:
                 self.rooms.leave(room_id_to_leave)
                 continue
             await self.handle_leave_room(room_to_leave)
@@ -227,7 +227,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     reactions={'bulb': msg_data.get('bulb_count', 0), 'question': msg_data.get('question_count', 0)},
                     read_by=msg_data.get('read_by', []),
                 )
-            except (TypeError):
+            except TypeError:
                 data = None
                 continue
 
@@ -281,7 +281,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     reactions={'bulb': msg_data.get('bulb_count', 0), 'question': msg_data.get('question_count', 0)},
                     read_by=msg_data.get('read_by', []),
                 )
-            except (TypeError):
+            except TypeError:
                 continue
 
             to_send.append(self.format_chat_message_data_batch(data, users_dict, user_votes_dict))
@@ -472,7 +472,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def handle_seen_room(self, proxy: HandledMessage, room_id):
         try:
             room = await self.repo.get_room(room_id)
-        except (ClientError):
+        except ClientError:
             return
         if not await self.repo.room_is_seen(room):
             await self.repo.see_room(room)
@@ -482,7 +482,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def handle_unseen_room(self, proxy: HandledMessage, room_id):
         try:
             room = await self.repo.get_room(room_id)
-        except (ClientError):
+        except ClientError:
             return
         await self.repo.unsee_room(room)
         await self.push_unread_count()

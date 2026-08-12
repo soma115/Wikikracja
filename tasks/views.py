@@ -39,7 +39,7 @@ def invalidate_task_list_cache(user_id=None):
         # Bump global version — all per-user keys become stale immediately
         try:
             cache.incr(TASK_LIST_GLOBAL_VERSION_KEY)
-        except (ValueError):
+        except ValueError:
             cache.set(TASK_LIST_GLOBAL_VERSION_KEY, 2, timeout=None)
 
 
@@ -189,6 +189,38 @@ def _load_task_lists(user):
     return result
 
 
+def _task_toolbar_data(sort, order, tab, categories):
+    """Generate sort and view toggle data for the shared toolbar template."""
+    labels = {"date": gettext_lazy("Newest"), "score": gettext_lazy("Score"), "buzz": gettext_lazy("Buzz")}
+    icons = {"date": "clock-rotate-left", "score": "pen-nib", "buzz": "fire"}
+    params = []
+    if tab:
+        params.append(f"tab={tab}")
+    for c in categories:
+        params.append(f"category={c}")
+    base_qs = "&".join(params)
+
+    sort_items = []
+    for s in ("date", "score", "buzz"):
+        active = sort == s
+        next_order = "asc" if (active and order == "desc") else "desc"
+        query = f"sort={s}&order={next_order}"
+        if base_qs:
+            query = base_qs + "&" + query
+        url = reverse("tasks:list") + "?" + query
+        icon = None
+        if active:
+            icon = "up" if next_order == "desc" else "down"
+        sort_items.append({"url": url, "label": str(labels[s]), "active": active, "pre_icon": icons[s], "icon": icon})
+
+    views = [
+        {"name": "compact", "icon": "bars", "title": gettext_lazy("Compact")},
+        {"name": "list", "icon": "list", "title": gettext_lazy("List")},
+        {"name": "grid", "icon": "grip", "title": gettext_lazy("Grid")},
+    ]
+    return sort_items, views
+
+
 class TaskListView(LoginRequiredMixin, TemplateView):
     template_name = "tasks/task_list.html"
 
@@ -201,6 +233,7 @@ class TaskListView(LoginRequiredMixin, TemplateView):
         def prepare(tasks):
             return _apply_task_sort(_filter_by_category(tasks, categories), sort, order)
 
+        sort_items, views = _task_toolbar_data(sort, order, tab, categories)
         context.update(
             {
                 "active_tasks": prepare(data["active_with_owner"]),
@@ -215,6 +248,8 @@ class TaskListView(LoginRequiredMixin, TemplateView):
                 "current_order": order,
                 "current_categories": categories,
                 "category_list": list(Category.objects.values("id", "slug", "name", "description", "order", "is_protected")),
+                "toolbar_sort_items": sort_items,
+                "toolbar_views": views,
             }
         )
         return context
@@ -254,7 +289,7 @@ def _serialize_user(user):
     if uzy and getattr(uzy, "avatar", None):
         try:
             avatar_url = uzy.avatar.url
-        except (ValueError):
+        except ValueError:
             avatar_url = ""
     return {"id": user.id, "username": user.username, "avatar_url": avatar_url, "profile_url": reverse("obywatele:obywatele_szczegoly", args=[user.pk])}
 
@@ -389,7 +424,7 @@ def vote_task(request: HttpRequest, pk: int) -> HttpResponse:
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     try:
         value = int(request.POST.get("value", 0))
-    except (ValueError, TypeError):
+    except ValueError, TypeError:
         value = 0
     if value not in (TaskVote.Value.DOWN, TaskVote.Value.UP):
         if is_ajax:

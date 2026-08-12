@@ -36,34 +36,7 @@
   </form>
 
   {# ── Toolbar linia 2: akcje + sortowanie + widok ── #}
-  <div class="proposals-toolbar mb-3">
-
-    <button type="button" class="sort-btn btn-mark-all" id="btn-mark-all">
-      <i class="fas fa-check-double"></i>{% trans "Mark as read" %}
-    </button>
-
-    <span class="toolbar-divider"></span>
-
-    <div class="toolbar-sort">
-      <a href="?{% if is_filtered %}filtered=1&{% endif %}{% for t in active_types %}type={{ t }}&{% endfor %}sort=date&order={% if sort == 'date' and order == 'desc' %}asc{% else %}desc{% endif %}{% if filter_unread %}&filter=unread{% endif %}"
-         class="sort-btn {% if sort == 'date' %}active{% endif %}">
-        {% trans "Date" %}
-        {% if sort == 'date' %}<i class="fas fa-arrow-{% if order == 'asc' %}up{% else %}down{% endif %} sort-arrow"></i>{% endif %}
-      </a>
-    </div>
-
-    <span class="toolbar-divider"></span>
-
-    <div class="toolbar-view">
-      <button class="view-toggle-btn" data-view="list" title="{% trans 'List' %}">
-        <i class="fas fa-list"></i>
-      </button>
-      <button class="view-toggle-btn" data-view="grid" title="{% trans 'Grid' %}">
-        <i class="fas fa-grip"></i>
-      </button>
-    </div>
-
-  </div>
+  {% include 'home/includes/toolbar.html' with cta_button='btn-mark-all' cta_icon='check-double' cta_label=_('Mark as read') cta_button_class='btn-mark-all' sort_items=toolbar_sort_items views=toolbar_views %}
 
   {# ── List ── #}
   <div class="card">

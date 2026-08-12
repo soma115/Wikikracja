@@ -250,6 +250,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 card.classList.remove('open');
             });
         }
+
+        // Show/hide view-specific sections (used by events and other atypical views)
+        var viewOnlyEls = container.querySelectorAll('[data-view-only]');
+        if (viewOnlyEls.length) {
+            viewOnlyEls.forEach(function(el) {
+                var show = el.dataset.viewOnly === mode;
+                el.style.display = show ? '' : 'none';
+                if (show) {
+                    if (mode === 'grid') el.classList.add('view-grid');
+                    else if (mode === 'compact') el.classList.add('view-compact');
+                } else {
+                    el.classList.remove('view-grid', 'view-compact');
+                }
+            });
+        }
     }
 
     function setView(mode) {
@@ -641,6 +656,84 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+// ============================================================
+// Quick links read-state (home page onboarding card)
+// ============================================================
+document.addEventListener('DOMContentLoaded', function () {
+    var STORAGE_KEY = 'quick_links_read';
+    var circles = document.querySelectorAll('.quick-link-circle');
+    if (!circles.length) return;
+
+    function getReadLinks() {
+        try {
+            var stored = localStorage.getItem(STORAGE_KEY);
+            return stored ? JSON.parse(stored) : [];
+        } catch (e) { return []; }
+    }
+
+    function saveReadLinks(readLinks) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(readLinks)); } catch (e) {}
+    }
+
+    function toggleReadStatus(linkId) {
+        var readLinks = getReadLinks();
+        var index = readLinks.indexOf(linkId);
+        if (index > -1) readLinks.splice(index, 1);
+        else readLinks.push(linkId);
+        saveReadLinks(readLinks);
+        return readLinks;
+    }
+
+    function updateUI(readLinks) {
+        var total = document.querySelectorAll('.quick-link-row').length;
+        var done = readLinks.length;
+
+        document.querySelectorAll('.quick-link-row').forEach(function (row) {
+            var circle = row.querySelector('.quick-link-circle');
+            if (!circle) return;
+            var linkId = parseInt(circle.dataset.linkId);
+            var isRead = readLinks.indexOf(linkId) !== -1;
+
+            row.classList.toggle('is-read', isRead);
+            circle.classList.toggle('is-read', isRead);
+            circle.classList.toggle('fas', isRead);
+            circle.classList.toggle('fa-check-circle', isRead);
+            circle.classList.toggle('far', !isRead);
+            circle.classList.toggle('fa-circle', !isRead);
+        });
+
+        var bar = document.querySelector('#onboarding-card .progress-bar');
+        var label = document.querySelector('#onboarding-card .progress-label');
+        if (bar) bar.dataset.progress = Math.round(done / total * 100);
+        if (label) label.textContent = done + '/' + total;
+    }
+
+    var readLinks = getReadLinks();
+    updateUI(readLinks);
+
+    circles.forEach(function (circle) {
+        circle.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var linkId = parseInt(circle.dataset.linkId);
+            updateUI(toggleReadStatus(linkId));
+        });
+    });
+
+    document.querySelectorAll('.quick-link-row a').forEach(function (link) {
+        link.addEventListener('mousedown', function () {
+            var row = link.closest('.quick-link-row');
+            if (!row) return;
+            var circle = row.querySelector('.quick-link-circle');
+            if (!circle) return;
+            var linkId = parseInt(circle.dataset.linkId);
+            if (getReadLinks().indexOf(linkId) === -1) {
+                updateUI(toggleReadStatus(linkId));
+            }
+        });
+    });
+});
+
 // Shared chip filter logic for search/ and activity/ pages.
 // Options: formId, storageKey, queryInputId, submitOnlyWithQuery, restore
 window.initChipFilters = function(options) {
@@ -754,3 +847,231 @@ window.initChipFilters = function(options) {
 
     syncSelectAll();
 };
+
+// ============================================================
+// Shared category dropdown filter (tasks + board)
+// ============================================================
+window.initCategoryFilter = function(options) {
+    options = options || {};
+    var filterEl = document.getElementById(options.filterId || 'catFilter');
+    if (!filterEl) return;
+
+    var btn = document.getElementById('catFilterBtn');
+    var panel = document.getElementById('catFilterPanel');
+    var labelEl = document.getElementById('catFilterLabel');
+    var allRow = document.getElementById('catAllRow');
+    var manageBtn = document.getElementById('catManageBtn');
+    if (!btn || !panel || !labelEl || !allRow) return;
+
+    var catRows = Array.from(panel.querySelectorAll('.cat-filter__item:not(.cat-filter__all)'));
+
+    var itemsSelector = options.itemsSelector;
+    if (!itemsSelector) {
+        if (document.querySelector('.proposal-card[data-category]')) {
+            itemsSelector = '.proposal-card[data-category]';
+        } else if (document.querySelector('.board-category-group[data-category-pk]')) {
+            itemsSelector = '.board-category-group[data-category-pk]';
+        }
+    }
+    if (!itemsSelector) return;
+
+    var items = Array.from(document.querySelectorAll(itemsSelector));
+    var sectionSelector = options.sectionSelector || (itemsSelector.indexOf('proposal-card') !== -1 ? '.tasks-section-label' : '');
+    var sections = sectionSelector ? Array.from(document.querySelectorAll(sectionSelector)) : [];
+    var LABEL_ALL = labelEl.textContent;
+
+    function selected() {
+        return catRows.filter(function(r) { return r.classList.contains('selected'); })
+                      .map(function(r) { return r.dataset.key; });
+    }
+
+    function apply() {
+        var sel = selected();
+        var all = sel.length === 0;
+
+        allRow.classList.toggle('selected', all);
+
+        items.forEach(function(item) {
+            var key = item.dataset.category || item.dataset.categoryPk || '';
+            item.style.display = (all || sel.indexOf(String(key)) !== -1) ? '' : 'none';
+        });
+
+        sections.forEach(function(label) {
+            var sib = label.nextElementSibling;
+            var vis = false;
+            while (sib && !sib.classList.contains('tasks-section-label')) {
+                if (sib.classList.contains('proposal-card') && sib.style.display !== 'none') { vis = true; break; }
+                sib = sib.nextElementSibling;
+            }
+            label.style.display = vis ? '' : 'none';
+        });
+
+        if (all) {
+            labelEl.textContent = LABEL_ALL;
+            btn.classList.remove('active');
+        } else {
+            labelEl.textContent = LABEL_ALL + ' (' + sel.length + ')';
+            btn.classList.add('active');
+        }
+
+        var p = new URLSearchParams(window.location.search);
+        p.delete('category');
+        sel.forEach(function(v) { p.append('category', v); });
+        var url = window.location.pathname + (p.toString() ? '?' + p.toString() : '');
+        if (url !== window.location.pathname + window.location.search) {
+            history.pushState(null, '', url);
+        }
+    }
+
+    // restore from URL
+    var params = new URLSearchParams(window.location.search);
+    var initial = params.getAll('category');
+    initial.forEach(function(val) {
+        catRows.forEach(function(row) {
+            if (String(row.dataset.key) === String(val)) row.classList.add('selected');
+        });
+    });
+
+    panel.addEventListener('click', function(e) { e.stopPropagation(); });
+
+    allRow.addEventListener('click', function() {
+        catRows.forEach(function(r) { r.classList.remove('selected'); });
+        apply();
+    });
+
+    catRows.forEach(function(row) {
+        row.addEventListener('click', function() {
+            row.classList.toggle('selected');
+            apply();
+        });
+    });
+
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var opening = panel.hidden;
+        panel.hidden = !opening;
+        btn.setAttribute('aria-expanded', String(opening));
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!filterEl.contains(e.target)) {
+            panel.hidden = true;
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    if (manageBtn) {
+        manageBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            panel.hidden = true;
+            btn.setAttribute('aria-expanded', 'false');
+            var modal = document.getElementById('manageCategoriesModal');
+            if (modal && typeof bootstrap !== 'undefined') {
+                new bootstrap.Modal(modal).show();
+            }
+        });
+    }
+
+    apply();
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    window.initCategoryFilter();
+});
+
+// ============================================================
+// Toggle argument form visibility (voting details)
+// ============================================================
+window.toggleArgForm = function toggleArgForm(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('visible');
+    if (el.classList.contains('visible')) {
+        var ta = el.querySelector('textarea');
+        if (ta) ta.focus();
+    }
+};
+
+// ============================================================
+// Citizen profile section toggles (lazy-loaded via AJAX)
+// ============================================================
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.citizen-section-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var targetId = btn.dataset.target;
+            var section = document.getElementById(targetId);
+            if (!section) return;
+            var isOpen = section.style.display !== 'none';
+            document.querySelectorAll('.citizen-section').forEach(function (s) { s.style.display = 'none'; });
+            document.querySelectorAll('.citizen-section-btn').forEach(function (b) { b.classList.remove('active'); });
+            if (isOpen) return;
+            btn.classList.add('active');
+            if (section.dataset.loaded) {
+                section.style.display = 'block';
+                return;
+            }
+            section.innerHTML = '<div class="p-3 text-muted text-sm">...</div>';
+            section.style.display = 'block';
+            fetch(btn.dataset.url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function (r) { return r.text(); })
+                .then(function (html) {
+                    section.innerHTML = html;
+                    section.dataset.loaded = '1';
+                });
+        });
+    });
+});
+
+// ============================================================
+// Clickable table rows (data-href)
+// ============================================================
+document.addEventListener('click', function (e) {
+    var tr = e.target.closest('.table-hover-rows tbody tr[data-href]');
+    if (tr && !e.target.closest('a')) window.location = tr.dataset.href;
+});
+
+// ============================================================
+// Trim activity feed rows to fit card height (home + activity widgets)
+// ============================================================
+document.addEventListener('DOMContentLoaded', function () {
+    var body = document.getElementById('activity-feed-body');
+    if (!body) return;
+
+    function trimActivityFeed() {
+        var card = body.closest('.card');
+        if (!card) return;
+        var rows = body.querySelectorAll('.activity-feed-row');
+        var more = document.getElementById('activity-feed-more');
+        if (!rows.length) return;
+        rows.forEach(function (r) { r.style.display = ''; });
+        if (more) more.style.display = 'none';
+        var cardH = card.clientHeight;
+        var header = card.querySelector('.card-header');
+        var headerH = header ? header.offsetHeight : 0;
+        var available = cardH - headerH;
+        var used = 0;
+        var hidden = false;
+        var moreH = 20;
+        for (var i = 0; i < rows.length; i++) {
+            var rowH = rows[i].offsetHeight;
+            var remaining = rows.length - i - 1;
+            var needMore = remaining > 0;
+            if (used + rowH + (needMore ? moreH : 0) <= available) {
+                used += rowH;
+            } else {
+                rows[i].style.display = 'none';
+                hidden = true;
+                for (var j = i + 1; j < rows.length; j++) rows[j].style.display = 'none';
+                break;
+            }
+        }
+        if (more) more.style.display = hidden ? 'block' : 'none';
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', trimActivityFeed);
+    } else {
+        trimActivityFeed();
+    }
+    window.addEventListener('resize', trimActivityFeed);
+});

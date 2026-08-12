@@ -54,9 +54,36 @@ class ProtectedDeleteView(LoginRequiredMixin, DeleteView):
 # #########################  Asset ###########################
 
 
+def _bookkeeping_toolbar(active_item, create_url=None, create_label=None):
+    """Build toolbar data for bookkeeping list views."""
+    items = [
+        {'name': 'transactions', 'label': _('Transactions'), 'url_name': 'bookkeeping:transaction_list'},
+        {'name': 'partners', 'label': _('Partners'), 'url_name': 'bookkeeping:partner_list'},
+        {'name': 'categories', 'label': _('Categories'), 'url_name': 'bookkeeping:category_list'},
+        {'name': 'assets', 'label': _('Assets'), 'url_name': 'bookkeeping:asset_list'},
+        {'name': 'reports', 'label': _('Reports'), 'url_name': 'bookkeeping:report_list'},
+    ]
+    from django.urls import reverse
+
+    sort_items = []
+    for item in items:
+        sort_items.append({'label': item['label'], 'url': reverse(item['url_name']), 'active': item['name'] == active_item})
+    ctx = {'sort_items': sort_items}
+    if create_url:
+        ctx['cta_url'] = create_url
+        ctx['cta_label'] = create_label or _('Add')
+        ctx['cta_icon'] = 'plus'
+    return ctx
+
+
 class AssetListView(LoginRequiredMixin, ListView):
     model = Asset
     template_name = 'bookkeeping/asset_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(_bookkeeping_toolbar('assets', create_url=reverse_lazy('bookkeeping:asset_create'), create_label=_('Add asset')))
+        return context
 
 
 class AssetCreateView(LoginRequiredMixin, CreateView):
@@ -87,6 +114,11 @@ class AssetDeleteView(ProtectedDeleteView):
 class CategoryListView(LoginRequiredMixin, ListView):
     model = Category
     template_name = 'bookkeeping/category_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(_bookkeeping_toolbar('categories', create_url=reverse_lazy('bookkeeping:category_create'), create_label=_('Add category')))
+        return context
 
 
 class CategoryCreateView(LoginRequiredMixin, CreateView):
@@ -127,6 +159,7 @@ class PartnerListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context.update(_bookkeeping_toolbar('partners', create_url=reverse_lazy('bookkeeping:partner_create'), create_label=_('Add partner')))
         context['current_sort'] = self.request.GET.get('sort', 'name')
         context['current_order'] = self.request.GET.get('order', 'asc')
         return context
@@ -179,6 +212,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context.update(_bookkeeping_toolbar('transactions', create_url=reverse_lazy('bookkeeping:transaction_create'), create_label=_('Add transaction')))
         # Pasek sald per asset z CAŁEJ historii — nad tabelą, jako kontekst dla użytkownika.
         # Sortowanie z asset_balances: default asset pierwszy, reszta wg code alfabetycznie.
         context['balances_by_asset'] = asset_balances()
@@ -259,14 +293,10 @@ class TransactionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView)
 class ReportView(LoginRequiredMixin, View):
     template_name = 'bookkeeping/report_list.html'
 
-    # Próg powyżej którego pivot kategorie × aktywa staje się nieczytelny (za szeroki).
-    # Wtedy template przełącza się na fallback "sekcje per waluta" (Wzorzec 1).
-    MAX_ASSETS_FOR_PIVOT = 5
-
     def get(self, request, year=None):
         try:
             year = int(request.GET.get('year', year)) if year or request.GET.get('year') else timezone.now().year
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             year = timezone.now().year
 
         year_pivot, year_assets, year_totals = category_breakdown(year=year)
@@ -286,5 +316,10 @@ class ReportView(LoginRequiredMixin, View):
             'year': year,
             'available_years': available_years,
         }
+        context.update(_bookkeeping_toolbar('reports'))
 
         return render(request, self.template_name, context)
+
+    # Próg powyżej którego pivot kategorie × aktywa staje się nieczytelny (za szeroki).
+    # Wtedy template przełącza się na fallback "sekcje per waluta" (Wzorzec 1).
+    MAX_ASSETS_FOR_PIVOT = 5

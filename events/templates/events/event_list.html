@@ -6,30 +6,8 @@
 {% block content %}
 
 {# ── TOOLBAR ── #}
-<div class="proposals-toolbar">
-  {% if user.is_authenticated %}
-    <a href="{% url 'events:create' %}" class="btn-cta">
-      <i class="fas fa-plus"></i> {% trans 'Add Event' %}
-    </a>
-    <span class="toolbar-divider"></span>
-  {% endif %}
-
-  {# Trigger drawera — etykieta odzwierciedla aktualnie załadowany miesiąc w drawerze #}
-  <button type="button" class="cal-trigger-btn" id="cal-trigger" aria-expanded="false"
-          title="{% trans 'Toggle month view' %}">
-    <span id="cal-trigger-label">{{ current_month_first_day|date:"F Y" }}</span>
-    <i class="fas fa-chevron-down agenda-month-chevron"></i>
-  </button>
-
-  <div class="toolbar-view ms-auto">
-    <button class="view-toggle-btn" data-view="list" title="{% trans 'List' %}">
-      <i class="fas fa-list"></i>
-    </button>
-    <button class="view-toggle-btn" data-view="grid" title="{% trans 'Grid' %}">
-      <i class="fas fa-grip"></i>
-    </button>
-  </div>
-</div>
+{% if user.is_authenticated %}{% url 'events:create' as cta_url %}{% endif %}
+{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add Event') extra_include='events/_calendar_trigger.html' views=toolbar_views %}
 
 {# Pojedynczy drawer dla mini-kalendarza — pre-render bieżącego miesiąca, bez AJAX na starcie #}
 <div id="events-drawer" class="agenda-month-drawer" data-month-prerendered>
@@ -38,7 +16,8 @@
 
 {% if occurrences %}
 
-  {# ── AGENDA ── #}
+  {# ── AGENDA + GRID ── #}
+  <div data-view-container>
   <div class="events-agenda" data-view-only="list">
     {% regroup occurrences by date|date:"Y-m" as months %}
     {% for month_group in months %}
@@ -83,12 +62,13 @@
   </div>
 
   {# ── GRID (alternative view) ── #}
-  <div class="proposals-list mig-hidden" data-view-container data-view-only="grid">
+  <div class="proposals-list mig-hidden" data-view-only="grid">
     {% for occ in occurrences %}
       <div data-date="{{ occ.date|date:'Y-m-d' }}">
         {% include 'events/_event_card.html' %}
       </div>
     {% endfor %}
+  </div>
   </div>
 
 {% else %}
@@ -106,7 +86,6 @@
 {# ── JS: view switching, drawer, day-click filter+highlight+hash, lazy chunk loading ── #}
 <script>
 (function(){
-  var listOnlyEls = document.querySelectorAll('[data-view-only="list"]');
   var gridEl     = document.querySelector('[data-view-only="grid"]');
   var triggerBtn = document.getElementById('cal-trigger');
   var triggerLbl = document.getElementById('cal-trigger-label');
@@ -117,12 +96,6 @@
   var lastDayClick    = { day: null, time: 0 };
   var loadedMonths    = new Set();
   var pendingFetch    = null;
-
-  function showView(mode) {
-    if (mode !== 'list' && mode !== 'grid') mode = 'list';
-    listOnlyEls.forEach(function(el){ el.style.display = (mode === 'list') ? '' : 'none'; });
-    if (gridEl) gridEl.style.display = (mode === 'grid') ? '' : 'none';
-  }
 
   function highlightSelectedDay(iso) {
     document.querySelectorAll('.cal-day-link.cal-day-link--selected').forEach(function(el){
@@ -287,11 +260,10 @@
       view = 'list';
       if (window.PagePrefs) PagePrefs.write({view: 'list'});
     }
-    showView(view);
 
     document.querySelectorAll('[data-view]').forEach(function(b){
       b.addEventListener('click', function(){
-        showView(b.dataset.view);
+        if (window.PagePrefs) PagePrefs.setView(b.dataset.view);
         if (b.dataset.view === 'grid' && activeFromDate) setGridFromDate(activeFromDate);
       });
     });

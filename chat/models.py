@@ -67,11 +67,11 @@ class Room(models.Model):
         try:
             if Room.objects.filter(is_inbox=True).exists():
                 return None
-        except (OperationalError):
+        except OperationalError:
             return None
         try:
             room = Room.objects.create(title='Inbox', public=True, protected=True, is_inbox=True)
-        except (IntegrityError):
+        except IntegrityError:
             return None
         room.allowed.set(User.objects.filter(is_active=True))
         return room
@@ -147,7 +147,7 @@ class Room(models.Model):
 
         try:
             room = cls.objects.create(title=title, public=False)
-        except (IntegrityError):
+        except IntegrityError:
             room = cls.objects.get(title__iexact=title)
             room.public = False
             room.save(update_fields=['public'])
@@ -221,7 +221,7 @@ class Room(models.Model):
         try:
             room = cls.objects.get(id=room_id)
             return room.allowed.exclude(id=user_id)
-        except (cls.DoesNotExist):
+        except cls.DoesNotExist:
             return get_user_model().objects.none()
 
     @classmethod

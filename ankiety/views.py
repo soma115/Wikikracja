@@ -84,7 +84,8 @@ def survey_list(request):
         survey.has_voted = bool(survey.user_vote_ids)
         survey.can_edit = request.user == survey.author and survey.is_active
 
-    return render(request, "ankiety/survey_list.html", {"surveys": surveys, "current_tab": tab})
+    toolbar_sort_items = [{"url": "?tab=active", "label": _("Ongoing"), "active": tab == "active"}, {"url": "?tab=finished", "label": _("Finished"), "active": tab == "finished"}]
+    return render(request, "ankiety/survey_list.html", {"surveys": surveys, "current_tab": tab, "toolbar_sort_items": toolbar_sort_items})
 
 
 @login_required

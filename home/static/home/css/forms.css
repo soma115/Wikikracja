@@ -156,3 +156,54 @@ select.form-select option {
   background: var(--bg-card);
   color: var(--text-primary);
 }
+
+/* ── Rich text input (shared by chat and home/richtext-input) ── */
+.richtext-wrapper {
+  border: 1px solid var(--input-border);
+  border-radius: .45rem;
+  background-color: var(--input-bg);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, .15);
+  overflow: hidden;
+  transition: border-color .15s;
+}
+.richtext-wrapper:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-muted);
+}
+.message-input-rich {
+  border: none;
+  background-color: transparent;
+  color: var(--text-primary);
+  flex: 1;
+  padding: 0.5rem 0.6rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-family: inherit;
+  overflow-y: auto;
+  min-height: 4rem;
+  max-height: 180px;
+  outline: none;
+  word-break: break-word;
+}
+.message-input-rich:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-muted);
+  pointer-events: none;
+  opacity: .6;
+  display: block;
+}
+.message-input-rich:empty::after {
+  content: attr(data-hint);
+  display: block;
+  font-size: .7rem;
+  color: var(--text-muted);
+  opacity: .4;
+  pointer-events: none;
+  margin-top: .2rem;
+}
+@media (max-width: 767px) {
+  .message-input-rich {
+    min-height: 2.5rem;
+    max-height: 120px;
+  }
+}

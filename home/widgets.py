@@ -27,7 +27,6 @@ class RichTextWidget(forms.Textarea):
         # DOMPurify is loaded globally by home/base.html (used by both chat and
         # this widget), so we only declare the widget-specific JS here.
         js = ('common/js/richtext-input.js',)
-        css = {'all': ('chat/css/chat.css',)}
 
     def __init__(self, attrs=None, max_length=None, placeholder=''):
         super().__init__(attrs)
@@ -77,9 +76,7 @@ class CounterTextarea(forms.Textarea):
 
     class Media:
         js = ('common/js/textarea-counter.js',)
-        # Reuses the .msg-counter/.counter--warn/.counter--error styles
-        # already defined for the chat composer.
-        css = {'all': ('chat/css/chat.css',)}
+        # .msg-counter/.counter--warn/.counter--error styles are in buttons.css (global).
 
     def __init__(self, attrs=None, max_length=None):
         self.max_length = max_length

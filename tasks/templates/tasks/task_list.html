@@ -7,94 +7,8 @@
 {% block tasks %}
 
 {# ── TOOLBAR ── #}
-<div class="proposals-toolbar">
-  <a href="{% url 'tasks:add' %}" class="btn-cta">
-    <i class="fas fa-plus"></i> {% trans 'Add task' %}
-  </a>
-
-  <span class="toolbar-divider"></span>
-
-  <div class="toolbar-sort">
-
-    {% if current_sort == 'date' %}
-      <a href="{% url 'tasks:list' %}?tab={{ current_tab }}&sort=date&order={% if current_order == 'asc' %}desc{% else %}asc{% endif %}{% for c in current_categories %}&category={{ c }}{% endfor %}"
-         class="sort-btn active">
-        {% trans 'Newest' %}
-        <i class="fas fa-arrow-{% if current_order == 'asc' %}up{% else %}down{% endif %} sort-arrow"></i>
-      </a>
-    {% else %}
-      <a href="{% url 'tasks:list' %}?tab={{ current_tab }}&sort=date&order=desc{% for c in current_categories %}&category={{ c }}{% endfor %}" class="sort-btn">
-        {% trans 'Newest' %}
-      </a>
-    {% endif %}
-
-    {% if current_sort == 'score' %}
-      <a href="{% url 'tasks:list' %}?tab={{ current_tab }}&sort=score&order={% if current_order == 'asc' %}desc{% else %}asc{% endif %}{% for c in current_categories %}&category={{ c }}{% endfor %}"
-         class="sort-btn active">
-        {% trans 'Score' %}
-        <i class="fas fa-arrow-{% if current_order == 'asc' %}up{% else %}down{% endif %} sort-arrow"></i>
-      </a>
-    {% else %}
-      <a href="{% url 'tasks:list' %}?tab={{ current_tab }}&sort=score&order=desc{% for c in current_categories %}&category={{ c }}{% endfor %}" class="sort-btn">
-        {% trans 'Score' %}
-      </a>
-    {% endif %}
-
-    {% if current_sort == 'buzz' %}
-      <a href="{% url 'tasks:list' %}?tab={{ current_tab }}&sort=buzz&order={% if current_order == 'asc' %}desc{% else %}asc{% endif %}{% for c in current_categories %}&category={{ c }}{% endfor %}"
-         class="sort-btn active">
-        {% trans 'Buzz' %}
-        <i class="fas fa-arrow-{% if current_order == 'asc' %}up{% else %}down{% endif %} sort-arrow"></i>
-      </a>
-    {% else %}
-      <a href="{% url 'tasks:list' %}?tab={{ current_tab }}&sort=buzz&order=desc{% for c in current_categories %}&category={{ c }}{% endfor %}" class="sort-btn">
-        {% trans 'Buzz' %}
-      </a>
-    {% endif %}
-
-    <span class="toolbar-sort-sep"></span>
-
-    {# ── CATEGORY DROPDOWN ── #}
-    <div class="cat-filter" id="catFilter">
-      <button type="button" class="sort-btn cat-filter__trigger" id="catFilterBtn"
-              aria-expanded="false" aria-controls="catFilterPanel">
-        <span id="catFilterLabel">{% trans 'Category' %}</span>
-        <i class="fas fa-chevron-down cat-filter__chevron"></i>
-      </button>
-      <div class="cat-filter__panel" id="catFilterPanel" hidden>
-        <div class="cat-filter__item cat-filter__all" id="catAllRow" data-key="" data-label="{% trans 'All' %}">
-          <i class="fas fa-check cat-filter__check"></i>
-          <span>{% trans 'All' %}</span>
-        </div>
-        {% for cat in category_list %}
-        <div class="cat-filter__item" data-key="{{ cat.slug }}" data-label="{{ cat.name }}"
-             title="{{ cat.description }}">
-          <i class="fas fa-check cat-filter__check"></i>
-          <span>{{ cat.name }}</span>
-        </div>
-        {% endfor %}
-        <div class="cat-filter__manage-sep"></div>
-        <button type="button" class="cat-filter__manage-btn" id="catManageBtn">
-          <i class="fas fa-gear"></i> {% trans 'Manage categories' %}
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <span class="toolbar-divider"></span>
-
-  <div class="toolbar-view">
-    <button class="view-toggle-btn" data-view="compact" title="{% trans 'Compact' %}">
-      <i class="fas fa-bars"></i>
-    </button>
-    <button class="view-toggle-btn" data-view="list" title="{% trans 'List' %}">
-      <i class="fas fa-list"></i>
-    </button>
-    <button class="view-toggle-btn" data-view="grid" title="{% trans 'Grid' %}">
-      <i class="fas fa-grip"></i>
-    </button>
-  </div>
-</div>
+{% url 'tasks:add' as cta_url %}
+{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add task') sort_items=toolbar_sort_items show_category_filter=1 categories=category_list views=toolbar_views %}
 
 {# ── CONTENT ── #}
 <div class="proposals-list" data-view-container>
@@ -206,118 +120,23 @@
 </script>
 <script src="{% static 'tasks/js/tasks.js' %}"></script>
 <script>
-(function () {
-  var btn      = document.getElementById('catFilterBtn');
-  var panel    = document.getElementById('catFilterPanel');
-  var labelEl  = document.getElementById('catFilterLabel');
-  var allRow   = document.getElementById('catAllRow');
-  var catRows  = Array.from(panel.querySelectorAll('.cat-filter__item:not(.cat-filter__all)'));
-  var allCards = Array.from(document.querySelectorAll('.proposal-card[data-category]'));
-  var sectionLabels = Array.from(document.querySelectorAll('.tasks-section-label'));
-  var LABEL_ALL = '{% trans "Category" %}';
-
-  // ── restore from URL ─────────────────────────────────────────
-  var params  = new URLSearchParams(window.location.search);
-  var initial = params.getAll('category');
-  initial.forEach(function (val) {
-    catRows.forEach(function (row) {
-      if (row.dataset.key === val) row.classList.add('selected');
-    });
-  });
-
-  // ── core ─────────────────────────────────────────────────────
-  function selected() {
-    return catRows.filter(function (r) { return r.classList.contains('selected'); })
-                  .map(function (r) { return r.dataset.key; });
-  }
-
-  function apply() {
-    var sel = selected();
-    var all = sel.length === 0;
-
-    allRow.classList.toggle('selected', all);
-
-    // cards
-    allCards.forEach(function (card) {
-      card.style.display = (all || sel.indexOf(card.dataset.category) !== -1) ? '' : 'none';
-    });
-
-    // section labels
-    sectionLabels.forEach(function (label) {
-      var sib = label.nextElementSibling;
-      var vis = false;
-      while (sib && !sib.classList.contains('tasks-section-label')) {
-        if (sib.classList.contains('proposal-card') && sib.style.display !== 'none') { vis = true; break; }
-        sib = sib.nextElementSibling;
-      }
-      label.style.display = vis ? '' : 'none';
-    });
-
-    // button label + active state
-    if (all) {
-      labelEl.textContent = LABEL_ALL;
-      btn.classList.remove('active');
-    } else {
-      labelEl.textContent = LABEL_ALL + ' (' + sel.length + ')';
-      btn.classList.add('active');
-    }
-
-    // URL sync
-    var p = new URLSearchParams(window.location.search);
-    p.delete('category');
-    sel.forEach(function (v) { p.append('category', v); });
-    history.pushState(null, '', window.location.pathname + (p.toString() ? '?' + p.toString() : ''));
-  }
-
-  // ── clicks inside panel stay inside panel ────────────────────
-  panel.addEventListener('click', function (e) {
-    e.stopPropagation();
-  });
-
-  // ── click: "All" ─────────────────────────────────────────────
-  allRow.addEventListener('click', function () {
-    catRows.forEach(function (r) { r.classList.remove('selected'); });
-    apply();
-  });
-
-  // ── click: category item ──────────────────────────────────────
-  catRows.forEach(function (row) {
-    row.addEventListener('click', function () {
-      row.classList.toggle('selected');
-      apply();
-    });
-  });
-
-  // ── open / close ──────────────────────────────────────────────
-  btn.addEventListener('click', function (e) {
-    e.stopPropagation();
-    var opening = panel.hidden;
-    panel.hidden = !opening;
-    btn.setAttribute('aria-expanded', String(opening));
-  });
-
-  document.addEventListener('click', function (e) {
-    if (!document.getElementById('catFilter').contains(e.target)) {
-      panel.hidden = true;
-      btn.setAttribute('aria-expanded', 'false');
-    }
-  });
-
-  // ── init ─────────────────────────────────────────────────────
-  apply();
-
-  // ── manage button opens modal ────────────────────────────────
-  var manageBtn = document.getElementById('catManageBtn');
-  if (manageBtn) {
-    manageBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      panel.hidden = true;
-      btn.setAttribute('aria-expanded', 'false');
-      var modal = new bootstrap.Modal(document.getElementById('manageCategoriesModal'));
-      modal.show();
-    });
-  }
-})();
+window.initCategoryManager('manageCategoriesModal', {
+  list:    '{% url "tasks:api_categories" %}',
+  edit:    '{% url "tasks:api_categories" %}'.replace(/\/+$/, '') + '/{pk}/edit/',
+  del:     '{% url "tasks:api_categories" %}'.replace(/\/+$/, '') + '/{pk}/delete/',
+  reorder: '{% url "tasks:api_category_reorder" %}',
+}, {
+  edit:         '{% trans "Edit" %}',
+  cancel:       '{% trans "Cancel" %}',
+  save:         '{% trans "Save" %}',
+  delete:       '{% trans "Delete" %}',
+  items_suffix: '{% trans "tasks" %}',
+  protected:    '{% trans "Protected — cannot be deleted" %}',
+  confirm_del:  '{% trans "This category has {n} task(s). Deleting it will leave those tasks without a category. Continue?" %}',
+  name_req:     '{% trans "Category name is required." %}',
+  load_error:   '{% trans "Failed to load categories." %}',
+  error:        '{% trans "An error occurred." %}',
+});
 
 initCategoryManager('manageCategoriesModal', {
   list:    '{% url "tasks:api_categories" %}',

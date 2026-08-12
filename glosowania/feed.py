@@ -22,15 +22,3 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
             }
         )
     return items
-
-
-def mark_as_read(object_id: int, user) -> None:
-    from home.models import ReadStatus
-
-    ReadStatus.objects.get_or_create(user=user, content_type=ReadStatus.ContentType.DECISION, object_id=object_id)
-
-
-def mark_as_unread(object_id: int, user) -> None:
-    from home.models import ReadStatus
-
-    ReadStatus.objects.filter(user=user, content_type=ReadStatus.ContentType.DECISION, object_id=object_id).delete()

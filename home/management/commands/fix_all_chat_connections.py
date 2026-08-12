@@ -105,10 +105,10 @@ class Command(BaseCommand):
                 room = Room.objects.get(title=title_format)
                 self.debug(f"Found vote #{decyzja.pk} room using {format_name} format: '{title_format}'")
                 break
-            except (Room.DoesNotExist):
+            except Room.DoesNotExist:
                 self.debug(f"No room found for vote #{decyzja.pk} with {format_name} format: '{title_format}'")
                 continue
-            except (Room.MultipleObjectsReturned):
+            except Room.MultipleObjectsReturned:
                 self.stdout.write(self.style.ERROR(f"Multiple rooms found for vote #{decyzja.pk} with title '{title_format}'"))
                 return
 
@@ -322,7 +322,7 @@ class Command(BaseCommand):
             if not self.tasks_only:
                 self.process_votes()
 
-        except (KeyboardInterrupt):
+        except KeyboardInterrupt:
             self.stdout.write(self.style.ERROR("\nOperation interrupted by user"))
             return
         except Exception as e:

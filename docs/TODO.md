@@ -1,4 +1,15 @@
-- Cytowanie wiadomości w czacie — bez "pokaż więcej" w momencie pokazywania cytowanej wiadomości.
+- największe możliwe bezpieczne uproszczenie w kodzie, plikach i katalogach.
+
+Błędy:
+- chat: podgląd obrazków nie działa przez co nie da się ich też usunąć podczas edycji
+- chat: Cytowanie wiadomości w czacie — bez "pokaż więcej" w momencie pokazywania cytowanej wiadomości.
+- 
+
+Refaktoryzacje:
+- board > docuemnts
+- events > calendar
+- glosowania > voting
+- obywatele > citizens
 
 - e-maile z powiadomieniami raz dziennie ale mają zawierać wszystkie nowości?
 E-maile z powiadomieniami są wysyłane według harmonogramu w scheduler.py:

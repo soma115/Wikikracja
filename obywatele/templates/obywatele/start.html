@@ -148,7 +148,7 @@
                   </div>
                   <span class="citizen-list-nick">{{ i.username }}</span>
                   {% if i.pk != request.user.pk %}
-                  <a href="{% url 'chat:open_dm' pk=i.pk %}" class="proposal-chat-link ms-1" onclick="event.stopPropagation()">
+                  <a href="{% url 'chat:open_dm' pk=i.pk %}" class="chat-link ms-1" onclick="event.stopPropagation()">
                     <i class="fas fa-comment-dots"></i>
                   </a>
                   {% endif %}
@@ -199,7 +199,7 @@
         <div class="citizen-card-city"><i class="fas fa-map-marker-alt"></i> {{ i.uzytkownik.city }}</div>
         {% endif %}
         {% if i.pk != request.user.pk %}
-        <a href="{% url 'chat:open_dm' pk=i.pk %}" class="proposal-chat-link mt-1" title="{% trans 'Direct message' %}" onclick="event.stopPropagation()">
+        <a href="{% url 'chat:open_dm' pk=i.pk %}" class="chat-link mt-1" title="{% trans 'Direct message' %}" onclick="event.stopPropagation()">
           <i class="fas fa-comment-dots"></i> DM
         </a>
         {% endif %}

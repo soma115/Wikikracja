@@ -5,27 +5,27 @@
   Oczekiwana zmienna: task — obiekt Task (z with_metrics + chat_msg_count)
 {% endcomment %}
 
-<div class="proposal-card" id="card-{{ task.pk }}" data-category="{{ task.category.slug }}">
+<div class="task-card" id="card-{{ task.pk }}" data-category="{{ task.category.slug }}">
 
   {# ── NAGŁÓWEK (klikalny → toggle) ── #}
-  <div class="proposal-card-header" onclick="toggleCard({{ task.pk }})" role="button" tabindex="0"
+  <div class="task-card-header" onclick="toggleCard({{ task.pk }})" role="button" tabindex="0"
        onkeydown="if(event.key==='Enter'||event.key===' ')toggleCard({{ task.pk }})">
 
-    <div class="proposal-card-title-row">
-      <span class="proposal-card-num">#{{ task.pk }}</span>
-      <span class="proposal-card-title">{{ task.title }}</span>
+    <div class="task-card-title-row">
+      <span class="task-card-num">#{{ task.pk }}</span>
+      <span class="task-card-title">{{ task.title }}</span>
       <a href="{% url 'tasks:detail' pk=task.pk %}"
-         class="proposal-details-btn"
+         class="task-details-btn"
          onclick="event.stopPropagation()"
          data-bs-toggle="tooltip"
          title="{% trans 'Open task details' %}">
         <i class="fas fa-arrow-up-right-from-square fa-fw"></i> {% trans 'Details' %}
       </a>
-      <i class="fas fa-chevron-down proposal-card-chevron" id="chevron-{{ task.pk }}"></i>
+      <i class="fas fa-chevron-down task-card-chevron" id="chevron-{{ task.pk }}"></i>
     </div>
 
     {# Badges: priorytet / status + chat #}
-    <div class="proposal-card-badges-row">
+    <div class="task-card-badges-row">
       {% if task.priority_category == 'critical' %}
         <span class="badge-status badge-critical">{% trans 'Critical' %}</span>
       {% elif task.priority_category == 'important' %}
@@ -44,12 +44,12 @@
 
       {% if task.chat_room_url %}
         <a href="{{ task.chat_room_url }}"
-           class="proposal-chat-link {% if task.chat_room_pulse_class %}proposal-chat-link--pulse{% endif %}"
+           class="chat-link {% if task.chat_room_pulse_class %}chat-link--pulse{% endif %}"
            onclick="event.stopPropagation()">
           <i class="fas fa-comment-dots"></i>
           <span>{% trans 'Chat' %}</span>
           {% with n=task.chat_room.messages.count %}
-            {% if n %}<span class="proposal-chat-count">{{ n }}</span>{% endif %}
+            {% if n %}<span class="task-chat-count">{{ n }}</span>{% endif %}
           {% endwith %}
         </a>
       {% endif %}
@@ -57,80 +57,80 @@
 
     {# Podgląd opisu #}
     {% if task.description %}
-    <p class="proposal-preview">{{ task.description|richtext }}</p>
+    <p class="task-preview">{{ task.description|richtext }}</p>
     {% endif %}
 
     {# Meta strip #}
-    <div class="proposal-card-meta">
+    <div class="task-card-meta">
       {% if task.created_by %}
       <a href="{% url 'obywatele:obywatele_szczegoly' pk=task.created_by.pk %}"
-         class="proposal-author-link" onclick="event.stopPropagation()"
+         class="task-author-link" onclick="event.stopPropagation()"
          data-bs-toggle="tooltip"
          title="{% trans 'Author' %}: {{ task.created_by.username }}">
-        <i class="fas fa-user-pen proposal-role-icon" aria-hidden="true"></i>
+        <i class="fas fa-user-pen task-role-icon" aria-hidden="true"></i>
         {% include "home/_user_avatar.html" with avatar=task.created_by.uzytkownik.avatar username=task.created_by.username size="md" %}
-        <span class="proposal-author-name">{{ task.created_by.username }}</span>
+        <span class="task-author-name">{{ task.created_by.username }}</span>
       </a>
       {% else %}
-      <span class="proposal-author-link proposal-author-link--empty"
+      <span class="task-author-link task-author-link--empty"
             data-bs-toggle="tooltip" title="{% trans 'Author unknown' %}">
-        <i class="fas fa-user-pen proposal-role-icon" aria-hidden="true"></i>
-        <span class="proposal-author-name">—</span>
+        <i class="fas fa-user-pen task-role-icon" aria-hidden="true"></i>
+        <span class="task-author-name">—</span>
       </span>
       {% endif %}
 
-      <i class="fas fa-arrow-right proposal-meta-arrow" aria-hidden="true"></i>
+      <i class="fas fa-arrow-right task-meta-arrow" aria-hidden="true"></i>
 
       {% if task.assigned_to and task.assigned_to != request.user %}
         {# Someone else is coordinator — static, no live update possible from this user #}
         <a href="{% url 'obywatele:obywatele_szczegoly' pk=task.assigned_to.pk %}"
-           class="proposal-coordinator-link" onclick="event.stopPropagation()"
+           class="task-coordinator-link" onclick="event.stopPropagation()"
            data-bs-toggle="tooltip"
            title="{% trans 'Coordinator' %}: {{ task.assigned_to.username }}">
-          <i class="fas fa-user-gear proposal-role-icon" aria-hidden="true"></i>
+          <i class="fas fa-user-gear task-role-icon" aria-hidden="true"></i>
           {% include "home/_user_avatar.html" with avatar=task.assigned_to.uzytkownik.avatar username=task.assigned_to.username size="md" %}
-          <span class="proposal-coordinator-name">{{ task.assigned_to.username }}</span>
+          <span class="task-coordinator-name">{{ task.assigned_to.username }}</span>
         </a>
       {% else %}
         {# I'm coordinator OR no coordinator — pre-render both; JS toggles `hidden` on take/resign #}
         <a href="{% url 'obywatele:obywatele_szczegoly' pk=request.user.pk %}"
-           class="proposal-coordinator-link" onclick="event.stopPropagation()"
+           class="task-coordinator-link" onclick="event.stopPropagation()"
            data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}
            data-bs-toggle="tooltip"
            title="{% trans 'Coordinator' %}: {{ request.user.username }}">
-          <i class="fas fa-user-gear proposal-role-icon" aria-hidden="true"></i>
+          <i class="fas fa-user-gear task-role-icon" aria-hidden="true"></i>
           {% include "home/_user_avatar.html" with avatar=request.user.uzytkownik.avatar username=request.user.username size="md" %}
-          <span class="proposal-coordinator-name">{{ request.user.username }}</span>
+          <span class="task-coordinator-name">{{ request.user.username }}</span>
         </a>
-        <span class="proposal-coordinator-empty"
+        <span class="task-coordinator-empty"
               data-coord-state="empty"{% if task.assigned_to %} hidden{% endif %}
               data-bs-toggle="tooltip" title="{% trans 'No coordinator yet' %}">
-          <i class="fas fa-user-gear proposal-role-icon" aria-hidden="true"></i>
+          <i class="fas fa-user-gear task-role-icon" aria-hidden="true"></i>
           <span>{% trans 'no coordinator' %}</span>
         </span>
       {% endif %}
 
-      <span class="proposal-meta-sep">·</span>
-      <span class="proposal-date"
+      <span class="task-meta-sep">·</span>
+      <span class="task-date"
             data-bs-toggle="tooltip"
             title="{% trans 'Created' %}: {{ task.created_at|date:'d.m.Y H:i' }}">
-        <i class="fas fa-clock-rotate-left proposal-role-icon" aria-hidden="true"></i>
+        <i class="fas fa-clock-rotate-left task-role-icon" aria-hidden="true"></i>
         {{ task.created_at|date:"d.m.Y" }}
       </span>
 
       {% if task.category %}
-      <span class="proposal-meta-sep">·</span>
-      <span class="proposal-category"
+      <span class="task-meta-sep">·</span>
+      <span class="task-category"
             data-bs-toggle="tooltip"
             title="{% trans 'Category' %}: {{ task.category.name }}">
-        <i class="fas fa-tag proposal-role-icon" aria-hidden="true"></i>
+        <i class="fas fa-tag task-role-icon" aria-hidden="true"></i>
         {{ task.category.name }}
       </span>
       {% endif %}
 
-      <span class="proposal-meta-sep">·</span>
+      <span class="task-meta-sep">·</span>
       <button type="button"
-              class="proposal-signatures proposal-helpers-btn"
+              class="task-signatures task-helpers-btn"
               onclick="event.stopPropagation()"
               data-task-helpers="{{ task.pk }}"
               data-helpers-url="{% url 'tasks:helpers_json' pk=task.pk %}"
@@ -142,11 +142,11 @@
               data-bs-content="<div class='helpers-popover-loading'>{% trans 'Loading…' %}</div>"
               aria-label="{% trans 'People helping. Click to see the list.' %}">
         <i class="fas fa-hand-holding-heart fa-fw"></i>
-        <span class="proposal-signatures-count">{{ task.votes_up|default:0 }}</span>
+        <span class="task-signatures-count">{{ task.votes_up|default:0 }}</span>
       </button>
 
       <button type="button"
-              class="proposal-against proposal-against-btn"
+              class="task-against task-against-btn"
               onclick="event.stopPropagation()"
               data-task-against="{{ task.pk }}"
               data-against-url="{% url 'tasks:against_json' pk=task.pk %}"
@@ -158,24 +158,24 @@
               data-bs-content="<div class='helpers-popover-loading'>{% trans 'Loading…' %}</div>"
               aria-label="{% trans 'People against. Click to see the list.' %}">
         <i class="fas fa-ban fa-fw"></i>
-        <span class="proposal-against-count">{{ task.votes_down|default:0 }}</span>
+        <span class="task-against-count">{{ task.votes_down|default:0 }}</span>
       </button>
     </div>
 
-  </div>{# /.proposal-card-header #}
+  </div>{# /.task-card-header #}
 
   {# ── CIAŁO (rozwijalne, klikalne → szczegóły) ── #}
-  <div class="proposal-card-body proposal-card-body--collapsible" id="body-{{ task.pk }}"
+  <div class="task-card-body task-card-body--collapsible" id="body-{{ task.pk }}"
        onclick="window.location.href='{% url 'tasks:detail' pk=task.pk %}'"
        role="link">
 
     {# Pełny opis #}
     {% if task.description %}
-    <div class="proposal-section">
-      <div class="proposal-section-label">
+    <div class="task-section">
+      <div class="task-section-label">
         <i class="fas fa-file-lines fa-fw"></i> {% trans 'Description' %}
       </div>
-      <div class="proposal-section-text">{{ task.description|richtext }}</div>
+      <div class="task-section-text">{{ task.description|richtext }}</div>
     </div>
     {% endif %}
 
@@ -267,6 +267,6 @@
     </div>
     {% endif %}
 
-  </div>{# /.proposal-card-body #}
+  </div>{# /.task-card-body #}
 
-</div>{# /.proposal-card #}
+</div>{# /.task-card #}

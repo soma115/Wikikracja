@@ -13,7 +13,7 @@
           {{ task.title }}
 {% if task.chat_room_url %}
             <a href="{{ task.chat_room_url }}"
-               class="proposal-chat-link {% if task.chat_room_pulse_class %}proposal-chat-link--pulse{% endif %} ms-2"
+               class="chat-link {% if task.chat_room_pulse_class %}chat-link--pulse{% endif %} ms-2"
                onclick="event.stopPropagation()">
               <i class="fas fa-comment-dots"></i>
               <span>{% trans "Chat" %}</span>

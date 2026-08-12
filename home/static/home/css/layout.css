@@ -523,7 +523,7 @@ html, body {
   border: 2px solid var(--bg-sidebar);
   box-sizing: border-box;
   animation: pulse 2s infinite;
-  box-shadow: 0 0 8px rgba(239, 68, 68, .55);
+  box-shadow: 0 0 8px var(--badge-rejected-glow);
 }
 
 .btn-cta, .toolbar-add-btn, .topbar .btn-cta {
@@ -1076,7 +1076,8 @@ a:hover {
 }
 
 .display-block-cursor-default {
-  display:block;cursor:default;
+  display: block;
+  cursor: default;
 }
 
 .btn-mark-all {
@@ -1085,35 +1086,49 @@ a:hover {
 }
 
 .empty-state-icon {
-  color:var(--text-muted);opacity:.35;
+  color: var(--text-muted);
+  opacity: .35;
 }
 
 .modal-backdrop-custom {
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99;
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .5);
+  z-index: 99;
 }
 
 .search-result-link {
-  background:var(--accent-muted);color:var(--accent);font-size:.8rem;padding:.4rem .75rem;
+  background: var(--accent-muted);
+  color: var(--accent);
+  font-size: .8rem;
+  padding: .4rem .75rem;
 }
 
 .search-page-submit {
-  background:var(--accent);color:var(--text-on-accent);border:none;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  border: none;
 }
 
 .search-result-meta {
-  color:var(--text-muted);font-size:.75rem;flex-shrink:0;
+  color: var(--text-muted);
+  font-size: .75rem;
+  flex-shrink: 0;
 }
 
 .section-divider {
-  border-top:1px solid rgba(255,255,255,.07);
+  border-top: 1px solid var(--border);
 }
 
 .badge-xs {
-  font-size:.72rem;padding:2px 8px;
+  font-size: .72rem;
+  padding: 2px 8px;
 }
 
 .bg-glass-sm {
-  background:rgba(255,255,255,.03);border-radius:4px;
+  background: var(--color-surface-offset);
+  border-radius: 4px;
 }
 
 .mig-hidden {
@@ -1121,15 +1136,27 @@ a:hover {
 }
 
 .avatar-upload-wrap {
-  position:relative;width:64px;height:64px;cursor:pointer;
+  position: relative;
+  width: 64px;
+  height: 64px;
+  cursor: pointer;
 }
 
 .avatar-overlay {
-  position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: .2s;
 }
 
 .avatar-overlay-icon {
-  color:var(--text-inverse);font-size:1.1rem;
+  color: var(--text-inverse);
+  font-size: 1.1rem;
 }
 
 .width-30 {

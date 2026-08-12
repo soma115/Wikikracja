@@ -44,7 +44,7 @@ def open_dm(request: HttpRequest, pk: int):
         title = '-'.join(sorted([request.user.username, target.username]))
         try:
             room = Room.objects.create(title=title, public=False)
-        except (IntegrityError):
+        except IntegrityError:
             room = Room.objects.get(title__iexact=title)
         room.allowed.set((request.user, target))
 
@@ -169,7 +169,7 @@ def check_image_type(file_path):
     try:
         with Image.open(file_path) as img:
             return img.format.lower()
-    except (Exception):
+    except Exception:
         return None
 
 
@@ -289,7 +289,7 @@ def room_data(request: HttpRequest, room_id: int):
     """
     try:
         room = Room.objects.get(id=room_id, allowed=request.user)
-    except (Room.DoesNotExist):
+    except Room.DoesNotExist:
         return JsonResponse({'error': 'Not found'}, status=404)
 
     return JsonResponse({'room_id': room.id, 'title': room.title, 'translations': get_translations()})
@@ -334,9 +334,9 @@ def toggle_notifications(request: HttpRequest):
 
         return JsonResponse({'success': True, 'room_id': room_id, 'notifications_enabled': not room.muted_by.filter(id=request.user.id).exists()})
 
-    except (json.JSONDecodeError):
+    except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
-    except (Room.DoesNotExist):
+    except Room.DoesNotExist:
         return JsonResponse({'error': 'Room not found'}, status=404)
     except Exception as e:
         log.error(f"Error toggling notifications: {e}")
@@ -357,7 +357,7 @@ def rename_room(request: HttpRequest, room_id: int):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
     try:
         new_title = (json.loads(request.body).get('title') or '').strip()
-    except (json.JSONDecodeError):
+    except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
     room = get_object_or_404(Room, id=room_id, public=True, protected=False)
@@ -392,7 +392,7 @@ def guest_message(request: HttpRequest):
             else:
                 try:
                     inbox = Room.objects.get(is_inbox=True, public=True)
-                except (Room.DoesNotExist):
+                except Room.DoesNotExist:
                     form.add_error(None, _('The public inbox is not available at the moment.'))
                 else:
                     message_text = sanitize(f"Od: {form.cleaned_data['guest_name']} ({form.cleaned_data['guest_email']})\n\n{form.cleaned_data['message']}", linkify=True)

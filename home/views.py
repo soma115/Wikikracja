@@ -29,13 +29,40 @@ log = logging.getLogger(__name__)
 ALL_SEARCH_CATS = ['post', 'task', 'decision', 'survey', 'event', 'citizen', 'chat']
 
 
+DASHBOARD_MODULES = [
+    {
+        'name': _('Voting'),
+        'icon': 'fa-vote-yea',
+        'url': 'glosowania:proposition',
+        'description': _('Democratic decision-making — submit proposals, collect signatures, vote on ongoing referendums and track results.'),
+    },
+    {'name': _('Citizens'), 'icon': 'fa-users', 'url': 'obywatele:obywatele_lista', 'description': _('Member directory — browse citizen profiles, check roles and track community activity.')},
+    {
+        'name': _('Documents'),
+        'icon': 'fa-chalkboard',
+        'url': 'board:start',
+        'description': _('Documents and blog — create and publish content, including a public blog visible to visitors outside the community.'),
+    },
+    {'name': _('Calendar'), 'icon': 'fa-calendar-days', 'url': 'events:list', 'description': _('Upcoming community events — one-off and recurring. Stay informed about meetings, deadlines and activities.')},
+    {'name': _('Tasks'), 'icon': 'fa-list-check', 'url': 'tasks:list', 'description': _('Task management — create, assign and track tasks within the community. See who is responsible for what.')},
+    {
+        'name': _('Bookkeeping'),
+        'icon': 'fa-coins',
+        'url': 'bookkeeping:transaction_list',
+        'description': _('Community finances — record income and expenses, maintain transparency over shared funds and budgets.'),
+    },
+    {'name': _('Chat'), 'icon': 'fa-comments', 'url': 'chat:room_list', 'description': _('Real-time messaging — communicate in topic-based chat rooms linked to referendums and community groups.')},
+    {'name': _('Surveys'), 'icon': 'fa-clipboard-question', 'url': 'ankiety:list', 'description': _('Surveys and quick polls — collect opinions, run questionnaires and make better group decisions.')},
+]
+
+
 def home(request: HttpRequest):
     if not request.user.is_authenticated:
         start = Post.get_system_post('start')
         if not start:
             log.info('Add Board Message title Start.')
             start = ''
-        return render(request, 'home/home.html', {'start': start})
+        return render(request, 'home/home.html', {'start': start, 'dashboard_modules': DASHBOARD_MODULES})
 
     # Check if we should filter to show only unread items
     # Priority: URL parameter > session (synced from localStorage)
@@ -101,6 +128,15 @@ def activity_page(request):
     if sort == 'date':
         all_items.sort(key=lambda x: x['timestamp'], reverse=(order == 'desc'))
 
+    next_order = "asc" if order == "desc" else "desc"
+    type_query = "".join(f"&type={t}" for t in active_types)
+    filter_query = "&filtered=1" if is_filtered else ""
+    unread_query = "&filter=unread" if filter_unread else ""
+    sort_url = f"?{filter_query}{type_query}{unread_query}&sort=date&order={next_order}"
+    sort_url = sort_url.replace("?&", "?")
+    toolbar_sort_items = [{"url": sort_url, "label": _("Date"), "active": True, "icon": "up" if next_order == "desc" else "down"}]
+    toolbar_views = [{"name": "list", "icon": "list", "title": _("List")}, {"name": "grid", "icon": "grip", "title": _("Grid")}]
+
     return render(
         request,
         'home/activity.html',
@@ -116,6 +152,8 @@ def activity_page(request):
             'filter_unread': filter_unread,
             'unread_count': unread_count,
             'content_types': content_types,
+            'toolbar_sort_items': toolbar_sort_items,
+            'toolbar_views': toolbar_views,
         },
     )
 
@@ -135,7 +173,7 @@ def mark_as_read(request):
         feed_service.mark_feed_item_as_read(content_type, object_id, request.user)
         return JsonResponse({'success': True})
 
-    except (ValueError):
+    except ValueError:
         return JsonResponse({'success': False, 'error': 'Invalid parameters'})
 
 
@@ -181,7 +219,7 @@ def mark_unread(request):
         feed_service.mark_feed_item_as_unread(content_type, object_id, request.user)
         return JsonResponse({'success': True})
 
-    except (ValueError):
+    except ValueError:
         return JsonResponse({'success': False, 'error': 'Invalid parameters'})
 
 
@@ -339,7 +377,7 @@ def site_admin(request: HttpRequest) -> HttpResponse:
             link.order = order
             link.save()
             messages.success(request, _('Link updated.'))
-        except (QuickLink.DoesNotExist):
+        except QuickLink.DoesNotExist:
             messages.error(request, _("Link doesn't exist."))
         return redirect('site_admin')
 
@@ -350,7 +388,7 @@ def site_admin(request: HttpRequest) -> HttpResponse:
                 link = QuickLink.objects.get(id=link_id)
                 link.order = index
                 link.save()
-            except (QuickLink.DoesNotExist):
+            except QuickLink.DoesNotExist:
                 continue
         return JsonResponse({'ok': True})
 
@@ -360,7 +398,7 @@ def site_admin(request: HttpRequest) -> HttpResponse:
             link = QuickLink.objects.get(id=link_id)
             link.delete()
             messages.success(request, _('Link deleted.'))
-        except (QuickLink.DoesNotExist):
+        except QuickLink.DoesNotExist:
             messages.error(request, _("Link doesn't exist."))
         return redirect('site_admin')
 

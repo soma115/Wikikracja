@@ -1,0 +1,26 @@
+{% load i18n %}
+<div class="cat-filter" id="catFilter">
+  <button type="button" class="sort-btn cat-filter__trigger" id="catFilterBtn"
+          aria-expanded="false" aria-controls="catFilterPanel">
+    <span id="catFilterLabel">{% if all_label %}{{ all_label }}{% else %}{% trans 'Category' %}{% endif %}</span>
+    <i class="fas fa-chevron-down cat-filter__chevron"></i>
+  </button>
+  <div class="cat-filter__panel" id="catFilterPanel" hidden>
+    <div class="cat-filter__item cat-filter__all" id="catAllRow" data-key="" data-label="{% trans 'All' %}">
+      <i class="fas fa-check cat-filter__check"></i>
+      <span>{% trans 'All' %}</span>
+    </div>
+    {% for cat in categories %}
+    <div class="cat-filter__item" data-key="{% if key_attr == 'pk' %}{{ cat.pk }}{% else %}{{ cat.slug }}{% endif %}"
+         data-label="{{ cat.name }}"
+         {% if cat.description %}title="{{ cat.description }}"{% endif %}>
+      <i class="fas fa-check cat-filter__check"></i>
+      <span>{{ cat.name }}</span>
+    </div>
+    {% endfor %}
+    <div class="cat-filter__manage-sep"></div>
+    <button type="button" class="cat-filter__manage-btn" id="catManageBtn">
+      <i class="fas fa-gear"></i> {% if manage_label %}{{ manage_label }}{% else %}{% trans 'Manage categories' %}{% endif %}
+    </button>
+  </div>
+</div>

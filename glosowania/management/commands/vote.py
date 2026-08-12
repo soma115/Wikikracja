@@ -221,7 +221,7 @@ class Command(TranslatedCommand):
                     with transaction.atomic():
                         i = Decyzja.objects.select_for_update().get(pk=decyzja_id)
                         process(i)
-                except (Exception):
+                except Exception:
                     log.error(f"Failed to process decyzja {decyzja_id} this run; it will be retried next time.", exc_info=True)
 
             for subject, message in pending_emails:

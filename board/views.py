@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils.translation import gettext_lazy
 
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryItemsAPI, CategoryReorderAPI
 
@@ -50,7 +52,7 @@ def board(request: HttpRequest) -> HttpResponse:
     for pk in raw_pks:
         try:
             active_categories.append(int(pk))
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             pass
 
     if request.user.is_authenticated:
@@ -77,7 +79,26 @@ def board(request: HttpRequest) -> HttpResponse:
         sorted_uncategorized = sorted(uncategorized, key=lambda p: p.updated, reverse=reverse_order)
         category_groups.append({'category': None, 'posts': sorted_uncategorized})
 
-    return render(request, 'board/board.html', {'category_groups': category_groups, 'categories': categories, 'current_sort': sort, 'current_order': order, 'active_categories': active_categories})
+    next_order = "asc" if order == "desc" else "desc"
+    cat_query = "".join(f"&category={pk}" for pk in active_categories)
+    sort_url = reverse("board:start") + f"?sort=date&order={next_order}{cat_query}"
+
+    toolbar_sort_items = [{"url": sort_url, "label": gettext_lazy("Date"), "active": True, "icon": "up" if next_order == "desc" else "down"}]
+    toolbar_views = [{"name": "list", "icon": "list", "title": gettext_lazy("List")}, {"name": "grid", "icon": "grip", "title": gettext_lazy("Grid")}]
+
+    return render(
+        request,
+        'board/board.html',
+        {
+            'category_groups': category_groups,
+            'categories': categories,
+            'current_sort': sort,
+            'current_order': order,
+            'active_categories': active_categories,
+            'toolbar_sort_items': toolbar_sort_items,
+            'toolbar_views': toolbar_views,
+        },
+    )
 
 
 @login_required

@@ -17,7 +17,7 @@ class HomeConfig(AppConfig):
             try:
                 sp = SiteParameters.get()
                 _sync_django_site(sp, fallback_name=settings.SITE_NAME)
-            except (Exception):
+            except Exception:
                 pass
 
         # Ensure the global activity feed cache is rebuilt on every process

@@ -2,6 +2,8 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
+from home.services.feed import invalidate_feed_cache_on_change
+
 from .models import CitizenActivity, Uzytkownik
 
 
@@ -23,6 +25,4 @@ def track_user_blocked(uzytkownik, was_previously_active=False):
 @receiver(post_save, sender=CitizenActivity)
 @receiver(post_delete, sender=CitizenActivity)
 def _invalidate_feed_cache_on_citizen_activity_change(sender, **kwargs):
-    from home.services.feed import invalidate_feed_cache
-
-    invalidate_feed_cache()
+    invalidate_feed_cache_on_change(sender, **kwargs)

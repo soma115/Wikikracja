@@ -24,7 +24,7 @@ class CancelledErrorMiddleware:
     async def __call__(self, scope, receive, send):
         try:
             return await self.app(scope, receive, send)
-        except (asyncio.CancelledError):
+        except asyncio.CancelledError:
             log.debug("ASGI request cancelled by client (normal disconnect)")
             raise
 

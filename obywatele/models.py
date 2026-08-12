@@ -92,7 +92,7 @@ class Uzytkownik(models.Model):
         profile_fields = [bool(getattr(self, f)) for f in self.ONBOARDING_FORM_FIELDS]
         try:
             user_fields = [bool(self.uid.first_name), bool(self.uid.last_name)]
-        except (Exception):
+        except Exception:
             user_fields = [False, False]
         all_fields = profile_fields + user_fields
         filled = sum(all_fields)

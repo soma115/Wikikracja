@@ -188,7 +188,7 @@ async def test_multi_user_broadcast(private_room_with_users):
     for _ in range(10):
         try:
             response = await comm2.receive_json_from(timeout=1)
-        except (Exception):
+        except Exception:
             break
         if 'Hello from member' in str(response):
             found = True

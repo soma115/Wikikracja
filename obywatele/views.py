@@ -75,7 +75,7 @@ def get_onboarding_user_from_request(request: HttpRequest):
             onboarding_user_id = int(signed_value)
             request.session['onboarding_user_id'] = onboarding_user_id
             request.session.modified = True
-        except (BadSignature, SignatureExpired, ValueError):
+        except BadSignature, SignatureExpired, ValueError:
             onboarding_user_id = None
 
     if not onboarding_user_id:
@@ -107,7 +107,7 @@ def population():
     try:
         population = User.objects.filter(is_active=True).count()
         return population
-    except (DatabaseError):
+    except DatabaseError:
         log.exception("Could not calculate population.")
         return 0
 
@@ -322,7 +322,7 @@ def poczekalnia(request: HttpRequest):
     # Get the current user's profile
     try:
         citizen_profile = request.user.uzytkownik
-    except (Uzytkownik.DoesNotExist):
+    except Uzytkownik.DoesNotExist:
         error(request, _('Your profile does not exist. Please contact administrator.'))
         return redirect('home:index')
 
@@ -598,7 +598,7 @@ def toggle_notification(request: HttpRequest):
 
         return JsonResponse({'success': True})
 
-    except (json.JSONDecodeError, AttributeError):
+    except json.JSONDecodeError, AttributeError:
         return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 
@@ -769,7 +769,7 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
     ordered_pks = list(ordered_qs.values_list('pk', flat=True))
     try:
         idx = ordered_pks.index(obj.pk)
-    except (ValueError):
+    except ValueError:
         idx = -1
 
     # 'next' => przycisk "← Previous" (w górę listy, do poprzedniego)
@@ -1015,6 +1015,6 @@ def cancel_deletion(request: HttpRequest):
         dr.delete()
         log.info(f'User {user.username} (id={user.id}) cancelled their account deletion request')
         success(request, _('Your account deletion request has been cancelled.'))
-    except (DeletionRequest.DoesNotExist):
+    except DeletionRequest.DoesNotExist:
         error(request, _('No active deletion request found.'))
     return redirect('obywatele:my_profile')

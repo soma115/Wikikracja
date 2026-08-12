@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from chat.models import Message, Room
+from home.services.feed import invalidate_feed_cache_on_change
 from zzz.utils import get_site_domain
 
 from .models import Task, TaskVote
@@ -103,6 +104,4 @@ def delete_task_chat_room(sender, instance, **kwargs):
 @receiver(post_save, sender=Task)
 @receiver(post_delete, sender=Task)
 def _invalidate_feed_cache_on_task_change(sender, **kwargs):
-    from home.services.feed import invalidate_feed_cache
-
-    invalidate_feed_cache()
+    invalidate_feed_cache_on_change(sender, **kwargs)

@@ -74,7 +74,7 @@ def dodaj(request: HttpRequest):
 def edit(request: HttpRequest, pk: int):
     try:
         decision = Decyzja.objects.get(pk=pk)
-    except (Decyzja.DoesNotExist):
+    except Decyzja.DoesNotExist:
         return redirect('glosowania:index')
 
     if decision.author != request.user:
@@ -130,7 +130,7 @@ def details(request: HttpRequest, pk: int):
         with transaction.atomic():
             try:
                 nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
-            except (Decyzja.DoesNotExist):
+            except Decyzja.DoesNotExist:
                 return redirect('glosowania:index')
             osoba_podpisujaca = request.user
             __, created = ZebranePodpisy.objects.get_or_create(projekt=nowy_projekt, podpis_uzytkownika=osoba_podpisujaca)
@@ -144,7 +144,7 @@ def details(request: HttpRequest, pk: int):
         with transaction.atomic():
             try:
                 nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
-            except (Decyzja.DoesNotExist):
+            except Decyzja.DoesNotExist:
                 return redirect('glosowania:index')
             osoba_podpisujaca = request.user
             deleted, __ = ZebranePodpisy.objects.filter(projekt=nowy_projekt, podpis_uzytkownika=osoba_podpisujaca).delete()
@@ -159,7 +159,7 @@ def details(request: HttpRequest, pk: int):
             with transaction.atomic():
                 try:
                     nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
-                except (Decyzja.DoesNotExist):
+                except Decyzja.DoesNotExist:
                     return redirect('glosowania:index')
                 osoba_glosujaca = request.user
                 already_voted = KtoJuzGlosowal.objects.filter(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca).exists()
@@ -175,7 +175,7 @@ def details(request: HttpRequest, pk: int):
                 # counted into za/przeciw - only once the referendum closes
                 # (glosowania.management.commands.vote).
                 push_pending_vote(nowy_projekt.id, code, True)
-        except (redis.RedisError):
+        except redis.RedisError:
             # If vote storage is unreachable, the KtoJuzGlosowal row above is
             # rolled back with the rest of the transaction, so the user isn't
             # marked as having voted without their vote being recorded.
@@ -199,7 +199,7 @@ def details(request: HttpRequest, pk: int):
             with transaction.atomic():
                 try:
                     nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
-                except (Decyzja.DoesNotExist):
+                except Decyzja.DoesNotExist:
                     return redirect('glosowania:index')
                 osoba_glosujaca = request.user
                 already_voted = KtoJuzGlosowal.objects.filter(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca).exists()
@@ -210,7 +210,7 @@ def details(request: HttpRequest, pk: int):
                 code = generate_code()
                 # See the 'tak' branch above for why this isn't a VoteCode.objects.create() here.
                 push_pending_vote(nowy_projekt.id, code, False)
-        except (redis.RedisError):
+        except redis.RedisError:
             log.error(f"Vote storage unavailable while casting a vote on decyzja {pk}", exc_info=True)
             messages.error(request, str(_('Voting is temporarily unavailable. Please try again in a moment.')))
             return redirect('glosowania:details', pk)
@@ -577,6 +577,24 @@ def _apply_sort(queryset, sort, order='desc'):
         return queryset.order_by(f'{p}pk')
 
 
+def _glosowania_toolbar_data(sort, order):
+    """Generate sort and view toggle data for the shared toolbar template."""
+    labels = {"date": _("Newest"), "signatures": _("Signatures"), "buzz": _("Buzz")}
+    icons = {"date": "clock-rotate-left", "signatures": "pen-nib", "buzz": "fire"}
+    sort_items = []
+    for sort_key in ("date", "signatures", "buzz"):
+        active = sort == sort_key
+        next_order = "asc" if (active and order == "desc") else "desc"
+        url = f"?sort={sort_key}&order={next_order}"
+        icon = None
+        if active:
+            icon = "up" if next_order == "desc" else "down"
+        sort_items.append({"url": url, "label": str(labels[sort_key]), "active": active, "pre_icon": icons[sort_key], "icon": icon})
+
+    views = [{"name": "compact", "icon": "bars", "title": _("Compact")}, {"name": "list", "icon": "list", "title": _("List")}, {"name": "grid", "icon": "grip", "title": _("Grid")}]
+    return sort_items, views
+
+
 def _sort_context(request):
     sort = request.GET.get('sort', 'date')
     order = request.GET.get('order', 'desc')
@@ -588,43 +606,48 @@ def _sort_context(request):
 @login_required
 def rejected(request: HttpRequest):
     sort, order = _sort_context(request)
+    toolbar_sort_items, toolbar_views = _glosowania_toolbar_data(sort, order)
     votings = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.REJECTED), sort, order)
-    return render(request, 'glosowania/rejected.html', {'votings': votings, 'current_sort': sort, 'current_order': order})
+    return render(request, 'glosowania/rejected.html', {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views})
 
 
 @login_required
 def proposition(request: HttpRequest):
     sort, order = _sort_context(request)
+    toolbar_sort_items, toolbar_views = _glosowania_toolbar_data(sort, order)
     votings = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.PROPOSITION), sort, order)
     for voting in votings:
         voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
-    return render(request, 'glosowania/proposition.html', {'votings': votings, 'current_sort': sort, 'current_order': order})
+    return render(request, 'glosowania/proposition.html', {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views})
 
 
 @login_required
 def discussion(request: HttpRequest):
     sort, order = _sort_context(request)
+    toolbar_sort_items, toolbar_views = _glosowania_toolbar_data(sort, order)
     author_signed = Exists(ZebranePodpisy.objects.filter(projekt=OuterRef("pk"), podpis_uzytkownika_id=OuterRef("author_id")))
     qs = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.DISCUSSION).annotate(_signed=author_signed).filter(_signed=True), sort, order)
     votings = list(qs)
     for voting in votings:
         voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
-    return render(request, 'glosowania/discussion.html', {'votings': votings, 'current_sort': sort, 'current_order': order})
+    return render(request, 'glosowania/discussion.html', {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views})
 
 
 @login_required
 def referendum(request: HttpRequest):
     sort, order = _sort_context(request)
+    toolbar_sort_items, toolbar_views = _glosowania_toolbar_data(sort, order)
     author_signed = Exists(ZebranePodpisy.objects.filter(projekt=OuterRef("pk"), podpis_uzytkownika_id=OuterRef("author_id")))
     qs = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.REFERENDUM).annotate(_signed=author_signed).filter(_signed=True), sort, order)
     votings = list(qs)
     for voting in votings:
         voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
-    return render(request, 'glosowania/referendum.html', {'votings': votings, 'current_sort': sort, 'current_order': order})
+    return render(request, 'glosowania/referendum.html', {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views})
 
 
 @login_required
 def approved(request: HttpRequest):
     sort, order = _sort_context(request)
+    toolbar_sort_items, toolbar_views = _glosowania_toolbar_data(sort, order)
     votings = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.APPROVED), sort, order)
-    return render(request, 'glosowania/approved.html', {'votings': votings, 'current_sort': sort, 'current_order': order})
+    return render(request, 'glosowania/approved.html', {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views})

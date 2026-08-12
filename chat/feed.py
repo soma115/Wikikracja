@@ -46,7 +46,7 @@ def mark_as_read(object_id: int, user) -> None:
         room = Room.objects.get(id=object_id)
         room.seen_by.add(user)
         cache.delete(CHAT_UNREAD_CACHE_KEY.format(user_id=user.id))
-    except (Room.DoesNotExist):
+    except Room.DoesNotExist:
         pass
 
 
@@ -55,5 +55,5 @@ def mark_as_unread(object_id: int, user) -> None:
         room = Room.objects.get(id=object_id)
         room.seen_by.remove(user)
         cache.delete(CHAT_UNREAD_CACHE_KEY.format(user_id=user.id))
-    except (Room.DoesNotExist):
+    except Room.DoesNotExist:
         pass

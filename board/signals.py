@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from home.services.feed import invalidate_feed_cache_on_change
 from zzz.utils import get_site_domain
 
 from .models import Post
@@ -11,7 +12,7 @@ from .models import Post
 # Import the utility function we created
 try:
     from chat.utils import send_message_to_room
-except (ImportError):
+except ImportError:
     # Fallback if the function isn't available
     def send_message_to_room(room_title, message_text, sender=None, anonymous=True):
         print(f"Would send message to {room_title}: {message_text}")
@@ -51,6 +52,4 @@ def notify_important_chat_on_important_post(sender, instance, created, **kwargs)
 @receiver(post_save, sender=Post)
 @receiver(post_delete, sender=Post)
 def _invalidate_feed_cache_on_post_change(sender, **kwargs):
-    from home.services.feed import invalidate_feed_cache
-
-    invalidate_feed_cache()
+    invalidate_feed_cache_on_change(sender, **kwargs)

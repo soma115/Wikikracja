@@ -15,6 +15,7 @@
   /* Semantic status colors — universal across themes (traffic-light convention) */
   --status-online-color: #22c55e;
   --status-online-glow: rgba(34, 197, 94, .55);
+  --badge-rejected-glow: rgba(239, 68, 68, .55);
   --status-dormant-color: #f39c12;
   --status-warning-color: #f39c12;
   --status-warning-bg: rgba(243, 156, 18, .08);
@@ -25,6 +26,22 @@
   /* Text on solid accent / inverse surfaces */
   --text-on-accent: #111;
   --text-inverse: #fff;
+  /* Avatar / citizen palette (stable across themes) */
+  --citizen-color-0: #0d6efd;
+  --citizen-color-1: #6610f2;
+  --citizen-color-2: #6f42c1;
+  --citizen-color-3: #d63384;
+  --citizen-color-4: #dc3545;
+  --citizen-color-5: #fd7e14;
+  --citizen-color-6: #198754;
+  --citizen-color-7: #20c997;
+  --citizen-color-8: #0dcaf0;
+  --citizen-color-9: #0077b6;
+  --citizen-color-10: #7b2d8b;
+  --citizen-color-11: #c77dff;
+  /* Diff / history helpers */
+  --history-badge-bg: #375a7f;
+  --history-badge-color: var(--text-inverse);
 }
 /* Dark theme (default) */
 :root,

@@ -25,70 +25,9 @@
 
   <h4 class="section-heading mb-3">{% trans "Platform modules" %}</h4>
   <div class="row g-3">
-    <div class="col-sm-6 col-lg-3">
-      <div class="card h-100">
-        <div class="card-body">
-          <h6 class="mb-1 text-accent"><i class="fas fa-vote-yea me-2"></i>{% trans "Voting" %}</h6>
-          <p class="mb-0 small">{% trans "Democratic decision-making — submit proposals, collect signatures, vote on ongoing referendums and track results." %}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-      <div class="card h-100">
-        <div class="card-body">
-          <h6 class="mb-1 text-accent"><i class="fas fa-users me-2"></i>{% trans "Citizens" %}</h6>
-          <p class="mb-0 small">{% trans "Member directory — browse citizen profiles, check roles and track community activity." %}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-      <div class="card h-100">
-        <div class="card-body">
-          <h6 class="mb-1 text-accent"><i class="fas fa-chalkboard me-2"></i>{% trans "Documents" %}</h6>
-          <p class="mb-0 small">{% trans "Documents and blog — create and publish content, including a public blog visible to visitors outside the community." %}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-      <div class="card h-100">
-        <div class="card-body">
-          <h6 class="mb-1 text-accent"><i class="fas fa-calendar-days me-2"></i>{% trans "Calendar" %}</h6>
-          <p class="mb-0 small">{% trans "Upcoming community events — one-off and recurring. Stay informed about meetings, deadlines and activities." %}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-      <div class="card h-100">
-        <div class="card-body">
-          <h6 class="mb-1 text-accent"><i class="fas fa-list-check me-2"></i>{% trans "Tasks" %}</h6>
-          <p class="mb-0 small">{% trans "Task management — create, assign and track tasks within the community. See who is responsible for what." %}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-      <div class="card h-100">
-        <div class="card-body">
-          <h6 class="mb-1 text-accent"><i class="fas fa-coins me-2"></i>{% trans "Bookkeeping" %}</h6>
-          <p class="mb-0 small">{% trans "Community finances — record income and expenses, maintain transparency over shared funds and budgets." %}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-      <div class="card h-100">
-        <div class="card-body">
-          <h6 class="mb-1 text-accent"><i class="fas fa-comments me-2"></i>{% trans "Chat" %}</h6>
-          <p class="mb-0 small">{% trans "Real-time messaging — communicate in topic-based chat rooms linked to referendums and community groups." %}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-6 col-lg-3">
-      <div class="card h-100">
-        <div class="card-body">
-          <h6 class="mb-1 text-accent"><i class="fas fa-clipboard-question me-2"></i>{% trans "Surveys" %}</h6>
-          <p class="mb-0 small">{% trans "Surveys and quick polls — collect opinions, run questionnaires and make better group decisions." %}</p>
-        </div>
-      </div>
-    </div>
+    {% for module in dashboard_modules %}
+    {% include 'home/includes/module_card.html' with module=module %}
+    {% endfor %}
   </div>
 </div>
 {% endif %}
@@ -142,88 +81,6 @@
   </div>
   {% endif %}
 
-  <script>
-  (function() {
-    var STORAGE_KEY = 'quick_links_read';
-    
-    function getReadLinks() {
-      var stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    }
-    
-    function saveReadLinks(readLinks) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(readLinks));
-    }
-    
-    function toggleReadStatus(linkId) {
-      var readLinks = getReadLinks();
-      var index = readLinks.indexOf(linkId);
-      if (index > -1) {
-        readLinks.splice(index, 1);
-      } else {
-        readLinks.push(linkId);
-      }
-      saveReadLinks(readLinks);
-      return readLinks;
-    }
-    
-    function updateUI(readLinks) {
-      var total = document.querySelectorAll('.quick-link-row').length;
-      var done = readLinks.length;
-
-      document.querySelectorAll('.quick-link-row').forEach(function(row) {
-        var circle = row.querySelector('.quick-link-circle');
-        var linkId = parseInt(circle.dataset.linkId);
-        var isRead = readLinks.includes(linkId);
-
-        row.classList.toggle('is-read', isRead);
-        circle.classList.toggle('is-read', isRead);
-        circle.classList.toggle('fas', isRead);
-        circle.classList.toggle('fa-check-circle', isRead);
-        circle.classList.toggle('far', !isRead);
-        circle.classList.toggle('fa-circle', !isRead);
-      });
-
-      var bar = document.querySelector('#onboarding-card .progress-bar');
-      var label = document.querySelector('#onboarding-card .progress-label');
-      if (bar) {
-        bar.dataset.progress = Math.round(done / total * 100);
-      }
-      if (label) {
-        label.textContent = done + '/' + total;
-      }
-    }
-    
-    // Initialize UI from localStorage
-    var readLinks = getReadLinks();
-    updateUI(readLinks);
-    
-    // Attach click handlers to circles
-    document.querySelectorAll('.quick-link-circle').forEach(function(circle) {
-      circle.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var linkId = parseInt(this.dataset.linkId);
-        var newReadLinks = toggleReadStatus(linkId);
-        updateUI(newReadLinks);
-      });
-    });
-    
-    // Attach mousedown handlers to links to mark as read before navigation
-    document.querySelectorAll('.quick-link-row a').forEach(function(link) {
-      link.addEventListener('mousedown', function(e) {
-        var row = this.closest('.quick-link-row');
-        var circle = row.querySelector('.quick-link-circle');
-        var linkId = parseInt(circle.dataset.linkId);
-        var readLinks = getReadLinks();
-        if (!readLinks.includes(linkId)) {
-          var newReadLinks = toggleReadStatus(linkId);
-          updateUI(newReadLinks);
-        }
-      });
-    });
-  })();
-  </script>
 
 
   {# Aktywność #}
@@ -269,47 +126,6 @@
       window.CSRF_TOKEN = '{{ csrf_token }}';
       window.MARK_AS_READ_URL = "{% url 'mark_as_read' %}";
       window.initActivityFeedMarkRead('#activity-feed-body', '.task-dash-link');
-      </script>
-      <script>
-      (function(){
-        function trimActivityFeed() {
-          var body = document.getElementById('activity-feed-body');
-          var card = body ? body.closest('.card') : null;
-          if (!card || !body) return;
-          var rows = body.querySelectorAll('.activity-feed-row');
-          var more = document.getElementById('activity-feed-more');
-          if (!rows.length) return;
-          rows.forEach(function(r){ r.style.display = ''; });
-          more.style.display = 'none';
-          var cardH = card.clientHeight;
-          var header = card.querySelector('.card-header');
-          var headerH = header ? header.offsetHeight : 0;
-          var available = cardH - headerH;
-          var used = 0;
-          var hidden = false;
-          var moreH = 20;
-          for (var i = 0; i < rows.length; i++) {
-            var rowH = rows[i].offsetHeight;
-            var remaining = rows.length - i - 1;
-            var needMore = remaining > 0;
-            if (used + rowH + (needMore ? moreH : 0) <= available) {
-              used += rowH;
-            } else {
-              rows[i].style.display = 'none';
-              hidden = true;
-              for (var j = i + 1; j < rows.length; j++) rows[j].style.display = 'none';
-              break;
-            }
-          }
-          more.style.display = hidden ? 'block' : 'none';
-        }
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', trimActivityFeed);
-        } else {
-          trimActivityFeed();
-        }
-        window.addEventListener('resize', trimActivityFeed);
-      })();
       </script>
     </div>
   </div>

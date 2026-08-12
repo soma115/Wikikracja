@@ -275,27 +275,38 @@
 .proposals-list.view-compact {
   gap: .35rem;
 }
-.proposals-list.view-compact .proposal-card {
+.proposals-list.view-compact .proposal-card,
+.proposals-list.view-compact .task-card {
   border-radius: var(--radius-sm, .35rem);
 }
-.proposals-list.view-compact .proposal-card-header {
+.proposals-list.view-compact .proposal-card-header,
+.proposals-list.view-compact .task-card-header {
   padding: .55rem .75rem .45rem;
 }
 .proposals-list.view-compact .proposal-card-num,
+.proposals-list.view-compact .task-card-num,
 .proposals-list.view-compact .proposal-card-badges-row,
+.proposals-list.view-compact .task-card-badges-row,
 .proposals-list.view-compact .proposal-card-meta,
+.proposals-list.view-compact .task-card-meta,
 .proposals-list.view-compact .proposal-preview,
-.proposals-list.view-compact .proposal-card-body {
+.proposals-list.view-compact .task-preview,
+.proposals-list.view-compact .proposal-card-body,
+.proposals-list.view-compact .task-card-body {
   display: none;
 }
-.proposals-list.view-compact .proposal-card.open .proposal-card-num {
+.proposals-list.view-compact .proposal-card.open .proposal-card-num,
+.proposals-list.view-compact .task-card.open .task-card-num {
   display: inline;
 }
 .proposals-list.view-compact .proposal-card.open .proposal-card-badges-row,
-.proposals-list.view-compact .proposal-card.open .proposal-card-meta {
+.proposals-list.view-compact .task-card.open .task-card-badges-row,
+.proposals-list.view-compact .proposal-card.open .proposal-card-meta,
+.proposals-list.view-compact .task-card.open .task-card-meta {
   display: flex;
 }
-.proposal-card {
+.proposal-card,
+.task-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
@@ -303,7 +314,8 @@
   transition: border-color var(--transition-med), box-shadow var(--transition-med);
   position: relative;
 }
-.proposal-card:hover {
+.proposal-card:hover,
+.task-card:hover {
   border-color: var(--accent);
   box-shadow:
     0 0 0 1px var(--accent-border),
@@ -311,11 +323,13 @@
     0 0 32px var(--accent-glow-medium),
     0 6px 24px rgba(0, 0, 0, .4);
 }
-.proposal-card.open {
+.proposal-card.open,
+.task-card.open {
   border-color: var(--accent-border);
   box-shadow: 0 0 0 1px var(--accent-glow-soft), 0 0 12px var(--accent-glow-soft);
 }
-.proposal-card-header {
+.proposal-card-header,
+.task-card-header {
   position: relative;
   padding: .9rem 1.1rem .75rem;
   cursor: pointer;
@@ -323,25 +337,32 @@
   user-select: none;
   transition: background var(--transition-fast);
 }
-.proposal-card-header:hover {
+.proposal-card-header:hover,
+.task-card-header:hover {
   background: rgba(255, 255, 255, .025);
 }
 .proposal-card-header:has(.proposal-author-link:hover),
 .proposal-card-header:has(.proposal-details-inline:hover),
-.proposal-card-header:has(.proposal-chat-link:hover) {
+.proposal-card-header:has(.chat-link:hover),
+.task-card-header:has(.task-author-link:hover),
+.task-card-header:has(.task-details-inline:hover),
+.task-card-header:has(.chat-link:hover) {
   background: transparent;
 }
-.proposal-card-header:focus-visible {
+.proposal-card-header:focus-visible,
+.task-card-header:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: -2px;
 }
-.proposal-card-title-row {
+.proposal-card-title-row,
+.task-card-title-row {
   display: flex;
   align-items: flex-start;
   gap: .5rem;
   margin-bottom: .4rem;
 }
-.proposal-card-num {
+.proposal-card-num,
+.task-card-num {
   font-size: .72rem;
   color: var(--text-muted);
   font-weight: 600;
@@ -349,6 +370,7 @@
   padding-top: 2px;
 }
 .proposal-card-title,
+.task-card-title,
 .event-card-title {
   font-size: .95rem;
   font-weight: 600;
@@ -357,24 +379,28 @@
   min-width: 0;
   line-height: 1.35;
 }
-.proposal-card-chevron {
+.proposal-card-chevron,
+.task-card-chevron {
   color: var(--text-muted);
   font-size: .75rem;
   flex-shrink: 0;
   margin-top: 4px;
   transition: transform var(--transition-med) ease;
 }
-.proposal-card.open .proposal-card-chevron {
+.proposal-card.open .proposal-card-chevron,
+.task-card.open .task-card-chevron {
   transform: rotate(180deg);
 }
-.proposal-card-badges-row {
+.proposal-card-badges-row,
+.task-card-badges-row {
   display: flex;
   align-items: center;
   gap: .4rem;
   flex-wrap: wrap;
   margin-bottom: .55rem;
 }
-.proposal-preview {
+.proposal-preview,
+.task-preview {
   font-size: .82rem;
   color: var(--text-muted);
   line-height: 1.5;
@@ -385,13 +411,16 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.proposal-card.open .proposal-preview {
+.proposal-card.open .proposal-preview,
+.task-card.open .task-preview {
   display: none;
 }
-.proposal-card.open .proposal-details-inline {
+.proposal-card.open .proposal-details-inline,
+.task-card.open .task-details-inline {
   display: none;
 }
-.proposal-card-meta {
+.proposal-card-meta,
+.task-card-meta {
   display: flex;
   align-items: center;
   gap: .45rem;
@@ -400,7 +429,9 @@
   flex-wrap: wrap;
 }
 .proposal-author-link,
-.proposal-coordinator-link {
+.proposal-coordinator-link,
+.task-author-link,
+.task-coordinator-link {
   display: inline-flex;
   align-items: center;
   gap: .35rem;
@@ -410,45 +441,56 @@
   margin: -2px -5px -2px -2px;
   transition: background var(--transition-fast);
 }
-.proposal-author-link:hover {
-  background: rgba(255, 255, 255, .07);
+.proposal-author-link:hover,
+.task-author-link:hover {
+  background: var(--color-surface-dynamic);
 }
-.proposal-author-link:hover .proposal-author-name {
+.proposal-author-link:hover .proposal-author-name,
+.task-author-link:hover .task-author-name {
   color: var(--text-primary);
 }
 
-.proposal-author-name {
+.proposal-author-name,
+.task-author-name {
   color: rgba(232, 234, 240, .75);
   font-weight: 500;
   transition: color var(--transition-fast);
 }
-.proposal-meta-sep {
+.proposal-meta-sep,
+.task-meta-sep {
   opacity: .35;
 }
-.proposal-date {
+.proposal-date,
+.task-date {
   color: var(--text-muted);
 }
 .proposal-signatures,
+.task-helpers,
 /* ── Against popover trigger (analogous to helpers, neutral-colored) ─ */
-.proposal-against {
+.proposal-against,
+.task-against {
   display: inline-flex;
   align-items: center;
   gap: .2rem;
 }
 
 /* ── Role icons on meta strip (author, coordinator, date) ─────── */
-.proposal-role-icon {
+.proposal-role-icon,
+.task-role-icon {
   font-size: .8rem;
   color: var(--text-muted);
   opacity: .75;
   margin-right: .15rem;
 }
 .proposal-author-link:hover .proposal-role-icon,
-.proposal-coordinator-link:hover .proposal-role-icon {
+.proposal-coordinator-link:hover .proposal-role-icon,
+.task-author-link:hover .task-role-icon,
+.task-coordinator-link:hover .task-role-icon {
   color: var(--accent);
   opacity: 1;
 }
-.proposal-author-link--empty {
+.proposal-author-link--empty,
+.task-author-link--empty {
   display: inline-flex;
   align-items: center;
   gap: .35rem;
@@ -457,22 +499,29 @@
 }
 
 /* ── Coordinator (assigned_to) on meta strip ───────────────────── */
-.proposal-meta-arrow {
+.proposal-meta-arrow,
+.task-meta-arrow {
   font-size: .65rem;
   opacity: .35;
   margin: 0 -.15rem;
-}.proposal-coordinator-link:hover {
-  background: rgba(255, 255, 255, .07);
 }
-.proposal-coordinator-link:hover .proposal-coordinator-name {
+
+.proposal-coordinator-link:hover,
+.task-coordinator-link:hover {
+  background: var(--color-surface-offset);
+}
+.proposal-coordinator-link:hover .proposal-coordinator-name,
+.task-coordinator-link:hover .task-coordinator-name {
   color: var(--text-primary);
 }
-.proposal-coordinator-name {
+.proposal-coordinator-name,
+.task-coordinator-name {
   color: var(--text-primary);
   font-weight: 500;
   transition: color var(--transition-fast);
 }
-.proposal-coordinator-empty {
+.proposal-coordinator-empty,
+.task-coordinator-empty {
   display: inline-flex;
   align-items: center;
   gap: .3rem;
@@ -483,7 +532,9 @@
 
 /* ── Helpers popover trigger button (looks like a span) ─────────── */
 button.proposal-helpers-btn,
-button.proposal-against-btn {
+button.task-helpers-btn,
+button.proposal-against-btn,
+button.task-against-btn {
   background: transparent;
   border: none;
   padding: 2px 4px;
@@ -495,13 +546,19 @@ button.proposal-against-btn {
   transition: background var(--transition-fast), color var(--transition-fast);
 }
 button.proposal-helpers-btn:hover,
+button.task-helpers-btn:hover,
 button.proposal-helpers-btn:focus-visible,
+button.task-helpers-btn:focus-visible,
 button.proposal-against-btn:hover,
-button.proposal-against-btn:focus-visible {
-  background: rgba(255, 255, 255, .07);
+button.task-against-btn:hover,
+button.proposal-against-btn:focus-visible,
+button.task-against-btn:focus-visible {
+  background: var(--color-surface-offset);
   color: var(--text-primary);
   outline: none;
-}* ── Helpers popover content ───────────────────────────────────── */
+}
+
+/* ── Helpers popover content ───────────────────────────────────── */
 .helpers-popover {
   --bs-popover-bg: var(--bg-card);
   --bs-popover-border-color: var(--border);
@@ -565,7 +622,8 @@ button.proposal-against-btn:focus-visible {
   text-align: center;
   font-style: italic;
 }
-.proposal-details-inline {
+.proposal-details-inline,
+.task-details-inline {
   margin-left: auto;
   display: inline-flex;
   align-items: center;
@@ -580,12 +638,14 @@ button.proposal-against-btn:focus-visible {
   transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
   white-space: nowrap;
 }
-.proposal-details-inline:hover {
+.proposal-details-inline:hover,
+.task-details-inline:hover {
   color: var(--accent);
   border-color: var(--accent-glow);
   background: var(--accent-muted);
 }
-.proposal-card-body {
+.proposal-card-body,
+.task-card-body {
   border-top: 1px solid var(--border);
   padding: 0 1.1rem 1rem;
   display: flex;
@@ -593,14 +653,17 @@ button.proposal-against-btn:focus-visible {
   gap: .85rem;
   transition: background var(--transition-fast);
 }
-.proposal-card-body--collapsible {
+.proposal-card-body--collapsible,
+.task-card-body--collapsible {
   display: none;
   cursor: pointer;
 }
-.proposal-card.open .proposal-card-body--collapsible {
+.proposal-card.open .proposal-card-body--collapsible,
+.task-card.open .task-card-body--collapsible {
   display: flex;
 }
-.proposal-card-body:hover {
+.proposal-card-body:hover,
+.task-card-body:hover {
   background: var(--accent-muted);
   border-top-color: var(--accent-glow);
 }
@@ -611,7 +674,8 @@ button.proposal-against-btn:focus-visible {
   border-bottom: 1px solid var(--border);
   margin-bottom: .15rem;
 }
-.proposal-details-btn {
+.proposal-details-btn,
+.task-details-btn {
   display: inline-flex;
   align-items: center;
   gap: .35rem;
@@ -626,13 +690,15 @@ button.proposal-against-btn:focus-visible {
   white-space: nowrap;
   flex-shrink: 0;
 }
-.proposal-details-btn:hover {
+.proposal-details-btn:hover,
+.task-details-btn:hover {
   background: var(--accent-muted);
   border-color: var(--accent);
   box-shadow: 0 0 8px var(--accent-glow-soft);
 }
 
-.proposal-section-label {
+.proposal-section-label,
+.task-section-label {
   font-size: .72rem;
   font-weight: 600;
   color: var(--text-muted);
@@ -640,10 +706,12 @@ button.proposal-against-btn:focus-visible {
   letter-spacing: .06em;
   margin-bottom: .3rem;
 }
-.proposal-section-label i {
+.proposal-section-label i,
+.task-section-label i {
   color: var(--accent);
 }
-.proposal-section-text {
+.proposal-section-text,
+.task-section-text {
   font-size: .875rem;
   color: var(--text-primary);
   line-height: 1.6;
@@ -654,7 +722,8 @@ button.proposal-against-btn:focus-visible {
   color: var(--text-muted);
   font-size: .9rem;
 }
-.proposal-chat-link {
+.chat-link,
+.chat-link {
   display: inline-flex;
   align-items: center;
   gap: .3rem;
@@ -668,7 +737,8 @@ button.proposal-against-btn:focus-visible {
   background: var(--accent-muted);
   transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
-.proposal-chat-link:hover {
+.chat-link:hover,
+.chat-link:hover {
   background: var(--accent-muted);
   border-color: var(--accent);
   box-shadow: 0 0 8px var(--accent-glow);
@@ -696,7 +766,7 @@ button.proposal-against-btn:focus-visible {
   position: relative;
   height: var(--arrow-h);
   clip-path: polygon(0 0, calc(100% - var(--arrow-tip)) 0, 100% 50%, calc(100% - var(--arrow-tip)) 100%, 0 100%);
-  background: rgba(255, 255, 255, .04);
+  background: var(--color-surface-offset);
   margin-right: calc(-1 * var(--arrow-overlap));
   transition: filter var(--transition-fast), background var(--transition-fast);
 }
@@ -753,7 +823,9 @@ button.proposal-against-btn:focus-visible {
 .stepper-step-wrap.active .stepper-step-count {
   background: var(--stepper-color);
   color: var(--text-on-accent);
-}.stepper-sep {
+}
+
+.stepper-sep {
   width: 1px;
   height: 20px;
   background: var(--border);
@@ -888,7 +960,7 @@ button.proposal-against-btn:focus-visible {
 .task-vote-btn.down:hover {
   color: var(--text-primary);
   border-color: rgba(255, 255, 255, .2);
-  background: rgba(255, 255, 255, .04);
+  background: var(--color-surface-offset);
 }
 .detail-nav-btn.disabled {
   opacity: .3;
@@ -921,7 +993,7 @@ button.proposal-against-btn:focus-visible {
   transition: background var(--transition-fast);
 }
 .detail-author-link:hover {
-  background: rgba(255, 255, 255, .07);
+  background: var(--color-surface-dynamic);
 }
 .detail-author-name {
   color: rgba(232, 234, 240, .75);
@@ -1151,11 +1223,13 @@ button.proposal-against-btn:focus-visible {
   font-weight: 600;
   cursor: pointer;
   transition: background var(--transition-fast);
-}.arg-inline-submit.for:hover {
-  filter: brightness(1.2);
-}.arg-inline-submit.against:hover {
+}
+
+.arg-inline-submit.for:hover,
+.arg-inline-submit.against:hover {
   filter: brightness(1.2);
 }
+
 .sidebar-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -1289,7 +1363,7 @@ button.proposal-against-btn:focus-visible {
 .action-btn-edit:hover {
   color: var(--text-primary);
   border-color: rgba(255, 255, 255, .2);
-  background: rgba(255, 255, 255, .04);
+  background: var(--color-surface-offset);
 }
 /* Override Bootstrap's .d-inline { display: inline !important } when hidden — */
 /* attribute selector + element attribute beats .d-inline by specificity (0,2,0 > 0,1,0). */
@@ -1440,18 +1514,24 @@ button.proposal-against-btn:focus-visible {
 .task-vote-btn.up {
   color: var(--badge-approved-color);
 }
+
 .task-vote-btn.up.active-vote,
 .task-vote-btn.up:hover {
   background: var(--badge-approved-bg);
-  border-color: rgba(0, 188, 140, .4);
-}.task-vote-btn.down {
+  border-color: var(--badge-approved-border);
+}
+
+.task-vote-btn.down {
   color: var(--text-muted);
 }
+
 .task-vote-btn.down.active-vote {
-  background: rgba(255, 255, 255, .08);
-  border-color: rgba(255, 255, 255, .2);
+  background: var(--color-surface-offset);
+  border-color: var(--border);
   color: var(--text-primary);
-}.task-take-btn {
+}
+
+.task-take-btn {
   display: inline-flex;
   align-items: center;
   gap: .3rem;
@@ -1464,13 +1544,15 @@ button.proposal-against-btn:focus-visible {
   font-weight: 500;
   cursor: pointer;
   transition: background var(--transition-fast), border-color var(--transition-fast);
-}.task-resign-btn {
+}
+
+.task-resign-btn {
   display: inline-flex;
   align-items: center;
   gap: .3rem;
   padding: .28rem .7rem;
   border-radius: .4rem;
-  border: 1px solid rgba(239, 68, 68, .3);
+  border: 1px solid var(--badge-rejected-border);
   background: transparent;
   color: var(--badge-rejected-color);
   font-size: .78rem;
@@ -1697,8 +1779,10 @@ button.proposal-against-btn:focus-visible {
 .wspol-stat-icon.warning {
   background: var(--status-warning-bg);
   color: var(--status-warning-color);
-}.wspol-stat-icon.blue {
-  background: rgba(96, 165, 250, .12);
+}
+
+.wspol-stat-icon.blue {
+  background: var(--badge-proposition-bg);
   color: var(--badge-proposition-color);
 }
 .wspol-stat-value {
@@ -1851,7 +1935,9 @@ button.proposal-against-btn:focus-visible {
   margin: 0 -6px;
   transition: background var(--transition-fast), border-color var(--transition-fast);
   cursor: pointer;
-}.chat-msg-row:hover .chat-msg-link {
+}
+
+.chat-msg-row:hover .chat-msg-link {
   color: var(--accent);
 }
 .chat-msg-link {
@@ -1963,7 +2049,9 @@ button.proposal-against-btn:focus-visible {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}.cat-mgr-badge {
+}
+
+.cat-mgr-badge {
   font-size: .7rem;
   padding: .1rem .45rem;
   border-radius: .3rem;
@@ -1971,7 +2059,9 @@ button.proposal-against-btn:focus-visible {
   color: var(--accent);
   white-space: nowrap;
   flex-shrink: 0;
-}.cat-mgr-btn {
+}
+
+.cat-mgr-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1985,10 +2075,11 @@ button.proposal-against-btn:focus-visible {
   font-size: .8rem;
   transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
 }
+
 .cat-mgr-btn:hover {
   color: var(--text-primary);
   background: var(--color-surface-dynamic);
-  border-color: rgba(255,255,255,.2);
+  border-color: var(--btn-glass-hover-border);
 }
 .cat-mgr-btn--delete:hover {
   color: var(--badge-rejected-color);
@@ -2017,7 +2108,9 @@ button.proposal-against-btn:focus-visible {
   background: var(--input-bg);
   color: var(--text-primary);
   font-size: .82rem;
-}.cat-mgr-add-row {
+}
+
+.cat-mgr-add-row {
   display: flex;
   flex-direction: column;
   gap: .3rem;
@@ -2112,12 +2205,16 @@ button.proposal-against-btn:focus-visible {
   color: var(--text-muted);
   margin-top: .25rem;
   font-variant-numeric: tabular-nums;
-}.event-card-title-row {
+}
+
+.event-card-title-row {
   display: flex;
   align-items: flex-start;
   gap: .5rem;
   margin-bottom: .35rem;
-}.event-card-badges-row {
+}
+
+.event-card-badges-row {
   display: flex;
   align-items: center;
   gap: .3rem;
@@ -2243,7 +2340,9 @@ button.proposal-against-btn:focus-visible {
 .cal-trigger-btn:hover {
   color: var(--accent);
   border-color: var(--accent);
-}.agenda-month-chevron {
+}
+
+.agenda-month-chevron {
   font-size: .7rem;
   color: var(--text-muted);
   transition: transform var(--transition-med) ease;
@@ -2637,4 +2736,177 @@ td.notes-col {
 .partner-name-link:hover {
   color: var(--accent);
   text-decoration: underline;
+}
+
+/* ══════════════════════════════════════════════════
+   BOARD POST DETAIL
+   ══════════════════════════════════════════════════ */
+.board-post-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  margin: 0.75rem;
+  background: var(--bg-card);
+  backdrop-filter: blur(4px);
+  box-shadow: var(--shadow-overlay);
+  transition: transform 180ms ease, box-shadow 200ms ease;
+}
+.board-post-card:hover {
+  transform: translateY(-4px);
+}
+.post-header {
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, var(--border), var(--color-surface-offset));
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(2px);
+}
+.post-title {
+  color: var(--badge-proposition-color);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  letter-spacing: 0.5px;
+}
+.post-subtitle {
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin: 0;
+  font-style: italic;
+  opacity: 0.9;
+}
+.post-content {
+  color: var(--text-primary);
+  line-height: 1.8;
+  font-size: 1.1rem;
+  padding: 1rem 0;
+}
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4,
+.post-content h5,
+.post-content h6 {
+  color: var(--badge-proposition-color);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+.post-content h1 {
+  font-size: 2rem;
+}
+.post-content h2 {
+  font-size: 1.75rem;
+}
+.post-content h3 {
+  font-size: 1.5rem;
+}
+.post-content h4 {
+  font-size: 1.25rem;
+}
+.post-content h5 {
+  font-size: 1.1rem;
+}
+.post-content h6 {
+  font-size: 1rem;
+}
+.post-content p {
+  margin-bottom: 0.5rem;
+  text-align: justify;
+}
+.post-content ul,
+.post-content ol {
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+}
+.post-content blockquote {
+  border-left: 4px solid var(--badge-proposition-color);
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+  font-style: italic;
+  color: var(--text-muted);
+}
+.post-content code {
+  background: var(--badge-proposition-bg);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: var(--badge-proposition-color);
+}
+.post-content pre {
+  background: rgba(0, 0, 0, .3);
+  padding: 1.5rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 2rem 0;
+  border: 1px solid var(--border);
+}
+/* Simple table styling - only cell borders */
+.board-post-card table,
+.board-post-card .table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.board-post-card table td,
+.board-post-card table th,
+.board-post-card .table td,
+.board-post-card .table th {
+  border: 1px solid var(--border);
+  padding: 8px;
+}
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .board-post-card {
+    margin: 0.5rem 0.5rem 0.5rem 0;
+    padding: 1rem;
+    max-width: 98%;
+    box-sizing: border-box;
+  }
+  .board-post-card h3 {
+    font-size: 1.2rem;
+  }
+  .board-post-card h5 {
+    font-size: 1rem;
+  }
+  .board-post-card table,
+  .board-post-card .table {
+    font-size: 0.8rem;
+  }
+  .board-post-card table td,
+  .board-post-card table th,
+  .board-post-card .table td,
+  .board-post-card .table th {
+    padding: 4px 2px;
+    white-space: normal;
+  }
+}
+@media (max-width: 480px) {
+  .board-post-card {
+    padding: 0.75rem;
+    margin: 0.25rem 0.25rem 0.25rem 0;
+  }
+  .board-post-card h3 {
+    font-size: 1.1rem;
+  }
+  .board-post-card h5 {
+    font-size: 0.9rem;
+  }
+}
+
+/* Migrated from inline styles */
+.post-featured-image img {
+  width: 66%;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 4px;
+  display: block;
+  margin: 0 auto;
+}
+.attachment-uploaded-at {
+  font-size: .8rem;
 }
