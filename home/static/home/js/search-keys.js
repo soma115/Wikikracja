@@ -7,5 +7,6 @@
  */
 window.WK_SEARCH_KEYS = {
     QUERY: 'wk_last_search_q',
-    CATS: 'wk_search_cats'
+    CATS: 'wk_search_cats',
+    ACTIVITY_TYPES: 'wk_activity_types'
 };

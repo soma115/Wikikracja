@@ -71,20 +71,9 @@ def activity_page(request):
     if filter_unread:
         all_items = [i for i in all_items if not i['is_read']]
 
-    # Filter by content_type
-    ct_filter = request.GET.get('type', '')
-    if ct_filter:
-        all_items = [i for i in all_items if i['content_type'] == ct_filter]
-
-    # Sort
-    sort = request.GET.get('sort', 'date')
-    order = request.GET.get('order', 'desc')
-    if sort == 'date':
-        all_items.sort(key=lambda x: x['timestamp'], reverse=(order == 'desc'))
-
     content_types = [
         ('', _('All')),
-        ('post', _('Announcements')),
+        ('post', _('Documents')),
         ('task', _('Tasks')),
         ('decision', _('Votings')),
         ('survey', _('Ankiety')),
@@ -93,10 +82,41 @@ def activity_page(request):
         ('room_messages', _('Chat')),
     ]
 
+    selectable_types = [ct for ct in content_types if ct[0]]
+    all_type_values = {ct[0] for ct in selectable_types}
+
+    # Filter by content_type(s) (multi-select)
+    is_filtered = request.GET.get('filtered') == '1'
+    active_types = [t for t in request.GET.getlist('type') if t in all_type_values]
+    # When the filter form was not used, an empty selection means "all".
+    selected_types = list(active_types) if is_filtered else (list(all_type_values) if not active_types else list(active_types))
+    if active_types:
+        active_types_set = set(active_types)
+        all_items = [i for i in all_items if i['content_type'] in active_types_set]
+    all_types_selected = set(selected_types) == all_type_values
+
+    # Sort
+    sort = request.GET.get('sort', 'date')
+    order = request.GET.get('order', 'desc')
+    if sort == 'date':
+        all_items.sort(key=lambda x: x['timestamp'], reverse=(order == 'desc'))
+
     return render(
         request,
         'home/activity.html',
-        {'feed_items': all_items, 'ct_filter': ct_filter, 'sort': sort, 'order': order, 'filter_unread': filter_unread, 'unread_count': unread_count, 'content_types': content_types},
+        {
+            'feed_items': all_items,
+            'active_types': active_types,
+            'is_filtered': is_filtered,
+            'selected_types': selected_types,
+            'all_types_selected': all_types_selected,
+            'selectable_types': selectable_types,
+            'sort': sort,
+            'order': order,
+            'filter_unread': filter_unread,
+            'unread_count': unread_count,
+            'content_types': content_types,
+        },
     )
 
 
@@ -169,10 +189,9 @@ def mark_unread(request):
 def global_search(request: HttpRequest):
     query = request.GET.get('q', '').strip()
 
-    # Determine active categories.
-    # When the request comes from the filter form (filtered=1), an empty
-    # selection means the user explicitly deselected every category.
-    # Otherwise (e.g. topbar search with no filter UI), empty = search everywhere.
+    search_categories = [('post', _('Documents')), ('task', _('Tasks')), ('decision', _('Votings')), ('survey', _('Surveys')), ('event', _('Event')), ('citizen', _('Citizens')), ('chat', _('Chat'))]
+
+    # Multi-category selection.
     selected = [c for c in request.GET.getlist('cat') if c in ALL_SEARCH_CATS]
     if request.GET.get('filtered') == '1':
         active_cats = set(selected)
@@ -181,7 +200,7 @@ def global_search(request: HttpRequest):
 
     results = search_service.run_global_search(query, active_cats, request.user)
 
-    return render(request, 'home/search.html', {'query': query, 'results': results, 'active_cats': active_cats})
+    return render(request, 'home/search.html', {'query': query, 'results': results, 'active_cats': active_cats, 'all_cats_selected': active_cats == set(ALL_SEARCH_CATS), 'search_categories': search_categories})
 
 
 class RememberLoginView(LoginView):

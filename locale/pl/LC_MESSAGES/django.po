@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-12 11:54+0200\n"
+"POT-Creation-Date: 2026-08-12 12:47+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -117,7 +117,7 @@ msgstr "Ankieta"
 
 #: .\ankiety\models.py:21 .\home\templates\home\base.html:102
 #: .\home\templates\home\base.html:105 .\home\templates\home\base.html:234
-#: .\home\templates\home\home.html:87 .\home\templates\home\search.html:81
+#: .\home\templates\home\home.html:87 .\home\views.py:192
 msgid "Surveys"
 msgstr "Ankiety"
 
@@ -533,7 +533,7 @@ msgstr "Utwórz dokument"
 #: .\bookkeeping\templates\bookkeeping\partner_confirm_delete.html:35
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:35
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:39
-#: .\chat\views.py:252 .\home\templates\home\activity.html:43
+#: .\chat\views.py:252 .\home\templates\home\activity.html:50
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:10
@@ -543,7 +543,7 @@ msgid "Date"
 msgstr "Data"
 
 #: .\board\templates\board\board.html:46 .\board\templates\board\board.html:48
-#: .\home\templates\home\activity.html:20 .\home\views.py:86
+#: .\home\templates\home\activity.html:25 .\home\views.py:75
 #: .\obywatele\templates\obywatele\start.html:24
 #: .\obywatele\templates\obywatele\start.html:30
 #: .\tasks\templates\tasks\task_list.html:65
@@ -561,7 +561,7 @@ msgstr "Zarządzaj kategoriami"
 #: .\board\templates\board\board.html:69
 #: .\events\templates\events\event_list.html:25
 #: .\glosowania\templates\glosowania\_view_toggle.html:64
-#: .\home\templates\home\activity.html:51
+#: .\home\templates\home\activity.html:58
 #: .\tasks\templates\tasks\task_list.html:90
 msgid "List"
 msgstr "Lista"
@@ -569,7 +569,7 @@ msgstr "Lista"
 #: .\board\templates\board\board.html:72
 #: .\events\templates\events\event_list.html:28
 #: .\glosowania\templates\glosowania\_view_toggle.html:67
-#: .\home\templates\home\activity.html:54
+#: .\home\templates\home\activity.html:61
 #: .\tasks\templates\tasks\task_list.html:93
 msgid "Grid"
 msgstr "Siatka"
@@ -584,7 +584,7 @@ msgstr "Utwórz"
 
 #: .\board\templates\board\board.html:163 .\home\templates\home\base.html:129
 #: .\home\templates\home\base.html:132 .\home\templates\home\base.html:232
-#: .\home\templates\home\home.html:47
+#: .\home\templates\home\home.html:47 .\home\views.py:76 .\home\views.py:192
 msgid "Documents"
 msgstr "Dokumenty"
 
@@ -1190,10 +1190,9 @@ msgstr "Pokój: %(room)s"
 #: .\home\services\search.py:115 .\home\templates\home\base.html:156
 #: .\home\templates\home\base.html:159 .\home\templates\home\base.html:239
 #: .\home\templates\home\home.html:79 .\home\templates\home\home.html:620
-#: .\home\templates\home\home.html:704 .\home\templates\home\search.html:99
-#: .\home\templatetags\feed_filters.py:27 .\home\views.py:93
-#: .\obywatele\views.py:511 .\obywatele\views.py:518
-#: .\tasks\templates\tasks\_task_card.html:50
+#: .\home\templates\home\home.html:704 .\home\templatetags\feed_filters.py:27
+#: .\home\views.py:82 .\home\views.py:192 .\obywatele\views.py:511
+#: .\obywatele\views.py:518 .\tasks\templates\tasks\_task_card.html:50
 #: .\tasks\templates\tasks\task_detail.html:19
 msgid "Chat"
 msgstr "Czat"
@@ -1343,7 +1342,7 @@ msgstr "Brak"
 #: .\chat\templates\chat\chat.html:96 .\chat\templates\chat\chat.html:231
 #: .\home\templates\home\base.html:120 .\home\templates\home\base.html:123
 #: .\home\templates\home\base.html:233 .\home\templates\home\home.html:63
-#: .\home\templates\home\search.html:69 .\home\views.py:88
+#: .\home\views.py:77 .\home\views.py:192
 #: .\obywatele\templates\obywatele\szczegoly.html:143
 msgid "Tasks"
 msgstr "Zadania"
@@ -1420,7 +1419,7 @@ msgid "Send message"
 msgstr "Wyślij wiadomość"
 
 #: .\chat\templates\chat\room_link.html:31 .\chat\views.py:253
-#: .\home\templates\home\activity.html:15
+#: .\home\templates\home\activity.html:18
 msgid "Unread"
 msgstr "Nieprzeczytane"
 
@@ -1446,9 +1445,9 @@ msgid "Room actions"
 msgstr "Działania"
 
 #: .\chat\templates\chat\room_link.html:70
-#: .\home\templates\home\activity.html:105
-#: .\home\templates\home\activity.html:106
-#: .\home\templates\home\activity.html:107
+#: .\home\templates\home\activity.html:112
+#: .\home\templates\home\activity.html:113
+#: .\home\templates\home\activity.html:114
 msgid "Mark as unread"
 msgstr "Oznacz jako nieprzeczytane"
 
@@ -1792,7 +1791,7 @@ msgid "Public events are visible to everyone. Private events are only visible to
 msgstr "Wydarzenia publiczne są widoczne dla wszystkich. Wydarzenia prywatne są widoczne tylko dla zalogowanych użytkowników."
 
 #: .\events\models.py:37 .\home\models.py:14 .\home\models.py:42
-#: .\home\services\search.py:98 .\home\templates\home\search.html:87
+#: .\home\services\search.py:98 .\home\views.py:192
 msgid "Event"
 msgstr "Wydarzenie"
 
@@ -1829,7 +1828,7 @@ msgstr "Dodaj do swojego Kalendarza Google"
 #: .\home\templates\home\base.html:138 .\home\templates\home\base.html:141
 #: .\home\templates\home\base.html:235 .\home\templates\home\base.html:295
 #: .\home\templates\home\home.html:55 .\home\templates\home\home.html:659
-#: .\home\views.py:91
+#: .\home\views.py:80
 msgid "Calendar"
 msgstr "Kalendarz"
 
@@ -2707,7 +2706,7 @@ msgid "Unknown"
 msgstr "Nieznane"
 
 #: .\home\services\search.py:91 .\home\templatetags\feed_filters.py:32
-#: .\home\views.py:90
+#: .\home\views.py:79
 msgid "Ankiety"
 msgstr "Ankiety"
 
@@ -2760,14 +2759,14 @@ msgstr "Poczekaj aż grupa zaakceptuje Twoje zgłoszenie"
 msgid "The group will review your application and grant access."
 msgstr "Grupa zweryfikuje Twoje zgłoszenie i przyzna dostęp."
 
-#: .\home\templates\home\activity.html:35
-#: .\home\templates\home\activity.html:104
-#: .\home\templates\home\activity.html:106
-#: .\home\templates\home\activity.html:107
+#: .\home\templates\home\activity.html:42
+#: .\home\templates\home\activity.html:111
+#: .\home\templates\home\activity.html:113
+#: .\home\templates\home\activity.html:114
 msgid "Mark as read"
 msgstr "Oznacz jako przeczytane"
 
-#: .\home\templates\home\activity.html:117
+#: .\home\templates\home\activity.html:124
 msgid "No activity"
 msgstr "Brak aktywności"
 
@@ -2777,15 +2776,14 @@ msgid "Desktop"
 msgstr "Pulpit"
 
 #: .\home\templates\home\base.html:93 .\home\templates\home\base.html:96
-#: .\home\templates\home\base.html:231 .\home\templates\home\search.html:75
-#: .\home\views.py:89
+#: .\home\templates\home\base.html:231 .\home\views.py:78 .\home\views.py:192
 msgid "Votings"
 msgstr "Głosowania"
 
 #: .\home\templates\home\base.html:111 .\home\templates\home\base.html:114
 #: .\home\templates\home\base.html:237 .\home\templates\home\home.html:39
-#: .\home\templates\home\search.html:93 .\home\views.py:92
-#: .\obywatele\models.py:103 .\obywatele\templates\obywatele\menu.html:14
+#: .\home\views.py:81 .\home\views.py:192 .\obywatele\models.py:103
+#: .\obywatele\templates\obywatele\menu.html:14
 #: .\obywatele\templates\obywatele\start.html:9
 msgid "Citizens"
 msgstr "Ludzie"
@@ -2828,7 +2826,7 @@ msgstr "Przełącz tryb jasny/ciemny"
 msgid "Activity"
 msgstr "Aktywność"
 
-#: .\home\templates\home\base.html:291 .\home\views.py:87
+#: .\home\templates\home\base.html:291
 msgid "Announcements"
 msgstr "Ogłoszenia"
 
@@ -3152,19 +3150,15 @@ msgstr "Szukaj po tytule, treści, autorze…"
 msgid "Search in:"
 msgstr "Szukaj w:"
 
-#: .\home\templates\home\search.html:57
+#: .\home\templates\home\search.html:50
 msgid "Everywhere"
 msgstr "Wszędzie"
 
-#: .\home\templates\home\search.html:63
-msgid "Board"
-msgstr "Ogłoszenia"
-
-#: .\home\templates\home\search.html:108
+#: .\home\templates\home\search.html:67
 msgid "Enter a phrase, select categories and press Search."
 msgstr "Wpisz frazę, wybierz kategorie i naciśnij Szukaj."
 
-#: .\home\templates\home\search.html:115
+#: .\home\templates\home\search.html:74
 msgid "No results for the specified phrase in the selected categories."
 msgstr "Brak wyników dla podanej frazy w wybranych kategoriach."
 
@@ -3269,27 +3263,27 @@ msgstr "Członkostwo"
 msgid "Transaction"
 msgstr "Transakcja"
 
-#: .\home\views.py:208
+#: .\home\views.py:227
 msgid "Your password has been changed."
 msgstr "Twoje hasło zostało zmienione."
 
-#: .\home\views.py:211
+#: .\home\views.py:230
 msgid "You typed something wrong. See what error appeared above and try again."
 msgstr "Coś źle wpisałeś. Zobacz, jaki błąd pojawił się powyżej i spróbuj ponownie."
 
-#: .\home\views.py:306
+#: .\home\views.py:325
 msgid "Link added."
 msgstr "Link dodany."
 
-#: .\home\views.py:322
+#: .\home\views.py:341
 msgid "Link updated."
 msgstr "Link zaktualizowany."
 
-#: .\home\views.py:324 .\home\views.py:345
+#: .\home\views.py:343 .\home\views.py:364
 msgid "Link doesn't exist."
 msgstr "Link nie istnieje."
 
-#: .\home\views.py:343
+#: .\home\views.py:362
 msgid "Link deleted."
 msgstr "Link usunięty."
 

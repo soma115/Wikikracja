@@ -8,25 +8,32 @@
 <div class="section">
 
   {# ── Toolbar linia 1: filtry typów + nieprzeczytane ── #}
-  <div class="proposals-toolbar mb-1 flex-wrap-wrap">
+  <form method="get" action="{% url 'activity' %}" id="activity-filter-form" class="proposals-toolbar mb-1 flex-wrap-wrap">
+    <input type="hidden" name="filtered" value="1">
+    <input type="hidden" name="sort" value="{{ sort }}">
+    <input type="hidden" name="order" value="{{ order }}">
     <div class="toolbar-sort flex-wrap-wrap gap-35">
-      <a href="?filter=unread&sort={{ sort }}&order={{ order }}"
+      <a href="?{% if not filter_unread %}filter=unread&{% endif %}sort={{ sort }}&order={{ order }}{% if is_filtered %}&filtered=1{% for t in active_types %}&type={{ t }}{% endfor %}{% endif %}"
          class="sort-btn filter-btn-unread {% if filter_unread %}active unread-filter-active{% endif %}">
         <i class="fas fa-bell"></i>{% trans "Unread" %}
         <span id="unread-count-badge" class="{% if not unread_count %}d-none{% endif %} text-xs">{% if unread_count %}({{ unread_count }}){% endif %}</span>
       </a>
-      <a href="?sort={{ sort }}&order={{ order }}"
-         class="sort-btn {% if not ct_filter and not filter_unread %}active{% endif %}">
+
+      <label id="sp-select-all" class="sp-chip{% if all_types_selected %} on{% endif %}" data-color="accent">
+        <input type="checkbox" value="all" class="d-none sp-cb"
+               {% if all_types_selected %}checked{% endif %}>
         {% trans "All" %}
-      </a>
-      {% for ct_val, ct_label in content_types %}{% if ct_val %}
-      <a href="?type={{ ct_val }}&sort={{ sort }}&order={{ order }}"
-         class="sort-btn {% if ct_filter == ct_val %}active{% endif %}">
+      </label>
+
+      {% for ct_val, ct_label in selectable_types %}
+      <label class="sp-chip{% if ct_val in selected_types %} on{% endif %}" data-color="{{ ct_val|content_type_color }}">
+        <input type="checkbox" name="type" value="{{ ct_val }}" class="d-none sp-cb"
+               {% if ct_val in selected_types %}checked{% endif %}>
         {{ ct_label }}
-      </a>
-      {% endif %}{% endfor %}
+      </label>
+      {% endfor %}
     </div>
-  </div>
+  </form>
 
   {# ── Toolbar linia 2: akcje + sortowanie + widok ── #}
   <div class="proposals-toolbar mb-3">
@@ -38,7 +45,7 @@
     <span class="toolbar-divider"></span>
 
     <div class="toolbar-sort">
-      <a href="?type={{ ct_filter }}&sort=date&order={% if sort == 'date' and order == 'desc' %}asc{% else %}desc{% endif %}{% if filter_unread %}&filter=unread{% endif %}"
+      <a href="?{% if is_filtered %}filtered=1&{% endif %}{% for t in active_types %}type={{ t }}&{% endfor %}sort=date&order={% if sort == 'date' and order == 'desc' %}asc{% else %}desc{% endif %}{% if filter_unread %}&filter=unread{% endif %}"
          class="sort-btn {% if sort == 'date' %}active{% endif %}">
         {% trans "Date" %}
         {% if sort == 'date' %}<i class="fas fa-arrow-{% if order == 'asc' %}up{% else %}down{% endif %} sort-arrow"></i>{% endif %}
@@ -139,5 +146,10 @@ window.MARK_UNREAD_URL = "{% url 'mark_unread' %}";
 window.ACTIVITY_FILTER_UNREAD = '{{ filter_unread|yesno:"true,false" }}' === 'true';
 window.initActivityFeedMarkRead('#activity-list', '.feed-row');
 window.initActivityFeedToggleRead('#activity-list');
+
+window.initChipFilters({
+  formId: 'activity-filter-form',
+  storageKey: window.WK_SEARCH_KEYS.ACTIVITY_TYPES
+});
 </script>
 {% endblock %}

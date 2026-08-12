@@ -1651,6 +1651,7 @@ a:hover {
   font-weight: 600;
   line-height: 1.5;
   white-space: nowrap;
+  -webkit-user-select: none;
   user-select: none;
   pointer-events: none;
   z-index: 1;
@@ -2142,6 +2143,7 @@ a:hover {
   color: var(--text-muted);
   font-size: .78rem;
   cursor: pointer;
+  -webkit-user-select: none;
   user-select: none;
   white-space: nowrap;
   transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
@@ -2320,6 +2322,7 @@ a:hover {
   position: relative;
   padding: .9rem 1.1rem .75rem;
   cursor: pointer;
+  -webkit-user-select: none;
   user-select: none;
   transition: background var(--transition-fast);
 }
@@ -4207,6 +4210,7 @@ button.proposal-against-btn:focus-visible {
 .event-meta-sep {
   color: var(--text-muted);
   opacity: .35;
+  -webkit-user-select: none;
   user-select: none;
 }
 .event-card-chevron-meta {
@@ -4975,3 +4979,30 @@ td.notes-col {
   font-size: .72rem;
   color: var(--text-muted);
 }
+
+/* ── Filter chips (used on activity page) ── */
+.sp-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: .3rem .75rem;
+  border-radius: 2rem;
+  font-size: .78rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  background: transparent;
+  transition: all .15s;
+  -webkit-user-select: none;
+  user-select: none;
+  opacity: .38;
+}
+.sp-chip:hover { opacity: .65; }
+.sp-chip.on { opacity: 1; }
+.sp-chip.on[data-color="primary"]   { background: var(--bs-primary-bg-subtle);   color: var(--bs-primary-text-emphasis);   border-color: var(--bs-primary-border-subtle); }
+.sp-chip.on[data-color="warning"]   { background: var(--bs-warning-bg-subtle);   color: var(--bs-warning-text-emphasis);   border-color: var(--bs-warning-border-subtle); }
+.sp-chip.on[data-color="danger"]    { background: var(--bs-danger-bg-subtle);    color: var(--bs-danger-text-emphasis);    border-color: var(--bs-danger-border-subtle); }
+.sp-chip.on[data-color="success"]   { background: var(--bs-success-bg-subtle);   color: var(--bs-success-text-emphasis);   border-color: var(--bs-success-border-subtle); }
+.sp-chip.on[data-color="secondary"] { background: var(--bs-secondary-bg-subtle); color: var(--bs-secondary-text-emphasis); border-color: var(--bs-secondary-border-subtle); }
+.sp-chip.on[data-color="info"]      { background: var(--bs-info-bg-subtle);      color: var(--bs-info-text-emphasis);      border-color: var(--bs-info-border-subtle); }
+.sp-chip.on[data-color="accent"]    { background: var(--accent-muted); color: var(--accent); border-color: var(--accent); }
+.sp-chip.on[data-color="dark"]      { background: var(--bs-dark-bg-subtle); color: var(--bs-dark-text-emphasis); border-color: var(--bs-dark-border-subtle); }

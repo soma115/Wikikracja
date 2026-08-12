@@ -643,3 +643,117 @@ document.addEventListener('DOMContentLoaded', function () {
         el.style.setProperty('--w', el.dataset.width + '%');
     });
 });
+
+// Shared chip filter logic for search/ and activity/ pages.
+// Options: formId, storageKey, queryInputId, submitOnlyWithQuery, restore
+window.initChipFilters = function(options) {
+    options = options || {};
+    var form = document.getElementById(options.formId);
+    if (!form) return;
+
+    var allBtn = form.querySelector('#sp-select-all');
+    var cbs = form.querySelectorAll('.sp-cb:not([value="all"])');
+    var qInput = options.queryInputId ? document.getElementById(options.queryInputId) : null;
+    var restore = options.restore !== false;
+
+    function setChip(cb, on) {
+        cb.checked = on;
+        var chip = cb.closest('.sp-chip');
+        if (chip) {
+            if (on) chip.classList.add('on');
+            else chip.classList.remove('on');
+        }
+    }
+
+    function syncSelectAll() {
+        if (!allBtn) return;
+        var allChecked = Array.prototype.every.call(cbs, function (cb) { return cb.checked; });
+        setChip(allBtn.querySelector('.sp-cb'), allChecked);
+    }
+
+    function currentValues() {
+        return Array.prototype.filter.call(cbs, function (cb) { return cb.checked; })
+                                  .map(function (cb) { return cb.value; });
+    }
+
+    function saveValues() {
+        if (!options.storageKey) return;
+        try { localStorage.setItem(options.storageKey, JSON.stringify(currentValues())); } catch (e) { /* storage unavailable */ }
+    }
+
+    function loadValues() {
+        if (!options.storageKey) return null;
+        try { return JSON.parse(localStorage.getItem(options.storageKey)); } catch (e) { return null; }
+    }
+
+    function submitForm() {
+        if (typeof form.requestSubmit === 'function') {
+            form.requestSubmit();
+        } else {
+            form.submit();
+        }
+    }
+
+    function shouldAutoSubmit() {
+        return !options.submitOnlyWithQuery || (qInput && qInput.value.trim());
+    }
+
+    function tryAutoSubmit() {
+        if (shouldAutoSubmit()) setTimeout(submitForm, 80);
+    }
+
+    if (allBtn) {
+        allBtn.addEventListener('change', function () {
+            var allCb = allBtn.querySelector('.sp-cb');
+            var on = allCb.checked;
+            setChip(allCb, on);
+            cbs.forEach(function (cb) { setChip(cb, on); });
+            saveValues();
+            tryAutoSubmit();
+        });
+    }
+
+    cbs.forEach(function (cb) {
+        cb.addEventListener('change', function () {
+            setChip(cb, cb.checked);
+            syncSelectAll();
+            saveValues();
+            tryAutoSubmit();
+        });
+    });
+
+    if (qInput && window.WK_SEARCH_KEYS) {
+        form.addEventListener('submit', function () {
+            try {
+                var v = qInput.value.trim();
+                if (v) localStorage.setItem(window.WK_SEARCH_KEYS.QUERY, v);
+                else localStorage.removeItem(window.WK_SEARCH_KEYS.QUERY);
+            } catch (e) { /* storage unavailable */ }
+        });
+    }
+
+    if (restore && options.storageKey) {
+        (function restoreFromStorage() {
+            if (new URLSearchParams(window.location.search).has('filtered')) return;
+
+            var changed = false;
+            var stored = loadValues();
+            if (Array.isArray(stored) && stored.length <= cbs.length) {
+                cbs.forEach(function (cb) { setChip(cb, stored.indexOf(cb.value) !== -1); });
+                syncSelectAll();
+                changed = true;
+            }
+
+            if (qInput && !qInput.value.trim() && window.WK_SEARCH_KEYS) {
+                try {
+                    var storedQuery = localStorage.getItem(window.WK_SEARCH_KEYS.QUERY);
+                    if (storedQuery) { qInput.value = storedQuery; changed = true; }
+                } catch (e) { /* storage unavailable */ }
+            }
+
+            if (changed && shouldAutoSubmit()) tryAutoSubmit();
+        })();
+    }
+
+    syncSelectAll();
+};
