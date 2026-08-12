@@ -16,10 +16,10 @@
         <span class="text-muted fw-normal">#{{ id.id }}</span> {{ id.display_title }}
       </p>
 
-      <div class="d-flex flex-wrap align-items-center gap-2 text-muted-78">
+      <div class="d-flex flex-wrap align-items-center gap-2 text-muted text-sm">
         {% if id.author %}
         <a href="{% url 'obywatele:obywatele_szczegoly' pk=id.author.pk %}" class="detail-author-link d-flex align-items-center gap-1 text-decoration-none">
-          <span class="avatar avatar-sm avatar-accent">{% if id.author.uzytkownik.avatar %}<img src="{{ id.author.uzytkownik.avatar.url }}" alt="">{% else %}{{ id.author.username|slice:":2"|upper }}{% endif %}</span>
+          {% include "home/_user_avatar.html" with avatar=id.author.uzytkownik.avatar username=id.author.username size="sm" %}
           <span class="text-accent">{{ id.author.username }}</span>
         </a>
         <span class="detail-meta-sep">·</span>
@@ -52,12 +52,12 @@
       </div>
 
       {% if id.status == id.Status.PROPOSITION %}
-      <div class="d-flex align-items-center gap-1 text-muted-78">
+      <div class="d-flex align-items-center gap-1 text-muted text-sm">
         <i class="fas fa-pen-nib {% if signed %}pen-signed{% else %}pen-unsigned{% endif %}"></i>
         {% if signed %}{% trans 'I support' %}{% else %}{% trans 'I do not support' %}{% endif %}
       </div>
       <div class="d-flex align-items-center gap-2 flex-wrap">
-        <span class="text-muted-xs">{% trans 'Do you support submitting this proposal to a referendum?' %}</span>
+        <span class="text-muted text-xs">{% trans 'Do you support submitting this proposal to a referendum?' %}</span>
         {% if not signed %}
         <form method="post" class="mb-0 d-inline">
           {% csrf_token %}
@@ -88,11 +88,11 @@
         </form>
       </div>
       {% else %}
-      <span class="text-muted-xs"><i class="fas fa-check-circle text-success-custom"></i> {% trans 'You have already voted in this referendum' %}</span>
+      <span class="text-muted text-xs"><i class="fas fa-check-circle text-success-custom"></i> {% trans 'You have already voted in this referendum' %}</span>
       {% endif %}
 
       {% elif id.voting_has_ended %}
-      <div class="d-flex align-items-center gap-1 text-muted-78">
+      <div class="d-flex align-items-center gap-1 text-muted text-sm">
         <i class="fas fa-chart-bar text-accent"></i> {% trans 'Results' %}
       </div>
       {% with total=id.za|add:id.przeciw %}{% if total %}{% widthratio id.za total 100 as fill_pct %}
@@ -101,10 +101,10 @@
           <span class="vote-for"><i class="fas fa-check fa-fw"></i> {% trans 'For' %} {{ id.za }}</span>
           <span class="vote-against">{% trans 'Against' %} {{ id.przeciw }} <i class="fas fa-xmark fa-fw"></i></span>
         </div>
-        <div class="result-bar-track"><div class="result-bar-fill" data-width="{{ fill_pct }}"></div></div>
+        <div class="result-bar-track"><div class="result-bar-fill" data-progress="{{ fill_pct }}"></div></div>
       </div>
       {% endif %}{% endwith %}
-      {% if voters %}<div class="text-muted-75"><i class="fas fa-users me-1"></i>{% for voter in voters %}{{ voter.ktory_uzytkownik_juz_zaglosowal.username }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+      {% if voters %}<div class="text-muted text-xs"><i class="fas fa-users me-1"></i>{% for voter in voters %}{{ voter.ktory_uzytkownik_juz_zaglosowal.username }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
       {% if report %}<div class="protocol-list text-xs">{% for r in report %}<span class="{% if r.vote %}protocol-yes{% else %}protocol-no{% endif %}">{% if r.vote %}✓{% else %}✗{% endif %} {{ r.code }}</span><br>{% endfor %}</div>{% endif %}
       {% endif %}
 
@@ -116,7 +116,7 @@
   <div class="card">
     <div class="card-body d-flex flex-column gap-2">
       <div class="d-flex align-items-center gap-2">
-        <i class="fas fa-scroll text-accent-85"></i>
+        <i class="fas fa-scroll text-accent text-sm"></i>
         <span class="section-heading text-sm">{% trans 'Law text' %}</span>
       </div>
       {% if id.tresc %}
@@ -165,9 +165,7 @@
       {% for arg in positive_arguments %}
       <div class="arg-card for">
         {% if arg.author %}<a href="{% url 'obywatele:obywatele_szczegoly' pk=arg.author.pk %}" class="arg-card-author">{% else %}<span class="arg-card-author">{% endif %}
-          <div class="avatar avatar-lg avatar-accent">
-            {% if arg.author.uzytkownik.avatar %}<img src="{{ arg.author.uzytkownik.avatar.url }}" alt="">{% else %}{{ arg.author.username|slice:":2"|upper }}{% endif %}
-          </div>
+          {% include "home/_user_avatar.html" with avatar=arg.author.uzytkownik.avatar username=arg.author.username size="lg" %}
           <div class="arg-author-info">
             <span class="arg-author-name">{{ arg.author.username|default:"—" }}</span>
             <span class="arg-author-date">{{ arg.created_at|date:"d.m.Y" }}</span>
@@ -208,9 +206,7 @@
       {% for arg in negative_arguments %}
       <div class="arg-card against">
         {% if arg.author %}<a href="{% url 'obywatele:obywatele_szczegoly' pk=arg.author.pk %}" class="arg-card-author">{% else %}<span class="arg-card-author">{% endif %}
-          <div class="avatar avatar-lg avatar-accent">
-            {% if arg.author.uzytkownik.avatar %}<img src="{{ arg.author.uzytkownik.avatar.url }}" alt="">{% else %}{{ arg.author.username|slice:":2"|upper }}{% endif %}
-          </div>
+          {% include "home/_user_avatar.html" with avatar=arg.author.uzytkownik.avatar username=arg.author.username size="lg" %}
           <div class="arg-author-info">
             <span class="arg-author-name">{{ arg.author.username|default:"—" }}</span>
             <span class="arg-author-date">{{ arg.created_at|date:"d.m.Y" }}</span>

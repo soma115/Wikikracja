@@ -140,7 +140,7 @@ const message_template = `
           <% if (typeof avatar_url !== 'undefined' && avatar_url) { %>
             <img class='avatar avatar-2xl' src='<%- avatar_url %>' alt=''>
           <% } else { %>
-            <span class='avatar avatar-2xl avatar-fallback'><%= (username || '').slice(0, 2).toUpperCase() %></span>
+            <span class='avatar avatar-2xl avatar-fallback<% if (typeof citizen_color_class !== "undefined" && citizen_color_class) { %> citizen-color-<%- citizen_color_class %><% } %>'><%= (username || '').slice(0, 2).toUpperCase() %></span>
           <% } %><%= username %>
         <% if (_hasProfileLink) { %></a><% } else { %></span><% } %>
         <span class='message-timestamp ms-2' data-message-id='<%-message_id%>'><%- latest_ts %></span>
@@ -159,7 +159,7 @@ const message_template = `
           class='btn btn-sm ms-1 message-btn reply-btn'
           data-message-id='<%-message_id%>'
           data-username='<%=username%>'
-          data-snippet='<%-message.replace(/<[^>]*>/g,"").slice(0,80)%>'
+          data-snippet='<%-message.replace(/<[^>]*>/g,"").slice(0,160)%>'
           title='Odpowiedz'>
           <i class='fas fa-reply'></i>
         </button>
@@ -193,7 +193,7 @@ const message_template = `
 
       <% if (_totalVotes >= 3) { %>
         <div class="vote-bar-wrap">
-          <div class="vote-bar-fill <%- _barCls %>" style="width:<%- _pct %>%"></div>
+          <div class="vote-bar-fill <%- _barCls %>" style="--vote-progress:<%- _pct %>%"></div>
         </div>
         <span class="vote-bar-label"><%- _pct %>% popiera</span>
       <% } %>
@@ -220,7 +220,7 @@ const message_template = `
                 <% if (_u.avatar_url) { %>
                   <img class="avatar avatar-xl" src="<%- _u.avatar_url %>" alt="<%- _u.username %>">
                 <% } else { %>
-                  <span class="avatar avatar-xl avatar-fallback"><%= (_u.username || '').slice(0, 2).toUpperCase() %></span>
+                  <span class="avatar avatar-xl avatar-fallback<% if (_u.citizen_color_class) { %> citizen-color-<%- _u.citizen_color_class %><% } %>"><%= (_u.username || '').slice(0, 2).toUpperCase() %></span>
                 <% } %>
                 <span class="read-by-username"><%- _u.username %></span>
               </div>

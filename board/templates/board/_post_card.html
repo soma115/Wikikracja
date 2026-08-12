@@ -14,13 +14,7 @@
       </div>
       <div class="d-flex align-items-center gap-2 mt-auto">
         {% if post.author %}
-          {% if post.author.uzytkownik.avatar %}
-            <img src="{{ post.author.uzytkownik.avatar.url }}" alt="{{ post.author.username }}" class="avatar avatar-md">
-          {% else %}
-            <div class="avatar avatar-md avatar-fallback citizen-color-{{ post.author.username|citizen_color_class }}">
-              {{ post.author.username|slice:":2"|upper }}
-            </div>
-          {% endif %}
+            {% include "home/_user_avatar.html" with avatar=post.author.uzytkownik.avatar username=post.author.username size="md" %}
           <span class="text-author">{{ post.author.username }}</span>
         {% endif %}
         <span class="ms-auto text-meta flex-shrink-0">{{ post.updated|date:"d.m.Y" }}</span>

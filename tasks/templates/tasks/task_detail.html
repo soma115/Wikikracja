@@ -26,15 +26,15 @@
         {% if task.priority_label %}
           {% with task.priority_category as category %}
             {% if category == "critical" %}
-              <span class="badge bg-danger text-uppercase">{{ task.priority_label }}</span>
+              <span class="badge-status badge-danger text-uppercase">{{ task.priority_label }}</span>
             {% elif category == "important" %}
-              <span class="badge bg-warning text-dark text-uppercase">{{ task.priority_label }}</span>
+              <span class="badge-status badge-warning text-uppercase">{{ task.priority_label }}</span>
             {% elif category == "beneficial" %}
-              <span class="badge bg-success text-uppercase">{{ task.priority_label }}</span>
+              <span class="badge-status badge-success text-uppercase">{{ task.priority_label }}</span>
             {% elif category == "rejected" %}
-              <span class="badge bg-secondary text-uppercase">{{ task.priority_label }}</span>
+              <span class="badge-status badge-secondary text-uppercase">{{ task.priority_label }}</span>
             {% else %}
-              <span class="badge bg-info text-dark text-uppercase">{{ task.priority_label }}</span>
+              <span class="badge-status badge-info text-uppercase">{{ task.priority_label }}</span>
             {% endif %}
           {% endwith %}
         {% endif %}
@@ -50,9 +50,9 @@
       <p>{{ task.description|richtext }}</p>
 
       <div class="mt-3">
-        <span class="badge bg-light text-dark me-2" data-votes-badge="{% trans "Votes" %}: ">{% trans "Votes" %}: {{ task.votes_score|default:0 }}</span>
-        <span class="badge bg-light text-dark me-2">{% trans "Success" %}: {{ task.eval_success|default:0 }}</span>
-        <span class="badge bg-light text-dark">{% trans "Failure" %}: {{ task.eval_failure|default:0 }}</span>
+        <span class="badge-status badge-light me-2" data-votes-badge="{% trans "Votes" %}: ">{% trans "Votes" %}: {{ task.votes_score|default:0 }}</span>
+        <span class="badge-status badge-light me-2">{% trans "Success" %}: {{ task.eval_success|default:0 }}</span>
+        <span class="badge-status badge-light">{% trans "Failure" %}: {{ task.eval_failure|default:0 }}</span>
       </div>
     </div>
   </div>
@@ -161,13 +161,7 @@
       <div class="helpers-popover-list" data-voter-list="helpers"{% if not helping_votes %} hidden{% endif %}>
         {% for vote in helping_votes %}
           <a class="helpers-popover-item" href="{% url 'obywatele:obywatele_szczegoly' vote.user_id %}" data-user-id="{{ vote.user_id }}">
-            <span class="avatar avatar-xl avatar-accent">
-              {% if vote.user.uzytkownik.avatar %}
-                <img src="{{ vote.user.uzytkownik.avatar.url }}" alt="">
-              {% else %}
-                {{ vote.user.username|slice:":2"|upper }}
-              {% endif %}
-            </span>
+            {% include "home/_user_avatar.html" with avatar=vote.user.uzytkownik.avatar username=vote.user.username size="xl" %}
             <span class="helpers-popover-name">{{ vote.user.username }}</span>
           </a>
         {% endfor %}
@@ -182,13 +176,7 @@
       <div class="helpers-popover-list" data-voter-list="against"{% if not against_votes %} hidden{% endif %}>
         {% for vote in against_votes %}
           <a class="helpers-popover-item" href="{% url 'obywatele:obywatele_szczegoly' vote.user_id %}" data-user-id="{{ vote.user_id }}">
-            <span class="avatar avatar-xl avatar-accent">
-              {% if vote.user.uzytkownik.avatar %}
-                <img src="{{ vote.user.uzytkownik.avatar.url }}" alt="">
-              {% else %}
-                {{ vote.user.username|slice:":2"|upper }}
-              {% endif %}
-            </span>
+            {% include "home/_user_avatar.html" with avatar=vote.user.uzytkownik.avatar username=vote.user.username size="xl" %}
             <span class="helpers-popover-name">{{ vote.user.username }}</span>
           </a>
         {% endfor %}

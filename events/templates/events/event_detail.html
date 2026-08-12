@@ -134,7 +134,7 @@
     <a href="{% url 'events:list' %}" class="view-toggle-btn event-back-link" title="{% trans 'Back to Calendar' %}">
       <i class="fas fa-arrow-left"></i> {% trans "Back to Calendar" %}
     </a>
-    <a href="{{ event.google_calendar_url }}" target="_blank" rel="noopener" class="toolbar-add-btn" title="{% trans 'Add to Google Calendar' %}">
+    <a href="{{ event.google_calendar_url }}" target="_blank" rel="noopener" class="btn-cta" title="{% trans 'Add to Google Calendar' %}">
       <i class="far fa-calendar-plus"></i> {% trans "Add to Google Calendar" %}
     </a>
   </div>

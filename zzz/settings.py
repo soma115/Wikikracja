@@ -438,7 +438,7 @@ def _load_firebase_credentials():
 # Check if already initialized
 try:
     firebase_admin.get_app()
-except ValueError:
+except (ValueError):
     # Not initialized yet
     firebase_creds = _load_firebase_credentials()
     if firebase_creds:

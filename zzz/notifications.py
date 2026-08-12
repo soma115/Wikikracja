@@ -74,7 +74,7 @@ def _fcm_ready():
         import firebase_admin
 
         return bool(firebase_admin._apps)
-    except Exception:
+    except (Exception):
         return False
 
 
@@ -108,7 +108,7 @@ def _push_enabled_for_user(user, notification_type):
         return True
     try:
         return getattr(user.uzytkownik, field, True)
-    except Exception:
+    except (Exception):
         return True
 
 

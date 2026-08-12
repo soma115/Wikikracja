@@ -68,13 +68,7 @@
          data-bs-toggle="tooltip"
          title="{% trans 'Author' %}: {{ task.created_by.username }}">
         <i class="fas fa-user-pen proposal-role-icon" aria-hidden="true"></i>
-        <span class="avatar avatar-md avatar-accent">
-          {% if task.created_by.uzytkownik.avatar %}
-            <img src="{{ task.created_by.uzytkownik.avatar.url }}" alt="">
-          {% else %}
-            {{ task.created_by.username|slice:":2"|upper }}
-          {% endif %}
-        </span>
+        {% include "home/_user_avatar.html" with avatar=task.created_by.uzytkownik.avatar username=task.created_by.username size="md" %}
         <span class="proposal-author-name">{{ task.created_by.username }}</span>
       </a>
       {% else %}
@@ -94,13 +88,7 @@
            data-bs-toggle="tooltip"
            title="{% trans 'Coordinator' %}: {{ task.assigned_to.username }}">
           <i class="fas fa-user-gear proposal-role-icon" aria-hidden="true"></i>
-          <span class="avatar avatar-md avatar-accent">
-            {% if task.assigned_to.uzytkownik.avatar %}
-              <img src="{{ task.assigned_to.uzytkownik.avatar.url }}" alt="">
-            {% else %}
-              {{ task.assigned_to.username|slice:":2"|upper }}
-            {% endif %}
-          </span>
+          {% include "home/_user_avatar.html" with avatar=task.assigned_to.uzytkownik.avatar username=task.assigned_to.username size="md" %}
           <span class="proposal-coordinator-name">{{ task.assigned_to.username }}</span>
         </a>
       {% else %}
@@ -111,13 +99,7 @@
            data-bs-toggle="tooltip"
            title="{% trans 'Coordinator' %}: {{ request.user.username }}">
           <i class="fas fa-user-gear proposal-role-icon" aria-hidden="true"></i>
-          <span class="avatar avatar-md avatar-accent">
-            {% if request.user.uzytkownik.avatar %}
-              <img src="{{ request.user.uzytkownik.avatar.url }}" alt="">
-            {% else %}
-              {{ request.user.username|slice:":2"|upper }}
-            {% endif %}
-          </span>
+          {% include "home/_user_avatar.html" with avatar=request.user.uzytkownik.avatar username=request.user.username size="md" %}
           <span class="proposal-coordinator-name">{{ request.user.username }}</span>
         </a>
         <span class="proposal-coordinator-empty"
@@ -204,13 +186,7 @@
         <a href="{% url 'obywatele:obywatele_szczegoly' pk=task.assigned_to.pk %}"
            class="task-assignee-link"
            onclick="event.stopPropagation()">
-          <span class="avatar avatar-md avatar-discussion">
-            {% if task.assigned_to.uzytkownik.avatar %}
-              <img src="{{ task.assigned_to.uzytkownik.avatar.url }}" alt="">
-            {% else %}
-              {{ task.assigned_to.username|slice:":2"|upper }}
-            {% endif %}
-          </span>
+          {% include "home/_user_avatar.html" with avatar=task.assigned_to.uzytkownik.avatar username=task.assigned_to.username size="md" %}
           <span class="task-assignee-name">{{ task.assigned_to.username }}</span>
         </a>
       {% else %}

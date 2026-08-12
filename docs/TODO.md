@@ -1,5 +1,14 @@
+- cytowanie wiadomości w czacie. bez "pokaż więcej" w momencie pokazywania cytowanejwiadomości.
+
+- Jak często wysyłane są e-maile z powiadomieniami?
+E-maile z powiadomieniami są wysyłane według harmonogramu w scheduler.py:
+Czat — dwa razy dziennie: o 12:01 i 18:01 (@C:\Users\Robert\code\gitops\wikikracja\zzz\scheduler.py:48-50, ikracja\chat\management\commands\chat_messages.py" lines="20-21" />).
+Głosowania — raz dziennie: o 08:05 (scheduler.py:56-58, vote.py:21-22).
+Wydarzenia — co minutę, gdy w danej minucie zaczyna się jakieś wydarzenie (scheduler.py:68-69, services.py:34-41).
+Poza tym niektóre powiadomienia (np. o nowym obywatelu/prośbie o członkostwo, o nowej propozycji) są wysyłane natychmiastowo z poziomu formularzy/widoków, a nie cyklicznie.
+
+
 # OGÓLNE
-- 
 - Do formularza wstępnego: Czy jesteś zwolennikiem DB? Czy zgadzasz się na przestrzeganie naszych zasad?
 - Zalogowanie się w systemie oznacza zgodę na warunki. Będąc członkiem grupy masz wpływ na przepisy w takim samym stopniu jak każdy inny obywatel.
 - prywatne notatki o człowieku

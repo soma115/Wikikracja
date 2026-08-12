@@ -17,26 +17,26 @@
         </div>
         {% if show_status %}
           {% if task.status == task.Status.COMPLETED %}
-            <span class="badge bg-success text-uppercase">{{ task.get_status_display }}</span>
+            <span class="badge-status badge-success text-uppercase">{{ task.get_status_display }}</span>
           {% elif task.status == task.Status.CANCELLED %}
-            <span class="badge bg-secondary text-uppercase">{{ task.get_status_display }}</span>
+            <span class="badge-status badge-secondary text-uppercase">{{ task.get_status_display }}</span>
           {% elif task.status == task.Status.REJECTED %}
-            <span class="badge bg-dark text-uppercase">{{ task.get_status_display }}</span>
+            <span class="badge-status badge-dark text-uppercase">{{ task.get_status_display }}</span>
           {% else %}
-            <span class="badge bg-info text-dark text-uppercase">{{ task.get_status_display }}</span>
+            <span class="badge-status badge-info text-uppercase">{{ task.get_status_display }}</span>
           {% endif %}
         {% elif task.priority_label %}
           {% with task.priority_category as category %}
             {% if category == "critical" %}
-              <span class="badge bg-danger text-uppercase">{{ task.priority_label }}</span>
+              <span class="badge-status badge-danger text-uppercase">{{ task.priority_label }}</span>
             {% elif category == "important" %}
-              <span class="badge bg-warning text-dark text-uppercase">{{ task.priority_label }}</span>
+              <span class="badge-status badge-warning text-uppercase">{{ task.priority_label }}</span>
             {% elif category == "beneficial" %}
-              <span class="badge bg-success text-uppercase">{{ task.priority_label }}</span>
+              <span class="badge-status badge-success text-uppercase">{{ task.priority_label }}</span>
             {% elif category == "rejected" %}
-              <span class="badge bg-secondary text-uppercase">{{ task.priority_label }}</span>
+              <span class="badge-status badge-secondary text-uppercase">{{ task.priority_label }}</span>
             {% else %}
-              <span class="badge bg-info text-dark text-uppercase">{{ task.priority_label }}</span>
+              <span class="badge-status badge-info text-uppercase">{{ task.priority_label }}</span>
             {% endif %}
           {% endwith %}
         {% endif %}

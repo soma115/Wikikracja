@@ -13,13 +13,13 @@ def populate_reactions(apps, schema_editor):
     try:
         MessageVote = apps.get_model('chat', 'MessageVote')
         has_votes = True
-    except LookupError:
+    except (LookupError):
         has_votes = False
     
     try:
         MessageReaction = apps.get_model('chat', 'MessageReaction')
         has_reactions = True
-    except LookupError:
+    except (LookupError):
         has_reactions = False
     
     # Get all message IDs to avoid model instantiation issues

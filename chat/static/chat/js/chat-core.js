@@ -83,8 +83,8 @@ export async function uploadFiles(files, uploadUrl = '/chat/upload/') {
  */
 export function setReplyTarget(message_id, username, snippet, previewEl, previewTextEl) {
     if (previewEl && previewTextEl) {
-        previewTextEl.textContent = `${username}: ${snippet}`;
-        previewEl.style.display = '';
+        previewTextEl.textContent = snippet;
+        previewEl.classList.remove('d-none');
     }
     return message_id;
 }
@@ -95,7 +95,7 @@ export function setReplyTarget(message_id, username, snippet, previewEl, preview
  * @returns {null} Returns null (for state management by caller)
  */
 export function clearReplyTarget(previewEl) {
-    if (previewEl) previewEl.style.display = 'none';
+    if (previewEl) previewEl.classList.add('d-none');
     return null;
 }
 

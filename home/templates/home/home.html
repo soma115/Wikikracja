@@ -98,7 +98,7 @@
 <div class="section d-flex align-items-start justify-content-between gap-3 flex-wrap">
   <div>
     <h1 class="section-heading fs-5 mb-1">{% trans "Desktop" %}</h1>
-    <p class="mb-0 text-muted-md">
+    <p class="mb-0 text-muted text-md">
       {% trans "Hi" %}, <strong class="text-accent">{{ user.username }}</strong> — {% trans "here's what's new in your community" %}.
     </p>
   </div>
@@ -109,12 +109,6 @@
 
   {# Pierwsze kroki (tylko gdy są quick links) #}
   {% if quick_links %}
-  <style>
-  #quick-links-scroll { scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
-  #quick-links-scroll::-webkit-scrollbar { width: 3px; }
-  #quick-links-scroll::-webkit-scrollbar-track { background: transparent; }
-  #quick-links-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; opacity: .5; }
-  </style>
   <div class="col-12 col-lg-4">
     <div class="card h-100 overflow-hidden" id="onboarding-card">
       <div class="card-body d-flex flex-column gap-2 overflow-hidden-mh0">
@@ -140,7 +134,7 @@
         {% with total=quick_links|length %}
         <div class="progress-label">{% trans "Progress" %}: <span class="progress-label">0/{{ total }}</span></div>
         <div class="progress progress-thin">
-          <div class="progress-bar progress-bar-accent"></div>
+          <div class="progress-bar progress-bar-accent progress-fill"></div>
         </div>
         {% endwith %}
       </div>
@@ -176,29 +170,24 @@
     function updateUI(readLinks) {
       var total = document.querySelectorAll('.quick-link-row').length;
       var done = readLinks.length;
-      
-      document.querySelectorAll('.quick-link-circle').forEach(function(circle) {
+
+      document.querySelectorAll('.quick-link-row').forEach(function(row) {
+        var circle = row.querySelector('.quick-link-circle');
         var linkId = parseInt(circle.dataset.linkId);
-        var row = circle.closest('.quick-link-row');
-        var link = row.querySelector('a');
-        
-        if (readLinks.includes(linkId)) {
-          circle.className = 'flex-shrink-0 quick-link-circle fas fa-check-circle';
-          circle.style.color = '#00bc8c';
-          circle.style.opacity = '1';
-          link.style.color = 'var(--text-muted)';
-        } else {
-          circle.className = 'flex-shrink-0 quick-link-circle far fa-circle';
-          circle.style.color = '#ff6b6b';
-          circle.style.opacity = '1';
-          link.style.color = 'var(--accent)';
-        }
+        var isRead = readLinks.includes(linkId);
+
+        row.classList.toggle('is-read', isRead);
+        circle.classList.toggle('is-read', isRead);
+        circle.classList.toggle('fas', isRead);
+        circle.classList.toggle('fa-check-circle', isRead);
+        circle.classList.toggle('far', !isRead);
+        circle.classList.toggle('fa-circle', !isRead);
       });
-      
+
       var bar = document.querySelector('#onboarding-card .progress-bar');
       var label = document.querySelector('#onboarding-card .progress-label');
       if (bar) {
-        bar.style.width = Math.round(done / total * 100) + '%';
+        bar.style.setProperty('--progress', Math.round(done / total * 100) + '%');
       }
       if (label) {
         label.textContent = done + '/' + total;
@@ -242,7 +231,7 @@
     <div class="card h-100 position-relative">
       <div class="card-header d-flex align-items-center justify-content-between gap-2">
         <span class="section-heading tile-heading">
-          <i class="fas fa-stream me-1 text-accent-70"></i>{% trans "Activity" %}
+          <i class="fas fa-stream me-1 text-accent opacity-70"></i>{% trans "Activity" %}
         </span>
         {% if unread_items_no_events %}
         <span class="badge-status activity-badge">
@@ -253,7 +242,7 @@
       <div class="card-body p-0 overflow-hidden-mh0" id="activity-feed-body">
         {% for item in last_feed_items %}
         <div class="task-dash-row d-flex align-items-center gap-2 px-3 py-2 activity-feed-row min-w-0 {% if not item.is_read %}unread-item unread-row{% endif %}">
-          <span class="badge text-bg-{{ item.content_type|content_type_color }} flex-shrink-0 badge-status-xs">
+          <span class="badge-status badge-{{ item.content_type|content_type_color }} flex-shrink-0 badge-status-xs">
             {{ item.content_type|content_type_label }}
           </span>
           <a href="{{ item.url }}"
@@ -268,7 +257,7 @@
           </span>
         </div>
         {% empty %}
-        <div class="px-3 py-3 text-center text-muted-sm">
+        <div class="px-3 py-3 text-center text-muted text-sm">
           {% trans "No activity in the last 30 days" %}
         </div>
         {% endfor %}
@@ -338,7 +327,7 @@
           {% for occ in upcoming_events %}
           <li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
             <span class="flex-shrink-0 {% if occ.event.is_public %}dot-public{% else %}dot-private{% endif %}"></span>
-            <span class="flex-shrink-0 text-muted-nowrap">{{ occ.date|date:"D d M · H:i" }}</span>
+            <span class="flex-shrink-0 text-muted text-nowrap">{{ occ.date|date:"D d M · H:i" }}</span>
             <a href="{% url 'events:detail' occ.event.pk %}"
                class="task-dash-link"
                class="text-primary-link"
@@ -347,12 +336,12 @@
           {% endfor %}
         </ul>
         <a href="{% url 'events:list' %}" class="task-dash-row d-flex align-items-center gap-2 mt-auto calendar-link">
-          <i class="fas fa-calendar-days font-75 opacity-70"></i>{% trans "Full calendar" %} →
+          <i class="fas fa-calendar-days text-xs opacity-70"></i>{% trans "Full calendar" %} →
         </a>
         <a href="{% url 'events:list' %}" class="stretched-link"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
-          <p class="mb-0 text-center text-muted-md">{% trans "No upcoming events" %}</p>
+          <p class="mb-0 text-center text-muted text-md">{% trans "No upcoming events" %}</p>
           <a href="{% url 'events:create' %}" class="link-more">{% trans "Add an event" %} →</a>
         </div>
         <a href="{% url 'events:list' %}" class="stretched-link"></a>
@@ -391,7 +380,7 @@
         <a href="{% url 'glosowania:proposition' %}" class="stretched-link" title="{% trans "All suggestions" %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
-          <p class="mb-0 text-center text-muted-md">{% trans "No voting proposals" %}</p>
+          <p class="mb-0 text-center text-muted text-md">{% trans "No voting proposals" %}</p>
           <a href="{% url 'glosowania:proposition' %}" class="link-more">{% trans "Go to Agora" %} →</a>
         </div>
         <a href="{% url 'glosowania:proposition' %}" class="stretched-link" title="{% trans "All suggestions" %}"></a>
@@ -425,7 +414,7 @@
         <a href="{% url 'glosowania:discussion' %}" class="stretched-link" title="{% trans "All discussions" %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
-          <p class="mb-0 text-center text-muted-md">{% trans "No discussed votings" %}</p>
+          <p class="mb-0 text-center text-muted text-md">{% trans "No discussed votings" %}</p>
           <a href="{% url 'glosowania:discussion' %}" class="link-more">{% trans "Go to Agora" %} →</a>
         </div>
         <a href="{% url 'glosowania:discussion' %}" class="stretched-link" title="{% trans "All discussions" %}"></a>
@@ -457,7 +446,7 @@
         <a href="{% url 'glosowania:approved' %}" class="stretched-link" title="{% trans "Go to Agora" %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
-          <p class="mb-0 text-center text-muted-md">{% trans "No active votings" %}</p>
+          <p class="mb-0 text-center text-muted text-md">{% trans "No active votings" %}</p>
           <a href="{% url 'glosowania:approved' %}" class="link-more">{% trans "Go to Agora" %} →</a>
         </div>
         <a href="{% url 'glosowania:approved' %}" class="stretched-link" title="{% trans "Go to Agora" %}"></a>
@@ -494,7 +483,7 @@
         <a href="{% url 'tasks:list' %}?tab=mine" class="stretched-link"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
-          <p class="mb-0 text-center text-muted-md">{% trans "You have no assigned tasks" %}</p>
+          <p class="mb-0 text-center text-muted text-md">{% trans "You have no assigned tasks" %}</p>
           <span class="text-sm text-accent">{% trans "See group tasks" %} →</span>
         </div>
         <a href="{% url 'tasks:list' %}" class="stretched-link"></a>
@@ -516,13 +505,7 @@
         <div class="d-flex flex-wrap gap-2 align-items-center">
           {% for cit in new_people|slice:":6" %}
           <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=cit.pk %}" title="{{ cit.uid.username }}" class="new-people-link">
-            {% if cit.avatar %}
-              <img src="{{ cit.avatar.url }}" alt="{{ cit.uid.username }}" class="avatar avatar-4xl">
-            {% else %}
-              <div class="avatar avatar-4xl avatar-fallback citizen-color-{{ cit.uid.username|citizen_color_class }}">
-                {{ cit.uid.username|slice:":2"|upper }}
-              </div>
-            {% endif %}
+            {% include "home/_user_avatar.html" with avatar=cit.avatar username=cit.uid.username size="4xl" %}
           </a>
           {% endfor %}
           {% if new_people|length > 6 %}
@@ -535,7 +518,7 @@
           {% trans "Newest candidate" %}: <i class="fas fa-user me-1"></i><strong>{{ new_people.0.uid.username }}</strong> · {{ new_people.0.uid.date_joined|date:"d.m.Y" }}
         </p>
         {% else %}
-        <p class="mb-0 text-muted-md">{% trans "No new people" %}</p>
+        <p class="mb-0 text-muted text-md">{% trans "No new people" %}</p>
         {% endif %}
       </div>
     </div>
@@ -629,13 +612,7 @@
       <div class="card-body p-3 d-flex flex-column gap-1">
         {% for msg in recent_chat_messages %}
         <div class="chat-msg-row d-flex align-items-center gap-2 min-w-0 position-relative z-1">
-          <div class="avatar avatar-xl {% if not msg.sender.uzytkownik.avatar %}avatar-fallback{% endif %}">
-            {% if msg.sender.uzytkownik.avatar %}
-              <img src="{{ msg.sender.uzytkownik.avatar.url }}" alt="">
-            {% else %}
-              {{ msg.sender.username|slice:":2"|upper }}
-            {% endif %}
-          </div>
+          {% include "home/_user_avatar.html" with avatar=msg.sender.uzytkownik.avatar username=msg.sender.username size="xl" %}
           <span class="chat-msg-sender">{{ msg.sender.username }}</span>
           <span class="chat-msg-link">{{ msg.text|striptags|truncatechars:60 }}</span>
           <span class="chat-msg-room">{{ msg.room.title|truncatechars:18 }}</span>
@@ -643,7 +620,7 @@
           <a href="{% url 'chat:chat' %}#room_id={{ msg.room.id }}" class="stretched-link"></a>
         </div>
         {% empty %}
-        <p class="text-center text-muted-85">{% trans "No news" %}</p>
+        <p class="text-center text-muted text-sm">{% trans "No news" %}</p>
         {% endfor %}
       </div>
       <a href="{% url 'chat:chat' %}" class="stretched-link"></a>

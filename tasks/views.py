@@ -39,7 +39,7 @@ def invalidate_task_list_cache(user_id=None):
         # Bump global version — all per-user keys become stale immediately
         try:
             cache.incr(TASK_LIST_GLOBAL_VERSION_KEY)
-        except ValueError:
+        except (ValueError):
             cache.set(TASK_LIST_GLOBAL_VERSION_KEY, 2, timeout=None)
 
 
@@ -254,7 +254,7 @@ def _serialize_user(user):
     if uzy and getattr(uzy, "avatar", None):
         try:
             avatar_url = uzy.avatar.url
-        except ValueError:
+        except (ValueError):
             avatar_url = ""
     return {"id": user.id, "username": user.username, "avatar_url": avatar_url, "profile_url": reverse("obywatele:obywatele_szczegoly", args=[user.pk])}
 
@@ -389,7 +389,7 @@ def vote_task(request: HttpRequest, pk: int) -> HttpResponse:
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     try:
         value = int(request.POST.get("value", 0))
-    except ValueError, TypeError:
+    except (ValueError, TypeError):
         value = 0
     if value not in (TaskVote.Value.DOWN, TaskVote.Value.UP):
         if is_ajax:

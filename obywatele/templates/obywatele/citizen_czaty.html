@@ -27,7 +27,7 @@
               <a href="{% url 'chat:chat' %}#room_id={{ room.id }}">{{ room_name }}</a>
               <span class="d-flex gap-2 align-items-center">
                 {% if room.protected %}
-                  <span class="badge text-bg-secondary">{% trans "protected" %}</span>
+                  <span class="badge-status badge-secondary">{% trans "protected" %}</span>
                 {% endif %}
                 {% if room.last_activity %}
                   <small class="text-muted">{{ room.last_activity|date:"Y-m-d" }}</small>

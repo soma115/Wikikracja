@@ -135,7 +135,7 @@ def mark_as_read(request):
         feed_service.mark_feed_item_as_read(content_type, object_id, request.user)
         return JsonResponse({'success': True})
 
-    except ValueError:
+    except (ValueError):
         return JsonResponse({'success': False, 'error': 'Invalid parameters'})
 
 
@@ -181,7 +181,7 @@ def mark_unread(request):
         feed_service.mark_feed_item_as_unread(content_type, object_id, request.user)
         return JsonResponse({'success': True})
 
-    except ValueError:
+    except (ValueError):
         return JsonResponse({'success': False, 'error': 'Invalid parameters'})
 
 
@@ -339,7 +339,7 @@ def site_admin(request: HttpRequest) -> HttpResponse:
             link.order = order
             link.save()
             messages.success(request, _('Link updated.'))
-        except QuickLink.DoesNotExist:
+        except (QuickLink.DoesNotExist):
             messages.error(request, _("Link doesn't exist."))
         return redirect('site_admin')
 
@@ -350,7 +350,7 @@ def site_admin(request: HttpRequest) -> HttpResponse:
                 link = QuickLink.objects.get(id=link_id)
                 link.order = index
                 link.save()
-            except QuickLink.DoesNotExist:
+            except (QuickLink.DoesNotExist):
                 continue
         return JsonResponse({'ok': True})
 
@@ -360,7 +360,7 @@ def site_admin(request: HttpRequest) -> HttpResponse:
             link = QuickLink.objects.get(id=link_id)
             link.delete()
             messages.success(request, _('Link deleted.'))
-        except QuickLink.DoesNotExist:
+        except (QuickLink.DoesNotExist):
             messages.error(request, _("Link doesn't exist."))
         return redirect('site_admin')
 

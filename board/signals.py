@@ -11,7 +11,7 @@ from .models import Post
 # Import the utility function we created
 try:
     from chat.utils import send_message_to_room
-except ImportError:
+except (ImportError):
     # Fallback if the function isn't available
     def send_message_to_room(room_title, message_text, sender=None, anonymous=True):
         print(f"Would send message to {room_title}: {message_text}")

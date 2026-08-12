@@ -29,7 +29,7 @@ class OnlineUserRegistry:
                     return
         try:
             del self._reg[user.id]
-        except KeyError:
+        except (KeyError):
             pass  # User already removed from registry, this is normal
         except Exception as e:
             log.error(f"utils.py: Exception {str(e)} for user {user.id}")
@@ -187,7 +187,7 @@ def send_message_to_room(room_title, message_text, sender=None, anonymous=True, 
         # Create the message in the database
         try:
             room = Room.objects.get(title=room_title)
-        except Room.DoesNotExist:
+        except (Room.DoesNotExist):
             log.error(f"Room '{room_title}' does not exist")
             return None
         message = Message.objects.create(sender=sender, text=message_text, room=room, anonymous=anonymous, guest_email=guest_email, guest_name=guest_name)
@@ -250,10 +250,10 @@ def send_message_to_room(room_title, message_text, sender=None, anonymous=True, 
                     log.warning(f"Could not push WebSocket notification to user {user.id}: {e}")
 
         return message
-    except Room.DoesNotExist:
+    except (Room.DoesNotExist):
         log.error(f"Room '{room_title}' not found")
         return None
-    except asyncio.CancelledError:
+    except (asyncio.CancelledError):
         log.warning(f"send_message_to_room cancelled for room '{room_title}' (async context interrupted)")
         return None
     except Exception as e:

@@ -48,7 +48,7 @@ class SiteSettings(models.Model):
             return False
         try:
             return os.path.isfile(self.brand_mark.path)
-        except ValueError, OSError:
+        except (ValueError, OSError):
             return False
 
     def has_brand_derivatives(self):
@@ -71,7 +71,7 @@ class SiteSettings(models.Model):
         try:
             regenerate_brand_derivatives(self)
             return os.path.isfile(favicon_path)
-        except Exception:
+        except (Exception):
             # If regeneration fails, fall back to False (use default favicon)
             return False
 

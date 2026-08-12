@@ -639,9 +639,6 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('[data-progress]').forEach(function (el) {
         el.style.setProperty('--progress', el.dataset.progress + '%');
     });
-    document.querySelectorAll('[data-width]').forEach(function (el) {
-        el.style.setProperty('--w', el.dataset.width + '%');
-    });
 });
 
 // Shared chip filter logic for search/ and activity/ pages.

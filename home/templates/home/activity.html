@@ -71,7 +71,7 @@
       {% for item in feed_items %}
       <a href="{{ item.url }}" class="feed-row {% if not item.is_read %}unread-item{% endif %}" data-content-type="{{ item.content_type }}" data-object-id="{{ item.object_id }}">
 
-        <span class="badge text-bg-{{ item.content_type|content_type_color }} flex-shrink-0 mt-1 badge-status-xs">
+        <span class="badge-status badge-{{ item.content_type|content_type_color }} flex-shrink-0 mt-1 badge-status-xs">
           {{ item.content_type|content_type_label }}
         </span>
 
@@ -79,7 +79,7 @@
           <div class="feed-title {% if not item.is_read %}fw-semibold{% endif %}">
             {{ item.title }}
             {% if item.content_type == 'room_messages' and item.message_count > 1 %}
-            <span class="badge chat-message-count text-bg-{{ item.content_type|content_type_color }} ms-1 {% if item.is_read %}d-none{% endif %} badge-activity-count">{{ item.message_count }}</span>
+            <span class="badge-status badge-{{ item.content_type|content_type_color }} chat-message-count ms-1 {% if item.is_read %}d-none{% endif %} badge-activity-count">{{ item.message_count }}</span>
             {% endif %}
           </div>
           {% if item.description and item.content_type != 'event' %}
@@ -91,13 +91,7 @@
           {% if item.author %}
           <div class="d-flex align-items-center gap-1">
             <div class="feed-avatar">
-              {% if item.author.uzytkownik and item.author.uzytkownik.avatar %}
-                <img src="{{ item.author.uzytkownik.avatar.url }}" alt="{{ item.author.username }}" class="avatar avatar-sm">
-              {% else %}
-                <div class="avatar avatar-sm avatar-fallback citizen-color-{{ item.author.username|citizen_color_class }}">
-                  {{ item.author.username|slice:":2"|upper }}
-                </div>
-              {% endif %}
+              {% include "home/_user_avatar.html" with avatar=item.author.uzytkownik.avatar username=item.author.username size="sm" %}
             </div>
             <span class="text-xs text-muted">{{ item.author.username }}</span>
           </div>
@@ -114,14 +108,14 @@
                 title="{% if item.is_read %}{% trans 'Mark as unread' %}{% else %}{% trans 'Mark as read' %}{% endif %}">
             <i class="fas {% if item.is_read %}fa-eye-slash{% else %}fa-eye{% endif %}"></i>
           </span>
-          <span class="text-xs text-muted-nowrap">{{ item.timestamp|date:"d.m H:i" }}</span>
+          <span class="text-xs text-muted text-nowrap">{{ item.timestamp|date:"d.m H:i" }}</span>
         </div>
 
       </a>
       {% empty %}
       <div class="p-5 text-center">
         <i class="fas fa-inbox fa-2x d-block mb-2 empty-state-icon"></i>
-        <span class="text-muted-md">{% trans "No activity" %}</span>
+        <span class="text-muted text-md">{% trans "No activity" %}</span>
       </div>
       {% endfor %}
     </div>

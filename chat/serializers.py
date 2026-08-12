@@ -1,3 +1,6 @@
+from home.templatetags.feed_filters import citizen_color_class
+
+
 def build_chat_message_payload(event, *, user, vote_value, current_user, your_reactions=None, avatar_url=None):
     """Buduje payload wiadomości chata wysyłany do klienta (WebSocket -> JS).
 
@@ -9,9 +12,11 @@ def build_chat_message_payload(event, *, user, vote_value, current_user, your_re
     """
     anonymous = event.get("anonymous", False)
     payload = {k: v for k, v in event.items() if k not in ("type",)}
+    username = "System" if user is None else ("Anonymous" if anonymous else user.username)
     payload["user_id"] = None if anonymous or user is None else user.id
-    payload["username"] = "System" if user is None else ("Anonymous" if anonymous else user.username)
+    payload["username"] = username
     payload["avatar_url"] = "/static/home/images/anonymous.svg" if anonymous else avatar_url
+    payload["citizen_color_class"] = citizen_color_class(username)
     payload["new"] = event["new"] if current_user != user else False
     payload["your_vote"] = vote_value if vote_value else None
     payload["own"] = current_user == user

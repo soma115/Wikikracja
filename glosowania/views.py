@@ -74,7 +74,7 @@ def dodaj(request: HttpRequest):
 def edit(request: HttpRequest, pk: int):
     try:
         decision = Decyzja.objects.get(pk=pk)
-    except Decyzja.DoesNotExist:
+    except (Decyzja.DoesNotExist):
         return redirect('glosowania:index')
 
     if decision.author != request.user:
@@ -130,7 +130,7 @@ def details(request: HttpRequest, pk: int):
         with transaction.atomic():
             try:
                 nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
-            except Decyzja.DoesNotExist:
+            except (Decyzja.DoesNotExist):
                 return redirect('glosowania:index')
             osoba_podpisujaca = request.user
             __, created = ZebranePodpisy.objects.get_or_create(projekt=nowy_projekt, podpis_uzytkownika=osoba_podpisujaca)
@@ -144,7 +144,7 @@ def details(request: HttpRequest, pk: int):
         with transaction.atomic():
             try:
                 nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
-            except Decyzja.DoesNotExist:
+            except (Decyzja.DoesNotExist):
                 return redirect('glosowania:index')
             osoba_podpisujaca = request.user
             deleted, __ = ZebranePodpisy.objects.filter(projekt=nowy_projekt, podpis_uzytkownika=osoba_podpisujaca).delete()
@@ -159,7 +159,7 @@ def details(request: HttpRequest, pk: int):
             with transaction.atomic():
                 try:
                     nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
-                except Decyzja.DoesNotExist:
+                except (Decyzja.DoesNotExist):
                     return redirect('glosowania:index')
                 osoba_glosujaca = request.user
                 already_voted = KtoJuzGlosowal.objects.filter(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca).exists()
@@ -175,7 +175,7 @@ def details(request: HttpRequest, pk: int):
                 # counted into za/przeciw - only once the referendum closes
                 # (glosowania.management.commands.vote).
                 push_pending_vote(nowy_projekt.id, code, True)
-        except redis.RedisError:
+        except (redis.RedisError):
             # If vote storage is unreachable, the KtoJuzGlosowal row above is
             # rolled back with the rest of the transaction, so the user isn't
             # marked as having voted without their vote being recorded.
@@ -199,7 +199,7 @@ def details(request: HttpRequest, pk: int):
             with transaction.atomic():
                 try:
                     nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
-                except Decyzja.DoesNotExist:
+                except (Decyzja.DoesNotExist):
                     return redirect('glosowania:index')
                 osoba_glosujaca = request.user
                 already_voted = KtoJuzGlosowal.objects.filter(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca).exists()
@@ -210,7 +210,7 @@ def details(request: HttpRequest, pk: int):
                 code = generate_code()
                 # See the 'tak' branch above for why this isn't a VoteCode.objects.create() here.
                 push_pending_vote(nowy_projekt.id, code, False)
-        except redis.RedisError:
+        except (redis.RedisError):
             log.error(f"Vote storage unavailable while casting a vote on decyzja {pk}", exc_info=True)
             messages.error(request, str(_('Voting is temporarily unavailable. Please try again in a moment.')))
             return redirect('glosowania:details', pk)

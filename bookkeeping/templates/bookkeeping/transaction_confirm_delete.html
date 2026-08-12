@@ -24,9 +24,9 @@
         <p>{% trans "Are you sure you want to delete this transaction?" %}</p>
         <p><strong>{% trans "Type" %}:</strong> 
           {% if object.type == 'I' %}
-            <span class="badge text-bg-success">{% trans "Incoming" %}</span>
+            <span class="badge-status badge-success">{% trans "Incoming" %}</span>
           {% else %}
-            <span class="badge text-bg-danger">{% trans "Outgoing" %}</span>
+            <span class="badge-status badge-danger">{% trans "Outgoing" %}</span>
           {% endif %}
         </p>
         <p><strong>{% trans "Partner" %}:</strong> {{ object.partner }}</p>

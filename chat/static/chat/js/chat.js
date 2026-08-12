@@ -744,7 +744,7 @@ export async function onReceiveMessages(messages) {
             msgdiv.insertAdjacentHTML('beforeend', `<div class='date-banner'>${current_banner}</div>`);
         }
         DOM_API.addMessage(
-            message.room_id, message.user_id ?? null, message.avatar_url ?? null, message.message_id, message.username, message.message,
+            message.room_id, message.user_id ?? null, message.avatar_url ?? null, message.citizen_color_class ?? '', message.message_id, message.username, message.message,
             message.upvotes, message.downvotes, message.your_vote, message.own, message.edited,
             message.attachments, message.timestamp, message.latest_timestamp,
             message.reply_to ?? null,
@@ -768,7 +768,7 @@ export async function onReceiveMessages(messages) {
                 lastBannerText = current_banner;
             }
             batchHtml += DOM_API.buildMessageHtml(
-                message.room_id, message.user_id ?? null, message.avatar_url ?? null, message.message_id, message.username, message.message,
+                message.room_id, message.user_id ?? null, message.avatar_url ?? null, message.citizen_color_class ?? '', message.message_id, message.username, message.message,
                 message.upvotes, message.downvotes, message.your_vote, message.own, message.edited,
                 message.attachments, message.timestamp, message.latest_timestamp,
                 message.reply_to ?? null,
@@ -823,7 +823,7 @@ export async function onReplaceMessages(messages, room_id) {
 
     for (const message of messages) {
         DOM_API.addMessage(
-            message.room_id, message.user_id ?? null, message.avatar_url ?? null, message.message_id, message.username, message.message,
+            message.room_id, message.user_id ?? null, message.avatar_url ?? null, message.citizen_color_class ?? '', message.message_id, message.username, message.message,
             message.upvotes, message.downvotes, message.your_vote, message.own, message.edited,
             message.attachments, message.timestamp, message.latest_timestamp,
             message.reply_to ?? null,
@@ -1136,7 +1136,7 @@ export async function onSubmitMessage(message, editing_message_id) {
         }
 
         DOM_API.addMessage(
-            CurrentRoomId, null, null, temp_id, ownUsername, message,
+            CurrentRoomId, null, null, '', temp_id, ownUsername, message,
             0, 0, null, true, false,
             attachments, now, now,
             reply_to, { bulb: 0, question: 0 }, [], [],

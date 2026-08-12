@@ -20,7 +20,7 @@ FEED_DAYS = 90
 def invalidate_feed_cache():
     try:
         cache.delete(FEED_CACHE_KEY)
-    except Exception:
+    except (Exception):
         log.warning("Could not invalidate feed cache; cache backend unavailable.", exc_info=True)
 
 

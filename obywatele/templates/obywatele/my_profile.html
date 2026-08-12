@@ -2,22 +2,7 @@
 {% load static %}
 {% load i18n %}
 {% load profile_tags %}
-{% block extra_css %}
-<style>
-.profile-row {
-  display: flex;
-  align-items: baseline;
-  gap: .5rem;
-  padding: .35rem 0;
-  border-bottom: 1px solid var(--border);
-  font-size: .875rem;
-}
-.profile-row:last-child { border-bottom: none; }
-.profile-key { color: var(--text-muted); font-size: .78rem; min-width: 160px; flex-shrink: 0; }
-.profile-val { color: var(--text-primary); font-weight: 500; }
-.profile-val.empty { color: var(--text-muted); font-weight: 400; }
-</style>
-{% endblock %}
+
 {% block extra_js %}
 <script src="{% static 'obywatele/js/profile.js' %}"></script>
 <script>
@@ -80,13 +65,7 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
         {% csrf_token %}
         <input class="mig-hidden" type="file" id="avatar-input" name="avatar" accept="image/*">
         <div class="avatar-upload-wrap" id="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
-          {% if profile.avatar %}
-            <img id="avatar-img" src="{{ profile.avatar.url }}" alt="avatar" class="avatar avatar-7xl avatar-bordered">
-          {% else %}
-            <div class="avatar avatar-7xl avatar-bordered" id="avatar-img">
-              <i class="fas fa-user text-accent-14"></i>
-            </div>
-          {% endif %}
+          {% include "home/_user_avatar.html" with avatar=profile.avatar username=user.username size="7xl" extra_class="avatar-bordered" id="avatar-img" loading_lazy=False %}
           <div class="avatar-overlay" id="avatar-overlay">
             <i class="fas fa-camera avatar-overlay-icon"></i>
           </div>
@@ -265,7 +244,7 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
           </button>
         </form>
       {% else %}
-        <p class="mb-2 text-muted-9">
+        <p class="mb-2 text-muted opacity-90">
           {% trans "Permanently delete your account and all associated data." %}
           <br>
           {% trans "This action has a 30-day grace period — you can cancel any time before the deadline." %}

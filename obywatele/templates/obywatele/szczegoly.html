@@ -32,16 +32,10 @@
 
   <div class="card mb-3">
     <div class="card-header d-flex align-items-center gap-3">
-      {% if b.avatar %}
-        <img src="{{ b.avatar.url }}" alt="avatar" class="avatar avatar-6xl">
-      {% else %}
-        <div class="avatar avatar-6xl avatar-fallback">
-          {{ b.uid.username|slice:":2"|upper }}
-        </div>
-      {% endif %}
+      {% include "home/_user_avatar.html" with avatar=b.avatar username=b.uid.username size="6xl" %}
       <h5 class="mb-0">{{ b.uid.first_name|default:b.uid }} {{ b.uid.last_name }}
         {% if candidate_deletion_request %}
-        <span class="badge text-bg-danger ms-1" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash-alt"></i></span>
+        <span class="badge-status badge-danger ms-1" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash-alt"></i></span>
         {% endif %}
       </h5>
       {% if active %}
@@ -68,9 +62,9 @@
         <div class="col-md-6 mb-2">
           <strong>{% trans 'Email confirmed' %}:</strong>
           {% if email_confirmed %}
-            <span class="badge text-bg-success">{% trans 'Yes' %}</span>
+            <span class="badge-status badge-success">{% trans 'Yes' %}</span>
           {% else %}
-            <span class="badge text-bg-warning">{% trans 'No' %}</span>
+            <span class="badge-status badge-warning">{% trans 'No' %}</span>
           {% endif %}
         </div>
         <div class="col-md-6 mb-2">

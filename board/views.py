@@ -50,7 +50,7 @@ def board(request: HttpRequest) -> HttpResponse:
     for pk in raw_pks:
         try:
             active_categories.append(int(pk))
-        except ValueError, TypeError:
+        except (ValueError, TypeError):
             pass
 
     if request.user.is_authenticated:

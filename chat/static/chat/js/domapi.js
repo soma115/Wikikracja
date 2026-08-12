@@ -44,10 +44,10 @@ export default class DomApi {
         return room ? $('.messages', room) : null;
     }
 
-    buildMessageHtml(room_id, user_id, avatar_url, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null) {
+    buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null) {
         const formatted = this.formatMessage(message);
         return Message({
-            room_id, user_id, avatar_url, message_id, username,
+            room_id, user_id, avatar_url, citizen_color_class, message_id, username,
             message: this.wrapExpandable(formatted),
             raw_message: message,
             upvotes, downvotes, vote, own, edited, attachments,
@@ -60,8 +60,8 @@ export default class DomApi {
         });
     }
 
-    addMessage(room_id, user_id, avatar_url, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, temp_id = null) {
-        const html = this.buildMessageHtml(room_id, user_id, avatar_url, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to, reactions, your_reactions, read_by);
+    addMessage(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, temp_id = null) {
+        const html = this.buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to, reactions, your_reactions, read_by);
 
         const messagesDiv = this.getMessagesDiv();
         messagesDiv?.insertAdjacentHTML('beforeend', html);
@@ -115,7 +115,7 @@ export default class DomApi {
             const pct = Math.round((upvotes / total) * 100);
             const cls = pct >= 60 ? 'vote-bar--positive' : (pct >= 40 ? 'vote-bar--neutral' : 'vote-bar--negative');
             if (barFill) {
-                barFill.style.width = `${pct}%`;
+                barFill.style.setProperty('--vote-progress', `${pct}%`);
                 barFill.className = `vote-bar-fill ${cls}`;
             }
             if (barLabel) barLabel.textContent = `${pct}% popiera`;
@@ -429,9 +429,9 @@ export default class DomApi {
     showCopyFeedback(button, message, success) {
         if (!button) return;
         const tooltip = document.createElement('span');
-        tooltip.className = "copy-feedback badge";
+        tooltip.className = "copy-feedback badge-status";
         tooltip.textContent = message;
-        tooltip.classList.add(success ? 'text-bg-success' : 'text-bg-danger');
+        tooltip.classList.add(success ? 'badge-success' : 'badge-danger');
         button.appendChild(tooltip);
         setTimeout(() => {
             tooltip.style.transition = 'opacity 0.2s';

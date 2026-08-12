@@ -16,22 +16,22 @@
             <td class="td-link"><a href="{% url 'tasks:detail' pk=task.pk %}">{{ task.title }}</a></td>
             <td>
               {% if task.status == 'active' %}
-                <span class="badge text-bg-success">{{ task.get_status_display }}</span>
+                <span class="badge-status badge-success">{{ task.get_status_display }}</span>
               {% elif task.status == 'completed' %}
-                <span class="badge text-bg-primary">{{ task.get_status_display }}</span>
+                <span class="badge-status badge-primary">{{ task.get_status_display }}</span>
               {% elif task.status == 'cancelled' %}
-                <span class="badge text-bg-secondary">{{ task.get_status_display }}</span>
+                <span class="badge-status badge-secondary">{{ task.get_status_display }}</span>
               {% else %}
-                <span class="badge text-bg-danger">{{ task.get_status_display }}</span>
+                <span class="badge-status badge-danger">{{ task.get_status_display }}</span>
               {% endif %}
             </td>
             <td>
               {% if task.created_by == target_user and task.assigned_to == target_user %}
-                <span class="badge text-bg-info">{% trans "Author & assignee" %}</span>
+                <span class="badge-status badge-info">{% trans "Author & assignee" %}</span>
               {% elif task.created_by == target_user %}
-                <span class="badge text-bg-info">{% trans "Author" %}</span>
+                <span class="badge-status badge-info">{% trans "Author" %}</span>
               {% elif task.assigned_to == target_user %}
-                <span class="badge text-bg-warning">{% trans "Assignee" %}</span>
+                <span class="badge-status badge-warning">{% trans "Assignee" %}</span>
               {% endif %}
             </td>
             <td class="text-muted small">{{ task.created_at|date:"d.m.Y" }}</td>

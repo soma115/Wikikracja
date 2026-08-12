@@ -36,7 +36,7 @@ class Command(BaseCommand):
         for room in public_rooms:
             try:
                 last_message = Message.objects.filter(room_id=room.id).latest('time')
-            except Message.DoesNotExist:
+            except (Message.DoesNotExist):
                 # logger.info(f'Message.DoesNotExist1 in {room}')
                 continue
             if last_message.time < (timezone.now() - td(days=archive_after)):  # archive public after 3 months
@@ -64,7 +64,7 @@ class Command(BaseCommand):
                     room.save()
                     try:
                         last_message = Message.objects.filter(room_id=room.id).latest('time')
-                    except Message.DoesNotExist:
+                    except (Message.DoesNotExist):
                         # TODO This happens only for rooms without messages so not really needed
                         # logger.info(f'Message.DoesNotExist2 in {room}')
                         continue

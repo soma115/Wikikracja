@@ -9,7 +9,7 @@
     <span class="section-heading">{% trans "Candidates" %} (<span id="citizens-count">{{ uid|length }}</span>)</span>
     <span class="text-muted small">
       {% trans "New person will be accepted above" %}
-      <span class="badge text-bg-primary rounded-pill">{{ acceptance }}</span>
+      <span class="badge-status badge-primary rounded-pill">{{ acceptance }}</span>
       {% trans "threshold." %}
     </span>
   </div>
@@ -59,13 +59,7 @@
               <td>
                 <div class="username-container">
                   <div class="citizen-list-avatar-wrap flex-shrink-0">
-                    <div class="avatar avatar-lg {% if not i.uzytkownik.avatar %}avatar-fallback{% endif %}">
-                      {% if i.uzytkownik.avatar %}
-                        <img src="{{ i.uzytkownik.avatar.url }}" alt="{{ i.username }}">
-                      {% else %}
-                        {{ i.username|slice:":1"|upper }}
-                      {% endif %}
-                    </div>
+                    {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username size="lg" %}
                   </div>
                   {% if i.rating == 1 %}
                     <i class="fas fa-check-circle text-success flex-shrink-0" title="{% trans 'You accepted this candidate' %}"></i>
@@ -120,13 +114,7 @@
            data-href="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}"
            data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
         <div class="citizen-card-top">
-          <div class="avatar avatar-5xl {% if not i.uzytkownik.avatar %}avatar-fallback{% endif %}">
-            {% if i.uzytkownik.avatar %}
-              <img src="{{ i.uzytkownik.avatar.url }}" alt="{{ i.username }}">
-            {% else %}
-              {{ i.username|slice:":1"|upper }}
-            {% endif %}
-          </div>
+          {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username size="5xl" %}
           <span class="candidate-vote-badge">
             {% if i.rating == 1 %}
               <i class="fas fa-check-circle text-success" title="{% trans 'You accepted this candidate' %}"></i>

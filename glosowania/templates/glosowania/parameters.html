@@ -16,19 +16,19 @@
   </div>
 
   <p>
-    {% trans 'New proposal needs to gather' %} <span class="badge text-bg-primary rounded-pill">{{ signatures }}</span> {% trans 'signatures in order to trigger referendum. This number should remain low enough for any sensible proposal to be voted on, and only high enough to filter out obvious spam.' %}
+    {% trans 'New proposal needs to gather' %} <span class="badge-status badge-primary rounded-pill">{{ signatures }}</span> {% trans 'signatures in order to trigger referendum. This number should remain low enough for any sensible proposal to be voted on, and only high enough to filter out obvious spam.' %}
   </p>
   <p>
-    {% trans 'Maximum time to gather signatures is' %} <span class="badge text-bg-primary rounded-pill">{{ signatures_span }}</span> {% trans 'days. If there is not enough signatures - after this time, proposal is rejected.' %}
+    {% trans 'Maximum time to gather signatures is' %} <span class="badge-status badge-primary rounded-pill">{{ signatures_span }}</span> {% trans 'days. If there is not enough signatures - after this time, proposal is rejected.' %}
   </p>
   <p>
-    {% trans 'Queue and discussion before referendum lasts' %} <span class="badge text-bg-primary rounded-pill">{{ queue_span }}</span> {% trans 'days' %}
+    {% trans 'Queue and discussion before referendum lasts' %} <span class="badge-status badge-primary rounded-pill">{{ queue_span }}</span> {% trans 'days' %}
   </p>
   <p>
-    {% trans 'Referendum lasts for' %} <span class="badge text-bg-primary rounded-pill">{{ referendum_span }}</span> {% trans 'days' %}
+    {% trans 'Referendum lasts for' %} <span class="badge-status badge-primary rounded-pill">{{ referendum_span }}</span> {% trans 'days' %}
   </p>
   <p>
-    {% trans 'If you want to change any of' %} <span class="badge text-bg-primary rounded-pill">{% trans 'marked' %}</span> {% trans 'parameters - create referendum.' %}
+    {% trans 'If you want to change any of' %} <span class="badge-status badge-primary rounded-pill">{% trans 'marked' %}</span> {% trans 'parameters - create referendum.' %}
   </p>
 
   <div class="container mb-4">
@@ -45,7 +45,7 @@
         {% for spec, value in items %}
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span>{{ spec.label }}</span>
-            <span class="badge text-bg-primary rounded-pill">
+            <span class="badge-status badge-primary rounded-pill">
               {% if spec.kind == 'bool' %}{% if value %}{% trans 'Yes' %}{% else %}{% trans 'No' %}{% endif %}{% else %}{{ value }}{% if spec.unit %} {{ spec.unit }}{% endif %}{% endif %}
             </span>
           </li>

@@ -57,7 +57,7 @@ def db_path():
         from zzz.settings_base import DATABASES
 
         return str(DATABASES["default"]["NAME"])
-    except Exception:
+    except (Exception):
         return str(DB_DEFAULT)
 
 

@@ -77,7 +77,7 @@ class PushDeviceRegisterView(View):
 
             return JsonResponse({'success': True, 'device_id': device.id, 'platform': platform, 'created': created})
 
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError):
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
         except Exception as e:
             log.error(f"{NOTIF_LOG_TAG} Error registering push device: {e}")
@@ -125,7 +125,7 @@ class PushDeviceUnregisterView(View):
 
             return JsonResponse({'success': True, 'deactivated': count})
 
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError):
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
         except Exception as e:
             log.error(f"{NOTIF_LOG_TAG} Error unregistering push device: {e}")
@@ -163,7 +163,7 @@ class PushNotificationAckView(View):
     def post(self, request: HttpRequest):
         try:
             data = json.loads(request.body.decode('utf-8'))
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError):
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
         notification_id = data.get('notification_id') or '?'

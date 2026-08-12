@@ -142,13 +142,7 @@
               <td>
                 <div class="username-container">
                   <div class="citizen-list-avatar-wrap flex-shrink-0">
-                    <div class="avatar avatar-lg {% if not i.uzytkownik.avatar %}avatar-fallback{% endif %}">
-                      {% if i.uzytkownik.avatar %}
-                        <img src="{{ i.uzytkownik.avatar.url }}" alt="{{ i.username }}">
-                      {% else %}
-                        {{ i.username|slice:":1"|upper }}
-                      {% endif %}
-                    </div>
+                    {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username size="lg" %}
                     <span class="status-dot status-dot--{{ i.activity_status }} citizen-list-status-dot"
                           title="{% if i.activity_status == 'online' %}{% trans 'Online' %}{% elif i.activity_status == 'active' %}{% trans 'Active recently' %}{% elif i.activity_status == 'dormant' %}{% trans 'Dormant' %}{% else %}{% trans 'Inactive' %}{% endif %}"></span>
                   </div>
@@ -159,10 +153,10 @@
                   </a>
                   {% endif %}
                   {% if i.near_threshold %}
-                  <span class="badge text-bg-warning ms-1" title="{% trans 'This person has low reputation points' %}">!</span>
+                  <span class="badge-status badge-warning ms-1" title="{% trans 'This person has low reputation points' %}">!</span>
                   {% endif %}
                   {% if i.pending_deletion %}
-                  <span class="badge text-bg-danger ms-1" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash-alt"></i></span>
+                  <span class="badge-status badge-danger ms-1" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash-alt"></i></span>
                   {% endif %}
                 </div>
               </td>
@@ -193,13 +187,7 @@
            data-href="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}"
            data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
         <div class="citizen-card-top">
-          <div class="avatar avatar-5xl {% if not i.uzytkownik.avatar %}avatar-fallback{% endif %}">
-            {% if i.uzytkownik.avatar %}
-              <img src="{{ i.uzytkownik.avatar.url }}" alt="{{ i.username }}">
-            {% else %}
-              {{ i.username|slice:":1"|upper }}
-            {% endif %}
-          </div>
+          {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username size="5xl" %}
           <span class="status-dot status-dot--{{ i.activity_status }}"
                 title="{% if i.activity_status == 'online' %}{% trans 'Online' %}{% elif i.activity_status == 'active' %}{% trans 'Active recently' %}{% elif i.activity_status == 'dormant' %}{% trans 'Dormant' %}{% else %}{% trans 'Inactive' %}{% endif %}"></span>
         </div>

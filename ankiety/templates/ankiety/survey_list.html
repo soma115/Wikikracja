@@ -5,7 +5,7 @@
 
 {# ── TOOLBAR ── #}
 <div class="proposals-toolbar">
-  <a href="{% url 'ankiety:create' %}" class="toolbar-add-btn">
+  <a href="{% url 'ankiety:create' %}" class="btn-cta">
     <i class="fas fa-plus"></i> {% trans 'Add survey' %}
   </a>
 
@@ -160,7 +160,7 @@
           {% trans 'No finished surveys.' %}
         {% endif %}
       </div>
-      <a href="{% url 'ankiety:create' %}" class="toolbar-add-btn mt-2">
+      <a href="{% url 'ankiety:create' %}" class="btn-cta mt-2">
         <i class="fas fa-plus"></i> {% trans 'Add the first survey' %}
       </a>
     </div>

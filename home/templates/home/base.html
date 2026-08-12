@@ -184,14 +184,8 @@
     </div>
 
     <!-- User card -->
-    <a href="{% url 'obywatele:obywatele_szczegoly' pk=user.pk %}" class="sidebar-user nav-link-clean"
-       onmouseover="this.style.background='var(--accent-muted)'"
-       onmouseout="this.style.background=''">
-      {% if user.uzytkownik.avatar %}
-      <img class="avatar avatar-3xl avatar-accent" src="{{ user.uzytkownik.avatar.url }}" alt="avatar">
-      {% else %}
-      <div class="avatar avatar-3xl avatar-accent">{{ user.username|slice:":2"|upper }}</div>
-      {% endif %}
+    <a href="{% url 'obywatele:obywatele_szczegoly' pk=user.pk %}" class="sidebar-user nav-link-clean">
+      {% include "home/_user_avatar.html" with avatar=user.uzytkownik.avatar username=user.username size="3xl" alt=user.username %}
       <div class="user-info">
         <span class="user-name">{{ user.username }}</span>
         <span class="user-role">{% trans "Citizen" %}</span>
@@ -389,7 +383,7 @@
     </main>
 
     {% if request.resolver_match.namespace != 'chat' %}
-    <footer class="px-4 pb-3 mt-auto text-muted-78">{{ footer.text|safe }}</footer>
+    <footer class="px-4 pb-3 mt-auto text-muted text-sm">{{ footer.text|safe }}</footer>
     {% endif %}
 
   </div>

@@ -12,7 +12,7 @@
 {# ── TOOLBAR ── #}
 <div class="proposals-toolbar mb-3">
   {% if request.user.is_authenticated %}
-  <a href="{% url 'board:create_post' %}" class="toolbar-add-btn">
+  <a href="{% url 'board:create_post' %}" class="btn-cta">
     <i class="fas fa-plus"></i> {% trans 'Create document' %}
   </a>
 
@@ -104,13 +104,7 @@
           </div>
           <div class="d-flex align-items-center gap-2 flex-shrink-0">
             {% if post.author %}
-              {% if post.author.uzytkownik.avatar %}
-                <img src="{{ post.author.uzytkownik.avatar.url }}" alt="{{ post.author.username }}" class="avatar avatar-xs">
-              {% else %}
-                <div class="avatar avatar-xs avatar-fallback citizen-color-{{ post.author.username|citizen_color_class }}">
-                  {{ post.author.username|slice:":2"|upper }}
-                </div>
-              {% endif %}
+              {% include "home/_user_avatar.html" with avatar=post.author.uzytkownik.avatar username=post.author.username size="xs" %}
             {% endif %}
             <span class="text-meta">{{ post.updated|date:"d.m.Y" }}</span>
           </div>
@@ -135,13 +129,7 @@
               {% endif %}
               <div class="d-flex align-items-center gap-2">
                 {% if post.author %}
-                  {% if post.author.uzytkownik.avatar %}
-                    <img src="{{ post.author.uzytkownik.avatar.url }}" alt="{{ post.author.username }}" class="avatar avatar-sm">
-                  {% else %}
-                    <div class="avatar avatar-sm avatar-fallback citizen-color-{{ post.author.username|citizen_color_class }}">
-                      {{ post.author.username|slice:":2"|upper }}
-                    </div>
-                  {% endif %}
+                  {% include "home/_user_avatar.html" with avatar=post.author.uzytkownik.avatar username=post.author.username size="sm" %}
                 {% endif %}
                 <span class="text-meta">{{ post.updated|date:"d.m.Y" }}</span>
               </div>

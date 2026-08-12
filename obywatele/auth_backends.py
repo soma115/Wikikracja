@@ -38,11 +38,11 @@ class CaseInsensitiveEmailBackend(ModelBackend):
                 return user
             if user.check_password(password) and self.user_can_authenticate(user):
                 return user
-        except UserModel.DoesNotExist:
+        except (UserModel.DoesNotExist):
             # Run the default password hasher once to reduce timing
             # attacks against non-existent users
             UserModel().set_password(password)
-        except UserModel.MultipleObjectsReturned:
+        except (UserModel.MultipleObjectsReturned):
             # Handle case where multiple users have the same email
             # Try to authenticate with the active user
             log.error(f'Multiple users found with email {normalized_username}, attempting fallback to active user')

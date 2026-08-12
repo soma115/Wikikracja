@@ -40,7 +40,7 @@
 
       <!-- Category filter chips -->
       <div class="d-flex flex-wrap gap-2 align-items-center">
-        <span class="text-muted-xs flex-shrink-0">
+        <span class="text-muted text-xs flex-shrink-0">
           <i class="fas fa-filter me-1"></i>{% trans "Search in:" %}
         </span>
 
@@ -80,7 +80,7 @@
       {% for item in results %}
         <a href="{{ item.url }}" class="text-decoration-none">
           <div class="card px-3 py-2 d-flex flex-row align-items-center gap-3 sr-row">
-            <span class="badge text-bg-{{ item.type_color }} sr-type-badge">
+            <span class="badge-status badge-{{ item.type_color }} sr-type-badge">
               {{ item.type }}
             </span>
             <div class="overflow-hidden flex-grow-1">
@@ -106,12 +106,6 @@
   {% endif %}
 
 </div>
-
-<style>
-/* ── Result rows ── */
-.sr-row { transition:background .15s; }
-.sr-row:hover { background:var(--bg-card-hover) !important; }
-</style>
 
 <script>
 window.initChipFilters({

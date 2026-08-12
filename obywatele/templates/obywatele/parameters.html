@@ -11,25 +11,25 @@
 	<ul class="container list-group">
 		<li class="list-group-item d-flex justify-content-between align-items-center">
 			{% trans "Population" %}
-			<span class="badge text-bg-primary rounded-pill">{{ population }}</span>
+			<span class="badge-status badge-primary rounded-pill">{{ population }}</span>
 		</li>
 		<li class="list-group-item d-flex justify-content-between align-items-center">
 			{% trans "Acceptance threshold" %}
-			<span class="badge text-bg-primary rounded-pill">{{ acceptance }}</span>
+			<span class="badge-status badge-primary rounded-pill">{{ acceptance }}</span>
 		</li>
 
 		<li class="list-group-item d-flex justify-content-between align-items-center">
 			{% trans "Candidate removal after" %}
-			<span class="badge text-bg-primary rounded-pill">{{ delete_inactive_user_after }} {% trans "days" %}</span>
+			<span class="badge-status badge-primary rounded-pill">{{ delete_inactive_user_after }} {% trans "days" %}</span>
 		</li>
 		<li class="list-group-item text-start align-items-center fw-bold">
 			<p>
 				{% trans "New person will be accepted above" %}
-					<span class="badge text-bg-primary rounded-pill">{{ acceptance }}</span> 
+					<span class="badge-status badge-primary rounded-pill">{{ acceptance }}</span> 
 				{% trans "threshold." %} <br>
 				
 				{% trans "Existing person will be banned bellow" %}
-					<span class="badge text-bg-primary rounded-pill">{{ acceptance }}</span>
+					<span class="badge-status badge-primary rounded-pill">{{ acceptance }}</span>
 				{% trans "threshold." %} <br>
 				
 				{% trans "You can check your reputation in your" %}
