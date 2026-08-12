@@ -3337,6 +3337,7 @@ button.proposal-against-btn:focus-visible {
   overflow: hidden;
 }
 .result-bar-fill {
+  width: var(--w, 0%);
   height: 100%;
   border-radius: 3px;
   background: var(--accent);
@@ -4774,6 +4775,14 @@ td.notes-col {
 .dot-public { background: var(--badge-approved-color); }
 .dot-private { background: var(--text-muted); }
 .text-primary-link:hover { color: var(--accent); }
+
+/* Progress helpers */
+.progress-thin { height: 5px; }
+.progress-h-6 { height: 6px; }
+.progress-h-8 { height: 8px; }
+.progress-bar-accent { background: var(--accent); }
+.progress-fill { width: var(--progress, 0%); }
+.progress-w-120 { width: 120px; flex-grow: 0; }
 
 /* Additional utility classes for migrated inline styles */
 .filter-btn-unread { color: var(--badge-proposition-color); border-color: var(--badge-proposition-border); }

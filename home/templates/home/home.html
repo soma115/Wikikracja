@@ -131,8 +131,8 @@
       <div class="card-footer px-3 py-2">
         {% with total=quick_links|length %}
         <div class="progress-label">{% trans "Progress" %}: <span class="progress-label">0/{{ total }}</span></div>
-        <div class="progress" style="height: 5px;">
-          <div class="progress-bar" style="width: 0%; background: var(--accent);"></div>
+        <div class="progress progress-thin">
+          <div class="progress-bar progress-bar-accent"></div>
         </div>
         {% endwith %}
       </div>

@@ -271,8 +271,10 @@
     }
   }
 }());
+</script>
 
 {% if request.user.is_authenticated %}
+<script>
 initCategoryManager('manageCategoriesModal', {
   list:    '{% url "board:api_categories" %}',
   edit:    '{% url "board:api_categories" %}'.replace(/\/+$/, '') + '/{pk}/edit/',
@@ -292,6 +294,7 @@ initCategoryManager('manageCategoriesModal', {
   load_error:   '{% trans "Failed to load categories." %}',
   error:        '{% trans "An error occurred." %}',
 });
-{% endif %}
 </script>
+{% endif %}
+
 {% endblock extra_js %}

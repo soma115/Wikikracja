@@ -76,10 +76,10 @@
         <div class="col-md-6 mb-2">
           <strong>{% trans 'Form completed' %}:</strong>
           <div class="d-flex align-items-center gap-2 mt-1">
-            <div class="progress flex-grow-1" style="height: 8px;">
-              <div class="progress-bar {% if form_completion_percent == 100 %}bg-success{% elif form_completion_percent >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
+            <div class="progress flex-grow-1 progress-h-8">
+              <div class="progress-bar {% if form_completion_percent == 100 %}bg-success{% elif form_completion_percent >= 50 %}bg-warning{% else %}bg-danger{% endif %} progress-fill"
                    role="progressbar"
-                   style="width: {{ form_completion_percent }}%"
+                   style="--progress: {{ form_completion_percent }}%"
                    aria-valuenow="{{ form_completion_percent }}"
                    aria-valuemin="0"
                    aria-valuemax="100"></div>
