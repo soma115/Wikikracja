@@ -1,8 +1,9 @@
+- Jedno największe możliwe bezpieczne uproszczenie w kodzie, plikach i katalogach.
 
-- największe możliwe bezpieczne uproszczenie w kodzie, plikach i katalogach.
+Bookkeeping zajmuje część strony na szerokość a pozostałe moduły całą stronę. Zrób tak żeby bookkeeping też zajmował całą szerokość strony. 
 
 Refaktoryzacje:
-- board > docuemnts
+- board > documents
 - events > calendar
 - glosowania > voting
 - obywatele > citizens
