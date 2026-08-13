@@ -86,3 +86,37 @@ class PostSendProcessingUnseenTest(TestCase):
 
         mock_log.error.assert_not_called()  # bug: crash is swallowed into log.error
         mock_create_task.assert_not_called()  # muted → no push
+
+
+class MentionNotificationTest(TestCase):
+    """Regression tests for _send_mention_notification: room.name crash and room_name value."""
+
+    def setUp(self):
+        self.sender = make_user("alice")
+        self.receiver = make_user("bob")
+        self.room = Room.objects.create(title="alice-bob", public=False)
+        self.room.allowed.set([self.sender, self.receiver])
+
+    async def test_send_mention_notification_private_room_uses_sender_username(self):
+        """Mention notification for a private room must use the sender's username as room name."""
+        consumer = ChatConsumer.__new__(ChatConsumer)
+        consumer.channel_layer = AsyncMock()
+        with patch.object(ChatConsumer, 'repo', new=AsyncMock()):
+            msg = MagicMock()
+            msg.id = 7
+            msg.anonymous = False
+
+            await consumer._send_mention_notification(self.sender, self.room, self.receiver, msg)
+
+            consumer.channel_layer.group_send.assert_awaited_once()
+            group, payload = consumer.channel_layer.group_send.call_args.args
+            self.assertEqual(group, f"user_{self.receiver.id}")
+            self.assertEqual(payload["type"], "chat.mention")
+            self.assertEqual(payload["room_id"], self.room.id)
+            self.assertEqual(payload["notification"]["room_id"], self.room.id)
+            self.assertIn(f"#room_id={self.room.id}", payload["notification"]["click_action"])
+
+            consumer.repo.send_push_notification_sync.assert_awaited_once()
+            call_args = consumer.repo.send_push_notification_sync.call_args
+            self.assertEqual(call_args.args[0], self.receiver)
+            self.assertEqual(call_args.kwargs.get("room_name"), self.sender.username)

@@ -17,6 +17,7 @@ from django.core import mail
 from django.core.management import call_command
 from django.test import TransactionTestCase, override_settings
 from django.utils.timezone import make_aware, now
+from django.utils.translation import gettext as _
 
 from chat.models import Message, Room
 from obywatele.forms import SendEmailToAll
@@ -122,6 +123,14 @@ class ChatMessagesEmailTest(TransactionTestCase):
         self._run_chat_messages_command()
         recipient_emails = [e for e in mail.outbox if self.recipient.email in e.to]
         self.assertEqual(len(recipient_emails), 0, f"Expected 0 emails for muted room, got {len(recipient_emails)}.")
+
+    def test_mention_in_muted_room_sends_email(self):
+        self.room.muted_by.add(self.recipient)
+        self._add_message(f'Hello @{self.recipient.username}')
+        self._run_chat_messages_command()
+        recipient_emails = [e for e in mail.outbox if self.recipient.email in e.to]
+        self.assertEqual(len(recipient_emails), 1, f"Expected 1 mention email for muted room, got {len(recipient_emails)}.")
+        self.assertIn(_("## You were mentioned here"), recipient_emails[0].body)
 
     def test_sender_does_not_receive_own_message_email(self):
         self._add_message('My own message')

@@ -83,6 +83,11 @@ python manage.py collectstatic --noinput --clear
 
 Dodatkowo: `python -m pytest -q`, `ruff check .`, `ruff format --check .`.
 
+Wszystkie powyższe kroki można uruchomić jednym poleceniem:
+```bash
+python scripts/run_tests.py
+```
+
 ## 6. Konwencje specyficzne
 
 - **Python:** Ruff (`pyproject.toml`: line-length 210, quote-style preserve, line-ending lf, skip-magic-trailing-comma, ignore `E501`/`T201`). Testy przez `pytest` (`zzz.test_settings`, `testpaths` w `pyproject.toml`).

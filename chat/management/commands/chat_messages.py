@@ -40,9 +40,11 @@ class Command(TranslatedCommand):
         user_list = Uzytkownik.objects.filter(uid__is_active=True, email_notifications_chat=True)
         log.info(f'chat_messages: found {user_list.count()} active users with chat notifications enabled')
         for u in user_list:
-            room_allowed = Room.objects.filter(allowed=u.uid, archived=False).exclude(muted_by=u.uid)
-            log.info(f'chat_messages: user={u.uid} last_broadcast={u.last_broadcast} rooms_allowed={room_allowed.count()}')
-            message_list = Message.objects.filter(time__gte=u.last_broadcast, room__in=room_allowed).exclude(sender=u.uid)
+            room_all = Room.objects.filter(allowed=u.uid, archived=False)
+            room_allowed = room_all.exclude(muted_by=u.uid)
+            allowed_room_ids = set(room_allowed.values_list('id', flat=True))
+            log.info(f'chat_messages: user={u.uid} last_broadcast={u.last_broadcast} rooms_allowed={len(allowed_room_ids)}')
+            message_list = Message.objects.filter(time__gte=u.last_broadcast, room__in=room_all).exclude(sender=u.uid)
             log.info(f'chat_messages: user={u.uid} new_messages={message_list.count()}')
             if not message_list:
                 log.info(f'No new messages for user {u.uid}')
@@ -57,10 +59,12 @@ class Command(TranslatedCommand):
                 if u.uid.username in extract_mentions(m.text):
                     mentioned_rooms.add(m.room)
 
-            # Group rooms by type
+            # Group rooms by type; skip muted rooms unless the user was mentioned there
             rooms_by_type = {'tasks': [], 'votings': [], 'public': [], 'private': []}
 
             for room in messages_by_room.keys():
+                if room.id not in allowed_room_ids:
+                    continue
                 if Task.objects.filter(chat_room=room).exists():
                     rooms_by_type['tasks'].append(room)
                 elif Decyzja.objects.filter(chat_room=room).exists():

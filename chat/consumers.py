@@ -44,6 +44,11 @@ def _build_chat_notification(author, room_id, room_name=None):
     }
 
 
+def _room_notification_name(room, sender):
+    """Room name to display in notifications: public room title, private chat = sender."""
+    return room.title if room.public else (sender.username or "System")
+
+
 class ChatConsumer(AsyncJsonWebsocketConsumer):
     """
     This chat consumer handles websocket connections for chat clients.
@@ -375,8 +380,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
             proxy = HandledMessage()
             author = "Anonymous" if msg.anonymous else (sender.username or "System")
-            # Room name to display: public room title, private chat = sender (matches displayed_name for the recipient)
-            notify_room_name = room.title if room.public else (sender.username or "System")
+            notify_room_name = _room_notification_name(room, sender)
             notification = _build_chat_notification(author, room.id, notify_room_name)
             for member in other_members:
                 prefs = membership_prefs.get(member.id, {'seen': False, 'muted': True})
@@ -425,7 +429,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         """Send a WebSocket notification and a push for a single mention."""
         try:
             author = "Anonymous" if msg.anonymous else (sender.username or "System")
-            notification = _build_chat_notification(author, room.id, room.name)
+            notify_room_name = _room_notification_name(room, sender)
+            notification = _build_chat_notification(author, room.id, notify_room_name)
 
             log.debug(f"{NOTIF_LOG_TAG} group_send chat.mention notification_id={notification['notification_id']} to user_{user.id} for message {msg.id}")
             # Show a real OS notification via the shared WebSocket connection too, so it
@@ -434,7 +439,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             await self.channel_layer.group_send(f"user_{user.id}", {"type": "chat.mention", "room_id": room.id, "notification": {**notification, "room_id": room.id}})
 
             # Push notification (bypasses room mute because it is a direct mention).
-            success = await self.repo.send_push_notification_sync(user, notification['title'], notification['body'], notification['click_action'], room.id)
+            success = await self.repo.send_push_notification_sync(user, notification['title'], notification['body'], notification['click_action'], room.id, room_name=notify_room_name)
             if success:
                 log.info(f"{NOTIF_LOG_TAG} Mention notification sent to user {user.id} for message {msg.id} (ws notification_id={notification['notification_id']})")
             else:
