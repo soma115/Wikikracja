@@ -36,7 +36,7 @@ DASHBOARD_MODULES = [
         'url': 'glosowania:proposition',
         'description': _('Democratic decision-making — submit proposals, collect signatures, vote on ongoing referendums and track results.'),
     },
-    {'name': _('Citizens'), 'icon': 'fa-users', 'url': 'obywatele:obywatele_lista', 'description': _('Member directory — browse citizen profiles, check roles and track community activity.')},
+    {'name': _('Citizens'), 'icon': 'fa-users', 'url': 'obywatele:obywatele', 'description': _('Member directory — browse citizen profiles, check roles and track community activity.')},
     {
         'name': _('Documents'),
         'icon': 'fa-chalkboard',
@@ -51,7 +51,7 @@ DASHBOARD_MODULES = [
         'url': 'bookkeeping:transaction_list',
         'description': _('Community finances — record income and expenses, maintain transparency over shared funds and budgets.'),
     },
-    {'name': _('Chat'), 'icon': 'fa-comments', 'url': 'chat:room_list', 'description': _('Real-time messaging — communicate in topic-based chat rooms linked to referendums and community groups.')},
+    {'name': _('Chat'), 'icon': 'fa-comments', 'url': 'chat:chat', 'description': _('Real-time messaging — communicate in topic-based chat rooms linked to referendums and community groups.')},
     {'name': _('Surveys'), 'icon': 'fa-clipboard-question', 'url': 'ankiety:list', 'description': _('Surveys and quick polls — collect opinions, run questionnaires and make better group decisions.')},
 ]
 
