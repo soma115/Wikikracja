@@ -1,18 +1,17 @@
 {% load i18n %}
 {% load richtext %}
 {% comment %}
-  Partial: kafelek wystąpienia eventu (rozwijany — analogicznie do tasks).
+  Partial: kafelek wystąpienia eventu (zawsze rozwinięty — analogicznie do tasks).
   Oczekiwane: occ ({event, date, is_past}) z outer loopa.
-  Klik w header → toggleCard(...). Klik w body → przejście do szczegółów.
+  Klik w header lub body → przejście do szczegółów.
 {% endcomment %}
 
 {% with pk=occ.event.pk dt=occ.date|date:"YmdHis" %}
-<div class="proposal-card event-card{% if occ.is_past %} event-card--past{% endif %}" id="card-evt-{{ pk }}-{{ dt }}">
+<div class="proposal-card event-card{% if occ.is_past %} event-card--past{% endif %}">
 
   <div class="proposal-card-header event-card-header"
-       onclick="toggleCard('evt-{{ pk }}-{{ dt }}')"
-       role="button" tabindex="0"
-       onkeydown="if(event.key==='Enter'||event.key===' ')toggleCard('evt-{{ pk }}-{{ dt }}')">
+       data-detail-url="{% url 'events:detail' occ.event.pk %}"
+       role="link" tabindex="0">
 
     <div class="event-card-inner">
       <div class="event-card-date-pill{% if occ.is_past %} event-card-date-pill--past{% endif %}">
@@ -65,31 +64,21 @@
               <i class="fas fa-pen fa-fw"></i> {% trans 'Edit' %}
             </a>
           {% endif %}
-          <i class="fas fa-chevron-down proposal-card-chevron event-card-chevron-meta"></i>
         </div>
       </div>
     </div>
   </div>{# /.proposal-card-header #}
 
-  <div class="proposal-card-body proposal-card-body--collapsible" id="body-evt-{{ pk }}-{{ dt }}"
-       onclick="window.location.href='{% url 'events:detail' occ.event.pk %}'"
-       role="link">
+  <div class="proposal-card-body"
+       data-detail-url="{% url 'events:detail' occ.event.pk %}"
+       role="link" tabindex="0">
 
-    <div class="proposal-body-topbar">
-      <a href="{% url 'events:detail' occ.event.pk %}" class="proposal-details-btn"
-         onclick="event.stopPropagation()">
-        <i class="fas fa-arrow-up-right-from-square fa-fw"></i> {% trans 'Details' %}
-      </a>
-    </div>
-
-    {% if occ.event.description %}
-      <div class="proposal-section">
-        <div class="proposal-section-label">
-          <i class="fas fa-file-lines fa-fw"></i> {% trans 'Description' %}
-        </div>
-        <div class="proposal-section-text">{{ occ.event.description|richtext }}</div>
+    <div class="proposal-section event-card-description">
+      <div class="proposal-section-label">
+        <i class="fas fa-file-lines fa-fw"></i> {% trans 'Description' %}
       </div>
-    {% endif %}
+      <div class="proposal-section-text">{{ occ.event.description|default:"&nbsp;"|richtext }}</div>
+    </div>
 
   </div>{# /.proposal-card-body #}
 

@@ -213,11 +213,7 @@ def _task_toolbar_data(sort, order, tab, categories):
             icon = "up" if next_order == "desc" else "down"
         sort_items.append({"url": url, "label": str(labels[s]), "active": active, "pre_icon": icons[s], "icon": icon})
 
-    views = [
-        {"name": "compact", "icon": "bars", "title": gettext_lazy("Compact")},
-        {"name": "list", "icon": "list", "title": gettext_lazy("List")},
-        {"name": "grid", "icon": "grip", "title": gettext_lazy("Grid")},
-    ]
+    views = [{"name": "compact", "icon": "bars", "title": gettext_lazy("Compact")}, {"name": "list", "icon": "list", "title": gettext_lazy("List")}]
     return sort_items, views
 
 

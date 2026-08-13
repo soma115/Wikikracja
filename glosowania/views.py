@@ -590,7 +590,7 @@ def _glosowania_toolbar_data(sort, order):
             icon = "up" if next_order == "desc" else "down"
         sort_items.append({"url": url, "label": str(labels[sort_key]), "active": active, "pre_icon": icons[sort_key], "icon": icon})
 
-    views = [{"name": "compact", "icon": "bars", "title": _("Compact")}, {"name": "list", "icon": "list", "title": _("List")}, {"name": "grid", "icon": "grip", "title": _("Grid")}]
+    views = [{"name": "compact", "icon": "bars", "title": _("Compact")}, {"name": "list", "icon": "list", "title": _("List")}]
     return sort_items, views
 
 

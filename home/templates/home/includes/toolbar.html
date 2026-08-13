@@ -1,11 +1,11 @@
 {% load i18n %}
 <div class="proposals-toolbar{% if toolbar_class %} {{ toolbar_class }}{% endif %}">
-  {% if cta_url %}
+  {% if cta_url and not cta_end %}
   <a href="{{ cta_url }}" class="btn-cta"{% if cta_title %} title="{{ cta_title }}"{% endif %}>
     <i class="fas fa-{{ cta_icon|default:'plus' }}"></i> {{ cta_label }}
   </a>
   <span class="toolbar-divider"></span>
-  {% elif cta_button %}
+  {% elif cta_button and not cta_end %}
   <button type="button" class="sort-btn {{ cta_button_class|default:'' }}" id="{{ cta_button }}">
     <i class="fas fa-{{ cta_icon|default:'plus' }}"></i> {{ cta_label }}
   </button>
@@ -44,5 +44,17 @@
     </button>
     {% endfor %}
   </div>
+  {% endif %}
+
+  {% if cta_url and cta_end %}
+  <span class="toolbar-divider"></span>
+  <a href="{{ cta_url }}" class="btn-cta"{% if cta_title %} title="{{ cta_title }}"{% endif %}>
+    <i class="fas fa-{{ cta_icon|default:'plus' }}"></i> {{ cta_label }}
+  </a>
+  {% elif cta_button and cta_end %}
+  <span class="toolbar-divider"></span>
+  <button type="button" class="sort-btn {{ cta_button_class|default:'' }}">
+    <i class="fas fa-{{ cta_icon|default:'plus' }}"></i> {{ cta_label }}
+  </button>
   {% endif %}
 </div>

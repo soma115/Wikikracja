@@ -191,12 +191,20 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-    /* ── toggle pojedynczego kafelka ── */
-    window.toggleCard = function(pk) {
-        const card = document.getElementById('card-' + pk);
+    /* ── nawigacja kafelków do szczegółów ── */
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('a, button')) return;
+        var card = e.target.closest('[data-detail-url]');
         if (!card) return;
-        card.classList.toggle('open');
-    };
+        window.location.href = card.dataset.detailUrl;
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        var card = document.activeElement.closest('[data-detail-url]');
+        if (!card) return;
+        e.preventDefault();
+        window.location.href = card.dataset.detailUrl;
+    });
 });
 
 // ============================================================
@@ -204,6 +212,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // ------------------------------------------------------------
 // Per-scope JSON w localStorage: { view, filters, tab }
 //   - scope ustawia szablon przez `data-prefs-scope` na <html>
+//   - dla tasks scope jest wzbogacany o aktywną zakładkę (tasks:mine)
+//   - dla glosowan scope jest wzbogacany o podstronę (glosowania:proposition)
 //   - filtry (URL params) restore'owane są w head-script (anti-FOUC)
 //   - widok lista/grid/compact: data-view="list|grid|compact" + [data-view-container]
 //   - tab persistence: Bootstrap tabs auto-wired
@@ -213,8 +223,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var KEY_PREFIX = 'wikikracja:prefs:';
 
-    function scope() {
+    function baseScope() {
         return document.documentElement.dataset.prefsScope || '';
+    }
+
+    function scope() {
+        var base = baseScope();
+        if (!base) return '';
+        if (base === 'tasks') {
+            var params = new URLSearchParams(window.location.search);
+            var tab = params.get('tab') || 'mine';
+            return base + ':' + tab;
+        }
+        if (base === 'glosowania') {
+            var pathParts = window.location.pathname.split('/').filter(Boolean);
+            var subpage = pathParts[pathParts.length - 1] || '';
+            return subpage ? base + ':' + subpage : base;
+        }
+        return base;
     }
 
     function read() {
@@ -245,11 +271,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('[data-view]').forEach(function(btn) {
             btn.classList.toggle('active', btn.dataset.view === mode);
         });
-        if (mode === 'compact') {
-            container.querySelectorAll('.proposal-card.open').forEach(function(card) {
-                card.classList.remove('open');
-            });
-        }
 
         // Show/hide view-specific sections (used by events and other atypical views)
         var viewOnlyEls = container.querySelectorAll('[data-view-only]');
@@ -303,8 +324,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function init() {
         if (!scope()) return;
 
-        // 1. Widok lista/grid (filtry URL już zrestore'owane przez head-script)
-        applyView(read().view || 'list');
+        // 1. Widok lista/grid/compact — fallback na pierwszy dostępny guzik
+        var savedView = read().view || 'list';
+        var availableViews = Array.from(document.querySelectorAll('[data-view]')).map(function(b) { return b.dataset.view; });
+        if (availableViews.length && availableViews.indexOf(savedView) === -1) {
+            savedView = availableViews[0];
+        }
+        applyView(savedView);
 
         // 2. Zapisz aktualny URL (gdy ma params — pokrywa reload, klik linka sortowania)
         if (window.location.search) saveCurrentFilters();

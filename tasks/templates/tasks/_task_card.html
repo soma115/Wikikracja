@@ -5,23 +5,14 @@
   Oczekiwana zmienna: task — obiekt Task (z with_metrics + chat_msg_count)
 {% endcomment %}
 
-<div class="task-card" id="card-{{ task.pk }}" data-category="{{ task.category.slug }}">
+<div class="task-card" data-category="{{ task.category.slug }}">
 
-  {# ── NAGŁÓWEK (klikalny → toggle) ── #}
-  <div class="task-card-header" onclick="toggleCard({{ task.pk }})" role="button" tabindex="0"
-       onkeydown="if(event.key==='Enter'||event.key===' ')toggleCard({{ task.pk }})">
+  {# ── NAGŁÓWEK (klikalny → szczegóły) ── #}
+  <div class="task-card-header" data-detail-url="{% url 'tasks:detail' pk=task.pk %}" role="link" tabindex="0">
 
     <div class="task-card-title-row">
       <span class="task-card-num">#{{ task.pk }}</span>
       <span class="task-card-title">{{ task.title }}</span>
-      <a href="{% url 'tasks:detail' pk=task.pk %}"
-         class="task-details-btn"
-         onclick="event.stopPropagation()"
-         data-bs-toggle="tooltip"
-         title="{% trans 'Open task details' %}">
-        <i class="fas fa-arrow-up-right-from-square fa-fw"></i> {% trans 'Details' %}
-      </a>
-      <i class="fas fa-chevron-down task-card-chevron" id="chevron-{{ task.pk }}"></i>
     </div>
 
     {# Badges: priorytet / status + chat #}
@@ -54,11 +45,6 @@
         </a>
       {% endif %}
     </div>
-
-    {# Podgląd opisu #}
-    {% if task.description %}
-    <p class="task-preview">{{ task.description|richtext }}</p>
-    {% endif %}
 
     {# Meta strip #}
     <div class="task-card-meta">
@@ -164,10 +150,8 @@
 
   </div>{# /.task-card-header #}
 
-  {# ── CIAŁO (rozwijalne, klikalne → szczegóły) ── #}
-  <div class="task-card-body task-card-body--collapsible" id="body-{{ task.pk }}"
-       onclick="window.location.href='{% url 'tasks:detail' pk=task.pk %}'"
-       role="link">
+  {# ── CIAŁO (klikalne → szczegóły) ── #}
+  <div class="task-card-body" data-detail-url="{% url 'tasks:detail' pk=task.pk %}" role="link" tabindex="0">
 
     {# Pełny opis #}
     {% if task.description %}

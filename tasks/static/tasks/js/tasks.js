@@ -56,7 +56,7 @@
     var form = btn.closest('form');
     if (!form) return;
 
-    // Prevent form submission and stop click reaching card-body onclick / card-header toggleCard
+    // Prevent form submission and stop click reaching card-body onclick / card-header navigation
     e.preventDefault();
     e.stopPropagation();
 
@@ -87,7 +87,7 @@
       });
   }
 
-  // Capture phase: fires before card-body onclick and card-header toggleCard
+  // Capture phase: fires before card-body onclick and card-header navigation
   document.addEventListener('click', handleVoteClick, true);
 
   // ─── Live update for "Willing to help" / "Against this task" lists ──

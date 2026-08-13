@@ -7,16 +7,14 @@
     show_dates — bool, czy pokazać daty referendum (tylko widok referendum)
 {% endcomment %}
 
-<div class="proposal-card" id="card-{{ i.pk }}">
+<div class="proposal-card">
 
-  {# ── NAGŁÓWEK + PREVIEW (klikalny, poza linkami dzieci) ── #}
-  <div class="proposal-card-header" onclick="toggleCard({{ i.pk }})" role="button" tabindex="0"
-       onkeydown="if(event.key==='Enter'||event.key===' ')toggleCard({{ i.pk }})">
+  {# ── NAGŁÓWEK (klikalny → szczegóły, poza linkami dzieci) ── #}
+  <div class="proposal-card-header" data-detail-url="{% url 'glosowania:details' pk=i.pk %}" role="link" tabindex="0">
 
     <div class="proposal-card-title-row">
       <span class="proposal-card-num">#{{ i.pk }}</span>
       <span class="proposal-card-title">{{ i.display_title }}</span>
-      <i class="fas fa-chevron-down proposal-card-chevron" id="chevron-{{ i.pk }}"></i>
     </div>
 
     <div class="proposal-card-badges-row">
@@ -55,12 +53,7 @@
       {% endif %}
     </div>
 
-    {# Podgląd treści — widoczny przed rozwinięciem #}
-    {% if i.tresc %}
-    <p class="proposal-preview">{{ i.tresc|richtext }}</p>
-    {% endif %}
-
-    {# Pasek meta: autor (klikalny → profil) + data + podpisy + szczegóły #}
+    {# Pasek meta: autor (klikalny → profil) + data + podpisy #}
     <div class="proposal-card-meta">
 
       {% if i.author %}
@@ -82,31 +75,15 @@
         <i class="fas fa-pen-nib fa-fw"></i> {{ i.ile_osob_podpisalo|default:0 }}
       </span>
 
-      {# Szczegóły — prawy dolny róg, widoczny na zwiniętym kafelku #}
-      <a href="{% url 'glosowania:details' pk=i.pk %}"
-         class="proposal-details-inline" onclick="event.stopPropagation()">
-        {% trans 'Details' %} <i class="fas fa-arrow-right fa-fw"></i>
-      </a>
-
     </div>
 
   </div>{# /.proposal-card-header #}
 
-  {# ── CIAŁO (zwinięte domyślnie) — klikalne → szczegóły ── #}
-  <div class="proposal-card-body proposal-card-body--collapsible" id="body-{{ i.pk }}"
-       onclick="window.location.href='{% url 'glosowania:details' pk=i.pk %}'"
-       role="link">
-
-    {# Szczegóły u góry ciała (po rozwinięciu) #}
-    <div class="proposal-body-topbar">
-      <a href="{% url 'glosowania:details' pk=i.pk %}" class="proposal-details-btn"
-         onclick="event.stopPropagation()">
-        <i class="fas fa-arrow-up-right-from-square fa-fw"></i> {% trans 'Details' %}
-      </a>
-    </div>
+  {# ── CIAŁO — klikalne → szczegóły ── #}
+  <div class="proposal-card-body" data-detail-url="{% url 'glosowania:details' pk=i.pk %}" role="link" tabindex="0">
 
     {% if i.tresc %}
-    <div class="proposal-section">
+    <div class="proposal-section proposal-section--law">
       <div class="proposal-section-label">
         <i class="fas fa-scroll fa-fw"></i> {% trans 'Law text' %}
       </div>
@@ -115,7 +92,7 @@
     {% endif %}
 
     {% if i.kara %}
-    <div class="proposal-section">
+    <div class="proposal-section proposal-section--consequences">
       <div class="proposal-section-label">
         <i class="fas fa-triangle-exclamation fa-fw"></i> {% trans 'Consequences' %}
       </div>
@@ -124,7 +101,7 @@
     {% endif %}
 
     {% if i.uzasadnienie %}
-    <div class="proposal-section">
+    <div class="proposal-section proposal-section--reasoning">
       <div class="proposal-section-label">
         <i class="fas fa-lightbulb fa-fw"></i> {% trans 'Reasoning' %}
       </div>
@@ -133,7 +110,7 @@
     {% endif %}
 
     {% if show_dates %}
-    <div class="proposal-section">
+    <div class="proposal-section proposal-section--referendum">
       <div class="proposal-section-label">
         <i class="fas fa-calendar fa-fw"></i> {% trans 'Referendum' %}
       </div>
