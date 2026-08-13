@@ -52,11 +52,13 @@ def dodaj(request: HttpRequest):
             log.info(
                 f'EMAIL_DIAG trigger=new_law_proposal source=glosowania.views.dodaj actor_user_id={request.user.id} actor_username={request.user.username} decision_id={form.id} subject={_("New law proposal")}'
             )
-            SendEmail(
+            send_notification_email_to_active_users(
                 _('New law proposal'),
                 _('{user} added new law proposal: "{title}"\nYou can read it here: {url}').format(
                     user=request.user.username.capitalize(), title=form.title, url=build_site_url(f'/glosowania/details/{form.id}')
                 ),
+                notification_type='glosowania',
+                log_prefix='glosowania: ',
             )
 
             notification = build_notification(_('New law proposal'), f'{request.user.username.capitalize()}: {form.title}', build_site_url(f'/glosowania/details/{form.id}'), f'vote-{form.id}', vote_id=form.id)
@@ -103,11 +105,13 @@ def edit(request: HttpRequest, pk: int):
             message = _("Saved.")
             messages.success(request, (message))
 
-            SendEmail(
+            send_notification_email_to_active_users(
                 _("Proposal no. {} has been modified").format(decision.id),
                 _('{user} modified proposal: "{title}"\nYou can read new version here: {url}').format(
                     user=request.user.username.capitalize(), title=decision.title, url=build_site_url(f'/glosowania/details/{decision.id}')
                 ),
+                notification_type='glosowania',
+                log_prefix='glosowania: ',
             )
             return redirect('glosowania:proposition')
     else:  # request.method != 'POST':
@@ -460,13 +464,6 @@ def historia(request: HttpRequest, pk: int):
     return render(request, 'glosowania/historia.html', {'decision': decision, 'entries': entries, 'current_diffs': current_diffs})
 
 
-def SendEmail(subject: str, message: str):
-    # to: all active users with voting notifications enabled (individual emails)
-    # subject: Custom
-    # message: Custom
-    send_notification_email_to_active_users(subject, message, notification_type='glosowania', log_prefix='glosowania: ')
-
-
 # proposition = 1
 # discussion = 2
 # referendum = 3
@@ -545,11 +542,13 @@ def parameters_propose(request: HttpRequest, pk: int = None):
             if pk is None:
                 log.info(f'New parameters referendum {decyzja.id} added by {request.user} changes={changes}')
                 messages.success(request, _('New proposal has been saved.'))
-                SendEmail(
+                send_notification_email_to_active_users(
                     str(_('New law proposal')),
                     str(_('{user} added new law proposal: "{title}"\nYou can read it here: {url}')).format(
                         user=request.user.username.capitalize(), title=decyzja.title, url=build_site_url(f'/glosowania/details/{decyzja.id}')
                     ),
+                    notification_type='glosowania',
+                    log_prefix='glosowania: ',
                 )
 
                 notification = build_notification(

@@ -31,11 +31,12 @@ from django_tables2.views import SingleTableMixin
 from chat.models import Message, Room
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, ZebranePodpisy
 from obywatele.filters import UzytkownikFilter
-from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, SendEmailToAll, UserForm, UsernameChangeForm
+from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, UserForm, UsernameChangeForm
 from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
 from obywatele.tables import UzytkownikTable
 from site_settings.params import get_param
 from tasks.models import Task, TaskEvaluation, TaskVote
+from zzz.email import send_notification_email_to_active_users
 from zzz.notifications import build_notification, send_notification_to_all_in_thread
 from zzz.utils import build_site_url, get_site_domain
 
@@ -458,7 +459,12 @@ def dodaj(request: HttpRequest):
                     f'EMAIL_DIAG trigger=new_citizen_proposed source=obywatele.views.dodaj actor_user_id={request.user.id} actor_username={request.user.username} candidate_user_id={candidate.id} candidate_username={candidate.username} subject={_("New citizen has been proposed")}'
                 )
                 click_action = build_site_url(f'/obywatele/poczekalnia/{candidate.id}')
-                SendEmailToAll(_('New citizen has been proposed'), f'{request.user.username} ' + str(_('proposed new citizen\nYou can approve him/her here:')) + f' {click_action}')
+                send_notification_email_to_active_users(
+                    _('New citizen has been proposed'),
+                    f'{request.user.username} ' + str(_('proposed new citizen\nYou can approve him/her here:')) + f' {click_action}',
+                    notification_type='obywatele',
+                    strip_html=True,
+                )
                 send_notification_to_all_in_thread(
                     build_notification(_('New citizen has been proposed'), f'{request.user.username} {_("proposed new citizen")}', click_action, f'citizen-{candidate.id}', citizen_id=candidate.id),
                     ws_type='citizen.notification',

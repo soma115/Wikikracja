@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-13 01:48+0200\n"
+"POT-Creation-Date: 2026-08-13 12:37+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -92,7 +92,7 @@ msgid "After this moment the survey will be closed."
 msgstr "Po tym czasie ankieta zostanie zamknięta."
 
 #: .\ankiety\models.py:13 .\board\models.py:24
-#: .\board\templates\board\post_detail.html:47 .\bookkeeping\models.py:119
+#: .\board\templates\board\post_detail.html:43 .\bookkeeping\models.py:119
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:33
 #: .\glosowania\models.py:142
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:32
@@ -159,7 +159,7 @@ msgstr "Głosy w ankiecie"
 #: .\ankiety\templates\ankiety\survey_detail.html:14
 #: .\ankiety\templates\ankiety\survey_list.html:28
 #: .\board\templates\board\board.html:115
-#: .\board\templates\board\post_detail.html:50
+#: .\board\templates\board\post_detail.html:46
 #: .\bookkeeping\templates\bookkeeping\asset_confirm_delete.html:57
 #: .\bookkeeping\templates\bookkeeping\asset_list.html:43
 #: .\bookkeeping\templates\bookkeeping\category_confirm_delete.html:59
@@ -190,7 +190,7 @@ msgstr "Czy na pewno chcesz usunąć tą ankietę?"
 #: .\board\templates\board\attachment_confirm_delete.html:14
 #: .\board\templates\board\board.html:118
 #: .\board\templates\board\post_confirm_delete.html:19
-#: .\board\templates\board\post_detail.html:51
+#: .\board\templates\board\post_detail.html:47
 #: .\bookkeeping\templates\bookkeeping\asset_list.html:44
 #: .\bookkeeping\templates\bookkeeping\category_list.html:22
 #: .\bookkeeping\templates\bookkeeping\partner_list.html:84
@@ -266,7 +266,7 @@ msgstr "Głosujący"
 #: .\ankiety\templates\ankiety\survey_detail.html:141
 #: .\ankiety\templates\ankiety\survey_form.html:58
 #: .\board\templates\board\post_detail.html:8
-#: .\board\templates\board\post_detail.html:53
+#: .\board\templates\board\post_detail.html:49
 #: .\chat\templates\chat\add.html:16
 #: .\glosowania\templates\glosowania\dodaj.html:48
 #: .\glosowania\templates\glosowania\edit.html:23
@@ -394,7 +394,7 @@ msgstr "Kategorie"
 msgid "Subtitle"
 msgstr "Podtytuł"
 
-#: .\board\models.py:25 .\board\templates\board\post_detail.html:47
+#: .\board\models.py:25 .\board\templates\board\post_detail.html:43
 #: .\bookkeeping\models.py:111 .\events\templates\events\event_detail.html:123
 #: .\glosowania\templates\glosowania\delete_argument.html:21
 #: .\glosowania\templates\glosowania\edit_argument.html:14
@@ -403,7 +403,7 @@ msgstr "Podtytuł"
 msgid "Created"
 msgstr "Utworzone"
 
-#: .\board\models.py:26 .\board\templates\board\post_detail.html:47
+#: .\board\models.py:26 .\board\templates\board\post_detail.html:43
 #: .\events\templates\events\event_detail.html:125
 msgid "Updated"
 msgstr "Zaktualizowane"
@@ -420,7 +420,7 @@ msgstr "Zaktualizowane"
 msgid "Category"
 msgstr "Kategoria"
 
-#: .\board\models.py:28 .\board\templates\board\post_detail.html:47
+#: .\board\models.py:28 .\board\templates\board\post_detail.html:43
 #: .\chat\templates\chat\chat.html:72 .\events\models.py:31
 #: .\events\templates\events\event_detail.html:41
 msgid "Public"
@@ -600,7 +600,7 @@ msgstr "Usuń ogłoszenie"
 msgid "Are you sure you want to delete this post?"
 msgstr "Czy na pewno chcesz usunąć to ogłoszenie?"
 
-#: .\board\templates\board\post_detail.html:47
+#: .\board\templates\board\post_detail.html:43
 #: .\chat\templates\chat\chat.html:152
 #: .\events\templates\events\_event_card.html:42
 #: .\events\templates\events\event_detail.html:45
@@ -1115,8 +1115,6 @@ msgid "Cannot delete category because it is in use. Remove all transactions that
 msgstr "Nie można usunąć kategorii, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które ją wykorzystują."
 
 #: .\bookkeeping\views.py:162
-#, fuzzy
-#| msgid "Add Partner"
 msgid "Add partner"
 msgstr "Dodaj Partnera"
 
@@ -1125,8 +1123,6 @@ msgid "Cannot delete partner because it is in use. Remove all transactions that 
 msgstr "Nie można usunąć partnera, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które go wykorzystują."
 
 #: .\bookkeeping\views.py:215
-#, fuzzy
-#| msgid "Add Transaction"
 msgid "Add transaction"
 msgstr "Dodaj Transakcję"
 
@@ -1229,32 +1225,34 @@ msgstr "Możesz wyłączyć te powiadomienia odznaczając ikonę dzwonka obok na
 msgid "You can manage your email notifications here: {url}"
 msgstr "Możesz zarządzać swoimi powiadomieniami e-mailowymi tutaj: {url}"
 
-#: .\chat\management\commands\chat_messages.py:77
+#: .\chat\management\commands\chat_messages.py:81
 msgid "## Public rooms"
 msgstr "## Pokoje publiczne"
 
-#: .\chat\management\commands\chat_messages.py:86
+#: .\chat\management\commands\chat_messages.py:90
 msgid "## Tasks"
 msgstr "## Zadania"
 
-#: .\chat\management\commands\chat_messages.py:95
+#: .\chat\management\commands\chat_messages.py:99
 msgid "## Votings"
 msgstr "## Głosowania"
 
-#: .\chat\management\commands\chat_messages.py:104
+#: .\chat\management\commands\chat_messages.py:108
 msgid "## Private rooms"
 msgstr "## Pokoje prywatne"
 
-#: .\chat\management\commands\chat_messages.py:115
+#: .\chat\management\commands\chat_messages.py:119
+#: .\obywatele\tests\test_email.py:133
 msgid "## You were mentioned here"
 msgstr "## Zostałeś wspomniany tutaj"
 
-#: .\chat\management\commands\chat_messages.py:120
+#: .\chat\management\commands\chat_messages.py:124
 #, python-brace-format
 msgid "- {room_name}: {room_link}"
 msgstr "- {room_name}: {room_link}"
 
 #: .\chat\models.py:11 .\obywatele\views.py:984
+#: .\tasks\templates\tasks\_task_cards.html:12
 msgid "Chat room"
 msgstr "Pokój czatu"
 
@@ -1909,10 +1907,8 @@ msgid "New logo (optional)"
 msgstr "Nowe logo (opcjonalne)"
 
 #: .\glosowania\forms.py:43
-#, fuzzy
-#| msgid "PNG, longest side 512-1024 px, max 1 MB. Applied as the site logo if the referendum is approved."
 msgid "PNG/JPEG/WebP/GIF, max 5 MB, any longest side 64-4096 px. Automatically resized to 1024×1024 px PNG and applied as the site logo if the referendum is approved."
-msgstr "PNG, najdłuższy bok 512–1024 px, maks. 1 MB. Zastosowane jako logo witryny w przypadku zatwierdzenia referendum."
+msgstr "PNG/JPEG/WebP/GIF, maks. 5 MB, dowolny najdłuższy bok 64–4096 px. Automatycznie skalowane do formatu PNG 1024×1024 px i stosowane jako logo witryny w przypadku zatwierdzenia referendum."
 
 #: .\glosowania\forms.py:67
 msgid "allowed range"
@@ -4422,16 +4418,12 @@ msgid "Full name of the instance shown across the site."
 msgstr "Pełna nazwa instancji widoczna wszędzie w witrynie."
 
 #: .\site_settings\services.py:52
-#, fuzzy
-#| msgid "Could not read image file."
 msgid "Could not process image file."
-msgstr "Nie udało się odczytać pliku obrazu."
+msgstr "Nie udało się przeprocesować pliku obrazu."
 
 #: .\site_settings\validators.py:13
-#, fuzzy, python-format
-#| msgid "Branding image file is too large (max 1 MB)."
 msgid "Branding image file is too large (max %(max_size)s)."
-msgstr "Plik logo jest za duży (max 1 MB)."
+msgstr "Plik obrazu marki jest za duży (maks. %(max_size)s)."
 
 #: .\site_settings\validators.py:27 .\site_settings\validators.py:50
 msgid "Could not read image file."
@@ -4448,10 +4440,8 @@ msgid "Brand mark longest side must be at most %(max)d pixels."
 msgstr "Najdłuższy bok logo może mieć maksymalnie %(max)d pikseli."
 
 #: .\site_settings\validators.py:56
-#, fuzzy, python-format
-#| msgid "Brand mark must be a PNG file (format supporting transparency). Got %(fmt)s."
 msgid "Brand mark must be a PNG, JPEG, WebP or GIF file. Got %(fmt)s."
-msgstr "Logo musi być plikiem PNG (format obsługujący przezroczystość). Otrzymano %(fmt)s."
+msgstr Znak marki musi być plikiem PNG, JPEG, WebP lub GIF. Otrzymano %(fmt)s."
 
 #: .\tasks\forms.py:10
 msgid "— no category —"

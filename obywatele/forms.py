@@ -1,5 +1,4 @@
 import logging
-import re
 import secrets
 import string
 
@@ -14,7 +13,6 @@ from django.utils.translation import gettext_lazy as _
 from obywatele.models import Region, Uzytkownik
 from zzz.email import send_notification_email_to_active_users
 from zzz.notifications import build_notification, send_notification_to_all_in_thread
-from zzz.richtext import strip_tags
 from zzz.utils import build_site_url
 
 log = logging.getLogger(__name__)
@@ -267,7 +265,9 @@ class CustomSignupForm(SignupForm):
             log.error(f'Failed to send confirmation email: {e}', exc_info=True)
 
         click_action = build_site_url('/obywatele/poczekalnia/')
-        SendEmailToAll(_('New person requested membership'), _('User %(username)s just requested membership') % {'username': user.username} + '\n' + click_action)
+        send_notification_email_to_active_users(
+            _('New person requested membership'), _('User %(username)s just requested membership') % {'username': user.username} + '\n' + click_action, notification_type='obywatele', strip_html=True
+        )
 
         send_notification_to_all_in_thread(
             build_notification(
@@ -277,22 +277,3 @@ class CustomSignupForm(SignupForm):
             notification_type='obywatele',
         )
         return user
-
-
-def strip_html_tags(text):
-    """Strip HTML tags, converting <br> to newlines first."""
-    if not text:
-        return text
-    # Convert <br> variants to newlines
-    text = re.sub(r'<br\s*/?>', '\n', text, flags=re.IGNORECASE)
-    # Use existing strip_tags function
-    return strip_tags(text)
-
-
-def SendEmailToAll(subject, message, notification_type='obywatele'):
-    # to: all active users with enabled notifications for this type (individual emails)
-    # subject: Custom
-    # message: Custom
-    # CRITICAL: Recipients are fetched in the thread just before sending to avoid race conditions
-    # with signals that change user is_active status (e.g., DeactivateNewUser)
-    send_notification_email_to_active_users(subject, message, notification_type=notification_type, strip_html=True)

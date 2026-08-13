@@ -225,15 +225,9 @@ class Command(TranslatedCommand):
                     log.error(f"Failed to process decyzja {decyzja_id} this run; it will be retried next time.", exc_info=True)
 
             for subject, message in pending_emails:
-                SendEmail(subject, message)
-
-        def SendEmail(subject, message):
-            # to: all active users, one email per recipient with delay between each
-            # subject: Custom
-            # message: Custom
-            t = send_notification_email_to_active_users(subject, message, notification_type='glosowania', log_prefix='glosowania: ', raise_on_error=False, daemon=False)
-            log.warning(f"subject: {subject} \n message: {message}")
-            threads.append(t)
+                t = send_notification_email_to_active_users(subject, message, notification_type='glosowania', log_prefix='glosowania: ', raise_on_error=False, daemon=False)
+                log.warning(f"subject: {subject} \n message: {message}")
+                threads.append(t)
 
         zliczaj_wszystko()
 

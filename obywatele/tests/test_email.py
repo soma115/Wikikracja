@@ -1,6 +1,6 @@
 """
 Tests for email sending:
-  1. New person sign-up → SendEmailToAll sends one email per active user.
+  1. New person sign-up → send_notification_email_to_active_users sends one email per active user.
   2. chat_messages command → each user receives exactly one email per run.
 
 EMAIL_SEND_DELAY_SECONDS is overridden to 0 so threads finish quickly.
@@ -20,8 +20,8 @@ from django.utils.timezone import make_aware, now
 from django.utils.translation import gettext as _
 
 from chat.models import Message, Room
-from obywatele.forms import SendEmailToAll
 from obywatele.models import Uzytkownik
+from zzz.email import send_notification_email_to_active_users
 
 FAST_EMAIL_SETTINGS = {'EMAIL_BACKEND': 'django.core.mail.backends.locmem.EmailBackend', 'EMAIL_SEND_DELAY_SECONDS': 0}
 
@@ -44,11 +44,11 @@ def make_active_user(username, email):
 
 @override_settings(**FAST_EMAIL_SETTINGS)
 class NewPersonEmailTest(TransactionTestCase):
-    # TransactionTestCase (zamiast TestCase) — SendEmailToAll spawnuje wątek tła
+    # TransactionTestCase (zamiast TestCase) — send_notification_email_to_active_users spawnuje wątek tła
     # który czyta DB; transakcja TestCase byłaby niewidoczna dla tego wątku
     # (table lock). TransactionTestCase commit'uje dane → wątek je widzi.
     def _call_send_email_to_all(self, subject, message):
-        SendEmailToAll(subject, message)
+        send_notification_email_to_active_users(subject, message, notification_type='obywatele', strip_html=True)
         _drain_threads()
 
     def test_send_email_to_all_sends_exactly_one_email(self):

@@ -20,7 +20,8 @@ from chat import signals
 from chat.models import Room
 from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
 from obywatele.signals import track_user_blocked
-from obywatele.views import SendEmailToAll, population, required_reputation
+from obywatele.views import population, required_reputation
+from zzz.email import send_notification_email_to_active_users
 from zzz.notifications import build_notification, send_notification_to_all_sync
 from zzz.utils import build_site_url, get_site_domain
 
@@ -250,7 +251,7 @@ class Command(BaseCommand):
                 except Exception as e:
                     log.error(f'Failed to send account blocked notification to {i.uid.email}: {str(e)}')
 
-                SendEmailToAll(_('Citizen has been banned'), f"{_('User')} {uname} {_('has been blocked')}")
+                send_notification_email_to_active_users(_('Citizen has been banned'), f"{_('User')} {uname} {_('has been blocked')}", notification_type='obywatele', strip_html=True)
                 send_notification_to_all_sync(
                     build_notification(_('Citizen has been banned'), f"{_('User')} {uname} {_('has been blocked')}", build_site_url('/obywatele/'), f'citizen-{i.uid.id}', citizen_id=i.uid.id),
                     ws_type='citizen.notification',
