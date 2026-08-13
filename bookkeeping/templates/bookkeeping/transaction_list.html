@@ -3,8 +3,7 @@
 {% load bookkeeping_extras %}
 
 {% block content %}
-<div class="container mt-4">
-  {% include 'home/includes/toolbar.html' %}
+{% include 'home/includes/toolbar.html' %}
 
   {# Pasek sald per asset — cała historia, default first. Tooltip zawiera szczegóły income/expenses. #}
   {% if balances_by_asset %}
@@ -78,5 +77,4 @@
       {% endfor %}
     </tbody>
   </table>
-</div>
 {% endblock %}

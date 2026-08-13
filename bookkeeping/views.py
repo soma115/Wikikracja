@@ -68,7 +68,7 @@ def _bookkeeping_toolbar(active_item, create_url=None, create_label=None):
     sort_items = []
     for item in items:
         sort_items.append({'label': item['label'], 'url': reverse(item['url_name']), 'active': item['name'] == active_item})
-    ctx = {'sort_items': sort_items}
+    ctx = {'sort_items': sort_items, 'cta_end': True}
     if create_url:
         ctx['cta_url'] = create_url
         ctx['cta_label'] = create_label or _('Add')
