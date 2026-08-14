@@ -138,23 +138,5 @@ window.initCategoryManager('manageCategoriesModal', {
   error:        '{% trans "An error occurred." %}',
 });
 
-initCategoryManager('manageCategoriesModal', {
-  list:    '{% url "tasks:api_categories" %}',
-  edit:    '{% url "tasks:api_categories" %}'.replace(/\/+$/, '') + '/{pk}/edit/',
-  del:     '{% url "tasks:api_categories" %}'.replace(/\/+$/, '') + '/{pk}/delete/',
-  reorder: '{% url "tasks:api_category_reorder" %}',
-}, {
-  edit:         '{% trans "Edit" %}',
-  cancel:       '{% trans "Cancel" %}',
-  save:         '{% trans "Save" %}',
-  delete:       '{% trans "Delete" %}',
-  items_suffix: '{% trans "tasks" %}',
-  protected:    '{% trans "Protected — cannot be deleted" %}',
-  confirm_del:  '{% trans "This category has {n} task(s). Deleting it will leave those tasks without a category. Continue?" %}',
-  name_req:     '{% trans "Category name is required." %}',
-  load_error:   '{% trans "Failed to load categories." %}',
-  error:        '{% trans "An error occurred." %}',
-});
-
 </script>
 {% endblock extra_js %}

@@ -74,3 +74,20 @@ def test_category_items_requires_login(client):
     res = client.get(reverse('board:api_category_items', args=[cat.pk]))
 
     assert res.status_code in (302, 403)
+
+
+@pytest.mark.django_db
+def test_category_list_respects_priority_order(authenticated_client):
+    """GET lista kategorii zwraca je posortowane wg priority, mimo agregacji item_count."""
+    from board.models import PostCategory
+
+    client, _ = authenticated_client
+    second = PostCategory.objects.create(name="Z", priority=5)
+    first = PostCategory.objects.create(name="A", priority=3)
+
+    res = client.get(reverse('board:api_categories'))
+
+    assert res.status_code == 200
+    data = res.json()
+    ids = [c["id"] for c in data["categories"]]
+    assert ids.index(first.pk) < ids.index(second.pk)

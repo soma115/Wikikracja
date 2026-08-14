@@ -32,6 +32,10 @@ class CategoryAPIBase(CategoryAPIMixin):
             qs = qs.annotate(item_count=Count(self.related_count_field, distinct=True))
         else:
             qs = qs.annotate(item_count=Value(0, output_field=IntegerField()))
+        # Aggregate annotations can clear the model's default ordering; re-apply it explicitly.
+        ordering = getattr(self.model._meta, "ordering", None)
+        if ordering:
+            qs = qs.order_by(*ordering)
         return qs
 
     def serialize(self, cat):
