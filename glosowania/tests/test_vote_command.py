@@ -18,7 +18,7 @@ from glosowania.models import Decyzja, KtoJuzGlosowal, VoteCode
 @pytest.mark.django_db
 def test_closing_referendum_reveals_shuffled_votes_and_tallies_them(sample_users):
     author = sample_users[0]
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     decyzja = Decyzja.objects.create(
         title='Referendum Bill',
@@ -63,7 +63,7 @@ def test_closing_referendum_reveals_shuffled_votes_and_tallies_them(sample_users
 @pytest.mark.django_db
 def test_closing_referendum_rejects_when_no_votes_cast(sample_users):
     author = sample_users[0]
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     decyzja = Decyzja.objects.create(
         title='Unpopular Bill',
@@ -100,7 +100,7 @@ def test_closing_referendum_restarts_on_buffer_mismatch(sample_users, caplog):
     from the who-voted list so they can vote again, and the voting window
     is reset to a full new period."""
     author = sample_users[0]
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     decyzja = Decyzja.objects.create(
         title='Referendum Bill',

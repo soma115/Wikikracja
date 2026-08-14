@@ -992,7 +992,7 @@ def citizen_zalozono(request: HttpRequest, pk: int):
     epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
     items.sort(key=lambda x: x['ts'] or epoch, reverse=True)
 
-    template = 'obywatele/_citizen_zalozono_partial.html' if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else 'obywatele/_citizen_zalozono_partial.html'
+    template = 'obywatele/_citizen_zalozono_partial.html' if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else 'obywatele/citizen_zalozono.html'
     return render(request, template, {'target_user': target_user, 'items': items, 'is_own': request.user.pk == pk})
 
 

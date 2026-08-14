@@ -1,9 +1,10 @@
 import logging
 import random
 import re
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.db import transaction
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from chat.models import Room
@@ -38,7 +39,7 @@ class Command(TranslatedCommand):
             rejected = Decyzja.Status.REJECTED
             approved = Decyzja.Status.APPROVED
 
-            dzisiaj = datetime.today().date()
+            dzisiaj = timezone.localdate()
             sp = SiteParameters.get()
 
             approved_for = _("is approved for referendum")

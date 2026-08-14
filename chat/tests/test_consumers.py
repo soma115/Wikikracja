@@ -6,6 +6,7 @@ from django.test import TestCase
 from chat.consumers import ChatConsumer
 from chat.models import Room
 from chat.tests.utils import make_user
+from chat.utils import HandledMessage
 
 
 class PostSendProcessingUnseenTest(TestCase):
@@ -120,3 +121,28 @@ class MentionNotificationTest(TestCase):
             call_args = consumer.repo.send_push_notification_sync.call_args
             self.assertEqual(call_args.args[0], self.receiver)
             self.assertEqual(call_args.kwargs.get("room_name"), self.sender.username)
+
+
+class HandledMessageSendAllTest(TestCase):
+    """Regression tests for HandledMessage.send_all: it must dispatch all queued messages,
+    not stop after the first one."""
+
+    async def test_send_all_dispatches_group_consumer_and_self_messages(self):
+        """A proxy with a group broadcast, a per-consumer message and a self message must send all three."""
+        consumer = MagicMock()
+        consumer.channel_layer = AsyncMock()
+        consumer.send_json = AsyncMock()
+
+        other_consumer = MagicMock()
+        other_consumer.send_json = AsyncMock()
+
+        proxy = HandledMessage()
+        proxy.group_send('room_1', {'type': 'chat.message', 'text': 'broadcast'})
+        proxy.send_json({'text': 'to_other'}, to_consumer=other_consumer)
+        proxy.send_json({'text': 'to_self'})
+
+        await proxy.send_all(consumer)
+
+        consumer.channel_layer.group_send.assert_awaited_once_with('room_1', {'type': 'chat.message', 'text': 'broadcast'})
+        other_consumer.send_json.assert_awaited_once_with({'text': 'to_other'})
+        consumer.send_json.assert_awaited_once_with({'text': 'to_self'})

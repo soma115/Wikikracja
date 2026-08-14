@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.db import OperationalError
 from django.test import Client
 
-from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode
+from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 
 User = get_user_model()
 
@@ -133,3 +133,76 @@ def test_double_voting_is_still_blocked_without_writing_a_second_pending_vote(sa
 
     mock_push.assert_not_called()
     assert KtoJuzGlosowal.objects.filter(projekt=decyzja, ktory_uzytkownik_juz_zaglosowal=voter).count() == 1
+
+
+@pytest.mark.django_db
+def test_signing_rejected_when_not_proposition(sample_users):
+    """Signing a motion must be rejected once it has left the PROPOSITION status."""
+    author = sample_users[0]
+    signer = sample_users[1]
+    decyzja = Decyzja.objects.create(title='Ref Bill', tresc='Test law text', kara='Test penalty', author=author, status=Decyzja.Status.REFERENDUM)
+
+    client = Client()
+    client.force_login(signer)
+    response = client.post(f'/glosowania/details/{decyzja.pk}/', {'sign': '1'})
+
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decyzja.pk}/'
+    assert not ZebranePodpisy.objects.filter(projekt=decyzja, podpis_uzytkownika=signer).exists()
+
+
+@pytest.mark.django_db
+def test_withdrawing_rejected_when_not_proposition(sample_users):
+    """Withdrawing a signature must be rejected once the motion has left the PROPOSITION status."""
+    author = sample_users[0]
+    signer = sample_users[1]
+    decyzja = Decyzja.objects.create(title='Ref Bill', tresc='Test law text', kara='Test penalty', author=author, status=Decyzja.Status.PROPOSITION)
+    ZebranePodpisy.objects.create(projekt=decyzja, podpis_uzytkownika=signer)
+    decyzja.status = Decyzja.Status.DISCUSSION
+    decyzja.save()
+
+    client = Client()
+    client.force_login(signer)
+    response = client.post(f'/glosowania/details/{decyzja.pk}/', {'withdraw': '1'})
+
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decyzja.pk}/'
+    assert ZebranePodpisy.objects.filter(projekt=decyzja, podpis_uzytkownika=signer).count() == 1
+
+
+@pytest.mark.django_db
+def test_voting_yes_rejected_when_not_referendum(sample_users):
+    """Casting a Yes vote must be rejected when the motion is not in REFERENDUM status."""
+    author = sample_users[0]
+    voter = sample_users[1]
+    decyzja = Decyzja.objects.create(title='Prop Bill', tresc='Test law text', kara='Test penalty', author=author, status=Decyzja.Status.PROPOSITION)
+
+    client = Client()
+    client.force_login(voter)
+
+    with patch('glosowania.views.push_pending_vote') as mock_push:
+        response = client.post(f'/glosowania/details/{decyzja.pk}/', {'tak': '1'})
+
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decyzja.pk}/'
+    assert not KtoJuzGlosowal.objects.filter(projekt=decyzja, ktory_uzytkownik_juz_zaglosowal=voter).exists()
+    mock_push.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_voting_no_rejected_when_not_referendum(sample_users):
+    """Casting a No vote must be rejected when the motion is not in REFERENDUM status."""
+    author = sample_users[0]
+    voter = sample_users[1]
+    decyzja = Decyzja.objects.create(title='Prop Bill', tresc='Test law text', kara='Test penalty', author=author, status=Decyzja.Status.DISCUSSION)
+
+    client = Client()
+    client.force_login(voter)
+
+    with patch('glosowania.views.push_pending_vote') as mock_push:
+        response = client.post(f'/glosowania/details/{decyzja.pk}/', {'nie': '1'})
+
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decyzja.pk}/'
+    assert not KtoJuzGlosowal.objects.filter(projekt=decyzja, ktory_uzytkownik_juz_zaglosowal=voter).exists()
+    mock_push.assert_not_called()

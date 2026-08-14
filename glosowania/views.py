@@ -4,7 +4,6 @@ import logging
 import random
 import re
 import time
-from datetime import datetime
 
 import redis
 from django.conf import settings as s
@@ -14,6 +13,7 @@ from django.db import OperationalError, transaction
 from django.db.models import Count, Exists, F, OuterRef
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from chat.views import get_translations as get_chat_translations
@@ -38,7 +38,7 @@ def dodaj(request: HttpRequest):
         if form.is_valid():
             form = form.save(commit=False)
             form.author = request.user
-            form.data_powstania = datetime.today()
+            form.data_powstania = timezone.localdate()
             # form.ile_osob_podpisalo += 1
             form.status = Decyzja.Status.PROPOSITION
             form.path = _("Proposition")
@@ -125,6 +125,22 @@ def generate_code():
     return ''.join([random.SystemRandom().choice('abcdefghjkmnoprstuvwxyz23456789') for i in range(5)])
 
 
+def _get_and_check_decision(request, pk, allowed_status, error_message):
+    """Fetch a decision with select_for_update and verify it has the expected status.
+
+    Returns a tuple ``(decision, response)``. ``response`` is an early redirect
+    that should be returned by the caller when it is not ``None``.
+    """
+    try:
+        decision = Decyzja.objects.select_for_update().get(pk=pk)
+    except Decyzja.DoesNotExist:
+        return None, redirect('glosowania:index')
+    if decision.status != allowed_status:
+        messages.error(request, error_message)
+        return None, redirect('glosowania:details', pk)
+    return decision, None
+
+
 @login_required
 def details(request: HttpRequest, pk: int):
     # Pokaż szczegóły przepisu
@@ -132,10 +148,9 @@ def details(request: HttpRequest, pk: int):
     # Handle POST requests first (sign, withdraw, vote)
     if request.POST.get('sign'):
         with transaction.atomic():
-            try:
-                nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
-            except Decyzja.DoesNotExist:
-                return redirect('glosowania:index')
+            nowy_projekt, response = _get_and_check_decision(request, pk, Decyzja.Status.PROPOSITION, _('This motion no longer accepts signatures.'))
+            if response:
+                return response
             osoba_podpisujaca = request.user
             __, created = ZebranePodpisy.objects.get_or_create(projekt=nowy_projekt, podpis_uzytkownika=osoba_podpisujaca)
             if created:
@@ -146,10 +161,9 @@ def details(request: HttpRequest, pk: int):
 
     if request.POST.get('withdraw'):
         with transaction.atomic():
-            try:
-                nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
-            except Decyzja.DoesNotExist:
-                return redirect('glosowania:index')
+            nowy_projekt, response = _get_and_check_decision(request, pk, Decyzja.Status.PROPOSITION, _('This motion no longer accepts signatures.'))
+            if response:
+                return response
             osoba_podpisujaca = request.user
             deleted, __ = ZebranePodpisy.objects.filter(projekt=nowy_projekt, podpis_uzytkownika=osoba_podpisujaca).delete()
             if deleted:
@@ -161,10 +175,9 @@ def details(request: HttpRequest, pk: int):
     if request.POST.get('tak'):
         try:
             with transaction.atomic():
-                try:
-                    nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
-                except Decyzja.DoesNotExist:
-                    return redirect('glosowania:index')
+                nowy_projekt, response = _get_and_check_decision(request, pk, Decyzja.Status.REFERENDUM, _('This motion is not currently open for voting.'))
+                if response:
+                    return response
                 osoba_glosujaca = request.user
                 already_voted = KtoJuzGlosowal.objects.filter(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca).exists()
                 if already_voted:
@@ -184,7 +197,7 @@ def details(request: HttpRequest, pk: int):
             # rolled back with the rest of the transaction, so the user isn't
             # marked as having voted without their vote being recorded.
             log.error(f"Vote storage unavailable while casting a vote on decyzja {pk}", exc_info=True)
-            messages.error(request, str(_('Voting is temporarily unavailable. Please try again in a moment.')))
+            messages.error(request, _('Voting is temporarily unavailable. Please try again in a moment.'))
             return redirect('glosowania:details', pk)
 
         message1 = str(_('Your vote has been saved. You voted Yes.'))
@@ -201,10 +214,9 @@ def details(request: HttpRequest, pk: int):
     if request.POST.get('nie'):
         try:
             with transaction.atomic():
-                try:
-                    nowy_projekt = Decyzja.objects.select_for_update().get(pk=pk)
-                except Decyzja.DoesNotExist:
-                    return redirect('glosowania:index')
+                nowy_projekt, response = _get_and_check_decision(request, pk, Decyzja.Status.REFERENDUM, _('This motion is not currently open for voting.'))
+                if response:
+                    return response
                 osoba_glosujaca = request.user
                 already_voted = KtoJuzGlosowal.objects.filter(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca).exists()
                 if already_voted:
@@ -216,7 +228,7 @@ def details(request: HttpRequest, pk: int):
                 push_pending_vote(nowy_projekt.id, code, False)
         except redis.RedisError:
             log.error(f"Vote storage unavailable while casting a vote on decyzja {pk}", exc_info=True)
-            messages.error(request, str(_('Voting is temporarily unavailable. Please try again in a moment.')))
+            messages.error(request, _('Voting is temporarily unavailable. Please try again in a moment.'))
             return redirect('glosowania:details', pk)
 
         message1 = str(_('Your vote has been saved. You voted No.'))
@@ -518,7 +530,7 @@ def parameters_propose(request: HttpRequest, pk: int = None):
             tresc = str(_('Proposed change of system parameters:')) + '<br>' + '<br>'.join(lines)
 
             if decyzja is None:
-                decyzja = Decyzja(author=request.user, title=str(_('System parameters change')), data_powstania=datetime.today(), status=Decyzja.Status.PROPOSITION, path=str(_('Proposition')))
+                decyzja = Decyzja(author=request.user, title=str(_('System parameters change')), data_powstania=timezone.localdate(), status=Decyzja.Status.PROPOSITION, path=str(_('Proposition')))
             else:
                 # Snapshot the current version before overwriting.
                 DecyzjaWersja.objects.create(

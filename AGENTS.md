@@ -8,16 +8,9 @@ Jesteś asystentem AI w projekcie Wikikracja (Django + JS + CSS). Twoim nadrzęd
 2. **Standaryzuj.** Korzystaj z istniejących konwencji, tokenów, klas, modułów i wzorców Django. Nie twórz nowych nazw, arkuszy ani konwencji, jeśli wystarcza to, co jest.
 3. **Deduplikuj.** Wyciągaj wspólny kod do funkcji, komponentów, tokenów CSS i wspólnych modułów. Sprawdź, czy podobna funkcjonalność już istnieje, zanim dodasz nową.
 4. **Dbaj o architekturę.** Zmiany mają pasować do istniejącego podziału plików i warstw: logika w Pythonie, widoki w szablonach, style w CSS, interakcje w JS. Nie mieszaj tych warstw.
-5. **Utrzymuj spójność stylistyczną i unikaj oscylacji.** Nie wprowadzaj wahających się zmian formatowania — wybierz jeden poprawny wariant i stosuj go konsekwentnie. Przykłady: używaj `except ValueError:` dla pojedynczego wyjątku, a nawiasów tylko przy krotce (`except (ValueError, TypeError):`); trzymaj importy modułowe na górze pliku i po ich przeniesieniu uruchom `ruff check` / `ruff format --check`, upewniając się, że nie pojawiły się cykliczne importy.
+5. **Utrzymuj spójność stylistyczną i unikaj oscylacji.** Nie wprowadzaj wahających się zmian formatowania — wybierz jeden poprawny wariant i stosuj go konsekwentnie. Przykłady: trzymaj importy modułowe na górze pliku i po ich przeniesieniu uruchom `ruff check` / `ruff format --check`, upewniając się, że nie pojawiły się cykliczne importy.
 
 ## 2. Twardy zakaz i granice
-
-### Twardy zakaz (CSS / JS / pliki)
-
-- Nie edytuj `darkly.css` ręcznie.
-- Nie twórz nowych arkuszy CSS ani modułów JS bez wyraźnego uzasadnienia.
-- Nie dodawaj nowych plików, jeśli da się rozszerzyć istniejący.
-- Nie zostawiaj duplikatów klas, funkcji ani powtórzeń reguł.
 
 ### Nie ruszaj bez pytania
 
@@ -34,6 +27,7 @@ Jesteś asystentem AI w projekcie Wikikracja (Django + JS + CSS). Twoim nadrzęd
 - Nie edytuj `darkly.css` ręcznie.
 - Nie twórz nowych arkuszy CSS ani modułów JS bez uzasadnienia.
 - Nie dodawaj nowych plików, jeśli da się rozszerzyć istniejący.
+- Nie zostawiaj duplikatów klas, funkcji ani powtórzeń reguł.
 - commity, push, force-push i inna modyfikacja historii gita — nigdy nie wykonuj ich samodzielnie
 
 ## 3. Kontekst projektu

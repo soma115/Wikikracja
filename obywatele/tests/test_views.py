@@ -105,3 +105,25 @@ class LanguageSwitcherRenderTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.switcher_url)
+
+
+class CitizenZalozonoTemplateTest(TestCase):
+    """Widok citizen_zalozono musi renderować inny szablon dla żądań AJAX i zwykłych."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='zalozono', password='secret', is_active=True)
+        self.url = reverse('obywatele:citizen_zalozono', kwargs={'pk': self.user.pk})
+
+    def test_non_ajax_renders_full_template(self):
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'obywatele/citizen_zalozono.html')
+
+    def test_ajax_renders_partial_template(self):
+        self.client.force_login(self.user)
+        response = self.client.get(self.url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'obywatele/_citizen_zalozono_partial.html')

@@ -1,0 +1,27 @@
+{% extends 'obywatele/menu.html' %}
+{% load i18n %}
+
+{% block citizens %}
+<div class="container section">
+  <div class="mb-3">
+    <a href="{% url 'obywatele:obywatele_szczegoly' pk=target_user.pk %}" class="btn btn-sm btn-outline-secondary">
+      ← {{ target_user.username }}
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="section-heading">
+        {% if is_own %}
+          {% trans "My founded items" %}
+        {% else %}
+          {% blocktrans with name=target_user.username %}Founded by {{ name }}{% endblocktrans %}
+        {% endif %}
+      </span>
+    </div>
+    <div class="card-body p-0">
+      {% include "obywatele/_citizen_zalozono_partial.html" %}
+    </div>
+  </div>
+</div>
+{% endblock citizens %}

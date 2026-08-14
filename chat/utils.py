@@ -101,13 +101,10 @@ class HandledMessage:
         for group, message, receiver, _ in self.messages:
             if group is not None:
                 await consumer.channel_layer.group_send(group, message)
-                return
-
-            if receiver is not None:
+            elif receiver is not None:
                 await receiver.send_json(message)
-                return
-
-            await consumer.send_json(message)
+            else:
+                await consumer.send_json(message)
 
 
 class Handlers:
