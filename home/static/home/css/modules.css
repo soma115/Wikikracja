@@ -1726,6 +1726,9 @@ button.task-against-btn:focus-visible {
   height: 16px;
   font-size: .45rem;
 }
+.activity-list:not(.view-grid) .feed-row[data-content-type="room_messages"] .feed-desc {
+  white-space: pre-line;
+}
 /* ══════════════════════════════════════════════════
    WSPOLNOTA
    ══════════════════════════════════════════════════ */

@@ -2,8 +2,7 @@ import logging
 from datetime import timedelta as td
 
 from django.core.cache import cache
-from django.db.models import Count, Max, OuterRef, Subquery, Value
-from django.db.models.functions import Coalesce
+from django.db.models import Count, Exists, OuterRef
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -69,9 +68,15 @@ def _unread_chat_message_counts(user, room_ids):
     from chat.models import Message, MessageReadBy
 
     since = timezone.now() - td(days=FEED_DAYS)
-    latest_id_subq = MessageReadBy.objects.filter(user=user, message__room_id=OuterRef('room_id')).values('message__room_id').annotate(latest_id=Max('message__id')).values('latest_id')
+    read = MessageReadBy.objects.filter(user=user, message_id=OuterRef('id'))
 
-    counts = Message.objects.filter(room_id__in=room_ids, time__gte=since).exclude(sender=user).filter(id__gt=Coalesce(Subquery(latest_id_subq), Value(0))).values('room_id').annotate(unread=Count('id'))
+    counts = (
+        Message.objects.filter(room_id__in=room_ids, time__gte=since)
+        .exclude(sender=user)
+        .filter(~Exists(read))
+        .values('room_id')
+        .annotate(unread=Count('id'))
+    )
     return {c['room_id']: c['unread'] for c in counts}
 
 

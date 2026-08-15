@@ -32,7 +32,6 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
                     'url': f"/chat/#room_id={room.id}",
                     'object_id': room.id,
                     'room_id': room.id,
-                    'message_count': len(recent_msgs),
                     '_is_public': room.public,
                     '_allowed_user_ids': {u.id for u in allowed_users},
                     '_allowed_usernames': {u.id: u.username for u in allowed_users},
