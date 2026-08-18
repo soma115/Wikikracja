@@ -123,6 +123,18 @@ class SurveyViewsTests(TestCase):
         self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"option": option.pk})
         self.assertEqual(SurveyVote.objects.count(), 0)
 
+    def test_withdraw_single_choice_vote(self):
+        survey = self._create_survey(self.author)
+        option = survey.options.first()
+        self.client.login(username="other", password="pass")
+
+        self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"option": option.pk})
+        self.assertEqual(SurveyVote.objects.filter(survey=survey, user=self.other).count(), 1)
+
+        response = self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"option": ""})
+        self.assertRedirects(response, reverse("ankiety:detail", args=[survey.pk]))
+        self.assertEqual(SurveyVote.objects.filter(survey=survey, user=self.other).count(), 0)
+
     def test_delete_only_by_author(self):
         survey = self._create_survey(self.author)
         self.client.login(username="other", password="pass")

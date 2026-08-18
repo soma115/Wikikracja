@@ -1,5 +1,6 @@
 {% extends 'home/base.html' %}
 {% load i18n %}
+{% load l10n %}
 {% load richtext %}
 
 {% block content %}
@@ -87,10 +88,17 @@
           </div>
         {% endfor %}
       </div>
-      <button type="submit" class="btn btn-primary">
-        <i class="fas fa-check-to-slot"></i>
-        {% if has_voted %}{% trans 'Change vote' %}{% else %}{% trans 'Send vote' %}{% endif %}
-      </button>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-check-to-slot"></i>
+          {% if has_voted %}{% trans 'Change vote' %}{% else %}{% trans 'Send vote' %}{% endif %}
+        </button>
+        {% if has_voted %}
+          <button type="button" class="btn btn-outline-secondary" data-withdraw-vote>
+            <i class="fas fa-rotate-left"></i> {% trans 'Withdraw vote' %}
+          </button>
+        {% endif %}
+      </div>
     </form>
   {% endif %}
 
@@ -110,7 +118,7 @@
                 {% endif %}
               </span>
             </div>
-            <div class="result-bar-track w-100"><div class="result-bar-fill" data-progress="{{ option.percentage }}"></div></div>
+            <div class="result-bar-track w-100"><div class="result-bar-fill" data-progress="{{ option.percentage|unlocalize }}"></div></div>
           </div>
         {% endfor %}
         <div class="mt-2 text-muted text-end">

@@ -70,13 +70,7 @@ def _unread_chat_message_counts(user, room_ids):
     since = timezone.now() - td(days=FEED_DAYS)
     read = MessageReadBy.objects.filter(user=user, message_id=OuterRef('id'))
 
-    counts = (
-        Message.objects.filter(room_id__in=room_ids, time__gte=since)
-        .exclude(sender=user)
-        .filter(~Exists(read))
-        .values('room_id')
-        .annotate(unread=Count('id'))
-    )
+    counts = Message.objects.filter(room_id__in=room_ids, time__gte=since).exclude(sender=user).filter(~Exists(read)).values('room_id').annotate(unread=Count('id'))
     return {c['room_id']: c['unread'] for c in counts}
 
 

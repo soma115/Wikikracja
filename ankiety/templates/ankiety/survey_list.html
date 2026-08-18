@@ -1,5 +1,6 @@
 {% extends 'home/base.html' %}
 {% load i18n %}
+{% load l10n %}
 
 {% block content %}
 
@@ -12,7 +13,7 @@
   {% if surveys %}
     {% for survey in surveys %}
       <div class="proposal-card">
-        <div class="proposal-card-header">
+        <div class="proposal-card-header" data-detail-url="{% url 'ankiety:detail' survey.pk %}" role="link" tabindex="0">
           <div class="proposal-card-title-row">
             <span class="proposal-card-num">#{{ survey.pk }}</span>
             <a href="{% url 'ankiety:detail' survey.pk %}" class="proposal-card-title text-decoration-none">
@@ -29,75 +30,6 @@
               </a>
             {% endif %}
           </div>
-
-          {% if survey.description %}
-            <a href="{% url 'ankiety:detail' survey.pk %}" class="d-block mt-1 text-muted small text-decoration-none">
-              {{ survey.description|striptags|truncatewords:30 }}
-            </a>
-          {% endif %}
-
-          {% if survey.is_active %}
-            <form method="post" action="{% url 'ankiety:list' %}?tab={{ current_tab }}" class="mt-2">
-              {% csrf_token %}
-              <input type="hidden" name="survey_id" value="{{ survey.pk }}">
-
-              {% for option in survey.options.all %}
-                <div class="d-flex align-items-center justify-content-between gap-2 mb-1 small">
-                  <div class="form-check mb-0">
-                    <input class="form-check-input"
-                           type="{% if survey.allow_multiple_choice %}checkbox{% else %}radio{% endif %}"
-                           name="option"
-                           id="survey_{{ survey.pk }}_option_{{ option.pk }}"
-                           value="{{ option.pk }}"
-                           {% if option.pk in survey.user_vote_ids %}checked{% endif %}>
-                    <label class="form-check-label" for="survey_{{ survey.pk }}_option_{{ option.pk }}">
-                      {{ option.text }}
-                    </label>
-                  </div>
-                  <div class="d-flex align-items-center gap-2 min-width-180px">
-                    <span class="text-nowrap text-muted">{{ option.vote_count }} ({{ option.percentage }}%)</span>
-                    <div class="result-bar-track progress-w-120"><div class="result-bar-fill" data-progress="{{ option.percentage }}"></div></div>
-                  </div>
-                </div>
-              {% empty %}
-                <p class="text-muted small mb-0">{% trans 'No options' %}</p>
-              {% endfor %}
-              <button type="submit" class="btn btn-sm btn-primary mt-2 mb-3">
-                <i class="fas fa-check-to-slot"></i>
-                {% if survey.has_voted %}{% trans 'Change vote' %}{% else %}{% trans 'Vote' %}{% endif %}
-              </button>
-
-              {% if survey.has_voted %}
-                <div class="small text-muted mb-1">
-                  <i class="fas fa-info-circle"></i> {% trans 'You can change your vote.' %}
-                </div>
-              {% endif %}
-              {% if survey.allow_multiple_choice %}
-                <div class="small text-muted mb-1">
-                  <i class="fas fa-info-circle"></i> {% trans 'You can select more than one option.' %}
-                </div>
-              {% endif %}
-            </form>
-          {% else %}
-            <div class="survey-results mt-2">
-              {% for option in survey.options.all %}
-                <div class="mb-2">
-                  <div class="d-flex justify-content-between small">
-                    <span>{{ option.text }}</span>
-                    <span>
-                      <strong>{{ option.vote_count }}</strong>
-                      {% if survey.total_votes %}
-                        <span class="text-muted">({{ option.percentage }}%)</span>
-                      {% endif %}
-                    </span>
-                  </div>
-                  <div class="result-bar-track w-100"><div class="result-bar-fill" data-progress="{{ option.percentage }}"></div></div>
-                </div>
-              {% empty %}
-                <p class="text-muted small mb-0">{% trans 'No options' %}</p>
-              {% endfor %}
-            </div>
-          {% endif %}
 
           <div class="proposal-card-badges-row">
             <span class="proposal-date" title="{% trans 'End date' %}">
@@ -124,6 +56,83 @@
               <span class="proposal-author-name">—</span>
             {% endif %}
           </div>
+        </div>
+
+        <div class="proposal-card-body">
+          {% if survey.description %}
+            <a href="{% url 'ankiety:detail' survey.pk %}" class="d-block text-muted small text-decoration-none">
+              {{ survey.description|striptags|truncatewords:30 }}
+            </a>
+          {% endif %}
+
+          {% if survey.is_active %}
+            <form method="post" action="{% url 'ankiety:list' %}?tab={{ current_tab }}">
+              {% csrf_token %}
+              <input type="hidden" name="survey_id" value="{{ survey.pk }}">
+
+              {% for option in survey.options.all %}
+                <div class="d-flex align-items-center justify-content-between gap-2 mb-1 small">
+                  <div class="form-check mb-0">
+                    <input class="form-check-input"
+                           type="{% if survey.allow_multiple_choice %}checkbox{% else %}radio{% endif %}"
+                           name="option"
+                           id="survey_{{ survey.pk }}_option_{{ option.pk }}"
+                           value="{{ option.pk }}"
+                           {% if option.pk in survey.user_vote_ids %}checked{% endif %}>
+                    <label class="form-check-label" for="survey_{{ survey.pk }}_option_{{ option.pk }}">
+                      {{ option.text }}
+                    </label>
+                  </div>
+                  <span class="text-nowrap text-muted">{{ option.vote_count }} ({{ option.percentage|unlocalize }}%)</span>
+                </div>
+                <div class="result-bar-track w-100 mb-2"><div class="result-bar-fill" data-progress="{{ option.percentage|unlocalize }}"></div></div>
+              {% empty %}
+                <p class="text-muted small mb-0">{% trans 'No options' %}</p>
+              {% endfor %}
+
+              <div class="d-flex gap-2 align-items-center">
+                <button type="submit" class="btn btn-sm btn-primary">
+                  <i class="fas fa-check-to-slot"></i>
+                  {% if survey.has_voted %}{% trans 'Change vote' %}{% else %}{% trans 'Vote' %}{% endif %}
+                </button>
+                {% if survey.has_voted %}
+                  <button type="button" class="btn btn-sm btn-outline-secondary" data-withdraw-vote>
+                    <i class="fas fa-rotate-left"></i> {% trans 'Withdraw vote' %}
+                  </button>
+                {% endif %}
+              </div>
+
+              {% if survey.has_voted %}
+                <div class="small text-muted mb-1">
+                  <i class="fas fa-info-circle"></i> {% trans 'You can change your vote.' %}
+                </div>
+              {% endif %}
+              {% if survey.allow_multiple_choice %}
+                <div class="small text-muted mb-1">
+                  <i class="fas fa-info-circle"></i> {% trans 'You can select more than one option.' %}
+                </div>
+              {% endif %}
+            </form>
+          {% else %}
+            <div class="survey-results">
+              {% for option in survey.options.all %}
+                <div class="mb-2">
+                  <div class="d-flex justify-content-between small">
+                    <span>{{ option.text }}</span>
+                    <span>
+                      <strong>{{ option.vote_count }}</strong>
+                      {% if survey.total_votes %}
+                        <span class="text-muted">({{ option.percentage }}%)</span>
+                      {% endif %}
+                    </span>
+                  </div>
+                  <div class="result-bar-track w-100"><div class="result-bar-fill" data-progress="{{ option.percentage|unlocalize }}"></div></div>
+                </div>
+              {% empty %}
+                <p class="text-muted small mb-0">{% trans 'No options' %}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
       </div>
     {% endfor %}

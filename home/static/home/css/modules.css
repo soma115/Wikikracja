@@ -481,7 +481,7 @@
 
 .proposal-author-name,
 .task-author-name {
-  color: rgba(232, 234, 240, .75);
+  color: var(--text-muted);
   font-weight: 500;
   transition: color var(--transition-fast);
 }
@@ -959,7 +959,7 @@ button.task-against-btn:focus-visible {
   background: var(--color-surface-dynamic);
 }
 .detail-author-name {
-  color: rgba(232, 234, 240, .75);
+  color: var(--text-muted);
   font-weight: 500;
 }
 .detail-author-link:hover .detail-author-name {
