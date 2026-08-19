@@ -285,7 +285,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function setView(mode) {
         applyView(mode);
-        write({ view: mode });
+        var data = read();
+        var tab = new URLSearchParams(window.location.search).get('tab');
+        if (tab) {
+            var views = data.views || {};
+            views[tab] = mode;
+            write({ view: mode, views: views });
+        } else {
+            write({ view: mode });
+        }
     }
 
     function saveCurrentFilters() {
@@ -319,8 +327,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function init() {
         if (!scope()) return;
 
-        // 1. Widok lista/grid/compact — fallback na pierwszy dostępny guzik
-        var savedView = read().view || 'list';
+        // 1. Widok lista/grid/compact per zakładka, fallback na globalny view
+        var data = read();
+        var tab = new URLSearchParams(window.location.search).get('tab');
+        var savedView = (tab && data.views && data.views[tab]) || data.view || 'list';
         var availableViews = Array.from(document.querySelectorAll('[data-view]')).map(function(b) { return b.dataset.view; });
         if (availableViews.length && availableViews.indexOf(savedView) === -1) {
             savedView = availableViews[0];
@@ -366,6 +376,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.PagePrefs = {
         init: init,
         setView: setView,
+        applyView: applyView,
         read: read,
         write: write,
         clear: clear,
@@ -1001,6 +1012,11 @@ window.initCategoryFilter = function(options) {
                 history.pushState(null, '', url);
                 if (typeof window.reinitTaskCards === 'function') window.reinitTaskCards();
                 updateTaskPageLinks();
+                if (typeof window.PagePrefs !== 'undefined' && typeof window.PagePrefs.applyView === 'function') {
+                    var currentTab = new URLSearchParams(window.location.search).get('tab') || 'mine';
+                    var p = window.PagePrefs.read();
+                    window.PagePrefs.applyView((p.views && p.views[currentTab]) || p.view || 'list');
+                }
                 if (typeof window.PagePrefs !== 'undefined' && typeof window.PagePrefs.saveCurrentFilters === 'function') {
                     window.PagePrefs.saveCurrentFilters();
                 }

@@ -51,6 +51,7 @@ describe('initCategoryFilter', () => {
         document.documentElement.removeAttribute('data-prefs-scope');
         jest.spyOn(history, 'pushState').mockImplementation(() => {});
         if (typeof sessionStorage !== 'undefined') sessionStorage.clear();
+        if (typeof localStorage !== 'undefined') localStorage.clear();
     });
 
     afterEach(() => {
@@ -236,5 +237,33 @@ describe('initCategoryFilter', () => {
         expect(panel.hidden).toBe(false);
         expect(btn.getAttribute('aria-expanded')).toBe('true');
         expect(sessionStorage.getItem('catFilterOpen')).toBeNull();
+    });
+
+    test('PagePrefs saves view per tab', () => {
+        document.documentElement.setAttribute('data-prefs-scope', 'tasks');
+        document.body.innerHTML = `
+            <div id="view-container" data-view-container>
+                <button data-view="list"></button>
+                <button data-view="compact"></button>
+            </div>
+        `;
+
+        var locationSpy = jest.spyOn(window, 'location', 'get');
+        locationSpy.mockReturnValue({ search: '?tab=mine', pathname: '/tasks/', href: 'http://localhost/tasks/?tab=mine' });
+        window.PagePrefs.setView('compact');
+
+        var data = window.PagePrefs.read();
+        expect(data.views.mine).toBe('compact');
+        expect(data.view).toBe('compact');
+        expect(document.getElementById('view-container').classList.contains('view-compact')).toBe(true);
+
+        locationSpy.mockReturnValue({ search: '?tab=active', pathname: '/tasks/', href: 'http://localhost/tasks/?tab=active' });
+        window.PagePrefs.setView('list');
+
+        data = window.PagePrefs.read();
+        expect(data.views.active).toBe('list');
+        expect(data.views.mine).toBe('compact');
+
+        locationSpy.mockRestore();
     });
 });
