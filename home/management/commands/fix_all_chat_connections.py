@@ -95,9 +95,9 @@ class Command(BaseCommand):
             self.debug(f"Vote #{decyzja.pk} already linked to room #{decyzja.chat_room.id}")
             return
 
-        # Try to find room by old title format
+        # Try to find room by old title format or current generated title
         old_title = f"Vote #{decyzja.pk}: {decyzja.title[:20]}"
-        new_title = f"{decyzja.title[:20]}"
+        new_title = decyzja.get_chat_room_title()
 
         room = None
         for title_format, format_name in [(old_title, "old"), (new_title, "new")]:

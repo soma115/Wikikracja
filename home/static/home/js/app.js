@@ -893,7 +893,9 @@ window.initCategoryFilter = function(options) {
 
     var itemsSelector = options.itemsSelector;
     if (!itemsSelector) {
-        if (document.querySelector('.proposal-card[data-category]')) {
+        if (document.querySelector('.task-card[data-category]')) {
+            itemsSelector = '.task-card[data-category]';
+        } else if (document.querySelector('.proposal-card[data-category]')) {
             itemsSelector = '.proposal-card[data-category]';
         } else if (document.querySelector('.board-category-group[data-category-pk]')) {
             itemsSelector = '.board-category-group[data-category-pk]';
@@ -902,7 +904,12 @@ window.initCategoryFilter = function(options) {
     if (!itemsSelector) return;
 
     var items = Array.from(document.querySelectorAll(itemsSelector));
-    var sectionSelector = options.sectionSelector || (itemsSelector.indexOf('proposal-card') !== -1 ? '.tasks-section-label' : '');
+    var sectionSelector = options.sectionSelector;
+    if (!sectionSelector) {
+        if (itemsSelector.indexOf('task-card') !== -1 || itemsSelector.indexOf('proposal-card') !== -1) {
+            sectionSelector = '.tasks-section-label';
+        }
+    }
     var sections = sectionSelector ? Array.from(document.querySelectorAll(sectionSelector)) : [];
     var LABEL_ALL = labelEl.textContent;
 
@@ -926,7 +933,7 @@ window.initCategoryFilter = function(options) {
             var sib = label.nextElementSibling;
             var vis = false;
             while (sib && !sib.classList.contains('tasks-section-label')) {
-                if (sib.classList.contains('proposal-card') && sib.style.display !== 'none') { vis = true; break; }
+                if (sib.matches(itemsSelector) && sib.style.display !== 'none') { vis = true; break; }
                 sib = sib.nextElementSibling;
             }
             label.style.display = vis ? '' : 'none';

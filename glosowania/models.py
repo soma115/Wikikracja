@@ -3,7 +3,7 @@ import re
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_comma_separated_integer_list
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -92,6 +92,10 @@ class Decyzja(ChatRoomModel, models.Model):
         return '%s: %s on %s' % (self.pk, self.tresc, self.status)
 
     objects = models.Manager()
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            super().save(*args, **kwargs)
 
     def get_chat_room_title(self):
         return f"{self.pk}. {self.title}"[:90]

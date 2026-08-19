@@ -19,14 +19,22 @@ Try the live demo: **https://demo.wikikracja.pl/**
 
 ## Tech Stack
 
-- **Backend**: Django, Django Channels, Python
-- **Frontend**: Bootstrap, TinyMCE
+- **Backend**: Django ~6.0.4, Django Channels 4.3.2 + Daphne (ASGI), Python >=3.14, JavaScript, CSS
+- **Frontend**: Bootstrap 5 + crispy-bootstrap5, TinyMCE
 - **Database**: SQLite (development), PostgreSQL (production)
-- **Cache/Channels**: Redis
-- **Deployment**: Docker
+- **Cache/Channels**: Redis (cache and channel layer)
+- **Deployment**: Docker, GitHub Actions
 - **Authentication**: django-allauth
+- **Additional libraries**: django-tables2, django-filter, APScheduler, firebase-admin (FCM)
+- **Testing**: Jest (JavaScript, Node 22), pytest (Python), Ruff (linting)
 
-## Quick Start
+## Prerequisites
+
+- Python 3.14+
+- Redis (for channels/cache; can run via Docker)
+- Node 22 (optional, for JavaScript tests)
+
+## Setup
 
 1. **Clone the repository**
    ```bash
@@ -34,15 +42,58 @@ Try the live demo: **https://demo.wikikracja.pl/**
    cd wikikracja
    ```
 
-2. **Run the development server**
+2. **Start Redis**
    ```bash
-   python scripts/start_dev.py --full
+   docker run -d -p 6379:6379 redis:latest
    ```
 
-3. **Access the application**
-   - Web: http://localhost:8000
+3. **Create and activate a virtual environment**
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate            # Windows
+   # source .venv/bin/activate       # Linux/Mac
+   ```
+
+4. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   npm install
+   ```
+
+## Quick Start
+
+Run the automated development setup:
+
+```bash
+python scripts/start_dev.py --full
+```
+
+For subsequent runs:
+
+```bash
+python scripts/start_dev.py
+```
+
+Access the application at http://localhost:8000.
 
 For detailed setup, deployment, Docker, configuration and management commands, see [docs/DEPLOYMENT_INSTRUCTIONS.md](docs/DEPLOYMENT_INSTRUCTIONS.md).
+
+## Testing
+
+After changes, run the test suites and linting:
+
+```bash
+npx jest
+python -m pytest -q
+ruff check .
+ruff format --check .
+```
+
+For a single combined command, use:
+
+```bash
+python scripts/run_tests.py
+```
 
 ## Documentation
 

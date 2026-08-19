@@ -141,7 +141,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',  # filebrowser się nie otwiera jak to jest włączone
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',  # disabled; configure X-Frame-Options in reverse proxy
     # Na produkcji w nginx dodać:
     # add_header X-Frame-Options SAMEORIGIN;
     # albo w settings.py:

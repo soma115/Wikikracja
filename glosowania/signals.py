@@ -26,32 +26,28 @@ def create_or_update_chat_room_for_referendum(sender, instance, created, **kwarg
         # Use English prefix (not translated) for consistency in room categorization
         room_title = instance.get_chat_room_title()
 
-        # Create new chat room
-        try:
-            # Create new public chat room for voting
-            room = Room.objects.create(title=room_title, public=True, archived=False, protected=True, founder=instance.author)
+        # Create new public chat room for voting
+        room = Room.objects.create(title=room_title, public=True, archived=False, protected=True, founder=instance.author)
 
-            # Add all active users to the room
-            active_users = User.objects.filter(is_active=True)
-            room.allowed.set(active_users)
+        # Add all active users to the room
+        active_users = User.objects.filter(is_active=True)
+        room.allowed.set(active_users)
 
-            # Link room to Decyzja instance
-            instance.chat_room = room
-            instance.save(update_fields=['chat_room'])
+        # Link room to Decyzja instance without re-firing post_save
+        Decyzja.objects.filter(pk=instance.pk).update(chat_room=room)
+        instance.chat_room = room
 
-            # Create initial welcome message in the room
-            HOST = get_site_domain()
-            protocol = getattr(settings, 'SITE_PROTOCOL', 'http')
-            details_url = f"{protocol}://{HOST}/glosowania/details/{instance.pk}"
-            welcome_message = _("This chat room has been created for project #{id} \"{title}\".\nView details: {details_url}\nDiscuss the proposal, share your thoughts, and ask questions here.").format(
-                id=instance.pk, title=instance.title, details_url=details_url
-            )
+        # Create initial welcome message in the room
+        HOST = get_site_domain()
+        protocol = getattr(settings, 'SITE_PROTOCOL', 'http')
+        details_url = f"{protocol}://{HOST}/glosowania/details/{instance.pk}"
+        welcome_message = _("This chat room has been created for project #{id} \"{title}\".\nView details: {details_url}\nDiscuss the proposal, share your thoughts, and ask questions here.").format(
+            id=instance.pk, title=instance.title, details_url=details_url
+        )
 
-            Message.objects.create(room=room, text=welcome_message, anonymous=True, sender=None)
+        Message.objects.create(room=room, text=welcome_message, anonymous=True, sender=None)
 
-            log.info(f'Chat room "{room_title}" created for referendum #{instance.pk}')
-        except Exception as e:
-            log.error(f'Failed to create chat room for referendum #{instance.pk}: {str(e)}')
+        log.info(f'Chat room "{room_title}" created for referendum #{instance.pk}')
     else:
         # Update room title if project title changed
         if instance.chat_room:

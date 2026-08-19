@@ -1,7 +1,11 @@
+# Standard library imports
+from unittest.mock import patch
+
 # Third party imports
 from django.test import TestCase
 
 # Local folder imports
+from chat.models import Room
 from tasks.models import Task, TaskEvaluation, TaskVote
 from tasks.tests.utils import make_task, make_user
 
@@ -33,7 +37,23 @@ class TaskModelTest(TestCase):
         self.assertEqual(len(task.get_chat_room_title()), 90)
 
     def test_get_chat_room_url_none_when_no_room(self):
-        self.assertIsNone(self.task.get_chat_room_url())
+        task = Task.objects.create(title="No room", description="x", status=Task.Status.ACTIVE, created_by=self.user)
+        Task.objects.filter(pk=task.pk).update(chat_room=None)
+        task.refresh_from_db()
+        self.assertIsNone(task.get_chat_room_url())
+
+    def test_task_creation_creates_chat_room(self):
+        task = make_task(created_by=self.user)
+        task.refresh_from_db()
+        self.assertIsNotNone(task.chat_room)
+        self.assertTrue(Room.objects.filter(title=task.get_chat_room_title()).exists())
+        self.assertEqual(task.chat_room.title, task.get_chat_room_title())
+
+    def test_task_not_saved_when_chat_room_creation_fails(self):
+        with patch("tasks.signals.Room.objects.create", side_effect=RuntimeError("DB unavailable")):
+            with self.assertRaises(RuntimeError):
+                make_task(created_by=self.user)
+        self.assertEqual(Task.objects.count(), 1)  # only setUp task
 
     def test_created_by_set_null_on_user_delete(self):
         temp = make_user("temp")

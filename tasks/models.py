@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Count, Q, Sum
 from django.db.models.functions import Coalesce
 from django.urls import reverse
@@ -58,6 +58,10 @@ class Task(ChatRoomModel, models.Model):
 
     class Meta:
         ordering = ("-updated_at",)
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title

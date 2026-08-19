@@ -2,7 +2,6 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db import transaction
 from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.urls import reverse
@@ -37,6 +36,7 @@ def create_task_chat_room(sender, instance, created, **kwargs):
 
             # Link room to task via FK
             Task.objects.filter(pk=instance.pk).update(chat_room=room)
+            instance.chat_room = room
 
             log.info(f"Created chat room '{room_title}' for task #{instance.id}")
 
@@ -51,7 +51,7 @@ def create_task_chat_room(sender, instance, created, **kwargs):
 
             log.info(f"Sent initial message to chat room '{room_title}'")
 
-        transaction.on_commit(_create_room)
+        _create_room()
 
 
 @receiver(post_save, sender=Task)
