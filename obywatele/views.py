@@ -76,7 +76,7 @@ def get_onboarding_user_from_request(request: HttpRequest):
             onboarding_user_id = int(signed_value)
             request.session['onboarding_user_id'] = onboarding_user_id
             request.session.modified = True
-        except BadSignature, SignatureExpired, ValueError:
+        except (BadSignature, SignatureExpired, ValueError):
             onboarding_user_id = None
 
     if not onboarding_user_id:
@@ -604,7 +604,7 @@ def toggle_notification(request: HttpRequest):
 
         return JsonResponse({'success': True})
 
-    except json.JSONDecodeError, AttributeError:
+    except (json.JSONDecodeError, AttributeError):
         return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 

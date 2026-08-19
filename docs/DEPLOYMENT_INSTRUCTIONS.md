@@ -186,6 +186,10 @@ python manage.py test
 # Run specific app tests
 python manage.py test chat
 python manage.py test tasks
+
+# Linting and formatting checks
+ruff check .
+ruff format --check .
 ```
 
 ## Database Management

@@ -5,46 +5,45 @@
 
 
 <nav class="stepper-nav">
-    <a href="{% url 'tasks:help' %}" class="stepper-info-btn" title="{% trans 'How do tasks work?' %}">
+  {% with t=current_tab s=current_sort o=current_order cats=current_categories %}
+
+    <a href="{% url 'tasks:help' %}?sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="stepper-info-btn" title="{% trans 'How do tasks work?' %}">
       <i class="fas fa-circle-info"></i>
     </a>
 
-    {% with t=current_tab s=current_sort o=current_order %}
-
     <div class="stepper-step-wrap {% if t == 'mine' %}active{% endif %}">
-      <a href="{% url 'tasks:list' %}?tab=mine&sort={{ s }}&order={{ o }}{% for c in current_categories %}&category={{ c }}{% endfor %}" class="stepper-step">
+      <a href="{% url 'tasks:list' %}?tab=mine&sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="stepper-step">
         {% trans 'Mine' %}
       </a>
     </div>
 
     <div class="stepper-step-wrap {% if t == 'awaiting' %}active{% endif %}">
-      <a href="{% url 'tasks:list' %}?tab=awaiting&sort={{ s }}&order={{ o }}{% for c in current_categories %}&category={{ c }}{% endfor %}" class="stepper-step">
+      <a href="{% url 'tasks:list' %}?tab=awaiting&sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="stepper-step">
         {% trans 'Awaiting pickup' %}
       </a>
     </div>
 
     <div class="stepper-step-wrap {% if t == 'active' %}active{% endif %}">
-      <a href="{% url 'tasks:list' %}?tab=active&sort={{ s }}&order={{ o }}{% for c in current_categories %}&category={{ c }}{% endfor %}" class="stepper-step">
+      <a href="{% url 'tasks:list' %}?tab=active&sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="stepper-step">
         {% trans 'In progress' %}
       </a>
     </div>
 
     <div class="stepper-step-wrap {% if t == 'finished' %}active{% endif %}">
-      <a href="{% url 'tasks:list' %}?tab=finished&sort={{ s }}&order={{ o }}{% for c in current_categories %}&category={{ c }}{% endfor %}" class="stepper-step">
+      <a href="{% url 'tasks:list' %}?tab=finished&sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="stepper-step">
         {% trans 'Finished' %}
       </a>
     </div>
 
     <div class="stepper-step-wrap {% if request.resolver_match.url_name == 'stats' %}active{% endif %}">
-      <a href="{% url 'tasks:stats' %}" class="stepper-step">
+      <a href="{% url 'tasks:stats' %}?sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="stepper-step">
         {% trans 'Statistics' %}
       </a>
     </div>
 
-    {% endwith %}
-  </nav>
+  {% endwith %}
+</nav>
 
   {% block tasks %}{% endblock %}
 
 {% endblock %}
-

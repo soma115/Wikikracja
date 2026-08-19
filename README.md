@@ -58,6 +58,7 @@ Try the live demo: **https://demo.wikikracja.pl/**
    ```bash
    pip install -r requirements.txt
    npm install
+   pre-commit install
    ```
 
 ## Quick Start
@@ -94,6 +95,8 @@ For a single combined command, use:
 ```bash
 python scripts/run_tests.py
 ```
+
+Pre-commit hooks run `ruff` and `ruff-format` automatically before each commit.
 
 ## Documentation
 

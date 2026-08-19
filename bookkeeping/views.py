@@ -296,7 +296,7 @@ class ReportView(LoginRequiredMixin, View):
     def get(self, request, year=None):
         try:
             year = int(request.GET.get('year', year)) if year or request.GET.get('year') else timezone.now().year
-        except ValueError, TypeError:
+        except (ValueError, TypeError):
             year = timezone.now().year
 
         year_pivot, year_assets, year_totals = category_breakdown(year=year)

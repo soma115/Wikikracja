@@ -590,7 +590,7 @@ def _apply_sort(queryset, sort, order='desc'):
 
 def _glosowania_toolbar_data(sort, order):
     """Generate sort and view toggle data for the shared toolbar template."""
-    labels = {"date": _("Newest"), "signatures": _("Signatures"), "buzz": _("Buzz")}
+    labels = {"date": _("Date"), "signatures": _("Signatures"), "buzz": _("Buzz")}
     icons = {"date": "clock-rotate-left", "signatures": "pen-nib", "buzz": "fire"}
     sort_items = []
     for sort_key in ("date", "signatures", "buzz"):

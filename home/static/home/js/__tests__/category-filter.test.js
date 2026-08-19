@@ -48,11 +48,14 @@ describe('initCategoryFilter', () => {
 
     beforeEach(() => {
         document.body.innerHTML = '';
+        document.documentElement.removeAttribute('data-prefs-scope');
         jest.spyOn(history, 'pushState').mockImplementation(() => {});
+        if (typeof sessionStorage !== 'undefined') sessionStorage.clear();
     });
 
     afterEach(() => {
         jest.restoreAllMocks();
+        document.documentElement.removeAttribute('data-prefs-scope');
     });
 
     test('toggles the dropdown panel for task-card items', () => {
@@ -165,5 +168,73 @@ describe('initCategoryFilter', () => {
         const cards = Array.from(document.querySelectorAll('.task-card'));
         expect(cards[0].style.display).toBe('');
         expect(cards[1].style.display).toBe('');
+    });
+
+    test('tasks scope reloads, saves filters and passes navigation to onNavigate', () => {
+        document.documentElement.setAttribute('data-prefs-scope', 'tasks');
+        document.body.innerHTML = `
+            <div class="proposals-list">
+                <div class="task-card" data-category="urgent">Urgent task</div>
+                <div class="task-card" data-category="later">Later task</div>
+            </div>
+        `;
+        const items = document.querySelectorAll('.task-card');
+        document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
+
+        const onNavigate = jest.fn();
+        const writeSpy = jest.spyOn(window.PagePrefs, 'write').mockImplementation(() => {});
+        window.initCategoryFilter({ onNavigate: onNavigate });
+
+        const rows = document.querySelectorAll('.cat-filter__item:not(.cat-filter__all)');
+        const urgentRow = Array.from(rows).find(function(r) { return r.dataset.key === 'urgent'; });
+
+        click(urgentRow);
+
+        expect(writeSpy).toHaveBeenCalledWith({ filters: '?category=urgent' });
+        expect(onNavigate).toHaveBeenCalledWith('/?category=urgent');
+
+        const cards = Array.from(document.querySelectorAll('.task-card'));
+        expect(cards[0].style.display).toBe('');
+        expect(cards[1].style.display).toBe('none');
+    });
+
+    test('initializes and toggles panel even when there are no items to filter', () => {
+        document.body.innerHTML = buildCatFilter([], ['foo']);
+
+        window.initCategoryFilter();
+
+        const btn = document.getElementById('catFilterBtn');
+        const panel = document.getElementById('catFilterPanel');
+
+        expect(panel.hidden).toBe(true);
+        click(btn);
+        expect(panel.hidden).toBe(false);
+        expect(btn.getAttribute('aria-expanded')).toBe('true');
+
+        const rows = document.querySelectorAll('.cat-filter__item:not(.cat-filter__all)');
+        click(rows[0]);
+
+        expect(history.pushState).toHaveBeenCalled();
+    });
+
+    test('reopens the panel on load when a category was just selected (sessionStorage flag)', () => {
+        document.body.innerHTML = `
+            <div class="proposals-list">
+                <div class="task-card" data-category="urgent">Urgent task</div>
+            </div>
+        `;
+        const items = document.querySelectorAll('.task-card');
+        document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
+
+        sessionStorage.setItem('catFilterOpen', '1');
+
+        window.initCategoryFilter();
+
+        const panel = document.getElementById('catFilterPanel');
+        const btn = document.getElementById('catFilterBtn');
+
+        expect(panel.hidden).toBe(false);
+        expect(btn.getAttribute('aria-expanded')).toBe('true');
+        expect(sessionStorage.getItem('catFilterOpen')).toBeNull();
     });
 });

@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ------------------------------------------------------------
 // Per-scope JSON w localStorage: { view, filters, tab }
 //   - scope ustawia szablon przez `data-prefs-scope` na <html>
-//   - dla tasks scope jest wzbogacany o aktywną zakładkę (tasks:mine)
+//   - tasks używa jednego scope 'tasks'; zakładka i kategoria trzymane są w 'filters'
 //   - dla glosowan scope jest wzbogacany o podstronę (glosowania:proposition)
 //   - filtry (URL params) restore'owane są w head-script (anti-FOUC)
 //   - widok lista/grid/compact: data-view="list|grid|compact" + [data-view-container]
@@ -230,11 +230,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function scope() {
         var base = baseScope();
         if (!base) return '';
-        if (base === 'tasks') {
-            var params = new URLSearchParams(window.location.search);
-            var tab = params.get('tab') || 'mine';
-            return base + ':' + tab;
-        }
         if (base === 'glosowania') {
             var pathParts = window.location.pathname.split('/').filter(Boolean);
             var subpage = pathParts[pathParts.length - 1] || '';
@@ -243,8 +238,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return base;
     }
 
-    function read() {
-        var s = scope();
+    function read(scopeName) {
+        var s = scopeName || scope();
         if (!s) return {};
         try { return JSON.parse(localStorage.getItem(KEY_PREFIX + s) || '{}'); }
         catch (e) { return {}; }
@@ -901,24 +896,30 @@ window.initCategoryFilter = function(options) {
             itemsSelector = '.board-category-group[data-category-pk]';
         }
     }
-    if (!itemsSelector) return;
-
-    var items = Array.from(document.querySelectorAll(itemsSelector));
-    var sectionSelector = options.sectionSelector;
-    if (!sectionSelector) {
-        if (itemsSelector.indexOf('task-card') !== -1 || itemsSelector.indexOf('proposal-card') !== -1) {
-            sectionSelector = '.tasks-section-label';
+    var items = [];
+    var sections = [];
+    if (itemsSelector) {
+        items = Array.from(document.querySelectorAll(itemsSelector));
+        var sectionSelector = options.sectionSelector;
+        if (!sectionSelector) {
+            if (itemsSelector.indexOf('task-card') !== -1 || itemsSelector.indexOf('proposal-card') !== -1) {
+                sectionSelector = '.tasks-section-label';
+            }
         }
+        if (sectionSelector) sections = Array.from(document.querySelectorAll(sectionSelector));
     }
-    var sections = sectionSelector ? Array.from(document.querySelectorAll(sectionSelector)) : [];
     var LABEL_ALL = labelEl.textContent;
+
+    var pageScope = document.documentElement.dataset.prefsScope || '';
+    var reloadOnChange = options.reloadOnChange || pageScope === 'tasks';
+    var onNavigate = options.onNavigate;
 
     function selected() {
         return catRows.filter(function(r) { return r.classList.contains('selected'); })
                       .map(function(r) { return r.dataset.key; });
     }
 
-    function apply() {
+    function updateUI() {
         var sel = selected();
         var all = sel.length === 0;
 
@@ -946,12 +947,85 @@ window.initCategoryFilter = function(options) {
             labelEl.textContent = LABEL_ALL + ' (' + sel.length + ')';
             btn.classList.add('active');
         }
+    }
 
+    function buildCategoryUrl(sel) {
         var p = new URLSearchParams(window.location.search);
         p.delete('category');
         sel.forEach(function(v) { p.append('category', v); });
-        var url = window.location.pathname + (p.toString() ? '?' + p.toString() : '');
-        if (url !== window.location.pathname + window.location.search) {
+        return window.location.pathname + (p.toString() ? '?' + p.toString() : '');
+    }
+
+    function updateTaskPageLinks() {
+        var params = new URLSearchParams(window.location.search);
+        var categories = params.getAll('category');
+        var sort = params.get('sort');
+        var order = params.get('order');
+
+        function refresh(link, updateSortOrder) {
+            var u = new URL(link.href, window.location.href);
+            var tab = u.searchParams.get('tab');
+            var linkSort = u.searchParams.get('sort');
+            var linkOrder = u.searchParams.get('order');
+            u.searchParams.delete('category');
+            u.searchParams.delete('tab');
+            u.searchParams.delete('sort');
+            u.searchParams.delete('order');
+            categories.forEach(function(c) { u.searchParams.append('category', c); });
+            if (tab) u.searchParams.set('tab', tab);
+            if (updateSortOrder) {
+                if (sort) u.searchParams.set('sort', sort);
+                if (order) u.searchParams.set('order', order);
+            } else {
+                if (linkSort) u.searchParams.set('sort', linkSort);
+                if (linkOrder) u.searchParams.set('order', linkOrder);
+            }
+            link.href = u.pathname + u.search;
+        }
+
+        document.querySelectorAll('.stepper-nav a[href]').forEach(function(link) { refresh(link, true); });
+        document.querySelectorAll('.proposals-toolbar .sort-btn[href]').forEach(function(link) { refresh(link, false); });
+    }
+
+    function fetchTasksList(url) {
+        var container = document.getElementById('tasks-list-container');
+        if (!container) {
+            window.location.href = url;
+            return;
+        }
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('catFilterOpen', '1');
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function(r) { if (!r.ok) throw new Error('fetch failed'); return r.text(); })
+            .then(function(html) {
+                container.innerHTML = html;
+                history.pushState(null, '', url);
+                if (typeof window.reinitTaskCards === 'function') window.reinitTaskCards();
+                updateTaskPageLinks();
+                if (typeof window.PagePrefs !== 'undefined' && typeof window.PagePrefs.saveCurrentFilters === 'function') {
+                    window.PagePrefs.saveCurrentFilters();
+                }
+            })
+            .catch(function() { window.location.href = url; });
+    }
+
+    function updateHistory(reload) {
+        var sel = selected();
+        var url = buildCategoryUrl(sel);
+
+        if (url === window.location.pathname + window.location.search) return;
+
+        if (reload) {
+            // Save the new filter string before leaving so the next load/redirect uses it.
+            if (window.PagePrefs && typeof window.PagePrefs.write === 'function') {
+                window.PagePrefs.write({ filters: url.slice(window.location.pathname.length) });
+            }
+            if (typeof onNavigate === 'function') { onNavigate(url); }
+            else if (pageScope === 'tasks') { fetchTasksList(url); }
+            else {
+                if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('catFilterOpen', '1');
+                window.location.href = url;
+            }
+        } else {
             history.pushState(null, '', url);
         }
     }
@@ -969,13 +1043,15 @@ window.initCategoryFilter = function(options) {
 
     allRow.addEventListener('click', function() {
         catRows.forEach(function(r) { r.classList.remove('selected'); });
-        apply();
+        updateUI();
+        updateHistory(reloadOnChange);
     });
 
     catRows.forEach(function(row) {
         row.addEventListener('click', function() {
             row.classList.toggle('selected');
-            apply();
+            updateUI();
+            updateHistory(reloadOnChange);
         });
     });
 
@@ -1005,7 +1081,14 @@ window.initCategoryFilter = function(options) {
         });
     }
 
-    apply();
+    // Reopen the panel after a category-driven reload (tasks) so multi-select is easier.
+    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('catFilterOpen') === '1') {
+        panel.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+        sessionStorage.removeItem('catFilterOpen');
+    }
+
+    updateUI();
 };
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -1053,6 +1136,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
     });
+
+    // Open the default section (Tasks) automatically when the profile loads.
+    var defaultBtn = document.querySelector('.citizen-section-btn[data-default="true"]')
+                     || document.querySelector('.citizen-section-btn');
+    if (defaultBtn) defaultBtn.click();
 });
 
 // ============================================================

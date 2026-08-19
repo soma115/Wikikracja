@@ -21,7 +21,9 @@ We welcome contributions! Here's how you can help.
 
 ## Development Guidelines
 
-- Follow PEP 8 style guide
+- Follow the project's ruff configuration (`pyproject.toml`)
+- Run `ruff check .` and `ruff format --check .` before submitting
+- Install and enable pre-commit hooks: `pip install pre-commit && pre-commit install`
 - Add comments for complex logic
 - Update documentation for new features
 - Test your changes locally before submitting

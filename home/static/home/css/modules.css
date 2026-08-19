@@ -457,9 +457,13 @@
   color: var(--text-muted);
   flex-wrap: wrap;
 }
+
+.task-card-meta {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
 .proposal-author-link,
 .proposal-coordinator-link,
-.task-author-link,
 .task-coordinator-link {
   display: inline-flex;
   align-items: center;
@@ -470,17 +474,14 @@
   margin: -2px -5px -2px -2px;
   transition: background var(--transition-fast);
 }
-.proposal-author-link:hover,
-.task-author-link:hover {
+.proposal-author-link:hover {
   background: var(--color-surface-dynamic);
 }
-.proposal-author-link:hover .proposal-author-name,
-.task-author-link:hover .task-author-name {
+.proposal-author-link:hover .proposal-author-name {
   color: var(--text-primary);
 }
 
-.proposal-author-name,
-.task-author-name {
+.proposal-author-name {
   color: var(--text-muted);
   font-weight: 500;
   transition: color var(--transition-fast);
@@ -513,13 +514,11 @@
 }
 .proposal-author-link:hover .proposal-role-icon,
 .proposal-coordinator-link:hover .proposal-role-icon,
-.task-author-link:hover .task-role-icon,
 .task-coordinator-link:hover .task-role-icon {
   color: var(--accent);
   opacity: 1;
 }
-.proposal-author-link--empty,
-.task-author-link--empty {
+.proposal-author-link--empty {
   display: inline-flex;
   align-items: center;
   gap: .35rem;
@@ -528,12 +527,6 @@
 }
 
 /* ── Coordinator (assigned_to) on meta strip ───────────────────── */
-.proposal-meta-arrow,
-.task-meta-arrow {
-  font-size: .65rem;
-  opacity: .35;
-  margin: 0 -.15rem;
-}
 
 .proposal-coordinator-link:hover,
 .task-coordinator-link:hover {

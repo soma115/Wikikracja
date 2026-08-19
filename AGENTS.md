@@ -59,6 +59,8 @@ python manage.py collectstatic --noinput --clear
 
 Dodatkowo: `python -m pytest -q`, `ruff check .`, `ruff format --check .`.
 
+Projekt używa `.pre-commit-config.yaml` z `ruff` i `ruff-format`. Po zainstalowaniu hooka (`pre-commit install`) formatter uruchamia się automatycznie przed każdym commitem.
+
 Nie uruchamiaj podglądu w przeglądarce (browser preview) — weryfikuj zmiany wyłącznie testami i komendami CLI.
 
 Wszystkie powyższe kroki można uruchomić jednym poleceniem:

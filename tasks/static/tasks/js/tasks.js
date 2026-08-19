@@ -199,11 +199,7 @@
   document.addEventListener('submit', handleCoordSubmit, true);
 
   document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
-      new bootstrap.Tooltip(el, { trigger: 'hover' });
-    });
-    initHelpersPopovers();
-    initAgainstPopovers();
+    if (typeof window.reinitTaskCards === 'function') window.reinitTaskCards();
 
     // Single document-level click listener closes any open voter popover when
     // clicking outside it (touch devices). Replaces N per-button listeners.
@@ -351,4 +347,23 @@
       initVoterPopover(btn, { sanitize: false, html: true, customClass: 'helpers-popover against-popover' }, loadAgainst);
     });
   }
+
+  window.reinitTaskCards = function() {
+    if (typeof bootstrap === 'undefined') return;
+
+    // Tooltips
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+      var t = bootstrap.Tooltip.getInstance(el);
+      if (t) t.dispose();
+      new bootstrap.Tooltip(el, { trigger: 'hover' });
+    });
+
+    // Popovers
+    document.querySelectorAll('[data-task-helpers], [data-task-against]').forEach(function (btn) {
+      var p = bootstrap.Popover.getInstance(btn);
+      if (p) p.dispose();
+    });
+    initHelpersPopovers();
+    initAgainstPopovers();
+  };
 }());

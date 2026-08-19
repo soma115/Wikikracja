@@ -296,7 +296,7 @@
           {% endfor %}
         </ul>
         <span class="card-footer-link">{% trans "All my tasks" %} →</span>
-        <a href="{% url 'tasks:list' %}?tab=mine" class="stretched-link"></a>
+        <a id="dash-my-tasks" href="{% url 'tasks:list' %}?tab=mine" class="stretched-link"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center text-muted text-md">{% trans "You have no assigned tasks" %}</p>
@@ -539,5 +539,24 @@
 })();
 </script>
 
+<script>
+// Zachowaj kategorie/sortowanie z zadań przy kliku "Wszystkie moje zadania"
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!window.PagePrefs || typeof window.PagePrefs.read !== 'function') return;
+    var data = window.PagePrefs.read('tasks');
+    if (!data || !data.filters) return;
+    var link = document.getElementById('dash-my-tasks');
+    if (!link) return;
+    var saved = new URLSearchParams(data.filters);
+    var url = new URL(link.href, window.location.href);
+    saved.forEach(function(value, key) {
+      if (key === 'tab') return;
+      if (!url.searchParams.has(key)) url.searchParams.append(key, value);
+    });
+    link.href = url.pathname + url.search;
+  });
+})();
+</script>
 
 {% endblock %}

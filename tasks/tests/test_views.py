@@ -23,6 +23,16 @@ class TaskListViewTest(TestCase):
         response = self.client.get(reverse("tasks:list"))
         self.assertEqual(response.status_code, 200)
 
+    def test_ajax_returns_partial(self):
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+        response = self.client.get(
+            reverse("tasks:list"),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "tasks/_task_list_partial.html")
+        self.assertNotContains(response, "<html")
+
 
 class TaskCreateViewTest(TestCase):
     def setUp(self):

@@ -48,25 +48,6 @@
 
     {# Meta strip #}
     <div class="task-card-meta">
-      {% if task.created_by %}
-      <a href="{% url 'obywatele:obywatele_szczegoly' pk=task.created_by.pk %}"
-         class="task-author-link" onclick="event.stopPropagation()"
-         data-bs-toggle="tooltip"
-         title="{% trans 'Author' %}: {{ task.created_by.username }}">
-        <i class="fas fa-user-pen task-role-icon" aria-hidden="true"></i>
-        {% include "home/_user_avatar.html" with avatar=task.created_by.uzytkownik.avatar username=task.created_by.username size="md" %}
-        <span class="task-author-name">{{ task.created_by.username }}</span>
-      </a>
-      {% else %}
-      <span class="task-author-link task-author-link--empty"
-            data-bs-toggle="tooltip" title="{% trans 'Author unknown' %}">
-        <i class="fas fa-user-pen task-role-icon" aria-hidden="true"></i>
-        <span class="task-author-name">—</span>
-      </span>
-      {% endif %}
-
-      <i class="fas fa-arrow-right task-meta-arrow" aria-hidden="true"></i>
-
       {% if task.assigned_to and task.assigned_to != request.user %}
         {# Someone else is coordinator — static, no live update possible from this user #}
         <a href="{% url 'obywatele:obywatele_szczegoly' pk=task.assigned_to.pk %}"

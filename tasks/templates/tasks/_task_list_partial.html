@@ -1,0 +1,50 @@
+{% load i18n %}
+
+{# ══ MOJE ══ #}
+{% if current_tab == 'mine' %}
+  {% if my_tasks_own %}
+    <div class="tasks-section-label"><i class="fas fa-user"></i> {% trans 'My tasks' %}</div>
+    {% for task in my_tasks_own %}{% include 'tasks/_task_card.html' %}{% endfor %}
+  {% endif %}
+  {% if my_tasks_supporting %}
+    <div class="tasks-section-label"><i class="fas fa-thumbs-up"></i> {% trans 'Supporting' %}</div>
+    {% for task in my_tasks_supporting %}{% include 'tasks/_task_card.html' %}{% endfor %}
+  {% endif %}
+  {% if not my_tasks_own and not my_tasks_supporting %}
+    {% include 'tasks/_empty_state.html' with icon='fa-list-check' %}
+  {% endif %}
+
+{# ══ OCZEKUJĄCE ══ #}
+{% elif current_tab == 'awaiting' %}
+  {% if awaiting_tasks %}
+    {% for task in awaiting_tasks %}{% include 'tasks/_task_card.html' %}{% endfor %}
+  {% else %}
+    {% include 'tasks/_empty_state.html' with icon='fa-inbox' %}
+  {% endif %}
+
+{# ══ W REALIZACJI ══ #}
+{% elif current_tab == 'active' %}
+  {% if active_tasks %}
+    {% for task in active_tasks %}{% include 'tasks/_task_card.html' %}{% endfor %}
+  {% else %}
+    {% include 'tasks/_empty_state.html' with icon='fa-spinner' %}
+  {% endif %}
+
+{# ══ ZAKOŃCZONE ══ #}
+{% elif current_tab == 'finished' %}
+  {% if finished_completed %}
+    <div class="tasks-section-label"><i class="fas fa-check-circle"></i> {% trans 'Completed' %}</div>
+    {% for task in finished_completed %}{% include 'tasks/_task_card.html' %}{% endfor %}
+  {% endif %}
+  {% if finished_cancelled %}
+    <div class="tasks-section-label"><i class="fas fa-ban"></i> {% trans 'Cancelled' %}</div>
+    {% for task in finished_cancelled %}{% include 'tasks/_task_card.html' %}{% endfor %}
+  {% endif %}
+  {% if finished_rejected %}
+    <div class="tasks-section-label"><i class="fas fa-thumbs-down"></i> {% trans 'Rejected' %}</div>
+    {% for task in finished_rejected %}{% include 'tasks/_task_card.html' %}{% endfor %}
+  {% endif %}
+  {% if not finished_completed and not finished_cancelled and not finished_rejected %}
+    {% include 'tasks/_empty_state.html' with icon='fa-inbox' %}
+  {% endif %}
+{% endif %}

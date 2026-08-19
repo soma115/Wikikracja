@@ -73,6 +73,23 @@ def _filter_by_category(tasks, categories):
     return [t for t in tasks if t.category and t.category.slug in categories]
 
 
+class TaskFilterContextMixin:
+    """Mixin zapewniający menu zadań stan filtrów (sort/order/category)."""
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        sort, order, tab, categories = _task_sort_context(self.request)
+        context.update(
+            {
+                "current_tab": "",  # help/stats nie mają listy zakładek
+                "current_sort": sort,
+                "current_order": order,
+                "current_categories": categories,
+            }
+        )
+        return context
+
+
 def _apply_task_sort(tasks, sort, order):
     reverse = order == 'desc'
     if sort == 'date':
@@ -191,7 +208,7 @@ def _load_task_lists(user):
 
 def _task_toolbar_data(sort, order, tab, categories):
     """Generate sort and view toggle data for the shared toolbar template."""
-    labels = {"date": gettext_lazy("Newest"), "score": gettext_lazy("Score"), "buzz": gettext_lazy("Buzz")}
+    labels = {"date": gettext_lazy("Date"), "score": gettext_lazy("Score"), "buzz": gettext_lazy("Buzz")}
     icons = {"date": "clock-rotate-left", "score": "pen-nib", "buzz": "fire"}
     params = []
     if tab:
@@ -219,6 +236,11 @@ def _task_toolbar_data(sort, order, tab, categories):
 
 class TaskListView(LoginRequiredMixin, TemplateView):
     template_name = "tasks/task_list.html"
+
+    def get_template_names(self):
+        if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return ["tasks/_task_list_partial.html"]
+        return [self.template_name]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -251,7 +273,7 @@ class TaskListView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class TaskHelpView(LoginRequiredMixin, TemplateView):
+class TaskHelpView(LoginRequiredMixin, TaskFilterContextMixin, TemplateView):
     template_name = "tasks/task_help.html"
 
 
@@ -420,7 +442,7 @@ def vote_task(request: HttpRequest, pk: int) -> HttpResponse:
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     try:
         value = int(request.POST.get("value", 0))
-    except ValueError, TypeError:
+    except (ValueError, TypeError):
         value = 0
     if value not in (TaskVote.Value.DOWN, TaskVote.Value.UP):
         if is_ajax:
@@ -575,7 +597,7 @@ class TaskCategoryReorderAPI(CategoryReorderAPI):
         invalidate_task_list_cache()
 
 
-class TaskStatsView(LoginRequiredMixin, TemplateView):
+class TaskStatsView(LoginRequiredMixin, TaskFilterContextMixin, TemplateView):
     template_name = "tasks/task_stats.html"
 
     def get_context_data(self, **kwargs):

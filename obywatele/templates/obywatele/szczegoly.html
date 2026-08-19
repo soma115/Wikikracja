@@ -120,42 +120,7 @@
     </div>
   {% endif %}
 
-  {% if active %}
   <div class="card mb-3">
-    <div class="card-header d-flex align-items-center gap-2">
-      <span class="section-heading">{% trans 'Activity' %}</span>
-    </div>
-    <div class="card-body d-flex flex-wrap gap-2 pb-2">
-      <button class="btn btn-outline-secondary btn-sm citizen-section-btn"
-              data-url="{% url 'obywatele:citizen_czaty' pk=b.uid.pk %}"
-              data-target="section-czaty">
-        <i class="fas fa-comments me-1"></i>{% trans "Chats" %}
-      </button>
-      <button class="btn btn-outline-secondary btn-sm citizen-section-btn"
-              data-url="{% url 'obywatele:citizen_zadania' pk=b.uid.pk %}"
-              data-target="section-zadania">
-        <i class="fas fa-list-check me-1"></i>{% trans "Tasks" %}
-      </button>
-      <button class="btn btn-outline-secondary btn-sm citizen-section-btn"
-              data-url="{% url 'obywatele:citizen_aktywnosc' pk=b.uid.pk %}"
-              data-target="section-aktywnosc">
-        <i class="fas fa-stream me-1"></i>{% trans "Activity" %}
-      </button>
-      <button class="btn btn-outline-secondary btn-sm citizen-section-btn"
-              data-url="{% url 'obywatele:citizen_zalozono' pk=b.uid.pk %}"
-              data-target="section-zalozono">
-        <i class="fas fa-plus-circle me-1"></i>{% trans "Founded" %}
-      </button>
-    </div>
-    <div id="section-czaty" class="citizen-section mig-hidden"></div>
-    <div id="section-zadania" class="citizen-section mig-hidden"></div>
-    <div id="section-aktywnosc" class="citizen-section mig-hidden"></div>
-    <div id="section-zalozono" class="citizen-section mig-hidden"></div>
-  </div>
-
-  {% endif %}
-
-  <div class="card">
     <div class="card-header d-flex align-items-center justify-content-between">
       <span class="section-heading">{% trans 'Profile Details' %}</span>
       {% if not active %}
@@ -221,6 +186,42 @@
       </div>
     </div>
   </div>
+
+  {% if active %}
+  <div class="card mb-3">
+    <div class="card-header d-flex align-items-center gap-2">
+      <span class="section-heading">{% trans 'Activity' %}</span>
+    </div>
+    <div class="card-body d-flex flex-wrap gap-2 pb-2">
+      <button class="btn btn-outline-secondary btn-sm citizen-section-btn"
+              data-url="{% url 'obywatele:citizen_zadania' pk=b.uid.pk %}"
+              data-target="section-zadania"
+              data-default="true">
+        <i class="fas fa-list-check me-1"></i>{% trans "Tasks" %}
+      </button>
+      <button class="btn btn-outline-secondary btn-sm citizen-section-btn"
+              data-url="{% url 'obywatele:citizen_czaty' pk=b.uid.pk %}"
+              data-target="section-czaty">
+        <i class="fas fa-comments me-1"></i>{% trans "Chats" %}
+      </button>
+      <button class="btn btn-outline-secondary btn-sm citizen-section-btn"
+              data-url="{% url 'obywatele:citizen_aktywnosc' pk=b.uid.pk %}"
+              data-target="section-aktywnosc">
+        <i class="fas fa-stream me-1"></i>{% trans "Activity" %}
+      </button>
+      <button class="btn btn-outline-secondary btn-sm citizen-section-btn"
+              data-url="{% url 'obywatele:citizen_zalozono' pk=b.uid.pk %}"
+              data-target="section-zalozono">
+        <i class="fas fa-plus-circle me-1"></i>{% trans "Founded" %}
+      </button>
+    </div>
+    <div id="section-zadania" class="citizen-section mig-hidden"></div>
+    <div id="section-czaty" class="citizen-section mig-hidden"></div>
+    <div id="section-aktywnosc" class="citizen-section mig-hidden"></div>
+    <div id="section-zalozono" class="citizen-section mig-hidden"></div>
+  </div>
+
+  {% endif %}
 </div>
 
 {% endblock citizens %}

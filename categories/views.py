@@ -129,7 +129,7 @@ class CategoryReorderAPI(CategoryAPIMixin):
     def post(self, request):
         try:
             items = json.loads(request.body)
-        except json.JSONDecodeError, ValueError:
+        except (json.JSONDecodeError, ValueError):
             return JsonResponse({"error": "Invalid JSON."}, status=400)
         with transaction.atomic():
             for item in items:
