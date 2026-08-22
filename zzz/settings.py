@@ -336,7 +336,7 @@ CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
 # CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
 CAPTCHA_LENGTH = 5
 CAPTCHA_TIMEOUT = 2
-CAPTCHA_ANIMATED = False
+CAPTCHA_ANIMATED = True
 
 #########################
 # WhiteNoise Configuration
