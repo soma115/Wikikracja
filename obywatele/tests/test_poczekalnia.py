@@ -62,3 +62,17 @@ class PoczekalniaRatingsTest(TestCase):
         self.assertEqual(candidates[self.candidate1_user.pk].ratings_positive, 1)
         self.assertEqual(candidates[self.candidate1_user.pk].ratings_neutral, 0)
         self.assertEqual(candidates[self.candidate1_user.pk].ratings_negative, 0)
+
+
+class CandidateEditRenderTest(TestCase):
+    def setUp(self):
+        self.citizen_user = User.objects.create_user(username='citizen', email='citizen@example.com', password='secret', is_active=True)
+        self.candidate_user = User.objects.create_user(username='candidate', email='candidate@example.com', password='secret', is_active=False)
+        self.client.force_login(self.citizen_user)
+
+    def test_candidate_edit_renders(self):
+        """Widok edycji profilu kandydata musi renderować szablon bez błędów."""
+        response = self.client.get(reverse('obywatele:candidate_edit', kwargs={'pk': self.candidate_user.pk}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'obywatele/candidate_edit.html')

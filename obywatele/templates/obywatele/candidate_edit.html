@@ -21,35 +21,30 @@
         </div>
         <div class="row">
           <div class="col-md-6">{{ form.city|as_crispy_field }}</div>
+          <div class="col-md-6">{{ form.voivodeship|as_crispy_field }}</div>
+        </div>
+        <div class="row">
           <div class="col-md-6">{{ form.phone|as_crispy_field }}</div>
-        </div>
-        <div class="row">
           <div class="col-md-6">{{ form.job|as_crispy_field }}</div>
+        </div>
+        <div class="row">
           <div class="col-md-6">{{ form.responsibilities|as_crispy_field }}</div>
-        </div>
-        <div class="row">
           <div class="col-md-6">{{ form.business|as_crispy_field }}</div>
-          <div class="col-md-6">{{ form.hobby|as_crispy_field }}</div>
         </div>
         <div class="row">
-          <div class="col-md-6">{{ form.skills|as_crispy_field }}</div>
-          <div class="col-md-6">{{ form.knowledge|as_crispy_field }}</div>
+          <div class="col-md-6">{{ form.to_give_away|as_crispy_field }}</div>
+          <div class="col-md-6">{{ form.to_borrow|as_crispy_field }}</div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">{{ form.for_sale|as_crispy_field }}</div>
+          <div class="col-md-6">{{ form.i_need|as_crispy_field }}</div>
         </div>
         <div class="row">
           <div class="col-md-6">{{ form.want_to_learn|as_crispy_field }}</div>
-          <div class="col-md-6">{{ form.to_give_away|as_crispy_field }}</div>
+          <div class="col-md-6">{{ form.skills_knowledge_hobby|as_crispy_field }}</div>
         </div>
         <div class="row">
-          <div class="col-md-6">{{ form.to_borrow|as_crispy_field }}</div>
-          <div class="col-md-6">{{ form.for_sale|as_crispy_field }}</div>
-        </div>
-        <div class="row">
-          <div class="col-md-6">{{ form.i_need|as_crispy_field }}</div>
-          <div class="col-md-6">{{ form.gift|as_crispy_field }}</div>
-        </div>
-        <div class="row">
-          <div class="col-md-6">{{ form.other|as_crispy_field }}</div>
-          <div class="col-md-6">{{ form.why|as_crispy_field }}</div>
+          <div class="col-12">{{ form.why|as_crispy_field }}</div>
         </div>
         <div class="d-flex gap-2 mt-3">
           <button type="submit" class="btn btn-primary btn-sm">
