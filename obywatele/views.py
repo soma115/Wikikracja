@@ -437,6 +437,11 @@ def dodaj(request: HttpRequest):
                 candidate_profile.skills_knowledge_hobby = profile_form.cleaned_data['skills_knowledge_hobby']
                 candidate_profile.want_to_learn = profile_form.cleaned_data['want_to_learn']
                 candidate_profile.business = profile_form.cleaned_data['business']
+                candidate_profile.to_give_away = profile_form.cleaned_data['to_give_away']
+                candidate_profile.to_borrow = profile_form.cleaned_data['to_borrow']
+                candidate_profile.for_sale = profile_form.cleaned_data['for_sale']
+                candidate_profile.i_need = profile_form.cleaned_data['i_need']
+                candidate_profile.why = profile_form.cleaned_data['why']
                 candidate_profile.job = profile_form.cleaned_data['job']
                 candidate_profile.save()
 
@@ -672,7 +677,7 @@ class AssetListView(LoginRequiredMixin, SingleTableMixin, FilterView):
     table_pagination = False
 
     def get_queryset(self):
-        return Uzytkownik.objects.filter(uid__is_active=True)
+        return Uzytkownik.objects.filter(uid__is_active=True).select_related('uid', 'voivodeship')
 
 
 @login_required

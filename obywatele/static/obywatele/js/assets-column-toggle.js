@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     const STORAGE_KEY = 'assets_table_columns';
-    const DEFAULT_COLUMNS = ['uid', 'city', 'responsibilities', 'skills', 'knowledge'];
-    
+    const DEFAULT_COLUMNS = ['uid', 'city', 'responsibilities', 'voivodeship'];
+
     // Field names in the same order as defined in UzytkownikTable.Meta.fields
-    const FIELD_NAMES = ['uid', 'city', 'responsibilities', 'hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'skills', 'knowledge', 'want_to_learn', 'business', 'job', 'other', 'why'];
+    const FIELD_NAMES = ['uid', 'city', 'voivodeship', 'responsibilities', 'skills_knowledge_hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'want_to_learn', 'business', 'job', 'why'];
     
     const table = document.querySelector('table[data-column-toggle="true"]');
     if (!table) return;

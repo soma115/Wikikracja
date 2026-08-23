@@ -146,6 +146,10 @@
               <td>{{ b.city|default:"—" }}</td>
             </tr>
             <tr>
+              <th scope="row">{% trans "Voivodeship" %}</th>
+              <td>{{ b.voivodeship.name|default:"—" }}</td>
+            </tr>
+            <tr>
               <th scope="row">{% trans "Responsibilities" %}</th>
               <td>{{ b.responsibilities|default:"—" }}</td>
             </tr>
