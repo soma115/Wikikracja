@@ -2,6 +2,8 @@
 
 Wikikracja wysyła powiadomienia o nowych wiadomościach czatu i wydarzeniach wyłącznie przez **Firebase Cloud Messaging (FCM)**. Web Push (VAPID) został usunięty.
 
+> Własna implementacja Web Push oparta na `PushManager` i `WebPushDevice` została zastąpiona FCM, bo FCM daje bardziej niezawodne powiadomienia na urządzeniach mobilnych (Android/PWA), lepiej obsługuje zabite aplikacje i ma gotową infrastrukturę do zarządzania tokenami. Sam VAPID nie zniknął całkowicie — FCM w przeglądarce wciąż wymaga `FIREBASE_VAPID_KEY` (Web Push certificate z Firebase Console).
+
 ## Architektura
 
 ### Frontend
@@ -57,7 +59,9 @@ FIREBASE_VAPID_KEY=BN...   # Web Push certificate z Firebase Console > Cloud Mes
 2. `app.js` wywołuje `Notification.requestPermission()`.
 3. Po zgodzie strona się przeładowuje.
 4. `push-notifications.js` rejestruje `/firebase-messaging-sw.js`, inicjalizuje Firebase i pobiera token `messaging.getToken({ serviceWorkerRegistration: swRegistration, vapidKey: FIREBASE_VAPID_KEY })`.
-5. Token FCM jest wysyłany na `/chat/api/push/register/` i zapisywany w bazie jako `GCMDevice`.
+5. Token FCM jest wysyłany na `/chat/api/push/register/` wraz z rozpoznanym typem urządzenia (`mobile`/`tablet`/`desktop`) i trybem wyświetlania (`browser`/`standalone`/`minimal-ui`/`fullscreen`) i zapisywany w bazie jako `GCMDevice`.
+6. Użytkownik może mieć wiele aktywnych urządzeń jednocześnie (np. telefon i komputer). Tylko powtarzający się `registration_id` dla tego samego użytkownika jest deduplikowany; tokeny innych użytkowników na tym samym urządzeniu są usuwane przy rejestracji.
+7. Martwe tokeny (błąd FCM `UnregisteredError`/`SenderIdMismatch`/`InvalidArgument`) są automatycznie dezaktywowane przez `django-push-notifications` przy kolejnej wysyłce.
 
 Po każdej zmianie `firebase-messaging-sw.js` na produkcji użytkownik musi raz zamknąć PWA/przeglądarkę i wyczyścić jej pamięć podręczną (lub odinstalować/zainstalować PWA), żeby nowa wersja service workera zastąpiła starą. `skipWaiting()`/`clients.claim()` przyspieszają aktualizację, ale tylko gdy aplikacja jest otwarta; zabita aplikacja trzyma poprzedni SW aż do kolejnego uruchomienia z nowym źródłem.
 
@@ -150,6 +154,7 @@ zostaje **odebrany pierwszemu kontu i skasowany**. Efekt: pierwsze konto przesta
 aktywne `GCMDevice` i log pokaże `"No push devices active for user <pierwsze konto>"`.
 **To nie jest błąd w kodzie — to zamierzone zachowanie chroniące przed tym, żeby dwóch
 użytkowników na tym samym urządzeniu dostawało nawzajem swoje powiadomienia.**
+Jednocześnie jeden użytkownik może mieć aktywnych wiele urządzeń (np. telefon i komputer); wysyłka FCM trafia wtedy do wszystkich aktywnych tokenów.
 
 Żeby przetestować push dla dwóch kont jednocześnie, użyj:
 - dwóch **różnych przeglądarek** (np. Chrome + Firefox), albo

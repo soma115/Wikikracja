@@ -153,6 +153,42 @@ const PushNotificationManager = {
     },
 
     /**
+     * Detect a coarse device type for the registration payload.
+     * @private
+     * @returns {string} 'mobile', 'tablet', 'desktop' or ''
+     */
+    getDeviceType() {
+        if (navigator.userAgentData && navigator.userAgentData.platform) {
+            const p = navigator.userAgentData.platform.toLowerCase();
+            if (p.includes('android') || p.includes('ios')) return 'mobile';
+            if (p.includes('ipados')) return 'tablet';
+            return 'desktop';
+        }
+        const ua = navigator.userAgent.toLowerCase();
+        if (/ipad|android(?!.*mobile)|tablet/.test(ua)) return 'tablet';
+        if (/android|webos|iphone|ipod|blackberry|iemobile|opera mini/.test(ua)) return 'mobile';
+        return 'desktop';
+    },
+
+    /**
+     * Detect whether the page is running as an installed PWA.
+     * @private
+     * @returns {string} 'standalone', 'minimal-ui', 'fullscreen' or 'browser'
+     */
+    getDisplayMode() {
+        if (navigator.standalone) {
+            return 'standalone'; // iOS Safari PWA
+        }
+        const modes = ['standalone', 'fullscreen', 'minimal-ui', 'browser'];
+        for (const mode of modes) {
+            if (window.matchMedia(`(display-mode: ${mode})`).matches) {
+                return mode;
+            }
+        }
+        return 'browser';
+    },
+
+    /**
      * Register FCM device with server
      * @async
      * @private
@@ -170,6 +206,8 @@ const PushNotificationManager = {
                 body: JSON.stringify({
                     platform: 'fcm',
                     registration_id: token,
+                    device_type: this.getDeviceType(),
+                    display_mode: this.getDisplayMode(),
                 })
             });
             const data = await response.json();

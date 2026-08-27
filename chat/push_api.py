@@ -32,6 +32,8 @@ class PushDeviceRegisterView(View):
             data = json.loads(request.body.decode('utf-8'))
             platform = data.get('platform', '').lower()
             registration_id = data.get('registration_id', '')
+            device_type = data.get('device_type', '') or data.get('device_name', '') or ''
+            display_mode = data.get('display_mode', '') or ''
 
             if not platform or not registration_id:
                 return JsonResponse({'error': 'Missing required parameters'}, status=400)
@@ -59,15 +61,20 @@ class PushDeviceRegisterView(View):
                 # physical endpoint, and pushes meant for "the other user" would show up on
                 # this device too (looks like "I get notified when I send a message myself").
                 GCMDevice.objects.filter(registration_id=registration_id).exclude(user=user).delete()
-                device, created = GCMDevice.objects.get_or_create(user=user, registration_id=registration_id, defaults={'active': True, 'device_id': "", 'cloud_message_type': 'FCM'})
+                device, created = GCMDevice.objects.get_or_create(
+                    user=user, registration_id=registration_id, defaults={'active': True, 'device_id': "", 'cloud_message_type': 'FCM', 'name': device_type, 'application_id': display_mode}
+                )
                 if not created:
                     device.active = True
                     device.device_id = ""
                     device.cloud_message_type = 'FCM'
+                    device.name = device_type
+                    device.application_id = display_mode
                     device.save()
-                # Deactivate any other active FCM tokens for this user so only the
-                # most recent installation (browser or PWA) receives push.
-                GCMDevice.objects.filter(user=user, active=True).exclude(pk=device.pk).update(active=False)
+                # Allow multiple active devices per user (e.g. phone + desktop).
+                # Deduplicate only duplicate registration_ids for this user, keeping the
+                # latest row in case of a race between concurrent registrations.
+                GCMDevice.objects.filter(user=user, registration_id=registration_id).exclude(pk=device.pk).delete()
                 # Mark this token as recently registered so rapid repeats are ignored.
                 cache.set(debounce_key, True, timeout=30)
             else:

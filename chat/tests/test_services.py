@@ -4,9 +4,11 @@ import firebase_admin
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from firebase_admin import messaging as firebase_messaging
+from push_notifications.models import GCMDevice
 
 from chat.services import ChatRepository, extract_mentions, get_avatar_url
 from chat.tests.utils import make_user
+from zzz.notifications import build_notification, send_fcm_to_user_sync
 
 
 class _UserWithoutProfile:
@@ -106,3 +108,24 @@ class SendPushNotificationSyncTest(TestCase):
 
         # webpush.fcm_options.link handles notification click.
         self.assertEqual(message.webpush.fcm_options.link, "https://example.com/chat#room_id=1")
+
+
+class FCMDeviceDeactivationTest(TestCase):
+    """Regression tests for automatic deactivation of dead FCM tokens."""
+
+    def setUp(self):
+        self.user = make_user("deactivationuser")
+        self.device = GCMDevice.objects.create(user=self.user, registration_id="dead_token", active=True, cloud_message_type="FCM")
+
+    def test_unregistered_token_gets_deactivated(self):
+        """django-push-notifications must mark an UnregisteredError token inactive."""
+        unregistered = firebase_messaging.UnregisteredError("Token unregistered")
+        response = firebase_messaging.SendResponse(None, unregistered)
+        batch = firebase_messaging.BatchResponse([response])
+
+        with patch.object(firebase_admin, "_apps", {"[DEFAULT]": MagicMock()}):
+            with patch.object(firebase_messaging, "send_each", return_value=batch):
+                send_fcm_to_user_sync(self.user, build_notification("Title", "Body", "https://example.com/", "tag-1"), notification_type="chat")
+
+        self.device.refresh_from_db()
+        self.assertFalse(self.device.active)

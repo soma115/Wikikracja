@@ -8,6 +8,7 @@ from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from push_notifications.models import GCMDevice
 
 # Local folder imports
 from chat.models import Message, Room
@@ -269,3 +270,72 @@ class GuestMessageViewTest(TestCase):
         response = self.client.post(reverse("chat:guest_message"), data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Message.objects.filter(room=self.inbox).count(), 3)
+
+
+@override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}})
+class PushDeviceRegisterViewTest(TestCase):
+    """Regression tests for FCM device registration allowing multiple active devices per user."""
+
+    def setUp(self):
+        cache.clear()
+        self.user = make_user("pushuser")
+        self.other = make_user("otherpush")
+
+    def _register(self, token, device_type=None, display_mode=None, user=None):
+        self.client.force_login(user or self.user)
+        payload = {'platform': 'fcm', 'registration_id': token}
+        if device_type:
+            payload['device_type'] = device_type
+        if display_mode:
+            payload['display_mode'] = display_mode
+        return self.client.post(reverse("chat:push_register"), data=json.dumps(payload), content_type="application/json")
+
+    def test_register_creates_active_fcm_device(self):
+        response = self._register('token1')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data['success'])
+        device = GCMDevice.objects.get(user=self.user, registration_id='token1')
+        self.assertTrue(device.active)
+        self.assertEqual(device.cloud_message_type, 'FCM')
+
+    def test_register_second_device_keeps_first_active(self):
+        """Multiple devices for the same user can be active simultaneously."""
+        self._register('token1')
+        self._register('token2')
+        active = GCMDevice.objects.filter(user=self.user, active=True)
+        self.assertEqual(active.count(), 2)
+        self.assertEqual(sorted(active.values_list('registration_id', flat=True)), ['token1', 'token2'])
+
+    def test_register_same_token_twice_does_not_duplicate(self):
+        self._register('token1')
+        self._register('token1')
+        self.assertEqual(GCMDevice.objects.filter(user=self.user, registration_id='token1').count(), 1)
+
+    def test_register_reassigns_token_from_other_user(self):
+        GCMDevice.objects.create(user=self.other, registration_id='shared_token', active=True, cloud_message_type='FCM')
+        response = self._register('shared_token')
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(GCMDevice.objects.filter(user=self.other).exists())
+        device = GCMDevice.objects.get(user=self.user, registration_id='shared_token')
+        self.assertTrue(device.active)
+
+    def test_register_saves_device_type(self):
+        response = self._register('token1', device_type='mobile')
+        self.assertEqual(response.status_code, 200)
+        device = GCMDevice.objects.get(user=self.user, registration_id='token1')
+        self.assertEqual(device.name, 'mobile')
+
+    def test_register_saves_display_mode(self):
+        response = self._register('token1', device_type='mobile', display_mode='standalone')
+        self.assertEqual(response.status_code, 200)
+        device = GCMDevice.objects.get(user=self.user, registration_id='token1')
+        self.assertEqual(device.application_id, 'standalone')
+
+    def test_unregister_deactivates_device(self):
+        self._register('token1')
+        self.client.force_login(self.user)
+        response = self.client.post(reverse("chat:push_unregister"), data=json.dumps({'platform': 'fcm', 'registration_id': 'token1'}), content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        device = GCMDevice.objects.get(user=self.user, registration_id='token1')
+        self.assertFalse(device.active)

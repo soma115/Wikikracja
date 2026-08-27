@@ -97,7 +97,7 @@ python scripts/run_tests.py
 - **X-Frame-Options:** `XFrameOptionsMiddleware` jest wyłączony; nagłówek `X-Frame-Options` ustawia się w reverse proxy.
 - **Whitenoise / static:** w `DEBUG` pliki serwowane są z finders (bez `collectstatic`); w produkcji `CompressedStaticFilesStorage` wymaga `collectstatic`.
 - **WebSocket / czat:** wymaga Redis i zgodnych `SESSION_COOKIE_SAMESITE` / `CSRF_COOKIE_SAMESITE`. W debug `ASGI_THREADS = 1`.
-- **FCM push:** inicjalizuje się tylko przy certyfikacie Firebase. Brak certyfikatu wyłącza push, ale nie crashuje aplikacji.
+- **FCM push:** inicjalizuje się tylko przy certyfikacie Firebase. Brak certyfikatu wyłącza push, ale nie crashuje aplikacji. Użytkownik może mieć wiele aktywnych urządzeń FCM jednocześnie (telefon, komputer itp.); `registration_id` jest deduplikowany tylko w ramach jednego użytkownika. Przy rejestracji wykrywany jest typ urządzenia (`mobile`/`tablet`/`desktop`) i tryb wyświetlania (`browser`/`standalone`/`minimal-ui`/`fullscreen`). Martwe tokeny są dezaktywowane automatycznie przez `django-push-notifications` przy błędach FCM.
 - **Scheduler:** `zzz/scheduler.py` uruchamia zadania cykliczne (chat_messages, chat_rooms, głosowania, count_citizens, update_site, powiadomienia o wydarzeniach). Używa `SCHEDULER_LOCK_FILE`.
 - **Wersja Pythona:** `pyproject.toml` wymaga `>=3.14`; CI używa 3.14.
 
