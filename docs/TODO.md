@@ -1,6 +1,48 @@
+- ikony w "Pierwsze kroki" są niepotrzebne
+
+- w głosowaniu nad logiem powinno dać się kliknąć logo żeby je powiększyć
+
+- Kolory w kandydatach przy ocenach (zielony, żółty, czerwony)
+
+- Ukrywaj puste kafelki na Pulpit. 
+
+- aktywnosc/ trzeba odświeżać ręcznie żeby zobaczyć co faktycznie jest przeczytane a co nie
+
+- Czat do dokumentów
+
+- jedna osoba dodaje umiejętność/zainteresowanie/hobby, pozostałe osoby mogą wybrać te rzeczy z listy.
+
+- nie dostaję powiadomień na telefon. Może jak są na komputerze to nie ma na telefonie?
+
+
+- Powiadomienia email, domyślnie raz dziennie, możliwość zmiany częstotliwości - raz na dzień, tydzień, miesiąc, nigdy:
+  - Głosowania
+  - Osoby
+  - Czat
+  - Wydarzenia
+  - Dokumenty
+  - Ankiety
+  - Zadania
+  - Finanse
+Powiadomienia Push tak jak teraz - każde oddzielnie, dodać więcej typów.
+E-maile z powiadomieniami są wysyłane według harmonogramu w scheduler.py:
+Czat — dwa razy dziennie: o 12:01 i 18:01 (@C:\Users\Robert\code\gitops\wikikracja\zzz\scheduler.py:48-50, ikracja\chat\management\commands\chat_messages.py" lines="20-21" />).
+Głosowania — raz dziennie: o 08:05 (scheduler.py:56-58, vote.py:21-22).
+Wydarzenia — co minutę, gdy w danej minucie zaczyna się jakieś wydarzenie (scheduler.py:68-69, services.py:34-41).
+Poza tym niektóre powiadomienia (np. o nowym obywatelu/prośbie o członkostwo, o nowej propozycji) są wysyłane natychmiastowo z poziomu formularzy/widoków, a nie cyklicznie.
+
+
+- testy są bardzo wolne. Może da się je jakoś zdeduplikować żeby je przyspieszyć? Raczej wszystkie są potrzebne.
+
+- W aktywnosc/ w powiadomieniach z czatu widać starą wiadomość zamiast najnowszej. Sprawdź skąd się bierze ten problem. A. zawsze widać 5 wiadomości ale nie wiem jak to inaczej zorganizować.
+
 - Jedno największe możliwe bezpieczne uproszczenie w kodzie, plikach i katalogach.
 
+- prosty i szybki mechanizm do zbierania statystyk na temat tego, które opcje w aplikacji są używane a które nie
+
 Bookkeeping zajmuje część strony na szerokość a pozostałe moduły całą stronę. Zrób tak żeby bookkeeping też zajmował całą szerokość strony. 
+
+- Możliwość dodawania specyficznie: x.com, fb, insta, itd.
 
 Refaktoryzacje:
 - board > documents
@@ -8,12 +50,6 @@ Refaktoryzacje:
 - glosowania > voting
 - obywatele > citizens
 
-- e-maile z powiadomieniami raz dziennie ale mają zawierać wszystkie nowości?
-E-maile z powiadomieniami są wysyłane według harmonogramu w scheduler.py:
-Czat — dwa razy dziennie: o 12:01 i 18:01 (@C:\Users\Robert\code\gitops\wikikracja\zzz\scheduler.py:48-50, ikracja\chat\management\commands\chat_messages.py" lines="20-21" />).
-Głosowania — raz dziennie: o 08:05 (scheduler.py:56-58, vote.py:21-22).
-Wydarzenia — co minutę, gdy w danej minucie zaczyna się jakieś wydarzenie (scheduler.py:68-69, services.py:34-41).
-Poza tym niektóre powiadomienia (np. o nowym obywatelu/prośbie o członkostwo, o nowej propozycji) są wysyłane natychmiastowo z poziomu formularzy/widoków, a nie cyklicznie.
 
 
 # OGÓLNE
