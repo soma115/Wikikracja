@@ -1,5 +1,4 @@
 import logging
-import time
 from collections import defaultdict
 from datetime import timedelta as td
 from random import choice
@@ -8,7 +7,6 @@ from string import ascii_letters, digits
 from django.conf import settings as s
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from django.db.models import Sum
@@ -16,13 +14,9 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from board.models import Post
-from chat import signals
-from chat.models import Room
 from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
-from obywatele.signals import track_user_blocked
 from obywatele.views import population, required_reputation
-from zzz.email import send_notification_email_to_active_users
-from zzz.notifications import build_notification, send_notification_to_all_sync
+from zzz.signals import citizen_accepted, citizen_blocked, citizen_deleted
 from zzz.utils import build_site_url, get_site_domain
 
 log = logging.getLogger(__name__)
@@ -87,6 +81,9 @@ class Command(BaseCommand):
 
                 for user in users_to_delete:
                     log.info(f'Deleting duplicate user {user.username} (id={user.id}, active={user.is_active})')
+
+                    # Notify chat cleanup receivers and delete profile/user
+                    citizen_deleted.send(sender='count_citizens', user=user)
 
                     # Delete associated profile if exists
                     try:
@@ -179,10 +176,6 @@ class Command(BaseCommand):
                 log.info(f'Generated password for {i.uid.email}: {password}')
                 log.info(f'ACTIVATED: user_id={i.uid.id}, email={i.uid.email}')
 
-                # Create one2one chat rooms for new person with Signals
-                log.info(f'EMAIL_DIAG trigger=user_accepted_signal user_id={i.uid.id} email={i.uid.email} username={i.uid.username} source=count_citizens.activate_eligible_users')
-                signals.user_accepted.send(sender='user_accepted', user=i)
-
                 self.grant_automatic_reputation(i)
 
                 uname = str(i.uid.username)
@@ -209,13 +202,10 @@ class Command(BaseCommand):
                     log.warning(f'Welcome email system post not found, skipping email for user {uemail}')
                     return
 
-                try:
-                    log.info(f'EMAIL_DIAG trigger=welcome_email user_id={i.uid.id} email={uemail} username={uname} source=count_citizens.activate_eligible_users subject={subject}')
-                    time.sleep(s.EMAIL_SEND_DELAY_SECONDS)
-                    send_mail(subject, message, s.DEFAULT_FROM_EMAIL, [uemail], fail_silently=False)
-                    log.info(f'Sent welcome email to {uemail}')
-                except Exception as e:
-                    log.error(f'Failed to send welcome email to {uemail}: {str(e)}')
+                # Notify the chat app and the central dispatcher that a citizen was accepted
+                log.info(f'EMAIL_DIAG trigger=user_accepted_signal user_id={i.uid.id} email={uemail} username={uname} source=count_citizens.activate_eligible_users')
+                log.info(f'EMAIL_DIAG trigger=welcome_email user_id={i.uid.id} email={uemail} username={uname} source=count_citizens.activate_eligible_users subject={subject}')
+                citizen_accepted.send(sender='count_citizens', user=i.uid, recipient_email=uemail, recipient_subject=subject, recipient_body=message, sleep_before=s.EMAIL_SEND_DELAY_SECONDS)
 
     def block_ineligible_users(self):
         """Block users with insufficient reputation.
@@ -223,13 +213,12 @@ class Command(BaseCommand):
         req_rep = required_reputation()
         for i in Uzytkownik.objects.filter(uid__is_active=True):
             if i.reputation < req_rep:
+                was_active = i.uid.is_active
+
                 i.uid.is_active = False
                 i.uid.save()
                 i.save()
                 log.info(f'Blocking user {i.uid}')
-
-                # Track the blocking activity only if user was previously active
-                track_user_blocked(i, was_previously_active=True)
 
                 # Banned person resets other people's reputation to Neutral
                 Rate.objects.filter(obywatel=i.id).update(rate=0)
@@ -237,25 +226,27 @@ class Command(BaseCommand):
                 host = get_site_domain()
 
                 uname = str(i.uid.username)
-                sender = str(s.DEFAULT_FROM_EMAIL)
 
-                subject = '[' + host + '] ' + _('Your account has been blocked')
-                message = f"""\
+                personal_subject = '[' + host + '] ' + _('Your account has been blocked')
+                personal_message = f"""\
 {_('Welcome')} {uname} \n\
 {_('Your account on')} {host} {_('has been blocked')}\n\n\
 """
-                try:
-                    time.sleep(s.EMAIL_SEND_DELAY_SECONDS)
-                    send_mail(subject, message, sender, [i.uid.email], fail_silently=False)
-                    log.info(f'Sent account blocked notification to {i.uid.email}')
-                except Exception as e:
-                    log.error(f'Failed to send account blocked notification to {i.uid.email}: {str(e)}')
 
-                send_notification_email_to_active_users(_('Citizen has been banned'), f"{_('User')} {uname} {_('has been blocked')}", notification_type='obywatele', strip_html=True)
-                send_notification_to_all_sync(
-                    build_notification(_('Citizen has been banned'), f"{_('User')} {uname} {_('has been blocked')}", build_site_url('/obywatele/'), f'citizen-{i.uid.id}', citizen_id=i.uid.id),
-                    ws_type='citizen.notification',
-                    notification_type='obywatele',
+                citizen_blocked.send(
+                    sender='count_citizens',
+                    user=i.uid,
+                    recipient_subject=personal_subject,
+                    recipient_body=personal_message,
+                    sleep_before=s.EMAIL_SEND_DELAY_SECONDS,
+                    title=_('Citizen has been banned'),
+                    body=f"{_('User')} {uname} {_('has been blocked')}",
+                    click_action=build_site_url('/obywatele/'),
+                    tag=f'citizen-{i.uid.id}',
+                    in_thread=False,
+                    daemon=False,
+                    strip_html=True,
+                    was_previously_active=was_active,
                 )
 
     def process_deletion_requests(self):
@@ -264,20 +255,10 @@ class Command(BaseCommand):
         for dr in overdue:
             user = dr.user
             log.info(f'Processing deletion request for user {user.username} (id={user.id})')
-            signals.user_deleted.send(sender='user_deleted', user=user)
+            citizen_deleted.send(sender='count_citizens', user=user)
             try:
                 if hasattr(user, 'uzytkownik'):
                     user.uzytkownik.delete()
-
-                for room in Room.objects.filter(allowed=user):
-                    room.allowed.remove(user)
-                for room in Room.objects.filter(muted_by=user):
-                    room.muted_by.remove(user)
-                for room in Room.objects.filter(seen_by=user):
-                    room.seen_by.remove(user)
-
-                user.groups.clear()
-                user.user_permissions.clear()
 
                 username = user.username
                 user.delete()
@@ -297,24 +278,12 @@ class Command(BaseCommand):
                 user.save()
 
             if user.last_login < (now() - td(days=inactive_period)):
-                signals.user_deleted.send(sender='user_deleted', user=user)
+                citizen_deleted.send(sender='count_citizens', user=user)
                 try:
                     if hasattr(user, 'uzytkownik'):
                         user.uzytkownik.delete()
 
-                    # Remove user from all rooms' allowed/muted/seen_by
-                    for room in Room.objects.filter(allowed=user):
-                        room.allowed.remove(user)
-                    for room in Room.objects.filter(muted_by=user):
-                        room.muted_by.remove(user)
-                    for room in Room.objects.filter(seen_by=user):
-                        room.seen_by.remove(user)
-
-                    # Remove from groups and permissions
-                    user.groups.clear()
-                    user.user_permissions.clear()
-
-                    # Finally delete the user
+                    # Finally delete the user (chat cleanup is handled by citizen_deleted receivers)
                     user.delete()
                     log.info(f'Deleted inactive user: {user.username}')
                 except Exception as e:

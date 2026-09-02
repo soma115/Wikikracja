@@ -36,9 +36,8 @@ from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
 from obywatele.tables import UzytkownikTable
 from site_settings.params import get_param
 from tasks.models import Task, TaskEvaluation, TaskVote
-from zzz.email import send_notification_email_to_active_users
-from zzz.notifications import build_notification, send_notification_to_all_in_thread
-from zzz.utils import build_site_url, get_site_domain
+from zzz.signals import citizen_proposed
+from zzz.utils import get_site_domain
 
 HOST = get_site_domain()
 
@@ -463,18 +462,7 @@ def dodaj(request: HttpRequest):
                 log.info(
                     f'EMAIL_DIAG trigger=new_citizen_proposed source=obywatele.views.dodaj actor_user_id={request.user.id} actor_username={request.user.username} candidate_user_id={candidate.id} candidate_username={candidate.username} subject={_("New citizen has been proposed")}'
                 )
-                click_action = build_site_url(f'/obywatele/poczekalnia/{candidate.id}')
-                send_notification_email_to_active_users(
-                    _('New citizen has been proposed'),
-                    f'{request.user.username} ' + str(_('proposed new citizen\nYou can approve him/her here:')) + f' {click_action}',
-                    notification_type='obywatele',
-                    strip_html=True,
-                )
-                send_notification_to_all_in_thread(
-                    build_notification(_('New citizen has been proposed'), f'{request.user.username} {_("proposed new citizen")}', click_action, f'citizen-{candidate.id}', citizen_id=candidate.id),
-                    ws_type='citizen.notification',
-                    notification_type='obywatele',
-                )
+                citizen_proposed.send(sender='obywatele.views.dodaj', candidate=candidate, proposed_by=request.user)
 
                 return redirect('obywatele:poczekalnia')
         else:

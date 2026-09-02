@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from home.widgets import RichTextWidget
+from zzz.widgets import RichTextWidget
 
 from .models import Category, Task
 

@@ -7,9 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from chat.models import Message, Room
 from chat.services import extract_mentions
-from glosowania.models import Decyzja
 from obywatele.models import Uzytkownik
-from tasks.models import Task
 from zzz.email import send_bulk_email_in_thread
 from zzz.management.base_command import TranslatedCommand
 from zzz.utils import build_site_url
@@ -59,55 +57,30 @@ class Command(TranslatedCommand):
                 if u.uid.username in extract_mentions(m.text):
                     mentioned_rooms.add(m.room)
 
-            # Group rooms by type; skip muted rooms unless the user was mentioned there
-            rooms_by_type = {'tasks': [], 'votings': [], 'public': [], 'private': []}
+            # Group rooms by source_app (falling back to public/private for legacy rooms)
+            ROOM_GROUP_ORDER = ['glosowania', 'tasks', 'public', 'private']
+            ROOM_GROUP_LABELS = {'glosowania': _('Votings'), 'tasks': _('Tasks'), 'public': _('Public rooms'), 'private': _('Private rooms')}
 
+            def room_group(room):
+                return room.source_app or ('public' if room.public else 'private')
+
+            rooms_by_type = defaultdict(list)
             for room in messages_by_room.keys():
                 if room.id not in allowed_room_ids:
                     continue
-                if Task.objects.filter(chat_room=room).exists():
-                    rooms_by_type['tasks'].append(room)
-                elif Decyzja.objects.filter(chat_room=room).exists():
-                    rooms_by_type['votings'].append(room)
-                elif room.public:
-                    rooms_by_type['public'].append(room)
-                else:
-                    rooms_by_type['private'].append(room)
+                rooms_by_type[room_group(room)].append(room)
 
             b: list[str] = []
 
-            # Process each category
-            if rooms_by_type['public']:
-                b.append(_("## Public rooms"))
+            # Process each category in a stable order; unknown source_apps come last
+            ordered_groups = ROOM_GROUP_ORDER + sorted(k for k in rooms_by_type if k not in ROOM_GROUP_ORDER)
+            for group in ordered_groups:
+                if not rooms_by_type[group]:
+                    continue
+                label = ROOM_GROUP_LABELS.get(group, group.replace('_', ' ').title())
+                b.append(f"## {label}")
                 b.append("")
-                for room in rooms_by_type['public']:
-                    room_link = f"{HOST}/chat#room_id={room.id}"
-                    room_name = room.displayed_name(u.uid)
-                    b.append(f"- {room_name}: {room_link}")
-                b.append("")
-
-            if rooms_by_type['tasks']:
-                b.append(_("## Tasks"))
-                b.append("")
-                for room in rooms_by_type['tasks']:
-                    room_link = f"{HOST}/chat#room_id={room.id}"
-                    room_name = room.displayed_name(u.uid)
-                    b.append(f"- {room_name}: {room_link}")
-                b.append("")
-
-            if rooms_by_type['votings']:
-                b.append(_("## Votings"))
-                b.append("")
-                for room in rooms_by_type['votings']:
-                    room_link = f"{HOST}/chat#room_id={room.id}"
-                    room_name = room.displayed_name(u.uid)
-                    b.append(f"- {room_name}: {room_link}")
-                b.append("")
-
-            if rooms_by_type['private']:
-                b.append(_("## Private rooms"))
-                b.append("")
-                for room in rooms_by_type['private']:
+                for room in rooms_by_type[group]:
                     room_link = f"{HOST}/chat#room_id={room.id}"
                     room_name = room.displayed_name(u.uid)
                     b.append(f"- {room_name}: {room_link}")

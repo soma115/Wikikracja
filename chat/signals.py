@@ -1,12 +1,18 @@
+import logging
+
 from django.db.models import F
 from django.db.models.functions import Greatest
 from django.db.models.signals import m2m_changed, post_delete, post_migrate, post_save
 from django.dispatch import Signal, receiver
 
+from zzz.signals import citizen_accepted, citizen_deleted
+
 from .models import Message, Room
 
-user_accepted = Signal()
-user_deleted = Signal()
+log = logging.getLogger(__name__)
+
+chat_room_requested = Signal()
+chat_message_requested = Signal()
 
 
 @receiver(post_migrate)
@@ -58,3 +64,71 @@ def _invalidate_feed_cache_on_room_change(sender, **kwargs):
     from home.services.feed import invalidate_feed_cache
 
     invalidate_feed_cache()
+
+
+@receiver(chat_room_requested)
+def on_chat_room_requested(sender, instance, title, founder, allowed_users, welcome_message, source_app, source_object_id, **kwargs):
+    """Create or update a chat room on behalf of another app."""
+    room = getattr(instance, 'chat_room', None)
+    if room is None:
+        room = Room.objects.filter(source_app=source_app, source_object_id=source_object_id).first()
+    if room is None:
+        room = Room.objects.filter(title=title).first()
+
+    created = False
+    if room is None:
+        room = Room.objects.create(title=title, public=True, archived=False, protected=True, founder=founder, source_app=source_app, source_object_id=source_object_id)
+        created = True
+    else:
+        if room.title != title:
+            room.title = title
+            room.save(update_fields=['title'])
+
+    if room.source_app != source_app or room.source_object_id != source_object_id:
+        room.source_app = source_app
+        room.source_object_id = source_object_id
+        room.save(update_fields=['source_app', 'source_object_id'])
+
+    # Link the source instance without re-firing post_save.
+    if hasattr(instance, 'chat_room_id') and instance.chat_room_id != room.id:
+        type(instance).objects.filter(pk=instance.pk).update(chat_room=room)
+        instance.chat_room = room
+
+    if created and welcome_message:
+        message_sender = kwargs.get('welcome_message_sender')
+        message_anonymous = kwargs.get('welcome_message_anonymous', True)
+        Message.objects.create(room=room, text=welcome_message, sender=message_sender, anonymous=message_anonymous)
+
+    if created and allowed_users is not None:
+        room.allowed.set(allowed_users)
+
+
+@receiver(chat_message_requested)
+def on_chat_message_requested(sender, room_title, message_text, from_user=None, anonymous=True, guest_email='', guest_name='', **kwargs):
+    """Deliver a message to a chat room on behalf of another app."""
+    from .utils import send_message_to_room
+
+    send_message_to_room(room_title=room_title, message_text=message_text, sender=from_user, anonymous=anonymous, guest_email=guest_email, guest_name=guest_name)
+
+
+@receiver(citizen_accepted)
+def create_one2one_rooms(sender, **kwargs):
+    """Create all one-to-one rooms when a citizen is accepted."""
+    Room.create_all_one2one_rooms()
+
+
+@receiver(citizen_deleted)
+def cleanup_user_chat_rooms(sender, user, **kwargs):
+    """Clean up chat rooms after a citizen is deleted.
+
+    Deletes private one-to-one rooms and removes the user from all remaining
+    room memberships (allowed, muted, seen).
+    """
+    private_rooms = Room.objects.filter(public=False, allowed=user)
+    for room in private_rooms:
+        log.info(f'Room {room} deleted.')
+    private_rooms.delete()
+
+    user.rooms.clear()
+    user.muted_rooms.clear()
+    user.seen_rooms.clear()

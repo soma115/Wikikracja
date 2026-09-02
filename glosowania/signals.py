@@ -6,7 +6,7 @@ from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.utils.translation import gettext as _
 
-from chat.models import Message, Room
+from chat.signals import chat_room_requested
 from glosowania.models import Decyzja
 from home.services.feed import invalidate_feed_cache_on_change
 from zzz.utils import get_site_domain
@@ -17,27 +17,12 @@ log = logging.getLogger(__name__)
 @receiver(post_save, sender=Decyzja)
 def create_or_update_chat_room_for_referendum(sender, instance, created, **kwargs):
     """
-    Create a public chat room for each new project (Decyzja) when it is created
-    and update room title when project title changes.
+    Ask the chat app to create or update a discussion room for this proposal.
     """
     # Only create room when a new Decyzja is created
     if created and instance.status == Decyzja.Status.PROPOSITION:
-        # Create room title based on project ID and title
-        # Use English prefix (not translated) for consistency in room categorization
         room_title = instance.get_chat_room_title()
 
-        # Create new public chat room for voting
-        room = Room.objects.create(title=room_title, public=True, archived=False, protected=True, founder=instance.author)
-
-        # Add all active users to the room
-        active_users = User.objects.filter(is_active=True)
-        room.allowed.set(active_users)
-
-        # Link room to Decyzja instance without re-firing post_save
-        Decyzja.objects.filter(pk=instance.pk).update(chat_room=room)
-        instance.chat_room = room
-
-        # Create initial welcome message in the room
         HOST = get_site_domain()
         protocol = getattr(settings, 'SITE_PROTOCOL', 'http')
         details_url = f"{protocol}://{HOST}/glosowania/details/{instance.pk}"
@@ -45,17 +30,23 @@ def create_or_update_chat_room_for_referendum(sender, instance, created, **kwarg
             id=instance.pk, title=instance.title, details_url=details_url
         )
 
-        Message.objects.create(room=room, text=welcome_message, anonymous=True, sender=None)
+        chat_room_requested.send(
+            sender=Decyzja,
+            instance=instance,
+            title=room_title,
+            founder=instance.author,
+            allowed_users=User.objects.filter(is_active=True),
+            welcome_message=welcome_message,
+            source_app='glosowania',
+            source_object_id=instance.pk,
+        )
 
-        log.info(f'Chat room "{room_title}" created for referendum #{instance.pk}')
-    else:
-        # Update room title if project title changed
-        if instance.chat_room:
-            new_title = instance.get_chat_room_title()
-            if instance.chat_room.title != new_title:
-                instance.chat_room.title = new_title
-                instance.chat_room.save(update_fields=['title'])
-                log.info(f"Updated chat room title to '{new_title}' for referendum #{instance.pk}")
+        log.info(f'Chat room "{room_title}" requested for referendum #{instance.pk}')
+    elif instance.chat_room_id:
+        # Request a title update if the project title changed.
+        chat_room_requested.send(
+            sender=Decyzja, instance=instance, title=instance.get_chat_room_title(), founder=instance.author, allowed_users=None, welcome_message='', source_app='glosowania', source_object_id=instance.pk
+        )
 
 
 @receiver(pre_delete, sender=Decyzja)

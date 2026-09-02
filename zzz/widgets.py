@@ -41,7 +41,7 @@ class RichTextWidget(forms.Textarea):
         # `self.attrs` dict (not the `attrs` param) to add "is-invalid" (see
         # bootstrap5/field.html + crispy_forms_field.CrispyFieldNode). Merge
         # the same way Django's default Widget.get_context() does, or we
-        # won't see it. Our markup doesn't have a normal <input class="...">
+        # won't see it. Our markup doesn't have a normal <input class="...">>
         # for that class to land on, so mirror it onto the wrapper instead:
         # Bootstrap's `.is-invalid ~ .invalid-feedback` CSS rule is what
         # actually makes the error message visible.

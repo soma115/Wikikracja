@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db.models import Count, Prefetch
 
-from home.templatetags.feed_filters import citizen_color_class
 from zzz.richtext import strip_tags
+from zzz.templatetags.citizen_filters import citizen_color_class
 
 from .exceptions import ClientError
 from .models import Message, MessageAttachment, MessageHistory, MessageHistoryEntry, MessageReadBy, Room

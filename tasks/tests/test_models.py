@@ -50,7 +50,7 @@ class TaskModelTest(TestCase):
         self.assertEqual(task.chat_room.title, task.get_chat_room_title())
 
     def test_task_not_saved_when_chat_room_creation_fails(self):
-        with patch("tasks.signals.Room.objects.create", side_effect=RuntimeError("DB unavailable")):
+        with patch("chat.signals.Room.objects.create", side_effect=RuntimeError("DB unavailable")):
             with self.assertRaises(RuntimeError):
                 make_task(created_by=self.user)
         self.assertEqual(Task.objects.count(), 1)  # only setUp task

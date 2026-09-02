@@ -12,9 +12,8 @@ from glosowania.models import Decyzja, KtoJuzGlosowal, VoteCode
 from glosowania.vote_buffer import pop_all_pending_votes
 from site_settings.models import SiteParameters
 from site_settings.params import apply_brand_mark, apply_parameters
-from zzz.email import send_notification_email_to_active_users
 from zzz.management.base_command import TranslatedCommand
-from zzz.notifications import build_notification, send_notification_to_all_sync
+from zzz.signals import vote_started, vote_state_changed
 
 log = logging.getLogger(__name__)
 
@@ -25,9 +24,31 @@ class Command(TranslatedCommand):
     def run(self, *args, **options):
         HOST = self.host
 
-        threads = []
-        pending_emails = []
-        pending_notifications = []
+        pending_signals = []
+
+        def _queue_vote_signal(signal, decyzja, transition, title, body, email_subject, email_body, details_url):
+            """Queue a domain signal to be emitted after all database commits."""
+            pending_signals.append(
+                (
+                    signal,
+                    {
+                        'sender': 'glosowania.management.commands.vote',
+                        'decyzja': decyzja,
+                        'transition': transition,
+                        'title': title,
+                        'body': body,
+                        'click_action': details_url,
+                        'tag': f'vote-{decyzja.id}',
+                        'email_subject': email_subject,
+                        'email_body': email_body,
+                        'notification_type': 'glosowania',
+                        'ws_type': 'vote.notification',
+                        'log_prefix': 'glosowania: ',
+                        'raise_on_error': False,
+                        'vote_id': decyzja.id,
+                    },
+                )
+            )
 
         def zliczaj_wszystko():
 
@@ -88,10 +109,9 @@ class Command(TranslatedCommand):
                         i.data_referendum_stop = i.data_referendum_start + timedelta(days=sp.czas_trwania_referendum)
                         i.save()
                         details_url = f"http://{HOST}/glosowania/details/{i.id}"
-                        pending_emails.append(
-                            (f"{prop_number} {i.id} {approved_for}", f"{prop_number} {i.id} '{i.title}' {gathered} {i.data_referendum_start} {to} {i.data_referendum_stop}\n{click}: {details_url}")
-                        )
-                        pending_notifications.append(build_notification(f"{prop_number} {i.id} {approved_for}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
+                        subject = f"{prop_number} {i.id} {approved_for}"
+                        body = f"{prop_number} {i.id} '{i.title}' {gathered} {i.data_referendum_start} {to} {i.data_referendum_stop}\n{click}: {details_url}"
+                        _queue_vote_signal(vote_state_changed, i, 'discussion_started', subject, i.title, subject, body, details_url)
                         log.info(f"Proposition {i.id} changed status from PROPOSITION to DISCUSSION.")
                         return
                     # FROM PROPOSITION TO REJECTED
@@ -105,8 +125,9 @@ class Command(TranslatedCommand):
                         i.path = str(i.path) + " -> " + _("Not enough signatures")
                         i.save()
                         details_url = f"http://{HOST}/glosowania/details/{i.id}"
-                        pending_emails.append((f"{prop_number} {i.id} {not_gathered}", f"{prop_number} {i.id} '{i.title}' {not_gathered} {was_removed}. {feel_free}\n{click}: {details_url}"))
-                        pending_notifications.append(build_notification(f"{prop_number} {i.id} {not_gathered}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
+                        subject = f"{prop_number} {i.id} {not_gathered}"
+                        body = f"{prop_number} {i.id} '{i.title}' {not_gathered} {was_removed}. {feel_free}\n{click}: {details_url}"
+                        _queue_vote_signal(vote_state_changed, i, 'rejected_no_signatures', subject, i.title, subject, body, details_url)
                         log.info(f"Proposition {i.id} changed status from PROPOSITION to NOT_INTRESTED.")
                     return
 
@@ -115,16 +136,18 @@ class Command(TranslatedCommand):
                     i.path = i.path + " -> " + _("Referendum")
                     i.save()
                     details_url = f"http://{HOST}/glosowania/details/{i.id}"
-                    pending_emails.append((f"{ref_num} {i.id} {starting_now}", f"{time_to_vote} {i.id} '{i.title}'\n{ends_at} {i.data_referendum_stop}\n{click}: {details_url}"))
-                    pending_notifications.append(build_notification(f"{ref_num} {i.id} {starting_now}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
+                    subject = f"{ref_num} {i.id} {starting_now}"
+                    body = f"{time_to_vote} {i.id} '{i.title}'\n{ends_at} {i.data_referendum_stop}\n{click}: {details_url}"
+                    _queue_vote_signal(vote_started, i, 'started', subject, i.title, subject, body, details_url)
                     log.info(f"Proposition {i.id} changed status from DISCUSSION to REFERENDUM.")
                     return
 
                 # LAST DAY OF REFERENDUM REMINDER
                 if i.status == referendum and i.data_referendum_stop == dzisiaj:
                     details_url = f"http://{HOST}/glosowania/details/{i.id}"
-                    pending_emails.append((f"{last_day} {i.id}", f"{last_day_reminder}\n{ref_num} {i.id} '{i.title}' {ends_at} {i.data_referendum_stop}\n{click}: {details_url}"))
-                    pending_notifications.append(build_notification(f"{last_day} {i.id}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
+                    subject = f"{last_day} {i.id}"
+                    body = f"{last_day_reminder}\n{ref_num} {i.id} '{i.title}' {ends_at} {i.data_referendum_stop}\n{click}: {details_url}"
+                    _queue_vote_signal(vote_state_changed, i, 'last_day', subject, i.title, subject, body, details_url)
                     log.info(f"Last day reminder sent for referendum {i.id}.")
                     return
 
@@ -155,16 +178,14 @@ class Command(TranslatedCommand):
                         i.referendum_restart_count += 1
                         i.save()
                         details_url = f"http://{HOST}/glosowania/details/{i.id}"
-                        pending_emails.append(
-                            (
-                                f"{ref_num} {i.id}: {buffer_lost_subject}",
-                                f"{ref_num} {i.id} '{i.title}': {buffer_lost_subject}.\n"
-                                f"{buffer_lost_reason}. {buffer_lost_no_leak}. {buffer_lost_codes_void}. "
-                                f"{buffer_lost_restart}. {buffer_lost_please_vote}.\n"
-                                f"{ends_at} {i.data_referendum_stop}\n{click}: {details_url}",
-                            )
+                        subject = f"{ref_num} {i.id}: {buffer_lost_subject}"
+                        body = (
+                            f"{ref_num} {i.id} '{i.title}': {buffer_lost_subject}.\n"
+                            f"{buffer_lost_reason}. {buffer_lost_no_leak}. {buffer_lost_codes_void}. "
+                            f"{buffer_lost_restart}. {buffer_lost_please_vote}.\n"
+                            f"{ends_at} {i.data_referendum_stop}\n{click}: {details_url}"
                         )
-                        pending_notifications.append(build_notification(f"{ref_num} {i.id}: {buffer_lost_subject}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
+                        _queue_vote_signal(vote_state_changed, i, 'buffer_restart', subject, i.title, subject, body, details_url)
                         return
 
                     random.SystemRandom().shuffle(pending_votes)
@@ -199,16 +220,18 @@ class Command(TranslatedCommand):
                                 log.info(f"Proposition {z} was rejected in {i.id}")
                         i.save()
                         details_url = f"http://{HOST}/glosowania/details/{i.id}"
-                        pending_emails.append((f"{prop_number} {i.id} {in_effect}", f"{prop_number} {i.id} '{i.title}' {became}\n{click}: {details_url}"))
-                        pending_notifications.append(build_notification(f"{prop_number} {i.id} {in_effect}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
+                        subject = f"{prop_number} {i.id} {in_effect}"
+                        body = f"{prop_number} {i.id} '{i.title}' {became}\n{click}: {details_url}"
+                        _queue_vote_signal(vote_state_changed, i, 'approved', subject, i.title, subject, body, details_url)
                         log.info("Proposition {i.id} changed status from REFERENDUM to VALID.")
                     else:
                         i.status = rejected
                         i.path = i.path + " -> " + _("Rejected")
                         i.save()
                         details_url = f"http://{HOST}/glosowania/details/{i.id}"
-                        pending_emails.append((f"{prop_number} {i.id} {was_rejected}", f"{prop_number} {i.id} '{i.title}' {rejected_in}\n{feel_free}\n{click}: {details_url}"))
-                        pending_notifications.append(build_notification(f"{prop_number} {i.id} {was_rejected}", i.title, details_url, f"vote-{i.id}", vote_id=i.id))
+                        subject = f"{prop_number} {i.id} {was_rejected}"
+                        body = f"{prop_number} {i.id} '{i.title}' {rejected_in}\n{feel_free}\n{click}: {details_url}"
+                        _queue_vote_signal(vote_state_changed, i, 'rejected', subject, i.title, subject, body, details_url)
                         log.info("Proposition {i.id} changed status from REFERENDUM to REJECTED.")
 
             # Each decision is processed in its own transaction so that a
@@ -225,20 +248,13 @@ class Command(TranslatedCommand):
                 except Exception:
                     log.error(f"Failed to process decyzja {decyzja_id} this run; it will be retried next time.", exc_info=True)
 
-            for subject, message in pending_emails:
-                t = send_notification_email_to_active_users(subject, message, notification_type='glosowania', log_prefix='glosowania: ', raise_on_error=False, daemon=False)
-                log.warning(f"subject: {subject} \n message: {message}")
-                threads.append(t)
-
         zliczaj_wszystko()
 
-        for notif in pending_notifications:
-            send_notification_to_all_sync(notif, ws_type='vote.notification', notification_type='glosowania')
+        for signal, kwargs in pending_signals:
+            signal.send(**kwargs)
+            log.warning(f"subject: {kwargs.get('email_subject')} \n message: {kwargs.get('email_body')}")
 
         # Create all 1to1 rooms
         Room.create_all_one2one_rooms()
-
-        for t in threads:
-            t.join()
 
         log.info('vote.py counted all votes')

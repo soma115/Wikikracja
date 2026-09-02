@@ -4,33 +4,17 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from chat.signals import chat_message_requested
 from home.services.feed import invalidate_feed_cache_on_change
-from zzz.utils import get_site_domain
+from zzz.signals import important_post_published
+from zzz.utils import build_site_url, get_site_domain
 
 from .models import Post
-
-# Import the utility function we created
-try:
-    from chat.utils import send_message_to_room
-except ImportError:
-    # Fallback if the function isn't available
-    def send_message_to_room(room_title, message_text, sender=None, anonymous=True):
-        print(f"Would send message to {room_title}: {message_text}")
-        return None
 
 
 @receiver(post_save, sender=Post)
 def notify_important_chat_on_important_post(sender, instance, created, **kwargs):
-    """
-    Send notification to "Ważne" chat room when a post is important
-
-    Args:
-        sender: The model class that sent the signal
-        instance: The actual instance being saved
-        created: Boolean indicating if this is a new instance
-        **kwargs: Additional keyword arguments
-    """
-    # Only process if the post is important
+    """Send notification to "Ważne" chat room when a post is important."""
     if not instance.is_important:
         return
 
@@ -44,9 +28,8 @@ def notify_important_chat_on_important_post(sender, instance, created, **kwargs)
     else:
         message = _("Updated important document by %(username)s: %(title)s - %(post_url)s") % {'username': instance.author.username, 'post_url': post_url, 'title': instance.title}
 
-    # Send a message to the "Ważne" room with the post author as sender
-    # Set anonymous=False to ensure the sender is properly attributed in the UI
-    send_message_to_room(room_title="Ważne", message_text=message, sender=instance.author, anonymous=False)  # This ensures the message is NOT anonymous
+    chat_message_requested.send(sender=Post, room_title="Ważne", message_text=message, from_user=instance.author, anonymous=False)
+    important_post_published.send(sender=Post, post=instance, url=build_site_url(post_path), created=created)
 
 
 @receiver(post_save, sender=Post)

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 15:22+0200\n"
+"POT-Creation-Date: 2026-09-02 18:43+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -63,7 +63,7 @@ msgid "Each option must be unique."
 msgstr "Każda opcja musi być unikalna."
 
 #: .\ankiety\models.py:10 .\ankiety\templates\ankiety\survey_form.html:22
-#: .\board\models.py:21 .\chat\views.py:232 .\events\models.py:19
+#: .\board\models.py:21 .\chat\views.py:201 .\events\models.py:19
 #: .\glosowania\models.py:34 .\glosowania\views.py:446
 #: .\home\templates\home\site_admin.html:32
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:7
@@ -294,7 +294,7 @@ msgstr "Dodaj ankietę"
 #: .\board\templates\board\edit_post.html:51 .\bookkeeping\forms.py:22
 #: .\bookkeeping\forms.py:36 .\bookkeeping\forms.py:50
 #: .\bookkeeping\forms.py:80 .\chat\templates\chat\add.html:15
-#: .\chat\templates\chat\chat.html:214
+#: .\chat\templates\chat\chat.html:210
 #: .\glosowania\templates\glosowania\dodaj.html:47
 #: .\glosowania\templates\glosowania\edit.html:22
 #: .\glosowania\templates\glosowania\edit_argument.html:33
@@ -381,28 +381,31 @@ msgstr "Załączniki"
 
 #: .\board\forms.py:26
 #, python-format
-msgid "Maksymalny rozmiar: %(max_size)s MB."
+msgid "Maximum image size: %(max_size)s MB."
 msgstr ""
 
-#: .\board\forms.py:28
-#, python-format
-msgid "Obrazek jest za duży (maks. %s MB)."
-msgstr ""
+#: .\board\forms.py:28 .\zzz\context_processors.py:46
+#, fuzzy, python-format
+#| msgid "Branding image file is too large (max %(max_size)s)."
+msgid "Image is too large (max %s MB)."
+msgstr "Plik obrazu marki jest za duży (maks. %(max_size)s)."
 
 #: .\board\forms.py:29
 #, python-format
-msgid "Maksymalny rozmiar pliku: %(max_size)s MB."
+msgid "Maximum file size: %(max_size)s MB."
 msgstr ""
 
 #: .\board\forms.py:36
-#, python-format
-msgid "Obrazek jest za duży (maks. %(max_size)s MB)."
-msgstr ""
+#, fuzzy, python-format
+#| msgid "Branding image file is too large (max %(max_size)s)."
+msgid "Image is too large (max %(max_size)s MB)."
+msgstr "Plik obrazu marki jest za duży (maks. %(max_size)s)."
 
 #: .\board\forms.py:49
-#, python-format
-msgid "Plik '%(filename)s' jest za duży (maks. %(max_size)s MB)."
-msgstr ""
+#, fuzzy, python-format
+#| msgid "Branding image file is too large (max %(max_size)s)."
+msgid "File '%(filename)s' is too large (max %(max_size)s MB)."
+msgstr "Plik obrazu marki jest za duży (maks. %(max_size)s)."
 
 #: .\board\models.py:12
 msgid "Priority"
@@ -447,7 +450,7 @@ msgid "Category"
 msgstr "Kategoria"
 
 #: .\board\models.py:28 .\board\templates\board\post_detail.html:43
-#: .\chat\templates\chat\chat.html:76 .\events\models.py:31
+#: .\chat\templates\chat\chat.html:80 .\events\models.py:31
 #: .\events\templates\events\event_detail.html:41
 msgid "Public"
 msgstr "Publiczne"
@@ -498,12 +501,12 @@ msgstr "Załącznik"
 msgid "Post Attachments"
 msgstr "Załączniki"
 
-#: .\board\signals.py:43
+#: .\board\signals.py:26
 #, python-format
 msgid "New important document by %(username)s: %(title)s - %(post_url)s"
 msgstr "Nowy ważny dokument od %(username)s: %(title)s - %(post_url)s"
 
-#: .\board\signals.py:45
+#: .\board\signals.py:28
 #, python-format
 msgid "Updated important document by %(username)s: %(title)s - %(post_url)s"
 msgstr "Zaktualizowane ważny dokument od %(username)s: %(title)s - %(post_url)s"
@@ -529,7 +532,7 @@ msgstr "Czy na pewno chcesz usunąć ten załącznik?"
 #: .\bookkeeping\templates\bookkeeping\partner_form.html:70
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:45
 #: .\bookkeeping\templates\bookkeeping\transaction_form.html:61
-#: .\chat\templates\chat\chat.html:213
+#: .\chat\templates\chat\chat.html:209
 #: .\events\templates\events\event_confirm_delete.html:35
 #: .\glosowania\templates\glosowania\edit_argument.html:34
 #: .\home\templates\home\haslo.html:26 .\home\templates\home\site_admin.html:37
@@ -605,14 +608,6 @@ msgstr "Wystąpił błąd."
 msgid "Create post"
 msgstr "Utwórz ogłoszenie"
 
-#: .\board\templates\board\create_post.html:31
-#: .\board\templates\board\edit_post.html:31
-#: .\chat\templates\chat\_embedded_chat.html:42
-#: .\chat\templates\chat\chat.html:19
-#, python-format
-msgid "Plik jest za duży (maks. %%s MB)."
-msgstr ""
-
 #: .\board\templates\board\edit_post.html:10
 msgid "Edit post"
 msgstr "Edytuj ogłoszenie"
@@ -630,7 +625,7 @@ msgid "Are you sure you want to delete this post?"
 msgstr "Czy na pewno chcesz usunąć to ogłoszenie?"
 
 #: .\board\templates\board\post_detail.html:43
-#: .\chat\templates\chat\chat.html:156
+#: .\chat\templates\chat\chat.html:152
 #: .\events\templates\events\_event_card.html:41
 #: .\events\templates\events\event_detail.html:45
 msgid "Private"
@@ -642,7 +637,7 @@ msgstr "Prywatne"
 #: .\bookkeeping\templates\bookkeeping\partner_confirm_delete.html:35
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:35
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:27
-#: .\chat\views.py:252 .\glosowania\views.py:593 .\home\views.py:137
+#: .\chat\views.py:221 .\glosowania\views.py:593 .\home\views.py:137
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:10
@@ -1169,8 +1164,8 @@ msgid "Manage categories"
 msgstr "Zarządzaj kategoriami"
 
 #: .\categories\templates\categories\_category_modal.html:9
-#: .\chat\templates\chat\chat.html:193 .\chat\templates\chat\chat.html:252
-#: .\chat\views.py:223 .\obywatele\templates\obywatele\my_profile.html:269
+#: .\chat\templates\chat\chat.html:189 .\chat\templates\chat\chat.html:248
+#: .\chat\views.py:192 .\obywatele\templates\obywatele\my_profile.html:269
 #: .\tasks\templates\tasks\task_detail.html:235
 #: .\tasks\templates\tasks\task_list.html:26
 msgid "Close"
@@ -1229,52 +1224,52 @@ msgstr "Imię i nazwisko"
 msgid "Message"
 msgstr "Wiadomość"
 
-#: .\chat\management\commands\chat_messages.py:31
+#: .\chat\management\commands\chat_messages.py:29
 #, python-brace-format
 msgid "{HOST} New messages on chat"
 msgstr "{HOST} Nowe wiadomości na czacie"
 
-#: .\chat\management\commands\chat_messages.py:32
+#: .\chat\management\commands\chat_messages.py:30
 #, python-brace-format
 msgid "New messages on {HOST}/chat"
 msgstr "Nowe wiadomości na {HOST}/chat"
 
-#: .\chat\management\commands\chat_messages.py:33
+#: .\chat\management\commands\chat_messages.py:31
 #, python-brace-format
 msgid "Go to chat to do so {HOST}/chat"
 msgstr "Skocz do czatu żeby to zrobić {HOST}/chat"
 
-#: .\chat\management\commands\chat_messages.py:34
+#: .\chat\management\commands\chat_messages.py:32
 msgid "You can disable those messages by unchecking bell icon next to chat room name."
 msgstr "Możesz wyłączyć te powiadomienia odznaczając ikonę dzwonka obok nazwy pokoju."
 
-#: .\chat\management\commands\chat_messages.py:35 .\zzz\email.py:78
+#: .\chat\management\commands\chat_messages.py:33 .\zzz\email.py:78
 #, python-brace-format
 msgid "You can manage your email notifications here: {url}"
 msgstr "Możesz zarządzać swoimi powiadomieniami e-mailowymi tutaj: {url}"
 
-#: .\chat\management\commands\chat_messages.py:81
+#: .\chat\management\commands\chat_messages.py:79
 msgid "## Public rooms"
 msgstr "## Pokoje publiczne"
 
-#: .\chat\management\commands\chat_messages.py:90
+#: .\chat\management\commands\chat_messages.py:88
 msgid "## Tasks"
 msgstr "## Zadania"
 
-#: .\chat\management\commands\chat_messages.py:99
+#: .\chat\management\commands\chat_messages.py:97
 msgid "## Votings"
 msgstr "## Głosowania"
 
-#: .\chat\management\commands\chat_messages.py:108
+#: .\chat\management\commands\chat_messages.py:106
 msgid "## Private rooms"
 msgstr "## Pokoje prywatne"
 
-#: .\chat\management\commands\chat_messages.py:119
+#: .\chat\management\commands\chat_messages.py:117
 #: .\obywatele\tests\test_email.py:133
 msgid "## You were mentioned here"
 msgstr "## Zostałeś wspomniany tutaj"
 
-#: .\chat\management\commands\chat_messages.py:124
+#: .\chat\management\commands\chat_messages.py:122
 #, python-brace-format
 msgid "- {room_name}: {room_link}"
 msgstr "- {room_name}: {room_link}"
@@ -1300,113 +1295,113 @@ msgstr "Łączenie…"
 msgid "New room"
 msgstr "Nowy pokój"
 
-#: .\chat\templates\chat\chat.html:37
+#: .\chat\templates\chat\chat.html:41
 msgid "Search rooms"
 msgstr "Szukaj pokoi"
 
-#: .\chat\templates\chat\chat.html:39 .\chat\views.py:254
+#: .\chat\templates\chat\chat.html:43 .\chat\views.py:223
 msgid "Show only unread rooms"
 msgstr "Pokaż tylko nieprzeczytane pokoje"
 
-#: .\chat\templates\chat\chat.html:42
+#: .\chat\templates\chat\chat.html:46
 msgid "Sort by latest activity"
 msgstr "Sortuj wg ostatniej aktywności"
 
-#: .\chat\templates\chat\chat.html:45
+#: .\chat\templates\chat\chat.html:49
 msgid "Show by category"
 msgstr "Wg kategorii"
 
-#: .\chat\templates\chat\chat.html:49
+#: .\chat\templates\chat\chat.html:53
 msgid "More"
 msgstr "Więcej"
 
-#: .\chat\templates\chat\chat.html:53
+#: .\chat\templates\chat\chat.html:57
 msgid "Add room"
 msgstr "Nowy pokój"
 
-#: .\chat\templates\chat\chat.html:54
+#: .\chat\templates\chat\chat.html:58
 msgid "Collapse/expand all"
 msgstr "Zwiń/rozwiń wszystko"
 
-#: .\chat\templates\chat\chat.html:55
+#: .\chat\templates\chat\chat.html:59
 msgid "Show archived rooms"
 msgstr "Pokaż zarchiwizowane pokoje"
 
-#: .\chat\templates\chat\chat.html:57
+#: .\chat\templates\chat\chat.html:61
 msgid "Info"
 msgstr "Info"
 
-#: .\chat\templates\chat\chat.html:60
+#: .\chat\templates\chat\chat.html:64
 msgid "Hide room list"
 msgstr "Ukryj listę pokoi"
 
-#: .\chat\templates\chat\chat.html:83 .\chat\templates\chat\chat.html:89
-#: .\chat\templates\chat\chat.html:109 .\chat\templates\chat\chat.html:117
-#: .\chat\templates\chat\chat.html:137 .\chat\templates\chat\chat.html:145
-#: .\chat\templates\chat\chat.html:163 .\chat\templates\chat\chat.html:169
+#: .\chat\templates\chat\chat.html:87 .\chat\templates\chat\chat.html:93
+#: .\chat\templates\chat\chat.html:111 .\chat\templates\chat\chat.html:117
+#: .\chat\templates\chat\chat.html:135 .\chat\templates\chat\chat.html:141
+#: .\chat\templates\chat\chat.html:159 .\chat\templates\chat\chat.html:165
 #: .\tasks\templates\tasks\task_detail.html:43
 #: .\tasks\templates\tasks\task_detail.html:268
 msgid "None"
 msgstr "Brak"
 
-#: .\chat\templates\chat\chat.html:100 .\chat\templates\chat\chat.html:235
+#: .\chat\templates\chat\chat.html:104 .\chat\templates\chat\chat.html:231
 #: .\home\templates\home\base.html:136 .\home\templates\home\base.html:139
 #: .\home\templates\home\base.html:243 .\home\views.py:47 .\home\views.py:104
 #: .\home\views.py:230 .\obywatele\templates\obywatele\szczegoly.html:204
 msgid "Tasks"
 msgstr "Zadania"
 
-#: .\chat\templates\chat\chat.html:128 .\chat\templates\chat\chat.html:239
+#: .\chat\templates\chat\chat.html:128 .\chat\templates\chat\chat.html:235
 msgid "Referendums"
 msgstr "Głosowania"
 
-#: .\chat\templates\chat\chat.html:188
+#: .\chat\templates\chat\chat.html:184
 msgid "Changes history"
 msgstr "Historia zmian"
 
-#: .\chat\templates\chat\chat.html:205 .\chat\templates\chat\room_link.html:95
+#: .\chat\templates\chat\chat.html:201 .\chat\templates\chat\room_link.html:95
 msgid "Rename room"
 msgstr "Zmień nazwę"
 
-#: .\chat\templates\chat\chat.html:209
+#: .\chat\templates\chat\chat.html:205
 msgid "New room name"
 msgstr "Nowa nazwa pokoju"
 
-#: .\chat\templates\chat\chat.html:226
+#: .\chat\templates\chat\chat.html:222
 msgid "Chat Information"
 msgstr "Informacje o czacie"
 
-#: .\chat\templates\chat\chat.html:231
+#: .\chat\templates\chat\chat.html:227
 msgid "Public Rooms"
 msgstr "Publiczne"
 
-#: .\chat\templates\chat\chat.html:232
+#: .\chat\templates\chat\chat.html:228
 #, python-format
 msgid "Public chat rooms are archived if they are not used for %(archive_days)s days. After %(delete_days)s days they are deleted."
 msgstr "Publiczne pokoje czatu są archiwizowane, jeśli nie są używane przez %(archive_days)s dni. Po %(delete_days)s dniach są usuwane."
 
-#: .\chat\templates\chat\chat.html:236
+#: .\chat\templates\chat\chat.html:232
 msgid "Task rooms are created for specific tasks and projects. They are protected from automatic deletion and are used for collaborative work discussions."
 msgstr "Pokoje zadań są tworzone dla konkretnych zadań i projektów. Są one chronione przed automatycznym usunięciem i służą do dyskusji nad pracą zespołową."
 
-#: .\chat\templates\chat\chat.html:240
+#: .\chat\templates\chat\chat.html:236
 msgid "Referendum rooms are created for voting and decision-making processes. They are protected from automatic deletion and provide a space for discussions about proposals."
 msgstr "Pokoje głosowań są tworzone dla procesów głosowania i podejmowania decyzji. Są one chronione przed automatycznym usunięciem i zapewniają przestrzeń do dyskusji na temat propozycji."
 
-#: .\chat\templates\chat\chat.html:243
+#: .\chat\templates\chat\chat.html:239
 msgid "Private Messages"
 msgstr "Prywatne wiadomości"
 
-#: .\chat\templates\chat\chat.html:244
+#: .\chat\templates\chat\chat.html:240
 #, python-format
 msgid "Private messages are archived when user is blocked and deleted after %(delete_days)s days."
 msgstr "Prywatne wiadomości są archiwizowane, gdy użytkownik jest blokowany i usuwany po %(delete_days)s dniach."
 
-#: .\chat\templates\chat\chat.html:247
+#: .\chat\templates\chat\chat.html:243
 msgid "Archives"
 msgstr "Archiwa"
 
-#: .\chat\templates\chat\chat.html:248
+#: .\chat\templates\chat\chat.html:244
 msgid "Click the archive button (folder icon) next to each category to show archived rooms."
 msgstr "Kliknij przycisk archiwum (ikona folderu) obok każdej kategorii, aby pokazać zarchiwizowane pokoje."
 
@@ -1427,12 +1422,12 @@ msgstr "Twoja wiadomość została wysłana. Dziękujemy!"
 msgid "Send message"
 msgstr "Wyślij wiadomość"
 
-#: .\chat\templates\chat\room_link.html:31 .\chat\views.py:253
+#: .\chat\templates\chat\room_link.html:31 .\chat\views.py:222
 #: .\home\templates\home\activity.html:18
 msgid "Unread"
 msgstr "Nieprzeczytane"
 
-#: .\chat\templates\chat\room_link.html:46 .\chat\views.py:217
+#: .\chat\templates\chat\room_link.html:46 .\chat\views.py:186
 #: .\home\services\search.py:120
 msgid "Anonymous"
 msgstr "Anonim"
@@ -1441,7 +1436,7 @@ msgstr "Anonim"
 msgid "System"
 msgstr "System"
 
-#: .\chat\templates\chat\room_link.html:48 .\chat\views.py:258
+#: .\chat\templates\chat\room_link.html:48 .\chat\views.py:227
 msgid "attachment"
 msgstr "załącznik"
 
@@ -1460,200 +1455,200 @@ msgstr "Działania"
 msgid "Mark as unread"
 msgstr "Oznacz jako nieprzeczytane"
 
-#: .\chat\templates\chat\room_link.html:78 .\chat\views.py:260
+#: .\chat\templates\chat\room_link.html:78 .\chat\views.py:229
 msgid "Unmute room"
 msgstr "Cofnij wyciszenie"
 
-#: .\chat\templates\chat\room_link.html:78 .\chat\views.py:259
+#: .\chat\templates\chat\room_link.html:78 .\chat\views.py:228
 msgid "Mute room"
 msgstr "Wycisz pokój"
 
-#: .\chat\templates\chat\room_link.html:85 .\chat\views.py:225
+#: .\chat\templates\chat\room_link.html:85 .\chat\views.py:194
 msgid "Copy link"
 msgstr "Skopiuj link"
 
-#: .\chat\templatetags\filters.py:23 .\chat\views.py:215
+#: .\chat\templatetags\filters.py:23 .\chat\views.py:184
 msgid "Yesterday"
 msgstr "Wczoraj"
 
-#: .\chat\views.py:214
+#: .\chat\views.py:183
 #: .\obywatele\templates\obywatele\_calendar_partial.html:12
 msgid "Today"
 msgstr "Dziś"
 
-#: .\chat\views.py:216
+#: .\chat\views.py:185
 msgid "Tomorrow"
 msgstr "Jutro"
 
-#: .\chat\views.py:218 .\home\templates\home\base.html:330
+#: .\chat\views.py:187 .\home\templates\home\base.html:330
 msgid "Enable Notifications"
 msgstr "Włącz powiadomienia"
 
-#: .\chat\views.py:219 .\glosowania\templates\glosowania\parameters.html:49
+#: .\chat\views.py:188 .\glosowania\templates\glosowania\parameters.html:49
 #: .\glosowania\templates\glosowania\szczegoly.html:86
 #: .\obywatele\templates\obywatele\szczegoly.html:65
 #: .\site_settings\params.py:159
 msgid "Yes"
 msgstr "Tak"
 
-#: .\chat\views.py:220
+#: .\chat\views.py:189
 msgid "edit"
 msgstr "edytuj"
 
-#: .\chat\views.py:221
+#: .\chat\views.py:190
 msgid "edited"
 msgstr "edytowano"
 
-#: .\chat\views.py:222
+#: .\chat\views.py:191
 msgid "Changes History"
 msgstr "Historia zmian"
 
-#: .\chat\views.py:224
+#: .\chat\views.py:193
 msgid "Loading..."
 msgstr "Ładowanie…"
 
-#: .\chat\views.py:226
+#: .\chat\views.py:195
 msgid "Copy message link"
 msgstr "Skopiuj link do wiadomości"
 
-#: .\chat\views.py:227
+#: .\chat\views.py:196
 msgid "Link copied"
 msgstr "Link skopiowany"
 
-#: .\chat\views.py:228
+#: .\chat\views.py:197
 msgid "Could not copy link"
 msgstr "Nie udało się skopiować linku"
 
-#: .\chat\views.py:229
+#: .\chat\views.py:198
 msgid "Reply to the appropriate message..."
 msgstr "Odpowiedz na odpowiednią wiadomość..."
 
-#: .\chat\views.py:230
+#: .\chat\views.py:199
 msgid "Upvote"
 msgstr "Plus"
 
-#: .\chat\views.py:231
+#: .\chat\views.py:200
 msgid "Downvote"
 msgstr "Minus"
 
-#: .\chat\views.py:233 .\events\forms.py:43 .\events\models.py:17
+#: .\chat\views.py:202 .\events\forms.py:43 .\events\models.py:17
 msgid "Sunday"
 msgstr "Niedziela"
 
-#: .\chat\views.py:234 .\events\forms.py:43 .\events\models.py:17
+#: .\chat\views.py:203 .\events\forms.py:43 .\events\models.py:17
 msgid "Monday"
 msgstr "Poniedziałek"
 
-#: .\chat\views.py:235 .\events\forms.py:43 .\events\models.py:17
+#: .\chat\views.py:204 .\events\forms.py:43 .\events\models.py:17
 msgid "Tuesday"
 msgstr "Wtorek"
 
-#: .\chat\views.py:236 .\events\forms.py:43 .\events\models.py:17
+#: .\chat\views.py:205 .\events\forms.py:43 .\events\models.py:17
 msgid "Wednesday"
 msgstr "Środa"
 
-#: .\chat\views.py:237 .\events\forms.py:43 .\events\models.py:17
+#: .\chat\views.py:206 .\events\forms.py:43 .\events\models.py:17
 msgid "Thursday"
 msgstr "Czwartek"
 
-#: .\chat\views.py:238 .\events\forms.py:43 .\events\models.py:17
+#: .\chat\views.py:207 .\events\forms.py:43 .\events\models.py:17
 msgid "Friday"
 msgstr "Piątek"
 
-#: .\chat\views.py:239 .\events\forms.py:43 .\events\models.py:17
+#: .\chat\views.py:208 .\events\forms.py:43 .\events\models.py:17
 msgid "Saturday"
 msgstr "Sobota"
 
-#: .\chat\views.py:240
+#: .\chat\views.py:209
 msgid "Jan"
 msgstr "sty"
 
-#: .\chat\views.py:241
+#: .\chat\views.py:210
 msgid "Feb"
 msgstr "lut"
 
-#: .\chat\views.py:242
+#: .\chat\views.py:211
 msgid "Mar"
 msgstr "mar"
 
-#: .\chat\views.py:243
+#: .\chat\views.py:212
 msgid "Apr"
 msgstr "kwi"
 
-#: .\chat\views.py:244
+#: .\chat\views.py:213
 msgid "May"
 msgstr "maj"
 
-#: .\chat\views.py:245
+#: .\chat\views.py:214
 msgid "Jun"
 msgstr "cze"
 
-#: .\chat\views.py:246
+#: .\chat\views.py:215
 msgid "Jul"
 msgstr "lip"
 
-#: .\chat\views.py:247
+#: .\chat\views.py:216
 msgid "Aug"
 msgstr "sie"
 
-#: .\chat\views.py:248
+#: .\chat\views.py:217
 msgid "Sep"
 msgstr "wrz"
 
-#: .\chat\views.py:249
+#: .\chat\views.py:218
 msgid "Oct"
 msgstr "paź"
 
-#: .\chat\views.py:250
+#: .\chat\views.py:219
 msgid "Nov"
 msgstr "lis"
 
-#: .\chat\views.py:251
+#: .\chat\views.py:220
 msgid "Dec"
 msgstr "gru"
 
-#: .\chat\views.py:255
+#: .\chat\views.py:224
 msgid "Sorting and filter"
 msgstr "Sortowanie i filtry"
 
-#: .\chat\views.py:256
+#: .\chat\views.py:225
 msgid "Likes"
 msgstr "Polubienia"
 
-#: .\chat\views.py:257
+#: .\chat\views.py:226
 msgid "Popular"
 msgstr "Popularne"
 
-#: .\chat\views.py:261
+#: .\chat\views.py:230
 msgid "Shift/Ctrl+↵ send · Ctrl+B bold · Ctrl+I italic"
 msgstr "Shift+↵ nowa linia · Ctrl+B pogrubienie · Ctrl+I kursywa"
 
-#: .\chat\views.py:262
+#: .\chat\views.py:231
 msgid "Select a room from the list"
 msgstr "Wybierz pokój z listy"
 
-#: .\chat\views.py:263
+#: .\chat\views.py:232
 msgid "No unread messages"
 msgstr "Brak nieprzeczytanych wiadomości"
 
-#: .\chat\views.py:264
+#: .\chat\views.py:233
 #, python-brace-format
 msgid "Tap {icon} above the list to disable the unread filter"
 msgstr "Kliknij {icon} nad listą, aby wyłączyć filtr nieprzeczytanych"
 
-#: .\chat\views.py:265
+#: .\chat\views.py:234
 msgid "Disable the unread filter"
 msgstr "Wyłącz filtr nieprzeczytanych"
 
-#: .\chat\views.py:266
+#: .\chat\views.py:235
 msgid "This room is empty, be the first one to write something."
 msgstr "Ten pokój jest pusty, napisz coś jako pierwszy."
 
-#: .\chat\views.py:391
+#: .\chat\views.py:360
 msgid "Too many messages. Please try again later."
 msgstr "Zbyt wiele wiadomości. Spróbuj ponownie później."
 
-#: .\chat\views.py:396
+#: .\chat\views.py:365
 msgid "The public inbox is not available at the moment."
 msgstr "Prywatna skrzynka nie jest obecnie dostępna."
 
@@ -2234,7 +2229,7 @@ msgstr "Wersja przepisu"
 msgid "Decision versions"
 msgstr "Wersje przepisów"
 
-#: .\glosowania\signals.py:44
+#: .\glosowania\signals.py:29
 #, python-brace-format
 msgid ""
 "This chat room has been created for project #{id} \"{title}\".\n"
@@ -4515,7 +4510,7 @@ msgstr "Sukces"
 msgid "Failure"
 msgstr "Porażka"
 
-#: .\tasks\signals.py:48
+#: .\tasks\signals.py:32
 #, python-format
 msgid "Discussion room for task \"%(task_title)s\": %(task_url)s"
 msgstr "Pokój dyskusji do zadania \"%(task_title)s\": %(task_url)s"
@@ -5177,6 +5172,12 @@ msgstr "Dziękujemy za używanie naszej strony!"
 #, python-format
 msgid "The %(site_name)s team"
 msgstr "Zespół %(site_name)s"
+
+#: .\zzz\context_processors.py:47
+#, fuzzy, python-format
+#| msgid "Branding image file is too large (max %(max_size)s)."
+msgid "File is too large (max %s MB)."
+msgstr "Plik obrazu marki jest za duży (maks. %(max_size)s)."
 
 #: .\zzz\scheduler.py:100
 msgid "Time"

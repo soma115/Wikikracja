@@ -22,8 +22,7 @@ from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, 
 from glosowania.vote_buffer import push_pending_vote
 from site_settings.models import SiteParameters
 from site_settings.params import describe_changes, specs_by_category
-from zzz.email import send_notification_email_to_active_users
-from zzz.notifications import build_notification, send_notification_to_all_in_thread
+from zzz.signals import vote_state_changed
 from zzz.utils import build_site_url
 
 log = logging.getLogger(__name__)
@@ -52,17 +51,24 @@ def dodaj(request: HttpRequest):
             log.info(
                 f'EMAIL_DIAG trigger=new_law_proposal source=glosowania.views.dodaj actor_user_id={request.user.id} actor_username={request.user.username} decision_id={form.id} subject={_("New law proposal")}'
             )
-            send_notification_email_to_active_users(
-                _('New law proposal'),
-                _('{user} added new law proposal: "{title}"\nYou can read it here: {url}').format(
-                    user=request.user.username.capitalize(), title=form.title, url=build_site_url(f'/glosowania/details/{form.id}')
-                ),
+            click_action = build_site_url(f'/glosowania/details/{form.id}')
+            vote_state_changed.send(
+                sender='glosowania.views.dodaj',
+                decyzja=form,
+                transition='proposed',
+                title=_('New law proposal'),
+                body=f'{request.user.username.capitalize()}: {form.title}',
+                click_action=click_action,
+                tag=f'vote-{form.id}',
+                email_subject=_('New law proposal'),
+                email_body=_('{user} added new law proposal: "{title}"\nYou can read it here: {url}').format(user=request.user.username.capitalize(), title=form.title, url=click_action),
                 notification_type='glosowania',
+                ws_type='vote.notification',
                 log_prefix='glosowania: ',
+                in_thread=True,
+                daemon=True,
+                vote_id=form.id,
             )
-
-            notification = build_notification(_('New law proposal'), f'{request.user.username.capitalize()}: {form.title}', build_site_url(f'/glosowania/details/{form.id}'), f'vote-{form.id}', vote_id=form.id)
-            send_notification_to_all_in_thread(notification, ws_type='vote.notification', notification_type='glosowania')
 
             return redirect('glosowania:proposition')
         else:
@@ -105,13 +111,25 @@ def edit(request: HttpRequest, pk: int):
             message = _("Saved.")
             messages.success(request, (message))
 
-            send_notification_email_to_active_users(
-                _("Proposal no. {} has been modified").format(decision.id),
-                _('{user} modified proposal: "{title}"\nYou can read new version here: {url}').format(
-                    user=request.user.username.capitalize(), title=decision.title, url=build_site_url(f'/glosowania/details/{decision.id}')
-                ),
+            click_action = build_site_url(f'/glosowania/details/{decision.id}')
+            vote_state_changed.send(
+                sender='glosowania.views.edit',
+                decyzja=decision,
+                transition='modified',
+                title=_("Proposal no. {} has been modified").format(decision.id),
+                body=_('{user} modified proposal: "{title}"').format(user=request.user.username.capitalize(), title=decision.title),
+                click_action=click_action,
+                tag=f'vote-{decision.id}',
+                email_subject=_("Proposal no. {} has been modified").format(decision.id),
+                email_body=_('{user} modified proposal: "{title}"\nYou can read new version here: {url}').format(user=request.user.username.capitalize(), title=decision.title, url=click_action),
                 notification_type='glosowania',
+                ws_type='vote.notification',
+                send_push=False,
+                send_websocket=False,
+                in_thread=True,
+                daemon=True,
                 log_prefix='glosowania: ',
+                vote_id=decision.id,
             )
             return redirect('glosowania:proposition')
     else:  # request.method != 'POST':
@@ -554,19 +572,24 @@ def parameters_propose(request: HttpRequest, pk: int = None):
             if pk is None:
                 log.info(f'New parameters referendum {decyzja.id} added by {request.user} changes={changes}')
                 messages.success(request, _('New proposal has been saved.'))
-                send_notification_email_to_active_users(
-                    str(_('New law proposal')),
-                    str(_('{user} added new law proposal: "{title}"\nYou can read it here: {url}')).format(
-                        user=request.user.username.capitalize(), title=decyzja.title, url=build_site_url(f'/glosowania/details/{decyzja.id}')
-                    ),
+                click_action = build_site_url(f'/glosowania/details/{decyzja.id}')
+                vote_state_changed.send(
+                    sender='glosowania.views.parameters_propose',
+                    decyzja=decyzja,
+                    transition='proposed',
+                    title=str(_('New law proposal')),
+                    body=f'{request.user.username.capitalize()}: {decyzja.title}',
+                    click_action=click_action,
+                    tag=f'vote-{decyzja.id}',
+                    email_subject=str(_('New law proposal')),
+                    email_body=str(_('{user} added new law proposal: "{title}"\nYou can read it here: {url}')).format(user=request.user.username.capitalize(), title=decyzja.title, url=click_action),
                     notification_type='glosowania',
+                    ws_type='vote.notification',
                     log_prefix='glosowania: ',
+                    in_thread=True,
+                    daemon=True,
+                    vote_id=decyzja.id,
                 )
-
-                notification = build_notification(
-                    str(_('New law proposal')), f'{request.user.username.capitalize()}: {decyzja.title}', build_site_url(f'/glosowania/details/{decyzja.id}'), f'vote-{decyzja.id}', vote_id=decyzja.id
-                )
-                send_notification_to_all_in_thread(notification, ws_type='vote.notification', notification_type='glosowania')
             else:
                 log.info(f'Parameters referendum {decyzja.id} edited by {request.user} changes={changes}')
                 messages.success(request, _('Saved.'))

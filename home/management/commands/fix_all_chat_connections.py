@@ -2,12 +2,11 @@ import logging
 import traceback
 from datetime import datetime
 
+from django.apps import apps as django_apps
 from django.core.management.base import BaseCommand
 from django.db import DatabaseError, transaction
 
 from chat.models import Room
-from glosowania.models import Decyzja
-from tasks.models import Task
 
 log = logging.getLogger(__name__)
 
@@ -70,11 +69,12 @@ class Command(BaseCommand):
             return None
 
     def process_votes(self):
-        """Process vote (Decyzja) chat room connections"""
+        """Process vote (Decyzja) chat room connections."""
         self.stdout.write("\n" + "=" * 60)
         self.stdout.write("PROCESSING VOTES (DECYZJE)")
         self.stdout.write("=" * 60)
 
+        Decyzja = django_apps.get_model('glosowania', 'decyzja')
         decisions = Decyzja.objects.all()
         self.stats['votes']['total'] = decisions.count()
         self.debug(f"Found {decisions.count()} decisions to process")
@@ -88,50 +88,69 @@ class Command(BaseCommand):
                 self.safe_execute(f"vote_{decyzja.pk}", self._process_single_vote, decyzja)
 
     def _process_single_vote(self, decyzja):
-        """Process a single vote's chat room connection"""
+        """Process a single vote's chat room connection using source_app metadata."""
         # Skip if already linked and not forcing
-        if decyzja.chat_room and not self.force:
+        if decyzja.chat_room_id and not self.force:
             self.stats['votes']['already_linked'] += 1
-            self.debug(f"Vote #{decyzja.pk} already linked to room #{decyzja.chat_room.id}")
+            self.debug(f"Vote #{decyzja.pk} already linked to room #{decyzja.chat_room_id}")
             return
 
-        # Try to find room by old title format or current generated title
-        old_title = f"Vote #{decyzja.pk}: {decyzja.title[:20]}"
-        new_title = decyzja.get_chat_room_title()
+        expected_title = decyzja.get_chat_room_title()
 
-        room = None
-        for title_format, format_name in [(old_title, "old"), (new_title, "new")]:
-            try:
-                room = Room.objects.get(title=title_format)
-                self.debug(f"Found vote #{decyzja.pk} room using {format_name} format: '{title_format}'")
-                break
-            except Room.DoesNotExist:
-                self.debug(f"No room found for vote #{decyzja.pk} with {format_name} format: '{title_format}'")
-                continue
-            except Room.MultipleObjectsReturned:
-                self.stdout.write(self.style.ERROR(f"Multiple rooms found for vote #{decyzja.pk} with title '{title_format}'"))
-                return
+        # Prefer rooms tagged with source metadata; fallback to title lookups for legacy data.
+        room = Room.objects.filter(source_app='glosowania', source_object_id=decyzja.pk).first()
+        if not room:
+            old_title = f"Vote #{decyzja.pk}: {decyzja.title[:20]}"
+            for title in (expected_title, old_title):
+                room = Room.objects.filter(title=title).first()
+                if room:
+                    self.debug(f"Found vote #{decyzja.pk} room by title: '{title}'")
+                    break
 
         if room:
-            if self.dry_run:
-                self.stdout.write(f"  [DRY RUN] Would link vote #{decyzja.pk} -> room '{room.title}'")
-                self.stats['votes']['newly_linked'] += 1
-            else:
-                with transaction.atomic():
-                    Decyzja.objects.filter(pk=decyzja.pk).update(chat_room=room)
-                self.stdout.write(self.style.SUCCESS(f"  Linked vote #{decyzja.pk} -> room '{room.title}'"))
-                self.stats['votes']['newly_linked'] += 1
+            self._link_decyzja_to_room(decyzja, room, expected_title)
         else:
             self.stats['votes']['missing_rooms'] += 1
             if not self.dry_run:
                 self.stdout.write(self.style.WARNING(f"  No room found for vote #{decyzja.pk}: '{decyzja.title[:20]}'"))
 
+    def _link_decyzja_to_room(self, decyzja, room, expected_title):
+        """Link a decyzja to a room and fix title/source metadata if needed."""
+        title_changed = room.title != expected_title
+        source_missing = room.source_app != 'glosowania' or room.source_object_id != decyzja.pk
+        if not title_changed and not source_missing and decyzja.chat_room_id == room.id:
+            self.stats['votes']['already_linked'] += 1
+            return
+
+        if self.dry_run:
+            self.stdout.write(f"  [DRY RUN] Would link vote #{decyzja.pk} -> room '{room.title}'")
+            self.stats['votes']['newly_linked'] += 1
+            return
+
+        update_fields = []
+        if title_changed:
+            room.title = expected_title
+            update_fields.append('title')
+        if source_missing:
+            room.source_app = 'glosowania'
+            room.source_object_id = decyzja.pk
+            update_fields.extend(['source_app', 'source_object_id'])
+        if update_fields:
+            room.save(update_fields=update_fields)
+
+        with transaction.atomic():
+            type(decyzja).objects.filter(pk=decyzja.pk).update(chat_room=room)
+
+        self.stdout.write(self.style.SUCCESS(f"  Linked vote #{decyzja.pk} -> room '{room.title}'"))
+        self.stats['votes']['newly_linked'] += 1
+
     def process_tasks(self):
-        """Process task chat room connections with advanced logic"""
+        """Process task chat room connections."""
         self.stdout.write("\n" + "=" * 60)
         self.stdout.write("PROCESSING TASKS")
         self.stdout.write("=" * 60)
 
+        Task = django_apps.get_model('tasks', 'task')
         tasks = Task.objects.all()
         self.stats['tasks']['total'] = tasks.count()
         self.debug(f"Found {tasks.count()} tasks to process")
@@ -145,74 +164,76 @@ class Command(BaseCommand):
                 self.safe_execute(f"task_{task.pk}", self._process_single_task, task)
 
     def _process_single_task(self, task):
-        """Process a single task's chat room connection"""
+        """Process a single task's chat room connection using source_app metadata."""
         # Skip if already linked and not forcing
-        if task.chat_room and not self.force:
+        if task.chat_room_id and not self.force:
             self.stats['tasks']['already_linked'] += 1
-            self.debug(f"Task #{task.pk} already linked to room #{task.chat_room.id}")
+            self.debug(f"Task #{task.pk} already linked to room #{task.chat_room_id}")
             return
 
-        # Expected room title pattern
-        expected_pattern = f"Task #{task.id}:"
         expected_title = task.get_chat_room_title()
 
-        # Find rooms that match the pattern for this task ID
-        matching_rooms = Room.objects.filter(
-            title__startswith=expected_pattern,
-            protected=True,  # Task rooms are protected
-        )
+        # Prefer rooms tagged with source metadata; fallback to title lookups for legacy data.
+        room = Room.objects.filter(source_app='tasks', source_object_id=task.pk).first()
+        if not room:
+            expected_pattern = f"Task #{task.id}:"
+            matching_rooms = Room.objects.filter(title__startswith=expected_pattern, protected=True)
+            if matching_rooms.count() > 1:
+                self.stats['tasks']['multiple_rooms'] += 1
+                self.stdout.write(self.style.ERROR(f"  Multiple rooms found for task #{task.id}: {list(matching_rooms.values_list('title', flat=True))}"))
+                return
+            room = matching_rooms.first()
+            if room:
+                self.debug(f"Found task #{task.pk} room by title pattern")
 
-        if not matching_rooms.exists():
-            # Try simple title match as fallback
+        if not room:
             room = Room.objects.filter(title=expected_title).first()
             if room:
-                self.debug(f"Found task #{task.pk} room by exact title: '{expected_title}'")
-                self._link_task_to_room(task, room, expected_title)
-            else:
-                self.stats['tasks']['missing_rooms'] += 1
-                if not self.dry_run:
-                    self.stdout.write(self.style.WARNING(f"  No room found for task #{task.id}: '{task.title}'"))
-            return
+                self.debug(f"Found task #{task.pk} room by exact title")
 
-        if matching_rooms.count() > 1:
-            self.stats['tasks']['multiple_rooms'] += 1
-            self.stdout.write(self.style.ERROR(f"  Multiple rooms found for task #{task.id}: {list(matching_rooms.values_list('title', flat=True))}"))
-            return
-
-        room = matching_rooms.first()
-
-        # Check if this looks like the correct room
-        if room.title != expected_title:
-            # Title mismatch - this might be a broken link due to title change
-            if self.dry_run:
-                self.stdout.write(f"  [DRY RUN] Would fix task #{task.id}: '{room.title}' -> '{expected_title}'")
-                self.stats['tasks']['fixed_broken_links'] += 1
-            else:
-                # Update room title to match current task title
-                with transaction.atomic():
-                    room.title = expected_title
-                    room.save(update_fields=['title'])
-                    task.chat_room = room
-                    task.save(update_fields=['chat_room'])
-
-                self.stdout.write(self.style.SUCCESS(f"  Fixed task #{task.id}: updated room title '{room.title}' -> '{expected_title}'"))
-                self.stats['tasks']['fixed_broken_links'] += 1
-        else:
-            # Perfect match, just link
+        if room:
             self._link_task_to_room(task, room, expected_title)
+        else:
+            self.stats['tasks']['missing_rooms'] += 1
+            if not self.dry_run:
+                self.stdout.write(self.style.WARNING(f"  No room found for task #{task.id}: '{task.title}'"))
 
     def _link_task_to_room(self, task, room, expected_title):
-        """Link a task to a room (common logic)"""
+        """Link a task to a room and fix title/source metadata if needed."""
+        title_changed = room.title != expected_title
+        source_missing = room.source_app != 'tasks' or room.source_object_id != task.pk
+        if not title_changed and not source_missing and task.chat_room_id == room.id:
+            self.stats['tasks']['already_linked'] += 1
+            return
+
         if self.dry_run:
             self.stdout.write(f"  [DRY RUN] Would link task #{task.id} -> room '{expected_title}'")
-            self.stats['tasks']['newly_linked'] += 1
-        else:
-            with transaction.atomic():
-                task.chat_room = room
-                task.save(update_fields=['chat_room'])
+            if title_changed:
+                self.stats['tasks']['fixed_broken_links'] += 1
+            else:
+                self.stats['tasks']['newly_linked'] += 1
+            return
 
-            self.stdout.write(f"  Linked task #{task.id} -> room '{expected_title}'")
+        update_fields = []
+        if title_changed:
+            room.title = expected_title
+            update_fields.append('title')
+        if source_missing:
+            room.source_app = 'tasks'
+            room.source_object_id = task.pk
+            update_fields.extend(['source_app', 'source_object_id'])
+        if update_fields:
+            room.save(update_fields=update_fields)
+
+        with transaction.atomic():
+            type(task).objects.filter(pk=task.pk).update(chat_room=room)
+
+        if title_changed:
+            self.stats['tasks']['fixed_broken_links'] += 1
+            self.stdout.write(self.style.SUCCESS(f"  Fixed task #{task.id}: updated room title to '{expected_title}'"))
+        else:
             self.stats['tasks']['newly_linked'] += 1
+            self.stdout.write(f"  Linked task #{task.id} -> room '{expected_title}'")
 
     def validate_environment(self):
         """Validate that required models and relationships exist"""
@@ -221,23 +242,20 @@ class Command(BaseCommand):
         try:
             # Test basic model access
             room_count = Room.objects.count()
-            task_count = Task.objects.count()
-            decision_count = Decyzja.objects.count()
-
             self.stdout.write(f"  Rooms: {room_count}")
-            self.stdout.write(f"  Tasks: {task_count}")
-            self.stdout.write(f"  Decisions: {decision_count}")
 
-            # Test foreign key relationships
-            sample_task = Task.objects.first()
-            if sample_task:
-                has_chat_room = hasattr(sample_task, 'chat_room')
-                self.stdout.write(f"  Task.chat_room field exists: {has_chat_room}")
-
-            sample_decision = Decyzja.objects.first()
-            if sample_decision:
-                has_chat_room = hasattr(sample_decision, 'chat_room')
-                self.stdout.write(f"  Decision.chat_room field exists: {has_chat_room}")
+            source_apps = [('tasks', 'task'), ('glosowania', 'decyzja')]
+            for app_label, model_name in source_apps:
+                try:
+                    Model = django_apps.get_model(app_label, model_name)
+                    count = Model.objects.count()
+                    self.stdout.write(f"  {model_name.capitalize()}s: {count}")
+                    sample = Model.objects.first()
+                    if sample:
+                        has_chat_room = hasattr(sample, 'chat_room')
+                        self.stdout.write(f"  {model_name}.chat_room field exists: {has_chat_room}")
+                except LookupError as e:
+                    self.stdout.write(self.style.WARNING(f"  {app_label}.{model_name} not available: {e}"))
 
             return True
 

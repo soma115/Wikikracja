@@ -55,6 +55,10 @@ class Room(models.Model):
     # Marks the special guest-facing room automatically created for public groups
     is_inbox = models.BooleanField(default=False)
 
+    # Source app/object for rooms created by other apps (tasks, votes, etc.)
+    source_app = models.CharField(max_length=50, blank=True, default='', db_index=True)
+    source_object_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
+
     @staticmethod
     def create_inbox():
         """Create the guest-facing Inbox room if it doesn't exist. Returns the room or None."""
@@ -89,12 +93,21 @@ class Room(models.Model):
             return None
         return self.allowed.exclude(id=user.id).first()
 
+    def clean_title(self):
+        """Return title without source prefix for task/vote rooms."""
+        if self.source_app == 'tasks' and self.source_object_id and self.title.startswith(f'Task #{self.source_object_id}: '):
+            return self.title[len(f'Task #{self.source_object_id}: ') :]
+        if self.source_app == 'glosowania' and self.source_object_id and self.title.startswith(f'{self.source_object_id}. '):
+            return self.title[len(f'{self.source_object_id}. ') :]
+        return self.title
+
     # Name that user will see in chats list
     def displayed_name(self, user):
         title_len = 90
         if self.public:
             # Clip public room names to title_len characters for display
-            return self.title[:title_len] if len(self.title) > title_len else self.title
+            title = self.clean_title()
+            return title[:title_len] if len(title) > title_len else title
 
         get_user = self.get_other(user)
         if get_user is not None:

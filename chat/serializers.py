@@ -1,4 +1,4 @@
-from home.templatetags.feed_filters import citizen_color_class
+from zzz.templatetags.citizen_filters import citizen_color_class
 
 
 def build_chat_message_payload(event, *, user, vote_value, current_user, your_reactions=None, avatar_url=None):

@@ -1,16 +1,16 @@
 import logging
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from chat.models import Message, Room
+from chat.models import Room
+from chat.signals import chat_room_requested
 from home.services.feed import invalidate_feed_cache_on_change
-from zzz.utils import get_site_domain
+from zzz.signals import task_created
+from zzz.utils import build_site_url
 
 from .models import Task, TaskVote
 
@@ -19,39 +19,32 @@ log = logging.getLogger(__name__)
 
 @receiver(post_save, sender=Task)
 def create_task_chat_room(sender, instance, created, **kwargs):
-    """
-    Automatically create a public chat room for each new task
-    """
-    if created:
+    """Ask the chat app to create a discussion room for this task."""
+    if not created:
+        return
 
-        def _create_room():
-            room_title = instance.get_chat_room_title()
+    room_title = instance.get_chat_room_title()
 
-            # Create new public room
-            room = Room.objects.create(title=room_title, public=True, archived=False, protected=True, last_activity=timezone.now(), founder=instance.created_by)
+    task_path = reverse('tasks:detail', kwargs={'pk': instance.pk})
+    task_url = build_site_url(task_path)
+    message_text = _('Discussion room for task "%(task_title)s": %(task_url)s') % {'task_title': instance.title, 'task_url': task_url}
 
-            # Allow all active users access to the room
-            active_users = User.objects.filter(is_active=True)
-            room.allowed.set(active_users)
+    chat_room_requested.send(
+        sender=Task,
+        instance=instance,
+        title=room_title,
+        founder=instance.created_by,
+        allowed_users=User.objects.filter(is_active=True),
+        welcome_message=message_text,
+        welcome_message_sender=instance.created_by,
+        welcome_message_anonymous=False,
+        source_app='tasks',
+        source_object_id=instance.pk,
+    )
 
-            # Link room to task via FK
-            Task.objects.filter(pk=instance.pk).update(chat_room=room)
-            instance.chat_room = room
+    task_created.send(sender=Task, task=instance, url=task_url)
 
-            log.info(f"Created chat room '{room_title}' for task #{instance.id}")
-
-            # Send initial message with link back to the task
-            domain = get_site_domain()
-            task_path = reverse('tasks:detail', kwargs={'pk': instance.pk})
-            protocol = getattr(settings, 'SITE_PROTOCOL', 'http')
-            task_url = f"{protocol}://{domain}{task_path}"
-            message_text = _('Discussion room for task "%(task_title)s": %(task_url)s') % {'task_title': instance.title, 'task_url': task_url}
-
-            Message.objects.create(sender=instance.created_by, text=message_text, room=room, anonymous=False)
-
-            log.info(f"Sent initial message to chat room '{room_title}'")
-
-        _create_room()
+    log.info(f"Chat room '{room_title}' requested for task #{instance.id}")
 
 
 @receiver(post_save, sender=Task)

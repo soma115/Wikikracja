@@ -11,7 +11,6 @@ from django.core.cache import cache
 from django.db import IntegrityError
 from django.db.models import Count, Exists, OuterRef, Prefetch
 from django.db.models.functions import Lower
-from django.dispatch import receiver
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -23,11 +22,8 @@ from PIL import Image
 
 from chat.forms import GuestMessageForm, RoomForm
 from chat.models import Room
-from chat.signals import user_accepted, user_deleted
 from chat.utils import send_message_to_room
-from glosowania.models import Decyzja
 from site_settings.params import get_param
-from tasks.models import Task
 from zzz.richtext import sanitize
 
 log = logging.getLogger(__name__)
@@ -80,8 +76,14 @@ def add_room(request: HttpRequest):
     return redirect(f"{reverse('chat:chat')}#room_id={room.id}")
 
 
-def _chat_room_prefetches():
-    return [Prefetch('chat_room__seen_by', queryset=User.objects.only('id')), Prefetch('chat_room__muted_by', queryset=User.objects.only('id'))]
+def _public_room_prefetch():
+    # Public rooms can have hundreds of `allowed` users — keep that prefetch lean.
+    return [Prefetch('allowed', queryset=User.objects.only('id', 'username')), Prefetch('muted_by', queryset=User.objects.only('id'))]
+
+
+def _private_room_prefetch():
+    # Private (DM) rooms need the other user's avatar — pull uzytkownik in the same query.
+    return [Prefetch('allowed', queryset=User.objects.select_related('uzytkownik')), Prefetch('muted_by', queryset=User.objects.only('id'))]
 
 
 @login_required
@@ -94,55 +96,20 @@ def chat(request: HttpRequest):
         Room.objects.filter(allowed=request.user.id)
         .select_related('last_message_sender')
         .annotate(messages_count=Count('messages'), is_seen=Exists(Room.seen_by.through.objects.filter(room_id=OuterRef('pk'), user_id=request.user.id)))
-        .order_by(Lower("title"))
+        .order_by(Lower('title'))
     )
 
-    # Public rooms can have hundreds of `allowed` users — keep that prefetch lean.
-    public_allowed = Prefetch('allowed', queryset=User.objects.only('id', 'username'))
-    # Private (DM) rooms need the other user's avatar — pull uzytkownik in the same query.
-    private_allowed = Prefetch('allowed', queryset=User.objects.select_related('uzytkownik'))
+    public_rooms_active = base_rooms.filter(public=True, archived=False, source_app='').prefetch_related(*_public_room_prefetch())
+    public_rooms_archived = base_rooms.filter(public=True, archived=True, source_app='').prefetch_related(*_public_room_prefetch())
 
-    public_pool = base_rooms.prefetch_related(public_allowed, 'muted_by')
-    private_pool = base_rooms.prefetch_related(private_allowed, 'muted_by')
+    private_active = base_rooms.filter(public=False, archived=False).prefetch_related(*_private_room_prefetch())
+    private_archived = base_rooms.filter(public=False, archived=True).prefetch_related(*_private_room_prefetch())
 
-    public_active = public_pool.filter(public=True, archived=False)
-    public_archived = public_pool.filter(public=True, archived=True)
-    private_active = private_pool.filter(public=False, archived=False)
-    private_archived = private_pool.filter(public=False, archived=True)
+    tasks_tree_active = base_rooms.filter(source_app='tasks', archived=False).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
+    tasks_tree_archived = base_rooms.filter(source_app='tasks', archived=True).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
 
-    task_room_ids = Task.objects.filter(chat_room__isnull=False).values_list('chat_room_id', flat=True)
-    vote_room_ids = Decyzja.objects.filter(chat_room__isnull=False).values_list('chat_room_id', flat=True)
-
-    public_rooms_active = public_active.exclude(id__in=task_room_ids).exclude(id__in=vote_room_ids)
-    public_rooms_archived = public_archived.exclude(id__in=task_room_ids).exclude(id__in=vote_room_ids)
-
-    tasks_tree_active = (
-        Task.objects.filter(chat_room__isnull=False, chat_room__allowed=request.user, chat_room__archived=False)
-        .select_related('chat_room', 'chat_room__last_message_sender')
-        .prefetch_related(*_chat_room_prefetches())
-        .order_by('title')
-    )
-
-    tasks_tree_archived = (
-        Task.objects.filter(chat_room__isnull=False, chat_room__allowed=request.user, chat_room__archived=True)
-        .select_related('chat_room', 'chat_room__last_message_sender')
-        .prefetch_related(*_chat_room_prefetches())
-        .order_by('title')
-    )
-
-    votes_tree_active = (
-        Decyzja.objects.filter(chat_room__isnull=False, chat_room__allowed=request.user, chat_room__archived=False)
-        .select_related('chat_room', 'chat_room__last_message_sender')
-        .prefetch_related(*_chat_room_prefetches())
-        .order_by('title')
-    )
-
-    votes_tree_archived = (
-        Decyzja.objects.filter(chat_room__isnull=False, chat_room__allowed=request.user, chat_room__archived=True)
-        .select_related('chat_room', 'chat_room__last_message_sender')
-        .prefetch_related(*_chat_room_prefetches())
-        .order_by('title')
-    )
+    votes_tree_active = base_rooms.filter(source_app='glosowania', archived=False).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
+    votes_tree_archived = base_rooms.filter(source_app='glosowania', archived=True).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
 
     return render(
         request,
@@ -265,20 +232,6 @@ def get_translations():
         "Disable the unread filter": _("Disable the unread filter"),
         "This room is empty, be the first one to write something.": _("This room is empty, be the first one to write something."),
     }
-
-
-@receiver(user_accepted)
-def create_one2one_rooms(sender, **kwargs):
-    # Create all 1to1 rooms
-    Room.create_all_one2one_rooms()
-
-
-@receiver(user_deleted)
-def delete_one2one_rooms(sender, user, **kwargs):
-    rooms_to_delete = Room.objects.filter(public=False, allowed=user)
-    for room in rooms_to_delete:
-        log.info(f"Room {room} deleted.")
-    rooms_to_delete.delete()
 
 
 @login_required

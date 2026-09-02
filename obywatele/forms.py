@@ -11,9 +11,7 @@ from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 
 from obywatele.models import Region, Uzytkownik
-from zzz.email import send_notification_email_to_active_users
-from zzz.notifications import build_notification, send_notification_to_all_in_thread
-from zzz.utils import build_site_url
+from zzz.signals import citizen_proposed
 
 log = logging.getLogger(__name__)
 
@@ -264,16 +262,5 @@ class CustomSignupForm(SignupForm):
         except Exception as e:
             log.error(f'Failed to send confirmation email: {e}', exc_info=True)
 
-        click_action = build_site_url('/obywatele/poczekalnia/')
-        send_notification_email_to_active_users(
-            _('New person requested membership'), _('User %(username)s just requested membership') % {'username': user.username} + '\n' + click_action, notification_type='obywatele', strip_html=True
-        )
-
-        send_notification_to_all_in_thread(
-            build_notification(
-                _('New person requested membership'), _('User %(username)s just requested membership') % {'username': user.username}, click_action, f'citizen-signup-{user.id}', citizen_id=user.id
-            ),
-            ws_type='citizen.notification',
-            notification_type='obywatele',
-        )
+        citizen_proposed.send(sender='obywatele.forms.CustomSignupForm', candidate=user, proposed_by=None)
         return user

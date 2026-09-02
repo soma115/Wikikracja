@@ -1,4 +1,4 @@
-{% load feed_filters %}
+{% load citizen_filters %}
 {% if avatar %}
   <img{% if id %} id="{{ id }}"{% endif %} class="avatar avatar-{{ size }}{% if extra_class %} {{ extra_class }}{% endif %}" src="{{ avatar.url }}" alt="{{ alt|default:username }}"{% if loading_lazy != False %} loading="lazy"{% endif %}>
 {% else %}

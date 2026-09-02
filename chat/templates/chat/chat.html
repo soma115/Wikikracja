@@ -105,18 +105,14 @@
               </button>
             </div>
             <div class="nav-cat-content open" id="cat-tasks">
-              {% for task in tasks_tree_active %}
-                {% with room=task.chat_room override_label=task.title %}
-                  {% include 'chat/room_link.html' with room_kind='task' %}
-                {% endwith %}
+              {% for room in tasks_tree_active %}
+                {% include 'chat/room_link.html' with room_kind='task' %}
               {% empty %}
                 <p class="text-muted text-center small">{% trans 'None' %}</p>
               {% endfor %}
               <div id="content-tasks-archive" class="archive-section">
-                {% for task in tasks_tree_archived %}
-                  {% with room=task.chat_room override_label=task.title %}
-                    {% include 'chat/room_link.html' with room_kind='task' %}
-                  {% endwith %}
+                {% for room in tasks_tree_archived %}
+                  {% include 'chat/room_link.html' with room_kind='task' %}
                 {% empty %}
                   <p class="text-muted text-center small">{% trans 'None' %}</p>
                 {% endfor %}
@@ -133,18 +129,14 @@
               </button>
             </div>
             <div class="nav-cat-content open" id="cat-votes">
-              {% for vote in votes_tree_active %}
-                {% with room=vote.chat_room override_label=vote.title %}
-                  {% include 'chat/room_link.html' with room_kind='vote' %}
-                {% endwith %}
+              {% for room in votes_tree_active %}
+                {% include 'chat/room_link.html' with room_kind='vote' %}
               {% empty %}
                 <p class="text-muted text-center small">{% trans 'None' %}</p>
               {% endfor %}
               <div id="content-votes-archive" class="archive-section">
-                {% for vote in votes_tree_archived %}
-                  {% with room=vote.chat_room override_label=vote.title %}
-                    {% include 'chat/room_link.html' with room_kind='vote' %}
-                  {% endwith %}
+                {% for room in votes_tree_archived %}
+                  {% include 'chat/room_link.html' with room_kind='vote' %}
                 {% empty %}
                   <p class="text-muted text-center small">{% trans 'None' %}</p>
                 {% endfor %}

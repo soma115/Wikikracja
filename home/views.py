@@ -14,8 +14,6 @@ from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
-from board.models import Post
-from glosowania.models import Decyzja
 from site_settings.models import QuickLink, SiteSettings
 from site_settings.services import get_branding_version
 
@@ -29,40 +27,9 @@ log = logging.getLogger(__name__)
 ALL_SEARCH_CATS = ['post', 'task', 'decision', 'survey', 'event', 'citizen', 'chat']
 
 
-DASHBOARD_MODULES = [
-    {
-        'name': _('Voting'),
-        'icon': 'fa-vote-yea',
-        'url': 'glosowania:proposition',
-        'description': _('Democratic decision-making — submit proposals, collect signatures, vote on ongoing referendums and track results.'),
-    },
-    {'name': _('Citizens'), 'icon': 'fa-users', 'url': 'obywatele:obywatele', 'description': _('Member directory — browse citizen profiles, check roles and track community activity.')},
-    {
-        'name': _('Documents'),
-        'icon': 'fa-chalkboard',
-        'url': 'board:start',
-        'description': _('Documents and blog — create and publish content, including a public blog visible to visitors outside the community.'),
-    },
-    {'name': _('Calendar'), 'icon': 'fa-calendar-days', 'url': 'events:list', 'description': _('Upcoming community events — one-off and recurring. Stay informed about meetings, deadlines and activities.')},
-    {'name': _('Tasks'), 'icon': 'fa-list-check', 'url': 'tasks:list', 'description': _('Task management — create, assign and track tasks within the community. See who is responsible for what.')},
-    {
-        'name': _('Bookkeeping'),
-        'icon': 'fa-coins',
-        'url': 'bookkeeping:transaction_list',
-        'description': _('Community finances — record income and expenses, maintain transparency over shared funds and budgets.'),
-    },
-    {'name': _('Chat'), 'icon': 'fa-comments', 'url': 'chat:chat', 'description': _('Real-time messaging — communicate in topic-based chat rooms linked to referendums and community groups.')},
-    {'name': _('Surveys'), 'icon': 'fa-clipboard-question', 'url': 'ankiety:list', 'description': _('Surveys and quick polls — collect opinions, run questionnaires and make better group decisions.')},
-]
-
-
 def home(request: HttpRequest):
     if not request.user.is_authenticated:
-        start = Post.get_system_post('start')
-        if not start:
-            log.info('Add Board Message title Start.')
-            start = ''
-        return render(request, 'home/home.html', {'start': start, 'dashboard_modules': DASHBOARD_MODULES})
+        return render(request, 'home/home.html', dashboard_service.get_public_context())
 
     # Check if we should filter to show only unread items
     # Priority: URL parameter > session (synced from localStorage)
@@ -402,9 +369,4 @@ def site_admin(request: HttpRequest) -> HttpResponse:
             messages.error(request, _("Link doesn't exist."))
         return redirect('site_admin')
 
-    quick_links = QuickLink.objects.all()
-
-    restarted_referendums = Decyzja.objects.filter(referendum_restart_count__gt=0).order_by('-referendum_restart_count')
-    total_referendum_restarts = sum(d.referendum_restart_count for d in restarted_referendums)
-
-    return render(request, 'home/site_admin.html', {'quick_links': quick_links, 'restarted_referendums': restarted_referendums, 'total_referendum_restarts': total_referendum_restarts})
+    return render(request, 'home/site_admin.html', dashboard_service.get_site_admin_context(request.user))

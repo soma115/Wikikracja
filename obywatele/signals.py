@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
 from home.services.feed import invalidate_feed_cache_on_change
+from zzz.signals import citizen_blocked
 
 from .models import CitizenActivity, Uzytkownik
 
@@ -16,10 +17,16 @@ def track_citizen_activities(sender, instance, created, **kwargs):
         CitizenActivity.objects.create(uzytkownik=instance, activity_type=CitizenActivity.ActivityType.NEW_CANDIDATE, description=_('New candidate has registered'))
 
 
-def track_user_blocked(uzytkownik, was_previously_active=False):
-    """Track when a user is blocked - only if they were previously active"""
-    if was_previously_active:
-        CitizenActivity.objects.create(uzytkownik=uzytkownik, activity_type=CitizenActivity.ActivityType.USER_BLOCKED, description=_('Citizen has been blocked'))
+@receiver(citizen_blocked)
+def track_user_blocked(sender, user, was_previously_active=False, **kwargs):
+    """Track when a citizen is blocked - only if they were previously active."""
+    if not was_previously_active:
+        return
+    try:
+        uzytkownik = user.uzytkownik
+    except (AttributeError, Uzytkownik.DoesNotExist):
+        return
+    CitizenActivity.objects.create(uzytkownik=uzytkownik, activity_type=CitizenActivity.ActivityType.USER_BLOCKED, description=_('Citizen has been blocked'))
 
 
 @receiver(post_save, sender=CitizenActivity)

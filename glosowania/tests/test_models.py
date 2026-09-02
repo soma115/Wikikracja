@@ -23,7 +23,7 @@ class DecyzjaChatRoomTest(TestCase):
         self.assertEqual(decyzja.chat_room.title, decyzja.get_chat_room_title())
 
     def test_decyzja_not_saved_when_chat_room_creation_fails(self):
-        with patch("glosowania.signals.Room.objects.create", side_effect=RuntimeError("DB unavailable")):
+        with patch("chat.signals.Room.objects.create", side_effect=RuntimeError("DB unavailable")):
             with self.assertRaises(RuntimeError):
                 Decyzja.objects.create(author=self.author, title="Test Bill", tresc="Test law text", status=Decyzja.Status.PROPOSITION)
         self.assertEqual(Decyzja.objects.count(), 0)
