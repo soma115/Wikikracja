@@ -79,7 +79,7 @@
               </td>
               <td class="text-center">
                 <span data-bs-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
-                  {{ i.ratings_positive }}/{{ i.ratings_neutral }}/{{ i.ratings_negative }}
+                  <span class="fw-600 text-success">{{ i.ratings_positive }}</span>/<span class="fw-600">{{ i.ratings_neutral }}</span>/<span class="fw-600 text-danger">{{ i.ratings_negative }}</span>
                 </span>
               </td>
               <td>{% if i.email_confirmed %}<i class="fas fa-check text-success"></i>{% else %}<i class="fas fa-times text-danger"></i>{% endif %}</td>
@@ -133,7 +133,7 @@
           {% if i.email_confirmed %}<i class="fas fa-envelope text-success" title="{% trans 'Email confirmed' %}"></i>{% else %}<i class="fas fa-envelope text-danger" title="{% trans 'Email confirmed' %}"></i>{% endif %}
           {% if i.form_completed %}<i class="fas fa-file-alt text-success ms-1" title="{% trans 'Form completed' %}"></i>{% else %}<i class="fas fa-file-alt text-danger ms-1" title="{% trans 'Form completed' %}"></i>{% endif %}
           <span class="ms-1" data-bs-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
-            {{ i.ratings_positive }}/{{ i.ratings_neutral }}/{{ i.ratings_negative }} <i class="fas fa-star"></i>
+            <span class="fw-600 text-success">{{ i.ratings_positive }}</span>/<span class="fw-600">{{ i.ratings_neutral }}</span>/<span class="fw-600 text-danger">{{ i.ratings_negative }}</span> <i class="fas fa-star"></i>
           </span>
         </div>
         <div class="citizen-card-city">{{ i.date_joined|date:"Y-m-d" }}</div>

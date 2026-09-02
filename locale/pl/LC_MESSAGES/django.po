@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 22:43+0200\n"
+"POT-Creation-Date: 2026-09-03 00:21+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -116,7 +116,7 @@ msgstr "Ankieta"
 
 #: .\ankiety\models.py:21 .\home\services\dashboard.py:36
 #: .\home\templates\home\base.html:118 .\home\templates\home\base.html:121
-#: .\home\templates\home\base.html:244 .\home\views.py:197
+#: .\home\templates\home\base.html:235 .\home\views.py:197
 msgid "Surveys"
 msgstr "Ankiety"
 
@@ -566,7 +566,7 @@ msgstr "Utwórz"
 
 #: .\board\templates\board\board.html:89 .\home\services\dashboard.py:22
 #: .\home\templates\home\base.html:145 .\home\templates\home\base.html:148
-#: .\home\templates\home\base.html:242 .\home\views.py:70 .\home\views.py:197
+#: .\home\templates\home\base.html:233 .\home\views.py:70 .\home\views.py:197
 msgid "Documents"
 msgstr "Dokumenty"
 
@@ -1196,7 +1196,7 @@ msgstr "Pokój: %(room)s"
 #: .\glosowania\templates\glosowania\_proposal_card.html:48
 #: .\glosowania\templates\glosowania\szczegoly.html:43
 #: .\home\services\dashboard.py:35 .\home\templates\home\base.html:172
-#: .\home\templates\home\base.html:175 .\home\templates\home\base.html:249
+#: .\home\templates\home\base.html:175 .\home\templates\home\base.html:240
 #: .\home\templates\home\home.html:419 .\home\templates\home\home.html:497
 #: .\home\templatetags\feed_filters.py:26 .\home\views.py:76
 #: .\home\views.py:197 .\obywatele\views.py:510 .\obywatele\views.py:517
@@ -1255,14 +1255,14 @@ msgstr "Możesz zarządzać swoimi powiadomieniami e-mailowymi tutaj: {url}"
 
 #: .\chat\management\commands\chat_messages.py:62
 #: .\home\templates\home\base.html:109 .\home\templates\home\base.html:112
-#: .\home\templates\home\base.html:241 .\home\views.py:72 .\home\views.py:197
+#: .\home\templates\home\base.html:232 .\home\views.py:72 .\home\views.py:197
 msgid "Votings"
 msgstr "Głosowania"
 
 #: .\chat\management\commands\chat_messages.py:62
 #: .\chat\templates\chat\chat.html:104 .\chat\templates\chat\chat.html:231
 #: .\home\services\dashboard.py:28 .\home\templates\home\base.html:136
-#: .\home\templates\home\base.html:139 .\home\templates\home\base.html:243
+#: .\home\templates\home\base.html:139 .\home\templates\home\base.html:234
 #: .\home\views.py:71 .\home\views.py:197
 #: .\obywatele\templates\obywatele\szczegoly.html:204
 msgid "Activities"
@@ -1435,7 +1435,7 @@ msgid "Send a message"
 msgstr "Wyślij wiadomość"
 
 #: .\chat\templates\chat\guest_message.html:11
-#: .\home\templates\home\base.html:311
+#: .\home\templates\home\base.html:305
 msgid "Send a message to the group"
 msgstr "Wyślij wiadomość do grupy"
 
@@ -1496,7 +1496,7 @@ msgstr "Dziś"
 msgid "Tomorrow"
 msgstr "Jutro"
 
-#: .\chat\views.py:185 .\home\templates\home\base.html:330
+#: .\chat\views.py:185 .\home\templates\home\base.html:324
 msgid "Enable Notifications"
 msgstr "Włącz powiadomienia"
 
@@ -1846,8 +1846,8 @@ msgstr "Dodaj do swojego Kalendarza Google"
 
 #: .\events\templates\events\_event_card.html:59
 #: .\home\services\dashboard.py:27 .\home\templates\home\base.html:154
-#: .\home\templates\home\base.html:157 .\home\templates\home\base.html:245
-#: .\home\templates\home\base.html:305 .\home\templates\home\home.html:452
+#: .\home\templates\home\base.html:157 .\home\templates\home\base.html:236
+#: .\home\templates\home\base.html:299 .\home\templates\home\home.html:452
 #: .\home\views.py:74
 msgid "Calendar"
 msgstr "Kalendarz"
@@ -2158,9 +2158,8 @@ msgid "If set, this referendum changes system parameters. Applied when approved.
 msgstr "Jeśli zostanie użyte, referendum zmieni ustawienia systemu. Zmiana zostanie zastosowana po zatwierdzeniu."
 
 #: .\glosowania\models.py:88
-#: .\glosowania\templates\glosowania\parameters_propose.html:39
+#: .\glosowania\templates\glosowania\_proposed_brand_mark.html:3
 #: .\glosowania\templates\glosowania\szczegoly.html:147
-#: .\glosowania\templates\glosowania\szczegoly.html:148
 msgid "Proposed logo"
 msgstr "Propozycja logo"
 
@@ -2719,7 +2718,7 @@ msgid "Democratic decision-making — submit proposals, collect signatures, vote
 msgstr "Demokratyczne podejmowanie decyzji — składanie wniosków, zbieranie podpisów, głosowanie w trwających referendach i śledzenie wyników."
 
 #: .\home\services\dashboard.py:20 .\home\templates\home\base.html:127
-#: .\home\templates\home\base.html:130 .\home\templates\home\base.html:247
+#: .\home\templates\home\base.html:130 .\home\templates\home\base.html:238
 #: .\home\views.py:75 .\home\views.py:197 .\obywatele\models.py:103
 #: .\obywatele\templates\obywatele\menu.html:14
 #: .\obywatele\templates\obywatele\start.html:9
@@ -2812,17 +2811,17 @@ msgid "No activity"
 msgstr "Brak aktywności"
 
 #: .\home\templates\home\base.html:100 .\home\templates\home\base.html:103
-#: .\home\templates\home\base.html:240 .\home\templates\home\home.html:39
+#: .\home\templates\home\base.html:231 .\home\templates\home\home.html:39
 msgid "Desktop"
 msgstr "Pulpit"
 
 #: .\home\templates\home\base.html:163 .\home\templates\home\base.html:166
-#: .\home\templates\home\base.html:248
+#: .\home\templates\home\base.html:239
 msgid "Finance"
 msgstr "Finanse"
 
 #: .\home\templates\home\base.html:187 .\home\templates\home\base.html:190
-#: .\home\templates\home\base.html:247
+#: .\home\templates\home\base.html:238
 msgid "Settings"
 msgstr "Ustawienia"
 
@@ -2830,66 +2829,61 @@ msgstr "Ustawienia"
 msgid "Log out"
 msgstr "Wyloguj"
 
-#: .\home\templates\home\base.html:207 .\home\templatetags\feed_filters.py:28
-#: .\obywatele\models.py:102 .\obywatele\search.py:16
-msgid "Citizen"
-msgstr "Ludzie"
-
-#: .\home\templates\home\base.html:213
+#: .\home\templates\home\base.html:204
 msgid "Collapse/expand menu"
 msgstr "Zwiń/rozwiń menu"
 
-#: .\home\templates\home\base.html:215
+#: .\home\templates\home\base.html:206
 msgid "Collapse"
 msgstr "Zwiń"
 
-#: .\home\templates\home\base.html:260 .\home\templates\home\base.html:262
-#: .\home\templates\home\base.html:271 .\home\templates\home\search.html:15
+#: .\home\templates\home\base.html:251 .\home\templates\home\base.html:253
+#: .\home\templates\home\base.html:262 .\home\templates\home\search.html:15
 #: .\home\templates\home\search.html:37
 msgid "Search"
 msgstr "Szukaj"
 
-#: .\home\templates\home\base.html:277 .\home\templates\home\base.html:317
+#: .\home\templates\home\base.html:268 .\home\templates\home\base.html:311
 msgid "Toggle light / dark mode"
 msgstr "Przełącz tryb jasny/ciemny"
 
-#: .\home\templates\home\base.html:282 .\home\templates\home\home.html:91
+#: .\home\templates\home\base.html:273 .\home\templates\home\home.html:91
 #: .\obywatele\templates\obywatele\szczegoly.html:197
 #: .\obywatele\templates\obywatele\szczegoly.html:214
 msgid "Activity"
 msgstr "Aktywność"
 
-#: .\home\templates\home\base.html:301
+#: .\home\templates\home\base.html:295
 msgid "Announcements"
 msgstr "Ogłoszenia"
 
-#: .\home\templates\home\base.html:308 .\home\templates\home\home.html:13
+#: .\home\templates\home\base.html:302 .\home\templates\home\home.html:13
 #: .\obywatele\templates\obywatele\szczegoly.html:51
 msgid "Login"
 msgstr "Zaloguj"
 
-#: .\home\templates\home\base.html:309
+#: .\home\templates\home\base.html:303
 msgid "Register"
 msgstr "Zarejestruj"
 
-#: .\home\templates\home\base.html:313
+#: .\home\templates\home\base.html:307
 #: .\obywatele\templates\obywatele\start.html:88
 msgid "Contact"
 msgstr "Kontakt"
 
-#: .\home\templates\home\base.html:328
+#: .\home\templates\home\base.html:322
 msgid "Enable notifications to stay updated with new messages and activities"
 msgstr "Włącz powiadomienia, aby być na bieżąco z nowymi wiadomościami i aktywnościami"
 
-#: .\home\templates\home\base.html:333
+#: .\home\templates\home\base.html:327
 msgid "Not now"
 msgstr "Nie teraz"
 
-#: .\home\templates\home\base.html:340
+#: .\home\templates\home\base.html:334
 msgid "Notifications are blocked. Please enable them in your browser settings"
 msgstr "Powiadomienia są zablokowane. Włącz je w ustawieniach przeglądarki"
 
-#: .\home\templates\home\base.html:342
+#: .\home\templates\home\base.html:336
 msgid "Dismiss"
 msgstr "Odrzuć"
 
@@ -3247,6 +3241,11 @@ msgstr "Kalendarz"
 #: .\home\templatetags\feed_filters.py:27
 msgid "Głosowania"
 msgstr "Głosowania"
+
+#: .\home\templatetags\feed_filters.py:28 .\obywatele\models.py:102
+#: .\obywatele\search.py:16
+msgid "Citizen"
+msgstr "Ludzie"
 
 #: .\home\templatetags\feed_filters.py:29
 msgid "Membership"
