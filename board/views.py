@@ -103,6 +103,14 @@ def board(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def create_post(request: HttpRequest):
+    category = None
+    category_pk = request.GET.get('category')
+    if category_pk:
+        try:
+            category = PostCategory.objects.get(pk=int(category_pk))
+        except (ValueError, TypeError, PostCategory.DoesNotExist):
+            category = None
+
     if request.method == "POST":
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
@@ -116,7 +124,8 @@ def create_post(request: HttpRequest):
 
             return redirect('board:view_post', post.pk)
     else:
-        form = PostForm()
+        initial = {'category': category.pk} if category else None
+        form = PostForm(initial=initial)
     return render(request, 'board/create_post.html', {'form': form})
 
 

@@ -1,8 +1,10 @@
-"""Testy usuwania kategorii dokumentów (board) bez wymuszania reassignmentu.
+"""Testy kategorii dokumentów (board).
 
-Regresja głównego buga: kategoria używana przez dokumenty MUSI dać się usunąć — FK
-`Post.category` ma `on_delete=SET_NULL`, więc dokumenty stają się nieskategoryzowane.
-Plus generyczny endpoint listy elementów kategorii (tytuły + count, z limitem).
+- Usuwanie kategorii bez wymuszania reassignmentu: kategoria używana przez dokumenty
+  MUSI dać się usunąć — FK `Post.category` ma `on_delete=SET_NULL`, więc dokumenty
+  stają się nieskategoryzowane.
+- Generyczny endpoint listy elementów kategorii (tytuły + count, z limitem).
+- Wstępne wypełnianie kategorii w formularzu tworzenia dokumentu.
 """
 
 import pytest
@@ -91,3 +93,25 @@ def test_category_list_respects_priority_order(authenticated_client):
     data = res.json()
     ids = [c["id"] for c in data["categories"]]
     assert ids.index(first.pk) < ids.index(second.pk)
+
+
+@pytest.mark.django_db
+def test_create_post_prefills_category_from_query_param(authenticated_client, board_category):
+    """GET /board/create/?category=<pk> wstępnie wybiera kategorię w formularzu."""
+    client, _ = authenticated_client
+
+    res = client.get(reverse('board:create_post'), {'category': board_category.pk})
+
+    assert res.status_code == 200
+    assert res.context['form'].initial.get('category') == board_category.pk
+
+
+@pytest.mark.django_db
+def test_create_post_ignores_invalid_category_query_param(authenticated_client):
+    """GET /board/create/?category=<invalid> nie psuje formularza i pozostawia kategorię pustą."""
+    client, _ = authenticated_client
+
+    res = client.get(reverse('board:create_post'), {'category': '999999'})
+
+    assert res.status_code == 200
+    assert res.context['form'].initial.get('category') is None
