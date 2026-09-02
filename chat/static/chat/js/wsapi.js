@@ -306,12 +306,15 @@ export default class WsApi {
 
         xhr.open("POST", "upload/", true);
         xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        const maxSizeMb = UPLOAD_MAX_BYTES / 1_000_000;
+        const sizeMessage = (window.SITE_SETTINGS && window.SITE_SETTINGS.uploadImageMaxSizeMessage) || 'Image is too large (max %s MB).';
         for (let i = 0; i < files.length; ++i) {
             let file = files.item(i);
             let name = file.name;
             let size = file.size;
             if (size > UPLOAD_MAX_BYTES) {
-                alert("file is too big");
+                let message = sizeMessage.replace('%s', maxSizeMb);
+                if (window.showToast) window.showToast(message); else alert(message);
                 continue;
             }
             formData.append("images", file);

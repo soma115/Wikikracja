@@ -2,6 +2,7 @@ import logging
 
 from django.conf import settings
 from django.http import HttpRequest
+from django.utils.translation import gettext as _
 
 import zzz
 from board.models import Post
@@ -36,3 +37,12 @@ def unread_count(request):
     from home.services.feed import get_unread_count
 
     return {'unread_count': get_unread_count(request.user)}
+
+
+def upload_limits(request):
+    return {
+        'UPLOAD_IMAGE_MAX_SIZE_MB': settings.UPLOAD_IMAGE_MAX_SIZE_MB,
+        'UPLOAD_ATTACHMENT_MAX_SIZE_MB': settings.UPLOAD_ATTACHMENT_MAX_SIZE_MB,
+        'UPLOAD_IMAGE_MAX_SIZE_MESSAGE': _("Image is too large (max %s MB)."),
+        'UPLOAD_ATTACHMENT_MAX_SIZE_MESSAGE': _("File is too large (max %s MB)."),
+    }

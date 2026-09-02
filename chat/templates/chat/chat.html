@@ -11,9 +11,17 @@
   <script src="{% static 'chat/js/chat.js' %}" type="module"></script>
   <script src="{% static 'chat/js/handlers.js' %}" type="module"></script>
 
+  {{ translations|json_script:"chat-translations" }}
+  {{ MESSAGE_MAX_LENGTH|json_script:"chat-message-max-length" }}
+  {{ UPLOAD_IMAGE_MAX_SIZE_MB|json_script:"chat-upload-max-size-mb" }}
+  {{ UPLOAD_IMAGE_MAX_SIZE_MESSAGE|json_script:"chat-upload-max-size-message" }}
   <script>
-    const TRANSLATIONS = {{ translations|default:"{}"|safe }};
-    window.SITE_SETTINGS = { messageMaxLength: {{ MESSAGE_MAX_LENGTH }} };
+    window.SITE_SETTINGS = {
+        messageMaxLength: JSON.parse(document.getElementById('chat-message-max-length').textContent),
+        uploadImageMaxSizeMb: JSON.parse(document.getElementById('chat-upload-max-size-mb').textContent),
+        uploadImageMaxSizeMessage: JSON.parse(document.getElementById('chat-upload-max-size-message').textContent),
+    };
+    window.TRANSLATIONS = JSON.parse(document.getElementById('chat-translations').textContent);
   </script>
 
   <!-- ============================================================= -->

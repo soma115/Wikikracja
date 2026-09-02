@@ -28,7 +28,15 @@
         {{ form.featured_image|as_crispy_field }}
         <div class="mb-3">
           <label for="{{ form.attachments.id_for_label }}" class="form-label">{{ form.attachments.label }}</label>
-          <input type="file" name="{{ form.attachments.name }}" class="form-control" id="{{ form.attachments.id_for_label }}" multiple>
+          <input type="file" name="{{ form.attachments.name }}" class="form-control{% if form.attachments.errors %} is-invalid{% endif %}" id="{{ form.attachments.id_for_label }}" multiple data-max-size-mb="{{ UPLOAD_ATTACHMENT_MAX_SIZE_MB }}" data-max-size-error="{{ UPLOAD_ATTACHMENT_MAX_SIZE_MESSAGE }}">
+          {% if form.attachments.errors %}
+            <div class="invalid-feedback d-block">
+              {% for error in form.attachments.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+            </div>
+          {% endif %}
+          {% if form.attachments.help_text %}
+            <div class="form-text text-muted">{{ form.attachments.help_text }}</div>
+          {% endif %}
         </div>
         <div class="d-flex gap-3 mb-3">
           {{ form.is_public|as_crispy_field }}

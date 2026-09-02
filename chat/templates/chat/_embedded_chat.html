@@ -33,10 +33,21 @@ Użycie:
 
 
 <link rel="stylesheet" href="{% static 'chat/css/chat.css' %}">
+{{ ec_translations|json_script:"ec-chat-translations" }}
+{{ MESSAGE_MAX_LENGTH|default:500|json_script:"ec-chat-message-max-length" }}
+{{ UPLOAD_IMAGE_MAX_SIZE_MB|json_script:"ec-chat-upload-max-size-mb" }}
+{{ UPLOAD_IMAGE_MAX_SIZE_MESSAGE|json_script:"ec-chat-upload-max-size-message" }}
 <script>
-  // var (not const/let) goes to global scope accessible by name from ES modules
-  if (typeof TRANSLATIONS === 'undefined') var TRANSLATIONS = {{ ec_translations|default:"{}"|safe }};
-  if (typeof SITE_SETTINGS === 'undefined') var SITE_SETTINGS = { messageMaxLength: {{ MESSAGE_MAX_LENGTH|default:500 }} };
+  if (typeof window.SITE_SETTINGS === 'undefined') {
+      window.SITE_SETTINGS = {
+          messageMaxLength: JSON.parse(document.getElementById('ec-chat-message-max-length').textContent),
+          uploadImageMaxSizeMb: JSON.parse(document.getElementById('ec-chat-upload-max-size-mb').textContent),
+          uploadImageMaxSizeMessage: JSON.parse(document.getElementById('ec-chat-upload-max-size-message').textContent),
+      };
+  }
+  if (typeof window.TRANSLATIONS === 'undefined') {
+      window.TRANSLATIONS = JSON.parse(document.getElementById('ec-chat-translations').textContent);
+  }
 </script>
 <script src="{% static 'chat/js/ejs.min.js' %}"></script>
 <script src="{% static 'chat/js/chat-embedded.js' %}" type="module"></script>

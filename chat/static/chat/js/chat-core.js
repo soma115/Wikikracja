@@ -15,7 +15,8 @@ export {
     insertPlainTextAtCaret,
 } from '../../common/js/richtext-core.js';
 
-export const UPLOAD_MAX_BYTES = 5_000_000;
+const UPLOAD_IMAGE_MAX_SIZE_MB = (window.SITE_SETTINGS && window.SITE_SETTINGS.uploadImageMaxSizeMb) || 5;
+export const UPLOAD_MAX_BYTES = UPLOAD_IMAGE_MAX_SIZE_MB * 1_000_000;
 const IMAGE_MAX_DIMENSION = 1280;
 const IMAGE_WEBP_QUALITY = 0.75;
 
@@ -44,10 +45,13 @@ export async function uploadFiles(files, uploadUrl = '/chat/upload/') {
     }
 
     const formData = new FormData();
+    const maxSizeMb = UPLOAD_MAX_BYTES / 1_000_000;
+    const sizeMessage = (window.SITE_SETTINGS && window.SITE_SETTINGS.uploadImageMaxSizeMessage) || 'Image is too large (max %s MB).';
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
         if (file.size > UPLOAD_MAX_BYTES) {
-            alert('File is too big');
+            const message = sizeMessage.replace('%s', maxSizeMb);
+            if (window.showToast) window.showToast(message); else alert(message);
             continue;
         }
         // eslint-disable-next-line no-await-in-loop

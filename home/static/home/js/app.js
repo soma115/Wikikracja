@@ -1227,3 +1227,34 @@ document.addEventListener('click', function(e) {
     });
     form.submit();
 });
+
+// ============================================================
+// File upload size validation
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('input[type="file"][data-max-size-mb]').forEach(function(input) {
+        input.addEventListener('change', function() {
+            var maxSizeMb = parseInt(input.dataset.maxSizeMb, 10);
+            var errorTemplate = input.dataset.maxSizeError || 'File is too large (max %s MB).';
+            var maxSizeBytes = maxSizeMb * 1000000;
+            var invalidFiles = [];
+            for (var i = 0; i < input.files.length; i++) {
+                if (input.files[i].size > maxSizeBytes) {
+                    invalidFiles.push(input.files[i].name);
+                }
+            }
+            if (invalidFiles.length > 0) {
+                var message = errorTemplate.replace('%s', maxSizeMb);
+                if (window.showToast) {
+                    window.showToast(message);
+                } else {
+                    alert(message);
+                }
+                input.value = '';
+                input.classList.add('is-invalid');
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+    });
+});
