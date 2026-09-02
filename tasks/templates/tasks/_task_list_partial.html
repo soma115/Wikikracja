@@ -3,7 +3,7 @@
 {# ══ MOJE ══ #}
 {% if current_tab == 'mine' %}
   {% if my_tasks_own %}
-    <div class="tasks-section-label"><i class="fas fa-user"></i> {% trans 'My tasks' %}</div>
+    <div class="tasks-section-label"><i class="fas fa-user"></i> {% trans 'My activities' %}</div>
     {% for task in my_tasks_own %}{% include 'tasks/_task_card.html' %}{% endfor %}
   {% endif %}
   {% if my_tasks_supporting %}

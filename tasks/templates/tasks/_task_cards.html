@@ -55,7 +55,7 @@
             <form method="post" action="{% url 'tasks:take' task.pk %}">
               {% csrf_token %}
               <input type="hidden" name="next" value="{{ request.get_full_path }}">
-              <button class="btn btn-sm btn-info text-white" type="submit">{% trans "Take task" %}</button>
+              <button class="btn btn-sm btn-info text-white" type="submit">{% trans "Take activity" %}</button>
             </form>
           {% endif %}
         {% endif %}

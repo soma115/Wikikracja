@@ -55,7 +55,7 @@ class Uzytkownik(models.Model):
     phone = models.CharField(null=True, blank=True, max_length=72, help_text=_('Preferred communicator or phone number'), verbose_name=_('Phone number'))
     city = models.CharField(null=True, blank=True, max_length=72, help_text=_('Where one spend most of their time'), verbose_name=_('City'))
     voivodeship = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True, blank=True, related_name='citizens', verbose_name=_('Voivodeship'))
-    responsibilities = models.CharField(null=True, blank=True, max_length=622, help_text=_('Tasks performed in our group'), verbose_name=_('Responsibilities'))
+    responsibilities = models.CharField(null=True, blank=True, max_length=622, help_text=_('Activities performed in our group'), verbose_name=_('Responsibilities'))
     skills_knowledge_hobby = models.CharField(null=True, blank=True, max_length=1866, help_text=_('Skills, knowledge, and hobbies'), verbose_name=_('Skills / Knowledge / Hobby'))
     to_give_away = models.CharField(null=True, blank=True, max_length=622, help_text=_('Things you are willing to give away for free'), verbose_name=_('To give away'))
     to_borrow = models.CharField(null=True, blank=True, max_length=622, help_text=_('Stuff you can borrow to others'), verbose_name=_('To borrow'))

@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 User = get_user_model()
 
@@ -10,7 +11,7 @@ class FeedItem(models.Model):
 
     class ContentType(models.TextChoices):
         POST = 'post', _('Post')
-        TASK = 'task', _('Task')
+        TASK = 'task', pgettext_lazy('task', 'Activity')
         EVENT = 'event', _('Event')
         MESSAGE = 'message', _('Message')
         DECISION = 'decision', _('Decision')
@@ -38,7 +39,7 @@ class ReadStatus(models.Model):
 
     class ContentType(models.TextChoices):
         POST = 'post', _('Post')
-        TASK = 'task', _('Task')
+        TASK = 'task', pgettext_lazy('task', 'Activity')
         EVENT = 'event', _('Event')
         MESSAGE = 'message', _('Message')
         DECISION = 'decision', _('Decision')

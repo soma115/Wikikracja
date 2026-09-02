@@ -1,5 +1,6 @@
 from django import template
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from home.colors import category_color
 
@@ -19,7 +20,7 @@ def content_type_label(content_type):
     """Return translated label for content type"""
     label_map = {
         'post': _('Dokumenty'),
-        'task': _('Task'),
+        'task': pgettext_lazy('task', 'Activity'),
         'event': _('Kalendarz'),
         'message': _('Message'),
         'room_messages': _('Chat'),  # New content type for grouped room messages

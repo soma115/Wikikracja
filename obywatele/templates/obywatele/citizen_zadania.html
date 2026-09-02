@@ -13,9 +13,9 @@
     <div class="card-header">
       <span class="section-heading">
         {% if is_own %}
-          {% trans "My tasks" %}
+          {% trans "My activities" %}
         {% else %}
-          {% blocktrans with name=target_user.username %}Tasks of {{ name }}{% endblocktrans %}
+          {% blocktrans with name=target_user.username %}Activities of {{ name }}{% endblocktrans %}
         {% endif %}
       </span>
     </div>
@@ -64,7 +64,7 @@
           </table>
         </div>
       {% else %}
-        <p class="text-muted p-3 mb-0">{% trans "No tasks found." %}</p>
+        <p class="text-muted p-3 mb-0">{% trans "No activities found." %}</p>
       {% endif %}
     </div>
   </div>

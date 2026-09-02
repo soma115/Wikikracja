@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-02 22:19+0200\n"
+"POT-Creation-Date: 2026-09-02 22:43+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -118,7 +118,7 @@ msgstr ""
 "opcję podczas głosowania."
 
 #: .\ankiety\models.py:20 .\ankiety\models.py:35 .\ankiety\models.py:49
-#: .\home\models.py:18 .\home\models.py:46
+#: .\home\models.py:19 .\home\models.py:47
 msgid "Survey"
 msgstr "Ankieta"
 
@@ -162,7 +162,7 @@ msgstr "Głos w ankiecie"
 msgid "Survey votes"
 msgstr "Głosy w ankiecie"
 
-#: .\ankiety\search.py:18 .\home\templatetags\feed_filters.py:30
+#: .\ankiety\search.py:18 .\home\templatetags\feed_filters.py:31
 #: .\home\views.py:73
 msgid "Ankiety"
 msgstr "Ankiety"
@@ -488,8 +488,8 @@ msgstr "Alias linku"
 msgid "System posts cannot be deleted."
 msgstr "Dokumenty systemowe nie mogą być usunięte"
 
-#: .\board\models.py:48 .\board\search.py:17 .\home\models.py:12
-#: .\home\models.py:40
+#: .\board\models.py:48 .\board\search.py:17 .\home\models.py:13
+#: .\home\models.py:41
 msgid "Post"
 msgstr "Dokument"
 
@@ -1227,7 +1227,7 @@ msgstr "Pokój: %(room)s"
 #: .\home\services\dashboard.py:35 .\home\templates\home\base.html:172
 #: .\home\templates\home\base.html:175 .\home\templates\home\base.html:249
 #: .\home\templates\home\home.html:419 .\home\templates\home\home.html:497
-#: .\home\templatetags\feed_filters.py:25 .\home\views.py:76
+#: .\home\templatetags\feed_filters.py:26 .\home\views.py:76
 #: .\home\views.py:197 .\obywatele\views.py:510 .\obywatele\views.py:517
 #: .\tasks\templates\tasks\_task_card.html:41
 #: .\tasks\templates\tasks\task_detail.html:19
@@ -1252,8 +1252,8 @@ msgstr "Pokój Inbox nie może być zmieniony."
 msgid "Name and surname"
 msgstr "Imię i nazwisko"
 
-#: .\chat\forms.py:32 .\home\models.py:15 .\home\models.py:43
-#: .\home\templatetags\feed_filters.py:24
+#: .\chat\forms.py:32 .\home\models.py:16 .\home\models.py:44
+#: .\home\templatetags\feed_filters.py:25
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:8
 msgid "Message"
 msgstr "Wiadomość"
@@ -1297,8 +1297,8 @@ msgstr "Głosowania"
 #: .\home\templates\home\base.html:139 .\home\templates\home\base.html:243
 #: .\home\views.py:71 .\home\views.py:197
 #: .\obywatele\templates\obywatele\szczegoly.html:204
-msgid "Tasks"
-msgstr "Zadania"
+msgid "Activities"
+msgstr "Działania"
 
 #: .\chat\management\commands\chat_messages.py:62
 #, fuzzy
@@ -1440,12 +1440,19 @@ msgstr ""
 "%(archive_days)s dni. Po %(delete_days)s dniach są usuwane."
 
 #: .\chat\templates\chat\chat.html:232
+#, fuzzy
+#| msgid ""
+#| "Activity rooms are created for specific activities and projects. They "
+#| "areprotected from automatic deletion and are used for collaborative "
+#| "workdiscussions."
 msgid ""
-"Task rooms are created for specific tasks and projects. They are protected "
-"from automatic deletion and are used for collaborative work discussions."
+"Activity rooms are created for specific activities and projects. They are "
+"protected from automatic deletion and are used for collaborative work "
+"discussions."
 msgstr ""
-"Pokoje zadań są tworzone dla konkretnych zadań i projektów. Są one chronione "
-"przed automatycznym usunięciem i służą do dyskusji nad pracą zespołową."
+"Pokoje działań są tworzone dla konkretnych działań i projektów. Są "
+"onechronione przed automatycznym usunięciem i służą do dyskusji nad "
+"pracązespołową."
 
 #: .\chat\templates\chat\chat.html:236
 msgid ""
@@ -1873,8 +1880,8 @@ msgstr ""
 "Wydarzenia publiczne są widoczne dla wszystkich. Wydarzenia prywatne są "
 "widoczne tylko dla zalogowanych użytkowników."
 
-#: .\events\models.py:37 .\events\search.py:18 .\home\models.py:14
-#: .\home\models.py:42 .\home\views.py:197
+#: .\events\models.py:37 .\events\search.py:18 .\home\models.py:15
+#: .\home\models.py:43 .\home\views.py:197
 msgid "Event"
 msgstr "Wydarzenie"
 
@@ -2284,8 +2291,8 @@ msgstr "Argument Przeciw"
 
 #: .\glosowania\models.py:145 .\glosowania\models.py:162
 #: .\glosowania\templates\glosowania\delete_argument.html:14
-#: .\glosowania\templates\glosowania\edit_argument.html:12 .\home\models.py:16
-#: .\home\models.py:44
+#: .\glosowania\templates\glosowania\edit_argument.html:12 .\home\models.py:17
+#: .\home\models.py:45
 msgid "Decision"
 msgstr "Referendum"
 
@@ -2826,13 +2833,14 @@ msgstr "Kompaktowy"
 msgid "Keep me signed in"
 msgstr "Nie wylogowuj mnie"
 
-#: .\home\models.py:13 .\home\models.py:41
-#: .\home\templatetags\feed_filters.py:22 .\obywatele\views.py:970
-#: .\tasks\search.py:17
-msgid "Task"
-msgstr "Zadanie"
+#: .\home\models.py:14 .\home\models.py:42
+#: .\home\templatetags\feed_filters.py:23 .\obywatele\views.py:970
+#: .\tasks\search.py:18
+msgctxt "task"
+msgid "Activity"
+msgstr "Działanie"
 
-#: .\home\models.py:17 .\home\models.py:45
+#: .\home\models.py:18 .\home\models.py:46
 msgid "Citizen Activity"
 msgstr "Aktywność obywatela"
 
@@ -2877,12 +2885,16 @@ msgstr ""
 "bieżąco ze spotkaniami, terminami i aktywnościami."
 
 #: .\home\services\dashboard.py:28
+#, fuzzy
+#| msgid ""
+#| "Activity management — create, assign and track activities within "
+#| "thecommunity. See who is responsible for what."
 msgid ""
-"Task management — create, assign and track tasks within the community. See "
-"who is responsible for what."
+"Activity management — create, assign and track activities within the "
+"community. See who is responsible for what."
 msgstr ""
-"Zarządzanie zadaniami — twórz, przypisuj i śledź zadania w społeczności. "
-"Zobacz kto za co odpowiada."
+"Zarządzanie działaniami — twórz, przypisuj i śledź działania w "
+"społeczności.Zobacz kto za co odpowiada."
 
 #: .\home\services\dashboard.py:30
 msgid "Bookkeeping"
@@ -2982,7 +2994,7 @@ msgstr "Ustawienia"
 msgid "Log out"
 msgstr "Wyloguj"
 
-#: .\home\templates\home\base.html:207 .\home\templatetags\feed_filters.py:27
+#: .\home\templates\home\base.html:207 .\home\templatetags\feed_filters.py:28
 #: .\obywatele\models.py:102 .\obywatele\search.py:16
 msgid "Citizen"
 msgstr "Ludzie"
@@ -3176,20 +3188,20 @@ msgstr "Brak aktywnych głosowań"
 #: .\home\templates\home\home.html:285
 #: .\obywatele\templates\obywatele\citizen_zadania.html:16
 #: .\tasks\templates\tasks\_task_list_partial.html:6
-msgid "My tasks"
-msgstr "Moje zadania"
+msgid "My activities"
+msgstr "Moje działania"
 
 #: .\home\templates\home\home.html:298
-msgid "All my tasks"
-msgstr "Wszystkie moje zadania"
+msgid "All my activities"
+msgstr "Wszystkie moje działania"
 
 #: .\home\templates\home\home.html:302
-msgid "You have no assigned tasks"
-msgstr "Nie masz przypisanych zadań"
+msgid "You have no assigned activities"
+msgstr "Nie masz przypisanych działań"
 
 #: .\home\templates\home\home.html:303
-msgid "See group tasks"
-msgstr "Zobacz zadania grupy"
+msgid "See group activities"
+msgstr "Zobacz działania grupy"
 
 #: .\home\templates\home\home.html:317 .\home\templates\home\home.html:319
 msgid "New people"
@@ -3419,23 +3431,23 @@ msgstr ""
 "Nigdy dotąd nie zdarzyło się, aby referendum musiało zostać przeprowadzone "
 "ponownie z powodu awarii pamięci zapisu głosów."
 
-#: .\home\templatetags\feed_filters.py:21
+#: .\home\templatetags\feed_filters.py:22
 msgid "Dokumenty"
 msgstr "Dokumenty"
 
-#: .\home\templatetags\feed_filters.py:23
+#: .\home\templatetags\feed_filters.py:24
 msgid "Kalendarz"
 msgstr "Kalendarz"
 
-#: .\home\templatetags\feed_filters.py:26
+#: .\home\templatetags\feed_filters.py:27
 msgid "Głosowania"
 msgstr "Głosowania"
 
-#: .\home\templatetags\feed_filters.py:28
+#: .\home\templatetags\feed_filters.py:29
 msgid "Membership"
 msgstr "Członkostwo"
 
-#: .\home\templatetags\feed_filters.py:29
+#: .\home\templatetags\feed_filters.py:30
 msgid "Transaction"
 msgstr "Transakcja"
 
@@ -3617,8 +3629,8 @@ msgid "Where one spend most of their time"
 msgstr "Gdzie spędzasz większość czasu"
 
 #: .\obywatele\models.py:58
-msgid "Tasks performed in our group"
-msgstr "Zadania wykonywane w naszej grupie"
+msgid "Activities performed in our group"
+msgstr "Działania wykonywane w naszej grupie"
 
 #: .\obywatele\models.py:58 .\obywatele\templates\obywatele\my_profile.html:126
 #: .\obywatele\templates\obywatele\szczegoly.html:153 .\obywatele\views.py:495
@@ -3900,8 +3912,8 @@ msgstr "Wykonawca"
 
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:44
 #: .\obywatele\templates\obywatele\citizen_zadania.html:67
-msgid "No tasks found."
-msgstr "Brak wpisów."
+msgid "No activities found."
+msgstr "Brak działań."
 
 #: .\obywatele\templates\obywatele\_citizen_zalozono_partial.html:32
 msgid "Nothing created yet."
@@ -3966,8 +3978,8 @@ msgstr "chroniony"
 
 #: .\obywatele\templates\obywatele\citizen_zadania.html:18
 #, python-format
-msgid "Tasks of %(name)s"
-msgstr "Zadania %(name)s"
+msgid "Activities of %(name)s"
+msgstr "Działania %(name)s"
 
 #: .\obywatele\templates\obywatele\citizen_zalozono.html:16
 msgid "My founded items"
@@ -4455,20 +4467,20 @@ msgstr ""
 "Wypełnij proszę swój formularz rejestracyjny tutaj: %(link)s"
 
 #: .\obywatele\views.py:933
-msgid "Created task"
-msgstr "Utworzone zadanie"
+msgid "Created activity"
+msgstr "Utworzone działanie"
 
 #: .\obywatele\views.py:936
-msgid "Assigned task"
-msgstr "Przydzielone zadanie"
+msgid "Assigned activity"
+msgstr "Przydzielone działanie"
 
 #: .\obywatele\views.py:939
-msgid "Voted on task"
-msgstr "Zagłosowano na zadanie"
+msgid "Voted on activity"
+msgstr "Zagłosowano na działanie"
 
 #: .\obywatele\views.py:942
-msgid "Evaluated task"
-msgstr "Oceniono zadanie"
+msgid "Evaluated activity"
+msgstr "Oceniono działanie"
 
 #: .\obywatele\views.py:945
 msgid "Added argument"
@@ -4700,8 +4712,8 @@ msgid "— no category —"
 msgstr "- brak kategorii -"
 
 #: .\tasks\forms.py:15
-msgid "Describe the task. Ctrl+B / Ctrl+I / Ctrl+U for formatting."
-msgstr "Opisz zadanie. Ctrl+B / Ctrl+I / Ctrl+U formatuje tekst."
+msgid "Describe the activity. Ctrl+B / Ctrl+I / Ctrl+U for formatting."
+msgstr "Opisz działanie. Ctrl+B / Ctrl+I / Ctrl+U formatuje tekst."
 
 #: .\tasks\forms.py:31
 msgid "Invalid closing status."
@@ -4732,20 +4744,20 @@ msgstr "Porażka"
 
 #: .\tasks\signals.py:30
 #, python-format
-msgid "Discussion room for task \"%(task_title)s\": %(task_url)s"
-msgstr "Pokój dyskusji do zadania \"%(task_title)s\": %(task_url)s"
+msgid "Discussion room for activity \"%(task_title)s\": %(task_url)s"
+msgstr "Pokój dyskusji do działania \"%(task_title)s\": %(task_url)s"
 
 #: .\tasks\templates\tasks\_empty_state.html:7
-msgid "No tasks in this category."
-msgstr "Brak zadań w tej kategorii."
+msgid "No activities in this category."
+msgstr "Brak działań w tej kategorii."
 
 #: .\tasks\templates\tasks\_empty_state.html:9
-msgid "No tasks in this section."
-msgstr "Brak zadań w tej sekcji."
+msgid "No activities in this section."
+msgstr "Brak działań w tej sekcji."
 
 #: .\tasks\templates\tasks\_empty_state.html:12
-msgid "Try changing the filter settings to see tasks if there are any."
-msgstr "Spróbuj zmienić ustawienia filtrów, żeby zobaczyć zadania, jeśli są."
+msgid "Try changing the filter settings to see activities if there are any."
+msgstr "Spróbuj zmienić ustawienia filtrów, żeby zobaczyć działania, jeśli są."
 
 #: .\tasks\templates\tasks\_task_card.html:21 .\tasks\views.py:107
 msgid "Critical"
@@ -4830,8 +4842,8 @@ msgstr "Kliknij, aby cofnąć głos"
 #: .\tasks\templates\tasks\_task_card.html:179
 #: .\tasks\templates\tasks\task_detail.html:75
 #: .\tasks\templates\tasks\task_detail.html:76
-msgid "Vote to help with this task. Click again to withdraw."
-msgstr "Zgłoś chęć pomocy przy zadaniu. Kliknij ponownie, aby cofnąć."
+msgid "Vote to help with this activity. Click again to withdraw."
+msgstr "Zgłoś chęć pomocy przy działaniu. Kliknij ponownie, aby cofnąć."
 
 #: .\tasks\templates\tasks\_task_card.html:196
 #: .\tasks\templates\tasks\_task_card.html:206
@@ -4845,12 +4857,12 @@ msgstr "Nie róbmy"
 #: .\tasks\templates\tasks\_task_card.html:202
 #: .\tasks\templates\tasks\task_detail.html:97
 #: .\tasks\templates\tasks\task_detail.html:98
-msgid "Vote against this task. At -2 votes the task is rejected."
-msgstr "Zagłosuj przeciw. Przy -2 głosach zadanie zostanie odrzucone."
+msgid "Vote against this activity. At -2 votes the activity is rejected."
+msgstr "Zagłosuj przeciw. Przy -2 głosach działanie zostanie odrzucone."
 
 #: .\tasks\templates\tasks\_task_card.html:218
-msgid "Step down from coordinating this task"
-msgstr "Zrezygnuj z koordynacji tego zadania"
+msgid "Step down from coordinating this activity"
+msgstr "Zrezygnuj z koordynacji tego działania"
 
 #: .\tasks\templates\tasks\_task_card.html:219
 #: .\tasks\templates\tasks\task_detail.html:128
@@ -4859,8 +4871,8 @@ msgstr "Zrezygnuj z koordynacji"
 
 #: .\tasks\templates\tasks\_task_card.html:227
 #: .\tasks\templates\tasks\task_detail.html:116
-msgid "Take responsibility for coordinating this task"
-msgstr "Przejmij koordynację tego zadania"
+msgid "Take responsibility for coordinating this activity"
+msgstr "Przejmij koordynację tego działania"
 
 #: .\tasks\templates\tasks\_task_card.html:228
 #: .\tasks\templates\tasks\task_detail.html:117
@@ -4872,8 +4884,8 @@ msgid "Resign"
 msgstr "Zrezygnuj"
 
 #: .\tasks\templates\tasks\_task_cards.html:58
-msgid "Take task"
-msgstr "Podejmij zadanie"
+msgid "Take activity"
+msgstr "Podejmij działanie"
 
 #: .\tasks\templates\tasks\_task_cards.html:65
 msgid "Owner"
@@ -4885,8 +4897,8 @@ msgstr "Wspieram"
 
 #: .\tasks\templates\tasks\menu.html:10
 #: .\tasks\templates\tasks\task_help.html:7
-msgid "How do tasks work?"
-msgstr "Jak działają zadania?"
+msgid "How do activities work?"
+msgstr "Jak działają działania?"
 
 #: .\tasks\templates\tasks\menu.html:16
 #: .\tasks\templates\tasks\task_help.html:11
@@ -4907,38 +4919,38 @@ msgid "Statistics"
 msgstr "Statystyki"
 
 #: .\tasks\templates\tasks\task_close.html:6
-msgid "Back to task"
-msgstr "Powrót do zadania"
+msgid "Back to activity"
+msgstr "Powrót do działania"
 
 #: .\tasks\templates\tasks\task_close.html:10
 #: .\tasks\templates\tasks\task_detail.html:143
-msgid "Close task"
-msgstr "Zamknij zadanie"
+msgid "Close activity"
+msgstr "Zamknij działanie"
 
 #: .\tasks\templates\tasks\task_close.html:11
-msgid "Choose final status for this task."
-msgstr "Wybierz końcowy status tego zadania."
+msgid "Choose final status for this activity."
+msgstr "Wybierz końcowy status tego działania."
 
 #: .\tasks\templates\tasks\task_close.html:20
 msgid "Confirm close"
 msgstr "Potwierdź zamknięcie"
 
 #: .\tasks\templates\tasks\task_detail.html:127
-msgid "Step down and release this task back to the waiting pool"
-msgstr "Zrezygnuj z koordynacji — zadanie wróci do puli oczekujących"
+msgid "Step down and release this activity back to the waiting pool"
+msgstr "Zrezygnuj z koordynacji — działanie wróci do puli oczekujących"
 
 #: .\tasks\templates\tasks\task_detail.html:135
 msgid "Edit title, description and category"
 msgstr "Edytuj tytuł, opis i kategorię"
 
 #: .\tasks\templates\tasks\task_detail.html:142
-msgid "Mark task as completed or cancelled"
-msgstr "Oznacz zadanie jako zakończone lub anulowane"
+msgid "Mark activity as completed or cancelled"
+msgstr "Oznacz działanie jako zakończone lub anulowane"
 
 #: .\tasks\templates\tasks\task_detail.html:153
 #: .\tasks\templates\tasks\task_detail.html:234
-msgid "Delete task"
-msgstr "Skasuj Zadanie"
+msgid "Delete activity"
+msgstr "Skasuj działanie"
 
 #: .\tasks\templates\tasks\task_detail.html:162
 msgid "Willing to help"
@@ -4949,104 +4961,135 @@ msgid "No one wants to help at the moment"
 msgstr "Nikt nie chce pomóc w tym momencie"
 
 #: .\tasks\templates\tasks\task_detail.html:179
-msgid "Against this task"
-msgstr "Przeciw temu zadaniu"
+msgid "Against this activity"
+msgstr "Przeciw temu działaniu"
 
 #: .\tasks\templates\tasks\task_detail.html:188
 msgid "No one is against at the moment"
 msgstr "Nikt nie jest przeciw w tym momencie"
 
 #: .\tasks\templates\tasks\task_detail.html:200
-msgid "Reopen task"
-msgstr "Otwórz ponownie zadanie"
+msgid "Reopen activity"
+msgstr "Otwórz ponownie działanie"
 
 #: .\tasks\templates\tasks\task_detail.html:206
 #, python-format
-msgid "Was it good that this task was %(status)s?"
-msgstr "Czy dobrze się stało, że to zadanie zostało %(status)s?"
+msgid "Was it good that this activity was %(status)s?"
+msgstr "Czy dobrze się stało, że to działanie zostało %(status)s?"
 
 #: .\tasks\templates\tasks\task_detail.html:239
 msgid ""
-"Are you sure you want to delete this task? This action cannot be undone."
+"Are you sure you want to delete this activity? This action cannot be undone."
 msgstr ""
-"Czy na pewno chcesz skasować to zadanie? To działanie nie może być odwrócone."
+"Czy na pewno chcesz skasować to działanie? To działanie nie może "
+"byćodwrócone."
 
 #: .\tasks\templates\tasks\task_detail.html:245
 msgid "Yes, delete"
 msgstr "Tak, skasuj"
 
 #: .\tasks\templates\tasks\task_form.html:11
-msgid "Edit task"
-msgstr "Edytuj zadanie"
+msgid "Edit activity"
+msgstr "Edytuj działanie"
 
 #: .\tasks\templates\tasks\task_form.html:13
-msgid "Add new task"
-msgstr "Dodaj nowe zadanie"
+msgid "Add new activity"
+msgstr "Dodaj nowe działanie"
 
 #: .\tasks\templates\tasks\task_help.html:13
+#, fuzzy
+#| msgid ""
+#| "The tab collects activities that directly concern you: activities that "
+#| "youhave undertaken (you are the owner) and activities in which you have "
+#| "declaredyour help (you have clicked \"I want to help\")."
 msgid ""
-"The tab collects tasks that directly concern you: tasks that you have "
-"undertaken (you are the owner) and tasks in which you have declared your "
-"help (you have clicked \"I want to help\")."
+"The tab collects activities that directly concern you: activities that you "
+"have undertaken (you are the owner) and activities in which you have "
+"declared your help (you have clicked \"I want to help\")."
 msgstr ""
-"Zakładka zbiera zadania, które Cię bezpośrednio dotyczą: zadania które "
-"podjąłeś (jesteś właścicielem) oraz zadania, w których zadeklarowałeś pomoc "
-"(kliknąłeś „Chcę pomóc\")."
+"Zakładka zbiera działania, które Cię bezpośrednio dotyczą: działania "
+"którepodjąłeś (jesteś właścicielem) oraz działania, w których zadeklarowałeś "
+"pomoc(kliknąłeś „Chcę pomóc\")."
 
 #: .\tasks\templates\tasks\task_help.html:20
 msgid "Pending"
 msgstr "Oczekujące"
 
 #: .\tasks\templates\tasks\task_help.html:22
+#, fuzzy
+#| msgid ""
+#| "Activities that do not yet have an owner or have an owner but have "
+#| "notgathered enough support (the difference in votes \"I want to help\" "
+#| "minus\"we are not doing this\" is less than 2). Anyone can take such an "
+#| "activityusing the \"Take\" button."
 msgid ""
-"Active tasks that do not yet have an owner or have an owner but have not "
+"Activities that do not yet have an owner or have an owner but have not "
 "gathered enough support (the difference in votes \"I want to help\" minus "
-"\"we are not doing this\" is less than 2). Anyone can take such a task using "
-"the \"Take\" button."
+"\"we are not doing this\" is less than 2). Anyone can take such an activity "
+"using the \"Take\" button."
 msgstr ""
-"Zadania aktywne, które jeszcze nie mają właściciela lub mają właściciela, "
-"ale nie zebrały wystarczającego poparcia (różnica głosów „chcę pomóc\" minus "
-"„nie robimy tego\" wynosi mniej niż 2). Każdy może podjąć takie zadanie "
-"przyciskiem „Podejmij\"."
+"Działania, które jeszcze nie mają właściciela lub mają właściciela,ale nie "
+"zebrały wystarczającego poparcia (różnica głosów „chcę pomóc\" minus„nie "
+"robimy tego\" wynosi mniej niż 2). Każdy może podjąć takie "
+"działanieprzyciskiem „Podejmij\"."
 
 #: .\tasks\templates\tasks\task_help.html:31
+#, fuzzy
+#| msgid ""
+#| "Activities that have an owner and have collected at least 2 net "
+#| "declarationsof help (votes \"I want to help\" minus votes against ≥ 2). "
+#| "The owner canresign - the activity then returns to the waiting list. "
+#| "Votes ≤ −2automatically reject the activity."
 msgid ""
-"Tasks that have an owner and have collected at least 2 net declarations of "
-"help (votes \"I want to help\" minus votes against ≥ 2). The owner can "
-"resign - the task then returns to the waiting list. Votes ≤ −2 automatically "
-"reject the task."
+"Activities that have an owner and have collected at least 2 net declarations "
+"of help (votes \"I want to help\" minus votes against ≥ 2). The owner can "
+"resign - the activity then returns to the waiting list. Votes ≤ −2 "
+"automatically reject the activity."
 msgstr ""
-"Zadania, które mają właściciela i zebrały co najmniej 2 netto deklaracji "
-"pomocy (głosy „chcę pomóc\" minus głosy przeciw ≥ 2). Właściciel może "
-"zrezygnować — zadanie wraca wtedy do oczekujących. Głosy ≤ −2 automatycznie "
-"odrzucają zadanie."
+"Działania, które mają właściciela i zebrały co najmniej 2 netto "
+"deklaracjipomocy (głosy „chcę pomóc\" minus głosy przeciw ≥ 2). Właściciel "
+"możezrezygnować — działanie wraca wtedy do oczekujących. Głosy ≤ −2 "
+"automatycznieodrzucają działanie."
 
 #: .\tasks\templates\tasks\task_help.html:40
+#, fuzzy
+#| msgid ""
+#| "Activities closed by the owner (completed or canceled) and "
+#| "activitiesrejected by the community (total votes ≤ −2). A completed "
+#| "activity can bereopened."
 msgid ""
-"Tasks closed by the owner (completed or canceled) and tasks rejected by the "
-"community (total votes ≤ −2). A completed task can be reopened."
+"Activities closed by the owner (completed or canceled) and activities "
+"rejected by the community (total votes ≤ −2). A completed activity can be "
+"reopened."
 msgstr ""
-"Zadania zamknięte przez właściciela (ukończone lub anulowane) oraz zadania "
-"odrzucone przez społeczność (suma głosów ≤ −2). Zakończone zadanie można "
-"ponownie otworzyć."
+"Działania zamknięte przez właściciela (ukończone lub anulowane) "
+"orazdziałania odrzucone przez społeczność (suma głosów ≤ −2). "
+"Zakończonedziałanie można ponownie otworzyć."
 
 #: .\tasks\templates\tasks\task_help.html:47
 msgid "Declaration of aid"
 msgstr "Deklaracja pomocy"
 
 #: .\tasks\templates\tasks\task_help.html:49
+#, fuzzy
+#| msgid ""
+#| "The \"I want to help\" button is a declaration of commitment - not a "
+#| "like.The number of people who clicked it is visible on the activity "
+#| "tile.Sufficient support (≥ 2 net) is a condition for the activity to "
+#| "beimplemented."
 msgid ""
 "The \"I want to help\" button is a declaration of commitment - not a like. "
-"The number of people who clicked it is visible on the task tile. Sufficient "
-"support (≥ 2 net) is a condition for the task to be implemented."
+"The number of people who clicked it is visible on the activity tile. "
+"Sufficient support (≥ 2 net) is a condition for the activity to be "
+"implemented."
 msgstr ""
-"Przycisk „Chcę pomóc\" to deklaracja zaangażowania — nie lajk. Liczba osób "
-"które go kliknęły widoczna jest na kafelku zadania. Wystarczające poparcie "
-"(≥ 2 netto) jest warunkiem przejścia zadania do realizacji."
+"Przycisk „Chcę pomóc\" to deklaracja zaangażowania — nie lajk. Liczba "
+"osóbktóre go kliknęły widoczna jest na kafelku działania. Wystarczające "
+"poparcie(≥ 2 netto) jest warunkiem przejścia działania do realizacji."
 
 #: .\tasks\templates\tasks\task_list.html:11
-msgid "Add task"
-msgstr "Dodaj zadanie"
+msgid "Add activity"
+msgstr "Dodaj działanie"
 
 #: .\tasks\templates\tasks\task_list.html:50
 msgid "No one helps yet"
@@ -5071,21 +5114,24 @@ msgid "Could not load opponents"
 msgstr "Nie udało się załadować listy"
 
 #: .\tasks\templates\tasks\task_list.html:72
-msgid "tasks"
-msgstr "zadania"
+msgid "activities"
+msgstr "działania"
 
 #: .\tasks\templates\tasks\task_list.html:74
-#, python-brace-format
+#, fuzzy, python-brace-format
+#| msgid ""
+#| "This category has {n} activity(ies). Deleting it will leave those "
+#| "activitieswithout a category. Continue?"
 msgid ""
-"This category has {n} task(s). Deleting it will leave those tasks without a "
-"category. Continue?"
+"This category has {n} activity(ies). Deleting it will leave those activities "
+"without a category. Continue?"
 msgstr ""
-"Ta kategoria ma {n} zadanie/zadań. Usunięcie jej pozostawi te zadania bez "
-"kategorii. Kontynuować?"
+"Ta kategoria ma {n} działanie/działań. Usunięcie jej pozostawi te "
+"działaniabez kategorii. Kontynuować?"
 
 #: .\tasks\templates\tasks\task_stats.html:7
-msgid "Task Statistics"
-msgstr "Statystyki zadań"
+msgid "Activity Statistics"
+msgstr "Statystyki działań"
 
 #: .\tasks\templates\tasks\task_stats.html:13
 msgid "Total Completed"
@@ -5100,24 +5146,24 @@ msgid "Mixed Evaluations"
 msgstr "Mieszane oceny"
 
 #: .\tasks\templates\tasks\task_stats.html:49
-msgid "tasks with equal success and failure votes"
-msgstr "zadania z równą liczbą głosów sukcesu i porażki"
+msgid "activities with equal success and failure votes"
+msgstr "działania z równą liczbą głosów sukcesu i porażki"
 
 #: .\tasks\templates\tasks\task_stats.html:56
 msgid "No Evaluations"
 msgstr "Brak ocen"
 
 #: .\tasks\templates\tasks\task_stats.html:57
-msgid "tasks without any evaluations"
-msgstr "zadania bez żadnych ocen"
+msgid "activities without any evaluations"
+msgstr "działania bez żadnych ocen"
 
 #: .\tasks\templates\tasks\task_stats.html:64
 msgid "Completed Last Week"
 msgstr "Zakończone w ostatnim tygodniu"
 
 #: .\tasks\templates\tasks\task_stats.html:65
-msgid "tasks completed in the last 7 days"
-msgstr "zadania zakończone w ciągu ostatnich 7 dni"
+msgid "activities completed in the last 7 days"
+msgstr "działania zakończone w ciągu ostatnich 7 dni"
 
 #: .\tasks\views.py:211
 msgid "Score"
@@ -5498,8 +5544,8 @@ msgid "starting now"
 msgstr "zaczyna się teraz"
 
 #: .\zzz\notifications.py:500
-msgid "New task created"
-msgstr ""
+msgid "New activity created"
+msgstr "Utworzono nowe działanie"
 
 #: .\zzz\notifications.py:511
 msgid "Important post published"
@@ -5524,18 +5570,3 @@ msgstr "Angielski"
 #: .\zzz\settings.py:106
 msgid "Polish"
 msgstr "Polski"
-
-#~ msgid "## Public rooms"
-#~ msgstr "## Pokoje publiczne"
-
-#~ msgid "## Tasks"
-#~ msgstr "## Zadania"
-
-#~ msgid "## Votings"
-#~ msgstr "## Głosowania"
-
-#~ msgid "Icon (e.g. fa-book)"
-#~ msgstr "Ikona (np. fa-book)"
-
-#~ msgid "Icon (FontAwesome class)"
-#~ msgstr "Ikona (klasa FontAwesome)"

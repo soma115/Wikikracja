@@ -3,12 +3,12 @@
 
 {% block content %}
 <div class="container my-4">
-  <a href="{% url 'tasks:detail' form.instance.pk %}" class="btn btn-link px-0 mb-3">&larr; {% trans "Back to task" %}</a>
+  <a href="{% url 'tasks:detail' form.instance.pk %}" class="btn btn-link px-0 mb-3">&larr; {% trans "Back to activity" %}</a>
 
   <div class="card">
     <div class="card-body">
-      <h1 class="h4 mb-3">{% trans "Close task" %}: {{ form.instance.title }}</h1>
-      <p class="text-muted mb-4">{% trans "Choose final status for this task." %}</p>
+      <h1 class="h4 mb-3">{% trans "Close activity" %}: {{ form.instance.title }}</h1>
+      <p class="text-muted mb-4">{% trans "Choose final status for this activity." %}</p>
 
       <form method="post">
         {% csrf_token %}

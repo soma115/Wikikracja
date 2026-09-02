@@ -22,7 +22,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.translation import check_for_language
+from django.utils.translation import check_for_language, pgettext_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 from django_filters.views import FilterView
@@ -930,16 +930,16 @@ def citizen_aktywnosc(request: HttpRequest, pk: int):
     items = []
 
     for t in Task.objects.filter(created_by=target_user).order_by('-created_at'):
-        items.append({'type': 'task_created', 'title': t.title, 'ts': t.created_at, 'label': _('Created task'), 'url': reverse('tasks:detail', kwargs={'pk': t.pk})})
+        items.append({'type': 'task_created', 'title': t.title, 'ts': t.created_at, 'label': _('Created activity'), 'url': reverse('tasks:detail', kwargs={'pk': t.pk})})
 
     for t in Task.objects.filter(assigned_to=target_user).order_by('-updated_at'):
-        items.append({'type': 'task_assigned', 'title': t.title, 'ts': t.updated_at, 'label': _('Assigned task'), 'url': reverse('tasks:detail', kwargs={'pk': t.pk})})
+        items.append({'type': 'task_assigned', 'title': t.title, 'ts': t.updated_at, 'label': _('Assigned activity'), 'url': reverse('tasks:detail', kwargs={'pk': t.pk})})
 
     for tv in TaskVote.objects.filter(user=target_user).select_related('task').order_by('-updated_at'):
-        items.append({'type': 'task_vote', 'title': tv.task.title, 'ts': tv.updated_at, 'label': _('Voted on task'), 'url': reverse('tasks:detail', kwargs={'pk': tv.task_id})})
+        items.append({'type': 'task_vote', 'title': tv.task.title, 'ts': tv.updated_at, 'label': _('Voted on activity'), 'url': reverse('tasks:detail', kwargs={'pk': tv.task_id})})
 
     for te in TaskEvaluation.objects.filter(user=target_user).select_related('task').order_by('-updated_at'):
-        items.append({'type': 'task_eval', 'title': te.task.title, 'ts': te.updated_at, 'label': _('Evaluated task'), 'url': reverse('tasks:detail', kwargs={'pk': te.task_id})})
+        items.append({'type': 'task_eval', 'title': te.task.title, 'ts': te.updated_at, 'label': _('Evaluated activity'), 'url': reverse('tasks:detail', kwargs={'pk': te.task_id})})
 
     for arg in Argument.objects.filter(author=target_user).select_related('decyzja').order_by('-created_at'):
         items.append({'type': 'argument', 'title': arg.decyzja.title, 'ts': arg.created_at, 'label': _('Added argument'), 'url': reverse('glosowania:details', kwargs={'pk': arg.decyzja_id})})
@@ -967,7 +967,7 @@ def citizen_zalozono(request: HttpRequest, pk: int):
     items = []
 
     for t in Task.objects.filter(created_by=target_user).order_by('-created_at'):
-        items.append({'title': t.title, 'ts': t.created_at, 'label': _('Task'), 'url': reverse('tasks:detail', kwargs={'pk': t.pk})})
+        items.append({'title': t.title, 'ts': t.created_at, 'label': pgettext_lazy('task', 'Activity'), 'url': reverse('tasks:detail', kwargs={'pk': t.pk})})
 
     for d in Decyzja.objects.filter(author=target_user).order_by('-data_powstania'):
         items.append(

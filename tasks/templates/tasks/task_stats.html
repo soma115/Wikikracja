@@ -4,7 +4,7 @@
 {% block tasks %}
 
 <div class="container mt-4">
-  <h2>{% trans 'Task Statistics' %}</h2>
+  <h2>{% trans 'Activity Statistics' %}</h2>
 
   <div class="row mt-4">
     <div class="col-md-3">
@@ -46,7 +46,7 @@
       <div class="card h-100">
         <div class="card-body">
           <h5 class="card-title">{% trans 'Mixed Evaluations' %}</h5>
-          <p class="card-text">{{ mixed_count }} {% trans 'tasks with equal success and failure votes' %}</p>
+          <p class="card-text">{{ mixed_count }} {% trans 'activities with equal success and failure votes' %}</p>
         </div>
       </div>
     </div>
@@ -54,7 +54,7 @@
       <div class="card h-100">
         <div class="card-body">
           <h5 class="card-title">{% trans 'No Evaluations' %}</h5>
-          <p class="card-text">{{ no_eval_count }} {% trans 'tasks without any evaluations' %}</p>
+          <p class="card-text">{{ no_eval_count }} {% trans 'activities without any evaluations' %}</p>
         </div>
       </div>
     </div>
@@ -62,7 +62,7 @@
       <div class="card h-100">
         <div class="card-body">
           <h5 class="card-title">{% trans 'Completed Last Week' %}</h5>
-          <p class="card-text">{{ completed_last_week }} {% trans 'tasks completed in the last 7 days' %}</p>
+          <p class="card-text">{{ completed_last_week }} {% trans 'activities completed in the last 7 days' %}</p>
         </div>
       </div>
     </div>

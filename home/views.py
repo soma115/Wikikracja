@@ -68,7 +68,7 @@ def activity_page(request):
     content_types = [
         ('', _('All')),
         ('post', _('Documents')),
-        ('task', _('Tasks')),
+        ('task', _('Activities')),
         ('decision', _('Votings')),
         ('survey', _('Ankiety')),
         ('event', _('Calendar')),
@@ -194,7 +194,7 @@ def mark_unread(request):
 def global_search(request: HttpRequest):
     query = request.GET.get('q', '').strip()
 
-    search_categories = [('post', _('Documents')), ('task', _('Tasks')), ('decision', _('Votings')), ('survey', _('Surveys')), ('event', _('Event')), ('citizen', _('Citizens')), ('chat', _('Chat'))]
+    search_categories = [('post', _('Documents')), ('task', _('Activities')), ('decision', _('Votings')), ('survey', _('Surveys')), ('event', _('Event')), ('citizen', _('Citizens')), ('chat', _('Chat'))]
 
     # Multi-category selection.
     selected = [c for c in request.GET.getlist('cat') if c in ALL_SEARCH_CATS]

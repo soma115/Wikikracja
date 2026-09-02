@@ -25,7 +25,7 @@ DASHBOARD_MODULES = [
         'description': _('Documents and blog — create and publish content, including a public blog visible to visitors outside the community.'),
     },
     {'name': _('Calendar'), 'icon': 'fa-calendar-days', 'url': 'events:list', 'description': _('Upcoming community events — one-off and recurring. Stay informed about meetings, deadlines and activities.')},
-    {'name': _('Tasks'), 'icon': 'fa-list-check', 'url': 'tasks:list', 'description': _('Task management — create, assign and track tasks within the community. See who is responsible for what.')},
+    {'name': _('Activities'), 'icon': 'fa-list-check', 'url': 'tasks:list', 'description': _('Activity management — create, assign and track activities within the community. See who is responsible for what.')},
     {
         'name': _('Bookkeeping'),
         'icon': 'fa-coins',

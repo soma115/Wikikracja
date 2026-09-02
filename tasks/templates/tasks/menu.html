@@ -7,7 +7,7 @@
 <nav class="stepper-nav">
   {% with t=current_tab s=current_sort o=current_order cats=current_categories %}
 
-    <a href="{% url 'tasks:help' %}?sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="stepper-info-btn" title="{% trans 'How do tasks work?' %}">
+    <a href="{% url 'tasks:help' %}?sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="stepper-info-btn" title="{% trans 'How do activities work?' %}">
       <i class="fas fa-circle-info"></i>
     </a>
 

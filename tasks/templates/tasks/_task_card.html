@@ -174,9 +174,9 @@
                 data-icon-active="fa-check"
                 data-icon-inactive="fa-plus"
                 data-tooltip-active="{% trans 'Click to withdraw your vote' %}"
-                data-tooltip-inactive="{% trans 'Vote to help with this task. Click again to withdraw.' %}"
+                data-tooltip-inactive="{% trans 'Vote to help with this activity. Click again to withdraw.' %}"
                 data-bs-toggle="tooltip"
-                title="{% if task.user_vote_value == 1 %}{% trans 'Click to withdraw your vote' %}{% else %}{% trans 'Vote to help with this task. Click again to withdraw.' %}{% endif %}">
+                title="{% if task.user_vote_value == 1 %}{% trans 'Click to withdraw your vote' %}{% else %}{% trans 'Vote to help with this activity. Click again to withdraw.' %}{% endif %}">
           {% if task.user_vote_value == 1 %}
             <i class="fas fa-check"></i> {% trans 'Helping' %}
           {% else %}
@@ -197,9 +197,9 @@
                 data-icon-active="fa-check"
                 data-icon-inactive="fa-minus"
                 data-tooltip-active="{% trans 'Click to withdraw your vote' %}"
-                data-tooltip-inactive="{% trans 'Vote against this task. At -2 votes the task is rejected.' %}"
+                data-tooltip-inactive="{% trans 'Vote against this activity. At -2 votes the activity is rejected.' %}"
                 data-bs-toggle="tooltip"
-                title="{% if task.user_vote_value == -1 %}{% trans 'Click to withdraw your vote' %}{% else %}{% trans 'Vote against this task. At -2 votes the task is rejected.' %}{% endif %}">
+                title="{% if task.user_vote_value == -1 %}{% trans 'Click to withdraw your vote' %}{% else %}{% trans 'Vote against this activity. At -2 votes the activity is rejected.' %}{% endif %}">
           {% if task.user_vote_value == -1 %}
             <i class="fas fa-check"></i> {% trans 'Against' %}
           {% else %}
@@ -215,7 +215,7 @@
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
           <button type="submit" class="task-resign-btn" onclick="event.stopPropagation()"
                   data-bs-toggle="tooltip"
-                  title="{% trans 'Step down from coordinating this task' %}">
+                  title="{% trans 'Step down from coordinating this activity' %}">
             <i class="fas fa-xmark"></i> {% trans 'Resign as coordinator' %}
           </button>
         </form>
@@ -224,7 +224,7 @@
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
           <button type="submit" class="task-take-btn" onclick="event.stopPropagation()"
                   data-bs-toggle="tooltip"
-                  title="{% trans 'Take responsibility for coordinating this task' %}">
+                  title="{% trans 'Take responsibility for coordinating this activity' %}">
             <i class="fas fa-hand"></i> {% trans 'Become coordinator' %}
           </button>
         </form>

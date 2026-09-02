@@ -133,10 +133,10 @@
 
         <li class="nav-item">
           <a href="{% url 'tasks:list' %}"
-             title="{% trans 'Tasks' %}"
+             title="{% trans 'Activities' %}"
              class="{% if request.resolver_match.namespace == 'tasks' %}active{% endif %}">
             <i class="fas fa-fw fa-bolt nav-icon"></i>
-            <span class="nav-text">{% trans "Tasks" %}</span>
+            <span class="nav-text">{% trans "Activities" %}</span>
           </a>
         </li>
 
@@ -240,7 +240,7 @@
           {% if request.resolver_match.url_name == 'home' %}{% trans "Desktop" %}
           {% elif request.resolver_match.namespace == 'glosowania' %}{% trans "Votings" %}
           {% elif request.resolver_match.namespace == 'board' %}{% trans "Documents" %}
-          {% elif request.resolver_match.namespace == 'tasks' %}{% trans "Tasks" %}
+          {% elif request.resolver_match.namespace == 'tasks' %}{% trans "Activities" %}
           {% elif request.resolver_match.namespace == 'ankiety' %}{% trans "Surveys" %}
           {% elif request.resolver_match.namespace == 'events' %}{% trans "Calendar" %}
           {% elif request.resolver_match.namespace == 'obywatele' %}

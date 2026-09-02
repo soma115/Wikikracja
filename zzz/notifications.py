@@ -497,7 +497,7 @@ def on_event_starting(sender, event, body=None, **kwargs):
 @receiver(task_created)
 def on_task_created(sender, task, url, **kwargs):
     """Notify all active users about a newly created task."""
-    title = _('New task created')
+    title = _('New activity created')
     body = f'{task.title}\n{url}'
     _dispatch_notification(
         title, body, url, f'task-{task.id}', notification_type=None, ws_type='task.notification', email_subject=title, email_body=body, send_push=True, send_websocket=True, send_email=True, task_id=task.id

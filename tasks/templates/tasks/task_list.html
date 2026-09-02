@@ -8,7 +8,7 @@
 
 {# ── TOOLBAR ── #}
 {% url 'tasks:add' as cta_url %}
-{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add task') sort_items=toolbar_sort_items show_category_filter=1 categories=category_list views=toolbar_views %}
+{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add activity') sort_items=toolbar_sort_items show_category_filter=1 categories=category_list views=toolbar_views %}
 
 {# ── CONTENT ── #}
 <div id="tasks-list-container" class="proposals-list" data-view-container>
@@ -69,9 +69,9 @@ window.initCategoryManager('manageCategoriesModal', {
   cancel:       '{% trans "Cancel" %}',
   save:         '{% trans "Save" %}',
   delete:       '{% trans "Delete" %}',
-  items_suffix: '{% trans "tasks" %}',
+  items_suffix: '{% trans "activities" %}',
   protected:    '{% trans "Protected — cannot be deleted" %}',
-  confirm_del:  '{% trans "This category has {n} task(s). Deleting it will leave those tasks without a category. Continue?" %}',
+  confirm_del:  '{% trans "This category has {n} activity(ies). Deleting it will leave those activities without a category. Continue?" %}',
   name_req:     '{% trans "Category name is required." %}',
   load_error:   '{% trans "Failed to load categories." %}',
   error:        '{% trans "An error occurred." %}',

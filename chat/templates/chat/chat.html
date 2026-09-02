@@ -101,7 +101,7 @@
             <div class="nav-cat-header">
               <button class="nav-cat-btn" data-cat-content="cat-tasks" aria-expanded="true">
                 <span class="nav-cat-arrow">▼</span>
-                {% trans 'Tasks' %}
+                {% trans 'Activities' %}
               </button>
             </div>
             <div class="nav-cat-content open" id="cat-tasks">
@@ -228,8 +228,8 @@
             <p class="mb-0">{% blocktrans with archive_days=ARCHIVE_PUBLIC_CHAT_ROOM delete_days=DELETE_PUBLIC_CHAT_ROOM %}Public chat rooms are archived if they are not used for {{ archive_days }} days. After {{ delete_days }} days they are deleted.{% endblocktrans %}</p>
           </div>
           <div class="alert alert-success">
-            <h6><i class="fas fa-tasks me-2"></i>{% trans 'Tasks' %}</h6>
-            <p class="mb-0">{% trans 'Task rooms are created for specific tasks and projects. They are protected from automatic deletion and are used for collaborative work discussions.' %}</p>
+            <h6><i class="fas fa-tasks me-2"></i>{% trans 'Activities' %}</h6>
+            <p class="mb-0">{% trans 'Activity rooms are created for specific activities and projects. They are protected from automatic deletion and are used for collaborative work discussions.' %}</p>
           </div>
           <div class="alert alert-primary">
             <h6><i class="fas fa-vote-yea me-2"></i>{% trans 'Referendums' %}</h6>

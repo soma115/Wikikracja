@@ -12,7 +12,7 @@ class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
         fields = ["title", "description", "category"]
-        widgets = {"title": forms.TextInput(attrs={"class": "form-control"}), "description": RichTextWidget(placeholder=_("Describe the task. Ctrl+B / Ctrl+I / Ctrl+U for formatting."))}
+        widgets = {"title": forms.TextInput(attrs={"class": "form-control"}), "description": RichTextWidget(placeholder=_("Describe the activity. Ctrl+B / Ctrl+I / Ctrl+U for formatting."))}
 
 
 class TaskStatusForm(forms.ModelForm):

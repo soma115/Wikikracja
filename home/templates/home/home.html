@@ -282,7 +282,7 @@
       <div class="card-body d-flex flex-column gap-2">
         <div class="d-flex align-items-center gap-2 mb-1 tile-header">
           <i class="fas fa-bolt"></i>
-          <span class="section-heading tile-heading">{% trans "My tasks" %}</span>
+          <span class="section-heading tile-heading">{% trans "My activities" %}</span>
         </div>
         {% if my_tasks %}
         <ul class="list-unstyled mb-0 d-flex flex-column gap-1 flex-1">
@@ -295,12 +295,12 @@
           </li>
           {% endfor %}
         </ul>
-        <span class="card-footer-link">{% trans "All my tasks" %} →</span>
+        <span class="card-footer-link">{% trans "All my activities" %} →</span>
         <a id="dash-my-tasks" href="{% url 'tasks:list' %}?tab=mine" class="stretched-link"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
-          <p class="mb-0 text-center text-muted text-md">{% trans "You have no assigned tasks" %}</p>
-          <span class="text-sm text-accent">{% trans "See group tasks" %} →</span>
+          <p class="mb-0 text-center text-muted text-md">{% trans "You have no assigned activities" %}</p>
+          <span class="text-sm text-accent">{% trans "See group activities" %} →</span>
         </div>
         <a href="{% url 'tasks:list' %}" class="stretched-link"></a>
         {% endif %}

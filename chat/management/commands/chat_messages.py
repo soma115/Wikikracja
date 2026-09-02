@@ -59,7 +59,7 @@ class Command(TranslatedCommand):
 
             # Group rooms by source_app (falling back to public/private for legacy rooms)
             ROOM_GROUP_ORDER = ['glosowania', 'tasks', 'public', 'private']
-            ROOM_GROUP_LABELS = {'glosowania': _('Votings'), 'tasks': _('Tasks'), 'public': _('Public rooms'), 'private': _('Private rooms')}
+            ROOM_GROUP_LABELS = {'glosowania': _('Votings'), 'tasks': _('Activities'), 'public': _('Public rooms'), 'private': _('Private rooms')}
 
             def room_group(room):
                 return room.source_app or ('public' if room.public else 'private')
