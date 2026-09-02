@@ -199,15 +199,6 @@
       </ul>
     </div>
 
-    <!-- User card -->
-    <a href="{% url 'obywatele:obywatele_szczegoly' pk=user.pk %}" class="sidebar-user nav-link-clean">
-      {% include "home/_user_avatar.html" with avatar=user.uzytkownik.avatar username=user.username size="3xl" alt=user.username %}
-      <div class="user-info">
-        <span class="user-name">{{ user.username }}</span>
-        <span class="user-role">{% trans "Citizen" %}</span>
-      </div>
-    </a>
-
     <!-- Collapse toggle -->
     <button class="sidebar-toggle-btn d-none d-md-flex" id="sidebar-collapse-btn"
             title="{% trans 'Collapse/expand menu' %}">
@@ -283,6 +274,9 @@
         <i class="far fa-bell"></i>
         {% if unread_count %}<span class="notif-count">{{ unread_count }}</span>{% endif %}
       </a>
+
+      <!-- Current username for JS (hidden) -->
+      <span class="user-name d-none">{{ user.username }}</span>
 
     </header>
     {% endif %}
