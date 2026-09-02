@@ -145,7 +145,7 @@
       {% if id.proposed_brand_mark %}
       <div class="detail-subsection">
         <div class="detail-section-label"><i class="fas fa-image"></i>{% trans 'Proposed logo' %}</div>
-        <img src="{{ id.proposed_brand_mark.url }}" alt="{% trans 'Proposed logo' %}" class="border rounded p-1 bg-white brand-mark-lg">
+        {% include "glosowania/_proposed_brand_mark.html" with brand_mark=id.proposed_brand_mark img_class="brand-mark-lg" %}
       </div>
       {% endif %}
     </div>

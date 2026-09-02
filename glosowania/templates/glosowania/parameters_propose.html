@@ -36,7 +36,7 @@
       {% if decyzja.proposed_brand_mark %}
         <div class="mb-2">
           <div class="small text-muted">{% trans 'Currently proposed logo:' %}</div>
-          <img src="{{ decyzja.proposed_brand_mark.url }}" alt="{% trans 'Proposed logo' %}" class="border rounded p-1 bg-white brand-mark-sm">
+          {% include "glosowania/_proposed_brand_mark.html" with brand_mark=decyzja.proposed_brand_mark img_class="brand-mark-sm" %}
         </div>
       {% endif %}
       {{ form.brand_mark|as_crispy_field }}
