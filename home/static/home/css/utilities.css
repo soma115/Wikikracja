@@ -278,6 +278,34 @@
  font-size: .72rem; padding: 2px 8px;
 }
 
+.quick-link-form {
+ width: 100%;
+}
+
+.quick-link-form .quick-link-input {
+ width: auto;
+}
+
+.quick-link-form .quick-link-input-title {
+ flex: 2 1 140px;
+ min-width: 100px;
+}
+
+.quick-link-form .quick-link-input-url {
+ flex: 3 1 200px;
+ min-width: 140px;
+}
+
+.quick-link-form .quick-link-input-order {
+ flex: 0 1 80px;
+ min-width: 50px;
+ max-width: 80px;
+}
+
+.quick-link-form .quick-link-form-btn {
+ flex: 0 0 auto;
+}
+
 .site-admin-version {
  font-size: .72rem; color: var(--text-muted); font-family: var(--font-mono);
 }

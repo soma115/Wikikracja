@@ -28,13 +28,12 @@
             <i class="fas fa-plus me-2 text-accent opacity-70"></i>
             <span id="form-title">{% trans "Add new link" %}</span>
           </div>
-          <div class="d-flex gap-2 flex-wrap">
-            <input type="text" name="quick_link_title" id="quick_link_title" placeholder="{% trans 'Title' %}" class="form-control form-control-sm mw-200" required>
-            <input type="text" name="quick_link_url" id="quick_link_url" placeholder="{% trans 'URL' %}" class="form-control form-control-sm mw-300" required>
-            <input type="text" name="quick_link_icon" id="quick_link_icon" placeholder="{% trans 'Icon (e.g. fa-book)' %}" class="form-control form-control-sm mw-150">
-            <input type="number" name="quick_link_order" id="quick_link_order" placeholder="{% trans 'Order' %}" class="form-control form-control-sm mw-80" value="0">
-            <button type="submit" class="btn btn-sm btn-primary" id="submit-btn">{% trans "Add" %}</button>
-            <button type="button" class="btn btn-sm btn-secondary mig-hidden" id="cancel-edit-btn">{% trans "Cancel" %}</button>
+          <div class="quick-link-form d-flex gap-2 flex-wrap">
+            <input type="text" name="quick_link_title" id="quick_link_title" placeholder="{% trans 'Title' %}" class="form-control form-control-sm quick-link-input quick-link-input-title" required>
+            <input type="text" name="quick_link_url" id="quick_link_url" placeholder="{% trans 'URL' %}" class="form-control form-control-sm quick-link-input quick-link-input-url" required>
+            <input type="number" name="quick_link_order" id="quick_link_order" placeholder="{% trans 'Order' %}" class="form-control form-control-sm quick-link-input quick-link-input-order" value="0">
+            <button type="submit" class="btn btn-sm btn-primary quick-link-form-btn" id="submit-btn">{% trans "Add" %}</button>
+            <button type="button" class="btn btn-sm btn-secondary quick-link-form-btn mig-hidden" id="cancel-edit-btn">{% trans "Cancel" %}</button>
           </div>
         </div>
       </form>
@@ -49,12 +48,9 @@
           {% for link in quick_links %}
           <div class="quick-link-item d-flex align-items-center gap-2 p-2" data-link-id="{{ link.id }}" draggable="true">
             <i class="fas fa-grip-vertical text-muted text-xs opacity-50"></i>
-            {% if link.icon %}
-            <i class="fas {{ link.icon }} quick-link-icon"></i>
-            {% endif %}
             <span class="quick-link-title">{{ link.title }}</span>
             <span class="quick-link-url">{{ link.url }}</span>
-            <button type="button" class="btn btn-sm btn-outline-secondary edit-link-btn quick-link-edit" data-link-id="{{ link.id }}" data-title="{{ link.title }}" data-url="{{ link.url }}" data-icon="{{ link.icon|default:'' }}" data-order="{{ link.order }}">{% trans "Edit" %}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary edit-link-btn quick-link-edit" data-link-id="{{ link.id }}" data-title="{{ link.title }}" data-url="{{ link.url }}" data-order="{{ link.order }}">{% trans "Edit" %}</button>
             <form class="mig-inline" method="post">
               {% csrf_token %}
               <input type="hidden" name="delete_quick_link" value="{{ link.id }}">
@@ -75,13 +71,11 @@
       var linkId = this.dataset.linkId;
       var title = this.dataset.title;
       var url = this.dataset.url;
-      var icon = this.dataset.icon;
       var order = this.dataset.order;
 
       document.getElementById('edit-link-id').value = linkId;
       document.getElementById('quick_link_title').value = title;
       document.getElementById('quick_link_url').value = url;
-      document.getElementById('quick_link_icon').value = icon;
       document.getElementById('quick_link_order').value = order;
       
       document.getElementById('form-action').name = 'edit_quick_link';
@@ -96,7 +90,6 @@
     document.getElementById('edit-link-id').value = '';
     document.getElementById('quick_link_title').value = '';
     document.getElementById('quick_link_url').value = '';
-    document.getElementById('quick_link_icon').value = '';
     document.getElementById('quick_link_order').value = '0';
     
     document.getElementById('form-action').name = 'save_quick_link';

@@ -323,10 +323,9 @@ def site_admin(request: HttpRequest) -> HttpResponse:
     if request.method == 'POST' and 'save_quick_link' in request.POST:
         title = request.POST.get('quick_link_title')
         url = request.POST.get('quick_link_url')
-        icon = request.POST.get('quick_link_icon', '')
         order = request.POST.get('quick_link_order', 0)
         if title and url:
-            QuickLink.objects.create(title=title, url=url, icon=icon, order=order)
+            QuickLink.objects.create(title=title, url=url, order=order)
             messages.success(request, _('Link added.'))
         return redirect('site_admin')
 
@@ -334,13 +333,11 @@ def site_admin(request: HttpRequest) -> HttpResponse:
         link_id = request.POST.get('edit_quick_link')
         title = request.POST.get('quick_link_title')
         url = request.POST.get('quick_link_url')
-        icon = request.POST.get('quick_link_icon', '')
         order = request.POST.get('quick_link_order', 0)
         try:
             link = QuickLink.objects.get(id=link_id)
             link.title = title
             link.url = url
-            link.icon = icon
             link.order = order
             link.save()
             messages.success(request, _('Link updated.'))

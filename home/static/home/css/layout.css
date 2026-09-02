@@ -853,7 +853,7 @@ a:hover {
 
 /* Dashboard tile helpers */
 
-.tile-header > i, .quick-link-icon {
+.tile-header > i {
  color: var(--accent); font-size: .85rem;
 }
 

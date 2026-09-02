@@ -132,7 +132,6 @@ class SiteParameters(models.Model):
 class QuickLink(models.Model):
     title = models.CharField(max_length=100, verbose_name=_('Title'))
     url = models.CharField(max_length=500, verbose_name=_('URL'))
-    icon = models.CharField(max_length=50, blank=True, default='', verbose_name=_('Icon (FontAwesome class)'))
     order = models.PositiveIntegerField(default=0, verbose_name=_('Order'))
 
     class Meta:
