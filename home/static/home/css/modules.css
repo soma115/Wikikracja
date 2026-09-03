@@ -2703,10 +2703,6 @@ td.notes-col {
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   box-shadow: var(--shadow-overlay);
-  transition: transform 180ms ease, box-shadow 200ms ease;
-}
-.board-post-card:hover {
-  transform: translateY(-4px);
 }
 .post-header {
   border-bottom: 2px solid var(--border);

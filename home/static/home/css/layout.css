@@ -633,6 +633,13 @@ html, body {
     0 4px 20px rgba(0, 0, 0, .35);
 }
 
+/* karta statyczna — nie reaguje na hover */
+.card.card--no-hover,
+.card.card--no-hover:hover {
+  border-color: var(--border);
+  box-shadow: none;
+}
+
 /* karty będące linkami — cursor pointer zamiast domyślnego */
 
 a.card:hover {
