@@ -143,20 +143,22 @@ const message_template = `
             <span class='avatar avatar-2xl avatar-fallback<% if (typeof citizen_color_class !== "undefined" && citizen_color_class) { %> citizen-color-<%- citizen_color_class %><% } %>'><%= (username || '').slice(0, 2).toUpperCase() %></span>
           <% } %><%= username %>
         <% if (_hasProfileLink) { %></a><% } else { %></span><% } %>
-        <span class='message-timestamp ms-2' data-message-id='<%-message_id%>'><%- latest_ts %></span>
-        <button type='button' class='btn btn-sm ms-1 message-btn show-history <% if (!edited) { %>d-none<% } %>'
+      </div>
+      <div class='message-header-right'>
+        <span class='message-timestamp' data-message-id='<%-message_id%>'><%- latest_ts %></span>
+        <button type='button' class='btn btn-sm message-btn show-history <% if (!edited) { %>d-none<% } %>'
           data-message-id='<%-message_id%>'
           title='${_("edited")}'>
           <i class='fas fa-history'></i>
         </button>
         <% if (own) { %>
-          <button type='button' class='btn btn-sm ms-1 message-btn edit-message' data-message-id="<%-message_id%>"
+          <button type='button' class='btn btn-sm message-btn edit-message' data-message-id="<%-message_id%>"
             title='${_("edit")}'>
             <i class='fas fa-edit'></i>
           </button>
         <% } %>
         <button type='button'
-          class='btn btn-sm ms-1 message-btn reply-btn'
+          class='btn btn-sm message-btn reply-btn'
           data-message-id='<%-message_id%>'
           data-username='<%=username%>'
           data-snippet='<%-raw_message.replace(/<[^>]*>/g,"").slice(0,320)%>'
@@ -164,14 +166,13 @@ const message_template = `
           <i class='fas fa-reply'></i>
         </button>
         <button type='button'
-          class='btn btn-sm ms-1 message-btn copy-message-url'
+          class='btn btn-sm message-btn copy-message-url'
           data-room-id='<%-room_id%>'
           data-message-id='<%-message_id%>'
           title='${_("Copy link")}'>
           <i class='fas fa-link'></i>
         </button>
       </div>
-      <div class='message-header-right'></div>
     </div>
 
     <%

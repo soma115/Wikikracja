@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-03 13:08+0200\n"
+"POT-Creation-Date: 2026-09-03 16:12+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -1463,7 +1463,7 @@ msgstr "Jutro"
 msgid "Enable Notifications"
 msgstr "Włącz powiadomienia"
 
-#: .\chat\views.py:191 .\glosowania\templates\glosowania\parameters.html:49
+#: .\chat\views.py:191 .\glosowania\templates\glosowania\parameters.html:51
 #: .\glosowania\templates\glosowania\szczegoly.html:86
 #: .\obywatele\templates\obywatele\szczegoly.html:65
 #: .\site_settings\params.py:159
@@ -2317,66 +2317,66 @@ msgstr "Jak działają głosowania?"
 msgid "Suggestions"
 msgstr "Propozycje"
 
-#: .\glosowania\templates\glosowania\parameters.html:13
+#: .\glosowania\templates\glosowania\parameters.html:15
 #: .\site_settings\params.py:28
 msgid "Voting parameters"
 msgstr "Parametry głosowań"
 
-#: .\glosowania\templates\glosowania\parameters.html:19
+#: .\glosowania\templates\glosowania\parameters.html:21
 msgid "New proposal needs to gather"
 msgstr "Nowa propozycja musi zebrać"
 
-#: .\glosowania\templates\glosowania\parameters.html:19
+#: .\glosowania\templates\glosowania\parameters.html:21
 msgid "signatures in order to trigger referendum. This number should remain low enough for any sensible proposal to be voted on, and only high enough to filter out obvious spam."
 msgstr "podpisy aby została poddana pod referendum. Ta liczba powinna pozostać wystarczająco niska aby możliwe było głosowanie nad każdą rozsądną propozycją, i tylko na tyle wysoka aby odfiltrować oczywisty spam."
 
-#: .\glosowania\templates\glosowania\parameters.html:22
+#: .\glosowania\templates\glosowania\parameters.html:24
 msgid "Maximum time to gather signatures is"
 msgstr "Maksymalny czas na zebranie podpisów to"
 
-#: .\glosowania\templates\glosowania\parameters.html:22
+#: .\glosowania\templates\glosowania\parameters.html:24
 msgid "days. If there is not enough signatures - after this time, proposal is rejected."
 msgstr "dni. Jeśli nie ma wystarczającej liczby podpisów - po tym czasie propozycja jest odrzucana."
 
-#: .\glosowania\templates\glosowania\parameters.html:25
+#: .\glosowania\templates\glosowania\parameters.html:27
 msgid "Queue and discussion before referendum lasts"
 msgstr "Czas na dyskusję trwa"
 
-#: .\glosowania\templates\glosowania\parameters.html:25
-#: .\glosowania\templates\glosowania\parameters.html:28
-#: .\obywatele\templates\obywatele\parameters.html:23
+#: .\glosowania\templates\glosowania\parameters.html:27
+#: .\glosowania\templates\glosowania\parameters.html:30
+#: .\obywatele\templates\obywatele\parameters.html:25
 #: .\site_settings\params.py:63 .\site_settings\params.py:68
 #: .\site_settings\params.py:70 .\site_settings\params.py:79
 #: .\site_settings\params.py:90 .\site_settings\params.py:103
 msgid "days"
 msgstr "dni"
 
-#: .\glosowania\templates\glosowania\parameters.html:28
+#: .\glosowania\templates\glosowania\parameters.html:30
 msgid "Referendum lasts for"
 msgstr "Referendum trwa"
 
-#: .\glosowania\templates\glosowania\parameters.html:31
+#: .\glosowania\templates\glosowania\parameters.html:33
 msgid "If you want to change any of"
 msgstr "Jeśli chcesz zmienić któryś z"
 
-#: .\glosowania\templates\glosowania\parameters.html:31
+#: .\glosowania\templates\glosowania\parameters.html:33
 msgid "marked"
 msgstr "zaznaczonych"
 
-#: .\glosowania\templates\glosowania\parameters.html:31
+#: .\glosowania\templates\glosowania\parameters.html:33
 msgid "parameters - create referendum."
 msgstr "parametrów - utwórz referendum."
 
-#: .\glosowania\templates\glosowania\parameters.html:37
-#: .\obywatele\templates\obywatele\parameters.html:45
+#: .\glosowania\templates\glosowania\parameters.html:39
+#: .\obywatele\templates\obywatele\parameters.html:47
 msgid "Create referendum on system parameters"
 msgstr "Utwórz referendum dotyczące zmiany parametrów systemu"
 
-#: .\glosowania\templates\glosowania\parameters.html:39
+#: .\glosowania\templates\glosowania\parameters.html:41
 msgid "Open the form to start a referendum changing system parameters."
 msgstr "Otwórz formularz, aby rozpocząć referendum zmieniające parametry systemu."
 
-#: .\glosowania\templates\glosowania\parameters.html:49
+#: .\glosowania\templates\glosowania\parameters.html:51
 #: .\glosowania\templates\glosowania\szczegoly.html:87
 #: .\obywatele\templates\obywatele\szczegoly.html:67
 #: .\site_settings\params.py:159
@@ -3789,20 +3789,20 @@ msgstr "Brak działań."
 msgid "Nothing created yet."
 msgstr "Brak założonych treści."
 
-#: .\obywatele\templates\obywatele\assets.html:10
+#: .\obywatele\templates\obywatele\assets.html:12
 #: .\obywatele\templates\obywatele\menu.html:20
 msgid "Resources"
 msgstr "Zasoby"
 
-#: .\obywatele\templates\obywatele\assets.html:14
+#: .\obywatele\templates\obywatele\assets.html:16
 msgid "Columns"
 msgstr "Kolumny"
 
-#: .\obywatele\templates\obywatele\assets.html:17
+#: .\obywatele\templates\obywatele\assets.html:19
 msgid "Visible columns"
 msgstr "Widoczne kolumny"
 
-#: .\obywatele\templates\obywatele\assets.html:25
+#: .\obywatele\templates\obywatele\assets.html:27
 msgid "Search all fields..."
 msgstr "Przeszukaj wszystkie pola..."
 
@@ -4016,51 +4016,51 @@ msgstr "Zapisz formularz"
 msgid "You still need to confirm your email address using the link sent to your inbox."
 msgstr "Twój email nie został jeszcze potwierdzony. Poprosimy o potwierdzenie go poprzez kliknięcie linka z emaila wysłanego do Ciebie."
 
-#: .\obywatele\templates\obywatele\parameters.html:13
+#: .\obywatele\templates\obywatele\parameters.html:15
 msgid "Population"
 msgstr "Populacja"
 
-#: .\obywatele\templates\obywatele\parameters.html:17
+#: .\obywatele\templates\obywatele\parameters.html:19
 #: .\site_settings\models.py:104 .\site_settings\params.py:95
 msgid "Acceptance threshold"
 msgstr "Próg akceptacji"
 
-#: .\obywatele\templates\obywatele\parameters.html:22
+#: .\obywatele\templates\obywatele\parameters.html:24
 msgid "Candidate removal after"
 msgstr "Usunięcie kandydata po upływie"
 
-#: .\obywatele\templates\obywatele\parameters.html:27
+#: .\obywatele\templates\obywatele\parameters.html:29
 #: .\obywatele\templates\obywatele\poczekalnia.html:11
 msgid "New person will be accepted above"
 msgstr "Nowa osoba zostanie zaakceptowana gdy otrzyma powyżej"
 
-#: .\obywatele\templates\obywatele\parameters.html:29
-#: .\obywatele\templates\obywatele\parameters.html:33
+#: .\obywatele\templates\obywatele\parameters.html:31
+#: .\obywatele\templates\obywatele\parameters.html:35
 #: .\obywatele\templates\obywatele\poczekalnia.html:13
 msgid "threshold."
 msgstr "punktów akceptacji."
 
-#: .\obywatele\templates\obywatele\parameters.html:31
+#: .\obywatele\templates\obywatele\parameters.html:33
 msgid "Existing person will be banned bellow"
 msgstr "Istniejąca osoba zostanie zablokowane gdy jej reputacja spadnie poniżej"
 
-#: .\obywatele\templates\obywatele\parameters.html:35
+#: .\obywatele\templates\obywatele\parameters.html:37
 msgid "You can check your reputation in your"
 msgstr "Możesz sprawdzić swoją reputację w twoim"
 
-#: .\obywatele\templates\obywatele\parameters.html:37
+#: .\obywatele\templates\obywatele\parameters.html:39
 msgid "profile"
 msgstr "profilu"
 
-#: .\obywatele\templates\obywatele\parameters.html:40
+#: .\obywatele\templates\obywatele\parameters.html:42
 msgid "The granting and receiving of reputation points is anonymous."
 msgstr "Nadawanie i odbieranie punktów reputacji jest anonimowe."
 
-#: .\obywatele\templates\obywatele\parameters.html:42
+#: .\obywatele\templates\obywatele\parameters.html:44
 msgid "If you want to change Acceptance threshold - create referendum."
 msgstr "Jeśli chcesz zmienić próg akceptacji - utwórz referendum."
 
-#: .\obywatele\templates\obywatele\parameters.html:48
+#: .\obywatele\templates\obywatele\parameters.html:50
 msgid "Read explanation for this mechanism"
 msgstr "Przeczytaj wyjaśnienie tego mechanizmu"
 
