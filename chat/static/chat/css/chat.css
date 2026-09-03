@@ -1007,6 +1007,13 @@ body:has(.chat-rooms) .main-area {
         margin-left: 0;
         margin-top: .2rem;
     }
+    /* Mobile: category headers aligned to the right (thumb reach) */
+    .nav-cat-btn {
+        justify-content: flex-end;
+    }
+    .nav-cat-arrow {
+        order: 1;
+    }
 }
 /* ============================================================ */
 /* IMAGE VIEWER (Lightbox)                                     */
