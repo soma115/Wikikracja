@@ -150,9 +150,10 @@ def test_mark_feed_item_as_read_and_unread_for_chat(feed_user, another_user):
     Message.objects.create(room=room, sender=another_user, text='Hi')
 
     before = get_unread_count(feed_user)
-    feed_service.mark_feed_item_as_read('room_messages', room.pk, feed_user)
+    message = Message.objects.get(room=room)
+    feed_service.mark_feed_item_as_read('room_messages', message.pk, feed_user)
     assert get_unread_count(feed_user) == before - 1
-    feed_service.mark_feed_item_as_unread('room_messages', room.pk, feed_user)
+    feed_service.mark_feed_item_as_unread('room_messages', message.pk, feed_user)
     assert get_unread_count(feed_user) == before
 
 

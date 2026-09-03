@@ -1627,7 +1627,7 @@ button.task-against-btn:focus-visible {
   display: flex;
   align-items: flex-start;
   gap: .75rem;
-  padding: .6rem .75rem;
+  padding: .6rem .4rem .6rem .75rem;
   border-bottom: 1px solid var(--border);
   text-decoration: none;
   color: inherit;
@@ -1670,11 +1670,34 @@ button.task-against-btn:focus-visible {
   outline: none;
 }
 .feed-title {
-  font-size: .875rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  min-width: 0;
+  overflow: hidden;
   color: var(--text-primary);
-  white-space: nowrap;
+  font-size: .875rem;
+}
+.feed-title-text {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.feed-timestamp,
+.feed-author,
+.feed-toggle-read {
+  flex-shrink: 0;
+}
+.feed-author {
+  max-width: 25%;
+  overflow: hidden;
+}
+.feed-author > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .activity-list.view-grid {
   display: grid;
@@ -1720,7 +1743,12 @@ button.task-against-btn:focus-visible {
   font-size: .45rem;
 }
 .activity-list:not(.view-grid) .feed-row[data-content-type="room_messages"] .feed-desc {
+  display: -webkit-box;
+  overflow: hidden;
   white-space: pre-line;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 /* ══════════════════════════════════════════════════
    WSPOLNOTA

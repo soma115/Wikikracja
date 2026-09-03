@@ -49,53 +49,42 @@ def test_mark_as_read_and_unread_endpoints_work_for_post(client, activity_user):
 
 
 @pytest.mark.django_db
-def test_chat_message_count_badge_hidden_when_room_is_read(client, activity_user):
+def test_activity_shows_each_chat_message_as_separate_item(client, activity_user):
     client.force_login(activity_user)
     other = UserFactory(username='activity_other', email='activity_other@example.com')
     room = Room.objects.create(title='Activity test inbox', public=True)
-    for i in range(3):
-        Message.objects.create(room=room, sender=other, text=f'Message {i}')
+    messages = [Message.objects.create(room=room, sender=other, text=f'Message {i}') for i in range(3)]
 
-    # Unread room: badge should be rendered visible
     response = client.get(reverse('activity'))
     content = response.content.decode()
-    assert 'chat-message-count' in content
-    assert 'badge' in content and room.title in content
 
-    # Read room: badge should be hidden
-    room.seen_by.add(activity_user)
-    response = client.get(reverse('activity'))
-    content = response.content.decode()
-    assert 'chat-message-count' in content
-    # The badge element exists but is hidden via d-none
-    assert 'chat-message-count' in content and 'd-none' in content
+    assert content.count('data-content-type="room_messages"') == 6
+    assert all(f'data-object-id="{message.id}"' in content for message in messages)
+    assert room.title in content
+    assert f'Messages in {room.title}' not in content
+    assert f'- <strong>{other.username}:' not in content
+    assert 'chat-message-count' not in content
 
 
 @pytest.mark.django_db
-def test_chat_badge_not_shown_when_all_messages_read_and_marked_unread(client, activity_user):
-    """Marking a room as unread in the activity feed should not show a message
-    count badge when all recent messages have already been read."""
+def test_chat_activity_items_are_read_per_message(client, activity_user):
     client.force_login(activity_user)
     other = UserFactory(username='activity_unread', email='activity_unread@example.com')
     room = Room.objects.create(title='Activity unread inbox', public=False)
     room.allowed.add(activity_user)
-    for i in range(5):
-        Message.objects.create(room=room, sender=other, text=f'Message {i}')
+    messages = [Message.objects.create(room=room, sender=other, text=f'Message {i}') for i in range(3)]
 
-    # Simulate that the user opened the room and all messages were marked as read.
-    for msg in Message.objects.filter(room=room):
-        MessageReadBy.objects.get_or_create(message=msg, user=activity_user)
-    room.seen_by.add(activity_user)
-
-    # Mark the room as unread from the activity feed.
-    response = client.post(reverse('mark_unread'), {'content_type': 'room_messages', 'object_id': room.id})
+    response = client.post(reverse('mark_as_read'), {'content_type': 'room_messages', 'object_id': messages[0].id})
     assert response.status_code == 200
-    assert response.json()['success'] is True
-    assert activity_user not in room.seen_by.all()
+    assert MessageReadBy.objects.filter(message=messages[0], user=activity_user).exists()
 
+    response = client.post(reverse('mark_unread'), {'content_type': 'room_messages', 'object_id': messages[0].id})
+    assert response.status_code == 200
+    assert not MessageReadBy.objects.filter(message=messages[0], user=activity_user).exists()
+
+    # Marking one message unread does not change the read state of its siblings.
+    MessageReadBy.objects.create(message=messages[1], user=activity_user)
     response = client.get(reverse('activity'))
     content = response.content.decode()
-    assert 'data-content-type="room_messages"' in content
-    assert room.title in content
-    # No new messages, so the count badge should not be rendered.
-    assert 'chat-message-count' not in content
+    assert f'data-object-id="{messages[0].id}"' in content
+    assert f'data-object-id="{messages[1].id}"' in content

@@ -3,16 +3,15 @@ from datetime import timedelta as td
 from datetime import timezone as dt_timezone
 
 from django.core.cache import cache
-from django.db.models import Count, Exists, OuterRef
+from django.db.models import Count
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 
 from ..feed_registry import collect_feed_items, get_provider
 from ..models import ReadStatus
 
 log = logging.getLogger(__name__)
 
-FEED_CACHE_KEY = "feed_raw_v1"
+FEED_CACHE_KEY = "feed_raw_v2"
 FEED_CACHE_TTL = 3600
 FEED_DAYS = 90
 
@@ -55,26 +54,6 @@ def generate_feed_raw():
     return feed_items
 
 
-def _unread_chat_message_counts(user, room_ids):
-    """Return {room_id: unread_count} for the user.
-
-    Counts messages in each room that the user has not marked as read
-    (via MessageReadBy) and that were sent by someone else.  Messages
-    older than the feed window are ignored, matching the raw feed cutoff.
-    """
-    if not room_ids:
-        return {}
-
-    # Local import to keep this module importable without chat loaded.
-    from chat.models import Message, MessageReadBy
-
-    since = timezone.now() - td(days=FEED_DAYS)
-    read = MessageReadBy.objects.filter(user=user, message_id=OuterRef('id'))
-
-    counts = Message.objects.filter(room_id__in=room_ids, time__gte=since).exclude(sender=user).filter(~Exists(read)).values('room_id').annotate(unread=Count('id'))
-    return {c['room_id']: c['unread'] for c in counts}
-
-
 def _chat_message_counts_since(user, room_ids, since):
     """Return {room_id: message_count} for the user since a given point.
 
@@ -103,9 +82,10 @@ def generate_feed_items(user):
         'citizen': ReadStatus.ContentType.CITIZEN,
         'survey': ReadStatus.ContentType.SURVEY,
     }
-    seen_room_ids = set(user.seen_rooms.values_list('id', flat=True))
-    room_ids = [item['object_id'] for item in raw_items if item['content_type'] == 'room_messages']
-    unread_chat_counts = _unread_chat_message_counts(user, room_ids)
+    chat_message_ids = [item['object_id'] for item in raw_items if item['content_type'] == 'room_messages']
+    from chat.models import MessageReadBy
+
+    read_chat_message_ids = set(MessageReadBy.objects.filter(user=user, message_id__in=chat_message_ids).values_list('message_id', flat=True))
 
     feed_items = []
     for item in raw_items:
@@ -117,9 +97,9 @@ def generate_feed_items(user):
             if not item.get('_is_public'):
                 other = next((name for uid, name in item.get('_allowed_usernames', {}).items() if uid != user.id), None)
                 if other:
-                    item = {**item, 'title': _("Messages in %(room_title)s") % {'room_title': other}}
-            is_read = item['object_id'] in seen_room_ids
-            item = {**item, 'is_read': is_read, 'message_count': unread_chat_counts.get(item['object_id'], 0)}
+                    item = {**item, 'title': other}
+            is_read = item['object_id'] in read_chat_message_ids
+            item = {**item, 'is_read': is_read, 'message_count': 1}
         else:
             rs_ct = ct_map.get(ct)
             is_read = (item['object_id'] in read_status_map[rs_ct]) if rs_ct else False
@@ -206,7 +186,7 @@ def _digest_group_key(item):
     if ct == 'citizen':
         author = item.get('author')
         return (ct, author.id if author else item['object_id'])
-    return (ct, item['object_id'])
+    return (ct, item.get('room_id', item['object_id']))
 
 
 def _sort_digest_items(items):
@@ -228,7 +208,7 @@ def build_user_digest(user, since):
     """
     raw_items = collect_feed_items(since)
 
-    room_ids = [item['object_id'] for item in raw_items if item['content_type'] == 'room_messages']
+    room_ids = [item['room_id'] for item in raw_items if item['content_type'] == 'room_messages']
     chat_counts = _chat_message_counts_since(user, room_ids, since)
 
     user_items = []
@@ -245,8 +225,8 @@ def build_user_digest(user, since):
             if not item.get('_is_public'):
                 other = next((name for uid, name in item.get('_allowed_usernames', {}).items() if uid != user.id), None)
                 if other:
-                    item = {**item, 'title': _("Messages in %(room_title)s") % {'room_title': other}}
-            msg_count = chat_counts.get(item['object_id'], 0)
+                    item = {**item, 'title': other}
+            msg_count = chat_counts.get(item['room_id'], 0)
             if msg_count == 0:
                 continue
             item = {**item, 'message_count': msg_count, 'update_count': msg_count}

@@ -50,38 +50,32 @@
 
         <div class="min-w-0 flex-1">
           <div class="feed-title {% if not item.is_read %}fw-semibold{% endif %}">
-            {{ item.title }}
-            {% if item.content_type == 'room_messages' and item.message_count > 1 %}
-            <span class="badge-status badge-{{ item.content_type|content_type_color }} chat-message-count ms-1 {% if item.is_read %}d-none{% endif %} badge-activity-count">{{ item.message_count }}</span>
+            <span class="feed-title-text">{{ item.title }}</span>
+            <time class="feed-timestamp text-xs text-muted text-nowrap">{{ item.timestamp|date:"d.m H:i" }}</time>
+            {% if item.author %}
+            <span class="feed-author d-inline-flex align-items-center gap-1 text-xs text-muted">
+              <span class="feed-avatar">
+                {% include "home/_user_avatar.html" with avatar=item.author.uzytkownik.avatar username=item.author.username size="sm" %}
+              </span>
+              <span>{{ item.author.username }}</span>
+            </span>
             {% endif %}
+            <span class="feed-toggle-read"
+                  role="button"
+                  tabindex="0"
+                  data-content-type="{{ item.content_type }}"
+                  data-object-id="{{ item.object_id }}"
+                  data-is-read="{{ item.is_read|yesno:"true,false" }}"
+                  data-mark-read-title="{% trans 'Mark as read' %}"
+                  data-mark-unread-title="{% trans 'Mark as unread' %}"
+                  aria-label="{% if item.is_read %}{% trans 'Mark as unread' %}{% else %}{% trans 'Mark as read' %}{% endif %}"
+                  title="{% if item.is_read %}{% trans 'Mark as unread' %}{% else %}{% trans 'Mark as read' %}{% endif %}">
+              <i class="fas {% if item.is_read %}fa-eye-slash{% else %}fa-eye{% endif %}"></i>
+            </span>
           </div>
           {% if item.description and item.content_type != 'event' %}
           <div class="feed-desc">{{ item.description|safe }}</div>
           {% endif %}
-        </div>
-
-        <div class="d-flex flex-column align-items-end flex-shrink-0 gap-1">
-          {% if item.author %}
-          <div class="d-flex align-items-center gap-1">
-            <div class="feed-avatar">
-              {% include "home/_user_avatar.html" with avatar=item.author.uzytkownik.avatar username=item.author.username size="sm" %}
-            </div>
-            <span class="text-xs text-muted">{{ item.author.username }}</span>
-          </div>
-          {% endif %}
-          <span class="feed-toggle-read"
-                role="button"
-                tabindex="0"
-                data-content-type="{{ item.content_type }}"
-                data-object-id="{{ item.object_id }}"
-                data-is-read="{{ item.is_read|yesno:"true,false" }}"
-                data-mark-read-title="{% trans 'Mark as read' %}"
-                data-mark-unread-title="{% trans 'Mark as unread' %}"
-                aria-label="{% if item.is_read %}{% trans 'Mark as unread' %}{% else %}{% trans 'Mark as read' %}{% endif %}"
-                title="{% if item.is_read %}{% trans 'Mark as unread' %}{% else %}{% trans 'Mark as read' %}{% endif %}">
-            <i class="fas {% if item.is_read %}fa-eye-slash{% else %}fa-eye{% endif %}"></i>
-          </span>
-          <span class="text-xs text-muted text-nowrap">{{ item.timestamp|date:"d.m H:i" }}</span>
         </div>
 
       </a>

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-03 16:12+0200\n"
+"POT-Creation-Date: 2026-09-03 20:38+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -644,7 +644,7 @@ msgstr "Czy na pewno chcesz usunąć to ogłoszenie?"
 #: .\glosowania\templates\glosowania\szczegoly.html:43
 #: .\home\services\dashboard.py:35 .\home\templates\home\base.html:182
 #: .\home\templates\home\base.html:185 .\home\templates\home\base.html:259
-#: .\home\templates\home\home.html:419 .\home\templates\home\home.html:497
+#: .\home\templates\home\home.html:419 .\home\templates\home\home.html:501
 #: .\home\templatetags\feed_filters.py:26 .\home\views.py:76
 #: .\home\views.py:197 .\obywatele\views.py:510
 #: .\tasks\templates\tasks\_task_card.html:41
@@ -1810,7 +1810,7 @@ msgstr "Dodaj do swojego Kalendarza Google"
 #: .\events\templates\events\_event_card.html:59
 #: .\home\services\dashboard.py:27 .\home\templates\home\base.html:162
 #: .\home\templates\home\base.html:165 .\home\templates\home\base.html:255
-#: .\home\templates\home\base.html:322 .\home\templates\home\home.html:452
+#: .\home\templates\home\base.html:322 .\home\templates\home\home.html:456
 #: .\home\views.py:74
 msgid "Calendar"
 msgstr "Kalendarz"
@@ -2955,7 +2955,7 @@ msgid "Progress"
 msgstr "Postęp"
 
 #: .\home\templates\home\home.html:95 .\home\templates\home\home.html:425
-#: .\home\templates\home\home.html:496
+#: .\home\templates\home\home.html:500
 msgid "unread"
 msgstr "nieprzeczytanych"
 
@@ -3089,15 +3089,15 @@ msgstr "wiedzy"
 msgid "logged in within 30 days"
 msgstr "zalogowanych w ciągu 30 dni"
 
-#: .\home\templates\home\home.html:425
+#: .\home\templates\home\home.html:425 .\home\templates\home\home.html:440
 msgid "Open chat"
 msgstr "Otwórz czat"
 
-#: .\home\templates\home\home.html:439
+#: .\home\templates\home\home.html:443
 msgid "No news"
 msgstr "Brak wiadomości"
 
-#: .\home\templates\home\home.html:455
+#: .\home\templates\home\home.html:459
 msgid "Add event"
 msgstr "Dodaj wydarzenie"
 
