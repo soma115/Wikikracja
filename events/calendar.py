@@ -1,9 +1,16 @@
 """Reusable calendar helpers — used by `/events/` (this app) and the desktop calendar tile."""
 
 import calendar as _cal
-from datetime import date
+from datetime import date, datetime, timedelta
 
 from django.utils import timezone
+
+
+def month_bounds(year, month):
+    end_y, end_m = (year + 1, 1) if month == 12 else (year, month + 1)
+    start = timezone.make_aware(datetime(year, month, 1))
+    end = timezone.make_aware(datetime(end_y, end_m, 1)) - timedelta(microseconds=1)
+    return start, end
 
 
 def build_calendar_grid(year, month, events):
@@ -13,37 +20,12 @@ def build_calendar_grid(year, month, events):
     Handles all Event.frequency variants (once/daily/weekly/monthly/monthly_ordinal/yearly).
     """
     today = timezone.localdate()
-    days_in_month = _cal.monthrange(year, month)[1]
-
+    range_start, range_end = month_bounds(year, month)
     events_by_day = {}
     for event in events:
-        freq = event.frequency
-        sd = timezone.localtime(event.start_date)
-
-        if freq == 'once':
-            if sd.year == year and sd.month == month:
-                events_by_day.setdefault(sd.day, []).append(event)
-        elif freq == 'daily':
-            for d in range(1, days_in_month + 1):
-                if date(year, month, d) >= sd.date():
-                    events_by_day.setdefault(d, []).append(event)
-        elif freq == 'weekly':
-            target_weekday = sd.weekday()
-            for d in range(1, days_in_month + 1):
-                occ = date(year, month, d)
-                if occ.weekday() == target_weekday and occ >= sd.date():
-                    events_by_day.setdefault(d, []).append(event)
-        elif freq == 'monthly':
-            if sd.day <= days_in_month:
-                events_by_day.setdefault(sd.day, []).append(event)
-        elif freq == 'monthly_ordinal':
-            occurrence = event._get_nth_weekday_of_month(year, month, event.monthly_weekday, event.monthly_ordinal)
-            if occurrence:
-                d = timezone.localtime(occurrence).day
-                events_by_day.setdefault(d, []).append(event)
-        elif freq == 'yearly':
-            if sd.month == month and sd.day <= days_in_month:
-                events_by_day.setdefault(sd.day, []).append(event)
+        for occurrence in event.get_occurrences(range_start, range_end):
+            local_occurrence = timezone.localtime(occurrence)
+            events_by_day.setdefault(local_occurrence.day, []).append(event)
 
     raw_weeks = _cal.monthcalendar(year, month)
     weeks = []
@@ -75,3 +57,8 @@ def adjacent_months(year, month):
     prev_y, prev_m = (year - 1, 12) if month == 1 else (year, month - 1)
     next_y, next_m = (year + 1, 1) if month == 12 else (year, month + 1)
     return f'{prev_y}-{prev_m:02d}', f'{next_y}-{next_m:02d}'
+
+
+def year_options(year, radius=5):
+    """Return a bounded list of years centered on the selected year."""
+    return range(year - radius, year + radius + 1)

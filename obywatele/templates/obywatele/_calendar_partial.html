@@ -1,18 +1,28 @@
 {% load i18n %}
 <div class="cal-container">
 <div class="cal-toolbar">
-  <span class="cal-month-title">
-    <i class="fas fa-calendar-days"></i> {{ cal_first_day|date:"F Y" }}
-  </span>
+  <div class="cal-month-controls">
+    <span class="cal-month-title">
+      <i class="fas fa-calendar-days"></i> {{ cal_first_day|date:"F" }}{% if not year_options %} {{ cal_first_day|date:"Y" }}{% endif %}
+    </span>
+    {% if year_options %}
+      <label class="visually-hidden" for="cal-year-select">{% trans "Select year" %}</label>
+      <select class="cal-year-select" id="cal-year-select" data-month="{{ cal_month }}" aria-label="{% trans 'Select year' %}">
+        {% for option in year_options %}
+          <option value="{{ option }}"{% if option == cal_year %} selected{% endif %}>{{ option }}</option>
+        {% endfor %}
+      </select>
+    {% endif %}
+  </div>
   <div class="cal-toolbar-nav">
     <button type="button" class="view-toggle-btn cal-nav" data-month="{{ prev_month }}" title="{% trans 'Previous month' %}">
       <i class="fas fa-chevron-left"></i>
     </button>
-    <button type="button" class="view-toggle-btn cal-nav calendar-nav" data-month="" title="{% trans 'Return to the current month' %}">
-      {% trans "Today" %}
-    </button>
     <button type="button" class="view-toggle-btn cal-nav" data-month="{{ next_month }}" title="{% trans 'Next month' %}">
       <i class="fas fa-chevron-right"></i>
+    </button>
+    <button type="button" class="view-toggle-btn cal-nav calendar-nav" data-month="" title="{% trans 'Return to the current month' %}">
+      {% trans "Today" %}
     </button>
   </div>
 </div>
@@ -36,7 +46,7 @@
       <td>
         {% if cell.day %}
           {% if cell.events %}
-            <a href="{% url 'events:list' %}#day-{{ cell.iso_date }}"
+            <a href="{% url 'events:list' %}?month={{ cal_first_day|date:'Y-m' }}#day-{{ cell.iso_date }}"
                class="cal-day-link" data-day="{{ cell.iso_date }}"
                title="{% for e in cell.events %}{{ e.title }}{% if not forloop.last %} · {% endif %}{% endfor %}">
               <span class="cal-day has-event {% if cell.is_today %}today{% endif %}">{{ cell.day }}</span>
@@ -46,7 +56,7 @@
               </span>
             </a>
           {% else %}
-            <a href="{% url 'events:list' %}#day-{{ cell.iso_date }}"
+            <a href="{% url 'events:list' %}?month={{ cal_first_day|date:'Y-m' }}#day-{{ cell.iso_date }}"
                class="cal-day-link" data-day="{{ cell.iso_date }}">
               <span class="cal-day {% if cell.is_today %}today{% endif %}">{{ cell.day }}</span>
             </a>

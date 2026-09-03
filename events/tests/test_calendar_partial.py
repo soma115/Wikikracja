@@ -34,4 +34,19 @@ class CalendarPartialEmptyDayTest(TestCase):
         """Dzień bez eventów jest linkiem do strony eventów z kotwicą dnia."""
         response = self.client.get(self.cal_url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         events_url = reverse('events:list')
-        self.assertContains(response, f'href="{events_url}#day-2026-06-10"')
+        self.assertContains(response, f'href="{events_url}?month=2026-06#day-2026-06-10"')
+
+    def test_previous_and_next_months_cross_year_boundary(self):
+        response = self.client.get(reverse('events:calendar') + '?picker=1&month=2026-01', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertContains(response, 'data-month="2025-12"')
+        self.assertContains(response, 'data-month="2026-02"')
+
+    def test_year_picker_selects_requested_year(self):
+        response = self.client.get(reverse('events:calendar') + '?picker=1&month=2026-06', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertContains(response, '<select class="cal-year-select"')
+        self.assertContains(response, '<option value="2026" selected>')
+
+    def test_recurring_event_is_not_shown_before_its_start_month(self):
+        Event.objects.create(title='Future recurring event', start_date=timezone.make_aware(datetime(2026, 7, 15, 10)), frequency='monthly')
+        response = self.client.get(self.cal_url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertNotContains(response, 'Future recurring event')

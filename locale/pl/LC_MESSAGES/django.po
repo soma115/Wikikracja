@@ -1780,10 +1780,6 @@ msgstr "Wydarzenia"
 msgid "Visible only to logged-in users"
 msgstr "Widoczne tylko dla zalogowanych użytkowników"
 
-#: .\events\templates\events\_calendar_trigger.html:3
-msgid "Toggle month view"
-msgstr "Przełącz widok miesiąca"
-
 #: .\events\templates\events\_event_card.html:45
 msgid "Past"
 msgstr "Przeszłe"
@@ -1866,9 +1862,9 @@ msgstr "Wyświetl Wydarzenie"
 msgid "Add Event"
 msgstr "Dodaj Wydarzenie"
 
-#: .\events\templates\events\event_list.html:77
-msgid "No events in the selected horizon"
-msgstr "Brak wydarzeń w tym okresie czasu"
+#: .\events\templates\events\event_list.html:78
+msgid "No events in the selected month"
+msgstr "Brak wydarzeń w wybranym miesiącu"
 
 #: .\events\templates\events\event_list.html:80
 msgid "Add the first event"
@@ -3697,15 +3693,19 @@ msgstr "Ta osoba została zbanowana"
 msgid "Why?"
 msgstr "Dlaczego?"
 
-#: .\obywatele\templates\obywatele\_calendar_partial.html:8
+#: .\obywatele\templates\obywatele\_calendar_partial.html:6
+msgid "Select year"
+msgstr "Wybierz rok"
+
+#: .\obywatele\templates\obywatele\_calendar_partial.html:18
 msgid "Previous month"
 msgstr "Poprzedni miesiąc"
 
-#: .\obywatele\templates\obywatele\_calendar_partial.html:11
+#: .\obywatele\templates\obywatele\_calendar_partial.html:24
 msgid "Return to the current month"
 msgstr "Wróć do bieżącego miesiąca"
 
-#: .\obywatele\templates\obywatele\_calendar_partial.html:14
+#: .\obywatele\templates\obywatele\_calendar_partial.html:21
 msgid "Next month"
 msgstr "Następny miesiąc"
 

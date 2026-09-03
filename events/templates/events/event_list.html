@@ -7,58 +7,17 @@
 
 {# ── TOOLBAR ── #}
 {% if user.is_authenticated %}{% url 'events:create' as cta_url %}{% endif %}
-{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add Event') extra_include='events/_calendar_trigger.html' views=toolbar_views %}
+{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add Event') views=toolbar_views %}
 
-{# Pojedynczy drawer dla mini-kalendarza — pre-render bieżącego miesiąca, bez AJAX na starcie #}
-<div id="events-drawer" class="agenda-month-drawer" data-month-prerendered>
+{# Stały mini-kalendarz — nawigacja zmienia tylko jego miesiąc. #}
+<div id="events-calendar" data-month="{{ current_month_iso }}" data-today-month="{{ today_month_iso }}">
   {% include 'obywatele/_calendar_partial.html' with cal_weeks=current_month_weeks cal_year=current_month_year cal_month=current_month_num cal_first_day=current_month_first_day prev_month=current_month_prev next_month=current_month_next %}
 </div>
 
-{% if occurrences %}
-
-  {# ── AGENDA + GRID ── #}
-  <div data-view-container>
+{# ── AGENDA + GRID ── #}
+<div data-view-container>
   <div class="events-agenda" data-view-only="list">
-    {% regroup occurrences by date|date:"Y-m" as months %}
-    {% for month_group in months %}
-      {% with month_iso=month_group.grouper today_ym=now|date:"Y-m" today_ymd=now|date:"Y-m-d" %}
-        <div class="agenda-month-header{% if month_iso < today_ym %} d-none{% endif %}"
-             data-month-label="{{ month_iso }}">
-          {{ month_group.list.0.date|date:"F Y" }}
-        </div>
-
-        {% regroup month_group.list by date|date:"Y-m-d" as days %}
-        {% for day_group in days %}
-          <section class="agenda-day{% if day_group.list.0.is_past %} agenda-day--past{% endif %}{% if day_group.grouper == today_ymd %} agenda-day--today{% endif %}{% if day_group.grouper < today_ymd %} d-none{% endif %}"
-                   id="day-{{ day_group.grouper }}">
-            <div class="agenda-day-label">
-              <div class="agenda-day-name">{{ day_group.list.0.date|date:"D" }}</div>
-              <div class="agenda-day-num">{{ day_group.list.0.date|date:"j" }}</div>
-            </div>
-            <div class="agenda-day-events">
-              {% for occ in day_group.list %}
-                <a href="{% url 'events:detail' occ.event.pk %}"
-                   class="agenda-event-chip{% if occ.is_past %} agenda-event-chip--past{% endif %}{% if not occ.event.is_public %} agenda-event-chip--private{% endif %}"
-                   title="{{ occ.event.title }}{% if occ.event.place %} · {{ occ.event.place }}{% endif %}">
-                  <i class="fas fa-{% if occ.event.frequency == 'once' %}calendar-day{% else %}repeat{% endif %} fa-fw agenda-event-icon"></i>
-                  <span class="agenda-event-time">{{ occ.date|date:"H:i" }}</span>
-                  <span class="agenda-event-title">{{ occ.event.title }}</span>
-                  {% if occ.event.place %}
-                    <span class="agenda-event-place">
-                      <i class="fas fa-map-marker-alt fa-fw"></i> {{ occ.event.place }}
-                    </span>
-                  {% endif %}
-                  {% if not occ.event.is_public %}
-                    <i class="fas fa-lock fa-fw agenda-event-private"
-                       title="{% trans 'Visible only to logged-in users' %}"></i>
-                  {% endif %}
-                </a>
-              {% endfor %}
-            </div>
-          </section>
-        {% endfor %}
-      {% endwith %}
-    {% endfor %}
+    {% include 'events/_agenda_chunk.html' %}
   </div>
 
   {# ── GRID (alternative view) ── #}
@@ -69,40 +28,45 @@
       </div>
     {% endfor %}
   </div>
-  </div>
+</div>
 
-{% else %}
-  <div class="events-empty">
-    <i class="fas fa-calendar-xmark fa-2x"></i>
-    <div class="events-empty-title">{% trans "No events in the selected horizon" %}</div>
-    {% if user.is_authenticated %}
-      <a href="{% url 'events:create' %}" class="btn-cta">
-        <i class="fas fa-plus"></i> {% trans 'Add the first event' %}
-      </a>
-    {% endif %}
-  </div>
-{% endif %}
+<div class="events-empty{% if occurrences %} d-none{% endif %}">
+  <i class="fas fa-calendar-xmark fa-2x"></i>
+  <div class="events-empty-title">{% trans "No events in the selected month" %}</div>
+  {% if user.is_authenticated %}
+    <a href="{% url 'events:create' %}" class="btn-cta">
+      <i class="fas fa-plus"></i> {% trans 'Add the first event' %}
+    </a>
+  {% endif %}
+</div>
 
-{# ── JS: view switching, drawer, day-click filter+highlight+hash, lazy chunk loading ── #}
+{# ── JS: view switching, calendar navigation, day-click filter+highlight+hash, lazy chunk loading ── #}
 <script>
 (function(){
   var gridEl     = document.querySelector('[data-view-only="grid"]');
-  var triggerBtn = document.getElementById('cal-trigger');
-  var triggerLbl = document.getElementById('cal-trigger-label');
-  var drawer     = document.getElementById('events-drawer');
+  var emptyEl    = document.querySelector('.events-empty');
+  var calendarEl = document.getElementById('events-calendar');
   var calUrl          = '{% url "events:calendar" %}';
   var agendaChunkUrl  = '{% url "events:agenda_chunk" %}';
   var activeFromDate  = null;
-  var lastDayClick    = { day: null, time: 0 };
-  var loadedMonths    = new Set();
   var pendingFetch    = null;
 
   function highlightSelectedDay(iso) {
     document.querySelectorAll('.cal-day-link.cal-day-link--selected').forEach(function(el){
       el.classList.remove('cal-day-link--selected');
     });
-    document.querySelectorAll('[data-day="' + iso + '"]').forEach(function(el){
-      el.classList.add('cal-day-link--selected');
+    if (iso) {
+      document.querySelectorAll('[data-day="' + iso + '"]').forEach(function(el){
+        el.classList.add('cal-day-link--selected');
+      });
+    }
+  }
+
+  function resetDateFilter() {
+    activeFromDate = null;
+    highlightSelectedDay(null);
+    document.querySelectorAll('.agenda-day, [data-view-only="grid"] [data-date]').forEach(function(el){
+      el.style.display = '';
     });
   }
 
@@ -110,14 +74,6 @@
   function setFromDate(iso) {
     document.querySelectorAll('.agenda-day').forEach(function(d){
       d.style.display = d.id.replace('day-','') < iso ? 'none' : '';
-    });
-    document.querySelectorAll('[data-month-label]').forEach(function(h){
-      var month = h.dataset.monthLabel;
-      var anyVisible = false;
-      document.querySelectorAll('.agenda-day[id^="day-' + month + '"]').forEach(function(d){
-        if (d.style.display !== 'none') anyVisible = true;
-      });
-      h.style.display = anyVisible ? '' : 'none';
     });
   }
 
@@ -130,24 +86,14 @@
   function insertChunkIntoAgenda(wrapper) {
     var agenda = document.querySelector('.events-agenda');
     if (!agenda) return;
-    var firstHeader = wrapper.querySelector('[data-month-label]');
-    if (!firstHeader) return;
-    var firstNewMonth = firstHeader.dataset.monthLabel;
-
-    var insertBefore = null;
-    agenda.querySelectorAll('[data-month-label]').forEach(function(h) {
-      if (!insertBefore && h.dataset.monthLabel > firstNewMonth) insertBefore = h;
-    });
+    agenda.innerHTML = '';
 
     Array.from(wrapper.childNodes).forEach(function(node) {
       if (node.nodeType === 1 && node.dataset && 'chunkGrid' in node.dataset) return;
-      if (insertBefore) agenda.insertBefore(node.cloneNode(true), insertBefore);
-      else agenda.appendChild(node.cloneNode(true));
+      agenda.appendChild(node.cloneNode(true));
     });
 
-    wrapper.querySelectorAll('[data-month-label]').forEach(function(h) {
-      loadedMonths.add(h.dataset.monthLabel);
-    });
+    if (emptyEl) emptyEl.classList.toggle('d-none', Boolean(wrapper.querySelector('.agenda-day')));
   }
 
   function insertChunkIntoGrid(wrapper) {
@@ -155,17 +101,10 @@
     var gridChunk = wrapper.querySelector('[data-chunk-grid]');
     if (!gridChunk) return;
 
-    var items = [];
-    gridEl.querySelectorAll(':scope > [data-date]').forEach(function(el) {
-      items.push({ date: el.dataset.date, el: el });
-    });
-    gridChunk.querySelectorAll('[data-date]').forEach(function(el) {
-      items.push({ date: el.dataset.date, el: el.cloneNode(true) });
-    });
-    items.sort(function(a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
-
     gridEl.innerHTML = '';
-    items.forEach(function(item) { gridEl.appendChild(item.el); });
+    gridChunk.querySelectorAll('[data-date]').forEach(function(el) {
+      gridEl.appendChild(el.cloneNode(true));
+    });
   }
 
   function loadChunk(month) {
@@ -193,15 +132,15 @@
     activeFromDate = iso;
     highlightSelectedDay(iso);
 
-    if (document.getElementById('day-' + iso) || loadedMonths.has(iso.slice(0, 7))) {
+    if (calendarEl.dataset.month === iso.slice(0, 7)) {
       setFromDate(iso);
       setGridFromDate(iso);
-      history.replaceState(null, '', '#day-' + iso);
+      history.replaceState(null, '', window.location.pathname + '?month=' + iso.slice(0, 7) + '#day-' + iso);
     } else {
       loadChunk(iso.slice(0, 7)).then(function() {
         setFromDate(iso);
         setGridFromDate(iso);
-        history.replaceState(null, '', '#day-' + iso);
+        history.replaceState(null, '', window.location.pathname + '?month=' + iso.slice(0, 7) + '#day-' + iso);
       });
     }
   }
@@ -213,44 +152,50 @@
         loadMonth(btn.dataset.month);
       });
     });
+    rootEl.querySelectorAll('.cal-year-select').forEach(function(select){
+      select.addEventListener('change', function(){
+        loadMonth(select.value + '-' + String(select.dataset.month).padStart(2, '0'));
+      });
+    });
     rootEl.querySelectorAll('[data-day]').forEach(function(a){
       a.addEventListener('click', function(e){
         e.preventDefault();
-        var now = Date.now();
-        var isDoubleClick = a.dataset.day === lastDayClick.day && (now - lastDayClick.time) < 400;
-        lastDayClick = { day: a.dataset.day, time: now };
         jumpToDay(a.dataset.day);
-        if (isDoubleClick && triggerBtn && triggerBtn.getAttribute('aria-expanded') === 'true') toggleDrawer();
       });
     });
   }
 
-  function updateTriggerLabel() {
-    if (!drawer || !triggerLbl) return;
-    var titleEl = drawer.querySelector('.cal-month-title');
-    if (titleEl) {
-      triggerLbl.textContent = titleEl.textContent.replace(/\s+/g, ' ').trim();
-    }
-  }
-
   function loadMonth(month) {
-    if (!drawer) return;
-    drawer.classList.add('agenda-month-drawer--loading');
-    fetch(calUrl + (month ? '?month=' + month : ''), {headers:{'X-Requested-With':'XMLHttpRequest'}})
+    if (!calendarEl) return;
+    var targetMonth = month;
+    if (!targetMonth) targetMonth = calendarEl.dataset.todayMonth;
+    if (calendarEl.dataset.month === targetMonth) {
+      resetDateFilter();
+      history.replaceState(null, '', window.location.pathname + '?month=' + targetMonth);
+      return;
+    }
+    if (calendarEl.dataset.pendingMonth === targetMonth) return;
+    calendarEl.dataset.pendingMonth = targetMonth;
+    calendarEl.classList.add('events-calendar--loading');
+    return fetch(calUrl + '?picker=1&month=' + targetMonth, {headers:{'X-Requested-With':'XMLHttpRequest'}})
       .then(function(r){ return r.text(); })
       .then(function(html){
-        drawer.innerHTML = html;
-        drawer.classList.remove('agenda-month-drawer--loading');
-        bindCalLinks(drawer);
-        updateTriggerLabel();
+        if (calendarEl.dataset.pendingMonth !== targetMonth) return;
+        calendarEl.innerHTML = html;
+        calendarEl.dataset.month = targetMonth;
+        delete calendarEl.dataset.pendingMonth;
+        calendarEl.classList.remove('events-calendar--loading');
+        bindCalLinks(calendarEl);
+        resetDateFilter();
+        history.replaceState(null, '', window.location.pathname + '?month=' + targetMonth);
+        return loadChunk(targetMonth);
+      })
+      .catch(function(e){
+        if (calendarEl.dataset.pendingMonth !== targetMonth) return;
+        delete calendarEl.dataset.pendingMonth;
+        calendarEl.classList.remove('events-calendar--loading');
+        console.error('calendar month load failed', e);
       });
-  }
-
-  function toggleDrawer() {
-    if (!drawer || !triggerBtn) return;
-    var isOpen = triggerBtn.getAttribute('aria-expanded') === 'true';
-    triggerBtn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
-    drawer.classList.toggle('agenda-month-drawer--open', !isOpen);
   }
 
   document.addEventListener('DOMContentLoaded', function(){
@@ -263,38 +208,20 @@
 
     document.querySelectorAll('[data-view]').forEach(function(b){
       b.addEventListener('click', function(){
-        if (window.PagePrefs) PagePrefs.setView(b.dataset.view);
         if (b.dataset.view === 'grid' && activeFromDate) setGridFromDate(activeFromDate);
       });
     });
 
-    document.querySelectorAll('.events-agenda [data-month-label]').forEach(function(h) {
-      loadedMonths.add(h.dataset.monthLabel);
-    });
-
-    if (triggerBtn) triggerBtn.addEventListener('click', toggleDrawer);
-    if (drawer) bindCalLinks(drawer);
+    if (calendarEl) bindCalLinks(calendarEl);
 
     var hash = window.location.hash;
     if (hash.indexOf('#day-') === 0) {
       var iso = hash.slice(5);
       if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
-        activeFromDate = iso;
-        setFromDate(iso);
-        setGridFromDate(iso);
-        highlightSelectedDay(iso);
+        if (calendarEl.dataset.month === iso.slice(0, 7)) jumpToDay(iso);
+        else loadMonth(iso.slice(0, 7)).then(function(){ jumpToDay(iso); });
       }
     }
-    if (!activeFromDate) {
-      var t = new Date();
-      activeFromDate = t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0');
-      setGridFromDate(activeFromDate);
-    }
-
-    document.addEventListener('click', function(e){
-      if (!drawer || triggerBtn.getAttribute('aria-expanded') !== 'true') return;
-      if (!drawer.contains(e.target) && !triggerBtn.contains(e.target)) toggleDrawer();
-    });
   });
 })();
 </script>

@@ -1,46 +1,42 @@
 {% load i18n %}
-{% regroup occurrences by date|date:"Y-m" as months %}
-{% for month_group in months %}
-  {% with month_iso=month_group.grouper today_ymd=now|date:"Y-m-d" %}
-    <div class="agenda-month-header" data-month-label="{{ month_iso }}">
-      {{ month_group.list.0.date|date:"F Y" }}
-    </div>
-    {% regroup month_group.list by date|date:"Y-m-d" as days %}
-    {% for day_group in days %}
-      <section class="agenda-day{% if day_group.list.0.is_past %} agenda-day--past{% endif %}{% if day_group.grouper == today_ymd %} agenda-day--today{% endif %}"
-               id="day-{{ day_group.grouper }}">
-        <div class="agenda-day-label">
-          <div class="agenda-day-name">{{ day_group.list.0.date|date:"D" }}</div>
-          <div class="agenda-day-num">{{ day_group.list.0.date|date:"j" }}</div>
-        </div>
-        <div class="agenda-day-events">
-          {% for occ in day_group.list %}
-            <a href="{% url 'events:detail' occ.event.pk %}"
-               class="agenda-event-chip{% if occ.is_past %} agenda-event-chip--past{% endif %}{% if not occ.event.is_public %} agenda-event-chip--private{% endif %}"
-               title="{{ occ.event.title }}{% if occ.event.place %} · {{ occ.event.place }}{% endif %}">
-              <i class="fas fa-{% if occ.event.frequency == 'once' %}calendar-day{% else %}repeat{% endif %} fa-fw agenda-event-icon"></i>
-              <span class="agenda-event-time">{{ occ.date|date:"H:i" }}</span>
-              <span class="agenda-event-title">{{ occ.event.title }}</span>
-              {% if occ.event.place %}
-                <span class="agenda-event-place">
-                  <i class="fas fa-map-marker-alt fa-fw"></i> {{ occ.event.place }}
-                </span>
-              {% endif %}
-              {% if not occ.event.is_public %}
-                <i class="fas fa-lock fa-fw agenda-event-private"
-                   title="{% trans 'Visible only to logged-in users' %}"></i>
-              {% endif %}
-            </a>
-          {% endfor %}
-        </div>
-      </section>
-    {% endfor %}
-  {% endwith %}
-{% endfor %}
-<div class="mig-hidden" data-chunk-grid>
-  {% for occ in occurrences %}
-    <div data-date="{{ occ.date|date:'Y-m-d' }}">
-      {% include 'events/_event_card.html' %}
-    </div>
+{% with today_ymd=now|date:"Y-m-d" %}
+  {% regroup occurrences by date|date:"Y-m-d" as days %}
+  {% for day_group in days %}
+    <section class="agenda-day{% if day_group.list.0.is_past %} agenda-day--past{% endif %}{% if day_group.grouper == today_ymd %} agenda-day--today{% endif %}"
+             id="day-{{ day_group.grouper }}">
+      <div class="agenda-day-label">
+        <div class="agenda-day-name">{{ day_group.list.0.date|date:"D" }}</div>
+        <div class="agenda-day-num">{{ day_group.list.0.date|date:"j" }}</div>
+      </div>
+      <div class="agenda-day-events">
+        {% for occ in day_group.list %}
+          <a href="{% url 'events:detail' occ.event.pk %}"
+             class="agenda-event-chip{% if occ.is_past %} agenda-event-chip--past{% endif %}{% if not occ.event.is_public %} agenda-event-chip--private{% endif %}"
+             title="{{ occ.event.title }}{% if occ.event.place %} · {{ occ.event.place }}{% endif %}">
+            <i class="fas fa-{% if occ.event.frequency == 'once' %}calendar-day{% else %}repeat{% endif %} fa-fw agenda-event-icon"></i>
+            <span class="agenda-event-time">{{ occ.date|date:"H:i" }}</span>
+            <span class="agenda-event-title">{{ occ.event.title }}</span>
+            {% if occ.event.place %}
+              <span class="agenda-event-place">
+                <i class="fas fa-map-marker-alt fa-fw"></i> {{ occ.event.place }}
+              </span>
+            {% endif %}
+            {% if not occ.event.is_public %}
+              <i class="fas fa-lock fa-fw agenda-event-private"
+                 title="{% trans 'Visible only to logged-in users' %}"></i>
+            {% endif %}
+          </a>
+        {% endfor %}
+      </div>
+    </section>
   {% endfor %}
-</div>
+{% endwith %}
+{% if include_grid_chunk %}
+  <div class="mig-hidden" data-chunk-grid>
+    {% for occ in occurrences %}
+      <div data-date="{{ occ.date|date:'Y-m-d' }}">
+        {% include 'events/_event_card.html' %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

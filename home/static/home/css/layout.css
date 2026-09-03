@@ -5,7 +5,7 @@
   margin-bottom: 1rem;
 }
 
-.citizens-filter-btn:hover, .citizens-filter-btn.active, .view-toggle-btn.active, .cal-trigger-btn[aria-expanded="true"], .show-earlier-btn:hover {
+.citizens-filter-btn:hover, .citizens-filter-btn.active, .view-toggle-btn.active, .show-earlier-btn:hover {
   color: var(--accent);
   border-color: var(--accent);
   background: var(--accent-muted);

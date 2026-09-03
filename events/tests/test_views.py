@@ -1,5 +1,5 @@
 import secrets
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
@@ -57,3 +57,22 @@ class EventViewTest(TestCase):
         self.client.login(username='testuser', password=self.test_password)
         response = self.client.get(reverse('events:list'))
         self.assertContains(response, "Private Visible")
+
+    def test_past_event_is_visible_in_selected_month(self):
+        past_event = Event.objects.create(title='Past Event', start_date=timezone.make_aware(datetime(2026, 6, 10, 10)), frequency='once')
+        response = self.client.get(reverse('events:list'), {'month': '2026-06'})
+        self.assertContains(response, past_event.title)
+        self.assertNotContains(response, 'agenda-month-header')
+
+    def test_event_from_next_month_is_not_visible(self):
+        Event.objects.create(title='Next Month Event', start_date=timezone.make_aware(datetime(2026, 7, 1)), frequency='once')
+        response = self.client.get(reverse('events:list'), {'month': '2026-06'})
+        self.assertNotContains(response, 'Next Month Event')
+
+    def test_agenda_chunk_loads_past_event_from_selected_month(self):
+        start_date = timezone.now() - timedelta(days=60)
+        past_event = Event.objects.create(title='Older Past Event', start_date=start_date, frequency='once')
+        month = timezone.localtime(start_date).strftime('%Y-%m')
+        response = self.client.get(reverse('events:agenda_chunk'), {'month': month}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, past_event.title)

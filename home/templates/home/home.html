@@ -464,12 +464,12 @@
   var calendarEl = document.getElementById('calendar');
   var calendarUrl = '{% url "events:calendar" %}';
   function loadMonth(month) {
-    fetch(calendarUrl + '?month=' + month, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+    fetch(calendarUrl + (month ? '?month=' + month : ''), {headers: {'X-Requested-With': 'XMLHttpRequest'}})
       .then(function(r){ return r.text(); })
       .then(function(html){
         calendarEl.innerHTML = html;
         bindNav();
-        history.replaceState(null, '', '?month=' + month + '#calendar');
+        history.replaceState(null, '', (month ? '?month=' + month : window.location.pathname) + '#calendar');
       });
   }
   function bindNav() {

@@ -5,10 +5,10 @@ A simple Django app for managing cyclical events in the Wikikracja project.
 ## Features
 
 - **Simple Event Management**: Create, view, edit, and delete events
-- **Cyclical Events**: Support for one-time, daily, weekly, monthly, and yearly recurring events
+- **Cyclical Events**: Support for one-time, daily, weekly, monthly, ordinal-monthly, and yearly recurring events
+- **Monthly Calendar**: Permanent mini-calendar with month navigation, year selection, and event markers
+- **Agenda and Grid Views**: Displays past and upcoming occurrences from the selected month
 - **Bootstrap UI**: Clean, responsive interface using Bootstrap 5 and django-crispy-forms
-- **Built-in Views**: Uses Django's built-in class-based views for simplicity
-- **No User Configuration**: Keeps things simple with no per-user settings
 - **No Participant Management**: Focus on event scheduling only
 
 ## Models
@@ -23,7 +23,7 @@ A simple Django app for managing cyclical events in the Wikikracja project.
 
 ## URLs
 
-- `/events/` - List all active events
+- `/events/` - Calendar and active event occurrences for the selected month
 - `/events/<id>/` - View event details
 - `/events/create/` - Create new event (requires login)
 - `/events/<id>/edit/` - Edit event (requires login)
@@ -32,10 +32,11 @@ A simple Django app for managing cyclical events in the Wikikracja project.
 ## Usage
 
 1. Navigate to the Events section in the main navigation
-2. View all active events in a card-based layout
-3. Click on any event to see full details
-4. Logged-in users can create, edit, and delete events
-5. For recurring events, the system calculates the next occurrence automatically
+2. Select a month with the calendar arrows and a year from the year selector
+3. View that month's occurrences in the agenda or grid layout
+4. Select a calendar day to focus the list from that date
+5. Click an event to see full details
+6. Logged-in users can create, edit, and delete events
 
 ## Admin Interface
 

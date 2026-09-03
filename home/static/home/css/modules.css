@@ -1808,6 +1808,13 @@ button.task-against-btn:focus-visible {
   border: 1px solid var(--border);
   padding: .25rem;
 }
+#events-calendar .cal-table th {
+  padding: .2rem 0;
+}
+#events-calendar .cal-table td {
+  height: 38px;
+  padding: .15rem;
+}
 .cal-day.today {
   background: var(--accent);
   color: var(--text-on-accent);
@@ -1835,7 +1842,7 @@ button.task-against-btn:focus-visible {
   gap: 2px;
   align-items: center;
   justify-content: center;
-  margin-top: 3px;
+  margin-top: 0;
   min-height: 7px;
 }
 .cal-dots-more {
@@ -1846,9 +1853,10 @@ button.task-against-btn:focus-visible {
 }
 .cal-day-link {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 0;
+  justify-content: center;
+  gap: .25rem;
   text-decoration: none;
   padding: 2px;
   border-radius: .35rem;
@@ -1875,6 +1883,35 @@ button.task-against-btn:focus-visible {
   padding: .25rem 0;
   flex-wrap: wrap;
   gap: .5rem;
+}
+.cal-month-controls {
+  display: inline-flex;
+  align-items: center;
+}
+#events-calendar {
+  margin-bottom: .75rem;
+}
+#events-calendar .cal-container {
+  padding: .65rem;
+}
+#events-calendar .cal-toolbar {
+  justify-content: flex-start;
+  margin-bottom: .45rem;
+  padding: .1rem 0;
+  gap: .35rem;
+}
+#events-calendar .cal-toolbar-nav {
+  margin-left: auto;
+}
+.cal-year-select {
+  min-width: 8.5rem;
+  padding: .28rem 1.8rem .28rem .55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: .85rem;
+  cursor: pointer;
 }
 .cal-month-title {
   font-size: .95rem;
@@ -2274,77 +2311,18 @@ button.task-against-btn:focus-visible {
 
 /* ══════════════════════════════════════════════════
    AGENDA VIEW (Google-Calendar-like list)
-   Layout: month divider · [day label | event chips]
+   Layout: [day label | event chips]
    ══════════════════════════════════════════════════ */
 .events-agenda {
   display: flex;
   flex-direction: column;
   gap: .15rem;
 }
-/* Plain text label (not a button — drawer trigger lives in toolbar) */
-.agenda-month-header {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  text-transform: capitalize;
-  margin: 1.1rem 0 .45rem;
-  padding: .35rem 0;
-  border-bottom: 1px solid var(--border);
-  letter-spacing: .02em;
-}
-.events-agenda > .agenda-month-header:first-child {
-  margin-top: 0;
-}
-
-/* Toolbar drawer trigger — shows currently-loaded month, clickable to open/close */
-.cal-trigger-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: .45rem;
-  padding: .32rem .8rem;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-btn);
-  color: var(--text-primary);
-  font-size: .82rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
-  text-transform: capitalize;
-}
-.cal-trigger-btn:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-.agenda-month-chevron {
-  font-size: .7rem;
-  color: var(--text-muted);
-  transition: transform var(--transition-med) ease;
-}
-.cal-trigger-btn[aria-expanded="true"] .agenda-month-chevron {
-  transform: rotate(180deg);
-  color: var(--accent);
-}
-
-/* Drawer: collapsed by default; slides down on open */
-.agenda-month-drawer {
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: max-height var(--transition-slow) ease, opacity var(--transition-med) ease, margin var(--transition-med) ease;
-  margin: 0;
-}
-.agenda-month-drawer--open {
-  max-height: 600px;  /* generous; actual height is bounded by content */
-  opacity: 1;
-  margin: 0 0 .85rem;
-}
-.agenda-month-drawer--loading {
+.events-calendar--loading {
   min-height: 80px;
   position: relative;
 }
-.agenda-month-drawer--loading::after {
+.events-calendar--loading::after {
   content: '';
   position: absolute;
   top: 50%;
