@@ -296,7 +296,7 @@
           {% endfor %}
         </ul>
         <span class="card-footer-link">{% trans "All my activities" %} →</span>
-        <a id="dash-my-tasks" href="{% url 'tasks:list' %}?tab=mine" class="stretched-link" aria-label="{% trans 'All my activities' %}"></a>
+        <a id="dash-my-tasks" href="{% url 'tasks:list' %}?tab=mine" class="stretched-link" aria-label="{% trans 'All my activities' %}" title="{% trans 'All my activities' %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center text-muted text-md">{% trans "You have no assigned activities" %}</p>

@@ -769,6 +769,17 @@
 
 /* Utility rules extracted from light-mode.css */
 
+.text-wrap-mobile,
+.text-title-clamp,
+.text-title-clamp-2,
+.text-subtitle-clamp,
+.text-subtitle-clamp-2 {
+  overflow-wrap: anywhere;
+  white-space: normal;
+  min-width: 0;
+  max-width: 100%;
+}
+
 .text-title-clamp {
   font-size: .875rem;
   line-height: 1.3;

@@ -2851,7 +2851,12 @@ td.notes-col {
     margin: 0.5rem 0.5rem 0.5rem 0;
     padding: 1rem;
     max-width: 98%;
+    min-width: 0;
     box-sizing: border-box;
+  }
+  .board-post-card .post-header {
+    min-width: 0;
+    max-width: 100%;
   }
   .board-post-card h3 {
     font-size: 1.2rem;
