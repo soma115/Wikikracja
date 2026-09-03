@@ -2,12 +2,14 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.db.models import Prefetch
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy
 
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryItemsAPI, CategoryReorderAPI
+from chat.models import Message
 from chat.views import get_translations as get_chat_translations
 
 from .forms import PostForm
@@ -57,15 +59,25 @@ def board(request: HttpRequest) -> HttpResponse:
         except (ValueError, TypeError):
             pass
 
+    posts_query = Post.objects.select_related('category', 'author', 'chat_room').prefetch_related(Prefetch('chat_room__messages', queryset=Message.objects.only('id', 'room')), 'chat_room__seen_by')
     if request.user.is_authenticated:
-        posts_all = Post.objects.all().select_related('category', 'author')
+        posts_all = posts_query.all()
     else:
-        posts_all = Post.objects.filter(is_public=True).select_related('category', 'author')
+        posts_all = posts_query.filter(is_public=True)
 
     categories = list(PostCategory.objects.all())
     posts_by_cat = {}
     uncategorized = []
     for post in posts_all:
+        room = post.chat_room
+        if room:
+            post.chat_room_message_count = room.messages.count()
+            is_unseen = request.user.is_authenticated and post.chat_room_message_count and request.user not in room.seen_by.all()
+            post.chat_room_pulse_class = 'chat-room-pulse' if is_unseen else ''
+        else:
+            post.chat_room_message_count = 0
+            post.chat_room_pulse_class = ''
+
         if post.category_id:
             posts_by_cat.setdefault(post.category_id, []).append(post)
         else:
@@ -154,11 +166,7 @@ def edit_post(request: HttpRequest, pk: int):
 
 def _post_detail_context(request: HttpRequest, post: Post):
     """Build common context for document detail views (including embedded chat)."""
-    chat_room = post.chat_room
-    chat_room_pulse_class = ""
-    if request.user.is_authenticated:
-        chat_room_pulse_class = post.get_chat_room_pulse_class(request.user)
-    return {'post': post, 'chat_room': chat_room, 'chat_room_pulse_class': chat_room_pulse_class, 'MESSAGE_MAX_LENGTH': settings.MESSAGE_MAX_LENGTH, 'ec_translations': get_chat_translations()}
+    return {'post': post, 'chat_room': post.chat_room, 'MESSAGE_MAX_LENGTH': settings.MESSAGE_MAX_LENGTH, 'ec_translations': get_chat_translations()}
 
 
 def view_post(request: HttpRequest, pk: int):

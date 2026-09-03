@@ -13,15 +13,6 @@
   <div class="post-header">
     <h1 class="post-title text-wrap-mobile">
       {{ post.title }}
-      {% if chat_room %}
-        <a href="{{ post.chat_room_url }}" class="chat-link {{ chat_room_pulse_class }}">
-          <i class="fas fa-comment-dots"></i>
-          <span>{% trans "Chat" %}</span>
-          {% with n=chat_room.messages.count %}
-            {% if n %}<span class="proposal-chat-count">{{ n }}</span>{% endif %}
-          {% endwith %}
-        </a>
-      {% endif %}
     </h1>
     {% if post.subtitle %}
       <h2 class="post-subtitle text-wrap-mobile">{{ post.subtitle }}</h2>

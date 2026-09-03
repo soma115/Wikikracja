@@ -20,9 +20,6 @@ Użycie:
     </a>
   </h2>
 
-  <!-- ZMIANA 3: breadcrumb skrócony dla embedded -->
-  <div class="ec-breadcrumb">💬 {% trans 'Discussion to:' %} {{ chat_room.title }}</div>
-
   <div class="embedded-chat"
        data-room-id="{{ chat_room.pk }}"
        data-csrf="{{ csrf_token }}">

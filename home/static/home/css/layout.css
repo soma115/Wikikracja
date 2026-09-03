@@ -51,6 +51,7 @@
   transition: background .15s;
   margin-bottom: 1rem;
   border-bottom: 1px solid var(--border);
+  cursor: pointer;
 }
 
 .post-row-link:hover {
@@ -67,6 +68,7 @@
   border-radius: var(--bs-card-border-radius, .375rem);
   transition: border-color .15s, background .15s;
   height: 100%;
+  cursor: pointer;
 }
 
 .post-card-link:hover {

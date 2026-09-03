@@ -48,13 +48,6 @@ class Post(ChatRoomModel, models.Model):
     def chat_room_url(self):
         return self.get_chat_room_url()
 
-    def get_chat_room_pulse_class(self, user):
-        """Return CSS class for chat room pulse indicator if there are unseen messages."""
-        room = self.chat_room
-        if room and room.messages.exists() and not room.seen_by.filter(id=user.id).exists():
-            return "chat-room-pulse"
-        return ""
-
     def delete(self, *args, **kwargs):
         if self.system_key:
             raise ValidationError(_("System posts cannot be deleted."))

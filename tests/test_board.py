@@ -9,7 +9,7 @@ import pytest
 from django.urls import reverse
 
 from board.models import Post
-from chat.models import Room
+from chat.models import Message, Room
 from tests.factories import PostFactory
 
 
@@ -71,3 +71,45 @@ def test_view_post_renders_embedded_chat(authenticated_client):
     assert res.status_code == 200
     assert 'ec-section' in res.content.decode()
     assert f'data-room-id="{post.chat_room_id}"' in res.content.decode()
+
+
+@pytest.mark.django_db
+def test_board_list_renders_chat_link(authenticated_client):
+    """Widok listy dokumentów pokazuje guzik czatu obok tytułu w obu układach."""
+    client, _ = authenticated_client
+    post = PostFactory(is_public=True)
+
+    res = client.get(reverse('board:start'))
+
+    assert res.status_code == 200
+    content = res.content.decode()
+    assert post.chat_room_url in content
+    assert 'chat-link' in content
+
+
+@pytest.mark.django_db
+def test_board_list_chat_pulse_for_unread_message(authenticated_client):
+    """Guzik czatu pulsuje, gdy są nieprzeczytane wiadomości w pokoju dokumentu."""
+    client, user = authenticated_client
+    post = PostFactory(is_public=True)
+    Message.objects.create(room=post.chat_room, text='Hello', sender=user)
+
+    res = client.get(reverse('board:start'))
+
+    assert res.status_code == 200
+    assert 'chat-room-pulse' in res.content.decode()
+
+
+@pytest.mark.django_db
+def test_view_post_detail_has_no_chat_link_next_to_title(authenticated_client):
+    """Widok szczegółów dokumentu nie pokazuje guzika czatu obok tytułu."""
+    client, _ = authenticated_client
+    post = PostFactory(is_public=True)
+
+    res = client.get(reverse('board:view_post', args=[post.pk]))
+
+    assert res.status_code == 200
+    content = res.content.decode()
+    assert 'ec-section' in content
+    assert f'data-room-id="{post.chat_room_id}"' in content
+    assert 'chat-link' not in content

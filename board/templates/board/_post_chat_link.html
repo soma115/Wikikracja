@@ -1,0 +1,12 @@
+{% load i18n %}
+{% if post.chat_room %}
+<a href="{{ post.chat_room_url }}"
+   class="chat-link {{ post.chat_room_pulse_class|default:'' }}"
+   onclick="event.stopPropagation()">
+  <i class="fas fa-comment-dots"></i>
+  <span>{% trans 'Chat' %}</span>
+  {% with n=post.chat_room_message_count|default:0 %}
+    {% if n %}<span class="proposal-chat-count">{{ n }}</span>{% endif %}
+  {% endwith %}
+</a>
+{% endif %}

@@ -51,7 +51,14 @@ class ParamSpec:
 PARAM_SPECS = [
     # --- Voting parameters ---
     ParamSpec(
-        'wymaganych_podpisow', 'WYMAGANYCH_PODPISOW', 'int', CATEGORY_VOTING, _('Required signatures'), _('Number of signatures a new proposal must gather to trigger a referendum.'), min_value=2, max_value=20
+        'wymaganych_podpisow',
+        'WYMAGANYCH_PODPISOW',
+        'int',
+        CATEGORY_VOTING,
+        _('Required signatures for referendum'),
+        _('Number of signatures a new proposal must gather to trigger a referendum.'),
+        min_value=2,
+        max_value=20,
     ),
     ParamSpec(
         'czas_na_zebranie_podpisow',

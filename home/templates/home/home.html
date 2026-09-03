@@ -120,7 +120,7 @@
         {% endfor %}
         <div id="activity-feed-more" class="activity-more">…</div>
       </div>
-      <a href="{% url 'activity' %}" class="stretched-link"></a>
+      <a href="{% url 'activity' %}" class="stretched-link" aria-label="{% trans 'Activity' %}" title="{% trans 'Activity' %}"></a>
       <script>
       // Initialize mark-as-read for home page activity feed
       window.CSRF_TOKEN = '{{ csrf_token }}';
@@ -154,13 +154,13 @@
         <a href="{% url 'events:list' %}" class="task-dash-row d-flex align-items-center gap-2 mt-auto calendar-link">
           <i class="fas fa-calendar-days text-xs opacity-70"></i>{% trans "Full calendar" %} →
         </a>
-        <a href="{% url 'events:list' %}" class="stretched-link"></a>
+        <a href="{% url 'events:list' %}" class="stretched-link" aria-label="{% trans 'Full calendar' %}" title="{% trans 'Full calendar' %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center text-muted text-md">{% trans "No upcoming events" %}</p>
           <a href="{% url 'events:create' %}" class="link-more">{% trans "Add an event" %} →</a>
         </div>
-        <a href="{% url 'events:list' %}" class="stretched-link"></a>
+        <a href="{% url 'events:list' %}" class="stretched-link" aria-label="{% trans 'Full calendar' %}" title="{% trans 'Full calendar' %}"></a>
         {% endif %}
       </div>
     </div>
@@ -193,13 +193,13 @@
           {% endfor %}
         </ul>
         <span class="card-footer-link">{% trans "All suggestions" %} →</span>
-        <a href="{% url 'glosowania:proposition' %}" class="stretched-link" title="{% trans "All suggestions" %}"></a>
+        <a href="{% url 'glosowania:proposition' %}" class="stretched-link" aria-label="{% trans 'All suggestions' %}" title="{% trans 'All suggestions' %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center text-muted text-md">{% trans "No voting proposals" %}</p>
           <a href="{% url 'glosowania:proposition' %}" class="link-more">{% trans "Go to Agora" %} →</a>
         </div>
-        <a href="{% url 'glosowania:proposition' %}" class="stretched-link" title="{% trans "All suggestions" %}"></a>
+        <a href="{% url 'glosowania:proposition' %}" class="stretched-link" aria-label="{% trans 'All suggestions' %}" title="{% trans 'All suggestions' %}"></a>
         {% endif %}
       </div>
     </div>
@@ -227,13 +227,13 @@
           {% endfor %}
         </ul>
         <span class="card-footer-link">{% trans "All discussions" %} →</span>
-        <a href="{% url 'glosowania:discussion' %}" class="stretched-link" title="{% trans "All discussions" %}"></a>
+        <a href="{% url 'glosowania:discussion' %}" class="stretched-link" aria-label="{% trans 'All discussions' %}" title="{% trans 'All discussions' %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center text-muted text-md">{% trans "No discussed votings" %}</p>
           <a href="{% url 'glosowania:discussion' %}" class="link-more">{% trans "Go to Agora" %} →</a>
         </div>
-        <a href="{% url 'glosowania:discussion' %}" class="stretched-link" title="{% trans "All discussions" %}"></a>
+        <a href="{% url 'glosowania:discussion' %}" class="stretched-link" aria-label="{% trans 'All discussions' %}" title="{% trans 'All discussions' %}"></a>
         {% endif %}
       </div>
     </div>
@@ -259,13 +259,13 @@
           </li>
         </ul>
         <span class="card-footer-link">{% trans "Go to Agora" %} →</span>
-        <a href="{% url 'glosowania:approved' %}" class="stretched-link" title="{% trans "Go to Agora" %}"></a>
+        <a href="{% url 'glosowania:approved' %}" class="stretched-link" aria-label="{% trans 'Go to Agora' %}" title="{% trans 'Go to Agora' %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center text-muted text-md">{% trans "No active votings" %}</p>
           <a href="{% url 'glosowania:approved' %}" class="link-more">{% trans "Go to Agora" %} →</a>
         </div>
-        <a href="{% url 'glosowania:approved' %}" class="stretched-link" title="{% trans "Go to Agora" %}"></a>
+        <a href="{% url 'glosowania:approved' %}" class="stretched-link" aria-label="{% trans 'Go to Agora' %}" title="{% trans 'Go to Agora' %}"></a>
         {% endif %}
       </div>
     </div>
@@ -302,7 +302,7 @@
           <p class="mb-0 text-center text-muted text-md">{% trans "You have no assigned activities" %}</p>
           <span class="text-sm text-accent">{% trans "See group activities" %} →</span>
         </div>
-        <a href="{% url 'tasks:list' %}" class="stretched-link"></a>
+        <a href="{% url 'tasks:list' %}" class="stretched-link" aria-label="{% trans 'See group activities' %}" title="{% trans 'See group activities' %}"></a>
         {% endif %}
       </div>
     </div>
@@ -316,7 +316,7 @@
           <i class="fas fa-users"></i>
           <span class="section-heading tile-heading">{% trans "New people" %}</span>
         </div>
-        <a href="{% url 'kandydaci' %}" class="stretched-link" aria-label="{% trans 'New people' %}"></a>
+        <a href="{% url 'kandydaci' %}" class="stretched-link" aria-label="{% trans 'New people' %}" title="{% trans 'New people' %}"></a>
         {% if new_people %}
         <div class="d-flex flex-wrap gap-2 align-items-center">
           {% for cit in new_people|slice:":6" %}
@@ -365,7 +365,7 @@
               <span class="{% if default_balance >= 0 %}balance-positive{% else %}balance-negative{% endif %}">{{ default_balance|floatformat:2 }} {{ default_symbol }}</span>
             </div>
           </div>
-          <a href="{% url 'bookkeeping:report_list' %}" class="stretched-link"></a>
+          <a href="{% url 'bookkeeping:report_list' %}" class="stretched-link" aria-label="{% trans 'Finances' %}" title="{% trans 'Finances' %}"></a>
         {% else %}
           {# Onboarding CTA — brak default assetu (pusta baza aktywów) #}
           <div class="d-flex flex-column gap-2 onboarding-hint">
@@ -433,13 +433,13 @@
           <span class="chat-msg-link">{{ msg.text|striptags|truncatechars:60 }}</span>
           <span class="chat-msg-room">{{ msg.room.title|truncatechars:18 }}</span>
           <span class="chat-msg-meta">{{ msg.time|date:"H:i" }}</span>
-          <a href="{% url 'chat:chat' %}#room_id={{ msg.room.id }}" class="stretched-link"></a>
+          <a href="{% url 'chat:chat' %}#room_id={{ msg.room.id }}" class="stretched-link" aria-label="{% trans 'Open chat' %} {{ msg.room.title }}" title="{% trans 'Open chat' %} {{ msg.room.title }}"></a>
         </div>
         {% empty %}
         <p class="text-center text-muted text-sm">{% trans "No news" %}</p>
         {% endfor %}
       </div>
-      <a href="{% url 'chat:chat' %}" class="stretched-link"></a>
+      <a href="{% url 'chat:chat' %}" class="stretched-link" aria-label="{% trans 'Chat' %}" title="{% trans 'Chat' %}"></a>
     </div>
   </div>
 

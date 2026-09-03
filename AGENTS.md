@@ -90,6 +90,11 @@ python scripts/run_tests.py
 - Klasy utility powinny być krótkie i semantyczne.
 - Inline style tylko dla dynamicznych wartości, których nie da się wyrazić klasą.
 
+### Ergonomia mobilna
+
+- Na małych ekranach (mobile) preferujemy umieszczanie kluczowych elementów interaktywnych (przyciski, akcje, toggles) po prawej stronie i w dolnej części ekranu — zgodnie z naturalnym zasięgiem kciuka praworęcznej ręki przy jednoręcznej obsłudze telefonu.
+- Nie stosuj tej zasady bezwzględnie: tekst, nagłówki, nawigacja i komunikaty systemowe pozostają czytelne w klasycznym układzie, jeśli przesunięcie do prawej/dołu pogorszyłoby czytelność lub naruszyłoby konwencje projektowe.
+
 ## 7. Znane pułapki / decyzje historyczne
 
 - **Prefiksy pokoi czatu:** pokoje tasków i głosowań są wiązane z encjami przez relację FK (`chat_room_id`), a nie po nazwie. Tytuły generują modele: taski używają prefiksu `Task #`, głosowania używają formatu `{pk}. {title}` (bez `Vote #`). Stringi `Task #` / `Vote #` występują tylko w komendzie `home/management/commands/fix_all_chat_connections.py` (obsługa starych pokoi przy migracji).
