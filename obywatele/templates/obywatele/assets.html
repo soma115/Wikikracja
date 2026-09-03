@@ -4,6 +4,8 @@
 {% load render_table from django_tables2 %}
 {% load crispy_forms_tags %}
 
+{% block prefs_scope %}obywatele{% endblock %}
+
 {% block citizens %}
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">

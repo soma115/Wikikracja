@@ -24,8 +24,6 @@
 
 	<!-- Anti-FOUC: restore theme before CSS loads -->
 	<script>(function(){var t=localStorage.getItem('app-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
-	<!-- Anti-FOUC: restore page filters from localStorage when URL has none (PagePrefs) -->
-	<script>(function(){var s=document.documentElement.dataset.prefsScope;if(!s||window.location.search)return;try{var d=JSON.parse(localStorage.getItem('wikikracja:prefs:'+s)||'{}');if(d.filters)window.location.replace(window.location.pathname+d.filters);}catch(e){}})();</script>
 	<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -106,12 +104,14 @@
 
         <li class="nav-item">
           <a href="{% url 'glosowania:approved' %}"
-          title="{% trans 'Votings' %}"
-          class="{% if request.resolver_match.namespace == 'glosowania' %}active{% endif %}">
-          <i class="fas fa-fw fa-landmark nav-icon"></i>
-          <span class="nav-text">{% trans "Votings" %}</span>
-        </a>
-      </li>
+             data-prefs-link-scope="glosowania"
+             data-prefs-base-href="{% url 'glosowania:approved' %}"
+             title="{% trans 'Votings' %}"
+             class="{% if request.resolver_match.namespace == 'glosowania' %}active{% endif %}">
+            <i class="fas fa-fw fa-landmark nav-icon"></i>
+            <span class="nav-text">{% trans "Votings" %}</span>
+          </a>
+        </li>
       
       <li class="nav-item">
         <a href="{% url 'ankiety:list' %}"
@@ -124,6 +124,8 @@
       
         <li class="nav-item">
           <a href="{% url 'obywatele:obywatele' %}"
+             data-prefs-link-scope="obywatele"
+             data-prefs-base-href="{% url 'obywatele:obywatele' %}"
              title="{% trans 'Citizens' %}"
              class="{% if request.resolver_match.namespace == 'obywatele' and request.resolver_match.url_name != 'my_profile' and request.resolver_match.url_name != 'haslo' and request.resolver_match.url_name != 'my_assets' and request.resolver_match.url_name != 'change_email' and request.resolver_match.url_name != 'change_username' and request.resolver_match.url_name != 'upload_avatar' and request.resolver_match.url_name != 'set_language' and request.resolver_match.url_name != 'toggle_notification' and request.resolver_match.url_name != 'request_deletion' and request.resolver_match.url_name != 'cancel_deletion' %}active{% endif %}">
             <i class="fas fa-fw fa-users nav-icon"></i>
@@ -133,6 +135,8 @@
 
         <li class="nav-item">
           <a href="{% url 'tasks:list' %}"
+             data-prefs-link-scope="tasks"
+             data-prefs-base-href="{% url 'tasks:list' %}"
              title="{% trans 'Activities' %}"
              class="{% if request.resolver_match.namespace == 'tasks' %}active{% endif %}">
             <i class="fas fa-fw fa-bolt nav-icon"></i>
@@ -142,8 +146,10 @@
 
         <li class="nav-item">
           <a href="{% url 'board:start' %}"
-              title="{% trans 'Documents' %}"
-              class="{% if request.resolver_match.namespace == 'board' %}active{% endif %}">
+             data-prefs-link-scope="board"
+             data-prefs-base-href="{% url 'board:start' %}"
+             title="{% trans 'Documents' %}"
+             class="{% if request.resolver_match.namespace == 'board' %}active{% endif %}">
             <i class="fas fa-fw fa-chalkboard nav-icon"></i>
             <span class="nav-text">{% trans "Documents" %}</span>
           </a>
@@ -151,6 +157,8 @@
 
         <li class="nav-item">
           <a href="{% url 'events:list' %}"
+             data-prefs-link-scope="events"
+             data-prefs-base-href="{% url 'events:list' %}"
              title="{% trans 'Calendar' %}"
              class="{% if request.resolver_match.namespace == 'events' %}active{% endif %}">
             <i class="fas fa-fw fa-calendar-days nav-icon"></i>
@@ -160,6 +168,8 @@
 
         <li class="nav-item">
           <a href="{% url 'bookkeeping:report_list' %}"
+             data-prefs-link-scope="bookkeeping"
+             data-prefs-base-href="{% url 'bookkeeping:report_list' %}"
              title="{% trans 'Finance' %}"
              class="{% if request.resolver_match.namespace == 'bookkeeping' %}active{% endif %}">
             <i class="fas fa-fw fa-wallet nav-icon"></i>
@@ -205,6 +215,15 @@
       <i class="fas fa-angles-left" id="sidebar-collapse-icon"></i>
       <span class="sidebar-toggle-label ms-2">{% trans "Collapse" %}</span>
     </button>
+
+    <!-- Restore saved filters into sidebar links before first paint -->
+    <script>
+    (function() {
+        if (window.PagePrefs && typeof window.PagePrefs.patchSidebarLinks === 'function') {
+            window.PagePrefs.patchSidebarLinks();
+        }
+    })();
+    </script>
 
   </aside>
   <!-- ==================== END SIDEBAR ==================== -->
@@ -270,7 +289,11 @@
       </button>
 
       <!-- Notification bell -->
-      <a href="{% url 'activity' %}" class="notif-bell" title="{% trans 'Activity' %}">
+      <a href="{% url 'activity' %}"
+         class="notif-bell"
+         data-prefs-link-scope="activity"
+         data-prefs-base-href="{% url 'activity' %}"
+         title="{% trans 'Activity' %}">
         <i class="far fa-bell"></i>
         {% if unread_count %}<span class="notif-count">{{ unread_count }}</span>{% endif %}
       </a>

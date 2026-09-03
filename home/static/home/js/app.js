@@ -230,10 +230,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function scope() {
         var base = baseScope();
         if (!base) return '';
-        if (base === 'glosowania') {
+        var multiPage = ['glosowania', 'bookkeeping', 'obywatele'];
+        if (multiPage.indexOf(base) !== -1) {
             var pathParts = window.location.pathname.split('/').filter(Boolean);
             var subpage = pathParts[pathParts.length - 1] || '';
-            return subpage ? base + ':' + subpage : base;
+            if (subpage && subpage !== base) return base + ':' + subpage;
         }
         return base;
     }
@@ -245,11 +246,14 @@ document.addEventListener('DOMContentLoaded', function() {
         catch (e) { return {}; }
     }
 
+    function writeTo(scopeName, patch) {
+        if (!scopeName) return;
+        var data = Object.assign(read(scopeName), patch);
+        localStorage.setItem(KEY_PREFIX + scopeName, JSON.stringify(data));
+    }
+
     function write(patch) {
-        var s = scope();
-        if (!s) return;
-        var data = Object.assign(read(), patch);
-        localStorage.setItem(KEY_PREFIX + s, JSON.stringify(data));
+        writeTo(scope(), patch);
     }
 
     function clear() {
@@ -297,7 +301,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function saveCurrentFilters() {
-        if (scope()) write({ filters: window.location.search });
+        var s = scope();
+        var b = baseScope();
+        if (!s || !b) return;
+        var filters = window.location.search;
+        if (filters) write({ filters: filters });
+        if (s !== b || filters) writeTo(b, { lastUrl: window.location.pathname + filters });
     }
 
     // One-shot migracja starych kluczy → nowy format JSON per scope
@@ -338,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
         applyView(savedView);
 
         // 2. Zapisz aktualny URL (gdy ma params — pokrywa reload, klik linka sortowania)
-        if (window.location.search) saveCurrentFilters();
+        saveCurrentFilters();
 
         // 3. Patch history.pushState — łapie zmiany URL przez JS (kategoria filter w tasks/board)
         var origPush = history.pushState;
@@ -371,6 +380,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function patchSidebarLinks() {
+        document.querySelectorAll('[data-prefs-link-scope]').forEach(function(link) {
+            var scopeName = link.dataset.prefsLinkScope;
+            if (!scopeName) return;
+            var data = read(scopeName);
+            if (data && data.lastUrl) {
+                link.setAttribute('href', data.lastUrl);
+                return;
+            }
+            if (!data || !data.filters || data.filters === '?') return;
+            var filters = data.filters;
+            if (filters.charAt(0) !== '?') return;
+            var base = link.dataset.prefsBaseHref || link.getAttribute('href') || '';
+            if (!base || base.indexOf('?') !== -1) return;
+            link.setAttribute('href', base + filters);
+        });
+    }
+
     migrateLegacyKeys();
 
     window.PagePrefs = {
@@ -380,10 +407,12 @@ document.addEventListener('DOMContentLoaded', function() {
         read: read,
         write: write,
         clear: clear,
-        saveCurrentFilters: saveCurrentFilters
+        saveCurrentFilters: saveCurrentFilters,
+        patchSidebarLinks: patchSidebarLinks
     };
 
     document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', patchSidebarLinks);
 })();
 
 document.addEventListener('DOMContentLoaded', function() {
