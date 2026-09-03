@@ -32,6 +32,17 @@ class ChatViewsTest(TestCase):
         response = self.client.get(reverse("chat:chat"))
         self.assertEqual(response.status_code, 200)
 
+    def test_chat_view_includes_document_rooms(self):
+        from board.models import Post
+
+        post = Post.objects.create(title="Board doc", text="<p>content</p>", author=self.user)
+        self.assertIsNotNone(post.chat_room)
+
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("chat:chat"))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(post.chat_room, response.context["posts_tree_active"])
+
     def test_add_room_get_requires_login(self):
         response = self.client.get(reverse("chat:add_room"))
         self.assertEqual(response.status_code, 302)

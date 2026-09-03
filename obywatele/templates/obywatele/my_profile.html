@@ -3,6 +3,12 @@
 {% load i18n %}
 {% load profile_tags %}
 
+{% block extra_css %}
+<style>
+.email-frequency-cell { min-width: 140px; }
+</style>
+{% endblock %}
+
 {% block extra_js %}
 <script src="{% static 'obywatele/js/profile.js' %}"></script>
 <script>
@@ -198,9 +204,21 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
           <tbody>
-            {% for notif in notifications %}
-            {% notification_row notif.type notif.title notif.description notif.enabled %}
-            {% endfor %}
+            <tr>
+              <td>
+                <strong>{% trans "Email frequency" %}</strong>
+              </td>
+              <td>
+                <small class="text-muted">{% trans "How often to receive an activity digest by email" %}</small>
+              </td>
+              <td class="text-end email-frequency-cell">
+                <select id="email-frequency" class="form-select form-select-sm" aria-label="{% trans "Email frequency" %}" data-url="{% url 'obywatele:toggle_notification' %}?type=email_frequency">
+                  {% for value, label in email_frequency_choices %}
+                  <option value="{{ value }}" {% if email_frequency == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>

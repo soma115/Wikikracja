@@ -19,7 +19,7 @@
 
     <div class="stepper-step-wrap {% if t == 'awaiting' %}active{% endif %}">
       <a href="{% url 'tasks:list' %}?tab=awaiting&sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="stepper-step">
-        {% trans 'Awaiting pickup' %}
+        {% trans 'Awaiting' %}
       </a>
     </div>
 

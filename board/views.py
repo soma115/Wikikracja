@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -7,6 +8,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy
 
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryItemsAPI, CategoryReorderAPI
+from chat.views import get_translations as get_chat_translations
 
 from .forms import PostForm
 from .models import Post, PostAttachment, PostCategory
@@ -150,14 +152,23 @@ def edit_post(request: HttpRequest, pk: int):
     return render(request, 'board/edit_post.html', {'form': form, 'post': post})
 
 
+def _post_detail_context(request: HttpRequest, post: Post):
+    """Build common context for document detail views (including embedded chat)."""
+    chat_room = post.chat_room
+    chat_room_pulse_class = ""
+    if request.user.is_authenticated:
+        chat_room_pulse_class = post.get_chat_room_pulse_class(request.user)
+    return {'post': post, 'chat_room': chat_room, 'chat_room_pulse_class': chat_room_pulse_class, 'MESSAGE_MAX_LENGTH': settings.MESSAGE_MAX_LENGTH, 'ec_translations': get_chat_translations()}
+
+
 def view_post(request: HttpRequest, pk: int):
-    post = get_object_or_404(Post, pk=pk)  # Only published documents can be viewed
-    return render(request, 'board/post_detail.html', {'post': post})
+    post = get_object_or_404(Post.objects.select_related('chat_room'), pk=pk)  # Only published documents can be viewed
+    return render(request, 'board/post_detail.html', _post_detail_context(request, post))
 
 
 def view_post_by_slug(request: HttpRequest, slug: str):
-    post = get_object_or_404(Post, slug=slug)
-    return render(request, 'board/post_detail.html', {'post': post})
+    post = get_object_or_404(Post.objects.select_related('chat_room'), slug=slug)
+    return render(request, 'board/post_detail.html', _post_detail_context(request, post))
 
 
 @login_required

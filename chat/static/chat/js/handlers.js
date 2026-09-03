@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const globalArchiveBtn = document.getElementById('archive-toggle-global-btn');
-    const archiveSectionIds = ['pub-rooms-archive', 'tasks-archive', 'votes-archive', 'prv-archive'];
+    const archiveSectionIds = ['pub-rooms-archive', 'tasks-archive', 'votes-archive', 'documents-archive', 'prv-archive'];
 
     function setArchivesVisible(visible) {
         archiveSectionIds.forEach(targetId => {

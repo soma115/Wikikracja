@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from categories.models import AbstractCategory
+from chat.models import ChatRoomModel
 
 User = get_user_model()
 
@@ -17,7 +19,7 @@ class PostCategory(AbstractCategory):
         verbose_name_plural = _("Post Categories")
 
 
-class Post(models.Model):
+class Post(ChatRoomModel, models.Model):
     title = models.CharField(max_length=200, verbose_name=_("Title"))
     subtitle = models.CharField(max_length=200, null=True, blank=True, verbose_name=_("Subtitle"))
     text = models.TextField(verbose_name=_("Text"))
@@ -33,6 +35,25 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_chat_room_title(self):
+        return f"Document #{self.id}: {self.title}"[:90]
+
+    def get_chat_room_url(self):
+        if self.chat_room_id:
+            return f"{reverse('chat:chat')}#room_id={self.chat_room_id}"
+        return None
+
+    @property
+    def chat_room_url(self):
+        return self.get_chat_room_url()
+
+    def get_chat_room_pulse_class(self, user):
+        """Return CSS class for chat room pulse indicator if there are unseen messages."""
+        room = self.chat_room
+        if room and room.messages.exists() and not room.seen_by.filter(id=user.id).exists():
+            return "chat-room-pulse"
+        return ""
 
     def delete(self, *args, **kwargs):
         if self.system_key:

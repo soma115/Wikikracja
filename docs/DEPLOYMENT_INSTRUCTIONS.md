@@ -480,7 +480,6 @@ Custom management commands available:
 
 ```bash
 # Chat management
-python manage.py chat_messages      # Manage chat messages
 python manage.py chat_rooms         # Manage chat rooms
 
 # User management

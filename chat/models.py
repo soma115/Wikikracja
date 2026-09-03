@@ -94,11 +94,13 @@ class Room(models.Model):
         return self.allowed.exclude(id=user.id).first()
 
     def clean_title(self):
-        """Return title without source prefix for task/vote rooms."""
+        """Return title without source prefix for task/vote/document rooms."""
         if self.source_app == 'tasks' and self.source_object_id and self.title.startswith(f'Task #{self.source_object_id}: '):
             return self.title[len(f'Task #{self.source_object_id}: ') :]
         if self.source_app == 'glosowania' and self.source_object_id and self.title.startswith(f'{self.source_object_id}. '):
             return self.title[len(f'{self.source_object_id}. ') :]
+        if self.source_app == 'board' and self.source_object_id and self.title.startswith(f'Document #{self.source_object_id}: '):
+            return self.title[len(f'Document #{self.source_object_id}: ') :]
         return self.title
 
     # Name that user will see in chats list

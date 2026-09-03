@@ -144,6 +144,30 @@
             </div>
           </div>
 
+          <!-- ── Documents ── -->
+          <div class="nav-category" data-category="documents">
+            <div class="nav-cat-header">
+              <button class="nav-cat-btn" data-cat-content="cat-documents" aria-expanded="true">
+                <span class="nav-cat-arrow">▼</span>
+                {% trans 'Documents' %}
+              </button>
+            </div>
+            <div class="nav-cat-content open" id="cat-documents">
+              {% for room in posts_tree_active %}
+                {% include 'chat/room_link.html' with room_kind='document' %}
+              {% empty %}
+                <p class="text-muted text-center small">{% trans 'None' %}</p>
+              {% endfor %}
+              <div id="content-documents-archive" class="archive-section">
+                {% for room in posts_tree_archived %}
+                  {% include 'chat/room_link.html' with room_kind='document' %}
+                {% empty %}
+                  <p class="text-muted text-center small">{% trans 'None' %}</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
           <!-- ── Private ── -->
           <div class="nav-category" data-category="private">
             <div class="nav-cat-header">
@@ -234,6 +258,10 @@
           <div class="alert alert-primary">
             <h6><i class="fas fa-vote-yea me-2"></i>{% trans 'Referendums' %}</h6>
             <p class="mb-0">{% trans 'Referendum rooms are created for voting and decision-making processes. They are protected from automatic deletion and provide a space for discussions about proposals.' %}</p>
+          </div>
+          <div class="alert alert-dark">
+            <h6><i class="fas fa-file-alt me-2"></i>{% trans 'Documents' %}</h6>
+            <p class="mb-0">{% trans 'Document rooms are created for each board document. They are protected from automatic deletion and provide a space for discussions about documents.' %}</p>
           </div>
           <div class="alert alert-secondary">
             <h6><i class="fas fa-lock me-2"></i>{% trans 'Private Messages' %}</h6>

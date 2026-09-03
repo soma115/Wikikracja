@@ -20,7 +20,7 @@ from push_notifications.models import GCMDevice
 
 from site_settings.models import SiteSettings
 from site_settings.services import get_branding_version
-from zzz.signals import citizen_accepted, citizen_blocked, citizen_proposed, event_starting, important_post_published, task_created, vote_started, vote_state_changed
+from zzz.signals import citizen_accepted, citizen_blocked, citizen_proposed, event_starting, important_post_published, survey_created, task_created, vote_started, vote_state_changed
 from zzz.utils import build_site_url
 
 log = logging.getLogger(__name__)
@@ -105,7 +105,15 @@ def _migrate_legacy_gcm_devices():
 
 
 # Maps a notification category to the Uzytkownik push preference field.
-_PUSH_FIELDS = {'obywatele': 'push_notifications_obywatele', 'glosowania': 'push_notifications_glosowania', 'chat': 'push_notifications_chat', 'events': 'push_notifications_events'}
+_PUSH_FIELDS = {
+    'obywatele': 'push_notifications_obywatele',
+    'glosowania': 'push_notifications_glosowania',
+    'chat': 'push_notifications_chat',
+    'events': 'push_notifications_events',
+    'post': 'push_notifications_post',
+    'task': 'push_notifications_task',
+    'survey': 'push_notifications_survey',
+}
 
 
 def _push_enabled_for_user(user, notification_type):
@@ -286,8 +294,6 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
     Remaining keyword arguments are treated as extra payload keys for FCM/WebSocket
     notifications (e.g. `vote_id`, `citizen_id`).
     """
-    from zzz.email import send_notification_email_to_active_users
-
     notification_type = kwargs.pop('notification_type', None)
     ws_type = kwargs.pop('ws_type', 'notification')
     email_subject = kwargs.pop('email_subject', None) or title
@@ -300,10 +306,10 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
     send_email = kwargs.pop('send_email', True)
     in_thread = kwargs.pop('in_thread', True)
     daemon = kwargs.pop('daemon', True)
-    strip_html = kwargs.pop('strip_html', False)
-    log_prefix = kwargs.pop('log_prefix', '')
+    kwargs.pop('strip_html', False)
+    kwargs.pop('log_prefix', '')
     sleep_before = kwargs.pop('sleep_before', 0)
-    raise_on_error = kwargs.pop('raise_on_error', True)
+    kwargs.pop('raise_on_error', True)
     extra = kwargs
 
     notification = None
@@ -324,8 +330,6 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [recipient_email], fail_silently=False)
         except Exception as e:
             log.error(f'Failed to send email to {recipient_email}: {e}', exc_info=True)
-    elif send_email:
-        send_notification_email_to_active_users(email_subject, email_body, notification_type=notification_type, strip_html=strip_html, log_prefix=log_prefix, daemon=daemon, raise_on_error=raise_on_error)
 
 
 @receiver(citizen_proposed)
@@ -357,7 +361,7 @@ def on_citizen_proposed(sender, candidate, proposed_by=None, **kwargs):
         email_body=email_body,
         send_push=True,
         send_websocket=True,
-        send_email=True,
+        send_email=False,
         citizen_id=candidate.id,
     )
 
@@ -434,7 +438,7 @@ def on_citizen_blocked(sender, user, **kwargs):
             ws_type='citizen.notification',
             send_push=True,
             send_websocket=True,
-            send_email=True,
+            send_email=False,
             in_thread=False,
             daemon=False,
             strip_html=True,
@@ -455,6 +459,8 @@ def on_vote_notification(sender, **kwargs):
     kwargs.setdefault('ws_type', 'vote.notification')
     kwargs.setdefault('in_thread', False)
     kwargs.setdefault('daemon', False)
+    # Digest emails are sent once daily; do not send immediate vote emails.
+    kwargs.setdefault('send_email', False)
 
     if 'title' in kwargs and 'body' in kwargs and 'click_action' in kwargs and 'tag' in kwargs:
         _dispatch_notification(kwargs.pop('title'), kwargs.pop('body'), kwargs.pop('click_action'), kwargs.pop('tag'), **kwargs)
@@ -488,7 +494,7 @@ def on_event_starting(sender, event, body=None, **kwargs):
         email_body=f"{notification_body}\n\n{click_action}",
         send_push=True,
         send_websocket=True,
-        send_email=True,
+        send_email=False,
         in_thread=False,
         event_id=event.id,
     )
@@ -500,7 +506,7 @@ def on_task_created(sender, task, url, **kwargs):
     title = _('New activity created')
     body = f'{task.title}\n{url}'
     _dispatch_notification(
-        title, body, url, f'task-{task.id}', notification_type=None, ws_type='task.notification', email_subject=title, email_body=body, send_push=True, send_websocket=True, send_email=True, task_id=task.id
+        title, body, url, f'task-{task.id}', notification_type='task', ws_type='task.notification', email_subject=title, email_body=body, send_push=True, send_websocket=True, send_email=False, task_id=task.id
     )
 
 
@@ -514,5 +520,26 @@ def on_important_post_published(sender, post, url, created=False, **kwargs):
     author = post.author.username if post.author else _('System')
     body = f'{post.title}\n{_("by")} {author}\n{url}'
     _dispatch_notification(
-        title, body, url, f'post-{post.id}', notification_type=None, ws_type='post.notification', email_subject=title, email_body=body, send_push=True, send_websocket=True, send_email=True, post_id=post.id
+        title, body, url, f'post-{post.id}', notification_type='post', ws_type='post.notification', email_subject=title, email_body=body, send_push=True, send_websocket=True, send_email=False, post_id=post.id
+    )
+
+
+@receiver(survey_created)
+def on_survey_created(sender, survey, url, **kwargs):
+    """Notify all active users about a newly created survey."""
+    title = _('New survey created')
+    body = f'{survey.title}\n{url}'
+    _dispatch_notification(
+        title,
+        body,
+        url,
+        f'survey-{survey.id}',
+        notification_type='survey',
+        ws_type='survey.notification',
+        email_subject=title,
+        email_body=body,
+        send_push=True,
+        send_websocket=True,
+        send_email=False,
+        survey_id=survey.id,
     )

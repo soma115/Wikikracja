@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta as td
+from datetime import timezone as dt_timezone
 
 from django.core.cache import cache
 from django.db.models import Count, Exists, OuterRef
@@ -72,6 +73,21 @@ def _unread_chat_message_counts(user, room_ids):
 
     counts = Message.objects.filter(room_id__in=room_ids, time__gte=since).exclude(sender=user).filter(~Exists(read)).values('room_id').annotate(unread=Count('id'))
     return {c['room_id']: c['unread'] for c in counts}
+
+
+def _chat_message_counts_since(user, room_ids, since):
+    """Return {room_id: message_count} for the user since a given point.
+
+    Counts messages in each room sent by someone else since `since`.
+    Used by email digests where every new message matters, not just unread.
+    """
+    if not room_ids:
+        return {}
+
+    from chat.models import Message
+
+    counts = Message.objects.filter(room_id__in=room_ids, time__gte=since).exclude(sender=user).values('room_id').annotate(msg_count=Count('id'))
+    return {c['room_id']: c['msg_count'] for c in counts}
 
 
 def generate_feed_items(user):
@@ -178,3 +194,79 @@ def make_read_status_markers(content_type: str):
 def invalidate_feed_cache_on_change(sender, **kwargs) -> None:
     """Generic signal receiver that invalidates the global feed cache."""
     invalidate_feed_cache()
+
+
+def _digest_group_key(item):
+    """Return a grouping key for a feed item used in email digests.
+
+    Citizen activities are grouped per user, room messages per room,
+    and other content types per object.
+    """
+    ct = item['content_type']
+    if ct == 'citizen':
+        author = item.get('author')
+        return (ct, author.id if author else item['object_id'])
+    return (ct, item['object_id'])
+
+
+def _sort_digest_items(items):
+    """Sort digest items like the activity page: events ascending, rest descending."""
+    epoch = timezone.datetime(1970, 1, 1, tzinfo=dt_timezone.utc)
+    events = [i for i in items if i['content_type'] == 'event']
+    others = [i for i in items if i['content_type'] != 'event']
+    events.sort(key=lambda x: x['timestamp'] or epoch)
+    others.sort(key=lambda x: x['timestamp'] or epoch, reverse=True)
+    return events + others
+
+
+def build_user_digest(user, since):
+    """Build a personalized list of activity items for an email digest.
+
+    Aggregates multiple feed rows for the same user/room/object into one
+    item and counts how many new messages appeared in chat rooms since
+    `since`. Items are sorted with upcoming events first, then newest first.
+    """
+    raw_items = collect_feed_items(since)
+
+    room_ids = [item['object_id'] for item in raw_items if item['content_type'] == 'room_messages']
+    chat_counts = _chat_message_counts_since(user, room_ids, since)
+
+    user_items = []
+    for item in raw_items:
+        ct = item['content_type']
+
+        # Filter by the digest time window (events with future timestamps are kept).
+        if item.get('timestamp') is not None and item['timestamp'] < since and ct != 'event':
+            continue
+
+        if ct == 'room_messages':
+            if not item.get('_is_public') and user.id not in item.get('_allowed_user_ids', set()):
+                continue
+            if not item.get('_is_public'):
+                other = next((name for uid, name in item.get('_allowed_usernames', {}).items() if uid != user.id), None)
+                if other:
+                    item = {**item, 'title': _("Messages in %(room_title)s") % {'room_title': other}}
+            msg_count = chat_counts.get(item['object_id'], 0)
+            if msg_count == 0:
+                continue
+            item = {**item, 'message_count': msg_count, 'update_count': msg_count}
+        else:
+            # ReadStatus tracking is irrelevant for email digests.
+            item = {**item, 'update_count': 1}
+
+        user_items.append(item)
+
+    # Aggregate multiple activities for the same citizen/room/object.
+    grouped = {}
+    counts = {}
+    for item in user_items:
+        key = _digest_group_key(item)
+        if key not in grouped or (item.get('timestamp') and (not grouped[key].get('timestamp') or item['timestamp'] > grouped[key]['timestamp'])):
+            grouped[key] = item
+        counts[key] = counts.get(key, 0) + 1
+
+    aggregated = []
+    for key, item in grouped.items():
+        aggregated.append({**item, 'update_count': counts[key]})
+
+    return _sort_digest_items(aggregated)

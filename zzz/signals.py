@@ -74,3 +74,12 @@ Provides arguments:
     event: The Event instance.
     body: Optional pre-computed body text.
 """
+
+
+survey_created = Signal()
+"""Sent when a new survey is created.
+
+Provides arguments:
+    survey: The Survey instance.
+    url: Absolute URL to the survey detail page.
+"""

@@ -1,0 +1,16 @@
+{% autoescape off %}[{{ site_name }}] {{ title }}
+
+{{ digest_intro }}
+
+{% for section in sections %}=== {{ section.label }} ===
+{% for item in section.items %}
+- {{ item.title }} [{{ item.timestamp }}]{% if item.meta %} ({{ item.meta }}){% endif %}
+  {{ item.url }}
+{% if item.description %}{% for line in item.description.splitlines %}  {{ line }}
+{% endfor %}{% endif %}
+{% empty %}
+  {{ no_activity_text }}
+{% endfor %}
+{% endfor %}
+
+{{ manage_text }} {{ settings_url }}{% endautoescape %}

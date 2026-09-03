@@ -111,6 +111,9 @@ def chat(request: HttpRequest):
     votes_tree_active = base_rooms.filter(source_app='glosowania', archived=False).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
     votes_tree_archived = base_rooms.filter(source_app='glosowania', archived=True).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
 
+    posts_tree_active = base_rooms.filter(source_app='board', archived=False).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
+    posts_tree_archived = base_rooms.filter(source_app='board', archived=True).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
+
     return render(
         request,
         "chat/chat.html",
@@ -122,6 +125,8 @@ def chat(request: HttpRequest):
             'tasks_tree_archived': tasks_tree_archived,
             'votes_tree_active': votes_tree_active,
             'votes_tree_archived': votes_tree_archived,
+            'posts_tree_active': posts_tree_active,
+            'posts_tree_archived': posts_tree_archived,
             'private_active': private_active,
             'private_archived': private_archived,
             'user': request.user,

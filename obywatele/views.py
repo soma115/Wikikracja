@@ -503,18 +503,14 @@ def my_profile(request: HttpRequest):
         {'field': 'why', 'label': _('Why do you want to join?')},
     ]
 
-    notifications = [
-        {'type': 'obywatele', 'title': _('Citizenship'), 'description': _('New citizens, membership requests'), 'enabled': profile.email_notifications_obywatele},
-        {'type': 'glosowania', 'title': _('Voting'), 'description': _('Law proposals, voting reminders, results'), 'enabled': profile.email_notifications_glosowania},
-        {'type': 'events', 'title': _('Events'), 'description': _('Upcoming events, reminders'), 'enabled': profile.email_notifications_events},
-        {'type': 'chat', 'title': _('Chat'), 'description': _('New messages from rooms you haven\'t muted'), 'enabled': profile.email_notifications_chat},
-    ]
-
     push_notifications = [
         {'type': 'push_obywatele', 'title': _('Citizenship'), 'description': _('New citizens, membership requests'), 'enabled': profile.push_notifications_obywatele},
         {'type': 'push_glosowania', 'title': _('Voting'), 'description': _('Law proposals, voting reminders, results'), 'enabled': profile.push_notifications_glosowania},
         {'type': 'push_events', 'title': _('Events'), 'description': _('Upcoming events, reminders'), 'enabled': profile.push_notifications_events},
         {'type': 'push_chat', 'title': _('Chat'), 'description': _('New messages from rooms you haven\'t muted'), 'enabled': profile.push_notifications_chat},
+        {'type': 'push_post', 'title': _('Documents'), 'description': _('New and updated documents'), 'enabled': profile.push_notifications_post},
+        {'type': 'push_task', 'title': _('Activities'), 'description': _('New activities'), 'enabled': profile.push_notifications_task},
+        {'type': 'push_survey', 'title': _('Surveys'), 'description': _('New surveys'), 'enabled': profile.push_notifications_survey},
     ]
 
     profile_form = ProfileForm(
@@ -548,7 +544,8 @@ def my_profile(request: HttpRequest):
             'population': population(),
             'required_reputation': required_reputation(),
             'asset_fields': asset_fields,
-            'notifications': notifications,
+            'email_frequency': profile.email_frequency,
+            'email_frequency_choices': Uzytkownik.EmailFrequency.choices,
             'push_notifications': push_notifications,
             'avatar_form': AvatarForm(),
             'profile_form': profile_form,
@@ -571,27 +568,35 @@ def upload_avatar(request: HttpRequest):
 @require_POST
 def toggle_notification(request: HttpRequest):
 
-    NOTIFICATION_FIELDS = {
-        'obywatele': 'email_notifications_obywatele',
-        'glosowania': 'email_notifications_glosowania',
-        'events': 'email_notifications_events',
-        'chat': 'email_notifications_chat',
+    PUSH_FIELDS = {
         'push_obywatele': 'push_notifications_obywatele',
         'push_glosowania': 'push_notifications_glosowania',
         'push_events': 'push_notifications_events',
         'push_chat': 'push_notifications_chat',
+        'push_post': 'push_notifications_post',
+        'push_task': 'push_notifications_task',
+        'push_survey': 'push_notifications_survey',
     }
 
     try:
         data = json.loads(request.body)
         notification_type = request.GET.get('type')
-        enabled = data.get('enabled', False)
 
-        field_name = NOTIFICATION_FIELDS.get(notification_type)
+        profile = request.user.uzytkownik
+
+        if notification_type == 'email_frequency':
+            value = data.get('value')
+            if value not in [choice[0] for choice in Uzytkownik.EmailFrequency.choices]:
+                return JsonResponse({'success': False, 'error': 'Invalid frequency'})
+            profile.email_frequency = value
+            profile.save()
+            return JsonResponse({'success': True})
+
+        field_name = PUSH_FIELDS.get(notification_type)
         if not field_name:
             return JsonResponse({'success': False, 'error': 'Invalid notification type'})
 
-        profile = request.user.uzytkownik
+        enabled = data.get('enabled', False)
         setattr(profile, field_name, enabled)
         profile.save()
 

@@ -6,7 +6,7 @@ The scheduler replaces traditional cron jobs with in-process scheduled tasks tha
 management commands at specific intervals.
 
 Scheduled Tasks:
-    - chat_messages: Runs at 9, 12, 15, 18, 21 (sends chat notification emails)
+    - send_email_digest: Runs daily at 08:00 (sends an aggregated activity digest email)
     - vote: Runs daily at 08:05 (processes voting, creates 1-to-1 chat rooms)
     - count_citizens: Runs every 10 minutes (manages user reputation and activation)
     - update_site: Runs every hour (syncs Site model with environment variables)

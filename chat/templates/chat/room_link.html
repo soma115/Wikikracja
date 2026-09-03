@@ -11,6 +11,8 @@
       <i class="fas fa-tasks" aria-hidden="true"></i>
     {% elif room_kind == 'vote' %}
       <i class="fas fa-vote-yea" aria-hidden="true"></i>
+    {% elif room_kind == 'document' %}
+      <i class="fas fa-file-alt" aria-hidden="true"></i>
     {% elif room_kind == 'private' %}
       {% with other=room|other_user:user %}
         {% if other.uzytkownik.avatar %}

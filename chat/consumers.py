@@ -542,6 +542,18 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         """Channel layer handler — relay a citizenship/people notification to the client."""
         await self.send_json({"notification": event["notification"]})
 
+    async def post_notification(self, event):
+        """Channel layer handler — relay a board document notification to the client."""
+        await self.send_json({"notification": event["notification"]})
+
+    async def task_notification(self, event):
+        """Channel layer handler — relay a task/activity notification to the client."""
+        await self.send_json({"notification": event["notification"]})
+
+    async def survey_notification(self, event):
+        """Channel layer handler — relay a survey notification to the client."""
+        await self.send_json({"notification": event["notification"]})
+
     @handlers.register("message-add-vote")
     async def handle_add_vote(self, proxy: HandledMessage, vote: str, message_id: int):
         existing_vote = await self.repo.get_vote(message_id)

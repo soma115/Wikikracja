@@ -9,6 +9,9 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
+from zzz.signals import survey_created
+from zzz.utils import build_site_url
+
 from .forms import SurveyForm
 from .models import Survey, SurveyOption, SurveyVote
 
@@ -98,6 +101,7 @@ def survey_create(request):
                 survey.author = request.user
                 survey.save()
                 form.create_options(survey)
+            survey_created.send(sender='ankiety.views.survey_create', survey=survey, url=build_site_url(survey.get_absolute_url()))
             messages.success(request, _("The survey has been created."))
             return redirect("ankiety:list")
     else:

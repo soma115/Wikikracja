@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <style type="text/css">
+    .email-body { margin: 0; padding: 0; background-color: #f4f4f7; font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; }
+    .email-wrapper { width: 100%; background-color: #f4f4f7; }
+    .email-container { padding: 32px 16px; }
+    .email-card { max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .email-header { padding: 28px 32px 24px; background: linear-gradient(135deg, #2b6cb0, #2c5282); color: #ffffff; }
+    .email-title { margin: 0; font-size: 22px; font-weight: 600; line-height: 1.3; }
+    .email-site { margin: 8px 0 0; font-size: 14px; opacity: 0.9; }
+    .email-content { padding: 28px 32px 8px; }
+    .email-intro { margin: 0 0 24px; color: #4a5568; font-size: 15px; line-height: 1.6; }
+    .email-section-title { margin: 28px 0 14px; font-size: 12px; font-weight: 700; color: #2d3748; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+    .email-item { margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid #edf2f7; }
+    .email-item-title { color: #2b6cb0; font-size: 16px; font-weight: 600; text-decoration: none; }
+    .email-item-meta { color: #718096; font-size: 13px; white-space: nowrap; }
+    .email-item-count { color: #a0aec0; font-size: 13px; }
+    .email-item-desc { margin: 8px 0 0; color: #4a5568; font-size: 14px; line-height: 1.5; }
+    .email-footer { padding: 24px 32px 28px; background-color: #f7fafc; text-align: center; }
+    .email-button { display: inline-block; padding: 12px 24px; background-color: #2b6cb0; color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600; }
+    .email-footer-text { margin: 18px 0 0; font-size: 12px; color: #718096; }
+    .email-footer-link { color: #4a5568; text-decoration: underline; }
+  </style>
+</head>
+<body class="email-body">
+  <table class="email-wrapper" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tr>
+      <td class="email-container" align="center">
+        <table class="email-card" role="presentation" width="600" cellspacing="0" cellpadding="0" border="0">
+          <tr>
+            <td class="email-header">
+              <h1 class="email-title">{{ title }}</h1>
+              <p class="email-site">{{ site_name }}</p>
+            </td>
+          </tr>
+          <tr>
+            <td class="email-content">
+              <p class="email-intro">{{ digest_intro }}</p>
+
+              {{ sections_html }}
+            </td>
+          </tr>
+          <tr>
+            <td class="email-footer">
+              <a class="email-button" href="{{ settings_url }}">{{ manage_button_text }}</a>
+              <p class="email-footer-text">
+                {{ manage_text }} <a class="email-footer-link" href="{{ settings_url }}">{{ settings_url }}</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

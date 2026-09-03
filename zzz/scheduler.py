@@ -22,7 +22,7 @@ def start_scheduler():
     Start APScheduler to run management commands on schedule.
     Uses file-based lock to ensure only one scheduler instance runs across multiple workers.
     Replaces cron jobs:
-    - 1 12,18 * * * -> chat_messages
+    - 0 8 * * * -> send_email_digest
     - */5 * * * * -> chat_rooms (every 5 minutes)
     - 5 8 * * * -> vote
     - */5 * * * * -> count_citizens (every 5 minutes)
@@ -45,9 +45,9 @@ def start_scheduler():
 
     scheduler = BackgroundScheduler(timezone=settings.TIME_ZONE)
 
-    # Chat messages - runs at 12, 18
-    scheduler.add_job(run_chat_messages, trigger=CronTrigger(hour='12,18', minute=1), id='chat_messages', name='Send chat message emails', replace_existing=True)
-    log.info("Scheduled job: chat_messages at 12, 18")
+    # Email activity digest - runs daily at 08:00
+    scheduler.add_job(run_send_email_digest, trigger=CronTrigger(hour=8, minute=0), id='send_email_digest', name='Send email activity digests', replace_existing=True)
+    log.info("Scheduled job: send_email_digest at 08:00 daily")
 
     # Chat rooms - runs every 5 minutes
     scheduler.add_job(run_chat_rooms, trigger=CronTrigger(minute='*/5'), id='chat_rooms', name='Create/Delete/Archive chat rooms', replace_existing=True)
@@ -124,10 +124,10 @@ def _run_command(command_name):
         log.error(f"Error running {command_name}: {e}", exc_info=True)
 
 
-def run_chat_messages():
-    """Execute chat_messages management command"""
+def run_send_email_digest():
+    """Execute send_email_digest management command"""
     with _db_lock:
-        _run_command('chat_messages')
+        _run_command('send_email_digest')
 
 
 def run_chat_rooms():

@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy as _
 
@@ -45,6 +46,12 @@ class Uzytkownik(models.Model):
         EMAIL_CONFIRMED = 'email_confirmed', _('Email confirmed')
         FORM_COMPLETED = 'form_completed', _('Form completed')
 
+    class EmailFrequency(models.TextChoices):
+        DAILY = 'daily', _('Daily')
+        WEEKLY = 'weekly', _('Weekly')
+        MONTHLY = 'monthly', _('Monthly')
+        NEVER = 'never', _('Never')
+
     uid = models.OneToOneField(User, on_delete=models.CASCADE, editable=False, null=True, verbose_name=_('Username'))
 
     reputation = models.SmallIntegerField(null=True, default=0)
@@ -73,7 +80,11 @@ class Uzytkownik(models.Model):
     # Last broadcast time
     last_broadcast = models.DateTimeField(default=make_aware(datetime(1900, 1, 1)))
 
-    # Email notification preferences
+    # Email digest frequency
+    email_frequency = models.CharField(max_length=10, choices=EmailFrequency.choices, default=EmailFrequency.DAILY, help_text=_('How often to receive email activity digests'), verbose_name=_('Email frequency'))
+    last_email_digest_at = models.DateTimeField(default=timezone.now, verbose_name=_('Last email digest sent at'))
+
+    # Email notification preferences (deprecated, replaced by email_frequency)
     email_notifications_obywatele = models.BooleanField(default=True, help_text=_('Receive notifications about new citizens and membership requests'), verbose_name=_('Citizenship notifications'))
     email_notifications_glosowania = models.BooleanField(default=True, help_text=_('Receive notifications about law proposals and voting'), verbose_name=_('Voting notifications'))
     email_notifications_chat = models.BooleanField(default=True, help_text=_('Receive notifications about new chat messages'), verbose_name=_('Chat notifications'))
@@ -84,6 +95,9 @@ class Uzytkownik(models.Model):
     push_notifications_glosowania = models.BooleanField(default=True, help_text=_('Receive push notifications about law proposals and voting'), verbose_name=_('Push voting notifications'))
     push_notifications_chat = models.BooleanField(default=True, help_text=_('Receive push notifications about new chat messages'), verbose_name=_('Push chat notifications'))
     push_notifications_events = models.BooleanField(default=True, help_text=_('Receive push notifications about events'), verbose_name=_('Push event notifications'))
+    push_notifications_post = models.BooleanField(default=True, help_text=_('Receive push notifications about new and updated documents'), verbose_name=_('Push document notifications'))
+    push_notifications_task = models.BooleanField(default=True, help_text=_('Receive push notifications about new activities'), verbose_name=_('Push activity notifications'))
+    push_notifications_survey = models.BooleanField(default=True, help_text=_('Receive push notifications about new surveys'), verbose_name=_('Push survey notifications'))
 
     ONBOARDING_FORM_FIELDS = ('phone', 'responsibilities', 'city', 'voivodeship', 'skills_knowledge_hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'want_to_learn', 'business', 'job', 'why')
 
