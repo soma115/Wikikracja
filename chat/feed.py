@@ -24,6 +24,9 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
         }
         messages = sorted((m for m in room.messages.all() if m.time >= since), key=lambda m: m.time, reverse=True)
         for msg in messages:
+            # The Inbox welcome message (system, in the Inbox room) is not user activity.
+            if room.is_inbox and msg.sender is None and not msg.anonymous:
+                continue
             items.append({**room_context, 'description': strip_tags(msg.text), 'author': msg.sender, 'timestamp': msg.time, 'object_id': msg.id})
     return items
 
@@ -32,11 +35,17 @@ def mark_as_read(object_id: int, user) -> None:
     try:
         message = Message.objects.get(pk=object_id)
         MessageReadBy.objects.get_or_create(message=message, user=user)
+        message.room.seen_by.add(user)
         cache.delete(CHAT_UNREAD_CACHE_KEY.format(user_id=user.id))
     except Message.DoesNotExist:
         pass
 
 
 def mark_as_unread(object_id: int, user) -> None:
-    MessageReadBy.objects.filter(message_id=object_id, user=user).delete()
-    cache.delete(CHAT_UNREAD_CACHE_KEY.format(user_id=user.id))
+    try:
+        message = Message.objects.get(pk=object_id)
+        MessageReadBy.objects.filter(message=message, user=user).delete()
+        message.room.seen_by.remove(user)
+        cache.delete(CHAT_UNREAD_CACHE_KEY.format(user_id=user.id))
+    except Message.DoesNotExist:
+        pass

@@ -61,7 +61,7 @@ class Room(models.Model):
 
     @staticmethod
     def create_inbox():
-        """Create the guest-facing Inbox room if it doesn't exist. Returns the room or None."""
+        """Ensure the guest-facing Inbox room exists and contains its welcome message. Returns the room or None."""
         from django.conf import settings
         from django.contrib.auth.models import User
         from django.db import IntegrityError, OperationalError
@@ -69,15 +69,22 @@ class Room(models.Model):
         if not getattr(settings, 'GROUP_IS_PUBLIC', True):
             return None
         try:
-            if Room.objects.filter(is_inbox=True).exists():
-                return None
-        except OperationalError:
+            room, created = Room.objects.get_or_create(is_inbox=True, defaults={'title': 'Inbox', 'public': True, 'protected': True})
+        except (IntegrityError, OperationalError):
             return None
-        try:
-            room = Room.objects.create(title='Inbox', public=True, protected=True, is_inbox=True)
-        except IntegrityError:
-            return None
-        room.allowed.set(User.objects.filter(is_active=True))
+        if created:
+            try:
+                room.allowed.set(User.objects.filter(is_active=True))
+            except OperationalError:
+                pass
+        if not room.messages.exists():
+            try:
+                Message.objects.create(
+                    room=room, sender=None, anonymous=False, text=_("This is where messages from unregistered people outside the group appear. They used the Contact (Send a message to the group) option.")
+                )
+                room.seen_by.set(User.objects.filter(is_active=True))
+            except (IntegrityError, OperationalError):
+                pass
         return room
 
     def __str__(self):

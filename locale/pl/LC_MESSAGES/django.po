@@ -1238,6 +1238,10 @@ msgstr "Wiadomość"
 msgid "Chat room"
 msgstr "Pokój czatu"
 
+#: .\chat\models.py:90 .\chat\models.py:91
+msgid "This is where messages from unregistered people outside the group appear. They used the Contact (Send a message to the group) option."
+msgstr "Tutaj pojawiają się wiadomości od niezalogowanych ludzi z zewnątrz, którzy użyli opcji Kontakt (Wyślij wiadomość do grupy)."
+
 #: .\chat\search.py:25 .\chat\templates\chat\room_link.html:48
 #: .\zzz\notifications.py:520
 msgid "System"

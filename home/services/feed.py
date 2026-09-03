@@ -86,6 +86,7 @@ def generate_feed_items(user):
     from chat.models import MessageReadBy
 
     read_chat_message_ids = set(MessageReadBy.objects.filter(user=user, message_id__in=chat_message_ids).values_list('message_id', flat=True))
+    seen_room_ids = set(user.seen_rooms.values_list('id', flat=True))
 
     feed_items = []
     for item in raw_items:
@@ -98,7 +99,7 @@ def generate_feed_items(user):
                 other = next((name for uid, name in item.get('_allowed_usernames', {}).items() if uid != user.id), None)
                 if other:
                     item = {**item, 'title': other}
-            is_read = item['object_id'] in read_chat_message_ids
+            is_read = item['object_id'] in read_chat_message_ids or item['room_id'] in seen_room_ids
             item = {**item, 'is_read': is_read, 'message_count': 1}
         else:
             rs_ct = ct_map.get(ct)
