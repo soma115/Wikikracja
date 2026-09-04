@@ -69,14 +69,22 @@ class Room(models.Model):
         if not getattr(settings, 'GROUP_IS_PUBLIC', True):
             return None
         try:
-            room, created = Room.objects.get_or_create(is_inbox=True, defaults={'title': 'Inbox', 'public': True, 'protected': True})
+            room, created = Room.objects.get_or_create(
+                is_inbox=True, defaults={'title': 'Inbox', 'public': True, 'protected': True, 'source_app': ''}
+            )
         except (IntegrityError, OperationalError):
             return None
-        if created:
-            try:
-                room.allowed.set(User.objects.filter(is_active=True))
-            except OperationalError:
-                pass
+
+        # Inbox must be a plain public room (source_app='') to show up in the public-rooms list.
+        if room.source_app != '':
+            room.source_app = ''
+            room.save(update_fields=['source_app'])
+
+        try:
+            room.allowed.set(User.objects.filter(is_active=True))
+        except OperationalError:
+            pass
+
         if not room.messages.exists():
             try:
                 Message.objects.create(
