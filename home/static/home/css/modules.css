@@ -1815,6 +1815,20 @@ button.task-against-btn:focus-visible {
   height: 38px;
   padding: .15rem;
 }
+#calendar .cal-container {
+  padding: .5rem;
+}
+#calendar .cal-toolbar {
+  margin-bottom: .45rem;
+  padding: .1rem 0;
+}
+#calendar .cal-table th {
+  padding: .2rem 0;
+}
+#calendar .cal-table td {
+  height: 30px;
+  padding: .15rem;
+}
 .cal-day.today {
   background: var(--accent);
   color: var(--text-on-accent);
@@ -1948,6 +1962,9 @@ button.task-against-btn:focus-visible {
   border: 1px solid transparent;
   padding: 5px 6px;
   margin: 0 -6px;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
   transition: background var(--transition-fast), border-color var(--transition-fast);
   cursor: pointer;
 }
@@ -1956,14 +1973,13 @@ button.task-against-btn:focus-visible {
   color: var(--accent);
 }
 .chat-msg-link {
+  display: block;
   font-size: .82rem;
   color: var(--text-primary);
   text-decoration: none;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 0;
-  flex: 1;
   transition: color var(--transition-fast);
 }
 .chat-msg-meta {

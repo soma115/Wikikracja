@@ -43,10 +43,6 @@
  color: var(--accent);
 }
 
-.card-footer-link {
- font-size: .78rem; color: var(--accent); opacity: .8; margin-top: auto;
-}
-
 .badge-status-xs {
  font-size: .62rem; padding: 1px 5px;
 }
@@ -78,18 +74,6 @@
  color: var(--badge-proposition-color) !important;
 }
 
-.new-people-counter {
-  width: 36px;
-  height: 36px;
-  font-size: .72rem;
-  background: var(--bg-card);
-  color: var(--text-muted);
-  border: 1px solid var(--border);
-}
-
-.new-people-link {
- text-decoration: none; flex-shrink: 0; position: relative; z-index: 2;
-}
 
 .balance-positive, .balance-negative {
  font-weight: 600;
@@ -880,4 +864,127 @@
 
 .max-width-680px {
   max-width:680px;
+}
+
+/* Dashboard tile sizing */
+.dashboard-tile {
+  min-height: 240px;
+}
+
+.dashboard-tile #quick-links-scroll {
+  max-height: none;
+}
+
+.dashboard-tile #activity-feed-body {
+  overflow-y: auto;
+}
+
+/* Dashboard drag-and-drop grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  grid-auto-flow: row dense;
+  grid-auto-rows: minmax(240px, auto);
+}
+
+@media (min-width: 992px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .dashboard-tile--1x1 {
+    grid-column: span 1;
+  }
+  .dashboard-tile--2x1 {
+    grid-column: span 2;
+  }
+}
+
+.dashboard-tile--1x1,
+.dashboard-tile--2x1 {
+  min-width: 0;
+}
+
+.sortable-ghost {
+  opacity: .4;
+  background: var(--accent-muted);
+  border: 2px dashed var(--accent);
+  border-radius: .6rem;
+}
+
+.sortable-chosen {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .15);
+}
+
+/* Compact dashboard tiles: larger text when there is little content */
+.dashboard-tile--compact .tile-heading,
+.dashboard-tile--compact .wspol-section-title,
+.dashboard-tile--compact .wspol-stat-label {
+  font-size: 1rem;
+}
+.dashboard-tile--compact .wspol-stat-value {
+  font-size: 2.2rem;
+}
+.dashboard-tile--compact .asset-chip {
+  font-size: .9rem;
+  padding: .25rem .6rem;
+}
+.dashboard-tile--compact .tile-meta,
+.dashboard-tile--compact .tile-text-muted,
+.dashboard-tile--compact .onboarding-hint,
+.dashboard-tile--compact .text-sm,
+.dashboard-tile--compact .text-md {
+  font-size: .95rem;
+}
+
+/* Dashboard tile headers and drag handle */
+.dashboard-tile-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  min-width: 0;
+  width: 100%;
+}
+
+.dashboard-tile-header .tile-heading {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  min-width: 0;
+  margin: 0 auto 0 0;
+  color: var(--text-primary);
+  font-size: .85rem;
+  line-height: 1.2;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.dashboard-tile-header > i:not(.drag-handle),
+.dashboard-tile-header .tile-heading > i {
+  color: var(--accent);
+  font-size: .85rem;
+}
+
+.drag-handle {
+  position: relative;
+  z-index: 5;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  opacity: .5;
+  cursor: grab;
+  font-size: .9rem;
+  transition: opacity .15s;
+}
+
+.drag-handle:hover,
+.drag-handle:active {
+  opacity: 1;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.dashboard-tile--compact .dashboard-tile-header .tile-heading {
+  font-size: 1rem;
 }

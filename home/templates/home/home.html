@@ -43,29 +43,22 @@
   </div>
 </div>
 
-{# ══ Rząd 1: Pierwsze kroki + Aktywność + Najbliższe wydarzenia ════════════ #}
-<div class="row g-3 mb-3">
+<div class="dashboard-grid" id="dashboard-grid">
 
   {# Pierwsze kroki (tylko gdy są quick links) #}
   {% if quick_links %}
-  <div class="col-12 col-lg-4">
-    <div class="card h-100 overflow-hidden" id="onboarding-card">
+  <div class="dashboard-tile dashboard-tile--1x1" data-tile-id="onboarding">
+    <div class="card dashboard-tile h-100 overflow-hidden" id="onboarding-card">
       <div class="card-body d-flex flex-column gap-2 overflow-hidden-mh0">
-        <div class="d-flex align-items-center gap-2 mb-1 tile-header flex-shrink-0">
+        <div class="dashboard-tile-header mb-1 flex-shrink-0">
           <i class="fas fa-rocket"></i>
           <span class="section-heading tile-heading">{% trans "First steps" %}</span>
         </div>
         <div id="quick-links-scroll" class="quick-links-scroll">
-        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 text-sm">
-
-          {% for link in quick_links %}
-          <li class="task-dash-row d-flex align-items-center gap-2 quick-link-row min-w-0" data-link-id="{{ link.id }}">
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 text-sm">{% for link in quick_links %}<li class="task-dash-row d-flex align-items-center gap-2 quick-link-row min-w-0" data-link-id="{{ link.id }}">
             <i class="flex-shrink-0 quick-link-circle far fa-circle" data-link-id="{{ link.id }}"></i>
             <a href="{{ link.url }}" class="task-dash-link link-accent">{{ link.title }}</a>
-          </li>
-          {% endfor %}
-
-        </ul>
+          </li>{% endfor %}</ul>
         </div>{# /quick-links-scroll #}
       </div>
       {# Pasek postępu #}
@@ -84,9 +77,9 @@
 
 
   {# Aktywność #}
-  <div class="col-12 {% if quick_links %}col-lg-4{% else %}col-lg-8{% endif %}">
-    <div class="card h-100 position-relative">
-      <div class="card-header d-flex align-items-center justify-content-between gap-2">
+  <div class="dashboard-tile dashboard-tile--1x1" data-tile-id="activity">
+    <div class="card dashboard-tile h-100 position-relative">
+      <div class="card-header dashboard-tile-header">
         <span class="section-heading tile-heading">
           <i class="fas fa-stream me-1 text-accent opacity-70"></i>{% trans "Activity" %}
         </span>
@@ -131,29 +124,21 @@
   </div>
 
   {# Najbliższe wydarzenia #}
-  <div class="col-12 col-lg-4">
-    <div class="card h-100 position-relative">
+  <div class="dashboard-tile dashboard-tile--1x1" data-tile-id="upcoming-events">
+    <div class="card dashboard-tile h-100 position-relative">
       <div class="card-body d-flex flex-column gap-2">
-        <div class="d-flex align-items-center gap-2 mb-1 tile-header">
+        <div class="dashboard-tile-header mb-1">
           <i class="fas fa-calendar-days"></i>
           <span class="section-heading tile-heading">{% trans "Upcoming events" %}</span>
         </div>
         {% if upcoming_events %}
-        <ul class="list-unstyled mb-0 d-flex flex-column gap-2 flex-1 text-sm">
-          {% for occ in upcoming_events %}
-          <li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-2 flex-1 text-sm">{% for occ in upcoming_events %}<li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
             <span class="flex-shrink-0 {% if occ.event.is_public %}dot-public{% else %}dot-private{% endif %}"></span>
             <span class="flex-shrink-0 text-muted text-nowrap">{{ occ.date|date:"D d M · H:i" }}</span>
             <a href="{% url 'events:detail' occ.event.pk %}"
-               class="task-dash-link"
-               class="text-primary-link"
+               class="task-dash-link text-primary-link"
                title="{{ occ.event.title }}">{{ occ.event.title }}</a>
-          </li>
-          {% endfor %}
-        </ul>
-        <a href="{% url 'events:list' %}" class="task-dash-row d-flex align-items-center gap-2 mt-auto calendar-link">
-          <i class="fas fa-calendar-days text-xs opacity-70"></i>{% trans "Full calendar" %} →
-        </a>
+          </li>{% endfor %}</ul>
         <a href="{% url 'events:list' %}" class="stretched-link" aria-label="{% trans 'Full calendar' %}" title="{% trans 'Full calendar' %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
@@ -166,38 +151,27 @@
     </div>
   </div>
 
-</div>
-
-{# ══ Rząd 2: Propozycje głosowań + Dyskutowane głosowania + Aktywne głosowanie ══ #}
-<div class="row g-3 mb-3">
-
   {# Propozycje głosowań #}
-  <div class="col-12 col-lg-4">
-    <div class="card h-100 position-relative">
+  <div class="dashboard-tile dashboard-tile--1x1" data-tile-id="voting-proposals">
+    <div class="card dashboard-tile h-100 position-relative">
       <div class="card-body d-flex flex-column gap-2">
-        <div class="d-flex align-items-center gap-2 mb-1 tile-header">
+        <div class="dashboard-tile-header mb-1">
           <i class="fas fa-file-signature"></i>
           <span class="section-heading tile-heading">{% trans "Voting proposals" %}</span>
         </div>
         {% if new_proposals %}
-        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 flex-1">
-          {% for prop in new_proposals %}
-          <li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 flex-1">{% for prop in new_proposals %}<li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
             <span class="badge-status badge-proposition flex-shrink-0 badge-status-xs">
               {% trans "signatures" %}
             </span>
             <a href="{% url 'glosowania:details' prop.pk %}"
                class="task-dash-link dashboard-link"
                title="{{ prop.title }}">{{ prop.title }}</a>
-          </li>
-          {% endfor %}
-        </ul>
-        <span class="card-footer-link">{% trans "All suggestions" %} →</span>
+          </li>{% endfor %}</ul>
         <a href="{% url 'glosowania:proposition' %}" class="stretched-link" aria-label="{% trans 'All suggestions' %}" title="{% trans 'All suggestions' %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center text-muted text-md">{% trans "No voting proposals" %}</p>
-          <a href="{% url 'glosowania:proposition' %}" class="link-more">{% trans "Go to Agora" %} →</a>
         </div>
         <a href="{% url 'glosowania:proposition' %}" class="stretched-link" aria-label="{% trans 'All suggestions' %}" title="{% trans 'All suggestions' %}"></a>
         {% endif %}
@@ -206,32 +180,26 @@
   </div>
 
   {# Dyskutowane głosowania #}
-  <div class="col-12 col-lg-4">
-    <div class="card h-100 position-relative">
+  <div class="dashboard-tile dashboard-tile--1x1" data-tile-id="discussed-votings">
+    <div class="card dashboard-tile h-100 position-relative">
       <div class="card-body d-flex flex-column gap-2">
-        <div class="d-flex align-items-center gap-2 mb-1 tile-header">
+        <div class="dashboard-tile-header mb-1">
           <i class="fas fa-comments"></i>
           <span class="section-heading tile-heading">{% trans "Discussed votings" %}</span>
         </div>
         {% if discussed_proposals %}
-        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 flex-1">
-          {% for prop in discussed_proposals %}
-          <li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 flex-1">{% for prop in discussed_proposals %}<li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
             <span class="badge-status badge-discussion flex-shrink-0 badge-status-xs">
               {% trans "discussion" %}
             </span>
             <a href="{% url 'glosowania:details' prop.pk %}"
                class="task-dash-link dashboard-link"
                title="{{ prop.title }}">{{ prop.title }}</a>
-          </li>
-          {% endfor %}
-        </ul>
-        <span class="card-footer-link">{% trans "All discussions" %} →</span>
+          </li>{% endfor %}</ul>
         <a href="{% url 'glosowania:discussion' %}" class="stretched-link" aria-label="{% trans 'All discussions' %}" title="{% trans 'All discussions' %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center text-muted text-md">{% trans "No discussed votings" %}</p>
-          <a href="{% url 'glosowania:discussion' %}" class="link-more">{% trans "Go to Agora" %} →</a>
         </div>
         <a href="{% url 'glosowania:discussion' %}" class="stretched-link" aria-label="{% trans 'All discussions' %}" title="{% trans 'All discussions' %}"></a>
         {% endif %}
@@ -240,30 +208,26 @@
   </div>
 
   {# Aktywne głosowanie #}
-  <div class="col-12 col-lg-4">
-    <div class="card h-100 position-relative">
+  <div class="dashboard-tile dashboard-tile--1x1" data-tile-id="active-voting">
+    <div class="card dashboard-tile h-100 position-relative">
       <div class="card-body d-flex flex-column gap-2">
-        <div class="d-flex align-items-center gap-2 mb-1 tile-header">
+        <div class="dashboard-tile-header mb-1">
           <i class="fas fa-landmark"></i>
           <span class="section-heading tile-heading">{% trans "Active voting" %}</span>
         </div>
         {% if active_referendum %}
-        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 flex-1">
-          <li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 flex-1"><li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
             <span class="badge-status badge-referendum flex-shrink-0 badge-status-xs">
               {% trans "Referendum" %}
             </span>
             <a href="{% url 'glosowania:details' active_referendum.obj.pk %}"
                class="task-dash-link dashboard-link"
                title="{{ active_referendum.obj.title }}">{{ active_referendum.obj.title }}</a>
-          </li>
-        </ul>
-        <span class="card-footer-link">{% trans "Go to Agora" %} →</span>
+          </li></ul>
         <a href="{% url 'glosowania:approved' %}" class="stretched-link" aria-label="{% trans 'Go to Agora' %}" title="{% trans 'Go to Agora' %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
           <p class="mb-0 text-center text-muted text-md">{% trans "No active votings" %}</p>
-          <a href="{% url 'glosowania:approved' %}" class="link-more">{% trans "Go to Agora" %} →</a>
         </div>
         <a href="{% url 'glosowania:approved' %}" class="stretched-link" aria-label="{% trans 'Go to Agora' %}" title="{% trans 'Go to Agora' %}"></a>
         {% endif %}
@@ -271,31 +235,21 @@
     </div>
   </div>
 
-</div>
-
-{# ══ Rząd 3: Moje zadania + Nowi obywatele + Finanse ═══════════════════════ #}
-<div class="row g-3 mb-3">
-
   {# My tasks #}
-  <div class="col-12 col-lg-4">
-    <div class="card h-100 position-relative">
+  <div class="dashboard-tile dashboard-tile--1x1" data-tile-id="my-tasks">
+    <div class="card dashboard-tile h-100 position-relative">
       <div class="card-body d-flex flex-column gap-2">
-        <div class="d-flex align-items-center gap-2 mb-1 tile-header">
+        <div class="dashboard-tile-header mb-1">
           <i class="fas fa-bolt"></i>
           <span class="section-heading tile-heading">{% trans "My activities" %}</span>
         </div>
         {% if my_tasks %}
-        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 flex-1">
-          {% for task in my_tasks %}
-          <li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 flex-1">{% for task in my_tasks %}<li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
             <span class="badge-status badge-approved flex-shrink-0 badge-status-sm">{% trans "Active" %}</span>
             <a href="{% url 'tasks:detail' task.pk %}"
                class="task-dash-link dashboard-link"
                title="{{ task.title }}">{{ task.title }}</a>
-          </li>
-          {% endfor %}
-        </ul>
-        <span class="card-footer-link">{% trans "All my activities" %} →</span>
+          </li>{% endfor %}</ul>
         <a id="dash-my-tasks" href="{% url 'tasks:list' %}?tab=mine" class="stretched-link" aria-label="{% trans 'All my activities' %}" title="{% trans 'All my activities' %}"></a>
         {% else %}
         <div class="d-flex flex-column justify-content-center align-items-center gap-2 flex-grow-1 py-2">
@@ -309,30 +263,20 @@
   </div>
 
   {# Nowi ludzie #}
-  <div class="col-12 col-lg-4">
-    <div class="card h-100">
+  <div class="dashboard-tile dashboard-tile--1x1" data-tile-id="new-people">
+    <div class="card dashboard-tile h-100">
       <div class="card-body d-flex flex-column gap-2">
-        <div class="d-flex align-items-center gap-2 mb-1 tile-header">
+        <div class="dashboard-tile-header mb-1">
           <i class="fas fa-users"></i>
           <span class="section-heading tile-heading">{% trans "New people" %}</span>
         </div>
         <a href="{% url 'kandydaci' %}" class="stretched-link" aria-label="{% trans 'New people' %}" title="{% trans 'New people' %}"></a>
         {% if new_people %}
-        <div class="d-flex flex-wrap gap-2 align-items-center">
-          {% for cit in new_people|slice:":6" %}
-          <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=cit.pk %}" title="{{ cit.uid.username }}" class="new-people-link">
-            {% include "home/_user_avatar.html" with avatar=cit.avatar username=cit.uid.username size="4xl" %}
-          </a>
-          {% endfor %}
-          {% if new_people|length > 6 %}
-          <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold new-people-counter">
-            +{{ new_people|length|add:"-6" }}
-          </div>
-          {% endif %}
-        </div>
-        <p class="mb-0 mt-1 tile-meta">
-          {% trans "Newest candidate" %}: <i class="fas fa-user me-1"></i><strong>{{ new_people.0.uid.username }}</strong> · {{ new_people.0.uid.date_joined|date:"d.m.Y" }}
-        </p>
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-1 flex-1">{% for cit in new_people|slice:":6" %}<li class="task-dash-row d-flex align-items-center gap-2 min-w-0">
+            {% include "home/_user_avatar.html" with avatar=cit.avatar username=cit.uid.username size="lg" %}
+            <span class="text-truncate flex-fill min-w-0">{{ cit.uid.username }}</span>
+            <span class="flex-shrink-0 text-xs text-muted ms-auto text-nowrap">{{ cit.uid.date_joined|date:"d.m.Y" }}</span>
+          </li>{% endfor %}</ul>
         {% else %}
         <p class="mb-0 text-muted text-md">{% trans "No new people" %}</p>
         {% endif %}
@@ -341,10 +285,10 @@
   </div>
 
   {# Finances #}
-  <div class="col-12 col-lg-4">
-    <div class="card h-100 position-relative">
+  <div class="dashboard-tile dashboard-tile--1x1" data-tile-id="finances">
+    <div class="card dashboard-tile h-100 position-relative">
       <div class="card-body d-flex flex-column gap-2">
-        <div class="d-flex align-items-center gap-2 mb-1 tile-header">
+        <div class="dashboard-tile-header mb-1">
           <i class="fas fa-wallet"></i>
           <span class="section-heading tile-heading">{% trans "Finances" %}</span>
           {% if default_asset %}<span class="text-xs text-muted">— {% trans "All time" %} ({{ default_asset.code }})</span>{% endif %}
@@ -379,43 +323,10 @@
     </div>
   </div>
 
-</div>
-
-{# ══ Community stats ═══════════════════════════════════════════════════════ #}
-<div class="row g-3 mb-4">
-
-  <div class="col-12 col-lg-4 d-flex flex-column gap-3">
-    <a href="{% url 'obywatele:assets' %}" class="card text-decoration-none">
-      <div class="card-body">
-        <div class="d-flex align-items-center gap-3 mb-2">
-          <div class="wspol-stat-icon blue"><i class="fas fa-brain"></i></div>
-          <div class="wspol-stat-label">{% trans "Skills and resources" %}</div>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-          <span class="asset-chip"><i class="fas fa-brain text-accent"></i> <strong>{{ skills_count }}</strong> {% trans "skills" %}</span>
-          <span class="asset-chip"><i class="fas fa-book text-accent"></i> <strong>{{ knowledge_count }}</strong> {% trans "knowledge" %}</span>
-          <span class="asset-chip">🎁 <strong>{{ give_away_count }}</strong></span>
-          <span class="asset-chip">🤝 <strong>{{ borrow_count }}</strong></span>
-          <span class="asset-chip">🛒 <strong>{{ for_sale_count }}</strong></span>
-        </div>
-      </div>
-    </a>
-
-    <a href="{% url 'obywatele:obywatele' %}?aktywnosc=30d" class="card text-decoration-none">
-      <div class="card-body d-flex align-items-center gap-3">
-        <div class="wspol-stat-icon success"><i class="fas fa-chart-line"></i></div>
-        <div>
-          <div class="wspol-stat-value">{{ active_pct }}%</div>
-          <div class="wspol-stat-label">{% trans "logged in within 30 days" %}</div>
-        </div>
-      </div>
-    </a>
-  </div>
-
-  <div class="col-12 col-lg-8">
-    <div class="card h-100 position-relative">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span class="wspol-section-title mb-0">
+  <div class="dashboard-tile dashboard-tile--2x1" data-tile-id="chat">
+    <div class="card dashboard-tile h-100 position-relative">
+      <div class="card-header dashboard-tile-header">
+        <span class="section-heading tile-heading">
           <i class="fas fa-comments"></i>{% trans "Chat" %}
         </span>
         <a id="chat-unread-badge"
@@ -427,12 +338,18 @@
       </div>
       <div class="card-body p-3 d-flex flex-column gap-1">
         {% for msg in recent_chat_messages %}
-        <div class="chat-msg-row d-flex align-items-center gap-2 min-w-0 position-relative z-1">
-          {% include "home/_user_avatar.html" with avatar=msg.sender.uzytkownik.avatar username=msg.sender.username size="xl" %}
-          <span class="chat-msg-sender">{{ msg.sender.username }}</span>
-          <span class="chat-msg-link">{{ msg.text|striptags|truncatechars:60 }}</span>
-          <span class="chat-msg-room">{{ msg.room.title|truncatechars:18 }}</span>
-          <span class="chat-msg-meta">{{ msg.time|date:"H:i" }}</span>
+        <div class="chat-msg-row position-relative z-1">
+          <div class="flex-shrink-0">
+            {% include "home/_user_avatar.html" with avatar=msg.sender.uzytkownik.avatar username=msg.sender.username size="xl" %}
+          </div>
+          <div class="min-w-0 flex-fill">
+            <div class="d-flex align-items-center gap-2">
+              <span class="chat-msg-sender text-nowrap">{{ msg.sender.username }}</span>
+              <span class="chat-msg-room text-truncate flex-fill min-w-0">{{ msg.room.title|truncatechars:18 }}</span>
+              <span class="chat-msg-meta text-nowrap">{{ msg.time|date:"H:i" }}</span>
+            </div>
+            <div class="chat-msg-link text-truncate">{{ msg.text|striptags|truncatechars:120 }}</div>
+          </div>
           <a href="{% url 'chat:chat' %}#room_id={{ msg.room.id }}" class="stretched-link" aria-label="{% trans 'Open chat' %} {{ msg.room.title }}" title="{% trans 'Open chat' %} {{ msg.room.title }}"></a>
         </div>
         {% empty %}
@@ -443,21 +360,52 @@
     </div>
   </div>
 
-</div>
+  <div class="dashboard-tile dashboard-tile--1x1" data-tile-id="skills-resources">
+    <a href="{% url 'obywatele:assets' %}" class="card dashboard-tile h-100 text-decoration-none">
+      <div class="card-body d-flex flex-column gap-2">
+        <div class="dashboard-tile-header mb-1">
+          <i class="fas fa-brain"></i>
+          <span class="section-heading tile-heading">{% trans "Skills and resources" %}</span>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="asset-chip"><i class="fas fa-brain text-accent"></i> <strong>{{ skills_count }}</strong> {% trans "skills" %}</span>
+          <span class="asset-chip"><i class="fas fa-book text-accent"></i> <strong>{{ knowledge_count }}</strong> {% trans "knowledge" %}</span>
+          <span class="asset-chip">🎁 <strong>{{ give_away_count }}</strong></span>
+          <span class="asset-chip">🤝 <strong>{{ borrow_count }}</strong></span>
+          <span class="asset-chip">🛒 <strong>{{ for_sale_count }}</strong></span>
+        </div>
+      </div>
+    </a>
+  </div>
 
-{# ══ Calendar ═══════════════════════════════════════════════════════════════ #}
-<div class="card card--no-hover mb-3">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <a href="{% url 'events:list' %}" class="wspol-section-title mb-0">
-      <i class="fas fa-calendar-days"></i>{% trans "Calendar" %}
-    </a>
-    <a href="{% url 'events:create' %}" class="btn btn-sm btn-outline-primary">
-      <i class="fas fa-plus me-1"></i>{% trans "Add event" %} &rarr;
+  <div class="dashboard-tile dashboard-tile--1x1" data-tile-id="active-users">
+    <a href="{% url 'obywatele:obywatele' %}?aktywnosc=30d" class="card dashboard-tile h-100 text-decoration-none">
+      <div class="card-body d-flex flex-column gap-2">
+        <div class="dashboard-tile-header mb-1">
+          <i class="fas fa-chart-line"></i>
+          <span class="section-heading tile-heading">{% trans "logged in within 30 days" %}</span>
+        </div>
+        <div class="wspol-stat-value mt-auto mb-auto">{{ active_pct }}%</div>
+      </div>
     </a>
   </div>
-  <div class="card-body p-0" id="calendar">
-    {% include 'obywatele/_calendar_partial.html' %}
+
+  <div class="dashboard-tile dashboard-tile--2x1" data-tile-id="calendar">
+    <div class="card card--no-hover dashboard-tile h-100">
+      <div class="card-header dashboard-tile-header">
+        <a href="{% url 'events:list' %}" class="section-heading tile-heading">
+          <i class="fas fa-calendar-days"></i>{% trans "Calendar" %}
+        </a>
+        <a href="{% url 'events:create' %}" class="btn btn-sm btn-outline-primary">
+          <i class="fas fa-plus me-1"></i>{% trans "Add event" %}
+        </a>
+      </div>
+      <div class="card-body p-0" id="calendar">
+        {% include 'obywatele/_calendar_partial.html' %}
+      </div>
+    </div>
   </div>
+
 </div>
 <script>
 (function(){
@@ -558,5 +506,32 @@
   });
 })();
 </script>
+
+{% if user.is_authenticated %}
+<script>
+(function () {
+  var grid = document.getElementById('dashboard-grid');
+  if (!grid || typeof window.initSortableGrid !== 'function') return;
+  window.initSortableGrid(grid, {
+    storageKey: 'dashboardLayout-{{ user.id }}'
+  });
+
+  function adjustDashboardFontSizes() {
+    grid.querySelectorAll('.dashboard-tile').forEach(function (tile) {
+      var card = tile.classList.contains('card') ? tile : tile.querySelector('.card');
+      if (!card) return;
+      var body = card.querySelector('.card-body');
+      if (!body) return;
+      if (body.scrollHeight > 0 && card.clientHeight > 0 && body.scrollHeight < card.clientHeight * 0.65) {
+        tile.classList.add('dashboard-tile--compact');
+      } else {
+        tile.classList.remove('dashboard-tile--compact');
+      }
+    });
+  }
+  adjustDashboardFontSizes();
+})();
+</script>
+{% endif %}
 
 {% endblock %}

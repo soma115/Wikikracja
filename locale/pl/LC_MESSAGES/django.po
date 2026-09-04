@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-04 18:12+0200\n"
+"POT-Creation-Date: 2026-09-04 19:21+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -528,8 +528,8 @@ msgstr "Pokój dyskusji do dokumentu: <a href='%(url)s'>%(title)s</a>"
 #: .\glosowania\templates\glosowania\szczegoly.html:43
 #: .\home\services\dashboard.py:35 .\home\templates\home\base.html:183
 #: .\home\templates\home\base.html:186 .\home\templates\home\base.html:260
-#: .\home\templates\home\home.html:419 .\home\templates\home\home.html:442
-#: .\home\templates\home\home.html:497 .\home\templatetags\feed_filters.py:26
+#: .\home\templates\home\home.html:330 .\home\templates\home\home.html:359
+#: .\home\templates\home\home.html:445 .\home\templatetags\feed_filters.py:26
 #: .\home\views.py:77 .\home\views.py:209 .\obywatele\views.py:510
 #: .\tasks\templates\tasks\_task_card.html:41
 #: .\tasks\templates\tasks\task_detail.html:19
@@ -1124,12 +1124,12 @@ msgid "Balance per asset"
 msgstr "Saldo per aktywo"
 
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:18
-#: .\home\templates\home\home.html:355
+#: .\home\templates\home\home.html:299
 msgid "Revenues"
 msgstr "Przychody"
 
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:18
-#: .\home\templates\home\home.html:359
+#: .\home\templates\home\home.html:303
 msgid "Expenses"
 msgstr "Wydatki"
 
@@ -1146,7 +1146,7 @@ msgstr "transakcji"
 msgid "Add"
 msgstr "Dodaj"
 
-#: .\bookkeeping\views.py:85 .\home\templates\home\home.html:374
+#: .\bookkeeping\views.py:85 .\home\templates\home\home.html:318
 msgid "Add asset"
 msgstr "Dodaj aktywo"
 
@@ -1755,7 +1755,7 @@ msgid "For monthly ordinal events: which day of the week? (e.g., Monday, Tuesday
 msgstr "Dla wydarzeń powtarzających się w określonym dniu tygodnia: który dzień tygodnia? (np., Poniedziałek, Wtorek)"
 
 #: .\events\models.py:30 .\events\templates\events\event_detail.html:32
-#: .\home\templates\home\home.html:291 .\tasks\models.py:41
+#: .\home\templates\home\home.html:248 .\tasks\models.py:41
 msgid "Active"
 msgstr "Aktywne"
 
@@ -1799,7 +1799,7 @@ msgstr "Dodaj do swojego Kalendarza Google"
 #: .\events\templates\events\_event_card.html:59
 #: .\home\services\dashboard.py:27 .\home\templates\home\base.html:143
 #: .\home\templates\home\base.html:146 .\home\templates\home\base.html:256
-#: .\home\templates\home\base.html:323 .\home\templates\home\home.html:452
+#: .\home\templates\home\base.html:323 .\home\templates\home\home.html:397
 #: .\home\views.py:75
 msgid "Calendar"
 msgstr "Kalendarz"
@@ -2015,7 +2015,7 @@ msgstr "Nie zabrała podpisów"
 #: .\glosowania\management\commands\vote.py:136 .\glosowania\models.py:29
 #: .\glosowania\templates\glosowania\_proposal_card.html:115
 #: .\glosowania\templates\glosowania\menu.html:36
-#: .\home\templates\home\home.html:254
+#: .\home\templates\home\home.html:221
 msgid "Referendum"
 msgstr "Referendum"
 
@@ -2834,8 +2834,8 @@ msgstr "Szukaj"
 msgid "Toggle light / dark mode"
 msgstr "Przełącz tryb jasny/ciemny"
 
-#: .\home\templates\home\base.html:297 .\home\templates\home\home.html:91
-#: .\home\templates\home\home.html:123
+#: .\home\templates\home\base.html:297 .\home\templates\home\home.html:84
+#: .\home\templates\home\home.html:116
 #: .\obywatele\templates\obywatele\szczegoly.html:197
 #: .\obywatele\templates\obywatele\szczegoly.html:214
 msgid "Activity"
@@ -2920,159 +2920,150 @@ msgstr "Cześć"
 msgid "here's what's new in your community"
 msgstr "oto co nowego w Twojej wspólnocie"
 
-#: .\home\templates\home\home.html:56
+#: .\home\templates\home\home.html:55
 msgid "First steps"
 msgstr "Pierwsze kroki"
 
-#: .\home\templates\home\home.html:74
+#: .\home\templates\home\home.html:67
 msgid "Progress"
 msgstr "Postęp"
 
-#: .\home\templates\home\home.html:95 .\home\templates\home\home.html:425
-#: .\home\templates\home\home.html:496
+#: .\home\templates\home\home.html:88 .\home\templates\home\home.html:336
+#: .\home\templates\home\home.html:444
 msgid "unread"
 msgstr "nieprzeczytanych"
 
-#: .\home\templates\home\home.html:118
+#: .\home\templates\home\home.html:111
 msgid "No activity in the last 30 days"
 msgstr "Brak aktywności z ostatnich 30 dni"
 
-#: .\home\templates\home\home.html:139
+#: .\home\templates\home\home.html:132
 msgid "Upcoming events"
 msgstr "Najbliższe wydarzenia"
 
-#: .\home\templates\home\home.html:155 .\home\templates\home\home.html:157
-#: .\home\templates\home\home.html:163
+#: .\home\templates\home\home.html:142 .\home\templates\home\home.html:148
 msgid "Full calendar"
 msgstr "Pełny kalendarz"
 
-#: .\home\templates\home\home.html:160
+#: .\home\templates\home\home.html:145
 msgid "No upcoming events"
 msgstr "Brak nadchodzących wydarzeń"
 
-#: .\home\templates\home\home.html:161
+#: .\home\templates\home\home.html:146
 msgid "Add an event"
 msgstr "Dodaj wydarzenie"
 
-#: .\home\templates\home\home.html:180
+#: .\home\templates\home\home.html:160
 msgid "Voting proposals"
 msgstr "Propozycje głosowań"
 
-#: .\home\templates\home\home.html:187
+#: .\home\templates\home\home.html:165
 msgid "signatures"
 msgstr "podpisy"
 
-#: .\home\templates\home\home.html:195 .\home\templates\home\home.html:196
-#: .\home\templates\home\home.html:202
+#: .\home\templates\home\home.html:171 .\home\templates\home\home.html:176
 msgid "All suggestions"
 msgstr "Wszystkie propozycje"
 
-#: .\home\templates\home\home.html:199
+#: .\home\templates\home\home.html:174
 msgid "No voting proposals"
 msgstr "Brak propozycji głosowań"
 
-#: .\home\templates\home\home.html:200 .\home\templates\home\home.html:234
-#: .\home\templates\home\home.html:261 .\home\templates\home\home.html:262
-#: .\home\templates\home\home.html:266 .\home\templates\home\home.html:268
-msgid "Go to Agora"
-msgstr "Przejdź do Agory"
-
-#: .\home\templates\home\home.html:214
+#: .\home\templates\home\home.html:188
 msgid "Discussed votings"
 msgstr "Dyskutowane głosowania"
 
-#: .\home\templates\home\home.html:221
+#: .\home\templates\home\home.html:193
 msgid "discussion"
 msgstr "dyskusja"
 
-#: .\home\templates\home\home.html:229 .\home\templates\home\home.html:230
-#: .\home\templates\home\home.html:236
+#: .\home\templates\home\home.html:199 .\home\templates\home\home.html:204
 msgid "All discussions"
 msgstr "Wszystkie dyskusje"
 
-#: .\home\templates\home\home.html:233
+#: .\home\templates\home\home.html:202
 msgid "No discussed votings"
 msgstr "Brak dyskutowanych głosowań"
 
-#: .\home\templates\home\home.html:248
+#: .\home\templates\home\home.html:216
 msgid "Active voting"
 msgstr "Aktywne głosowanie"
 
-#: .\home\templates\home\home.html:265
+#: .\home\templates\home\home.html:227 .\home\templates\home\home.html:232
+msgid "Go to Agora"
+msgstr "Przejdź do Agory"
+
+#: .\home\templates\home\home.html:230
 msgid "No active votings"
 msgstr "Brak aktywnych głosowań"
 
-#: .\home\templates\home\home.html:285
+#: .\home\templates\home\home.html:244
 #: .\obywatele\templates\obywatele\citizen_zadania.html:16
 #: .\tasks\templates\tasks\_task_list_partial.html:6
 msgid "My activities"
 msgstr "Moje działania"
 
-#: .\home\templates\home\home.html:298 .\home\templates\home\home.html:299
+#: .\home\templates\home\home.html:253
 msgid "All my activities"
 msgstr "Wszystkie moje działania"
 
-#: .\home\templates\home\home.html:302
+#: .\home\templates\home\home.html:256
 msgid "You have no assigned activities"
 msgstr "Nie masz przypisanych działań"
 
-#: .\home\templates\home\home.html:303 .\home\templates\home\home.html:305
+#: .\home\templates\home\home.html:257 .\home\templates\home\home.html:259
 msgid "See group activities"
 msgstr "Zobacz działania grupy"
 
-#: .\home\templates\home\home.html:317 .\home\templates\home\home.html:319
+#: .\home\templates\home\home.html:271 .\home\templates\home\home.html:273
 msgid "New people"
 msgstr "Nowi ludzie"
 
-#: .\home\templates\home\home.html:334
-msgid "Newest candidate"
-msgstr "Nowy kandydat"
-
-#: .\home\templates\home\home.html:337
+#: .\home\templates\home\home.html:281
 msgid "No new people"
 msgstr "Brak nowych osób"
 
-#: .\home\templates\home\home.html:349 .\home\templates\home\home.html:368
+#: .\home\templates\home\home.html:293 .\home\templates\home\home.html:312
 msgid "Finances"
 msgstr "Finanse"
 
-#: .\home\templates\home\home.html:350
+#: .\home\templates\home\home.html:294
 msgid "All time"
 msgstr "Cały okres"
 
-#: .\home\templates\home\home.html:364
+#: .\home\templates\home\home.html:308
 msgid "Balance"
 msgstr "Bilans"
 
-#: .\home\templates\home\home.html:372
+#: .\home\templates\home\home.html:316
 msgid "No financial data yet. Add your first asset to start tracking community finances."
 msgstr "Brak danych finansowych. Dodaj pierwsze aktywo, aby zacząć śledzić finanse społeczności."
 
-#: .\home\templates\home\home.html:392
-msgid "Skills and resources"
-msgstr "Umiejętności i zasoby"
-
-#: .\home\templates\home\home.html:395
-msgid "skills"
-msgstr "umiejętności"
-
-#: .\home\templates\home\home.html:396
-msgid "knowledge"
-msgstr "wiedzy"
-
-#: .\home\templates\home\home.html:409
-msgid "logged in within 30 days"
-msgstr "zalogowanych w ciągu 30 dni"
-
-#: .\home\templates\home\home.html:425 .\home\templates\home\home.html:436
+#: .\home\templates\home\home.html:336 .\home\templates\home\home.html:353
 msgid "Open chat"
 msgstr "Otwórz czat"
 
-#: .\home\templates\home\home.html:439
+#: .\home\templates\home\home.html:356
 msgid "No news"
 msgstr "Brak wiadomości"
 
-#: .\home\templates\home\home.html:455
+#: .\home\templates\home\home.html:368
+msgid "Skills and resources"
+msgstr "Umiejętności i zasoby"
+
+#: .\home\templates\home\home.html:371
+msgid "skills"
+msgstr "umiejętności"
+
+#: .\home\templates\home\home.html:372
+msgid "knowledge"
+msgstr "wiedzy"
+
+#: .\home\templates\home\home.html:387
+msgid "logged in within 30 days"
+msgstr "zalogowanych w ciągu 30 dni"
+
+#: .\home\templates\home\home.html:400
 msgid "Add event"
 msgstr "Dodaj wydarzenie"
 
