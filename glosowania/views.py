@@ -40,11 +40,7 @@ def _safe_send_vote_state_changed(request: HttpRequest, **kwargs):
         decyzja = kwargs.get('decyzja')
         vote_id = kwargs.get('vote_id')
         decision_id = getattr(decyzja, 'id', vote_id)
-        log.exception(
-            'vote_state_changed failed in %s for decision %s',
-            kwargs.get('sender'),
-            decision_id,
-        )
+        log.exception('vote_state_changed failed in %s for decision %s', kwargs.get('sender'), decision_id)
 
 
 @login_required

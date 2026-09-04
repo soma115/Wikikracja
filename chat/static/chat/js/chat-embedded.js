@@ -92,6 +92,14 @@ async function initEmbeddedChat(container) {
     let lastDateBanner = null;
     let isAnonymous = false;
     let selectedFiles = [];
+    const canPost = container.dataset.canPost !== 'false';
+
+    if (!canPost) {
+        const inputArea = container.querySelector('.ec-input-area');
+        if (inputArea) {
+            inputArea.innerHTML = `<div class="ec-readonly-notice"><i class="fas fa-lock"></i> ${_("Only approved helpers can write here.")}</div>`;
+        }
+    }
 
     // ── 2. Local helpers ─────────────────────────────────────────────────────
 

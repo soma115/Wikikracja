@@ -22,7 +22,8 @@ Użycie:
 
   <div class="embedded-chat"
        data-room-id="{{ chat_room.pk }}"
-       data-csrf="{{ csrf_token }}">
+       data-csrf="{{ csrf_token }}"
+       data-can-post="{{ can_post|default:'true'|yesno:'true,false' }}">
     {# chat-embedded.js wypełni ten div #}
     <div class="ec-loading">{% trans 'Connecting…' %}</div>
   </div>

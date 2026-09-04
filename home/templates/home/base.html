@@ -103,25 +103,16 @@
         </li>
 
         <li class="nav-item">
-          <a href="{% url 'glosowania:approved' %}"
-             data-prefs-link-scope="glosowania"
-             data-prefs-base-href="{% url 'glosowania:approved' %}"
-             title="{% trans 'Votings' %}"
-             class="{% if request.resolver_match.namespace == 'glosowania' %}active{% endif %}">
-            <i class="fas fa-fw fa-landmark nav-icon"></i>
-            <span class="nav-text">{% trans "Votings" %}</span>
+          <a href="{% url 'tasks:list' %}"
+             data-prefs-link-scope="tasks"
+             data-prefs-base-href="{% url 'tasks:list' %}"
+             title="{% trans 'Activities' %}"
+             class="{% if request.resolver_match.namespace == 'tasks' %}active{% endif %}">
+            <i class="fas fa-fw fa-bolt nav-icon"></i>
+            <span class="nav-text">{% trans "Activities" %}</span>
           </a>
         </li>
-      
-      <li class="nav-item">
-        <a href="{% url 'ankiety:list' %}"
-           title="{% trans 'Surveys' %}"
-           class="{% if request.resolver_match.namespace == 'ankiety' %}active{% endif %}">
-          <i class="fas fa-fw fa-clipboard-question nav-icon"></i>
-          <span class="nav-text">{% trans "Surveys" %}</span>
-        </a>
-      </li>
-      
+
         <li class="nav-item">
           <a href="{% url 'obywatele:obywatele' %}"
              data-prefs-link-scope="obywatele"
@@ -130,17 +121,6 @@
              class="{% if request.resolver_match.namespace == 'obywatele' and request.resolver_match.url_name != 'my_profile' and request.resolver_match.url_name != 'haslo' and request.resolver_match.url_name != 'my_assets' and request.resolver_match.url_name != 'change_email' and request.resolver_match.url_name != 'change_username' and request.resolver_match.url_name != 'upload_avatar' and request.resolver_match.url_name != 'set_language' and request.resolver_match.url_name != 'toggle_notification' and request.resolver_match.url_name != 'request_deletion' and request.resolver_match.url_name != 'cancel_deletion' %}active{% endif %}">
             <i class="fas fa-fw fa-users nav-icon"></i>
             <span class="nav-text">{% trans "Citizens" %}</span>
-          </a>
-        </li>
-
-        <li class="nav-item">
-          <a href="{% url 'tasks:list' %}"
-             data-prefs-link-scope="tasks"
-             data-prefs-base-href="{% url 'tasks:list' %}"
-             title="{% trans 'Activities' %}"
-             class="{% if request.resolver_match.namespace == 'tasks' %}active{% endif %}">
-            <i class="fas fa-fw fa-bolt nav-icon"></i>
-            <span class="nav-text">{% trans "Activities" %}</span>
           </a>
         </li>
 
@@ -167,6 +147,17 @@
         </li>
 
         <li class="nav-item">
+          <a href="{% url 'glosowania:approved' %}"
+             data-prefs-link-scope="glosowania"
+             data-prefs-base-href="{% url 'glosowania:approved' %}"
+             title="{% trans 'Votings' %}"
+             class="{% if request.resolver_match.namespace == 'glosowania' %}active{% endif %}">
+            <i class="fas fa-fw fa-landmark nav-icon"></i>
+            <span class="nav-text">{% trans "Votings" %}</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
           <a href="{% url 'bookkeeping:report_list' %}"
              data-prefs-link-scope="bookkeeping"
              data-prefs-base-href="{% url 'bookkeeping:report_list' %}"
@@ -174,6 +165,15 @@
              class="{% if request.resolver_match.namespace == 'bookkeeping' %}active{% endif %}">
             <i class="fas fa-fw fa-wallet nav-icon"></i>
             <span class="nav-text">{% trans "Finance" %}</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="{% url 'ankiety:list' %}"
+             title="{% trans 'Surveys' %}"
+             class="{% if request.resolver_match.namespace == 'ankiety' %}active{% endif %}">
+            <i class="fas fa-fw fa-clipboard-question nav-icon"></i>
+            <span class="nav-text">{% trans "Surveys" %}</span>
           </a>
         </li>
 

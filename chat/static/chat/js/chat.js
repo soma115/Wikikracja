@@ -665,7 +665,7 @@ export async function onRoomTryJoin(room_id) {
     DOM_API.seenChat(room_id);
     WS_API.seenRoom(room_id);
     DOM_API.setRoomNotifications(response.notifications);
-    DOM_API.createRoomDiv(CurrentRoomId, response.title, response.public, response.notifications);
+    DOM_API.createRoomDiv(CurrentRoomId, response.title, response.public, response.notifications, response.can_post ?? true);
     resetSortState();
     bindSortToolbar();
     DOM_API.updateBreadcrumb(deriveBreadcrumb(room_id));

@@ -27,7 +27,7 @@ def create_task_chat_room(sender, instance, created, **kwargs):
 
     task_path = reverse('tasks:detail', kwargs={'pk': instance.pk})
     task_url = build_site_url(task_path)
-    message_text = _('Discussion room for activity "%(task_title)s": %(task_url)s') % {'task_title': instance.title, 'task_url': task_url}
+    message_text = _("Discussion room for activity: <a href='%(task_url)s'>%(task_title)s</a>") % {'task_title': instance.title, 'task_url': task_url}
 
     chat_room_requested.send(
         sender=Task,

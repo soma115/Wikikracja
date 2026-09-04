@@ -17,5 +17,5 @@ def make_user(username):
     return user
 
 
-def make_task(title="Zadanie", created_by=None, assigned_to=None, status=Task.Status.ACTIVE):
-    return Task.objects.create(title=title, description="Opis zadania", status=status, created_by=created_by, assigned_to=assigned_to)
+def make_task(title="Zadanie", created_by=None, assigned_to=None, status=Task.Status.ACTIVE, team_mode=False):
+    return Task.objects.create(title=title, description="Opis zadania", status=status, created_by=created_by, assigned_to=assigned_to, team_mode=team_mode)

@@ -139,6 +139,29 @@ class ChatRepository:
         return list(Room.objects.filter(allowed=self.user).exclude(muted_by=self.user))
 
     @database_sync_to_async
+    def can_post_in_room(self, room):
+        """Return True if the current user may write in the given room."""
+        if not self.user.is_authenticated:
+            return False
+
+        # Private rooms require explicit membership.
+        if not room.public:
+            return room.allowed.filter(id=self.user.id).exists()
+
+        # Public rooms: task rooms may restrict posting to the coordinator
+        # and helpers approved by the coordinator (team mode).
+        if room.source_app == 'tasks' and room.source_object_id:
+            from tasks.models import Task
+
+            try:
+                task = Task.objects.get(pk=room.source_object_id)
+            except Task.DoesNotExist:
+                return True
+            return task.can_user_post(self.user)
+
+        return True
+
+    @database_sync_to_async
     def room_is_seen(self, room):
         return room.messages.all().count() == 0 or self.user.seen_rooms.filter(id=room.id).exists()
 

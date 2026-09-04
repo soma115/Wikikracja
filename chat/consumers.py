@@ -200,7 +200,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
         await self.channel_layer.group_add(room.group_name, self.channel_name)
 
-        proxy.send_json({"join": str(room.id), "title": room.title, "public": room.public, "notifications": not await self.repo.has_muted_room(room.id)})
+        proxy.send_json({"join": str(room.id), "title": room.title, "public": room.public, "notifications": not await self.repo.has_muted_room(room.id), "can_post": await self.repo.can_post_in_room(room)})
 
         batch_data = await self.repo.get_recent_messages_batch(room_id, self.scope['user'].id, limit=100)
         messages_list = batch_data['messages']
@@ -316,6 +316,9 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
         if not room.public and is_anonymous:
             raise ClientError("ANONYMOUS_IN_PRIVATE")
+
+        if not await self.repo.can_post_in_room(room):
+            raise ClientError("ACCESS_DENIED")
 
         msg = Message(sender=sender, text=message_clean, room=room, anonymous=is_anonymous)
 

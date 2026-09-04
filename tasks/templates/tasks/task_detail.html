@@ -39,13 +39,35 @@
           {% endwith %}
         {% endif %}
       </div>
-      <p class="text-muted small mb-1">{% trans "Author" %}: {{ task.created_by|default:_("Unknown") }}</p>
-      <p class="text-muted small mb-1">{% trans "Coordinator" %}: <span data-coord-label>{{ task.assigned_to|default:_("None") }}</span></p>
-      <p class="text-muted small mb-1">{% trans "Status" %}: {{ task.get_status_display }}</p>
-      {% if task.category %}
-      <p class="text-muted small mb-1">{% trans "Category" %}: {{ task.category.name }}</p>
-      {% endif %}
-      <p class="text-muted small mb-1">{% trans "Created" %}: {{ task.created_at|date:"Y-m-d H:i" }}</p>
+      <div class="task-meta-row d-flex flex-wrap gap-2 mb-3">
+        <span class="task-meta-item" title="{% trans 'Author' %}">
+          <i class="fas fa-user-pen task-meta-icon"></i>
+          <span class="task-meta-label">{% trans "Author" %}</span>
+          <strong class="task-meta-value">{{ task.created_by|default:_("Unknown") }}</strong>
+        </span>
+        <span class="task-meta-item" title="{% trans 'Coordinator' %}">
+          <i class="fas fa-user-shield task-meta-icon"></i>
+          <span class="task-meta-label">{% trans "Coordinator" %}</span>
+          <strong class="task-meta-value" data-coord-label>{{ task.assigned_to|default:_("None") }}</strong>
+        </span>
+        <span class="task-meta-item" title="{% trans 'Status' %}">
+          <i class="fas fa-circle-info task-meta-icon"></i>
+          <span class="task-meta-label">{% trans "Status" %}</span>
+          <strong class="task-meta-value task-meta-status-{{ task.status }}">{{ task.get_status_display }}</strong>
+        </span>
+        {% if task.category %}
+        <span class="task-meta-item" title="{% trans 'Category' %}">
+          <i class="fas fa-tag task-meta-icon"></i>
+          <span class="task-meta-label">{% trans "Category" %}</span>
+          <strong class="task-meta-value">{{ task.category.name }}</strong>
+        </span>
+        {% endif %}
+        <span class="task-meta-item" title="{% trans 'Created' %}">
+          <i class="fas fa-calendar-plus task-meta-icon"></i>
+          <span class="task-meta-label">{% trans "Created" %}</span>
+          <strong class="task-meta-value">{{ task.created_at|date:"Y-m-d H:i" }}</strong>
+        </span>
+      </div>
 
       <p>{{ task.description|richtext }}</p>
 
@@ -156,16 +178,36 @@
   </div>
 
   <div class="row mb-4">
-    <div class="col-6">
+    <div class="col-12 col-md-6 mb-3 mb-md-0">
       <div class="card h-100">
         <div class="card-body">
           <h2 class="h5 mb-3">{% trans "Willing to help" %}</h2>
-          <div class="helpers-popover-list" data-voter-list="helpers"{% if not helping_votes %} hidden{% endif %}>
+          <div class="helpers-voter-list" data-voter-list="helpers"{% if not helping_votes %} hidden{% endif %}>
             {% for vote in helping_votes %}
-              <a class="helpers-popover-item" href="{% url 'obywatele:obywatele_szczegoly' vote.user_id %}" data-user-id="{{ vote.user_id }}">
-                {% include "home/_user_avatar.html" with avatar=vote.user.uzytkownik.avatar username=vote.user.username size="xl" %}
-                <span class="helpers-popover-name">{{ vote.user.username }}</span>
-              </a>
+              <div class="helpers-voter-item" data-user-id="{{ vote.user_id }}">
+                <a class="helpers-popover-item" href="{% url 'obywatele:obywatele_szczegoly' vote.user_id %}">
+                  {% include "home/_user_avatar.html" with avatar=vote.user.uzytkownik.avatar username=vote.user.username size="xl" %}
+                  <span class="helpers-popover-name">{{ vote.user.username }}</span>
+                </a>
+                {% if vote.is_approved %}
+                  <span class="helper-status helper-status--approved" title="{% trans 'In team' %}">
+                    <i class="fas fa-check-circle"></i> {% trans "In team" %}
+                  </span>
+                {% else %}
+                  <span class="helper-status helper-status--pending" title="{% trans 'Pending approval' %}">
+                    <i class="fas fa-clock"></i> {% trans "Pending" %}
+                  </span>
+                {% endif %}
+                {% if is_coordinator %}
+                  <form class="helper-toggle-form" method="post" action="{% url 'tasks:toggle_helper' task.pk vote.user_id %}" data-user-id="{{ vote.user_id }}">
+                    {% csrf_token %}
+                    <label class="helper-switch" title="{% trans 'Approve for team' %}">
+                      <input type="checkbox" data-helper-toggle {% if vote.is_approved %}checked{% endif %}>
+                      <span class="helper-switch-slider"></span>
+                    </label>
+                  </form>
+                {% endif %}
+              </div>
             {% endfor %}
           </div>
           <p class="text-muted mb-0" data-voter-empty="helpers"{% if helping_votes %} hidden{% endif %}>{% trans "No one wants to help at the moment" %}</p>
@@ -173,7 +215,7 @@
       </div>
     </div>
 
-    <div class="col-6">
+    <div class="col-12 col-md-6">
       <div class="card h-100">
         <div class="card-body">
           <h2 class="h5 mb-3">{% trans "Against this activity" %}</h2>
@@ -250,7 +292,7 @@
   </div>
   {% endif %}
 
-  {% with chat_room=task.chat_room %}
+  {% with chat_room=task.chat_room can_post=can_post_in_chat %}
     {% include 'chat/_embedded_chat.html' %}
   {% endwith %}
 </div>
@@ -266,6 +308,13 @@
   window.CURRENT_USER.avatar_url = "{% if request.user.uzytkownik.avatar %}{{ request.user.uzytkownik.avatar.url|escapejs }}{% endif %}";
   window.CURRENT_USER.profile_url = "{% url 'obywatele:obywatele_szczegoly' request.user.id %}";
   window.TASK_COORD_I18N = { none_label: "{% trans 'None' %}" };
+  window.TASK_HELPERS_I18N = {
+    in_team: "{% trans 'In team' %}",
+    pending: "{% trans 'Pending' %}",
+    approve_for_team: "{% trans 'Approve for team' %}",
+  };
+  window.IS_COORDINATOR = {{ is_coordinator|yesno:"true,false" }};
+  window.TASK_ID = {{ task.pk }};
 </script>
 <script src="{% static 'tasks/js/tasks.js' %}"></script>
 {% endblock %}

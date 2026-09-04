@@ -75,6 +75,8 @@ Sekwencyjnie można je odpalić przez `pytest -n0 -q` tylko do debugowania / `--
 
 Pełny zestaw testów jest zasobożerny. Nie uruchamiaj go wielokrotnie w trakcie pracy — wykonuj lekkie, szybkie sprawdzenia (np. `ruff check .`, `python manage.py check`, `npx jest`) iteracyjnie, a pełny `pytest` oraz `collectstatic` dopiero pod koniec zadania, gdy zmiany są gotowe do ostatecznej weryfikacji.
 
+Nie uruchamiaj testów dla prostych i niebudzących wątpliwości zmian.
+
 ## 5. Konwencje
 
 - **Python:** stosuj narzędzia lintingu, formatowania i konfigurację testów przyjęte w projekcie.

@@ -54,6 +54,10 @@ class Task(ChatRoomModel, models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # Nowe działania używają trybu zespołowego: koordynator decyduje, kto może pisać w czacie.
+    team_mode = models.BooleanField(default=False, verbose_name=_("Team mode"))
+    approved_helpers = models.ManyToManyField(User, related_name="tasks_approved", blank=True, verbose_name=_("Approved helpers"))
+
     objects = TaskQuerySet.as_manager()
 
     class Meta:
@@ -88,6 +92,43 @@ class Task(ChatRoomModel, models.Model):
         if room and room.messages.exists() and not room.seen_by.filter(id=user.id).exists():
             return "chat-room-pulse"
         return ""
+
+    def is_user_helper(self, user):
+        """Return True if the user clicked "I want to help" (TaskVote.Value.UP)."""
+        if not user or not user.is_authenticated:
+            return False
+        return self.votes.filter(user=user, value=TaskVote.Value.UP).exists()
+
+    def is_user_approved(self, user):
+        """Return True if the coordinator approved this user as a team member."""
+        if not user or not user.is_authenticated:
+            return False
+        return self.approved_helpers.filter(id=user.id).exists()
+
+    def can_user_post(self, user):
+        """Return True if the user may write in the task chat room.
+
+        In team mode only the coordinator and approved helpers can post.
+        Old tasks (team_mode=False) keep the previous behaviour where every
+        group member can write.
+        """
+        if not user or not user.is_authenticated:
+            return False
+        if not self.team_mode:
+            return True
+        if self.assigned_to == user:
+            return True
+        return self.is_user_approved(user)
+
+    def approve_helper(self, user):
+        """Coordinator action: add a willing helper to the team."""
+        if not self.is_user_helper(user):
+            raise ValueError(_("User is not a willing helper for this activity."))
+        self.approved_helpers.add(user)
+
+    def remove_helper(self, user):
+        """Coordinator action: remove a user from the approved team (not from helpers list)."""
+        self.approved_helpers.remove(user)
 
 
 class TaskVote(models.Model):

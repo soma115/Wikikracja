@@ -26,7 +26,7 @@ def create_or_update_chat_room_for_referendum(sender, instance, created, **kwarg
         HOST = get_site_domain()
         protocol = getattr(settings, 'SITE_PROTOCOL', 'http')
         details_url = f"{protocol}://{HOST}/glosowania/details/{instance.pk}"
-        welcome_message = _("This chat room has been created for project #{id} \"{title}\".\nView details: {details_url}\nDiscuss the proposal, share your thoughts, and ask questions here.").format(
+        welcome_message = _("This chat room has been created for project #{id} <a href='{details_url}'>{title}</a>.\nDiscuss the proposal, share your thoughts, and ask questions here.").format(
             id=instance.pk, title=instance.title, details_url=details_url
         )
 

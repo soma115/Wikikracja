@@ -26,13 +26,21 @@ export default class DomApi {
         return $(`.room-link[data-room-id="${room_id}"]`);
     }
 
-    createRoomDiv(room_id, title, is_public, notifs_enabled) {
+    createRoomDiv(room_id, title, is_public, notifs_enabled, can_post = true) {
         const messageMaxLength = window.SITE_SETTINGS?.messageMaxLength ?? 500;
         const html = Room({ room_id, title, is_public, notifs_enabled, messageMaxLength });
         const container = $('.chat-root-messages');
         container.innerHTML = '';
         container.insertAdjacentHTML('beforeend', html);
-        return $('#room');
+        const room = $('#room');
+        if (!can_post) {
+            const controls = $('.chat-controls', room);
+            if (controls) {
+                controls.innerHTML = `<div class="ec-readonly-notice"><i class="fas fa-lock"></i> ${_("Only approved helpers can write here.")}</div>`;
+                controls.classList.add('chat-controls--readonly');
+            }
+        }
+        return room;
     }
 
     getRoom() {

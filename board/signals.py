@@ -31,9 +31,9 @@ def notify_important_chat_on_important_post(sender, instance, created, **kwargs)
     post_url = f"{protocol}://{get_site_domain()}{post_path}"
 
     if created:
-        message = _("New important document by %(username)s: %(title)s - %(post_url)s") % {'username': instance.author.username, 'post_url': post_url, 'title': instance.title}
+        message = _("New important document by %(username)s: <a href='%(post_url)s'>%(title)s</a>") % {'username': instance.author.username, 'post_url': post_url, 'title': instance.title}
     else:
-        message = _("Updated important document by %(username)s: %(title)s - %(post_url)s") % {'username': instance.author.username, 'post_url': post_url, 'title': instance.title}
+        message = _("I've updated Important document: <a href='%(post_url)s'>%(title)s</a>") % {'post_url': post_url, 'title': instance.title}
 
     chat_message_requested.send(sender=Post, room_title="Ważne", message_text=message, from_user=instance.author, anonymous=False)
     important_post_published.send(sender=Post, post=instance, url=build_site_url(post_path), created=created)
@@ -47,7 +47,7 @@ def create_or_update_chat_room_for_post(sender, instance, created, **kwargs):
 
         post_path = reverse('board:view_post', args=[instance.pk])
         post_url = build_site_url(post_path)
-        welcome_message = _('Discussion room for document "%(title)s": %(url)s') % {'title': instance.title, 'url': post_url}
+        welcome_message = _("Discussion room for document: <a href='%(url)s'>%(title)s</a>") % {'title': instance.title, 'url': post_url}
 
         chat_room_requested.send(
             sender=Post,

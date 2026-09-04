@@ -236,6 +236,7 @@ def get_translations():
         "Tap {icon} above the list to disable the unread filter": _("Tap {icon} above the list to disable the unread filter"),
         "Disable the unread filter": _("Disable the unread filter"),
         "This room is empty, be the first one to write something.": _("This room is empty, be the first one to write something."),
+        "Only approved helpers can write here.": _("Only approved helpers can write here."),
     }
 
 

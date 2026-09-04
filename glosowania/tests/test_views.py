@@ -216,13 +216,7 @@ def test_add_proposal_creates_decyzja(sample_users):
     client = Client()
     client.force_login(author)
 
-    response = client.post('/glosowania/nowy/', {
-        'title': 'New proposal',
-        'tresc': 'Proposal law text',
-        'uzasadnienie': 'It is needed',
-        'kara': '',
-        'znosi': '',
-    })
+    response = client.post('/glosowania/nowy/', {'title': 'New proposal', 'tresc': 'Proposal law text', 'uzasadnienie': 'It is needed', 'kara': '', 'znosi': ''})
 
     assert response.status_code == 302
     assert response.url == '/glosowania/proposition/'
@@ -242,11 +236,7 @@ def test_add_proposal_invalid_form_shows_error_message(sample_users):
     client = Client()
     client.force_login(author)
 
-    response = client.post('/glosowania/nowy/', {
-        'title': '',
-        'tresc': '',
-        'uzasadnienie': '',
-    })
+    response = client.post('/glosowania/nowy/', {'title': '', 'tresc': '', 'uzasadnienie': ''})
 
     assert response.status_code == 200
     assert 'form' in response.context
@@ -265,11 +255,7 @@ def test_add_proposal_saves_even_when_notification_handler_fails(sample_users):
     client.force_login(author)
 
     with patch('glosowania.views.vote_state_changed.send', side_effect=RuntimeError('notification handler failed')):
-        response = client.post('/glosowania/nowy/', {
-            'title': 'Resilient proposal',
-            'tresc': 'Proposal law text',
-            'uzasadnienie': 'It is needed',
-        })
+        response = client.post('/glosowania/nowy/', {'title': 'Resilient proposal', 'tresc': 'Proposal law text', 'uzasadnienie': 'It is needed'})
 
     assert response.status_code == 302
     assert response.url == '/glosowania/proposition/'

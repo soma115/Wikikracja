@@ -49,6 +49,51 @@ class TaskModelTest(TestCase):
         self.assertTrue(Room.objects.filter(title=task.get_chat_room_title()).exists())
         self.assertEqual(task.chat_room.title, task.get_chat_room_title())
 
+    def test_team_mode_defaults_to_false(self):
+        task = make_task(created_by=self.user)
+        self.assertFalse(task.team_mode)
+
+    def test_can_user_post_old_task(self):
+        other = make_user("other")
+        task = make_task(created_by=self.user, team_mode=False)
+        self.assertTrue(task.can_user_post(other))
+
+    def test_can_user_post_team_mode_coordinator(self):
+        other = make_user("other")
+        task = make_task(created_by=self.user, assigned_to=other, team_mode=True)
+        self.assertTrue(task.can_user_post(other))
+
+    def test_can_user_post_team_mode_approved_helper(self):
+        helper = make_user("helper")
+        task = make_task(created_by=self.user, team_mode=True)
+        TaskVote.objects.create(task=task, user=helper, value=TaskVote.Value.UP)
+        task.approve_helper(helper)
+        self.assertTrue(task.can_user_post(helper))
+
+    def test_can_user_post_team_mode_unapproved_helper_cannot_post(self):
+        helper = make_user("helper")
+        other = make_user("other")
+        task = make_task(created_by=self.user, team_mode=True)
+        TaskVote.objects.create(task=task, user=helper, value=TaskVote.Value.UP)
+        self.assertFalse(task.can_user_post(helper))
+        self.assertFalse(task.can_user_post(other))
+
+    def test_approve_helper_requires_helper_vote(self):
+        helper = make_user("helper")
+        task = make_task(created_by=self.user, team_mode=True)
+        with self.assertRaises(ValueError):
+            task.approve_helper(helper)
+
+    def test_remove_helper_keeps_vote(self):
+        helper = make_user("helper")
+        task = make_task(created_by=self.user, team_mode=True)
+        TaskVote.objects.create(task=task, user=helper, value=TaskVote.Value.UP)
+        task.approve_helper(helper)
+        self.assertTrue(task.is_user_approved(helper))
+        task.remove_helper(helper)
+        self.assertFalse(task.is_user_approved(helper))
+        self.assertTrue(task.is_user_helper(helper))
+
     def test_task_not_saved_when_chat_room_creation_fails(self):
         with patch("chat.signals.Room.objects.create", side_effect=RuntimeError("DB unavailable")):
             with self.assertRaises(RuntimeError):

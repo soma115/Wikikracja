@@ -117,6 +117,57 @@
     return item;
   }
 
+  function buildDetailVoterItem(user) {
+    var i18n = window.TASK_HELPERS_I18N || {};
+    var wrap = document.createElement('div');
+    wrap.className = 'helpers-voter-item';
+    wrap.dataset.userId = user.id;
+
+    var link = buildVoterItem(user);
+    link.className = 'helpers-popover-item';
+    wrap.appendChild(link);
+
+    var status = document.createElement('span');
+    status.className = 'helper-status helper-status--pending';
+    status.innerHTML = '<i class="fas fa-clock"></i> ' + (i18n.pending || 'Pending');
+    wrap.appendChild(status);
+
+    if (window.IS_COORDINATOR && window.TASK_ID) {
+      var form = document.createElement('form');
+      form.className = 'helper-toggle-form';
+      form.method = 'post';
+      form.action = '/tasks/' + window.TASK_ID + '/toggle/' + user.id + '/';
+      form.dataset.userId = user.id;
+
+      var csrf = document.querySelector('[name="csrfmiddlewaretoken"]');
+      if (csrf) {
+        var csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrf.value;
+        form.appendChild(csrfInput);
+      }
+
+      var label = document.createElement('label');
+      label.className = 'helper-switch';
+      label.title = i18n.approve_for_team || 'Approve for team';
+
+      var checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.dataset.helperToggle = '';
+
+      var slider = document.createElement('span');
+      slider.className = 'helper-switch-slider';
+
+      label.appendChild(checkbox);
+      label.appendChild(slider);
+      form.appendChild(label);
+      wrap.appendChild(form);
+    }
+
+    return wrap;
+  }
+
   function syncVoterEmptyState() {
     ['helpers', 'against'].forEach(function (key) {
       var list = document.querySelector('[data-voter-list="' + key + '"]');
@@ -131,13 +182,21 @@
   function updateVoterLists(data) {
     if (!window.CURRENT_USER || window.CURRENT_USER.id == null) return;
     var userId = String(window.CURRENT_USER.id);
-    document.querySelectorAll('[data-voter-list] .helpers-popover-item[data-user-id="' + userId + '"]')
+    document.querySelectorAll('[data-voter-list] .helpers-voter-item[data-user-id="' + userId + '"]')
       .forEach(function (el) { el.remove(); });
+    document.querySelectorAll('[data-voter-list] .helpers-popover-item[data-user-id="' + userId + '"]')
+      .forEach(function (el) { el.closest('.helpers-voter-item')?.remove(); el.remove(); });
 
     var targetKey = data.vote === 1 ? 'helpers' : (data.vote === -1 ? 'against' : null);
     if (targetKey) {
       var target = document.querySelector('[data-voter-list="' + targetKey + '"]');
-      if (target) target.appendChild(buildVoterItem(window.CURRENT_USER));
+      if (target) {
+        if (target.classList.contains('helpers-voter-list')) {
+          target.appendChild(buildDetailVoterItem(window.CURRENT_USER));
+        } else {
+          target.appendChild(buildVoterItem(window.CURRENT_USER));
+        }
+      }
     }
     syncVoterEmptyState();
   }
@@ -197,6 +256,65 @@
   }
 
   document.addEventListener('submit', handleCoordSubmit, true);
+
+  // ─── Coordinator helper approval toggle live update ─────────────────────
+  function updateHelperApproval(userId, approved) {
+    var item = document.querySelector('.helpers-voter-item[data-user-id="' + userId + '"]');
+    if (!item) return;
+
+    var status = item.querySelector('.helper-status');
+    if (status) {
+      if (approved) {
+        status.className = 'helper-status helper-status--approved';
+        status.innerHTML = '<i class="fas fa-check-circle"></i> ' + (window.TASK_HELPERS_I18N && window.TASK_HELPERS_I18N.in_team || 'In team');
+      } else {
+        status.className = 'helper-status helper-status--pending';
+        status.innerHTML = '<i class="fas fa-clock"></i> ' + (window.TASK_HELPERS_I18N && window.TASK_HELPERS_I18N.pending || 'Pending');
+      }
+    }
+
+    var checkbox = item.querySelector('input[data-helper-toggle]');
+    if (checkbox && checkbox.checked !== approved) {
+      checkbox.checked = approved;
+    }
+  }
+
+  function handleHelperToggleChange(e) {
+    var checkbox = e.target.closest && e.target.closest('input[data-helper-toggle]');
+    if (!checkbox) return;
+
+    var form = checkbox.closest('form.helper-toggle-form');
+    if (!form) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    var csrf = form.querySelector('[name="csrfmiddlewaretoken"]');
+    if (!csrf) return;
+
+    fetch(form.action, {
+      method: 'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({ csrfmiddlewaretoken: csrf.value }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data || !data.ok) {
+          // Revert on failure so the switch reflects the server state.
+          checkbox.checked = !checkbox.checked;
+          return;
+        }
+        updateHelperApproval(data.user_id, data.approved);
+      })
+      .catch(function () {
+        checkbox.checked = !checkbox.checked;
+      });
+  }
+
+  document.addEventListener('change', handleHelperToggleChange, true);
 
   document.addEventListener('DOMContentLoaded', function () {
     if (typeof window.reinitTaskCards === 'function') window.reinitTaskCards();

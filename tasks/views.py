@@ -1,6 +1,7 @@
 import math
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
@@ -21,6 +22,8 @@ from chat.views import get_translations as get_chat_translations
 
 from .forms import TaskForm, TaskStatusForm
 from .models import Category, Task, TaskEvaluation, TaskVote
+
+User = get_user_model()
 
 TASK_LIST_CACHE_TTL = 3600  # 1h — signals handle invalidation on data changes
 TASK_LIST_GLOBAL_VERSION_KEY = "task_list_global_version"
@@ -293,6 +296,7 @@ class TaskCreateView(CategoryContextMixin, LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         form.instance.assigned_to = self.request.user
+        form.instance.team_mode = True
         response = super().form_valid(form)
         TaskVote.objects.get_or_create(task=self.object, user=self.request.user, defaults={"value": TaskVote.Value.UP})
         return response
@@ -329,6 +333,76 @@ def task_helpers_json(request: HttpRequest, pk: int) -> JsonResponse:
 def task_against_json(request: HttpRequest, pk: int) -> JsonResponse:
     task = get_object_or_404(Task, pk=pk)
     return JsonResponse(_voters_json(task, TaskVote.Value.DOWN))
+
+
+@require_POST
+@login_required
+def approve_helper(request: HttpRequest, pk: int, user_id: int) -> HttpResponse:
+    task = get_object_or_404(Task, pk=pk)
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    if task.assigned_to != request.user:
+        if is_ajax:
+            return JsonResponse({"ok": False, "error": "not coordinator"}, status=403)
+        return redirect("tasks:detail", pk=pk)
+
+    helper = get_object_or_404(User, pk=user_id)
+    if not task.is_user_helper(helper):
+        if is_ajax:
+            return JsonResponse({"ok": False, "error": "not a helper"}, status=400)
+        return redirect("tasks:detail", pk=pk)
+
+    task.approve_helper(helper)
+    invalidate_task_list_cache()
+    if is_ajax:
+        return JsonResponse({"ok": True, "user_id": helper.id, "approved": True})
+    return redirect(request.POST.get("next") or "tasks:detail", pk=pk)
+
+
+@require_POST
+@login_required
+def remove_helper(request: HttpRequest, pk: int, user_id: int) -> HttpResponse:
+    task = get_object_or_404(Task, pk=pk)
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    if task.assigned_to != request.user:
+        if is_ajax:
+            return JsonResponse({"ok": False, "error": "not coordinator"}, status=403)
+        return redirect("tasks:detail", pk=pk)
+
+    helper = get_object_or_404(User, pk=user_id)
+    task.remove_helper(helper)
+    invalidate_task_list_cache()
+    if is_ajax:
+        return JsonResponse({"ok": True, "user_id": helper.id, "approved": False})
+    return redirect(request.POST.get("next") or "tasks:detail", pk=pk)
+
+
+@require_POST
+@login_required
+def toggle_helper(request: HttpRequest, pk: int, user_id: int) -> HttpResponse:
+    """Coordinator toggle: approve/remove a helper from the team with one switch."""
+    task = get_object_or_404(Task, pk=pk)
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    if task.assigned_to != request.user:
+        if is_ajax:
+            return JsonResponse({"ok": False, "error": "not coordinator"}, status=403)
+        return redirect("tasks:detail", pk=pk)
+
+    helper = get_object_or_404(User, pk=user_id)
+    if task.is_user_approved(helper):
+        task.remove_helper(helper)
+        approved = False
+    else:
+        if not task.is_user_helper(helper):
+            if is_ajax:
+                return JsonResponse({"ok": False, "error": "not a helper"}, status=400)
+            return redirect("tasks:detail", pk=pk)
+        task.approve_helper(helper)
+        approved = True
+
+    invalidate_task_list_cache()
+    if is_ajax:
+        return JsonResponse({"ok": True, "user_id": helper.id, "approved": approved})
+    return redirect(request.POST.get("next") or "tasks:detail", pk=pk)
 
 
 @require_POST
@@ -388,14 +462,23 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
         current_label, current_category = priority_map.get(task.id, (getattr(task, "priority_label", None), getattr(task, "priority_category", None)))
         task.priority_label = current_label or task.get_status_display()
         task.priority_category = current_category
-        context["helping_votes"] = TaskVote.objects.filter(task=task, value=TaskVote.Value.UP).select_related("user", "user__uzytkownik").order_by("updated_at", "id")
+        helping_votes = list(TaskVote.objects.filter(task=task, value=TaskVote.Value.UP).select_related("user", "user__uzytkownik").order_by("updated_at", "id"))
+        approved_ids = set(task.approved_helpers.values_list("id", flat=True))
+        for hv in helping_votes:
+            hv.is_approved = hv.user_id in approved_ids
+            hv.is_me = hv.user_id == self.request.user.id
+        context["helping_votes"] = helping_votes
         context["against_votes"] = TaskVote.objects.filter(task=task, value=TaskVote.Value.DOWN).select_related("user", "user__uzytkownik").order_by("updated_at", "id")
+        context["is_coordinator"] = self.request.user.is_authenticated and task.assigned_to == self.request.user
         if self.request.user.is_authenticated:
             vote = TaskVote.objects.filter(task=task, user=self.request.user).first()
             context["user_vote_value"] = vote.value if vote else None
 
             # Check if chat room has unseen messages
             task.chat_room_pulse_class = task.get_chat_room_pulse_class(self.request.user)
+            context["can_post_in_chat"] = task.can_user_post(self.request.user)
+        else:
+            context["can_post_in_chat"] = False
         context["task"] = task
         context["MESSAGE_MAX_LENGTH"] = settings.MESSAGE_MAX_LENGTH
         context["ec_translations"] = get_chat_translations()

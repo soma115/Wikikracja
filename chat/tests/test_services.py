@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 import firebase_admin
+from channels.db import database_sync_to_async
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from firebase_admin import messaging as firebase_messaging
@@ -8,6 +9,7 @@ from push_notifications.models import GCMDevice
 
 from chat.services import ChatRepository, extract_mentions, get_avatar_url
 from chat.tests.utils import make_user
+from tasks.tests.utils import make_task
 from zzz.notifications import build_notification, send_fcm_to_user_sync
 
 
@@ -59,6 +61,43 @@ class ExtractMentionsTest(TestCase):
 
     def test_deduplicates_mentions(self):
         self.assertEqual(extract_mentions("@alice @alice"), {"alice"})
+
+
+class CanPostInRoomTest(TestCase):
+    def setUp(self):
+        self.coordinator = make_user("coordinator")
+        self.helper = make_user("helper")
+        self.approved = make_user("approved")
+        self.stranger = make_user("stranger")
+        self.task = make_task(created_by=self.coordinator, assigned_to=self.coordinator, team_mode=True)
+        from tasks.models import TaskVote
+
+        TaskVote.objects.create(task=self.task, user=self.helper, value=1)
+        TaskVote.objects.create(task=self.task, user=self.approved, value=1)
+        self.task.approve_helper(self.approved)
+
+        self.room = self.task.chat_room
+
+    async def test_coordinator_can_post(self):
+        repo = ChatRepository(self.coordinator)
+        self.assertTrue(await repo.can_post_in_room(self.room))
+
+    async def test_approved_helper_can_post(self):
+        repo = ChatRepository(self.approved)
+        self.assertTrue(await repo.can_post_in_room(self.room))
+
+    async def test_unapproved_helper_cannot_post(self):
+        repo = ChatRepository(self.helper)
+        self.assertFalse(await repo.can_post_in_room(self.room))
+
+    async def test_stranger_cannot_post(self):
+        repo = ChatRepository(self.stranger)
+        self.assertFalse(await repo.can_post_in_room(self.room))
+
+    async def test_old_task_allows_everyone(self):
+        old_task = await database_sync_to_async(make_task)(created_by=self.coordinator, team_mode=False)
+        repo = ChatRepository(self.stranger)
+        self.assertTrue(await repo.can_post_in_room(old_task.chat_room))
 
 
 class SendPushNotificationSyncTest(TestCase):

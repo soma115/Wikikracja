@@ -456,3 +456,134 @@ class TaskAgainstJsonTest(TestCase):
         data = response.json()
         self.assertEqual(data["total"], 0)
         self.assertEqual(data["helpers"], [])
+
+
+class TaskCreateTeamModeTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = make_user("creator")
+
+    def test_create_sets_team_mode_true(self):
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+        self.client.post(reverse("tasks:add"), {"title": "Nowe", "description": "Opis"})
+        task = Task.objects.get(title="Nowe")
+        self.assertTrue(task.team_mode)
+
+    def test_create_assigns_creator_as_coordinator(self):
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+        self.client.post(reverse("tasks:add"), {"title": "Kierowane", "description": "Opis"})
+        task = Task.objects.get(title="Kierowane")
+        self.assertEqual(task.assigned_to, self.user)
+
+
+class HelperApprovalTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.coordinator = make_user("coordinator")
+        self.helper = make_user("helper")
+        self.intruder = make_user("intruder")
+        self.task = make_task(created_by=self.coordinator, assigned_to=self.coordinator, team_mode=True)
+        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
+
+    def test_coordinator_approves_helper(self):
+        self.client.login(username=self.coordinator.username, password=self.coordinator._plain_password)
+        response = self.client.post(reverse("tasks:approve_helper", kwargs={"pk": self.task.pk, "user_id": self.helper.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["ok"])
+        self.assertTrue(self.task.is_user_approved(self.helper))
+
+    def test_non_coordinator_cannot_approve(self):
+        self.client.login(username=self.intruder.username, password=self.intruder._plain_password)
+        response = self.client.post(reverse("tasks:approve_helper", kwargs={"pk": self.task.pk, "user_id": self.helper.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(self.task.is_user_approved(self.helper))
+
+    def test_coordinator_removes_helper_from_team_keeps_vote(self):
+        self.task.approve_helper(self.helper)
+        self.client.login(username=self.coordinator.username, password=self.coordinator._plain_password)
+        response = self.client.post(reverse("tasks:remove_helper", kwargs={"pk": self.task.pk, "user_id": self.helper.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["ok"])
+        self.assertFalse(self.task.is_user_approved(self.helper))
+        self.assertTrue(self.task.is_user_helper(self.helper))
+
+    def test_approve_non_helper_fails(self):
+        self.client.login(username=self.coordinator.username, password=self.coordinator._plain_password)
+        response = self.client.post(reverse("tasks:approve_helper", kwargs={"pk": self.task.pk, "user_id": self.intruder.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(self.task.is_user_approved(self.intruder))
+
+
+class TaskDetailTeamModeContextTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.coordinator = make_user("coordinator")
+        self.helper = make_user("helper")
+        self.task = make_task(created_by=self.coordinator, assigned_to=self.coordinator, team_mode=True)
+        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
+
+    def test_detail_context_includes_is_coordinator(self):
+        self.client.login(username=self.coordinator.username, password=self.coordinator._plain_password)
+        response = self.client.get(reverse("tasks:detail", kwargs={"pk": self.task.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["is_coordinator"])
+
+    def test_detail_context_can_post_coordinator(self):
+        self.client.login(username=self.coordinator.username, password=self.coordinator._plain_password)
+        response = self.client.get(reverse("tasks:detail", kwargs={"pk": self.task.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["can_post_in_chat"])
+
+    def test_detail_context_can_post_unapproved_helper_false(self):
+        self.client.login(username=self.helper.username, password=self.helper._plain_password)
+        response = self.client.get(reverse("tasks:detail", kwargs={"pk": self.task.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["can_post_in_chat"])
+
+    def test_detail_context_can_post_approved_helper_true(self):
+        self.task.approve_helper(self.helper)
+        self.client.login(username=self.helper.username, password=self.helper._plain_password)
+        response = self.client.get(reverse("tasks:detail", kwargs={"pk": self.task.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["can_post_in_chat"])
+
+
+class HelperToggleTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.coordinator = make_user("coordinator")
+        self.helper = make_user("helper")
+        self.intruder = make_user("intruder")
+        self.task = make_task(created_by=self.coordinator, assigned_to=self.coordinator, team_mode=True)
+        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
+
+    def test_coordinator_toggle_approves_helper(self):
+        self.client.login(username=self.coordinator.username, password=self.coordinator._plain_password)
+        response = self.client.post(reverse("tasks:toggle_helper", kwargs={"pk": self.task.pk, "user_id": self.helper.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["ok"])
+        self.assertTrue(data["approved"])
+        self.assertTrue(self.task.is_user_approved(self.helper))
+
+    def test_coordinator_toggle_removes_helper(self):
+        self.task.approve_helper(self.helper)
+        self.client.login(username=self.coordinator.username, password=self.coordinator._plain_password)
+        response = self.client.post(reverse("tasks:toggle_helper", kwargs={"pk": self.task.pk, "user_id": self.helper.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["ok"])
+        self.assertFalse(data["approved"])
+        self.assertFalse(self.task.is_user_approved(self.helper))
+
+    def test_non_coordinator_cannot_toggle(self):
+        self.client.login(username=self.intruder.username, password=self.intruder._plain_password)
+        response = self.client.post(reverse("tasks:toggle_helper", kwargs={"pk": self.task.pk, "user_id": self.helper.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 403)
+
+    def test_toggle_non_helper_fails(self):
+        self.client.login(username=self.coordinator.username, password=self.coordinator._plain_password)
+        response = self.client.post(reverse("tasks:toggle_helper", kwargs={"pk": self.task.pk, "user_id": self.intruder.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 400)
