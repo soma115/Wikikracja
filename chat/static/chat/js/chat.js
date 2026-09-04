@@ -4,7 +4,7 @@
  * Coordinates between WebSocket API (WsApi) and DOM API (DomApi) to provide chat functionality.
  */
 
-import { clearReplyTarget as coreClearReplyTarget, setReplyTarget as coreSetReplyTarget } from './chat-core.js';
+import { clearReplyTarget as coreClearReplyTarget, setReplyTarget as coreSetReplyTarget, voteButtonTitle } from './chat-core.js';
 import DomApi from './domapi.js';
 import { MessageHistory } from './templates.js';
 import { $, $$, _, formatDate, formatDateTime, Lock, makeNotification, parseParms } from './utility.js';
@@ -750,7 +750,8 @@ export async function onReceiveMessages(messages) {
             message.reply_to ?? null,
             message.reactions ?? { bulb: 0, question: 0 },
             message.your_reactions ?? [],
-            message.read_by ?? []
+            message.read_by ?? [],
+            message.upvoters, message.downvoters
         );
         if (message.new) DOM_API.updateSidebarForMessage(message);
         if (message.new && !message.own) WS_API?.markMessageRead(message.message_id);
@@ -774,7 +775,8 @@ export async function onReceiveMessages(messages) {
                 message.reply_to ?? null,
                 message.reactions ?? { bulb: 0, question: 0 },
                 message.your_reactions ?? [],
-                message.read_by ?? []
+                message.read_by ?? [],
+                message.upvoters, message.downvoters
             );
         }
         if (batchHtml) msgdiv.insertAdjacentHTML('beforeend', batchHtml);
@@ -829,7 +831,8 @@ export async function onReplaceMessages(messages, room_id) {
             message.reply_to ?? null,
             message.reactions ?? { bulb: 0, question: 0 },
             message.your_reactions ?? [],
-            message.read_by ?? []
+            message.read_by ?? [],
+            message.upvoters, message.downvoters
         );
         if (message.your_vote) {
             DOM_API.getVoteDiv(message.message_id, message.your_vote)?.classList.add('active');
@@ -858,6 +861,14 @@ export async function onReceiveVotes(event) {
         const active_btn = DOM_API.getVoteDiv(event.message_id, event.your_vote);
         if (message_div) $$('.msg-vote', message_div).forEach(btn => btn.classList.remove('active'));
         if (event.add) active_btn?.classList.add('active');
+    }
+
+    // Pokoje zadań: serwer dosyła nicki głosujących — odśwież tooltipsy łapek.
+    if (event.upvoters !== undefined) {
+        const upBtn = DOM_API.getVoteDiv(event.message_id, 'upvote');
+        const dnBtn = DOM_API.getVoteDiv(event.message_id, 'downvote');
+        if (upBtn) upBtn.title = voteButtonTitle(_('Upvote'), event.upvoters);
+        if (dnBtn) dnBtn.title = voteButtonTitle(_('Downvote'), event.downvoters);
     }
 
     // update vote bar after vote change
@@ -1141,7 +1152,7 @@ export async function onSubmitMessage(message, editing_message_id) {
             0, 0, null, true, false,
             attachments, now, now,
             reply_to, { bulb: 0, question: 0 }, [], [],
-            temp_id
+            null, null, temp_id
         );
         requestAnimationFrame(() => DOM_API.markOverflow(DOM_API.getMessageDiv(temp_id)));
         if (msgdiv) msgdiv.scrollTop = msgdiv.scrollHeight;

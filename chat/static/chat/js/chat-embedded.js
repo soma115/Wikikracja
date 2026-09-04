@@ -7,7 +7,7 @@
  *   <script type="module" src="{% static 'chat/js/chat-embedded.js' %}"></script>
  */
 
-import { clearReplyTarget, createEditHandler, createImageClickHandler, createQuoteJumpHandler, createReactionHandler, createReplyHandler, createVoteHandler, formatMessage, getInputHtml, handleEnterKey, initFormattingToolbar, initGlobalPasteImageHandler, insertPlainTextAtCaret, setReplyTarget, updateCounter, uploadFiles } from './chat-core.js';
+import { clearReplyTarget, createEditHandler, createImageClickHandler, createQuoteJumpHandler, createReactionHandler, createReplyHandler, createVoteHandler, formatMessage, getInputHtml, handleEnterKey, initFormattingToolbar, initGlobalPasteImageHandler, insertPlainTextAtCaret, setReplyTarget, updateCounter, uploadFiles, voteButtonTitle } from './chat-core.js';
 import { Message } from './templates.js';
 import { _, formatDate, formatTime } from './utility.js';
 import { getSharedWebSocket } from './websocket-manager.js';
@@ -133,6 +133,8 @@ async function initEmbeddedChat(container) {
             reactions: msg.reactions ?? { bulb: 0, question: 0 },
             your_reactions: msg.your_reactions ?? [],
             read_by: msg.read_by ?? [],
+            upvoters: msg.upvoters ?? null,
+            downvoters: msg.downvoters ?? null,
         });
         messagesEl.insertAdjacentHTML('beforeend', html);
         if (msg.your_vote) {
@@ -283,6 +285,13 @@ async function initEmbeddedChat(container) {
             if (ev.your_vote) {
                 msgDiv.querySelectorAll('.msg-vote').forEach(b => b.classList.remove('active'));
                 if (ev.add) msgDiv.querySelector(`.msg-vote[data-event-name="${ev.your_vote}"]`)?.classList.add('active');
+            }
+            // Pokoje zadań: serwer dosyła nicki głosujących — odśwież tooltipsy łapek.
+            if (ev.upvoters !== undefined) {
+                const upBtn = msgDiv.querySelector('.msg-vote[data-event-name="upvote"]');
+                const dnBtn = msgDiv.querySelector('.msg-vote[data-event-name="downvote"]');
+                if (upBtn) upBtn.title = voteButtonTitle(_('Upvote'), ev.upvoters);
+                if (dnBtn) dnBtn.title = voteButtonTitle(_('Downvote'), ev.downvoters);
             }
         }
     }

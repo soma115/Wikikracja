@@ -182,11 +182,11 @@ const message_template = `
     %>
     <div class="msg-meta-row">
       <% if (type == "public") { %>
-        <button type='button' data-event-name='upvote' data-message-id="<%-message_id%>" class='btn btn-sm message-btn msg-vote' title='${_("Upvote")}'>
+        <button type='button' data-event-name='upvote' data-message-id="<%-message_id%>" class='btn btn-sm message-btn msg-vote' title='${_("Upvote")}<% if (typeof upvoters !== "undefined" && upvoters && upvoters.length) { %>: <%= upvoters.join(", ") %><% } %>'>
           <i class='fas fa-thumbs-up'></i>
           <span class='msg-upvotes'><%-upvotes%></span>
         </button>
-        <button type='button' data-event-name='downvote' data-message-id="<%-message_id%>" class='btn btn-sm message-btn msg-vote' title='${_("Downvote")}'>
+        <button type='button' data-event-name='downvote' data-message-id="<%-message_id%>" class='btn btn-sm message-btn msg-vote' title='${_("Downvote")}<% if (typeof downvoters !== "undefined" && downvoters && downvoters.length) { %>: <%= downvoters.join(", ") %><% } %>'>
           <i class='fas fa-thumbs-down'></i>
           <span class='msg-downvotes'><%-downvotes%></span>
         </button>

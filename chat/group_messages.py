@@ -18,6 +18,8 @@ def format_chat_message(
     reactions: dict = None,
     read_by: list = None,
     temp_id: str = None,
+    upvoters: list = None,
+    downvoters: list = None,
 ):
     """
     Return formatted dict with message data.
@@ -28,8 +30,9 @@ def format_chat_message(
       reactions — {bulb: int, question: int, your_reactions: list} lub None
       read_by   — [{user_id, username, avatar_url}] lub None
       temp_id   — client-generated ID, echoed back so sender can match optimistic placeholder
+      upvoters/downvoters — [usernames]; obecne tylko w pokojach zadań (głosy publiczne)
     """
-    return {
+    data = {
         "type": "chat.message",
         "room_id": room_id,
         "user_id": user_id,
@@ -50,3 +53,8 @@ def format_chat_message(
         "read_by": read_by or [],
         "temp_id": temp_id,
     }
+    if upvoters is not None:
+        data["upvoters"] = upvoters
+    if downvoters is not None:
+        data["downvoters"] = downvoters
+    return data

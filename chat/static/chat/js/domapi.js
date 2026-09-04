@@ -52,7 +52,7 @@ export default class DomApi {
         return room ? $('.messages', room) : null;
     }
 
-    buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null) {
+    buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null) {
         const formatted = this.formatMessage(message);
         return Message({
             room_id, user_id, avatar_url, citizen_color_class, message_id, username,
@@ -65,11 +65,13 @@ export default class DomApi {
             reactions: reactions ?? { bulb: 0, question: 0 },
             your_reactions: your_reactions ?? [],
             read_by: read_by ?? [],
+            upvoters: upvoters ?? [],
+            downvoters: downvoters ?? [],
         });
     }
 
-    addMessage(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, temp_id = null) {
-        const html = this.buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to, reactions, your_reactions, read_by);
+    addMessage(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null, temp_id = null) {
+        const html = this.buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to, reactions, your_reactions, read_by, upvoters, downvoters);
 
         const messagesDiv = this.getMessagesDiv();
         messagesDiv?.insertAdjacentHTML('beforeend', html);

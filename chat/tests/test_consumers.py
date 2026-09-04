@@ -4,9 +4,10 @@ from channels.db import database_sync_to_async
 from django.test import TestCase
 
 from chat.consumers import ChatConsumer
-from chat.models import Room
+from chat.models import Message, Room
 from chat.tests.utils import make_user
 from chat.utils import HandledMessage
+from tasks.tests.utils import make_task
 
 
 class PostSendProcessingUnseenTest(TestCase):
@@ -121,6 +122,45 @@ class MentionNotificationTest(TestCase):
             call_args = consumer.repo.send_push_notification_sync.call_args
             self.assertEqual(call_args.args[0], self.receiver)
             self.assertEqual(call_args.kwargs.get("room_name"), self.sender.username)
+
+
+class BroadcastVoteUpdateTest(TestCase):
+    """update_votes w pokojach zadań zawiera nicki głosujących; w innych pokojach nie."""
+
+    def setUp(self):
+        self.voter = make_user("voter")
+        self.task = make_task(created_by=self.voter)
+        self.task_room = self.task.chat_room
+        self.plain_room = Room.objects.create(title="plain-room", public=True)
+
+        self.msg_task = Message.objects.create(room=self.task_room, sender=self.voter, text="x")
+        self.msg_task.reactions = {'upvotes': [self.voter.id]}
+        self.msg_task.save(update_fields=['reactions'])
+
+        self.msg_plain = Message.objects.create(room=self.plain_room, sender=self.voter, text="x")
+        self.msg_plain.reactions = {'upvotes': [self.voter.id]}
+        self.msg_plain.save(update_fields=['reactions'])
+
+    def _consumer(self):
+        consumer = ChatConsumer.__new__(ChatConsumer)
+        consumer.scope = {'user': self.voter}
+        return consumer
+
+    async def test_task_room_includes_voter_names(self):
+        proxy = HandledMessage()
+        await self._consumer()._broadcast_vote_update(proxy, self.msg_task.id, 'upvote', 1, 0, True)
+        group, message = proxy.get_messages()[0][:2]
+        self.assertEqual(group, self.task_room.group_name)
+        self.assertEqual(message['update_votes']['upvoters'], ['voter'])
+        self.assertEqual(message['update_votes']['downvoters'], [])
+
+    async def test_plain_room_omits_voter_names(self):
+        proxy = HandledMessage()
+        await self._consumer()._broadcast_vote_update(proxy, self.msg_plain.id, 'upvote', 1, 0, True)
+        group, message = proxy.get_messages()[0][:2]
+        self.assertEqual(group, self.plain_room.group_name)
+        self.assertNotIn('upvoters', message['update_votes'])
+        self.assertNotIn('downvoters', message['update_votes'])
 
 
 class HandledMessageSendAllTest(TestCase):

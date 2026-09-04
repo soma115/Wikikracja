@@ -54,6 +54,21 @@ def _reactions(message) -> dict:
     return message.reactions if isinstance(message.reactions, dict) else {}
 
 
+def _voter_names_by_id(user_ids) -> dict:
+    """Return {user_id: username} for the given ids (skips deleted users)."""
+    if not user_ids:
+        return {}
+    return dict(User.objects.filter(id__in=user_ids).values_list('id', 'username'))
+
+
+def _voter_lists(reactions_dict: dict, names_by_id: dict) -> dict:
+    """Map vote id-lists in reactions to usernames: {'upvoters': [...], 'downvoters': [...]}."""
+    return {
+        'upvoters': [names_by_id[uid] for uid in reactions_dict.get('upvotes', []) if uid in names_by_id],
+        'downvoters': [names_by_id[uid] for uid in reactions_dict.get('downvotes', []) if uid in names_by_id],
+    }
+
+
 def _username_to_color(username: str) -> str:
     """Deterministic hex color for username (for quote border-left)."""
     hue = sum(ord(c) for c in username) % 360
@@ -347,6 +362,20 @@ class ChatRepository:
             return type('Vote', (), {'vote': 'downvote'})()
         return None
 
+    @database_sync_to_async
+    def get_vote_voters(self, message_id: int) -> dict:
+        """Return {'upvoters': [usernames], 'downvoters': [usernames]} for a message.
+
+        Used in task rooms (source_app == 'tasks'), where votes are public.
+        """
+        try:
+            m = Message.objects.get(pk=message_id)
+        except Message.DoesNotExist:
+            return {'upvoters': [], 'downvoters': []}
+        r = _reactions(m)
+        names = _voter_names_by_id(set(r.get('upvotes', [])) | set(r.get('downvotes', [])))
+        return _voter_lists(r, names)
+
     # -- Reaction methods --
     @database_sync_to_async
     def toggle_reaction(self, reaction: str, message_id: int) -> bool:
@@ -471,7 +500,7 @@ class ChatRepository:
         return result
 
     @database_sync_to_async
-    def get_recent_messages_batch(self, room_id, user_id, limit=100, sort_by='date', order='desc', popular_only=False):
+    def get_recent_messages_batch(self, room_id, user_id, limit=100, sort_by='date', order='desc', popular_only=False, include_voters=False):
         qs = Message.objects.filter(room=room_id).select_related('sender', 'reply_to__sender').prefetch_related(Prefetch('attachments', queryset=MessageAttachment.objects.all()), 'messagehistory')
 
         if sort_by == 'date' and not popular_only:
@@ -527,6 +556,14 @@ class ChatRepository:
             elif user_id in r.get('downvotes', []):
                 user_votes[msg.id] = 'downvote'
 
+        voter_names = {}
+        if include_voters:
+            voter_ids = set()
+            for msg in messages:
+                r = _reactions(msg)
+                voter_ids.update(r.get('upvotes', []), r.get('downvotes', []))
+            voter_names = _voter_names_by_id(voter_ids)
+
         result = []
         for msg in messages:
             attachments = {}
@@ -545,24 +582,25 @@ class ChatRepository:
             for entry in rb_entries:
                 u = entry.user
                 rb_data.append({'user_id': u.id, 'username': u.username, 'avatar_url': get_avatar_url(u) or '/static/home/images/favicon.ico'})
-            result.append(
-                {
-                    'id': msg.id,
-                    'sender_id': msg.sender_id,
-                    'time': msg.time,
-                    'text': msg.text,
-                    'room_id': msg.room_id,
-                    'anonymous': msg.anonymous,
-                    'upvotes': msg.upvotes,
-                    'downvotes': msg.downvotes,
-                    'edited': hasattr(msg, 'messagehistory'),
-                    'attachments': attachments,
-                    'reply_to': reply_to_data,
-                    'bulb_count': len(r.get('bulb', [])),
-                    'question_count': len(r.get('question', [])),
-                    'read_by': rb_data,
-                }
-            )
+            msg_data = {
+                'id': msg.id,
+                'sender_id': msg.sender_id,
+                'time': msg.time,
+                'text': msg.text,
+                'room_id': msg.room_id,
+                'anonymous': msg.anonymous,
+                'upvotes': msg.upvotes,
+                'downvotes': msg.downvotes,
+                'edited': hasattr(msg, 'messagehistory'),
+                'attachments': attachments,
+                'reply_to': reply_to_data,
+                'bulb_count': len(r.get('bulb', [])),
+                'question_count': len(r.get('question', [])),
+                'read_by': rb_data,
+            }
+            if include_voters:
+                msg_data.update(_voter_lists(r, voter_names))
+            result.append(msg_data)
 
         return {'messages': result, 'users': users, 'user_votes': user_votes}
 

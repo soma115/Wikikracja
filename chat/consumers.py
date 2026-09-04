@@ -202,7 +202,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
         proxy.send_json({"join": str(room.id), "title": room.title, "public": room.public, "notifications": not await self.repo.has_muted_room(room.id), "can_post": await self.repo.can_post_in_room(room)})
 
-        batch_data = await self.repo.get_recent_messages_batch(room_id, self.scope['user'].id, limit=100)
+        batch_data = await self.repo.get_recent_messages_batch(room_id, self.scope['user'].id, limit=100, include_voters=room.source_app == 'tasks')
         messages_list = batch_data['messages']
         users_dict = batch_data['users']
         user_votes_dict = batch_data['user_votes']
@@ -231,6 +231,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     reply_to=msg_data.get('reply_to'),
                     reactions={'bulb': msg_data.get('bulb_count', 0), 'question': msg_data.get('question_count', 0)},
                     read_by=msg_data.get('read_by', []),
+                    upvoters=msg_data.get('upvoters'),
+                    downvoters=msg_data.get('downvoters'),
                 )
             except TypeError:
                 data = None
@@ -261,7 +263,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             order = 'desc'
         popular_only = bool(popular_only)
 
-        batch_data = await self.repo.get_recent_messages_batch(room_id, self.scope['user'].id, limit=100, sort_by=sort_by, order=order, popular_only=popular_only)
+        batch_data = await self.repo.get_recent_messages_batch(room_id, self.scope['user'].id, limit=100, sort_by=sort_by, order=order, popular_only=popular_only, include_voters=room.source_app == 'tasks')
         messages_list = batch_data['messages']
         users_dict = batch_data['users']
         user_votes_dict = batch_data['user_votes']
@@ -285,6 +287,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     reply_to=msg_data.get('reply_to'),
                     reactions={'bulb': msg_data.get('bulb_count', 0), 'question': msg_data.get('question_count', 0)},
                     read_by=msg_data.get('read_by', []),
+                    upvoters=msg_data.get('upvoters'),
+                    downvoters=msg_data.get('downvoters'),
                 )
             except TypeError:
                 continue
@@ -570,19 +574,20 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 await self.repo.remove_vote(opposite_event, message_id)
 
         upvotes, downvotes = await self.repo.add_vote(vote, message_id)
-        room = await self.repo.get_room_by_message(message_id)
-
-        proxy.group_send(
-            room.group_name, {"type": "chat.vote", "update_votes": {"message_id": message_id, "upvotes": upvotes, "downvotes": downvotes, "user_id": self.scope['user'].id, "vote": vote, "add": True}}
-        )
+        await self._broadcast_vote_update(proxy, message_id, vote, upvotes, downvotes, add=True)
 
     @handlers.register("message-remove-vote")
     async def handle_remove_vote(self, proxy: HandledMessage, vote: str, message_id: int):
         upvotes, downvotes = await self.repo.remove_vote(vote, message_id)
+        await self._broadcast_vote_update(proxy, message_id, vote, upvotes, downvotes, add=False)
+
+    async def _broadcast_vote_update(self, proxy: HandledMessage, message_id: int, vote: str, upvotes: int, downvotes: int, add: bool):
         room = await self.repo.get_room_by_message(message_id)
-        proxy.group_send(
-            room.group_name, {"type": "chat.vote", "update_votes": {"message_id": message_id, "upvotes": upvotes, "downvotes": downvotes, "user_id": self.scope['user'].id, "vote": vote, "add": False}}
-        )
+        update_votes = {"message_id": message_id, "upvotes": upvotes, "downvotes": downvotes, "user_id": self.scope['user'].id, "vote": vote, "add": add}
+        # W pokojach zadań głosy są jawne — dołączamy nicki głosujących do tooltipów łapek.
+        if room.source_app == 'tasks':
+            update_votes.update(await self.repo.get_vote_voters(message_id))
+        proxy.group_send(room.group_name, {"type": "chat.vote", "update_votes": update_votes})
 
     @handlers.register("message-react")
     async def handle_message_react(self, proxy: HandledMessage, reaction: str, message_id: int):

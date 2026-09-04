@@ -7,6 +7,7 @@ from django.test import TestCase
 from firebase_admin import messaging as firebase_messaging
 from push_notifications.models import GCMDevice
 
+from chat.models import Message
 from chat.services import ChatRepository, extract_mentions, get_avatar_url
 from chat.tests.utils import make_user
 from tasks.tests.utils import make_task
@@ -98,6 +99,46 @@ class CanPostInRoomTest(TestCase):
         old_task = await database_sync_to_async(make_task)(created_by=self.coordinator, team_mode=False)
         repo = ChatRepository(self.stranger)
         self.assertTrue(await repo.can_post_in_room(old_task.chat_room))
+
+
+class TaskRoomVoterNamesTest(TestCase):
+    """W pokojach zadań głosy na wiadomościach są jawne — payload zawiera nicki głosujących."""
+
+    def setUp(self):
+        self.author = make_user("msgauthor")
+        self.voter_up = make_user("upvoter")
+        self.voter_down = make_user("downvoter")
+        self.task = make_task(created_by=self.author)
+        self.room = self.task.chat_room
+        self.msg = Message.objects.create(room=self.room, sender=self.author, text="Propozycja")
+        self.msg.reactions = {'upvotes': [self.voter_up.id], 'downvotes': [self.voter_down.id]}
+        self.msg.save(update_fields=['reactions'])
+        self.repo = ChatRepository(self.author)
+
+    async def test_batch_includes_voter_names_when_include_voters(self):
+        batch = await self.repo.get_recent_messages_batch(self.room.id, self.author.id, include_voters=True)
+        msg = batch['messages'][-1]
+        self.assertEqual(msg['upvoters'], ['upvoter'])
+        self.assertEqual(msg['downvoters'], ['downvoter'])
+
+    async def test_batch_omits_voter_names_by_default(self):
+        batch = await self.repo.get_recent_messages_batch(self.room.id, self.author.id)
+        msg = batch['messages'][-1]
+        self.assertNotIn('upvoters', msg)
+        self.assertNotIn('downvoters', msg)
+
+    async def test_get_vote_voters_returns_names(self):
+        voters = await self.repo.get_vote_voters(self.msg.id)
+        self.assertEqual(voters, {'upvoters': ['upvoter'], 'downvoters': ['downvoter']})
+
+    async def test_get_vote_voters_missing_message(self):
+        voters = await self.repo.get_vote_voters(999999)
+        self.assertEqual(voters, {'upvoters': [], 'downvoters': []})
+
+    async def test_voter_lists_skip_deleted_users(self):
+        await database_sync_to_async(self.voter_up.delete)()
+        voters = await self.repo.get_vote_voters(self.msg.id)
+        self.assertEqual(voters, {'upvoters': [], 'downvoters': ['downvoter']})
 
 
 class SendPushNotificationSyncTest(TestCase):

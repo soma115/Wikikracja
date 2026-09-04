@@ -104,6 +104,17 @@ export function clearReplyTarget(previewEl) {
 }
 
 /**
+ * Buduje title łapki z opcjonalną listą nicków głosujących
+ * (w pokojach zadań głosy są jawne — serwer dosyła upvoters/downvoters).
+ * @param {string} label - Bazowy opis przycisku (np. _('Upvote'))
+ * @param {Array<string>|undefined} voters - Nicki głosujących
+ * @returns {string}
+ */
+export function voteButtonTitle(label, voters) {
+    return voters && voters.length ? `${label}: ${voters.join(', ')}` : label;
+}
+
+/**
  * Create a delegated vote handler for message vote buttons
  * @param {Function} sendVote - Callback (eventName, messageId, isAdd) => void
  * @returns {Function} Event handler (e) => void

@@ -6,7 +6,7 @@ Jesteś asystentem AI w projekcie Wikikracja (Django + JS + CSS). Twoim nadrzęd
 
 1. **Upraszczaj.** Szukaj rozwiązania z mniejszą ilością kodu, plików i zależności. Usuwaj martwy kod, nie wymyślaj nowych abstrakcji bez potrzeby.
 2. **Bądź konsekwentny.** Korzystaj z istniejących konwencji, wzorców i abstrakcji projektu. Nie wprowadzaj nowych nazw, arkuszy ani konwencji bez uzasadnienia.
-3. **Deduplikuj.** Wyciągaj wspólny kod do funkcji, komponentów, tokenów i modułów. Sprawdź, czy podobna funkcjonalność już istnieje, zanim dodasz nową.
+3. **Deduplikuj (DRY — Don't Repeat Yourself).** Wyciągaj wspólny kod do funkcji, komponentów, tokenów i modułów. Sprawdź, czy podobna funkcjonalność już istnieje, zanim dodasz nową. Każdy fragment wiedzy o systemie powinien mieć jedno autorytatywne źródło prawdy.
 4. **Dbaj o architekturę.** Zachowaj separację warstw aplikacji (logika, prezentacja, style, interakcje). Nie mieszaj odpowiedzialności między warstwami.
 5. **Utrzymuj spójność stylistyczną i unikaj oscylacji.** Nie wprowadzaj wahających się zmian formatowania — wybierz jeden poprawny wariant i stosuj go konsekwentnie. Automatyzuj sprawdzanie stylu przy użyciu narzędzi przyjętych w projekcie.
 6. **Stosuj zasady SOLID.** Kod współdzielony powinien być otwarty na rozszerzenie i zamknięty na modyfikację, zależeć od abstrakcji, a nie konkretów, mieć jedną odpowiedzialność i być testowalny niezależnie od widoku, w którym działa.
@@ -33,7 +33,7 @@ Nie modyfikuj bez konsultacji obszarów krytycznych dla bezpieczeństwa, integra
 
 ## 3. Kontekst projektu
 
-Wikikracja to metoda i narzędzie do wprowadzania demokracji bezpośredniej w małych, lokalnych grupach. Oprogramowanie pozwala społeczności samodzielnie się rządzić: każdy członek ma jeden równy głos, decyzje podejmuje zwykła większość, głosowania są anonimowe i weryfikowalne jednorazowym kodem. System działa bez wbudowanych administratorów — użytkownicy decydują o członkostwie, zasadach i wszystkich innych sprawach. Grupy są niezależnymi instancjami i mogą tworzyć konfederacje.
+Wikikracja to metoda i narzędzie do wprowadzania demokracji bezpośredniej w oddolnych grupach. Oprogramowanie pozwala społeczności samodzielnie się rządzić: każdy członek ma jeden równy głos, decyzje podejmuje zwykła większość, głosowania są anonimowe i weryfikowalne jednorazowym kodem. System działa bez wbudowanych administratorów — użytkownicy decydują o członkostwie, zasadach i wszystkich innych sprawach. Grupy są niezależnymi instancjami i mogą tworzyć konfederacje.
 
 - **Architektura:** Monolityczna aplikacja Django podzielona na moduły funkcyjne. Statyczne pliki per aplikacja (`<app>/static/<app>/`). Komunikacja WebSocket przez Django Channels (czat).
 - **Główne aplikacje:**
@@ -50,32 +50,13 @@ Wikikracja to metoda i narzędzie do wprowadzania demokracji bezpośredniej w ma
 
 ## 4. Weryfikacja
 
-Po większych zmianach:
-```bash
-npx jest
-python manage.py check
-python manage.py collectstatic --noinput --clear
-```
+Nie uruchamiaj testów dla prostych i niebudzących wątpliwości zmian.
 
-Dodatkowo: `python -m pytest -n auto -q`, `ruff check .`, `ruff format --check .`.
+Testy uruchamiaj tylko na fragmentach kodu, których dotyka zmiana.
 
-Projekt używa `.pre-commit-config.yaml` z `ruff` i `ruff-format`. Po zainstalowaniu hooka (`pre-commit install`) formatter uruchamia się automatycznie przed każdym commitem.
+Jeśli potrzebne są testy na całości aplikacji, używaj scripts/run_tests.py
 
 Nie uruchamiaj podglądu w przeglądarce (browser preview) — weryfikuj zmiany wyłącznie testami i komendami CLI.
-
-Wszystkie powyższe kroki można uruchomić jednym poleceniem:
-```bash
-python scripts/run_tests.py
-```
-
-`pytest` jest skonfigurowany do równoległego uruchamiania testów (`-n auto --maxprocesses=12` w `pyproject.toml`).
-`-n auto` może wykryć więcej rdzeni niż jest efektywnie wykorzystalnych; `--maxprocesses=12` ogranicza liczbę workerów, żeby nie tracić czasu na ich rozruch i przełączanie kontekstu.
-**AI zawsze powinno uruchamiać pytest z `python -m pytest -q` (skonfigurowany xdist) lub przez `python scripts/run_tests.py`.**
-Sekwencyjnie można je odpalić przez `pytest -n0 -q` tylko do debugowania / `--pdb`.
-
-Pełny zestaw testów jest zasobożerny. Nie uruchamiaj go wielokrotnie w trakcie pracy — wykonuj lekkie, szybkie sprawdzenia (np. `ruff check .`, `python manage.py check`, `npx jest`) iteracyjnie, a pełny `pytest` oraz `collectstatic` dopiero pod koniec zadania, gdy zmiany są gotowe do ostatecznej weryfikacji.
-
-Nie uruchamiaj testów dla prostych i niebudzących wątpliwości zmian.
 
 ## 5. Konwencje
 
@@ -112,6 +93,7 @@ Nie uruchamiaj testów dla prostych i niebudzących wątpliwości zmian.
 - **Whitenoise / static:** w `DEBUG` pliki serwowane są z finders (bez `collectstatic`); w produkcji `CompressedStaticFilesStorage` wymaga `collectstatic`.
 - **WebSocket / czat:** wymaga Redis i zgodnych `SESSION_COOKIE_SAMESITE` / `CSRF_COOKIE_SAMESITE`. W debug `ASGI_THREADS = 1`.
 - **FCM push:** inicjalizuje się tylko przy certyfikacie Firebase. Brak certyfikatu wyłącza push, ale nie crashuje aplikacji. Użytkownik może mieć wiele aktywnych urządzeń FCM jednocześnie (telefon, komputer itp.); `registration_id` jest deduplikowany tylko w ramach jednego użytkownika. Przy rejestracji wykrywany jest typ urządzenia (`mobile`/`tablet`/`desktop`) i tryb wyświetlania (`browser`/`standalone`/`minimal-ui`/`fullscreen`). Martwe tokeny są dezaktywowane automatycznie przez `django-push-notifications` przy błędach FCM.
+- **Jawne głosy na wiadomościach w pokojach zadań:** w pokojach czatu powiązanych z zadaniami (`Room.source_app == 'tasks'`) łapki w górę/w dół pokazują w tooltipie nicki głosujących. Serwer dołącza pola `upvoters`/`downvoters` (listy nicków) do payloadu wiadomości i zdarzeń `update_votes` tylko dla pokoi zadań — w pozostałych pokojach głosy pozostają anonimowe (tylko liczniki). Reakcje `bulb`/`question` są anonimowe wszędzie.
 - **Kalendarz wydarzeń:** `/events/` pokazuje stały mini-kalendarz i wystąpienia wyłącznie z miesiąca wskazanego przez `?month=YYYY-MM`; nawigacja przeładowuje mini-kalendarz i listę przez AJAX. Mini-kalendarz jest współdzielony ze stroną główną przez `obywatele/_calendar_partial.html`, a siatka i lista korzystają z tej samej logiki `Event.get_occurrences()`.
 - **Scheduler:** `zzz/scheduler.py` uruchamia zadania cykliczne (send_email_digest, chat_rooms, głosowania, count_citizens, update_site, powiadomienia o wydarzeniach). Używa `SCHEDULER_LOCK_FILE`.
 - **Wersja Pythona:** `pyproject.toml` wymaga `>=3.14`; CI używa 3.14.
