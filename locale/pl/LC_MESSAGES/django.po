@@ -4958,21 +4958,35 @@ msgstr "Pozdrowienia z %(site_name)s"
 
 #: .\templates\allauth\account\email\base_message.txt:5
 #, python-format
-msgid "Thank you for using %(site_name)s!\n%(site_domain)s"
-msgstr "Dziękujemy za korzystanie z %(site_name)s!\n%(site_domain)s"
+msgid ""
+"Thank you for using %(site_name)s!\n"
+"%(site_domain)s"
+msgstr ""
+"Dziękujemy za korzystanie z %(site_name)s!\n"
+"%(site_domain)s"
 
 #: .\templates\allauth\account\email\email_confirmation_message.txt:5
 #, python-format
-msgid "You're receiving this e-mail because user %(user_display)s has given your e-mail address to register an account on %(site_domain)s.\n\nTo confirm this is correct, go to %(activate_url)s"
-msgstr "Otrzymujesz ten e-mail, ponieważ użytkownik %(user_display)s podał Twój adres e-mail do rejestracji konta na %(site_domain)s.\n\nAby potwierdzić, że to poprawne, przejdź do %(activate_url)s"
+msgid ""
+"You're receiving this e-mail because user %(user_display)s has given your e-mail address to register an account on %(site_domain)s.\n"
+"\n"
+"To confirm this is correct, go to %(activate_url)s"
+msgstr ""
+"Otrzymujesz ten e-mail, ponieważ użytkownik %(user_display)s podał Twój adres e-mail do rejestracji konta na %(site_domain)s.\n"
+"\n"
+"Aby potwierdzić, że to poprawne, przejdź do %(activate_url)s"
 
 #: .\templates\allauth\account\email\email_confirmation_subject.txt:3
 msgid "Please Confirm Your E-mail Address"
 msgstr "Potwierdź proszę twój email"
 
 #: .\templates\allauth\account\email\password_reset_key_message.txt:4
-msgid "You're receiving this e-mail because you or someone else has requested a password for your user account.\nIt can be safely ignored if you did not request a password reset. Click the link below to reset your password."
-msgstr "Otrzymujesz ten e-mail, ponieważ Ty lub ktoś inny zażądował hasła do Twojego konta użytkownika.\nMożesz bezpiecznie zignorować tę wiadomość, jeśli nie prosiłeś o reset hasła. Kliknij poniższy link, aby zresetować hasło."
+msgid ""
+"You're receiving this e-mail because you or someone else has requested a password for your user account.\n"
+"It can be safely ignored if you did not request a password reset. Click the link below to reset your password."
+msgstr ""
+"Otrzymujesz ten e-mail, ponieważ Ty lub ktoś inny zażądował hasła do Twojego konta użytkownika.\n"
+"Możesz bezpiecznie zignorować tę wiadomość, jeśli nie prosiłeś o reset hasła. Kliknij poniższy link, aby zresetować hasło."
 
 #: .\templates\allauth\account\email\password_reset_key_message.txt:9
 #, python-format
@@ -5148,12 +5162,24 @@ msgid "After verifying your email and submitting the onboarding form, you still 
 msgstr "Po zweryfikowaniu e-maila i przesłaniu formularza onboardingu musisz jeszcze poczekać na akceptację grupy."
 
 #: .\templates\allauth\account\verified_email_required.html:12
-msgid "This part of the site requires us to verify that\nyou are who you claim to be. For this purpose, we require that you\nverify ownership of your e-mail address. "
-msgstr "Ta część witryny wymaga potwierdzenia, że\njesteś tą osobą, za którą się podajesz. W tym celu wymagamy\npotwierdzenia własności Twojego adresu e-mail. "
+msgid ""
+"This part of the site requires us to verify that\n"
+"you are who you claim to be. For this purpose, we require that you\n"
+"verify ownership of your e-mail address. "
+msgstr ""
+"Ta część witryny wymaga potwierdzenia, że\n"
+"jesteś tą osobą, za którą się podajesz. W tym celu wymagamy\n"
+"potwierdzenia własności Twojego adresu e-mail. "
 
 #: .\templates\allauth\account\verified_email_required.html:16
-msgid "We have sent an e-mail to you for\nverification. Please click on the link inside this e-mail. Please\ncontact us if you do not receive it within a few minutes."
-msgstr "Wysłaliśmy Ci e-mail\nweryfikacyjny. Kliknij link wewnątrz tej wiadomości. Skontaktuj się z nami,\njeśli nie otrzymasz go w ciągu kilku minut."
+msgid ""
+"We have sent an e-mail to you for\n"
+"verification. Please click on the link inside this e-mail. Please\n"
+"contact us if you do not receive it within a few minutes."
+msgstr ""
+"Wysłaliśmy Ci e-mail\n"
+"weryfikacyjny. Kliknij link wewnątrz tej wiadomości. Skontaktuj się z nami,\n"
+"jeśli nie otrzymasz go w ciągu kilku minut."
 
 #: .\templates\allauth\account\verified_email_required.html:20
 #, python-format

@@ -111,6 +111,10 @@
   --btn-outline-secondary-hover-border: var(--btn-glass-hover-border);
   --input-bg: #252d4a;
   --input-border: rgba(255, 255, 255, .25);
+  --bs-tertiary-bg: #252d4a;
+  --bs-tertiary-bg-rgb: 37, 45, 74;
+  --bs-tertiary-color: rgba(255, 255, 255, .6);
+  --bs-tertiary-color-rgb: 255, 255, 255;
 }
 /* Light theme */
 [data-theme="light"] {
@@ -179,6 +183,10 @@
   --btn-outline-secondary-hover-border: rgba(0, 0, 0, .2);
   --input-bg: #ffffff;
   --input-border: rgba(0, 0, 0, .18);
+  --bs-tertiary-bg: #f8f9fa;
+  --bs-tertiary-bg-rgb: 248, 249, 250;
+  --bs-tertiary-color: rgba(0, 0, 0, .55);
+  --bs-tertiary-color-rgb: 0, 0, 0;
 }
 /* Bootstrap variable overrides — higher specificity than darkly.css :root */
 html[data-theme] {

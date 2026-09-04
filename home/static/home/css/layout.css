@@ -692,6 +692,11 @@ a:hover {
 
 }
 
+.main-content {
+    padding: .75rem;
+
+}
+
 .topbar .btn-cta span {
     display: none;
 
