@@ -1958,6 +1958,7 @@ button.task-against-btn:focus-visible {
   color: var(--text-primary);
 }
 .chat-msg-row {
+  z-index: 2;
   border-radius: .35rem;
   border: 1px solid transparent;
   padding: 5px 6px;

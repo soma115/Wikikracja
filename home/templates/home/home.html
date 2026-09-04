@@ -338,7 +338,7 @@
       </div>
       <div class="card-body p-3 d-flex flex-column gap-1">
         {% for msg in recent_chat_messages %}
-        <div class="chat-msg-row position-relative z-1">
+        <div class="chat-msg-row position-relative">
           <div class="flex-shrink-0">
             {% include "home/_user_avatar.html" with avatar=msg.sender.uzytkownik.avatar username=msg.sender.username size="xl" %}
           </div>
