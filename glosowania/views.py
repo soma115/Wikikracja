@@ -28,6 +28,25 @@ from zzz.utils import build_site_url
 log = logging.getLogger(__name__)
 
 
+def _safe_send_vote_state_changed(request: HttpRequest, **kwargs):
+    """Wyślij sygnał vote_state_changed, połykając błędy handlerów.
+
+    Awaria powiadomień (e-mail/FCM/WebSocket) nie może przerwać
+    zapisu propozycji ani zepsuć redirectu dla użytkownika.
+    """
+    try:
+        vote_state_changed.send(**kwargs)
+    except Exception:
+        decyzja = kwargs.get('decyzja')
+        vote_id = kwargs.get('vote_id')
+        decision_id = getattr(decyzja, 'id', vote_id)
+        log.exception(
+            'vote_state_changed failed in %s for decision %s',
+            kwargs.get('sender'),
+            decision_id,
+        )
+
+
 @login_required
 def dodaj(request: HttpRequest):
     # Dodaj nową propozycję przepisu:
@@ -52,7 +71,8 @@ def dodaj(request: HttpRequest):
                 f'EMAIL_DIAG trigger=new_law_proposal source=glosowania.views.dodaj actor_user_id={request.user.id} actor_username={request.user.username} decision_id={form.id} subject={_("New law proposal")}'
             )
             click_action = build_site_url(f'/glosowania/details/{form.id}')
-            vote_state_changed.send(
+            _safe_send_vote_state_changed(
+                request,
                 sender='glosowania.views.dodaj',
                 decyzja=form,
                 transition='proposed',
@@ -72,6 +92,7 @@ def dodaj(request: HttpRequest):
 
             return redirect('glosowania:proposition')
         else:
+            messages.error(request, _('Please correct the errors below.'))
             return render(request, 'glosowania/dodaj.html', {'form': form})
     else:
         form = DecyzjaForm()
@@ -112,7 +133,8 @@ def edit(request: HttpRequest, pk: int):
             messages.success(request, (message))
 
             click_action = build_site_url(f'/glosowania/details/{decision.id}')
-            vote_state_changed.send(
+            _safe_send_vote_state_changed(
+                request,
                 sender='glosowania.views.edit',
                 decyzja=decision,
                 transition='modified',
@@ -573,7 +595,8 @@ def parameters_propose(request: HttpRequest, pk: int = None):
                 log.info(f'New parameters referendum {decyzja.id} added by {request.user} changes={changes}')
                 messages.success(request, _('New proposal has been saved.'))
                 click_action = build_site_url(f'/glosowania/details/{decyzja.id}')
-                vote_state_changed.send(
+                _safe_send_vote_state_changed(
+                    request,
                     sender='glosowania.views.parameters_propose',
                     decyzja=decyzja,
                     transition='proposed',

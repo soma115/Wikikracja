@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 import redis
 from django.contrib.auth import get_user_model
+from django.contrib.messages import get_messages
 from django.db import OperationalError
 from django.test import Client
 
@@ -206,3 +207,70 @@ def test_voting_no_rejected_when_not_referendum(sample_users):
     assert response.url == f'/glosowania/details/{decyzja.pk}/'
     assert not KtoJuzGlosowal.objects.filter(projekt=decyzja, ktory_uzytkownik_juz_zaglosowal=voter).exists()
     mock_push.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_add_proposal_creates_decyzja(sample_users):
+    """Submitting the add form must create a new PROPOSITION and redirect."""
+    author = sample_users[0]
+    client = Client()
+    client.force_login(author)
+
+    response = client.post('/glosowania/nowy/', {
+        'title': 'New proposal',
+        'tresc': 'Proposal law text',
+        'uzasadnienie': 'It is needed',
+        'kara': '',
+        'znosi': '',
+    })
+
+    assert response.status_code == 302
+    assert response.url == '/glosowania/proposition/'
+
+    decyzja = Decyzja.objects.latest('id')
+    assert decyzja.title == 'New proposal'
+    assert decyzja.tresc == 'Proposal law text'
+    assert decyzja.status == Decyzja.Status.PROPOSITION
+    assert decyzja.author == author
+    assert decyzja.ile_osob_podpisalo == 0
+
+
+@pytest.mark.django_db
+def test_add_proposal_invalid_form_shows_error_message(sample_users):
+    """An invalid add form must re-render with an error message."""
+    author = sample_users[0]
+    client = Client()
+    client.force_login(author)
+
+    response = client.post('/glosowania/nowy/', {
+        'title': '',
+        'tresc': '',
+        'uzasadnienie': '',
+    })
+
+    assert response.status_code == 200
+    assert 'form' in response.context
+    assert response.context['form'].errors
+    assert Decyzja.objects.count() == 0
+
+    messages_list = list(get_messages(response.wsgi_request))
+    assert any('Please correct the errors below' in str(m) for m in messages_list)
+
+
+@pytest.mark.django_db
+def test_add_proposal_saves_even_when_notification_handler_fails(sample_users):
+    """A failing vote_state_changed handler must not break the save/redirect."""
+    author = sample_users[0]
+    client = Client()
+    client.force_login(author)
+
+    with patch('glosowania.views.vote_state_changed.send', side_effect=RuntimeError('notification handler failed')):
+        response = client.post('/glosowania/nowy/', {
+            'title': 'Resilient proposal',
+            'tresc': 'Proposal law text',
+            'uzasadnienie': 'It is needed',
+        })
+
+    assert response.status_code == 302
+    assert response.url == '/glosowania/proposition/'
+    assert Decyzja.objects.filter(title='Resilient proposal').exists()
