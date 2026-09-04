@@ -824,10 +824,9 @@ a:hover {
   position: absolute;
   bottom: 0;
   right: 0;
-  padding-left: 2.5em;
-  background:
-    linear-gradient(to right, transparent 0%, var(--expandable-bg, var(--bg-card)) 70%),
-    linear-gradient(to right, transparent 0%, var(--bg-card) 50%);
+  padding-left: .35em;
+  background: var(--expandable-bg, var(--bg-card));
+  box-shadow: -1.25em 0 .75em var(--expandable-bg, var(--bg-card));
   color: var(--accent);
   font-weight: 600;
   line-height: 1.5;

@@ -201,9 +201,10 @@
                 {% if is_coordinator %}
                   <form class="helper-toggle-form" method="post" action="{% url 'tasks:toggle_helper' task.pk vote.user_id %}" data-user-id="{{ vote.user_id }}">
                     {% csrf_token %}
-                    <label class="helper-switch" title="{% trans 'Approve for team' %}">
-                      <input type="checkbox" data-helper-toggle {% if vote.is_approved %}checked{% endif %}>
+                    <label class="helper-switch" for="helper-toggle-{{ vote.user_id }}" title="{% trans 'Approve for team' %}">
+                      <input id="helper-toggle-{{ vote.user_id }}" type="checkbox" data-helper-toggle {% if vote.is_approved %}checked{% endif %}>
                       <span class="helper-switch-slider"></span>
+                      <span class="visually-hidden">{% trans "Approve for team" %}</span>
                     </label>
                   </form>
                 {% endif %}
@@ -313,8 +314,8 @@
     pending: "{% trans 'Pending' %}",
     approve_for_team: "{% trans 'Approve for team' %}",
   };
-  window.IS_COORDINATOR = {{ is_coordinator|yesno:"true,false" }};
-  window.TASK_ID = {{ task.pk }};
+  window.IS_COORDINATOR = "{{ is_coordinator|yesno:'true,false' }}" === "true";
+  window.TASK_ID = Number("{{ task.pk }}");
 </script>
 <script src="{% static 'tasks/js/tasks.js' %}"></script>
 {% endblock %}

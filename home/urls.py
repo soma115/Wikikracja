@@ -12,6 +12,7 @@ urlpatterns = [
     path('aktywnosc/', views.activity_page, name='activity'),
     path('site-settings/', views.site_admin, name='site_admin'),
     path('search/', views.global_search, name='search'),
+    path('link-titles/', views.link_titles, name='link_titles'),
     # not in use at this point. Contact through https://wikikracja.pl/kontakt/
     # path('contact/', TemplateView.as_view(template_name="home/contact.html"), name='contact'),
     # reset password

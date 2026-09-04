@@ -18,6 +18,7 @@ from site_settings.models import QuickLink, SiteSettings
 from site_settings.services import get_branding_version
 
 from .forms import RememberLoginForm
+from .link_titles import resolve_link_titles
 from .services import dashboard as dashboard_service
 from .services import feed as feed_service
 from .services import search as search_service
@@ -188,6 +189,17 @@ def mark_unread(request):
 
     except ValueError:
         return JsonResponse({'success': False, 'error': 'Invalid parameters'})
+
+
+@require_POST
+def link_titles(request: HttpRequest):
+    try:
+        urls = json.loads(request.body).get('urls', [])
+    except (AttributeError, json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({'titles': {}}, status=400)
+    if not isinstance(urls, list):
+        return JsonResponse({'titles': {}}, status=400)
+    return JsonResponse({'titles': resolve_link_titles(urls, request)})
 
 
 @login_required

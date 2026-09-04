@@ -3,6 +3,100 @@
  * Consolidates inline scripts from various templates
  */
 
+(function() {
+    const cache = new Map();
+    const waiting = new Map();
+    let scheduled = false;
+
+    function addAnchor(anchor) {
+        if (!(anchor instanceof HTMLAnchorElement) || anchor.closest('[contenteditable="true"]')) return;
+        const href = (anchor.getAttribute('href') || '').trim();
+        const label = anchor.textContent.trim();
+        if (!href || (label !== href && label !== anchor.href)) return;
+
+        let url;
+        try {
+            url = new URL(anchor.href, window.location.href);
+        } catch (_) {
+            return;
+        }
+        if (!['http:', 'https:'].includes(url.protocol) || url.host !== window.location.host) return;
+
+        const key = url.href;
+        if (cache.has(key)) {
+            const title = cache.get(key);
+            if (title) anchor.textContent = title;
+            return;
+        }
+        if (!waiting.has(key)) waiting.set(key, new Set());
+        waiting.get(key).add(anchor);
+        schedule();
+    }
+
+    function scan(root) {
+        if (!(root instanceof Element)) return;
+        if (root.matches('a')) addAnchor(root);
+        root.querySelectorAll('a').forEach(addAnchor);
+    }
+
+    function schedule() {
+        if (scheduled) return;
+        scheduled = true;
+        setTimeout(flush, 0);
+    }
+
+    function flush() {
+        scheduled = false;
+        const batch = new Map(Array.from(waiting.entries()).slice(0, 50));
+        batch.forEach((_, url) => waiting.delete(url));
+        if (!batch.size) return;
+
+        fetch(window.LINK_TITLES_URL || '/link-titles/', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': window.LINK_TITLES_CSRF_TOKEN || '',
+            },
+            body: JSON.stringify({ urls: Array.from(batch.keys()) }),
+        }).then(function(response) {
+            if (!response.ok) throw new Error('Link title request failed');
+            return response.json();
+        }).then(function(data) {
+            const titles = data.titles || {};
+            batch.forEach(function(anchors, url) {
+                const title = titles[url] || null;
+                cache.set(url, title);
+                if (title) anchors.forEach(function(anchor) {
+                    if (anchor.isConnected) anchor.textContent = title;
+                });
+            });
+        }).catch(function() {
+            return null;
+        }).finally(function() {
+            if (waiting.size) schedule();
+        });
+    }
+
+    window.initLocalLinkTitles = function(root) {
+        scan(root);
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node instanceof Element) scan(node);
+                });
+            });
+        });
+        observer.observe(root, { childList: true, subtree: true });
+        return observer;
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const main = document.querySelector('main');
+        if (main) window.initLocalLinkTitles(main);
+    });
+})();
+
 // ============================================================
 // Topbar search: remember the last query in localStorage so the field
 // isn't cleared when navigating between pages. Shared key with the
