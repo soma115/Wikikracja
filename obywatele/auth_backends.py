@@ -34,7 +34,7 @@ class CaseInsensitiveEmailBackend(ModelBackend):
             # Using filter() and lower() function for case-insensitive comparison
             # SQLite's LIKE operator is case-insensitive by default
             user = UserModel.objects.get(email__iexact=normalized_username)
-            if settings.DEBUG_SKIP_AUTH:
+            if settings.DEBUG and settings.DEBUG_SKIP_AUTH:
                 return user
             if user.check_password(password) and self.user_can_authenticate(user):
                 return user

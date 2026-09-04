@@ -179,14 +179,6 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def join_room(self, proxy: HandledMessage, room_id: int):
         room = await self.repo.get_room_or_error(room_id)
 
-        user_id = self.scope["user"].id
-        if not room.public:
-            is_allowed = await self.repo.allowed_in_room(room)
-            log.info(f"User {user_id} trying to join private room {room_id} ({room.title}): allowed={is_allowed}")
-            if not is_allowed:
-                log.warning(f"ACCESS_DENIED: User {user_id} not in room.allowed for private room {room_id}")
-                raise ClientError("ACCESS_DENIED")
-
         # user can only be in one room at the time
         for room_id_to_leave in self.rooms.items():
             try:
@@ -252,10 +244,6 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     @handlers.register("fetch-messages")
     async def fetch_messages(self, proxy: HandledMessage, room_id, sort_by='date', order='desc', popular_only=False):
         room = await self.repo.get_room_or_error(room_id)
-        if not room.public:
-            is_allowed = await self.repo.allowed_in_room(room)
-            if not is_allowed:
-                raise ClientError("ACCESS_DENIED")
 
         if sort_by not in ('date', 'likes'):
             sort_by = 'date'
@@ -324,19 +312,21 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         if not await self.repo.can_post_in_room(room):
             raise ClientError("ACCESS_DENIED")
 
-        msg = Message(sender=sender, text=message_clean, room=room, anonymous=is_anonymous)
-
+        reply_to_data = None
         if reply_to_id:
-            msg.reply_to_id = int(reply_to_id)
+            try:
+                reply_to_id = int(reply_to_id)
+            except (TypeError, ValueError):
+                raise ClientError("MESSAGE_INVALID") from None
+            reply_to_data = await self.repo.get_reply_to_data(reply_to_id, room.id)
+        else:
+            reply_to_id = None
 
+        msg = Message(sender=sender, text=message_clean, room=room, anonymous=is_anonymous, reply_to_id=reply_to_id)
         message_id = await self.repo.save_message(msg)
         msg.id = message_id
 
         await self.repo.save_attachments(message_id, attachments)
-
-        reply_to_data = None
-        if reply_to_id:
-            reply_to_data = await self.repo.get_reply_to_data(int(reply_to_id))
 
         # Broadcast directly (not via proxy) so subscribers receive the message before this handler returns.
         # Per-recipient bookkeeping (unread state, push notifications) runs in a background task.
@@ -611,7 +601,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     @handlers.register("messages-mark-read-bulk")
     async def handle_mark_read_bulk(self, proxy: HandledMessage, message_ids: list, room_id: int):
         room = await self.repo.get_room(room_id)
-        new_ids = await self.repo.mark_messages_read_bulk(message_ids)
+        new_ids = await self.repo.mark_messages_read_bulk(message_ids, room.id)
         for message_id in new_ids:
             read_by = await self.repo.get_read_by_data(message_id)
             proxy.group_send(room.group_name, {"type": "chat.read", "messages_read": {"message_id": message_id, "read_by": read_by}})

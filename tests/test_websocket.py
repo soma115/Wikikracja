@@ -9,7 +9,7 @@ from asgiref.sync import sync_to_async
 from channels.testing import WebsocketCommunicator
 from django.contrib.auth.models import AnonymousUser
 
-from chat.models import Room
+from chat.models import Message, Room
 from tests.factories import UserFactory
 from zzz.routing import application
 
@@ -96,6 +96,52 @@ async def test_join_private_room_as_nonmember_denied(private_room_with_users):
 
     assert response.get('error') == 'ACCESS_DENIED'
 
+    await communicator.disconnect()
+
+
+@pytest.mark.django_db(transaction=True)
+async def test_private_message_commands_as_nonmember_are_denied(private_room_with_users):
+    member, nonmember, room = private_room_with_users
+    message = await sync_to_async(Message.objects.create)(sender=member, text='Private', room=room)
+    communicator = WebsocketCommunicator(application, "/chat/stream/")
+    communicator.scope['user'] = nonmember
+    connected, _ = await communicator.connect()
+    assert connected is True
+    await _consume_initial(communicator)
+
+    for command in (
+        {"command": "get-message-history", "message_id": message.id},
+        {"command": "message-react", "reaction": "bulb", "message_id": message.id},
+        {"command": "message-add-vote", "vote": "upvote", "message_id": message.id},
+        {"command": "message-mark-read", "message_id": message.id},
+        {"command": "messages-mark-read-bulk", "message_ids": [message.id], "room_id": room.id},
+        {"command": "toggle-notifications", "room_id": room.id, "enabled": False},
+    ):
+        await communicator.send_json_to(command)
+        response = await communicator.receive_json_from()
+        assert response.get('error') == 'ACCESS_DENIED'
+
+    await communicator.disconnect()
+
+
+@pytest.mark.django_db(transaction=True)
+async def test_reply_to_message_from_another_room_is_denied(public_room_with_user, private_room_with_users):
+    user, public_room = public_room_with_user
+    member, _nonmember, private_room = private_room_with_users
+    private_message = await sync_to_async(Message.objects.create)(sender=member, text='Private', room=private_room)
+    communicator = WebsocketCommunicator(application, "/chat/stream/")
+    communicator.scope['user'] = user
+    connected, _ = await communicator.connect()
+    assert connected is True
+    await _consume_initial(communicator)
+
+    await communicator.send_json_to({"command": "join", "room_id": public_room.id})
+    await communicator.receive_json_from()
+    await communicator.send_json_to({"command": "send", "room_id": public_room.id, "message": "Reply", "is_anonymous": False, "attachments": {}, "reply_to_id": private_message.id})
+    response = await communicator.receive_json_from()
+
+    assert response.get('error') == 'ACCESS_DENIED'
+    assert not await sync_to_async(Message.objects.filter(room=public_room, text='Reply').exists)()
     await communicator.disconnect()
 
 

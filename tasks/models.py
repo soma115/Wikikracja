@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.db import models, transaction
-from django.db.models import Count, Q, Sum
-from django.db.models.functions import Coalesce
+from django.db.models import Count, F, Q
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -32,10 +31,9 @@ class TaskQuerySet(models.QuerySet):
         return self.annotate(
             votes_up=Count("votes", filter=Q(votes__value=TaskVote.Value.UP), distinct=True),
             votes_down=Count("votes", filter=Q(votes__value=TaskVote.Value.DOWN), distinct=True),
-            votes_score=Coalesce(Sum("votes__value"), 0),
             eval_success=Count("evaluations", filter=Q(evaluations__value=TaskEvaluation.Value.SUCCESS), distinct=True),
             eval_failure=Count("evaluations", filter=Q(evaluations__value=TaskEvaluation.Value.FAILURE), distinct=True),
-        )
+        ).annotate(votes_score=F("votes_up") - F("votes_down"))
 
 
 class Task(ChatRoomModel, models.Model):

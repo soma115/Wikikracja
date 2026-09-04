@@ -6,8 +6,28 @@ Testy widoku set_user_language: wybór języka musi działać dla NIEzalogowanyc
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
+
+from obywatele.auth_backends import CaseInsensitiveEmailBackend
+
+
+class DebugSkipAuthTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='debug-auth', email='debug@example.com', password='correct-password')
+        self.backend = CaseInsensitiveEmailBackend()
+
+    @override_settings(DEBUG=False, DEBUG_SKIP_AUTH=True)
+    def test_skip_auth_is_ignored_outside_debug_mode(self):
+        authenticated = self.backend.authenticate(None, username=self.user.email, password='wrong-password')
+
+        self.assertIsNone(authenticated)
+
+    @override_settings(DEBUG=True, DEBUG_SKIP_AUTH=True)
+    def test_skip_auth_still_works_in_debug_mode(self):
+        authenticated = self.backend.authenticate(None, username=self.user.email, password='wrong-password')
+
+        self.assertEqual(authenticated, self.user)
 
 
 class SetLanguageAnonymousTest(TestCase):

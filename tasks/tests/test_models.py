@@ -2,10 +2,11 @@
 from unittest.mock import patch
 
 # Third party imports
+from django.db.models import Count
 from django.test import TestCase
 
 # Local folder imports
-from chat.models import Room
+from chat.models import Message, Room
 from tasks.models import Task, TaskEvaluation, TaskVote
 from tasks.tests.utils import make_task, make_user
 
@@ -145,6 +146,17 @@ class TaskQuerySetMetricsTest(TestCase):
     def test_with_metrics_no_votes_score_is_zero(self):
         task = Task.objects.with_metrics().get(pk=self.task.pk)
         self.assertEqual(task.votes_score, 0)
+
+    def test_with_metrics_does_not_multiply_vote_score_by_related_rows(self):
+        TaskVote.objects.create(task=self.task, user=self.user, value=TaskVote.Value.UP)
+        TaskEvaluation.objects.create(task=self.task, user=self.user, value=TaskEvaluation.Value.SUCCESS)
+        TaskEvaluation.objects.create(task=self.task, user=self.other, value=TaskEvaluation.Value.FAILURE)
+        Message.objects.create(room=self.task.chat_room, sender=self.user, text="First")
+        Message.objects.create(room=self.task.chat_room, sender=self.other, text="Second")
+
+        task = Task.objects.with_metrics().annotate(chat_msg_count=Count("chat_room__messages", distinct=True)).get(pk=self.task.pk)
+
+        self.assertEqual(task.votes_score, 1)
 
     def test_with_metrics_eval_success(self):
         TaskEvaluation.objects.create(task=self.task, user=self.user, value=TaskEvaluation.Value.SUCCESS)

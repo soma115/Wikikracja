@@ -93,23 +93,39 @@ class ChatRepository:
     def __init__(self, user):
         self.user = user
 
+    def _ensure_room_access(self, room):
+        if not self.user.is_authenticated:
+            raise ClientError("USER_HAS_TO_LOGIN")
+        if not room.public and not room.allowed.filter(id=self.user.id).exists():
+            raise ClientError("ACCESS_DENIED")
+
+    def _get_accessible_room(self, room_id):
+        try:
+            room = Room.objects.get(pk=room_id)
+        except Room.DoesNotExist:
+            raise ClientError("ROOM_INVALID") from None
+        self._ensure_room_access(room)
+        return room
+
+    def _get_accessible_message(self, message_id, room_id=None):
+        try:
+            message = Message.objects.select_related('room').get(pk=message_id)
+        except Message.DoesNotExist:
+            raise ClientError("MESSAGE_INVALID") from None
+        if room_id is not None and message.room_id != room_id:
+            raise ClientError("ACCESS_DENIED")
+        self._ensure_room_access(message.room)
+        return message
+
     # -- Room methods --
     @database_sync_to_async
     def get_room_or_error(self, room_id):
         """Tries to fetch a room for the user, checking permissions along the way."""
-        if not self.user.is_authenticated:
-            raise ClientError("USER_HAS_TO_LOGIN")
-        try:
-            return Room.objects.get(pk=room_id)
-        except Room.DoesNotExist:
-            raise ClientError("ROOM_INVALID") from None
+        return self._get_accessible_room(room_id)
 
     @database_sync_to_async
     def get_room(self, room_id):
-        try:
-            return Room.objects.get(id=room_id)
-        except Room.DoesNotExist:
-            raise ClientError("ROOM_INVALID") from None
+        return self._get_accessible_room(room_id)
 
     @database_sync_to_async
     def find_room_with(self, *users):
@@ -127,12 +143,9 @@ class ChatRepository:
         return Room.find_private_rooms_for_user_pairs(user, other_user_ids)
 
     @database_sync_to_async
-    def allowed_in_room(self, room):
-        return room.allowed.filter(id=self.user.id).exists()
-
-    @database_sync_to_async
     def has_muted_room(self, room_id):
-        return Room.muted_by.through.objects.filter(room_id=room_id, user_id=self.user.id).exists()
+        room = self._get_accessible_room(room_id)
+        return Room.muted_by.through.objects.filter(room_id=room.id, user_id=self.user.id).exists()
 
     @database_sync_to_async
     def user_has_muted_room(self, user_id, room_id):
@@ -140,11 +153,11 @@ class ChatRepository:
 
     @database_sync_to_async
     def unmute_room(self, room_id):
-        Room.objects.get(pk=room_id).muted_by.remove(self.user)
+        self._get_accessible_room(room_id).muted_by.remove(self.user)
 
     @database_sync_to_async
     def mute_room(self, room_id):
-        room = Room.objects.get(pk=room_id)
+        room = self._get_accessible_room(room_id)
         if not room.muted_by.filter(id=self.user.id).exists():
             room.muted_by.add(self.user)
 
@@ -229,16 +242,12 @@ class ChatRepository:
 
     @database_sync_to_async
     def get_message(self, message_id):
-        try:
-            return Message.objects.get(pk=message_id)
-        except Message.DoesNotExist:
-            log.error(f"Message with ID {message_id} does not exist")
-            return None
+        return self._get_accessible_message(message_id)
 
     @database_sync_to_async
     def get_message_sender(self, message):
         if isinstance(message, (int, str)):
-            return Message.objects.get(pk=message).sender
+            return self._get_accessible_message(message).sender
         return message.sender
 
     @database_sync_to_async
@@ -247,16 +256,12 @@ class ChatRepository:
 
     @database_sync_to_async
     def get_room_by_message(self, message_id: int):
-        try:
-            return Message.objects.get(pk=message_id).room
-        except Message.DoesNotExist:
-            log.error(f"Message with ID {message_id} does not exist")
-            return None
+        return self._get_accessible_message(message_id).room
 
     @database_sync_to_async
     def edit_message_and_history(self, message_id: int, new_message: str):
         """Save current message state as old and update message text"""
-        message = Message.objects.get(pk=message_id)
+        message = self._get_accessible_message(message_id)
         msg_history, created = MessageHistory.objects.get_or_create(message=message)
         state = MessageHistoryEntry.objects.create(history=msg_history, text=message.text)
         message.text = new_message
@@ -269,6 +274,7 @@ class ChatRepository:
 
     @database_sync_to_async
     def get_message_states(self, message_id):
+        self._get_accessible_message(message_id)
         history = MessageHistory.objects.filter(message_id=message_id)
         if not history.exists():
             return []
@@ -305,7 +311,7 @@ class ChatRepository:
     @database_sync_to_async
     def add_vote(self, event: str, message_id: int):
         """Add a vote directly to the message's reactions JSONField."""
-        m = Message.objects.get(pk=message_id)
+        m = self._get_accessible_message(message_id)
         reactions_dict = _reactions(m)
         user_id = self.user.id
 
@@ -332,7 +338,7 @@ class ChatRepository:
     @database_sync_to_async
     def remove_vote(self, event: str, message_id: int):
         """Remove a vote directly from the message's reactions JSONField."""
-        m = Message.objects.get(pk=message_id)
+        m = self._get_accessible_message(message_id)
         reactions_dict = _reactions(m)
         user_id = self.user.id
 
@@ -350,9 +356,11 @@ class ChatRepository:
     def get_vote(self, message_id: int):
         """Check the reactions JSONField on the message."""
         try:
-            m = Message.objects.get(pk=message_id)
-        except Message.DoesNotExist:
-            return None
+            m = self._get_accessible_message(message_id)
+        except ClientError as e:
+            if e.code == "MESSAGE_INVALID":
+                return None
+            raise
         reactions_dict = _reactions(m)
         user_id = self.user.id
 
@@ -369,9 +377,11 @@ class ChatRepository:
         Used in task rooms (source_app == 'tasks'), where votes are public.
         """
         try:
-            m = Message.objects.get(pk=message_id)
-        except Message.DoesNotExist:
-            return {'upvoters': [], 'downvoters': []}
+            m = self._get_accessible_message(message_id)
+        except ClientError as e:
+            if e.code == "MESSAGE_INVALID":
+                return {'upvoters': [], 'downvoters': []}
+            raise
         r = _reactions(m)
         names = _voter_names_by_id(set(r.get('upvotes', [])) | set(r.get('downvotes', [])))
         return _voter_lists(r, names)
@@ -380,7 +390,7 @@ class ChatRepository:
     @database_sync_to_async
     def toggle_reaction(self, reaction: str, message_id: int) -> bool:
         """Toggle reaction for current user. Returns True if added, False if removed."""
-        m = Message.objects.get(pk=message_id)
+        m = self._get_accessible_message(message_id)
         reactions_dict = _reactions(m)
         user_id = self.user.id
 
@@ -402,9 +412,11 @@ class ChatRepository:
     def get_reaction_counts(self, message_id: int) -> dict:
         """Return {reaction: count} for message."""
         try:
-            m = Message.objects.get(pk=message_id)
-        except Message.DoesNotExist:
-            return {'bulb': 0, 'question': 0}
+            m = self._get_accessible_message(message_id)
+        except ClientError as e:
+            if e.code == "MESSAGE_INVALID":
+                return {'bulb': 0, 'question': 0}
+            raise
 
         reactions_dict = _reactions(m)
         return {'bulb': len(reactions_dict.get('bulb', [])), 'question': len(reactions_dict.get('question', []))}
@@ -413,9 +425,11 @@ class ChatRepository:
     def get_user_reactions(self, user_id: int, message_id: int) -> list:
         """Return list of reactions for user on message."""
         try:
-            m = Message.objects.get(pk=message_id)
-        except Message.DoesNotExist:
-            return []
+            m = self._get_accessible_message(message_id)
+        except ClientError as e:
+            if e.code == "MESSAGE_INVALID":
+                return []
+            raise
 
         reactions_dict = _reactions(m)
         result = []
@@ -428,21 +442,31 @@ class ChatRepository:
     @database_sync_to_async
     def mark_message_read(self, message_id: int):
         """Mark message as read by current user."""
-        MessageReadBy.objects.get_or_create(message_id=message_id, user=self.user)
+        message = self._get_accessible_message(message_id)
+        MessageReadBy.objects.get_or_create(message=message, user=self.user)
 
     @database_sync_to_async
-    def mark_messages_read_bulk(self, message_ids: list) -> list:
-        """Mark multiple messages as read; return ids that were newly created."""
-        existing = set(MessageReadBy.objects.filter(message_id__in=message_ids, user=self.user).values_list('message_id', flat=True))
-        new_ids = [mid for mid in message_ids if mid not in existing]
+    def mark_messages_read_bulk(self, message_ids: list, room_id: int) -> list:
+        """Mark multiple messages read in one accessible room; return newly created ids."""
+        room = self._get_accessible_room(room_id)
+        try:
+            requested_ids = set(int(message_id) for message_id in message_ids)
+        except (TypeError, ValueError):
+            raise ClientError("MESSAGE_INVALID") from None
+        room_message_ids = set(Message.objects.filter(room=room, id__in=requested_ids).values_list('id', flat=True))
+        if room_message_ids != requested_ids:
+            raise ClientError("ACCESS_DENIED")
+        existing = set(MessageReadBy.objects.filter(message_id__in=requested_ids, user=self.user).values_list('message_id', flat=True))
+        new_ids = requested_ids - existing
         if new_ids:
             MessageReadBy.objects.bulk_create([MessageReadBy(message_id=mid, user=self.user) for mid in new_ids], ignore_conflicts=True)
-        return new_ids
+        return list(new_ids)
 
     @database_sync_to_async
     def get_read_by_data(self, message_id: int) -> list:
         """Return list of {user_id, username, avatar_url} for message."""
-        entries = MessageReadBy.objects.filter(message_id=message_id).select_related('user__uzytkownik').order_by('id')[:10]
+        message = self._get_accessible_message(message_id)
+        entries = MessageReadBy.objects.filter(message=message).select_related('user__uzytkownik').order_by('id')[:10]
         result = []
         for entry in entries:
             user = entry.user
@@ -452,14 +476,11 @@ class ChatRepository:
 
     # -- Reply to methods --
     @database_sync_to_async
-    def get_reply_to_data(self, message_id: int):
-        """Get quoted message data for display."""
-        try:
-            msg = Message.objects.select_related('sender').get(pk=message_id)
-            username = 'System' if msg.sender is None else ('Anonymous' if msg.anonymous else msg.sender.username)
-            return {'id': msg.id, 'username': username, 'text_snippet': _reply_snippet(msg.text), 'author_color': _username_to_color(username)}
-        except Message.DoesNotExist:
-            return None
+    def get_reply_to_data(self, message_id: int, room_id: int):
+        """Get quoted message data from the current room for display."""
+        msg = self._get_accessible_message(message_id, room_id=room_id)
+        username = 'System' if msg.sender is None else ('Anonymous' if msg.anonymous else msg.sender.username)
+        return {'id': msg.id, 'username': username, 'text_snippet': _reply_snippet(msg.text), 'author_color': _username_to_color(username)}
 
     # -- Recent messages methods --
     @database_sync_to_async
