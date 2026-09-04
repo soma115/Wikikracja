@@ -8,7 +8,8 @@ from .services import CHAT_UNREAD_CACHE_KEY
 
 def get_feed_items(since: timezone.datetime) -> list[dict]:
     """Return feed items for non-archived chat rooms with recent messages."""
-    all_rooms = Room.objects.filter(archived=False).prefetch_related('allowed', 'messages', 'messages__sender', 'messages__sender__uzytkownik')
+    # The guest Inbox is a contact channel, not part of the group's activity feed.
+    all_rooms = Room.objects.filter(archived=False, is_inbox=False).prefetch_related('allowed', 'messages', 'messages__sender', 'messages__sender__uzytkownik')
 
     items = []
     for room in all_rooms:
@@ -24,8 +25,8 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
         }
         messages = sorted((m for m in room.messages.all() if m.time >= since), key=lambda m: m.time, reverse=True)
         for msg in messages:
-            # The Inbox welcome message (system, in the Inbox room) is not user activity.
-            if room.is_inbox and msg.sender is None and not msg.anonymous:
+            # Skip system messages that have no explicit author and are not anonymous.
+            if msg.sender is None and not msg.anonymous:
                 continue
             items.append({**room_context, 'description': strip_tags(msg.text), 'author': msg.sender, 'timestamp': msg.time, 'object_id': msg.id})
     return items

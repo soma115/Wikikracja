@@ -125,7 +125,15 @@ class SendEmailDigestCommandTest(TransactionTestCase):
         user = User.objects.create_user(username=username, email=email, password=password)
         user.is_active = True
         user.save()
+        Uzytkownik.objects.filter(uid=user).update(email_frequency='daily', last_email_digest_at=FIXED_NOW - td(days=1))
         return user
+
+    def _create_digest_post(self, author):
+        """Create a fresh post that is guaranteed to appear in the digest."""
+        from board.models import Post, PostCategory
+
+        category = PostCategory.objects.create(name='Digest', priority=1)
+        return Post.objects.create(title='Digest post', text='<p>body</p>', author=author, category=category, is_public=True)
 
     def _run_digest(self):
         with patch('home.management.commands.send_email_digest.timezone.now', return_value=FIXED_NOW):
@@ -134,10 +142,7 @@ class SendEmailDigestCommandTest(TransactionTestCase):
 
     def test_digest_sends_email_to_due_user(self):
         user = self._make_active_user('citizen', 'citizen@example.com')
-        Uzytkownik.objects.filter(uid=user).update(email_frequency='daily', last_email_digest_at=timezone.now() - td(days=1))
-
-        room = Room.objects.create(title='Public', public=True)
-        Message.objects.create(room=room, sender=user, text='Hello')
+        self._create_digest_post(user)
 
         self._run_digest()
 
@@ -146,10 +151,8 @@ class SendEmailDigestCommandTest(TransactionTestCase):
 
     def test_digest_no_email_when_not_due(self):
         user = self._make_active_user('notdue', 'notdue@example.com')
-        Uzytkownik.objects.filter(uid=user).update(email_frequency='daily', last_email_digest_at=timezone.now())
-
-        room = Room.objects.create(title='Public', public=True)
-        Message.objects.create(room=room, sender=user, text='Hello')
+        Uzytkownik.objects.filter(uid=user).update(email_frequency='daily', last_email_digest_at=FIXED_NOW)
+        self._create_digest_post(user)
 
         self._run_digest()
 
@@ -158,10 +161,8 @@ class SendEmailDigestCommandTest(TransactionTestCase):
 
     def test_digest_no_email_when_frequency_never(self):
         user = self._make_active_user('never', 'never@example.com')
-        Uzytkownik.objects.filter(uid=user).update(email_frequency='never', last_email_digest_at=timezone.now() - td(days=1))
-
-        room = Room.objects.create(title='Public', public=True)
-        Message.objects.create(room=room, sender=user, text='Hello')
+        Uzytkownik.objects.filter(uid=user).update(email_frequency='never')
+        self._create_digest_post(user)
 
         self._run_digest()
 
@@ -170,11 +171,9 @@ class SendEmailDigestCommandTest(TransactionTestCase):
 
     def test_digest_updates_last_email_digest_at(self):
         user = self._make_active_user('updated', 'updated@example.com')
-        past = timezone.now() - td(days=1)
+        past = FIXED_NOW - td(days=1)
         Uzytkownik.objects.filter(uid=user).update(email_frequency='daily', last_email_digest_at=past)
-
-        room = Room.objects.create(title='Public', public=True)
-        Message.objects.create(room=room, sender=user, text='Hello')
+        self._create_digest_post(user)
 
         self._run_digest()
 

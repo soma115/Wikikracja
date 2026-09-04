@@ -45,7 +45,7 @@ def get_unread_count_for_user(user) -> int:
     cached = cache.get(key)
     if cached is not None:
         return cached
-    count = Room.objects.filter(allowed=user, archived=False).exclude(seen_by=user).annotate(messages_count=Count('messages')).filter(messages_count__gt=0).count()
+    count = Room.objects.filter(allowed=user, archived=False, is_inbox=False).exclude(seen_by=user).annotate(messages_count=Count('messages')).filter(messages_count__gt=0).count()
     cache.set(key, count, CHAT_UNREAD_CACHE_TTL)
     return count
 

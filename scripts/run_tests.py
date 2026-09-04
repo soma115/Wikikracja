@@ -50,6 +50,9 @@ def main():
 
     if not args.no_jest:
         npx = shutil.which("npx")
+        # On Windows the bare "npx" path may not be a Win32 executable; prefer npx.cmd.
+        if sys.platform == "win32" and npx and not npx.lower().endswith((".exe", ".cmd", ".bat")):
+            npx = shutil.which("npx.cmd") or npx
         if npx is None:
             print("npx not found in PATH. Install Node or use --no-jest.")
             sys.exit(1)

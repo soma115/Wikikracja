@@ -146,10 +146,10 @@ class UnreadCountConsistencyTest(TestCase):
         cache czatu, zeby oba liczniki byly spojne."""
         room = Room.objects.create(title='Pokoj A', public=False)
         room.allowed.add(self.user)
-        Message.objects.create(sender=self.user, text='hej', room=room)
+        message = Message.objects.create(sender=self.user, text='hej', room=room)
 
         self.client.force_login(self.user)
-        response = self.client.post(reverse('mark_as_read'), {'content_type': 'room_messages', 'object_id': room.id})
+        response = self.client.post(reverse('mark_as_read'), {'content_type': 'room_messages', 'object_id': message.id})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(get_unread_count_for_user(self.user), 0)
@@ -160,11 +160,11 @@ class UnreadCountConsistencyTest(TestCase):
         cache czatu."""
         room = Room.objects.create(title='Pokoj A', public=False)
         room.allowed.add(self.user)
-        Message.objects.create(sender=self.user, text='hej', room=room)
+        message = Message.objects.create(sender=self.user, text='hej', room=room)
         room.seen_by.add(self.user)
 
         self.client.force_login(self.user)
-        response = self.client.post(reverse('mark_unread'), {'content_type': 'room_messages', 'object_id': room.id})
+        response = self.client.post(reverse('mark_unread'), {'content_type': 'room_messages', 'object_id': message.id})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(get_unread_count_for_user(self.user), 1)

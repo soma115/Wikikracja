@@ -57,7 +57,7 @@ python manage.py check
 python manage.py collectstatic --noinput --clear
 ```
 
-Dodatkowo: `python -m pytest -q`, `ruff check .`, `ruff format --check .`.
+Dodatkowo: `python -m pytest -n auto -q`, `ruff check .`, `ruff format --check .`.
 
 Projekt używa `.pre-commit-config.yaml` z `ruff` i `ruff-format`. Po zainstalowaniu hooka (`pre-commit install`) formatter uruchamia się automatycznie przed każdym commitem.
 
@@ -67,6 +67,13 @@ Wszystkie powyższe kroki można uruchomić jednym poleceniem:
 ```bash
 python scripts/run_tests.py
 ```
+
+`pytest` jest skonfigurowany do równoległego uruchamiania testów (`-n auto --maxprocesses=12` w `pyproject.toml`).
+`-n auto` może wykryć więcej rdzeni niż jest efektywnie wykorzystalnych; `--maxprocesses=12` ogranicza liczbę workerów, żeby nie tracić czasu na ich rozruch i przełączanie kontekstu.
+**AI zawsze powinno uruchamiać pytest z `python -m pytest -q` (skonfigurowany xdist) lub przez `python scripts/run_tests.py`.**
+Sekwencyjnie można je odpalić przez `pytest -n0 -q` tylko do debugowania / `--pdb`.
+
+Pełny zestaw testów jest zasobożerny. Nie uruchamiaj go wielokrotnie w trakcie pracy — wykonuj lekkie, szybkie sprawdzenia (np. `ruff check .`, `python manage.py check`, `npx jest`) iteracyjnie, a pełny `pytest` oraz `collectstatic` dopiero pod koniec zadania, gdy zmiany są gotowe do ostatecznej weryfikacji.
 
 ## 5. Konwencje
 

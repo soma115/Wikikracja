@@ -18,16 +18,24 @@ class CreateInboxCommandTest(TestCase):
         self.assertTrue(Room.objects.filter(is_inbox=True).exists())
         room = Room.objects.get(is_inbox=True)
         self.assertEqual(room.title, 'Inbox')
+        self.assertEqual(room.source_app, '')
         self.assertTrue(room.public)
         self.assertTrue(room.protected)
+        self.assertEqual(room.messages.count(), 1)
+        message = room.messages.first()
+        self.assertIsNone(message.sender)
+        self.assertFalse(message.anonymous)
         self.assertIn('Created Inbox room', out.getvalue())
 
     def test_skips_when_inbox_exists(self):
-        Room.objects.create(title='Inbox', public=True, protected=True, is_inbox=True)
+        room = Room.objects.create(title='Inbox', public=True, protected=True, is_inbox=True)
         out = StringIO()
         call_command('create_inbox', stdout=out)
         self.assertEqual(Room.objects.filter(is_inbox=True).count(), 1)
         self.assertIn('already exists', out.getvalue())
+        room.refresh_from_db()
+        self.assertEqual(room.source_app, '')
+        self.assertEqual(room.messages.count(), 1)
 
     def test_skips_when_group_is_not_public(self):
         sp = SiteParameters.get()

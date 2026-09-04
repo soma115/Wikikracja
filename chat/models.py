@@ -69,9 +69,7 @@ class Room(models.Model):
         if not getattr(settings, 'GROUP_IS_PUBLIC', True):
             return None
         try:
-            room, created = Room.objects.get_or_create(
-                is_inbox=True, defaults={'title': 'Inbox', 'public': True, 'protected': True, 'source_app': ''}
-            )
+            room, created = Room.objects.get_or_create(is_inbox=True, defaults={'title': 'Inbox', 'public': True, 'protected': True, 'source_app': ''})
         except (IntegrityError, OperationalError):
             return None
 
