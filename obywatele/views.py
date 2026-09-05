@@ -37,9 +37,6 @@ from obywatele.tables import UzytkownikTable
 from site_settings.params import get_param
 from tasks.models import Task, TaskEvaluation, TaskVote
 from zzz.signals import citizen_proposed
-from zzz.utils import get_site_domain
-
-HOST = get_site_domain()
 
 log = logging.getLogger(__name__)
 
@@ -170,7 +167,6 @@ def change_email(request: HttpRequest):
 
 @login_required()
 def change_username(request: HttpRequest):
-    form = UsernameChangeForm(request.POST)
     if request.method == 'POST':
         form = UsernameChangeForm(request.user, request.POST)
         if form.is_valid():
@@ -183,7 +179,8 @@ def change_username(request: HttpRequest):
             error(request, (message))
             return redirect('obywatele:my_profile')
     else:
-        return render(request, 'obywatele/change_username.html', {'form': form})
+        form = UsernameChangeForm(request.user)
+    return render(request, 'obywatele/change_username.html', {'form': form})
 
 
 @login_required

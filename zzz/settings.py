@@ -203,7 +203,6 @@ INSTALLED_APPS = [
     'bookkeeping',
     'chat',
     'home',
-    'pytz',
     'categories',
     'board',
     'events',

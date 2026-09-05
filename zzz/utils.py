@@ -14,7 +14,7 @@ def get_site_domain():
         from django.contrib.sites.models import Site
 
         return Site.objects.get_current().domain
-    except Exception:
+    except Site.DoesNotExist:
         return 'localhost'
 
 

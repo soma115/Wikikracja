@@ -725,6 +725,58 @@ a:hover {
     color: var(--accent);
 
 }
+
+/* bottom actions: icon-only, in one row */
+.sidebar-bottom {
+    padding: .5rem .75rem;
+
+}
+
+.sidebar-bottom > ul {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+}
+
+.sidebar-bottom .nav-item {
+    flex: 0 0 auto;
+
+}
+
+.sidebar-bottom .nav-item a,
+.sidebar-bottom .nav-item button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 48px;
+    padding: .6rem .75rem;
+    margin: 0;
+    border-radius: .4rem;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+
+}
+
+.sidebar-bottom .nav-item a:hover,
+.sidebar-bottom .nav-item a:focus,
+.sidebar-bottom .nav-item button:hover,
+.sidebar-bottom .nav-item button:focus {
+    background: var(--accent-muted);
+    color: var(--text-primary);
+
+}
+
+.sidebar-bottom .nav-item a.active {
+    color: var(--accent);
+
+}
+
 }
 
 /* ===== SIDEBAR COLLAPSE ===== */

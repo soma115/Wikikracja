@@ -533,12 +533,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.addEventListener('DOMContentLoaded', function() {
     (function() {
+        const sidebar = document.getElementById('sidebar');
         const toggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('sidebar-overlay');
+        const closeBtn = document.getElementById('sidebar-close-btn');
+
+        function setSidebarOpen(open) {
+            if (sidebar) sidebar.classList.toggle('sidebar-open', open);
+            if (overlay) overlay.style.display = open ? 'block' : 'none';
+        }
+
         if (toggle) {
             toggle.addEventListener('click', function() {
-                document.getElementById('sidebar').classList.toggle('sidebar-open');
-                const overlay = document.getElementById('sidebar-overlay');
-                overlay.style.display = overlay.style.display === 'none' ? 'block' : 'none';
+                const willOpen = sidebar && !sidebar.classList.contains('sidebar-open');
+                setSidebarOpen(!!willOpen);
+            });
+        }
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                setSidebarOpen(false);
+            });
+        }
+
+        if (overlay) {
+            overlay.addEventListener('click', function() {
+                setSidebarOpen(false);
             });
         }
     })();

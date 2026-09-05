@@ -1,6 +1,7 @@
 import io
 import json
 import logging
+import os
 import uuid
 from datetime import timedelta as td
 
@@ -8,6 +9,8 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.db import IntegrityError
 from django.db.models import Count, Exists, OuterRef, Prefetch
 from django.db.models.functions import Lower
@@ -16,7 +19,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from PIL import Image
 
@@ -67,11 +69,9 @@ def add_room(request: HttpRequest):
     room.last_activity = timezone.now()
     room.save()
 
-    # Allow active user access to new public rooms
+    # Allow active user access to the new public room
     active_users = User.objects.filter(is_active=True)
-    public_rooms = Room.objects.filter(public=True)
-    for pr in public_rooms:
-        pr.allowed.set(active_users)
+    room.allowed.set(active_users)
 
     return redirect(f"{reverse('chat:chat')}#room_id={room.id}")
 
@@ -148,7 +148,6 @@ def check_image_type(file_path):
 MAX_LONG_SIDE = 1920
 
 
-@csrf_exempt
 @login_required
 def upload_image(request: HttpRequest):
     filenames = []
@@ -171,9 +170,8 @@ def upload_image(request: HttpRequest):
             file_bytes = buffer.getvalue()
 
         filename = f"{uuid.uuid4()}.webp"
-        with open(f"{settings.BASE_DIR}/media/uploads/{filename}", "wb") as f:
-            f.write(file_bytes)
-        filenames.append(filename)
+        path = default_storage.save(f"uploads/{filename}", ContentFile(file_bytes))
+        filenames.append(os.path.basename(path))
 
     return JsonResponse({'filenames': filenames})
 
@@ -298,8 +296,8 @@ def toggle_notifications(request: HttpRequest):
     except Room.DoesNotExist:
         return JsonResponse({'error': 'Room not found'}, status=404)
     except Exception as e:
-        log.error(f"Error toggling notifications: {e}")
-        return JsonResponse({'error': str(e)}, status=500)
+        log.exception("Error toggling notifications: %s", e)
+        return JsonResponse({'error': 'Internal server error'}, status=500)
 
 
 @login_required
@@ -349,9 +347,8 @@ def guest_message(request: HttpRequest):
             if attempts >= 3:
                 form.add_error(None, _('Too many messages. Please try again later.'))
             else:
-                try:
-                    inbox = Room.objects.get(is_inbox=True, public=True)
-                except Room.DoesNotExist:
+                inbox = Room.objects.filter(is_inbox=True, public=True).first()
+                if inbox is None:
                     form.add_error(None, _('The public inbox is not available at the moment.'))
                 else:
                     message_text = sanitize(f"Od: {form.cleaned_data['guest_name']} ({form.cleaned_data['guest_email']})\n\n{form.cleaned_data['message']}", linkify=True)

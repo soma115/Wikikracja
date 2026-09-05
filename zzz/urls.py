@@ -13,7 +13,7 @@ from obywatele import views as ov
 
 urlpatterns: List[URLPattern | URLResolver] = [
     path('', include('home.urls')),
-    path('logout/', auth_views.LogoutView.as_view(), {'next_page': '/login/'}, name='logout'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='/login/'), name='logout'),
     path('login/', RedirectView.as_view(url='/accounts/login/'), name='login'),
     path('haslo/', hv.haslo, name='haslo'),
     path('change_email/', ov.change_email, name='change_email'),
@@ -31,7 +31,6 @@ urlpatterns: List[URLPattern | URLResolver] = [
     path('tasks/', include('tasks.urls', namespace='tasks')),
     path('ankiety/', include('ankiety.urls', namespace='ankiety')),
     path('i18n/', include('django.conf.urls.i18n')),
-    path("__reload__/", include("django_browser_reload.urls")),
     path('<slug:slug>/', bv.view_post_by_slug, name='board_post_by_slug'),
 ]
 
@@ -42,6 +41,7 @@ if settings.DEBUG:
         from debug_toolbar.toolbar import debug_toolbar_urls
 
         urlpatterns += debug_toolbar_urls()
+    urlpatterns += [path("__reload__/", include("django_browser_reload.urls"))]
 
 # Media files (user uploads) - must be served in all environments
 # In production, Django will serve these (inefficient but works)

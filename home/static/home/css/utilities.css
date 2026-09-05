@@ -866,11 +866,6 @@
   max-width:680px;
 }
 
-/* Dashboard tile sizing */
-.dashboard-tile {
-  min-height: auto;
-}
-
 .dashboard-tile #quick-links-scroll {
   max-height: none;
 }
@@ -879,7 +874,7 @@
   overflow-y: auto;
 }
 
-/* Dashboard drag-and-drop grid */
+/* Dashboard tile sizing + drag-and-drop grid */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr;

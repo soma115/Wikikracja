@@ -1,12 +1,36 @@
 import asyncio
-import datetime
 import inspect
 import logging
+import re
+from pathlib import Path
 from typing import Union
+
+from django.conf import settings
+from django.utils import timezone
 
 from .models import Message, Room
 
 log = logging.getLogger(__name__)
+
+
+def get_upload_path(filename):
+    """Return a safe absolute Path for an uploaded attachment, or None if the filename is unsafe.
+
+    Guards against path traversal (e.g. ``../../etc/passwd``) by rejecting
+    directory components, rejecting parent references and checking that the
+    resolved path stays inside ``MEDIA_ROOT/uploads``.
+    """
+    if not isinstance(filename, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*', filename) or '..' in filename:
+        return None
+    upload_dir = Path(settings.MEDIA_ROOT) / 'uploads'
+    try:
+        upload_dir_resolved = upload_dir.resolve()
+        target = (upload_dir / filename).resolve()
+    except (OSError, RuntimeError, ValueError):
+        return None
+    if not target.is_relative_to(upload_dir_resolved):
+        return None
+    return target
 
 
 # added those wrappers to encapsulate underlying data structure
@@ -23,16 +47,16 @@ class OnlineUserRegistry:
     def make_offline(self, consumer):
         user = consumer.scope['user']
         if not user.is_authenticated:
-            for user_id, cons in self._reg.items():
+            for user_id, cons in list(self._reg.items()):
                 if cons == consumer:
                     del self._reg[user_id]
                     return
+            return
         try:
-            del self._reg[user.id]
+            if self._reg.get(user.id) is consumer:
+                del self._reg[user.id]
         except KeyError:
             pass  # User already removed from registry, this is normal
-        except Exception as e:
-            log.error(f"utils.py: Exception {str(e)} for user {user.id}")
 
     def is_online(self, user):
         if user is not None:
@@ -50,7 +74,7 @@ class RoomRegistry:
         self._reg = {}
 
     def join(self, room_id):
-        self._reg[int(room_id)] = {'joined_at': datetime.datetime.now()}
+        self._reg[int(room_id)] = {'joined_at': timezone.now()}
 
     def leave(self, room_id):
         if self._reg.get(int(room_id)):
@@ -218,7 +242,7 @@ def send_message_to_room(room_title, message_text, sender=None, anonymous=True, 
 
         # Send the message to the room group
         try:
-            async_to_sync(channel_layer.group_send)(f"room-{room.id}", {"type": "chat.message", **message_data})
+            async_to_sync(channel_layer.group_send)(room.group_name, {"type": "chat.message", **message_data})
         except Exception as e:
             log.warning(f"Could not push chat.message to channel layer for room {room.id}: {e}")
 
@@ -232,8 +256,8 @@ def send_message_to_room(room_title, message_text, sender=None, anonymous=True, 
                 continue
 
             # Check if user is online and has an active connection
-            if user.id in ChatConsumer.online_registry._reg:
-                consumer = ChatConsumer.online_registry.get_consumer(user)
+            consumer = ChatConsumer.online_registry.get_consumer(user)
+            if consumer is not None:
 
                 try:
                     # Send notification in the same format as regular chat notifications

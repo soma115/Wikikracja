@@ -1,14 +1,12 @@
 import asyncio
 import logging
-import os
 import re
 import uuid
-from datetime import datetime
 
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-from django.conf import settings
 from django.core.cache import cache
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from zzz.notifications import NOTIF_LOG_TAG
@@ -20,19 +18,18 @@ from .group_messages import format_chat_message
 from .models import Message, Room
 from .serializers import build_chat_message_payload
 from .services import CHAT_UNREAD_CACHE_KEY, ChatRepository, extract_mentions, get_avatar_url
-from .utils import HandledMessage, Handlers, OnlineUserRegistry, RoomRegistry, helper_method
+from .utils import HandledMessage, Handlers, OnlineUserRegistry, RoomRegistry, get_upload_path, helper_method
 
 log = logging.getLogger(__name__)
-domain = get_site_domain()
 
 
-def _build_chat_notification(author, room_id, room_name=None):
+async def _build_chat_notification(author, room_id, room_name=None):
     """Build the title/body/icon/click_action shared by WS and FCM chat notifications.
 
     `room_name` should be the public room title, or the other participant's
     username for private chats. Pass None/"" to fall back to a generic "Chat" title.
     """
-    site_url = f"https://{domain}"
+    site_url = f"https://{await database_sync_to_async(get_site_domain)()}"
     notification_id = uuid.uuid4().hex
     log.debug(f"{NOTIF_LOG_TAG} Built chat notification {notification_id} for room {room_id} (author={author})")
     return {
@@ -287,14 +284,27 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
     @handlers.register("send")
     async def send_message_to_room(self, proxy: HandledMessage, room_id, message, is_anonymous, attachments, reply_to_id=None, temp_id=None):
-        if int(room_id) not in self.rooms.items():
+        try:
+            room_id = int(room_id)
+        except (TypeError, ValueError):
+            raise ClientError("ROOM_INVALID") from None
+        if room_id not in self.rooms.items():
             raise ClientError("ROOM_ACCESS_DENIED")
 
+        if attachments is None:
+            attachments = {}
+        if not isinstance(attachments, dict):
+            raise ClientError("BAD_ATTACHMENT_TYPE")
         for key, value in attachments.items():
             if key not in ('images',):
                 raise ClientError("BAD_ATTACHMENT_TYPE")
+            if not isinstance(value, (list, tuple)):
+                raise ClientError("BAD_ATTACHMENT_TYPE")
             for filename in value:
-                if not os.path.exists(f"{settings.BASE_DIR}/media/uploads/{filename}"):
+                if not isinstance(filename, str):
+                    raise ClientError("BAD_ATTACHMENT_TYPE")
+                path = get_upload_path(filename)
+                if path is None or not path.is_file():
                     raise ClientError("FILE_NOT_FOUND")
 
         message_clean = sanitize(message, linkify=False)
@@ -378,7 +388,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             proxy = HandledMessage()
             author = "Anonymous" if msg.anonymous else (sender.username or "System")
             notify_room_name = _room_notification_name(room, sender)
-            notification = _build_chat_notification(author, room.id, notify_room_name)
+            notification = await _build_chat_notification(author, room.id, notify_room_name)
             for member in other_members:
                 prefs = membership_prefs.get(member.id, {'seen': False, 'muted': True})
                 consumer = ChatConsumer.online_registry.get_consumer(member)
@@ -427,7 +437,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         try:
             author = "Anonymous" if msg.anonymous else (sender.username or "System")
             notify_room_name = _room_notification_name(room, sender)
-            notification = _build_chat_notification(author, room.id, notify_room_name)
+            notification = await _build_chat_notification(author, room.id, notify_room_name)
 
             log.debug(f"{NOTIF_LOG_TAG} group_send chat.mention notification_id={notification['notification_id']} to user_{user.id} for message {msg.id}")
             # Show a real OS notification via the shared WebSocket connection too, so it
@@ -610,7 +620,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def handle_edit_message(self, proxy: HandledMessage, message_id: int, new_message: str = None, attachments: dict = None, removed_attachments: list = None):
         message = await self.repo.get_message(message_id)
         if await self.repo.get_message_sender(message) != self.scope['user']:
-            return
+            raise ClientError("ACCESS_DENIED")
 
         if new_message is None:
             new_message = message.text
@@ -618,15 +628,25 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             new_message = sanitize(new_message, linkify=False)
             new_message = re.sub(r'(<br\s*/?>)+$', '', new_message).rstrip()
 
-        if attachments:
-            for key, value in attachments.items():
-                if key not in ('images',):
+        if attachments is None:
+            attachments = {}
+        if not isinstance(attachments, dict):
+            raise ClientError("BAD_ATTACHMENT_TYPE")
+        for key, value in attachments.items():
+            if key not in ('images',):
+                raise ClientError("BAD_ATTACHMENT_TYPE")
+            if not isinstance(value, (list, tuple)):
+                raise ClientError("BAD_ATTACHMENT_TYPE")
+            for filename in value:
+                if not isinstance(filename, str):
                     raise ClientError("BAD_ATTACHMENT_TYPE")
-                for filename in value:
-                    if not os.path.exists(f"{settings.BASE_DIR}/media/uploads/{filename}"):
-                        raise ClientError("FILE_NOT_FOUND")
+                path = get_upload_path(filename)
+                if path is None or not path.is_file():
+                    raise ClientError("FILE_NOT_FOUND")
 
         if removed_attachments:
+            if not isinstance(removed_attachments, (list, tuple)):
+                raise ClientError("BAD_ATTACHMENT_TYPE")
             await self.repo.remove_attachments(message_id, removed_attachments)
 
         if attachments:
@@ -646,7 +666,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             state = await self.repo.edit_message_and_history(message_id, new_message)
             timestamp = int(state.time.timestamp()) * 1000
         else:
-            timestamp = int(datetime.now().timestamp()) * 1000
+            timestamp = int(timezone.now().timestamp()) * 1000
 
         is_last = await self.repo.is_last_message_in_room(message_id, room.id)
         proxy.group_send(
@@ -716,7 +736,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             if await self.repo.user_has_muted_room(user.id, room_id):
                 return
             author = "System" if message.sender is None else ("Anonymous" if message.anonymous else message.sender.username)
-            notification = _build_chat_notification(author, room_id, room_name)
+            notification = await _build_chat_notification(author, room_id, room_name)
             success = await self.repo.send_push_notification_sync(
                 user=user, title=notification['title'], body=notification['body'], deep_link=notification['click_action'], room_id=room_id, room_name=room_name or ""
             )

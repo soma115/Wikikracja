@@ -64,7 +64,7 @@
             }
             const sel = window.getSelection();
             const selLen = sel ? sel.toString().length : 0;
-            const currentLen = getInputHtml(inputEl).length;
+            const currentLen = getInputHtml(input).length;
             let extra = 0;
             if (e.data) {
                 extra = e.data.length;

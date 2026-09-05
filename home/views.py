@@ -154,8 +154,8 @@ def mark_all_read(request):
         return JsonResponse({'success': True, 'marked_count': count})
 
     except Exception as e:
-        log.error(f"Error marking all as read for user {request.user.id}: {e}")
-        return JsonResponse({'success': False, 'error': str(e)})
+        log.exception("Error marking all as read for user %s: %s", request.user.id, e)
+        return JsonResponse({'success': False, 'error': 'Internal server error'})
 
 
 @login_required
@@ -168,8 +168,8 @@ def save_filter_state(request):
         request.session.modified = True
         return JsonResponse({'success': True})
     except Exception as e:
-        log.error(f"Error saving filter state: {e}")
-        return JsonResponse({'success': False, 'error': str(e)})
+        log.exception("Error saving filter state: %s", e)
+        return JsonResponse({'success': False, 'error': 'Internal server error'})
 
 
 @login_required

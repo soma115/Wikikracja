@@ -17,6 +17,10 @@ import {
 } from './utility.js';
 import { formatMessage as coreFormatMessage, getInputHtml } from './chat-core.js';
 
+function encodeAttachmentName(filename) {
+    return encodeURIComponent(filename).replace(/'/g, '%27');
+}
+
 /**
  * DOM API class for managing chat interface DOM operations
  * @class
@@ -173,12 +177,15 @@ export default class DomApi {
         const message_div = this.getMessageDiv(message_id);
         if (!message_div) return;
         const attachment_container = $('.attachment-image-container', message_div);
-        if (attachment_container) {
-            attachment_container.innerHTML = '';
-            if (attachments?.images?.length > 0) {
-                for (const filename of attachments.images) {
-                    attachment_container.insertAdjacentHTML('beforeend', `<img class='attached-image' src='/media/uploads/${filename}'>`);
-                }
+        if (!attachment_container) return;
+        attachment_container.innerHTML = '';
+        if (attachments?.images?.length > 0) {
+            for (const filename of attachments.images) {
+                const img = document.createElement('img');
+                img.className = 'attached-image';
+                img.loading = 'lazy';
+                img.src = `/media/uploads/${encodeAttachmentName(filename)}`;
+                attachment_container.appendChild(img);
             }
         }
     }
@@ -455,7 +462,8 @@ export default class DomApi {
         const attachments = { images: [] };
         if (message_div) {
             $$('.attached-image', message_div).forEach(img => {
-                attachments.images.push(img.getAttribute('src').split('/').pop());
+                const encoded = img.getAttribute('src').split('/').pop();
+                attachments.images.push(decodeURIComponent(encoded));
             });
         }
         return attachments.images.length > 0 ? attachments : {};
@@ -471,11 +479,24 @@ export default class DomApi {
         this.getPreviewContainer().classList.remove('d-none');
         for (let i = 0; i < attachments.images.length; i++) {
             const filename = attachments.images[i];
-            preview_container?.insertAdjacentHTML('beforeend', `<div class="image-preview-wrapper">
-                <img class='image-preview' id='preview-existing-${i}' src='/media/uploads/${filename}' data-filename='${filename}'>
-                <button class="btn btn-sm btn-danger remove-existing-attachment image-preview-remove"
-                    data-filename="${filename}" type="button">×</button>
-            </div>`);
+            const wrapper = document.createElement('div');
+            wrapper.className = 'image-preview-wrapper';
+
+            const img = document.createElement('img');
+            img.className = 'image-preview';
+            img.id = `preview-existing-${i}`;
+            img.src = `/media/uploads/${encodeAttachmentName(filename)}`;
+            img.setAttribute('data-filename', filename);
+
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-sm btn-danger remove-existing-attachment image-preview-remove';
+            btn.setAttribute('data-filename', filename);
+            btn.type = 'button';
+            btn.textContent = '×';
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(btn);
+            preview_container?.appendChild(wrapper);
         }
     }
 

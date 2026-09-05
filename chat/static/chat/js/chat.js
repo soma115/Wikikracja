@@ -1103,7 +1103,16 @@ export async function onSubmitMessage(message, editing_message_id) {
         const attachments = {};
         // Upload new files if any
         if (files?.length) {
-            attachments.images = (await WS_API.uploadFiles(files)).filenames;
+            const sendBtn = document.querySelector('.send-message');
+            if (sendBtn) sendBtn.disabled = true;
+            try {
+                attachments.images = (await WS_API.uploadFiles(files)).filenames;
+            } catch (err) {
+                console.error('Upload failed', err);
+                return;
+            } finally {
+                if (sendBtn) sendBtn.disabled = false;
+            }
         }
         WS_API.editMessage(editing_message_id, message, attachments, DOM_API.getRemovedAttachments(), DOM_API.getOriginalMessageText(editing_message_id));
         // Don't stop editing immediately - let onReceiveEdit handle it after server confirms

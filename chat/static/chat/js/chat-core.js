@@ -17,6 +17,7 @@ export {
 
 const UPLOAD_IMAGE_MAX_SIZE_MB = (window.SITE_SETTINGS && window.SITE_SETTINGS.uploadImageMaxSizeMb) || 5;
 export const UPLOAD_MAX_BYTES = UPLOAD_IMAGE_MAX_SIZE_MB * 1_000_000;
+const UPLOAD_TIMEOUT_MS = 60_000;
 const IMAGE_MAX_DIMENSION = 1280;
 const IMAGE_WEBP_QUALITY = 0.75;
 
@@ -39,7 +40,7 @@ async function compressImage(file) {
     }
 }
 
-export async function uploadFiles(files, uploadUrl = '/chat/upload/') {
+export async function uploadFiles(files, uploadUrl = '/chat/upload/', { compress = true } = {}) {
     if (!files || files.length === 0) {
         return { filenames: [] };
     }
@@ -55,24 +56,45 @@ export async function uploadFiles(files, uploadUrl = '/chat/upload/') {
             continue;
         }
         // eslint-disable-next-line no-await-in-loop
-        formData.append('images', await compressImage(file));
+        formData.append('images', compress ? await compressImage(file) : file);
     }
 
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                try {
-                    resolve(JSON.parse(xhr.responseText));
-                } catch (e) {
-                    reject(e);
+        const finish = (error, response) => {
+            xhr.onload = xhr.onerror = xhr.ontimeout = xhr.onabort = null;
+            if (error) reject(error); else resolve(response);
+        };
+        xhr.onload = () => {
+            try {
+                if (xhr.status < 200 || xhr.status >= 300) {
+                    throw new Error(`Upload failed (HTTP ${xhr.status})`);
                 }
+                const response = JSON.parse(xhr.responseText);
+                if (response?.error) throw new Error(response.error);
+                if (!Array.isArray(response?.filenames) || !response.filenames.every(name => typeof name === 'string' && name.length > 0)) {
+                    throw new Error('Invalid upload response');
+                }
+                finish(null, response);
+            } catch (error) {
+                finish(error);
             }
         };
-        xhr.onerror = () => reject(new Error('Upload failed'));
-        xhr.open('POST', uploadUrl, true);
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        xhr.send(formData);
+        xhr.onerror = () => finish(new Error('Upload failed'));
+        xhr.ontimeout = () => finish(new Error('Upload timed out'));
+        xhr.onabort = () => finish(new Error('Upload aborted'));
+        try {
+            xhr.open('POST', uploadUrl, true);
+            xhr.timeout = UPLOAD_TIMEOUT_MS;
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            const csrfToken = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/)?.[1] || '';
+            if (csrfToken && new URL(uploadUrl, document.baseURI).origin === window.location.origin) {
+                xhr.setRequestHeader('X-CSRFToken', csrfToken);
+            }
+            xhr.send(formData);
+        } catch (error) {
+            finish(error);
+        }
     });
 }
 

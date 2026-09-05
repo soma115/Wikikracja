@@ -198,14 +198,20 @@
              title="{% trans 'Settings' %}"
              class="{% if request.resolver_match.url_name == 'my_profile' or request.resolver_match.url_name == 'haslo' or request.resolver_match.url_name == 'my_assets' or request.resolver_match.url_name == 'change_email' or request.resolver_match.url_name == 'change_username' %}active{% endif %}">
             <i class="fas fa-fw fa-gear nav-icon"></i>
-            <span class="nav-text">{% trans "Settings" %}</span>
+            <span class="nav-text d-none d-md-inline">{% trans "Settings" %}</span>
           </a>
         </li>
         <li class="nav-item">
           <a href="{% url 'account_logout' %}" title="{% trans 'Log out' %}">
             <i class="fas fa-fw fa-right-from-bracket nav-icon"></i>
-            <span class="nav-text">{% trans "Log out" %}</span>
+            <span class="nav-text d-none d-md-inline">{% trans "Log out" %}</span>
           </a>
+        </li>
+        <li class="nav-item d-md-none ms-auto">
+          <button type="button" id="sidebar-close-btn" class="sidebar-close-btn"
+                  title="{% trans 'Close menu' %}" aria-label="{% trans 'Close menu' %}">
+            <i class="fas fa-angles-left"></i>
+          </button>
         </li>
       </ul>
     </div>
@@ -425,7 +431,7 @@
 
 </div>
 
-<div class="modal-backdrop-custom" id="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('sidebar-open');this.style.display='none';">
+<div class="modal-backdrop-custom" id="sidebar-overlay">
 </div>
 
 {% block extra_body %}{% endblock %}

@@ -6,7 +6,7 @@
  */
 
 import { getSharedWebSocket } from './websocket-manager.js';
-import { UPLOAD_MAX_BYTES } from './chat-core.js';
+import { uploadFiles } from './chat-core.js';
 
 /**
  * WebSocket API class for managing chat WebSocket connection
@@ -284,43 +284,7 @@ export default class WsApi {
      * @returns {Promise<Object>} - Upload response with filenames
      */
     async uploadFiles(files) {
-        if (files.length == 0) {
-            return new Promise((r, _) => r({ 'filenames': [] }));
-        }
-
-        let xhr = new XMLHttpRequest();
-        let formData = new FormData();
-
-        let promise_funcs = {};
-
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                promise_funcs.resolve(JSON.parse(xhr.responseText))
-            }
-        };
-
-        let promise = new Promise((resolve, reject) => {
-            promise_funcs.resolve = resolve;
-            promise_funcs.reject = reject;
-        });
-
-        xhr.open("POST", "upload/", true);
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        const maxSizeMb = UPLOAD_MAX_BYTES / 1_000_000;
-        const sizeMessage = (window.SITE_SETTINGS && window.SITE_SETTINGS.uploadImageMaxSizeMessage) || 'Image is too large (max %s MB).';
-        for (let i = 0; i < files.length; ++i) {
-            let file = files.item(i);
-            let name = file.name;
-            let size = file.size;
-            if (size > UPLOAD_MAX_BYTES) {
-                let message = sizeMessage.replace('%s', maxSizeMb);
-                if (window.showToast) window.showToast(message); else alert(message);
-                continue;
-            }
-            formData.append("images", file);
-        }
-        xhr.send(formData);
-        return promise;
+        return uploadFiles(files, 'upload/', { compress: false });
     }
 
     /**
