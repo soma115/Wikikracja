@@ -2,15 +2,21 @@
 
 Jesteś asystentem AI w projekcie Wikikracja (Django + JS + CSS). Twoim nadrzędnym celem jest dbanie o prostotę, standaryzację, deduplikację i architekturę. Jeśli polecenie użytkownika pogarsza którykolwiek z tych aspektów, zaproponuj prostsze, bardziej konsekwentne rozwiązanie zamiast ślepo je wykonywać.
 
-## 1. Zasady (w kolejności ważności)
+## 1. Stosuj dobre praktyki programowania
 
-1. **Upraszczaj.** Szukaj rozwiązania z mniejszą ilością kodu, plików i zależności. Usuwaj martwy kod, nie wymyślaj nowych abstrakcji bez potrzeby.
-2. **Bądź konsekwentny.** Korzystaj z istniejących konwencji, wzorców i abstrakcji projektu. Nie wprowadzaj nowych nazw, arkuszy ani konwencji bez uzasadnienia.
-3. **Deduplikuj (DRY — Don't Repeat Yourself).** Wyciągaj wspólny kod do funkcji, komponentów, tokenów i modułów. Sprawdź, czy podobna funkcjonalność już istnieje, zanim dodasz nową. Każdy fragment wiedzy o systemie powinien mieć jedno autorytatywne źródło prawdy.
-4. **Dbaj o architekturę.** Zachowaj separację warstw aplikacji (logika, prezentacja, style, interakcje). Nie mieszaj odpowiedzialności między warstwami.
-5. **Utrzymuj spójność stylistyczną i unikaj oscylacji.** Nie wprowadzaj wahających się zmian formatowania — wybierz jeden poprawny wariant i stosuj go konsekwentnie. Automatyzuj sprawdzanie stylu przy użyciu narzędzi przyjętych w projekcie.
-6. **Stosuj zasady SOLID.** Kod współdzielony powinien być otwarty na rozszerzenie i zamknięty na modyfikację, zależeć od abstrakcji, a nie konkretów, mieć jedną odpowiedzialność i być testowalny niezależnie od widoku, w którym działa.
-7. **Zadawaj pytania.** Zadawaj użytkownikowi pytania zawsze, gdy są wątpliwości albo znaczące decyzje — nie zgaduj ani nie działaj wbrew intencji użytkownika.
+Postępuj zgodnie z poniższymi zasadami w podanej kolejności ważności:
+
+1. **Upraszczaj (KISS, YAGNI).** Szukaj rozwiązania z mniejszą ilością kodu, plików i zależności. Nie buduj funkcji ani abstrakcji „na zapas”. Usuwaj martwy kod i nieużywane zależności.
+2. **Dbaj o architekturę i jedną odpowiedzialność.** Zachowaj separację warstw aplikacji (logika, prezentacja, style, interakcje). Każda funkcja, klasa i moduł powinny robić dokładnie jedną rzecz i mieć jeden powód do zmiany.
+3. **Deduplikuj (DRY) i unikaj magicznych wartości.** Wyciągaj wspólny kod do funkcji, komponentów, tokenów i modułów. Wszystkie stałe, konfiguracje i powtarzające się wartości powinny mieć jedno autorytatywne źródło prawdy.
+4. **Bądź konsekwentny i pisz czytelny kod.** Stosuj istniejące konwencje nazewnictwa, stylu i abstrakcji projektu. Używaj opisowych nazw, małych funkcji, jednoznacznego przepływu sterowania i komentarzy tłumaczących „dlaczego”, nie „co”.
+5. **Stosuj zasady SOLID.** Kod współdzielony powinien być otwarty na rozszerzenie i zamknięty na modyfikację, zależeć od abstrakcji, a nie konkretów, mieć jedną odpowiedzialność i być testowalny niezależnie od widoku, w którym działa.
+6. **Programuj defensywnie, bezpiecznie i z jawną obsługą błędów.** Nie ufaj danym z zewnątrz (użytkownik, sieć, inny moduł). Waliduj wejścia, obsługuj brzegowe przypadki i nie zakładaj poprawności stanu. Nie sklejaj ręcznie SQL, nie wykonuj `eval`/exec na niezaufanych danych, nie loguj sekretów, nie wyświetlaj niesanitizowanych danych użytkownika.
+7. **Testuj krytyczną logikę automatycznie.** Pokrywaj testami jednostkowymi i integracyjnymi logikę, którą da się uruchomić w izolacji; testy opisują zachowanie, a nie szczegóły implementacji.
+8. **Nie optymalizuj przedwcześnie.** Mierz wąskie gardła, zanim zaczniesz komplikować kod dla wydajności.
+9. **Wprowadzaj małe, logiczne zmiany.** Refaktoryzuj małymi krokami; unikaj wielkich, ryzykownych przebudów bez uzasadnienia. Commity powinny być małe, logiczne i nie zawierać tymczasowych plików ani sekretów.
+10. **Nie wymyślaj koła na nowo.** Zanim dodasz nową bibliotekę lub własne rozwiązanie, sprawdź standardową bibliotekę Pythona, ekosystem Django i istniejący kod projektu.
+11. **Zadawaj pytania.** Wątpliwości i istotne decyzje konsultuj z użytkownikiem — nie zgaduj ani nie działaj wbrew jego intencjom.
 
 ## 2. Twardy zakaz i granice
 
@@ -98,6 +104,10 @@ Nie uruchamiaj podglądu w przeglądarce (browser preview) — weryfikuj zmiany 
 - **Kalendarz wydarzeń:** `/events/` pokazuje stały mini-kalendarz i wystąpienia wyłącznie z miesiąca wskazanego przez `?month=YYYY-MM`; nawigacja przeładowuje mini-kalendarz i listę przez AJAX. Mini-kalendarz jest współdzielony ze stroną główną przez `obywatele/_calendar_partial.html`, a siatka i lista korzystają z tej samej logiki `Event.get_occurrences()`.
 - **Scheduler:** `zzz/scheduler.py` uruchamia zadania cykliczne (send_email_digest, chat_rooms, głosowania, count_citizens, update_site, powiadomienia o wydarzeniach). Używa `SCHEDULER_LOCK_FILE`.
 - **Wersja Pythona:** `pyproject.toml` wymaga `>=3.14`; CI używa 3.14.
+
+## 8. Komenda „posprzątaj”
+
+Jeśli użytkownik wydaje komendę „posprzątaj”, to znaczy, że chodzi o przejrzenie aplikacji pod kątem błędów logicznych, spaghetti code, niedoróbek architektonicznych i dobrych praktyk programowania.
 
 ---
 

@@ -1901,6 +1901,7 @@ button.task-against-btn:focus-visible {
 .cal-month-controls {
   display: inline-flex;
   align-items: center;
+  gap: .6rem;
 }
 #events-calendar {
   margin-bottom: .75rem;
