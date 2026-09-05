@@ -101,6 +101,8 @@ class Task(ChatRoomModel, models.Model):
         """Return True if the coordinator approved this user as a team member."""
         if not user or not user.is_authenticated:
             return False
+        if self.assigned_to_id == user.id:
+            return True
         return self.approved_helpers.filter(id=user.id).exists()
 
     def can_user_post(self, user):
@@ -113,8 +115,6 @@ class Task(ChatRoomModel, models.Model):
         if not user or not user.is_authenticated:
             return False
         if not self.team_mode:
-            return True
-        if self.assigned_to == user:
             return True
         return self.is_user_approved(user)
 

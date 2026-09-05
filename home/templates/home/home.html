@@ -45,14 +45,14 @@
 
 <div class="dashboard-grid" id="dashboard-grid">
 
-  {# Pierwsze kroki (tylko gdy są quick links) #}
+  {# Ważne linki (tylko gdy są quick links) #}
   {% if quick_links %}
   <div class="dashboard-tile dashboard-tile--1x1" data-tile-id="onboarding">
     <div class="card dashboard-tile h-100 overflow-hidden" id="onboarding-card">
       <div class="card-body d-flex flex-column gap-2 overflow-hidden-mh0">
         <div class="dashboard-tile-header mb-1 flex-shrink-0">
           <i class="fas fa-rocket"></i>
-          <span class="section-heading tile-heading">{% trans "First steps" %}</span>
+          <span class="section-heading tile-heading">{% trans "Important links" %}</span>
         </div>
         <div id="quick-links-scroll" class="quick-links-scroll">
         <ul class="list-unstyled mb-0 d-flex flex-column gap-1 text-sm">{% for link in quick_links %}<li class="task-dash-row d-flex align-items-center gap-2 quick-link-row min-w-0" data-link-id="{{ link.id }}">

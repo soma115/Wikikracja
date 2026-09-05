@@ -95,6 +95,12 @@ class TaskModelTest(TestCase):
         self.assertFalse(task.is_user_approved(helper))
         self.assertTrue(task.is_user_helper(helper))
 
+    def test_coordinator_is_approved_without_explicit_approval(self):
+        other = make_user("other")
+        task = make_task(created_by=self.user, assigned_to=other, team_mode=True)
+        self.assertTrue(task.is_user_approved(other))
+        self.assertFalse(task.is_user_approved(self.user))
+
     def test_task_not_saved_when_chat_room_creation_fails(self):
         with patch("chat.signals.Room.objects.create", side_effect=RuntimeError("DB unavailable")):
             with self.assertRaises(RuntimeError):

@@ -189,7 +189,11 @@
                   {% include "home/_user_avatar.html" with avatar=vote.user.uzytkownik.avatar username=vote.user.username size="xl" %}
                   <span class="helpers-popover-name">{{ vote.user.username }}</span>
                 </a>
-                {% if vote.is_approved %}
+                {% if vote.is_coordinator %}
+                  <span class="helper-status helper-status--approved" title="{% trans 'Coordinator' %}">
+                    <i class="fas fa-user-shield"></i> {% trans "Coordinator" %}
+                  </span>
+                {% elif vote.is_approved %}
                   <span class="helper-status helper-status--approved" title="{% trans 'In team' %}">
                     <i class="fas fa-check-circle"></i> {% trans "In team" %}
                   </span>
@@ -198,7 +202,7 @@
                     <i class="fas fa-clock"></i> {% trans "Pending" %}
                   </span>
                 {% endif %}
-                {% if is_coordinator %}
+                {% if is_coordinator and not vote.is_coordinator %}
                   <form class="helper-toggle-form" method="post" action="{% url 'tasks:toggle_helper' task.pk vote.user_id %}" data-user-id="{{ vote.user_id }}">
                     {% csrf_token %}
                     <label class="helper-switch" for="helper-toggle-{{ vote.user_id }}" title="{% trans 'Approve for team' %}">
@@ -312,6 +316,7 @@
   window.TASK_HELPERS_I18N = {
     in_team: "{% trans 'In team' %}",
     pending: "{% trans 'Pending' %}",
+    coordinator: "{% trans 'Coordinator' %}",
     approve_for_team: "{% trans 'Approve for team' %}",
   };
   window.IS_COORDINATOR = "{{ is_coordinator|yesno:'true,false' }}" === "true";

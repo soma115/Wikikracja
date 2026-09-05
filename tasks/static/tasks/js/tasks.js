@@ -119,6 +119,7 @@
 
   function buildDetailVoterItem(user) {
     var i18n = window.TASK_HELPERS_I18N || {};
+    var isSelfCoordinator = window.IS_COORDINATOR && window.CURRENT_USER && user.id === window.CURRENT_USER.id;
     var wrap = document.createElement('div');
     wrap.className = 'helpers-voter-item';
     wrap.dataset.userId = user.id;
@@ -128,11 +129,16 @@
     wrap.appendChild(link);
 
     var status = document.createElement('span');
-    status.className = 'helper-status helper-status--pending';
-    status.innerHTML = '<i class="fas fa-clock"></i> ' + (i18n.pending || 'Pending');
+    if (isSelfCoordinator) {
+      status.className = 'helper-status helper-status--approved';
+      status.innerHTML = '<i class="fas fa-user-shield"></i> ' + (i18n.coordinator || 'Coordinator');
+    } else {
+      status.className = 'helper-status helper-status--pending';
+      status.innerHTML = '<i class="fas fa-clock"></i> ' + (i18n.pending || 'Pending');
+    }
     wrap.appendChild(status);
 
-    if (window.IS_COORDINATOR && window.TASK_ID) {
+    if (window.IS_COORDINATOR && window.TASK_ID && !isSelfCoordinator) {
       var form = document.createElement('form');
       form.className = 'helper-toggle-form';
       form.method = 'post';
@@ -192,7 +198,12 @@
       var target = document.querySelector('[data-voter-list="' + targetKey + '"]');
       if (target) {
         if (target.classList.contains('helpers-voter-list')) {
-          target.appendChild(buildDetailVoterItem(window.CURRENT_USER));
+          var item = buildDetailVoterItem(window.CURRENT_USER);
+          if (window.IS_COORDINATOR) {
+            target.insertBefore(item, target.firstChild);
+          } else {
+            target.appendChild(item);
+          }
         } else {
           target.appendChild(buildVoterItem(window.CURRENT_USER));
         }

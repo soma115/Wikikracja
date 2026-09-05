@@ -10,6 +10,7 @@ Jesteś asystentem AI w projekcie Wikikracja (Django + JS + CSS). Twoim nadrzęd
 4. **Dbaj o architekturę.** Zachowaj separację warstw aplikacji (logika, prezentacja, style, interakcje). Nie mieszaj odpowiedzialności między warstwami.
 5. **Utrzymuj spójność stylistyczną i unikaj oscylacji.** Nie wprowadzaj wahających się zmian formatowania — wybierz jeden poprawny wariant i stosuj go konsekwentnie. Automatyzuj sprawdzanie stylu przy użyciu narzędzi przyjętych w projekcie.
 6. **Stosuj zasady SOLID.** Kod współdzielony powinien być otwarty na rozszerzenie i zamknięty na modyfikację, zależeć od abstrakcji, a nie konkretów, mieć jedną odpowiedzialność i być testowalny niezależnie od widoku, w którym działa.
+7. **Zadawaj pytania.** Zadawaj użytkownikowi pytania zawsze, gdy są wątpliwości albo znaczące decyzje — nie zgaduj ani nie działaj wbrew intencji użytkownika.
 
 ## 2. Twardy zakaz i granice
 

@@ -335,6 +335,10 @@ def task_against_json(request: HttpRequest, pk: int) -> JsonResponse:
     return JsonResponse(_voters_json(task, TaskVote.Value.DOWN))
 
 
+def _target_is_coordinator(task, user_id):
+    return task.assigned_to_id == user_id
+
+
 @require_POST
 @login_required
 def approve_helper(request: HttpRequest, pk: int, user_id: int) -> HttpResponse:
@@ -343,6 +347,11 @@ def approve_helper(request: HttpRequest, pk: int, user_id: int) -> HttpResponse:
     if task.assigned_to != request.user:
         if is_ajax:
             return JsonResponse({"ok": False, "error": "not coordinator"}, status=403)
+        return redirect("tasks:detail", pk=pk)
+
+    if _target_is_coordinator(task, user_id):
+        if is_ajax:
+            return JsonResponse({"ok": False, "error": "cannot approve coordinator"}, status=400)
         return redirect("tasks:detail", pk=pk)
 
     helper = get_object_or_404(User, pk=user_id)
@@ -368,6 +377,11 @@ def remove_helper(request: HttpRequest, pk: int, user_id: int) -> HttpResponse:
             return JsonResponse({"ok": False, "error": "not coordinator"}, status=403)
         return redirect("tasks:detail", pk=pk)
 
+    if _target_is_coordinator(task, user_id):
+        if is_ajax:
+            return JsonResponse({"ok": False, "error": "cannot remove coordinator"}, status=400)
+        return redirect("tasks:detail", pk=pk)
+
     helper = get_object_or_404(User, pk=user_id)
     task.remove_helper(helper)
     invalidate_task_list_cache()
@@ -385,6 +399,11 @@ def toggle_helper(request: HttpRequest, pk: int, user_id: int) -> HttpResponse:
     if task.assigned_to != request.user:
         if is_ajax:
             return JsonResponse({"ok": False, "error": "not coordinator"}, status=403)
+        return redirect("tasks:detail", pk=pk)
+
+    if _target_is_coordinator(task, user_id):
+        if is_ajax:
+            return JsonResponse({"ok": False, "error": "cannot approve coordinator"}, status=400)
         return redirect("tasks:detail", pk=pk)
 
     helper = get_object_or_404(User, pk=user_id)
@@ -465,8 +484,10 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
         helping_votes = list(TaskVote.objects.filter(task=task, value=TaskVote.Value.UP).select_related("user", "user__uzytkownik").order_by("updated_at", "id"))
         approved_ids = set(task.approved_helpers.values_list("id", flat=True))
         for hv in helping_votes:
-            hv.is_approved = hv.user_id in approved_ids
+            hv.is_coordinator = hv.user_id == task.assigned_to_id
+            hv.is_approved = hv.is_coordinator or hv.user_id in approved_ids
             hv.is_me = hv.user_id == self.request.user.id
+        helping_votes.sort(key=lambda hv: (0 if hv.is_coordinator else 1, hv.updated_at, hv.id))
         context["helping_votes"] = helping_votes
         context["against_votes"] = TaskVote.objects.filter(task=task, value=TaskVote.Value.DOWN).select_related("user", "user__uzytkownik").order_by("updated_at", "id")
         context["is_coordinator"] = self.request.user.is_authenticated and task.assigned_to == self.request.user
