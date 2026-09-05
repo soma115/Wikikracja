@@ -53,7 +53,6 @@ def build_dashboard_context(user, feed_items=None, filter_unread=False, month_pa
             'feed_items': feed_items,
             'filter_unread': filter_unread,
             'last_feed_items': [i for i in feed_items if i['content_type'] != 'event'][:6],
-            'unread_items_no_events': [item for item in feed_items if not item['is_read'] and item['content_type'] != 'event'],
             '_unread_count': request_unread_count,
             'quick_links': list(QuickLink.objects.order_by('order')),
         }

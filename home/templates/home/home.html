@@ -83,9 +83,9 @@
         <span class="section-heading tile-heading">
           <i class="fas fa-stream me-1 text-accent opacity-70"></i>{% trans "Activity" %}
         </span>
-        {% if unread_items_no_events %}
+        {% if unread_count %}
         <span class="badge-status activity-badge">
-          <i class="fas fa-bell me-1"></i>{{ unread_items_no_events|length }}
+          <i class="fas fa-bell me-1"></i>{{ unread_count }}
         </span>
         {% endif %}
       </div>

@@ -140,7 +140,7 @@ const message_template = `
           <% if (typeof avatar_url !== 'undefined' && avatar_url) { %>
             <img class='avatar avatar-2xl' src='<%- avatar_url %>' alt=''>
           <% } else { %>
-            <span class='avatar avatar-2xl avatar-fallback<% if (typeof citizen_color_class !== "undefined" && citizen_color_class) { %> citizen-color-<%- citizen_color_class %><% } %>'><%= (username || '').slice(0, 2).toUpperCase() %></span>
+            <span class='avatar avatar-2xl avatar-fallback<% if (typeof citizen_color_class !== "undefined" && citizen_color_class) { %> <%- citizen_color_class %><% } %>'><%= (username || '').slice(0, 2).toUpperCase() %></span>
           <% } %><%= username %>
         <% if (_hasProfileLink) { %></a><% } else { %></span><% } %>
       </div>
@@ -221,7 +221,7 @@ const message_template = `
                 <% if (_u.avatar_url) { %>
                   <img class="avatar avatar-xl" src="<%- _u.avatar_url %>" alt="<%- _u.username %>">
                 <% } else { %>
-                  <span class="avatar avatar-xl avatar-fallback<% if (_u.citizen_color_class) { %> citizen-color-<%- _u.citizen_color_class %><% } %>"><%= (_u.username || '').slice(0, 2).toUpperCase() %></span>
+                  <span class="avatar avatar-xl avatar-fallback<% if (_u.citizen_color_class) { %> <%- _u.citizen_color_class %><% } %>"><%= (_u.username || '').slice(0, 2).toUpperCase() %></span>
                 <% } %>
                 <span class="read-by-username"><%- _u.username %></span>
               </div>

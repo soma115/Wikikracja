@@ -19,6 +19,7 @@ from django.views.generic import CreateView, DetailView, TemplateView, UpdateVie
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryReorderAPI
 from chat.models import Room
 from chat.views import get_translations as get_chat_translations
+from zzz.templatetags.citizen_filters import citizen_color_class
 
 from .forms import TaskForm, TaskStatusForm
 from .models import Category, Task, TaskEvaluation, TaskVote
@@ -313,7 +314,13 @@ def _serialize_user(user):
             avatar_url = uzy.avatar.url
         except ValueError:
             avatar_url = ""
-    return {"id": user.id, "username": user.username, "avatar_url": avatar_url, "profile_url": reverse("obywatele:obywatele_szczegoly", args=[user.pk])}
+    return {
+        "id": user.id,
+        "username": user.username,
+        "avatar_url": avatar_url,
+        "profile_url": reverse("obywatele:obywatele_szczegoly", args=[user.pk]),
+        "citizen_color_class": citizen_color_class(user.username),
+    }
 
 
 def _voters_json(task: Task, value: int) -> dict:
@@ -432,7 +439,7 @@ def take_task(request: HttpRequest, pk: int) -> HttpResponse:
     task.assigned_to = request.user
     task.save(update_fields=["assigned_to", "updated_at"])
     if is_ajax:
-        return JsonResponse({"ok": True, "assigned_to": _serialize_user(request.user)})
+        return JsonResponse({"ok": True, "assigned_to": _serialize_user(request.user), "is_coordinator": True})
     return redirect(request.POST.get("next") or "tasks:list")
 
 
@@ -452,7 +459,7 @@ def resign_task(request: HttpRequest, pk: int) -> HttpResponse:
     task.assigned_to = None
     task.save(update_fields=["assigned_to", "updated_at"])
     if is_ajax:
-        return JsonResponse({"ok": True, "assigned_to": None})
+        return JsonResponse({"ok": True, "assigned_to": None, "is_coordinator": False, "in_team": task.is_user_approved(request.user)})
     if next_url:
         return redirect(next_url)
     return redirect("tasks:list")

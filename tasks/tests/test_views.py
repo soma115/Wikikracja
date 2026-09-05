@@ -217,6 +217,36 @@ class TakeResignTaskTest(TestCase):
         self.task.refresh_from_db()
         self.assertIsNone(self.task.assigned_to)
 
+    def test_resign_does_not_promote_approved_helper(self):
+        # Sukcesja jest wyłączona — zadanie wraca do puli nawet gdy zespół nie jest pusty.
+        helper = make_user("helper")
+        TaskVote.objects.create(task=self.task, user=helper, value=TaskVote.Value.UP)
+        self.task.approved_helpers.add(helper)
+        self.task.assigned_to = self.user
+        self.task.save()
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+        response = self.client.post(reverse("tasks:resign", kwargs={"pk": self.task.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 200)
+        self.task.refresh_from_db()
+        self.assertIsNone(self.task.assigned_to)
+        self.assertIsNone(response.json()["assigned_to"])
+        self.assertFalse(response.json()["in_team"])
+        self.assertTrue(self.task.approved_helpers.filter(pk=helper.pk).exists())
+
+    def test_resign_keeps_ex_coordinator_in_team(self):
+        # Koordynator będący wcześniej zatwierdzonym pomocnikiem zostaje w zespole.
+        TaskVote.objects.create(task=self.task, user=self.user, value=TaskVote.Value.UP)
+        self.task.approved_helpers.add(self.user)
+        self.task.assigned_to = self.user
+        self.task.save()
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+        response = self.client.post(reverse("tasks:resign", kwargs={"pk": self.task.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 200)
+        self.task.refresh_from_db()
+        self.assertIsNone(self.task.assigned_to)
+        self.assertTrue(response.json()["in_team"])
+        self.assertTrue(self.task.approved_helpers.filter(pk=self.user.pk).exists())
+
 
 class VoteTaskTest(TestCase):
     def setUp(self):

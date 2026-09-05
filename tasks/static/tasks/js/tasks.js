@@ -243,6 +243,56 @@
       });
   }
 
+  function buildAvatarHtml(user, size) {
+    var initials = escapeHtml((user.username || '').slice(0, 2).toUpperCase());
+    if (user.avatar_url) {
+      return '<img class="avatar avatar-' + size + '" src="' + escapeHtml(user.avatar_url) + '" alt="' + escapeHtml(user.username || '') + '">';
+    }
+    var color = user.citizen_color_class ? ' ' + user.citizen_color_class : '';
+    return '<div class="avatar avatar-' + size + ' avatar-fallback' + color + '">' + initials + '</div>';
+  }
+
+  // Fill a coordinator chip (link/span) with a user's name, avatar, profile url
+  function fillPersonChip(el, user) {
+    var nameEl = el.querySelector('[data-coord-name]');
+    if (nameEl) nameEl.textContent = user.username;
+    var avatarEl = el.querySelector('[data-coord-avatar]');
+    if (avatarEl) avatarEl.innerHTML = buildAvatarHtml(user, avatarEl.dataset.avatarSize || 'md');
+    if (el.tagName === 'A' && user.profile_url) el.href = user.profile_url;
+    if (el.dataset.coordTitle) {
+      el.title = el.dataset.coordTitle + user.username;
+      if (typeof bootstrap !== 'undefined') {
+        var tip = bootstrap.Tooltip.getInstance(el);
+        if (tip) { tip.dispose(); new bootstrap.Tooltip(el, { trigger: 'hover' }); }
+      }
+    }
+  }
+
+  function setHelperStatus(userId, inTeam) {
+    if (userId == null) return;
+    var item = document.querySelector('.helpers-voter-item[data-user-id="' + userId + '"]');
+    var status = item && item.querySelector('.helper-status');
+    if (!status) return;
+    var i18n = window.TASK_HELPERS_I18N || {};
+    var conf = inTeam
+      ? { cls: 'helper-status--approved', icon: 'fa-check-circle', text: i18n.in_team || 'In team' }
+      : { cls: 'helper-status--pending', icon: 'fa-clock', text: i18n.pending || 'Pending' };
+    status.className = 'helper-status ' + conf.cls;
+    status.title = conf.text;
+    status.innerHTML = '<i class="fas ' + conf.icon + '"></i> ' + conf.text;
+  }
+
+  // After resign keep the detail-page helpers list consistent: drop the
+  // approve toggles and demote the ex-coordinator's status (they may stay
+  // in the team as an approved helper).
+  function syncHelpersAfterCoordChange(data) {
+    window.IS_COORDINATOR = data.is_coordinator === true;
+    var list = document.querySelector('.helpers-voter-list[data-voter-list="helpers"]');
+    if (!list || window.IS_COORDINATOR) return;
+    list.querySelectorAll('.helper-toggle-form').forEach(function (f) { f.remove(); });
+    setHelperStatus(window.CURRENT_USER && window.CURRENT_USER.id, data.in_team === true);
+  }
+
   function updateCoordinatorUI(form, data) {
     var isAssigned = data.assigned_to !== null;
     // Scope to enclosing card on task list; document elsewhere (detail page has no .task-card)
@@ -256,6 +306,17 @@
       el.hidden = !isAssigned;
     });
 
+    // Card body "Coordinator:" row — link + name or 'n/a'
+    var assignee = scope.querySelector('[data-coord-assignee]');
+    if (assignee) {
+      assignee.hidden = !isAssigned;
+      if (isAssigned) fillPersonChip(assignee, data.assigned_to);
+    }
+    var assigneeEmpty = scope.querySelector('[data-coord-assignee-empty]');
+    if (assigneeEmpty) {
+      assigneeEmpty.hidden = isAssigned;
+    }
+
     // Detail page coordinator label: update text in `Coordinator: <span>...</span>`
     var label = document.querySelector('[data-coord-label]');
     if (label) {
@@ -264,6 +325,8 @@
         ? (data.assigned_to.username || '')
         : (coordI18n.none_label || 'None');
     }
+
+    syncHelpersAfterCoordChange(data);
   }
 
   document.addEventListener('submit', handleCoordSubmit, true);

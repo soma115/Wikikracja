@@ -2,7 +2,7 @@
 {% if avatar %}
   <img{% if id %} id="{{ id }}"{% endif %} class="avatar avatar-{{ size }}{% if extra_class %} {{ extra_class }}{% endif %}" src="{{ avatar.url }}" alt="{{ alt|default:username }}"{% if loading_lazy != False %} loading="lazy"{% endif %}>
 {% else %}
-  <div{% if id %} id="{{ id }}"{% endif %} class="avatar avatar-{{ size }} avatar-fallback citizen-color-{{ username|citizen_color_class }}{% if extra_class %} {{ extra_class }}{% endif %}">
+  <div{% if id %} id="{{ id }}"{% endif %} class="avatar avatar-{{ size }} avatar-fallback {{ username|citizen_color_class }}{% if extra_class %} {{ extra_class }}{% endif %}">
     {{ username|slice:":2"|upper }}
   </div>
 {% endif %}

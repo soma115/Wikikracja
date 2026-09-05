@@ -14,7 +14,7 @@ Poniżej opis przepływu w czystym Markdown prezentujący decyzje i możliwe sta
    - `assigned_to`: użytkownik, który przejął zadanie (`take_task`)
    - Właściciel ma trzy opcje:
      1. **Edycja** – można edytować treść zadania; po zapisie pozostaje w tym samym stanie.
-     2. **Rezygnacja** – akcja **„Resign”** ustawia `assigned_to=None`, przez co zadanie wraca do puli oczekujących, pozostając w stanie `active`.
+     2. **Rezygnacja** – akcja **„Resign”** ustawia `assigned_to=None`, przez co zadanie wraca do puli oczekujących, pozostając w stanie `active`. Nikt nie jest automatycznie promowany na koordynatora — rolę może przejąć wyłącznie użytkownik przez **„Weź zadanie”**.
      3. **Zamknięcie** – uruchamia formularz `TaskStatusForm`, który zezwala tylko na status `completed` lub `cancelled`. Przejście do kroku 3.
 
 3. **Zamknięcie zadania**

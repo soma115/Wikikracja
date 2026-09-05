@@ -147,16 +147,13 @@
     {# Koordynator #}
     <div class="task-assignee-row">
       <span class="task-assignee-label">{% trans 'Coordinator:' %}</span>
-      {% if task.assigned_to %}
-        <a href="{% url 'obywatele:obywatele_szczegoly' pk=task.assigned_to.pk %}"
-           class="task-assignee-link"
-           onclick="event.stopPropagation()">
-          {% include "home/_user_avatar.html" with avatar=task.assigned_to.uzytkownik.avatar username=task.assigned_to.username size="md" %}
-          <span class="task-assignee-name">{{ task.assigned_to.username }}</span>
-        </a>
-      {% else %}
-        <span class="task-assignee-empty">{% trans 'n/a' %}</span>
-      {% endif %}
+      <a href="{% if task.assigned_to %}{% url 'obywatele:obywatele_szczegoly' pk=task.assigned_to.pk %}{% else %}#{% endif %}"
+         class="task-assignee-link" data-coord-assignee
+         {% if not task.assigned_to %}hidden {% endif %}onclick="event.stopPropagation()">
+        <span data-coord-avatar data-avatar-size="md">{% if task.assigned_to %}{% include "home/_user_avatar.html" with avatar=task.assigned_to.uzytkownik.avatar username=task.assigned_to.username size="md" %}{% endif %}</span>
+        <span class="task-assignee-name" data-coord-name>{{ task.assigned_to|default:'' }}</span>
+      </a>
+      <span class="task-assignee-empty" data-coord-assignee-empty{% if task.assigned_to %} hidden{% endif %}>{% trans 'n/a' %}</span>
     </div>
 
     {# Actions: głosy + podejmij/zrezygnuj #}
