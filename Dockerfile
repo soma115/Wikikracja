@@ -64,6 +64,7 @@ COPY --from=builder /app/glosowania /app/glosowania
 COPY --from=builder /app/bookkeeping /app/bookkeeping
 COPY --from=builder /app/site_settings /app/site_settings
 COPY --from=builder /app/categories /app/categories
+COPY --from=builder /app/core /app/core
 COPY --from=builder /app/zzz /app/zzz
 COPY --from=builder /app/templates /app/templates
 COPY --from=builder /app/locale /app/locale

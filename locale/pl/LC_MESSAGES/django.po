@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-06 18:58+0200\n"
+"POT-Creation-Date: 2026-09-06 19:15+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -1381,7 +1381,7 @@ msgid "This is where messages from unregistered people outside the group appear.
 msgstr "Tutaj pojawiają się wiadomości od niezalogowanych ludzi z zewnątrz, którzy użyli opcji Kontakt (Wyślij wiadomość do grupy)."
 
 #: .\chat\search.py:25 .\chat\templates\chat\room_link.html:48
-#: .\core\notifications.py:552
+#: .\core\notifications.py:554
 msgid "System"
 msgstr "System"
 
@@ -1585,48 +1585,48 @@ msgstr "Referendum"
 msgid "Citizen Activity"
 msgstr "Aktywność obywatela"
 
-#: .\core\notifications.py:370 .\obywatele\views.py:449
+#: .\core\notifications.py:372 .\obywatele\views.py:449
 msgid "New citizen has been proposed"
 msgstr "Został zaproponowany nowy użytkownik"
 
-#: .\core\notifications.py:371
+#: .\core\notifications.py:373
 msgid "proposed new citizen"
 msgstr "zaproponował nowego użytkownika"
 
-#: .\core\notifications.py:375
+#: .\core\notifications.py:377
 msgid "New person requested membership"
 msgstr "Nowa osoba poprosiła o dołączenie do grupy"
 
-#: .\core\notifications.py:376
+#: .\core\notifications.py:378
 #, python-format
 msgid "User %(username)s just requested membership"
 msgstr "Użytkownik %(username)s właśnie poprosił/a o dołączenie do grupy"
 
-#: .\core\notifications.py:382
+#: .\core\notifications.py:384
 msgid "You can approve him/her here:"
 msgstr "Możesz zatwierdzić tę osobę tutaj:"
 
-#: .\core\notifications.py:517
+#: .\core\notifications.py:519
 msgid "starting now"
 msgstr "zaczyna się teraz"
 
-#: .\core\notifications.py:538
+#: .\core\notifications.py:540
 msgid "New activity created"
 msgstr "Utworzono nowe działanie"
 
-#: .\core\notifications.py:549
+#: .\core\notifications.py:551
 msgid "Important post published"
 msgstr "Opublikowano ważny wpis"
 
-#: .\core\notifications.py:551
+#: .\core\notifications.py:553
 msgid "Important post updated"
 msgstr "Zaktualizowano ważny wpis"
 
-#: .\core\notifications.py:553
+#: .\core\notifications.py:555
 msgid "by"
 msgstr "przez"
 
-#: .\core\notifications.py:562
+#: .\core\notifications.py:564
 msgid "New survey created"
 msgstr "Utworzono nową ankietę"
 
