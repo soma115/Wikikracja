@@ -23,7 +23,7 @@
 	<meta name="apple-mobile-web-app-title" content="{{ site_name }}">
 
 	<!-- Anti-FOUC: restore theme before CSS loads -->
-	<script>(function(){var t=localStorage.getItem('app-theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+	<script>(function(){var t=localStorage.getItem('app-theme')||'auto';if(t==='auto'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();</script>
 	<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

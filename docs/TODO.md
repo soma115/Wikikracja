@@ -1,10 +1,11 @@
-- ikony w "Pierwsze kroki" są niepotrzebne
+# To są notatki użytkownika, nie zmieniaj tutaj nic.
 
-- w głosowaniu nad logiem powinno dać się kliknąć logo żeby je powiększyć
 
-- Kolory w kandydatach przy ocenach (zielony, żółty, czerwony)
+- w aktywnosc/ powiadomienia z czatu na dużym ekranie 
+  - w widoku listy pokazuj 2 linijki wiadomości 
+  - w widoku kafelków pokazuj z 10 linijek
 
-- Ukrywaj puste kafelki na Pulpit. 
+- Jeśli w dokumencie jest obrazek wyróżniający, to ten obrazek powinien być przyciemniony i powinien być tłem, a na nim powinien być tytuł, podtytuł, ikona autora i data.
 
 - aktywnosc/ trzeba odświeżać ręcznie żeby zobaczyć co faktycznie jest przeczytane a co nie
 
@@ -75,6 +76,7 @@ Refaktoryzacje:
 - Task jaki eksperyment: hipoteza, test, wynik. Spodziewamy efekt, eksperymenty, rzeczywisty efekt.
 
 # CHAT
+- sortowanie pokoi po dacie powinno pokazywać pokoje bez daty zawsze na końcu
 - Chat: Mniej powiadomień / konfigurowalna częstotliwość — tylko tam gdzie się wypowiedziałem; każdy sam ustawia jak często chce otrzymywać wiadomości.
 - Czat: powiadomienia przychodzą wielokrotnie na Windows - trzeba to jakoś ograniczyć.
 
@@ -255,6 +257,9 @@ docker compose up --build -d - r
 docker compose restart
 
 Get-ChildItem -Path . -Recurse -Filter __pycache__ -Directory | Remove-Item -Recurse -Force
+
+Znajdź 3 największe możliwości uproszczenia (duplikacja, martwy kod, nadmierna złożoność, zbyt zawiła struktura, możliwe standaryzacje). Przejrzyj całą aplikację a nie tylko największe moduły.
+Przeanalizuj następujący problem, upewnij się, że ewentualne uproszczenia nie zepsują jakiejś funkcjonalności i przygotuj plan naprawy:
 
 ------------------------------------------------------------
 

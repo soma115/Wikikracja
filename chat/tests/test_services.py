@@ -209,3 +209,62 @@ class FCMDeviceDeactivationTest(TestCase):
 
         self.device.refresh_from_db()
         self.assertFalse(self.device.active)
+
+
+class FCMDeviceTypeFilterTest(TestCase):
+    """Regression tests for per-device-type (phone/computer) push filtering."""
+
+    def setUp(self):
+        self.user = make_user("filteruser")
+
+    def _mock_queryset(self):
+        qs = MagicMock()
+        qs.count.return_value = 1
+        qs.send_message.return_value = MagicMock(success_count=1, responses=[MagicMock(success=True)])
+        qs.exclude.return_value = qs
+        return qs
+
+    def _assert_send_called(self, mock_gcm, expected_exclude_call):
+        # _migrate_legacy_gcm_devices() filters legacy GCM rows first, so the main
+        # filter is the second call.
+        filter_calls = [c for c in mock_gcm.objects.filter.call_args_list if c.kwargs.get("cloud_message_type") == "FCM"]
+        self.assertEqual(len(filter_calls), 1)
+        mock_gcm.objects.filter.assert_any_call(user=self.user, active=True, cloud_message_type="FCM")
+        mock_gcm.objects.filter.return_value.exclude.assert_called_once_with(**expected_exclude_call)
+        mock_gcm.objects.filter.return_value.send_message.assert_called_once()
+
+    def test_phone_disabled_excludes_mobile_and_tablet(self):
+        self.user.uzytkownik.push_phone_enabled = False
+        self.user.uzytkownik.save()
+
+        with patch("zzz.notifications.GCMDevice") as mock_gcm:
+            mock_gcm.objects.filter.return_value = self._mock_queryset()
+            with patch.object(firebase_admin, "_apps", {"[DEFAULT]": MagicMock()}):
+                send_fcm_to_user_sync(self.user, build_notification("Title", "Body", "https://example.com/", "tag-1"), notification_type="chat")
+        self._assert_send_called(mock_gcm, {"name__in": ("mobile", "tablet")})
+
+    def test_computer_disabled_excludes_desktop(self):
+        self.user.uzytkownik.push_computer_enabled = False
+        self.user.uzytkownik.save()
+
+        with patch("zzz.notifications.GCMDevice") as mock_gcm:
+            mock_gcm.objects.filter.return_value = self._mock_queryset()
+            with patch.object(firebase_admin, "_apps", {"[DEFAULT]": MagicMock()}):
+                send_fcm_to_user_sync(self.user, build_notification("Title", "Body", "https://example.com/", "tag-1"), notification_type="chat")
+        self._assert_send_called(mock_gcm, {"name": "desktop"})
+
+    def test_both_disabled_excludes_both_device_types(self):
+        self.user.uzytkownik.push_phone_enabled = False
+        self.user.uzytkownik.push_computer_enabled = False
+        self.user.uzytkownik.save()
+
+        with patch("zzz.notifications.GCMDevice") as mock_gcm:
+            qs = self._mock_queryset()
+            mock_gcm.objects.filter.return_value = qs
+            with patch.object(firebase_admin, "_apps", {"[DEFAULT]": MagicMock()}):
+                send_fcm_to_user_sync(self.user, build_notification("Title", "Body", "https://example.com/", "tag-1"), notification_type="chat")
+        mock_gcm.objects.filter.assert_any_call(user=self.user, active=True, cloud_message_type="FCM")
+        self.assertEqual(qs.exclude.call_count, 2)
+        qs.exclude.assert_any_call(name__in=("mobile", "tablet"))
+        qs.exclude.assert_any_call(name="desktop")
+        qs.send_message.assert_called_once()

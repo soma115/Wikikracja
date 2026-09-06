@@ -476,13 +476,18 @@ def my_profile(request: HttpRequest):
     profile = request.user.uzytkownik
 
     push_notifications = [
-        {'type': 'push_obywatele', 'title': _('Citizenship'), 'description': _('New citizens, membership requests'), 'enabled': profile.push_notifications_obywatele},
-        {'type': 'push_glosowania', 'title': _('Voting'), 'description': _('Law proposals, voting reminders, results'), 'enabled': profile.push_notifications_glosowania},
-        {'type': 'push_events', 'title': _('Events'), 'description': _('Upcoming events, reminders'), 'enabled': profile.push_notifications_events},
-        {'type': 'push_chat', 'title': _('Chat'), 'description': _('New messages from rooms you haven\'t muted'), 'enabled': profile.push_notifications_chat},
-        {'type': 'push_post', 'title': _('Documents'), 'description': _('New and updated documents'), 'enabled': profile.push_notifications_post},
         {'type': 'push_task', 'title': _('Activities'), 'description': _('New activities'), 'enabled': profile.push_notifications_task},
+        {'type': 'push_obywatele', 'title': _('Citizenship'), 'description': _('New citizens, membership requests'), 'enabled': profile.push_notifications_obywatele},
+        {'type': 'push_post', 'title': _('Documents'), 'description': _('New and updated documents'), 'enabled': profile.push_notifications_post},
+        {'type': 'push_events', 'title': _('Calendar'), 'description': _('Upcoming events, reminders'), 'enabled': profile.push_notifications_events},
+        {'type': 'push_glosowania', 'title': _('Voting'), 'description': _('Law proposals, voting reminders, results'), 'enabled': profile.push_notifications_glosowania},
         {'type': 'push_survey', 'title': _('Surveys'), 'description': _('New surveys'), 'enabled': profile.push_notifications_survey},
+        {'type': 'push_chat', 'title': _('Chat'), 'description': _('New messages from rooms you haven\'t muted'), 'enabled': profile.push_notifications_chat},
+    ]
+
+    push_devices = [
+        {'type': 'push_phone', 'title': _('Phone'), 'description': _('Mobile phones and tablets'), 'enabled': profile.push_phone_enabled},
+        {'type': 'push_computer', 'title': _('Computer'), 'description': _('Desktop browsers and PWAs'), 'enabled': profile.push_computer_enabled},
     ]
 
     deletion_request = getattr(user, 'deletion_request', None)
@@ -498,6 +503,7 @@ def my_profile(request: HttpRequest):
             'email_frequency': profile.email_frequency,
             'email_frequency_choices': Uzytkownik.EmailFrequency.choices,
             'push_notifications': push_notifications,
+            'push_devices': push_devices,
             'avatar_form': AvatarForm(),
             'deletion_request': deletion_request,
         },
@@ -526,6 +532,8 @@ def toggle_notification(request: HttpRequest):
         'push_post': 'push_notifications_post',
         'push_task': 'push_notifications_task',
         'push_survey': 'push_notifications_survey',
+        'push_phone': 'push_phone_enabled',
+        'push_computer': 'push_computer_enabled',
     }
 
     try:

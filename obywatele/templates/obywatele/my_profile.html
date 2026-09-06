@@ -13,18 +13,18 @@
 <script src="{% static 'obywatele/js/profile.js' %}"></script>
 <script>
 function updateThemeBtns(active) {
-  ['dark','light'].forEach(function(t) {
+  ['dark','light','auto'].forEach(function(t) {
     var el = document.getElementById('theme-btn-' + t);
     if (el) el.className = 'btn btn-sm ' + (active === t ? 'btn-primary' : 'btn-outline-secondary');
   });
 }
 function toggleTheme(theme) {
-  var current = localStorage.getItem('app-theme') || 'dark';
+  var current = localStorage.getItem('app-theme') || 'auto';
   var next = (current === theme) ? 'dark' : theme;
   window.applyTheme(next);
   updateThemeBtns(next);
 }
-updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
+updateThemeBtns(localStorage.getItem('app-theme') || 'auto');
 
 // Avatar hover overlay + preview + auto-submit
 (function() {
@@ -168,8 +168,8 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
           {% csrf_token %}
           <input type="hidden" name="language" value="">
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
-          <button type="submit" class="btn btn-sm {% if not profile.language %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
-            {% trans "Auto (browser)" %}
+          <button type="submit" class="btn btn-sm {% if not profile.language %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            <i class="fas fa-language me-1"></i>{% trans "Auto" %}
           </button>
         </form>
       </div>
@@ -190,6 +190,10 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
         <button type="button" id="theme-btn-light" class="btn btn-sm btn-outline-secondary"
                 onclick="toggleTheme('light');">
           <i class="fas fa-sun me-1"></i>{% trans "Bright" %}
+        </button>
+        <button type="button" id="theme-btn-auto" class="btn btn-sm btn-outline-secondary"
+                onclick="toggleTheme('auto');">
+          <i class="fas fa-circle-half-stroke me-1"></i>{% trans "Auto" %}
         </button>
       </div>
     </div>
@@ -236,6 +240,24 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'dark');
           <tbody>
             {% for notif in push_notifications %}
             {% notification_row notif.type notif.title notif.description notif.enabled %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {# ── POWIADOMIENIA NA URZĄDZENIACH ── #}
+  <div class="card border-primary">
+    <div class="card-header">
+      <span class="section-heading">{% trans "Notifications on devices" %}</span>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <tbody>
+            {% for dev in push_devices %}
+            {% notification_row dev.type dev.title dev.description dev.enabled %}
             {% endfor %}
           </tbody>
         </table>

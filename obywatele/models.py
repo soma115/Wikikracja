@@ -99,6 +99,10 @@ class Uzytkownik(models.Model):
     push_notifications_task = models.BooleanField(default=True, help_text=_('Receive push notifications about new activities'), verbose_name=_('Push activity notifications'))
     push_notifications_survey = models.BooleanField(default=True, help_text=_('Receive push notifications about new surveys'), verbose_name=_('Push survey notifications'))
 
+    # Per-device-type push toggles (phone = mobile/tablet, computer = desktop browsers/PWAs)
+    push_phone_enabled = models.BooleanField(default=True, help_text=_('Receive push notifications on phones and tablets'), verbose_name=_('Push on phone'))
+    push_computer_enabled = models.BooleanField(default=True, help_text=_('Receive push notifications on desktop computers and laptops'), verbose_name=_('Push on computer'))
+
     ONBOARDING_FORM_FIELDS = ('phone', 'responsibilities', 'city', 'voivodeship', 'skills_knowledge_hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'want_to_learn', 'business', 'job', 'why')
 
     @property

@@ -60,17 +60,21 @@
       {% if object and object.attachments.all %}
       <div class="mt-4">
         <h5>{% trans 'Existing attachments' %}</h5>
-        <ul class="list-group">{% for attachment in object.attachments.all %}<li class="list-group-item d-flex justify-content-between align-items-center">
+        <ul class="list-group">
+          {% for attachment in object.attachments.all %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
             <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}">
               <i class="fas fa-paperclip me-2"></i>{{ attachment.filename }}
             </a>
             <form method="post" action="{% url 'board:delete_attachment' object.pk attachment.pk %}" class="d-inline" onsubmit="return confirm('Delete this attachment?');">
               {% csrf_token %}
-              <button type="submit" class="btn btn-sm btn-danger">
+              <button type="submit" class="btn btn-sm btn-danger" title="{% trans 'Delete attachment' %}" aria-label="{% trans 'Delete attachment' %}">
                 <i class="fas fa-trash"></i>
               </button>
             </form>
-          </li>{% endfor %}</ul>
+          </li>
+          {% endfor %}
+        </ul>
       </div>
       {% endif %}
     </div>

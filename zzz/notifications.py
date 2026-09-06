@@ -157,6 +157,14 @@ def send_fcm_to_user_sync(user, notification, notification_type=None):
 
     _migrate_legacy_gcm_devices()
     fcm_devices = GCMDevice.objects.filter(user=user, active=True, cloud_message_type='FCM')
+    try:
+        profile = user.uzytkownik
+        if not profile.push_phone_enabled:
+            fcm_devices = fcm_devices.exclude(name__in=('mobile', 'tablet'))
+        if not profile.push_computer_enabled:
+            fcm_devices = fcm_devices.exclude(name='desktop')
+    except Exception:
+        pass
     device_count = fcm_devices.count()
     if not device_count:
         log.debug(f"{NOTIF_LOG_TAG} No FCM devices for user {user.id}, notification_id={notification_id}")

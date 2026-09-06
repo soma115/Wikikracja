@@ -271,10 +271,18 @@ document.addEventListener('DOMContentLoaded', function() {
 // Theme toggle — applyTheme exposed globally for other scripts
 // ============================================================
 document.addEventListener('DOMContentLoaded', function() {
-    window.applyTheme = function applyTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('app-theme', theme);
+    const themeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+    function resolveTheme(pref) {
+        return pref === 'auto' ? (themeMedia.matches ? 'dark' : 'light') : pref;
     }
+    window.applyTheme = function applyTheme(pref) {
+        localStorage.setItem('app-theme', pref);
+        document.documentElement.setAttribute('data-theme', resolveTheme(pref));
+    }
+    // Preferencja 'auto' podąża za zmianą motywu systemu operacyjnego.
+    themeMedia.addEventListener('change', function() {
+        if ((localStorage.getItem('app-theme') || 'auto') === 'auto') applyTheme('auto');
+    });
 
     const btn = document.getElementById('theme-toggle-btn');
     if (btn) {
