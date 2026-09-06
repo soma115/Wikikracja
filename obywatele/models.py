@@ -84,12 +84,6 @@ class Uzytkownik(models.Model):
     email_frequency = models.CharField(max_length=10, choices=EmailFrequency.choices, default=EmailFrequency.DAILY, help_text=_('How often to receive email activity digests'), verbose_name=_('Email frequency'))
     last_email_digest_at = models.DateTimeField(default=timezone.now, verbose_name=_('Last email digest sent at'))
 
-    # Email notification preferences (deprecated, replaced by email_frequency)
-    email_notifications_obywatele = models.BooleanField(default=True, help_text=_('Receive notifications about new citizens and membership requests'), verbose_name=_('Citizenship notifications'))
-    email_notifications_glosowania = models.BooleanField(default=True, help_text=_('Receive notifications about law proposals and voting'), verbose_name=_('Voting notifications'))
-    email_notifications_chat = models.BooleanField(default=True, help_text=_('Receive notifications about new chat messages'), verbose_name=_('Chat notifications'))
-    email_notifications_events = models.BooleanField(default=True, help_text=_('Receive notifications about events'), verbose_name=_('Event notifications'))
-
     # Push notification preferences
     push_notifications_obywatele = models.BooleanField(default=True, help_text=_('Receive push notifications about new citizens and membership requests'), verbose_name=_('Push citizenship notifications'))
     push_notifications_glosowania = models.BooleanField(default=True, help_text=_('Receive push notifications about law proposals and voting'), verbose_name=_('Push voting notifications'))

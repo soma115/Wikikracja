@@ -15,7 +15,7 @@ tinymce.init({
   image_advtab: false,
   file_picker_types: "image media",
 
-  image_upload_url: 'uploads/',
+  images_upload_url: 'uploads/',
 
   plugins: "advlist anchor autolink autosave codesample fullscreen image importcss link lists media nonbreaking searchreplace table code",
 

@@ -44,7 +44,7 @@
         </div>
         {{ form.text|as_crispy_field }}
 
-        <script src="{% static 'board/tinymce/tinymce.min.js' %}"></script>
+        <script src="{% static 'tinymce/tinymce.min.js' %}"></script>
         <script src="{% static 'js/uploader.js' %}"></script>
 
         <div class="mb-3 d-flex gap-2">
@@ -61,10 +61,11 @@
       <div class="mt-4">
         <h5>{% trans 'Existing attachments' %}</h5>
         <ul class="list-group">
+          {% spaceless %}
           {% for attachment in object.attachments.all %}
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}">
-              <i class="fas fa-paperclip me-2"></i>{{ attachment.filename }}
+              <i class="fas fa-paperclip me-2"></i>&nbsp;{{ attachment.filename }}
             </a>
             <form method="post" action="{% url 'board:delete_attachment' object.pk attachment.pk %}" class="d-inline" onsubmit="return confirm('Delete this attachment?');">
               {% csrf_token %}
@@ -74,6 +75,7 @@
             </form>
           </li>
           {% endfor %}
+          {% endspaceless %}
         </ul>
       </div>
       {% endif %}

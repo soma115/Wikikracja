@@ -20,6 +20,7 @@ from push_notifications.models import GCMDevice
 
 from site_settings.models import SiteSettings
 from site_settings.services import get_branding_version
+from zzz.richtext import strip_tags
 from zzz.signals import citizen_accepted, citizen_blocked, citizen_proposed, event_starting, important_post_published, survey_created, task_created, vote_started, vote_state_changed
 from zzz.utils import build_site_url
 
@@ -314,11 +315,23 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
     send_email = kwargs.pop('send_email', True)
     in_thread = kwargs.pop('in_thread', True)
     daemon = kwargs.pop('daemon', True)
-    kwargs.pop('strip_html', False)
-    kwargs.pop('log_prefix', '')
+    strip_html = kwargs.pop('strip_html', False)
+    log_prefix = kwargs.pop('log_prefix', '')
     sleep_before = kwargs.pop('sleep_before', 0)
-    kwargs.pop('raise_on_error', True)
+    raise_on_error = kwargs.pop('raise_on_error', False)
     extra = kwargs
+
+    if strip_html:
+        title = strip_tags(title)
+        body = strip_tags(body)
+        email_subject = strip_tags(email_subject)
+        email_body = strip_tags(email_body)
+        if recipient_subject:
+            recipient_subject = strip_tags(recipient_subject)
+        if recipient_body:
+            recipient_body = strip_tags(recipient_body)
+
+    log_tag = f"{log_prefix}{NOTIF_LOG_TAG}"
 
     notification = None
     if send_push or send_websocket:
@@ -336,8 +349,11 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
         message = recipient_body or email_body
         try:
             send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [recipient_email], fail_silently=False)
+            log.debug(f'{log_tag} Email sent to {recipient_email}; subject: {subject}')
         except Exception as e:
-            log.error(f'Failed to send email to {recipient_email}: {e}', exc_info=True)
+            log.error(f'{log_tag} Failed to send email to {recipient_email}: {e}', exc_info=True)
+            if raise_on_error:
+                raise
 
 
 @receiver(citizen_proposed)

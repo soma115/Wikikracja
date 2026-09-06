@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-06 14:54+0200\n"
+"POT-Creation-Date: 2026-09-06 15:43+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -140,7 +140,7 @@ msgid "Survey options"
 msgstr "Opcje ankiety"
 
 #: .\ankiety\models.py:50 .\obywatele\management\commands\count_citizens.py:243
-#: .\obywatele\models.py:158
+#: .\obywatele\models.py:152
 msgid "User"
 msgstr "Użytkownik"
 
@@ -457,7 +457,7 @@ msgid "Public"
 msgstr "Publiczne"
 
 #: .\board\models.py:31 .\tasks\templates\tasks\_task_card.html:23
-#: .\tasks\views.py:111
+#: .\tasks\views.py:71
 msgid "Important"
 msgstr "Ważne"
 
@@ -533,7 +533,7 @@ msgid "Chat"
 msgstr "Czat"
 
 #: .\board\templates\board\attachment_confirm_delete.html:8
-#: .\board\templates\board\post_form.html:71
+#: .\board\templates\board\post_form.html:72
 msgid "Delete attachment"
 msgstr "Usuń załącznik"
 
@@ -662,12 +662,12 @@ msgstr "Załączniki"
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:10
 #: .\obywatele\templates\obywatele\_citizen_zalozono_partial.html:9
-#: .\obywatele\templates\obywatele\citizen_zadania.html:31 .\tasks\views.py:215
+#: .\obywatele\templates\obywatele\citizen_zadania.html:31 .\tasks\views.py:134
 msgid "Date"
 msgstr "Data"
 
 #: .\board\views.py:103 .\events\views.py:52 .\glosowania\views.py:647
-#: .\home\views.py:106 .\tasks\views.py:237
+#: .\home\views.py:106 .\tasks\views.py:156
 msgid "List"
 msgstr "Lista"
 
@@ -1161,7 +1161,6 @@ msgid "Message"
 msgstr "Wiadomość"
 
 #: .\chat\models.py:11 .\obywatele\views.py:914
-#: .\tasks\templates\tasks\_task_cards.html:12
 msgid "Chat room"
 msgstr "Pokój czatu"
 
@@ -1170,7 +1169,7 @@ msgid "This is where messages from unregistered people outside the group appear.
 msgstr "Tutaj pojawiają się wiadomości od niezalogowanych ludzi z zewnątrz, którzy użyli opcji Kontakt (Wyślij wiadomość do grupy)."
 
 #: .\chat\search.py:25 .\chat\templates\chat\room_link.html:48
-#: .\zzz\notifications.py:528
+#: .\zzz\notifications.py:544
 msgid "System"
 msgstr "System"
 
@@ -1693,7 +1692,7 @@ msgid "For monthly ordinal events: which day of the week? (e.g., Monday, Tuesday
 msgstr "Dla wydarzeń powtarzających się w określonym dniu tygodnia: który dzień tygodnia? (np., Poniedziałek, Wtorek)"
 
 #: .\events\models.py:30 .\events\templates\events\event_detail.html:32
-#: .\home\templates\home\home.html:248 .\tasks\models.py:41
+#: .\home\templates\home\home.html:248 .\tasks\models.py:54
 msgid "Active"
 msgstr "Aktywne"
 
@@ -1963,8 +1962,8 @@ msgid "Approved"
 msgstr "Zatwierdzone"
 
 #: .\glosowania\management\commands\vote.py:229 .\glosowania\models.py:30
-#: .\tasks\models.py:44 .\tasks\templates\tasks\_task_card.html:27
-#: .\tasks\templates\tasks\_task_list_partial.html:44 .\tasks\views.py:111
+#: .\tasks\models.py:57 .\tasks\templates\tasks\_task_card.html:27
+#: .\tasks\templates\tasks\_task_list_partial.html:44 .\tasks\views.py:71
 msgid "Rejected"
 msgstr "Odrzucone"
 
@@ -2381,11 +2380,11 @@ msgstr "Czy chcesz wprowadzenia tego przepisu?"
 msgid "You have already voted in this referendum"
 msgstr "Już zagłosowałeś w tym referendum"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:101 .\tasks\models.py:135
+#: .\glosowania\templates\glosowania\szczegoly.html:101 .\tasks\models.py:148
 msgid "For"
 msgstr "Za"
 
-#: .\glosowania\templates\glosowania\szczegoly.html:102 .\tasks\models.py:134
+#: .\glosowania\templates\glosowania\szczegoly.html:102 .\tasks\models.py:147
 #: .\tasks\templates\tasks\_task_card.html:192
 #: .\tasks\templates\tasks\_task_card.html:201
 #: .\tasks\templates\tasks\task_detail.html:114
@@ -2574,11 +2573,11 @@ msgstr "Zmiana parametrów systemu"
 msgid "Signatures"
 msgstr "Podpisy"
 
-#: .\glosowania\views.py:635 .\tasks\views.py:215
+#: .\glosowania\views.py:635 .\tasks\views.py:134
 msgid "Buzz"
 msgstr "Gwar"
 
-#: .\glosowania\views.py:647 .\tasks\views.py:237
+#: .\glosowania\views.py:647 .\tasks\views.py:156
 msgid "Compact"
 msgstr "Kompaktowy"
 
@@ -2637,7 +2636,7 @@ msgstr "Demokratyczne podejmowanie decyzji — składanie wniosków, zbieranie p
 
 #: .\home\services\dashboard.py:20 .\home\templates\home\base.html:121
 #: .\home\templates\home\base.html:124 .\home\templates\home\base.html:264
-#: .\home\views.py:76 .\home\views.py:209 .\obywatele\models.py:121
+#: .\home\views.py:76 .\home\views.py:209 .\obywatele\models.py:115
 #: .\obywatele\templates\obywatele\menu.html:14
 #: .\obywatele\templates\obywatele\start.html:9
 msgid "Citizens"
@@ -3159,7 +3158,7 @@ msgstr "Kalendarz"
 msgid "Głosowania"
 msgstr "Głosowania"
 
-#: .\home\templatetags\feed_filters.py:28 .\obywatele\models.py:120
+#: .\home\templatetags\feed_filters.py:28 .\obywatele\models.py:114
 #: .\obywatele\search.py:16
 msgid "Citizen"
 msgstr "Ludzie"
@@ -3461,138 +3460,106 @@ msgid "Last email digest sent at"
 msgstr "Ostatnie podsumowanie e-mail wysłano"
 
 #: .\obywatele\models.py:88
-msgid "Receive notifications about new citizens and membership requests"
-msgstr "Otrzymuj powiadomienia o nowych obywatelach i prośbach o członkostwo"
-
-#: .\obywatele\models.py:88
-msgid "Citizenship notifications"
-msgstr "Powiadomienia o nowych obywatelach i prośbach o członkostwo"
-
-#: .\obywatele\models.py:89
-msgid "Receive notifications about law proposals and voting"
-msgstr "Powiadomienia o propozycjach praw i głosowaniach"
-
-#: .\obywatele\models.py:89
-msgid "Voting notifications"
-msgstr "Powiadomienia o głosowaniach"
-
-#: .\obywatele\models.py:90
-msgid "Receive notifications about new chat messages"
-msgstr "Powiadomienia o nowych wiadomościach na czacie"
-
-#: .\obywatele\models.py:90
-msgid "Chat notifications"
-msgstr "Powiadomienia na czacie"
-
-#: .\obywatele\models.py:91
-msgid "Receive notifications about events"
-msgstr "Odbieraj powiadomienia o wydarzeniach"
-
-#: .\obywatele\models.py:91
-msgid "Event notifications"
-msgstr "Powiadomienia o wydarzeniach"
-
-#: .\obywatele\models.py:94
 msgid "Receive push notifications about new citizens and membership requests"
 msgstr "Otrzymuj powiadomienia o nowych obywatelach i prośbach o członkostwo"
 
-#: .\obywatele\models.py:94
+#: .\obywatele\models.py:88
 msgid "Push citizenship notifications"
 msgstr "Powiadomienia o nowych obywatelach i prośbach o członkostwo"
 
-#: .\obywatele\models.py:95
+#: .\obywatele\models.py:89
 msgid "Receive push notifications about law proposals and voting"
 msgstr "Powiadomienia o propozycjach praw i głosowaniach"
 
-#: .\obywatele\models.py:95
+#: .\obywatele\models.py:89
 msgid "Push voting notifications"
 msgstr "Powiadomienia o głosowaniach"
 
-#: .\obywatele\models.py:96
+#: .\obywatele\models.py:90
 msgid "Receive push notifications about new chat messages"
 msgstr "Powiadomienia o nowych wiadomościach na czacie"
 
-#: .\obywatele\models.py:96
+#: .\obywatele\models.py:90
 msgid "Push chat notifications"
 msgstr "Powiadomienia z czatu"
 
-#: .\obywatele\models.py:97
+#: .\obywatele\models.py:91
 msgid "Receive push notifications about events"
 msgstr "Odbieraj powiadomienia o wydarzeniach"
 
-#: .\obywatele\models.py:97
+#: .\obywatele\models.py:91
 msgid "Push event notifications"
 msgstr "Powiadomienia o wydarzeniach"
 
-#: .\obywatele\models.py:98
+#: .\obywatele\models.py:92
 msgid "Receive push notifications about new and updated documents"
 msgstr "Otrzymuj powiadomienia push o nowych i zaktualizowanych dokumentach"
 
-#: .\obywatele\models.py:98
+#: .\obywatele\models.py:92
 msgid "Push document notifications"
 msgstr "Powiadomienia push o dokumentach"
 
-#: .\obywatele\models.py:99
+#: .\obywatele\models.py:93
 msgid "Receive push notifications about new activities"
 msgstr "Otrzymuj powiadomienia push o nowych działaniach"
 
-#: .\obywatele\models.py:99
+#: .\obywatele\models.py:93
 msgid "Push activity notifications"
 msgstr "Powiadomienia push o działaniach"
 
-#: .\obywatele\models.py:100
+#: .\obywatele\models.py:94
 msgid "Receive push notifications about new surveys"
 msgstr "Otrzymuj powiadomienia push o nowych ankietach"
 
-#: .\obywatele\models.py:100
+#: .\obywatele\models.py:94
 msgid "Push survey notifications"
 msgstr "Powiadomienia push o ankietach"
 
-#: .\obywatele\models.py:103
+#: .\obywatele\models.py:97
 msgid "Receive push notifications on phones and tablets"
 msgstr "Otrzymuj powiadomienia push na telefony i tablety"
 
-#: .\obywatele\models.py:103
+#: .\obywatele\models.py:97
 msgid "Push on phone"
 msgstr "Powiadomienia push na telefonie"
 
-#: .\obywatele\models.py:104
+#: .\obywatele\models.py:98
 msgid "Receive push notifications on desktop computers and laptops"
 msgstr "Otrzymuj powiadomienia push na komputery stacjonarne i laptopy"
 
-#: .\obywatele\models.py:104
+#: .\obywatele\models.py:98
 msgid "Push on computer"
 msgstr "Powiadomienia push na komputerze"
 
-#: .\obywatele\models.py:140
+#: .\obywatele\models.py:134
 msgid "New Candidate"
 msgstr "Nowy kandydat"
 
-#: .\obywatele\models.py:141
+#: .\obywatele\models.py:135
 msgid "User Activated"
 msgstr "Nowa osoba została zaakceptowana"
 
-#: .\obywatele\models.py:142
+#: .\obywatele\models.py:136
 msgid "User Blocked"
 msgstr "Osoba została zablokowana"
 
-#: .\obywatele\models.py:159
+#: .\obywatele\models.py:153
 msgid "Requested at"
 msgstr "Żądanie złożone dnia"
 
-#: .\obywatele\models.py:160
+#: .\obywatele\models.py:154
 msgid "Scheduled for"
 msgstr "Zaplanowane na"
 
-#: .\obywatele\models.py:161
+#: .\obywatele\models.py:155
 msgid "Reason for deletion"
 msgstr "Powód usunięcia"
 
-#: .\obywatele\models.py:164
+#: .\obywatele\models.py:158
 msgid "Deletion request"
 msgstr "Żądanie usunięcia"
 
-#: .\obywatele\models.py:165
+#: .\obywatele\models.py:159
 msgid "Deletion requests"
 msgstr "Żądanie usunięcia"
 
@@ -4169,7 +4136,7 @@ msgstr "Email już istnieje"
 msgid "The new user has been saved"
 msgstr "Nowy użytkownik został zapisany."
 
-#: .\obywatele\views.py:450 .\zzz\notifications.py:347
+#: .\obywatele\views.py:450 .\zzz\notifications.py:363
 msgid "New citizen has been proposed"
 msgstr "Został zaproponowany nowy użytkownik"
 
@@ -4481,46 +4448,46 @@ msgstr "Opisz działanie. Ctrl+B / Ctrl+I / Ctrl+U formatuje tekst."
 msgid "Invalid closing status."
 msgstr "Nieprawidłowy status zamknięcia."
 
-#: .\tasks\models.py:42 .\tasks\templates\tasks\_task_card.html:31
+#: .\tasks\models.py:55 .\tasks\templates\tasks\_task_card.html:31
 #: .\tasks\templates\tasks\_task_list_partial.html:36
 #: .\tasks\templates\tasks\task_help.html:38
 msgid "Completed"
 msgstr "Ukończone"
 
-#: .\tasks\models.py:43 .\tasks\templates\tasks\_task_card.html:33
+#: .\tasks\models.py:56 .\tasks\templates\tasks\_task_card.html:33
 #: .\tasks\templates\tasks\_task_list_partial.html:40
 msgid "Cancelled"
 msgstr "Anulowane"
 
-#: .\tasks\models.py:56
+#: .\tasks\models.py:69
 msgid "Team mode"
 msgstr ""
 
-#: .\tasks\models.py:57
+#: .\tasks\models.py:70
 #, fuzzy
 #| msgid "Approved"
 msgid "Approved helpers"
 msgstr "Zatwierdzone"
 
-#: .\tasks\models.py:124
+#: .\tasks\models.py:137
 #, fuzzy
 #| msgid "Choose final status for this activity."
 msgid "User is not a willing helper for this activity."
 msgstr "Wybierz końcowy status tego działania."
 
-#: .\tasks\models.py:151 .\tasks\templates\tasks\task_detail.html:76
+#: .\tasks\models.py:164 .\tasks\templates\tasks\task_detail.html:76
 #: .\tasks\templates\tasks\task_detail.html:260
 #: .\tasks\templates\tasks\task_stats.html:21
 msgid "Success"
 msgstr "Sukces"
 
-#: .\tasks\models.py:152 .\tasks\templates\tasks\task_detail.html:77
+#: .\tasks\models.py:165 .\tasks\templates\tasks\task_detail.html:77
 #: .\tasks\templates\tasks\task_detail.html:268
 #: .\tasks\templates\tasks\task_stats.html:29
 msgid "Failure"
 msgstr "Porażka"
 
-#: .\tasks\signals.py:30
+#: .\tasks\signals.py:29
 #, python-format
 msgid "Discussion room for activity: <a href='%(task_url)s'>%(task_title)s</a>"
 msgstr "Pokój dyskusji do działania: <a href='%(task_url)s'>%(task_title)s</a>"
@@ -4537,11 +4504,11 @@ msgstr "Brak działań w tej sekcji."
 msgid "Try changing the filter settings to see activities if there are any."
 msgstr "Spróbuj zmienić ustawienia filtrów, żeby zobaczyć działania, jeśli są."
 
-#: .\tasks\templates\tasks\_task_card.html:21 .\tasks\views.py:111
+#: .\tasks\templates\tasks\_task_card.html:21 .\tasks\views.py:71
 msgid "Critical"
 msgstr "Krytyczne"
 
-#: .\tasks\templates\tasks\_task_card.html:25 .\tasks\views.py:111
+#: .\tasks\templates\tasks\_task_card.html:25 .\tasks\views.py:71
 msgid "Beneficial"
 msgstr "Korzystne"
 
@@ -4589,7 +4556,6 @@ msgid "Coordinator:"
 msgstr "Koordynator:"
 
 #: .\tasks\templates\tasks\_task_card.html:156
-#: .\tasks\templates\tasks\_task_cards.html:69
 msgid "n/a"
 msgstr "brak"
 
@@ -4602,8 +4568,6 @@ msgstr "Pomagam"
 
 #: .\tasks\templates\tasks\_task_card.html:170
 #: .\tasks\templates\tasks\_task_card.html:180
-#: .\tasks\templates\tasks\_task_cards.html:65
-#: .\tasks\templates\tasks\_task_cards.html:78
 #: .\tasks\templates\tasks\task_detail.html:93
 #: .\tasks\templates\tasks\task_detail.html:102
 msgid "I want to help"
@@ -4629,7 +4593,6 @@ msgstr "Zgłoś chęć pomocy przy działaniu. Kliknij ponownie, aby cofnąć."
 
 #: .\tasks\templates\tasks\_task_card.html:193
 #: .\tasks\templates\tasks\_task_card.html:203
-#: .\tasks\templates\tasks\_task_cards.html:84
 #: .\tasks\templates\tasks\task_detail.html:115
 #: .\tasks\templates\tasks\task_detail.html:124
 msgid "Let's not do that"
@@ -4660,18 +4623,6 @@ msgstr "Przejmij koordynację tego działania"
 #: .\tasks\templates\tasks\task_detail.html:139
 msgid "Become coordinator"
 msgstr "Zostań koordynatorem"
-
-#: .\tasks\templates\tasks\_task_cards.html:52
-msgid "Resign"
-msgstr "Zrezygnuj"
-
-#: .\tasks\templates\tasks\_task_cards.html:58
-msgid "Take activity"
-msgstr "Podejmij działanie"
-
-#: .\tasks\templates\tasks\_task_cards.html:65
-msgid "Owner"
-msgstr "Właściciel"
 
 #: .\tasks\templates\tasks\_task_list_partial.html:10
 msgid "Supporting"
@@ -4894,7 +4845,7 @@ msgstr "Zakończone w ostatnim tygodniu"
 msgid "activities completed in the last 7 days"
 msgstr "działania zakończone w ciągu ostatnich 7 dni"
 
-#: .\tasks\views.py:215
+#: .\tasks\views.py:134
 msgid "Score"
 msgstr "Poparcie"
 
@@ -5225,44 +5176,44 @@ msgstr "Zespół %(site_name)s"
 msgid "File is too large (max %s MB)."
 msgstr "Plik jest za duży (maks. %s MB)."
 
-#: .\zzz\notifications.py:348
+#: .\zzz\notifications.py:364
 msgid "proposed new citizen"
 msgstr "zaproponował nowego użytkownika"
 
-#: .\zzz\notifications.py:352
+#: .\zzz\notifications.py:368
 msgid "New person requested membership"
 msgstr "Nowa osoba poprosiła o dołączenie do grupy"
 
-#: .\zzz\notifications.py:353
+#: .\zzz\notifications.py:369
 #, python-format
 msgid "User %(username)s just requested membership"
 msgstr "Użytkownik %(username)s właśnie poprosił/a o dołączenie do grupy"
 
-#: .\zzz\notifications.py:359
+#: .\zzz\notifications.py:375
 msgid "You can approve him/her here:"
 msgstr "Możesz zatwierdzić tę osobę tutaj:"
 
-#: .\zzz\notifications.py:493
+#: .\zzz\notifications.py:509
 msgid "starting now"
 msgstr "zaczyna się teraz"
 
-#: .\zzz\notifications.py:514
+#: .\zzz\notifications.py:530
 msgid "New activity created"
 msgstr "Utworzono nowe działanie"
 
-#: .\zzz\notifications.py:525
+#: .\zzz\notifications.py:541
 msgid "Important post published"
 msgstr "Opublikowano ważny wpis"
 
-#: .\zzz\notifications.py:527
+#: .\zzz\notifications.py:543
 msgid "Important post updated"
 msgstr "Zaktualizowano ważny wpis"
 
-#: .\zzz\notifications.py:529
+#: .\zzz\notifications.py:545
 msgid "by"
 msgstr "przez"
 
-#: .\zzz\notifications.py:538
+#: .\zzz\notifications.py:554
 msgid "New survey created"
 msgstr "Utworzono nową ankietę"
 
