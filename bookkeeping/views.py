@@ -2,7 +2,7 @@ import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
@@ -31,6 +31,7 @@ class ProtectedDeleteView(LoginRequiredMixin, DeleteView):
         related_transactions = self._related_transactions()
         context['related_transactions'] = related_transactions
         context['has_dependencies'] = related_transactions.exists()
+        context['cancel_url'] = self.get_success_url()
 
         if 'delete_error' in self.request.session:
             context['error'] = self.request.session.pop('delete_error')
@@ -41,7 +42,8 @@ class ProtectedDeleteView(LoginRequiredMixin, DeleteView):
         self.object = self.get_object()
 
         if self._related_transactions().exists():
-            request.session['delete_error'] = self.protect_message
+            # str(): protect_message to gettext_lazy proxy, który nie serializuje się do sesji.
+            request.session['delete_error'] = str(self.protect_message)
             return redirect(request.path)
 
         try:
@@ -63,11 +65,7 @@ def _bookkeeping_toolbar(active_item, create_url=None, create_label=None):
         {'name': 'assets', 'label': _('Assets'), 'url_name': 'bookkeeping:asset_list'},
         {'name': 'reports', 'label': _('Reports'), 'url_name': 'bookkeeping:report_list'},
     ]
-    from django.urls import reverse
-
-    sort_items = []
-    for item in items:
-        sort_items.append({'label': item['label'], 'url': reverse(item['url_name']), 'active': item['name'] == active_item})
+    sort_items = [{'label': item['label'], 'url': reverse(item['url_name']), 'active': item['name'] == active_item} for item in items]
     ctx = {'sort_items': sort_items, 'cta_end': True}
     if create_url:
         ctx['cta_url'] = create_url
@@ -76,14 +74,26 @@ def _bookkeeping_toolbar(active_item, create_url=None, create_label=None):
     return ctx
 
 
-class AssetListView(LoginRequiredMixin, ListView):
-    model = Asset
-    template_name = 'bookkeeping/asset_list.html'
+class BookkeepingListView(LoginRequiredMixin, ListView):
+    """ListView wstrzykujący wspólny toolbar modułu bookkeeping."""
+
+    toolbar_item = None
+    create_url_name = None
+    create_label = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(_bookkeeping_toolbar('assets', create_url=reverse_lazy('bookkeeping:asset_create'), create_label=_('Add asset')))
+        create_url = reverse_lazy(self.create_url_name) if self.create_url_name else None
+        context.update(_bookkeeping_toolbar(self.toolbar_item, create_url=create_url, create_label=self.create_label))
         return context
+
+
+class AssetListView(BookkeepingListView):
+    model = Asset
+    template_name = 'bookkeeping/asset_list.html'
+    toolbar_item = 'assets'
+    create_url_name = 'bookkeeping:asset_create'
+    create_label = _('Add asset')
 
 
 class AssetCreateView(LoginRequiredMixin, CreateView):
@@ -111,14 +121,12 @@ class AssetDeleteView(ProtectedDeleteView):
 # #########################  Category ###########################
 
 
-class CategoryListView(LoginRequiredMixin, ListView):
+class CategoryListView(BookkeepingListView):
     model = Category
     template_name = 'bookkeeping/category_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(_bookkeeping_toolbar('categories', create_url=reverse_lazy('bookkeeping:category_create'), create_label=_('Add category')))
-        return context
+    toolbar_item = 'categories'
+    create_url_name = 'bookkeeping:category_create'
+    create_label = _('Add category')
 
 
 class CategoryCreateView(LoginRequiredMixin, CreateView):
@@ -143,10 +151,13 @@ class CategoryDeleteView(ProtectedDeleteView):
 # #########################  Partner ###########################
 
 
-class PartnerListView(LoginRequiredMixin, ListView):
+class PartnerListView(BookkeepingListView):
     model = Partner
     template_name = 'bookkeeping/partner_list.html'
     context_object_name = 'partners'
+    toolbar_item = 'partners'
+    create_url_name = 'bookkeeping:partner_create'
+    create_label = _('Add partner')
 
     def get_queryset(self):
         sort = self.request.GET.get('sort', 'name')
@@ -159,7 +170,6 @@ class PartnerListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(_bookkeeping_toolbar('partners', create_url=reverse_lazy('bookkeeping:partner_create'), create_label=_('Add partner')))
         context['current_sort'] = self.request.GET.get('sort', 'name')
         context['current_order'] = self.request.GET.get('order', 'asc')
         return context
@@ -202,17 +212,19 @@ class PartnerDeleteView(ProtectedDeleteView):
 # #########################  Transaction ###########################
 
 
-class TransactionListView(LoginRequiredMixin, ListView):
+class TransactionListView(BookkeepingListView):
     model = Transaction
     template_name = 'bookkeeping/transaction_list.html'
     context_object_name = 'transactions'
+    toolbar_item = 'transactions'
+    create_url_name = 'bookkeeping:transaction_create'
+    create_label = _('Add transaction')
 
     def get_queryset(self):
         return Transaction.objects.select_related('partner', 'category', 'asset').order_by('-payment_received_date', '-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(_bookkeeping_toolbar('transactions', create_url=reverse_lazy('bookkeeping:transaction_create'), create_label=_('Add transaction')))
         # Pasek sald per asset z CAŁEJ historii — nad tabelą, jako kontekst dla użytkownika.
         # Sortowanie z asset_balances: default asset pierwszy, reszta wg code alfabetycznie.
         context['balances_by_asset'] = asset_balances()

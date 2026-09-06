@@ -57,6 +57,8 @@ jobs:
             type=semver,pattern={{major}}
             type=sha
             type=raw,value=latest,enable={{is_default_branch}}
+            # Sortable tag consumed by Flux ImagePolicy (gitops repo, flux-system:wikikracja)
+            type=raw,value=main-{{date 'YYYYMMDDHHmmss' tz='UTC'}},enable={{is_default_branch}}
 
       - name: Build and push Docker image
         id: build

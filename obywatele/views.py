@@ -423,22 +423,12 @@ def dodaj(request: HttpRequest):
                 candidate.is_active = False
                 candidate.save()
 
-                # CANDIDATE
+                # CANDIDATE — profil powstał już przez sygnał post_save;
+                # pola profilu kopiujemy po autorytatywnej liście z modelu.
                 candidate_profile = candidate.uzytkownik
                 candidate_profile.polecajacy = request.user.username
-                candidate_profile.phone = profile_form.cleaned_data['phone']
-                candidate_profile.responsibilities = profile_form.cleaned_data['responsibilities']
-                candidate_profile.city = profile_form.cleaned_data['city']
-                candidate_profile.voivodeship = profile_form.cleaned_data['voivodeship']
-                candidate_profile.skills_knowledge_hobby = profile_form.cleaned_data['skills_knowledge_hobby']
-                candidate_profile.want_to_learn = profile_form.cleaned_data['want_to_learn']
-                candidate_profile.business = profile_form.cleaned_data['business']
-                candidate_profile.to_give_away = profile_form.cleaned_data['to_give_away']
-                candidate_profile.to_borrow = profile_form.cleaned_data['to_borrow']
-                candidate_profile.for_sale = profile_form.cleaned_data['for_sale']
-                candidate_profile.i_need = profile_form.cleaned_data['i_need']
-                candidate_profile.why = profile_form.cleaned_data['why']
-                candidate_profile.job = profile_form.cleaned_data['job']
+                for field in Uzytkownik.ONBOARDING_FORM_FIELDS:
+                    setattr(candidate_profile, field, profile_form.cleaned_data[field])
                 candidate_profile.save()
 
                 # Since you proposed new person,
@@ -485,21 +475,6 @@ def my_profile(request: HttpRequest):
     user = request.user
     profile = request.user.uzytkownik
 
-    asset_fields = [
-        {'field': 'city', 'label': _('City / Commune')},
-        {'field': 'phone', 'label': _('Communicator / Phone')},
-        {'field': 'job', 'label': _('Job')},
-        {'field': 'responsibilities', 'label': _('Responsibilities')},
-        {'field': 'business', 'label': _('Business')},
-        {'field': 'skills_knowledge_hobby', 'label': _('Skills / Knowledge / Hobby')},
-        {'field': 'to_give_away', 'label': _('To give away')},
-        {'field': 'to_borrow', 'label': _('To borrow')},
-        {'field': 'for_sale', 'label': _('For sale')},
-        {'field': 'i_need', 'label': _('I need')},
-        {'field': 'want_to_learn', 'label': _('I want to learn')},
-        {'field': 'why', 'label': _('Why do you want to join?')},
-    ]
-
     push_notifications = [
         {'type': 'push_obywatele', 'title': _('Citizenship'), 'description': _('New citizens, membership requests'), 'enabled': profile.push_notifications_obywatele},
         {'type': 'push_glosowania', 'title': _('Voting'), 'description': _('Law proposals, voting reminders, results'), 'enabled': profile.push_notifications_glosowania},
@@ -509,26 +484,6 @@ def my_profile(request: HttpRequest):
         {'type': 'push_task', 'title': _('Activities'), 'description': _('New activities'), 'enabled': profile.push_notifications_task},
         {'type': 'push_survey', 'title': _('Surveys'), 'description': _('New surveys'), 'enabled': profile.push_notifications_survey},
     ]
-
-    profile_form = ProfileForm(
-        initial={
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'phone': profile.phone,
-            'responsibilities': profile.responsibilities,
-            'city': profile.city,
-            'voivodeship': profile.voivodeship,
-            'skills_knowledge_hobby': profile.skills_knowledge_hobby,
-            'to_give_away': profile.to_give_away,
-            'to_borrow': profile.to_borrow,
-            'for_sale': profile.for_sale,
-            'i_need': profile.i_need,
-            'want_to_learn': profile.want_to_learn,
-            'business': profile.business,
-            'job': profile.job,
-            'why': profile.why,
-        }
-    )
 
     deletion_request = getattr(user, 'deletion_request', None)
 
@@ -540,12 +495,10 @@ def my_profile(request: HttpRequest):
             'user': user,
             'population': population(),
             'required_reputation': required_reputation(),
-            'asset_fields': asset_fields,
             'email_frequency': profile.email_frequency,
             'email_frequency_choices': Uzytkownik.EmailFrequency.choices,
             'push_notifications': push_notifications,
             'avatar_form': AvatarForm(),
-            'profile_form': profile_form,
             'deletion_request': deletion_request,
         },
     )
@@ -607,28 +560,15 @@ def toggle_notification(request: HttpRequest):
 def my_assets(request: HttpRequest):
     user = request.user
     profile = request.user.uzytkownik
-    form = ProfileForm(request.POST, request.FILES)
 
     if request.method == 'POST':
+        # first_name/last_name należą do User, nie do Uzytkownik — zapisujemy je osobno.
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             user.first_name = form.cleaned_data['first_name']
             user.last_name = form.cleaned_data['last_name']
             user.save()
-
-            profile.phone = form.cleaned_data['phone']
-            profile.responsibilities = form.cleaned_data['responsibilities']
-            profile.city = form.cleaned_data['city']
-            profile.voivodeship = form.cleaned_data['voivodeship']
-            profile.skills_knowledge_hobby = form.cleaned_data['skills_knowledge_hobby']
-            profile.to_give_away = form.cleaned_data['to_give_away']
-            profile.to_borrow = form.cleaned_data['to_borrow']
-            profile.for_sale = form.cleaned_data['for_sale']
-            profile.i_need = form.cleaned_data['i_need']
-            profile.want_to_learn = form.cleaned_data['want_to_learn']
-            profile.business = form.cleaned_data['business']
-            profile.job = form.cleaned_data['job']
-            profile.why = form.cleaned_data['why']
-            profile.save()
+            form.save()
 
             success(request, _('Changes was saved'))
             return redirect('obywatele:my_profile')
@@ -636,26 +576,7 @@ def my_assets(request: HttpRequest):
             error(request, form.errors)
             return redirect('obywatele:my_profile')
     else:  # request.method != 'POST':
-        form = ProfileForm(
-            initial={  # pre-populate fields from database
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'phone': profile.phone,
-                'responsibilities': profile.responsibilities,
-                'city': profile.city,
-                'voivodeship': profile.voivodeship,
-                'skills_knowledge_hobby': profile.skills_knowledge_hobby,
-                'to_give_away': profile.to_give_away,
-                'to_borrow': profile.to_borrow,
-                'for_sale': profile.for_sale,
-                'i_need': profile.i_need,
-                'want_to_learn': profile.want_to_learn,
-                'business': profile.business,
-                'job': profile.job,
-                'why': profile.why,
-            }
-        )
-
+        form = ProfileForm(instance=profile, initial={'first_name': user.first_name, 'last_name': user.last_name})
         return render(request, 'obywatele/my_assets.html', {'user': user, 'profile': profile, 'form': form})
 
 

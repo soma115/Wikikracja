@@ -141,31 +141,11 @@ class AvatarForm(forms.ModelForm):
         return instance
 
 
-class OnboardingDetailsForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=150, label=_('First name'), required=True)
-    last_name = forms.CharField(max_length=150, label=_('Last name'), required=True)
+class OnboardingDetailsForm(ProfileForm):
+    """Onboarding subset of ProfileForm — same field setup, fewer fields."""
 
-    class Meta:
-        model = Uzytkownik
+    class Meta(ProfileForm.Meta):
         fields = ('why', 'phone', 'city', 'voivodeship', 'job', 'skills_knowledge_hobby', 'business')
-
-    def __init__(self, *args, **kwargs):
-        super(OnboardingDetailsForm, self).__init__(*args, **kwargs)
-        self.fields['phone'].label = _('Communicator or Phone')
-        self.fields['phone'].required = True
-        self.fields['city'].required = True
-        self.fields['job'].required = True
-
-        # Filter voivodeship to show regions from Poland (can be extended for other countries)
-        self.fields['voivodeship'].queryset = Region.objects.filter(country__code='PL').order_by('name')
-        self.fields['voivodeship'].label = _('Voivodeship')
-        self.fields['voivodeship'].required = False
-
-        self.fields['first_name'].error_messages['required'] = _('First name is required.')
-        self.fields['last_name'].error_messages['required'] = _('Last name is required.')
-        self.fields['phone'].error_messages['required'] = _('Phone number is required.')
-        self.fields['city'].error_messages['required'] = _('City / Commune is required.')
-        self.fields['job'].error_messages['required'] = _('Job is required.')
 
 
 class CustomSignupForm(SignupForm):

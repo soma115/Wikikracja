@@ -1,12 +1,14 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.db.models import Prefetch
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy
+from django.views.generic import CreateView, UpdateView
 
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryItemsAPI, CategoryReorderAPI
 from chat.models import Message
@@ -115,53 +117,37 @@ def board(request: HttpRequest) -> HttpResponse:
     )
 
 
-@login_required
-def create_post(request: HttpRequest):
-    category = None
-    category_pk = request.GET.get('category')
-    if category_pk:
+class PostFormViewMixin(LoginRequiredMixin):
+    """Wspólna logika create/update Post: autor + ręczny zapis załączników
+    (pole `attachments` nie należy do modelu, więc nie obsługuje go form.save())."""
+
+    model = Post
+    form_class = PostForm
+    template_name = 'board/post_form.html'
+
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.author = self.request.user
+        post.save()
+
+        for attachment in self.request.FILES.getlist('attachments'):
+            PostAttachment.objects.create(post=post, file=attachment, filename=attachment.name)
+
+        return redirect('board:view_post', post.pk)
+
+
+class PostCreateView(PostFormViewMixin, CreateView):
+    def get_initial(self):
+        initial = super().get_initial()
         try:
-            category = PostCategory.objects.get(pk=int(category_pk))
+            initial['category'] = PostCategory.objects.get(pk=int(self.request.GET.get('category', ''))).pk
         except (ValueError, TypeError, PostCategory.DoesNotExist):
-            category = None
-
-    if request.method == "POST":
-        form = PostForm(request.POST, request.FILES)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
-
-            attachments = request.FILES.getlist('attachments')
-            for attachment in attachments:
-                PostAttachment.objects.create(post=post, file=attachment, filename=attachment.name)
-
-            return redirect('board:view_post', post.pk)
-    else:
-        initial = {'category': category.pk} if category else None
-        form = PostForm(initial=initial)
-    return render(request, 'board/create_post.html', {'form': form})
+            pass
+        return initial
 
 
-@login_required
-def edit_post(request: HttpRequest, pk: int):
-    post = get_object_or_404(Post, pk=pk)
-
-    if request.method == "POST":
-        form = PostForm(request.POST, request.FILES, instance=post)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
-
-            attachments = request.FILES.getlist('attachments')
-            for attachment in attachments:
-                PostAttachment.objects.create(post=post, file=attachment, filename=attachment.name)
-
-            return redirect('board:view_post', pk)
-    else:
-        form = PostForm(instance=post)
-    return render(request, 'board/edit_post.html', {'form': form, 'post': post})
+class PostUpdateView(PostFormViewMixin, UpdateView):
+    pass
 
 
 def _post_detail_context(request: HttpRequest, post: Post):

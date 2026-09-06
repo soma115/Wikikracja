@@ -7,7 +7,7 @@
 <div class="section">
   <div class="card">
     <div class="card-header">
-      <span class="section-heading">{% trans 'Edit post' %}</span>
+      <span class="section-heading">{% if object %}{% trans 'Edit post' %}{% else %}{% trans 'Create post' %}{% endif %}</span>
     </div>
     <div class="card-body">
       <form method="POST" class="post-form" enctype="multipart/form-data">
@@ -49,18 +49,22 @@
 
         <div class="mb-3 d-flex gap-2">
           <button type="submit" class="btn btn-primary" onclick="this.disabled=true;this.form.submit();">{% trans 'Save' %}</button>
-          <a href="{% url 'board:view_post' form.instance.pk %}" class="btn btn-secondary">{% trans 'Cancel' %}</a>
+          {% if object %}
+            <a href="{% url 'board:view_post' object.pk %}" class="btn btn-secondary">{% trans 'Cancel' %}</a>
+          {% else %}
+            <a href="{% url 'board:start' %}" class="btn btn-secondary">{% trans 'Cancel' %}</a>
+          {% endif %}
         </div>
       </form>
 
-      {% if post.attachments.all %}
+      {% if object and object.attachments.all %}
       <div class="mt-4">
         <h5>{% trans 'Existing attachments' %}</h5>
-        <ul class="list-group">{% for attachment in post.attachments.all %}<li class="list-group-item d-flex justify-content-between align-items-center">
+        <ul class="list-group">{% for attachment in object.attachments.all %}<li class="list-group-item d-flex justify-content-between align-items-center">
             <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}">
               <i class="fas fa-paperclip me-2"></i>{{ attachment.filename }}
             </a>
-            <form method="post" action="{% url 'board:delete_attachment' post.pk attachment.pk %}" class="d-inline" onsubmit="return confirm('Delete this attachment?');">
+            <form method="post" action="{% url 'board:delete_attachment' object.pk attachment.pk %}" class="d-inline" onsubmit="return confirm('Delete this attachment?');">
               {% csrf_token %}
               <button type="submit" class="btn btn-sm btn-danger">
                 <i class="fas fa-trash"></i>

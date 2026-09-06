@@ -10,7 +10,7 @@
 <div class="proposals-list" data-view-container>
   {% if votings %}
     {% for i in votings %}
-      {% include 'glosowania/_proposal_card.html' with show_dates=True %}
+      {% include 'glosowania/_proposal_card.html' with show_dates=show_dates %}
     {% endfor %}
   {% else %}
     <div class="proposals-empty">

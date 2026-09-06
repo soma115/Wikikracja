@@ -1,0 +1,11 @@
+{% load i18n %}
+{# Parametr: active — 'transactions' | 'partners' | 'categories' | 'assets' | 'reports' #}
+<div class="row mb-4">
+  <div>
+    <a href="{% url 'bookkeeping:transaction_list' %}" class="btn btn-sm me-1 mb-1 {% if active == 'transactions' %}btn-primary{% else %}btn-secondary{% endif %}">{% trans 'Transactions' %}</a>
+    <a href="{% url 'bookkeeping:partner_list' %}" class="btn btn-sm me-1 mb-1 {% if active == 'partners' %}btn-primary{% else %}btn-secondary{% endif %}">{% trans 'Partners' %}</a>
+    <a href="{% url 'bookkeeping:category_list' %}" class="btn btn-sm me-1 mb-1 {% if active == 'categories' %}btn-primary{% else %}btn-secondary{% endif %}">{% trans 'Categories' %}</a>
+    <a href="{% url 'bookkeeping:asset_list' %}" class="btn btn-sm me-1 mb-1 {% if active == 'assets' %}btn-primary{% else %}btn-secondary{% endif %}">{% trans 'Assets' %}</a>
+    <a href="{% url 'bookkeeping:report_list' %}" class="btn btn-sm me-1 mb-1 {% if active == 'reports' %}btn-primary{% else %}btn-secondary{% endif %}">{% trans 'Reports' %}</a>
+  </div>
+</div>

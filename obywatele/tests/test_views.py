@@ -4,12 +4,33 @@ Testy widoku set_user_language: wybór języka musi działać dla NIEzalogowanyc
 `django_language`, a dla zalogowanych dodatkowo zapisywać się do profilu.
 """
 
+from unittest.mock import patch
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from obywatele.auth_backends import CaseInsensitiveEmailBackend
+from obywatele.models import Rate, Uzytkownik
+
+PROFILE_POST_DATA = {
+    'first_name': 'Jan',
+    'last_name': 'Kowalski',
+    'phone': '123456789',
+    'city': 'Gdańsk',
+    'job': 'Programista',
+    'responsibilities': '',
+    'voivodeship': '',
+    'skills_knowledge_hobby': 'Python',
+    'to_give_away': 'Rower',
+    'to_borrow': 'Wiertarka',
+    'for_sale': 'Kanapa',
+    'i_need': 'Pomoc',
+    'want_to_learn': 'Go',
+    'business': 'IT',
+    'why': 'Chcę pomagać',
+}
 
 
 class DebugSkipAuthTest(TestCase):
@@ -147,3 +168,81 @@ class CitizenZalozonoTemplateTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'obywatele/_citizen_zalozono_partial.html')
+
+
+class MyAssetsViewTest(TestCase):
+    """my_assets zapisuje pola profilu przez form.save() oraz imię/nazwisko na User."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='assets', password='secret', is_active=True)
+        self.profile = self.user.uzytkownik
+        self.profile.city = 'Stare miasto'
+        self.profile.save()
+        self.client.force_login(self.user)
+        self.url = reverse('obywatele:my_assets')
+
+    def test_get_prefills_form_from_instance(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        form = response.context['form']
+        self.assertEqual(form.instance.pk, self.profile.pk)
+        self.assertEqual(form['city'].value(), 'Stare miasto')
+        self.assertEqual(form['first_name'].value(), self.user.first_name)
+
+    def test_post_updates_existing_profile_and_user_names(self):
+        response = self.client.post(self.url, PROFILE_POST_DATA)
+
+        self.assertEqual(response.status_code, 302)
+        self.profile.refresh_from_db()
+        self.user.refresh_from_db()
+        self.assertEqual(self.profile.city, 'Gdańsk')
+        self.assertEqual(self.profile.phone, '123456789')
+        self.assertEqual(self.profile.for_sale, 'Kanapa')
+        self.assertEqual(self.user.first_name, 'Jan')
+        self.assertEqual(self.user.last_name, 'Kowalski')
+        # Nadal ten sam rekord profilu — form.save() z instance= nie tworzy nowego.
+        self.assertEqual(Uzytkownik.objects.filter(uid=self.user).count(), 1)
+
+    def test_post_invalid_redirects_without_saving(self):
+        data = {**PROFILE_POST_DATA, 'phone': ''}
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.city, 'Stare miasto')
+
+
+class DodajViewTest(TestCase):
+    """dodaj tworzy kandydata z polami profilu z ONBOARDING_FORM_FIELDS."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='proposer', password='secret', is_active=True)
+        self.client.force_login(self.user)
+        self.url = reverse('obywatele:zaproponuj_osobe')
+
+    def test_post_creates_inactive_candidate_with_profile(self):
+        data = {**PROFILE_POST_DATA, 'username': 'kandydat', 'email': 'kandydat@example.com'}
+
+        with patch('obywatele.views.citizen_proposed'):
+            response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        candidate = User.objects.get(username='kandydat')
+        self.assertFalse(candidate.is_active)
+
+        profile = candidate.uzytkownik
+        self.assertEqual(profile.polecajacy, 'proposer')
+        for field in Uzytkownik.ONBOARDING_FORM_FIELDS:
+            self.assertEqual(getattr(profile, field) or '', PROFILE_POST_DATA[field])
+
+        self.assertTrue(Rate.objects.filter(kandydat=profile, obywatel=self.user.uzytkownik, rate=1).exists())
+
+    def test_post_rejects_duplicate_email(self):
+        User.objects.create_user(username='istnieje', email='kandydat@example.com')
+        data = {**PROFILE_POST_DATA, 'username': 'kandydat', 'email': 'KANDYDAT@example.com'}
+
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(User.objects.filter(username='kandydat').exists())

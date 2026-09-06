@@ -209,3 +209,12 @@ class VoteCode(models.Model):
     project = models.ForeignKey(Decyzja, on_delete=models.CASCADE)
     code = models.CharField(editable=False, null=True, max_length=20)
     vote = models.BooleanField(editable=False, null=True)
+
+
+def author_signed_exists():
+    """Exists() subquery: queryset-level counterpart of Decyzja.is_author_signed.
+
+    SQL NULL comparison in Exists is falsy, so orphaned decyzjas (author=NULL
+    after user deletion) are excluded, matching the property's author_id check.
+    """
+    return models.Exists(ZebranePodpisy.objects.filter(projekt=models.OuterRef("pk"), podpis_uzytkownika_id=models.OuterRef("author_id")))

@@ -16,6 +16,14 @@ from .forms import SurveyForm
 from .models import Survey, SurveyOption, SurveyVote
 
 
+def _compute_vote_results(options):
+    """Set .percentage on each option (requires annotated .vote_count). Returns total votes."""
+    total_votes = sum(getattr(opt, "vote_count", 0) for opt in options)
+    for opt in options:
+        opt.percentage = round(opt.vote_count / total_votes * 100, 1) if total_votes else 0
+    return total_votes
+
+
 def _cast_vote(request, survey):
     """Handle a voting POST for the given survey. Returns True on success."""
     if not survey.is_active:
@@ -75,10 +83,7 @@ def survey_list(request):
         user_votes_by_survey.setdefault(vote.survey_id, []).append(vote)
 
     for survey in surveys:
-        total_votes = sum(getattr(opt, "vote_count", 0) for opt in survey.options.all())
-        survey.total_votes = total_votes
-        for opt in survey.options.all():
-            opt.percentage = round(opt.vote_count / total_votes * 100, 1) if total_votes else 0
+        survey.total_votes = _compute_vote_results(survey.options.all())
         survey_votes = user_votes_by_survey.get(survey.pk, [])
         if survey.allow_multiple_choice:
             survey.user_vote_ids = {v.option_id for v in survey_votes}
@@ -137,9 +142,7 @@ def survey_detail(request, pk):
     survey = get_object_or_404(Survey.objects.select_related("author").prefetch_related("options"), pk=pk)
 
     options = list(survey.options.annotate(vote_count=Count("votes")).order_by("order", "id"))
-    total_votes = sum(getattr(opt, "vote_count", 0) for opt in options)
-    for opt in options:
-        opt.percentage = round(opt.vote_count / total_votes * 100, 1) if total_votes else 0
+    total_votes = _compute_vote_results(options)
 
     user_votes = list(SurveyVote.objects.filter(survey=survey, user=request.user).select_related("option").order_by("-created_at"))
     if survey.allow_multiple_choice:

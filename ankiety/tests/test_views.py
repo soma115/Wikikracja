@@ -135,6 +135,45 @@ class SurveyViewsTests(TestCase):
         self.assertRedirects(response, reverse("ankiety:detail", args=[survey.pk]))
         self.assertEqual(SurveyVote.objects.filter(survey=survey, user=self.other).count(), 0)
 
+    def test_detail_results_show_vote_percentages(self):
+        survey = self._create_survey(self.author, end_delta=timedelta(days=-1))
+        yes = survey.options.get(text="Yes")
+        no = survey.options.get(text="No")
+        third = User.objects.create_user(username="third", email="third@example.com", password="pass")
+        SurveyVote.objects.create(survey=survey, user=self.author, option=yes)
+        SurveyVote.objects.create(survey=survey, user=self.other, option=yes)
+        SurveyVote.objects.create(survey=survey, user=third, option=no)
+
+        self.client.login(username="author", password="pass")
+        response = self.client.get(reverse("ankiety:detail", args=[survey.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["total_votes"], 3)
+        percentages = {opt.text: opt.percentage for opt in response.context["options"]}
+        self.assertEqual(percentages, {"Yes": 66.7, "No": 33.3})
+        self.assertContains(response, 'data-progress="66.7"')
+
+    def test_detail_results_zero_votes(self):
+        survey = self._create_survey(self.author, end_delta=timedelta(days=-1))
+
+        self.client.login(username="author", password="pass")
+        response = self.client.get(reverse("ankiety:detail", args=[survey.pk]))
+        self.assertEqual(response.context["total_votes"], 0)
+        self.assertTrue(all(opt.percentage == 0 for opt in response.context["options"]))
+
+    def test_list_results_show_percentages_for_finished_survey(self):
+        survey = self._create_survey(self.author, end_delta=timedelta(days=-1))
+        yes = survey.options.get(text="Yes")
+        SurveyVote.objects.create(survey=survey, user=self.other, option=yes)
+
+        self.client.login(username="author", password="pass")
+        response = self.client.get(reverse("ankiety:list"), {"tab": "finished"})
+        self.assertEqual(response.status_code, 200)
+        listed = {s.pk: s for s in response.context["surveys"]}
+        self.assertEqual(listed[survey.pk].total_votes, 1)
+        percentages = {opt.text: opt.percentage for opt in listed[survey.pk].options.all()}
+        self.assertEqual(percentages, {"Yes": 100.0, "No": 0})
+        self.assertContains(response, 'data-progress="100.0"')
+
     def test_delete_only_by_author(self):
         survey = self._create_survey(self.author)
         self.client.login(username="other", password="pass")

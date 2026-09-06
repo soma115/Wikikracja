@@ -4,15 +4,7 @@
 
 {% block content %}
 <div class="container mt-4">
-  <div class="row mb-4">
-    <div>
-      <a href="{% url 'bookkeeping:transaction_list' %}" class="btn btn-sm me-1 mb-1 btn-primary">{% trans 'Transactions' %}</a>
-      <a href="{% url 'bookkeeping:partner_list' %}" class="btn btn-sm me-1 mb-1 btn-secondary">{% trans 'Partners' %}</a>
-      <a href="{% url 'bookkeeping:category_list' %}" class="btn btn-sm me-1 mb-1 btn-secondary">{% trans 'Categories' %}</a>
-      <a href="{% url 'bookkeeping:asset_list' %}" class="btn btn-sm me-1 mb-1 btn-secondary">{% trans 'Assets' %}</a>
-      <a href="{% url 'bookkeeping:report_list' %}" class="btn btn-sm me-1 mb-1 btn-secondary">{% trans 'Reports' %}</a>
-    </div>
-  </div>
+  {% include 'bookkeeping/_nav.html' with active='transactions' %}
 
   <div class="card shadow-sm mb-4">
     <div class="card-body">

@@ -22,34 +22,6 @@ class AssetForm(forms.ModelForm):
         self.helper.add_input(Submit('submit', _('Save'), css_class='btn-primary'))
 
 
-class PartnerForm(forms.ModelForm):
-    """Form for creating and updating Partner records."""
-
-    class Meta:
-        model = Partner
-        fields = ['name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'notes']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        self.helper.add_input(Submit('submit', _('Save'), css_class='btn-primary'))
-
-
-class CategoryForm(forms.ModelForm):
-    """Form for creating and updating Category records."""
-
-    class Meta:
-        model = Category
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        self.helper.add_input(Submit('submit', _('Save'), css_class='btn-primary'))
-
-
 class TransactionForm(forms.ModelForm):
     """Form for creating and updating Transaction records."""
 

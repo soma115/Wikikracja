@@ -10,7 +10,7 @@ from django.conf import settings as s
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import OperationalError, transaction
-from django.db.models import Count, Exists, F, OuterRef
+from django.db.models import Count, F
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -18,7 +18,7 @@ from django.utils.translation import gettext_lazy as _
 
 from chat.views import get_translations as get_chat_translations
 from glosowania.forms import ArgumentForm, DecyzjaForm, ParametersProposalForm
-from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
+from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy, author_signed_exists
 from glosowania.vote_buffer import push_pending_vote
 from site_settings.models import SiteParameters
 from site_settings.params import describe_changes, specs_by_category
@@ -656,51 +656,48 @@ def _sort_context(request):
     return sort, order
 
 
-@login_required
-def rejected(request: HttpRequest):
+def _status_list(request: HttpRequest, status, *, author_signed=False, pulse=False, show_dates=False):
+    """Shared list view for a single Decyzja status.
+
+    - author_signed: keep only proposals signed by their author (discussion/referendum)
+    - pulse: annotate each item with chat_room_pulse_class for the current user
+    - show_dates: show referendum dates on the proposal card
+    """
     sort, order = _sort_context(request)
     toolbar_sort_items, toolbar_views = _glosowania_toolbar_data(sort, order)
-    votings = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.REJECTED), sort, order)
-    return render(request, 'glosowania/rejected.html', {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views})
+    qs = Decyzja.objects.filter(status=status)
+    if author_signed:
+        qs = qs.annotate(_signed=author_signed_exists()).filter(_signed=True)
+    votings = _apply_sort(qs, sort, order)
+    if pulse:
+        votings = list(votings)
+        for voting in votings:
+            voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
+    return render(
+        request, 'glosowania/list.html', {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views, 'show_dates': show_dates}
+    )
 
 
 @login_required
 def proposition(request: HttpRequest):
-    sort, order = _sort_context(request)
-    toolbar_sort_items, toolbar_views = _glosowania_toolbar_data(sort, order)
-    votings = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.PROPOSITION), sort, order)
-    for voting in votings:
-        voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
-    return render(request, 'glosowania/proposition.html', {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views})
+    return _status_list(request, Decyzja.Status.PROPOSITION, pulse=True)
 
 
 @login_required
 def discussion(request: HttpRequest):
-    sort, order = _sort_context(request)
-    toolbar_sort_items, toolbar_views = _glosowania_toolbar_data(sort, order)
-    author_signed = Exists(ZebranePodpisy.objects.filter(projekt=OuterRef("pk"), podpis_uzytkownika_id=OuterRef("author_id")))
-    qs = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.DISCUSSION).annotate(_signed=author_signed).filter(_signed=True), sort, order)
-    votings = list(qs)
-    for voting in votings:
-        voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
-    return render(request, 'glosowania/discussion.html', {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views})
+    return _status_list(request, Decyzja.Status.DISCUSSION, author_signed=True, pulse=True)
 
 
 @login_required
 def referendum(request: HttpRequest):
-    sort, order = _sort_context(request)
-    toolbar_sort_items, toolbar_views = _glosowania_toolbar_data(sort, order)
-    author_signed = Exists(ZebranePodpisy.objects.filter(projekt=OuterRef("pk"), podpis_uzytkownika_id=OuterRef("author_id")))
-    qs = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.REFERENDUM).annotate(_signed=author_signed).filter(_signed=True), sort, order)
-    votings = list(qs)
-    for voting in votings:
-        voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
-    return render(request, 'glosowania/referendum.html', {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views})
+    return _status_list(request, Decyzja.Status.REFERENDUM, author_signed=True, pulse=True, show_dates=True)
+
+
+@login_required
+def rejected(request: HttpRequest):
+    return _status_list(request, Decyzja.Status.REJECTED)
 
 
 @login_required
 def approved(request: HttpRequest):
-    sort, order = _sort_context(request)
-    toolbar_sort_items, toolbar_views = _glosowania_toolbar_data(sort, order)
-    votings = _apply_sort(Decyzja.objects.filter(status=Decyzja.Status.APPROVED), sort, order)
-    return render(request, 'glosowania/approved.html', {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views})
+    return _status_list(request, Decyzja.Status.APPROVED)

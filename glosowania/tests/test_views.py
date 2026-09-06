@@ -260,3 +260,79 @@ def test_add_proposal_saves_even_when_notification_handler_fails(sample_users):
     assert response.status_code == 302
     assert response.url == '/glosowania/proposition/'
     assert Decyzja.objects.filter(title='Resilient proposal').exists()
+
+
+@pytest.mark.django_db
+def test_status_lists_return_200_and_filter_by_status(sample_users):
+    """Each status list returns only decyzjas with its own status."""
+    author = sample_users[0]
+    urls = {
+        Decyzja.Status.PROPOSITION: '/glosowania/proposition/',
+        Decyzja.Status.DISCUSSION: '/glosowania/discussion/',
+        Decyzja.Status.REFERENDUM: '/glosowania/referendum/',
+        Decyzja.Status.REJECTED: '/glosowania/rejected/',
+        Decyzja.Status.APPROVED: '/glosowania/approved/',
+    }
+    for status in urls:
+        d = Decyzja.objects.create(title=f'D{status}', tresc='x', author=author, status=status)
+        ZebranePodpisy.objects.create(projekt=d, podpis_uzytkownika=author)
+
+    client = Client()
+    client.force_login(author)
+    for status, url in urls.items():
+        response = client.get(url)
+        assert response.status_code == 200
+        assert [v.status for v in response.context['votings']] == [status]
+
+
+@pytest.mark.django_db
+def test_status_lists_require_login():
+    client = Client()
+    for url in ('/glosowania/proposition/', '/glosowania/discussion/', '/glosowania/referendum/', '/glosowania/rejected/', '/glosowania/approved/'):
+        assert client.get(url).status_code == 302
+
+
+@pytest.mark.django_db
+def test_discussion_and_referendum_require_author_signature(sample_users):
+    """Discussion/referendum lists exclude proposals not signed by their author."""
+    author, other = sample_users[0], sample_users[1]
+    for status in (Decyzja.Status.DISCUSSION, Decyzja.Status.REFERENDUM):
+        signed = Decyzja.objects.create(title=f'signed{status}', tresc='x', author=author, status=status)
+        ZebranePodpisy.objects.create(projekt=signed, podpis_uzytkownika=author)
+        unsigned = Decyzja.objects.create(title=f'unsigned{status}', tresc='x', author=author, status=status)
+        ZebranePodpisy.objects.create(projekt=unsigned, podpis_uzytkownika=other)  # signed, but not by author
+
+    client = Client()
+    client.force_login(author)
+    for url in ('/glosowania/discussion/', '/glosowania/referendum/'):
+        titles = {v.title for v in client.get(url).context['votings']}
+        assert len(titles) == 1
+        assert next(iter(titles)).startswith('signed')
+
+
+@pytest.mark.django_db
+def test_rejected_and_approved_ignore_author_signature(sample_users):
+    """rejected/approved lists show proposals regardless of author signature."""
+    author, other = sample_users[0], sample_users[1]
+    for status in (Decyzja.Status.REJECTED, Decyzja.Status.APPROVED):
+        unsigned = Decyzja.objects.create(title=f'unsigned{status}', tresc='x', author=author, status=status)
+        ZebranePodpisy.objects.create(projekt=unsigned, podpis_uzytkownika=other)
+
+    client = Client()
+    client.force_login(author)
+    for url in ('/glosowania/rejected/', '/glosowania/approved/'):
+        assert len(client.get(url).context['votings']) == 1
+
+
+@pytest.mark.django_db
+def test_only_referendum_list_shows_dates(sample_users):
+    author = sample_users[0]
+    for status in (Decyzja.Status.PROPOSITION, Decyzja.Status.DISCUSSION, Decyzja.Status.REFERENDUM, Decyzja.Status.REJECTED, Decyzja.Status.APPROVED):
+        d = Decyzja.objects.create(title=f'D{status}', tresc='x', author=author, status=status)
+        ZebranePodpisy.objects.create(projekt=d, podpis_uzytkownika=author)
+
+    client = Client()
+    client.force_login(author)
+    assert client.get('/glosowania/referendum/').context['show_dates'] is True
+    for url in ('/glosowania/proposition/', '/glosowania/discussion/', '/glosowania/rejected/', '/glosowania/approved/'):
+        assert client.get(url).context['show_dates'] is False

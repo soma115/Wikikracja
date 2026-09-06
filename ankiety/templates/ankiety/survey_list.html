@@ -115,22 +115,7 @@
             </form>
           {% else %}
             <div class="survey-results">
-              {% for option in survey.options.all %}
-                <div class="mb-2">
-                  <div class="d-flex justify-content-between small">
-                    <span>{{ option.text }}</span>
-                    <span>
-                      <strong>{{ option.vote_count }}</strong>
-                      {% if survey.total_votes %}
-                        <span class="text-muted">({{ option.percentage }}%)</span>
-                      {% endif %}
-                    </span>
-                  </div>
-                  <div class="result-bar-track w-100"><div class="result-bar-fill" data-progress="{{ option.percentage|unlocalize }}"></div></div>
-                </div>
-              {% empty %}
-                <p class="text-muted small mb-0">{% trans 'No options' %}</p>
-              {% endfor %}
+              {% include 'ankiety/_survey_results.html' with options=survey.options.all total_votes=survey.total_votes %}
             </div>
           {% endif %}
         </div>

@@ -81,3 +81,4 @@ firebase-service-account.json
 # Build-time SHA injected by CI (never commit this)
 BUILD_SHA
 
+TODO.media
