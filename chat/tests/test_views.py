@@ -70,31 +70,6 @@ class ChatViewsTest(TestCase):
         response = self.client.post(reverse("chat:add_room"), {"title": ""})
         self.assertEqual(response.status_code, 200)
 
-    def test_toggle_notifications_disables_notifications(self):
-        # enabled=False → dodaje do muted_by
-        self.client.force_login(self.user)
-        response = self.client.post(reverse("chat:toggle_notifications"), data=json.dumps({"room_id": self.room.id, "enabled": False}), content_type="application/json")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(self.user, self.room.muted_by.all())
-
-    def test_toggle_notifications_enables_notifications(self):
-        # enabled=True → usuwa z muted_by
-        self.room.muted_by.add(self.user)
-        self.client.force_login(self.user)
-        self.client.post(reverse("chat:toggle_notifications"), data=json.dumps({"room_id": self.room.id, "enabled": True}), content_type="application/json")
-        self.assertNotIn(self.user, self.room.muted_by.all())
-
-    def test_toggle_notifications_missing_params_returns_400(self):
-        self.client.force_login(self.user)
-        response = self.client.post(reverse("chat:toggle_notifications"), data=json.dumps({"room_id": self.room.id}), content_type="application/json")
-        self.assertEqual(response.status_code, 400)
-
-    def test_room_data_api_returns_json(self):
-        self.client.force_login(self.user)
-        response = self.client.get(reverse("chat:room_data", kwargs={"room_id": self.room.id}))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response["Content-Type"], "application/json")
-
     def test_upload_image_requires_login(self):
         # upload_image wymaga zalogowania — anonim jest przekierowany do logowania
         response = self.client.post("/chat/upload/")
@@ -149,24 +124,6 @@ class ChatViewsTest(TestCase):
         response = self.client.get(reverse("chat:open_dm", kwargs={"pk": self.user.pk}))
         self.assertEqual(response.status_code, 302)
         self.assertNotIn("#room_id=", response["Location"])
-
-
-class ChatRoomAccessTest(TestCase):
-    def setUp(self):
-        self.member = make_user("member")
-        self.outsider = make_user("outsider")
-        self.private_room = Room.objects.create(title="Private", public=False)
-        self.private_room.allowed.add(self.member)
-
-    def test_room_data_accessible_by_member(self):
-        self.client.force_login(self.member)
-        response = self.client.get(reverse("chat:room_data", kwargs={"room_id": self.private_room.id}))
-        self.assertEqual(response.status_code, 200)
-
-    def test_room_data_returns_404_for_non_member(self):
-        self.client.force_login(self.outsider)
-        response = self.client.get(reverse("chat:room_data", kwargs={"room_id": self.private_room.id}))
-        self.assertEqual(response.status_code, 404)
 
 
 class RenameRoomViewTest(TestCase):

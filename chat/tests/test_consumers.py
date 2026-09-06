@@ -5,6 +5,7 @@ from django.test import TestCase
 
 from chat.consumers import ChatConsumer
 from chat.models import Message, Room
+from chat.services import _dispatch_message_notifications, _send_mention, build_chat_message_event
 from chat.tests.utils import make_user
 from chat.utils import HandledMessage
 from tasks.tests.utils import make_task
@@ -12,9 +13,9 @@ from tasks.tests.utils import make_task
 
 class PostSendProcessingUnseenTest(TestCase):
     """
-    Regression tests for _post_send_processing: ensures the correct call path
-    consumer.repo.unsee_room(room) is used (not the non-existent consumer.unsee_room),
-    and that push_unread_count is called iff the receiver had previously seen the room.
+    Regression tests for _dispatch_message_notifications: ensures the correct call path
+    consumer.repo.unsee_room(room) is used, and that push_unread_count is called iff
+    the receiver had previously seen the room.
     """
 
     def setUp(self):
@@ -23,12 +24,8 @@ class PostSendProcessingUnseenTest(TestCase):
         self.room = Room.objects.create(title="test-room", public=False)
         self.room.allowed.add(self.sender, self.receiver)
 
-    def _make_sender_consumer(self):
-        consumer = ChatConsumer.__new__(ChatConsumer)
-        consumer.scope = {'user': self.sender}
-        consumer.channel_layer = AsyncMock()
-        consumer.send_push_notification_async = MagicMock(return_value=None)
-        return consumer
+    def _make_message(self):
+        return Message.objects.create(room=self.room, sender=self.sender, text="hello")
 
     def _make_receiver_consumer(self):
         consumer = MagicMock(spec=ChatConsumer)
@@ -37,42 +34,49 @@ class PostSendProcessingUnseenTest(TestCase):
         consumer.rooms.present = MagicMock(return_value=False)
         consumer.repo = AsyncMock()
         consumer.repo.unsee_room = AsyncMock()
-        consumer.send_unsee_room = AsyncMock()
         consumer.push_unread_count = AsyncMock()
+        consumer.send_json = AsyncMock()
         return consumer
 
-    async def _run(self, sender_consumer, receiver_consumer):
-        msg = MagicMock()
-        msg.time = None
-        with patch.object(ChatConsumer.online_registry, 'get_online', return_value=[self.receiver.id]):
-            with patch.object(ChatConsumer.online_registry, 'get_consumer', return_value=receiver_consumer):
-                with patch('chat.consumers.asyncio.create_task') as mock_create_task:
-                    await sender_consumer._post_send_processing(self.sender, self.room, msg, message_id=1)
-                    return mock_create_task
+    def _make_online_registry(self, consumer):
+        registry = MagicMock()
+        registry.get_online = MagicMock(return_value=[self.receiver.id])
+        registry.get_consumer = MagicMock(return_value=consumer)
+        return registry
+
+    async def _run(self, receiver_consumer):
+        message = await database_sync_to_async(self._make_message)()
+        event = await database_sync_to_async(build_chat_message_event)(message, new=True)
+        channel_layer = AsyncMock()
+        online_registry = self._make_online_registry(receiver_consumer)
+
+        async def _noop(*args, **kwargs):
+            return None
+
+        with patch('chat.services._send_push_to_user', side_effect=_noop) as mock_send_push:
+            await _dispatch_message_notifications(channel_layer, self.room, message, self.sender, event, [], online_registry, background=False)
+            return mock_send_push
 
     async def test_seen_receiver_gets_unseen_count_and_push(self):
-        """Receiver had seen the room — repo.unsee_room, push_unread_count and push task must be called."""
+        """Receiver had seen the room — repo.unsee_room, push_unread_count and push must be called."""
         await database_sync_to_async(self.room.seen_by.add)(self.receiver)
-        sender = self._make_sender_consumer()
         receiver = self._make_receiver_consumer()
 
-        mock_create_task = await self._run(sender, receiver)
+        mock_send_push = await self._run(receiver)
 
-        receiver.repo.unsee_room.assert_called_once_with(self.room)
-        receiver.push_unread_count.assert_called_once()
-        mock_create_task.assert_called_once()
+        receiver.repo.unsee_room.assert_awaited_once_with(self.room)
+        receiver.push_unread_count.assert_awaited_once()
+        mock_send_push.assert_called_once()
 
     async def test_not_seen_receiver_skips_unseen_and_count_but_pushes(self):
         """Receiver had NOT seen the room — repo.unsee_room and push_unread_count must NOT be called, but push is still sent."""
-        # seen_by is empty — receiver not in it
-        sender = self._make_sender_consumer()
         receiver = self._make_receiver_consumer()
 
-        mock_create_task = await self._run(sender, receiver)
+        mock_send_push = await self._run(receiver)
 
-        receiver.repo.unsee_room.assert_not_called()
-        receiver.push_unread_count.assert_not_called()
-        mock_create_task.assert_called_once()
+        receiver.repo.unsee_room.assert_not_awaited()
+        receiver.push_unread_count.assert_not_awaited()
+        mock_send_push.assert_called_once()
 
     async def test_race_no_consumer_muted_seen_does_not_crash(self):
         """Regression: race condition where online_registry reports member as online
@@ -81,17 +85,16 @@ class PostSendProcessingUnseenTest(TestCase):
         No push (muted), no crash."""
         await database_sync_to_async(self.room.seen_by.add)(self.receiver)
         await database_sync_to_async(self.room.muted_by.add)(self.receiver)
-        sender = self._make_sender_consumer()
 
-        with patch('chat.consumers.log') as mock_log:
-            mock_create_task = await self._run(sender, None)  # get_consumer → None
+        with patch('chat.services.log') as mock_log:
+            mock_send_push = await self._run(None)  # get_consumer → None
 
         mock_log.error.assert_not_called()  # bug: crash is swallowed into log.error
-        mock_create_task.assert_not_called()  # muted → no push
+        mock_send_push.assert_not_called()  # muted → no push
 
 
 class MentionNotificationTest(TestCase):
-    """Regression tests for _send_mention_notification: room.name crash and room_name value."""
+    """Regression tests for _send_mention: room.name crash and room_name value."""
 
     def setUp(self):
         self.sender = make_user("alice")
@@ -101,25 +104,25 @@ class MentionNotificationTest(TestCase):
 
     async def test_send_mention_notification_private_room_uses_sender_username(self):
         """Mention notification for a private room must use the sender's username as room name."""
-        consumer = ChatConsumer.__new__(ChatConsumer)
-        consumer.channel_layer = AsyncMock()
-        with patch.object(ChatConsumer, 'repo', new=AsyncMock()):
-            msg = MagicMock()
-            msg.id = 7
-            msg.anonymous = False
+        message = await database_sync_to_async(lambda: Message.objects.create(room=self.room, sender=self.sender, text="@bob"))()
+        channel_layer = AsyncMock()
 
-            await consumer._send_mention_notification(self.sender, self.room, self.receiver, msg)
+        with patch('chat.services.ChatRepository') as mock_repo_cls:
+            mock_repo = AsyncMock()
+            mock_repo_cls.return_value = mock_repo
 
-            consumer.channel_layer.group_send.assert_awaited_once()
-            group, payload = consumer.channel_layer.group_send.call_args.args
+            await _send_mention(channel_layer, self.room, message, self.receiver, self.sender.username, None)
+
+            channel_layer.group_send.assert_awaited_once()
+            group, payload = channel_layer.group_send.call_args.args
             self.assertEqual(group, f"user_{self.receiver.id}")
             self.assertEqual(payload["type"], "chat.mention")
             self.assertEqual(payload["room_id"], self.room.id)
             self.assertEqual(payload["notification"]["room_id"], self.room.id)
             self.assertIn(f"#room_id={self.room.id}", payload["notification"]["click_action"])
 
-            consumer.repo.send_push_notification_sync.assert_awaited_once()
-            call_args = consumer.repo.send_push_notification_sync.call_args
+            mock_repo.send_push_notification_sync.assert_awaited_once()
+            call_args = mock_repo.send_push_notification_sync.call_args
             self.assertEqual(call_args.args[0], self.receiver)
             self.assertEqual(call_args.kwargs.get("room_name"), self.sender.username)
 

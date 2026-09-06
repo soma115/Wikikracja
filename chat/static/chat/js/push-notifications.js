@@ -271,26 +271,6 @@ const PushNotificationManager = {
         return '';
     },
 
-    // Toggle notifications for a room (muted_by logic still in DB)
-    async toggleRoomNotifications(roomId, enabled) {
-        try {
-            const response = await fetch('/chat/api/toggle-notifications/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': this.getCSRFToken()
-                },
-                body: JSON.stringify({
-                    room_id: roomId,
-                    enabled: enabled
-                })
-            });
-            return response.ok;
-        } catch (error) {
-            console.error('Error toggling notifications:', error);
-            return false;
-        }
-    },
 
 };
 // Export for ES modules

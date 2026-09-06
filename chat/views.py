@@ -5,6 +5,7 @@ import os
 import uuid
 from datetime import timedelta as td
 
+from asgiref.sync import async_to_sync
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -24,9 +25,8 @@ from PIL import Image
 
 from chat.forms import GuestMessageForm, RoomForm
 from chat.models import Room
-from chat.utils import send_message_to_room
+from chat.services import send_message
 from site_settings.params import get_param
-from zzz.richtext import sanitize
 
 log = logging.getLogger(__name__)
 
@@ -239,68 +239,6 @@ def get_translations():
 
 
 @login_required
-def room_data(request: HttpRequest, room_id: int):
-    """
-    JSON endpoint for embedded chat widget.
-    Returns room metadata and translations needed by chat-embedded.js.
-    """
-    try:
-        room = Room.objects.get(id=room_id, allowed=request.user)
-    except Room.DoesNotExist:
-        return JsonResponse({'error': 'Not found'}, status=404)
-
-    return JsonResponse({'room_id': room.id, 'title': room.title, 'translations': get_translations()})
-
-
-@login_required
-def toggle_notifications(request: HttpRequest):
-    """
-    Toggle notifications for a room (HTTP fallback for WebSocket handler).
-    POST parameters:
-    - room_id: ID of the room
-    - enabled: boolean (true/false) - true to enable, false to disable
-    """
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-
-    try:
-        data = json.loads(request.body)
-        room_id = data.get('room_id')
-        enabled = data.get('enabled')
-
-        if room_id is None or enabled is None:
-            return JsonResponse({'error': 'Missing room_id or enabled parameter'}, status=400)
-
-        room = Room.objects.get(id=room_id)
-
-        # Check if user is allowed in this room
-        if not room.allowed.filter(id=request.user.id).exists():
-            return JsonResponse({'error': 'Access denied'}, status=403)
-
-        # Add or remove user from muted_by list
-        if enabled:
-            # Enable notifications: remove from muted_by
-            if room.muted_by.filter(id=request.user.id).exists():
-                room.muted_by.remove(request.user)
-                log.info(f"User {request.user.id} enabled notifications for room {room_id}")
-        else:
-            # Disable notifications: add to muted_by
-            if not room.muted_by.filter(id=request.user.id).exists():
-                room.muted_by.add(request.user)
-                log.info(f"User {request.user.id} muted notifications for room {room_id}")
-
-        return JsonResponse({'success': True, 'room_id': room_id, 'notifications_enabled': not room.muted_by.filter(id=request.user.id).exists()})
-
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON'}, status=400)
-    except Room.DoesNotExist:
-        return JsonResponse({'error': 'Room not found'}, status=404)
-    except Exception as e:
-        log.exception("Error toggling notifications: %s", e)
-        return JsonResponse({'error': 'Internal server error'}, status=500)
-
-
-@login_required
 def unread_count(request: HttpRequest):
     from chat.services import get_unread_count_for_user
 
@@ -330,7 +268,7 @@ def rename_room(request: HttpRequest, room_id: int):
     room = form.save()
     if room.title != old_title:
         log.info(f"Room {room_id} renamed from '{old_title}' to '{room.title}' by user {request.user.id}")
-        send_message_to_room(room_title=room.title, message_text=f'📝 {request.user.username} zmienił(a) nazwę pokoju z "{old_title}" na "{room.title}".', sender=None, anonymous=False)
+        async_to_sync(send_message)(room, f'📝 {request.user.username} zmienił(a) nazwę pokoju z "{old_title}" na "{room.title}".', sender=None, anonymous=False, linkify=False)
     return JsonResponse({'success': True, 'title': room.title})
 
 
@@ -351,8 +289,8 @@ def guest_message(request: HttpRequest):
                 if inbox is None:
                     form.add_error(None, _('The public inbox is not available at the moment.'))
                 else:
-                    message_text = sanitize(f"Od: {form.cleaned_data['guest_name']} ({form.cleaned_data['guest_email']})\n\n{form.cleaned_data['message']}", linkify=True)
-                    send_message_to_room(room_title=inbox.title, message_text=message_text, sender=None, anonymous=True, guest_email=form.cleaned_data['guest_email'], guest_name=form.cleaned_data['guest_name'])
+                    message_text = f"Od: {form.cleaned_data['guest_name']} ({form.cleaned_data['guest_email']})\n\n{form.cleaned_data['message']}"
+                    async_to_sync(send_message)(inbox, message_text, sender=None, anonymous=True, guest_email=form.cleaned_data['guest_email'], guest_name=form.cleaned_data['guest_name'], linkify=True)
                     cache.set(cache_key, attempts + 1, timeout=300)
                     return render(request, 'chat/guest_message.html', {'form': GuestMessageForm(), 'sent': True})
     else:

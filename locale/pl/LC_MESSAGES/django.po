@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-05 23:23+0200\n"
+"POT-Creation-Date: 2026-09-06 13:09+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -461,7 +461,7 @@ msgid "Public"
 msgstr "Publiczne"
 
 #: .\board\models.py:31 .\tasks\templates\tasks\_task_card.html:23
-#: .\tasks\views.py:110
+#: .\tasks\views.py:111
 msgid "Important"
 msgstr "Ważne"
 
@@ -521,8 +521,8 @@ msgstr "Zaktualizowałem Ważny dokument: <a href='%(post_url)s'>%(title)s</a>"
 msgid "Discussion room for document: <a href='%(url)s'>%(title)s</a>"
 msgstr "Pokój dyskusji do dokumentu: <a href='%(url)s'>%(title)s</a>"
 
-#: .\board\templates\board\_post_chat_link.html:7 .\chat\consumers.py:37
-#: .\chat\search.py:20 .\chat\templates\chat\_embedded_chat.html:16
+#: .\board\templates\board\_post_chat_link.html:7 .\chat\search.py:20
+#: .\chat\services.py:585 .\chat\templates\chat\_embedded_chat.html:16
 #: .\glosowania\templates\glosowania\_proposal_card.html:38
 #: .\glosowania\templates\glosowania\_proposal_card.html:48
 #: .\glosowania\templates\glosowania\szczegoly.html:43
@@ -669,12 +669,12 @@ msgstr "Prywatne"
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:10
 #: .\obywatele\templates\obywatele\_citizen_zalozono_partial.html:9
-#: .\obywatele\templates\obywatele\citizen_zadania.html:31 .\tasks\views.py:214
+#: .\obywatele\templates\obywatele\citizen_zadania.html:31 .\tasks\views.py:215
 msgid "Date"
 msgstr "Data"
 
 #: .\board\views.py:101 .\events\views.py:52 .\glosowania\views.py:647
-#: .\home\views.py:106 .\tasks\views.py:236
+#: .\home\views.py:106 .\tasks\views.py:237
 msgid "List"
 msgstr "Lista"
 
@@ -1208,16 +1208,6 @@ msgstr "Nazwa kategorii"
 msgid "Description (optional)"
 msgstr "Opis (opcjonalny)"
 
-#: .\chat\consumers.py:37
-#, python-format
-msgid "Room: %(room)s"
-msgstr "Pokój: %(room)s"
-
-#: .\chat\consumers.py:38
-#, python-format
-msgid "Sender: %(author)s"
-msgstr "Nadawca: %(author)s"
-
 #: .\chat\forms.py:19
 msgid "The Inbox room cannot be renamed."
 msgstr "Pokój Inbox nie może być zmieniony."
@@ -1254,6 +1244,16 @@ msgstr "Anonim"
 #: .\chat\search.py:29
 msgid "Chat message"
 msgstr "Wiadomość"
+
+#: .\chat\services.py:585
+#, python-format
+msgid "Room: %(room)s"
+msgstr "Pokój: %(room)s"
+
+#: .\chat\services.py:586
+#, python-format
+msgid "Sender: %(author)s"
+msgstr "Nadawca: %(author)s"
 
 #: .\chat\templates\chat\_embedded_chat.html:18
 msgid "Open in chat"
@@ -1383,7 +1383,7 @@ msgstr "Archiwa"
 msgid "Click the archive button (folder icon) next to each category to show archived rooms."
 msgstr "Kliknij przycisk archiwum (ikona folderu) obok każdej kategorii, aby pokazać zarchiwizowane pokoje."
 
-#: .\chat\templates\chat\guest_message.html:5 .\chat\tests\test_views.py:250
+#: .\chat\templates\chat\guest_message.html:5 .\chat\tests\test_views.py:207
 msgid "Send a message"
 msgstr "Wyślij wiadomość"
 
@@ -1617,11 +1617,11 @@ msgstr "Ten pokój jest pusty, napisz coś jako pierwszy."
 msgid "Only approved helpers can write here."
 msgstr ""
 
-#: .\chat\views.py:348
+#: .\chat\views.py:286
 msgid "Too many messages. Please try again later."
 msgstr "Zbyt wiele wiadomości. Spróbuj ponownie później."
 
-#: .\chat\views.py:352
+#: .\chat\views.py:290
 msgid "The public inbox is not available at the moment."
 msgstr "Prywatna skrzynka nie jest obecnie dostępna."
 
@@ -2026,7 +2026,7 @@ msgstr "Zatwierdzone"
 
 #: .\glosowania\management\commands\vote.py:229 .\glosowania\models.py:30
 #: .\tasks\models.py:44 .\tasks\templates\tasks\_task_card.html:27
-#: .\tasks\templates\tasks\_task_list_partial.html:44 .\tasks\views.py:110
+#: .\tasks\templates\tasks\_task_list_partial.html:44 .\tasks\views.py:111
 msgid "Rejected"
 msgstr "Odrzucone"
 
@@ -2452,8 +2452,8 @@ msgid "For"
 msgstr "Za"
 
 #: .\glosowania\templates\glosowania\szczegoly.html:102 .\tasks\models.py:134
-#: .\tasks\templates\tasks\_task_card.html:195
-#: .\tasks\templates\tasks\_task_card.html:204
+#: .\tasks\templates\tasks\_task_card.html:192
+#: .\tasks\templates\tasks\_task_card.html:201
 #: .\tasks\templates\tasks\task_detail.html:114
 #: .\tasks\templates\tasks\task_detail.html:122
 msgid "Against"
@@ -2640,11 +2640,11 @@ msgstr "Zmiana parametrów systemu"
 msgid "Signatures"
 msgstr "Podpisy"
 
-#: .\glosowania\views.py:635 .\tasks\views.py:214
+#: .\glosowania\views.py:635 .\tasks\views.py:215
 msgid "Buzz"
 msgstr "Gwar"
 
-#: .\glosowania\views.py:647 .\tasks\views.py:236
+#: .\glosowania\views.py:647 .\tasks\views.py:237
 msgid "Compact"
 msgstr "Kompaktowy"
 
@@ -4571,11 +4571,11 @@ msgstr "Brak działań w tej sekcji."
 msgid "Try changing the filter settings to see activities if there are any."
 msgstr "Spróbuj zmienić ustawienia filtrów, żeby zobaczyć działania, jeśli są."
 
-#: .\tasks\templates\tasks\_task_card.html:21 .\tasks\views.py:110
+#: .\tasks\templates\tasks\_task_card.html:21 .\tasks\views.py:111
 msgid "Critical"
 msgstr "Krytyczne"
 
-#: .\tasks\templates\tasks\_task_card.html:25 .\tasks\views.py:110
+#: .\tasks\templates\tasks\_task_card.html:25 .\tasks\views.py:111
 msgid "Beneficial"
 msgstr "Korzystne"
 
@@ -4622,20 +4622,20 @@ msgstr "Osoby przeciwne. Kliknij, aby zobaczyć listę."
 msgid "Coordinator:"
 msgstr "Koordynator:"
 
-#: .\tasks\templates\tasks\_task_card.html:158
+#: .\tasks\templates\tasks\_task_card.html:156
 #: .\tasks\templates\tasks\_task_cards.html:69
 msgid "n/a"
 msgstr "brak"
 
-#: .\tasks\templates\tasks\_task_card.html:172
-#: .\tasks\templates\tasks\_task_card.html:181
+#: .\tasks\templates\tasks\_task_card.html:169
+#: .\tasks\templates\tasks\_task_card.html:178
 #: .\tasks\templates\tasks\task_detail.html:92
 #: .\tasks\templates\tasks\task_detail.html:100
 msgid "Helping"
 msgstr "Pomagam"
 
-#: .\tasks\templates\tasks\_task_card.html:173
-#: .\tasks\templates\tasks\_task_card.html:183
+#: .\tasks\templates\tasks\_task_card.html:170
+#: .\tasks\templates\tasks\_task_card.html:180
 #: .\tasks\templates\tasks\_task_cards.html:65
 #: .\tasks\templates\tasks\_task_cards.html:78
 #: .\tasks\templates\tasks\task_detail.html:93
@@ -4643,10 +4643,10 @@ msgstr "Pomagam"
 msgid "I want to help"
 msgstr "Pomogę"
 
+#: .\tasks\templates\tasks\_task_card.html:173
 #: .\tasks\templates\tasks\_task_card.html:176
-#: .\tasks\templates\tasks\_task_card.html:179
+#: .\tasks\templates\tasks\_task_card.html:196
 #: .\tasks\templates\tasks\_task_card.html:199
-#: .\tasks\templates\tasks\_task_card.html:202
 #: .\tasks\templates\tasks\task_detail.html:96
 #: .\tasks\templates\tasks\task_detail.html:98
 #: .\tasks\templates\tasks\task_detail.html:118
@@ -4654,43 +4654,43 @@ msgstr "Pomogę"
 msgid "Click to withdraw your vote"
 msgstr "Kliknij, aby cofnąć głos"
 
-#: .\tasks\templates\tasks\_task_card.html:177
-#: .\tasks\templates\tasks\_task_card.html:179
+#: .\tasks\templates\tasks\_task_card.html:174
+#: .\tasks\templates\tasks\_task_card.html:176
 #: .\tasks\templates\tasks\task_detail.html:97
 #: .\tasks\templates\tasks\task_detail.html:98
 msgid "Vote to help with this activity. Click again to withdraw."
 msgstr "Zgłoś chęć pomocy przy działaniu. Kliknij ponownie, aby cofnąć."
 
-#: .\tasks\templates\tasks\_task_card.html:196
-#: .\tasks\templates\tasks\_task_card.html:206
+#: .\tasks\templates\tasks\_task_card.html:193
+#: .\tasks\templates\tasks\_task_card.html:203
 #: .\tasks\templates\tasks\_task_cards.html:84
 #: .\tasks\templates\tasks\task_detail.html:115
 #: .\tasks\templates\tasks\task_detail.html:124
 msgid "Let's not do that"
 msgstr "Nie róbmy"
 
-#: .\tasks\templates\tasks\_task_card.html:200
-#: .\tasks\templates\tasks\_task_card.html:202
+#: .\tasks\templates\tasks\_task_card.html:197
+#: .\tasks\templates\tasks\_task_card.html:199
 #: .\tasks\templates\tasks\task_detail.html:119
 #: .\tasks\templates\tasks\task_detail.html:120
 msgid "Vote against this activity. At -2 votes the activity is rejected."
 msgstr "Zagłosuj przeciw. Przy -2 głosach działanie zostanie odrzucone."
 
-#: .\tasks\templates\tasks\_task_card.html:218
+#: .\tasks\templates\tasks\_task_card.html:215
 msgid "Step down from coordinating this activity"
 msgstr "Zrezygnuj z koordynacji tego działania"
 
-#: .\tasks\templates\tasks\_task_card.html:219
+#: .\tasks\templates\tasks\_task_card.html:216
 #: .\tasks\templates\tasks\task_detail.html:150
 msgid "Resign as coordinator"
 msgstr "Zrezygnuj z koordynacji"
 
-#: .\tasks\templates\tasks\_task_card.html:227
+#: .\tasks\templates\tasks\_task_card.html:224
 #: .\tasks\templates\tasks\task_detail.html:138
 msgid "Take responsibility for coordinating this activity"
 msgstr "Przejmij koordynację tego działania"
 
-#: .\tasks\templates\tasks\_task_card.html:228
+#: .\tasks\templates\tasks\_task_card.html:225
 #: .\tasks\templates\tasks\task_detail.html:139
 msgid "Become coordinator"
 msgstr "Zostań koordynatorem"
@@ -4928,7 +4928,7 @@ msgstr "Zakończone w ostatnim tygodniu"
 msgid "activities completed in the last 7 days"
 msgstr "działania zakończone w ciągu ostatnich 7 dni"
 
-#: .\tasks\views.py:214
+#: .\tasks\views.py:215
 msgid "Score"
 msgstr "Poparcie"
 

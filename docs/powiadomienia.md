@@ -17,8 +17,8 @@ Wikikracja wysyła powiadomienia o nowych wiadomościach czatu, wydarzeniach, g�
 ### Backend
 
 - `chat/push_api.py` — endpointy `POST /chat/api/push/register/`, `/chat/api/push/unregister/` oraz `POST /chat/api/push/ack/`.
-- `chat/services.py` — wysyła powiadomienia czatu metodą `send_push_notification_sync` przy nowych wiadomościach i wzmiankach.
-- `chat/consumers.py` — `ChatConsumer._post_send_processing` / `_notify_mentions` decydują, komu wysłać push i WebSocket-owe powiadomienia.
+- `chat/services.py` — `send_message` tworzy wiadomość; `_dispatch_message_notifications` decyduje, komu wysłać push i WebSocket-owe powiadomienia; `_send_push_to_user` i `_send_mention` wysyłają FCM; `_build_chat_notification` buduje payload.
+- `chat/consumers.py` — `chat_notification` / `chat_mention` odbierają zdarzenia kanałów i przekazują powiadomienie do klienta WebSocket.
 - `zzz/notifications.py` — współdzielone funkcje budowania i wysyłki (`build_notification`, `send_fcm_to_*`, `send_websocket_to_*`); tu też żyje `NOTIF_LOG_TAG` oraz mapowanie kategorii na pola preferencji push (`_PUSH_FIELDS`).
 - `home/views.py` — serwuje `/firebase-messaging-sw.js`, `/dynamic-settings.js` i `/manifest.json`.
 - `zzz/scheduler.py` — wysyła powiadomienia o rozpoczynających się wydarzeniach.
@@ -120,7 +120,7 @@ Mapowanie to jest zdefiniowane w `zzz/notifications.py::_PUSH_FIELDS`. Funkcja `
 - `chat/push_api.py` — rejestracja/wyrejestrowanie urządzenia FCM, debounce rejestracji oraz `PushNotificationAckView`.
 - `zzz/notifications.py` — budowanie (`notification_id`) i wysyłka FCM/WS, `NOTIF_LOG_TAG`, mapowanie kategorii preferencji.
 - `home/views.py` — widoki `firebase_messaging_sw`, `dynamic_settings_js`, `manifest`.
-- `chat/services.py` — logika wysyłania powiadomień czatu przez FCM.
+- `chat/services.py` — logika wysyłania powiadomień czatu (WebSocket + FCM) przez `_dispatch_message_notifications`.
 
 ## Dwa niezależne mechanizmy dostarczania — nie myl ich
 
@@ -129,13 +129,13 @@ To jest źródło większości nieporozumień przy debugowaniu. System ma **dwie
 | Ścieżka | Kiedy działa | Gdzie w kodzie | Co pokazuje |
 |---|---|---|---|
 | **WebSocket (pierwszy plan)** | Karta jest otwarta i połączona przez WS (obojętnie: w tle karty przeglądarki czy aktywna) | `consumers.py::chat_notification` / `chat_mention` → JS `notifications.js` / `chat.js::onReceiveNotification` → `utility.js::makeNotification()` → `registration.showNotification()` | Natychmiastowe powiadomienie, dopóki karta żyje |
-| **FCM Push (tło/zamknięta karta)** | Karta/przeglądarka zamknięta, brak połączenia WS | `consumers.py::send_push_notification_async` → `services.py::send_push_notification_sync` → `firebase_admin.messaging` → `firebase-messaging-sw.js::onBackgroundMessage` | Powiadomienie systemowe nawet bez otwartej karty |
+| **FCM Push (tło/zamknięta karta)** | Karta/przeglądarka zamknięta, brak połączenia WS | `services.py::_dispatch_message_notifications` → `_send_push_to_user` / `_send_mention` → `ChatRepository.send_push_notification_sync` → `firebase_admin.messaging` → `firebase-messaging-sw.js::onBackgroundMessage` | Powiadomienie systemowe nawet bez otwartej karty |
 
 **Log `"No FCM devices for user X"` dotyczy WYŁĄCZNIE ścieżki FCM.** Jeśli WS-owa ścieżka też nie działa, przyczyna jest zupełnie inna (błąd w `chat_notification`/`makeNotification`, brak zgody `Notification.permission`, SW nie aktywny) — nie szukaj jej w kodzie FCM.
 
 ## Śledzenie po `notification_id` i potwierdzenie odbioru (ack)
 
-Serwer sam z siebie widzi tylko wysyłkę — nie wie, czy powiadomienie faktycznie pojawiło się na ekranie użytkownika. Dlatego każde powiadomienie (czat, wzmianka, event, głosowanie, poczekalnia, dokument, zadanie, ankieta) dostaje unikalne **`notification_id`** (`zzz/notifications.py::build_notification` i `chat/consumers.py::_build_chat_notification`), które towarzyszy mu przez cały pipeline — WS i FCM — i wraca od klienta jako potwierdzenie.
+Serwer sam z siebie widzi tylko wysyłkę — nie wie, czy powiadomienie faktycznie pojawiło się na ekranie użytkownika. Dlatego każde powiadomienie (czat, wzmianka, event, głosowanie, poczekalnia, dokument, zadanie, ankieta) dostaje unikalne **`notification_id`** (`zzz/notifications.py::build_notification` i `chat/services.py::_build_chat_notification`), które towarzyszy mu przez cały pipeline — WS i FCM — i wraca od klienta jako potwierdzenie.
 
 **Ack.** Klient zgłasza rzeczywisty wynik do `POST /chat/api/push/ack/` (`chat/push_api.py::PushNotificationAckView`, bez CSRF bo woła go też service worker) z każdego miejsca, w którym próbuje pokazać powiadomienie: `utility.js::makeNotification` (WS, pierwszy plan), `push-notifications.js` (`onMessage`, FCM pierwszy plan) i `firebase-messaging-sw.js` (`onBackgroundMessage`, fallback `push`, `postMessage` z karty, `notificationclick`). Payload: `notification_id`, `status` (`shown` / `skipped` / `error` / `clicked`), `source` (skąd w pipeline), opcjonalnie `reason`. Serwer loguje `Notification ACK: user=... notification_id=... status=... source=...`.
 

@@ -1,49 +1,19 @@
-import asyncio
 import logging
 import re
-import uuid
 
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-from django.core.cache import cache
 from django.utils import timezone
-from django.utils.translation import gettext as _
 
 from zzz.notifications import NOTIF_LOG_TAG
 from zzz.richtext import sanitize
-from zzz.utils import get_site_domain
 
 from .exceptions import ClientError
-from .group_messages import format_chat_message
-from .models import Message, Room
 from .serializers import build_chat_message_payload
-from .services import CHAT_UNREAD_CACHE_KEY, ChatRepository, extract_mentions, get_avatar_url
+from .services import ChatRepository, get_avatar_url, send_message
 from .utils import HandledMessage, Handlers, OnlineUserRegistry, RoomRegistry, get_upload_path, helper_method
 
 log = logging.getLogger(__name__)
-
-
-async def _build_chat_notification(author, room_id, room_name=None):
-    """Build the title/body/icon/click_action shared by WS and FCM chat notifications.
-
-    `room_name` should be the public room title, or the other participant's
-    username for private chats. Pass None/"" to fall back to a generic "Chat" title.
-    """
-    site_url = f"https://{await database_sync_to_async(get_site_domain)()}"
-    notification_id = uuid.uuid4().hex
-    log.debug(f"{NOTIF_LOG_TAG} Built chat notification {notification_id} for room {room_id} (author={author})")
-    return {
-        'notification_id': notification_id,
-        'title': _("Room: %(room)s") % {'room': room_name} if room_name else _("Chat"),
-        'body': _("Sender: %(author)s") % {'author': author},
-        'icon': f"{site_url}/favicon.ico",
-        'click_action': f"{site_url}/chat#room_id={room_id}",
-    }
-
-
-def _room_notification_name(room, sender):
-    """Room name to display in notifications: public room title, private chat = sender."""
-    return room.title if room.public else (sender.username or "System")
 
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
@@ -179,7 +149,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         # user can only be in one room at the time
         for room_id_to_leave in self.rooms.items():
             try:
-                room_to_leave = await self.repo.get_room(room_id_to_leave)
+                room_to_leave = await self.repo.get_room_or_error(room_id_to_leave)
             except ClientError:
                 self.rooms.leave(room_id_to_leave)
                 continue
@@ -197,37 +167,12 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         user_votes_dict = batch_data['user_votes']
 
         to_send = []
-        for msg_data in messages_list:
-            upvotes = msg_data['upvotes']
-            downvotes = msg_data['downvotes']
-            edited = msg_data['edited']
-            attachments = msg_data['attachments']
-
-            try:
-                data = format_chat_message(
-                    room_id=room_id,
-                    user_id=msg_data["sender_id"],
-                    anonymous=msg_data['anonymous'],
-                    message=msg_data['text'],
-                    message_id=msg_data['id'],
-                    new=False,
-                    upvotes=upvotes,
-                    downvotes=downvotes,
-                    edited=edited,
-                    date=msg_data['time'],
-                    latest_date=msg_data['time'],
-                    attachments=attachments,
-                    reply_to=msg_data.get('reply_to'),
-                    reactions={'bulb': msg_data.get('bulb_count', 0), 'question': msg_data.get('question_count', 0)},
-                    read_by=msg_data.get('read_by', []),
-                    upvoters=msg_data.get('upvoters'),
-                    downvoters=msg_data.get('downvoters'),
-                )
-            except TypeError:
-                data = None
-                continue
-
-            to_send.append(self.format_chat_message_data_batch(data, users_dict, user_votes_dict))
+        current_user = self.scope['user']
+        for event in messages_list:
+            user = users_dict.get(event['user_id'])
+            vote_value = user_votes_dict.get(event['message_id'])
+            avatar_url = get_avatar_url(user)
+            to_send.append(build_chat_message_payload(event, user=user, vote_value=vote_value, current_user=current_user, avatar_url=avatar_url))
 
         if to_send:
             proxy.send_json({'messages': to_send})
@@ -254,31 +199,12 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         user_votes_dict = batch_data['user_votes']
 
         to_send = []
-        for msg_data in messages_list:
-            try:
-                data = format_chat_message(
-                    room_id=room_id,
-                    user_id=msg_data["sender_id"],
-                    anonymous=msg_data['anonymous'],
-                    message=msg_data['text'],
-                    message_id=msg_data['id'],
-                    new=False,
-                    upvotes=msg_data['upvotes'],
-                    downvotes=msg_data['downvotes'],
-                    edited=msg_data['edited'],
-                    date=msg_data['time'],
-                    latest_date=msg_data['time'],
-                    attachments=msg_data['attachments'],
-                    reply_to=msg_data.get('reply_to'),
-                    reactions={'bulb': msg_data.get('bulb_count', 0), 'question': msg_data.get('question_count', 0)},
-                    read_by=msg_data.get('read_by', []),
-                    upvoters=msg_data.get('upvoters'),
-                    downvoters=msg_data.get('downvoters'),
-                )
-            except TypeError:
-                continue
-
-            to_send.append(self.format_chat_message_data_batch(data, users_dict, user_votes_dict))
+        current_user = self.scope['user']
+        for event in messages_list:
+            user = users_dict.get(event['user_id'])
+            vote_value = user_votes_dict.get(event['message_id'])
+            avatar_url = get_avatar_url(user)
+            to_send.append(build_chat_message_payload(event, user=user, vote_value=vote_value, current_user=current_user, avatar_url=avatar_url))
 
         proxy.send_json({'replace_messages': True, 'room_id': str(room_id), 'messages': to_send})
 
@@ -303,156 +229,21 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             for filename in value:
                 if not isinstance(filename, str):
                     raise ClientError("BAD_ATTACHMENT_TYPE")
-                path = get_upload_path(filename)
-                if path is None or not path.is_file():
-                    raise ClientError("FILE_NOT_FOUND")
 
-        message_clean = sanitize(message, linkify=False)
-        message_clean = re.sub(r'(<br\s*/?>)+$', '', message_clean).rstrip()
-
-        if not message_clean.strip().replace('<br>', '').replace('<br/>', '') and not attachments:
-            raise ClientError("EMPTY_MESSAGE")
-
-        sender = self.scope["user"]
         room = await self.repo.get_room_or_error(room_id)
-
-        if not room.public and is_anonymous:
-            raise ClientError("ANONYMOUS_IN_PRIVATE")
-
-        if not await self.repo.can_post_in_room(room):
-            raise ClientError("ACCESS_DENIED")
-
-        reply_to_data = None
-        if reply_to_id:
-            try:
-                reply_to_id = int(reply_to_id)
-            except (TypeError, ValueError):
-                raise ClientError("MESSAGE_INVALID") from None
-            reply_to_data = await self.repo.get_reply_to_data(reply_to_id, room.id)
-        else:
-            reply_to_id = None
-
-        msg = Message(sender=sender, text=message_clean, room=room, anonymous=is_anonymous, reply_to_id=reply_to_id)
-        message_id = await self.repo.save_message(msg)
-        msg.id = message_id
-
-        await self.repo.save_attachments(message_id, attachments)
-
-        # Broadcast directly (not via proxy) so subscribers receive the message before this handler returns.
-        # Per-recipient bookkeeping (unread state, push notifications) runs in a background task.
-        await self.channel_layer.group_send(
-            room.group_name,
-            format_chat_message(
-                room_id=room_id,
-                user_id=sender.id,
-                anonymous=is_anonymous,
-                message=message_clean,
-                message_id=message_id,
-                upvotes=0,
-                downvotes=0,
-                new=True,
-                edited=False,
-                date=msg.time,
-                latest_date=msg.time,
-                attachments=attachments,
-                reply_to=reply_to_data,
-                reactions={'bulb': 0, 'question': 0},
-                temp_id=temp_id,
-            ),
+        await send_message(
+            room,
+            message,
+            sender=self.scope["user"],
+            anonymous=is_anonymous,
+            attachments=attachments,
+            reply_to_id=reply_to_id,
+            temp_id=temp_id,
+            linkify=False,
+            channel_layer=self.channel_layer,
+            online_registry=ChatConsumer.online_registry,
+            background=True,
         )
-
-        mentioned_usernames = extract_mentions(message_clean)
-        mentioned_users = await self.repo.get_mentioned_users(room, mentioned_usernames) if mentioned_usernames else []
-        mentioned_user_ids = {u.id for u in mentioned_users}
-        asyncio.create_task(self._post_send_processing(sender, room, msg, message_id, mentioned_user_ids))
-        asyncio.create_task(self._notify_mentions(sender, room, msg, mentioned_users))
-
-    async def _post_send_processing(self, sender, room, msg, message_id, mentioned_user_ids=None):
-        try:
-            if mentioned_user_ids is None:
-                mentioned_user_ids = set()
-            room_members = await database_sync_to_async(lambda: list(room.allowed.all()))()
-            other_members = [m for m in room_members if m.id != sender.id]
-            if not other_members:
-                return
-
-            other_member_ids = [m.id for m in other_members]
-            online_ids = ChatConsumer.online_registry.get_online()
-            offline_ids = [mid for mid in other_member_ids if mid not in online_ids]
-            if offline_ids:
-                await database_sync_to_async(lambda: Room.seen_by.through.objects.filter(room_id=room.id, user_id__in=offline_ids).delete())()
-                await database_sync_to_async(cache.delete_many)([CHAT_UNREAD_CACHE_KEY.format(user_id=uid) for uid in offline_ids])
-
-            membership_prefs = await database_sync_to_async(lambda: Room.get_membership_preferences_bulk(room.id, other_member_ids))()
-
-            proxy = HandledMessage()
-            author = "Anonymous" if msg.anonymous else (sender.username or "System")
-            notify_room_name = _room_notification_name(room, sender)
-            notification = await _build_chat_notification(author, room.id, notify_room_name)
-            for member in other_members:
-                prefs = membership_prefs.get(member.id, {'seen': False, 'muted': True})
-                consumer = ChatConsumer.online_registry.get_consumer(member)
-                is_present = bool(consumer) and consumer.rooms.present(room)
-
-                is_mentioned = member.id in mentioned_user_ids
-                # Notify always (foreground/background/in-room) unless muted or already handled by mention flow.
-                if not prefs['muted'] and not is_mentioned:
-                    asyncio.create_task(self.send_push_notification_async(proxy, member, msg, room.id, notify_room_name))
-                    # Show a real OS notification via the shared WebSocket connection too, so
-                    # it appears immediately even while the tab is in the foreground (FCM's
-                    # foreground routing is unreliable across browsers). Push (FCM) still
-                    # covers the case where the tab/browser is fully closed.
-                    log.debug(f"{NOTIF_LOG_TAG} group_send chat.notification notification_id={notification['notification_id']} to user_{member.id} for message {message_id} (present={is_present})")
-                    await self.channel_layer.group_send(f"user_{member.id}", {"type": "chat.notification", "room_id": room.id, "notification": {**notification, "room_id": room.id}})
-
-                if not consumer:
-                    continue
-
-                if is_present:
-                    continue
-
-                if prefs['seen']:
-                    await consumer.repo.unsee_room(room)
-                    await consumer.push_unread_count()
-                    await consumer.send_unsee_room(proxy=proxy, room=room)
-
-            await self._dispatch_proxy(proxy)
-        except Exception as e:
-            log.error(f"Error in post-send processing for message {message_id}: {e}", exc_info=True)
-
-    async def _notify_mentions(self, sender, room, msg, mentioned_users):
-        """Notify users explicitly mentioned with @username in the message."""
-        try:
-            if not mentioned_users:
-                return
-            for user in mentioned_users:
-                if user.id == sender.id:
-                    continue
-                asyncio.create_task(self._send_mention_notification(sender, room, user, msg))
-        except Exception as e:
-            log.error(f"{NOTIF_LOG_TAG} Error in mention notification for message {msg.id}: {e}", exc_info=True)
-
-    async def _send_mention_notification(self, sender, room, user, msg):
-        """Send a WebSocket notification and a push for a single mention."""
-        try:
-            author = "Anonymous" if msg.anonymous else (sender.username or "System")
-            notify_room_name = _room_notification_name(room, sender)
-            notification = await _build_chat_notification(author, room.id, notify_room_name)
-
-            log.debug(f"{NOTIF_LOG_TAG} group_send chat.mention notification_id={notification['notification_id']} to user_{user.id} for message {msg.id}")
-            # Show a real OS notification via the shared WebSocket connection too, so it
-            # appears immediately even while the tab is in the foreground (push/FCM still
-            # covers the case where the tab/browser is fully closed).
-            await self.channel_layer.group_send(f"user_{user.id}", {"type": "chat.mention", "room_id": room.id, "notification": {**notification, "room_id": room.id}})
-
-            # Push notification (bypasses room mute because it is a direct mention).
-            success = await self.repo.send_push_notification_sync(user, notification['title'], notification['body'], notification['click_action'], room.id, room_name=notify_room_name)
-            if success:
-                log.info(f"{NOTIF_LOG_TAG} Mention notification sent to user {user.id} for message {msg.id} (ws notification_id={notification['notification_id']})")
-            else:
-                log.debug(f"{NOTIF_LOG_TAG} No push devices active for mention to user {user.id} (ws notification_id={notification['notification_id']})")
-        except Exception as e:
-            log.error(f"{NOTIF_LOG_TAG} Error sending mention notification to user {user.id}: {e}", exc_info=True)
 
     async def _dispatch_proxy(self, proxy: HandledMessage):
         """Flush a proxy outside of receive_json — used by background tasks that build messages via helpers."""
@@ -483,7 +274,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     @handlers.register("room-seen")
     async def handle_seen_room(self, proxy: HandledMessage, room_id):
         try:
-            room = await self.repo.get_room(room_id)
+            room = await self.repo.get_room_or_error(room_id)
         except ClientError:
             return
         if not await self.repo.room_is_seen(room):
@@ -493,7 +284,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     @handlers.register("room-unseen")
     async def handle_unseen_room(self, proxy: HandledMessage, room_id):
         try:
-            room = await self.repo.get_room(room_id)
+            room = await self.repo.get_room_or_error(room_id)
         except ClientError:
             return
         await self.repo.unsee_room(room)
@@ -610,7 +401,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
     @handlers.register("messages-mark-read-bulk")
     async def handle_mark_read_bulk(self, proxy: HandledMessage, message_ids: list, room_id: int):
-        room = await self.repo.get_room(room_id)
+        room = await self.repo.get_room_or_error(room_id)
         new_ids = await self.repo.mark_messages_read_bulk(message_ids, room.id)
         for message_id in new_ids:
             read_by = await self.repo.get_read_by_data(message_id)
@@ -718,59 +509,20 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             consumer = ChatConsumer.online_registry.get_consumer(user_to_notify)
             proxy.send_json({'online_data': [{'user_id': updated_user.id, 'room_id': room_with_user.id, 'online': is_online}]}, to_consumer=consumer)
 
-    @helper_method
-    async def send_notification(self, proxy: HandledMessage, message_id):
-        message = await self.repo.get_message(message_id)
-        sender = await self.repo.get_message_sender(message_id)
-        proxy.send_json({"notification": {'title': "Anonymous" if message.anonymous else sender.username, 'body': "New message", 'link': None, 'room_id': (await self.repo.get_room_by_message(message.id)).id}})
-
-    @helper_method
-    async def send_unsee_room(self, proxy, room):
-        if self.rooms.present(room):
-            return
-        proxy.send_json({"unsee_room": room.id})
-
-    @helper_method
-    async def send_push_notification_async(self, proxy, user, message, room_id, room_name=""):
-        try:
-            if await self.repo.user_has_muted_room(user.id, room_id):
-                return
-            author = "System" if message.sender is None else ("Anonymous" if message.anonymous else message.sender.username)
-            notification = await _build_chat_notification(author, room_id, room_name)
-            success = await self.repo.send_push_notification_sync(
-                user=user, title=notification['title'], body=notification['body'], deep_link=notification['click_action'], room_id=room_id, room_name=room_name or ""
-            )
-            if success:
-                log.info(f"{NOTIF_LOG_TAG} Push notification sent to user {user.id} for message {message.id} (ws notification_id={notification['notification_id']})")
-            else:
-                log.debug(f"{NOTIF_LOG_TAG} No push devices active for user {user.id} (ws notification_id={notification['notification_id']})")
-        except Exception as e:
-            log.error(f"{NOTIF_LOG_TAG} Error sending push notification: {e}")
-
     async def handle_leave_room(self, room):
         self.rooms.leave(room.id)
         await self.channel_layer.group_discard(room.group_name, self.channel_name)
-
-    async def format_chat_message_data(self, event):
-        user = await self.repo.get_user_by_id(event["user_id"])
-        vote = await self.repo.get_vote(event['message_id'])
-        vote_value = vote.vote if vote is not None else None
-        avatar_url = get_avatar_url(user)
-        return build_chat_message_payload(event, user=user, vote_value=vote_value, current_user=self.scope['user'], avatar_url=avatar_url)
-
-    def format_chat_message_data_batch(self, event, users_dict, user_votes_dict, user_reactions_dict=None):
-        user = users_dict.get(event["user_id"])
-        vote_value = user_votes_dict.get(event["message_id"])
-        your_reactions = (user_reactions_dict or {}).get(event["message_id"], [])
-        avatar_url = get_avatar_url(user)
-        return build_chat_message_payload(event, user=user, vote_value=vote_value, current_user=self.scope['user'], your_reactions=your_reactions, avatar_url=avatar_url)
 
     ###########################################################
     # Handlers for messages sent over the channel layer       #
     ###########################################################
 
     async def chat_message(self, event):
-        message = await self.format_chat_message_data(event)
+        user = await self.repo.get_user_by_id(event["user_id"])
+        vote = await self.repo.get_vote(event['message_id'])
+        vote_value = vote.vote if vote is not None else None
+        avatar_url = get_avatar_url(user)
+        message = build_chat_message_payload(event, user=user, vote_value=vote_value, current_user=self.scope['user'], avatar_url=avatar_url)
         await self.send_json({"messages": [message]})
 
     async def chat_vote(self, event):

@@ -1,5 +1,6 @@
 import logging
 
+from asgiref.sync import async_to_sync
 from django.db.models import F
 from django.db.models.functions import Greatest
 from django.db.models.signals import m2m_changed, post_delete, post_migrate, post_save
@@ -8,6 +9,7 @@ from django.dispatch import Signal, receiver
 from zzz.signals import citizen_accepted, citizen_deleted
 
 from .models import Message, Room
+from .services import send_message
 
 log = logging.getLogger(__name__)
 
@@ -106,9 +108,13 @@ def on_chat_room_requested(sender, instance, title, founder, allowed_users, welc
 @receiver(chat_message_requested)
 def on_chat_message_requested(sender, room_title, message_text, from_user=None, anonymous=True, guest_email='', guest_name='', **kwargs):
     """Deliver a message to a chat room on behalf of another app."""
-    from .utils import send_message_to_room
+    try:
+        room = Room.objects.get(title=room_title)
+    except Room.DoesNotExist:
+        log.error(f"Room '{room_title}' does not exist")
+        return
 
-    send_message_to_room(room_title=room_title, message_text=message_text, sender=from_user, anonymous=anonymous, guest_email=guest_email, guest_name=guest_name)
+    async_to_sync(send_message)(room, message_text, sender=from_user, anonymous=anonymous, guest_email=guest_email, guest_name=guest_name, linkify=False)
 
 
 @receiver(citizen_accepted)
