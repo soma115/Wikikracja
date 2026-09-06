@@ -122,8 +122,8 @@ class CanPostInRoomTest(TestCase):
     async def test_unauthenticated_users_cannot_post_in_public_or_private_rooms(self):
         for public in (True, False):
             self.room.public = public
-            for user in (None, AnonymousUser()):
-                with self.subTest(public=public, user=user):
+            for name, user in (('none', None), ('anonymous', AnonymousUser())):
+                with self.subTest(public=public, user=name):
                     self.assertFalse(await ChatRepository(user).can_post_in_room(self.room))
 
     async def test_private_membership_allows_unapproved_helper(self):
@@ -207,8 +207,8 @@ class RoomPermissionRegistryTest(TestCase):
         register_room_permission_checker(self.room.source_app, self.checker)
         for public in (True, False):
             self.room.public = public
-            for user in (None, AnonymousUser()):
-                with self.subTest(public=public, user=user):
+            for name, user in (('none', None), ('anonymous', AnonymousUser())):
+                with self.subTest(public=public, user=name):
                     self.assertFalse(can_user_post_in_room(self.room, user))
         self.assertFalse(can_user_post_in_room(self.room, self.user))
         self.room.allowed.add(self.user)
@@ -229,8 +229,8 @@ class RoomPermissionRegistryTest(TestCase):
 
     async def test_send_message_rejects_denied_or_failed_checker_without_side_effects(self):
         register_room_permission_checker(self.room.source_app, self.checker)
-        for error in (None, RuntimeError("Permission lookup failed")):
-            with self.subTest(error=error):
+        for name, error in (('denied', None), ('runtime', RuntimeError("Permission lookup failed"))):
+            with self.subTest(error=name):
                 self.checker.reset_mock()
                 self.checker.return_value = False
                 self.checker.side_effect = error
@@ -531,8 +531,8 @@ class DomainNotificationSignalTest(TestCase):
 
 class VoteNotificationPayloadTest(TestCase):
     def test_vote_notification_payload_is_json_serializable(self):
-        for signal in (signals.vote_started, signals.vote_state_changed):
-            with self.subTest(signal=signal), patch('core.notifications.send_notification_to_all_sync') as deliver:
+        for name, signal in (('vote_started', signals.vote_started), ('vote_state_changed', signals.vote_state_changed)):
+            with self.subTest(signal=name), patch('core.notifications.send_notification_to_all_sync') as deliver:
                 signal.send(sender=type(self), title='Vote title', body='Vote body', click_action='https://example.com/vote/1', tag='vote-1', vote_id=1)
 
                 deliver.assert_called_once()

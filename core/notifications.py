@@ -289,6 +289,8 @@ def send_notification_to_all_sync(notification, ws_type='notification', notifica
             send_websocket_to_all_sync(notification, ws_type, user_ids=user_ids)
     except DatabaseError as e:
         log.error(f'{NOTIF_LOG_TAG} Broadcast notification skipped due to DB error: {e}')
+    except Exception as e:
+        log.error(f'{NOTIF_LOG_TAG} Broadcast notification failed: {e}', exc_info=True)
 
 
 def send_notification_to_all_in_thread(notification, ws_type='notification', notification_type=None, daemon=True, *, send_push=True, send_websocket=True):
