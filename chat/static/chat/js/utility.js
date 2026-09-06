@@ -78,7 +78,7 @@ export function sendNotificationAck(info) {
  * @param {string} [notif.notification_id] - Server-assigned ID, echoed back in the delivery ack.
  */
 export async function makeNotification(notif) {
-    changeIcon('/static/chat/images/notification-on.ico');
+    showUnreadIcon();
 
     const notificationId = notif.notification_id || null;
     const ack = (status, extra = {}) =>
@@ -164,15 +164,44 @@ export async function makeNotification(notif) {
 // Favicon href as rendered by the server (respects custom brand mark) — captured lazily
 // on first use, before any notification badge overwrites it.
 let originalIconHref = null;
+// Data URL of the favicon with an "unread" dot, rendered once from originalIconHref
+let unreadIconHref = null;
+
+// Green dot color — same as the legacy notification-on.ico badge
+const UNREAD_BADGE_COLOR = '#7cb342';
+const FALLBACK_ICON = '/static/chat/images/notification-off.ico';
+const FALLBACK_UNREAD_ICON = '/static/chat/images/notification-on.ico';
+
+/**
+ * Returns the page favicon link element, creating it when absent
+ * @returns {HTMLLinkElement}
+ */
+function getIconLink() {
+    let link = $("link[rel~='icon']");
+    if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.getElementsByTagName('head')[0].appendChild(link);
+    }
+    return link;
+}
+
+/**
+ * Captures the favicon href currently rendered by the server so it can be
+ * restored later. Falls back to the bundled default icon when no href is set.
+ */
+function captureOriginalIcon() {
+    if (originalIconHref === null) {
+        originalIconHref = getIconLink().href || FALLBACK_ICON;
+    }
+}
 
 /**
  * Removes notification indicator (restores the site's original favicon,
  * which may be a custom brand mark instead of the default icon)
  */
 export function removeNotification() {
-    if (originalIconHref === null) {
-        originalIconHref = $("link[rel~='icon']")?.href ?? '/static/chat/images/notification-off.ico';
-    }
+    captureOriginalIcon();
     changeIcon(originalIconHref);
 }
 
@@ -181,16 +210,54 @@ export function removeNotification() {
  * @param {string} resource - URL to the icon image
  */
 export function changeIcon(resource) {
-    let link = $("link[rel~='icon']");
-    if (!link) {
-        link = document.createElement('link');
-        link.rel = 'icon';
-        document.getElementsByTagName('head')[0].appendChild(link);
-    }
-    if (originalIconHref === null) {
-        originalIconHref = link.href;
-    }
+    const link = getIconLink();
+    captureOriginalIcon();
     link.href = resource;
+}
+
+/**
+ * Renders the given favicon with a green "unread" dot into a data URL, so the
+ * indicator preserves a custom brand mark instead of reverting to the default icon.
+ * @param {string} href - Source favicon URL
+ * @returns {Promise<string|null>} - data: URL, or null when the icon can't be drawn
+ */
+async function renderUnreadIcon(href) {
+    try {
+        const img = new Image();
+        img.src = href;
+        await img.decode();
+        const size = 64;
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        // contain-fit — the favicon may be non-square (default icon is 49x57)
+        const scale = Math.min(size / img.naturalWidth, size / img.naturalHeight);
+        const w = img.naturalWidth * scale;
+        const h = img.naturalHeight * scale;
+        ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+        const r = Math.round(size * 0.15);
+        ctx.beginPath();
+        ctx.arc(size - r, r, r, 0, Math.PI * 2);
+        ctx.fillStyle = UNREAD_BADGE_COLOR;
+        ctx.fill();
+        return canvas.toDataURL('image/png');
+    } catch (e) {
+        console.debug('[NOTIFDBG] unread favicon render failed:', e);
+        return null;
+    }
+}
+
+/**
+ * Switches the page favicon to the "unread" variant — the site's own favicon
+ * (possibly a custom brand mark) with a green dot drawn on a canvas.
+ * Falls back to the bundled static icon when runtime rendering fails.
+ */
+export async function showUnreadIcon() {
+    captureOriginalIcon();
+    if (unreadIconHref === null) {
+        unreadIconHref = (await renderUnreadIcon(originalIconHref)) || FALLBACK_UNREAD_ICON;
+    }
+    changeIcon(unreadIconHref);
 }
 
 /**
