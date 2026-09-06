@@ -258,7 +258,6 @@ def send_message_to_room(room_title, message_text, sender=None, anonymous=True, 
             # Check if user is online and has an active connection
             consumer = ChatConsumer.online_registry.get_consumer(user)
             if consumer is not None:
-
                 try:
                     # Send notification in the same format as regular chat notifications
                     async_to_sync(consumer.send_json)(

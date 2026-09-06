@@ -16,11 +16,24 @@ class UploadPathTest(SimpleTestCase):
 
     def test_rejects_paths_and_unsafe_names_without_normalizing(self):
         filenames = (
-            '../image.webp', '../../image.webp', 'nested/image.webp', r'nested\image.webp',
-            '/image.webp', r'C:\image.webp', '.hidden.webp', 'a..webp',
-            "folder' data-review='marker/image.webp", "image'.webp", 'image".webp',
-            'image.webp?x=1', 'image.webp#x', '%2e%2e.webp', 'image\x00.webp',
-            '', None, 123,
+            '../image.webp',
+            '../../image.webp',
+            'nested/image.webp',
+            r'nested\image.webp',
+            '/image.webp',
+            r'C:\image.webp',
+            '.hidden.webp',
+            'a..webp',
+            "folder' data-review='marker/image.webp",
+            "image'.webp",
+            'image".webp',
+            'image.webp?x=1',
+            'image.webp#x',
+            '%2e%2e.webp',
+            'image\x00.webp',
+            '',
+            None,
+            123,
         )
         for filename in filenames:
             with self.subTest(filename=filename):
