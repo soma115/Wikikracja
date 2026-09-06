@@ -17,6 +17,10 @@ from typing import Callable, Optional
 
 FeedProvider = Callable[[datetime], list[dict]]
 MarkHook = Callable[[int, object], None]
+PrepareItemsHook = Callable[[list[dict], object], list[Optional[dict]]]
+PrepareDigestItemsHook = Callable[[list[dict], object, datetime], list[Optional[dict]]]
+
+DIGEST_GROUP_ID = '_digest_group_id'
 
 
 @dataclass
@@ -25,13 +29,25 @@ class FeedEntry:
     get_items: FeedProvider
     mark_as_read: Optional[MarkHook] = None
     mark_as_unread: Optional[MarkHook] = None
+    prepare_items: Optional[PrepareItemsHook] = None
+    prepare_digest_items: Optional[PrepareDigestItemsHook] = None
 
 
 _providers: dict[str, FeedEntry] = {}
 
 
-def register_feed_provider(content_type: str, *, get_items: FeedProvider, mark_as_read: Optional[MarkHook] = None, mark_as_unread: Optional[MarkHook] = None) -> None:
-    _providers[content_type] = FeedEntry(content_type=content_type, get_items=get_items, mark_as_read=mark_as_read, mark_as_unread=mark_as_unread)
+def register_feed_provider(
+    content_type: str,
+    *,
+    get_items: FeedProvider,
+    mark_as_read: Optional[MarkHook] = None,
+    mark_as_unread: Optional[MarkHook] = None,
+    prepare_items: Optional[PrepareItemsHook] = None,
+    prepare_digest_items: Optional[PrepareDigestItemsHook] = None,
+) -> None:
+    _providers[content_type] = FeedEntry(
+        content_type=content_type, get_items=get_items, mark_as_read=mark_as_read, mark_as_unread=mark_as_unread, prepare_items=prepare_items, prepare_digest_items=prepare_digest_items
+    )
 
 
 def get_provider(content_type: str) -> Optional[FeedEntry]:

@@ -2,10 +2,9 @@ import logging
 
 from django.utils.translation import gettext_lazy as _
 
+from core.dashboard_registry import collect_dashboard_context, collect_public_context, collect_site_admin_context
+from core.services.feed import generate_feed_items, get_unread_count
 from site_settings.models import QuickLink
-
-from ..dashboard_registry import collect_dashboard_context, collect_public_context, collect_site_admin_context
-from .feed import generate_feed_items, get_unread_count
 
 log = logging.getLogger(__name__)
 

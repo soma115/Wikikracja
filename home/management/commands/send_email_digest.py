@@ -13,12 +13,12 @@ from django.utils import timezone
 from django.utils.html import escape, mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from home.services.feed import build_user_digest
+from core.richtext import strip_tags
+from core.services.feed import build_user_digest
+from core.utils import build_site_url, get_site_domain
 from home.templatetags.feed_filters import content_type_label
 from zzz.email import send_bulk_email_in_thread
 from zzz.management.base_command import TranslatedCommand
-from zzz.richtext import strip_tags
-from zzz.utils import build_site_url, get_site_domain
 
 log = logging.getLogger(__name__)
 

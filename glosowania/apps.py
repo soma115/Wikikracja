@@ -6,11 +6,11 @@ class VotingConfig(AppConfig):
 
     def ready(self):
         import glosowania.signals  # noqa
-        from home.dashboard_registry import register_dashboard_provider
-        from home.feed_registry import register_feed_provider
-        from home.models import ReadStatus
-        from home.search_registry import register_search_provider
-        from home.services.feed import make_read_status_markers
+        from core.dashboard_registry import register_dashboard_provider
+        from core.feed_registry import register_feed_provider
+        from core.models import ReadStatus
+        from core.search_registry import register_search_provider
+        from core.services.feed import make_read_status_markers
 
         from .dashboard import get_context as get_dashboard_context, get_site_admin_context
         from .feed import get_feed_items

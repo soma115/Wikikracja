@@ -2,8 +2,8 @@ import pytest
 from django.utils import timezone
 
 from bookkeeping.models import Asset
+from core.models import ReadStatus
 from glosowania.models import Decyzja
-from home.models import ReadStatus
 from home.services.dashboard import build_dashboard_context
 from tests.factories import UserFactory
 

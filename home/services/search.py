@@ -1,4 +1,4 @@
-from ..search_registry import collect_search_results
+from core.search_registry import collect_search_results
 
 
 def run_global_search(query: str, active_cats: set, user, limit: int = 10) -> list:

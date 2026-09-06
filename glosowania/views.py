@@ -16,14 +16,14 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from chat.views import get_translations as get_chat_translations
+from chat.i18n import get_translations as get_chat_translations
+from core.signals import vote_state_changed
+from core.utils import build_site_url
 from glosowania.forms import ArgumentForm, DecyzjaForm, ParametersProposalForm
 from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy, author_signed_exists
 from glosowania.vote_buffer import push_pending_vote
 from site_settings.models import SiteParameters
 from site_settings.params import describe_changes, specs_by_category
-from zzz.signals import vote_state_changed
-from zzz.utils import build_site_url
 
 log = logging.getLogger(__name__)
 

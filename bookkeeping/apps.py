@@ -6,7 +6,7 @@ class BookkeepingConfig(AppConfig):
     name = 'bookkeeping'
 
     def ready(self):
-        from home.dashboard_registry import register_dashboard_provider
+        from core.dashboard_registry import register_dashboard_provider
 
         from .dashboard import get_context as get_dashboard_context
 

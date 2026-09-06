@@ -13,7 +13,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from push_notifications.models import GCMDevice
 
-from zzz.notifications import NOTIF_LOG_TAG
+from core.notifications import NOTIF_LOG_TAG
 
 log = logging.getLogger(__name__)
 
@@ -146,7 +146,7 @@ class PushNotificationAckView(View):
     Client-side confirmation that a notification was (or wasn't) actually
     displayed to the user. This is the delivery-confirmation half of the
     notification pipeline: the server logs a `notification_id` when a
-    notification is built and sent (see zzz/notifications.py and
+    notification is built and sent (see core/notifications.py and
     chat/consumers.py), and the client posts back here once it knows the
     real outcome (OS notification shown, skipped, errored, or clicked).
 
@@ -170,7 +170,10 @@ class PushNotificationAckView(View):
     def post(self, request: HttpRequest):
         try:
             data = json.loads(request.body.decode('utf-8'))
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        if not isinstance(data, dict):
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
         notification_id = data.get('notification_id') or '?'

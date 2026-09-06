@@ -17,23 +17,14 @@ from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DetailView, TemplateView, UpdateView
 
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryReorderAPI
-from chat.models import Room
-from chat.views import get_translations as get_chat_translations
+from chat.i18n import get_translations as get_chat_translations
+from chat.services import get_unseen_room_ids
 from zzz.templatetags.citizen_filters import citizen_color_class
 
 from .forms import TaskForm, TaskStatusForm
 from .models import Category, Task, TaskEvaluation, TaskVote
 
 User = get_user_model()
-
-
-def _get_pulse_room_ids(user):
-    """Return set of chat room IDs that have unseen messages for user — single batch query."""
-
-    # Rooms with at least one message, minus rooms the user has already seen
-    rooms_with_msgs = Room.objects.filter(messages__isnull=False).values_list("id", flat=True).distinct()
-    seen_room_ids = set(user.seen_rooms.filter(id__in=rooms_with_msgs).values_list("id", flat=True))
-    return set(rooms_with_msgs) - seen_room_ids
 
 
 def _task_sort_context(request):
@@ -171,7 +162,7 @@ class TaskListView(LoginRequiredMixin, TemplateView):
         user = self.request.user
 
         qs = _task_list_queryset(user, categories, sort, order)
-        pulse_room_ids = _get_pulse_room_ids(user)
+        pulse_room_ids = get_unseen_room_ids(user)
 
         # Szablon renderuje wyłącznie aktywną zakładkę — budujemy tylko jej listy.
         lists = {}

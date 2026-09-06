@@ -1,6 +1,6 @@
 import logging
 
-from zzz.signals import event_starting
+from core.signals import event_starting
 
 log = logging.getLogger(__name__)
 

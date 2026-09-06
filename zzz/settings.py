@@ -179,6 +179,7 @@ TEMPLATES = [
 AUTHENTICATION_BACKENDS = ['obywatele.auth_backends.CaseInsensitiveEmailBackend', 'django.contrib.auth.backends.ModelBackend', 'allauth.account.auth_backends.AuthenticationBackend']
 
 INSTALLED_APPS = [
+    'core.apps.CoreConfig',
     'zzz.apps.SchedulerConfig',
     'daphne',
     'channels',

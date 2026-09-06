@@ -131,6 +131,14 @@ class Task(ChatRoomModel, models.Model):
             return True
         return self.is_user_approved(user)
 
+    @classmethod
+    def can_user_post_in_chat_room(cls, room, user):
+        try:
+            task = cls.objects.get(pk=room.source_object_id)
+        except cls.DoesNotExist:
+            return True
+        return task.can_user_post(user)
+
     def approve_helper(self, user):
         """Coordinator action: add a willing helper to the team."""
         if not self.is_user_helper(user):

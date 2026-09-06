@@ -2,7 +2,7 @@ from django.db.models import Q
 from django.utils.html import strip_tags
 from django.utils.translation import gettext_lazy as _
 
-from home.colors import category_color
+from core.colors import category_color
 
 from .models import Survey
 

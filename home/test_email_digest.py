@@ -14,9 +14,12 @@ from django.test import TransactionTestCase, override_settings
 from django.utils import timezone
 
 from board.models import Post
-from chat.models import Message, Room
-from home.services.feed import build_user_digest
-from obywatele.models import Uzytkownik
+from chat.models import Message, MessageReadBy, Room
+from core.models import ReadStatus
+from core.services.feed import build_user_digest
+from events.models import Event
+from home.management.commands.send_email_digest import Command
+from obywatele.models import CitizenActivity, Uzytkownik
 from tests.factories import PostCategoryFactory, PostFactory, UserFactory
 
 FAST_EMAIL_SETTINGS = {'EMAIL_BACKEND': 'django.core.mail.backends.locmem.EmailBackend', 'EMAIL_SEND_DELAY_SECONDS': 0}
@@ -116,6 +119,127 @@ def test_build_user_digest_excludes_items_before_since(digest_user):
 
     old_post_items = [i for i in items if i['content_type'] == 'post' and i['object_id'] == post.pk]
     assert not old_post_items
+
+
+@pytest.mark.django_db
+def test_digest_private_room_title_is_personalized_for_each_member(digest_user, another_user):
+    outsider = UserFactory(username='digest_outsider')
+    room = Room.objects.create(title='Private digest', public=False)
+    room.allowed.add(digest_user, another_user)
+    Message.objects.create(room=room, sender=digest_user, text='From first member')
+    Message.objects.create(room=room, sender=another_user, text='From second member')
+    since = timezone.now() - td(hours=1)
+
+    for user, other in ((digest_user, another_user), (another_user, digest_user), (outsider, None)):
+        items = [item for item in build_user_digest(user, since) if item['content_type'] == 'room_messages' and item['room_id'] == room.pk]
+        if other is None:
+            assert items == []
+        else:
+            assert len(items) == 1
+            assert items[0]['title'] == other.username
+            assert items[0]['message_count'] == 1
+            assert items[0]['url'] == f'/chat/#room_id={room.pk}'
+
+
+@pytest.mark.django_db
+def test_digest_ignores_read_state_and_includes_messages_at_since_boundary(digest_user, another_user):
+    since = timezone.now() - td(hours=1)
+    room = Room.objects.create(title='Read digest room', public=True)
+    messages = [Message.objects.create(room=room, sender=another_user, text=text) for text in ('Old', 'Boundary', 'Newest')]
+    for message, offset in zip(messages, (-1, 0, 1), strict=True):
+        Message.objects.filter(pk=message.pk).update(time=since + td(seconds=offset))
+        MessageReadBy.objects.create(message=message, user=digest_user)
+    room.seen_by.add(digest_user)
+    post = PostFactory(author=another_user)
+    ReadStatus.objects.create(user=digest_user, content_type=ReadStatus.ContentType.POST, object_id=post.pk)
+
+    items = build_user_digest(digest_user, since)
+    chat_items = [item for item in items if item['content_type'] == 'room_messages' and item['room_id'] == room.pk]
+    assert len(chat_items) == 1
+    assert chat_items[0]['object_id'] == messages[-1].pk
+    assert chat_items[0]['description'] == 'Newest'
+    assert chat_items[0]['message_count'] == 2
+    assert chat_items[0]['update_count'] == 2
+    assert any(item['content_type'] == 'post' and item['object_id'] == post.pk for item in items)
+
+
+@pytest.mark.django_db
+def test_digest_omits_rooms_with_only_own_messages(digest_user):
+    room = Room.objects.create(title='Only own messages', public=True)
+    Message.objects.create(room=room, sender=digest_user, text='My message')
+
+    items = build_user_digest(digest_user, timezone.now() - td(hours=1))
+
+    assert not any(item['content_type'] == 'room_messages' and item['room_id'] == room.pk for item in items)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('room_flags', [{'archived': True}, {'is_inbox': True}])
+def test_digest_omits_archived_rooms_and_guest_inbox(digest_user, another_user, room_flags):
+    room = Room.objects.create(title='Excluded room', public=True)
+    Message.objects.create(room=room, sender=another_user, text='Excluded message')
+    Room.objects.filter(pk=room.pk).update(**room_flags)
+
+    items = build_user_digest(digest_user, timezone.now() - td(hours=1))
+
+    assert not any(item['content_type'] == 'room_messages' and item['room_id'] == room.pk for item in items)
+
+
+@pytest.mark.django_db
+def test_digest_groups_citizen_activities_by_user_and_keeps_latest(digest_user, another_user):
+    since = timezone.now() - td(hours=1)
+    CitizenActivity.objects.filter(uzytkownik__uid__in=(digest_user, another_user)).update(timestamp=since - td(seconds=1))
+    activities = [
+        CitizenActivity.objects.create(uzytkownik=user.uzytkownik, activity_type=activity_type)
+        for user, activity_type in (
+            (another_user, CitizenActivity.ActivityType.NEW_CANDIDATE),
+            (another_user, CitizenActivity.ActivityType.USER_ACTIVATED),
+            (digest_user, CitizenActivity.ActivityType.USER_ACTIVATED),
+        )
+    ]
+    for index, activity in enumerate(activities):
+        CitizenActivity.objects.filter(pk=activity.pk).update(timestamp=since + td(minutes=index + 1))
+
+    items = [item for item in build_user_digest(digest_user, since) if item['content_type'] == 'citizen']
+
+    assert [(item['author'].pk, item['object_id'], item['update_count']) for item in items] == [(digest_user.pk, activities[2].pk, 1), (another_user.pk, activities[1].pk, 2)]
+
+
+@pytest.mark.django_db
+def test_digest_sorts_upcoming_events_first_then_newest_posts(digest_user):
+    now = timezone.now()
+    later = Event.objects.create(title='Later', start_date=now + td(days=2), frequency='once', is_active=True)
+    earlier = Event.objects.create(title='Earlier', start_date=now + td(days=1), frequency='once', is_active=True)
+    older = PostFactory(author=digest_user)
+    newer = PostFactory(author=digest_user)
+    Post.objects.filter(pk=older.pk).update(updated=now - td(minutes=2))
+    Post.objects.filter(pk=newer.pk).update(updated=now - td(minutes=1))
+    expected = [('event', earlier.pk), ('event', later.pk), ('post', newer.pk), ('post', older.pk)]
+
+    items = build_user_digest(digest_user, now - td(hours=1))
+
+    assert [(item['content_type'], item['object_id']) for item in items if (item['content_type'], item['object_id']) in expected] == expected
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('latest_anonymous', [False, True])
+def test_digest_author_follows_latest_message_anonymity(digest_user, another_user, latest_anonymous):
+    room = Room.objects.create(title='Digest privacy', public=True)
+    since = timezone.now() - td(hours=1)
+    previous = Message.objects.create(room=room, sender=another_user, anonymous=not latest_anonymous, text='Earlier message')
+    latest = Message.objects.create(room=room, sender=another_user, anonymous=latest_anonymous, text='Latest message')
+    Message.objects.filter(pk=previous.pk).update(time=since + td(minutes=1))
+    Message.objects.filter(pk=latest.pk).update(time=since + td(minutes=2))
+
+    item = next(item for item in build_user_digest(digest_user, since) if item['content_type'] == 'room_messages' and item['room_id'] == room.pk)
+    assert item['object_id'] == latest.pk
+    assert item['description'] == latest.text
+    assert item['author'] == (None if latest_anonymous else another_user)
+    assert item['message_count'] == item['update_count'] == 2
+    context = Command()._build_digest_context(digest_user, [item])
+    title = context['sections'][0]['items'][0]['title']
+    assert (another_user.username in title) is (not latest_anonymous)
+    assert room.title in title
 
 
 @override_settings(**FAST_EMAIL_SETTINGS)

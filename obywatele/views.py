@@ -1,4 +1,3 @@
-import datetime
 import json
 import logging
 from datetime import timedelta
@@ -22,21 +21,21 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.translation import check_for_language, pgettext_lazy
+from django.utils.translation import check_for_language
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 from django_filters.views import FilterView
 from django_tables2.views import SingleTableMixin
 
-from chat.models import Message, Room
-from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, ZebranePodpisy
+from chat.services import get_user_public_message_rows
+from core.signals import citizen_proposed
 from obywatele.filters import UzytkownikFilter
 from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, UserForm, UsernameChangeForm
-from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
+from obywatele.models import DeletionRequest, Rate, Uzytkownik
+from obywatele.services import get_citizen_activity, get_citizen_created_items
 from obywatele.tables import UzytkownikTable
 from site_settings.params import get_param
-from tasks.models import Task, TaskEvaluation, TaskVote
-from zzz.signals import citizen_proposed
+from tasks.activity import get_user_tasks
 
 log = logging.getLogger(__name__)
 
@@ -840,8 +839,7 @@ def set_user_language(request: HttpRequest):
 @login_required
 def citizen_czaty(request: HttpRequest, pk: int):
     target_user = get_object_or_404(User, pk=pk)
-    messages = Message.objects.filter(sender=target_user, room__public=True).select_related('room').order_by('-time')
-    rows = [{'room': msg.room, 'room_name': msg.room.displayed_name(request.user), 'msg': msg} for msg in messages]
+    rows = get_user_public_message_rows(target_user, request.user)
     template = 'obywatele/_citizen_czaty_partial.html' if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else 'obywatele/citizen_czaty.html'
     return render(request, template, {'target_user': target_user, 'rows': rows, 'is_own': request.user.pk == pk})
 
@@ -849,7 +847,7 @@ def citizen_czaty(request: HttpRequest, pk: int):
 @login_required
 def citizen_zadania(request: HttpRequest, pk: int):
     target_user = get_object_or_404(User, pk=pk)
-    tasks = Task.objects.filter(Q(created_by=target_user) | Q(assigned_to=target_user)).distinct().order_by('-created_at')
+    tasks = get_user_tasks(target_user)
     template = 'obywatele/_citizen_zadania_partial.html' if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else 'obywatele/citizen_zadania.html'
     return render(request, template, {'target_user': target_user, 'tasks': tasks, 'is_own': request.user.pk == pk})
 
@@ -858,36 +856,7 @@ def citizen_zadania(request: HttpRequest, pk: int):
 def citizen_aktywnosc(request: HttpRequest, pk: int):
     target_user = get_object_or_404(User, pk=pk)
     target_profile = get_object_or_404(Uzytkownik, uid=target_user)
-    items = []
-
-    for t in Task.objects.filter(created_by=target_user).order_by('-created_at'):
-        items.append({'type': 'task_created', 'title': t.title, 'ts': t.created_at, 'label': _('Created activity'), 'url': reverse('tasks:detail', kwargs={'pk': t.pk})})
-
-    for t in Task.objects.filter(assigned_to=target_user).order_by('-updated_at'):
-        items.append({'type': 'task_assigned', 'title': t.title, 'ts': t.updated_at, 'label': _('Assigned activity'), 'url': reverse('tasks:detail', kwargs={'pk': t.pk})})
-
-    for tv in TaskVote.objects.filter(user=target_user).select_related('task').order_by('-updated_at'):
-        items.append({'type': 'task_vote', 'title': tv.task.title, 'ts': tv.updated_at, 'label': _('Voted on activity'), 'url': reverse('tasks:detail', kwargs={'pk': tv.task_id})})
-
-    for te in TaskEvaluation.objects.filter(user=target_user).select_related('task').order_by('-updated_at'):
-        items.append({'type': 'task_eval', 'title': te.task.title, 'ts': te.updated_at, 'label': _('Evaluated activity'), 'url': reverse('tasks:detail', kwargs={'pk': te.task_id})})
-
-    for arg in Argument.objects.filter(author=target_user).select_related('decyzja').order_by('-created_at'):
-        items.append({'type': 'argument', 'title': arg.decyzja.title, 'ts': arg.created_at, 'label': _('Added argument'), 'url': reverse('glosowania:details', kwargs={'pk': arg.decyzja_id})})
-
-    for zp in ZebranePodpisy.objects.filter(podpis_uzytkownika=target_user).select_related('projekt'):
-        if zp.projekt:
-            items.append({'type': 'signature', 'title': zp.projekt.title, 'ts': None, 'label': _('Signed proposal'), 'url': reverse('glosowania:details', kwargs={'pk': zp.projekt_id})})
-
-    for kg in KtoJuzGlosowal.objects.filter(ktory_uzytkownik_juz_zaglosowal=target_user).select_related('projekt'):
-        items.append({'type': 'voted', 'title': kg.projekt.title, 'ts': None, 'label': _('Voted in referendum'), 'url': reverse('glosowania:details', kwargs={'pk': kg.projekt_id})})
-
-    for ca in CitizenActivity.objects.filter(uzytkownik=target_profile).order_by('-timestamp'):
-        items.append({'type': 'citizen', 'title': ca.get_activity_type_display(), 'ts': ca.timestamp, 'label': _('Citizenship event'), 'url': None})
-
-    epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
-    items.sort(key=lambda x: x['ts'] or epoch, reverse=True)
-
+    items = get_citizen_activity(target_user, target_profile)
     template = 'obywatele/_citizen_aktywnosc_partial.html' if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else 'obywatele/citizen_aktywnosc.html'
     return render(request, template, {'target_user': target_user, 'items': items, 'is_own': request.user.pk == pk})
 
@@ -895,27 +864,7 @@ def citizen_aktywnosc(request: HttpRequest, pk: int):
 @login_required
 def citizen_zalozono(request: HttpRequest, pk: int):
     target_user = get_object_or_404(User, pk=pk)
-    items = []
-
-    for t in Task.objects.filter(created_by=target_user).order_by('-created_at'):
-        items.append({'title': t.title, 'ts': t.created_at, 'label': pgettext_lazy('task', 'Activity'), 'url': reverse('tasks:detail', kwargs={'pk': t.pk})})
-
-    for d in Decyzja.objects.filter(author=target_user).order_by('-data_powstania'):
-        items.append(
-            {
-                'title': d.title or '—',
-                'ts': datetime.datetime(d.data_powstania.year, d.data_powstania.month, d.data_powstania.day, tzinfo=datetime.timezone.utc) if d.data_powstania else None,
-                'label': _('Voting proposal'),
-                'url': reverse('glosowania:details', kwargs={'pk': d.pk}),
-            }
-        )
-
-    for room in Room.objects.filter(founder=target_user, public=True).order_by('-last_activity'):
-        items.append({'title': room.displayed_name(target_user), 'ts': room.last_activity, 'label': _('Chat room'), 'url': reverse('chat:chat') + f'#room_id={room.pk}'})
-
-    epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
-    items.sort(key=lambda x: x['ts'] or epoch, reverse=True)
-
+    items = get_citizen_created_items(target_user)
     template = 'obywatele/_citizen_zalozono_partial.html' if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else 'obywatele/citizen_zalozono.html'
     return render(request, template, {'target_user': target_user, 'items': items, 'is_own': request.user.pk == pk})
 

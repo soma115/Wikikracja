@@ -6,7 +6,7 @@ from django.db.models.functions import Greatest
 from django.db.models.signals import m2m_changed, post_delete, post_migrate, post_save
 from django.dispatch import Signal, receiver
 
-from zzz.signals import citizen_accepted, citizen_deleted
+from core.signals import citizen_accepted, citizen_deleted
 
 from .models import Message, Room
 from .services import send_message
@@ -54,7 +54,7 @@ def _sync_room_last_message(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Message)
 @receiver(post_delete, sender=Message)
 def _invalidate_feed_cache_on_message_change(sender, **kwargs):
-    from home.services.feed import invalidate_feed_cache
+    from core.services.feed import invalidate_feed_cache
 
     invalidate_feed_cache()
 
@@ -63,7 +63,7 @@ def _invalidate_feed_cache_on_message_change(sender, **kwargs):
 @receiver(post_delete, sender=Room)
 @receiver(m2m_changed, sender=Room.allowed.through)
 def _invalidate_feed_cache_on_room_change(sender, **kwargs):
-    from home.services.feed import invalidate_feed_cache
+    from core.services.feed import invalidate_feed_cache
 
     invalidate_feed_cache()
 

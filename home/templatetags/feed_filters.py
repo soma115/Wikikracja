@@ -2,7 +2,7 @@ from django import template
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from home.colors import category_color
+from core.colors import category_color
 
 register = template.Library()
 
@@ -10,7 +10,7 @@ register = template.Library()
 @register.filter
 def content_type_color(content_type):
     """Return Bootstrap color class for content type. Backed by the single
-    source of truth in home/colors.py (CATEGORY_COLORS), also used by
+    source of truth in core/colors.py (CATEGORY_COLORS), also used by
     home.views.global_search and home/templates/home/search.html."""
     return category_color(content_type)
 

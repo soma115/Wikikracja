@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
-from home.colors import category_color
+from core.colors import category_color
 
 
 def search(query: str, active_cats: set[str], user, limit: int = 10) -> list[dict]:

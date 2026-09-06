@@ -14,13 +14,13 @@ from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
+from core.services import feed as feed_service
 from site_settings.models import QuickLink, SiteSettings
 from site_settings.services import get_branding_version
 
 from .forms import RememberLoginForm
 from .link_titles import resolve_link_titles
 from .services import dashboard as dashboard_service
-from .services import feed as feed_service
 from .services import search as search_service
 
 log = logging.getLogger(__name__)

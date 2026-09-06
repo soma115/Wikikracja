@@ -5,8 +5,8 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from django.utils import timezone
 
-from zzz.notifications import NOTIF_LOG_TAG
-from zzz.richtext import sanitize
+from core.notifications import NOTIF_LOG_TAG
+from core.richtext import sanitize
 
 from .exceptions import ClientError
 from .serializers import build_chat_message_payload

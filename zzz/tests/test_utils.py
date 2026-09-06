@@ -9,7 +9,7 @@ from django.contrib.sites.models import Site
 from django.db import OperationalError
 from django.test import SimpleTestCase
 
-from zzz.utils import get_site_domain
+from core.utils import get_site_domain
 
 
 class SiteDomainTest(SimpleTestCase):

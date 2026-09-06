@@ -11,6 +11,7 @@ from channels.layers import get_channel_layer
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.db.models import Q
 from django.db.utils import DatabaseError
 from django.dispatch import receiver
 from django.utils import formats
@@ -18,11 +19,11 @@ from django.utils.translation import gettext as _
 from firebase_admin import messaging
 from push_notifications.models import GCMDevice
 
+from core.richtext import strip_tags
+from core.signals import citizen_accepted, citizen_blocked, citizen_proposed, event_starting, important_post_published, survey_created, task_created, vote_started, vote_state_changed
+from core.utils import build_site_url
 from site_settings.models import SiteSettings
 from site_settings.services import get_branding_version
-from zzz.richtext import strip_tags
-from zzz.signals import citizen_accepted, citizen_blocked, citizen_proposed, event_starting, important_post_published, survey_created, task_created, vote_started, vote_state_changed
-from zzz.utils import build_site_url
 
 log = logging.getLogger(__name__)
 
@@ -203,7 +204,9 @@ def send_fcm_to_all_sync(notification, user_ids=None, notification_type=None):
 
     _migrate_legacy_gcm_devices()
     try:
-        qs = GCMDevice.objects.filter(user__is_active=True, active=True, cloud_message_type='FCM')
+        qs = GCMDevice.objects.filter(user__is_active=True, active=True, cloud_message_type='FCM').exclude(
+            Q(name__in=('mobile', 'tablet'), user__uzytkownik__push_phone_enabled=False) | Q(name='desktop', user__uzytkownik__push_computer_enabled=False)
+        )
         if user_ids is not None:
             qs = qs.filter(user_id__in=user_ids)
         if not qs.exists():
@@ -274,17 +277,21 @@ def send_websocket_to_all_sync(notification, ws_type='notification', notificatio
     log.debug(f"{NOTIF_LOG_TAG} WebSocket broadcast notification_id={notification_id} group_send to {sent} user(s)")
 
 
-def send_notification_to_all_sync(notification, ws_type='notification', notification_type=None):
+def send_notification_to_all_sync(notification, ws_type='notification', notification_type=None, *, send_push=True, send_websocket=True):
     """Send both FCM and WebSocket notifications to all active users."""
+    if not (send_push or send_websocket):
+        return
     try:
         user_ids = _push_user_ids(notification_type)
-        send_fcm_to_all_sync(notification, user_ids=user_ids)
-        send_websocket_to_all_sync(notification, ws_type, user_ids=user_ids)
+        if send_push:
+            send_fcm_to_all_sync(notification, user_ids=user_ids)
+        if send_websocket:
+            send_websocket_to_all_sync(notification, ws_type, user_ids=user_ids)
     except DatabaseError as e:
         log.error(f'{NOTIF_LOG_TAG} Broadcast notification skipped due to DB error: {e}')
 
 
-def send_notification_to_all_in_thread(notification, ws_type='notification', notification_type=None, daemon=True):
+def send_notification_to_all_in_thread(notification, ws_type='notification', notification_type=None, daemon=True, *, send_push=True, send_websocket=True):
     """Send both FCM and WebSocket notifications to all active users in a background thread.
 
     Use this from request-handling code paths (views, forms) so the HTTP response doesn't
@@ -292,7 +299,9 @@ def send_notification_to_all_in_thread(notification, ws_type='notification', not
     Mirrors the pattern used by `send_bulk_email_in_thread` for emails. Management commands
     that already run out-of-band can keep using `send_notification_to_all_sync` directly.
     """
-    t = threading.Thread(target=send_notification_to_all_sync, args=(notification,), kwargs={'ws_type': ws_type, 'notification_type': notification_type}, daemon=daemon)
+    t = threading.Thread(
+        target=send_notification_to_all_sync, args=(notification,), kwargs={'ws_type': ws_type, 'notification_type': notification_type, 'send_push': send_push, 'send_websocket': send_websocket}, daemon=daemon
+    )
     t.start()
     return t
 
@@ -337,9 +346,9 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
     if send_push or send_websocket:
         notification = build_notification(title, body, click_action, tag, **extra)
         if in_thread:
-            send_notification_to_all_in_thread(notification, ws_type=ws_type, notification_type=notification_type, daemon=daemon)
+            send_notification_to_all_in_thread(notification, ws_type=ws_type, notification_type=notification_type, daemon=daemon, send_push=send_push, send_websocket=send_websocket)
         else:
-            send_notification_to_all_sync(notification, ws_type=ws_type, notification_type=notification_type)
+            send_notification_to_all_sync(notification, ws_type=ws_type, notification_type=notification_type, send_push=send_push, send_websocket=send_websocket)
 
     if sleep_before:
         time.sleep(sleep_before)
@@ -475,6 +484,7 @@ def on_citizen_blocked(sender, user, **kwargs):
 def on_vote_notification(sender, **kwargs):
     """Dispatch vote-related notifications using the payload supplied by the sender."""
     # Pop domain objects that should not leak into FCM/WebSocket payloads.
+    kwargs.pop('signal', None)
     kwargs.pop('decyzja', None)
     kwargs.pop('transition', None)
 

@@ -2,7 +2,7 @@ from django import forms
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from zzz.richtext import sanitize
+from core.richtext import sanitize
 
 TOOLBAR_HTML = mark_safe(
     '<div class="fmt-toolbar">'
@@ -20,7 +20,7 @@ class RichTextWidget(forms.Textarea):
     into a hidden <input> so the form posts back exactly the same data shape
     as a regular Textarea.
 
-    Allowed tags are defined centrally in `zzz.richtext.ALLOWED_TAGS`.
+    Allowed tags are defined centrally in `core.richtext.ALLOWED_TAGS`.
     """
 
     class Media:

@@ -14,10 +14,10 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from board.models import Post
+from core.signals import citizen_accepted, citizen_blocked, citizen_deleted
+from core.utils import build_site_url, get_site_domain
 from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
 from obywatele.views import population, required_reputation
-from zzz.signals import citizen_accepted, citizen_blocked, citizen_deleted
-from zzz.utils import build_site_url, get_site_domain
 
 log = logging.getLogger(__name__)
 

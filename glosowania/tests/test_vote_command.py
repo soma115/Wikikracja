@@ -43,7 +43,7 @@ def test_closing_referendum_reveals_shuffled_votes_and_tallies_them(sample_users
 
     with (
         patch('glosowania.management.commands.vote.pop_all_pending_votes', return_value=list(pending_votes)) as mock_pop,
-        patch('zzz.notifications.send_notification_to_all_sync'),
+        patch('core.notifications.send_notification_to_all_sync'),
         patch('glosowania.management.commands.vote.Room.create_all_one2one_rooms'),
     ):
         call_command('vote')
@@ -77,7 +77,7 @@ def test_closing_referendum_rejects_when_no_votes_cast(sample_users):
 
     with (
         patch('glosowania.management.commands.vote.pop_all_pending_votes', return_value=[]),
-        patch('zzz.notifications.send_notification_to_all_sync'),
+        patch('core.notifications.send_notification_to_all_sync'),
         patch('glosowania.management.commands.vote.Room.create_all_one2one_rooms'),
     ):
         call_command('vote')
@@ -115,7 +115,7 @@ def test_closing_referendum_restarts_on_buffer_mismatch(sample_users, caplog):
 
     with (
         patch('glosowania.management.commands.vote.pop_all_pending_votes', return_value=[{'code': 'aaaaa', 'vote': True}]),
-        patch('zzz.notifications.send_notification_to_all_sync'),
+        patch('core.notifications.send_notification_to_all_sync'),
         patch('glosowania.management.commands.vote.Room.create_all_one2one_rooms'),
         caplog.at_level('WARNING'),
     ):

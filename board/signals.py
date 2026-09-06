@@ -8,9 +8,9 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from chat.signals import chat_message_requested, chat_room_requested
-from home.services.feed import invalidate_feed_cache_on_change
-from zzz.signals import important_post_published
-from zzz.utils import build_site_url, get_site_domain
+from core.services.feed import invalidate_feed_cache_on_change
+from core.signals import important_post_published
+from core.utils import build_site_url, get_site_domain
 
 from .models import Post
 

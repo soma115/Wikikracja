@@ -3,15 +3,14 @@ from datetime import timedelta as td
 from datetime import timezone as dt_timezone
 
 from django.core.cache import cache
-from django.db.models import Count
 from django.utils import timezone
 
-from ..feed_registry import collect_feed_items, get_provider
-from ..models import ReadStatus
+from core.feed_registry import DIGEST_GROUP_ID, collect_feed_items, get_provider
+from core.models import ReadStatus
 
 log = logging.getLogger(__name__)
 
-FEED_CACHE_KEY = "feed_raw_v2"
+FEED_CACHE_KEY = "feed_raw_v3"
 FEED_CACHE_TTL = 3600
 FEED_DAYS = 90
 
@@ -54,19 +53,25 @@ def generate_feed_raw():
     return feed_items
 
 
-def _chat_message_counts_since(user, room_ids, since):
-    """Return {room_id: message_count} for the user since a given point.
+def _prepare_provider_items(raw_items, user, since=None):
+    batches = {}
+    for item in raw_items:
+        batches.setdefault(item['content_type'], []).append(item)
 
-    Counts messages in each room sent by someone else since `since`.
-    Used by email digests where every new message matters, not just unread.
-    """
-    if not room_ids:
-        return {}
-
-    from chat.models import Message
-
-    counts = Message.objects.filter(room_id__in=room_ids, time__gte=since).exclude(sender=user).values('room_id').annotate(msg_count=Count('id'))
-    return {c['room_id']: c['msg_count'] for c in counts}
+    prepared = {}
+    for content_type, batch in batches.items():
+        provider = get_provider(content_type)
+        if provider is None:
+            continue
+        hook = provider.prepare_items if since is None else provider.prepare_digest_items
+        if hook is None:
+            continue
+        copies = [dict(item) for item in batch]
+        results = hook(copies, user) if since is None else hook(copies, user, since)
+        if len(results) != len(batch):
+            raise ValueError(f"Feed provider {content_type} must return one result per input item")
+        prepared[content_type] = iter(results)
+    return prepared
 
 
 def generate_feed_items(user):
@@ -82,25 +87,15 @@ def generate_feed_items(user):
         'citizen': ReadStatus.ContentType.CITIZEN,
         'survey': ReadStatus.ContentType.SURVEY,
     }
-    chat_message_ids = [item['object_id'] for item in raw_items if item['content_type'] == 'room_messages']
-    from chat.models import MessageReadBy
-
-    read_chat_message_ids = set(MessageReadBy.objects.filter(user=user, message_id__in=chat_message_ids).values_list('message_id', flat=True))
-    seen_room_ids = set(user.seen_rooms.values_list('id', flat=True))
+    prepared = _prepare_provider_items(raw_items, user)
 
     feed_items = []
     for item in raw_items:
         ct = item['content_type']
-        # rooms: filter to rooms the user has access to
-        if ct == 'room_messages':
-            if not item.get('_is_public') and user.id not in item.get('_allowed_user_ids', set()):
+        if ct in prepared:
+            item = next(prepared[ct])
+            if item is None:
                 continue
-            if not item.get('_is_public'):
-                other = next((name for uid, name in item.get('_allowed_usernames', {}).items() if uid != user.id), None)
-                if other:
-                    item = {**item, 'title': other}
-            is_read = item['object_id'] in read_chat_message_ids or item['room_id'] in seen_room_ids
-            item = {**item, 'is_read': is_read, 'message_count': 1}
         else:
             rs_ct = ct_map.get(ct)
             is_read = (item['object_id'] in read_status_map[rs_ct]) if rs_ct else False
@@ -161,7 +156,6 @@ def make_read_status_markers(content_type: str):
     Most feed providers only differ by their ``ReadStatus.ContentType`` constant,
     so this factory removes the duplicated marker functions in ``<app>/feed.py``.
     """
-    from home.models import ReadStatus
 
     def mark_as_read(object_id: int, user) -> None:
         ReadStatus.objects.get_or_create(user=user, content_type=content_type, object_id=object_id)
@@ -184,10 +178,12 @@ def _digest_group_key(item):
     and other content types per object.
     """
     ct = item['content_type']
+    if DIGEST_GROUP_ID in item:
+        return (ct, item[DIGEST_GROUP_ID])
     if ct == 'citizen':
         author = item.get('author')
         return (ct, author.id if author else item['object_id'])
-    return (ct, item.get('room_id', item['object_id']))
+    return (ct, item['object_id'])
 
 
 def _sort_digest_items(items):
@@ -208,32 +204,22 @@ def build_user_digest(user, since):
     `since`. Items are sorted with upcoming events first, then newest first.
     """
     raw_items = collect_feed_items(since)
-
-    room_ids = [item['room_id'] for item in raw_items if item['content_type'] == 'room_messages']
-    chat_counts = _chat_message_counts_since(user, room_ids, since)
+    prepared = _prepare_provider_items(raw_items, user, since)
 
     user_items = []
     for item in raw_items:
         ct = item['content_type']
+        if ct in prepared:
+            item = next(prepared[ct])
+            if item is None:
+                continue
+        else:
+            # ReadStatus tracking is irrelevant for email digests.
+            item = {**item, 'update_count': 1}
 
         # Filter by the digest time window (events with future timestamps are kept).
         if item.get('timestamp') is not None and item['timestamp'] < since and ct != 'event':
             continue
-
-        if ct == 'room_messages':
-            if not item.get('_is_public') and user.id not in item.get('_allowed_user_ids', set()):
-                continue
-            if not item.get('_is_public'):
-                other = next((name for uid, name in item.get('_allowed_usernames', {}).items() if uid != user.id), None)
-                if other:
-                    item = {**item, 'title': other}
-            msg_count = chat_counts.get(item['room_id'], 0)
-            if msg_count == 0:
-                continue
-            item = {**item, 'message_count': msg_count, 'update_count': msg_count}
-        else:
-            # ReadStatus tracking is irrelevant for email digests.
-            item = {**item, 'update_count': 1}
 
         user_items.append(item)
 
@@ -248,6 +234,8 @@ def build_user_digest(user, since):
 
     aggregated = []
     for key, item in grouped.items():
-        aggregated.append({**item, 'update_count': counts[key]})
+        item = {**item, 'update_count': counts[key]}
+        item.pop(DIGEST_GROUP_ID, None)
+        aggregated.append(item)
 
     return _sort_digest_items(aggregated)

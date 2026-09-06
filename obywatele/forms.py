@@ -10,8 +10,8 @@ from django.db import IntegrityError
 from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 
+from core.signals import citizen_proposed
 from obywatele.models import Region, Uzytkownik
-from zzz.signals import citizen_proposed
 
 log = logging.getLogger(__name__)
 

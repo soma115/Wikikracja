@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from board.models import Post
 from chat.models import Message, MessageReadBy, Room
-from home.models import ReadStatus
+from core.models import ReadStatus
 from tests.factories import PostCategoryFactory, PostFactory, UserFactory
 
 

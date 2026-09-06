@@ -1,10 +1,10 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
+from core.widgets import CounterTextarea
 from site_settings.models import SiteParameters
 from site_settings.params import PARAM_SPECS, coerce, specs_by_category
 from site_settings.validators import validate_brand_mark_dimensions, validate_brand_mark_format, validate_branding_image_size
-from zzz.widgets import CounterTextarea
 
 from .models import Argument, Decyzja
 

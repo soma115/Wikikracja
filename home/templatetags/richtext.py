@@ -1,7 +1,7 @@
 from django import template
 from django.utils.safestring import mark_safe
 
-from zzz.richtext import sanitize
+from core.richtext import sanitize
 
 register = template.Library()
 

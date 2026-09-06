@@ -7,9 +7,9 @@ from django.dispatch import receiver
 from django.utils.translation import gettext as _
 
 from chat.signals import chat_room_requested
+from core.services.feed import invalidate_feed_cache_on_change
+from core.utils import get_site_domain
 from glosowania.models import Decyzja
-from home.services.feed import invalidate_feed_cache_on_change
-from zzz.utils import get_site_domain
 
 log = logging.getLogger(__name__)
 

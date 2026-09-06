@@ -1,15 +1,17 @@
 import pytest
 from django.core.cache import cache
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 
 from board.models import Post
-from chat.models import Message, Room
+from chat.models import Message, MessageReadBy, Room
+from chat.services import CHAT_UNREAD_CACHE_KEY
+from core.models import ReadStatus
+from core.services import feed as feed_service
+from core.services.feed import FEED_CACHE_KEY, generate_feed_items, generate_feed_raw, get_unread_count
 from events.models import Event
 from glosowania.models import Decyzja
-from home.models import ReadStatus
-from home.services import feed as feed_service
-from home.services.feed import FEED_CACHE_KEY, generate_feed_items, generate_feed_raw, get_unread_count
 from tasks.models import Task
 from tests.factories import PostCategoryFactory, PostFactory, UserFactory
 
@@ -172,3 +174,152 @@ def test_mark_all_feed_items_as_read(feed_user, another_user):
     count = feed_service.mark_all_feed_items_as_read(feed_user)
     assert count == before
     assert get_unread_count(feed_user) == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('reader_first', [True, False])
+def test_private_chat_personalization_does_not_leak_through_shared_cache(feed_user, another_user, reader_first):
+    cache.delete(FEED_CACHE_KEY)
+    outsider = UserFactory(username='outsider')
+    room = Room.objects.create(title='Private shared cache', public=False)
+    room.allowed.add(feed_user, another_user)
+    message = Message.objects.create(room=room, sender=another_user, text='Private message')
+    MessageReadBy.objects.create(message=message, user=feed_user)
+    raw = generate_feed_raw()
+    users = [feed_user, another_user] if reader_first else [another_user, feed_user]
+
+    for user in [*users, outsider, *users]:
+        items = [item for item in generate_feed_items(user) if item['content_type'] == 'room_messages' and item['room_id'] == room.pk]
+        if user == outsider:
+            assert items == []
+            continue
+        assert len(items) == 1
+        assert items[0]['object_id'] == message.pk
+        assert items[0]['title'] == (another_user.username if user == feed_user else feed_user.username)
+        assert items[0]['is_read'] is (user == feed_user)
+        assert items[0]['url'] == f'/chat/#room_id={room.pk}'
+        assert items[0]['message_count'] == 1
+
+    assert generate_feed_raw() == raw
+    raw_item = next(item for item in raw if item['content_type'] == 'room_messages' and item['object_id'] == message.pk)
+    assert raw_item['title'] == room.title
+    assert 'is_read' not in raw_item
+
+
+@pytest.mark.django_db
+def test_private_chat_membership_changes_invalidate_cached_visibility(feed_user, another_user):
+    cache.delete(FEED_CACHE_KEY)
+    room = Room.objects.create(title='Membership changes', public=False)
+    room.allowed.add(feed_user, another_user)
+    message = Message.objects.create(room=room, sender=another_user, text='Members only')
+
+    def visible_message_ids():
+        return {item['object_id'] for item in generate_feed_items(feed_user) if item['content_type'] == 'room_messages'}
+
+    assert message.pk in visible_message_ids()
+    room.allowed.remove(feed_user)
+    assert message.pk not in visible_message_ids()
+    room.allowed.add(feed_user)
+    assert message.pk in visible_message_ids()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(('message_read', 'room_seen'), [(False, False), (True, False), (False, True), (True, True)])
+def test_chat_read_state_combines_message_and_room_flags_per_user(feed_user, another_user, message_read, room_seen):
+    cache.delete(FEED_CACHE_KEY)
+    room = Room.objects.create(title='Read state flags', public=True)
+    message = Message.objects.create(room=room, sender=another_user, text='Read state')
+    if message_read:
+        MessageReadBy.objects.create(message=message, user=feed_user)
+    if room_seen:
+        room.seen_by.add(feed_user)
+
+    for user in (feed_user, another_user):
+        item = next(item for item in generate_feed_items(user) if item['content_type'] == 'room_messages' and item['object_id'] == message.pk)
+        assert item['is_read'] is (user == feed_user and (message_read or room_seen))
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('content_type', ['room_messages', 'message'])
+def test_chat_read_toggle_uses_message_id_and_preserves_other_read_records(feed_user, another_user, content_type):
+    cache.delete(FEED_CACHE_KEY)
+    room = Room.objects.create(title='Read toggle contract', public=True)
+    message = Message.objects.create(pk=room.pk + 100, room=room, sender=another_user, text='First')
+    sibling = Message.objects.create(room=room, sender=another_user, text='Second')
+    unread_sibling = Message.objects.create(room=room, sender=another_user, text='Third')
+    MessageReadBy.objects.create(message=sibling, user=feed_user)
+    MessageReadBy.objects.create(message=message, user=another_user)
+    room.seen_by.add(another_user)
+    unread_cache_key = CHAT_UNREAD_CACHE_KEY.format(user_id=feed_user.pk)
+
+    cache.set(unread_cache_key, 99)
+    feed_service.mark_feed_item_as_read(content_type, message.pk, feed_user)
+    feed_service.mark_feed_item_as_read(content_type, message.pk, feed_user)
+    assert MessageReadBy.objects.filter(message=message, user=feed_user).count() == 1
+    assert room.seen_by.filter(pk=feed_user.pk).exists()
+    assert cache.get(unread_cache_key) is None
+    assert all(item['is_read'] for item in generate_feed_items(feed_user) if item['content_type'] == 'room_messages' and item['room_id'] == room.pk)
+
+    cache.set(unread_cache_key, 99)
+    feed_service.mark_feed_item_as_unread(content_type, message.pk, feed_user)
+    feed_service.mark_feed_item_as_unread(content_type, message.pk, feed_user)
+    assert not MessageReadBy.objects.filter(message=message, user=feed_user).exists()
+    assert not room.seen_by.filter(pk=feed_user.pk).exists()
+    assert cache.get(unread_cache_key) is None
+    assert MessageReadBy.objects.filter(message=sibling, user=feed_user).exists()
+    assert MessageReadBy.objects.filter(message=message, user=another_user).exists()
+    assert room.seen_by.filter(pk=another_user.pk).exists()
+    states = {item['object_id']: item['is_read'] for item in generate_feed_items(feed_user) if item['content_type'] == 'room_messages' and item['room_id'] == room.pk}
+    assert states == {message.pk: False, sibling.pk: True, unread_sibling.pk: False}
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('anonymous', [False, True])
+def test_chat_feed_and_rendered_activity_preserve_message_without_exposing_anonymous_author(feed_user, another_user, rf, anonymous):
+    cache.delete(FEED_CACHE_KEY)
+    room = Room.objects.create(title='Privacy test room', public=True)
+    another_user.uzytkownik.avatar = 'avatars/anonymous-author.png'
+    another_user.uzytkownik.save(update_fields=['avatar'])
+    message = Message.objects.create(room=room, sender=another_user, anonymous=anonymous, text='Privacy test message')
+
+    raw = next(item for item in generate_feed_raw() if item['content_type'] == 'room_messages' and item['object_id'] == message.pk)
+    item = next(item for item in generate_feed_items(feed_user) if item['content_type'] == 'room_messages' and item['object_id'] == message.pk)
+    expected_author = None if anonymous else another_user
+    assert raw['author'] == item['author'] == expected_author
+    assert item['description'] == message.text
+    assert item['timestamp'] == message.time
+    assert item['url'] == f'/chat/#room_id={room.pk}'
+    request = rf.get('/activity/')
+    request.user = feed_user
+    rendered = render_to_string('home/activity.html', {'feed_items': [item], 'user': feed_user}, request=request)
+    assert message.text in rendered
+    assert (another_user.username in rendered) is (not anonymous)
+    assert ('avatars/anonymous-author.png' in rendered) is (not anonymous)
+    message.refresh_from_db()
+    assert message.sender_id == another_user.pk
+
+
+@pytest.mark.django_db
+def test_chat_feed_keeps_anonymous_messages_without_a_sender(feed_user):
+    cache.delete(FEED_CACHE_KEY)
+    room = Room.objects.create(title='Senderless anonymous room', public=True)
+    message = Message.objects.create(room=room, sender=None, anonymous=True, text='Anonymous system content')
+    item = next(item for item in generate_feed_items(feed_user) if item['content_type'] == 'room_messages' and item['object_id'] == message.pk)
+    assert item['author'] is None
+    assert item['description'] == message.text
+
+
+@pytest.mark.django_db
+def test_chat_feed_does_not_reuse_legacy_cache_with_exposed_author(feed_user, another_user):
+    cache.delete(FEED_CACHE_KEY)
+    room = Room.objects.create(title='Legacy privacy cache', public=True)
+    message = Message.objects.create(room=room, sender=another_user, anonymous=True, text='Legacy anonymous content')
+    legacy = {'content_type': 'room_messages', 'object_id': message.pk, 'room_id': room.pk, 'title': room.title, 'author': another_user, 'timestamp': message.time, '_is_public': True}
+    cache.set('feed_raw_v2', [legacy])
+    try:
+        item = next(item for item in generate_feed_items(feed_user) if item['content_type'] == 'room_messages' and item['object_id'] == message.pk)
+        assert item['author'] is None
+        assert item['description'] == message.text
+    finally:
+        cache.delete('feed_raw_v2')
+        cache.delete(FEED_CACHE_KEY)

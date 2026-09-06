@@ -1,5 +1,5 @@
 """
-Testy dla zzz/richtext.py — centralna sanityzacja user HTML.
+Testy dla core/richtext.py — centralna sanityzacja user HTML.
 
 Bug pokrywany: stare wpisy w DB (sprzed JS fix paste) mogą mieć surowe \\n
 w wartości. Sanitize musi je normalizować na <br>, żeby render w |richtext
@@ -8,7 +8,7 @@ filter / RichTextWidget initial value nie produkował ghost empty lines.
 
 from django.test import TestCase
 
-from zzz.richtext import sanitize, strip_tags
+from core.richtext import sanitize, strip_tags
 
 
 class SanitizeNormalizesNewlinesTests(TestCase):

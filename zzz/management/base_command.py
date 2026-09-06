@@ -3,7 +3,7 @@
 from django.conf import settings as s
 from django.core.management.base import BaseCommand
 
-from zzz.utils import get_site_domain
+from core.utils import get_site_domain
 
 
 class TranslatedCommand(BaseCommand):

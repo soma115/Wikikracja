@@ -19,7 +19,7 @@ Wikikracja wysyła powiadomienia o nowych wiadomościach czatu, wydarzeniach, g�
 - `chat/push_api.py` — endpointy `POST /chat/api/push/register/`, `/chat/api/push/unregister/` oraz `POST /chat/api/push/ack/`.
 - `chat/services.py` — `send_message` tworzy wiadomość; `_dispatch_message_notifications` decyduje, komu wysłać push i WebSocket-owe powiadomienia; `_send_push_to_user` i `_send_mention` wysyłają FCM; `_build_chat_notification` buduje payload.
 - `chat/consumers.py` — `chat_notification` / `chat_mention` odbierają zdarzenia kanałów i przekazują powiadomienie do klienta WebSocket.
-- `zzz/notifications.py` — współdzielone funkcje budowania i wysyłki (`build_notification`, `send_fcm_to_*`, `send_websocket_to_*`); tu też żyje `NOTIF_LOG_TAG` oraz mapowanie kategorii na pola preferencji push (`_PUSH_FIELDS`).
+- `core/notifications.py` — współdzielone funkcje budowania i wysyłki (`build_notification`, `send_fcm_to_*`, `send_websocket_to_*`); tu też żyje `NOTIF_LOG_TAG` oraz mapowanie kategorii na pola preferencji push (`_PUSH_FIELDS`). Odbiorców sygnałów ładuje `CoreConfig.ready()`; `core` jest przed `zzz` w `INSTALLED_APPS`, aby byli gotowi przed startem schedulera.
 - `home/views.py` — serwuje `/firebase-messaging-sw.js`, `/dynamic-settings.js` i `/manifest.json`.
 - `zzz/scheduler.py` — wysyła powiadomienia o rozpoczynających się wydarzeniach.
 
@@ -74,8 +74,8 @@ Po każdej zmianie `firebase-messaging-sw.js` na produkcji użytkownik musi raz 
 ## Wysyłka
 
 - `GCMDevice.send_message(message)` używa `firebase_admin.messaging` do wysyłki przez FCM. `firebase_admin` jest inicjalizowany w `zzz/settings.py` z certyfikatu service account.
-- `chat/services.py::send_push_notification_sync` buduje powiadomienie przez `zzz.notifications.build_notification` i woła `send_fcm_to_user_sync`.
-- `zzz/notifications.py::_build_fcm_message` buduje `messaging.Message` z trzema warstwami:
+- `chat/services.py::send_push_notification_sync` buduje powiadomienie przez `core.notifications.build_notification` i woła `send_fcm_to_user_sync`.
+- `core/notifications.py::_build_fcm_message` buduje `messaging.Message` z trzema warstwami:
   - `notification` (title/body) – wymagane, żeby FCM SDK w service workerze automatycznie wyświetliło powiadomienie.
   - `data` (title, body, room_id, room_name, icon, click_action, notification_id, event_id, vote_id, citizen_id, task_id, post_id, survey_id) – dla pierwszego planu (`onMessage`) i dla `onBackgroundMessage` gdy SW jest aktywny.
   - `webpush.notification` (title, body, icon, badge, tag, require_interaction, data) oraz `webpush.fcm_options.link` – dla natywnego wyświetlenia gdy przeglądarka/PWA jest zabita i FCM SDK nie może obudzić SW.
@@ -96,7 +96,7 @@ Model `Uzytkownik` zawiera pola preferencji push dla każdej kategorii:
 | `task` | `push_notifications_task` | nowe zadania |
 | `survey` | `push_notifications_survey` | nowe ankiety |
 
-Mapowanie to jest zdefiniowane w `zzz/notifications.py::_PUSH_FIELDS`. Funkcja `_push_enabled_for_user` sprawdza preferencję przed wysyłką FCM do konkretnego użytkownika; `send_websocket_to_all_sync` używa tych samych preferencji do filtrowania WebSocket-owych odbiorców.
+Mapowanie to jest zdefiniowane w `core/notifications.py::_PUSH_FIELDS`. Funkcja `_push_enabled_for_user` sprawdza preferencję przed wysyłką FCM do konkretnego użytkownika; `send_websocket_to_all_sync` używa tych samych preferencji do filtrowania WebSocket-owych odbiorców.
 
 ## Troubleshooting
 
@@ -118,7 +118,7 @@ Mapowanie to jest zdefiniowane w `zzz/notifications.py::_PUSH_FIELDS`. Funkcja `
 - `chat/static/chat/js/utility.js` — `makeNotification()` (WS → `showNotification()`) i `sendNotificationAck()`.
 - `chat/static/chat/js/notifications.js` — odbiór powiadomień WS i rejestracja handlera.
 - `chat/push_api.py` — rejestracja/wyrejestrowanie urządzenia FCM, debounce rejestracji oraz `PushNotificationAckView`.
-- `zzz/notifications.py` — budowanie (`notification_id`) i wysyłka FCM/WS, `NOTIF_LOG_TAG`, mapowanie kategorii preferencji.
+- `core/notifications.py` — budowanie (`notification_id`) i wysyłka FCM/WS, `NOTIF_LOG_TAG`, mapowanie kategorii preferencji.
 - `home/views.py` — widoki `firebase_messaging_sw`, `dynamic_settings_js`, `manifest`.
 - `chat/services.py` — logika wysyłania powiadomień czatu (WebSocket + FCM) przez `_dispatch_message_notifications`.
 
@@ -135,11 +135,11 @@ To jest źródło większości nieporozumień przy debugowaniu. System ma **dwie
 
 ## Śledzenie po `notification_id` i potwierdzenie odbioru (ack)
 
-Serwer sam z siebie widzi tylko wysyłkę — nie wie, czy powiadomienie faktycznie pojawiło się na ekranie użytkownika. Dlatego każde powiadomienie (czat, wzmianka, event, głosowanie, poczekalnia, dokument, zadanie, ankieta) dostaje unikalne **`notification_id`** (`zzz/notifications.py::build_notification` i `chat/services.py::_build_chat_notification`), które towarzyszy mu przez cały pipeline — WS i FCM — i wraca od klienta jako potwierdzenie.
+Serwer sam z siebie widzi tylko wysyłkę — nie wie, czy powiadomienie faktycznie pojawiło się na ekranie użytkownika. Dlatego każde powiadomienie (czat, wzmianka, event, głosowanie, poczekalnia, dokument, zadanie, ankieta) dostaje unikalne **`notification_id`** (`core/notifications.py::build_notification` i `chat/services.py::_build_chat_notification`), które towarzyszy mu przez cały pipeline — WS i FCM — i wraca od klienta jako potwierdzenie.
 
 **Ack.** Klient zgłasza rzeczywisty wynik do `POST /chat/api/push/ack/` (`chat/push_api.py::PushNotificationAckView`, bez CSRF bo woła go też service worker) z każdego miejsca, w którym próbuje pokazać powiadomienie: `utility.js::makeNotification` (WS, pierwszy plan), `push-notifications.js` (`onMessage`, FCM pierwszy plan) i `firebase-messaging-sw.js` (`onBackgroundMessage`, fallback `push`, `postMessage` z karty, `notificationclick`). Payload: `notification_id`, `status` (`shown` / `skipped` / `error` / `clicked`), `source` (skąd w pipeline), opcjonalnie `reason`. Serwer loguje `Notification ACK: user=... notification_id=... status=... source=...`.
 
-**Tag logów `[NOTIFDBG]`.** Wszystkie logi związane z powiadomieniami — po stronie serwera (stała `NOTIF_LOG_TAG` w `zzz/notifications.py`, importowana w `consumers.py`/`push_api.py`/`services.py`) i w konsoli przeglądarki (wszystkie pliki JS z listy wyżej) — mają ten sam prefiks `[NOTIFDBG]`. Jedno wyszukanie w logach k8s i filtr `NOTIFDBG` w devtools pokazują komplet zdarzeń dla powiadomień, bez szumu z reszty aplikacji.
+**Tag logów `[NOTIFDBG]`.** Wszystkie logi związane z powiadomieniami — po stronie serwera (stała `NOTIF_LOG_TAG` w `core/notifications.py`, importowana w `consumers.py`/`push_api.py`/`services.py`) i w konsoli przeglądarki (wszystkie pliki JS z listy wyżej) — mają ten sam prefiks `[NOTIFDBG]`. Jedno wyszukanie w logach k8s i filtr `NOTIFDBG` w devtools pokazują komplet zdarzeń dla powiadomień, bez szumu z reszty aplikacji.
 
 **Jak z tego korzystać:** znajdź `notification_id` w logu wysyłki (serwer) albo w logu ack (klient), potem `grep notification_id=<ID>` po obu stronach — zobaczysz całą podróż: zbudowane → wysłane (WS `group_send` / FCM) → pominięte / pokazane / błąd / kliknięte na kliencie. To zastępuje zgadywanie "czy w ogóle doszło" pewnym potwierdzeniem z przeglądarki odbiorcy.
 
@@ -169,7 +169,7 @@ GCMDevice.objects.filter(user__username="nazwa_konta").values("id", "active", "c
 
 Poniższe problemy zostały już zdiagnozowane i naprawione. **Nie cofaj tych zmian bez wyraźnego powodu.**
 
-1. **`cloud_message_type` był `GCM` zamiast `FCM`** → biblioteka `django-push-notifications` po cichu pomijała wysyłkę. Naprawione w `push_api.py` (rejestracja zawsze ustawia `cloud_message_type='FCM'`) i w `services.py`/`zzz/notifications.py` (`_migrate_legacy_gcm_devices` migruje stare `GCM` → `FCM` przy wysyłce).
+1. **`cloud_message_type` był `GCM` zamiast `FCM`** → biblioteka `django-push-notifications` po cichu pomijała wysyłkę. Naprawione w `push_api.py` (rejestracja zawsze ustawia `cloud_message_type='FCM'`) i w `services.py`/`core/notifications.py` (`_migrate_legacy_gcm_devices` migruje stare `GCM` → `FCM` przy wysyłce).
 2. **`send_push_notification_sync` nie sprawdzał wyniku wysyłki** — zawsze zwracał sukces, nawet gdy FCM nic nie dostarczył. Naprawione: sprawdzamy `BatchResponse.success_count` i logujemy błędy per-token.
 3. **Brak `gcm_sender_id` w `manifest.json`** — wymagane przez Chrome/Android, gdy PWA jest dodana do ekranu głównego (tryb standalone), inaczej push potrafi nie dochodzić mimo poprawnego tokenu. Naprawione w `home/views.py::manifest` (`"gcm_sender_id": "103953800507"` — to stała wartość Google, nie ID projektu Firebase).
 4. **Komunikat "Ta witryna została zaktualizowana w tle" zamiast właściwego powiadomienia** — przyczyna: różne przeglądarki/PWA w różnych stanach (karta w tle, zabita przeglądarka, PWA zamknięte) potrzebują różnych pól FCM. Data-only działało, gdy SW był aktywny, ale przy zabitej przeglądarce Chrome/PWA nie zawsze obudził SW i pokazywał generyczny fallback. **Naprawione: FCM wysyła teraz pełny zestaw payloadów:**
@@ -192,7 +192,7 @@ Poniższe problemy zostały już zdiagnozowane i naprawione. **Nie cofaj tych zm
 **Sprawdzone i wykluczone jako przyczyna:**
 - Niezgodność projektu Firebase między backendem a frontendem — sprawdzone: `service-account.json` (`project_id`) i `FIREBASE_PROJECT_ID` w ConfigMap wskazują na ten sam projekt.
 - Niezgodność klucza VAPID — sprawdzone w Firebase Console, klucz w `wikikracja-common-config.yaml` (`FIREBASE_VAPID_KEY`) zgadza się z certyfikatem Web Push w konsoli.
-- Zła treść wiadomości FCM (payload) — błąd to `UnregisteredError`, nie `InvalidArgumentError`, więc nie chodzi o format wiadomości (patrz `chat/services.py::send_push_notification_sync` / `zzz/notifications.py::_build_fcm_message`).
+- Zła treść wiadomości FCM (payload) — błąd to `UnregisteredError`, nie `InvalidArgumentError`, więc nie chodzi o format wiadomości (patrz `chat/services.py::send_push_notification_sync` / `core/notifications.py::_build_fcm_message`).
 
 **Rzeczywista przyczyna:** subskrypcja push w przeglądarce testowej (`robert`) miała endpoint `https://updates.push.services.mozilla.com/wpush/v2/...` — to **usługa push Firefoksa**, nie Google (`fcm.googleapis.com`). Sprawdzone przez:
 ```js

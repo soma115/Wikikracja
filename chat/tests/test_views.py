@@ -1,5 +1,6 @@
 # Standard library imports
 import json
+from unittest.mock import patch
 
 # Third party imports
 from captcha.models import CaptchaStore
@@ -281,12 +282,18 @@ class PushDeviceRegisterViewTest(TestCase):
         self.assertEqual(GCMDevice.objects.filter(user=self.user, registration_id='token1').count(), 1)
 
     def test_register_reassigns_token_from_other_user(self):
-        GCMDevice.objects.create(user=self.other, registration_id='shared_token', active=True, cloud_message_type='FCM')
+        self._register('other_desktop', device_type='desktop', user=self.other)
+        self._register('my_mobile', device_type='mobile')
+        self._register('shared_token', user=self.other)
         response = self._register('shared_token')
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(GCMDevice.objects.filter(user=self.other).exists())
-        device = GCMDevice.objects.get(user=self.user, registration_id='shared_token')
+        self.assertFalse(response.json().get('debounced', False))
+        self.assertFalse(GCMDevice.objects.filter(user=self.other, registration_id='shared_token').exists())
+        device = GCMDevice.objects.get(registration_id='shared_token')
+        self.assertEqual(device.user, self.user)
         self.assertTrue(device.active)
+        self.assertTrue(GCMDevice.objects.get(user=self.other, registration_id='other_desktop').active)
+        self.assertTrue(GCMDevice.objects.get(user=self.user, registration_id='my_mobile').active)
 
     def test_register_saves_device_type(self):
         response = self._register('token1', device_type='mobile')
@@ -300,10 +307,87 @@ class PushDeviceRegisterViewTest(TestCase):
         device = GCMDevice.objects.get(user=self.user, registration_id='token1')
         self.assertEqual(device.application_id, 'standalone')
 
+    def _unregister(self, token):
+        self.client.force_login(self.user)
+        return self.client.post(reverse("chat:push_unregister"), data=json.dumps({'platform': 'fcm', 'registration_id': token}), content_type="application/json")
+
     def test_unregister_deactivates_device(self):
         self._register('token1')
-        self.client.force_login(self.user)
-        response = self.client.post(reverse("chat:push_unregister"), data=json.dumps({'platform': 'fcm', 'registration_id': 'token1'}), content_type="application/json")
+        response = self._unregister('token1')
         self.assertEqual(response.status_code, 200)
         device = GCMDevice.objects.get(user=self.user, registration_id='token1')
         self.assertFalse(device.active)
+
+    def test_unregister_cannot_deactivate_another_users_token(self):
+        self._register('other_token', user=self.other)
+        response = self._unregister('other_token')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['deactivated'], 0)
+        self.assertTrue(GCMDevice.objects.get(user=self.other, registration_id='other_token').active)
+
+    def test_reregister_reactivates_same_row_and_preserves_mobile_and_desktop(self):
+        mobile_response = self._register('mobile_token', device_type='mobile', display_mode='standalone')
+        mobile_id = mobile_response.json()['device_id']
+        desktop_id = self._register('desktop_token', device_type='desktop', display_mode='browser').json()['device_id']
+        self.assertEqual(self._unregister('mobile_token').json()['deactivated'], 1)
+        cache.set('push_reg_debounce:mobile_token', True)
+
+        for cached in (True, False):
+            with self.subTest(cached=cached):
+                if not cached:
+                    cache.delete('push_reg_debounce:mobile_token')
+                response = self._register('mobile_token', device_type='mobile', display_mode='standalone')
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.json()['device_id'], mobile_id)
+                self.assertFalse(response.json()['created'])
+                self.assertEqual(GCMDevice.objects.filter(user=self.user).count(), 2)
+                self.assertEqual(
+                    set(GCMDevice.objects.filter(user=self.user, active=True).values_list('pk', 'name', 'application_id')), {(mobile_id, 'mobile', 'standalone'), (desktop_id, 'desktop', 'browser')}
+                )
+
+
+@override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}})
+class PushNotificationAckViewTest(TestCase):
+    def setUp(self):
+        self.user = make_user('ackuser')
+        self.client.force_login(self.user)
+
+    def _ack(self, payload):
+        return self.client.post(reverse('chat:push_ack'), data=json.dumps(payload), content_type='application/json')
+
+    def test_ack_parses_status_and_delivery_metadata(self):
+        for status in ('shown', 'skipped', 'error', 'clicked'):
+            with self.subTest(status=status), patch('chat.push_api.log') as log:
+                payload = {'notification_id': 'test-notification', 'tag': 'chat-123', 'status': status, 'source': 'fcm-background', 'reason': 'test reason', 'user_agent': 'test agent'}
+                response = self._ack(payload)
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.json(), {'success': True})
+                logger, unused = (log.warning, log.info) if status == 'error' else (log.info, log.warning)
+                logger.assert_called_once()
+                unused.assert_not_called()
+                line = logger.call_args.args[0]
+                for field in (f'user={self.user.id}', 'notification_id=test-notification', f'status={status}', 'source=fcm-background', 'tag=chat-123', "reason='test reason'", "ua='test agent'"):
+                    self.assertIn(field, line)
+
+    def test_ack_accepts_missing_metadata_for_legacy_clients(self):
+        with patch('chat.push_api.log') as log:
+            response = self._ack({})
+        self.assertEqual(response.status_code, 200)
+        log.info.assert_called_once()
+        for field in ('notification_id=?', 'status=unknown', 'source=unknown'):
+            self.assertIn(field, log.info.call_args.args[0])
+
+    def test_ack_rejects_non_object_json(self):
+        self.client.raise_request_exception = False
+        for payload in (None, [], 'not-an-object', 7):
+            with self.subTest(payload=payload):
+                self.assertEqual(self._ack(payload).status_code, 400)
+
+    def test_ack_rejects_malformed_json(self):
+        for body in ('{', b'\xff'):
+            with self.subTest(body=body), patch('chat.push_api.log') as log:
+                response = self.client.post(reverse('chat:push_ack'), data=body, content_type='application/json')
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(response.json(), {'error': 'Invalid JSON'})
+                log.info.assert_not_called()
+                log.warning.assert_not_called()

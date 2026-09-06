@@ -41,9 +41,6 @@ class SchedulerConfig(AppConfig):
 
         connection_created.connect(set_sqlite_wal)
 
-        # Register notification receivers so domain signals are dispatched.
-        import zzz.notifications  # noqa: F401
-
         # Only start scheduler in the main process, not in Django management commands
         # and not during migrations or other special operations
         if os.environ.get('RUN_MAIN') == 'true' or os.environ.get('SCHEDULER_ENABLED') == 'true':

@@ -8,15 +8,18 @@ from channels.layers import get_channel_layer
 from django.contrib.auth.models import AnonymousUser, User
 from django.core.cache import cache
 from django.db.models import Count, Prefetch
+from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 
-from zzz.notifications import NOTIF_LOG_TAG
-from zzz.richtext import sanitize, strip_tags
+from core.notifications import NOTIF_LOG_TAG
+from core.richtext import sanitize, strip_tags
+from core.utils import get_site_domain
 from zzz.templatetags.citizen_filters import citizen_color_class
-from zzz.utils import get_site_domain
 
 from .exceptions import ClientError
 from .models import Message, MessageAttachment, MessageHistory, MessageHistoryEntry, MessageReadBy, Room
+from .permissions import get_room_permission_checker
 from .utils import get_upload_path
 
 log = logging.getLogger(__name__)
@@ -55,6 +58,27 @@ def get_unread_count_for_user(user) -> int:
     count = Room.objects.filter(allowed=user, archived=False, is_inbox=False).exclude(seen_by=user).annotate(messages_count=Count('messages')).filter(messages_count__gt=0).count()
     cache.set(key, count, CHAT_UNREAD_CACHE_TTL)
     return count
+
+
+def get_unseen_room_ids(user) -> set[int]:
+    """Return IDs of rooms with messages not marked as seen by the user."""
+
+    # Rooms with at least one message, minus rooms the user has already seen
+    rooms_with_msgs = Room.objects.filter(messages__isnull=False).values_list("id", flat=True).distinct()
+    seen_room_ids = set(user.seen_rooms.filter(id__in=rooms_with_msgs).values_list("id", flat=True))
+    return set(rooms_with_msgs) - seen_room_ids
+
+
+def get_user_public_message_rows(user, viewer) -> list[dict]:
+    messages = Message.objects.filter(sender=user, room__public=True, anonymous=False).select_related('room').order_by('-time')
+    return [{'room': message.room, 'room_name': message.room.displayed_name(viewer), 'msg': message} for message in messages]
+
+
+def get_user_created_room_items(user) -> list[dict]:
+    return [
+        {'title': room.displayed_name(user), 'ts': room.last_activity, 'label': gettext_lazy('Chat room'), 'url': reverse('chat:chat') + f'#room_id={room.pk}'}
+        for room in Room.objects.filter(founder=user, public=True).order_by('-last_activity')
+    ]
 
 
 def _reactions(message) -> dict:
@@ -227,7 +251,7 @@ class ChatRepository:
     @database_sync_to_async
     def can_post_in_room(self, room):
         """Return True if the current user may write in the given room."""
-        return _can_post_in_room(room, self.user)
+        return can_user_post_in_room(room, self.user)
 
     @database_sync_to_async
     def room_is_seen(self, room):
@@ -561,7 +585,7 @@ class ChatRepository:
     def send_push_notification_sync(self, user, title, body, deep_link, room_id, room_name=""):
         """Synchronous push notification sending via the shared notifications backend."""
         try:
-            from zzz.notifications import NOTIF_LOG_TAG, build_notification, send_fcm_to_user_sync
+            from core.notifications import NOTIF_LOG_TAG, build_notification, send_fcm_to_user_sync
 
             notification = build_notification(title, body, deep_link, f"chat-{room_id}", room_id=room_id, room_name=room_name)
             return send_fcm_to_user_sync(user, notification, notification_type='chat')
@@ -640,20 +664,16 @@ def _save_attachments_sync(message_id, attachments):
             MessageAttachment.objects.create(message_id=message_id, type=attachment_type, filename=filename)
 
 
-def _can_post_in_room(room, user):
+def can_user_post_in_room(room, user):
     """Return True if an authenticated user may write in the room."""
     if not user or not user.is_authenticated:
         return False
     if not room.public:
         return room.allowed.filter(id=user.id).exists()
-    if room.source_app == 'tasks' and room.source_object_id:
-        from tasks.models import Task
-
-        try:
-            task = Task.objects.get(pk=room.source_object_id)
-        except Task.DoesNotExist:
-            return True
-        return task.can_user_post(user)
+    if room.source_object_id:
+        checker = get_room_permission_checker(room.source_app)
+        if checker is not None:
+            return checker(room, user)
     return True
 
 
@@ -680,7 +700,7 @@ def _create_and_build_message(room, text, sender, anonymous, attachments, reply_
     if not room.public and anonymous:
         raise ClientError("ANONYMOUS_IN_PRIVATE")
 
-    if sender is not None and not _can_post_in_room(room, sender):
+    if sender is not None and not can_user_post_in_room(room, sender):
         raise ClientError("ACCESS_DENIED")
 
     if attachments:

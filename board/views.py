@@ -11,8 +11,8 @@ from django.utils.translation import gettext_lazy
 from django.views.generic import CreateView, UpdateView
 
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryItemsAPI, CategoryReorderAPI
+from chat.i18n import get_translations as get_chat_translations
 from chat.models import Message
-from chat.views import get_translations as get_chat_translations
 
 from .forms import PostForm
 from .models import Post, PostAttachment, PostCategory

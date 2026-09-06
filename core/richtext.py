@@ -16,7 +16,7 @@ ALLOWED_ATTRS = {'a': ['href', 'rel', 'target']}
 
 def _set_link_target(attrs, new=False):
     """bleach.linkify callback: external links open in a new tab."""
-    from zzz.utils import get_site_domain
+    from core.utils import get_site_domain
 
     href = attrs.get((None, 'href'), '')
     domain = get_site_domain()

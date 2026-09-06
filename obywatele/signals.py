@@ -2,8 +2,8 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
-from home.services.feed import invalidate_feed_cache_on_change
-from zzz.signals import citizen_blocked
+from core.services.feed import invalidate_feed_cache_on_change
+from core.signals import citizen_blocked
 
 from .models import CitizenActivity, Uzytkownik
 

@@ -8,12 +8,12 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from chat.models import Room
+from core.signals import vote_started, vote_state_changed
 from glosowania.models import Decyzja, KtoJuzGlosowal, VoteCode
 from glosowania.vote_buffer import pop_all_pending_votes
 from site_settings.models import SiteParameters
 from site_settings.params import apply_brand_mark, apply_parameters
 from zzz.management.base_command import TranslatedCommand
-from zzz.signals import vote_started, vote_state_changed
 
 log = logging.getLogger(__name__)
 

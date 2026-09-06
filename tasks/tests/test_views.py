@@ -1,14 +1,20 @@
+from unittest.mock import patch
+
 # Third party imports
 from django.test import Client, TestCase
 from django.urls import reverse
 
 # Local folder imports
+from chat.models import Room
 from tasks.models import Category, Task, TaskEvaluation, TaskVote
 from tasks.tests.utils import make_task, make_user
 
 
 class TaskListViewTest(TestCase):
     def setUp(self):
+        notification_patch = patch('core.notifications._dispatch_notification')
+        notification_patch.start()
+        self.addCleanup(notification_patch.stop)
         self.client = Client()
         self.user = make_user("listuser")
 
@@ -27,6 +33,39 @@ class TaskListViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tasks/_task_list_partial.html")
         self.assertNotContains(response, "<html")
+
+    def test_chat_room_pulse_tracks_seen_state_without_room_visibility_filters(self):
+        unread = make_task(title="Unread", created_by=self.user)
+        read = make_task(title="Read", created_by=self.user)
+        empty = make_task(title="Empty", created_by=self.user)
+        archived = make_task(title="Archived room", created_by=self.user)
+        unlisted = make_task(title="Unlisted room", created_by=self.user)
+        inbox = make_task(title="Inbox room", created_by=self.user)
+        empty.chat_room = Room.objects.create(title="Empty task room")
+        empty.save(update_fields=['chat_room'])
+        read.chat_room.seen_by.add(self.user)
+        archived.chat_room.archived = True
+        archived.chat_room.save(update_fields=['archived'])
+        unlisted.chat_room.public = False
+        unlisted.chat_room.save(update_fields=['public'])
+        unlisted.chat_room.allowed.clear()
+        inbox.chat_room.is_inbox = True
+        inbox.chat_room.save(update_fields=['is_inbox'])
+        self.client.force_login(self.user)
+        expected = {unread.pk: "chat-room-pulse", read.pk: "", empty.pk: "", archived.pk: "chat-room-pulse", unlisted.pk: "chat-room-pulse", inbox.pk: "chat-room-pulse"}
+
+        response = self.client.get(reverse("tasks:list") + "?tab=awaiting")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual({task.pk: task.chat_room_pulse_class for task in response.context["awaiting_tasks"]}, expected)
+
+        unread.chat_room.seen_by.add(self.user)
+        read.chat_room.seen_by.remove(self.user)
+        expected.update({unread.pk: "", read.pk: "chat-room-pulse"})
+        response = self.client.get(reverse("tasks:list") + "?tab=awaiting")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual({task.pk: task.chat_room_pulse_class for task in response.context["awaiting_tasks"]}, expected)
 
 
 class TaskListFilteringTest(TestCase):

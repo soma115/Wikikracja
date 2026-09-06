@@ -9,8 +9,8 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
-from zzz.signals import survey_created
-from zzz.utils import build_site_url
+from core.signals import survey_created
+from core.utils import build_site_url
 
 from .forms import SurveyForm
 from .models import Survey, SurveyOption, SurveyVote

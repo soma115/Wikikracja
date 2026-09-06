@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from chat.models import Message, Room
 from chat.services import get_unread_count_for_user
-from home.services.feed import FEED_CACHE_KEY, generate_feed_items
+from core.services.feed import FEED_CACHE_KEY, generate_feed_items
 
 
 class ActivityFeedChatTest(TestCase):

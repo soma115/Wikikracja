@@ -7,9 +7,9 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from chat.signals import chat_room_requested
-from home.services.feed import invalidate_feed_cache_on_change
-from zzz.signals import task_created
-from zzz.utils import build_site_url
+from core.services.feed import invalidate_feed_cache_on_change
+from core.signals import task_created
+from core.utils import build_site_url
 
 from .models import Task
 
