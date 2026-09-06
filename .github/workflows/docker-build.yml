@@ -1,8 +1,8 @@
-name: Build and Push Docker Image
+name: Container image
 
 on:
   workflow_run:
-    workflows: ["Status Checks"]
+    workflows: ["CI / tests & checks"]
     types: [completed]
   workflow_dispatch:
 
@@ -12,6 +12,7 @@ env:
 
 jobs:
   build-and-push:
+    name: Build and push image
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:

@@ -1,4 +1,4 @@
-name: Status Checks
+name: CI / tests & checks
 
 on:
   push:
@@ -23,7 +23,7 @@ env:
 
 jobs:
   lint:
-    name: Lint
+    name: Ruff lint & format
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -57,7 +57,7 @@ jobs:
         run: python manage.py check
 
   pytest:
-    name: Python tests
+    name: pytest
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -74,7 +74,7 @@ jobs:
         run: python -m pytest -q
 
   jest:
-    name: JavaScript tests
+    name: Jest
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
