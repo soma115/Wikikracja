@@ -1,10 +1,10 @@
 import math
+from functools import wraps
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.cache import cache
 from django.db import models, transaction
 from django.db.models import Count, Q, Sum
 from django.db.models.functions import Coalesce
@@ -25,26 +25,6 @@ from .forms import TaskForm, TaskStatusForm
 from .models import Category, Task, TaskEvaluation, TaskVote
 
 User = get_user_model()
-
-TASK_LIST_CACHE_TTL = 3600  # 1h — signals handle invalidation on data changes
-TASK_LIST_GLOBAL_VERSION_KEY = "task_list_global_version"
-
-
-def _task_list_cache_key(user_id):
-    version = cache.get(TASK_LIST_GLOBAL_VERSION_KEY, 1)
-    return f"task_list_data_v2_{version}_{user_id}"
-
-
-def invalidate_task_list_cache(user_id=None):
-    """Invalidate task list cache. Bumps global version to invalidate all users at once."""
-    if user_id:
-        cache.delete(_task_list_cache_key(user_id))
-    else:
-        # Bump global version — all per-user keys become stale immediately
-        try:
-            cache.incr(TASK_LIST_GLOBAL_VERSION_KEY)
-        except ValueError:
-            cache.set(TASK_LIST_GLOBAL_VERSION_KEY, 2, timeout=None)
 
 
 def _get_pulse_room_ids(user):
@@ -71,12 +51,6 @@ def _task_sort_context(request):
     return sort, order, tab, categories
 
 
-def _filter_by_category(tasks, categories):
-    if not categories:
-        return tasks
-    return [t for t in tasks if t.category and t.category.slug in categories]
-
-
 class TaskFilterContextMixin:
     """Mixin zapewniający menu zadań stan filtrów (sort/order/category)."""
 
@@ -94,120 +68,65 @@ class TaskFilterContextMixin:
         return context
 
 
-def _apply_task_sort(tasks, sort, order):
-    reverse = order == 'desc'
-    if sort == 'date':
-        return sorted(tasks, key=lambda t: t.created_at, reverse=reverse)
-    elif sort == 'score':
-        # 'Poparcie' = liczba helpers (votes_up), nie netto. Głosy sprzeciwu
-        # są osobnym sygnałem (próg rejection przy votes_score <= -2),
-        # nie obniżają rankingu helpers.
-        return sorted(tasks, key=lambda t: t.votes_up or 0, reverse=reverse)
-    elif sort == 'buzz':
-        return sorted(tasks, key=lambda t: getattr(t, 'chat_msg_count', 0) or 0, reverse=reverse)
-    return tasks
-
-
 PRIORITY_LABELS = {"critical": gettext_lazy("Critical"), "important": gettext_lazy("Important"), "beneficial": gettext_lazy("Beneficial"), "rejected": gettext_lazy("Rejected")}
 
+# 'Poparcie' (score) = liczba helpers (votes_up), nie netto. Głosy sprzeciwu
+# są osobnym sygnałem (próg rejection przy votes_score <= -2), nie obniżają
+# rankingu helpers.
+TASK_SORT_FIELDS = {"date": "created_at", "score": "votes_up", "buzz": "chat_msg_count"}
 
-def _assign_priorities(tasks):
-    for task in tasks:
-        task.priority_label = None
-        task.priority_category = None
+# Klucze wtórne = kanoniczna kolejność, jaką zachowywał stabilny sorted() przy remisach.
+TASK_SORT_TIEBREAK = ("-votes_score", "-updated_at")
 
-    non_rejected = [t for t in tasks if (t.votes_score or 0) >= -1]
-    rejected = [t for t in tasks if (t.votes_score or 0) <= -2]
+
+def _task_list_queryset(user, categories, sort, order):
+    """Annotated task queryset for the list view, with category filter and display sort."""
+    qs = Task.objects.with_metrics().with_chat_count().with_user_vote(user).select_related("category", "assigned_to", "assigned_to__uzytkownik", "chat_room")
+    if categories:
+        qs = qs.filter(category__slug__in=categories)
+    direction = "-" if order == "desc" else ""
+    return qs.order_by(direction + TASK_SORT_FIELDS[sort], *TASK_SORT_TIEBREAK)
+
+
+def _compute_priority_map(rows):
+    """rows: [(task_id, votes_score)] w kanonicznej kolejności.
+    Zwraca {task_id: (priority_label, priority_category)}."""
+    result = {}
+    non_rejected = []
+    for task_id, score in rows:
+        if (score or 0) <= -2:
+            result[task_id] = (PRIORITY_LABELS["rejected"], "rejected")
+        else:
+            non_rejected.append(task_id)
     total = len(non_rejected)
-
-    def mark(task, category):
-        task.priority_category = category
-        task.priority_label = PRIORITY_LABELS[category]
-
-    if total == 0:
-        for task in rejected:
-            mark(task, "rejected")
-        return
-
+    if not total:
+        return result
     critical_limit = max(1, math.ceil(total * 0.2))
     important_limit = critical_limit + math.ceil(total * 0.3)
-
-    for idx, task in enumerate(non_rejected):
-        if idx < critical_limit:
-            mark(task, "critical")
-        elif idx < important_limit:
-            mark(task, "important")
-        else:
-            mark(task, "beneficial")
-
-    for task in rejected:
-        mark(task, "rejected")
-
-
-def _load_task_lists(user):
-    """
-    Fetch and categorise all tasks. Result is cached in Redis per user (TTL=60s).
-    Returns a dict with pre-categorised task lists and per-task user-specific attributes
-    (user_vote_value, chat_room_pulse_class) already set on the objects.
-    """
-    cache_key = _task_list_cache_key(user.id)
-    cached = cache.get(cache_key)
-    if cached is not None:
-        return cached
-
-    queryset = Task.objects.with_metrics().annotate(chat_msg_count=Count('chat_room__messages', distinct=True)).order_by("-votes_score", "-updated_at")
-
-    active_tasks = list(queryset.filter(status=Task.Status.ACTIVE))
-    _assign_priorities(active_tasks)
-    rejected_active = [t for t in active_tasks if t.priority_category == "rejected"]
-    active_non_rejected = [t for t in active_tasks if t.priority_category != "rejected"]
-    active_with_owner = [t for t in active_non_rejected if t.assigned_to and ((t.votes_up or 0) - (t.votes_down or 0) >= 2)]
-    awaiting_tasks = [t for t in active_non_rejected if t not in active_with_owner]
-
-    finished_tasks = list(queryset.exclude(status=Task.Status.ACTIVE))
-    _assign_priorities(finished_tasks)
-    rejected_tasks = [t for t in finished_tasks if t.priority_category == "rejected"]
-    completed_tasks = [t for t in finished_tasks if t.priority_category != "rejected" and t.status == Task.Status.COMPLETED]
-    cancelled_tasks = [t for t in finished_tasks if t.priority_category != "rejected" and t.status == Task.Status.CANCELLED]
-
-    all_tasks = active_tasks + finished_tasks
-
-    # Batch: user votes (1 query)
-    vote_by_task_id = dict(TaskVote.objects.filter(user=user, task_id__in=[t.id for t in all_tasks]).values_list("task_id", "value"))
-    for t in all_tasks:
-        t.user_vote_value = vote_by_task_id.get(t.id)
-
-    # Batch: unseen chat rooms (2 queries instead of 2N)
-    pulse_room_ids = _get_pulse_room_ids(user)
-    for t in all_tasks:
-        t.chat_room_pulse_class = "chat-room-pulse" if t.chat_room_id in pulse_room_ids else ""
-
-    # My tasks (separate queryset — user-specific, also annotated)
-    my_tasks_qs = list(
-        Task.objects.filter(Q(assigned_to=user) | Q(votes__user=user, votes__value=1))
-        .filter(status=Task.Status.ACTIVE)
-        .distinct()
-        .with_metrics()
-        .annotate(chat_msg_count=Count('chat_room__messages', distinct=True))
-        .order_by("-votes_score", "-updated_at")
-    )
-    my_vote_map = dict(TaskVote.objects.filter(user=user, task_id__in=[t.id for t in my_tasks_qs]).values_list("task_id", "value"))
-    for t in my_tasks_qs:
-        t.user_vote_value = my_vote_map.get(t.id)
-        t.chat_room_pulse_class = "chat-room-pulse" if t.chat_room_id in pulse_room_ids else ""
-
-    result = {
-        "active_with_owner": active_with_owner,
-        "awaiting_tasks": awaiting_tasks,
-        "completed_tasks": completed_tasks,
-        "rejected_tasks": rejected_tasks,
-        "rejected_active": rejected_active,
-        "cancelled_tasks": cancelled_tasks,
-        "my_tasks_own": [t for t in my_tasks_qs if t.assigned_to_id == user.id],
-        "my_tasks_supporting": [t for t in my_tasks_qs if t.assigned_to_id != user.id],
-    }
-    cache.set(cache_key, result, TASK_LIST_CACHE_TTL)
+    for idx, task_id in enumerate(non_rejected):
+        category = "critical" if idx < critical_limit else "important" if idx < important_limit else "beneficial"
+        result[task_id] = (PRIORITY_LABELS[category], category)
     return result
+
+
+def _priority_map(active: bool):
+    """Priority mapa dla świata aktywnych albo zakończonych zadań.
+
+    Liczona na zbiorze niefiltrowanym (przed filtrem kategorii) — progi
+    percentylowe muszą dotyczyć wszystkich zadań, nie tylko wyświetlanych.
+    """
+    qs = Task.objects.with_metrics()
+    qs = qs.filter(status=Task.Status.ACTIVE) if active else qs.exclude(status=Task.Status.ACTIVE)
+    rows = list(qs.order_by("-votes_score", "-updated_at").values_list("id", "votes_score"))
+    return _compute_priority_map(rows)
+
+
+def _prepare_task_cards(tasks, pulse_room_ids, priority_map=None):
+    """Attach per-request display attributes: priority badge and chat pulse."""
+    for task in tasks:
+        task.priority_label, task.priority_category = priority_map.get(task.id, (None, None)) if priority_map else (None, None)
+        task.chat_room_pulse_class = "chat-room-pulse" if task.chat_room_id in pulse_room_ids else ""
+    return tasks
 
 
 def _task_toolbar_data(sort, order, tab, categories):
@@ -249,22 +168,38 @@ class TaskListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         sort, order, tab, categories = _task_sort_context(self.request)
+        user = self.request.user
 
-        data = _load_task_lists(self.request.user)
+        qs = _task_list_queryset(user, categories, sort, order)
+        pulse_room_ids = _get_pulse_room_ids(user)
 
-        def prepare(tasks):
-            return _apply_task_sort(_filter_by_category(tasks, categories), sort, order)
+        # Szablon renderuje wyłącznie aktywną zakładkę — budujemy tylko jej listy.
+        lists = {}
+        if tab == "mine":
+            # pk__in zamiast joina na votes: filtr relacji nie może zawęzić agregatów with_metrics().
+            supported = TaskVote.objects.filter(user=user, value=TaskVote.Value.UP).values("task_id")
+            mine = _prepare_task_cards(list(qs.filter(Q(assigned_to=user) | Q(pk__in=supported), status=Task.Status.ACTIVE)), pulse_room_ids)
+            lists = {"my_tasks_own": [t for t in mine if t.assigned_to_id == user.id], "my_tasks_supporting": [t for t in mine if t.assigned_to_id != user.id]}
+        elif tab == "awaiting":
+            lists["awaiting_tasks"] = _prepare_task_cards(
+                list(qs.filter(status=Task.Status.ACTIVE, votes_score__gte=-1).filter(Q(assigned_to__isnull=True) | Q(votes_score__lt=2))), pulse_room_ids, _priority_map(active=True)
+            )
+        elif tab == "active":
+            lists["active_tasks"] = _prepare_task_cards(list(qs.filter(status=Task.Status.ACTIVE, assigned_to__isnull=False, votes_score__gte=2)), pulse_room_ids, _priority_map(active=True))
+        else:  # finished
+            priority_map = _priority_map(active=False)
+            lists["finished_completed"] = _prepare_task_cards(list(qs.filter(status=Task.Status.COMPLETED, votes_score__gte=-1)), pulse_room_ids, priority_map)
+            lists["finished_cancelled"] = _prepare_task_cards(list(qs.filter(status=Task.Status.CANCELLED, votes_score__gte=-1)), pulse_room_ids, priority_map)
+            rejected = _prepare_task_cards(list(qs.filter(votes_score__lte=-2)), pulse_room_ids)
+            for task in rejected:
+                task.priority_label = PRIORITY_LABELS["rejected"]
+                task.priority_category = "rejected"
+            lists["finished_rejected"] = rejected
 
         sort_items, views = _task_toolbar_data(sort, order, tab, categories)
         context.update(
             {
-                "active_tasks": prepare(data["active_with_owner"]),
-                "awaiting_tasks": prepare(data["awaiting_tasks"]),
-                "finished_completed": prepare(data["completed_tasks"]),
-                "finished_rejected": prepare(data["rejected_tasks"] + data["rejected_active"]),
-                "finished_cancelled": prepare(data["cancelled_tasks"]),
-                "my_tasks_own": prepare(data["my_tasks_own"]),
-                "my_tasks_supporting": prepare(data["my_tasks_supporting"]),
+                **lists,
                 "current_tab": tab,
                 "current_sort": sort,
                 "current_order": order,
@@ -342,77 +277,66 @@ def task_against_json(request: HttpRequest, pk: int) -> JsonResponse:
     return JsonResponse(_voters_json(task, TaskVote.Value.DOWN))
 
 
-def _target_is_coordinator(task, user_id):
-    return task.assigned_to_id == user_id
+def require_coordinator(action):
+    """Shared pre-checks for coordinator-only helper endpoints.
+
+    Resolves the task, verifies request.user is the coordinator and that the
+    target user is not the coordinator. On success calls the wrapped view as
+    view(request, task, user_id, is_ajax).
+    """
+
+    def decorator(view):
+        @wraps(view)
+        def wrapper(request, pk, user_id):
+            task = get_object_or_404(Task, pk=pk)
+            is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+            if task.assigned_to != request.user:
+                if is_ajax:
+                    return JsonResponse({"ok": False, "error": "not coordinator"}, status=403)
+                return redirect("tasks:detail", pk=pk)
+            if task.assigned_to_id == user_id:
+                if is_ajax:
+                    return JsonResponse({"ok": False, "error": f"cannot {action} coordinator"}, status=400)
+                return redirect("tasks:detail", pk=pk)
+            return view(request, task, user_id, is_ajax)
+
+        return wrapper
+
+    return decorator
 
 
 @require_POST
 @login_required
-def approve_helper(request: HttpRequest, pk: int, user_id: int) -> HttpResponse:
-    task = get_object_or_404(Task, pk=pk)
-    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
-    if task.assigned_to != request.user:
-        if is_ajax:
-            return JsonResponse({"ok": False, "error": "not coordinator"}, status=403)
-        return redirect("tasks:detail", pk=pk)
-
-    if _target_is_coordinator(task, user_id):
-        if is_ajax:
-            return JsonResponse({"ok": False, "error": "cannot approve coordinator"}, status=400)
-        return redirect("tasks:detail", pk=pk)
-
+@require_coordinator("approve")
+def approve_helper(request: HttpRequest, task: Task, user_id: int, is_ajax: bool) -> HttpResponse:
     helper = get_object_or_404(User, pk=user_id)
     if not task.is_user_helper(helper):
         if is_ajax:
             return JsonResponse({"ok": False, "error": "not a helper"}, status=400)
-        return redirect("tasks:detail", pk=pk)
+        return redirect("tasks:detail", pk=task.pk)
 
     task.approve_helper(helper)
-    invalidate_task_list_cache()
     if is_ajax:
         return JsonResponse({"ok": True, "user_id": helper.id, "approved": True})
-    return redirect(request.POST.get("next") or "tasks:detail", pk=pk)
+    return redirect(request.POST.get("next") or "tasks:detail", pk=task.pk)
 
 
 @require_POST
 @login_required
-def remove_helper(request: HttpRequest, pk: int, user_id: int) -> HttpResponse:
-    task = get_object_or_404(Task, pk=pk)
-    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
-    if task.assigned_to != request.user:
-        if is_ajax:
-            return JsonResponse({"ok": False, "error": "not coordinator"}, status=403)
-        return redirect("tasks:detail", pk=pk)
-
-    if _target_is_coordinator(task, user_id):
-        if is_ajax:
-            return JsonResponse({"ok": False, "error": "cannot remove coordinator"}, status=400)
-        return redirect("tasks:detail", pk=pk)
-
+@require_coordinator("remove")
+def remove_helper(request: HttpRequest, task: Task, user_id: int, is_ajax: bool) -> HttpResponse:
     helper = get_object_or_404(User, pk=user_id)
     task.remove_helper(helper)
-    invalidate_task_list_cache()
     if is_ajax:
         return JsonResponse({"ok": True, "user_id": helper.id, "approved": False})
-    return redirect(request.POST.get("next") or "tasks:detail", pk=pk)
+    return redirect(request.POST.get("next") or "tasks:detail", pk=task.pk)
 
 
 @require_POST
 @login_required
-def toggle_helper(request: HttpRequest, pk: int, user_id: int) -> HttpResponse:
+@require_coordinator("approve")
+def toggle_helper(request: HttpRequest, task: Task, user_id: int, is_ajax: bool) -> HttpResponse:
     """Coordinator toggle: approve/remove a helper from the team with one switch."""
-    task = get_object_or_404(Task, pk=pk)
-    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
-    if task.assigned_to != request.user:
-        if is_ajax:
-            return JsonResponse({"ok": False, "error": "not coordinator"}, status=403)
-        return redirect("tasks:detail", pk=pk)
-
-    if _target_is_coordinator(task, user_id):
-        if is_ajax:
-            return JsonResponse({"ok": False, "error": "cannot approve coordinator"}, status=400)
-        return redirect("tasks:detail", pk=pk)
-
     helper = get_object_or_404(User, pk=user_id)
     if task.is_user_approved(helper):
         task.remove_helper(helper)
@@ -421,14 +345,13 @@ def toggle_helper(request: HttpRequest, pk: int, user_id: int) -> HttpResponse:
         if not task.is_user_helper(helper):
             if is_ajax:
                 return JsonResponse({"ok": False, "error": "not a helper"}, status=400)
-            return redirect("tasks:detail", pk=pk)
+            return redirect("tasks:detail", pk=task.pk)
         task.approve_helper(helper)
         approved = True
 
-    invalidate_task_list_cache()
     if is_ajax:
         return JsonResponse({"ok": True, "user_id": helper.id, "approved": approved})
-    return redirect(request.POST.get("next") or "tasks:detail", pk=pk)
+    return redirect(request.POST.get("next") or "tasks:detail", pk=task.pk)
 
 
 @require_POST
@@ -476,16 +399,8 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         task = context["task"]
-        if task.is_active:
-            reference_tasks = list(Task.objects.with_metrics().filter(status=Task.Status.ACTIVE).order_by("-votes_score", "-updated_at"))
-        else:
-            reference_tasks = list(Task.objects.with_metrics().exclude(status=Task.Status.ACTIVE).order_by("-votes_score", "-updated_at"))
-        _assign_priorities(reference_tasks)
-        priority_map = {t.id: getattr(t, "priority_label", None) for t in reference_tasks}
-        current_label = getattr(task, "priority_label", None)
-        task.priority_label = priority_map.get(task.id, current_label or task.get_status_display())
-        priority_map = {t.id: (getattr(t, "priority_label", None), getattr(t, "priority_category", None)) for t in reference_tasks}
-        current_label, current_category = priority_map.get(task.id, (getattr(task, "priority_label", None), getattr(task, "priority_category", None)))
+        priority_map = _priority_map(active=task.is_active)
+        current_label, current_category = priority_map.get(task.id, (None, None))
         task.priority_label = current_label or task.get_status_display()
         task.priority_category = current_category
         helping_votes = list(TaskVote.objects.filter(task=task, value=TaskVote.Value.UP).select_related("user", "user__uzytkownik").order_by("updated_at", "id"))
@@ -657,26 +572,11 @@ class TaskCategoryAPI(CategoryAPIBase):
         return data
 
     def post(self, request):
+        # Unikalny slug generuje Category.save() — tutaj tylko walidacja nazwy.
         name = request.POST.get("name", "").strip()
-        if not name:
-            return JsonResponse({"error": "Name is required."}, status=400)
-        base_slug = slugify(name)
-        if not base_slug:
+        if name and not slugify(name):
             return JsonResponse({"error": "Invalid name."}, status=400)
-        slug = base_slug
-        counter = 1
-        while Category.objects.filter(slug=slug).exists():
-            slug = f"{base_slug}-{counter}"
-            counter += 1
-        description = request.POST.get("description", "").strip()
-        cat = Category.objects.create(name=name, slug=slug, description=description)
-        self.after_write()
-        data = self.serialize(cat)
-        data["item_count"] = 0
-        return JsonResponse(data)
-
-    def after_write(self):
-        invalidate_task_list_cache()
+        return super().post(request)
 
 
 class TaskCategoryEditAPI(CategoryEditAPI):
@@ -687,25 +587,16 @@ class TaskCategoryEditAPI(CategoryEditAPI):
         data["slug"] = cat.slug
         return data
 
-    def after_write(self):
-        invalidate_task_list_cache()
-
 
 class TaskCategoryDeleteAPI(CategoryDeleteAPI):
     model = Category
     related_count_field = "tasks"
     block_if_in_use = False
 
-    def after_write(self):
-        invalidate_task_list_cache()
-
 
 class TaskCategoryReorderAPI(CategoryReorderAPI):
     model = Category
     order_field = "order"
-
-    def after_write(self):
-        invalidate_task_list_cache()
 
 
 class TaskStatsView(LoginRequiredMixin, TaskFilterContextMixin, TemplateView):

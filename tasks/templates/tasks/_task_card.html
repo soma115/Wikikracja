@@ -39,7 +39,7 @@
            onclick="event.stopPropagation()">
           <i class="fas fa-comment-dots"></i>
           <span>{% trans 'Chat' %}</span>
-          {% with n=task.chat_room.messages.count %}
+          {% with n=task.chat_msg_count %}
             {% if n %}<span class="task-chat-count">{{ n }}</span>{% endif %}
           {% endwith %}
         </a>

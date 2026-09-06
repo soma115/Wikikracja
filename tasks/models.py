@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models, transaction
-from django.db.models import Count, F, Q
+from django.db.models import Count, F, Max, Q
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -22,7 +22,13 @@ class Category(AbstractCategory):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+            while Category.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
         super().save(*args, **kwargs)
 
 
@@ -34,6 +40,13 @@ class TaskQuerySet(models.QuerySet):
             eval_success=Count("evaluations", filter=Q(evaluations__value=TaskEvaluation.Value.SUCCESS), distinct=True),
             eval_failure=Count("evaluations", filter=Q(evaluations__value=TaskEvaluation.Value.FAILURE), distinct=True),
         ).annotate(votes_score=F("votes_up") - F("votes_down"))
+
+    def with_chat_count(self):
+        return self.annotate(chat_msg_count=Count("chat_room__messages", distinct=True))
+
+    def with_user_vote(self, user):
+        """Annotate `user_vote_value` — the user's vote on each task (None when absent)."""
+        return self.annotate(user_vote_value=Max("votes__value", filter=Q(votes__user=user)))
 
 
 class Task(ChatRoomModel, models.Model):

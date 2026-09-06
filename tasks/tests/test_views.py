@@ -1,12 +1,10 @@
 # Third party imports
-from django.core.cache import cache
 from django.test import Client, TestCase
 from django.urls import reverse
 
 # Local folder imports
 from tasks.models import Category, Task, TaskEvaluation, TaskVote
 from tasks.tests.utils import make_task, make_user
-from tasks.views import _task_list_cache_key
 
 
 class TaskListViewTest(TestCase):
@@ -29,6 +27,108 @@ class TaskListViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tasks/_task_list_partial.html")
         self.assertNotContains(response, "<html")
+
+
+class TaskListFilteringTest(TestCase):
+    """Sortowanie, filtr kategorii i przydział do zakładek — logika po stronie ORM."""
+
+    def setUp(self):
+        self.client = Client()
+        self.user = make_user("filteruser")
+        self.other = make_user("otheruser")
+        self.cat = Category.objects.create(name="Kuchnia")
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+
+    def upvote(self, task, user, value=TaskVote.Value.UP):
+        return TaskVote.objects.create(task=task, user=user, value=value)
+
+    def get_list(self, params=""):
+        return self.client.get(reverse("tasks:list") + params)
+
+    def test_awaiting_tab_shows_unassigned_and_low_score(self):
+        make_task(title="Oczekujące")
+        active = make_task(title="W realizacji", assigned_to=self.other)
+        self.upvote(active, self.user)
+        self.upvote(active, self.other)
+        response = self.get_list("?tab=awaiting")
+        titles = [t.title for t in response.context["awaiting_tasks"]]
+        self.assertIn("Oczekujące", titles)
+        self.assertNotIn("W realizacji", titles)
+
+    def test_active_tab_requires_coordinator_and_score_2(self):
+        no_owner = make_task(title="Bez koordynatora")
+        owned = make_task(title="Z koordynatorem", assigned_to=self.other)
+        self.upvote(no_owner, self.user)
+        self.upvote(no_owner, self.other)
+        self.upvote(owned, self.user)
+        self.upvote(owned, self.other)
+        response = self.get_list("?tab=active")
+        titles = [t.title for t in response.context["active_tasks"]]
+        self.assertIn("Z koordynatorem", titles)
+        # score>=2 ale bez koordynatora → nadal oczekujące
+        self.assertNotIn("Bez koordynatora", titles)
+
+    def test_finished_tab_collects_all_rejected(self):
+        rejected = make_task(title="Odrzucone")
+        self.upvote(rejected, self.user, TaskVote.Value.DOWN)
+        self.upvote(rejected, self.other, TaskVote.Value.DOWN)
+        response = self.get_list("?tab=finished")
+        titles = [t.title for t in response.context["finished_rejected"]]
+        self.assertIn("Odrzucone", titles)
+        self.assertEqual(response.context["finished_rejected"][0].priority_category, "rejected")
+
+    def test_category_filter(self):
+        in_cat = make_task(title="W kategorii")
+        in_cat.category = self.cat
+        in_cat.save()
+        make_task(title="Bez kategorii")
+        response = self.get_list(f"?tab=awaiting&category={self.cat.slug}")
+        titles = [t.title for t in response.context["awaiting_tasks"]]
+        self.assertIn("W kategorii", titles)
+        self.assertNotIn("Bez kategorii", titles)
+
+    def test_sort_by_score_uses_votes_up_not_votes_score(self):
+        # 'Poparcie' = liczba helpers (votes_up); głosy sprzeciwu nie obniżają rankingu.
+        more_helpers = make_task(title="Więcej helpers")
+        better_net = make_task(title="Lepszy netto")
+        voter3 = make_user("voter3")
+        voter4 = make_user("voter4")
+        for u in (self.user, self.other, voter3, voter4):
+            self.upvote(more_helpers, u)
+        TaskVote.objects.create(task=more_helpers, user=make_user("against"), value=TaskVote.Value.DOWN)
+        for u in (self.user, self.other, voter3):
+            self.upvote(better_net, u)
+        response = self.get_list("?tab=awaiting&sort=score&order=desc")
+        self.assertEqual(response.context["awaiting_tasks"][0].title, "Więcej helpers")
+
+    def test_sort_by_date_asc(self):
+        old = make_task(title="Starsze")
+        new = make_task(title="Nowsze")
+        Task.objects.filter(pk=old.pk).update(created_at="2020-01-01T00:00:00Z")
+        Task.objects.filter(pk=new.pk).update(created_at="2024-01-01T00:00:00Z")
+        response = self.get_list("?tab=awaiting&sort=date&order=asc")
+        self.assertEqual(response.context["awaiting_tasks"][0].title, "Starsze")
+
+    def test_mine_tab_shows_own_and_supported(self):
+        make_task(title="Moje", assigned_to=self.user)
+        supported = make_task(title="Wspierane")
+        self.upvote(supported, self.user)
+        make_task(title="Obce")
+        response = self.get_list("?tab=mine")
+        own_titles = [t.title for t in response.context["my_tasks_own"]]
+        sup_titles = [t.title for t in response.context["my_tasks_supporting"]]
+        self.assertEqual(own_titles, ["Moje"])
+        self.assertEqual(sup_titles, ["Wspierane"])
+
+    def test_mine_tab_supporting_shows_true_vote_counts(self):
+        # Filtr pk__in (nie join na votes) — agregaty nie są zawężane do głosu usera.
+        supported = make_task(title="Wspierane")
+        self.upvote(supported, self.user)
+        self.upvote(supported, self.other)
+        response = self.get_list("?tab=mine")
+        task = response.context["my_tasks_supporting"][0]
+        self.assertEqual(task.votes_up, 2)
+        self.assertEqual(task.user_vote_value, TaskVote.Value.UP)
 
 
 class TaskCreateViewTest(TestCase):
@@ -378,20 +478,6 @@ class EvaluateTaskTest(TestCase):
         self.assertFalse(TaskEvaluation.objects.filter(task=self.task, user=self.user).exists())
 
 
-class TaskCacheInvalidationTest(TestCase):
-    def setUp(self):
-        self.client = Client()
-        self.user = make_user("cacheuser")
-        self.task = make_task(created_by=self.user)
-
-    def test_vote_invalidates_user_cache(self):
-        cache_key = _task_list_cache_key(self.user.id)
-        cache.set(cache_key, "cached_data", 3600)
-        self.client.login(username=self.user.username, password=self.user._plain_password)
-        self.client.post(reverse("tasks:vote", kwargs={"pk": self.task.pk}), {"value": 1})
-        self.assertIsNone(cache.get(cache_key))
-
-
 class CategoryAPITest(TestCase):
     def setUp(self):
         self.client = Client()
@@ -420,6 +506,19 @@ class CategoryAPITest(TestCase):
         self.client.login(username=self.user.username, password=self.user._plain_password)
         response = self.client.post(reverse("tasks:api_categories"), {"name": "", "description": ""})
         self.assertEqual(response.status_code, 400)
+
+    def test_create_category_unslugifiable_name_returns_400(self):
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+        response = self.client.post(reverse("tasks:api_categories"), {"name": "!!!", "description": ""})
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_category_duplicate_name_gets_unique_slug(self):
+        Category.objects.create(name="Nowa", slug="nowa")
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+        response = self.client.post(reverse("tasks:api_categories"), {"name": "Nowa", "description": ""})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["slug"], "nowa-1")
+        self.assertTrue(Category.objects.filter(slug="nowa-1").exists())
 
     def test_edit_category(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)
