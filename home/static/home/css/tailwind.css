@@ -6929,7 +6929,9 @@ body.chat-page .tw-main-area {
 /* EMPTY STATES — placeholder "Wybierz pokoj" + brak nieprzeczytanych */
 /* ============================================================ */
 .chat-no-room-placeholder,
-.chat-no-unread-empty-state {
+.chat-no-unread-empty-state,
+.chat-no-search-results,
+.chat-join-error {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -6985,16 +6987,22 @@ body.chat-page .tw-main-area {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
-/* Gdy pokazany jest empty state "brak nieprzeczytanych", chowamy drzewo kategorii.
-   Nie ruszamy inline style .room-list-groups — sort wg czasu tez ukrywa ten element
-   przez display:none, a manipulacja inline style'em z dwoch miejsc daje "widmo"
-   drzewa po zdjeciu filtra. */
-#room-list:has(.chat-no-unread-empty-state) .room-list-groups {
+/* Gdy pokazany jest empty state "brak nieprzeczytanych", chowamy drzewo kategorii
+   i ewentualną płaską listę sortowania. Nie ruszamy inline style
+   .room-list-groups — sort wg czasu tez ukrywa ten element przez display:none,
+   a manipulacja inline style'em z dwoch miejsc daje "widmo" drzewa po zdjeciu
+   filtra. */
+#room-list:has(.chat-no-unread-empty-state) .room-list-groups,
+#room-list:has(.chat-no-unread-empty-state) #room-list-flat,
+#room-list:has(.chat-no-search-results) .room-list-groups,
+#room-list:has(.chat-no-search-results) #room-list-flat {
     display: none;
 }
 @media (max-width: 767.98px) {
     .chat-no-room-placeholder,
-    .chat-no-unread-empty-state {
+    .chat-no-unread-empty-state,
+    .chat-no-search-results,
+    .chat-join-error {
         padding: 1.5rem 1rem;
     }
 }

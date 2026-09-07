@@ -39,6 +39,36 @@ import { $, $$, _, mobileMedia } from './utility.js';
  */
 const DOM_API = new DomApi();
 
+/**
+ * Jawny stan "brak wyników wyszukiwania" — pusta lista bez komunikatu to
+ * pusty ekran. Notka ląduje w #room-list obok .room-list-groups; gdy jest
+ * widoczna, CSS (:has) chowa drzewo kategorii i płaską listę.
+ * Tekst przez textContent (defense-in-depth).
+ */
+function updateSearchEmptyState(query) {
+    const list = document.getElementById('room-list');
+    if (!list) return;
+    const anyMatch = [...document.querySelectorAll('.room-link[data-room-id]')]
+        .some(link => !link.classList.contains('search-filtered-out'));
+    const show = query !== '' && !anyMatch;
+    let note = document.getElementById('chat-no-search-results');
+    if (show && !note) {
+        note = document.createElement('div');
+        note.id = 'chat-no-search-results';
+        note.className = 'chat-no-search-results';
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-magnifying-glass chat-no-room-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        const text = document.createElement('p');
+        text.className = 'chat-no-room-text';
+        text.textContent = _('No rooms match the search.');
+        note.append(icon, text);
+        list.appendChild(note);
+    } else if (!show) {
+        note?.remove();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     initGlobalPasteImageHandler();
     const MSG_MAX = window.SITE_SETTINGS?.messageMaxLength ?? 500;
@@ -180,6 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const name = (roomLink.querySelector('.room-name')?.textContent || '').toLowerCase();
             roomLink.classList.toggle('search-filtered-out', query !== '' && !name.includes(query));
         });
+        updateSearchEmptyState(query);
     });
 
     // nav-cat-btn click: toggle category open/closed

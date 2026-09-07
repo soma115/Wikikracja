@@ -1,20 +1,25 @@
 # To są notatki użytkownika, nie zmieniaj tutaj nic.
 
-- w aktywnosc/:
+1. w aktywnosc/:
   - W widoku listy pokazuj tylko jedną linijkę wiadomości z czatu, a nie trzy czy 2 jak do tej pory.
   - A w widoku kafelków pokazuj 5 linijek tekstu.
 
-- Dodajmy możliwość bookmarkowania powiadomień w aktywnosc/. Dodaj też w aktywność filtr "pokazuj tylko bookmarki". Dodaj Też kafelek na pulpicie, który będzie pokazywał bookmarki danego użytkownika.
+2. Dodajmy możliwość bookmarkowania powiadomień w aktywnosc/. Dodaj też w aktywność filtr "pokazuj tylko bookmarki". Dodaj Też kafelek na pulpicie, który będzie pokazywał bookmarki danego użytkownika.
 
-- Na pulpicie dodaj kafelek do ankiet. Pokazuj od najnowszej do najstarszej jako listę.
+3. Kliknięcie na guzik nieprzeczytane z licznikiem powinno od razu nakładać filtr nieprzeczytany tak, aby lista, która się pokazuje była zgodna z tym licznikiem.
 
-- Wszędzie tam, gdzie wyświetlany jest użytkownik, pokazuj jego imię i nazwisko zamiast nicka.
+4. 3 kafelki z głosowaniami zamienimy w 1 kafelek. Będą w nim wszystkie głosowania, propozycje dyskutowane i aktualnie głosowane. Pierwsze mają być aktualnie głosowane, drugie mają być dyskutowane, a trzecie to będą propozycje. Każde głosowanie w oddzielnej linijce, etykiety przed każdym, tak jak teraz.
 
-- W powiadomieniach e-mail nie pokazuj nicka, imienia i nazwiska osoby, tylko informacja, że została zaproponowana nowa osoba.
+5. Na pulpicie dodaj kafelek do ankiet. Pokazuj od najnowszej do najstarszej jako listę.
+
+6. Wszędzie tam, gdzie wyświetlany jest użytkownik, pokazuj jego imię i nazwisko zamiast nicka.
+
+7. W powiadomieniach e-mail nie pokazuj nicka, imienia i nazwiska osoby, tylko informacja, że została zaproponowana nowa osoba.
+
+8. W BOARd/dokumenty, filtry czasami znikają, wyłączają się. Te filtry powinny być trwałe, to znaczy przy nawigacji do innych modułów i powrocie do BOARd wcześniej ustawione filtry powinien być dalej ustawione. Być może to zostało naprawione, więc sprawdź. 
 
 - Dlaczego nadal są pozostałości takie jak Task #78 w /aktywnosc/? Pozbyliśmy się tego przedrostka, do czego on teraz jest używany?
 
-- W BOARd/dokumenty, filtry czasami znikają, wyłączają się. Te filtry powinny być trwałe, to znaczy przy nawigacji do innych modułów i powrocie do BOARd wcześniej ustawione filtry powinien być dalej ustawione.
 
 - Dodać prywatne dokumenty/board. Przełącznik, prywatny nie jest widoczny u nie-autora.
 

@@ -1,6 +1,31 @@
 # CHANGELOG
 
 
+## Unreleased
+
+### Refactor
+
+- **chat**: Współdzielony WebSocket (`websocket-manager.js`) przeszedł na model subskrypcyjny:
+  `subscribeMessages(handler)` i `subscribeConnection({onOpen, onClose})` zamiast pojedynczych
+  callbacków. Pełny czat (`wsapi.js`), `notifications.js` i embedded chat (`chat-embedded.js`)
+  współdzielą socket `/chat/stream/` bez nadpisywania sobie handlerów; wiadomości bez `__TRACE_ID`
+  są broadcastowane do wszystkich subskrybentów z izolacją błędów, a późna rejestracja po otwarciu
+  socketu dostaje `onOpen({alreadyOpen: true})` — kolejność ładowania modułów przestała mieć
+  znaczenie. `sendJsonAsync` dostał timeout 15 s; przy `onClose` oczekujące requesty nie są
+  odrzucane, bo `ReconnectingWebSocket` kolejkuje wysyłkę do ponownego open.
+
+### Bug Fixes
+
+- **chat**: Embedded chat po reconnect sam rejoinuje pokój (serwer gubi członkostwo przy zerwaniu),
+  buforuje wiadomości z okna między joinem a historią (`pendingMessages`/`joinDone`) bez duplikacji
+  renderu i retry'uje join przy `REQUEST_TIMEOUT` zamiast pokazywać „brak dostępu".
+- **chat**: Reconnect pełnego czatu nie zmienia URL, historii przeglądarki ani widocznego panelu —
+  tylko przywraca członkostwo w pokoju (`wsOnReconnect`).
+- **chat**: Jawne stany UI: wskaźnik połączenia (reconnecting/offline, nie zasłania wiadomości),
+  błąd joinu z przyciskiem „Spróbuj ponownie", stan „brak wyników wyszukiwania" na liście pokoi
+  i przywracanie fokusu do linku pokoju po powrocie na listę (a11y).
+
+
 ## v1.6.0 (2026-08-10)
 
 ### Features

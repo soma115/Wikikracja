@@ -1387,6 +1387,18 @@ msgstr "Nie udało się dołączyć do pokoju."
 msgid "Reconnecting..."
 msgstr "Ponowne łączenie..."
 
+#: .\chat\i18n.py:66
+msgid "You are offline."
+msgstr "Jesteś offline."
+
+#: .\chat\i18n.py:67
+msgid "Try again"
+msgstr "Spróbuj ponownie"
+
+#: .\chat\i18n.py:68
+msgid "No rooms match the search."
+msgstr "Żaden pokój nie pasuje do wyszukiwania."
+
 #: .\chat\models.py:11 .\chat\services.py:79
 #: .\obywatele\tests\test_views.py:322 .\obywatele\tests\test_views.py:323
 #: .\obywatele\tests\test_views.py:326

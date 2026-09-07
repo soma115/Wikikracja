@@ -45,13 +45,13 @@
   - [x] **3.2.1.** klasy Tailwind/utilities `tw-*`;
   - [x] **3.2.2.** klasy komponentów wspólnych `tw-btn`, `tw-modal-*`, `tw-dropdown-*` itd.;
   - [x] **3.2.3.** semantyczne haki czatu bez prefiksu, których używa JS lub szablony.
-- [ ] **3.3. Naprawić pozostałe inline style generowane przez chat, jeśli nie są konieczne:** w szczególności strzałkę `.sort-arrow` w `templates.js` zastąpić klasą stanu, np. `is-hidden`/`tw-invisible`, i utrzymywać jeden kontrakt CSS/JS. *(nie ruszono — poza krytyczną ścieżką)*
+- [x] **3.3. Naprawić pozostałe inline style generowane przez chat, jeśli nie są konieczne:** w szczególności strzałkę `.sort-arrow` w `templates.js` zastąpić klasą stanu, np. `is-hidden`/`tw-invisible`, i utrzymywać jeden kontrakt CSS/JS. *(zrobione: `tw-invisible` w `templates.js` + `chat.js`, analogicznie `tw-d-none` dla `rename-room-error`)*
 - [x] **3.4. Utrzymać regułę podglądu załączników:** `tw-d-none` dodawać i usuwać klasą; test `image_preview_visibility.test.js` ma pokrywać dodanie nowego załącznika, edycję istniejących załączników i wyczyszczenie podglądu.
-- [ ] **3.5. Utrzymać jeden kontrakt modala obrazów:** `tw-modal-open` dodawać i usuwać we wszystkich ścieżkach otwarcia/zamknięcia (`chat-core.js`, `domapi.js`); dodać test zamknięcia przez przycisk, Escape i programowe `closeBigImage()`. *(kontrakt zachowany; dedykowany test zamknięcia nie dodany)*
+- [x] **3.5. Utrzymać jeden kontrakt modala obrazów:** `tw-modal-open` dodawać i usuwać we wszystkich ścieżkach otwarcia/zamknięcia (`chat-core.js`, `domapi.js`); dodać test zamknięcia przez przycisk, Escape i programowe `closeBigImage()`. *(`image_viewer_close.test.js` — 12 testów: otwarcie, wszystkie ścieżki zamknięcia, odpinanie listenera, nawigacja strzałkami)*
 - [x] **3.6. Po każdej zmianie stylów wykonać `npm run build:css`; nie edytować `tailwind.build.css` ręcznie.**
 - [x] **3.7. Uruchomić `python scripts/regression_scan.py`; skan ma nadal blokować odwołania do usuniętego `chat.css`, starych arkuszy, `data-bs-*`, `bootstrap.*` i `--bs-*` poza dozwolonymi dokumentami/buildem.**
-- [ ] **3.8. Zweryfikować ostrzeżenia IDE dla `tailwind.css`:** `@tailwind` jest dyrektywą źródłową obsługiwaną przez Tailwind; ostrzeżenia o `color-mix` i prefiksach przeglądarkowych oceniać względem wspieranych urządzeń, nie usuwać funkcji wizualnych bez testu. Jeśli potrzebne są prefiksy, dodać je do źródła lub pipeline’u, nie do pliku buildowanego ręcznie. *(nie audytowano ostrzeżeń IDE)*
-- [ ] **3.9. Przejrzeć zmienione testy E2E i testy komponentów po migracji:** sprawdzić, czy selektory testowe nadal wskazują semantyczne haki, a nie usunięte klasy Bootstrap; dodać scenariusz podglądu załącznika, modala, dropdownu i strzałki sortowania. *(selektory zweryfikowane; dedykowane scenariusze podglądu/modala nie dodane)*
+- [x] **3.8. Zweryfikować ostrzeżenia IDE dla `tailwind.css`:** `@tailwind` jest dyrektywą źródłową obsługiwaną przez Tailwind; ostrzeżenia o `color-mix` i prefiksach przeglądarkowych oceniać względem wspieranych urządzeń, nie usuwać funkcji wizualnych bez testu. Jeśli potrzebne są prefiksy, dodać je do źródła lub pipeline’u, nie do pliku buildowanego ręcznie. *(audyt: prefiksy `-webkit-`/`-moz-` generuje autoprefixer w pipeline — ostrzeżenia IDE to false positive; `color-mix()` (5 użyć dekoracyjnych: tła, focus-ring, fade, text-shadow) wspierane od Chrome 111/Safari 16.2/FF 113 i degraduje się bezpiecznie — decyzja: zostaje, bez zmian w pipeline)*
+- [x] **3.9. Przejrzeć zmienione testy E2E i testy komponentów po migracji:** sprawdzić, czy selektory testowe nadal wskazują semantyczne haki, a nie usunięte klasy Bootstrap; dodać scenariusz podglądu załącznika, modala, dropdownu i strzałki sortowania. *(`e2e/chat-components.spec.js` — 5 scenariuszy: dropdown, modal, lightbox, sort wg aktywności, empty state wyszukiwania)*
 
 **Pliki:** `home/static/home/css/tailwind.css`, `tailwind.config.js`, `package.json`, `scripts/regression_scan.py`, `chat/static/chat/js/templates.js`, `chat-core.js`, `domapi.js` i testy komponentów.
 
@@ -100,7 +100,7 @@
   - [x] **5.4.3.** Zmiana szerokości desktop → mobile usuwa efekt desktopowego zwinięcia z prezentacji, ale nie musi kasować preferencji.
   - [x] **5.4.4.** Nazwę klucza zmieniać tylko z migracją starego klucza; nie robić cichej utraty preferencji.
 - [x] **5.5. Nie zapisywać `room-list-showing` w `localStorage`.** To stan bieżącej nawigacji mobile, nie preferencja.
-- [ ] **5.6. Przetestować zmianę breakpointu przez `matchMedia` oraz faktyczne wymiary paneli.** *(przejście breakpointu nie ma dedykowanego testu; geometria paneli jest asertywna w E2E)*
+- [x] **5.6. Przetestować zmianę breakpointu przez `matchMedia` oraz faktyczne wymiary paneli.** *(`breakpoint_transition.test.js` — 5 testów: przejścia desktop↔mobile nie zostawiają osieroconych klas, room-active i aria-current śledzą stan; geometria asertywna w E2E)*
 
 **Pliki:** `chat/static/chat/js/utility.js`, `chat.js`, `handlers.js`, `home/static/home/css/tailwind.css`.
 
@@ -115,7 +115,7 @@
   - [x] **6.1.2.** `requestedRoomId: number | null` — pokój wynikający z URL/kliknięcia. *(`ViewState.requestedRoomId`)*
   - [x] **6.1.3.** `joinedRoomId: number | null` — pokój faktycznie dołączony do socketu. *(pozostało jako `CurrentRoomId` — jedna wartość, brak duplikatu)*
   - [x] **6.1.4.** `joinStatus: 'idle' | 'joining' | 'joined' | 'error'`. *(`ViewState.joinStatus`)*
-  - [ ] **6.1.5.** `connectionStatus: 'connecting' | 'online' | 'reconnecting' | 'offline'`. *(jawny wskaźnik `#chat-conn-status` istnieje; osobnego pola enum w stanie nie wprowadzono)*
+  - [x] **6.1.5.** `connectionStatus: 'connecting' | 'online' | 'reconnecting' | 'offline'`. *(enum w `ViewState`; 'offline' z `navigator.onLine`/zdarzeń, reszta z lifecycle WS — pigułka `#chat-conn-status` renderuje się z tego pola)*
 - [x] **6.2. Zachować `CurrentRoomId` przejściowo jako alias albo usunąć dopiero po migracji wszystkich odwołań.** Nie utrzymywać dwóch niezależnych wartości po zakończeniu etapu. *(`CurrentRoomId` pozostał jedynym źródłem joinedRoomId; `getCurrentRoomId()` eksportowany dla handlers.js)*
 - [x] **6.3. Dodać `renderChatView(state)` jako jedyne miejsce synchronizacji klas i atrybutów:**
   - [x] **6.3.1.** `room-active` oznacza, że obszar pokoju jest gotowy lub w stanie join/error, nie tylko że wysłano żądanie.
@@ -199,14 +199,14 @@
 
 ## 9. Etap G — jawne stany UI i dostępność
 
-- [x] **9.1. Lista pokoi ma jawne widoki:** pokoje dostępne, brak pokoi, brak wyników wyszukiwania, brak nieprzeczytanych, ładowanie danych pomocniczych. *(empty state nieprzeczytanych i "None" per kategoria istnieją; dedykowanego stanu „brak wyników wyszukiwania" nie dodano)*
-- [x] **9.2. Obszar wiadomości ma jawne widoki:** wybór pokoju, joining, otwarty pokój bez wiadomości, błąd dostępu, błąd sieci/retry. *(placeholder wyboru, spinner `connecting` na linku, empty-chat-message, toast + powrót do listy przy błędzie; osobnego przycisku retry nie dodano)*
+- [x] **9.1. Lista pokoi ma jawne widoki:** pokoje dostępne, brak pokoi, brak wyników wyszukiwania, brak nieprzeczytanych, ładowanie danych pomocniczych. *(empty state nieprzeczytanych, "None" per kategoria i `#chat-no-search-results` z `:has()` chowającym puste drzewo)*
+- [x] **9.2. Obszar wiadomości ma jawne widoki:** wybór pokoju, joining, otwarty pokój bez wiadomości, błąd dostępu, błąd sieci/retry. *(placeholder wyboru, spinner `connecting`, empty-chat-message, toast + `#chat-join-error` z przyciskiem „Spróbuj ponownie" przy błędach technicznych)*
 - [x] **9.3. Wskaźnik `connecting/reconnecting/offline` nie zasłania bez potrzeby istniejących wiadomości.** *(delikatna pigułka `#chat-conn-status`, `pointer-events: none`, `aria-live`)*
 - [x] **9.4. Na mobile nie autofocusować pola wpisywania po joinie; obecny warunek desktop/mobile przenieść do `mobileMedia.matches`.**
-- [x] **9.5. Po powrocie na listę przywrócić fokus do linku pokoju; po wejściu do pokoju ustawić `aria-current`.** *(`aria-current` ustawiane w `renderChatView`; zarządzanie fokusem przy powrocie nie zaimplementowano)*
+- [x] **9.5. Po powrocie na listę przywrócić fokus do linku pokoju; po wejściu do pokoju ustawić `aria-current`.** *(`aria-current` w `renderChatView`; `navigateToRoomList` fokusuje link aktywnego pokoju przy mobile powrocie — `.room-link` dostał `tabindex="-1"`)*
 - [x] **9.6. Wszystkie nowe teksty dodać do tłumaczeń i wygenerować pliki lokalizacyjne zgodnie z procedurą projektu.**
-- [x] **9.7. Wspólne modale, dropdowny, alerty i przyciski używać istniejących komponentów `tw-*`; nie dodawać czatowych kopii `TwModal`/`TwDropdown`.
-- [ ] **9.8. Test `image_preview_visibility.test.js` pozostaje testem regresyjnym po migracji `tw-d-none`; obejmuje także embedded chat.** *(test głównego czatu przechodzi; pokrycie embedded nie dodane)*
+- [x] **9.7. Wspólne modale, dropdowny, alerty i przyciski używać istniejących komponentów `tw-*`; nie dodawać czatowych kopii `TwModal`/`TwDropdown`.**
+- [x] **9.8. Test `image_preview_visibility.test.js` pozostaje testem regresyjnym po migracji `tw-d-none`; obejmuje także embedded chat.** *(kontrakt `tw-d-none` embedded preview pokryty w `chat_embedded_lifecycle.test.js`)*
 
 **Pliki:** `chat/templates/chat/chat.html`, `templates.js`, `chat-core.js`, `domapi.js`, `handlers.js`, `locale/pl/LC_MESSAGES/django.po`, testy.
 
@@ -216,13 +216,13 @@
 
 **Dlaczego:** to osobna poprawa utrzymywalności, nie warunek naprawy pustego ekranu.
 
-- [ ] **10.1. Nie zmieniać teraz renderowania serwerowego na drugi, równoległy JSON.** Najpierw odczytać istniejące `data-*` z `.room-link` i zachować Django jako źródło danych.
-- [ ] **10.2. Zbudować model zachowujący hierarchię kategorii, archiwa, pokoje prywatne i pokoje źródłowe tasks/votes/board.**
-- [ ] **10.3. Wydzielić czyste funkcje filtrujące, sortujące i wyliczające empty state.**
-- [ ] **10.4. Zastąpić `roomOriginalPositions`/`flatContainer` jednym renderem lub deterministycznym przenoszeniem elementów z modelu; reset nie może zależeć od przypadkowego `nextSibling`.**
-- [ ] **10.5. Aktualizacja preview/unread/last activity po wiadomości ma modyfikować model i bieżący widok, bez podwójnego źródła prawdy.**
-- [ ] **10.6. Zachować delegowane handlery, żeby ponowny render nie wymagał ponownego wiązania kliknięć.**
-- [ ] **10.7. Dodać testy dla sortowania, filtrów, archiwów, kategorii i pustych stanów.**
+- [x] **10.1. Nie zmieniać teraz renderowania serwerowego na drugi, równoległy JSON.** Najpierw odczytać istniejące `data-*` z `.room-link` i zachować Django jako źródło danych.
+- [x] **10.2. Zbudować model zachowujący hierarchię kategorii, archiwa, pokoje prywatne i pokoje źródłowe tasks/votes/board.** *(model = `roomHomes`: Map linku → `{parent, index}`; serwerowy DOM nadal niesie hierarchię kategorii i archiwów)*
+- [x] **10.3. Wydzielić czyste funkcje filtrujące, sortujące i wyliczające empty state.** *(`roomLinkComparator`, `isRoomListLinkVisible`, `captureRoomHomes`, `restoreRoomHomes`, `resortFlatRoomList` — poziom modułu chat.js, testowalne bez socketu)*
+- [x] **10.4. Zastąpić `roomOriginalPositions`/`flatContainer` jednym renderem lub deterministycznym przenoszeniem elementów z modelu; reset nie może zależeć od przypadkowego `nextSibling`.** *(restore grupuje po `parent` i wstawia rosnąco po zapisanym indeksie — odporne na zmiany rodzeństwa w trakcie sortu)*
+- [x] **10.5. Aktualizacja preview/unread/last activity po wiadomości ma modyfikować model i bieżący widok, bez podwójnego źródła prawdy.** *(`updateRoomListForMessage` → domapi aktualizuje `data-*`/podgląd, następnie `resortFlatRoomList()` przywraca porządek — naprawia rozjazd trybu 'oldest' przez bezpośredni `prepend` w `#room-list-flat`)*
+- [x] **10.6. Zachować delegowane handlery, żeby ponowny render nie wymagał ponownego wiązania kliknięć.** *(kliki `.room-link` są delegowane na `document` — przenoszenie węzłów nie odcina handlerów)*
+- [x] **10.7. Dodać testy dla sortowania, filtrów, archiwów, kategorii i pustych stanów.** *(`room_list_sort.test.js` — 14 testów: komparator, widoczność/archiwum, capture/restore odporny na zmianę rodzeństwa, pełny cykl sort/reset z localStorage, re-sort po `last-activity`)*
 
 **Pliki:** `chat.js`, `domapi.js`, `templates.js`, ewentualnie testy. Etap można odłożyć po etapach A–G.
 
@@ -233,7 +233,7 @@
 - [x] **11.3.** Usunąć bezpośrednie `mobileShowRoomList`/`mobileHideRoomList`, gdy przyciski korzystają z routera.
 - [x] **11.4.** Usunąć bezpośrednie ustawianie klas widoku poza `renderChatView`. *(wyjątek świadomy: `room-list-hidden` ustawia wyłącznie `setRoomListHidden` w handlers.js jako właściciel desktopowej preferencji)*
 - [x] **11.5.** Usunąć stare API managera (`setSocketMessageHandler`, `setOnConnect`, `setOnDisconnect`) dopiero po migracji wszystkich konsumentów.
-- [ ] **11.6.** Usunąć `roomOriginalPositions` i `flatContainer`, jeżeli etap H został wykonany. *(etap H odłożony — mechanizm sortowania pozostaje)*
+- [x] **11.6.** Usunąć `roomOriginalPositions` i `flatContainer`, jeżeli etap H został wykonany. *(zastąpione modelem `roomHomes`/`flatListEl`/`roomSortMode`)*
 - [x] **11.7.** Usunąć z `tailwind.css` reguły doraźne zastąpione finalnym layoutem; nie usuwać reguł wyłącznie dlatego, że klasa nie ma `tw-` — klasy semantyczne czatu pozostają do czasu migracji JS.
 - [x] **11.8.** Przebudować `tailwind.build.css`, uruchomić regression scan i sprawdzić, że nie pojawił się link do usuniętego `chat.css`.
 
@@ -269,7 +269,7 @@
 - [x] **13.8. Reconnect na liście:** lista pozostaje widoczna; ewentualny rejoin tła nie przełącza panelu. *(j.w.)*
 - [x] **13.9. Szybki wybór A → B:** odpowiedź A nie nadpisuje B. *(`JoinGeneration` + flaga `stale`)*
 - [x] **13.10. Rotacja/resize przez 768 px:** brak panelu o zerowej wysokości/szerokości; preferencja desktopowa nie psuje mobile. *(listener `mobileMedia` + klasa usuwana tylko z prezentacji)*
-- [ ] **13.11. Embedded chat:** pierwsze połączenie, reconnect, wiadomości oczekujące i załączniki działają bez duplikacji. *(zaimplementowane: subskrypcje + rejoin + bufor; bez dedykowanego testu E2E)*
+- [x] **13.11. Embedded chat:** pierwsze połączenie, reconnect, wiadomości oczekujące i załączniki działają bez duplikacji. *(pokryte w `chat_embedded_lifecycle.test.js` — 9 testów: join, bufor, reconnect/rejoin, retry po timeout, cleanup, preview)*
 - [x] **13.12. UI Tailwind:** modal, dropdown, collapse, preview obrazów, strzałki sortowania i przyciski wiadomości zachowują widoczność po buildzie. *(build + regression scan zielone)*
 - [x] **13.13. Powiadomienia:** jedno zdarzenie daje najwyżej jedno browserowe powiadomienie, a pełny czat aktualizuje własny DOM. *(`data.notification` ma jednego właściciela — `notifications.js`)*
 
@@ -282,7 +282,7 @@
 - [x] **14.5.** Wykonać etap E — router powinien przejąć kliknięcia i Wstecz przed cleanupem.
 - [x] **14.6.** Wykonać etap F w jednym logicznym kroku dla pełnego czatu, powiadomień i embedded chat.
 - [x] **14.7.** Wykonać etap G równolegle z implementacją stanów kontrolera/transportu.
-- [x] **14.8.** Etap H wykonać tylko po stabilizacji etapów A–G; nie blokuje on naprawy mobilnego pustego ekranu. *(odłożony — patrz sekcja 10)*
+- [x] **14.8.** Etap H wykonać tylko po stabilizacji etapów A–G; nie blokuje on naprawy mobilnego pustego ekranu. *(wykonany po A–G — model pozycji domowych + re-sort)*
 - [x] **14.9.** Etap I wykonać dopiero po zielonej macierzy akceptacyjnej.
 - [x] **14.10.** Po każdej fazie przejrzeć diff i nie resetować dużego, niezależnego worktree migracji Tailwind.
 

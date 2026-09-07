@@ -178,6 +178,8 @@ const ViewState = {
     requestedRoomId: null,
     /** 'idle' | 'joining' | 'joined' | 'error' */
     joinStatus: 'idle',
+    /** 'connecting' | 'online' | 'reconnecting' | 'offline' */
+    connectionStatus: 'connecting',
 };
 /** Generacja żądania joinu — późna odpowiedź starszego żądania jest ignorowana. */
 let JoinGeneration = 0;
@@ -367,10 +369,16 @@ export function navigateToRoom(roomId, messageId = null) {
 
 /** Nawigacja do listy pokoi — usuwa hash, zachowuje parametry ?view. */
 export function navigateToRoomList() {
+    const wasRoomPanel = mobileMedia.matches && ViewState.panel === 'room';
     if (location.hash) {
         history.pushState(null, '', location.pathname + location.search);
     }
     syncRouteFromLocation();
+    // a11y: po powrocie z pokoju na listę przywracamy fokus linkowi aktywnego
+    // pokoju — klawiatura/screen reader nie gubią kontekstu na pustym focuse.
+    if (wasRoomPanel && CurrentRoomId != null) {
+        DOM_API?.getRoomLinkDiv(CurrentRoomId)?.focus();
+    }
 }
 
 /** Aktualnie dołączony pokój (joinedRoomId). */
@@ -402,6 +410,43 @@ function showRoomPlaceholder() {
 
 function hideRoomPlaceholder() {
     document.getElementById('chat-no-room-placeholder')?.remove();
+    document.getElementById('chat-join-error')?.remove();
+}
+
+/**
+ * Jawny stan błędu joinu w kolumnie wiadomości z przyciskiem ponowienia —
+ * błąd sieciowy nie może kończyć się pustym panelem ani samym toastem.
+ * Teksty przez textContent (defense-in-depth, patrz showRoomPlaceholder).
+ */
+function showJoinError(roomId) {
+    const messages = document.querySelector('.chat-root-messages');
+    if (!messages || document.getElementById('chat-join-error')) return;
+    hideRoomPlaceholder();
+
+    const div = document.createElement('div');
+    div.id = 'chat-join-error';
+    div.className = 'chat-join-error';
+
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-plug-circle-xmark chat-no-room-icon';
+    icon.setAttribute('aria-hidden', 'true');
+
+    const text = document.createElement('p');
+    text.className = 'chat-no-room-text';
+    text.textContent = _('Could not join the room.');
+
+    const retry = document.createElement('button');
+    retry.type = 'button';
+    retry.className = 'tw-btn tw-btn-secondary chat-join-retry';
+    retry.innerHTML = '<i class="fas fa-rotate-right fa-fw" aria-hidden="true"></i>';
+    retry.append(' ' + _('Try again'));
+    retry.addEventListener('click', () => {
+        div.remove();
+        void onRoomTryJoin(roomId);
+    });
+
+    div.append(icon, text, retry);
+    messages.appendChild(div);
 }
 
 // Empty state w prawej kolumnie — gdy filtr unread aktywny ale brak nieprzeczytanych.
@@ -467,6 +512,127 @@ function hideUnreadEmptyState() {
     document.getElementById('chat-no-unread-empty-state')?.remove();
 }
 
+// ── Model listy pokoi (Etap H) ──────────────────────────────────────────────
+// Serwerowy DOM pozostaje źródłem prawdy hierarchii (kategorie, archiwa).
+// Model przechowuje wyłącznie "pozycję domową" każdego linku: element
+// nadrzędny + indeks wśród jego dzieci. Reset odtwarza pozycję z modelu,
+// więc nie zależy od przypadkowego nextSibling.
+
+/** Klucz sortowania pokoju — unix seconds z data-last-activity. */
+function roomLinkSortKey(link) {
+    return parseInt(link.dataset.lastActivity || '0', 10);
+}
+
+/** Komparator płaskiej listy: 'newest' malejąco, 'oldest' rosnąco. */
+function roomLinkComparator(mode) {
+    return (a, b) => mode === 'oldest'
+        ? roomLinkSortKey(a) - roomLinkSortKey(b)
+        : roomLinkSortKey(b) - roomLinkSortKey(a);
+}
+
+/** Pokój bierze udział w płaskim widoku, gdy nie siedzi w ukrytym archiwum. */
+function isRoomListLinkVisible(link) {
+    const archive = link.closest('.archive-section');
+    return !archive || archive.classList.contains('visible');
+}
+
+/** Map<Element, {parent, index}> — domowe pozycje linków przed spłaszczeniem. */
+function captureRoomHomes(links) {
+    return new Map(links.map(link => [link, {
+        parent: link.parentElement,
+        index: Array.prototype.indexOf.call(link.parentElement.children, link),
+    }]));
+}
+
+/**
+ * Odtwarza pozycje z modelu: grupuje po parent i wstawia rosnąco po index,
+ * więc poprawne nawet gdy rodzeństwo w międzyczasie się zmieniło.
+ */
+function restoreRoomHomes(homes) {
+    const byParent = new Map();
+    homes.forEach((pos, link) => {
+        if (!byParent.has(pos.parent)) byParent.set(pos.parent, []);
+        byParent.get(pos.parent).push([pos.index, link]);
+    });
+    byParent.forEach((entries, parent) => {
+        entries.sort((a, b) => a[0] - b[0]);
+        entries.forEach(([index, link]) => {
+            parent.insertBefore(link, parent.children[index] || null);
+        });
+    });
+}
+
+let roomHomes = null;   // Map<Element, {parent, index}> albo null gdy sort wyłączony
+let roomSortMode = null; // 'newest' | 'oldest' | null
+let flatListEl = null;   // #room-list-flat — kontener płaskiej listy
+
+/** Spłaszcza listę do #room-list-flat i sortuje wg data-last-activity. */
+function applyRoomSort(mode) {
+    const roomListEl = $('#room-list');
+    const groups = roomListEl?.querySelector('.room-list-groups');
+    if (!roomListEl || !groups) return;
+
+    if (!flatListEl) {
+        const links = [...$$('.room-link[data-room-id]')].filter(isRoomListLinkVisible);
+        roomHomes = captureRoomHomes(links);
+        flatListEl = document.createElement('div');
+        flatListEl.id = 'room-list-flat';
+        links.forEach(link => flatListEl.appendChild(link));
+        groups.style.display = 'none';
+        roomListEl.appendChild(flatListEl);
+    }
+
+    resortFlatRoomList(mode);
+
+    const btn = $('#sort-activity-btn');
+    btn?.classList.add('active');
+    const dirIcon = btn?.querySelector('.sort-dir-icon');
+    if (dirIcon) dirIcon.className = `sort-dir-icon fas fa-arrow-${mode === 'oldest' ? 'up' : 'down'}`;
+    localStorage.setItem('chat-sort-mode', mode);
+}
+
+/** Przywraca układ kategorii z modelu i usuwa płaski kontener. */
+function resetRoomSort() {
+    if (!flatListEl || !roomHomes) return;
+
+    restoreRoomHomes(roomHomes);
+    flatListEl.remove();
+    flatListEl = null;
+    roomHomes = null;
+    roomSortMode = null;
+
+    const groups = $('#room-list')?.querySelector('.room-list-groups');
+    if (groups) groups.style.display = '';
+
+    const btn = $('#sort-activity-btn');
+    btn?.classList.remove('active');
+    const dirIcon = btn?.querySelector('.sort-dir-icon');
+    if (dirIcon) dirIcon.className = 'sort-dir-icon fas fa-arrow-down';
+    localStorage.removeItem('chat-sort-mode');
+}
+
+/**
+ * Deterministycznie porządkuje płaską listę; wołane także po aktualizacji
+ * data-last-activity przez updateRoomListForMessage, żeby tryb 'oldest'
+ * nie rozjechał się z DOM.
+ */
+function resortFlatRoomList(mode = roomSortMode) {
+    if (!flatListEl || !mode) return;
+    roomSortMode = mode;
+    [...flatListEl.querySelectorAll('.room-link[data-room-id]')]
+        .sort(roomLinkComparator(mode))
+        .forEach(link => flatListEl.appendChild(link));
+}
+
+/**
+ * Aktualizacja wiersza pokoju po wiadomości: domapi aktualizuje model
+ * (data-*, podgląd, unread), a my dociągamy bieżący widok płaskiej listy.
+ */
+function updateRoomListForMessage(msg, opts) {
+    DOM_API.updateSidebarForMessage(msg, opts);
+    resortFlatRoomList();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     WS_API = new WsApi();
     DOM_API = new DomApi();
@@ -509,92 +675,17 @@ document.addEventListener('DOMContentLoaded', () => {
     window.updateUnreadFilter = updateUnreadFilter;
 
     // Sort rooms by last activity — cycles: off → newest → oldest → newest…
-    const sortActivityBtn = $('#sort-activity-btn');
-    const sortResetBtn = $('#sort-reset-btn');
-    let isSortActive = false;
-    let sortMode = null; // 'newest' | 'oldest'
-    let roomOriginalPositions = null;
-    let flatContainer = null;
-
+    // Logika i model pozycji są na poziomie modułu (patrz sekcja "Model listy
+    // pokoi"); tu pozostaje tylko okablowanie przycisków i zapisanej preferencji.
     const savedSort = localStorage.getItem('chat-sort-mode');
     if (savedSort === 'newest' || savedSort === 'oldest') {
-        applySortView(savedSort);
+        applyRoomSort(savedSort);
     }
 
-    sortActivityBtn?.addEventListener('click', () => {
-        if (!isSortActive) {
-            applySortView('newest');
-        } else {
-            applySortView(sortMode === 'newest' ? 'oldest' : 'newest');
-        }
+    $('#sort-activity-btn')?.addEventListener('click', () => {
+        applyRoomSort(roomSortMode === 'newest' ? 'oldest' : 'newest');
     });
-
-    sortResetBtn?.addEventListener('click', resetSortView);
-
-    function applySortView(mode) {
-        const roomListEl = $('#room-list');
-        const categoryRow = roomListEl?.querySelector('.room-list-groups');
-        if (!categoryRow) return;
-
-        if (!isSortActive) {
-            const rooms = [...$$('.room-link[data-room-id]')].filter(room => {
-                const archive = room.closest('.archive-section');
-                return !archive || archive.classList.contains('visible');
-            });
-
-            roomOriginalPositions = new Map(rooms.map(room => [room, {
-                parent: room.parentElement,
-                nextSibling: room.nextSibling,
-            }]));
-
-            flatContainer = document.createElement('div');
-            flatContainer.id = 'room-list-flat';
-            rooms.forEach(room => flatContainer.appendChild(room));
-
-            categoryRow.style.display = 'none';
-            roomListEl.appendChild(flatContainer);
-            isSortActive = true;
-        }
-
-        const roomsInFlat = [...flatContainer.querySelectorAll('.room-link[data-room-id]')];
-        roomsInFlat.sort((a, b) => {
-            const diff = parseInt(b.dataset.lastActivity || '0') - parseInt(a.dataset.lastActivity || '0');
-            return mode === 'oldest' ? -diff : diff;
-        });
-        roomsInFlat.forEach(room => flatContainer.appendChild(room));
-
-        sortMode = mode;
-        sortActivityBtn?.classList.add('active');
-        const dirIcon = sortActivityBtn?.querySelector('.sort-dir-icon');
-        if (dirIcon) dirIcon.className = `sort-dir-icon fas fa-arrow-${mode === 'oldest' ? 'up' : 'down'}`;
-        localStorage.setItem('chat-sort-mode', mode);
-    }
-
-    function resetSortView() {
-        if (!isSortActive || !roomOriginalPositions) return;
-
-        roomOriginalPositions.forEach((pos, room) => {
-            if (pos.nextSibling?.parentElement === pos.parent) {
-                pos.parent.insertBefore(room, pos.nextSibling);
-            } else {
-                pos.parent.appendChild(room);
-            }
-        });
-
-        flatContainer?.remove();
-        flatContainer = null;
-        roomOriginalPositions = null;
-        sortMode = null;
-
-        const categoryRow = $('#room-list')?.querySelector('.room-list-groups');
-        if (categoryRow) categoryRow.style.display = '';
-
-        isSortActive = false;
-        sortActivityBtn?.classList.remove('active');
-        const dirIcon = sortActivityBtn?.querySelector('.sort-dir-icon');
-        if (dirIcon) dirIcon.className = 'sort-dir-icon fas fa-arrow-down';
-        localStorage.removeItem('chat-sort-mode');
-    }
+    $('#sort-reset-btn')?.addEventListener('click', resetRoomSort);
 
     // Trasa z URL jest stosowana natychmiast — niezależnie od stanu socketu.
     // Join do pokoju i tak kolejkuje się do pierwszego otwarcia socketu
@@ -603,19 +694,26 @@ document.addEventListener('DOMContentLoaded', () => {
     syncRouteFromLocation({ initial: true });
 
     // Jawny wskaźnik stanu połączenia — widoczny tylko przy rozłączeniu,
-    // nie zasłania wiadomości (pointer-events: none).
+    // nie zasłania wiadomości (pointer-events: none). 'offline' pochodzi
+    // z navigator.onLine / zdarzeń offline/online — reszta z lifecycle WS.
     const connStatusEl = document.getElementById('chat-conn-status');
     const connStatusText = document.getElementById('chat-conn-status-text');
-    const setConnStatus = (visible) => {
+    const setConnectionStatus = (status) => {
+        ViewState.connectionStatus = status;
         if (!connStatusEl) return;
-        if (visible) connStatusText.textContent = _('Reconnecting...');
-        connStatusEl.classList.toggle('tw-d-none', !visible);
+        const show = status === 'reconnecting' || status === 'offline';
+        connStatusEl.classList.toggle('tw-d-none', !show);
+        if (show) {
+            connStatusText.textContent = status === 'offline' ? _('You are offline.') : _('Reconnecting...');
+        }
     };
+    window.addEventListener('offline', () => setConnectionStatus('offline'));
+    window.addEventListener('online', () => setConnectionStatus('reconnecting'));
 
     // Pierwszy open tego socketu: tylko poboczne dane, niezależnie —
     // ich błąd nie może zablokować nawigacji.
     WS_API.wsOnConnect = () => {
-        setConnStatus(false);
+        setConnectionStatus('online');
         WS_API.getOnlineUsers()
             .then(d => d.online_data.forEach(u => DOM_API.updateOnline(u.room_id, u.online)))
             .catch(err => console.warn('getOnlineUsers failed:', err));
@@ -632,7 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Kolejny open po zerwaniu: reconnect NIE może zmieniać URL, historii
     // ani widocznego panelu — tylko przywraca członkostwo w pokoju.
     WS_API.wsOnReconnect = () => {
-        setConnStatus(false);
+        setConnectionStatus('online');
         WS_API.getOnlineUsers()
             .then(d => d.online_data.forEach(u => DOM_API.updateOnline(u.room_id, u.online)))
             .catch(err => console.warn('getOnlineUsers failed:', err));
@@ -646,7 +744,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    WS_API.wsOnDisconnect = () => setConnStatus(true);
+    WS_API.wsOnDisconnect = () => setConnectionStatus(navigator.onLine === false ? 'offline' : 'reconnecting');
 });
 
 export async function onSocketMessage(data) {
@@ -778,8 +876,10 @@ export async function onRoomTryJoin(room_id, { preserveView = false } = {}) {
             }
             window.showToast?.(_('This room is not available.'));
         } else {
-            // Błędy techniczne (timeout, rozłączenie) — toast, bez alert().
+            // Błędy techniczne (timeout, rozłączenie) — toast + jawny stan
+            // z retry w kolumnie wiadomości (na desktopie panel byłby pusty).
             window.showToast?.(_('Could not join the room.'));
+            showJoinError(room_id);
             console.warn('joinRoom failed:', error);
         }
         return;
@@ -871,7 +971,7 @@ export async function onReceiveMessages(messages) {
                 DOM_API.confirmMessage(message.temp_id, message.message_id);
                 const t = pendingTimeouts.get(message.temp_id);
                 if (t) { clearTimeout(t); pendingTimeouts.delete(message.temp_id); }
-                DOM_API.updateSidebarForMessage(message);
+                updateRoomListForMessage(message);
                 return;
             }
         }
@@ -892,7 +992,7 @@ export async function onReceiveMessages(messages) {
             message.read_by ?? [],
             message.upvoters, message.downvoters
         );
-        if (message.new) DOM_API.updateSidebarForMessage(message);
+        if (message.new) updateRoomListForMessage(message);
         if (message.new && !message.own) WS_API?.markMessageRead(message.message_id);
         requestAnimationFrame(() => DOM_API.markOverflow(DOM_API.getMessageDiv(message.message_id)));
     } else {
@@ -1083,7 +1183,7 @@ export async function onReceiveEdit(edit_info) {
     DOM_API.showHistoryButton(edit_info.message_id);
 
     if (edit_info.is_last_message) {
-        DOM_API.updateSidebarForMessage({
+        updateRoomListForMessage({
             room_id: edit_info.room_id,
             username: edit_info.username,
             anonymous: edit_info.anonymous,

@@ -1,6 +1,6 @@
 {% load i18n filters %}
 
-<div class="room-link {{ room|seen_by:user }}"
+<div class="room-link {{ room|seen_by:user }}" tabindex="-1"
   data-room-type="{% if room.public %}public{% else %}private{% endif %}"
   data-room-id="{{ room.id }}"
   data-room-archived="{{ room.archived }}"

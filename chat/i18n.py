@@ -63,4 +63,7 @@ def get_translations():
         "This room is not available.": _("This room is not available."),
         "Could not join the room.": _("Could not join the room."),
         "Reconnecting...": _("Reconnecting..."),
+        "You are offline.": _("You are offline."),
+        "Try again": _("Try again"),
+        "No rooms match the search.": _("No rooms match the search."),
     }
