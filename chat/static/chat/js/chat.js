@@ -104,8 +104,7 @@ function bindSortToolbar() {
         const setArrow = (btn, active) => {
             const arrow = btn.querySelector('.sort-arrow');
             if (!arrow) return;
-            if (!active) { arrow.className = 'fas fa-arrow-down sort-arrow'; arrow.style.visibility = 'hidden'; return; }
-            arrow.style.visibility = '';
+            if (!active) { arrow.className = 'fas fa-arrow-down sort-arrow tw-invisible'; return; }
             arrow.className = 'fas fa-arrow-' + (SortState.order === 'asc' ? 'up' : 'down') + ' sort-arrow';
         };
         setArrow(dateBtn, SortState.sort_by === 'date');

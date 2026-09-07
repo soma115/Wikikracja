@@ -11,7 +11,7 @@
             {% else %}
                 {% crispy_field field 'class' 'tw-form-check-input' 'role' 'checkbox' %}
             {% endif %}
-            <label for="{{ field.id_for_label }}" class="tw-form-check-label{% if field.field.required %} requiredField{% endif %}">
+            <label for="{{ field.id_for_label }}" class="tw-form-check-label">
                 {{ field.label }}
             </label>
             {% include 'tw/layout/help_text_and_errors.html' %}

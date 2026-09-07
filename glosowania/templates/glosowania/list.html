@@ -7,7 +7,7 @@
 {% block glosowania %}
 {% include 'glosowania/_view_toggle.html' %}
 
-<div class="proposals-list tw-proposals-list" data-view-container>
+<div class="tw-proposals-list" data-view-container>
   {% if votings %}
     {% for i in votings %}
       {% include 'glosowania/_proposal_card.html' with show_dates=show_dates %}

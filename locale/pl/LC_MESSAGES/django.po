@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-07 18:01+0200\n"
+"POT-Creation-Date: 2026-09-07 18:53+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -1687,7 +1687,7 @@ msgstr "Która dzień tygodnia?"
 msgid "Event location or venue"
 msgstr "Miejsce"
 
-#: .\events\forms.py:118 .\events\forms.py:120
+#: .\events\forms.py:113 .\events\forms.py:115
 msgid "This field is required for monthly ordinal events."
 msgstr "To pole jest wymagane dla wydarzeń powtarzających się w określonym dniu tygodnia."
 

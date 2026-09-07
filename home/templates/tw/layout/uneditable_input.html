@@ -2,8 +2,8 @@
 {% load crispy_classmap %}
 
 
-<div id="div_{{ field.auto_id }}" class="tw-mb-3{% if form_show_errors and field.errors %} error{% endif %}{% if field.css_classes %} {{ field.css_classes|crispy_classmap }}{% endif %}">
-    <label class="{{ label_class|crispy_classmap }}{% if field.field.required %} requiredField{% endif %}">{{ field.label }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}</label>
+<div id="div_{{ field.auto_id }}" class="tw-mb-3{% if field.css_classes %} {{ field.css_classes|crispy_classmap }}{% endif %}">
+    <label class="{{ label_class|crispy_classmap }}">{{ field.label }}{% if field.field.required %}<span>*</span>{% endif %}</label>
     <div class="{{ field_class|crispy_classmap }}">
         {% crispy_field field 'disabled' 'disabled' %}
         {% include 'tw/layout/help_text.html' %}

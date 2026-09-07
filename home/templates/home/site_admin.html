@@ -33,7 +33,7 @@
             <input type="text" name="quick_link_url" id="quick_link_url" placeholder="{% trans 'URL' %}" class="tw-form-control tw-form-control-sm quick-link-input quick-link-input-url" required>
             <input type="number" name="quick_link_order" id="quick_link_order" placeholder="{% trans 'Order' %}" class="tw-form-control tw-form-control-sm quick-link-input quick-link-input-order" value="0">
             <button type="submit" class="tw-btn tw-btn-sm tw-btn-primary quick-link-form-btn" id="submit-btn"><i class="fas fa-plus fa-fw tw-me-1"></i>{% trans "Add" %}</button>
-            <button type="button" class="tw-btn tw-btn-sm tw-btn-secondary quick-link-form-btn mig-hidden tw-mig-hidden" id="cancel-edit-btn"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</button>
+            <button type="button" class="tw-btn tw-btn-sm tw-btn-secondary quick-link-form-btn tw-d-none" id="cancel-edit-btn"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</button>
           </div>
         </div>
       </form>
@@ -51,7 +51,7 @@
             <span class="quick-link-title">{{ link.title }}</span>
             <span class="quick-link-url">{{ link.url }}</span>
             <button type="button" class="tw-btn tw-btn-sm tw-btn-outline-secondary edit-link-btn quick-link-edit" data-link-id="{{ link.id }}" data-title="{{ link.title }}" data-url="{{ link.url }}" data-order="{{ link.order }}"><i class="fas fa-pen fa-fw tw-me-1"></i>{% trans "Edit" %}</button>
-            <form class="mig-inline tw-inline" method="post">
+            <form class="tw-inline" method="post">
               {% csrf_token %}
               <input type="hidden" name="delete_quick_link" value="{{ link.id }}">
               <button type="submit" class="tw-btn tw-btn-sm tw-btn-outline-danger badge-xs"><i class="fas fa-trash fa-fw tw-me-1"></i>{% trans "Delete" %}</button>
@@ -82,7 +82,7 @@
       document.getElementById('form-action').value = linkId;
       document.getElementById('form-title').textContent = '{% trans "Edit link" %}';
       document.getElementById('submit-btn').innerHTML = '<i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Save" %}';
-      document.getElementById('cancel-edit-btn').classList.remove('mig-hidden', 'tw-mig-hidden');
+      document.getElementById('cancel-edit-btn').classList.remove('tw-d-none');
     });
   });
 
@@ -96,7 +96,7 @@
     document.getElementById('form-action').value = '1';
     document.getElementById('form-title').textContent = '{% trans "Add new link" %}';
     document.getElementById('submit-btn').innerHTML = '<i class="fas fa-plus fa-fw tw-me-1"></i>{% trans "Add" %}';
-    this.classList.add('mig-hidden', 'tw-mig-hidden');
+    this.classList.add('tw-d-none');
   });
 
   // Drag and drop reordering

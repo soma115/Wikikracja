@@ -195,6 +195,48 @@ Cel: przejście z Bootstrap + rozproszony custom CSS na jeden pipeline Tailwind,
 - [x] Okresowo usuwać martwe klasy z safelist i semantyczne haki, które przestały być używane.
 - [ ] Po ustabilizowaniu UI wrócić do funkcji produktowych z `docs/TODO.md` bez kolejnego szerokiego refaktoringu CSS.
 
+## Etap D — Audyt i dalsza unifikacja komponentów
+
+**Cel:** po zakończeniu podstawowej migracji (fazy 0–5 i etapy A–C) wykonać repository-wide audyt w poszukiwaniu resztek Bootstrapa, niespójnych komponentów oraz martwych klas/JS-kontraktów; wprowadzić bezpieczne poprawki, a pozostałe znaleziska udokumentować z priorytetami.
+
+### D.1 Wykonane poprawki (audyt + naprawy)
+
+- [x] **D.1.1 Selektor steppera w `app.js`** — `.stepper-nav a[href]` → `.tw-stepper-nav a[href]`. Naprawia brak aktualizacji parametrów `category/sort/order` przy `fetch` listy zadań po migracji steppera na `tw-stepper-*`.
+- [x] **D.1.2 Toggle stanu nieprzeczytanych w feedzie** — `app.js` toggle’uje teraz `tw-unread-row` i `tw-font-semibold`; szablony `home/templates/home/activity.html` i `home.html` używają `tw-unread-row` zamiast martwych `unread-item`/`unread-row`.
+- [x] **D.1.3 Wskaźnik nieprzeczytanych czatu w zadaniach i głosowaniach** — `tasks/_task_card.html`, `tasks/task_detail.html`, `glosowania/_proposal_card.html` wypisują `{{ ...chat_room_pulse_class }}` zamiast martwej klasy `chat-link--pulse`.
+- [x] **D.1.4 CTA w toolbarze i topbarze** — `home/templates/home/includes/toolbar.html`, `home/templates/home/base.html`, `ankiety/templates/ankiety/survey_list.html` używają już tylko `tw-btn-cta tw-btn-cta--round` (usunięto `btn-cta` i martwą `btn-cta--round`).
+- [x] **D.1.5 Usunięcie martwych klas Crispy Forms** — usunięto `requiredField`, `asteriskField`, `error`, `has-danger`, `description`, `empty-form` oraz martwe `is-invalid` z opakowań z szablonów `home/templates/tw/`. Gwiazdka wymagania renderuje się jako zwykły `<span>*</span>`.
+- [x] **D.1.6 Zamiana `mig-hidden`/`tw-mig-hidden` na `tw-d-none`** — objęło `home/templates/home/site_admin.html` (przycisk Cancel + JS), `categories/templates/categories/_category_modal.html`, `tasks/templates/tasks/task_list.html` i `home/static/home/js/category-manager.js`.
+- [x] **D.1.7 Inline `table-layout: auto;` w tabeli obywateli** — usunięty inline style z `obywatele/tables.py`; przeniesiony do `.tw-citizens-table` w `tailwind.css`.
+- [x] **D.1.8 Martwa klasa `ordinal-fields-row`** — usunięto `css_class='ordinal-fields-row'` z `events/forms.py`; zostawiono `css_id='ordinal-fields-row'` (używany przez JS).
+- [x] **D.1.9 Build CSS i weryfikacja** — `npm run build:css`, `scripts/regression_scan.py`, `manage.py check`, `collectstatic --dry-run`, `ruff check`, Jest 185/185, pytest 315/317 (2 fail to `PermissionError` na plikach branding w Windows, niezwiązane ze zmianami).
+
+### D.2 Znaleziska wymagające dalszej pracy
+
+- [x] **D.2.1 Deduplikacja podwójnych klas w `home/templates/home/includes/toolbar.html`** — usunięto `proposals-toolbar`, `toolbar-divider`, `toolbar-sort`, `toolbar-sort-sep`, `toolbar-view`, `sort-btn`, `sort-btn-label`, `sort-arrow`, `view-toggle-btn`, `view-label`; zostawiono tylko klasy `tw-*`. Zaktualizowano selektor w `home/static/home/js/app.js:1155` na `.tw-toolbar .tw-sort-btn[href]` oraz przyciski kalendarza w `obywatele/_calendar_partial.html` na `tw-view-toggle-btn`. Konsumenty: `obywatele/start.html`, `obywatele/poczekalnia.html`, `categories/_category_filter.html`, `events/event_detail.html`, `events/event_form.html`.
+- [x] **D.2.2 Martwe klasy na kafelkach dashboardu** — usunięto `dashboard-tile--1x1`, `tile-heading`, `dashboard-counter-btn`, `dashboard-counter-value` i martwą logikę `dashboard-tile--compact` z `home/templates/home/home.html`; zachowano `dashboard-tile` i `dashboard-tile-header` jako kontrakty JS (`sortable-list.js`).
+- [x] **D.2.3 Niespójny pasek filtrów na stronie aktywności** — `home/templates/home/activity.html` używa teraz `tw-toolbar` / `tw-toolbar-sort` / `tw-sort-btn`; własne komponenty (`sp-chip`, `filter-btn-unread`, `btn-mark-all`, `gap-35`) pozostają jako specyficzne chipy/filtry aktywności.
+- [x] **D.2.4 Brakujące klasy kart w dokumentacji** — usunięto martwą `tw-proposal-card` z `ankiety/templates/ankiety/survey_list.html`; poprawiono opis w `docs/UI_STANDARDS.html`, by odsyłał do istniejących klas `.tw-board-post-card`, `.proposal-card`, `.task-card`, `.event-card`.
+- [x] **D.2.5 Niespójne widoki listy/siatki w modułach** — ujednolicono kontenery na `tw-proposals-list` w `ankiety/survey_list.html`, `events/event_list.html`, `glosowania/list.html`, `tasks/task_list.html`; scalono reguły CSS `.proposals-list` i `.tw-proposals-list` w jedną sekcję z responsywnym gridem (1/2/3 kolumny); `mig-hidden` w eventach zostaje (PagePrefs steruje `style.display`).
+- [x] **D.2.6 Inline styles w czacie** — `chat/static/chat/js/templates.js:29` zamieniono `style="visibility:hidden"` na klasę `tw-invisible`; zaktualizowano `chat/static/chat/js/chat.js:107-109` tak, by przełączało `tw-invisible` zamiast `style.visibility`. Drugi inline `style="--vote-progress:<%- _pct %>%"` (linia 197) jest uzasadniony dynamiczną wartością.
+- [x] **D.2.7 Błędy wizualne / logika widoczności w czacie** — `chat/templates/chat/chat.html:237` zamieniono `mig-hidden tw-mig-hidden` na `tw-d-none`; zaktualizowano `chat/static/chat/js/handlers.js:560-572` tak, by przełączało `tw-d-none` przez `classList.add/remove` zamiast `style.display`.
+- [ ] **D.2.8 Pozostałe klase semantyczne modułu czatu** — lista do unifikacji po zakończeniu reworku czatu (`docs/CHAT_REWORK_PLAN.md`): `.room-link`, `.room-list-groups`, `.archive-section`, `.nav-cat-content`, `.message`, `.msg-vote`, `.read-by-toggle`, `.reaction-btn--active`, `.filtered-out`, `.room-not-seen`, `.compose-box`, `.message-input-rich`, `.fmt-btn`, `.vote-bar-fill`, `.reply-preview`, `.date-banner`. Wstrzymane do czasu skoordynowanego przerobienia czatu.
+- [x] **D.2.9 Słownik ikon w `docs/UI_STANDARDS.html`** — dodano `fa-stopwatch`, `fa-check-to-slot`, `fa-list-ul`, `fa-user-pen`, `fa-pen-nib`, `fa-fire`, `fa-calendar-day`, `fa-repeat`, `fa-map-marker-alt`, `fa-calendar-plus`.
+- [x] **D.2.10 Podwójne reguły old vs `tw-*` w `tailwind.css`** — usunięto duplikaty `.btn-cta`/`.tw-btn-cta`, `.proposals-toolbar`/`.tw-toolbar`, `.toolbar-divider`/`.tw-toolbar-divider`, `.toolbar-sort`/`.tw-toolbar-sort`, `.view-toggle-btn`/`.tw-view-toggle-btn`, `.view-label`/`.tw-view-label`, `.proposals-list`/`.tw-proposals-list`; scalono media queries. Pozostała warstwa `.sort-btn` dla czatu oraz klasy `.proposal-card`/`.task-card`/`.event-card` (nie przeniesione na `tw-*` ze względu na rozległe użycie w szablonach).
+- [x] **D.2.11 Martwy selektor `col-*` w czacie** — nieaktualny; selektor `.chat-rooms>div[class*="col-"]` nie występuje już w `tailwind.css`.
+- [x] **D.2.12 Duplikat `.chat-link, .chat-link`** — usunięto powtórzone selektory `.chat-link` i `.chat-link:hover` w `tailwind.css`.
+
+### D.3 Weryfikacja zmian D.2
+
+- [x] `npm run build:css` — zakończony sukcesem.
+- [x] `python scripts/regression_scan.py` — OK (brak odniesień do Bootstrap/usuniętych plików).
+- [x] `python manage.py check` — brak problemów.
+- [x] `python manage.py collectstatic --dry-run --noinput` — 4 pliki do skopiowania, 274 niezmienione.
+- [x] `ruff check .` — OK.
+- [x] `ruff format --check .` — 260 plików sformatowanych.
+- [x] `npm test` — 16 suite, 185 testów OK.
+- [ ] `pytest` — 216 testów przeszło; 1 niepowodzenie w `chat/tests/test_consumers.py::MentionNotificationTest::test_send_mention_notification_private_room_uses_sender_username` z powodu `PermissionError: [WinError 32]` na `media/site_branding/derived/favicon.ico` w `site_settings.services.cleanup_brand_derivatives`; błąd środowiskowy Windows, niezwiązany ze zmianami UI.
+
 ## Zasady zastosowane podczas migracji
 
 1. **Zawsze ładuj Tailwind obok starych stylów** — dopóki dany komponent nie jest w pełni przepisany.

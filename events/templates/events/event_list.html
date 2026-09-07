@@ -21,7 +21,7 @@
   </div>
 
   {# ── GRID (alternative view) ── #}
-  <div class="proposals-list mig-hidden" data-view-only="grid">
+  <div class="tw-proposals-list mig-hidden" data-view-only="grid">
     {% for occ in occurrences %}
       <div data-date="{{ occ.date|date:'Y-m-d' }}">
         {% include 'events/_event_card.html' %}

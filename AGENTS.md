@@ -87,6 +87,16 @@ Nie uruchamiaj podglądu w przeglądarce (browser preview) — weryfikuj zmiany 
 - Unikaj one-offowych stylów, customowych klas i ręcznie sklejanych elementów. Jeśli istniejący komponent nie pasuje, rozszerz go lub ustal z użytkownikiem zmianę standardu, zamiast tworzyć kolejny wyjątek.
 - Aktualizuj `UI_STANDARDS.html` i powiązane arkusze CSS, gdy wprowadzasz nowy wzorzec lub modyfikujesz istniejący standard.
 
+### Zasady unifikacji wyglądu
+
+- **Jedno źródło stylów:** jedynym produkcyjnym źródłem klas CSS jest pipeline `home/static/home/css/tailwind.css` → `npm run build:css` → `home/static/home/css/tailwind.build.css`. Nie twórz nowych arkuszy CSS per moduł ani nie dodawaj tagów `<link rel="stylesheet">` do pojedynczych widoków.
+- **Prefiks `tw-` jest obowiązkowy:** wszystkie nowe klasy CSS (komponenty i utility) muszą mieć prefiks `tw-`, z wyjątkiem semantycznych haków JS akceptowanych przez użytkownika. Nie wracaj do surowych klas Bootstrap (`btn-*`, `card-*`, `badge-*`, `form-*`, `table-*`, `d-flex/d-none`, `text-*`, `bg-*`) ani do ich aliasów.
+- **Nie twórz one-offowych klas:** zanim dodasz klasę typu `.module-specific-thing`, sprawdź `UI_STANDARDS.html` i istniejące `tw-*`; jeśli istniejący komponent nie pasuje, rozszerz go zamiast wymyślać nowy.
+- **Wspólne komponenty nadrzędne:** powtarzalne elementy (toolbar, stepper, kafelek, przycisk CTA, tabela, formularz, badge, alert, modal, dropdown, zakładka) muszą korzystać ze wspólnych partiali/komponentów (`home/templates/home/includes/toolbar.html`, `home/templates/tw/`, `home/static/common/js/tw-*.js`) zamiast być kopiowane między modułami.
+- **Ikony zgodnie ze słownikiem:** nowa ikona lub nowa semantyka ikony powinna być zgodna z `docs/UI_STANDARDS.html`; jeśli jej tam nie ma, dodaj ją lub użyj istniejącej semantyki. Unikaj różnych ikon dla tej samej akcji (np. `fa-pen` vs `fa-pen-nib` dla edycji, `fa-check` vs `fa-save` dla zapisu, `fa-trash` vs `fa-times` dla usuwania).
+- **Nowy wzorzec = aktualizacja trzech miejsc:** wprowadzenie nowego komponentu wymaga zaktualizowania: (1) `tailwind.css` + `tailwind.config.js` safelist, (2) `docs/UI_STANDARDS.html`, (3) ewentualnie `docs/TAILWIND_MIGRATION_PLAN.md` i testów regresji.
+- **Inline style tylko dla dynamicznych wartości:** `style="..."` dopuszczalne wyłącznie tam, gdzie wartość pochodzi z danych (np. `style="--featured-img: url('...')"`, `style="--vote-progress: <%- pct %>%"`). Style statyczne (np. `display`, `visibility`, `table-layout`, `color`) muszą być klasami `tw-*`.
+
 ### Kolejność ładowania
 
 Ładuj style w ustalonej kolejności: motyw / tokeny → bazowe → wspólne → widok-specyficzne. Nie przemieszczaj warstw.

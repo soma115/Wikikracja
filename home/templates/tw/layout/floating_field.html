@@ -21,7 +21,7 @@
     {% endif %} 
     
     <label {% if field.id_for_label %}for="{{ field.id_for_label }}"{% endif %}{% if label_class %} class="{{ label_class|crispy_classmap }}"{% endif %}>
-        {{ field.label }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
+        {{ field.label }}{% if field.field.required %}<span>*</span>{% endif %}
     </label>
 
     {% include 'tw/layout/help_text_and_errors.html' %}

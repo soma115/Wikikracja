@@ -557,7 +557,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const renameInput = document.getElementById('rename-room-input');
     const renameError = document.getElementById('rename-room-error');
     const renameConfirm = document.getElementById('rename-room-confirm');
-    const showRenameError = (msg) => { if (renameError) { renameError.textContent = msg; renameError.style.display = ''; } };
+    const showRenameError = (msg) => { if (renameError) { renameError.textContent = msg; renameError.classList.remove('tw-d-none'); } };
 
     let renameOriginalTitle = null;
 
@@ -569,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renameRoomId = btn.dataset.roomId;
         renameOriginalTitle = btn.dataset.roomTitle || '';
         if (renameInput) renameInput.value = renameOriginalTitle;
-        if (renameError) { renameError.style.display = 'none'; renameError.textContent = ''; }
+        if (renameError) { renameError.classList.add('tw-d-none'); renameError.textContent = ''; }
         if (renameModal && typeof TwModal !== 'undefined') TwModal.show(renameModal);
         setTimeout(() => renameInput?.select(), 300);
     });

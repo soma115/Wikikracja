@@ -26,11 +26,11 @@ export function $$(selector, context = document) {
 
 /**
  * Jedno źródło prawdy dla breakpointu mobile — musi odpowiadać
- * `@media (max-width: 767px)` w home/static/home/css/tailwind.css.
+ * `@media (max-width: 767.98px)` w home/static/home/css/tailwind.css.
  * Fallback bez matchMedia dotyczy tylko środowisk testowych (jsdom).
  */
 export const mobileMedia = typeof window.matchMedia === 'function'
-    ? window.matchMedia('(max-width: 767px)')
+    ? window.matchMedia('(max-width: 767.98px)')
     : { matches: false, addEventListener() {}, removeEventListener() {} };
 
 /**

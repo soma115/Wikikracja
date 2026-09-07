@@ -323,7 +323,7 @@
         </a>
       </div>
       <a href="{% url 'login' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary tw-me-1"><i class="fas fa-right-to-bracket fa-fw"></i> {% trans "Login" %}</a>
-      {% if group_is_public %}<a href="{% url 'account_signup' %}" class="btn-cta tw-me-1"><i class="fas fa-user-plus"></i> <span class="btn-cta-label">{% trans "Register" %}</span></a>{% endif %}
+      {% if group_is_public %}<a href="{% url 'account_signup' %}" class="tw-btn-cta tw-me-1"><i class="fas fa-user-plus"></i> <span class="tw-btn-cta-label">{% trans "Register" %}</span></a>{% endif %}
       <a href="{% url 'chat:guest_message' %}"
          title="{% trans 'Send a message to the group' %}"
          class="anon-nav-link tw-me-1 {% if request.resolver_match.url_name == 'guest_message' %}active tw-active{% endif %}">

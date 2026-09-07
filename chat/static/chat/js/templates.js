@@ -26,7 +26,7 @@ const room_template = `
       <button type="button" class="sort-btn" id="chat-sort-likes" data-sort="likes" data-order="desc">
         <i class="fas fa-thumbs-up fa-fw"></i>
         <span>${_("Likes")}</span>
-        <i class="fas fa-arrow-down sort-arrow" style="visibility:hidden"></i>
+        <i class="fas fa-arrow-down sort-arrow tw-invisible"></i>
       </button>
       <button type="button" class="sort-btn" id="chat-filter-popular" data-filter="popular">
         <i class="fas fa-fire fa-fw"></i>

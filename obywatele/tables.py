@@ -15,5 +15,5 @@ class UzytkownikTable(tables.Table):
         model = Uzytkownik
         fields = ('uid', 'city', 'voivodeship', 'responsibilities', 'skills_knowledge_hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'want_to_learn', 'business', 'job', 'why')
         template_name = "tw/table.html"
-        attrs = {'class': 'tw-citizens-table tw-table-hover tw-table-sm tw-align-middle tw-mb-0', 'data-column-toggle': 'true', 'style': 'table-layout: auto;'}
+        attrs = {'class': 'tw-citizens-table tw-table-hover tw-table-sm tw-align-middle tw-mb-0', 'data-column-toggle': 'true'}
         paginate_by = False

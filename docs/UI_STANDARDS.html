@@ -59,7 +59,7 @@
         <a href="#" class="tw-btn-cta tw-btn-cta--round" title="Add"><i class="fas fa-plus"></i></a>
       </div>
       <ul class="rules">
-        <li>Zawsze okrągły, 44×44 px.</li>
+        <li>Zawsze okrągły, 22×22 px (ikona <code>fa-plus</code> pozostaje 1.1rem).</li>
         <li>Zawsze ikona <code>fa-plus</code> w kółku.</li>
         <li>Kolor tła: <code>var(--accent)</code>.</li>
         <li>Wszędzie ten sam komponent: <code>home/templates/home/includes/toolbar.html</code>.</li>
@@ -167,7 +167,7 @@
     <div class="section">
       <div class="component-label">List view</div>
       <div class="tw-card tw-p-4 tw-mb-4">
-        <div class="tw-flex tw-flex-col tw-gap-2 tw-pb-3 tw-mb-3" style="border-bottom: 1px solid var(--border);">
+        <div class="tw-flex tw-flex-col tw-gap-2 tw-pb-3 tw-mb-3 tw-border-b tw-border-subtle">
           <div class="tw-flex tw-items-center tw-gap-2">
             <span class="tw-text-muted tw-text-sm tw-font-semibold">#1</span>
             <span class="tw-text-primary tw-font-semibold">Example item title</span>
@@ -178,7 +178,7 @@
           </div>
           <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-xs tw-text-muted">
             <span><i class="fas fa-user fa-fw tw-text-accent"></i> author</span>
-            <span style="color: var(--border)">·</span>
+            <span class="tw-text-muted">·</span>
             <span><i class="fas fa-calendar fa-fw tw-text-accent"></i> 06.09.2026</span>
           </div>
         </div>
@@ -195,7 +195,7 @@
       <div class="component-label">Grid view</div>
       <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4">
         <div class="tw-card tw-p-4">
-          <div class="tw-flex tw-flex-col tw-gap-2 tw-pb-3 tw-mb-3" style="border-bottom: 1px solid var(--border);">
+          <div class="tw-flex tw-flex-col tw-gap-2 tw-pb-3 tw-mb-3 tw-border-b tw-border-subtle">
             <div class="tw-flex tw-items-center tw-gap-2">
               <span class="tw-text-muted tw-text-sm tw-font-semibold">#2</span>
               <span class="tw-text-primary tw-font-semibold">Grid card one</span>
@@ -207,7 +207,7 @@
           <div class="tw-text-sm tw-text-muted">Compact body text for grid layout.</div>
         </div>
         <div class="tw-card tw-p-4">
-          <div class="tw-flex tw-flex-col tw-gap-2 tw-pb-3 tw-mb-3" style="border-bottom: 1px solid var(--border);">
+          <div class="tw-flex tw-flex-col tw-gap-2 tw-pb-3 tw-mb-3 tw-border-b tw-border-subtle">
             <div class="tw-flex tw-items-center tw-gap-2">
               <span class="tw-text-muted tw-text-sm tw-font-semibold">#3</span>
               <span class="tw-text-primary tw-font-semibold">Grid card two</span>
@@ -227,7 +227,7 @@
         <li>Widok listy: karty jedna pod drugą w pionowej kolumnie (<code>.tw-proposals-list</code>).</li>
         <li>Widok siatki: karty w CSS Grid — 1 col mobile, 2 col tablet, 3–4 col desktop (<code>.tw-proposals-list.tw-view-grid</code>).</li>
         <li>W siatce karta jest kompaktowa, ale zachowuje ten sam nagłówek / badge / strukturę sekcji.</li>
-        <li>Dla konkretnych domen używaj dziedziczonych klas: <code>.tw-board-post-card</code>, <code>.tw-task-card</code>, <code>.tw-event-card</code>.</li>
+        <li>Dla konkretnych domen używaj dziedziczonych klas: <code>.tw-board-post-card</code>, <code>.proposal-card</code> / <code>.task-card</code> / <code>.event-card</code>.</li>
       </ul>
     </div>
 
@@ -274,6 +274,16 @@
           <tr><td><i class="fas fa-chart-pie"></i></td><td><code>fa-chart-pie</code></td><td>Raport</td><td>finanse / raporty</td></tr>
           <tr><td><i class="fas fa-file-lines"></i></td><td><code>fa-file-lines</code></td><td>Dokument / Opis</td><td>opis, treść, dokument</td></tr>
           <tr><td><i class="fas fa-language"></i></td><td><code>fa-language</code></td><td>Język</td><td>przełącznik języka</td></tr>
+          <tr><td><i class="fas fa-stopwatch"></i></td><td><code>fa-stopwatch</code></td><td>Deadline / Czas pozostały</td><td>deadline zadania, czas do końca</td></tr>
+          <tr><td><i class="fas fa-check-to-slot"></i></td><td><code>fa-check-to-slot</code></td><td>Głosowanie / Głos</td><td>głosowanie, oddanie głosu</td></tr>
+          <tr><td><i class="fas fa-list-ul"></i></td><td><code>fa-list-ul</code></td><td>Lista szczegółowa</td><td>szczegóły listy, podsumowanie</td></tr>
+          <tr><td><i class="fas fa-user-pen"></i></td><td><code>fa-user-pen</code></td><td>Edycja profilu</td><td>edycja użytkownika / profilu</td></tr>
+          <tr><td><i class="fas fa-pen-nib"></i></td><td><code>fa-pen-nib</code></td><td>Pisanie / Ocena</td><td>pisanie argumentu, ocena</td></tr>
+          <tr><td><i class="fas fa-fire"></i></td><td><code>fa-fire</code></td><td>Popularne / Aktywne</td><td>popularne pokoje, trending</td></tr>
+          <tr><td><i class="fas fa-calendar-day"></i></td><td><code>fa-calendar-day</code></td><td>Dzień wydarzenia</td><td>dzień w kalendarzu</td></tr>
+          <tr><td><i class="fas fa-repeat"></i></td><td><code>fa-repeat</code></td><td>Powtarzalne / Cykliczne</td><td>wydarzenia cykliczne, powtórzenia</td></tr>
+          <tr><td><i class="fas fa-map-marker-alt"></i></td><td><code>fa-map-marker-alt</code></td><td>Lokalizacja</td><td>miejsce wydarzenia</td></tr>
+          <tr><td><i class="fas fa-calendar-plus"></i></td><td><code>fa-calendar-plus</code></td><td>Dodaj do kalendarza</td><td>eksport / dodanie do zewnętrznego kalendarza</td></tr>
         </tbody>
       </table>
       <ul class="rules">
@@ -300,7 +310,7 @@
         <li><strong>Jeden komponent = jedno źródło.</strong> Jeśli guzik występuje w wielu miejscach, powinien korzystać z tego samego szablonu / klasy.</li>
         <li><strong>Ikona przy każdym guziku.</strong> Ikona po lewej, tekst po prawej (z wyjątkiem CTA w toolbarze, gdzie jest tylko ikona).</li>
         <li><strong>Responsywne etykiety.</strong> Mobile: nieaktywne guziki pokazują ikonę, aktywne ikonę + tekst.</li>
-        <li><strong>CTA zawsze taki sam.</strong> Okrągły plus 44×44 px w toolbarze.</li>
+        <li><strong>CTA zawsze taki sam.</strong> Okrągły plus 22×22 px w toolbarze.</li>
         <li><strong>Widoki: List / Grid.</strong> Zawsze te same ikony i etykiety.</li>
         <li><strong>Zakładki: ikona + etykieta.</strong> Mobile nieaktywne tylko ikona.</li>
         <li><strong>Nie używaj lokalnych stylów inline.</strong> Preferuj klasy CSS i tokeny.</li>

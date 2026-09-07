@@ -4,11 +4,11 @@
 {% if field.is_hidden %}
     {{ field }}
 {% else %}
-    <div id="div_{{ field.auto_id }}" class="tw-mb-3{% if wrapper_class %} {{ wrapper_class|crispy_classmap }}{% endif %}{% if form_group_wrapper_class %} {{ form_group_wrapper_class|crispy_classmap }}{% endif %}{% if form_show_errors and field.errors %} has-danger{% endif %}{% if field.css_classes %} {{ field.css_classes|crispy_classmap }}{% endif %}">
+    <div id="div_{{ field.auto_id }}" class="tw-mb-3{% if wrapper_class %} {{ wrapper_class|crispy_classmap }}{% endif %}{% if form_group_wrapper_class %} {{ form_group_wrapper_class|crispy_classmap }}{% endif %}{% if field.css_classes %} {{ field.css_classes|crispy_classmap }}{% endif %}">
 
         {% if field.label and form_show_labels %}
-            <label for="{{ field.id_for_label }}" class="tw-form-label{% if label_class %} {{ label_class|crispy_classmap }}{% endif %}{% if field.field.required %} requiredField{% endif %}">
-                {{ field.label }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
+            <label for="{{ field.id_for_label }}" class="tw-form-label{% if label_class %} {{ label_class|crispy_classmap }}{% endif %}">
+                {{ field.label }}{% if field.field.required %}<span>*</span>{% endif %}
             </label>
         {% endif %}
 

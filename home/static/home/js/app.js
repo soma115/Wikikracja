@@ -569,6 +569,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 setSidebarOpen(false);
             });
         }
+
+        // Swipe: right opens the sidebar, left on open sidebar closes it (mobile only).
+        (function() {
+            const MIN_DX = 60;
+            const mobileQuery = window.matchMedia('(max-width: 767.98px)');
+            let startX = 0;
+            let startY = 0;
+            let tracking = false;
+            let openedAtStart = false;
+
+            document.addEventListener('touchstart', function(e) {
+                if (!sidebar || !mobileQuery.matches || e.touches.length !== 1) return;
+                if (e.target.closest('input, textarea, select, [contenteditable]')) return;
+                const t = e.touches[0];
+                openedAtStart = sidebar.classList.contains('sidebar-open');
+                if (openedAtStart && !sidebar.contains(e.target)) return;
+                tracking = true;
+                startX = t.clientX;
+                startY = t.clientY;
+            }, {passive: true});
+
+            document.addEventListener('touchend', function(e) {
+                if (!tracking) return;
+                tracking = false;
+                const t = e.changedTouches[0];
+                const dx = t.clientX - startX;
+                const dy = t.clientY - startY;
+                if (Math.abs(dy) > Math.abs(dx)) return;
+                if (!openedAtStart && dx >= MIN_DX) setSidebarOpen(true);
+                else if (openedAtStart && dx <= -MIN_DX) setSidebarOpen(false);
+            }, {passive: true});
+        })();
     })();
 });
 
@@ -688,13 +720,13 @@ window.initActivityFeedToggleRead = function(containerSelector) {
             if (row) {
                 // Visual unread styling
                 if (newRead) {
-                    row.classList.remove('unread-item');
+                    row.classList.remove('tw-unread-row');
                     var title = row.querySelector('.feed-title');
-                    if (title) title.classList.remove('fw-semibold');
+                    if (title) title.classList.remove('tw-font-semibold');
                 } else {
-                    row.classList.add('unread-item');
+                    row.classList.add('tw-unread-row');
                     var title = row.querySelector('.feed-title');
-                    if (title) title.classList.add('fw-semibold');
+                    if (title) title.classList.add('tw-font-semibold');
                 }
 
                 // For chat rooms, also show/hide the message-count badge
@@ -1151,8 +1183,8 @@ window.initCategoryFilter = function(options) {
             link.href = u.pathname + u.search;
         }
 
-        document.querySelectorAll('.stepper-nav a[href]').forEach(function(link) { refresh(link, true); });
-        document.querySelectorAll('.proposals-toolbar .sort-btn[href]').forEach(function(link) { refresh(link, false); });
+        document.querySelectorAll('.tw-stepper-nav a[href]').forEach(function(link) { refresh(link, true); });
+        document.querySelectorAll('.tw-toolbar .tw-sort-btn[href]').forEach(function(link) { refresh(link, false); });
     }
 
     function fetchTasksList(url) {

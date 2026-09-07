@@ -41,12 +41,12 @@
 
   {# Ważne linki (tylko gdy są quick links) #}
   {% if quick_links %}
-  <div class="dashboard-tile tw-dashboard-tile dashboard-tile--1x1 tw-dashboard-tile--1x1" data-tile-id="onboarding">
+  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="onboarding">
     <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-overflow-hidden" id="onboarding-card">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2 overflow-hidden-mh0 tw-overflow-hidden tw-min-h-0">
         <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1 tw-shrink-0">
           <i class="fas fa-rocket"></i>
-          <span class="section-heading tw-section-heading tile-heading tw-tile-heading">{% trans "Important links" %}</span>
+          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "Important links" %}</span>
         </div>
         <div id="quick-links-scroll" class="quick-links-scroll tw-quick-links-scroll">
         <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-text-sm">{% for link in quick_links %}<li class="task-dash-row tw-flex tw-items-center tw-gap-2 quick-link-row tw-quick-link-row tw-min-w-0" data-link-id="{{ link.id }}">
@@ -71,20 +71,20 @@
 
 
   {# Aktywność #}
-  <div class="dashboard-tile tw-dashboard-tile dashboard-tile--1x1 tw-dashboard-tile--1x1" data-tile-id="activity">
+  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="activity">
     <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-header tw-py-2 tw-px-4 dashboard-tile-header tw-dashboard-tile-header">
-        <span class="section-heading tw-section-heading tile-heading tw-tile-heading">
+        <span class="section-heading tw-section-heading tw-tile-heading">
           <i class="fas fa-stream tw-me-1 tw-text-accent tw-opacity-70"></i>{% trans "Activity" %}
         </span>
-        <a href="{% url 'activity' %}" class="dashboard-counter-btn tw-dashboard-counter-btn{% if unread_count %} has-count{% endif %}">
+        <a href="{% url 'activity' %}" class="tw-dashboard-counter-btn{% if unread_count %} has-count{% endif %}">
           <i class="fas fa-bell"></i>
-          <span class="dashboard-counter-value">{{ unread_count|default:0 }}</span>
+          <span>{{ unread_count|default:0 }}</span>
         </a>
       </div>
       <div class="tw-card-body tw-p-0 tw-overflow-hidden tw-min-h-0" id="activity-feed-body">
         {% for item in last_feed_items %}
-        <div class="task-dash-row tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 activity-feed-row min-w-0 tw-min-w-0 {% if not item.is_read %}unread-item unread-row tw-unread-row{% endif %}">
+        <div class="task-dash-row tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 activity-feed-row min-w-0 tw-min-w-0 {% if not item.is_read %}tw-unread-row{% endif %}">
           <span class="tw-badge-status tw-badge-{{ item.content_type|content_type_color }} tw-shrink-0 tw-badge-status-xs">
             {{ item.content_type|content_type_label }}
           </span>
@@ -117,11 +117,11 @@
   </div>
 
   {# Wybrane dokumenty #}
-  <div class="dashboard-tile tw-dashboard-tile dashboard-tile--1x1 tw-dashboard-tile--1x1" data-tile-id="featured-documents">
+  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="featured-documents">
     <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2 tw-overflow-hidden tw-min-h-0">
         <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1 tw-shrink-0">
-          <a href="{% url 'board:start' %}" class="tile-heading tw-tile-heading">
+          <a href="{% url 'board:start' %}" class="tw-tile-heading">
             <i class="fas fa-image"></i>{% trans "Featured documents" %}
           </a>
         </div>
@@ -186,12 +186,12 @@
   </div>
 
   {# Najbliższe wydarzenia #}
-  <div class="dashboard-tile tw-dashboard-tile dashboard-tile--1x1 tw-dashboard-tile--1x1" data-tile-id="upcoming-events">
+  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="upcoming-events">
     <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
         <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-calendar-days"></i>
-          <span class="section-heading tw-section-heading tile-heading tw-tile-heading">{% trans "Upcoming events" %}</span>
+          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "Upcoming events" %}</span>
         </div>
         {% if upcoming_events %}
         <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-2 tw-flex-1 tw-text-sm">{% for occ in upcoming_events %}<li class="task-dash-row tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
@@ -214,12 +214,12 @@
   </div>
 
   {# Propozycje głosowań #}
-  <div class="dashboard-tile tw-dashboard-tile dashboard-tile--1x1 tw-dashboard-tile--1x1" data-tile-id="voting-proposals">
+  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="voting-proposals">
     <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
         <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-file-signature"></i>
-          <span class="section-heading tw-section-heading tile-heading tw-tile-heading">{% trans "Voting proposals" %}</span>
+          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "Voting proposals" %}</span>
         </div>
         {% if new_proposals %}
         <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% for prop in new_proposals %}<li class="task-dash-row tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
@@ -242,12 +242,12 @@
   </div>
 
   {# Dyskutowane głosowania #}
-  <div class="dashboard-tile tw-dashboard-tile dashboard-tile--1x1 tw-dashboard-tile--1x1" data-tile-id="discussed-votings">
+  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="discussed-votings">
     <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
         <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-comments"></i>
-          <span class="section-heading tw-section-heading tile-heading tw-tile-heading">{% trans "Discussed votings" %}</span>
+          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "Discussed votings" %}</span>
         </div>
         {% if discussed_proposals %}
         <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% for prop in discussed_proposals %}<li class="task-dash-row tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
@@ -270,12 +270,12 @@
   </div>
 
   {# Aktywne głosowanie #}
-  <div class="dashboard-tile tw-dashboard-tile dashboard-tile--1x1 tw-dashboard-tile--1x1" data-tile-id="active-voting">
+  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="active-voting">
     <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
         <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-landmark"></i>
-          <span class="section-heading tw-section-heading tile-heading tw-tile-heading">{% trans "Active voting" %}</span>
+          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "Active voting" %}</span>
         </div>
         {% if active_referendum %}
         <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1"><li class="task-dash-row tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
@@ -298,12 +298,12 @@
   </div>
 
   {# My tasks #}
-  <div class="dashboard-tile tw-dashboard-tile dashboard-tile--1x1 tw-dashboard-tile--1x1" data-tile-id="my-tasks">
+  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="my-tasks">
     <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
         <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-bolt"></i>
-          <span class="section-heading tw-section-heading tile-heading tw-tile-heading">{% trans "My activities" %}</span>
+          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "My activities" %}</span>
         </div>
         {% if my_tasks %}
         <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% for task in my_tasks %}<li class="task-dash-row tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
@@ -327,12 +327,12 @@
   </div>
 
   {# Nowi ludzie #}
-  <div class="dashboard-tile tw-dashboard-tile dashboard-tile--1x1 tw-dashboard-tile--1x1" data-tile-id="new-people">
-    <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full">
+  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="new-people">
+    <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
         <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-users"></i>
-          <span class="section-heading tw-section-heading tile-heading tw-tile-heading">{% trans "New people" %}</span>
+          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "New people" %}</span>
         </div>
         <a href="{% url 'kandydaci' %}" class="tw-stretched-link" aria-label="{% trans 'New people' %}" title="{% trans 'New people' %}"></a>
         {% if new_people %}
@@ -349,12 +349,12 @@
   </div>
 
   {# Finances #}
-  <div class="dashboard-tile tw-dashboard-tile dashboard-tile--1x1 tw-dashboard-tile--1x1" data-tile-id="finances">
+  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="finances">
     <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
         <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-wallet"></i>
-          <span class="section-heading tw-section-heading tile-heading tw-tile-heading">{% trans "Finances" %}</span>
+          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "Finances" %}</span>
           {% if default_asset %}<span class="tw-text-xs tw-text-muted">— {% trans "All time" %} ({{ default_asset.code }})</span>{% endif %}
         </div>
         {% if default_asset %}
@@ -390,12 +390,12 @@
   <div class="dashboard-tile tw-dashboard-tile dashboard-tile--2x1 tw-dashboard-tile--2x1" data-tile-id="chat">
     <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-header dashboard-tile-header tw-dashboard-tile-header">
-        <span class="section-heading tw-section-heading tile-heading tw-tile-heading">
+        <span class="section-heading tw-section-heading tw-tile-heading">
           <i class="fas fa-comments"></i>{% trans "Chat" %}
         </span>
         <a id="chat-unread-badge"
            href="{% url 'chat:chat' %}?view=unread"
-           class="dashboard-counter-btn tw-dashboard-counter-btn{% if chat_unread_count %} has-count{% endif %}">
+           class="tw-dashboard-counter-btn{% if chat_unread_count %} has-count{% endif %}">
           <i class="fas fa-comments"></i>
           <span id="chat-unread-label">{% if chat_unread_count %}{{ chat_unread_count }} {% trans "unread" %}{% else %}{% trans "Open chat" %}{% endif %}</span>
         </a>
@@ -424,12 +424,12 @@
     </div>
   </div>
 
-  <div class="dashboard-tile tw-dashboard-tile dashboard-tile--1x1 tw-dashboard-tile--1x1" data-tile-id="skills-resources">
+  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="skills-resources">
     <a href="{% url 'obywatele:assets' %}" class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-no-underline">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
         <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-brain"></i>
-          <span class="section-heading tw-section-heading tile-heading tw-tile-heading">{% trans "Skills and resources" %}</span>
+          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "Skills and resources" %}</span>
         </div>
         <div class="tw-flex tw-flex-wrap tw-gap-2">
           <span class="asset-chip tw-asset-chip"><i class="fas fa-brain tw-text-accent"></i> <strong>{{ skills_count }}</strong> {% trans "skills" %}</span>
@@ -442,12 +442,12 @@
     </a>
   </div>
 
-  <div class="dashboard-tile tw-dashboard-tile dashboard-tile--1x1 tw-dashboard-tile--1x1" data-tile-id="active-users">
+  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="active-users">
     <a href="{% url 'obywatele:obywatele' %}?aktywnosc=30d" class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-no-underline">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
         <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-chart-line"></i>
-          <span class="section-heading tw-section-heading tile-heading tw-tile-heading">{% trans "logged in within 30 days" %}</span>
+          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "logged in within 30 days" %}</span>
         </div>
         <div class="wspol-stat-value tw-wspol-stat-value tw-mt-auto tw-mb-auto">{{ active_pct }}%</div>
       </div>
@@ -457,7 +457,7 @@
   <div class="dashboard-tile tw-dashboard-tile dashboard-tile--2x1 tw-dashboard-tile--2x1" data-tile-id="calendar">
     <div class="tw-card tw-card--no-hover dashboard-tile tw-dashboard-tile tw-h-full">
       <div class="tw-card-header dashboard-tile-header tw-dashboard-tile-header">
-        <a href="{% url 'events:list' %}" class="section-heading tw-section-heading tile-heading tw-tile-heading">
+        <a href="{% url 'events:list' %}" class="section-heading tw-section-heading tw-tile-heading">
           <i class="fas fa-calendar-days"></i>{% trans "Calendar" %}
         </a>
         <a href="{% url 'events:create' %}" class="tw-btn tw-btn-sm tw-btn-outline-primary">
@@ -575,21 +575,6 @@
   window.initSortableGrid(grid, {
     storageKey: 'dashboardLayout-{{ user.id }}'
   });
-
-  function adjustDashboardFontSizes() {
-    grid.querySelectorAll('.dashboard-tile').forEach(function (tile) {
-      var card = tile.classList.contains('tw-card') ? tile : tile.querySelector('.tw-card');
-      if (!card) return;
-      var body = card.querySelector('.tw-card-body');
-      if (!body) return;
-      if (body.scrollHeight > 0 && card.clientHeight > 0 && body.scrollHeight < card.clientHeight * 0.65) {
-        tile.classList.add('dashboard-tile--compact');
-      } else {
-        tile.classList.remove('dashboard-tile--compact');
-      }
-    });
-  }
-  adjustDashboardFontSizes();
 })();
 </script>
 {% endif %}

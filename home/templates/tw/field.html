@@ -14,8 +14,8 @@
         {% if field.label and not field|is_checkbox and form_show_labels %}
             {% if field.use_fieldset %}<fieldset{% if field.aria_describedby %} aria-describedby="{{ field.aria_describedby }}"{% endif %}>{% endif %}
             <{% if field.use_fieldset %}legend{% else %}label{% endif %}
-                {% if field.id_for_label %}for="{{ field.id_for_label }}"{% endif %} class="tw-form-label{% if label_class %} {{ label_class|crispy_classmap }}{% endif %}{% if field.field.required %} requiredField{% endif %}{% if field.use_fieldset %} tw-text-base{% endif %}">
-                {{ field.label }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
+                {% if field.id_for_label %}for="{{ field.id_for_label }}"{% endif %} class="tw-form-label{% if label_class %} {{ label_class|crispy_classmap }}{% endif %}{% if field.use_fieldset %} tw-text-base{% endif %}">
+                {{ field.label }}{% if field.field.required %}<span>*</span>{% endif %}
             </{% if field.use_fieldset %}legend{% else %}label{% endif %}>
         {% endif %}
 
@@ -30,8 +30,8 @@
                     {% else %}
                         {% crispy_field field 'class' 'tw-form-check-input' %}
                     {% endif %}
-                <label for="{{ field.id_for_label }}" class="tw-form-check-label{% if field.field.required %} requiredField{% endif %}">
-                    {{ field.label }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
+                <label for="{{ field.id_for_label }}" class="tw-form-check-label">
+                    {{ field.label }}{% if field.field.required %}<span>*</span>{% endif %}
                 </label>
                 {% include 'tw/layout/help_text_and_errors.html' %}
             {% else %}

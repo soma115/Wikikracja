@@ -31,7 +31,7 @@
 
     function showError(m) {
       errEl.textContent = m;
-      errEl.style.display = m ? '' : 'none';
+      errEl.classList.toggle('tw-d-none', !m);
     }
 
     function renderRow(cat) {

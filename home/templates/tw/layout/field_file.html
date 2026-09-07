@@ -20,7 +20,7 @@
     </div>
 </div>
 {% endif %}
-<div{% if field.errors %} class="is-invalid"{%endif%}>
+<div>
     <input type="{{ widget.data.type }}" name="{{ widget.data.name }}" class="tw-form-control{% if widget.data.attrs.class %} {{ widget.data.attrs.class|crispy_classmap }}{% endif %}{% if field.errors %} is-invalid{%endif%}" aria-label="{{ field.label }}" title="{{ field.label }}"{% if field.field.disabled %} disabled{% endif %}{% include "tw/layout/attrs.html" with widget=widget.data exclude_class=True %}>
     {% include 'tw/layout/help_text_and_errors.html' %}
 </div>

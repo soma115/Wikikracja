@@ -77,12 +77,7 @@ class EventForm(forms.ModelForm):
             Row(Column('link', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6'), Column('place', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6')),
             Row(Column('start_date', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6'), Column('end_date', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6')),
             Field('frequency', css_class='tw-form-control', wrapper_class='tw-mb-3'),
-            Row(
-                Column('ordinal', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6'),
-                Column('weekday', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6'),
-                css_id='ordinal-fields-row',
-                css_class='ordinal-fields-row',
-            ),
+            Row(Column('ordinal', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6'), Column('weekday', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6'), css_id='ordinal-fields-row'),
             Row(Column('is_active', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6'), Column('is_public', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6')),
         )
 

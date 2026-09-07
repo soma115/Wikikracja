@@ -130,8 +130,8 @@
     </div>
   </div>
 
-  <div class="proposals-toolbar tw-flex tw-gap-2 tw-mt-4">
-    <a href="{% url 'events:list' %}" class="view-toggle-btn event-back-link" title="{% trans 'Back to Calendar' %}">
+  <div class="tw-flex tw-gap-2 tw-mt-4">
+    <a href="{% url 'events:list' %}" class="tw-btn tw-btn-secondary event-back-link" title="{% trans 'Back to Calendar' %}">
       <i class="fas fa-arrow-left"></i> {% trans "Back to Calendar" %}
     </a>
     <a href="{{ event.google_calendar_url }}" target="_blank" rel="noopener" class="tw-btn-cta" title="{% trans 'Add to Google Calendar' %}">
