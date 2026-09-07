@@ -2,10 +2,10 @@
 {% load i18n %}
 
 {% block content %}
-<div class="section">
+<div class="tw-section">
 
   <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-4 tw-flex-wrap">
-    <span class="section-heading tw-text-md">
+    <span class="tw-section-heading tw-text-md">
       <i class="fas fa-screwdriver-wrench tw-me-2 tw-text-accent tw-opacity-80"></i>{% trans "Site administration and global settings" %}
     </span>
     <span class="site-admin-version">Wikikracja v.{{ app_version }}</span>
@@ -15,7 +15,7 @@
   <div class="tw-card tw-mb-4">
     <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
       <i class="fas fa-link tw-text-accent tw-text-sm tw-opacity-80"></i>
-      <span class="section-heading tw-text-sm">{% trans "Quick links" %}</span>
+      <span class="tw-section-heading tw-text-sm">{% trans "Quick links" %}</span>
     </div>
     <div class="tw-card-body">
       <form method="post" id="quick-link-form" data-preserve-scroll>
@@ -50,7 +50,7 @@
             <i class="fas fa-grip-vertical tw-text-muted tw-text-xs tw-opacity-50"></i>
             <span class="quick-link-title">{{ link.title }}</span>
             <span class="quick-link-url">{{ link.url }}</span>
-            <button type="button" class="tw-btn tw-btn-sm tw-btn-outline-secondary edit-link-btn quick-link-edit" data-link-id="{{ link.id }}" data-title="{{ link.title }}" data-url="{{ link.url }}" data-order="{{ link.order }}"><i class="fas fa-pen fa-fw tw-me-1"></i>{% trans "Edit" %}</button>
+            <button type="button" class="tw-btn tw-btn-sm tw-btn-outline-secondary quick-link-edit" data-link-id="{{ link.id }}" data-title="{{ link.title }}" data-url="{{ link.url }}" data-order="{{ link.order }}"><i class="fas fa-pen fa-fw tw-me-1"></i>{% trans "Edit" %}</button>
             <form class="tw-inline" method="post">
               {% csrf_token %}
               <input type="hidden" name="delete_quick_link" value="{{ link.id }}">
@@ -66,7 +66,7 @@
 
   <script>
   // Edit functionality
-  document.querySelectorAll('.edit-link-btn').forEach(function(btn) {
+  document.querySelectorAll('.quick-link-edit').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var linkId = this.dataset.linkId;
       var title = this.dataset.title;
@@ -167,7 +167,7 @@
   <div class="tw-card tw-mb-4">
     <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
       <i class="fas fa-shield-halved tw-text-accent tw-text-sm tw-opacity-80"></i>
-      <span class="section-heading tw-text-sm">{% trans "Vote storage reliability" %}</span>
+      <span class="tw-section-heading tw-text-sm">{% trans "Vote storage reliability" %}</span>
     </div>
     <div class="tw-card-body">
       <p class="admin-muted">

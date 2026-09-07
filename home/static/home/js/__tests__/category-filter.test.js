@@ -132,10 +132,10 @@ describe('initCategoryFilter', () => {
 
     test('recognizes board-category-group items by data-category-pk', () => {
         document.body.innerHTML = `
-            <div class="board-category-group" data-category-pk="1">Board group 1</div>
-            <div class="board-category-group" data-category-pk="2">Board group 2</div>
+            <div class="tw-board-category-group" data-category-pk="1">Board group 1</div>
+            <div class="tw-board-category-group" data-category-pk="2">Board group 2</div>
         `;
-        const items = document.querySelectorAll('.board-category-group');
+        const items = document.querySelectorAll('.tw-board-category-group');
         document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
 
         window.initCategoryFilter();
@@ -143,9 +143,29 @@ describe('initCategoryFilter', () => {
         const rows = document.querySelectorAll('.cat-filter__item:not(.cat-filter__all)');
         click(rows[0]);
 
-        const groups = Array.from(document.querySelectorAll('.board-category-group'));
+        const groups = Array.from(document.querySelectorAll('.tw-board-category-group'));
         expect(groups[0].style.display).toBe('');
         expect(groups[1].style.display).toBe('none');
+    });
+
+    test('initializes board filter state from URL query parameter', () => {
+        var locationSpy = jest.spyOn(window, 'location', 'get');
+        locationSpy.mockReturnValue({ search: '?category=1', pathname: '/' });
+
+        document.body.innerHTML = `
+            <div class="tw-board-category-group" data-category-pk="1">Board group 1</div>
+            <div class="tw-board-category-group" data-category-pk="2">Board group 2</div>
+        `;
+        const items = document.querySelectorAll('.tw-board-category-group');
+        document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
+
+        window.initCategoryFilter();
+
+        const groups = Array.from(document.querySelectorAll('.tw-board-category-group'));
+        expect(groups[0].style.display).toBe('');
+        expect(groups[1].style.display).toBe('none');
+
+        locationSpy.mockRestore();
     });
 
     test('clicking "All" shows every item again', () => {
@@ -191,7 +211,7 @@ describe('initCategoryFilter', () => {
 
         click(urgentRow);
 
-        expect(writeSpy).toHaveBeenCalledWith({ filters: '?category=urgent' });
+        expect(writeSpy).toHaveBeenCalledWith({ filters: '?category=urgent', lastUrl: '/?category=urgent' });
         expect(onNavigate).toHaveBeenCalledWith('/?category=urgent');
 
         const cards = Array.from(document.querySelectorAll('.task-card'));

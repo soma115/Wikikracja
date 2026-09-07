@@ -26,11 +26,11 @@
   function updateVoteCounts(form, data) {
     var card = form.closest('.task-card');
     if (card) {
-      var countEl = card.querySelector('.task-helpers-count');
+      var countEl = card.querySelector('.tw-task-helpers-count');
       if (countEl) {
         countEl.textContent = data.votes_up;
       }
-      var againstEl = card.querySelector('.task-against-count');
+      var againstEl = card.querySelector('.tw-task-against-count');
       if (againstEl && typeof data.votes_down !== 'undefined') {
         againstEl.textContent = data.votes_down;
       }

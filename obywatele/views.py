@@ -236,7 +236,7 @@ def obywatele(request: HttpRequest):
 
     uid = (
         User.objects.filter(is_active=True)
-        .select_related('uzytkownik')
+        .select_related('uzytkownik', 'uzytkownik__voivodeship')
         .annotate(
             username_is_blank=Case(When(Q(username__isnull=True) | Q(username__exact=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
             email_is_blank=Case(When(Q(email__isnull=True) | Q(email__exact=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
@@ -276,23 +276,7 @@ def obywatele(request: HttpRequest):
 
         users_with_reputation.append(user)
 
-    default_directions = {'username': 'asc', 'email': 'asc', 'phone': 'asc', 'last_login': 'desc', 'city': 'asc', 'first_name': 'asc', 'last_name': 'asc', 'joined': 'desc'}
-
-    sort_meta = {}
-    for field in allowed_sort_fields:
-        is_current = requested_field == field
-        if is_current:
-            current_direction = 'desc' if requested_sort.startswith('-') else 'asc'
-            next_param = field if current_direction == 'desc' else f'-{field}'
-        else:
-            current_direction = None
-            default_direction = default_directions.get(field, 'asc')
-            next_param = f'-{field}' if default_direction == 'desc' else field
-
-        sort_meta[field] = {'is_current': is_current, 'direction': current_direction, 'next_param': next_param}
-
     _aktywnosc_ctx = aktywnosc if aktywnosc in _aktywnosc_filters else ''
-    sort_url_suffix = f'&aktywnosc={_aktywnosc_ctx}' if _aktywnosc_ctx else ''
     sort_param = f'sort={requested_sort}' if requested_sort != default_sort else ''
 
     return render(
@@ -300,10 +284,7 @@ def obywatele(request: HttpRequest):
         'obywatele/start.html',
         {
             'uid': users_with_reputation,  # Don't change to 'user' - it will break menu
-            'sort_meta': sort_meta,
-            'current_sort': requested_sort,
             'aktywnosc': _aktywnosc_ctx,
-            'sort_url_suffix': sort_url_suffix,
             'sort_param': sort_param,
             'toolbar_views': [{'name': 'list'}, {'name': 'grid'}],
         },
@@ -313,7 +294,7 @@ def obywatele(request: HttpRequest):
 @login_required
 def poczekalnia(request: HttpRequest):
     # zliczaj_obywateli(request)
-    uid = User.objects.filter(is_active=False).select_related('uzytkownik')
+    uid = User.objects.filter(is_active=False).select_related('uzytkownik', 'uzytkownik__voivodeship')
     verified_user_ids = set(EmailAddress.objects.filter(user__in=uid, verified=True).values_list('user_id', flat=True))
 
     # Get the current user's profile
@@ -503,6 +484,8 @@ def my_profile(request: HttpRequest):
             'required_reputation': required_reputation(),
             'email_frequency': profile.email_frequency,
             'email_frequency_choices': Uzytkownik.EmailFrequency.choices,
+            'theme': profile.theme,
+            'theme_choices': Uzytkownik.Theme.choices,
             'push_notifications': push_notifications,
             'push_devices': push_devices,
             'avatar_form': AvatarForm(),
@@ -548,6 +531,14 @@ def toggle_notification(request: HttpRequest):
             if value not in [choice[0] for choice in Uzytkownik.EmailFrequency.choices]:
                 return JsonResponse({'success': False, 'error': 'Invalid frequency'})
             profile.email_frequency = value
+            profile.save()
+            return JsonResponse({'success': True})
+
+        if notification_type == 'theme':
+            value = data.get('value')
+            if value not in [choice[0] for choice in Uzytkownik.Theme.choices]:
+                return JsonResponse({'success': False, 'error': 'Invalid theme'})
+            profile.theme = value
             profile.save()
             return JsonResponse({'success': True})
 

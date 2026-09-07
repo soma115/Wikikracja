@@ -372,18 +372,16 @@ def on_citizen_proposed(sender, candidate, proposed_by=None, **kwargs):
     """Notify all active users that a new citizen has been proposed or signed up."""
     if proposed_by:
         title = _('New citizen has been proposed')
-        body = f'{proposed_by.username} {_("proposed new citizen")}'
+        body = _('A new citizen has been proposed')
         click_action = build_site_url(f'/obywatele/poczekalnia/{candidate.id}')
         tag = f'citizen-{candidate.id}'
+        email_body = _('A new citizen has been proposed. You can view the waiting room here:') + f' {click_action}'
     else:
         title = _('New person requested membership')
-        body = _('User %(username)s just requested membership') % {'username': candidate.username}
+        body = _('A new person has requested membership')
         click_action = build_site_url('/obywatele/poczekalnia/')
         tag = f'citizen-signup-{candidate.id}'
-
-    email_body = f'{body}\n{click_action}'
-    if proposed_by:
-        email_body = f'{body}\n{_("You can approve him/her here:")} {click_action}'
+        email_body = _('A new person has requested membership. You can view the waiting room here:') + f' {click_action}'
 
     _dispatch_notification(
         title,
@@ -396,7 +394,7 @@ def on_citizen_proposed(sender, candidate, proposed_by=None, **kwargs):
         email_body=email_body,
         send_push=True,
         send_websocket=True,
-        send_email=False,
+        send_email=True,
         citizen_id=candidate.id,
     )
 
@@ -553,7 +551,10 @@ def on_important_post_published(sender, post, url, created=False, **kwargs):
         title = _('Important post published')
     else:
         title = _('Important post updated')
-    author = post.author.username if post.author else _('System')
+    if post.author:
+        author = post.author.get_full_name() or post.author.username
+    else:
+        author = _('System')
     body = f'{post.title}\n{_("by")} {author}\n{url}'
     _dispatch_notification(
         title, body, url, f'post-{post.id}', notification_type='post', ws_type='post.notification', email_subject=title, email_body=body, send_push=True, send_websocket=True, send_email=False, post_id=post.id

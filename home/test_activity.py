@@ -23,7 +23,7 @@ def test_activity_page_renders_read_toggle_buttons(client, activity_user):
     response = client.get(reverse('activity'))
     assert response.status_code == 200
     content = response.content.decode()
-    assert 'feed-toggle-read' in content
+    assert 'tw-feed-toggle' in content
     assert 'data-content-type="post"' in content
     assert f'data-object-id="{post.pk}"' in content
     assert 'window.MARK_UNREAD_URL' in content
@@ -58,7 +58,7 @@ def test_activity_shows_each_chat_message_as_separate_item(client, activity_user
     response = client.get(reverse('activity'))
     content = response.content.decode()
 
-    assert content.count('data-content-type="room_messages"') == 6
+    assert content.count('data-content-type="room_messages"') == 9
     assert all(f'data-object-id="{message.id}"' in content for message in messages)
     assert room.title in content
     assert f'Messages in {room.title}' not in content

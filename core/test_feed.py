@@ -34,9 +34,9 @@ def row(content_type, object_id, title, timestamp):
 
 def test_normal_preparation_batches_interleaved_rows_without_reordering(user, monkeypatch):
     now = timezone.now()
-    raw = [row(ct, oid, title, now) for ct, oid, title in [('custom', 7, 'first'), ('post', 7, 'read'), ('custom', 7, 'hidden'), ('task', 7, 'unread'), ('custom', 7, 'last'), ('unknown', 7, 'unknown')]]
+    raw = [row(ct, oid, title, now) for ct, oid, title in [('custom', 7, 'first'), ('decision', 7, 'read'), ('custom', 7, 'hidden'), ('task', 7, 'unread'), ('custom', 7, 'last'), ('unknown', 7, 'unknown')]]
     original = deepcopy(raw)
-    ReadStatus.objects.create(user=user, content_type='post', object_id=7)
+    ReadStatus.objects.create(user=user, content_type=ReadStatus.ContentType.DECISION, object_id=7)
 
     def prepare(items, viewer):
         assert viewer == user
@@ -48,15 +48,15 @@ def test_normal_preparation_batches_interleaved_rows_without_reordering(user, mo
 
     callback = Mock(side_effect=prepare)
     register_feed_provider('custom', get_items=lambda since: [], prepare_items=callback)
-    assert get_provider('post').prepare_items is None
+    assert get_provider('decision').prepare_items is None
     assert get_provider('task').prepare_items is None
     monkeypatch.setattr(feed, 'generate_feed_raw', lambda: raw)
     cache.set(feed.FEED_CACHE_KEY, raw)
     result = feed.generate_feed_items(user)
     assert [item['title'] for item in result] == ['first prepared', 'read', 'unread', 'last prepared', 'unknown']
     assert [item['is_read'] for item in result] == [True, True, False, True, False]
-    assert result[1] == {**original[1], 'is_read': True}
-    assert result[2] == {**original[3], 'is_read': False}
+    assert result[1] == {**original[1], 'is_read': True, 'is_bookmarked': False}
+    assert result[2] == {**original[3], 'is_read': False, 'is_bookmarked': False}
     callback.assert_called_once()
     assert raw == original == cache.get(feed.FEED_CACHE_KEY)
 
@@ -64,7 +64,10 @@ def test_normal_preparation_batches_interleaved_rows_without_reordering(user, mo
 def test_digest_preparation_groups_by_private_key_and_counts_source_rows(user, monkeypatch):
     now = timezone.now()
     since = now - timedelta(days=1)
-    raw = [row(ct, oid, title, now) for ct, oid, title in [('custom', 7, 'first'), ('post', 7, 'post'), ('custom', 8, 'hidden'), ('custom', 9, 'second'), ('post', 7, 'post again'), ('custom', 7, 'separate')]]
+    raw = [
+        row(ct, oid, title, now)
+        for ct, oid, title in [('custom', 7, 'first'), ('decision', 7, 'post'), ('custom', 8, 'hidden'), ('custom', 9, 'second'), ('decision', 7, 'post again'), ('custom', 7, 'separate')]
+    ]
     original = deepcopy(raw)
 
     def prepare(items, viewer, cutoff):
@@ -77,7 +80,8 @@ def test_digest_preparation_groups_by_private_key_and_counts_source_rows(user, m
 
     callback = Mock(side_effect=prepare)
     register_feed_provider('custom', get_items=lambda since: [], prepare_digest_items=callback)
-    assert get_provider('post').prepare_digest_items is None
+    assert get_provider('decision').prepare_digest_items is None
+    assert get_provider('task').prepare_digest_items is None
     monkeypatch.setattr(feed, 'collect_feed_items', lambda cutoff: raw)
     cache.set(feed.FEED_CACHE_KEY, raw)
     result = feed.build_user_digest(user, since)

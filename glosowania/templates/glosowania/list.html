@@ -5,7 +5,8 @@
 {% block prefs_scope %}glosowania{% endblock %}
 
 {% block glosowania %}
-{% include 'glosowania/_view_toggle.html' %}
+{% url 'glosowania:dodaj_nowy' as cta_url %}
+{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add') sort_items=toolbar_sort_items views=toolbar_views %}
 
 <div class="tw-proposals-list" data-view-container>
   {% if votings %}

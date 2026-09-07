@@ -1,6 +1,7 @@
 {% extends 'obywatele/menu.html' %}
 {% load static %}
 {% load i18n %}
+{% load feed_filters %}
 
 {% block citizens %}
 <div>
@@ -32,10 +33,10 @@
 
   <div class="tw-card tw-mb-3">
     <div class="tw-card-header tw-flex tw-items-center tw-gap-3">
-      {% include "home/_user_avatar.html" with avatar=b.avatar username=b.uid.username size="6xl" %}
-      <h5 class="tw-mb-0 tw-text-lg tw-font-semibold">{{ b.uid.first_name|default:b.uid }} {{ b.uid.last_name }}
+      {% include "home/_user_avatar.html" with avatar=b.avatar username=b.uid.username display_name=b|display_name size="6xl" %}
+      <h5 class="tw-mb-0 tw-text-lg tw-font-semibold">{{ b|display_name }}
         {% if candidate_deletion_request %}
-        <span class="tw-badge-status tw-badge-danger tw-ms-1" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash-alt"></i></span>
+        <span class="tw-badge-status tw-badge-danger tw-ms-1" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash"></i></span>
         {% endif %}
       </h5>
       {% if active %}

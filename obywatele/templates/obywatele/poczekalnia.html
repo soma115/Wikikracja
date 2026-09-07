@@ -1,11 +1,12 @@
 {% extends 'obywatele/menu.html' %}
 {% load static %}
 {% load i18n %}
+{% load feed_filters %}
 {% block prefs_scope %}obywatele{% endblock %}
 
 {% block citizens %}
 <div class="tw-card">
-  <div class="tw-card-header tw-flex tw-justify-between tw-items-center">
+  <div class="tw-card-header tw-flex tw-justify-between tw-items-center tw-flex-wrap tw-gap-2">
     <span class="tw-section-heading">{% trans "Candidates" %} (<span id="citizens-count">{{ uid|length }}</span>)</span>
     <span class="tw-text-muted tw-text-sm">
       {% trans "New person will be accepted above" %}
@@ -20,7 +21,7 @@
   {% include 'home/includes/toolbar.html' with views=toolbar_views %}
 
   {# ── Toolbar wyszukiwania ── #}
-  <div class="citizens-toolbar tw-citizens-toolbar tw-toolbar">
+  <div class="tw-citizens-toolbar tw-toolbar">
     <input type="search" id="citizens-search" class="tw-citizens-search-input"
            placeholder="{% trans 'Search user...' %}" autocomplete="off">
   </div>
@@ -28,20 +29,9 @@
   <div class="tw-card-body tw-p-0" data-view-container>
 
     {# ── List view ── #}
-    <div id="citizens-list-view">
+    <div id="citizens-list-view" class="tw-proposals-list">
       <div class="tw-citizens-table-wrap">
         <table class="tw-citizens-table tw-table-hover tw-table-sm tw-align-middle tw-mb-0">
-          <thead>
-            <tr>
-              <th scope="col"><i class="fas fa-user fa-fw tw-text-muted"></i> {% trans 'Nick' %}</th>
-              <th scope="col"><i class="fas fa-envelope fa-fw tw-text-muted"></i> {% trans 'Email' %}</th>
-              <th scope="col" class="tw-hidden sm:tw-table-cell"><i class="fas fa-star fa-fw tw-text-muted"></i> {% trans 'Ratings' %}</th>
-              <th scope="col" class="tw-hidden-mobile"><i class="fas fa-check-circle fa-fw tw-text-muted"></i> {% trans 'Email confirmed' %}</th>
-              <th scope="col" class="tw-hidden-tablet"><i class="fas fa-file-alt fa-fw tw-text-muted"></i> {% trans 'Form completed' %}</th>
-              <th scope="col"><i class="fas fa-calendar fa-fw tw-text-muted"></i> {% trans 'Candidate since' %}</th>
-              <th scope="col" class="tw-hidden-desktop"><i class="fas fa-user-check fa-fw tw-text-muted"></i> {% trans 'Recommended by' %}</th>
-            </tr>
-          </thead>
           <tbody>
             {% for i in uid|dictsortreversed:"date_joined" %}
             <tr class="user-row tw-user-row"
@@ -49,46 +39,64 @@
                 data-href="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}"
                 data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
               <td>
-                <div class="tw-username-container">
-                  <div class="tw-citizen-list-avatar-wrap tw-shrink-0">
-                    {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username size="lg" %}
+                <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+                  <span class="tw-citizen-card-top tw-shrink-0">
+                    {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username display_name=i|display_name size="lg" %}
+                    <span class="tw-candidate-vote-badge">
+                      {% if i.rating == 1 %}
+                      <i class="fas fa-check-circle tw-text-success" title="{% trans 'You accepted this candidate' %}"></i>
+                      {% elif i.rating == -1 %}
+                      <i class="fas fa-times-circle tw-text-danger" title="{% trans 'You rejected this candidate' %}"></i>
+                      {% else %}
+                      <i class="fas fa-circle tw-text-secondary" title="{% trans 'You are neutral about this candidate' %}"></i>
+                      {% endif %}
+                    </span>
+                  </span>
+                  <div class="tw-flex tw-flex-col tw-justify-center tw-min-w-0">
+                    <span class="tw-font-semibold tw-text-primary tw-truncate">
+                      {% if i.first_name %}{{ i.first_name }}{% else %}{{ i|display_name }}{% endif %}
+                    </span>
+                    <span class="tw-font-semibold tw-text-primary tw-truncate">
+                      {% if i.last_name %}{{ i.last_name }}{% else %}-{% endif %}
+                    </span>
                   </div>
-                  {% if i.rating == 1 %}
-                    <i class="fas fa-check-circle tw-text-success tw-flex-shrink-0" title="{% trans 'You accepted this candidate' %}"></i>
-                  {% elif i.rating == -1 %}
-                    <i class="fas fa-times-circle tw-text-danger tw-flex-shrink-0" title="{% trans 'You rejected this candidate' %}"></i>
-                  {% else %}
-                    <i class="fas fa-circle tw-text-secondary tw-flex-shrink-0" title="{% trans 'You are neutral about this candidate' %}"></i>
-                  {% endif %}
-                  <span class="tw-citizen-list-nick">{{ i.username }}</span>
                 </div>
               </td>
-              <td class="email-cell tw-email-cell">
-                <a href="mailto:{{ i.email }}"><i class="fas fa-envelope tw-me-1"></i>{{ i.email }}</a>
-                <button class="tw-btn tw-btn-outline-light tw-btn-sm tw-copy-btn" data-email="{{ i.email }}" title="{% trans 'Copy email' %}">
-                  <i class="fas fa-copy"></i>
-                </button>
-              </td>
-              <td class="tw-text-center tw-hidden sm:tw-table-cell">
-                <span data-tw-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
-                  <span class="tw-font-semibold tw-text-success">{{ i.ratings_positive }}</span>/<span class="tw-font-semibold">{{ i.ratings_neutral }}</span>/<span class="tw-font-semibold tw-text-danger">{{ i.ratings_negative }}</span>
+              <td>
+                {% if i.uzytkownik.phone %}
+                <span class="tw-flex tw-items-center tw-gap-1 tw-min-w-0">
+                  <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-p-1 tw-aspect-square" title="{{ i.uzytkownik.phone }}" onclick="event.stopPropagation()"><i class="fas fa-phone"></i></a>
+                  <a href="tel:{{ i.uzytkownik.phone }}" class="tw-text-primary tw-text-sm tw-truncate" onclick="event.stopPropagation()">{{ i.uzytkownik.phone }}</a>
                 </span>
+                {% else %}
+                <span class="tw-btn tw-btn-outline-secondary tw-p-1 tw-aspect-square" title="{% trans 'No phone' %}"><i class="fas fa-phone"></i></span>
+                {% endif %}
               </td>
-              <td class="tw-hidden-mobile">{% if i.email_confirmed %}<i class="fas fa-check tw-text-success"></i>{% else %}<i class="fas fa-times tw-text-danger"></i>{% endif %}</td>
-              <td class="tw-hidden-tablet">
-                <div class="tw-flex tw-items-center tw-gap-1 tw-min-w-20">
-                  <div class="tw-progress tw-flex-1">
-                    <div class="tw-progress-bar {% if i.form_completion_percent == 100 %}tw-bg-success{% elif i.form_completion_percent >= 50 %}tw-bg-warning{% else %}tw-bg-danger{% endif %}" role="progressbar"
-                         data-progress="{{ i.form_completion_percent }}"
-                         aria-valuenow="{{ i.form_completion_percent }}"
-                         aria-valuemin="0"
-                         aria-valuemax="100"></div>
-                  </div>
-                  <small class="tw-text-nowrap tw-text-muted">{{ i.form_completion_percent }}%</small>
+              <td>
+                {% if i.email %}
+                <span class="tw-flex tw-items-center tw-gap-1 tw-min-w-0">
+                  <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-p-1 tw-aspect-square" title="{{ i.email }}" onclick="event.stopPropagation()"><i class="fas fa-envelope"></i></a>
+                  <a href="mailto:{{ i.email }}" class="tw-text-primary tw-text-sm tw-truncate" onclick="event.stopPropagation()">{{ i.email }}</a>
+                </span>
+                {% else %}
+                <span class="tw-btn tw-btn-outline-secondary tw-p-1 tw-aspect-square" title="{% trans 'No email' %}"><i class="fas fa-envelope"></i></span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="tw-flex tw-items-center tw-justify-end tw-gap-2 tw-flex-wrap">
+                  <span class="tw-flex tw-items-center tw-gap-1 tw-text-sm" title="{% trans 'Positive / Neutral / Negative ratings' %}">
+                    <span class="tw-text-success">{{ i.ratings_positive }}</span>/<span>{{ i.ratings_neutral }}</span>/<span class="tw-text-danger">{{ i.ratings_negative }}</span>
+                    <i class="fas fa-star"></i>
+                  </span>
+                  <span title="{% if i.email_confirmed %}{% trans 'Email confirmed' %}{% else %}{% trans 'Email not confirmed' %}{% endif %}">
+                    {% if i.email_confirmed %}<i class="fas fa-envelope tw-text-success"></i>{% else %}<i class="fas fa-envelope tw-text-danger"></i>{% endif %}
+                  </span>
+                  <span title="{% if i.form_completion_percent == 100 %}{% trans 'Form completed' %}{% else %}{% trans 'Form not completed' %}{% endif %}">
+                    {% if i.form_completion_percent == 100 %}<i class="fas fa-file-alt tw-text-success"></i>{% else %}<i class="fas fa-file-alt tw-text-danger"></i>{% endif %}
+                  </span>
+                  <span class="tw-text-sm tw-text-muted">{{ i.date_joined|date:"Y-m-d" }}</span>
                 </div>
               </td>
-              <td>{{ i.date_joined|date:"Y-m-d" }}</td>
-              <td class="tw-hidden-desktop">{% if i.uzytkownik.polecajacy %}{{ i.uzytkownik.polecajacy }}{% else %}—{% endif %}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -97,36 +105,74 @@
     </div>
 
     {# ── Grid view ── #}
-    <div id="citizens-grid-view" class="citizens-grid tw-citizens-grid">
+    <div id="citizens-grid-view" class="tw-citizens-grid tw-proposals-list">
       {% for i in uid|dictsortreversed:"date_joined" %}
-      <div class="citizen-card tw-citizen-card"
+      <div class="tw-citizen-card tw-text-start tw-items-start"
            data-user-id="{{ i.pk }}"
            data-href="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}"
            data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
-        <div class="tw-citizen-card-top tw-relative">
-          {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username size="5xl" %}
-          <span class="tw-candidate-vote-badge">
-            {% if i.rating == 1 %}
+        <div class="tw-flex tw-gap-3 tw-w-full">
+          <div class="tw-citizen-card-top tw-shrink-0">
+            {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username display_name=i|display_name size="5xl" %}
+            <span class="tw-candidate-vote-badge">
+              {% if i.rating == 1 %}
               <i class="fas fa-check-circle tw-text-success" title="{% trans 'You accepted this candidate' %}"></i>
-            {% elif i.rating == -1 %}
+              {% elif i.rating == -1 %}
               <i class="fas fa-times-circle tw-text-danger" title="{% trans 'You rejected this candidate' %}"></i>
-            {% else %}
+              {% else %}
               <i class="fas fa-circle tw-text-secondary" title="{% trans 'You are neutral about this candidate' %}"></i>
-            {% endif %}
-          </span>
+              {% endif %}
+            </span>
+          </div>
+          <div class="tw-flex tw-flex-col tw-justify-center tw-min-w-0 tw-flex-1">
+            <span class="tw-font-semibold tw-text-primary tw-truncate">
+              {% if i.first_name %}{{ i.first_name }}{% else %}{{ i|display_name }}{% endif %}
+            </span>
+            <span class="tw-font-semibold tw-text-primary tw-truncate">
+              {% if i.last_name %}{{ i.last_name }}{% else %}-{% endif %}
+            </span>
+          </div>
         </div>
-        <div class="tw-citizen-card-name">{{ i.username }}</div>
-        {% if i.first_name or i.last_name %}
-        <div class="tw-citizen-card-fullname">{{ i.first_name }} {{ i.last_name }}</div>
-        {% endif %}
-        <div class="tw-citizen-card-city tw-mt-1">
-          {% if i.email_confirmed %}<i class="fas fa-envelope tw-text-success" title="{% trans 'Email confirmed' %}"></i>{% else %}<i class="fas fa-envelope tw-text-danger" title="{% trans 'Email confirmed' %}"></i>{% endif %}
-          {% if i.form_completed %}<i class="fas fa-file-alt tw-text-success tw-ms-1" title="{% trans 'Form completed' %}"></i>{% else %}<i class="fas fa-file-alt tw-text-danger tw-ms-1" title="{% trans 'Form completed' %}"></i>{% endif %}
-          <span class="tw-ms-1" data-tw-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
-            <span class="tw-font-semibold tw-text-success">{{ i.ratings_positive }}</span>/<span class="tw-font-semibold">{{ i.ratings_neutral }}</span>/<span class="tw-font-semibold tw-text-danger">{{ i.ratings_negative }}</span> <i class="fas fa-star"></i>
-          </span>
+        <hr class="tw-w-full tw-border-subtle">
+        <div class="tw-flex tw-justify-between tw-w-full tw-text-sm tw-text-muted">
+          <span class="tw-truncate">{% if i.uzytkownik.city %}{{ i.uzytkownik.city }}{% else %}-{% endif %}</span>
+          <span class="tw-truncate">{% if i.uzytkownik.voivodeship %}{{ i.uzytkownik.voivodeship.name }}{% else %}-{% endif %}</span>
         </div>
-        <div class="tw-citizen-card-city">{{ i.date_joined|date:"Y-m-d" }}</div>
+        <div class="tw-flex tw-justify-center lg:tw-justify-between tw-gap-2 tw-w-full">
+          {% if i.email %}
+          <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" onclick="event.stopPropagation()" title="{{ i.email }}">
+            <i class="fas fa-envelope tw-text-lg lg:tw-text-2xl"></i>
+          </a>
+          {% else %}
+          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" title="{% trans 'No email' %}">
+            <i class="fas fa-envelope tw-text-lg lg:tw-text-2xl"></i>
+          </span>
+          {% endif %}
+          {% if i.uzytkownik.phone %}
+          <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" onclick="event.stopPropagation()" title="{{ i.uzytkownik.phone }}">
+            <i class="fas fa-phone tw-text-lg lg:tw-text-2xl"></i>
+          </a>
+          {% else %}
+          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" title="{% trans 'No phone' %}">
+            <i class="fas fa-phone tw-text-lg lg:tw-text-2xl"></i>
+          </span>
+          {% endif %}
+        </div>
+        <div class="tw-flex tw-flex-wrap tw-justify-between tw-w-full tw-text-xs tw-text-muted tw-gap-1">
+          <span class="tw-flex tw-items-center tw-gap-1" title="{% trans 'Positive / Neutral / Negative ratings' %}">
+            <span class="tw-text-success">{{ i.ratings_positive }}</span>/<span>{{ i.ratings_neutral }}</span>/<span class="tw-text-danger">{{ i.ratings_negative }}</span>
+            <i class="fas fa-star"></i>
+          </span>
+          <span class="tw-flex tw-items-center tw-gap-1">
+            <span title="{% if i.email_confirmed %}{% trans 'Email confirmed' %}{% else %}{% trans 'Email not confirmed' %}{% endif %}">
+              {% if i.email_confirmed %}<i class="fas fa-envelope tw-text-success"></i>{% else %}<i class="fas fa-envelope tw-text-danger"></i>{% endif %}
+            </span>
+            <span title="{% if i.form_completion_percent == 100 %}{% trans 'Form completed' %}{% else %}{% trans 'Form not completed' %}{% endif %}">
+              {% if i.form_completion_percent == 100 %}<i class="fas fa-file-alt tw-text-success"></i>{% else %}<i class="fas fa-file-alt tw-text-danger"></i>{% endif %}
+            </span>
+          </span>
+          <span>{{ i.date_joined|date:"Y-m-d" }}</span>
+        </div>
       </div>
       {% endfor %}
     </div>

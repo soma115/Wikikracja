@@ -1,6 +1,6 @@
 {% load crispy_classmap %}
 {% for fieldset in form.fieldsets %}
-    <fieldset class="fieldset-{{ forloop.counter }} {{ fieldset.classes|crispy_classmap }}">
+    <fieldset class="{{ fieldset.classes|crispy_classmap }}">
         {% if fieldset.legend %}
             <legend>{{ fieldset.legend }}</legend>
         {% endif %}

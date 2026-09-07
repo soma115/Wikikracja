@@ -41,28 +41,31 @@ def test_dashboard_active_referendum_bar_colors(dashboard_user):
         data_referendum_stop=today + timezone.timedelta(days=6),
     )
     ctx = build_dashboard_context(dashboard_user)
-    assert ctx['active_referendum']['obj'] == decision
-    assert ctx['active_referendum']['bar_color'] == 'success'
+    referendum_item = ctx['voting_items'][0]
+    assert referendum_item['obj'] == decision
+    assert referendum_item['meta']['bar_color'] == 'success'
 
     # 20-50% -> warning
     decision.data_referendum_start = today - timezone.timedelta(days=6)
     decision.data_referendum_stop = today + timezone.timedelta(days=4)
     decision.save()
     ctx = build_dashboard_context(dashboard_user)
-    assert ctx['active_referendum']['bar_color'] == 'warning'
+    referendum_item = ctx['voting_items'][0]
+    assert referendum_item['meta']['bar_color'] == 'warning'
 
     # < 20% -> danger
     decision.data_referendum_start = today - timezone.timedelta(days=9)
     decision.data_referendum_stop = today + timezone.timedelta(days=1)
     decision.save()
     ctx = build_dashboard_context(dashboard_user)
-    assert ctx['active_referendum']['bar_color'] == 'danger'
+    referendum_item = ctx['voting_items'][0]
+    assert referendum_item['meta']['bar_color'] == 'danger'
 
 
 @pytest.mark.django_db
 def test_dashboard_no_active_referendum(dashboard_user):
     ctx = build_dashboard_context(dashboard_user)
-    assert ctx['active_referendum'] is None
+    assert not any(item['type'] == 'referendum' for item in ctx['voting_items'])
 
 
 @pytest.mark.django_db

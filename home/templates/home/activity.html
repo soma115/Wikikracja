@@ -5,18 +5,24 @@
 {% block prefs_scope %}activity{% endblock %}
 
 {% block content %}
-<div class="section tw-section">
+<div class="tw-section">
 
   {# ── Toolbar linia 1: filtry typów + nieprzeczytane ── #}
   <form method="get" action="{% url 'activity' %}" id="activity-filter-form" class="tw-toolbar tw-mb-1 tw-flex-wrap">
     <input type="hidden" name="filtered" value="1">
     <input type="hidden" name="sort" value="{{ sort }}">
     <input type="hidden" name="order" value="{{ order }}">
-    <div class="tw-toolbar-sort tw-flex-wrap gap-35">
+    <div class="tw-toolbar-sort tw-flex-wrap tw-gap-35">
       <a href="?{% if not filter_unread %}filter=unread&{% endif %}sort={{ sort }}&order={{ order }}{% if is_filtered %}&filtered=1{% for t in active_types %}&type={{ t }}{% endfor %}{% endif %}"
-         class="tw-sort-btn filter-btn-unread {% if filter_unread %}active unread-filter-active{% endif %}">
+         class="tw-sort-btn filter-btn-unread {% if filter_unread %}active{% endif %}">
         <i class="fas fa-bell"></i>{% trans "Unread" %}
         <span id="unread-count-badge" class="{% if not unread_count %}tw-d-none{% endif %} tw-text-xs">{% if unread_count %}({{ unread_count }}){% endif %}</span>
+      </a>
+
+      <a href="?{% if not filter_bookmarks %}filter=bookmarks&{% endif %}sort={{ sort }}&order={{ order }}{% if is_filtered %}&filtered=1{% for t in active_types %}&type={{ t }}{% endfor %}{% endif %}"
+         class="tw-sort-btn {% if filter_bookmarks %}active{% endif %}">
+        <i class="fas fa-star"></i>{% trans "Bookmarks" %}
+        <span id="bookmark-count-badge" class="{% if not bookmark_count %}tw-d-none{% endif %} tw-text-xs">{% if bookmark_count %}({{ bookmark_count }}){% endif %}</span>
       </a>
 
       <label id="sp-select-all" class="sp-chip{% if all_types_selected %} on{% endif %}" data-color="accent">
@@ -40,27 +46,39 @@
 
   {# ── List ── #}
   <div class="tw-card">
-    <div class="activity-list" id="activity-list" data-view-container>
+    <div class="tw-activity-list tw-proposals-list" id="activity-list" data-view-container>
       {% for item in feed_items %}
-      <a href="{{ item.url }}" class="feed-row {% if not item.is_read %}tw-unread-row{% endif %}" data-content-type="{{ item.content_type }}" data-object-id="{{ item.object_id }}">
+      <a href="{{ item.url }}" class="tw-feed-row {% if not item.is_read %}tw-unread-row{% endif %}" data-content-type="{{ item.content_type }}" data-object-id="{{ item.object_id }}">
 
         <span class="tw-badge-status tw-badge-{{ item.content_type|content_type_color }} tw-shrink-0 tw-mt-1 tw-badge-status-xs">
           {{ item.content_type|content_type_label }}
         </span>
 
         <div class="tw-min-w-0 tw-flex-1">
-          <div class="feed-title {% if not item.is_read %}tw-font-semibold{% endif %}">
-            <span class="feed-title-text">{{ item.title }}</span>
-            <time class="feed-timestamp tw-text-xs tw-text-muted tw-text-nowrap">{{ item.timestamp|date:"d.m H:i" }}</time>
+          <div class="tw-feed-title {% if not item.is_read %}tw-font-semibold{% endif %}">
+            <span class="tw-feed-title-text">{{ item.title }}</span>
+            <time class="tw-feed-timestamp tw-text-xs tw-text-muted tw-text-nowrap">{{ item.timestamp|date:"d.m H:i" }}</time>
             {% if item.author %}
-            <span class="feed-author tw-inline-flex tw-items-center tw-gap-1 tw-text-xs tw-text-muted">
-              <span class="feed-avatar">
-                {% include "home/_user_avatar.html" with avatar=item.author.uzytkownik.avatar username=item.author.username size="sm" %}
+            <span class="tw-feed-author tw-inline-flex tw-items-center tw-gap-1 tw-text-xs tw-text-muted">
+              <span class="tw-feed-avatar">
+                {% include "home/_user_avatar.html" with avatar=item.author.uzytkownik.avatar username=item.author.username display_name=item.author|display_name size="sm" %}
               </span>
-              <span>{{ item.author.username }}</span>
+              <span>{{ item.author|display_name }}</span>
             </span>
             {% endif %}
-            <span class="feed-toggle-read"
+            <span class="tw-feed-toggle"
+                  role="button"
+                  tabindex="0"
+                  data-content-type="{{ item.content_type }}"
+                  data-object-id="{{ item.object_id }}"
+                  data-is-bookmarked="{{ item.is_bookmarked|yesno:"true,false" }}"
+                  data-add-title="{% trans 'Add bookmark' %}"
+                  data-remove-title="{% trans 'Remove bookmark' %}"
+                  aria-label="{% if item.is_bookmarked %}{% trans 'Remove bookmark' %}{% else %}{% trans 'Add bookmark' %}{% endif %}"
+                  title="{% if item.is_bookmarked %}{% trans 'Remove bookmark' %}{% else %}{% trans 'Add bookmark' %}{% endif %}">
+              <i class="fas {% if item.is_bookmarked %}fa-star{% else %}fa-regular fa-star{% endif %}"></i>
+            </span>
+            <span class="tw-feed-toggle"
                   role="button"
                   tabindex="0"
                   data-content-type="{{ item.content_type }}"
@@ -74,15 +92,15 @@
             </span>
           </div>
           {% if item.description and item.content_type != 'event' %}
-          <div class="feed-desc">{{ item.description|safe }}</div>
+          <div class="tw-feed-desc">{{ item.description|safe }}</div>
           {% endif %}
         </div>
 
       </a>
       {% empty %}
       <div class="tw-p-5 tw-text-center">
-        <i class="fas fa-inbox fa-2x tw-block tw-mb-2 empty-state-icon"></i>
-        <span class="tw-text-muted text-md">{% trans "No activity" %}</span>
+        <i class="fas fa-inbox fa-2x tw-block tw-mb-2 tw-empty-state-icon"></i>
+        <span class="tw-text-muted tw-text-md">{% trans "No activity" %}</span>
       </div>
       {% endfor %}
     </div>
@@ -104,9 +122,12 @@ document.getElementById('btn-mark-all')?.addEventListener('click', function() {
 window.CSRF_TOKEN = '{{ csrf_token }}';
 window.MARK_AS_READ_URL = "{% url 'mark_as_read' %}";
 window.MARK_UNREAD_URL = "{% url 'mark_unread' %}";
+window.TOGGLE_BOOKMARK_URL = "{% url 'toggle_bookmark' %}";
 window.ACTIVITY_FILTER_UNREAD = '{{ filter_unread|yesno:"true,false" }}' === 'true';
-window.initActivityFeedMarkRead('#activity-list', '.feed-row');
+window.ACTIVITY_FILTER_BOOKMARKS = '{{ filter_bookmarks|yesno:"true,false" }}' === 'true';
+window.initActivityFeedMarkRead('#activity-list', '.tw-feed-row');
 window.initActivityFeedToggleRead('#activity-list');
+window.initActivityFeedToggleBookmark('#activity-list');
 
 window.initChipFilters({
   formId: 'activity-filter-form',

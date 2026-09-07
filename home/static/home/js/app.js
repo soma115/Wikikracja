@@ -643,7 +643,7 @@ window.initActivityFeedMarkRead = function(containerSelector, linkSelector) {
 
     container.addEventListener('click', function(e) {
         // Don't navigate when the user clicked the read/unread toggle.
-        if (e.target.closest('.feed-toggle-read')) return;
+        if (e.target.closest('.tw-feed-toggle')) return;
 
         var link = e.target.closest(linkSelector);
         if (!link) return;
@@ -701,7 +701,7 @@ window.initActivityFeedToggleRead = function(containerSelector) {
         }).then(function(r) { return r.json(); }).then(function(data) {
             if (!data.success) return;
 
-            var row = btn.closest('.feed-row');
+            var row = btn.closest('.tw-feed-row');
             var newRead = !isRead;
             btn.setAttribute('data-is-read', newRead ? 'true' : 'false');
 
@@ -763,7 +763,7 @@ window.initActivityFeedToggleRead = function(containerSelector) {
     }
 
     container.addEventListener('click', function(e) {
-        var btn = e.target.closest('.feed-toggle-read');
+        var btn = e.target.closest('.tw-feed-toggle[data-is-read]');
         if (!btn) return;
         e.preventDefault();
         e.stopPropagation();
@@ -771,7 +771,90 @@ window.initActivityFeedToggleRead = function(containerSelector) {
     });
 
     container.addEventListener('keydown', function(e) {
-        var btn = e.target.closest('.feed-toggle-read');
+        var btn = e.target.closest('.tw-feed-toggle[data-is-read]');
+        if (!btn) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            e.stopPropagation();
+            toggle(btn);
+        }
+    });
+};
+
+// ============================================================
+// Toggle activity feed item bookmarks
+// ============================================================
+window.initActivityFeedToggleBookmark = function(containerSelector) {
+    var container = document.querySelector(containerSelector);
+    if (!container) return;
+
+    function toggle(btn) {
+        var contentType = btn.getAttribute('data-content-type');
+        var objectId = btn.getAttribute('data-object-id');
+        if (!contentType || !objectId) return;
+
+        fetch(window.TOGGLE_BOOKMARK_URL || '/toggle-bookmark/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': window.CSRF_TOKEN || '',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                content_type: contentType,
+                object_id: objectId
+            })
+        }).then(function(r) { return r.json(); }).then(function(data) {
+            if (!data.success) return;
+
+            var isBookmarked = data.is_bookmarked;
+            btn.setAttribute('data-is-bookmarked', isBookmarked ? 'true' : 'false');
+
+            var icon = btn.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-regular', 'fa-star');
+                if (isBookmarked) {
+                    icon.classList.add('fa-star');
+                } else {
+                    icon.classList.add('fa-regular', 'fa-star');
+                }
+            }
+
+            var addTitle = btn.getAttribute('data-add-title') || 'Add bookmark';
+            var removeTitle = btn.getAttribute('data-remove-title') || 'Remove bookmark';
+            var title = isBookmarked ? removeTitle : addTitle;
+            btn.setAttribute('title', title);
+            btn.setAttribute('aria-label', title);
+
+            if (window.ACTIVITY_FILTER_BOOKMARKS) {
+                window.location.reload();
+                return;
+            }
+
+            var counter = document.querySelector('#bookmark-count-badge');
+            if (counter) {
+                var current = parseInt(counter.textContent.replace(/[()]/g, ''), 10) || 0;
+                var next = Math.max(0, current + (isBookmarked ? 1 : -1));
+                if (next === 0) {
+                    counter.textContent = '';
+                    counter.classList.add('tw-d-none');
+                } else {
+                    counter.textContent = '(' + next + ')';
+                    counter.classList.remove('tw-d-none');
+                }
+            }
+        });
+    }
+
+    container.addEventListener('click', function(e) {
+        var btn = e.target.closest('.tw-feed-toggle[data-is-bookmarked]');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        toggle(btn);
+    });
+
+    container.addEventListener('keydown', function(e) {
+        var btn = e.target.closest('.tw-feed-toggle[data-is-bookmarked]');
         if (!btn) return;
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -878,7 +961,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // ============================================================
 document.addEventListener('DOMContentLoaded', function () {
     var STORAGE_KEY = 'quick_links_read';
-    var circles = document.querySelectorAll('.quick-link-circle');
+    var circles = document.querySelectorAll('.tw-quick-link-circle');
     if (!circles.length) return;
 
     function getReadLinks() {
@@ -902,11 +985,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateUI(readLinks) {
-        var total = document.querySelectorAll('.quick-link-row').length;
+        var total = document.querySelectorAll('.tw-quick-link-row').length;
         var done = readLinks.length;
 
-        document.querySelectorAll('.quick-link-row').forEach(function (row) {
-            var circle = row.querySelector('.quick-link-circle');
+        document.querySelectorAll('.tw-quick-link-row').forEach(function (row) {
+            var circle = row.querySelector('.tw-quick-link-circle');
             if (!circle) return;
             var linkId = parseInt(circle.dataset.linkId);
             var isRead = readLinks.indexOf(linkId) !== -1;
@@ -920,7 +1003,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         var bar = document.querySelector('#onboarding-card .tw-progress-bar');
-        var label = document.querySelector('#onboarding-card .progress-label');
+        var label = document.querySelector('#onboarding-card .tw-progress-label');
         if (bar) {
             var pct = Math.round(done / total * 100);
             bar.dataset.progress = pct;
@@ -941,11 +1024,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    document.querySelectorAll('.quick-link-row a').forEach(function (link) {
+    document.querySelectorAll('.tw-quick-link-row a').forEach(function (link) {
         link.addEventListener('mousedown', function () {
-            var row = link.closest('.quick-link-row');
+            var row = link.closest('.tw-quick-link-row');
             if (!row) return;
-            var circle = row.querySelector('.quick-link-circle');
+            var circle = row.querySelector('.tw-quick-link-circle');
             if (!circle) return;
             var linkId = parseInt(circle.dataset.linkId);
             if (getReadLinks().indexOf(linkId) === -1) {
@@ -1092,8 +1175,8 @@ window.initCategoryFilter = function(options) {
             itemsSelector = '.task-card[data-category]';
         } else if (document.querySelector('.proposal-card[data-category]')) {
             itemsSelector = '.proposal-card[data-category]';
-        } else if (document.querySelector('.board-category-group[data-category-pk]')) {
-            itemsSelector = '.board-category-group[data-category-pk]';
+        } else if (document.querySelector('.tw-board-category-group[data-category-pk]')) {
+            itemsSelector = '.tw-board-category-group[data-category-pk]';
         }
     }
     var items = [];
@@ -1222,7 +1305,7 @@ window.initCategoryFilter = function(options) {
         if (reload) {
             // Save the new filter string before leaving so the next load/redirect uses it.
             if (window.PagePrefs && typeof window.PagePrefs.write === 'function') {
-                window.PagePrefs.write({ filters: url.slice(window.location.pathname.length) });
+                window.PagePrefs.write({ lastUrl: url, filters: url.slice(window.location.pathname.length) });
             }
             if (typeof onNavigate === 'function') { onNavigate(url); }
             else if (pageScope === 'tasks') { fetchTasksList(url); }
@@ -1366,7 +1449,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function trimActivityFeed() {
         var card = body.closest('.tw-card');
         if (!card) return;
-        var rows = body.querySelectorAll('.activity-feed-row');
+        var rows = body.querySelectorAll('.tw-activity-feed-row');
         var more = document.getElementById('activity-feed-more');
         if (!rows.length) return;
         rows.forEach(function (r) { r.style.display = ''; });

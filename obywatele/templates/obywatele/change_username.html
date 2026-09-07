@@ -8,7 +8,7 @@
 
 <p class="tw-font-bold">{% trans "Username" %}: {{ request.user.username }}</p>
 
-<form class="post-form" method="post" action="{% url 'obywatele:change_username' %}">{% csrf_token %}
+<form method="post" action="{% url 'obywatele:change_username' %}">{% csrf_token %}
   <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-3">
     <div>
       {{ form.username|as_crispy_field }}

@@ -11,7 +11,7 @@ from django.urls import reverse
 
 from board.models import Post
 from chat.models import Message, Room
-from tests.factories import PostFactory
+from tests.factories import PostFactory, UserFactory
 
 
 @pytest.mark.django_db
@@ -119,10 +119,25 @@ def test_create_post_saves_author_and_attachments(authenticated_client):
 
 
 @pytest.mark.django_db
+def test_create_private_post(authenticated_client):
+    """Tworzenie dokumentu z zaznaczonym checkboxem 'Prywatne' zapisuje is_private=True."""
+    client, user = authenticated_client
+    upload = SimpleUploadedFile('notatka.txt', b'zawartosc')
+
+    res = client.post(reverse('board:create_post'), {'title': 'Dokument prywatny', 'text': 'Treść', 'is_private': 'on', 'attachments': upload})
+
+    post = Post.objects.get(title='Dokument prywatny')
+    assert res.status_code == 302
+    assert post.author == user
+    assert post.is_private is True
+    assert post.is_public is False
+
+
+@pytest.mark.django_db
 def test_edit_post_updates_fields_and_adds_attachments(authenticated_client):
     """POST edit aktualizuje pola i dopisuje nowe załączniki do istniejącego dokumentu."""
     client, user = authenticated_client
-    post = PostFactory(title='Stary tytuł')
+    post = PostFactory(title='Stary tytuł', author=user)
     upload = SimpleUploadedFile('zalacznik.txt', b'x')
 
     res = client.post(reverse('board:edit_post', args=[post.pk]), {'title': 'Zmieniony tytuł', 'text': 'Nowa treść', 'attachments': upload})
@@ -157,3 +172,116 @@ def test_view_post_detail_has_no_chat_link_next_to_title(authenticated_client):
     assert 'ec-section' in content
     assert f'data-room-id="{post.chat_room_id}"' in content
     assert 'chat-link' not in content
+
+
+@pytest.mark.django_db
+def test_private_post_visible_only_to_author_on_list(authenticated_client):
+    """Prywatny dokument na liście jest widoczny tylko dla autora."""
+    client, user = authenticated_client
+    other = UserFactory(username='other', email='other@example.com')
+    private = PostFactory(title='Prywatny', is_private=True, author=other)
+
+    res = client.get(reverse('board:start'))
+    assert res.status_code == 200
+    assert private.title not in res.content.decode()
+
+    # Dla autora dokument jest widoczny
+    client.force_login(other)
+    res = client.get(reverse('board:start'))
+    assert res.status_code == 200
+    assert private.title in res.content.decode()
+
+
+@pytest.mark.django_db
+def test_private_post_detail_visible_only_to_author(authenticated_client):
+    """Szczegóły prywatnego dokumentu dostępne są tylko dla autora."""
+    client, user = authenticated_client
+    other = UserFactory(username='other2', email='other2@example.com')
+    private = PostFactory(title='Prywatny szczegóły', is_private=True, author=other)
+
+    # Nie-autor dostaje 404
+    res = client.get(reverse('board:view_post', args=[private.pk]))
+    assert res.status_code == 404
+
+    # Autor widzi dokument
+    client.force_login(other)
+    res = client.get(reverse('board:view_post', args=[private.pk]))
+    assert res.status_code == 200
+    assert private.title in res.content.decode()
+
+
+@pytest.mark.django_db
+def test_public_post_visible_to_everyone(client, authenticated_client):
+    """Publiczny dokument jest widoczny dla anonimowego i zalogowanego użytkownika."""
+    _, user = authenticated_client
+    public = PostFactory(title='Publiczny dokument', is_public=True, author=user)
+
+    res = client.get(reverse('board:start'))
+    assert res.status_code == 200
+    assert public.title in res.content.decode()
+
+    client_auth, _ = authenticated_client
+    res = client_auth.get(reverse('board:start'))
+    assert res.status_code == 200
+    assert public.title in res.content.decode()
+
+    res = client.get(reverse('board:view_post', args=[public.pk]))
+    assert res.status_code == 200
+    assert public.title in res.content.decode()
+
+
+@pytest.mark.django_db
+def test_private_flag_overrides_public(authenticated_client):
+    """Prywatne ma pierwszeństwo nad publicznym — dokument widoczny tylko dla autora."""
+    client, user = authenticated_client
+    other = UserFactory(username='other5', email='other5@example.com')
+    private = PostFactory(title='Niby publiczny, ale prywatny', is_public=True, is_private=True, author=other)
+
+    res = client.get(reverse('board:start'))
+    assert res.status_code == 200
+    assert private.title not in res.content.decode()
+
+    res = client.get(reverse('board:view_post', args=[private.pk]))
+    assert res.status_code == 404
+
+    client.force_login(other)
+    res = client.get(reverse('board:view_post', args=[private.pk]))
+    assert res.status_code == 200
+    assert private.title in res.content.decode()
+
+
+@pytest.mark.django_db
+def test_edit_post_allows_other_user(authenticated_client):
+    """Każdy zalogowany użytkownik może edytować dokument."""
+    client, user = authenticated_client
+    other = UserFactory(username='other3', email='other3@example.com')
+    post = PostFactory(title='Do edycji', is_private=True, author=other)
+
+    res = client.get(reverse('board:edit_post', args=[post.pk]))
+    assert res.status_code == 200
+    assert 'Do edycji' in res.content.decode()
+
+    res = client.post(reverse('board:edit_post', args=[post.pk]), {'title': 'Zmieniony przez innego', 'text': 'Nowa treść'})
+    assert res.status_code == 302
+    post.refresh_from_db()
+    assert post.title == 'Zmieniony przez innego'
+    # Edytujący przejmuje autorstwo (dotychczasowe zachowanie).
+    assert post.author == user
+
+
+@pytest.mark.django_db
+def test_delete_post_restricted_to_author(authenticated_client):
+    """Usuwanie dokumentu dostępne jest tylko dla autora."""
+    client, user = authenticated_client
+    other = UserFactory(username='other4', email='other4@example.com')
+    private = PostFactory(title='Do usunięcia', is_private=True, author=other)
+
+    # Nie-autor nie może usunąć
+    res = client.get(reverse('board:delete_post', args=[private.pk]))
+    assert res.status_code == 404
+
+    # Autor może usunąć
+    client.force_login(other)
+    res = client.post(reverse('board:delete_post', args=[private.pk]))
+    assert res.status_code == 302
+    assert not Post.objects.filter(pk=private.pk).exists()

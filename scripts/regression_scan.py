@@ -30,6 +30,21 @@ FORBIDDEN_PATTERNS = [
     (r'\bchat/static/chat/css/chat\.css\b', 'Deleted chat stylesheet'),
 ]
 
+# UI unification guardrails
+UI_LINT_PATTERNS = [
+    (r'<link[^>]*rel=["\']stylesheet["\'][^>]*>', 'Module-specific <link rel="stylesheet">; use the Tailwind pipeline only'),
+    (r'\bstyle=(["\'])(.*?)\1', 'Inline style attribute; use a Tailwind utility or CSS variable'),
+]
+
+UI_LINT_ALLOWED_STYLESHEETS = {'tailwind.build.css', 'tokens.css', 'all.min.css', 'ui-standards.css'}
+
+UI_LINT_EXCEPTIONS = {
+    'docs/UI_STANDARDS.html',  # reference docs may intentionally demonstrate patterns
+    'chat/templates/chat/chat.html',  # chat is in active rework
+}
+
+UI_LINT_ALLOWED_INLINE_RE = re.compile(r'^\s*--[a-zA-Z-]+\s*:')
+
 DELETED_CSS_PATHS = [
     'home/css/base.css',
     'home/css/navigation.css',
@@ -106,8 +121,58 @@ def run_regression_scan():
     return 0
 
 
+def run_ui_lint():
+    """Search templates for UI-unification violations."""
+    issues = []
+    compiled = [(re.compile(p), desc) for p, desc in UI_LINT_PATTERNS]
+
+    for root, dirs, files in os.walk(BASE_DIR):
+        _scan_should_ignore(dirs)
+        for name in files:
+            if not name.endswith('.html'):
+                continue
+            if name in IGNORED_SCAN_FILES:
+                continue
+            path = Path(root) / name
+            rel = path.relative_to(BASE_DIR)
+            rel_str = '/'.join(rel.parts)
+            if any(rel_str.endswith(exc) or str(rel).endswith(exc) for exc in UI_LINT_EXCEPTIONS):
+                continue
+            try:
+                text = path.read_text(encoding='utf-8', errors='ignore')
+            except Exception:
+                continue
+            for pattern, desc in compiled:
+                for i, line in enumerate(text.splitlines(), 1):
+                    match = pattern.search(line)
+                    if not match:
+                        continue
+                    snippet = match.group(0)
+                    # Allow the global stylesheets (Tailwind, tokens, icons, docs).
+                    if 'stylesheet' in desc:
+                        if any(allowed in snippet for allowed in UI_LINT_ALLOWED_STYLESHEETS):
+                            continue
+                    # Allow inline styles that only set CSS custom properties.
+                    if 'Inline style' in desc:
+                        content = match.group(2)
+                        if UI_LINT_ALLOWED_INLINE_RE.match(content):
+                            continue
+                    issues.append(f"{rel}:{i}: {desc}")
+                    break
+
+    if issues:
+        print("\n".join(issues))
+        print(f"\n{len(issues)} UI unification issue(s) found.")
+        return 1
+    print("UI lint: OK (no inline styles or module stylesheets found).")
+    return 0
+
+
 def main():
-    sys.exit(run_regression_scan())
+    exit_code = run_regression_scan()
+    if exit_code:
+        sys.exit(exit_code)
+    sys.exit(run_ui_lint())
 
 
 if __name__ == "__main__":

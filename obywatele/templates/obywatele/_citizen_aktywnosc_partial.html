@@ -12,7 +12,7 @@
       <tbody>
         {% for item in items %}
           <tr {% if item.url %}data-href="{{ item.url }}"{% endif %}>
-            <td {% if item.url %}class="td-link"{% endif %}>
+            <td>
               {% if item.url %}
                 <a href="{{ item.url }}">{{ item.title }}</a>
               {% else %}

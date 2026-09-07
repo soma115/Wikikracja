@@ -8,6 +8,16 @@ register = template.Library()
 
 
 @register.filter
+def display_name(user):
+    """Return the user's full name when available, falling back to username."""
+    if not user:
+        return ''
+    if hasattr(user, 'uid'):
+        user = user.uid
+    return user.get_full_name() or user.username
+
+
+@register.filter
 def content_type_color(content_type):
     """Return the semantic color name for a content type. Backed by the
     single source of truth in core/colors.py (CATEGORY_COLORS), also used by

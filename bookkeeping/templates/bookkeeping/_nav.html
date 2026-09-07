@@ -1,7 +1,7 @@
 {% load i18n %}
 {# Parametr: active — 'transactions' | 'partners' | 'categories' | 'assets' | 'reports' #}
 <div class="tw-mb-4">
-  <div class="bookkeeping-nav">
+  <div>
     <a href="{% url 'bookkeeping:transaction_list' %}" class="tw-btn tw-btn-sm tw-me-1 tw-mb-1 {% if active == 'transactions' %} tw-btn-primary {% else %} tw-btn-secondary {% endif %}"><i class="fas fa-money-bill-transfer fa-fw {% if active != 'transactions' %} tw-text-success {% endif %}"></i> {% trans 'Transactions' %}</a>
     <a href="{% url 'bookkeeping:partner_list' %}" class="tw-btn tw-btn-sm tw-me-1 tw-mb-1 {% if active == 'partners' %} tw-btn-primary {% else %} tw-btn-secondary {% endif %}"><i class="fas fa-handshake fa-fw {% if active != 'partners' %} tw-text-accent {% endif %}"></i> {% trans 'Partners' %}</a>
     <a href="{% url 'bookkeeping:category_list' %}" class="tw-btn tw-btn-sm tw-me-1 tw-mb-1 {% if active == 'categories' %} tw-btn-primary {% else %} tw-btn-secondary {% endif %}"><i class="fas fa-tags fa-fw {% if active != 'categories' %} tw-text-warning {% endif %}"></i> {% trans 'Categories' %}</a>

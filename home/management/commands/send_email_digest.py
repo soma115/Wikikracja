@@ -138,8 +138,8 @@ class Command(TranslatedCommand):
             for item in type_items:
                 title = item['title'] or '—'
                 author = item.get('author')
-                if author:
-                    title = f'{title} — {author.username}'
+                if author and content_type != 'citizen':
+                    title = f'{title} — {author.get_full_name() or author.username}'
 
                 update_count = item.get('update_count', 1)
                 meta = ''
@@ -174,4 +174,5 @@ class Command(TranslatedCommand):
             'settings_url': build_site_url('/obywatele/settings/'),
             'sections': sections,
             'sections_html': _build_sections_html(sections),
+            'theme': getattr(user, 'uzytkownik', None) and user.uzytkownik.theme or 'auto',
         }

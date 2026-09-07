@@ -8,7 +8,7 @@
 
 <p class="tw-font-bold">{% trans "Your current email" %}: {{ request.user.email }}</p>
 
-<form class="post-form" method="post" action="{% url 'obywatele:change_email' %}">{% csrf_token %}
+<form method="post" action="{% url 'obywatele:change_email' %}">{% csrf_token %}
   <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-3">
     <div>
       {{ form.new_email1|as_crispy_field }}

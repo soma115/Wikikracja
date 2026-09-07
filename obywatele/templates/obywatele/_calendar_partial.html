@@ -1,33 +1,33 @@
 {% load i18n %}
-<div class="cal-container tw-w-full">
-<div class="cal-toolbar tw-w-full">
-  <div class="cal-month-controls">
-    <span class="cal-month-title">
+<div class="tw-cal-container tw-w-full">
+<div class="tw-cal-toolbar tw-w-full">
+  <div class="tw-cal-month-controls">
+    <span class="tw-cal-month-title">
       <i class="fas fa-calendar-days"></i> {{ cal_first_day|date:"F" }}{% if not year_options %} {{ cal_first_day|date:"Y" }}{% endif %}
     </span>
     {% if year_options %}
-      <label class="tw-sr-only" for="cal-year-select">{% trans "Select year" %}</label>
-      <select class="cal-year-select" id="cal-year-select" data-month="{{ cal_month }}" aria-label="{% trans 'Select year' %}">
+      <label class="tw-sr-only" for="tw-cal-year-select">{% trans "Select year" %}</label>
+      <select class="tw-cal-year-select" id="tw-cal-year-select" data-month="{{ cal_month }}" aria-label="{% trans 'Select year' %}">
         {% for option in year_options %}
           <option value="{{ option }}"{% if option == cal_year %} selected{% endif %}>{{ option }}</option>
         {% endfor %}
       </select>
     {% endif %}
   </div>
-  <div class="cal-toolbar-nav">
-    <button type="button" class="tw-view-toggle-btn cal-nav" data-month="{{ prev_month }}" title="{% trans 'Previous month' %}">
+  <div class="tw-cal-toolbar-nav">
+    <button type="button" class="tw-view-toggle-btn tw-cal-nav" data-month="{{ prev_month }}" title="{% trans 'Previous month' %}">
       <i class="fas fa-chevron-left"></i>
     </button>
-    <button type="button" class="tw-view-toggle-btn cal-nav" data-month="{{ next_month }}" title="{% trans 'Next month' %}">
+    <button type="button" class="tw-view-toggle-btn tw-cal-nav" data-month="{{ next_month }}" title="{% trans 'Next month' %}">
       <i class="fas fa-chevron-right"></i>
     </button>
-    <button type="button" class="tw-view-toggle-btn cal-nav calendar-nav" data-month="" title="{% trans 'Return to the current month' %}">
+    <button type="button" class="tw-view-toggle-btn tw-cal-nav tw-calendar-nav" data-month="" title="{% trans 'Return to the current month' %}">
       {% trans "Today" %}
     </button>
   </div>
 </div>
 
-<table class="cal-table">
+<table class="tw-cal-table">
   <thead>
     <tr>
       <th>{% trans "Mo" %}</th>
@@ -47,18 +47,18 @@
         {% if cell.day %}
           {% if cell.events %}
             <a href="{% url 'events:list' %}?month={{ cal_first_day|date:'Y-m' }}#day-{{ cell.iso_date }}"
-               class="cal-day-link" data-day="{{ cell.iso_date }}"
+               class="tw-cal-day-link" data-day="{{ cell.iso_date }}"
                title="{% for e in cell.events %}{{ e.title }}{% if not forloop.last %} · {% endif %}{% endfor %}">
-              <span class="cal-day has-event {% if cell.is_today %}today{% endif %}">{{ cell.day }}</span>
-              <span class="cal-dots">
-                {% for _ in cell.events|slice:":3" %}<span class="cal-dot"></span>{% endfor %}
-                {% if cell.events|length > 3 %}<span class="cal-dots-more">+{{ cell.events|length|add:"-3" }}</span>{% endif %}
+              <span class="tw-cal-day tw-cal-day-has-event {% if cell.is_today %}tw-cal-day-today{% endif %}">{{ cell.day }}</span>
+              <span class="tw-cal-dots">
+                {% for _ in cell.events|slice:":3" %}<span class="tw-cal-dot"></span>{% endfor %}
+                {% if cell.events|length > 3 %}<span class="tw-cal-dots-more">+{{ cell.events|length|add:"-3" }}</span>{% endif %}
               </span>
             </a>
           {% else %}
             <a href="{% url 'events:list' %}?month={{ cal_first_day|date:'Y-m' }}#day-{{ cell.iso_date }}"
-               class="cal-day-link" data-day="{{ cell.iso_date }}">
-              <span class="cal-day {% if cell.is_today %}today{% endif %}">{{ cell.day }}</span>
+               class="tw-cal-day-link" data-day="{{ cell.iso_date }}">
+              <span class="tw-cal-day {% if cell.is_today %}tw-cal-day-today{% endif %}">{{ cell.day }}</span>
             </a>
           {% endif %}
         {% endif %}

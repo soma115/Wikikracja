@@ -15,7 +15,7 @@
   </div>
 </div>
 
-<form action="." method="POST" class="post-form" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
+<form action="." method="POST" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
     {% csrf_token %}
     <div class="tw-grid tw-grid-cols-1 tw-gap-3">
       {{ form.title|as_crispy_field }}

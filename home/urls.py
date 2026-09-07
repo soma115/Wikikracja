@@ -8,6 +8,7 @@ urlpatterns = [
     path('mark-as-read/', views.mark_as_read, name='mark_as_read'),
     path('mark-all-read/', views.mark_all_read, name='mark_all_read'),
     path('mark-unread/', views.mark_unread, name='mark_unread'),
+    path('toggle-bookmark/', views.toggle_bookmark, name='toggle_bookmark'),
     path('save-filter-state/', views.save_filter_state, name='save_filter_state'),
     path('aktywnosc/', views.activity_page, name='activity'),
     path('site-settings/', views.site_admin, name='site_admin'),

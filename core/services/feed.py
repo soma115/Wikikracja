@@ -6,7 +6,7 @@ from django.core.cache import cache
 from django.utils import timezone
 
 from core.feed_registry import DIGEST_GROUP_ID, collect_feed_items, get_provider
-from core.models import ReadStatus
+from core.models import FeedBookmark, ReadStatus
 
 log = logging.getLogger(__name__)
 
@@ -27,6 +27,40 @@ def build_read_status_map(user):
         content_type: set(object_ids)
         for content_type, object_ids in ((content_type, ReadStatus.objects.filter(user=user, content_type=content_type).values_list('object_id', flat=True)) for content_type in ReadStatus.ContentType.values)
     }
+
+
+def build_bookmark_map(user):
+    """Return a set of (content_type, object_id) tuples bookmarked by the user."""
+    return set(FeedBookmark.objects.filter(user=user).values_list('content_type', 'object_id'))
+
+
+def toggle_feed_bookmark(user, content_type: str, object_id: int) -> bool:
+    """Toggle bookmark state for a feed item. Returns True if now bookmarked."""
+    bookmark, created = FeedBookmark.objects.get_or_create(user=user, content_type=content_type, object_id=object_id)
+    if not created:
+        bookmark.delete()
+        return False
+    return True
+
+
+def get_bookmarked_items(user):
+    """Return feed items bookmarked by the user, newest bookmark first."""
+    bookmark_map = build_bookmark_map(user)
+    if not bookmark_map:
+        return []
+    raw_items = generate_feed_raw()
+    item_by_key = {(i['content_type'], i['object_id']): i for i in raw_items}
+    bookmarks = FeedBookmark.objects.filter(user=user).order_by('-created_at')
+    items = []
+    for bookmark in bookmarks:
+        item = item_by_key.get((bookmark.content_type, bookmark.object_id))
+        if item is None:
+            continue
+        item = dict(item)
+        item['is_read'] = item['object_id'] in build_read_status_map(user).get(item['content_type'], set())
+        item['is_bookmarked'] = True
+        items.append(item)
+    return items
 
 
 def generate_feed_raw():
@@ -75,9 +109,10 @@ def _prepare_provider_items(raw_items, user, since=None):
 
 
 def generate_feed_items(user):
-    """Generate unified chronological feed for a user, with is_read attached per-request."""
+    """Generate unified chronological feed for a user, with is_read and is_bookmarked attached per-request."""
     raw_items = generate_feed_raw()
     read_status_map = build_read_status_map(user)
+    bookmark_map = build_bookmark_map(user)
 
     ct_map = {
         'post': ReadStatus.ContentType.POST,
@@ -96,10 +131,10 @@ def generate_feed_items(user):
             item = next(prepared[ct])
             if item is None:
                 continue
-        else:
+        if 'is_read' not in item:
             rs_ct = ct_map.get(ct)
-            is_read = (item['object_id'] in read_status_map[rs_ct]) if rs_ct else False
-            item = {**item, 'is_read': is_read}
+            item = {**item, 'is_read': (item['object_id'] in read_status_map[rs_ct]) if rs_ct else False}
+        item['is_bookmarked'] = (item['content_type'], item['object_id']) in bookmark_map
         feed_items.append(item)
 
     return feed_items

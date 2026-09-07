@@ -3,18 +3,18 @@
 {% load richtext %}
 
 {% block content %}
-<div class="detail-layout tw-flex tw-flex-col tw-gap-3">
+<div class="tw-detail-layout tw-flex tw-flex-col tw-gap-3">
 
-  <div class="detail-header">
-    <div class="detail-header-top tw-flex tw-items-start tw-justify-between">
-      <h1 class="detail-title tw-text-2xl tw-font-bold">{{ event.title }}</h1>
+  <div class="tw-detail-header">
+    <div class="tw-detail-header-top tw-flex tw-items-start tw-justify-between">
+      <h1 class="tw-detail-title tw-text-2xl tw-font-bold">{{ event.title }}</h1>
       {% if user.is_authenticated %}
-        <div class="detail-nav tw-flex tw-gap-1">
-          <a href="{% url 'events:edit' event.pk %}" class="detail-nav-btn"
+        <div class="tw-detail-nav tw-flex tw-gap-1">
+          <a href="{% url 'events:edit' event.pk %}" class="tw-detail-nav-btn"
              title="{% trans 'Edit' %}">
             <i class="fas fa-pen"></i>
           </a>
-          <a href="{% url 'events:delete' event.pk %}" class="detail-nav-btn event-delete-btn"
+          <a href="{% url 'events:delete' event.pk %}" class="tw-detail-nav-btn tw-event-delete-btn"
              title="{% trans 'Delete' %}">
             <i class="fas fa-trash"></i>
           </a>
@@ -22,7 +22,7 @@
       {% endif %}
     </div>
 
-    <div class="event-card-badges-row">
+    <div class="tw-event-card-badges-row">
       <span class="tw-badge-status tw-badge-{% if event.frequency == 'once' %}discussion{% else %}rejected{% endif %}">
         <i class="fas fa-{% if event.frequency == 'once' %}calendar-day{% else %}repeat{% endif %} fa-fw"></i>
         {{ event.get_frequency_display }}
@@ -48,61 +48,61 @@
     </div>
   </div>
 
-  <div class="proposal-card">
-    <div class="proposal-card-body tw-flex tw-flex-col tw-gap-2">
+  <div class="tw-event-card">
+    <div class="tw-event-card-body tw-flex tw-flex-col tw-gap-2">
 
-      <div class="proposal-section">
-        <div class="proposal-section-label">
+      <div>
+        <div class="tw-event-section-label">
           <i class="fas fa-calendar fa-fw"></i> {% trans "Start Date" %}
         </div>
-        <div class="proposal-section-text">{{ event.start_date|date:"l, Y-m-d H:i" }}</div>
+        <div class="tw-event-section-text">{{ event.start_date|date:"l, Y-m-d H:i" }}</div>
       </div>
 
       {% if event.end_date %}
-        <div class="proposal-section">
-          <div class="proposal-section-label">
+        <div>
+          <div class="tw-event-section-label">
             <i class="fas fa-calendar-check fa-fw"></i> {% trans "End Date" %}
           </div>
-          <div class="proposal-section-text">{{ event.end_date|date:"l, Y-m-d H:i" }}</div>
+          <div class="tw-event-section-text">{{ event.end_date|date:"l, Y-m-d H:i" }}</div>
         </div>
       {% endif %}
 
       {% if event.frequency != 'once' and event.is_active %}
         {% with next_occurrence=event.get_next_occurrence %}
           {% if next_occurrence %}
-            <div class="proposal-section">
-              <div class="proposal-section-label">
+            <div>
+              <div class="tw-event-section-label">
                 <i class="fas fa-clock fa-fw"></i> {% trans "Next Occurrence" %}
               </div>
-              <div class="proposal-section-text tw-text-accent">{{ next_occurrence|date:"l, Y-m-d H:i" }}</div>
+              <div class="tw-event-section-text tw-text-accent">{{ next_occurrence|date:"l, Y-m-d H:i" }}</div>
             </div>
           {% else %}
-            <div class="proposal-section">
-              <div class="proposal-section-label">
+            <div>
+              <div class="tw-event-section-label">
                 <i class="fas fa-clock fa-fw"></i> {% trans "Next Occurrence" %}
               </div>
-              <div class="proposal-section-text tw-text-muted">{% trans "No upcoming occurrences" %}</div>
+              <div class="tw-event-section-text tw-text-muted">{% trans "No upcoming occurrences" %}</div>
             </div>
           {% endif %}
         {% endwith %}
       {% endif %}
 
       {% if event.place %}
-        <div class="proposal-section">
-          <div class="proposal-section-label">
+        <div>
+          <div class="tw-event-section-label">
             <i class="fas fa-map-marker-alt fa-fw"></i> {% trans "Place" %}
           </div>
-          <div class="proposal-section-text">{{ event.place }}</div>
+          <div class="tw-event-section-text">{{ event.place }}</div>
         </div>
       {% endif %}
 
       {% if event.link %}
-        <div class="proposal-section">
-          <div class="proposal-section-label">
+        <div>
+          <div class="tw-event-section-label">
             <i class="fas fa-link fa-fw"></i> {% trans "Link to the meeting" %}
           </div>
-          <div class="proposal-section-text">
-            <a href="{{ event.link }}" target="_blank" rel="noopener" class="event-link">
+          <div class="tw-event-section-text">
+            <a href="{{ event.link }}" target="_blank" rel="noopener" class="tw-event-link">
               {{ event.link }} <i class="fas fa-external-link-alt fa-sm"></i>
             </a>
           </div>
@@ -110,15 +110,15 @@
       {% endif %}
 
       {% if event.description %}
-        <div class="proposal-section">
-          <div class="proposal-section-label">
+        <div>
+          <div class="tw-event-section-label">
             <i class="fas fa-file-lines fa-fw"></i> {% trans "Agenda" %}
           </div>
-          <div class="proposal-section-text">{{ event.description|richtext }}</div>
+          <div class="tw-event-section-text">{{ event.description|richtext }}</div>
         </div>
       {% endif %}
 
-      <div class="proposal-section margin-top-4rem">
+      <div class="tw-mt-1.5">
         <small class="tw-text-xs tw-text-muted">
           {% trans "Created" %}: {{ event.created_at|date:"Y-m-d H:i" }}
           {% if event.updated_at != event.created_at %}
@@ -131,7 +131,7 @@
   </div>
 
   <div class="tw-flex tw-gap-2 tw-mt-4">
-    <a href="{% url 'events:list' %}" class="tw-btn tw-btn-secondary event-back-link" title="{% trans 'Back to Calendar' %}">
+    <a href="{% url 'events:list' %}" class="tw-btn tw-btn-secondary tw-event-back-link" title="{% trans 'Back to Calendar' %}">
       <i class="fas fa-arrow-left"></i> {% trans "Back to Calendar" %}
     </a>
     <a href="{{ event.google_calendar_url }}" target="_blank" rel="noopener" class="tw-btn-cta" title="{% trans 'Add to Google Calendar' %}">

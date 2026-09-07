@@ -1,6 +1,7 @@
 {% extends 'glosowania/menu.html' %}
 {% load i18n %}
 {% load richtext %}
+{% load feed_filters %}
 
 {% block extra_css %}{{ argument_form.media }}{% endblock %}
 
@@ -18,19 +19,19 @@
 
       <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-muted tw-text-sm">
         {% if id.author %}
-        <a href="{% url 'obywatele:obywatele_szczegoly' pk=id.author.pk %}" class="detail-author-link tw-flex tw-items-center tw-gap-1 tw-no-underline">
-          {% include "home/_user_avatar.html" with avatar=id.author.uzytkownik.avatar username=id.author.username size="sm" %}
-          <span class="tw-text-accent">{{ id.author.username }}</span>
+        <a href="{% url 'obywatele:obywatele_szczegoly' pk=id.author.pk %}" class="tw-detail-author-link tw-flex tw-items-center tw-gap-1 tw-no-underline">
+          {% include "home/_user_avatar.html" with avatar=id.author.uzytkownik.avatar username=id.author.username display_name=id.author|display_name size="sm" %}
+          <span class="tw-text-accent">{{ id.author|display_name }}</span>
         </a>
-        <span class="detail-meta-sep">·</span>
+        <span class="tw-detail-meta-sep">·</span>
         {% endif %}
         {% if id.data_powstania %}<span title="{% trans 'Creation date' %}"><i class="fas fa-calendar-plus fa-fw"></i> {{ id.data_powstania|date:"d.m.Y" }}</span>{% endif %}
-        {% if id.data_ostatniej_modyfikacji and id.data_ostatniej_modyfikacji|date:"d.m.Y" != id.data_powstania|date:"d.m.Y" %}<span class="detail-meta-arrow">→</span><span title="{% trans 'Last modification date' %}"><i class="fas fa-pen fa-fw"></i> {{ id.data_ostatniej_modyfikacji|date:"d.m.Y" }}</span>{% endif %}
-        <span class="detail-meta-sep">·</span>
+        {% if id.data_ostatniej_modyfikacji and id.data_ostatniej_modyfikacji|date:"d.m.Y" != id.data_powstania|date:"d.m.Y" %}<span class="tw-detail-meta-arrow">→</span><span title="{% trans 'Last modification date' %}"><i class="fas fa-pen fa-fw"></i> {{ id.data_ostatniej_modyfikacji|date:"d.m.Y" }}</span>{% endif %}
+        <span class="tw-detail-meta-sep">·</span>
         <span title="{% if id.data_zebrania_podpisow %}{% trans 'Date signatures were collected' %}{% else %}{% trans 'Signatures collected' %}{% endif %}">{{ id.ile_osob_podpisalo|default:"0" }} <i class="fas fa-pen-nib fa-fw"></i>{% if id.data_zebrania_podpisow %} · {{ id.data_zebrania_podpisow|date:"d.m.Y" }}{% endif %}</span>
-        {% if id.data_referendum_start %}<span class="detail-meta-arrow">→</span><span title="{% trans 'Referendum period' %}"><i class="fas fa-person-booth fa-fw"></i> {{ id.data_referendum_start|date:"d.m.Y" }}{% if data_referendum_stop %}–{{ data_referendum_stop|date:"d.m.Y" }}{% endif %}</span>{% endif %}
-        <span class="detail-meta-sep">·</span>
-        <span class="detail-status-badge s{{ id.status }}">
+        {% if id.data_referendum_start %}<span class="tw-detail-meta-arrow">→</span><span title="{% trans 'Referendum period' %}"><i class="fas fa-person-booth fa-fw"></i> {{ id.data_referendum_start|date:"d.m.Y" }}{% if data_referendum_stop %}–{{ data_referendum_stop|date:"d.m.Y" }}{% endif %}</span>{% endif %}
+        <span class="tw-detail-meta-sep">·</span>
+        <span class="tw-detail-status-badge s{{ id.status }}">
           {% if id.status == id.Status.PROPOSITION %}<i class="fas fa-file-pen"></i> {{ id.get_status_display }}
           {% elif id.status == id.Status.DISCUSSION %}<i class="fas fa-comments"></i> {{ id.get_status_display }}
           {% elif id.status == id.Status.REFERENDUM %}<i class="fas fa-person-booth"></i> {{ id.get_status_display }}
@@ -43,11 +44,11 @@
           <i class="fas fa-comment-dots"></i> {% trans 'Chat' %}
         </a>
         {% endif %}
-        <div class="detail-nav tw-flex tw-gap-1">
-          {% if prev %}<a href="{% url 'glosowania:details' pk=prev.id %}" class="detail-nav-btn" title="{% trans 'Previous' %}"><i class="fas fa-chevron-left"></i></a>
-          {% else %}<span class="detail-nav-btn tw-disabled"><i class="fas fa-chevron-left"></i></span>{% endif %}
-          {% if next %}<a href="{% url 'glosowania:details' pk=next.id %}" class="detail-nav-btn" title="{% trans 'Next' %}"><i class="fas fa-chevron-right"></i></a>
-          {% else %}<span class="detail-nav-btn tw-disabled"><i class="fas fa-chevron-right"></i></span>{% endif %}
+        <div class="tw-detail-nav tw-flex tw-gap-1">
+          {% if prev %}<a href="{% url 'glosowania:details' pk=prev.id %}" class="tw-detail-nav-btn" title="{% trans 'Previous' %}"><i class="fas fa-chevron-left"></i></a>
+          {% else %}<span class="tw-detail-nav-btn tw-disabled"><i class="fas fa-chevron-left"></i></span>{% endif %}
+          {% if next %}<a href="{% url 'glosowania:details' pk=next.id %}" class="tw-detail-nav-btn" title="{% trans 'Next' %}"><i class="fas fa-chevron-right"></i></a>
+          {% else %}<span class="tw-detail-nav-btn tw-disabled"><i class="fas fa-chevron-right"></i></span>{% endif %}
         </div>
       </div>
 
@@ -104,7 +105,7 @@
         <div class="result-bar-track"><div class="result-bar-fill" data-progress="{{ fill_pct }}"></div></div>
       </div>
       {% endif %}{% endwith %}
-      {% if voters %}<div class="tw-text-muted tw-text-xs"><i class="fas fa-users tw-me-1"></i>{% for voter in voters %}{{ voter.ktory_uzytkownik_juz_zaglosowal.username }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+      {% if voters %}<div class="tw-text-muted tw-text-xs"><i class="fas fa-users tw-me-1"></i>{% for voter in voters %}{{ voter.ktory_uzytkownik_juz_zaglosowal|display_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
       {% if report %}<div class="protocol-list tw-text-xs">{% for r in report %}<span class="{% if r.vote %}protocol-yes{% else %}protocol-no{% endif %}">{% if r.vote %}✓{% else %}✗{% endif %} {{ r.code }}</span><br>{% endfor %}</div>{% endif %}
       {% endif %}
 
@@ -120,31 +121,31 @@
         <span class="tw-section-heading tw-text-sm">{% trans 'Law text' %}</span>
       </div>
       {% if id.tresc %}
-      <div class="detail-subsection">
-        <div class="detail-section-text tw-text-sm">{{ id.tresc|richtext }}</div>
+      <div class="tw-detail-subsection">
+        <div class="tw-detail-section-text tw-text-sm">{{ id.tresc|richtext }}</div>
       </div>
       {% endif %}
       {% if id.kara %}
-      <div class="detail-subsection">
-        <div class="detail-section-label"><i class="fas fa-triangle-exclamation"></i>{% trans 'Consequences' %}</div>
-        <div class="detail-section-text tw-text-sm">{{ id.kara|richtext }}</div>
+      <div class="tw-detail-subsection">
+        <div class="tw-detail-section-label"><i class="fas fa-triangle-exclamation"></i>{% trans 'Consequences' %}</div>
+        <div class="tw-detail-section-text tw-text-sm">{{ id.kara|richtext }}</div>
       </div>
       {% endif %}
       {% if id.uzasadnienie %}
-      <div class="detail-subsection">
-        <div class="detail-section-label"><i class="fas fa-lightbulb"></i>{% trans 'Reasoning' %}</div>
-        <div class="detail-section-text tw-text-sm">{{ id.uzasadnienie|richtext }}</div>
+      <div class="tw-detail-subsection">
+        <div class="tw-detail-section-label"><i class="fas fa-lightbulb"></i>{% trans 'Reasoning' %}</div>
+        <div class="tw-detail-section-text tw-text-sm">{{ id.uzasadnienie|richtext }}</div>
       </div>
       {% endif %}
       {% if id.znosi %}
-      <div class="detail-subsection">
-        <div class="detail-section-label"><i class="fas fa-ban"></i>{% trans 'Abolishes regulations' %}</div>
-        <div class="detail-section-text tw-text-sm">{{ id.znosi }}</div>
+      <div class="tw-detail-subsection">
+        <div class="tw-detail-section-label"><i class="fas fa-ban"></i>{% trans 'Abolishes regulations' %}</div>
+        <div class="tw-detail-section-text tw-text-sm">{{ id.znosi }}</div>
       </div>
       {% endif %}
       {% if id.proposed_brand_mark %}
-      <div class="detail-subsection">
-        <div class="detail-section-label"><i class="fas fa-image"></i>{% trans 'Proposed logo' %}</div>
+      <div class="tw-detail-subsection">
+        <div class="tw-detail-section-label"><i class="fas fa-image"></i>{% trans 'Proposed logo' %}</div>
         {% include "glosowania/_proposed_brand_mark.html" with brand_mark=id.proposed_brand_mark img_class="brand-mark-lg" %}
       </div>
       {% endif %}
@@ -165,9 +166,9 @@
       {% for arg in positive_arguments %}
       <div class="arg-card for">
         {% if arg.author %}<a href="{% url 'obywatele:obywatele_szczegoly' pk=arg.author.pk %}" class="arg-card-author">{% else %}<span class="arg-card-author">{% endif %}
-          {% include "home/_user_avatar.html" with avatar=arg.author.uzytkownik.avatar username=arg.author.username size="lg" %}
+          {% include "home/_user_avatar.html" with avatar=arg.author.uzytkownik.avatar username=arg.author.username display_name=arg.author|display_name size="lg" %}
           <div class="arg-author-info">
-            <span class="arg-author-name">{{ arg.author.username|default:"—" }}</span>
+            <span class="arg-author-name">{{ arg.author|display_name }}</span>
             <span class="arg-author-date">{{ arg.created_at|date:"d.m.Y" }}</span>
           </div>
         {% if arg.author %}</a>{% else %}</span>{% endif %}
@@ -206,9 +207,9 @@
       {% for arg in negative_arguments %}
       <div class="arg-card against">
         {% if arg.author %}<a href="{% url 'obywatele:obywatele_szczegoly' pk=arg.author.pk %}" class="arg-card-author">{% else %}<span class="arg-card-author">{% endif %}
-          {% include "home/_user_avatar.html" with avatar=arg.author.uzytkownik.avatar username=arg.author.username size="lg" %}
+          {% include "home/_user_avatar.html" with avatar=arg.author.uzytkownik.avatar username=arg.author.username display_name=arg.author|display_name size="lg" %}
           <div class="arg-author-info">
-            <span class="arg-author-name">{{ arg.author.username|default:"—" }}</span>
+            <span class="arg-author-name">{{ arg.author|display_name }}</span>
             <span class="arg-author-date">{{ arg.created_at|date:"d.m.Y" }}</span>
           </div>
         {% if arg.author %}</a>{% else %}</span>{% endif %}

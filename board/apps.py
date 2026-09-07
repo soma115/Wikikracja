@@ -15,10 +15,10 @@ class BoardConfig(AppConfig):
         from core.services.feed import make_read_status_markers
 
         from .dashboard import get_context, get_public_context
-        from .feed import get_feed_items
+        from .feed import get_feed_items, prepare_digest_items, prepare_items
         from .search import search
 
         mark_as_read, mark_as_unread = make_read_status_markers(ReadStatus.ContentType.POST)
-        register_feed_provider('post', get_items=get_feed_items, mark_as_read=mark_as_read, mark_as_unread=mark_as_unread)
+        register_feed_provider('post', get_items=get_feed_items, mark_as_read=mark_as_read, mark_as_unread=mark_as_unread, prepare_items=prepare_items, prepare_digest_items=prepare_digest_items)
         register_search_provider('post', search=search)
         register_dashboard_provider('board', get_context=get_context, get_public_context=get_public_context)

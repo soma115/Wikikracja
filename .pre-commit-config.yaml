@@ -5,3 +5,15 @@ repos:
       - id: ruff
         args: [--fix]
       - id: ruff-format
+  - repo: local
+    hooks:
+      - id: regression-scan
+        name: Bootstrap / UI regression scan
+        entry: python scripts/regression_scan.py
+        language: system
+        pass_filenames: false
+      - id: ui-guard
+        name: UI unification guard
+        entry: python scripts/ui_guard.py
+        language: system
+        pass_filenames: false

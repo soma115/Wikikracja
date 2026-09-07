@@ -22,7 +22,7 @@ User = get_user_model()
 @receiver(post_save, sender=Post)
 def notify_important_chat_on_important_post(sender, instance, created, **kwargs):
     """Send notification to "Ważne" chat room when a post is important."""
-    if not instance.is_important:
+    if not instance.is_important or not instance.is_public:
         return
 
     # Determine if this is a new important post or an update to an existing one
@@ -49,12 +49,17 @@ def create_or_update_chat_room_for_post(sender, instance, created, **kwargs):
         post_url = build_site_url(post_path)
         welcome_message = _("Discussion room for document: <a href='%(url)s'>%(title)s</a>") % {'title': instance.title, 'url': post_url}
 
+        if instance.is_public:
+            allowed_users = User.objects.filter(is_active=True)
+        else:
+            allowed_users = User.objects.filter(pk=instance.author_id) if instance.author_id else User.objects.none()
+
         chat_room_requested.send(
             sender=Post,
             instance=instance,
             title=room_title,
             founder=instance.author,
-            allowed_users=User.objects.filter(is_active=True),
+            allowed_users=allowed_users,
             welcome_message=welcome_message,
             welcome_message_sender=instance.author,
             welcome_message_anonymous=False,

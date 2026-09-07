@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -49,8 +49,8 @@ class PostCategoryReorderAPI(CategoryReorderAPI):
 
 
 def board(request: HttpRequest) -> HttpResponse:
-    sort = request.GET.get('sort', 'date')
-    order = request.GET.get('order', 'desc')
+    sort = request.GET.get('sort', 'title')
+    order = request.GET.get('order', 'asc')
     reverse_order = order == 'desc'
 
     raw_pks = request.GET.getlist('category')
@@ -62,10 +62,11 @@ def board(request: HttpRequest) -> HttpResponse:
             pass
 
     posts_query = Post.objects.select_related('category', 'author', 'chat_room').prefetch_related(Prefetch('chat_room__messages', queryset=Message.objects.only('id', 'room')), 'chat_room__seen_by')
+    visible_filter = Q(is_private=False, is_public=True)
     if request.user.is_authenticated:
-        posts_all = posts_query.all()
+        posts_all = posts_query.filter(visible_filter | Q(author=request.user))
     else:
-        posts_all = posts_query.filter(is_public=True)
+        posts_all = posts_query.filter(visible_filter)
 
     categories = list(PostCategory.objects.all())
     posts_by_cat = {}
@@ -85,21 +86,35 @@ def board(request: HttpRequest) -> HttpResponse:
         else:
             uncategorized.append(post)
 
+    def sort_key(p):
+        if sort == 'date':
+            return p.updated
+        return (p.title or '').lower()
+
     category_groups = []
     for cat in categories:
         cat_posts = posts_by_cat.get(cat.pk, [])
         if cat_posts:
-            sorted_posts = sorted(cat_posts, key=lambda p: p.updated, reverse=reverse_order)
+            sorted_posts = sorted(cat_posts, key=sort_key, reverse=reverse_order)
             category_groups.append({'category': cat, 'posts': sorted_posts})
     if uncategorized:
-        sorted_uncategorized = sorted(uncategorized, key=lambda p: p.updated, reverse=reverse_order)
+        sorted_uncategorized = sorted(uncategorized, key=sort_key, reverse=reverse_order)
         category_groups.append({'category': None, 'posts': sorted_uncategorized})
 
     next_order = "asc" if order == "desc" else "desc"
     cat_query = "".join(f"&category={pk}" for pk in active_categories)
-    sort_url = reverse("board:start") + f"?sort=date&order={next_order}{cat_query}"
 
-    toolbar_sort_items = [{"url": sort_url, "label": gettext_lazy("Date"), "active": True, "icon": "up" if next_order == "desc" else "down"}]
+    if sort == 'date':
+        title_url = reverse("board:start") + f"?sort=title&order=asc{cat_query}"
+        date_url = reverse("board:start") + f"?sort=date&order={next_order}{cat_query}"
+    else:
+        title_url = reverse("board:start") + f"?sort=title&order={next_order}{cat_query}"
+        date_url = reverse("board:start") + f"?sort=date&order=desc{cat_query}"
+
+    toolbar_sort_items = [
+        {"url": title_url, "label": gettext_lazy("A-Z"), "active": sort == 'title', "icon": "up" if (sort == 'title' and order == 'asc') or sort != 'title' else "down"},
+        {"url": date_url, "label": gettext_lazy("Date"), "active": sort == 'date', "icon": "down" if (sort == 'date' and order == 'desc') or sort != 'date' else "up"},
+    ]
     toolbar_views = [{"name": "list", "icon": "list", "title": gettext_lazy("List")}, {"name": "grid", "icon": "grip", "title": gettext_lazy("Grid")}]
 
     return render(
@@ -150,24 +165,32 @@ class PostUpdateView(PostFormViewMixin, UpdateView):
     pass
 
 
+def _post_queryset_for_user(user):
+    """Return posts visible to the given user (public or authored by the user)."""
+    visible_filter = Q(is_private=False, is_public=True)
+    if user.is_authenticated:
+        return Post.objects.filter(visible_filter | Q(author=user))
+    return Post.objects.filter(visible_filter)
+
+
 def _post_detail_context(request: HttpRequest, post: Post):
     """Build common context for document detail views (including embedded chat)."""
     return {'post': post, 'chat_room': post.chat_room, 'MESSAGE_MAX_LENGTH': settings.MESSAGE_MAX_LENGTH, 'ec_translations': get_chat_translations()}
 
 
 def view_post(request: HttpRequest, pk: int):
-    post = get_object_or_404(Post.objects.select_related('chat_room'), pk=pk)  # Only published documents can be viewed
+    post = get_object_or_404(_post_queryset_for_user(request.user).select_related('chat_room'), pk=pk)
     return render(request, 'board/post_detail.html', _post_detail_context(request, post))
 
 
 def view_post_by_slug(request: HttpRequest, slug: str):
-    post = get_object_or_404(Post.objects.select_related('chat_room'), slug=slug)
+    post = get_object_or_404(_post_queryset_for_user(request.user).select_related('chat_room'), slug=slug)
     return render(request, 'board/post_detail.html', _post_detail_context(request, post))
 
 
 @login_required
 def delete_post(request: HttpRequest, pk: int):
-    post = get_object_or_404(Post, pk=pk)
+    post = get_object_or_404(Post, pk=pk, author=request.user)
     if request.method == 'POST':
         try:
             post.delete()

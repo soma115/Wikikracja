@@ -43,7 +43,7 @@ class CalendarPartialEmptyDayTest(TestCase):
 
     def test_year_picker_selects_requested_year(self):
         response = self.client.get(reverse('events:calendar') + '?picker=1&month=2026-06', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertContains(response, '<select class="cal-year-select"')
+        self.assertContains(response, '<select class="tw-cal-year-select"')
         self.assertContains(response, '<option value="2026" selected>')
 
     def test_recurring_event_is_not_shown_before_its_start_month(self):

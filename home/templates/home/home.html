@@ -6,7 +6,7 @@
 {% block content %}
 
 {% if not user.is_authenticated %}
-<div class="section tw-section">
+<div class="tw-section">
   <p>{{ start.text|safe }}</p>
   <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mb-4">
     <a href="{% url 'login' %}" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-right-to-bracket fa-fw tw-me-1"></i>{% trans 'Login' %}</a>
@@ -17,7 +17,7 @@
     <a href="https://wikikracja.pl/kontakt/" target="_blank" class="tw-btn tw-btn-outline-secondary tw-btn-sm"><i class="fas fa-paper-plane fa-fw tw-me-1"></i>{% trans 'Message developer' %}</a>
   </div>
 
-  <h4 class="section-heading tw-section-heading tw-mb-3">{% trans "Platform modules" %}</h4>
+  <h4 class="tw-section-heading tw-mb-3">{% trans "Platform modules" %}</h4>
   <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-3">
     {% for module in dashboard_modules %}
     {% include 'home/includes/module_card.html' with module=module %}
@@ -28,37 +28,37 @@
 
 {% if user.is_authenticated %}
 
-<div class="section tw-section tw-flex tw-items-start tw-justify-between tw-gap-3 tw-flex-wrap">
+<div class="tw-section tw-flex tw-items-start tw-justify-between tw-gap-3 tw-flex-wrap">
   <div>
-    <h1 class="section-heading tw-section-heading tw-text-xl tw-mb-1">{% trans "Desktop" %}</h1>
+    <h1 class="tw-section-heading tw-text-xl tw-mb-1">{% trans "Desktop" %}</h1>
     <p class="tw-text-muted tw-mb-0 tw-text-sm">
-      {% trans "Hi" %}, <strong class="tw-text-accent">{{ user.username }}</strong> — {% trans "here's what's new in your community" %}.
+      {% trans "Hi" %}, <strong class="tw-text-accent">{{ user|display_name }}</strong> — {% trans "here's what's new in your community" %}.
     </p>
   </div>
 </div>
 
-<div class="dashboard-grid tw-dashboard-grid" id="dashboard-grid">
+<div class="tw-dashboard-grid" id="dashboard-grid">
 
   {# Ważne linki (tylko gdy są quick links) #}
   {% if quick_links %}
-  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="onboarding">
-    <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-overflow-hidden" id="onboarding-card">
-      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2 overflow-hidden-mh0 tw-overflow-hidden tw-min-h-0">
-        <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1 tw-shrink-0">
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="onboarding">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-overflow-hidden" id="onboarding-card">
+      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2 tw-overflow-hidden tw-min-h-0">
+        <div class="tw-dashboard-tile-header tw-mb-1 tw-shrink-0">
           <i class="fas fa-rocket"></i>
-          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "Important links" %}</span>
+          <span class="tw-section-heading tw-tile-heading">{% trans "Important links" %}</span>
         </div>
-        <div id="quick-links-scroll" class="quick-links-scroll tw-quick-links-scroll">
-        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-text-sm">{% for link in quick_links %}<li class="task-dash-row tw-flex tw-items-center tw-gap-2 quick-link-row tw-quick-link-row tw-min-w-0" data-link-id="{{ link.id }}">
-            <i class="tw-shrink-0 quick-link-circle tw-quick-link-circle far fa-circle" data-link-id="{{ link.id }}"></i>
-            <a href="{{ link.url }}" class="task-dash-link tw-task-dash-link link-accent">{{ link.title }}</a>
-          </li>{% endfor %}</ul>
+        <div id="quick-links-scroll" class="tw-quick-links-scroll">
+          <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-text-sm">{% spaceless %}{% for link in quick_links %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-quick-link-row tw-min-w-0" data-link-id="{{ link.id }}">
+              <i class="tw-shrink-0 tw-quick-link-circle far fa-circle" data-link-id="{{ link.id }}"></i>
+              <a href="{{ link.url }}" class="tw-text-primary-link">{{ link.title }}</a>
+            </li>{% endfor %}{% endspaceless %}</ul>
         </div>{# /quick-links-scroll #}
       </div>
       {# Pasek postępu #}
       <div class="tw-card-footer tw-px-3 tw-py-2">
         {% with total=quick_links|length %}
-        <div class="progress-label">{% trans "Progress" %}: <span class="progress-label">0/{{ total }}</span></div>
+        <div class="tw-progress-label">{% trans "Progress" %}: <span class="tw-progress-label">0/{{ total }}</span></div>
         <div class="tw-progress tw-progress-thin">
           <div class="tw-progress-bar"></div>
         </div>
@@ -71,25 +71,25 @@
 
 
   {# Aktywność #}
-  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="activity">
-    <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
-      <div class="tw-card-header tw-py-2 tw-px-4 dashboard-tile-header tw-dashboard-tile-header">
-        <span class="section-heading tw-section-heading tw-tile-heading">
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="activity">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
+      <div class="tw-card-header tw-py-2 tw-px-4 tw-dashboard-tile-header">
+        <span class="tw-section-heading tw-tile-heading">
           <i class="fas fa-stream tw-me-1 tw-text-accent tw-opacity-70"></i>{% trans "Activity" %}
         </span>
-        <a href="{% url 'activity' %}" class="tw-dashboard-counter-btn{% if unread_count %} has-count{% endif %}">
+        <a href="{% url 'activity' %}?filter=unread" class="tw-dashboard-counter-btn{% if unread_count %} has-count{% endif %}">
           <i class="fas fa-bell"></i>
           <span>{{ unread_count|default:0 }}</span>
         </a>
       </div>
       <div class="tw-card-body tw-p-0 tw-overflow-hidden tw-min-h-0" id="activity-feed-body">
         {% for item in last_feed_items %}
-        <div class="task-dash-row tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 activity-feed-row min-w-0 tw-min-w-0 {% if not item.is_read %}tw-unread-row{% endif %}">
+        <div class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-activity-feed-row tw-min-w-0 {% if not item.is_read %}tw-unread-row{% endif %}">
           <span class="tw-badge-status tw-badge-{{ item.content_type|content_type_color }} tw-shrink-0 tw-badge-status-xs">
             {{ item.content_type|content_type_label }}
           </span>
           <a href="{{ item.url }}"
-             class="task-dash-link tw-task-dash-link tw-text-primary-link {% if not item.is_read %}tw-font-semibold{% endif %}"
+             class="tw-task-dash-link tw-text-primary-link {% if not item.is_read %}tw-font-semibold{% endif %}"
              data-content-type="{{ item.content_type }}"
              data-object-id="{{ item.object_id }}"
              title="{{ item.title }}">
@@ -104,36 +104,36 @@
           {% trans "No activity in the last 30 days" %}
         </div>
         {% endfor %}
-        <div id="activity-feed-more" class="activity-more tw-activity-more">…</div>
+        <div id="activity-feed-more" class="tw-activity-more">…</div>
       </div>
       <a href="{% url 'activity' %}" class="tw-stretched-link" aria-label="{% trans 'Activity' %}" title="{% trans 'Activity' %}"></a>
       <script>
       // Initialize mark-as-read for home page activity feed
       window.CSRF_TOKEN = '{{ csrf_token }}';
       window.MARK_AS_READ_URL = "{% url 'mark_as_read' %}";
-      window.initActivityFeedMarkRead('#activity-feed-body', '.task-dash-link');
+      window.initActivityFeedMarkRead('#activity-feed-body', '.tw-task-dash-link');
       </script>
     </div>
   </div>
 
   {# Wybrane dokumenty #}
-  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="featured-documents">
-    <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full">
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="featured-documents">
+    <div class="tw-card tw-dashboard-tile tw-h-full">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2 tw-overflow-hidden tw-min-h-0">
-        <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1 tw-shrink-0">
+        <div class="tw-dashboard-tile-header tw-mb-1 tw-shrink-0">
           <a href="{% url 'board:start' %}" class="tw-tile-heading">
             <i class="fas fa-image"></i>{% trans "Featured documents" %}
           </a>
         </div>
         {% if featured_documents %}
-        <div class="tile-carousel-wrapper tw-tile-carousel-wrapper">
-          <div id="featured-docs-carousel" class="featured-carousel tw-featured-carousel">
+        <div class="tw-tile-carousel-wrapper">
+          <div id="featured-docs-carousel" class="tw-featured-carousel">
             <div class="tw-featured-carousel-track">
               {% for post in featured_documents %}
               <div class="tw-featured-carousel-item">
                 <a href="{% url 'board:view_post' post.pk %}" title="{{ post.title }}">
                   <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
-                  <span class="featured-carousel-title tw-featured-carousel-title">{{ post.title }}{% if post.subtitle %}<span class="tw-featured-carousel-subtitle">{{ post.subtitle }}</span>{% endif %}</span>
+                  <span class="tw-featured-carousel-title">{{ post.title }}{% if post.subtitle %}<span class="tw-featured-carousel-subtitle">{{ post.subtitle }}</span>{% endif %}</span>
                 </a>
               </div>
               {% endfor %}
@@ -149,7 +149,7 @@
         {% else %}
         <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
           <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "No featured documents" %}</p>
-          <a href="{% url 'board:start' %}" class="link-more tw-link-more">{% trans "Browse documents" %} →</a>
+          <a href="{% url 'board:start' %}" class="tw-link-more">{% trans "Browse documents" %} →</a>
         </div>
         {% endif %}
       </div>
@@ -186,26 +186,26 @@
   </div>
 
   {# Najbliższe wydarzenia #}
-  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="upcoming-events">
-    <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="upcoming-events">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
+        <div class="tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-calendar-days"></i>
-          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "Upcoming events" %}</span>
+          <span class="tw-section-heading tw-tile-heading">{% trans "Upcoming events" %}</span>
         </div>
         {% if upcoming_events %}
-        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-2 tw-flex-1 tw-text-sm">{% for occ in upcoming_events %}<li class="task-dash-row tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-            <span class="tw-shrink-0 {% if occ.event.is_public %}dot-public tw-dot-public{% else %}dot-private tw-dot-private{% endif %}"></span>
+        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-2 tw-flex-1 tw-text-sm">{% spaceless %}{% for occ in upcoming_events %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+            <span class="tw-shrink-0 {% if occ.event.is_public %}tw-dot-public{% else %}tw-dot-private{% endif %}"></span>
             <span class="tw-shrink-0 tw-text-muted tw-text-nowrap">{{ occ.date|date:"D d M · H:i" }}</span>
             <a href="{% url 'events:detail' occ.event.pk %}"
-               class="task-dash-link tw-task-dash-link tw-text-primary-link"
+               class="tw-text-primary-link"
                title="{{ occ.event.title }}">{{ occ.event.title }}</a>
-          </li>{% endfor %}</ul>
+          </li>{% endfor %}{% endspaceless %}</ul>
         <a href="{% url 'events:list' %}" class="tw-stretched-link" aria-label="{% trans 'Full calendar' %}" title="{% trans 'Full calendar' %}"></a>
         {% else %}
         <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
           <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "No upcoming events" %}</p>
-          <a href="{% url 'events:create' %}" class="link-more tw-link-more">{% trans "Add an event" %} →</a>
+          <a href="{% url 'events:create' %}" class="tw-link-more">{% trans "Add an event" %} →</a>
         </div>
         <a href="{% url 'events:list' %}" class="tw-stretched-link" aria-label="{% trans 'Full calendar' %}" title="{% trans 'Full calendar' %}"></a>
         {% endif %}
@@ -213,107 +213,107 @@
     </div>
   </div>
 
-  {# Propozycje głosowań #}
-  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="voting-proposals">
-    <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
+  {# Głosowania #}
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="voting">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
-          <i class="fas fa-file-signature"></i>
-          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "Voting proposals" %}</span>
-        </div>
-        {% if new_proposals %}
-        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% for prop in new_proposals %}<li class="task-dash-row tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-            <span class="tw-badge-status tw-badge-proposition tw-shrink-0 tw-badge-status-xs">
-              {% trans "signatures" %}
-            </span>
-            <a href="{% url 'glosowania:details' prop.pk %}"
-               class="task-dash-link tw-task-dash-link tw-text-primary-link"
-               title="{{ prop.title }}">{{ prop.title }}</a>
-          </li>{% endfor %}</ul>
-        <a href="{% url 'glosowania:proposition' %}" class="tw-stretched-link" aria-label="{% trans 'All suggestions' %}" title="{% trans 'All suggestions' %}"></a>
-        {% else %}
-        <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
-          <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "No voting proposals" %}</p>
-        </div>
-        <a href="{% url 'glosowania:proposition' %}" class="tw-stretched-link" aria-label="{% trans 'All suggestions' %}" title="{% trans 'All suggestions' %}"></a>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  {# Dyskutowane głosowania #}
-  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="discussed-votings">
-    <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
-      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
-          <i class="fas fa-comments"></i>
-          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "Discussed votings" %}</span>
-        </div>
-        {% if discussed_proposals %}
-        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% for prop in discussed_proposals %}<li class="task-dash-row tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-            <span class="tw-badge-status tw-badge-discussion tw-shrink-0 tw-badge-status-xs">
-              {% trans "discussion" %}
-            </span>
-            <a href="{% url 'glosowania:details' prop.pk %}"
-               class="task-dash-link tw-task-dash-link tw-text-primary-link"
-               title="{{ prop.title }}">{{ prop.title }}</a>
-          </li>{% endfor %}</ul>
-        <a href="{% url 'glosowania:discussion' %}" class="tw-stretched-link" aria-label="{% trans 'All discussions' %}" title="{% trans 'All discussions' %}"></a>
-        {% else %}
-        <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
-          <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "No discussed votings" %}</p>
-        </div>
-        <a href="{% url 'glosowania:discussion' %}" class="tw-stretched-link" aria-label="{% trans 'All discussions' %}" title="{% trans 'All discussions' %}"></a>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  {# Aktywne głosowanie #}
-  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="active-voting">
-    <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
-      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
+        <div class="tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-landmark"></i>
-          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "Active voting" %}</span>
+          <span class="tw-section-heading tw-tile-heading">{% trans "Voting" %}</span>
         </div>
-        {% if active_referendum %}
-        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1"><li class="task-dash-row tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-            <span class="tw-badge-status tw-badge-referendum tw-shrink-0 tw-badge-status-xs">
-              {% trans "Referendum" %}
+        {% if voting_items %}
+        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for item in voting_items %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+            <span class="tw-badge-status tw-badge-{{ item.type }} tw-shrink-0 tw-badge-status-xs">
+              {{ item.label }}
             </span>
-            <a href="{% url 'glosowania:details' active_referendum.obj.pk %}"
-               class="task-dash-link tw-task-dash-link tw-text-primary-link"
-               title="{{ active_referendum.obj.title }}">{{ active_referendum.obj.title }}</a>
-          </li></ul>
-        <a href="{% url 'glosowania:approved' %}" class="tw-stretched-link" aria-label="{% trans 'Go to Agora' %}" title="{% trans 'Go to Agora' %}"></a>
+            <a href="{% url 'glosowania:details' item.obj.pk %}"
+               class="tw-text-primary-link"
+               title="{{ item.obj.title }}">{{ item.obj.title }}</a>
+          </li>{% endfor %}{% endspaceless %}</ul>
+        <a href="{% url 'glosowania:proposition' %}" class="tw-stretched-link" aria-label="{% trans 'All votings' %}" title="{% trans 'All votings' %}"></a>
         {% else %}
         <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
-          <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "No active votings" %}</p>
+          <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "No votings" %}</p>
         </div>
-        <a href="{% url 'glosowania:approved' %}" class="tw-stretched-link" aria-label="{% trans 'Go to Agora' %}" title="{% trans 'Go to Agora' %}"></a>
+        <a href="{% url 'glosowania:proposition' %}" class="tw-stretched-link" aria-label="{% trans 'All votings' %}" title="{% trans 'All votings' %}"></a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {# Ankiety #}
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="surveys">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
+      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
+        <div class="tw-dashboard-tile-header tw-mb-1">
+          <i class="fas fa-clipboard-question"></i>
+          <span class="tw-section-heading tw-tile-heading">{% trans "Surveys" %}</span>
+        </div>
+        {% if active_surveys %}
+        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for survey in active_surveys %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+            <span class="tw-badge-status tw-badge-dark tw-shrink-0 tw-badge-status-xs">
+              {% trans "Survey" %}
+            </span>
+            <a href="{% url 'ankiety:detail' survey.pk %}"
+               class="tw-text-primary-link"
+               title="{{ survey.title }}">{{ survey.title }}</a>
+          </li>{% endfor %}{% endspaceless %}</ul>
+        <a href="{% url 'ankiety:list' %}" class="tw-stretched-link" aria-label="{% trans 'All surveys' %}" title="{% trans 'All surveys' %}"></a>
+        {% else %}
+        <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
+          <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "No active surveys" %}</p>
+        </div>
+        <a href="{% url 'ankiety:list' %}" class="tw-stretched-link" aria-label="{% trans 'All surveys' %}" title="{% trans 'All surveys' %}"></a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {# Bookmarks #}
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="bookmarks">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
+      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
+        <div class="tw-dashboard-tile-header tw-mb-1">
+          <i class="fas fa-star"></i>
+          <span class="tw-section-heading tw-tile-heading">{% trans "Bookmarks" %}</span>
+        </div>
+        {% if bookmarked_items %}
+        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for item in bookmarked_items|slice:":6" %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+            <span class="tw-badge-status tw-badge-{{ item.content_type|content_type_color }} tw-shrink-0 tw-badge-status-xs">
+              {{ item.content_type|content_type_label }}
+            </span>
+            <a href="{{ item.url }}"
+               class="tw-text-primary-link"
+               title="{{ item.title }}">{{ item.title }}</a>
+          </li>{% endfor %}{% endspaceless %}</ul>
+        <a href="{% url 'activity' %}?filter=bookmarks" class="tw-stretched-link" aria-label="{% trans 'All bookmarks' %}" title="{% trans 'All bookmarks' %}"></a>
+        {% else %}
+        <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
+          <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "No bookmarks" %}</p>
+        </div>
+        <a href="{% url 'activity' %}" class="tw-stretched-link" aria-label="{% trans 'Activity' %}" title="{% trans 'Activity' %}"></a>
         {% endif %}
       </div>
     </div>
   </div>
 
   {# My tasks #}
-  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="my-tasks">
-    <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="my-tasks">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
+        <div class="tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-bolt"></i>
-          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "My activities" %}</span>
+          <span class="tw-section-heading tw-tile-heading">{% trans "My activities" %}</span>
         </div>
         {% if my_tasks %}
-        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% for task in my_tasks %}<li class="task-dash-row tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for task in my_tasks %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
             <span class="tw-badge-status tw-badge-approved tw-shrink-0 badge-status-sm">
               {% trans "Active" %}
             </span>
             <a href="{% url 'tasks:detail' task.pk %}"
-               class="task-dash-link tw-task-dash-link tw-text-primary-link"
+               class="tw-text-primary-link"
                title="{{ task.title }}">{{ task.title }}</a>
-          </li>{% endfor %}</ul>
+          </li>{% endfor %}{% endspaceless %}</ul>
         <a id="dash-my-tasks" href="{% url 'tasks:list' %}?tab=mine" class="tw-stretched-link" aria-label="{% trans 'All my activities' %}" title="{% trans 'All my activities' %}"></a>
         {% else %}
         <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
@@ -327,20 +327,20 @@
   </div>
 
   {# Nowi ludzie #}
-  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="new-people">
-    <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="new-people">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
+        <div class="tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-users"></i>
-          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "New people" %}</span>
+          <span class="tw-section-heading tw-tile-heading">{% trans "New people" %}</span>
         </div>
         <a href="{% url 'kandydaci' %}" class="tw-stretched-link" aria-label="{% trans 'New people' %}" title="{% trans 'New people' %}"></a>
         {% if new_people %}
-        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% for cit in new_people|slice:":6" %}<li class="task-dash-row tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-            {% include "home/_user_avatar.html" with avatar=cit.avatar username=cit.uid.username size="lg" %}
-            <span class="tw-truncate tw-flex-1 tw-min-w-0">{{ cit.uid.username }}</span>
+        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for cit in new_people|slice:":6" %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+            {% include "home/_user_avatar.html" with avatar=cit.avatar username=cit.uid.username display_name=cit.uid|display_name size="lg" %}
+            <span class="tw-truncate tw-flex-1 tw-min-w-0">{{ cit|display_name }}</span>
             <span class="tw-shrink-0 tw-text-xs tw-text-muted tw-ms-auto tw-text-nowrap">{{ cit.uid.date_joined|date:"d.m.Y" }}</span>
-          </li>{% endfor %}</ul>
+          </li>{% endfor %}{% endspaceless %}</ul>
         {% else %}
         <p class="tw-mb-0 tw-text-muted tw-text-sm">{% trans "No new people" %}</p>
         {% endif %}
@@ -349,28 +349,28 @@
   </div>
 
   {# Finances #}
-  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="finances">
-    <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="finances">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
+        <div class="tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-wallet"></i>
-          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "Finances" %}</span>
+          <span class="tw-section-heading tw-tile-heading">{% trans "Finances" %}</span>
           {% if default_asset %}<span class="tw-text-xs tw-text-muted">— {% trans "All time" %} ({{ default_asset.code }})</span>{% endif %}
         </div>
         {% if default_asset %}
           <div class="tw-flex tw-flex-col tw-gap-1 tw-text-sm">
             <div class="tw-flex tw-justify-between tw-items-center">
-              <span class="tile-text-muted tw-tile-text-muted"><i class="fas fa-arrow-down tw-me-1 tw-text-success"></i>{% trans "Revenues" %}</span>
+              <span class="tw-tile-text-muted"><i class="fas fa-arrow-down tw-me-1 tw-text-success"></i>{% trans "Revenues" %}</span>
               <span class="tw-text-success tw-font-medium">{{ default_income|floatformat:2 }} {{ default_symbol }}</span>
             </div>
             <div class="tw-flex tw-justify-between tw-items-center">
-              <span class="tile-text-muted tw-tile-text-muted"><i class="fas fa-arrow-up tw-me-1 tw-text-danger"></i>{% trans "Expenses" %}</span>
+              <span class="tw-tile-text-muted"><i class="fas fa-arrow-up tw-me-1 tw-text-danger"></i>{% trans "Expenses" %}</span>
               <span class="tw-text-danger tw-font-medium">{{ default_expenses|floatformat:2 }} {{ default_symbol }}</span>
             </div>
             <hr class="tw-hr-subtle tw-my-1">
             <div class="tw-flex tw-justify-between tw-items-center">
-              <span class="tile-text-muted tw-tile-text-muted">{% trans "Balance" %}</span>
-              <span class="{% if default_balance >= 0 %}balance-positive tw-balance-positive{% else %}balance-negative tw-balance-negative{% endif %}">{{ default_balance|floatformat:2 }} {{ default_symbol }}</span>
+              <span class="tw-tile-text-muted">{% trans "Balance" %}</span>
+              <span class="{% if default_balance >= 0 %}tw-balance-positive{% else %}tw-balance-negative{% endif %}">{{ default_balance|floatformat:2 }} {{ default_symbol }}</span>
             </div>
           </div>
           <a href="{% url 'bookkeeping:report_list' %}" class="tw-stretched-link" aria-label="{% trans 'Finances' %}" title="{% trans 'Finances' %}"></a>
@@ -387,10 +387,10 @@
     </div>
   </div>
 
-  <div class="dashboard-tile tw-dashboard-tile dashboard-tile--2x1 tw-dashboard-tile--2x1" data-tile-id="chat">
-    <div class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-relative">
-      <div class="tw-card-header dashboard-tile-header tw-dashboard-tile-header">
-        <span class="section-heading tw-section-heading tw-tile-heading">
+  <div class="tw-dashboard-tile tw-dashboard-tile--2x1" data-tile-id="chat">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
+      <div class="tw-card-header tw-dashboard-tile-header">
+        <span class="tw-section-heading tw-tile-heading">
           <i class="fas fa-comments"></i>{% trans "Chat" %}
         </span>
         <a id="chat-unread-badge"
@@ -402,17 +402,17 @@
       </div>
       <div class="tw-card-body tw-p-3 tw-flex tw-flex-col tw-gap-1">
         {% for msg in recent_chat_messages %}
-        <div class="chat-msg-row tw-chat-msg-row tw-relative">
+        <div class="tw-chat-msg-row tw-relative">
           <div class="tw-shrink-0">
-            {% include "home/_user_avatar.html" with avatar=msg.sender.uzytkownik.avatar username=msg.sender.username size="xl" %}
+            {% include "home/_user_avatar.html" with avatar=msg.sender.uzytkownik.avatar username=msg.sender.username display_name=msg.sender|display_name size="xl" %}
           </div>
-          <div class="min-w-0 tw-min-w-0 tw-flex-1">
+          <div class="tw-min-w-0 tw-flex-1">
             <div class="tw-flex tw-items-center tw-gap-2">
-              <span class="chat-msg-sender tw-chat-msg-sender tw-text-nowrap">{{ msg.sender.username }}</span>
-              <span class="chat-msg-room tw-chat-msg-room tw-truncate tw-flex-1 tw-min-w-0">{{ msg.room.title|truncatechars:18 }}</span>
-              <span class="chat-msg-meta tw-chat-msg-meta tw-text-nowrap">{{ msg.time|date:"H:i" }}</span>
+              <span class="tw-chat-msg-sender tw-text-nowrap">{{ msg.sender|display_name }}</span>
+              <span class="tw-chat-msg-room tw-truncate tw-flex-1 tw-min-w-0">{{ msg.room.title|truncatechars:18 }}</span>
+              <span class="tw-chat-msg-meta tw-text-nowrap">{{ msg.time|date:"H:i" }}</span>
             </div>
-            <div class="chat-msg-link tw-chat-msg-link tw-truncate">{{ msg.text|striptags|truncatechars:120 }}</div>
+            <div class="tw-chat-msg-link tw-truncate">{{ msg.text|striptags|truncatechars:120 }}</div>
           </div>
           <a href="{% url 'chat:chat' %}#room_id={{ msg.room.id }}" class="tw-stretched-link" aria-label="{% trans 'Open chat' %} {{ msg.room.title }}" title="{% trans 'Open chat' %} {{ msg.room.title }}"></a>
         </div>
@@ -424,40 +424,40 @@
     </div>
   </div>
 
-  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="skills-resources">
-    <a href="{% url 'obywatele:assets' %}" class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-no-underline">
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="skills-resources">
+    <a href="{% url 'obywatele:assets' %}" class="tw-card tw-dashboard-tile tw-h-full tw-no-underline">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
+        <div class="tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-brain"></i>
-          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "Skills and resources" %}</span>
+          <span class="tw-section-heading tw-tile-heading">{% trans "Skills and resources" %}</span>
         </div>
         <div class="tw-flex tw-flex-wrap tw-gap-2">
-          <span class="asset-chip tw-asset-chip"><i class="fas fa-brain tw-text-accent"></i> <strong>{{ skills_count }}</strong> {% trans "skills" %}</span>
-          <span class="asset-chip tw-asset-chip"><i class="fas fa-book tw-text-accent"></i> <strong>{{ knowledge_count }}</strong> {% trans "knowledge" %}</span>
-          <span class="asset-chip tw-asset-chip"><i class="fas fa-gift tw-text-accent"></i> <strong>{{ give_away_count }}</strong></span>
-          <span class="asset-chip tw-asset-chip"><i class="fas fa-handshake tw-text-accent"></i> <strong>{{ borrow_count }}</strong></span>
-          <span class="asset-chip tw-asset-chip"><i class="fas fa-cart-shopping tw-text-accent"></i> <strong>{{ for_sale_count }}</strong></span>
+          <span class="tw-asset-chip"><i class="fas fa-brain tw-text-accent"></i> <strong>{{ skills_count }}</strong> {% trans "skills" %}</span>
+          <span class="tw-asset-chip"><i class="fas fa-book tw-text-accent"></i> <strong>{{ knowledge_count }}</strong> {% trans "knowledge" %}</span>
+          <span class="tw-asset-chip"><i class="fas fa-gift tw-text-accent"></i> <strong>{{ give_away_count }}</strong></span>
+          <span class="tw-asset-chip"><i class="fas fa-handshake tw-text-accent"></i> <strong>{{ borrow_count }}</strong></span>
+          <span class="tw-asset-chip"><i class="fas fa-cart-shopping tw-text-accent"></i> <strong>{{ for_sale_count }}</strong></span>
         </div>
       </div>
     </a>
   </div>
 
-  <div class="dashboard-tile tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="active-users">
-    <a href="{% url 'obywatele:obywatele' %}?aktywnosc=30d" class="tw-card dashboard-tile tw-dashboard-tile tw-h-full tw-no-underline">
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="active-users">
+    <a href="{% url 'obywatele:obywatele' %}?aktywnosc=30d" class="tw-card tw-dashboard-tile tw-h-full tw-no-underline">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="dashboard-tile-header tw-dashboard-tile-header tw-mb-1">
+        <div class="tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-chart-line"></i>
-          <span class="section-heading tw-section-heading tw-tile-heading">{% trans "logged in within 30 days" %}</span>
+          <span class="tw-section-heading tw-tile-heading">{% trans "logged in within 30 days" %}</span>
         </div>
-        <div class="wspol-stat-value tw-wspol-stat-value tw-mt-auto tw-mb-auto">{{ active_pct }}%</div>
+        <div class="tw-wspol-stat-value tw-mt-auto tw-mb-auto">{{ active_pct }}%</div>
       </div>
     </a>
   </div>
 
-  <div class="dashboard-tile tw-dashboard-tile dashboard-tile--2x1 tw-dashboard-tile--2x1" data-tile-id="calendar">
-    <div class="tw-card tw-card--no-hover dashboard-tile tw-dashboard-tile tw-h-full">
-      <div class="tw-card-header dashboard-tile-header tw-dashboard-tile-header">
-        <a href="{% url 'events:list' %}" class="section-heading tw-section-heading tw-tile-heading">
+  <div class="tw-dashboard-tile tw-dashboard-tile--2x1" data-tile-id="calendar">
+    <div class="tw-card tw-card--no-hover tw-dashboard-tile tw-h-full">
+      <div class="tw-card-header tw-dashboard-tile-header">
+        <a href="{% url 'events:list' %}" class="tw-section-heading tw-tile-heading">
           <i class="fas fa-calendar-days"></i>{% trans "Calendar" %}
         </a>
         <a href="{% url 'events:create' %}" class="tw-btn tw-btn-sm tw-btn-outline-primary">
@@ -485,7 +485,7 @@
       });
   }
   function bindNav() {
-    calendarEl.querySelectorAll('.cal-nav').forEach(function(btn){
+    calendarEl.querySelectorAll('.tw-cal-nav').forEach(function(btn){
       btn.addEventListener('click', function(e){
         e.preventDefault();
         loadMonth(btn.dataset.month);

@@ -300,3 +300,299 @@
 - [x] **15.10.** `tailwind.css` jest jedynym źródłem CSS poza `tokens.css`, a `tailwind.build.css` jest aktualny i generowany automatycznie.
 - [x] **15.11.** Semantyczne klasy czatu są udokumentowane jako haki JS i nie są mylone z pozostałościami Bootstrapa. *(`.room-list-groups` zamiast `.row`; klasy widoku w `renderChatView`)*
 - [x] **15.12.** Testy Jest, regression scan, build CSS i adekwatne testy Playwright przechodzą. *(185 testów Jest, 5×E2E, scan i build — zielone)*
+
+---
+
+## 16. Dodatek — migracja klas czatu do standardów `tw-*`
+
+### 16.1. Cel i zakres dodatku
+
+Powyższy plan (etapy A–I) zajmuje się stabilnością, routingiem, WebSocketem i dostępnością czatu. Ten dodatek jest zamknięciem prac wizualnych: wszystkie klasy i haki JS modułu `chat` mają używać prefiksu `tw-*`, a `scripts/ui_guard.py` ma przestać wykluczać katalog `chat/` z walidacji.
+
+Zakres:
+- `chat/templates/chat/chat.html`
+- `chat/templates/chat/_embedded_chat.html`
+- `chat/templates/chat/room_link.html`
+- `chat/templates/chat/add.html`
+- `chat/static/chat/js/templates.js`
+- `chat/static/chat/js/chat.js`, `handlers.js`, `domapi.js`, `chat-embedded.js`, `chat-core.js`, `websocket-manager.js`, `wsapi.js`
+- `chat/static/chat/js/__tests__/*.js`
+- `home/static/home/css/tailwind.css` (sekcja czatu)
+- `tailwind.config.js` (safelista dla klas dynamicznych)
+- `scripts/ui_guard.py` (usunięcie wyjątku i dozwolonych klas czatu)
+
+Niezmienne:
+- logika biznesowa (anonimowość, uprawnienia, głosowania, format WebSocket);
+- modele, migracje, widoki Django;
+- ID, atrybuty `data-*` oraz kontrakty WebSocket.
+
+### 16.2. Decyzje wstępne do potwierdzenia
+
+Przed rozpoczęciem migracji wizualnej czatu trzeba rozstrzygnąć cztery kwestie:
+
+- [x] **Sortowanie w toolbarze — ujednolicamy z `activity`.**  
+   `sort-btn`/`sort-arrow` w czacie przechodzą na wspólne `tw-sort-btn`/`tw-sort-arrow`.
+- [x] **Klasy stanu — przerabiamy na `tw-*`.**  
+   `room-active`, `room-list-showing`, `room-list-hidden`, `open`, `visible`, `filtered-out` itp. → `tw-room-active`, `tw-room-list-showing`, `tw-room-list-hidden`, `tw-open`, `tw-visible`, `tw-filtered-out`.
+- [x] **Wielkość kroków — idziemy fazami.**  
+   Kolejność: (1) layout i lista pokoi, (2) szablony EJS, (3) JS + testy, (4) CSS + guard.
+- [x] **Globalne komponenty `avatar` i `username` — migrujemy globalnie.**  
+   `_user_avatar.html`, `chat.js`, `templates.js` i inne miejsca używające `.avatar`/`.username` przechodzą na `tw-avatar*`/`tw-username*` w ramach tego zadania.
+
+### 16.3. Faza JS-0 — audyt i przygotowanie narzędzi
+
+Przed dotykaniem szablonów wykonać:
+- [ ] wyciągnąć pełną listę unikalnych klas występujących w plikach `chat/templates` i `chat/static/chat/js`;
+- [ ] oznaczyć, które klasy są (a) klasami Tailwind `tw-*`, (b) komponentami wspólnymi `tw-btn`, `tw-dropdown-*` itp., (c) semantycznymi hakami JS czatu, (d) stanami globalnymi (`active`, `open`, `visible`, `tw-d-none`), (e) klasami do usunięcia/do zastąpienia;
+- [ ] przygotować macierz zamian (sekcja 16.5);
+- [ ] uruchomić `npm test` i `python manage.py test chat`, żeby mieć punkt odniesienia.
+
+### 16.4. Fazy migracji
+
+- [ ] **Faza 16.4.1 — layout strony i lista pokoi (szablony serwerowe)**
+
+| Zmieniana grupa | Kluczowe klasy źródłowe | Docelowe klasy `tw-*` |
+|---|---|---|
+| Strona czatu | `chat-page`, `chat-rooms`, `chat-root-messages`, `chat-conn-status` | `tw-chat-page`, `tw-chat-rooms`, `tw-chat-root-messages`, `tw-chat-conn-status` |
+| Kolumna listy | `room-list-col`, `room-list`, `room-list-groups`, `room-list-controls`, `room-list-controls-inner` | `tw-room-list-col`, `tw-room-list`, `tw-room-list-groups`, `tw-room-list-controls`, `tw-room-list-controls-inner` |
+| Wyszukiwarka pokoi | `room-search-wrapper`, `room-search-input`, `room-search-icon` | `tw-room-search-wrapper`, `tw-room-search-input`, `tw-room-search-icon` |
+| Link pokoju | `room-link`, `room-link__status/body/top/date/preview/sender/snippet/meta/muted-icon/actions/chevron`, `room-name` | `tw-room-link`, `tw-room-link-status/body/top/date/preview/sender/snippet/meta/muted-icon/actions/chevron`, `tw-room-name` |
+| Nawigacja kategorii | `nav-category`, `nav-cat-header`, `nav-cat-btn`, `nav-cat-arrow`, `nav-cat-content`, `archive-section` | `tw-chat-category`, `tw-chat-cat-header`, `tw-chat-cat-btn`, `tw-chat-cat-arrow`, `tw-chat-cat-content`, `tw-archive-section` |
+| Status | `nav-status`, `nav-status--unread`, `nav-status--read`, `nav-status--locked` | `tw-nav-status`, `tw-nav-status--unread`, `tw-nav-status--read`, `tw-nav-status--locked` |
+| Wbudowany czat | `ec-section`, `ec-section-title`, `ec-open-full`, `embedded-chat`, `ec-loading`, `ec-wrapper`, `ec-messages`, `ec-input-area`, `ec-form-row` itd. | `tw-ec-section`, `tw-ec-section-title`, `tw-ec-open-full`, `tw-embedded-chat`, `tw-ec-loading`, `tw-ec-wrapper`, `tw-ec-messages`, `tw-ec-input-area`, `tw-ec-form-row` |
+
+Dodatkowo:
+- [ ] usunąć pozostałości po `row`/`col-*` w `chat.html`;
+- [ ] body-class `chat-page` zmienić na `tw-chat-page` i zaktualizować CSS `body.chat-page` → `body.tw-chat-page`;
+- [ ] zachować `data-room-id`, `tabindex`, `data-cat-content`, `data-category` i inne atrybuty JS.
+
+- [ ] **Faza 16.4.2 — szablony EJS wiadomości i pokoju**
+
+W `chat/static/chat/js/templates.js` przerobić trzy szablony:
+- [ ] `room_template`:
+  - [ ] `chat-breadcrumb-row`, `chat-breadcrumb` → `tw-chat-breadcrumb-row`, `tw-chat-breadcrumb`;
+  - [ ] `chat-sort-toolbar` → `tw-chat-sort-toolbar`;
+  - [ ] `sort-btn`, `sort-arrow`, `active` na sortach → `tw-sort-btn`/`tw-chat-sort-btn`, `tw-sort-arrow`, stan `tw-sort-btn--active` lub globalny `tw-active`;
+  - [ ] `messages`, `empty-chat-message` → `tw-chat-messages`, `tw-empty-chat-message`;
+  - [ ] `image-preview-container`, `preview-images`, `delete-images-preview` → `tw-image-preview-container`, `tw-preview-images`, `tw-delete-images-preview`;
+  - [ ] `chat-controls` → `tw-chat-controls`;
+  - [ ] `reply-preview`, `reply-preview-label`, `reply-preview-text`, `reply-preview-close` → `tw-reply-preview*;
+  - [ ] `compose-box`, `message-input-rich`, `compose-bar`, `compose-bar-left/right`, `compose-separator`, `compose-send`, `fmt-toolbar`, `fmt-btn`, `anonymous-toggle`, `msg-counter`, `send-message` → odpowiedniki `tw-compose-box`, `tw-message-input-rich`, `tw-compose-bar*`, `tw-compose-separator`, `tw-compose-send`, `tw-fmt-toolbar`, `tw-fmt-btn`, `tw-anonymous-toggle`, `tw-msg-counter`, `tw-send-message`;
+- [ ] `message_template`:
+  - [ ] `message` → `tw-chat-message`;
+  - [ ] `own` → `tw-chat-message--own`;
+  - [ ] `message-content` → `tw-chat-message-content`;
+  - [ ] `message-header`, `message-header-left/right`, `message-timestamp`, `message-btn` → `tw-chat-message-header*`, `tw-message-timestamp`, `tw-message-btn`;
+  - [ ] `msg-body`, `msg-text`, `attachment-image-container`, `attached-image` → `tw-msg-body`, `tw-msg-text`, `tw-attachment-image-container`, `tw-attached-image`;
+  - [ ] `msg-quote*`, `msg-meta-row`, `msg-vote`, `msg-upvotes/downvotes`, `msg-divider`, `vote-bar-*` → `tw-msg-quote*`, `tw-msg-meta-row`, `tw-msg-vote`, `tw-msg-upvotes/downvotes`, `tw-msg-divider`, `tw-vote-bar-*`;
+  - [ ] `reaction-btn`, `reaction-count`, `reaction-btn--active` → `tw-reaction-btn`, `tw-reaction-count`, `tw-reaction-btn--active`;
+  - [ ] `read-by-dropdown`, `read-by-list`, `read-by-item`, `read-by-username`, `read-by-empty` → `tw-read-by-*`;
+  - [ ] `username`, `username-link`, `avatar`, `avatar-2xl`, `avatar-fallback` — decyzja z sekcji 16.2.4; zalecane tymczasowe zostawienie i oddzielny etap globalny dla `_user_avatar.html`;
+- [ ] `history_template`:
+  - [ ] `chat-history-table`, `chat-history-index`, `chat-history-meta` → `tw-chat-history-table`, `tw-chat-history-index`, `tw-chat-history-meta`.
+
+- [ ] **Faza 16.4.3 — JavaScript: selektory i togglowane stany**
+
+W plikach `chat.js`, `handlers.js`, `domapi.js`, `chat-embedded.js`, `chat-core.js`, `websocket-manager.js`, `wsapi.js` zaktualizować:
+- [ ] wszystkie `document.querySelector('.class')`, `$$('.class')`, `$.classList` itd.;
+- [ ] wszystkie `classList.add/remove/toggle` dla klas wizualnych czatu;
+- [ ] wszystkie szablony inline (np. `chat-embedded.js` i `chat.js` generujące `date-banner`, `ec-empty`, `ec-loading`).
+
+Szczególnie niebezpieczne stany do zamiany:
+- [ ] `room-list-hidden` → `tw-room-list-hidden`;
+- [ ] `room-active` → `tw-room-active`;
+- [ ] `room-list-showing` → `tw-room-list-showing`;
+- [ ] `room-not-seen` → `tw-room-link--not-seen`;
+- [ ] `online`, `joined`, `filtered-out`, `search-filtered-out`, `room-tapping`, `connecting` na `room-link` → `tw-room-link--online`, `tw-room-link--joined`, `tw-room-link--filtered-out`, `tw-room-link--search-filtered-out`, `tw-room-link--tapping`, `tw-room-link--connecting`;
+- [ ] `nav-cat-content.open` / `archive-section.visible` → decyzja z sekcji 16.2.2 (najbezpieczniej: `tw-open`/`tw-visible` jako globalne stany, chyba że ustalimy `tw-chat-cat-content--open`/`tw-archive-section--visible`);
+- [ ] `msg-vote.active` → `tw-msg-vote--active`;
+- [ ] `reaction-btn--active` → `tw-reaction-btn--active`;
+- [ ] `anonymous-toggle.active` → `tw-anonymous-toggle--active`;
+- [ ] `message--pending` → `tw-chat-message--pending`;
+- [ ] `message--failed` → `tw-chat-message--failed`;
+- [ ] `msg-highlight` → `tw-msg-highlight`;
+- [ ] `counter--warn`, `counter--error` → `tw-msg-counter--warn`, `tw-msg-counter--error`;
+- [ ] `compose-box.input--error` → `tw-compose-box--error`;
+- [ ] `chat-controls--readonly` → `tw-chat-controls--readonly`;
+- [ ] `toast-chat--visible` → `tw-toast-chat--visible`;
+- [ ] `chat-has-messages` → `tw-chat-has-messages`;
+- [ ] `chat-room-pulse` → `tw-chat-room-pulse`;
+- [ ] `copy-feedback` → `tw-copy-feedback`.
+
+- [ ] **Faza 16.4.4 — testy jednostkowe Jest**
+
+Wszystkie testy w `chat/static/chat/js/__tests__/*.js` trzeba zsynchronizować z nowymi klasami. Najważniejsze testy dotknięte zmianami:
+- [ ] `breakpoint_transition.test.js` — `chat-rooms`, `chat-root-messages`, `room-list-col`, `room-list-groups`;
+- [ ] `chat_embedded_lifecycle.test.js` — `ec-loading`, `empty-chat-message`, `image-preview-container`;
+- [ ] `image_preview_visibility.test.js` — `image-preview-container`, `tw-d-none`;
+- [ ] `image_viewer_close.test.js` — `image-viewer-*`;
+- [ ] `room_list_sort.test.js` — `nav-cat-content`, `archive-section`, `room-link`, `sort-dir-icon`;
+- [ ] `unread_empty_state.test.js`, `unread_filter_override.test.js` — `room-link`.
+
+Dodatkowo należy uruchomić `npm test` po każdej fazie JS, żeby szybko wykryć zapomniane selektory.
+
+- [ ] **Faza 16.4.5 — CSS**
+
+W `home/static/home/css/tailwind.css` przenumerować sekcję czatu (ok. 5658–6670) na nowe selektory `tw-*`:
+- [ ] zastąpić `body.chat-page` → `body.tw-chat-page`;
+- [ ] zastąpić `.chat-rooms`, `.chat-root-messages`, `.room-list-col` itd. → `.tw-chat-rooms`, `.tw-chat-root-messages`, `.tw-room-list-col`;
+- [ ] zastąpić zagnieżdżone selektory `.messages .message .message-content .msg-body` → płaskie `.tw-chat-messages`, `.tw-chat-message`, `.tw-chat-message-content`, `.tw-msg-body`;
+- [ ] zachować reguły mobilne (`position: fixed`, `100dvh` itp.) z `CHAT_REWORK_PLAN` — nie można ich usunąć wraz ze zmianą nazw;
+- [ ] usunąć pozostałości `:has()` i `body:has(.chat-rooms)` (jeśli jeszcze istnieją);
+- [ ] dla każdej klasy stanu dodać odpowiednik `tw-*` i zachować przejście.
+
+- [ ] **Faza 16.4.6 — `tailwind.config.js` i build**
+
+Dodać do safelisty wszystkie klasy dynamiczne, których nie widać statycznie w szablonach, a są dodawane przez JS:
+- [ ] `tw-room-link--online`, `tw-room-link--joined`, `tw-room-link--not-seen`, `tw-room-link--filtered-out`, `tw-room-link--search-filtered-out`, `tw-room-link--tapping`, `tw-room-link--connecting`;
+- [ ] `tw-chat-message--own`, `tw-chat-message--pending`, `tw-chat-message--failed`, `tw-msg-highlight`;
+- [ ] `tw-reaction-btn--active`;
+- [ ] `tw-msg-vote--active`;
+- [ ] `tw-msg-counter--warn`, `tw-msg-counter--error`;
+- [ ] `tw-compose-box--error`;
+- [ ] `tw-anonymous-toggle--active`;
+- [ ] `tw-open`, `tw-visible` (lub `tw-chat-cat-content--open`, `tw-archive-section--visible`);
+- [ ] `tw-room-active`, `tw-room-list-showing`, `tw-room-list-hidden`;
+- [ ] `tw-sort-btn--active`;
+- [ ] `tw-toast-chat--visible`;
+- [ ] `tw-chat-has-messages`;
+- [ ] `tw-chat-room-pulse`;
+- [ ] `tw-nav-status--unread`, `tw-nav-status--read`, `tw-nav-status--locked`.
+
+Po edycji `tailwind.config.js` wykonać `npm run build:css`.
+
+- [ ] **Faza 16.4.7 — `ui_guard.py` i regresja**
+
+W `scripts/ui_guard.py`:
+- [ ] usunąć `chat/` z `EXEMPT_PREFIXES`;
+- [ ] usunąć z `ALLOWED_NON_TW_CLASSES` wszystkie regexy czatowe, które zostały zamigrowane (`room-link.*`, `room-list-groups`, `archive-section`, `nav-cat-content`, `message`, `msg-vote`, `reaction-btn.*`, `filtered-out`, `room-not-seen`, `compose-box`, `message-input-rich`, `fmt-btn`, `chat-has-messages` itd.);
+- [ ] pozostawić tylko globalne stany (`active`, `open`, `visible`, `hidden`, `disabled`, `tw-d-none` itp.) oraz klasy współdzielone, których globalnej migracji nie robimy teraz (`avatar.*`, `username.*`, `badge.*` itp.).
+
+Uruchomić:
+- [ ] `python scripts/ui_guard.py --all`
+- [ ] `python scripts/regression_scan.py`
+- [ ] `npm run build:css`
+- [ ] `ruff check .`
+- [ ] `python manage.py check`
+
+### 16.5. Macierz konwersji klas (wycinek)
+
+| Klasa źródłowa | Klasa docelowa | Uwagi |
+|---|---|---|
+| `.chat-page` | `.tw-chat-page` | hook strony, używany przez JS/CSS |
+| `.chat-rooms` | `.tw-chat-rooms` | główny layout |
+| `.chat-root-messages` | `.tw-chat-root-messages` | panel wiadomości |
+| `.chat-conn-status` | `.tw-chat-conn-status` | status połączenia |
+| `.room-list-col` | `.tw-room-list-col` | kolumna listy |
+| `.room-list` | `.tw-room-list` | lista pokoi |
+| `.room-list-groups` | `.tw-room-list-groups` | wrapper kategorii |
+| `.room-list-controls` | `.tw-room-list-controls` | toolbar listy |
+| `.room-search-input` | `.tw-room-search-input` | input wyszukiwania |
+| `.room-link` | `.tw-room-link` | element listy |
+| `.room-link__status` | `.tw-room-link-status` | płaskie BEM → flat |
+| `.room-link__body` | `.tw-room-link-body` | płaskie BEM → flat |
+| `.room-link__top` | `.tw-room-link-top` | płaskie BEM → flat |
+| `.room-name` | `.tw-room-name` | nazwa pokoju |
+| `.room-link__date` | `.tw-room-link-date` | data |
+| `.room-link__preview` | `.tw-room-link-preview` | podgląd |
+| `.room-link__sender` | `.tw-room-link-sender` | nadawca w podglądzie |
+| `.room-link__snippet` | `.tw-room-link-snippet` | treść w podglądzie |
+| `.room-link__meta` | `.tw-room-link-meta` | meta |
+| `.room-link__muted-icon` | `.tw-room-link-muted-icon` | wyciszony |
+| `.room-link__actions` | `.tw-room-link-actions` | akcje |
+| `.room-link__chevron` | `.tw-room-link-chevron` | przycisk akcji |
+| `.nav-category` | `.tw-chat-category` | kategoria |
+| `.nav-cat-header` | `.tw-chat-cat-header` | nagłówek kategorii |
+| `.nav-cat-btn` | `.tw-chat-cat-btn` | przycisk kategorii |
+| `.nav-cat-arrow` | `.tw-chat-cat-arrow` | strzałka kategorii |
+| `.nav-cat-content` | `.tw-chat-cat-content` | zawartość kategorii |
+| `.archive-section` | `.tw-archive-section` | archiwum |
+| `.nav-status` | `.tw-nav-status` | status |
+| `.nav-status--unread` | `.tw-nav-status--unread` | dynamiczna — dodać do safelisty |
+| `.nav-status--read` | `.tw-nav-status--read` | dynamiczna |
+| `.nav-status--locked` | `.tw-nav-status--locked` | ikona zablokowania |
+| `.messages` | `.tw-chat-messages` | kontener wiadomości |
+| `.empty-chat-message` | `.tw-empty-chat-message` | pusty pokój |
+| `.date-banner` | `.tw-date-banner` | data w czacie |
+| `.message` | `.tw-chat-message` | wiadomość |
+| `.message.own` | `.tw-chat-message.tw-chat-message--own` | stan własnej wiadomości |
+| `.message-content` | `.tw-chat-message-content` | treść wiadomości |
+| `.message-header` | `.tw-chat-message-header` | nagłówek |
+| `.message-header-left/right` | `.tw-chat-message-header-left/right` | lewa/prawa strona |
+| `.message-timestamp` | `.tw-message-timestamp` | czas |
+| `.message-btn` | `.tw-message-btn` | przyciski wiadomości |
+| `.msg-body` | `.tw-msg-body` | ciało wiadomości |
+| `.msg-text` | `.tw-msg-text` | tekst |
+| `.attachment-image-container` | `.tw-attachment-image-container` | załącznik |
+| `.attached-image` | `.tw-attached-image` | obrazek |
+| `.msg-quote` | `.tw-msg-quote` | cytat |
+| `.msg-quote-mark` | `.tw-msg-quote-mark` | cudzysłów |
+| `.msg-quote-author` | `.tw-msg-quote-author` | autor cytatu |
+| `.msg-quote-text` | `.tw-msg-quote-text` | tekst cytatu |
+| `.msg-quote-jump` | `.tw-msg-quote-jump` | przycisk skoku |
+| `.msg-meta-row` | `.tw-msg-meta-row` | wiersz metadanych |
+| `.msg-vote` | `.tw-msg-vote` | głosowanie |
+| `.msg-vote.active` | `.tw-msg-vote.tw-msg-vote--active` | stan aktywny |
+| `.msg-upvotes/downvotes` | `.tw-msg-upvotes/downvotes` | liczniki |
+| `.msg-divider` | `.tw-msg-divider` | separator |
+| `.reaction-btn` | `.tw-reaction-btn` | reakcja |
+| `.reaction-btn--active` | `.tw-reaction-btn--active` | aktywna reakcja |
+| `.reaction-count` | `.tw-reaction-count` | licznik reakcji |
+| `.read-by-toggle` | `.tw-read-by-toggle` | czytający |
+| `.read-by-dropdown` | `.tw-read-by-dropdown` | dropdown czytających |
+| `.read-by-list` | `.tw-read-by-list` | lista |
+| `.read-by-item` | `.tw-read-by-item` | element |
+| `.read-by-username` | `.tw-read-by-username` | użytkownik |
+| `.read-by-empty` | `.tw-read-by-empty` | pusty stan |
+| `.chat-breadcrumb` | `.tw-chat-breadcrumb` | breadcrumb |
+| `.chat-breadcrumb-row` | `.tw-chat-breadcrumb-row` | wiersz breadcrumba |
+| `.chat-sort-toolbar` | `.tw-chat-sort-toolbar` | toolbar sortowania |
+| `.sort-btn` | `.tw-sort-btn` (lub `.tw-chat-sort-btn`) | decyzja z 16.2.1 |
+| `.sort-arrow` | `.tw-sort-arrow` | strzałka sortu |
+| `.chat-controls` | `.tw-chat-controls` | kontrolki czatu |
+| `.compose-box` | `.tw-compose-box` | pole pisania |
+| `.compose-box.input--error` | `.tw-compose-box.tw-compose-box--error` | błąd walidacji |
+| `.message-input-rich` | `.tw-message-input-rich` | edytor |
+| `.compose-bar` | `.tw-compose-bar` | pasek narzędzi |
+| `.compose-bar-left/right` | `.tw-compose-bar-left/right` | lewa/prawa strona |
+| `.compose-separator` | `.tw-compose-separator` | separator |
+| `.fmt-toolbar` | `.tw-fmt-toolbar` | toolbar formatowania |
+| `.fmt-btn` | `.tw-fmt-btn` | przycisk formatowania |
+| `.anonymous-toggle` | `.tw-anonymous-toggle` | toggle anonimowości |
+| `.anonymous-toggle.active` | `.tw-anonymous-toggle.tw-anonymous-toggle--active` | aktywny |
+| `.msg-counter` | `.tw-msg-counter` | licznik znaków |
+| `.msg-counter.counter--warn` | `.tw-msg-counter.tw-msg-counter--warn` | ostrzeżenie |
+| `.msg-counter.counter--error` | `.tw-msg-counter.tw-msg-counter--error` | błąd |
+| `.compose-send` | `.tw-compose-send` | przycisk wysyłki |
+| `.send-message` | `.tw-send-message` | klasa wysyłająca |
+| `.image-preview-container` | `.tw-image-preview-container` | podgląd obrazków |
+| `.preview-images` | `.tw-preview-images` | kontener miniaturek |
+| `.delete-images-preview` | `.tw-delete-images-preview` | usuwanie |
+| `.reply-preview` | `.tw-reply-preview` | podgląd odpowiedzi |
+| `.reply-preview-label` | `.tw-reply-preview-label` | etykieta |
+| `.reply-preview-text` | `.tw-reply-preview-text` | tekst |
+| `.reply-preview-close` | `.tw-reply-preview-close` | przycisk zamknięcia |
+| `.chat-history-table` | `.tw-chat-history-table` | historia edycji |
+| `.chat-history-index` | `.tw-chat-history-index` | indeks |
+| `.chat-history-meta` | `.tw-chat-history-meta` | meta |
+
+### 16.6. Testowanie i kryterium zakończenia
+
+Po każdej fazie:
+- [ ] `npm run build:css`;
+- [ ] `python scripts/ui_guard.py --all`;
+- [ ] `python scripts/regression_scan.py`;
+- [ ] `npm test -- --runInBand`;
+- [ ] `python manage.py test chat`.
+
+Po całej migracji:
+- [ ] `python manage.py test home` (weryfikacja powiadomień/unread);
+- [ ] `ruff check .`;
+- [ ] `python manage.py check`;
+- [ ] brak pozostałości `chat/` w `EXEMPT_PREFIXES`;
+- [ ] brak niemigrowanych klas czatu w `ALLOWED_NON_TW_CLASSES`;
+- [ ] `tailwind.build.css` wygenerowany automatycznie, bez ręcznych zmian.
+
+### 16.7. Zależności od `CHAT_REWORK_PLAN`
+
+Dodatek ten zakłada, że etapy A–I są już stabilne. Jeśli planowane są dalsze zmiany w routing/WebSocket (etapy D–F), najlepiej je najpierw zamknąć, a dopiero potem ruszać z migracją `tw-*`, żeby nie mieszać nazw klas w środku refaktoringu logiki. Jeśli jednak użytkownik chce robić to równolegle, należy najpierw ustalić spójną macierz nazw i zamrozić ją na czas prac.

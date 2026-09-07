@@ -52,6 +52,11 @@ class Uzytkownik(models.Model):
         MONTHLY = 'monthly', _('Monthly')
         NEVER = 'never', _('Never')
 
+    class Theme(models.TextChoices):
+        AUTO = 'auto', _('Auto')
+        LIGHT = 'light', _('Bright')
+        DARK = 'dark', _('Dark')
+
     uid = models.OneToOneField(User, on_delete=models.CASCADE, editable=False, null=True, verbose_name=_('Username'))
 
     reputation = models.SmallIntegerField(null=True, default=0)
@@ -83,6 +88,9 @@ class Uzytkownik(models.Model):
     # Email digest frequency
     email_frequency = models.CharField(max_length=10, choices=EmailFrequency.choices, default=EmailFrequency.DAILY, help_text=_('How often to receive email activity digests'), verbose_name=_('Email frequency'))
     last_email_digest_at = models.DateTimeField(default=timezone.now, verbose_name=_('Last email digest sent at'))
+
+    # UI theme
+    theme = models.CharField(max_length=10, choices=Theme.choices, default=Theme.AUTO, help_text=_('Preferred UI theme for web and emails'), verbose_name=_('Theme'))
 
     # Push notification preferences
     push_notifications_obywatele = models.BooleanField(default=True, help_text=_('Receive push notifications about new citizens and membership requests'), verbose_name=_('Push citizenship notifications'))

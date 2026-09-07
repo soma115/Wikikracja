@@ -300,7 +300,9 @@ class GetUnseenRoomIdsTest(TestCase):
         empty = Room.objects.create(title="Empty")
         empty.allowed.add(self.user)
         self.assertEqual(get_unseen_room_ids(self.user), {regular.id, archived.id, inbox.id, unlisted.id, private.id})
-        self.assertEqual(get_unread_count_for_user(self.user), 1)
+        # Kafelek/badge liczy to, co lista czatu pokazuje jako nieprzeczytane:
+        # niezarchiwizowane pokoje z listy usera — Inbox wliczony, bo jest na liście.
+        self.assertEqual(get_unread_count_for_user(self.user), 2)
 
     def test_seen_flags_are_independent_per_user_and_recomputed(self):
         first = self.make_message_room("First")
@@ -337,7 +339,7 @@ class GetUnseenRoomIdsTest(TestCase):
 class DomainNotificationSignalTest(TestCase):
     def setUp(self):
         self.dispatch = self.enterContext(patch("core.notifications._dispatch_notification"))
-        self.user = SimpleNamespace(id=41, username="citizen", email="citizen@example.com")
+        self.user = SimpleNamespace(id=41, username="citizen", email="citizen@example.com", get_full_name=lambda: "Citizen")
 
     def assert_single_dispatch(self, notification_type, ws_type, tag, **entity_ids):
         self.dispatch.assert_called_once()

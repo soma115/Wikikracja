@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load richtext %}
+{% load feed_filters %}
 {% comment %}
   Partial: kafelek zadania (Agora-style).
   Oczekiwana zmienna: task — obiekt Task (z with_metrics + chat_msg_count)
@@ -40,7 +41,7 @@
           <i class="fas fa-comment-dots"></i>
           <span>{% trans 'Chat' %}</span>
           {% with n=task.chat_msg_count %}
-            {% if n %}<span class="task-chat-count">{{ n }}</span>{% endif %}
+            {% if n %}<span class="tw-text-xs tw-font-semibold">{{ n }}</span>{% endif %}
           {% endwith %}
         </a>
       {% endif %}
@@ -53,10 +54,10 @@
         <a href="{% url 'obywatele:obywatele_szczegoly' pk=task.assigned_to.pk %}"
            class="task-coordinator-link" onclick="event.stopPropagation()"
            data-tw-toggle="tooltip"
-           title="{% trans 'Coordinator' %}: {{ task.assigned_to.username }}">
+           title="{% trans 'Coordinator' %}: {{ task.assigned_to|display_name }}">
           <i class="fas fa-user-gear task-role-icon" aria-hidden="true"></i>
-          {% include "home/_user_avatar.html" with avatar=task.assigned_to.uzytkownik.avatar username=task.assigned_to.username size="md" %}
-          <span class="task-coordinator-name">{{ task.assigned_to.username }}</span>
+          {% include "home/_user_avatar.html" with avatar=task.assigned_to.uzytkownik.avatar username=task.assigned_to.username display_name=task.assigned_to|display_name size="md" %}
+          <span class="task-coordinator-name">{{ task.assigned_to|display_name }}</span>
         </a>
       {% else %}
         {# I'm coordinator OR no coordinator — pre-render both; JS toggles `hidden` on take/resign #}
@@ -64,10 +65,10 @@
            class="task-coordinator-link" onclick="event.stopPropagation()"
            data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}
            data-tw-toggle="tooltip"
-           title="{% trans 'Coordinator' %}: {{ request.user.username }}">
+           title="{% trans 'Coordinator' %}: {{ request.user|display_name }}">
           <i class="fas fa-user-gear task-role-icon" aria-hidden="true"></i>
-          {% include "home/_user_avatar.html" with avatar=request.user.uzytkownik.avatar username=request.user.username size="md" %}
-          <span class="task-coordinator-name">{{ request.user.username }}</span>
+          {% include "home/_user_avatar.html" with avatar=request.user.uzytkownik.avatar username=request.user.username display_name=request.user|display_name size="md" %}
+          <span class="task-coordinator-name">{{ request.user|display_name }}</span>
         </a>
         <span class="task-coordinator-empty"
               data-coord-state="empty"{% if task.assigned_to %} hidden{% endif %}
@@ -87,8 +88,7 @@
 
       {% if task.category %}
       <span class="task-meta-sep">·</span>
-      <span class="task-category"
-            data-tw-toggle="tooltip"
+      <span data-tw-toggle="tooltip"
             title="{% trans 'Category' %}: {{ task.category.name }}">
         <i class="fas fa-tag task-role-icon" aria-hidden="true"></i>
         {{ task.category.name }}
@@ -97,7 +97,7 @@
 
       <span class="task-meta-sep">·</span>
       <button type="button"
-              class="task-signatures task-helpers-btn"
+              class="task-helpers-btn"
               onclick="event.stopPropagation()"
               data-task-helpers="{{ task.pk }}"
               data-helpers-url="{% url 'tasks:helpers_json' pk=task.pk %}"
@@ -109,7 +109,7 @@
               data-tw-content="<div class='helpers-popover-loading'>{% trans 'Loading…' %}</div>"
               aria-label="{% trans 'People helping. Click to see the list.' %}">
         <i class="fas fa-hand-holding-heart fa-fw"></i>
-        <span class="task-signatures-count">{{ task.votes_up|default:0 }}</span>
+        <span class="tw-task-helpers-count">{{ task.votes_up|default:0 }}</span>
       </button>
 
       <button type="button"
@@ -125,7 +125,7 @@
               data-tw-content="<div class='helpers-popover-loading'>{% trans 'Loading…' %}</div>"
               aria-label="{% trans 'People against. Click to see the list.' %}">
         <i class="fas fa-ban fa-fw"></i>
-        <span class="task-against-count">{{ task.votes_down|default:0 }}</span>
+        <span class="tw-task-against-count">{{ task.votes_down|default:0 }}</span>
       </button>
     </div>
 
@@ -136,7 +136,7 @@
 
     {# Pełny opis #}
     {% if task.description %}
-    <div class="task-section">
+    <div>
       <div class="task-section-label">
         <i class="fas fa-file-lines fa-fw"></i> {% trans 'Description' %}
       </div>
@@ -150,8 +150,8 @@
       <a href="{% if task.assigned_to %}{% url 'obywatele:obywatele_szczegoly' pk=task.assigned_to.pk %}{% else %}#{% endif %}"
          class="task-assignee-link" data-coord-assignee
          {% if not task.assigned_to %}hidden {% endif %}onclick="event.stopPropagation()">
-        <span data-coord-avatar data-avatar-size="md">{% if task.assigned_to %}{% include "home/_user_avatar.html" with avatar=task.assigned_to.uzytkownik.avatar username=task.assigned_to.username size="md" %}{% endif %}</span>
-        <span class="task-assignee-name" data-coord-name>{{ task.assigned_to|default:'' }}</span>
+        <span data-coord-avatar data-avatar-size="md">{% if task.assigned_to %}{% include "home/_user_avatar.html" with avatar=task.assigned_to.uzytkownik.avatar username=task.assigned_to.username display_name=task.assigned_to|display_name size="md" %}{% endif %}</span>
+        <span class="task-assignee-name" data-coord-name>{{ task.assigned_to|display_name }}</span>
       </a>
       <span class="task-assignee-empty" data-coord-assignee-empty{% if task.assigned_to %} hidden{% endif %}>{% trans 'n/a' %}</span>
     </div>

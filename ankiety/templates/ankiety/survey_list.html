@@ -1,6 +1,7 @@
 {% extends 'home/base.html' %}
 {% load i18n %}
 {% load l10n %}
+{% load feed_filters %}
 
 {% block content %}
 
@@ -50,7 +51,7 @@
             {% if survey.author %}
               <span class="proposal-author-name">
                 <i class="fas fa-user-pen proposal-role-icon" aria-hidden="true"></i>
-                {{ survey.author.username }}
+                {{ survey.author|display_name }}
               </span>
             {% else %}
               <span class="proposal-author-name">—</span>
@@ -104,19 +105,17 @@
 
               {% if survey.has_voted %}
                 <div class="tw-text-muted tw-text-sm tw-mb-1">
-                  <i class="fas fa-info-circle"></i> {% trans 'You can change your vote.' %}
+                  <i class="fas fa-circle-info"></i> {% trans 'You can change your vote.' %}
                 </div>
               {% endif %}
               {% if survey.allow_multiple_choice %}
                 <div class="tw-text-muted tw-text-sm tw-mb-1">
-                  <i class="fas fa-info-circle"></i> {% trans 'You can select more than one option.' %}
+                  <i class="fas fa-circle-info"></i> {% trans 'You can select more than one option.' %}
                 </div>
               {% endif %}
             </form>
           {% else %}
-            <div class="survey-results">
-              {% include 'ankiety/_survey_results.html' with options=survey.options.all total_votes=survey.total_votes %}
-            </div>
+            {% include 'ankiety/_survey_results.html' with options=survey.options.all total_votes=survey.total_votes %}
           {% endif %}
         </div>
       </div>

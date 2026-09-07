@@ -59,12 +59,18 @@ def home(request: HttpRequest):
 def activity_page(request):
     all_items = feed_service.generate_feed_items(request.user)
     unread_count = feed_service.get_unread_count(request.user, all_items)
+    bookmark_count = sum(1 for i in all_items if i.get('is_bookmarked'))
     request._unread_count = unread_count
 
     # Filter unread only
     filter_unread = request.GET.get('filter') == 'unread'
     if filter_unread:
         all_items = [i for i in all_items if not i['is_read']]
+
+    # Filter bookmarks only
+    filter_bookmarks = request.GET.get('filter') == 'bookmarks'
+    if filter_bookmarks:
+        all_items = [i for i in all_items if i.get('is_bookmarked')]
 
     content_types = [
         ('', _('All')),
@@ -118,7 +124,9 @@ def activity_page(request):
             'sort': sort,
             'order': order,
             'filter_unread': filter_unread,
+            'filter_bookmarks': filter_bookmarks,
             'unread_count': unread_count,
+            'bookmark_count': bookmark_count,
             'content_types': content_types,
             'toolbar_sort_items': toolbar_sort_items,
             'toolbar_views': toolbar_views,
@@ -170,6 +178,24 @@ def save_filter_state(request):
     except Exception as e:
         log.exception("Error saving filter state: %s", e)
         return JsonResponse({'success': False, 'error': 'Internal server error'})
+
+
+@login_required
+@require_POST
+def toggle_bookmark(request):
+    """Toggle bookmark state for a feed item."""
+    content_type = request.POST.get('content_type')
+    object_id = request.POST.get('object_id')
+
+    if not content_type or not object_id:
+        return JsonResponse({'success': False, 'error': 'Missing parameters'})
+
+    try:
+        object_id = int(object_id)
+        is_bookmarked = feed_service.toggle_feed_bookmark(request.user, content_type, object_id)
+        return JsonResponse({'success': True, 'is_bookmarked': is_bookmarked})
+    except ValueError:
+        return JsonResponse({'success': False, 'error': 'Invalid parameters'})
 
 
 @login_required

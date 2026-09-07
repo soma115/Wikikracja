@@ -61,11 +61,11 @@ test.describe('desktop', () => {
         await page.goto('/glosowania/nowy/');
         await waitForLayout(page);
 
-        const form = page.locator('form.post-form');
+        const form = page.locator('form').first();
         await expect(form).toBeVisible();
 
         await expect(page.locator('#id_title')).toBeVisible();
-        await expect(page.locator('form.post-form button[type="submit"]')).toHaveCount(1);
+        await expect(form.locator('button[type="submit"]')).toHaveCount(1);
     });
 
     test('modal opens and closes with a11y attributes', async ({ page }) => {

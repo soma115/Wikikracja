@@ -8,10 +8,10 @@
 {% block glosowania %}
 <div class="tw-card">
   <div class="tw-card-header">
-    <span class="section-heading tw-section-heading">{% trans 'Edit law proposal' %}</span>
+    <span class="tw-section-heading">{% trans 'Edit law proposal' %}</span>
   </div>
   <div class="tw-card-body">
-    <form action="." method="POST" class="post-form" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
+    <form action="." method="POST" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
       {% csrf_token %}
       {{ form.title|as_crispy_field }}
       {{ form.tresc|as_crispy_field }}

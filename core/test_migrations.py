@@ -48,7 +48,7 @@ class ReadStatusMigrationTest(TransactionTestCase):
         self.original_permissions = self.permissions()
         self.assertEqual(len(self.original_permissions), 4)
         self.original_assignments = self.assignments()
-        constraints = self.original_schema[1]
+        constraints = self.original_schema
         self.assertEqual(constraints['readstatus_user_content_idx']['columns'], ['user_id', 'content_type'])
         self.assertTrue(constraints['readstatus_user_content_idx']['index'])
         self.assertTrue(any(c['unique'] and c['columns'] == ['user_id', 'content_type', 'object_id'] for c in constraints.values()))
@@ -69,7 +69,7 @@ class ReadStatusMigrationTest(TransactionTestCase):
 
     def schema(self):
         with connection.cursor() as cursor:
-            return sorted(connection.introspection.table_names(cursor)), connection.introspection.get_constraints(cursor, 'home_readstatus')
+            return connection.introspection.get_constraints(cursor, 'home_readstatus')
 
     def permissions(self):
         return list(self.Permission.objects.filter(content_type__model='readstatus', content_type__app_label__in=['home', 'core']).order_by('pk').values_list('pk', 'codename', 'name', 'content_type_id'))

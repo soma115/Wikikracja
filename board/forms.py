@@ -15,7 +15,7 @@ class PostForm(forms.ModelForm):
 
     class Meta:
         model = Post
-        fields = ('title', 'subtitle', 'category', 'text', 'is_public', 'is_important', 'featured_image', 'slug')
+        fields = ('title', 'subtitle', 'category', 'text', 'is_public', 'is_private', 'is_important', 'featured_image', 'slug')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,6 +23,10 @@ class PostForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_enctype = 'multipart/form-data'
         self.helper.add_input(Submit('submit', _('Save')))
+        self.fields['is_public'].help_text = _('This document will be available to unauthenticated users.')
+        self.fields['is_private'].label = _('Mine')
+        self.fields['is_private'].help_text = _('Checking this option will make the document visible only to you.')
+        self.fields['is_important'].help_text = _('A message will be sent to the Important chat room that this content has been changed.')
         self.fields['featured_image'].help_text = _("Maximum image size: %(max_size)s MB.") % {'max_size': settings.UPLOAD_IMAGE_MAX_SIZE_MB}
         self.fields['featured_image'].widget.attrs['data-max-size-mb'] = settings.UPLOAD_IMAGE_MAX_SIZE_MB
         self.fields['featured_image'].widget.attrs['data-max-size-error'] = _("Image is too large (max %s MB).")

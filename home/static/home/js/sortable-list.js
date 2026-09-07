@@ -72,7 +72,7 @@
       var handle = document.createElement('i');
       handle.className = 'fas fa-grip-vertical drag-handle';
       handle.setAttribute('aria-hidden', 'true');
-      var header = tile.querySelector('.dashboard-tile-header');
+      var header = tile.querySelector('.tw-dashboard-tile-header');
       (header || tile).appendChild(handle);
     });
 
@@ -85,7 +85,7 @@
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
       dragClass: 'sortable-drag',
-      filter: opts.filter || 'button, input, select, textarea, .tw-btn, .cal-nav, .dashboard-counter-btn',
+      filter: opts.filter || 'button, input, select, textarea, .tw-btn, .tw-cal-nav, .tw-dashboard-counter-btn',
       preventOnFilter: false,
       onEnd: function () {
         var order = Array.from(gridEl.children).map(function (tile) {

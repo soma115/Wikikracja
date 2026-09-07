@@ -12,7 +12,7 @@
     {% trans 'Adjust the values below. Only the parameters you change will be included in the referendum.' %}
   </p>
 
-  <form action="." method="POST" class="post-form" enctype="multipart/form-data" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
+  <form action="." method="POST" enctype="multipart/form-data" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
     {% csrf_token %}
 
     {% if form.non_field_errors %}

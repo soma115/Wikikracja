@@ -3,7 +3,7 @@ import logging
 from django.utils.translation import gettext_lazy as _
 
 from core.dashboard_registry import collect_dashboard_context, collect_public_context, collect_site_admin_context
-from core.services.feed import generate_feed_items, get_unread_count
+from core.services.feed import generate_feed_items, get_bookmarked_items, get_unread_count
 from site_settings.models import QuickLink
 
 log = logging.getLogger(__name__)
@@ -52,6 +52,7 @@ def build_dashboard_context(user, feed_items=None, filter_unread=False, month_pa
             'feed_items': feed_items,
             'filter_unread': filter_unread,
             'last_feed_items': [i for i in feed_items if i['content_type'] != 'event'][:6],
+            'bookmarked_items': get_bookmarked_items(user),
             '_unread_count': request_unread_count,
             'quick_links': list(QuickLink.objects.order_by('order')),
         }

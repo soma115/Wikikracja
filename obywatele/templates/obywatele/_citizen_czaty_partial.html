@@ -12,10 +12,10 @@
       <tbody>
         {% for row in rows %}
           <tr data-href="{% url 'chat:chat' %}#room_id={{ row.room.id }}&message_id={{ row.msg.id }}">
-            <td class="td-link tw-text-nowrap">
+            <td class="tw-text-nowrap">
               <a href="{% url 'chat:chat' %}#room_id={{ row.room.id }}&message_id={{ row.msg.id }}">{{ row.room_name }}</a>
             </td>
-            <td class="td-link td-truncate">
+            <td class="td-truncate">
               <a href="{% url 'chat:chat' %}#room_id={{ row.room.id }}&message_id={{ row.msg.id }}">{{ row.msg.text|plain_text|truncatechars:80 }}</a>
             </td>
             <td class="tw-text-muted tw-text-nowrap">

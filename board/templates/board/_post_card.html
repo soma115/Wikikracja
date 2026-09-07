@@ -4,7 +4,10 @@
   <a href="{% url 'board:view_post' post.pk %}" class="tw-post-card-link">
     <div class="tw-card-body tw-p-3 tw-flex tw-flex-col tw-gap-2 tw-flex-1">
       <div class="tw-min-w-0">
-        <div class="tw-font-semibold tw-text-title-clamp-2">{{ post.title }}</div>
+        <div class="tw-flex tw-items-start tw-gap-2">
+          <div class="tw-font-semibold tw-text-title-clamp-2 tw-flex-1">{{ post.title }}</div>
+          {% if post.is_public and not post.is_private %}<span class="tw-badge-status tw-badge-primary tw-text-nowrap tw-shrink-0">{% trans 'Public' %}</span>{% endif %}
+        </div>
         {% if post.subtitle %}
         <div class="tw-text-subtitle-clamp-2">{{ post.subtitle }}</div>
         {% endif %}
@@ -14,8 +17,8 @@
       </div>
       <div class="tw-flex tw-items-center tw-gap-2 tw-mt-auto">
         {% if post.author %}
-            {% include "home/_user_avatar.html" with avatar=post.author.uzytkownik.avatar username=post.author.username size="md" %}
-          <span class="text-author">{{ post.author.username }}</span>
+            {% include "home/_user_avatar.html" with avatar=post.author.uzytkownik.avatar username=post.author.username display_name=post.author|display_name size="md" %}
+          <span class="text-author">{{ post.author|display_name }}</span>
         {% endif %}
         <span class="tw-ms-auto tw-text-meta tw-shrink-0">{{ post.updated|date:"d.m.Y" }}</span>
       </div>

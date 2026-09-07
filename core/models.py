@@ -30,3 +30,19 @@ class ReadStatus(models.Model):
 
     def __str__(self):
         return f"{self.user.username} read {self.content_type} #{self.object_id}"
+
+
+class FeedBookmark(models.Model):
+    """Track which feed items a user has bookmarked."""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content_type = models.CharField(max_length=20, choices=ReadStatus.ContentType.choices)
+    object_id = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'content_type', 'object_id']
+        indexes = [models.Index(fields=['user', 'created_at'], name='feedbookmark_user_created_idx')]
+
+    def __str__(self):
+        return f"{self.user.username} bookmarked {self.content_type} #{self.object_id}"

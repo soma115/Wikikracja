@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load l10n %}
 {% load richtext %}
+{% load feed_filters %}
 
 {% block content %}
 <div class="tw-container tw-my-4">
@@ -50,7 +51,7 @@
     {% if survey.author %}
       <a href="{% url 'obywatele:obywatele_szczegoly' survey.author.pk %}" class="proposal-author-link">
         <i class="fas fa-user-pen proposal-role-icon" aria-hidden="true"></i>
-        {{ survey.author.username }}
+        {{ survey.author|display_name }}
       </a>
     {% else %}
       <span class="proposal-author-name">—</span>
@@ -61,7 +62,7 @@
   {% if is_active %}
     {% if has_voted %}
       <div class="tw-alert tw-alert-info tw-mb-3">
-        <i class="fas fa-info-circle"></i>
+        <i class="fas fa-circle-info"></i>
         {% trans 'You can change your vote.' %}
       </div>
     {% endif %}
@@ -72,7 +73,7 @@
       </h5>
       {% if survey.allow_multiple_choice %}
         <p class="tw-form-text tw-text-sm">
-          <i class="fas fa-info-circle"></i> {% trans 'You can select more than one option.' %}
+          <i class="fas fa-circle-info"></i> {% trans 'You can select more than one option.' %}
         </p>
       {% endif %}
       <div class="tw-mb-3">
@@ -124,7 +125,7 @@
       <div class="tw-list-group">
         {% for user, choices in voter_choices.items %}
           <div class="tw-list-group-item">
-            <span>{{ user.username }}</span>
+            <span>{{ user|display_name }}</span>
             <span class="tw-text-muted tw-text-end">{{ choices|join:", " }}</span>
           </div>
         {% endfor %}

@@ -18,7 +18,7 @@
               <i class="fas fa-comment-dots"></i>
               <span>{% trans "Chat" %}</span>
               {% with n=task.chat_room.messages.count %}
-                {% if n %}<span class="proposal-chat-count">{{ n }}</span>{% endif %}
+                {% if n %}<span>{{ n }}</span>{% endif %}
               {% endwith %}
             </a>
           {% endif %}

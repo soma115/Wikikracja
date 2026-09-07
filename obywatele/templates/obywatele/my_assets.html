@@ -1,11 +1,12 @@
 {% extends 'home/base.html' %}
 {% load static %}
 {% load i18n %}
+{% load feed_filters %}
 {% load crispy_forms_tags %}
 
 {% block content %}
 
-<p class="tw-mb-4">{% trans 'Here you can edit your assets' %} <b>{{ user }}</b></p>
+<p class="tw-mb-4">{% trans 'Here you can edit your assets' %} <b>{{ user|display_name }}</b></p>
 
 	<form action="#" method="post" enctype="multipart/form-data">{% csrf_token %}
 		<div class="tw-container">

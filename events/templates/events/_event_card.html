@@ -7,80 +7,80 @@
 {% endcomment %}
 
 {% with pk=occ.event.pk dt=occ.date|date:"YmdHis" %}
-<div class="proposal-card event-card{% if occ.is_past %} event-card--past{% endif %}">
+<div class="tw-event-card{% if occ.is_past %} tw-event-card--past{% endif %}">
 
-  <div class="proposal-card-header event-card-header"
+  <div class="tw-event-card-header"
        data-detail-url="{% url 'events:detail' occ.event.pk %}"
        role="link" tabindex="0">
 
-    <div class="event-card-inner">
-      <div class="event-card-date-pill{% if occ.is_past %} event-card-date-pill--past{% endif %}">
-        <span class="event-card-day">{{ occ.date|date:"d" }}</span>
-        <span class="event-card-month">{{ occ.date|date:"M Y" }}</span>
-        <span class="event-card-time">{{ occ.date|date:"H:i" }}</span>
+    <div class="tw-event-card-inner">
+      <div class="tw-event-card-date-pill{% if occ.is_past %} tw-event-card-date-pill--past{% endif %}">
+        <span class="tw-event-card-day">{{ occ.date|date:"d" }}</span>
+        <span class="tw-event-card-month">{{ occ.date|date:"M Y" }}</span>
+        <span class="tw-event-card-time">{{ occ.date|date:"H:i" }}</span>
       </div>
 
-      <div class="event-card-content">
-        <div class="event-card-title-row">
-          <span class="event-card-title">{{ occ.event.title }}</span>
+      <div class="tw-event-card-content">
+        <div class="tw-event-card-title-row">
+          <span class="tw-event-card-title">{{ occ.event.title }}</span>
         </div>
 
-        <div class="event-card-meta">
-          <span class="event-meta-item event-meta-frequency"
+        <div class="tw-event-card-meta">
+          <span class="tw-event-meta-item tw-event-meta-frequency"
                 title="{{ occ.event.get_frequency_display }}">
             <i class="fas fa-{% if occ.event.frequency == 'once' %}calendar-day{% else %}repeat{% endif %} fa-fw"></i>
             {{ occ.event.get_frequency_display }}
           </span>
           {% if occ.event.place %}
-            <span class="event-meta-item">
+            <span class="tw-event-meta-item">
               <i class="fas fa-map-marker-alt fa-fw"></i> {{ occ.event.place }}
             </span>
           {% endif %}
           {% if not occ.event.is_public %}
-            <span class="event-meta-item" title="{% trans 'Visible only to logged-in users' %}">
+            <span class="tw-event-meta-item" title="{% trans 'Visible only to logged-in users' %}">
               <i class="fas fa-lock fa-fw"></i> {% trans 'Private' %}
             </span>
           {% endif %}
           {% if occ.is_past %}
-            <span class="event-meta-item event-meta-past">{% trans 'Past' %}</span>
+            <span class="tw-event-meta-item tw-event-meta-past">{% trans 'Past' %}</span>
           {% endif %}
 
-          <span class="event-meta-sep">·</span>
+          <span class="tw-event-meta-sep">·</span>
 
           {% if occ.event.link %}
             <a href="{{ occ.event.link }}" target="_blank" rel="noopener"
-               class="event-meta-link" onclick="event.stopPropagation()">
+               class="tw-event-meta-link" onclick="event.stopPropagation()">
               <i class="fas fa-link fa-fw"></i> {% trans 'Meeting' %}
             </a>
           {% endif %}
           <a href="{{ occ.event.google_calendar_url }}" target="_blank" rel="noopener"
-             class="event-meta-link" onclick="event.stopPropagation()"
+             class="tw-event-meta-link" onclick="event.stopPropagation()"
              title="{% trans 'Add to Google Calendar' %}">
             <i class="far fa-calendar-plus fa-fw"></i> {% trans 'Calendar' %}
           </a>
           {% if user.is_authenticated %}
             <a href="{% url 'events:edit' occ.event.pk %}"
-               class="event-meta-link" onclick="event.stopPropagation()">
+               class="tw-event-meta-link" onclick="event.stopPropagation()">
               <i class="fas fa-pen fa-fw"></i> {% trans 'Edit' %}
             </a>
           {% endif %}
         </div>
       </div>
     </div>
-  </div>{# /.proposal-card-header #}
+  </div>{# /.tw-event-card-header #}
 
-  <div class="proposal-card-body"
+  <div class="tw-event-card-body"
        data-detail-url="{% url 'events:detail' occ.event.pk %}"
        role="link" tabindex="0">
 
-    <div class="proposal-section event-card-description">
-      <div class="proposal-section-label">
+    <div class="tw-event-card-description">
+      <div class="tw-event-section-label">
         <i class="fas fa-file-lines fa-fw"></i> {% trans 'Description' %}
       </div>
-      <div class="proposal-section-text">{{ occ.event.description|default:"&nbsp;"|richtext }}</div>
+      <div class="tw-event-section-text">{{ occ.event.description|default:"&nbsp;"|richtext }}</div>
     </div>
 
-  </div>{# /.proposal-card-body #}
+  </div>{# /.tw-event-card-body #}
 
 </div>
 {% endwith %}

@@ -248,4 +248,40 @@ Cel: przejście z Bootstrap + rozproszony custom CSS na jeden pipeline Tailwind,
 
 ---
 
+## E. Guardrails utrzymania unifikacji
+
+Aby dotychczasowa praca przy standaryzacji nie została zaprzepaszczona, wprowadzono trzy warstwy ochrony:
+
+1. **Mocne zasady w `AGENTS.md`** (`## 6. CSS i frontend → Utrzymanie unifikacji UI (guardrails)`)
+   - Zakaz moduł-specificznych reguł CSS.
+   - Wymóg prefiksu `tw-` dla nowych klas.
+   - Inline styles tylko dla dynamicznych CSS variables.
+   - Ikony wyłącznie ze słownika `docs/UI_STANDARDS.html`.
+   - Wymóg użycia shared partiali: toolbar, `tw-card`, empty state, `tw-proposals-list`.
+
+2. **`scripts/regression_scan.py`** — rozszerzony o UI lint
+   - Wciąż blokuje Bootstrap / usunięte arkusze CSS.
+   - Dodatkowo blokuje nowe `<link rel="stylesheet">` poza `tailwind.build.css` / `tokens.css` / `all.min.css`.
+   - Blokuje inline `style="..."` poza dynamicznymi CSS variables.
+
+3. **`scripts/ui_guard.py`** — pre-commit / CI guard
+   - `python scripts/ui_guard.py` — sprawdza zmienione pliki.
+   - `python scripts/ui_guard.py --all` — pełny audyt.
+   - `python scripts/ui_guard.py --all --strict` — pełny audyt, ostrzeżenia traktowane jako błędy.
+   - Sprawdza:
+     - czy nowe klasy mają prefiks `tw-*` lub są w istniejącym CSS,
+     - czy ikony są w `docs/UI_STANDARDS.html`,
+     - czy nowe widoki listy używają `tw-proposals-list` / `data-view-container`,
+     - czy nie pojawiają się inline styles,
+     - czy nie pojawiają się nowe arkusze CSS.
+
+4. **`docs/ADDING_NEW_UI.md`** — checklista dla każdego nowego widoku.
+
+### Bieżący stan audytu (do obsłużenia)
+
+- `ui_guard.py --all` wykrywa ~109 naruszeń — głównie istniejące klasy komponentowe (`post-form`, `task-section`, `email-*`, `dashboard-grid`, `asset-chip` itp.) oraz nowe ikony (`fa-info-circle`, `fa-rotate-left`, `fa-bullhorn`, `fa-paperclip`, `fa-chevron-down`, `fa-lock`).
+- Część z nich to legacy do stopniowej migracji; część (np. `feed-toggle-bookmark`, `tw-badge-survey`) to nowe patterny, które powinny zostać udokumentowane w `UI_STANDARDS.html` i `tailwind.config.js` safelist.
+
+---
+
 *Plan utworzony: {{ plan_date|default:"teraz" }}*

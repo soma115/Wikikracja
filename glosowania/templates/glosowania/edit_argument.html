@@ -18,7 +18,7 @@
     </small></p>
 </div>
 
-<form action="." method="POST" class="post-form">
+<form action="." method="POST">
     {% csrf_token %}
     <div class="tw-grid tw-grid-cols-1 tw-gap-3">
       {{ form.argument_type|as_crispy_field }}

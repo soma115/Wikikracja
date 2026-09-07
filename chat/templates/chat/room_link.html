@@ -1,4 +1,5 @@
 {% load i18n filters %}
+{% load feed_filters %}
 
 <div class="room-link {{ room|seen_by:user }}" tabindex="-1"
   data-room-type="{% if room.public %}public{% else %}private{% endif %}"
@@ -45,7 +46,7 @@
     </div>
     {% if room.last_message_at %}
       <div class="room-link__preview">
-        <span class="room-link__sender">{% if room.last_message_anonymous %}{% trans 'Anonymous' %}{% elif room.last_message_sender %}{{ room.last_message_sender.username }}{% else %}{% trans 'System' %}{% endif %}:</span>
+        <span class="room-link__sender">{% if room.last_message_anonymous %}{% trans 'Anonymous' %}{% elif room.last_message_sender %}{{ room.last_message_sender|display_name }}{% else %}{% trans 'System' %}{% endif %}:</span>
         {% with stripped=room.last_message_text|striptags %}
           <span class="room-link__snippet">{% if stripped|cut:" " %}{{ stripped|truncatechars:60 }}{% else %}{% trans 'attachment' %}{% endif %}</span>
         {% endwith %}

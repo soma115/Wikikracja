@@ -13,7 +13,7 @@
       <tbody>
         {% for task in tasks %}
           <tr data-href="{% url 'tasks:detail' pk=task.pk %}">
-            <td class="td-link"><a href="{% url 'tasks:detail' pk=task.pk %}">{{ task.title }}</a></td>
+            <td><a href="{% url 'tasks:detail' pk=task.pk %}">{{ task.title }}</a></td>
             <td>
               {% if task.status == 'active' %}
                 <span class="tw-badge-status tw-badge-success">{{ task.get_status_display }}</span>

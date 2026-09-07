@@ -1,11 +1,12 @@
 {% extends 'obywatele/menu.html' %}
 {% load i18n %}
+{% load feed_filters %}
 
 {% block citizens %}
 <div class="tw-container tw-section">
   <div class="tw-mb-3">
     <a href="{% url 'obywatele:obywatele_szczegoly' pk=target_user.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
-      ← {{ target_user.username }}
+      ← {{ target_user|display_name }}
     </a>
   </div>
 
@@ -15,7 +16,7 @@
         {% if is_own %}
           {% trans "My chats" %}
         {% else %}
-          {% blocktrans with name=target_user.username %}Chats of {{ name }}{% endblocktrans %}
+          {% blocktrans with name=target_user|display_name %}Chats of {{ name }}{% endblocktrans %}
         {% endif %}
       </span>
     </div>

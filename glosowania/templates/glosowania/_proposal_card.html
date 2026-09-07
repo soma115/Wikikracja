@@ -37,7 +37,7 @@
           <i class="fas fa-comment-dots"></i>
           <span>{% trans 'Chat' %}</span>
           {% with n=i.chat_room.messages.count %}
-            {% if n %}<span class="proposal-chat-count">{{ n }}</span>{% endif %}
+            {% if n %}<span>{{ n }}</span>{% endif %}
           {% endwith %}
         </a>
       {% elif i.chat_room %}
@@ -47,7 +47,7 @@
           <i class="fas fa-comment-dots"></i>
           <span>{% trans 'Chat' %}</span>
           {% with n=i.chat_room.messages.count %}
-            {% if n %}<span class="proposal-chat-count">{{ n }}</span>{% endif %}
+            {% if n %}<span>{{ n }}</span>{% endif %}
           {% endwith %}
         </a>
       {% endif %}
@@ -83,7 +83,7 @@
   <div class="proposal-card-body" data-detail-url="{% url 'glosowania:details' pk=i.pk %}" role="link" tabindex="0">
 
     {% if i.tresc %}
-    <div class="proposal-section proposal-section--law">
+    <div class="proposal-section--law">
       <div class="proposal-section-label">
         <i class="fas fa-scroll fa-fw"></i> {% trans 'Law text' %}
       </div>
@@ -92,7 +92,7 @@
     {% endif %}
 
     {% if i.kara %}
-    <div class="proposal-section proposal-section--consequences">
+    <div class="proposal-section--consequences">
       <div class="proposal-section-label">
         <i class="fas fa-triangle-exclamation fa-fw"></i> {% trans 'Consequences' %}
       </div>
@@ -101,7 +101,7 @@
     {% endif %}
 
     {% if i.uzasadnienie %}
-    <div class="proposal-section proposal-section--reasoning">
+    <div class="proposal-section--reasoning">
       <div class="proposal-section-label">
         <i class="fas fa-lightbulb fa-fw"></i> {% trans 'Reasoning' %}
       </div>
@@ -110,7 +110,7 @@
     {% endif %}
 
     {% if show_dates %}
-    <div class="proposal-section proposal-section--referendum">
+    <div class="proposal-section--referendum">
       <div class="proposal-section-label">
         <i class="fas fa-calendar fa-fw"></i> {% trans 'Referendum' %}
       </div>

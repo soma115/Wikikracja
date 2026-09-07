@@ -1,6 +1,7 @@
 {% extends 'home/base.html' %}
 {% load static %}
 {% load i18n %}
+{% load feed_filters %}
 
 {% block content %}
 <div class="tw-mb-3">
@@ -42,7 +43,7 @@
   {% endif %}
 </div>
 
-  <p class="tw-text-muted">{% if user.is_authenticated or not post.is_public %}{% trans 'Author' %}: {% if post.author %}{{ post.author }}{% else %} -- {% endif %} | {% endif %}{% trans 'Created' %}: {{ post.created|date:"Y-m-d" }} | {% trans 'Updated' %}: {{ post.updated|date:"Y-m-d" }} | {% if post.is_public %} {% trans 'Public' %} {% else %} {% trans 'Private' %} {% endif %}</p>
+  <p class="tw-text-muted">{% if user.is_authenticated or not post.is_public or post.is_private %}{% trans 'Author' %}: {% if post.author %}{{ post.author|display_name }}{% else %} -- {% endif %} | {% endif %}{% trans 'Created' %}: {{ post.created|date:"Y-m-d" }} | {% trans 'Updated' %}: {{ post.updated|date:"Y-m-d" }}{% if post.is_public and not post.is_private %} | {% trans 'Public' %}{% endif %}</p>
 
   {% if user.is_authenticated %}
     <a href="{% url 'board:edit_post' post.pk %}" class="tw-btn tw-btn-primary"><i class="fas fa-pen fa-fw tw-me-1"></i> {% trans 'Edit' %}</a>

@@ -1,6 +1,7 @@
 {% extends 'home/base.html' %}
 {% load i18n %}
 {% load bookkeeping_extras %}
+{% load feed_filters %}
 
 {% block prefs_scope %}bookkeeping{% endblock %}
 
@@ -60,7 +61,7 @@
             <td>{{ transaction.category|default:"-" }}</td>
             <td><small class="tw-text-muted">{{ transaction.asset.code }}</small></td>
             <td>{{ transaction.amount|normalize_decimal }} {{ transaction.asset.symbol }}</td>
-            <td>{{ transaction.author.username }}</td>
+            <td>{{ transaction.author|display_name }}</td>
             <td>
               {% if transaction.author == request.user %}
               <div class="tw-flex tw-gap-2 tw-justify-end">

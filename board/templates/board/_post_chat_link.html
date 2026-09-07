@@ -6,7 +6,7 @@
   <i class="fas fa-comment-dots"></i>
   <span>{% trans 'Chat' %}</span>
   {% with n=post.chat_room_message_count|default:0 %}
-    {% if n %}<span class="proposal-chat-count">{{ n }}</span>{% endif %}
+    {% if n %}<span>{{ n }}</span>{% endif %}
   {% endwith %}
 </a>
 {% endif %}

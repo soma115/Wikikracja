@@ -1,77 +1,26 @@
 # To są notatki użytkownika, nie zmieniaj tutaj nic.
 
-1. w aktywnosc/:
-  - W widoku listy pokazuj tylko jedną linijkę wiadomości z czatu, a nie trzy czy 2 jak do tej pory.
-  - A w widoku kafelków pokazuj 5 linijek tekstu.
-
-2. Dodajmy możliwość bookmarkowania powiadomień w aktywnosc/. Dodaj też w aktywność filtr "pokazuj tylko bookmarki". Dodaj Też kafelek na pulpicie, który będzie pokazywał bookmarki danego użytkownika.
-
-3. Kliknięcie na guzik nieprzeczytane z licznikiem powinno od razu nakładać filtr nieprzeczytany tak, aby lista, która się pokazuje była zgodna z tym licznikiem.
-
-4. 3 kafelki z głosowaniami zamienimy w 1 kafelek. Będą w nim wszystkie głosowania, propozycje dyskutowane i aktualnie głosowane. Pierwsze mają być aktualnie głosowane, drugie mają być dyskutowane, a trzecie to będą propozycje. Każde głosowanie w oddzielnej linijce, etykiety przed każdym, tak jak teraz.
-
-5. Na pulpicie dodaj kafelek do ankiet. Pokazuj od najnowszej do najstarszej jako listę.
-
-6. Wszędzie tam, gdzie wyświetlany jest użytkownik, pokazuj jego imię i nazwisko zamiast nicka.
-
-7. W powiadomieniach e-mail nie pokazuj nicka, imienia i nazwiska osoby, tylko informacja, że została zaproponowana nowa osoba.
-
-8. W BOARd/dokumenty, filtry czasami znikają, wyłączają się. Te filtry powinny być trwałe, to znaczy przy nawigacji do innych modułów i powrocie do BOARd wcześniej ustawione filtry powinien być dalej ustawione. Być może to zostało naprawione, więc sprawdź. 
+- Powinniśmy dodać ludziom wybór co do formy kontaktu. Niektórzy ludzie wolą telefon, a inni komunikatory. Niektóre komunikatory używają numeru telefonu, a inne nie. Komunikatory, których używamy, to Facebook, Discord, WhatsApp, Telegram, Signal. Opracuj sprytny formularz w taki sposób, żeby użytkownik mógł wybrać jedną lub wiele form kontaktu i żeby to było intuicyjne.
 
 - Dlaczego nadal są pozostałości takie jak Task #78 w /aktywnosc/? Pozbyliśmy się tego przedrostka, do czego on teraz jest używany?
 
-
-- Dodać prywatne dokumenty/board. Przełącznik, prywatny nie jest widoczny u nie-autora.
-
-- Sortowanie dokumentów alfabetycznie (domyślne sortowanie)
-
 - Prosta historia edycji dokumentów. Przydałoby się zapisywać przynajmniej kto edytował kiedy i nie wiem ile zostało zmienione. Nie wiem czy przechowywanie wersji dokumentu ma sens.
 
-w /board/ zarówno w widoku listy jak i kafelków pokazuj wyraźnie etykietę " Publiczne" (Prywatne nie pokazujemy - stan domyślny).
-
 - Zbierajmy raz dziennie dane do statystyk. bedzie to wymagało nowej tabeli w bazie. Patrzymy na wszystkie działy, które świadczą o aktywności grupy.
-
-- w aktywnosc/ powiadomienia z czatu na dużym ekranie 
-  - w widoku listy pokazuj 2 linijki wiadomości 
-  - w widoku kafelków pokazuj z 10 linijek
 
 - Jeśli w dokumencie jest obrazek wyróżniający, to ten obrazek powinien być przyciemniony i powinien być tłem, a na nim powinien być tytuł, podtytuł, ikona autora i data.
 
 - aktywnosc/ trzeba odświeżać ręcznie żeby zobaczyć co faktycznie jest przeczytane a co nie
 
-- Czat do dokumentów
-
 - jedna osoba dodaje umiejętność/zainteresowanie/hobby, pozostałe osoby mogą wybrać te rzeczy z listy.
 
 - nie dostaję powiadomień na telefon. Może jak są na komputerze to nie ma na telefonie?
 
-
-- Powiadomienia email, domyślnie raz dziennie, możliwość zmiany częstotliwości - raz na dzień, tydzień, miesiąc, nigdy:
-  - Głosowania
-  - Osoby
-  - Czat
-  - Wydarzenia
-  - Dokumenty
-  - Ankiety
-  - Zadania
-  - Finanse
-Powiadomienia Push tak jak teraz - każde oddzielnie, dodać więcej typów.
-E-maile z powiadomieniami są wysyłane według harmonogramu w scheduler.py:
-Czat — dwa razy dziennie: o 12:01 i 18:01 (@C:\Users\Robert\code\gitops\wikikracja\zzz\scheduler.py:48-50, ikracja\chat\management\commands\chat_messages.py" lines="20-21" />).
-Głosowania — raz dziennie: o 08:05 (scheduler.py:56-58, vote.py:21-22).
-Wydarzenia — co minutę, gdy w danej minucie zaczyna się jakieś wydarzenie (scheduler.py:68-69, services.py:34-41).
-Poza tym niektóre powiadomienia (np. o nowym obywatelu/prośbie o członkostwo, o nowej propozycji) są wysyłane natychmiastowo z poziomu formularzy/widoków, a nie cyklicznie.
-
-
 - testy są bardzo wolne. Może da się je jakoś zdeduplikować żeby je przyspieszyć? Raczej wszystkie są potrzebne.
-
-- W aktywnosc/ w powiadomieniach z czatu widać starą wiadomość zamiast najnowszej. Sprawdź skąd się bierze ten problem. A. zawsze widać 5 wiadomości ale nie wiem jak to inaczej zorganizować.
 
 - Jedno największe możliwe bezpieczne uproszczenie w kodzie, plikach i katalogach.
 
 - prosty i szybki mechanizm do zbierania statystyk na temat tego, które opcje w aplikacji są używane a które nie
-
-Bookkeeping zajmuje część strony na szerokość a pozostałe moduły całą stronę. Zrób tak żeby bookkeeping też zajmował całą szerokość strony. 
 
 - Możliwość dodawania specyficznie: x.com, fb, insta, itd.
 

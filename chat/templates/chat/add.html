@@ -6,7 +6,7 @@
 {% block content %}
 <div class="tw-container tw-my-4">
   <h2 class="tw-mb-4">{% trans 'New room' %}</h2>
-  <form action="." method="POST" class="post-form">
+  <form action="." method="POST">
     {% csrf_token %}
     <div class="tw-mb-3 tw-w-full md:tw-w-1/4">
       {{ form.title|as_crispy_field }}

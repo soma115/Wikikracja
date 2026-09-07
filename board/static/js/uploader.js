@@ -6,6 +6,9 @@ tinymce.init({
 
   menubar: false,
   toolbar_mode: 'sliding',
+  mobile: {
+    toolbar_mode: 'floating'
+  },
   resize: true,
   height: 500,
 

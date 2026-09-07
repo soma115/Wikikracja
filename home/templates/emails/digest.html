@@ -3,31 +3,271 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
   <title>{{ title }}</title>
   <style type="text/css">
-    .email-body { margin: 0; padding: 0; background-color: #f4f4f7; font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; }
-    .email-wrapper { width: 100%; background-color: #f4f4f7; }
+    /* Light (default) email theme tokens. Fallback colors are listed first so older
+       clients get a readable light design; CSS-variable-capable clients override them. */
+    .email-wrapper {
+      --email-bg: #f0f2f5;
+      --email-card-bg: #ffffff;
+      --email-card-border: rgba(0, 0, 0, .1);
+      --email-text: #1e2030;
+      --email-muted: rgba(0, 0, 0, .55);
+      --email-accent: #059984;
+      --email-accent-hover: #047a6a;
+      --email-accent-text: #111111;
+      --email-item-border: rgba(0, 0, 0, .1);
+      --email-link: #047a6a;
+      width: 100%;
+      background-color: #f0f2f5;
+      background-color: var(--email-bg);
+      font-family: Arial, Helvetica, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Explicit dark theme */
+    .email-wrapper[data-theme="dark"] {
+      --email-bg: #161b2e;
+      --email-card-bg: #1e2340;
+      --email-card-border: rgba(255, 255, 255, .08);
+      --email-text: #e8eaf0;
+      --email-muted: rgb(232, 234, 240);
+      --email-accent: #00d1b2;
+      --email-accent-hover: #00b09b;
+      --email-accent-text: #111111;
+      --email-item-border: rgba(255, 255, 255, .08);
+      --email-link: #00d1b2;
+    }
+
+    /* Auto: follow the mail client or system color scheme */
+    @media (prefers-color-scheme: dark) {
+      .email-wrapper[data-theme="auto"] {
+        --email-bg: #161b2e;
+        --email-card-bg: #1e2340;
+        --email-card-border: rgba(255, 255, 255, .08);
+        --email-text: #e8eaf0;
+        --email-muted: rgb(232, 234, 240);
+        --email-accent: #00d1b2;
+        --email-accent-hover: #00b09b;
+        --email-accent-text: #111111;
+        --email-item-border: rgba(255, 255, 255, .08);
+        --email-link: #00d1b2;
+      }
+    }
+
+    .email-body { margin: 0; padding: 0; }
+
     .email-container { padding: 32px 16px; }
-    .email-card { max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
-    .email-header { padding: 28px 32px 24px; background: linear-gradient(135deg, #2b6cb0, #2c5282); color: #ffffff; }
+
+    .email-card {
+      max-width: 600px;
+      width: 100%;
+      border-radius: 0.65rem;
+      overflow: hidden;
+      background-color: #ffffff;
+      background-color: var(--email-card-bg);
+      color: #1e2030;
+      color: var(--email-text);
+      border: 1px solid rgba(0, 0, 0, .1);
+      border: 1px solid var(--email-card-border);
+    }
+
+    .email-wrapper[data-theme="dark"] .email-card,
+    .email-wrapper[data-theme="auto"] .email-card {
+      background-color: #1e2340;
+      background-color: var(--email-card-bg);
+      color: #e8eaf0;
+      color: var(--email-text);
+      border-color: rgba(255, 255, 255, .08);
+      border-color: var(--email-card-border);
+    }
+
+    .email-header {
+      padding: 28px 32px 24px;
+      background: linear-gradient(135deg, #059984, #047a6a);
+      background: linear-gradient(135deg, var(--email-accent), var(--email-accent-hover));
+      color: #111111;
+      color: var(--email-accent-text);
+    }
+
+    .email-wrapper[data-theme="dark"] .email-header,
+    .email-wrapper[data-theme="auto"] .email-header {
+      background: linear-gradient(135deg, #00d1b2, #00b09b);
+      background: linear-gradient(135deg, var(--email-accent), var(--email-accent-hover));
+      color: #111111;
+      color: var(--email-accent-text);
+    }
+
     .email-title { margin: 0; font-size: 22px; font-weight: 600; line-height: 1.3; }
     .email-site { margin: 8px 0 0; font-size: 14px; opacity: 0.9; }
+
     .email-content { padding: 28px 32px 8px; }
-    .email-intro { margin: 0 0 24px; color: #4a5568; font-size: 15px; line-height: 1.6; }
-    .email-section-title { margin: 28px 0 14px; font-size: 12px; font-weight: 700; color: #2d3748; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
-    .email-item { margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid #edf2f7; }
-    .email-item-title { color: #2b6cb0; font-size: 16px; font-weight: 600; text-decoration: none; }
-    .email-item-meta { color: #718096; font-size: 13px; white-space: nowrap; }
-    .email-item-count { color: #a0aec0; font-size: 13px; }
-    .email-item-desc { margin: 8px 0 0; color: #4a5568; font-size: 14px; line-height: 1.5; }
-    .email-footer { padding: 24px 32px 28px; background-color: #f7fafc; text-align: center; }
-    .email-button { display: inline-block; padding: 12px 24px; background-color: #2b6cb0; color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600; }
-    .email-footer-text { margin: 18px 0 0; font-size: 12px; color: #718096; }
-    .email-footer-link { color: #4a5568; text-decoration: underline; }
+
+    .email-intro {
+      margin: 0 0 24px;
+      color: rgba(0, 0, 0, .55);
+      color: var(--email-muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .email-wrapper[data-theme="dark"] .email-intro,
+    .email-wrapper[data-theme="auto"] .email-intro {
+      color: rgb(232, 234, 240);
+      color: var(--email-muted);
+    }
+
+    .email-section-title {
+      margin: 28px 0 14px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding-bottom: 8px;
+      color: #059984;
+      color: var(--email-accent);
+      border-bottom: 1px solid rgba(0, 0, 0, .1);
+      border-bottom: 1px solid var(--email-item-border);
+    }
+
+    .email-wrapper[data-theme="dark"] .email-section-title,
+    .email-wrapper[data-theme="auto"] .email-section-title {
+      color: #00d1b2;
+      color: var(--email-accent);
+      border-color: rgba(255, 255, 255, .08);
+      border-color: var(--email-item-border);
+    }
+
+    .email-item {
+      margin-bottom: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(0, 0, 0, .1);
+      border-bottom: 1px solid var(--email-item-border);
+    }
+
+    .email-wrapper[data-theme="dark"] .email-item,
+    .email-wrapper[data-theme="auto"] .email-item {
+      border-color: rgba(255, 255, 255, .08);
+      border-color: var(--email-item-border);
+    }
+
+    .email-item-title {
+      color: #047a6a;
+      color: var(--email-link);
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .email-wrapper[data-theme="dark"] .email-item-title,
+    .email-wrapper[data-theme="auto"] .email-item-title {
+      color: #00d1b2;
+      color: var(--email-link);
+    }
+
+    .email-item-meta {
+      color: rgba(0, 0, 0, .55);
+      color: var(--email-muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .email-wrapper[data-theme="dark"] .email-item-meta,
+    .email-wrapper[data-theme="auto"] .email-item-meta {
+      color: rgb(232, 234, 240);
+      color: var(--email-muted);
+    }
+
+    .email-item-count {
+      color: rgba(0, 0, 0, .55);
+      color: var(--email-muted);
+      font-size: 13px;
+    }
+
+    .email-wrapper[data-theme="dark"] .email-item-count,
+    .email-wrapper[data-theme="auto"] .email-item-count {
+      color: rgb(232, 234, 240);
+      color: var(--email-muted);
+    }
+
+    .email-item-desc {
+      margin: 8px 0 0;
+      color: #1e2030;
+      color: var(--email-text);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .email-wrapper[data-theme="dark"] .email-item-desc,
+    .email-wrapper[data-theme="auto"] .email-item-desc {
+      color: #e8eaf0;
+      color: var(--email-text);
+    }
+
+    .email-footer {
+      padding: 24px 32px 28px;
+      text-align: center;
+      border-top: 1px solid rgba(0, 0, 0, .1);
+      border-top: 1px solid var(--email-item-border);
+    }
+
+    .email-wrapper[data-theme="dark"] .email-footer,
+    .email-wrapper[data-theme="auto"] .email-footer {
+      border-color: rgba(255, 255, 255, .08);
+      border-color: var(--email-item-border);
+    }
+
+    .email-button {
+      display: inline-block;
+      padding: 12px 24px;
+      border-radius: 0.45rem;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      background-color: #059984;
+      background-color: var(--email-accent);
+      color: #111111;
+      color: var(--email-accent-text);
+    }
+
+    .email-wrapper[data-theme="dark"] .email-button,
+    .email-wrapper[data-theme="auto"] .email-button {
+      background-color: #00d1b2;
+      background-color: var(--email-accent);
+      color: #111111;
+      color: var(--email-accent-text);
+    }
+
+    .email-footer-text {
+      margin: 18px 0 0;
+      font-size: 12px;
+      color: rgba(0, 0, 0, .55);
+      color: var(--email-muted);
+    }
+
+    .email-wrapper[data-theme="dark"] .email-footer-text,
+    .email-wrapper[data-theme="auto"] .email-footer-text {
+      color: rgb(232, 234, 240);
+      color: var(--email-muted);
+    }
+
+    .email-footer-link {
+      color: #1e2030;
+      color: var(--email-text);
+      text-decoration: underline;
+    }
+
+    .email-wrapper[data-theme="dark"] .email-footer-link,
+    .email-wrapper[data-theme="auto"] .email-footer-link {
+      color: #e8eaf0;
+      color: var(--email-text);
+    }
   </style>
 </head>
 <body class="email-body">
-  <table class="email-wrapper" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+  <table class="email-wrapper" data-theme="{{ theme }}" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
     <tr>
       <td class="email-container" align="center">
         <table class="email-card" role="presentation" width="600" cellspacing="0" cellpadding="0" border="0">

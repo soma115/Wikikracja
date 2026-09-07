@@ -16,7 +16,7 @@
 
 {# ── AGENDA + GRID ── #}
 <div data-view-container>
-  <div class="events-agenda" data-view-only="list">
+  <div class="tw-events-agenda" data-view-only="list">
     {% include 'events/_agenda_chunk.html' %}
   </div>
 
@@ -30,9 +30,9 @@
   </div>
 </div>
 
-<div class="events-empty{% if occurrences %} tw-hidden{% endif %}">
+<div class="tw-events-empty{% if occurrences %} tw-hidden{% endif %}">
   <i class="fas fa-calendar-xmark fa-2x"></i>
-  <div class="events-empty-title">{% trans "No events in the selected month" %}</div>
+  <div class="tw-events-empty-title">{% trans "No events in the selected month" %}</div>
   {% if user.is_authenticated %}
     <a href="{% url 'events:create' %}" class="tw-btn-cta">
       <i class="fas fa-plus"></i> {% trans 'Add the first event' %}
@@ -44,7 +44,7 @@
 <script>
 (function(){
   var gridEl     = document.querySelector('[data-view-only="grid"]');
-  var emptyEl    = document.querySelector('.events-empty');
+  var emptyEl    = document.querySelector('.tw-events-empty');
   var calendarEl = document.getElementById('events-calendar');
   var calUrl          = '{% url "events:calendar" %}';
   var agendaChunkUrl  = '{% url "events:agenda_chunk" %}';
@@ -52,12 +52,12 @@
   var pendingFetch    = null;
 
   function highlightSelectedDay(iso) {
-    document.querySelectorAll('.cal-day-link.cal-day-link--selected').forEach(function(el){
-      el.classList.remove('cal-day-link--selected');
+    document.querySelectorAll('.tw-cal-day-link.tw-cal-day-link--selected').forEach(function(el){
+      el.classList.remove('tw-cal-day-link--selected');
     });
     if (iso) {
       document.querySelectorAll('[data-day="' + iso + '"]').forEach(function(el){
-        el.classList.add('cal-day-link--selected');
+        el.classList.add('tw-cal-day-link--selected');
       });
     }
   }
@@ -65,14 +65,14 @@
   function resetDateFilter() {
     activeFromDate = null;
     highlightSelectedDay(null);
-    document.querySelectorAll('.agenda-day, [data-view-only="grid"] [data-date]').forEach(function(el){
+    document.querySelectorAll('.tw-agenda-day, [data-view-only="grid"] [data-date]').forEach(function(el){
       el.style.display = '';
     });
   }
 
   // Hide everything before `iso` (YYYY-MM-DD), reveal everything from `iso` onwards.
   function setFromDate(iso) {
-    document.querySelectorAll('.agenda-day').forEach(function(d){
+    document.querySelectorAll('.tw-agenda-day').forEach(function(d){
       d.style.display = d.id.replace('day-','') < iso ? 'none' : '';
     });
   }
@@ -84,7 +84,7 @@
   }
 
   function insertChunkIntoAgenda(wrapper) {
-    var agenda = document.querySelector('.events-agenda');
+    var agenda = document.querySelector('.tw-events-agenda');
     if (!agenda) return;
     agenda.innerHTML = '';
 
@@ -93,7 +93,7 @@
       agenda.appendChild(node.cloneNode(true));
     });
 
-    if (emptyEl) emptyEl.classList.toggle('tw-hidden', Boolean(wrapper.querySelector('.agenda-day')));
+    if (emptyEl) emptyEl.classList.toggle('tw-hidden', Boolean(wrapper.querySelector('.tw-agenda-day')));
   }
 
   function insertChunkIntoGrid(wrapper) {
@@ -146,13 +146,13 @@
   }
 
   function bindCalLinks(rootEl) {
-    rootEl.querySelectorAll('.cal-nav').forEach(function(btn){
+    rootEl.querySelectorAll('.tw-cal-nav').forEach(function(btn){
       btn.addEventListener('click', function(e){
         e.preventDefault();
         loadMonth(btn.dataset.month);
       });
     });
-    rootEl.querySelectorAll('.cal-year-select').forEach(function(select){
+    rootEl.querySelectorAll('.tw-cal-year-select').forEach(function(select){
       select.addEventListener('change', function(){
         loadMonth(select.value + '-' + String(select.dataset.month).padStart(2, '0'));
       });
@@ -176,7 +176,7 @@
     }
     if (calendarEl.dataset.pendingMonth === targetMonth) return;
     calendarEl.dataset.pendingMonth = targetMonth;
-    calendarEl.classList.add('events-calendar--loading');
+    calendarEl.classList.add('tw-events-calendar--loading');
     return fetch(calUrl + '?picker=1&month=' + targetMonth, {headers:{'X-Requested-With':'XMLHttpRequest'}})
       .then(function(r){ return r.text(); })
       .then(function(html){
@@ -184,7 +184,7 @@
         calendarEl.innerHTML = html;
         calendarEl.dataset.month = targetMonth;
         delete calendarEl.dataset.pendingMonth;
-        calendarEl.classList.remove('events-calendar--loading');
+        calendarEl.classList.remove('tw-events-calendar--loading');
         bindCalLinks(calendarEl);
         resetDateFilter();
         history.replaceState(null, '', window.location.pathname + '?month=' + targetMonth);
@@ -193,7 +193,7 @@
       .catch(function(e){
         if (calendarEl.dataset.pendingMonth !== targetMonth) return;
         delete calendarEl.dataset.pendingMonth;
-        calendarEl.classList.remove('events-calendar--loading');
+        calendarEl.classList.remove('tw-events-calendar--loading');
         console.error('calendar month load failed', e);
       });
   }

@@ -2,6 +2,7 @@
 {% load static %}
 {% load i18n %}
 {% load profile_tags %}
+{% load feed_filters %}
 
 {% block extra_css %}
 <style>
@@ -12,20 +13,6 @@
 {% block extra_js %}
 <script src="{% static 'obywatele/js/profile.js' %}"></script>
 <script>
-function updateThemeBtns(active) {
-  ['dark','light','auto'].forEach(function(t) {
-    var el = document.getElementById('theme-btn-' + t);
-    if (el) el.className = 'tw-btn tw-btn-sm ' + (active === t ? 'tw-btn-primary' : 'tw-btn-outline-secondary');
-  });
-}
-function toggleTheme(theme) {
-  var current = localStorage.getItem('app-theme') || 'auto';
-  var next = (current === theme) ? 'dark' : theme;
-  window.applyTheme(next);
-  updateThemeBtns(next);
-}
-updateThemeBtns(localStorage.getItem('app-theme') || 'auto');
-
 // Avatar hover overlay + preview + auto-submit
 (function() {
   const wrap = document.getElementById('avatar-wrap');
@@ -71,7 +58,7 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'auto');
         {% csrf_token %}
         <input class="mig-hidden tw-mig-hidden" type="file" id="avatar-input" name="avatar" accept="image/*">
         <div class="avatar-upload-wrap tw-avatar-upload-wrap" id="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
-          {% include "home/_user_avatar.html" with avatar=profile.avatar username=user.username size="7xl" extra_class="avatar-bordered" id="avatar-img" loading_lazy=False %}
+          {% include "home/_user_avatar.html" with avatar=profile.avatar username=user.username display_name=user|display_name size="7xl" extra_class="avatar-bordered" id="avatar-img" loading_lazy=False %}
           <div class="avatar-overlay tw-avatar-overlay" id="avatar-overlay">
             <i class="fas fa-camera avatar-overlay-icon tw-avatar-overlay-icon"></i>
           </div>
@@ -182,17 +169,14 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'auto');
       <span class="tw-section-heading">{% trans "Design" %}</span>
     </div>
     <div class="tw-card-body">
-      <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
-        <button type="button" id="theme-btn-dark" class="tw-btn tw-btn-sm tw-btn-outline-secondary"
-                onclick="toggleTheme('dark');">
+      <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap" id="theme-switcher" data-initial-theme="{{ theme }}" data-url="{% url 'obywatele:toggle_notification' %}?type=theme">
+        <button type="button" id="theme-btn-dark" class="tw-btn tw-btn-sm tw-btn-outline-secondary" data-value="dark">
           <i class="fas fa-moon fa-fw tw-me-1"></i>{% trans "Dark" %}
         </button>
-        <button type="button" id="theme-btn-light" class="tw-btn tw-btn-sm tw-btn-outline-secondary"
-                onclick="toggleTheme('light');">
+        <button type="button" id="theme-btn-light" class="tw-btn tw-btn-sm tw-btn-outline-secondary" data-value="light">
           <i class="fas fa-sun fa-fw tw-me-1"></i>{% trans "Bright" %}
         </button>
-        <button type="button" id="theme-btn-auto" class="tw-btn tw-btn-sm tw-btn-outline-secondary"
-                onclick="toggleTheme('auto');">
+        <button type="button" id="theme-btn-auto" class="tw-btn tw-btn-sm tw-btn-outline-secondary" data-value="auto">
           <i class="fas fa-circle-half-stroke fa-fw tw-me-1"></i>{% trans "Auto" %}
         </button>
       </div>

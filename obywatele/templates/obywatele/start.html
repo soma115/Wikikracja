@@ -1,6 +1,7 @@
 {% extends 'obywatele/menu.html' %}
 {% load static %}
 {% load i18n %}
+{% load feed_filters %}
 {% block prefs_scope %}obywatele{% endblock %}
 
 {% block citizens %}
@@ -14,7 +15,7 @@
   </div>
 
   {# ── Toolbar wyszukiwania i filtrów ── #}
-  <div class="citizens-toolbar tw-citizens-toolbar tw-toolbar">
+  <div class="tw-citizens-toolbar tw-toolbar">
     <input type="search" id="citizens-search" class="tw-citizens-search-input"
            placeholder="{% trans 'Search user...' %}" autocomplete="off">
 
@@ -60,98 +61,58 @@
   <div class="tw-card-body tw-p-0" data-view-container>
 
     {# ── List view ── #}
-    <div id="citizens-list-view">
+    <div id="citizens-list-view" class="tw-proposals-list">
       <div class="tw-citizens-table-wrap">
         <table class="tw-citizens-table tw-table-hover tw-table-sm tw-align-middle tw-mb-0">
-          <thead>
-            <tr>
-              <th scope="col">
-                <a href="?sort={{ sort_meta.username.next_param }}{{ sort_url_suffix }}">
-                  <i class="fas fa-user fa-fw tw-text-muted"></i> {% trans 'Nick' %}
-                  {% if sort_meta.username.is_current %}
-                    <span aria-hidden="true">{% if sort_meta.username.direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
-                  {% endif %}
-                </a>
-              </th>
-              <th scope="col">
-                <a href="?sort={{ sort_meta.email.next_param }}{{ sort_url_suffix }}">
-                  <i class="fas fa-envelope fa-fw tw-text-muted"></i> {% trans 'Email' %}
-                  {% if sort_meta.email.is_current %}
-                    <span aria-hidden="true">{% if sort_meta.email.direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
-                  {% endif %}
-                </a>
-              </th>
-              <th scope="col" class="tw-hidden-mobile">
-                <a href="?sort={{ sort_meta.phone.next_param }}{{ sort_url_suffix }}">
-                  <i class="fas fa-phone fa-fw tw-text-muted"></i> {% trans 'Contact' %}
-                  {% if sort_meta.phone.is_current %}
-                    <span aria-hidden="true">{% if sort_meta.phone.direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
-                  {% endif %}
-                </a>
-              </th>
-              <th scope="col" class="tw-hidden-tablet">
-                <a href="?sort={{ sort_meta.city.next_param }}{{ sort_url_suffix }}">
-                  <i class="fas fa-map-marker-alt fa-fw tw-text-muted"></i> {% trans 'City / Commune' %}
-                  {% if sort_meta.city.is_current %}
-                    <span aria-hidden="true">{% if sort_meta.city.direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
-                  {% endif %}
-                </a>
-              </th>
-              <th scope="col" class="tw-hidden-desktop">
-                <a href="?sort={{ sort_meta.joined.next_param }}{{ sort_url_suffix }}">
-                  <i class="fas fa-calendar fa-fw tw-text-muted"></i> {% trans 'Joined at' %}
-                  {% if sort_meta.joined.is_current %}
-                    <span aria-hidden="true">{% if sort_meta.joined.direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
-                  {% endif %}
-                </a>
-              </th>
-              <th scope="col">
-                <a href="?sort={{ sort_meta.last_login.next_param }}{{ sort_url_suffix }}">
-                  <i class="fas fa-clock fa-fw tw-text-muted"></i> {% trans 'Last login' %}
-                  {% if sort_meta.last_login.is_current %}
-                    <span aria-hidden="true">{% if sort_meta.last_login.direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
-                  {% endif %}
-                </a>
-              </th>
-            </tr>
-          </thead>
           <tbody>
             {% for i in uid %}
-            <tr class="user-row tw-user-row{% if i.near_threshold %} near-threshold{% endif %}{% if i.pending_deletion %} tw-bg-warning{% endif %}"
+            <tr class="user-row tw-user-row{% if i.near_threshold %} tw-near-threshold{% endif %}{% if i.pending_deletion %} tw-bg-warning{% endif %}"
                 data-user-id="{{ i.pk }}"
                 data-href="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}{% if sort_param %}?{{ sort_param }}{% endif %}"
                 data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
               <td>
-                <div class="tw-username-container">
-                  <div class="tw-citizen-list-avatar-wrap tw-shrink-0">
-                    {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username size="lg" %}
-                    <span class="status-dot tw-status-dot status-dot--{{ i.activity_status }} tw-status-dot--{{ i.activity_status }} tw-citizen-list-status-dot"
-                          title="{% if i.activity_status == 'online' %}{% trans 'Online' %}{% elif i.activity_status == 'active' %}{% trans 'Active recently' %}{% elif i.activity_status == 'dormant' %}{% trans 'Dormant' %}{% else %}{% trans 'Inactive' %}{% endif %}"></span>
-                  </div>
-                  <span class="tw-citizen-list-nick">{{ i.username }}</span>
-                  {% if i.pk != request.user.pk %}
-                  <a href="{% url 'chat:open_dm' pk=i.pk %}" class="chat-link tw-ms-1" onclick="event.stopPropagation()">
-                    <i class="fas fa-comment-dots"></i>
-                  </a>
-                  {% endif %}
+                <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+                  <span class="tw-citizen-card-top tw-shrink-0">
+                    {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username display_name=i|display_name size="lg" %}
+                  </span>
+                  <span class="tw-font-semibold tw-text-primary tw-min-w-0 tw-truncate">
+                    {% if i.first_name or i.last_name %}{{ i.first_name }} {{ i.last_name }}{% else %}{{ i|display_name }}{% endif %}
+                  </span>
                   {% if i.near_threshold %}
-                  <span class="tw-badge-status tw-badge-warning tw-ms-1" title="{% trans 'This person has low reputation points' %}">!</span>
+                  <span class="tw-badge-status tw-badge-warning" title="{% trans 'This person has low reputation points' %}">!</span>
                   {% endif %}
                   {% if i.pending_deletion %}
-                  <span class="tw-badge-status tw-badge-danger tw-ms-1" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash-alt"></i></span>
+                  <span class="tw-badge-status tw-badge-danger" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash"></i></span>
                   {% endif %}
                 </div>
               </td>
-              <td class="email-cell tw-email-cell">
-                <a href="mailto:{{ i.email }}"><i class="fas fa-envelope tw-me-1"></i>{{ i.email }}</a>
-                <button class="tw-btn tw-btn-outline-light tw-btn-sm tw-copy-btn" data-email="{{ i.email }}" title="{% trans 'Copy email' %}">
-                  <i class="fas fa-copy"></i>
-                </button>
+              <td>
+                {% if i.uzytkownik.phone %}
+                <span class="tw-flex tw-items-center tw-gap-1 tw-min-w-0">
+                  <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-p-1 tw-aspect-square" title="{{ i.uzytkownik.phone }}" onclick="event.stopPropagation()"><i class="fas fa-phone"></i></a>
+                  <a href="tel:{{ i.uzytkownik.phone }}" class="tw-text-primary tw-text-sm tw-truncate" onclick="event.stopPropagation()">{{ i.uzytkownik.phone }}</a>
+                </span>
+                {% else %}
+                <span class="tw-btn tw-btn-outline-secondary tw-p-1 tw-aspect-square" title="{% trans 'No phone' %}"><i class="fas fa-phone"></i></span>
+                {% endif %}
               </td>
-              <td class="tw-hidden-mobile">{{ i.uzytkownik.phone|default:"—" }}</td>
-              <td class="tw-hidden-tablet">{{ i.uzytkownik.city|default:"—" }}</td>
-              <td class="tw-hidden-desktop">{{ i.uzytkownik.data_przyjecia|date:"Y-m-d"|default:"—" }}</td>
-              <td>{{ i.last_login|date:"Y-m-d"|default:_("Never") }}</td>
+              <td>
+                {% if i.email %}
+                <span class="tw-flex tw-items-center tw-gap-1 tw-min-w-0">
+                  <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-p-1 tw-aspect-square" title="{{ i.email }}" onclick="event.stopPropagation()"><i class="fas fa-envelope"></i></a>
+                  <a href="mailto:{{ i.email }}" class="tw-text-primary tw-text-sm tw-truncate" onclick="event.stopPropagation()">{{ i.email }}</a>
+                </span>
+                {% else %}
+                <span class="tw-btn tw-btn-outline-secondary tw-p-1 tw-aspect-square" title="{% trans 'No email' %}"><i class="fas fa-envelope"></i></span>
+                {% endif %}
+              </td>
+              <td>
+                {% if i.pk != request.user.pk %}
+                <a href="{% url 'chat:open_dm' pk=i.pk %}" class="tw-btn tw-btn-primary tw-p-1 tw-aspect-square" title="{% trans 'Direct message' %}" onclick="event.stopPropagation()"><i class="fas fa-comment-dots"></i></a>
+                {% else %}
+                <span class="tw-btn tw-btn-outline-secondary tw-p-1 tw-aspect-square" title="{% trans 'This is you' %}"><i class="fas fa-comment-dots"></i></span>
+                {% endif %}
+              </td>
             </tr>
             {% endfor %}
           </tbody>
@@ -160,29 +121,67 @@
     </div>
 
     {# ── Grid view ── #}
-    <div id="citizens-grid-view" class="citizens-grid tw-citizens-grid">
+    <div id="citizens-grid-view" class="tw-citizens-grid tw-proposals-list">
       {% for i in uid %}
-      <div class="citizen-card tw-citizen-card"
+      <div class="tw-citizen-card tw-text-start tw-items-start"
            data-user-id="{{ i.pk }}"
            data-href="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}"
            data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
-        <div class="tw-citizen-card-top">
-          {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username size="5xl" %}
-          <span class="status-dot tw-status-dot status-dot--{{ i.activity_status }} tw-status-dot--{{ i.activity_status }}"
-                title="{% if i.activity_status == 'online' %}{% trans 'Online' %}{% elif i.activity_status == 'active' %}{% trans 'Active recently' %}{% elif i.activity_status == 'dormant' %}{% trans 'Dormant' %}{% else %}{% trans 'Inactive' %}{% endif %}"></span>
+        <div class="tw-flex tw-gap-3 tw-w-full">
+          <div class="tw-shrink-0">
+            {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username display_name=i|display_name size="5xl" %}
+          </div>
+          <div class="tw-flex tw-flex-col tw-justify-center tw-min-w-0 tw-flex-1">
+            <span class="tw-font-semibold tw-text-primary tw-truncate">
+              {% if i.first_name %}{{ i.first_name }}{% else %}{{ i|display_name }}{% endif %}
+            </span>
+            <span class="tw-font-semibold tw-text-primary tw-truncate">
+              {% if i.last_name %}{{ i.last_name }}{% else %}-{% endif %}
+            </span>
+          </div>
+          <div class="tw-flex tw-items-center tw-gap-1 tw-shrink-0">
+            {% if i.near_threshold %}
+            <span class="tw-badge-status tw-badge-warning" title="{% trans 'This person has low reputation points' %}">!</span>
+            {% endif %}
+            {% if i.pending_deletion %}
+            <span class="tw-badge-status tw-badge-danger" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash"></i></span>
+            {% endif %}
+          </div>
         </div>
-        <div class="tw-citizen-card-name">{{ i.username }}</div>
-        {% if i.first_name or i.last_name %}
-        <div class="tw-citizen-card-fullname">{{ i.first_name }} {{ i.last_name }}</div>
-        {% endif %}
-        {% if i.uzytkownik.city %}
-        <div class="tw-citizen-card-city"><i class="fas fa-map-marker-alt"></i> {{ i.uzytkownik.city }}</div>
-        {% endif %}
-        {% if i.pk != request.user.pk %}
-        <a href="{% url 'chat:open_dm' pk=i.pk %}" class="chat-link tw-mt-1" title="{% trans 'Direct message' %}" onclick="event.stopPropagation()">
-          <i class="fas fa-comment-dots"></i> DM
-        </a>
-        {% endif %}
+        <hr class="tw-w-full tw-border-subtle">
+        <div class="tw-flex tw-justify-between tw-w-full tw-text-sm tw-text-muted">
+          <span class="tw-truncate">{% if i.uzytkownik.city %}{{ i.uzytkownik.city }}{% else %}-{% endif %}</span>
+          <span class="tw-truncate">{% if i.uzytkownik.voivodeship %}{{ i.uzytkownik.voivodeship.name }}{% else %}-{% endif %}</span>
+        </div>
+        <div class="tw-flex tw-justify-center lg:tw-justify-between tw-gap-2 tw-w-full">
+          {% if i.email %}
+          <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" onclick="event.stopPropagation()" title="{{ i.email }}">
+            <i class="fas fa-envelope tw-text-lg lg:tw-text-2xl"></i>
+          </a>
+          {% else %}
+          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" title="{% trans 'No email' %}">
+            <i class="fas fa-envelope tw-text-lg lg:tw-text-2xl"></i>
+          </span>
+          {% endif %}
+          {% if i.uzytkownik.phone %}
+          <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" onclick="event.stopPropagation()" title="{{ i.uzytkownik.phone }}">
+            <i class="fas fa-phone tw-text-lg lg:tw-text-2xl"></i>
+          </a>
+          {% else %}
+          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" title="{% trans 'No phone' %}">
+            <i class="fas fa-phone tw-text-lg lg:tw-text-2xl"></i>
+          </span>
+          {% endif %}
+          {% if i.pk != request.user.pk %}
+          <a href="{% url 'chat:open_dm' pk=i.pk %}" class="tw-btn tw-btn-primary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" onclick="event.stopPropagation()" title="{% trans 'Direct message' %}">
+            <i class="fas fa-comment-dots tw-text-lg lg:tw-text-2xl"></i>
+          </a>
+          {% else %}
+          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" title="{% trans 'This is you' %}">
+            <i class="fas fa-comment-dots tw-text-lg lg:tw-text-2xl"></i>
+          </span>
+          {% endif %}
+        </div>
       </div>
       {% endfor %}
     </div>

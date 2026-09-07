@@ -1,17 +1,12 @@
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from .models import Decyzja, KtoJuzGlosowal
 
 
 def get_context(user, month_param: str = '') -> dict:
-    """Return dashboard widgets for voting/referendums."""
-    ongoing_count = Decyzja.objects.filter(status=Decyzja.Status.REFERENDUM).count()
-    upcoming_count = Decyzja.objects.filter(status=Decyzja.Status.DISCUSSION).count()
-    signatures_count = Decyzja.objects.filter(status=Decyzja.Status.PROPOSITION).count()
-
-    new_proposals = Decyzja.objects.filter(status=Decyzja.Status.PROPOSITION).select_related('author').order_by('-data_ostatniej_modyfikacji')[:3]
-
-    discussed_proposals = Decyzja.objects.filter(status=Decyzja.Status.DISCUSSION).select_related('author').order_by('-data_ostatniej_modyfikacji')[:3]
+    """Return a single dashboard widget for voting/referendums."""
+    voting_items = []
 
     active_referendum = None
     referendum_obj = Decyzja.objects.filter(status=Decyzja.Status.REFERENDUM).select_related('author').order_by('-data_referendum_start').first()
@@ -32,14 +27,21 @@ def get_context(user, month_param: str = '') -> dict:
         user_voted = KtoJuzGlosowal.objects.filter(projekt=referendum_obj, ktory_uzytkownik_juz_zaglosowal=user).exists()
 
         active_referendum = {'obj': referendum_obj, 'days_remaining': days_remaining, 'total_days': total_days, 'time_pct': time_pct, 'bar_color': bar_color, 'user_voted': user_voted}
+        voting_items.append({'type': 'referendum', 'label': _('Referendum'), 'obj': referendum_obj, 'meta': active_referendum})
+
+    discussed_proposals = Decyzja.objects.filter(status=Decyzja.Status.DISCUSSION).select_related('author').order_by('-data_ostatniej_modyfikacji')[:3]
+    for prop in discussed_proposals:
+        voting_items.append({'type': 'discussion', 'label': _('discussion'), 'obj': prop})
+
+    new_proposals = Decyzja.objects.filter(status=Decyzja.Status.PROPOSITION).select_related('author').order_by('-data_ostatniej_modyfikacji')[:3]
+    for prop in new_proposals:
+        voting_items.append({'type': 'proposition', 'label': _('signatures'), 'obj': prop})
 
     return {
-        'ongoing_count': ongoing_count,
-        'upcoming_count': upcoming_count,
-        'signatures_count': signatures_count,
-        'new_proposals': new_proposals,
-        'discussed_proposals': discussed_proposals,
-        'active_referendum': active_referendum,
+        'voting_items': voting_items,
+        'ongoing_count': Decyzja.objects.filter(status=Decyzja.Status.REFERENDUM).count(),
+        'upcoming_count': Decyzja.objects.filter(status=Decyzja.Status.DISCUSSION).count(),
+        'signatures_count': Decyzja.objects.filter(status=Decyzja.Status.PROPOSITION).count(),
     }
 
 

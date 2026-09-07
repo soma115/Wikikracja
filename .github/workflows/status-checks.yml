@@ -106,6 +106,25 @@ jobs:
       - name: Run regression scan
         run: python scripts/regression_scan.py
 
+  ui-guard:
+    name: UI unification guard
+    runs-on: ubuntu-latest
+    # Allowed to fail while historical UI debt is being reduced; review the log.
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Fetch base
+        run: git fetch origin main
+      - name: Run UI guard on changed files
+        run: python scripts/ui_guard.py --base origin/main
+
   playwright:
     name: Playwright e2e
     runs-on: ubuntu-latest

@@ -118,6 +118,21 @@ Nie uruchamiaj podglądu w przeglądarce (browser preview) — weryfikuj zmiany 
 - Na małych ekranach (mobile) preferujemy umieszczanie kluczowych elementów interaktywnych (przyciski, akcje, toggles) po prawej stronie i w dolnej części ekranu — zgodnie z naturalnym zasięgiem kciuka praworęcznej ręki przy jednoręcznej obsłudze telefonu.
 - Nie stosuj tej zasady bezwzględnie: tekst, nagłówki, nawigacja i komunikaty systemowe pozostają czytelne w klasycznym układzie, jeśli przesunięcie do prawej/dołu pogorszyłoby czytelność lub naruszyłoby konwencje projektowe.
 
+### Utrzymanie unifikacji UI (guardrails)
+
+Wikikracja ma jeden pipeline Tailwind, jeden arkusz komponentów (`home/static/home/css/tailwind.css`), jeden słownik ikon (`docs/UI_STANDARDS.html`) i jeden zestaw tokenów (`home/static/home/css/tokens.css`). Nie wprowadzaj nowych arkuszy ani modułowych stylów.
+
+- **Nowy komponent UI?** Najpierw sprawdź `docs/UI_STANDARDS.html` i `home/templates/home/includes/`. Używaj istniejących wzorców: `tw-btn`, `tw-card`, `tw-toolbar`, `tw-form-*`, `tw-modal`, `tw-dropdown`, `tw-alert`.
+- **Nowa klasa CSS?** Musi mieć prefiks `tw-` i być dodana do `tailwind.config.js` safelist (jeśli jest generowana dynamicznie). Każda klasa bez `tw-` jest dopuszczalna tylko jako semantyczny hook JS/Selenium i musi być krótkoterminowo przewidziana do migracji na `tw-*`.
+- **Zakaz moduł-specificznych reguł CSS.** Nie dodawaj reguł typu `.ankiety-foo`, `.activity-bar`, `.board-special` w `tailwind.css`. Zamiast tego użyj utility Tailwind albo rozszerz wspólny komponent.
+- **Inline styles:** dozwolone wyłącznie dla dynamicznych wartości CSS variables (np. `style="--vote-progress: {{ pct }}%"` lub `style="--featured-img: url(...)"`). Wszystko inne (kolory, odstępy, ukrywanie) musi być klasą.
+- **Ikony:** używaj wyłącznie ikon ze słownika w `docs/UI_STANDARDS.html`. Jeśli potrzebujesz nowej semantyki, dodaj ją do słownika (ikona, klasa, znaczenie, użycie) zamiast wymyślać wariant ad-hoc.
+- **Widoki listy/siatki:** każdy nowy widok listy/siatki używa `home/templates/home/includes/toolbar.html`, kontenera `tw-proposals-list` (lub jego następcy), `data-view-container`/`data-view-only` i `data-view` dla przycisków. Logikę widoku przejmuje `PagePrefs` z `home/static/home/js/app.js`.
+- **Formularze:** preferuj `{% crispy form %}` z `FormHelper` albo `home/templates/tw/field.html` z `crispy_classmap`. Nie ręcznie składaj pól formularza z `is-invalid` / `form-control`.
+- **Puste stany, karty, liczniki, empty states:** używaj wspólnych partiali: `home/templates/home/includes/empty_state.html`, `tw-card`, `tw-badge-*`, `tw-chat-count`. Nie wklejaj własnej kopii w każdym module.
+- **Weryfikacja:** po każdej zmianie UI uruchom `npm run build:css`, `python scripts/regression_scan.py` i `python scripts/ui_guard.py` (jeśli istnieje). Nie commituj ręcznie edytowanego `tailwind.build.css`.
+- **Nowy wzorzec?** Zanim go wprowadzisz, udokumentuj go w `docs/ADDING_NEW_UI.md` (checklist), `docs/UI_STANDARDS.html` (jeśli to guzik/komponent/ikona) i `TAILWIND_MIGRATION_PLAN.md`.
+
 ## 7. Znane pułapki / decyzje historyczne
 
 - **Granice `core` (etap 7):** współdzielone rejestry, kolory, sygnały, narzędzia URL, richtext, widgety i model `ReadStatus` importujemy z `core`, bez aliasów w `home`/`zzz`. Agregator feedu i digestu jest w `core.services.feed`; `FeedItem` i składanie dashboardu pozostają w `home`, powiadomienia w `core.notifications`, `ChatRoomModel` w `chat.models`, a `AbstractCategory` w `categories.models`. Tłumaczenia osadzonego czatu udostępnia `chat.i18n.get_translations`, nie `chat.views`.

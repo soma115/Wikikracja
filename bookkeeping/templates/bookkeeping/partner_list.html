@@ -10,7 +10,7 @@
     <thead>
       <tr>
         <th>
-          <a href="?sort=name&order={% if current_sort == 'name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline text-reset tw-text-nowrap">
+          <a href="?sort=name&order={% if current_sort == 'name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline tw-text-nowrap">
             {% trans 'Name' %}
             {% if current_sort == 'name' %}
               <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
@@ -20,7 +20,7 @@
           </a>
         </th>
         <th>
-          <a href="?sort=city&order={% if current_sort == 'city' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline text-reset tw-text-nowrap">
+          <a href="?sort=city&order={% if current_sort == 'city' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline tw-text-nowrap">
             {% trans 'City' %}
             {% if current_sort == 'city' %}
               <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
@@ -30,7 +30,7 @@
           </a>
         </th>
         <th>
-          <a href="?sort=web_page&order={% if current_sort == 'web_page' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline text-reset tw-text-nowrap">
+          <a href="?sort=web_page&order={% if current_sort == 'web_page' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline tw-text-nowrap">
             {% trans 'Web Page' %}
             {% if current_sort == 'web_page' %}
               <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
@@ -40,7 +40,7 @@
           </a>
         </th>
         <th class="notes-col">
-          <a href="?sort=notes&order={% if current_sort == 'notes' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline text-reset tw-text-nowrap">
+          <a href="?sort=notes&order={% if current_sort == 'notes' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline tw-text-nowrap">
             {% trans 'Notes' %}
             {% if current_sort == 'notes' %}
               <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
