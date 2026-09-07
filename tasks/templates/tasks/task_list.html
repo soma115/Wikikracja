@@ -11,21 +11,21 @@
 {% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add activity') sort_items=toolbar_sort_items show_category_filter=1 categories=category_list views=toolbar_views %}
 
 {# ── CONTENT ── #}
-<div id="tasks-list-container" class="proposals-list" data-view-container>
+<div id="tasks-list-container" class="proposals-list tw-proposals-list" data-view-container>
   {% include 'tasks/_task_list_partial.html' %}
 </div>
 
 {# ── MANAGE CATEGORIES MODAL ── #}
-<div class="modal fade" id="manageCategoriesModal" tabindex="-1" aria-labelledby="manageCategoriesModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="manageCategoriesModalLabel">
-          <i class="fas fa-gear me-2"></i>{% trans 'Manage categories' %}
+<div class="tw-modal tw-fade" id="manageCategoriesModal" tabindex="-1" aria-labelledby="manageCategoriesModalLabel" aria-hidden="true">
+  <div class="tw-modal-dialog tw-modal-dialog-scrollable">
+    <div class="tw-modal-content">
+      <div class="tw-modal-header">
+        <h5 class="tw-modal-title tw-text-base tw-font-semibold" id="manageCategoriesModalLabel">
+          <i class="fas fa-gear tw-me-2"></i>{% trans 'Manage categories' %}
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+        <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
       </div>
-      <div class="modal-body">
+      <div class="tw-modal-body">
         <ul class="cat-mgr-list" id="catMgrList">
           {# filled by JS #}
         </ul>
@@ -33,8 +33,8 @@
         <div class="cat-mgr-add-row" id="catMgrAddRow">
           <input type="text" class="cat-mgr-input" id="catMgrNewName" placeholder="{% trans 'Category name' %}" maxlength="100">
           <input type="text" class="cat-mgr-input" id="catMgrNewDesc" placeholder="{% trans 'Description (optional)' %}">
-          <button type="button" class="btn btn-sm btn-primary" id="catMgrAddBtn">
-            <i class="fas fa-plus me-1"></i>{% trans 'Add category' %}
+          <button type="button" class="tw-btn tw-btn-sm tw-btn-primary" id="catMgrAddBtn">
+            <i class="fas fa-plus tw-me-1"></i>{% trans 'Add category' %}
           </button>
         </div>
       </div>

@@ -79,9 +79,22 @@ Nie uruchamiaj podglądu w przeglądarce (browser preview) — weryfikuj zmiany 
 
 ## 6. CSS i frontend
 
+### Wspólne standardy UI
+
+- Aktualne standardy wyglądu i wspólne komponenty UI są udokumentowane w żywej referencji wizualnej: `docs/UI_STANDARDS.html`.
+- Przed dodaniem nowego guzika, toolbaru, steppera, kafelka, przełącznika widoku lub innego powtarzalnego elementu — sprawdź `UI_STANDARDS.html` i użyj istniejącego wzorca.
+- Preferuj wspólne komponenty (np. `home/templates/home/includes/toolbar.html`, wspólny arkusz `home/static/home/css/tailwind.css`) zamiast własnych, moduł-specificznych rozwiązań.
+- Unikaj one-offowych stylów, customowych klas i ręcznie sklejanych elementów. Jeśli istniejący komponent nie pasuje, rozszerz go lub ustal z użytkownikiem zmianę standardu, zamiast tworzyć kolejny wyjątek.
+- Aktualizuj `UI_STANDARDS.html` i powiązane arkusze CSS, gdy wprowadzasz nowy wzorzec lub modyfikujesz istniejący standard.
+
 ### Kolejność ładowania
 
 Ładuj style w ustalonej kolejności: motyw / tokeny → bazowe → wspólne → widok-specyficzne. Nie przemieszczaj warstw.
+
+### Widoki listy i siatki
+
+- **Widok listy** pokazuje mniej informacji, a kolejne pozycje na liście są małej wysokości.
+- **Widok siatki** pokazuje więcej informacji, a kolejne pozycje na liście są wyższe.
 
 ### Krótkie reguły
 

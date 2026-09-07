@@ -7,50 +7,54 @@
 
 {% glosowania_counts as counts %}
 
-<nav class="stepper-nav">
+<nav class="tw-stepper-nav">
 
   {# Info ─ wyróżniony, pierwszy #}
-  <a href="{% url 'glosowania:parameters' %}" class="stepper-info-btn" title="{% trans 'How do votes work?' %}">
+  <a href="{% url 'glosowania:parameters' %}" class="tw-stepper-info-btn" title="{% trans 'How do votes work?' %}">
     <i class="fas fa-circle-info"></i>
   </a>
 
   {# Stepper: 4 etapy ścieżki przepisu #}
   {% with p=request.path_info %}
 
-  <div class="stepper-step-wrap {% if p == '/glosowania/proposition/' %}active{% endif %}">
-    <a href="{% url 'glosowania:proposition' %}" class="stepper-step">
-      <span>{% trans 'Suggestions' %}</span>
-      {% if counts.proposition %}<span class="stepper-step-count">{{ counts.proposition }}</span>{% endif %}
+  <div class="tw-stepper-step-wrap {% if p == '/glosowania/proposition/' %}active{% endif %}">
+    <a href="{% url 'glosowania:proposition' %}" class="tw-stepper-step">
+      <i class="fas fa-lightbulb" aria-hidden="true"></i>
+      <span class="tw-stepper-step-label">{% trans 'Suggestions' %}</span>
+      {% if counts.proposition %}<span class="tw-stepper-step-count">{{ counts.proposition }}</span>{% endif %}
     </a>
   </div>
 
-  <div class="stepper-step-wrap {% if p == '/glosowania/discussion/' %}active{% endif %}">
-    <a href="{% url 'glosowania:discussion' %}" class="stepper-step">
-      <span>{% trans 'Discussion' %}</span>
-      {% if counts.discussion %}<span class="stepper-step-count">{{ counts.discussion }}</span>{% endif %}
+  <div class="tw-stepper-step-wrap {% if p == '/glosowania/discussion/' %}active{% endif %}">
+    <a href="{% url 'glosowania:discussion' %}" class="tw-stepper-step">
+      <i class="fas fa-comments" aria-hidden="true"></i>
+      <span class="tw-stepper-step-label">{% trans 'Discussion' %}</span>
+      {% if counts.discussion %}<span class="tw-stepper-step-count">{{ counts.discussion }}</span>{% endif %}
     </a>
   </div>
 
-  <div class="stepper-step-wrap {% if p == '/glosowania/referendum/' %}active{% endif %}">
-    <a href="{% url 'glosowania:referendum' %}" class="stepper-step">
-      <span>{% trans 'Referendum' %}</span>
-      {% if counts.referendum %}<span class="stepper-step-count">{{ counts.referendum }}</span>{% endif %}
+  <div class="tw-stepper-step-wrap {% if p == '/glosowania/referendum/' %}active{% endif %}">
+    <a href="{% url 'glosowania:referendum' %}" class="tw-stepper-step">
+      <i class="fas fa-vote-yea" aria-hidden="true"></i>
+      <span class="tw-stepper-step-label">{% trans 'Referendum' %}</span>
+      {% if counts.referendum %}<span class="tw-stepper-step-count">{{ counts.referendum }}</span>{% endif %}
     </a>
   </div>
 
-  <div class="stepper-step-wrap {% if p == '/glosowania/approved/' %}active{% endif %}">
-    <a href="{% url 'glosowania:approved' %}" class="stepper-step">
-      <span>{% trans 'Approved' %}</span>
-      {% if counts.approved %}<span class="stepper-step-count">{{ counts.approved }}</span>{% endif %}
+  <div class="tw-stepper-step-wrap {% if p == '/glosowania/approved/' %}active{% endif %}">
+    <a href="{% url 'glosowania:approved' %}" class="tw-stepper-step">
+      <i class="fas fa-check" aria-hidden="true"></i>
+      <span class="tw-stepper-step-label">{% trans 'Approved' %}</span>
+      {% if counts.approved %}<span class="tw-stepper-step-count">{{ counts.approved }}</span>{% endif %}
     </a>
   </div>
 
   {# Separator + Rejected (poza ścieżką) #}
-  <span class="stepper-sep"></span>
+  <span class="tw-stepper-sep"></span>
   <a href="{% url 'glosowania:rejected' %}"
-     class="stepper-rejected {% if p == '/glosowania/rejected/' %}active{% endif %}">
+     class="tw-stepper-rejected {% if p == '/glosowania/rejected/' %}active{% endif %}">
     <i class="fas fa-trash-alt fa-fw"></i>
-    {% if counts.rejected %}<span class="stepper-step-count">{{ counts.rejected }}</span>{% endif %}
+    {% if counts.rejected %}<span class="tw-stepper-step-count">{{ counts.rejected }}</span>{% endif %}
   </a>
 
   {% endwith %}

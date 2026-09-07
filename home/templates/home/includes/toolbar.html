@@ -1,23 +1,24 @@
 {% load i18n %}
-<div class="proposals-toolbar{% if toolbar_class %} {{ toolbar_class }}{% endif %}">
+<div class="proposals-toolbar tw-toolbar{% if toolbar_class %} {{ toolbar_class }}{% endif %}">
   {% if cta_url and not cta_end %}
-  <a href="{{ cta_url }}" class="btn-cta"{% if cta_title %} title="{{ cta_title }}"{% endif %}>
-    <i class="fas fa-{{ cta_icon|default:'plus' }}"></i> {{ cta_label }}
+  <a href="{{ cta_url }}" class="btn-cta tw-btn-cta btn-cta--round tw-btn-cta--round"{% if cta_title %} title="{{ cta_title }}"{% else %} title="{{ cta_label }}"{% endif %}>
+    <i class="fas fa-{{ cta_icon|default:'plus' }}"></i>
   </a>
-  <span class="toolbar-divider"></span>
+  <span class="toolbar-divider tw-toolbar-divider"></span>
   {% elif cta_button and not cta_end %}
-  <button type="button" class="sort-btn {{ cta_button_class|default:'' }}" id="{{ cta_button }}">
-    <i class="fas fa-{{ cta_icon|default:'plus' }}"></i> {{ cta_label }}
+  <button type="button" class="sort-btn tw-sort-btn {{ cta_button_class|default:'' }}" id="{{ cta_button }}">
+    <i class="fas fa-{{ cta_icon|default:'plus' }}"></i>
+    <span class="sort-btn-label tw-sort-btn-label">{{ cta_label }}</span>
   </button>
-  <span class="toolbar-divider"></span>
+  <span class="toolbar-divider tw-toolbar-divider"></span>
   {% endif %}
 
-  <div class="toolbar-sort">
+  <div class="toolbar-sort tw-toolbar-sort">
     {% for item in sort_items %}
-    <a href="{{ item.url }}" class="sort-btn{% if item.active %} active{% endif %}">
-      {% if item.pre_icon %}<i class="fas fa-{{ item.pre_icon }} fa-fw me-1"></i>{% endif %}
-      {{ item.label }}
-      {% if item.icon %}<i class="fas fa-arrow-{{ item.icon }} sort-arrow"></i>{% endif %}
+    <a href="{{ item.url }}" class="sort-btn tw-sort-btn{% if item.active %} active{% endif %}">
+      {% if item.pre_icon %}<i class="fas fa-{{ item.pre_icon }} fa-fw tw-me-1"></i>{% else %}<i class="fas fa-sort fa-fw tw-me-1"></i>{% endif %}
+      <span class="sort-btn-label tw-sort-btn-label">{{ item.label }}</span>
+      {% if item.icon %}<i class="fas fa-arrow-{{ item.icon }} sort-arrow tw-sort-arrow"></i>{% endif %}
     </a>
     {% endfor %}
 
@@ -29,32 +30,41 @@
     {% endif %}
 
     {% if show_category_filter %}
-    <span class="toolbar-sort-sep"></span>
+    <span class="toolbar-sort-sep tw-toolbar-sort-sep"></span>
     {% include 'categories/_category_filter.html' with categories=categories key_attr=key_attr %}
     {% endif %}
   </div>
 
-  <span class="toolbar-divider"></span>
+  {% if sort_items or cta_url and not cta_end or cta_button and not cta_end or show_category_filter %}
+  <span class="toolbar-divider tw-toolbar-divider"></span>
+  {% endif %}
 
   {% if views %}
-  <div class="toolbar-view{% if view_class %} {{ view_class }}{% endif %}">
+  <div class="toolbar-view tw-toolbar-view tw-ms-auto{% if view_class %} {{ view_class }}{% endif %}">
     {% for view in views %}
-    <button class="view-toggle-btn{% if view.active %} active{% endif %}" data-view="{{ view.name }}" title="{{ view.title }}">
-      <i class="fas fa-{{ view.icon }}"></i>
+    <button class="view-toggle-btn tw-view-toggle-btn" data-view="{{ view.name }}" title="{% if view.name == 'grid' %}{% trans 'Grid view' %}{% else %}{% trans 'List view' %}{% endif %}">
+      {% if view.name == 'grid' %}
+      <i class="fas fa-grip"></i>
+      <span class="view-label tw-view-label">{% trans 'Grid' %}</span>
+      {% else %}
+      <i class="fas fa-list"></i>
+      <span class="view-label tw-view-label">{% trans 'List' %}</span>
+      {% endif %}
     </button>
     {% endfor %}
   </div>
   {% endif %}
 
   {% if cta_url and cta_end %}
-  <span class="toolbar-divider"></span>
-  <a href="{{ cta_url }}" class="btn-cta"{% if cta_title %} title="{{ cta_title }}"{% endif %}>
-    <i class="fas fa-{{ cta_icon|default:'plus' }}"></i> {{ cta_label }}
+  <span class="toolbar-divider tw-toolbar-divider"></span>
+  <a href="{{ cta_url }}" class="btn-cta tw-btn-cta btn-cta--round tw-btn-cta--round"{% if cta_title %} title="{{ cta_title }}"{% else %} title="{{ cta_label }}"{% endif %}>
+    <i class="fas fa-{{ cta_icon|default:'plus' }}"></i>
   </a>
   {% elif cta_button and cta_end %}
-  <span class="toolbar-divider"></span>
-  <button type="button" class="sort-btn {{ cta_button_class|default:'' }}">
-    <i class="fas fa-{{ cta_icon|default:'plus' }}"></i> {{ cta_label }}
+  <span class="toolbar-divider tw-toolbar-divider"></span>
+  <button type="button" class="sort-btn tw-sort-btn {{ cta_button_class|default:'' }}">
+    <i class="fas fa-{{ cta_icon|default:'plus' }}"></i>
+    <span class="sort-btn-label tw-sort-btn-label">{{ cta_label }}</span>
   </button>
   {% endif %}
 </div>

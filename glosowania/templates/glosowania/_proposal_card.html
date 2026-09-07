@@ -7,7 +7,7 @@
     show_dates — bool, czy pokazać daty referendum (tylko widok referendum)
 {% endcomment %}
 
-<div class="proposal-card">
+<div class="proposal-card" data-status="{{ i.status }}">
 
   {# ── NAGŁÓWEK (klikalny → szczegóły, poza linkami dzieci) ── #}
   <div class="proposal-card-header" data-detail-url="{% url 'glosowania:details' pk=i.pk %}" role="link" tabindex="0">
@@ -19,15 +19,15 @@
 
     <div class="proposal-card-badges-row">
       {% if i.status == i.Status.PROPOSITION %}
-        <span class="badge-status badge-proposition">{{ i.get_status_display }}</span>
+        <span class="tw-badge-status tw-badge-proposition">{{ i.get_status_display }}</span>
       {% elif i.status == i.Status.DISCUSSION %}
-        <span class="badge-status badge-discussion">{{ i.get_status_display }}</span>
+        <span class="tw-badge-status tw-badge-discussion">{{ i.get_status_display }}</span>
       {% elif i.status == i.Status.REFERENDUM %}
-        <span class="badge-status badge-referendum">{{ i.get_status_display }}</span>
+        <span class="tw-badge-status tw-badge-referendum">{{ i.get_status_display }}</span>
       {% elif i.status == i.Status.REJECTED %}
-        <span class="badge-status badge-rejected">{{ i.get_status_display }}</span>
+        <span class="tw-badge-status tw-badge-rejected">{{ i.get_status_display }}</span>
       {% elif i.status == i.Status.APPROVED %}
-        <span class="badge-status badge-approved">{{ i.get_status_display }}</span>
+        <span class="tw-badge-status tw-badge-approved">{{ i.get_status_display }}</span>
       {% endif %}
 
       {% if i.chat_room_pulse_class %}

@@ -6,50 +6,50 @@
 {% block content %}
 {% include 'home/includes/toolbar.html' %}
 
-  <table class="table table-hover-rows align-middle">
+  <table class="tw-citizens-table tw-table-hover tw-table-sm tw-align-middle">
     <thead>
       <tr>
         <th>
-          <a href="?sort=name&order={% if current_sort == 'name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-reset text-nowrap">
+          <a href="?sort=name&order={% if current_sort == 'name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline text-reset tw-text-nowrap">
             {% trans 'Name' %}
             {% if current_sort == 'name' %}
               <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
             {% else %}
-              <i class="fas fa-sort text-muted"></i>
+              <i class="fas fa-sort tw-text-muted"></i>
             {% endif %}
           </a>
         </th>
         <th>
-          <a href="?sort=city&order={% if current_sort == 'city' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-reset text-nowrap">
+          <a href="?sort=city&order={% if current_sort == 'city' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline text-reset tw-text-nowrap">
             {% trans 'City' %}
             {% if current_sort == 'city' %}
               <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
             {% else %}
-              <i class="fas fa-sort text-muted"></i>
+              <i class="fas fa-sort tw-text-muted"></i>
             {% endif %}
           </a>
         </th>
         <th>
-          <a href="?sort=web_page&order={% if current_sort == 'web_page' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-reset text-nowrap">
+          <a href="?sort=web_page&order={% if current_sort == 'web_page' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline text-reset tw-text-nowrap">
             {% trans 'Web Page' %}
             {% if current_sort == 'web_page' %}
               <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
             {% else %}
-              <i class="fas fa-sort text-muted"></i>
+              <i class="fas fa-sort tw-text-muted"></i>
             {% endif %}
           </a>
         </th>
         <th class="notes-col">
-          <a href="?sort=notes&order={% if current_sort == 'notes' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-reset text-nowrap">
+          <a href="?sort=notes&order={% if current_sort == 'notes' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline text-reset tw-text-nowrap">
             {% trans 'Notes' %}
             {% if current_sort == 'notes' %}
               <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
             {% else %}
-              <i class="fas fa-sort text-muted"></i>
+              <i class="fas fa-sort tw-text-muted"></i>
             {% endif %}
           </a>
         </th>
-        <th class="text-end">{% trans "Actions" %}</th>
+        <th class="tw-text-end">{% trans "Actions" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -59,7 +59,7 @@
             <a href="{% url 'bookkeeping:partner_detail' partner.pk %}" class="partner-name-link">{{ partner.name }}</a>
           </td>
           <td>{{ partner.city|default:"—" }}</td>
-          <td class="text-break">
+          <td class="tw-break-words">
             {% if partner.web_page %}
               {% if partner.web_page|slice:":4" == "http" %}
                 <u><a href="{{ partner.web_page }}" target="_blank" rel="noopener noreferrer">{{ partner.web_page }}</a></u>
@@ -76,13 +76,13 @@
                 {{ partner.notes|linebreaksbr }}
               </span>
             {% else %}
-              <span class="text-muted">—</span>
+              <span class="tw-text-muted">—</span>
             {% endif %}
           </td>
           <td>
-            <div class="d-flex gap-2 justify-content-end">
-              <a href="{% url 'bookkeeping:partner_update' partner.pk %}" class="btn btn-sm btn-outline-secondary">{% trans 'Edit' %}</a>
-              <a href="{% url 'bookkeeping:partner_delete' partner.pk %}" class="btn btn-sm btn-outline-danger">{% trans 'Delete' %}</a>
+            <div class="tw-flex tw-gap-2 tw-justify-end">
+              <a href="{% url 'bookkeeping:partner_update' partner.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary"><i class="fas fa-pen fa-fw"></i> {% trans 'Edit' %}</a>
+              <a href="{% url 'bookkeeping:partner_delete' partner.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-danger"><i class="fas fa-trash fa-fw"></i> {% trans 'Delete' %}</a>
             </div>
           </td>
         </tr>

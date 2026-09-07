@@ -3,52 +3,52 @@
 {% load i18n %}
 
 {% block content %}
-<div class="mb-3">
-  <a href="#" onclick="document.referrer.includes('/edit/') ? history.go(-2) : history.back(); return false;" class="btn btn-sm btn-outline-secondary">
-    <i class="fas fa-arrow-left me-1"></i>{% trans "Back" %}
+<div class="tw-mb-3">
+  <a href="#" onclick="document.referrer.includes('/edit/') ? history.go(-2) : history.back(); return false;" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+    <i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans "Back" %}
   </a>
 </div>
 
-<div class="board-post-card">
-  <div class="post-header">
-    <h1 class="post-title text-wrap-mobile">
+<div class="tw-board-post-card">
+  <div class="tw-post-header">
+    <h1 class="tw-post-title">
       {{ post.title }}
     </h1>
     {% if post.subtitle %}
-      <h2 class="post-subtitle text-wrap-mobile">{{ post.subtitle }}</h2>
+      <h2 class="tw-post-subtitle">{{ post.subtitle }}</h2>
     {% endif %}
   </div>
 
   {% if post.featured_image %}
-  <div class="post-featured-image mb-3">
+  <div class="tw-post-featured-image tw-mb-3">
     <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
   </div>
   {% endif %}
 
-  <div class="post-content text-wrap-mobile">
+  <div class="tw-post-content">
     {{ post.text|safe }}
   </div>
 
   {% if post.attachments.all %}
-  <div class="post-attachments mt-4">
+  <div class="tw-post-attachments tw-mt-4">
     <h4>{% trans 'Attachments' %}</h4>
-    <ul class="list-group">{% for attachment in post.attachments.all %}<li class="list-group-item d-flex justify-content-between align-items-center">
-      <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}" class="text-wrap-mobile">
-        <i class="fas fa-paperclip me-2"></i>{{ attachment.filename }}
+    <ul class="tw-list-group">{% for attachment in post.attachments.all %}<li class="tw-list-group-item">
+      <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}">
+        <i class="fas fa-paperclip tw-me-2"></i>{{ attachment.filename }}
       </a>
-      <span class="text-muted attachment-uploaded-at">{{ attachment.uploaded_at|date:"Y-m-d H:i" }}</span>
+      <span class="tw-text-muted tw-attachment-uploaded-at">{{ attachment.uploaded_at|date:"Y-m-d H:i" }}</span>
       </li>{% endfor %}</ul>
   </div>
   {% endif %}
 </div>
 
-  <p class="text-muted">{% if user.is_authenticated or not post.is_public %}{% trans 'Author' %}: {% if post.author %}{{ post.author }}{% else %} -- {% endif %} | {% endif %}{% trans 'Created' %}: {{ post.created|date:"Y-m-d" }} | {% trans 'Updated' %}: {{ post.updated|date:"Y-m-d" }} | {% if post.is_public %} {% trans 'Public' %} {% else %} {% trans 'Private' %} {% endif %}</p>
+  <p class="tw-text-muted">{% if user.is_authenticated or not post.is_public %}{% trans 'Author' %}: {% if post.author %}{{ post.author }}{% else %} -- {% endif %} | {% endif %}{% trans 'Created' %}: {{ post.created|date:"Y-m-d" }} | {% trans 'Updated' %}: {{ post.updated|date:"Y-m-d" }} | {% if post.is_public %} {% trans 'Public' %} {% else %} {% trans 'Private' %} {% endif %}</p>
 
   {% if user.is_authenticated %}
-    <a href="{% url 'board:edit_post' post.pk %}" class="btn btn-primary">{% trans 'Edit' %}</a>
-    <a href="{% url 'board:delete_post' post.pk %}" class="btn btn-danger">{% trans 'Delete' %}</a>
+    <a href="{% url 'board:edit_post' post.pk %}" class="tw-btn tw-btn-primary"><i class="fas fa-pen fa-fw tw-me-1"></i> {% trans 'Edit' %}</a>
+    <a href="{% url 'board:delete_post' post.pk %}" class="tw-btn tw-btn-danger"><i class="fas fa-trash fa-fw tw-me-1"></i> {% trans 'Delete' %}</a>
     {% endif %}
-  <a href="{% url 'board:start' %}" class="btn btn-secondary">{% trans 'Back' %}</a>
+  <a href="{% url 'board:start' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-arrow-left fa-fw tw-me-1"></i> {% trans 'Back' %}</a>
 
   {% with chat_room=chat_room %}
     {% include 'chat/_embedded_chat.html' %}

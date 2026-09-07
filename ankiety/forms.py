@@ -27,17 +27,17 @@ class SurveyForm(forms.ModelForm):
         required=False,
         label=_("Options"),
         help_text=_("One option per line. At least 2 options are required."),
-        widget=forms.Textarea(attrs={"rows": 6, "class": "form-control", "placeholder": _("e.g.\nOption A\nOption B\nOption C")}),
+        widget=forms.Textarea(attrs={"rows": 6, "class": "tw-form-control", "placeholder": _("e.g.\nOption A\nOption B\nOption C")}),
     )
 
     class Meta:
         model = Survey
         fields = ["title", "description", "end_date", "allow_multiple_choice"]
         widgets = {
-            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "title": forms.TextInput(attrs={"class": "tw-form-control"}),
             "description": RichTextWidget(placeholder=_("Describe the survey."), max_length=3000),
-            "end_date": DateTimeLocalInput(attrs={"class": "form-control"}),
-            "allow_multiple_choice": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "end_date": DateTimeLocalInput(attrs={"class": "tw-form-control"}),
+            "allow_multiple_choice": forms.CheckboxInput(attrs={"class": "tw-form-check-input"}),
         }
 
     def __init__(self, *args, **kwargs):

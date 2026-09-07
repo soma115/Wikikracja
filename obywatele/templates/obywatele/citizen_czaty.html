@@ -2,16 +2,16 @@
 {% load i18n %}
 
 {% block citizens %}
-<div class="container section">
-  <div class="mb-3">
-    <a href="{% url 'obywatele:obywatele_szczegoly' pk=target_user.pk %}" class="btn btn-sm btn-outline-secondary">
+<div class="tw-container tw-section">
+  <div class="tw-mb-3">
+    <a href="{% url 'obywatele:obywatele_szczegoly' pk=target_user.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
       ← {{ target_user.username }}
     </a>
   </div>
 
-  <div class="card">
-    <div class="card-header">
-      <span class="section-heading">
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <span class="tw-section-heading">
         {% if is_own %}
           {% trans "My chats" %}
         {% else %}
@@ -19,25 +19,25 @@
         {% endif %}
       </span>
     </div>
-    <div class="card-body p-0">
+    <div class="tw-card-body tw-p-0">
       {% if rooms %}
-        <ul class="list-group list-group-flush">
+        <ul class="tw-list-group tw-list-group-flush">
           {% for room, room_name in rooms %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
+            <li class="tw-list-group-item">
               <a href="{% url 'chat:chat' %}#room_id={{ room.id }}">{{ room_name }}</a>
-              <span class="d-flex gap-2 align-items-center">
+              <span class="tw-flex tw-gap-2 tw-items-center">
                 {% if room.protected %}
-                  <span class="badge-status badge-secondary">{% trans "protected" %}</span>
+                  <span class="tw-badge-status tw-badge-secondary">{% trans "protected" %}</span>
                 {% endif %}
                 {% if room.last_activity %}
-                  <small class="text-muted">{{ room.last_activity|date:"Y-m-d" }}</small>
+                  <small class="tw-text-muted">{{ room.last_activity|date:"Y-m-d" }}</small>
                 {% endif %}
               </span>
             </li>
           {% endfor %}
         </ul>
       {% else %}
-        <p class="text-muted p-3 mb-0">{% trans "No chats found." %}</p>
+        <p class="tw-text-muted tw-p-3 tw-mb-0">{% trans "No chats found." %}</p>
       {% endif %}
     </div>
   </div>

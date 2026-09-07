@@ -3,13 +3,13 @@
 {% load richtext %}
 
 {% block content %}
-<div class="detail-layout">
+<div class="detail-layout tw-flex tw-flex-col tw-gap-3">
 
   <div class="detail-header">
-    <div class="detail-header-top">
-      <h1 class="detail-title">{{ event.title }}</h1>
+    <div class="detail-header-top tw-flex tw-items-start tw-justify-between">
+      <h1 class="detail-title tw-text-2xl tw-font-bold">{{ event.title }}</h1>
       {% if user.is_authenticated %}
-        <div class="detail-nav">
+        <div class="detail-nav tw-flex tw-gap-1">
           <a href="{% url 'events:edit' event.pk %}" class="detail-nav-btn"
              title="{% trans 'Edit' %}">
             <i class="fas fa-pen"></i>
@@ -23,25 +23,25 @@
     </div>
 
     <div class="event-card-badges-row">
-      <span class="badge-status badge-{% if event.frequency == 'once' %}discussion{% else %}critical{% endif %}">
+      <span class="tw-badge-status tw-badge-{% if event.frequency == 'once' %}discussion{% else %}rejected{% endif %}">
         <i class="fas fa-{% if event.frequency == 'once' %}calendar-day{% else %}repeat{% endif %} fa-fw"></i>
         {{ event.get_frequency_display }}
       </span>
       {% if event.is_active %}
-        <span class="badge-status badge-approved">
+        <span class="tw-badge-status tw-badge-approved">
           <i class="fas fa-circle-check fa-fw"></i> {% trans "Active" %}
         </span>
       {% else %}
-        <span class="badge-status badge-rejected">
+        <span class="tw-badge-status tw-badge-rejected">
           <i class="fas fa-circle-xmark fa-fw"></i> {% trans "Inactive" %}
         </span>
       {% endif %}
       {% if event.is_public %}
-        <span class="badge-status badge-discussion" title="{% trans 'Visible to everyone' %}">
+        <span class="tw-badge-status tw-badge-discussion" title="{% trans 'Visible to everyone' %}">
           <i class="fas fa-globe fa-fw"></i> {% trans "Public" %}
         </span>
       {% else %}
-        <span class="badge-status" title="{% trans 'Visible only to logged-in users' %}">
+        <span class="tw-badge-status" title="{% trans 'Visible only to logged-in users' %}">
           <i class="fas fa-lock fa-fw"></i> {% trans "Private" %}
         </span>
       {% endif %}
@@ -49,7 +49,7 @@
   </div>
 
   <div class="proposal-card">
-    <div class="proposal-card-body display-flex">
+    <div class="proposal-card-body tw-flex tw-flex-col tw-gap-2">
 
       <div class="proposal-section">
         <div class="proposal-section-label">
@@ -74,14 +74,14 @@
               <div class="proposal-section-label">
                 <i class="fas fa-clock fa-fw"></i> {% trans "Next Occurrence" %}
               </div>
-              <div class="proposal-section-text text-accent">{{ next_occurrence|date:"l, Y-m-d H:i" }}</div>
+              <div class="proposal-section-text tw-text-accent">{{ next_occurrence|date:"l, Y-m-d H:i" }}</div>
             </div>
           {% else %}
             <div class="proposal-section">
               <div class="proposal-section-label">
                 <i class="fas fa-clock fa-fw"></i> {% trans "Next Occurrence" %}
               </div>
-              <div class="proposal-section-text text-muted">{% trans "No upcoming occurrences" %}</div>
+              <div class="proposal-section-text tw-text-muted">{% trans "No upcoming occurrences" %}</div>
             </div>
           {% endif %}
         {% endwith %}
@@ -119,7 +119,7 @@
       {% endif %}
 
       <div class="proposal-section margin-top-4rem">
-        <small class="text-xs text-muted">
+        <small class="tw-text-xs tw-text-muted">
           {% trans "Created" %}: {{ event.created_at|date:"Y-m-d H:i" }}
           {% if event.updated_at != event.created_at %}
             · {% trans "Updated" %}: {{ event.updated_at|date:"Y-m-d H:i" }}
@@ -130,11 +130,11 @@
     </div>
   </div>
 
-  <div class="proposals-toolbar margin-top-1rem">
+  <div class="proposals-toolbar tw-flex tw-gap-2 tw-mt-4">
     <a href="{% url 'events:list' %}" class="view-toggle-btn event-back-link" title="{% trans 'Back to Calendar' %}">
       <i class="fas fa-arrow-left"></i> {% trans "Back to Calendar" %}
     </a>
-    <a href="{{ event.google_calendar_url }}" target="_blank" rel="noopener" class="btn-cta" title="{% trans 'Add to Google Calendar' %}">
+    <a href="{{ event.google_calendar_url }}" target="_blank" rel="noopener" class="tw-btn-cta" title="{% trans 'Add to Google Calendar' %}">
       <i class="far fa-calendar-plus"></i> {% trans "Add to Google Calendar" %}
     </a>
   </div>

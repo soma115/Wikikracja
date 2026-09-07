@@ -1,4 +1,8 @@
+import tempfile
+
 import pytest
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from django.utils import timezone
 
 from bookkeeping.models import Asset
@@ -78,3 +82,40 @@ def test_dashboard_feed_filter_unread(dashboard_user):
     ReadStatus.objects.create(user=dashboard_user, content_type=ReadStatus.ContentType.POST, object_id=post.pk)
     ctx_unread_after = build_dashboard_context(dashboard_user, filter_unread=True)
     assert not any(i['object_id'] == post.pk for i in ctx_unread_after['feed_items'])
+
+
+@pytest.mark.django_db
+def test_dashboard_featured_documents(dashboard_user):
+    from board.models import Post
+
+    post_without = Post.objects.create(title='No image', text='<p>body</p>', author=dashboard_user)
+    image = SimpleUploadedFile('featured.png', b'x', content_type='image/png')
+
+    with tempfile.TemporaryDirectory() as tmp:
+        with override_settings(MEDIA_ROOT=tmp):
+            post_with = Post.objects.create(title='With image', text='<p>body</p>', author=dashboard_user, featured_image=image)
+
+            ctx = build_dashboard_context(dashboard_user)
+            featured = list(ctx['featured_documents'])
+
+            assert post_with in featured
+            assert post_without not in featured
+            assert ctx['featured_documents'].ordered
+
+
+@pytest.mark.django_db
+def test_home_renders_featured_documents_tile(dashboard_user, client):
+    from board.models import Post
+
+    image = SimpleUploadedFile('featured.png', b'x', content_type='image/png')
+
+    with tempfile.TemporaryDirectory() as tmp:
+        with override_settings(MEDIA_ROOT=tmp):
+            Post.objects.create(title='Featured doc', text='<p>body</p>', author=dashboard_user, featured_image=image)
+            client.force_login(dashboard_user)
+            response = client.get('/')
+            content = response.content.decode()
+
+            assert response.status_code == 200
+            assert 'featured-docs-carousel' in content
+            assert 'Featured doc' in content

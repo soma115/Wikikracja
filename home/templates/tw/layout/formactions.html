@@ -1,0 +1,12 @@
+{% load crispy_classmap %}
+<div
+    {% if formactions.flat_attrs %}{{ formactions.flat_attrs }}{% endif %} 
+    class="tw-mb-3 {{ formactions.css_class|default:''|crispy_classmap }} {{ field_class|crispy_classmap }}" 
+    {% if formactions.id %} id="{{ formactions.id }}"{% endif %}>
+    {% if label_class %}
+        <div class="aab {{ label_class|crispy_classmap }}"></div>
+    {% endif %}
+    <div class="{{ field_class|crispy_classmap }}">
+        {{ fields_output|safe }}
+    </div>
+</div>

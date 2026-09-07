@@ -4,54 +4,54 @@
 {% load crispy_forms_tags %}
 
 {% block citizens %}
-<div class="container section">
-  <div class="card">
-    <div class="card-header d-flex align-items-center justify-content-between">
-      <span class="section-heading">{% trans "Edit candidate profile" %}: <strong>{{ candidate_user.username }}</strong></span>
-      <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=candidate_user.pk %}" class="btn btn-sm btn-outline-secondary">
-        {% trans "Cancel" %}
+<div class="tw-container tw-section">
+  <div class="tw-card">
+    <div class="tw-card-header tw-flex tw-items-center tw-justify-between">
+      <span class="tw-section-heading">{% trans "Edit candidate profile" %}: <strong>{{ candidate_user.username }}</strong></span>
+      <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=candidate_user.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+        <i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}
       </a>
     </div>
-    <div class="card-body">
+    <div class="tw-card-body">
       <form method="post">
         {% csrf_token %}
-        <div class="row">
-          <div class="col-md-6">{{ form.first_name|as_crispy_field }}</div>
-          <div class="col-md-6">{{ form.last_name|as_crispy_field }}</div>
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
+          <div>{{ form.first_name|as_crispy_field }}</div>
+          <div>{{ form.last_name|as_crispy_field }}</div>
         </div>
-        <div class="row">
-          <div class="col-md-6">{{ form.city|as_crispy_field }}</div>
-          <div class="col-md-6">{{ form.voivodeship|as_crispy_field }}</div>
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+          <div>{{ form.city|as_crispy_field }}</div>
+          <div>{{ form.voivodeship|as_crispy_field }}</div>
         </div>
-        <div class="row">
-          <div class="col-md-6">{{ form.phone|as_crispy_field }}</div>
-          <div class="col-md-6">{{ form.job|as_crispy_field }}</div>
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+          <div>{{ form.phone|as_crispy_field }}</div>
+          <div>{{ form.job|as_crispy_field }}</div>
         </div>
-        <div class="row">
-          <div class="col-md-6">{{ form.responsibilities|as_crispy_field }}</div>
-          <div class="col-md-6">{{ form.business|as_crispy_field }}</div>
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+          <div>{{ form.responsibilities|as_crispy_field }}</div>
+          <div>{{ form.business|as_crispy_field }}</div>
         </div>
-        <div class="row">
-          <div class="col-md-6">{{ form.to_give_away|as_crispy_field }}</div>
-          <div class="col-md-6">{{ form.to_borrow|as_crispy_field }}</div>
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+          <div>{{ form.to_give_away|as_crispy_field }}</div>
+          <div>{{ form.to_borrow|as_crispy_field }}</div>
         </div>
-        <div class="row">
-          <div class="col-md-6">{{ form.for_sale|as_crispy_field }}</div>
-          <div class="col-md-6">{{ form.i_need|as_crispy_field }}</div>
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+          <div>{{ form.for_sale|as_crispy_field }}</div>
+          <div>{{ form.i_need|as_crispy_field }}</div>
         </div>
-        <div class="row">
-          <div class="col-md-6">{{ form.want_to_learn|as_crispy_field }}</div>
-          <div class="col-md-6">{{ form.skills_knowledge_hobby|as_crispy_field }}</div>
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+          <div>{{ form.want_to_learn|as_crispy_field }}</div>
+          <div>{{ form.skills_knowledge_hobby|as_crispy_field }}</div>
         </div>
-        <div class="row">
-          <div class="col-12">{{ form.why|as_crispy_field }}</div>
+        <div class="tw-grid tw-grid-cols-1 tw-gap-3 tw-mt-3">
+          <div>{{ form.why|as_crispy_field }}</div>
         </div>
-        <div class="d-flex gap-2 mt-3">
-          <button type="submit" class="btn btn-primary btn-sm">
-            <i class="fas fa-save me-1"></i>{% trans "Save" %}
+        <div class="tw-flex tw-gap-2 tw-mt-3">
+          <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm">
+            <i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Save" %}
           </button>
-          <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=candidate_user.pk %}" class="btn btn-outline-secondary btn-sm">
-            {% trans "Cancel" %}
+          <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=candidate_user.pk %}" class="tw-btn tw-btn-outline-secondary tw-btn-sm">
+            <i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}
           </a>
         </div>
       </form>

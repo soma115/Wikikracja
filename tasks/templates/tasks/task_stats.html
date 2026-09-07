@@ -3,67 +3,53 @@
 
 {% block tasks %}
 
-<div class="container mt-4">
-  <h2>{% trans 'Activity Statistics' %}</h2>
+<div class="tw-container tw-mt-4">
+  <h2 class="tw-text-2xl tw-font-bold tw-mb-4">{% trans 'Activity Statistics' %}</h2>
 
-  <div class="row mt-4">
-    <div class="col-md-3">
-      <div class="card text-center h-100">
-        <div class="card-body">
-          <h5 class="card-title">{% trans 'Total Completed' %}</h5>
-          <p class="card-text fs-1">{{ total_completed }}</p>
-        </div>
+  <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-3 tw-mt-4">
+    <div class="tw-card tw-text-center tw-h-full">
+      <div class="tw-card-body">
+        <h5 class="tw-text-base tw-font-semibold">{% trans 'Total Completed' %}</h5>
+        <p class="tw-text-4xl">{{ total_completed }}</p>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card text-center text-success h-100">
-        <div class="card-body">
-          <h5 class="card-title">{% trans 'Success' %}</h5>
-          <p class="card-text fs-1">{{ success_count }}</p>
-        </div>
+    <div class="tw-card tw-text-center tw-h-full tw-text-success">
+      <div class="tw-card-body">
+        <h5 class="tw-text-base tw-font-semibold">{% trans 'Success' %}</h5>
+        <p class="tw-text-4xl">{{ success_count }}</p>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card text-center text-danger h-100">
-        <div class="card-body">
-          <h5 class="card-title">{% trans 'Failure' %}</h5>
-          <p class="card-text fs-1">{{ failure_count }}</p>
-        </div>
+    <div class="tw-card tw-text-center tw-h-full tw-text-danger">
+      <div class="tw-card-body">
+        <h5 class="tw-text-base tw-font-semibold">{% trans 'Failure' %}</h5>
+        <p class="tw-text-4xl">{{ failure_count }}</p>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card text-center text-info h-100">
-        <div class="card-body">
-          <h5 class="card-title">{% trans 'Success Rate' %}</h5>
-          <p class="card-text fs-1">{{ success_rate }}%</p>
-        </div>
+    <div class="tw-card tw-text-center tw-h-full tw-text-info">
+      <div class="tw-card-body">
+        <h5 class="tw-text-base tw-font-semibold">{% trans 'Success Rate' %}</h5>
+        <p class="tw-text-4xl">{{ success_rate }}%</p>
       </div>
     </div>
   </div>
 
-  <div class="row mt-4">
-    <div class="col-md-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">{% trans 'Mixed Evaluations' %}</h5>
-          <p class="card-text">{{ mixed_count }} {% trans 'activities with equal success and failure votes' %}</p>
-        </div>
+  <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-3 tw-mt-4">
+    <div class="tw-card tw-h-full">
+      <div class="tw-card-body">
+        <h5 class="tw-text-base tw-font-semibold">{% trans 'Mixed Evaluations' %}</h5>
+        <p class="">{{ mixed_count }} {% trans 'activities with equal success and failure votes' %}</p>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">{% trans 'No Evaluations' %}</h5>
-          <p class="card-text">{{ no_eval_count }} {% trans 'activities without any evaluations' %}</p>
-        </div>
+    <div class="tw-card tw-h-full">
+      <div class="tw-card-body">
+        <h5 class="tw-text-base tw-font-semibold">{% trans 'No Evaluations' %}</h5>
+        <p class="">{{ no_eval_count }} {% trans 'activities without any evaluations' %}</p>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="card h-100">
-        <div class="card-body">
-          <h5 class="card-title">{% trans 'Completed Last Week' %}</h5>
-          <p class="card-text">{{ completed_last_week }} {% trans 'activities completed in the last 7 days' %}</p>
-        </div>
+    <div class="tw-card tw-h-full">
+      <div class="tw-card-body">
+        <h5 class="tw-text-base tw-font-semibold">{% trans 'Completed Last Week' %}</h5>
+        <p class="">{{ completed_last_week }} {% trans 'activities completed in the last 7 days' %}</p>
       </div>
     </div>
   </div>

@@ -4,57 +4,57 @@
 {% block content %}
 <div class="section">
 
-  <div class="d-flex align-items-center justify-content-between gap-2 mb-4 flex-wrap">
-      <span class="section-heading text-md">
-      <i class="fas fa-screwdriver-wrench me-2 text-accent opacity-80"></i>{% trans "Site administration and global settings" %}
+  <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-4 tw-flex-wrap">
+    <span class="section-heading tw-text-md">
+      <i class="fas fa-screwdriver-wrench tw-me-2 tw-text-accent tw-opacity-80"></i>{% trans "Site administration and global settings" %}
     </span>
     <span class="site-admin-version">Wikikracja v.{{ app_version }}</span>
   </div>
 
   {# ── QUICK LINKS ── #}
-  <div class="card mb-4">
-    <div class="card-header d-flex align-items-center gap-2">
-      <i class="fas fa-link text-accent text-sm opacity-80"></i>
-      <span class="section-heading text-sm">{% trans "Quick links" %}</span>
+  <div class="tw-card tw-mb-4">
+    <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
+      <i class="fas fa-link tw-text-accent tw-text-sm tw-opacity-80"></i>
+      <span class="section-heading tw-text-sm">{% trans "Quick links" %}</span>
     </div>
-    <div class="card-body">
+    <div class="tw-card-body">
       <form method="post" id="quick-link-form" data-preserve-scroll>
         {% csrf_token %}
         <input type="hidden" name="save_quick_link" value="1" id="form-action">
         <input type="hidden" name="edit_link_id" value="" id="edit-link-id">
 
-        <div class="mb-3">
-          <div class="fw-semibold mb-2 text-md">
-            <i class="fas fa-plus me-2 text-accent opacity-70"></i>
+        <div class="tw-mb-3">
+          <div class="tw-font-semibold tw-mb-2 tw-text-md">
+            <i class="fas fa-plus tw-me-2 tw-text-accent tw-opacity-70"></i>
             <span id="form-title">{% trans "Add new link" %}</span>
           </div>
-          <div class="quick-link-form d-flex gap-2 flex-wrap">
-            <input type="text" name="quick_link_title" id="quick_link_title" placeholder="{% trans 'Title' %}" class="form-control form-control-sm quick-link-input quick-link-input-title" required>
-            <input type="text" name="quick_link_url" id="quick_link_url" placeholder="{% trans 'URL' %}" class="form-control form-control-sm quick-link-input quick-link-input-url" required>
-            <input type="number" name="quick_link_order" id="quick_link_order" placeholder="{% trans 'Order' %}" class="form-control form-control-sm quick-link-input quick-link-input-order" value="0">
-            <button type="submit" class="btn btn-sm btn-primary quick-link-form-btn" id="submit-btn">{% trans "Add" %}</button>
-            <button type="button" class="btn btn-sm btn-secondary quick-link-form-btn mig-hidden" id="cancel-edit-btn">{% trans "Cancel" %}</button>
+          <div class="quick-link-form tw-flex tw-gap-2 tw-flex-wrap">
+            <input type="text" name="quick_link_title" id="quick_link_title" placeholder="{% trans 'Title' %}" class="tw-form-control tw-form-control-sm quick-link-input quick-link-input-title" required>
+            <input type="text" name="quick_link_url" id="quick_link_url" placeholder="{% trans 'URL' %}" class="tw-form-control tw-form-control-sm quick-link-input quick-link-input-url" required>
+            <input type="number" name="quick_link_order" id="quick_link_order" placeholder="{% trans 'Order' %}" class="tw-form-control tw-form-control-sm quick-link-input quick-link-input-order" value="0">
+            <button type="submit" class="tw-btn tw-btn-sm tw-btn-primary quick-link-form-btn" id="submit-btn"><i class="fas fa-plus fa-fw tw-me-1"></i>{% trans "Add" %}</button>
+            <button type="button" class="tw-btn tw-btn-sm tw-btn-secondary quick-link-form-btn mig-hidden tw-mig-hidden" id="cancel-edit-btn"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</button>
           </div>
         </div>
       </form>
 
       {% if quick_links %}
-      <div class="mt-3 pt-3 section-divider">
-        <div class="fw-semibold mb-2 text-md">
-          <i class="fas fa-list me-2 text-accent opacity-70"></i>
+      <div class="tw-mt-3 tw-pt-3 section-divider">
+        <div class="tw-font-semibold tw-mb-2 tw-text-md">
+          <i class="fas fa-list tw-me-2 tw-text-accent tw-opacity-70"></i>
           {% trans "Existing links" %}
         </div>
-        <div id="quick-links-list" class="d-flex flex-column gap-2">
+        <div id="quick-links-list" class="tw-flex tw-flex-col tw-gap-2">
           {% for link in quick_links %}
-          <div class="quick-link-item d-flex align-items-center gap-2 p-2" data-link-id="{{ link.id }}" draggable="true">
-            <i class="fas fa-grip-vertical text-muted text-xs opacity-50"></i>
+          <div class="quick-link-item tw-flex tw-items-center tw-gap-2 tw-p-2" data-link-id="{{ link.id }}" draggable="true">
+            <i class="fas fa-grip-vertical tw-text-muted tw-text-xs tw-opacity-50"></i>
             <span class="quick-link-title">{{ link.title }}</span>
             <span class="quick-link-url">{{ link.url }}</span>
-            <button type="button" class="btn btn-sm btn-outline-secondary edit-link-btn quick-link-edit" data-link-id="{{ link.id }}" data-title="{{ link.title }}" data-url="{{ link.url }}" data-order="{{ link.order }}">{% trans "Edit" %}</button>
-            <form class="mig-inline" method="post">
+            <button type="button" class="tw-btn tw-btn-sm tw-btn-outline-secondary edit-link-btn quick-link-edit" data-link-id="{{ link.id }}" data-title="{{ link.title }}" data-url="{{ link.url }}" data-order="{{ link.order }}"><i class="fas fa-pen fa-fw tw-me-1"></i>{% trans "Edit" %}</button>
+            <form class="mig-inline tw-inline" method="post">
               {% csrf_token %}
               <input type="hidden" name="delete_quick_link" value="{{ link.id }}">
-              <button type="submit" class="btn btn-sm btn-outline-danger badge-xs">{% trans "Delete" %}</button>
+              <button type="submit" class="tw-btn tw-btn-sm tw-btn-outline-danger badge-xs"><i class="fas fa-trash fa-fw tw-me-1"></i>{% trans "Delete" %}</button>
             </form>
           </div>
           {% endfor %}
@@ -77,12 +77,12 @@
       document.getElementById('quick_link_title').value = title;
       document.getElementById('quick_link_url').value = url;
       document.getElementById('quick_link_order').value = order;
-      
+
       document.getElementById('form-action').name = 'edit_quick_link';
       document.getElementById('form-action').value = linkId;
       document.getElementById('form-title').textContent = '{% trans "Edit link" %}';
-      document.getElementById('submit-btn').textContent = '{% trans "Save" %}';
-      document.getElementById('cancel-edit-btn').style.display = 'inline-block';
+      document.getElementById('submit-btn').innerHTML = '<i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Save" %}';
+      document.getElementById('cancel-edit-btn').classList.remove('mig-hidden', 'tw-mig-hidden');
     });
   });
 
@@ -91,12 +91,12 @@
     document.getElementById('quick_link_title').value = '';
     document.getElementById('quick_link_url').value = '';
     document.getElementById('quick_link_order').value = '0';
-    
+
     document.getElementById('form-action').name = 'save_quick_link';
     document.getElementById('form-action').value = '1';
     document.getElementById('form-title').textContent = '{% trans "Add new link" %}';
-    document.getElementById('submit-btn').textContent = '{% trans "Add" %}';
-    this.style.display = 'none';
+    document.getElementById('submit-btn').innerHTML = '<i class="fas fa-plus fa-fw tw-me-1"></i>{% trans "Add" %}';
+    this.classList.add('mig-hidden', 'tw-mig-hidden');
   });
 
   // Drag and drop reordering
@@ -140,7 +140,7 @@
     items.forEach(function(item, index) {
       orderData.push(item.dataset.linkId);
     });
-    
+
     // Send order to server
     fetch('{% url "site_admin" %}', {
       method: 'POST',
@@ -164,12 +164,12 @@
   </script>
 
   {# ── VOTE STORAGE RELIABILITY ── #}
-  <div class="card mb-4">
-    <div class="card-header d-flex align-items-center gap-2">
-      <i class="fas fa-shield-halved text-accent text-sm opacity-80"></i>
-      <span class="section-heading text-sm">{% trans "Vote storage reliability" %}</span>
+  <div class="tw-card tw-mb-4">
+    <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
+      <i class="fas fa-shield-halved tw-text-accent tw-text-sm tw-opacity-80"></i>
+      <span class="section-heading tw-text-sm">{% trans "Vote storage reliability" %}</span>
     </div>
-    <div class="card-body">
+    <div class="tw-card-body">
       <p class="admin-muted">
         {% trans "While a referendum is open, votes are stored outside the main database." %}
         {% trans "This way nobody can see who voted for what, or the running result." %}
@@ -185,23 +185,23 @@
       </p>
 
       {% if restarted_referendums %}
-      <div class="mt-3 pt-3 section-divider">
-        <div class="fw-semibold mb-2 text-md">
-          <i class="fas fa-triangle-exclamation me-2 text-accent opacity-70"></i>
+      <div class="tw-mt-3 tw-pt-3 section-divider">
+        <div class="tw-font-semibold tw-mb-2 tw-text-md">
+          <i class="fas fa-triangle-exclamation tw-me-2 tw-text-accent tw-opacity-70"></i>
           {% trans "Restarts so far:" %} {{ total_referendum_restarts }}
         </div>
-        <div class="d-flex flex-column gap-2">
+        <div class="tw-flex tw-flex-col tw-gap-2">
           {% for decyzja in restarted_referendums %}
-          <div class="d-flex align-items-center gap-2 p-2 bg-glass-sm">
+          <div class="tw-flex tw-items-center tw-gap-2 tw-p-2 bg-glass-sm">
             <a href="{% url 'glosowania:details' decyzja.id %}" class="decision-link">{{ decyzja.id }}. {{ decyzja.title }}</a>
-            <span class="restart-count">{% trans "Restarts:" %} {{ decyzja.referendum_restart_count }}</span>
+            <span class="tw-restart-count">{% trans "Restarts:" %} {{ decyzja.referendum_restart_count }}</span>
           </div>
           {% endfor %}
         </div>
       </div>
       {% else %}
-      <p class="admin-muted mb-0">
-        <i class="fas fa-circle-check me-2 text-accent opacity-70"></i>
+      <p class="admin-muted tw-mb-0">
+        <i class="fas fa-circle-check tw-me-2 tw-text-accent tw-opacity-70"></i>
         {% trans "No referendum has ever had to restart because of a vote storage failure." %}
       </p>
       {% endif %}

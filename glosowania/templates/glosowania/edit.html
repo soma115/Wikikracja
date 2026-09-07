@@ -6,11 +6,11 @@
 {% block extra_css %}{{ form.media }}{% endblock %}
 
 {% block glosowania %}
-<div class="card">
-  <div class="card-header">
-    <span class="section-heading">{% trans 'Edit law proposal' %}</span>
+<div class="tw-card">
+  <div class="tw-card-header">
+    <span class="section-heading tw-section-heading">{% trans 'Edit law proposal' %}</span>
   </div>
-  <div class="card-body">
+  <div class="tw-card-body">
     <form action="." method="POST" class="post-form" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
       {% csrf_token %}
       {{ form.title|as_crispy_field }}
@@ -18,9 +18,9 @@
       {{ form.uzasadnienie|as_crispy_field }}
       {{ form.kara|as_crispy_field }}
       {{ form.znosi|as_crispy_field }}
-      <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary btn-sm">{% trans 'Save' %}</button>
-        <button onclick="window.history.back();" class="btn btn-secondary btn-sm" type="button">{% trans 'Back' %}</button>
+      <div class="tw-flex tw-gap-2 tw-mt-4">
+        <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
+        <button onclick="window.history.back();" class="tw-btn tw-btn-secondary tw-btn-sm" type="button"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Back' %}</button>
       </div>
     </form>
   </div>

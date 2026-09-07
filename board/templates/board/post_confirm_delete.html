@@ -4,20 +4,20 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<div class="container mt-4">
-  <div class="card">
-  <div class="card-body">
-    <h2 class="card-title">{% trans "Delete post" %}</h2>
-    <p class="card-text">{% trans "Are you sure you want to delete this post?" %}</p>
-    <h4>{{ post.title }}</h4>
+<div class="tw-container tw-mt-4">
+  <div class="tw-card">
+  <div class="tw-card-body">
+    <h2 class="tw-text-xl tw-font-semibold tw-mb-2">{% trans "Delete post" %}</h2>
+    <p class="tw-text-muted tw-mb-3">{% trans "Are you sure you want to delete this post?" %}</p>
+    <h4 class="tw-text-lg tw-font-medium">{{ post.title }}</h4>
     {% if post.subtitle %}
-    <h5 class="text-muted">{{ post.subtitle }}</h5>
+    <h5 class="tw-text-muted tw-text-base tw-mb-4">{{ post.subtitle }}</h5>
     {% endif %}
 
-    <form method="post" class="mt-4">
+    <form method="post" class="tw-mt-4 tw-flex tw-gap-2">
     {% csrf_token %}
-    <button type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
-    <a href="{% url 'board:view_post' post.pk %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+    <button type="submit" class="tw-btn tw-btn-danger"><i class="fas fa-trash fa-fw tw-me-1"></i> {% trans "Delete" %}</button>
+    <a href="{% url 'board:view_post' post.pk %}" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw tw-me-1"></i> {% trans "Cancel" %}</a>
     </form>
   </div>
   </div>

@@ -4,67 +4,67 @@
 
 
 {% block glosowania %}
-<div class="d-flex flex-column gap-3 mb-3">
+<div class="tw-flex tw-flex-col tw-gap-3 tw-mb-3">
 
-  <div class="card">
-    <div class="card-body">
-      <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-        <a href="{% url 'glosowania:details' pk=decision.id %}" class="btn btn-sm btn-secondary">
+  <div class="tw-card">
+    <div class="tw-card-body">
+      <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw-mb-1">
+        <a href="{% url 'glosowania:details' pk=decision.id %}" class="tw-btn tw-btn-sm tw-btn-secondary">
           <i class="fas fa-arrow-left"></i> {% trans 'Back' %}
         </a>
-        <span class="text-muted text-sm">
+        <span class="tw-text-muted tw-text-sm">
           #{{ decision.id }} — {% trans 'Edit history' %}
         </span>
       </div>
-      <p class="mb-0 fw-semibold text-lg">{{ decision.title }}</p>
+      <p class="tw-mb-0 tw-font-semibold tw-text-lg">{{ decision.title }}</p>
     </div>
   </div>
 
   {% if not entries %}
-    <div class="card">
-      <div class="card-body">
-        <p class="mb-0 text-muted text-sm">{% trans 'No previous versions recorded yet.' %}</p>
+    <div class="tw-card">
+      <div class="tw-card-body">
+        <p class="tw-mb-0 tw-text-muted tw-text-sm">{% trans 'No previous versions recorded yet.' %}</p>
       </div>
     </div>
   {% endif %}
 
   {% for entry in entries %}
-  <div class="card">
-    <div class="card-body d-flex flex-column gap-2">
-      <div class="d-flex align-items-center gap-2 flex-wrap">
-        <span class="historia-badge">v{{ entry.version.version_number }}</span>
-        <span class="historia-meta">
+  <div class="tw-card">
+    <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
+      <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+        <span class="historia-badge tw-historia-badge">v{{ entry.version.version_number }}</span>
+        <span class="historia-meta tw-historia-meta">
           {{ entry.version.modified_at|date:"d.m.Y H:i" }}
           {% if entry.version.modified_by %}
-            · <strong>{{ entry.version.modified_by.username }}</strong>
+            · <strong class="tw-font-semibold">{{ entry.version.modified_by.username }}</strong>
           {% endif %}
         </span>
       </div>
       {% if entry.diffs %}
         {% for diff in entry.diffs %}
         <div>
-          <div class="historia-meta mb-1"><i class="fas fa-pen fa-fw"></i> {{ diff.label }}</div>
-          <div class="diff-block">{{ diff.html|safe }}</div>
+          <div class="historia-meta tw-historia-meta tw-mb-1"><i class="fas fa-pen fa-fw"></i> {{ diff.label }}</div>
+          <div class="diff-block tw-diff-block">{{ diff.html|safe }}</div>
         </div>
         {% endfor %}
       {% else %}
-        <div class="historia-meta">{% trans '(Initial version — no previous state to compare)' %}</div>
+        <div class="historia-meta tw-historia-meta">{% trans '(Initial version — no previous state to compare)' %}</div>
       {% endif %}
     </div>
   </div>
   {% endfor %}
 
   {% if current_diffs %}
-  <div class="card border-approved">
-    <div class="card-body d-flex flex-column gap-2">
-      <div class="d-flex align-items-center gap-2 flex-wrap">
-        <span class="historia-current-badge">{% trans 'Current version' %}</span>
-        <span class="historia-meta">{% trans 'Changes since last saved version' %}</span>
+  <div class="tw-card tw-border-approved">
+    <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
+      <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+        <span class="historia-current-badge tw-historia-current-badge">{% trans 'Current version' %}</span>
+        <span class="historia-meta tw-historia-meta">{% trans 'Changes since last saved version' %}</span>
       </div>
       {% for diff in current_diffs %}
       <div>
-        <div class="historia-meta mb-1"><i class="fas fa-pen fa-fw"></i> {{ diff.label }}</div>
-        <div class="diff-block">{{ diff.html|safe }}</div>
+        <div class="historia-meta tw-historia-meta tw-mb-1"><i class="fas fa-pen fa-fw"></i> {{ diff.label }}</div>
+        <div class="diff-block tw-diff-block">{{ diff.html|safe }}</div>
       </div>
       {% endfor %}
     </div>

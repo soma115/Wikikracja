@@ -60,4 +60,7 @@ def get_translations():
         "Disable the unread filter": _("Disable the unread filter"),
         "This room is empty, be the first one to write something.": _("This room is empty, be the first one to write something."),
         "Only approved helpers can write here.": _("Only approved helpers can write here."),
+        "This room is not available.": _("This room is not available."),
+        "Could not join the room.": _("Could not join the room."),
+        "Reconnecting...": _("Reconnecting..."),
     }

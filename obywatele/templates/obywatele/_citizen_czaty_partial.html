@@ -1,7 +1,7 @@
 {% load i18n profile_tags %}
 {% if rows %}
-  <div class="table-responsive">
-    <table class="table table-sm table-striped table-hover-rows mb-0">
+  <div class="tw-citizens-table-wrap">
+    <table class="tw-citizens-table tw-table-hover tw-table-sm tw-mb-0">
       <thead>
         <tr>
           <th>{% trans "Room" %}</th>
@@ -12,13 +12,13 @@
       <tbody>
         {% for row in rows %}
           <tr data-href="{% url 'chat:chat' %}#room_id={{ row.room.id }}&message_id={{ row.msg.id }}">
-            <td class="td-link text-nowrap">
+            <td class="td-link tw-text-nowrap">
               <a href="{% url 'chat:chat' %}#room_id={{ row.room.id }}&message_id={{ row.msg.id }}">{{ row.room_name }}</a>
             </td>
             <td class="td-link td-truncate">
               <a href="{% url 'chat:chat' %}#room_id={{ row.room.id }}&message_id={{ row.msg.id }}">{{ row.msg.text|plain_text|truncatechars:80 }}</a>
             </td>
-            <td class="text-muted text-nowrap">
+            <td class="tw-text-muted tw-text-nowrap">
               {{ row.msg.time|date:"d.m.Y H:i" }}
             </td>
           </tr>
@@ -27,5 +27,5 @@
     </table>
   </div>
 {% else %}
-  <p class="text-muted p-3 mb-0 citizen-tab-empty">{% trans "No chats found." %}</p>
+  <p class="tw-text-muted tw-p-3 tw-mb-0 citizen-tab-empty">{% trans "No chats found." %}</p>
 {% endif %}

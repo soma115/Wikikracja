@@ -11,11 +11,11 @@ Użycie:
 {% endcomment %}
 
 {% if chat_room %}
-<section class="ec-section">
+<section class="ec-section tw-w-full tw-mt-8 tw-pt-5 tw-border-t">
   <h2 class="ec-section-title">
     <i class="fas fa-comments fa-fw"></i> {% trans 'Chat' %}
     <a href="{% url 'chat:chat' %}#room_id={{ chat_room.pk }}"
-       class="ec-open-full" title="{% trans 'Open in chat' %}">
+       class="ec-open-full tw-text-xs tw-ms-auto tw-no-underline" title="{% trans 'Open in chat' %}">
       <i class="fas fa-arrow-up-right-from-square fa-fw"></i>
     </a>
   </h2>
@@ -30,7 +30,6 @@ Użycie:
 </section>
 
 
-<link rel="stylesheet" href="{% static 'chat/css/chat.css' %}">
 {{ ec_translations|json_script:"ec-chat-translations" }}
 {{ MESSAGE_MAX_LENGTH|default:500|json_script:"ec-chat-message-max-length" }}
 {{ UPLOAD_IMAGE_MAX_SIZE_MB|json_script:"ec-chat-upload-max-size-mb" }}

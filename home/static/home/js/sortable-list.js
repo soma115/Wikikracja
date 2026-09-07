@@ -85,7 +85,7 @@
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
       dragClass: 'sortable-drag',
-      filter: opts.filter || 'button, input, select, textarea, .btn, .cal-nav, .chat-unread-btn',
+      filter: opts.filter || 'button, input, select, textarea, .tw-btn, .cal-nav, .dashboard-counter-btn',
       preventOnFilter: false,
       onEnd: function () {
         var order = Array.from(gridEl.children).map(function (tile) {

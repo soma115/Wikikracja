@@ -22,7 +22,7 @@ class PostForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_enctype = 'multipart/form-data'
-        self.helper.add_input(Submit('submit', _('Save'), css_class='btn-primary'))
+        self.helper.add_input(Submit('submit', _('Save')))
         self.fields['featured_image'].help_text = _("Maximum image size: %(max_size)s MB.") % {'max_size': settings.UPLOAD_IMAGE_MAX_SIZE_MB}
         self.fields['featured_image'].widget.attrs['data-max-size-mb'] = settings.UPLOAD_IMAGE_MAX_SIZE_MB
         self.fields['featured_image'].widget.attrs['data-max-size-error'] = _("Image is too large (max %s MB).")

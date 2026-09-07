@@ -8,11 +8,11 @@
 {% include 'home/includes/toolbar.html' %}
 
   <!-- Year selector -->
-  <div class="row mb-4">
-    <div class="col-md-4">
-      <div class="mb-3">
-        <label for="yearSelect">{% trans 'Select Year' %}:</label>
-        <select id="yearSelect" class="form-select">
+  <div class="tw-grid tw-grid-cols-12 tw-gap-3 tw-mb-4">
+    <div class="tw-col-span-12 md:tw-col-span-4">
+      <div class="tw-mb-3">
+        <label for="yearSelect" class="tw-form-label">{% trans 'Select Year' %}:</label>
+        <select id="yearSelect" class="tw-form-select">
           {% for available_year in available_years %}
             <option value="{{ available_year }}" {% if available_year == year %}selected{% endif %}>
               {{ available_year }}
@@ -24,29 +24,29 @@
   </div>
 
   <!-- Summary for selected year -->
-  <div class="card mb-5">
-    <div class="card-header">
-      <h5 class="mb-0">{% trans 'Summary' %} ({{ year }})</h5>
+  <div class="tw-card tw-mb-5">
+    <div class="tw-card-header">
+      <h5 class="tw-mb-0">{% trans 'Summary' %} ({{ year }})</h5>
     </div>
-    <div class="card-body p-0">
+    <div class="tw-card-body tw-p-0">
       {% if year_pivot %}
         {% include 'bookkeeping/_report_pivot.html' with pivot_rows=year_pivot asset_columns=year_assets asset_totals=year_totals uses_fallback=year_uses_fallback totals_label=_('Summary of the year') %}
       {% else %}
-        <div class="p-3"><div class="alert alert-info mb-0">{% trans 'No records found.' %}</div></div>
+        <div class="tw-p-3"><div class="tw-alert tw-alert-info tw-mb-0">{% trans 'No records found.' %}</div></div>
       {% endif %}
     </div>
   </div>
 
   <!-- All years summary -->
-  <div class="card mb-4">
-    <div class="card-header">
-      <h5 class="mb-0">{% trans 'All Years Summary' %}</h5>
+  <div class="tw-card tw-mb-4">
+    <div class="tw-card-header">
+      <h5 class="tw-mb-0">{% trans 'All Years Summary' %}</h5>
     </div>
-    <div class="card-body p-0">
+    <div class="tw-card-body tw-p-0">
       {% if all_pivot %}
         {% include 'bookkeeping/_report_pivot.html' with pivot_rows=all_pivot asset_columns=all_assets asset_totals=all_totals uses_fallback=all_uses_fallback totals_label=_('Total all years') %}
       {% else %}
-        <div class="p-3"><div class="alert alert-info mb-0">{% trans 'No records found.' %}</div></div>
+        <div class="tw-p-3"><div class="tw-alert tw-alert-info tw-mb-0">{% trans 'No records found.' %}</div></div>
       {% endif %}
     </div>
   </div>

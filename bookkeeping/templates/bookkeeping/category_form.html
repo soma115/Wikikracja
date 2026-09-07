@@ -3,30 +3,30 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="tw-container tw-mt-4">
 {% include 'bookkeeping/_nav.html' with active='categories' %}
 
-  <div class="card">
-    <div class="card-body">
+  <div class="tw-card">
+    <div class="tw-card-body">
       <form method="post">
         {% csrf_token %}
 
-        <div class="card mb-3">
-          <div class="card-header bg-info text-white">
+        <div class="tw-card tw-mb-3">
+          <div class="tw-card-header tw-bg-info tw-text-white">
             <h4>{% if form.instance.pk %} {% trans "Update Category" %} {% else %} {% trans "New category" %} {% endif %}</h4>
           </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-12">
+          <div class="tw-card-body">
+            <div class="tw-grid tw-grid-cols-12 tw-gap-3">
+              <div class="tw-col-span-12">
                 {{ form.name|as_crispy_field }}
               </div>
             </div>
           </div>
         </div>
 
-        <div class="mb-3">
-          <button type="submit" class="btn btn-primary">{% trans "Save Category" %}</button>
-          <a href="{% url 'bookkeeping:category_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+        <div class="tw-mb-3">
+          <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Save Category" %}</button>
+          <a href="{% url 'bookkeeping:category_list' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</a>
         </div>
       </form>
     </div>

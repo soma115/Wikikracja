@@ -5,8 +5,8 @@
 {% block extra_css %}{{ form.media }}{% endblock %}
 
 {% block content %}
-<div class="container my-4">
-  <h1 class="h3 mb-4">
+<div class="tw-container tw-my-4">
+  <h1 class="tw-text-2xl tw-font-bold tw-mb-4">
     {% if form.instance.pk %}
       {% trans "Edit activity" %}
     {% else %}
@@ -14,30 +14,30 @@
     {% endif %}
   </h1>
 
-  <form method="post" class="card p-4" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
+  <form method="post" class="tw-card tw-p-4" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
     {% csrf_token %}
     {{ form.non_field_errors }}
 
-    <div class="mb-3">
-      <label class="form-label" for="{{ form.title.id_for_label }}">{% trans "Title" %}</label>
+    <div class="tw-mb-3">
+      <label class="tw-form-label" for="{{ form.title.id_for_label }}">{% trans "Title" %}</label>
       {{ form.title }}
       {{ form.title.errors }}
     </div>
 
-    <div class="mb-3">
-      <label class="form-label" for="{{ form.description.id_for_label }}">{% trans "Description" %}</label>
+    <div class="tw-mb-3">
+      <label class="tw-form-label" for="{{ form.description.id_for_label }}">{% trans "Description" %}</label>
       {{ form.description }}
       {{ form.description.errors }}
     </div>
 
-    <div class="mb-3">
-      <label class="form-label d-flex align-items-center gap-2" for="{{ form.category.id_for_label }}">
+    <div class="tw-mb-3">
+      <label class="tw-form-label tw-flex tw-items-center tw-gap-2" for="{{ form.category.id_for_label }}">
         {% trans "Category" %}
         <button type="button" class="info-icon-btn"
-                data-bs-toggle="popover" data-bs-placement="right" data-bs-html="true"
-                data-bs-trigger="focus hover"
-                data-bs-title="{% trans 'Categories' %}"
-                data-bs-content="{% spaceless %}{% for cat in category_list %}<p class='mb-1'><strong>{{ cat.name }}</strong>{% if cat.description %}<br><span class='text-muted small'>{{ cat.description }}</span>{% endif %}</p>{% endfor %}{% endspaceless %}">
+                data-tw-toggle="popover" data-tw-placement="right" data-tw-html="true"
+                data-tw-trigger="focus hover"
+                data-tw-title="{% trans 'Categories' %}"
+                data-tw-content="{% spaceless %}{% for cat in category_list %}<p class='tw-mb-1'><strong>{{ cat.name }}</strong>{% if cat.description %}<br><span class='tw-text-muted tw-text-sm'>{{ cat.description }}</span>{% endif %}</p>{% endfor %}{% endspaceless %}">
           <i class="fas fa-circle-info"></i>
         </button>
       </label>
@@ -45,9 +45,9 @@
       {{ form.category.errors }}
     </div>
 
-    <div class="d-flex">
-      <button type="submit" class="btn btn-primary me-2">{% trans "Save" %}</button>
-      <a href="{% url 'tasks:list' %}" class="btn btn-secondary">{% trans "Back" %}</a>
+    <div class="tw-flex">
+      <button type="submit" class="tw-btn tw-btn-primary tw-me-2"><i class="fas fa-check fa-fw"></i> {% trans "Save" %}</button>
+      <a href="{% url 'tasks:list' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-arrow-left fa-fw"></i> {% trans "Back" %}</a>
     </div>
   </form>
 </div>
@@ -55,8 +55,8 @@
 <script src="{% static 'common/js/form-autosave.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
-    new bootstrap.Popover(el, { sanitize: false });
+  document.querySelectorAll('[data-tw-toggle="popover"]').forEach(function (el) {
+    new TwPopover(el);
   });
 });
 </script>

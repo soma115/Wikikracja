@@ -2,10 +2,6 @@
 {% load i18n %}
 {% load static %}
 {% load crispy_forms_tags %}
-{% load django_bootstrap5 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{% bootstrap_messages %}
 
 
 {% block content %}
@@ -13,12 +9,16 @@
 <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
   {% csrf_token %}
 
-  {{ form.email|as_crispy_field }}
-  {{ form.captcha|as_crispy_field }}
+  <div class="tw-mb-3">
+    {{ form.email|as_crispy_field }}
+  </div>
+  <div class="tw-mb-3">
+    {{ form.captcha|as_crispy_field }}
+  </div>
 
   {% if redirect_field_value %}
   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" >
   {% endif %}
-  <button type="submit" class="btn btn-info d-block w-100 m-2 btn-sm">{% trans "Sign Up" %}</button>
+  <button type="submit" class="tw-btn tw-btn-info tw-block tw-w-full tw-m-2 tw-btn-sm"><i class="fas fa-user-plus fa-fw tw-me-1"></i>{% trans "Sign Up" %}</button>
 </form>
 {% endblock %}

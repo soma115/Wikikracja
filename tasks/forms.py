@@ -7,12 +7,12 @@ from .models import Category, Task
 
 
 class TaskForm(forms.ModelForm):
-    category = forms.ModelChoiceField(queryset=Category.objects.all(), required=False, empty_label=_("— no category —"), widget=forms.Select(attrs={"class": "form-select"}))
+    category = forms.ModelChoiceField(queryset=Category.objects.all(), required=False, empty_label=_("— no category —"), widget=forms.Select(attrs={"class": "tw-form-select"}))
 
     class Meta:
         model = Task
         fields = ["title", "description", "category"]
-        widgets = {"title": forms.TextInput(attrs={"class": "form-control"}), "description": RichTextWidget(placeholder=_("Describe the activity. Ctrl+B / Ctrl+I / Ctrl+U for formatting."))}
+        widgets = {"title": forms.TextInput(attrs={"class": "tw-form-control"}), "description": RichTextWidget(placeholder=_("Describe the activity. Ctrl+B / Ctrl+I / Ctrl+U for formatting."))}
 
 
 class TaskStatusForm(forms.ModelForm):
@@ -23,7 +23,7 @@ class TaskStatusForm(forms.ModelForm):
     class Meta:
         model = Task
         fields = ["status"]
-        widgets = {"status": forms.Select(attrs={"class": "form-control"})}
+        widgets = {"status": forms.Select(attrs={"class": "tw-form-control"})}
 
     def clean_status(self):
         status = self.cleaned_data["status"]

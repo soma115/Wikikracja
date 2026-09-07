@@ -19,8 +19,10 @@ import {
 import {
     copyMessageLink,
     copyRoomLink,
+    getCurrentRoomId,
+    navigateToRoom,
+    navigateToRoomList,
     onMessageHistory,
-    onRoomTryJoin,
     onSubmitMessage,
     onToggleNotifications,
     onToggleReaction,
@@ -29,7 +31,7 @@ import {
     setReplyTarget
 } from './chat.js';
 import DomApi from './domapi.js';
-import { $, $$, _ } from './utility.js';
+import { $, $$, _, mobileMedia } from './utility.js';
 
 /**
  * DOM API instance for UI operations
@@ -84,17 +86,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const { updateToolbarState } = initFormattingToolbar(document, () => $('#message-input'));
 
-    // Inicjalizacja dropdownow w liscie pokoi z popper strategy:'fixed'.
-    // Pozwala dropdownowi wyjsc poza overflow:hidden na .nav-cat-content (animacja collapse).
-    if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
-        document.querySelectorAll('.room-link__chevron[data-bs-toggle="dropdown"]').forEach(btn => {
-            new bootstrap.Dropdown(btn, {
-                popperConfig(defaultConfig) {
-                    return { ...defaultConfig, strategy: 'fixed' };
-                },
-            });
-        });
-    }
+    // Tailwind dropdowns auto-inicjalizuja sie po data-tw-toggle;
+    // room-link__chevron uzywa data-tw-dropdown-fixed zeby wyjsc poza overflow:hidden.
 
     // Update counter on input; no auto-resize needed for contenteditable
     document.addEventListener('input', (e) => {
@@ -347,14 +340,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const files = e.target.files;
         const preview_container = DOM_API.getPreviewDiv();
         if (!DOM_API.isEditing() && preview_container) preview_container.innerHTML = '';
-        if (files.length > 0) DOM_API.getPreviewContainer().classList.remove('d-none');
+        if (files.length > 0) DOM_API.getPreviewContainer().classList.remove('tw-d-none');
         for (let i = 0; i < files.length; ++i) {
             const file = files.item(i);
             const fr = new FileReader();
             const preview_id = `preview-new-${i}-${Date.now()}`;
             preview_container?.insertAdjacentHTML('beforeend', `<div class="image-preview-wrapper">
                 <img class='image-preview new-attachment' id='${preview_id}'>
-                <button class="btn btn-sm btn-danger remove-new-attachment image-preview-remove"
+                <button class="tw-btn tw-btn-sm tw-btn-danger remove-new-attachment image-preview-remove"
                     data-preview-id="${preview_id}" type="button">×</button>
             </div>`);
             fr.onload = (e) => {
@@ -392,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
             DOM_API.addRemovedAttachment(btn.dataset.filename);
             btn.closest('.image-preview-wrapper')?.remove();
             if (DOM_API.getPreviewDiv()?.children.length === 0) {
-                DOM_API.getPreviewContainer().classList.add('d-none');
+                DOM_API.getPreviewContainer().classList.add('tw-d-none');
             }
         }
     });
@@ -408,7 +401,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 DOM_API.getFileInput().value = "";
             }
             if (previewDiv?.children.length === 0) {
-                DOM_API.getPreviewContainer().classList.add('d-none');
+                DOM_API.getPreviewContainer().classList.add('tw-d-none');
             }
         }
     });
@@ -444,8 +437,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const roomLink = e.target.closest('.room-link');
         if (!roomLink) return;
         if (roomLink.classList.contains("joined")) {
-            // Mobile: klik w już aktywny pokój = wróć do tego pokoju (zwiń rozwiniętą listę)
-            if (window.innerWidth < 768) mobileHideRoomList();
+            // Mobile: klik w już aktywny pokój = wróć do niego (lista nakłada się
+            // na pokój). Nawigacja przez URL — router sam zauważy identyczną trasę.
+            if (mobileMedia.matches) navigateToRoom(parseInt(roomLink.dataset.roomId));
             return;
         }
         const room_id = roomLink.getAttribute("data-room-id");
@@ -453,7 +447,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => roomLink.classList.remove('room-tapping'), 300);
         DOM_API.getRoomLinkDiv(room_id)?.classList.remove("room-not-seen");
         DOM_API.setRoomSeenIconState(room_id, true);
-        onRoomTryJoin(room_id);
+        navigateToRoom(parseInt(room_id));
         if (typeof window.updateUnreadFilter === 'function') {
             window.updateUnreadFilter();
         }
@@ -461,7 +455,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ── Room list show/hide ───────────────────────────────────────────────────
     const chatRoomsEl = $('.chat-rooms');
-    const HIDDEN_KEY = 'chat-room-list-hidden';
+    // Preferencja zwinięcia dotyczy wyłącznie desktopu — na mobile panel listy
+    // wynika z nawigacji (room-list-showing), nie z zapisanego stanu.
+    const HIDDEN_KEY = 'chat-desktop-room-list-hidden';
+    const LEGACY_HIDDEN_KEY = 'chat-room-list-hidden';
+
+    // Jednorazowa migracja starego klucza — bez cichej utraty preferencji.
+    const legacyHidden = localStorage.getItem(LEGACY_HIDDEN_KEY);
+    if (legacyHidden !== null) {
+        if (localStorage.getItem(HIDDEN_KEY) === null) {
+            localStorage.setItem(HIDDEN_KEY, legacyHidden);
+        }
+        localStorage.removeItem(LEGACY_HIDDEN_KEY);
+    }
 
     function setRoomListHidden(hidden) {
         chatRoomsEl?.classList.toggle('room-list-hidden', hidden);
@@ -472,61 +478,76 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateToggleBtn() {
         const hidden = chatRoomsEl?.classList.contains('room-list-hidden');
+        const listShowing = chatRoomsEl?.classList.contains('room-list-showing');
         // Button in sort toolbar (dynamic, inside #room)
         const dynBtn = document.getElementById('toggle-room-list-btn');
         if (dynBtn) {
             dynBtn.querySelector('i').className = hidden ? 'fas fa-angles-left' : 'fas fa-angles-right';
             dynBtn.title = hidden ? 'Show room list' : 'Hide room list';
+            // Na mobile ten przycisk pokazuje listę nad pokojem.
+            dynBtn.setAttribute('aria-expanded', String(mobileMedia.matches ? !!listShowing : !hidden));
         }
         // Button in room-list-controls (static, desktop only)
         const staticBtn = document.getElementById('room-list-toggle-static-btn');
         if (staticBtn) {
             staticBtn.querySelector('i').className = hidden ? 'fas fa-angles-left' : 'fas fa-angles-right';
             staticBtn.title = hidden ? 'Show room list' : 'Hide room list';
+            staticBtn.setAttribute('aria-expanded', String(!hidden));
         }
     }
 
-    // Restore saved state — desktop only; mobile always starts with list visible
-    if (window.innerWidth < 768) {
+    // Restore saved state — desktop only; mobile never restores the collapse.
+    if (mobileMedia.matches) {
         chatRoomsEl?.classList.remove('room-list-hidden');
     } else if (localStorage.getItem(HIDDEN_KEY)) {
         setRoomListHidden(true);
     }
 
-    // Mobile: show room list (keep room joined, just switch view)
-    function mobileShowRoomList() {
-        chatRoomsEl?.classList.add('room-list-showing');
+    // Klasy widoku na .chat-rooms zmienia router (chat.js) i desktopowa
+    // preferencja — obserwujemy je, żeby ikony i aria-expanded przycisków
+    // zawsze odzwierciedlały rzeczywisty stan.
+    if (chatRoomsEl) {
+        new MutationObserver(updateToggleBtn).observe(chatRoomsEl, {
+            attributes: true,
+            attributeFilter: ['class'],
+        });
     }
-    // Mobile: hide room list and return to chat view
-    function mobileHideRoomList() {
-        chatRoomsEl?.classList.remove('room-list-showing');
-    }
-    // #toggle-room-list-btn (inside room area): on mobile shows room list without leaving room
+    updateToggleBtn();
+
+    // #toggle-room-list-btn (inside room area): na mobile prowadzi do listy
+    // przez URL (Wstecz wraca do pokoju); na desktopie przełącza zwinięcie.
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('#toggle-room-list-btn');
         if (!btn) return;
-        if (window.innerWidth < 768) {
-            mobileShowRoomList();
+        if (mobileMedia.matches) {
+            navigateToRoomList();
         } else {
             setRoomListHidden(!chatRoomsEl?.classList.contains('room-list-hidden'));
         }
     });
 
-    // #room-list-toggle-static-btn (obok "Nieprzeczytane"): na mobile zwija listę, na desktop toggle
+    // #room-list-toggle-static-btn: na mobile wraca do dołączonego pokoju,
+    // na desktopie przełącza zwinięcie listy.
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('#room-list-toggle-static-btn');
         if (!btn) return;
-        if (window.innerWidth < 768) {
-            mobileHideRoomList();
+        if (mobileMedia.matches) {
+            const joined = getCurrentRoomId();
+            if (joined) navigateToRoom(joined);
         } else {
             setRoomListHidden(!chatRoomsEl?.classList.contains('room-list-hidden'));
         }
     });
 
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        if (window.innerWidth >= 768 && !localStorage.getItem(HIDDEN_KEY)) {
-            setRoomListHidden(false);
+    // Przejście przez breakpoint — preferencja desktopowa jest prezentowana
+    // tylko na desktopie; po stronie mobile klasa jest usuwana bez kasowania
+    // zapisanej preferencji.
+    mobileMedia.addEventListener('change', (e) => {
+        if (e.matches) {
+            chatRoomsEl?.classList.remove('room-list-hidden');
+            updateToggleBtn();
+        } else {
+            setRoomListHidden(!!localStorage.getItem(HIDDEN_KEY));
         }
     });
 
@@ -536,8 +557,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const renameInput = document.getElementById('rename-room-input');
     const renameError = document.getElementById('rename-room-error');
     const renameConfirm = document.getElementById('rename-room-confirm');
-    const bsRenameModal = renameModal && typeof bootstrap !== 'undefined'
-        ? bootstrap.Modal.getOrCreateInstance(renameModal) : null;
     const showRenameError = (msg) => { if (renameError) { renameError.textContent = msg; renameError.style.display = ''; } };
 
     let renameOriginalTitle = null;
@@ -551,7 +570,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renameOriginalTitle = btn.dataset.roomTitle || '';
         if (renameInput) renameInput.value = renameOriginalTitle;
         if (renameError) { renameError.style.display = 'none'; renameError.textContent = ''; }
-        bsRenameModal?.show();
+        if (renameModal && typeof TwModal !== 'undefined') TwModal.show(renameModal);
         setTimeout(() => renameInput?.select(), 300);
     });
 
@@ -559,7 +578,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!renameRoomId) return;
         const newTitle = (renameInput?.value || '').trim();
         if (!newTitle) { showRenameError('Nazwa nie może być pusta.'); return; }
-        if (newTitle === renameOriginalTitle) { bsRenameModal?.hide(); return; }
+        if (newTitle === renameOriginalTitle) {
+            if (renameModal && typeof TwModal !== 'undefined') TwModal.hide(renameModal);
+            return;
+        }
         try {
             const resp = await fetch(`/chat/api/room/${renameRoomId}/rename/`, {
                 method: 'POST',
@@ -568,7 +590,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             const data = await resp.json();
             if (!resp.ok) { showRenameError(data.error || 'Błąd.'); return; }
-            bsRenameModal?.hide();
+            if (renameModal && typeof TwModal !== 'undefined') TwModal.hide(renameModal);
             const roomLink = document.querySelector(`.room-link[data-room-id="${renameRoomId}"]`);
             if (roomLink) {
                 roomLink.querySelector('.room-name')?.replaceChildren(document.createTextNode(data.title));
@@ -597,16 +619,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Close previously open dropdown
             if (openReadByDropdown && openReadByDropdown !== dropdown) {
-                openReadByDropdown.classList.add('d-none');
+                openReadByDropdown.classList.add('tw-d-none');
             }
 
             // Toggle current dropdown
-            const isHidden = dropdown.classList.contains('d-none');
-            dropdown.classList.toggle('d-none', !isHidden);
+            const isHidden = dropdown.classList.contains('tw-d-none');
+            dropdown.classList.toggle('tw-d-none', !isHidden);
             openReadByDropdown = isHidden ? dropdown : null;
         } else if (openReadByDropdown && !e.target.closest('.read-by-dropdown')) {
             // Close dropdown when clicking outside
-            openReadByDropdown.classList.add('d-none');
+            openReadByDropdown.classList.add('tw-d-none');
             openReadByDropdown = null;
         }
     });

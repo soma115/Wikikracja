@@ -1,0 +1,30 @@
+{% load crispy_forms_filters %}
+{% load crispy_classmap %}
+{% load l10n %}
+
+<div {% if field_class %}class="{{ field_class|crispy_classmap }}"{% endif %}{% if flat_attrs %} {{ flat_attrs }}{% endif %}>
+
+    {% for group, options, index in field|optgroups %}
+    {% if group %}<strong>{{ group }}</strong>{% endif %}
+    {% for option in options %}
+      <div class="tw-form-check{% if inline_class %} tw-form-check-inline{% endif %}">
+        <input type="{{option.type}}" class="tw-form-check-input{% if field.errors %} is-invalid{% endif %}" name="{{ field.html_name }}" value="{{ option.value|unlocalize }}" aria-label="{{ option.label|unlocalize }}" title="{{ option.label|unlocalize }}"{% include "tw/layout/attrs.html" with widget=option exclude_class=True %}>
+        <label for="{{ option.attrs.id }}" class="tw-form-check-label">
+            {{ option.label|unlocalize }}
+        </label>
+        {% if field.errors and forloop.last and not inline_class and forloop.parentloop.last %}
+            {% include 'tw/layout/field_errors_block.html' %}
+        {% endif %}
+     </div>
+    {% endfor %}
+    {% endfor %}
+
+</div>
+{% if field.errors and inline_class %}
+    <div id="{{field.errors.field_id}}_error" class="tw-invalid-feedback">
+        {% for error in field.errors %}
+            <p id="error_{{ forloop.counter }}_{{ field.auto_id }}"><strong>{{ error }}</strong></p>
+        {% endfor %}
+    </div>
+{% endif %}
+{% include 'tw/layout/help_text.html' %}

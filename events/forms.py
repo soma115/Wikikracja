@@ -1,5 +1,5 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Column, Field, Layout, Row, Submit
+from crispy_forms.layout import Column, Field, Layout, Row
 from django import forms
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -70,15 +70,20 @@ class EventForm(forms.ModelForm):
 
         self.helper = FormHelper()
         self.helper.form_method = 'post'
+        self.helper.form_tag = False
         self.helper.layout = Layout(
-            Field('title', css_class='form-control'),
-            Field('description', css_class='form-control'),
-            Row(Column('link', css_class='mb-3 col-md-6'), Column('place', css_class='mb-3 col-md-6')),
-            Row(Column('start_date', css_class='mb-3 col-md-6'), Column('end_date', css_class='mb-3 col-md-6')),
-            Field('frequency', css_class='form-control', wrapper_class='mb-3'),
-            Row(Column('ordinal', css_class='mb-3 col-md-6'), Column('weekday', css_class='mb-3 col-md-6'), css_id='ordinal-fields-row', css_class='ordinal-fields-row'),
-            Row(Column('is_active', css_class='mb-3 col-md-6'), Column('is_public', css_class='mb-3 col-md-6')),
-            Submit('submit', _('Save Event'), css_class='btn btn-primary'),
+            Field('title', css_class='tw-form-control'),
+            Field('description', css_class='tw-form-control'),
+            Row(Column('link', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6'), Column('place', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6')),
+            Row(Column('start_date', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6'), Column('end_date', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6')),
+            Field('frequency', css_class='tw-form-control', wrapper_class='tw-mb-3'),
+            Row(
+                Column('ordinal', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6'),
+                Column('weekday', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6'),
+                css_id='ordinal-fields-row',
+                css_class='ordinal-fields-row',
+            ),
+            Row(Column('is_active', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6'), Column('is_public', css_class='tw-mb-3 tw-col-span-12 md:tw-col-span-6')),
         )
 
     def clean_start_date(self):

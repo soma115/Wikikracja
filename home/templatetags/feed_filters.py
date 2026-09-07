@@ -9,8 +9,8 @@ register = template.Library()
 
 @register.filter
 def content_type_color(content_type):
-    """Return Bootstrap color class for content type. Backed by the single
-    source of truth in core/colors.py (CATEGORY_COLORS), also used by
+    """Return the semantic color name for a content type. Backed by the
+    single source of truth in core/colors.py (CATEGORY_COLORS), also used by
     home.views.global_search and home/templates/home/search.html."""
     return category_color(content_type)
 

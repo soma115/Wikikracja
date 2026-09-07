@@ -4,72 +4,70 @@
 {% block prefs_scope %}obywatele{% endblock %}
 
 {% block citizens %}
-<div class="card">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <span class="section-heading">{% trans 'Citizens' %} (<span id="citizens-count">{{ uid|length }}</span>)</span>
+
+{# ── Toolbar z przełącznikiem widoku ── #}
+{% include 'home/includes/toolbar.html' with views=toolbar_views %}
+
+<div class="tw-card">
+  <div class="tw-card-header tw-flex tw-justify-between tw-items-center">
+    <span class="tw-section-heading">{% trans 'Citizens' %} (<span id="citizens-count">{{ uid|length }}</span>)</span>
   </div>
 
-  {# ── Toolbar ── #}
-  <div class="citizens-toolbar">
-    <input type="search" id="citizens-search" class="citizens-search-input"
+  {# ── Toolbar wyszukiwania i filtrów ── #}
+  <div class="citizens-toolbar tw-citizens-toolbar proposals-toolbar tw-toolbar">
+    <input type="search" id="citizens-search" class="tw-citizens-search-input"
            placeholder="{% trans 'Search user...' %}" autocomplete="off">
 
-    <div class="dropdown">
-      <button class="citizens-filter-btn{% if aktywnosc %} active{% endif %} dropdown-toggle"
-              type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        {% if aktywnosc == 'online' %}{% trans "Online" %}
-        {% elif aktywnosc == '7d' %}{% trans "Active 7 days" %}
-        {% elif aktywnosc == '30d' %}{% trans "Active 30 days" %}
-        {% elif aktywnosc == 'nieaktywni' %}{% trans "Inactive 30+ days" %}
-        {% else %}{% trans "All" %}
-        {% endif %}
+    <div class="tw-dropdown">
+      <button class="tw-citizens-filter-btn{% if aktywnosc %} active{% endif %}"
+              type="button" data-tw-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-filter"></i>
+        <span class="tw-filter-label">
+          {% if aktywnosc == 'online' %}{% trans "Online" %}
+          {% elif aktywnosc == '7d' %}{% trans "Active 7 days" %}
+          {% elif aktywnosc == '30d' %}{% trans "Active 30 days" %}
+          {% elif aktywnosc == 'nieaktywni' %}{% trans "Inactive 30+ days" %}
+          {% else %}{% trans "All" %}
+          {% endif %}
+        </span>
       </button>
-      <ul class="dropdown-menu dropdown-menu-end">
+      <ul class="tw-dropdown-menu tw-dropdown-menu-end tw-absolute tw-z-50 tw-bg-bg-card tw-border tw-border-subtle tw-rounded-card">
         <li>
-          <a class="dropdown-item{% if not aktywnosc %} active{% endif %}"
+          <a class="tw-dropdown-item{% if not aktywnosc %} tw-active{% endif %}"
              href="?{% if sort_param %}{{ sort_param }}{% endif %}">{% trans "All" %}</a>
         </li>
         <li>
-          <a class="dropdown-item{% if aktywnosc == 'online' %} active{% endif %}"
+          <a class="tw-dropdown-item{% if aktywnosc == 'online' %} tw-active{% endif %}"
              href="?aktywnosc=online{% if sort_param %}&{{ sort_param }}{% endif %}">{% trans "Online" %}</a>
         </li>
         <li>
-          <a class="dropdown-item{% if aktywnosc == '7d' %} active{% endif %}"
+          <a class="tw-dropdown-item{% if aktywnosc == '7d' %} tw-active{% endif %}"
              href="?aktywnosc=7d{% if sort_param %}&{{ sort_param }}{% endif %}">{% trans "Active 7 days" %}</a>
         </li>
         <li>
-          <a class="dropdown-item{% if aktywnosc == '30d' %} active{% endif %}"
+          <a class="tw-dropdown-item{% if aktywnosc == '30d' %} tw-active{% endif %}"
              href="?aktywnosc=30d{% if sort_param %}&{{ sort_param }}{% endif %}">{% trans "Active 30 days" %}</a>
         </li>
-        <li><hr class="dropdown-divider"></li>
+        <li><hr class="tw-dropdown-divider tw-my-1 tw-border-subtle"></li>
         <li>
-          <a class="dropdown-item{% if aktywnosc == 'nieaktywni' %} active{% endif %}"
+          <a class="tw-dropdown-item{% if aktywnosc == 'nieaktywni' %} tw-active{% endif %}"
              href="?aktywnosc=nieaktywni{% if sort_param %}&{{ sort_param }}{% endif %}">{% trans "Inactive 30+ days" %}</a>
         </li>
       </ul>
     </div>
-
-    <div class="toolbar-view">
-      <button class="view-toggle-btn" data-view="list" title="{% trans 'List view' %}">
-        <i class="fas fa-list"></i>
-      </button>
-      <button class="view-toggle-btn" data-view="grid" title="{% trans 'Grid view' %}">
-        <i class="fas fa-grip"></i>
-      </button>
-    </div>
   </div>
 
-  <div class="card-body p-0" data-view-container>
+  <div class="tw-card-body tw-p-0" data-view-container>
 
     {# ── List view ── #}
     <div id="citizens-list-view">
-      <div class="table-responsive">
-        <table class="table table-hover table-sm align-middle mb-0">
+      <div class="tw-citizens-table-wrap">
+        <table class="tw-citizens-table tw-table-hover tw-table-sm tw-align-middle tw-mb-0">
           <thead>
             <tr>
               <th scope="col">
                 <a href="?sort={{ sort_meta.username.next_param }}{{ sort_url_suffix }}">
-                  {% trans 'Nick' %}
+                  <i class="fas fa-user fa-fw tw-text-muted"></i> {% trans 'Nick' %}
                   {% if sort_meta.username.is_current %}
                     <span aria-hidden="true">{% if sort_meta.username.direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
                   {% endif %}
@@ -77,47 +75,31 @@
               </th>
               <th scope="col">
                 <a href="?sort={{ sort_meta.email.next_param }}{{ sort_url_suffix }}">
-                  {% trans 'Email' %}
+                  <i class="fas fa-envelope fa-fw tw-text-muted"></i> {% trans 'Email' %}
                   {% if sort_meta.email.is_current %}
                     <span aria-hidden="true">{% if sort_meta.email.direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
                   {% endif %}
                 </a>
               </th>
-              <th scope="col">
+              <th scope="col" class="tw-hidden-mobile">
                 <a href="?sort={{ sort_meta.phone.next_param }}{{ sort_url_suffix }}">
-                  {% trans 'Contact' %}
+                  <i class="fas fa-phone fa-fw tw-text-muted"></i> {% trans 'Contact' %}
                   {% if sort_meta.phone.is_current %}
                     <span aria-hidden="true">{% if sort_meta.phone.direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
                   {% endif %}
                 </a>
               </th>
-              <th scope="col">
+              <th scope="col" class="tw-hidden-tablet">
                 <a href="?sort={{ sort_meta.city.next_param }}{{ sort_url_suffix }}">
-                  {% trans 'City / Commune' %}
+                  <i class="fas fa-map-marker-alt fa-fw tw-text-muted"></i> {% trans 'City / Commune' %}
                   {% if sort_meta.city.is_current %}
                     <span aria-hidden="true">{% if sort_meta.city.direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
                   {% endif %}
                 </a>
               </th>
-              <th scope="col">
-                <a href="?sort={{ sort_meta.first_name.next_param }}{{ sort_url_suffix }}">
-                  {% trans 'First name' %}
-                  {% if sort_meta.first_name.is_current %}
-                    <span aria-hidden="true">{% if sort_meta.first_name.direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
-                  {% endif %}
-                </a>
-              </th>
-              <th scope="col">
-                <a href="?sort={{ sort_meta.last_name.next_param }}{{ sort_url_suffix }}">
-                  {% trans 'Last name' %}
-                  {% if sort_meta.last_name.is_current %}
-                    <span aria-hidden="true">{% if sort_meta.last_name.direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
-                  {% endif %}
-                </a>
-              </th>
-              <th scope="col">
+              <th scope="col" class="tw-hidden-desktop">
                 <a href="?sort={{ sort_meta.joined.next_param }}{{ sort_url_suffix }}">
-                  {% trans 'Joined at' %}
+                  <i class="fas fa-calendar fa-fw tw-text-muted"></i> {% trans 'Joined at' %}
                   {% if sort_meta.joined.is_current %}
                     <span aria-hidden="true">{% if sort_meta.joined.direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
                   {% endif %}
@@ -125,7 +107,7 @@
               </th>
               <th scope="col">
                 <a href="?sort={{ sort_meta.last_login.next_param }}{{ sort_url_suffix }}">
-                  {% trans 'Last login' %}
+                  <i class="fas fa-clock fa-fw tw-text-muted"></i> {% trans 'Last login' %}
                   {% if sort_meta.last_login.is_current %}
                     <span aria-hidden="true">{% if sort_meta.last_login.direction == 'asc' %}&uarr;{% else %}&darr;{% endif %}</span>
                   {% endif %}
@@ -135,42 +117,40 @@
           </thead>
           <tbody>
             {% for i in uid %}
-            <tr class="user-row{% if i.near_threshold %} near-threshold{% endif %}"
+            <tr class="user-row tw-user-row{% if i.near_threshold %} near-threshold{% endif %}{% if i.pending_deletion %} tw-bg-warning{% endif %}"
                 data-user-id="{{ i.pk }}"
                 data-href="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}{% if sort_param %}?{{ sort_param }}{% endif %}"
                 data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
               <td>
-                <div class="username-container">
-                  <div class="citizen-list-avatar-wrap flex-shrink-0">
+                <div class="tw-username-container">
+                  <div class="tw-citizen-list-avatar-wrap tw-shrink-0">
                     {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username size="lg" %}
-                    <span class="status-dot status-dot--{{ i.activity_status }} citizen-list-status-dot"
+                    <span class="status-dot tw-status-dot status-dot--{{ i.activity_status }} tw-status-dot--{{ i.activity_status }} tw-citizen-list-status-dot"
                           title="{% if i.activity_status == 'online' %}{% trans 'Online' %}{% elif i.activity_status == 'active' %}{% trans 'Active recently' %}{% elif i.activity_status == 'dormant' %}{% trans 'Dormant' %}{% else %}{% trans 'Inactive' %}{% endif %}"></span>
                   </div>
-                  <span class="citizen-list-nick">{{ i.username }}</span>
+                  <span class="tw-citizen-list-nick">{{ i.username }}</span>
                   {% if i.pk != request.user.pk %}
-                  <a href="{% url 'chat:open_dm' pk=i.pk %}" class="chat-link ms-1" onclick="event.stopPropagation()">
+                  <a href="{% url 'chat:open_dm' pk=i.pk %}" class="chat-link tw-ms-1" onclick="event.stopPropagation()">
                     <i class="fas fa-comment-dots"></i>
                   </a>
                   {% endif %}
                   {% if i.near_threshold %}
-                  <span class="badge-status badge-warning ms-1" title="{% trans 'This person has low reputation points' %}">!</span>
+                  <span class="tw-badge-status tw-badge-warning tw-ms-1" title="{% trans 'This person has low reputation points' %}">!</span>
                   {% endif %}
                   {% if i.pending_deletion %}
-                  <span class="badge-status badge-danger ms-1" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash-alt"></i></span>
+                  <span class="tw-badge-status tw-badge-danger tw-ms-1" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash-alt"></i></span>
                   {% endif %}
                 </div>
               </td>
-              <td class="email-cell">
-                <a href="mailto:{{ i.email }}"><i class="fas fa-envelope me-1"></i>{{ i.email }}</a>
-                <button class="btn btn-outline-light btn-sm copy-btn table-action" data-email="{{ i.email }}" title="{% trans 'Copy email' %}">
+              <td class="email-cell tw-email-cell">
+                <a href="mailto:{{ i.email }}"><i class="fas fa-envelope tw-me-1"></i>{{ i.email }}</a>
+                <button class="tw-btn tw-btn-outline-light tw-btn-sm tw-copy-btn" data-email="{{ i.email }}" title="{% trans 'Copy email' %}">
                   <i class="fas fa-copy"></i>
                 </button>
               </td>
-              <td>{{ i.uzytkownik.phone|default:"—" }}</td>
-              <td>{{ i.uzytkownik.city|default:"—" }}</td>
-              <td>{{ i.first_name|default:"—" }}</td>
-              <td>{{ i.last_name|default:"—" }}</td>
-              <td>{{ i.uzytkownik.data_przyjecia|date:"Y-m-d"|default:"—" }}</td>
+              <td class="tw-hidden-mobile">{{ i.uzytkownik.phone|default:"—" }}</td>
+              <td class="tw-hidden-tablet">{{ i.uzytkownik.city|default:"—" }}</td>
+              <td class="tw-hidden-desktop">{{ i.uzytkownik.data_przyjecia|date:"Y-m-d"|default:"—" }}</td>
               <td>{{ i.last_login|date:"Y-m-d"|default:_("Never") }}</td>
             </tr>
             {% endfor %}
@@ -180,26 +160,26 @@
     </div>
 
     {# ── Grid view ── #}
-    <div id="citizens-grid-view" class="citizens-grid">
+    <div id="citizens-grid-view" class="citizens-grid tw-citizens-grid">
       {% for i in uid %}
-      <div class="citizen-card"
+      <div class="citizen-card tw-citizen-card"
            data-user-id="{{ i.pk }}"
            data-href="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}"
            data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
-        <div class="citizen-card-top">
+        <div class="tw-citizen-card-top">
           {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username size="5xl" %}
-          <span class="status-dot status-dot--{{ i.activity_status }}"
+          <span class="status-dot tw-status-dot status-dot--{{ i.activity_status }} tw-status-dot--{{ i.activity_status }}"
                 title="{% if i.activity_status == 'online' %}{% trans 'Online' %}{% elif i.activity_status == 'active' %}{% trans 'Active recently' %}{% elif i.activity_status == 'dormant' %}{% trans 'Dormant' %}{% else %}{% trans 'Inactive' %}{% endif %}"></span>
         </div>
-        <div class="citizen-card-name">{{ i.username }}</div>
+        <div class="tw-citizen-card-name">{{ i.username }}</div>
         {% if i.first_name or i.last_name %}
-        <div class="citizen-card-fullname">{{ i.first_name }} {{ i.last_name }}</div>
+        <div class="tw-citizen-card-fullname">{{ i.first_name }} {{ i.last_name }}</div>
         {% endif %}
         {% if i.uzytkownik.city %}
-        <div class="citizen-card-city"><i class="fas fa-map-marker-alt"></i> {{ i.uzytkownik.city }}</div>
+        <div class="tw-citizen-card-city"><i class="fas fa-map-marker-alt"></i> {{ i.uzytkownik.city }}</div>
         {% endif %}
         {% if i.pk != request.user.pk %}
-        <a href="{% url 'chat:open_dm' pk=i.pk %}" class="chat-link mt-1" title="{% trans 'Direct message' %}" onclick="event.stopPropagation()">
+        <a href="{% url 'chat:open_dm' pk=i.pk %}" class="chat-link tw-mt-1" title="{% trans 'Direct message' %}" onclick="event.stopPropagation()">
           <i class="fas fa-comment-dots"></i> DM
         </a>
         {% endif %}

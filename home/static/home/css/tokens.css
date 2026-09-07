@@ -2,7 +2,23 @@
 /* Layout (theme-independent) */
 :root {
   --font-mono: 'Courier New', monospace;
+  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, .075);
   --shadow-overlay: 0 8px 32px rgba(0,0,0,.55);
+  /* Core color palette (theme-independent base hues) */
+  --color-info: #3498db;
+  --color-success: #00bc8c;
+  --color-warning: #f39c12;
+  --color-danger: #e74c3c;
+  --color-gray-600: #888;
+  --color-gray-700: #444;
+  --color-gray-800: #303030;
+  --color-gray-900: #222;
+  /* Component tokens */
+  --radius-sm: 0.375rem;
+  --card-border-radius: 0.5rem;
+  --popover-max-width: 300px;
+  --popover-body-padding-x: 1rem;
+  --popover-body-padding-y: 1rem;
   --sidebar-width: 240px;
   --topbar-height: 60px;
   --sidebar-collapsed-width: 52px;
@@ -23,6 +39,8 @@
   /* Layout limits */
   --app-max-width: 1200px;
   --table-stripe-bg: color-mix(in srgb, var(--bg-card) 93%, #3b82f6 7%);
+  /* Featured-image tile overlay — darkens in dark theme, lightens in light theme */
+  --featured-img-overlay: color-mix(in srgb, var(--bg-card) 75%, transparent);
   /* Text on solid accent / inverse surfaces */
   --text-on-accent: #111;
   --text-inverse: #fff;
@@ -42,6 +60,11 @@
   /* Diff / history helpers */
   --history-badge-bg: #375a7f;
   --history-badge-color: var(--text-inverse);
+  --bg-code: var(--color-surface-offset);
+  --diff-ins-bg: var(--badge-approved-bg);
+  --diff-ins-color: var(--badge-approved-color);
+  --diff-del-bg: var(--badge-rejected-bg);
+  --diff-del-color: var(--badge-rejected-color);
 }
 /* Dark theme (default) */
 :root,
@@ -111,10 +134,64 @@
   --btn-outline-secondary-hover-border: var(--btn-glass-hover-border);
   --input-bg: #252d4a;
   --input-border: rgba(255, 255, 255, .25);
-  --bs-tertiary-bg: #252d4a;
-  --bs-tertiary-bg-rgb: 37, 45, 74;
-  --bs-tertiary-color: rgba(255, 255, 255, .6);
-  --bs-tertiary-color-rgb: 255, 255, 255;
+  /* Project color tokens */
+  --color-primary: var(--accent);
+  --color-secondary: var(--color-gray-700);
+  --color-light: #adb5bd;
+  --color-dark: var(--color-gray-800);
+  --bg-tertiary: #252d4a;
+  --surface: var(--bg-card);
+  --surface-elevated: #252d4a;
+  --progress-bg: var(--color-gray-700);
+  /* Table tokens */
+  --table-bg: transparent;
+  --table-color: var(--text-primary);
+  --table-border-color: var(--border);
+  --table-striped-bg: rgba(255, 255, 255, .02);
+  --table-striped-color: var(--text-primary);
+  --table-hover-bg: var(--accent-muted);
+  --table-hover-color: var(--text-primary);
+  --table-accent-bg: transparent;
+  /* Popover tokens */
+  --popover-bg: var(--bg-card);
+  --popover-border-color: var(--border);
+  --popover-header-bg: var(--bg-card);
+  --popover-header-color: var(--text-primary);
+  --popover-body-color: var(--text-primary);
+  /* Generic badge tokens — subtle pastels (dark: ~.15 alpha bg) */
+  --badge-primary-bg: var(--accent-muted);
+  --badge-primary-color: var(--accent);
+  --badge-primary-border: var(--accent-border);
+  --badge-secondary-bg: rgba(173, 181, 189, .15);
+  --badge-secondary-color: var(--color-light);
+  --badge-secondary-border: rgba(173, 181, 189, .3);
+  --badge-info-bg: rgba(52, 152, 219, .15);
+  --badge-info-color: var(--color-info);
+  --badge-info-border: rgba(52, 152, 219, .3);
+  --badge-success-bg: var(--badge-approved-bg);
+  --badge-success-color: var(--badge-approved-color);
+  --badge-success-border: var(--badge-approved-border);
+  --badge-warning-bg: var(--status-warning-bg);
+  --badge-warning-color: var(--status-warning-color);
+  --badge-warning-border: var(--status-warning-border);
+  --badge-danger-bg: var(--badge-rejected-bg);
+  --badge-danger-color: var(--badge-rejected-color);
+  --badge-danger-border: var(--badge-rejected-border);
+  --badge-dark-bg: var(--color-surface-dynamic);
+  --badge-dark-color: var(--text-primary);
+  --badge-dark-border: var(--border);
+  /* Generic alert tokens (dark theme: solid) */
+  --alert-primary-bg: var(--accent);
+  --alert-primary-color: var(--text-on-accent);
+  --alert-primary-border: var(--accent-border);
+  --alert-secondary-bg: var(--color-secondary);
+  --alert-secondary-color: var(--text-inverse);
+  --alert-secondary-border: var(--border);
+  --alert-dark-bg: var(--color-dark);
+  --alert-dark-color: var(--text-inverse);
+  --alert-dark-border: var(--border);
+  /* Featured images are darkened in dark theme, brightened in light theme */
+  --featured-img-brightness: 0.6;
 }
 /* Light theme */
 [data-theme="light"] {
@@ -183,15 +260,44 @@
   --btn-outline-secondary-hover-border: rgba(0, 0, 0, .2);
   --input-bg: #ffffff;
   --input-border: rgba(0, 0, 0, .18);
-  --bs-tertiary-bg: #f8f9fa;
-  --bs-tertiary-bg-rgb: 248, 249, 250;
-  --bs-tertiary-color: rgba(0, 0, 0, .55);
-  --bs-tertiary-color-rgb: 0, 0, 0;
-}
-/* Bootstrap variable overrides — higher specificity than darkly.css :root */
-html[data-theme] {
-  --bs-body-bg: var(--bg-base);
-  --bs-body-color: var(--text-primary);
-  --bs-primary: var(--accent);
-  --bs-border-color: var(--border);
+  /* Project color tokens (light theme) */
+  --color-primary: var(--accent);
+  --color-secondary: #6c757d;
+  --color-light: #f8f9fa;
+  --color-dark: #212529;
+  --color-gray-600: #6c757d;
+  --color-gray-700: #495057;
+  --color-gray-800: #343a40;
+  --color-gray-900: #212529;
+  --bg-tertiary: #f8f9fa;
+  --surface: #f8f9fa;
+  --surface-elevated: #ffffff;
+  --progress-bg: #e9ecef;
+  /* Table tokens */
+  --table-striped-bg: rgba(0, 0, 0, .025);
+  --table-hover-bg: rgba(0, 153, 132, .05);
+  /* Generic badge tokens — subtle pastels (light: ~.12 alpha bg) */
+  --badge-primary-bg: var(--accent-muted);
+  --badge-primary-color: var(--accent);
+  --badge-primary-border: var(--accent-border);
+  --badge-secondary-bg: rgba(108, 117, 125, .12);
+  --badge-secondary-color: #495057;
+  --badge-secondary-border: rgba(108, 117, 125, .3);
+  --badge-info-bg: rgba(52, 152, 219, .12);
+  --badge-info-color: #1a6e9e;
+  --badge-info-border: rgba(52, 152, 219, .3);
+  --badge-dark-bg: rgba(0, 0, 0, .08);
+  --badge-dark-color: #212529;
+  --badge-dark-border: rgba(0, 0, 0, .2);
+  /* Generic alert tokens (light theme: subtle pastels) */
+  --alert-primary-bg: rgba(5, 153, 132, .07);
+  --alert-primary-color: #047a6a;
+  --alert-primary-border: rgba(5, 153, 132, .2);
+  --alert-secondary-bg: rgba(108, 117, 125, .07);
+  --alert-secondary-color: #495057;
+  --alert-secondary-border: rgba(108, 117, 125, .2);
+  --alert-dark-bg: rgba(33, 37, 41, .07);
+  --alert-dark-color: #212529;
+  --alert-dark-border: rgba(33, 37, 41, .2);
+  --featured-img-brightness: 1.3;
 }

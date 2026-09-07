@@ -1,6 +1,5 @@
 {% load i18n %}
 {% load static %}
-{% load django_bootstrap5 %}
 {% load filters %}
 
 <!DOCTYPE html>
@@ -31,24 +30,19 @@
 	<!-- https://fontawesome.com/ -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/darkly.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'home/css/tokens.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/base.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/cards.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/navigation.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/forms.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/buttons.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/feedback.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/tables.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/typography.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/modules.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/utilities.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/layout.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'home/css/light-mode.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'home/css/tailwind.build.css' %}">
 
   <!-- Main app script with config data -->
   <script>window.LINK_TITLES_URL = "{% url 'link_titles' %}"; window.LINK_TITLES_CSRF_TOKEN = "{{ csrf_token }}";</script>
   <script src="{% static 'home/js/search-keys.js' %}"></script>
+  <script src="{% static 'common/js/tw-modal.js' %}"></script>
+  <script src="{% static 'common/js/tw-dropdown.js' %}"></script>
+  <script src="{% static 'common/js/tw-collapse.js' %}"></script>
+  <script src="{% static 'common/js/tw-alert.js' %}"></script>
+  <script src="{% static 'common/js/tw-tooltip.js' %}"></script>
+  <script src="{% static 'common/js/tw-popover.js' %}"></script>
+  <script src="{% static 'common/js/tw-tab.js' %}"></script>
   <script src="{% static 'home/js/app.js' %}"></script>
   <script src="{% static 'home/js/scroll-restore.js' %}"></script>
 
@@ -72,118 +66,117 @@
   <script src="{% static 'chat/js/notifications.js' %}" type="module"></script>
 
   {% block extra_css %}{% endblock %}
-  {% bootstrap_javascript %}
 </head>
 
-<body>
-<div class="layout-wrapper">
+<body class="{% block body_class %}{% endblock %}">
+<div class="tw-layout-wrapper">
 
   {% if user.is_authenticated %}
   <!-- ==================== SIDEBAR ==================== -->
-  <aside class="sidebar" id="sidebar">
+  <aside class="tw-sidebar" id="sidebar">
 
     <!-- Logo -->
-    <div class="sidebar-logo">
-      <a href="{% url 'home' %}" class="text-decoration-none">
-        <span class="logo-title">{% include 'home/_brand_mark.html' %}<span class="logo-label ms-1">{{ site_name }}</span></span>
+    <div class="tw-sidebar-logo">
+      <a href="{% url 'home' %}" class="tw-no-underline">
+        <span class="tw-logo-title">{% include 'home/_brand_mark.html' %}<span class="logo-label tw-ms-1">{{ site_name }}</span></span>
       </a>
-      <a href="{% url 'site_admin' %}" class="text-decoration-none"><span class="logo-sub">Wikikracja v.{{ app_version }}</span></a>
+      <a href="{% url 'site_admin' %}" class="tw-no-underline"><span class="tw-logo-sub">Wikikracja v.{{ app_version }}</span></a>
     </div>
 
     <!-- Main navigation -->
-    <nav class="sidebar-nav">
-      <ul class="list-unstyled mb-0">
+    <nav class="tw-sidebar-nav">
+      <ul class="tw-list-none tw-mb-0">
 
-        <li class="nav-item">
+        <li class="tw-nav-item">
           <a href="{% url 'home' %}"
              title="{% trans 'Desktop' %}"
-             class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-            <i class="fas fa-fw fa-house nav-icon"></i>
-            <span class="nav-text">{% trans "Desktop" %}</span>
+             class="{% if request.resolver_match.url_name == 'home' %}active tw-active{% endif %}">
+            <i class="fas fa-fw fa-house tw-nav-icon"></i>
+            <span class="tw-nav-text">{% trans "Desktop" %}</span>
           </a>
         </li>
 
-        <li class="nav-item">
+        <li class="tw-nav-item">
           <a href="{% url 'tasks:list' %}"
              data-prefs-link-scope="tasks"
              data-prefs-base-href="{% url 'tasks:list' %}"
              title="{% trans 'Activities' %}"
-             class="{% if request.resolver_match.namespace == 'tasks' %}active{% endif %}">
-            <i class="fas fa-fw fa-bolt nav-icon"></i>
-            <span class="nav-text">{% trans "Activities" %}</span>
+             class="{% if request.resolver_match.namespace == 'tasks' %}active tw-active{% endif %}">
+            <i class="fas fa-fw fa-bolt tw-nav-icon"></i>
+            <span class="tw-nav-text">{% trans "Activities" %}</span>
           </a>
         </li>
 
-        <li class="nav-item">
+        <li class="tw-nav-item">
           <a href="{% url 'obywatele:obywatele' %}"
              data-prefs-link-scope="obywatele"
              data-prefs-base-href="{% url 'obywatele:obywatele' %}"
              title="{% trans 'Citizens' %}"
-             class="{% if request.resolver_match.namespace == 'obywatele' and request.resolver_match.url_name != 'my_profile' and request.resolver_match.url_name != 'haslo' and request.resolver_match.url_name != 'my_assets' and request.resolver_match.url_name != 'change_email' and request.resolver_match.url_name != 'change_username' and request.resolver_match.url_name != 'upload_avatar' and request.resolver_match.url_name != 'set_language' and request.resolver_match.url_name != 'toggle_notification' and request.resolver_match.url_name != 'request_deletion' and request.resolver_match.url_name != 'cancel_deletion' %}active{% endif %}">
-            <i class="fas fa-fw fa-users nav-icon"></i>
-            <span class="nav-text">{% trans "Citizens" %}</span>
+             class="{% if request.resolver_match.namespace == 'obywatele' and request.resolver_match.url_name != 'my_profile' and request.resolver_match.url_name != 'haslo' and request.resolver_match.url_name != 'my_assets' and request.resolver_match.url_name != 'change_email' and request.resolver_match.url_name != 'change_username' and request.resolver_match.url_name != 'upload_avatar' and request.resolver_match.url_name != 'set_language' and request.resolver_match.url_name != 'toggle_notification' and request.resolver_match.url_name != 'request_deletion' and request.resolver_match.url_name != 'cancel_deletion' %}active tw-active{% endif %}">
+            <i class="fas fa-fw fa-users tw-nav-icon"></i>
+            <span class="tw-nav-text">{% trans "Citizens" %}</span>
           </a>
         </li>
 
-        <li class="nav-item">
+        <li class="tw-nav-item">
           <a href="{% url 'board:start' %}"
              data-prefs-link-scope="board"
              data-prefs-base-href="{% url 'board:start' %}"
              title="{% trans 'Documents' %}"
-             class="{% if request.resolver_match.namespace == 'board' %}active{% endif %}">
-            <i class="fas fa-fw fa-chalkboard nav-icon"></i>
-            <span class="nav-text">{% trans "Documents" %}</span>
+             class="{% if request.resolver_match.namespace == 'board' %}active tw-active{% endif %}">
+            <i class="fas fa-fw fa-chalkboard tw-nav-icon"></i>
+            <span class="tw-nav-text">{% trans "Documents" %}</span>
           </a>
         </li>
 
-        <li class="nav-item">
+        <li class="tw-nav-item">
           <a href="{% url 'events:list' %}"
              data-prefs-link-scope="events"
              data-prefs-base-href="{% url 'events:list' %}"
              title="{% trans 'Calendar' %}"
-             class="{% if request.resolver_match.namespace == 'events' %}active{% endif %}">
-            <i class="fas fa-fw fa-calendar-days nav-icon"></i>
-            <span class="nav-text">{% trans "Calendar" %}</span>
+             class="{% if request.resolver_match.namespace == 'events' %}active tw-active{% endif %}">
+            <i class="fas fa-fw fa-calendar-days tw-nav-icon"></i>
+            <span class="tw-nav-text">{% trans "Calendar" %}</span>
           </a>
         </li>
 
-        <li class="nav-item">
+        <li class="tw-nav-item">
           <a href="{% url 'glosowania:approved' %}"
              data-prefs-link-scope="glosowania"
              data-prefs-base-href="{% url 'glosowania:approved' %}"
              title="{% trans 'Votings' %}"
-             class="{% if request.resolver_match.namespace == 'glosowania' %}active{% endif %}">
-            <i class="fas fa-fw fa-landmark nav-icon"></i>
-            <span class="nav-text">{% trans "Votings" %}</span>
+             class="{% if request.resolver_match.namespace == 'glosowania' %}active tw-active{% endif %}">
+            <i class="fas fa-fw fa-landmark tw-nav-icon"></i>
+            <span class="tw-nav-text">{% trans "Votings" %}</span>
           </a>
         </li>
 
-        <li class="nav-item">
+        <li class="tw-nav-item">
           <a href="{% url 'bookkeeping:report_list' %}"
              data-prefs-link-scope="bookkeeping"
              data-prefs-base-href="{% url 'bookkeeping:report_list' %}"
              title="{% trans 'Finance' %}"
-             class="{% if request.resolver_match.namespace == 'bookkeeping' %}active{% endif %}">
-            <i class="fas fa-fw fa-wallet nav-icon"></i>
-            <span class="nav-text">{% trans "Finance" %}</span>
+             class="{% if request.resolver_match.namespace == 'bookkeeping' %}active tw-active{% endif %}">
+            <i class="fas fa-fw fa-wallet tw-nav-icon"></i>
+            <span class="tw-nav-text">{% trans "Finance" %}</span>
           </a>
         </li>
 
-        <li class="nav-item">
+        <li class="tw-nav-item">
           <a href="{% url 'ankiety:list' %}"
              title="{% trans 'Surveys' %}"
-             class="{% if request.resolver_match.namespace == 'ankiety' %}active{% endif %}">
-            <i class="fas fa-fw fa-clipboard-question nav-icon"></i>
-            <span class="nav-text">{% trans "Surveys" %}</span>
+             class="{% if request.resolver_match.namespace == 'ankiety' %}active tw-active{% endif %}">
+            <i class="fas fa-fw fa-clipboard-question tw-nav-icon"></i>
+            <span class="tw-nav-text">{% trans "Surveys" %}</span>
           </a>
         </li>
 
-        <li class="nav-item">
+        <li class="tw-nav-item">
           <a href="{% url 'chat:chat' %}?view=rooms"
              title="{% trans 'Chat' %}"
-             class="{% if request.resolver_match.namespace == 'chat' %}active{% endif %}">
-            <i class="fas fa-fw fa-comment-dots nav-icon"></i>
-            <span class="nav-text">{% trans "Chat" %}</span>
+             class="{% if request.resolver_match.namespace == 'chat' %}active tw-active{% endif %}">
+            <i class="fas fa-fw fa-comment-dots tw-nav-icon"></i>
+            <span class="tw-nav-text">{% trans "Chat" %}</span>
           </a>
         </li>
 
@@ -191,24 +184,24 @@
     </nav>
 
     <!-- Bottom links: settings + logout -->
-    <div class="sidebar-bottom">
-      <ul class="list-unstyled mb-0">
-        <li class="nav-item">
+    <div class="tw-sidebar-bottom">
+      <ul class="tw-list-none tw-mb-0">
+        <li class="tw-nav-item">
           <a href="{% url 'obywatele:my_profile' %}"
              title="{% trans 'Settings' %}"
-             class="{% if request.resolver_match.url_name == 'my_profile' or request.resolver_match.url_name == 'haslo' or request.resolver_match.url_name == 'my_assets' or request.resolver_match.url_name == 'change_email' or request.resolver_match.url_name == 'change_username' %}active{% endif %}">
-            <i class="fas fa-fw fa-gear nav-icon"></i>
-            <span class="nav-text d-none d-md-inline">{% trans "Settings" %}</span>
+             class="{% if request.resolver_match.url_name == 'my_profile' or request.resolver_match.url_name == 'haslo' or request.resolver_match.url_name == 'my_assets' or request.resolver_match.url_name == 'change_email' or request.resolver_match.url_name == 'change_username' %}active tw-active{% endif %}">
+            <i class="fas fa-fw fa-gear tw-nav-icon"></i>
+            <span class="tw-nav-text tw-hidden md:tw-inline">{% trans "Settings" %}</span>
           </a>
         </li>
-        <li class="nav-item">
+        <li class="tw-nav-item">
           <a href="{% url 'account_logout' %}" title="{% trans 'Log out' %}">
-            <i class="fas fa-fw fa-right-from-bracket nav-icon"></i>
-            <span class="nav-text d-none d-md-inline">{% trans "Log out" %}</span>
+            <i class="fas fa-fw fa-right-from-bracket tw-nav-icon"></i>
+            <span class="tw-nav-text tw-hidden md:tw-inline">{% trans "Log out" %}</span>
           </a>
         </li>
-        <li class="nav-item d-md-none ms-auto">
-          <button type="button" id="sidebar-close-btn" class="sidebar-close-btn"
+        <li class="tw-nav-item tw-ms-auto md:tw-hidden">
+          <button type="button" id="sidebar-close-btn" class="tw-sidebar-close-btn"
                   title="{% trans 'Close menu' %}" aria-label="{% trans 'Close menu' %}">
             <i class="fas fa-angles-left"></i>
           </button>
@@ -217,10 +210,10 @@
     </div>
 
     <!-- Collapse toggle -->
-    <button class="sidebar-toggle-btn d-none d-md-flex" id="sidebar-collapse-btn"
+    <button class="tw-sidebar-toggle-btn tw-hidden md:tw-flex" id="sidebar-collapse-btn"
             title="{% trans 'Collapse/expand menu' %}">
       <i class="fas fa-angles-left" id="sidebar-collapse-icon"></i>
-      <span class="sidebar-toggle-label ms-2">{% trans "Collapse" %}</span>
+      <span class="sidebar-toggle-label tw-ms-2">{% trans "Collapse" %}</span>
     </button>
 
     <!-- Restore saved filters into sidebar links before first paint -->
@@ -237,23 +230,23 @@
   {% endif %}
 
   <!-- ==================== MAIN AREA ==================== -->
-  <div class="main-area">
+  <div class="tw-main-area">
 
     {% if user.is_authenticated %}
     <!-- ==== TOPBAR ==== -->
-    <header class="topbar">
+    <header class="tw-topbar">
 
       <!-- Breadcrumb -->
-      <div class="topbar-breadcrumb">
-        <button class="btn btn-sm d-md-none me-2 p-1" id="sidebar-toggle">
+      <div class="tw-topbar-breadcrumb">
+        <button class="tw-btn tw-btn-sm md:tw-hidden tw-me-2 tw-p-1" id="sidebar-toggle">
           <i class="fas fa-bars"></i>
         </button>
-        <a href="{% url 'home' %}" class="topbar-logo">
+        <a href="{% url 'home' %}" class="tw-topbar-logo">
           {% include 'home/_brand_mark.html' %}
-          <span class="logo-label ms-1">{{ site_name }}</span>
+          <span class="logo-label tw-ms-1">{{ site_name }}</span>
         </a>
-        <span class="sep">›</span>
-        <span class="current">
+        <span class="tw-sep">›</span>
+        <span class="tw-current">
           {% if request.resolver_match.url_name == 'home' %}{% trans "Desktop" %}
           {% elif request.resolver_match.namespace == 'glosowania' %}{% trans "Votings" %}
           {% elif request.resolver_match.namespace == 'board' %}{% trans "Documents" %}
@@ -269,10 +262,10 @@
       </div>
 
       <!-- Search (always searches everywhere) -->
-      <div class="d-none d-sm-block" id="topbar-search-wrapper">
+      <div class="tw-hidden sm:tw-block" id="topbar-search-wrapper">
         <form method="get" action="{% url 'search' %}" id="topbar-search-form" autocomplete="off">
           <div class="quick-links-wrapper">
-            <input type="search" name="q" id="topbar-q" class="search-box"
+            <input type="search" name="q" id="topbar-q" class="tw-search-box"
                    value="{{ request.GET.q|default:'' }}"
                    placeholder="{% trans 'Search' %}…" aria-label="{% trans 'Search' %}">
             <button type="submit"
@@ -285,59 +278,59 @@
       </div>
 
       <!-- Mobile search icon -->
-      <a href="{% url 'search' %}" class="notif-bell d-sm-none" title="{% trans 'Search' %}" aria-label="{% trans 'Search' %}">
+      <a href="{% url 'search' %}" class="tw-notif-bell sm:tw-hidden" title="{% trans 'Search' %}" aria-label="{% trans 'Search' %}">
         <i class="fas fa-magnifying-glass"></i>
       </a>
 
       <!-- Theme toggle -->
-      <button id="theme-toggle-btn" class="notif-bell btn-icon-clean"
+      <button id="theme-toggle-btn" class="tw-notif-bell btn-icon-clean"
               title="{% trans 'Toggle light / dark mode' %}">
         <i id="theme-toggle-icon" class="fas fa-circle-half-stroke"></i>
       </button>
 
       <!-- Notification bell -->
       <a href="{% url 'activity' %}"
-         class="notif-bell"
+         class="tw-notif-bell"
          data-prefs-link-scope="activity"
          data-prefs-base-href="{% url 'activity' %}"
          title="{% trans 'Activity' %}">
         <i class="far fa-bell"></i>
-        {% if unread_count %}<span class="notif-count">{{ unread_count }}</span>{% endif %}
+        {% if unread_count %}<span class="tw-notif-count">{{ unread_count }}</span>{% endif %}
       </a>
 
       <!-- Current username for JS (hidden) -->
-      <span class="user-name d-none">{{ user.username }}</span>
+      <span class="user-name tw-hidden">{{ user.username }}</span>
 
     </header>
     {% endif %}
 
     {% if not user.is_authenticated %}
     <!-- Minimal top bar for unauthenticated users -->
-    <nav class="topbar">
-      <div class="topbar-breadcrumb">
-        <a href="{% url 'home' %}" class="text-accent fw-bold fs-6">
-          <i class="fas fa-building-columns me-1"></i>{{ site_name }}
+    <nav class="tw-topbar">
+      <div class="tw-topbar-breadcrumb">
+        <a href="{% url 'home' %}" class="tw-text-accent tw-font-bold tw-text-base">
+          <i class="fas fa-building-columns tw-me-1"></i>{{ site_name }}
         </a>
       </div>
       <div class="anon-nav">
         <a href="{% url 'board:start' %}"
-           class="anon-nav-link {% if request.resolver_match.namespace == 'board' %}active{% endif %}">
+           class="anon-nav-link {% if request.resolver_match.namespace == 'board' %}active tw-active{% endif %}">
           <i class="fas fa-bullhorn"></i><span class="anon-nav-text">{% trans "Announcements" %}</span>
         </a>
         <a href="{% url 'events:list' %}"
-           class="anon-nav-link {% if request.resolver_match.namespace == 'events' %}active{% endif %}">
+           class="anon-nav-link {% if request.resolver_match.namespace == 'events' %}active tw-active{% endif %}">
           <i class="fas fa-calendar-days"></i><span class="anon-nav-text">{% trans "Calendar" %}</span>
         </a>
       </div>
-      <a href="{% url 'login' %}" class="btn btn-sm btn-outline-secondary me-1">{% trans "Login" %}</a>
-      {% if group_is_public %}<a href="{% url 'account_signup' %}" class="btn-cta me-1">{% trans "Register" %}</a>{% endif %}
+      <a href="{% url 'login' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary tw-me-1"><i class="fas fa-right-to-bracket fa-fw"></i> {% trans "Login" %}</a>
+      {% if group_is_public %}<a href="{% url 'account_signup' %}" class="btn-cta tw-me-1"><i class="fas fa-user-plus"></i> <span class="btn-cta-label">{% trans "Register" %}</span></a>{% endif %}
       <a href="{% url 'chat:guest_message' %}"
          title="{% trans 'Send a message to the group' %}"
-         class="anon-nav-link me-1 {% if request.resolver_match.url_name == 'guest_message' %}active{% endif %}">
+         class="anon-nav-link tw-me-1 {% if request.resolver_match.url_name == 'guest_message' %}active tw-active{% endif %}">
         <i class="fas fa-envelope"></i><span class="anon-nav-text">{% trans "Contact" %}</span>
       </a>
       {% include 'home/_language_switcher.html' %}
-      <button id="theme-toggle-btn" class="notif-bell btn-icon-clean"
+      <button id="theme-toggle-btn" class="tw-notif-bell btn-icon-clean"
               title="{% trans 'Toggle light / dark mode' %}">
         <i id="theme-toggle-icon" class="fas fa-circle-half-stroke"></i>
       </button>
@@ -347,34 +340,34 @@
     <!-- Global notification permission banner -->
     {% if user.is_authenticated %}
     <div class="notif-banner-wrap">
-      <div id="notification-permission-banner" class="alert alert-info m-0 text-center border-radius-0">
+      <div id="notification-permission-banner" class="tw-alert tw-alert-info tw-m-0 tw-text-center tw-rounded-none">
         <i class="far fa-bell-slash"></i>
         <span id="notification-banner-message">{% trans "Enable notifications to stay updated with new messages and activities" %}</span>
-        <button type="button" class="btn btn-sm btn-primary mx-2" id="enable-notifications-global">
-          {% trans "Enable Notifications" %}
+        <button type="button" class="tw-btn tw-btn-sm tw-btn-primary tw-mx-2" id="enable-notifications-global">
+          <i class="far fa-bell fa-fw"></i> {% trans "Enable Notifications" %}
         </button>
-        <button type="button" class="btn btn-sm btn-secondary" id="dismiss-notifications-banner">
-          {% trans "Not now" %}
+        <button type="button" class="tw-btn tw-btn-sm tw-btn-secondary" id="dismiss-notifications-banner">
+          <i class="fas fa-clock fa-fw"></i> {% trans "Not now" %}
         </button>
       </div>
     </div>
     <div class="notif-banner-wrap">
-      <div id="notification-blocked-banner" class="alert alert-warning m-0 text-center border-radius-0">
+      <div id="notification-blocked-banner" class="tw-alert tw-alert-warning tw-m-0 tw-text-center tw-rounded-none">
         <i class="fas fa-exclamation-triangle"></i>
         <span>{% trans "Notifications are blocked. Please enable them in your browser settings" %}</span>
-        <button type="button" class="btn btn-sm btn-secondary mx-2" id="dismiss-blocked-banner">
-          {% trans "Dismiss" %}
+        <button type="button" class="tw-btn tw-btn-sm tw-btn-secondary tw-mx-2" id="dismiss-blocked-banner">
+          <i class="fas fa-times fa-fw"></i> {% trans "Dismiss" %}
         </button>
       </div>
     </div>
     {% endif %}
 
     {% if messages %}
-    <div class="toast-container" id="django-toasts">
+    <div class="tw-toast-container" id="django-toasts">
       {% for message in messages %}
-      <div class="toast-msg toast-{{ message.level_tag }}{% if 'persist' in message.tags %} toast-persist{% endif %}" role="alert">
+      <div class="tw-toast-msg tw-toast-{{ message.level_tag }}{% if 'persist' in message.tags %} tw-toast-persist{% endif %}" role="alert">
         {{ message }}
-        <button type="button" class="toast-close" onclick="this.parentElement.remove()">×</button>
+        <button type="button" class="tw-toast-close" onclick="this.parentElement.remove()">×</button>
       </div>
       {% endfor %}
     </div>
@@ -384,7 +377,7 @@
 
       // Ustaw pozycję nad kartą i dopiero wtedy pokaż toast (startuje ukryty w CSS).
       function place() {
-        var card = document.querySelector('main .card');
+        var card = document.querySelector('main .tw-card');
         if (card) {
           var r = card.getBoundingClientRect();
           toasts.style.top  = (r.top + 22) + 'px';
@@ -417,13 +410,13 @@
     {% endif %}
 
     <!-- ==== CONTENT ==== -->
-    <main class="main-content">
+    <main class="tw-main-content">
       {% block content_fullscreen %}{% endblock content_fullscreen %}
       {% block content %}{% endblock content %}
     </main>
 
     {% if request.resolver_match.namespace != 'chat' %}
-    <footer class="px-4 pb-3 mt-auto text-muted text-sm">{{ footer.text|safe }}</footer>
+    <footer class="tw-px-4 tw-pb-2 tw-mt-auto tw-text-muted tw-text-sm">{{ footer.text|safe }}</footer>
     {% endif %}
 
   </div>

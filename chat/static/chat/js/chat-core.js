@@ -110,7 +110,7 @@ export async function uploadFiles(files, uploadUrl = '/chat/upload/', { compress
 export function setReplyTarget(message_id, username, snippet, previewEl, previewTextEl) {
     if (previewEl && previewTextEl) {
         previewTextEl.textContent = snippet;
-        previewEl.classList.remove('d-none');
+        previewEl.classList.remove('tw-d-none');
     }
     return message_id;
 }
@@ -121,7 +121,7 @@ export function setReplyTarget(message_id, username, snippet, previewEl, preview
  * @returns {null} Returns null (for state management by caller)
  */
 export function clearReplyTarget(previewEl) {
-    if (previewEl) previewEl.classList.add('d-none');
+    if (previewEl) previewEl.classList.add('tw-d-none');
     return null;
 }
 
@@ -355,7 +355,7 @@ export function openBigImage(srcs, startIndex = 0) {
         <div class="image-viewer-counter"></div>
     `;
     document.body.appendChild(overlay);
-    document.body.classList.add('modal-open');
+    document.body.classList.add('tw-modal-open');
 
     let currentIndex = startIndex;
     const imgEl = overlay.querySelector('.image-viewer-img');
@@ -375,7 +375,7 @@ export function openBigImage(srcs, startIndex = 0) {
     function close() {
         document.removeEventListener('keydown', onKey);
         overlay.remove();
-        document.body.classList.remove('modal-open');
+        document.body.classList.remove('tw-modal-open');
     }
 
     function onKey(e) {

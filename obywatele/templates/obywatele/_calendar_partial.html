@@ -1,12 +1,12 @@
 {% load i18n %}
-<div class="cal-container">
-<div class="cal-toolbar">
+<div class="cal-container tw-w-full">
+<div class="cal-toolbar tw-w-full">
   <div class="cal-month-controls">
     <span class="cal-month-title">
       <i class="fas fa-calendar-days"></i> {{ cal_first_day|date:"F" }}{% if not year_options %} {{ cal_first_day|date:"Y" }}{% endif %}
     </span>
     {% if year_options %}
-      <label class="visually-hidden" for="cal-year-select">{% trans "Select year" %}</label>
+      <label class="tw-sr-only" for="cal-year-select">{% trans "Select year" %}</label>
       <select class="cal-year-select" id="cal-year-select" data-month="{{ cal_month }}" aria-label="{% trans 'Select year' %}">
         {% for option in year_options %}
           <option value="{{ option }}"{% if option == cal_year %} selected{% endif %}>{{ option }}</option>

@@ -5,8 +5,8 @@
 {% block extra_css %}{{ form.media }}{% endblock %}
 
 {% block content %}
-<div class="container my-4">
-  <h1 class="h3 mb-4">
+<div class="tw-container tw-my-4">
+  <h1 class="tw-text-2xl tw-font-bold tw-mb-4">
     {% if form.instance.pk %}
       {% trans 'Edit survey' %}
     {% else %}
@@ -14,48 +14,48 @@
     {% endif %}
   </h1>
 
-  <form method="post" class="card p-4">
+  <form method="post" class="tw-card tw-p-4">
     {% csrf_token %}
     {{ form.non_field_errors }}
 
-    <div class="mb-3">
-      <label class="form-label" for="{{ form.title.id_for_label }}">{% trans 'Title' %}</label>
+    <div class="tw-mb-3">
+      <label class="tw-form-label" for="{{ form.title.id_for_label }}">{% trans 'Title' %}</label>
       {{ form.title }}
       {{ form.title.errors }}
     </div>
 
-    <div class="mb-3">
-      <label class="form-label" for="{{ form.description.id_for_label }}">{% trans 'Description' %}</label>
+    <div class="tw-mb-3">
+      <label class="tw-form-label" for="{{ form.description.id_for_label }}">{% trans 'Description' %}</label>
       {{ form.description }}
       {{ form.description.errors }}
     </div>
 
-    <div class="mb-3">
-      <label class="form-label" for="{{ form.end_date.id_for_label }}">{% trans 'End date' %}</label>
+    <div class="tw-mb-3">
+      <label class="tw-form-label" for="{{ form.end_date.id_for_label }}">{% trans 'End date' %}</label>
       {{ form.end_date }}
-      <div class="form-text">{{ form.end_date.help_text }}</div>
+      <div class="tw-form-text tw-text-sm">{{ form.end_date.help_text }}</div>
       {{ form.end_date.errors }}
     </div>
 
-    <div class="mb-3">
-      <label class="form-label" for="{{ form.options_text.id_for_label }}">{% trans 'Options' %}</label>
+    <div class="tw-mb-3">
+      <label class="tw-form-label" for="{{ form.options_text.id_for_label }}">{% trans 'Options' %}</label>
       {{ form.options_text }}
-      <div class="form-text">{{ form.options_text.help_text }}</div>
+      <div class="tw-form-text tw-text-sm">{{ form.options_text.help_text }}</div>
       {{ form.options_text.errors }}
     </div>
 
-    <div class="mb-3 form-check">
+    <div class="tw-mb-3 tw-form-check">
       {{ form.allow_multiple_choice }}
-      <label class="form-check-label" for="{{ form.allow_multiple_choice.id_for_label }}">
+      <label class="tw-form-check-label" for="{{ form.allow_multiple_choice.id_for_label }}">
         {{ form.allow_multiple_choice.label }}
       </label>
-      <div class="form-text">{{ form.allow_multiple_choice.help_text }}</div>
+      <div class="tw-form-text tw-text-sm">{{ form.allow_multiple_choice.help_text }}</div>
       {{ form.allow_multiple_choice.errors }}
     </div>
 
-    <div class="d-flex">
-      <button type="submit" class="btn btn-primary me-2">{% trans 'Save' %}</button>
-      <a href="{% url 'ankiety:list' %}" class="btn btn-secondary">{% trans 'Back' %}</a>
+    <div class="tw-flex">
+      <button type="submit" class="tw-btn tw-btn-primary tw-me-2"><i class="fas fa-check fa-fw tw-me-1"></i> {% trans 'Save' %}</button>
+      <a href="{% url 'ankiety:list' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-arrow-left fa-fw tw-me-1"></i> {% trans 'Back' %}</a>
     </div>
   </form>
 </div>

@@ -33,15 +33,15 @@
 {# ══ ZAKOŃCZONE ══ #}
 {% elif current_tab == 'finished' %}
   {% if finished_completed %}
-    <div class="tasks-section-label"><i class="fas fa-check-circle"></i> {% trans 'Completed' %}</div>
+    <div class="tasks-section-label"><i class="fas fa-check-circle tw-text-success"></i> {% trans 'Completed' %}</div>
     {% for task in finished_completed %}{% include 'tasks/_task_card.html' %}{% endfor %}
   {% endif %}
   {% if finished_cancelled %}
-    <div class="tasks-section-label"><i class="fas fa-ban"></i> {% trans 'Cancelled' %}</div>
+    <div class="tasks-section-label"><i class="fas fa-ban tw-text-danger"></i> {% trans 'Cancelled' %}</div>
     {% for task in finished_cancelled %}{% include 'tasks/_task_card.html' %}{% endfor %}
   {% endif %}
   {% if finished_rejected %}
-    <div class="tasks-section-label"><i class="fas fa-thumbs-down"></i> {% trans 'Rejected' %}</div>
+    <div class="tasks-section-label"><i class="fas fa-thumbs-down tw-text-danger"></i> {% trans 'Rejected' %}</div>
     {% for task in finished_rejected %}{% include 'tasks/_task_card.html' %}{% endfor %}
   {% endif %}
   {% if not finished_completed and not finished_cancelled and not finished_rejected %}

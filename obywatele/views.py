@@ -305,6 +305,7 @@ def obywatele(request: HttpRequest):
             'aktywnosc': _aktywnosc_ctx,
             'sort_url_suffix': sort_url_suffix,
             'sort_param': sort_param,
+            'toolbar_views': [{'name': 'list'}, {'name': 'grid'}],
         },
     )
 
@@ -362,6 +363,7 @@ def poczekalnia(request: HttpRequest):
             'acceptance': get_param('acceptance'),
             'delete_inactive_user_after': get_param('delete_inactive_user_after'),
             'required_reputation': required_reputation(),
+            'toolbar_views': [{'name': 'list'}, {'name': 'grid'}],
         },
     )
 

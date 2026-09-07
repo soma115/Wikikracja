@@ -4,30 +4,32 @@
 {% load richtext %}
 
 {% block glosowania %}
-<h2>{% trans 'Delete Argument' %}</h2>
+<h2 class="tw-text-xl tw-font-bold tw-mb-4">{% trans 'Delete Argument' %}</h2>
 
-<div class="alert alert-warning">
-    <p><strong>{% trans 'Are you sure you want to delete this argument?' %}</strong></p>
+<div class="tw-alert tw-alert-warning tw-mb-3">
+    <p><strong class="tw-font-semibold">{% trans 'Are you sure you want to delete this argument?' %}</strong></p>
 </div>
 
-<div class="mb-3">
-    <p><strong>{% trans 'Decision' %}:</strong> #{{ decyzja.pk }} - {{ decyzja.title }}</p>
-    <p><strong>{% trans 'Argument Type' %}:</strong> {{ argument.get_argument_type_display }}</p>
-    <p><strong>{% trans 'Content' %}:</strong></p>
-    <blockquote class="blockquote">
+<div class="tw-mb-3">
+    <p><strong class="tw-font-semibold">{% trans 'Decision' %}:</strong> #{{ decyzja.pk }} - {{ decyzja.title }}</p>
+    <p><strong class="tw-font-semibold">{% trans 'Argument Type' %}:</strong> {{ argument.get_argument_type_display }}</p>
+    <p><strong class="tw-font-semibold">{% trans 'Content' %}:</strong></p>
+    <blockquote class="tw-border-l-4 tw-border-subtle tw-pl-3 tw-italic tw-text-muted">
         {{ argument.content|richtext }}
     </blockquote>
     <p><small>
-        <strong>{% trans 'Created' %}:</strong> {{ argument.created_at|date:"Y-m-d H:i" }}
+        <strong class="tw-font-semibold">{% trans 'Created' %}:</strong> {{ argument.created_at|date:"Y-m-d H:i" }}
         {% if argument.created_at != argument.modified_at %}
-        | <strong>{% trans 'Last Modified' %}:</strong> {{ argument.modified_at|date:"Y-m-d H:i" }}
+        | <strong class="tw-font-semibold">{% trans 'Last Modified' %}:</strong> {{ argument.modified_at|date:"Y-m-d H:i" }}
         {% endif %}
     </small></p>
 </div>
 
 <form action="." method="POST" class="post-form">
     {% csrf_token %}
-    <button type="submit" class="btn btn-danger btn-sm">{% trans 'Yes, Delete' %}</button>
-    <a href="{% url 'glosowania:details' decyzja.pk %}" class="btn btn-secondary btn-sm">{% trans 'No, Cancel' %}</a>
+    <div class="tw-flex tw-gap-2">
+      <button type="submit" class="tw-btn tw-btn-danger tw-btn-sm"><i class="fas fa-trash fa-fw tw-me-1"></i>{% trans 'Yes, Delete' %}</button>
+      <a href="{% url 'glosowania:details' decyzja.pk %}" class="tw-btn tw-btn-secondary tw-btn-sm"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'No, Cancel' %}</a>
+    </div>
 </form>
 {% endblock %}

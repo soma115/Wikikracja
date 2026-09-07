@@ -3,12 +3,11 @@ asgiref==3.11.1
 bleach==6.3.0
 channels==4.3.2
 channels_redis==4.3.0
-crispy-bootstrap5==2026.3
 daphne==4.2.1
 Django~=6.0.4
 django-allauth~=65.16.1
-django-bootstrap5==26.2
 django-browser-reload==1.21.0
+django-crispy-forms==2.7
 django-cors-headers==4.9.0
 django-debug-toolbar==6.3.0
 django-extensions==4.1

@@ -1,5 +1,30 @@
 # To są notatki użytkownika, nie zmieniaj tutaj nic.
 
+- w aktywnosc/:
+  - W widoku listy pokazuj tylko jedną linijkę wiadomości z czatu, a nie trzy czy 2 jak do tej pory.
+  - A w widoku kafelków pokazuj 5 linijek tekstu.
+
+- Dodajmy możliwość bookmarkowania powiadomień w aktywnosc/. Dodaj też w aktywność filtr "pokazuj tylko bookmarki". Dodaj Też kafelek na pulpicie, który będzie pokazywał bookmarki danego użytkownika.
+
+- Na pulpicie dodaj kafelek do ankiet. Pokazuj od najnowszej do najstarszej jako listę.
+
+- Wszędzie tam, gdzie wyświetlany jest użytkownik, pokazuj jego imię i nazwisko zamiast nicka.
+
+- W powiadomieniach e-mail nie pokazuj nicka, imienia i nazwiska osoby, tylko informacja, że została zaproponowana nowa osoba.
+
+- Dlaczego nadal są pozostałości takie jak Task #78 w /aktywnosc/? Pozbyliśmy się tego przedrostka, do czego on teraz jest używany?
+
+- W BOARd/dokumenty, filtry czasami znikają, wyłączają się. Te filtry powinny być trwałe, to znaczy przy nawigacji do innych modułów i powrocie do BOARd wcześniej ustawione filtry powinien być dalej ustawione.
+
+- Dodać prywatne dokumenty/board. Przełącznik, prywatny nie jest widoczny u nie-autora.
+
+- Sortowanie dokumentów alfabetycznie (domyślne sortowanie)
+
+- Prosta historia edycji dokumentów. Przydałoby się zapisywać przynajmniej kto edytował kiedy i nie wiem ile zostało zmienione. Nie wiem czy przechowywanie wersji dokumentu ma sens.
+
+w /board/ zarówno w widoku listy jak i kafelków pokazuj wyraźnie etykietę " Publiczne" (Prywatne nie pokazujemy - stan domyślny).
+
+- Zbierajmy raz dziennie dane do statystyk. bedzie to wymagało nowej tabeli w bazie. Patrzymy na wszystkie działy, które świadczą o aktywności grupy.
 
 - w aktywnosc/ powiadomienia z czatu na dużym ekranie 
   - w widoku listy pokazuj 2 linijki wiadomości 

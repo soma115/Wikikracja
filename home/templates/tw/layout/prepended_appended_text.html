@@ -1,0 +1,51 @@
+{% load crispy_forms_field %}
+{% load crispy_classmap %}
+
+{% if field.is_hidden %}
+    {{ field }}
+{% else %}
+    <div id="div_{{ field.auto_id }}" class="tw-mb-3{% if wrapper_class %} {{ wrapper_class|crispy_classmap }}{% endif %}{% if form_group_wrapper_class %} {{ form_group_wrapper_class|crispy_classmap }}{% endif %}{% if form_show_errors and field.errors %} has-danger{% endif %}{% if field.css_classes %} {{ field.css_classes|crispy_classmap }}{% endif %}">
+
+        {% if field.label and form_show_labels %}
+            <label for="{{ field.id_for_label }}" class="tw-form-label{% if label_class %} {{ label_class|crispy_classmap }}{% endif %}{% if field.field.required %} requiredField{% endif %}">
+                {{ field.label }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
+            </label>
+        {% endif %}
+
+        <div {% if field_class %}class="{{ field_class|crispy_classmap }}"{% endif %}>
+            <div class="tw-input-group{% if input_size %} {{ input_size|crispy_classmap }}{% endif %}">
+                {# prepend #}
+                {% if crispy_prepended_text %}
+                    <span class="tw-input-group-text">{{ crispy_prepended_text }}</span>
+                {% endif %}
+
+                {# input #}
+                {% if field|is_select %}
+                    {% if field.errors %}
+                        {% crispy_field field 'class' 'tw-form-select is-invalid' %}
+                    {% else %}
+                        {% crispy_field field 'class' 'tw-form-select' %}
+                    {% endif %}
+                {% elif field.errors %}
+                    {% crispy_field field 'class' 'tw-form-control is-invalid' %}
+                {% else %}
+                    {% crispy_field field 'class' 'tw-form-control' %}
+                {% endif %}
+                
+                {# append #}
+                {% if crispy_appended_text %}
+                    <span class="tw-input-group-text">{{ crispy_appended_text }}</span>
+                {% endif %}
+                {% if error_text_inline %}
+                    {% include 'tw/layout/field_errors.html' %}
+                {% else %}
+                    {% include 'tw/layout/field_errors_block.html' %}
+                {% endif %}
+            </div>
+        {% if not help_text_inline %}
+            {% include 'tw/layout/help_text.html' %}
+        {% endif %}
+        </div>
+
+    </div>
+{% endif %}

@@ -1,0 +1,5 @@
+{% load crispy_classmap %}
+<div {% if div.css_id %}id="{{ div.css_id }}"{% endif %}
+     class="{{ div.css_class|crispy_classmap|default:'tw-col-span-12' }}" {{ div.flat_attrs }}>
+        {{ fields|safe }}
+</div>

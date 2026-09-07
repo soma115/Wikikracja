@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (frequencyField && ordinalFieldsRow) {
         function toggleOrdinalFields() {
             if (frequencyField.value === 'monthly_ordinal') {
-                ordinalFieldsRow.style.display = 'flex';
+                ordinalFieldsRow.style.display = '';
             } else {
                 ordinalFieldsRow.style.display = 'none';
             }
@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
 //   - dla glosowan scope jest wzbogacany o podstronę (glosowania:proposition)
 //   - filtry (URL params) restore'owane są w head-script (anti-FOUC)
 //   - widok lista/grid/compact: data-view="list|grid|compact" + [data-view-container]
-//   - tab persistence: Bootstrap tabs auto-wired
+//   - tab persistence: Tailwind tabs auto-wired
 // ============================================================
 (function() {
     'use strict';
@@ -468,15 +468,15 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // 5. Tab persistence (Bootstrap tabs) w tym samym JSON
+        // 5. Tab persistence (Tailwind tabs) w tym samym JSON
         var savedTab = read().tab;
-        if (savedTab && typeof bootstrap !== 'undefined') {
-            var trigger = document.querySelector('[data-bs-target="#' + savedTab + '"]');
-            if (trigger) new bootstrap.Tab(trigger).show();
+        if (savedTab && typeof TwTab !== 'undefined') {
+            var trigger = document.querySelector('[data-tw-target="#' + savedTab + '"]');
+            if (trigger) TwTab.getOrCreateInstance(trigger).show();
         }
-        document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(function(tab) {
-            tab.addEventListener('shown.bs.tab', function(e) {
-                var targetId = e.target.getAttribute('data-bs-target').substring(1);
+        document.querySelectorAll('button[data-tw-toggle="tab"]').forEach(function(tab) {
+            tab.addEventListener('shown.tw.tab', function(e) {
+                var targetId = e.target.getAttribute('data-tw-target').substring(1);
                 write({ tab: targetId });
             });
         });
@@ -574,7 +574,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('sidebar');
-    const mainArea = document.querySelector('.main-area');
+    const mainArea = document.querySelector('.tw-main-area');
     const btn = document.getElementById('sidebar-collapse-btn');
     const icon = document.getElementById('sidebar-collapse-icon');
     if (!sidebar || !btn) return;
@@ -701,7 +701,7 @@ window.initActivityFeedToggleRead = function(containerSelector) {
                 if (row.getAttribute('data-content-type') === 'room_messages') {
                     var chatCount = row.querySelector('.chat-message-count');
                     if (chatCount) {
-                        chatCount.classList.toggle('d-none', newRead);
+                        chatCount.classList.toggle('tw-d-none', newRead);
                     }
                 }
             }
@@ -721,10 +721,10 @@ window.initActivityFeedToggleRead = function(containerSelector) {
                 var next = Math.max(0, current + delta);
                 if (next === 0) {
                     counter.textContent = '';
-                    counter.classList.add('d-none');
+                    counter.classList.add('tw-d-none');
                 } else {
                     counter.textContent = '(' + next + ')';
-                    counter.classList.remove('d-none');
+                    counter.classList.remove('tw-d-none');
                 }
             }
         });
@@ -782,13 +782,15 @@ document.addEventListener('click', function(e) {
     el.classList.toggle('is-open');
 });
 
-// Globalna inicjalizacja Bootstrap tooltipów — każdy [data-bs-toggle="tooltip"] działa
+// Globalna inicjalizacja Tailwind tooltipów — każdy [data-tw-toggle="tooltip"] działa
 // bez per-page boilerplate'u. Trigger 'hover' (bez focus) żeby chip nie zostawał
 // "kliknięty" po tap'ie na mobile.
 document.addEventListener('DOMContentLoaded', function () {
-    if (typeof bootstrap === 'undefined' || !bootstrap.Tooltip) return;
-    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
-        new bootstrap.Tooltip(el, { trigger: 'hover' });
+    if (typeof TwTooltip === 'undefined') return;
+    document.querySelectorAll('[data-tw-toggle="tooltip"]').forEach(function (el) {
+        var t = TwTooltip.getInstance(el);
+        if (t) t.dispose();
+        new TwTooltip(el, { trigger: 'hover' });
     });
 });
 
@@ -885,9 +887,13 @@ document.addEventListener('DOMContentLoaded', function () {
             circle.classList.toggle('fa-circle', !isRead);
         });
 
-        var bar = document.querySelector('#onboarding-card .progress-bar');
+        var bar = document.querySelector('#onboarding-card .tw-progress-bar');
         var label = document.querySelector('#onboarding-card .progress-label');
-        if (bar) bar.dataset.progress = Math.round(done / total * 100);
+        if (bar) {
+            var pct = Math.round(done / total * 100);
+            bar.dataset.progress = pct;
+            bar.style.setProperty('--progress', pct + '%');
+        }
         if (label) label.textContent = done + '/' + total;
     }
 
@@ -1242,8 +1248,8 @@ window.initCategoryFilter = function(options) {
             panel.hidden = true;
             btn.setAttribute('aria-expanded', 'false');
             var modal = document.getElementById('manageCategoriesModal');
-            if (modal && typeof bootstrap !== 'undefined') {
-                new bootstrap.Modal(modal).show();
+            if (modal && typeof TwModal !== 'undefined') {
+                TwModal.show(modal);
             }
         });
     }
@@ -1293,7 +1299,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 section.style.display = 'block';
                 return;
             }
-            section.innerHTML = '<div class="p-3 text-muted text-sm">...</div>';
+            section.innerHTML = '<div class="tw-p-3 tw-text-muted tw-text-sm">...</div>';
             section.style.display = 'block';
             fetch(btn.dataset.url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(function (r) { return r.text(); })
@@ -1314,7 +1320,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // Clickable table rows (data-href)
 // ============================================================
 document.addEventListener('click', function (e) {
-    var tr = e.target.closest('.table-hover-rows tbody tr[data-href]');
+    var tr = e.target.closest('.tw-table-hover tbody tr[data-href]');
     if (tr && !e.target.closest('a')) window.location = tr.dataset.href;
 });
 
@@ -1326,7 +1332,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!body) return;
 
     function trimActivityFeed() {
-        var card = body.closest('.card');
+        var card = body.closest('.tw-card');
         if (!card) return;
         var rows = body.querySelectorAll('.activity-feed-row');
         var more = document.getElementById('activity-feed-more');
@@ -1334,7 +1340,7 @@ document.addEventListener('DOMContentLoaded', function () {
         rows.forEach(function (r) { r.style.display = ''; });
         if (more) more.style.display = 'none';
         var cardH = card.clientHeight;
-        var header = card.querySelector('.card-header');
+        var header = card.querySelector('.tw-card-header');
         var headerH = header ? header.offsetHeight : 0;
         var available = cardH - headerH;
         var used = 0;

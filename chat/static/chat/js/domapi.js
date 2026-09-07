@@ -193,7 +193,7 @@ export default class DomApi {
     showHistoryButton(message_id) {
         const msgDiv = this.getMessageDiv(message_id);
         if (msgDiv) {
-            $(".show-history", msgDiv).classList.remove('d-none');
+            $(".show-history", msgDiv).classList.remove('tw-d-none');
         }
     }
 
@@ -312,7 +312,7 @@ export default class DomApi {
     clearFiles() {
         const fileInput = $(`#file-input`);
         if (fileInput) fileInput.value = "";
-        this.getPreviewContainer().classList.add('d-none');
+        this.getPreviewContainer().classList.add('tw-d-none');
         this.getPreviewDiv().innerHTML = '';
     }
 
@@ -372,7 +372,7 @@ export default class DomApi {
 
     closeBigImage() {
         document.getElementById('image-viewer-overlay')?.remove();
-        document.body.classList.remove('modal-open');
+        document.body.classList.remove('tw-modal-open');
     }
 
     getLatestOwnMessage() {
@@ -446,9 +446,9 @@ export default class DomApi {
     showCopyFeedback(button, message, success) {
         if (!button) return;
         const tooltip = document.createElement('span');
-        tooltip.className = "copy-feedback badge-status";
+        tooltip.className = "copy-feedback tw-badge-status";
         tooltip.textContent = message;
-        tooltip.classList.add(success ? 'badge-success' : 'badge-danger');
+        tooltip.classList.add(success ? 'tw-badge-success' : 'tw-badge-danger');
         button.appendChild(tooltip);
         setTimeout(() => {
             tooltip.style.transition = 'opacity 0.2s';
@@ -473,10 +473,10 @@ export default class DomApi {
         const preview_container = this.getPreviewDiv();
         if (preview_container) preview_container.innerHTML = '';
         if (!attachments?.images?.length) {
-            this.getPreviewContainer().classList.add('d-none');
+            this.getPreviewContainer().classList.add('tw-d-none');
             return;
         }
-        this.getPreviewContainer().classList.remove('d-none');
+        this.getPreviewContainer().classList.remove('tw-d-none');
         for (let i = 0; i < attachments.images.length; i++) {
             const filename = attachments.images[i];
             const wrapper = document.createElement('div');
@@ -489,7 +489,7 @@ export default class DomApi {
             img.setAttribute('data-filename', filename);
 
             const btn = document.createElement('button');
-            btn.className = 'btn btn-sm btn-danger remove-existing-attachment image-preview-remove';
+            btn.className = 'tw-btn tw-btn-sm tw-btn-danger remove-existing-attachment image-preview-remove';
             btn.setAttribute('data-filename', filename);
             btn.type = 'button';
             btn.textContent = '×';
@@ -530,21 +530,9 @@ export default class DomApi {
         ).join('');
     }
 
-    showFoldedRoomHeader() {
-        const chatRooms = $(".chat-rooms");
-        if (chatRooms) {
-            chatRooms.classList.add('room-active');
-            chatRooms.classList.remove('room-list-showing');
-        }
-    }
-
-    hideFoldedRoomHeader() {
-        const chatRooms = $(".chat-rooms");
-        if (chatRooms) {
-            chatRooms.classList.remove('room-active');
-            chatRooms.classList.remove('room-list-showing');
-        }
-    }
+    // Klasy widoku (.room-active / .room-list-showing / .room-list-hidden) są
+    // wyprowadzane ze stanu przez renderChatView() w chat.js — domapi nie
+    // podejmuje decyzji, który panel jest widoczny.
 
     updateSidebarForMessage(msg, {reorder = true, bumpActivity = reorder} = {}) {
         const roomLink = document.querySelector(`.room-link[data-room-id="${msg.room_id}"]`);

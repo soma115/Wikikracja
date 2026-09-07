@@ -7,7 +7,7 @@
 import { clearReplyTarget as coreClearReplyTarget, setReplyTarget as coreSetReplyTarget, voteButtonTitle } from './chat-core.js';
 import DomApi from './domapi.js';
 import { MessageHistory } from './templates.js';
-import { $, $$, _, formatDate, formatDateTime, Lock, makeNotification, parseParms } from './utility.js';
+import { $, $$, _, formatDate, formatDateTime, Lock, mobileMedia, parseParms } from './utility.js';
 import WsApi from './wsapi.js';
 
 /**
@@ -140,43 +140,64 @@ function bindSortToolbar() {
 }
 
 /**
- * Czysta funkcja decyzyjna dla startu chat'a na podstawie URL params + stanu DOM.
- * UWAGA: synchronizować z chat/static/chat/js/__tests__/startup_action.test.js
+ * Czysty parser lokalizacji czatu — zamienia URL na deklaratywną intencję widoku.
+ * UWAGA: synchronizować z chat/static/chat/js/__tests__/chat_routing.test.js
  * (wzór jak draft.test.js — funkcja kopiowana 1:1 do testu).
+ *
+ * Semantyka:
+ *   #room_id=X[&message_id=Y] → view 'room' — hash bije query params
+ *   ?view=unread / ?unread=1  → view 'unread' — lista + filtr nieprzeczytanych
+ *   ?view=rooms               → view 'rooms' — lista bez auto-joinu
+ *   pozostałe (/chat/ itd.)   → view 'default' — przy starcie auto-joinuje pokój
  */
-function decideStartupAction({ search = '', hasHash = false, isMobile = false } = {}) {
-    // Hash ma bezwzględny priorytet — użytkownik chce konkretny pokój
-    if (hasHash) {
-        return { mode: 'default', joinAction: 'auto' };
-    }
+function parseChatLocation({ search = '', hash = '' } = {}) {
+    const hashParams = parseParms(hash.startsWith('#') ? hash.slice(1) : hash);
+    const roomId = hashParams.room_id ? parseInt(hashParams.room_id, 10) : null;
+    const messageId = hashParams.message_id ? parseInt(hashParams.message_id, 10) : null;
+    // Hash ma bezwzględny priorytet — użytkownik wprost prosi o konkretny pokój.
+    if (roomId) return { view: 'room', roomId, messageId };
+
     const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
-    if (params.get('view') === 'rooms') {
-        return {
-            mode: 'rooms', unreadFilter: 'off', showPlaceholder: true,
-            forceListVisible: true, mobileShowList: isMobile,
-            joinAction: 'none', stripParam: 'view',
-        };
+    const view = params.get('view');
+    if (view === 'unread' || params.get('unread') === '1') {
+        return { view: 'unread', roomId: null, messageId: null };
     }
-    // ?unread=1 to legacy alias (stare bookmark'y / push'e) — traktowany jak ?view=unread.
-    // Akcja celowo nie zawiera showUnreadEmptyState — empty state jest pochodna stanu
-    // filtra, obsluguje go applyUnreadFilter (zarowno przy starcie jak i w runtime).
-    const wantsUnreadView = params.get('view') === 'unread' || params.get('unread') === '1';
-    if (wantsUnreadView) {
-        return {
-            mode: 'unread', unreadFilter: 'on', showPlaceholder: true,
-            forceListVisible: true, mobileShowList: isMobile,
-            joinAction: 'none',
-            stripParam: params.get('unread') === '1' ? 'unread' : 'view',
-        };
+    if (view === 'rooms') {
+        return { view: 'rooms', roomId: null, messageId: null };
     }
-    return { mode: 'default', joinAction: 'auto' };
+    return { view: 'default', roomId: null, messageId: null };
 }
 
 /**
- * Decyduje, czy STARTOWA intencja filtra (z URL) ma w wsOnConnect zmienic aktualny
- * stan filtra unread. Reczny klik usera (userToggled) MA PIERWSZENSTWO nad URL —
- * inaczej asynchroniczne wsOnConnect cofaloby decyzje usera ("filtr wraca po odkliknieciu").
- * Zwraca 'enable' | 'disable' | 'none'.
+ * Deklaratywny stan widoku — jedyne źródło klas room-active / room-list-showing.
+ * room-list-hidden (desktopowa preferencja zwinięcia listy) zarządza handlers.js.
+ */
+const ViewState = {
+    /** 'list' | 'room' — panel widoczny na mobile; na desktopie widoczne są oba. */
+    panel: 'list',
+    /** Pokój wynikający z URL/kliknięcia — może się jeszcze nie dołączyć. */
+    requestedRoomId: null,
+    /** 'idle' | 'joining' | 'joined' | 'error' */
+    joinStatus: 'idle',
+};
+/** Generacja żądania joinu — późna odpowiedź starszego żądania jest ignorowana. */
+let JoinGeneration = 0;
+/** Klucz ostatnio zastosowanej trasy — deduplikacja popstate + hashchange. */
+let LastAppliedRouteKey = null;
+/** Czy normalizacja stosu Wstecz dla deep-linka już się wykonała. */
+let HistoryNormalized = false;
+
+// Filtr nieprzeczytanych — stan modułowy (współdzielą go router i handlery).
+let isUnreadFilterActive = false;
+// Gdy user recznie kliknie filtr, jego decyzja jest ostateczna na te sesje strony —
+// pozniejsze zastosowanie trasy NIE moze jej nadpisac intencja z URL.
+let userToggledFilter = false;
+
+/**
+ * Decyduje, czy intencja filtra z URL ma zmienic aktualny stan filtra unread.
+ * Reczny klik usera (userToggled) MA PIERWSZENSTWO nad URL — inaczej
+ * asynchroniczne zastosowanie trasy cofaloby decyzje usera
+ * ("filtr wraca po odkliknieciu"). Zwraca 'enable' | 'disable' | 'none'.
  * UWAGA: synchronizować z chat/static/chat/js/__tests__/unread_filter_override.test.js.
  */
 function decideUnreadFilterOverride({ urlFilter, isActive, userToggled }) {
@@ -185,6 +206,177 @@ function decideUnreadFilterOverride({ urlFilter, isActive, userToggled }) {
     if (urlFilter === 'on' && !isActive) return 'enable';
     // Nie wyłączamy filtra dla urlFilter === 'off' — pozwalamy na przywracanie z localStorage
     return 'none';
+}
+
+function applyUnreadFilter() {
+    // Filter rooms - show only unread using CSS class
+    const allRoomLinks = $$('.room-link[data-room-id]');
+    allRoomLinks.forEach(roomLink => {
+        // Add class to hide read rooms
+        if (!roomLink.classList.contains('room-not-seen')) {
+            roomLink.classList.add('filtered-out');
+        } else {
+            roomLink.classList.remove('filtered-out');
+        }
+    });
+    // Empty state w prawej kolumnie — zawsze gdy filtr daje 0 wynikow
+    const unreadCount = $$('.room-link.room-not-seen[data-room-id]').length;
+    if (unreadCount === 0) {
+        showUnreadEmptyState();
+    } else {
+        hideUnreadEmptyState();
+    }
+}
+
+function removeUnreadFilter() {
+    const allRoomLinks = $$('.room-link[data-room-id]');
+    allRoomLinks.forEach(roomLink => {
+        roomLink.classList.remove('filtered-out');
+    });
+    hideUnreadEmptyState();
+}
+
+// Function to reapply unread filter when room seen status changes
+function updateUnreadFilter() {
+    if (isUnreadFilterActive) {
+        applyUnreadFilter();
+    }
+}
+
+function setUnreadFilter(active) {
+    isUnreadFilterActive = active;
+    document.getElementById('unread-filter-btn')?.classList.toggle('active', active);
+    if (active) {
+        localStorage.setItem('chat-unread-filter', 'active');
+        applyUnreadFilter();
+    } else {
+        localStorage.removeItem('chat-unread-filter');
+        removeUnreadFilter();
+    }
+}
+
+function applyUnreadUrlIntent(urlFilter) {
+    const decision = decideUnreadFilterOverride({
+        urlFilter,
+        isActive: isUnreadFilterActive,
+        userToggled: userToggledFilter,
+    });
+    if (decision === 'enable') setUnreadFilter(true);
+    else if (decision === 'disable') setUnreadFilter(false);
+}
+
+/**
+ * Jedno miejsce synchronizacji klas widoku z deklaratywnego stanu:
+ *   room-active       — pokój jest dołączony (treść pokoju istnieje w DOM),
+ *   room-list-showing — na mobile użytkownik jest na panelu listy.
+ */
+function renderChatView() {
+    const chatRooms = $('.chat-rooms');
+    if (!chatRooms) return;
+    chatRooms.classList.toggle('room-active', CurrentRoomId != null);
+    chatRooms.classList.toggle('room-list-showing', mobileMedia.matches && ViewState.panel === 'list');
+    // aria-current na linku aktywnego pokoju.
+    $$('.room-link[aria-current]').forEach(el => el.removeAttribute('aria-current'));
+    if (CurrentRoomId != null) {
+        DOM_API?.getRoomLinkDiv(CurrentRoomId)?.setAttribute('aria-current', 'true');
+    }
+}
+
+function routeKey(route) {
+    return `${route.view}|${route.roomId ?? ''}|${route.messageId ?? ''}`;
+}
+
+/**
+ * Parsuje aktualny URL i stosuje trasę. Idempotentne: ta sama trasa
+ * zastosowana drugi raz (np. popstate + hashchange przy jednym Wstecz)
+ * jest pomijana.
+ */
+function syncRouteFromLocation({ initial = false } = {}) {
+    const route = parseChatLocation({ search: location.search, hash: location.hash });
+    const key = routeKey(route);
+    if (!initial && key === LastAppliedRouteKey) return;
+    LastAppliedRouteKey = key;
+    if (initial && !HistoryNormalized) {
+        HistoryNormalized = true;
+        if (route.view === 'room') {
+            // Deep-link: pod wpis pokoju wkładamy wpis listy, żeby pierwszy
+            // Wstecz pokazał listę pokoi, a nie opuszczał stronę czatu.
+            const roomUrl = location.pathname + location.search + location.hash;
+            history.replaceState(null, '', location.pathname + location.search);
+            history.pushState(null, '', roomUrl);
+        }
+    }
+    applyChatRoute(route, { initial });
+}
+
+function applyChatRoute(route, { initial = false } = {}) {
+    if (route.view === 'room') {
+        ViewState.panel = 'room';
+        ViewState.requestedRoomId = route.roomId;
+        if (route.messageId) ScrollToMessageId = route.messageId;
+        if (CurrentRoomId === route.roomId) {
+            hideRoomPlaceholder();
+            renderChatView(); // już dołączony — tylko pokaż panel pokoju
+        } else {
+            void onRoomTryJoin(route.roomId);
+        }
+        return;
+    }
+
+    // Widok listy: 'rooms' | 'unread' | 'default' poza startem (powrót Wstecz)
+    ViewState.panel = 'list';
+    ViewState.requestedRoomId = null;
+    $('.chat-rooms')?.classList.remove('room-list-hidden');
+    renderChatView();
+    if (CurrentRoomId == null) showRoomPlaceholder();
+    if (route.view === 'unread') applyUnreadUrlIntent('on');
+    else if (route.view === 'rooms') applyUnreadUrlIntent('off');
+    if (initial && route.view === 'default') {
+        const roomId = pickInitialRoomId();
+        // pushState nad wpisem /chat/ — Wstecz wraca do listy pokoi.
+        if (roomId) navigateToRoom(roomId);
+    }
+}
+
+/**
+ * Wybiera pokój do auto-joinu przy czystym wejściu na /chat/:
+ * ostatnio używany (jeśli dozwolony) → pierwszy publiczny → pierwszy dozwolony.
+ */
+function pickInitialRoomId() {
+    const roomLinks = $$('.room-link[data-room-id]');
+    const allowedRoomIds = new Set([...roomLinks].map(el => parseInt(el.dataset.roomId)));
+    if (localStorage.lastUsedRoomID) {
+        const storedId = parseInt(localStorage.lastUsedRoomID);
+        if (allowedRoomIds.has(storedId)) return storedId;
+        delete localStorage.lastUsedRoomID;
+    }
+    const publicRooms = $$('.room-link[data-room-id][data-room-type="public"]');
+    return publicRooms.length ? parseInt(publicRooms[0].dataset.roomId) : ([...allowedRoomIds][0] ?? 0);
+}
+
+/** Nawigacja do pokoju — pushState + jawne zastosowanie trasy. */
+export function navigateToRoom(roomId, messageId = null) {
+    roomId = parseInt(roomId);
+    if (!roomId) return;
+    const hash = `#room_id=${roomId}` + (messageId ? `&message_id=${messageId}` : '');
+    const target = location.pathname + location.search + hash;
+    if (location.pathname + location.search + location.hash !== target) {
+        history.pushState(null, '', target);
+    }
+    syncRouteFromLocation();
+}
+
+/** Nawigacja do listy pokoi — usuwa hash, zachowuje parametry ?view. */
+export function navigateToRoomList() {
+    if (location.hash) {
+        history.pushState(null, '', location.pathname + location.search);
+    }
+    syncRouteFromLocation();
+}
+
+/** Aktualnie dołączony pokój (joinedRoomId). */
+export function getCurrentRoomId() {
+    return CurrentRoomId;
 }
 
 // Placeholder "Wybierz pokoj" w lewej kolumnie — gdy nie ma joinowanego pokoju.
@@ -217,8 +409,9 @@ function hideRoomPlaceholder() {
 // Tekst budujemy przez textContent; w hint'cie ikona inline jest realnym elementem
 // DOM (a nie innerHTML'em wstrzyknietym z tlumaczenia) — bezpieczne nawet gdy
 // tlumaczenie zawiera znaki specjalne wokol placeholdera {icon}.
-// .row chowamy przez CSS :has() (patrz chat.css) — nie tykamy inline style,
-// zeby nie kolidowac z sort'em wg czasu, ktory tez ustawia .row { display: none }.
+// .room-list-groups chowamy przez CSS :has() (patrz tailwind.css) — nie tykamy
+// inline style, zeby nie kolidowac z sort'em wg czasu, ktory tez ustawia
+// .room-list-groups { display: none }.
 function showUnreadEmptyState() {
     const roomList = document.querySelector('#room-list');
     if (!roomList || document.getElementById('chat-no-unread-empty-state')) return;
@@ -270,7 +463,8 @@ function showUnreadEmptyState() {
 }
 
 function hideUnreadEmptyState() {
-    // .remove() wystarcza — CSS :has() wyrejestruje regule .row { display: none } sam
+    // .remove() wystarcza — CSS :has() wyrejestruje regule
+    // .room-list-groups { display: none } sam
     document.getElementById('chat-no-unread-empty-state')?.remove();
 }
 
@@ -281,20 +475,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set the WebSocket message handler to break circular dependency
     WS_API.socketMessageHandler = onSocketMessage;
 
+    // Nawigacja historii i ręczne zmiany fragmentu → idempotentna synchronizacja trasy.
+    window.addEventListener('popstate', () => syncRouteFromLocation());
+    window.addEventListener('hashchange', () => syncRouteFromLocation());
+    mobileMedia.addEventListener('change', renderChatView);
+
     document.addEventListener('input', (e) => {
         if (e.target.id === 'message-input') saveDraft();
     });
 
     // Handle unread filter functionality
     const unreadFilterBtn = $('#unread-filter-btn');
-    let isUnreadFilterActive = false;
-    // Gdy user recznie kliknie filtr, jego decyzja jest ostateczna na te sesje strony —
-    // pozniejsze (asynchroniczne) wsOnConnect NIE moze jej nadpisac intencja z URL.
-    let userToggledFilter = false;
 
     // Restore filter state from localStorage. URL params bija zapisany stan:
     //   ?view=unread  -> wymuszamy filtr ON  (dashboard badge; ?unread=1 to legacy alias)
-    // Robimy to juz tu (nie tylko w wsOnConnect), zeby unikac wizualnego migniecia.
+    // Robimy to juz tu (nie tylko przy otwarciu WS), zeby unikac wizualnego migniecia.
     const initialParams = new URLSearchParams(location.search);
     const initialView = initialParams.get('view');
     const wantsUnreadStart = initialView === 'unread' || initialParams.get('unread') === '1';
@@ -308,53 +503,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     unreadFilterBtn?.addEventListener('click', () => {
         userToggledFilter = true;
-        isUnreadFilterActive = !isUnreadFilterActive;
-
-        if (isUnreadFilterActive) {
-            unreadFilterBtn.classList.add('active');
-            localStorage.setItem('chat-unread-filter', 'active');
-            applyUnreadFilter();
-        } else {
-            unreadFilterBtn.classList.remove('active');
-            localStorage.removeItem('chat-unread-filter');
-            removeUnreadFilter();
-        }
+        setUnreadFilter(!isUnreadFilterActive);
     });
-
-    function applyUnreadFilter() {
-        // Filter rooms - show only unread using CSS class
-        const allRoomLinks = $$('.room-link[data-room-id]');
-        allRoomLinks.forEach(roomLink => {
-            // Add class to hide read rooms
-            if (!roomLink.classList.contains('room-not-seen')) {
-                roomLink.classList.add('filtered-out');
-            } else {
-                roomLink.classList.remove('filtered-out');
-            }
-        });
-        // Empty state w prawej kolumnie — zawsze gdy filtr daje 0 wynikow
-        const unreadCount = $$('.room-link.room-not-seen[data-room-id]').length;
-        if (unreadCount === 0) {
-            showUnreadEmptyState();
-        } else {
-            hideUnreadEmptyState();
-        }
-    }
-
-    function removeUnreadFilter() {
-        const allRoomLinks = $$('.room-link[data-room-id]');
-        allRoomLinks.forEach(roomLink => {
-            roomLink.classList.remove('filtered-out');
-        });
-        hideUnreadEmptyState();
-    }
-
-    // Function to reapply unread filter when room seen status changes
-    function updateUnreadFilter() {
-        if (isUnreadFilterActive) {
-            applyUnreadFilter();
-        }
-    }
 
     // Make function globally available for other modules
     window.updateUnreadFilter = updateUnreadFilter;
@@ -384,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function applySortView(mode) {
         const roomListEl = $('#room-list');
-        const categoryRow = roomListEl?.querySelector('.row');
+        const categoryRow = roomListEl?.querySelector('.room-list-groups');
         if (!categoryRow) return;
 
         if (!isSortActive) {
@@ -437,7 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
         roomOriginalPositions = null;
         sortMode = null;
 
-        const categoryRow = $('#room-list')?.querySelector('.row');
+        const categoryRow = $('#room-list')?.querySelector('.room-list-groups');
         if (categoryRow) categoryRow.style.display = '';
 
         isSortActive = false;
@@ -447,100 +597,57 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('chat-sort-mode');
     }
 
-    WS_API.wsOnConnect = async () => {
-        for (const user of (await WS_API.getOnlineUsers()).online_data) {
-            DOM_API.updateOnline(user.room_id, user.online);
-        }
+    // Trasa z URL jest stosowana natychmiast — niezależnie od stanu socketu.
+    // Join do pokoju i tak kolejkuje się do pierwszego otwarcia socketu
+    // (ReconnectingWebSocket buforuje wysyłkę), a ?view=rooms / ?view=unread
+    // pokazują listę nawet gdy połączenie jeszcze nie wstało.
+    syncRouteFromLocation({ initial: true });
 
-        const data = await WS_API.getNotificationData();
-        const enabledRooms = new Set(data.rooms.map(id => parseInt(id)));
-        $$('.notif-switch[data-room-id]').forEach(btn => {
-            DOM_API.setRoomNotifications(parseInt(btn.dataset.roomId), enabledRooms.has(parseInt(btn.dataset.roomId)));
-        });
-
-        // On reconnect: rejoin the current room (server lost state after disconnect)
-        if (CurrentRoomId) {
-            const roomToRejoin = CurrentRoomId;
-            CurrentRoomId = null; // reset so onRoomTryJoin doesn't short-circuit
-            onRoomTryJoin(roomToRejoin);
-            return;
-        }
-
-        const action = decideStartupAction({
-            search: location.search,
-            hasHash: !!window.location.hash,
-            isMobile: window.innerWidth < 768,
-        });
-
-        // Usun zuzyty param zeby nie zostal w URL po reload
-        if (action.stripParam) {
-            const url = new URL(window.location.href);
-            url.searchParams.delete(action.stripParam);
-            history.replaceState(null, '', url.pathname + url.search + url.hash);
-        }
-
-        // Intencja z URL aplikuje filtr — ale reczny klik usera (userToggledFilter) bije
-        // URL. Bez tego: user zdejmuje filtr w oknie miedzy DOMContentLoaded a polaczeniem
-        // WS, a to (czytajace wciaz obecny ?view=unread) wlaczaloby go z powrotem.
-        const filterOverride = decideUnreadFilterOverride({
-            urlFilter: action.unreadFilter,
-            isActive: isUnreadFilterActive,
-            userToggled: userToggledFilter,
-        });
-        if (filterOverride === 'enable') {
-            isUnreadFilterActive = true;
-            unreadFilterBtn?.classList.add('active');
-            localStorage.setItem('chat-unread-filter', 'active');
-            applyUnreadFilter();
-        } else if (filterOverride === 'disable') {
-            isUnreadFilterActive = false;
-            unreadFilterBtn?.classList.remove('active');
-            localStorage.removeItem('chat-unread-filter');
-            removeUnreadFilter();
-        }
-
-        // Wymus widocznosc listy pokoi TYLKO na ten widok — bez kasowania zapisanej
-        // preferencji "hide list" (uzytkownik mogl ja swiadomie ustawic; przy nastepnym
-        // bezposrednim wejsciu na /chat/ ma sie zachowac jak zapamietano).
-        if (action.forceListVisible) {
-            const chatRoomsEl = document.querySelector('.chat-rooms');
-            chatRoomsEl?.classList.remove('room-list-hidden');
-            if (action.mobileShowList) {
-                chatRoomsEl?.classList.add('room-list-showing');
-            }
-        }
-
-        if (action.showPlaceholder) showRoomPlaceholder();
-
-        // ?view=rooms / ?view=unread — bez auto-joina, koniec
-        if (action.joinAction === 'none') return;
-
-        let room_id = 0;
-        if (window.location.hash) {
-            const obj = parseParms(window.location.hash.slice(1));
-            if (obj.room_id) room_id = parseInt(obj.room_id);
-            if (obj.message_id) ScrollToMessageId = obj.message_id;
-        }
-
-        // Build set of room IDs the user actually has access to (rendered in DOM by server)
-        const roomLinks = $$('.room-link[data-room-id]');
-        const allowedRoomIds = new Set([...roomLinks].map(el => parseInt(el.dataset.roomId)));
-
-        // Get locally stored last room ID, but only if it's in the allowed list
-        if (!room_id && localStorage.lastUsedRoomID) {
-            const storedId = parseInt(localStorage.lastUsedRoomID);
-            if (allowedRoomIds.has(storedId)) room_id = storedId;
-            else delete localStorage.lastUsedRoomID;
-        }
-
-        // Find the first public room if no room_id is set
-        if (!room_id) {
-            const publicRooms = $$('.room-link[data-room-id][data-room-type="public"]');
-            room_id = publicRooms.length > 0 ? parseInt(publicRooms[0].dataset.roomId) : [...allowedRoomIds][0] ?? 0;
-        }
-
-        if (room_id) onRoomTryJoin(room_id);
+    // Jawny wskaźnik stanu połączenia — widoczny tylko przy rozłączeniu,
+    // nie zasłania wiadomości (pointer-events: none).
+    const connStatusEl = document.getElementById('chat-conn-status');
+    const connStatusText = document.getElementById('chat-conn-status-text');
+    const setConnStatus = (visible) => {
+        if (!connStatusEl) return;
+        if (visible) connStatusText.textContent = _('Reconnecting...');
+        connStatusEl.classList.toggle('tw-d-none', !visible);
     };
+
+    // Pierwszy open tego socketu: tylko poboczne dane, niezależnie —
+    // ich błąd nie może zablokować nawigacji.
+    WS_API.wsOnConnect = () => {
+        setConnStatus(false);
+        WS_API.getOnlineUsers()
+            .then(d => d.online_data.forEach(u => DOM_API.updateOnline(u.room_id, u.online)))
+            .catch(err => console.warn('getOnlineUsers failed:', err));
+        WS_API.getNotificationData()
+            .then(data => {
+                const enabledRooms = new Set(data.rooms.map(id => parseInt(id)));
+                $$('.notif-switch[data-room-id]').forEach(btn => {
+                    DOM_API.setRoomNotifications(parseInt(btn.dataset.roomId), enabledRooms.has(parseInt(btn.dataset.roomId)));
+                });
+            })
+            .catch(err => console.warn('getNotificationData failed:', err));
+    };
+
+    // Kolejny open po zerwaniu: reconnect NIE może zmieniać URL, historii
+    // ani widocznego panelu — tylko przywraca członkostwo w pokoju.
+    WS_API.wsOnReconnect = () => {
+        setConnStatus(false);
+        WS_API.getOnlineUsers()
+            .then(d => d.online_data.forEach(u => DOM_API.updateOnline(u.room_id, u.online)))
+            .catch(err => console.warn('getOnlineUsers failed:', err));
+        if (ViewState.requestedRoomId && ViewState.requestedRoomId !== CurrentRoomId) {
+            // Nawigacja do pokoju była w toku, gdy połączenie się urwało — dokończ ją.
+            void onRoomTryJoin(ViewState.requestedRoomId);
+        } else if (CurrentRoomId) {
+            const roomToRejoin = CurrentRoomId;
+            CurrentRoomId = null; // odblokuj short-circuit w onRoomTryJoin
+            void onRoomTryJoin(roomToRejoin, { preserveView: true });
+        }
+    };
+
+    WS_API.wsOnDisconnect = () => setConnStatus(true);
 });
 
 export async function onSocketMessage(data) {
@@ -549,18 +656,15 @@ export async function onSocketMessage(data) {
     else if (data.messages) onReceiveMessages(data.messages);
     else if (data.unsee_room) onRoomUnsee(data.unsee_room);
     else if (data.room_seen) onRoomSeen(data.room_seen);
-    else if (data.notification) onReceiveNotification(data.notification);
     else if (data.update_votes) onReceiveVotes(data.update_votes);
     else if (data.edit_message) onReceiveEdit(data.edit_message);
     else if (data.online_data) onReceiveOnlineUpdates(data.online_data);
     else if (data.update_reactions) onReceiveReactions(data.update_reactions);
     else if (data.messages_read) onReceiveReadBy(data.messages_read);
+    // data.notification jest obsługiwane przez notifications.js (jeden właściciel
+    // browserowych powiadomień — broadcast idzie do wszystkich subskrybentów).
     // unread_count is consumed by the home page WS listener — ignore here
     else console.log("Cannot handle message!");
-}
-
-export async function onReceiveNotification(notification) {
-    makeNotification(notification);
 }
 
 /**
@@ -622,56 +726,82 @@ function deriveBreadcrumb(room_id) {
     return parts;
 }
 
-export async function onRoomTryJoin(room_id) {
+/**
+ * Dołącza do pokoju. Treść pokoju buduje zawsze po sukcesie; przełączenie
+ * widocznego panelu następuje tylko gdy żądanie jest nadal aktualne
+ * (nie wyprzedziło go nowsze) i nie jest to techniczny rejoin.
+ * @param {number} room_id
+ * @param {Object} [options]
+ * @param {boolean} [options.preserveView] - reconnect: dołącz bez zmiany panelu
+ */
+export async function onRoomTryJoin(room_id, { preserveView = false } = {}) {
     room_id = parseInt(room_id);
-    if (room_id === CurrentRoomId) return; // already in this room
+    if (room_id === CurrentRoomId) {
+        // Już dołączony — upewnij się tylko, że panel pokoju jest widoczny.
+        ViewState.panel = 'room';
+        ViewState.requestedRoomId = room_id;
+        hideRoomPlaceholder();
+        renderChatView();
+        return;
+    }
+    const generation = ++JoinGeneration;
+    ViewState.requestedRoomId = room_id;
+    ViewState.joinStatus = 'joining';
     if (RoomLock.locked()) await RoomLock.wait();
+    if (generation !== JoinGeneration) return; // wyprzedziło nas nowsze żądanie
     if (CurrentRoomId) await onRoomTryLeave(false);
 
-    hideRoomPlaceholder();
-    DOM_API.getRoomLinkDiv(room_id)?.classList.add("joined");
-    if (CurrentRoomId) return; // joined another room while awaiting confirmation
-
-    RoomLock.lock();
+    const joiningRoomLink = DOM_API.getRoomLinkDiv(room_id);
+    joiningRoomLink?.classList.add("joined");
     // WS może być jeszcze w trakcie łączenia (np. tuż po otwarciu strony albo
     // reconnect po zerwaniu połączenia) — komenda "join" zostanie zakolejkowana
     // i wyslana automatycznie po otwarciu socketu, ale to moze potrwac chwile.
     // Pokazujemy prosty spinner na linku do pokoju, zeby user wiedzial, ze cos sie dzieje.
-    const joiningRoomLink = DOM_API.getRoomLinkDiv(room_id);
     const showConnectingSpinner = !WS_API.isConnected();
     if (showConnectingSpinner) joiningRoomLink?.classList.add("connecting");
+    RoomLock.lock();
     let response;
     try {
         response = await WS_API.joinRoom(room_id);
     } catch (error) {
         RoomLock.unlock();
         if (showConnectingSpinner) joiningRoomLink?.classList.remove("connecting");
+        joiningRoomLink?.classList.remove("joined");
+        ViewState.joinStatus = 'error';
         if (error === 'ROOM_INVALID' || error === 'ACCESS_DENIED') {
             delete localStorage.lastUsedRoomID;
-            DOM_API.getRoomLinkDiv(room_id)?.classList.remove("joined");
-            const roomLinks = $$('.room-link[data-room-id][data-room-type="public"]')[0];
-            if (roomLinks && parseInt(roomLinks.dataset.roomId) != room_id) {
-                onRoomTryJoin(parseInt(roomLinks.dataset.roomId));
+            // Pokój niedostępny/nieistniejący — wróć do listy (replace, nie push,
+            // żeby nie zostawiać martwego wpisu z hashem w historii).
+            if (location.hash) {
+                history.replaceState(null, '', location.pathname + location.search);
+                LastAppliedRouteKey = null;
+                syncRouteFromLocation();
             }
-        } else alert(error);
+            window.showToast?.(_('This room is not available.'));
+        } else {
+            // Błędy techniczne (timeout, rozłączenie) — toast, bez alert().
+            window.showToast?.(_('Could not join the room.'));
+            console.warn('joinRoom failed:', error);
+        }
         return;
     }
     RoomLock.unlock();
     if (showConnectingSpinner) joiningRoomLink?.classList.remove("connecting");
 
+    // Żądanie mogło zostać wyprzedzone (klik w inny pokój albo powrót na listę)
+    // albo to techniczny rejoin — wtedy budujemy treść, ale nie ruszamy panelu.
+    const stale = generation !== JoinGeneration || ViewState.requestedRoomId !== room_id;
     localStorage.lastUsedRoomID = room_id;
     CurrentRoomId = room_id;
+    ViewState.joinStatus = 'joined';
     // TODO: send seen confirmation to server after a little while
     DOM_API.seenChat(room_id);
     WS_API.seenRoom(room_id);
     DOM_API.setRoomNotifications(response.notifications);
-    DOM_API.createRoomDiv(CurrentRoomId, response.title, response.public, response.notifications, response.can_post ?? true);
+    DOM_API.createRoomDiv(room_id, response.title, response.public, response.notifications, response.can_post ?? true);
     resetSortState();
     bindSortToolbar();
     DOM_API.updateBreadcrumb(deriveBreadcrumb(room_id));
-    DOM_API.showFoldedRoomHeader();
-    // Restore draft after DOM is fully updated
-    requestAnimationFrame(() => restoreDraft(room_id));
 
     // Auto-expand category and archive section if needed
     const roomLink = DOM_API.getRoomLinkDiv(room_id);
@@ -679,8 +809,17 @@ export async function onRoomTryJoin(room_id) {
         expandCategoryForRoom(roomLink);
     }
 
+    if (!stale && !preserveView) {
+        ViewState.panel = 'room';
+        hideRoomPlaceholder();
+    }
+    renderChatView();
+
+    // Restore draft after DOM is fully updated
+    requestAnimationFrame(() => restoreDraft(room_id));
+
     // Focus only on desktop — on mobile the keyboard would open immediately
-    if (window.innerWidth >= 768) {
+    if (!stale && !preserveView && !mobileMedia.matches) {
         DOM_API.getMessageInput()?.focus();
     }
 }
@@ -699,12 +838,13 @@ export async function onRoomTryLeave(sync_with_server) {
     }
     DOM_API.getRoomLinkDiv(CurrentRoomId)?.classList.remove("joined");
     DOM_API.clearRoomData();
-    DOM_API.hideFoldedRoomHeader();
     resetSortState();
     for (const t of pendingTimeouts.values()) clearTimeout(t);
     pendingTimeouts.clear();
     CurrentRoomId = null;
+    ViewState.joinStatus = 'idle';
     isClearingInput = false;
+    renderChatView();
 }
 
 
@@ -1034,16 +1174,10 @@ export async function onMessageHistory(message_id) {
         ...entry, formattedTime: formatDateTime(entry.timestamp)
     }));
 
-    $("#message-history-modal .modal-body").innerHTML = MessageHistory({ history });
-    const modal = $("#message-history-modal"); // Bootstrap modal show
-    if (modal) {
-        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-            new bootstrap.Modal(modal).show();
-        } else {
-            modal.classList.add('show');
-            modal.style.display = 'block';
-            document.body.classList.add('modal-open');
-        }
+    $("#message-history-modal .tw-modal-body").innerHTML = MessageHistory({ history });
+    const modal = $("#message-history-modal"); // Tailwind modal show
+    if (modal && typeof TwModal !== 'undefined') {
+        TwModal.show(modal);
     }
 }
 
@@ -1081,7 +1215,7 @@ async function writeToClipboard(text) {
 
 function showCopyFeedback(button, success) {
     const message = success ? _("Link copied") : _("Could not copy link");
-    if (button?.closest('.dropdown') && window.showToast) {
+    if (button?.closest('.tw-dropdown') && window.showToast) {
         window.showToast(message);
         return;
     }

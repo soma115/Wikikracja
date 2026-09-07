@@ -2,16 +2,16 @@
 {% load i18n %}
 
 {% block citizens %}
-<div class="container section">
-  <div class="mb-3">
-    <a href="{% url 'obywatele:obywatele_szczegoly' pk=target_user.pk %}" class="btn btn-sm btn-outline-secondary">
+<div class="tw-container tw-section">
+  <div class="tw-mb-3">
+    <a href="{% url 'obywatele:obywatele_szczegoly' pk=target_user.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
       ← {{ target_user.username }}
     </a>
   </div>
 
-  <div class="card">
-    <div class="card-header">
-      <span class="section-heading">
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <span class="tw-section-heading">
         {% if is_own %}
           {% trans "My activity" %}
         {% else %}
@@ -19,13 +19,13 @@
         {% endif %}
       </span>
     </div>
-    <div class="card-body p-0">
+    <div class="tw-card-body tw-p-0">
       {% if items %}
-        <ul class="list-group list-group-flush">
+        <ul class="tw-list-group tw-list-group-flush">
           {% for item in items %}
-            <li class="list-group-item d-flex justify-content-between align-items-start gap-2">
+            <li class="tw-list-group-item tw-items-start tw-gap-2">
               <div>
-                <small class="text-muted d-block">{{ item.label }}</small>
+                <small class="tw-text-muted tw-block">{{ item.label }}</small>
                 {% if item.url %}
                   <a href="{{ item.url }}">{{ item.title }}</a>
                 {% else %}
@@ -33,13 +33,13 @@
                 {% endif %}
               </div>
               {% if item.ts %}
-                <small class="text-muted text-nowrap">{{ item.ts|date:"Y-m-d" }}</small>
+                <small class="tw-text-muted tw-text-nowrap">{{ item.ts|date:"Y-m-d" }}</small>
               {% endif %}
             </li>
           {% endfor %}
         </ul>
       {% else %}
-        <p class="text-muted p-3 mb-0">{% trans "No activity found." %}</p>
+        <p class="tw-text-muted tw-p-3 tw-mb-0">{% trans "No activity found." %}</p>
       {% endif %}
     </div>
   </div>

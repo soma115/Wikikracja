@@ -3,9 +3,9 @@
 {% load i18n %}
 {% load filters %}
 
-{% block content_fullscreen %}
-	<link rel="stylesheet" href="{% static 'chat/css/chat.css' %}">
+{% block body_class %}chat-page{% endblock %}
 
+{% block content_fullscreen %}
   <!-- Main chat script -->
   <script src="{% static 'chat/js/ejs.min.js' %}"></script>
   <script src="{% static 'chat/js/chat.js' %}" type="module"></script>
@@ -26,13 +26,20 @@
 
   <!-- ============================================================= -->
 
-  <div class="row chat-rooms">
+  <div class="chat-rooms">
     <!-- Messages and Input field -->
-    <div class="chat-root-messages col-md-7">
+    <div class="chat-root-messages">
+    </div>
+
+    <!-- Status połączenia — poza .chat-root-messages, bo createRoomDiv czyści
+         innerHTML tego kontenera przy każdym joinie. -->
+    <div class="chat-conn-status tw-d-none" id="chat-conn-status" role="status" aria-live="polite">
+      <i class="fas fa-plug" aria-hidden="true"></i>
+      <span id="chat-conn-status-text"></span>
     </div>
 
     <!-- Room list controls + scrollable list — wrapped in flex column -->
-    <div class="room-list-col col-md-5">
+    <div class="room-list-col">
       <!-- Top controls — outside scroll container, never affected by scrollbar -->
       <div class="room-list-controls">
         <div class="room-list-controls-inner">
@@ -49,16 +56,16 @@
           <button class="sort-btn" id="sort-reset-btn" title="{% trans 'Show by category' %}">
             <i class="fas fa-layer-group"></i>
           </button>
-          <div class="dropdown">
-            <button class="sort-btn" type="button" id="room-list-kebab" data-bs-toggle="dropdown" aria-expanded="false" title="{% trans 'More' %}">
+          <div class="tw-dropdown">
+            <button class="sort-btn" type="button" id="room-list-kebab" data-tw-toggle="dropdown" aria-expanded="false" title="{% trans 'More' %}">
               <i class="fas fa-ellipsis-vertical"></i>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="{% url 'chat:add_room' %}"><i class="fas fa-plus fa-fw me-2"></i>{% trans 'Add room' %}</a></li>
-              <li><button class="dropdown-item" id="collapse-all-btn" type="button"><i class="fas fa-angles-up fa-fw me-2"></i>{% trans 'Collapse/expand all' %}</button></li>
-              <li><button class="dropdown-item" id="archive-toggle-global-btn" type="button"><i class="fas fa-archive fa-fw me-2"></i>{% trans 'Show archived rooms' %}</button></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><button class="dropdown-item" id="info-btn" type="button" data-bs-toggle="modal" data-bs-target="#chat-info-modal"><i class="fas fa-circle-info fa-fw me-2"></i>{% trans 'Info' %}</button></li>
+            <ul class="tw-dropdown-menu tw-dropdown-menu-end tw-absolute tw-z-50 tw-bg-bg-card tw-border tw-border-subtle tw-rounded-card">
+              <li><a class="tw-dropdown-item" href="{% url 'chat:add_room' %}"><i class="fas fa-plus fa-fw tw-me-2"></i>{% trans 'Add room' %}</a></li>
+              <li><button class="tw-dropdown-item" id="collapse-all-btn" type="button"><i class="fas fa-angles-up fa-fw tw-me-2"></i>{% trans 'Collapse/expand all' %}</button></li>
+              <li><button class="tw-dropdown-item" id="archive-toggle-global-btn" type="button"><i class="fas fa-archive fa-fw tw-me-2"></i>{% trans 'Show archived rooms' %}</button></li>
+              <li><hr class="tw-dropdown-divider tw-my-1 tw-border-subtle"></li>
+              <li><button class="tw-dropdown-item" id="info-btn" type="button" data-tw-toggle="modal" data-tw-target="#chat-info-modal"><i class="fas fa-circle-info fa-fw tw-me-2"></i>{% trans 'Info' %}</button></li>
             </ul>
           </div>
           <button class="sort-btn" id="room-list-toggle-static-btn" title="{% trans 'Hide room list' %}">
@@ -69,8 +76,8 @@
 
       <!-- Scrollable room list -->
       <div class="room-list" id="room-list">
-      <div class="row">
-        <div class="col p-1">
+      <div class="room-list-groups">
+        <div class="tw-p-1">
 
           <!-- ── Public rooms ── -->
           <div class="nav-category" data-category="public">
@@ -84,13 +91,13 @@
               {% for room in public_rooms_active %}
                 {% include 'chat/room_link.html' with room_kind='public' %}
               {% empty %}
-                <p class="text-muted text-center small">{% trans 'None' %}</p>
+                <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
               {% endfor %}
               <div id="content-pub-rooms-archive" class="archive-section">
                 {% for room in public_rooms_archived %}
                   {% include 'chat/room_link.html' with room_kind='public' %}
                 {% empty %}
-                  <p class="text-muted text-center small">{% trans 'None' %}</p>
+                  <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
                 {% endfor %}
               </div>
             </div>
@@ -108,13 +115,13 @@
               {% for room in tasks_tree_active %}
                 {% include 'chat/room_link.html' with room_kind='task' %}
               {% empty %}
-                <p class="text-muted text-center small">{% trans 'None' %}</p>
+                <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
               {% endfor %}
               <div id="content-tasks-archive" class="archive-section">
                 {% for room in tasks_tree_archived %}
                   {% include 'chat/room_link.html' with room_kind='task' %}
                 {% empty %}
-                  <p class="text-muted text-center small">{% trans 'None' %}</p>
+                  <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
                 {% endfor %}
               </div>
             </div>
@@ -132,13 +139,13 @@
               {% for room in votes_tree_active %}
                 {% include 'chat/room_link.html' with room_kind='vote' %}
               {% empty %}
-                <p class="text-muted text-center small">{% trans 'None' %}</p>
+                <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
               {% endfor %}
               <div id="content-votes-archive" class="archive-section">
                 {% for room in votes_tree_archived %}
                   {% include 'chat/room_link.html' with room_kind='vote' %}
                 {% empty %}
-                  <p class="text-muted text-center small">{% trans 'None' %}</p>
+                  <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
                 {% endfor %}
               </div>
             </div>
@@ -156,13 +163,13 @@
               {% for room in posts_tree_active %}
                 {% include 'chat/room_link.html' with room_kind='document' %}
               {% empty %}
-                <p class="text-muted text-center small">{% trans 'None' %}</p>
+                <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
               {% endfor %}
               <div id="content-documents-archive" class="archive-section">
                 {% for room in posts_tree_archived %}
                   {% include 'chat/room_link.html' with room_kind='document' %}
                 {% empty %}
-                  <p class="text-muted text-center small">{% trans 'None' %}</p>
+                  <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
                 {% endfor %}
               </div>
             </div>
@@ -180,13 +187,13 @@
               {% for room in private_active %}
                 {% include 'chat/room_link.html' with room_kind='private' %}
               {% empty %}
-                <p class="text-muted text-center small">{% trans 'None' %}</p>
+                <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
               {% endfor %}
               <div id="content-prv-archive" class="archive-section">
                 {% for room in private_archived %}
                   {% include 'chat/room_link.html' with room_kind='private' %}
                 {% empty %}
-                  <p class="text-muted text-center small">{% trans 'None' %}</p>
+                  <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
                 {% endfor %}
               </div>
             </div>
@@ -200,17 +207,17 @@
 
   <!-- ======================================================================== -->
 
-  <!-- Bootstrap modal for changes history -->
-  <div id="message-history-modal" class="modal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">{% trans 'Changes history' %}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <!-- Changes history modal -->
+  <div id="message-history-modal" class="tw-modal" tabindex="-1">
+    <div class="tw-modal-dialog">
+      <div class="tw-modal-content">
+        <div class="tw-modal-header">
+          <h5 class="tw-modal-title">{% trans 'Changes history' %}</h5>
+          <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body"></div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close' %}</button>
+        <div class="tw-modal-body"></div>
+        <div class="tw-modal-footer">
+          <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-xmark fa-fw tw-me-1"></i>{% trans 'Close' %}</button>
         </div>
       </div>
     </div>
@@ -218,20 +225,20 @@
   <!-- End Modal -->
 
   <!-- Rename room modal -->
-  <div id="rename-room-modal" class="modal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">{% trans 'Rename room' %}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div id="rename-room-modal" class="tw-modal" tabindex="-1">
+    <div class="tw-modal-dialog">
+      <div class="tw-modal-content">
+        <div class="tw-modal-header">
+          <h5 class="tw-modal-title">{% trans 'Rename room' %}</h5>
+          <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
-          <input type="text" id="rename-room-input" class="form-control" maxlength="255" placeholder="{% trans 'New room name' %}">
-          <div id="rename-room-error" class="text-danger mt-2 mig-hidden"></div>
+        <div class="tw-modal-body">
+          <input type="text" id="rename-room-input" class="tw-form-control" maxlength="255" placeholder="{% trans 'New room name' %}">
+          <div id="rename-room-error" class="tw-text-danger tw-mt-2 mig-hidden tw-mig-hidden"></div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
-          <button type="button" class="btn btn-primary" id="rename-room-confirm">{% trans 'Save' %}</button>
+        <div class="tw-modal-footer">
+          <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'Cancel' %}</button>
+          <button type="button" class="tw-btn tw-btn-primary" id="rename-room-confirm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
         </div>
       </div>
     </div>
@@ -239,41 +246,41 @@
   <!-- End Rename Room Modal -->
 
   <!-- Info modal -->
-  <div id="chat-info-modal" class="modal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">{% trans 'Chat Information' %}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <div id="chat-info-modal" class="tw-modal" tabindex="-1">
+    <div class="tw-modal-dialog tw-modal-dialog-scrollable">
+      <div class="tw-modal-content">
+        <div class="tw-modal-header">
+          <h5 class="tw-modal-title">{% trans 'Chat Information' %}</h5>
+          <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
-          <div class="alert alert-info">
-            <h6><i class="fas fa-info-circle me-2"></i>{% trans 'Public Rooms' %}</h6>
-            <p class="mb-0">{% blocktrans with archive_days=ARCHIVE_PUBLIC_CHAT_ROOM delete_days=DELETE_PUBLIC_CHAT_ROOM %}Public chat rooms are archived if they are not used for {{ archive_days }} days. After {{ delete_days }} days they are deleted.{% endblocktrans %}</p>
+        <div class="tw-modal-body">
+          <div class="tw-alert tw-alert-info">
+            <h6><i class="fas fa-info-circle tw-me-2"></i>{% trans 'Public Rooms' %}</h6>
+            <p class="tw-mb-0">{% blocktrans with archive_days=ARCHIVE_PUBLIC_CHAT_ROOM delete_days=DELETE_PUBLIC_CHAT_ROOM %}Public chat rooms are archived if they are not used for {{ archive_days }} days. After {{ delete_days }} days they are deleted.{% endblocktrans %}</p>
           </div>
-          <div class="alert alert-success">
-            <h6><i class="fas fa-tasks me-2"></i>{% trans 'Activities' %}</h6>
-            <p class="mb-0">{% trans 'Activity rooms are created for specific activities and projects. They are protected from automatic deletion and are used for collaborative work discussions.' %}</p>
+          <div class="tw-alert tw-alert-success">
+            <h6><i class="fas fa-tasks tw-me-2"></i>{% trans 'Activities' %}</h6>
+            <p class="tw-mb-0">{% trans 'Activity rooms are created for specific activities and projects. They are protected from automatic deletion and are used for collaborative work discussions.' %}</p>
           </div>
-          <div class="alert alert-primary">
-            <h6><i class="fas fa-vote-yea me-2"></i>{% trans 'Referendums' %}</h6>
-            <p class="mb-0">{% trans 'Referendum rooms are created for voting and decision-making processes. They are protected from automatic deletion and provide a space for discussions about proposals.' %}</p>
+          <div class="tw-alert tw-alert-primary">
+            <h6><i class="fas fa-vote-yea tw-me-2"></i>{% trans 'Referendums' %}</h6>
+            <p class="tw-mb-0">{% trans 'Referendum rooms are created for voting and decision-making processes. They are protected from automatic deletion and provide a space for discussions about proposals.' %}</p>
           </div>
-          <div class="alert alert-dark">
-            <h6><i class="fas fa-file-alt me-2"></i>{% trans 'Documents' %}</h6>
-            <p class="mb-0">{% trans 'Document rooms are created for each board document. They are protected from automatic deletion and provide a space for discussions about documents.' %}</p>
+          <div class="tw-alert tw-alert-dark">
+            <h6><i class="fas fa-file-alt tw-me-2"></i>{% trans 'Documents' %}</h6>
+            <p class="tw-mb-0">{% trans 'Document rooms are created for each board document. They are protected from automatic deletion and provide a space for discussions about documents.' %}</p>
           </div>
-          <div class="alert alert-secondary">
-            <h6><i class="fas fa-lock me-2"></i>{% trans 'Private Messages' %}</h6>
-            <p class="mb-0">{% blocktrans with delete_days=DELETE_PUBLIC_CHAT_ROOM %}Private messages are archived when user is blocked and deleted after {{ delete_days }} days.{% endblocktrans %}</p>
+          <div class="tw-alert tw-alert-secondary">
+            <h6><i class="fas fa-lock tw-me-2"></i>{% trans 'Private Messages' %}</h6>
+            <p class="tw-mb-0">{% blocktrans with delete_days=DELETE_PUBLIC_CHAT_ROOM %}Private messages are archived when user is blocked and deleted after {{ delete_days }} days.{% endblocktrans %}</p>
           </div>
-          <div class="alert alert-warning">
-            <h6><i class="fas fa-archive me-2"></i>{% trans 'Archives' %}</h6>
-            <p class="mb-0">{% trans 'Click the archive button (folder icon) next to each category to show archived rooms.' %}</p>
+          <div class="tw-alert tw-alert-warning">
+            <h6><i class="fas fa-archive tw-me-2"></i>{% trans 'Archives' %}</h6>
+            <p class="tw-mb-0">{% trans 'Click the archive button (folder icon) next to each category to show archived rooms.' %}</p>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close' %}</button>
+        <div class="tw-modal-footer">
+          <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-xmark fa-fw tw-me-1"></i>{% trans 'Close' %}</button>
         </div>
       </div>
     </div>

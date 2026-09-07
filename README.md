@@ -20,7 +20,7 @@ Try the live demo: **https://demo.wikikracja.pl/**
 ## Tech Stack
 
 - **Backend**: Django ~6.0.4, Django Channels 4.3.2 + Daphne (ASGI), Python >=3.14, JavaScript, CSS
-- **Frontend**: Bootstrap 5 + crispy-bootstrap5, TinyMCE
+- **Frontend**: Tailwind CSS 3.4 (prefixed `tw-`), django-crispy-forms, TinyMCE
 - **Database**: SQLite (development), PostgreSQL (production)
 - **Cache/Channels**: Redis (cache and channel layer)
 - **Deployment**: Docker, GitHub Actions

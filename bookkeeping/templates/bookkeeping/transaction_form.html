@@ -3,63 +3,66 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="tw-container tw-mt-4">
   {% include 'bookkeeping/_nav.html' with active='transactions' %}
 
-  <div class="card shadow-sm mb-4">
-    <div class="card-body">
+  <div class="tw-card tw-shadow-sm tw-mb-4">
+    <div class="tw-card-body">
       <form method="post">
         {% csrf_token %}
 
-        <div class="card mb-3">
-          <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">{% if transaction_form.instance.pk %}{% trans "Update Transaction" %}{% else %}{% trans "New Transaction" %}{% endif %}</h5>
+        <div class="tw-card tw-mb-3">
+          <div class="tw-card-header tw-bg-primary tw-text-white">
+            <h5 class="tw-mb-0">{% if transaction_form.instance.pk %}{% trans "Update Transaction" %}{% else %}{% trans "New Transaction" %}{% endif %}</h5>
           </div>
-          <div class="card-body">
-            <div class="row mb-3">
-              <div class="col-md-4">
+          <div class="tw-card-body">
+            <div class="tw-grid tw-grid-cols-12 tw-gap-3 tw-mb-3">
+              <div class="tw-col-span-12 md:tw-col-span-4">
                 {{ transaction_form.type|as_crispy_field }}
               </div>
-              <div class="col-md-4">
+              <div class="tw-col-span-12 md:tw-col-span-4">
                 {{ transaction_form.asset|as_crispy_field }}
               </div>
-              <div class="col-md-4">
+              <div class="tw-col-span-12 md:tw-col-span-4">
                 {{ transaction_form.partner|as_crispy_field }}
               </div>
             </div>
 
-            <div class="row mb-3">
-              <div class="col-md-4">
+            <div class="tw-grid tw-grid-cols-12 tw-gap-3 tw-mb-3">
+              <div class="tw-col-span-12 md:tw-col-span-4">
                 {{ transaction_form.category|as_crispy_field }}
               </div>
-              <div class="col-md-4">
+              <div class="tw-col-span-12 md:tw-col-span-4">
                 {{ transaction_form.amount|as_crispy_field }}
               </div>
-              <div class="col-md-4">
+              <div class="tw-col-span-12 md:tw-col-span-4">
                 {{ transaction_form.payment_received_date|as_crispy_field }}
               </div>
             </div>
 
-            <div class="row">
-              <div class="col-12">
+            <div class="tw-grid tw-grid-cols-12 tw-gap-3">
+              <div class="tw-col-span-12">
                 {{ transaction_form.note|as_crispy_field }}
               </div>
             </div>
           </div>
         </div>
 
-        <div class="mb-3 d-flex">
-          <button type="submit" class="btn btn-primary me-2">{% trans "Save Transaction" %}</button>
-          <a href="{% url 'bookkeeping:transaction_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+        <div class="tw-mb-3 tw-flex">
+          <button type="submit" class="tw-btn tw-btn-primary tw-me-2"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Save Transaction" %}</button>
+          <a href="{% url 'bookkeeping:transaction_list' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</a>
         </div>
       </form>
     </div>
   </div>
 </div>
 
+<script type="application/json" id="asset-decimal-places">
+  {{ asset_decimal_places_json|safe }}
+</script>
 <script>
   (function () {
-    var assetDecimalPlaces = {{ asset_decimal_places_json|safe }};
+    var assetDecimalPlaces = JSON.parse(document.getElementById('asset-decimal-places').textContent);
     var assetSelect = document.getElementById('id_asset');
     var amountInput = document.getElementById('id_amount');
 

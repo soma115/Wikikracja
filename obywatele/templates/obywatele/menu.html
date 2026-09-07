@@ -4,23 +4,32 @@
 
 {% block content %}
 
-<nav class="stepper-nav">
+<nav class="tw-stepper-nav">
   <a href="{% url 'obywatele:parameters' %}"
-     class="stepper-info-btn {% if request.resolver_match.url_name == 'parameters' %}active{% endif %}"
+     class="tw-stepper-info-btn {% if request.resolver_match.url_name == 'parameters' %}active{% endif %}"
      title="{% trans 'Parameters' %}">
     <i class="fas fa-circle-info"></i>
   </a>
-  <div class="stepper-step-wrap {% if request.resolver_match.url_name == 'obywatele' %}active{% endif %}">
-    <a href="{% url 'obywatele:obywatele' %}" class="stepper-step">{% trans "Citizens" %}</a>
+  <div class="tw-stepper-step-wrap {% if request.resolver_match.url_name == 'obywatele' %}active{% endif %}">
+    <a href="{% url 'obywatele:obywatele' %}" class="tw-stepper-step">
+      <i class="fas fa-users" aria-hidden="true"></i>
+      <span class="tw-stepper-step-label">{% trans "Citizens" %}</span>
+    </a>
   </div>
-  <div class="stepper-step-wrap {% if request.resolver_match.url_name == 'poczekalnia' %}active{% endif %}">
-    <a href="{% url 'obywatele:poczekalnia' %}" class="stepper-step">{% trans "Candidates" %}</a>
+  <div class="tw-stepper-step-wrap {% if request.resolver_match.url_name == 'poczekalnia' %}active{% endif %}">
+    <a href="{% url 'obywatele:poczekalnia' %}" class="tw-stepper-step">
+      <i class="fas fa-user-clock" aria-hidden="true"></i>
+      <span class="tw-stepper-step-label">{% trans "Candidates" %}</span>
+    </a>
   </div>
-  <div class="stepper-step-wrap {% if request.resolver_match.url_name == 'assets' %}active{% endif %}">
-    <a href="{% url 'obywatele:assets' %}" class="stepper-step">{% trans "Resources" %}</a>
+  <div class="tw-stepper-step-wrap {% if request.resolver_match.url_name == 'assets' %}active{% endif %}">
+    <a href="{% url 'obywatele:assets' %}" class="tw-stepper-step">
+      <i class="fas fa-boxes-stacked" aria-hidden="true"></i>
+      <span class="tw-stepper-step-label">{% trans "Resources" %}</span>
+    </a>
   </div>
   <a href="{% url 'obywatele:zaproponuj_osobe' %}"
-     class="btn-cta ms-auto">
+     class="tw-btn-cta tw-ms-auto">
     <i class="fas fa-plus"></i> {% trans "Invite" %}
   </a>
 </nav>

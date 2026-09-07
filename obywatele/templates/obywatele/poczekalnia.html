@@ -4,101 +4,91 @@
 {% block prefs_scope %}obywatele{% endblock %}
 
 {% block citizens %}
-<div class="card">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <span class="section-heading">{% trans "Candidates" %} (<span id="citizens-count">{{ uid|length }}</span>)</span>
-    <span class="text-muted small">
+<div class="tw-card">
+  <div class="tw-card-header tw-flex tw-justify-between tw-items-center">
+    <span class="tw-section-heading">{% trans "Candidates" %} (<span id="citizens-count">{{ uid|length }}</span>)</span>
+    <span class="tw-text-muted tw-text-sm">
       {% trans "New person will be accepted above" %}
-      <span class="badge-status badge-primary rounded-pill">{{ acceptance }}</span>
+      <span class="tw-badge-status tw-badge-primary tw-rounded-full">{{ acceptance }}</span>
       {% trans "threshold." %}
     </span>
   </div>
 
   {% if uid %}
 
-  {# ── Toolbar ── #}
-  <div class="citizens-toolbar">
-    <input type="search" id="citizens-search" class="citizens-search-input"
-           placeholder="{% trans 'Search user...' %}" autocomplete="off">
+  {# ── Toolbar z przełącznikiem widoku ── #}
+  {% include 'home/includes/toolbar.html' with views=toolbar_views %}
 
-    <div class="toolbar-view">
-      <button class="view-toggle-btn" data-view="list" title="{% trans 'List view' %}">
-        <i class="fas fa-list"></i>
-      </button>
-      <button class="view-toggle-btn" data-view="grid" title="{% trans 'Grid view' %}">
-        <i class="fas fa-grip"></i>
-      </button>
-    </div>
+  {# ── Toolbar wyszukiwania ── #}
+  <div class="citizens-toolbar tw-citizens-toolbar proposals-toolbar tw-toolbar">
+    <input type="search" id="citizens-search" class="tw-citizens-search-input"
+           placeholder="{% trans 'Search user...' %}" autocomplete="off">
   </div>
 
-  <div class="card-body p-0" data-view-container>
+  <div class="tw-card-body tw-p-0" data-view-container>
 
     {# ── List view ── #}
     <div id="citizens-list-view">
-      <div class="table-responsive">
-        <table class="table table-hover table-sm align-middle mb-0">
+      <div class="tw-citizens-table-wrap">
+        <table class="tw-citizens-table tw-table-hover tw-table-sm tw-align-middle tw-mb-0">
           <thead>
             <tr>
-              <th scope="col">{% trans 'Nick' %}</th>
-              <th scope="col">{% trans 'Email' %}</th>
-              <th scope="col">{% trans 'Ratings' %}</th>
-              <th scope="col">{% trans 'Email confirmed' %}</th>
-              <th scope="col">{% trans 'Form completed' %}</th>
-              <th scope="col">{% trans 'First name' %}</th>
-              <th scope="col">{% trans 'Last name' %}</th>
-              <th scope="col">{% trans 'Candidate since' %}</th>
-              <th scope="col">{% trans 'Recommended by' %}</th>
+              <th scope="col"><i class="fas fa-user fa-fw tw-text-muted"></i> {% trans 'Nick' %}</th>
+              <th scope="col"><i class="fas fa-envelope fa-fw tw-text-muted"></i> {% trans 'Email' %}</th>
+              <th scope="col" class="tw-hidden sm:tw-table-cell"><i class="fas fa-star fa-fw tw-text-muted"></i> {% trans 'Ratings' %}</th>
+              <th scope="col" class="tw-hidden-mobile"><i class="fas fa-check-circle fa-fw tw-text-muted"></i> {% trans 'Email confirmed' %}</th>
+              <th scope="col" class="tw-hidden-tablet"><i class="fas fa-file-alt fa-fw tw-text-muted"></i> {% trans 'Form completed' %}</th>
+              <th scope="col"><i class="fas fa-calendar fa-fw tw-text-muted"></i> {% trans 'Candidate since' %}</th>
+              <th scope="col" class="tw-hidden-desktop"><i class="fas fa-user-check fa-fw tw-text-muted"></i> {% trans 'Recommended by' %}</th>
             </tr>
           </thead>
           <tbody>
             {% for i in uid|dictsortreversed:"date_joined" %}
-            <tr class="user-row"
+            <tr class="user-row tw-user-row"
                 data-user-id="{{ i.pk }}"
                 data-href="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}"
                 data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
               <td>
-                <div class="username-container">
-                  <div class="citizen-list-avatar-wrap flex-shrink-0">
+                <div class="tw-username-container">
+                  <div class="tw-citizen-list-avatar-wrap tw-shrink-0">
                     {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username size="lg" %}
                   </div>
                   {% if i.rating == 1 %}
-                    <i class="fas fa-check-circle text-success flex-shrink-0" title="{% trans 'You accepted this candidate' %}"></i>
+                    <i class="fas fa-check-circle tw-text-success tw-flex-shrink-0" title="{% trans 'You accepted this candidate' %}"></i>
                   {% elif i.rating == -1 %}
-                    <i class="fas fa-times-circle text-danger flex-shrink-0" title="{% trans 'You rejected this candidate' %}"></i>
+                    <i class="fas fa-times-circle tw-text-danger tw-flex-shrink-0" title="{% trans 'You rejected this candidate' %}"></i>
                   {% else %}
-                    <i class="fas fa-circle text-secondary flex-shrink-0" title="{% trans 'You are neutral about this candidate' %}"></i>
+                    <i class="fas fa-circle tw-text-secondary tw-flex-shrink-0" title="{% trans 'You are neutral about this candidate' %}"></i>
                   {% endif %}
-                  <span class="citizen-list-nick">{{ i.username }}</span>
+                  <span class="tw-citizen-list-nick">{{ i.username }}</span>
                 </div>
               </td>
-              <td class="email-cell">
-                <a href="mailto:{{ i.email }}"><i class="fas fa-envelope me-1"></i>{{ i.email }}</a>
-                <button class="btn btn-outline-light btn-sm copy-btn table-action" data-email="{{ i.email }}" title="{% trans 'Copy email' %}">
+              <td class="email-cell tw-email-cell">
+                <a href="mailto:{{ i.email }}"><i class="fas fa-envelope tw-me-1"></i>{{ i.email }}</a>
+                <button class="tw-btn tw-btn-outline-light tw-btn-sm tw-copy-btn" data-email="{{ i.email }}" title="{% trans 'Copy email' %}">
                   <i class="fas fa-copy"></i>
                 </button>
               </td>
-              <td class="text-center">
-                <span data-bs-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
-                  <span class="fw-600 text-success">{{ i.ratings_positive }}</span>/<span class="fw-600">{{ i.ratings_neutral }}</span>/<span class="fw-600 text-danger">{{ i.ratings_negative }}</span>
+              <td class="tw-text-center tw-hidden sm:tw-table-cell">
+                <span data-tw-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
+                  <span class="tw-font-semibold tw-text-success">{{ i.ratings_positive }}</span>/<span class="tw-font-semibold">{{ i.ratings_neutral }}</span>/<span class="tw-font-semibold tw-text-danger">{{ i.ratings_negative }}</span>
                 </span>
               </td>
-              <td>{% if i.email_confirmed %}<i class="fas fa-check text-success"></i>{% else %}<i class="fas fa-times text-danger"></i>{% endif %}</td>
-              <td>
-                <div class="d-flex align-items-center gap-1 min-width-5rem">
-                  <div class="progress flex-grow-1 progress-h-6">
-                    <div class="progress-bar {% if i.form_completion_percent == 100 %}bg-success{% elif i.form_completion_percent >= 50 %}bg-warning{% else %}bg-danger{% endif %} progress-fill" role="progressbar"
+              <td class="tw-hidden-mobile">{% if i.email_confirmed %}<i class="fas fa-check tw-text-success"></i>{% else %}<i class="fas fa-times tw-text-danger"></i>{% endif %}</td>
+              <td class="tw-hidden-tablet">
+                <div class="tw-flex tw-items-center tw-gap-1 tw-min-w-20">
+                  <div class="tw-progress tw-flex-1">
+                    <div class="tw-progress-bar {% if i.form_completion_percent == 100 %}tw-bg-success{% elif i.form_completion_percent >= 50 %}tw-bg-warning{% else %}tw-bg-danger{% endif %}" role="progressbar"
                          data-progress="{{ i.form_completion_percent }}"
                          aria-valuenow="{{ i.form_completion_percent }}"
                          aria-valuemin="0"
                          aria-valuemax="100"></div>
                   </div>
-                  <small class="text-nowrap">{{ i.form_completion_percent }}%</small>
+                  <small class="tw-text-nowrap tw-text-muted">{{ i.form_completion_percent }}%</small>
                 </div>
               </td>
-              <td>{{ i.first_name|default:"—" }}</td>
-              <td>{{ i.last_name|default:"—" }}</td>
               <td>{{ i.date_joined|date:"Y-m-d" }}</td>
-              <td>{% if i.uzytkownik.polecajacy %}{{ i.uzytkownik.polecajacy }}{% else %}—{% endif %}</td>
+              <td class="tw-hidden-desktop">{% if i.uzytkownik.polecajacy %}{{ i.uzytkownik.polecajacy }}{% else %}—{% endif %}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -107,36 +97,36 @@
     </div>
 
     {# ── Grid view ── #}
-    <div id="citizens-grid-view" class="citizens-grid">
+    <div id="citizens-grid-view" class="citizens-grid tw-citizens-grid">
       {% for i in uid|dictsortreversed:"date_joined" %}
-      <div class="citizen-card"
+      <div class="citizen-card tw-citizen-card"
            data-user-id="{{ i.pk }}"
            data-href="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}"
            data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
-        <div class="citizen-card-top">
+        <div class="tw-citizen-card-top tw-relative">
           {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username size="5xl" %}
-          <span class="candidate-vote-badge">
+          <span class="tw-candidate-vote-badge">
             {% if i.rating == 1 %}
-              <i class="fas fa-check-circle text-success" title="{% trans 'You accepted this candidate' %}"></i>
+              <i class="fas fa-check-circle tw-text-success" title="{% trans 'You accepted this candidate' %}"></i>
             {% elif i.rating == -1 %}
-              <i class="fas fa-times-circle text-danger" title="{% trans 'You rejected this candidate' %}"></i>
+              <i class="fas fa-times-circle tw-text-danger" title="{% trans 'You rejected this candidate' %}"></i>
             {% else %}
-              <i class="fas fa-circle text-secondary" title="{% trans 'You are neutral about this candidate' %}"></i>
+              <i class="fas fa-circle tw-text-secondary" title="{% trans 'You are neutral about this candidate' %}"></i>
             {% endif %}
           </span>
         </div>
-        <div class="citizen-card-name">{{ i.username }}</div>
+        <div class="tw-citizen-card-name">{{ i.username }}</div>
         {% if i.first_name or i.last_name %}
-        <div class="citizen-card-fullname">{{ i.first_name }} {{ i.last_name }}</div>
+        <div class="tw-citizen-card-fullname">{{ i.first_name }} {{ i.last_name }}</div>
         {% endif %}
-        <div class="citizen-card-city mt-1">
-          {% if i.email_confirmed %}<i class="fas fa-envelope text-success" title="{% trans 'Email confirmed' %}"></i>{% else %}<i class="fas fa-envelope text-danger" title="{% trans 'Email confirmed' %}"></i>{% endif %}
-          {% if i.form_completed %}<i class="fas fa-file-alt text-success ms-1" title="{% trans 'Form completed' %}"></i>{% else %}<i class="fas fa-file-alt text-danger ms-1" title="{% trans 'Form completed' %}"></i>{% endif %}
-          <span class="ms-1" data-bs-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
-            <span class="fw-600 text-success">{{ i.ratings_positive }}</span>/<span class="fw-600">{{ i.ratings_neutral }}</span>/<span class="fw-600 text-danger">{{ i.ratings_negative }}</span> <i class="fas fa-star"></i>
+        <div class="tw-citizen-card-city tw-mt-1">
+          {% if i.email_confirmed %}<i class="fas fa-envelope tw-text-success" title="{% trans 'Email confirmed' %}"></i>{% else %}<i class="fas fa-envelope tw-text-danger" title="{% trans 'Email confirmed' %}"></i>{% endif %}
+          {% if i.form_completed %}<i class="fas fa-file-alt tw-text-success tw-ms-1" title="{% trans 'Form completed' %}"></i>{% else %}<i class="fas fa-file-alt tw-text-danger tw-ms-1" title="{% trans 'Form completed' %}"></i>{% endif %}
+          <span class="tw-ms-1" data-tw-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
+            <span class="tw-font-semibold tw-text-success">{{ i.ratings_positive }}</span>/<span class="tw-font-semibold">{{ i.ratings_neutral }}</span>/<span class="tw-font-semibold tw-text-danger">{{ i.ratings_negative }}</span> <i class="fas fa-star"></i>
           </span>
         </div>
-        <div class="citizen-card-city">{{ i.date_joined|date:"Y-m-d" }}</div>
+        <div class="tw-citizen-card-city">{{ i.date_joined|date:"Y-m-d" }}</div>
       </div>
       {% endfor %}
     </div>
@@ -144,8 +134,8 @@
   </div>
 
   {% else %}
-  <div class="card-body">
-    <div class="alert alert-primary mb-0">{% trans "No candidates" %}</div>
+  <div class="tw-card-body">
+    <div class="tw-alert tw-alert-info tw-mb-0">{% trans "No candidates" %}</div>
   </div>
   {% endif %}
 </div>

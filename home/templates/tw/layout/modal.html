@@ -1,0 +1,14 @@
+{% load crispy_classmap %}
+<div id="{{ modal.css_id }}" class="tw-modal tw-fade {{ modal.css_class|crispy_classmap }}" {{ modal.flat_attrs }}>
+    <div class="tw-modal-dialog" role="document">
+        <div class="tw-modal-content">
+            <div class="tw-modal-header">
+                <h5 class="tw-modal-title {{ modal.title_class|crispy_classmap }}" id="{{ modal.title_id }}-label">{{ modal.title }}</h5>
+                <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="tw-modal-body">
+                {{ fields }}
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,4 @@
-"""Single source of truth for category/content-type -> Bootstrap color mapping.
+"""Single source of truth for category/content-type semantic colors.
 
 This mapping used to be duplicated independently in home/views.py
 (global_search's per-result type_color literals), in
@@ -26,5 +26,5 @@ DEFAULT_COLOR = 'secondary'
 
 
 def category_color(key):
-    """Return the Bootstrap color class for a category / content-type key."""
+    """Return the semantic color name for a category or content type."""
     return CATEGORY_COLORS.get(key, DEFAULT_COLOR)

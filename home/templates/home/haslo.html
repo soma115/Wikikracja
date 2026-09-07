@@ -6,23 +6,19 @@
 {% block content %}
 <h3>{% trans 'Change password' %}</h3>
 <form class="post-form" method="post" action="{% url 'haslo' %}">{% csrf_token %}
-  <div class="row">
-    <div class="col-md-3">
-      {{ form.old_password|as_crispy_field }}
-    </div>
+  <div class="tw-mb-3 tw-w-full md:tw-w-1/4">
+    {{ form.old_password|as_crispy_field }}
   </div>
-  <div class="row">
-    <div class="col-md-3">
-      {{ form.new_password1|as_crispy_field }}
-    </div>
+  <div class="tw-mb-3 tw-w-full md:tw-w-1/4">
+    {{ form.new_password1|as_crispy_field }}
   </div>
-  <div class="row">
-    <div class="col-md-3">
-      {{ form.new_password2|as_crispy_field }}
-    </div>
+  <div class="tw-mb-3 tw-w-full md:tw-w-1/4">
+    {{ form.new_password2|as_crispy_field }}
   </div>
   
-  <button type="submit" class="btn btn-primary btn-sm">{% trans 'Save' %}</button>
-  <a href="{% url 'obywatele:my_profile' %}" class="btn btn-warning btn-sm">{% trans 'Cancel' %}</a>
+  <div class="tw-flex tw-gap-2">
+    <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
+    <a href="{% url 'obywatele:my_profile' %}" class="tw-btn tw-btn-warning tw-btn-sm"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'Cancel' %}</a>
+  </div>
 </form>
 {% endblock %}

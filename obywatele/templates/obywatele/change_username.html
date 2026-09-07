@@ -4,20 +4,21 @@
 {% load i18n %}
 
 {% block content %}
-<h3>{% trans 'Change username' %}</h3>
+<h3 class="tw-text-xl tw-font-semibold tw-mb-3">{% trans 'Change username' %}</h3>
 
-<p class="fw-bold">{% trans "Username" %}: {{ request.user.username }}</p>
+<p class="tw-font-bold">{% trans "Username" %}: {{ request.user.username }}</p>
 
 <form class="post-form" method="post" action="{% url 'obywatele:change_username' %}">{% csrf_token %}
-  <div class="row">
-    <div class="col-md-3">
+  <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-3">
+    <div>
       {{ form.username|as_crispy_field }}
     </div>
   </div>
 
-  <button type="submit" class="btn btn-primary btn-sm">{% trans 'Save' %}</button>
-  <a href="{% url 'obywatele:my_profile' %}" class="btn btn-warning btn-sm">{% trans 'Cancel' %}</a>
+  <div class="tw-flex tw-gap-2 tw-mt-4">
+    <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
+    <a href="{% url 'obywatele:my_profile' %}" class="tw-btn tw-btn-warning tw-btn-sm"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'Cancel' %}</a>
+  </div>
 </form>
 
 {% endblock %}
-

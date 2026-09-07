@@ -2,16 +2,16 @@
 {% load i18n %}
 
 {% block citizens %}
-<div class="container section">
-  <div class="mb-3">
-    <a href="{% url 'obywatele:obywatele_szczegoly' pk=target_user.pk %}" class="btn btn-sm btn-outline-secondary">
+<div class="tw-container tw-section">
+  <div class="tw-mb-3">
+    <a href="{% url 'obywatele:obywatele_szczegoly' pk=target_user.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
       ← {{ target_user.username }}
     </a>
   </div>
 
-  <div class="card">
-    <div class="card-header">
-      <span class="section-heading">
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <span class="tw-section-heading">
         {% if is_own %}
           {% trans "My founded items" %}
         {% else %}
@@ -19,7 +19,7 @@
         {% endif %}
       </span>
     </div>
-    <div class="card-body p-0">
+    <div class="tw-card-body tw-p-0">
       {% include "obywatele/_citizen_zalozono_partial.html" %}
     </div>
   </div>

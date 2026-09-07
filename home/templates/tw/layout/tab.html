@@ -1,0 +1,7 @@
+{% load crispy_classmap %}
+<div{% if tabs.css_id %} id="{{ tabs.css_id }}"{% endif %} class="tw-nav tw-nav-tabs{% if tabs.css_class %} {{ tabs.css_class|crispy_classmap }}{% endif %}">
+    {{ links|safe }}
+</div>
+<div class="tw-tab-content tw-card-body">
+    {{ content|safe }}
+</div>

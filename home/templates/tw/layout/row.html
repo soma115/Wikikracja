@@ -1,0 +1,4 @@
+{% load crispy_classmap %}
+<div {% if div.css_id %}id="{{ div.css_id }}"{% endif %} class="tw-grid tw-grid-cols-12 tw-gap-3 {{ div.css_class|crispy_classmap }}" {{ div.flat_attrs }}>
+  {{ fields|safe }}
+</div>

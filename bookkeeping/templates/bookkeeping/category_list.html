@@ -6,11 +6,11 @@
 {% block content %}
 {% include 'home/includes/toolbar.html' %}
 
-  <table class="table table-hover-rows">
+  <table class="tw-citizens-table tw-table-hover tw-table-sm">
     <thead>
       <tr>
         <th>{% trans 'Name' %}</th>
-        <th class="text-end">{% trans 'Actions' %}</th>
+        <th class="tw-text-end">{% trans 'Actions' %}</th>
       </tr>
     </thead>
     <tbody>
@@ -18,9 +18,9 @@
         <tr>
           <td>{{ category.name }}</td>
           <td>
-            <div class="d-flex gap-2 justify-content-end">
-              <a href="{% url 'bookkeeping:category_update' category.id %}" class="btn btn-sm btn-outline-secondary">{% trans 'Edit' %}</a>
-              <a href="{% url 'bookkeeping:category_delete' category.id %}" class="btn btn-sm btn-outline-danger">{% trans 'Delete' %}</a>
+            <div class="tw-flex tw-gap-2 tw-justify-end">
+              <a href="{% url 'bookkeeping:category_update' category.id %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary"><i class="fas fa-pen fa-fw"></i> {% trans 'Edit' %}</a>
+              <a href="{% url 'bookkeeping:category_delete' category.id %}" class="tw-btn tw-btn-sm tw-btn-outline-danger"><i class="fas fa-trash fa-fw"></i> {% trans 'Delete' %}</a>
             </div>
           </td>
         </tr>

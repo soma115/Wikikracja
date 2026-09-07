@@ -59,42 +59,42 @@
     {% endif %}
   </div>
 
-  <div class="room-link__actions dropdown">
-    <button type="button" class="room-link__chevron" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{% trans 'Room actions' %}">
+  <div class="room-link__actions tw-dropdown">
+    <button type="button" class="room-link__chevron" data-tw-toggle="dropdown" data-tw-dropdown-fixed aria-expanded="false" aria-label="{% trans 'Room actions' %}">
       <i class="fas fa-chevron-down" aria-hidden="true"></i>
     </button>
-    <ul class="dropdown-menu dropdown-menu-end">
+    <ul class="tw-dropdown-menu tw-dropdown-menu-end tw-absolute tw-z-50 tw-bg-bg-card tw-border tw-border-subtle tw-rounded-card">
       <li>
         <button type="button"
-          class="dropdown-item seen-switch"
+          class="tw-dropdown-item seen-switch tw-block tw-w-full tw-text-start"
           data-room-id="{{ room.id }}"
           data-seen="{{ room|is_seen_by:user }}">
-          <i class="fas fa-eye{% if room|is_seen_by:user == "true" %}{% else %}-slash{% endif %} fa-fw me-2"></i>{% trans 'Mark as unread' %}
+          <i class="fas fa-eye{% if room|is_seen_by:user == "true" %}{% else %}-slash{% endif %} fa-fw tw-me-1"></i>{% trans 'Mark as unread' %}
         </button>
       </li>
       <li>
         <button type="button"
-          class="dropdown-item notif-switch"
+          class="tw-dropdown-item notif-switch tw-block tw-w-full tw-text-start"
           data-room-id="{{ room.id }}"
           data-enabled="{% if room|is_muted_by:user %}false{% else %}true{% endif %}">
-          <i class="far fa-bell{% if room|is_muted_by:user %}-slash{% endif %} fa-fw me-2"></i><span class="notif-label">{% if room|is_muted_by:user %}{% trans 'Unmute room' %}{% else %}{% trans 'Mute room' %}{% endif %}</span>
+          <i class="fas fa-bell{% if room|is_muted_by:user %}-slash{% endif %} fa-fw tw-me-1"></i><span class="notif-label">{% if room|is_muted_by:user %}{% trans 'Unmute room' %}{% else %}{% trans 'Mute room' %}{% endif %}</span>
         </button>
       </li>
       <li>
         <button type="button"
-          class="dropdown-item copy-room-url"
+          class="tw-dropdown-item copy-room-url tw-block tw-w-full tw-text-start"
           data-room-id="{{ room.id }}">
-          <i class="fas fa-link fa-fw me-2"></i>{% trans 'Copy link' %}
+          <i class="fas fa-link fa-fw tw-me-1"></i>{% trans 'Copy link' %}
         </button>
       </li>
       {% if room.public and not room.protected %}
-      <li><hr class="dropdown-divider"></li>
+      <li><hr class="tw-dropdown-divider tw-my-1 tw-border-subtle"></li>
       <li>
         <button type="button"
-          class="dropdown-item rename-room-btn"
+          class="tw-dropdown-item rename-room-btn tw-block tw-w-full tw-text-start"
           data-room-id="{{ room.id }}"
           data-room-title="{{ room.title }}">
-          <i class="fas fa-pencil fa-fw me-2"></i>{% trans 'Rename room' %}
+          <i class="fas fa-pen fa-fw tw-me-1"></i>{% trans 'Rename room' %}
         </button>
       </li>
       {% endif %}

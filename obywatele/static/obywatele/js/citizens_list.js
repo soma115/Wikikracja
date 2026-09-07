@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('citizens-search');
 
     // ── Sync filter dropdown → PagePrefs (prevents head-script from restoring old filter) ──
-    document.querySelectorAll('.citizens-toolbar .dropdown-item').forEach(link => {
+    document.querySelectorAll('.citizens-toolbar .tw-dropdown-item').forEach(link => {
         link.addEventListener('click', function () {
             if (!window.PagePrefs) return;
             const url = new URL(this.href, window.location.origin);
@@ -26,12 +26,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 rows.forEach(row => {
                     const match = !q || row.dataset.search.toLowerCase().includes(q);
-                    row.classList.toggle('d-none', !match);
+                    row.classList.toggle('tw-d-none', !match);
                     if (match) visible++;
                 });
                 cards.forEach(card => {
                     const match = !q || card.dataset.search.toLowerCase().includes(q);
-                    card.classList.toggle('d-none', !match);
+                    card.classList.toggle('tw-d-none', !match);
                 });
 
                 if (countEl) countEl.textContent = q ? visible : rows.length;
@@ -56,18 +56,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    document.querySelectorAll('.copy-btn').forEach(button => {
+    document.querySelectorAll('.tw-copy-btn').forEach(button => {
         button.addEventListener('click', function (e) {
             e.stopPropagation();
             navigator.clipboard.writeText(this.dataset.email).then(() => {
                 const orig = this.innerHTML;
                 this.innerHTML = '<i class="fas fa-check"></i>';
-                this.classList.remove('btn-light');
-                this.classList.add('btn-success');
+                this.classList.remove('tw-btn-outline-light');
+                this.classList.add('tw-btn-success');
                 setTimeout(() => {
                     this.innerHTML = orig;
-                    this.classList.remove('btn-success');
-                    this.classList.add('btn-light');
+                    this.classList.remove('tw-btn-success');
+                    this.classList.add('tw-btn-outline-light');
                 }, 1500);
             });
         });

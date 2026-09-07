@@ -51,15 +51,14 @@ function handleNotificationMessage(data) {
     }
 }
 
-// Initialize shared WebSocket connection for notifications when DOM is ready
+// Initialize shared WebSocket connection for notifications when DOM is ready.
+// Rejestracja jest bezwarunkowa — makeNotification sam sprawdza
+// Notification.permission i zawsze wysyła delivery ack do serwera, a handler
+// `unsee_room` obsługuje też badge "chat-has-messages" na belce nawigacji,
+// który nie powinien zależeć od zgody na powiadomienia systemowe.
 document.addEventListener('DOMContentLoaded', function() {
-    if (Notification?.permission !== 'granted') {
-        console.debug('[NOTIFDBG] notification handler NOT registered: permission is', Notification?.permission);
-        return;
-    }
-
     // Get shared WebSocket connection and register handler
     let ws = getSharedWebSocket();
-    ws.addMessageHandler(handleNotificationMessage);
-    console.debug('[NOTIFDBG] WebSocket notification handler registered');
+    ws.subscribeMessages(handleNotificationMessage);
+    console.debug('[NOTIFDBG] WebSocket notification handler registered, permission:', Notification?.permission);
 });

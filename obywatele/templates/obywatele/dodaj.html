@@ -6,90 +6,92 @@
 {% block citizens %}
 
 <form action="." method="POST" enctype="multipart/form-data" class="post-form">{% csrf_token %}
-	<div class="row">
-		<div class="col-lg-6 col-sm-12 bg-light">
+	<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3">
+		<div>
 			{{ user_form.username|as_crispy_field }}
 		</div>
-		<div class="col-lg-6 col-sm-12">
+		<div>
 			{{ user_form.email|as_crispy_field }}
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="col-lg-6 col-sm-12">
+	<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+		<div>
 			{{ user_form.first_name|as_crispy_field }}
 		</div>
-		<div class="col-lg-6 col-sm-12">
+		<div>
 			{{ user_form.last_name|as_crispy_field }}
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="col-lg-4 col-sm-12">
+	<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-3 tw-mt-3">
+		<div>
 			{{ profile_form.phone|as_crispy_field }}
 		</div>
-		<div class="col-lg-4 col-sm-12">
+		<div>
 			{{ profile_form.city|as_crispy_field }}
 		</div>
-		<div class="col-lg-4 col-sm-12">
+		<div>
 			{{ profile_form.voivodeship|as_crispy_field }}
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="col-lg-6 col-sm-12">
+	<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+		<div>
 			{{ profile_form.job|as_crispy_field }}
 		</div>
 	</div>
 
-	<p class="text-center mt-3 h5">
+	<p class="tw-text-center tw-mt-3 tw-text-lg tw-font-medium">
 		{% trans "Below fields are not mandatory but they will help us with cooperate." %}
 	</p>
 
-	<div class="row">
-		<div class="col-lg-6 col-sm-12">
+	<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3">
+		<div>
 			{{ profile_form.responsibilities|as_crispy_field }}
 		</div>
-		<div class="col-lg-6 col-sm-12">
+		<div>
 			{{ profile_form.business|as_crispy_field }}
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="col-lg-6 col-sm-12">
+	<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+		<div>
 			{{ profile_form.skills_knowledge_hobby|as_crispy_field }}
 		</div>
-		<div class="col-lg-6 col-sm-12">
+		<div>
 			{{ profile_form.want_to_learn|as_crispy_field }}
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="col-lg-6 col-sm-12">
+	<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+		<div>
 			{{ profile_form.to_give_away|as_crispy_field }}
 		</div>
-		<div class="col-lg-6 col-sm-12">
+		<div>
 			{{ profile_form.to_borrow|as_crispy_field }}
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="col-lg-6 col-sm-12">
+	<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+		<div>
 			{{ profile_form.for_sale|as_crispy_field }}
 		</div>
-		<div class="col-lg-6 col-sm-12">
+		<div>
 			{{ profile_form.i_need|as_crispy_field }}
 		</div>
 	</div>
 
-	<div class="row">
-		<div class="col-12">
+	<div class="tw-grid tw-grid-cols-1 tw-gap-3 tw-mt-3">
+		<div>
 			{{ profile_form.why|as_crispy_field }}
 		</div>
 	</div>
 
-	<button type="submit" class="save btn btn-primary btn-sm">{% trans 'Save' %}</button>
-	<button onclick="window.history.back();" class="btn btn-warning btn-sm" type="button">{% trans 'Back' %}</button>
+	<div class="tw-flex tw-gap-2 tw-mt-4">
+		<button type="submit" class="save tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
+		<button onclick="window.history.back();" class="tw-btn tw-btn-warning tw-btn-sm" type="button"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Back' %}</button>
+	</div>
 </form>
 
 {% endblock citizens %}

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wikikracja — Standardy UI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../home/static/home/css/tokens.css">
+  <link rel="stylesheet" href="../home/static/home/css/tailwind.build.css">
+  <link rel="stylesheet" href="ui-standards.css">
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Przełącz tryb jasny / ciemny">
+    <i class="fas fa-circle-half-stroke"></i> Tryb
+  </button>
+
+  <div class="container">
+    <h1>Wikikracja — Standardy UI</h1>
+
+    <div class="intro">
+      <p>
+        Ten dokument zbiera wspólne standardy wizualne aplikacji. Celem jest, aby jedna zmiana w komponencie
+        (np. guzik CTA) propagowała się automatycznie we wszystkich modułach.
+      </p>
+      <p>
+        Każdy przykład poniżej jest <strong>żywym komponentem</strong> — można go otworzyć w przeglądarce,
+        zrobić zrzut ekranu i użyć jako referencji w dokumentacji projektowej.
+      </p>
+    </div>
+
+    <h2>1. Kolory i tokeny</h2>
+    <div class="section">
+      <p>Podstawowe zmienne CSS są zdefiniowane w <code>home/static/home/css/tokens.css</code>.</p>
+      <div class="row">
+        <div class="color-chip color-chip--accent"></div>
+        <div class="color-chip color-chip--proposition"></div>
+        <div class="color-chip color-chip--approved"></div>
+        <div class="color-chip color-chip--rejected"></div>
+      </div>
+      <p><strong>akcent</strong> · <strong>badge-proposition</strong> · <strong>badge-approved</strong> · <strong>badge-rejected</strong></p>
+    </div>
+
+    <h2>2. Guziki podstawowe</h2>
+    <div class="section">
+      <div class="component-label">Primary / Secondary / Warning / Danger</div>
+      <div class="row">
+        <button class="tw-btn tw-btn-primary"><i class="fas fa-check"></i> Save</button>
+        <button class="tw-btn tw-btn-secondary"><i class="fas fa-arrow-left"></i> Back</button>
+        <button class="tw-btn tw-btn-warning"><i class="fas fa-check"></i> Confirm</button>
+        <button class="tw-btn tw-btn-danger"><i class="fas fa-trash"></i> Delete</button>
+      </div>
+      <p>Każdy guzik powinien mieć ikonę. Ikona zawsze po lewej, tekst po prawej.</p>
+    </div>
+
+    <h2>3. Guzik CTA (dodawanie treści)</h2>
+    <div class="section">
+      <div class="component-label">Wspólny przycisk „dodaj” we wszystkich modułach</div>
+      <div class="row">
+        <a href="#" class="tw-btn-cta tw-btn-cta--round" title="Add"><i class="fas fa-plus"></i></a>
+      </div>
+      <ul class="rules">
+        <li>Zawsze okrągły, 44×44 px.</li>
+        <li>Zawsze ikona <code>fa-plus</code> w kółku.</li>
+        <li>Kolor tła: <code>var(--accent)</code>.</li>
+        <li>Wszędzie ten sam komponent: <code>home/templates/home/includes/toolbar.html</code>.</li>
+      </ul>
+    </div>
+
+    <h2>4. Toolbar</h2>
+    <div class="section">
+      <div class="component-label">Toolbar w module List / Grid</div>
+      <div class="tw-toolbar">
+        <a href="#" class="tw-btn-cta tw-btn-cta--round" title="Add"><i class="fas fa-plus"></i></a>
+        <span class="tw-toolbar-divider"></span>
+        <div class="tw-toolbar-sort">
+          <a href="#" class="tw-sort-btn active"><i class="fas fa-clock-rotate-left fa-fw"></i> <span class="tw-sort-btn-label">Date</span> <i class="fas fa-arrow-down tw-sort-arrow"></i></a>
+          <a href="#" class="tw-sort-btn"><i class="fas fa-pen-nib fa-fw"></i> <span class="tw-sort-btn-label">Score</span></a>
+          <span class="tw-toolbar-divider"></span>
+          <button class="tw-view-toggle-btn active" data-view="list"><i class="fas fa-list"></i> <span class="tw-view-label">List</span></button>
+          <button class="tw-view-toggle-btn" data-view="grid"><i class="fas fa-grip"></i> <span class="tw-view-label">Grid</span></button>
+        </div>
+      </div>
+      <ul class="rules">
+        <li>Przełączniki widoków zawsze nazywają się <code>List</code> i <code>Grid</code> z ikonami <code>fa-list</code> i <code>fa-grip</code>.</li>
+        <li>Przyciski sortowania mają ikonę + etykietę + strzałkę kierunku.</li>
+        <li>Na małych ekranach etykiety przycisków nieaktywnych są ukryte, widoczna jest tylko aktywna.</li>
+      </ul>
+    </div>
+
+    <h2>5. Zakładki steppera</h2>
+    <div class="section">
+      <div class="component-label">Stepper w Tasks / Głosowania / Obywatele</div>
+      <div class="tw-stepper-nav">
+        <div class="tw-stepper-step-wrap active">
+          <a href="#" class="tw-stepper-step"><i class="fas fa-user"></i> <span class="tw-stepper-step-label">Mine</span></a>
+        </div>
+        <div class="tw-stepper-step-wrap">
+          <a href="#" class="tw-stepper-step"><i class="fas fa-hourglass-half"></i> <span class="tw-stepper-step-label">Awaiting</span></a>
+        </div>
+        <div class="tw-stepper-step-wrap">
+          <a href="#" class="tw-stepper-step"><i class="fas fa-spinner"></i> <span class="tw-stepper-step-label">In progress</span></a>
+        </div>
+        <div class="tw-stepper-step-wrap">
+          <a href="#" class="tw-stepper-step"><i class="fas fa-check"></i> <span class="tw-stepper-step-label">Finished</span></a>
+        </div>
+      </div>
+      <ul class="rules">
+        <li>Każda zakładka ma ikonę i etykietę.</li>
+        <li>Na desktopie widoczne ikona + tekst.</li>
+        <li>Na mobile nieaktywne zakładki pokazują tylko ikonę; aktywna pokazuje ikonę + tekst.</li>
+        <li>Licznik (jeśli występuje) to <code>.tw-stepper-step-count</code>.</li>
+      </ul>
+    </div>
+
+    <h2>6. Liczniki na pulpicie</h2>
+    <div class="section">
+      <div class="component-label">Activity i Chat tiles</div>
+      <div class="row">
+        <a href="#" class="tw-dashboard-counter-btn"><i class="fas fa-bell"></i> <span>0</span></a>
+        <a href="#" class="tw-dashboard-counter-btn has-count"><i class="fas fa-comments"></i> <span>3 unread</span></a>
+      </div>
+      <ul class="rules">
+        <li>Jedna wspólna klasa: <code>.tw-dashboard-counter-btn</code>.</li>
+        <li>Gdy licznik = 0: przezroczyste tło, kolorowy tekst i obramowanie.</li>
+        <li>Gdy licznik &gt; 0: wypełnione tło <code>var(--badge-proposition-bg)</code>.</li>
+        <li>Zawsze ikona po lewej, wartość/tekst po prawej.</li>
+      </ul>
+    </div>
+
+    <h2>7. Kafelki pulpitu</h2>
+    <div class="section">
+      <div class="tw-card tw-p-4 tw-mb-4">
+        <div class="tw-dashboard-tile-header">
+          <a href="#" class="tw-tile-heading"><i class="fas fa-calendar-days"></i> Calendar</a>
+          <a href="#" class="tw-btn tw-btn-secondary tw-btn-sm"><i class="fas fa-plus"></i> Add event</a>
+        </div>
+        <p class="tw-text-muted tw-text-sm">Przykładowa zawartość kafelka.</p>
+      </div>
+      <ul class="rules">
+        <li>Nagłówek kafelka to <code>.tw-dashboard-tile-header</code> + <code>.tw-tile-heading</code>.</li>
+        <li><code>.tw-tile-heading</code> nie jest podkreślony, nawet gdy jest linkiem.</li>
+        <li>Kafelek używa klasy <code>.tw-card</code>.</li>
+      </ul>
+    </div>
+
+    <h2>8. Topbar (mobile)</h2>
+    <div class="section">
+      <div class="tw-topbar tw-gap-2 tw-px-3">
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <button class="tw-btn tw-btn-sm tw-btn-secondary" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+          <i class="fas fa-building-columns tw-text-accent"></i>
+        </div>
+        <span class="tw-flex-1 tw-text-center tw-text-sm tw-font-semibold">Surveys</span>
+        <div class="tw-flex tw-items-center tw-gap-2">
+          <i class="fas fa-magnifying-glass tw-text-muted"></i>
+          <i class="fas fa-circle-half-stroke tw-text-muted"></i>
+          <i class="far fa-bell tw-text-muted"></i>
+        </div>
+      </div>
+      <ul class="rules">
+        <li>Na mobile nazwa modułu jest wyśrodkowana między logo a ikonami.</li>
+        <li>Logo po lewej, akcje po prawej.</li>
+      </ul>
+    </div>
+
+    <h2>9. Kafelki — widok listy i siatki</h2>
+    <div class="section">
+      <div class="component-label">List view</div>
+      <div class="tw-card tw-p-4 tw-mb-4">
+        <div class="tw-flex tw-flex-col tw-gap-2 tw-pb-3 tw-mb-3" style="border-bottom: 1px solid var(--border);">
+          <div class="tw-flex tw-items-center tw-gap-2">
+            <span class="tw-text-muted tw-text-sm tw-font-semibold">#1</span>
+            <span class="tw-text-primary tw-font-semibold">Example item title</span>
+          </div>
+          <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+            <span class="tw-badge tw-badge-proposition">Proposition</span>
+            <a href="#" class="tw-badge tw-badge-secondary"><i class="fas fa-comment-dots tw-me-1"></i> Chat <span class="tw-badge tw-badge-proposition tw-ms-1">3</span></a>
+          </div>
+          <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-xs tw-text-muted">
+            <span><i class="fas fa-user fa-fw tw-text-accent"></i> author</span>
+            <span style="color: var(--border)">·</span>
+            <span><i class="fas fa-calendar fa-fw tw-text-accent"></i> 06.09.2026</span>
+          </div>
+        </div>
+        <div>
+          <div class="tw-mb-3">
+            <div class="tw-flex tw-items-center tw-gap-2 tw-text-xs tw-font-semibold tw-text-muted tw-uppercase tw-tracking-wide tw-mb-1">
+              <i class="fas fa-file-lines fa-fw tw-text-accent"></i> Description
+            </div>
+            <div class="tw-text-sm tw-text-muted">Short summary of the item content.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="component-label">Grid view</div>
+      <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4">
+        <div class="tw-card tw-p-4">
+          <div class="tw-flex tw-flex-col tw-gap-2 tw-pb-3 tw-mb-3" style="border-bottom: 1px solid var(--border);">
+            <div class="tw-flex tw-items-center tw-gap-2">
+              <span class="tw-text-muted tw-text-sm tw-font-semibold">#2</span>
+              <span class="tw-text-primary tw-font-semibold">Grid card one</span>
+            </div>
+            <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+              <span class="tw-badge tw-badge-approved">Approved</span>
+            </div>
+          </div>
+          <div class="tw-text-sm tw-text-muted">Compact body text for grid layout.</div>
+        </div>
+        <div class="tw-card tw-p-4">
+          <div class="tw-flex tw-flex-col tw-gap-2 tw-pb-3 tw-mb-3" style="border-bottom: 1px solid var(--border);">
+            <div class="tw-flex tw-items-center tw-gap-2">
+              <span class="tw-text-muted tw-text-sm tw-font-semibold">#3</span>
+              <span class="tw-text-primary tw-font-semibold">Grid card two</span>
+            </div>
+            <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+              <span class="tw-badge tw-badge-discussion">Discussion</span>
+            </div>
+          </div>
+          <div class="tw-text-sm tw-text-muted">Another compact card.</div>
+        </div>
+      </div>
+
+      <ul class="rules">
+        <li>Karta składa się z klikalnego nagłówka i klikalnego ciała. Używaj atrybutu <code>data-detail-url</code> + <code>role="link"</code> na wrapperach, a linków wewnętrznych obsługuj przez <code>onclick="event.stopPropagation()"</code>.</li>
+        <li>Nagłówek zawiera: numer, tytuł, badge status, meta (autor, data, liczniki).</li>
+        <li>Ciało zawiera sekcje z ikoną + etykietą + treścią.</li>
+        <li>Widok listy: karty jedna pod drugą w pionowej kolumnie (<code>.tw-proposals-list</code>).</li>
+        <li>Widok siatki: karty w CSS Grid — 1 col mobile, 2 col tablet, 3–4 col desktop (<code>.tw-proposals-list.tw-view-grid</code>).</li>
+        <li>W siatce karta jest kompaktowa, ale zachowuje ten sam nagłówek / badge / strukturę sekcji.</li>
+        <li>Dla konkretnych domen używaj dziedziczonych klas: <code>.tw-board-post-card</code>, <code>.tw-task-card</code>, <code>.tw-event-card</code>.</li>
+      </ul>
+    </div>
+
+    <h2>10. Słownik ikon</h2>
+    <div class="section">
+      <p class="rules-intro">Ta sama ikona znaczy to samo wszędzie na stronie. Nie zamieniaj znaczenia ikony w innym module — jeśli potrzebujesz nowej semantyki, dodaj ją do tego słownika zamiast wymyślać wariant.</p>
+      <table class="tw-table tw-table-striped tw-table-hover tw-table-sm">
+        <thead>
+          <tr><th>Ikona</th><th>Klasa</th><th>Znaczenie</th><th>Użycie</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><i class="fas fa-check"></i></td><td><code>fa-check</code></td><td>Zapisz / Potwierdź</td><td>guzik Save, akcja zatwierdzenia</td></tr>
+          <tr><td><i class="fas fa-times"></i></td><td><code>fa-times</code></td><td>Anuluj / Zamknij</td><td>guzik Cancel, zamykanie modalu</td></tr>
+          <tr><td><i class="fas fa-arrow-left"></i></td><td><code>fa-arrow-left</code></td><td>Powrót</td><td>guzik Back</td></tr>
+          <tr><td><i class="fas fa-trash"></i></td><td><code>fa-trash</code></td><td>Usuń</td><td>guzik Delete</td></tr>
+          <tr><td><i class="fas fa-pen"></i></td><td><code>fa-pen</code></td><td>Edytuj</td><td>guzik Edit</td></tr>
+          <tr><td><i class="fas fa-paper-plane"></i></td><td><code>fa-paper-plane</code></td><td>Wyślij</td><td>guzik Send, Submit</td></tr>
+          <tr><td><i class="fas fa-plus"></i></td><td><code>fa-plus</code></td><td>Dodaj</td><td>guzik Add, CTA okrągły +</td></tr>
+          <tr><td><i class="fas fa-right-to-bracket"></i></td><td><code>fa-right-to-bracket</code></td><td>Zaloguj</td><td>guzik Login</td></tr>
+          <tr><td><i class="fas fa-right-from-bracket"></i></td><td><code>fa-right-from-bracket</code></td><td>Wyloguj</td><td>guzik Logout</td></tr>
+          <tr><td><i class="fas fa-user-plus"></i></td><td><code>fa-user-plus</code></td><td>Zarejestruj</td><td>guzik Register</td></tr>
+          <tr><td><i class="fas fa-list"></i></td><td><code>fa-list</code></td><td>Widok listy</td><td>przełącznik List</td></tr>
+          <tr><td><i class="fas fa-grip"></i></td><td><code>fa-grip</code></td><td>Widok siatki</td><td>przełącznik Grid</td></tr>
+          <tr><td><i class="fas fa-filter"></i></td><td><code>fa-filter</code></td><td>Filtruj</td><td>dropdown filtrów</td></tr>
+          <tr><td><i class="fas fa-sort"></i></td><td><code>fa-sort</code></td><td>Sortuj</td><td>guziki sortowania w toolbarze</td></tr>
+          <tr><td><i class="fas fa-arrow-up"></i></td><td><code>fa-arrow-up</code></td><td>Rosnąco</td><td>kierunek sortowania ASC</td></tr>
+          <tr><td><i class="fas fa-arrow-down"></i></td><td><code>fa-arrow-down</code></td><td>Malejąco</td><td>kierunek sortowania DESC</td></tr>
+          <tr><td><i class="fas fa-clock"></i></td><td><code>fa-clock</code></td><td>Czas</td><td>sortowanie po czasie, data utworzenia, deadliny</td></tr>
+          <tr><td><i class="fas fa-clock-rotate-left"></i></td><td><code>fa-clock-rotate-left</code></td><td>Utworzono</td><td>meta data utworzenia</td></tr>
+          <tr><td><i class="fas fa-calendar"></i></td><td><code>fa-calendar</code></td><td>Kalendarz / Data</td><td>wydarzenia, daty</td></tr>
+          <tr><td><i class="fas fa-user"></i></td><td><code>fa-user</code></td><td>Użytkownik / Obywatel</td><td>profil, autor, nick</td></tr>
+          <tr><td><i class="fas fa-envelope"></i></td><td><code>fa-envelope</code></td><td>E-mail</td><td>adres e-mail, powiadomienia</td></tr>
+          <tr><td><i class="fas fa-star"></i></td><td><code>fa-star</code></td><td>Ocena / Reputacja</td><td>ranking, oceny</td></tr>
+          <tr><td><i class="fas fa-check-circle"></i></td><td><code>fa-check-circle</code></td><td>Potwierdzone</td><td>e-mail potwierdzony, status OK</td></tr>
+          <tr><td><i class="fas fa-times-circle"></i></td><td><code>fa-times-circle</code></td><td>Niepotwierdzone / Odrzucone</td><td>błąd, odmowa</td></tr>
+          <tr><td><i class="fas fa-circle-info"></i></td><td><code>fa-circle-info</code></td><td>Informacja / Pomoc</td><td>help, tooltip, stepper info</td></tr>
+          <tr><td><i class="fas fa-gear"></i></td><td><code>fa-gear</code></td><td>Ustawienia</td><td>konfiguracja, zarządzanie</td></tr>
+          <tr><td><i class="fas fa-tag"></i></td><td><code>fa-tag</code></td><td>Kategoria</td><td>pojedyncza kategoria</td></tr>
+          <tr><td><i class="fas fa-tags"></i></td><td><code>fa-tags</code></td><td>Kategorie</td><td>lista kategorii</td></tr>
+          <tr><td><i class="fas fa-comment-dots"></i></td><td><code>fa-comment-dots</code></td><td>Czat / Komentarze</td><td>link do czatu, licznik wiadomości</td></tr>
+          <tr><td><i class="fas fa-money-bill-transfer"></i></td><td><code>fa-money-bill-transfer</code></td><td>Transakcja</td><td>finanse / transakcje</td></tr>
+          <tr><td><i class="fas fa-handshake"></i></td><td><code>fa-handshake</code></td><td>Partner</td><td>finanse / partnerzy</td></tr>
+          <tr><td><i class="fas fa-coins"></i></td><td><code>fa-coins</code></td><td>Aktywo</td><td>finanse / aktywa</td></tr>
+          <tr><td><i class="fas fa-chart-pie"></i></td><td><code>fa-chart-pie</code></td><td>Raport</td><td>finanse / raporty</td></tr>
+          <tr><td><i class="fas fa-file-lines"></i></td><td><code>fa-file-lines</code></td><td>Dokument / Opis</td><td>opis, treść, dokument</td></tr>
+          <tr><td><i class="fas fa-language"></i></td><td><code>fa-language</code></td><td>Język</td><td>przełącznik języka</td></tr>
+        </tbody>
+      </table>
+      <ul class="rules">
+        <li>Używaj <code>fa-fw</code> przed <code>me-1</code> (np. <code>&lt;i class="fas fa-clock fa-fw tw-me-1"&gt;&lt;/i&gt;</code>), żeby ikony były wyrównane w pionie i oddzielone od tekstu.</li>
+        <li>Ikony w guzikach zawsze po lewej stronie tekstu, z wyjątkiem CTA (okrągły plus bez tekstu).</li>
+        <li>Sortowanie po czasie zawsze <code>fa-clock</code> (lub <code>fa-clock-rotate-left</code> dla daty utworzenia).</li>
+        <li>Widok listy zawsze <code>fa-list</code>, widok siatki zawsze <code>fa-grip</code>.</li>
+      </ul>
+    </div>
+
+    <h2>11. Pliki źródłowe</h2>
+    <div class="section">
+      <ul class="rules">
+        <li>Toolbar: <a class="source-link" href="../home/templates/home/includes/toolbar.html"><code>home/templates/home/includes/toolbar.html</code></a></li>
+        <li>Wspólny arkusz projektowy (komponenty + moduły + utilities, scalone w etapie 5.5): <a class="source-link" href="../home/static/home/css/tailwind.css"><code>home/static/home/css/tailwind.css</code></a> (kompilowany do <code>tailwind.build.css</code> przez <code>npm run build:css</code>)</li>
+        <li>Tokeny: <a class="source-link" href="../home/static/home/css/tokens.css"><code>home/static/home/css/tokens.css</code></a></li>
+        <li>Preferencje widoku: <a class="source-link" href="../home/static/home/js/app.js"><code>home/static/home/js/app.js</code></a></li>
+      </ul>
+    </div>
+
+    <h2>12. Zasady ogólne</h2>
+    <div class="section">
+      <ul class="rules">
+        <li><strong>Jeden komponent = jedno źródło.</strong> Jeśli guzik występuje w wielu miejscach, powinien korzystać z tego samego szablonu / klasy.</li>
+        <li><strong>Ikona przy każdym guziku.</strong> Ikona po lewej, tekst po prawej (z wyjątkiem CTA w toolbarze, gdzie jest tylko ikona).</li>
+        <li><strong>Responsywne etykiety.</strong> Mobile: nieaktywne guziki pokazują ikonę, aktywne ikonę + tekst.</li>
+        <li><strong>CTA zawsze taki sam.</strong> Okrągły plus 44×44 px w toolbarze.</li>
+        <li><strong>Widoki: List / Grid.</strong> Zawsze te same ikony i etykiety.</li>
+        <li><strong>Zakładki: ikona + etykieta.</strong> Mobile nieaktywne tylko ikona.</li>
+        <li><strong>Nie używaj lokalnych stylów inline.</strong> Preferuj klasy CSS i tokeny.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme') || 'dark';
+      html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    }
+  </script>
+</body>
+</html>

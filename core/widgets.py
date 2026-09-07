@@ -39,12 +39,11 @@ class RichTextWidget(forms.Textarea):
 
         # crispy-forms marks invalid fields by mutating the widget's own
         # `self.attrs` dict (not the `attrs` param) to add "is-invalid" (see
-        # bootstrap5/field.html + crispy_forms_field.CrispyFieldNode). Merge
-        # the same way Django's default Widget.get_context() does, or we
-        # won't see it. Our markup doesn't have a normal <input class="...">>
-        # for that class to land on, so mirror it onto the wrapper instead:
-        # Bootstrap's `.is-invalid ~ .invalid-feedback` CSS rule is what
-        # actually makes the error message visible.
+        # tw/field.html + crispy_forms_field.CrispyFieldNode). Merge the same
+        # way Django's default Widget.get_context() does, or we won't see it.
+        # Our markup doesn't have a normal <input class="...">> for that class
+        # to land on, so mirror it onto the wrapper; the shared Tailwind
+        # invalid-feedback rule uses that state to show the error message.
         final_attrs = self.build_attrs(self.attrs, attrs)
         is_invalid = 'is-invalid' in final_attrs.get('class', '').split()
 
@@ -76,7 +75,7 @@ class CounterTextarea(forms.Textarea):
 
     class Media:
         js = ('common/js/textarea-counter.js',)
-        # .msg-counter/.counter--warn/.counter--error styles are in buttons.css (global).
+        # .msg-counter/.counter--warn/.counter--error styles are in tailwind.css (global).
 
     def __init__(self, attrs=None, max_length=None):
         self.max_length = max_length
@@ -87,10 +86,9 @@ class CounterTextarea(forms.Textarea):
         # `attrs` param) to add "is-invalid" — merge the same way Django's
         # default Widget.render()/get_context() does, or we won't see it.
         final_attrs = self.build_attrs(self.attrs, attrs)
-        # Mirror "is-invalid" onto the wrapper div too: it's what the widget's
-        # rendered output is a sibling of, so Bootstrap's
-        # `.is-invalid ~ .invalid-feedback` CSS rule needs it there to show
-        # the error message (see RichTextWidget.render for the same issue).
+        # Mirror "is-invalid" onto the wrapper div too: it is the sibling of
+        # the rendered feedback block, so the shared Tailwind validation rule
+        # needs that state to show the message (see RichTextWidget.render).
         is_invalid = 'is-invalid' in final_attrs.get('class', '').split()
         attrs = dict(attrs or {})
         attrs.setdefault('data-charcounter', '')

@@ -4,15 +4,17 @@
 {% load i18n %}
 
 {% block content %}
-<h2>{% trans 'New room' %}</h2>
-<form action="." method="POST" class="post-form">
-  {% csrf_token %}
-  <div class="row">
-    <div class="col-md-3">
-     {{ form.title|as_crispy_field }}
+<div class="tw-container tw-my-4">
+  <h2 class="tw-mb-4">{% trans 'New room' %}</h2>
+  <form action="." method="POST" class="post-form">
+    {% csrf_token %}
+    <div class="tw-mb-3 tw-w-full md:tw-w-1/4">
+      {{ form.title|as_crispy_field }}
     </div>
-  </div>
-  <button type="submit" class="btn btn-primary btn-sm">{% trans 'Save' %}</button>
-  <button onclick="window.history.back();" class="btn btn-warning btn-sm" type="button">{% trans 'Back' %}</button>
-</form>
+    <div class="tw-flex tw-gap-2">
+      <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
+      <button onclick="window.history.back();" class="tw-btn tw-btn-warning tw-btn-sm" type="button"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Back' %}</button>
+    </div>
+  </form>
+</div>
 {% endblock %}

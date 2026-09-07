@@ -16,9 +16,9 @@
     var newTitle = isActive ? btn.dataset.tooltipActive : btn.dataset.tooltipInactive;
     if (newTitle) {
       btn.setAttribute('title', newTitle);
-      if (typeof bootstrap !== 'undefined') {
-        var tip = bootstrap.Tooltip.getInstance(btn);
-        if (tip) { tip.dispose(); new bootstrap.Tooltip(btn, { trigger: 'hover' }); }
+      if (typeof TwTooltip !== 'undefined') {
+        var tip = TwTooltip.getInstance(btn);
+        if (tip) { tip.dispose(); new TwTooltip(btn, { trigger: 'hover' }); }
       }
     }
   }
@@ -261,9 +261,9 @@
     if (el.tagName === 'A' && user.profile_url) el.href = user.profile_url;
     if (el.dataset.coordTitle) {
       el.title = el.dataset.coordTitle + user.username;
-      if (typeof bootstrap !== 'undefined') {
-        var tip = bootstrap.Tooltip.getInstance(el);
-        if (tip) { tip.dispose(); new bootstrap.Tooltip(el, { trigger: 'hover' }); }
+      if (typeof TwTooltip !== 'undefined') {
+        var tip = TwTooltip.getInstance(el);
+        if (tip) { tip.dispose(); new TwTooltip(el, { trigger: 'hover' }); }
       }
     }
   }
@@ -402,7 +402,7 @@
           if (!tipId) return;
           var tip = document.getElementById(tipId);
           if (tip && !tip.contains(e.target) && !btn.contains(e.target)) {
-            var popover = bootstrap.Popover.getInstance(btn);
+            var popover = TwPopover.getInstance(btn);
             if (popover) popover.hide();
           }
         });
@@ -491,7 +491,9 @@
   }
 
   function initVoterPopover(btn, popoverOptions, loadFn) {
-    var popover = new bootstrap.Popover(btn, popoverOptions);
+    var existing = TwPopover.getInstance(btn);
+    if (existing) return existing;
+    var popover = new TwPopover(btn, popoverOptions);
     var hideTimer = null;
     var clearHide = function () { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } };
     var scheduleHide = function () {
@@ -499,14 +501,14 @@
       hideTimer = setTimeout(function () { popover.hide(); }, 150);
     };
 
-    btn.addEventListener('show.bs.popover', function () { loadFn(btn, popover); });
+    btn.addEventListener('show.tw.popover', function () { loadFn(btn, popover); });
 
     if (supportsHover) {
       btn.addEventListener('mouseenter', function () { clearHide(); popover.show(); });
       btn.addEventListener('mouseleave', scheduleHide);
       btn.addEventListener('focus', function () { popover.show(); });
       btn.addEventListener('blur', scheduleHide);
-      btn.addEventListener('shown.bs.popover', function () {
+      btn.addEventListener('shown.tw.popover', function () {
         var tip = document.getElementById(btn.getAttribute('aria-describedby'));
         if (!tip) return;
         tip.addEventListener('mouseenter', clearHide);
@@ -527,34 +529,30 @@
   }
 
   function initHelpersPopovers() {
-    if (typeof bootstrap === 'undefined') return;
+    if (typeof TwTooltip === 'undefined' || typeof TwPopover === 'undefined') return;
     document.querySelectorAll('[data-task-helpers]').forEach(function (btn) {
-      initVoterPopover(btn, { sanitize: false, html: true, customClass: 'helpers-popover' }, loadHelpers);
+      initVoterPopover(btn, { trigger: 'manual', html: true, customClass: 'helpers-popover' }, loadHelpers);
     });
   }
 
   function initAgainstPopovers() {
-    if (typeof bootstrap === 'undefined') return;
+    if (typeof TwTooltip === 'undefined' || typeof TwPopover === 'undefined') return;
     document.querySelectorAll('[data-task-against]').forEach(function (btn) {
-      initVoterPopover(btn, { sanitize: false, html: true, customClass: 'helpers-popover against-popover' }, loadAgainst);
+      initVoterPopover(btn, { trigger: 'manual', html: true, customClass: 'helpers-popover against-popover' }, loadAgainst);
     });
   }
 
   window.reinitTaskCards = function() {
-    if (typeof bootstrap === 'undefined') return;
+    if (typeof TwTooltip === 'undefined' || typeof TwPopover === 'undefined') return;
 
     // Tooltips
-    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
-      var t = bootstrap.Tooltip.getInstance(el);
+    document.querySelectorAll('[data-tw-toggle="tooltip"]').forEach(function (el) {
+      var t = TwTooltip.getInstance(el);
       if (t) t.dispose();
-      new bootstrap.Tooltip(el, { trigger: 'hover' });
+      new TwTooltip(el, { trigger: 'hover' });
     });
 
     // Popovers
-    document.querySelectorAll('[data-task-helpers], [data-task-against]').forEach(function (btn) {
-      var p = bootstrap.Popover.getInstance(btn);
-      if (p) p.dispose();
-    });
     initHelpersPopovers();
     initAgainstPopovers();
   };

@@ -5,16 +5,16 @@
 {% block extra_css %}{{ form.media }}{% endblock %}
 
 {% block content %}
-<div class="detail-layout">
+<div class="detail-layout tw-flex tw-flex-col tw-gap-3">
 
   <div class="detail-header">
     <div class="detail-header-top">
-      <h1 class="detail-title">
+      <h1 class="detail-title tw-text-2xl tw-font-bold">
         {% if form.instance.pk %}
-          <i class="fas fa-pen fa-fw text-accent"></i>
+          <i class="fas fa-pen fa-fw tw-text-accent"></i>
           {% trans "Edit Event" %}: {{ form.instance.title }}
         {% else %}
-          <i class="fas fa-plus fa-fw text-accent"></i>
+          <i class="fas fa-plus fa-fw tw-text-accent"></i>
           {% trans "Create New Event" %}
         {% endif %}
       </h1>
@@ -22,12 +22,16 @@
   </div>
 
   <div class="proposal-card">
-    <div class="proposal-card-body display-block-cursor-default">
+    <form method="post" action="" class="proposal-card-body display-block-cursor-default">
+      {% csrf_token %}
       {% crispy form %}
-    </div>
+      <button type="submit" class="tw-btn tw-btn-primary tw-mt-3">
+        <i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save Event' %}
+      </button>
+    </form>
   </div>
 
-  <div class="proposals-toolbar margin-top-1rem">
+  <div class="proposals-toolbar tw-flex tw-gap-2 tw-mt-4">
     <a href="{% url 'events:list' %}" class="view-toggle-btn event-back-link" title="{% trans 'Back to Calendar' %}">
       <i class="fas fa-arrow-left"></i> {% trans "Back to Calendar" %}
     </a>

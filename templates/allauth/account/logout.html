@@ -1,9 +1,6 @@
 {% extends "home/base.html" %}
 {% load i18n %}
 {% load static %}
-{% load django_bootstrap5 %}
-{% bootstrap_css %}
-{% bootstrap_messages %}
 
 {% block head_title %}{% trans "Sign Out" %}{% endblock %}
 
@@ -17,7 +14,7 @@
   {% if redirect_field_value %}
   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
   {% endif %}
-  <button type="submit" class="btn btn-info d-block w-100 m-2 btn-sm">{% trans 'Sign Out' %}</button>
+  <button type="submit" class="tw-btn tw-btn-info tw-block tw-w-full tw-m-2 tw-btn-sm"><i class="fas fa-right-from-bracket fa-fw tw-me-1"></i>{% trans 'Sign Out' %}</button>
 </form>
 
 {% endblock %}

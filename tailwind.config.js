@@ -1,0 +1,101 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  // Permanent project namespace for Tailwind utilities and shared components.
+  prefix: 'tw-',
+  content: [
+    './home/templates/**/*.html',
+    './ankiety/templates/**/*.html',
+    './board/templates/**/*.html',
+    './bookkeeping/templates/**/*.html',
+    './chat/templates/**/*.html',
+    './events/templates/**/*.html',
+    './glosowania/templates/**/*.html',
+    './obywatele/templates/**/*.html',
+    './tasks/templates/**/*.html',
+    './categories/templates/**/*.html',
+    './site_settings/templates/**/*.html',
+    './templates/**/*.html',
+    // UI standards reference uses the same tokens and components.
+    './docs/UI_STANDARDS.html',
+    // JS builds markup dynamically (chat, embedded widgets, toasts), so
+    // custom classes living in @layer must be detected there as well.
+    './**/static/**/*.js',
+  ],
+  // Always generate these component classes, even if no template uses them yet.
+  safelist: [
+    'tw-btn',
+    'tw-btn-primary', 'tw-btn-secondary', 'tw-btn-danger', 'tw-btn-success', 'tw-btn-warning', 'tw-btn-info', 'tw-btn-light', 'tw-btn-dark',
+    'tw-btn-outline-primary', 'tw-btn-outline-secondary', 'tw-btn-outline-danger', 'tw-btn-outline-success', 'tw-btn-outline-warning', 'tw-btn-outline-info', 'tw-btn-outline-light', 'tw-btn-outline-dark', 'tw-btn-link', 'tw-btn-sm',
+    'tw-card', 'tw-card-header', 'tw-card-body', 'tw-card-footer',
+    'tw-form-control', 'tw-form-select', 'tw-form-label',
+    'tw-form-text', 'tw-form-check', 'tw-form-check-input', 'tw-form-check-label', 'tw-form-switch',
+    'tw-form-control-sm', 'tw-form-select-sm', 'tw-input-group', 'tw-input-group-text', 'tw-invalid-feedback',
+    'tw-alert', 'tw-alert-primary', 'tw-alert-secondary', 'tw-alert-info', 'tw-alert-success', 'tw-alert-warning', 'tw-alert-danger', 'tw-alert-dark',
+    'tw-badge', 'tw-badge-proposition', 'tw-badge-discussion', 'tw-badge-referendum',
+    'tw-badge-approved', 'tw-badge-rejected',
+    // Dynamic content-type colors (built in templates as `tw-badge-{{ color }}`).
+    'tw-badge-primary', 'tw-badge-success', 'tw-badge-danger', 'tw-badge-warning',
+    'tw-badge-info', 'tw-badge-secondary', 'tw-badge-dark',
+    'tw-layout-wrapper', 'tw-main-area', 'tw-main-content',
+    'tw-topbar', 'tw-topbar-breadcrumb', 'tw-topbar-logo', 'tw-search-box', 'tw-notif-bell', 'tw-notif-count', 'tw-sep', 'tw-current',
+    'tw-sidebar', 'tw-sidebar-logo', 'tw-sidebar-nav', 'tw-sidebar-bottom', 'tw-sidebar-toggle-btn', 'tw-sidebar-close-btn',
+    'tw-nav-item', 'tw-nav-icon', 'tw-nav-text', 'tw-logo-title', 'tw-logo-sub', 'tw-active',
+    'tw-toast-container', 'tw-toast-msg', 'tw-toast-close', 'tw-toast-success', 'tw-toast-error', 'tw-toast-danger', 'tw-toast-warning', 'tw-toast-info',
+    'tw-tile-carousel-wrapper', 'tw-featured-carousel', 'tw-featured-carousel-title', 'tw-link-more',
+    'tw-dot-public', 'tw-dot-private',
+    'tw-card--no-hover', 'tw-hr-subtle', 'tw-tile-text-muted', 'tw-balance-positive', 'tw-balance-negative',
+    'tw-onboarding-hint', 'tw-chat-msg-row', 'tw-chat-msg-sender', 'tw-chat-msg-room', 'tw-chat-msg-meta', 'tw-chat-msg-link',
+    'tw-asset-chip', 'tw-wspol-stat-value',
+    'tw-section', 'tw-toolbar', 'tw-toolbar-divider', 'tw-toolbar-sort', 'tw-sort-btn', 'tw-sort-btn-label', 'tw-sort-arrow', 'tw-toolbar-sort-sep', 'tw-toolbar-view', 'tw-view-toggle-btn', 'tw-view-label', 'tw-btn-cta', 'tw-btn-cta--round', 'tw-btn-cta-label',
+    'tw-board-category-group', 'tw-board-posts-list', 'tw-board-posts-grid', 'tw-board-post-row', 'tw-post-row-link', 'tw-post-card-link', 'tw-post-card-link--featured', 'tw-cat-group-icon', 'tw-post-featured-thumb',
+    'tw-text-meta', 'tw-text-title-clamp', 'tw-text-title-clamp-2', 'tw-text-subtitle-clamp', 'tw-text-subtitle-clamp-2',
+    'tw-board-post-card', 'tw-post-header', 'tw-post-title', 'tw-post-subtitle', 'tw-post-featured-image', 'tw-post-content', 'tw-post-attachments', 'tw-attachment-uploaded-at', 'tw-list-group', 'tw-list-group-item',
+    'tw-citizens-toolbar', 'tw-citizens-search-input', 'tw-citizens-filter-btn', 'tw-filter-label', 'tw-citizens-table-wrap', 'tw-citizens-table', 'tw-table-sm', 'tw-table-hover', 'tw-user-row', 'tw-username-container', 'tw-citizen-list-avatar-wrap', 'tw-citizen-list-nick', 'tw-citizen-list-status-dot', 'tw-email-cell', 'tw-copy-btn', 'tw-citizens-grid', 'tw-citizen-card', 'tw-citizen-card-top', 'tw-citizen-card-name', 'tw-citizen-card-fullname', 'tw-citizen-card-city', 'tw-status-dot', 'tw-status-dot--online', 'tw-status-dot--active', 'tw-status-dot--dormant', 'tw-status-dot--inactive', 'tw-hidden-mobile', 'tw-hidden-tablet', 'tw-hidden-desktop', 'tw-restart-count', 'tw-candidate-vote-badge', 'tw-width-30', 'tw-min-w-20', 'tw-min-w-12', 'tw-mig-hidden', 'tw-max-w-640', 'tw-avatar-upload-wrap', 'tw-avatar-overlay', 'tw-avatar-overlay-icon', 'tw-profile-name', 'tw-profile-email', 'tw-profile-row', 'tw-profile-key', 'tw-profile-val', 'tw-historia-badge', 'tw-historia-current-badge', 'tw-historia-meta', 'tw-diff-block', 'tw-border-approved', 'tw-proposals-list', 'tw-proposals-empty',
+    'tw-text-body', 'tw-list-group-flush',
+    'tw-stepper-nav', 'tw-stepper-step-wrap', 'tw-stepper-step', 'tw-stepper-step-label', 'tw-stepper-step-count', 'tw-stepper-sep', 'tw-stepper-info-btn', 'tw-stepper-rejected',
+    'tw-d-none', 'tw-d-block', 'tw-d-inline', 'tw-d-inline-block', 'tw-d-flex', 'tw-d-inline-flex', 'tw-d-grid', 'tw-d-table', 'tw-d-table-cell', 'tw-d-table-row',
+    'tw-disabled',
+    'tw-modal', 'tw-modal-dialog', 'tw-modal-dialog-scrollable', 'tw-modal-content', 'tw-modal-header', 'tw-modal-title', 'tw-modal-body', 'tw-modal-footer', 'tw-modal-backdrop', 'tw-fade', 'tw-btn-close',
+    'tw-dropdown', 'tw-dropdown-menu', 'tw-dropdown-menu-end', 'tw-dropdown-item', 'tw-dropdown-divider', 'tw-dropdown-toggle',
+    'tw-collapse', 'tw-show',
+    { pattern: /^tw-table-(cell|row)$/, variants: ['sm', 'md', 'lg', 'xl'] },
+    // Non-prefixed component hooks emitted by Python/widgets or composed
+    // dynamically, so the content scanner cannot see them literally.
+    'tox-tinymce', 'richtext-wrapper', 'chat-room-pulse',
+    'diff-add', 'diff-context', 'diff-remove',
+    { pattern: /^citizen-color-\d+$/ },
+    { pattern: /^avatar-(xs|sm|md|lg|xl|[2-7]xl)$/ },
+    { pattern: /^status-dot--\w+$/ },
+    { pattern: /^task-meta-status-\w+$/ },
+  ],
+  theme: {
+    // Preserve the established responsive breakpoints across all modules.
+    screens: {
+      sm: '576px',
+      md: '768px',
+      lg: '992px',
+      xl: '1200px',
+      '2xl': '1400px',
+    },
+    extend: {
+      colors: {
+        primary: 'var(--color-primary)',
+        secondary: 'var(--color-secondary)',
+        accent: 'var(--accent)',
+        'bg-base': 'var(--bg-base)',
+        'bg-card': 'var(--bg-card)',
+        'text-primary': 'var(--text-primary)',
+        'text-muted': 'var(--text-muted)',
+        'border-subtle': 'var(--border)',
+        success: 'var(--badge-approved-color)',
+        danger: 'var(--badge-rejected-color)',
+        warning: 'var(--status-warning-color)',
+        info: 'var(--color-info)',
+      },
+      borderRadius: {
+        card: '0.75rem',
+      },
+    },
+  },
+  plugins: [],
+}

@@ -3,47 +3,47 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="tw-container tw-mt-4">
 {% include 'bookkeeping/_nav.html' with active='assets' %}
 
-  <div class="card">
-    <div class="card-body">
+  <div class="tw-card">
+    <div class="tw-card-body">
       <form method="post">
         {% csrf_token %}
 
-        <div class="card mb-3">
-          <div class="card-header bg-info text-white">
+        <div class="tw-card tw-mb-3">
+          <div class="tw-card-header tw-bg-info tw-text-white">
             <h4>{% if form.instance.pk %}{% trans "Update Asset" %}{% else %}{% trans "New Asset" %}{% endif %}</h4>
           </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-3">
+          <div class="tw-card-body">
+            <div class="tw-grid tw-grid-cols-12 tw-gap-3">
+              <div class="tw-col-span-12 md:tw-col-span-3">
                 {{ form.code|as_crispy_field }}
               </div>
-              <div class="col-md-5">
+              <div class="tw-col-span-12 md:tw-col-span-5">
                 {{ form.name|as_crispy_field }}
               </div>
-              <div class="col-md-2">
+              <div class="tw-col-span-12 md:tw-col-span-2">
                 {{ form.symbol|as_crispy_field }}
               </div>
-              <div class="col-md-2">
+              <div class="tw-col-span-12 md:tw-col-span-2">
                 {{ form.decimal_places|as_crispy_field }}
               </div>
             </div>
-            <div class="row">
-              <div class="col-md-4">
+            <div class="tw-grid tw-grid-cols-12 tw-gap-3">
+              <div class="tw-col-span-12 md:tw-col-span-4">
                 {{ form.is_currency|as_crispy_field }}
               </div>
-              <div class="col-md-8">
+              <div class="tw-col-span-12 md:tw-col-span-8">
                 {{ form.is_default|as_crispy_field }}
               </div>
             </div>
           </div>
         </div>
 
-        <div class="mb-3">
-          <button type="submit" class="btn btn-primary">{% trans "Save Asset" %}</button>
-          <a href="{% url 'bookkeeping:asset_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+        <div class="tw-mb-3">
+          <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Save Asset" %}</button>
+          <a href="{% url 'bookkeeping:asset_list' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</a>
         </div>
       </form>
     </div>

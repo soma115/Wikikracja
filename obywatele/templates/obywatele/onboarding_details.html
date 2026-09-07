@@ -3,15 +3,15 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<h1>{% trans "Onboarding form" %}</h1>
+<h1 class="tw-text-2xl tw-font-bold tw-mb-4">{% trans "Onboarding form" %}</h1>
 
 {% if not email_confirmed %}
-  <div class="alert alert-info">
+  <div class="tw-alert tw-alert-info tw-mb-3">
     {% trans "Remember: your email is not confirmed yet. Please confirm it using the link from your inbox." %}
   </div>
 {% endif %}
 
-<p class="fw-bold">
+<p class="tw-font-bold tw-mb-3">
   {% trans "Please fill the form below." %}<br>
   {% trans "This information will allow us to contact you and activate your account." %}<br>
   {% trans "You will be able to edit this information later." %}<br>
@@ -30,10 +30,10 @@
   {{ form.business|as_crispy_field }}
   {{ form.why|as_crispy_field }}
 
-  <button type="submit" class="btn btn-info btn-sm">{% trans "Save form" %}</button>
+  <button type="submit" class="tw-btn tw-btn-info tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Save form" %}</button>
 </form>
 
-<div class="mt-4">
+<div class="tw-mt-4">
   {% include "home/_registration_timeline.html" with registration_step=3 %}
 </div>
 {% endblock %}

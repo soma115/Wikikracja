@@ -2,16 +2,16 @@
 {% load i18n %}
 
 {% block citizens %}
-<div class="container section">
-  <div class="mb-3">
-    <a href="{% url 'obywatele:obywatele_szczegoly' pk=target_user.pk %}" class="btn btn-sm btn-outline-secondary">
+<div class="tw-container tw-section">
+  <div class="tw-mb-3">
+    <a href="{% url 'obywatele:obywatele_szczegoly' pk=target_user.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
       ← {{ target_user.username }}
     </a>
   </div>
 
-  <div class="card">
-    <div class="card-header">
-      <span class="section-heading">
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <span class="tw-section-heading">
         {% if is_own %}
           {% trans "My activities" %}
         {% else %}
@@ -19,10 +19,10 @@
         {% endif %}
       </span>
     </div>
-    <div class="card-body p-0">
+    <div class="tw-card-body tw-p-0">
       {% if tasks %}
-        <div class="table-responsive">
-          <table class="table table-sm table-striped mb-0">
+        <div class="tw-citizens-table-wrap">
+          <table class="tw-citizens-table tw-table-sm tw-mb-0">
             <thead>
               <tr>
                 <th>{% trans "Title" %}</th>
@@ -39,32 +39,32 @@
                   </td>
                   <td>
                     {% if task.status == 'active' %}
-                      <span class="badge-status badge-success">{{ task.get_status_display }}</span>
+                      <span class="tw-badge-status tw-badge-success">{{ task.get_status_display }}</span>
                     {% elif task.status == 'completed' %}
-                      <span class="badge-status badge-primary">{{ task.get_status_display }}</span>
+                      <span class="tw-badge-status tw-badge-primary">{{ task.get_status_display }}</span>
                     {% elif task.status == 'cancelled' %}
-                      <span class="badge-status badge-secondary">{{ task.get_status_display }}</span>
+                      <span class="tw-badge-status tw-badge-secondary">{{ task.get_status_display }}</span>
                     {% else %}
-                      <span class="badge-status badge-danger">{{ task.get_status_display }}</span>
+                      <span class="tw-badge-status tw-badge-danger">{{ task.get_status_display }}</span>
                     {% endif %}
                   </td>
                   <td>
                     {% if task.created_by == target_user and task.assigned_to == target_user %}
-                      <span class="badge-status badge-info">{% trans "Author & assignee" %}</span>
+                      <span class="tw-badge-status tw-badge-info">{% trans "Author & assignee" %}</span>
                     {% elif task.created_by == target_user %}
-                      <span class="badge-status badge-info">{% trans "Author" %}</span>
+                      <span class="tw-badge-status tw-badge-info">{% trans "Author" %}</span>
                     {% elif task.assigned_to == target_user %}
-                      <span class="badge-status badge-warning">{% trans "Assignee" %}</span>
+                      <span class="tw-badge-status tw-badge-warning">{% trans "Assignee" %}</span>
                     {% endif %}
                   </td>
-                  <td class="text-muted small">{{ task.created_at|date:"Y-m-d" }}</td>
+                  <td class="tw-text-muted tw-text-sm">{{ task.created_at|date:"Y-m-d" }}</td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
       {% else %}
-        <p class="text-muted p-3 mb-0">{% trans "No activities found." %}</p>
+        <p class="tw-text-muted tw-p-3 tw-mb-0">{% trans "No activities found." %}</p>
       {% endif %}
     </div>
   </div>

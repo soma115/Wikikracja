@@ -3,17 +3,17 @@
 {% load richtext %}
 
 {% block content %}
-<div class="container my-4">
-  <a href="{% url 'tasks:list' %}" class="btn btn-link px-0 mb-3">&larr; {% trans "Back to list" %}</a>
+<div class="tw-container tw-my-4">
+  <a href="{% url 'tasks:list' %}" class="tw-btn tw-btn-link tw-px-0 tw-mb-3">&larr; {% trans "Back to list" %}</a>
 
-  <div class="card mb-4">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center">
-        <h1 class="h4">
+  <div class="tw-card tw-mb-4">
+    <div class="tw-card-body">
+      <div class="tw-flex tw-justify-between tw-items-center tw-flex-wrap tw-gap-2">
+        <h1 class="tw-text-xl tw-font-bold">
           {{ task.title }}
 {% if task.chat_room_url %}
             <a href="{{ task.chat_room_url }}"
-               class="chat-link {% if task.chat_room_pulse_class %}chat-link--pulse{% endif %} ms-2"
+               class="chat-link {% if task.chat_room_pulse_class %}chat-link--pulse{% endif %} tw-ms-2"
                onclick="event.stopPropagation()">
               <i class="fas fa-comment-dots"></i>
               <span>{% trans "Chat" %}</span>
@@ -26,20 +26,20 @@
         {% if task.priority_label %}
           {% with task.priority_category as category %}
             {% if category == "critical" %}
-              <span class="badge-status badge-danger text-uppercase">{{ task.priority_label }}</span>
+              <span class="tw-badge-status tw-badge-danger tw-uppercase">{{ task.priority_label }}</span>
             {% elif category == "important" %}
-              <span class="badge-status badge-warning text-uppercase">{{ task.priority_label }}</span>
+              <span class="tw-badge-status tw-badge-warning tw-uppercase">{{ task.priority_label }}</span>
             {% elif category == "beneficial" %}
-              <span class="badge-status badge-success text-uppercase">{{ task.priority_label }}</span>
+              <span class="tw-badge-status tw-badge-success tw-uppercase">{{ task.priority_label }}</span>
             {% elif category == "rejected" %}
-              <span class="badge-status badge-secondary text-uppercase">{{ task.priority_label }}</span>
+              <span class="tw-badge-status tw-badge-secondary tw-uppercase">{{ task.priority_label }}</span>
             {% else %}
-              <span class="badge-status badge-info text-uppercase">{{ task.priority_label }}</span>
+              <span class="tw-badge-status tw-badge-info tw-uppercase">{{ task.priority_label }}</span>
             {% endif %}
           {% endwith %}
         {% endif %}
       </div>
-      <div class="task-meta-row d-flex flex-wrap gap-2 mb-3">
+      <div class="task-meta-row tw-flex tw-flex-wrap tw-gap-2 tw-mb-3">
         <span class="task-meta-item" title="{% trans 'Author' %}">
           <i class="fas fa-user-pen task-meta-icon"></i>
           <span class="task-meta-label">{% trans "Author" %}</span>
@@ -71,24 +71,24 @@
 
       <p>{{ task.description|richtext }}</p>
 
-      <div class="mt-3">
-        <span class="badge-status badge-light me-2" data-votes-badge="{% trans "Votes" %}: ">{% trans "Votes" %}: {{ task.votes_score|default:0 }}</span>
-        <span class="badge-status badge-light me-2">{% trans "Success" %}: {{ task.eval_success|default:0 }}</span>
-        <span class="badge-status badge-light">{% trans "Failure" %}: {{ task.eval_failure|default:0 }}</span>
+      <div class="tw-mt-3 tw-flex tw-flex-wrap tw-gap-2">
+        <span class="tw-badge-status tw-badge-light" data-votes-badge="{% trans "Votes" %}: ">{% trans "Votes" %}: {{ task.votes_score|default:0 }}</span>
+        <span class="tw-badge-status tw-badge-light">{% trans "Success" %}: {{ task.eval_success|default:0 }}</span>
+        <span class="tw-badge-status tw-badge-light">{% trans "Failure" %}: {{ task.eval_failure|default:0 }}</span>
       </div>
     </div>
   </div>
 
-  <div class="task-actions d-flex flex-wrap gap-2 align-items-center mb-4">
+  <div class="task-actions tw-flex tw-flex-wrap tw-gap-2 tw-items-center tw-mb-4">
     {% if task.is_active %}
       {% with vote_value=user_vote_value %}
-      <form class="d-inline" method="post" action="{% url 'tasks:vote' task.pk %}">
+      <form class="tw-inline" method="post" action="{% url 'tasks:vote' task.pk %}">
         {% csrf_token %}
         <input type="hidden" name="value" value="1">
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
         <button type="submit"
                 class="task-vote-btn up{% if vote_value == 1 %} active-vote{% endif %}"
-                data-bs-toggle="tooltip"
+                data-tw-toggle="tooltip"
                 data-text-active="{% trans 'Helping' %}"
                 data-text-inactive="{% trans 'I want to help' %}"
                 data-icon-active="fa-check"
@@ -104,13 +104,13 @@
         </button>
       </form>
 
-      <form class="d-inline" method="post" action="{% url 'tasks:vote' task.pk %}">
+      <form class="tw-inline" method="post" action="{% url 'tasks:vote' task.pk %}">
         {% csrf_token %}
         <input type="hidden" name="value" value="-1">
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
         <button type="submit"
                 class="task-vote-btn down{% if vote_value == -1 %} active-vote{% endif %}"
-                data-bs-toggle="tooltip"
+                data-tw-toggle="tooltip"
                 data-text-active="{% trans 'Against' %}"
                 data-text-inactive="{% trans "Let's not do that" %}"
                 data-icon-active="fa-check"
@@ -129,23 +129,23 @@
 
       {% if not task.assigned_to or task.assigned_to == request.user %}
         {# Pre-render both states; JS toggles `hidden` after AJAX take/resign #}
-        <form class="d-inline" method="post" action="{% url 'tasks:take' task.pk %}" data-coord-state="empty"{% if task.assigned_to %} hidden{% endif %}>
+        <form class="tw-inline" method="post" action="{% url 'tasks:take' task.pk %}" data-coord-state="empty"{% if task.assigned_to %} hidden{% endif %}>
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
           <button type="submit"
                   class="action-btn action-btn-take"
-                  data-bs-toggle="tooltip"
+                  data-tw-toggle="tooltip"
                   title="{% trans "Take responsibility for coordinating this activity" %}">
             <i class="fas fa-hand-paper fa-fw"></i> {% trans "Become coordinator" %}
           </button>
         </form>
 
-        <form class="d-inline" method="post" action="{% url 'tasks:resign' task.pk %}" data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}>
+        <form class="tw-inline" method="post" action="{% url 'tasks:resign' task.pk %}" data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}>
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
           <button type="submit"
                   class="action-btn action-btn-withdraw"
-                  data-bs-toggle="tooltip"
+                  data-tw-toggle="tooltip"
                   title="{% trans "Step down and release this activity back to the waiting pool" %}">
             <i class="fas fa-sign-out-alt fa-fw"></i> {% trans "Resign as coordinator" %}
           </button>
@@ -153,14 +153,14 @@
         <a class="action-btn action-btn-edit"
            href="{% url 'tasks:edit' task.pk %}"
            data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}
-           data-bs-toggle="tooltip"
+           data-tw-toggle="tooltip"
            title="{% trans "Edit title, description and category" %}">
           <i class="fas fa-pen fa-fw"></i> {% trans "Edit" %}
         </a>
         <a class="action-btn action-btn-sign"
            href="{% url 'tasks:close' task.pk %}"
            data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}
-           data-bs-toggle="tooltip"
+           data-tw-toggle="tooltip"
            title="{% trans "Mark activity as completed or cancelled" %}">
           <i class="fas fa-check-circle fa-fw"></i> {% trans "Close activity" %}
         </a>
@@ -170,18 +170,18 @@
     {% if task.created_by == request.user and task.is_active %}
       <button type="button"
               class="action-btn action-btn-withdraw"
-              data-bs-toggle="modal"
-              data-bs-target="#confirmDeleteModal">
+              data-tw-toggle="modal"
+              data-tw-target="#confirmDeleteModal">
         <i class="fas fa-trash fa-fw"></i> {% trans "Delete activity" %}
       </button>
     {% endif %}
   </div>
 
-  <div class="row mb-4">
-    <div class="col-12 col-md-6 mb-3 mb-md-0">
-      <div class="card h-100">
-        <div class="card-body">
-          <h2 class="h5 mb-3">{% trans "Willing to help" %}</h2>
+  <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4 tw-mb-4">
+    <div>
+      <div class="tw-card tw-h-full">
+        <div class="tw-card-body">
+          <h2 class="tw-text-lg tw-font-semibold tw-mb-3">{% trans "Willing to help" %}</h2>
           <div class="helpers-voter-list" data-voter-list="helpers"{% if not helping_votes %} hidden{% endif %}>
             {% for vote in helping_votes %}
               <div class="helpers-voter-item" data-user-id="{{ vote.user_id }}">
@@ -208,22 +208,22 @@
                     <label class="helper-switch" for="helper-toggle-{{ vote.user_id }}" title="{% trans 'Approve for team' %}">
                       <input id="helper-toggle-{{ vote.user_id }}" type="checkbox" data-helper-toggle {% if vote.is_approved %}checked{% endif %}>
                       <span class="helper-switch-slider"></span>
-                      <span class="visually-hidden">{% trans "Approve for team" %}</span>
+                      <span class="tw-sr-only">{% trans "Approve for team" %}</span>
                     </label>
                   </form>
                 {% endif %}
               </div>
             {% endfor %}
           </div>
-          <p class="text-muted mb-0" data-voter-empty="helpers"{% if helping_votes %} hidden{% endif %}>{% trans "No one wants to help at the moment" %}</p>
+          <p class="tw-text-muted tw-mb-0" data-voter-empty="helpers"{% if helping_votes %} hidden{% endif %}>{% trans "No one wants to help at the moment" %}</p>
         </div>
       </div>
     </div>
 
-    <div class="col-12 col-md-6">
-      <div class="card h-100">
-        <div class="card-body">
-          <h2 class="h5 mb-3">{% trans "Against this activity" %}</h2>
+    <div>
+      <div class="tw-card tw-h-full">
+        <div class="tw-card-body">
+          <h2 class="tw-text-lg tw-font-semibold tw-mb-3">{% trans "Against this activity" %}</h2>
           <div class="helpers-popover-list" data-voter-list="against"{% if not against_votes %} hidden{% endif %}>
             {% for vote in against_votes %}
               <a class="helpers-popover-item" href="{% url 'obywatele:obywatele_szczegoly' vote.user_id %}" data-user-id="{{ vote.user_id }}">
@@ -232,14 +232,14 @@
               </a>
             {% endfor %}
           </div>
-          <p class="text-muted mb-0" data-voter-empty="against"{% if against_votes %} hidden{% endif %}>{% trans "No one is against at the moment" %}</p>
+          <p class="tw-text-muted tw-mb-0" data-voter-empty="against"{% if against_votes %} hidden{% endif %}>{% trans "No one is against at the moment" %}</p>
         </div>
       </div>
     </div>
   </div>
 
   {% if not task.is_active %}
-    <div class="d-flex gap-2 mb-4">
+    <div class="tw-flex tw-gap-2 tw-mb-4">
       <form method="post" action="{% url 'tasks:reopen' task.pk %}">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
@@ -248,10 +248,10 @@
         </button>
       </form>
     </div>
-    <div class="card">
-      <div class="card-body">
-        <h2 class="h5 mb-3">{% blocktrans with status=task.get_status_display %}Was it good that this activity was {{ status }}?{% endblocktrans %}</h2>
-        <div class="d-flex gap-2">
+    <div class="tw-card">
+      <div class="tw-card-body">
+        <h2 class="tw-text-lg tw-font-semibold tw-mb-3">{% blocktrans with status=task.get_status_display %}Was it good that this activity was {{ status }}?{% endblocktrans %}</h2>
+        <div class="tw-flex tw-gap-2">
           <form method="post" action="{% url 'tasks:evaluate' task.pk %}">
             {% csrf_token %}
             <input type="hidden" name="value" value="success">
@@ -274,19 +274,19 @@
   {% endif %}
 
   {% if task.created_by == request.user %}
-  <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="confirmDeleteModalLabel">{% trans "Delete activity" %}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans "Close" %}">
+  <div class="tw-modal tw-fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="tw-modal-dialog" role="document">
+      <div class="tw-modal-content">
+        <div class="tw-modal-header">
+          <h5 class="tw-modal-title tw-text-base tw-font-semibold" id="confirmDeleteModalLabel">{% trans "Delete activity" %}</h5>
+          <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="{% trans "Close" %}">
           </button>
         </div>
-        <div class="modal-body">
+        <div class="tw-modal-body">
           {% trans "Are you sure you want to delete this activity? This action cannot be undone." %}
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
+        <div class="tw-modal-footer">
+          <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-times fa-fw"></i> {% trans "Cancel" %}</button>
           <form method="post" action="{% url 'tasks:delete' task.pk %}">
             {% csrf_token %}
             <button type="submit" class="action-btn action-btn-withdraw">{% trans "Yes, delete" %}</button>

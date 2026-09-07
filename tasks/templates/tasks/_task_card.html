@@ -18,19 +18,19 @@
     {# Badges: priorytet / status + chat #}
     <div class="task-card-badges-row">
       {% if task.priority_category == 'critical' %}
-        <span class="badge-status badge-critical">{% trans 'Critical' %}</span>
+        <span class="tw-badge-status tw-badge-danger">{% trans 'Critical' %}</span>
       {% elif task.priority_category == 'important' %}
-        <span class="badge-status badge-important">{% trans 'Important' %}</span>
+        <span class="tw-badge-status tw-badge-warning">{% trans 'Important' %}</span>
       {% elif task.priority_category == 'beneficial' %}
-        <span class="badge-status badge-beneficial">{% trans 'Beneficial' %}</span>
+        <span class="tw-badge-status tw-badge-success">{% trans 'Beneficial' %}</span>
       {% elif task.priority_category == 'rejected' %}
-        <span class="badge-status badge-rejected">{% trans 'Rejected' %}</span>
+        <span class="tw-badge-status tw-badge-rejected">{% trans 'Rejected' %}</span>
       {% endif %}
 
       {% if task.status == 'completed' %}
-        <span class="badge-status badge-approved">{% trans 'Completed' %}</span>
+        <span class="tw-badge-status tw-badge-approved">{% trans 'Completed' %}</span>
       {% elif task.status == 'cancelled' %}
-        <span class="badge-status badge-discussion">{% trans 'Cancelled' %}</span>
+        <span class="tw-badge-status tw-badge-discussion">{% trans 'Cancelled' %}</span>
       {% endif %}
 
       {% if task.chat_room_url %}
@@ -52,7 +52,7 @@
         {# Someone else is coordinator — static, no live update possible from this user #}
         <a href="{% url 'obywatele:obywatele_szczegoly' pk=task.assigned_to.pk %}"
            class="task-coordinator-link" onclick="event.stopPropagation()"
-           data-bs-toggle="tooltip"
+           data-tw-toggle="tooltip"
            title="{% trans 'Coordinator' %}: {{ task.assigned_to.username }}">
           <i class="fas fa-user-gear task-role-icon" aria-hidden="true"></i>
           {% include "home/_user_avatar.html" with avatar=task.assigned_to.uzytkownik.avatar username=task.assigned_to.username size="md" %}
@@ -63,7 +63,7 @@
         <a href="{% url 'obywatele:obywatele_szczegoly' pk=request.user.pk %}"
            class="task-coordinator-link" onclick="event.stopPropagation()"
            data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}
-           data-bs-toggle="tooltip"
+           data-tw-toggle="tooltip"
            title="{% trans 'Coordinator' %}: {{ request.user.username }}">
           <i class="fas fa-user-gear task-role-icon" aria-hidden="true"></i>
           {% include "home/_user_avatar.html" with avatar=request.user.uzytkownik.avatar username=request.user.username size="md" %}
@@ -71,7 +71,7 @@
         </a>
         <span class="task-coordinator-empty"
               data-coord-state="empty"{% if task.assigned_to %} hidden{% endif %}
-              data-bs-toggle="tooltip" title="{% trans 'No coordinator yet' %}">
+              data-tw-toggle="tooltip" title="{% trans 'No coordinator yet' %}">
           <i class="fas fa-user-gear task-role-icon" aria-hidden="true"></i>
           <span>{% trans 'no coordinator' %}</span>
         </span>
@@ -79,7 +79,7 @@
 
       <span class="task-meta-sep">·</span>
       <span class="task-date"
-            data-bs-toggle="tooltip"
+            data-tw-toggle="tooltip"
             title="{% trans 'Created' %}: {{ task.created_at|date:'d.m.Y H:i' }}">
         <i class="fas fa-clock-rotate-left task-role-icon" aria-hidden="true"></i>
         {{ task.created_at|date:"d.m.Y" }}
@@ -88,7 +88,7 @@
       {% if task.category %}
       <span class="task-meta-sep">·</span>
       <span class="task-category"
-            data-bs-toggle="tooltip"
+            data-tw-toggle="tooltip"
             title="{% trans 'Category' %}: {{ task.category.name }}">
         <i class="fas fa-tag task-role-icon" aria-hidden="true"></i>
         {{ task.category.name }}
@@ -101,12 +101,12 @@
               onclick="event.stopPropagation()"
               data-task-helpers="{{ task.pk }}"
               data-helpers-url="{% url 'tasks:helpers_json' pk=task.pk %}"
-              data-bs-toggle="popover"
-              data-bs-trigger="manual"
-              data-bs-placement="bottom"
-              data-bs-html="true"
-              data-bs-title="{% trans 'People helping' %}"
-              data-bs-content="<div class='helpers-popover-loading'>{% trans 'Loading…' %}</div>"
+              data-tw-toggle="popover"
+              data-tw-trigger="manual"
+              data-tw-placement="bottom"
+              data-tw-html="true"
+              data-tw-title="{% trans 'People helping' % }"
+              data-tw-content="<div class='helpers-popover-loading'>{% trans 'Loading…' %}</div>"
               aria-label="{% trans 'People helping. Click to see the list.' %}">
         <i class="fas fa-hand-holding-heart fa-fw"></i>
         <span class="task-signatures-count">{{ task.votes_up|default:0 }}</span>
@@ -117,12 +117,12 @@
               onclick="event.stopPropagation()"
               data-task-against="{{ task.pk }}"
               data-against-url="{% url 'tasks:against_json' pk=task.pk %}"
-              data-bs-toggle="popover"
-              data-bs-trigger="manual"
-              data-bs-placement="bottom"
-              data-bs-html="true"
-              data-bs-title="{% trans 'People against' %}"
-              data-bs-content="<div class='helpers-popover-loading'>{% trans 'Loading…' %}</div>"
+              data-tw-toggle="popover"
+              data-tw-trigger="manual"
+              data-tw-placement="bottom"
+              data-tw-html="true"
+              data-tw-title="{% trans 'People against' %}"
+              data-tw-content="<div class='helpers-popover-loading'>{% trans 'Loading…' %}</div>"
               aria-label="{% trans 'People against. Click to see the list.' %}">
         <i class="fas fa-ban fa-fw"></i>
         <span class="task-against-count">{{ task.votes_down|default:0 }}</span>
@@ -172,7 +172,7 @@
                 data-icon-inactive="fa-plus"
                 data-tooltip-active="{% trans 'Click to withdraw your vote' %}"
                 data-tooltip-inactive="{% trans 'Vote to help with this activity. Click again to withdraw.' %}"
-                data-bs-toggle="tooltip"
+                data-tw-toggle="tooltip"
                 title="{% if task.user_vote_value == 1 %}{% trans 'Click to withdraw your vote' %}{% else %}{% trans 'Vote to help with this activity. Click again to withdraw.' %}{% endif %}">
           {% if task.user_vote_value == 1 %}
             <i class="fas fa-check"></i> {% trans 'Helping' %}
@@ -195,7 +195,7 @@
                 data-icon-inactive="fa-minus"
                 data-tooltip-active="{% trans 'Click to withdraw your vote' %}"
                 data-tooltip-inactive="{% trans 'Vote against this activity. At -2 votes the activity is rejected.' %}"
-                data-bs-toggle="tooltip"
+                data-tw-toggle="tooltip"
                 title="{% if task.user_vote_value == -1 %}{% trans 'Click to withdraw your vote' %}{% else %}{% trans 'Vote against this activity. At -2 votes the activity is rejected.' %}{% endif %}">
           {% if task.user_vote_value == -1 %}
             <i class="fas fa-check"></i> {% trans 'Against' %}
@@ -211,7 +211,7 @@
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
           <button type="submit" class="task-resign-btn" onclick="event.stopPropagation()"
-                  data-bs-toggle="tooltip"
+                  data-tw-toggle="tooltip"
                   title="{% trans 'Step down from coordinating this activity' %}">
             <i class="fas fa-xmark"></i> {% trans 'Resign as coordinator' %}
           </button>
@@ -220,7 +220,7 @@
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
           <button type="submit" class="task-take-btn" onclick="event.stopPropagation()"
-                  data-bs-toggle="tooltip"
+                  data-tw-toggle="tooltip"
                   title="{% trans 'Take responsibility for coordinating this activity' %}">
             <i class="fas fa-hand"></i> {% trans 'Become coordinator' %}
           </button>

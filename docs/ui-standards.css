@@ -1,0 +1,110 @@
+/* Layout helpers for docs/UI_STANDARDS.html only.
+   All components use the production tokens and tw-* classes from
+   ../home/static/home/css/tokens.css and ../home/static/home/css/tailwind.build.css. */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  line-height: 1.5;
+  padding: 2rem;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+h1, h2, h3 {
+  margin: 1.5rem 0 .75rem;
+  color: var(--text-primary);
+}
+
+p, li {
+  color: var(--text-muted);
+}
+
+.intro {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.component-label {
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-muted);
+  margin-bottom: .75rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+
+.color-chip {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+}
+
+.color-chip--accent { background: var(--accent); }
+.color-chip--proposition { background: var(--badge-proposition-color); }
+.color-chip--approved { background: var(--badge-approved-color); }
+.color-chip--rejected { background: var(--badge-rejected-color); }
+
+.rules {
+  list-style: none;
+  padding: 0;
+}
+
+.rules li {
+  padding: .5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.rules li:last-child { border-bottom: none; }
+
+.rules code,
+.source-link code {
+  background: var(--color-surface-offset);
+  padding: .15rem .35rem;
+  border-radius: .25rem;
+  font-size: .85em;
+}
+
+.source-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.source-link:hover { text-decoration: underline; }
+
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: var(--btn-glass-bg);
+  border: 1px solid var(--btn-glass-border);
+  color: var(--text-muted);
+  padding: .4rem .6rem;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+}

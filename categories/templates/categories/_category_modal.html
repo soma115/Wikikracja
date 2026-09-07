@@ -1,21 +1,21 @@
 {% load i18n %}
-<div class="modal fade" id="manageCategoriesModal" tabindex="-1" aria-labelledby="manageCategoriesModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="manageCategoriesModalLabel">
-          <i class="fas fa-gear me-2"></i>{% trans 'Manage categories' %}
+<div class="tw-modal tw-fade" id="manageCategoriesModal" tabindex="-1" aria-labelledby="manageCategoriesModalLabel" aria-hidden="true">
+  <div class="tw-modal-dialog tw-modal-dialog-scrollable">
+    <div class="tw-modal-content">
+      <div class="tw-modal-header">
+        <h5 class="tw-modal-title" id="manageCategoriesModalLabel">
+          <i class="fas fa-gear tw-me-2"></i>{% trans 'Manage categories' %}
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+        <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
       </div>
-      <div class="modal-body">
+      <div class="tw-modal-body">
         <ul class="cat-mgr-list" id="catMgrList"></ul>
         <div class="cat-mgr-error mig-hidden" id="catMgrError"></div>
         <div class="cat-mgr-add-row" id="catMgrAddRow">
           <input type="text" class="cat-mgr-input" id="catMgrNewName" placeholder="{% trans 'Category name' %}" maxlength="100">
           <input type="text" class="cat-mgr-input" id="catMgrNewDesc" placeholder="{% trans 'Description (optional)' %}">
-          <button type="button" class="btn btn-sm btn-primary" id="catMgrAddBtn">
-            <i class="fas fa-plus me-1"></i>{% trans 'Add category' %}
+          <button type="button" class="tw-btn tw-btn-sm tw-btn-primary" id="catMgrAddBtn">
+            <i class="fas fa-plus fa-fw tw-me-1"></i>{% trans 'Add category' %}
           </button>
         </div>
       </div>

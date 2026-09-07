@@ -7,7 +7,7 @@
 
 {% block content %}
 
-<div class="section" data-view-container>
+<div class="tw-section" data-view-container>
 
 {# ── TOOLBAR ── #}
 {% if request.user.is_authenticated %}{% url 'board:create_post' as cta_url %}{% endif %}
@@ -15,71 +15,68 @@
 
 {# ── KAFLE KATEGORII ── #}
 {% for group in category_groups %}
-<div class="card mb-4 board-category-group" data-category-pk="{% if group.category %}{{ group.category.pk }}{% endif %}">
-  <div class="card-header d-flex align-items-center justify-content-between gap-2">
-    <span class="section-heading">
-      <i class="fas fa-bullhorn me-2 cat-group-icon"></i>
+<div class="tw-card tw-mb-4 tw-board-category-group" data-category-pk="{% if group.category %}{{ group.category.pk }}{% endif %}">
+  <div class="tw-card-header tw-flex tw-items-center tw-justify-between tw-gap-2">
+    <span class="tw-section-heading">
+      <i class="fas fa-bullhorn tw-me-2 tw-cat-group-icon"></i>
       {% if group.category %}{{ group.category.name }}{% else %}{% trans "Uncategorized" %}{% endif %}
     </span>
     {% if user.is_authenticated %}
-    <a href="{% url 'board:create_post' %}{% if group.category %}?category={{ group.category.pk }}{% endif %}" class="btn btn-sm btn-outline-secondary">
-      <i class="fas fa-plus me-1"></i>{% trans "Create" %}
+    <a href="{% url 'board:create_post' %}{% if group.category %}?category={{ group.category.pk }}{% endif %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+      <i class="fas fa-plus tw-me-1"></i>{% trans "Create" %}
     </a>
     {% endif %}
   </div>
 
-  <div class="card-body p-2">
+  <div class="tw-card-body tw-p-2">
     {# lista #}
-    <div class="board-posts-list">
+    <div class="tw-board-posts-list">
       {% for post in group.posts %}
-      <div class="board-post-row post-row-link" data-detail-url="{% url 'board:view_post' post.pk %}" role="link" tabindex="0">
-        <div class="d-flex align-items-center gap-2 w-100">
-          <div class="flex-fill min-w-0">
-            <div class="d-flex align-items-center gap-2">
-              <div class="fw-semibold text-title-clamp min-w-0 flex-1">{{ post.title }}</div>
+      <div class="tw-board-post-row tw-post-row-link" data-detail-url="{% url 'board:view_post' post.pk %}" role="link" tabindex="0">
+        <div class="tw-flex tw-items-center tw-gap-2 tw-w-full">
+          <div class="tw-flex-1 tw-min-w-0">
+            <div class="tw-flex tw-items-center tw-gap-2">
+              <div class="tw-font-semibold tw-text-title-clamp tw-min-w-0 tw-flex-1">{{ post.title }}</div>
               {% include "board/_post_chat_link.html" with post=post %}
             </div>
             {% if post.subtitle %}
-            <div class="text-subtitle-clamp">{{ post.subtitle }}</div>
+            <div class="tw-text-subtitle-clamp">{{ post.subtitle }}</div>
             {% endif %}
           </div>
-          <div class="d-flex align-items-center gap-2 flex-shrink-0">
+          <div class="tw-flex tw-items-center tw-gap-2 tw-shrink-0">
             {% if post.author %}
               {% include "home/_user_avatar.html" with avatar=post.author.uzytkownik.avatar username=post.author.username size="xs" %}
             {% endif %}
-            <span class="text-meta">{{ post.updated|date:"d.m.Y" }}</span>
+            <span class="tw-text-meta">{{ post.updated|date:"d.m.Y" }}</span>
           </div>
         </div>
         {% if post.featured_image %}
-        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-featured-thumb flex-shrink-0">
+        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="tw-post-featured-thumb tw-shrink-0">
         {% endif %}
       </div>
       {% endfor %}
     </div>
 
     {# siatka #}
-    <div class="board-posts-grid">
-      <div class="row g-2">
+    <div class="tw-board-posts-grid">
+      <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-2">
         {% for post in group.posts %}
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="post-card-link" data-detail-url="{% url 'board:view_post' post.pk %}" role="link" tabindex="0">
-            <div class="card-body p-3 d-flex flex-column gap-2 flex-fill">
-              <div class="d-flex align-items-start gap-2">
-                <div class="fw-semibold text-title-clamp-2 min-w-0 flex-1">{{ post.title }}</div>
+        <div>
+          <div class="tw-post-card-link{% if post.featured_image %} tw-post-card-link--featured{% endif %}" data-detail-url="{% url 'board:view_post' post.pk %}" role="link" tabindex="0"{% if post.featured_image %} style="--featured-img: url('{{ post.featured_image.url }}')"{% endif %}>
+            <div class="tw-card-body tw-p-3 tw-flex tw-flex-col tw-gap-2 tw-flex-1">
+              <div class="tw-flex tw-items-start tw-gap-2">
+                <div class="tw-font-semibold tw-text-title-clamp-2 tw-min-w-0 tw-flex-1">{{ post.title }}</div>
                 {% include "board/_post_chat_link.html" with post=post %}
               </div>
               {% if post.subtitle %}
-              <div class="text-subtitle-clamp-2">{{ post.subtitle }}</div>
+              <div class="tw-text-subtitle-clamp-2">{{ post.subtitle }}</div>
               {% endif %}
-              <div class="d-flex align-items-center gap-2">
+              <div class="tw-flex tw-items-center tw-gap-2">
                 {% if post.author %}
                   {% include "home/_user_avatar.html" with avatar=post.author.uzytkownik.avatar username=post.author.username size="sm" %}
                 {% endif %}
-                <span class="text-meta">{{ post.updated|date:"d.m.Y" }}</span>
+                <span class="tw-text-meta">{{ post.updated|date:"d.m.Y" }}</span>
               </div>
-              {% if post.featured_image %}
-              <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-featured-card-img">
-              {% endif %}
             </div>
           </div>
         </div>
@@ -89,14 +86,14 @@
   </div>
 </div>
 {% empty %}
-<div class="card mb-4">
-  <div class="card-header">
-    <span class="section-heading">
-      <i class="fas fa-bullhorn me-2 cat-group-icon"></i>{% trans "Documents" %}
+<div class="tw-card tw-mb-4">
+  <div class="tw-card-header">
+    <span class="tw-section-heading">
+      <i class="fas fa-bullhorn tw-me-2 tw-cat-group-icon"></i>{% trans "Documents" %}
     </span>
   </div>
-  <div class="card-body py-2 px-3">
-    <span class="text-meta">{% trans "No documents" %}</span>
+  <div class="tw-card-body tw-py-2 tw-px-3">
+    <span class="tw-text-meta">{% trans "No documents" %}</span>
   </div>
 </div>
 {% endfor %}

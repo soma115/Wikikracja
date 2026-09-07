@@ -1,0 +1,7 @@
+{% load crispy_classmap %}
+<fieldset {% if fieldset.css_id %}id="{{ fieldset.css_id }}"{% endif %} 
+    {% if fieldset.css_class %}class="{{ fieldset.css_class|crispy_classmap }}"{% endif %}
+    {{ fieldset.flat_attrs }}>
+    {% if legend %}<legend>{{ legend|safe }}</legend>{% endif %}
+    {{ fields|safe }} 
+</fieldset>

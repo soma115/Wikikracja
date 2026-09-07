@@ -89,8 +89,8 @@ USE_TZ = True
 LOCALE_PATHS = (path.join(BASE_DIR, 'locale'),)
 DATE_FORMAT = "Y-m-d"
 
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = 'bootstrap5'
+CRISPY_ALLOWED_TEMPLATE_PACKS = "tw"
+CRISPY_TEMPLATE_PACK = 'tw'
 ASGI_APPLICATION = 'zzz.routing.application'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ROOT_URLCONF = 'zzz.urls'
@@ -192,9 +192,7 @@ INSTALLED_APPS = [
     'allauth.account',
     # 'allauth.socialaccount',
     'django.contrib.staticfiles',
-    'django_bootstrap5',
     'crispy_forms',
-    'crispy_bootstrap5',
     'tinymce',
     'django_tables2',
     'django_filters',

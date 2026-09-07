@@ -198,7 +198,7 @@
       });
     }
 
-    modalEl.addEventListener('show.bs.modal', function () {
+    modalEl.addEventListener('show.tw.modal', function () {
       loadCategories();
       if (urls.reorder && typeof initSortableList !== 'undefined') {
         if (sortable) { sortable.destroy(); sortable = null; }
@@ -209,7 +209,7 @@
         });
       }
     });
-    modalEl.addEventListener('hidden.bs.modal', function () {
+    modalEl.addEventListener('hidden.tw.modal', function () {
       showError('');
       window.location.reload();
     });

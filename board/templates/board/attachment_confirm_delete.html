@@ -2,17 +2,17 @@
 {% load i18n %}
 
 {% block content %}
-<div class="section">
-  <div class="card">
-    <div class="card-header">
-      <span class="section-heading">{% trans 'Delete attachment' %}</span>
+<div class="tw-section">
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <span class="tw-section-heading">{% trans 'Delete attachment' %}</span>
     </div>
-    <div class="card-body">
+    <div class="tw-card-body">
       <p>{% trans 'Are you sure you want to delete the attachment' %} "{{ attachment.filename }}"?</p>
-      <form method="post">
+      <form method="post" class="tw-flex tw-gap-2">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">{% trans 'Delete' %}</button>
-        <a href="{% url 'board:edit_post' post.pk %}" class="btn btn-secondary">{% trans 'Cancel' %}</a>
+        <button type="submit" class="tw-btn tw-btn-danger"><i class="fas fa-trash fa-fw tw-me-1"></i> {% trans 'Delete' %}</button>
+        <a href="{% url 'board:edit_post' post.pk %}" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw tw-me-1"></i> {% trans 'Cancel' %}</a>
       </form>
     </div>
   </div>

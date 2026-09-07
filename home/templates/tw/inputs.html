@@ -1,0 +1,14 @@
+{% load crispy_classmap %}
+{% if inputs %}
+    <div class="tw-mb-3">
+        {% if label_class %}
+            <div class="aab {{ label_class|crispy_classmap }}"></div>
+        {% endif %}
+
+        <div class="{{ field_class|crispy_classmap }}">
+            {% for input in inputs %}
+                {% include "tw/layout/baseinput.html" %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

@@ -25,6 +25,15 @@ export function $$(selector, context = document) {
 }
 
 /**
+ * Jedno źródło prawdy dla breakpointu mobile — musi odpowiadać
+ * `@media (max-width: 767px)` w home/static/home/css/tailwind.css.
+ * Fallback bez matchMedia dotyczy tylko środowisk testowych (jsdom).
+ */
+export const mobileMedia = typeof window.matchMedia === 'function'
+    ? window.matchMedia('(max-width: 767px)')
+    : { matches: false, addEventListener() {}, removeEventListener() {} };
+
+/**
  * Reads the Django CSRF token from the `csrftoken` cookie.
  * @returns {string}
  */

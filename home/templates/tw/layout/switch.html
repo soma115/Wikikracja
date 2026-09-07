@@ -1,0 +1,20 @@
+{% load crispy_forms_field %}
+{% load crispy_classmap %}
+
+{% if field.is_hidden %}
+    {{ field }}
+{% else %}
+    <{% if tag %}{{ tag }}{% else %}div{% endif %} id="div_{{ field.auto_id }}" class="tw-mb-3 tw-form-check tw-form-switch{% if wrapper_class %} {{ wrapper_class|crispy_classmap }}{% endif %}{% if field.css_classes %} {{ field.css_classes|crispy_classmap }}{% endif %}">
+        <div class="{{ field_class|crispy_classmap }}">
+            {% if field.errors %}
+                {% crispy_field field 'class' 'tw-form-check-input is-invalid' 'role' 'checkbox' %}
+            {% else %}
+                {% crispy_field field 'class' 'tw-form-check-input' 'role' 'checkbox' %}
+            {% endif %}
+            <label for="{{ field.id_for_label }}" class="tw-form-check-label{% if field.field.required %} requiredField{% endif %}">
+                {{ field.label }}
+            </label>
+            {% include 'tw/layout/help_text_and_errors.html' %}
+        </div>
+    </{% if tag %}{{ tag }}{% else %}div{% endif %}>
+{% endif %}

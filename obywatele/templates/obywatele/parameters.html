@@ -1,8 +1,4 @@
 {% extends 'obywatele/menu.html' %}
-{% load django_bootstrap5 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{% bootstrap_messages %}
 {% load static %}
 {% load i18n %}
 
@@ -10,28 +6,28 @@
 
 {% block citizens %}
 
-	<ul class="container list-group">
-		<li class="list-group-item d-flex justify-content-between align-items-center">
+	<ul class="tw-container tw-list-group">
+		<li class="tw-list-group-item">
 			{% trans "Population" %}
-			<span class="badge-status badge-primary rounded-pill">{{ population }}</span>
+			<span class="tw-badge-status tw-badge-primary tw-rounded-full">{{ population }}</span>
 		</li>
-		<li class="list-group-item d-flex justify-content-between align-items-center">
+		<li class="tw-list-group-item">
 			{% trans "Acceptance threshold" %}
-			<span class="badge-status badge-primary rounded-pill">{{ acceptance }}</span>
+			<span class="tw-badge-status tw-badge-primary tw-rounded-full">{{ acceptance }}</span>
 		</li>
 
-		<li class="list-group-item d-flex justify-content-between align-items-center">
+		<li class="tw-list-group-item">
 			{% trans "Candidate removal after" %}
-			<span class="badge-status badge-primary rounded-pill">{{ delete_inactive_user_after }} {% trans "days" %}</span>
+			<span class="tw-badge-status tw-badge-primary tw-rounded-full">{{ delete_inactive_user_after }} {% trans "days" %}</span>
 		</li>
-		<li class="list-group-item text-start align-items-center fw-bold">
+		<li class="tw-list-group-item tw-items-start tw-text-start tw-font-bold">
 			<p>
 				{% trans "New person will be accepted above" %}
-					<span class="badge-status badge-primary rounded-pill">{{ acceptance }}</span> 
+					<span class="tw-badge-status tw-badge-primary tw-rounded-full">{{ acceptance }}</span>
 				{% trans "threshold." %} <br>
 				
 				{% trans "Existing person will be banned bellow" %}
-					<span class="badge-status badge-primary rounded-pill">{{ acceptance }}</span>
+					<span class="tw-badge-status tw-badge-primary tw-rounded-full">{{ acceptance }}</span>
 				{% trans "threshold." %} <br>
 				
 				{% trans "You can check your reputation in your" %}
@@ -43,12 +39,14 @@
 				
 				{% trans "If you want to change Acceptance threshold - create referendum." %}
 			</p>
-			<a href="{% url 'glosowania:parameters_propose' %}" class="btn btn-primary btn-sm mb-2">
-				<i class="fas fa-sliders-h me-1"></i>{% trans 'Create referendum on system parameters' %}
-			</a>
-			<br>
 			<a href="https://wikikracja.pl/obrona-przed-wrogim-przejeciem/" target="_blank" rel="noopener">{% trans "Read explanation for this mechanism" %}</a>
 		</li>
 	</ul>
+
+	<div class="tw-container tw-mt-4">
+		<a href="{% url 'glosowania:parameters_propose' %}" class="tw-btn tw-btn-primary tw-btn-sm">
+			<i class="fas fa-sliders-h tw-me-1"></i>{% trans 'Create referendum on system parameters' %}
+		</a>
+	</div>
 
 {% endblock citizens %}

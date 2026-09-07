@@ -162,7 +162,7 @@ class CustomSignupForm(SignupForm):
     """
 
     email = forms.CharField(max_length=100, label='Email', required=True)
-    captcha = CaptchaField(widget=CaptchaTextInput(attrs={'class': 'form-control'}))
+    captcha = CaptchaField(widget=CaptchaTextInput(attrs={'class': 'tw-form-control'}))
 
     def __init__(self, *args, **kwargs):
         super(CustomSignupForm, self).__init__(*args, **kwargs)

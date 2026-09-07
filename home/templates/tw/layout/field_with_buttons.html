@@ -1,0 +1,37 @@
+{% load crispy_forms_field %}
+{% load crispy_classmap %}
+
+<div{% if div.css_id %} id="{{ div.css_id }}"{% endif %} class="tw-mb-3{% if wrapper_class %} {{ wrapper_class|crispy_classmap }}{% endif %}{% if field.css_classes %} {{ field.css_classes|crispy_classmap }}{% endif %}{% if div.css_class %} {{ div.css_class|crispy_classmap }}{% endif %}" {{ div.flat_attrs }}>
+    {% if field.label and form_show_labels %}
+        <label for="{{ field.id_for_label }}" class="tw-form-label{% if label_class %} {{ label_class|crispy_classmap }}{% endif %}{% if field.field.required %} requiredField{% endif %}">
+            {{ field.label }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
+        </label>
+    {% endif %}
+
+    <div{% if field_class %} class="{{ field_class|crispy_classmap }}"{% endif %}>
+        <div class="tw-input-group{% if input_size %} {{ input_size|crispy_classmap }}{% endif %}">
+            {% if field|is_select %}
+                {% if field.errors %}
+                    {% crispy_field field 'class' 'tw-form-select is-invalid' %}
+                {% else %}
+                    {% crispy_field field 'class' 'tw-form-select' %}
+                {% endif %}
+            {% else %}
+                {% if field.errors %}
+                    {% crispy_field field 'class' 'tw-form-control is-invalid' %}
+                {% else %}
+                    {% crispy_field field 'class' 'tw-form-control' %}
+                {% endif %}
+            {% endif %}
+            {{ buttons|safe }}
+        </div>
+        {% if field.errors %}
+        <div id="{{field.errors.field_id}}_error">
+            {% for error in field.errors %}
+                <p id="error_{{ forloop.counter }}_{{ field.auto_id }}" class="tw-text-danger tw-mb-0"><small><strong>{{ error }}</strong></small></p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% include 'tw/layout/help_text.html' %}
+    </div>
+</div>

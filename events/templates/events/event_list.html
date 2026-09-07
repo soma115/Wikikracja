@@ -10,7 +10,7 @@
 {% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add Event') views=toolbar_views %}
 
 {# Stały mini-kalendarz — nawigacja zmienia tylko jego miesiąc. #}
-<div id="events-calendar" data-month="{{ current_month_iso }}" data-today-month="{{ today_month_iso }}">
+<div id="events-calendar" class="tw-w-full" data-month="{{ current_month_iso }}" data-today-month="{{ today_month_iso }}">
   {% include 'obywatele/_calendar_partial.html' with cal_weeks=current_month_weeks cal_year=current_month_year cal_month=current_month_num cal_first_day=current_month_first_day prev_month=current_month_prev next_month=current_month_next %}
 </div>
 
@@ -30,11 +30,11 @@
   </div>
 </div>
 
-<div class="events-empty{% if occurrences %} d-none{% endif %}">
+<div class="events-empty{% if occurrences %} tw-hidden{% endif %}">
   <i class="fas fa-calendar-xmark fa-2x"></i>
   <div class="events-empty-title">{% trans "No events in the selected month" %}</div>
   {% if user.is_authenticated %}
-    <a href="{% url 'events:create' %}" class="btn-cta">
+    <a href="{% url 'events:create' %}" class="tw-btn-cta">
       <i class="fas fa-plus"></i> {% trans 'Add the first event' %}
     </a>
   {% endif %}
@@ -93,7 +93,7 @@
       agenda.appendChild(node.cloneNode(true));
     });
 
-    if (emptyEl) emptyEl.classList.toggle('d-none', Boolean(wrapper.querySelector('.agenda-day')));
+    if (emptyEl) emptyEl.classList.toggle('tw-hidden', Boolean(wrapper.querySelector('.agenda-day')));
   }
 
   function insertChunkIntoGrid(wrapper) {

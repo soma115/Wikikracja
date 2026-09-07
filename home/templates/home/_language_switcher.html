@@ -6,19 +6,19 @@ Each option posts to obywatele:set_language, which persists the choice in the
 django_language cookie. Active language is highlighted via get_current_language,
 so it works without a user profile.
 {% endcomment %}
-<div class="dropdown">
-  <button class="notif-bell btn-icon-clean" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+<div class="tw-dropdown">
+  <button class="tw-notif-bell btn-icon-clean" type="button" data-tw-toggle="dropdown" aria-expanded="false"
           title="{% trans 'Change language' %}">
     <i class="fas fa-globe"></i>
   </button>
-  <ul class="dropdown-menu dropdown-menu-end">
+  <ul class="tw-dropdown-menu tw-dropdown-menu-end">
     <li>
       <form method="post" action="{% url 'obywatele:set_language' %}">
         {% csrf_token %}
         <input type="hidden" name="language" value="pl">
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
-        <button type="submit" class="dropdown-item {% if CURRENT_LANG == 'pl' %}active{% endif %}">
-          🇵🇱 Polski
+        <button type="submit" class="tw-dropdown-item {% if CURRENT_LANG == 'pl' %}tw-active{% endif %}">
+          <i class="fas fa-language fa-fw tw-me-1"></i>{% trans 'Polish' %}
         </button>
       </form>
     </li>
@@ -27,8 +27,8 @@ so it works without a user profile.
         {% csrf_token %}
         <input type="hidden" name="language" value="en">
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
-        <button type="submit" class="dropdown-item {% if CURRENT_LANG == 'en' %}active{% endif %}">
-          🇬🇧 English
+        <button type="submit" class="tw-dropdown-item {% if CURRENT_LANG == 'en' %}tw-active{% endif %}">
+          <i class="fas fa-language fa-fw tw-me-1"></i>{% trans 'English' %}
         </button>
       </form>
     </li>

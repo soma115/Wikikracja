@@ -9,23 +9,23 @@
 {% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add survey') sort_items=toolbar_sort_items %}
 
 {# ── LIST ── #}
-<div class="proposals-list">
+<div class="proposals-list tw-proposals-list">
   {% if surveys %}
     {% for survey in surveys %}
-      <div class="proposal-card">
+      <div class="proposal-card tw-proposal-card">
         <div class="proposal-card-header" data-detail-url="{% url 'ankiety:detail' survey.pk %}" role="link" tabindex="0">
           <div class="proposal-card-title-row">
             <span class="proposal-card-num">#{{ survey.pk }}</span>
-            <a href="{% url 'ankiety:detail' survey.pk %}" class="proposal-card-title text-decoration-none">
+            <a href="{% url 'ankiety:detail' survey.pk %}" class="proposal-card-title tw-no-underline">
               {{ survey.title }}
             </a>
             {% if survey.is_active %}
-              <span class="badge-status badge-discussion">{% trans 'Ongoing' %}</span>
+              <span class="tw-badge-status tw-badge-discussion">{% trans 'Ongoing' %}</span>
             {% else %}
-              <span class="badge-status badge-approved">{% trans 'Finished' %}</span>
+              <span class="tw-badge-status tw-badge-approved">{% trans 'Finished' %}</span>
             {% endif %}
             {% if survey.can_edit %}
-              <a href="{% url 'ankiety:edit' survey.pk %}" class="btn btn-sm btn-outline-primary ms-auto">
+              <a href="{% url 'ankiety:edit' survey.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-primary tw-ms-auto">
                 <i class="fas fa-pen"></i> {% trans 'Edit' %}
               </a>
             {% endif %}
@@ -33,17 +33,17 @@
 
           <div class="proposal-card-badges-row">
             <span class="proposal-date" title="{% trans 'End date' %}">
-              <i class="fas fa-stopwatch nav-icon" aria-hidden="true"></i>
+              <i class="fas fa-stopwatch" aria-hidden="true"></i>
               {% if survey.is_active %}<span data-countdown data-end="{{ survey.end_date|date:'c' }}">{{ survey.end_date|timeuntil }}</span>{% else %}{{ survey.end_date|date:'d.m.Y H:i' }}{% endif %}
             </span>
             <span class="proposal-meta-sep">·</span>
             <span class="proposal-signatures" title="{% trans 'Votes' %}">
-              <i class="fas fa-check-to-slot nav-icon" aria-hidden="true"></i>
+              <i class="fas fa-check-to-slot" aria-hidden="true"></i>
               {{ survey.total_votes }}
             </span>
             <span class="proposal-meta-sep">·</span>
             <span class="proposal-signatures" title="{% trans 'Options' %}">
-              <i class="fas fa-list-ul nav-icon" aria-hidden="true"></i>
+              <i class="fas fa-list-ul" aria-hidden="true"></i>
               {{ survey.options.all|length }}
             </span>
             <span class="proposal-meta-sep">·</span>
@@ -60,7 +60,7 @@
 
         <div class="proposal-card-body">
           {% if survey.description %}
-            <a href="{% url 'ankiety:detail' survey.pk %}" class="d-block text-muted small text-decoration-none">
+            <a href="{% url 'ankiety:detail' survey.pk %}" class="tw-block tw-text-muted tw-text-sm tw-no-underline">
               {{ survey.description|striptags|truncatewords:30 }}
             </a>
           {% endif %}
@@ -71,44 +71,44 @@
               <input type="hidden" name="survey_id" value="{{ survey.pk }}">
 
               {% for option in survey.options.all %}
-                <div class="d-flex align-items-center justify-content-between gap-2 mb-1 small">
-                  <div class="form-check mb-0">
-                    <input class="form-check-input"
+                <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-1 tw-text-sm">
+                  <div class="tw-form-check tw-mb-0">
+                    <input class="tw-form-check-input"
                            type="{% if survey.allow_multiple_choice %}checkbox{% else %}radio{% endif %}"
                            name="option"
                            id="survey_{{ survey.pk }}_option_{{ option.pk }}"
                            value="{{ option.pk }}"
                            {% if option.pk in survey.user_vote_ids %}checked{% endif %}>
-                    <label class="form-check-label" for="survey_{{ survey.pk }}_option_{{ option.pk }}">
+                    <label class="tw-form-check-label" for="survey_{{ survey.pk }}_option_{{ option.pk }}">
                       {{ option.text }}
                     </label>
                   </div>
-                  <span class="text-nowrap text-muted">{{ option.vote_count }} ({{ option.percentage|unlocalize }}%)</span>
+                  <span class="tw-text-nowrap tw-text-muted">{{ option.vote_count }} ({{ option.percentage|unlocalize }}%)</span>
                 </div>
-                <div class="result-bar-track w-100 mb-2"><div class="result-bar-fill" data-progress="{{ option.percentage|unlocalize }}"></div></div>
+                <div class="result-bar-track tw-w-full tw-mb-2"><div class="result-bar-fill" data-progress="{{ option.percentage|unlocalize }}"></div></div>
               {% empty %}
-                <p class="text-muted small mb-0">{% trans 'No options' %}</p>
+                <p class="tw-text-muted tw-text-sm tw-mb-0">{% trans 'No options' %}</p>
               {% endfor %}
 
-              <div class="d-flex gap-2 align-items-center">
-                <button type="submit" class="btn btn-sm btn-primary">
+              <div class="tw-flex tw-gap-2 tw-items-center">
+                <button type="submit" class="tw-btn tw-btn-sm tw-btn-primary">
                   <i class="fas fa-check-to-slot"></i>
                   {% if survey.has_voted %}{% trans 'Change vote' %}{% else %}{% trans 'Vote' %}{% endif %}
                 </button>
                 {% if survey.has_voted %}
-                  <button type="button" class="btn btn-sm btn-outline-secondary" data-withdraw-vote>
+                  <button type="button" class="tw-btn tw-btn-sm tw-btn-outline-secondary" data-withdraw-vote>
                     <i class="fas fa-rotate-left"></i> {% trans 'Withdraw vote' %}
                   </button>
                 {% endif %}
               </div>
 
               {% if survey.has_voted %}
-                <div class="small text-muted mb-1">
+                <div class="tw-text-muted tw-text-sm tw-mb-1">
                   <i class="fas fa-info-circle"></i> {% trans 'You can change your vote.' %}
                 </div>
               {% endif %}
               {% if survey.allow_multiple_choice %}
-                <div class="small text-muted mb-1">
+                <div class="tw-text-muted tw-text-sm tw-mb-1">
                   <i class="fas fa-info-circle"></i> {% trans 'You can select more than one option.' %}
                 </div>
               {% endif %}
@@ -122,7 +122,7 @@
       </div>
     {% endfor %}
   {% else %}
-    <div class="tasks-empty">
+    <div class="tasks-empty tw-proposals-empty">
       <i class="fas fa-clipboard-question fa-2x"></i>
       <div>
         {% if current_tab == 'active' %}
@@ -131,7 +131,7 @@
           {% trans 'No finished surveys.' %}
         {% endif %}
       </div>
-      <a href="{% url 'ankiety:create' %}" class="btn-cta mt-2">
+      <a href="{% url 'ankiety:create' %}" class="btn-cta tw-btn-cta tw-mt-2">
         <i class="fas fa-plus"></i> {% trans 'Add the first survey' %}
       </a>
     </div>

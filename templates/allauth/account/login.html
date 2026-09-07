@@ -6,27 +6,27 @@
 {% block head_title %}{% trans "Sign In" %}{% endblock %}
 
 {% block content %}
-<div class="container">
-  <div class="row d-flex justify-content-center">
-    <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6 col-xl-4">
+<div class="tw-container tw-my-4">
+  <div class="tw-flex tw-justify-center">
+    <div class="tw-w-full tw-max-w-md">
       <div id="login-box">
         <form class="login" method="POST" action="{% url 'account_login' %}">
           {% csrf_token %}
-          <h3 class="text-center text-info m-2">{% trans "Sign In" %}</h3>
+          <h3 class="tw-text-center tw-text-info tw-m-2">{% trans "Sign In" %}</h3>
           
-          {{ form|crispy }}
+          <div class="tw-mb-3">
+            {{ form|crispy }}
+          </div>
 
           {% if redirect_field_value %}
           <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" >
           {% endif %}
           
-          <div class="row">
-            <div class="d-flex justify-content-end">
-              <button class="btn btn-info me-1 mb-1" type="submit">{% trans "Sign In" %}</button>
-            </div>
+          <div class="tw-flex tw-justify-end">
+            <button class="tw-btn tw-btn-info tw-me-1 tw-mb-1" type="submit"><i class="fas fa-right-to-bracket fa-fw tw-me-1"></i>{% trans "Sign In" %}</button>
           </div>
         </form>
-        <div class="text-center mt-3">
+        <div class="tw-text-center tw-mt-3">
           <a href="{% url 'chat:guest_message' %}">{% trans "Send a message to a group" %}</a>
         </div>
       </div>

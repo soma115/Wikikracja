@@ -1,0 +1,8 @@
+{% if formset.non_form_errors %}
+    <div class="tw-alert tw-alert-block tw-alert-danger">
+        {% if formset_error_title %}<h4 class="tw-alert-heading">{{ formset_error_title }}</h4>{% endif %}
+        <div class="tw-m-0" role="list">
+            {% for error in formset.non_form_errors %}<div role="listitem">{{ error }}</div>{% endfor %}
+        </div>
+    </div>
+{% endif %}

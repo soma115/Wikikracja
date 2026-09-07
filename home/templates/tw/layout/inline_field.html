@@ -1,0 +1,27 @@
+{% load crispy_forms_field %}
+{% load crispy_classmap %}
+
+{% if field.is_hidden %}
+    {{ field }}
+{% else %}
+    {% if field|is_checkbox %}
+        <div id="div_{{ field.auto_id }}" class="tw-form-check tw-form-check-inline{% if wrapper_class %} {{ wrapper_class|crispy_classmap }}{% endif %}">
+            {% crispy_field field 'class' 'tw-form-check-input' %}
+            <label for="{{ field.id_for_label }}" class="tw-form-check-label">
+                {{ field.label }}
+            </label>
+        </div>
+    {% else %}
+        <div id="div_{{ field.auto_id }}"{% if wrapper_class %} class="{{ wrapper_class|crispy_classmap }}"{% endif %}>
+            <label for="{{ field.id_for_label }}" class="tw-sr-only">
+                {{ field.label }}
+            </label>
+            {% if field.errors %}
+                {% crispy_field field 'class' 'tw-form-control is-invalid' 'placeholder' field.label %}
+            {% else %}
+                {% crispy_field field 'class' 'tw-form-control' 'placeholder' field.label %}
+            {% endif %}
+            
+        </div>
+    {% endif %}
+{% endif %}

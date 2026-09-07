@@ -3,14 +3,14 @@
  *
  * Testy regresyjne widoczności kontenera podglądu obrazków w czacie.
  *
- * Bug: .image-preview-container ma klasę Bootstrap d-none, która definiuje
- * `display: none !important` w darkly.css. Kod próbował pokazywać/chować
+ * Bug: .image-preview-container ma klasę tw-d-none, która definiuje
+ * `display: none !important`. Kod próbował pokazywać/chować
  * kontener przez `style.display = '' / 'none'`, co jest nadpisywane przez
  * `!important` z klasy. Skutek: podgląd obrazków przy dodawaniu oraz
  * istniejących załączników podczas edycji nie był widoczny, więc nie dało
  * się ich usunąć.
  *
- * Fix: używać `classList.remove('d-none')` / `classList.add('d-none')`.
+ * Fix: używać `classList.remove('tw-d-none')` / `classList.add('tw-d-none')`.
  */
 
 // ── wierna kopia logiki z domapi.js (synchronizować przy zmianie!) ─────────
@@ -39,14 +39,14 @@ function loadEditingAttachments(previewContainer, previewDiv, attachments) {
 
 function clearFiles(previewContainer, previewDiv) {
     previewDiv.innerHTML = '';
-    previewContainer.classList.add('d-none');
+    previewContainer.classList.add('tw-d-none');
 }
 
 // ── setup ──────────────────────────────────────────────────────────────────
 
 function setupPreview() {
     document.body.innerHTML = `
-        <div class='image-preview-container d-none'>
+        <div class='image-preview-container tw-d-none'>
             <div class='preview-images'></div>
         </div>
     `;
@@ -60,17 +60,17 @@ beforeEach(() => { document.body.innerHTML = ''; });
 
 // ── testy ──────────────────────────────────────────────────────────────────
 
-test('loadEditingAttachments pokazuje kontener usuwając d-none', () => {
+test('loadEditingAttachments pokazuje kontener usuwając tw-d-none', () => {
     const { previewContainer, previewDiv } = setupPreview();
     loadEditingAttachments(previewContainer, previewDiv, { images: ['foo.jpg'] });
-    expect(previewContainer.classList.contains('d-none')).toBe(false);
+    expect(previewContainer.classList.contains('tw-d-none')).toBe(false);
     expect(previewDiv.children.length).toBe(1);
 });
 
 test('loadEditingAttachments chowa kontener gdy brak obrazków', () => {
     const { previewContainer, previewDiv } = setupPreview();
     loadEditingAttachments(previewContainer, previewDiv, { images: [] });
-    expect(previewContainer.classList.contains('d-none')).toBe(true);
+    expect(previewContainer.classList.contains('tw-d-none')).toBe(true);
     expect(previewDiv.children.length).toBe(0);
 });
 
@@ -79,7 +79,7 @@ test('clearFiles czyści podgląd i chowa kontener', () => {
     previewDiv.innerHTML = '<div class="image-preview-wrapper">x</div>';
     clearFiles(previewContainer, previewDiv);
     expect(previewDiv.innerHTML).toBe('');
-    expect(previewContainer.classList.contains('d-none')).toBe(true);
+    expect(previewContainer.classList.contains('tw-d-none')).toBe(true);
 });
 
 const unsafeFilename = `folder' data-review='marker/image.webp`;

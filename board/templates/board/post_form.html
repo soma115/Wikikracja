@@ -4,41 +4,41 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<div class="section">
-  <div class="card">
-    <div class="card-header">
-      <span class="section-heading">{% if object %}{% trans 'Edit post' %}{% else %}{% trans 'Create post' %}{% endif %}</span>
+<div class="tw-section">
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <span class="tw-section-heading">{% if object %}{% trans 'Edit post' %}{% else %}{% trans 'Create post' %}{% endif %}</span>
     </div>
-    <div class="card-body">
+    <div class="tw-card-body">
       <form method="POST" class="post-form" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.title|as_crispy_field }}
         {{ form.subtitle|as_crispy_field }}
-        <div class="mb-3">
-          <label for="{{ form.slug.id_for_label }}" class="form-label">{{ form.slug.label }}</label>
-          <div class="input-group">
-            <span class="input-group-text">{{ request.scheme }}://{{ request.get_host }}/</span>
-            <input type="text" name="{{ form.slug.name }}" class="form-control" id="{{ form.slug.id_for_label }}" value="{{ form.slug.value|default:'' }}">
+        <div class="tw-mb-3">
+          <label for="{{ form.slug.id_for_label }}" class="tw-form-label">{{ form.slug.label }}</label>
+          <div class="tw-input-group tw-flex tw-gap-0">
+            <span class="tw-input-group-text tw-flex tw-items-center tw-px-3 tw-rounded-l tw-border tw-border-r-0 tw-bg-opacity-10 tw-bg-white tw-text-sm tw-text-muted">{{ request.scheme }}://{{ request.get_host }}/</span>
+            <input type="text" name="{{ form.slug.name }}" class="tw-form-control tw-rounded-l-none" id="{{ form.slug.id_for_label }}" value="{{ form.slug.value|default:'' }}">
           </div>
           {% if form.slug.help_text %}
-            <small class="form-text text-muted">{{ form.slug.help_text }}</small>
+            <small class="tw-form-text">{{ form.slug.help_text }}</small>
           {% endif %}
         </div>
         {{ form.category|as_crispy_field }}
         {{ form.featured_image|as_crispy_field }}
-        <div class="mb-3">
-          <label for="{{ form.attachments.id_for_label }}" class="form-label">{{ form.attachments.label }}</label>
-          <input type="file" name="{{ form.attachments.name }}" class="form-control{% if form.attachments.errors %} is-invalid{% endif %}" id="{{ form.attachments.id_for_label }}" multiple data-max-size-mb="{{ UPLOAD_ATTACHMENT_MAX_SIZE_MB }}" data-max-size-error="{{ UPLOAD_ATTACHMENT_MAX_SIZE_MESSAGE }}">
+        <div class="tw-mb-3">
+          <label for="{{ form.attachments.id_for_label }}" class="tw-form-label">{{ form.attachments.label }}</label>
+          <input type="file" name="{{ form.attachments.name }}" class="tw-form-control{% if form.attachments.errors %} is-invalid{% endif %}" id="{{ form.attachments.id_for_label }}" multiple data-max-size-mb="{{ UPLOAD_ATTACHMENT_MAX_SIZE_MB }}" data-max-size-error="{{ UPLOAD_ATTACHMENT_MAX_SIZE_MESSAGE }}">
           {% if form.attachments.errors %}
-            <div class="invalid-feedback d-block">
+            <div class="tw-invalid-feedback tw-block tw-text-danger">
               {% for error in form.attachments.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
             </div>
           {% endif %}
           {% if form.attachments.help_text %}
-            <div class="form-text text-muted">{{ form.attachments.help_text }}</div>
+            <div class="tw-form-text">{{ form.attachments.help_text }}</div>
           {% endif %}
         </div>
-        <div class="d-flex gap-3 mb-3">
+        <div class="tw-flex tw-gap-3 tw-mb-3">
           {{ form.is_public|as_crispy_field }}
           {{ form.is_important|as_crispy_field }}
         </div>
@@ -47,35 +47,33 @@
         <script src="{% static 'tinymce/tinymce.min.js' %}"></script>
         <script src="{% static 'js/uploader.js' %}"></script>
 
-        <div class="mb-3 d-flex gap-2">
-          <button type="submit" class="btn btn-primary" onclick="this.disabled=true;this.form.submit();">{% trans 'Save' %}</button>
+        <div class="tw-mb-3 tw-flex tw-gap-2">
+          <button type="submit" class="tw-btn tw-btn-primary" onclick="this.disabled=true;this.form.submit();"><i class="fas fa-check fa-fw tw-me-1"></i> {% trans 'Save' %}</button>
           {% if object %}
-            <a href="{% url 'board:view_post' object.pk %}" class="btn btn-secondary">{% trans 'Cancel' %}</a>
+            <a href="{% url 'board:view_post' object.pk %}" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw tw-me-1"></i> {% trans 'Cancel' %}</a>
           {% else %}
-            <a href="{% url 'board:start' %}" class="btn btn-secondary">{% trans 'Cancel' %}</a>
+            <a href="{% url 'board:start' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw tw-me-1"></i> {% trans 'Cancel' %}</a>
           {% endif %}
         </div>
       </form>
 
       {% if object and object.attachments.all %}
-      <div class="mt-4">
-        <h5>{% trans 'Existing attachments' %}</h5>
-        <ul class="list-group">
-          {% spaceless %}
+      <div class="tw-mt-4">
+        <h5 class="tw-text-lg tw-mb-2">{% trans 'Existing attachments' %}</h5>
+        <ul class="tw-list-group">
           {% for attachment in object.attachments.all %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}">
-              <i class="fas fa-paperclip me-2"></i>&nbsp;{{ attachment.filename }}
-            </a>
-            <form method="post" action="{% url 'board:delete_attachment' object.pk attachment.pk %}" class="d-inline" onsubmit="return confirm('Delete this attachment?');">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-sm btn-danger" title="{% trans 'Delete attachment' %}" aria-label="{% trans 'Delete attachment' %}">
-                <i class="fas fa-trash"></i>
-              </button>
-            </form>
-          </li>
+            <li class="tw-list-group-item">
+              <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}">
+                <i class="fas fa-paperclip tw-me-2"></i>&nbsp;{{ attachment.filename }}
+              </a>
+              <form method="post" action="{% url 'board:delete_attachment' object.pk attachment.pk %}" class="tw-inline" onsubmit="return confirm('Delete this attachment?');">
+                {% csrf_token %}
+                <button type="submit" class="tw-btn tw-btn-sm tw-btn-danger" title="{% trans 'Delete attachment' %}" aria-label="{% trans 'Delete attachment' %}">
+                  <i class="fas fa-trash fa-fw tw-me-1"></i>
+                </button>
+              </form>
+            </li>
           {% endfor %}
-          {% endspaceless %}
         </ul>
       </div>
       {% endif %}

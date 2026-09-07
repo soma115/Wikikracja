@@ -1,0 +1,27 @@
+{% load crispy_forms_field %}
+{% load crispy_classmap %}
+
+{% for widget in field.subwidgets %}
+{% if widget.data.is_initial %}
+<div class="tw-input-group tw-mb-2">
+    <span class="tw-input-group-text">{{ widget.data.initial_text }}</span>
+    <div class="tw-form-control tw-d-flex tw-h-auto tw-items-center">
+        <span class="tw-break-words tw-flex-1">
+            <a href="{{ field.value.url }}">{{ field.value.name }}</a>
+        </span>
+        {% if not widget.data.required %}
+        <span class="tw-ml-2">
+            <span class="tw-form-check">
+                <input type="checkbox" name="{{ widget.data.checkbox_name }}" id="{{ widget.data.checkbox_id }}" class="tw-form-check-input"{% if field.field.disabled %} disabled{% endif %} >
+                <label class="tw-form-check-label tw-mb-0" for="{{ widget.data.checkbox_id }}">{{ widget.data.clear_checkbox_label }}</label>
+            </span>
+        </span>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+<div{% if field.errors %} class="is-invalid"{%endif%}>
+    <input type="{{ widget.data.type }}" name="{{ widget.data.name }}" class="tw-form-control{% if widget.data.attrs.class %} {{ widget.data.attrs.class|crispy_classmap }}{% endif %}{% if field.errors %} is-invalid{%endif%}" aria-label="{{ field.label }}" title="{{ field.label }}"{% if field.field.disabled %} disabled{% endif %}{% include "tw/layout/attrs.html" with widget=widget.data exclude_class=True %}>
+    {% include 'tw/layout/help_text_and_errors.html' %}
+</div>
+{% endfor %}

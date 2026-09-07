@@ -6,31 +6,27 @@
 {% block extra_css %}{{ form.media }}{% endblock %}
 
 {% block glosowania %}
-<h2>{% trans 'Edit Argument' %}</h2>
+<h2 class="tw-text-xl tw-font-bold tw-mb-4">{% trans 'Edit Argument' %}</h2>
 
-<div class="mb-3">
-    <p><strong>{% trans 'Decision' %}:</strong> #{{ decyzja.pk }} - {{ decyzja.title }}</p>
+<div class="tw-mb-3">
+    <p><strong class="tw-font-semibold">{% trans 'Decision' %}:</strong> #{{ decyzja.pk }} - {{ decyzja.title }}</p>
     <p><small>
-        <strong>{% trans 'Created' %}:</strong> {{ argument.created_at|date:"Y-m-d H:i" }}
+        <strong class="tw-font-semibold">{% trans 'Created' %}:</strong> {{ argument.created_at|date:"Y-m-d H:i" }}
         {% if argument.created_at != argument.modified_at %}
-        | <strong>{% trans 'Last Modified' %}:</strong> {{ argument.modified_at|date:"Y-m-d H:i" }}
+        | <strong class="tw-font-semibold">{% trans 'Last Modified' %}:</strong> {{ argument.modified_at|date:"Y-m-d H:i" }}
         {% endif %}
     </small></p>
 </div>
 
 <form action="." method="POST" class="post-form">
     {% csrf_token %}
-    <div class="row">
-        <div class="col-12">
-          {{ form.argument_type|as_crispy_field }}
-        </div>
+    <div class="tw-grid tw-grid-cols-1 tw-gap-3">
+      {{ form.argument_type|as_crispy_field }}
+      {{ form.content|as_crispy_field }}
     </div>
-    <div class="row">
-        <div class="col-12">
-          {{ form.content|as_crispy_field }}
-        </div>
+    <div class="tw-flex tw-gap-2 tw-mt-4">
+      <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
+      <a href="{% url 'glosowania:details' decyzja.pk %}" class="tw-btn tw-btn-warning tw-btn-sm"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'Cancel' %}</a>
     </div>
-    <button type="submit" class="btn btn-primary btn-sm">{% trans 'Save' %}</button>
-    <a href="{% url 'glosowania:details' decyzja.pk %}" class="btn btn-warning btn-sm">{% trans 'Cancel' %}</a>
 </form>
 {% endblock %}

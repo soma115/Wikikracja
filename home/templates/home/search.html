@@ -3,12 +3,12 @@
 {% load feed_filters %}
 
 {% block content %}
-<div class="container-fluid px-0">
+<div class="tw-w-full tw-px-0">
 
   <!-- Header -->
-  <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-    <h4 class="mb-0 text-main">
-      <i class="fas fa-magnifying-glass me-2 text-accent"></i>
+  <div class="tw-flex tw-items-center tw-justify-between tw-mb-3 tw-flex-wrap tw-gap-2">
+    <h4 class="tw-mb-0 text-main">
+      <i class="fas fa-magnifying-glass tw-me-2 tw-text-accent"></i>
       {% if query %}
         {% blocktrans with q=query %}Results for „{{ q }}"{% endblocktrans %}
       {% else %}
@@ -16,7 +16,7 @@
       {% endif %}
     </h4>
     {% if query %}
-      <span class="badge search-result-link">
+      <span class="tw-badge search-result-link">
         {{ results|length }} {% trans "results" %}
       </span>
     {% endif %}
@@ -25,34 +25,34 @@
   <!-- Search form + filters -->
   <form method="get" action="{% url 'search' %}" id="search-form">
     <input type="hidden" name="filtered" value="1">
-    <div class="card mb-3 p-3">
+    <div class="tw-card tw-mb-3 tw-p-3">
 
       <!-- Query input -->
-      <div class="input-group mb-3">
+      <div class="tw-input-group tw-flex tw-gap-2 tw-mb-3">
         <input type="search" name="q" id="sq" value="{{ query }}"
-               class="form-control search-input"
+               class="tw-form-control search-input"
                placeholder="{% trans 'Search by title, content, author…' %}"
                autofocus>
-        <button class="btn fw-semibold search-page-submit" type="submit">
-          <i class="fas fa-magnifying-glass me-1"></i>{% trans "Search" %}
+        <button class="tw-btn tw-font-semibold search-page-submit" type="submit">
+          <i class="fas fa-magnifying-glass fa-fw tw-me-1"></i>{% trans "Search" %}
         </button>
       </div>
 
       <!-- Category filter chips -->
-      <div class="d-flex flex-wrap gap-2 align-items-center">
-        <span class="text-muted text-xs flex-shrink-0">
-          <i class="fas fa-filter me-1"></i>{% trans "Search in:" %}
+      <div class="tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
+        <span class="tw-text-muted tw-text-xs tw-shrink-0">
+          <i class="fas fa-filter tw-me-1"></i>{% trans "Search in:" %}
         </span>
 
         <label id="sp-select-all" class="sp-chip{% if all_cats_selected %} on{% endif %}" data-color="accent">
-          <input type="checkbox" value="all" class="d-none sp-cb"
+          <input type="checkbox" value="all" class="tw-hidden sp-cb"
                  {% if all_cats_selected %}checked{% endif %}>
-          <i class="fas fa-globe me-1"></i>{% trans "Everywhere" %}
+          <i class="fas fa-globe tw-me-1"></i>{% trans "Everywhere" %}
         </label>
 
         {% for cat, label in search_categories %}
         <label class="sp-chip{% if cat in active_cats %} on{% endif %}" data-color="{{ cat|content_type_color }}">
-          <input type="checkbox" name="cat" value="{{ cat }}" class="d-none sp-cb"
+          <input type="checkbox" name="cat" value="{{ cat }}" class="tw-hidden sp-cb"
                  {% if cat in active_cats %}checked{% endif %}>
           {{ label }}
         </label>
@@ -63,31 +63,31 @@
 
   <!-- Results -->
   {% if not query %}
-    <p class="text-muted">
+    <p class="tw-text-muted">
       {% trans "Enter a phrase, select categories and press Search." %}
     </p>
 
   {% elif not results %}
-    <div class="card p-4 text-center">
-      <i class="fas fa-circle-xmark fa-2x mb-3 text-muted"></i>
-      <p class="mb-0 text-muted">
+    <div class="tw-card tw-p-4 tw-text-center">
+      <i class="fas fa-circle-xmark fa-2x tw-mb-3 tw-text-muted"></i>
+      <p class="tw-mb-0 tw-text-muted">
         {% trans "No results for the specified phrase in the selected categories." %}
       </p>
     </div>
 
   {% else %}
-    <div class="d-flex flex-column gap-2">
+    <div class="tw-flex tw-flex-col tw-gap-2">
       {% for item in results %}
-        <a href="{{ item.url }}" class="text-decoration-none">
-          <div class="card px-3 py-2 d-flex flex-row align-items-center gap-3 sr-row">
-            <span class="badge-status badge-{{ item.type_color }} sr-type-badge">
+        <a href="{{ item.url }}" class="tw-no-underline">
+          <div class="tw-card tw-px-3 tw-py-2 tw-flex tw-flex-row tw-items-center tw-gap-3 sr-row">
+            <span class="tw-badge-status tw-badge-{{ item.type_color }} sr-type-badge">
               {{ item.type }}
             </span>
-            <div class="overflow-hidden flex-grow-1">
+            <div class="tw-overflow-hidden tw-flex-1">
               <div class="sr-title">
                 {{ item.title }}
                 {% if item.meta %}
-                  <span class="text-xs text-muted">
+                  <span class="tw-text-xs tw-text-muted">
                     &nbsp;· {{ item.meta }}
                   </span>
                 {% endif %}

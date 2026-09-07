@@ -1,57 +1,41 @@
 // Weryfikacja regresji: paste tekstu z pustymi liniami w RichTextWidget formularza
-// "Nowy przepis" nie powinno produkować nadmiarowych <br> w wysyłanym HTML.
+// nie powinno produkować nadmiarowych <br> w wysyłanym HTML.
 //
 // Przed fix'em w richtext-core.js: paste "A\n\nB" generował hidden value "A<br><br><br>B"
 // (browser auto-wrappował tekst w <div> bloki z filler <br>, a serializer dodawał drugi
 // <br> dla bloku). Po fix'cie: "A<br><br>B" (jedno br = nowa linia, drugie = pusta linia).
-
+//
+// Testuje formularz ankiety (/ankiety/dodaj/), który używa RichTextWidget dla pola description.
 const { test, expect } = require('@playwright/test');
 
-test('paste z pustymi liniami w propozycji daje poprawne <br> w hidden input', async ({ page }) => {
-    await page.goto('/glosowania/nowy/');
+async function pasteAndCheck(page, text, expected) {
+    await page.goto('/ankiety/dodaj/');
     await page.waitForSelector('.richtext-wrapper');
 
-    const trescWrapper = page.locator('.richtext-wrapper').filter({
-        has: page.locator('input[type="hidden"][name="tresc"]'),
+    const wrapper = page.locator('.richtext-wrapper').filter({
+        has: page.locator('input[type="hidden"][name="description"]'),
     });
-    const editor = trescWrapper.locator('.richtext-input');
+    const editor = wrapper.locator('.richtext-input');
     await editor.click();
 
-    // Symuluj paste przez ClipboardEvent z DataTransfer — bypass clipboard permissions.
-    await editor.evaluate((el) => {
+    await editor.evaluate((el, value) => {
         const dt = new DataTransfer();
-        dt.setData('text/plain', 'A\n\nB\nC');
+        dt.setData('text/plain', value);
         el.dispatchEvent(new ClipboardEvent('paste', {
             clipboardData: dt,
             bubbles: true,
             cancelable: true,
         }));
-    });
+    }, text);
 
-    const hiddenValue = await trescWrapper.locator('input[type="hidden"][name="tresc"]').inputValue();
-    expect(hiddenValue).toBe('A<br><br>B<br>C');
+    const hiddenValue = await wrapper.locator('input[type="hidden"][name="description"]').inputValue();
+    expect(hiddenValue).toBe(expected);
+}
+
+test('paste z pustymi liniami daje poprawne <br> w hidden input', async ({ page }) => {
+    await pasteAndCheck(page, 'A\n\nB\nC', 'A<br><br>B<br>C');
 });
 
 test('paste z Windows line endings (CRLF) daje ten sam wynik co LF', async ({ page }) => {
-    await page.goto('/glosowania/nowy/');
-    await page.waitForSelector('.richtext-wrapper');
-
-    const trescWrapper = page.locator('.richtext-wrapper').filter({
-        has: page.locator('input[type="hidden"][name="tresc"]'),
-    });
-    const editor = trescWrapper.locator('.richtext-input');
-    await editor.click();
-
-    await editor.evaluate((el) => {
-        const dt = new DataTransfer();
-        dt.setData('text/plain', 'A\r\n\r\nB\r\nC');
-        el.dispatchEvent(new ClipboardEvent('paste', {
-            clipboardData: dt,
-            bubbles: true,
-            cancelable: true,
-        }));
-    });
-
-    const hiddenValue = await trescWrapper.locator('input[type="hidden"][name="tresc"]').inputValue();
-    expect(hiddenValue).toBe('A<br><br>B<br>C');
+    await pasteAndCheck(page, 'A\r\n\r\nB\r\nC', 'A<br><br>B<br>C');
 });

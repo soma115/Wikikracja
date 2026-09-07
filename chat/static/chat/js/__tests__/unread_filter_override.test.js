@@ -1,17 +1,20 @@
 /**
  * @jest-environment jsdom
  *
- * Testy decideUnreadFilterOverride — czystej funkcji decydujacej, czy STARTOWA intencja
- * filtra (z URL: ?view=unread / ?view=rooms) ma w wsOnConnect zmienic aktualny stan filtra.
+ * Testy decideUnreadFilterOverride — czystej funkcji decydujacej, czy intencja
+ * filtra z URL (z parseChatLocation: ?view=unread / ?view=rooms) ma przy
+ * zastosowaniu trasy zmienic aktualny stan filtra.
  *
  * Kontrakt z chat.js (synchronizowac przy zmianie — funkcja kopiowana 1:1):
  *   - Reczny klik uzytkownika (userToggled) MA PIERWSZENSTWO nad intencja z URL.
- *     Bez tego wystepuje bug: wejscie z ?view=unread aplikuje filtr juz w DOMContentLoaded,
- *     user zdejmuje go zanim WS sie polaczy, a asynchroniczne wsOnConnect (czytajace wciaz
- *     obecny w URL ?view=unread) wlacza filtr z powrotem — "filtr wraca po odkliknieciu".
- *   - Bez recznego klikniecia: 'on'  + filtr nieaktywny  -> 'enable'
- *                              'off' + filtr aktywny      -> 'disable'
- *                              w pozostalych przypadkach  -> 'none' (nic nie zmieniamy)
+ *     Bez tego wystepuje bug: wejscie z ?view=unread aplikuje filtr juz w
+ *     DOMContentLoaded, user zdejmuje go zanim trasa zostanie zastosowana,
+ *     a asynchroniczny syncRouteFromInitial (czytajace wciaz obecny
+ *     ?view=unread) wlacza filtr z powrotem — "filtr wraca po odkliknieciu".
+ *   - Bez recznego klikniecia: 'on' + filtr nieaktywny -> 'enable'.
+ *   - 'off' NIGDY nie wylacza filtra — zapisana preferencja localStorage
+ *     ma priorytet; ?view=rooms nie kasuje zapisanego filtra nieprzeczytanych.
+ *   - W pozostalych przypadkach -> 'none' (nic nie zmieniamy).
  */
 
 // ── wierna kopia z chat.js (synchronizowac przy zmianie!) ────────────────────
@@ -20,7 +23,7 @@ function decideUnreadFilterOverride({ urlFilter, isActive, userToggled }) {
     // Reczna decyzja usera jest ostateczna — nie nadpisujemy jej intencja z URL.
     if (userToggled) return 'none';
     if (urlFilter === 'on' && !isActive) return 'enable';
-    if (urlFilter === 'off' && isActive) return 'disable';
+    // Nie wyłączamy filtra dla urlFilter === 'off' — pozwalamy na przywracanie z localStorage
     return 'none';
 }
 
@@ -28,14 +31,14 @@ function decideUnreadFilterOverride({ urlFilter, isActive, userToggled }) {
 
 describe('reczny klik usera ma pierwszenstwo nad URL', () => {
 
-    test('?view=unread, ale user zdjal filtr przed polaczeniem WS -> nie wlaczamy z powrotem', () => {
+    test('?view=unread, ale user zdjal filtr przed zastosowaniem trasy -> nie wlaczamy z powrotem', () => {
         const decision = decideUnreadFilterOverride({
             urlFilter: 'on', isActive: false, userToggled: true,
         });
         expect(decision).toBe('none');
     });
 
-    test('?view=rooms, ale user wlaczyl filtr przed polaczeniem WS -> nie zdejmujemy', () => {
+    test('?view=rooms, ale user wlaczyl filtr recznie -> nie zdejmujemy', () => {
         const decision = decideUnreadFilterOverride({
             urlFilter: 'off', isActive: true, userToggled: true,
         });
@@ -56,8 +59,9 @@ describe('bez recznego klikniecia stosujemy intencje z URL', () => {
         expect(decideUnreadFilterOverride({ urlFilter: 'on', isActive: false, userToggled: false })).toBe('enable');
     });
 
-    test('?view=rooms + filtr aktywny -> disable', () => {
-        expect(decideUnreadFilterOverride({ urlFilter: 'off', isActive: true, userToggled: false })).toBe('disable');
+    test('?view=rooms + filtr aktywny -> none (filtr z localStorage zostaje)', () => {
+        // Swiadoma decyzja: ?view=rooms nie kasuje zapisanego filtra nieprzeczytanych.
+        expect(decideUnreadFilterOverride({ urlFilter: 'off', isActive: true, userToggled: false })).toBe('none');
     });
 
     test('?view=unread + filtr juz aktywny -> none (nic do zrobienia)', () => {

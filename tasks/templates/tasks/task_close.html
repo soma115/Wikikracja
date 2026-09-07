@@ -2,23 +2,25 @@
 {% load i18n %}
 
 {% block content %}
-<div class="container my-4">
-  <a href="{% url 'tasks:detail' form.instance.pk %}" class="btn btn-link px-0 mb-3">&larr; {% trans "Back to activity" %}</a>
+<div class="tw-container tw-my-4">
+  <a href="{% url 'tasks:detail' form.instance.pk %}" class="tw-btn tw-btn-link tw-px-0 tw-mb-3">&larr; {% trans "Back to activity" %}</a>
 
-  <div class="card">
-    <div class="card-body">
-      <h1 class="h4 mb-3">{% trans "Close activity" %}: {{ form.instance.title }}</h1>
-      <p class="text-muted mb-4">{% trans "Choose final status for this activity." %}</p>
+  <div class="tw-card">
+    <div class="tw-card-body">
+      <h1 class="tw-text-xl tw-font-bold tw-mb-3">{% trans "Close activity" %}: {{ form.instance.title }}</h1>
+      <p class="tw-text-muted tw-mb-4">{% trans "Choose final status for this activity." %}</p>
 
       <form method="post">
         {% csrf_token %}
-        <div class="mb-3">
-          <label class="form-label" for="{{ form.status.id_for_label }}">{% trans "Status" %}</label>
+        <div class="tw-mb-3">
+          <label class="tw-form-label" for="{{ form.status.id_for_label }}">{% trans "Status" %}</label>
           {{ form.status }}
           {{ form.status.errors }}
         </div>
-        <button type="submit" class="btn btn-warning">{% trans "Confirm close" %}</button>
-        <a href="{% url 'tasks:detail' form.instance.pk %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+        <div class="tw-flex tw-gap-2">
+          <button type="submit" class="tw-btn tw-btn-warning"><i class="fas fa-check fa-fw"></i> {% trans "Confirm close" %}</button>
+          <a href="{% url 'tasks:detail' form.instance.pk %}" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw"></i> {% trans "Cancel" %}</a>
+        </div>
       </form>
     </div>
   </div>

@@ -30,10 +30,10 @@
 </div>
   {% endfor %}
 
-<div class="buttonHolder">
-      <button class="secondaryAction" type="submit" name="action_primary" >{% trans 'Make Primary' %}</button>
-      <button class="secondaryAction" type="submit" name="action_send" >{% trans 'Re-send Verification' %}</button>
-      <button class="primaryAction" type="submit" name="action_remove" >{% trans 'Remove' %}</button>
+<div class="buttonHolder tw-flex tw-gap-2">
+      <button class="secondaryAction tw-btn tw-btn-secondary tw-btn-sm" type="submit" name="action_primary" ><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Make Primary' %}</button>
+      <button class="secondaryAction tw-btn tw-btn-secondary tw-btn-sm" type="submit" name="action_send" ><i class="fas fa-paper-plane fa-fw tw-me-1"></i>{% trans 'Re-send Verification' %}</button>
+      <button class="primaryAction tw-btn tw-btn-danger tw-btn-sm" type="submit" name="action_remove" ><i class="fas fa-trash fa-fw tw-me-1"></i>{% trans 'Remove' %}</button>
 </div>
 
 </fieldset>
@@ -49,8 +49,10 @@
 
     <form method="post" action="{% url 'account_email' %}" class="add_email">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button name="action_add" type="submit">{% trans "Add E-mail" %}</button>
+        <div class="tw-mb-3">
+          {{ form.as_p }}
+        </div>
+        <button name="action_add" type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-plus fa-fw tw-me-1"></i>{% trans "Add E-mail" %}</button>
     </form>
   {% endif %}
 

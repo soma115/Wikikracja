@@ -1,0 +1,72 @@
+{% load crispy_forms_field %}
+{% load crispy_classmap %}
+
+{% if field.is_hidden %}
+    {{ field }}
+{% else %}
+    {% if field|is_checkbox and tag != "td" %}
+        <div class="tw-mb-3">
+        {% if label_class %}
+            <div class="{{ field_class|crispy_classmap }}">
+        {% endif %}
+    {% endif %}
+    <{% if tag %}{{ tag }}{% else %}div{% endif %} id="div_{{ field.auto_id }}" class="{% if field|is_checkbox and form_show_labels %}tw-form-check{% else %}tw-mb-3{% endif %}{% if wrapper_class %} {{ wrapper_class|crispy_classmap }}{% endif %}{% if field.css_classes %} {{ field.css_classes|crispy_classmap }}{% endif %}">
+        {% if field.label and not field|is_checkbox and form_show_labels %}
+            {% if field.use_fieldset %}<fieldset{% if field.aria_describedby %} aria-describedby="{{ field.aria_describedby }}"{% endif %}>{% endif %}
+            <{% if field.use_fieldset %}legend{% else %}label{% endif %}
+                {% if field.id_for_label %}for="{{ field.id_for_label }}"{% endif %} class="tw-form-label{% if label_class %} {{ label_class|crispy_classmap }}{% endif %}{% if field.field.required %} requiredField{% endif %}{% if field.use_fieldset %} tw-text-base{% endif %}">
+                {{ field.label }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
+            </{% if field.use_fieldset %}legend{% else %}label{% endif %}>
+        {% endif %}
+
+        {% if field|is_checkboxselectmultiple or field|is_radioselect %}
+            {% include 'tw/layout/radio_checkbox_select.html' with inline_class=field.field.widget.attrs.class %}
+        {% endif %}
+
+        {% if not field|is_checkboxselectmultiple and not field|is_radioselect %}
+            {% if field|is_checkbox and form_show_labels %}
+                    {% if field.errors %}
+                        {% crispy_field field 'class' 'tw-form-check-input is-invalid' %}
+                    {% else %}
+                        {% crispy_field field 'class' 'tw-form-check-input' %}
+                    {% endif %}
+                <label for="{{ field.id_for_label }}" class="tw-form-check-label{% if field.field.required %} requiredField{% endif %}">
+                    {{ field.label }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
+                </label>
+                {% include 'tw/layout/help_text_and_errors.html' %}
+            {% else %}
+                {% if field_class %}<div class="{{ field_class|crispy_classmap }}">{% endif %}
+                    {% if field|is_file %}
+                        {% include 'tw/layout/field_file.html' %}
+                    {% elif field|is_select %}
+                        {% if field.errors %}
+                            {% crispy_field field 'class' 'tw-form-select is-invalid' %}
+                        {% else %}
+                            {% crispy_field field 'class' 'tw-form-select' %}
+                        {% endif %}
+                    {% elif field|is_checkbox %}
+                        {% if field.errors %}
+                            {% crispy_field field 'class' 'tw-form-check-input is-invalid' %}
+                        {% else %}
+                            {% crispy_field field 'class' 'tw-form-check-input' %}
+                        {% endif %}
+                    {% elif field.errors %}
+                        {% crispy_field field 'class' 'tw-form-control is-invalid' %}
+                    {% else %}
+                        {% crispy_field field 'class' 'tw-form-control' %}
+                    {% endif %}
+                    {% if not field|is_file %}
+                        {% include 'tw/layout/help_text_and_errors.html' %}
+                    {% endif %}
+                {% if field_class %}</div>{% endif %}
+            {% endif %}
+        {% endif %}
+        {% if field.use_fieldset and field.label and form_show_labels %}</fieldset>{% endif %}
+    </{% if tag %}{{ tag }}{% else %}div{% endif %}>
+    {% if field|is_checkbox and tag != "td" %}
+        {% if label_class %}
+            </div>
+        {% endif %}
+        </div>
+    {% endif %}
+{% endif %}

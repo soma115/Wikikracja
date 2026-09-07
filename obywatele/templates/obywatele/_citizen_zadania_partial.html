@@ -1,7 +1,7 @@
 {% load i18n %}
 {% if tasks %}
-  <div class="table-responsive">
-    <table class="table table-sm table-striped table-hover-rows mb-0">
+  <div class="tw-citizens-table-wrap">
+    <table class="tw-citizens-table tw-table-hover tw-table-sm tw-mb-0">
       <thead>
         <tr>
           <th>{% trans "Title" %}</th>
@@ -16,30 +16,30 @@
             <td class="td-link"><a href="{% url 'tasks:detail' pk=task.pk %}">{{ task.title }}</a></td>
             <td>
               {% if task.status == 'active' %}
-                <span class="badge-status badge-success">{{ task.get_status_display }}</span>
+                <span class="tw-badge-status tw-badge-success">{{ task.get_status_display }}</span>
               {% elif task.status == 'completed' %}
-                <span class="badge-status badge-primary">{{ task.get_status_display }}</span>
+                <span class="tw-badge-status tw-badge-primary">{{ task.get_status_display }}</span>
               {% elif task.status == 'cancelled' %}
-                <span class="badge-status badge-secondary">{{ task.get_status_display }}</span>
+                <span class="tw-badge-status tw-badge-secondary">{{ task.get_status_display }}</span>
               {% else %}
-                <span class="badge-status badge-danger">{{ task.get_status_display }}</span>
+                <span class="tw-badge-status tw-badge-danger">{{ task.get_status_display }}</span>
               {% endif %}
             </td>
             <td>
               {% if task.created_by == target_user and task.assigned_to == target_user %}
-                <span class="badge-status badge-info">{% trans "Author & assignee" %}</span>
+                <span class="tw-badge-status tw-badge-info">{% trans "Author & assignee" %}</span>
               {% elif task.created_by == target_user %}
-                <span class="badge-status badge-info">{% trans "Author" %}</span>
+                <span class="tw-badge-status tw-badge-info">{% trans "Author" %}</span>
               {% elif task.assigned_to == target_user %}
-                <span class="badge-status badge-warning">{% trans "Assignee" %}</span>
+                <span class="tw-badge-status tw-badge-warning">{% trans "Assignee" %}</span>
               {% endif %}
             </td>
-            <td class="text-muted small">{{ task.created_at|date:"d.m.Y" }}</td>
+            <td class="tw-text-muted tw-text-sm">{{ task.created_at|date:"d.m.Y" }}</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 {% else %}
-  <p class="text-muted p-3 mb-0 citizen-tab-empty">{% trans "No activities found." %}</p>
+  <p class="tw-text-muted tw-p-3 tw-mb-0 citizen-tab-empty">{% trans "No activities found." %}</p>
 {% endif %}

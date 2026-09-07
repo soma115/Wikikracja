@@ -1,12 +1,12 @@
 {% load i18n %}
 {% if items %}
-  <div class="table-responsive">
-    <table class="table table-sm table-striped table-hover-rows mb-0">
+  <div class="tw-citizens-table-wrap">
+    <table class="tw-citizens-table tw-table-hover tw-table-sm tw-mb-0">
       <thead>
         <tr>
           <th>{% trans "Title" %}</th>
-          <th class="text-end text-nowrap">{% trans "Type" %}</th>
-          <th class="text-end text-nowrap">{% trans "Date" %}</th>
+          <th class="tw-text-end tw-text-nowrap">{% trans "Type" %}</th>
+          <th class="tw-text-end tw-text-nowrap">{% trans "Date" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -19,15 +19,15 @@
                 {{ item.title }}
               {% endif %}
             </td>
-            <td class="text-end text-nowrap">
-              <span class="badge-status badge-secondary">{{ item.label }}</span>
+            <td class="tw-text-end tw-text-nowrap">
+              <span class="tw-badge-status tw-badge-secondary">{{ item.label }}</span>
             </td>
-            <td class="text-muted text-nowrap text-end">{% if item.ts %}{{ item.ts|date:"d.m.Y" }}{% endif %}</td>
+            <td class="tw-text-muted tw-text-nowrap tw-text-end">{% if item.ts %}{{ item.ts|date:"d.m.Y" }}{% endif %}</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 {% else %}
-  <p class="text-muted p-3 mb-0 citizen-tab-empty">{% trans "No activity found." %}</p>
+  <p class="tw-text-muted tw-p-3 tw-mb-0 citizen-tab-empty">{% trans "No activity found." %}</p>
 {% endif %}

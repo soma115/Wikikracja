@@ -76,8 +76,7 @@ class HomeChatBadgeTest(TestCase):
         self.assertNotContains(response, '?notify=no-unread')
 
     def test_badge_style_accentuated_when_unread(self):
-        """Sam href jest staly, ale styl badge'a (.chat-unread-btn) musi
-        byc obecny w label'u tylko gdy sa nieprzeczytane."""
+        """Gdy sa nieprzeczytane wiadomosci, licznik chatu jest wiekszy od 0."""
         room = Room.objects.create(title='Pokój A', public=False)
         room.allowed.add(self.user)
         Message.objects.create(sender=self.user, text='hej', room=room)
@@ -85,13 +84,13 @@ class HomeChatBadgeTest(TestCase):
         self.client.force_login(self.user)
         response = self.client.get(reverse('home'))
 
-        self.assertContains(response, 'chat-unread-btn')
+        self.assertGreater(response.context['chat_unread_count'], 0)
 
     def test_badge_style_neutral_without_unread(self):
         self.client.force_login(self.user)
         response = self.client.get(reverse('home'))
 
-        self.assertNotContains(response, 'chat-unread-btn')
+        self.assertEqual(response.context['chat_unread_count'], 0)
 
     def test_dynamic_badge_js_uses_view_unread_in_both_branches(self):
         """JS w home.html aktualizuje badge.href po nadejsciu WS event'u — w obu

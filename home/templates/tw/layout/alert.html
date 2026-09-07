@@ -1,0 +1,5 @@
+{% load crispy_classmap %}
+<div class="{{ alert.css_class|crispy_classmap }}{% if dismiss %} tw-alert-dismissible tw-fade tw-show{% endif %}" role="alert"{% if alert.css_id %} id="{{ alert.css_id }}"{% endif %}>
+    {{ content|safe }}
+    {% if dismiss %}<button type="button" class="tw-btn-close" data-tw-dismiss="alert" aria-label="Close"></button>{% endif %}
+</div>

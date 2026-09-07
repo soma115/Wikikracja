@@ -1,14 +1,14 @@
 {% load i18n %}
 <tr>
 	<td>
-		<strong>{{ title }}</strong>
+		<strong class="tw-font-semibold">{{ title }}</strong>
 	</td>
 	<td>
-		<small class="text-muted">{{ description }}</small>
+		<small class="tw-text-muted">{{ description }}</small>
 	</td>
-	<td class="text-center">
-		<div class="form-check form-switch d-inline-block">
-			<input class="form-check-input" type="checkbox" id="toggle-{{ notification_type }}" 
+	<td class="tw-text-center">
+		<div class="tw-form-check tw-form-switch tw-inline-block">
+			<input class="tw-form-check-input" type="checkbox" id="toggle-{{ notification_type }}"
 				   {% if is_enabled %}checked{% endif %}
 				   data-url="{% url 'obywatele:toggle_notification' %}?type={{ notification_type }}">
 		</div>

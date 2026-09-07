@@ -5,82 +5,84 @@
 
 {% block content %}
 
-<p>{% trans 'Here you can edit your assets' %} <b>{{ user }}</b></p>
+<p class="tw-mb-4">{% trans 'Here you can edit your assets' %} <b>{{ user }}</b></p>
 
 	<form action="#" method="post" enctype="multipart/form-data">{% csrf_token %}
-		<div class="container">
+		<div class="tw-container">
 
-			<div class="row">
-				<div class="col-lg-6 col-sm-12">
+			<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3">
+				<div>
 					{{ form.first_name|as_crispy_field }}
 				</div>
-				<div class="col-lg-6 col-sm-12">
+				<div>
 					{{ form.last_name|as_crispy_field }}
 				</div>
 			</div>
 
-			<div class="row">
-				<div class="col-lg-6 col-sm-12">
+			<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+				<div>
 					{{ form.city|as_crispy_field }}
 				</div>
-				<div class="col-lg-6 col-sm-12">
+				<div>
 					{{ form.voivodeship|as_crispy_field }}
 				</div>
 			</div>
 
-			<div class="row">
-				<div class="col-lg-6 col-sm-12">
+			<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+				<div>
 					{{ form.phone|as_crispy_field }}
 				</div>
-				<div class="col-lg-6 col-sm-12">
+				<div>
 					{{ form.job|as_crispy_field }}
 				</div>
 			</div>
 
-			<div class="row">
-				<div class="col-lg-6 col-sm-12">
+			<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+				<div>
 					{{ form.responsibilities|as_crispy_field }}
 				</div>
-				<div class="col-lg-6 col-sm-12">
+				<div>
 					{{ form.business|as_crispy_field }}
 				</div>
 			</div>
 
-			<div class="row">
-				<div class="col-lg-6 col-sm-12">
+			<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+				<div>
 					{{ form.to_give_away|as_crispy_field }}
 				</div>
-				<div class="col-lg-6 col-sm-12">
+				<div>
 					{{ form.to_borrow|as_crispy_field }}
 				</div>
 			</div>
 
-			<div class="row">
-				<div class="col-lg-6 col-sm-12">
+			<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+				<div>
 					{{ form.for_sale|as_crispy_field }}
 				</div>
-				<div class="col-lg-6 col-sm-12">
+				<div>
 					{{ form.i_need|as_crispy_field }}
 				</div>
 			</div>
 
-			<div class="row">
-				<div class="col-lg-6 col-sm-12">
+			<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+				<div>
 					{{ form.want_to_learn|as_crispy_field }}
 				</div>
-				<div class="col-lg-6 col-sm-12">
+				<div>
 					{{ form.skills_knowledge_hobby|as_crispy_field }}
 				</div>
 			</div>
 
-			<div class="row">
-				<div class="col">
+			<div class="tw-grid tw-grid-cols-1 tw-gap-3 tw-mt-3">
+				<div>
 					{{ form.why|as_crispy_field }}
 				</div>
 			</div>
 
 		</div>
-		<button type="submit" class="btn btn-primary btn-sm">{% trans 'Save' %}</button>
-		<a href="{% url 'obywatele:my_profile' %}" class="btn btn-warning btn-sm">{% trans 'Cancel' %}</a>
+		<div class="tw-flex tw-gap-2 tw-mt-4">
+			<button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
+			<a href="{% url 'obywatele:my_profile' %}" class="tw-btn tw-btn-warning tw-btn-sm"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'Cancel' %}</a>
+		</div>
 	</form>
 {% endblock %}

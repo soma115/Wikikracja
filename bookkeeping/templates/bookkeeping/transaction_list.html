@@ -9,12 +9,12 @@
 
   {# Pasek sald per asset — cała historia, default first. Tooltip zawiera szczegóły income/expenses. #}
   {% if balances_by_asset %}
-    <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
-      <small class="text-muted me-1">{% trans "Balance per asset" %}:</small>
+    <div class="tw-mb-3 tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
+      <small class="tw-text-muted tw-me-1">{% trans "Balance per asset" %}:</small>
       {% for row in balances_by_asset %}
-        <span class="badge {% if row.balance >= 0 %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %}"
-              data-bs-toggle="tooltip"
-              data-bs-placement="top"
+        <span class="{% if row.balance >= 0 %}tw-badge tw-badge-success{% else %}tw-badge tw-badge-danger{% endif %}"
+              data-tw-toggle="tooltip"
+              data-tw-placement="top"
               title="{% trans 'Revenues' %}: {{ row.income|normalize_decimal }} {{ row.asset.symbol }} · {% trans 'Expenses' %}: {{ row.expenses|normalize_decimal }} {{ row.asset.symbol }} · {{ row.txn_count }} {% trans 'transactions' %}">
           {{ row.asset.code }}: {{ row.balance|normalize_decimal }} {{ row.asset.symbol }}
         </span>
@@ -22,61 +22,63 @@
     </div>
   {% endif %}
 
-  <table class="table table-hover-rows table-sm">
-    <thead>
-      <tr>
-        <th>{% trans "Type" %}</th>
-        <th>{% trans "Date" %}</th>
-        <th>{% trans "Partner" %}</th>
-        <th>{% trans "Category" %}</th>
-        <th>{% trans "Asset" %}</th>
-        <th>{% trans "Amount" %}</th>
-        <th>{% trans "Author" %}</th>
-        <th class="text-end">{% trans "Actions" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for transaction in transactions %}
+  <div class="tw-citizens-table-wrap">
+    <table class="tw-citizens-table tw-table-sm">
+      <thead>
         <tr>
-          <td>
-            <a
-              href="#transaction-details-{{ transaction.id }}"
-              data-bs-toggle="collapse"
-              role="button"
-              aria-expanded="false"
-              aria-controls="transaction-details-{{ transaction.id }}"
-              class="text-decoration-none"
-            >
-              {% if transaction.type == 'I' %}
-                <small class="text-success">{% trans "Incoming" %}</small>
-              {% else %}
-                <small class="text-danger">{% trans "Outgoing" %}</small>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Date" %}</th>
+          <th>{% trans "Partner" %}</th>
+          <th>{% trans "Category" %}</th>
+          <th>{% trans "Asset" %}</th>
+          <th>{% trans "Amount" %}</th>
+          <th>{% trans "Author" %}</th>
+          <th class="tw-text-end">{% trans "Actions" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for transaction in transactions %}
+          <tr>
+            <td>
+              <a
+                href="#transaction-details-{{ transaction.id }}"
+                data-tw-toggle="collapse"
+                role="button"
+                aria-expanded="false"
+                aria-controls="transaction-details-{{ transaction.id }}"
+                class="tw-no-underline"
+              >
+                {% if transaction.type == 'I' %}
+                  <small class="tw-text-success">{% trans "Incoming" %}</small>
+                {% else %}
+                  <small class="tw-text-danger">{% trans "Outgoing" %}</small>
+                {% endif %}
+              </a>
+            </td>
+            <td>{{ transaction.payment_received_date|date:"Y-m-d" }}</td>
+            <td>{{ transaction.partner }}</td>
+            <td>{{ transaction.category|default:"-" }}</td>
+            <td><small class="tw-text-muted">{{ transaction.asset.code }}</small></td>
+            <td>{{ transaction.amount|normalize_decimal }} {{ transaction.asset.symbol }}</td>
+            <td>{{ transaction.author.username }}</td>
+            <td>
+              {% if transaction.author == request.user %}
+              <div class="tw-flex tw-gap-2 tw-justify-end">
+                <a href="{% url 'bookkeeping:transaction_update' transaction.id %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary"><i class="fas fa-pen fa-fw"></i> {% trans "Edit" %}</a>
+                <a href="{% url 'bookkeeping:transaction_delete' transaction.id %}" class="tw-btn tw-btn-sm tw-btn-outline-danger"><i class="fas fa-trash fa-fw"></i> {% trans "Delete" %}</a>
+              </div>
               {% endif %}
-            </a>
-          </td>
-          <td>{{ transaction.payment_received_date|date:"Y-m-d" }}</td>
-          <td>{{ transaction.partner }}</td>
-          <td>{{ transaction.category|default:"-" }}</td>
-          <td><small class="text-muted">{{ transaction.asset.code }}</small></td>
-          <td>{{ transaction.amount|normalize_decimal }} {{ transaction.asset.symbol }}</td>
-          <td>{{ transaction.author.username }}</td>
-          <td>
-            {% if transaction.author == request.user %}
-            <div class="d-flex gap-2 justify-content-end">
-              <a href="{% url 'bookkeeping:transaction_update' transaction.id %}" class="btn btn-sm btn-outline-secondary">{% trans "Edit" %}</a>
-              <a href="{% url 'bookkeeping:transaction_delete' transaction.id %}" class="btn btn-sm btn-outline-danger">{% trans "Delete" %}</a>
-            </div>
-            {% endif %}
-          </td>
-        </tr>
-        <tr class="collapse" id="transaction-details-{{ transaction.id }}">
-          <td colspan="8" class="bg-secondary text-white">
-            <small>{{ transaction.note|default:"-" }}</small>
-          </td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="8">{% trans "No records found." %}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+            </td>
+          </tr>
+          <tr class="tw-collapse" id="transaction-details-{{ transaction.id }}">
+            <td colspan="8" class="tw-bg-secondary tw-text-white">
+              <small>{{ transaction.note|default:"-" }}</small>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8" class="tw-text-muted">{% trans "No records found." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}

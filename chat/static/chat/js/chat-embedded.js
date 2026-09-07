@@ -29,12 +29,12 @@ async function initEmbeddedChat(container) {
                 <div class="ec-loading">Ładowanie…</div>
             </div>
             <div class="ec-input-area">
-                <div class="reply-preview d-none" id="ec-reply-preview-${roomId}">
+                <div class="reply-preview tw-d-none" id="ec-reply-preview-${roomId}">
                     <span class="reply-preview-label">↩ </span>
                     <span class="reply-preview-text" id="ec-reply-preview-text-${roomId}"></span>
                     <button class="reply-preview-close ec-reply-cancel" type="button" title="Anuluj odpowiedź">✕</button>
                 </div>
-                <div class="image-preview-container ec-image-preview-container d-none" id="ec-image-preview-${roomId}">
+                <div class="image-preview-container ec-image-preview-container tw-d-none" id="ec-image-preview-${roomId}">
                     <div class="preview-images ec-preview-images" id="ec-preview-images-${roomId}"></div>
                     <div class="delete-images-preview ec-delete-images-preview" id="ec-delete-images-${roomId}">
                         <i class="fas fa fa-times"></i>
@@ -47,7 +47,7 @@ async function initEmbeddedChat(container) {
                          data-hint="${_('Enter send · Shift/Ctrl+Enter new line · Ctrl+B bold · Ctrl+I italic')}"></div>
                     <div class="compose-bar">
                         <div class="compose-bar-left">
-                            <input type="file" id="ec-file-input-${roomId}" class="file-input ec-file-input d-none" multiple="multiple"/>
+                            <input type="file" id="ec-file-input-${roomId}" class="file-input ec-file-input tw-d-none" multiple="multiple"/>
                             <label class="fmt-btn" for="ec-file-input-${roomId}" title="${_('Attach image')}">
                                 <i class="fas fa-image"></i>
                             </label>
@@ -66,7 +66,7 @@ async function initEmbeddedChat(container) {
                             <div class="msg-counter" id="ec-counter-${roomId}">
                                 <span id="ec-counter-val-${roomId}">${EC_MAX}</span> / ${EC_MAX}
                             </div>
-                            <button class="send-message btn btn-primary compose-send ec-send-btn" id="ec-send-${roomId}" type="button">
+                            <button class="send-message tw-btn tw-btn-primary compose-send ec-send-btn" id="ec-send-${roomId}" type="button">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
@@ -194,7 +194,7 @@ async function initEmbeddedChat(container) {
                 currentReplyId = clearReplyTarget(replyPreview);
                 selectedFiles = [];
                 fileInput.value = '';
-                if (previewContainer) previewContainer.classList.add('d-none');
+                if (previewContainer) previewContainer.classList.add('tw-d-none');
                 if (previewImagesDiv) previewImagesDiv.innerHTML = '';
                 updateCounter(inputEl, counterEl, counterVal, sendBtn, EC_MAX);
             }).catch((err) => {
@@ -222,10 +222,14 @@ async function initEmbeddedChat(container) {
     let pendingMessages = [];
     let joinDone = false;
 
+    let joinInFlight = false;
+
     function joinRoom() {
-        if (joined) return;
+        if (joined || joinInFlight) return;
+        joinInFlight = true;
         ws.sendJsonAsync({ command: 'join', room_id: roomId })
             .then(() => {
+                joinInFlight = false;
                 joined = true;
                 setTimeout(() => {
                     joinDone = true;
@@ -239,6 +243,13 @@ async function initEmbeddedChat(container) {
                 }, 0);
             })
             .catch(err => {
+                joinInFlight = false;
+                if (err === 'REQUEST_TIMEOUT') {
+                    // Błąd przejściowy — spróbuj ponownie, nie pokazuj "brak dostępu".
+                    console.warn('embedded chat join timeout, retrying:', err);
+                    setTimeout(() => { if (!joined && ws.isOpen()) joinRoom(); }, 5000);
+                    return;
+                }
                 messagesEl.innerHTML = '<div class="ec-loading">Brak dostępu do tego czatu.</div>';
                 container.querySelector('.ec-input-area').style.display = 'none';
                 console.error('embedded chat join error:', err);
@@ -296,16 +307,23 @@ async function initEmbeddedChat(container) {
         }
     }
 
-    ws.addMessageHandler(onMessage);
+    const unsubscribeMessages = ws.subscribeMessages(onMessage);
 
-    if (ws.socket.readyState === WebSocket.OPEN) {
-        joinRoom();
-    } else {
-        ws.socket.addEventListener('open', function onOpen() {
-            ws.socket.removeEventListener('open', onOpen);
+    // Lifecycle przez subskrypcję — obejmuje pierwszy open (także gdy socket
+    // już jest otwarty) oraz reconnect: po zerwaniu serwer gubi członkostwo
+    // w pokoju, więc resetujemy lokalny stan i dołączamy ponownie.
+    const unsubscribeConnection = ws.subscribeConnection({
+        onOpen: () => {
+            joined = false;
+            joinDone = false;
+            pendingMessages = [];
             joinRoom();
-        });
-    }
+        },
+        onClose: () => {
+            joined = false;
+            joinDone = false;
+        },
+    });
 
     // ── 4. Eventy UI ──────────────────────────────────────────────────────────
 
@@ -315,7 +333,7 @@ async function initEmbeddedChat(container) {
         if (!files || files.length === 0) return;
 
         selectedFiles = Array.from(files);
-        if (previewContainer) previewContainer.classList.remove('d-none');
+        if (previewContainer) previewContainer.classList.remove('tw-d-none');
         if (previewImagesDiv) previewImagesDiv.innerHTML = '';
 
         for (let i = 0; i < files.length; i++) {
@@ -327,7 +345,7 @@ async function initEmbeddedChat(container) {
                 previewImagesDiv.insertAdjacentHTML('beforeend', `
                     <div class="image-preview-wrapper ec-image-preview-wrapper">
                         <img class="image-preview new-attachment" id="${previewId}">
-                        <button class="btn btn-sm btn-danger ec-remove-preview image-preview-remove" data-preview-id="${previewId}" type="button">×</button>
+                        <button class="tw-btn tw-btn-sm tw-btn-danger ec-remove-preview image-preview-remove" data-preview-id="${previewId}" type="button">×</button>
                     </div>
                 `);
             }
@@ -344,7 +362,7 @@ async function initEmbeddedChat(container) {
     deleteImagesBtn?.addEventListener('click', () => {
         selectedFiles = [];
         fileInput.value = '';
-        if (previewContainer) previewContainer.classList.add('d-none');
+        if (previewContainer) previewContainer.classList.add('tw-d-none');
         if (previewImagesDiv) previewImagesDiv.innerHTML = '';
     });
 
@@ -358,7 +376,7 @@ async function initEmbeddedChat(container) {
             if (previewImagesDiv && previewImagesDiv.children.length === 0) {
                 selectedFiles = [];
                 fileInput.value = '';
-                if (previewContainer) previewContainer.classList.add('d-none');
+                if (previewContainer) previewContainer.classList.add('tw-d-none');
             }
         }
     });
@@ -472,12 +490,13 @@ async function initEmbeddedChat(container) {
 
     // ── 5. Cleanup ────────────────────────────────────────────────────────────
     window.addEventListener('beforeunload', () => {
-        ws.removeMessageHandler(onMessage);
+        unsubscribeMessages();
+        unsubscribeConnection();
         if (joined) ws.sendJson({ command: 'leave', room_id: roomId });
     });
 }
 
-// ── Bootstrap ─────────────────────────────────────────────────────────────────
+// ── Initialization ────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     initGlobalPasteImageHandler();
     for (const el of document.querySelectorAll('.embedded-chat[data-room-id]')) {

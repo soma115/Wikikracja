@@ -7,45 +7,27 @@
 
 
 {% block glosowania %}
-<h2>{% trans 'Add new law proposal' %}</h2>
+<h2 class="tw-text-xl tw-font-bold tw-mb-4">{% trans 'Add new law proposal' %}</h2>
 
-<p>
-  <div class="text-center">
-    <div class="alert alert-warning">
-      {% trans 'Note: The regulations should be formulated in their final wording.' %}
-    </div>
+<div class="tw-text-center tw-mb-4">
+  <div class="tw-alert tw-alert-warning">
+    {% trans 'Note: The regulations should be formulated in their final wording.' %}
   </div>
-</p>
+</div>
 
 <form action="." method="POST" class="post-form" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
     {% csrf_token %}
-    <div class="row">
-        <div class="col-12">
-          {{ form.title|as_crispy_field }}
-        </div>
+    <div class="tw-grid tw-grid-cols-1 tw-gap-3">
+      {{ form.title|as_crispy_field }}
+      {{ form.tresc|as_crispy_field }}
+      {{ form.uzasadnienie|as_crispy_field }}
+      {{ form.kara|as_crispy_field }}
+      {{ form.znosi|as_crispy_field }}
     </div>
-    <div class="row">
-        <div class="col-12">
-          {{ form.tresc|as_crispy_field }}
-        </div>
+    <div class="tw-flex tw-gap-2 tw-mt-4">
+      <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
+      <button onclick="window.history.back();" class="tw-btn tw-btn-secondary tw-btn-sm" type="button"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Back' %}</button>
     </div>
-    <div class="row">
-        <div class="col-12">
-          {{ form.uzasadnienie|as_crispy_field }}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
-          {{ form.kara|as_crispy_field }}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
-          {{ form.znosi|as_crispy_field }}
-        </div>
-    </div>
-    <button type="submit" class="btn btn-primary btn-sm">{% trans 'Save' %}</button>
-    <button onclick="window.history.back();" class="btn btn-secondary btn-sm" type="button">{% trans 'Back' %}</button>
 </form>
 {% endblock glosowania %}
 

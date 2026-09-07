@@ -4,88 +4,88 @@
 
 {% block citizens %}
 <div>
-  <div class="mb-3">
+  <div class="tw-mb-3">
     {% if active %}
       {% if next %}
-        <a href="{% url 'obywatele:obywatele_szczegoly' pk=next.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="btn btn-sm btn-outline-success">← {% trans 'Previous' %}</a>
+        <a href="{% url 'obywatele:obywatele_szczegoly' pk=next.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="tw-btn tw-btn-sm tw-btn-outline-success"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Previous' %}</a>
       {% else %}
-        <button class="btn btn-sm btn-outline-secondary" disabled>← {% trans 'Previous' %}</button>
+        <button class="tw-btn tw-btn-sm tw-btn-outline-secondary" disabled><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Previous' %}</button>
       {% endif %}
       {% if prev %}
-        <a href="{% url 'obywatele:obywatele_szczegoly' pk=prev.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="btn btn-sm btn-outline-success">{% trans 'Next' %} →</a>
+        <a href="{% url 'obywatele:obywatele_szczegoly' pk=prev.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="tw-btn tw-btn-sm tw-btn-outline-success"><i class="fas fa-arrow-right fa-fw tw-me-1"></i>{% trans 'Next' %}</a>
       {% else %}
-        <button class="btn btn-sm btn-outline-secondary" disabled>{% trans 'Next' %} →</button>
+        <button class="tw-btn tw-btn-sm tw-btn-outline-secondary" disabled><i class="fas fa-arrow-right fa-fw tw-me-1"></i>{% trans 'Next' %}</button>
       {% endif %}
     {% else %}
       {% if next %}
-        <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=next.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="btn btn-sm btn-outline-secondary">← {% trans 'Previous' %}</a>
+        <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=next.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Previous' %}</a>
       {% else %}
-        <button class="btn btn-sm btn-outline-secondary" disabled>← {% trans 'Previous' %}</button>
+        <button class="tw-btn tw-btn-sm tw-btn-outline-secondary" disabled><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Previous' %}</button>
       {% endif %}
       {% if prev %}
-        <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=prev.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="btn btn-sm btn-outline-secondary">{% trans 'Next' %} →</a>
+        <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=prev.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary"><i class="fas fa-arrow-right fa-fw tw-me-1"></i>{% trans 'Next' %}</a>
       {% else %}
-        <button class="btn btn-sm btn-outline-secondary" disabled>{% trans 'Next' %} →</button>
+        <button class="tw-btn tw-btn-sm tw-btn-outline-secondary" disabled><i class="fas fa-arrow-right fa-fw tw-me-1"></i>{% trans 'Next' %}</button>
       {% endif %}
     {% endif %}
   </div>
 
-  <div class="card mb-3">
-    <div class="card-header d-flex align-items-center gap-3">
+  <div class="tw-card tw-mb-3">
+    <div class="tw-card-header tw-flex tw-items-center tw-gap-3">
       {% include "home/_user_avatar.html" with avatar=b.avatar username=b.uid.username size="6xl" %}
-      <h5 class="mb-0">{{ b.uid.first_name|default:b.uid }} {{ b.uid.last_name }}
+      <h5 class="tw-mb-0 tw-text-lg tw-font-semibold">{{ b.uid.first_name|default:b.uid }} {{ b.uid.last_name }}
         {% if candidate_deletion_request %}
-        <span class="badge-status badge-danger ms-1" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash-alt"></i></span>
+        <span class="tw-badge-status tw-badge-danger tw-ms-1" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash-alt"></i></span>
         {% endif %}
       </h5>
       {% if active %}
-      <a href="{% url 'chat:open_dm' pk=b.uid.pk %}" class="chat-link ms-2 text-xs">
+      <a href="{% url 'chat:open_dm' pk=b.uid.pk %}" class="chat-link tw-ms-2 tw-text-xs">
         <i class="fas fa-comment-dots"></i>
         <span>{% trans 'Send a private message' %}</span>
       </a>
       {% endif %}
     </div>
-    <div class="card-body text-md">
-      <div class="row">
-        <div class="col-md-6 mb-2">
-          <strong>{% trans 'Login' %}:</strong> {{ b.uid }}
+    <div class="tw-card-body">
+      <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-2">
+        <div class="tw-mb-2">
+          <strong class="tw-font-semibold">{% trans 'Login' %}:</strong> {{ b.uid }}
         </div>
-        <div class="col-md-6 mb-2">
-          <strong>{% trans 'Email' %}:</strong> <a href="mailto:{{ b.uid.email }}"><i class="fas fa-envelope me-1"></i>{{ b.uid.email }}</a>
+        <div class="tw-mb-2">
+          <strong class="tw-font-semibold">{% trans 'Email' %}:</strong> <a href="mailto:{{ b.uid.email }}"><i class="fas fa-envelope tw-me-1"></i>{{ b.uid.email }}</a>
         </div>
-        <div class="col-md-6 mb-2">
-          <strong>{% trans 'Recommended by' %}:</strong> {{ b.polecajacy|default:"-" }}
+        <div class="tw-mb-2">
+          <strong class="tw-font-semibold">{% trans 'Recommended by' %}:</strong> {{ b.polecajacy|default:"-" }}
         </div>
-        <div class="col-md-6 mb-2">
-          <strong>{% trans 'Joined at' %}:</strong> {{ b.data_przyjecia|date:"Y-m-d"|default:"-" }}
+        <div class="tw-mb-2">
+          <strong class="tw-font-semibold">{% trans 'Joined at' %}:</strong> {{ b.data_przyjecia|date:"Y-m-d"|default:"-" }}
         </div>
-        <div class="col-md-6 mb-2">
-          <strong>{% trans 'Email confirmed' %}:</strong>
+        <div class="tw-mb-2">
+          <strong class="tw-font-semibold">{% trans 'Email confirmed' %}:</strong>
           {% if email_confirmed %}
-            <span class="badge-status badge-success">{% trans 'Yes' %}</span>
+            <span class="tw-badge-status tw-badge-success">{% trans 'Yes' %}</span>
           {% else %}
-            <span class="badge-status badge-warning">{% trans 'No' %}</span>
+            <span class="tw-badge-status tw-badge-warning">{% trans 'No' %}</span>
           {% endif %}
         </div>
-        <div class="col-md-6 mb-2">
-          <strong>{% trans 'Form completed' %}:</strong>
-          <div class="d-flex align-items-center gap-2 mt-1">
-            <div class="progress flex-grow-1 progress-h-8">
-              <div class="progress-bar {% if form_completion_percent == 100 %}bg-success{% elif form_completion_percent >= 50 %}bg-warning{% else %}bg-danger{% endif %} progress-fill"
+        <div class="tw-mb-2">
+          <strong class="tw-font-semibold">{% trans 'Form completed' %}:</strong>
+          <div class="tw-flex tw-items-center tw-gap-2 tw-mt-1">
+            <div class="tw-progress tw-progress-thick tw-flex-1">
+              <div class="tw-progress-bar {% if form_completion_percent == 100 %}tw-bg-success{% elif form_completion_percent >= 50 %}tw-bg-warning{% else %}tw-bg-danger{% endif %}"
                    role="progressbar"
                    data-progress="{{ form_completion_percent }}"
                    aria-valuenow="{{ form_completion_percent }}"
                    aria-valuemin="0"
                    aria-valuemax="100"></div>
             </div>
-            <span class="text-nowrap min-width-3rem">{{ form_completion_percent }}%</span>
+            <span class="tw-text-nowrap tw-min-w-12">{{ form_completion_percent }}%</span>
           </div>
         </div>
         {% if not active %}
-        <div class="col-md-6 mb-2">
-          <strong>{% trans 'Ratings' %}:</strong>
-          <span data-bs-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
-            <span class="fw-600 text-success">{{ ratings_positive }}</span>/<span class="fw-600">{{ ratings_neutral }}</span>/<span class="fw-600 text-danger">{{ ratings_negative }}</span>
+        <div class="tw-mb-2">
+          <strong class="tw-font-semibold">{% trans 'Ratings' %}:</strong>
+          <span data-tw-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
+            <span class="tw-font-semibold tw-text-success">{{ ratings_positive }}</span>/<span class="tw-font-semibold">{{ ratings_neutral }}</span>/<span class="tw-font-semibold tw-text-danger">{{ ratings_negative }}</span>
           </span>
         </div>
         {% endif %}
@@ -94,25 +94,25 @@
   </div>
 
   {% if b.id == d.id %}
-    <div class="alert alert-info">
-      <strong>{% trans 'This is you' %} {{ b.uid }}.</strong>
+    <div class="tw-alert tw-alert-info">
+      <strong class="tw-font-semibold">{% trans 'This is you' %} {{ b.uid }}.</strong>
       <a href="{% url 'obywatele:my_profile' %}">{% trans 'You can find more setting in your profile' %}</a>
     </div>
   {% else %}
-    <div class="card mb-3">
-      <div class="card-body">
-        <h6 class="card-title">{% trans 'What is your attitude towards this person?' %}</h6>
-        <form action="#" method="post" class="mt-3">
+    <div class="tw-card tw-mb-3">
+      <div class="tw-card-body">
+        <h6 class="tw-text-base tw-font-semibold tw-mb-2">{% trans 'What is your attitude towards this person?' %}</h6>
+        <form action="#" method="post" class="tw-mt-3">
           {% csrf_token %}
-          <div class="d-grid gap-2 d-md-flex">
-            <button class="btn {% if rate == 'positive' %}btn-primary{% else %}btn-secondary{% endif %} flex-fill" type="submit" name="action" value="accept">
-              {% trans 'I accept this person' %}
+          <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-2">
+            <button class="tw-btn {% if rate == 'positive' %}tw-btn-primary{% else %}tw-btn-secondary{% endif %}" type="submit" name="action" value="accept">
+              <i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'I accept this person' %}
             </button>
-            <button class="btn {% if rate == 'neutral' %}btn-primary{% else %}btn-secondary{% endif %} flex-fill" type="submit" name="action" value="reset">
-              {% trans 'Indifferent' %}
+            <button class="tw-btn {% if rate == 'neutral' %}tw-btn-primary{% else %}tw-btn-secondary{% endif %}" type="submit" name="action" value="reset">
+              <i class="fas fa-minus fa-fw tw-me-1"></i>{% trans 'Indifferent' %}
             </button>
-            <button class="btn {% if rate == 'negative' %}btn-primary{% else %}btn-secondary{% endif %} flex-fill" type="submit" name="action" value="reject">
-              {% trans 'I do not accept' %}
+            <button class="tw-btn {% if rate == 'negative' %}tw-btn-primary{% else %}tw-btn-secondary{% endif %}" type="submit" name="action" value="reject">
+              <i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'I do not accept' %}
             </button>
           </div>
         </form>
@@ -120,21 +120,21 @@
     </div>
   {% endif %}
 
-  <div class="card mb-3">
-    <div class="card-header d-flex align-items-center justify-content-between">
-      <span class="section-heading">{% trans 'Profile Details' %}</span>
+  <div class="tw-card tw-mb-3">
+    <div class="tw-card-header tw-flex tw-items-center tw-justify-between">
+      <span class="tw-section-heading">{% trans 'Profile Details' %}</span>
       {% if not active %}
-      <a href="{% url 'obywatele:candidate_edit' pk=b.uid.pk %}" class="btn btn-sm btn-outline-secondary">
-        <i class="fas fa-pen me-1"></i>{% trans 'Edit' %}
+      <a href="{% url 'obywatele:candidate_edit' pk=b.uid.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+        <i class="fas fa-pen fa-fw tw-me-1"></i>{% trans 'Edit' %}
       </a>
       {% endif %}
     </div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-sm table-striped mb-0 text-md">
+    <div class="tw-card-body tw-p-0">
+      <div class="tw-citizens-table-wrap">
+        <table class="tw-citizens-table tw-table-sm tw-mb-0">
           <tbody>
             <tr>
-              <th class="width-30" scope="row">{% trans "Communicator / Phone" %}</th>
+              <th class="tw-width-30" scope="row">{% trans "Communicator / Phone" %}</th>
               <td>{{ b.phone|default:"—" }}</td>
             </tr>
             <tr>
@@ -192,31 +192,31 @@
   </div>
 
   {% if active %}
-  <div class="card mb-3">
-    <div class="card-header d-flex align-items-center gap-2">
-      <span class="section-heading">{% trans 'Activity' %}</span>
+  <div class="tw-card tw-mb-3">
+    <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
+      <span class="tw-section-heading">{% trans 'Activity' %}</span>
     </div>
-    <div class="card-body d-flex flex-wrap gap-2 pb-2">
-      <button class="btn btn-outline-secondary btn-sm citizen-section-btn"
+    <div class="tw-card-body tw-flex tw-flex-wrap tw-gap-2 tw-pb-2">
+      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm citizen-section-btn"
               data-url="{% url 'obywatele:citizen_zadania' pk=b.uid.pk %}"
               data-target="section-zadania"
               data-default="true">
-        <i class="fas fa-list-check me-1"></i>{% trans "Activities" %}
+        <i class="fas fa-list-check fa-fw tw-me-1"></i>{% trans "Activities" %}
       </button>
-      <button class="btn btn-outline-secondary btn-sm citizen-section-btn"
+      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm citizen-section-btn"
               data-url="{% url 'obywatele:citizen_czaty' pk=b.uid.pk %}"
               data-target="section-czaty">
-        <i class="fas fa-comments me-1"></i>{% trans "Chats" %}
+        <i class="fas fa-comments fa-fw tw-me-1"></i>{% trans "Chats" %}
       </button>
-      <button class="btn btn-outline-secondary btn-sm citizen-section-btn"
+      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm citizen-section-btn"
               data-url="{% url 'obywatele:citizen_aktywnosc' pk=b.uid.pk %}"
               data-target="section-aktywnosc">
-        <i class="fas fa-stream me-1"></i>{% trans "Activity" %}
+        <i class="fas fa-stream fa-fw tw-me-1"></i>{% trans "Activity" %}
       </button>
-      <button class="btn btn-outline-secondary btn-sm citizen-section-btn"
+      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm citizen-section-btn"
               data-url="{% url 'obywatele:citizen_zalozono' pk=b.uid.pk %}"
               data-target="section-zalozono">
-        <i class="fas fa-plus-circle me-1"></i>{% trans "Founded" %}
+        <i class="fas fa-plus-circle fa-fw tw-me-1"></i>{% trans "Founded" %}
       </button>
     </div>
     <div id="section-zadania" class="citizen-section mig-hidden"></div>

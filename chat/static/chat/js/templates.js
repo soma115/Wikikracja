@@ -26,7 +26,7 @@ const room_template = `
       <button type="button" class="sort-btn" id="chat-sort-likes" data-sort="likes" data-order="desc">
         <i class="fas fa-thumbs-up fa-fw"></i>
         <span>${_("Likes")}</span>
-        <i class="fas fa-arrow-down sort-arrow invisible"></i>
+        <i class="fas fa-arrow-down sort-arrow" style="visibility:hidden"></i>
       </button>
       <button type="button" class="sort-btn" id="chat-filter-popular" data-filter="popular">
         <i class="fas fa-fire fa-fw"></i>
@@ -44,7 +44,7 @@ const room_template = `
     </div>
   </div>
 
-  <div class='image-preview-container d-none'>
+  <div class='image-preview-container tw-d-none'>
     <div class='preview-images'></div>
     <div class='delete-images-preview'>
       <i class='fas fa fa-times'></i>
@@ -52,7 +52,7 @@ const room_template = `
   </div>
 
   <div class='chat-controls'>
-    <div class="reply-preview d-none" id="reply-preview">
+    <div class="reply-preview tw-d-none" id="reply-preview">
       <span class="reply-preview-label">↩ </span>
       <span class="reply-preview-text" id="reply-preview-text"></span>
       <button class="reply-preview-close" id="reply-preview-close" type="button" title="Anuluj odpowiedź">✕</button>
@@ -94,7 +94,7 @@ const room_template = `
           <div class="msg-counter" id="msg-counter">
             <span id="msg-counter-val"><%- messageMaxLength %></span> / <%- messageMaxLength %>
           </div>
-          <button class='send-message btn btn-primary compose-send'>
+          <button class='send-message tw-btn tw-btn-primary compose-send'>
             <i class='fas fa-paper-plane'></i>
           </button>
         </div>
@@ -146,19 +146,19 @@ const message_template = `
       </div>
       <div class='message-header-right'>
         <span class='message-timestamp' data-message-id='<%-message_id%>'><%- latest_ts %></span>
-        <button type='button' class='btn btn-sm message-btn show-history <% if (!edited) { %>d-none<% } %>'
+        <button type='button' class='tw-btn tw-btn-sm message-btn show-history <% if (!edited) { %>tw-d-none<% } %>'
           data-message-id='<%-message_id%>'
           title='${_("edited")}'>
           <i class='fas fa-history'></i>
         </button>
         <% if (own) { %>
-          <button type='button' class='btn btn-sm message-btn edit-message' data-message-id="<%-message_id%>"
+          <button type='button' class='tw-btn tw-btn-sm message-btn edit-message' data-message-id="<%-message_id%>"
             title='${_("edit")}'>
             <i class='fas fa-edit'></i>
           </button>
         <% } %>
         <button type='button'
-          class='btn btn-sm message-btn reply-btn'
+          class='tw-btn tw-btn-sm message-btn reply-btn'
           data-message-id='<%-message_id%>'
           data-username='<%=username%>'
           data-snippet='<%-raw_message.replace(/<[^>]*>/g,"").slice(0,320)%>'
@@ -166,7 +166,7 @@ const message_template = `
           <i class='fas fa-reply'></i>
         </button>
         <button type='button'
-          class='btn btn-sm message-btn copy-message-url'
+          class='tw-btn tw-btn-sm message-btn copy-message-url'
           data-room-id='<%-room_id%>'
           data-message-id='<%-message_id%>'
           title='${_("Copy link")}'>
@@ -182,11 +182,11 @@ const message_template = `
     %>
     <div class="msg-meta-row">
       <% if (type == "public") { %>
-        <button type='button' data-event-name='upvote' data-message-id="<%-message_id%>" class='btn btn-sm message-btn msg-vote' title='${_("Upvote")}<% if (typeof upvoters !== "undefined" && upvoters && upvoters.length) { %>: <%= upvoters.join(", ") %><% } %>'>
+        <button type='button' data-event-name='upvote' data-message-id="<%-message_id%>" class='tw-btn tw-btn-sm message-btn msg-vote' title='${_("Upvote")}<% if (typeof upvoters !== "undefined" && upvoters && upvoters.length) { %>: <%= upvoters.join(", ") %><% } %>'>
           <i class='fas fa-thumbs-up'></i>
           <span class='msg-upvotes'><%-upvotes%></span>
         </button>
-        <button type='button' data-event-name='downvote' data-message-id="<%-message_id%>" class='btn btn-sm message-btn msg-vote' title='${_("Downvote")}<% if (typeof downvoters !== "undefined" && downvoters && downvoters.length) { %>: <%= downvoters.join(", ") %><% } %>'>
+        <button type='button' data-event-name='downvote' data-message-id="<%-message_id%>" class='tw-btn tw-btn-sm message-btn msg-vote' title='${_("Downvote")}<% if (typeof downvoters !== "undefined" && downvoters && downvoters.length) { %>: <%= downvoters.join(", ") %><% } %>'>
           <i class='fas fa-thumbs-down'></i>
           <span class='msg-downvotes'><%-downvotes%></span>
         </button>
@@ -213,7 +213,7 @@ const message_template = `
         <i class="fas fa-eye"></i>
         <% if (read_by && read_by.length) { %><span class="read-by-count"><%- read_by.length %></span><% } %>
       </button>
-      <div class="read-by-dropdown d-none" id="read-by-dropdown-<%- message_id %>">
+      <div class="read-by-dropdown tw-d-none" id="read-by-dropdown-<%- message_id %>">
         <div class="read-by-list">
           <% if (read_by && read_by.length) { %>
             <% for (const _u of read_by) { %>
@@ -243,7 +243,7 @@ const message_template = `
  * @type {string}
  */
 const history_template = `
-<table class='table chat-history-table'>
+<table class='chat-history-table tw-w-full'>
 <% for (let [i, entry] of Object.entries(history)) { %>
   <tr>
     <td class='chat-history-index'><%- parseInt(i) + 1 %>.</td>

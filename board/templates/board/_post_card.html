@@ -1,23 +1,23 @@
 {% load i18n %}
 {% load feed_filters %}
-<div class="col-12 col-sm-6 col-lg-4">
-  <a href="{% url 'board:view_post' post.pk %}" class="post-card-link">
-    <div class="card-body p-3 d-flex flex-column gap-2 flex-fill">
-      <div class="min-w-0">
-        <div class="fw-semibold text-title-clamp-2">{{ post.title }}</div>
+<div>
+  <a href="{% url 'board:view_post' post.pk %}" class="tw-post-card-link">
+    <div class="tw-card-body tw-p-3 tw-flex tw-flex-col tw-gap-2 tw-flex-1">
+      <div class="tw-min-w-0">
+        <div class="tw-font-semibold tw-text-title-clamp-2">{{ post.title }}</div>
         {% if post.subtitle %}
-        <div class="text-subtitle-clamp-2">{{ post.subtitle }}</div>
+        <div class="tw-text-subtitle-clamp-2">{{ post.subtitle }}</div>
         {% endif %}
         {% if post.featured_image %}
         <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-card-featured-img">
         {% endif %}
       </div>
-      <div class="d-flex align-items-center gap-2 mt-auto">
+      <div class="tw-flex tw-items-center tw-gap-2 tw-mt-auto">
         {% if post.author %}
             {% include "home/_user_avatar.html" with avatar=post.author.uzytkownik.avatar username=post.author.username size="md" %}
           <span class="text-author">{{ post.author.username }}</span>
         {% endif %}
-        <span class="ms-auto text-meta flex-shrink-0">{{ post.updated|date:"d.m.Y" }}</span>
+        <span class="tw-ms-auto tw-text-meta tw-shrink-0">{{ post.updated|date:"d.m.Y" }}</span>
       </div>
     </div>
   </a>

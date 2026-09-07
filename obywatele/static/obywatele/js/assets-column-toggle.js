@@ -55,17 +55,17 @@ document.addEventListener('DOMContentLoaded', function() {
         
         FIELD_NAMES.forEach(fieldName => {
             const wrapper = document.createElement('div');
-            wrapper.className = 'form-check';
+            wrapper.className = 'tw-form-check';
             
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
-            checkbox.className = 'form-check-input';
+            checkbox.className = 'tw-form-check-input';
             checkbox.id = `col-${fieldName}`;
             checkbox.value = fieldName;
             checkbox.checked = savedColumns.includes(fieldName);
             
             const label = document.createElement('label');
-            label.className = 'form-check-label';
+            label.className = 'tw-form-check-label';
             label.htmlFor = `col-${fieldName}`;
             label.textContent = columnLabels[fieldName] || fieldName;
             

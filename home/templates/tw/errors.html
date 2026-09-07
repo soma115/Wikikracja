@@ -1,0 +1,8 @@
+{% if form.non_field_errors %}
+    <div class="tw-alert tw-alert-block tw-alert-danger">
+        {% if form_error_title %}<h4 class="tw-alert-heading">{{ form_error_title }}</h4>{% endif %}
+        <div class="tw-m-0" role="list">
+            {% for error in form.non_field_errors %}<div role="listitem">{{ error }}</div>{% endfor %}
+        </div>
+    </div>
+{% endif %}

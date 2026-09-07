@@ -1,41 +1,40 @@
 {% extends "home/base.html" %}
 {% load i18n %}
-{% load django_bootstrap5 %}
 {% load richtext %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-danger text-white">
-                <h4><i class="fas fa-exclamation-triangle"></i> {% trans "Delete Event" %}</h4>
+<div class="tw-flex tw-justify-center">
+    <div class="tw-w-full tw-max-w-xl">
+        <div class="tw-card">
+            <div class="tw-card-header tw-bg-danger tw-text-white">
+                <h4 class="tw-text-lg tw-font-semibold"><i class="fas fa-exclamation-triangle"></i> {% trans "Delete Event" %}</h4>
             </div>
-            <div class="card-body">
+            <div class="tw-card-body">
                 <p>{% trans "Are you sure you want to delete the following event?" %}</p>
                 
-                <div class="alert alert-warning">
-                    <h5>{{ event.title }}</h5>
+                <div class="tw-alert tw-alert-warning">
+                    <h5 class="tw-text-base tw-font-semibold">{{ event.title }}</h5>
                     {% if event.description %}
                         <p>{{ event.description|richtext|truncatewords_html:30 }}</p>
                     {% endif %}
-                    <small class="text-muted">
+                    <small class="tw-text-muted">
                         <i class="fas fa-calendar"></i> {{ event.start_date|date:"Y-m-d H:i" }}
                         | {{ event.get_frequency_display }}
                     </small>
                 </div>
 
-                <p class="text-danger">
-                    <strong>{% trans "This action cannot be undone." %}</strong>
+                <p class="tw-text-danger">
+                    <strong class="tw-font-semibold">{% trans "This action cannot be undone." %}</strong>
                 </p>
 
                 <form method="post">
                     {% csrf_token %}
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'events:detail' event.pk %}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> {% trans "Cancel" %}
+                    <div class="tw-flex tw-justify-between">
+                        <a href="{% url 'events:detail' event.pk %}" class="tw-btn tw-btn-secondary">
+                            <i class="fas fa-times fa-fw tw-me-1"></i> {% trans "Cancel" %}
                         </a>
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-trash"></i> {% trans "Delete Event" %}
+                        <button type="submit" class="tw-btn tw-btn-danger">
+                            <i class="fas fa-trash fa-fw tw-me-1"></i> {% trans "Delete Event" %}
                         </button>
                     </div>
                 </form>

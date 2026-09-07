@@ -21,13 +21,15 @@ export default class WsApi {
     constructor() {
         this.socketMessageHandler = null;
         this.wsOnConnect = null;
+        this.wsOnReconnect = null;
         this.wsOnDisconnect = null;
 
         // Get shared WebSocket manager instance
         let ws = getSharedWebSocket();
 
-        // Set up this instance's message handler for non-TRACE messages
-        ws.setSocketMessageHandler(function(data) {
+        // Subskrypcja wiadomości — współdzielona z innymi konsumentami
+        // (notifications.js, chat-embedded.js); żaden nie nadpisuje innych.
+        ws.subscribeMessages((data) => {
             if (data.error) {
                 window.showToast ? window.showToast(data.error) : console.error('WS error:', data.error);
                 return;
@@ -37,20 +39,20 @@ export default class WsApi {
             } else {
                 console.warn("No socket message handler set");
             }
-        }.bind(this));
-
-        // Register open/close callbacks
-        ws.setOnConnect(() => {
-            if (this.wsOnConnect) {
-                this.wsOnConnect();
-            }
         });
 
-        ws.setOnDisconnect(() => {
-            console.log("Disconnected from chat socket");
-            if (this.wsOnDisconnect) {
-                this.wsOnDisconnect();
-            }
+        // Lifecycle: pierwszy open → wsOnConnect, kolejne otwarcia po
+        // zerwaniu → wsOnReconnect. Subskrypcja po otwarciu socketu dostaje
+        // asynchroniczne onOpen({alreadyOpen:true}) — callback nie jest gubiony.
+        ws.subscribeConnection({
+            onOpen: (evt) => {
+                const handler = evt.reconnected ? this.wsOnReconnect : this.wsOnConnect;
+                if (handler) handler.call(this, evt);
+            },
+            onClose: () => {
+                console.log("Disconnected from chat socket");
+                if (this.wsOnDisconnect) this.wsOnDisconnect();
+            },
         });
 
         // Store reference to shared socket
@@ -58,10 +60,17 @@ export default class WsApi {
     }
 
     /**
-     * Called when WebSocket connection is established
+     * Called on the first WebSocket open for this consumer
      * Override in subclass to add custom initialization
      */
     async wsOnConnect() {
+    }
+
+    /**
+     * Called when the WebSocket reconnects after a disconnect.
+     * Should rejoin the joined room without touching navigation/history.
+     */
+    async wsOnReconnect() {
     }
 
     /**
@@ -96,7 +105,7 @@ export default class WsApi {
      * @returns {boolean}
      */
     isConnected() {
-        return this.ws.socket.readyState === WebSocket.OPEN;
+        return this.ws.isOpen();
     }
 
     /**

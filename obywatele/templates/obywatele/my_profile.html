@@ -15,7 +15,7 @@
 function updateThemeBtns(active) {
   ['dark','light','auto'].forEach(function(t) {
     var el = document.getElementById('theme-btn-' + t);
-    if (el) el.className = 'btn btn-sm ' + (active === t ? 'btn-primary' : 'btn-outline-secondary');
+    if (el) el.className = 'tw-btn tw-btn-sm ' + (active === t ? 'tw-btn-primary' : 'tw-btn-outline-secondary');
   });
 }
 function toggleTheme(theme) {
@@ -61,115 +61,115 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'auto');
 </script>
 {% endblock %}
 {% block content %}
-<div class="section d-flex flex-column gap-3 max-width-640px">
+<div class="tw-section tw-flex tw-flex-col tw-gap-3 tw-max-w-640">
 
   {# ── PROFIL ── #}
-  <div class="card">
-    <div class="card-header d-flex align-items-center gap-3">
+  <div class="tw-card">
+    <div class="tw-card-header tw-flex tw-items-center tw-gap-3">
       {# Avatar z inline upload overlay #}
-      <form id="avatar-form" method="post" action="{% url 'obywatele:upload_avatar' %}" enctype="multipart/form-data" class="flex-shrink-0">
+      <form id="avatar-form" method="post" action="{% url 'obywatele:upload_avatar' %}" enctype="multipart/form-data" class="tw-flex-shrink-0">
         {% csrf_token %}
-        <input class="mig-hidden" type="file" id="avatar-input" name="avatar" accept="image/*">
-        <div class="avatar-upload-wrap" id="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
+        <input class="mig-hidden tw-mig-hidden" type="file" id="avatar-input" name="avatar" accept="image/*">
+        <div class="avatar-upload-wrap tw-avatar-upload-wrap" id="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
           {% include "home/_user_avatar.html" with avatar=profile.avatar username=user.username size="7xl" extra_class="avatar-bordered" id="avatar-img" loading_lazy=False %}
-          <div class="avatar-overlay" id="avatar-overlay">
-            <i class="fas fa-camera avatar-overlay-icon"></i>
+          <div class="avatar-overlay tw-avatar-overlay" id="avatar-overlay">
+            <i class="fas fa-camera avatar-overlay-icon tw-avatar-overlay-icon"></i>
           </div>
         </div>
       </form>
       <div>
-        <div class="profile-name">{{ user.get_full_name|default:user.username }}</div>
-        <div class="profile-email">{{ user.email }}</div>
+        <div class="tw-profile-name">{{ user.get_full_name|default:user.username }}</div>
+        <div class="tw-profile-email">{{ user.email }}</div>
       </div>
     </div>
-    <div class="card-body">
-      <div class="profile-row">
-        <span class="profile-key">{% trans "Username" %}</span>
-        <span class="profile-val">{{ user.username }}</span>
+    <div class="tw-card-body">
+      <div class="tw-profile-row">
+        <span class="tw-profile-key">{% trans "Username" %}</span>
+        <span class="tw-profile-val">{{ user.username }}</span>
       </div>
-      <div class="profile-row">
-        <span class="profile-key">{% trans "Member since" %}</span>
-        <span class="profile-val">{{ user.date_joined|date:"Y-m-d" }}</span>
+      <div class="tw-profile-row">
+        <span class="tw-profile-key">{% trans "Member since" %}</span>
+        <span class="tw-profile-val">{{ user.date_joined|date:"Y-m-d" }}</span>
       </div>
-      <div class="profile-row">
-        <span class="profile-key">{% trans "Reputation" %}</span>
-        <span class="profile-val">{{ profile.reputation|default:"0" }}</span>
+      <div class="tw-profile-row">
+        <span class="tw-profile-key">{% trans "Reputation" %}</span>
+        <span class="tw-profile-val">{{ profile.reputation|default:"0" }}</span>
       </div>
       {% if profile.introduced_by %}
-      <div class="profile-row">
-        <span class="profile-key">{% trans "Introduced by" %}</span>
-        <span class="profile-val">{{ profile.introduced_by }}</span>
+      <div class="tw-profile-row">
+        <span class="tw-profile-key">{% trans "Introduced by" %}</span>
+        <span class="tw-profile-val">{{ profile.introduced_by }}</span>
       </div>
       {% endif %}
 
-      <div class="d-flex flex-wrap gap-2 mt-3">
-        <a href="{% url 'account_change_password' %}" class="btn btn-sm btn-outline-secondary">
-          <i class="fas fa-key me-1"></i>{% trans "Change password" %}
+      <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-3">
+        <a href="{% url 'account_change_password' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+          <i class="fas fa-key fa-fw tw-me-1"></i>{% trans "Change password" %}
         </a>
-        <a href="{% url 'obywatele:change_email' %}" class="btn btn-sm btn-outline-secondary">
-          <i class="fas fa-envelope me-1"></i>{% trans "Change email" %}
+        <a href="{% url 'obywatele:change_email' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+          <i class="fas fa-envelope fa-fw tw-me-1"></i>{% trans "Change email" %}
         </a>
-        <a href="{% url 'obywatele:change_username' %}" class="btn btn-sm btn-outline-secondary">
-          <i class="fas fa-at me-1"></i>{% trans "Change username" %}
+        <a href="{% url 'obywatele:change_username' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+          <i class="fas fa-at fa-fw tw-me-1"></i>{% trans "Change username" %}
         </a>
       </div>
     </div>
   </div>
 
   {# ── ZASOBY I DANE ── #}
-  <div class="card">
-    <div class="card-header d-flex align-items-center justify-content-between">
-      <span class="section-heading">{% trans "Contact & Resources" %}</span>
-      <a href="{% url 'obywatele:my_assets' %}" class="btn btn-sm btn-outline-secondary">
-        <i class="fas fa-pen me-1"></i>{% trans "Edit" %}
+  <div class="tw-card">
+    <div class="tw-card-header tw-flex tw-items-center tw-justify-between">
+      <span class="tw-section-heading">{% trans "Contact & Resources" %}</span>
+      <a href="{% url 'obywatele:my_assets' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+        <i class="fas fa-pen fa-fw tw-me-1"></i>{% trans "Edit" %}
       </a>
     </div>
-    <div class="card-body">
-      <div class="profile-row"><span class="profile-key">{% trans "City / Commune" %}</span><span class="profile-val {% if not profile.city %}empty{% endif %}">{{ profile.city|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "Voivodeship" %}</span><span class="profile-val {% if not profile.voivodeship %}empty{% endif %}">{{ profile.voivodeship.name|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "Communicator or Phone" %}</span><span class="profile-val {% if not profile.phone %}empty{% endif %}">{{ profile.phone|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "Job" %}</span><span class="profile-val {% if not profile.job %}empty{% endif %}">{{ profile.job|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "Responsibilities" %}</span><span class="profile-val {% if not profile.responsibilities %}empty{% endif %}">{{ profile.responsibilities|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "Business" %}</span><span class="profile-val {% if not profile.business %}empty{% endif %}">{{ profile.business|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "Skills / Knowledge / Hobby" %}</span><span class="profile-val {% if not profile.skills_knowledge_hobby %}empty{% endif %}">{{ profile.skills_knowledge_hobby|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "I want to learn" %}</span><span class="profile-val {% if not profile.want_to_learn %}empty{% endif %}">{{ profile.want_to_learn|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "To give away" %}</span><span class="profile-val {% if not profile.to_give_away %}empty{% endif %}">{{ profile.to_give_away|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "To borrow" %}</span><span class="profile-val {% if not profile.to_borrow %}empty{% endif %}">{{ profile.to_borrow|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "For sale" %}</span><span class="profile-val {% if not profile.for_sale %}empty{% endif %}">{{ profile.for_sale|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "I need" %}</span><span class="profile-val {% if not profile.i_need %}empty{% endif %}">{{ profile.i_need|default:"—" }}</span></div>
-      <div class="profile-row"><span class="profile-key">{% trans "Why do you want to join?" %}</span><span class="profile-val {% if not profile.why %}empty{% endif %}">{{ profile.why|default:"—" }}</span></div>
+    <div class="tw-card-body">
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "City / Commune" %}</span><span class="tw-profile-val {% if not profile.city %}empty{% endif %}">{{ profile.city|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Voivodeship" %}</span><span class="tw-profile-val {% if not profile.voivodeship %}empty{% endif %}">{{ profile.voivodeship.name|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Communicator or Phone" %}</span><span class="tw-profile-val {% if not profile.phone %}empty{% endif %}">{{ profile.phone|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Job" %}</span><span class="tw-profile-val {% if not profile.job %}empty{% endif %}">{{ profile.job|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Responsibilities" %}</span><span class="tw-profile-val {% if not profile.responsibilities %}empty{% endif %}">{{ profile.responsibilities|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Business" %}</span><span class="tw-profile-val {% if not profile.business %}empty{% endif %}">{{ profile.business|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Skills / Knowledge / Hobby" %}</span><span class="tw-profile-val {% if not profile.skills_knowledge_hobby %}empty{% endif %}">{{ profile.skills_knowledge_hobby|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "I want to learn" %}</span><span class="tw-profile-val {% if not profile.want_to_learn %}empty{% endif %}">{{ profile.want_to_learn|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "To give away" %}</span><span class="tw-profile-val {% if not profile.to_give_away %}empty{% endif %}">{{ profile.to_give_away|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "To borrow" %}</span><span class="tw-profile-val {% if not profile.to_borrow %}empty{% endif %}">{{ profile.to_borrow|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "For sale" %}</span><span class="tw-profile-val {% if not profile.for_sale %}empty{% endif %}">{{ profile.for_sale|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "I need" %}</span><span class="tw-profile-val {% if not profile.i_need %}empty{% endif %}">{{ profile.i_need|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Why do you want to join?" %}</span><span class="tw-profile-val {% if not profile.why %}empty{% endif %}">{{ profile.why|default:"—" }}</span></div>
     </div>
   </div>
 
   {# ── JĘZYK ── #}
-  <div class="card">
-    <div class="card-header">
-      <span class="section-heading">{% trans "Language" %}</span>
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <span class="tw-section-heading">{% trans "Language" %}</span>
     </div>
-    <div class="card-body">
-      <div class="d-flex align-items-center gap-2 flex-wrap">
+    <div class="tw-card-body">
+      <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
         <form method="post" action="{% url 'obywatele:set_language' %}" data-preserve-scroll>
           {% csrf_token %}
           <input type="hidden" name="language" value="pl">
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
-          <button type="submit" class="btn btn-sm {% if profile.language == 'pl' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
-            🇵🇱 Polski
+          <button type="submit" class="tw-btn tw-btn-sm {% if profile.language == 'pl' %}tw-btn-primary{% else %}tw-btn-outline-secondary{% endif %}">
+            <i class="fas fa-language fa-fw tw-me-1"></i>Polski
           </button>
         </form>
         <form method="post" action="{% url 'obywatele:set_language' %}" data-preserve-scroll>
           {% csrf_token %}
           <input type="hidden" name="language" value="en">
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
-          <button type="submit" class="btn btn-sm {% if profile.language == 'en' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
-            🇬🇧 English
+          <button type="submit" class="tw-btn tw-btn-sm {% if profile.language == 'en' %}tw-btn-primary{% else %}tw-btn-outline-secondary{% endif %}">
+            <i class="fas fa-language fa-fw tw-me-1"></i>English
           </button>
         </form>
         <form method="post" action="{% url 'obywatele:set_language' %}" data-preserve-scroll>
           {% csrf_token %}
           <input type="hidden" name="language" value="">
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
-          <button type="submit" class="btn btn-sm {% if not profile.language %}btn-primary{% else %}btn-outline-secondary{% endif %}">
-            <i class="fas fa-language me-1"></i>{% trans "Auto" %}
+          <button type="submit" class="tw-btn tw-btn-sm {% if not profile.language %}tw-btn-primary{% else %}tw-btn-outline-secondary{% endif %}">
+            <i class="fas fa-language fa-fw tw-me-1"></i>{% trans "Auto" %}
           </button>
         </form>
       </div>
@@ -177,46 +177,46 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'auto');
   </div>
 
   {# ── WYGLĄD ── #}
-  <div class="card">
-    <div class="card-header">
-      <span class="section-heading">{% trans "Design" %}</span>
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <span class="tw-section-heading">{% trans "Design" %}</span>
     </div>
-    <div class="card-body">
-      <div class="d-flex align-items-center gap-2 flex-wrap">
-        <button type="button" id="theme-btn-dark" class="btn btn-sm btn-outline-secondary"
+    <div class="tw-card-body">
+      <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+        <button type="button" id="theme-btn-dark" class="tw-btn tw-btn-sm tw-btn-outline-secondary"
                 onclick="toggleTheme('dark');">
-          <i class="fas fa-moon me-1"></i>{% trans "Dark" %}
+          <i class="fas fa-moon fa-fw tw-me-1"></i>{% trans "Dark" %}
         </button>
-        <button type="button" id="theme-btn-light" class="btn btn-sm btn-outline-secondary"
+        <button type="button" id="theme-btn-light" class="tw-btn tw-btn-sm tw-btn-outline-secondary"
                 onclick="toggleTheme('light');">
-          <i class="fas fa-sun me-1"></i>{% trans "Bright" %}
+          <i class="fas fa-sun fa-fw tw-me-1"></i>{% trans "Bright" %}
         </button>
-        <button type="button" id="theme-btn-auto" class="btn btn-sm btn-outline-secondary"
+        <button type="button" id="theme-btn-auto" class="tw-btn tw-btn-sm tw-btn-outline-secondary"
                 onclick="toggleTheme('auto');">
-          <i class="fas fa-circle-half-stroke me-1"></i>{% trans "Auto" %}
+          <i class="fas fa-circle-half-stroke fa-fw tw-me-1"></i>{% trans "Auto" %}
         </button>
       </div>
     </div>
   </div>
 
   {# ── POWIADOMIENIA EMAIL ── #}
-  <div class="card">
-    <div class="card-header">
-      <span class="section-heading">{% trans "Email Notifications" %}</span>
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <span class="tw-section-heading">{% trans "Email Notifications" %}</span>
     </div>
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+    <div class="tw-card-body">
+      <div class="tw-citizens-table-wrap">
+        <table class="tw-citizens-table tw-align-middle tw-mb-0">
           <tbody>
             <tr>
               <td>
-                <strong>{% trans "Email frequency" %}</strong>
+                <strong class="tw-font-semibold">{% trans "Email frequency" %}</strong>
               </td>
               <td>
-                <small class="text-muted">{% trans "How often to receive an activity digest by email" %}</small>
+                <small class="tw-text-muted">{% trans "How often to receive an activity digest by email" %}</small>
               </td>
-              <td class="text-end email-frequency-cell">
-                <select id="email-frequency" class="form-select form-select-sm" aria-label="{% trans "Email frequency" %}" data-url="{% url 'obywatele:toggle_notification' %}?type=email_frequency">
+              <td class="tw-text-end email-frequency-cell">
+                <select id="email-frequency" class="tw-form-select tw-form-select-sm" aria-label="{% trans "Email frequency" %}" data-url="{% url 'obywatele:toggle_notification' %}?type=email_frequency">
                   {% for value, label in email_frequency_choices %}
                   <option value="{{ value }}" {% if email_frequency == value %}selected{% endif %}>{{ label }}</option>
                   {% endfor %}
@@ -230,13 +230,13 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'auto');
   </div>
 
   {# ── POWIADOMIENIA PUSH ── #}
-  <div class="card">
-    <div class="card-header">
-      <span class="section-heading">{% trans "Push Notifications" %}</span>
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <span class="tw-section-heading">{% trans "Push Notifications" %}</span>
     </div>
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+    <div class="tw-card-body">
+      <div class="tw-citizens-table-wrap">
+        <table class="tw-citizens-table tw-align-middle tw-mb-0">
           <tbody>
             {% for notif in push_notifications %}
             {% notification_row notif.type notif.title notif.description notif.enabled %}
@@ -248,13 +248,13 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'auto');
   </div>
 
   {# ── POWIADOMIENIA NA URZĄDZENIACH ── #}
-  <div class="card border-primary">
-    <div class="card-header">
-      <span class="section-heading">{% trans "Notifications on devices" %}</span>
+  <div class="tw-card tw-border tw-border-primary">
+    <div class="tw-card-header">
+      <span class="tw-section-heading">{% trans "Notifications on devices" %}</span>
     </div>
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+    <div class="tw-card-body">
+      <div class="tw-citizens-table-wrap">
+        <table class="tw-citizens-table tw-align-middle tw-mb-0">
           <tbody>
             {% for dev in push_devices %}
             {% notification_row dev.type dev.title dev.description dev.enabled %}
@@ -266,31 +266,31 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'auto');
   </div>
 
   {# ── USUNIĘCIE KONTA ── #}
-  <div class="card border-danger border-danger-var">
-    <div class="card-header">
-      <span class="section-heading text-danger">{% trans "Delete account" %}</span>
+  <div class="tw-card tw-border tw-border-danger">
+    <div class="tw-card-header">
+      <span class="tw-section-heading tw-text-danger">{% trans "Delete account" %}</span>
     </div>
-    <div class="card-body">
+    <div class="tw-card-body">
       {% if deletion_request %}
-        <p class="mb-2 text-md">
-          {% trans "Your account is scheduled for permanent deletion on" %} <strong>{{ deletion_request.scheduled_for|date:"Y-m-d" }}</strong>.
+        <p class="tw-mb-2">
+          {% trans "Your account is scheduled for permanent deletion on" %} <strong class="tw-font-semibold">{{ deletion_request.scheduled_for|date:"Y-m-d" }}</strong>.
           <br>
           {% trans "You can cancel this request before that date." %}
         </p>
         <form method="post" action="{% url 'obywatele:cancel_deletion' %}">
           {% csrf_token %}
-          <button type="submit" class="btn btn-sm btn-outline-secondary">
-            <i class="fas fa-undo me-1"></i>{% trans "Cancel deletion request" %}
+          <button type="submit" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+            <i class="fas fa-undo fa-fw tw-me-1"></i>{% trans "Cancel deletion request" %}
           </button>
         </form>
       {% else %}
-        <p class="mb-2 text-muted opacity-90">
+        <p class="tw-mb-2 tw-text-muted tw-opacity-90">
           {% trans "Permanently delete your account and all associated data." %}
           <br>
           {% trans "This action has a 30-day grace period — you can cancel any time before the deadline." %}
         </p>
-        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deletionModal">
-          <i class="fas fa-trash-alt me-1"></i>{% trans "Delete all my data" %}
+        <button type="button" class="tw-btn tw-btn-sm tw-btn-outline-danger" data-tw-toggle="modal" data-tw-target="#deletionModal">
+          <i class="fas fa-trash fa-fw tw-me-1"></i>{% trans "Delete all my data" %}
         </button>
       {% endif %}
     </div>
@@ -299,30 +299,30 @@ updateThemeBtns(localStorage.getItem('app-theme') || 'auto');
 </div>
 
 {# ── MODAL POTWIERDZENIA USUNIĘCIA ── #}
-<div class="modal fade" id="deletionModal" tabindex="-1" aria-labelledby="deletionModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title text-danger" id="deletionModalLabel">
-          <i class="fas fa-exclamation-triangle me-2"></i>{% trans "Delete account" %}
+<div class="tw-modal tw-fade" id="deletionModal" tabindex="-1" aria-labelledby="deletionModalLabel" aria-hidden="true">
+  <div class="tw-modal-dialog">
+    <div class="tw-modal-content">
+      <div class="tw-modal-header">
+        <h5 class="tw-modal-title tw-text-danger" id="deletionModalLabel">
+          <i class="fas fa-exclamation-triangle tw-me-2"></i>{% trans "Delete account" %}
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+        <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
       </div>
-      <div class="modal-body">
+      <div class="tw-modal-body">
         <p>{% trans "Are you sure you want to request deletion of your account and all your data?" %}</p>
-        <p><strong>{% trans "Your account will remain active for 30 days. After that, all data will be permanently removed and cannot be recovered." %}</strong></p>
+        <p><strong class="tw-font-semibold">{% trans "Your account will remain active for 30 days. After that, all data will be permanently removed and cannot be recovered." %}</strong></p>
         <p>{% trans "You can cancel this request at any time during the 30-day period." %}</p>
-        <div class="mb-3">
-          <label for="deletionReason" class="form-label">{% trans "We would be very grateful if you could provide a reason for deleting your account (optional)." %}</label>
-          <textarea class="form-control" id="deletionReason" name="reason" rows="3" placeholder="{% trans 'Your feedback helps us improve...' %}"></textarea>
+        <div class="tw-mb-3">
+          <label for="deletionReason" class="tw-form-label">{% trans "We would be very grateful if you could provide a reason for deleting your account (optional)." %}</label>
+          <textarea class="tw-form-control" id="deletionReason" name="reason" rows="3" placeholder="{% trans 'Your feedback helps us improve...' %}"></textarea>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
-        <form method="post" action="{% url 'obywatele:request_deletion' %}" class="d-inline">
+      <div class="tw-modal-footer">
+        <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</button>
+        <form method="post" action="{% url 'obywatele:request_deletion' %}" class="tw-inline">
           {% csrf_token %}
-          <button type="submit" class="btn btn-danger">
-            <i class="fas fa-trash-alt me-1"></i>{% trans "Yes, schedule deletion" %}
+          <button type="submit" class="tw-btn tw-btn-danger">
+            <i class="fas fa-trash fa-fw tw-me-1"></i>{% trans "Yes, schedule deletion" %}
           </button>
         </form>
       </div>

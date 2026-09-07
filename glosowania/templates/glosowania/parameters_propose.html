@@ -6,9 +6,9 @@
 {% block extra_css %}{{ form.media }}{% endblock %}
 
 {% block glosowania %}
-<div class="container mt-3">
-  <h2>{% if decyzja %}{% trans 'Edit system parameters referendum' %}{% else %}{% trans 'Change system parameters' %}{% endif %}</h2>
-  <p class="text-muted">
+<div class="tw-container tw-mt-3">
+  <h2 class="tw-text-xl tw-font-bold tw-mb-2">{% if decyzja %}{% trans 'Edit system parameters referendum' %}{% else %}{% trans 'Change system parameters' %}{% endif %}</h2>
+  <p class="tw-text-muted tw-mb-4">
     {% trans 'Adjust the values below. Only the parameters you change will be included in the referendum.' %}
   </p>
 
@@ -16,38 +16,40 @@
     {% csrf_token %}
 
     {% if form.non_field_errors %}
-      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      <div class="tw-alert tw-alert-danger tw-mb-3">{{ form.non_field_errors }}</div>
     {% endif %}
 
     {% for label, fields in form.grouped_fields %}
-      <fieldset class="border rounded p-3 mb-3">
-        <legend class="fs-6 fw-bold">{{ label }}</legend>
+      <fieldset class="tw-border tw-border-subtle tw-rounded tw-p-3 tw-mb-3">
+        <legend class="tw-text-base tw-font-bold">{{ label }}</legend>
         {% for field in fields %}
           {{ field|as_crispy_field }}
           {% if field.field.spec.warning %}
-            <div class="alert alert-warning py-1 px-2 small">{{ field.field.spec.warning }}</div>
+            <div class="tw-alert tw-alert-warning tw-py-1 tw-px-2 tw-text-sm">{{ field.field.spec.warning }}</div>
           {% endif %}
         {% endfor %}
       </fieldset>
     {% endfor %}
 
-    <fieldset class="border rounded p-3 mb-3">
-      <legend class="fs-6 fw-bold">{% trans 'Logo' %}</legend>
+    <fieldset class="tw-border tw-border-subtle tw-rounded tw-p-3 tw-mb-3">
+      <legend class="tw-text-base tw-font-bold">{% trans 'Logo' %}</legend>
       {% if decyzja.proposed_brand_mark %}
-        <div class="mb-2">
-          <div class="small text-muted">{% trans 'Currently proposed logo:' %}</div>
+        <div class="tw-mb-2">
+          <div class="tw-text-sm tw-text-muted">{% trans 'Currently proposed logo:' %}</div>
           {% include "glosowania/_proposed_brand_mark.html" with brand_mark=decyzja.proposed_brand_mark img_class="brand-mark-sm" %}
         </div>
       {% endif %}
       {{ form.brand_mark|as_crispy_field }}
     </fieldset>
 
-    <div class="mb-3">
+    <div class="tw-mb-3">
       {{ form.uzasadnienie|as_crispy_field }}
     </div>
 
-    <button type="submit" class="btn btn-primary btn-sm">{% if decyzja %}{% trans 'Save' %}{% else %}{% trans 'Create referendum' %}{% endif %}</button>
-    <a href="{% url 'glosowania:parameters' %}" class="btn btn-secondary btn-sm">{% trans 'Back' %}</a>
+    <div class="tw-flex tw-gap-2">
+      <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas {% if decyzja %}fa-check{% else %}fa-plus{% endif %} fa-fw tw-me-1"></i>{% if decyzja %}{% trans 'Save' %}{% else %}{% trans 'Create referendum' %}{% endif %}</button>
+      <a href="{% url 'glosowania:parameters' %}" class="tw-btn tw-btn-secondary tw-btn-sm"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Back' %}</a>
+    </div>
   </form>
 </div>
 {% endblock glosowania %}

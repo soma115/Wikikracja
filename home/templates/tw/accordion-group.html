@@ -1,0 +1,15 @@
+{% load crispy_classmap %}
+<div class="tw-accordion-item{% if div.css_class %} {{ div.css_class|crispy_classmap }}{% endif %}">
+    <h2 class="tw-accordion-header">
+        <button class="tw-accordion-button{% if not div.active %} tw-collapsed{% endif %}" type="button" data-tw-toggle="collapse" data-tw-target="#{{ div.css_id }}">
+            {{ div.name }}
+        </button>
+    </h2>
+
+    <div id="{{ div.css_id }}" class="tw-accordion-collapse tw-collapse{% if div.active %} tw-show{% endif %}"
+         aria-labelledby="{{ div.css_id }}" {% if not div.always_open %} data-tw-parent="#{{ div.data_parent }}" {% endif %}>
+        <div class="tw-accordion-body">
+            {{ fields|safe }}
+        </div>
+    </div>  
+</div>
