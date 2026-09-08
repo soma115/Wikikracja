@@ -59,13 +59,13 @@ class ProtectedDeleteView(LoginRequiredMixin, DeleteView):
 def _bookkeeping_toolbar(active_item, create_url=None, create_label=None):
     """Build toolbar data for bookkeeping list views."""
     items = [
-        {'name': 'transactions', 'label': _('Transactions'), 'url_name': 'bookkeeping:transaction_list'},
-        {'name': 'partners', 'label': _('Partners'), 'url_name': 'bookkeeping:partner_list'},
-        {'name': 'categories', 'label': _('Categories'), 'url_name': 'bookkeeping:category_list'},
-        {'name': 'assets', 'label': _('Assets'), 'url_name': 'bookkeeping:asset_list'},
-        {'name': 'reports', 'label': _('Reports'), 'url_name': 'bookkeeping:report_list'},
+        {'name': 'transactions', 'label': _('Transactions'), 'url_name': 'bookkeeping:transaction_list', 'pre_icon': 'money-bill-transfer'},
+        {'name': 'partners', 'label': _('Partners'), 'url_name': 'bookkeeping:partner_list', 'pre_icon': 'handshake'},
+        {'name': 'categories', 'label': _('Categories'), 'url_name': 'bookkeeping:category_list', 'pre_icon': 'tags'},
+        {'name': 'assets', 'label': _('Assets'), 'url_name': 'bookkeeping:asset_list', 'pre_icon': 'coins'},
+        {'name': 'reports', 'label': _('Reports'), 'url_name': 'bookkeeping:report_list', 'pre_icon': 'chart-pie'},
     ]
-    sort_items = [{'label': item['label'], 'url': reverse(item['url_name']), 'active': item['name'] == active_item} for item in items]
+    sort_items = [{'label': item['label'], 'url': reverse(item['url_name']), 'active': item['name'] == active_item, 'pre_icon': item['pre_icon']} for item in items]
     ctx = {'sort_items': sort_items, 'cta_end': True}
     if create_url:
         ctx['cta_url'] = create_url
