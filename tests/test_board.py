@@ -70,7 +70,7 @@ def test_view_post_renders_embedded_chat(authenticated_client):
     res = client.get(reverse('board:view_post', args=[post.pk]))
 
     assert res.status_code == 200
-    assert 'ec-section' in res.content.decode()
+    assert 'tw-ec-section' in res.content.decode()
     assert f'data-room-id="{post.chat_room_id}"' in res.content.decode()
 
 
@@ -85,7 +85,7 @@ def test_board_list_renders_chat_link(authenticated_client):
     assert res.status_code == 200
     content = res.content.decode()
     assert post.chat_room_url in content
-    assert 'chat-link' in content
+    assert 'tw-chat-link' in content
 
 
 @pytest.mark.django_db
@@ -98,7 +98,7 @@ def test_board_list_chat_pulse_for_unread_message(authenticated_client):
     res = client.get(reverse('board:start'))
 
     assert res.status_code == 200
-    assert 'chat-room-pulse' in res.content.decode()
+    assert 'tw-chat-room-pulse' in res.content.decode()
 
 
 @pytest.mark.django_db
@@ -169,9 +169,9 @@ def test_view_post_detail_has_no_chat_link_next_to_title(authenticated_client):
 
     assert res.status_code == 200
     content = res.content.decode()
-    assert 'ec-section' in content
+    assert 'tw-ec-section' in content
     assert f'data-room-id="{post.chat_room_id}"' in content
-    assert 'chat-link' not in content
+    assert 'tw-chat-link' not in content
 
 
 @pytest.mark.django_db

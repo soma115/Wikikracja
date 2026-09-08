@@ -116,7 +116,7 @@ def _prepare_task_cards(tasks, pulse_room_ids, priority_map=None):
     """Attach per-request display attributes: priority badge and chat pulse."""
     for task in tasks:
         task.priority_label, task.priority_category = priority_map.get(task.id, (None, None)) if priority_map else (None, None)
-        task.chat_room_pulse_class = "chat-room-pulse" if task.chat_room_id in pulse_room_ids else ""
+        task.chat_room_pulse_class = "tw-chat-room-pulse" if task.chat_room_id in pulse_room_ids else ""
     return tasks
 
 

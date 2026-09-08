@@ -101,7 +101,7 @@ class Task(ChatRoomModel, models.Model):
         """Return CSS class for chat room pulse indicator if there are unseen messages"""
         room = self.chat_room
         if room and room.messages.exists() and not room.seen_by.filter(id=user.id).exists():
-            return "chat-room-pulse"
+            return "tw-chat-room-pulse"
         return ""
 
     def is_user_helper(self, user):

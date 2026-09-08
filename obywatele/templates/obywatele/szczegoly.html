@@ -40,7 +40,7 @@
         {% endif %}
       </h5>
       {% if active %}
-      <a href="{% url 'chat:open_dm' pk=b.uid.pk %}" class="chat-link tw-ms-2 tw-text-xs">
+      <a href="{% url 'chat:open_dm' pk=b.uid.pk %}" class="tw-chat-link tw-ms-2 tw-text-xs">
         <i class="fas fa-comment-dots"></i>
         <span>{% trans 'Send a private message' %}</span>
       </a>

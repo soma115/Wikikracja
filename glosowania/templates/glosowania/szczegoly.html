@@ -40,7 +40,7 @@
           {% endif %}
         </span>
         {% if chat_room %}
-        <a href="{% url 'chat:chat' %}#room_id={{ chat_room.id }}" class="chat-link {{ chat_room_pulse_class }} tw-no-underline">
+        <a href="{% url 'chat:chat' %}#room_id={{ chat_room.id }}" class="tw-chat-link {{ chat_room_pulse_class }} tw-no-underline">
           <i class="fas fa-comment-dots"></i> {% trans 'Chat' %}
         </a>
         {% endif %}

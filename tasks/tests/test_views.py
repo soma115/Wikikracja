@@ -52,7 +52,7 @@ class TaskListViewTest(TestCase):
         inbox.chat_room.is_inbox = True
         inbox.chat_room.save(update_fields=['is_inbox'])
         self.client.force_login(self.user)
-        expected = {unread.pk: "chat-room-pulse", read.pk: "", empty.pk: "", archived.pk: "chat-room-pulse", unlisted.pk: "chat-room-pulse", inbox.pk: "chat-room-pulse"}
+        expected = {unread.pk: "tw-chat-room-pulse", read.pk: "", empty.pk: "", archived.pk: "tw-chat-room-pulse", unlisted.pk: "tw-chat-room-pulse", inbox.pk: "tw-chat-room-pulse"}
 
         response = self.client.get(reverse("tasks:list") + "?tab=awaiting")
 
@@ -61,7 +61,7 @@ class TaskListViewTest(TestCase):
 
         unread.chat_room.seen_by.add(self.user)
         read.chat_room.seen_by.remove(self.user)
-        expected.update({unread.pk: "", read.pk: "chat-room-pulse"})
+        expected.update({unread.pk: "", read.pk: "tw-chat-room-pulse"})
         response = self.client.get(reverse("tasks:list") + "?tab=awaiting")
 
         self.assertEqual(response.status_code, 200)

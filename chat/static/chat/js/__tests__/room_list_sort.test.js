@@ -29,8 +29,8 @@ function roomLinkComparator(mode) {
 }
 
 function isRoomListLinkVisible(link) {
-    const archive = link.closest('.archive-section');
-    return !archive || archive.classList.contains('visible');
+    const archive = link.closest('.tw-archive-section');
+    return !archive || archive.classList.contains('tw-visible');
 }
 
 function captureRoomHomes(links) {
@@ -60,11 +60,11 @@ let flatListEl = null;
 
 function applyRoomSort(mode) {
     const roomListEl = $('#room-list');
-    const groups = roomListEl?.querySelector('.room-list-groups');
+    const groups = roomListEl?.querySelector('.tw-room-list-groups');
     if (!roomListEl || !groups) return;
 
     if (!flatListEl) {
-        const links = [...$$('.room-link[data-room-id]')].filter(isRoomListLinkVisible);
+        const links = [...$$('.tw-room-link[data-room-id]')].filter(isRoomListLinkVisible);
         roomHomes = captureRoomHomes(links);
         flatListEl = document.createElement('div');
         flatListEl.id = 'room-list-flat';
@@ -76,9 +76,9 @@ function applyRoomSort(mode) {
     resortFlatRoomList(mode);
 
     const btn = $('#sort-activity-btn');
-    btn?.classList.add('active');
-    const dirIcon = btn?.querySelector('.sort-dir-icon');
-    if (dirIcon) dirIcon.className = `sort-dir-icon fas fa-arrow-${mode === 'oldest' ? 'up' : 'down'}`;
+    btn?.classList.add('tw-active');
+    const dirIcon = btn?.querySelector('.tw-sort-dir-icon');
+    if (dirIcon) dirIcon.className = `tw-sort-dir-icon fas fa-arrow-${mode === 'oldest' ? 'up' : 'down'}`;
     localStorage.setItem('chat-sort-mode', mode);
 }
 
@@ -91,20 +91,20 @@ function resetRoomSort() {
     roomHomes = null;
     roomSortMode = null;
 
-    const groups = $('#room-list')?.querySelector('.room-list-groups');
+    const groups = $('#room-list')?.querySelector('.tw-room-list-groups');
     if (groups) groups.style.display = '';
 
     const btn = $('#sort-activity-btn');
-    btn?.classList.remove('active');
-    const dirIcon = btn?.querySelector('.sort-dir-icon');
-    if (dirIcon) dirIcon.className = 'sort-dir-icon fas fa-arrow-down';
+    btn?.classList.remove('tw-active');
+    const dirIcon = btn?.querySelector('.tw-sort-dir-icon');
+    if (dirIcon) dirIcon.className = 'tw-sort-dir-icon fas fa-arrow-down';
     localStorage.removeItem('chat-sort-mode');
 }
 
 function resortFlatRoomList(mode = roomSortMode) {
     if (!flatListEl || !mode) return;
     roomSortMode = mode;
-    [...flatListEl.querySelectorAll('.room-link[data-room-id]')]
+    [...flatListEl.querySelectorAll('.tw-room-link[data-room-id]')]
         .sort(roomLinkComparator(mode))
         .forEach(link => flatListEl.appendChild(link));
 }
@@ -113,7 +113,7 @@ function resortFlatRoomList(mode = roomSortMode) {
 
 function roomLink(id, lastActivity) {
     const el = document.createElement('a');
-    el.className = 'room-link';
+    el.className = 'tw-room-link';
     el.dataset.roomId = String(id);
     if (lastActivity !== undefined) el.dataset.lastActivity = String(lastActivity);
     return el;
@@ -122,12 +122,12 @@ function roomLink(id, lastActivity) {
 /** DOM z dwiema kategoriami + sekcją archiwum, wzorowany na chat.html. */
 function buildRoomListDom() {
     document.body.innerHTML = `
-      <button id="sort-activity-btn"><i class="sort-dir-icon fas fa-arrow-down"></i></button>
+      <button id="sort-activity-btn"><i class="tw-sort-dir-icon fas fa-arrow-down"></i></button>
       <div id="room-list">
-        <div class="room-list-groups">
-          <div class="nav-cat-content" id="cat-a"></div>
-          <div class="nav-cat-content" id="cat-b"></div>
-          <div class="archive-section" id="archive"></div>
+        <div class="tw-room-list-groups">
+          <div class="tw-chat-cat-content" id="cat-a"></div>
+          <div class="tw-chat-cat-content" id="cat-b"></div>
+          <div class="tw-archive-section" id="archive"></div>
         </div>
       </div>`;
     return {
@@ -138,7 +138,7 @@ function buildRoomListDom() {
 }
 
 function flatOrder() {
-    return [...flatListEl.querySelectorAll('.room-link')]
+    return [...flatListEl.querySelectorAll('.tw-room-link')]
         .map(l => l.dataset.roomId);
 }
 
@@ -191,7 +191,7 @@ describe('isRoomListLinkVisible', () => {
 
     test('pokój w rozwiniętym archiwum jest widoczny', () => {
         const { archive } = buildRoomListDom();
-        archive.classList.add('visible');
+        archive.classList.add('tw-visible');
         const link = roomLink(1, 10);
         archive.appendChild(link);
         expect(isRoomListLinkVisible(link)).toBe(true);
@@ -234,8 +234,8 @@ describe('captureRoomHomes + restoreRoomHomes', () => {
         restoreRoomHomes(homes);
 
         // pokoje lądują na swoich pozycjach modelu — względem siebie zachowują kolejność
-        expect(catA.children[0].classList.contains('room-link')).toBe(true);
-        expect([...catA.querySelectorAll('.room-link')]).toEqual([r1, r2]);
+        expect(catA.children[0].classList.contains('tw-room-link')).toBe(true);
+        expect([...catA.querySelectorAll('.tw-room-link')]).toEqual([r1, r2]);
     });
 });
 
@@ -253,8 +253,8 @@ describe('applyRoomSort / resetRoomSort', () => {
         applyRoomSort('newest');
 
         expect(flatOrder()).toEqual(['2', '3', '1']); // archiwum pominięte
-        expect($('#room-list .room-list-groups').style.display).toBe('none');
-        expect($('#sort-activity-btn').classList.contains('active')).toBe(true);
+        expect($('#room-list .tw-room-list-groups').style.display).toBe('none');
+        expect($('#sort-activity-btn').classList.contains('tw-active')).toBe(true);
         expect(localStorage.getItem('chat-sort-mode')).toBe('newest');
     });
 
@@ -269,7 +269,7 @@ describe('applyRoomSort / resetRoomSort', () => {
 
         expect(flatListEl).toBe(firstFlat);
         expect(flatOrder()).toEqual(['1', '3', '2']);
-        expect($('#sort-activity-btn .sort-dir-icon').className).toContain('fa-arrow-up');
+        expect($('#sort-activity-btn .tw-sort-dir-icon').className).toContain('fa-arrow-up');
         expect(localStorage.getItem('chat-sort-mode')).toBe('oldest');
     });
 
@@ -285,8 +285,8 @@ describe('applyRoomSort / resetRoomSort', () => {
         expect($('#room-list-flat')).toBeNull();
         expect([...catA.children]).toEqual([r1, r2]);
         expect([...catB.children]).toEqual([r3]);
-        expect($('#room-list .room-list-groups').style.display).toBe('');
-        expect($('#sort-activity-btn').classList.contains('active')).toBe(false);
+        expect($('#room-list .tw-room-list-groups').style.display).toBe('');
+        expect($('#sort-activity-btn').classList.contains('tw-active')).toBe(false);
         expect(localStorage.getItem('chat-sort-mode')).toBeNull();
         expect(roomSortMode).toBeNull();
     });

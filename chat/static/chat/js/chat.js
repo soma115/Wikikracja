@@ -97,15 +97,15 @@ function bindSortToolbar() {
     if (!dateBtn || !likesBtn || !popularBtn) return;
 
     const applyActiveStyles = () => {
-        dateBtn.classList.toggle('active', SortState.sort_by === 'date');
-        likesBtn.classList.toggle('active', SortState.sort_by === 'likes');
-        popularBtn.classList.toggle('active', SortState.popular_only);
+        dateBtn.classList.toggle('tw-active', SortState.sort_by === 'date');
+        likesBtn.classList.toggle('tw-active', SortState.sort_by === 'likes');
+        popularBtn.classList.toggle('tw-active', SortState.popular_only);
 
         const setArrow = (btn, active) => {
-            const arrow = btn.querySelector('.sort-arrow');
+            const arrow = btn.querySelector('.tw-sort-arrow');
             if (!arrow) return;
-            if (!active) { arrow.className = 'fas fa-arrow-down sort-arrow tw-invisible'; return; }
-            arrow.className = 'fas fa-arrow-' + (SortState.order === 'asc' ? 'up' : 'down') + ' sort-arrow';
+            if (!active) { arrow.className = 'fas fa-arrow-down tw-sort-arrow tw-invisible'; return; }
+            arrow.className = 'fas fa-arrow-' + (SortState.order === 'asc' ? 'up' : 'down') + ' tw-sort-arrow';
         };
         setArrow(dateBtn, SortState.sort_by === 'date');
         setArrow(likesBtn, SortState.sort_by === 'likes');
@@ -211,17 +211,17 @@ function decideUnreadFilterOverride({ urlFilter, isActive, userToggled }) {
 
 function applyUnreadFilter() {
     // Filter rooms - show only unread using CSS class
-    const allRoomLinks = $$('.room-link[data-room-id]');
+    const allRoomLinks = $$('.tw-room-link[data-room-id]');
     allRoomLinks.forEach(roomLink => {
         // Add class to hide read rooms
-        if (!roomLink.classList.contains('room-not-seen')) {
-            roomLink.classList.add('filtered-out');
+        if (!roomLink.classList.contains('tw-room-link--not-seen')) {
+            roomLink.classList.add('tw-room-link--filtered-out');
         } else {
-            roomLink.classList.remove('filtered-out');
+            roomLink.classList.remove('tw-room-link--filtered-out');
         }
     });
     // Empty state w prawej kolumnie — zawsze gdy filtr daje 0 wynikow
-    const unreadCount = $$('.room-link.room-not-seen[data-room-id]').length;
+    const unreadCount = $$('.tw-room-link.tw-room-link--not-seen[data-room-id]').length;
     if (unreadCount === 0) {
         showUnreadEmptyState();
     } else {
@@ -230,9 +230,9 @@ function applyUnreadFilter() {
 }
 
 function removeUnreadFilter() {
-    const allRoomLinks = $$('.room-link[data-room-id]');
+    const allRoomLinks = $$('.tw-room-link[data-room-id]');
     allRoomLinks.forEach(roomLink => {
-        roomLink.classList.remove('filtered-out');
+        roomLink.classList.remove('tw-room-link--filtered-out');
     });
     hideUnreadEmptyState();
 }
@@ -246,7 +246,7 @@ function updateUnreadFilter() {
 
 function setUnreadFilter(active) {
     isUnreadFilterActive = active;
-    document.getElementById('unread-filter-btn')?.classList.toggle('active', active);
+    document.getElementById('unread-filter-btn')?.classList.toggle('tw-active', active);
     if (active) {
         localStorage.setItem('chat-unread-filter', 'active');
         applyUnreadFilter();
@@ -272,12 +272,12 @@ function applyUnreadUrlIntent(urlFilter) {
  *   room-list-showing — na mobile użytkownik jest na panelu listy.
  */
 function renderChatView() {
-    const chatRooms = $('.chat-rooms');
+    const chatRooms = $('.tw-chat-rooms');
     if (!chatRooms) return;
-    chatRooms.classList.toggle('room-active', CurrentRoomId != null);
-    chatRooms.classList.toggle('room-list-showing', mobileMedia.matches && ViewState.panel === 'list');
+    chatRooms.classList.toggle('tw-room-active', CurrentRoomId != null);
+    chatRooms.classList.toggle('tw-room-list-showing', mobileMedia.matches && ViewState.panel === 'list');
     // aria-current na linku aktywnego pokoju.
-    $$('.room-link[aria-current]').forEach(el => el.removeAttribute('aria-current'));
+    $$('.tw-room-link[aria-current]').forEach(el => el.removeAttribute('aria-current'));
     if (CurrentRoomId != null) {
         DOM_API?.getRoomLinkDiv(CurrentRoomId)?.setAttribute('aria-current', 'true');
     }
@@ -327,7 +327,7 @@ function applyChatRoute(route, { initial = false } = {}) {
     // Widok listy: 'rooms' | 'unread' | 'default' poza startem (powrót Wstecz)
     ViewState.panel = 'list';
     ViewState.requestedRoomId = null;
-    $('.chat-rooms')?.classList.remove('room-list-hidden');
+    $('.tw-chat-rooms')?.classList.remove('tw-room-list-hidden');
     renderChatView();
     if (CurrentRoomId == null) showRoomPlaceholder();
     if (route.view === 'unread') applyUnreadUrlIntent('on');
@@ -344,14 +344,14 @@ function applyChatRoute(route, { initial = false } = {}) {
  * ostatnio używany (jeśli dozwolony) → pierwszy publiczny → pierwszy dozwolony.
  */
 function pickInitialRoomId() {
-    const roomLinks = $$('.room-link[data-room-id]');
+    const roomLinks = $$('.tw-room-link[data-room-id]');
     const allowedRoomIds = new Set([...roomLinks].map(el => parseInt(el.dataset.roomId)));
     if (localStorage.lastUsedRoomID) {
         const storedId = parseInt(localStorage.lastUsedRoomID);
         if (allowedRoomIds.has(storedId)) return storedId;
         delete localStorage.lastUsedRoomID;
     }
-    const publicRooms = $$('.room-link[data-room-id][data-room-type="public"]');
+    const publicRooms = $$('.tw-room-link[data-room-id][data-room-type="public"]');
     return publicRooms.length ? parseInt(publicRooms[0].dataset.roomId) : ([...allowedRoomIds][0] ?? 0);
 }
 
@@ -390,18 +390,18 @@ export function getCurrentRoomId() {
 // Tekst budujemy przez textContent (defense-in-depth — gdyby kiedys w tlumaczeniu
 // pojawil sie znak < lub &, to nie zlamie HTML'a).
 function showRoomPlaceholder() {
-    const messages = document.querySelector('.chat-root-messages');
+    const messages = document.querySelector('.tw-chat-root-messages');
     if (!messages || document.getElementById('chat-no-room-placeholder')) return;
     const div = document.createElement('div');
     div.id = 'chat-no-room-placeholder';
-    div.className = 'chat-no-room-placeholder';
+    div.className = 'tw-chat-no-room-placeholder';
 
     const icon = document.createElement('i');
-    icon.className = 'fas fa-comments chat-no-room-icon';
+    icon.className = 'fas fa-comments tw-chat-no-room-icon';
     icon.setAttribute('aria-hidden', 'true');
 
     const text = document.createElement('p');
-    text.className = 'chat-no-room-text';
+    text.className = 'tw-chat-no-room-text';
     text.textContent = _("Select a room from the list");
 
     div.append(icon, text);
@@ -419,25 +419,25 @@ function hideRoomPlaceholder() {
  * Teksty przez textContent (defense-in-depth, patrz showRoomPlaceholder).
  */
 function showJoinError(roomId) {
-    const messages = document.querySelector('.chat-root-messages');
+    const messages = document.querySelector('.tw-chat-root-messages');
     if (!messages || document.getElementById('chat-join-error')) return;
     hideRoomPlaceholder();
 
     const div = document.createElement('div');
     div.id = 'chat-join-error';
-    div.className = 'chat-join-error';
+    div.className = 'tw-chat-join-error';
 
     const icon = document.createElement('i');
-    icon.className = 'fas fa-plug-circle-xmark chat-no-room-icon';
+    icon.className = 'fas fa-plug-circle-xmark tw-chat-no-room-icon';
     icon.setAttribute('aria-hidden', 'true');
 
     const text = document.createElement('p');
-    text.className = 'chat-no-room-text';
+    text.className = 'tw-chat-no-room-text';
     text.textContent = _('Could not join the room.');
 
     const retry = document.createElement('button');
     retry.type = 'button';
-    retry.className = 'tw-btn tw-btn-secondary chat-join-retry';
+    retry.className = 'tw-btn tw-btn-secondary tw-chat-join-retry';
     retry.innerHTML = '<i class="fas fa-rotate-right fa-fw" aria-hidden="true"></i>';
     retry.append(' ' + _('Try again'));
     retry.addEventListener('click', () => {
@@ -462,21 +462,21 @@ function showUnreadEmptyState() {
 
     const div = document.createElement('div');
     div.id = 'chat-no-unread-empty-state';
-    div.className = 'chat-no-unread-empty-state';
+    div.className = 'tw-chat-no-unread-empty-state';
 
     const iconBig = document.createElement('i');
-    iconBig.className = 'fas fa-envelope-open chat-no-unread-icon';
+    iconBig.className = 'fas fa-envelope-open tw-chat-no-unread-icon';
     iconBig.setAttribute('aria-hidden', 'true');
 
     const title = document.createElement('p');
-    title.className = 'chat-no-unread-title';
+    title.className = 'tw-chat-no-unread-title';
     title.textContent = _("No unread messages");
 
     // Hint: split tlumaczenia po {icon} i wstaw realny <i> miedzy text nodes.
     // Ikona jest dokladnie ta sama co w #unread-filter-btn — wizualnie spina
     // komunikat z akcja, ktora user ma wykonac.
     const hint = document.createElement('p');
-    hint.className = 'chat-no-unread-hint';
+    hint.className = 'tw-chat-no-unread-hint';
     // after = '' jako bezpiecznik: gdyby tlumaczenie kiedys zgubilo placeholder {icon},
     // split zwroci 1-elementowa tablice i bez defaultu createTextNode(undefined) wstawilby
     // literalny napis "undefined" po przycisku.
@@ -488,7 +488,7 @@ function showUnreadEmptyState() {
     // przycisku (zdejmie filtr i — przez removeUnreadFilter — usunie ten empty state).
     const inlineBtn = document.createElement('button');
     inlineBtn.type = 'button';
-    inlineBtn.className = 'chat-no-unread-inline-btn';
+    inlineBtn.className = 'tw-chat-no-unread-inline-btn';
     // Etykieta opisuje AKCJE tego przycisku (zawsze zdejmuje filtr), nie kierunek toggle'a —
     // ten przycisk, w przeciwienstwie do #unread-filter-btn w pasku, tylko wylacza filtr.
     inlineBtn.setAttribute('aria-label', _("Disable the unread filter"));
@@ -532,8 +532,8 @@ function roomLinkComparator(mode) {
 
 /** Pokój bierze udział w płaskim widoku, gdy nie siedzi w ukrytym archiwum. */
 function isRoomListLinkVisible(link) {
-    const archive = link.closest('.archive-section');
-    return !archive || archive.classList.contains('visible');
+    const archive = link.closest('.tw-archive-section');
+    return !archive || archive.classList.contains('tw-visible');
 }
 
 /** Map<Element, {parent, index}> — domowe pozycje linków przed spłaszczeniem. */
@@ -569,11 +569,11 @@ let flatListEl = null;   // #room-list-flat — kontener płaskiej listy
 /** Spłaszcza listę do #room-list-flat i sortuje wg data-last-activity. */
 function applyRoomSort(mode) {
     const roomListEl = $('#room-list');
-    const groups = roomListEl?.querySelector('.room-list-groups');
+    const groups = roomListEl?.querySelector('.tw-room-list-groups');
     if (!roomListEl || !groups) return;
 
     if (!flatListEl) {
-        const links = [...$$('.room-link[data-room-id]')].filter(isRoomListLinkVisible);
+        const links = [...$$('.tw-room-link[data-room-id]')].filter(isRoomListLinkVisible);
         roomHomes = captureRoomHomes(links);
         flatListEl = document.createElement('div');
         flatListEl.id = 'room-list-flat';
@@ -585,9 +585,9 @@ function applyRoomSort(mode) {
     resortFlatRoomList(mode);
 
     const btn = $('#sort-activity-btn');
-    btn?.classList.add('active');
-    const dirIcon = btn?.querySelector('.sort-dir-icon');
-    if (dirIcon) dirIcon.className = `sort-dir-icon fas fa-arrow-${mode === 'oldest' ? 'up' : 'down'}`;
+    btn?.classList.add('tw-active');
+    const dirIcon = btn?.querySelector('.tw-sort-dir-icon');
+    if (dirIcon) dirIcon.className = `tw-sort-dir-icon fas fa-arrow-${mode === 'oldest' ? 'up' : 'down'}`;
     localStorage.setItem('chat-sort-mode', mode);
 }
 
@@ -601,13 +601,13 @@ function resetRoomSort() {
     roomHomes = null;
     roomSortMode = null;
 
-    const groups = $('#room-list')?.querySelector('.room-list-groups');
+    const groups = $('#room-list')?.querySelector('.tw-room-list-groups');
     if (groups) groups.style.display = '';
 
     const btn = $('#sort-activity-btn');
-    btn?.classList.remove('active');
-    const dirIcon = btn?.querySelector('.sort-dir-icon');
-    if (dirIcon) dirIcon.className = 'sort-dir-icon fas fa-arrow-down';
+    btn?.classList.remove('tw-active');
+    const dirIcon = btn?.querySelector('.tw-sort-dir-icon');
+    if (dirIcon) dirIcon.className = 'tw-sort-dir-icon fas fa-arrow-down';
     localStorage.removeItem('chat-sort-mode');
 }
 
@@ -619,7 +619,7 @@ function resetRoomSort() {
 function resortFlatRoomList(mode = roomSortMode) {
     if (!flatListEl || !mode) return;
     roomSortMode = mode;
-    [...flatListEl.querySelectorAll('.room-link[data-room-id]')]
+    [...flatListEl.querySelectorAll('.tw-room-link[data-room-id]')]
         .sort(roomLinkComparator(mode))
         .forEach(link => flatListEl.appendChild(link));
 }
@@ -662,7 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const shouldRestoreFilter = wantsUnreadStart || savedFilterState === 'active';
     if (shouldRestoreFilter) {
         isUnreadFilterActive = true;
-        unreadFilterBtn?.classList.add('active');
+        unreadFilterBtn?.classList.add('tw-active');
         applyUnreadFilter();
     }
 
@@ -720,7 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
         WS_API.getNotificationData()
             .then(data => {
                 const enabledRooms = new Set(data.rooms.map(id => parseInt(id)));
-                $$('.notif-switch[data-room-id]').forEach(btn => {
+                $$('.tw-notif-switch[data-room-id]').forEach(btn => {
                     DOM_API.setRoomNotifications(parseInt(btn.dataset.roomId), enabledRooms.has(parseInt(btn.dataset.roomId)));
                 });
             })
@@ -770,10 +770,10 @@ export async function onSocketMessage(data) {
  */
 function expandCategoryForRoom(roomLink) {
     // Expand the nav-cat-content that wraps this room
-    const navCatContent = roomLink.closest('.nav-cat-content');
+    const navCatContent = roomLink.closest('.tw-chat-cat-content');
     if (navCatContent) {
-        if (!navCatContent.classList.contains('open')) {
-            navCatContent.classList.add('open');
+        if (!navCatContent.classList.contains('tw-open')) {
+            navCatContent.classList.add('tw-open');
             const catId = navCatContent.id;
             const catBtn = catId ? document.querySelector(`[data-cat-content="${catId}"]`) : null;
             if (catBtn) catBtn.setAttribute('aria-expanded', 'true');
@@ -782,9 +782,9 @@ function expandCategoryForRoom(roomLink) {
     }
 
     // If it's inside an archive section, reveal all archived rooms via the global toggle
-    if (roomLink.closest('.archive-section')) {
-        document.querySelectorAll('.archive-section').forEach(s => s.classList.add('visible'));
-        document.getElementById('archive-toggle-global-btn')?.classList.add('active');
+    if (roomLink.closest('.tw-archive-section')) {
+        document.querySelectorAll('.tw-archive-section').forEach(s => s.classList.add('tw-visible'));
+        document.getElementById('archive-toggle-global-btn')?.classList.add('tw-active');
         localStorage.setItem('chat-archive-global', 'visible');
     }
 }
@@ -801,7 +801,7 @@ function deriveBreadcrumb(room_id) {
     const parts = [];
 
     // L0 — category label from the nav-cat-btn
-    const navCatContent = link.closest('.nav-cat-content');
+    const navCatContent = link.closest('.tw-chat-cat-content');
     if (navCatContent) {
         const catId = navCatContent.id;
         const catBtn = catId ? document.querySelector(`[data-cat-content="${catId}"]`) : null;
@@ -817,7 +817,7 @@ function deriveBreadcrumb(room_id) {
     }
 
     // Leaf — room name (may show override_label = task/vote title)
-    const roomName = link.querySelector('.room-name')?.textContent?.trim();
+    const roomName = link.querySelector('.tw-room-name')?.textContent?.trim();
     if (roomName) parts.push({ label: roomName, active: true });
 
     return parts;
@@ -849,21 +849,21 @@ export async function onRoomTryJoin(room_id, { preserveView = false } = {}) {
     if (CurrentRoomId) await onRoomTryLeave(false);
 
     const joiningRoomLink = DOM_API.getRoomLinkDiv(room_id);
-    joiningRoomLink?.classList.add("joined");
+    joiningRoomLink?.classList.add("tw-room-link--joined");
     // WS może być jeszcze w trakcie łączenia (np. tuż po otwarciu strony albo
     // reconnect po zerwaniu połączenia) — komenda "join" zostanie zakolejkowana
     // i wyslana automatycznie po otwarciu socketu, ale to moze potrwac chwile.
     // Pokazujemy prosty spinner na linku do pokoju, zeby user wiedzial, ze cos sie dzieje.
     const showConnectingSpinner = !WS_API.isConnected();
-    if (showConnectingSpinner) joiningRoomLink?.classList.add("connecting");
+    if (showConnectingSpinner) joiningRoomLink?.classList.add("tw-room-link--connecting");
     RoomLock.lock();
     let response;
     try {
         response = await WS_API.joinRoom(room_id);
     } catch (error) {
         RoomLock.unlock();
-        if (showConnectingSpinner) joiningRoomLink?.classList.remove("connecting");
-        joiningRoomLink?.classList.remove("joined");
+        if (showConnectingSpinner) joiningRoomLink?.classList.remove("tw-room-link--connecting");
+        joiningRoomLink?.classList.remove("tw-room-link--joined");
         ViewState.joinStatus = 'error';
         if (error === 'ROOM_INVALID' || error === 'ACCESS_DENIED') {
             delete localStorage.lastUsedRoomID;
@@ -885,7 +885,7 @@ export async function onRoomTryJoin(room_id, { preserveView = false } = {}) {
         return;
     }
     RoomLock.unlock();
-    if (showConnectingSpinner) joiningRoomLink?.classList.remove("connecting");
+    if (showConnectingSpinner) joiningRoomLink?.classList.remove("tw-room-link--connecting");
 
     // Żądanie mogło zostać wyprzedzone (klik w inny pokój albo powrót na listę)
     // albo to techniczny rejoin — wtedy budujemy treść, ale nie ruszamy panelu.
@@ -935,7 +935,7 @@ export async function onRoomTryLeave(sync_with_server) {
         await WS_API.leaveRoom(CurrentRoomId);
         RoomLock.unlock();
     }
-    DOM_API.getRoomLinkDiv(CurrentRoomId)?.classList.remove("joined");
+    DOM_API.getRoomLinkDiv(CurrentRoomId)?.classList.remove("tw-room-link--joined");
     DOM_API.clearRoomData();
     resetSortState();
     for (const t of pendingTimeouts.values()) clearTimeout(t);
@@ -966,7 +966,7 @@ export async function onReceiveMessages(messages) {
 
         // Optimistic UI — own message echoed back matches a pending placeholder; skip normal render path.
         if (message.own && message.temp_id) {
-            const pending = msgdiv?.querySelector(`.message[data-temp-id="${message.temp_id}"]`);
+            const pending = msgdiv?.querySelector(`.tw-chat-message[data-temp-id="${message.temp_id}"]`);
             if (pending) {
                 DOM_API.confirmMessage(message.temp_id, message.message_id);
                 const t = pendingTimeouts.get(message.temp_id);
@@ -980,7 +980,7 @@ export async function onReceiveMessages(messages) {
         const banners = DOM_API.getLastMessageBanner();
         const previous_banner = banners.length ? banners[banners.length - 1].textContent : null;
         if (previous_banner != current_banner) {
-            msgdiv.insertAdjacentHTML('beforeend', `<div class='date-banner'>${current_banner}</div>`);
+            msgdiv.insertAdjacentHTML('beforeend', `<div class='tw-date-banner'>${current_banner}</div>`);
         }
         DOM_API.addMessage(
             message.room_id, message.user_id ?? null, message.avatar_url ?? null, message.citizen_color_class ?? '', message.message_id, message.username, message.message,
@@ -1004,7 +1004,7 @@ export async function onReceiveMessages(messages) {
         for (const message of messages) {
             const current_banner = formatDate(message.timestamp);
             if (current_banner !== lastBannerText) {
-                batchHtml += `<div class='date-banner'>${current_banner}</div>`;
+                batchHtml += `<div class='tw-date-banner'>${current_banner}</div>`;
                 lastBannerText = current_banner;
             }
             batchHtml += DOM_API.buildMessageHtml(
@@ -1023,7 +1023,7 @@ export async function onReceiveMessages(messages) {
         // Apply active vote states after batch insert
         for (const message of messages) {
             if (message.your_vote) {
-                DOM_API.getVoteDiv(message.message_id, message.your_vote)?.classList.add('active');
+                DOM_API.getVoteDiv(message.message_id, message.your_vote)?.classList.add('tw-active');
             }
         }
         const toMarkRead = messages.filter(m => !m.own).map(m => m.message_id);
@@ -1058,7 +1058,7 @@ export async function onReplaceMessages(messages, room_id) {
 
     if (!messages || !messages.length) {
         DOM_API.removeNoMessagesBanner();
-        msgdiv.insertAdjacentHTML('beforeend', `<div class='empty-chat-message'>${_("No messages match the current filter.")}</div>`);
+        msgdiv.insertAdjacentHTML('beforeend', `<div class='tw-empty-chat-message'>${_("No messages match the current filter.")}</div>`);
         return;
     }
 
@@ -1074,7 +1074,7 @@ export async function onReplaceMessages(messages, room_id) {
             message.upvoters, message.downvoters
         );
         if (message.your_vote) {
-            DOM_API.getVoteDiv(message.message_id, message.your_vote)?.classList.add('active');
+            DOM_API.getVoteDiv(message.message_id, message.your_vote)?.classList.add('tw-active');
         }
     }
 
@@ -1098,8 +1098,8 @@ export async function onReceiveVotes(event) {
 
     if (event.your_vote /* vote type e.g. upvote or downvote or null if it wasn't you who triggered */) {
         const active_btn = DOM_API.getVoteDiv(event.message_id, event.your_vote);
-        if (message_div) $$('.msg-vote', message_div).forEach(btn => btn.classList.remove('active'));
-        if (event.add) active_btn?.classList.add('active');
+        if (message_div) $$('.tw-msg-vote', message_div).forEach(btn => btn.classList.remove('tw-active'));
+        if (event.add) active_btn?.classList.add('tw-active');
     }
 
     // Pokoje zadań: serwer dosyła nicki głosujących — odśwież tooltipsy łapek.
@@ -1130,7 +1130,7 @@ export async function onReceiveReactions(event) {
             if (countEl) {
                 countEl.textContent = count;
             } else {
-                btn.insertAdjacentHTML('beforeend', `<span class="reaction-count">${count}</span>`);
+                btn.insertAdjacentHTML('beforeend', `<span class="tw-reaction-count">${count}</span>`);
             }
         } else if (countEl) {
             countEl.remove();
@@ -1140,7 +1140,7 @@ export async function onReceiveReactions(event) {
     // Toggle active state if it was the current user
     if (event.your_reaction !== undefined && event.your_reaction !== null) {
         const btn = $(`.reaction-btn[data-reaction="${event.your_reaction}"]`, msgDiv);
-        if (btn) btn.classList.toggle('reaction-btn--active', event.added ?? false);
+        if (btn) btn.classList.toggle('tw-reaction-btn--active', event.added ?? false);
     }
 }
 
@@ -1152,27 +1152,27 @@ export async function onReceiveReadBy(event) {
     if (!msgDiv) return;
 
     const readBy = event.read_by || [];
-    const btn = msgDiv.querySelector('.read-by-toggle');
+    const btn = msgDiv.querySelector('.tw-read-by-toggle');
     const dropdown = document.getElementById(`read-by-dropdown-${event.message_id}`);
     if (!btn || !dropdown) return;
 
     const listHtml = readBy.map(u => {
         const colorClass = u.citizen_color_class || '';
         const avatar = u.avatar_url
-            ? `<img class="avatar avatar-xl" src="${u.avatar_url}" alt="${u.username}">`
-            : `<span class="avatar avatar-xl avatar-fallback ${colorClass}">${(u.username || '').slice(0, 2).toUpperCase()}</span>`;
-        return `<div class="read-by-item">${avatar}<span class="read-by-username">${u.username}</span></div>`;
+            ? `<img class="tw-avatar tw-avatar-xl" src="${u.avatar_url}" alt="${u.username}">`
+            : `<span class="tw-avatar tw-avatar-xl tw-avatar-fallback ${colorClass}">${(u.username || '').slice(0, 2).toUpperCase()}</span>`;
+        return `<div class="tw-read-by-item">${avatar}<span class="tw-read-by-username">${u.username}</span></div>`;
     }).join('');
 
-    let countEl = btn.querySelector('.read-by-count');
+    let countEl = btn.querySelector('.tw-read-by-count');
     if (!countEl) {
         countEl = document.createElement('span');
-        countEl.className = 'read-by-count';
+        countEl.className = 'tw-read-by-count';
         btn.appendChild(countEl);
     }
     countEl.textContent = readBy.length;
     btn.title = `${readBy.length} osób przeczytało tę wiadomość`;
-    dropdown.querySelector('.read-by-list').innerHTML = listHtml;
+    dropdown.querySelector('.tw-read-by-list').innerHTML = listHtml;
 }
 
 export async function onReceiveEdit(edit_info) {
@@ -1212,13 +1212,13 @@ export async function onReceiveOnlineUpdates(updates) {
 
 export async function onRoomUnsee(room_id) {
     if (CurrentRoomId == room_id) return;
-    DOM_API.getRoomLinkDiv(room_id)?.classList.add("room-not-seen");
+    DOM_API.getRoomLinkDiv(room_id)?.classList.add("tw-room-link--not-seen");
     DOM_API.setRoomSeenIconState(room_id, false);
     updateUnreadFilter();
 }
 
 export async function onRoomSeen(room_id) {
-    DOM_API.getRoomLinkDiv(room_id)?.classList.remove("room-not-seen");
+    DOM_API.getRoomLinkDiv(room_id)?.classList.remove("tw-room-link--not-seen");
     DOM_API.setRoomSeenIconState(room_id, true);
     updateUnreadFilter();
 }
@@ -1251,7 +1251,7 @@ export function onToggleReaction(reaction, message_id) {
 }
 
 export async function onUpdateVote(vote, message_id, is_add) {
-    this.classList.toggle('active');
+    this.classList.toggle('tw-active');
     is_add ? WS_API.addVote(vote, message_id) : WS_API.removeVote(vote, message_id);
 }
 
@@ -1336,7 +1336,7 @@ export async function onSubmitMessage(message, editing_message_id) {
         const attachments = {};
         // Upload new files if any
         if (files?.length) {
-            const sendBtn = document.querySelector('.send-message');
+            const sendBtn = document.querySelector('.tw-send-message');
             if (sendBtn) sendBtn.disabled = true;
             try {
                 attachments.images = (await WS_API.uploadFiles(files)).filenames;
@@ -1356,7 +1356,7 @@ export async function onSubmitMessage(message, editing_message_id) {
             : '';
         if (messageText.length === 0 && (!files || files.length === 0)) return;
 
-        const sendBtn = document.querySelector('.send-message');
+        const sendBtn = document.querySelector('.tw-send-message');
         if (sendBtn) sendBtn.disabled = true;
 
         const attachments = {};
@@ -1386,7 +1386,7 @@ export async function onSubmitMessage(message, editing_message_id) {
         const banners = DOM_API.getLastMessageBanner();
         const previous_banner = banners.length ? banners[banners.length - 1].textContent : null;
         if (previous_banner !== current_banner && msgdiv) {
-            msgdiv.insertAdjacentHTML('beforeend', `<div class='date-banner'>${current_banner}</div>`);
+            msgdiv.insertAdjacentHTML('beforeend', `<div class='tw-date-banner'>${current_banner}</div>`);
         }
 
         DOM_API.addMessage(

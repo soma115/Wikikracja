@@ -28,7 +28,7 @@ export function onReceiveNotification(notification) {
  * Handles room unsee events (marks room as having unread messages)
  */
 export function onRoomUnsee() {
-    $(".nav-link[data-route='chat']")?.classList.add("chat-has-messages");
+    $(".nav-link[data-route='chat']")?.classList.add("tw-chat-has-messages");
 }
 
 /**

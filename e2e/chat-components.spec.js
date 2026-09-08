@@ -6,9 +6,9 @@ const { test, expect } = require('@playwright/test');
 async function setupChatPage(page) {
     // ?view=rooms → lista bez auto-joina (deterministyczny punkt startowy).
     await page.goto('/chat/?view=rooms');
-    await page.waitForSelector('.room-link', { timeout: 10000 });
+    await page.waitForSelector('.tw-room-link', { timeout: 10000 });
     await page.evaluate(() => {
-        document.querySelectorAll('.nav-cat-btn[aria-expanded="false"]').forEach(b => b.click());
+        document.querySelectorAll('.tw-chat-cat-btn[aria-expanded="false"]').forEach(b => b.click());
     });
     await page.waitForTimeout(400);
 }
@@ -20,8 +20,8 @@ test.describe('chat — komponenty tw-* po migracji Tailwind', () => {
 
         // Menu jest scopowane do TEGO room-linka — .first() na całej stronie
         // łapałby menu toolbaru i udawał regresję.
-        const roomLink = page.locator('.room-link').first();
-        const chevron = roomLink.locator('.room-link__chevron[data-tw-toggle="dropdown"]');
+        const roomLink = page.locator('.tw-room-link').first();
+        const chevron = roomLink.locator('.tw-room-link-chevron[data-tw-toggle="dropdown"]');
         const menu = roomLink.locator('.tw-dropdown-menu');
 
         await chevron.click();
@@ -66,15 +66,15 @@ test.describe('chat — komponenty tw-* po migracji Tailwind', () => {
         // Delegowany handler createImageClickHandler jest na document —
         // wstrzykujemy załącznik do DOM, jak po renderze wiadomości.
         await page.evaluate(() => {
-            const box = document.querySelector('.chat-root-messages') || document.body;
+            const box = document.querySelector('.tw-chat-root-messages') || document.body;
             box.insertAdjacentHTML('beforeend',
-                `<div class="attachment-image-container">
-                   <img class="attached-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==">
+                `<div class="tw-attachment-image-container">
+                   <img class="tw-attached-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==">
                  </div>`);
         });
         // dispatchEvent omija actionability (1px img w scrollowalnym panelu);
         // bubbling click trafia w ten sam delegowany handler co realny klik.
-        await page.locator('.attached-image').dispatchEvent('click');
+        await page.locator('.tw-attached-image').dispatchEvent('click');
         await expect(page.locator('#image-viewer-overlay')).toBeVisible();
         await expect(page.locator('body')).toHaveClass(/tw-modal-open/);
 
@@ -93,25 +93,25 @@ test.describe('chat — komponenty tw-* po migracji Tailwind', () => {
         // 1. Pierwszy klik → 'newest': płaska lista, grupy ukryte.
         await sortBtn.click();
         await expect(page.locator('#room-list-flat')).toBeVisible();
-        await expect(page.locator('#room-list .room-list-groups')).toBeHidden();
+        await expect(page.locator('#room-list .tw-room-list-groups')).toBeHidden();
         const order = await page.evaluate(() =>
-            [...document.querySelectorAll('#room-list-flat .room-link[data-room-id]')]
+            [...document.querySelectorAll('#room-list-flat .tw-room-link[data-room-id]')]
                 .map(l => parseInt(l.dataset.lastActivity || '0', 10)));
         const sortedDesc = [...order].sort((a, b) => b - a);
         expect(order).toEqual(sortedDesc);
 
         // 2. Drugi klik → 'oldest' (strzałka w górę).
         await sortBtn.click();
-        await expect(page.locator('#sort-activity-btn .sort-dir-icon')).toHaveClass(/fa-arrow-up/);
+        await expect(page.locator('#sort-activity-btn .tw-sort-dir-icon')).toHaveClass(/fa-arrow-up/);
         const orderAsc = await page.evaluate(() =>
-            [...document.querySelectorAll('#room-list-flat .room-link[data-room-id]')]
+            [...document.querySelectorAll('#room-list-flat .tw-room-link[data-room-id]')]
                 .map(l => parseInt(l.dataset.lastActivity || '0', 10)));
         expect(orderAsc).toEqual([...orderAsc].sort((a, b) => a - b));
 
         // 3. Reset → z powrotem drzewo kategorii.
         await resetBtn.click();
         await expect(page.locator('#room-list-flat')).toHaveCount(0);
-        await expect(page.locator('#room-list .room-list-groups')).toBeVisible();
+        await expect(page.locator('#room-list .tw-room-list-groups')).toBeVisible();
     });
 
     test('wyszukiwarka pokoi: brak wyników pokazuje jawny empty state', async ({ page }, testInfo) => {
@@ -122,11 +122,39 @@ test.describe('chat — komponenty tw-* po migracji Tailwind', () => {
         const note = page.locator('#chat-no-search-results');
         await expect(note).toBeVisible();
         // drzewo kategorii schowane przez :has() — nie zostaje pusty szkielet
-        await expect(page.locator('#room-list .room-list-groups')).toBeHidden();
+        await expect(page.locator('#room-list .tw-room-list-groups')).toBeHidden();
 
         // Wyczyszczenie zapytania → notka znika, kategorie wracają.
         await page.locator('#room-search').fill('');
         await expect(note).toHaveCount(0);
-        await expect(page.locator('#room-list .room-list-groups')).toBeVisible();
+        await expect(page.locator('#room-list .tw-room-list-groups')).toBeVisible();
+    });
+
+    test('desktop: zwinięcie listy pokoi zostawia guzik do jej rozwinięcia', async ({ page }, testInfo) => {
+        test.skip(testInfo.project.name !== 'desktop-chromium', 'Desktop-only test');
+        await setupChatPage(page);
+
+        const chatRooms = page.locator('.tw-chat-rooms');
+        const listCol = page.locator('.tw-room-list-col');
+        const toggleBtn = page.locator('#room-list-toggle-static-btn');
+
+        await expect(listCol).toBeVisible();
+        await expect(toggleBtn).toBeVisible();
+
+        // Klik "Hide room list" — lista zwija się, ale guzik do pokazania zostaje.
+        await toggleBtn.click();
+        await expect(chatRooms).toHaveClass(/tw-room-list-hidden/);
+
+        // Guzik musi być nadal widoczny i klikalny w wąskim pasku listy.
+        await expect(toggleBtn).toBeVisible();
+        const box = await listCol.boundingBox();
+        expect(box).not.toBeNull();
+        expect(box.width).toBeGreaterThan(0);
+        expect(box.height).toBeGreaterThan(0);
+
+        // Klik ponownie otwiera listę.
+        await toggleBtn.click();
+        await expect(chatRooms).not.toHaveClass(/tw-room-list-hidden/);
+        await expect(listCol).toBeVisible();
     });
 });

@@ -14,13 +14,13 @@ function loadAppScript() {
 
 function createExpandable() {
     document.body.innerHTML = `
-        <div class="expandable has-overflow">
-            <div class="expandable-body">To jest dluzszy tekst do zaznaczania.</div>
+        <div class="tw-expandable tw-has-overflow">
+            <div class="tw-expandable-body">To jest dluzszy tekst do zaznaczania.</div>
         </div>
     `;
     return {
-        wrapper: document.querySelector('.expandable'),
-        body: document.querySelector('.expandable-body'),
+        wrapper: document.querySelector('.tw-expandable'),
+        body: document.querySelector('.tw-expandable-body'),
     };
 }
 
@@ -37,7 +37,7 @@ describe('expandable toggle click handler', () => {
     test('toggles expandable on normal click', () => {
         const { wrapper, body } = createExpandable();
         body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-        expect(wrapper.classList.contains('is-open')).toBe(true);
+        expect(wrapper.classList.contains('tw-is-open')).toBe(true);
     });
 
     test('does not toggle when text is selected in expandable body', () => {
@@ -51,20 +51,20 @@ describe('expandable toggle click handler', () => {
         selection.addRange(range);
 
         body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-        expect(wrapper.classList.contains('is-open')).toBe(false);
+        expect(wrapper.classList.contains('tw-is-open')).toBe(false);
     });
 
     test('does not toggle when selection crosses expandable body boundary', () => {
         document.body.innerHTML = `
-            <div class="message">
+            <div class="tw-chat-message">
                 <span class="outside">Poczatek wiadomosci </span>
-                <div class="expandable has-overflow">
-                    <div class="expandable-body">Szczegoly ktore mozna rozwinac.</div>
+                <div class="tw-expandable tw-has-overflow">
+                    <div class="tw-expandable-body">Szczegoly ktore mozna rozwinac.</div>
                 </div>
             </div>
         `;
-        const wrapper = document.querySelector('.expandable');
-        const body = document.querySelector('.expandable-body');
+        const wrapper = document.querySelector('.tw-expandable');
+        const body = document.querySelector('.tw-expandable-body');
         const outsideTextNode = document.querySelector('.outside').firstChild;
         const bodyTextNode = body.firstChild;
         const range = document.createRange();
@@ -75,6 +75,6 @@ describe('expandable toggle click handler', () => {
         selection.addRange(range);
 
         body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-        expect(wrapper.classList.contains('is-open')).toBe(false);
+        expect(wrapper.classList.contains('tw-is-open')).toBe(false);
     });
 });

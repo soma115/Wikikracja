@@ -36,7 +36,7 @@
 
       {% if task.chat_room_url %}
         <a href="{{ task.chat_room_url }}"
-           class="chat-link {{ task.chat_room_pulse_class|default:'' }}"
+           class="tw-chat-link {{ task.chat_room_pulse_class|default:'' }}"
            onclick="event.stopPropagation()">
           <i class="fas fa-comment-dots"></i>
           <span>{% trans 'Chat' %}</span>

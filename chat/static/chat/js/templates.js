@@ -15,86 +15,86 @@ import { _ } from './utility.js';
 const room_template = `
 <div id='room'>
 
-  <div class="chat-breadcrumb-row">
-    <div class="chat-breadcrumb" id="chat-breadcrumb" aria-label="Lokalizacja"></div>
-    <div class="chat-sort-toolbar" id="chat-sort-toolbar" role="toolbar" aria-label="${_("Sorting and filter")}">
-      <button type="button" class="sort-btn active" id="chat-sort-date" data-sort="date" data-order="desc">
+  <div class="tw-chat-breadcrumb-row">
+    <div class="tw-chat-breadcrumb" id="chat-breadcrumb" aria-label="Lokalizacja"></div>
+    <div class="tw-chat-sort-toolbar" id="chat-sort-toolbar" role="toolbar" aria-label="${_("Sorting and filter")}">
+      <button type="button" class="tw-sort-btn tw-active" id="chat-sort-date" data-sort="date" data-order="desc">
         <i class="fas fa-clock fa-fw"></i>
         <span>${_("Date")}</span>
-        <i class="fas fa-arrow-down sort-arrow"></i>
+        <i class="fas fa-arrow-down tw-sort-arrow"></i>
       </button>
-      <button type="button" class="sort-btn" id="chat-sort-likes" data-sort="likes" data-order="desc">
+      <button type="button" class="tw-sort-btn" id="chat-sort-likes" data-sort="likes" data-order="desc">
         <i class="fas fa-thumbs-up fa-fw"></i>
         <span>${_("Likes")}</span>
-        <i class="fas fa-arrow-down sort-arrow tw-invisible"></i>
+        <i class="fas fa-arrow-down tw-sort-arrow tw-invisible"></i>
       </button>
-      <button type="button" class="sort-btn" id="chat-filter-popular" data-filter="popular">
+      <button type="button" class="tw-sort-btn" id="chat-filter-popular" data-filter="popular">
         <i class="fas fa-fire fa-fw"></i>
         <span>${_("Popular")}</span>
       </button>
-      <button type="button" class="sort-btn" id="toggle-room-list-btn" title="${_("Hide room list")}">
+      <button type="button" class="tw-sort-btn" id="toggle-room-list-btn" title="${_("Hide room list")}">
         <i class="fas fa-angles-right"></i>
       </button>
     </div>
   </div>
 
-  <div class='messages'>
-    <div class='empty-chat-message'>
+  <div class='tw-chat-messages'>
+    <div class='tw-empty-chat-message'>
       ${_("This room is empty, be the first one to write something.")}
     </div>
   </div>
 
-  <div class='image-preview-container tw-d-none'>
-    <div class='preview-images'></div>
-    <div class='delete-images-preview'>
+  <div class='tw-image-preview-container tw-d-none'>
+    <div class='tw-preview-images'></div>
+    <div class='tw-delete-images-preview'>
       <i class='fas fa fa-times'></i>
     </div>
   </div>
 
-  <div class='chat-controls'>
-    <div class="reply-preview tw-d-none" id="reply-preview">
-      <span class="reply-preview-label">↩ </span>
-      <span class="reply-preview-text" id="reply-preview-text"></span>
-      <button class="reply-preview-close" id="reply-preview-close" type="button" title="Anuluj odpowiedź">✕</button>
+  <div class='tw-chat-controls'>
+    <div class="tw-reply-preview tw-d-none" id="reply-preview">
+      <span class="tw-reply-preview-label">↩ </span>
+      <span class="tw-reply-preview-text" id="reply-preview-text"></span>
+      <button class="tw-reply-preview-close" id="reply-preview-close" type="button" title="Anuluj odpowiedź">✕</button>
     </div>
-    <div class="compose-box">
+    <div class="tw-compose-box">
       <!-- Rich text input -->
-      <div id="message-input" class="message-input-rich" contenteditable="true"
+      <div id="message-input" class="tw-message-input-rich" contenteditable="true"
            role="textbox" aria-multiline="true" aria-label="${_("Reply to the appropriate message...")}"
            data-placeholder="${_("Reply to the appropriate message...")}"
            data-hint="${_("Enter send · Shift/Ctrl+Enter new line · Ctrl+B bold · Ctrl+I italic")}"></div>
 
       <!-- Bottom bar: tools left, counter+send right -->
-      <div class="compose-bar">
-        <div class="compose-bar-left">
+      <div class="tw-compose-bar">
+        <div class="tw-compose-bar-left">
           <!-- Image upload button -->
-          <input type='file' id='file-input' class='file-input' multiple='multiple'/>
-          <label class='fmt-btn' for='file-input' title='${_("Attach image")}'>
+          <input type='file' id='file-input' class='tw-file-input' multiple='multiple'/>
+          <label class='tw-fmt-btn' for='file-input' title='${_("Attach image")}'>
             <i class='fas fa-image'></i>
           </label>
 
-          <div class="compose-separator"></div>
+          <div class="tw-compose-separator"></div>
 
-          <div class="fmt-toolbar" id="fmt-toolbar">
-            <button class="fmt-btn" data-cmd="bold"      title="Ctrl+B"><b>B</b></button>
-            <button class="fmt-btn" data-cmd="italic"    title="Ctrl+I"><i>I</i></button>
-            <button class="fmt-btn" data-cmd="underline" title="Ctrl+U"><u>U</u></button>
+          <div class="tw-fmt-toolbar" id="fmt-toolbar">
+            <button class="tw-fmt-btn" data-cmd="bold"      title="Ctrl+B"><b>B</b></button>
+            <button class="tw-fmt-btn" data-cmd="italic"    title="Ctrl+I"><i>I</i></button>
+            <button class="tw-fmt-btn" data-cmd="underline" title="Ctrl+U"><u>U</u></button>
           </div>
 
           <!-- Anonymous toggle button -->
           <% if (is_public) { %>
-            <div class="compose-separator"></div>
-            <button class='fmt-btn anonymous-toggle' id='anonymous-toggle' type='button' title='${_("Anonymous")}'>
+            <div class="tw-compose-separator"></div>
+            <button class='tw-fmt-btn tw-anonymous-toggle' id='anonymous-toggle' type='button' title='${_("Anonymous")}'>
               <i class='fas fa-user-secret'></i>
             </button>
           <% } %>
         </div>
 
-        <div class="compose-bar-right">
-          <div class="msg-counter" id="msg-counter">
+        <div class="tw-compose-bar-right">
+          <div class="tw-msg-counter" id="msg-counter">
             <span id="msg-counter-val"><%- messageMaxLength %></span> / <%- messageMaxLength %>
           </div>
-          <button class='send-message tw-btn tw-btn-primary compose-send'>
+          <button class='tw-send-message tw-btn tw-btn-primary tw-compose-send'>
             <i class='fas fa-paper-plane'></i>
           </button>
         </div>
@@ -110,55 +110,55 @@ const room_template = `
  * @type {string}
  */
 const message_template = `
-<div class='message <% if (own) { %> own <% } %>' data-message-id="<%-message_id%>" data-room-id="<%-room_id%>">
-  <div class='message-content'>
+<div class='tw-chat-message <% if (own) { %> tw-chat-message--own <% } %>' data-message-id="<%-message_id%>" data-room-id="<%-room_id%>">
+  <div class='tw-chat-message-content'>
 
-    <div class='msg-body'>
+    <div class='tw-msg-body'>
       <% if (reply_to) { %>
-      <div class="msg-quote" data-reply-id="<%-reply_to.id%>" data-target-id="<%-reply_to.id%>" role="button" title="Przejdź do oryginału">
-        <span class="msg-quote-mark">"</span>
-        <span class="msg-quote-author">@<%-reply_to.username%>:</span>
-        <span class="msg-quote-text"><%-reply_to.text_snippet%></span>
-        <span class="msg-quote-mark">"</span>
-        <button class="msg-quote-jump" data-target-id="<%-reply_to.id%>" type="button" title="Przejdź do oryginału">↗</button>
+      <div class="tw-msg-quote" data-reply-id="<%-reply_to.id%>" data-target-id="<%-reply_to.id%>" role="button" title="Przejdź do oryginału">
+        <span class="tw-msg-quote-mark">"</span>
+        <span class="tw-msg-quote-author">@<%-reply_to.username%>:</span>
+        <span class="tw-msg-quote-text"><%-reply_to.text_snippet%></span>
+        <span class="tw-msg-quote-mark">"</span>
+        <button class="tw-msg-quote-jump" data-target-id="<%-reply_to.id%>" type="button" title="Przejdź do oryginału">↗</button>
       </div>
       <% } %>
-      <div class='attachment-image-container'>
+      <div class='tw-attachment-image-container'>
         <% if (attachments && attachments.images) { %>
           <% for (let filename of attachments.images) { %>
-            <img class='attached-image' loading='lazy' src='/media/uploads/<%- encodeURIComponent(filename).replace(/'/g, '%27') %>'>
+            <img class='tw-attached-image' loading='lazy' src='/media/uploads/<%- encodeURIComponent(filename).replace(/'/g, '%27') %>'>
           <% } %>
         <% } %>
       </div>
-      <div class='msg-text' data-raw="<%=raw_message%>"><%-message%></div>
+      <div class='tw-msg-text' data-raw="<%=raw_message%>"><%-message%></div>
     </div>
 
-    <div class='message-header'>
-      <div class='message-header-left'>
+    <div class='tw-chat-message-header'>
+      <div class='tw-chat-message-header-left'>
         <% const _hasProfileLink = (typeof user_id !== 'undefined' && user_id); %>
-        <% if (_hasProfileLink) { %><a class='username username-link' href='/obywatele/<%- user_id %>/'><% } else { %><span class='username'><% } %>
+        <% if (_hasProfileLink) { %><a class='tw-username tw-username-link' href='/obywatele/<%- user_id %>/'><% } else { %><span class='tw-username'><% } %>
           <% if (typeof avatar_url !== 'undefined' && avatar_url) { %>
-            <img class='avatar avatar-2xl' src='<%- avatar_url %>' alt=''>
+            <img class='tw-avatar tw-avatar-2xl' src='<%- avatar_url %>' alt=''>
           <% } else { %>
-            <span class='avatar avatar-2xl avatar-fallback<% if (typeof citizen_color_class !== "undefined" && citizen_color_class) { %> <%- citizen_color_class %><% } %>'><%= (username || '').slice(0, 2).toUpperCase() %></span>
+            <span class='tw-avatar tw-avatar-2xl tw-avatar-fallback<% if (typeof citizen_color_class !== "undefined" && citizen_color_class) { %> <%- citizen_color_class %><% } %>'><%= (username || '').slice(0, 2).toUpperCase() %></span>
           <% } %><%= username %>
         <% if (_hasProfileLink) { %></a><% } else { %></span><% } %>
       </div>
-      <div class='message-header-right'>
-        <span class='message-timestamp' data-message-id='<%-message_id%>'><%- latest_ts %></span>
-        <button type='button' class='tw-btn tw-btn-sm message-btn show-history <% if (!edited) { %>tw-d-none<% } %>'
+      <div class='tw-chat-message-header-right'>
+        <span class='tw-message-timestamp' data-message-id='<%-message_id%>'><%- latest_ts %></span>
+        <button type='button' class='tw-btn tw-btn-sm tw-message-btn tw-show-history <% if (!edited) { %>tw-d-none<% } %>'
           data-message-id='<%-message_id%>'
           title='${_("edited")}'>
           <i class='fas fa-history'></i>
         </button>
         <% if (own) { %>
-          <button type='button' class='tw-btn tw-btn-sm message-btn edit-message' data-message-id="<%-message_id%>"
+          <button type='button' class='tw-btn tw-btn-sm tw-message-btn tw-edit-message' data-message-id="<%-message_id%>"
             title='${_("edit")}'>
             <i class='fas fa-edit'></i>
           </button>
         <% } %>
         <button type='button'
-          class='tw-btn tw-btn-sm message-btn reply-btn'
+          class='tw-btn tw-btn-sm tw-message-btn tw-reply-btn'
           data-message-id='<%-message_id%>'
           data-username='<%=username%>'
           data-snippet='<%-raw_message.replace(/<[^>]*>/g,"").slice(0,320)%>'
@@ -166,7 +166,7 @@ const message_template = `
           <i class='fas fa-reply'></i>
         </button>
         <button type='button'
-          class='tw-btn tw-btn-sm message-btn copy-message-url'
+          class='tw-btn tw-btn-sm tw-message-btn tw-copy-message-url'
           data-room-id='<%-room_id%>'
           data-message-id='<%-message_id%>'
           title='${_("Copy link")}'>
@@ -178,56 +178,56 @@ const message_template = `
     <%
       const _totalVotes = upvotes + downvotes;
       const _pct = _totalVotes > 0 ? Math.round((upvotes / _totalVotes) * 100) : 0;
-      const _barCls = _pct >= 60 ? 'vote-bar--positive' : (_pct >= 40 ? 'vote-bar--neutral' : 'vote-bar--negative');
+      const _barCls = _pct >= 60 ? 'tw-vote-bar--positive' : (_pct >= 40 ? 'tw-vote-bar--neutral' : 'tw-vote-bar--negative');
     %>
-    <div class="msg-meta-row">
+    <div class="tw-msg-meta-row">
       <% if (type == "public") { %>
-        <button type='button' data-event-name='upvote' data-message-id="<%-message_id%>" class='tw-btn tw-btn-sm message-btn msg-vote' title='${_("Upvote")}<% if (typeof upvoters !== "undefined" && upvoters && upvoters.length) { %>: <%= upvoters.join(", ") %><% } %>'>
+        <button type='button' data-event-name='upvote' data-message-id="<%-message_id%>" class='tw-btn tw-btn-sm tw-message-btn tw-msg-vote' title='${_("Upvote")}<% if (typeof upvoters !== "undefined" && upvoters && upvoters.length) { %>: <%= upvoters.join(", ") %><% } %>'>
           <i class='fas fa-thumbs-up'></i>
-          <span class='msg-upvotes'><%-upvotes%></span>
+          <span class='tw-msg-upvotes'><%-upvotes%></span>
         </button>
-        <button type='button' data-event-name='downvote' data-message-id="<%-message_id%>" class='tw-btn tw-btn-sm message-btn msg-vote' title='${_("Downvote")}<% if (typeof downvoters !== "undefined" && downvoters && downvoters.length) { %>: <%= downvoters.join(", ") %><% } %>'>
+        <button type='button' data-event-name='downvote' data-message-id="<%-message_id%>" class='tw-btn tw-btn-sm tw-message-btn tw-msg-vote' title='${_("Downvote")}<% if (typeof downvoters !== "undefined" && downvoters && downvoters.length) { %>: <%= downvoters.join(", ") %><% } %>'>
           <i class='fas fa-thumbs-down'></i>
-          <span class='msg-downvotes'><%-downvotes%></span>
+          <span class='tw-msg-downvotes'><%-downvotes%></span>
         </button>
       <% } %>
 
       <% if (_totalVotes >= 3) { %>
-        <div class="vote-bar-wrap">
-          <div class="vote-bar-fill <%- _barCls %>" style="--vote-progress:<%- _pct %>%"></div>
+        <div class="tw-vote-bar-wrap">
+          <div class="tw-vote-bar-fill <%- _barCls %>" style="--vote-progress:<%- _pct %>%"></div>
         </div>
-        <span class="vote-bar-label"><%- _pct %>% popiera</span>
+        <span class="tw-vote-bar-label"><%- _pct %>% popiera</span>
       <% } %>
 
-      <span class="msg-divider" aria-hidden="true"></span>
+      <span class="tw-msg-divider" aria-hidden="true"></span>
 
       <% for (const [_key, _emoji, _label] of [['bulb','💡','Ciekawe'],['question','❓','Mam pytanie']]) { %>
-        <button class="reaction-btn<% if ((your_reactions||[]).includes(_key)) { %> reaction-btn--active<% } %>"
+        <button class="tw-reaction-btn<% if ((your_reactions||[]).includes(_key)) { %> tw-reaction-btn--active<% } %>"
                 data-reaction="<%- _key %>" data-message-id="<%- message_id %>"
                 type="button" title="<%- _label %>">
-          <%- _emoji %><% if ((reactions[_key]||0) > 0) { %><span class="reaction-count"><%- reactions[_key] %></span><% } %>
+          <%- _emoji %><% if ((reactions[_key]||0) > 0) { %><span class="tw-reaction-count"><%- reactions[_key] %></span><% } %>
         </button>
       <% } %>
 
-      <button type="button" class="reaction-btn read-by-toggle" data-message-id="<%- message_id %>" title="<%- (read_by && read_by.length) ? read_by.length + ' osób przeczytało tę wiadomość' : 'Nikt jeszcze nie przeczytał' %>">
+      <button type="button" class="tw-reaction-btn tw-read-by-toggle" data-message-id="<%- message_id %>" title="<%- (read_by && read_by.length) ? read_by.length + ' osób przeczytało tę wiadomość' : 'Nikt jeszcze nie przeczytał' %>">
         <i class="fas fa-eye"></i>
-        <% if (read_by && read_by.length) { %><span class="read-by-count"><%- read_by.length %></span><% } %>
+        <% if (read_by && read_by.length) { %><span class="tw-read-by-count"><%- read_by.length %></span><% } %>
       </button>
-      <div class="read-by-dropdown tw-d-none" id="read-by-dropdown-<%- message_id %>">
-        <div class="read-by-list">
+      <div class="tw-read-by-dropdown tw-d-none" id="read-by-dropdown-<%- message_id %>">
+        <div class="tw-read-by-list">
           <% if (read_by && read_by.length) { %>
             <% for (const _u of read_by) { %>
-              <div class="read-by-item">
+              <div class="tw-read-by-item">
                 <% if (_u.avatar_url) { %>
-                  <img class="avatar avatar-xl" src="<%- _u.avatar_url %>" alt="<%- _u.username %>">
+                  <img class="tw-avatar tw-avatar-xl" src="<%- _u.avatar_url %>" alt="<%- _u.username %>">
                 <% } else { %>
-                  <span class="avatar avatar-xl avatar-fallback<% if (_u.citizen_color_class) { %> <%- _u.citizen_color_class %><% } %>"><%= (_u.username || '').slice(0, 2).toUpperCase() %></span>
+                  <span class="tw-avatar tw-avatar-xl tw-avatar-fallback<% if (_u.citizen_color_class) { %> <%- _u.citizen_color_class %><% } %>"><%= (_u.username || '').slice(0, 2).toUpperCase() %></span>
                 <% } %>
-                <span class="read-by-username"><%- _u.username %></span>
+                <span class="tw-read-by-username"><%- _u.username %></span>
               </div>
             <% } %>
           <% } else { %>
-            <div class="read-by-item read-by-empty">Nikt jeszcze nie przeczytał</div>
+            <div class="tw-read-by-item tw-read-by-empty">Nikt jeszcze nie przeczytał</div>
           <% } %>
         </div>
       </div>
@@ -243,12 +243,12 @@ const message_template = `
  * @type {string}
  */
 const history_template = `
-<table class='chat-history-table tw-w-full'>
+<table class='tw-chat-history-table tw-w-full'>
 <% for (let [i, entry] of Object.entries(history)) { %>
   <tr>
-    <td class='chat-history-index'><%- parseInt(i) + 1 %>.</td>
+    <td class='tw-chat-history-index'><%- parseInt(i) + 1 %>.</td>
     <td> <%- entry.text %> </td>
-    <td class='chat-history-meta'>
+    <td class='tw-chat-history-meta'>
       <%- entry.formattedTime %>
     </td>
   </tr>

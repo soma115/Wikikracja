@@ -14,13 +14,13 @@
     <input type="hidden" name="order" value="{{ order }}">
     <div class="tw-toolbar-sort tw-flex-wrap tw-gap-35">
       <a href="?{% if not filter_unread %}filter=unread&{% endif %}sort={{ sort }}&order={{ order }}{% if is_filtered %}&filtered=1{% for t in active_types %}&type={{ t }}{% endfor %}{% endif %}"
-         class="tw-sort-btn filter-btn-unread {% if filter_unread %}active{% endif %}">
+         class="tw-sort-btn filter-btn-unread {% if filter_unread %}tw-active{% endif %}">
         <i class="fas fa-bell"></i>{% trans "Unread" %}
         <span id="unread-count-badge" class="{% if not unread_count %}tw-d-none{% endif %} tw-text-xs">{% if unread_count %}({{ unread_count }}){% endif %}</span>
       </a>
 
       <a href="?{% if not filter_bookmarks %}filter=bookmarks&{% endif %}sort={{ sort }}&order={{ order }}{% if is_filtered %}&filtered=1{% for t in active_types %}&type={{ t }}{% endfor %}{% endif %}"
-         class="tw-sort-btn {% if filter_bookmarks %}active{% endif %}">
+         class="tw-sort-btn {% if filter_bookmarks %}tw-active{% endif %}">
         <i class="fas fa-star"></i>{% trans "Bookmarks" %}
         <span id="bookmark-count-badge" class="{% if not bookmark_count %}tw-d-none{% endif %} tw-text-xs">{% if bookmark_count %}({{ bookmark_count }}){% endif %}</span>
       </a>

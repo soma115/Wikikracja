@@ -1,13 +1,13 @@
 {% load i18n filters %}
 {% load feed_filters %}
 
-<div class="room-link {{ room|seen_by:user }}" tabindex="-1"
+<div class="tw-room-link {{ room|seen_by:user }}" tabindex="-1"
   data-room-type="{% if room.public %}public{% else %}private{% endif %}"
   data-room-id="{{ room.id }}"
   data-room-archived="{{ room.archived }}"
   data-last-activity="{{ room.last_message_at|default_if_none:room.last_activity|date:'U' }}">
 
-  <div class="avatar avatar-xl">
+  <div class="tw-avatar tw-avatar-xl">
     {% if room_kind == 'task' %}
       <i class="fas fa-tasks" aria-hidden="true"></i>
     {% elif room_kind == 'vote' %}
@@ -27,47 +27,47 @@
     {% endif %}
   </div>
 
-  <div class="room-link__status">
+  <div class="tw-room-link-status">
     {% if room.archived %}
-      <i class="fas fa-lock nav-status nav-status--locked" aria-hidden="true"></i>
+      <i class="fas fa-lock tw-nav-status tw-nav-status--locked" aria-hidden="true"></i>
     {% elif room|is_seen_by:user == "false" %}
-      <span class="nav-status nav-status--unread" aria-label="{% trans 'Unread' %}"></span>
+      <span class="tw-nav-status tw-nav-status--unread" aria-label="{% trans 'Unread' %}"></span>
     {% else %}
-      <span class="nav-status nav-status--read" aria-hidden="true"></span>
+      <span class="tw-nav-status tw-nav-status--read" aria-hidden="true"></span>
     {% endif %}
   </div>
 
-  <div class="room-link__body">
-    <div class="room-link__top">
-      <span class="room-name">
+  <div class="tw-room-link-body">
+    <div class="tw-room-link-top">
+      <span class="tw-room-name">
         {% if override_label %}{{ override_label }}{% else %}{{ room|name_for:user }}{% endif %}
       </span>
-      <span class="room-link__date">{{ room.last_message_at|relative_chat_date }}</span>
+      <span class="tw-room-link-date">{{ room.last_message_at|relative_chat_date }}</span>
     </div>
     {% if room.last_message_at %}
-      <div class="room-link__preview">
-        <span class="room-link__sender">{% if room.last_message_anonymous %}{% trans 'Anonymous' %}{% elif room.last_message_sender %}{{ room.last_message_sender|display_name }}{% else %}{% trans 'System' %}{% endif %}:</span>
+      <div class="tw-room-link-preview">
+        <span class="tw-room-link-sender">{% if room.last_message_anonymous %}{% trans 'Anonymous' %}{% elif room.last_message_sender %}{{ room.last_message_sender|display_name }}{% else %}{% trans 'System' %}{% endif %}:</span>
         {% with stripped=room.last_message_text|striptags %}
-          <span class="room-link__snippet">{% if stripped|cut:" " %}{{ stripped|truncatechars:60 }}{% else %}{% trans 'attachment' %}{% endif %}</span>
+          <span class="tw-room-link-snippet">{% if stripped|cut:" " %}{{ stripped|truncatechars:60 }}{% else %}{% trans 'attachment' %}{% endif %}</span>
         {% endwith %}
       </div>
     {% endif %}
   </div>
 
-  <div class="room-link__meta" data-muted="{% if room|is_muted_by:user %}true{% else %}false{% endif %}">
+  <div class="tw-room-link-meta" data-muted="{% if room|is_muted_by:user %}true{% else %}false{% endif %}">
     {% if room|is_muted_by:user %}
-      <i class="fas fa-bell-slash room-link__muted-icon" title="{% trans 'Muted' %}" aria-label="{% trans 'Muted' %}"></i>
+      <i class="fas fa-bell-slash tw-room-link-muted-icon" title="{% trans 'Muted' %}" aria-label="{% trans 'Muted' %}"></i>
     {% endif %}
   </div>
 
-  <div class="room-link__actions tw-dropdown">
-    <button type="button" class="room-link__chevron" data-tw-toggle="dropdown" data-tw-dropdown-fixed aria-expanded="false" aria-label="{% trans 'Room actions' %}">
+  <div class="tw-room-link-actions tw-dropdown">
+    <button type="button" class="tw-room-link-chevron" data-tw-toggle="dropdown" data-tw-dropdown-fixed aria-expanded="false" aria-label="{% trans 'Room actions' %}">
       <i class="fas fa-chevron-down" aria-hidden="true"></i>
     </button>
     <ul class="tw-dropdown-menu tw-dropdown-menu-end tw-absolute tw-z-50 tw-bg-bg-card tw-border tw-border-subtle tw-rounded-card">
       <li>
         <button type="button"
-          class="tw-dropdown-item seen-switch tw-block tw-w-full tw-text-start"
+          class="tw-dropdown-item tw-seen-switch tw-block tw-w-full tw-text-start"
           data-room-id="{{ room.id }}"
           data-seen="{{ room|is_seen_by:user }}">
           <i class="fas fa-eye{% if room|is_seen_by:user == "true" %}{% else %}-slash{% endif %} fa-fw tw-me-1"></i>{% trans 'Mark as unread' %}
@@ -75,15 +75,15 @@
       </li>
       <li>
         <button type="button"
-          class="tw-dropdown-item notif-switch tw-block tw-w-full tw-text-start"
+          class="tw-dropdown-item tw-notif-switch tw-block tw-w-full tw-text-start"
           data-room-id="{{ room.id }}"
           data-enabled="{% if room|is_muted_by:user %}false{% else %}true{% endif %}">
-          <i class="fas fa-bell{% if room|is_muted_by:user %}-slash{% endif %} fa-fw tw-me-1"></i><span class="notif-label">{% if room|is_muted_by:user %}{% trans 'Unmute room' %}{% else %}{% trans 'Mute room' %}{% endif %}</span>
+          <i class="fas {% if room|is_muted_by:user %}fa-bell-slash{% else %}fa-bell{% endif %} fa-fw tw-me-1"></i><span class="tw-notif-label">{% if room|is_muted_by:user %}{% trans 'Unmute room' %}{% else %}{% trans 'Mute room' %}{% endif %}</span>
         </button>
       </li>
       <li>
         <button type="button"
-          class="tw-dropdown-item copy-room-url tw-block tw-w-full tw-text-start"
+          class="tw-dropdown-item tw-copy-room-url tw-block tw-w-full tw-text-start"
           data-room-id="{{ room.id }}">
           <i class="fas fa-link fa-fw tw-me-1"></i>{% trans 'Copy link' %}
         </button>
@@ -92,7 +92,7 @@
       <li><hr class="tw-dropdown-divider tw-my-1 tw-border-subtle"></li>
       <li>
         <button type="button"
-          class="tw-dropdown-item rename-room-btn tw-block tw-w-full tw-text-start"
+          class="tw-dropdown-item tw-rename-room-btn tw-block tw-w-full tw-text-start"
           data-room-id="{{ room.id }}"
           data-room-title="{{ room.title }}">
           <i class="fas fa-pen fa-fw tw-me-1"></i>{% trans 'Rename room' %}

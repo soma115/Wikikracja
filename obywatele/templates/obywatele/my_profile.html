@@ -57,10 +57,10 @@
       <form id="avatar-form" method="post" action="{% url 'obywatele:upload_avatar' %}" enctype="multipart/form-data" class="tw-flex-shrink-0">
         {% csrf_token %}
         <input class="mig-hidden tw-mig-hidden" type="file" id="avatar-input" name="avatar" accept="image/*">
-        <div class="avatar-upload-wrap tw-avatar-upload-wrap" id="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
-          {% include "home/_user_avatar.html" with avatar=profile.avatar username=user.username display_name=user|display_name size="7xl" extra_class="avatar-bordered" id="avatar-img" loading_lazy=False %}
-          <div class="avatar-overlay tw-avatar-overlay" id="avatar-overlay">
-            <i class="fas fa-camera avatar-overlay-icon tw-avatar-overlay-icon"></i>
+        <div class="tw-avatar-upload-wrap" id="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
+          {% include "home/_user_avatar.html" with avatar=profile.avatar username=user.username display_name=user|display_name size="7xl" extra_class="tw-avatar-bordered" id="avatar-img" loading_lazy=False %}
+          <div class="tw-avatar-overlay" id="avatar-overlay">
+            <i class="fas fa-camera tw-avatar-overlay-icon"></i>
           </div>
         </div>
       </form>

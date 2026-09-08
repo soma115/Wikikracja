@@ -3,7 +3,7 @@
  * Embedded chat widget — reużywa Message template i CSS z głównego czatu.
  *
  * Użycie w template:
- *   <div class="embedded-chat" data-room-id="42" data-csrf="{{ csrf_token }}"></div>
+ *   <div class="tw-embedded-chat" data-room-id="42" data-csrf="{{ csrf_token }}"></div>
  *   <script type="module" src="{% static 'chat/js/chat-embedded.js' %}"></script>
  */
 
@@ -24,49 +24,49 @@ async function initEmbeddedChat(container) {
 
     // ── 1. Zbuduj HTML widgetu ────────────────────────────────────────────────
     container.innerHTML = `
-        <div class="ec-wrapper">
-            <div class="ec-messages messages" id="ec-messages-${roomId}">
-                <div class="ec-loading">Ładowanie…</div>
+        <div class="tw-ec-wrapper">
+            <div class="tw-ec-messages tw-chat-messages" id="ec-messages-${roomId}">
+                <div class="tw-ec-loading">Ładowanie…</div>
             </div>
-            <div class="ec-input-area">
-                <div class="reply-preview tw-d-none" id="ec-reply-preview-${roomId}">
-                    <span class="reply-preview-label">↩ </span>
-                    <span class="reply-preview-text" id="ec-reply-preview-text-${roomId}"></span>
-                    <button class="reply-preview-close ec-reply-cancel" type="button" title="Anuluj odpowiedź">✕</button>
+            <div class="tw-ec-input-area">
+                <div class="tw-reply-preview tw-d-none" id="ec-reply-preview-${roomId}">
+                    <span class="tw-reply-preview-label">↩ </span>
+                    <span class="tw-reply-preview-text" id="ec-reply-preview-text-${roomId}"></span>
+                    <button class="tw-reply-preview-close tw-ec-reply-cancel" type="button" title="Anuluj odpowiedź">✕</button>
                 </div>
-                <div class="image-preview-container ec-image-preview-container tw-d-none" id="ec-image-preview-${roomId}">
-                    <div class="preview-images ec-preview-images" id="ec-preview-images-${roomId}"></div>
-                    <div class="delete-images-preview ec-delete-images-preview" id="ec-delete-images-${roomId}">
+                <div class="tw-image-preview-container tw-ec-image-preview-container tw-d-none" id="ec-image-preview-${roomId}">
+                    <div class="tw-preview-images tw-ec-preview-images" id="ec-preview-images-${roomId}"></div>
+                    <div class="tw-delete-images-preview tw-ec-delete-images-preview" id="ec-delete-images-${roomId}">
                         <i class="fas fa fa-times"></i>
                     </div>
                 </div>
-                <div class="compose-box ec-form-row" id="ec-form-row-${roomId}">
-                    <div id="ec-input-${roomId}" class="message-input-rich" role="textbox"
+                <div class="tw-compose-box tw-ec-form-row" id="ec-form-row-${roomId}">
+                    <div id="ec-input-${roomId}" class="tw-message-input-rich" role="textbox"
                          contenteditable="true" aria-multiline="true"
                          data-placeholder="${_('Reply to the appropriate message...')}"
                          data-hint="${_('Enter send · Shift/Ctrl+Enter new line · Ctrl+B bold · Ctrl+I italic')}"></div>
-                    <div class="compose-bar">
-                        <div class="compose-bar-left">
-                            <input type="file" id="ec-file-input-${roomId}" class="file-input ec-file-input tw-d-none" multiple="multiple"/>
-                            <label class="fmt-btn" for="ec-file-input-${roomId}" title="${_('Attach image')}">
+                    <div class="tw-compose-bar">
+                        <div class="tw-compose-bar-left">
+                            <input type="file" id="ec-file-input-${roomId}" class="tw-file-input tw-ec-file-input tw-d-none" multiple="multiple"/>
+                            <label class="tw-fmt-btn" for="ec-file-input-${roomId}" title="${_('Attach image')}">
                                 <i class="fas fa-image"></i>
                             </label>
-                            <div class="compose-separator"></div>
-                            <div class="fmt-toolbar">
-                                <button class="fmt-btn" data-cmd="bold"      type="button" title="Ctrl+B"><b>B</b></button>
-                                <button class="fmt-btn" data-cmd="italic"    type="button" title="Ctrl+I"><i>I</i></button>
-                                <button class="fmt-btn" data-cmd="underline" type="button" title="Ctrl+U"><u>U</u></button>
+                            <div class="tw-compose-separator"></div>
+                            <div class="tw-fmt-toolbar">
+                                <button class="tw-fmt-btn" data-cmd="bold"      type="button" title="Ctrl+B"><b>B</b></button>
+                                <button class="tw-fmt-btn" data-cmd="italic"    type="button" title="Ctrl+I"><i>I</i></button>
+                                <button class="tw-fmt-btn" data-cmd="underline" type="button" title="Ctrl+U"><u>U</u></button>
                             </div>
-                            <div class="compose-separator"></div>
-                            <button class="fmt-btn anonymous-toggle ec-anonymous-toggle" id="ec-anonymous-${roomId}" type="button" title="${_('Anonymous')}">
+                            <div class="tw-compose-separator"></div>
+                            <button class="tw-fmt-btn tw-anonymous-toggle tw-ec-anonymous-toggle" id="ec-anonymous-${roomId}" type="button" title="${_('Anonymous')}">
                                 <i class="fas fa-user-secret"></i>
                             </button>
                         </div>
-                        <div class="compose-bar-right">
-                            <div class="msg-counter" id="ec-counter-${roomId}">
+                        <div class="tw-compose-bar-right">
+                            <div class="tw-msg-counter" id="ec-counter-${roomId}">
                                 <span id="ec-counter-val-${roomId}">${EC_MAX}</span> / ${EC_MAX}
                             </div>
-                            <button class="send-message tw-btn tw-btn-primary compose-send ec-send-btn" id="ec-send-${roomId}" type="button">
+                            <button class="tw-send-message tw-btn tw-btn-primary tw-compose-send tw-ec-send-btn" id="ec-send-${roomId}" type="button">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
@@ -95,20 +95,20 @@ async function initEmbeddedChat(container) {
     const canPost = container.dataset.canPost !== 'false';
 
     if (!canPost) {
-        const inputArea = container.querySelector('.ec-input-area');
+        const inputArea = container.querySelector('.tw-ec-input-area');
         if (inputArea) {
-            inputArea.innerHTML = `<div class="ec-readonly-notice"><i class="fas fa-lock"></i> ${_("Only approved helpers can write here.")}</div>`;
+            inputArea.innerHTML = `<div class="tw-ec-readonly-notice"><i class="fas fa-lock"></i> ${_("Only approved helpers can write here.")}</div>`;
         }
     }
 
     // ── 2. Local helpers ─────────────────────────────────────────────────────
 
     function appendMessage(msg) {
-        messagesEl.querySelector('.ec-empty, .ec-loading')?.remove();
+        messagesEl.querySelector('.tw-ec-empty, .tw-ec-loading')?.remove();
         const dateStr = formatDate(msg.timestamp);
         if (dateStr !== lastDateBanner) {
             lastDateBanner = dateStr;
-            messagesEl.insertAdjacentHTML('beforeend', `<div class="date-banner">${dateStr}</div>`);
+            messagesEl.insertAdjacentHTML('beforeend', `<div class="tw-date-banner">${dateStr}</div>`);
         }
 
         const html = Message({
@@ -138,18 +138,18 @@ async function initEmbeddedChat(container) {
         });
         messagesEl.insertAdjacentHTML('beforeend', html);
         if (msg.your_vote) {
-            const msgDiv = messagesEl.querySelector(`.message[data-message-id="${msg.message_id}"]`);
-            msgDiv?.querySelector(`.msg-vote[data-event-name="${msg.your_vote}"]`)?.classList.add('active');
+            const msgDiv = messagesEl.querySelector(`.tw-chat-message[data-message-id="${msg.message_id}"]`);
+            msgDiv?.querySelector(`.tw-msg-vote[data-event-name="${msg.your_vote}"]`)?.classList.add('tw-active');
         }
         if (msg.own) unlockSendBtn();
         messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
     function updateMessage({ message_id, message, latest_timestamp }) {
-        const msgDiv = messagesEl.querySelector(`.message[data-message-id="${message_id}"]`);
+        const msgDiv = messagesEl.querySelector(`.tw-chat-message[data-message-id="${message_id}"]`);
         if (!msgDiv) return;
-        const textEl = msgDiv.querySelector('.msg-text');
-        const timeEl = msgDiv.querySelector('.message-timestamp');
+        const textEl = msgDiv.querySelector('.tw-msg-text');
+        const timeEl = msgDiv.querySelector('.tw-message-timestamp');
         if (textEl) {
             // data-raw musi nadążać za innerHTML — następna edycja czyta dataset.raw jako "oryginalny tekst do edytowania".
             textEl.dataset.raw = message;
@@ -238,7 +238,7 @@ async function initEmbeddedChat(container) {
                     for (const msg of pendingMessages) appendMessage(msg);
                     pendingMessages = [];
                     if (messagesEl.children.length === 0) {
-                        messagesEl.innerHTML = '<div class="ec-empty empty-chat-message">Brak wiadomości. Napisz pierwszy!</div>';
+                        messagesEl.innerHTML = '<div class="tw-ec-empty tw-empty-chat-message">Brak wiadomości. Napisz pierwszy!</div>';
                     }
                 }, 0);
             })
@@ -250,8 +250,8 @@ async function initEmbeddedChat(container) {
                     setTimeout(() => { if (!joined && ws.isOpen()) joinRoom(); }, 5000);
                     return;
                 }
-                messagesEl.innerHTML = '<div class="ec-loading">Brak dostępu do tego czatu.</div>';
-                container.querySelector('.ec-input-area').style.display = 'none';
+                messagesEl.innerHTML = '<div class="tw-ec-loading">Brak dostępu do tego czatu.</div>';
+                container.querySelector('.tw-ec-input-area').style.display = 'none';
                 console.error('embedded chat join error:', err);
             });
     }
@@ -269,38 +269,38 @@ async function initEmbeddedChat(container) {
         }
         if (data.update_reactions) {
             const ev = data.update_reactions;
-            const msgDiv = messagesEl.querySelector(`.message[data-message-id="${ev.message_id}"]`);
+            const msgDiv = messagesEl.querySelector(`.tw-chat-message[data-message-id="${ev.message_id}"]`);
             if (!msgDiv) return;
             for (const [key, count] of Object.entries(ev.counts || {})) {
-                const btn = msgDiv.querySelector(`.reaction-btn[data-reaction="${key}"]`);
+                const btn = msgDiv.querySelector(`.tw-reaction-btn[data-reaction="${key}"]`);
                 if (!btn) continue;
-                const countEl = btn.querySelector('.reaction-count');
+                const countEl = btn.querySelector('.tw-reaction-count');
                 if (count > 0) {
                     if (countEl) countEl.textContent = count;
-                    else btn.insertAdjacentHTML('beforeend', `<span class="reaction-count">${count}</span>`);
+                    else btn.insertAdjacentHTML('beforeend', `<span class="tw-reaction-count">${count}</span>`);
                 } else if (countEl) countEl.remove();
             }
             if (ev.your_reaction != null) {
-                const btn = msgDiv.querySelector(`.reaction-btn[data-reaction="${ev.your_reaction}"]`);
-                if (btn) btn.classList.toggle('reaction-btn--active', ev.added ?? false);
+                const btn = msgDiv.querySelector(`.tw-reaction-btn[data-reaction="${ev.your_reaction}"]`);
+                if (btn) btn.classList.toggle('tw-reaction-btn--active', ev.added ?? false);
             }
         }
         if (data.update_votes) {
             const ev = data.update_votes;
-            const msgDiv = messagesEl.querySelector(`.message[data-message-id="${ev.message_id}"]`);
+            const msgDiv = messagesEl.querySelector(`.tw-chat-message[data-message-id="${ev.message_id}"]`);
             if (!msgDiv) return;
-            const upEl = msgDiv.querySelector('.msg-upvotes');
-            const dnEl = msgDiv.querySelector('.msg-downvotes');
+            const upEl = msgDiv.querySelector('.tw-msg-upvotes');
+            const dnEl = msgDiv.querySelector('.tw-msg-downvotes');
             if (upEl) upEl.textContent = ev.upvotes;
             if (dnEl) dnEl.textContent = ev.downvotes;
             if (ev.your_vote) {
-                msgDiv.querySelectorAll('.msg-vote').forEach(b => b.classList.remove('active'));
-                if (ev.add) msgDiv.querySelector(`.msg-vote[data-event-name="${ev.your_vote}"]`)?.classList.add('active');
+                msgDiv.querySelectorAll('.tw-msg-vote').forEach(b => b.classList.remove('tw-active'));
+                if (ev.add) msgDiv.querySelector(`.tw-msg-vote[data-event-name="${ev.your_vote}"]`)?.classList.add('tw-active');
             }
             // Pokoje zadań: serwer dosyła nicki głosujących — odśwież tooltipsy łapek.
             if (ev.upvoters !== undefined) {
-                const upBtn = msgDiv.querySelector('.msg-vote[data-event-name="upvote"]');
-                const dnBtn = msgDiv.querySelector('.msg-vote[data-event-name="downvote"]');
+                const upBtn = msgDiv.querySelector('.tw-msg-vote[data-event-name="upvote"]');
+                const dnBtn = msgDiv.querySelector('.tw-msg-vote[data-event-name="downvote"]');
                 if (upBtn) upBtn.title = voteButtonTitle(_('Upvote'), ev.upvoters);
                 if (dnBtn) dnBtn.title = voteButtonTitle(_('Downvote'), ev.downvoters);
             }
@@ -343,9 +343,9 @@ async function initEmbeddedChat(container) {
 
             if (previewImagesDiv) {
                 previewImagesDiv.insertAdjacentHTML('beforeend', `
-                    <div class="image-preview-wrapper ec-image-preview-wrapper">
-                        <img class="image-preview new-attachment" id="${previewId}">
-                        <button class="tw-btn tw-btn-sm tw-btn-danger ec-remove-preview image-preview-remove" data-preview-id="${previewId}" type="button">×</button>
+                    <div class="tw-image-preview-wrapper tw-ec-image-preview-wrapper">
+                        <img class="tw-image-preview tw-new-attachment" id="${previewId}">
+                        <button class="tw-btn tw-btn-sm tw-btn-danger tw-ec-remove-preview tw-image-preview-remove" data-preview-id="${previewId}" type="button">×</button>
                     </div>
                 `);
             }
@@ -368,10 +368,10 @@ async function initEmbeddedChat(container) {
 
     // Remove single preview
     container.addEventListener('click', (e) => {
-        const removeBtn = e.target.closest('.ec-remove-preview');
+        const removeBtn = e.target.closest('.tw-ec-remove-preview');
         if (removeBtn) {
             const previewId = removeBtn.dataset.previewId;
-            removeBtn.closest('.image-preview-wrapper')?.remove();
+            removeBtn.closest('.tw-image-preview-wrapper')?.remove();
             // Update selectedFiles by reading from input again
             if (previewImagesDiv && previewImagesDiv.children.length === 0) {
                 selectedFiles = [];
@@ -386,7 +386,7 @@ async function initEmbeddedChat(container) {
     if (anonBtn) {
         anonBtn.addEventListener('click', () => {
             isAnonymous = !isAnonymous;
-            anonBtn.classList.toggle('active', isAnonymous);
+            anonBtn.classList.toggle('tw-active', isAnonymous);
         });
     }
 
@@ -412,15 +412,15 @@ async function initEmbeddedChat(container) {
     });
 
     // Anuluj odpowiedź
-    container.querySelector('.ec-reply-cancel')?.addEventListener('click', () => {
+    container.querySelector('.tw-ec-reply-cancel')?.addEventListener('click', () => {
         currentReplyId = clearReplyTarget(replyPreview);
     });
 
     // ── Shared handlers from chat-core.js ────────────────────────────────────
     const voteHandler = createVoteHandler((eventName, messageId, isAdd) => {
         // Toggle active state on button
-        const btn = messagesEl.querySelector(`.msg-vote[data-event-name="${eventName}"][data-message-id="${messageId}"]`);
-        if (btn) btn.classList.toggle('active', isAdd);
+        const btn = messagesEl.querySelector(`.tw-msg-vote[data-event-name="${eventName}"][data-message-id="${messageId}"]`);
+        if (btn) btn.classList.toggle('tw-active', isAdd);
         if (!joined) return;
         ws.sendJson({
             command: isAdd ? 'message-add-vote' : 'message-remove-vote',
@@ -435,8 +435,8 @@ async function initEmbeddedChat(container) {
     });
 
     function startEdit(messageId, inputElRef) {
-        const msgDiv = messagesEl.querySelector(`.message[data-message-id="${messageId}"]`);
-        const msgText = msgDiv?.querySelector('.msg-text')?.innerHTML ?? '';
+        const msgDiv = messagesEl.querySelector(`.tw-chat-message[data-message-id="${messageId}"]`);
+        const msgText = msgDiv?.querySelector('.tw-msg-text')?.innerHTML ?? '';
         inputElRef.dataset.editMessage = messageId;
         inputElRef.innerHTML = msgText;
         inputElRef.style.borderColor = 'var(--status-warning-color)';
@@ -499,7 +499,7 @@ async function initEmbeddedChat(container) {
 // ── Initialization ────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     initGlobalPasteImageHandler();
-    for (const el of document.querySelectorAll('.embedded-chat[data-room-id]')) {
+    for (const el of document.querySelectorAll('.tw-embedded-chat[data-room-id]')) {
         initEmbeddedChat(el);
     }
 });

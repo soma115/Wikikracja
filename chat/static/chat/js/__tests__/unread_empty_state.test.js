@@ -23,23 +23,23 @@ function showUnreadEmptyState() {
 
     const div = document.createElement('div');
     div.id = 'chat-no-unread-empty-state';
-    div.className = 'chat-no-unread-empty-state';
+    div.className = 'tw-chat-no-unread-empty-state';
 
     const iconBig = document.createElement('i');
-    iconBig.className = 'fas fa-envelope-open chat-no-unread-icon';
+    iconBig.className = 'fas fa-envelope-open tw-chat-no-unread-icon';
     iconBig.setAttribute('aria-hidden', 'true');
 
     const title = document.createElement('p');
-    title.className = 'chat-no-unread-title';
+    title.className = 'tw-chat-no-unread-title';
     title.textContent = _("No unread messages");
 
     const hint = document.createElement('p');
-    hint.className = 'chat-no-unread-hint';
+    hint.className = 'tw-chat-no-unread-hint';
     const [before, after = ''] = _("Tap {icon} above the list to disable the unread filter").split('{icon}');
     hint.appendChild(document.createTextNode(before));
     const inlineBtn = document.createElement('button');
     inlineBtn.type = 'button';
-    inlineBtn.className = 'chat-no-unread-inline-btn';
+    inlineBtn.className = 'tw-chat-no-unread-inline-btn';
     inlineBtn.setAttribute('aria-label', _("Disable the unread filter"));
     const inlineIcon = document.createElement('i');
     inlineIcon.className = 'fas fa-eye-slash';
@@ -77,7 +77,7 @@ describe('showUnreadEmptyState — inline przycisk', () => {
 
     test('renderuje realny <button> z ukryta dla AT ikona (nie gola ikone)', () => {
         showUnreadEmptyState();
-        const btn = document.querySelector('.chat-no-unread-inline-btn');
+        const btn = document.querySelector('.tw-chat-no-unread-inline-btn');
         expect(btn).not.toBeNull();
         expect(btn.tagName).toBe('BUTTON');
 
@@ -91,7 +91,7 @@ describe('showUnreadEmptyState — inline przycisk', () => {
         document.getElementById('unread-filter-btn').addEventListener('click', spy);
 
         showUnreadEmptyState();
-        document.querySelector('.chat-no-unread-inline-btn').click();
+        document.querySelector('.tw-chat-no-unread-inline-btn').click();
 
         expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -99,7 +99,7 @@ describe('showUnreadEmptyState — inline przycisk', () => {
     test('aria-label opisuje akcje przyciskiem przetlumaczonego stringa', () => {
         translations['Disable the unread filter'] = 'Wyłącz filtr nieprzeczytanych';
         showUnreadEmptyState();
-        const btn = document.querySelector('.chat-no-unread-inline-btn');
+        const btn = document.querySelector('.tw-chat-no-unread-inline-btn');
         expect(btn.getAttribute('aria-label')).toBe('Wyłącz filtr nieprzeczytanych');
     });
 });
@@ -114,14 +114,14 @@ describe('showUnreadEmptyState — odpornosc na tlumaczenia', () => {
         translations['Tap {icon} above the list to disable the unread filter'] =
             'Kliknij ikonę nad listą, aby wyłączyć filtr';
         showUnreadEmptyState();
-        const hint = document.querySelector('.chat-no-unread-hint');
+        const hint = document.querySelector('.tw-chat-no-unread-hint');
         expect(hint.textContent).not.toContain('undefined');
         expect(hint.textContent).toContain('Kliknij ikonę nad listą, aby wyłączyć filtr');
     });
 
     test('tlumaczenie Z {icon} rozdziela tekst na przed/po przycisku', () => {
         showUnreadEmptyState(); // domyslny _() zwraca klucz z {icon}
-        const hint = document.querySelector('.chat-no-unread-hint');
+        const hint = document.querySelector('.tw-chat-no-unread-hint');
         expect(hint.textContent).toContain('Tap ');
         expect(hint.textContent).toContain(' above the list to disable the unread filter');
         expect(hint.textContent).not.toContain('{icon}');

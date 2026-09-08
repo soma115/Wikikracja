@@ -16,7 +16,7 @@
   {% if sort_items %}
   <div class="tw-toolbar-sort">
     {% for item in sort_items %}
-    <a href="{{ item.url }}" class="tw-sort-btn{% if item.active %} active{% endif %}">
+    <a href="{{ item.url }}" class="tw-sort-btn{% if item.active %} tw-active{% endif %}">
       {% if item.pre_icon %}<i class="fas fa-{{ item.pre_icon }} fa-fw tw-me-1"></i>{% else %}<i class="fas fa-sort fa-fw tw-me-1"></i>{% endif %}
       <span class="tw-sort-btn-label">{{ item.label }}</span>
       {% if item.icon %}<i class="fas fa-arrow-{{ item.icon }} tw-sort-arrow"></i>{% endif %}

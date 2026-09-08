@@ -66,13 +66,22 @@ module.exports = {
     'tw-dropdown', 'tw-dropdown-menu', 'tw-dropdown-menu-end', 'tw-dropdown-item', 'tw-dropdown-divider', 'tw-dropdown-toggle',
     'tw-collapse', 'tw-show',
     { pattern: /^tw-table-(cell|row)$/, variants: ['sm', 'md', 'lg', 'xl'] },
+    // Chat dynamic state classes toggled by JS (docs/CHAT_REWORK_PLAN.md, 16.4.6).
+    // Active states on sort/vote/anonymous-toggle use the shared 'tw-active'.
+    'tw-room-link--online', 'tw-room-link--joined', 'tw-room-link--not-seen', 'tw-room-link--filtered-out', 'tw-room-link--search-filtered-out', 'tw-room-link--tapping', 'tw-room-link--connecting',
+    'tw-chat-message--own', 'tw-chat-message--pending', 'tw-chat-message--failed', 'tw-msg-highlight', 'tw-msg-highlighted',
+    'tw-reaction-btn--active', 'tw-msg-counter--warn', 'tw-msg-counter--error', 'tw-compose-box--error',
+    'tw-open', 'tw-visible', 'tw-room-active', 'tw-room-list-showing', 'tw-room-list-hidden',
+    'tw-toast-chat--visible', 'tw-chat-has-messages',
+    'tw-nav-status--unread', 'tw-nav-status--read', 'tw-nav-status--locked',
+    'tw-vote-bar--positive', 'tw-vote-bar--neutral', 'tw-vote-bar--negative',
     // Non-prefixed component hooks emitted by Python/widgets or composed
     // dynamically, so the content scanner cannot see them literally.
-    'tox-tinymce', 'richtext-wrapper', 'chat-room-pulse',
+    'tox-tinymce', 'richtext-wrapper', 'tw-chat-room-pulse',
     'diff-add', 'diff-context', 'diff-remove',
     { pattern: /^citizen-color-\d+$/ },
-    { pattern: /^avatar-(xs|sm|md|lg|xl|[2-7]xl)$/ },
-    { pattern: /^status-dot--\w+$/ },
+    { pattern: /^tw-avatar-(xs|sm|md|lg|xl|[2-7]xl)$/ },
+    { pattern: /^tw-status-dot--\w+$/ },
     { pattern: /^task-meta-status-\w+$/ },
   ],
   theme: {

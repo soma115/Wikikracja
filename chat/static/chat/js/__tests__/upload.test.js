@@ -191,7 +191,7 @@ test('embedded compresses images while full-page keeps raw files', async () => {
 });
 
 test.each([null, 42].flatMap(id => ['http', 'json', 'error', 'timeout', 'abort'].map(event => [id, event])))('upload failure restores send button and retains draft for editing ID %s on %s', async (editingId, event) => {
-    document.body.innerHTML = '<button class="send-message" disabled></button><textarea>draft</textarea>';
+    document.body.innerHTML = '<button class="tw-send-message" disabled></button><textarea>draft</textarea>';
     const dom = {
         getFiles: () => files,
         clearFiles: jest.fn(),
@@ -206,7 +206,7 @@ test.each([null, 42].flatMap(id => ['http', 'json', 'error', 'timeout', 'abort']
     await flush();
     MockXHR.instances.at(-1).respond(500, 'failed');
     await flush();
-    expect(document.querySelector('.send-message').disabled).toBe(false);
+    expect(document.querySelector('.tw-send-message').disabled).toBe(false);
     expect(await outcome).toBe('resolved');
     expect(api.sendMessage).not.toHaveBeenCalled();
     expect(api.editMessage).not.toHaveBeenCalled();

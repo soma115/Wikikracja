@@ -62,8 +62,8 @@ def is_seen_by(room, user):
 
 @register.filter('seen_by')
 def seen_by(room, user):
-    """Returns CSS class string: '' if seen, 'room-not-seen' if unseen."""
-    return "" if _is_seen(room, user) else "room-not-seen"
+    """Returns CSS class string: '' if seen, 'tw-room-link--not-seen' if unseen."""
+    return "" if _is_seen(room, user) else "tw-room-link--not-seen"
 
 
 @register.filter('is_muted_by')
@@ -79,7 +79,7 @@ def is_muted_by(room, user):
 def has_messages(user):
     rooms_with_new_messages = Room.objects.filter(allowed=user.id, archived=False).exclude(seen_by=user.id).annotate(messages_count=Count('messages')).filter(messages_count__gt=0)
     count = rooms_with_new_messages.count()
-    return "chat-has-messages" if count > 0 else ""
+    return "tw-chat-has-messages" if count > 0 else ""
 
     # from django.core.cache import cache
     # rooms_with_new_messages = cache.get('has_messages')
@@ -93,4 +93,4 @@ def has_messages(user):
     #         )
     #     cache.set("has_messages", rooms_with_new_messages, timeout=60)
     # count = rooms_with_new_messages.count()
-    # return "chat-has-messages" if count > 0 else ""
+    # return "tw-chat-has-messages" if count > 0 else ""

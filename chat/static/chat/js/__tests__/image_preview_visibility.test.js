@@ -46,13 +46,13 @@ function clearFiles(previewContainer, previewDiv) {
 
 function setupPreview() {
     document.body.innerHTML = `
-        <div class='image-preview-container tw-d-none'>
-            <div class='preview-images'></div>
+        <div class='tw-image-preview-container tw-d-none'>
+            <div class='tw-preview-images'></div>
         </div>
     `;
     return {
-        previewContainer: document.querySelector('.image-preview-container'),
-        previewDiv: document.querySelector('.preview-images'),
+        previewContainer: document.querySelector('.tw-image-preview-container'),
+        previewDiv: document.querySelector('.tw-preview-images'),
     };
 }
 
@@ -76,7 +76,7 @@ test('loadEditingAttachments chowa kontener gdy brak obrazków', () => {
 
 test('clearFiles czyści podgląd i chowa kontener', () => {
     const { previewContainer, previewDiv } = setupPreview();
-    previewDiv.innerHTML = '<div class="image-preview-wrapper">x</div>';
+    previewDiv.innerHTML = '<div class="tw-image-preview-wrapper">x</div>';
     clearFiles(previewContainer, previewDiv);
     expect(previewDiv.innerHTML).toBe('');
     expect(previewContainer.classList.contains('tw-d-none')).toBe(true);
@@ -102,9 +102,9 @@ test('editing preview preserves filenames as data without injecting markup', () 
 });
 
 test('live attachment updates encode filenames and do not inject attributes', () => {
-    document.body.innerHTML = '<div class="message"><div class="attachment-image-container"></div></div>';
+    document.body.innerHTML = '<div class="tw-chat-message"><div class="tw-attachment-image-container"></div></div>';
     const api = new DomApi();
-    api.getMessageDiv = () => document.querySelector('.message');
+    api.getMessageDiv = () => document.querySelector('.tw-chat-message');
     api.updateMessageAttachments(1, { images: [unsafeFilename] });
     expectSafeImage(document.querySelector('img'), unsafeFilename);
     expect(api.getMessageAttachments(1)).toEqual({ images: [unsafeFilename] });
@@ -117,5 +117,5 @@ test('initial message template safely renders attachment filenames', () => {
         username: 'user', latest_ts: '', edited: false, upvotes: 0, downvotes: 0,
         type: 'private', your_reactions: [], reactions: {}, read_by: [],
     });
-    expectSafeImage(document.querySelector('.attached-image'), unsafeFilename);
+    expectSafeImage(document.querySelector('.tw-attached-image'), unsafeFilename);
 });

@@ -3,7 +3,7 @@
 {% load i18n %}
 {% load filters %}
 
-{% block body_class %}chat-page{% endblock %}
+{% block body_class %}tw-chat-page{% endblock %}
 
 {% block content_fullscreen %}
   <!-- Main chat script -->
@@ -26,38 +26,38 @@
 
   <!-- ============================================================= -->
 
-  <div class="chat-rooms">
+  <div class="tw-chat-rooms">
     <!-- Messages and Input field -->
-    <div class="chat-root-messages">
+    <div class="tw-chat-root-messages">
     </div>
 
     <!-- Status połączenia — poza .chat-root-messages, bo createRoomDiv czyści
          innerHTML tego kontenera przy każdym joinie. -->
-    <div class="chat-conn-status tw-d-none" id="chat-conn-status" role="status" aria-live="polite">
+    <div class="tw-chat-conn-status tw-d-none" id="chat-conn-status" role="status" aria-live="polite">
       <i class="fas fa-plug" aria-hidden="true"></i>
       <span id="chat-conn-status-text"></span>
     </div>
 
     <!-- Room list controls + scrollable list — wrapped in flex column -->
-    <div class="room-list-col">
+    <div class="tw-room-list-col">
       <!-- Top controls — outside scroll container, never affected by scrollbar -->
-      <div class="room-list-controls">
-        <div class="room-list-controls-inner">
-          <div class="room-search-wrapper">
-            <i class="fas fa-magnifying-glass room-search-icon" aria-hidden="true"></i>
-            <input type="search" class="room-search-input" id="room-search" placeholder="{% trans 'Search rooms' %}" aria-label="{% trans 'Search rooms' %}">
+      <div class="tw-room-list-controls">
+        <div class="tw-room-list-controls-inner">
+          <div class="tw-room-search-wrapper">
+            <i class="fas fa-magnifying-glass tw-room-search-icon" aria-hidden="true"></i>
+            <input type="search" class="tw-room-search-input" id="room-search" placeholder="{% trans 'Search rooms' %}" aria-label="{% trans 'Search rooms' %}">
           </div>
-          <button class="sort-btn" id="unread-filter-btn" title="{% trans 'Show only unread rooms' %}">
+          <button class="tw-sort-btn" id="unread-filter-btn" title="{% trans 'Show only unread rooms' %}">
             <i class="fas fa-eye-slash"></i>
           </button>
-          <button class="sort-btn" id="sort-activity-btn" title="{% trans 'Sort by latest activity' %}">
-            <i class="fas fa-clock"></i><i class="sort-dir-icon fas fa-arrow-down"></i>
+          <button class="tw-sort-btn" id="sort-activity-btn" title="{% trans 'Sort by latest activity' %}">
+            <i class="fas fa-clock"></i><i class="tw-sort-dir-icon fas fa-arrow-down"></i>
           </button>
-          <button class="sort-btn" id="sort-reset-btn" title="{% trans 'Show by category' %}">
+          <button class="tw-sort-btn" id="sort-reset-btn" title="{% trans 'Show by category' %}">
             <i class="fas fa-layer-group"></i>
           </button>
           <div class="tw-dropdown">
-            <button class="sort-btn" type="button" id="room-list-kebab" data-tw-toggle="dropdown" aria-expanded="false" title="{% trans 'More' %}">
+            <button class="tw-sort-btn" type="button" id="room-list-kebab" data-tw-toggle="dropdown" aria-expanded="false" title="{% trans 'More' %}">
               <i class="fas fa-ellipsis-vertical"></i>
             </button>
             <ul class="tw-dropdown-menu tw-dropdown-menu-end tw-absolute tw-z-50 tw-bg-bg-card tw-border tw-border-subtle tw-rounded-card">
@@ -68,32 +68,32 @@
               <li><button class="tw-dropdown-item" id="info-btn" type="button" data-tw-toggle="modal" data-tw-target="#chat-info-modal"><i class="fas fa-circle-info fa-fw tw-me-2"></i>{% trans 'Info' %}</button></li>
             </ul>
           </div>
-          <button class="sort-btn" id="room-list-toggle-static-btn" title="{% trans 'Hide room list' %}">
+          <button class="tw-sort-btn" id="room-list-toggle-static-btn" title="{% trans 'Hide room list' %}">
             <i class="fas fa-angles-right"></i>
           </button>
         </div>
       </div>
 
       <!-- Scrollable room list -->
-      <div class="room-list" id="room-list">
-      <div class="room-list-groups">
+      <div class="tw-room-list" id="room-list">
+      <div class="tw-room-list-groups">
         <div class="tw-p-1">
 
           <!-- ── Public rooms ── -->
-          <div class="nav-category" data-category="public">
-            <div class="nav-cat-header">
-              <button class="nav-cat-btn" data-cat-content="cat-public" aria-expanded="true">
-                <span class="nav-cat-arrow">▼</span>
+          <div class="tw-chat-category" data-category="public">
+            <div class="tw-chat-cat-header">
+              <button class="tw-chat-cat-btn" data-cat-content="cat-public" aria-expanded="true">
+                <span class="tw-chat-cat-arrow">▼</span>
                 {% trans 'Public' %}
               </button>
             </div>
-            <div class="nav-cat-content open" id="cat-public">
+            <div class="tw-chat-cat-content tw-open" id="cat-public">
               {% for room in public_rooms_active %}
                 {% include 'chat/room_link.html' with room_kind='public' %}
               {% empty %}
                 <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
               {% endfor %}
-              <div id="content-pub-rooms-archive" class="archive-section">
+              <div id="content-pub-rooms-archive" class="tw-archive-section">
                 {% for room in public_rooms_archived %}
                   {% include 'chat/room_link.html' with room_kind='public' %}
                 {% empty %}
@@ -104,20 +104,20 @@
           </div>
 
           <!-- ── Tasks ── -->
-          <div class="nav-category" data-category="tasks">
-            <div class="nav-cat-header">
-              <button class="nav-cat-btn" data-cat-content="cat-tasks" aria-expanded="true">
-                <span class="nav-cat-arrow">▼</span>
+          <div class="tw-chat-category" data-category="tasks">
+            <div class="tw-chat-cat-header">
+              <button class="tw-chat-cat-btn" data-cat-content="cat-tasks" aria-expanded="true">
+                <span class="tw-chat-cat-arrow">▼</span>
                 {% trans 'Activities' %}
               </button>
             </div>
-            <div class="nav-cat-content open" id="cat-tasks">
+            <div class="tw-chat-cat-content tw-open" id="cat-tasks">
               {% for room in tasks_tree_active %}
                 {% include 'chat/room_link.html' with room_kind='task' %}
               {% empty %}
                 <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
               {% endfor %}
-              <div id="content-tasks-archive" class="archive-section">
+              <div id="content-tasks-archive" class="tw-archive-section">
                 {% for room in tasks_tree_archived %}
                   {% include 'chat/room_link.html' with room_kind='task' %}
                 {% empty %}
@@ -128,20 +128,20 @@
           </div>
 
           <!-- ── Referendums ── -->
-          <div class="nav-category" data-category="votes">
-            <div class="nav-cat-header">
-              <button class="nav-cat-btn" data-cat-content="cat-votes" aria-expanded="true">
-                <span class="nav-cat-arrow">▼</span>
+          <div class="tw-chat-category" data-category="votes">
+            <div class="tw-chat-cat-header">
+              <button class="tw-chat-cat-btn" data-cat-content="cat-votes" aria-expanded="true">
+                <span class="tw-chat-cat-arrow">▼</span>
                 {% trans 'Referendums' %}
               </button>
             </div>
-            <div class="nav-cat-content open" id="cat-votes">
+            <div class="tw-chat-cat-content tw-open" id="cat-votes">
               {% for room in votes_tree_active %}
                 {% include 'chat/room_link.html' with room_kind='vote' %}
               {% empty %}
                 <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
               {% endfor %}
-              <div id="content-votes-archive" class="archive-section">
+              <div id="content-votes-archive" class="tw-archive-section">
                 {% for room in votes_tree_archived %}
                   {% include 'chat/room_link.html' with room_kind='vote' %}
                 {% empty %}
@@ -152,20 +152,20 @@
           </div>
 
           <!-- ── Documents ── -->
-          <div class="nav-category" data-category="documents">
-            <div class="nav-cat-header">
-              <button class="nav-cat-btn" data-cat-content="cat-documents" aria-expanded="true">
-                <span class="nav-cat-arrow">▼</span>
+          <div class="tw-chat-category" data-category="documents">
+            <div class="tw-chat-cat-header">
+              <button class="tw-chat-cat-btn" data-cat-content="cat-documents" aria-expanded="true">
+                <span class="tw-chat-cat-arrow">▼</span>
                 {% trans 'Documents' %}
               </button>
             </div>
-            <div class="nav-cat-content open" id="cat-documents">
+            <div class="tw-chat-cat-content tw-open" id="cat-documents">
               {% for room in posts_tree_active %}
                 {% include 'chat/room_link.html' with room_kind='document' %}
               {% empty %}
                 <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
               {% endfor %}
-              <div id="content-documents-archive" class="archive-section">
+              <div id="content-documents-archive" class="tw-archive-section">
                 {% for room in posts_tree_archived %}
                   {% include 'chat/room_link.html' with room_kind='document' %}
                 {% empty %}
@@ -176,20 +176,20 @@
           </div>
 
           <!-- ── Private ── -->
-          <div class="nav-category" data-category="private">
-            <div class="nav-cat-header">
-              <button class="nav-cat-btn" data-cat-content="cat-private" aria-expanded="true">
-                <span class="nav-cat-arrow">▼</span>
+          <div class="tw-chat-category" data-category="private">
+            <div class="tw-chat-cat-header">
+              <button class="tw-chat-cat-btn" data-cat-content="cat-private" aria-expanded="true">
+                <span class="tw-chat-cat-arrow">▼</span>
                 {% trans 'Private' %}
               </button>
             </div>
-            <div class="nav-cat-content open" id="cat-private">
+            <div class="tw-chat-cat-content tw-open" id="cat-private">
               {% for room in private_active %}
                 {% include 'chat/room_link.html' with room_kind='private' %}
               {% empty %}
                 <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
               {% endfor %}
-              <div id="content-prv-archive" class="archive-section">
+              <div id="content-prv-archive" class="tw-archive-section">
                 {% for room in private_archived %}
                   {% include 'chat/room_link.html' with room_kind='private' %}
                 {% empty %}

@@ -10,40 +10,40 @@ const { test, expect } = require('@playwright/test');
 
 async function enterFirstRoom(page) {
     await page.goto('/chat/?view=rooms');
-    await page.waitForSelector('.room-link', { timeout: 10000 });
+    await page.waitForSelector('.tw-room-link', { timeout: 10000 });
     await page.evaluate(() => {
-        document.querySelectorAll('.nav-cat-btn[aria-expanded="false"]').forEach(b => b.click());
+        document.querySelectorAll('.tw-chat-cat-btn[aria-expanded="false"]').forEach(b => b.click());
     });
     await page.waitForTimeout(400);
-    const roomLink = page.locator('.room-link').first();
+    const roomLink = page.locator('.tw-room-link').first();
     await expect(roomLink).toBeVisible();
     await roomLink.click();
-    await expect(roomLink).toHaveClass(/joined/, { timeout: 10000 });
-    await page.waitForSelector('.messages', { timeout: 10000 });
+    await expect(roomLink).toHaveClass(/tw-room-link--joined/, { timeout: 10000 });
+    await page.waitForSelector('.tw-chat-messages', { timeout: 10000 });
 }
 
 async function sendMessage(page, text) {
     const input = page.locator('#message-input');
     await input.click();
     await input.fill(text);
-    await page.locator('.send-message').click();
+    await page.locator('.tw-send-message').click();
     // Czekamy aż wiadomość trafi do DOM (own + treść) — wracamy z return tego elementu.
-    const ownMessages = page.locator('.message.own .msg-text', { hasText: text });
+    const ownMessages = page.locator('.tw-chat-message.tw-chat-message--own .tw-msg-text', { hasText: text });
     await expect(ownMessages.last()).toBeVisible({ timeout: 10000 });
     return ownMessages.last();
 }
 
 async function editOwnMessage(page, originalText, appendedText) {
     // Klik edit na ostatniej wiadomości pasującej do originalText.
-    const msgDiv = page.locator('.message.own', { has: page.locator('.msg-text', { hasText: originalText }) }).last();
-    await msgDiv.locator('.edit-message').click();
+    const msgDiv = page.locator('.tw-chat-message.tw-chat-message--own', { has: page.locator('.tw-msg-text', { hasText: originalText }) }).last();
+    await msgDiv.locator('.tw-edit-message').click();
     // Input jest contenteditable — typujemy na końcu (focus już przeniesiony przez setEditing).
     const input = page.locator('#message-input');
     await expect(input).toBeFocused();
     // Przesuwamy kursor na koniec i dopisujemy.
     await input.press('End');
     await input.pressSequentially(appendedText);
-    await page.locator('.send-message').click();
+    await page.locator('.tw-send-message').click();
 }
 
 test.describe('chat — edycja wiadomości nie wstrzykuje markera "pokaż więcej" do treści', () => {
@@ -60,9 +60,9 @@ test.describe('chat — edycja wiadomości nie wstrzykuje markera "pokaż więce
         await editOwnMessage(page, original, appended);
 
         // Po edycji: szukamy wiadomości po finalnej treści. Treść NIE może zawierać "pokaż więcej".
-        const edited = page.locator('.message.own .msg-text', { hasText: `${original}${appended}` }).last();
+        const edited = page.locator('.tw-chat-message.tw-chat-message--own .tw-msg-text', { hasText: `${original}${appended}` }).last();
         await expect(edited).toBeVisible({ timeout: 10000 });
-        const text = await edited.locator('.expandable-body').innerText();
+        const text = await edited.locator('.tw-expandable-body').innerText();
         expect(text).not.toContain('pokaż więcej');
         expect(text.trim()).toBe(`${original}${appended}`);
     });
@@ -83,9 +83,9 @@ test.describe('chat — edycja wiadomości nie wstrzykuje markera "pokaż więce
 
         await editOwnMessage(page, original, appended);
 
-        const edited = page.locator('.message.own .msg-text', { hasText: `${original}${appended}` }).last();
+        const edited = page.locator('.tw-chat-message.tw-chat-message--own .tw-msg-text', { hasText: `${original}${appended}` }).last();
         await expect(edited).toBeVisible({ timeout: 10000 });
-        const text = await edited.locator('.expandable-body').innerText();
+        const text = await edited.locator('.tw-expandable-body').innerText();
         expect(text).not.toContain('pokaż więcej');
         expect(text.trim()).toBe(`${original}${appended}`);
     });

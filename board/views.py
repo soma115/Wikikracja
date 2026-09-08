@@ -76,7 +76,7 @@ def board(request: HttpRequest) -> HttpResponse:
         if room:
             post.chat_room_message_count = room.messages.count()
             is_unseen = request.user.is_authenticated and post.chat_room_message_count and request.user not in room.seen_by.all()
-            post.chat_room_pulse_class = 'chat-room-pulse' if is_unseen else ''
+            post.chat_room_pulse_class = 'tw-chat-room-pulse' if is_unseen else ''
         else:
             post.chat_room_message_count = 0
             post.chat_room_pulse_class = ''

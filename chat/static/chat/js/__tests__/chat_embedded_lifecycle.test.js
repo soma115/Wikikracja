@@ -41,7 +41,7 @@ function makeEmbeddedHarness({ roomId = 7 } = {}) {
     const appended = [];
     const deleted = { container: false, previewHidden: false };
     const previewContainer = document.createElement('div');
-    previewContainer.classList.add('image-preview-container', 'ec-image-preview-container', 'tw-d-none');
+    previewContainer.classList.add('tw-image-preview-container', 'tw-ec-image-preview-container', 'tw-d-none');
     const previewImagesDiv = document.createElement('div');
     const fileInput = { value: 'x' };
     let selectedFiles = [];
@@ -70,7 +70,7 @@ function makeEmbeddedHarness({ roomId = 7 } = {}) {
                     for (const msg of pendingMessages) appendMessage(msg);
                     pendingMessages = [];
                     if (messagesEl.children.length === 0) {
-                        messagesEl.innerHTML = '<div class="ec-empty empty-chat-message">Brak wiadomości. Napisz pierwszy!</div>';
+                        messagesEl.innerHTML = '<div class="tw-ec-empty tw-empty-chat-message">Brak wiadomości. Napisz pierwszy!</div>';
                     }
                     resolve();
                 }, 0));
@@ -83,7 +83,7 @@ function makeEmbeddedHarness({ roomId = 7 } = {}) {
                     setTimeout(() => { if (!joined && ws.isOpen()) joinRoom(); }, 5000);
                     return;
                 }
-                messagesEl.innerHTML = '<div class="ec-loading">Brak dostępu do tego czatu.</div>';
+                messagesEl.innerHTML = '<div class="tw-ec-loading">Brak dostępu do tego czatu.</div>';
                 deleted.container = true;
                 console.error('embedded chat join error:', err);
             });
@@ -286,7 +286,7 @@ describe('embedded chat — preview załączników (kontrakt tw-d-none)', () => 
         const h = makeEmbeddedHarness();
         // symulacja: user dodał plik — kontener pokazany
         h.previewContainer.classList.remove('tw-d-none');
-        h.previewImagesDiv.innerHTML = '<div class="image-preview-wrapper">x</div>';
+        h.previewImagesDiv.innerHTML = '<div class="tw-image-preview-wrapper">x</div>';
         h.selectedFiles = [{}];
 
         h.deleteImagesHandler();

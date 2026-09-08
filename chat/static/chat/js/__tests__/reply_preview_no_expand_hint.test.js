@@ -30,7 +30,7 @@ test('snippet z surowej wiadomości nie zawiera markera "pokaż więcej"', () =>
 
 test('snippet z sformatowanej wiadomości .expandable zawierałby marker (demonstrowanie błędu)', () => {
     const raw_message = 'Krótka treść';
-    const message = `<div class="expandable"><div class="expandable-body">${raw_message}</div><div class="expandable-hint">… pokaż więcej</div></div>`;
+    const message = `<div class="tw-expandable"><div class="tw-expandable-body">${raw_message}</div><div class="tw-expandable-hint">… pokaż więcej</div></div>`;
     const snippet = makeSnippet(message);
     expect(snippet).toContain('… pokaż więcej');
 });

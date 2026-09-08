@@ -117,7 +117,7 @@ class Decyzja(ChatRoomModel, models.Model):
         """Return CSS class for chat room pulse indicator if there are unseen messages"""
         chat_room = self.chat_room
         if chat_room and chat_room.messages.exists() and not chat_room.seen_by.filter(id=user.id).exists():
-            return "chat-room-pulse"
+            return "tw-chat-room-pulse"
         return ""
 
     @property

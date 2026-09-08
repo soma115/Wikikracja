@@ -48,19 +48,19 @@ const DOM_API = new DomApi();
 function updateSearchEmptyState(query) {
     const list = document.getElementById('room-list');
     if (!list) return;
-    const anyMatch = [...document.querySelectorAll('.room-link[data-room-id]')]
-        .some(link => !link.classList.contains('search-filtered-out'));
+    const anyMatch = [...document.querySelectorAll('.tw-room-link[data-room-id]')]
+        .some(link => !link.classList.contains('tw-room-link--search-filtered-out'));
     const show = query !== '' && !anyMatch;
     let note = document.getElementById('chat-no-search-results');
     if (show && !note) {
         note = document.createElement('div');
         note.id = 'chat-no-search-results';
-        note.className = 'chat-no-search-results';
+        note.className = 'tw-chat-no-search-results';
         const icon = document.createElement('i');
-        icon.className = 'fas fa-magnifying-glass chat-no-room-icon';
+        icon.className = 'fas fa-magnifying-glass tw-chat-no-room-icon';
         icon.setAttribute('aria-hidden', 'true');
         const text = document.createElement('p');
-        text.className = 'chat-no-room-text';
+        text.className = 'tw-chat-no-room-text';
         text.textContent = _('No rooms match the search.');
         note.append(icon, text);
         list.appendChild(note);
@@ -80,21 +80,21 @@ document.addEventListener('DOMContentLoaded', function() {
         counterVal.textContent = remaining;
         const row = $('#msg-counter');
         if (!row) return;
-        row.classList.remove('counter--warn', 'counter--error');
-        const composeBox = $('.compose-box');
+        row.classList.remove('tw-msg-counter--warn', 'tw-msg-counter--error');
+        const composeBox = $('.tw-compose-box');
         if (remaining <= 0) {
-            row.classList.add('counter--error');
-            composeBox?.classList.add('input--error');
+            row.classList.add('tw-msg-counter--error');
+            composeBox?.classList.add('tw-compose-box--error');
         } else if (remaining <= 10) {
-            row.classList.add('counter--error');
-            composeBox?.classList.remove('input--error');
+            row.classList.add('tw-msg-counter--error');
+            composeBox?.classList.remove('tw-compose-box--error');
         } else if (remaining <= 50) {
-            row.classList.add('counter--warn');
-            composeBox?.classList.remove('input--error');
+            row.classList.add('tw-msg-counter--warn');
+            composeBox?.classList.remove('tw-compose-box--error');
         } else {
-            composeBox?.classList.remove('input--error');
+            composeBox?.classList.remove('tw-compose-box--error');
         }
-        const sendBtn = $('.send-message');
+        const sendBtn = $('.tw-send-message');
         if (sendBtn) sendBtn.disabled = remaining <= 0;
     }
 
@@ -103,12 +103,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (existing) existing.remove();
         const toast = document.createElement('div');
         toast.id = 'chat-toast';
-        toast.className = 'toast-chat';
+        toast.className = 'tw-toast-chat';
         toast.textContent = message;
         document.body.appendChild(toast);
-        requestAnimationFrame(() => toast.classList.add('toast-chat--visible'));
+        requestAnimationFrame(() => toast.classList.add('tw-toast-chat--visible'));
         setTimeout(() => {
-            toast.classList.remove('toast-chat--visible');
+            toast.classList.remove('tw-toast-chat--visible');
             setTimeout(() => toast.remove(), 300);
         }, 2500);
     }
@@ -168,17 +168,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Tree sidebar — nav-cat-btn collapse/expand
     // Restore cat states from localStorage (before click handler, so initial state is set)
-    document.querySelectorAll('.nav-cat-btn').forEach(btn => {
+    document.querySelectorAll('.tw-chat-cat-btn').forEach(btn => {
         const contentId = btn.dataset.catContent;
         if (!contentId) return;
         const content = document.getElementById(contentId);
         if (!content) return;
         const savedState = localStorage.getItem(`chat-cat-${contentId}`);
         if (savedState === 'expanded') {
-            content.classList.add('open');
+            content.classList.add('tw-open');
             btn.setAttribute('aria-expanded', 'true');
         } else {
-            content.classList.remove('open');
+            content.classList.remove('tw-open');
             btn.setAttribute('aria-expanded', 'false');
         }
     });
@@ -188,9 +188,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function setArchivesVisible(visible) {
         archiveSectionIds.forEach(targetId => {
-            document.getElementById(`content-${targetId}`)?.classList.toggle('visible', visible);
+            document.getElementById(`content-${targetId}`)?.classList.toggle('tw-visible', visible);
         });
-        globalArchiveBtn?.classList.toggle('active', visible);
+        globalArchiveBtn?.classList.toggle('tw-active', visible);
         if (visible) localStorage.setItem('chat-archive-global', 'visible');
         else localStorage.removeItem('chat-archive-global');
     }
@@ -200,28 +200,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     globalArchiveBtn?.addEventListener('click', () => {
-        setArchivesVisible(!globalArchiveBtn.classList.contains('active'));
+        setArchivesVisible(!globalArchiveBtn.classList.contains('tw-active'));
     });
 
     const roomSearchInput = document.getElementById('room-search');
     roomSearchInput?.addEventListener('input', () => {
         const query = roomSearchInput.value.trim().toLowerCase();
-        document.querySelectorAll('.room-link[data-room-id]').forEach(roomLink => {
-            const name = (roomLink.querySelector('.room-name')?.textContent || '').toLowerCase();
-            roomLink.classList.toggle('search-filtered-out', query !== '' && !name.includes(query));
+        document.querySelectorAll('.tw-room-link[data-room-id]').forEach(roomLink => {
+            const name = (roomLink.querySelector('.tw-room-name')?.textContent || '').toLowerCase();
+            roomLink.classList.toggle('tw-room-link--search-filtered-out', query !== '' && !name.includes(query));
         });
         updateSearchEmptyState(query);
     });
 
     // nav-cat-btn click: toggle category open/closed
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.nav-cat-btn');
+        const btn = e.target.closest('.tw-chat-cat-btn');
         if (!btn) return;
         const contentId = btn.dataset.catContent;
         const content = contentId ? document.getElementById(contentId) : null;
         if (!content) return;
-        const isOpen = content.classList.contains('open');
-        content.classList.toggle('open', !isOpen);
+        const isOpen = content.classList.contains('tw-open');
+        content.classList.toggle('tw-open', !isOpen);
         btn.setAttribute('aria-expanded', String(!isOpen));
         if (contentId) {
             localStorage.setItem(`chat-cat-${contentId}`, isOpen ? 'collapsed' : 'expanded');
@@ -230,12 +230,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // collapse-all-btn: toggle all categories at once
     document.getElementById('collapse-all-btn')?.addEventListener('click', () => {
-        const allOpen = [...document.querySelectorAll('.nav-cat-content')].every(c => c.classList.contains('open'));
-        document.querySelectorAll('.nav-cat-btn').forEach(btn => {
+        const allOpen = [...document.querySelectorAll('.tw-chat-cat-content')].every(c => c.classList.contains('tw-open'));
+        document.querySelectorAll('.tw-chat-cat-btn').forEach(btn => {
             const contentId = btn.dataset.catContent;
             const content = contentId ? document.getElementById(contentId) : null;
             if (!content) return;
-            content.classList.toggle('open', !allOpen);
+            content.classList.toggle('tw-open', !allOpen);
             btn.setAttribute('aria-expanded', String(!allOpen));
             if (contentId) localStorage.setItem(`chat-cat-${contentId}`, allOpen ? 'collapsed' : 'expanded');
         });
@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.addEventListener("click", (e) => {
-        if (e.target.closest(".send-message")) {
+        if (e.target.closest(".tw-send-message")) {
             onSubmitMessage(DOM_API.getEnteredText(), DOM_API.getEditedMessageId());
         }
     });
@@ -285,23 +285,23 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', createImageClickHandler());
 
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.notif-switch');
+        const btn = e.target.closest('.tw-notif-switch');
         if (btn) {
             const newState = !(btn.dataset.enabled === "true" || btn.dataset.enabled === true);
             btn.dataset.enabled = newState;
             const icon = $("i", btn);
             icon?.classList.toggle('fa-bell', newState);
             icon?.classList.toggle('fa-bell-slash', !newState);
-            const label = btn.querySelector('.notif-label');
+            const label = btn.querySelector('.tw-notif-label');
             if (label) label.textContent = newState ? _('Mute room') : _('Unmute room');
-            const meta = btn.closest('.room-link')?.querySelector('.room-link__meta');
+            const meta = btn.closest('.tw-room-link')?.querySelector('.tw-room-link-meta');
             if (meta) {
                 meta.dataset.muted = newState ? 'false' : 'true';
-                let mutedIcon = meta.querySelector('.room-link__muted-icon');
+                let mutedIcon = meta.querySelector('.tw-room-link-muted-icon');
                 if (!newState) {
                     if (!mutedIcon) {
                         mutedIcon = document.createElement('i');
-                        mutedIcon.className = 'fas fa-bell-slash room-link__muted-icon';
+                        mutedIcon.className = 'fas fa-bell-slash tw-room-link-muted-icon';
                         mutedIcon.title = _('Muted');
                         meta.appendChild(mutedIcon);
                     }
@@ -314,13 +314,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.seen-switch');
+        const btn = e.target.closest('.tw-seen-switch');
         if (btn) {
             e.preventDefault();
             e.stopPropagation();
             const isCurrentlySeen = btn.dataset.seen === "true";
             const newState = !isCurrentlySeen;
-            DOM_API.getRoomLinkDiv(btn.dataset.roomId)?.classList.toggle('room-not-seen', !newState);
+            DOM_API.getRoomLinkDiv(btn.dataset.roomId)?.classList.toggle('tw-room-link--not-seen', !newState);
             DOM_API.setRoomSeenIconState(btn.dataset.roomId, newState);
             onToggleSeen(btn.dataset.roomId, newState);
             // Update unread filter if it's active
@@ -331,9 +331,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.anonymous-toggle');
+        const btn = e.target.closest('.tw-anonymous-toggle');
         if (btn) {
-            btn.classList.toggle('active');
+            btn.classList.toggle('tw-active');
         }
     });
 
@@ -344,12 +344,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.delete-images-preview');
+        const btn = e.target.closest('.tw-delete-images-preview');
         if (btn) DOM_API.clearFiles(btn.dataset.roomId);
     });
 
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.copy-room-url');
+        const btn = e.target.closest('.tw-copy-room-url');
         if (btn) {
             e.preventDefault();
             e.stopPropagation();
@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.copy-message-url');
+        const btn = e.target.closest('.tw-copy-message-url');
         if (btn) {
             e.preventDefault();
             e.stopPropagation();
@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.addEventListener("change", (e) => {
-        if (!e.target.classList.contains("file-input")) return;
+        if (!e.target.classList.contains("tw-file-input")) return;
         const files = e.target.files;
         const preview_container = DOM_API.getPreviewDiv();
         if (!DOM_API.isEditing() && preview_container) preview_container.innerHTML = '';
@@ -376,9 +376,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const file = files.item(i);
             const fr = new FileReader();
             const preview_id = `preview-new-${i}-${Date.now()}`;
-            preview_container?.insertAdjacentHTML('beforeend', `<div class="image-preview-wrapper">
-                <img class='image-preview new-attachment' id='${preview_id}'>
-                <button class="tw-btn tw-btn-sm tw-btn-danger remove-new-attachment image-preview-remove"
+            preview_container?.insertAdjacentHTML('beforeend', `<div class="tw-image-preview-wrapper">
+                <img class='tw-image-preview tw-new-attachment' id='${preview_id}'>
+                <button class="tw-btn tw-btn-sm tw-btn-danger tw-remove-new-attachment tw-image-preview-remove"
                     data-preview-id="${preview_id}" type="button">×</button>
             </div>`);
             fr.onload = (e) => {
@@ -391,8 +391,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // ── Shared handlers from chat-core.js ────────────────────────────────────
 
     document.addEventListener('click', createVoteHandler(function(eventName, messageId, isAdd) {
-        const btn = document.querySelector('.msg-vote[data-event-name="' + eventName + '"][data-message-id="' + messageId + '"]');
-        if (btn) btn.classList.toggle('active', isAdd);
+        const btn = document.querySelector('.tw-msg-vote[data-event-name="' + eventName + '"][data-message-id="' + messageId + '"]');
+        if (btn) btn.classList.toggle('tw-active', isAdd);
         onUpdateVote.call(btn, eventName, messageId, isAdd);
     }));
 
@@ -409,12 +409,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }, $('#message-input')));
 
     document.addEventListener("click", (e) => {
-        const btn = e.target.closest(".remove-existing-attachment");
+        const btn = e.target.closest(".tw-remove-existing-attachment");
         if (btn) {
             e.preventDefault();
             e.stopPropagation();
             DOM_API.addRemovedAttachment(btn.dataset.filename);
-            btn.closest('.image-preview-wrapper')?.remove();
+            btn.closest('.tw-image-preview-wrapper')?.remove();
             if (DOM_API.getPreviewDiv()?.children.length === 0) {
                 DOM_API.getPreviewContainer().classList.add('tw-d-none');
             }
@@ -422,13 +422,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.addEventListener("click", (e) => {
-        const btn = e.target.closest(".remove-new-attachment");
+        const btn = e.target.closest(".tw-remove-new-attachment");
         if (btn) {
             e.preventDefault();
             e.stopPropagation();
-            btn.closest('.image-preview-wrapper')?.remove();
+            btn.closest('.tw-image-preview-wrapper')?.remove();
             const previewDiv = DOM_API.getPreviewDiv();
-            if (previewDiv && $$('.new-attachment', previewDiv).length === 0) {
+            if (previewDiv && $$('.tw-new-attachment', previewDiv).length === 0) {
                 DOM_API.getFileInput().value = "";
             }
             if (previewDiv?.children.length === 0) {
@@ -450,7 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
     ));
 
     document.addEventListener('click', createQuoteJumpHandler(
-        () => document.querySelector('#room .messages')
+        () => document.querySelector('#room .tw-chat-messages')
     ));
 
     document.addEventListener('click', (e) => {
@@ -464,19 +464,19 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', handleRoomLinkClick);
 
     function handleRoomLinkClick(e) {
-        if (e.target.closest('.room-link__actions')) return;
-        const roomLink = e.target.closest('.room-link');
+        if (e.target.closest('.tw-room-link-actions')) return;
+        const roomLink = e.target.closest('.tw-room-link');
         if (!roomLink) return;
-        if (roomLink.classList.contains("joined")) {
+        if (roomLink.classList.contains("tw-room-link--joined")) {
             // Mobile: klik w już aktywny pokój = wróć do niego (lista nakłada się
             // na pokój). Nawigacja przez URL — router sam zauważy identyczną trasę.
             if (mobileMedia.matches) navigateToRoom(parseInt(roomLink.dataset.roomId));
             return;
         }
         const room_id = roomLink.getAttribute("data-room-id");
-        roomLink.classList.add('room-tapping');
-        setTimeout(() => roomLink.classList.remove('room-tapping'), 300);
-        DOM_API.getRoomLinkDiv(room_id)?.classList.remove("room-not-seen");
+        roomLink.classList.add('tw-room-link--tapping');
+        setTimeout(() => roomLink.classList.remove('tw-room-link--tapping'), 300);
+        DOM_API.getRoomLinkDiv(room_id)?.classList.remove("tw-room-link--not-seen");
         DOM_API.setRoomSeenIconState(room_id, true);
         navigateToRoom(parseInt(room_id));
         if (typeof window.updateUnreadFilter === 'function') {
@@ -485,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ── Room list show/hide ───────────────────────────────────────────────────
-    const chatRoomsEl = $('.chat-rooms');
+    const chatRoomsEl = $('.tw-chat-rooms');
     // Preferencja zwinięcia dotyczy wyłącznie desktopu — na mobile panel listy
     // wynika z nawigacji (room-list-showing), nie z zapisanego stanu.
     const HIDDEN_KEY = 'chat-desktop-room-list-hidden';
@@ -501,15 +501,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function setRoomListHidden(hidden) {
-        chatRoomsEl?.classList.toggle('room-list-hidden', hidden);
+        chatRoomsEl?.classList.toggle('tw-room-list-hidden', hidden);
         if (hidden) localStorage.setItem(HIDDEN_KEY, '1');
         else localStorage.removeItem(HIDDEN_KEY);
         updateToggleBtn();
     }
 
     function updateToggleBtn() {
-        const hidden = chatRoomsEl?.classList.contains('room-list-hidden');
-        const listShowing = chatRoomsEl?.classList.contains('room-list-showing');
+        const hidden = chatRoomsEl?.classList.contains('tw-room-list-hidden');
+        const listShowing = chatRoomsEl?.classList.contains('tw-room-list-showing');
         // Button in sort toolbar (dynamic, inside #room)
         const dynBtn = document.getElementById('toggle-room-list-btn');
         if (dynBtn) {
@@ -529,7 +529,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Restore saved state — desktop only; mobile never restores the collapse.
     if (mobileMedia.matches) {
-        chatRoomsEl?.classList.remove('room-list-hidden');
+        chatRoomsEl?.classList.remove('tw-room-list-hidden');
     } else if (localStorage.getItem(HIDDEN_KEY)) {
         setRoomListHidden(true);
     }
@@ -553,7 +553,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (mobileMedia.matches) {
             navigateToRoomList();
         } else {
-            setRoomListHidden(!chatRoomsEl?.classList.contains('room-list-hidden'));
+            setRoomListHidden(!chatRoomsEl?.classList.contains('tw-room-list-hidden'));
         }
     });
 
@@ -566,7 +566,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const joined = getCurrentRoomId();
             if (joined) navigateToRoom(joined);
         } else {
-            setRoomListHidden(!chatRoomsEl?.classList.contains('room-list-hidden'));
+            setRoomListHidden(!chatRoomsEl?.classList.contains('tw-room-list-hidden'));
         }
     });
 
@@ -575,7 +575,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // zapisanej preferencji.
     mobileMedia.addEventListener('change', (e) => {
         if (e.matches) {
-            chatRoomsEl?.classList.remove('room-list-hidden');
+            chatRoomsEl?.classList.remove('tw-room-list-hidden');
             updateToggleBtn();
         } else {
             setRoomListHidden(!!localStorage.getItem(HIDDEN_KEY));
@@ -593,7 +593,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let renameOriginalTitle = null;
 
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.rename-room-btn');
+        const btn = e.target.closest('.tw-rename-room-btn');
         if (!btn) return;
         e.preventDefault();
         e.stopPropagation();
@@ -622,10 +622,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await resp.json();
             if (!resp.ok) { showRenameError(data.error || 'Błąd.'); return; }
             if (renameModal && typeof TwModal !== 'undefined') TwModal.hide(renameModal);
-            const roomLink = document.querySelector(`.room-link[data-room-id="${renameRoomId}"]`);
+            const roomLink = document.querySelector(`.tw-room-link[data-room-id="${renameRoomId}"]`);
             if (roomLink) {
-                roomLink.querySelector('.room-name')?.replaceChildren(document.createTextNode(data.title));
-                const btn = roomLink.querySelector('.rename-room-btn');
+                roomLink.querySelector('.tw-room-name')?.replaceChildren(document.createTextNode(data.title));
+                const btn = roomLink.querySelector('.tw-rename-room-btn');
                 if (btn) btn.dataset.roomTitle = data.title;
             }
             showToast('Nazwa pokoju zmieniona.');
@@ -640,7 +640,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let openReadByDropdown = null;
 
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('.read-by-toggle');
+        const btn = e.target.closest('.tw-read-by-toggle');
         if (btn) {
             e.preventDefault();
             e.stopPropagation();
@@ -657,7 +657,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const isHidden = dropdown.classList.contains('tw-d-none');
             dropdown.classList.toggle('tw-d-none', !isHidden);
             openReadByDropdown = isHidden ? dropdown : null;
-        } else if (openReadByDropdown && !e.target.closest('.read-by-dropdown')) {
+        } else if (openReadByDropdown && !e.target.closest('.tw-read-by-dropdown')) {
             // Close dropdown when clicking outside
             openReadByDropdown.classList.add('tw-d-none');
             openReadByDropdown = null;

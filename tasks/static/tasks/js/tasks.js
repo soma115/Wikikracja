@@ -98,7 +98,7 @@
     item.dataset.userId = user.id;
 
     var avatar = document.createElement('span');
-    avatar.className = 'avatar avatar-xl avatar-accent';
+    avatar.className = 'tw-avatar tw-avatar-xl tw-avatar-accent';
     if (user.avatar_url) {
       var img = document.createElement('img');
       img.src = user.avatar_url;
@@ -246,10 +246,10 @@
   function buildAvatarHtml(user, size) {
     var initials = escapeHtml((user.username || '').slice(0, 2).toUpperCase());
     if (user.avatar_url) {
-      return '<img class="avatar avatar-' + size + '" src="' + escapeHtml(user.avatar_url) + '" alt="' + escapeHtml(user.username || '') + '">';
+      return '<img class="tw-avatar tw-avatar-' + size + '" src="' + escapeHtml(user.avatar_url) + '" alt="' + escapeHtml(user.username || '') + '">';
     }
     var color = user.citizen_color_class ? ' ' + user.citizen_color_class : '';
-    return '<div class="avatar avatar-' + size + ' avatar-fallback' + color + '">' + initials + '</div>';
+    return '<div class="tw-avatar tw-avatar-' + size + ' tw-avatar-fallback' + color + '">' + initials + '</div>';
   }
 
   // Fill a coordinator chip (link/span) with a user's name, avatar, profile url
@@ -439,7 +439,7 @@
         ? '<img src="' + escapeHtml(h.avatar_url) + '" alt="">'
         : escapeHtml(h.username.slice(0, 2).toUpperCase());
       return '<a class="helpers-popover-item" href="' + escapeHtml(h.profile_url) + '">'
-        + '<span class="avatar avatar-xl avatar-accent">' + avatar + '</span>'
+        + '<span class="tw-avatar tw-avatar-xl tw-avatar-accent">' + avatar + '</span>'
         + '<span class="helpers-popover-name">' + escapeHtml(h.username) + '</span>'
         + '</a>';
     }).join('');

@@ -287,7 +287,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const btn = document.getElementById('theme-toggle-btn');
     if (btn) {
         btn.addEventListener('click', function() {
-            applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            applyTheme(next);
+            const url = btn.dataset.url;
+            if (url) {
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': window.LINK_TITLES_CSRF_TOKEN || '',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ value: next }),
+                }).catch(() => {});
+            }
         });
     }
 });
@@ -370,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (mode === 'grid') container.classList.add('view-grid');
         else if (mode === 'compact') container.classList.add('view-compact');
         document.querySelectorAll('[data-view]').forEach(function(btn) {
-            btn.classList.toggle('active', btn.dataset.view === mode);
+            btn.classList.toggle('tw-active', btn.dataset.view === mode);
         });
 
         // Show/hide view-specific sections (used by events and other atypical views)
@@ -731,7 +743,7 @@ window.initActivityFeedToggleRead = function(containerSelector) {
 
                 // For chat rooms, also show/hide the message-count badge
                 if (row.getAttribute('data-content-type') === 'room_messages') {
-                    var chatCount = row.querySelector('.chat-message-count');
+                    var chatCount = row.querySelector('.tw-chat-message-count');
                     if (chatCount) {
                         chatCount.classList.toggle('tw-d-none', newRead);
                     }
@@ -890,11 +902,11 @@ function hasSelectedTextInside(container) {
 
 document.addEventListener('click', function(e) {
     if (e.target.closest('a')) return;
-    const body = e.target.closest('.expandable-body');
-    const el = body?.closest('.expandable');
-    if (!el?.classList.contains('has-overflow')) return;
+    const body = e.target.closest('.tw-expandable-body');
+    const el = body?.closest('.tw-expandable');
+    if (!el?.classList.contains('tw-has-overflow')) return;
     if (hasSelectedTextInside(body)) return;
-    el.classList.toggle('is-open');
+    el.classList.toggle('tw-is-open');
 });
 
 // Globalna inicjalizacja Tailwind tooltipów — każdy [data-tw-toggle="tooltip"] działa
@@ -1225,10 +1237,10 @@ window.initCategoryFilter = function(options) {
 
         if (all) {
             labelEl.textContent = LABEL_ALL;
-            btn.classList.remove('active');
+            btn.classList.remove('tw-active');
         } else {
             labelEl.textContent = LABEL_ALL + ' (' + sel.length + ')';
-            btn.classList.add('active');
+            btn.classList.add('tw-active');
         }
     }
 
@@ -1389,8 +1401,8 @@ document.addEventListener('DOMContentLoaded', function() {
 window.toggleArgForm = function toggleArgForm(id) {
     var el = document.getElementById(id);
     if (!el) return;
-    el.classList.toggle('visible');
-    if (el.classList.contains('visible')) {
+    el.classList.toggle('tw-visible');
+    if (el.classList.contains('tw-visible')) {
         var ta = el.querySelector('textarea');
         if (ta) ta.focus();
     }
@@ -1407,9 +1419,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!section) return;
             var isOpen = section.style.display !== 'none';
             document.querySelectorAll('.citizen-section').forEach(function (s) { s.style.display = 'none'; });
-            document.querySelectorAll('.citizen-section-btn').forEach(function (b) { b.classList.remove('active'); });
+            document.querySelectorAll('.citizen-section-btn').forEach(function (b) { b.classList.remove('tw-active'); });
             if (isOpen) return;
-            btn.classList.add('active');
+            btn.classList.add('tw-active');
             if (section.dataset.loaded) {
                 section.style.display = 'block';
                 return;

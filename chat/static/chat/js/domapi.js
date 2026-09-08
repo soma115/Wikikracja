@@ -27,21 +27,21 @@ function encodeAttachmentName(filename) {
  */
 export default class DomApi {
     getRoomLinkDiv(room_id) {
-        return $(`.room-link[data-room-id="${room_id}"]`);
+        return $(`.tw-room-link[data-room-id="${room_id}"]`);
     }
 
     createRoomDiv(room_id, title, is_public, notifs_enabled, can_post = true) {
         const messageMaxLength = window.SITE_SETTINGS?.messageMaxLength ?? 500;
         const html = Room({ room_id, title, is_public, notifs_enabled, messageMaxLength });
-        const container = $('.chat-root-messages');
+        const container = $('.tw-chat-root-messages');
         container.innerHTML = '';
         container.insertAdjacentHTML('beforeend', html);
         const room = $('#room');
         if (!can_post) {
-            const controls = $('.chat-controls', room);
+            const controls = $('.tw-chat-controls', room);
             if (controls) {
-                controls.innerHTML = `<div class="ec-readonly-notice"><i class="fas fa-lock"></i> ${_("Only approved helpers can write here.")}</div>`;
-                controls.classList.add('chat-controls--readonly');
+                controls.innerHTML = `<div class="tw-ec-readonly-notice"><i class="fas fa-lock"></i> ${_("Only approved helpers can write here.")}</div>`;
+                controls.classList.add('tw-chat-controls--readonly');
             }
         }
         return room;
@@ -53,7 +53,7 @@ export default class DomApi {
 
     getMessagesDiv() {
         const room = this.getRoom();
-        return room ? $('.messages', room) : null;
+        return room ? $('.tw-chat-messages', room) : null;
     }
 
     buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null) {
@@ -79,18 +79,18 @@ export default class DomApi {
 
         const messagesDiv = this.getMessagesDiv();
         messagesDiv?.insertAdjacentHTML('beforeend', html);
-        this.getVoteDiv(message_id, vote)?.classList.add('active');
+        this.getVoteDiv(message_id, vote)?.classList.add('tw-active');
         const msgDiv = this.getMessageDiv(message_id);
         if (temp_id && msgDiv) {
             msgDiv.dataset.tempId = temp_id;
-            msgDiv.classList.add('message--pending');
+            msgDiv.classList.add('tw-chat-message--pending');
         }
     }
 
     confirmMessage(temp_id, real_id) {
-        const msgDiv = this.getMessagesDiv()?.querySelector(`.message[data-temp-id="${temp_id}"]`);
+        const msgDiv = this.getMessagesDiv()?.querySelector(`.tw-chat-message[data-temp-id="${temp_id}"]`);
         if (!msgDiv) return;
-        msgDiv.classList.remove('message--pending', 'message--failed');
+        msgDiv.classList.remove('tw-chat-message--pending', 'tw-chat-message--failed');
         msgDiv.dataset.messageId = real_id;
         msgDiv.querySelectorAll(`[data-message-id="${temp_id}"]`).forEach(el => {
             el.dataset.messageId = real_id;
@@ -99,22 +99,22 @@ export default class DomApi {
     }
 
     failMessage(temp_id) {
-        const msgDiv = this.getMessagesDiv()?.querySelector(`.message[data-temp-id="${temp_id}"]`);
+        const msgDiv = this.getMessagesDiv()?.querySelector(`.tw-chat-message[data-temp-id="${temp_id}"]`);
         if (!msgDiv) return;
-        msgDiv.classList.remove('message--pending');
-        msgDiv.classList.add('message--failed');
+        msgDiv.classList.remove('tw-chat-message--pending');
+        msgDiv.classList.add('tw-chat-message--failed');
     }
 
     getMessageDiv(message_id) {
-        return $(`.message[data-message-id="${message_id}"]`);
+        return $(`.tw-chat-message[data-message-id="${message_id}"]`);
     }
 
     scrollToMessage(message_id) {
         const message = this.getMessageDiv(message_id);
         if (!message) return false;
         message.scrollIntoView();
-        message.classList.add('msg-highlight');
-        setTimeout(() => message.classList.remove('msg-highlight'), 5000);
+        message.classList.add('tw-msg-highlight');
+        setTimeout(() => message.classList.remove('tw-msg-highlight'), 5000);
         return true;
     }
 
@@ -122,15 +122,15 @@ export default class DomApi {
         const msgDiv = this.getMessageDiv(message_id);
         if (!msgDiv) return;
         const total = upvotes + downvotes;
-        const barWrap = $('.vote-bar-wrap', msgDiv);
-        const barFill = $('.vote-bar-fill', msgDiv);
-        const barLabel = $('.vote-bar-label', msgDiv);
+        const barWrap = $('.tw-vote-bar-wrap', msgDiv);
+        const barFill = $('.tw-vote-bar-fill', msgDiv);
+        const barLabel = $('.tw-vote-bar-label', msgDiv);
         if (total >= 3) {
             const pct = Math.round((upvotes / total) * 100);
-            const cls = pct >= 60 ? 'vote-bar--positive' : (pct >= 40 ? 'vote-bar--neutral' : 'vote-bar--negative');
+            const cls = pct >= 60 ? 'tw-vote-bar--positive' : (pct >= 40 ? 'tw-vote-bar--neutral' : 'tw-vote-bar--negative');
             if (barFill) {
                 barFill.style.setProperty('--vote-progress', `${pct}%`);
-                barFill.className = `vote-bar-fill ${cls}`;
+                barFill.className = `tw-vote-bar-fill ${cls}`;
             }
             if (barLabel) barLabel.textContent = `${pct}% popiera`;
             if (barWrap) barWrap.style.display = '';
@@ -143,12 +143,12 @@ export default class DomApi {
 
     getMessageUpvotesCountDiv(message_id) {
         const msgDiv = this.getMessageDiv(message_id);
-        return msgDiv ? $(".msg-upvotes", msgDiv) : null;
+        return msgDiv ? $(".tw-msg-upvotes", msgDiv) : null;
     }
 
     getMessageDownvotesCountDiv(message_id) {
         const msgDiv = this.getMessageDiv(message_id);
-        return msgDiv ? $(".msg-downvotes", msgDiv) : null;
+        return msgDiv ? $(".tw-msg-downvotes", msgDiv) : null;
     }
 
     getVoteDiv(message_id, vote) {
@@ -160,12 +160,12 @@ export default class DomApi {
         this.getMessageTimeDiv(message_id).textContent = formatTime(ts);
         const msgDiv = this.getMessageDiv(message_id);
         if (msgDiv) {
-            const msgText = $(".msg-text", msgDiv);
+            const msgText = $(".tw-msg-text", msgDiv);
             if (msgText) {
                 msgText.dataset.raw = text;
                 msgText.innerHTML = this.wrapExpandable(this.formatMessage(text));
                 // Re-evaluate overflow after content change
-                msgText.querySelectorAll('.expandable').forEach(exp => exp.classList.remove('has-overflow'));
+                msgText.querySelectorAll('.tw-expandable').forEach(exp => exp.classList.remove('tw-has-overflow'));
                 requestAnimationFrame(() => this.markOverflow(msgText));
                 return msgText;
             }
@@ -176,13 +176,13 @@ export default class DomApi {
     updateMessageAttachments(message_id, attachments) {
         const message_div = this.getMessageDiv(message_id);
         if (!message_div) return;
-        const attachment_container = $('.attachment-image-container', message_div);
+        const attachment_container = $('.tw-attachment-image-container', message_div);
         if (!attachment_container) return;
         attachment_container.innerHTML = '';
         if (attachments?.images?.length > 0) {
             for (const filename of attachments.images) {
                 const img = document.createElement('img');
-                img.className = 'attached-image';
+                img.className = 'tw-attached-image';
                 img.loading = 'lazy';
                 img.src = `/media/uploads/${encodeAttachmentName(filename)}`;
                 attachment_container.appendChild(img);
@@ -193,23 +193,23 @@ export default class DomApi {
     showHistoryButton(message_id) {
         const msgDiv = this.getMessageDiv(message_id);
         if (msgDiv) {
-            $(".show-history", msgDiv).classList.remove('tw-d-none');
+            $(".tw-show-history", msgDiv).classList.remove('tw-d-none');
         }
     }
 
     getRoomType(room_id) {
-        return $(`.room-link[data-room-id="${room_id}"]`)?.getAttribute("data-room-type") ?? null;
+        return $(`.tw-room-link[data-room-id="${room_id}"]`)?.getAttribute("data-room-type") ?? null;
     }
 
     getLastMessageBanner() {
         const messagesDiv = this.getMessagesDiv();
-        return messagesDiv ? $$('.date-banner', messagesDiv) : [];
+        return messagesDiv ? $$('.tw-date-banner', messagesDiv) : [];
     }
 
     getMessageText(message_id) {
         const msgDiv = this.getMessageDiv(message_id);
         if (!msgDiv) return '';
-        const msgText = $(".msg-text", msgDiv);
+        const msgText = $(".tw-msg-text", msgDiv);
         if (!msgText) return '';
         return msgText.dataset.raw ?? msgText.innerHTML ?? '';
     }
@@ -220,42 +220,42 @@ export default class DomApi {
 
     // Wraps message in expandable shell — CSS max-height clips it; markOverflow() disables chrome when content fits.
     wrapExpandable(formattedHtml) {
-        return `<div class="expandable">` +
-            `<div class="expandable-body">${formattedHtml}</div>` +
-            `<div class="expandable-hint">… pokaż więcej</div>` +
+        return `<div class="tw-expandable">` +
+            `<div class="tw-expandable-body">${formattedHtml}</div>` +
+            `<div class="tw-expandable-hint">… pokaż więcej</div>` +
             `</div>`;
     }
 
     // After inserting into DOM, mark expandables that actually overflow — hint i klikalnosc dopiero po potwierdzeniu.
     markOverflow(container) {
-        container?.querySelectorAll('.expandable:not(.is-open)').forEach(exp => {
-            const body = exp.querySelector('.expandable-body');
+        container?.querySelectorAll('.tw-expandable:not(.tw-is-open)').forEach(exp => {
+            const body = exp.querySelector('.tw-expandable-body');
             if (!body) return;
-            exp.classList.toggle('has-overflow', body.scrollHeight > body.clientHeight);
+            exp.classList.toggle('tw-has-overflow', body.scrollHeight > body.clientHeight);
         });
     }
 
     getPreviewDiv() {
-        return $(".preview-images");
+        return $(".tw-preview-images");
     }
 
     getPreviewContainer() {
-        return $(`.image-preview-container`);
+        return $(`.tw-image-preview-container`);
     }
 
     seenChat(room_id) {
         const roomLink = this.getRoomLinkDiv(room_id);
-        roomLink?.classList.remove("room-not-seen");
+        roomLink?.classList.remove("tw-room-link--not-seen");
         // Swap unread dot → read circle
-        const unreadDot = roomLink?.querySelector('.nav-status--unread');
+        const unreadDot = roomLink?.querySelector('.tw-nav-status--unread');
         if (unreadDot) {
-            unreadDot.classList.remove('nav-status--unread');
-            unreadDot.classList.add('nav-status--read');
+            unreadDot.classList.remove('tw-nav-status--unread');
+            unreadDot.classList.add('tw-nav-status--read');
             unreadDot.removeAttribute('aria-label');
             unreadDot.setAttribute('aria-hidden', 'true');
         }
         this.setRoomSeenIconState(room_id, true);
-        if ($$('.room-not-seen').length === 0) {
+        if ($$('.tw-room-link--not-seen').length === 0) {
             removeNotification();
         }
         // Trigger unread filter update if it's active
@@ -267,12 +267,12 @@ export default class DomApi {
     updateOnline(room_id, is_online) {
         const room_link = this.getRoomLinkDiv(room_id);
         if (!room_link) return;
-        room_link.classList.toggle('online', is_online);
-        room_link.classList.toggle('offline', !is_online);
+        room_link.classList.toggle('tw-room-link--online', is_online);
+        room_link.classList.toggle('tw-room-link--offline', !is_online);
     }
 
     getMessageTimeDiv(message_id) {
-        return $(`.message-timestamp[data-message-id="${message_id}"]`);
+        return $(`.tw-message-timestamp[data-message-id="${message_id}"]`);
     }
 
     getMessageInput() {
@@ -298,7 +298,7 @@ export default class DomApi {
     }
 
     getAnonymousValue() {
-        return $(`#anonymous-toggle`)?.classList.contains('active') ?? false;
+        return $(`#anonymous-toggle`)?.classList.contains('tw-active') ?? false;
     }
 
     getFileInput() {
@@ -378,7 +378,7 @@ export default class DomApi {
     getLatestOwnMessage() {
         const messagesDiv = this.getMessagesDiv();
         if (!messagesDiv) return null;
-        const ownMessages = $$('.message.own', messagesDiv);
+        const ownMessages = $$('.tw-chat-message.tw-chat-message--own', messagesDiv);
         return ownMessages.length > 0 ? ownMessages[ownMessages.length - 1] : null;
     }
 
@@ -387,7 +387,7 @@ export default class DomApi {
     }
 
     removeNoMessagesBanner() {
-        $('.empty-chat-message')?.remove();
+        $('.tw-empty-chat-message')?.remove();
     }
 
     setRoomTitle(title) {
@@ -396,7 +396,7 @@ export default class DomApi {
     }
 
     setRoomNotifications(room_id, is_enabled) {
-        const btn = $(`.notif-switch[data-room-id='${room_id}']`);
+        const btn = $(`.tw-notif-switch[data-room-id='${room_id}']`);
         if (!btn) return;
         btn.disabled = false;
         btn.dataset.enabled = is_enabled;
@@ -405,16 +405,16 @@ export default class DomApi {
             icon.classList.toggle('fa-bell', is_enabled);
             icon.classList.toggle('fa-bell-slash', !is_enabled);
         }
-        const label = btn.querySelector('.notif-label');
+        const label = btn.querySelector('.tw-notif-label');
         if (label) label.textContent = is_enabled ? _('Mute room') : _('Unmute room');
-        const meta = btn.closest('.room-link')?.querySelector('.room-link__meta');
+        const meta = btn.closest('.tw-room-link')?.querySelector('.tw-room-link-meta');
         if (meta) {
             meta.dataset.muted = is_enabled ? 'false' : 'true';
-            let mutedIcon = meta.querySelector('.room-link__muted-icon');
+            let mutedIcon = meta.querySelector('.tw-room-link-muted-icon');
             if (!is_enabled) {
                 if (!mutedIcon) {
                     mutedIcon = document.createElement('i');
-                    mutedIcon.className = 'fas fa-bell-slash room-link__muted-icon';
+                    mutedIcon.className = 'fas fa-bell-slash tw-room-link-muted-icon';
                     mutedIcon.title = _('Muted');
                     meta.appendChild(mutedIcon);
                 }
@@ -425,7 +425,7 @@ export default class DomApi {
     }
 
     setRoomSeenIconState(room_id, is_seen) {
-        const btn = $(`.seen-switch[data-room-id='${room_id}']`);
+        const btn = $(`.tw-seen-switch[data-room-id='${room_id}']`);
         if (!btn) return;
         btn.dataset.seen = is_seen.toString();
         const icon = $("i", btn);
@@ -440,13 +440,13 @@ export default class DomApi {
         if (messagesDiv) messagesDiv.innerHTML = '';
         this.clearFiles();
         this.stopEditing();
-        messagesDiv?.insertAdjacentHTML('beforeend', "<p class='empty-chat-message'>" + _("Loading...") + "</p>");
+        messagesDiv?.insertAdjacentHTML('beforeend', "<p class='tw-empty-chat-message'>" + _("Loading...") + "</p>");
     }
 
     showCopyFeedback(button, message, success) {
         if (!button) return;
         const tooltip = document.createElement('span');
-        tooltip.className = "copy-feedback tw-badge-status";
+        tooltip.className = "tw-copy-feedback tw-badge-status";
         tooltip.textContent = message;
         tooltip.classList.add(success ? 'tw-badge-success' : 'tw-badge-danger');
         button.appendChild(tooltip);
@@ -461,7 +461,7 @@ export default class DomApi {
         const message_div = this.getMessageDiv(message_id);
         const attachments = { images: [] };
         if (message_div) {
-            $$('.attached-image', message_div).forEach(img => {
+            $$('.tw-attached-image', message_div).forEach(img => {
                 const encoded = img.getAttribute('src').split('/').pop();
                 attachments.images.push(decodeURIComponent(encoded));
             });
@@ -480,16 +480,16 @@ export default class DomApi {
         for (let i = 0; i < attachments.images.length; i++) {
             const filename = attachments.images[i];
             const wrapper = document.createElement('div');
-            wrapper.className = 'image-preview-wrapper';
+            wrapper.className = 'tw-image-preview-wrapper';
 
             const img = document.createElement('img');
-            img.className = 'image-preview';
+            img.className = 'tw-image-preview';
             img.id = `preview-existing-${i}`;
             img.src = `/media/uploads/${encodeAttachmentName(filename)}`;
             img.setAttribute('data-filename', filename);
 
             const btn = document.createElement('button');
-            btn.className = 'tw-btn tw-btn-sm tw-btn-danger remove-existing-attachment image-preview-remove';
+            btn.className = 'tw-btn tw-btn-sm tw-btn-danger tw-remove-existing-attachment tw-image-preview-remove';
             btn.setAttribute('data-filename', filename);
             btn.type = 'button';
             btn.textContent = '×';
@@ -526,7 +526,7 @@ export default class DomApi {
         if (!bc) return;
         bc.innerHTML = parts.map((p, i) =>
             `<span class="bc-seg${p.active ? ' bc-seg--active' : ''}">${p.label}</span>` +
-            (i < parts.length - 1 ? '<span class="bc-sep" aria-hidden="true"> › </span>' : '')
+            (i < parts.length - 1 ? '<span class="tw-bc-sep" aria-hidden="true"> › </span>' : '')
         ).join('');
     }
 
@@ -535,7 +535,7 @@ export default class DomApi {
     // podejmuje decyzji, który panel jest widoczny.
 
     updateSidebarForMessage(msg, {reorder = true, bumpActivity = reorder} = {}) {
-        const roomLink = document.querySelector(`.room-link[data-room-id="${msg.room_id}"]`);
+        const roomLink = document.querySelector(`.tw-room-link[data-room-id="${msg.room_id}"]`);
         if (!roomLink) return;
 
         // Pull the room out of archive as soon as a new message arrives.
@@ -543,30 +543,30 @@ export default class DomApi {
         if ((msg.new || msg.own) && roomLink.dataset.roomArchived === 'true') {
             roomLink.dataset.roomArchived = 'false';
             if (msg.own) {
-                roomLink.classList.remove('room-not-seen');
+                roomLink.classList.remove('tw-room-link--not-seen');
             } else {
-                roomLink.classList.add('room-not-seen');
+                roomLink.classList.add('tw-room-link--not-seen');
             }
-            const statusEl = roomLink.querySelector('.room-link__status');
+            const statusEl = roomLink.querySelector('.tw-room-link-status');
             if (statusEl) {
                 if (msg.own) {
-                    statusEl.innerHTML = '<span class="nav-status nav-status--read" aria-hidden="true"></span>';
+                    statusEl.innerHTML = '<span class="tw-nav-status tw-nav-status--read" aria-hidden="true"></span>';
                 } else {
-                    statusEl.innerHTML = '<span class="nav-status nav-status--unread" aria-label="' + _('Unread') + '"></span>';
+                    statusEl.innerHTML = '<span class="tw-nav-status tw-nav-status--unread" aria-label="' + _('Unread') + '"></span>';
                 }
             }
         }
 
         if (bumpActivity) {
             roomLink.dataset.lastActivity = Math.floor(msg.timestamp / 1000);
-            const dateEl = roomLink.querySelector('.room-link__date');
+            const dateEl = roomLink.querySelector('.tw-room-link-date');
             if (dateEl) dateEl.textContent = _relativeChatDate(msg.timestamp);
         }
 
-        const senderEl = roomLink.querySelector('.room-link__sender');
+        const senderEl = roomLink.querySelector('.tw-room-link-sender');
         if (senderEl) senderEl.textContent = (msg.username || '—') + ':';
 
-        const snippetEl = roomLink.querySelector('.room-link__snippet');
+        const snippetEl = roomLink.querySelector('.tw-room-link-snippet');
         if (snippetEl) {
             const tmp = document.createElement('div');
             tmp.innerHTML = msg.message || '';
@@ -575,7 +575,7 @@ export default class DomApi {
         }
 
         if (reorder) {
-            const container = roomLink.closest('.nav-cat-content, #room-list-flat');
+            const container = roomLink.closest('.tw-chat-cat-content, #room-list-flat');
             if (container && container.firstElementChild !== roomLink) {
                 container.prepend(roomLink);
             }

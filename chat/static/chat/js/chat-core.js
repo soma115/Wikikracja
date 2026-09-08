@@ -143,12 +143,12 @@ export function voteButtonTitle(label, voters) {
  */
 export function createVoteHandler(sendVote) {
     return function(e) {
-        const btn = e.target.closest('.msg-vote');
+        const btn = e.target.closest('.tw-msg-vote');
         if (!btn) return;
         const eventName = btn.dataset.eventName;
         const messageId = btn.dataset.messageId;
         if (!eventName || !messageId) return;
-        const isAdd = !btn.classList.contains('active');
+        const isAdd = !btn.classList.contains('tw-active');
         sendVote(eventName, messageId, isAdd);
     };
 }
@@ -160,7 +160,7 @@ export function createVoteHandler(sendVote) {
  */
 export function createReactionHandler(sendReaction) {
     return function(e) {
-        const btn = e.target.closest('.reaction-btn');
+        const btn = e.target.closest('.tw-reaction-btn');
         if (!btn) return;
         const reaction = btn.dataset.reaction;
         const messageId = btn.dataset.messageId;
@@ -179,7 +179,7 @@ export function createReactionHandler(sendReaction) {
  */
 export function createReplyHandler(setReplyTarget, replyPreview, replyPreviewText, inputEl) {
     return function(e) {
-        const replyBtn = e.target.closest('.reply-btn');
+        const replyBtn = e.target.closest('.tw-reply-btn');
         if (!replyBtn) return;
         const messageId = replyBtn.dataset.messageId;
         const username = replyBtn.dataset.username;
@@ -198,7 +198,7 @@ export function createReplyHandler(setReplyTarget, replyPreview, replyPreviewTex
  */
 export function createEditHandler(startEdit, inputEl) {
     return function(e) {
-        const editBtn = e.target.closest('.edit-message');
+        const editBtn = e.target.closest('.tw-edit-message');
         if (!editBtn) return;
         const messageId = editBtn.dataset.messageId;
         if (!messageId) return;
@@ -225,8 +225,8 @@ export function createQuoteJumpHandler(containerOrGetter) {
         btn.type = 'button';
         btn.innerHTML = '↙';
         btn.title = 'Wróć do odpowiedzi';
-        (targetMsg.querySelector('.message-content') || targetMsg).appendChild(btn);
-        requestAnimationFrame(() => btn.classList.add('visible'));
+        (targetMsg.querySelector('.tw-chat-message-content') || targetMsg).appendChild(btn);
+        requestAnimationFrame(() => btn.classList.add('tw-visible'));
         const container = getContainer();
         if (container) {
             let listenActive = false;
@@ -249,29 +249,29 @@ export function createQuoteJumpHandler(containerOrGetter) {
             retBtn._removeScroll?.();
             retBtn.remove();
             if (_sourceMessageId) {
-                const src = (getContainer() || document).querySelector(`.message[data-message-id="${_sourceMessageId}"]`);
+                const src = (getContainer() || document).querySelector(`.tw-chat-message[data-message-id="${_sourceMessageId}"]`);
                 src?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 _sourceMessageId = null;
             }
             return;
         }
 
-        const jumpBtn = e.target.closest('.msg-quote-jump') || e.target.closest('.msg-quote');
+        const jumpBtn = e.target.closest('.tw-msg-quote-jump') || e.target.closest('.tw-msg-quote');
         if (!jumpBtn) return;
         const targetId = jumpBtn.dataset.targetId || jumpBtn.dataset.replyId
-            || jumpBtn.closest('.msg-quote')?.dataset.replyId;
+            || jumpBtn.closest('.tw-msg-quote')?.dataset.replyId;
         if (!targetId) return;
-        const currentMsg = jumpBtn.closest('.message');
+        const currentMsg = jumpBtn.closest('.tw-chat-message');
         if (currentMsg) _sourceMessageId = currentMsg.dataset.messageId;
         const container = getContainer();
-        const targetMsg = container?.querySelector(`.message[data-message-id="${targetId}"]`)
-            || document.querySelector(`.message[data-message-id="${targetId}"]`);
+        const targetMsg = container?.querySelector(`.tw-chat-message[data-message-id="${targetId}"]`)
+            || document.querySelector(`.tw-chat-message[data-message-id="${targetId}"]`);
         if (targetMsg) {
             targetMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            targetMsg.classList.remove('msg-highlighted');
+            targetMsg.classList.remove('tw-msg-highlighted');
             void targetMsg.offsetWidth;
-            targetMsg.classList.add('msg-highlighted');
-            setTimeout(() => targetMsg.classList.remove('msg-highlighted'), 2000);
+            targetMsg.classList.add('tw-msg-highlighted');
+            setTimeout(() => targetMsg.classList.remove('tw-msg-highlighted'), 2000);
             showReturnBtn(targetMsg);
         }
     };
@@ -286,14 +286,14 @@ export function createQuoteJumpHandler(containerOrGetter) {
 export function createCopyLinkHandler(copyRoomLink, copyMessageLink) {
     return {
         roomLinkHandler: function(e) {
-            const btn = e.target.closest('.copy-room-url');
+            const btn = e.target.closest('.tw-copy-room-url');
             if (!btn) return;
             const roomId = btn.dataset.roomId;
             if (!roomId) return;
             copyRoomLink(roomId, btn);
         },
         messageLinkHandler: function(e) {
-            const btn = e.target.closest('.copy-message-url');
+            const btn = e.target.closest('.tw-copy-message-url');
             if (!btn) return;
             const roomId = btn.dataset.roomId;
             const messageId = btn.dataset.messageId;
@@ -310,7 +310,7 @@ export function createCopyLinkHandler(copyRoomLink, copyMessageLink) {
  */
 export function createHistoryHandler(showHistory) {
     return function(e) {
-        const btn = e.target.closest('.show-history');
+        const btn = e.target.closest('.tw-show-history');
         if (!btn) return;
         const messageId = btn.dataset.messageId;
         if (!messageId) return;
@@ -327,7 +327,7 @@ export function createHistoryHandler(showHistory) {
  */
 export function createFileUploadHandler(handleFiles, previewContainer, previewImagesDiv) {
     return function(e) {
-        if (!e.target.classList.contains('file-input')) return;
+        if (!e.target.classList.contains('tw-file-input')) return;
         const files = e.target.files;
         if (!files || files.length === 0) return;
         handleFiles(files, previewContainer, previewImagesDiv);
@@ -344,24 +344,24 @@ export function openBigImage(srcs, startIndex = 0) {
 
     const overlay = document.createElement('div');
     overlay.id = 'image-viewer-overlay';
-    overlay.className = 'image-viewer-overlay';
+    overlay.className = 'tw-image-viewer-overlay';
     overlay.innerHTML = `
-        <button class="image-viewer-close" aria-label="Close">&times;</button>
-        <button class="image-viewer-nav image-viewer-prev" aria-label="Previous">&#10094;</button>
-        <button class="image-viewer-nav image-viewer-next" aria-label="Next">&#10095;</button>
-        <div class="image-viewer-container">
-            <img class="image-viewer-img" src="" alt="">
+        <button class="tw-image-viewer-close" aria-label="Close">&times;</button>
+        <button class="tw-image-viewer-nav tw-image-viewer-prev" aria-label="Previous">&#10094;</button>
+        <button class="tw-image-viewer-nav tw-image-viewer-next" aria-label="Next">&#10095;</button>
+        <div class="tw-image-viewer-container">
+            <img class="tw-image-viewer-img" src="" alt="">
         </div>
-        <div class="image-viewer-counter"></div>
+        <div class="tw-image-viewer-counter"></div>
     `;
     document.body.appendChild(overlay);
     document.body.classList.add('tw-modal-open');
 
     let currentIndex = startIndex;
-    const imgEl = overlay.querySelector('.image-viewer-img');
-    const counterEl = overlay.querySelector('.image-viewer-counter');
-    const prevBtn = overlay.querySelector('.image-viewer-prev');
-    const nextBtn = overlay.querySelector('.image-viewer-next');
+    const imgEl = overlay.querySelector('.tw-image-viewer-img');
+    const counterEl = overlay.querySelector('.tw-image-viewer-counter');
+    const prevBtn = overlay.querySelector('.tw-image-viewer-prev');
+    const nextBtn = overlay.querySelector('.tw-image-viewer-next');
 
     function show(index) {
         currentIndex = (index + srcs.length) % srcs.length;
@@ -384,7 +384,7 @@ export function openBigImage(srcs, startIndex = 0) {
         if (e.key === 'ArrowRight') show(currentIndex + 1);
     }
 
-    overlay.querySelector('.image-viewer-close').addEventListener('click', close);
+    overlay.querySelector('.tw-image-viewer-close').addEventListener('click', close);
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
     prevBtn.addEventListener('click', (e) => { e.stopPropagation(); show(currentIndex - 1); });
     nextBtn.addEventListener('click', (e) => { e.stopPropagation(); show(currentIndex + 1); });
@@ -406,17 +406,17 @@ export function initFormattingToolbar(root, inputEl) {
     const resolveInput = typeof inputEl === 'function' ? inputEl : () => inputEl;
 
     function updateToolbarState() {
-        root.querySelectorAll('.fmt-btn[data-cmd]').forEach(btn => {
-            btn.classList.toggle('active', document.queryCommandState(btn.dataset.cmd));
+        root.querySelectorAll('.tw-fmt-btn[data-cmd]').forEach(btn => {
+            btn.classList.toggle('tw-active', document.queryCommandState(btn.dataset.cmd));
         });
     }
 
     root.addEventListener('mousedown', (e) => {
-        if (e.target.closest('.fmt-btn[data-cmd]')) e.preventDefault();
+        if (e.target.closest('.tw-fmt-btn[data-cmd]')) e.preventDefault();
     });
 
     root.addEventListener('click', (e) => {
-        const btn = e.target.closest('.fmt-btn[data-cmd]');
+        const btn = e.target.closest('.tw-fmt-btn[data-cmd]');
         if (!btn) return;
         document.execCommand(btn.dataset.cmd);
         updateToolbarState();
@@ -437,11 +437,11 @@ export function initFormattingToolbar(root, inputEl) {
  */
 export function createImageClickHandler() {
     return function(e) {
-        const img = e.target.closest('.attached-image');
+        const img = e.target.closest('.tw-attached-image');
         if (!img) return;
-        const container = img.closest('.attachment-image-container');
+        const container = img.closest('.tw-attachment-image-container');
         if (!container) return;
-        const images = Array.from(container.querySelectorAll('.attached-image'));
+        const images = Array.from(container.querySelectorAll('.tw-attached-image'));
         openBigImage(images.map(i => i.src), images.indexOf(img));
     };
 }

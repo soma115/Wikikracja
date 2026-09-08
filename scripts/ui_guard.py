@@ -26,18 +26,12 @@ TOKENS_FILE = BASE_DIR / 'home' / 'static' / 'home' / 'css' / 'tokens.css'
 
 IGNORED_DIRS = {'.git', '.venv', 'venv', 'node_modules', 'static', '__pycache__', '.ruff_cache', '.pytest_cache', '.mypy_cache', 'media', '.idea'}
 
-# Paths intentionally exempt from full UI guard (active reworks, docs, allauth).
+# Paths intentionally exempt from full UI guard (docs, allauth).
 EXEMPT_FILES = {
     'docs/UI_STANDARDS.html',
-    'chat/templates/chat/chat.html',
-    'chat/static/chat/js/utility.js',
-    'chat/static/chat/js/templates.js',
-    'chat/static/chat/js/chat.js',
-    'chat/static/chat/js/handlers.js',
-    'chat/static/chat/js/chat-embedded.js',
 }
 
-EXEMPT_PREFIXES = ('templates/allauth/', 'chat/')
+EXEMPT_PREFIXES = ('templates/allauth/',)
 
 # Allow-list for non-tw-* semantic hooks. Each entry is a regex.
 FONTAWESOME_PREFIXES = {'fas', 'far', 'fab', 'fal', 'fa-fw'}
@@ -47,21 +41,6 @@ ALLOWED_NON_TW_CLASSES = [
     r'^tw-mig-hidden$',
     r'^user-row$',
     r'^citizen-tab-empty$',
-    r'^room-link.*',
-    r'^room-list-groups$',
-    r'^archive-section$',
-    r'^nav-cat-content$',
-    r'^message$',
-    r'^msg-vote$',
-    r'^reaction-btn.*',
-    r'^filtered-out$',
-    r'^room-not-seen$',
-    r'^compose-box$',
-    r'^message-input-rich$',
-    r'^fmt-btn$',
-    r'^vote-bar-fill$',
-    r'^reply-preview.*',
-    r'^date-banner$',
     r'^empty-state-icon$',
     r'^proposals-empty$',
     r'^tasks-empty$',
@@ -69,24 +48,17 @@ ALLOWED_NON_TW_CLASSES = [
     r'^sp-cb$',
     r'^filter-btn-.*',
     r'^btn-mark-all$',
-    r'^avatar-.*',
     r'^badge-.*',
     r'^proposal-card.*',
     r'^task-card.*',
     r'^arg-.*',
     r'^info-icon-btn$',
     r'^cat-filter.*',
-    r'^sort-btn.*',
     r'^view-toggle-btn.*',
     r'^view-label$',
-    r'^sort-arrow$',
     r'^search-result-link$',
     r'^notif-banner-wrap$',
-    r'^chat-has-messages$',
     r'^text-muted$',
-    r'^active$',
-    r'^open$',
-    r'^visible$',
     r'^hidden$',
     r'^disabled$',
     r'^readonly$',
@@ -103,6 +75,7 @@ ALLOWED_NON_TW_CLASSES = [
     r'^dot-private$',
     r'^email-.*',
     r'^user-name$',
+    r'^citizen-color-.*',
     r'^task-meta-status-.*',
 ]
 
