@@ -7,12 +7,7 @@ from zzz.templatetags.citizen_filters import citizen_color_class, user_display_n
 
 def _user(username='jkowalski', first_name='', last_name=''):
     """Minimalni user z interfejsem Django User potrzebnym helperom."""
-    return SimpleNamespace(
-        username=username,
-        first_name=first_name,
-        last_name=last_name,
-        get_full_name=lambda: f'{first_name} {last_name}'.strip(),
-    )
+    return SimpleNamespace(username=username, first_name=first_name, last_name=last_name, get_full_name=lambda: f'{first_name} {last_name}'.strip())
 
 
 class UserDisplayNameTest(SimpleTestCase):

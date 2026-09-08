@@ -244,7 +244,6 @@ def global_search(request: HttpRequest):
     return render(request, 'home/search.html', {'query': query, 'results': results, 'active_cats': active_cats, 'all_cats_selected': active_cats == set(ALL_SEARCH_CATS), 'search_categories': search_categories})
 
 
-
 @login_required
 def haslo(request: HttpRequest):
     if request.method == 'POST':

@@ -7,11 +7,6 @@ Przed zmian pokaż mi co zamierzasz zrobić.
 
 ## CZAT
 
-- Czat: Jeśli nie ma wiadomości nieprzeczytanych w czacie i użytkownik wchodzi na czat, to wyłączaj automatycznie guzik "Pokaż tylko nieprzeczytane pokoje"
-
-- Kiedy użytkownik wchodzi do czatu z dowolnego miejsca i ma wcześniej zaznaczony guzik "pokaż tylko nieprzeczytane pokoje" albo kliknął guzik @view=unread to kategorie, w których są te nieprzeczytane pokoje powinny być automatycznie rozwijane.
-
-
 - W głównym menu, jeśli są wiadomości nieprzeczytane na czacie, to link czatu jest podświetlony. To podświetlenie jest zbyt wyraziste. Zrób je bardziej dyskretnie.
 
 

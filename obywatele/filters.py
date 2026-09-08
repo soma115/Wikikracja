@@ -25,4 +25,3 @@ class UzytkownikFilter(django_filters.FilterSet):
     class Meta:
         model = Uzytkownik
         fields = ['city', 'responsibilities', 'hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'skills', 'knowledge', 'want_to_learn', 'business', 'job', 'other', 'why']
-
