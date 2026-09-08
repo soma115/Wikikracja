@@ -1,12 +1,8 @@
-{% extends 'home/base.html' %}
+{% extends 'bookkeeping/menu.html' %}
 {% load i18n %}
 {% load bookkeeping_extras %}
 
-{% block prefs_scope %}bookkeeping{% endblock %}
-
-{% block content %}
-{% include 'home/includes/toolbar.html' %}
-
+{% block bookkeeping %}
   <!-- Year selector -->
   <div class="tw-grid tw-grid-cols-12 tw-gap-3 tw-mb-4">
     <div class="tw-col-span-12 md:tw-col-span-4">

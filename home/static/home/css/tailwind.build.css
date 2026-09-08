@@ -3809,11 +3809,6 @@ th.tw-notes-col,
   font-size: .85rem;
 }
 
-.tw-filter-btn-unread {
-  color: var(--badge-proposition-color);
-  border-color: var(--badge-proposition-border);
-}
-
 .tw-citizen-color-0 {
   background-color: var(--citizen-color-0);
 }
@@ -6945,6 +6940,25 @@ input.tw-form-switch:focus,
   font-weight: 500;
 }
 
+/* Monochrome square-outline variant (activity filter row 1). */
+
+.tw-sort-btn--square {
+  border-radius: 0;
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.tw-sort-btn--square:hover {
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.tw-sort-btn--square.tw-active {
+  background: var(--text-primary);
+  color: var(--bg-base);
+  border-color: var(--text-primary);
+}
+
 .tw-sort-btn-label {
   font-size: 0.78rem;
 }
@@ -9959,6 +9973,10 @@ body.tw-chat-page .tw-main-area {
 
 .tw-items-center {
   align-items: center;
+}
+
+.tw-items-stretch {
+  align-items: stretch;
 }
 
 .tw-justify-end {

@@ -1,11 +1,9 @@
-{% extends 'home/base.html' %}
+{% extends 'bookkeeping/menu.html' %}
 {% load i18n %}
 {% load bookkeeping_extras %}
 {% load feed_filters %}
 
-{% block prefs_scope %}bookkeeping{% endblock %}
-
-{% block content %}
+{% block bookkeeping %}
 {% include 'home/includes/toolbar.html' %}
 
   {# Pasek sald per asset — cała historia, default first. Tooltip zawiera szczegóły income/expenses. #}

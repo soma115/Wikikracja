@@ -1,0 +1,12 @@
+{% extends 'home/base.html' %}
+{% load i18n %}
+{% load bookkeeping_extras %}
+
+{% block prefs_scope %}bookkeeping{% endblock %}
+
+{% block content %}
+  {% bookkeeping_active_tab as active %}
+  {% include 'bookkeeping/_nav.html' with active=active %}
+
+  {% block bookkeeping %}{% endblock %}
+{% endblock %}

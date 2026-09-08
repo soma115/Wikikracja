@@ -1,7 +1,6 @@
 {% extends 'bookkeeping/confirm_delete.html' %}
 {% load i18n %}
 
-{% block nav %}{% include 'bookkeeping/_nav.html' with active='assets' %}{% endblock %}
 {% block header_title %}{% trans "Delete asset" %}: {{ object.name }}{% endblock %}
 {% block dependencies_header %}{% trans "This asset is used in the following transactions:" %}{% endblock %}
 {% block related_column_header %}{% trans "Partner" %}{% endblock %}

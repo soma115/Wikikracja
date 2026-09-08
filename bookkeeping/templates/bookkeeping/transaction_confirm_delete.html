@@ -1,7 +1,6 @@
 {% extends 'bookkeeping/confirm_delete.html' %}
 {% load i18n %}
 
-{% block nav %}{% include 'bookkeeping/_nav.html' with active='transactions' %}{% endblock %}
 {% block header_title %}{% trans "Delete Transaction" %}{% endblock %}
 {% block confirm_question %}{% trans "Are you sure you want to delete this transaction?" %}{% endblock %}
 {% block object_details %}

@@ -1,11 +1,9 @@
-{% extends 'home/base.html' %}
+{% extends 'bookkeeping/menu.html' %}
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-{% block content %}
+{% block bookkeeping %}
 <div class="tw-container tw-mt-4">
-  {% include 'bookkeeping/_nav.html' with active='partners' %}
-
   <div class="tw-card">
     <div class="tw-card-body">
       <form method="post">

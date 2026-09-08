@@ -2,7 +2,7 @@ import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import redirect, render
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
@@ -56,17 +56,9 @@ class ProtectedDeleteView(LoginRequiredMixin, DeleteView):
 # #########################  Asset ###########################
 
 
-def _bookkeeping_toolbar(active_item, create_url=None, create_label=None):
-    """Build toolbar data for bookkeeping list views."""
-    items = [
-        {'name': 'transactions', 'label': _('Transactions'), 'url_name': 'bookkeeping:transaction_list', 'pre_icon': 'money-bill-transfer'},
-        {'name': 'partners', 'label': _('Partners'), 'url_name': 'bookkeeping:partner_list', 'pre_icon': 'handshake'},
-        {'name': 'categories', 'label': _('Categories'), 'url_name': 'bookkeeping:category_list', 'pre_icon': 'tags'},
-        {'name': 'assets', 'label': _('Assets'), 'url_name': 'bookkeeping:asset_list', 'pre_icon': 'coins'},
-        {'name': 'reports', 'label': _('Reports'), 'url_name': 'bookkeeping:report_list', 'pre_icon': 'chart-pie'},
-    ]
-    sort_items = [{'label': item['label'], 'url': reverse(item['url_name']), 'active': item['name'] == active_item, 'pre_icon': item['pre_icon']} for item in items]
-    ctx = {'sort_items': sort_items, 'cta_end': True}
+def _bookkeeping_toolbar(create_url=None, create_label=None):
+    """Build CTA context for the shared toolbar in bookkeeping list views."""
+    ctx = {'cta_end': True}
     if create_url:
         ctx['cta_url'] = create_url
         ctx['cta_label'] = create_label or _('Add')
@@ -75,23 +67,21 @@ def _bookkeeping_toolbar(active_item, create_url=None, create_label=None):
 
 
 class BookkeepingListView(LoginRequiredMixin, ListView):
-    """ListView wstrzykujący wspólny toolbar modułu bookkeeping."""
+    """ListView injecting the shared add-button toolbar."""
 
-    toolbar_item = None
     create_url_name = None
     create_label = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         create_url = reverse_lazy(self.create_url_name) if self.create_url_name else None
-        context.update(_bookkeeping_toolbar(self.toolbar_item, create_url=create_url, create_label=self.create_label))
+        context.update(_bookkeeping_toolbar(create_url=create_url, create_label=self.create_label))
         return context
 
 
 class AssetListView(BookkeepingListView):
     model = Asset
     template_name = 'bookkeeping/asset_list.html'
-    toolbar_item = 'assets'
     create_url_name = 'bookkeeping:asset_create'
     create_label = _('Add asset')
 
@@ -124,7 +114,6 @@ class AssetDeleteView(ProtectedDeleteView):
 class CategoryListView(BookkeepingListView):
     model = Category
     template_name = 'bookkeeping/category_list.html'
-    toolbar_item = 'categories'
     create_url_name = 'bookkeeping:category_create'
     create_label = _('Add category')
 
@@ -155,7 +144,6 @@ class PartnerListView(BookkeepingListView):
     model = Partner
     template_name = 'bookkeeping/partner_list.html'
     context_object_name = 'partners'
-    toolbar_item = 'partners'
     create_url_name = 'bookkeeping:partner_create'
     create_label = _('Add partner')
 
@@ -216,7 +204,6 @@ class TransactionListView(BookkeepingListView):
     model = Transaction
     template_name = 'bookkeeping/transaction_list.html'
     context_object_name = 'transactions'
-    toolbar_item = 'transactions'
     create_url_name = 'bookkeeping:transaction_create'
     create_label = _('Add transaction')
 
@@ -333,7 +320,6 @@ class ReportView(LoginRequiredMixin, View):
             'year': year,
             'available_years': available_years,
         }
-        context.update(_bookkeeping_toolbar('reports'))
 
         return render(request, self.template_name, context)
 

@@ -15,6 +15,7 @@ from bookkeeping.views import AssetDeleteView
 User = get_user_model()
 
 LIST_URL_NAMES = ('bookkeeping:transaction_list', 'bookkeeping:partner_list', 'bookkeeping:category_list', 'bookkeeping:asset_list', 'bookkeeping:report_list')
+CTA_LIST_URL_NAMES = ('bookkeeping:transaction_list', 'bookkeeping:partner_list', 'bookkeeping:category_list', 'bookkeeping:asset_list')
 
 
 class BookkeepingViewTests(TestCase):
@@ -32,11 +33,13 @@ class BookkeepingViewTests(TestCase):
     def _transaction(self, author=None):
         return Transaction.objects.create(type='I', asset=self.asset, category=self.category, partner=self.partner, amount=10, author=author or self.user)
 
-    def test_list_views_render_with_toolbar(self):
+    def test_list_views_render_with_menu_and_cta(self):
         for url_name in LIST_URL_NAMES:
             res = self.client.get(reverse(url_name))
             self.assertEqual(res.status_code, 200, url_name)
-            self.assertIn('sort_items', res.context)
+        for url_name in CTA_LIST_URL_NAMES:
+            res = self.client.get(reverse(url_name))
+            self.assertIn('cta_url', res.context, url_name)
 
     def test_views_require_login(self):
         client = Client()

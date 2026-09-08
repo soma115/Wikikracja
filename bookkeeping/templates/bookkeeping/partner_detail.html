@@ -1,10 +1,8 @@
-{% extends 'home/base.html' %}
+{% extends 'bookkeeping/menu.html' %}
 {% load i18n %}
 
-{% block content %}
+{% block bookkeeping %}
 <div class="tw-container tw-mt-4">
-  {% include 'bookkeeping/_nav.html' with active='partners' %}
-
   <div class="tw-card">
     <div class="tw-card-header tw-bg-info tw-text-white tw-flex tw-justify-between tw-items-center">
       <h4 class="tw-mb-0">{{ partner.name }}</h4>
