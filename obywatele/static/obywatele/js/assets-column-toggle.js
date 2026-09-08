@@ -92,16 +92,16 @@ document.addEventListener('DOMContentLoaded', function() {
         headerCells.forEach((th, index) => {
             const fieldName = columnIndexToFieldName[index];
             if (fieldName) {
-                th.style.display = visibleColumns.includes(fieldName) ? '' : 'none';
+                th.classList.toggle('tw-d-none', !visibleColumns.includes(fieldName));
             }
         });
-        
+
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
             cells.forEach((td, index) => {
                 const fieldName = columnIndexToFieldName[index];
                 if (fieldName) {
-                    td.style.display = visibleColumns.includes(fieldName) ? '' : 'none';
+                    td.classList.toggle('tw-d-none', !visibleColumns.includes(fieldName));
                 }
             });
         });
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             rows.forEach(row => {
                 const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
+                row.classList.toggle('tw-d-none', !text.includes(searchTerm));
             });
         });
     }

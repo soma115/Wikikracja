@@ -21,7 +21,7 @@
   </div>
 
   {# ── GRID (alternative view) ── #}
-  <div class="tw-proposals-list mig-hidden" data-view-only="grid">
+  <div class="tw-proposals-list tw-d-none" data-view-only="grid">
     {% for occ in occurrences %}
       <div data-date="{{ occ.date|date:'Y-m-d' }}">
         {% include 'events/_event_card.html' %}
@@ -30,7 +30,7 @@
   </div>
 </div>
 
-<div class="tw-events-empty{% if occurrences %} tw-hidden{% endif %}">
+<div class="tw-events-empty{% if occurrences %} tw-d-none{% endif %}">
   <i class="fas fa-calendar-xmark fa-2x"></i>
   <div class="tw-events-empty-title">{% trans "No events in the selected month" %}</div>
   {% if user.is_authenticated %}
@@ -66,20 +66,20 @@
     activeFromDate = null;
     highlightSelectedDay(null);
     document.querySelectorAll('.tw-agenda-day, [data-view-only="grid"] [data-date]').forEach(function(el){
-      el.style.display = '';
+      el.classList.remove('tw-d-none');
     });
   }
 
   // Hide everything before `iso` (YYYY-MM-DD), reveal everything from `iso` onwards.
   function setFromDate(iso) {
     document.querySelectorAll('.tw-agenda-day').forEach(function(d){
-      d.style.display = d.id.replace('day-','') < iso ? 'none' : '';
+      d.classList.toggle('tw-d-none', d.id.replace('day-','') < iso);
     });
   }
 
   function setGridFromDate(iso) {
     document.querySelectorAll('[data-view-only="grid"] [data-date]').forEach(function(el){
-      el.style.display = el.dataset.date < iso ? 'none' : '';
+      el.classList.toggle('tw-d-none', el.dataset.date < iso);
     });
   }
 
@@ -93,7 +93,7 @@
       agenda.appendChild(node.cloneNode(true));
     });
 
-    if (emptyEl) emptyEl.classList.toggle('tw-hidden', Boolean(wrapper.querySelector('.tw-agenda-day')));
+    if (emptyEl) emptyEl.classList.toggle('tw-d-none', Boolean(wrapper.querySelector('.tw-agenda-day')));
   }
 
   function insertChunkIntoGrid(wrapper) {

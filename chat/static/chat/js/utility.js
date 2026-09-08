@@ -29,9 +29,8 @@ export function $$(selector, context = document) {
  * `@media (max-width: 767.98px)` w home/static/home/css/tailwind.css.
  * Fallback bez matchMedia dotyczy tylko środowisk testowych (jsdom).
  */
-export const mobileMedia = typeof window.matchMedia === 'function'
-    ? window.matchMedia('(max-width: 767.98px)')
-    : { matches: false, addEventListener() {}, removeEventListener() {} };
+export const mobileMedia = window.wkMobileMedia
+    ?? { matches: false, addEventListener() {}, removeEventListener() {} };
 
 /**
  * Reads the Django CSRF token from the `csrftoken` cookie.

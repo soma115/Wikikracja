@@ -252,11 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (frequencyField && ordinalFieldsRow) {
         function toggleOrdinalFields() {
-            if (frequencyField.value === 'monthly_ordinal') {
-                ordinalFieldsRow.style.display = '';
-            } else {
-                ordinalFieldsRow.style.display = 'none';
-            }
+            ordinalFieldsRow.classList.toggle('tw-d-none', frequencyField.value !== 'monthly_ordinal');
         }
 
         // Initial state
@@ -390,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (viewOnlyEls.length) {
             viewOnlyEls.forEach(function(el) {
                 var show = el.dataset.viewOnly === mode;
-                el.style.display = show ? '' : 'none';
+                el.classList.toggle('tw-d-none', !show);
                 if (show) {
                     if (mode === 'grid') el.classList.add('tw-view-grid');
                     else if (mode === 'compact') el.classList.add('tw-view-compact');
@@ -560,7 +556,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function setSidebarOpen(open) {
             if (sidebar) sidebar.classList.toggle('tw-sidebar-open', open);
-            if (overlay) overlay.style.display = open ? 'block' : 'none';
+            if (overlay) overlay.classList.toggle('tw-d-none', !open);
         }
 
         if (toggle) {
@@ -585,7 +581,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Swipe: right opens the sidebar, left on open sidebar closes it (mobile only).
         (function() {
             const MIN_DX = 60;
-            const mobileQuery = window.matchMedia('(max-width: 767.98px)');
+            const mobileQuery = window.wkMobileMedia || { matches: false };
             let startX = 0;
             let startY = 0;
             let tracking = false;
@@ -733,11 +729,11 @@ window.initActivityFeedToggleRead = function(containerSelector) {
                 // Visual unread styling
                 if (newRead) {
                     row.classList.remove('tw-unread-row');
-                    var title = row.querySelector('.feed-title');
+                    var title = row.querySelector('.tw-feed-title');
                     if (title) title.classList.remove('tw-font-semibold');
                 } else {
                     row.classList.add('tw-unread-row');
-                    var title = row.querySelector('.feed-title');
+                    var title = row.querySelector('.tw-feed-title');
                     if (title) title.classList.add('tw-font-semibold');
                 }
 
@@ -1222,17 +1218,17 @@ window.initCategoryFilter = function(options) {
 
         items.forEach(function(item) {
             var key = item.dataset.category || item.dataset.categoryPk || '';
-            item.style.display = (all || sel.indexOf(String(key)) !== -1) ? '' : 'none';
+            item.classList.toggle('tw-d-none', !(all || sel.indexOf(String(key)) !== -1));
         });
 
         sections.forEach(function(label) {
             var sib = label.nextElementSibling;
             var vis = false;
             while (sib && !sib.classList.contains('tw-tasks-section-label')) {
-                if (sib.matches(itemsSelector) && sib.style.display !== 'none') { vis = true; break; }
+                if (sib.matches(itemsSelector) && !sib.classList.contains('tw-d-none')) { vis = true; break; }
                 sib = sib.nextElementSibling;
             }
-            label.style.display = vis ? '' : 'none';
+            label.classList.toggle('tw-d-none', !vis);
         });
 
         if (all) {
@@ -1421,17 +1417,17 @@ document.addEventListener('DOMContentLoaded', function () {
             var targetId = btn.dataset.target;
             var section = document.getElementById(targetId);
             if (!section) return;
-            var isOpen = section.style.display !== 'none';
-            document.querySelectorAll('.tw-citizen-section').forEach(function (s) { s.style.display = 'none'; });
+            var isOpen = !section.classList.contains('tw-d-none');
+            document.querySelectorAll('.tw-citizen-section').forEach(function (s) { s.classList.add('tw-d-none'); });
             document.querySelectorAll('.tw-citizen-section-btn').forEach(function (b) { b.classList.remove('tw-active'); });
             if (isOpen) return;
             btn.classList.add('tw-active');
             if (section.dataset.loaded) {
-                section.style.display = 'block';
+                section.classList.remove('tw-d-none');
                 return;
             }
             section.innerHTML = '<div class="tw-p-3 tw-text-muted tw-text-sm">...</div>';
-            section.style.display = 'block';
+            section.classList.remove('tw-d-none');
             fetch(btn.dataset.url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(function (r) { return r.text(); })
                 .then(function (html) {
@@ -1468,8 +1464,8 @@ document.addEventListener('DOMContentLoaded', function () {
         var rows = body.querySelectorAll('.tw-activity-feed-row');
         var more = document.getElementById('activity-feed-more');
         if (!rows.length) return;
-        rows.forEach(function (r) { r.style.display = ''; });
-        if (more) more.style.display = 'none';
+        rows.forEach(function (r) { r.classList.remove('tw-d-none'); });
+        if (more) more.classList.add('tw-d-none');
         var cardH = card.clientHeight;
         var header = card.querySelector('.tw-card-header');
         var headerH = header ? header.offsetHeight : 0;
@@ -1484,13 +1480,13 @@ document.addEventListener('DOMContentLoaded', function () {
             if (used + rowH + (needMore ? moreH : 0) <= available) {
                 used += rowH;
             } else {
-                rows[i].style.display = 'none';
+                rows[i].classList.add('tw-d-none');
                 hidden = true;
-                for (var j = i + 1; j < rows.length; j++) rows[j].style.display = 'none';
+                for (var j = i + 1; j < rows.length; j++) rows[j].classList.add('tw-d-none');
                 break;
             }
         }
-        if (more) more.style.display = hidden ? 'block' : 'none';
+        if (more) more.classList.toggle('tw-d-none', !hidden);
     }
 
     if (document.readyState === 'loading') {

@@ -106,14 +106,14 @@
   list.addEventListener('dragstart', function(e) {
     if (e.target.classList.contains('tw-quick-link-item')) {
       draggedItem = e.target;
-      e.target.style.opacity = '0.5';
+      e.target.classList.add('tw-dragging');
       e.dataTransfer.effectAllowed = 'move';
     }
   });
 
   list.addEventListener('dragend', function(e) {
     if (e.target.classList.contains('tw-quick-link-item')) {
-      e.target.style.opacity = '1';
+      e.target.classList.remove('tw-dragging');
       draggedItem = null;
       saveOrder();
     }
@@ -150,13 +150,7 @@
       },
       body: 'reorder_quick_links=1&order=' + JSON.stringify(orderData)
     }).then(function(r) { return r.json(); }).then(function(data) {
-      if (data.ok) {
-        // Update order numbers in UI
-        items.forEach(function(item, index) {
-          var orderSpan = item.querySelector('.order-number');
-          if (orderSpan) orderSpan.textContent = '#' + index;
-        });
-      }
+      if (!data.ok) return;
     }).catch(function(err) {
       console.error('Error saving order:', err);
     });

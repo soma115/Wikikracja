@@ -39,9 +39,6 @@ EXEMPT_FILES = {'docs/UI_STANDARDS.html'}
 FONTAWESOME_PREFIXES = {'fas', 'far', 'fab', 'fal', 'fa-fw'}
 
 ALLOWED_NON_TW_CLASSES = [
-    # PagePrefs/JS visibility hook — toggled via inline style.display and must
-    # stay a plain (non-!important) class; deliberately not tw-*.
-    r'^mig-hidden$',
     # Django/crispy-forms validation state contract (home/templates/tw/*,
     # core/widgets.py, form JS) — semantic hook, not a component class.
     r'^is-invalid$',
@@ -66,18 +63,17 @@ ALLOWED_NON_TW_CLASSES = [
     r'^captcha$',
     # TinyMCE vendor classes.
     r'^tox-.*',
-    # Richtext/counter widget wrapper contract (core/widgets.py + CSS).
-    r'^richtext-wrapper$',
     # Transactional e-mail templates keep scoped classes — external mail
     # clients cannot consume the Tailwind pipeline (home/templates/emails/).
     r'^email-.*',
 ]
 
 # Inline style assignments that should be classes instead. `style.display` and
-# `style.setProperty('--var')` are excluded — PagePrefs view toggles and dynamic
-# CSS-variable updates are the sanctioned mechanisms.
+# `style.setProperty('--var')` is excluded — dynamic CSS-variable updates are the
+# sanctioned mechanism. `style.display` is also flagged: show/hide state must go
+# through `classList` + `tw-d-none`, never through inline style.
 JS_INLINE_STYLE_RE = re.compile(
-    r'\.style\.(?:cssText|opacity|visibility|color|background(?:Color)?|width|height'
+    r'\.style\.(?:cssText|display|opacity|visibility|color|background(?:Color)?|width|height'
     r'|minWidth|minHeight|maxWidth|maxHeight|fontSize|padding\w*|margin\w*|border\w*)\s*='
 )
 
@@ -233,8 +229,9 @@ class UIGuard:
 
     def _check_js(self, path):
         text = path.read_text(encoding='utf-8', errors='ignore')
-        for match in re.finditer(r"matchMedia\('\(max-width:\s*(\d+)", text):
-            self.warnings.append(f"{path}: hardcoded matchMedia breakpoint {match.group(1)}px; use shared breakpoints.js")
+        if path.name != 'breakpoints.js':
+            for match in re.finditer(r"matchMedia\('\(max-width:\s*(\d+)", text):
+                self.warnings.append(f"{path}: hardcoded matchMedia breakpoint {match.group(1)}px; use shared breakpoints.js")
         for i, line in enumerate(text.splitlines(), 1):
             self._js_inline_style_issues(line, i, path)
 
@@ -262,8 +259,9 @@ class UIGuard:
 
     def _check_js_lines(self, lines, path):
         for i, line in lines:
-            for match in re.finditer(r"matchMedia\('\(max-width:\s*(\d+)", line):
-                self.warnings.append(f"{path}:{i}: hardcoded matchMedia breakpoint {match.group(1)}px; use shared breakpoints.js")
+            if path.name != 'breakpoints.js':
+                for match in re.finditer(r"matchMedia\('\(max-width:\s*(\d+)", line):
+                    self.warnings.append(f"{path}:{i}: hardcoded matchMedia breakpoint {match.group(1)}px; use shared breakpoints.js")
             self._js_inline_style_issues(line, i, path)
 
     def check_file(self, path, lines=None, is_new_file=False):

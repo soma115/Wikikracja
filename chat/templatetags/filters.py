@@ -1,10 +1,7 @@
 from django import template
-from django.db.models import Count
 from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
-
-from chat.models import Room
 
 register = template.Library()
 
@@ -73,24 +70,3 @@ def is_muted_by(room, user):
     if hasattr(room, '_prefetched_objects_cache') and 'muted_by' in room._prefetched_objects_cache:
         return any(u.id == user.id for u in room.muted_by.all())
     return room.muted_by.filter(id=user.id).exists()
-
-
-@register.filter("has_messages")
-def has_messages(user):
-    rooms_with_new_messages = Room.objects.filter(allowed=user.id, archived=False).exclude(seen_by=user.id).annotate(messages_count=Count('messages')).filter(messages_count__gt=0)
-    count = rooms_with_new_messages.count()
-    return "tw-chat-has-messages" if count > 0 else ""
-
-    # from django.core.cache import cache
-    # rooms_with_new_messages = cache.get('has_messages')
-
-    # if not rooms_with_new_messages:
-    #     rooms_with_new_messages = (
-    #             Room.objects.filter(allowed=user.id, archived=False)
-    #             .exclude(seen_by=user.id)
-    #             .annotate(messages_count=Count('messages'))
-    #             .filter(messages_count__gt=0)
-    #         )
-    #     cache.set("has_messages", rooms_with_new_messages, timeout=60)
-    # count = rooms_with_new_messages.count()
-    # return "tw-chat-has-messages" if count > 0 else ""

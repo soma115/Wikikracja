@@ -368,8 +368,8 @@ export function openBigImage(srcs, startIndex = 0) {
         imgEl.src = srcs[currentIndex];
         const multi = srcs.length > 1;
         counterEl.textContent = multi ? `${currentIndex + 1} / ${srcs.length}` : '';
-        prevBtn.style.display = multi ? 'block' : 'none';
-        nextBtn.style.display = multi ? 'block' : 'none';
+        prevBtn.classList.toggle('tw-d-none', !multi);
+        nextBtn.classList.toggle('tw-d-none', !multi);
     }
 
     function close() {

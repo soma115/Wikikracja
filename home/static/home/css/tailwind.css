@@ -136,14 +136,14 @@
     letter-spacing: -.01em;
     margin-bottom: 1.5rem;
   }
-  .richtext-wrapper {border: 1px solid var(--input-border);
+  .tw-richtext-wrapper {border: 1px solid var(--input-border);
     border-radius: .45rem;
     background-color: var(--input-bg);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, .15);
     overflow: hidden;
     transition: border-color .15s;
   }
-  .richtext-wrapper:focus-within {border-color: var(--accent);
+  .tw-richtext-wrapper:focus-within {border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-muted);
   }
   .tw-message-input-rich {border: none;
@@ -1599,7 +1599,7 @@
   }
   #events-calendar .tw-cal-toolbar-nav {margin-left: auto;
   }
-  .tw-cal-year-select {min-width: 8.5rem;
+  .tw-cal-year-select {width: max-content;
     padding: .28rem 1.8rem .28rem .55rem;
     border: 1px solid var(--border);
     border-radius: var(--radius-btn);
@@ -3075,7 +3075,7 @@
   .tw-empty-state-icon {color: var(--text-muted);
     opacity: .35;
   }
-  .tw-modal-backdrop-custom {display: none;
+  .tw-modal-backdrop-custom {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, .5);
@@ -3101,8 +3101,6 @@
   }
   .tw-bg-glass-sm {background: var(--color-surface-offset);
     border-radius: 4px;
-  }
-  .mig-hidden {display: none;
   }
 
   /* ══ scalone z light-mode.css (etap 5.5) ══ */
@@ -3812,7 +3810,6 @@
     border-left: 3px solid var(--badge-proposition-color);
   }
   .tw-activity-more {
-    display: none;
     font-size: 0.78rem;
     color: var(--text-muted);
     padding: 2px 12px 4px;
@@ -4246,6 +4243,8 @@
     min-width: 280px;
     max-width: min(480px, 90vw);
   }
+  .tw-toast-container.tw-visible {visibility: visible;
+  }
   .tw-toast-msg {
     display: flex;
     align-items: center;
@@ -4260,6 +4259,9 @@
     color: var(--text-primary);
     box-shadow: var(--shadow-overlay);
     animation: tw-toast-in 0.2s ease;
+    transition: opacity .4s;
+  }
+  .tw-toast-msg--out {opacity: 0;
   }
   .tw-toast-msg.tw-toast-success { background: var(--badge-approved-color); color: var(--text-primary); border-color: var(--badge-approved-color); }
   .tw-toast-msg.tw-toast-error,
@@ -6401,6 +6403,23 @@ body.tw-chat-page .tw-main-area {
     right: -0.2rem;
     font-size: 0.65rem;
     z-index: 2;
+    transition: opacity .2s;
+}
+.tw-copy-feedback--out {opacity: 0;
+}
+/* Editing state for message inputs (input has border:none — outline shows the affordance) */
+.tw-editing {outline: 1px solid var(--status-warning-color);
+    outline-offset: -1px;
+}
+/* Dragging state for quick-link reorder */
+.tw-quick-link-item.tw-dragging {opacity: .5;
+}
+/* Offscreen helper element (e.g. clipboard fallback textarea) */
+.tw-offscreen {position: fixed;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
 }
 /* Archive sections */
 .tw-archive-section {
@@ -6623,12 +6642,6 @@ body.tw-chat-page .tw-main-area {
     }
     .tw-compose-bar-right {
         margin-left: auto;
-    }
-    /* Mobile: read-by in own row */
-    .tw-msg-read-by {
-        flex-basis: 100%;
-        margin-left: 0;
-        margin-top: .2rem;
     }
     /* Mobile: category headers aligned to the right (thumb reach) */
     .tw-chat-cat-btn {

@@ -133,11 +133,11 @@ export default class DomApi {
                 barFill.className = `tw-vote-bar-fill ${cls}`;
             }
             if (barLabel) barLabel.textContent = `${pct}% popiera`;
-            if (barWrap) barWrap.style.display = '';
-            if (barLabel) barLabel.style.display = '';
+            if (barWrap) barWrap.classList.remove('tw-d-none');
+            if (barLabel) barLabel.classList.remove('tw-d-none');
         } else {
-            if (barWrap) barWrap.style.display = 'none';
-            if (barLabel) barLabel.style.display = 'none';
+            if (barWrap) barWrap.classList.add('tw-d-none');
+            if (barLabel) barLabel.classList.add('tw-d-none');
         }
     }
 
@@ -153,7 +153,7 @@ export default class DomApi {
 
     getVoteDiv(message_id, vote) {
         const msgDiv = this.getMessageDiv(message_id);
-        return msgDiv ? $(`.msg-vote[data-event-name="${vote}"]`, msgDiv) : null;
+        return msgDiv ? $(`.tw-msg-vote[data-event-name="${vote}"]`, msgDiv) : null;
     }
 
     editMessageText(message_id, text, ts) {
@@ -332,7 +332,7 @@ export default class DomApi {
             } else {
                 input.value = text;
             }
-            input.style.borderColor = 'var(--status-warning-color)';
+            input.classList.add('tw-editing');
         }
         this.loadEditingAttachments(message_id, this.getMessageAttachments(message_id));
         if (input?.isContentEditable) {
@@ -360,7 +360,7 @@ export default class DomApi {
             } else {
                 input.value = '';
             }
-            input.style.borderColor = '';
+            input.classList.remove('tw-editing');
             input.dispatchEvent(new InputEvent('input', { bubbles: true }));
         }
         this.clearFiles();
@@ -451,8 +451,7 @@ export default class DomApi {
         tooltip.classList.add(success ? 'tw-badge-success' : 'tw-badge-danger');
         button.appendChild(tooltip);
         setTimeout(() => {
-            tooltip.style.transition = 'opacity 0.2s';
-            tooltip.style.opacity = '0';
+            tooltip.classList.add('tw-copy-feedback--out');
             setTimeout(() => tooltip.remove(), 200);
         }, 1200);
     }
@@ -525,7 +524,7 @@ export default class DomApi {
         const bc = $('#chat-breadcrumb');
         if (!bc) return;
         bc.innerHTML = parts.map((p, i) =>
-            `<span class="bc-seg${p.active ? ' bc-seg--active' : ''}">${p.label}</span>` +
+            `<span class="tw-bc-seg${p.active ? ' tw-bc-seg--active' : ''}">${p.label}</span>` +
             (i < parts.length - 1 ? '<span class="tw-bc-sep" aria-hidden="true"> › </span>' : '')
         ).join('');
     }

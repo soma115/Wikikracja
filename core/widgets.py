@@ -52,7 +52,7 @@ class RichTextWidget(forms.Textarea):
         counter = format_html('<div class="tw-msg-counter"><span class="tw-msg-counter-val">{0}</span> / {0}</div>', int(self.max_length)) if self.max_length else ''
         hidden = format_html('<input type="hidden" name="{}" value="{}">', name, value)
         editable_open = format_html('<div class="tw-richtext-input tw-message-input-rich" contenteditable="true" role="textbox" aria-multiline="true"{}>', placeholder_attr)
-        wrapper_open = format_html('<div class="richtext-wrapper{}" data-richtext{}>', ' is-invalid' if is_invalid else '', wrapper_attrs)
+        wrapper_open = format_html('<div class="tw-richtext-wrapper{}" data-richtext{}>', ' is-invalid' if is_invalid else '', wrapper_attrs)
 
         return mark_safe(f'{wrapper_open}{TOOLBAR_HTML}{editable_open}{initial_html}</div>{hidden}{counter}</div>')
 

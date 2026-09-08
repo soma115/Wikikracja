@@ -4,8 +4,7 @@
 document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('#django-toasts .tw-toast-msg:not(.tw-toast-persist)').forEach(function (el) {
     setTimeout(function () {
-      el.style.transition = 'opacity .4s';
-      el.style.opacity = '0';
+      el.classList.add('tw-toast-msg--out');
       setTimeout(function () { el.remove(); }, 400);
     }, 4000);
   });

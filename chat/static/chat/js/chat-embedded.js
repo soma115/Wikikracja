@@ -251,7 +251,7 @@ async function initEmbeddedChat(container) {
                     return;
                 }
                 messagesEl.innerHTML = '<div class="tw-ec-loading">Brak dostępu do tego czatu.</div>';
-                container.querySelector('.tw-ec-input-area').style.display = 'none';
+                container.querySelector('.tw-ec-input-area')?.classList.add('tw-d-none');
                 console.error('embedded chat join error:', err);
             });
     }
@@ -439,7 +439,7 @@ async function initEmbeddedChat(container) {
         const msgText = msgDiv?.querySelector('.tw-msg-text')?.innerHTML ?? '';
         inputElRef.dataset.editMessage = messageId;
         inputElRef.innerHTML = msgText;
-        inputElRef.style.borderColor = 'var(--status-warning-color)';
+        inputElRef.classList.add('tw-editing');
         inputElRef.focus();
         updateCounter(inputElRef, counterEl, counterVal, sendBtn, EC_MAX);
     }
@@ -470,7 +470,7 @@ async function initEmbeddedChat(container) {
             ws.sendJson({ command: 'edit-message', message_id: parseInt(inputEl.dataset.editMessage), new_message: getInputHtml(inputEl) });
             delete inputEl.dataset.editMessage;
             inputEl.innerHTML = '';
-            inputEl.style.borderColor = '';
+            inputEl.classList.remove('tw-editing');
             updateCounter(inputEl, counterEl, counterVal, sendBtn, EC_MAX);
         } else {
             sendMessage();
@@ -483,7 +483,7 @@ async function initEmbeddedChat(container) {
         if (e.key === 'Escape' && inputEl.dataset.editMessage) {
             delete inputEl.dataset.editMessage;
             inputEl.innerHTML = '';
-            inputEl.style.borderColor = '';
+            inputEl.classList.remove('tw-editing');
             updateCounter(inputEl, counterEl, counterVal, sendBtn, EC_MAX);
         }
     });

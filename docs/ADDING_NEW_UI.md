@@ -71,7 +71,7 @@ This checklist keeps the interface consistent. Before creating a new view, form,
 
 ### 9. JavaScript
 
-- [ ] Mobile breakpoint is `767.98px`; do not hardcode a new value. Use a shared helper when one exists.
+- [ ] Mobile breakpoint is `767.98px`; do not hardcode a new value. Use the shared `window.wkMobileMedia` (`home/static/common/js/breakpoints.js`, loaded in `base.html`) or the `mobileMedia` re-export in `chat/static/chat/js/utility.js`.
 - [ ] List/grid toggling goes through `PagePrefs` and `applyView` in `home/static/home/js/app.js`.
 - [ ] Do not add a new `addEventListener('DOMContentLoaded')` if `window.pageReady` or `initModule` helpers already cover the case.
 

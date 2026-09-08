@@ -578,7 +578,7 @@ function applyRoomSort(mode) {
         flatListEl = document.createElement('div');
         flatListEl.id = 'room-list-flat';
         links.forEach(link => flatListEl.appendChild(link));
-        groups.style.display = 'none';
+        groups.classList.add('tw-d-none');
         roomListEl.appendChild(flatListEl);
     }
 
@@ -602,7 +602,7 @@ function resetRoomSort() {
     roomSortMode = null;
 
     const groups = $('#room-list')?.querySelector('.tw-room-list-groups');
-    if (groups) groups.style.display = '';
+    if (groups) groups.classList.remove('tw-d-none');
 
     const btn = $('#sort-activity-btn');
     btn?.classList.remove('tw-active');
@@ -1123,8 +1123,8 @@ export async function onReceiveReactions(event) {
 
     // Update counts
     for (const [key, count] of Object.entries(event.counts || {})) {
-        const countEl = $(`.reaction-btn[data-reaction="${key}"] .reaction-count`, msgDiv);
-        const btn = $(`.reaction-btn[data-reaction="${key}"]`, msgDiv);
+        const countEl = $(`.tw-reaction-btn[data-reaction="${key}"] .tw-reaction-count`, msgDiv);
+        const btn = $(`.tw-reaction-btn[data-reaction="${key}"]`, msgDiv);
         if (!btn) continue;
         if (count > 0) {
             if (countEl) {
@@ -1139,7 +1139,7 @@ export async function onReceiveReactions(event) {
 
     // Toggle active state if it was the current user
     if (event.your_reaction !== undefined && event.your_reaction !== null) {
-        const btn = $(`.reaction-btn[data-reaction="${event.your_reaction}"]`, msgDiv);
+        const btn = $(`.tw-reaction-btn[data-reaction="${event.your_reaction}"]`, msgDiv);
         if (btn) btn.classList.toggle('tw-reaction-btn--active', event.added ?? false);
     }
 }
@@ -1301,8 +1301,7 @@ async function writeToClipboard(text) {
     }
     const textarea = document.createElement('textarea');
     textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
+    textarea.className = 'tw-offscreen';
     document.body.appendChild(textarea);
     textarea.select();
     let success = false;

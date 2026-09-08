@@ -79,7 +79,7 @@ test.describe('chat — edycja wiadomości nie wstrzykuje markera "pokaż więce
         // Reload: po reentry wiadomość przychodzi z batch insert (historia), nie z addMessage.
         // To ścieżka która regress'owała — dataset.raw nie był ustawiany.
         await page.reload();
-        await page.waitForSelector(`.message.own .msg-text:has-text("${original}")`, { timeout: 10000 });
+        await page.waitForSelector(`.tw-chat-message.tw-chat-message--own .tw-msg-text:has-text("${original}")`, { timeout: 10000 });
 
         await editOwnMessage(page, original, appended);
 

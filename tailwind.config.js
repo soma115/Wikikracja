@@ -77,7 +77,7 @@ module.exports = {
     'tw-vote-bar--positive', 'tw-vote-bar--neutral', 'tw-vote-bar--negative',
     // Non-prefixed component hooks emitted by Python/widgets or composed
     // dynamically, so the content scanner cannot see them literally.
-    'tox-tinymce', 'richtext-wrapper', 'tw-chat-room-pulse',
+    'tox-tinymce', 'tw-chat-room-pulse',
     'tw-diff-add', 'tw-diff-context', 'tw-diff-remove',
     { pattern: /^tw-citizen-color-\d+$/ },
     { pattern: /^tw-avatar-(xs|sm|md|lg|xl|[2-7]xl)$/ },

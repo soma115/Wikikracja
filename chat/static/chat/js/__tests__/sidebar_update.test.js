@@ -154,7 +154,7 @@ describe('updateSidebarForMessage', () => {
     test('zarchiwizowany pokój wraca do aktywnych po nowej wiadomości', () => {
         document.body.innerHTML = `
             <div class="tw-chat-cat-content" id="cat-public">
-                <p class="text-muted text-center small">None</p>
+                <p class="tw-text-muted tw-text-center tw-text-sm">None</p>
                 <div class="tw-archive-section tw-visible" id="content-pub-rooms-archive"></div>
             </div>
         `;

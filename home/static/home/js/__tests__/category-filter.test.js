@@ -100,13 +100,13 @@ describe('initCategoryFilter', () => {
         click(urgentRow);
 
         const cards = Array.from(document.querySelectorAll('.tw-task-card'));
-        expect(cards[0].style.display).toBe('');
-        expect(cards[1].style.display).toBe('none');
-        expect(cards[2].style.display).toBe('none');
+        expect(cards[0].classList.contains('tw-d-none')).toBe(false);
+        expect(cards[1].classList.contains('tw-d-none')).toBe(true);
+        expect(cards[2].classList.contains('tw-d-none')).toBe(true);
 
         const sections = Array.from(document.querySelectorAll('.tw-tasks-section-label'));
-        expect(sections[0].style.display).toBe('');
-        expect(sections[1].style.display).toBe('none');
+        expect(sections[0].classList.contains('tw-d-none')).toBe(false);
+        expect(sections[1].classList.contains('tw-d-none')).toBe(true);
     });
 
     test('recognizes tw-proposal-card items', () => {
@@ -126,8 +126,8 @@ describe('initCategoryFilter', () => {
         click(rows[0]);
 
         const cards = Array.from(document.querySelectorAll('.tw-proposal-card'));
-        expect(cards[0].style.display).toBe('');
-        expect(cards[1].style.display).toBe('none');
+        expect(cards[0].classList.contains('tw-d-none')).toBe(false);
+        expect(cards[1].classList.contains('tw-d-none')).toBe(true);
     });
 
     test('recognizes board-category-group items by data-category-pk', () => {
@@ -144,8 +144,8 @@ describe('initCategoryFilter', () => {
         click(rows[0]);
 
         const groups = Array.from(document.querySelectorAll('.tw-board-category-group'));
-        expect(groups[0].style.display).toBe('');
-        expect(groups[1].style.display).toBe('none');
+        expect(groups[0].classList.contains('tw-d-none')).toBe(false);
+        expect(groups[1].classList.contains('tw-d-none')).toBe(true);
     });
 
     test('initializes board filter state from URL query parameter', () => {
@@ -162,8 +162,8 @@ describe('initCategoryFilter', () => {
         window.initCategoryFilter();
 
         const groups = Array.from(document.querySelectorAll('.tw-board-category-group'));
-        expect(groups[0].style.display).toBe('');
-        expect(groups[1].style.display).toBe('none');
+        expect(groups[0].classList.contains('tw-d-none')).toBe(false);
+        expect(groups[1].classList.contains('tw-d-none')).toBe(true);
 
         locationSpy.mockRestore();
     });
@@ -187,8 +187,8 @@ describe('initCategoryFilter', () => {
         click(allRow);
 
         const cards = Array.from(document.querySelectorAll('.tw-task-card'));
-        expect(cards[0].style.display).toBe('');
-        expect(cards[1].style.display).toBe('');
+        expect(cards[0].classList.contains('tw-d-none')).toBe(false);
+        expect(cards[1].classList.contains('tw-d-none')).toBe(false);
     });
 
     test('tasks scope reloads, saves filters and passes navigation to onNavigate', () => {
@@ -215,8 +215,8 @@ describe('initCategoryFilter', () => {
         expect(onNavigate).toHaveBeenCalledWith('/?category=urgent');
 
         const cards = Array.from(document.querySelectorAll('.tw-task-card'));
-        expect(cards[0].style.display).toBe('');
-        expect(cards[1].style.display).toBe('none');
+        expect(cards[0].classList.contains('tw-d-none')).toBe(false);
+        expect(cards[1].classList.contains('tw-d-none')).toBe(true);
     });
 
     test('initializes and toggles panel even when there are no items to filter', () => {

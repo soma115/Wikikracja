@@ -104,7 +104,7 @@
           {% trans "No activity in the last 30 days" %}
         </div>
         {% endfor %}
-        <div id="activity-feed-more" class="tw-activity-more">…</div>
+        <div id="activity-feed-more" class="tw-activity-more tw-d-none">…</div>
       </div>
       <a href="{% url 'activity' %}" class="tw-stretched-link" aria-label="{% trans 'Activity' %}" title="{% trans 'Activity' %}"></a>
       <script>
@@ -163,8 +163,8 @@
       var prev = carousel.querySelector('[data-carousel-prev]');
       var next = carousel.querySelector('[data-carousel-next]');
       if (!track || items.length < 2) {
-        if (prev) prev.style.display = 'none';
-        if (next) next.style.display = 'none';
+        if (prev) prev.classList.add('tw-d-none');
+        if (next) next.classList.add('tw-d-none');
         return;
       }
       var index = 0;
@@ -395,9 +395,12 @@
         </span>
         <a id="chat-unread-badge"
            href="{% url 'chat:chat' %}?view=unread"
+           data-count-url="{% url 'chat:unread_count' %}"
            class="tw-dashboard-counter-btn{% if chat_unread_count %} tw-has-count{% endif %}">
           <i class="fas fa-comments"></i>
-          <span id="chat-unread-label">{% if chat_unread_count %}{{ chat_unread_count }} {% trans "unread" %}{% else %}{% trans "Open chat" %}{% endif %}</span>
+          <span id="chat-unread-label"
+                data-unread-label="{% trans 'unread' %}"
+                data-empty-label="{% trans 'Chat' %}">{% if chat_unread_count %}{{ chat_unread_count }} {% trans "unread" %}{% else %}{% trans "Open chat" %}{% endif %}</span>
         </a>
       </div>
       <div class="tw-card-body tw-p-3 tw-flex tw-flex-col tw-gap-1">
@@ -499,53 +502,6 @@
 {% endif %}
 
 <script>
-(function () {
-  var badge = document.getElementById('chat-unread-badge');
-  var label = document.getElementById('chat-unread-label');
-  if (!badge || !label) return;
-
-  var CHAT_URL = "{% url 'chat:chat' %}";
-  var UNREAD_LABEL = "{% trans 'unread' %}";
-  var CHAT_LABEL = "{% trans 'Chat' %}";
-
-  function applyCount(count) {
-    // Badge zawsze prowadzi do /chat/?view=unread — chat.js sam pokaze empty
-    // state w prawej kolumnie, gdy filtr jest aktywny ale brak nieprzeczytanych.
-    badge.href = CHAT_URL + '?view=unread';
-    if (count > 0) {
-      label.textContent = count + ' ' + UNREAD_LABEL;
-      badge.classList.add('tw-has-count');
-    } else {
-      label.textContent = CHAT_LABEL;
-      badge.classList.remove('tw-has-count');
-    }
-  }
-
-  function fetchCount() {
-    fetch("{% url 'chat:unread_count' %}", {credentials: 'same-origin'})
-      .then(function (r) { return r.json(); })
-      .then(function (d) { applyCount(d.count); })
-      .catch(function () {});
-  }
-
-  // Refresh when user tabs back (handles browser bfcache / back navigation)
-  document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) fetchCount();
-  });
-
-  // Live push via WebSocket
-  try {
-    var wsScheme = location.protocol === 'https:' ? 'wss' : 'ws';
-    var ws = new ReconnectingWebSocket(wsScheme + '://' + location.host + '/chat/stream/');
-    ws.onmessage = function (e) {
-      try {
-        var data = JSON.parse(e.data);
-        if (data.unread_count !== undefined) applyCount(data.unread_count);
-      } catch (_) {}
-    };
-  } catch (_) {}
-})();
-</script>
 
 <script>
 // Zachowaj kategorie/sortowanie z zadań przy kliku "Wszystkie moje zadania"

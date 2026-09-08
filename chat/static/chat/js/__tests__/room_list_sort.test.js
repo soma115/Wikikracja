@@ -69,7 +69,7 @@ function applyRoomSort(mode) {
         flatListEl = document.createElement('div');
         flatListEl.id = 'room-list-flat';
         links.forEach(link => flatListEl.appendChild(link));
-        groups.style.display = 'none';
+        groups.classList.add('tw-d-none');
         roomListEl.appendChild(flatListEl);
     }
 
@@ -92,7 +92,7 @@ function resetRoomSort() {
     roomSortMode = null;
 
     const groups = $('#room-list')?.querySelector('.tw-room-list-groups');
-    if (groups) groups.style.display = '';
+    if (groups) groups.classList.remove('tw-d-none');
 
     const btn = $('#sort-activity-btn');
     btn?.classList.remove('tw-active');
@@ -253,7 +253,7 @@ describe('applyRoomSort / resetRoomSort', () => {
         applyRoomSort('newest');
 
         expect(flatOrder()).toEqual(['2', '3', '1']); // archiwum pominięte
-        expect($('#room-list .tw-room-list-groups').style.display).toBe('none');
+        expect($('#room-list .tw-room-list-groups').classList.contains('tw-d-none')).toBe(true);
         expect($('#sort-activity-btn').classList.contains('tw-active')).toBe(true);
         expect(localStorage.getItem('chat-sort-mode')).toBe('newest');
     });
@@ -285,7 +285,7 @@ describe('applyRoomSort / resetRoomSort', () => {
         expect($('#room-list-flat')).toBeNull();
         expect([...catA.children]).toEqual([r1, r2]);
         expect([...catB.children]).toEqual([r3]);
-        expect($('#room-list .tw-room-list-groups').style.display).toBe('');
+        expect($('#room-list .tw-room-list-groups').classList.contains('tw-d-none')).toBe(false);
         expect($('#sort-activity-btn').classList.contains('tw-active')).toBe(false);
         expect(localStorage.getItem('chat-sort-mode')).toBeNull();
         expect(roomSortMode).toBeNull();

@@ -18,32 +18,32 @@ function openBigImage(srcs, startIndex = 0) {
 
     const overlay = document.createElement('div');
     overlay.id = 'image-viewer-overlay';
-    overlay.className = 'image-viewer-overlay';
+    overlay.className = 'tw-image-viewer-overlay';
     overlay.innerHTML = `
-        <button class="image-viewer-close" aria-label="Close">&times;</button>
-        <button class="image-viewer-nav image-viewer-prev" aria-label="Previous">&#10094;</button>
-        <button class="image-viewer-nav image-viewer-next" aria-label="Next">&#10095;</button>
-        <div class="image-viewer-container">
-            <img class="image-viewer-img" src="" alt="">
+        <button class="tw-image-viewer-close" aria-label="Close">&times;</button>
+        <button class="tw-image-viewer-nav tw-image-viewer-prev" aria-label="Previous">&#10094;</button>
+        <button class="tw-image-viewer-nav tw-image-viewer-next" aria-label="Next">&#10095;</button>
+        <div class="tw-image-viewer-container">
+            <img class="tw-image-viewer-img" src="" alt="">
         </div>
-        <div class="image-viewer-counter"></div>
+        <div class="tw-image-viewer-counter"></div>
     `;
     document.body.appendChild(overlay);
     document.body.classList.add('tw-modal-open');
 
     let currentIndex = startIndex;
-    const imgEl = overlay.querySelector('.image-viewer-img');
-    const counterEl = overlay.querySelector('.image-viewer-counter');
-    const prevBtn = overlay.querySelector('.image-viewer-prev');
-    const nextBtn = overlay.querySelector('.image-viewer-next');
+    const imgEl = overlay.querySelector('.tw-image-viewer-img');
+    const counterEl = overlay.querySelector('.tw-image-viewer-counter');
+    const prevBtn = overlay.querySelector('.tw-image-viewer-prev');
+    const nextBtn = overlay.querySelector('.tw-image-viewer-next');
 
     function show(index) {
         currentIndex = (index + srcs.length) % srcs.length;
         imgEl.src = srcs[currentIndex];
         const multi = srcs.length > 1;
         counterEl.textContent = multi ? `${currentIndex + 1} / ${srcs.length}` : '';
-        prevBtn.style.display = multi ? 'block' : 'none';
-        nextBtn.style.display = multi ? 'block' : 'none';
+        prevBtn.classList.toggle('tw-d-none', !multi);
+        nextBtn.classList.toggle('tw-d-none', !multi);
     }
 
     function close() {
@@ -58,7 +58,7 @@ function openBigImage(srcs, startIndex = 0) {
         if (e.key === 'ArrowRight') show(currentIndex + 1);
     }
 
-    overlay.querySelector('.image-viewer-close').addEventListener('click', close);
+    overlay.querySelector('.tw-image-viewer-close').addEventListener('click', close);
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
     prevBtn.addEventListener('click', (e) => { e.stopPropagation(); show(currentIndex - 1); });
     nextBtn.addEventListener('click', (e) => { e.stopPropagation(); show(currentIndex + 1); });
@@ -88,35 +88,35 @@ describe('openBigImage — kontrakt otwarcia', () => {
         openBigImage(['/a.png', '/b.png']);
         expect(overlay()).not.toBeNull();
         expect(document.body.classList.contains('tw-modal-open')).toBe(true);
-        expect(overlay().querySelector('.image-viewer-img').src).toContain('/a.png');
-        expect(overlay().querySelector('.image-viewer-counter').textContent).toBe('1 / 2');
+        expect(overlay().querySelector('.tw-image-viewer-img').src).toContain('/a.png');
+        expect(overlay().querySelector('.tw-image-viewer-counter').textContent).toBe('1 / 2');
     });
 
     test('pojedynczy obraz: brak nawigacji i licznika', () => {
         openBigImage(['/only.png']);
-        expect(overlay().querySelector('.image-viewer-counter').textContent).toBe('');
-        expect(overlay().querySelector('.image-viewer-prev').style.display).toBe('none');
-        expect(overlay().querySelector('.image-viewer-next').style.display).toBe('none');
+        expect(overlay().querySelector('.tw-image-viewer-counter').textContent).toBe('');
+        expect(overlay().querySelector('.tw-image-viewer-prev').classList.contains('tw-d-none')).toBe(true);
+        expect(overlay().querySelector('.tw-image-viewer-next').classList.contains('tw-d-none')).toBe(true);
     });
 
     test('startIndex wybiera wskazany obraz', () => {
         openBigImage(['/a.png', '/b.png', '/c.png'], 1);
-        expect(overlay().querySelector('.image-viewer-img').src).toContain('/b.png');
-        expect(overlay().querySelector('.image-viewer-counter').textContent).toBe('2 / 3');
+        expect(overlay().querySelector('.tw-image-viewer-img').src).toContain('/b.png');
+        expect(overlay().querySelector('.tw-image-viewer-counter').textContent).toBe('2 / 3');
     });
 
     test('ponowne otwarcie nie duplikuje overlaya', () => {
         openBigImage(['/a.png']);
         openBigImage(['/b.png']);
         expect(document.querySelectorAll('#image-viewer-overlay').length).toBe(1);
-        expect(overlay().querySelector('.image-viewer-img').src).toContain('/b.png');
+        expect(overlay().querySelector('.tw-image-viewer-img').src).toContain('/b.png');
     });
 });
 
 describe('zamknięcie — wszystkie ścieżki sprzątają kontrakt', () => {
     test('przycisk × zamyka overlay i zdejmuje tw-modal-open', () => {
         openBigImage(['/a.png']);
-        overlay().querySelector('.image-viewer-close').click();
+        overlay().querySelector('.tw-image-viewer-close').click();
         expect(overlay()).toBeNull();
         expect(document.body.classList.contains('tw-modal-open')).toBe(false);
     });
@@ -138,7 +138,7 @@ describe('zamknięcie — wszystkie ścieżki sprzątają kontrakt', () => {
 
     test('klik w treść NIE zamyka (target !== overlay)', () => {
         openBigImage(['/a.png']);
-        overlay().querySelector('.image-viewer-img')
+        overlay().querySelector('.tw-image-viewer-img')
             .dispatchEvent(new MouseEvent('click', { bubbles: true }));
         expect(overlay()).not.toBeNull();
     });
@@ -152,11 +152,11 @@ describe('zamknięcie — wszystkie ścieżki sprzątają kontrakt', () => {
 
     test('po zamknięciu listener klawiatury jest odpięty (brak wycieku)', () => {
         openBigImage(['/a.png', '/b.png']);
-        overlay().querySelector('.image-viewer-close').click();
+        overlay().querySelector('.tw-image-viewer-close').click();
         // Ponowne otwarcie — Escape nie może podwójnie odpalić starego handlera.
         openBigImage(['/c.png', '/d.png']);
         pressKey('ArrowRight');
-        expect(overlay().querySelector('.image-viewer-img').src).toContain('/d.png');
+        expect(overlay().querySelector('.tw-image-viewer-img').src).toContain('/d.png');
         pressKey('Escape');
         expect(overlay()).toBeNull();
     });
@@ -166,17 +166,17 @@ describe('nawigacja strzałkami', () => {
     test('ArrowRight/ArrowLeft i przyciski prev/next zmieniają obraz z zawinięciem', () => {
         openBigImage(['/a.png', '/b.png', '/c.png']);
         pressKey('ArrowRight');
-        expect(overlay().querySelector('.image-viewer-img').src).toContain('/b.png');
+        expect(overlay().querySelector('.tw-image-viewer-img').src).toContain('/b.png');
         // zawinięcie: ostatni → pierwszy
         pressKey('ArrowRight');
         pressKey('ArrowRight');
-        expect(overlay().querySelector('.image-viewer-img').src).toContain('/a.png');
+        expect(overlay().querySelector('.tw-image-viewer-img').src).toContain('/a.png');
         // wstecz z pierwszego → ostatni
         pressKey('ArrowLeft');
-        expect(overlay().querySelector('.image-viewer-img').src).toContain('/c.png');
-        expect(overlay().querySelector('.image-viewer-counter').textContent).toBe('3 / 3');
+        expect(overlay().querySelector('.tw-image-viewer-img').src).toContain('/c.png');
+        expect(overlay().querySelector('.tw-image-viewer-counter').textContent).toBe('3 / 3');
         // przyciski UI robią to samo
-        overlay().querySelector('.image-viewer-next').click();
-        expect(overlay().querySelector('.image-viewer-img').src).toContain('/a.png');
+        overlay().querySelector('.tw-image-viewer-next').click();
+        expect(overlay().querySelector('.tw-image-viewer-img').src).toContain('/a.png');
     });
 });

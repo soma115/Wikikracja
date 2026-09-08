@@ -10,9 +10,9 @@ const { test, expect } = require('@playwright/test');
 
 async function pasteAndCheck(page, text, expected) {
     await page.goto('/ankiety/dodaj/');
-    await page.waitForSelector('.richtext-wrapper');
+    await page.waitForSelector('.tw-richtext-wrapper');
 
-    const wrapper = page.locator('.richtext-wrapper').filter({
+    const wrapper = page.locator('.tw-richtext-wrapper').filter({
         has: page.locator('input[type="hidden"][name="description"]'),
     });
     const editor = wrapper.locator('.tw-richtext-input');

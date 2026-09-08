@@ -26,14 +26,14 @@
       </a>
 
       <label id="sp-select-all" class="tw-chip{% if all_types_selected %} tw-chip--on{% endif %}" data-color="accent">
-        <input type="checkbox" value="all" class="tw-hidden tw-chip-input"
+        <input type="checkbox" value="all" class="tw-d-none tw-chip-input"
                {% if all_types_selected %}checked{% endif %}>
         {% trans "All" %}
       </label>
 
       {% for ct_val, ct_label in selectable_types %}
       <label class="tw-chip{% if ct_val in selected_types %} tw-chip--on{% endif %}" data-color="{{ ct_val|content_type_color }}">
-        <input type="checkbox" name="type" value="{{ ct_val }}" class="tw-hidden tw-chip-input"
+        <input type="checkbox" name="type" value="{{ ct_val }}" class="tw-d-none tw-chip-input"
                {% if ct_val in selected_types %}checked{% endif %}>
         {{ ct_label }}
       </label>

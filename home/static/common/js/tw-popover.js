@@ -119,9 +119,9 @@
     const header = popover.querySelector('.tw-popover-header');
     if (title) {
       header.textContent = this._config.html ? this._sanitize(title) : title;
-      header.style.display = '';
+      header.classList.remove('tw-d-none');
     } else {
-      header.style.display = 'none';
+      header.classList.add('tw-d-none');
     }
 
     const body = popover.querySelector('.tw-popover-body');

@@ -596,3 +596,28 @@ Po całej migracji:
 ### 16.7. Zależności od `CHAT_REWORK_PLAN`
 
 Dodatek ten zakłada, że etapy A–I są już stabilne. Jeśli planowane są dalsze zmiany w routing/WebSocket (etapy D–F), najlepiej je najpierw zamknąć, a dopiero potem ruszać z migracją `tw-*`, żeby nie mieszać nazw klas w środku refaktoringu logiki. Jeśli jednak użytkownik chce robić to równolegle, należy najpierw ustalić spójną macierz nazw i zamrozić ją na czas prac.
+
+### 16.8. Audyt follow-up — zerwane kontrakty JS ↔ markup
+
+Pogłębiony skan **selektorów JS** (nie tylko atrybutów `class=`) ujawnił miejsca, w których JS czytał stare nazwy klas, a markup emitował już `tw-*` — realne defekty funkcjonalne:
+
+| Miejsce | Problem | Naprawa |
+|---|---|---|
+| `domapi.js` `getVoteDiv` | szukał `.msg-vote`, markup emituje `tw-msg-vote` → aktualizacja głosów na żywo nie działała | `.tw-msg-vote` |
+| `chat.js` `onReceiveReactions` | `.reaction-btn`/`.reaction-count` → liczniki reakcji i stan `--active` nie aktualizowały się | `.tw-reaction-btn`/`.tw-reaction-count` |
+| `domapi.js` `updateBreadcrumb` | emitował `bc-seg`/`bc-seg--active` → aktywny segment bez stylu | `tw-bc-seg`/`tw-bc-seg--active` |
+| `app.js` mark-as-read | `.feed-title` → tytuły nie traciły boldu po przeczytaniu | `.tw-feed-title` |
+| `notifications.js` | `.nav-link[data-route='chat']` — selektor nie trafiał w nic (brak `data-route` w `base.html`) → badge `tw-chat-has-messages` martwy | dodano `data-nav="chat"` na linku czatu w `base.html`; selektor `a[data-nav='chat']` |
+| `site_admin.html` | martwy blok `.order-number` (element nie istnieje w markupie) | usunięty |
+| `base.html` | martwy `active` obok `tw-active` na linku czatu | usunięty `active` |
+| `e2e/chat-edit-message.spec.js` | `.message.own .msg-text` → `.tw-chat-message.tw-chat-message--own .tw-msg-text` | zsynchronizowano |
+| `image_viewer_close.test.js` | lokalna kopia `openBigImage` niezsynchronizowana z produkcją (`tw-image-viewer-*`) | zsynchronizowano |
+| `tailwind.css` | martwa reguła `.tw-msg-read-by` w media query (nigdzie nie używana) | usunięta |
+
+### 16.9. Unifikacje follow-up (style.*, breakpointy, mig-hidden, badge, richtext)
+
+- [x] **`style.*` → klasy stanu:** `borderColor` przy edycji → `tw-editing` (outline — input ma `border:none`); fade-out tooltipa → `tw-copy-feedback--out` + `transition` w `.tw-copy-feedback`; fade-out toastów → `tw-toast-msg--out` + `transition` w `.tw-toast-msg`; `visibility` kontenera toastów → `tw-toast-container.tw-visible`; opacity przy drag w quick-links → `tw-quick-link-item.tw-dragging`; clipboard fallback textarea → `tw-offscreen`. Pozostałe `style.height`/`style.maxHeight` (auto-resize textarea, baner powiadomień) to dynamiczne pomiary `scrollHeight` — dozwolone przez konwencję, zostają jako ostrzeżenia guarda.
+- [x] **Współdzielony breakpoint:** nowy `home/static/common/js/breakpoints.js` ustawia `window.wkMobileMedia` (jedyny literał `767.98px`); ładowany klasycznie w `base.html` przed `app.js`; `chat/utility.js` reeksportuje `mobileMedia` z niego (fallback jsdom bez `matchMedia`); `app.js` używa `wkMobileMedia` zamiast własnego `matchMedia`; `ui_guard.py` wyłącza `breakpoints.js` z checku breakpointów.
+- [x] **`mig-hidden` → `tw-d-none` (jeden kontrakt ukrywania):** markup `event_list.html`, `_agenda_chunk.html`, `obywatele/szczegoly.html` ×4; kontrolery `app.js` (`[data-view-only]`, `.tw-citizen-section`) przełączają `tw-d-none` przez `classList`. **Naprawiło realny bug:** poprzedni mechanizm `style.display=''` nie mógł nadpisać reguły klasowej `.mig-hidden`, więc widok siatki w eventach był niedostępny. Reguła `.mig-hidden` i wpis w allowlist guarda usunięte. Inne `style.display` (cat-filter, room-groups, vote-bary, sidebar-overlay) to wzorzec „ukryj domyślnie widoczny" — zostaje.
+- [x] **Badge nieprzeczytanych czatu (wariant A):** `notifications.js` obsługuje `data.unread_count` → `classList.toggle('tw-chat-has-messages', count > 0)`. Serwer pushuje licznik przy connect i przy każdym see/unsee → badge ma stan początkowy, live-update i gaszenie przy 0. Usunięty martwy filtr `has_messages` z `chat/templatetags/filters.py` (i importy `Count`, `Room`).
+- [x] **`richtext-wrapper` → `tw-richtext-wrapper`:** `core/widgets.py`, `tailwind.css` (z `:focus-within`), `e2e/proposition-paste-linebreaks.spec.js`; usunięty z safelisty `tailwind.config.js` i allowlisty `ui_guard.py`.
