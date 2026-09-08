@@ -198,32 +198,32 @@
       <span class="tw-section-heading">{% trans 'Activity' %}</span>
     </div>
     <div class="tw-card-body tw-flex tw-flex-wrap tw-gap-2 tw-pb-2">
-      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm citizen-section-btn"
+      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm tw-citizen-section-btn"
               data-url="{% url 'obywatele:citizen_zadania' pk=b.uid.pk %}"
               data-target="section-zadania"
               data-default="true">
         <i class="fas fa-list-check fa-fw tw-me-1"></i>{% trans "Activities" %}
       </button>
-      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm citizen-section-btn"
+      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm tw-citizen-section-btn"
               data-url="{% url 'obywatele:citizen_czaty' pk=b.uid.pk %}"
               data-target="section-czaty">
         <i class="fas fa-comments fa-fw tw-me-1"></i>{% trans "Chats" %}
       </button>
-      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm citizen-section-btn"
+      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm tw-citizen-section-btn"
               data-url="{% url 'obywatele:citizen_aktywnosc' pk=b.uid.pk %}"
               data-target="section-aktywnosc">
         <i class="fas fa-stream fa-fw tw-me-1"></i>{% trans "Activity" %}
       </button>
-      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm citizen-section-btn"
+      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm tw-citizen-section-btn"
               data-url="{% url 'obywatele:citizen_zalozono' pk=b.uid.pk %}"
               data-target="section-zalozono">
         <i class="fas fa-plus-circle fa-fw tw-me-1"></i>{% trans "Founded" %}
       </button>
     </div>
-    <div id="section-zadania" class="citizen-section mig-hidden"></div>
-    <div id="section-czaty" class="citizen-section mig-hidden"></div>
-    <div id="section-aktywnosc" class="citizen-section mig-hidden"></div>
-    <div id="section-zalozono" class="citizen-section mig-hidden"></div>
+    <div id="section-zadania" class="tw-citizen-section mig-hidden"></div>
+    <div id="section-czaty" class="tw-citizen-section mig-hidden"></div>
+    <div id="section-aktywnosc" class="tw-citizen-section mig-hidden"></div>
+    <div id="section-zalozono" class="tw-citizen-section mig-hidden"></div>
   </div>
 
   {% endif %}

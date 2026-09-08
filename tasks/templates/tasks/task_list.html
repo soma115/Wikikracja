@@ -11,7 +11,7 @@
 {% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add activity') sort_items=toolbar_sort_items show_category_filter=1 categories=category_list views=toolbar_views %}
 
 {# ── CONTENT ── #}
-<div id="tasks-list-container" class="tw-proposals-list" data-view-container>
+<div id="tw-tasks-list-container" class="tw-proposals-list" data-view-container>
   {% include 'tasks/_task_list_partial.html' %}
 </div>
 
@@ -26,13 +26,13 @@
         <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
       </div>
       <div class="tw-modal-body">
-        <ul class="cat-mgr-list" id="catMgrList">
+        <ul class="tw-cat-mgr-list" id="catMgrList">
           {# filled by JS #}
         </ul>
-        <div class="cat-mgr-error tw-d-none" id="catMgrError"></div>
-        <div class="cat-mgr-add-row" id="catMgrAddRow">
-          <input type="text" class="cat-mgr-input" id="catMgrNewName" placeholder="{% trans 'Category name' %}" maxlength="100">
-          <input type="text" class="cat-mgr-input" id="catMgrNewDesc" placeholder="{% trans 'Description (optional)' %}">
+        <div class="tw-cat-mgr-error tw-d-none" id="catMgrError"></div>
+        <div class="tw-cat-mgr-add-row" id="catMgrAddRow">
+          <input type="text" class="tw-cat-mgr-input" id="catMgrNewName" placeholder="{% trans 'Category name' %}" maxlength="100">
+          <input type="text" class="tw-cat-mgr-input" id="catMgrNewDesc" placeholder="{% trans 'Description (optional)' %}">
           <button type="button" class="tw-btn tw-btn-sm tw-btn-primary" id="catMgrAddBtn">
             <i class="fas fa-plus tw-me-1"></i>{% trans 'Add category' %}
           </button>

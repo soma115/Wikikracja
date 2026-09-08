@@ -28,11 +28,11 @@
 
         const { getInputHtml, updateCounter, insertPlainTextAtCaret } = await loadCore();
 
-        const input = wrapper.querySelector('.richtext-input');
+        const input = wrapper.querySelector('.tw-richtext-input');
         const hidden = wrapper.querySelector('input[type="hidden"]');
-        const toolbar = wrapper.querySelector('.fmt-toolbar');
-        const counterEl = wrapper.querySelector('.msg-counter');
-        const counterVal = wrapper.querySelector('.msg-counter-val');
+        const toolbar = wrapper.querySelector('.tw-fmt-toolbar');
+        const counterEl = wrapper.querySelector('.tw-msg-counter');
+        const counterVal = wrapper.querySelector('.tw-msg-counter-val');
         const maxLength = parseInt(wrapper.dataset.maxLength || '0', 10) || Infinity;
 
         if (!input || !hidden) return;
@@ -44,9 +44,9 @@
 
         function updateToolbarState() {
             if (!toolbar) return;
-            toolbar.querySelectorAll('.fmt-btn[data-cmd]').forEach(btn => {
+            toolbar.querySelectorAll('.tw-fmt-btn[data-cmd]').forEach(btn => {
                 try {
-                    btn.classList.toggle('active', document.queryCommandState(btn.dataset.cmd));
+                    btn.classList.toggle('tw-active', document.queryCommandState(btn.dataset.cmd));
                 } catch (_) { /* queryCommandState can throw on some browsers */ }
             });
         }
@@ -99,7 +99,7 @@
 
         if (toolbar) {
             toolbar.addEventListener('click', (e) => {
-                const btn = e.target.closest('.fmt-btn[data-cmd]');
+                const btn = e.target.closest('.tw-fmt-btn[data-cmd]');
                 if (!btn) return;
                 e.preventDefault();
                 input.focus();

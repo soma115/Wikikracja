@@ -7,17 +7,17 @@
     show_dates — bool, czy pokazać daty referendum (tylko widok referendum)
 {% endcomment %}
 
-<div class="proposal-card" data-status="{{ i.status }}">
+<div class="tw-proposal-card" data-status="{{ i.status }}">
 
   {# ── NAGŁÓWEK (klikalny → szczegóły, poza linkami dzieci) ── #}
-  <div class="proposal-card-header" data-detail-url="{% url 'glosowania:details' pk=i.pk %}" role="link" tabindex="0">
+  <div class="tw-proposal-card-header" data-detail-url="{% url 'glosowania:details' pk=i.pk %}" role="link" tabindex="0">
 
-    <div class="proposal-card-title-row">
-      <span class="proposal-card-num">#{{ i.pk }}</span>
-      <span class="proposal-card-title">{{ i.display_title }}</span>
+    <div class="tw-proposal-card-title-row">
+      <span class="tw-proposal-card-num">#{{ i.pk }}</span>
+      <span class="tw-proposal-card-title">{{ i.display_title }}</span>
     </div>
 
-    <div class="proposal-card-badges-row">
+    <div class="tw-proposal-card-badges-row">
       {% if i.status == i.Status.PROPOSITION %}
         <span class="tw-badge-status tw-badge-proposition">{{ i.get_status_display }}</span>
       {% elif i.status == i.Status.DISCUSSION %}
@@ -54,67 +54,67 @@
     </div>
 
     {# Pasek meta: autor (klikalny → profil) + data + podpisy #}
-    <div class="proposal-card-meta">
+    <div class="tw-proposal-card-meta">
 
       {% if i.author %}
       <a href="{% url 'obywatele:obywatele_szczegoly' pk=i.author.pk %}"
-         class="proposal-author-link" onclick="event.stopPropagation()"
+         class="tw-proposal-author-link" onclick="event.stopPropagation()"
          title="{{ i.author.username }}">
         {% include "home/_user_avatar.html" with avatar=i.author.uzytkownik.avatar username=i.author.username size="md" %}
-        <span class="proposal-author-name">{{ i.author.username }}</span>
+        <span class="tw-proposal-author-name">{{ i.author.username }}</span>
       </a>
       {% else %}
-      <span class="proposal-author-name">—</span>
+      <span class="tw-proposal-author-name">—</span>
       {% endif %}
 
-      <span class="proposal-meta-sep">·</span>
-      <span class="proposal-date">{{ i.data_powstania|date:"d.m.Y" }}</span>
+      <span class="tw-proposal-meta-sep">·</span>
+      <span class="tw-proposal-date">{{ i.data_powstania|date:"d.m.Y" }}</span>
 
-      <span class="proposal-meta-sep">·</span>
-      <span class="proposal-signatures">
+      <span class="tw-proposal-meta-sep">·</span>
+      <span class="tw-proposal-signatures">
         <i class="fas fa-pen-nib fa-fw"></i> {{ i.ile_osob_podpisalo|default:0 }}
       </span>
 
     </div>
 
-  </div>{# /.proposal-card-header #}
+  </div>{# /.tw-proposal-card-header #}
 
   {# ── CIAŁO — klikalne → szczegóły ── #}
-  <div class="proposal-card-body" data-detail-url="{% url 'glosowania:details' pk=i.pk %}" role="link" tabindex="0">
+  <div class="tw-proposal-card-body" data-detail-url="{% url 'glosowania:details' pk=i.pk %}" role="link" tabindex="0">
 
     {% if i.tresc %}
-    <div class="proposal-section--law">
-      <div class="proposal-section-label">
+    <div class="tw-proposal-section--law">
+      <div class="tw-proposal-section-label">
         <i class="fas fa-scroll fa-fw"></i> {% trans 'Law text' %}
       </div>
-      <div class="proposal-section-text">{{ i.tresc|richtext }}</div>
+      <div class="tw-proposal-section-text">{{ i.tresc|richtext }}</div>
     </div>
     {% endif %}
 
     {% if i.kara %}
-    <div class="proposal-section--consequences">
-      <div class="proposal-section-label">
+    <div class="tw-proposal-section--consequences">
+      <div class="tw-proposal-section-label">
         <i class="fas fa-triangle-exclamation fa-fw"></i> {% trans 'Consequences' %}
       </div>
-      <div class="proposal-section-text">{{ i.kara|richtext }}</div>
+      <div class="tw-proposal-section-text">{{ i.kara|richtext }}</div>
     </div>
     {% endif %}
 
     {% if i.uzasadnienie %}
-    <div class="proposal-section--reasoning">
-      <div class="proposal-section-label">
+    <div class="tw-proposal-section--reasoning">
+      <div class="tw-proposal-section-label">
         <i class="fas fa-lightbulb fa-fw"></i> {% trans 'Reasoning' %}
       </div>
-      <div class="proposal-section-text">{{ i.uzasadnienie|richtext }}</div>
+      <div class="tw-proposal-section-text">{{ i.uzasadnienie|richtext }}</div>
     </div>
     {% endif %}
 
     {% if show_dates %}
-    <div class="proposal-section--referendum">
-      <div class="proposal-section-label">
+    <div class="tw-proposal-section--referendum">
+      <div class="tw-proposal-section-label">
         <i class="fas fa-calendar fa-fw"></i> {% trans 'Referendum' %}
       </div>
-      <div class="proposal-section-text">
+      <div class="tw-proposal-section-text">
         {% trans 'Start' %}: {{ i.data_referendum_start|date:"d.m.Y"|default:"—" }}
         &nbsp;·&nbsp;
         {% trans 'End' %}: {{ i.data_referendum_stop|date:"d.m.Y"|default:"—" }}
@@ -122,6 +122,6 @@
     </div>
     {% endif %}
 
-  </div>{# /.proposal-card-body #}
+  </div>{# /.tw-proposal-card-body #}
 
-</div>{# /.proposal-card #}
+</div>{# /.tw-proposal-card #}

@@ -15,7 +15,7 @@ async function pasteAndCheck(page, text, expected) {
     const wrapper = page.locator('.richtext-wrapper').filter({
         has: page.locator('input[type="hidden"][name="description"]'),
     });
-    const editor = wrapper.locator('.richtext-input');
+    const editor = wrapper.locator('.tw-richtext-input');
     await editor.click();
 
     await editor.evaluate((el, value) => {

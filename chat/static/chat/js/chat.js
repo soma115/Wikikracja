@@ -1377,7 +1377,7 @@ export async function onSubmitMessage(message, editing_message_id) {
             : null;
         const ownUsername = is_anonymous
             ? 'Anonymous'
-            : (document.querySelector('.user-name')?.textContent?.trim() || '');
+            : (document.querySelector('.tw-user-name')?.textContent?.trim() || '');
         const now = Date.now();
 
         DOM_API.removeNoMessagesBanner();

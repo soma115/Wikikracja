@@ -120,16 +120,16 @@ test.describe('mobile', () => {
         const sidebar = page.locator('#sidebar');
         const toggle = page.locator('#sidebar-toggle');
 
-        const wasOpen = await sidebar.evaluate((el) => el.classList.contains('sidebar-open'));
+        const wasOpen = await sidebar.evaluate((el) => el.classList.contains('tw-sidebar-open'));
 
         await toggle.click();
         await page.waitForTimeout(200);
-        const isOpen = await sidebar.evaluate((el) => el.classList.contains('sidebar-open'));
+        const isOpen = await sidebar.evaluate((el) => el.classList.contains('tw-sidebar-open'));
         expect(isOpen).toBe(!wasOpen);
 
         await page.locator('#sidebar-close-btn, #sidebar-toggle').first().click();
         await page.waitForTimeout(200);
-        const isOpenAgain = await sidebar.evaluate((el) => el.classList.contains('sidebar-open'));
+        const isOpenAgain = await sidebar.evaluate((el) => el.classList.contains('tw-sidebar-open'));
         expect(isOpenAgain).toBe(wasOpen);
     });
 

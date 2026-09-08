@@ -14,7 +14,7 @@
     <input type="hidden" name="order" value="{{ order }}">
     <div class="tw-toolbar-sort tw-flex-wrap tw-gap-35">
       <a href="?{% if not filter_unread %}filter=unread&{% endif %}sort={{ sort }}&order={{ order }}{% if is_filtered %}&filtered=1{% for t in active_types %}&type={{ t }}{% endfor %}{% endif %}"
-         class="tw-sort-btn filter-btn-unread {% if filter_unread %}tw-active{% endif %}">
+         class="tw-sort-btn tw-filter-btn-unread {% if filter_unread %}tw-active{% endif %}">
         <i class="fas fa-bell"></i>{% trans "Unread" %}
         <span id="unread-count-badge" class="{% if not unread_count %}tw-d-none{% endif %} tw-text-xs">{% if unread_count %}({{ unread_count }}){% endif %}</span>
       </a>
@@ -25,15 +25,15 @@
         <span id="bookmark-count-badge" class="{% if not bookmark_count %}tw-d-none{% endif %} tw-text-xs">{% if bookmark_count %}({{ bookmark_count }}){% endif %}</span>
       </a>
 
-      <label id="sp-select-all" class="sp-chip{% if all_types_selected %} on{% endif %}" data-color="accent">
-        <input type="checkbox" value="all" class="tw-hidden sp-cb"
+      <label id="sp-select-all" class="tw-chip{% if all_types_selected %} tw-chip--on{% endif %}" data-color="accent">
+        <input type="checkbox" value="all" class="tw-hidden tw-chip-input"
                {% if all_types_selected %}checked{% endif %}>
         {% trans "All" %}
       </label>
 
       {% for ct_val, ct_label in selectable_types %}
-      <label class="sp-chip{% if ct_val in selected_types %} on{% endif %}" data-color="{{ ct_val|content_type_color }}">
-        <input type="checkbox" name="type" value="{{ ct_val }}" class="tw-hidden sp-cb"
+      <label class="tw-chip{% if ct_val in selected_types %} tw-chip--on{% endif %}" data-color="{{ ct_val|content_type_color }}">
+        <input type="checkbox" name="type" value="{{ ct_val }}" class="tw-hidden tw-chip-input"
                {% if ct_val in selected_types %}checked{% endif %}>
         {{ ct_label }}
       </label>
@@ -42,7 +42,7 @@
   </form>
 
   {# ── Toolbar linia 2: akcje + sortowanie + widok ── #}
-  {% include 'home/includes/toolbar.html' with cta_button='btn-mark-all' cta_icon='check-double' cta_label=_('Mark as read') cta_button_class='btn-mark-all' sort_items=toolbar_sort_items views=toolbar_views %}
+  {% include 'home/includes/toolbar.html' with cta_button='tw-btn-mark-all' cta_icon='check-double' cta_label=_('Mark as read') cta_button_class='tw-btn-mark-all' sort_items=toolbar_sort_items views=toolbar_views %}
 
   {# ── List ── #}
   <div class="tw-card">
@@ -109,7 +109,7 @@
 </div>
 
 <script>
-document.getElementById('btn-mark-all')?.addEventListener('click', function() {
+document.getElementById('tw-btn-mark-all')?.addEventListener('click', function() {
   fetch("{% url 'mark_all_read' %}", {
     method: 'POST',
     headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json'},

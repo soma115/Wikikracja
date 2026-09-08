@@ -6,7 +6,7 @@
 
 {% block content %}
 {% include "home/_registration_timeline.html" with registration_step=1 %}
-<form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+<form class="tw-signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
   {% csrf_token %}
 
   <div class="tw-mb-3">

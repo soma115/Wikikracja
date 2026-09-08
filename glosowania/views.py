@@ -466,11 +466,11 @@ def _make_diff_html(old_text, new_text):
     result = []
     for line in diff:
         if line.startswith('+ '):
-            result.append(f'<span class="diff-add">{html.escape(line[2:].rstrip())}</span>')
+            result.append(f'<span class="tw-diff-add">{html.escape(line[2:].rstrip())}</span>')
         elif line.startswith('- '):
-            result.append(f'<span class="diff-remove">{html.escape(line[2:].rstrip())}</span>')
+            result.append(f'<span class="tw-diff-remove">{html.escape(line[2:].rstrip())}</span>')
         elif line.startswith('  '):
-            result.append(f'<span class="diff-context">{html.escape(line[2:].rstrip())}</span>')
+            result.append(f'<span class="tw-diff-context">{html.escape(line[2:].rstrip())}</span>')
     return '\n'.join(result) or '—'
 
 

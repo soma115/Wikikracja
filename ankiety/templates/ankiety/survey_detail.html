@@ -31,30 +31,30 @@
     </div>
   {% endif %}
 
-  <div class="proposal-card-meta tw-mb-4">
-    <span class="proposal-date" title="{% trans 'End date' %}">
-      <i class="fas fa-stopwatch proposal-role-icon" aria-hidden="true"></i>
+  <div class="tw-proposal-card-meta tw-mb-4">
+    <span class="tw-proposal-date" title="{% trans 'End date' %}">
+      <i class="fas fa-stopwatch tw-proposal-role-icon" aria-hidden="true"></i>
       {% if is_active %}<span data-countdown data-end="{{ survey.end_date|date:'c' }}">{{ survey.end_date|timeuntil }}</span>{% else %}{{ survey.end_date|date:'d.m.Y H:i' }}{% endif %}
     </span>
-    <span class="proposal-meta-sep">·</span>
-    <span class="proposal-signatures" title="{% trans 'Votes' %}">
-      <i class="fas fa-check-to-slot proposal-role-icon" aria-hidden="true"></i>
+    <span class="tw-proposal-meta-sep">·</span>
+    <span class="tw-proposal-signatures" title="{% trans 'Votes' %}">
+      <i class="fas fa-check-to-slot tw-proposal-role-icon" aria-hidden="true"></i>
       {{ total_votes }}
     </span>
-    <span class="proposal-meta-sep">·</span>
+    <span class="tw-proposal-meta-sep">·</span>
     {% if survey.is_active %}
       <span class="tw-badge-status tw-badge-discussion">{% trans 'Ongoing' %}</span>
     {% else %}
       <span class="tw-badge-status tw-badge-approved">{% trans 'Finished' %}</span>
     {% endif %}
-    <span class="proposal-meta-sep">·</span>
+    <span class="tw-proposal-meta-sep">·</span>
     {% if survey.author %}
-      <a href="{% url 'obywatele:obywatele_szczegoly' survey.author.pk %}" class="proposal-author-link">
-        <i class="fas fa-user-pen proposal-role-icon" aria-hidden="true"></i>
+      <a href="{% url 'obywatele:obywatele_szczegoly' survey.author.pk %}" class="tw-proposal-author-link">
+        <i class="fas fa-user-pen tw-proposal-role-icon" aria-hidden="true"></i>
         {{ survey.author|display_name }}
       </a>
     {% else %}
-      <span class="proposal-author-name">—</span>
+      <span class="tw-proposal-author-name">—</span>
     {% endif %}
   </div>
 

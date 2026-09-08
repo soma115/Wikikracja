@@ -66,7 +66,7 @@
         <table class="tw-citizens-table tw-table-hover tw-table-sm tw-align-middle tw-mb-0">
           <tbody>
             {% for i in uid %}
-            <tr class="user-row tw-user-row{% if i.near_threshold %} tw-near-threshold{% endif %}{% if i.pending_deletion %} tw-bg-warning{% endif %}"
+            <tr class="tw-user-row{% if i.near_threshold %} tw-near-threshold{% endif %}{% if i.pending_deletion %} tw-bg-warning{% endif %}"
                 data-user-id="{{ i.pk }}"
                 data-href="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}{% if sort_param %}?{{ sort_param }}{% endif %}"
                 data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">

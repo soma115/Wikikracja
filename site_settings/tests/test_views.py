@@ -10,7 +10,7 @@ from site_settings.tests.utils import make_branding_png
 
 
 class SidebarBrandMarkRenderingTest(TestCase):
-    """Test 7 (TDD red): sidebar i topbar renderują <img brand-mark> gdy brand_mark istnieje."""
+    """Test 7 (TDD red): sidebar i topbar renderują <img tw-brand-mark> gdy brand_mark istnieje."""
 
     def setUp(self):
         self.tmp_media = tempfile.mkdtemp(prefix='wikikracja_test_media_')
@@ -30,7 +30,7 @@ class SidebarBrandMarkRenderingTest(TestCase):
         response = self.client.get(self.url)
         content = response.content.decode('utf-8')
         self.assertIn('fa-building-columns', content)
-        self.assertNotIn('class="brand-mark"', content)
+        self.assertNotIn('class="tw-brand-mark"', content)
 
     def test_renders_img_brand_mark_when_brand_mark_exists(self):
         ss = SiteSettings.get()
@@ -39,8 +39,8 @@ class SidebarBrandMarkRenderingTest(TestCase):
 
         response = self.client.get(self.url)
         content = response.content.decode('utf-8')
-        # <img brand-mark> obecne (sidebar + topbar; konkretna liczba zależy od theme switching — test 8)
-        self.assertIn('class="brand-mark', content)
+        # <img tw-brand-mark> obecne (sidebar + topbar; konkretna liczba zależy od theme switching — test 8)
+        self.assertIn('class="tw-brand-mark', content)
         # fallback FA ikona już nie renderowana
         self.assertNotIn('fa-building-columns', content)
         # URL z MEDIA_URL

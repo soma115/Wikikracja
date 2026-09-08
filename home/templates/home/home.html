@@ -77,7 +77,7 @@
         <span class="tw-section-heading tw-tile-heading">
           <i class="fas fa-stream tw-me-1 tw-text-accent tw-opacity-70"></i>{% trans "Activity" %}
         </span>
-        <a href="{% url 'activity' %}?filter=unread" class="tw-dashboard-counter-btn{% if unread_count %} has-count{% endif %}">
+        <a href="{% url 'activity' %}?filter=unread" class="tw-dashboard-counter-btn{% if unread_count %} tw-has-count{% endif %}">
           <i class="fas fa-bell"></i>
           <span>{{ unread_count|default:0 }}</span>
         </a>
@@ -307,7 +307,7 @@
         </div>
         {% if my_tasks %}
         <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for task in my_tasks %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-            <span class="tw-badge-status tw-badge-approved tw-shrink-0 badge-status-sm">
+            <span class="tw-badge-status tw-badge-approved tw-shrink-0 tw-badge-status-sm">
               {% trans "Active" %}
             </span>
             <a href="{% url 'tasks:detail' task.pk %}"
@@ -395,7 +395,7 @@
         </span>
         <a id="chat-unread-badge"
            href="{% url 'chat:chat' %}?view=unread"
-           class="tw-dashboard-counter-btn{% if chat_unread_count %} has-count{% endif %}">
+           class="tw-dashboard-counter-btn{% if chat_unread_count %} tw-has-count{% endif %}">
           <i class="fas fa-comments"></i>
           <span id="chat-unread-label">{% if chat_unread_count %}{{ chat_unread_count }} {% trans "unread" %}{% else %}{% trans "Open chat" %}{% endif %}</span>
         </a>
@@ -514,10 +514,10 @@
     badge.href = CHAT_URL + '?view=unread';
     if (count > 0) {
       label.textContent = count + ' ' + UNREAD_LABEL;
-      badge.classList.add('has-count');
+      badge.classList.add('tw-has-count');
     } else {
       label.textContent = CHAT_LABEL;
-      badge.classList.remove('has-count');
+      badge.classList.remove('tw-has-count');
     }
   }
 

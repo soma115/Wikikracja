@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
             clearTimeout(searchTimer);
             searchTimer = setTimeout(() => {
                 const q = this.value.trim().toLowerCase();
-                const rows  = listView ? listView.querySelectorAll('.user-row') : [];
+                const rows  = listView ? listView.querySelectorAll('.tw-user-row') : [];
                 const cards = gridView ? gridView.querySelectorAll('.tw-citizen-card') : [];
                 let visible = 0;
 
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const rowContainer = listView || document;
-    rowContainer.querySelectorAll('.user-row').forEach(row => {
+    rowContainer.querySelectorAll('.tw-user-row').forEach(row => {
         row.addEventListener('click', function (e) {
             if (!e.target.closest('button, a')) {
                 window.location.href = this.dataset.href;

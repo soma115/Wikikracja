@@ -4,25 +4,17 @@
 {% load profile_tags %}
 {% load feed_filters %}
 
-{% block extra_css %}
-<style>
-.email-frequency-cell { min-width: 140px; }
-</style>
-{% endblock %}
-
 {% block extra_js %}
 <script src="{% static 'obywatele/js/profile.js' %}"></script>
 <script>
-// Avatar hover overlay + preview + auto-submit
+// Avatar click-to-upload + preview + auto-submit (hover overlay is CSS-only)
 (function() {
   const wrap = document.getElementById('avatar-wrap');
-  const overlay = document.getElementById('avatar-overlay');
   const input = document.getElementById('avatar-input');
   const form = document.getElementById('avatar-form');
   if (!wrap) return;
 
-  wrap.addEventListener('mouseenter', function() { overlay.style.opacity = '1'; });
-  wrap.addEventListener('mouseleave', function() { overlay.style.opacity = '0'; });
+  wrap.addEventListener('click', function() { input.click(); });
 
   input.addEventListener('change', function() {
     if (!input.files || !input.files[0]) return;
@@ -36,8 +28,7 @@
         img.id = 'avatar-img';
         img.src = e.target.result;
         img.alt = 'avatar';
-        img.className = 'avatar avatar-7xl avatar-bordered';
-        img.style.cssText = 'display:block;';
+        img.className = 'tw-avatar tw-avatar-7xl tw-avatar-bordered';
         existing.replaceWith(img);
       }
     };
@@ -56,8 +47,8 @@
       {# Avatar z inline upload overlay #}
       <form id="avatar-form" method="post" action="{% url 'obywatele:upload_avatar' %}" enctype="multipart/form-data" class="tw-flex-shrink-0">
         {% csrf_token %}
-        <input class="mig-hidden tw-mig-hidden" type="file" id="avatar-input" name="avatar" accept="image/*">
-        <div class="tw-avatar-upload-wrap" id="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
+        <input class="tw-d-none" type="file" id="avatar-input" name="avatar" accept="image/*">
+        <div class="tw-avatar-upload-wrap" id="avatar-wrap">
           {% include "home/_user_avatar.html" with avatar=profile.avatar username=user.username display_name=user|display_name size="7xl" extra_class="tw-avatar-bordered" id="avatar-img" loading_lazy=False %}
           <div class="tw-avatar-overlay" id="avatar-overlay">
             <i class="fas fa-camera tw-avatar-overlay-icon"></i>
@@ -112,19 +103,19 @@
       </a>
     </div>
     <div class="tw-card-body">
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "City / Commune" %}</span><span class="tw-profile-val {% if not profile.city %}empty{% endif %}">{{ profile.city|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Voivodeship" %}</span><span class="tw-profile-val {% if not profile.voivodeship %}empty{% endif %}">{{ profile.voivodeship.name|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Communicator or Phone" %}</span><span class="tw-profile-val {% if not profile.phone %}empty{% endif %}">{{ profile.phone|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Job" %}</span><span class="tw-profile-val {% if not profile.job %}empty{% endif %}">{{ profile.job|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Responsibilities" %}</span><span class="tw-profile-val {% if not profile.responsibilities %}empty{% endif %}">{{ profile.responsibilities|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Business" %}</span><span class="tw-profile-val {% if not profile.business %}empty{% endif %}">{{ profile.business|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Skills / Knowledge / Hobby" %}</span><span class="tw-profile-val {% if not profile.skills_knowledge_hobby %}empty{% endif %}">{{ profile.skills_knowledge_hobby|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "I want to learn" %}</span><span class="tw-profile-val {% if not profile.want_to_learn %}empty{% endif %}">{{ profile.want_to_learn|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "To give away" %}</span><span class="tw-profile-val {% if not profile.to_give_away %}empty{% endif %}">{{ profile.to_give_away|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "To borrow" %}</span><span class="tw-profile-val {% if not profile.to_borrow %}empty{% endif %}">{{ profile.to_borrow|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "For sale" %}</span><span class="tw-profile-val {% if not profile.for_sale %}empty{% endif %}">{{ profile.for_sale|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "I need" %}</span><span class="tw-profile-val {% if not profile.i_need %}empty{% endif %}">{{ profile.i_need|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Why do you want to join?" %}</span><span class="tw-profile-val {% if not profile.why %}empty{% endif %}">{{ profile.why|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "City / Commune" %}</span><span class="tw-profile-val {% if not profile.city %}tw-profile-val--empty{% endif %}">{{ profile.city|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Voivodeship" %}</span><span class="tw-profile-val {% if not profile.voivodeship %}tw-profile-val--empty{% endif %}">{{ profile.voivodeship.name|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Communicator or Phone" %}</span><span class="tw-profile-val {% if not profile.phone %}tw-profile-val--empty{% endif %}">{{ profile.phone|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Job" %}</span><span class="tw-profile-val {% if not profile.job %}tw-profile-val--empty{% endif %}">{{ profile.job|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Responsibilities" %}</span><span class="tw-profile-val {% if not profile.responsibilities %}tw-profile-val--empty{% endif %}">{{ profile.responsibilities|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Business" %}</span><span class="tw-profile-val {% if not profile.business %}tw-profile-val--empty{% endif %}">{{ profile.business|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Skills / Knowledge / Hobby" %}</span><span class="tw-profile-val {% if not profile.skills_knowledge_hobby %}tw-profile-val--empty{% endif %}">{{ profile.skills_knowledge_hobby|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "I want to learn" %}</span><span class="tw-profile-val {% if not profile.want_to_learn %}tw-profile-val--empty{% endif %}">{{ profile.want_to_learn|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "To give away" %}</span><span class="tw-profile-val {% if not profile.to_give_away %}tw-profile-val--empty{% endif %}">{{ profile.to_give_away|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "To borrow" %}</span><span class="tw-profile-val {% if not profile.to_borrow %}tw-profile-val--empty{% endif %}">{{ profile.to_borrow|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "For sale" %}</span><span class="tw-profile-val {% if not profile.for_sale %}tw-profile-val--empty{% endif %}">{{ profile.for_sale|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "I need" %}</span><span class="tw-profile-val {% if not profile.i_need %}tw-profile-val--empty{% endif %}">{{ profile.i_need|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Why do you want to join?" %}</span><span class="tw-profile-val {% if not profile.why %}tw-profile-val--empty{% endif %}">{{ profile.why|default:"—" }}</span></div>
     </div>
   </div>
 
@@ -199,7 +190,7 @@
               <td>
                 <small class="tw-text-muted">{% trans "How often to receive an activity digest by email" %}</small>
               </td>
-              <td class="tw-text-end email-frequency-cell">
+              <td class="tw-text-end tw-email-frequency-cell">
                 <select id="email-frequency" class="tw-form-select tw-form-select-sm" aria-label="{% trans "Email frequency" %}" data-url="{% url 'obywatele:toggle_notification' %}?type=email_frequency">
                   {% for value, label in email_frequency_choices %}
                   <option value="{{ value }}" {% if email_frequency == value %}selected{% endif %}>{{ label }}</option>

@@ -19,4 +19,4 @@ def citizen_color(username):
 @register.filter
 def citizen_color_class(username):
     """Return a deterministic CSS class for a username colour."""
-    return 'citizen-color-' + str(int(hashlib.md5(str(username).encode()).hexdigest(), 16) % len(_CITIZEN_COLORS))
+    return 'tw-citizen-color-' + str(int(hashlib.md5(str(username).encode()).hexdigest(), 16) % len(_CITIZEN_COLORS))

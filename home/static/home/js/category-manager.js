@@ -36,45 +36,45 @@
 
     function renderRow(cat) {
       var li = document.createElement('li');
-      li.className = 'cat-mgr-row';
+      li.className = 'tw-cat-mgr-row';
       li.dataset.id = cat.id;
 
       if (urls.reorder) {
         var grip = document.createElement('span');
-        grip.className = 'cat-mgr-handle';
+        grip.className = 'tw-cat-mgr-handle';
         grip.innerHTML = '<i class="fas fa-grip-vertical"></i>';
         li.appendChild(grip);
       }
 
       var info = document.createElement('div');
-      info.className = 'cat-mgr-info';
+      info.className = 'tw-cat-mgr-info';
       var nameEl = document.createElement('div');
-      nameEl.className = 'cat-mgr-name';
+      nameEl.className = 'tw-cat-mgr-name';
       nameEl.textContent = cat.name;
       var descEl = document.createElement('div');
-      descEl.className = 'cat-mgr-desc';
+      descEl.className = 'tw-cat-mgr-desc';
       descEl.textContent = cat.description || '';
       info.appendChild(nameEl);
       info.appendChild(descEl);
 
       var badge = document.createElement('span');
-      badge.className = 'cat-mgr-badge';
+      badge.className = 'tw-cat-mgr-badge';
       badge.textContent = (cat.item_count || 0) + ' ' + msg.items_suffix;
 
       var actions = document.createElement('div');
-      actions.className = 'cat-mgr-actions';
+      actions.className = 'tw-cat-mgr-actions';
 
       if (!cat.is_protected) {
         var editBtn = document.createElement('button');
         editBtn.type = 'button';
-        editBtn.className = 'cat-mgr-btn';
+        editBtn.className = 'tw-cat-mgr-btn';
         editBtn.title = msg.edit;
         editBtn.innerHTML = '<i class="fas fa-pencil"></i>';
         editBtn.addEventListener('click', function () { startEdit(li, cat); });
 
         var delBtn = document.createElement('button');
         delBtn.type = 'button';
-        delBtn.className = 'cat-mgr-btn cat-mgr-btn--delete';
+        delBtn.className = 'tw-cat-mgr-btn tw-cat-mgr-btn--delete';
         delBtn.title = msg.delete;
         delBtn.innerHTML = '<i class="fas fa-trash"></i>';
         delBtn.addEventListener('click', function () { deleteCategory(cat, li); });
@@ -83,7 +83,7 @@
         actions.appendChild(delBtn);
       } else {
         var prot = document.createElement('span');
-        prot.className = 'cat-mgr-protected';
+        prot.className = 'tw-cat-mgr-protected';
         prot.title = msg.protected;
         prot.innerHTML = '<i class="fas fa-lock"></i>';
         actions.appendChild(prot);
@@ -96,21 +96,21 @@
     }
 
     function startEdit(li, cat) {
-      li.classList.add('cat-mgr-row--editing');
+      li.classList.add('tw-cat-mgr-row--editing');
       li.innerHTML = '';
       var fields = document.createElement('div');
-      fields.className = 'cat-mgr-edit-fields';
+      fields.className = 'tw-cat-mgr-edit-fields';
 
       var ni = document.createElement('input');
-      ni.type = 'text'; ni.className = 'cat-mgr-input'; ni.value = cat.name; ni.maxLength = 100;
+      ni.type = 'text'; ni.className = 'tw-cat-mgr-input'; ni.value = cat.name; ni.maxLength = 100;
       var di = document.createElement('input');
-      di.type = 'text'; di.className = 'cat-mgr-input'; di.value = cat.description || '';
+      di.type = 'text'; di.className = 'tw-cat-mgr-input'; di.value = cat.description || '';
 
       var btns = document.createElement('div');
-      btns.className = 'cat-mgr-edit-btns';
+      btns.className = 'tw-cat-mgr-edit-btns';
 
       var saveB = document.createElement('button');
-      saveB.type = 'button'; saveB.className = 'cat-mgr-btn cat-mgr-btn--save';
+      saveB.type = 'button'; saveB.className = 'tw-cat-mgr-btn tw-cat-mgr-btn--save';
       saveB.title = msg.save; saveB.innerHTML = '<i class="fas fa-check"></i>';
       saveB.addEventListener('click', function () {
         var name = ni.value.trim();
@@ -126,7 +126,7 @@
       });
 
       var cancelB = document.createElement('button');
-      cancelB.type = 'button'; cancelB.className = 'cat-mgr-btn';
+      cancelB.type = 'button'; cancelB.className = 'tw-cat-mgr-btn';
       cancelB.title = msg.cancel; cancelB.innerHTML = '<i class="fas fa-xmark"></i>';
       cancelB.addEventListener('click', function () {
         li.replaceWith(renderRow(cat));
@@ -203,7 +203,7 @@
       if (urls.reorder && typeof initSortableList !== 'undefined') {
         if (sortable) { sortable.destroy(); sortable = null; }
         sortable = initSortableList(list, {
-          handle: '.cat-mgr-handle',
+          handle: '.tw-cat-mgr-handle',
           reorderUrl: urls.reorder,
           onError: function (m) { showError(m); },
         });

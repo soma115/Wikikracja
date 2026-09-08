@@ -15,7 +15,7 @@
             <td class="tw-text-nowrap">
               <a href="{% url 'chat:chat' %}#room_id={{ row.room.id }}&message_id={{ row.msg.id }}">{{ row.room_name }}</a>
             </td>
-            <td class="td-truncate">
+            <td class="tw-td-truncate">
               <a href="{% url 'chat:chat' %}#room_id={{ row.room.id }}&message_id={{ row.msg.id }}">{{ row.msg.text|plain_text|truncatechars:80 }}</a>
             </td>
             <td class="tw-text-muted tw-text-nowrap">
@@ -27,5 +27,5 @@
     </table>
   </div>
 {% else %}
-  <p class="tw-text-muted tw-p-3 tw-mb-0 citizen-tab-empty">{% trans "No chats found." %}</p>
+  <p class="tw-text-muted tw-p-3 tw-mb-0 tw-citizen-tab-empty">{% trans "No chats found." %}</p>
 {% endif %}

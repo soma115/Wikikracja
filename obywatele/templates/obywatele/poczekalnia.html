@@ -34,7 +34,7 @@
         <table class="tw-citizens-table tw-table-hover tw-table-sm tw-align-middle tw-mb-0">
           <tbody>
             {% for i in uid|dictsortreversed:"date_joined" %}
-            <tr class="user-row tw-user-row"
+            <tr class="tw-user-row"
                 data-user-id="{{ i.pk }}"
                 data-href="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}"
                 data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">

@@ -13,11 +13,11 @@
 <div class="tw-proposals-list">
   {% if surveys %}
     {% for survey in surveys %}
-      <div class="proposal-card">
-        <div class="proposal-card-header" data-detail-url="{% url 'ankiety:detail' survey.pk %}" role="link" tabindex="0">
-          <div class="proposal-card-title-row">
-            <span class="proposal-card-num">#{{ survey.pk }}</span>
-            <a href="{% url 'ankiety:detail' survey.pk %}" class="proposal-card-title tw-no-underline">
+      <div class="tw-proposal-card">
+        <div class="tw-proposal-card-header" data-detail-url="{% url 'ankiety:detail' survey.pk %}" role="link" tabindex="0">
+          <div class="tw-proposal-card-title-row">
+            <span class="tw-proposal-card-num">#{{ survey.pk }}</span>
+            <a href="{% url 'ankiety:detail' survey.pk %}" class="tw-proposal-card-title tw-no-underline">
               {{ survey.title }}
             </a>
             {% if survey.is_active %}
@@ -32,34 +32,34 @@
             {% endif %}
           </div>
 
-          <div class="proposal-card-badges-row">
-            <span class="proposal-date" title="{% trans 'End date' %}">
+          <div class="tw-proposal-card-badges-row">
+            <span class="tw-proposal-date" title="{% trans 'End date' %}">
               <i class="fas fa-stopwatch" aria-hidden="true"></i>
               {% if survey.is_active %}<span data-countdown data-end="{{ survey.end_date|date:'c' }}">{{ survey.end_date|timeuntil }}</span>{% else %}{{ survey.end_date|date:'d.m.Y H:i' }}{% endif %}
             </span>
-            <span class="proposal-meta-sep">·</span>
-            <span class="proposal-signatures" title="{% trans 'Votes' %}">
+            <span class="tw-proposal-meta-sep">·</span>
+            <span class="tw-proposal-signatures" title="{% trans 'Votes' %}">
               <i class="fas fa-check-to-slot" aria-hidden="true"></i>
               {{ survey.total_votes }}
             </span>
-            <span class="proposal-meta-sep">·</span>
-            <span class="proposal-signatures" title="{% trans 'Options' %}">
+            <span class="tw-proposal-meta-sep">·</span>
+            <span class="tw-proposal-signatures" title="{% trans 'Options' %}">
               <i class="fas fa-list-ul" aria-hidden="true"></i>
               {{ survey.options.all|length }}
             </span>
-            <span class="proposal-meta-sep">·</span>
+            <span class="tw-proposal-meta-sep">·</span>
             {% if survey.author %}
-              <span class="proposal-author-name">
-                <i class="fas fa-user-pen proposal-role-icon" aria-hidden="true"></i>
+              <span class="tw-proposal-author-name">
+                <i class="fas fa-user-pen tw-proposal-role-icon" aria-hidden="true"></i>
                 {{ survey.author|display_name }}
               </span>
             {% else %}
-              <span class="proposal-author-name">—</span>
+              <span class="tw-proposal-author-name">—</span>
             {% endif %}
           </div>
         </div>
 
-        <div class="proposal-card-body">
+        <div class="tw-proposal-card-body">
           {% if survey.description %}
             <a href="{% url 'ankiety:detail' survey.pk %}" class="tw-block tw-text-muted tw-text-sm tw-no-underline">
               {{ survey.description|striptags|truncatewords:30 }}
@@ -86,7 +86,7 @@
                   </div>
                   <span class="tw-text-nowrap tw-text-muted">{{ option.vote_count }} ({{ option.percentage|unlocalize }}%)</span>
                 </div>
-                <div class="result-bar-track tw-w-full tw-mb-2"><div class="result-bar-fill" data-progress="{{ option.percentage|unlocalize }}"></div></div>
+                <div class="tw-result-bar-track tw-w-full tw-mb-2"><div class="tw-result-bar-fill" data-progress="{{ option.percentage|unlocalize }}"></div></div>
               {% empty %}
                 <p class="tw-text-muted tw-text-sm tw-mb-0">{% trans 'No options' %}</p>
               {% endfor %}
@@ -121,7 +121,7 @@
       </div>
     {% endfor %}
   {% else %}
-    <div class="tasks-empty tw-proposals-empty">
+    <div class="tw-proposals-empty">
       <i class="fas fa-clipboard-question fa-2x"></i>
       <div>
         {% if current_tab == 'active' %}

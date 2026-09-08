@@ -12,8 +12,8 @@
     return Sortable.create(listEl, {
       handle: opts.handle || undefined,
       animation: 150,
-      ghostClass: 'sortable-ghost',
-      chosenClass: 'sortable-chosen',
+      ghostClass: 'tw-sortable-ghost',
+      chosenClass: 'tw-sortable-chosen',
       onEnd: function () {
         var items = Array.from(listEl.children).map(function (li, idx) {
           return { id: parseInt(li.dataset.id, 10), order: idx };
@@ -68,9 +68,9 @@
 
     // Add a dedicated drag handle to each tile so it doesn't conflict with links
     Array.from(gridEl.children).forEach(function (tile) {
-      if (tile.querySelector('.drag-handle')) return;
+      if (tile.querySelector('.tw-drag-handle')) return;
       var handle = document.createElement('i');
-      handle.className = 'fas fa-grip-vertical drag-handle';
+      handle.className = 'fas fa-grip-vertical tw-drag-handle';
       handle.setAttribute('aria-hidden', 'true');
       var header = tile.querySelector('.tw-dashboard-tile-header');
       (header || tile).appendChild(handle);
@@ -78,12 +78,12 @@
 
     return Sortable.create(gridEl, {
       animation: 150,
-      handle: '.drag-handle',
+      handle: '.tw-drag-handle',
       delay: 0,
       forceFallback: true,
       fallbackClass: 'sortable-fallback',
-      ghostClass: 'sortable-ghost',
-      chosenClass: 'sortable-chosen',
+      ghostClass: 'tw-sortable-ghost',
+      chosenClass: 'tw-sortable-chosen',
       dragClass: 'sortable-drag',
       filter: opts.filter || 'button, input, select, textarea, .tw-btn, .tw-cal-nav, .tw-dashboard-counter-btn',
       preventOnFilter: false,

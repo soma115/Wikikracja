@@ -170,9 +170,9 @@ export function updateCounter(inputEl, counterEl, counterVal, sendBtn, maxLength
     const rem = maxLength - len;
     if (counterVal) counterVal.textContent = rem;
     if (!counterEl) return;
-    counterEl.classList.remove('counter--warn', 'counter--error');
-    if (rem <= 0 || rem <= 10) counterEl.classList.add('counter--error');
-    else if (rem <= 50) counterEl.classList.add('counter--warn');
+    counterEl.classList.remove('tw-msg-counter--warn', 'tw-msg-counter--error');
+    if (rem <= 0 || rem <= 10) counterEl.classList.add('tw-msg-counter--error');
+    else if (rem <= 50) counterEl.classList.add('tw-msg-counter--warn');
     if (sendBtn) sendBtn.disabled = rem <= 0;
 }
 
@@ -205,22 +205,22 @@ export function getVisibleTextLength(inputEl) {
 let _pasteHandlerReady = false;
 
 /**
- * Global clipboard image paste handler for all .message-input-rich elements.
- * Detects image in clipboard → injects into nearest .file-input within the same
- * .compose-box → triggers existing file preview/upload pipeline via change event.
+ * Global clipboard image paste handler for all .tw-message-input-rich elements.
+ * Detects image in clipboard → injects into nearest .tw-file-input within the same
+ * .tw-compose-box → triggers existing file preview/upload pipeline via change event.
  * Safe to call from multiple modules — registers only once.
  */
 export function initGlobalPasteImageHandler() {
     if (_pasteHandlerReady) return;
     _pasteHandlerReady = true;
     document.addEventListener('paste', (e) => {
-        if (!e.target.classList.contains('message-input-rich')) return;
+        if (!e.target.classList.contains('tw-message-input-rich')) return;
         const imageItem = Array.from(e.clipboardData?.items ?? []).find(it => it.type.startsWith('image/'));
         if (!imageItem) return;
         e.preventDefault();
         const blob = imageItem.getAsFile();
         if (!blob) return;
-        const fileInput = e.target.closest('.compose-box')?.querySelector('.file-input');
+        const fileInput = e.target.closest('.tw-compose-box')?.querySelector('.tw-file-input');
         if (!fileInput) return;
         const ext = blob.type.split('/')[1]?.split('+')[0] || 'png';
         const dt = new DataTransfer();

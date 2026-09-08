@@ -39,7 +39,7 @@
             {% endif %}
           </a>
         </th>
-        <th class="notes-col">
+        <th class="tw-notes-col">
           <a href="?sort=notes&order={% if current_sort == 'notes' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline tw-text-nowrap">
             {% trans 'Notes' %}
             {% if current_sort == 'notes' %}
@@ -56,7 +56,7 @@
       {% for partner in partners %}
         <tr>
           <td>
-            <a href="{% url 'bookkeeping:partner_detail' partner.pk %}" class="partner-name-link">{{ partner.name }}</a>
+            <a href="{% url 'bookkeeping:partner_detail' partner.pk %}" class="tw-partner-name-link">{{ partner.name }}</a>
           </td>
           <td>{{ partner.city|default:"—" }}</td>
           <td class="tw-break-words">
@@ -70,9 +70,9 @@
               —
             {% endif %}
           </td>
-          <td class="notes-col">
+          <td class="tw-notes-col">
             {% if partner.notes %}
-              <span class="partner-notes">
+              <span class="tw-partner-notes">
                 {{ partner.notes|linebreaksbr }}
               </span>
             {% else %}

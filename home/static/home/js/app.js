@@ -378,9 +378,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function applyView(mode) {
         var container = document.querySelector('[data-view-container]');
         if (!container) return;
-        container.classList.remove('view-grid', 'view-compact');
-        if (mode === 'grid') container.classList.add('view-grid');
-        else if (mode === 'compact') container.classList.add('view-compact');
+        container.classList.remove('tw-view-grid', 'tw-view-compact');
+        if (mode === 'grid') container.classList.add('tw-view-grid');
+        else if (mode === 'compact') container.classList.add('tw-view-compact');
         document.querySelectorAll('[data-view]').forEach(function(btn) {
             btn.classList.toggle('tw-active', btn.dataset.view === mode);
         });
@@ -392,10 +392,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 var show = el.dataset.viewOnly === mode;
                 el.style.display = show ? '' : 'none';
                 if (show) {
-                    if (mode === 'grid') el.classList.add('view-grid');
-                    else if (mode === 'compact') el.classList.add('view-compact');
+                    if (mode === 'grid') el.classList.add('tw-view-grid');
+                    else if (mode === 'compact') el.classList.add('tw-view-compact');
                 } else {
-                    el.classList.remove('view-grid', 'view-compact');
+                    el.classList.remove('tw-view-grid', 'tw-view-compact');
                 }
             });
         }
@@ -531,7 +531,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.addEventListener('DOMContentLoaded', function() {
     // Board category filter
-    const categoryChips = document.querySelectorAll('.category-chip');
+    const categoryChips = document.querySelectorAll('.tw-category-chip');
     categoryChips.forEach(function(chip) {
         chip.addEventListener('click', function() {
             const category = this.dataset.category;
@@ -559,13 +559,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const closeBtn = document.getElementById('sidebar-close-btn');
 
         function setSidebarOpen(open) {
-            if (sidebar) sidebar.classList.toggle('sidebar-open', open);
+            if (sidebar) sidebar.classList.toggle('tw-sidebar-open', open);
             if (overlay) overlay.style.display = open ? 'block' : 'none';
         }
 
         if (toggle) {
             toggle.addEventListener('click', function() {
-                const willOpen = sidebar && !sidebar.classList.contains('sidebar-open');
+                const willOpen = sidebar && !sidebar.classList.contains('tw-sidebar-open');
                 setSidebarOpen(!!willOpen);
             });
         }
@@ -595,7 +595,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!sidebar || !mobileQuery.matches || e.touches.length !== 1) return;
                 if (e.target.closest('input, textarea, select, [contenteditable]')) return;
                 const t = e.touches[0];
-                openedAtStart = sidebar.classList.contains('sidebar-open');
+                openedAtStart = sidebar.classList.contains('tw-sidebar-open');
                 if (openedAtStart && !sidebar.contains(e.target)) return;
                 tracking = true;
                 startX = t.clientX;
@@ -627,12 +627,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function applyState(collapsed) {
         if (collapsed) {
-            sidebar.classList.add('collapsed');
-            mainArea.classList.add('sidebar-collapsed');
+            sidebar.classList.add('tw-collapsed');
+            mainArea.classList.add('tw-sidebar-collapsed');
             icon.classList.replace('fa-angles-left', 'fa-angles-right');
         } else {
-            sidebar.classList.remove('collapsed');
-            mainArea.classList.remove('sidebar-collapsed');
+            sidebar.classList.remove('tw-collapsed');
+            mainArea.classList.remove('tw-sidebar-collapsed');
             icon.classList.replace('fa-angles-right', 'fa-angles-left');
         }
     }
@@ -640,7 +640,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Toggle sidebar state on button click
     btn.addEventListener('click', function() {
-        const isCollapsed = sidebar.classList.contains('collapsed');
+        const isCollapsed = sidebar.classList.contains('tw-collapsed');
         applyState(!isCollapsed);
         localStorage.setItem(STORAGE_KEY, String(!isCollapsed));
     });
@@ -1006,8 +1006,8 @@ document.addEventListener('DOMContentLoaded', function () {
             var linkId = parseInt(circle.dataset.linkId);
             var isRead = readLinks.indexOf(linkId) !== -1;
 
-            row.classList.toggle('is-read', isRead);
-            circle.classList.toggle('is-read', isRead);
+            row.classList.toggle('tw-is-read', isRead);
+            circle.classList.toggle('tw-is-read', isRead);
             circle.classList.toggle('fas', isRead);
             circle.classList.toggle('fa-check-circle', isRead);
             circle.classList.toggle('far', !isRead);
@@ -1058,23 +1058,23 @@ window.initChipFilters = function(options) {
     if (!form) return;
 
     var allBtn = form.querySelector('#sp-select-all');
-    var cbs = form.querySelectorAll('.sp-cb:not([value="all"])');
+    var cbs = form.querySelectorAll('.tw-chip-input:not([value="all"])');
     var qInput = options.queryInputId ? document.getElementById(options.queryInputId) : null;
     var restore = options.restore !== false;
 
     function setChip(cb, on) {
         cb.checked = on;
-        var chip = cb.closest('.sp-chip');
+        var chip = cb.closest('.tw-chip');
         if (chip) {
-            if (on) chip.classList.add('on');
-            else chip.classList.remove('on');
+            if (on) chip.classList.add('tw-chip--on');
+            else chip.classList.remove('tw-chip--on');
         }
     }
 
     function syncSelectAll() {
         if (!allBtn) return;
         var allChecked = Array.prototype.every.call(cbs, function (cb) { return cb.checked; });
-        setChip(allBtn.querySelector('.sp-cb'), allChecked);
+        setChip(allBtn.querySelector('.tw-chip-input'), allChecked);
     }
 
     function currentValues() {
@@ -1110,7 +1110,7 @@ window.initChipFilters = function(options) {
 
     if (allBtn) {
         allBtn.addEventListener('change', function () {
-            var allCb = allBtn.querySelector('.sp-cb');
+            var allCb = allBtn.querySelector('.tw-chip-input');
             var on = allCb.checked;
             setChip(allCb, on);
             cbs.forEach(function (cb) { setChip(cb, on); });
@@ -1179,14 +1179,14 @@ window.initCategoryFilter = function(options) {
     var manageBtn = document.getElementById('catManageBtn');
     if (!btn || !panel || !labelEl || !allRow) return;
 
-    var catRows = Array.from(panel.querySelectorAll('.cat-filter__item:not(.cat-filter__all)'));
+    var catRows = Array.from(panel.querySelectorAll('.tw-cat-filter-item:not(.tw-cat-filter-all)'));
 
     var itemsSelector = options.itemsSelector;
     if (!itemsSelector) {
-        if (document.querySelector('.task-card[data-category]')) {
-            itemsSelector = '.task-card[data-category]';
-        } else if (document.querySelector('.proposal-card[data-category]')) {
-            itemsSelector = '.proposal-card[data-category]';
+        if (document.querySelector('.tw-task-card[data-category]')) {
+            itemsSelector = '.tw-task-card[data-category]';
+        } else if (document.querySelector('.tw-proposal-card[data-category]')) {
+            itemsSelector = '.tw-proposal-card[data-category]';
         } else if (document.querySelector('.tw-board-category-group[data-category-pk]')) {
             itemsSelector = '.tw-board-category-group[data-category-pk]';
         }
@@ -1197,8 +1197,8 @@ window.initCategoryFilter = function(options) {
         items = Array.from(document.querySelectorAll(itemsSelector));
         var sectionSelector = options.sectionSelector;
         if (!sectionSelector) {
-            if (itemsSelector.indexOf('task-card') !== -1 || itemsSelector.indexOf('proposal-card') !== -1) {
-                sectionSelector = '.tasks-section-label';
+            if (itemsSelector.indexOf('tw-task-card') !== -1 || itemsSelector.indexOf('tw-proposal-card') !== -1) {
+                sectionSelector = '.tw-tasks-section-label';
             }
         }
         if (sectionSelector) sections = Array.from(document.querySelectorAll(sectionSelector));
@@ -1210,7 +1210,7 @@ window.initCategoryFilter = function(options) {
     var onNavigate = options.onNavigate;
 
     function selected() {
-        return catRows.filter(function(r) { return r.classList.contains('selected'); })
+        return catRows.filter(function(r) { return r.classList.contains('tw-active'); })
                       .map(function(r) { return r.dataset.key; });
     }
 
@@ -1218,7 +1218,7 @@ window.initCategoryFilter = function(options) {
         var sel = selected();
         var all = sel.length === 0;
 
-        allRow.classList.toggle('selected', all);
+        allRow.classList.toggle('tw-active', all);
 
         items.forEach(function(item) {
             var key = item.dataset.category || item.dataset.categoryPk || '';
@@ -1228,7 +1228,7 @@ window.initCategoryFilter = function(options) {
         sections.forEach(function(label) {
             var sib = label.nextElementSibling;
             var vis = false;
-            while (sib && !sib.classList.contains('tasks-section-label')) {
+            while (sib && !sib.classList.contains('tw-tasks-section-label')) {
                 if (sib.matches(itemsSelector) && sib.style.display !== 'none') { vis = true; break; }
                 sib = sib.nextElementSibling;
             }
@@ -1283,7 +1283,7 @@ window.initCategoryFilter = function(options) {
     }
 
     function fetchTasksList(url) {
-        var container = document.getElementById('tasks-list-container');
+        var container = document.getElementById('tw-tasks-list-container');
         if (!container) {
             window.location.href = url;
             return;
@@ -1335,21 +1335,21 @@ window.initCategoryFilter = function(options) {
     var initial = params.getAll('category');
     initial.forEach(function(val) {
         catRows.forEach(function(row) {
-            if (String(row.dataset.key) === String(val)) row.classList.add('selected');
+            if (String(row.dataset.key) === String(val)) row.classList.add('tw-active');
         });
     });
 
     panel.addEventListener('click', function(e) { e.stopPropagation(); });
 
     allRow.addEventListener('click', function() {
-        catRows.forEach(function(r) { r.classList.remove('selected'); });
+        catRows.forEach(function(r) { r.classList.remove('tw-active'); });
         updateUI();
         updateHistory(reloadOnChange);
     });
 
     catRows.forEach(function(row) {
         row.addEventListener('click', function() {
-            row.classList.toggle('selected');
+            row.classList.toggle('tw-active');
             updateUI();
             updateHistory(reloadOnChange);
         });
@@ -1407,19 +1407,23 @@ window.toggleArgForm = function toggleArgForm(id) {
         if (ta) ta.focus();
     }
 };
+document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-arg-form-toggle]');
+    if (btn) window.toggleArgForm(btn.getAttribute('data-arg-form-toggle'));
+});
 
 // ============================================================
 // Citizen profile section toggles (lazy-loaded via AJAX)
 // ============================================================
 document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.citizen-section-btn').forEach(function (btn) {
+    document.querySelectorAll('.tw-citizen-section-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var targetId = btn.dataset.target;
             var section = document.getElementById(targetId);
             if (!section) return;
             var isOpen = section.style.display !== 'none';
-            document.querySelectorAll('.citizen-section').forEach(function (s) { s.style.display = 'none'; });
-            document.querySelectorAll('.citizen-section-btn').forEach(function (b) { b.classList.remove('tw-active'); });
+            document.querySelectorAll('.tw-citizen-section').forEach(function (s) { s.style.display = 'none'; });
+            document.querySelectorAll('.tw-citizen-section-btn').forEach(function (b) { b.classList.remove('tw-active'); });
             if (isOpen) return;
             btn.classList.add('tw-active');
             if (section.dataset.loaded) {
@@ -1438,8 +1442,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Open the default section (Tasks) automatically when the profile loads.
-    var defaultBtn = document.querySelector('.citizen-section-btn[data-default="true"]')
-                     || document.querySelector('.citizen-section-btn');
+    var defaultBtn = document.querySelector('.tw-citizen-section-btn[data-default="true"]')
+                     || document.querySelector('.tw-citizen-section-btn');
     if (defaultBtn) defaultBtn.click();
 });
 

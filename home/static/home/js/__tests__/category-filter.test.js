@@ -20,17 +20,17 @@ function buildCatFilter(items, extraCategories) {
     });
     (extraCategories || []).forEach(function(k) { allCategories.add(k); });
 
-    const rows = ['<div class="cat-filter__item cat-filter__all" id="catAllRow" data-key="" data-label="All"></div>'];
+    const rows = ['<div class="tw-cat-filter-item tw-cat-filter-all" id="catAllRow" data-key="" data-label="All"></div>'];
     allCategories.forEach(function(k) {
-        rows.push('<div class="cat-filter__item" data-key="' + k + '" data-label="' + k + '"></div>');
+        rows.push('<div class="tw-cat-filter-item" data-key="' + k + '" data-label="' + k + '"></div>');
     });
 
     return `
-        <div class="cat-filter" id="catFilter">
+        <div class="tw-cat-filter" id="catFilter">
             <button type="button" id="catFilterBtn" aria-expanded="false">
                 <span id="catFilterLabel">Category</span>
             </button>
-            <div class="cat-filter__panel" id="catFilterPanel" hidden>
+            <div class="tw-cat-filter-panel" id="catFilterPanel" hidden>
                 ${rows.join('')}
             </div>
         </div>
@@ -59,14 +59,14 @@ describe('initCategoryFilter', () => {
         document.documentElement.removeAttribute('data-prefs-scope');
     });
 
-    test('toggles the dropdown panel for task-card items', () => {
+    test('toggles the dropdown panel for tw-task-card items', () => {
         document.body.innerHTML = `
             <div class="proposals-list">
-                <div class="task-card" data-category="urgent">Urgent task</div>
-                <div class="task-card" data-category="later">Later task</div>
+                <div class="tw-task-card" data-category="urgent">Urgent task</div>
+                <div class="tw-task-card" data-category="later">Later task</div>
             </div>
         `;
-        const items = document.querySelectorAll('.task-card');
+        const items = document.querySelectorAll('.tw-task-card');
         document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
 
         window.initCategoryFilter();
@@ -79,53 +79,53 @@ describe('initCategoryFilter', () => {
         expect(btn.getAttribute('aria-expanded')).toBe('true');
     });
 
-    test('filters task-card items by category and hides empty sections', () => {
+    test('filters tw-task-card items by category and hides empty sections', () => {
         document.body.innerHTML = `
             <div class="proposals-list">
-                <div class="tasks-section-label">Active</div>
-                <div class="task-card" data-category="urgent">Urgent task</div>
-                <div class="task-card" data-category="later">Later task</div>
-                <div class="tasks-section-label">Done</div>
-                <div class="task-card" data-category="done">Done task</div>
+                <div class="tw-tasks-section-label">Active</div>
+                <div class="tw-task-card" data-category="urgent">Urgent task</div>
+                <div class="tw-task-card" data-category="later">Later task</div>
+                <div class="tw-tasks-section-label">Done</div>
+                <div class="tw-task-card" data-category="done">Done task</div>
             </div>
         `;
-        const items = document.querySelectorAll('.task-card');
+        const items = document.querySelectorAll('.tw-task-card');
         document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
 
         window.initCategoryFilter();
 
-        const rows = document.querySelectorAll('.cat-filter__item:not(.cat-filter__all)');
+        const rows = document.querySelectorAll('.tw-cat-filter-item:not(.tw-cat-filter-all)');
         const urgentRow = Array.from(rows).find(function(r) { return r.dataset.key === 'urgent'; });
 
         click(urgentRow);
 
-        const cards = Array.from(document.querySelectorAll('.task-card'));
+        const cards = Array.from(document.querySelectorAll('.tw-task-card'));
         expect(cards[0].style.display).toBe('');
         expect(cards[1].style.display).toBe('none');
         expect(cards[2].style.display).toBe('none');
 
-        const sections = Array.from(document.querySelectorAll('.tasks-section-label'));
+        const sections = Array.from(document.querySelectorAll('.tw-tasks-section-label'));
         expect(sections[0].style.display).toBe('');
         expect(sections[1].style.display).toBe('none');
     });
 
-    test('recognizes proposal-card items', () => {
+    test('recognizes tw-proposal-card items', () => {
         document.body.innerHTML = `
             <div class="proposals-list">
-                <div class="tasks-section-label">Proposals</div>
-                <div class="proposal-card" data-category="budget">Budget proposal</div>
-                <div class="proposal-card" data-category="rules">Rules proposal</div>
+                <div class="tw-tasks-section-label">Proposals</div>
+                <div class="tw-proposal-card" data-category="budget">Budget proposal</div>
+                <div class="tw-proposal-card" data-category="rules">Rules proposal</div>
             </div>
         `;
-        const items = document.querySelectorAll('.proposal-card');
+        const items = document.querySelectorAll('.tw-proposal-card');
         document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
 
         window.initCategoryFilter();
 
-        const rows = document.querySelectorAll('.cat-filter__item:not(.cat-filter__all)');
+        const rows = document.querySelectorAll('.tw-cat-filter-item:not(.tw-cat-filter-all)');
         click(rows[0]);
 
-        const cards = Array.from(document.querySelectorAll('.proposal-card'));
+        const cards = Array.from(document.querySelectorAll('.tw-proposal-card'));
         expect(cards[0].style.display).toBe('');
         expect(cards[1].style.display).toBe('none');
     });
@@ -140,7 +140,7 @@ describe('initCategoryFilter', () => {
 
         window.initCategoryFilter();
 
-        const rows = document.querySelectorAll('.cat-filter__item:not(.cat-filter__all)');
+        const rows = document.querySelectorAll('.tw-cat-filter-item:not(.tw-cat-filter-all)');
         click(rows[0]);
 
         const groups = Array.from(document.querySelectorAll('.tw-board-category-group'));
@@ -171,22 +171,22 @@ describe('initCategoryFilter', () => {
     test('clicking "All" shows every item again', () => {
         document.body.innerHTML = `
             <div class="proposals-list">
-                <div class="task-card" data-category="a">A</div>
-                <div class="task-card" data-category="b">B</div>
+                <div class="tw-task-card" data-category="a">A</div>
+                <div class="tw-task-card" data-category="b">B</div>
             </div>
         `;
-        const items = document.querySelectorAll('.task-card');
+        const items = document.querySelectorAll('.tw-task-card');
         document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
 
         window.initCategoryFilter();
 
-        const rows = document.querySelectorAll('.cat-filter__item:not(.cat-filter__all)');
+        const rows = document.querySelectorAll('.tw-cat-filter-item:not(.tw-cat-filter-all)');
         click(rows[0]);
 
         const allRow = document.getElementById('catAllRow');
         click(allRow);
 
-        const cards = Array.from(document.querySelectorAll('.task-card'));
+        const cards = Array.from(document.querySelectorAll('.tw-task-card'));
         expect(cards[0].style.display).toBe('');
         expect(cards[1].style.display).toBe('');
     });
@@ -195,18 +195,18 @@ describe('initCategoryFilter', () => {
         document.documentElement.setAttribute('data-prefs-scope', 'tasks');
         document.body.innerHTML = `
             <div class="proposals-list">
-                <div class="task-card" data-category="urgent">Urgent task</div>
-                <div class="task-card" data-category="later">Later task</div>
+                <div class="tw-task-card" data-category="urgent">Urgent task</div>
+                <div class="tw-task-card" data-category="later">Later task</div>
             </div>
         `;
-        const items = document.querySelectorAll('.task-card');
+        const items = document.querySelectorAll('.tw-task-card');
         document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
 
         const onNavigate = jest.fn();
         const writeSpy = jest.spyOn(window.PagePrefs, 'write').mockImplementation(() => {});
         window.initCategoryFilter({ onNavigate: onNavigate });
 
-        const rows = document.querySelectorAll('.cat-filter__item:not(.cat-filter__all)');
+        const rows = document.querySelectorAll('.tw-cat-filter-item:not(.tw-cat-filter-all)');
         const urgentRow = Array.from(rows).find(function(r) { return r.dataset.key === 'urgent'; });
 
         click(urgentRow);
@@ -214,7 +214,7 @@ describe('initCategoryFilter', () => {
         expect(writeSpy).toHaveBeenCalledWith({ filters: '?category=urgent', lastUrl: '/?category=urgent' });
         expect(onNavigate).toHaveBeenCalledWith('/?category=urgent');
 
-        const cards = Array.from(document.querySelectorAll('.task-card'));
+        const cards = Array.from(document.querySelectorAll('.tw-task-card'));
         expect(cards[0].style.display).toBe('');
         expect(cards[1].style.display).toBe('none');
     });
@@ -232,7 +232,7 @@ describe('initCategoryFilter', () => {
         expect(panel.hidden).toBe(false);
         expect(btn.getAttribute('aria-expanded')).toBe('true');
 
-        const rows = document.querySelectorAll('.cat-filter__item:not(.cat-filter__all)');
+        const rows = document.querySelectorAll('.tw-cat-filter-item:not(.tw-cat-filter-all)');
         click(rows[0]);
 
         expect(history.pushState).toHaveBeenCalled();
@@ -241,10 +241,10 @@ describe('initCategoryFilter', () => {
     test('reopens the panel on load when a category was just selected (sessionStorage flag)', () => {
         document.body.innerHTML = `
             <div class="proposals-list">
-                <div class="task-card" data-category="urgent">Urgent task</div>
+                <div class="tw-task-card" data-category="urgent">Urgent task</div>
             </div>
         `;
-        const items = document.querySelectorAll('.task-card');
+        const items = document.querySelectorAll('.tw-task-card');
         document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
 
         sessionStorage.setItem('catFilterOpen', '1');
@@ -275,7 +275,7 @@ describe('initCategoryFilter', () => {
         var data = window.PagePrefs.read();
         expect(data.views.mine).toBe('compact');
         expect(data.view).toBe('compact');
-        expect(document.getElementById('view-container').classList.contains('view-compact')).toBe(true);
+        expect(document.getElementById('view-container').classList.contains('tw-view-compact')).toBe(true);
 
         locationSpy.mockReturnValue({ search: '?tab=active', pathname: '/tasks/', href: 'http://localhost/tasks/?tab=active' });
         window.PagePrefs.setView('list');

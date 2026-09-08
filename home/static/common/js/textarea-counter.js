@@ -14,9 +14,9 @@
         if (textarea.dataset.charcounterInit === '1') return;
         textarea.dataset.charcounterInit = '1';
 
-        const wrapper = textarea.closest('.textarea-counter-wrapper');
-        const counterEl = wrapper ? wrapper.querySelector('.msg-counter') : null;
-        const counterVal = wrapper ? wrapper.querySelector('.msg-counter-val') : null;
+        const wrapper = textarea.closest('.tw-textarea-counter-wrapper');
+        const counterEl = wrapper ? wrapper.querySelector('.tw-msg-counter') : null;
+        const counterVal = wrapper ? wrapper.querySelector('.tw-msg-counter-val') : null;
         const maxLength = parseInt(textarea.getAttribute('maxlength') || '0', 10) || Infinity;
         if (!counterVal) return;
 
@@ -24,9 +24,9 @@
             const rem = maxLength - textarea.value.length;
             counterVal.textContent = rem;
             if (!counterEl) return;
-            counterEl.classList.remove('counter--warn', 'counter--error');
-            if (rem <= 0 || rem <= 10) counterEl.classList.add('counter--error');
-            else if (rem <= 50) counterEl.classList.add('counter--warn');
+            counterEl.classList.remove('tw-msg-counter--warn', 'tw-msg-counter--error');
+            if (rem <= 0 || rem <= 10) counterEl.classList.add('tw-msg-counter--error');
+            else if (rem <= 50) counterEl.classList.add('tw-msg-counter--warn');
         }
 
         textarea.addEventListener('input', sync);

@@ -21,7 +21,7 @@
     function getRichTextEditable(hiddenInput) {
         const wrapper = hiddenInput.closest(RICHTEXT_SELECTOR);
         if (!wrapper) return null;
-        return wrapper.querySelector('.richtext-input');
+        return wrapper.querySelector('.tw-richtext-input');
     }
 
     function getRichTextHidden(editable) {

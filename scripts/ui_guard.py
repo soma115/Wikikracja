@@ -24,60 +24,62 @@ UI_STANDARDS_FILE = BASE_DIR / 'docs' / 'UI_STANDARDS.html'
 CSS_SOURCE = BASE_DIR / 'home' / 'static' / 'home' / 'css' / 'tailwind.css'
 TOKENS_FILE = BASE_DIR / 'home' / 'static' / 'home' / 'css' / 'tokens.css'
 
-IGNORED_DIRS = {'.git', '.venv', 'venv', 'node_modules', 'static', '__pycache__', '.ruff_cache', '.pytest_cache', '.mypy_cache', 'media', '.idea'}
+# 'static' is intentionally NOT ignored here: only the repo-root static/
+# directory (collectstatic output) is skipped — see _should_ignore/all_files.
+# Module sources under <app>/static/ are always checked.
+IGNORED_DIRS = {'.git', '.venv', 'venv', 'node_modules', '__pycache__', '.ruff_cache', '.pytest_cache', '.mypy_cache', 'media', '.idea', 'lib', 'tinymce'}
 
-# Paths intentionally exempt from full UI guard (docs, allauth).
-EXEMPT_FILES = {
-    'docs/UI_STANDARDS.html',
-}
+# Repo-root directory produced by collectstatic — generated, never scanned.
+GENERATED_DIRS = {'static'}
 
-EXEMPT_PREFIXES = ('templates/allauth/',)
+# Paths intentionally exempt from full UI guard (self-styled docs page).
+EXEMPT_FILES = {'docs/UI_STANDARDS.html'}
 
 # Allow-list for non-tw-* semantic hooks. Each entry is a regex.
 FONTAWESOME_PREFIXES = {'fas', 'far', 'fab', 'fal', 'fa-fw'}
 
 ALLOWED_NON_TW_CLASSES = [
+    # PagePrefs/JS visibility hook — toggled via inline style.display and must
+    # stay a plain (non-!important) class; deliberately not tw-*.
     r'^mig-hidden$',
-    r'^tw-mig-hidden$',
-    r'^user-row$',
-    r'^citizen-tab-empty$',
-    r'^empty-state-icon$',
-    r'^proposals-empty$',
-    r'^tasks-empty$',
-    r'^sp-chip$',
-    r'^sp-cb$',
-    r'^filter-btn-.*',
-    r'^btn-mark-all$',
-    r'^badge-.*',
-    r'^proposal-card.*',
-    r'^task-card.*',
-    r'^arg-.*',
-    r'^info-icon-btn$',
-    r'^cat-filter.*',
-    r'^view-toggle-btn.*',
-    r'^view-label$',
-    r'^search-result-link$',
-    r'^notif-banner-wrap$',
-    r'^text-muted$',
-    r'^hidden$',
-    r'^disabled$',
-    r'^readonly$',
+    # Django/crispy-forms validation state contract (home/templates/tw/*,
+    # core/widgets.py, form JS) — semantic hook, not a component class.
     r'^is-invalid$',
-    r'^requiredField$',
-    r'^asteriskField$',
-    r'^description$',
-    r'^error$',
-    r'^has-danger$',
-    r'^empty-form$',
-    r'^citizen-section$',
-    r'^citizen-section-btn$',
-    r'^dot-public$',
-    r'^dot-private$',
+    r'^is-valid$',
+    # HTML state attributes emitted as class hooks.
+    r'^hidden$',
+    r'^readonly$',
+    r'^disabled$',
+    r'^required$',
+    # crispy-forms layout contract (home/templates/tw/layout/buttonholder.html).
+    r'^buttonHolder$',
+    # django-allauth stock template classes kept for upstream compatibility.
+    r'^ctrlHolder$',
+    r'^blockLabels$',
+    r'^primaryAction$',
+    r'^secondaryAction$',
+    r'^verified$',
+    r'^unverified$',
+    r'^login$',
+    r'^title$',
+    # django-simple-captcha markup.
+    r'^captcha$',
+    # TinyMCE vendor classes.
+    r'^tox-.*',
+    # Richtext/counter widget wrapper contract (core/widgets.py + CSS).
+    r'^richtext-wrapper$',
+    # Transactional e-mail templates keep scoped classes — external mail
+    # clients cannot consume the Tailwind pipeline (home/templates/emails/).
     r'^email-.*',
-    r'^user-name$',
-    r'^citizen-color-.*',
-    r'^task-meta-status-.*',
 ]
+
+# Inline style assignments that should be classes instead. `style.display` and
+# `style.setProperty('--var')` are excluded — PagePrefs view toggles and dynamic
+# CSS-variable updates are the sanctioned mechanisms.
+JS_INLINE_STYLE_RE = re.compile(
+    r'\.style\.(?:cssText|opacity|visibility|color|background(?:Color)?|width|height'
+    r'|minWidth|minHeight|maxWidth|maxHeight|fontSize|padding\w*|margin\w*|border\w*)\s*='
+)
 
 
 class UIGuard:
@@ -110,11 +112,17 @@ class UIGuard:
 
     def _should_ignore(self, path):
         rel = '/'.join(path.relative_to(BASE_DIR).parts)
-        if any(part in IGNORED_DIRS for part in path.parts):
+        parts = path.relative_to(BASE_DIR).parts
+        # Skip generated collectstatic output (repo-root static/) while still
+        # checking module sources under <app>/static/.
+        if parts and parts[0] in GENERATED_DIRS:
+            return True
+        # Vendored/minified bundles are not project classes.
+        if path.name.endswith(('.min.js', '.min.css')):
+            return True
+        if any(part in IGNORED_DIRS for part in parts):
             return True
         if rel in EXEMPT_FILES:
-            return True
-        if any(rel.startswith(prefix) or rel.endswith(prefix) for prefix in EXEMPT_PREFIXES):
             return True
         return False
 
@@ -139,7 +147,13 @@ class UIGuard:
                 if ':' in cls or '{' in cls or '%' in cls or '/' in cls or '(' in cls:
                     # Jinja/Django template expressions and noise
                     continue
-                if self._is_allowed_non_tw(cls) or cls in self.known_css_classes:
+                if self._is_allowed_non_tw(cls):
+                    continue
+                if cls in self.known_css_classes:
+                    # Being defined in the shared stylesheet does NOT make an
+                    # unprefixed class legal — surface it so it gets migrated
+                    # or explicitly allowlisted.
+                    self.warnings.append(f"{path}:{line_no}: non-tw class '{cls}' is defined in the shared stylesheet; migrate to tw-* or allowlist")
                     continue
                 # Only flag classes that look like custom component classes.
                 if '-' not in cls:
@@ -168,6 +182,19 @@ class UIGuard:
                 continue
             self.issues.append(f"{path}:{line_no}: module-specific stylesheet link not allowed")
 
+    def _style_block_issues(self, html, line_no, path):
+        # Transactional e-mail templates need self-contained styles — external
+        # mail clients cannot consume the Tailwind pipeline.
+        rel = '/'.join(path.relative_to(BASE_DIR).parts)
+        if '/emails/' in rel:
+            return
+        if re.search(r'<style\b', html):
+            self.issues.append(f"{path}:{line_no}: inline <style> block not allowed (move rules to tailwind.css)")
+
+    def _js_inline_style_issues(self, code, line_no, path):
+        for match in JS_INLINE_STYLE_RE.finditer(code):
+            self.warnings.append(f"{path}:{line_no}: JS inline style '{match.group(0).strip()}' — prefer a tw-* class (display/CSS variables are allowed)")
+
     def _should_expect_toolbar(self, path):
         """Shared toolbar is only mandatory on main module list views."""
         name = path.name
@@ -187,6 +214,8 @@ class UIGuard:
             self._icon_issues(line, i, path)
             self._inline_style_issues(line, i, path)
             self._link_stylesheet_issues(line, i, path)
+            self._style_block_issues(line, i, path)
+            self._js_inline_style_issues(line, i, path)
 
         # Structural guidance
         if self._should_expect_toolbar(path):
@@ -206,6 +235,8 @@ class UIGuard:
         text = path.read_text(encoding='utf-8', errors='ignore')
         for match in re.finditer(r"matchMedia\('\(max-width:\s*(\d+)", text):
             self.warnings.append(f"{path}: hardcoded matchMedia breakpoint {match.group(1)}px; use shared breakpoints.js")
+        for i, line in enumerate(text.splitlines(), 1):
+            self._js_inline_style_issues(line, i, path)
 
     def _check_html_lines(self, lines, path, is_new_file=False):
         for i, line in lines:
@@ -213,6 +244,8 @@ class UIGuard:
             self._icon_issues(line, i, path)
             self._inline_style_issues(line, i, path)
             self._link_stylesheet_issues(line, i, path)
+            self._style_block_issues(line, i, path)
+            self._js_inline_style_issues(line, i, path)
         if is_new_file and self._should_expect_toolbar(path):
             text = '\n'.join(line for _, line in lines)
             if 'tw-toolbar' not in text and 'home/includes/toolbar.html' not in text:
@@ -231,6 +264,7 @@ class UIGuard:
         for i, line in lines:
             for match in re.finditer(r"matchMedia\('\(max-width:\s*(\d+)", line):
                 self.warnings.append(f"{path}:{i}: hardcoded matchMedia breakpoint {match.group(1)}px; use shared breakpoints.js")
+            self._js_inline_style_issues(line, i, path)
 
     def check_file(self, path, lines=None, is_new_file=False):
         if self._should_ignore(path):
@@ -356,9 +390,14 @@ def all_files():
     files = []
     for root, dirs, filenames in os.walk(BASE_DIR):
         for d in list(dirs):
-            if d in IGNORED_DIRS:
+            # Repo-root 'static/' is collectstatic output — generated, skipped.
+            # 'static' is deliberately absent from IGNORED_DIRS so module
+            # sources under <app>/static/ remain checked.
+            if d in IGNORED_DIRS or (Path(root) == BASE_DIR and d in GENERATED_DIRS):
                 dirs.remove(d)
         for name in filenames:
+            if name.endswith(('.min.js', '.min.css')):
+                continue
             if name.endswith(('.html', '.css', '.js')):
                 files.append(str(Path(root) / name))
     return sorted(files)

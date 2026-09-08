@@ -39,33 +39,33 @@
           {% endwith %}
         {% endif %}
       </div>
-      <div class="task-meta-row tw-flex tw-flex-wrap tw-gap-2 tw-mb-3">
-        <span class="task-meta-item" title="{% trans 'Author' %}">
-          <i class="fas fa-user-pen task-meta-icon"></i>
-          <span class="task-meta-label">{% trans "Author" %}</span>
-          <strong class="task-meta-value">{{ task.created_by|default:_("Unknown") }}</strong>
+      <div class="tw-task-meta-row tw-flex tw-flex-wrap tw-gap-2 tw-mb-3">
+        <span class="tw-task-meta-item" title="{% trans 'Author' %}">
+          <i class="fas fa-user-pen tw-task-meta-icon"></i>
+          <span class="tw-task-meta-label">{% trans "Author" %}</span>
+          <strong class="tw-task-meta-value">{{ task.created_by|default:_("Unknown") }}</strong>
         </span>
-        <span class="task-meta-item" title="{% trans 'Coordinator' %}">
-          <i class="fas fa-user-shield task-meta-icon"></i>
-          <span class="task-meta-label">{% trans "Coordinator" %}</span>
-          <strong class="task-meta-value" data-coord-label>{{ task.assigned_to|default:_("None") }}</strong>
+        <span class="tw-task-meta-item" title="{% trans 'Coordinator' %}">
+          <i class="fas fa-user-shield tw-task-meta-icon"></i>
+          <span class="tw-task-meta-label">{% trans "Coordinator" %}</span>
+          <strong class="tw-task-meta-value" data-coord-label>{{ task.assigned_to|default:_("None") }}</strong>
         </span>
-        <span class="task-meta-item" title="{% trans 'Status' %}">
-          <i class="fas fa-circle-info task-meta-icon"></i>
-          <span class="task-meta-label">{% trans "Status" %}</span>
-          <strong class="task-meta-value task-meta-status-{{ task.status }}">{{ task.get_status_display }}</strong>
+        <span class="tw-task-meta-item" title="{% trans 'Status' %}">
+          <i class="fas fa-circle-info tw-task-meta-icon"></i>
+          <span class="tw-task-meta-label">{% trans "Status" %}</span>
+          <strong class="tw-task-meta-value tw-task-meta-status-{{ task.status }}">{{ task.get_status_display }}</strong>
         </span>
         {% if task.category %}
-        <span class="task-meta-item" title="{% trans 'Category' %}">
-          <i class="fas fa-tag task-meta-icon"></i>
-          <span class="task-meta-label">{% trans "Category" %}</span>
-          <strong class="task-meta-value">{{ task.category.name }}</strong>
+        <span class="tw-task-meta-item" title="{% trans 'Category' %}">
+          <i class="fas fa-tag tw-task-meta-icon"></i>
+          <span class="tw-task-meta-label">{% trans "Category" %}</span>
+          <strong class="tw-task-meta-value">{{ task.category.name }}</strong>
         </span>
         {% endif %}
-        <span class="task-meta-item" title="{% trans 'Created' %}">
-          <i class="fas fa-calendar-plus task-meta-icon"></i>
-          <span class="task-meta-label">{% trans "Created" %}</span>
-          <strong class="task-meta-value">{{ task.created_at|date:"Y-m-d H:i" }}</strong>
+        <span class="tw-task-meta-item" title="{% trans 'Created' %}">
+          <i class="fas fa-calendar-plus tw-task-meta-icon"></i>
+          <span class="tw-task-meta-label">{% trans "Created" %}</span>
+          <strong class="tw-task-meta-value">{{ task.created_at|date:"Y-m-d H:i" }}</strong>
         </span>
       </div>
 
@@ -79,7 +79,7 @@
     </div>
   </div>
 
-  <div class="task-actions tw-flex tw-flex-wrap tw-gap-2 tw-items-center tw-mb-4">
+  <div class="tw-task-actions tw-flex tw-flex-wrap tw-gap-2 tw-items-center tw-mb-4">
     {% if task.is_active %}
       {% with vote_value=user_vote_value %}
       <form class="tw-inline" method="post" action="{% url 'tasks:vote' task.pk %}">
@@ -87,7 +87,7 @@
         <input type="hidden" name="value" value="1">
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
         <button type="submit"
-                class="task-vote-btn up{% if vote_value == 1 %} active-vote{% endif %}"
+                class="tw-task-vote-btn tw-task-vote-btn--up{% if vote_value == 1 %} tw-active{% endif %}"
                 data-tw-toggle="tooltip"
                 data-text-active="{% trans 'Helping' %}"
                 data-text-inactive="{% trans 'I want to help' %}"
@@ -109,7 +109,7 @@
         <input type="hidden" name="value" value="-1">
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
         <button type="submit"
-                class="task-vote-btn down{% if vote_value == -1 %} active-vote{% endif %}"
+                class="tw-task-vote-btn tw-task-vote-btn--down{% if vote_value == -1 %} tw-active{% endif %}"
                 data-tw-toggle="tooltip"
                 data-text-active="{% trans 'Against' %}"
                 data-text-inactive="{% trans "Let's not do that" %}"
@@ -133,7 +133,7 @@
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
           <button type="submit"
-                  class="action-btn action-btn-take"
+                  class="tw-action-btn tw-action-btn-take"
                   data-tw-toggle="tooltip"
                   title="{% trans "Take responsibility for coordinating this activity" %}">
             <i class="fas fa-hand-paper fa-fw"></i> {% trans "Become coordinator" %}
@@ -144,20 +144,20 @@
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
           <button type="submit"
-                  class="action-btn action-btn-withdraw"
+                  class="tw-action-btn tw-action-btn-withdraw"
                   data-tw-toggle="tooltip"
                   title="{% trans "Step down and release this activity back to the waiting pool" %}">
             <i class="fas fa-sign-out-alt fa-fw"></i> {% trans "Resign as coordinator" %}
           </button>
         </form>
-        <a class="action-btn action-btn-edit"
+        <a class="tw-action-btn tw-action-btn-edit"
            href="{% url 'tasks:edit' task.pk %}"
            data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}
            data-tw-toggle="tooltip"
            title="{% trans "Edit title, description and category" %}">
           <i class="fas fa-pen fa-fw"></i> {% trans "Edit" %}
         </a>
-        <a class="action-btn action-btn-sign"
+        <a class="tw-action-btn tw-action-btn-sign"
            href="{% url 'tasks:close' task.pk %}"
            data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}
            data-tw-toggle="tooltip"
@@ -169,7 +169,7 @@
 
     {% if task.created_by == request.user and task.is_active %}
       <button type="button"
-              class="action-btn action-btn-withdraw"
+              class="tw-action-btn tw-action-btn-withdraw"
               data-tw-toggle="modal"
               data-tw-target="#confirmDeleteModal">
         <i class="fas fa-trash fa-fw"></i> {% trans "Delete activity" %}
@@ -182,32 +182,32 @@
       <div class="tw-card tw-h-full">
         <div class="tw-card-body">
           <h2 class="tw-text-lg tw-font-semibold tw-mb-3">{% trans "Willing to help" %}</h2>
-          <div class="helpers-voter-list" data-voter-list="helpers"{% if not helping_votes %} hidden{% endif %}>
+          <div class="tw-helpers-voter-list" data-voter-list="helpers"{% if not helping_votes %} hidden{% endif %}>
             {% for vote in helping_votes %}
-              <div class="helpers-voter-item" data-user-id="{{ vote.user_id }}">
-                <a class="helpers-popover-item" href="{% url 'obywatele:obywatele_szczegoly' vote.user_id %}">
+              <div class="tw-helpers-voter-item" data-user-id="{{ vote.user_id }}">
+                <a class="tw-helpers-popover-item" href="{% url 'obywatele:obywatele_szczegoly' vote.user_id %}">
                   {% include "home/_user_avatar.html" with avatar=vote.user.uzytkownik.avatar username=vote.user.username size="xl" %}
-                  <span class="helpers-popover-name">{{ vote.user.username }}</span>
+                  <span class="tw-helpers-popover-name">{{ vote.user.username }}</span>
                 </a>
                 {% if vote.is_coordinator %}
-                  <span class="helper-status helper-status--approved" title="{% trans 'Coordinator' %}">
+                  <span class="tw-helper-status tw-helper-status--approved" title="{% trans 'Coordinator' %}">
                     <i class="fas fa-user-shield"></i> {% trans "Coordinator" %}
                   </span>
                 {% elif vote.is_approved %}
-                  <span class="helper-status helper-status--approved" title="{% trans 'In team' %}">
+                  <span class="tw-helper-status tw-helper-status--approved" title="{% trans 'In team' %}">
                     <i class="fas fa-check-circle"></i> {% trans "In team" %}
                   </span>
                 {% else %}
-                  <span class="helper-status helper-status--pending" title="{% trans 'Pending approval' %}">
+                  <span class="tw-helper-status tw-helper-status--pending" title="{% trans 'Pending approval' %}">
                     <i class="fas fa-clock"></i> {% trans "Pending" %}
                   </span>
                 {% endif %}
                 {% if is_coordinator and not vote.is_coordinator %}
-                  <form class="helper-toggle-form" method="post" action="{% url 'tasks:toggle_helper' task.pk vote.user_id %}" data-user-id="{{ vote.user_id }}">
+                  <form class="tw-helper-toggle-form" method="post" action="{% url 'tasks:toggle_helper' task.pk vote.user_id %}" data-user-id="{{ vote.user_id }}">
                     {% csrf_token %}
-                    <label class="helper-switch" for="helper-toggle-{{ vote.user_id }}" title="{% trans 'Approve for team' %}">
+                    <label class="tw-helper-switch" for="helper-toggle-{{ vote.user_id }}" title="{% trans 'Approve for team' %}">
                       <input id="helper-toggle-{{ vote.user_id }}" type="checkbox" data-helper-toggle {% if vote.is_approved %}checked{% endif %}>
-                      <span class="helper-switch-slider"></span>
+                      <span class="tw-helper-switch-slider"></span>
                       <span class="tw-sr-only">{% trans "Approve for team" %}</span>
                     </label>
                   </form>
@@ -224,11 +224,11 @@
       <div class="tw-card tw-h-full">
         <div class="tw-card-body">
           <h2 class="tw-text-lg tw-font-semibold tw-mb-3">{% trans "Against this activity" %}</h2>
-          <div class="helpers-popover-list" data-voter-list="against"{% if not against_votes %} hidden{% endif %}>
+          <div class="tw-helpers-popover-list" data-voter-list="against"{% if not against_votes %} hidden{% endif %}>
             {% for vote in against_votes %}
-              <a class="helpers-popover-item" href="{% url 'obywatele:obywatele_szczegoly' vote.user_id %}" data-user-id="{{ vote.user_id }}">
+              <a class="tw-helpers-popover-item" href="{% url 'obywatele:obywatele_szczegoly' vote.user_id %}" data-user-id="{{ vote.user_id }}">
                 {% include "home/_user_avatar.html" with avatar=vote.user.uzytkownik.avatar username=vote.user.username size="xl" %}
-                <span class="helpers-popover-name">{{ vote.user.username }}</span>
+                <span class="tw-helpers-popover-name">{{ vote.user.username }}</span>
               </a>
             {% endfor %}
           </div>
@@ -243,7 +243,7 @@
       <form method="post" action="{% url 'tasks:reopen' task.pk %}">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
-        <button type="submit" class="action-btn action-btn-sign">
+        <button type="submit" class="tw-action-btn tw-action-btn-sign">
           <i class="fas fa-redo fa-fw"></i> {% trans "Reopen activity" %}
         </button>
       </form>
@@ -256,7 +256,7 @@
             {% csrf_token %}
             <input type="hidden" name="value" value="success">
             <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            <button type="submit" class="action-btn action-btn-yes">
+            <button type="submit" class="tw-action-btn tw-action-btn-yes">
               <i class="fas fa-thumbs-up fa-fw"></i> {% trans "Success" %}
             </button>
           </form>
@@ -264,7 +264,7 @@
             {% csrf_token %}
             <input type="hidden" name="value" value="failure">
             <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            <button type="submit" class="action-btn action-btn-no">
+            <button type="submit" class="tw-action-btn tw-action-btn-no">
               <i class="fas fa-thumbs-down fa-fw"></i> {% trans "Failure" %}
             </button>
           </form>
@@ -289,7 +289,7 @@
           <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-times fa-fw"></i> {% trans "Cancel" %}</button>
           <form method="post" action="{% url 'tasks:delete' task.pk %}">
             {% csrf_token %}
-            <button type="submit" class="action-btn action-btn-withdraw">{% trans "Yes, delete" %}</button>
+            <button type="submit" class="tw-action-btn tw-action-btn-withdraw">{% trans "Yes, delete" %}</button>
           </form>
         </div>
       </div>

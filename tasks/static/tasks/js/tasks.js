@@ -2,7 +2,7 @@
   'use strict';
 
   function setVoteBtnState(btn, isActive) {
-    btn.classList.toggle('active-vote', isActive);
+    btn.classList.toggle('tw-active', isActive);
     var icon = btn.querySelector('i');
     if (icon) {
       icon.className = 'fas ' + (isActive ? btn.dataset.iconActive : btn.dataset.iconInactive);
@@ -24,7 +24,7 @@
   }
 
   function updateVoteCounts(form, data) {
-    var card = form.closest('.task-card');
+    var card = form.closest('.tw-task-card');
     if (card) {
       var countEl = card.querySelector('.tw-task-helpers-count');
       if (countEl) {
@@ -51,7 +51,7 @@
   }
 
   function handleVoteClick(e) {
-    var btn = e.target.closest('.task-vote-btn');
+    var btn = e.target.closest('.tw-task-vote-btn');
     if (!btn) return;
     var form = btn.closest('form');
     if (!form) return;
@@ -73,10 +73,10 @@
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        var row = form.closest('.task-vote-row, .task-actions');
+        var row = form.closest('.tw-task-vote-row, .tw-task-actions');
         if (!row) return;
-        var upBtn = row.querySelector('.task-vote-btn.up');
-        var downBtn = row.querySelector('.task-vote-btn.down');
+        var upBtn = row.querySelector('.tw-task-vote-btn--up');
+        var downBtn = row.querySelector('.tw-task-vote-btn--down');
         if (upBtn) setVoteBtnState(upBtn, data.vote === 1);
         if (downBtn) setVoteBtnState(downBtn, data.vote === -1);
         updateVoteCounts(form, data);
@@ -93,7 +93,7 @@
   // ─── Live update for "Willing to help" / "Against this task" lists ──
   function buildVoterItem(user) {
     var item = document.createElement('a');
-    item.className = 'helpers-popover-item';
+    item.className = 'tw-helpers-popover-item';
     item.href = user.profile_url;
     item.dataset.userId = user.id;
 
@@ -110,7 +110,7 @@
     item.appendChild(avatar);
 
     var name = document.createElement('span');
-    name.className = 'helpers-popover-name';
+    name.className = 'tw-helpers-popover-name';
     name.textContent = user.username;
     item.appendChild(name);
 
@@ -121,26 +121,26 @@
     var i18n = window.TASK_HELPERS_I18N || {};
     var isSelfCoordinator = window.IS_COORDINATOR && window.CURRENT_USER && user.id === window.CURRENT_USER.id;
     var wrap = document.createElement('div');
-    wrap.className = 'helpers-voter-item';
+    wrap.className = 'tw-helpers-voter-item';
     wrap.dataset.userId = user.id;
 
     var link = buildVoterItem(user);
-    link.className = 'helpers-popover-item';
+    link.className = 'tw-helpers-popover-item';
     wrap.appendChild(link);
 
     var status = document.createElement('span');
     if (isSelfCoordinator) {
-      status.className = 'helper-status helper-status--approved';
+      status.className = 'tw-helper-status tw-helper-status--approved';
       status.innerHTML = '<i class="fas fa-user-shield"></i> ' + (i18n.coordinator || 'Coordinator');
     } else {
-      status.className = 'helper-status helper-status--pending';
+      status.className = 'tw-helper-status tw-helper-status--pending';
       status.innerHTML = '<i class="fas fa-clock"></i> ' + (i18n.pending || 'Pending');
     }
     wrap.appendChild(status);
 
     if (window.IS_COORDINATOR && window.TASK_ID && !isSelfCoordinator) {
       var form = document.createElement('form');
-      form.className = 'helper-toggle-form';
+      form.className = 'tw-helper-toggle-form';
       form.method = 'post';
       form.action = '/tasks/' + window.TASK_ID + '/toggle/' + user.id + '/';
       form.dataset.userId = user.id;
@@ -155,7 +155,7 @@
       }
 
       var label = document.createElement('label');
-      label.className = 'helper-switch';
+      label.className = 'tw-helper-switch';
       label.title = i18n.approve_for_team || 'Approve for team';
 
       var checkbox = document.createElement('input');
@@ -163,7 +163,7 @@
       checkbox.dataset.helperToggle = '';
 
       var slider = document.createElement('span');
-      slider.className = 'helper-switch-slider';
+      slider.className = 'tw-helper-switch-slider';
 
       label.appendChild(checkbox);
       label.appendChild(slider);
@@ -188,16 +188,16 @@
   function updateVoterLists(data) {
     if (!window.CURRENT_USER || window.CURRENT_USER.id == null) return;
     var userId = String(window.CURRENT_USER.id);
-    document.querySelectorAll('[data-voter-list] .helpers-voter-item[data-user-id="' + userId + '"]')
+    document.querySelectorAll('[data-voter-list] .tw-helpers-voter-item[data-user-id="' + userId + '"]')
       .forEach(function (el) { el.remove(); });
-    document.querySelectorAll('[data-voter-list] .helpers-popover-item[data-user-id="' + userId + '"]')
-      .forEach(function (el) { el.closest('.helpers-voter-item')?.remove(); el.remove(); });
+    document.querySelectorAll('[data-voter-list] .tw-helpers-popover-item[data-user-id="' + userId + '"]')
+      .forEach(function (el) { el.closest('.tw-helpers-voter-item')?.remove(); el.remove(); });
 
     var targetKey = data.vote === 1 ? 'helpers' : (data.vote === -1 ? 'against' : null);
     if (targetKey) {
       var target = document.querySelector('[data-voter-list="' + targetKey + '"]');
       if (target) {
-        if (target.classList.contains('helpers-voter-list')) {
+        if (target.classList.contains('tw-helpers-voter-list')) {
           var item = buildDetailVoterItem(window.CURRENT_USER);
           if (window.IS_COORDINATOR) {
             target.insertBefore(item, target.firstChild);
@@ -270,14 +270,14 @@
 
   function setHelperStatus(userId, inTeam) {
     if (userId == null) return;
-    var item = document.querySelector('.helpers-voter-item[data-user-id="' + userId + '"]');
-    var status = item && item.querySelector('.helper-status');
+    var item = document.querySelector('.tw-helpers-voter-item[data-user-id="' + userId + '"]');
+    var status = item && item.querySelector('.tw-helper-status');
     if (!status) return;
     var i18n = window.TASK_HELPERS_I18N || {};
     var conf = inTeam
-      ? { cls: 'helper-status--approved', icon: 'fa-check-circle', text: i18n.in_team || 'In team' }
-      : { cls: 'helper-status--pending', icon: 'fa-clock', text: i18n.pending || 'Pending' };
-    status.className = 'helper-status ' + conf.cls;
+      ? { cls: 'tw-helper-status--approved', icon: 'fa-check-circle', text: i18n.in_team || 'In team' }
+      : { cls: 'tw-helper-status--pending', icon: 'fa-clock', text: i18n.pending || 'Pending' };
+    status.className = 'tw-helper-status ' + conf.cls;
     status.title = conf.text;
     status.innerHTML = '<i class="fas ' + conf.icon + '"></i> ' + conf.text;
   }
@@ -287,16 +287,16 @@
   // in the team as an approved helper).
   function syncHelpersAfterCoordChange(data) {
     window.IS_COORDINATOR = data.is_coordinator === true;
-    var list = document.querySelector('.helpers-voter-list[data-voter-list="helpers"]');
+    var list = document.querySelector('.tw-helpers-voter-list[data-voter-list="helpers"]');
     if (!list || window.IS_COORDINATOR) return;
-    list.querySelectorAll('.helper-toggle-form').forEach(function (f) { f.remove(); });
+    list.querySelectorAll('.tw-helper-toggle-form').forEach(function (f) { f.remove(); });
     setHelperStatus(window.CURRENT_USER && window.CURRENT_USER.id, data.in_team === true);
   }
 
   function updateCoordinatorUI(form, data) {
     var isAssigned = data.assigned_to !== null;
-    // Scope to enclosing card on task list; document elsewhere (detail page has no .task-card)
-    var card = form.closest('.task-card');
+    // Scope to enclosing card on task list; document elsewhere (detail page has no .tw-task-card)
+    var card = form.closest('.tw-task-card');
     var scope = card || document;
 
     scope.querySelectorAll('[data-coord-state="empty"]').forEach(function (el) {
@@ -333,16 +333,16 @@
 
   // ─── Coordinator helper approval toggle live update ─────────────────────
   function updateHelperApproval(userId, approved) {
-    var item = document.querySelector('.helpers-voter-item[data-user-id="' + userId + '"]');
+    var item = document.querySelector('.tw-helpers-voter-item[data-user-id="' + userId + '"]');
     if (!item) return;
 
-    var status = item.querySelector('.helper-status');
+    var status = item.querySelector('.tw-helper-status');
     if (status) {
       if (approved) {
-        status.className = 'helper-status helper-status--approved';
+        status.className = 'tw-helper-status tw-helper-status--approved';
         status.innerHTML = '<i class="fas fa-check-circle"></i> ' + (window.TASK_HELPERS_I18N && window.TASK_HELPERS_I18N.in_team || 'In team');
       } else {
-        status.className = 'helper-status helper-status--pending';
+        status.className = 'tw-helper-status tw-helper-status--pending';
         status.innerHTML = '<i class="fas fa-clock"></i> ' + (window.TASK_HELPERS_I18N && window.TASK_HELPERS_I18N.pending || 'Pending');
       }
     }
@@ -357,7 +357,7 @@
     var checkbox = e.target.closest && e.target.closest('input[data-helper-toggle]');
     if (!checkbox) return;
 
-    var form = checkbox.closest('form.helper-toggle-form');
+    var form = checkbox.closest('form.tw-helper-toggle-form');
     if (!form) return;
 
     e.preventDefault();
@@ -432,24 +432,24 @@
 
   function renderVotersHtml(data, labels) {
     if (!data.total) {
-      return '<div class="helpers-popover-empty">' + escapeHtml(labels.empty || 'No one helps yet') + '</div>';
+      return '<div class="tw-helpers-popover-empty">' + escapeHtml(labels.empty || 'No one helps yet') + '</div>';
     }
     var items = data.helpers.map(function (h) {
       var avatar = h.avatar_url
         ? '<img src="' + escapeHtml(h.avatar_url) + '" alt="">'
         : escapeHtml(h.username.slice(0, 2).toUpperCase());
-      return '<a class="helpers-popover-item" href="' + escapeHtml(h.profile_url) + '">'
+      return '<a class="tw-helpers-popover-item" href="' + escapeHtml(h.profile_url) + '">'
         + '<span class="tw-avatar tw-avatar-xl tw-avatar-accent">' + avatar + '</span>'
-        + '<span class="helpers-popover-name">' + escapeHtml(h.username) + '</span>'
+        + '<span class="tw-helpers-popover-name">' + escapeHtml(h.username) + '</span>'
         + '</a>';
     }).join('');
     var more = '';
     if (data.extra > 0) {
       var moreText = (labels.more || 'and {n} more — see all').replace('{n}', data.extra);
-      more = '<a class="helpers-popover-more" href="' + escapeHtml(data.task_url) + '">'
+      more = '<a class="tw-helpers-popover-more" href="' + escapeHtml(data.task_url) + '">'
            + escapeHtml(moreText) + '</a>';
     }
-    return '<div class="helpers-popover-list">' + items + more + '</div>';
+    return '<div class="tw-helpers-popover-list">' + items + more + '</div>';
   }
 
   function loadHelpers(btn, popover) {
@@ -466,7 +466,7 @@
         popover.setContent({ '.popover-body': sanitize(html) });
       })
       .catch(function () {
-        var err = '<div class="helpers-popover-empty">' + escapeHtml(i18n.error || 'Could not load helpers') + '</div>';
+        var err = '<div class="tw-helpers-popover-empty">' + escapeHtml(i18n.error || 'Could not load helpers') + '</div>';
         popover.setContent({ '.popover-body': sanitize(err) });
       });
   }
@@ -485,7 +485,7 @@
         popover.setContent({ '.popover-body': sanitize(html) });
       })
       .catch(function () {
-        var err = '<div class="helpers-popover-empty">' + escapeHtml(againstI18n.error || 'Could not load opponents') + '</div>';
+        var err = '<div class="tw-helpers-popover-empty">' + escapeHtml(againstI18n.error || 'Could not load opponents') + '</div>';
         popover.setContent({ '.popover-body': sanitize(err) });
       });
   }
@@ -531,14 +531,14 @@
   function initHelpersPopovers() {
     if (typeof TwTooltip === 'undefined' || typeof TwPopover === 'undefined') return;
     document.querySelectorAll('[data-task-helpers]').forEach(function (btn) {
-      initVoterPopover(btn, { trigger: 'manual', html: true, customClass: 'helpers-popover' }, loadHelpers);
+      initVoterPopover(btn, { trigger: 'manual', html: true, customClass: 'tw-helpers-popover' }, loadHelpers);
     });
   }
 
   function initAgainstPopovers() {
     if (typeof TwTooltip === 'undefined' || typeof TwPopover === 'undefined') return;
     document.querySelectorAll('[data-task-against]').forEach(function (btn) {
-      initVoterPopover(btn, { trigger: 'manual', html: true, customClass: 'helpers-popover against-popover' }, loadAgainst);
+      initVoterPopover(btn, { trigger: 'manual', html: true, customClass: 'tw-helpers-popover tw-helpers-popover--against' }, loadAgainst);
     });
   }
 

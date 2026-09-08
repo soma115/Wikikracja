@@ -5,10 +5,10 @@ from django.utils.safestring import mark_safe
 from core.richtext import sanitize
 
 TOOLBAR_HTML = mark_safe(
-    '<div class="fmt-toolbar">'
-    '<button class="fmt-btn" type="button" data-cmd="bold" title="Ctrl+B"><b>B</b></button>'
-    '<button class="fmt-btn" type="button" data-cmd="italic" title="Ctrl+I"><i>I</i></button>'
-    '<button class="fmt-btn" type="button" data-cmd="underline" title="Ctrl+U"><u>U</u></button>'
+    '<div class="tw-fmt-toolbar">'
+    '<button class="tw-fmt-btn" type="button" data-cmd="bold" title="Ctrl+B"><b>B</b></button>'
+    '<button class="tw-fmt-btn" type="button" data-cmd="italic" title="Ctrl+I"><i>I</i></button>'
+    '<button class="tw-fmt-btn" type="button" data-cmd="underline" title="Ctrl+U"><u>U</u></button>'
     '</div>'
 )
 
@@ -49,9 +49,9 @@ class RichTextWidget(forms.Textarea):
 
         wrapper_attrs = format_html(' data-max-length="{}"', int(self.max_length)) if self.max_length else ''
         placeholder_attr = format_html(' data-placeholder="{}"', self.placeholder) if self.placeholder else ''
-        counter = format_html('<div class="msg-counter"><span class="msg-counter-val">{0}</span> / {0}</div>', int(self.max_length)) if self.max_length else ''
+        counter = format_html('<div class="tw-msg-counter"><span class="tw-msg-counter-val">{0}</span> / {0}</div>', int(self.max_length)) if self.max_length else ''
         hidden = format_html('<input type="hidden" name="{}" value="{}">', name, value)
-        editable_open = format_html('<div class="richtext-input message-input-rich" contenteditable="true" role="textbox" aria-multiline="true"{}>', placeholder_attr)
+        editable_open = format_html('<div class="tw-richtext-input tw-message-input-rich" contenteditable="true" role="textbox" aria-multiline="true"{}>', placeholder_attr)
         wrapper_open = format_html('<div class="richtext-wrapper{}" data-richtext{}>', ' is-invalid' if is_invalid else '', wrapper_attrs)
 
         return mark_safe(f'{wrapper_open}{TOOLBAR_HTML}{editable_open}{initial_html}</div>{hidden}{counter}</div>')
@@ -75,7 +75,7 @@ class CounterTextarea(forms.Textarea):
 
     class Media:
         js = ('common/js/textarea-counter.js',)
-        # .msg-counter/.counter--warn/.counter--error styles are in tailwind.css (global).
+        # .tw-msg-counter/.tw-msg-counter--warn/.tw-msg-counter--error styles are in tailwind.css (global).
 
     def __init__(self, attrs=None, max_length=None):
         self.max_length = max_length
@@ -97,8 +97,8 @@ class CounterTextarea(forms.Textarea):
         textarea_html = super().render(name, value, attrs, renderer)
         if not self.max_length:
             return textarea_html
-        counter = format_html('<div class="msg-counter"><span class="msg-counter-val">{0}</span> / {0}</div>', int(self.max_length))
-        wrapper_class = 'textarea-counter-wrapper is-invalid' if is_invalid else 'textarea-counter-wrapper'
+        counter = format_html('<div class="tw-msg-counter"><span class="tw-msg-counter-val">{0}</span> / {0}</div>', int(self.max_length))
+        wrapper_class = 'tw-textarea-counter-wrapper is-invalid' if is_invalid else 'tw-textarea-counter-wrapper'
         return mark_safe(format_html('<div class="{}">{}{}</div>', wrapper_class, textarea_html, counter))
 
     def value_from_datadict(self, data, files, name):

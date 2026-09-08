@@ -78,7 +78,7 @@
     <!-- Logo -->
     <div class="tw-sidebar-logo">
       <a href="{% url 'home' %}" class="tw-no-underline">
-        <span class="tw-logo-title">{% include 'home/_brand_mark.html' %}<span class="logo-label tw-ms-1">{{ site_name }}</span></span>
+        <span class="tw-logo-title">{% include 'home/_brand_mark.html' %}<span class="tw-logo-label tw-ms-1">{{ site_name }}</span></span>
       </a>
       <a href="{% url 'site_admin' %}" class="tw-no-underline"><span class="tw-logo-sub">Wikikracja v.{{ app_version }}</span></a>
     </div>
@@ -213,7 +213,7 @@
     <button class="tw-sidebar-toggle-btn tw-hidden md:tw-flex" id="sidebar-collapse-btn"
             title="{% trans 'Collapse/expand menu' %}">
       <i class="fas fa-angles-left" id="sidebar-collapse-icon"></i>
-      <span class="sidebar-toggle-label tw-ms-2">{% trans "Collapse" %}</span>
+      <span class="tw-sidebar-toggle-label tw-ms-2">{% trans "Collapse" %}</span>
     </button>
 
     <!-- Restore saved filters into sidebar links before first paint -->
@@ -243,7 +243,7 @@
         </button>
         <a href="{% url 'home' %}" class="tw-topbar-logo">
           {% include 'home/_brand_mark.html' %}
-          <span class="logo-label tw-ms-1">{{ site_name }}</span>
+          <span class="tw-logo-label tw-ms-1">{{ site_name }}</span>
         </a>
         <span class="tw-sep">›</span>
         <span class="tw-current">
@@ -264,13 +264,13 @@
       <!-- Search (always searches everywhere) -->
       <div class="tw-hidden sm:tw-block" id="topbar-search-wrapper">
         <form method="get" action="{% url 'search' %}" id="topbar-search-form" autocomplete="off">
-          <div class="quick-links-wrapper">
+          <div class="tw-quick-links-wrapper">
             <input type="search" name="q" id="topbar-q" class="tw-search-box"
                    value="{{ request.GET.q|default:'' }}"
                    placeholder="{% trans 'Search' %}…" aria-label="{% trans 'Search' %}">
             <button type="submit"
                     title="{% trans 'Search' %}"
-                    class="search-submit-btn">
+                    class="tw-search-submit-btn">
               <i class="fas fa-magnifying-glass"></i>
             </button>
           </div>
@@ -283,7 +283,7 @@
       </a>
 
       <!-- Theme toggle -->
-      <button id="theme-toggle-btn" class="tw-notif-bell btn-icon-clean"
+      <button id="theme-toggle-btn" class="tw-notif-bell tw-icon-btn"
               data-url="{% url 'obywatele:toggle_notification' %}?type=theme"
               title="{% trans 'Toggle light / dark mode' %}">
         <i id="theme-toggle-icon" class="fas fa-circle-half-stroke"></i>
@@ -300,7 +300,7 @@
       </a>
 
       <!-- Current username for JS (hidden) -->
-      <span class="user-name tw-hidden">{{ user.username }}</span>
+      <span class="tw-user-name tw-hidden">{{ user.username }}</span>
 
     </header>
     {% endif %}
@@ -313,25 +313,25 @@
           <i class="fas fa-building-columns tw-me-1"></i>{{ site_name }}
         </a>
       </div>
-      <div class="anon-nav">
+      <div class="tw-anon-nav">
         <a href="{% url 'board:start' %}"
-           class="anon-nav-link {% if request.resolver_match.namespace == 'board' %}active tw-active{% endif %}">
-          <i class="fas fa-bullhorn"></i><span class="anon-nav-text">{% trans "Announcements" %}</span>
+           class="tw-anon-nav-link {% if request.resolver_match.namespace == 'board' %}tw-active{% endif %}">
+          <i class="fas fa-bullhorn"></i><span class="tw-anon-nav-text">{% trans "Announcements" %}</span>
         </a>
         <a href="{% url 'events:list' %}"
-           class="anon-nav-link {% if request.resolver_match.namespace == 'events' %}active tw-active{% endif %}">
-          <i class="fas fa-calendar-days"></i><span class="anon-nav-text">{% trans "Calendar" %}</span>
+           class="tw-anon-nav-link {% if request.resolver_match.namespace == 'events' %}tw-active{% endif %}">
+          <i class="fas fa-calendar-days"></i><span class="tw-anon-nav-text">{% trans "Calendar" %}</span>
         </a>
       </div>
       <a href="{% url 'login' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary tw-me-1"><i class="fas fa-right-to-bracket fa-fw"></i> {% trans "Login" %}</a>
       {% if group_is_public %}<a href="{% url 'account_signup' %}" class="tw-btn-cta tw-me-1"><i class="fas fa-user-plus"></i> <span class="tw-btn-cta-label">{% trans "Register" %}</span></a>{% endif %}
       <a href="{% url 'chat:guest_message' %}"
          title="{% trans 'Send a message to the group' %}"
-         class="anon-nav-link tw-me-1 {% if request.resolver_match.url_name == 'guest_message' %}active tw-active{% endif %}">
-        <i class="fas fa-envelope"></i><span class="anon-nav-text">{% trans "Contact" %}</span>
+         class="tw-anon-nav-link tw-me-1 {% if request.resolver_match.url_name == 'guest_message' %}tw-active{% endif %}">
+        <i class="fas fa-envelope"></i><span class="tw-anon-nav-text">{% trans "Contact" %}</span>
       </a>
       {% include 'home/_language_switcher.html' %}
-      <button id="theme-toggle-btn" class="tw-notif-bell btn-icon-clean"
+      <button id="theme-toggle-btn" class="tw-notif-bell tw-icon-btn"
               title="{% trans 'Toggle light / dark mode' %}">
         <i id="theme-toggle-icon" class="fas fa-circle-half-stroke"></i>
       </button>
@@ -340,7 +340,7 @@
 
     <!-- Global notification permission banner -->
     {% if user.is_authenticated %}
-    <div class="notif-banner-wrap">
+    <div class="tw-notif-banner-wrap">
       <div id="notification-permission-banner" class="tw-alert tw-alert-info tw-m-0 tw-text-center tw-rounded-none">
         <i class="far fa-bell-slash"></i>
         <span id="notification-banner-message">{% trans "Enable notifications to stay updated with new messages and activities" %}</span>
@@ -352,7 +352,7 @@
         </button>
       </div>
     </div>
-    <div class="notif-banner-wrap">
+    <div class="tw-notif-banner-wrap">
       <div id="notification-blocked-banner" class="tw-alert tw-alert-warning tw-m-0 tw-text-center tw-rounded-none">
         <i class="fas fa-exclamation-triangle"></i>
         <span>{% trans "Notifications are blocked. Please enable them in your browser settings" %}</span>
@@ -395,7 +395,7 @@
       // gdyby transitionend nie wystartował (np. baner nie zmienił wysokości).
       document.addEventListener('DOMContentLoaded', function() {
         var expanding = null;
-        document.querySelectorAll('.notif-banner-wrap').forEach(function(w) {
+        document.querySelectorAll('.tw-notif-banner-wrap').forEach(function(w) {
           var mh = w.style.maxHeight;
           if (mh && mh !== '0px' && mh !== '0') expanding = w;
         });
@@ -425,7 +425,7 @@
 
 </div>
 
-<div class="modal-backdrop-custom" id="sidebar-overlay">
+<div class="tw-modal-backdrop-custom" id="sidebar-overlay">
 </div>
 
 {% block extra_body %}{% endblock %}

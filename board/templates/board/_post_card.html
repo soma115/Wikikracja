@@ -12,13 +12,13 @@
         <div class="tw-text-subtitle-clamp-2">{{ post.subtitle }}</div>
         {% endif %}
         {% if post.featured_image %}
-        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-card-featured-img">
+        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="tw-post-card-featured-img">
         {% endif %}
       </div>
       <div class="tw-flex tw-items-center tw-gap-2 tw-mt-auto">
         {% if post.author %}
             {% include "home/_user_avatar.html" with avatar=post.author.uzytkownik.avatar username=post.author.username display_name=post.author|display_name size="md" %}
-          <span class="text-author">{{ post.author|display_name }}</span>
+          <span class="tw-text-author">{{ post.author|display_name }}</span>
         {% endif %}
         <span class="tw-ms-auto tw-text-meta tw-shrink-0">{{ post.updated|date:"d.m.Y" }}</span>
       </div>

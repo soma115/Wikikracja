@@ -7,7 +7,7 @@
 
   <!-- Header -->
   <div class="tw-flex tw-items-center tw-justify-between tw-mb-3 tw-flex-wrap tw-gap-2">
-    <h4 class="tw-mb-0 text-main">
+    <h4 class="tw-mb-0 tw-text-main">
       <i class="fas fa-magnifying-glass tw-me-2 tw-text-accent"></i>
       {% if query %}
         {% blocktrans with q=query %}Results for „{{ q }}"{% endblocktrans %}
@@ -16,7 +16,7 @@
       {% endif %}
     </h4>
     {% if query %}
-      <span class="tw-badge search-result-link">
+      <span class="tw-badge tw-search-result-link">
         {{ results|length }} {% trans "results" %}
       </span>
     {% endif %}
@@ -30,10 +30,10 @@
       <!-- Query input -->
       <div class="tw-input-group tw-flex tw-gap-2 tw-mb-3">
         <input type="search" name="q" id="sq" value="{{ query }}"
-               class="tw-form-control search-input"
+               class="tw-form-control tw-search-input"
                placeholder="{% trans 'Search by title, content, author…' %}"
                autofocus>
-        <button class="tw-btn tw-font-semibold search-page-submit" type="submit">
+        <button class="tw-btn tw-font-semibold tw-search-page-submit" type="submit">
           <i class="fas fa-magnifying-glass fa-fw tw-me-1"></i>{% trans "Search" %}
         </button>
       </div>
@@ -44,15 +44,15 @@
           <i class="fas fa-filter tw-me-1"></i>{% trans "Search in:" %}
         </span>
 
-        <label id="sp-select-all" class="sp-chip{% if all_cats_selected %} on{% endif %}" data-color="accent">
-          <input type="checkbox" value="all" class="tw-hidden sp-cb"
+        <label id="sp-select-all" class="tw-chip{% if all_cats_selected %} tw-chip--on{% endif %}" data-color="accent">
+          <input type="checkbox" value="all" class="tw-hidden tw-chip-input"
                  {% if all_cats_selected %}checked{% endif %}>
           <i class="fas fa-globe tw-me-1"></i>{% trans "Everywhere" %}
         </label>
 
         {% for cat, label in search_categories %}
-        <label class="sp-chip{% if cat in active_cats %} on{% endif %}" data-color="{{ cat|content_type_color }}">
-          <input type="checkbox" name="cat" value="{{ cat }}" class="tw-hidden sp-cb"
+        <label class="tw-chip{% if cat in active_cats %} tw-chip--on{% endif %}" data-color="{{ cat|content_type_color }}">
+          <input type="checkbox" name="cat" value="{{ cat }}" class="tw-hidden tw-chip-input"
                  {% if cat in active_cats %}checked{% endif %}>
           {{ label }}
         </label>
@@ -79,12 +79,12 @@
     <div class="tw-flex tw-flex-col tw-gap-2">
       {% for item in results %}
         <a href="{{ item.url }}" class="tw-no-underline">
-          <div class="tw-card tw-px-3 tw-py-2 tw-flex tw-flex-row tw-items-center tw-gap-3 sr-row">
-            <span class="tw-badge-status tw-badge-{{ item.type_color }} sr-type-badge">
+          <div class="tw-card tw-px-3 tw-py-2 tw-flex tw-flex-row tw-items-center tw-gap-3 tw-sr-row">
+            <span class="tw-badge-status tw-badge-{{ item.type_color }} tw-sr-type-badge">
               {{ item.type }}
             </span>
             <div class="tw-overflow-hidden tw-flex-1">
-              <div class="sr-title">
+              <div class="tw-sr-title">
                 {{ item.title }}
                 {% if item.meta %}
                   <span class="tw-text-xs tw-text-muted">
@@ -93,12 +93,12 @@
                 {% endif %}
               </div>
               {% if item.description %}
-                <div class="sr-desc">
+                <div class="tw-sr-desc">
                   {{ item.description|striptags }}
                 </div>
               {% endif %}
             </div>
-            <i class="fas fa-chevron-right search-result-meta"></i>
+            <i class="fas fa-chevron-right tw-search-result-meta"></i>
           </div>
         </a>
       {% endfor %}
