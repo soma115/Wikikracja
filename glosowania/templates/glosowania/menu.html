@@ -17,7 +17,7 @@
   {# Stepper: 4 etapy ścieżki przepisu #}
   {% with p=request.path_info %}
 
-  <div class="tw-stepper-step-wrap {% if p == '/glosowania/proposition/' %}active{% endif %}">
+  <div class="tw-stepper-step-wrap {% if p == '/glosowania/proposition/' %}tw-active{% endif %}">
     <a href="{% url 'glosowania:proposition' %}" class="tw-stepper-step">
       <i class="fas fa-lightbulb" aria-hidden="true"></i>
       <span class="tw-stepper-step-label">{% trans 'Suggestions' %}</span>
@@ -25,7 +25,7 @@
     </a>
   </div>
 
-  <div class="tw-stepper-step-wrap {% if p == '/glosowania/discussion/' %}active{% endif %}">
+  <div class="tw-stepper-step-wrap {% if p == '/glosowania/discussion/' %}tw-active{% endif %}">
     <a href="{% url 'glosowania:discussion' %}" class="tw-stepper-step">
       <i class="fas fa-comments" aria-hidden="true"></i>
       <span class="tw-stepper-step-label">{% trans 'Discussion' %}</span>
@@ -33,7 +33,7 @@
     </a>
   </div>
 
-  <div class="tw-stepper-step-wrap {% if p == '/glosowania/referendum/' %}active{% endif %}">
+  <div class="tw-stepper-step-wrap {% if p == '/glosowania/referendum/' %}tw-active{% endif %}">
     <a href="{% url 'glosowania:referendum' %}" class="tw-stepper-step">
       <i class="fas fa-vote-yea" aria-hidden="true"></i>
       <span class="tw-stepper-step-label">{% trans 'Referendum' %}</span>
@@ -41,7 +41,7 @@
     </a>
   </div>
 
-  <div class="tw-stepper-step-wrap {% if p == '/glosowania/approved/' %}active{% endif %}">
+  <div class="tw-stepper-step-wrap {% if p == '/glosowania/approved/' %}tw-active{% endif %}">
     <a href="{% url 'glosowania:approved' %}" class="tw-stepper-step">
       <i class="fas fa-check" aria-hidden="true"></i>
       <span class="tw-stepper-step-label">{% trans 'Approved' %}</span>
@@ -52,7 +52,7 @@
   {# Separator + Rejected (poza ścieżką) #}
   <span class="tw-stepper-sep"></span>
   <a href="{% url 'glosowania:rejected' %}"
-     class="tw-stepper-rejected {% if p == '/glosowania/rejected/' %}active{% endif %}">
+     class="tw-stepper-rejected {% if p == '/glosowania/rejected/' %}tw-active{% endif %}">
     <i class="fas fa-trash fa-fw"></i>
     {% if counts.rejected %}<span class="tw-stepper-step-count">{{ counts.rejected }}</span>{% endif %}
   </a>

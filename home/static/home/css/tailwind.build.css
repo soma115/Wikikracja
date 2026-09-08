@@ -1702,6 +1702,12 @@ button.tw-task-helpers-btn:hover,
   filter: brightness(1.2);
 }
 
+.tw-stepper-info-btn.tw-active {
+  background: var(--stepper-color);
+  color: var(--text-on-accent);
+  box-shadow: 0 0 10px var(--stepper-color-shadow);
+}
+
 .tw-stepper-rejected {
   display: inline-flex;
   align-items: center;

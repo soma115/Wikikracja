@@ -6,23 +6,23 @@
 
 <nav class="tw-stepper-nav">
   <a href="{% url 'obywatele:parameters' %}"
-     class="tw-stepper-info-btn {% if request.resolver_match.url_name == 'parameters' %}active{% endif %}"
+     class="tw-stepper-info-btn {% if request.resolver_match.url_name == 'parameters' %}tw-active{% endif %}"
      title="{% trans 'Parameters' %}">
     <i class="fas fa-circle-info"></i>
   </a>
-  <div class="tw-stepper-step-wrap {% if request.resolver_match.url_name == 'obywatele' %}active{% endif %}">
+  <div class="tw-stepper-step-wrap {% if request.resolver_match.url_name == 'obywatele' %}tw-active{% endif %}">
     <a href="{% url 'obywatele:obywatele' %}" class="tw-stepper-step">
       <i class="fas fa-users" aria-hidden="true"></i>
       <span class="tw-stepper-step-label">{% trans "Citizens" %}</span>
     </a>
   </div>
-  <div class="tw-stepper-step-wrap {% if request.resolver_match.url_name == 'poczekalnia' %}active{% endif %}">
+  <div class="tw-stepper-step-wrap {% if request.resolver_match.url_name == 'poczekalnia' %}tw-active{% endif %}">
     <a href="{% url 'obywatele:poczekalnia' %}" class="tw-stepper-step">
       <i class="fas fa-user-clock" aria-hidden="true"></i>
       <span class="tw-stepper-step-label">{% trans "Candidates" %}</span>
     </a>
   </div>
-  <div class="tw-stepper-step-wrap {% if request.resolver_match.url_name == 'assets' %}active{% endif %}">
+  <div class="tw-stepper-step-wrap {% if request.resolver_match.url_name == 'assets' %}tw-active{% endif %}">
     <a href="{% url 'obywatele:assets' %}" class="tw-stepper-step">
       <i class="fas fa-boxes-stacked" aria-hidden="true"></i>
       <span class="tw-stepper-step-label">{% trans "Resources" %}</span>
