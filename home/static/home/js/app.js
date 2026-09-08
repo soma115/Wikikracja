@@ -1392,21 +1392,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================================================
-// Toggle argument form visibility (voting details)
+// Argument form toggles (voting details) — handled by the shared
+// `data-tw-toggle="collapse"` component (common/js/tw-collapse.js);
+// `data-tw-autofocus` on the target focuses its first field on open.
 // ============================================================
-window.toggleArgForm = function toggleArgForm(id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.classList.toggle('tw-visible');
-    if (el.classList.contains('tw-visible')) {
-        var ta = el.querySelector('textarea');
-        if (ta) ta.focus();
-    }
-};
-document.addEventListener('click', function (e) {
-    var btn = e.target.closest('[data-arg-form-toggle]');
-    if (btn) window.toggleArgForm(btn.getAttribute('data-arg-form-toggle'));
-});
 
 // ============================================================
 // Citizen profile section toggles (lazy-loaded via AJAX)

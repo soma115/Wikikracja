@@ -170,9 +170,7 @@ export function updateCounter(inputEl, counterEl, counterVal, sendBtn, maxLength
     const rem = maxLength - len;
     if (counterVal) counterVal.textContent = rem;
     if (!counterEl) return;
-    counterEl.classList.remove('tw-msg-counter--warn', 'tw-msg-counter--error');
-    if (rem <= 0 || rem <= 10) counterEl.classList.add('tw-msg-counter--error');
-    else if (rem <= 50) counterEl.classList.add('tw-msg-counter--warn');
+    window.applyCounterState(counterEl, rem);
     if (sendBtn) sendBtn.disabled = rem <= 0;
 }
 

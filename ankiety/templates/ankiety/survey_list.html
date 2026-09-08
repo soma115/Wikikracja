@@ -121,19 +121,14 @@
       </div>
     {% endfor %}
   {% else %}
-    <div class="tw-proposals-empty">
-      <i class="fas fa-clipboard-question fa-2x"></i>
-      <div>
-        {% if current_tab == 'active' %}
-          {% trans 'No ongoing surveys.' %}
-        {% else %}
-          {% trans 'No finished surveys.' %}
-        {% endif %}
-      </div>
-      <a href="{% url 'ankiety:create' %}" class="tw-btn-cta tw-mt-2">
-        <i class="fas fa-plus"></i> {% trans 'Add the first survey' %}
-      </a>
-    </div>
+    {% if current_tab == 'active' %}
+      {% trans 'No ongoing surveys.' as surveys_empty_title %}
+    {% else %}
+      {% trans 'No finished surveys.' as surveys_empty_title %}
+    {% endif %}
+    {% url 'ankiety:create' as surveys_empty_cta %}
+    {% trans 'Add the first survey' as surveys_empty_cta_label %}
+    {% include 'home/includes/empty_state.html' with icon='fa-clipboard-question' title=surveys_empty_title cta_url=surveys_empty_cta cta_label=surveys_empty_cta_label cta_icon='fa-plus' %}
   {% endif %}
 </div>
 

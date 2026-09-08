@@ -1,0 +1,14 @@
+{% load i18n %}
+{# Shared empty-state block. Params: icon (fa-*, default fa-inbox), title (required),
+   text (optional second line), cta_url/cta_label/cta_icon (optional action link),
+   extra_class (optional, e.g. 'tw-d-none' for initially-hidden state). #}
+<div class="tw-empty-state{% if extra_class %} {{ extra_class }}{% endif %}{% if hidden %} tw-d-none{% endif %}">
+  <i class="fas {{ icon|default:'fa-inbox' }} fa-2x tw-empty-state-icon"></i>
+  <div class="tw-empty-state-title">{{ title }}</div>
+  {% if text %}<div>{{ text }}</div>{% endif %}
+  {% if cta_url %}
+  <a href="{{ cta_url }}" class="tw-btn-cta tw-mt-2">
+    {% if cta_icon %}<i class="fas {{ cta_icon }}"></i> {% endif %}{{ cta_label }}
+  </a>
+  {% endif %}
+</div>

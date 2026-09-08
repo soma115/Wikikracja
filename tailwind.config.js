@@ -57,7 +57,7 @@ module.exports = {
     'tw-board-category-group', 'tw-board-posts-list', 'tw-board-posts-grid', 'tw-board-post-row', 'tw-post-row-link', 'tw-post-card-link', 'tw-post-card-link--featured', 'tw-cat-group-icon', 'tw-post-featured-thumb',
     'tw-text-meta', 'tw-text-title-clamp', 'tw-text-title-clamp-2', 'tw-text-subtitle-clamp', 'tw-text-subtitle-clamp-2',
     'tw-board-post-card', 'tw-post-header', 'tw-post-title', 'tw-post-subtitle', 'tw-post-featured-image', 'tw-post-content', 'tw-post-attachments', 'tw-attachment-uploaded-at', 'tw-list-group', 'tw-list-group-item',
-    'tw-citizens-toolbar', 'tw-citizens-search-input', 'tw-citizens-filter-btn', 'tw-filter-label', 'tw-citizens-table-wrap', 'tw-citizens-table', 'tw-table-sm', 'tw-table-hover', 'tw-user-row', 'tw-citizens-grid', 'tw-citizen-card', 'tw-citizen-card-top', 'tw-near-threshold', 'tw-status-dot', 'tw-status-dot--online', 'tw-status-dot--active', 'tw-status-dot--dormant', 'tw-status-dot--inactive', 'tw-hidden-mobile', 'tw-hidden-tablet', 'tw-hidden-desktop', 'tw-restart-count', 'tw-candidate-vote-badge', 'tw-width-30', 'tw-min-w-20', 'tw-min-w-12', 'tw-max-w-640', 'tw-avatar-upload-wrap', 'tw-avatar-overlay', 'tw-avatar-overlay-icon', 'tw-profile-name', 'tw-profile-email', 'tw-profile-row', 'tw-profile-key', 'tw-profile-val', 'tw-historia-badge', 'tw-historia-current-badge', 'tw-historia-meta', 'tw-diff-block', 'tw-border-approved', 'tw-proposals-list', 'tw-proposals-empty',
+    'tw-citizens-toolbar', 'tw-citizens-search-input', 'tw-citizens-filter-btn', 'tw-filter-label', 'tw-citizens-table-wrap', 'tw-citizens-table', 'tw-table-sm', 'tw-table-hover', 'tw-user-row', 'tw-citizens-grid', 'tw-citizen-card', 'tw-citizen-card-top', 'tw-near-threshold', 'tw-status-dot', 'tw-status-dot--online', 'tw-status-dot--active', 'tw-status-dot--dormant', 'tw-status-dot--inactive', 'tw-hidden-mobile', 'tw-hidden-tablet', 'tw-hidden-desktop', 'tw-restart-count', 'tw-candidate-vote-badge', 'tw-width-30', 'tw-min-w-20', 'tw-min-w-12', 'tw-max-w-640', 'tw-avatar-upload-wrap', 'tw-avatar-overlay', 'tw-avatar-overlay-icon', 'tw-profile-name', 'tw-profile-email', 'tw-profile-row', 'tw-profile-key', 'tw-profile-val', 'tw-historia-badge', 'tw-historia-current-badge', 'tw-historia-meta', 'tw-diff-block', 'tw-border-approved', 'tw-proposals-list', 'tw-empty-state', 'tw-empty-state-title',
     'tw-text-body', 'tw-list-group-flush',
     'tw-stepper-nav', 'tw-stepper-step-wrap', 'tw-stepper-step', 'tw-stepper-step-label', 'tw-stepper-step-count', 'tw-stepper-sep', 'tw-stepper-info-btn', 'tw-stepper-rejected',
     'tw-d-none', 'tw-d-block', 'tw-d-inline', 'tw-d-inline-block', 'tw-d-flex', 'tw-d-inline-flex', 'tw-d-grid', 'tw-d-table', 'tw-d-table-cell', 'tw-d-table-row',
@@ -72,7 +72,7 @@ module.exports = {
     'tw-chat-message--own', 'tw-chat-message--pending', 'tw-chat-message--failed', 'tw-msg-highlight', 'tw-msg-highlighted',
     'tw-reaction-btn--active', 'tw-msg-counter--warn', 'tw-msg-counter--error', 'tw-compose-box--error',
     'tw-open', 'tw-visible', 'tw-room-active', 'tw-room-list-showing', 'tw-room-list-hidden',
-    'tw-toast-chat--visible', 'tw-chat-has-messages',
+    'tw-toast', 'tw-toast--visible', 'tw-chat-has-messages',
     'tw-nav-status--unread', 'tw-nav-status--read', 'tw-nav-status--locked',
     'tw-vote-bar--positive', 'tw-vote-bar--neutral', 'tw-vote-bar--negative',
     // Non-prefixed component hooks emitted by Python/widgets or composed

@@ -185,10 +185,10 @@
       <p class="tw-args-empty">{% trans 'No arguments for.' %}</p>
     {% endif %}
     {% if user.is_authenticated and not id.voting_has_ended %}
-    <button type="button" class="tw-arg-add-toggle tw-arg-add-toggle--for" data-arg-form-toggle="form-for">
+    <button type="button" class="tw-arg-add-toggle tw-arg-add-toggle--for" data-tw-toggle="collapse" data-tw-target="#form-for">
       <i class="fas fa-plus fa-fw tw-me-1"></i> {% trans 'Add an argument for' %}
     </button>
-    <div class="tw-arg-inline-form" id="form-for">
+    <div class="tw-arg-inline-form tw-collapse" id="form-for" data-tw-autofocus>
       <form method="POST" action="{% url 'glosowania:add_argument' id.pk %}">
         {% csrf_token %}
         <input type="hidden" name="argument_type" value="FOR">
@@ -226,10 +226,10 @@
       <p class="tw-args-empty">{% trans 'No arguments against.' %}</p>
     {% endif %}
     {% if user.is_authenticated and not id.voting_has_ended %}
-    <button type="button" class="tw-arg-add-toggle tw-arg-add-toggle--against" data-arg-form-toggle="form-against">
+    <button type="button" class="tw-arg-add-toggle tw-arg-add-toggle--against" data-tw-toggle="collapse" data-tw-target="#form-against">
       <i class="fas fa-plus fa-fw tw-me-1"></i> {% trans 'Add an argument against' %}
     </button>
-    <div class="tw-arg-inline-form" id="form-against">
+    <div class="tw-arg-inline-form tw-collapse" id="form-against" data-tw-autofocus>
       <form method="POST" action="{% url 'glosowania:add_argument' id.pk %}">
         {% csrf_token %}
         <input type="hidden" name="argument_type" value="AGAINST">

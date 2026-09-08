@@ -80,39 +80,13 @@ document.addEventListener('DOMContentLoaded', function() {
         counterVal.textContent = remaining;
         const row = $('#msg-counter');
         if (!row) return;
-        row.classList.remove('tw-msg-counter--warn', 'tw-msg-counter--error');
-        const composeBox = $('.tw-compose-box');
-        if (remaining <= 0) {
-            row.classList.add('tw-msg-counter--error');
-            composeBox?.classList.add('tw-compose-box--error');
-        } else if (remaining <= 10) {
-            row.classList.add('tw-msg-counter--error');
-            composeBox?.classList.remove('tw-compose-box--error');
-        } else if (remaining <= 50) {
-            row.classList.add('tw-msg-counter--warn');
-            composeBox?.classList.remove('tw-compose-box--error');
-        } else {
-            composeBox?.classList.remove('tw-compose-box--error');
-        }
+        window.applyCounterState(row, remaining);
+        $('.tw-compose-box')?.classList.toggle('tw-compose-box--error', remaining <= 0);
         const sendBtn = $('.tw-send-message');
         if (sendBtn) sendBtn.disabled = remaining <= 0;
     }
 
-    function showToast(message) {
-        const existing = document.getElementById('chat-toast');
-        if (existing) existing.remove();
-        const toast = document.createElement('div');
-        toast.id = 'chat-toast';
-        toast.className = 'tw-toast-chat';
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        requestAnimationFrame(() => toast.classList.add('tw-toast-chat--visible'));
-        setTimeout(() => {
-            toast.classList.remove('tw-toast-chat--visible');
-            setTimeout(() => toast.remove(), 300);
-        }, 2500);
-    }
-    window.showToast = showToast;
+    const showToast = (message) => window.showToast(message);
 
     const { updateToolbarState } = initFormattingToolbar(document, () => $('#message-input'));
 

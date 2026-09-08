@@ -220,7 +220,7 @@
   }
 
   /* ══ scalone z feedback.css (etap 5.5) ══ */
-  .tw-toast-chat {position: fixed;
+  .tw-toast {position: fixed;
     bottom: 5.5rem;
     left: 50%;
     transform: translateX(-50%) translateY(.5rem);
@@ -235,7 +235,7 @@
     pointer-events: none;
     transition: opacity .2s, transform .2s;
   }
-  .tw-toast-chat.tw-toast-chat--visible {opacity: 1;
+  .tw-toast.tw-toast--visible {opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
 
@@ -1076,9 +1076,6 @@
     border: 1px solid var(--border);
     border-radius: .55rem;
     padding: .85rem 1rem;
-    display: none;
-  }
-  .tw-arg-inline-form.tw-visible {display: block;
   }
   .tw-arg-inline-form textarea {width: 100%;
     background: var(--input-bg);
@@ -2017,18 +2014,7 @@
   .tw-agenda-event-place {display: none;
   }
   }
-  .tw-events-empty {display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: .9rem;
-    padding: 3rem 1rem;
-    color: var(--text-muted);
-    text-align: center;
-  }
-  .tw-events-empty-title {font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
+
   @media (max-width: 767.98px) {
   .tw-cat-filter-panel {max-width: calc(100vw - 1.5rem);
       min-width: 0;
@@ -5105,7 +5091,7 @@
     border-color: var(--badge-approved-color) !important;
   }
 
-  .tw-proposals-empty {
+  .tw-empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -5114,6 +5100,10 @@
     color: var(--text-muted);
     gap: .55rem;
     text-align: center;
+  }
+  .tw-empty-state-title {font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
   }
   .tw-candidate-vote-badge {
     position: absolute;

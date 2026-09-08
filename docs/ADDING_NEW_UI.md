@@ -32,7 +32,7 @@ This checklist keeps the interface consistent. Before creating a new view, form,
 - [ ] Use `tw-card` for content cards.
 - [ ] Card headers use `tw-card-header`; body uses `tw-card-body`.
 - [ ] Lists use `tw-proposals-list` (or its successor if documented otherwise) + `data-view-container`.
-- [ ] Empty states use the shared partial or copy the `tw-proposals-empty` pattern.
+- [ ] Empty states use the shared partial `home/includes/empty_state.html` (`tw-empty-state` + `tw-empty-state-icon`/`tw-empty-state-title`).
 - [ ] Do not create new `module-card`, `module-list`, `module-empty` classes.
 
 ### 4. Buttons and actions

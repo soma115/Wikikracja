@@ -98,10 +98,8 @@
 
       </a>
       {% empty %}
-      <div class="tw-p-5 tw-text-center">
-        <i class="fas fa-inbox fa-2x tw-block tw-mb-2 tw-empty-state-icon"></i>
-        <span class="tw-text-muted tw-text-md">{% trans "No activity" %}</span>
-      </div>
+      {% trans "No activity" as activity_empty_title %}
+      {% include 'home/includes/empty_state.html' with icon='fa-inbox' title=activity_empty_title %}
       {% endfor %}
     </div>
   </div>

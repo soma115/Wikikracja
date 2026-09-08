@@ -30,15 +30,12 @@
   </div>
 </div>
 
-<div class="tw-events-empty{% if occurrences %} tw-d-none{% endif %}">
-  <i class="fas fa-calendar-xmark fa-2x"></i>
-  <div class="tw-events-empty-title">{% trans "No events in the selected month" %}</div>
-  {% if user.is_authenticated %}
-    <a href="{% url 'events:create' %}" class="tw-btn-cta">
-      <i class="fas fa-plus"></i> {% trans 'Add the first event' %}
-    </a>
-  {% endif %}
-</div>
+{% trans "No events in the selected month" as events_empty_title %}
+{% if user.is_authenticated %}
+  {% url 'events:create' as events_empty_cta %}
+  {% trans "Add the first event" as events_empty_cta_label %}
+{% endif %}
+{% include 'home/includes/empty_state.html' with icon='fa-calendar-xmark' title=events_empty_title cta_url=events_empty_cta cta_label=events_empty_cta_label cta_icon='fa-plus' extra_class='tw-events-empty' hidden=occurrences %}
 
 {# ── JS: view switching, calendar navigation, day-click filter+highlight+hash, lazy chunk loading ── #}
 <script>

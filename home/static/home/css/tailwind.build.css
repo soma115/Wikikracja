@@ -868,7 +868,7 @@ form.tw-signup input[name*="captcha"] {
 
 /* ══ scalone z feedback.css (etap 5.5) ══ */
 
-.tw-toast-chat {
+.tw-toast {
   position: fixed;
   bottom: 5.5rem;
   left: 50%;
@@ -885,7 +885,7 @@ form.tw-signup input[name*="captcha"] {
   transition: opacity .2s, transform .2s;
 }
 
-.tw-toast-chat.tw-toast-chat--visible {
+.tw-toast.tw-toast--visible {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
@@ -2039,11 +2039,6 @@ button.tw-task-helpers-btn:hover,
   border: 1px solid var(--border);
   border-radius: .55rem;
   padding: .85rem 1rem;
-  display: none;
-}
-
-.tw-arg-inline-form.tw-visible {
-  display: block;
 }
 
 .tw-arg-inline-form textarea {
@@ -3349,22 +3344,6 @@ button.tw-task-helpers-btn:hover,
   .tw-agenda-event-place {
     display: none;
   }
-}
-
-.tw-events-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: .9rem;
-  padding: 3rem 1rem;
-  color: var(--text-muted);
-  text-align: center;
-}
-
-.tw-events-empty-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
 }
 
 @media (max-width: 767.98px) {
@@ -7529,7 +7508,7 @@ input.tw-form-switch:focus,
   border-color: var(--badge-approved-color) !important;
 }
 
-.tw-proposals-empty {
+.tw-empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -7538,6 +7517,12 @@ input.tw-form-switch:focus,
   color: var(--text-muted);
   gap: .55rem;
   text-align: center;
+}
+
+.tw-empty-state-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .tw-candidate-vote-badge {
@@ -10161,10 +10146,6 @@ body.tw-chat-page .tw-main-area {
 
 .tw-p-4 {
   padding: 1rem;
-}
-
-.tw-p-5 {
-  padding: 1.25rem;
 }
 
 .tw-px-0 {

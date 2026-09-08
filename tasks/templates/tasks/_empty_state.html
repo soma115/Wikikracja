@@ -1,13 +1,9 @@
 {% load i18n %}
 
-<div class="tw-proposals-empty">
-  <i class="fas {{ icon|default:'fa-inbox' }} fa-2x"></i>
-  <div>
-    {% if current_categories %}
-      {% trans 'No activities in this category.' %}
-    {% else %}
-      {% trans 'No activities in this section.' %}
-    {% endif %}
-  </div>
-  <div>{% trans 'Try changing the filter settings to see activities if there are any.' %}</div>
-</div>
+{% if current_categories %}
+  {% trans 'No activities in this category.' as tasks_empty_title %}
+{% else %}
+  {% trans 'No activities in this section.' as tasks_empty_title %}
+{% endif %}
+{% trans 'Try changing the filter settings to see activities if there are any.' as tasks_empty_text %}
+{% include 'home/includes/empty_state.html' with icon=icon title=tasks_empty_title text=tasks_empty_text %}

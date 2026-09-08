@@ -45,6 +45,10 @@
     }
     this._element.classList.add('tw-show');
     this._setExpanded(true);
+    if (this._element.hasAttribute('data-tw-autofocus')) {
+      const field = this._element.querySelector('input, textarea, select');
+      if (field) field.focus();
+    }
   };
 
   TwCollapse.prototype.hide = function () {

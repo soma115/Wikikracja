@@ -23,10 +23,7 @@
         function sync() {
             const rem = maxLength - textarea.value.length;
             counterVal.textContent = rem;
-            if (!counterEl) return;
-            counterEl.classList.remove('tw-msg-counter--warn', 'tw-msg-counter--error');
-            if (rem <= 0 || rem <= 10) counterEl.classList.add('tw-msg-counter--error');
-            else if (rem <= 50) counterEl.classList.add('tw-msg-counter--warn');
+            if (counterEl) window.applyCounterState(counterEl, rem);
         }
 
         textarea.addEventListener('input', sync);
