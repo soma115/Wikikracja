@@ -19,7 +19,7 @@ from django.views.generic import CreateView, DetailView, TemplateView, UpdateVie
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryReorderAPI
 from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unseen_room_ids
-from zzz.templatetags.citizen_filters import citizen_color_class
+from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
 
 from .forms import TaskForm, TaskStatusForm
 from .models import Category, Task, TaskEvaluation, TaskVote
@@ -243,6 +243,8 @@ def _serialize_user(user):
     return {
         "id": user.id,
         "username": user.username,
+        "display_name": user_display_name(user),
+        "initials": user_initials(user),
         "avatar_url": avatar_url,
         "profile_url": reverse("obywatele:obywatele_szczegoly", args=[user.pk]),
         "citizen_color_class": citizen_color_class(user.username),

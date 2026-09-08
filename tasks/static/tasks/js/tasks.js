@@ -99,13 +99,13 @@
       img.alt = '';
       avatar.appendChild(img);
     } else {
-      avatar.textContent = (user.username || '').slice(0, 2).toUpperCase();
+      avatar.textContent = user.initials || (user.username || '').slice(0, 2).toUpperCase();
     }
     item.appendChild(avatar);
 
     var name = document.createElement('span');
     name.className = 'tw-helpers-popover-name';
-    name.textContent = user.username;
+    name.textContent = user.display_name || user.username;
     item.appendChild(name);
 
     return item;
@@ -223,9 +223,9 @@
   }
 
   function buildAvatarHtml(user, size) {
-    var initials = escapeHtml((user.username || '').slice(0, 2).toUpperCase());
+    var initials = escapeHtml(user.initials || (user.username || '').slice(0, 2).toUpperCase());
     if (user.avatar_url) {
-      return '<img class="tw-avatar tw-avatar-' + size + '" src="' + escapeHtml(user.avatar_url) + '" alt="' + escapeHtml(user.username || '') + '">';
+      return '<img class="tw-avatar tw-avatar-' + size + '" src="' + escapeHtml(user.avatar_url) + '" alt="' + escapeHtml(user.display_name || user.username || '') + '">';
     }
     var color = user.citizen_color_class ? ' ' + user.citizen_color_class : '';
     return '<div class="tw-avatar tw-avatar-' + size + ' tw-avatar-fallback' + color + '">' + initials + '</div>';
@@ -234,12 +234,12 @@
   // Fill a coordinator chip (link/span) with a user's name, avatar, profile url
   function fillPersonChip(el, user) {
     var nameEl = el.querySelector('[data-coord-name]');
-    if (nameEl) nameEl.textContent = user.username;
+    if (nameEl) nameEl.textContent = user.display_name || user.username;
     var avatarEl = el.querySelector('[data-coord-avatar]');
     if (avatarEl) avatarEl.innerHTML = buildAvatarHtml(user, avatarEl.dataset.avatarSize || 'md');
     if (el.tagName === 'A' && user.profile_url) el.href = user.profile_url;
     if (el.dataset.coordTitle) {
-      el.title = el.dataset.coordTitle + user.username;
+      el.title = el.dataset.coordTitle + (user.display_name || user.username);
       var tip = typeof TwTooltip !== 'undefined' && TwTooltip.getOrCreateInstance(el, { trigger: 'hover' });
       if (tip) tip.setTitle(el.title);
     }
@@ -299,7 +299,7 @@
     if (label) {
       var coordI18n = window.TASK_COORD_I18N || {};
       label.textContent = isAssigned
-        ? (data.assigned_to.username || '')
+        ? (data.assigned_to.display_name || data.assigned_to.username || '')
         : (coordI18n.none_label || 'None');
     }
 
@@ -404,10 +404,10 @@
     var items = data.helpers.map(function (h) {
       var avatar = h.avatar_url
         ? '<img src="' + escapeHtml(h.avatar_url) + '" alt="">'
-        : escapeHtml(h.username.slice(0, 2).toUpperCase());
+        : escapeHtml(h.initials || (h.username || '').slice(0, 2).toUpperCase());
       return '<a class="tw-helpers-popover-item" href="' + escapeHtml(h.profile_url) + '">'
         + '<span class="tw-avatar tw-avatar-xl tw-avatar-accent">' + avatar + '</span>'
-        + '<span class="tw-helpers-popover-name">' + escapeHtml(h.username) + '</span>'
+        + '<span class="tw-helpers-popover-name">' + escapeHtml(h.display_name || h.username) + '</span>'
         + '</a>';
     }).join('');
     var more = '';

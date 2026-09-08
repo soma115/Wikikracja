@@ -126,9 +126,9 @@ class Room(models.Model):
 
         get_user = self.get_other(user)
         if get_user is not None:
-            username = get_user.username
-            # Clip long usernames to match room title length
-            return username[:title_len] if len(username) > title_len else username
+            name = get_user.get_full_name() or get_user.username
+            # Clip long names to match room title length
+            return name[:title_len] if len(name) > title_len else name
         else:
             return "--"
 

@@ -56,10 +56,10 @@ export default class DomApi {
         return room ? $('.tw-chat-messages', room) : null;
     }
 
-    buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null) {
+    buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null, display_name = null, initials = null) {
         const formatted = this.formatMessage(message);
         return Message({
-            room_id, user_id, avatar_url, citizen_color_class, message_id, username,
+            room_id, user_id, avatar_url, citizen_color_class, message_id, username, display_name, initials,
             message: this.wrapExpandable(formatted),
             raw_message: message,
             upvotes, downvotes, vote, own, edited, attachments,
@@ -74,8 +74,8 @@ export default class DomApi {
         });
     }
 
-    addMessage(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null, temp_id = null) {
-        const html = this.buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to, reactions, your_reactions, read_by, upvoters, downvoters);
+    addMessage(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null, temp_id = null, display_name = null, initials = null) {
+        const html = this.buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to, reactions, your_reactions, read_by, upvoters, downvoters, display_name, initials);
 
         const messagesDiv = this.getMessagesDiv();
         messagesDiv?.insertAdjacentHTML('beforeend', html);
@@ -576,7 +576,7 @@ export default class DomApi {
         }
 
         const senderEl = roomLink.querySelector('.tw-room-link-sender');
-        if (senderEl) senderEl.textContent = (msg.username || '—') + ':';
+        if (senderEl) senderEl.textContent = (msg.display_name || msg.username || '—') + ':';
 
         const snippetEl = roomLink.querySelector('.tw-room-link-snippet');
         if (snippetEl) {

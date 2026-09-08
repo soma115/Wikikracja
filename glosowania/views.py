@@ -24,6 +24,7 @@ from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, 
 from glosowania.vote_buffer import push_pending_vote
 from site_settings.models import SiteParameters
 from site_settings.params import describe_changes, specs_by_category
+from zzz.templatetags.citizen_filters import user_display_name
 
 log = logging.getLogger(__name__)
 
@@ -73,11 +74,11 @@ def dodaj(request: HttpRequest):
                 decyzja=form,
                 transition='proposed',
                 title=_('New law proposal'),
-                body=f'{request.user.username.capitalize()}: {form.title}',
+                body=f'{user_display_name(request.user)}: {form.title}',
                 click_action=click_action,
                 tag=f'vote-{form.id}',
                 email_subject=_('New law proposal'),
-                email_body=_('{user} added new law proposal: "{title}"\nYou can read it here: {url}').format(user=request.user.username.capitalize(), title=form.title, url=click_action),
+                email_body=_('{user} added new law proposal: "{title}"\nYou can read it here: {url}').format(user=user_display_name(request.user), title=form.title, url=click_action),
                 notification_type='glosowania',
                 ws_type='vote.notification',
                 log_prefix='glosowania: ',
@@ -135,11 +136,11 @@ def edit(request: HttpRequest, pk: int):
                 decyzja=decision,
                 transition='modified',
                 title=_("Proposal no. {} has been modified").format(decision.id),
-                body=_('{user} modified proposal: "{title}"').format(user=request.user.username.capitalize(), title=decision.title),
+                body=_('{user} modified proposal: "{title}"').format(user=user_display_name(request.user), title=decision.title),
                 click_action=click_action,
                 tag=f'vote-{decision.id}',
                 email_subject=_("Proposal no. {} has been modified").format(decision.id),
-                email_body=_('{user} modified proposal: "{title}"\nYou can read new version here: {url}').format(user=request.user.username.capitalize(), title=decision.title, url=click_action),
+                email_body=_('{user} modified proposal: "{title}"\nYou can read new version here: {url}').format(user=user_display_name(request.user), title=decision.title, url=click_action),
                 notification_type='glosowania',
                 ws_type='vote.notification',
                 send_push=False,
@@ -597,11 +598,11 @@ def parameters_propose(request: HttpRequest, pk: int = None):
                     decyzja=decyzja,
                     transition='proposed',
                     title=str(_('New law proposal')),
-                    body=f'{request.user.username.capitalize()}: {decyzja.title}',
+                    body=f'{user_display_name(request.user)}: {decyzja.title}',
                     click_action=click_action,
                     tag=f'vote-{decyzja.id}',
                     email_subject=str(_('New law proposal')),
-                    email_body=str(_('{user} added new law proposal: "{title}"\nYou can read it here: {url}')).format(user=request.user.username.capitalize(), title=decyzja.title, url=click_action),
+                    email_body=str(_('{user} added new law proposal: "{title}"\nYou can read it here: {url}')).format(user=user_display_name(request.user), title=decyzja.title, url=click_action),
                     notification_type='glosowania',
                     ws_type='vote.notification',
                     log_prefix='glosowania: ',

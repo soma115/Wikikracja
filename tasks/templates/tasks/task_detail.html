@@ -1,6 +1,7 @@
 {% extends "home/base.html" %}
 {% load i18n %}
 {% load richtext %}
+{% load feed_filters %}
 
 {% block content %}
 <div class="tw-container tw-my-4">
@@ -186,8 +187,8 @@
             {% for vote in helping_votes %}
               <div class="tw-helpers-voter-item" data-user-id="{{ vote.user_id }}">
                 <a class="tw-helpers-popover-item" href="{% url 'obywatele:obywatele_szczegoly' vote.user_id %}">
-                  {% include "home/_user_avatar.html" with avatar=vote.user.uzytkownik.avatar username=vote.user.username size="xl" %}
-                  <span class="tw-helpers-popover-name">{{ vote.user.username }}</span>
+                  {% include "home/_user_avatar.html" with user=vote.user size="xl" %}
+                  <span class="tw-helpers-popover-name">{{ vote.user|display_name }}</span>
                 </a>
                 {% if vote.is_coordinator %}
                   <span class="tw-helper-status tw-helper-status--approved" title="{% trans 'Coordinator' %}">
@@ -227,8 +228,8 @@
           <div class="tw-helpers-popover-list" data-voter-list="against"{% if not against_votes %} hidden{% endif %}>
             {% for vote in against_votes %}
               <a class="tw-helpers-popover-item" href="{% url 'obywatele:obywatele_szczegoly' vote.user_id %}" data-user-id="{{ vote.user_id }}">
-                {% include "home/_user_avatar.html" with avatar=vote.user.uzytkownik.avatar username=vote.user.username size="xl" %}
-                <span class="tw-helpers-popover-name">{{ vote.user.username }}</span>
+                {% include "home/_user_avatar.html" with user=vote.user size="xl" %}
+                <span class="tw-helpers-popover-name">{{ vote.user|display_name }}</span>
               </a>
             {% endfor %}
           </div>

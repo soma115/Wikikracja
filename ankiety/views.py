@@ -154,7 +154,7 @@ def survey_detail(request, pk):
     voter_choices = {}
     for v in all_votes:
         voter_choices.setdefault(v.user, []).append(v.option.text)
-    voter_choices = dict(sorted(voter_choices.items(), key=lambda item: item[0].username.lower()))
+    voter_choices = dict(sorted(voter_choices.items(), key=lambda item: (item[0].get_full_name() or item[0].username).lower()))
 
     if request.method == "POST":
         _cast_vote(request, survey)

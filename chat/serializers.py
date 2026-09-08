@@ -1,4 +1,4 @@
-from zzz.templatetags.citizen_filters import citizen_color_class
+from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
 
 
 def build_chat_message_payload(event, *, user, vote_value, current_user, your_reactions=None, avatar_url=None):
@@ -15,6 +15,8 @@ def build_chat_message_payload(event, *, user, vote_value, current_user, your_re
     username = "System" if user is None else ("Anonymous" if anonymous else user.username)
     payload["user_id"] = None if anonymous or user is None else user.id
     payload["username"] = username
+    payload["display_name"] = user_display_name(user) if (user and not anonymous) else username
+    payload["initials"] = user_initials(user) if (user and not anonymous) else username[:2].upper()
     payload["avatar_url"] = "/static/home/images/anonymous.svg" if anonymous else avatar_url
     payload["citizen_color_class"] = citizen_color_class(username)
     payload["new"] = event["new"] if current_user != user else False

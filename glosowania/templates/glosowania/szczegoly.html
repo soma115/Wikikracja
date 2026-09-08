@@ -20,7 +20,7 @@
       <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-muted tw-text-sm">
         {% if id.author %}
         <a href="{% url 'obywatele:obywatele_szczegoly' pk=id.author.pk %}" class="tw-detail-author-link tw-flex tw-items-center tw-gap-1 tw-no-underline">
-          {% include "home/_user_avatar.html" with avatar=id.author.uzytkownik.avatar username=id.author.username display_name=id.author|display_name size="sm" %}
+          {% include "home/_user_avatar.html" with user=id.author size="sm" %}
           <span class="tw-text-accent">{{ id.author|display_name }}</span>
         </a>
         <span class="tw-detail-meta-sep">·</span>
@@ -166,7 +166,7 @@
       {% for arg in positive_arguments %}
       <div class="tw-arg-card tw-arg-card--for">
         {% if arg.author %}<a href="{% url 'obywatele:obywatele_szczegoly' pk=arg.author.pk %}" class="tw-arg-card-author">{% else %}<span class="tw-arg-card-author">{% endif %}
-          {% include "home/_user_avatar.html" with avatar=arg.author.uzytkownik.avatar username=arg.author.username display_name=arg.author|display_name size="lg" %}
+          {% include "home/_user_avatar.html" with user=arg.author size="lg" %}
           <div class="tw-arg-author-info">
             <span class="tw-arg-author-name">{{ arg.author|display_name }}</span>
             <span class="tw-arg-author-date">{{ arg.created_at|date:"d.m.Y" }}</span>
@@ -207,7 +207,7 @@
       {% for arg in negative_arguments %}
       <div class="tw-arg-card tw-arg-card--against">
         {% if arg.author %}<a href="{% url 'obywatele:obywatele_szczegoly' pk=arg.author.pk %}" class="tw-arg-card-author">{% else %}<span class="tw-arg-card-author">{% endif %}
-          {% include "home/_user_avatar.html" with avatar=arg.author.uzytkownik.avatar username=arg.author.username display_name=arg.author|display_name size="lg" %}
+          {% include "home/_user_avatar.html" with user=arg.author size="lg" %}
           <div class="tw-arg-author-info">
             <span class="tw-arg-author-name">{{ arg.author|display_name }}</span>
             <span class="tw-arg-author-date">{{ arg.created_at|date:"d.m.Y" }}</span>

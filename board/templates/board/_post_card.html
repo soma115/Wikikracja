@@ -17,7 +17,7 @@
       </div>
       <div class="tw-flex tw-items-center tw-gap-2 tw-mt-auto">
         {% if post.author %}
-            {% include "home/_user_avatar.html" with avatar=post.author.uzytkownik.avatar username=post.author.username display_name=post.author|display_name size="md" %}
+            {% include "home/_user_avatar.html" with user=post.author size="md" %}
           <span class="tw-text-author">{{ post.author|display_name }}</span>
         {% endif %}
         <span class="tw-ms-auto tw-text-meta tw-shrink-0">{{ post.updated|date:"d.m.Y" }}</span>

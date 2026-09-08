@@ -56,7 +56,7 @@
            data-tw-toggle="tooltip"
            title="{% trans 'Coordinator' %}: {{ task.assigned_to|display_name }}">
           <i class="fas fa-user-gear tw-task-role-icon" aria-hidden="true"></i>
-          {% include "home/_user_avatar.html" with avatar=task.assigned_to.uzytkownik.avatar username=task.assigned_to.username display_name=task.assigned_to|display_name size="md" %}
+          {% include "home/_user_avatar.html" with user=task.assigned_to size="md" %}
           <span class="tw-task-coordinator-name">{{ task.assigned_to|display_name }}</span>
         </a>
       {% else %}
@@ -67,7 +67,7 @@
            data-tw-toggle="tooltip"
            title="{% trans 'Coordinator' %}: {{ request.user|display_name }}">
           <i class="fas fa-user-gear tw-task-role-icon" aria-hidden="true"></i>
-          {% include "home/_user_avatar.html" with avatar=request.user.uzytkownik.avatar username=request.user.username display_name=request.user|display_name size="md" %}
+          {% include "home/_user_avatar.html" with user=request.user size="md" %}
           <span class="tw-task-coordinator-name">{{ request.user|display_name }}</span>
         </a>
         <span class="tw-task-coordinator-empty"
@@ -150,7 +150,7 @@
       <a href="{% if task.assigned_to %}{% url 'obywatele:obywatele_szczegoly' pk=task.assigned_to.pk %}{% else %}#{% endif %}"
          class="tw-task-assignee-link" data-coord-assignee
          {% if not task.assigned_to %}hidden {% endif %}data-tw-stop-propagation>
-        <span data-coord-avatar data-avatar-size="md">{% if task.assigned_to %}{% include "home/_user_avatar.html" with avatar=task.assigned_to.uzytkownik.avatar username=task.assigned_to.username display_name=task.assigned_to|display_name size="md" %}{% endif %}</span>
+        <span data-coord-avatar data-avatar-size="md">{% if task.assigned_to %}{% include "home/_user_avatar.html" with user=task.assigned_to size="md" %}{% endif %}</span>
         <span class="tw-task-assignee-name" data-coord-name>{{ task.assigned_to|display_name }}</span>
       </a>
       <span class="tw-task-assignee-empty" data-coord-assignee-empty{% if task.assigned_to %} hidden{% endif %}>{% trans 'n/a' %}</span>

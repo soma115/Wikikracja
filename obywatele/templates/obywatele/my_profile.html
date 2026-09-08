@@ -49,14 +49,14 @@
         {% csrf_token %}
         <input class="tw-d-none" type="file" id="avatar-input" name="avatar" accept="image/*">
         <div class="tw-avatar-upload-wrap" id="avatar-wrap">
-          {% include "home/_user_avatar.html" with avatar=profile.avatar username=user.username display_name=user|display_name size="7xl" extra_class="tw-avatar-bordered" id="avatar-img" loading_lazy=False %}
+          {% include "home/_user_avatar.html" with user=user size="7xl" extra_class="tw-avatar-bordered" id="avatar-img" loading_lazy=False %}
           <div class="tw-avatar-overlay" id="avatar-overlay">
             <i class="fas fa-camera tw-avatar-overlay-icon"></i>
           </div>
         </div>
       </form>
       <div>
-        <div class="tw-profile-name">{{ user.get_full_name|default:user.username }}</div>
+        <div class="tw-profile-name">{{ user|display_name }}</div>
         <div class="tw-profile-email">{{ user.email }}</div>
       </div>
     </div>

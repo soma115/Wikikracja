@@ -46,7 +46,7 @@
           </div>
           <div class="tw-flex tw-items-center tw-gap-2 tw-shrink-0">
             {% if post.author %}
-              {% include "home/_user_avatar.html" with avatar=post.author.uzytkownik.avatar username=post.author.username display_name=post.author|display_name size="xs" %}
+              {% include "home/_user_avatar.html" with user=post.author size="xs" %}
             {% endif %}
             <span class="tw-text-meta">{{ post.updated|date:"d.m.Y" }}</span>
           </div>
@@ -75,7 +75,7 @@
               {% endif %}
               <div class="tw-flex tw-items-center tw-gap-2">
                 {% if post.author %}
-                  {% include "home/_user_avatar.html" with avatar=post.author.uzytkownik.avatar username=post.author.username display_name=post.author|display_name size="sm" %}
+                  {% include "home/_user_avatar.html" with user=post.author size="sm" %}
                 {% endif %}
                 <span class="tw-text-meta">{{ post.updated|date:"d.m.Y" }}</span>
               </div>

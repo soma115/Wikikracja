@@ -42,7 +42,7 @@
               <td>
                 <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0">
                   <span class="tw-citizen-card-top tw-shrink-0">
-                    {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username display_name=i|display_name size="lg" %}
+                    {% include "home/_user_avatar.html" with user=i size="lg" %}
                     <span class="tw-candidate-vote-badge">
                       {% if i.rating == 1 %}
                       <i class="fas fa-check-circle tw-text-success" title="{% trans 'You accepted this candidate' %}"></i>
@@ -115,7 +115,7 @@
            data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
         <div class="tw-flex tw-gap-3 tw-w-full">
           <div class="tw-citizen-card-top tw-shrink-0">
-            {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username display_name=i|display_name size="5xl" %}
+            {% include "home/_user_avatar.html" with user=i size="5xl" %}
             <span class="tw-candidate-vote-badge">
               {% if i.rating == 1 %}
               <i class="fas fa-check-circle tw-text-success" title="{% trans 'You accepted this candidate' %}"></i>

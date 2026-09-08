@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from core.colors import category_color
+from zzz.templatetags.citizen_filters import user_display_name
 
 register = template.Library()
 
@@ -10,11 +11,7 @@ register = template.Library()
 @register.filter
 def display_name(user):
     """Return the user's full name when available, falling back to username."""
-    if not user:
-        return ''
-    if hasattr(user, 'uid'):
-        user = user.uid
-    return user.get_full_name() or user.username
+    return user_display_name(user)
 
 
 @register.filter

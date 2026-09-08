@@ -15,7 +15,7 @@ from django.utils.translation import gettext_lazy
 from core.notifications import NOTIF_LOG_TAG
 from core.richtext import sanitize, strip_tags
 from core.utils import get_site_domain
-from zzz.templatetags.citizen_filters import citizen_color_class
+from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
 
 from .exceptions import ClientError
 from .models import Message, MessageAttachment, MessageHistory, MessageHistoryEntry, MessageReadBy, Room
@@ -86,10 +86,10 @@ def _reactions(message) -> dict:
 
 
 def _voter_names_by_id(user_ids) -> dict:
-    """Return {user_id: username} for the given ids (skips deleted users)."""
+    """Return {user_id: display name} for the given ids (skips deleted users)."""
     if not user_ids:
         return {}
-    return dict(User.objects.filter(id__in=user_ids).values_list('id', 'username'))
+    return {u.id: user_display_name(u) for u in User.objects.filter(id__in=user_ids)}
 
 
 def _voter_lists(reactions_dict: dict, names_by_id: dict) -> dict:
@@ -143,13 +143,23 @@ def build_chat_message_event(message: Message, *, new: bool = False, temp_id: st
     if reply_to_data is None and message.reply_to_id and message.reply_to:
         rm = message.reply_to
         ru = 'System' if rm.sender is None else ('Anonymous' if rm.anonymous else rm.sender.username)
-        reply_to_data = {'id': rm.id, 'username': ru, 'text_snippet': _reply_snippet(rm.text), 'author_color': _username_to_color(ru)}
+        rd = user_display_name(rm.sender) if (rm.sender and not rm.anonymous) else ru
+        reply_to_data = {'id': rm.id, 'username': ru, 'display_name': rd, 'text_snippet': _reply_snippet(rm.text), 'author_color': _username_to_color(ru)}
 
     read_by_data = []
     if read_by:
         for entry in read_by:
             u = entry.user
-            read_by_data.append({'user_id': u.id, 'username': u.username, 'avatar_url': get_avatar_url(u) or '/static/home/images/favicon.ico', 'citizen_color_class': citizen_color_class(u.username)})
+            read_by_data.append(
+                {
+                    'user_id': u.id,
+                    'username': u.username,
+                    'display_name': user_display_name(u),
+                    'initials': user_initials(u),
+                    'avatar_url': get_avatar_url(u) or '/static/home/images/favicon.ico',
+                    'citizen_color_class': citizen_color_class(u.username),
+                }
+            )
 
     event = {
         'type': 'chat.message',
@@ -507,7 +517,16 @@ class ChatRepository:
         for entry in entries:
             user = entry.user
             avatar_url = get_avatar_url(user) or "/static/home/images/favicon.ico"
-            result.append({'user_id': user.id, 'username': user.username, 'avatar_url': avatar_url, 'citizen_color_class': citizen_color_class(user.username)})
+            result.append(
+                {
+                    'user_id': user.id,
+                    'username': user.username,
+                    'display_name': user_display_name(user),
+                    'initials': user_initials(user),
+                    'avatar_url': avatar_url,
+                    'citizen_color_class': citizen_color_class(user.username),
+                }
+            )
         return result
 
     # -- Recent messages methods --
@@ -596,7 +615,7 @@ class ChatRepository:
 
 def _room_notification_name(room, sender):
     """Room name to display in notifications: public room title, private chat = sender."""
-    return room.title if room.public else (sender.username if sender else "System")
+    return room.title if room.public else (user_display_name(sender) if sender else "System")
 
 
 async def _build_chat_notification(author, room_id, room_name=None):
@@ -645,7 +664,8 @@ def _get_reply_to_data_sync(reply_to_id, room_id, user=None):
     if user is not None and user.is_authenticated and not _can_access_room_sync(msg.room, user):
         raise ClientError("ACCESS_DENIED") from None
     username = 'System' if msg.sender is None else ('Anonymous' if msg.anonymous else msg.sender.username)
-    return {'id': msg.id, 'username': username, 'text_snippet': _reply_snippet(msg.text), 'author_color': _username_to_color(username)}
+    display_name = user_display_name(msg.sender) if (msg.sender and not msg.anonymous) else username
+    return {'id': msg.id, 'username': username, 'display_name': display_name, 'text_snippet': _reply_snippet(msg.text), 'author_color': _username_to_color(username)}
 
 
 def _validate_attachments(attachments):
@@ -751,7 +771,7 @@ async def _dispatch_message_notifications(channel_layer, room, message, sender, 
 
         membership_prefs = await database_sync_to_async(Room.get_membership_preferences_bulk)(room.id, other_member_ids)
 
-        author = "Anonymous" if message.anonymous else (sender.username if sender else "System")
+        author = "Anonymous" if message.anonymous else (user_display_name(sender) if sender else "System")
         notify_room_name = _room_notification_name(room, sender)
         notification = await _build_chat_notification(author, room.id, notify_room_name)
 
@@ -789,7 +809,7 @@ async def _dispatch_message_notifications(channel_layer, room, message, sender, 
 async def _send_push_to_user(user, message, room, room_name):
     """Send a single push notification via ChatRepository."""
     try:
-        author = "Anonymous" if message.anonymous else (message.sender.username if message.sender else "System")
+        author = "Anonymous" if message.anonymous else (user_display_name(message.sender) if message.sender else "System")
         notification = await _build_chat_notification(author, room.id, room_name)
         repo = ChatRepository(AnonymousUser())
         success = await repo.send_push_notification_sync(user, notification['title'], notification['body'], notification['click_action'], room.id, room_name=room_name)
@@ -804,7 +824,7 @@ async def _send_push_to_user(user, message, room, room_name):
 async def _send_mention(channel_layer, room, message, user, room_name, online_registry):
     """Send a WebSocket mention event and a push for a single mention."""
     try:
-        author = "Anonymous" if message.anonymous else (message.sender.username if message.sender else "System")
+        author = "Anonymous" if message.anonymous else (user_display_name(message.sender) if message.sender else "System")
         notification = await _build_chat_notification(author, room.id, room_name)
 
         log.debug(f"{NOTIF_LOG_TAG} group_send chat.mention notification_id={notification['notification_id']} to user_{user.id} for message {message.id}")

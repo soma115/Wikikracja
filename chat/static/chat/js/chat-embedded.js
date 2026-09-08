@@ -118,6 +118,8 @@ async function initEmbeddedChat(container) {
             citizen_color_class: msg.citizen_color_class ?? '',
             message_id: msg.message_id,
             username: msg.username,
+            display_name: msg.display_name ?? null,
+            initials: msg.initials ?? null,
             message: formatMessage(msg.message),
             raw_message: msg.message,
             upvotes: msg.upvotes ?? 0,

@@ -3,6 +3,7 @@ from django.utils import timezone
 
 from core.feed_registry import DIGEST_GROUP_ID
 from core.richtext import plain_text
+from zzz.templatetags.citizen_filters import user_display_name
 
 from .models import Message, MessageReadBy, Room
 from .services import CHAT_UNREAD_CACHE_KEY, extract_mentions
@@ -23,7 +24,7 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
             'room_id': room.id,
             '_is_public': room.public,
             '_allowed_user_ids': {u.id for u in allowed_users},
-            '_allowed_usernames': {u.id: u.username for u in allowed_users},
+            '_allowed_names': {u.id: user_display_name(u) for u in allowed_users},
         }
         messages = sorted((m for m in room.messages.all() if m.time >= since), key=lambda m: m.time, reverse=True)
         for msg in messages:
@@ -40,7 +41,7 @@ def _visible_item(item, user) -> dict | None:
         return None
     item = {**item}
     if not item.get('_is_public'):
-        other = next((name for uid, name in item.get('_allowed_usernames', {}).items() if uid != user.id), None)
+        other = next((name for uid, name in item.get('_allowed_names', {}).items() if uid != user.id), None)
         if other:
             item['title'] = other
     return item

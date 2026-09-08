@@ -1,9 +1,11 @@
-{% load citizen_filters %}
-{% firstof alt display_name username as display %}
-{% if avatar %}
-  <img{% if id %} id="{{ id }}"{% endif %} class="tw-avatar tw-avatar-{{ size }}{% if extra_class %} {{ extra_class }}{% endif %}" src="{{ avatar.url }}" alt="{{ display }}"{% if loading_lazy != False %} loading="lazy"{% endif %}>
+{% load citizen_filters feed_filters %}
+{% with u=user.uid|default:user %}
+{% firstof alt u|display_name as display %}
+{% if u.uzytkownik.avatar %}
+  <img{% if id %} id="{{ id }}"{% endif %} class="tw-avatar tw-avatar-{{ size }}{% if extra_class %} {{ extra_class }}{% endif %}" src="{{ u.uzytkownik.avatar.url }}" alt="{{ display }}"{% if loading_lazy != False %} loading="lazy"{% endif %}>
 {% else %}
-  <div{% if id %} id="{{ id }}"{% endif %} class="tw-avatar tw-avatar-{{ size }} tw-avatar-fallback {{ username|citizen_color_class }}{% if extra_class %} {{ extra_class }}{% endif %}" title="{{ display }}">
-    {{ display|slice:":2"|upper }}
+  <div{% if id %} id="{{ id }}"{% endif %} class="tw-avatar tw-avatar-{{ size }} tw-avatar-fallback {{ u.username|citizen_color_class }}{% if extra_class %} {{ extra_class }}{% endif %}" title="{{ display }}">
+    {{ u|user_initials }}
   </div>
 {% endif %}
+{% endwith %}

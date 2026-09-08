@@ -117,7 +117,7 @@ const message_template = `
       <% if (reply_to) { %>
       <div class="tw-msg-quote" data-reply-id="<%-reply_to.id%>" data-target-id="<%-reply_to.id%>" role="button" title="Przejdź do oryginału">
         <span class="tw-msg-quote-mark">"</span>
-        <span class="tw-msg-quote-author">@<%-reply_to.username%>:</span>
+        <span class="tw-msg-quote-author">@<%- reply_to.display_name || reply_to.username %>:</span>
         <span class="tw-msg-quote-text"><%-reply_to.text_snippet%></span>
         <span class="tw-msg-quote-mark">"</span>
         <button class="tw-msg-quote-jump" data-target-id="<%-reply_to.id%>" type="button" title="Przejdź do oryginału">↗</button>
@@ -140,8 +140,8 @@ const message_template = `
           <% if (typeof avatar_url !== 'undefined' && avatar_url) { %>
             <img class='tw-avatar tw-avatar-2xl' src='<%- avatar_url %>' alt=''>
           <% } else { %>
-            <span class='tw-avatar tw-avatar-2xl tw-avatar-fallback<% if (typeof citizen_color_class !== "undefined" && citizen_color_class) { %> <%- citizen_color_class %><% } %>'><%= (username || '').slice(0, 2).toUpperCase() %></span>
-          <% } %><%= username %>
+            <span class='tw-avatar tw-avatar-2xl tw-avatar-fallback<% if (typeof citizen_color_class !== "undefined" && citizen_color_class) { %> <%- citizen_color_class %><% } %>'><%= (typeof initials !== 'undefined' && initials) ? initials : (username || '').slice(0, 2).toUpperCase() %></span>
+          <% } %><%= (typeof display_name !== 'undefined' && display_name) ? display_name : (username || '') %>
         <% if (_hasProfileLink) { %></a><% } else { %></span><% } %>
       </div>
       <div class='tw-chat-message-header-right'>
@@ -160,7 +160,7 @@ const message_template = `
         <button type='button'
           class='tw-btn tw-btn-sm tw-message-btn tw-reply-btn'
           data-message-id='<%-message_id%>'
-          data-username='<%=username%>'
+          data-username='<%= (typeof display_name !== "undefined" && display_name) ? display_name : (username || "") %>'
           data-snippet='<%-raw_message.replace(/<[^>]*>/g,"").slice(0,320)%>'
           title='Odpowiedz'>
           <i class='fas fa-reply'></i>
@@ -219,11 +219,11 @@ const message_template = `
             <% for (const _u of read_by) { %>
               <div class="tw-read-by-item">
                 <% if (_u.avatar_url) { %>
-                  <img class="tw-avatar tw-avatar-xl" src="<%- _u.avatar_url %>" alt="<%- _u.username %>">
+                  <img class="tw-avatar tw-avatar-xl" src="<%- _u.avatar_url %>" alt="<%- _u.display_name || _u.username %>">
                 <% } else { %>
-                  <span class="tw-avatar tw-avatar-xl tw-avatar-fallback<% if (_u.citizen_color_class) { %> <%- _u.citizen_color_class %><% } %>"><%= (_u.username || '').slice(0, 2).toUpperCase() %></span>
+                  <span class="tw-avatar tw-avatar-xl tw-avatar-fallback<% if (_u.citizen_color_class) { %> <%- _u.citizen_color_class %><% } %>"><%= _u.initials || (_u.username || '').slice(0, 2).toUpperCase() %></span>
                 <% } %>
-                <span class="tw-read-by-username"><%- _u.username %></span>
+                <span class="tw-read-by-username"><%- _u.display_name || _u.username %></span>
               </div>
             <% } %>
           <% } else { %>

@@ -74,7 +74,7 @@
               <td>
                 <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0">
                   <span class="tw-citizen-card-top tw-shrink-0">
-                    {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username display_name=i|display_name size="lg" %}
+                    {% include "home/_user_avatar.html" with user=i size="lg" %}
                   </span>
                   <span class="tw-font-semibold tw-text-primary tw-min-w-0 tw-truncate">
                     {% if i.first_name or i.last_name %}{{ i.first_name }} {{ i.last_name }}{% else %}{{ i|display_name }}{% endif %}
@@ -131,7 +131,7 @@
            data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
         <div class="tw-flex tw-gap-3 tw-w-full">
           <div class="tw-shrink-0">
-            {% include "home/_user_avatar.html" with avatar=i.uzytkownik.avatar username=i.username display_name=i|display_name size="5xl" %}
+            {% include "home/_user_avatar.html" with user=i size="5xl" %}
           </div>
           <div class="tw-flex tw-flex-col tw-justify-center tw-min-w-0 tw-flex-1">
             <span class="tw-font-semibold tw-text-primary tw-truncate">

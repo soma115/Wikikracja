@@ -336,7 +336,7 @@
         <a href="{% url 'kandydaci' %}" class="tw-stretched-link" aria-label="{% trans 'New people' %}" title="{% trans 'New people' %}"></a>
         {% if new_people %}
         <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for cit in new_people|slice:":6" %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-            {% include "home/_user_avatar.html" with avatar=cit.avatar username=cit.uid.username display_name=cit.uid|display_name size="lg" %}
+            {% include "home/_user_avatar.html" with user=cit size="lg" %}
             <span class="tw-truncate tw-flex-1 tw-min-w-0">{{ cit|display_name }}</span>
             <span class="tw-shrink-0 tw-text-xs tw-text-muted tw-ms-auto tw-text-nowrap">{{ cit.uid.date_joined|date:"d.m.Y" }}</span>
           </li>{% endfor %}{% endspaceless %}</ul>
@@ -406,7 +406,7 @@
         {% for msg in recent_chat_messages %}
         <div class="tw-chat-msg-row tw-relative">
           <div class="tw-shrink-0">
-            {% include "home/_user_avatar.html" with avatar=msg.sender.uzytkownik.avatar username=msg.sender.username display_name=msg.sender|display_name size="xl" %}
+            {% include "home/_user_avatar.html" with user=msg.sender size="xl" %}
           </div>
           <div class="tw-min-w-0 tw-flex-1">
             <div class="tw-flex tw-items-center tw-gap-2">

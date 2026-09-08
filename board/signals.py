@@ -11,6 +11,7 @@ from chat.signals import chat_message_requested, chat_room_requested
 from core.services.feed import invalidate_feed_cache_on_change
 from core.signals import important_post_published
 from core.utils import build_site_url, get_site_domain
+from zzz.templatetags.citizen_filters import user_display_name
 
 from .models import Post
 
@@ -31,7 +32,7 @@ def notify_important_chat_on_important_post(sender, instance, created, **kwargs)
     post_url = f"{protocol}://{get_site_domain()}{post_path}"
 
     if created:
-        message = _("New important document by %(username)s: <a href='%(post_url)s'>%(title)s</a>") % {'username': instance.author.username, 'post_url': post_url, 'title': instance.title}
+        message = _("New important document by %(username)s: <a href='%(post_url)s'>%(title)s</a>") % {'username': user_display_name(instance.author), 'post_url': post_url, 'title': instance.title}
     else:
         message = _("I've updated Important document: <a href='%(post_url)s'>%(title)s</a>") % {'post_url': post_url, 'title': instance.title}
 

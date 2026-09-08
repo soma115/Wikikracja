@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load richtext %}
+{% load feed_filters %}
 {% comment %}
   Partial: kafelek propozycji.
   Oczekiwane zmienne z {% include ... with i=item %}:
@@ -59,9 +60,9 @@
       {% if i.author %}
       <a href="{% url 'obywatele:obywatele_szczegoly' pk=i.author.pk %}"
          class="tw-proposal-author-link" data-tw-stop-propagation
-         title="{{ i.author.username }}">
-        {% include "home/_user_avatar.html" with avatar=i.author.uzytkownik.avatar username=i.author.username size="md" %}
-        <span class="tw-proposal-author-name">{{ i.author.username }}</span>
+         title="{{ i.author|display_name }}">
+        {% include "home/_user_avatar.html" with user=i.author size="md" %}
+        <span class="tw-proposal-author-name">{{ i.author|display_name }}</span>
       </a>
       {% else %}
       <span class="tw-proposal-author-name">—</span>

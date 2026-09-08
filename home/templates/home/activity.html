@@ -50,7 +50,7 @@
             {% if item.author %}
             <span class="tw-feed-author tw-inline-flex tw-items-center tw-gap-1 tw-text-xs tw-text-muted">
               <span class="tw-feed-avatar">
-                {% include "home/_user_avatar.html" with avatar=item.author.uzytkownik.avatar username=item.author.username display_name=item.author|display_name size="sm" %}
+                {% include "home/_user_avatar.html" with user=item.author size="sm" %}
               </span>
               <span>{{ item.author|display_name }}</span>
             </span>

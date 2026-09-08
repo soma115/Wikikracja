@@ -985,7 +985,8 @@ export async function onReceiveMessages(messages) {
             message.reactions ?? { bulb: 0, question: 0 },
             message.your_reactions ?? [],
             message.read_by ?? [],
-            message.upvoters, message.downvoters
+            message.upvoters, message.downvoters,
+            null, message.display_name ?? null, message.initials ?? null
         );
         if (message.new) updateRoomListForMessage(message);
         if (message.new && !message.own) WS_API?.markMessageRead(message.message_id);
@@ -1009,7 +1010,8 @@ export async function onReceiveMessages(messages) {
                 message.reactions ?? { bulb: 0, question: 0 },
                 message.your_reactions ?? [],
                 message.read_by ?? [],
-                message.upvoters, message.downvoters
+                message.upvoters, message.downvoters,
+                message.display_name ?? null, message.initials ?? null
             );
         }
         if (batchHtml) msgdiv.insertAdjacentHTML('beforeend', batchHtml);
@@ -1065,7 +1067,8 @@ export async function onReplaceMessages(messages, room_id) {
             message.reactions ?? { bulb: 0, question: 0 },
             message.your_reactions ?? [],
             message.read_by ?? [],
-            message.upvoters, message.downvoters
+            message.upvoters, message.downvoters,
+            null, message.display_name ?? null, message.initials ?? null
         );
         if (message.your_vote) {
             DOM_API.getVoteDiv(message.message_id, message.your_vote)?.classList.add('tw-active');
@@ -1152,10 +1155,11 @@ export async function onReceiveReadBy(event) {
 
     const listHtml = readBy.map(u => {
         const colorClass = u.citizen_color_class || '';
+        const name = u.display_name || u.username || '';
         const avatar = u.avatar_url
-            ? `<img class="tw-avatar tw-avatar-xl" src="${u.avatar_url}" alt="${u.username}">`
-            : `<span class="tw-avatar tw-avatar-xl tw-avatar-fallback ${colorClass}">${(u.username || '').slice(0, 2).toUpperCase()}</span>`;
-        return `<div class="tw-read-by-item">${avatar}<span class="tw-read-by-username">${u.username}</span></div>`;
+            ? `<img class="tw-avatar tw-avatar-xl" src="${u.avatar_url}" alt="${name}">`
+            : `<span class="tw-avatar tw-avatar-xl tw-avatar-fallback ${colorClass}">${u.initials || (u.username || '').slice(0, 2).toUpperCase()}</span>`;
+        return `<div class="tw-read-by-item">${avatar}<span class="tw-read-by-username">${name}</span></div>`;
     }).join('');
 
     let countEl = btn.querySelector('.tw-read-by-count');
@@ -1180,6 +1184,7 @@ export async function onReceiveEdit(edit_info) {
         updateRoomListForMessage({
             room_id: edit_info.room_id,
             username: edit_info.username,
+            display_name: edit_info.display_name,
             anonymous: edit_info.anonymous,
             message: edit_info.text,
             timestamp: edit_info.timestamp,
@@ -1368,9 +1373,13 @@ export async function onSubmitMessage(message, editing_message_id) {
         const reply_to = currentReplyData
             ? { id: currentReplyData.id, username: currentReplyData.username, text_snippet: currentReplyData.snippet }
             : null;
+        const userNameEl = document.querySelector('.tw-user-name');
         const ownUsername = is_anonymous
             ? 'Anonymous'
-            : (document.querySelector('.tw-user-name')?.textContent?.trim() || '');
+            : (userNameEl?.textContent?.trim() || '');
+        const ownInitials = is_anonymous
+            ? 'AN'
+            : (userNameEl?.dataset?.initials || '');
         const now = Date.now();
 
         DOM_API.removeNoMessagesBanner();
@@ -1382,7 +1391,7 @@ export async function onSubmitMessage(message, editing_message_id) {
             0, 0, null, true, false,
             attachments, now, now,
             reply_to, { bulb: 0, question: 0 }, [], [],
-            null, null, temp_id
+            null, null, temp_id, ownUsername, ownInitials
         );
         requestAnimationFrame(() => DOM_API.markOverflow(DOM_API.getMessageDiv(temp_id)));
         if (msgdiv) msgdiv.scrollTop = msgdiv.scrollHeight;

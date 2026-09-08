@@ -19,6 +19,7 @@ from core.utils import build_site_url, get_site_domain
 from home.templatetags.feed_filters import content_type_label
 from zzz.email import send_bulk_email_in_thread
 from zzz.management.base_command import TranslatedCommand
+from zzz.templatetags.citizen_filters import user_display_name
 
 log = logging.getLogger(__name__)
 
@@ -183,7 +184,7 @@ class Command(TranslatedCommand):
             'user': user,
             'site_name': get_site_domain(),
             'title': _('Activity digest'),
-            'digest_intro': _('Activity digest for %(username)s since %(date)s') % {'username': user.username, 'date': since_str},
+            'digest_intro': _('Activity digest for %(username)s since %(date)s') % {'username': user_display_name(user), 'date': since_str},
             'no_activity_text': _('No activity in this section.'),
             'manage_button_text': _('Manage email notifications'),
             'manage_text': _('You can manage your email notifications here:'),

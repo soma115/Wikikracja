@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from core.notifications import NOTIF_LOG_TAG
 from core.richtext import sanitize
+from zzz.templatetags.citizen_filters import user_display_name
 
 from .exceptions import ClientError
 from .serializers import build_chat_message_payload
@@ -469,6 +470,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     "room_id": room.id,
                     "user_id": self.scope['user'].id,
                     "username": self.scope['user'].username,
+                    "display_name": "Anonymous" if message.anonymous else user_display_name(self.scope['user']),
                     "anonymous": message.anonymous,
                     "is_last_message": is_last,
                     "text": new_message,

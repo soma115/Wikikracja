@@ -1,5 +1,6 @@
 {% extends 'glosowania/menu.html' %}
 {% load i18n %}
+{% load feed_filters %}
 
 
 
@@ -36,7 +37,7 @@
         <span class="tw-historia-meta">
           {{ entry.version.modified_at|date:"d.m.Y H:i" }}
           {% if entry.version.modified_by %}
-            · <strong class="tw-font-semibold">{{ entry.version.modified_by.username }}</strong>
+            · <strong class="tw-font-semibold">{{ entry.version.modified_by|display_name }}</strong>
           {% endif %}
         </span>
       </div>

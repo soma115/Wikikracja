@@ -1,6 +1,8 @@
 {% load i18n %}
 {% load static %}
 {% load filters %}
+{% load feed_filters %}
+{% load citizen_filters %}
 
 <!DOCTYPE html>
 <html lang="{{ request.LANGUAGE_CODE }}" data-theme="dark" data-prefs-scope="{% block prefs_scope %}{% endblock %}">
@@ -304,8 +306,8 @@
         {% if unread_count %}<span class="tw-notif-count">{{ unread_count }}</span>{% endif %}
       </a>
 
-      <!-- Current username for JS (hidden) -->
-      <span class="tw-user-name tw-d-none">{{ user.username }}</span>
+      <!-- Current user display name and initials for JS (hidden) -->
+      <span class="tw-user-name tw-d-none" data-initials="{{ user|user_initials }}">{{ user|display_name }}</span>
 
     </header>
     {% endif %}

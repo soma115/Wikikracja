@@ -20,3 +20,33 @@ def citizen_color(username):
 def citizen_color_class(username):
     """Return a deterministic CSS class for a username colour."""
     return 'tw-citizen-color-' + str(int(hashlib.md5(str(username).encode()).hexdigest(), 16) % len(_CITIZEN_COLORS))
+
+
+def _as_user(user):
+    """Accept a User or an Uzytkownik profile and return the User (or None)."""
+    if user is None:
+        return None
+    return getattr(user, 'uid', user)
+
+
+def user_display_name(user):
+    """Full name when available, falling back to username. Accepts User or Uzytkownik."""
+    user = _as_user(user)
+    if not user:
+        return ''
+    return user.get_full_name() or user.username
+
+
+def user_initials(user):
+    """First letters of first and last name; falls back to the available part, then the username."""
+    user = _as_user(user)
+    if not user:
+        return ''
+    first = (user.first_name or '').strip()
+    last = (user.last_name or '').strip()
+    if first and last:
+        return (first[0] + last[0]).upper()
+    return (first or last or user.username or '')[:2].upper()
+
+
+register.filter('user_initials', user_initials)

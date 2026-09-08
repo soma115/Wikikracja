@@ -1,6 +1,8 @@
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from zzz.templatetags.citizen_filters import user_display_name
+
 from .models import CitizenActivity
 
 
@@ -13,7 +15,7 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
             {
                 'content_type': 'citizen',
                 'title': activity.get_activity_type_display(),
-                'description': f"{activity.uzytkownik.uid.username} - {_(activity.description)}",
+                'description': f"{user_display_name(activity.uzytkownik.uid)} - {_(activity.description)}",
                 'author': activity.uzytkownik.uid,
                 'timestamp': activity.timestamp,
                 'url': f"/obywatele/{activity.uzytkownik.uid.id}/",
