@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.utils.html import escape, mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from core.richtext import strip_tags
+from core.richtext import one_line_snippet, strip_tags
 from core.services.feed import build_user_digest
 from core.utils import build_site_url, get_site_domain
 from home.templatetags.feed_filters import content_type_label
@@ -57,6 +57,15 @@ def _format_timestamp(ts: datetime) -> str:
         return ''
     now = timezone.now()
     fmt = '%d.%m.%Y %H:%M' if ts.year != now.year else '%d.%m %H:%M'
+    return ts.strftime(fmt)
+
+
+def _format_event_timestamp(ts: datetime) -> str:
+    """Format an event timestamp, explicitly calling out the start time."""
+    if not ts:
+        return ''
+    now = timezone.now()
+    fmt = '%d.%m.%Y o %H:%M' if ts.year != now.year else '%d.%m o %H:%M'
     return ts.strftime(fmt)
 
 
@@ -143,18 +152,26 @@ class Command(TranslatedCommand):
 
                 update_count = item.get('update_count', 1)
                 meta = ''
-                if content_type == 'room_messages' and update_count > 1:
-                    meta = f'{update_count} {_("messages")}'
+                if content_type == 'room_messages':
+                    if item.get('is_mentioned'):
+                        meta = _('mentioned you')
+                    if update_count > 1:
+                        message_count = f'{update_count} {_("messages")}'
+                        meta = f'{message_count} • {meta}' if meta else message_count
                 elif update_count > 1:
                     meta = f'{update_count} {_("updates")}'
 
-                description = html.unescape(strip_tags(item.get('description') or '')).strip()
+                raw_description = item.get('description') or ''
+                if content_type == 'room_messages':
+                    description = one_line_snippet(raw_description, 120)
+                else:
+                    description = html.unescape(strip_tags(raw_description)).strip()
 
                 section['items'].append(
                     {
                         'title': title,
                         'url': build_site_url(item['url']),
-                        'timestamp': _format_timestamp(item.get('timestamp')),
+                        'timestamp': _format_event_timestamp(item.get('timestamp')) if content_type == 'event' else _format_timestamp(item.get('timestamp')),
                         'description': description,
                         'description_html': linebreaksbr(description) if description else '',
                         'meta': meta,

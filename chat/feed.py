@@ -1,12 +1,11 @@
 from django.core.cache import cache
-from django.db.models import Count
 from django.utils import timezone
-from django.utils.html import strip_tags
 
 from core.feed_registry import DIGEST_GROUP_ID
+from core.richtext import plain_text
 
 from .models import Message, MessageReadBy, Room
-from .services import CHAT_UNREAD_CACHE_KEY
+from .services import CHAT_UNREAD_CACHE_KEY, extract_mentions
 
 
 def get_feed_items(since: timezone.datetime) -> list[dict]:
@@ -31,7 +30,7 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
             # Skip system messages that have no explicit author and are not anonymous.
             if msg.sender is None and not msg.anonymous:
                 continue
-            items.append({**room_context, 'description': strip_tags(msg.text), 'author': None if msg.anonymous else msg.sender, 'timestamp': msg.time, 'object_id': msg.id})
+            items.append({**room_context, 'description': plain_text(msg.text), 'author': None if msg.anonymous else msg.sender, 'timestamp': msg.time, 'object_id': msg.id})
     return items
 
 
@@ -65,17 +64,24 @@ def prepare_items(items, user) -> list[dict | None]:
     return prepared_items
 
 
-def _chat_message_counts_since(user, room_ids, since):
-    """Return {room_id: message_count} for the user since a given point.
+def _chat_digest_stats(user, room_ids, since):
+    """Return ({room_id: message_count}, {mentioned_room_id, ...}) since `since`.
 
-    Counts messages in each room sent by someone else since `since`.
-    Used by email digests where every new message matters, not just unread.
+    Uses a single query regardless of the number of rooms or messages. Counts
+    messages sent by someone else and detects @mentions of `user` in one pass.
     """
     if not room_ids:
-        return {}
+        return {}, set()
 
-    counts = Message.objects.filter(room_id__in=room_ids, time__gte=since).exclude(sender=user).values('room_id').annotate(msg_count=Count('id'))
-    return {c['room_id']: c['msg_count'] for c in counts}
+    counts = {}
+    mentioned_rooms = set()
+    messages = Message.objects.filter(room_id__in=room_ids, time__gte=since).exclude(sender=user).values('room_id', 'text')
+    for msg in messages:
+        room_id = msg['room_id']
+        counts[room_id] = counts.get(room_id, 0) + 1
+        if user.username in extract_mentions(msg['text']):
+            mentioned_rooms.add(room_id)
+    return counts, mentioned_rooms
 
 
 def prepare_digest_items(items, user, since) -> list[dict | None]:
@@ -83,7 +89,7 @@ def prepare_digest_items(items, user, since) -> list[dict | None]:
         return []
 
     room_ids = [item['room_id'] for item in items]
-    chat_counts = _chat_message_counts_since(user, room_ids, since)
+    chat_counts, mentioned_room_ids = _chat_digest_stats(user, room_ids, since)
 
     prepared_items = []
     for item in items:
@@ -95,6 +101,7 @@ def prepare_digest_items(items, user, since) -> list[dict | None]:
             else:
                 item['message_count'] = msg_count
                 item['update_count'] = msg_count
+                item['is_mentioned'] = item['room_id'] in mentioned_room_ids
                 item[DIGEST_GROUP_ID] = item['room_id']
         prepared_items.append(item)
     return prepared_items

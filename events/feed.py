@@ -1,7 +1,8 @@
 from datetime import timedelta as td
 
 from django.utils import timezone
-from django.utils.html import strip_tags
+
+from core.richtext import plain_text
 
 from .models import Event
 
@@ -22,12 +23,11 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
 
     items = []
     for event, next_occurrence in upcoming_events:
-        clean_description = strip_tags(event.description) if event.description else ''
         items.append(
             {
                 'content_type': 'event',
                 'title': event.title,
-                'description': clean_description[:125] + '...' if clean_description and len(clean_description) > 125 else clean_description,
+                'description': plain_text(event.description or '', 125),
                 'author': None,
                 'timestamp': next_occurrence,
                 'url': f"/events/{event.pk}/",

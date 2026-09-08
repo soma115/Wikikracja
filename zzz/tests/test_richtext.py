@@ -8,7 +8,7 @@ filter / RichTextWidget initial value nie produkował ghost empty lines.
 
 from django.test import TestCase
 
-from core.richtext import sanitize, strip_tags
+from core.richtext import one_line_snippet, plain_text, sanitize, strip_tags
 
 
 class SanitizeNormalizesNewlinesTests(TestCase):
@@ -69,3 +69,45 @@ class StripTagsTests(TestCase):
     def test_empty(self):
         self.assertEqual(strip_tags(''), '')
         self.assertEqual(strip_tags(None), '')
+
+
+class PlainTextTests(TestCase):
+    """plain_text zachowuje znaczniki nowej linii i dekoduje encje."""
+
+    def test_preserves_br_as_newline(self):
+        self.assertEqual(plain_text('a<br>b'), 'a\nb')
+
+    def test_preserves_self_closing_br(self):
+        self.assertEqual(plain_text('a<br/>b'), 'a\nb')
+
+    def test_preserves_paragraph_breaks(self):
+        self.assertEqual(plain_text('<p>a</p><p>b</p>'), 'a\n\nb')
+
+    def test_decodes_html_entities(self):
+        self.assertEqual(plain_text('a &amp; b &lt; c'), 'a & b < c')
+
+    def test_collapses_extra_whitespace(self):
+        self.assertEqual(plain_text('a  b\n\n\nc'), 'a b\n\nc')
+
+    def test_truncates_with_ellipsis(self):
+        text = 'word ' * 30
+        result = plain_text(text, max_length=50)
+        self.assertTrue(result.endswith('...'))
+        self.assertLessEqual(len(result), 53)
+
+    def test_empty_input(self):
+        self.assertEqual(plain_text(''), '')
+        self.assertEqual(plain_text(None), '')
+
+
+class OneLineSnippetTests(TestCase):
+    """one_line_snippet zwraca jednoliniowy wycinek."""
+
+    def test_collapses_newlines_to_spaces(self):
+        self.assertEqual(one_line_snippet('a<br>b\nc'), 'a b c')
+
+    def test_truncates(self):
+        text = 'word ' * 30
+        result = one_line_snippet(text, max_length=30)
+        self.assertTrue(result.endswith('...'))
+        self.assertLessEqual(len(result), 33)

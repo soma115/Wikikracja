@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.utils import timezone
-from django.utils.html import strip_tags
+
+from core.richtext import plain_text
 
 from .models import Task
 
@@ -18,12 +19,11 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
     )
     items = []
     for task in tasks:
-        clean_description = strip_tags(task.description)
         items.append(
             {
                 'content_type': 'task',
                 'title': task.title,
-                'description': clean_description[:125] + '...' if len(clean_description) > 125 else clean_description,
+                'description': plain_text(task.description, 125),
                 'author': task.created_by or task.assigned_to,
                 'timestamp': task.updated_at,
                 'url': f"/tasks/{task.pk}/",

@@ -2759,6 +2759,10 @@ msgstr "Zarządzaj powiadomieniami e-mail"
 msgid "You can manage your email notifications here:"
 msgstr "Możesz zarządzać swoimi powiadomieniami e-mail tutaj:"
 
+#: .\home\management\commands\send_email_digest.py:176
+msgid "mentioned you"
+msgstr "wzmianka o Tobie"
+
 #: .\home\services\dashboard.py:17
 msgid "Democratic decision-making — submit proposals, collect signatures, vote on ongoing referendums and track results."
 msgstr "Demokratyczne podejmowanie decyzji — składanie wniosków, zbieranie podpisów, głosowanie w trwających referendach i śledzenie wyników."

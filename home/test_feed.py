@@ -2,12 +2,12 @@ import pytest
 from django.core.cache import cache
 from django.template.loader import render_to_string
 from django.utils import timezone
-from django.utils.html import strip_tags
 
 from board.models import Post
 from chat.models import Message, MessageReadBy, Room
 from chat.services import CHAT_UNREAD_CACHE_KEY
 from core.models import ReadStatus
+from core.richtext import plain_text
 from core.services import feed as feed_service
 from core.services.feed import FEED_CACHE_KEY, generate_feed_items, generate_feed_raw, get_unread_count
 from events.models import Event
@@ -72,8 +72,7 @@ def test_feed_description_truncation(feed_user):
 
     raw = generate_feed_raw()
     post_item = next(i for i in raw if i['content_type'] == 'post' and i['object_id'] == post.pk)
-    clean = strip_tags(long_text)
-    assert post_item['description'] == clean[:125] + '...'
+    assert post_item['description'] == plain_text(f'<p>{long_text}</p>', 125)
 
 
 @pytest.mark.django_db

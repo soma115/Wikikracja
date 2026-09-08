@@ -206,7 +206,20 @@ def test_digest_groups_citizen_activities_by_user_and_keeps_latest(digest_user, 
 
 
 @pytest.mark.django_db
-def test_digest_sorts_upcoming_events_first_then_newest_posts(digest_user):
+def test_digest_includes_only_events_within_six_days(digest_user):
+    now = timezone.now()
+    within = Event.objects.create(title='Within', start_date=now + td(days=5), frequency='once', is_active=True)
+    too_late = Event.objects.create(title='Too late', start_date=now + td(days=7), frequency='once', is_active=True)
+
+    items = build_user_digest(digest_user, now - td(hours=1))
+    event_ids = {item['object_id'] for item in items if item['content_type'] == 'event'}
+
+    assert within.pk in event_ids
+    assert too_late.pk not in event_ids
+
+
+@pytest.mark.django_db
+def test_digest_sorts_newest_posts_first_then_upcoming_events(digest_user):
     now = timezone.now()
     later = Event.objects.create(title='Later', start_date=now + td(days=2), frequency='once', is_active=True)
     earlier = Event.objects.create(title='Earlier', start_date=now + td(days=1), frequency='once', is_active=True)
@@ -214,7 +227,7 @@ def test_digest_sorts_upcoming_events_first_then_newest_posts(digest_user):
     newer = PostFactory(author=digest_user)
     Post.objects.filter(pk=older.pk).update(updated=now - td(minutes=2))
     Post.objects.filter(pk=newer.pk).update(updated=now - td(minutes=1))
-    expected = [('event', earlier.pk), ('event', later.pk), ('post', newer.pk), ('post', older.pk)]
+    expected = [('post', newer.pk), ('post', older.pk), ('event', earlier.pk), ('event', later.pk)]
 
     items = build_user_digest(digest_user, now - td(hours=1))
 

@@ -222,13 +222,13 @@ def _digest_group_key(item):
 
 
 def _sort_digest_items(items):
-    """Sort digest items like the activity page: events ascending, rest descending."""
+    """Sort digest items: newest non-events first, upcoming events last."""
     epoch = timezone.datetime(1970, 1, 1, tzinfo=dt_timezone.utc)
     events = [i for i in items if i['content_type'] == 'event']
     others = [i for i in items if i['content_type'] != 'event']
     events.sort(key=lambda x: x['timestamp'] or epoch)
     others.sort(key=lambda x: x['timestamp'] or epoch, reverse=True)
-    return events + others
+    return others + events
 
 
 def build_user_digest(user, since):
@@ -252,8 +252,10 @@ def build_user_digest(user, since):
             # ReadStatus tracking is irrelevant for email digests.
             item = {**item, 'update_count': 1}
 
-        # Filter by the digest time window (events with future timestamps are kept).
-        if item.get('timestamp') is not None and item['timestamp'] < since and ct != 'event':
+        ts = item.get('timestamp')
+
+        # Skip non-event items that are older than the digest window.
+        if ts is not None and ts < since and ct != 'event':
             continue
 
         user_items.append(item)
@@ -267,10 +269,18 @@ def build_user_digest(user, since):
             grouped[key] = item
         counts[key] = counts.get(key, 0) + 1
 
+    now = timezone.now()
+    event_horizon = now + td(days=6)
+
     aggregated = []
     for key, item in grouped.items():
         item = {**item, 'update_count': counts[key]}
         item.pop(DIGEST_GROUP_ID, None)
+        # Keep only calendar events that start within the next 6 days.
+        if item['content_type'] == 'event':
+            ts = item.get('timestamp')
+            if ts is None or ts < now or ts > event_horizon:
+                continue
         aggregated.append(item)
 
     return _sort_digest_items(aggregated)

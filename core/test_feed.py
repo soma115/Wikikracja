@@ -153,7 +153,7 @@ def test_chat_hooks_batch_queries_and_preserve_raw(chat_batch, django_assert_num
             prepared['title'] = (other if viewer == user else user).username
         if digest:
             count = sum(message.room_id == item['room_id'] and message.sender_id != viewer.id for message in messages)
-            prepared.update(message_count=count, update_count=count, **{DIGEST_GROUP_ID: item['room_id']})
+            prepared.update(message_count=count, update_count=count, is_mentioned=False, **{DIGEST_GROUP_ID: item['room_id']})
             expected.append(prepared if count else None)
         else:
             read_id = messages[viewer_index].pk
@@ -183,7 +183,7 @@ def test_chat_digest_keeps_newest_own_source_but_counts_other_messages(chat_batc
     assert {item['room_id'] for item in result} == {private.id, public.id}
     for item in result:
         source = next(source for source in original if source['object_id'] == item['object_id'])
-        expected = {**source, 'message_count': 4, 'update_count': 5}
+        expected = {**source, 'message_count': 4, 'update_count': 5, 'is_mentioned': False}
         if item['room_id'] == private.id:
             expected['title'] = other.username
         assert item == expected

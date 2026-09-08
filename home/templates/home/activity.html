@@ -81,7 +81,7 @@
             </span>
           </div>
           {% if item.description and item.content_type != 'event' %}
-          <div class="tw-feed-desc">{{ item.description|safe }}</div>
+          <div class="tw-feed-desc">{{ item.description|linebreaksbr }}</div>
           {% endif %}
         </div>
 

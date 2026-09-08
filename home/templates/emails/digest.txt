@@ -13,4 +13,5 @@
 {% endfor %}
 {% endfor %}
 
-{{ manage_text }} {{ settings_url }}{% endautoescape %}
+{{ manage_text }}
+{{ settings_url }}{% endautoescape %}
