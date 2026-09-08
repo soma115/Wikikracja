@@ -411,6 +411,15 @@
       </ul>
     </div>
 
+    <h2>13. Akcenty kategorii czatu</h2>
+    <div class="section">
+      <ul class="rules">
+        <li>Kategorie pokoi w czacie mają delikatny akcent kolorystyczny sterowany zmienną <code>--chat-cat-accent</code>, ustawianą atrybutami <code>data-category</code> (na <code>.tw-chat-category</code>) i <code>data-room-kind</code> (na <code>.tw-room-link</code>). Akcent: kolor tytułu kategorii + pasek <code>border-left</code> pokoju.</li>
+        <li>Mapowanie jest zgodne z <code>core/colors.py</code> (CATEGORY_COLORS): publiczne → <code>info</code>, działania → <code>warning</code>, głosowania → <code>danger</code>, dokumenty → <code>primary</code>, prywatne → <code>secondary</code>. Te same warianty <code>tw-alert-*</code> stosuje modal info czatu.</li>
+        <li><code>data-room-kind</code> jest wymagane, bo sortowanie po aktywności przenosi linki pokoi do <code>#room-list-flat</code> poza kontener kategorii.</li>
+      </ul>
+    </div>
+
   </div>
 
   <script>

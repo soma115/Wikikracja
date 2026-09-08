@@ -249,15 +249,15 @@
             <h6><i class="fas fa-info-circle tw-me-2"></i>{% trans 'Public Rooms' %}</h6>
             <p class="tw-mb-0">{% blocktrans with archive_days=ARCHIVE_PUBLIC_CHAT_ROOM delete_days=DELETE_PUBLIC_CHAT_ROOM %}Public chat rooms are archived if they are not used for {{ archive_days }} days. After {{ delete_days }} days they are deleted.{% endblocktrans %}</p>
           </div>
-          <div class="tw-alert tw-alert-success">
+          <div class="tw-alert tw-alert-warning">
             <h6><i class="fas fa-tasks tw-me-2"></i>{% trans 'Activities' %}</h6>
             <p class="tw-mb-0">{% trans 'Activity rooms are created for specific activities and projects. They are protected from automatic deletion and are used for collaborative work discussions.' %}</p>
           </div>
-          <div class="tw-alert tw-alert-primary">
+          <div class="tw-alert tw-alert-danger">
             <h6><i class="fas fa-vote-yea tw-me-2"></i>{% trans 'Referendums' %}</h6>
             <p class="tw-mb-0">{% trans 'Referendum rooms are created for voting and decision-making processes. They are protected from automatic deletion and provide a space for discussions about proposals.' %}</p>
           </div>
-          <div class="tw-alert tw-alert-dark">
+          <div class="tw-alert tw-alert-primary">
             <h6><i class="fas fa-file-alt tw-me-2"></i>{% trans 'Documents' %}</h6>
             <p class="tw-mb-0">{% trans 'Document rooms are created for each board document. They are protected from automatic deletion and provide a space for discussions about documents.' %}</p>
           </div>
@@ -265,7 +265,7 @@
             <h6><i class="fas fa-lock tw-me-2"></i>{% trans 'Private Messages' %}</h6>
             <p class="tw-mb-0">{% blocktrans with delete_days=DELETE_PUBLIC_CHAT_ROOM %}Private messages are archived when user is blocked and deleted after {{ delete_days }} days.{% endblocktrans %}</p>
           </div>
-          <div class="tw-alert tw-alert-warning">
+          <div class="tw-alert tw-alert-dark">
             <h6><i class="fas fa-archive tw-me-2"></i>{% trans 'Archives' %}</h6>
             <p class="tw-mb-0">{% trans 'Click the archive button (folder icon) next to each category to show archived rooms.' %}</p>
           </div>

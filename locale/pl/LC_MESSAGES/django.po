@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 22:41+0200\n"
+"POT-Creation-Date: 2026-09-08 23:06+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -3337,27 +3337,27 @@ msgstr "Członkostwo"
 msgid "Transaction"
 msgstr "Transakcja"
 
-#: .\home\views.py:255
+#: .\home\views.py:254
 msgid "Your password has been changed."
 msgstr "Twoje hasło zostało zmienione."
 
-#: .\home\views.py:258
+#: .\home\views.py:257
 msgid "You typed something wrong. See what error appeared above and try again."
 msgstr "Coś źle wpisałeś. Zobacz, jaki błąd pojawił się powyżej i spróbuj ponownie."
 
-#: .\home\views.py:352
+#: .\home\views.py:351
 msgid "Link added."
 msgstr "Link dodany."
 
-#: .\home\views.py:366
+#: .\home\views.py:365
 msgid "Link updated."
 msgstr "Link zaktualizowany."
 
-#: .\home\views.py:368 .\home\views.py:389
+#: .\home\views.py:367 .\home\views.py:388
 msgid "Link doesn't exist."
 msgstr "Link nie istnieje."
 
-#: .\home\views.py:387
+#: .\home\views.py:386
 msgid "Link deleted."
 msgstr "Link usunięty."
 

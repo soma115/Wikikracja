@@ -679,8 +679,8 @@ img {
   height: auto;
 }
 
-.tw-chat-has-messages {
-  background-color: var(--color-success);
+.tw-sidebar-nav .tw-nav-item a.tw-chat-has-messages {
+  color: var(--color-info);
 }
 
 .tw-notif-banner-wrap {
@@ -4465,15 +4465,6 @@ img.tw-avatar {
 
 .tw-avatar-bordered {
   border: 2px solid var(--border);
-}
-
-.tw-post-card-featured-img {
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius-xs);
-  -o-object-fit: cover;
-     object-fit: cover;
-  margin-top: .5rem;
 }
 
 .tw-text-author,
@@ -8845,6 +8836,37 @@ body.tw-chat-page .tw-main-area {
   margin-bottom: .1rem;
 }
 
+/* Delikatny akcent kategorii — kolory semantyczne zgodne z core/colors.py
+   (CATEGORY_COLORS): tasks→warning (task), votes→danger (decision),
+   documents→primary (post), public→info (chat), private→secondary (citizen).
+   Zmienna ustawiana też na .tw-room-link[data-room-kind], bo sortowanie po
+   aktywności przenosi linki do #room-list-flat poza kontener kategorii. */
+
+.tw-chat-category[data-category="public"],
+.tw-room-link[data-room-kind="public"] {
+  --chat-cat-accent: var(--badge-info-color);
+}
+
+.tw-chat-category[data-category="tasks"],
+.tw-room-link[data-room-kind="task"] {
+  --chat-cat-accent: var(--badge-warning-color);
+}
+
+.tw-chat-category[data-category="votes"],
+.tw-room-link[data-room-kind="vote"] {
+  --chat-cat-accent: var(--badge-danger-color);
+}
+
+.tw-chat-category[data-category="documents"],
+.tw-room-link[data-room-kind="document"] {
+  --chat-cat-accent: var(--badge-primary-color);
+}
+
+.tw-chat-category[data-category="private"],
+.tw-room-link[data-room-kind="private"] {
+  --chat-cat-accent: var(--badge-secondary-color);
+}
+
 .tw-chat-cat-btn {
   flex: 1;
   min-width: 0;
@@ -8854,7 +8876,7 @@ body.tw-chat-page .tw-main-area {
   padding: .4rem .5rem;
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: var(--chat-cat-accent, var(--text-muted));
   font-size: .82rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -8950,7 +8972,7 @@ body.tw-chat-page .tw-main-area {
   flex-shrink: 0;
   border-radius: .25rem;
   border-left-width: 3px;
-  border-left-color: transparent;
+  border-left-color: color-mix(in srgb, var(--chat-cat-accent, transparent) 50%, transparent);
 }
 
 .tw-room-link .tw-avatar:not(.tw-avatar-fallback) {

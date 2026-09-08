@@ -3,6 +3,7 @@
 
 <div class="tw-room-link {{ room|seen_by:user }}" tabindex="-1"
   data-room-type="{% if room.public %}public{% else %}private{% endif %}"
+  data-room-kind="{{ room_kind }}"
   data-room-id="{{ room.id }}"
   data-room-archived="{{ room.archived }}"
   data-last-activity="{{ room.last_message_at|default_if_none:room.last_activity|date:'U' }}">
