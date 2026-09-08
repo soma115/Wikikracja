@@ -66,8 +66,8 @@ Nowe pliki:
 - `home/services/feed.py` — przenieść `_generate_feed_raw`,
   `generate_feed_items`, `build_read_status_map`, `get_unread_count`,
   `invalidate_feed_cache`.
-- `home/services/search.py` — przenieść ciało `global_search` jako
-  `run_global_search(query, active_cats, user) -> list[dict]`.
+- `home/services/search.py` — usunięty; `home/views.py` używa bezpośrednio
+  `core.search_registry.collect_search_results(query, active_cats, user)`.
 - `home/services/dashboard.py` — przenieść budowanie widgetów z `home()`
   (`active_referendum`, `upcoming_events`, `default_*`, `community stats`)
   jako `build_dashboard_context(user) -> dict`.

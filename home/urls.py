@@ -14,8 +14,6 @@ urlpatterns = [
     path('site-settings/', views.site_admin, name='site_admin'),
     path('search/', views.global_search, name='search'),
     path('link-titles/', views.link_titles, name='link_titles'),
-    # not in use at this point. Contact through https://wikikracja.pl/kontakt/
-    # path('contact/', TemplateView.as_view(template_name="home/contact.html"), name='contact'),
     # reset password
     # https://simpleisbetterthancomplex.com/tutorial/2016/09/19/how-to-create-password-reset-view.html
     path('password_reset/', auth_views.PasswordResetView.as_view(template_name='home/password_reset_form.html'), name='password_reset'),

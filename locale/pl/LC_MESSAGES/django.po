@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 21:37+0200\n"
+"POT-Creation-Date: 2026-09-08 22:41+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -17,16 +17,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 
-#: .\ankiety\forms.py:28 .\ankiety\templates\ankiety\survey_form.html:41
+#: .\ankiety\forms.py:13 .\ankiety\templates\ankiety\survey_form.html:41
 #: .\ankiety\templates\ankiety\survey_list.html:46
 msgid "Options"
 msgstr "Opcje"
 
-#: .\ankiety\forms.py:29
+#: .\ankiety\forms.py:14
 msgid "One option per line. At least 2 options are required."
 msgstr "Jedna opcja na linię. Wymagane jest przynajmniej 2 opcje."
 
-#: .\ankiety\forms.py:30
+#: .\ankiety\forms.py:15
 msgid ""
 "e.g.\n"
 "Option A\n"
@@ -38,27 +38,27 @@ msgstr ""
 "Opcja B\n"
 "Opcja C"
 
-#: .\ankiety\forms.py:38
+#: .\ankiety\forms.py:23
 msgid "Describe the survey."
 msgstr "Opisz ankietę."
 
-#: .\ankiety\forms.py:49
+#: .\ankiety\forms.py:34
 msgid "The survey is closed; options cannot be changed."
 msgstr "Amkieta jest zamknięta; opcje nie mogą być zmienione."
 
-#: .\ankiety\forms.py:51
+#: .\ankiety\forms.py:36
 msgid "You can change options while the survey is ongoing. Renaming or removing an option will delete votes cast for it."
 msgstr "Możesz zmieniać opcje w trakcie trwania ankiety. Zmiana nazwy lub usunięcie opcji spowoduje usunięcie głosów oddanych na nią."
 
-#: .\ankiety\forms.py:63
+#: .\ankiety\forms.py:48
 msgid "End date must be in the future."
 msgstr "Data końca musi być w przyszłości."
 
-#: .\ankiety\forms.py:73
+#: .\ankiety\forms.py:58
 msgid "Enter at least 2 options."
 msgstr "Wprowadź przynajmniej 2 opcje."
 
-#: .\ankiety\forms.py:83
+#: .\ankiety\forms.py:68
 msgid "Each option must be unique."
 msgstr "Każda opcja musi być unikalna."
 
@@ -118,7 +118,7 @@ msgstr "Ankieta"
 #: .\ankiety\models.py:21 .\home\services\dashboard.py:35
 #: .\home\templates\home\base.html:173 .\home\templates\home\base.html:176
 #: .\home\templates\home\base.html:261 .\home\templates\home\home.html:249
-#: .\home\views.py:235 .\obywatele\views.py:466
+#: .\home\views.py:233 .\obywatele\views.py:466
 msgid "Surveys"
 msgstr "Ankiety"
 
@@ -157,7 +157,7 @@ msgid "Survey votes"
 msgstr "Głosy w ankiecie"
 
 #: .\ankiety\search.py:18 .\home\templatetags\feed_filters.py:38
-#: .\home\views.py:80
+#: .\home\views.py:78
 msgid "Ankiety"
 msgstr "Ankiety"
 
@@ -463,8 +463,8 @@ msgstr "Zaktualizowane"
 msgid "Category"
 msgstr "Kategoria"
 
-#: .\board\models.py:30 .\board\templates\board\_post_card.html:9
-#: .\board\templates\board\board.html:40 .\board\templates\board\board.html:70
+#: .\board\models.py:30 .\board\templates\board\board.html:40
+#: .\board\templates\board\board.html:70
 #: .\board\templates\board\post_detail.html:46
 #: .\chat\templates\chat\chat.html:84 .\events\models.py:31
 #: .\events\templates\events\event_detail.html:41
@@ -547,7 +547,7 @@ msgstr "Pokój dyskusji do dokumentu: <a href='%(url)s'>%(title)s</a>"
 #: .\home\templates\home\base.html:186 .\home\templates\home\base.html:266
 #: .\home\templates\home\home.html:393 .\home\templates\home\home.html:402
 #: .\home\templates\home\home.html:425 .\home\templatetags\feed_filters.py:33
-#: .\home\views.py:83 .\home\views.py:235 .\obywatele\views.py:467
+#: .\home\views.py:81 .\home\views.py:233 .\obywatele\views.py:467
 #: .\tasks\templates\tasks\_task_card.html:42
 #: .\tasks\templates\tasks\task_detail.html:20
 msgid "Chat"
@@ -577,7 +577,7 @@ msgstr "Utwórz"
 #: .\board\templates\board\board.html:94 .\chat\templates\chat\chat.html:156
 #: .\chat\templates\chat\chat.html:261 .\home\services\dashboard.py:21
 #: .\home\templates\home\base.html:131 .\home\templates\home\base.html:134
-#: .\home\templates\home\base.html:259 .\home\views.py:77 .\home\views.py:235
+#: .\home\templates\home\base.html:259 .\home\views.py:75 .\home\views.py:233
 #: .\obywatele\views.py:463
 msgid "Documents"
 msgstr "Dokumenty"
@@ -648,7 +648,7 @@ msgstr "A-Z"
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:25
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:18
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:31
-#: .\chat\i18n.py:47 .\glosowania\views.py:636 .\home\views.py:111
+#: .\chat\i18n.py:47 .\glosowania\views.py:636 .\home\views.py:109
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:10
@@ -658,13 +658,13 @@ msgid "Date"
 msgstr "Data"
 
 #: .\board\views.py:118 .\events\views.py:52 .\glosowania\views.py:648
-#: .\home\templates\home\includes\toolbar.html:53 .\home\views.py:112
+#: .\home\templates\home\includes\toolbar.html:53 .\home\views.py:110
 #: .\tasks\views.py:147
 msgid "List"
 msgstr "Lista"
 
 #: .\board\views.py:118 .\events\views.py:52 .\glosowania\views.py:648
-#: .\home\templates\home\includes\toolbar.html:50 .\home\views.py:112
+#: .\home\templates\home\includes\toolbar.html:50 .\home\views.py:110
 #: .\tasks\views.py:147
 msgid "Grid"
 msgstr "Siatka"
@@ -951,7 +951,7 @@ msgstr "Czy na pewno chcesz skasować tego partnera?"
 
 #: .\bookkeeping\templates\bookkeeping\partner_confirm_delete.html:15
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:25
-#: .\chat\forms.py:30 .\home\forms.py:12 .\obywatele\forms.py:22
+#: .\chat\forms.py:30 .\obywatele\forms.py:22
 #: .\obywatele\templates\obywatele\szczegoly.html:55
 msgid "Email"
 msgstr "Email"
@@ -1069,9 +1069,7 @@ msgstr "Wydatki"
 msgid "transactions"
 msgstr "transakcji"
 
-#: .\bookkeeping\views.py:72
-#: .\glosowania\templates\glosowania\_view_toggle.html:3
-#: .\glosowania\templates\glosowania\list.html:9
+#: .\bookkeeping\views.py:72 .\glosowania\templates\glosowania\list.html:9
 #: .\glosowania\templates\glosowania\szczegoly.html:196
 #: .\glosowania\templates\glosowania\szczegoly.html:237
 #: .\home\templates\home\site_admin.html:35
@@ -1110,7 +1108,7 @@ msgstr "Dodaj Transakcję"
 
 #: .\categories\templates\categories\_category_filter.html:9
 #: .\categories\templates\categories\_category_filter.html:11
-#: .\home\templates\home\activity.html:28 .\home\views.py:76
+#: .\home\templates\home\activity.html:28 .\home\views.py:74
 #: .\obywatele\templates\obywatele\start.html:31
 #: .\obywatele\templates\obywatele\start.html:38
 msgid "All"
@@ -1242,31 +1240,31 @@ msgstr "Plus"
 msgid "Downvote"
 msgstr "Minus"
 
-#: .\chat\i18n.py:28 .\events\forms.py:43 .\events\models.py:17
+#: .\chat\i18n.py:28 .\events\forms.py:25 .\events\models.py:17
 msgid "Sunday"
 msgstr "Niedziela"
 
-#: .\chat\i18n.py:29 .\events\forms.py:43 .\events\models.py:17
+#: .\chat\i18n.py:29 .\events\forms.py:25 .\events\models.py:17
 msgid "Monday"
 msgstr "Poniedziałek"
 
-#: .\chat\i18n.py:30 .\events\forms.py:43 .\events\models.py:17
+#: .\chat\i18n.py:30 .\events\forms.py:25 .\events\models.py:17
 msgid "Tuesday"
 msgstr "Wtorek"
 
-#: .\chat\i18n.py:31 .\events\forms.py:43 .\events\models.py:17
+#: .\chat\i18n.py:31 .\events\forms.py:25 .\events\models.py:17
 msgid "Wednesday"
 msgstr "Środa"
 
-#: .\chat\i18n.py:32 .\events\forms.py:43 .\events\models.py:17
+#: .\chat\i18n.py:32 .\events\forms.py:25 .\events\models.py:17
 msgid "Thursday"
 msgstr "Czwartek"
 
-#: .\chat\i18n.py:33 .\events\forms.py:43 .\events\models.py:17
+#: .\chat\i18n.py:33 .\events\forms.py:25 .\events\models.py:17
 msgid "Friday"
 msgstr "Piątek"
 
-#: .\chat\i18n.py:34 .\events\forms.py:43 .\events\models.py:17
+#: .\chat\i18n.py:34 .\events\forms.py:25 .\events\models.py:17
 msgid "Saturday"
 msgstr "Sobota"
 
@@ -1527,7 +1525,7 @@ msgstr "Brak"
 #: .\chat\templates\chat\chat.html:108 .\chat\templates\chat\chat.html:253
 #: .\home\services\dashboard.py:27 .\home\templates\home\base.html:109
 #: .\home\templates\home\base.html:112 .\home\templates\home\base.html:260
-#: .\home\views.py:78 .\home\views.py:235
+#: .\home\views.py:76 .\home\views.py:233
 #: .\obywatele\templates\obywatele\szczegoly.html:206 .\obywatele\views.py:461
 msgid "Activities"
 msgstr "Działania"
@@ -1638,7 +1636,7 @@ msgid "Activity"
 msgstr "Działanie"
 
 #: .\core\models.py:15 .\events\models.py:37 .\events\search.py:18
-#: .\home\models.py:15 .\home\views.py:235
+#: .\home\models.py:15 .\home\views.py:233
 msgid "Event"
 msgstr "Wydarzenie"
 
@@ -1700,47 +1698,47 @@ msgstr "przez"
 msgid "New survey created"
 msgstr "Utworzono nową ankietę"
 
-#: .\events\forms.py:34 .\events\models.py:26
+#: .\events\forms.py:16 .\events\models.py:26
 msgid "Week of month"
 msgstr "Tydzień miesiąca"
 
-#: .\events\forms.py:35
+#: .\events\forms.py:17
 msgid "Which occurrence in the month?"
 msgstr "Która wystąpienie w miesiącu?"
 
-#: .\events\forms.py:36 .\events\models.py:15
+#: .\events\forms.py:18 .\events\models.py:15
 msgid "First"
 msgstr "Pierwszy"
 
-#: .\events\forms.py:36 .\events\models.py:15
+#: .\events\forms.py:18 .\events\models.py:15
 msgid "Second"
 msgstr "Drugi"
 
-#: .\events\forms.py:36 .\events\models.py:15
+#: .\events\forms.py:18 .\events\models.py:15
 msgid "Third"
 msgstr "Trzeci"
 
-#: .\events\forms.py:36 .\events\models.py:15
+#: .\events\forms.py:18 .\events\models.py:15
 msgid "Fourth"
 msgstr "Czwarty"
 
-#: .\events\forms.py:36 .\events\models.py:15
+#: .\events\forms.py:18 .\events\models.py:15
 msgid "Last"
 msgstr "Ostatni"
 
-#: .\events\forms.py:41 .\events\models.py:28
+#: .\events\forms.py:23 .\events\models.py:28
 msgid "Day of week"
 msgstr "Dzień tygodnia"
 
-#: .\events\forms.py:42
+#: .\events\forms.py:24
 msgid "Which day of the week?"
 msgstr "Która dzień tygodnia?"
 
-#: .\events\forms.py:54
+#: .\events\forms.py:36
 msgid "Event location or venue"
 msgstr "Miejsce"
 
-#: .\events\forms.py:113 .\events\forms.py:115
+#: .\events\forms.py:95 .\events\forms.py:97
 msgid "This field is required for monthly ordinal events."
 msgstr "To pole jest wymagane dla wydarzeń powtarzających się w określonym dniu tygodnia."
 
@@ -1866,7 +1864,7 @@ msgstr "Dodaj do swojego Kalendarza Google"
 #: .\home\services\dashboard.py:26 .\home\templates\home\base.html:142
 #: .\home\templates\home\base.html:145 .\home\templates\home\base.html:262
 #: .\home\templates\home\base.html:330 .\home\templates\home\home.html:463
-#: .\home\views.py:81 .\obywatele\views.py:464
+#: .\home\views.py:79 .\obywatele\views.py:464
 msgid "Calendar"
 msgstr "Kalendarz"
 
@@ -2725,10 +2723,6 @@ msgstr "Podpisy"
 msgid "Buzz"
 msgstr "Gwar"
 
-#: .\home\forms.py:7
-msgid "Keep me signed in"
-msgstr "Nie wylogowuj mnie"
-
 #: .\home\management\commands\send_email_digest.py:118
 #, python-brace-format
 msgid "[{HOST}] Activity digest"
@@ -2773,7 +2767,7 @@ msgstr "Demokratyczne podejmowanie decyzji — składanie wniosków, zbieranie p
 
 #: .\home\services\dashboard.py:19 .\home\templates\home\base.html:120
 #: .\home\templates\home\base.html:123 .\home\templates\home\base.html:264
-#: .\home\views.py:82 .\home\views.py:235 .\obywatele\models.py:123
+#: .\home\views.py:80 .\home\views.py:233 .\obywatele\models.py:123
 #: .\obywatele\templates\obywatele\menu.html:16
 #: .\obywatele\templates\obywatele\start.html:14
 msgid "Citizens"
@@ -2892,7 +2886,7 @@ msgid "Desktop"
 msgstr "Pulpit"
 
 #: .\home\templates\home\base.html:153 .\home\templates\home\base.html:156
-#: .\home\templates\home\base.html:258 .\home\views.py:79 .\home\views.py:235
+#: .\home\templates\home\base.html:258 .\home\views.py:77 .\home\views.py:233
 msgid "Votings"
 msgstr "Głosowania"
 
@@ -3343,27 +3337,27 @@ msgstr "Członkostwo"
 msgid "Transaction"
 msgstr "Transakcja"
 
-#: .\home\views.py:270
+#: .\home\views.py:255
 msgid "Your password has been changed."
 msgstr "Twoje hasło zostało zmienione."
 
-#: .\home\views.py:273
+#: .\home\views.py:258
 msgid "You typed something wrong. See what error appeared above and try again."
 msgstr "Coś źle wpisałeś. Zobacz, jaki błąd pojawił się powyżej i spróbuj ponownie."
 
-#: .\home\views.py:367
+#: .\home\views.py:352
 msgid "Link added."
 msgstr "Link dodany."
 
-#: .\home\views.py:381
+#: .\home\views.py:366
 msgid "Link updated."
 msgstr "Link zaktualizowany."
 
-#: .\home\views.py:383 .\home\views.py:404
+#: .\home\views.py:368 .\home\views.py:389
 msgid "Link doesn't exist."
 msgstr "Link nie istnieje."
 
-#: .\home\views.py:402
+#: .\home\views.py:387
 msgid "Link deleted."
 msgstr "Link usunięty."
 

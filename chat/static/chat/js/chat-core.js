@@ -10,7 +10,6 @@ export {
     updateCounter,
     formatMessage,
     handleEnterKey,
-    getVisibleTextLength,
     initGlobalPasteImageHandler,
     insertPlainTextAtCaret,
 } from '../../common/js/richtext-core.js';

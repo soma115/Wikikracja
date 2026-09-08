@@ -31,7 +31,6 @@ function loadCore() {
         'formatMessage',
         'updateCounter',
         'handleEnterKey',
-        'getVisibleTextLength',
         'initGlobalPasteImageHandler',
         'insertPlainTextAtCaret',
     ];

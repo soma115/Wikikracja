@@ -2,24 +2,9 @@ from django import forms
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from core.widgets import RichTextWidget
+from core.widgets import DateTimeLocalInput, RichTextWidget
 
 from .models import Survey, SurveyOption
-
-
-class DateTimeLocalInput(forms.DateTimeInput):
-    input_type = "datetime-local"
-
-    def format_value(self, value):
-        if value is None:
-            return ""
-        if hasattr(value, "strftime"):
-            if timezone.is_naive(value):
-                local_time = value
-            else:
-                local_time = timezone.localtime(value)
-            return local_time.strftime("%Y-%m-%dT%H:%M")
-        return value
 
 
 class SurveyForm(forms.ModelForm):

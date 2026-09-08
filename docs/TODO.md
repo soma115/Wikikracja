@@ -5,25 +5,22 @@ Przed zmian pokaż mi co zamierzasz zrobić.
 
 ## OGÓLNE
 
-
-
 ## CZAT
-
-- Po wejściu do pokoju czatu - czat się rozszerza i zaczyna wystawać poza ekran poza okno przeglądarki czyli jest ucięte po prawej stronie.
-Znalazłem przyczynę.
-To breadcrumbs psuje wygląd czatu i wysuwa go poza ekran. Breadcrumbs powinno być skracane, jest mało ważne. Powinno być widoczne na dużych ekranach, ale na małych ekranach może kompletnie zniknąć.
-Rozważmy różne opcje, łącznie z rezygnacją z breadcrumbs.
-Ale co najważniejsze - nic nie powinno być w stanie wysunąć czatu poza ekran.
-Opisz, jaki masz plan. Pamiętaj, że zależy nam na zachowaniu unifikacji.
-
-
-- Czat: Na małych okranach rozwijana lista pokoi nie powinna zajmować całego ekranu. Powinna zajmować 80% ekranu tak żeby nadal był częściowo widoczny pokój pod spodem.
 
 - Czat: Jeśli nie ma wiadomości nieprzeczytanych w czacie i użytkownik wchodzi na czat, to wyłączaj automatycznie guzik "Pokaż tylko nieprzeczytane pokoje"
 
 - Kiedy użytkownik wchodzi do czatu z dowolnego miejsca i ma wcześniej zaznaczony guzik "pokaż tylko nieprzeczytane pokoje" albo kliknął guzik @view=unread to kategorie, w których są te nieprzeczytane pokoje powinny być automatycznie rozwijane.
 
+
 - W głównym menu, jeśli są wiadomości nieprzeczytane na czacie, to link czatu jest podświetlony. To podświetlenie jest zbyt wyraziste. Zrób je bardziej dyskretnie.
+
+
+
+
+
+
+- Kategorie pokoi w czacie: publiczne, działania, głosowania, dokumenty prywatne powinny mieć bardzo delikatny akcent adekwatny do swojej kategorii. Głosowania, dokumenty i działania już mają nadany kolor, na przykład w aktywność zachowaj je, a publiczne i prywatne daj jakieś inne kolorki, żeby się odróżniały. Akcentowanie kolorem powinno dotyczyć zarówno tytułu kategorii, jak i pokoi w tej kategorii.
+
 
 ## AKTYWNOSC
 

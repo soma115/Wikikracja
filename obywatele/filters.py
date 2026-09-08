@@ -26,7 +26,3 @@ class UzytkownikFilter(django_filters.FilterSet):
         model = Uzytkownik
         fields = ['city', 'responsibilities', 'hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'skills', 'knowledge', 'want_to_learn', 'business', 'job', 'other', 'why']
 
-    # def custom_filter(self, queryset, value):
-    #     return queryset.filter(**{
-    #         # city: value,
-    #     })

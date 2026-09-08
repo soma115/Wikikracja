@@ -191,15 +191,6 @@ export function handleEnterKey(e, submitCallback) {
     return true;
 }
 
-/**
- * Visible text length for either contenteditable or textarea.
- * @returns {number}
- */
-export function getVisibleTextLength(inputEl) {
-    if (!inputEl) return 0;
-    return inputEl.isContentEditable ? (inputEl.textContent || '').length : (inputEl.value || '').length;
-}
-
 let _pasteHandlerReady = false;
 
 /**

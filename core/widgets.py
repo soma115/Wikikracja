@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
@@ -112,4 +113,19 @@ class CounterTextarea(forms.Textarea):
         value = data.get(name, '')
         if value:
             value = value.replace('\r\n', '\n').replace('\r', '\n')
+        return value
+
+
+class DateTimeLocalInput(forms.DateTimeInput):
+    input_type = 'datetime-local'
+
+    def format_value(self, value):
+        if value is None:
+            return ''
+        if hasattr(value, 'strftime'):
+            if timezone.is_naive(value):
+                local_time = value
+            else:
+                local_time = timezone.localtime(value)
+            return local_time.strftime('%Y-%m-%dT%H:%M')
         return value

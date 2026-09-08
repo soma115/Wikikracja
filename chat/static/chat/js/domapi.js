@@ -305,12 +305,6 @@ export default class DomApi {
         return el.value ?? '';
     }
 
-    getVisibleTextLength() {
-        const el = this.getMessageInput();
-        if (!el) return 0;
-        return el.isContentEditable ? (el.textContent || '').length : (el.value || '').length;
-    }
-
     getAnonymousValue() {
         return $(`#anonymous-toggle`)?.classList.contains('tw-active') ?? false;
     }

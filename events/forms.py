@@ -4,27 +4,9 @@ from django import forms
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from core.widgets import RichTextWidget
+from core.widgets import DateTimeLocalInput, RichTextWidget
 
 from .models import Event
-
-
-class DateTimeLocalInput(forms.DateTimeInput):
-    input_type = 'datetime-local'
-
-    def format_value(self, value):
-        if value is None:
-            return ''
-        if hasattr(value, 'strftime'):
-            # Convert to local timezone for datetime-local input
-            if timezone.is_naive(value):
-                # If naive, assume it's already in local timezone
-                local_time = value
-            else:
-                # If aware, convert to local timezone
-                local_time = timezone.localtime(value)
-            return local_time.strftime('%Y-%m-%dT%H:%M')
-        return value
 
 
 class EventForm(forms.ModelForm):

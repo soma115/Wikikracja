@@ -8,20 +8,18 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.views import LoginView
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
+from core.search_registry import collect_search_results
 from core.services import feed as feed_service
 from site_settings.models import QuickLink, SiteSettings
 from site_settings.services import get_branding_version
 
-from .forms import RememberLoginForm
 from .link_titles import resolve_link_titles
 from .services import dashboard as dashboard_service
-from .services import search as search_service
 
 log = logging.getLogger(__name__)
 
@@ -241,23 +239,10 @@ def global_search(request: HttpRequest):
     else:
         active_cats = set(selected) if selected else set(ALL_SEARCH_CATS)
 
-    results = search_service.run_global_search(query, active_cats, request.user)
+    results = collect_search_results(query, active_cats, request.user)
 
     return render(request, 'home/search.html', {'query': query, 'results': results, 'active_cats': active_cats, 'all_cats_selected': active_cats == set(ALL_SEARCH_CATS), 'search_categories': search_categories})
 
-
-class RememberLoginView(LoginView):
-    form_class = RememberLoginForm
-    template_name = 'home/login.html'
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        remember = form.cleaned_data.get("remember_me")
-        if remember:
-            self.request.session.set_expiry(getattr(settings, "REMEMBER_ME_COOKIE_AGE", settings.SESSION_COOKIE_AGE))
-        else:
-            self.request.session.set_expiry(0)
-        return response
 
 
 @login_required

@@ -32,10 +32,8 @@ class CancelledErrorMiddleware:
 django_asgi_app = get_asgi_application()
 django_asgi_app = CancelledErrorMiddleware(django_asgi_app)
 
-from chat.consumers import ChatConsumer  # noqa: E402
+from chat.consumers import ChatConsumer  # noqa: E402, I001
 
-# from channels.http import AsgiHandler
-# from chat.consumers import Consumer
 
 # The channel routing defines what connections get handled by what consumers,
 # selecting on either the connection type (ProtocolTypeRouter) or properties
