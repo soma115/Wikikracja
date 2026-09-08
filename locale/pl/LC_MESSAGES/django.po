@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 17:53+0200\n"
+"POT-Creation-Date: 2026-09-08 18:51+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -183,7 +183,7 @@ msgstr "Brak opcji."
 #: .\glosowania\templates\glosowania\szczegoly.html:219
 #: .\home\templates\home\site_admin.html:53
 #: .\obywatele\templates\obywatele\my_profile.html:102
-#: .\obywatele\templates\obywatele\szczegoly.html:129
+#: .\obywatele\templates\obywatele\szczegoly.html:130
 #: .\tasks\templates\tasks\task_detail.html:159
 msgid "Edit"
 msgstr "Edytuj"
@@ -298,7 +298,7 @@ msgstr "Dodaj ankietę"
 #: .\board\templates\board\post_form.html:73 .\bookkeeping\forms.py:22
 #: .\bookkeeping\forms.py:52
 #: .\categories\templates\categories\_category_manager_init.html:21
-#: .\chat\templates\chat\add.html:15 .\chat\templates\chat\chat.html:237
+#: .\chat\templates\chat\add.html:15 .\chat\templates\chat\chat.html:234
 #: .\glosowania\templates\glosowania\dodaj.html:28
 #: .\glosowania\templates\glosowania\edit.html:22
 #: .\glosowania\templates\glosowania\edit_argument.html:28
@@ -466,12 +466,12 @@ msgstr "Kategoria"
 #: .\board\models.py:30 .\board\templates\board\_post_card.html:9
 #: .\board\templates\board\board.html:40 .\board\templates\board\board.html:70
 #: .\board\templates\board\post_detail.html:46
-#: .\chat\templates\chat\chat.html:87 .\events\models.py:31
+#: .\chat\templates\chat\chat.html:84 .\events\models.py:31
 #: .\events\templates\events\event_detail.html:41
 msgid "Public"
 msgstr "Publiczne"
 
-#: .\board\models.py:31 .\chat\templates\chat\chat.html:183
+#: .\board\models.py:31 .\chat\templates\chat\chat.html:180
 #: .\events\templates\events\_event_card.html:41
 #: .\events\templates\events\event_detail.html:45
 msgid "Private"
@@ -574,8 +574,8 @@ msgstr "Bez kategorii"
 msgid "Create"
 msgstr "Utwórz"
 
-#: .\board\templates\board\board.html:94 .\chat\templates\chat\chat.html:159
-#: .\chat\templates\chat\chat.html:264 .\home\services\dashboard.py:21
+#: .\board\templates\board\board.html:94 .\chat\templates\chat\chat.html:156
+#: .\chat\templates\chat\chat.html:261 .\home\services\dashboard.py:21
 #: .\home\templates\home\base.html:131 .\home\templates\home\base.html:134
 #: .\home\templates\home\base.html:259 .\home\views.py:77 .\home\views.py:235
 #: .\obywatele\views.py:463
@@ -619,7 +619,7 @@ msgstr "Utwórz ogłoszenie"
 #: .\bookkeeping\templates\bookkeeping\partner_form.html:62
 #: .\bookkeeping\templates\bookkeeping\transaction_form.html:53
 #: .\categories\templates\categories\_category_manager_init.html:20
-#: .\chat\templates\chat\chat.html:236
+#: .\chat\templates\chat\chat.html:233
 #: .\glosowania\templates\glosowania\edit_argument.html:29
 #: .\home\templates\home\haslo.html:21
 #: .\home\templates\home\includes\confirm_delete_buttons.html:13
@@ -1154,7 +1154,7 @@ msgstr "Opis (opcjonalny)"
 msgid "The Inbox room cannot be renamed."
 msgstr "Pokój Inbox nie może być zmieniony."
 
-#: .\chat\forms.py:31
+#: .\chat\forms.py:31 .\obywatele\tables.py:11
 msgid "Name and surname"
 msgstr "Imię i nazwisko"
 
@@ -1204,8 +1204,8 @@ msgstr "edytowano"
 msgid "Changes History"
 msgstr "Historia zmian"
 
-#: .\chat\i18n.py:18 .\chat\templates\chat\chat.html:218
-#: .\chat\templates\chat\chat.html:277
+#: .\chat\i18n.py:18 .\chat\templates\chat\chat.html:215
+#: .\chat\templates\chat\chat.html:274
 #: .\home\templates\home\includes\modal_header.html:14
 msgid "Close"
 msgstr "Zamknij"
@@ -1339,97 +1339,105 @@ msgstr "Polubienia"
 msgid "Popular"
 msgstr "Popularne"
 
-#: .\chat\i18n.py:53 .\chat\templates\chat\room_link.html:51
+#: .\chat\i18n.py:53
+msgid "Show room list"
+msgstr "Pokaż listę pokoi"
+
+#: .\chat\i18n.py:54
+msgid "Hide room list"
+msgstr "Ukryj listę pokoi"
+
+#: .\chat\i18n.py:55 .\chat\templates\chat\room_link.html:51
 msgid "attachment"
 msgstr "załącznik"
 
-#: .\chat\i18n.py:54 .\chat\templates\chat\room_link.html:81
+#: .\chat\i18n.py:56 .\chat\templates\chat\room_link.html:81
 msgid "Mute room"
 msgstr "Wycisz pokój"
 
-#: .\chat\i18n.py:55 .\chat\templates\chat\room_link.html:81
+#: .\chat\i18n.py:57 .\chat\templates\chat\room_link.html:81
 msgid "Unmute room"
 msgstr "Cofnij wyciszenie"
 
-#: .\chat\i18n.py:56
+#: .\chat\i18n.py:58
 msgid "Shift/Ctrl+↵ send · Ctrl+B bold · Ctrl+I italic"
 msgstr "Shift+↵ nowa linia · Ctrl+B pogrubienie · Ctrl+I kursywa"
 
-#: .\chat\i18n.py:57
+#: .\chat\i18n.py:59
 msgid "Select a room from the list"
 msgstr "Wybierz pokój z listy"
 
-#: .\chat\i18n.py:58
+#: .\chat\i18n.py:60
 msgid "No unread messages"
 msgstr "Brak nieprzeczytanych wiadomości"
 
-#: .\chat\i18n.py:59
+#: .\chat\i18n.py:61
 #, python-brace-format
 msgid "Tap {icon} above the list to disable the unread filter"
 msgstr "Kliknij {icon} nad listą, aby wyłączyć filtr nieprzeczytanych"
 
-#: .\chat\i18n.py:60
+#: .\chat\i18n.py:62
 msgid "Disable the unread filter"
 msgstr "Wyłącz filtr nieprzeczytanych"
 
-#: .\chat\i18n.py:61
+#: .\chat\i18n.py:63
 msgid "This room is empty, be the first one to write something."
 msgstr "Ten pokój jest pusty, napisz coś jako pierwszy."
 
-#: .\chat\i18n.py:62
+#: .\chat\i18n.py:64
 msgid "Only approved helpers can write here."
 msgstr "Tylko zatwierdzeni pomocnicy mogą tutaj pisać."
 
-#: .\chat\i18n.py:63
+#: .\chat\i18n.py:65
 msgid "This room is not available."
 msgstr "Ten pokój jest niedostępny."
 
-#: .\chat\i18n.py:64
+#: .\chat\i18n.py:66
 msgid "Could not join the room."
 msgstr "Nie udało się dołączyć do pokoju."
 
-#: .\chat\i18n.py:65
+#: .\chat\i18n.py:67
 msgid "Reconnecting..."
 msgstr "Ponowne łączenie..."
 
-#: .\chat\i18n.py:66
+#: .\chat\i18n.py:68
 msgid "You are offline."
 msgstr "Jesteś offline."
 
-#: .\chat\i18n.py:67
+#: .\chat\i18n.py:69
 msgid "Try again"
 msgstr "Spróbuj ponownie"
 
-#: .\chat\i18n.py:68
+#: .\chat\i18n.py:70
 msgid "No rooms match the search."
 msgstr "Żaden pokój nie pasuje do wyszukiwania."
 
-#: .\chat\i18n.py:69
+#: .\chat\i18n.py:71
 #, python-brace-format
 msgid "Message trimmed to {max} characters"
 msgstr "Wiadomość przycięta do {max} znaków"
 
-#: .\chat\i18n.py:70
+#: .\chat\i18n.py:72
 msgid "The name cannot be empty."
 msgstr "Nazwa nie może być pusta."
 
-#: .\chat\i18n.py:71
+#: .\chat\i18n.py:73
 msgid "Error."
 msgstr "Błąd."
 
-#: .\chat\i18n.py:72
+#: .\chat\i18n.py:74
 msgid "Room name changed."
 msgstr "Nazwa pokoju zmieniona."
 
-#: .\chat\i18n.py:73
+#: .\chat\i18n.py:75
 msgid "Connection error."
 msgstr "Błąd połączenia."
 
-#: .\chat\i18n.py:74
+#: .\chat\i18n.py:76
 msgid "No messages. Write the first one!"
 msgstr "Brak wiadomości. Napisz pierwszy!"
 
-#: .\chat\i18n.py:75
+#: .\chat\i18n.py:77
 msgid "No access to this chat."
 msgstr "Brak dostępu do tego czatu."
 
@@ -1506,83 +1514,79 @@ msgstr "Pokaż zarchiwizowane pokoje"
 msgid "Info"
 msgstr "Info"
 
-#: .\chat\templates\chat\chat.html:71
-msgid "Hide room list"
-msgstr "Ukryj listę pokoi"
-
-#: .\chat\templates\chat\chat.html:94 .\chat\templates\chat\chat.html:100
-#: .\chat\templates\chat\chat.html:118 .\chat\templates\chat\chat.html:124
-#: .\chat\templates\chat\chat.html:142 .\chat\templates\chat\chat.html:148
-#: .\chat\templates\chat\chat.html:166 .\chat\templates\chat\chat.html:172
-#: .\chat\templates\chat\chat.html:190 .\chat\templates\chat\chat.html:196
+#: .\chat\templates\chat\chat.html:91 .\chat\templates\chat\chat.html:97
+#: .\chat\templates\chat\chat.html:115 .\chat\templates\chat\chat.html:121
+#: .\chat\templates\chat\chat.html:139 .\chat\templates\chat\chat.html:145
+#: .\chat\templates\chat\chat.html:163 .\chat\templates\chat\chat.html:169
+#: .\chat\templates\chat\chat.html:187 .\chat\templates\chat\chat.html:193
 #: .\tasks\templates\tasks\task_detail.html:52
 #: .\tasks\templates\tasks\task_detail.html:313
 msgid "None"
 msgstr "Brak"
 
-#: .\chat\templates\chat\chat.html:111 .\chat\templates\chat\chat.html:256
+#: .\chat\templates\chat\chat.html:108 .\chat\templates\chat\chat.html:253
 #: .\home\services\dashboard.py:27 .\home\templates\home\base.html:109
 #: .\home\templates\home\base.html:112 .\home\templates\home\base.html:260
 #: .\home\views.py:78 .\home\views.py:235
-#: .\obywatele\templates\obywatele\szczegoly.html:205 .\obywatele\views.py:461
+#: .\obywatele\templates\obywatele\szczegoly.html:206 .\obywatele\views.py:461
 msgid "Activities"
 msgstr "Działania"
 
-#: .\chat\templates\chat\chat.html:135 .\chat\templates\chat\chat.html:260
+#: .\chat\templates\chat\chat.html:132 .\chat\templates\chat\chat.html:257
 msgid "Referendums"
 msgstr "Głosowania"
 
-#: .\chat\templates\chat\chat.html:214
+#: .\chat\templates\chat\chat.html:211
 msgid "Changes history"
 msgstr "Historia zmian"
 
-#: .\chat\templates\chat\chat.html:229 .\chat\templates\chat\room_link.html:98
+#: .\chat\templates\chat\chat.html:226 .\chat\templates\chat\room_link.html:98
 msgid "Rename room"
 msgstr "Zmień nazwę"
 
-#: .\chat\templates\chat\chat.html:232
+#: .\chat\templates\chat\chat.html:229
 msgid "New room name"
 msgstr "Nowa nazwa pokoju"
 
-#: .\chat\templates\chat\chat.html:248
+#: .\chat\templates\chat\chat.html:245
 msgid "Chat Information"
 msgstr "Informacje o czacie"
 
-#: .\chat\templates\chat\chat.html:252
+#: .\chat\templates\chat\chat.html:249
 msgid "Public Rooms"
 msgstr "Publiczne"
 
-#: .\chat\templates\chat\chat.html:253
+#: .\chat\templates\chat\chat.html:250
 #, python-format
 msgid "Public chat rooms are archived if they are not used for %(archive_days)s days. After %(delete_days)s days they are deleted."
 msgstr "Publiczne pokoje czatu są archiwizowane, jeśli nie są używane przez %(archive_days)s dni. Po %(delete_days)s dniach są usuwane."
 
-#: .\chat\templates\chat\chat.html:257
+#: .\chat\templates\chat\chat.html:254
 msgid "Activity rooms are created for specific activities and projects. They are protected from automatic deletion and are used for collaborative work discussions."
 msgstr "Pokoje działań są tworzone dla konkretnych działań i projektów. Są chronione przed automatycznym usunięciem i służą do dyskusji nad pracą zespołową."
 
-#: .\chat\templates\chat\chat.html:261
+#: .\chat\templates\chat\chat.html:258
 msgid "Referendum rooms are created for voting and decision-making processes. They are protected from automatic deletion and provide a space for discussions about proposals."
 msgstr "Pokoje głosowań są tworzone dla procesów głosowania i podejmowania decyzji. Są one chronione przed automatycznym usunięciem i zapewniają przestrzeń do dyskusji na temat propozycji."
 
-#: .\chat\templates\chat\chat.html:265
+#: .\chat\templates\chat\chat.html:262
 msgid "Document rooms are created for each board document. They are protected from automatic deletion and provide a space for discussions about documents."
 msgstr "Pokoje dokumentów są tworzone dla każdego dokumentu tablicy. Są chronione przed automatycznym usunięciem i zapewniają przestrzeń do dyskusji na temat dokumentów."
 
-#: .\chat\templates\chat\chat.html:268
+#: .\chat\templates\chat\chat.html:265
 msgid "Private Messages"
 msgstr "Prywatne wiadomości"
 
-#: .\chat\templates\chat\chat.html:269
+#: .\chat\templates\chat\chat.html:266
 #, python-format
 msgid "Private messages are archived when user is blocked and deleted after %(delete_days)s days."
 msgstr "Prywatne wiadomości są archiwizowane, gdy użytkownik jest blokowany i usuwany po %(delete_days)s dniach."
 
-#: .\chat\templates\chat\chat.html:272
+#: .\chat\templates\chat\chat.html:269
 msgid "Archives"
 msgstr "Archiwa"
 
-#: .\chat\templates\chat\chat.html:273
+#: .\chat\templates\chat\chat.html:270
 msgid "Click the archive button (folder icon) next to each category to show archived rooms."
 msgstr "Kliknij przycisk archiwum (ikona folderu) obok każdej kategorii, aby pokazać zarchiwizowane pokoje."
 
@@ -2930,8 +2934,8 @@ msgstr "Przełącz tryb jasny/ciemny"
 
 #: .\home\templates\home\base.html:304 .\home\templates\home\home.html:78
 #: .\home\templates\home\home.html:109 .\home\templates\home\home.html:293
-#: .\obywatele\templates\obywatele\szczegoly.html:198
-#: .\obywatele\templates\obywatele\szczegoly.html:215
+#: .\obywatele\templates\obywatele\szczegoly.html:199
+#: .\obywatele\templates\obywatele\szczegoly.html:216
 msgid "Activity"
 msgstr "Aktywność"
 
@@ -3407,9 +3411,9 @@ msgstr "Potwierdź nowy email"
 msgid "Communicator or Phone"
 msgstr "Komunikator / Telefon"
 
-#: .\obywatele\forms.py:115 .\obywatele\models.py:69 .\obywatele\tables.py:11
+#: .\obywatele\forms.py:115 .\obywatele\models.py:69 .\obywatele\tables.py:12
 #: .\obywatele\templates\obywatele\my_profile.html:107
-#: .\obywatele\templates\obywatele\szczegoly.html:150
+#: .\obywatele\templates\obywatele\szczegoly.html:151
 msgid "Voivodeship"
 msgstr "Województwo"
 
@@ -3491,6 +3495,7 @@ msgstr "Email potwierdzony"
 #: .\obywatele\models.py:47 .\obywatele\templates\obywatele\poczekalnia.html:95
 #: .\obywatele\templates\obywatele\poczekalnia.html:172
 #: .\obywatele\templates\obywatele\szczegoly.html:72
+#: .\obywatele\templates\obywatele\szczegoly.html:77
 msgid "Form completed"
 msgstr "Formularz wypełniony"
 
@@ -3511,7 +3516,7 @@ msgstr "Jasny"
 msgid "Dark"
 msgstr "Ciemny"
 
-#: .\obywatele\models.py:60 .\obywatele\tables.py:10
+#: .\obywatele\models.py:60
 #: .\obywatele\templates\obywatele\change_username.html:9
 #: .\obywatele\templates\obywatele\my_profile.html:65
 msgid "Username"
@@ -3530,7 +3535,7 @@ msgid "Activities performed in our group"
 msgstr "Działania wykonywane w naszej grupie"
 
 #: .\obywatele\models.py:70 .\obywatele\templates\obywatele\my_profile.html:110
-#: .\obywatele\templates\obywatele\szczegoly.html:154
+#: .\obywatele\templates\obywatele\szczegoly.html:155
 msgid "Responsibilities"
 msgstr "Obowiązki"
 
@@ -3539,7 +3544,7 @@ msgid "Skills, knowledge, and hobbies"
 msgstr "Umiejętności, wiedza i hobby"
 
 #: .\obywatele\models.py:71 .\obywatele\templates\obywatele\my_profile.html:112
-#: .\obywatele\templates\obywatele\szczegoly.html:158
+#: .\obywatele\templates\obywatele\szczegoly.html:159
 msgid "Skills / Knowledge / Hobby"
 msgstr "Umiejętności / Wiedza / Hobby"
 
@@ -3548,7 +3553,7 @@ msgid "Things you are willing to give away for free"
 msgstr "Przedmioty, które chcesz oddać za darmo"
 
 #: .\obywatele\models.py:72 .\obywatele\templates\obywatele\my_profile.html:114
-#: .\obywatele\templates\obywatele\szczegoly.html:162
+#: .\obywatele\templates\obywatele\szczegoly.html:163
 msgid "To give away"
 msgstr "Do oddania"
 
@@ -3557,7 +3562,7 @@ msgid "Stuff you can borrow to others"
 msgstr "Przedmioty, które możesz pożyczyć"
 
 #: .\obywatele\models.py:73 .\obywatele\templates\obywatele\my_profile.html:115
-#: .\obywatele\templates\obywatele\szczegoly.html:166
+#: .\obywatele\templates\obywatele\szczegoly.html:167
 msgid "To borrow"
 msgstr "Do pożyczenia"
 
@@ -3566,7 +3571,7 @@ msgid "Stuff you have for sale"
 msgstr "Przedmioty, które chcesz sprzedać"
 
 #: .\obywatele\models.py:74 .\obywatele\templates\obywatele\my_profile.html:116
-#: .\obywatele\templates\obywatele\szczegoly.html:170
+#: .\obywatele\templates\obywatele\szczegoly.html:171
 msgid "For sale"
 msgstr "Do sprzedania"
 
@@ -3575,7 +3580,7 @@ msgid "What do you need"
 msgstr "Czego potrzebujesz"
 
 #: .\obywatele\models.py:75 .\obywatele\templates\obywatele\my_profile.html:117
-#: .\obywatele\templates\obywatele\szczegoly.html:174
+#: .\obywatele\templates\obywatele\szczegoly.html:175
 msgid "I need"
 msgstr "Potrzeby"
 
@@ -3584,7 +3589,7 @@ msgid "Things one would like to learn"
 msgstr "Czego chce się nauczyć"
 
 #: .\obywatele\models.py:76 .\obywatele\templates\obywatele\my_profile.html:113
-#: .\obywatele\templates\obywatele\szczegoly.html:178
+#: .\obywatele\templates\obywatele\szczegoly.html:179
 msgid "I want to learn"
 msgstr "Chcę się nauczyć"
 
@@ -3593,7 +3598,7 @@ msgid "If running a business"
 msgstr "Jaki prowadzisz biznes. Np adres www."
 
 #: .\obywatele\models.py:77 .\obywatele\templates\obywatele\my_profile.html:111
-#: .\obywatele\templates\obywatele\szczegoly.html:182
+#: .\obywatele\templates\obywatele\szczegoly.html:183
 msgid "Business"
 msgstr "Biznes"
 
@@ -3602,7 +3607,7 @@ msgid "Profession"
 msgstr "Wykonywany zawód"
 
 #: .\obywatele\models.py:78 .\obywatele\templates\obywatele\my_profile.html:109
-#: .\obywatele\templates\obywatele\szczegoly.html:142
+#: .\obywatele\templates\obywatele\szczegoly.html:143
 msgid "Job"
 msgstr "Zawód"
 
@@ -3611,7 +3616,7 @@ msgid "In your own words please explain why do you want join our group"
 msgstr "Wyjaśnij własnymi słowami dlaczego chcesz dołączyć do naszej grupy"
 
 #: .\obywatele\models.py:79 .\obywatele\templates\obywatele\my_profile.html:118
-#: .\obywatele\templates\obywatele\szczegoly.html:186
+#: .\obywatele\templates\obywatele\szczegoly.html:187
 msgid "Why do you want to join?"
 msgstr "Dlaczego chcesz należeć do grupy?"
 
@@ -3760,7 +3765,7 @@ msgstr "Został zaproponowany nowy użytkownik"
 msgid "Citizen has been blocked"
 msgstr "Ta osoba została zbanowana"
 
-#: .\obywatele\tables.py:12
+#: .\obywatele\tables.py:13
 msgid "Why?"
 msgstr "Dlaczego?"
 
@@ -3964,7 +3969,7 @@ msgid "Contact & Resources"
 msgstr "Kontakt i Zasoby"
 
 #: .\obywatele\templates\obywatele\my_profile.html:106
-#: .\obywatele\templates\obywatele\szczegoly.html:146
+#: .\obywatele\templates\obywatele\szczegoly.html:147
 msgid "City / Commune"
 msgstr "Miejscowość / Powiat"
 
@@ -4157,7 +4162,7 @@ msgstr "Brak e-maila"
 
 #: .\obywatele\templates\obywatele\poczekalnia.html:88
 #: .\obywatele\templates\obywatele\poczekalnia.html:164
-#: .\obywatele\templates\obywatele\szczegoly.html:88
+#: .\obywatele\templates\obywatele\szczegoly.html:89
 msgid "Positive / Neutral / Negative ratings"
 msgstr "Oceny Pozytywne / Neutralne / Negatywne"
 
@@ -4213,7 +4218,7 @@ msgstr "Wiadomość bezpośrednia"
 
 #: .\obywatele\templates\obywatele\start.html:114
 #: .\obywatele\templates\obywatele\start.html:182
-#: .\obywatele\templates\obywatele\szczegoly.html:99
+#: .\obywatele\templates\obywatele\szczegoly.html:100
 msgid "This is you"
 msgstr "To jesteś Ty"
 
@@ -4229,43 +4234,43 @@ msgstr "Polecony przez"
 msgid "Joined at"
 msgstr "Data przyjęcia"
 
-#: .\obywatele\templates\obywatele\szczegoly.html:87
+#: .\obywatele\templates\obywatele\szczegoly.html:88
 msgid "Ratings"
 msgstr "Oceny"
 
-#: .\obywatele\templates\obywatele\szczegoly.html:100
+#: .\obywatele\templates\obywatele\szczegoly.html:101
 msgid "You can find more setting in your profile"
 msgstr "Więcej ustawień znajdziesz w twoim profilu"
 
-#: .\obywatele\templates\obywatele\szczegoly.html:105
+#: .\obywatele\templates\obywatele\szczegoly.html:106
 msgid "What is your attitude towards this person?"
 msgstr "Jaki jest twój stosunek do tej osoby?"
 
-#: .\obywatele\templates\obywatele\szczegoly.html:110
+#: .\obywatele\templates\obywatele\szczegoly.html:111
 msgid "I accept this person"
 msgstr "Akceptuję tę osobę"
 
-#: .\obywatele\templates\obywatele\szczegoly.html:113
+#: .\obywatele\templates\obywatele\szczegoly.html:114
 msgid "Indifferent"
 msgstr "Neutralny"
 
-#: .\obywatele\templates\obywatele\szczegoly.html:116
+#: .\obywatele\templates\obywatele\szczegoly.html:117
 msgid "I do not accept"
 msgstr "Nie akceptuję"
 
-#: .\obywatele\templates\obywatele\szczegoly.html:126
+#: .\obywatele\templates\obywatele\szczegoly.html:127
 msgid "Profile Details"
 msgstr "Szczegóły"
 
-#: .\obywatele\templates\obywatele\szczegoly.html:138
+#: .\obywatele\templates\obywatele\szczegoly.html:139
 msgid "Communicator / Phone"
 msgstr "Komunikator / Telefon"
 
-#: .\obywatele\templates\obywatele\szczegoly.html:210
+#: .\obywatele\templates\obywatele\szczegoly.html:211
 msgid "Chats"
 msgstr "Czaty"
 
-#: .\obywatele\templates\obywatele\szczegoly.html:220
+#: .\obywatele\templates\obywatele\szczegoly.html:221
 msgid "Founded"
 msgstr "Założone"
 

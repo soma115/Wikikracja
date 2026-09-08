@@ -844,7 +844,8 @@ window.initActivityFeedToggleBookmark = function(containerSelector) {
     });
 };
 
-// Toggle .expandable blocks — clicking body toggles open/close (only when overflow detected).
+// Toggle .expandable blocks — clicking the wrapper toggles open/close
+// (only when overflow is detected and no text is selected).
 function hasSelectedTextInside(container) {
     const selection = window.getSelection?.();
     if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return false;
@@ -869,11 +870,11 @@ function hasSelectedTextInside(container) {
 }
 
 document.addEventListener('click', function(e) {
-    if (e.target.closest('a')) return;
-    const body = e.target.closest('.tw-expandable-body');
-    const el = body?.closest('.tw-expandable');
+    if (e.target.closest('a, button')) return;
+    const el = e.target.closest('.tw-expandable');
     if (!el?.classList.contains('tw-has-overflow')) return;
-    if (hasSelectedTextInside(body)) return;
+    const body = el.querySelector('.tw-expandable-body');
+    if (body && hasSelectedTextInside(body)) return;
     el.classList.toggle('tw-is-open');
 });
 
@@ -933,6 +934,12 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('[data-progress]').forEach(function (el) {
         el.style.setProperty('--progress', el.dataset.progress + '%');
+        if (el.getAttribute('role') === 'progressbar') {
+            var progress = parseFloat(el.dataset.progress);
+            if (!isNaN(progress)) {
+                el.setAttribute('aria-valuenow', String(progress));
+            }
+        }
     });
 });
 

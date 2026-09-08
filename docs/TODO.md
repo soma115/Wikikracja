@@ -1,26 +1,66 @@
-# To są notatki użytkownika, nie zmieniaj tutaj nic.
+# To są notatki użytkownika, AI nie wolno tutaj zmieniać nic.
+
+Postaraj się zachować standardy tw-*, unifikację itd.
+Przed zmian pokaż mi co zamierzasz zrobić.
+
+## OGÓLNE
+
+
+
+## CZAT
+
+- Po wejściu do pokoju czatu - czat się rozszerza i zaczyna wystawać poza ekran poza okno przeglądarki czyli jest ucięte po prawej stronie.
+Znalazłem przyczynę.
+To breadcrumbs psuje wygląd czatu i wysuwa go poza ekran. Breadcrumbs powinno być skracane, jest mało ważne. Powinno być widoczne na dużych ekranach, ale na małych ekranach może kompletnie zniknąć.
+Rozważmy różne opcje, łącznie z rezygnacją z breadcrumbs.
+Ale co najważniejsze - nic nie powinno być w stanie wysunąć czatu poza ekran.
+Opisz, jaki masz plan. Pamiętaj, że zależy nam na zachowaniu unifikacji.
+
+
+- Czat: Na małych okranach rozwijana lista pokoi nie powinna zajmować całego ekranu. Powinna zajmować 80% ekranu tak żeby nadal był częściowo widoczny pokój pod spodem.
+
+- Czat: Jeśli nie ma wiadomości nieprzeczytanych w czacie i użytkownik wchodzi na czat, to wyłączaj automatycznie guzik "Pokaż tylko nieprzeczytane pokoje"
+
+- Kiedy użytkownik wchodzi do czatu z dowolnego miejsca i ma wcześniej zaznaczony guzik "pokaż tylko nieprzeczytane pokoje" albo kliknął guzik @view=unread to kategorie, w których są te nieprzeczytane pokoje powinny być automatycznie rozwijane.
+
+- W głównym menu, jeśli są wiadomości nieprzeczytane na czacie, to link czatu jest podświetlony. To podświetlenie jest zbyt wyraziste. Zrób je bardziej dyskretnie.
+
+## AKTYWNOSC
+
+- w aktywnosc/ kombinacja filtrów powinna pokazywać część wspólną. Np. zaznacznie nieprzeczytane i zakładki powinno pokazywać tylko nieprzeczytane zakładki - czyli te powiadomienia, które są zarówno nieprzeczytane, jak i są zakładkami. I podobnie w przypadku pozostałych etykiet: dokumenty, działania, głosowania, itd.
+
+Guzik "Wszystkie" zamień na ikonę przekreślonego filtra. Ten guzik powinien wyłączać wszystkie filtry, czyli pokazywać wszystkie powiadomienia. A jeśli naciśniesz go po raz drugi, powinien przywracać poprzednie ustawienie filtrów.
+
+Rozdzielmy guziki na dwie linie. W pierwszej linii ma być:
+1. Nieprzeczytane, Zakładki, Wszystkie (Kwadratowa obwódka wokół guzików kolory czarno-białe.)
+2. dokumenty, działania, głosowania, ankiety, kalendarz, ludzie, czat (kolory I wygląda tak jak teraz)
+
+Przy okazji:
+  - Zaznaczenie gwiazdki nie pokazuje się od razu, kolor gwiazdki się nie zmienia.
+  - w Widoku siatki brakuje gwiazdek na powiadomieniach.
+
+--
+
+- Dlaczego nadal są pozostałości takie jak Task #78 w /aktywnosc/? Pozbyliśmy się tego przedrostka, do czego on teraz jest używany?
+
+## GÓRNE MENU
+
+- Na komórce etykieta działu w którym się jest zawsze powinna pokazywać się w górnym menu. Ma to być końcówka breadcrumbs np. "Ludzie > Kandydaci"
+
+## PROFIL UŻYTKOWNIKA 
 
 - Powinniśmy dodać ludziom wybór co do formy kontaktu. Niektórzy ludzie wolą telefon, a inni komunikatory. Niektóre komunikatory używają numeru telefonu, a inne nie. Komunikatory, których używamy, to Facebook, Discord, WhatsApp, Telegram, Signal. Opracuj sprytny formularz w taki sposób, żeby użytkownik mógł wybrać jedną lub wiele form kontaktu i żeby to było intuicyjne.
 
-- Dlaczego nadal są pozostałości takie jak Task #78 w /aktywnosc/? Pozbyliśmy się tego przedrostka, do czego on teraz jest używany?
+- jedna osoba dodaje umiejętność/zainteresowanie/hobby, pozostałe osoby mogą wybrać te rzeczy z listy.
+
+## DOKUMENTY
 
 - Prosta historia edycji dokumentów. Przydałoby się zapisywać przynajmniej kto edytował kiedy i nie wiem ile zostało zmienione. Nie wiem czy przechowywanie wersji dokumentu ma sens.
 
 - Zbierajmy raz dziennie dane do statystyk. bedzie to wymagało nowej tabeli w bazie. Patrzymy na wszystkie działy, które świadczą o aktywności grupy.
-
-- Jeśli w dokumencie jest obrazek wyróżniający, to ten obrazek powinien być przyciemniony i powinien być tłem, a na nim powinien być tytuł, podtytuł, ikona autora i data.
-
-- aktywnosc/ trzeba odświeżać ręcznie żeby zobaczyć co faktycznie jest przeczytane a co nie
-
-- jedna osoba dodaje umiejętność/zainteresowanie/hobby, pozostałe osoby mogą wybrać te rzeczy z listy.
-
-- nie dostaję powiadomień na telefon. Może jak są na komputerze to nie ma na telefonie?
-
-- testy są bardzo wolne. Może da się je jakoś zdeduplikować żeby je przyspieszyć? Raczej wszystkie są potrzebne.
-
-- Jedno największe możliwe bezpieczne uproszczenie w kodzie, plikach i katalogach.
-
 - prosty i szybki mechanizm do zbierania statystyk na temat tego, które opcje w aplikacji są używane a które nie
+
+- 3 największe możliwe bezpieczne uproszczenie w kodzie, plikach i katalogach.
 
 - Możliwość dodawania specyficznie: x.com, fb, insta, itd.
 

@@ -50,6 +50,8 @@ def get_translations():
         "Sorting and filter": _("Sorting and filter"),
         "Likes": _("Likes"),
         "Popular": _("Popular"),
+        "Show room list": _("Show room list"),
+        "Hide room list": _("Hide room list"),
         "attachment": _("attachment"),
         "Mute room": _("Mute room"),
         "Unmute room": _("Unmute room"),

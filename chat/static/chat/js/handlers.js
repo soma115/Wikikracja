@@ -458,102 +458,50 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ── Room list show/hide ───────────────────────────────────────────────────
+    // ── Breadcrumb aria-expanded mirror ───────────────────────────────────────
     const chatRoomsEl = $('.tw-chat-rooms');
-    // Preferencja zwinięcia dotyczy wyłącznie desktopu — na mobile panel listy
-    // wynika z nawigacji (room-list-showing), nie z zapisanego stanu.
-    const HIDDEN_KEY = 'chat-desktop-room-list-hidden';
-    const LEGACY_HIDDEN_KEY = 'chat-room-list-hidden';
 
-    // Jednorazowa migracja starego klucza — bez cichej utraty preferencji.
-    const legacyHidden = localStorage.getItem(LEGACY_HIDDEN_KEY);
-    if (legacyHidden !== null) {
-        if (localStorage.getItem(HIDDEN_KEY) === null) {
-            localStorage.setItem(HIDDEN_KEY, legacyHidden);
-        }
-        localStorage.removeItem(LEGACY_HIDDEN_KEY);
-    }
-
-    function setRoomListHidden(hidden) {
-        chatRoomsEl?.classList.toggle('tw-room-list-hidden', hidden);
-        if (hidden) localStorage.setItem(HIDDEN_KEY, '1');
-        else localStorage.removeItem(HIDDEN_KEY);
-        updateToggleBtn();
-    }
-
-    function updateToggleBtn() {
-        const hidden = chatRoomsEl?.classList.contains('tw-room-list-hidden');
+    function updateBreadcrumbAria() {
         const listShowing = chatRoomsEl?.classList.contains('tw-room-list-showing');
-        // Button in sort toolbar (dynamic, inside #room)
-        const dynBtn = document.getElementById('toggle-room-list-btn');
-        if (dynBtn) {
-            dynBtn.querySelector('i').className = hidden ? 'fas fa-angles-left' : 'fas fa-angles-right';
-            dynBtn.title = hidden ? 'Show room list' : 'Hide room list';
-            // Na mobile ten przycisk pokazuje listę nad pokojem.
-            dynBtn.setAttribute('aria-expanded', String(mobileMedia.matches ? !!listShowing : !hidden));
-        }
-        // Button in room-list-controls (static, desktop only)
-        const staticBtn = document.getElementById('room-list-toggle-static-btn');
-        if (staticBtn) {
-            staticBtn.querySelector('i').className = hidden ? 'fas fa-angles-left' : 'fas fa-angles-right';
-            staticBtn.title = hidden ? 'Show room list' : 'Hide room list';
-            staticBtn.setAttribute('aria-expanded', String(!hidden));
+        const bc = document.getElementById('chat-breadcrumb');
+        if (bc) {
+            bc.setAttribute('aria-expanded', String(!!listShowing));
         }
     }
 
-    // Restore saved state — desktop only; mobile never restores the collapse.
-    if (mobileMedia.matches) {
-        chatRoomsEl?.classList.remove('tw-room-list-hidden');
-    } else if (localStorage.getItem(HIDDEN_KEY)) {
-        setRoomListHidden(true);
-    }
+    // Desktop room-list collapse is no longer supported — always show the list.
+    // Clean up any stale state from previous sessions.
+    chatRoomsEl?.classList.remove('tw-room-list-hidden');
+    localStorage.removeItem('chat-desktop-room-list-hidden');
+    localStorage.removeItem('chat-room-list-hidden');
 
-    // Klasy widoku na .chat-rooms zmienia router (chat.js) i desktopowa
-    // preferencja — obserwujemy je, żeby ikony i aria-expanded przycisków
-    // zawsze odzwierciedlały rzeczywisty stan.
     if (chatRoomsEl) {
-        new MutationObserver(updateToggleBtn).observe(chatRoomsEl, {
+        new MutationObserver(updateBreadcrumbAria).observe(chatRoomsEl, {
             attributes: true,
             attributeFilter: ['class'],
         });
     }
-    updateToggleBtn();
+    updateBreadcrumbAria();
 
-    // #toggle-room-list-btn (inside room area): na mobile prowadzi do listy
-    // przez URL (Wstecz wraca do pokoju); na desktopie przełącza zwinięcie.
+    function closestBreadcrumb(target) {
+        // Clicking directly on text inside a segment gives a TEXT_NODE target,
+        // which has no .closest(); use its parent element instead.
+        const el = target.nodeType === Node.TEXT_NODE ? target.parentElement : target;
+        return el?.closest('#chat-breadcrumb') || null;
+    }
+
+    // #chat-breadcrumb: on mobile acts as a back button to the room list.
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('#toggle-room-list-btn');
-        if (!btn) return;
-        if (mobileMedia.matches) {
-            navigateToRoomList();
-        } else {
-            setRoomListHidden(!chatRoomsEl?.classList.contains('tw-room-list-hidden'));
-        }
+        const bc = closestBreadcrumb(e.target);
+        if (!bc) return;
+        if (mobileMedia.matches) navigateToRoomList();
     });
-
-    // #room-list-toggle-static-btn: na mobile wraca do dołączonego pokoju,
-    // na desktopie przełącza zwinięcie listy.
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('#room-list-toggle-static-btn');
-        if (!btn) return;
-        if (mobileMedia.matches) {
-            const joined = getCurrentRoomId();
-            if (joined) navigateToRoom(joined);
-        } else {
-            setRoomListHidden(!chatRoomsEl?.classList.contains('tw-room-list-hidden'));
-        }
-    });
-
-    // Przejście przez breakpoint — preferencja desktopowa jest prezentowana
-    // tylko na desktopie; po stronie mobile klasa jest usuwana bez kasowania
-    // zapisanej preferencji.
-    mobileMedia.addEventListener('change', (e) => {
-        if (e.matches) {
-            chatRoomsEl?.classList.remove('tw-room-list-hidden');
-            updateToggleBtn();
-        } else {
-            setRoomListHidden(!!localStorage.getItem(HIDDEN_KEY));
-        }
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const bc = closestBreadcrumb(e.target);
+        if (!bc) return;
+        e.preventDefault();
+        if (mobileMedia.matches) navigateToRoomList();
     });
 
     // ── Rename room ───────────────────────────────────────────────────────────

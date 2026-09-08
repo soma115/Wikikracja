@@ -12,6 +12,7 @@ import {
     _,
     dateBannerHtml,
     formatTime,
+    mobileMedia,
     removeNotification,
     setCaretPosition
 } from './utility.js';
@@ -536,10 +537,19 @@ export default class DomApi {
     updateBreadcrumb(parts) {
         const bc = $('#chat-breadcrumb');
         if (!bc) return;
-        bc.innerHTML = parts.map((p, i) =>
-            `<span class="tw-bc-seg${p.active ? ' tw-bc-seg--active' : ''}">${p.label}</span>` +
-            (i < parts.length - 1 ? '<span class="tw-bc-sep" aria-hidden="true"> › </span>' : '')
-        ).join('');
+        const segs = parts.map((p, i) =>
+            `<span class="tw-bc-seg${p.active ? ' tw-bc-seg--active' : ''}">${p.label}</span>`
+        );
+        // Back icon is only useful on mobile, where the breadcrumb replaces the
+        // room-list toggle. On desktop the breadcrumb itself is hidden.
+        if (mobileMedia.matches) {
+            const icon = '<span class="tw-bc-back-icon" aria-hidden="true"><i class="fas fa-angles-left"></i></span>';
+            // Insert just before the last segment; the mobile breadcrumb is
+            // rendered in row-reverse, so visually it appears between the room
+            // name and the category.
+            segs.splice(Math.max(0, segs.length - 1), 0, icon);
+        }
+        bc.innerHTML = segs.join('');
     }
 
     // Klasy widoku (.room-active / .room-list-showing / .room-list-hidden) są

@@ -4922,12 +4922,7 @@ a:hover {
 
 .tw-expandable-hint {
   display: none;
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  padding-left: .35em;
-  background: var(--expandable-bg, var(--bg-card));
-  box-shadow: -1.25em 0 .75em var(--expandable-bg, var(--bg-card));
+  padding-top: .25em;
   color: var(--accent);
   font-weight: 600;
   line-height: 1.5;
@@ -4935,8 +4930,7 @@ a:hover {
   -webkit-user-select: none;
   -moz-user-select: none;
        user-select: none;
-  pointer-events: none;
-  z-index: 1;
+  text-align: right;
 }
 
 .tw-expandable.tw-has-overflow {
@@ -8157,6 +8151,7 @@ body.tw-chat-page .tw-main-area {
   position: relative;
   overflow: hidden;
   min-height: 0;
+  min-width: 0;
 }
 
 /* ============================================================ */
@@ -8172,6 +8167,7 @@ body.tw-chat-page .tw-main-area {
   width: 100%;
   position: relative;
   min-height: 0;
+  min-width: 0;
 }
 
 #room .tw-chat-messages {
@@ -8571,16 +8567,29 @@ body.tw-chat-page .tw-main-area {
   overflow: hidden;
   text-overflow: ellipsis;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  min-width: 0;
+}
+
+.tw-bc-seg {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .tw-bc-seg--active {
   color: var(--text-primary);
   font-weight: 500;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
-.tw-bc-sep {
-  margin: 0 .25rem;
-  opacity: .5;
+.tw-bc-back-icon {
+  flex: 0 0 auto;
+  color: var(--text-muted);
 }
 
 /* ============================================================ */
@@ -8600,6 +8609,7 @@ body.tw-chat-page .tw-main-area {
   border-bottom: 1px solid var(--border);
   padding: .25rem .75rem;
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .tw-chat-breadcrumb-row .tw-chat-breadcrumb {
@@ -9171,27 +9181,6 @@ body.tw-chat-page .tw-main-area {
 
 /* ============================================================ */
 
-/* ROOM LIST HIDE/SHOW                                         */
-
-/* ============================================================ */
-
-.tw-chat-rooms.tw-room-list-hidden .tw-room-list-col {
-  width: 0 !important;
-  min-width: 0 !important;
-  max-width: 0 !important;
-  flex: 0 0 0 !important;
-  overflow: hidden !important;
-  padding: 0 !important;
-  border: none !important;
-}
-
-.tw-chat-rooms.tw-room-list-hidden .tw-chat-root-messages {
-  flex: 1 !important;
-  max-width: 100% !important;
-}
-
-/* ============================================================ */
-
 /* DESKTOP MEDIA QUERY                                         */
 
 /* ============================================================ */
@@ -9216,48 +9205,14 @@ body.tw-chat-page .tw-main-area {
     margin-bottom: 1rem;
   }
 
-  /* Desktop: sort-toolbar toggle btn hidden when list visible, shown when list collapsed */
+  /* Desktop: room list is always visible; breadcrumb is redundant. */
 
-  #toggle-room-list-btn {
-    display: none !important;
+  .tw-chat-breadcrumb-row {
+    justify-content: flex-end;
   }
 
-  .tw-chat-rooms.tw-room-list-hidden #toggle-room-list-btn {
-    display: inline-flex !important;
-  }
-
-  /* Desktop: zwinięta lista zostawia wąski pasek z guzikiem do rozwinięcia;
-       reszta kontrolek jest ukryta, więc user może zawsze otworzyć listę. */
-
-  .tw-chat-rooms.tw-room-list-hidden .tw-room-list-col {
-    width: 2.75rem !important;
-    min-width: 2.75rem !important;
-    max-width: 2.75rem !important;
-    flex: 0 0 2.75rem !important;
-    overflow: hidden !important;
-    padding: 0 !important;
-    background: var(--bg-base);
-    border-right: 1px solid var(--border) !important;
-  }
-
-  .tw-chat-rooms.tw-room-list-hidden .tw-room-list {
+  .tw-chat-breadcrumb-row .tw-chat-breadcrumb {
     display: none;
-  }
-
-  .tw-chat-rooms.tw-room-list-hidden .tw-room-list-controls {
-    padding: .25rem .2rem;
-    border-bottom: none;
-  }
-
-  .tw-chat-rooms.tw-room-list-hidden .tw-room-list-controls-inner {
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    gap: .25rem;
-  }
-
-  .tw-chat-rooms.tw-room-list-hidden .tw-room-list-controls-inner > *:not(#room-list-toggle-static-btn) {
-    display: none !important;
   }
 }
 
@@ -9321,24 +9276,7 @@ body.tw-chat-page .tw-main-area {
     z-index: 20;
   }
 
-  /* Mobile: static toggle btn hidden by default; shown only when an active room
-       waits behind the list — without room-active it has nothing to go back to */
-
-  #room-list-toggle-static-btn {
-    display: none !important;
-  }
-
-  .tw-chat-rooms.tw-room-active.tw-room-list-showing #room-list-toggle-static-btn {
-    display: inline-flex !important;
-  }
-
-  /* Mobile: sort-toolbar toggle btn always shows << (go to room list) */
-
-  #toggle-room-list-btn .fa-angles-right {
-    transform: scaleX(-1);
-  }
-
-  /* Mobile: hide text labels in sort buttons so the >> toggle fits on screen */
+  /* Mobile: hide sort button text labels to keep the toolbar compact. */
 
   .tw-chat-sort-toolbar .tw-sort-btn span {
     display: none;
@@ -9434,6 +9372,53 @@ body.tw-chat-page .tw-main-area {
 
   .tw-chat-cat-arrow {
     order: 1;
+  }
+
+  /* Mobile: breadcrumb becomes the room-list toggle, ordered right-to-left:
+       [room name ...] [back icon] [category]. Sort toolbar stays on the left. */
+
+  .tw-chat-breadcrumb-row {
+    justify-content: flex-start;
+  }
+
+  .tw-chat-breadcrumb-row .tw-chat-sort-toolbar {
+    order: 0;
+  }
+
+  .tw-chat-breadcrumb-row .tw-chat-breadcrumb {
+    order: 1;
+    flex-direction: row-reverse;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .tw-chat-breadcrumb:hover {
+    color: var(--accent);
+  }
+
+  .tw-chat-breadcrumb .tw-bc-seg:not(.tw-bc-seg--active),
+    .tw-chat-breadcrumb .tw-bc-sep {
+    display: inline;
+  }
+
+  .tw-chat-breadcrumb .tw-bc-seg--active {
+    flex: 0 1 auto;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .tw-chat-breadcrumb .tw-bc-seg:not(.tw-bc-seg--active) {
+    flex: 0 0 auto;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .tw-chat-breadcrumb .tw-bc-back-icon {
+    color: var(--text-primary);
+  }
+
+  #toggle-room-list-btn {
+    display: none !important;
   }
 }
 

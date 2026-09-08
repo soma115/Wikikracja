@@ -16,7 +16,7 @@ const room_template = `
 <div id='room'>
 
   <div class="tw-chat-breadcrumb-row">
-    <div class="tw-chat-breadcrumb" id="chat-breadcrumb" aria-label="Lokalizacja"></div>
+    <div class="tw-chat-breadcrumb" id="chat-breadcrumb" role="button" tabindex="0" aria-label="${_("Show room list")}" aria-expanded="false" aria-controls="room-list"></div>
     <div class="tw-chat-sort-toolbar" id="chat-sort-toolbar" role="toolbar" aria-label="${_("Sorting and filter")}">
       <button type="button" class="tw-sort-btn tw-active" id="chat-sort-date" data-sort="date" data-order="desc">
         <i class="fas fa-clock fa-fw"></i>
@@ -31,9 +31,6 @@ const room_template = `
       <button type="button" class="tw-sort-btn" id="chat-filter-popular" data-filter="popular">
         <i class="fas fa-fire fa-fw"></i>
         <span>${_("Popular")}</span>
-      </button>
-      <button type="button" class="tw-sort-btn" id="toggle-room-list-btn" title="${_("Hide room list")}">
-        <i class="fas fa-angles-right"></i>
       </button>
     </div>
   </div>

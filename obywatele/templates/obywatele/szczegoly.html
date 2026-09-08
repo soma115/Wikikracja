@@ -74,8 +74,9 @@
             <div class="tw-progress tw-progress-thick tw-flex-1">
               <div class="tw-progress-bar {% if form_completion_percent == 100 %}tw-bg-success{% elif form_completion_percent >= 50 %}tw-bg-warning{% else %}tw-bg-danger{% endif %}"
                    role="progressbar"
+                   aria-label="{% trans 'Form completed' %}"
                    data-progress="{{ form_completion_percent }}"
-                   aria-valuenow="{{ form_completion_percent }}"
+                   aria-valuenow="0"
                    aria-valuemin="0"
                    aria-valuemax="100"></div>
             </div>
