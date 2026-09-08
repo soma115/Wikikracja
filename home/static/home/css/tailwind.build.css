@@ -9328,14 +9328,17 @@ body.tw-chat-page .tw-main-area {
     flex-direction: column;
   }
 
-  /* Mobile: room-list-showing overrides room-active — show list, hide messages */
+  /* Mobile: lista nad aktywnym pokojem jest szufladą 80% od prawej —
+       pokój zostaje pod spodem i wystaje po lewej (tap zamyka listę). */
 
   .tw-chat-rooms.tw-room-active.tw-room-list-showing .tw-room-list-col {
     display: flex !important;
-  }
-
-  .tw-chat-rooms.tw-room-active.tw-room-list-showing .tw-chat-root-messages {
-    display: none !important;
+    left: 20%;
+    width: 80% !important;
+    max-width: 80% !important;
+    flex: 0 0 80% !important;
+    border-left: 1px solid var(--border);
+    box-shadow: var(--shadow-overlay);
   }
 
   /* Mobile: when no room active, hide message area */

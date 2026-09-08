@@ -496,6 +496,19 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!bc) return;
         if (mobileMedia.matches) navigateToRoomList();
     });
+
+    // Tap-to-close: przy rozwiniętej liście (szuflada 80% od prawej) klik
+    // w odsłonięty pasek pokoju po lewej zamyka listę. Capture — przechwytuje
+    // klik zanim zadziałają linki/przyciski/podgląd obrazków pod spodem.
+    document.addEventListener('click', (e) => {
+        if (!mobileMedia.matches) return;
+        if (!chatRoomsEl?.classList.contains('tw-room-list-showing')) return;
+        if (!e.target.closest('.tw-chat-root-messages')) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const roomId = getCurrentRoomId();
+        if (roomId != null) navigateToRoom(roomId);
+    }, true);
     document.addEventListener('keydown', (e) => {
         if (e.key !== 'Enter' && e.key !== ' ') return;
         const bc = closestBreadcrumb(e.target);
