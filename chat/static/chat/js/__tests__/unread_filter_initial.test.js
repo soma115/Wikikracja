@@ -3,9 +3,11 @@
  *
  * Testy inicjalizacji filtra nieprzeczytanych pokoi przy wejściu na czat:
  *   - jeśli nie ma nieprzeczytanych pokoi, filtr wyłącza się automatycznie
- *     (niezależnie od localStorage/URL),
+ *     (niezależnie od intencji w URL),
  *   - gdy filtr jest aktywny, kategorie i archiwa z nieprzeczytanymi
- *     pokojami rozwijają się automatycznie.
+ *     pokojami rozwijają się automatycznie,
+ *   - stan filtra NIE jest persystowany w localStorage — każde wejście
+ *     na stronę startuje z filtrem wyłączonym (chyba że URL prosi o niego).
  *
  * Kontrakt z chat.js (synchronizować przy zmianie — funkcje kopiowane 1:1).
  */
@@ -128,10 +130,8 @@ function setUnreadFilter(wantedActive) {
     isUnreadFilterActive = active;
     document.getElementById('unread-filter-btn')?.classList.toggle('tw-active', active);
     if (active) {
-        localStorage.setItem('chat-unread-filter', 'active');
         applyUnreadFilter();
     } else {
-        localStorage.removeItem('chat-unread-filter');
         removeUnreadFilter();
     }
 }
@@ -196,8 +196,7 @@ afterEach(() => {
 
 describe('setUnreadFilter — auto-wyłączenie przy braku nieprzeczytanych', () => {
 
-    test('przywrócony filtr z localStorage wyłącza się, gdy nie ma nieprzeczytanych', () => {
-        localStorage.setItem('chat-unread-filter', 'active');
+    test('filtr włączany przez URL wyłącza się, gdy nie ma nieprzeczytanych', () => {
         document.body.innerHTML = `
             <button id="unread-filter-btn" class="tw-active"></button>
             <div id="room-list">
@@ -212,7 +211,6 @@ describe('setUnreadFilter — auto-wyłączenie przy braku nieprzeczytanych', ()
 
         expect(isUnreadFilterActive).toBe(false);
         expect(document.getElementById('unread-filter-btn').classList.contains('tw-active')).toBe(false);
-        expect(localStorage.getItem('chat-unread-filter')).toBeNull();
         expect($$('.tw-room-link--filtered-out').length).toBe(0);
         expect(document.getElementById('chat-no-unread-empty-state')).toBeNull();
     });
@@ -246,7 +244,8 @@ describe('setUnreadFilter — auto-wyłączenie przy braku nieprzeczytanych', ()
         expect(isUnreadFilterActive).toBe(true);
         expect(document.getElementById('unread-filter-btn').classList.contains('tw-active')).toBe(true);
         expect(document.getElementById('chat-no-unread-empty-state')).not.toBeNull();
-        expect(localStorage.getItem('chat-unread-filter')).toBe('active');
+        // Filtr nie jest persystowany — stan żyje tylko w sesji strony.
+        expect(localStorage.getItem('chat-unread-filter')).toBeNull();
     });
 });
 

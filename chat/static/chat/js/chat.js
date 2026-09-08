@@ -205,7 +205,7 @@ function decideUnreadFilterOverride({ urlFilter, isActive, userToggled }) {
     // Reczna decyzja usera jest ostateczna — nie nadpisujemy jej intencja z URL.
     if (userToggled) return 'none';
     if (urlFilter === 'on' && !isActive) return 'enable';
-    // Nie wyłączamy filtra dla urlFilter === 'off' — pozwalamy na przywracanie z localStorage
+    if (urlFilter === 'off' && isActive) return 'disable';
     return 'none';
 }
 
@@ -295,16 +295,14 @@ function expandCategoriesForUnreadRooms() {
 function setUnreadFilter(wantedActive) {
     // Gdy użytkownik nie zdecydował ręcznie i nie ma nieprzeczytanych,
     // wymuszamy wyłączenie filtra — nie ma sensu pokazywać pustego stanu
-    // przy wejściu na stronę przez localStorage/URL.
+    // przy wejściu na stronę przez URL.
     const unreadCount = getUnreadRoomLinks().length;
     const active = wantedActive && (unreadCount > 0 || userToggledFilter);
     isUnreadFilterActive = active;
     document.getElementById('unread-filter-btn')?.classList.toggle('tw-active', active);
     if (active) {
-        localStorage.setItem('chat-unread-filter', 'active');
         applyUnreadFilter();
     } else {
-        localStorage.removeItem('chat-unread-filter');
         removeUnreadFilter();
     }
 }
@@ -705,15 +703,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle unread filter functionality
     const unreadFilterBtn = $('#unread-filter-btn');
 
-    // Restore filter state from localStorage. URL params bija zapisany stan:
+    // Filtr nie jest persystowany — domyślnie wyłączony. Stan usuwamy
+    // z poprzednich sesji, a włącza go wyłącznie intencja z URL:
     //   ?view=unread  -> wymuszamy filtr ON  (dashboard badge; ?unread=1 to legacy alias)
     // Robimy to juz tu (nie tylko przy otwarciu WS), zeby unikac wizualnego migniecia.
+    localStorage.removeItem('chat-unread-filter');
     const initialParams = new URLSearchParams(location.search);
     const initialView = initialParams.get('view');
     const wantsUnreadStart = initialView === 'unread' || initialParams.get('unread') === '1';
-    const savedFilterState = localStorage.getItem('chat-unread-filter');
-    const shouldRestoreFilter = wantsUnreadStart || savedFilterState === 'active';
-    if (shouldRestoreFilter) {
+    if (wantsUnreadStart) {
         // setUnreadFilter sam zdecyduje, czy filtr ma sens:
         // przy braku nieprzeczytanych pokoi wyłącza się automatycznie.
         setUnreadFilter(true);

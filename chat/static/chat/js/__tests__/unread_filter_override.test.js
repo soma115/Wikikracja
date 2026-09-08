@@ -11,9 +11,9 @@
  *     DOMContentLoaded, user zdejmuje go zanim trasa zostanie zastosowana,
  *     a asynchroniczny syncRouteFromInitial (czytajace wciaz obecny
  *     ?view=unread) wlacza filtr z powrotem — "filtr wraca po odkliknieciu".
- *   - Bez recznego klikniecia: 'on' + filtr nieaktywny -> 'enable'.
- *   - 'off' NIGDY nie wylacza filtra — zapisana preferencja localStorage
- *     ma priorytet; ?view=rooms nie kasuje zapisanego filtra nieprzeczytanych.
+ *   - Bez recznego klikniecia: 'on' + filtr nieaktywny -> 'enable',
+ *     'off' + filtr aktywny -> 'disable' — ?view=rooms deklaratywnie prosi
+ *     o liste bez filtra (stan filtra nie jest juz persystowany).
  *   - W pozostalych przypadkach -> 'none' (nic nie zmieniamy).
  */
 
@@ -23,7 +23,7 @@ function decideUnreadFilterOverride({ urlFilter, isActive, userToggled }) {
     // Reczna decyzja usera jest ostateczna — nie nadpisujemy jej intencja z URL.
     if (userToggled) return 'none';
     if (urlFilter === 'on' && !isActive) return 'enable';
-    // Nie wyłączamy filtra dla urlFilter === 'off' — pozwalamy na przywracanie z localStorage
+    if (urlFilter === 'off' && isActive) return 'disable';
     return 'none';
 }
 
@@ -59,9 +59,9 @@ describe('bez recznego klikniecia stosujemy intencje z URL', () => {
         expect(decideUnreadFilterOverride({ urlFilter: 'on', isActive: false, userToggled: false })).toBe('enable');
     });
 
-    test('?view=rooms + filtr aktywny -> none (filtr z localStorage zostaje)', () => {
-        // Swiadoma decyzja: ?view=rooms nie kasuje zapisanego filtra nieprzeczytanych.
-        expect(decideUnreadFilterOverride({ urlFilter: 'off', isActive: true, userToggled: false })).toBe('none');
+    test('?view=rooms + filtr aktywny -> disable (lista bez filtra)', () => {
+        // ?view=rooms deklaratywnie prosi o liste pokoi bez filtra unread.
+        expect(decideUnreadFilterOverride({ urlFilter: 'off', isActive: true, userToggled: false })).toBe('disable');
     });
 
     test('?view=unread + filtr juz aktywny -> none (nic do zrobienia)', () => {
