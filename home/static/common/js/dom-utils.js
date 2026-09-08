@@ -70,6 +70,50 @@
         }
     };
 
+    /**
+     * Positions `floating` next to `target` for the given placement
+     * ('top'|'bottom'|'left'|'right'), clamped to the viewport.
+     * Shared by tw-tooltip.js and tw-popover.js — called at show time, so the
+     * load order of the component scripts does not matter.
+     */
+    window.positionFloating = function positionFloating(target, floating, placement, margin) {
+        margin = margin || 8;
+        const rect = target.getBoundingClientRect();
+        const fRect = floating.getBoundingClientRect();
+        const scrollX = window.scrollX || window.pageXOffset;
+        const scrollY = window.scrollY || window.pageYOffset;
+        let top = 0;
+        let left = 0;
+
+        if (placement === 'top') {
+            top = rect.top + scrollY - fRect.height - margin;
+            left = rect.left + scrollX + (rect.width - fRect.width) / 2;
+        } else if (placement === 'bottom') {
+            top = rect.bottom + scrollY + margin;
+            left = rect.left + scrollX + (rect.width - fRect.width) / 2;
+        } else if (placement === 'left') {
+            top = rect.top + scrollY + (rect.height - fRect.height) / 2;
+            left = rect.left + scrollX - fRect.width - margin;
+        } else if (placement === 'right') {
+            top = rect.top + scrollY + (rect.height - fRect.height) / 2;
+            left = rect.right + scrollX + margin;
+        }
+
+        const pad = 4;
+        if (left < pad) left = pad;
+        if (left + fRect.width > window.innerWidth - pad) {
+            left = window.innerWidth - fRect.width - pad;
+        }
+        if (top < scrollY + pad) top = scrollY + pad;
+        if (top + fRect.height > scrollY + window.innerHeight - pad) {
+            top = scrollY + window.innerHeight - fRect.height - pad;
+        }
+
+        floating.style.top = top + 'px';
+        floating.style.left = left + 'px';
+        floating.dataset.twPlacement = placement;
+    };
+
     /** Classic debounce: delays fn until `ms` after the last call. */
     window.debounce = function debounce(fn, ms) {
         let timer = null;

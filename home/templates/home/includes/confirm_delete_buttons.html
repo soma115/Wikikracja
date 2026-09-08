@@ -1,11 +1,13 @@
 {% load i18n %}
-{# Shared Delete/Cancel button pair for confirm-delete forms.
-   Params:
-     cancel_url    - required, URL of the cancel link
-     confirm_label - optional, submit label (default: 'Delete')
-     cancel_label  - optional, cancel label (default: 'Cancel')
-     btn_sm        - truthy → smaller buttons (tw-btn-sm)
-     cancel_first  - truthy → renders cancel link before the submit button #}
+{% comment %}
+Shared Delete/Cancel button pair for confirm-delete forms.
+Params:
+  cancel_url    - required, URL of the cancel link
+  confirm_label - optional, submit label (default: 'Delete')
+  cancel_label  - optional, cancel label (default: 'Cancel')
+  btn_sm        - truthy → smaller buttons (tw-btn-sm)
+  cancel_first  - truthy → renders cancel link before the submit button
+{% endcomment %}
 {% if cancel_first %}
 <a href="{{ cancel_url }}" class="tw-btn tw-btn-secondary{% if btn_sm %} tw-btn-sm{% endif %}">
   <i class="fas fa-times fa-fw tw-me-1"></i>{% if cancel_label %}{{ cancel_label }}{% else %}{% trans "Cancel" %}{% endif %}

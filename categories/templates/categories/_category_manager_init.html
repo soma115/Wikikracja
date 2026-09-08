@@ -1,11 +1,13 @@
 {% load i18n %}
-{# Shared initCategoryManager() call — pairs with categories/_category_modal.html.
-   Params:
-     list_url     - base API url for the category collection (required)
-     reorder_url  - API url for reorder (required)
-     with_items   - truthy → enables the items endpoint (list_url + '/{pk}/items/')
-     items_suffix - label for the item-count badge (e.g. 'documents')
-     confirm_del  - delete-confirmation message containing '{n}' #}
+{% comment %}
+Shared initCategoryManager() call — pairs with categories/_category_modal.html.
+Params:
+  list_url     - base API url for the category collection (required)
+  reorder_url  - API url for reorder (required)
+  with_items   - truthy → enables the items endpoint (list_url + '/{pk}/items/')
+  items_suffix - label for the item-count badge (e.g. 'documents')
+  confirm_del  - delete-confirmation message containing '{n}'
+{% endcomment %}
 <script>
 window.initCategoryManager('manageCategoriesModal', {
   list:    '{{ list_url }}',

@@ -6,6 +6,7 @@
  */
 
 function loadComponents() {
+  require('../dom-utils.js');
   require('../tw-collapse.js');
   require('../tw-dropdown.js');
   require('../tw-modal.js');

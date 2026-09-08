@@ -667,6 +667,21 @@ window.initActivityFeedMarkRead = function(containerSelector, linkSelector) {
     });
 };
 
+// Aktualizuje licznik "(n)" w toolbarze filtrów; ukrywa badge przy 0.
+function updateCountBadge(selector, delta) {
+    var counter = document.querySelector(selector);
+    if (!counter) return;
+    var current = parseInt(counter.textContent.replace(/[()]/g, ''), 10) || 0;
+    var next = Math.max(0, current + delta);
+    if (next === 0) {
+        counter.textContent = '';
+        counter.classList.add('tw-d-none');
+    } else {
+        counter.textContent = '(' + next + ')';
+        counter.classList.remove('tw-d-none');
+    }
+}
+
 // ============================================================
 // Toggle activity feed items read/unread - small per-row control
 // ============================================================
@@ -738,19 +753,7 @@ window.initActivityFeedToggleRead = function(containerSelector) {
             }
 
             // Update unread counter badge in the filter toolbar
-            var counter = document.querySelector('#unread-count-badge');
-            if (counter) {
-                var current = parseInt(counter.textContent.replace(/[()]/g, ''), 10) || 0;
-                var delta = newRead ? -1 : 1;
-                var next = Math.max(0, current + delta);
-                if (next === 0) {
-                    counter.textContent = '';
-                    counter.classList.add('tw-d-none');
-                } else {
-                    counter.textContent = '(' + next + ')';
-                    counter.classList.remove('tw-d-none');
-                }
-            }
+            updateCountBadge('#unread-count-badge', newRead ? -1 : 1);
         });
     }
 
@@ -818,18 +821,7 @@ window.initActivityFeedToggleBookmark = function(containerSelector) {
                 return;
             }
 
-            var counter = document.querySelector('#bookmark-count-badge');
-            if (counter) {
-                var current = parseInt(counter.textContent.replace(/[()]/g, ''), 10) || 0;
-                var next = Math.max(0, current + (isBookmarked ? 1 : -1));
-                if (next === 0) {
-                    counter.textContent = '';
-                    counter.classList.add('tw-d-none');
-                } else {
-                    counter.textContent = '(' + next + ')';
-                    counter.classList.remove('tw-d-none');
-                }
-            }
+            updateCountBadge('#bookmark-count-badge', isBookmarked ? 1 : -1);
         });
     }
 

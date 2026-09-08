@@ -16,10 +16,8 @@
     var newTitle = isActive ? btn.dataset.tooltipActive : btn.dataset.tooltipInactive;
     if (newTitle) {
       btn.setAttribute('title', newTitle);
-      if (typeof TwTooltip !== 'undefined') {
-        var tip = TwTooltip.getInstance(btn);
-        if (tip) { tip.dispose(); new TwTooltip(btn, { trigger: 'hover' }); }
-      }
+      var tip = typeof TwTooltip !== 'undefined' && TwTooltip.getOrCreateInstance(btn, { trigger: 'hover' });
+      if (tip) tip.setTitle(newTitle);
     }
   }
 
@@ -61,12 +59,11 @@
     e.stopPropagation();
 
     var value = parseInt(form.querySelector('input[name="value"]').value, 10);
-    var csrf = form.querySelector('[name="csrfmiddlewaretoken"]').value;
 
     window.apiFetch(form.action, {
       method: 'POST',
       headers: { 'X-Requested-With': 'XMLHttpRequest' },
-      body: new URLSearchParams({ value: value, csrfmiddlewaretoken: csrf }),
+      body: new URLSearchParams({ value: value }),
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
@@ -142,15 +139,6 @@
       form.action = '/tasks/' + window.TASK_ID + '/toggle/' + user.id + '/';
       form.dataset.userId = user.id;
 
-      var csrf = document.querySelector('[name="csrfmiddlewaretoken"]');
-      if (csrf) {
-        var csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = 'csrfmiddlewaretoken';
-        csrfInput.value = csrf.value;
-        form.appendChild(csrfInput);
-      }
-
       var label = document.createElement('label');
       label.className = 'tw-helper-switch';
       label.title = i18n.approve_for_team || 'Approve for team';
@@ -219,13 +207,10 @@
     e.preventDefault();
     e.stopPropagation();
 
-    var csrf = form.querySelector('[name="csrfmiddlewaretoken"]');
-    if (!csrf) return;
-
     window.apiFetch(action, {
       method: 'POST',
       headers: { 'X-Requested-With': 'XMLHttpRequest' },
-      body: new URLSearchParams({ csrfmiddlewaretoken: csrf.value }),
+      body: new URLSearchParams(),
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
@@ -255,10 +240,8 @@
     if (el.tagName === 'A' && user.profile_url) el.href = user.profile_url;
     if (el.dataset.coordTitle) {
       el.title = el.dataset.coordTitle + user.username;
-      if (typeof TwTooltip !== 'undefined') {
-        var tip = TwTooltip.getInstance(el);
-        if (tip) { tip.dispose(); new TwTooltip(el, { trigger: 'hover' }); }
-      }
+      var tip = typeof TwTooltip !== 'undefined' && TwTooltip.getOrCreateInstance(el, { trigger: 'hover' });
+      if (tip) tip.setTitle(el.title);
     }
   }
 
@@ -357,13 +340,10 @@
     e.preventDefault();
     e.stopPropagation();
 
-    var csrf = form.querySelector('[name="csrfmiddlewaretoken"]');
-    if (!csrf) return;
-
     window.apiFetch(form.action, {
       method: 'POST',
       headers: { 'X-Requested-With': 'XMLHttpRequest' },
-      body: new URLSearchParams({ csrfmiddlewaretoken: csrf.value }),
+      body: new URLSearchParams(),
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {

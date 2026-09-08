@@ -388,38 +388,21 @@ export class Lock {
 }
 
 /**
- * Asynchronously gets the dimensions of an image
- * @param {string} src - Image URL
- * @returns {Promise<{w: number, h: number}>} - Promise resolving to width and height
- */
-export async function getImageSize(src) {
-    const img = new Image();
-    return new Promise((resolve, reject) => {
-        img.onload = function() {
-            resolve({ w: this.width, h: this.height });
-        }
-        img.src = src;
-    })
-}
-
-/**
  * Parses a query string into an object
  * @param {string} str - Query string (e.g., "key1=value1&key2=value2")
  * @returns {Object.<string, string>} - Parsed key-value pairs (decoded)
  */
 export function parseParms(str) {
-    let pieces = str.split("&"),
-        data = {},
-        i, parts;
-    // process each query pair
-    for (i = 0; i < pieces.length; i++) {
-        parts = pieces[i].split("=");
-        if (parts.length < 2) {
-            parts.push("");
-        }
-        data[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
-    }
-    return data;
+    return Object.fromEntries(new URLSearchParams(str));
+}
+
+/**
+ * HTML for a chat date separator banner.
+ * @param {string} dateStr - Pre-formatted date label (formatDate output)
+ * @returns {string}
+ */
+export function dateBannerHtml(dateStr) {
+    return `<div class="tw-date-banner">${dateStr}</div>`;
 }
 
 /**
@@ -447,17 +430,8 @@ export function setCaretPosition(elem, caretPos) {
     if (elem == null) {
         return
     }
-
-    if (elem.createTextRange) {
-        var range = elem.createTextRange();
-        range.move('character', caretPos);
-        range.select();
-    } else {
-        if (elem.selectionStart) {
-            elem.focus();
-            elem.setSelectionRange(caretPos, caretPos);
-        } else {
-            elem.focus();
-        }
+    elem.focus();
+    if ('selectionStart' in elem) {
+        elem.setSelectionRange(caretPos, caretPos);
     }
 }

@@ -150,44 +150,7 @@
   };
 
   TwPopover.prototype._position = function () {
-    const popover = this._popper;
-    const el = this._element;
-    const rect = el.getBoundingClientRect();
-    const popRect = popover.getBoundingClientRect();
-    const margin = 8;
-    const placement = this._config.placement;
-    const scrollX = window.scrollX || window.pageXOffset;
-    const scrollY = window.scrollY || window.pageYOffset;
-    let top = 0;
-    let left = 0;
-
-    if (placement === 'top') {
-      top = rect.top + scrollY - popRect.height - margin;
-      left = rect.left + scrollX + (rect.width - popRect.width) / 2;
-    } else if (placement === 'bottom') {
-      top = rect.bottom + scrollY + margin;
-      left = rect.left + scrollX + (rect.width - popRect.width) / 2;
-    } else if (placement === 'left') {
-      top = rect.top + scrollY + (rect.height - popRect.height) / 2;
-      left = rect.left + scrollX - popRect.width - margin;
-    } else if (placement === 'right') {
-      top = rect.top + scrollY + (rect.height - popRect.height) / 2;
-      left = rect.right + scrollX + margin;
-    }
-
-    const pad = 4;
-    if (left < pad) left = pad;
-    if (left + popRect.width > window.innerWidth - pad) {
-      left = window.innerWidth - popRect.width - pad;
-    }
-    if (top < scrollY + pad) top = scrollY + pad;
-    if (top + popRect.height > scrollY + window.innerHeight - pad) {
-      top = scrollY + window.innerHeight - popRect.height - pad;
-    }
-
-    popover.style.top = top + 'px';
-    popover.style.left = left + 'px';
-    popover.dataset.twPlacement = placement;
+    window.positionFloating(this._element, this._popper, this._config.placement);
   };
 
   TwPopover.prototype.show = function () {

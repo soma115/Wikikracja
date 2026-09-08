@@ -10,6 +10,7 @@ import {
     $,
     $$,
     _,
+    dateBannerHtml,
     formatTime,
     removeNotification,
     setCaretPosition
@@ -203,6 +204,19 @@ export default class DomApi {
     getLastMessageBanner() {
         const messagesDiv = this.getMessagesDiv();
         return messagesDiv ? $$('.tw-date-banner', messagesDiv) : [];
+    }
+
+    lastDateBannerText() {
+        const banners = this.getLastMessageBanner();
+        return banners.length ? banners[banners.length - 1].textContent : null;
+    }
+
+    /** Appends a date banner when `dateStr` differs from the last one shown. */
+    appendDateBanner(dateStr) {
+        const messagesDiv = this.getMessagesDiv();
+        if (messagesDiv && this.lastDateBannerText() !== dateStr) {
+            messagesDiv.insertAdjacentHTML('beforeend', dateBannerHtml(dateStr));
+        }
     }
 
     getMessageText(message_id) {

@@ -14,7 +14,7 @@
     <a href="{% url 'account_signup' %}" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-user-plus fa-fw tw-me-1"></i>{% trans 'Sign Up' %}</a>
     {% endif %}
     <a href="{% url 'password_reset' %}" class="tw-btn tw-btn-outline-secondary tw-btn-sm"><i class="fas fa-key fa-fw tw-me-1"></i>{% trans 'Reset password' %}</a>
-    <a href="https://wikikracja.pl/kontakt/" target="_blank" class="tw-btn tw-btn-outline-secondary tw-btn-sm"><i class="fas fa-paper-plane fa-fw tw-me-1"></i>{% trans 'Message developer' %}</a>
+    <a href="https://wikikracja.pl/kontakt/" target="_blank" rel="noopener" class="tw-btn tw-btn-outline-secondary tw-btn-sm"><i class="fas fa-paper-plane fa-fw tw-me-1"></i>{% trans 'Message developer' %}</a>
   </div>
 
   <h4 class="tw-section-heading tw-mb-3">{% trans "Platform modules" %}</h4>
@@ -499,8 +499,6 @@
 </script>
 
 {% endif %}
-
-<script>
 
 <script>
 // Zachowaj kategorie/sortowanie z zadań przy kliku "Wszystkie moje zadania"

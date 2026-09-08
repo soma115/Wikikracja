@@ -82,45 +82,16 @@
   };
 
   TwTooltip.prototype._position = function () {
-    const tip = this._tip;
-    const el = this._element;
-    const rect = el.getBoundingClientRect();
-    const tipRect = tip.getBoundingClientRect();
-    const margin = 8;
-    const placement = this._config.placement;
-    const scrollX = window.scrollX || window.pageXOffset;
-    const scrollY = window.scrollY || window.pageYOffset;
-    let top = 0;
-    let left = 0;
+    window.positionFloating(this._element, this._tip, this._config.placement);
+  };
 
-    if (placement === 'top') {
-      top = rect.top + scrollY - tipRect.height - margin;
-      left = rect.left + scrollX + (rect.width - tipRect.width) / 2;
-    } else if (placement === 'bottom') {
-      top = rect.bottom + scrollY + margin;
-      left = rect.left + scrollX + (rect.width - tipRect.width) / 2;
-    } else if (placement === 'left') {
-      top = rect.top + scrollY + (rect.height - tipRect.height) / 2;
-      left = rect.left + scrollX - tipRect.width - margin;
-    } else if (placement === 'right') {
-      top = rect.top + scrollY + (rect.height - tipRect.height) / 2;
-      left = rect.right + scrollX + margin;
+  /** Updates the tooltip text without recreating the instance. */
+  TwTooltip.prototype.setTitle = function (title) {
+    this._title = title || '';
+    this._element.dataset.twTitle = this._title;
+    if (this._tip) {
+      this._tip.querySelector('.tw-tooltip-inner').textContent = this._title;
     }
-
-    // keep inside viewport
-    const pad = 4;
-    if (left < pad) left = pad;
-    if (left + tipRect.width > window.innerWidth - pad) {
-      left = window.innerWidth - tipRect.width - pad;
-    }
-    if (top < scrollY + pad) top = scrollY + pad;
-    if (top + tipRect.height > scrollY + window.innerHeight - pad) {
-      top = scrollY + window.innerHeight - tipRect.height - pad;
-    }
-
-    tip.style.top = top + 'px';
-    tip.style.left = left + 'px';
-    tip.dataset.twPlacement = placement;
   };
 
   TwTooltip.prototype.show = function () {

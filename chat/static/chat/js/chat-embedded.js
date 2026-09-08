@@ -9,7 +9,7 @@
 
 import { clearReplyTarget, createEditHandler, createImageClickHandler, createQuoteJumpHandler, createReactionHandler, createReplyHandler, createVoteHandler, formatMessage, getInputHtml, handleEnterKey, initFormattingToolbar, initGlobalPasteImageHandler, insertPlainTextAtCaret, setReplyTarget, updateCounter, uploadFiles, voteButtonTitle } from './chat-core.js';
 import { Message } from './templates.js';
-import { _, formatDate, formatTime } from './utility.js';
+import { _, dateBannerHtml, formatDate, formatTime } from './utility.js';
 import { getSharedWebSocket } from './websocket-manager.js';
 
 /**
@@ -108,7 +108,7 @@ async function initEmbeddedChat(container) {
         const dateStr = formatDate(msg.timestamp);
         if (dateStr !== lastDateBanner) {
             lastDateBanner = dateStr;
-            messagesEl.insertAdjacentHTML('beforeend', `<div class="tw-date-banner">${dateStr}</div>`);
+            messagesEl.insertAdjacentHTML('beforeend', dateBannerHtml(dateStr));
         }
 
         const html = Message({

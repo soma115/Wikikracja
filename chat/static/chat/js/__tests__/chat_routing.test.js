@@ -18,17 +18,7 @@
 // ── wierne kopie z utility.js / chat.js (synchronizowac przy zmianie!) ────────
 
 function parseParms(str) {
-    let pieces = str.split("&"),
-        data = {},
-        i, parts;
-    for (i = 0; i < pieces.length; i++) {
-        parts = pieces[i].split("=");
-        if (parts.length < 2) {
-            parts.push("");
-        }
-        data[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
-    }
-    return data;
+    return Object.fromEntries(new URLSearchParams(str));
 }
 
 function parseChatLocation({ search = '', hash = '' } = {}) {

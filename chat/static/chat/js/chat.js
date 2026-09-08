@@ -7,7 +7,7 @@
 import { clearReplyTarget as coreClearReplyTarget, setReplyTarget as coreSetReplyTarget, voteButtonTitle } from './chat-core.js';
 import DomApi from './domapi.js';
 import { MessageHistory } from './templates.js';
-import { $, $$, _, formatDate, formatDateTime, Lock, mobileMedia, parseParms } from './utility.js';
+import { $, $$, _, dateBannerHtml, formatDate, formatDateTime, Lock, mobileMedia, parseParms } from './utility.js';
 import WsApi from './wsapi.js';
 
 /**
@@ -976,12 +976,7 @@ export async function onReceiveMessages(messages) {
             }
         }
 
-        const current_banner = formatDate(message.timestamp);
-        const banners = DOM_API.getLastMessageBanner();
-        const previous_banner = banners.length ? banners[banners.length - 1].textContent : null;
-        if (previous_banner != current_banner) {
-            msgdiv.insertAdjacentHTML('beforeend', `<div class='tw-date-banner'>${current_banner}</div>`);
-        }
+        DOM_API.appendDateBanner(formatDate(message.timestamp));
         DOM_API.addMessage(
             message.room_id, message.user_id ?? null, message.avatar_url ?? null, message.citizen_color_class ?? '', message.message_id, message.username, message.message,
             message.upvotes, message.downvotes, message.your_vote, message.own, message.edited,
@@ -998,13 +993,12 @@ export async function onReceiveMessages(messages) {
     } else {
         // Batch load (join room) — build all HTML at once, single DOM insertion
         let batchHtml = '';
-        let lastBannerText = DOM_API.getLastMessageBanner();
-        lastBannerText = lastBannerText.length ? lastBannerText[lastBannerText.length - 1].textContent : null;
+        let lastBannerText = DOM_API.lastDateBannerText();
 
         for (const message of messages) {
             const current_banner = formatDate(message.timestamp);
             if (current_banner !== lastBannerText) {
-                batchHtml += `<div class='tw-date-banner'>${current_banner}</div>`;
+                batchHtml += dateBannerHtml(current_banner);
                 lastBannerText = current_banner;
             }
             batchHtml += DOM_API.buildMessageHtml(
@@ -1381,12 +1375,7 @@ export async function onSubmitMessage(message, editing_message_id) {
 
         DOM_API.removeNoMessagesBanner();
         const msgdiv = DOM_API.getMessagesDiv();
-        const current_banner = formatDate(now);
-        const banners = DOM_API.getLastMessageBanner();
-        const previous_banner = banners.length ? banners[banners.length - 1].textContent : null;
-        if (previous_banner !== current_banner && msgdiv) {
-            msgdiv.insertAdjacentHTML('beforeend', `<div class='tw-date-banner'>${current_banner}</div>`);
-        }
+        DOM_API.appendDateBanner(formatDate(now));
 
         DOM_API.addMessage(
             CurrentRoomId, null, null, '', temp_id, ownUsername, message,
