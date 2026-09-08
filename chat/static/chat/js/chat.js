@@ -209,6 +209,11 @@ function decideUnreadFilterOverride({ urlFilter, isActive, userToggled }) {
     return 'none';
 }
 
+/** Zwraca linki pokoi z nieprzeczytanymi wiadomościami — źródło prawdy dla filtra. */
+function getUnreadRoomLinks() {
+    return $$('.tw-room-link.tw-room-link--not-seen[data-room-id]');
+}
+
 function applyUnreadFilter() {
     // Filter rooms - show only unread using CSS class
     const allRoomLinks = $$('.tw-room-link[data-room-id]');
@@ -221,11 +226,18 @@ function applyUnreadFilter() {
         }
     });
     // Empty state w prawej kolumnie — zawsze gdy filtr daje 0 wynikow
-    const unreadCount = $$('.tw-room-link.tw-room-link--not-seen[data-room-id]').length;
+    const unreadCount = getUnreadRoomLinks().length;
     if (unreadCount === 0) {
         showUnreadEmptyState();
     } else {
         hideUnreadEmptyState();
+        // Gdy filtr pokazuje nieprzeczytane, rozwijamy kategorie i archiwa,
+        // żeby pokoje nie były niewidoczne przez zwiniętą sekcję.
+        // Najpierw synchronicznie (sort wg aktywności musi widzieć widoczne
+        // archiwa), potem w następnej klatce (po handlers.js wczytującym
+        // lokalne preferencje zwinięcia kategorii).
+        expandCategoriesForUnreadRooms();
+        scheduleExpandCategoriesForUnreadRooms();
     }
 }
 
@@ -244,7 +256,48 @@ function updateUnreadFilter() {
     }
 }
 
-function setUnreadFilter(active) {
+/**
+ * Harmonogramuje rozwinięcie kategorii w następnej klatki animacji.
+ * Fallback od razu dla środowisk bez requestAnimationFrame (testy jsdom).
+ */
+function scheduleExpandCategoriesForUnreadRooms() {
+    if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(expandCategoriesForUnreadRooms);
+    } else {
+        expandCategoriesForUnreadRooms();
+    }
+}
+
+/**
+ * Rozwija kategorie i archiwa zawierające nieprzeczytane pokoje.
+ * Nie zapisuje stanu w localStorage — to tymczasowa akcja dla filtra,
+ * aby nieprzeczytane pokoje były widoczne nawet gdy user wcześniej
+ * zwinał daną kategorię.
+ */
+function expandCategoriesForUnreadRooms() {
+    const unreadLinks = getUnreadRoomLinks();
+    for (const roomLink of unreadLinks) {
+        const navCatContent = roomLink.closest('.tw-chat-cat-content');
+        if (navCatContent && !navCatContent.classList.contains('tw-open')) {
+            navCatContent.classList.add('tw-open');
+            const catId = navCatContent.id;
+            const catBtn = catId ? document.querySelector(`[data-cat-content="${catId}"]`) : null;
+            if (catBtn) catBtn.setAttribute('aria-expanded', 'true');
+        }
+
+        const archiveSection = roomLink.closest('.tw-archive-section');
+        if (archiveSection) {
+            archiveSection.classList.add('tw-visible');
+        }
+    }
+}
+
+function setUnreadFilter(wantedActive) {
+    // Gdy użytkownik nie zdecydował ręcznie i nie ma nieprzeczytanych,
+    // wymuszamy wyłączenie filtra — nie ma sensu pokazywać pustego stanu
+    // przy wejściu na stronę przez localStorage/URL.
+    const unreadCount = getUnreadRoomLinks().length;
+    const active = wantedActive && (unreadCount > 0 || userToggledFilter);
     isUnreadFilterActive = active;
     document.getElementById('unread-filter-btn')?.classList.toggle('tw-active', active);
     if (active) {
@@ -661,9 +714,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedFilterState = localStorage.getItem('chat-unread-filter');
     const shouldRestoreFilter = wantsUnreadStart || savedFilterState === 'active';
     if (shouldRestoreFilter) {
-        isUnreadFilterActive = true;
-        unreadFilterBtn?.classList.add('tw-active');
-        applyUnreadFilter();
+        // setUnreadFilter sam zdecyduje, czy filtr ma sens:
+        // przy braku nieprzeczytanych pokoi wyłącza się automatycznie.
+        setUnreadFilter(true);
     }
 
     unreadFilterBtn?.addEventListener('click', () => {

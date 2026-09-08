@@ -37,7 +37,10 @@
   <div class="tw-card">
     <div class="tw-activity-list tw-proposals-list" id="activity-list" data-view-container>
       {% for item in feed_items %}
-      <a href="{{ item.url }}" class="tw-feed-row {% if not item.is_read %}tw-unread-row{% endif %}" data-content-type="{{ item.content_type }}" data-object-id="{{ item.object_id }}">
+      <div class="tw-feed-row {% if not item.is_read %}tw-unread-row{% endif %}"
+           data-url="{{ item.url }}"
+           data-content-type="{{ item.content_type }}"
+           data-object-id="{{ item.object_id }}">
 
         <span class="tw-badge-status tw-badge-{{ item.content_type|content_type_color }} tw-shrink-0 tw-mt-1 tw-badge-status-xs">
           {{ item.content_type|content_type_label }}
@@ -45,7 +48,7 @@
 
         <div class="tw-min-w-0 tw-flex-1">
           <div class="tw-feed-title {% if not item.is_read %}tw-font-semibold{% endif %}">
-            <span class="tw-feed-title-text">{{ item.title }}</span>
+            <a href="{{ item.url }}" class="tw-feed-title-text tw-text-primary-link">{{ item.title }}</a>
             <time class="tw-feed-timestamp tw-text-xs tw-text-muted tw-text-nowrap">{{ item.timestamp|date:"d.m H:i" }}</time>
             {% if item.author %}
             <span class="tw-feed-author tw-inline-flex tw-items-center tw-gap-1 tw-text-xs tw-text-muted">
@@ -58,6 +61,7 @@
             <span class="tw-feed-toggle"
                   role="button"
                   tabindex="0"
+                  data-action="bookmark"
                   data-content-type="{{ item.content_type }}"
                   data-object-id="{{ item.object_id }}"
                   data-is-bookmarked="{{ item.is_bookmarked|yesno:"true,false" }}"
@@ -65,11 +69,12 @@
                   data-remove-title="{% trans 'Remove bookmark' %}"
                   aria-label="{% if item.is_bookmarked %}{% trans 'Remove bookmark' %}{% else %}{% trans 'Add bookmark' %}{% endif %}"
                   title="{% if item.is_bookmarked %}{% trans 'Remove bookmark' %}{% else %}{% trans 'Add bookmark' %}{% endif %}">
-              <i class="fas {% if item.is_bookmarked %}fa-star{% else %}fa-regular fa-star{% endif %}"></i>
+              <i class="{% if item.is_bookmarked %}fas fa-star{% else %}far fa-star{% endif %}"></i>
             </span>
             <span class="tw-feed-toggle"
                   role="button"
                   tabindex="0"
+                  data-action="read"
                   data-content-type="{{ item.content_type }}"
                   data-object-id="{{ item.object_id }}"
                   data-is-read="{{ item.is_read|yesno:"true,false" }}"
@@ -85,7 +90,7 @@
           {% endif %}
         </div>
 
-      </a>
+      </div>
       {% empty %}
       {% trans "No activity" as activity_empty_title %}
       {% include 'home/includes/empty_state.html' with icon='fa-inbox' title=activity_empty_title %}

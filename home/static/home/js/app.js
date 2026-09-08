@@ -650,9 +650,9 @@ window.initActivityFeedMarkRead = function(containerSelector, linkSelector) {
         e.preventDefault();
         var contentType = link.getAttribute('data-content-type');
         var objectId = link.getAttribute('data-object-id');
-        var url = link.getAttribute('href');
-        if (!contentType || !objectId) {
-            window.location.href = url;
+        var url = link.getAttribute('href') || link.getAttribute('data-url');
+        if (!contentType || !objectId || !url) {
+            if (url) window.location.href = url;
             return;
         }
         window.apiFetch(window.MARK_AS_READ_URL || '/mark-as-read/', {
@@ -754,6 +754,8 @@ window.initActivityFeedToggleRead = function(containerSelector) {
 
             // Update unread counter badge in the filter toolbar
             updateCountBadge('#unread-count-badge', newRead ? -1 : 1);
+        }).catch(function(err) {
+            console.error('toggle_read failed:', err);
         });
     }
 
@@ -802,12 +804,8 @@ window.initActivityFeedToggleBookmark = function(containerSelector) {
 
             var icon = btn.querySelector('i');
             if (icon) {
-                icon.classList.remove('fa-regular', 'fa-star');
-                if (isBookmarked) {
-                    icon.classList.add('fa-star');
-                } else {
-                    icon.classList.add('fa-regular', 'fa-star');
-                }
+                icon.classList.remove('far', 'fas', 'fa-star');
+                icon.classList.add(isBookmarked ? 'fas' : 'far', 'fa-star');
             }
 
             var addTitle = btn.getAttribute('data-add-title') || 'Add bookmark';
@@ -822,6 +820,8 @@ window.initActivityFeedToggleBookmark = function(containerSelector) {
             }
 
             updateCountBadge('#bookmark-count-badge', isBookmarked ? 1 : -1);
+        }).catch(function(err) {
+            console.error('toggle_bookmark failed:', err);
         });
     }
 

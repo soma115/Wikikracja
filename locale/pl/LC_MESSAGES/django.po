@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 18:51+0200\n"
+"POT-Creation-Date: 2026-09-08 21:37+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -1616,9 +1616,9 @@ msgid "Room actions"
 msgstr "Działania"
 
 #: .\chat\templates\chat\room_link.html:73
-#: .\home\templates\home\activity.html:77
-#: .\home\templates\home\activity.html:78
-#: .\home\templates\home\activity.html:79
+#: .\home\templates\home\activity.html:82
+#: .\home\templates\home\activity.html:83
+#: .\home\templates\home\activity.html:84
 msgid "Mark as unread"
 msgstr "Oznacz jako nieprzeczytane"
 
@@ -2864,25 +2864,25 @@ msgid "Bookmarks"
 msgstr "Zakładki"
 
 #: .\home\templates\home\activity.html:34
-#: .\home\templates\home\activity.html:76
-#: .\home\templates\home\activity.html:78
-#: .\home\templates\home\activity.html:79
+#: .\home\templates\home\activity.html:81
+#: .\home\templates\home\activity.html:83
+#: .\home\templates\home\activity.html:84
 msgid "Mark as read"
 msgstr "Oznacz jako przeczytane"
 
-#: .\home\templates\home\activity.html:64
-#: .\home\templates\home\activity.html:66
-#: .\home\templates\home\activity.html:67
+#: .\home\templates\home\activity.html:68
+#: .\home\templates\home\activity.html:70
+#: .\home\templates\home\activity.html:71
 msgid "Add bookmark"
 msgstr "Dodaj zakładkę"
 
-#: .\home\templates\home\activity.html:65
-#: .\home\templates\home\activity.html:66
-#: .\home\templates\home\activity.html:67
+#: .\home\templates\home\activity.html:69
+#: .\home\templates\home\activity.html:70
+#: .\home\templates\home\activity.html:71
 msgid "Remove bookmark"
 msgstr "Usuń zakładkę"
 
-#: .\home\templates\home\activity.html:90
+#: .\home\templates\home\activity.html:95
 msgid "No activity"
 msgstr "Brak aktywności"
 

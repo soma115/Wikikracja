@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from board.models import Post
 from chat.models import Message, MessageReadBy, Room
-from core.models import ReadStatus
+from core.models import FeedBookmark, ReadStatus
 from tests.factories import PostCategoryFactory, PostFactory, UserFactory
 
 
@@ -88,3 +88,72 @@ def test_chat_activity_items_are_read_per_message(client, activity_user):
     content = response.content.decode()
     assert f'data-object-id="{messages[0].id}"' in content
     assert f'data-object-id="{messages[1].id}"' in content
+
+
+@pytest.mark.django_db
+def test_toggle_bookmark_endpoint_works(client, activity_user):
+    client.force_login(activity_user)
+    category = PostCategoryFactory()
+    post = PostFactory(author=activity_user, category=category, title='Bookmark post', text='<p>body</p>')
+    Post.objects.filter(pk=post.pk).update(updated=timezone.now())
+
+    response = client.post(reverse('toggle_bookmark'), {'content_type': 'post', 'object_id': post.pk})
+    assert response.status_code == 200
+    data = response.json()
+    assert data['success'] is True
+    assert data['is_bookmarked'] is True
+    assert FeedBookmark.objects.filter(user=activity_user, content_type='post', object_id=post.pk).exists()
+
+    response = client.post(reverse('toggle_bookmark'), {'content_type': 'post', 'object_id': post.pk})
+    assert response.status_code == 200
+    data = response.json()
+    assert data['success'] is True
+    assert data['is_bookmarked'] is False
+    assert not FeedBookmark.objects.filter(user=activity_user, content_type='post', object_id=post.pk).exists()
+
+
+@pytest.mark.django_db
+def test_activity_page_renders_bookmark_toggle_buttons(client, activity_user):
+    client.force_login(activity_user)
+    category = PostCategoryFactory()
+    post = PostFactory(author=activity_user, category=category, title='Bookmark visible post', text='<p>body</p>')
+    Post.objects.filter(pk=post.pk).update(updated=timezone.now())
+
+    response = client.get(reverse('activity'))
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert 'data-action="bookmark"' in content
+    assert 'data-action="read"' in content
+    assert 'window.TOGGLE_BOOKMARK_URL' in content
+    assert 'window.initActivityFeedToggleBookmark' in content
+
+
+@pytest.mark.django_db
+def test_activity_row_is_div_with_data_url(client, activity_user):
+    client.force_login(activity_user)
+    category = PostCategoryFactory()
+    post = PostFactory(author=activity_user, category=category, title='Div row post', text='<p>body</p>')
+    Post.objects.filter(pk=post.pk).update(updated=timezone.now())
+
+    response = client.get(reverse('activity'))
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert '<div class="tw-feed-row' in content
+    assert 'data-url="' in content
+    assert f'data-object-id="{post.pk}"' in content
+    assert '<a href="' in content
+
+
+@pytest.mark.django_db
+def test_mark_all_read_endpoint_works(client, activity_user):
+    client.force_login(activity_user)
+    category = PostCategoryFactory()
+    post = PostFactory(author=activity_user, category=category, title='Mark all post', text='<p>body</p>')
+    Post.objects.filter(pk=post.pk).update(updated=timezone.now())
+
+    response = client.post(reverse('mark_all_read'))
+    assert response.status_code == 200
+    data = response.json()
+    assert data['success'] is True
+    assert data['marked_count'] >= 1
+    assert ReadStatus.objects.filter(user=activity_user, content_type=ReadStatus.ContentType.POST, object_id=post.pk).exists()

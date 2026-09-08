@@ -45,6 +45,10 @@
             credentials: 'same-origin',
             headers: headers,
         }, opts.fetchOptions);
+
+        if (opts.method) {
+            fetchOpts.method = opts.method;
+        }
         if (body !== undefined && body !== null) {
             if (body instanceof FormData || body instanceof URLSearchParams || typeof body === 'string') {
                 fetchOpts.body = body;

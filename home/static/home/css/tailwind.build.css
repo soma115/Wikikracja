@@ -2480,6 +2480,7 @@ button.tw-task-helpers-btn:hover,
   border-bottom: 1px solid var(--border);
   text-decoration: none;
   color: inherit;
+  cursor: pointer;
   transition: background .12s, border-color .12s;
   position: relative;
 }
@@ -2589,6 +2590,10 @@ button.tw-task-helpers-btn:hover,
   top: .55rem;
   right: .7rem;
   z-index: 2;
+}
+
+.tw-activity-list.tw-view-grid .tw-feed-toggle[data-action="bookmark"] {
+  right: 2.2rem;
 }
 
 .tw-activity-list.tw-view-grid .tw-feed-row > div:last-child {
@@ -9245,27 +9250,32 @@ body.tw-chat-page .tw-main-area {
     font-size: 0.8rem;
   }
 
-  /* Mobile: room-list-col takes full screen, ignore desktop hidden state.
-       position:fixed anchors it to the viewport exactly like .tw-chat-root-messages —
-       .tw-room-list (flex:1 1 auto) otherwise collapses to 0px whenever the
-       body.tw-chat-page/100dvh ancestor chain can't resolve a definite height. */
+  /* Mobile: room-list-col is an 80% drawer from the right, over the
+       messages/placeholder area. position:fixed anchors it to the viewport
+       exactly like .tw-chat-root-messages — .tw-room-list (flex:1 1 auto)
+       otherwise collapses to 0px whenever the body.tw-chat-page/100dvh
+       ancestor chain can't resolve a definite height. */
 
   .tw-room-list-col {
     position: fixed;
     top: var(--topbar-height, 60px);
     bottom: env(safe-area-inset-bottom, 0px);
-    left: 0;
+    left: 20%;
     right: 0;
-    width: 100% !important;
-    max-width: 100% !important;
-    flex: 0 0 100% !important;
+    width: 80% !important;
+    max-width: 80% !important;
+    flex: 0 0 80% !important;
     display: flex !important;
     background: var(--bg-base);
+    border-left: 1px solid var(--border);
+    box-shadow: var(--shadow-overlay);
   }
 
-  .tw-chat-rooms.tw-room-list-hidden .tw-room-list-col {
-    width: 100% !important;
-    max-width: 100% !important;
+  /* Mobile: hide the list when the room panel is shown (room-list-showing
+       is toggled only on mobile by renderChatView). */
+
+  .tw-chat-rooms:not(.tw-room-list-showing) .tw-room-list-col {
+    display: none !important;
   }
 
   /* Mobile: toolbar stays pinned at top even if list content overflows */
@@ -9310,51 +9320,24 @@ body.tw-chat-page .tw-main-area {
     max-width: 90%;
   }
 
-  /* Mobile: when room active, messages take full screen below topbar */
+  /* Mobile: messages/placeholder area always takes full screen below topbar */
 
-  .tw-chat-rooms.tw-room-active .tw-room-list-col {
-    display: none !important;
-  }
-
-  .tw-chat-rooms.tw-room-active .tw-chat-root-messages {
+  .tw-chat-rooms .tw-chat-root-messages {
     position: fixed;
     top: var(--topbar-height, 60px);
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: env(safe-area-inset-bottom, 0px);
     max-width: 100%;
     overflow: hidden;
     display: flex;
     flex-direction: column;
   }
 
-  /* Mobile: lista nad aktywnym pokojem jest szufladą 80% od prawej —
-       pokój zostaje pod spodem i wystaje po lewej (tap zamyka listę). */
-
-  .tw-chat-rooms.tw-room-active.tw-room-list-showing .tw-room-list-col {
-    display: flex !important;
-    left: 20%;
-    width: 80% !important;
-    max-width: 80% !important;
-    flex: 0 0 80% !important;
-    border-left: 1px solid var(--border);
-    box-shadow: var(--shadow-overlay);
-  }
-
-  /* Mobile: when no room active, hide message area */
-
-  .tw-chat-rooms:not(.tw-room-active) .tw-chat-root-messages {
-    display: none;
-  }
-
   /* Mobile: safe area for home indicator (iOS notch) */
 
   #room .tw-chat-controls {
     padding-bottom: max(0.2rem, env(safe-area-inset-bottom));
-  }
-
-  .tw-chat-rooms.tw-room-active .tw-chat-root-messages {
-    bottom: env(safe-area-inset-bottom, 0px);
   }
 
   /* Mobile: wrap compose bar if too narrow — send button always visible */
