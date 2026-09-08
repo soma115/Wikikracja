@@ -11,7 +11,7 @@
       </thead>
       <tbody>
         {% for item in items %}
-          <tr {% if item.url %}data-href="{{ item.url }}"{% endif %}>
+          <tr {% if item.url %}data-detail-url="{{ item.url }}" role="link" tabindex="0"{% endif %}>
             <td>
               {% if item.url %}
                 <a href="{{ item.url }}">{{ item.title }}</a>

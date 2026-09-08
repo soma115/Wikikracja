@@ -33,7 +33,7 @@
       {% if i.chat_room_pulse_class %}
         <a href="{{ i.chat_room_url }}"
            class="tw-chat-link {{ i.chat_room_pulse_class }}"
-           onclick="event.stopPropagation()">
+           data-tw-stop-propagation>
           <i class="fas fa-comment-dots"></i>
           <span>{% trans 'Chat' %}</span>
           {% with n=i.chat_room.messages.count %}
@@ -43,7 +43,7 @@
       {% elif i.chat_room %}
         <a href="{{ i.chat_room_url }}"
            class="tw-chat-link"
-           onclick="event.stopPropagation()">
+           data-tw-stop-propagation>
           <i class="fas fa-comment-dots"></i>
           <span>{% trans 'Chat' %}</span>
           {% with n=i.chat_room.messages.count %}
@@ -58,7 +58,7 @@
 
       {% if i.author %}
       <a href="{% url 'obywatele:obywatele_szczegoly' pk=i.author.pk %}"
-         class="tw-proposal-author-link" onclick="event.stopPropagation()"
+         class="tw-proposal-author-link" data-tw-stop-propagation
          title="{{ i.author.username }}">
         {% include "home/_user_avatar.html" with avatar=i.author.uzytkownik.avatar username=i.author.username size="md" %}
         <span class="tw-proposal-author-name">{{ i.author.username }}</span>

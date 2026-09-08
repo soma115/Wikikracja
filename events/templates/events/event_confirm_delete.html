@@ -30,12 +30,9 @@
                 <form method="post">
                     {% csrf_token %}
                     <div class="tw-flex tw-justify-between">
-                        <a href="{% url 'events:detail' event.pk %}" class="tw-btn tw-btn-secondary">
-                            <i class="fas fa-times fa-fw tw-me-1"></i> {% trans "Cancel" %}
-                        </a>
-                        <button type="submit" class="tw-btn tw-btn-danger">
-                            <i class="fas fa-trash fa-fw tw-me-1"></i> {% trans "Delete Event" %}
-                        </button>
+                        {% url 'events:detail' event.pk as cancel_url %}
+                        {% trans "Delete Event" as confirm_label %}
+                        {% include 'home/includes/confirm_delete_buttons.html' with cancel_url=cancel_url confirm_label=confirm_label cancel_first=True %}
                     </div>
                 </form>
             </div>

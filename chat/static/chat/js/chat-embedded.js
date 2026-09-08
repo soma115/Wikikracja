@@ -238,7 +238,7 @@ async function initEmbeddedChat(container) {
                     for (const msg of pendingMessages) appendMessage(msg);
                     pendingMessages = [];
                     if (messagesEl.children.length === 0) {
-                        messagesEl.innerHTML = '<div class="tw-ec-empty tw-empty-chat-message">Brak wiadomości. Napisz pierwszy!</div>';
+                        messagesEl.innerHTML = '<div class="tw-ec-empty tw-empty-chat-message">' + window.escapeHtml(_('No messages. Write the first one!')) + '</div>';
                     }
                 }, 0);
             })
@@ -250,7 +250,7 @@ async function initEmbeddedChat(container) {
                     setTimeout(() => { if (!joined && ws.isOpen()) joinRoom(); }, 5000);
                     return;
                 }
-                messagesEl.innerHTML = '<div class="tw-ec-loading">Brak dostępu do tego czatu.</div>';
+                messagesEl.innerHTML = '<div class="tw-ec-loading">' + window.escapeHtml(_('No access to this chat.')) + '</div>';
                 container.querySelector('.tw-ec-input-area')?.classList.add('tw-d-none');
                 console.error('embedded chat join error:', err);
             });

@@ -66,4 +66,11 @@ def get_translations():
         "You are offline.": _("You are offline."),
         "Try again": _("Try again"),
         "No rooms match the search.": _("No rooms match the search."),
+        "Message trimmed to {max} characters": _("Message trimmed to {max} characters"),
+        "The name cannot be empty.": _("The name cannot be empty."),
+        "Error.": _("Error."),
+        "Room name changed.": _("Room name changed."),
+        "Connection error.": _("Connection error."),
+        "No messages. Write the first one!": _("No messages. Write the first one!"),
+        "No access to this chat.": _("No access to this chat."),
     }

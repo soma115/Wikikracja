@@ -1,15 +1,11 @@
 (function () {
   'use strict';
 
-  var CSRF = (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '';
-
   function apiFetch(url, method, body) {
-    var opts = { method: method, headers: { 'X-CSRFToken': CSRF } };
-    if (body) {
-      opts.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-      opts.body = new URLSearchParams(body).toString();
-    }
-    return fetch(url, opts).then(function (r) {
+    return window.apiFetch(url, {
+      method: method,
+      body: body ? new URLSearchParams(body) : undefined,
+    }).then(function (r) {
       return r.json().then(function (d) { return { ok: r.ok, data: d }; });
     });
   }

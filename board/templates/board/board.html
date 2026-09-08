@@ -109,27 +109,11 @@
 
 {% block extra_js %}
 {% if request.user.is_authenticated %}
-<script>
-initCategoryManager('manageCategoriesModal', {
-  list:    '{% url "board:api_categories" %}',
-  edit:    '{% url "board:api_categories" %}'.replace(/\/+$/, '') + '/{pk}/edit/',
-  del:     '{% url "board:api_categories" %}'.replace(/\/+$/, '') + '/{pk}/delete/',
-  items:   '{% url "board:api_categories" %}'.replace(/\/+$/, '') + '/{pk}/items/',
-  reorder: '{% url "board:api_category_reorder" %}',
-}, {
-  edit:         '{% trans "Edit" %}',
-  cancel:       '{% trans "Cancel" %}',
-  save:         '{% trans "Save" %}',
-  delete:       '{% trans "Delete" %}',
-  items_suffix: '{% trans "documents" %}',
-  protected:    '{% trans "Protected — cannot be deleted" %}',
-  confirm_del:  '{% trans "This category has {n} document(s). Deleting it will leave those documents without a category. Continue?" %}',
-  and_more:     '{% trans "…and {n} more" %}',
-  name_req:     '{% trans "Category name is required." %}',
-  load_error:   '{% trans "Failed to load categories." %}',
-  error:        '{% trans "An error occurred." %}',
-});
-</script>
+{% url 'board:api_categories' as cat_list_url %}
+{% url 'board:api_category_reorder' as cat_reorder_url %}
+{% trans "documents" as cat_items_suffix %}
+{% trans "This category has {n} document(s). Deleting it will leave those documents without a category. Continue?" as cat_confirm_del %}
+{% include 'categories/_category_manager_init.html' with list_url=cat_list_url reorder_url=cat_reorder_url with_items=True items_suffix=cat_items_suffix confirm_del=cat_confirm_del %}
 {% endif %}
 
 {% endblock extra_js %}

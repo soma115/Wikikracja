@@ -5,21 +5,9 @@ document.addEventListener('DOMContentLoaded', function() {
 	const frequencySelect = document.getElementById('email-frequency');
 	const themeSwitcher = document.getElementById('theme-switcher');
 
-	function getCookie(name) {
-		const value = `; ${document.cookie}`;
-		const parts = value.split(`; ${name}=`);
-		if (parts.length === 2) return parts.pop().split(';').shift();
-	}
-
 	function sendSetting(url, body) {
-		return fetch(url, {
-			method: 'POST',
-			headers: {
-				'X-CSRFToken': getCookie('csrftoken'),
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(body)
-		}).then(response => response.json());
+		return window.apiFetch(url, { method: 'POST', body: body })
+			.then(response => response.json());
 	}
 
 	toggles.forEach(toggle => {

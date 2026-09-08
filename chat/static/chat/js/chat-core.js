@@ -87,7 +87,7 @@ export async function uploadFiles(files, uploadUrl = '/chat/upload/', { compress
             xhr.open('POST', uploadUrl, true);
             xhr.timeout = UPLOAD_TIMEOUT_MS;
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-            const csrfToken = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/)?.[1] || '';
+            const csrfToken = window.getCSRFToken();
             if (csrfToken && new URL(uploadUrl, document.baseURI).origin === window.location.origin) {
                 xhr.setRequestHeader('X-CSRFToken', csrfToken);
             }

@@ -62,7 +62,7 @@
 </script>
 <script>
   (function () {
-    var assetDecimalPlaces = JSON.parse(document.getElementById('asset-decimal-places').textContent);
+    var assetDecimalPlaces = window.readJsonScript('asset-decimal-places', {});
     var assetSelect = document.getElementById('id_asset');
     var amountInput = document.getElementById('id_amount');
 

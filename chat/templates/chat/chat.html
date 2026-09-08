@@ -17,11 +17,11 @@
   {{ UPLOAD_IMAGE_MAX_SIZE_MESSAGE|json_script:"chat-upload-max-size-message" }}
   <script>
     window.SITE_SETTINGS = {
-        messageMaxLength: JSON.parse(document.getElementById('chat-message-max-length').textContent),
-        uploadImageMaxSizeMb: JSON.parse(document.getElementById('chat-upload-max-size-mb').textContent),
-        uploadImageMaxSizeMessage: JSON.parse(document.getElementById('chat-upload-max-size-message').textContent),
+        messageMaxLength: window.readJsonScript('chat-message-max-length'),
+        uploadImageMaxSizeMb: window.readJsonScript('chat-upload-max-size-mb'),
+        uploadImageMaxSizeMessage: window.readJsonScript('chat-upload-max-size-message'),
     };
-    window.TRANSLATIONS = JSON.parse(document.getElementById('chat-translations').textContent);
+    window.TRANSLATIONS = window.readJsonScript('chat-translations');
   </script>
 
   <!-- ============================================================= -->
@@ -211,10 +211,8 @@
   <div id="message-history-modal" class="tw-modal" tabindex="-1">
     <div class="tw-modal-dialog">
       <div class="tw-modal-content">
-        <div class="tw-modal-header">
-          <h5 class="tw-modal-title">{% trans 'Changes history' %}</h5>
-          <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="Close"></button>
-        </div>
+        {% trans 'Changes history' as modal_title %}
+        {% include 'home/includes/modal_header.html' with title=modal_title %}
         <div class="tw-modal-body"></div>
         <div class="tw-modal-footer">
           <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-xmark fa-fw tw-me-1"></i>{% trans 'Close' %}</button>
@@ -228,10 +226,8 @@
   <div id="rename-room-modal" class="tw-modal" tabindex="-1">
     <div class="tw-modal-dialog">
       <div class="tw-modal-content">
-        <div class="tw-modal-header">
-          <h5 class="tw-modal-title">{% trans 'Rename room' %}</h5>
-          <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="Close"></button>
-        </div>
+        {% trans 'Rename room' as modal_title %}
+        {% include 'home/includes/modal_header.html' with title=modal_title %}
         <div class="tw-modal-body">
           <input type="text" id="rename-room-input" class="tw-form-control" maxlength="255" placeholder="{% trans 'New room name' %}">
           <div id="rename-room-error" class="tw-text-danger tw-mt-2 tw-d-none"></div>
@@ -249,10 +245,8 @@
   <div id="chat-info-modal" class="tw-modal" tabindex="-1">
     <div class="tw-modal-dialog tw-modal-dialog-scrollable">
       <div class="tw-modal-content">
-        <div class="tw-modal-header">
-          <h5 class="tw-modal-title">{% trans 'Chat Information' %}</h5>
-          <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="Close"></button>
-        </div>
+        {% trans 'Chat Information' as modal_title %}
+        {% include 'home/includes/modal_header.html' with title=modal_title %}
         <div class="tw-modal-body">
           <div class="tw-alert tw-alert-info">
             <h6><i class="fas fa-info-circle tw-me-2"></i>{% trans 'Public Rooms' %}</h6>

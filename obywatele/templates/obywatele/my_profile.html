@@ -277,12 +277,8 @@
 <div class="tw-modal tw-fade" id="deletionModal" tabindex="-1" aria-labelledby="deletionModalLabel" aria-hidden="true">
   <div class="tw-modal-dialog">
     <div class="tw-modal-content">
-      <div class="tw-modal-header">
-        <h5 class="tw-modal-title tw-text-danger" id="deletionModalLabel">
-          <i class="fas fa-exclamation-triangle tw-me-2"></i>{% trans "Delete account" %}
-        </h5>
-        <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
-      </div>
+      {% trans "Delete account" as modal_title %}
+      {% include 'home/includes/modal_header.html' with title=modal_title title_icon='fa-exclamation-triangle' title_class='tw-text-danger' title_id='deletionModalLabel' %}
       <div class="tw-modal-body">
         <p>{% trans "Are you sure you want to request deletion of your account and all your data?" %}</p>
         <p><strong class="tw-font-semibold">{% trans "Your account will remain active for 30 days. After that, all data will be permanently removed and cannot be recovered." %}</strong></p>

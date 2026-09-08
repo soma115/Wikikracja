@@ -1,0 +1,29 @@
+{% load i18n %}
+{# Shared initCategoryManager() call — pairs with categories/_category_modal.html.
+   Params:
+     list_url     - base API url for the category collection (required)
+     reorder_url  - API url for reorder (required)
+     with_items   - truthy → enables the items endpoint (list_url + '/{pk}/items/')
+     items_suffix - label for the item-count badge (e.g. 'documents')
+     confirm_del  - delete-confirmation message containing '{n}' #}
+<script>
+window.initCategoryManager('manageCategoriesModal', {
+  list:    '{{ list_url }}',
+  edit:    '{{ list_url }}'.replace(/\/+$/, '') + '/{pk}/edit/',
+  del:     '{{ list_url }}'.replace(/\/+$/, '') + '/{pk}/delete/',
+  {% if with_items %}items:   '{{ list_url }}'.replace(/\/+$/, '') + '/{pk}/items/',{% endif %}
+  reorder: '{{ reorder_url }}',
+}, {
+  edit:         '{% trans "Edit" %}',
+  cancel:       '{% trans "Cancel" %}',
+  save:         '{% trans "Save" %}',
+  delete:       '{% trans "Delete" %}',
+  items_suffix: '{{ items_suffix }}',
+  protected:    '{% trans "Protected — cannot be deleted" %}',
+  confirm_del:  '{{ confirm_del }}',
+  and_more:     '{% trans "…and {n} more" %}',
+  name_req:     '{% trans "Category name is required." %}',
+  load_error:   '{% trans "Failed to load categories." %}',
+  error:        '{% trans "An error occurred." %}',
+});
+</script>

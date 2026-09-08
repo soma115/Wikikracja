@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedLength = sel?.toString().length ?? 0;
             const wouldOverflow = currentLength - selectedLength + pastedText.length > MSG_MAX;
             insertPlainTextAtCaret(el, pastedText, MSG_MAX);
-            if (wouldOverflow) showToast('Wiadomość przycięta do ' + MSG_MAX + ' znaków');
+            if (wouldOverflow) showToast(_('Message trimmed to {max} characters').replace('{max}', MSG_MAX));
         } else {
             const val = el.value;
             const start = el.selectionStart;
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 el.selectionStart = el.selectionEnd = Math.min(start + pastedText.length, MSG_MAX);
                 autoResizeTextarea(el);
                 updateCounter(truncated);
-                showToast('Wiadomość przycięta do ' + MSG_MAX + ' znaków');
+                showToast(_('Message trimmed to {max} characters').replace('{max}', MSG_MAX));
             }
         }
     });
@@ -582,19 +582,18 @@ document.addEventListener('DOMContentLoaded', function() {
     renameConfirm?.addEventListener('click', async () => {
         if (!renameRoomId) return;
         const newTitle = (renameInput?.value || '').trim();
-        if (!newTitle) { showRenameError('Nazwa nie może być pusta.'); return; }
+        if (!newTitle) { showRenameError(_('The name cannot be empty.')); return; }
         if (newTitle === renameOriginalTitle) {
             if (renameModal && typeof TwModal !== 'undefined') TwModal.hide(renameModal);
             return;
         }
         try {
-            const resp = await fetch(`/chat/api/room/${renameRoomId}/rename/`, {
+            const resp = await window.apiFetch(`/chat/api/room/${renameRoomId}/rename/`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '' },
-                body: JSON.stringify({ title: newTitle }),
+                body: { title: newTitle },
             });
             const data = await resp.json();
-            if (!resp.ok) { showRenameError(data.error || 'Błąd.'); return; }
+            if (!resp.ok) { showRenameError(data.error || _('Error.')); return; }
             if (renameModal && typeof TwModal !== 'undefined') TwModal.hide(renameModal);
             const roomLink = document.querySelector(`.tw-room-link[data-room-id="${renameRoomId}"]`);
             if (roomLink) {
@@ -602,9 +601,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const btn = roomLink.querySelector('.tw-rename-room-btn');
                 if (btn) btn.dataset.roomTitle = data.title;
             }
-            showToast('Nazwa pokoju zmieniona.');
+            showToast(_('Room name changed.'));
         } catch {
-            showRenameError('Błąd połączenia.');
+            showRenameError(_('Connection error.'));
         }
     });
 

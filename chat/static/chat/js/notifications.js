@@ -80,7 +80,7 @@ document.addEventListener('visibilitychange', function() {
     if (document.hidden) return;
     const badge = document.getElementById('chat-unread-badge');
     if (!badge?.dataset.countUrl) return;
-    fetch(badge.dataset.countUrl, { credentials: 'same-origin' })
+    window.apiFetch(badge.dataset.countUrl)
         .then(r => r.json())
         .then(d => onUnreadCount(d.count))
         .catch(() => {});

@@ -294,6 +294,11 @@ class TransactionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView)
     template_name = 'bookkeeping/transaction_confirm_delete.html'
     success_url = reverse_lazy('bookkeeping:transaction_list')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cancel_url'] = self.get_success_url()
+        return context
+
     def test_func(self):
         transaction = self.get_object()
         return self.request.user == transaction.author

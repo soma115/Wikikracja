@@ -1,0 +1,13 @@
+{% load i18n %}
+{# Shared modal header: title + close button (data-tw-dismiss="modal", tw-modal.js).
+   Params:
+     title       - required, translated title text
+     title_icon  - optional Font Awesome class (e.g. 'fa-gear')
+     title_class - optional extra classes for the <h5> (e.g. 'tw-text-danger')
+     title_id    - optional id for aria-labelledby #}
+<div class="tw-modal-header">
+  <h5 class="tw-modal-title{% if title_class %} {{ title_class }}{% endif %}"{% if title_id %} id="{{ title_id }}"{% endif %}>
+    {% if title_icon %}<i class="fas {{ title_icon }} tw-me-2"></i>{% endif %}{{ title }}
+  </h5>
+  <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+</div>

@@ -15,10 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     if (searchInput) {
-        let searchTimer;
-        searchInput.addEventListener('input', function () {
-            clearTimeout(searchTimer);
-            searchTimer = setTimeout(() => {
+        searchInput.addEventListener('input', window.debounce(function () {
                 const q = this.value.trim().toLowerCase();
                 const rows  = listView ? listView.querySelectorAll('.tw-user-row') : [];
                 const cards = gridView ? gridView.querySelectorAll('.tw-citizen-card') : [];
@@ -35,25 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
                 if (countEl) countEl.textContent = q ? visible : rows.length;
-            }, 150);
-        });
+        }, 150));
     }
-
-    const rowContainer = listView || document;
-    rowContainer.querySelectorAll('.tw-user-row').forEach(row => {
-        row.addEventListener('click', function (e) {
-            if (!e.target.closest('button, a')) {
-                window.location.href = this.dataset.href;
-            }
-        });
-    });
-
-    if (gridView) gridView.querySelectorAll('.tw-citizen-card').forEach(card => {
-        card.addEventListener('click', function (e) {
-            if (!e.target.closest('button, a')) {
-                window.location.href = this.dataset.href;
-            }
-        });
-    });
 
 });

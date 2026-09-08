@@ -51,14 +51,9 @@
         batch.forEach((_, url) => waiting.delete(url));
         if (!batch.size) return;
 
-        fetch(window.LINK_TITLES_URL || '/link-titles/', {
+        window.apiFetch(window.LINK_TITLES_URL || '/link-titles/', {
             method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': window.LINK_TITLES_CSRF_TOKEN || '',
-            },
-            body: JSON.stringify({ urls: Array.from(batch.keys()) }),
+            body: { urls: Array.from(batch.keys()) },
         }).then(function(response) {
             if (!response.ok) throw new Error('Link title request failed');
             return response.json();
@@ -287,13 +282,9 @@ document.addEventListener('DOMContentLoaded', function() {
             applyTheme(next);
             const url = btn.dataset.url;
             if (url) {
-                fetch(url, {
+                window.apiFetch(url, {
                     method: 'POST',
-                    headers: {
-                        'X-CSRFToken': window.LINK_TITLES_CSRF_TOKEN || '',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ value: next }),
+                    body: { value: next },
                 }).catch(() => {});
             }
         });
@@ -310,6 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     document.addEventListener('keydown', function(e) {
         if (e.key !== 'Enter' && e.key !== ' ') return;
+        if (document.activeElement.closest('a, button, input, select, textarea')) return;
         var card = document.activeElement.closest('[data-detail-url]');
         if (!card) return;
         e.preventDefault();
@@ -663,12 +655,8 @@ window.initActivityFeedMarkRead = function(containerSelector, linkSelector) {
             window.location.href = url;
             return;
         }
-        fetch(window.MARK_AS_READ_URL || '/mark-as-read/', {
+        window.apiFetch(window.MARK_AS_READ_URL || '/mark-as-read/', {
             method: 'POST',
-            headers: {
-                'X-CSRFToken': window.CSRF_TOKEN || '',
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
             body: new URLSearchParams({
                 content_type: contentType,
                 object_id: objectId
@@ -696,12 +684,8 @@ window.initActivityFeedToggleRead = function(containerSelector) {
             ? (window.MARK_UNREAD_URL || '/mark-unread/')
             : (window.MARK_AS_READ_URL || '/mark-as-read/');
 
-        fetch(url, {
+        window.apiFetch(url, {
             method: 'POST',
-            headers: {
-                'X-CSRFToken': window.CSRF_TOKEN || '',
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
             body: new URLSearchParams({
                 content_type: contentType,
                 object_id: objectId
@@ -801,12 +785,8 @@ window.initActivityFeedToggleBookmark = function(containerSelector) {
         var objectId = btn.getAttribute('data-object-id');
         if (!contentType || !objectId) return;
 
-        fetch(window.TOGGLE_BOOKMARK_URL || '/toggle-bookmark/', {
+        window.apiFetch(window.TOGGLE_BOOKMARK_URL || '/toggle-bookmark/', {
             method: 'POST',
-            headers: {
-                'X-CSRFToken': window.CSRF_TOKEN || '',
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
             body: new URLSearchParams({
                 content_type: contentType,
                 object_id: objectId
@@ -1430,14 +1410,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var defaultBtn = document.querySelector('.tw-citizen-section-btn[data-default="true"]')
                      || document.querySelector('.tw-citizen-section-btn');
     if (defaultBtn) defaultBtn.click();
-});
-
-// ============================================================
-// Clickable table rows (data-href)
-// ============================================================
-document.addEventListener('click', function (e) {
-    var tr = e.target.closest('.tw-table-hover tbody tr[data-href]');
-    if (tr && !e.target.closest('a')) window.location = tr.dataset.href;
 });
 
 // ============================================================

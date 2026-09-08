@@ -34,7 +34,7 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'home/css/tailwind.build.css' %}">
 
   <!-- Main app script with config data -->
-  <script>window.LINK_TITLES_URL = "{% url 'link_titles' %}"; window.LINK_TITLES_CSRF_TOKEN = "{{ csrf_token }}";</script>
+  <script>window.LINK_TITLES_URL = "{% url 'link_titles' %}";</script>
   <script src="{% static 'home/js/search-keys.js' %}"></script>
   <script src="{% static 'common/js/tw-modal.js' %}"></script>
   <script src="{% static 'common/js/tw-dropdown.js' %}"></script>
@@ -44,6 +44,7 @@
   <script src="{% static 'common/js/tw-popover.js' %}"></script>
   <script src="{% static 'common/js/tw-tab.js' %}"></script>
   <script src="{% static 'common/js/breakpoints.js' %}"></script>
+<script src="{% static 'common/js/dom-utils.js' %}"></script>
 <script src="{% static 'common/js/char-counter.js' %}"></script>
 <script src="{% static 'common/js/toast.js' %}"></script>
   <script src="{% static 'home/js/app.js' %}"></script>
@@ -372,7 +373,7 @@
       {% for message in messages %}
       <div class="tw-toast-msg tw-toast-{{ message.level_tag }}{% if 'persist' in message.tags %} tw-toast-persist{% endif %}" role="alert">
         {{ message }}
-        <button type="button" class="tw-toast-close" onclick="this.parentElement.remove()">×</button>
+        <button type="button" class="tw-toast-close" data-tw-remove=".tw-toast-msg">×</button>
       </div>
       {% endfor %}
     </div>

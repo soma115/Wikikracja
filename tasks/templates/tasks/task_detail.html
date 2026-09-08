@@ -14,7 +14,7 @@
 {% if task.chat_room_url %}
             <a href="{{ task.chat_room_url }}"
                class="tw-chat-link {{ task.chat_room_pulse_class|default:'' }} tw-ms-2"
-               onclick="event.stopPropagation()">
+               data-tw-stop-propagation>
               <i class="fas fa-comment-dots"></i>
               <span>{% trans "Chat" %}</span>
               {% with n=task.chat_room.messages.count %}
@@ -277,11 +277,8 @@
   <div class="tw-modal tw-fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
     <div class="tw-modal-dialog" role="document">
       <div class="tw-modal-content">
-        <div class="tw-modal-header">
-          <h5 class="tw-modal-title tw-text-base tw-font-semibold" id="confirmDeleteModalLabel">{% trans "Delete activity" %}</h5>
-          <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="{% trans "Close" %}">
-          </button>
-        </div>
+        {% trans "Delete activity" as modal_title %}
+        {% include 'home/includes/modal_header.html' with title=modal_title title_class='tw-text-base tw-font-semibold' title_id='confirmDeleteModalLabel' %}
         <div class="tw-modal-body">
           {% trans "Are you sure you want to delete this activity? This action cannot be undone." %}
         </div>

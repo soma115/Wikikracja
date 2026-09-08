@@ -10,7 +10,6 @@ import {
     $,
     $$,
     _,
-    escapeHtml,
     formatTime,
     removeNotification,
     setCaretPosition

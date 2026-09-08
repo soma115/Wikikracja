@@ -70,7 +70,7 @@
         <script src="{% static 'js/uploader.js' %}"></script>
 
         <div class="tw-mb-3 tw-flex tw-gap-2">
-          <button type="submit" class="tw-btn tw-btn-primary" onclick="this.disabled=true;this.form.submit();"><i class="fas fa-check fa-fw tw-me-1"></i> {% trans 'Save' %}</button>
+          <button type="submit" class="tw-btn tw-btn-primary" data-tw-submit-once><i class="fas fa-check fa-fw tw-me-1"></i> {% trans 'Save' %}</button>
           {% if object %}
             <a href="{% url 'board:view_post' object.pk %}" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw tw-me-1"></i> {% trans 'Cancel' %}</a>
           {% else %}
@@ -88,7 +88,7 @@
               <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}">
                 <i class="fas fa-paperclip tw-me-2"></i>&nbsp;{{ attachment.filename }}
               </a>
-              <form method="post" action="{% url 'board:delete_attachment' object.pk attachment.pk %}" class="tw-inline" onsubmit="return confirm('Delete this attachment?');">
+              <form method="post" action="{% url 'board:delete_attachment' object.pk attachment.pk %}" class="tw-inline" data-tw-confirm="Delete this attachment?">
                 {% csrf_token %}
                 <button type="submit" class="tw-btn tw-btn-sm tw-btn-danger" title="{% trans 'Delete attachment' %}" aria-label="{% trans 'Delete attachment' %}">
                   <i class="fas fa-trash fa-fw tw-me-1"></i>

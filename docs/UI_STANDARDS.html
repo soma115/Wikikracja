@@ -221,7 +221,7 @@
       </div>
 
       <ul class="rules">
-        <li>Karta składa się z klikalnego nagłówka i klikalnego ciała. Używaj atrybutu <code>data-detail-url</code> + <code>role="link"</code> na wrapperach, a linków wewnętrznych obsługuj przez <code>onclick="event.stopPropagation()"</code>.</li>
+        <li>Karta składa się z klikalnego nagłówka i klikalnego ciała. Używaj atrybutu <code>data-detail-url</code> + <code>role="link"</code> na wrapperach, a linki wewnętrzne oznaczaj atrybutem <code>data-tw-stop-propagation</code> (delegat w <code>common/js/dom-utils.js</code>; nie używaj inline <code>onclick</code>).</li>
         <li>Nagłówek zawiera: numer, tytuł, badge status, meta (autor, data, liczniki).</li>
         <li>Ciało zawiera sekcje z ikoną + etykietą + treścią.</li>
         <li>Widok listy: karty jedna pod drugą w pionowej kolumnie (<code>.tw-proposals-list</code>).</li>

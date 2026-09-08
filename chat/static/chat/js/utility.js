@@ -37,8 +37,7 @@ export const mobileMedia = window.wkMobileMedia
  * @returns {string}
  */
 export function getCSRFToken() {
-    const match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]*)/);
-    return match ? decodeURIComponent(match[1]) : '';
+    return window.getCSRFToken();
 }
 
 /**
@@ -56,14 +55,10 @@ export function getCSRFToken() {
  */
 export function sendNotificationAck(info) {
     try {
-        fetch('/chat/api/push/ack/', {
+        window.apiFetch('/chat/api/push/ack/', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken(),
-            },
-            body: JSON.stringify({ user_agent: navigator.userAgent, ...info }),
-            keepalive: true,
+            body: { user_agent: navigator.userAgent, ...info },
+            fetchOptions: { keepalive: true },
         }).catch((e) => console.debug('[NOTIFDBG] ack failed to send:', e));
     } catch (e) {
         console.debug('[NOTIFDBG] ack failed to send:', e);
@@ -329,12 +324,7 @@ export function formatDateTime(ts) {
  * @returns {string} - HTML-safe string
  */
 export function escapeHtml(unsafe) {
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    return window.escapeHtml(unsafe);
 }
 
 /**

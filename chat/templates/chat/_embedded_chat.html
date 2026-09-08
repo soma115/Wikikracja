@@ -37,13 +37,13 @@ Użycie:
 <script>
   if (typeof window.SITE_SETTINGS === 'undefined') {
       window.SITE_SETTINGS = {
-          messageMaxLength: JSON.parse(document.getElementById('ec-chat-message-max-length').textContent),
-          uploadImageMaxSizeMb: JSON.parse(document.getElementById('ec-chat-upload-max-size-mb').textContent),
-          uploadImageMaxSizeMessage: JSON.parse(document.getElementById('ec-chat-upload-max-size-message').textContent),
+          messageMaxLength: window.readJsonScript('ec-chat-message-max-length'),
+          uploadImageMaxSizeMb: window.readJsonScript('ec-chat-upload-max-size-mb'),
+          uploadImageMaxSizeMessage: window.readJsonScript('ec-chat-upload-max-size-message'),
       };
   }
   if (typeof window.TRANSLATIONS === 'undefined') {
-      window.TRANSLATIONS = JSON.parse(document.getElementById('ec-chat-translations').textContent);
+      window.TRANSLATIONS = window.readJsonScript('ec-chat-translations');
   }
 </script>
 <script src="{% static 'chat/js/ejs.min.js' %}"></script>

@@ -2,7 +2,7 @@
 {% if post.chat_room %}
 <a href="{{ post.chat_room_url }}"
    class="tw-chat-link {{ post.chat_room_pulse_class|default:'' }}"
-   onclick="event.stopPropagation()">
+   data-tw-stop-propagation>
   <i class="fas fa-comment-dots"></i>
   <span>{% trans 'Chat' %}</span>
   {% with n=post.chat_room_message_count|default:0 %}

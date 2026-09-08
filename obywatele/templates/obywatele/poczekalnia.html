@@ -36,7 +36,8 @@
             {% for i in uid|dictsortreversed:"date_joined" %}
             <tr class="tw-user-row"
                 data-user-id="{{ i.pk }}"
-                data-href="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}"
+                data-detail-url="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}"
+                role="link" tabindex="0"
                 data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
               <td>
                 <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0">
@@ -65,8 +66,8 @@
               <td>
                 {% if i.uzytkownik.phone %}
                 <span class="tw-flex tw-items-center tw-gap-1 tw-min-w-0">
-                  <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-p-1 tw-aspect-square" title="{{ i.uzytkownik.phone }}" onclick="event.stopPropagation()"><i class="fas fa-phone"></i></a>
-                  <a href="tel:{{ i.uzytkownik.phone }}" class="tw-text-primary tw-text-sm tw-truncate" onclick="event.stopPropagation()">{{ i.uzytkownik.phone }}</a>
+                  <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-p-1 tw-aspect-square" title="{{ i.uzytkownik.phone }}" data-tw-stop-propagation><i class="fas fa-phone"></i></a>
+                  <a href="tel:{{ i.uzytkownik.phone }}" class="tw-text-primary tw-text-sm tw-truncate" data-tw-stop-propagation>{{ i.uzytkownik.phone }}</a>
                 </span>
                 {% else %}
                 <span class="tw-btn tw-btn-outline-secondary tw-p-1 tw-aspect-square" title="{% trans 'No phone' %}"><i class="fas fa-phone"></i></span>
@@ -75,8 +76,8 @@
               <td>
                 {% if i.email %}
                 <span class="tw-flex tw-items-center tw-gap-1 tw-min-w-0">
-                  <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-p-1 tw-aspect-square" title="{{ i.email }}" onclick="event.stopPropagation()"><i class="fas fa-envelope"></i></a>
-                  <a href="mailto:{{ i.email }}" class="tw-text-primary tw-text-sm tw-truncate" onclick="event.stopPropagation()">{{ i.email }}</a>
+                  <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-p-1 tw-aspect-square" title="{{ i.email }}" data-tw-stop-propagation><i class="fas fa-envelope"></i></a>
+                  <a href="mailto:{{ i.email }}" class="tw-text-primary tw-text-sm tw-truncate" data-tw-stop-propagation>{{ i.email }}</a>
                 </span>
                 {% else %}
                 <span class="tw-btn tw-btn-outline-secondary tw-p-1 tw-aspect-square" title="{% trans 'No email' %}"><i class="fas fa-envelope"></i></span>
@@ -109,7 +110,8 @@
       {% for i in uid|dictsortreversed:"date_joined" %}
       <div class="tw-citizen-card tw-text-start tw-items-start"
            data-user-id="{{ i.pk }}"
-           data-href="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}"
+           data-detail-url="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}"
+           role="link" tabindex="0"
            data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
         <div class="tw-flex tw-gap-3 tw-w-full">
           <div class="tw-citizen-card-top tw-shrink-0">
@@ -140,7 +142,7 @@
         </div>
         <div class="tw-flex tw-justify-center lg:tw-justify-between tw-gap-2 tw-w-full">
           {% if i.email %}
-          <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" onclick="event.stopPropagation()" title="{{ i.email }}">
+          <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" data-tw-stop-propagation title="{{ i.email }}">
             <i class="fas fa-envelope tw-text-lg lg:tw-text-2xl"></i>
           </a>
           {% else %}
@@ -149,7 +151,7 @@
           </span>
           {% endif %}
           {% if i.uzytkownik.phone %}
-          <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" onclick="event.stopPropagation()" title="{{ i.uzytkownik.phone }}">
+          <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" data-tw-stop-propagation title="{{ i.uzytkownik.phone }}">
             <i class="fas fa-phone tw-text-lg lg:tw-text-2xl"></i>
           </a>
           {% else %}

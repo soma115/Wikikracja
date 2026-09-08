@@ -63,12 +63,9 @@
     var value = parseInt(form.querySelector('input[name="value"]').value, 10);
     var csrf = form.querySelector('[name="csrfmiddlewaretoken"]').value;
 
-    fetch(form.action, {
+    window.apiFetch(form.action, {
       method: 'POST',
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
       body: new URLSearchParams({ value: value, csrfmiddlewaretoken: csrf }),
     })
       .then(function (r) { return r.json(); })
@@ -225,12 +222,9 @@
     var csrf = form.querySelector('[name="csrfmiddlewaretoken"]');
     if (!csrf) return;
 
-    fetch(action, {
+    window.apiFetch(action, {
       method: 'POST',
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
       body: new URLSearchParams({ csrfmiddlewaretoken: csrf.value }),
     })
       .then(function (r) { return r.json(); })
@@ -366,12 +360,9 @@
     var csrf = form.querySelector('[name="csrfmiddlewaretoken"]');
     if (!csrf) return;
 
-    fetch(form.action, {
+    window.apiFetch(form.action, {
       method: 'POST',
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
       body: new URLSearchParams({ csrfmiddlewaretoken: csrf.value }),
     })
       .then(function (r) { return r.json(); })
@@ -424,11 +415,7 @@
     return html;
   }
 
-  function escapeHtml(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-  }
+  var escapeHtml = window.escapeHtml;
 
   function renderVotersHtml(data, labels) {
     if (!data.total) {

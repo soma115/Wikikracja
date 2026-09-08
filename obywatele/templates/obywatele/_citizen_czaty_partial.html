@@ -11,7 +11,7 @@
       </thead>
       <tbody>
         {% for row in rows %}
-          <tr data-href="{% url 'chat:chat' %}#room_id={{ row.room.id }}&message_id={{ row.msg.id }}">
+          <tr data-detail-url="{% url 'chat:chat' %}#room_id={{ row.room.id }}&message_id={{ row.msg.id }}" role="link" tabindex="0">
             <td class="tw-text-nowrap">
               <a href="{% url 'chat:chat' %}#room_id={{ row.room.id }}&message_id={{ row.msg.id }}">{{ row.room_name }}</a>
             </td>

@@ -33,6 +33,8 @@ This checklist keeps the interface consistent. Before creating a new view, form,
 - [ ] Card headers use `tw-card-header`; body uses `tw-card-body`.
 - [ ] Lists use `tw-proposals-list` (or its successor if documented otherwise) + `data-view-container`.
 - [ ] Empty states use the shared partial `home/includes/empty_state.html` (`tw-empty-state` + `tw-empty-state-icon`/`tw-empty-state-title`).
+- [ ] Modal headers use the shared partial `home/includes/modal_header.html` (`title` required; `title_icon`, `title_class`, `title_id` optional).
+- [ ] Clickable rows/cards use `data-detail-url` + `role="link" tabindex="0"` (navigation handled by `app.js`); inner links/buttons keep `data-tw-stop-propagation`.
 - [ ] Do not create new `module-card`, `module-list`, `module-empty` classes.
 
 ### 4. Buttons and actions

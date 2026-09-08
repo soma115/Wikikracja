@@ -44,19 +44,8 @@
           <i class="fas fa-filter tw-me-1"></i>{% trans "Search in:" %}
         </span>
 
-        <label id="sp-select-all" class="tw-chip{% if all_cats_selected %} tw-chip--on{% endif %}" data-color="accent">
-          <input type="checkbox" value="all" class="tw-d-none tw-chip-input"
-                 {% if all_cats_selected %}checked{% endif %}>
-          <i class="fas fa-globe tw-me-1"></i>{% trans "Everywhere" %}
-        </label>
-
-        {% for cat, label in search_categories %}
-        <label class="tw-chip{% if cat in active_cats %} tw-chip--on{% endif %}" data-color="{{ cat|content_type_color }}">
-          <input type="checkbox" name="cat" value="{{ cat }}" class="tw-d-none tw-chip-input"
-                 {% if cat in active_cats %}checked{% endif %}>
-          {{ label }}
-        </label>
-        {% endfor %}
+        {% trans "Everywhere" as chip_all_label %}
+        {% include 'home/includes/chip_filter.html' with all_label=chip_all_label all_icon='fa-globe' all_selected=all_cats_selected items=search_categories selected=active_cats input_name='cat' %}
       </div>
     </div>
   </form>

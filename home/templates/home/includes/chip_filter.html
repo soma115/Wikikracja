@@ -1,0 +1,23 @@
+{% load feed_filters %}
+{# Shared chip filter row: "select all" chip + item chips.
+   Params:
+     all_label    - label for the select-all chip (required, translated)
+     all_icon     - optional Font Awesome class (e.g. 'fa-globe')
+     all_selected - bool, whether all items are selected
+     items        - list of (value, label) tuples
+     selected     - list of currently selected values
+     input_name   - name attribute for item checkboxes
+   The 'sp-select-all' id is the JS contract for initChipFilters (app.js). #}
+<label id="sp-select-all" class="tw-chip{% if all_selected %} tw-chip--on{% endif %}" data-color="accent">
+  <input type="checkbox" value="all" class="tw-d-none tw-chip-input"
+         {% if all_selected %}checked{% endif %}>
+  {% if all_icon %}<i class="fas {{ all_icon }} tw-me-1"></i>{% endif %}{{ all_label }}
+</label>
+
+{% for val, label in items %}
+<label class="tw-chip{% if val in selected %} tw-chip--on{% endif %}" data-color="{{ val|content_type_color }}">
+  <input type="checkbox" name="{{ input_name }}" value="{{ val }}" class="tw-d-none tw-chip-input"
+         {% if val in selected %}checked{% endif %}>
+  {{ label }}
+</label>
+{% endfor %}

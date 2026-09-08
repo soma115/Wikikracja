@@ -12,7 +12,7 @@
       </thead>
       <tbody>
         {% for task in tasks %}
-          <tr data-href="{% url 'tasks:detail' pk=task.pk %}">
+          <tr data-detail-url="{% url 'tasks:detail' pk=task.pk %}" role="link" tabindex="0">
             <td><a href="{% url 'tasks:detail' pk=task.pk %}">{{ task.title }}</a></td>
             <td>
               {% if task.status == 'active' %}

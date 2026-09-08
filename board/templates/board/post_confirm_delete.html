@@ -16,8 +16,8 @@
 
     <form method="post" class="tw-mt-4 tw-flex tw-gap-2">
     {% csrf_token %}
-    <button type="submit" class="tw-btn tw-btn-danger"><i class="fas fa-trash fa-fw tw-me-1"></i> {% trans "Delete" %}</button>
-    <a href="{% url 'board:view_post' post.pk %}" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw tw-me-1"></i> {% trans "Cancel" %}</a>
+    {% url 'board:view_post' post.pk as cancel_url %}
+    {% include 'home/includes/confirm_delete_buttons.html' with cancel_url=cancel_url %}
     </form>
   </div>
   </div>

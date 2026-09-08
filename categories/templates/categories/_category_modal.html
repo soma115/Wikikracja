@@ -2,12 +2,8 @@
 <div class="tw-modal tw-fade" id="manageCategoriesModal" tabindex="-1" aria-labelledby="manageCategoriesModalLabel" aria-hidden="true">
   <div class="tw-modal-dialog tw-modal-dialog-scrollable">
     <div class="tw-modal-content">
-      <div class="tw-modal-header">
-        <h5 class="tw-modal-title" id="manageCategoriesModalLabel">
-          <i class="fas fa-gear tw-me-2"></i>{% trans 'Manage categories' %}
-        </h5>
-        <button type="button" class="tw-btn-close" data-tw-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
-      </div>
+      {% trans 'Manage categories' as modal_title %}
+      {% include 'home/includes/modal_header.html' with title=modal_title title_icon='fa-gear' title_class='tw-text-base tw-font-semibold' title_id='manageCategoriesModalLabel' %}
       <div class="tw-modal-body">
         <ul class="tw-cat-mgr-list" id="catMgrList"></ul>
         <div class="tw-cat-mgr-error tw-d-none" id="catMgrError"></div>

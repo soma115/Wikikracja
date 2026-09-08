@@ -68,7 +68,8 @@
             {% for i in uid %}
             <tr class="tw-user-row{% if i.near_threshold %} tw-near-threshold{% endif %}{% if i.pending_deletion %} tw-bg-warning{% endif %}"
                 data-user-id="{{ i.pk }}"
-                data-href="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}{% if sort_param %}?{{ sort_param }}{% endif %}"
+                data-detail-url="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}{% if sort_param %}?{{ sort_param }}{% endif %}"
+                role="link" tabindex="0"
                 data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
               <td>
                 <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0">
@@ -89,8 +90,8 @@
               <td>
                 {% if i.uzytkownik.phone %}
                 <span class="tw-flex tw-items-center tw-gap-1 tw-min-w-0">
-                  <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-p-1 tw-aspect-square" title="{{ i.uzytkownik.phone }}" onclick="event.stopPropagation()"><i class="fas fa-phone"></i></a>
-                  <a href="tel:{{ i.uzytkownik.phone }}" class="tw-text-primary tw-text-sm tw-truncate" onclick="event.stopPropagation()">{{ i.uzytkownik.phone }}</a>
+                  <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-p-1 tw-aspect-square" title="{{ i.uzytkownik.phone }}" data-tw-stop-propagation><i class="fas fa-phone"></i></a>
+                  <a href="tel:{{ i.uzytkownik.phone }}" class="tw-text-primary tw-text-sm tw-truncate" data-tw-stop-propagation>{{ i.uzytkownik.phone }}</a>
                 </span>
                 {% else %}
                 <span class="tw-btn tw-btn-outline-secondary tw-p-1 tw-aspect-square" title="{% trans 'No phone' %}"><i class="fas fa-phone"></i></span>
@@ -99,8 +100,8 @@
               <td>
                 {% if i.email %}
                 <span class="tw-flex tw-items-center tw-gap-1 tw-min-w-0">
-                  <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-p-1 tw-aspect-square" title="{{ i.email }}" onclick="event.stopPropagation()"><i class="fas fa-envelope"></i></a>
-                  <a href="mailto:{{ i.email }}" class="tw-text-primary tw-text-sm tw-truncate" onclick="event.stopPropagation()">{{ i.email }}</a>
+                  <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-p-1 tw-aspect-square" title="{{ i.email }}" data-tw-stop-propagation><i class="fas fa-envelope"></i></a>
+                  <a href="mailto:{{ i.email }}" class="tw-text-primary tw-text-sm tw-truncate" data-tw-stop-propagation>{{ i.email }}</a>
                 </span>
                 {% else %}
                 <span class="tw-btn tw-btn-outline-secondary tw-p-1 tw-aspect-square" title="{% trans 'No email' %}"><i class="fas fa-envelope"></i></span>
@@ -108,7 +109,7 @@
               </td>
               <td>
                 {% if i.pk != request.user.pk %}
-                <a href="{% url 'chat:open_dm' pk=i.pk %}" class="tw-btn tw-btn-primary tw-p-1 tw-aspect-square" title="{% trans 'Direct message' %}" onclick="event.stopPropagation()"><i class="fas fa-comment-dots"></i></a>
+                <a href="{% url 'chat:open_dm' pk=i.pk %}" class="tw-btn tw-btn-primary tw-p-1 tw-aspect-square" title="{% trans 'Direct message' %}" data-tw-stop-propagation><i class="fas fa-comment-dots"></i></a>
                 {% else %}
                 <span class="tw-btn tw-btn-outline-secondary tw-p-1 tw-aspect-square" title="{% trans 'This is you' %}"><i class="fas fa-comment-dots"></i></span>
                 {% endif %}
@@ -125,7 +126,8 @@
       {% for i in uid %}
       <div class="tw-citizen-card tw-text-start tw-items-start"
            data-user-id="{{ i.pk }}"
-           data-href="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}"
+           data-detail-url="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}"
+           role="link" tabindex="0"
            data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
         <div class="tw-flex tw-gap-3 tw-w-full">
           <div class="tw-shrink-0">
@@ -155,7 +157,7 @@
         </div>
         <div class="tw-flex tw-justify-center lg:tw-justify-between tw-gap-2 tw-w-full">
           {% if i.email %}
-          <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" onclick="event.stopPropagation()" title="{{ i.email }}">
+          <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" data-tw-stop-propagation title="{{ i.email }}">
             <i class="fas fa-envelope tw-text-lg lg:tw-text-2xl"></i>
           </a>
           {% else %}
@@ -164,7 +166,7 @@
           </span>
           {% endif %}
           {% if i.uzytkownik.phone %}
-          <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" onclick="event.stopPropagation()" title="{{ i.uzytkownik.phone }}">
+          <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" data-tw-stop-propagation title="{{ i.uzytkownik.phone }}">
             <i class="fas fa-phone tw-text-lg lg:tw-text-2xl"></i>
           </a>
           {% else %}
@@ -173,7 +175,7 @@
           </span>
           {% endif %}
           {% if i.pk != request.user.pk %}
-          <a href="{% url 'chat:open_dm' pk=i.pk %}" class="tw-btn tw-btn-primary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" onclick="event.stopPropagation()" title="{% trans 'Direct message' %}">
+          <a href="{% url 'chat:open_dm' pk=i.pk %}" class="tw-btn tw-btn-primary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" data-tw-stop-propagation title="{% trans 'Direct message' %}">
             <i class="fas fa-comment-dots tw-text-lg lg:tw-text-2xl"></i>
           </a>
           {% else %}

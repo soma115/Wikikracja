@@ -138,9 +138,7 @@
   };
 
   TwPopover.prototype._escapeHtml = function (text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    return window.escapeHtml(text);
   };
 
   TwPopover.prototype._sanitize = function (html) {

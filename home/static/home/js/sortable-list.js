@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var CSRF = (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '';
+
 
   // options: { reorderUrl, handle (CSS selector), onSaved, onError, msg: { reorder_error, network_error } }
   window.initSortableList = function (listEl, options) {
@@ -18,13 +18,9 @@
         var items = Array.from(listEl.children).map(function (li, idx) {
           return { id: parseInt(li.dataset.id, 10), order: idx };
         });
-        fetch(opts.reorderUrl, {
+        window.apiFetch(opts.reorderUrl, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': CSRF,
-          },
-          body: JSON.stringify(items),
+          body: items,
         })
           .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
           .then(function (res) {

@@ -28,8 +28,10 @@
 <form action="." method="POST">
  {% csrf_token %}
  <div class="tw-flex tw-gap-2">
- <button type="submit" class="tw-btn tw-btn-danger tw-btn-sm"><i class="fas fa-trash fa-fw tw-me-1"></i>{% trans 'Yes, Delete' %}</button>
- <a href="{% url 'glosowania:details' decyzja.pk %}" class="tw-btn tw-btn-secondary tw-btn-sm"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'No, Cancel' %}</a>
+ {% url 'glosowania:details' decyzja.pk as cancel_url %}
+ {% trans 'Yes, Delete' as confirm_label %}
+ {% trans 'No, Cancel' as cancel_label %}
+ {% include 'home/includes/confirm_delete_buttons.html' with cancel_url=cancel_url confirm_label=confirm_label cancel_label=cancel_label btn_sm=True %}
  </div>
 </form>
 {% endblock %}

@@ -25,19 +25,8 @@
         <span id="bookmark-count-badge" class="{% if not bookmark_count %}tw-d-none{% endif %} tw-text-xs">{% if bookmark_count %}({{ bookmark_count }}){% endif %}</span>
       </a>
 
-      <label id="sp-select-all" class="tw-chip{% if all_types_selected %} tw-chip--on{% endif %}" data-color="accent">
-        <input type="checkbox" value="all" class="tw-d-none tw-chip-input"
-               {% if all_types_selected %}checked{% endif %}>
-        {% trans "All" %}
-      </label>
-
-      {% for ct_val, ct_label in selectable_types %}
-      <label class="tw-chip{% if ct_val in selected_types %} tw-chip--on{% endif %}" data-color="{{ ct_val|content_type_color }}">
-        <input type="checkbox" name="type" value="{{ ct_val }}" class="tw-d-none tw-chip-input"
-               {% if ct_val in selected_types %}checked{% endif %}>
-        {{ ct_label }}
-      </label>
-      {% endfor %}
+      {% trans "All" as chip_all_label %}
+      {% include 'home/includes/chip_filter.html' with all_label=chip_all_label all_selected=all_types_selected items=selectable_types selected=selected_types input_name='type' %}
     </div>
   </form>
 
@@ -108,16 +97,12 @@
 
 <script>
 document.getElementById('tw-btn-mark-all')?.addEventListener('click', function() {
-  fetch("{% url 'mark_all_read' %}", {
-    method: 'POST',
-    headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json'},
-  }).then(function(r) { return r.json(); }).then(function(data) {
+  window.apiFetch("{% url 'mark_all_read' %}", { method: 'POST' }).then(function(r) { return r.json(); }).then(function(data) {
     if (data.success) location.reload();
   });
 });
 
 // Initialize mark-as-read for activity page
-window.CSRF_TOKEN = '{{ csrf_token }}';
 window.MARK_AS_READ_URL = "{% url 'mark_as_read' %}";
 window.MARK_UNREAD_URL = "{% url 'mark_unread' %}";
 window.TOGGLE_BOOKMARK_URL = "{% url 'toggle_bookmark' %}";

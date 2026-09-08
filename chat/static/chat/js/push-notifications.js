@@ -197,18 +197,14 @@ const PushNotificationManager = {
      */
     async registerDevice(token) {
         try {
-            const response = await fetch('/chat/api/push/register/', {
+            const response = await window.apiFetch('/chat/api/push/register/', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': this.getCSRFToken()
-                },
-                body: JSON.stringify({
+                body: {
                     platform: 'fcm',
                     registration_id: token,
                     device_type: this.getDeviceType(),
                     display_mode: this.getDisplayMode(),
-                })
+                }
             });
             const data = await response.json();
             if (response.ok && data.success) {
@@ -232,16 +228,12 @@ const PushNotificationManager = {
      */
     async unregisterDevice(registrationId) {
         try {
-            const response = await fetch('/chat/api/push/unregister/', {
+            const response = await window.apiFetch('/chat/api/push/unregister/', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': this.getCSRFToken()
-                },
-                body: JSON.stringify({
+                body: {
                     platform: 'fcm',
                     registration_id: registrationId
-                })
+                }
             });
             const data = await response.json();
             if (response.ok && data.success) {
@@ -256,19 +248,6 @@ const PushNotificationManager = {
             console.error('[NOTIFDBG] Error unregistering device:', error);
             return null;
         }
-    },
-
-    // Utility: Get CSRF token from cookie
-    getCSRFToken() {
-        const name = 'csrftoken';
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-            const [key, value] = cookie.trim().split('=');
-            if (key === name) {
-                return decodeURIComponent(value);
-            }
-        }
-        return '';
     },
 
 

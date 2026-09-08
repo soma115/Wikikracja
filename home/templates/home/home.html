@@ -109,7 +109,6 @@
       <a href="{% url 'activity' %}" class="tw-stretched-link" aria-label="{% trans 'Activity' %}" title="{% trans 'Activity' %}"></a>
       <script>
       // Initialize mark-as-read for home page activity feed
-      window.CSRF_TOKEN = '{{ csrf_token }}';
       window.MARK_AS_READ_URL = "{% url 'mark_as_read' %}";
       window.initActivityFeedMarkRead('#activity-feed-body', '.tw-task-dash-link');
       </script>
