@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-08 12:27+0200\n"
+"POT-Creation-Date: 2026-09-08 15:42+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -175,7 +175,7 @@ msgstr "Brak opcji."
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:58
 #: .\bookkeeping\templates\bookkeeping\partner_list.html:84
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:68
-#: .\categories\templates\categories\_category_manager_init.html:17
+#: .\categories\templates\categories\_category_manager_init.html:19
 #: .\events\templates\events\_event_card.html:64
 #: .\events\templates\events\event_detail.html:14
 #: .\glosowania\templates\glosowania\szczegoly.html:74
@@ -198,11 +198,11 @@ msgstr "Czy na pewno chcesz usunąć tą ankietę?"
 #: .\bookkeeping\templates\bookkeeping\category_list.html:23
 #: .\bookkeeping\templates\bookkeeping\partner_list.html:85
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:69
-#: .\categories\templates\categories\_category_manager_init.html:20
+#: .\categories\templates\categories\_category_manager_init.html:22
 #: .\events\templates\events\event_detail.html:18
 #: .\glosowania\templates\glosowania\szczegoly.html:179
 #: .\glosowania\templates\glosowania\szczegoly.html:220
-#: .\home\templates\home\includes\confirm_delete_buttons.html:15
+#: .\home\templates\home\includes\confirm_delete_buttons.html:17
 #: .\home\templates\home\site_admin.html:57
 msgid "Delete"
 msgstr "Usuń"
@@ -297,7 +297,7 @@ msgstr "Dodaj ankietę"
 #: .\ankiety\templates\ankiety\survey_form.html:57 .\board\forms.py:25
 #: .\board\templates\board\post_form.html:73 .\bookkeeping\forms.py:22
 #: .\bookkeeping\forms.py:52
-#: .\categories\templates\categories\_category_manager_init.html:19
+#: .\categories\templates\categories\_category_manager_init.html:21
 #: .\chat\templates\chat\add.html:15 .\chat\templates\chat\chat.html:237
 #: .\glosowania\templates\glosowania\dodaj.html:28
 #: .\glosowania\templates\glosowania\edit.html:22
@@ -618,12 +618,12 @@ msgstr "Utwórz ogłoszenie"
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:75
 #: .\bookkeeping\templates\bookkeeping\partner_form.html:62
 #: .\bookkeeping\templates\bookkeeping\transaction_form.html:53
-#: .\categories\templates\categories\_category_manager_init.html:18
+#: .\categories\templates\categories\_category_manager_init.html:20
 #: .\chat\templates\chat\chat.html:236
 #: .\glosowania\templates\glosowania\edit_argument.html:29
 #: .\home\templates\home\haslo.html:21
-#: .\home\templates\home\includes\confirm_delete_buttons.html:11
-#: .\home\templates\home\includes\confirm_delete_buttons.html:19
+#: .\home\templates\home\includes\confirm_delete_buttons.html:13
+#: .\home\templates\home\includes\confirm_delete_buttons.html:21
 #: .\home\templates\home\site_admin.html:36
 #: .\obywatele\templates\obywatele\candidate_edit.html:13
 #: .\obywatele\templates\obywatele\candidate_edit.html:55
@@ -1121,24 +1121,24 @@ msgstr "Wszystkie"
 msgid "Manage categories"
 msgstr "Zarządzaj kategoriami"
 
-#: .\categories\templates\categories\_category_manager_init.html:22
+#: .\categories\templates\categories\_category_manager_init.html:24
 msgid "Protected — cannot be deleted"
 msgstr "Chroniona — nie można usunąć"
 
-#: .\categories\templates\categories\_category_manager_init.html:24
+#: .\categories\templates\categories\_category_manager_init.html:26
 #, python-brace-format
 msgid "…and {n} more"
 msgstr "…i jeszcze {n}"
 
-#: .\categories\templates\categories\_category_manager_init.html:25
+#: .\categories\templates\categories\_category_manager_init.html:27
 msgid "Category name is required."
 msgstr "Nazwa kategorii jest wymagana."
 
-#: .\categories\templates\categories\_category_manager_init.html:26
+#: .\categories\templates\categories\_category_manager_init.html:28
 msgid "Failed to load categories."
 msgstr "Nie udało się wczytać kategorii."
 
-#: .\categories\templates\categories\_category_manager_init.html:27
+#: .\categories\templates\categories\_category_manager_init.html:29
 msgid "An error occurred."
 msgstr "Wystąpił błąd."
 
@@ -1206,7 +1206,7 @@ msgstr "Historia zmian"
 
 #: .\chat\i18n.py:18 .\chat\templates\chat\chat.html:218
 #: .\chat\templates\chat\chat.html:277
-#: .\home\templates\home\includes\modal_header.html:12
+#: .\home\templates\home\includes\modal_header.html:14
 msgid "Close"
 msgstr "Zamknij"
 

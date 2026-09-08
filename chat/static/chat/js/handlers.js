@@ -136,8 +136,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function autoResizeTextarea(textarea) {
-        textarea.style.height = 'auto';
-        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        textarea.style.setProperty('--textarea-height', 'auto');
+        textarea.style.setProperty('--textarea-height', Math.min(textarea.scrollHeight, 120) + 'px');
     }
 
     // Tree sidebar — nav-cat-btn collapse/expand

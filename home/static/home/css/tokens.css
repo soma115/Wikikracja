@@ -13,16 +13,18 @@
   --color-gray-700: #444;
   --color-gray-800: #303030;
   --color-gray-900: #222;
+  --modal-backdrop-bg: #000;
   /* Component tokens */
+  --radius-xs: 0.25rem;
   --radius-sm: 0.375rem;
-  --card-border-radius: 0.5rem;
+  --radius-card: .65rem;
+  --radius-lg: 0.875rem;
   --popover-max-width: 300px;
   --popover-body-padding-x: 1rem;
   --popover-body-padding-y: 1rem;
   --sidebar-width: 240px;
   --topbar-height: 60px;
   --sidebar-collapsed-width: 52px;
-  --radius-card: .65rem;
   --radius-btn: .45rem;
   --radius-badge: 2rem;
   --transition-fast: .15s;

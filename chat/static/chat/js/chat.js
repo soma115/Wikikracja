@@ -1404,8 +1404,8 @@ export async function onSubmitMessage(message, editing_message_id) {
                 messageInput.innerHTML = '';
             } else {
                 messageInput.value = '';
-                messageInput.style.height = 'auto';
-                messageInput.style.height = '38px';
+                messageInput.style.setProperty('--textarea-height', 'auto');
+                messageInput.style.setProperty('--textarea-height', '38px');
             }
             clearDraft(CurrentRoomId);
             messageInput.dispatchEvent(new InputEvent('input', { bubbles: true }));

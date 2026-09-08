@@ -128,10 +128,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!banner || !blockedBanner) return;
 
     function showBanner(el) {
-        el.parentElement.style.maxHeight = el.scrollHeight + 'px';
+        el.parentElement.style.setProperty('--banner-max-height', el.scrollHeight + 'px');
     }
     function hideBanner(el) {
-        el.parentElement.style.maxHeight = '0';
+        el.parentElement.style.setProperty('--banner-max-height', '0');
     }
 
     // max-height zamraża wysokość w pikselach. Po resize/obrocie tekst banera może
@@ -140,8 +140,8 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', function() {
         [banner, blockedBanner].forEach(function(el) {
             var wrap = el.parentElement;
-            if (wrap.style.maxHeight && wrap.style.maxHeight !== '0px') {
-                wrap.style.maxHeight = el.scrollHeight + 'px';
+            if (wrap.style.getPropertyValue('--banner-max-height') && wrap.style.getPropertyValue('--banner-max-height') !== '0px') {
+                wrap.style.setProperty('--banner-max-height', el.scrollHeight + 'px');
             }
         });
     });

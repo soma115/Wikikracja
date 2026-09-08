@@ -684,7 +684,8 @@ img {
 }
 
 .tw-notif-banner-wrap {
-  max-height: 0;
+  --banner-max-height: 0;
+  max-height: var(--banner-max-height);
   overflow: hidden;
   transition: max-height .3s ease;
 }
@@ -775,6 +776,7 @@ form.tw-signup input[name*="captcha"] {
 }
 
 .tw-message-input-rich {
+  --textarea-height: auto;
   border: none;
   background-color: transparent;
   color: var(--text-primary);
@@ -786,6 +788,7 @@ form.tw-signup input[name*="captcha"] {
   overflow-y: auto;
   min-height: 4rem;
   max-height: 180px;
+  height: var(--textarea-height);
   outline: none;
   word-break: break-word;
 }
@@ -2431,7 +2434,7 @@ button.tw-task-helpers-btn:hover,
 
 .tw-ec-messages::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 
 .tw-ec-loading {
@@ -3900,7 +3903,7 @@ th.tw-notes-col,
 
 .tw-quick-link-item {
   background: var(--color-surface-offset);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   cursor: move;
 }
 
@@ -4462,7 +4465,7 @@ img.tw-avatar {
 .tw-post-card-featured-img {
   width: 100%;
   height: auto;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   -o-object-fit: cover;
      object-fit: cover;
   margin-top: .5rem;
@@ -5044,7 +5047,7 @@ a:hover {
 
 .tw-bg-glass-sm {
   background: var(--color-surface-offset);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 
 /* ══ scalone z light-mode.css (etap 5.5) ══ */
@@ -6086,7 +6089,7 @@ input.tw-form-switch:focus,
   background: rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 50%;
-  color: #fff;
+  color: var(--text-inverse);
   opacity: 0.8;
   cursor: pointer;
   transition: opacity 0.15s, background 0.15s;
@@ -6652,7 +6655,7 @@ input.tw-form-switch:focus,
 
 .tw-board-post-card {
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   padding: 1.25rem;
   margin: 0.75rem 0;
   background: var(--bg-card);
@@ -6693,7 +6696,7 @@ input.tw-form-switch:focus,
   max-height: 400px;
   -o-object-fit: contain;
      object-fit: contain;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   display: block;
   margin: 0 auto;
 }
@@ -6763,8 +6766,8 @@ input.tw-form-switch:focus,
 .tw-post-content code {
   background: var(--badge-proposition-bg);
   padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  font-family: 'Courier New', monospace;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
   color: var(--badge-proposition-color);
 }
 
@@ -7456,7 +7459,7 @@ input.tw-form-switch:focus,
   display: inline-block;
   background: var(--history-badge-bg);
   color: var(--history-badge-color);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   padding: 0.15rem 0.45rem;
   font-size: 0.76rem;
   font-weight: 600;
@@ -7466,7 +7469,7 @@ input.tw-form-switch:focus,
   display: inline-block;
   background: var(--badge-approved-color);
   color: var(--text-inverse);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   padding: 0.15rem 0.45rem;
   font-size: 0.76rem;
   font-weight: 600;
@@ -7485,7 +7488,7 @@ input.tw-form-switch:focus,
   color: var(--text-primary);
   background: var(--bg-code);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 0.75rem;
   overflow-x: auto;
 }
@@ -7681,7 +7684,7 @@ body.tw-modal-open {
   z-index: 1040;
   width: 100vw;
   height: 100vh;
-  background: #000;
+  background: var(--modal-backdrop-bg);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.25s ease;
@@ -8783,7 +8786,7 @@ body.tw-chat-page .tw-main-area {
 .tw-chat-messages::-webkit-scrollbar-thumb,
 .tw-room-list::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 
 #room-list .tw-room-list-groups {
@@ -9500,7 +9503,7 @@ body.tw-chat-page .tw-main-area {
   -webkit-user-select: none;
   -moz-user-select: none;
        user-select: none;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 
 .tw-image-viewer-nav:hover {
@@ -9861,14 +9864,6 @@ body.tw-chat-page .tw-main-area {
 
 .tw-table {
   display: table;
-}
-
-.tw-table-cell {
-  display: table-cell;
-}
-
-.tw-table-row {
-  display: table-row;
 }
 
 .tw-grid {
@@ -10354,14 +10349,6 @@ body.tw-chat-page .tw-main-area {
     display: block;
   }
 
-  .sm\:tw-table-cell {
-    display: table-cell;
-  }
-
-  .sm\:tw-table-row {
-    display: table-row;
-  }
-
   .sm\:tw-hidden {
     display: none;
   }
@@ -10408,14 +10395,6 @@ body.tw-chat-page .tw-main-area {
     display: flex;
   }
 
-  .md\:tw-table-cell {
-    display: table-cell;
-  }
-
-  .md\:tw-table-row {
-    display: table-row;
-  }
-
   .md\:tw-hidden {
     display: none;
   }
@@ -10434,14 +10413,6 @@ body.tw-chat-page .tw-main-area {
 }
 
 @media (min-width: 992px) {
-  .lg\:tw-table-cell {
-    display: table-cell;
-  }
-
-  .lg\:tw-table-row {
-    display: table-row;
-  }
-
   .lg\:tw-h-auto {
     height: auto;
   }
@@ -10477,15 +10448,5 @@ body.tw-chat-page .tw-main-area {
   .lg\:tw-text-2xl {
     font-size: 1.5rem;
     line-height: 2rem;
-  }
-}
-
-@media (min-width: 1200px) {
-  .xl\:tw-table-cell {
-    display: table-cell;
-  }
-
-  .xl\:tw-table-row {
-    display: table-row;
   }
 }

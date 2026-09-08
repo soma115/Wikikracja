@@ -63,9 +63,8 @@ module.exports = {
     'tw-d-none', 'tw-d-block', 'tw-d-inline', 'tw-d-inline-block', 'tw-d-flex', 'tw-d-inline-flex', 'tw-d-grid', 'tw-d-table', 'tw-d-table-cell', 'tw-d-table-row',
     'tw-disabled',
     'tw-modal', 'tw-modal-dialog', 'tw-modal-dialog-scrollable', 'tw-modal-content', 'tw-modal-header', 'tw-modal-title', 'tw-modal-body', 'tw-modal-footer', 'tw-modal-backdrop', 'tw-fade', 'tw-btn-close',
-    'tw-dropdown', 'tw-dropdown-menu', 'tw-dropdown-menu-end', 'tw-dropdown-item', 'tw-dropdown-divider', 'tw-dropdown-toggle',
+    'tw-dropdown', 'tw-dropdown-menu', 'tw-dropdown-menu-end', 'tw-dropdown-item', 'tw-dropdown-divider',
     'tw-collapse', 'tw-show',
-    { pattern: /^tw-table-(cell|row)$/, variants: ['sm', 'md', 'lg', 'xl'] },
     // Chat dynamic state classes toggled by JS (docs/CHAT_REWORK_PLAN.md, 16.4.6).
     // Active states on sort/vote/anonymous-toggle use the shared 'tw-active'.
     'tw-room-link--online', 'tw-room-link--joined', 'tw-room-link--not-seen', 'tw-room-link--filtered-out', 'tw-room-link--search-filtered-out', 'tw-room-link--tapping', 'tw-room-link--connecting',
