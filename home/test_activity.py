@@ -5,7 +5,7 @@ from django.utils import timezone
 from board.models import Post
 from chat.models import Message, MessageReadBy, Room
 from core.models import FeedBookmark, ReadStatus
-from tests.factories import PostCategoryFactory, PostFactory, UserFactory
+from tests.factories import DecyzjaFactory, PostCategoryFactory, PostFactory, UserFactory
 
 
 @pytest.fixture
@@ -157,3 +157,68 @@ def test_mark_all_read_endpoint_works(client, activity_user):
     assert data['success'] is True
     assert data['marked_count'] >= 1
     assert ReadStatus.objects.filter(user=activity_user, content_type=ReadStatus.ContentType.POST, object_id=post.pk).exists()
+
+
+@pytest.mark.django_db
+def test_activity_filter_unread_and_bookmarks_intersection(client, activity_user):
+    client.force_login(activity_user)
+    category = PostCategoryFactory()
+    post_unread_bookmarked = PostFactory(author=activity_user, category=category, title='Unread bookmarked', text='<p>body</p>')
+    post_unread = PostFactory(author=activity_user, category=category, title='Unread not bookmarked', text='<p>body</p>')
+    post_bookmarked = PostFactory(author=activity_user, category=category, title='Read bookmarked', text='<p>body</p>')
+    post_read = PostFactory(author=activity_user, category=category, title='Read not bookmarked', text='<p>body</p>')
+    for post in [post_unread_bookmarked, post_unread, post_bookmarked, post_read]:
+        Post.objects.filter(pk=post.pk).update(updated=timezone.now())
+
+    ReadStatus.objects.create(user=activity_user, content_type=ReadStatus.ContentType.POST, object_id=post_bookmarked.pk)
+    ReadStatus.objects.create(user=activity_user, content_type=ReadStatus.ContentType.POST, object_id=post_read.pk)
+
+    FeedBookmark.objects.create(user=activity_user, content_type='post', object_id=post_unread_bookmarked.pk)
+    FeedBookmark.objects.create(user=activity_user, content_type='post', object_id=post_bookmarked.pk)
+
+    response = client.get(reverse('activity'), {'unread': '1', 'bookmarks': '1'})
+    content = response.content.decode()
+    assert 'Unread bookmarked' in content
+    assert 'Unread not bookmarked' not in content
+    assert 'Read bookmarked' not in content
+    assert 'Read not bookmarked' not in content
+
+
+@pytest.mark.django_db
+def test_activity_filter_unread_by_content_type(client, activity_user):
+    client.force_login(activity_user)
+    category = PostCategoryFactory()
+    post_unread = PostFactory(author=activity_user, category=category, title='Unread post', text='<p>body</p>')
+    decision_unread = DecyzjaFactory(author=activity_user, title='Unread decision')
+    Post.objects.filter(pk=post_unread.pk).update(updated=timezone.now())
+
+    response = client.get(reverse('activity'), {'unread': '1', 'type': 'post', 'filtered': '1'})
+    content = response.content.decode()
+    assert 'Unread post' in content
+    assert 'Unread decision' not in content
+
+
+@pytest.mark.django_db
+def test_activity_filter_bookmarks_by_content_type(client, activity_user):
+    client.force_login(activity_user)
+    category = PostCategoryFactory()
+    post_bookmarked = PostFactory(author=activity_user, category=category, title='Bookmarked post', text='<p>body</p>')
+    decision_bookmarked = DecyzjaFactory(author=activity_user, title='Bookmarked decision')
+    Post.objects.filter(pk=post_bookmarked.pk).update(updated=timezone.now())
+
+    FeedBookmark.objects.create(user=activity_user, content_type='post', object_id=post_bookmarked.pk)
+    FeedBookmark.objects.create(user=activity_user, content_type='decision', object_id=decision_bookmarked.pk)
+
+    response = client.get(reverse('activity'), {'bookmarks': '1', 'type': 'post', 'filtered': '1'})
+    content = response.content.decode()
+    assert 'Bookmarked post' in content
+    assert 'Bookmarked decision' not in content
+
+
+@pytest.mark.django_db
+def test_activity_filter_form_preserves_unread_and_bookmarks(client, activity_user):
+    client.force_login(activity_user)
+    response = client.get(reverse('activity'), {'unread': '1', 'bookmarks': '1'})
+    content = response.content.decode()
+    assert '<input type="hidden" name="unread" value="1">' in content
+    assert '<input type="hidden" name="bookmarks" value="1">' in content

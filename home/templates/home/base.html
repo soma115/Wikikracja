@@ -25,6 +25,22 @@
 
 	<!-- Anti-FOUC: restore theme before CSS loads -->
 	<script>(function(){var t=localStorage.getItem('app-theme')||'auto';if(t==='auto'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();</script>
+	<!-- Anti-FOUC: restore saved activity filters when no query string is present -->
+	<script>
+	(function() {
+		if (window.location.search) return;
+		var scope = document.documentElement.dataset.prefsScope;
+		if (scope !== 'activity') return;
+		try {
+			var raw = localStorage.getItem('wikikracja:prefs:' + scope);
+			if (!raw) return;
+			var data = JSON.parse(raw);
+			if (data.filters && data.filters.length > 1) {
+				window.location.replace(window.location.pathname + data.filters);
+			}
+		} catch (e) {}
+	})();
+	</script>
 	<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

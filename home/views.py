@@ -53,6 +53,25 @@ def home(request: HttpRequest):
     return render(request, 'home/home.html', context)
 
 
+def _build_activity_query(sort, order, is_filtered, active_types, filter_unread, filter_bookmarks, toggle=None):
+    """Build an activity page query string. toggle='unread' or 'bookmarks' flips that flag."""
+    parts = []
+    if is_filtered:
+        parts.append('filtered=1')
+        parts.extend(f'type={t}' for t in active_types)
+    flags = {'unread': filter_unread, 'bookmarks': filter_bookmarks}
+    for name, flag in flags.items():
+        if name == toggle:
+            if not flag:
+                parts.append(f'{name}=1')
+        else:
+            if flag:
+                parts.append(f'{name}=1')
+    parts.append(f'sort={sort}')
+    parts.append(f'order={order}')
+    return '?' + '&'.join(parts)
+
+
 @login_required
 def activity_page(request):
     all_items = feed_service.generate_feed_items(request.user)
@@ -60,15 +79,14 @@ def activity_page(request):
     bookmark_count = sum(1 for i in all_items if i.get('is_bookmarked'))
     request._unread_count = unread_count
 
-    # Filter unread only
-    filter_unread = request.GET.get('filter') == 'unread'
-    if filter_unread:
-        all_items = [i for i in all_items if not i['is_read']]
+    filter_unread = request.GET.get('unread') == '1'
+    filter_bookmarks = request.GET.get('bookmarks') == '1'
 
-    # Filter bookmarks only
-    filter_bookmarks = request.GET.get('filter') == 'bookmarks'
+    feed_items = all_items
+    if filter_unread:
+        feed_items = [i for i in feed_items if not i['is_read']]
     if filter_bookmarks:
-        all_items = [i for i in all_items if i.get('is_bookmarked')]
+        feed_items = [i for i in feed_items if i.get('is_bookmarked')]
 
     content_types = [
         ('', _('All')),
@@ -91,21 +109,19 @@ def activity_page(request):
     selected_types = list(active_types) if is_filtered else (list(all_type_values) if not active_types else list(active_types))
     if active_types:
         active_types_set = set(active_types)
-        all_items = [i for i in all_items if i['content_type'] in active_types_set]
+        feed_items = [i for i in feed_items if i['content_type'] in active_types_set]
     all_types_selected = set(selected_types) == all_type_values
 
     # Sort
     sort = request.GET.get('sort', 'date')
     order = request.GET.get('order', 'desc')
     if sort == 'date':
-        all_items.sort(key=lambda x: x['timestamp'], reverse=(order == 'desc'))
+        feed_items.sort(key=lambda x: x['timestamp'], reverse=(order == 'desc'))
 
     next_order = "asc" if order == "desc" else "desc"
-    type_query = "".join(f"&type={t}" for t in active_types)
-    filter_query = "&filtered=1" if is_filtered else ""
-    unread_query = "&filter=unread" if filter_unread else ""
-    sort_url = f"?{filter_query}{type_query}{unread_query}&sort=date&order={next_order}"
-    sort_url = sort_url.replace("?&", "?")
+    sort_url = _build_activity_query(sort, next_order, is_filtered, active_types, filter_unread, filter_bookmarks)
+    unread_filter_url = _build_activity_query(sort, order, is_filtered, active_types, filter_unread, filter_bookmarks, toggle='unread')
+    bookmarks_filter_url = _build_activity_query(sort, order, is_filtered, active_types, filter_unread, filter_bookmarks, toggle='bookmarks')
     toolbar_sort_items = [{"url": sort_url, "label": _("Date"), "active": True, "icon": "up" if next_order == "desc" else "down"}]
     toolbar_views = [{"name": "list", "icon": "list", "title": _("List")}, {"name": "grid", "icon": "grip", "title": _("Grid")}]
 
@@ -113,7 +129,7 @@ def activity_page(request):
         request,
         'home/activity.html',
         {
-            'feed_items': all_items,
+            'feed_items': feed_items,
             'active_types': active_types,
             'is_filtered': is_filtered,
             'selected_types': selected_types,
@@ -123,6 +139,8 @@ def activity_page(request):
             'order': order,
             'filter_unread': filter_unread,
             'filter_bookmarks': filter_bookmarks,
+            'unread_filter_url': unread_filter_url,
+            'bookmarks_filter_url': bookmarks_filter_url,
             'unread_count': unread_count,
             'bookmark_count': bookmark_count,
             'content_types': content_types,
