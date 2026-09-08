@@ -38,7 +38,7 @@ module.exports = {
     'tw-badge-info', 'tw-badge-secondary', 'tw-badge-dark',
     'tw-layout-wrapper', 'tw-main-area', 'tw-main-content',
     'tw-topbar', 'tw-topbar-breadcrumb', 'tw-topbar-logo', 'tw-search-box', 'tw-notif-bell', 'tw-notif-count', 'tw-sep', 'tw-current',
-    'tw-sidebar', 'tw-sidebar-logo', 'tw-sidebar-nav', 'tw-sidebar-bottom', 'tw-sidebar-toggle-btn', 'tw-sidebar-close-btn',
+    'tw-sidebar', 'tw-sidebar-logo', 'tw-sidebar-nav', 'tw-sidebar-bottom', 'tw-sidebar-close-btn',
     'tw-nav-item', 'tw-nav-icon', 'tw-nav-text', 'tw-logo-title', 'tw-logo-sub', 'tw-active',
     'tw-toast-container', 'tw-toast-msg', 'tw-toast-close', 'tw-toast-success', 'tw-toast-error', 'tw-toast-danger', 'tw-toast-warning', 'tw-toast-info',
     'tw-tile-carousel-wrapper', 'tw-featured-carousel', 'tw-featured-carousel-title', 'tw-link-more',

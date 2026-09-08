@@ -141,20 +141,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Tree sidebar — nav-cat-btn collapse/expand
-    // Restore cat states from localStorage (before click handler, so initial state is set)
+    // Default state is derived from unread rooms: categories with at least one
+    // .tw-room-link.tw-room-link--not-seen are expanded; others are collapsed.
+    // Explicit user preference (expanded/collapsed in localStorage) takes precedence.
+    function categoryHasUnreadRoom(content) {
+        return !!content.querySelector('.tw-room-link.tw-room-link--not-seen');
+    }
+
+    function applyInitialCategoryState(btn, content) {
+        const contentId = btn.dataset.catContent;
+        if (!contentId || !content) return;
+
+        const savedState = localStorage.getItem(`chat-cat-${contentId}`);
+        let isOpen;
+        if (savedState === 'expanded') {
+            isOpen = true;
+        } else if (savedState === 'collapsed') {
+            isOpen = false;
+        } else {
+            isOpen = categoryHasUnreadRoom(content);
+        }
+
+        content.classList.toggle('tw-open', isOpen);
+        btn.setAttribute('aria-expanded', String(isOpen));
+
+        // When no explicit preference exists and the category is open because of
+        // unread rooms, also reveal archive sections that contain unread rooms.
+        if (!savedState && isOpen) {
+            content.querySelectorAll('.tw-archive-section').forEach(archive => {
+                if (archive.querySelector('.tw-room-link.tw-room-link--not-seen')) {
+                    archive.classList.add('tw-visible');
+                }
+            });
+        }
+    }
+
     document.querySelectorAll('.tw-chat-cat-btn').forEach(btn => {
         const contentId = btn.dataset.catContent;
-        if (!contentId) return;
-        const content = document.getElementById(contentId);
+        const content = contentId ? document.getElementById(contentId) : null;
         if (!content) return;
-        const savedState = localStorage.getItem(`chat-cat-${contentId}`);
-        if (savedState === 'expanded') {
-            content.classList.add('tw-open');
-            btn.setAttribute('aria-expanded', 'true');
-        } else {
-            content.classList.remove('tw-open');
-            btn.setAttribute('aria-expanded', 'false');
-        }
+        applyInitialCategoryState(btn, content);
     });
 
     const globalArchiveBtn = document.getElementById('archive-toggle-global-btn');

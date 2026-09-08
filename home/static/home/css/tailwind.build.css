@@ -598,11 +598,6 @@ video {
 /* -- Parity rules: old-class rules covered by tw-* twins lacked these
      states; kept under the tw-* names actually used in markup. -- */
 
-.tw-sidebar-toggle-btn:hover {
-  background: var(--accent-muted);
-  color: var(--accent);
-}
-
 select.tw-form-select option {
   background: var(--bg-card);
   color: var(--text-primary);
@@ -4885,20 +4880,25 @@ a:hover {
   }
 
   .tw-sidebar.tw-collapsed .tw-sidebar-nav .tw-nav-item a,
-  .tw-sidebar.tw-collapsed .tw-sidebar-bottom .tw-nav-item a {
+  .tw-sidebar.tw-collapsed .tw-sidebar-bottom .tw-nav-item a,
+  .tw-sidebar.tw-collapsed .tw-sidebar-bottom .tw-nav-item button {
     justify-content: center;
     padding: .6rem 0;
     margin: .1rem 4px;
     gap: 0;
   }
 
+  .tw-sidebar.tw-collapsed .tw-sidebar-bottom ul {
+    flex-direction: column;
+  }
+
+  .tw-sidebar.tw-collapsed .tw-sidebar-bottom .tw-nav-item {
+    margin-inline-start: 0 !important;
+  }
+
   .tw-sidebar.tw-collapsed .tw-nav-icon {
     width: auto;
     margin: 0;
-  }
-
-  .tw-sidebar.tw-collapsed .tw-sidebar-toggle-label {
-    display: none !important;
   }
 
   .tw-main-area.tw-sidebar-collapsed {
@@ -6383,24 +6383,13 @@ input.tw-form-switch:focus,
   padding: 0.5rem 0;
 }
 
-.tw-sidebar-bottom .tw-nav-item {
-  list-style: none;
-}
-
-.tw-sidebar-toggle-btn {
+.tw-sidebar-bottom ul {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 0.55rem 0;
-  background: transparent;
-  border: none;
-  border-top: 1px solid var(--border);
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: color 0.15s, background 0.15s;
-  flex-shrink: 0;
+}
+
+.tw-sidebar-bottom .tw-nav-item {
+  list-style: none;
 }
 
 .tw-sidebar-close-btn {
@@ -6533,11 +6522,6 @@ input.tw-form-switch:focus,
 
   .tw-sidebar-bottom {
     padding: 0.5rem 0.75rem;
-  }
-
-  .tw-sidebar-bottom ul {
-    display: flex;
-    align-items: center;
   }
 
   .tw-sidebar-bottom .tw-nav-item {
@@ -10378,14 +10362,6 @@ body.tw-chat-page .tw-main-area {
 
   .md\:tw-block {
     display: block;
-  }
-
-  .md\:tw-inline {
-    display: inline;
-  }
-
-  .md\:tw-flex {
-    display: flex;
   }
 
   .md\:tw-hidden {

@@ -195,16 +195,14 @@
       <ul class="tw-list-none tw-mb-0">
         <li class="tw-nav-item">
           <a href="{% url 'obywatele:my_profile' %}"
-             title="{% trans 'Settings' %}"
+             title="{% trans 'Settings' %}" aria-label="{% trans 'Settings' %}"
              class="{% if request.resolver_match.url_name == 'my_profile' or request.resolver_match.url_name == 'haslo' or request.resolver_match.url_name == 'my_assets' or request.resolver_match.url_name == 'change_email' or request.resolver_match.url_name == 'change_username' %}active tw-active{% endif %}">
             <i class="fas fa-fw fa-gear tw-nav-icon"></i>
-            <span class="tw-nav-text tw-hidden md:tw-inline">{% trans "Settings" %}</span>
           </a>
         </li>
         <li class="tw-nav-item">
-          <a href="{% url 'account_logout' %}" title="{% trans 'Log out' %}">
+          <a href="{% url 'account_logout' %}" title="{% trans 'Log out' %}" aria-label="{% trans 'Log out' %}">
             <i class="fas fa-fw fa-right-from-bracket tw-nav-icon"></i>
-            <span class="tw-nav-text tw-hidden md:tw-inline">{% trans "Log out" %}</span>
           </a>
         </li>
         <li class="tw-nav-item tw-ms-auto md:tw-hidden">
@@ -213,15 +211,14 @@
             <i class="fas fa-angles-left"></i>
           </button>
         </li>
+        <li class="tw-nav-item tw-ms-auto tw-hidden md:tw-block">
+          <button type="button" id="sidebar-collapse-btn"
+                  title="{% trans 'Collapse/expand menu' %}" aria-label="{% trans 'Collapse/expand menu' %}">
+            <i class="fas fa-angles-left tw-nav-icon" id="sidebar-collapse-icon"></i>
+          </button>
+        </li>
       </ul>
     </div>
-
-    <!-- Collapse toggle -->
-    <button class="tw-sidebar-toggle-btn tw-hidden md:tw-flex" id="sidebar-collapse-btn"
-            title="{% trans 'Collapse/expand menu' %}">
-      <i class="fas fa-angles-left" id="sidebar-collapse-icon"></i>
-      <span class="tw-sidebar-toggle-label tw-ms-2">{% trans "Collapse" %}</span>
-    </button>
 
     <!-- Restore saved filters into sidebar links before first paint -->
     <script>
