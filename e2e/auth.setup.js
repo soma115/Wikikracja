@@ -24,5 +24,18 @@ setup('login as dev user', async ({ page }) => {
     // z _auth_user_id jest zapisana i odpowiedź serwera ją potwierdziła.
     await page.waitForSelector('#sidebar', { timeout: 15000 });
 
+    // Chat E2E potrzebuje co najmniej jednego pokoju dostępnego dla użytkownika.
+    // Środowisko CI może być świeże i nie mieć danych demonstracyjnych, dlatego
+    // utwórz pokój testowy tylko wtedy, gdy lista jest pusta.
+    await page.goto('/chat/?view=rooms');
+    if (await page.locator('.tw-room-link').count() === 0) {
+        await page.goto('/chat/add/');
+        await page.fill('input[name="title"]', `E2E Playwright Room ${Date.now()}`);
+        await Promise.all([
+            page.waitForURL(/\/chat\/\?view=rooms|\/chat\/#room_id=/, { timeout: 15000 }),
+            page.click('form button[type="submit"]'),
+        ]);
+    }
+
     await page.context().storageState({ path: STORAGE_STATE });
 });
