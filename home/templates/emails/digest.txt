@@ -1,5 +1,11 @@
 {% autoescape off %}[{{ site_name }}] {{ title }}
 
+{% if restarted_votes %}!!! {{ restarted_votes_title }} !!!
+{{ restarted_votes_intro }}
+{% for vote in restarted_votes %}- {{ vote.title }}
+  {{ vote.url }}
+{% endfor %}
+{% endif %}
 {{ digest_intro }}
 
 {% for section in sections %}=== {{ section.label }} ===

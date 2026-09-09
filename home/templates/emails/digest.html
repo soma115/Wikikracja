@@ -108,6 +108,31 @@
 
     .email-content { padding: 28px 32px 8px; }
 
+    .email-critical {
+      margin: 0 0 28px;
+      padding: 16px 18px;
+      color: #8b0000;
+      background-color: #fff1f1;
+      border: 2px solid #c62828;
+      border-radius: 0.45rem;
+    }
+
+    .email-critical-title {
+      margin: 0 0 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #b71c1c;
+    }
+
+    .email-critical-item {
+      margin: 8px 0 0;
+    }
+
+    .email-critical-item a {
+      color: #b71c1c;
+      font-weight: 700;
+    }
+
     .email-intro {
       margin: 0 0 24px;
       color: rgba(0, 0, 0, .55);
@@ -286,6 +311,16 @@
           </tr>
           <tr>
             <td class="email-content">
+              {% if restarted_votes %}
+              <div class="email-critical">
+                <p class="email-critical-title">{{ restarted_votes_title }}</p>
+                <div>{{ restarted_votes_intro }}</div>
+                {% for vote in restarted_votes %}
+                <div class="email-critical-item">&bull; <a href="{{ vote.url }}">{{ vote.title }}</a></div>
+                {% endfor %}
+              </div>
+              {% endif %}
+
               <p class="email-intro">{{ digest_intro }}</p>
 
               {{ sections_html }}

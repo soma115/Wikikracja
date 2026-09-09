@@ -18,7 +18,8 @@ from chat.models import Message, MessageReadBy, Room
 from core.models import ReadStatus
 from core.services.feed import build_user_digest
 from events.models import Event
-from home.management.commands.send_email_digest import Command
+from glosowania.models import Decyzja
+from home.management.commands.send_email_digest import Command, _period_start
 from obywatele.models import CitizenActivity, Uzytkownik
 from tasks.models import Task
 from tests.factories import PostCategoryFactory, PostFactory, UserFactory
@@ -26,6 +27,14 @@ from tests.factories import PostCategoryFactory, PostFactory, UserFactory
 FAST_EMAIL_SETTINGS = {'EMAIL_BACKEND': 'django.core.mail.backends.locmem.EmailBackend', 'EMAIL_SEND_DELAY_SECONDS': 0}
 
 FIXED_NOW = timezone.make_aware(datetime(2026, 9, 2, 10, 0, 0))
+
+
+def test_weekly_digest_period_starts_on_saturday():
+    saturday = timezone.make_aware(datetime(2026, 9, 5, 9, 0, 0))
+    friday = timezone.make_aware(datetime(2026, 9, 4, 9, 0, 0))
+
+    assert _period_start(saturday, 'weekly') == timezone.make_aware(datetime(2026, 9, 5, 8, 0, 0))
+    assert _period_start(friday, 'weekly') == timezone.make_aware(datetime(2026, 8, 29, 8, 0, 0))
 
 
 def _drain_threads():
@@ -286,6 +295,20 @@ class SendEmailDigestCommandTest(TransactionTestCase):
 
         emails = [e for e in mail.outbox if user.email in e.to]
         assert len(emails) == 1
+
+    def test_digest_puts_restarted_votes_first_with_links(self):
+        user = self._make_active_user('restart-recipient', 'restart@example.com')
+        decision = Decyzja.objects.create(title='Restarted referendum', referendum_restart_count=1)
+        Decyzja.objects.filter(pk=decision.pk).update(data_ostatniej_modyfikacji=FIXED_NOW - td(hours=1))
+
+        self._run_digest()
+
+        email = next(e for e in mail.outbox if user.email in e.to)
+        assert 'Important: voting was restarted after a technical failure' in email.body
+        assert 'Restarted referendum' in email.body
+        assert f'/glosowania/details/{decision.pk}/' in email.body
+        assert email.body.index('Important:') < email.body.index('Restarted referendum')
+        assert 'Restarted referendum' in email.alternatives[0][0]
 
     def test_digest_no_email_when_not_due(self):
         user = self._make_active_user('notdue', 'notdue@example.com')

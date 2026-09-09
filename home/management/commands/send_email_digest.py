@@ -16,6 +16,7 @@ from django.utils.translation import gettext_lazy as _
 from core.richtext import one_line_snippet, strip_tags
 from core.services.feed import build_user_digest
 from core.utils import build_site_url, get_site_domain
+from glosowania.models import Decyzja
 from home.templatetags.feed_filters import content_type_label
 from zzz.email import send_bulk_email_in_thread
 from zzz.management.base_command import TranslatedCommand
@@ -33,7 +34,7 @@ def _period_start(now: datetime, frequency: str) -> datetime:
     if frequency == 'daily':
         return base
     if frequency == 'weekly':
-        return base - td(days=base.weekday())
+        return base - td(days=(base.weekday() - 5) % 7)
     if frequency == 'monthly':
         return base.replace(day=1)
     return base
@@ -105,16 +106,18 @@ class Command(TranslatedCommand):
             if not _is_digest_due(profile, now):
                 continue
 
-            items = build_user_digest(user, profile.last_email_digest_at or now)
+            since = profile.last_email_digest_at or now
+            restarted_votes = self._get_restarted_votes(since)
+            items = build_user_digest(user, since)
 
-            if not items:
+            if not items and not restarted_votes:
                 profile.last_email_digest_at = now
                 profile.save(update_fields=['last_email_digest_at'])
                 skipped += 1
                 log.info(f'No digest items for user {user.id}; skipping')
                 continue
 
-            context = self._build_digest_context(user, items)
+            context = self._build_digest_context(user, items, restarted_votes)
             subject = _('[{HOST}] Activity digest').format(HOST=self.host)
             text = render_to_string('emails/digest.txt', context)
             html = render_to_string('emails/digest.html', context)
@@ -134,7 +137,15 @@ class Command(TranslatedCommand):
 
         log.info(f'Digest run finished: sent={sent}, skipped={skipped}, now={now}')
 
-    def _build_digest_context(self, user, items):
+    @staticmethod
+    def _get_restarted_votes(since):
+        """Return referenda restarted after the previous digest period."""
+        return [
+            {'title': decision.title or _('Untitled referendum'), 'url': build_site_url(f'/glosowania/details/{decision.pk}/')}
+            for decision in Decyzja.objects.filter(referendum_restart_count__gt=0, data_ostatniej_modyfikacji__gte=since).order_by('-data_ostatniej_modyfikacji', 'pk')
+        ]
+
+    def _build_digest_context(self, user, items, restarted_votes=None):
         since_dt = user.uzytkownik.last_email_digest_at
         since_str = since_dt.strftime('%d.%m.%Y %H:%M') if since_dt else '-'
 
@@ -185,6 +196,9 @@ class Command(TranslatedCommand):
             'site_name': get_site_domain(),
             'title': _('Activity digest'),
             'digest_intro': _('Activity digest for %(username)s since %(date)s') % {'username': user_display_name(user), 'date': since_str},
+            'restarted_votes': restarted_votes or [],
+            'restarted_votes_title': _('Important: voting was restarted after a technical failure'),
+            'restarted_votes_intro': _('Votes cast before the failure were lost and these referenda have started again. Please vote again:'),
             'no_activity_text': _('No activity in this section.'),
             'manage_button_text': _('Manage email notifications'),
             'manage_text': _('You can manage your email notifications here:'),
