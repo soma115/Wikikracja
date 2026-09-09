@@ -1,3 +1,4 @@
+from core.presence import presence_data
 from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
 
 
@@ -19,6 +20,7 @@ def build_chat_message_payload(event, *, user, vote_value, current_user, your_re
     payload["initials"] = user_initials(user) if (user and not anonymous) else username[:2].upper()
     payload["avatar_url"] = "/static/home/images/anonymous.svg" if anonymous else avatar_url
     payload["citizen_color_class"] = citizen_color_class(username)
+    payload.update(presence_data(user) if user and not anonymous else {'presence_status': 'red', 'presence_source': '', 'presence_timestamp': None})
     payload["new"] = event["new"] if current_user != user else False
     payload["your_vote"] = vote_value if vote_value else None
     payload["own"] = current_user == user

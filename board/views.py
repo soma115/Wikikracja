@@ -169,8 +169,8 @@ def _post_queryset_for_user(user):
     """Return posts visible to the given user (public or authored by the user)."""
     visible_filter = Q(is_private=False, is_public=True)
     if user.is_authenticated:
-        return Post.objects.filter(visible_filter | Q(author=user))
-    return Post.objects.filter(visible_filter)
+        return Post.objects.select_related('author', 'category').filter(visible_filter | Q(author=user))
+    return Post.objects.select_related('author', 'category').filter(visible_filter)
 
 
 def _post_detail_context(request: HttpRequest, post: Post):

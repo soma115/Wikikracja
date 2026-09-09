@@ -80,6 +80,21 @@
 
 	<!-- Chat rooms engine: -->
 	<script src="{% static 'chat/js/reconnecting-websocket.js' %}"></script>
+  <script>
+    window.WK_PRESENCE_GREEN_MINUTES = {{ presence_green_minutes }};
+    window.WK_PRESENCE_YELLOW_DAYS = {{ presence_yellow_days }};
+    window.WK_PRESENCE_I18N = {
+      now: "{% trans 'Active now' %}",
+      minuteOne: "{% trans 'Active 1 minute ago' %}",
+      minutes: "{% trans 'Active %s minutes ago' %}",
+      hourOne: "{% trans 'Active 1 hour ago' %}",
+      hours: "{% trans 'Active %s hours ago' %}",
+      yesterday: "{% trans 'Active yesterday at %s' %}",
+      days: "{% trans 'Active %s days ago' %}",
+      onDate: "{% trans 'Active on %s' %}"
+    };
+  </script>
+  <script src="{% static 'chat/js/presence.js' %}" type="module"></script>
 
 	<!-- Firebase SDK (for FCM on Android) , needed for initFCM -->
   <script src="https://www.gstatic.com/firebasejs/12.10.0/firebase-app-compat.js"></script>

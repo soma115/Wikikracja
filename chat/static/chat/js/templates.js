@@ -134,11 +134,14 @@ const message_template = `
       <div class='tw-chat-message-header-left'>
         <% const _hasProfileLink = (typeof user_id !== 'undefined' && user_id); %>
         <% if (_hasProfileLink) { %><a class='tw-username tw-username-link' href='/obywatele/<%- user_id %>/'><% } else { %><span class='tw-username'><% } %>
-          <% if (typeof avatar_url !== 'undefined' && avatar_url) { %>
-            <img class='tw-avatar tw-avatar-2xl' src='<%- avatar_url %>' alt=''>
-          <% } else { %>
-            <span class='tw-avatar tw-avatar-2xl tw-avatar-fallback<% if (typeof citizen_color_class !== "undefined" && citizen_color_class) { %> <%- citizen_color_class %><% } %>'><%= (typeof initials !== 'undefined' && initials) ? initials : (username || '').slice(0, 2).toUpperCase() %></span>
-          <% } %><%= (typeof display_name !== 'undefined' && display_name) ? display_name : (username || '') %>
+          <span class='tw-avatar-presence'>
+            <% if (typeof avatar_url !== 'undefined' && avatar_url) { %>
+              <img class='tw-avatar tw-avatar-2xl' src='<%- avatar_url %>' alt=''>
+            <% } else { %>
+              <span class='tw-avatar tw-avatar-2xl tw-avatar-fallback<% if (typeof citizen_color_class !== "undefined" && citizen_color_class) { %> <%- citizen_color_class %><% } %>'><%= (typeof initials !== 'undefined' && initials) ? initials : (username || '').slice(0, 2).toUpperCase() %></span>
+            <% } %>
+            <span class='tw-presence-dot tw-presence-<%- typeof presence_status !== "undefined" ? presence_status : "red" %>' data-presence-user-id='<%- typeof user_id !== "undefined" ? user_id : "" %>' data-presence-status='<%- typeof presence_status !== "undefined" ? presence_status : "red" %>' data-presence-source='<%- typeof presence_source !== "undefined" ? presence_source : "" %>' data-presence-timestamp='<%- typeof presence_timestamp !== "undefined" ? presence_timestamp : "" %>' data-presence-green-minutes='<%- typeof window !== "undefined" && window.WK_PRESENCE_GREEN_MINUTES || 15 %>' data-presence-yellow-days='<%- typeof window !== "undefined" && window.WK_PRESENCE_YELLOW_DAYS || 7 %>'></span>
+          </span><%= (typeof display_name !== 'undefined' && display_name) ? display_name : (username || '') %>
         <% if (_hasProfileLink) { %></a><% } else { %></span><% } %>
       </div>
       <div class='tw-chat-message-header-right'>
@@ -215,11 +218,14 @@ const message_template = `
           <% if (read_by && read_by.length) { %>
             <% for (const _u of read_by) { %>
               <div class="tw-read-by-item">
-                <% if (_u.avatar_url) { %>
-                  <img class="tw-avatar tw-avatar-xl" src="<%- _u.avatar_url %>" alt="<%- _u.display_name || _u.username %>">
-                <% } else { %>
-                  <span class="tw-avatar tw-avatar-xl tw-avatar-fallback<% if (_u.citizen_color_class) { %> <%- _u.citizen_color_class %><% } %>"><%= _u.initials || (_u.username || '').slice(0, 2).toUpperCase() %></span>
-                <% } %>
+                <span class="tw-avatar-presence">
+                  <% if (_u.avatar_url) { %>
+                    <img class="tw-avatar tw-avatar-xl" src="<%- _u.avatar_url %>" alt="<%- _u.display_name || _u.username %>">
+                  <% } else { %>
+                    <span class="tw-avatar tw-avatar-xl tw-avatar-fallback<% if (_u.citizen_color_class) { %> <%- _u.citizen_color_class %><% } %>"><%= _u.initials || (_u.username || '').slice(0, 2).toUpperCase() %></span>
+                  <% } %>
+                  <span class="tw-presence-dot tw-presence-<%- _u.presence_status || 'red' %>" data-presence-user-id="<%- _u.user_id %>" data-presence-status="<%- _u.presence_status || 'red' %>" data-presence-source="<%- _u.presence_source || '' %>" data-presence-timestamp="<%- _u.presence_timestamp || '' %>" data-presence-green-minutes="<%- window.WK_PRESENCE_GREEN_MINUTES %>" data-presence-yellow-days="<%- window.WK_PRESENCE_YELLOW_DAYS %>"></span>
+                </span>
                 <span class="tw-read-by-username"><%- _u.display_name || _u.username %></span>
               </div>
             <% } %>

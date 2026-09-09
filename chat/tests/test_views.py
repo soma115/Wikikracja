@@ -369,6 +369,24 @@ class PushNotificationAckViewTest(TestCase):
                 for field in (f'user={self.user.id}', 'notification_id=test-notification', f'status={status}', 'source=fcm-background', 'tag=chat-123', "reason='test reason'", "ua='test agent'"):
                     self.assertIn(field, line)
 
+    def test_shown_ack_updates_presence_but_other_statuses_do_not(self):
+        with patch('chat.push_api.publish_presence') as publish:
+            self._ack({'status': 'shown', 'source': 'fcm-background'})
+            self.user.uzytkownik.refresh_from_db()
+            self.assertEqual(self.user.uzytkownik.last_presence_source, 'push')
+            publish.assert_called_once()
+
+            timestamp = self.user.uzytkownik.last_presence_at
+            self._ack({'status': 'skipped', 'source': 'fcm-background'})
+            self.user.uzytkownik.refresh_from_db()
+            self.assertEqual(self.user.uzytkownik.last_presence_at, timestamp)
+
+    def test_ack_only_updates_authenticated_sender_presence(self):
+        other = make_user('other-ack-user')
+        self._ack({'status': 'shown', 'source': 'fcm-background'})
+        self.assertIsNotNone(self.user.uzytkownik.last_presence_at)
+        self.assertIsNone(other.uzytkownik.last_presence_at)
+
     def test_ack_accepts_missing_metadata_for_legacy_clients(self):
         with patch('chat.push_api.log') as log:
             response = self._ack({})

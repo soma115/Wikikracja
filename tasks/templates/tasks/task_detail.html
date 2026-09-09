@@ -44,12 +44,16 @@
         <span class="tw-task-meta-item" title="{% trans 'Author' %}">
           <i class="fas fa-user-pen tw-task-meta-icon"></i>
           <span class="tw-task-meta-label">{% trans "Author" %}</span>
-          <strong class="tw-task-meta-value">{{ task.created_by|default:_("Unknown") }}</strong>
+          <strong class="tw-task-meta-value tw-flex tw-items-center tw-gap-1">
+            {% if task.created_by %}{% include "home/_user_avatar.html" with user=task.created_by size="xs" %}{{ task.created_by|display_name }}{% else %}{% trans "Unknown" %}{% endif %}
+          </strong>
         </span>
         <span class="tw-task-meta-item" title="{% trans 'Coordinator' %}">
           <i class="fas fa-user-shield tw-task-meta-icon"></i>
           <span class="tw-task-meta-label">{% trans "Coordinator" %}</span>
-          <strong class="tw-task-meta-value" data-coord-label>{{ task.assigned_to|default:_("None") }}</strong>
+          <strong class="tw-task-meta-value tw-flex tw-items-center tw-gap-1" data-coord-label>
+            {% if task.assigned_to %}{% include "home/_user_avatar.html" with user=task.assigned_to size="xs" %}{{ task.assigned_to|display_name }}{% else %}{% trans "None" %}{% endif %}
+          </strong>
         </span>
         <span class="tw-task-meta-item" title="{% trans 'Status' %}">
           <i class="fas fa-circle-info tw-task-meta-icon"></i>

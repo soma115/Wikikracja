@@ -13,6 +13,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
 from core.notifications import NOTIF_LOG_TAG
+from core.presence import presence_data
 from core.richtext import sanitize, strip_tags
 from core.utils import get_site_domain
 from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
@@ -158,6 +159,7 @@ def build_chat_message_event(message: Message, *, new: bool = False, temp_id: st
                     'initials': user_initials(u),
                     'avatar_url': get_avatar_url(u) or '/static/home/images/favicon.ico',
                     'citizen_color_class': citizen_color_class(u.username),
+                    **presence_data(u),
                 }
             )
 
@@ -525,6 +527,7 @@ class ChatRepository:
                     'initials': user_initials(user),
                     'avatar_url': avatar_url,
                     'citizen_color_class': citizen_color_class(user.username),
+                    **presence_data(user),
                 }
             )
         return result

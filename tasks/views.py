@@ -19,6 +19,7 @@ from django.views.generic import CreateView, DetailView, TemplateView, UpdateVie
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryReorderAPI
 from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unseen_room_ids
+from core.presence import presence_data
 from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
 
 from .forms import TaskForm, TaskStatusForm
@@ -248,6 +249,7 @@ def _serialize_user(user):
         "avatar_url": avatar_url,
         "profile_url": reverse("obywatele:obywatele_szczegoly", args=[user.pk]),
         "citizen_color_class": citizen_color_class(user.username),
+        **presence_data(user),
     }
 
 
@@ -387,7 +389,7 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "task"
 
     def get_queryset(self):
-        return Task.objects.with_metrics()
+        return Task.objects.with_metrics().select_related('created_by', 'created_by__uzytkownik', 'assigned_to', 'assigned_to__uzytkownik', 'category', 'chat_room')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

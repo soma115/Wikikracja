@@ -91,6 +91,8 @@
     item.href = user.profile_url;
     item.dataset.userId = user.id;
 
+    var avatarWrap = document.createElement('span');
+    avatarWrap.className = 'tw-avatar-presence';
     var avatar = document.createElement('span');
     avatar.className = 'tw-avatar tw-avatar-xl tw-avatar-accent';
     if (user.avatar_url) {
@@ -101,7 +103,17 @@
     } else {
       avatar.textContent = user.initials || (user.username || '').slice(0, 2).toUpperCase();
     }
-    item.appendChild(avatar);
+    avatarWrap.appendChild(avatar);
+    var presenceDot = document.createElement('span');
+    presenceDot.className = 'tw-presence-dot tw-presence-' + (user.presence_status || 'red');
+    presenceDot.dataset.presenceUserId = user.id;
+    presenceDot.dataset.presenceStatus = user.presence_status || 'red';
+    presenceDot.dataset.presenceSource = user.presence_source || '';
+    presenceDot.dataset.presenceTimestamp = user.presence_timestamp || '';
+    presenceDot.dataset.presenceGreenMinutes = window.WK_PRESENCE_GREEN_MINUTES;
+    presenceDot.dataset.presenceYellowDays = window.WK_PRESENCE_YELLOW_DAYS;
+    avatarWrap.appendChild(presenceDot);
+    item.appendChild(avatarWrap);
 
     var name = document.createElement('span');
     name.className = 'tw-helpers-popover-name';

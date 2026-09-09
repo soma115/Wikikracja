@@ -253,16 +253,16 @@ def obywatele(request: HttpRequest):
         uid = uid.filter(_aktywnosc_filters[aktywnosc])
 
     req_rep = required_reputation()
+    reputation_by_profile = {row['kandydat_id']: row['total'] or 0 for row in Rate.objects.filter(kandydat_id__in=[user.uzytkownik.id for user in uid]).values('kandydat_id').annotate(total=Sum('rate'))}
     users_with_reputation = []
     for user in uid:
         if hasattr(user, 'uzytkownik'):
-            reputation = Rate.objects.filter(kandydat_id=user.uzytkownik.id).aggregate(Sum('rate'))['rate__sum'] or 0
+            reputation = reputation_by_profile.get(user.uzytkownik.id, 0)
             user.near_threshold = reputation <= (req_rep + 1)
         else:
             user.near_threshold = False
 
         user.pending_deletion = hasattr(user, 'deletion_request')
-
         if user.last_login is None:
             user.activity_status = 'inactive'
         elif user.last_login >= five_min_ago:

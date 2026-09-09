@@ -9,10 +9,13 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import connection
 from django.db.models import QuerySet
 from django.shortcuts import resolve_url
 from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils import timezone as django_timezone
 from django.utils.translation import gettext as _
 from django.utils.translation import override, pgettext
 
@@ -531,3 +534,65 @@ class DodajViewTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertFalse(User.objects.filter(username='kandydat').exists())
+
+
+class CitizenPresenceTemplateTest(TestCase):
+    def test_citizen_list_renders_presence_colors(self):
+        viewer = User.objects.create_user(username='presence-viewer', password='secret', is_active=True)
+        green = User.objects.create_user(username='presence-green', is_active=True)
+        yellow = User.objects.create_user(username='presence-yellow', is_active=True)
+        red = User.objects.create_user(username='presence-red', is_active=True)
+        now = django_timezone.now()
+        green.uzytkownik.last_presence_at = now
+        green.uzytkownik.last_presence_source = 'app'
+        green.uzytkownik.save(update_fields=['last_presence_at', 'last_presence_source'])
+        yellow.uzytkownik.last_presence_at = now - timedelta(days=1)
+        yellow.uzytkownik.last_presence_source = 'push'
+        yellow.uzytkownik.save(update_fields=['last_presence_at', 'last_presence_source'])
+        red.uzytkownik.last_presence_at = now - timedelta(days=8)
+        red.uzytkownik.last_presence_source = 'app'
+        red.uzytkownik.save(update_fields=['last_presence_at', 'last_presence_source'])
+
+        self.client.force_login(viewer)
+        response = self.client.get(reverse('obywatele:obywatele'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'tw-presence-green')
+        self.assertContains(response, 'tw-presence-yellow')
+        self.assertContains(response, 'tw-presence-red')
+
+    def test_citizen_list_query_count_does_not_grow_with_users(self):
+        viewer = User.objects.create_user(username='query-viewer', password='secret', is_active=True)
+        User.objects.create_user(username='query-citizen-1', is_active=True)
+        self.client.force_login(viewer)
+        with CaptureQueriesContext(connection) as one_user_context:
+            self.client.get(reverse('obywatele:obywatele'))
+
+        User.objects.create_user(username='query-citizen-2', is_active=True)
+        User.objects.create_user(username='query-citizen-3', is_active=True)
+        with CaptureQueriesContext(connection) as three_users_context:
+            self.client.get(reverse('obywatele:obywatele'))
+
+        self.assertLessEqual(len(three_users_context), len(one_user_context) + 1)
+
+    def test_dashboard_activity_pulse_uses_presence_recency(self):
+        from obywatele.dashboard import get_context
+
+        viewer = User.objects.create_user(username='dashboard-viewer', is_active=True)
+        green = User.objects.create_user(username='dashboard-green', is_active=True)
+        yellow = User.objects.create_user(username='dashboard-yellow', is_active=True)
+        recent = User.objects.create_user(username='dashboard-recent', is_active=True)
+        now = django_timezone.now()
+        green.uzytkownik.last_presence_at = now
+        green.uzytkownik.save(update_fields=['last_presence_at'])
+        yellow.uzytkownik.last_presence_at = now - timedelta(days=1)
+        yellow.uzytkownik.save(update_fields=['last_presence_at'])
+        recent.uzytkownik.last_presence_at = now - timedelta(days=10)
+        recent.uzytkownik.save(update_fields=['last_presence_at'])
+
+        context = get_context(viewer)
+
+        self.assertEqual(context['active_green'], 1)
+        self.assertEqual(context['active_yellow'], 1)
+        self.assertEqual(context['active_recent'], 1)
+        self.assertEqual(context['active_last_month'], 3)

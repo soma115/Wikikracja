@@ -6,6 +6,7 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from django.utils import timezone
 
 from core.notifications import NOTIF_LOG_TAG
+from core.presence import PRESENCE_GROUP, get_presence_status, record_presence
 from core.richtext import sanitize
 from zzz.templatetags.citizen_filters import user_display_name
 
@@ -47,8 +48,13 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             # register user as online
             ChatConsumer.online_registry.make_online(self.scope['user'], self)
 
+            await self.channel_layer.group_add(PRESENCE_GROUP, self.channel_name)
             # join personal group for user-targeted pushes (e.g. unread count)
             await self.channel_layer.group_add(f"user_{self.scope['user'].id}", self.channel_name)
+
+            presence_update = await self.record_presence('app')
+            if presence_update:
+                await self.channel_layer.group_send(PRESENCE_GROUP, {'type': 'presence.update', **presence_update})
 
             # send current unread count immediately on connect
             count = await self.repo.get_unread_count()
@@ -77,6 +83,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             except ClientError:
                 pass
 
+        await self.channel_layer.group_discard(PRESENCE_GROUP, self.channel_name)
         # leave personal group
         await self.channel_layer.group_discard(f"user_{self.scope['user'].id}", self.channel_name)
 
@@ -138,6 +145,19 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                     await self.channel_layer.group_send(group, message)
         except ClientError as e:
             await self.send_json({"error": e.code, "__TRACE_ID": trace_id})
+
+    @database_sync_to_async
+    def record_presence(self, source):
+        changed = record_presence(self.scope['user'], source)
+        if changed:
+            profile = self.scope['user'].uzytkownik
+            return {
+                'user_id': self.scope['user'].id,
+                'status': get_presence_status(profile.last_presence_at),
+                'source': profile.last_presence_source,
+                'timestamp': profile.last_presence_at.isoformat() if profile.last_presence_at else None,
+            }
+        return None
 
     #################################################
     # Command helper methods called by receive_json #
@@ -497,6 +517,12 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         rooms = await self.repo.get_rooms_with_notifications_enabled()
         proxy.send_json({'rooms': [room.id for room in rooms]})
 
+    @handlers.register("presence-heartbeat")
+    async def presence_heartbeat(self, proxy):
+        update = await self.record_presence('app')
+        if update:
+            await self.channel_layer.group_send(PRESENCE_GROUP, {'type': 'presence.update', **update})
+
     ##########################################################
     # Helper functions called by custom or built-in handlers #
     ##########################################################
@@ -518,6 +544,9 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     ###########################################################
     # Handlers for messages sent over the channel layer       #
     ###########################################################
+
+    async def presence_update(self, event):
+        await self.send_json({'presence_update': {'user_id': event['user_id'], 'status': event['status'], 'source': event['source'], 'timestamp': event['timestamp']}})
 
     async def chat_message(self, event):
         user = await self.repo.get_user_by_id(event["user_id"])

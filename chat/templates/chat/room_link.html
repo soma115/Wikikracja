@@ -1,4 +1,5 @@
 {% load i18n filters %}
+{% load citizen_filters %}
 {% load feed_filters %}
 
 <div class="tw-room-link {{ room|seen_by:user }}" tabindex="-1"
@@ -8,7 +9,7 @@
   data-room-archived="{{ room.archived }}"
   data-last-activity="{{ room.last_message_at|default_if_none:room.last_activity|date:'U' }}">
 
-  <div class="tw-avatar tw-avatar-xl">
+  <div class="tw-avatar tw-avatar-xl tw-avatar-presence">
     {% if room_kind == 'task' %}
       <i class="fas fa-tasks" aria-hidden="true"></i>
     {% elif room_kind == 'vote' %}
@@ -22,6 +23,7 @@
         {% else %}
           <i class="fas fa-user" aria-hidden="true"></i>
         {% endif %}
+        <span class="tw-presence-dot tw-presence-{{ other.uzytkownik.last_presence_at|presence_status }}" data-presence-user-id="{{ other.pk }}" data-presence-status="{{ other.uzytkownik.last_presence_at|presence_status }}" data-presence-source="{{ other.uzytkownik.last_presence_source }}" data-presence-timestamp="{{ other.uzytkownik.last_presence_at|date:'c' }}" data-presence-green-minutes="{{ presence_green_minutes }}" data-presence-yellow-days="{{ presence_yellow_days }}" title="{{ other.uzytkownik.last_presence_source|presence_source_label }} / {{ other.uzytkownik.last_presence_at|date:'d.m.Y H:i' }}" aria-label="{{ other.uzytkownik.last_presence_source|presence_source_label }}"></span>
       {% endwith %}
     {% else %}
       <i class="fas fa-users" aria-hidden="true"></i>

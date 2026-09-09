@@ -39,6 +39,10 @@ def unread_count(request):
     return {'unread_count': get_unread_count(request.user)}
 
 
+def presence_thresholds(request):
+    return {'presence_green_minutes': settings.PRESENCE_GREEN_MINUTES, 'presence_yellow_days': settings.PRESENCE_YELLOW_DAYS}
+
+
 def upload_limits(request):
     return {
         'UPLOAD_IMAGE_MAX_SIZE_MB': settings.UPLOAD_IMAGE_MAX_SIZE_MB,

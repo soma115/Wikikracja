@@ -49,7 +49,12 @@
             <td>{{ transaction.category|default:"-" }}</td>
             <td><small class="tw-text-muted">{{ transaction.asset.code }}</small></td>
             <td>{{ transaction.amount|normalize_decimal }} {{ transaction.asset.symbol }}</td>
-            <td>{{ transaction.author|display_name }}</td>
+            <td>
+              <span class="tw-flex tw-items-center tw-gap-2">
+                {% include "home/_user_avatar.html" with user=transaction.author size="xs" %}
+                {{ transaction.author|display_name }}
+              </span>
+            </td>
           </tr>
         {% endfor %}
       </tbody>

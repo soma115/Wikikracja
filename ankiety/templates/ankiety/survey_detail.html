@@ -49,8 +49,9 @@
     {% endif %}
     <span class="tw-proposal-meta-sep">·</span>
     {% if survey.author %}
-      <a href="{% url 'obywatele:obywatele_szczegoly' survey.author.pk %}" class="tw-proposal-author-link">
+      <a href="{% url 'obywatele:obywatele_szczegoly' survey.author.pk %}" class="tw-proposal-author-link tw-flex tw-items-center tw-gap-1">
         <i class="fas fa-user-pen tw-proposal-role-icon" aria-hidden="true"></i>
+        {% include "home/_user_avatar.html" with user=survey.author size="xs" %}
         {{ survey.author|display_name }}
       </a>
     {% else %}
@@ -124,7 +125,8 @@
     <div class="tw-card tw-p-0">
       <div class="tw-list-group">
         {% for user, choices in voter_choices.items %}
-          <div class="tw-list-group-item">
+          <div class="tw-list-group-item tw-flex tw-items-center tw-gap-2">
+            {% include "home/_user_avatar.html" with user=user size="sm" %}
             <span>{{ user|display_name }}</span>
             <span class="tw-text-muted tw-text-end">{{ choices|join:", " }}</span>
           </div>

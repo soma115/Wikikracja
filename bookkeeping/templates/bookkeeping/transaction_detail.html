@@ -37,7 +37,10 @@
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.amount|normalize_decimal }} {{ transaction.asset.symbol }}</dd>
 
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Author' %}</dt>
-        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.author|display_name }}</dd>
+        <dd class="tw-col-span-12 sm:tw-col-span-9 tw-flex tw-items-center tw-gap-2">
+          {% include "home/_user_avatar.html" with user=transaction.author size="sm" %}
+          {{ transaction.author|display_name }}
+        </dd>
 
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Note' %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.note|default:"—"|linebreaks }}</dd>

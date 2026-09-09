@@ -110,6 +110,9 @@ SESSION_COOKIE_AGE = env_int("SESSION_COOKIE_AGE", 60 * 60 * 24 * 90)  # default
 REMEMBER_ME_DAYS = env_int("REMEMBER_ME_DAYS", 90)
 REMEMBER_ME_COOKIE_AGE = env_int("REMEMBER_ME_COOKIE_AGE", 60 * 60 * 24 * REMEMBER_ME_DAYS)
 
+PRESENCE_GREEN_MINUTES = env_int("PRESENCE_GREEN_MINUTES", 15)
+PRESENCE_YELLOW_DAYS = env_int("PRESENCE_YELLOW_DAYS", 7)
+
 REDIS_HOST = getenv("REDIS_HOST", "redis://redis:6379/1")
 CHANNEL_LAYERS = {'default': {'BACKEND': 'channels_redis.core.RedisChannelLayer', 'CONFIG': {'hosts': [REDIS_HOST]}}}
 
@@ -170,6 +173,7 @@ TEMPLATES = [
                 'zzz.context_processors.group_is_public',
                 'zzz.context_processors.unread_count',
                 'zzz.context_processors.upload_limits',
+                'zzz.context_processors.presence_thresholds',
             ],
             'debug': False,
         },

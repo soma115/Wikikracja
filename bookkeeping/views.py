@@ -208,7 +208,7 @@ class TransactionListView(BookkeepingListView):
     create_label = _('Add transaction')
 
     def get_queryset(self):
-        return Transaction.objects.select_related('partner', 'category', 'asset').order_by('-payment_received_date', '-id')
+        return Transaction.objects.select_related('author', 'partner', 'category', 'asset').order_by('-payment_received_date', '-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -220,6 +220,10 @@ class TransactionListView(BookkeepingListView):
 
 class TransactionDetailView(LoginRequiredMixin, DetailView):
     model = Transaction
+
+    def get_queryset(self):
+        return Transaction.objects.select_related('author', 'partner', 'category', 'asset')
+
     template_name = 'bookkeeping/transaction_detail.html'
     context_object_name = 'transaction'
 

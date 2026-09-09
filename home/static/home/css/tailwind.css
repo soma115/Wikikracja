@@ -3780,6 +3780,47 @@
     transition: width 0.6s ease;
   }
 
+  .tw-activity-pulse-ring {
+    width: 76px;
+    height: 76px;
+    flex: 0 0 76px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) var(--activity-pct, 0%), var(--progress-bg) 0);
+    position: relative;
+  }
+  .tw-activity-pulse-ring::after {
+    content: '';
+    position: absolute;
+    inset: 7px;
+    border-radius: 50%;
+    background: var(--bg-card);
+  }
+  .tw-activity-pulse-value {
+    position: relative;
+    z-index: 1;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .tw-activity-pulse-bar {
+    display: flex;
+    width: 100%;
+    height: 8px;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: var(--progress-bg);
+  }
+  .tw-activity-pulse-segment {
+    width: var(--activity-segment, 0%);
+    min-width: 0;
+    transition: width 0.4s ease;
+  }
+  .tw-activity-pulse-segment--green { background: var(--badge-approved-color); }
+  .tw-activity-pulse-segment--yellow { background: var(--status-warning-color); }
+  .tw-activity-pulse-segment--muted { background: var(--text-muted); }
+
   /* ── Dashboard list rows / activity feed tile ────────────── */
   .tw-task-dash-row {
     border-radius: 0.35rem;
@@ -4913,6 +4954,33 @@
     position: relative;
     display: inline-flex;
   }
+  .tw-avatar-presence {
+    position: relative;
+    display: inline-flex;
+  }
+  .tw-presence-dot {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 29px;
+    height: 29px;
+    background: transparent;
+    border-radius: 50%;
+  }
+  .tw-presence-dot::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 5px;
+    height: 5px;
+    border: 1px solid var(--bg-card);
+    border-radius: 50%;
+    background: var(--presence-color);
+  }
+  .tw-presence-green { --presence-color: var(--badge-approved-color); }
+  .tw-presence-yellow { --presence-color: var(--status-warning-color); }
+  .tw-presence-red { --presence-color: var(--badge-rejected-color); }
   .tw-citizens-grid {
     display: none;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));

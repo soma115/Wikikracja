@@ -482,19 +482,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function pathWithoutQuery(url) {
+        if (!url) return '';
+        return url.split('?')[0].split('#')[0];
+    }
+
     function patchSidebarLinks() {
         document.querySelectorAll('[data-prefs-link-scope]').forEach(function(link) {
             var scopeName = link.dataset.prefsLinkScope;
             if (!scopeName) return;
             var data = read(scopeName);
+            var base = link.dataset.prefsBaseHref || link.getAttribute('href') || '';
             if (data && data.lastUrl) {
-                link.setAttribute('href', data.lastUrl);
-                return;
+                if (pathWithoutQuery(data.lastUrl) === pathWithoutQuery(base)) {
+                    link.setAttribute('href', data.lastUrl);
+                    return;
+                }
             }
             if (!data || !data.filters || data.filters === '?') return;
             var filters = data.filters;
             if (filters.charAt(0) !== '?') return;
-            var base = link.dataset.prefsBaseHref || link.getAttribute('href') || '';
             if (!base || base.indexOf('?') !== -1) return;
             link.setAttribute('href', base + filters);
         });

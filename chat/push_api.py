@@ -14,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from push_notifications.models import GCMDevice
 
 from core.notifications import NOTIF_LOG_TAG
+from core.presence import publish_presence, record_presence
 
 log = logging.getLogger(__name__)
 
@@ -193,5 +194,9 @@ class PushNotificationAckView(View):
             log.warning(log_line)
         else:
             log.info(log_line)
+
+        presence_updated = status == 'shown' and record_presence(request.user, 'push')
+        if presence_updated:
+            publish_presence(request.user)
 
         return JsonResponse({'success': True})

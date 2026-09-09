@@ -12,22 +12,10 @@ Oznacza to, że obecnie trwające referenda zaczęły się od nowa.
 Poproszę o ponowne oddanie głosów:
 https://lobbyobywatelskie.wikikracja.pl/glosowania/referendum/
 
-09/09/26 08:30:40 ERROR core.notifications [NOTIFDBG] FCM broadcast failed, notification_id=b449a0acdd7046bc9cfb22ae7645cc28: LegacySettings does not support application_id. To enable multiple application support, use push_notifications.conf.AppSettings.
-Traceback (most recent call last):
-  File "C:\Users\Robert\code\gitops\wikikracja\core\notifications.py", line 217, in send_fcm_to_all_sync
-    result = qs.send_message(message)
-  File "C:\Users\Robert\code\gitops\wikikracja\.venv\Lib\site-packages\push_notifications\models.py", line 85, in send_message
-    r = fcm_send_message(reg_ids, message, application_id=app_id, **kwargs)
-  File "C:\Users\Robert\code\gitops\wikikracja\.venv\Lib\site-packages\push_notifications\gcm.py", line 164, in send_message
-    max_recipients = get_manager().get_max_recipients(application_id)
-  File "C:\Users\Robert\code\gitops\wikikracja\.venv\Lib\site-packages\push_notifications\conf\legacy.py", line 48, in get_max_recipients
-    return self._get_application_settings(application_id, key, msg)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Robert\code\gitops\wikikracja\.venv\Lib\site-packages\push_notifications\conf\legacy.py", line 34, in _get_application_settings
-    raise ImproperlyConfigured(msg)
-django.core.exceptions.ImproperlyConfigured: LegacySettings does not support application_id. To enable multiple application support, use push_notifications.conf.AppSettings.
+
 
 # OGÓLNE
+- Są dwa specjalne pokoje na czacie, Inbox i Ważne. To powinny być pokoje systemowe tworzone wraz z instancją aplikacji. Nie powinno dać się ich skasować ani zmienić ich nazw. Oczywiście powinno dać się je tłumaczyć nazwy tych pokoi.Te pokoje powinny wyróżniać się na liście.
 - Zunifikowanie kart listy/siatki – to największa część. Karty głosowań, ankiet, zadań, wydarzeń, dokumentów i obywateli mają różną strukturę i często dedykowaną logikę (np. głosowanie w liście ankiet, koordynator w zadaniach). Można to zrobić na dwa sposoby:
   1. Stworzyć wspólny partial karty z parametrami (tytuł, badge, meta, akcje) i stopniowo przerabiać moduły.
   2. Stopniowo ujednolicać klasy CSS i układ sekcji bez wielkiej abstrakcji.

@@ -8,3 +8,4 @@ class CoreConfig(AppConfig):
     def ready(self):
         # Register notification receivers so domain signals are dispatched.
         import core.notifications  # noqa: F401
+        import core.presence  # noqa: F401

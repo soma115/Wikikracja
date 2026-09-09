@@ -69,7 +69,6 @@
   {% endif %}
 
 
-
   {# Aktywność #}
   <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="activity">
     <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
@@ -112,6 +111,95 @@
       </script>
     </div>
   </div>
+
+
+  {# Najbliższe wydarzenia #}
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="upcoming-events">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
+      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
+        <div class="tw-dashboard-tile-header tw-mb-1">
+          <i class="fas fa-calendar-days"></i>
+          <span class="tw-section-heading tw-tile-heading">{% trans "Upcoming events" %}</span>
+        </div>
+        {% if upcoming_events %}
+        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-2 tw-flex-1 tw-text-sm">{% spaceless %}{% for occ in upcoming_events %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+            <span class="tw-shrink-0 {% if occ.event.is_public %}tw-dot-public{% else %}tw-dot-private{% endif %}"></span>
+            <span class="tw-shrink-0 tw-text-muted tw-text-nowrap">{{ occ.date|date:"D d M · H:i" }}</span>
+            <a href="{% url 'events:detail' occ.event.pk %}"
+               class="tw-text-primary-link"
+               title="{{ occ.event.title }}">{{ occ.event.title }}</a>
+          </li>{% endfor %}{% endspaceless %}</ul>
+        <a href="{% url 'events:list' %}" class="tw-stretched-link" aria-label="{% trans 'Full calendar' %}" title="{% trans 'Full calendar' %}"></a>
+        {% else %}
+        <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
+          <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "No upcoming events" %}</p>
+          <a href="{% url 'events:create' %}" class="tw-link-more">{% trans "Add an event" %} →</a>
+        </div>
+        <a href="{% url 'events:list' %}" class="tw-stretched-link" aria-label="{% trans 'Full calendar' %}" title="{% trans 'Full calendar' %}"></a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+
+  {# Ankiety #}
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="surveys">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
+      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
+        <div class="tw-dashboard-tile-header tw-mb-1">
+          <i class="fas fa-clipboard-question"></i>
+          <span class="tw-section-heading tw-tile-heading">{% trans "Surveys" %}</span>
+        </div>
+        {% if active_surveys %}
+        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for survey in active_surveys %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+            <span class="tw-badge-status tw-badge-dark tw-shrink-0 tw-badge-status-xs">
+              {% trans "Survey" %}
+            </span>
+            <a href="{% url 'ankiety:detail' survey.pk %}"
+               class="tw-text-primary-link"
+               title="{{ survey.title }}">{{ survey.title }}</a>
+          </li>{% endfor %}{% endspaceless %}</ul>
+        <a href="{% url 'ankiety:list' %}" class="tw-stretched-link" aria-label="{% trans 'All surveys' %}" title="{% trans 'All surveys' %}"></a>
+        {% else %}
+        <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
+          <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "No active surveys" %}</p>
+        </div>
+        <a href="{% url 'ankiety:list' %}" class="tw-stretched-link" aria-label="{% trans 'All surveys' %}" title="{% trans 'All surveys' %}"></a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+
+  {# My tasks #}
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="my-tasks">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
+      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
+        <div class="tw-dashboard-tile-header tw-mb-1">
+          <i class="fas fa-bolt"></i>
+          <span class="tw-section-heading tw-tile-heading">{% trans "My activities" %}</span>
+        </div>
+        {% if my_tasks %}
+        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for task in my_tasks %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+            <span class="tw-badge-status tw-badge-approved tw-shrink-0 tw-badge-status-sm">
+              {% trans "Active" %}
+            </span>
+            <a href="{% url 'tasks:detail' task.pk %}"
+               class="tw-text-primary-link"
+               title="{{ task.title }}">{{ task.title }}</a>
+          </li>{% endfor %}{% endspaceless %}</ul>
+        <a id="dash-my-tasks" href="{% url 'tasks:list' %}?tab=mine" class="tw-stretched-link" aria-label="{% trans 'All my activities' %}" title="{% trans 'All my activities' %}"></a>
+        {% else %}
+        <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
+          <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "You have no assigned activities" %}</p>
+          <span class="tw-text-sm tw-text-accent">{% trans "See group activities" %} →</span>
+        </div>
+        <a href="{% url 'tasks:list' %}" class="tw-stretched-link" aria-label="{% trans 'See group activities' %}" title="{% trans 'See group activities' %}"></a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
 
   {# Wybrane dokumenty #}
   <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="featured-documents">
@@ -182,33 +270,6 @@
     </script>
   </div>
 
-  {# Najbliższe wydarzenia #}
-  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="upcoming-events">
-    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
-      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="tw-dashboard-tile-header tw-mb-1">
-          <i class="fas fa-calendar-days"></i>
-          <span class="tw-section-heading tw-tile-heading">{% trans "Upcoming events" %}</span>
-        </div>
-        {% if upcoming_events %}
-        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-2 tw-flex-1 tw-text-sm">{% spaceless %}{% for occ in upcoming_events %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-            <span class="tw-shrink-0 {% if occ.event.is_public %}tw-dot-public{% else %}tw-dot-private{% endif %}"></span>
-            <span class="tw-shrink-0 tw-text-muted tw-text-nowrap">{{ occ.date|date:"D d M · H:i" }}</span>
-            <a href="{% url 'events:detail' occ.event.pk %}"
-               class="tw-text-primary-link"
-               title="{{ occ.event.title }}">{{ occ.event.title }}</a>
-          </li>{% endfor %}{% endspaceless %}</ul>
-        <a href="{% url 'events:list' %}" class="tw-stretched-link" aria-label="{% trans 'Full calendar' %}" title="{% trans 'Full calendar' %}"></a>
-        {% else %}
-        <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
-          <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "No upcoming events" %}</p>
-          <a href="{% url 'events:create' %}" class="tw-link-more">{% trans "Add an event" %} →</a>
-        </div>
-        <a href="{% url 'events:list' %}" class="tw-stretched-link" aria-label="{% trans 'Full calendar' %}" title="{% trans 'Full calendar' %}"></a>
-        {% endif %}
-      </div>
-    </div>
-  </div>
 
   {# Głosowania #}
   <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="voting">
@@ -238,151 +299,6 @@
     </div>
   </div>
 
-  {# Ankiety #}
-  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="surveys">
-    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
-      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="tw-dashboard-tile-header tw-mb-1">
-          <i class="fas fa-clipboard-question"></i>
-          <span class="tw-section-heading tw-tile-heading">{% trans "Surveys" %}</span>
-        </div>
-        {% if active_surveys %}
-        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for survey in active_surveys %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-            <span class="tw-badge-status tw-badge-dark tw-shrink-0 tw-badge-status-xs">
-              {% trans "Survey" %}
-            </span>
-            <a href="{% url 'ankiety:detail' survey.pk %}"
-               class="tw-text-primary-link"
-               title="{{ survey.title }}">{{ survey.title }}</a>
-          </li>{% endfor %}{% endspaceless %}</ul>
-        <a href="{% url 'ankiety:list' %}" class="tw-stretched-link" aria-label="{% trans 'All surveys' %}" title="{% trans 'All surveys' %}"></a>
-        {% else %}
-        <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
-          <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "No active surveys" %}</p>
-        </div>
-        <a href="{% url 'ankiety:list' %}" class="tw-stretched-link" aria-label="{% trans 'All surveys' %}" title="{% trans 'All surveys' %}"></a>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  {# Bookmarks #}
-  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="bookmarks">
-    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
-      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="tw-dashboard-tile-header tw-mb-1">
-          <i class="fas fa-star"></i>
-          <span class="tw-section-heading tw-tile-heading">{% trans "Bookmarks" %}</span>
-        </div>
-        {% if bookmarked_items %}
-        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for item in bookmarked_items|slice:":6" %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-            <span class="tw-badge-status tw-badge-{{ item.content_type|content_type_color }} tw-shrink-0 tw-badge-status-xs">
-              {{ item.content_type|content_type_label }}
-            </span>
-            <a href="{{ item.url }}"
-               class="tw-text-primary-link"
-               title="{{ item.title }}">{{ item.title }}</a>
-          </li>{% endfor %}{% endspaceless %}</ul>
-        <a href="{% url 'activity' %}?bookmarks=1" class="tw-stretched-link" aria-label="{% trans 'All bookmarks' %}" title="{% trans 'All bookmarks' %}"></a>
-        {% else %}
-        <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
-          <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "No bookmarks" %}</p>
-        </div>
-        <a href="{% url 'activity' %}" class="tw-stretched-link" aria-label="{% trans 'Activity' %}" title="{% trans 'Activity' %}"></a>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  {# My tasks #}
-  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="my-tasks">
-    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
-      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="tw-dashboard-tile-header tw-mb-1">
-          <i class="fas fa-bolt"></i>
-          <span class="tw-section-heading tw-tile-heading">{% trans "My activities" %}</span>
-        </div>
-        {% if my_tasks %}
-        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for task in my_tasks %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-            <span class="tw-badge-status tw-badge-approved tw-shrink-0 tw-badge-status-sm">
-              {% trans "Active" %}
-            </span>
-            <a href="{% url 'tasks:detail' task.pk %}"
-               class="tw-text-primary-link"
-               title="{{ task.title }}">{{ task.title }}</a>
-          </li>{% endfor %}{% endspaceless %}</ul>
-        <a id="dash-my-tasks" href="{% url 'tasks:list' %}?tab=mine" class="tw-stretched-link" aria-label="{% trans 'All my activities' %}" title="{% trans 'All my activities' %}"></a>
-        {% else %}
-        <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
-          <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "You have no assigned activities" %}</p>
-          <span class="tw-text-sm tw-text-accent">{% trans "See group activities" %} →</span>
-        </div>
-        <a href="{% url 'tasks:list' %}" class="tw-stretched-link" aria-label="{% trans 'See group activities' %}" title="{% trans 'See group activities' %}"></a>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  {# Nowi ludzie #}
-  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="new-people">
-    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
-      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="tw-dashboard-tile-header tw-mb-1">
-          <i class="fas fa-users"></i>
-          <span class="tw-section-heading tw-tile-heading">{% trans "New people" %}</span>
-        </div>
-        <a href="{% url 'kandydaci' %}" class="tw-stretched-link" aria-label="{% trans 'New people' %}" title="{% trans 'New people' %}"></a>
-        {% if new_people %}
-        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for cit in new_people|slice:":6" %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-            {% include "home/_user_avatar.html" with user=cit size="lg" %}
-            <span class="tw-truncate tw-flex-1 tw-min-w-0">{{ cit|display_name }}</span>
-            <span class="tw-shrink-0 tw-text-xs tw-text-muted tw-ms-auto tw-text-nowrap">{{ cit.uid.date_joined|date:"d.m.Y" }}</span>
-          </li>{% endfor %}{% endspaceless %}</ul>
-        {% else %}
-        <p class="tw-mb-0 tw-text-muted tw-text-sm">{% trans "No new people" %}</p>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  {# Finances #}
-  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="finances">
-    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
-      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-        <div class="tw-dashboard-tile-header tw-mb-1">
-          <i class="fas fa-wallet"></i>
-          <span class="tw-section-heading tw-tile-heading">{% trans "Finances" %}</span>
-          {% if default_asset %}<span class="tw-text-xs tw-text-muted">— {% trans "All time" %} ({{ default_asset.code }})</span>{% endif %}
-        </div>
-        {% if default_asset %}
-          <div class="tw-flex tw-flex-col tw-gap-1 tw-text-sm">
-            <div class="tw-flex tw-justify-between tw-items-center">
-              <span class="tw-tile-text-muted"><i class="fas fa-arrow-down tw-me-1 tw-text-success"></i>{% trans "Revenues" %}</span>
-              <span class="tw-text-success tw-font-medium">{{ default_income|floatformat:2 }} {{ default_symbol }}</span>
-            </div>
-            <div class="tw-flex tw-justify-between tw-items-center">
-              <span class="tw-tile-text-muted"><i class="fas fa-arrow-up tw-me-1 tw-text-danger"></i>{% trans "Expenses" %}</span>
-              <span class="tw-text-danger tw-font-medium">{{ default_expenses|floatformat:2 }} {{ default_symbol }}</span>
-            </div>
-            <hr class="tw-hr-subtle tw-my-1">
-            <div class="tw-flex tw-justify-between tw-items-center">
-              <span class="tw-tile-text-muted">{% trans "Balance" %}</span>
-              <span class="{% if default_balance >= 0 %}tw-balance-positive{% else %}tw-balance-negative{% endif %}">{{ default_balance|floatformat:2 }} {{ default_symbol }}</span>
-            </div>
-          </div>
-          <a href="{% url 'bookkeeping:report_list' %}" class="tw-stretched-link" aria-label="{% trans 'Finances' %}" title="{% trans 'Finances' %}"></a>
-        {% else %}
-          {# Onboarding CTA — brak default assetu (pusta baza aktywów) #}
-          <div class="tw-flex tw-flex-col tw-gap-2 tw-onboarding-hint">
-            <p class="tw-mb-0 tw-tile-text-muted">{% trans "No financial data yet. Add your first asset to start tracking community finances." %}</p>
-            <a href="{% url 'bookkeeping:asset_create' %}" class="tw-btn tw-btn-sm tw-btn-outline-primary tw-self-start">
-              <i class="fas fa-plus fa-fw tw-me-1"></i>{% trans "Add asset" %}
-            </a>
-          </div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
 
   <div class="tw-dashboard-tile tw-dashboard-tile--2x1" data-tile-id="chat">
     <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
@@ -424,6 +340,70 @@
     </div>
   </div>
 
+
+  {# Finances #}
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="finances">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
+      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
+        <div class="tw-dashboard-tile-header tw-mb-1">
+          <i class="fas fa-wallet"></i>
+          <span class="tw-section-heading tw-tile-heading">{% trans "Finances" %}</span>
+          {% if default_asset %}<span class="tw-text-xs tw-text-muted">— {% trans "All time" %} ({{ default_asset.code }})</span>{% endif %}
+        </div>
+        {% if default_asset %}
+          <div class="tw-flex tw-flex-col tw-gap-1 tw-text-sm">
+            <div class="tw-flex tw-justify-between tw-items-center">
+              <span class="tw-tile-text-muted"><i class="fas fa-arrow-down tw-me-1 tw-text-success"></i>{% trans "Revenues" %}</span>
+              <span class="tw-text-success tw-font-medium">{{ default_income|floatformat:2 }} {{ default_symbol }}</span>
+            </div>
+            <div class="tw-flex tw-justify-between tw-items-center">
+              <span class="tw-tile-text-muted"><i class="fas fa-arrow-up tw-me-1 tw-text-danger"></i>{% trans "Expenses" %}</span>
+              <span class="tw-text-danger tw-font-medium">{{ default_expenses|floatformat:2 }} {{ default_symbol }}</span>
+            </div>
+            <hr class="tw-hr-subtle tw-my-1">
+            <div class="tw-flex tw-justify-between tw-items-center">
+              <span class="tw-tile-text-muted">{% trans "Balance" %}</span>
+              <span class="{% if default_balance >= 0 %}tw-balance-positive{% else %}tw-balance-negative{% endif %}">{{ default_balance|floatformat:2 }} {{ default_symbol }}</span>
+            </div>
+          </div>
+          <a href="{% url 'bookkeeping:report_list' %}" class="tw-stretched-link" aria-label="{% trans 'Finances' %}" title="{% trans 'Finances' %}"></a>
+        {% else %}
+          {# Onboarding CTA — brak default assetu (pusta baza aktywów) #}
+          <div class="tw-flex tw-flex-col tw-gap-2 tw-onboarding-hint">
+            <p class="tw-mb-0 tw-tile-text-muted">{% trans "No financial data yet. Add your first asset to start tracking community finances." %}</p>
+            <a href="{% url 'bookkeeping:asset_create' %}" class="tw-btn tw-btn-sm tw-btn-outline-primary tw-self-start">
+              <i class="fas fa-plus fa-fw tw-me-1"></i>{% trans "Add asset" %}
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+
+  {# Nowi ludzie #}
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="new-people">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
+      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
+        <div class="tw-dashboard-tile-header tw-mb-1">
+          <i class="fas fa-users"></i>
+          <span class="tw-section-heading tw-tile-heading">{% trans "New people" %}</span>
+        </div>
+        <a href="{% url 'kandydaci' %}" class="tw-stretched-link" aria-label="{% trans 'New people' %}" title="{% trans 'New people' %}"></a>
+        {% if new_people %}
+        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for cit in new_people|slice:":6" %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+            {% include "home/_user_avatar.html" with user=cit size="lg" %}
+            <span class="tw-truncate tw-flex-1 tw-min-w-0">{{ cit|display_name }}</span>
+            <span class="tw-shrink-0 tw-text-xs tw-text-muted tw-ms-auto tw-text-nowrap">{{ cit.uid.date_joined|date:"d.m.Y" }}</span>
+          </li>{% endfor %}{% endspaceless %}</ul>
+        {% else %}
+        <p class="tw-mb-0 tw-text-muted tw-text-sm">{% trans "No new people" %}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+
   <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="skills-resources">
     <a href="{% url 'obywatele:assets' %}" class="tw-card tw-dashboard-tile tw-h-full tw-no-underline">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
@@ -442,17 +422,35 @@
     </a>
   </div>
 
-  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="active-users">
-    <a href="{% url 'obywatele:obywatele' %}?aktywnosc=30d" class="tw-card tw-dashboard-tile tw-h-full tw-no-underline">
+
+  {# Bookmarks #}
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="bookmarks">
+    <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
         <div class="tw-dashboard-tile-header tw-mb-1">
-          <i class="fas fa-chart-line"></i>
-          <span class="tw-section-heading tw-tile-heading">{% trans "logged in within 30 days" %}</span>
+          <i class="fas fa-star"></i>
+          <span class="tw-section-heading tw-tile-heading">{% trans "Bookmarks" %}</span>
         </div>
-        <div class="tw-wspol-stat-value tw-mt-auto tw-mb-auto">{{ active_pct }}%</div>
+        {% if bookmarked_items %}
+        <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for item in bookmarked_items|slice:":6" %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+            <span class="tw-badge-status tw-badge-{{ item.content_type|content_type_color }} tw-shrink-0 tw-badge-status-xs">
+              {{ item.content_type|content_type_label }}
+            </span>
+            <a href="{{ item.url }}"
+               class="tw-text-primary-link"
+               title="{{ item.title }}">{{ item.title }}</a>
+          </li>{% endfor %}{% endspaceless %}</ul>
+        <a href="{% url 'activity' %}?bookmarks=1" class="tw-stretched-link" aria-label="{% trans 'All bookmarks' %}" title="{% trans 'All bookmarks' %}"></a>
+        {% else %}
+        <div class="tw-flex tw-flex-col tw-justify-center tw-items-center tw-gap-2 tw-flex-1 tw-py-2">
+          <p class="tw-mb-0 tw-text-center tw-text-muted tw-text-sm">{% trans "No bookmarks" %}</p>
+        </div>
+        <a href="{% url 'activity' %}" class="tw-stretched-link" aria-label="{% trans 'Activity' %}" title="{% trans 'Activity' %}"></a>
+        {% endif %}
       </div>
-    </a>
+    </div>
   </div>
+
 
   <div class="tw-dashboard-tile tw-dashboard-tile--2x1" data-tile-id="calendar">
     <div class="tw-card tw-card--no-hover tw-dashboard-tile tw-h-full">
@@ -468,6 +466,35 @@
         {% include 'obywatele/_calendar_partial.html' %}
       </div>
     </div>
+  </div>
+
+
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="active-users">
+    <a href="{% url 'obywatele:obywatele' %}?aktywnosc=30d" class="tw-card tw-dashboard-tile tw-h-full tw-no-underline">
+      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
+        <div class="tw-dashboard-tile-header tw-mb-1">
+          <i class="fas fa-chart-line"></i>
+          <span class="tw-section-heading tw-tile-heading">{% trans "Activity pulse" %}</span>
+          <i class="fas fa-circle-info tw-text-muted" title="{% trans 'Green means activity within 15 minutes. Yellow means activity within 7 days. Red means no recent activity.' %}" aria-label="{% trans 'How activity status works' %}"></i>
+        </div>
+        <div class="tw-activity-pulse tw-flex tw-items-center tw-gap-3 tw-flex-1">
+          <div class="tw-activity-pulse-ring" style="--activity-pct: {{ active_pct }}%" aria-label="{{ active_pct }}% {% trans 'active within 30 days' %}">
+            <span class="tw-activity-pulse-value">{{ active_pct }}%</span>
+          </div>
+          <div class="tw-flex tw-flex-col tw-gap-1 tw-text-xs tw-min-w-0">
+            <span class="tw-text-muted">{{ active_last_month }} {% trans "active within 30 days" %}</span>
+            <span class="tw-text-success"><i class="fas fa-circle tw-me-1"></i>{{ active_green }} {% trans "now" %}</span>
+            <span class="tw-text-warning"><i class="fas fa-circle tw-me-1"></i>{{ active_yellow }} {% trans "this week" %}</span>
+            <span class="tw-text-muted"><i class="fas fa-circle tw-me-1"></i>{{ active_recent }} {% trans "earlier this month" %}</span>
+          </div>
+        </div>
+        <div class="tw-activity-pulse-bar" aria-hidden="true">
+          <span class="tw-activity-pulse-segment tw-activity-pulse-segment--green" style="--activity-segment: {{ active_green_pct }}%"></span>
+          <span class="tw-activity-pulse-segment tw-activity-pulse-segment--yellow" style="--activity-segment: {{ active_yellow_pct }}%"></span>
+          <span class="tw-activity-pulse-segment tw-activity-pulse-segment--muted" style="--activity-segment: {{ active_recent_pct }}%"></span>
+        </div>
+      </div>
+    </a>
   </div>
 
 </div>

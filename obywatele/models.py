@@ -85,6 +85,10 @@ class Uzytkownik(models.Model):
     # Last broadcast time
     last_broadcast = models.DateTimeField(default=make_aware(datetime(1900, 1, 1)))
 
+    # Latest presence signal from the application or push delivery confirmation.
+    last_presence_at = models.DateTimeField(null=True, blank=True, db_index=True, verbose_name=_('Last activity'))
+    last_presence_source = models.CharField(max_length=16, blank=True, default='', verbose_name=_('Activity source'))
+
     # Email digest frequency
     email_frequency = models.CharField(max_length=10, choices=EmailFrequency.choices, default=EmailFrequency.DAILY, help_text=_('How often to receive email activity digests'), verbose_name=_('Email frequency'))
     last_email_digest_at = models.DateTimeField(default=timezone.now, verbose_name=_('Last email digest sent at'))
