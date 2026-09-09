@@ -52,17 +52,10 @@
 
   <!-- Results -->
   {% if not query %}
-    <p class="tw-text-muted">
-      {% trans "Enter a phrase, select categories and press Search." %}
-    </p>
+    {% include 'home/includes/empty_state.html' with icon='fa-magnifying-glass' title=_('Enter a phrase to search') text=_('Select categories and press Search.') %}
 
   {% elif not results %}
-    <div class="tw-card tw-p-4 tw-text-center">
-      <i class="fas fa-circle-xmark fa-2x tw-mb-3 tw-text-muted"></i>
-      <p class="tw-mb-0 tw-text-muted">
-        {% trans "No results for the specified phrase in the selected categories." %}
-      </p>
-    </div>
+    {% include 'home/includes/empty_state.html' with icon='fa-magnifying-glass' title=_('No results') text=_('No results for the specified phrase in the selected categories.') %}
 
   {% else %}
     <div class="tw-flex tw-flex-col tw-gap-2">

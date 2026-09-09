@@ -88,16 +88,8 @@
   </div>
 </div>
 {% empty %}
-<div class="tw-card tw-mb-4">
-  <div class="tw-card-header">
-    <span class="tw-section-heading">
-      <i class="fas fa-bullhorn tw-me-2 tw-cat-group-icon"></i>{% trans "Documents" %}
-    </span>
-  </div>
-  <div class="tw-card-body tw-py-2 tw-px-3">
-    <span class="tw-text-meta">{% trans "No documents" %}</span>
-  </div>
-</div>
+  {% if request.user.is_authenticated %}{% url 'board:create_post' as board_create_url %}{% endif %}
+  {% include 'home/includes/empty_state.html' with icon='fa-bullhorn' title=_('No documents yet.') cta_url=board_create_url cta_label=_('Add the first document') cta_icon='fa-plus' %}
 {% endfor %}
 
 </div>{# /section #}

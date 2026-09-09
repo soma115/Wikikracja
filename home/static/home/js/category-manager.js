@@ -123,7 +123,7 @@
 
       var cancelB = document.createElement('button');
       cancelB.type = 'button'; cancelB.className = 'tw-cat-mgr-btn';
-      cancelB.title = msg.cancel; cancelB.innerHTML = '<i class="fas fa-xmark"></i>';
+      cancelB.title = msg.cancel; cancelB.innerHTML = '<i class="fas fa-times"></i>';
       cancelB.addEventListener('click', function () {
         li.replaceWith(renderRow(cat));
       });

@@ -450,7 +450,11 @@ except ValueError:
     else:
         logging.warning("Firebase not initialized: No valid credentials found. Set FIREBASE_CERT_PATH (file path or JSON), GOOGLE_APPLICATION_CREDENTIALS, FIREBASE_CERT_JSON or FIREBASE_CERT_BASE64.")
 
-PUSH_NOTIFICATIONS_SETTINGS = {"FIREBASE_APP": firebase_admin.get_app() if firebase_admin._apps else None, "FCM_MAX_RECIPIENTS": 1000}
+PUSH_NOTIFICATIONS_SETTINGS = {
+    "CONFIG": "core.notifications.WikikracjaPushConfig",
+    "FIREBASE_APP": firebase_admin.get_app() if firebase_admin._apps else None,
+    "FCM_MAX_RECIPIENTS": 1000,
+}
 
 # Firebase Client Configuration (for Web/Android FCM)
 FIREBASE_CONFIG = {

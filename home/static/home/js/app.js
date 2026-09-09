@@ -1502,3 +1502,36 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// ============================================================
+// Mobile topbar breadcrumb subtitle
+// ============================================================
+(function() {
+    function updateTopbarSubtitle() {
+        var subtitle = document.getElementById('topbar-subtitle');
+        var textEl = document.getElementById('topbar-subtitle-text');
+        if (!subtitle || !textEl) return;
+
+        var activeStep = document.querySelector('.tw-stepper-nav .tw-stepper-step-wrap.tw-active .tw-stepper-step-label');
+        var activeSort = document.querySelector('.tw-toolbar .tw-sort-btn.tw-active .tw-sort-btn-label');
+        var activeCat = document.querySelector('.tw-cat-filter-btn.tw-active .tw-cat-filter-label');
+
+        var text = '';
+        if (activeStep) {
+            text = activeStep.textContent.trim();
+        } else if (activeSort) {
+            text = activeSort.textContent.trim();
+        } else if (activeCat) {
+            text = activeCat.textContent.trim();
+        }
+
+        if (text) {
+            textEl.textContent = text;
+            subtitle.classList.remove('tw-d-none');
+        } else {
+            subtitle.classList.add('tw-d-none');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', updateTopbarSubtitle);
+})();

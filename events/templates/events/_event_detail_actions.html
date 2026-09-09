@@ -1,0 +1,11 @@
+{% load i18n %}
+{% if user.is_authenticated %}
+<div class="tw-detail-nav tw-flex tw-gap-1">
+  <a href="{% url 'events:edit' event.pk %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}">
+    <i class="fas fa-pen"></i>
+  </a>
+  <a href="{% url 'events:delete' event.pk %}" class="tw-detail-nav-btn tw-event-delete-btn" title="{% trans 'Delete' %}">
+    <i class="fas fa-trash"></i>
+  </a>
+</div>
+{% endif %}

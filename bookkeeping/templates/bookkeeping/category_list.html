@@ -3,6 +3,7 @@
 
 {% block bookkeeping %}
 
+  {% if object_list %}
   <table class="tw-citizens-table tw-table-hover tw-table-sm">
     <thead>
       <tr>
@@ -21,11 +22,10 @@
             </div>
           </td>
         </tr>
-      {% empty %}
-        <tr>
-          <td colspan="2">{% trans 'No records found.' %}</td>
-        </tr>
       {% endfor %}
     </tbody>
   </table>
+  {% else %}
+    {% include 'home/includes/empty_state.html' with compact=True icon='fa-tag' title=_('No categories yet.') %}
+  {% endif %}
 {% endblock %}

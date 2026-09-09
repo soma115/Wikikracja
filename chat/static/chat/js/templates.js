@@ -44,7 +44,7 @@ const room_template = `
   <div class='tw-image-preview-container tw-d-none'>
     <div class='tw-preview-images'></div>
     <div class='tw-delete-images-preview'>
-      <i class='fas fa fa-times'></i>
+      <i class='fas fa-times'></i>
     </div>
   </div>
 
@@ -151,7 +151,7 @@ const message_template = `
         <% if (own) { %>
           <button type='button' class='tw-btn tw-btn-sm tw-message-btn tw-edit-message' data-message-id="<%-message_id%>"
             title='${_("edit")}'>
-            <i class='fas fa-edit'></i>
+            <i class='fas fa-pen'></i>
           </button>
         <% } %>
         <button type='button'

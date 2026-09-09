@@ -41,5 +41,5 @@
     </table>
   </div>
 {% else %}
-  <p class="tw-text-muted tw-p-3 tw-mb-0 tw-citizen-tab-empty">{% trans "No activities found." %}</p>
+  {% include 'home/includes/empty_state.html' with compact=True icon='fa-tasks' title=_('No activities found.') %}
 {% endif %}

@@ -3057,6 +3057,8 @@
   }
   .tw-cursor-default {cursor: default;
   }
+  [data-detail-url] {cursor: pointer;
+  }
 
   .tw-btn-mark-all {color: var(--badge-proposition-color);
     border-color: var(--badge-proposition-border);
@@ -5089,6 +5091,13 @@
     color: var(--text-muted);
     gap: .55rem;
     text-align: center;
+  }
+  .tw-empty-state--sm {
+    padding: 1rem;
+    gap: .35rem;
+  }
+  .tw-empty-state--sm .tw-empty-state-icon {
+    font-size: 1.25rem;
   }
   .tw-empty-state-title {font-size: 1rem;
     font-weight: 600;

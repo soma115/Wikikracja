@@ -1,0 +1,25 @@
+{% load i18n %}
+<div class="tw-event-card-badges-row">
+  <span class="tw-badge-status tw-badge-{% if event.frequency == 'once' %}discussion{% else %}rejected{% endif %}">
+    <i class="fas fa-{% if event.frequency == 'once' %}calendar-day{% else %}repeat{% endif %} fa-fw"></i>
+    {{ event.get_frequency_display }}
+  </span>
+  {% if event.is_active %}
+    <span class="tw-badge-status tw-badge-approved">
+      <i class="fas fa-check-circle fa-fw"></i> {% trans "Active" %}
+    </span>
+  {% else %}
+    <span class="tw-badge-status tw-badge-rejected">
+      <i class="fas fa-times-circle fa-fw"></i> {% trans "Inactive" %}
+    </span>
+  {% endif %}
+  {% if event.is_public %}
+    <span class="tw-badge-status tw-badge-discussion" title="{% trans 'Visible to everyone' %}">
+      <i class="fas fa-globe fa-fw"></i> {% trans "Public" %}
+    </span>
+  {% else %}
+    <span class="tw-badge-status" title="{% trans 'Visible only to logged-in users' %}">
+      <i class="fas fa-lock fa-fw"></i> {% trans "Private" %}
+    </span>
+  {% endif %}
+</div>

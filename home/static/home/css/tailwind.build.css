@@ -2001,13 +2001,6 @@ button.tw-task-helpers-btn:hover,
   transition: color var(--transition-fast), border-color var(--transition-fast);
 }
 
-.tw-args-empty {
-  color: var(--text-muted);
-  font-size: .82rem;
-  font-style: italic;
-  padding: .5rem 0;
-}
-
 .tw-arg-add-toggle {
   display: inline-flex;
   align-items: center;
@@ -4996,6 +4989,10 @@ a:hover {
   cursor: default;
 }
 
+[data-detail-url] {
+  cursor: pointer;
+}
+
 .tw-btn-mark-all {
   color: var(--badge-proposition-color);
   border-color: var(--badge-proposition-border);
@@ -7503,6 +7500,15 @@ input.tw-form-switch:focus,
   text-align: center;
 }
 
+.tw-empty-state--sm {
+  padding: 1rem;
+  gap: .35rem;
+}
+
+.tw-empty-state--sm .tw-empty-state-icon {
+  font-size: 1.25rem;
+}
+
 .tw-empty-state-title {
   font-size: 1rem;
   font-weight: 600;
@@ -7572,10 +7578,6 @@ input.tw-form-switch:focus,
 
 .tw-bg-primary {
   background-color: var(--color-primary) !important;
-}
-
-.tw-bg-secondary {
-  background-color: var(--color-secondary) !important;
 }
 
 .tw-bg-body-tertiary {
@@ -10086,10 +10088,6 @@ body.tw-chat-page .tw-main-area {
   background-color: var(--color-primary);
 }
 
-.tw-bg-secondary {
-  background-color: var(--color-secondary);
-}
-
 .tw-bg-success {
   background-color: var(--badge-approved-color);
 }
@@ -10155,11 +10153,6 @@ body.tw-chat-page .tw-main-area {
 .tw-py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-}
-
-.tw-py-3 {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
 }
 
 .tw-pb-2 {

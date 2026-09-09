@@ -255,7 +255,7 @@
         <form method="post" action="{% url 'obywatele:cancel_deletion' %}">
           {% csrf_token %}
           <button type="submit" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
-            <i class="fas fa-undo fa-fw tw-me-1"></i>{% trans "Cancel deletion request" %}
+            <i class="fas fa-rotate-left fa-fw tw-me-1"></i>{% trans "Cancel deletion request" %}
           </button>
         </form>
       {% else %}
@@ -278,7 +278,7 @@
   <div class="tw-modal-dialog">
     <div class="tw-modal-content">
       {% trans "Delete account" as modal_title %}
-      {% include 'home/includes/modal_header.html' with title=modal_title title_icon='fa-exclamation-triangle' title_class='tw-text-danger' title_id='deletionModalLabel' %}
+      {% include 'home/includes/modal_header.html' with title=modal_title title_icon='fa-triangle-exclamation' title_class='tw-text-danger' title_id='deletionModalLabel' %}
       <div class="tw-modal-body">
         <p>{% trans "Are you sure you want to request deletion of your account and all your data?" %}</p>
         <p><strong class="tw-font-semibold">{% trans "Your account will remain active for 30 days. After that, all data will be permanently removed and cannot be recovered." %}</strong></p>

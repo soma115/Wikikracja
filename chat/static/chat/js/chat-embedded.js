@@ -37,7 +37,7 @@ async function initEmbeddedChat(container) {
                 <div class="tw-image-preview-container tw-ec-image-preview-container tw-d-none" id="ec-image-preview-${roomId}">
                     <div class="tw-preview-images tw-ec-preview-images" id="ec-preview-images-${roomId}"></div>
                     <div class="tw-delete-images-preview tw-ec-delete-images-preview" id="ec-delete-images-${roomId}">
-                        <i class="fas fa fa-times"></i>
+                        <i class="fas fa-times"></i>
                     </div>
                 </div>
                 <div class="tw-compose-box tw-ec-form-row" id="ec-form-row-${roomId}">

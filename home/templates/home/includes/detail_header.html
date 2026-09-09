@@ -1,0 +1,25 @@
+{% load i18n %}
+{% comment %}
+Shared detail page header. Params:
+- title (required)
+- back_url/back_label (optional back link)
+- badges_include (optional path to a partial rendering status badges)
+- meta_include (optional path to a partial rendering metadata row)
+- actions_include (optional path to a partial rendering action buttons)
+- extra_class (optional)
+{% endcomment %}
+<div class="tw-detail-header{% if extra_class %} {{ extra_class }}{% endif %}">
+  {% if back_url %}
+  <a href="{{ back_url }}" class="tw-btn tw-btn-link tw-px-0 tw-mb-2">
+    <i class="fas fa-arrow-left fa-fw tw-me-1"></i>{{ back_label|default:_('Back to list') }}
+  </a>
+  {% endif %}
+
+  <div class="tw-detail-header-top tw-flex tw-items-start tw-justify-between tw-gap-2 tw-flex-wrap">
+    <h1 class="tw-detail-title tw-text-2xl tw-font-bold">{{ title }}</h1>
+    {% if actions_include %}{% include actions_include %}{% endif %}
+  </div>
+
+  {% if badges_include %}{% include badges_include %}{% endif %}
+  {% if meta_include %}{% include meta_include %}{% endif %}
+</div>

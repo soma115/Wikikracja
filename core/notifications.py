@@ -580,3 +580,20 @@ def on_survey_created(sender, survey, url, **kwargs):
         send_email=False,
         survey_id=survey.id,
     )
+
+
+class WikikracjaPushConfig:
+    """Config adapter for django-push-notifications.
+
+    The project uses GCMDevice.application_id only to store the PWA display mode
+    (browser/standalone/minimal-ui/fullscreen). All devices share the same
+    Firebase project, so this adapter ignores application_id and always returns
+    the global FIREBASE_APP and FCM_MAX_RECIPIENTS from PUSH_NOTIFICATIONS_SETTINGS.
+    """
+
+    def get_firebase_app(self, application_id=None):
+        return settings.PUSH_NOTIFICATIONS_SETTINGS.get("FIREBASE_APP")
+
+    def get_max_recipients(self, application_id=None):
+        return settings.PUSH_NOTIFICATIONS_SETTINGS.get("FCM_MAX_RECIPIENTS", 1000)
+

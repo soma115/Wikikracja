@@ -1,0 +1,55 @@
+{% extends 'bookkeeping/menu.html' %}
+{% load i18n %}
+{% load feed_filters %}
+{% load bookkeeping_extras %}
+
+{% block bookkeeping %}
+<div class="tw-container tw-mt-4">
+  <div class="tw-card">
+    <div class="tw-card-header tw-bg-info tw-text-white tw-flex tw-justify-between tw-items-center">
+      <h4 class="tw-mb-0">{% trans "Transaction" %} #{{ transaction.id }}</h4>
+      <a href="{% url 'bookkeeping:transaction_list' %}" class="tw-btn tw-btn-sm tw-btn-light"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Back to list' %}</a>
+    </div>
+    <div class="tw-card-body">
+      <dl class="tw-grid tw-grid-cols-12 tw-gap-3">
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Type' %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">
+          {% if transaction.type == 'I' %}
+            <span class="tw-badge-status tw-badge-success">{% trans "Incoming" %}</span>
+          {% else %}
+            <span class="tw-badge-status tw-badge-danger">{% trans "Outgoing" %}</span>
+          {% endif %}
+        </dd>
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Date' %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.payment_received_date|date:"Y-m-d" }}</dd>
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Partner' %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.partner }}</dd>
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Category' %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.category|default:"—" }}</dd>
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Asset' %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.asset }}</dd>
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Amount' %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.amount|normalize_decimal }} {{ transaction.asset.symbol }}</dd>
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Author' %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.author|display_name }}</dd>
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Note' %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.note|default:"—"|linebreaks }}</dd>
+      </dl>
+
+      {% if transaction.author == request.user %}
+      <div class="tw-mt-3 tw-flex tw-flex-wrap tw-gap-2">
+        <a href="{% url 'bookkeeping:transaction_update' transaction.id %}" class="tw-btn tw-btn-primary"><i class="fas fa-pen fa-fw tw-me-1"></i>{% trans 'Edit' %}</a>
+        <a href="{% url 'bookkeeping:transaction_delete' transaction.id %}" class="tw-btn tw-btn-danger"><i class="fas fa-trash fa-fw tw-me-1"></i>{% trans 'Delete' %}</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

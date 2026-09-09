@@ -163,6 +163,10 @@ Wikikracja ma jeden pipeline Tailwind, jeden arkusz komponentów (`home/static/h
 
 Jeśli użytkownik wydaje komendę „posprzątaj”, to znaczy, że chodzi o przejrzenie aplikacji pod kątem błędów logicznych, spaghetti code, niedoróbek architektonicznych i dobrych praktyk programowania.
 
+## 9. Dokumentowanie zmian
+
+Po zakończeniu każdego zadania dokumentuj w pliku `docs/LOG_AI.md` wszystkie zmiany w kodzie, które wprowadziłeś, wraz z uzasadnieniem, opisem tego, co się zmieniło, oraz spodziewanym efektem. Celem jest utrzymanie przejrzystej historii decyzji podejmowanych przez asystenta AI i ułatwienie późniejszej inspekcji.
+
 ---
 
 *Aktualizuj ten plik przy każdej zmianie procesu, stacku, konwencji lub decyzji architektonicznej.*

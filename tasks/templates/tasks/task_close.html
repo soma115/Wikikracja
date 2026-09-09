@@ -18,7 +18,7 @@
           {{ form.status.errors }}
         </div>
         <div class="tw-flex tw-gap-2">
-          <button type="submit" class="tw-btn tw-btn-warning"><i class="fas fa-check fa-fw"></i> {% trans "Confirm close" %}</button>
+          <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-check fa-fw"></i> {% trans "Confirm close" %}</button>
           <a href="{% url 'tasks:detail' form.instance.pk %}" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw"></i> {% trans "Cancel" %}</a>
         </div>
       </form>

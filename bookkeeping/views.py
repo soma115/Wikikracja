@@ -218,6 +218,12 @@ class TransactionListView(BookkeepingListView):
         return context
 
 
+class TransactionDetailView(LoginRequiredMixin, DetailView):
+    model = Transaction
+    template_name = 'bookkeeping/transaction_detail.html'
+    context_object_name = 'transaction'
+
+
 def _asset_decimal_places_json():
     return json.dumps({str(a.pk): a.decimal_places for a in Asset.objects.all()})
 
@@ -248,7 +254,7 @@ class TransactionCreateView(LoginRequiredMixin, View):
             transaction.created_date = timezone.now()
             transaction.save()
 
-            return redirect('bookkeeping:transaction_list')
+            return redirect('bookkeeping:transaction_detail', pk=transaction.pk)
 
         return render(request, self.template_name, {'transaction_form': transaction_form, 'asset_decimal_places_json': _asset_decimal_places_json()})
 
@@ -266,7 +272,7 @@ class TransactionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
         next_url = self.request.GET.get('next')
         if next_url:
             return next_url
-        return reverse_lazy('bookkeeping:transaction_list')
+        return reverse_lazy('bookkeeping:transaction_detail', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -283,7 +289,7 @@ class TransactionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['cancel_url'] = self.get_success_url()
+        context['cancel_url'] = reverse_lazy('bookkeeping:transaction_detail', kwargs={'pk': self.object.pk})
         return context
 
     def test_func(self):

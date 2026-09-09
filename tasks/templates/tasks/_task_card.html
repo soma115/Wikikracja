@@ -124,7 +124,7 @@
               data-tw-title="{% trans 'People against' %}"
               data-tw-content="<div class='tw-helpers-popover-loading'>{% trans 'Loading…' %}</div>"
               aria-label="{% trans 'People against. Click to see the list.' %}">
-        <i class="fas fa-ban fa-fw"></i>
+        <i class="fas fa-thumbs-down fa-fw"></i>
         <span class="tw-task-against-count">{{ task.votes_down|default:0 }}</span>
       </button>
     </div>
@@ -213,7 +213,7 @@
           <button type="submit" class="tw-task-resign-btn" data-tw-stop-propagation
                   data-tw-toggle="tooltip"
                   title="{% trans 'Step down from coordinating this activity' %}">
-            <i class="fas fa-xmark"></i> {% trans 'Resign as coordinator' %}
+            <i class="fas fa-right-from-bracket"></i> {% trans 'Resign as coordinator' %}
           </button>
         </form>
         <form method="post" action="{% url 'tasks:take' task.pk %}" data-coord-state="empty"{% if task.assigned_to %} hidden{% endif %}>
@@ -222,7 +222,7 @@
           <button type="submit" class="tw-task-take-btn" data-tw-stop-propagation
                   data-tw-toggle="tooltip"
                   title="{% trans 'Take responsibility for coordinating this activity' %}">
-            <i class="fas fa-hand"></i> {% trans 'Become coordinator' %}
+            <i class="fas fa-user-gear"></i> {% trans 'Become coordinator' %}
           </button>
         </form>
       {% endif %}

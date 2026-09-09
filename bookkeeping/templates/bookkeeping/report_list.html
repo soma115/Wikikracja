@@ -28,7 +28,7 @@
       {% if year_pivot %}
         {% include 'bookkeeping/_report_pivot.html' with pivot_rows=year_pivot asset_columns=year_assets asset_totals=year_totals uses_fallback=year_uses_fallback totals_label=_('Summary of the year') %}
       {% else %}
-        <div class="tw-p-3"><div class="tw-alert tw-alert-info tw-mb-0">{% trans 'No records found.' %}</div></div>
+        {% include 'home/includes/empty_state.html' with compact=True icon='fa-chart-pie' title=_('No records found.') %}
       {% endif %}
     </div>
   </div>
@@ -42,7 +42,7 @@
       {% if all_pivot %}
         {% include 'bookkeeping/_report_pivot.html' with pivot_rows=all_pivot asset_columns=all_assets asset_totals=all_totals uses_fallback=all_uses_fallback totals_label=_('Total all years') %}
       {% else %}
-        <div class="tw-p-3"><div class="tw-alert tw-alert-info tw-mb-0">{% trans 'No records found.' %}</div></div>
+        {% include 'home/includes/empty_state.html' with compact=True icon='fa-chart-pie' title=_('No records found.') %}
       {% endif %}
     </div>
   </div>

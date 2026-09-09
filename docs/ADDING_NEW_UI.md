@@ -33,7 +33,7 @@ This checklist keeps the interface consistent. Before creating a new view, form,
 - [ ] Card headers use `tw-card-header`; body uses `tw-card-body`.
 - [ ] Lists use `tw-proposals-list` (or its successor if documented otherwise) + `data-view-container`.
 - [ ] Empty states use the shared partial `home/includes/empty_state.html` (`tw-empty-state` + `tw-empty-state-icon`/`tw-empty-state-title`).
-- [ ] Modal headers use the shared partial `home/includes/modal_header.html` (`title` required; `title_icon`, `title_class`, `title_id` optional).
+- [ ] Detail page headers use the shared partial `home/includes/detail_header.html` (`title` required; `back_url`, `badges_include`, `meta_include`, `actions_include`, `extra_class` optional).
 - [ ] Clickable rows/cards use `data-detail-url` + `role="link" tabindex="0"` (navigation handled by `app.js`); inner links/buttons keep `data-tw-stop-propagation`.
 - [ ] Do not create new `module-card`, `module-list`, `module-empty` classes.
 
@@ -57,7 +57,7 @@ This checklist keeps the interface consistent. Before creating a new view, form,
 - [ ] Look up the semantic meaning in `docs/UI_STANDARDS.html`.
 - [ ] Use Font Awesome classes from the dictionary (`fa-check`, `fa-pen`, `fa-trash`, etc.).
 - [ ] If a new icon is genuinely needed, add it to `docs/UI_STANDARDS.html` first, then use it.
-- [ ] Do not mix `fa-xmark` and `fa-times` for the same action.
+- [ ] Use `fa-times` for close/cancel; do not use `fa-xmark`. Use `fa-triangle-exclamation` for warnings; do not use `fa-exclamation-triangle`. Use `fa-check-circle`/`fa-times-circle` for status; do not use `fa-circle-check`/`fa-circle-xmark`.
 
 ### 7. Inline styles
 

@@ -278,6 +278,10 @@
           {% elif request.resolver_match.namespace == 'bookkeeping' %}{% trans "Finance" %}
           {% elif request.resolver_match.namespace == 'chat' %}{% trans "Chat" %}
           {% else %}…{% endif %}
+          <span class="tw-topbar-subtitle tw-d-none md:tw-hidden tw-text-muted tw-text-sm" id="topbar-subtitle" data-topbar-subtitle>
+            <span class="tw-sep">›</span>
+            <span id="topbar-subtitle-text"></span>
+          </span>
         </span>
       </div>
 
@@ -374,7 +378,7 @@
     </div>
     <div class="tw-notif-banner-wrap">
       <div id="notification-blocked-banner" class="tw-alert tw-alert-warning tw-m-0 tw-text-center tw-rounded-none">
-        <i class="fas fa-exclamation-triangle"></i>
+        <i class="fas fa-triangle-exclamation"></i>
         <span>{% trans "Notifications are blocked. Please enable them in your browser settings" %}</span>
         <button type="button" class="tw-btn tw-btn-sm tw-btn-secondary tw-mx-2" id="dismiss-blocked-banner">
           <i class="fas fa-times fa-fw"></i> {% trans "Dismiss" %}

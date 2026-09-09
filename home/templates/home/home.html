@@ -100,9 +100,7 @@
           </span>
         </div>
         {% empty %}
-        <div class="tw-px-3 tw-py-3 tw-text-center tw-text-muted tw-text-sm">
-          {% trans "No activity in the last 30 days" %}
-        </div>
+        {% include 'home/includes/empty_state.html' with compact=True icon='fa-stream' title=_('No activity in the last 30 days') %}
         {% endfor %}
         <div id="activity-feed-more" class="tw-activity-more tw-d-none">…</div>
       </div>
@@ -419,7 +417,7 @@
           <a href="{% url 'chat:chat' %}#room_id={{ msg.room.id }}" class="tw-stretched-link" aria-label="{% trans 'Open chat' %} {{ msg.room.title }}" title="{% trans 'Open chat' %} {{ msg.room.title }}"></a>
         </div>
         {% empty %}
-        <p class="tw-text-center tw-text-muted tw-text-sm">{% trans "No news" %}</p>
+        {% include 'home/includes/empty_state.html' with compact=True icon='fa-comment-dots' title=_('No news') %}
         {% endfor %}
       </div>
       <a href="{% url 'chat:chat' %}" class="tw-stretched-link" aria-label="{% trans 'Chat' %}" title="{% trans 'Chat' %}"></a>

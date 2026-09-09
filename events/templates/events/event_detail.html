@@ -5,48 +5,7 @@
 {% block content %}
 <div class="tw-detail-layout tw-flex tw-flex-col tw-gap-3">
 
-  <div class="tw-detail-header">
-    <div class="tw-detail-header-top tw-flex tw-items-start tw-justify-between">
-      <h1 class="tw-detail-title tw-text-2xl tw-font-bold">{{ event.title }}</h1>
-      {% if user.is_authenticated %}
-        <div class="tw-detail-nav tw-flex tw-gap-1">
-          <a href="{% url 'events:edit' event.pk %}" class="tw-detail-nav-btn"
-             title="{% trans 'Edit' %}">
-            <i class="fas fa-pen"></i>
-          </a>
-          <a href="{% url 'events:delete' event.pk %}" class="tw-detail-nav-btn tw-event-delete-btn"
-             title="{% trans 'Delete' %}">
-            <i class="fas fa-trash"></i>
-          </a>
-        </div>
-      {% endif %}
-    </div>
-
-    <div class="tw-event-card-badges-row">
-      <span class="tw-badge-status tw-badge-{% if event.frequency == 'once' %}discussion{% else %}rejected{% endif %}">
-        <i class="fas fa-{% if event.frequency == 'once' %}calendar-day{% else %}repeat{% endif %} fa-fw"></i>
-        {{ event.get_frequency_display }}
-      </span>
-      {% if event.is_active %}
-        <span class="tw-badge-status tw-badge-approved">
-          <i class="fas fa-circle-check fa-fw"></i> {% trans "Active" %}
-        </span>
-      {% else %}
-        <span class="tw-badge-status tw-badge-rejected">
-          <i class="fas fa-circle-xmark fa-fw"></i> {% trans "Inactive" %}
-        </span>
-      {% endif %}
-      {% if event.is_public %}
-        <span class="tw-badge-status tw-badge-discussion" title="{% trans 'Visible to everyone' %}">
-          <i class="fas fa-globe fa-fw"></i> {% trans "Public" %}
-        </span>
-      {% else %}
-        <span class="tw-badge-status" title="{% trans 'Visible only to logged-in users' %}">
-          <i class="fas fa-lock fa-fw"></i> {% trans "Private" %}
-        </span>
-      {% endif %}
-    </div>
-  </div>
+  {% include 'home/includes/detail_header.html' with title=event.title actions_include='events/_event_detail_actions.html' badges_include='events/_event_detail_badges.html' %}
 
   <div class="tw-event-card">
     <div class="tw-event-card-body tw-flex tw-flex-col tw-gap-2">

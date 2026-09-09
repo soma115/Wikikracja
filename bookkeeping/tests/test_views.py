@@ -99,8 +99,9 @@ class BookkeepingViewTests(TestCase):
             reverse('bookkeeping:transaction_create'),
             {'type': 'I', 'asset': self.asset.pk, 'partner': self.partner.pk, 'category': self.category.pk, 'amount': '10.5', 'payment_received_date': '2026-01-01', 'note': ''},
         )
-        self.assertRedirects(res, reverse('bookkeeping:transaction_list'))
-        self.assertEqual(Transaction.objects.get().author, self.user)
+        txn = Transaction.objects.get()
+        self.assertRedirects(res, reverse('bookkeeping:transaction_detail', args=[txn.pk]))
+        self.assertEqual(txn.author, self.user)
 
     def test_transaction_update_respects_next_param(self):
         txn = self._transaction()

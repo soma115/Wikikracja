@@ -3,6 +3,7 @@
 
 {% block bookkeeping %}
 
+  {% if object_list %}
   <table class="tw-citizens-table tw-table-hover tw-table-sm">
     <thead>
       <tr>
@@ -43,11 +44,10 @@
             </div>
           </td>
         </tr>
-      {% empty %}
-        <tr>
-          <td colspan="7">{% trans 'No records found.' %}</td>
-        </tr>
       {% endfor %}
     </tbody>
   </table>
+  {% else %}
+    {% include 'home/includes/empty_state.html' with compact=True icon='fa-coins' title=_('No assets yet.') %}
+  {% endif %}
 {% endblock %}

@@ -2,10 +2,11 @@
 {% comment %}
 Shared empty-state block. Params: icon (fa-*, default fa-inbox), title (required),
 text (optional second line), cta_url/cta_label/cta_icon (optional action link),
-extra_class (optional, e.g. 'tw-d-none' for initially-hidden state).
+extra_class (optional, e.g. 'tw-d-none' for initially-hidden state),
+compact (optional, smaller padding/icon for inline/table contexts).
 {% endcomment %}
-<div class="tw-empty-state{% if extra_class %} {{ extra_class }}{% endif %}{% if hidden %} tw-d-none{% endif %}">
-  <i class="fas {{ icon|default:'fa-inbox' }} fa-2x tw-empty-state-icon"></i>
+<div class="tw-empty-state{% if compact %} tw-empty-state--sm{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}{% if hidden %} tw-d-none{% endif %}">
+  <i class="fas {{ icon|default:'fa-inbox' }} {{ icon_size|default:'fa-2x' }} tw-empty-state-icon"></i>
   <div class="tw-empty-state-title">{{ title }}</div>
   {% if text %}<div>{{ text }}</div>{% endif %}
   {% if cta_url %}

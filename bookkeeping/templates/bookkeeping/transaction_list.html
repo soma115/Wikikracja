@@ -20,6 +20,7 @@
     </div>
   {% endif %}
 
+  {% if transactions %}
   <div class="tw-citizens-table-wrap">
     <table class="tw-citizens-table tw-table-sm">
       <thead>
@@ -31,27 +32,17 @@
           <th>{% trans "Asset" %}</th>
           <th>{% trans "Amount" %}</th>
           <th>{% trans "Author" %}</th>
-          <th class="tw-text-end">{% trans "Actions" %}</th>
         </tr>
       </thead>
       <tbody>
         {% for transaction in transactions %}
-          <tr>
+          <tr data-detail-url="{% url 'bookkeeping:transaction_detail' transaction.id %}" role="link" tabindex="0">
             <td>
-              <a
-                href="#transaction-details-{{ transaction.id }}"
-                data-tw-toggle="collapse"
-                role="button"
-                aria-expanded="false"
-                aria-controls="transaction-details-{{ transaction.id }}"
-                class="tw-no-underline"
-              >
-                {% if transaction.type == 'I' %}
-                  <small class="tw-text-success">{% trans "Incoming" %}</small>
-                {% else %}
-                  <small class="tw-text-danger">{% trans "Outgoing" %}</small>
-                {% endif %}
-              </a>
+              {% if transaction.type == 'I' %}
+                <small class="tw-text-success">{% trans "Incoming" %}</small>
+              {% else %}
+                <small class="tw-text-danger">{% trans "Outgoing" %}</small>
+              {% endif %}
             </td>
             <td>{{ transaction.payment_received_date|date:"Y-m-d" }}</td>
             <td>{{ transaction.partner }}</td>
@@ -59,24 +50,12 @@
             <td><small class="tw-text-muted">{{ transaction.asset.code }}</small></td>
             <td>{{ transaction.amount|normalize_decimal }} {{ transaction.asset.symbol }}</td>
             <td>{{ transaction.author|display_name }}</td>
-            <td>
-              {% if transaction.author == request.user %}
-              <div class="tw-flex tw-gap-2 tw-justify-end">
-                <a href="{% url 'bookkeeping:transaction_update' transaction.id %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary"><i class="fas fa-pen fa-fw"></i> {% trans "Edit" %}</a>
-                <a href="{% url 'bookkeeping:transaction_delete' transaction.id %}" class="tw-btn tw-btn-sm tw-btn-outline-danger"><i class="fas fa-trash fa-fw"></i> {% trans "Delete" %}</a>
-              </div>
-              {% endif %}
-            </td>
           </tr>
-          <tr class="tw-collapse" id="transaction-details-{{ transaction.id }}">
-            <td colspan="8" class="tw-bg-secondary tw-text-white">
-              <small>{{ transaction.note|default:"-" }}</small>
-            </td>
-          </tr>
-        {% empty %}
-          <tr><td colspan="8" class="tw-text-muted">{% trans "No records found." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+  {% else %}
+    {% include 'home/includes/empty_state.html' with compact=True icon='fa-money-bill-transfer' title=_('No transactions yet.') %}
+  {% endif %}
 {% endblock %}

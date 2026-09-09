@@ -99,8 +99,8 @@
       {% with total=id.za|add:id.przeciw %}{% if total %}{% widthratio id.za total 100 as fill_pct %}
       <div class="tw-result-bar">
         <div class="tw-result-bar-labels">
-          <span class="tw-vote-for"><i class="fas fa-check fa-fw"></i> {% trans 'For' %} {{ id.za }}</span>
-          <span class="tw-vote-against">{% trans 'Against' %} {{ id.przeciw }} <i class="fas fa-xmark fa-fw"></i></span>
+          <span class="tw-vote-for"><i class="fas fa-thumbs-up fa-fw"></i> {% trans 'For' %} {{ id.za }}</span>
+          <span class="tw-vote-against">{% trans 'Against' %} {{ id.przeciw }} <i class="fas fa-thumbs-down fa-fw"></i></span>
         </div>
         <div class="tw-result-bar-track"><div class="tw-result-bar-fill" data-progress="{{ fill_pct }}"></div></div>
       </div>
@@ -182,7 +182,7 @@
       </div>
       {% endfor %}
     {% else %}
-      <p class="tw-args-empty">{% trans 'No arguments for.' %}</p>
+      {% include 'home/includes/empty_state.html' with compact=True icon='fa-comments' title=_('No arguments for.') %}
     {% endif %}
     {% if user.is_authenticated and not id.voting_has_ended %}
     <button type="button" class="tw-arg-add-toggle tw-arg-add-toggle--for" data-tw-toggle="collapse" data-tw-target="#form-for">
@@ -223,7 +223,7 @@
       </div>
       {% endfor %}
     {% else %}
-      <p class="tw-args-empty">{% trans 'No arguments against.' %}</p>
+      {% include 'home/includes/empty_state.html' with compact=True icon='fa-comments' title=_('No arguments against.') %}
     {% endif %}
     {% if user.is_authenticated and not id.voting_has_ended %}
     <button type="button" class="tw-arg-add-toggle tw-arg-add-toggle--against" data-tw-toggle="collapse" data-tw-target="#form-against">

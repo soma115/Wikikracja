@@ -3,6 +3,7 @@
 
 {% block bookkeeping %}
 
+  {% if partners %}
   <table class="tw-citizens-table tw-table-hover tw-table-sm tw-align-middle">
     <thead>
       <tr>
@@ -83,11 +84,10 @@
             </div>
           </td>
         </tr>
-      {% empty %}
-        <tr>
-          <td colspan="5">{% trans 'No records found.' %}</td>
-        </tr>
       {% endfor %}
     </tbody>
   </table>
+  {% else %}
+    {% include 'home/includes/empty_state.html' with compact=True icon='fa-handshake' title=_('No partners yet.') %}
+  {% endif %}
 {% endblock %}
