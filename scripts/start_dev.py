@@ -3,8 +3,9 @@
 Dev starter for Windows/Linux.
 Default: prepare .env, ensure SECRET_KEY, load env, create media/uploads,
 run migrations and start Daphne.
-With --full: additionally pip install -r requirements.txt, makemigrations for
-listed apps, makemessages/compilemessages and collectstatic.
+With --full: additionally pip install -r requirements.txt, install pre-commit
+hooks, makemigrations for listed apps, makemessages/compilemessages and
+collectstatic.
 """
 
 import argparse
@@ -92,6 +93,7 @@ def main():
 
     if args.full:
         run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+        run([sys.executable, "-m", "pre_commit", "install"])
 
     manage = [sys.executable, "manage.py"]
     apps = ["obywatele", "glosowania", "chat", "home", "bookkeeping", "board", "events", "tasks"]

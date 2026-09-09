@@ -596,4 +596,3 @@ class WikikracjaPushConfig:
 
     def get_max_recipients(self, application_id=None):
         return settings.PUSH_NOTIFICATIONS_SETTINGS.get("FCM_MAX_RECIPIENTS", 1000)
-

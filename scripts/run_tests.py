@@ -153,7 +153,9 @@ def main():
         run(manage + ["collectstatic", "--noinput", "--clear"])
 
     if not args.no_pytest:
-        run([sys.executable, "-m", "pytest", "-q"])
+        # Use every available CPU thread so the test suite runs as fast as possible.
+        test_threads = os.cpu_count() or 2
+        run([sys.executable, "-m", "pytest", "-q", "-n", str(test_threads)])
 
     if not args.no_jest:
         npx = shutil.which("npx")
