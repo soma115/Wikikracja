@@ -29,7 +29,7 @@ setup('login as dev user', async ({ page }) => {
     // utwórz pokój testowy tylko wtedy, gdy lista jest pusta.
     await page.goto('/chat/?view=rooms');
     if (await page.locator('.tw-room-link').count() === 0) {
-        await page.goto('/chat/add/');
+        await page.goto('/chat/add_room/');
         await page.fill('input[name="title"]', `E2E Playwright Room ${Date.now()}`);
         await Promise.all([
             page.waitForURL(/\/chat\/\?view=rooms|\/chat\/#room_id=/, { timeout: 15000 }),
