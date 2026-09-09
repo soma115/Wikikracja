@@ -7365,8 +7365,8 @@ input.tw-form-switch:focus,
   position: absolute;
   top: 12px;
   left: 12px;
-  width: 5px;
-  height: 5px;
+  width: 10px;
+  height: 10px;
   border: 1px solid var(--bg-card);
   border-radius: 50%;
   background: var(--presence-color);

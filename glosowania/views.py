@@ -178,6 +178,50 @@ def _get_and_check_decision(request, pk, allowed_status, error_message):
     return decision, None
 
 
+def _is_database_locked(error):
+    return 'database is locked' in str(error).lower()
+
+
+def _cast_vote(request, pk, vote):
+    """Record a vote and queue its anonymous verification code.
+
+    SQLite can fail while upgrading the read lock from ``select_for_update`` to
+    the insert below. Retrying the complete transaction keeps the duplicate-vote
+    check and the voter marker in the same atomic operation.
+    """
+    max_retries = 3
+    retry_delay = 0.1
+
+    for attempt in range(max_retries):
+        try:
+            with transaction.atomic():
+                decision, response = _get_and_check_decision(request, pk, Decyzja.Status.REFERENDUM, _('This motion is not currently open for voting.'))
+                if response:
+                    return None, response
+
+                voter = request.user
+                already_voted = KtoJuzGlosowal.objects.filter(projekt=decision, ktory_uzytkownik_juz_zaglosowal=voter).exists()
+                if already_voted:
+                    return None, redirect('glosowania:details', pk)
+
+                glos = KtoJuzGlosowal(projekt=decision, ktory_uzytkownik_juz_zaglosowal=voter)
+                glos.save()
+                code = generate_code()
+                # The vote's content is queued outside the SQL database (see
+                # glosowania.vote_buffer) instead of being written to VoteCode
+                # here, so it isn't created in the same instant/order as the
+                # KtoJuzGlosowal row above. It is shuffled into VoteCode - and
+                # counted into za/przeciw - only once the referendum closes
+                # (glosowania.management.commands.vote).
+                push_pending_vote(decision.id, code, vote)
+            return code, None
+        except OperationalError as error:
+            if not _is_database_locked(error) or attempt == max_retries - 1:
+                raise
+            time.sleep(retry_delay)
+            retry_delay *= 2
+
+
 @login_required
 def details(request: HttpRequest, pk: int):
     # Pokaż szczegóły przepisu
@@ -211,24 +255,9 @@ def details(request: HttpRequest, pk: int):
 
     if request.POST.get('tak'):
         try:
-            with transaction.atomic():
-                nowy_projekt, response = _get_and_check_decision(request, pk, Decyzja.Status.REFERENDUM, _('This motion is not currently open for voting.'))
-                if response:
-                    return response
-                osoba_glosujaca = request.user
-                already_voted = KtoJuzGlosowal.objects.filter(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca).exists()
-                if already_voted:
-                    return redirect('glosowania:details', pk)
-                glos = KtoJuzGlosowal(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca)
-                glos.save()
-                code = generate_code()
-                # The vote's content is queued outside the SQL database (see
-                # glosowania.vote_buffer) instead of being written to VoteCode
-                # here, so it isn't created in the same instant/order as the
-                # KtoJuzGlosowal row above. It is shuffled into VoteCode - and
-                # counted into za/przeciw - only once the referendum closes
-                # (glosowania.management.commands.vote).
-                push_pending_vote(nowy_projekt.id, code, True)
+            code, response = _cast_vote(request, pk, True)
+            if response:
+                return response
         except redis.RedisError:
             # If vote storage is unreachable, the KtoJuzGlosowal row above is
             # rolled back with the rest of the transaction, so the user isn't
@@ -250,19 +279,9 @@ def details(request: HttpRequest, pk: int):
 
     if request.POST.get('nie'):
         try:
-            with transaction.atomic():
-                nowy_projekt, response = _get_and_check_decision(request, pk, Decyzja.Status.REFERENDUM, _('This motion is not currently open for voting.'))
-                if response:
-                    return response
-                osoba_glosujaca = request.user
-                already_voted = KtoJuzGlosowal.objects.filter(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca).exists()
-                if already_voted:
-                    return redirect('glosowania:details', pk)
-                glos = KtoJuzGlosowal(projekt=nowy_projekt, ktory_uzytkownik_juz_zaglosowal=osoba_glosujaca)
-                glos.save()
-                code = generate_code()
-                # See the 'tak' branch above for why this isn't a VoteCode.objects.create() here.
-                push_pending_vote(nowy_projekt.id, code, False)
+            code, response = _cast_vote(request, pk, False)
+            if response:
+                return response
         except redis.RedisError:
             log.error(f"Vote storage unavailable while casting a vote on decyzja {pk}", exc_info=True)
             messages.error(request, _('Voting is temporarily unavailable. Please try again in a moment.'))

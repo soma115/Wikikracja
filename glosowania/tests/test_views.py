@@ -47,6 +47,33 @@ def test_details_view_retries_on_database_lock(sample_users):
 
 
 @pytest.mark.django_db
+def test_voting_retries_when_database_is_locked(sample_users):
+    """A transient SQLite lock must not turn a valid vote into a 500."""
+    author = sample_users[0]
+    voter = sample_users[1]
+    decyzja = Decyzja.objects.create(title='Referendum Bill', tresc='Test law text', kara='Test penalty', author=author, status=Decyzja.Status.REFERENDUM)
+    client = Client()
+    client.force_login(voter)
+
+    original_save = KtoJuzGlosowal.save
+    save_calls = [0]
+
+    def save_with_transient_lock(instance, *args, **kwargs):
+        save_calls[0] += 1
+        if save_calls[0] == 1:
+            raise OperationalError('database is locked')
+        return original_save(instance, *args, **kwargs)
+
+    with patch.object(KtoJuzGlosowal, 'save', save_with_transient_lock), patch('glosowania.views.push_pending_vote') as mock_push:
+        response = client.post(f'/glosowania/details/{decyzja.pk}/', {'tak': '1'})
+
+    assert response.status_code == 302
+    assert save_calls[0] == 2
+    assert KtoJuzGlosowal.objects.filter(projekt=decyzja, ktory_uzytkownik_juz_zaglosowal=voter).count() == 1
+    mock_push.assert_called_once()
+
+
+@pytest.mark.django_db
 def test_details_view_with_chat_room(sample_users):
     """Test that details view loads correctly with chat room."""
     from django.test import Client
