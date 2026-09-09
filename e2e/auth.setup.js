@@ -33,7 +33,7 @@ setup('login as dev user', async ({ page }) => {
         await page.fill('input[name="title"]', `E2E Playwright Room ${Date.now()}`);
         await Promise.all([
             page.waitForURL(/\/chat\/\?view=rooms|\/chat\/#room_id=/, { timeout: 15000 }),
-            page.click('form button[type="submit"]'),
+            page.click('form:has(input[name="title"]) button[type="submit"]'),
         ]);
     }
 
