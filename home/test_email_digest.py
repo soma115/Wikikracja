@@ -20,6 +20,7 @@ from core.services.feed import build_user_digest
 from events.models import Event
 from home.management.commands.send_email_digest import Command
 from obywatele.models import CitizenActivity, Uzytkownik
+from tasks.models import Task
 from tests.factories import PostCategoryFactory, PostFactory, UserFactory
 
 FAST_EMAIL_SETTINGS = {'EMAIL_BACKEND': 'django.core.mail.backends.locmem.EmailBackend', 'EMAIL_SEND_DELAY_SECONDS': 0}
@@ -316,3 +317,17 @@ class SendEmailDigestCommandTest(TransactionTestCase):
 
         profile = Uzytkownik.objects.get(uid=user)
         assert profile.last_email_digest_at > past
+
+
+@pytest.mark.django_db
+def test_build_user_digest_public_task_room_uses_clean_title(digest_user, another_user):
+    """Public task rooms in email digest should show the clean task title, not 'Task #N: ...'."""
+    task = Task.objects.create(title='Task digest clean title', description='body', created_by=another_user, status=Task.Status.ACTIVE)
+    room = task.chat_room
+    assert room.title == f'Task #{task.pk}: Task digest clean title'
+    Message.objects.create(room=room, sender=another_user, text='Hello in task room')
+
+    since = timezone.now() - td(hours=1)
+    item = next(item for item in build_user_digest(digest_user, since) if item['content_type'] == 'room_messages' and item['room_id'] == room.pk)
+    assert item['title'] == 'Task digest clean title'
+    assert 'Task #' not in item['title']

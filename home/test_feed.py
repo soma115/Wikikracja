@@ -322,3 +322,16 @@ def test_chat_feed_does_not_reuse_legacy_cache_with_exposed_author(feed_user, an
     finally:
         cache.delete('feed_raw_v2')
         cache.delete(FEED_CACHE_KEY)
+
+
+@pytest.mark.django_db
+def test_chat_feed_public_task_room_uses_clean_title(feed_user):
+    """Public rooms linked to tasks should show the clean task title, not 'Task #N: ...'."""
+    cache.delete(FEED_CACHE_KEY)
+    task = Task.objects.create(title='Public task room', description='body', created_by=feed_user, status=Task.Status.ACTIVE)
+    room = task.chat_room
+    assert room.title == f'Task #{task.pk}: Public task room'
+    Message.objects.create(room=room, sender=feed_user, text='Hello in task room')
+    item = next(item for item in generate_feed_items(feed_user) if item['content_type'] == 'room_messages' and item['room_id'] == room.pk)
+    assert item['title'] == 'Public task room'
+    assert 'Task #' not in item['title']

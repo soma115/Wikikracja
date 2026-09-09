@@ -19,7 +19,7 @@ from push_notifications.models import GCMDevice
 from chat.exceptions import ClientError
 from chat.models import Message, Room
 from chat.permissions import _room_permission_checkers, get_room_permission_checker, register_room_permission_checker
-from chat.services import CHAT_UNREAD_CACHE_KEY, ChatRepository, can_user_post_in_room, extract_mentions, get_avatar_url, get_unread_count_for_user, get_unseen_room_ids, send_message
+from chat.services import CHAT_UNREAD_CACHE_KEY, ChatRepository, _room_notification_name, can_user_post_in_room, extract_mentions, get_avatar_url, get_unread_count_for_user, get_unseen_room_ids, send_message
 from chat.tests.utils import make_user
 from core import signals
 from core.notifications import build_notification, send_fcm_to_all_sync, send_fcm_to_user_sync
@@ -721,3 +721,18 @@ class FCMDeviceTypeFilterTest(TestCase):
         qs.exclude.assert_any_call(name__in=("mobile", "tablet"))
         qs.exclude.assert_any_call(name="desktop")
         qs.send_message.assert_called_once()
+
+
+class RoomNotificationNameTest(TestCase):
+    def test_public_task_room_uses_clean_title(self):
+        room = Room.objects.create(title='Task #42: Clean title', public=True, source_app='tasks', source_object_id=42)
+        self.assertEqual(_room_notification_name(room, None), 'Clean title')
+
+    def test_public_room_without_prefix_uses_title(self):
+        room = Room.objects.create(title='Custom room', public=True)
+        self.assertEqual(_room_notification_name(room, None), 'Custom room')
+
+    def test_private_room_uses_sender_name(self):
+        sender = make_user('sender')
+        room = Room.objects.create(title='Private room', public=False)
+        self.assertEqual(_room_notification_name(room, sender), sender.username)

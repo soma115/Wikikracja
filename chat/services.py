@@ -614,8 +614,8 @@ class ChatRepository:
 
 
 def _room_notification_name(room, sender):
-    """Room name to display in notifications: public room title, private chat = sender."""
-    return room.title if room.public else (user_display_name(sender) if sender else "System")
+    """Room name to display in notifications: public room clean title, private chat = sender."""
+    return room.clean_title() if room.public else (user_display_name(sender) if sender else "System")
 
 
 async def _build_chat_notification(author, room_id, room_name=None):

@@ -19,7 +19,7 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
         allowed_users = list(room.allowed.all())
         room_context = {
             'content_type': 'room_messages',
-            'title': room.title,
+            'title': room.clean_title() if room.public else room.title,
             'url': f"/chat/#room_id={room.id}",
             'room_id': room.id,
             '_is_public': room.public,
