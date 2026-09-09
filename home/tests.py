@@ -71,9 +71,7 @@ class HomeChatBadgeTest(TestCase):
         response = self.client.get(reverse('home'))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '?view=unread')
-        self.assertNotContains(response, '?unread=1')
-        self.assertNotContains(response, '?notify=no-unread')
+        self.assertRegex(response.content.decode(), r'<a id="chat-unread-badge"\s+href="/chat/\?view=unread"')
 
     def test_badge_style_accentuated_when_unread(self):
         """Gdy sa nieprzeczytane wiadomosci, licznik chatu jest wiekszy od 0."""
@@ -98,9 +96,7 @@ class HomeChatBadgeTest(TestCase):
         self.client.force_login(self.user)
         response = self.client.get(reverse('home'))
 
-        self.assertContains(response, "'?view=unread'")
-        self.assertNotContains(response, "'?notify=no-unread'")
-        self.assertNotContains(response, "'?unread=1'")
+        self.assertRegex(response.content.decode(), r'<a id="chat-unread-badge"\s+href="/chat/\?view=unread"')
 
 
 class UnreadCountConsistencyTest(TestCase):

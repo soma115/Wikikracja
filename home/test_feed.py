@@ -40,7 +40,7 @@ def test_generate_feed_raw_sorts_events_ascending_others_descending(feed_user, a
     Post.objects.filter(pk=post.pk).update(updated=timezone.now() - timezone.timedelta(days=1))
 
     # Decision updated now
-    Decyzja.objects.create(title='Decision Z', tresc='Content', author=feed_user, status=Decyzja.Status.PROPOSITION)
+    decision = Decyzja.objects.create(title='Decision Z', tresc='Content', author=feed_user, status=Decyzja.Status.PROPOSITION)
 
     # Event in the future (events sort ascending by next occurrence)
     Event.objects.create(title='Event M', description='Description', start_date=timezone.now() + timezone.timedelta(days=2), frequency='once', is_active=True)
@@ -55,11 +55,12 @@ def test_generate_feed_raw_sorts_events_ascending_others_descending(feed_user, a
     content_types = [i['content_type'] for i in items]
     assert content_types[0] == 'event'
 
-    non_event_titles = _feed_titles([i for i in items if i['content_type'] != 'event'])
-    # The three fixtures above should appear in this order (newest first), ignoring
-    # pre-existing seeded posts/citizen activities.
-    assert non_event_titles.index('Decision Z') < non_event_titles.index('Post A')
-    assert non_event_titles.index('Post A') < non_event_titles.index('Task B')
+    non_event_items = [i for i in items if i['content_type'] != 'event']
+    # Compare the objects created by this test, not seeded objects that may share
+    # the same title.
+    positions = {(item['content_type'], item['object_id']): index for index, item in enumerate(non_event_items)}
+    assert positions[('decision', decision.pk)] < positions[('post', post.pk)]
+    assert positions[('post', post.pk)] < positions[('task', task.pk)]
 
 
 @pytest.mark.django_db

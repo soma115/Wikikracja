@@ -130,31 +130,20 @@ test.describe('chat — komponenty tw-* po migracji Tailwind', () => {
         await expect(page.locator('#room-list .tw-room-list-groups')).toBeVisible();
     });
 
-    test('desktop: zwinięcie listy pokoi zostawia guzik do jej rozwinięcia', async ({ page }, testInfo) => {
+    test('desktop: lista pokoi pozostaje widoczna', async ({ page }, testInfo) => {
         test.skip(testInfo.project.name !== 'desktop-chromium', 'Desktop-only test');
         await setupChatPage(page);
 
         const chatRooms = page.locator('.tw-chat-rooms');
         const listCol = page.locator('.tw-room-list-col');
-        const toggleBtn = page.locator('#room-list-toggle-static-btn');
 
+        // Na desktopie oba panele są stale widoczne; zwijanie listy nie jest
+        // obsługiwane, więc nie ma osobnego przycisku toggle.
         await expect(listCol).toBeVisible();
-        await expect(toggleBtn).toBeVisible();
-
-        // Klik "Hide room list" — lista zwija się, ale guzik do pokazania zostaje.
-        await toggleBtn.click();
-        await expect(chatRooms).toHaveClass(/tw-room-list-hidden/);
-
-        // Guzik musi być nadal widoczny i klikalny w wąskim pasku listy.
-        await expect(toggleBtn).toBeVisible();
+        await expect(chatRooms).not.toHaveClass(/tw-room-list-hidden/);
         const box = await listCol.boundingBox();
         expect(box).not.toBeNull();
         expect(box.width).toBeGreaterThan(0);
         expect(box.height).toBeGreaterThan(0);
-
-        // Klik ponownie otwiera listę.
-        await toggleBtn.click();
-        await expect(chatRooms).not.toHaveClass(/tw-room-list-hidden/);
-        await expect(listCol).toBeVisible();
     });
 });

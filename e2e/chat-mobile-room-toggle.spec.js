@@ -51,8 +51,8 @@ test.describe('chat mobile — room list collapse on tap of active room', () => 
         // Router zapisał hash pokoju w URL.
         await expect(page).toHaveURL(/#room_id=\d+/);
 
-        // 2. Klik w >> (toggle-room-list-btn) — pokazuje listę nad aktywnym pokojem
-        await page.locator('#toggle-room-list-btn').click();
+        // 2. Klik w breadcrumb — pokazuje listę nad aktywnym pokojem.
+        await page.locator('#chat-breadcrumb').click();
         await expect(chatRooms).toHaveClass(/tw-room-list-showing/);
         await expect(chatRooms).toHaveClass(/tw-room-active/);
 
