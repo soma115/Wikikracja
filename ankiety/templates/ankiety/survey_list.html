@@ -7,7 +7,7 @@
 
 {# ── TOOLBAR ── #}
 {% url 'ankiety:create' as cta_url %}
-{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add survey') sort_items=toolbar_sort_items %}
+{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add survey') cta_end=True sort_items=toolbar_sort_items %}
 
 {# ── LIST ── #}
 <div class="tw-proposals-list">

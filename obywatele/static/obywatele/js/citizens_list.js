@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('citizens-search');
 
     // ── Sync filter dropdown → PagePrefs (prevents head-script from restoring old filter) ──
-    document.querySelectorAll('.tw-citizens-toolbar .tw-dropdown-item').forEach(link => {
+    document.querySelectorAll('[data-citizens-filter-menu] .tw-dropdown-item').forEach(link => {
         link.addEventListener('click', function () {
             if (!window.PagePrefs) return;
             const url = new URL(this.href, window.location.origin);

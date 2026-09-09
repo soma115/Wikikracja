@@ -5,61 +5,8 @@
 
 {% block content %}
 
-{% glosowania_counts as counts %}
-
-<nav class="tw-stepper-nav">
-
-  {# Info ─ wyróżniony, pierwszy #}
-  <a href="{% url 'glosowania:parameters' %}" class="tw-stepper-info-btn" title="{% trans 'How do votes work?' %}">
-    <i class="fas fa-circle-info"></i>
-  </a>
-
-  {# Stepper: 4 etapy ścieżki przepisu #}
-  {% with p=request.path_info %}
-
-  <div class="tw-stepper-step-wrap {% if p == '/glosowania/proposition/' %}tw-active{% endif %}">
-    <a href="{% url 'glosowania:proposition' %}" class="tw-stepper-step">
-      <i class="fas fa-lightbulb" aria-hidden="true"></i>
-      <span class="tw-stepper-step-label">{% trans 'Suggestions' %}</span>
-      {% if counts.proposition %}<span class="tw-stepper-step-count">{{ counts.proposition }}</span>{% endif %}
-    </a>
-  </div>
-
-  <div class="tw-stepper-step-wrap {% if p == '/glosowania/discussion/' %}tw-active{% endif %}">
-    <a href="{% url 'glosowania:discussion' %}" class="tw-stepper-step">
-      <i class="fas fa-comments" aria-hidden="true"></i>
-      <span class="tw-stepper-step-label">{% trans 'Discussion' %}</span>
-      {% if counts.discussion %}<span class="tw-stepper-step-count">{{ counts.discussion }}</span>{% endif %}
-    </a>
-  </div>
-
-  <div class="tw-stepper-step-wrap {% if p == '/glosowania/referendum/' %}tw-active{% endif %}">
-    <a href="{% url 'glosowania:referendum' %}" class="tw-stepper-step">
-      <i class="fas fa-vote-yea" aria-hidden="true"></i>
-      <span class="tw-stepper-step-label">{% trans 'Referendum' %}</span>
-      {% if counts.referendum %}<span class="tw-stepper-step-count">{{ counts.referendum }}</span>{% endif %}
-    </a>
-  </div>
-
-  <div class="tw-stepper-step-wrap {% if p == '/glosowania/approved/' %}tw-active{% endif %}">
-    <a href="{% url 'glosowania:approved' %}" class="tw-stepper-step">
-      <i class="fas fa-check" aria-hidden="true"></i>
-      <span class="tw-stepper-step-label">{% trans 'Approved' %}</span>
-      {% if counts.approved %}<span class="tw-stepper-step-count">{{ counts.approved }}</span>{% endif %}
-    </a>
-  </div>
-
-  {# Separator + Rejected (poza ścieżką) #}
-  <span class="tw-stepper-sep"></span>
-  <a href="{% url 'glosowania:rejected' %}"
-     class="tw-stepper-rejected {% if p == '/glosowania/rejected/' %}tw-active{% endif %}">
-    <i class="fas fa-trash fa-fw"></i>
-    {% if counts.rejected %}<span class="tw-stepper-step-count">{{ counts.rejected }}</span>{% endif %}
-  </a>
-
-  {% endwith %}
-
-</nav>
+{% glosowania_stepper as stepper %}
+{% include 'home/includes/stepper.html' with stepper=stepper %}
 
 {% block glosowania %}
 {% endblock glosowania %}

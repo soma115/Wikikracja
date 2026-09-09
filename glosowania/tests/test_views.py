@@ -5,9 +5,9 @@ from unittest.mock import patch
 import pytest
 import redis
 from django.contrib.auth import get_user_model
-from django.contrib.messages import get_messages
 from django.db import OperationalError
 from django.test import Client
+from django.utils.translation import gettext as _
 
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 
@@ -243,8 +243,8 @@ def test_add_proposal_invalid_form_shows_error_message(sample_users):
     assert response.context['form'].errors
     assert Decyzja.objects.count() == 0
 
-    messages_list = list(get_messages(response.wsgi_request))
-    assert any('Please correct the errors below' in str(m) for m in messages_list)
+    content = response.content.decode()
+    assert _('Please correct the errors below.') in content
 
 
 @pytest.mark.django_db

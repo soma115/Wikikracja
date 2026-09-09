@@ -1,0 +1,41 @@
+{% load i18n %}
+<input type="search" id="citizens-search" class="tw-citizens-search-input"
+       placeholder="{% trans 'Search user...' %}" autocomplete="off">
+
+<div class="tw-dropdown">
+  <button class="tw-citizens-filter-btn{% if aktywnosc %} tw-active{% endif %}"
+          type="button" data-tw-toggle="dropdown" aria-expanded="false">
+    <i class="fas fa-filter"></i>
+    <span class="tw-filter-label">
+      {% if aktywnosc == 'online' %}{% trans "Online" %}
+      {% elif aktywnosc == '7d' %}{% trans "Active 7 days" %}
+      {% elif aktywnosc == '30d' %}{% trans "Active 30 days" %}
+      {% elif aktywnosc == 'nieaktywni' %}{% trans "Inactive 30+ days" %}
+      {% else %}{% trans "All" %}
+      {% endif %}
+    </span>
+  </button>
+  <ul class="tw-dropdown-menu tw-dropdown-menu-end tw-absolute tw-z-50 tw-bg-bg-card tw-border tw-border-subtle tw-rounded-card" data-citizens-filter-menu>
+    <li>
+      <a class="tw-dropdown-item{% if not aktywnosc %} tw-active{% endif %}"
+         href="?{% if sort_param %}{{ sort_param }}{% endif %}">{% trans "All" %}</a>
+    </li>
+    <li>
+      <a class="tw-dropdown-item{% if aktywnosc == 'online' %} tw-active{% endif %}"
+         href="?aktywnosc=online{% if sort_param %}&{{ sort_param }}{% endif %}">{% trans "Online" %}</a>
+    </li>
+    <li>
+      <a class="tw-dropdown-item{% if aktywnosc == '7d' %} tw-active{% endif %}"
+         href="?aktywnosc=7d{% if sort_param %}&{{ sort_param }}{% endif %}">{% trans "Active 7 days" %}</a>
+    </li>
+    <li>
+      <a class="tw-dropdown-item{% if aktywnosc == '30d' %} tw-active{% endif %}"
+         href="?aktywnosc=30d{% if sort_param %}&{{ sort_param }}{% endif %}">{% trans "Active 30 days" %}</a>
+    </li>
+    <li><hr class="tw-dropdown-divider tw-my-1 tw-border-subtle"></li>
+    <li>
+      <a class="tw-dropdown-item{% if aktywnosc == 'nieaktywni' %} tw-active{% endif %}"
+         href="?aktywnosc=nieaktywni{% if sort_param %}&{{ sort_param }}{% endif %}">{% trans "Inactive 30+ days" %}</a>
+    </li>
+  </ul>
+</div>

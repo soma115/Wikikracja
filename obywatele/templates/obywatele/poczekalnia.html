@@ -5,31 +5,25 @@
 {% block prefs_scope %}obywatele{% endblock %}
 
 {% block citizens %}
+{% if uid %}
+
+{# ── Toolbar z wyszukiwarką i przełącznikiem widoku ── #}
+{% include 'home/includes/toolbar.html' with views=toolbar_views extra_include='obywatele/_citizens_search.html' %}
+
+<p class="tw-text-muted tw-text-sm tw-mb-2">
+  {% trans "New person will be accepted above" %}
+  <span class="tw-badge-status tw-badge-primary tw-rounded-full">{{ acceptance }}</span>
+  {% trans "threshold." %}
+</p>
+
+{% endif %}
+
 <div class="tw-card">
-  <div class="tw-card-header tw-flex tw-justify-between tw-items-center tw-flex-wrap tw-gap-2">
-    <span class="tw-section-heading">{% trans "Candidates" %} (<span id="citizens-count">{{ uid|length }}</span>)</span>
-    <span class="tw-text-muted tw-text-sm">
-      {% trans "New person will be accepted above" %}
-      <span class="tw-badge-status tw-badge-primary tw-rounded-full">{{ acceptance }}</span>
-      {% trans "threshold." %}
-    </span>
-  </div>
-
   {% if uid %}
-
-  {# ── Toolbar z przełącznikiem widoku ── #}
-  {% include 'home/includes/toolbar.html' with views=toolbar_views %}
-
-  {# ── Toolbar wyszukiwania ── #}
-  <div class="tw-citizens-toolbar tw-toolbar">
-    <input type="search" id="citizens-search" class="tw-citizens-search-input"
-           placeholder="{% trans 'Search user...' %}" autocomplete="off">
-  </div>
-
   <div class="tw-card-body tw-p-0" data-view-container>
 
     {# ── List view ── #}
-    <div id="citizens-list-view" class="tw-proposals-list">
+    <div id="citizens-list-view" data-view-only="list" class="tw-proposals-list">
       <div class="tw-citizens-table-wrap">
         <table class="tw-citizens-table tw-table-hover tw-table-sm tw-align-middle tw-mb-0">
           <tbody>
@@ -106,7 +100,7 @@
     </div>
 
     {# ── Grid view ── #}
-    <div id="citizens-grid-view" class="tw-citizens-grid tw-proposals-list">
+    <div id="citizens-grid-view" data-view-only="grid" class="tw-citizens-grid tw-proposals-list">
       {% for i in uid|dictsortreversed:"date_joined" %}
       <div class="tw-citizen-card tw-text-start tw-items-start"
            data-user-id="{{ i.pk }}"

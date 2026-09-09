@@ -286,7 +286,7 @@ def obywatele(request: HttpRequest):
             'uid': users_with_reputation,  # Don't change to 'user' - it will break menu
             'aktywnosc': _aktywnosc_ctx,
             'sort_param': sort_param,
-            'toolbar_views': [{'name': 'list'}, {'name': 'grid'}],
+            'toolbar_views': [{'name': 'list', 'icon': 'list', 'title': _('List')}, {'name': 'grid', 'icon': 'grip', 'title': _('Grid')}],
         },
     )
 
@@ -344,7 +344,7 @@ def poczekalnia(request: HttpRequest):
             'acceptance': get_param('acceptance'),
             'delete_inactive_user_after': get_param('delete_inactive_user_after'),
             'required_reputation': required_reputation(),
-            'toolbar_views': [{'name': 'list'}, {'name': 'grid'}],
+            'toolbar_views': [{'name': 'list', 'icon': 'list', 'title': _('List')}, {'name': 'grid', 'icon': 'grip', 'title': _('Grid')}],
         },
     )
 

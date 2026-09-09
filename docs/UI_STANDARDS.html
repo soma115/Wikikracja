@@ -56,13 +56,15 @@
     <div class="section">
       <div class="component-label">Wspólny przycisk „dodaj” we wszystkich modułach</div>
       <div class="row">
-        <a href="#" class="tw-btn-cta tw-btn-cta--round" title="Add"><i class="fas fa-plus"></i></a>
+        <a href="#" class="tw-btn-cta"><i class="fas fa-plus"></i> <span class="tw-btn-cta-label">Add</span></a>
       </div>
       <ul class="rules">
-        <li>Zawsze okrągły, 22×22 px (ikona <code>fa-plus</code> pozostaje 1.1rem).</li>
-        <li>Zawsze ikona <code>fa-plus</code> w kółku.</li>
+        <li>Tekstowy guzik z ikoną i etykietą.</li>
+        <li>Etykieta w <code>&lt;span class="tw-btn-cta-label"&gt;</code> — na mobile ukrywana, zostaje ikona.</li>
+        <li>Ikona <code>fa-plus</code> domyślnie.</li>
         <li>Kolor tła: <code>var(--accent)</code>.</li>
-        <li>Wszędzie ten sam komponent: <code>home/templates/home/includes/toolbar.html</code>.</li>
+        <li>W module ze stepperem używamy <code>home/templates/home/includes/stepper.html</code>, w toolbarze <code>home/templates/home/includes/toolbar.html</code>.</li>
+        <li>Opcjonalnie <code>cta_round=True</code> daje okrągły guzik z samą ikoną.</li>
       </ul>
     </div>
 
@@ -70,27 +72,32 @@
     <div class="section">
       <div class="component-label">Toolbar w module List / Grid</div>
       <div class="tw-toolbar">
-        <a href="#" class="tw-btn-cta tw-btn-cta--round" title="Add"><i class="fas fa-plus"></i></a>
-        <span class="tw-toolbar-divider"></span>
         <div class="tw-toolbar-sort">
           <a href="#" class="tw-sort-btn tw-active"><i class="fas fa-clock-rotate-left fa-fw"></i> <span class="tw-sort-btn-label">Date</span> <i class="fas fa-arrow-down tw-sort-arrow"></i></a>
           <a href="#" class="tw-sort-btn"><i class="fas fa-pen-nib fa-fw"></i> <span class="tw-sort-btn-label">Score</span></a>
-          <span class="tw-toolbar-divider"></span>
+        </div>
+        <span class="tw-toolbar-divider"></span>
+        <div class="tw-toolbar-view tw-ms-auto">
           <button class="tw-view-toggle-btn tw-active" data-view="list"><i class="fas fa-list"></i> <span class="tw-view-label">List</span></button>
           <button class="tw-view-toggle-btn" data-view="grid"><i class="fas fa-grip"></i> <span class="tw-view-label">Grid</span></button>
         </div>
+        <span class="tw-toolbar-divider"></span>
+        <a href="#" class="tw-btn-cta tw-ms-auto"><i class="fas fa-plus"></i> <span class="tw-btn-cta-label">Add</span></a>
       </div>
       <ul class="rules">
-        <li>Przełączniki widoków zawsze nazywają się <code>List</code> i <code>Grid</code> z ikonami <code>fa-list</code> i <code>fa-grip</code>.</li>
+        <li>Po lewej sortowanie / filtry, po prawej przełączniki widoku i CTA.</li>
+        <li>Przełączniki widoku są w osobnym <code>.tw-toolbar-view</code>, z ikonami <code>fa-list</code> / <code>fa-grip</code> i etykietami <code>List</code> / <code>Grid</code>.</li>
+        <li>Dane widoku: <code>{'name': 'list'|'grid', 'icon': 'list'|'grip', 'title': _('List')|_('Grid')}</code>.</li>
         <li>Przyciski sortowania mają ikonę + etykietę + strzałkę kierunku.</li>
-        <li>Na małych ekranach etykiety przycisków nieaktywnych są ukryte, widoczna jest tylko aktywna.</li>
+        <li>Na małych ekranach etykiety nieaktywnych guzików są ukryte, widoczna jest tylko aktywna.</li>
       </ul>
     </div>
 
     <h2>5. Zakładki steppera</h2>
     <div class="section">
-      <div class="component-label">Stepper w Tasks / Głosowania / Obywatele</div>
+      <div class="component-label">Stepper we wszystkich modułach</div>
       <div class="tw-stepper-nav">
+        <a href="#" class="tw-stepper-info-btn" title="Help"><i class="fas fa-circle-info"></i></a>
         <div class="tw-stepper-step-wrap tw-active">
           <a href="#" class="tw-stepper-step"><i class="fas fa-user"></i> <span class="tw-stepper-step-label">Mine</span></a>
         </div>
@@ -103,8 +110,13 @@
         <div class="tw-stepper-step-wrap">
           <a href="#" class="tw-stepper-step"><i class="fas fa-check"></i> <span class="tw-stepper-step-label">Finished</span></a>
         </div>
+        <a href="#" class="tw-btn-cta tw-ms-auto"><i class="fas fa-plus"></i> <span class="tw-btn-cta-label"></span>Add</span></a>
       </div>
       <ul class="rules">
+        <li>Wszystkie moduły używają wspólnego partiala <code>home/templates/home/includes/stepper.html</code>.</li>
+        <li>Na lewo może być guzik info (np. parametry / pomoc), po prawo CTA z ikoną i tekstem.</li>
+        <li>Etykieta CTA jest owinięta w <code>&lt;span class="tw-btn-cta-label"&gt;</code> — na mobile ukrywa się, zostaje ikona.</li>
+        <li>CTA w toolbarze używa tego samego markupu co w stepperze; opcjonalnie <code>cta_round=True</code> daje okrągły guzik z samą ikoną.</li>
         <li>Każda zakładka ma ikonę i etykietę.</li>
         <li>Na desktopie widoczne ikona + tekst.</li>
         <li>Na mobile nieaktywne zakładki pokazują tylko ikonę; aktywna pokazuje ikonę + tekst.</li>
@@ -402,10 +414,10 @@
     <div class="section">
       <ul class="rules">
         <li><strong>Jeden komponent = jedno źródło.</strong> Jeśli guzik występuje w wielu miejscach, powinien korzystać z tego samego szablonu / klasy.</li>
-        <li><strong>Ikona przy każdym guziku.</strong> Ikona po lewej, tekst po prawej (z wyjątkiem CTA w toolbarze, gdzie jest tylko ikona).</li>
+        <li><strong>Ikona przy każdym guziku.</strong> Ikona po lewej, tekst po prawej.</li>
         <li><strong>Responsywne etykiety.</strong> Mobile: nieaktywne guziki pokazują ikonę, aktywne ikonę + tekst.</li>
-        <li><strong>CTA zawsze taki sam.</strong> Okrągły plus 22×22 px w toolbarze.</li>
-        <li><strong>Widoki: List / Grid.</strong> Zawsze te same ikony i etykiety.</li>
+        <li><strong>CTA zawsze taki sam.</strong> Tekstowy guzik z ikoną i etykietą; opcjonalnie okrągły plus 22×22 px.</li>
+        <li><strong>Widoki: List / Grid.</strong> Zawsze te same ikony i etykiety, umieszczone po prawej stronie toolbaru.</li>
         <li><strong>Zakładki: ikona + etykieta.</strong> Mobile nieaktywne tylko ikona.</li>
         <li><strong>Nie używaj lokalnych stylów inline.</strong> Preferuj klasy CSS i tokeny.</li>
       </ul>

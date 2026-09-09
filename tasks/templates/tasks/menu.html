@@ -1,54 +1,12 @@
 {% extends 'home/base.html' %}
 {% load i18n %}
+{% load tasks_extras %}
 
 {% block content %}
 
+{% tasks_stepper as stepper %}
+{% include 'home/includes/stepper.html' with stepper=stepper %}
 
-<nav class="tw-stepper-nav">
-  {% with t=current_tab s=current_sort o=current_order cats=current_categories %}
-
-    <a href="{% url 'tasks:help' %}?sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="tw-stepper-info-btn" title="{% trans 'How do activities work?' %}">
-      <i class="fas fa-circle-info"></i>
-    </a>
-
-    <div class="tw-stepper-step-wrap {% if t == 'mine' %}tw-active{% endif %}">
-      <a href="{% url 'tasks:list' %}?tab=mine&sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="tw-stepper-step">
-        <i class="fas fa-user" aria-hidden="true"></i>
-        <span class="tw-stepper-step-label">{% trans 'Mine' %}</span>
-      </a>
-    </div>
-
-    <div class="tw-stepper-step-wrap {% if t == 'awaiting' %}tw-active{% endif %}">
-      <a href="{% url 'tasks:list' %}?tab=awaiting&sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="tw-stepper-step">
-        <i class="fas fa-hourglass-half" aria-hidden="true"></i>
-        <span class="tw-stepper-step-label">{% trans 'Awaiting' %}</span>
-      </a>
-    </div>
-
-    <div class="tw-stepper-step-wrap {% if t == 'active' %}tw-active{% endif %}">
-      <a href="{% url 'tasks:list' %}?tab=active&sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="tw-stepper-step">
-        <i class="fas fa-spinner" aria-hidden="true"></i>
-        <span class="tw-stepper-step-label">{% trans 'In progress' %}</span>
-      </a>
-    </div>
-
-    <div class="tw-stepper-step-wrap {% if t == 'finished' %}tw-active{% endif %}">
-      <a href="{% url 'tasks:list' %}?tab=finished&sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="tw-stepper-step">
-        <i class="fas fa-check" aria-hidden="true"></i>
-        <span class="tw-stepper-step-label">{% trans 'Finished' %}</span>
-      </a>
-    </div>
-
-    <div class="tw-stepper-step-wrap {% if request.resolver_match.url_name == 'stats' %}tw-active{% endif %}">
-      <a href="{% url 'tasks:stats' %}?sort={{ s }}&order={{ o }}{% for c in cats %}&category={{ c }}{% endfor %}" class="tw-stepper-step">
-        <i class="fas fa-chart-simple" aria-hidden="true"></i>
-        <span class="tw-stepper-step-label">{% trans 'Statistics' %}</span>
-      </a>
-    </div>
-
-  {% endwith %}
-</nav>
-
-  {% block tasks %}{% endblock %}
+{% block tasks %}{% endblock %}
 
 {% endblock %}

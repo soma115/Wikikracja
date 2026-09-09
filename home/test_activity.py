@@ -189,7 +189,7 @@ def test_activity_filter_unread_by_content_type(client, activity_user):
     client.force_login(activity_user)
     category = PostCategoryFactory()
     post_unread = PostFactory(author=activity_user, category=category, title='Unread post', text='<p>body</p>')
-    decision_unread = DecyzjaFactory(author=activity_user, title='Unread decision')
+    DecyzjaFactory(author=activity_user, title='Unread decision')
     Post.objects.filter(pk=post_unread.pk).update(updated=timezone.now())
 
     response = client.get(reverse('activity'), {'unread': '1', 'type': 'post', 'filtered': '1'})

@@ -11,7 +11,7 @@
 
 {# ── TOOLBAR ── #}
 {% if request.user.is_authenticated %}{% url 'board:create_post' as cta_url %}{% endif %}
-{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Create document') sort_items=toolbar_sort_items show_category_filter=request.user.is_authenticated categories=categories key_attr='pk' views=toolbar_views %}
+{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Create document') cta_end=True sort_items=toolbar_sort_items show_category_filter=request.user.is_authenticated categories=categories key_attr='pk' views=toolbar_views %}
 
 {# ── KAFLE KATEGORII ── #}
 {% for group in category_groups %}

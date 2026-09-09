@@ -10,7 +10,8 @@ extra_class (optional, e.g. 'tw-d-none' for initially-hidden state).
   {% if text %}<div>{{ text }}</div>{% endif %}
   {% if cta_url %}
   <a href="{{ cta_url }}" class="tw-btn-cta tw-mt-2">
-    {% if cta_icon %}<i class="fas {{ cta_icon }}"></i> {% endif %}{{ cta_label }}
+    {% if cta_icon %}<i class="fas {{ cta_icon }}"></i> {% endif %}
+    {% if cta_label %}<span class="tw-btn-cta-label">{{ cta_label }}</span>{% endif %}
   </a>
   {% endif %}
 </div>

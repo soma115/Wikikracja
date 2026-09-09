@@ -5,8 +5,8 @@
 {% block prefs_scope %}bookkeeping{% endblock %}
 
 {% block content %}
-  {% bookkeeping_active_tab as active %}
-  {% include 'bookkeeping/_nav.html' with active=active %}
+{% bookkeeping_stepper as stepper %}
+{% include 'home/includes/stepper.html' with stepper=stepper %}
 
-  {% block bookkeeping %}{% endblock %}
+{% block bookkeeping %}{% endblock %}
 {% endblock %}

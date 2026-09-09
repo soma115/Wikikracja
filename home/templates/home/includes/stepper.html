@@ -1,0 +1,38 @@
+{% load i18n %}
+<nav class="tw-stepper-nav">
+  {% if stepper.info_url %}
+  <a href="{{ stepper.info_url }}"
+     class="tw-stepper-info-btn{% if stepper.info_active %} tw-active{% endif %}"
+     {% if stepper.info_title %}title="{{ stepper.info_title }}"{% endif %}>
+    <i class="fas fa-circle-info"></i>
+  </a>
+  {% endif %}
+
+  {% for step in stepper.steps %}
+    {% if step.is_rejected %}
+      <span class="tw-stepper-sep"></span>
+      <a href="{{ step.url }}"
+         class="tw-stepper-rejected{% if step.active %} tw-active{% endif %}{% if step.css_class %} {{ step.css_class }}{% endif %}">
+        <i class="fas fa-{{ step.icon }} fa-fw"></i>
+        {% if step.count %}<span class="tw-stepper-step-count">{{ step.count }}</span>{% endif %}
+      </a>
+    {% else %}
+      <div class="tw-stepper-step-wrap{% if step.active %} tw-active{% endif %}{% if step.css_class %} {{ step.css_class }}{% endif %}">
+        <a href="{{ step.url }}" class="tw-stepper-step">
+          <i class="fas fa-{{ step.icon }}" aria-hidden="true"></i>
+          <span class="tw-stepper-step-label">{{ step.label }}</span>
+          {% if step.count %}<span class="tw-stepper-step-count">{{ step.count }}</span>{% endif %}
+        </a>
+      </div>
+    {% endif %}
+  {% endfor %}
+
+  {% if stepper.cta_url %}
+  <a href="{{ stepper.cta_url }}"
+     class="tw-btn-cta tw-ms-auto"
+     {% if stepper.cta_title %}title="{{ stepper.cta_title }}"{% else %}title="{{ stepper.cta_label }}"{% endif %}>
+    <i class="fas fa-{{ stepper.cta_icon|default:'plus' }}"></i>
+    {% if stepper.cta_label %}<span class="tw-btn-cta-label">{{ stepper.cta_label }}</span>{% endif %}
+  </a>
+  {% endif %}
+</nav>

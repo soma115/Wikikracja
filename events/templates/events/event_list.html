@@ -7,7 +7,7 @@
 
 {# ── TOOLBAR ── #}
 {% if user.is_authenticated %}{% url 'events:create' as cta_url %}{% endif %}
-{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add Event') views=toolbar_views %}
+{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add Event') cta_end=True views=toolbar_views %}
 
 {# Stały mini-kalendarz — nawigacja zmienia tylko jego miesiąc. #}
 <div id="events-calendar" class="tw-w-full" data-month="{{ current_month_iso }}" data-today-month="{{ today_month_iso }}">

@@ -287,6 +287,8 @@ class UIGuard:
     def check_files(self, files, full=False, base='HEAD'):
         for f in files:
             p = Path(f).resolve()
+            if p.is_dir():
+                continue
             if full:
                 self.check_file(p)
                 continue
