@@ -5,7 +5,7 @@
 {% load citizen_filters %}
 
 <!DOCTYPE html>
-<html lang="{{ request.LANGUAGE_CODE }}" data-theme="dark" data-prefs-scope="{% block prefs_scope %}{% endblock %}">
+<html lang="{{ request.LANGUAGE_CODE }}" data-theme="dark" data-prefs-scope="{% block prefs_scope %}{% endblock %}" data-prefs-tab="{% block prefs_tab %}{% endblock %}" data-presence-green-minutes="{{ presence_green_minutes }}" data-presence-yellow-days="{{ presence_yellow_days }}">
 <head>
 	<title>{{ site_name }}</title>
 	<meta charset="utf-8">
@@ -81,8 +81,8 @@
 	<!-- Chat rooms engine: -->
 	<script src="{% static 'chat/js/reconnecting-websocket.js' %}"></script>
   <script>
-    window.WK_PRESENCE_GREEN_MINUTES = {{ presence_green_minutes }};
-    window.WK_PRESENCE_YELLOW_DAYS = {{ presence_yellow_days }};
+    window.WK_PRESENCE_GREEN_MINUTES = Number(document.documentElement.dataset.presenceGreenMinutes);
+    window.WK_PRESENCE_YELLOW_DAYS = Number(document.documentElement.dataset.presenceYellowDays);
     window.WK_PRESENCE_I18N = {
       now: "{% trans 'Active now' %}",
       minuteOne: "{% trans 'Active 1 minute ago' %}",
@@ -178,9 +178,9 @@
         </li>
 
         <li class="tw-nav-item">
-          <a href="{% url 'glosowania:approved' %}"
+          <a href="{% url 'glosowania:proposition' %}"
              data-prefs-link-scope="glosowania"
-             data-prefs-base-href="{% url 'glosowania:approved' %}"
+             data-prefs-base-href="{% url 'glosowania:proposition' %}"
              title="{% trans 'Votings' %}"
              class="{% if request.resolver_match.namespace == 'glosowania' %}active tw-active{% endif %}">
             <i class="fas fa-fw fa-landmark tw-nav-icon"></i>
@@ -189,9 +189,9 @@
         </li>
 
         <li class="tw-nav-item">
-          <a href="{% url 'bookkeeping:report_list' %}"
+          <a href="{% url 'bookkeeping:transaction_list' %}"
              data-prefs-link-scope="bookkeeping"
-             data-prefs-base-href="{% url 'bookkeeping:report_list' %}"
+             data-prefs-base-href="{% url 'bookkeeping:transaction_list' %}"
              title="{% trans 'Finance' %}"
              class="{% if request.resolver_match.namespace == 'bookkeeping' %}active tw-active{% endif %}">
             <i class="fas fa-fw fa-wallet tw-nav-icon"></i>

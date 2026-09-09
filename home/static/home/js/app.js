@@ -408,7 +408,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!s || !b) return;
         var filters = window.location.search;
         if (filters) write({ filters: filters });
-        if (s !== b || filters) writeTo(b, { lastUrl: window.location.pathname + filters });
+        if (s !== b || filters || document.documentElement.dataset.prefsTab) {
+            writeTo(b, { lastUrl: window.location.pathname + filters });
+        }
     }
 
     // One-shot migracja starych kluczy → nowy format JSON per scope
@@ -482,26 +484,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function pathWithoutQuery(url) {
-        if (!url) return '';
-        return url.split('?')[0].split('#')[0];
-    }
-
     function patchSidebarLinks() {
         document.querySelectorAll('[data-prefs-link-scope]').forEach(function(link) {
             var scopeName = link.dataset.prefsLinkScope;
             if (!scopeName) return;
             var data = read(scopeName);
-            var base = link.dataset.prefsBaseHref || link.getAttribute('href') || '';
             if (data && data.lastUrl) {
-                if (pathWithoutQuery(data.lastUrl) === pathWithoutQuery(base)) {
-                    link.setAttribute('href', data.lastUrl);
-                    return;
-                }
+                link.setAttribute('href', data.lastUrl);
+                return;
             }
             if (!data || !data.filters || data.filters === '?') return;
             var filters = data.filters;
             if (filters.charAt(0) !== '?') return;
+            var base = link.dataset.prefsBaseHref || link.getAttribute('href') || '';
             if (!base || base.indexOf('?') !== -1) return;
             link.setAttribute('href', base + filters);
         });

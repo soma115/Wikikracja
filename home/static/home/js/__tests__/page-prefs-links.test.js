@@ -63,22 +63,22 @@ describe('PagePrefs patchSidebarLinks', () => {
         expect(link.getAttribute('href')).toBe('/glosowania/approved/?category=3&sort=newest');
     });
 
-    test('uses saved lastUrl when present for same subpage', () => {
+    test('uses saved lastUrl for the last selected stepper tab', () => {
         if (typeof localStorage === 'undefined') return;
-        localStorage.setItem('wikikracja:prefs:glosowania', JSON.stringify({ lastUrl: '/glosowania/approved/?sort=date' }));
-        document.body.innerHTML = '<a id="votings-link" href="/glosowania/approved/" data-prefs-link-scope="glosowania" data-prefs-base-href="/glosowania/approved/">Votings</a>';
+        localStorage.setItem('wikikracja:prefs:glosowania', JSON.stringify({ lastUrl: '/glosowania/discussion/?sort=date' }));
+        document.body.innerHTML = '<a id="votings-link" href="/glosowania/proposition/" data-prefs-link-scope="glosowania" data-prefs-base-href="/glosowania/proposition/">Votings</a>';
         window.PagePrefs.patchSidebarLinks();
         const link = document.getElementById('votings-link');
-        expect(link.getAttribute('href')).toBe('/glosowania/approved/?sort=date');
+        expect(link.getAttribute('href')).toBe('/glosowania/discussion/?sort=date');
     });
 
-    test('ignores saved lastUrl pointing to a different subpage', () => {
+    test('restores assets as a valid citizens stepper tab', () => {
         if (typeof localStorage === 'undefined') return;
         localStorage.setItem('wikikracja:prefs:obywatele', JSON.stringify({ lastUrl: '/obywatele/assets/' }));
         document.body.innerHTML = '<a id="citizens-link" href="/obywatele/" data-prefs-link-scope="obywatele" data-prefs-base-href="/obywatele/">Citizens</a>';
         window.PagePrefs.patchSidebarLinks();
         const link = document.getElementById('citizens-link');
-        expect(link.getAttribute('href')).toBe('/obywatele/');
+        expect(link.getAttribute('href')).toBe('/obywatele/assets/');
     });
 
     test('saveCurrentFilters writes lastUrl under base scope for multi-page scope', () => {
