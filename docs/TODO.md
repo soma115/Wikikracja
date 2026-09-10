@@ -5,24 +5,20 @@ Pokaż mi co zamierzasz zrobić przed zmianami w kodzie.
 
 # PILNE
 
-Miała miejsce mała awaria. Niezaplanowany restart jednego z elementów infrastruktury (Redis) spowodował zresetowanie kolejki głosowań.
-
-Oznacza to, że obecnie trwające referenda zaczęły się od nowa.
-
-Poproszę o ponowne oddanie głosów:
-https://lobbyobywatelskie.wikikracja.pl/glosowania/referendum/
-
-
-
 # OGÓLNE
-- Są dwa specjalne pokoje na czacie, Inbox i Ważne. To powinny być pokoje systemowe tworzone wraz z instancją aplikacji. Nie powinno dać się ich skasować ani zmienić ich nazw. Oczywiście powinno dać się je tłumaczyć nazwy tych pokoi.Te pokoje powinny wyróżniać się na liście.
+- Są dwa specjalne pokoje na czacie, Inbox i Ważne. To powinny być pokoje systemowe tworzone wraz z instancją aplikacji. Nie powinno dać się ich skasować ani zmienić ich nazw. Oczywiście powinno dać się je tłumaczyć nazwy tych pokoi.Te pokoje powinny wyróżniać się na liście. Nie powinno dać się wyłączyć powiadomień z pokoju Ważne. W pokoju Ważne powinien być slow-mode - dana osoba powinna móc wysłać wiadomość tylko raz dziennie.
+
 - Zunifikowanie kart listy/siatki – to największa część. Karty głosowań, ankiet, zadań, wydarzeń, dokumentów i obywateli mają różną strukturę i często dedykowaną logikę (np. głosowanie w liście ankiet, koordynator w zadaniach). Można to zrobić na dwa sposoby:
   1. Stworzyć wspólny partial karty z parametrami (tytuł, badge, meta, akcje) i stopniowo przerabiać moduły.
   2. Stopniowo ujednolicać klasy CSS i układ sekcji bez wielkiej abstrakcji.
   Zanim zacznę, chcę żebyś potwierdził preferowany kierunek i ewentualnie zakres modułów. To pozwoli uniknąć spekulatywnego, ryzykownego refaktoringu.
+
 - Przydałaby się strzałka w breadcrumbs na mobile. Czyli zamiast "Ludzie Zasoby" zrób "Ludzie > Zasoby"
+
 - Zbierajmy raz dziennie dane do statystyk. bedzie to wymagało nowej tabeli w bazie. Patrzymy na wszystkie działy, które świadczą o aktywności grupy.
+
 - Prosty i szybki mechanizm do zbierania statystyk na temat tego, które opcje w aplikacji są używane a które nie.
+
 - Działania zniknęły finanse > transakcje. Zmieńmy sposób działania. Niech kliknięcie na transakcję pozwala na wejście w jej szczegóły i tam powinna być edycja i jej usuwanie.
 - guziki Przewijania itmów nie są ustandaryzowane i brakuje ich w dokumentach, działaniach, kalendarzu, finansach i ankietach.
 - Do formularza wstępnego: Czy jesteś zwolennikiem DB? Czy zgadzasz się na przestrzeganie naszych zasad? (logowanie = zgoda na warunki)
@@ -59,13 +55,9 @@ Natomiast kliknięcie w tym kafelku na tytuł czy też na górną belkę powinno
 
 - Prosta historia edycji dokumentów. Przydałoby się zapisywać przynajmniej kto edytował kiedy i nie wiem ile zostało zmienione. Nie wiem czy przechowywanie wersji dokumentu ma sens.
 
-
-
-
-
-
 # ZADANIA (TASKS)
-- Corowa część Zadania w realizacji nie może być modyfikowana.
+- Corowa część Zadania w Realizacji nie może być modyfikowana.
+
 - Task jaki eksperyment: hipoteza, test, wynik. Spodziewamy efekt, eksperymenty, rzeczywisty efekt.
   1. Hipoteza — "Jeśli zrobimy X, stanie się Y" (jedno zdanie)
   2. Metryka sukcesu — konkretna, mierzalna wartość/warunek, po którym poznamy, że hipoteza się potwierdziła
@@ -73,6 +65,8 @@ Natomiast kliknięcie w tym kafelku na tytuł czy też na górną belkę powinno
   4. Koszt/zasób wejściowy — ile czasu/pieniędzy/osób to pochłonie (żeby było wiadomo, ile można stracić). Czy sukces zależy od osób z zewnątrz.
   5. Wynik i decyzja — pole wypełniane po zakończeniu: co się stało → kontynuować / pivot / zamknąć. Do tego są już guziki.
   To jest właściwie szkielet: hipoteza → jak zmierzymy → kiedy → ile to kosztuje → co z tym zrobimy dalej. Reszta (metodologia, ryzyka, log) może istnieć jako luźne notatki przy projekcie, ale nie musi być osobnym wymaganym polem formularza.
+  https://claude.ai/share/797289b6-ee29-4f9e-a3d7-4e30f21deb22
+
 - Statystyki: Ranking koordynatorów
 - Zadania: co blokuje wykonanie
 - Design szczegółów zadania do poprawienia (wygląd strony szczegółów)

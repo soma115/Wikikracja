@@ -190,7 +190,7 @@ def _cast_vote(request, pk, vote):
     check and the voter marker in the same atomic operation.
     """
     max_retries = 3
-    retry_delay = 0.1
+    retry_delay = 0.9
 
     for attempt in range(max_retries):
         try:

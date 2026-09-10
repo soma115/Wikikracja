@@ -209,18 +209,54 @@ python manage.py migrate
 # PostgreSQL
 pg_dump wikikracja_db > backup.sql
 
-# SQLite
-cp db.sqlite3 backup.sqlite3
+# SQLite — run in the 04:00 maintenance window; backup first, then VACUUM
+python scripts/sqlite_maintenance.py backup backups/db-$(date +%Y%m%d-%H%M%S).sqlite3 --vacuum-after
 ```
 
 ### Database Restore
+Stop all application and scheduler processes before restoring SQLite. Move the
+current database and its `-wal`/`-shm` sidecars to a quarantine directory instead
+of deleting them. Do not let the restored database reuse old sidecars.
+
 ```bash
 # PostgreSQL
 psql wikikracja_db < backup.sql
 
-# SQLite
+# SQLite — after stopping the application
+mkdir -p restore-quarantine
+mv db.sqlite3 db.sqlite3-wal db.sqlite3-shm restore-quarantine/ 2>/dev/null || true
 cp backup.sqlite3 db.sqlite3
+python scripts/sqlite_maintenance.py integrity-check
 ```
+
+### SQLite Maintenance
+For containers, configure the database and backup volume explicitly:
+
+```env
+SQLITE_DATABASE_PATH=/app/db/db.sqlite3
+SQLITE_BACKUP_DIR=/var/backups/wikikracja
+SQLITE_BACKUP_RETENTION_DAYS=30
+```
+
+Mount `SQLITE_BACKUP_DIR` as a persistent volume. The application database path
+and maintenance script use the same `SQLITE_DATABASE_PATH`. For an active SQLite
+database, use the SQLite backup API instead of copying only `db.sqlite3` while
+WAL files may be present:
+
+```bash
+# Create a consistent backup and then compact the live database
+# Use only during the 04:00 maintenance window when application writes are blocked.
+python scripts/sqlite_maintenance.py backup backups/db-$(date +%Y%m%d-%H%M%S).sqlite3 --vacuum-after
+
+# Verify the database
+python scripts/sqlite_maintenance.py integrity-check
+
+# Run a non-blocking WAL checkpoint
+python scripts/sqlite_maintenance.py checkpoint --mode PASSIVE
+```
+
+Run `TRUNCATE` checkpoints only as a controlled maintenance operation after
+checking active processes and confirming a current backup.
 
 ## Deployment
 

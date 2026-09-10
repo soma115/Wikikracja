@@ -43,6 +43,9 @@ MEDIA_ROOT = path.join(BASE_DIR, 'media')
 
 load_dotenv(path.join(BASE_DIR, '.env'))
 
+# Keep Django and sqlite_maintenance.py on the same database path in containers.
+DATABASES['default']['NAME'] = getenv('SQLITE_DATABASE_PATH', str(BASE_DIR / 'db' / 'db.sqlite3'))
+
 DEBUG = env_bool("DEBUG", False)
 DEBUG_TOOLBAR = env_bool("DEBUG_TOOLBAR", False)
 SITE_PROTOCOL = "http" if DEBUG else "https"
