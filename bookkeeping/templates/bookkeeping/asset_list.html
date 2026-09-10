@@ -3,52 +3,15 @@
 
 {% block prefs_tab %}assets{% endblock %}
 {% block bookkeeping %}
+  {% include 'home/includes/toolbar.html' with cta_url='' views=toolbar_views search_include='bookkeeping/_list_search.html' %}
 
-  {% if object_list %}
-  <table class="tw-citizens-table tw-table-hover tw-table-sm">
-    <thead>
-      <tr>
-        <th>{% trans 'Code' %}</th>
-        <th>{% trans 'Name' %}</th>
-        <th>{% trans 'Symbol' %}</th>
-        <th>{% trans 'Decimal places' %}</th>
-        <th>{% trans 'Is currency' %}</th>
-        <th title="{% trans 'Main asset shown on the dashboard' %}">{% trans 'Default' %}</th>
-        <th class="tw-text-end">{% trans 'Actions' %}</th>
-      </tr>
-    </thead>
-    <tbody>
+  <div class="tw-proposals-list" data-view-container>
+    {% if object_list %}
       {% for asset in object_list %}
-        <tr>
-          <td>{{ asset.code }}</td>
-          <td>{{ asset.name }}</td>
-          <td>{{ asset.symbol }}</td>
-          <td>{{ asset.decimal_places }}</td>
-          <td>
-            {% if asset.is_currency %}
-              <i class="fas fa-check tw-text-success"></i>
-            {% else %}
-              <i class="fas fa-times tw-text-muted"></i>
-            {% endif %}
-          </td>
-          <td>
-            {% if asset.is_default %}
-              <i class="fas fa-star tw-text-warning" title="{% trans 'Default asset' %}"></i>
-            {% else %}
-              <i class="far fa-star tw-text-muted"></i>
-            {% endif %}
-          </td>
-          <td>
-            <div class="tw-flex tw-gap-2 tw-justify-end">
-              <a href="{% url 'bookkeeping:asset_update' asset.id %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary"><i class="fas fa-pen fa-fw"></i> {% trans 'Edit' %}</a>
-              <a href="{% url 'bookkeeping:asset_delete' asset.id %}" class="tw-btn tw-btn-sm tw-btn-outline-danger"><i class="fas fa-trash fa-fw"></i> {% trans 'Delete' %}</a>
-            </div>
-          </td>
-        </tr>
+        {% include 'bookkeeping/_asset_card.html' %}
       {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-    {% include 'home/includes/empty_state.html' with compact=True icon='fa-coins' title=_('No assets yet.') %}
-  {% endif %}
+    {% else %}
+      {% include 'home/includes/empty_state.html' with compact=True icon='fa-coins' title=_('No assets yet.') %}
+    {% endif %}
+  </div>
 {% endblock %}

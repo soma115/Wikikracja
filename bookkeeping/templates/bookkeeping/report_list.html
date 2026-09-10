@@ -4,26 +4,24 @@
 
 {% block prefs_tab %}reports{% endblock %}
 {% block bookkeeping %}
-  <!-- Year selector -->
-  <div class="tw-grid tw-grid-cols-12 tw-gap-3 tw-mb-4">
-    <div class="tw-col-span-12 md:tw-col-span-4">
-      <div class="tw-mb-3">
-        <label for="yearSelect" class="tw-form-label">{% trans 'Select Year' %}:</label>
-        <select id="yearSelect" class="tw-form-select">
-          {% for available_year in available_years %}
-            <option value="{{ available_year }}" {% if available_year == year %}selected{% endif %}>
-              {{ available_year }}
-            </option>
-          {% endfor %}
-        </select>
-      </div>
-    </div>
+  <div class="tw-toolbar tw-flex-wrap">
+    <form method="get" class="tw-flex tw-items-center tw-flex-wrap tw-gap-2 tw-flex-1 tw-min-w-0">
+      <label for="yearSelect" class="tw-form-label tw-mb-0">{% trans 'Select Year' %}</label>
+      <select id="yearSelect" name="year" class="tw-form-select tw-w-auto">
+        {% for available_year in available_years %}
+          <option value="{{ available_year }}" {% if available_year == year %}selected{% endif %}>{{ available_year }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="tw-btn tw-btn-secondary tw-btn-sm"><i class="fas fa-filter fa-fw"></i> {% trans 'Filter' %}</button>
+    </form>
+    <span class="tw-toolbar-divider"></span>
+    <span class="tw-text-muted tw-text-sm"><i class="fas fa-chart-pie fa-fw tw-text-accent"></i> {% trans 'Summary' %}</span>
   </div>
 
-  <!-- Summary for selected year -->
   <div class="tw-card tw-mb-5">
-    <div class="tw-card-header">
-      <h5 class="tw-mb-0">{% trans 'Summary' %} ({{ year }})</h5>
+    <div class="tw-card-header tw-flex tw-items-center tw-justify-between tw-gap-2">
+      <h2 class="tw-text-lg tw-font-semibold tw-mb-0">{% trans 'Summary' %} ({{ year }})</h2>
+      <span class="tw-badge tw-badge-secondary">{{ year }}</span>
     </div>
     <div class="tw-card-body tw-p-0">
       {% if year_pivot %}
@@ -34,10 +32,10 @@
     </div>
   </div>
 
-  <!-- All years summary -->
   <div class="tw-card tw-mb-4">
-    <div class="tw-card-header">
-      <h5 class="tw-mb-0">{% trans 'All Years Summary' %}</h5>
+    <div class="tw-card-header tw-flex tw-items-center tw-justify-between tw-gap-2">
+      <h2 class="tw-text-lg tw-font-semibold tw-mb-0">{% trans 'All Years Summary' %}</h2>
+      <span class="tw-badge tw-badge-secondary">{% trans 'All' %}</span>
     </div>
     <div class="tw-card-body tw-p-0">
       {% if all_pivot %}
@@ -47,17 +45,4 @@
       {% endif %}
     </div>
   </div>
-
-<script>
-  (function () {
-    var yearSelect = document.getElementById('yearSelect');
-    if (yearSelect) {
-      yearSelect.addEventListener('change', function () {
-        var params = new URLSearchParams();
-        params.set('year', yearSelect.value);
-        window.location.href = window.location.pathname + '?' + params.toString();
-      });
-    }
-  })();
-</script>
 {% endblock %}

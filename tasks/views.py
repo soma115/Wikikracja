@@ -1,5 +1,6 @@
 import math
 from functools import wraps
+from urllib.parse import quote_plus
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -71,11 +72,13 @@ TASK_SORT_FIELDS = {"date": "created_at", "score": "votes_up", "buzz": "chat_msg
 TASK_SORT_TIEBREAK = ("-votes_score", "-updated_at")
 
 
-def _task_list_queryset(user, categories, sort, order):
+def _task_list_queryset(user, categories, sort, order, search_query=''):
     """Annotated task queryset for the list view, with category filter and display sort."""
     qs = Task.objects.with_metrics().with_chat_count().with_user_vote(user).select_related("category", "assigned_to", "assigned_to__uzytkownik", "chat_room")
     if categories:
         qs = qs.filter(category__slug__in=categories)
+    if search_query:
+        qs = qs.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
     direction = "-" if order == "desc" else ""
     return qs.order_by(direction + TASK_SORT_FIELDS[sort], *TASK_SORT_TIEBREAK)
 
@@ -121,19 +124,21 @@ def _prepare_task_cards(tasks, pulse_room_ids, priority_map=None):
     return tasks
 
 
-def _task_toolbar_data(sort, order, tab, categories):
+def _task_toolbar_data(sort, order, tab, categories, search_query=''):
     """Generate sort and view toggle data for the shared toolbar template."""
-    labels = {"date": gettext_lazy("Date"), "score": gettext_lazy("Score"), "buzz": gettext_lazy("Buzz")}
-    icons = {"date": "clock-rotate-left", "score": "pen-nib", "buzz": "fire"}
+    labels = {"date": gettext_lazy("Date")}
+    icons = {"date": "clock-rotate-left"}
     params = []
     if tab:
         params.append(f"tab={tab}")
     for c in categories:
         params.append(f"category={c}")
     base_qs = "&".join(params)
+    if search_query:
+        base_qs = f"{base_qs}&q={quote_plus(search_query)}" if base_qs else f"q={quote_plus(search_query)}"
 
     sort_items = []
-    for s in ("date", "score", "buzz"):
+    for s in ("date",):
         active = sort == s
         next_order = "asc" if (active and order == "desc") else "desc"
         query = f"sort={s}&order={next_order}"
@@ -160,9 +165,10 @@ class TaskListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         sort, order, tab, categories = _task_sort_context(self.request)
+        search_query = self.request.GET.get('q', '').strip()
         user = self.request.user
 
-        qs = _task_list_queryset(user, categories, sort, order)
+        qs = _task_list_queryset(user, categories, sort, order, search_query)
         pulse_room_ids = get_unseen_room_ids(user)
 
         # Szablon renderuje wyłącznie aktywną zakładkę — budujemy tylko jej listy.
@@ -188,7 +194,7 @@ class TaskListView(LoginRequiredMixin, TemplateView):
                 task.priority_category = "rejected"
             lists["finished_rejected"] = rejected
 
-        sort_items, views = _task_toolbar_data(sort, order, tab, categories)
+        sort_items, views = _task_toolbar_data(sort, order, tab, categories, search_query)
         context.update(
             {
                 **lists,
@@ -196,6 +202,7 @@ class TaskListView(LoginRequiredMixin, TemplateView):
                 "current_sort": sort,
                 "current_order": order,
                 "current_categories": categories,
+                "search_query": search_query,
                 "category_list": list(Category.objects.values("id", "slug", "name", "description", "order", "is_protected")),
                 "toolbar_sort_items": sort_items,
                 "toolbar_views": views,

@@ -9,7 +9,7 @@
 {% if uid %}
 
 {# ── Toolbar z wyszukiwarką i przełącznikiem widoku ── #}
-{% include 'home/includes/toolbar.html' with views=toolbar_views extra_include='obywatele/_citizens_search.html' %}
+{% include 'home/includes/toolbar.html' with views=toolbar_views search_include='obywatele/_citizens_search.html' %}
 
 <p class="tw-text-muted tw-text-sm tw-mb-2">
   {% trans "New person will be accepted above" %}
@@ -25,79 +25,27 @@
 
     {# ── List view ── #}
     <div id="citizens-list-view" data-view-only="list" class="tw-proposals-list">
-      <div class="tw-citizens-table-wrap">
-        <table class="tw-citizens-table tw-table-hover tw-table-sm tw-align-middle tw-mb-0">
-          <tbody>
-            {% for i in uid|dictsortreversed:"date_joined" %}
-            <tr class="tw-user-row"
-                data-user-id="{{ i.pk }}"
-                data-detail-url="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}"
-                role="link" tabindex="0"
-                data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
-              <td>
-                <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-                  <span class="tw-citizen-card-top tw-shrink-0">
-                    {% include "home/_user_avatar.html" with user=i size="lg" %}
-                    <span class="tw-candidate-vote-badge">
-                      {% if i.rating == 1 %}
-                      <i class="fas fa-check-circle tw-text-success" title="{% trans 'You accepted this candidate' %}"></i>
-                      {% elif i.rating == -1 %}
-                      <i class="fas fa-times-circle tw-text-danger" title="{% trans 'You rejected this candidate' %}"></i>
-                      {% else %}
-                      <i class="fas fa-circle tw-text-secondary" title="{% trans 'You are neutral about this candidate' %}"></i>
-                      {% endif %}
-                    </span>
-                  </span>
-                  <div class="tw-flex tw-flex-col tw-justify-center tw-min-w-0">
-                    <span class="tw-font-semibold tw-text-primary tw-truncate">
-                      {% if i.first_name %}{{ i.first_name }}{% else %}{{ i|display_name }}{% endif %}
-                    </span>
-                    <span class="tw-font-semibold tw-text-primary tw-truncate">
-                      {% if i.last_name %}{{ i.last_name }}{% else %}-{% endif %}
-                    </span>
-                  </div>
-                </div>
-              </td>
-              <td>
-                {% if i.uzytkownik.phone %}
-                <span class="tw-flex tw-items-center tw-gap-1 tw-min-w-0">
-                  <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-p-1 tw-aspect-square" title="{{ i.uzytkownik.phone }}" data-tw-stop-propagation><i class="fas fa-phone"></i></a>
-                  <a href="tel:{{ i.uzytkownik.phone }}" class="tw-text-primary tw-text-sm tw-truncate" data-tw-stop-propagation>{{ i.uzytkownik.phone }}</a>
-                </span>
-                {% else %}
-                <span class="tw-btn tw-btn-outline-secondary tw-p-1 tw-aspect-square" title="{% trans 'No phone' %}"><i class="fas fa-phone"></i></span>
-                {% endif %}
-              </td>
-              <td>
-                {% if i.email %}
-                <span class="tw-flex tw-items-center tw-gap-1 tw-min-w-0">
-                  <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-p-1 tw-aspect-square" title="{{ i.email }}" data-tw-stop-propagation><i class="fas fa-envelope"></i></a>
-                  <a href="mailto:{{ i.email }}" class="tw-text-primary tw-text-sm tw-truncate" data-tw-stop-propagation>{{ i.email }}</a>
-                </span>
-                {% else %}
-                <span class="tw-btn tw-btn-outline-secondary tw-p-1 tw-aspect-square" title="{% trans 'No email' %}"><i class="fas fa-envelope"></i></span>
-                {% endif %}
-              </td>
-              <td>
-                <div class="tw-flex tw-items-center tw-justify-end tw-gap-2 tw-flex-wrap">
-                  <span class="tw-flex tw-items-center tw-gap-1 tw-text-sm" title="{% trans 'Positive / Neutral / Negative ratings' %}">
-                    <span class="tw-text-success">{{ i.ratings_positive }}</span>/<span>{{ i.ratings_neutral }}</span>/<span class="tw-text-danger">{{ i.ratings_negative }}</span>
-                    <i class="fas fa-star"></i>
-                  </span>
-                  <span title="{% if i.email_confirmed %}{% trans 'Email confirmed' %}{% else %}{% trans 'Email not confirmed' %}{% endif %}">
-                    {% if i.email_confirmed %}<i class="fas fa-envelope tw-text-success"></i>{% else %}<i class="fas fa-envelope tw-text-danger"></i>{% endif %}
-                  </span>
-                  <span title="{% if i.form_completion_percent == 100 %}{% trans 'Form completed' %}{% else %}{% trans 'Form not completed' %}{% endif %}">
-                    {% if i.form_completion_percent == 100 %}<i class="fas fa-file-alt tw-text-success"></i>{% else %}<i class="fas fa-file-alt tw-text-danger"></i>{% endif %}
-                  </span>
-                  <span class="tw-text-sm tw-text-muted">{{ i.date_joined|date:"Y-m-d" }}</span>
-                </div>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      {% for i in uid|dictsortreversed:"date_joined" %}
+      <div class="tw-proposal-card" data-user-id="{{ i.pk }}" data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
+        <div class="tw-proposal-card-header" data-detail-url="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}" role="link" tabindex="0">
+          <div class="tw-proposal-card-title-row">
+            {% include "home/_user_avatar.html" with user=i size="sm" %}
+            <span class="tw-proposal-card-title">{% if i.first_name or i.last_name %}{{ i.first_name }} {{ i.last_name }}{% else %}{{ i|display_name }}{% endif %}</span>
+            {% if i.rating == 1 %}<span class="tw-badge-status tw-badge-approved" title="{% trans 'You accepted this candidate' %}"><i class="fas fa-check"></i></span>{% elif i.rating == -1 %}<span class="tw-badge-status tw-badge-rejected" title="{% trans 'You rejected this candidate' %}"><i class="fas fa-times"></i></span>{% else %}<span class="tw-badge-status tw-badge-secondary" title="{% trans 'You are neutral about this candidate' %}"><i class="fas fa-circle"></i></span>{% endif %}
+          </div>
+          <div class="tw-proposal-card-meta">
+            <span><i class="fas fa-star fa-fw"></i> {{ i.ratings_positive }}/{{ i.ratings_neutral }}/{{ i.ratings_negative }}</span>
+            <span class="tw-proposal-meta-sep">·</span>
+            <span><i class="fas fa-calendar fa-fw"></i> {{ i.date_joined|date:"Y-m-d" }}</span>
+            <span class="tw-proposal-meta-sep">·</span>
+            <span>{% if i.email_confirmed %}<i class="fas fa-envelope tw-text-success"></i>{% else %}<i class="fas fa-envelope tw-text-danger"></i>{% endif %}</span>
+            <span>{% if i.form_completion_percent == 100 %}<i class="fas fa-file-alt tw-text-success"></i>{% else %}<i class="fas fa-file-alt tw-text-danger"></i>{% endif %}</span>
+            {% if i.email %}<a href="mailto:{{ i.email }}" class="tw-btn tw-btn-sm tw-btn-info tw-ms-auto" data-tw-stop-propagation title="{{ i.email }}"><i class="fas fa-envelope"></i></a>{% endif %}
+            {% if i.uzytkownik.phone %}<a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-sm tw-btn-success" data-tw-stop-propagation title="{{ i.uzytkownik.phone }}"><i class="fas fa-phone"></i></a>{% endif %}
+          </div>
+        </div>
       </div>
+      {% endfor %}
     </div>
 
     {# ── Grid view ── #}

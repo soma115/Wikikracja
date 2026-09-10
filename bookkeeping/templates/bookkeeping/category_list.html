@@ -3,30 +3,15 @@
 
 {% block prefs_tab %}categories{% endblock %}
 {% block bookkeeping %}
+  {% include 'home/includes/toolbar.html' with cta_url='' views=toolbar_views search_include='bookkeeping/_list_search.html' %}
 
-  {% if object_list %}
-  <table class="tw-citizens-table tw-table-hover tw-table-sm">
-    <thead>
-      <tr>
-        <th>{% trans 'Name' %}</th>
-        <th class="tw-text-end">{% trans 'Actions' %}</th>
-      </tr>
-    </thead>
-    <tbody>
+  <div class="tw-proposals-list" data-view-container>
+    {% if object_list %}
       {% for category in object_list %}
-        <tr>
-          <td>{{ category.name }}</td>
-          <td>
-            <div class="tw-flex tw-gap-2 tw-justify-end">
-              <a href="{% url 'bookkeeping:category_update' category.id %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary"><i class="fas fa-pen fa-fw"></i> {% trans 'Edit' %}</a>
-              <a href="{% url 'bookkeeping:category_delete' category.id %}" class="tw-btn tw-btn-sm tw-btn-outline-danger"><i class="fas fa-trash fa-fw"></i> {% trans 'Delete' %}</a>
-            </div>
-          </td>
-        </tr>
+        {% include 'bookkeeping/_category_card.html' %}
       {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-    {% include 'home/includes/empty_state.html' with compact=True icon='fa-tag' title=_('No categories yet.') %}
-  {% endif %}
+    {% else %}
+      {% include 'home/includes/empty_state.html' with compact=True icon='fa-tag' title=_('No categories yet.') %}
+    {% endif %}
+  </div>
 {% endblock %}

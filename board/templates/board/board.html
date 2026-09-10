@@ -7,11 +7,16 @@
 
 {% block content %}
 
-<div class="tw-section" data-view-container>
+<div data-view-container>
 
 {# ── TOOLBAR ── #}
 {% if request.user.is_authenticated %}{% url 'board:create_post' as cta_url %}{% endif %}
-{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Create document') cta_end=True sort_items=toolbar_sort_items show_category_filter=request.user.is_authenticated categories=categories key_attr='pk' views=toolbar_views %}
+{% if cta_url %}
+<div class="tw-flex tw-justify-end tw-mb-3">
+  <a href="{{ cta_url }}" class="tw-btn-cta"><i class="fas fa-plus"></i><span class="tw-btn-cta-label">{% trans 'Create document' %}</span></a>
+</div>
+{% endif %}
+{% include 'home/includes/toolbar.html' with cta_url='' sort_items=toolbar_sort_items search_include='board/_search.html' show_category_filter=request.user.is_authenticated categories=categories key_attr='pk' views=toolbar_views %}
 
 {# ── KAFLE KATEGORII ── #}
 {% for group in category_groups %}

@@ -1,0 +1,6 @@
+{% load i18n %}
+<form method="get" class="tw-flex-1 tw-min-w-0">
+  <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+  <input type="hidden" name="order" value="{{ request.GET.order }}">
+  <input type="search" name="q" value="{{ search_query }}" class="tw-form-control tw-w-full" placeholder="{% trans 'Search' %}" aria-label="{% trans 'Search' %}">
+</form>

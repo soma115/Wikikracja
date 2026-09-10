@@ -19,6 +19,7 @@ class LinkRoute:
     login_required: bool = True
     public_field: str = ''
     author_field: str = ''
+    system_field: str = ''
 
 
 ROUTES = {
@@ -28,9 +29,9 @@ ROUTES = {
     'events:detail': LinkRoute('events', 'Event', 'pk', 'title', login_required=False, public_field='is_public'),
     'obywatele:obywatele_szczegoly': LinkRoute('auth', 'User', 'pk', 'user'),
     'obywatele:poczekalnia_szczegoly': LinkRoute('auth', 'User', 'pk', 'user'),
-    'board:view_post': LinkRoute('board', 'Post', 'pk', 'title', login_required=False, public_field='is_public', author_field='author'),
-    'board:view_post_by_slug': LinkRoute('board', 'Post', 'slug', 'title', login_required=False, public_field='is_public', author_field='author'),
-    'board_post_by_slug': LinkRoute('board', 'Post', 'slug', 'title', login_required=False, public_field='is_public', author_field='author'),
+    'board:view_post': LinkRoute('board', 'Post', 'pk', 'title', login_required=False, public_field='is_public', author_field='author', system_field='system_key'),
+    'board:view_post_by_slug': LinkRoute('board', 'Post', 'slug', 'title', login_required=False, public_field='is_public', author_field='author', system_field='system_key'),
+    'board_post_by_slug': LinkRoute('board', 'Post', 'slug', 'title', login_required=False, public_field='is_public', author_field='author', system_field='system_key'),
 }
 
 
@@ -101,8 +102,11 @@ def resolve_link_titles(urls, request):
         queryset = model.objects.filter(**{f'{route.lookup}__in': values})
         if route.public_field:
             visibility = Q(**{route.public_field: True})
-            if request.user.is_authenticated and route.author_field:
-                visibility |= Q(**{route.author_field: request.user})
+            if request.user.is_authenticated:
+                if route.author_field:
+                    visibility |= Q(**{route.author_field: request.user})
+                if route.system_field:
+                    visibility |= Q(**{f'{route.system_field}__isnull': False})
             queryset = queryset.filter(visibility)
         objects = {str(getattr(obj, route.lookup)): obj for obj in queryset}
         for original, value in links:

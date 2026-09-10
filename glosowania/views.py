@@ -4,13 +4,14 @@ import logging
 import random
 import re
 import time
+from urllib.parse import quote_plus
 
 import redis
 from django.conf import settings as s
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import OperationalError, transaction
-from django.db.models import Count, F
+from django.db.models import F, Q
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -640,32 +641,13 @@ def parameters_propose(request: HttpRequest, pk: int = None):
 
 
 def _apply_sort(queryset, sort, order='desc'):
-    """Zastosuj sortowanie do querysetu Decyzja."""
-    p = '' if order == 'asc' else '-'
-    if sort == 'signatures':
-        return queryset.order_by(f'{p}ile_osob_podpisalo', '-pk')
-    elif sort == 'buzz':
-        return queryset.annotate(chat_msg_count=Count('chat_room__messages', distinct=True)).order_by(f'{p}chat_msg_count', '-pk')
-    else:  # 'date' — domyślne
-        return queryset.order_by(f'{p}pk')
+    """Zastosuj sortowanie po dacie do querysetu Decyzja."""
+    return queryset.order_by('pk' if order == 'asc' else '-pk')
 
 
-def _glosowania_toolbar_data(sort, order):
-    """Generate sort and view toggle data for the shared toolbar template."""
-    labels = {"date": _("Date"), "signatures": _("Signatures"), "buzz": _("Buzz")}
-    icons = {"date": "clock-rotate-left", "signatures": "pen-nib", "buzz": "fire"}
-    sort_items = []
-    for sort_key in ("date", "signatures", "buzz"):
-        active = sort == sort_key
-        next_order = "asc" if (active and order == "desc") else "desc"
-        url = f"?sort={sort_key}&order={next_order}"
-        icon = None
-        if active:
-            icon = "up" if next_order == "desc" else "down"
-        sort_items.append({"url": url, "label": str(labels[sort_key]), "active": active, "pre_icon": icons[sort_key], "icon": icon})
-
-    views = [{"name": "list", "icon": "list", "title": _("List")}, {"name": "grid", "icon": "grip", "title": _("Grid")}]
-    return sort_items, views
+def _glosowania_toolbar_data():
+    """Generate view toggle data for the shared toolbar template."""
+    return [], [{"name": "list", "icon": "list", "title": _("List")}, {"name": "grid", "icon": "grip", "title": _("Grid")}]
 
 
 def _sort_context(request):
@@ -684,8 +666,16 @@ def _status_list(request: HttpRequest, status, *, author_signed=False, pulse=Fal
     - show_dates: show referendum dates on the proposal card
     """
     sort, order = _sort_context(request)
-    toolbar_sort_items, toolbar_views = _glosowania_toolbar_data(sort, order)
+    search_query = request.GET.get('q', '').strip()
+    toolbar_sort_items, toolbar_views = _glosowania_toolbar_data()
+    if search_query:
+        encoded_query = quote_plus(search_query)
+        for item in toolbar_sort_items:
+            separator = '&' if '?' in item['url'] else '?'
+            item['url'] += f'{separator}q={encoded_query}'
     qs = Decyzja.objects.filter(status=status)
+    if search_query:
+        qs = qs.filter(Q(title__icontains=search_query) | Q(tresc__icontains=search_query) | Q(uzasadnienie__icontains=search_query))
     if author_signed:
         qs = qs.annotate(_signed=author_signed_exists()).filter(_signed=True)
     votings = _apply_sort(qs, sort, order)
@@ -694,7 +684,9 @@ def _status_list(request: HttpRequest, status, *, author_signed=False, pulse=Fal
         for voting in votings:
             voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
     return render(
-        request, 'glosowania/list.html', {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views, 'show_dates': show_dates}
+        request,
+        'glosowania/list.html',
+        {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views, 'show_dates': show_dates, 'search_query': search_query},
     )
 
 

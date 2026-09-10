@@ -3,92 +3,15 @@
 
 {% block prefs_tab %}partners{% endblock %}
 {% block bookkeeping %}
+  {% include 'home/includes/toolbar.html' with cta_url='' sort_items=toolbar_sort_items views=toolbar_views search_include='bookkeeping/_list_search.html' %}
 
-  {% if partners %}
-  <table class="tw-citizens-table tw-table-hover tw-table-sm tw-align-middle">
-    <thead>
-      <tr>
-        <th>
-          <a href="?sort=name&order={% if current_sort == 'name' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline tw-text-nowrap">
-            {% trans 'Name' %}
-            {% if current_sort == 'name' %}
-              <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
-            {% else %}
-              <i class="fas fa-sort tw-text-muted"></i>
-            {% endif %}
-          </a>
-        </th>
-        <th>
-          <a href="?sort=city&order={% if current_sort == 'city' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline tw-text-nowrap">
-            {% trans 'City' %}
-            {% if current_sort == 'city' %}
-              <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
-            {% else %}
-              <i class="fas fa-sort tw-text-muted"></i>
-            {% endif %}
-          </a>
-        </th>
-        <th>
-          <a href="?sort=web_page&order={% if current_sort == 'web_page' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline tw-text-nowrap">
-            {% trans 'Web Page' %}
-            {% if current_sort == 'web_page' %}
-              <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
-            {% else %}
-              <i class="fas fa-sort tw-text-muted"></i>
-            {% endif %}
-          </a>
-        </th>
-        <th class="tw-notes-col">
-          <a href="?sort=notes&order={% if current_sort == 'notes' and current_order == 'asc' %}desc{% else %}asc{% endif %}" class="tw-no-underline tw-text-nowrap">
-            {% trans 'Notes' %}
-            {% if current_sort == 'notes' %}
-              <i class="fas fa-sort-{% if current_order == 'asc' %}up{% else %}down{% endif %}"></i>
-            {% else %}
-              <i class="fas fa-sort tw-text-muted"></i>
-            {% endif %}
-          </a>
-        </th>
-        <th class="tw-text-end">{% trans "Actions" %}</th>
-      </tr>
-    </thead>
-    <tbody>
+  <div class="tw-proposals-list" data-view-container>
+    {% if partners %}
       {% for partner in partners %}
-        <tr>
-          <td>
-            <a href="{% url 'bookkeeping:partner_detail' partner.pk %}" class="tw-partner-name-link">{{ partner.name }}</a>
-          </td>
-          <td>{{ partner.city|default:"—" }}</td>
-          <td class="tw-break-words">
-            {% if partner.web_page %}
-              {% if partner.web_page|slice:":4" == "http" %}
-                <u><a href="{{ partner.web_page }}" target="_blank" rel="noopener noreferrer">{{ partner.web_page }}</a></u>
-              {% else %}
-                <u><a href="https://{{ partner.web_page }}" target="_blank" rel="noopener noreferrer">{{ partner.web_page }}</a></u>
-              {% endif %}
-            {% else %}
-              —
-            {% endif %}
-          </td>
-          <td class="tw-notes-col">
-            {% if partner.notes %}
-              <span class="tw-partner-notes">
-                {{ partner.notes|linebreaksbr }}
-              </span>
-            {% else %}
-              <span class="tw-text-muted">—</span>
-            {% endif %}
-          </td>
-          <td>
-            <div class="tw-flex tw-gap-2 tw-justify-end">
-              <a href="{% url 'bookkeeping:partner_update' partner.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary"><i class="fas fa-pen fa-fw"></i> {% trans 'Edit' %}</a>
-              <a href="{% url 'bookkeeping:partner_delete' partner.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-danger"><i class="fas fa-trash fa-fw"></i> {% trans 'Delete' %}</a>
-            </div>
-          </td>
-        </tr>
+        {% include 'bookkeeping/_partner_card.html' %}
       {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-    {% include 'home/includes/empty_state.html' with compact=True icon='fa-handshake' title=_('No partners yet.') %}
-  {% endif %}
+    {% else %}
+      {% include 'home/includes/empty_state.html' with compact=True icon='fa-handshake' title=_('No partners yet.') %}
+    {% endif %}
+  </div>
 {% endblock %}

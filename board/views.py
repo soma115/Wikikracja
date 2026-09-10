@@ -1,3 +1,5 @@
+from urllib.parse import quote_plus
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -51,6 +53,7 @@ class PostCategoryReorderAPI(CategoryReorderAPI):
 def board(request: HttpRequest) -> HttpResponse:
     sort = request.GET.get('sort', 'title')
     order = request.GET.get('order', 'asc')
+    search_query = request.GET.get('q', '').strip()
     reverse_order = order == 'desc'
 
     raw_pks = request.GET.getlist('category')
@@ -62,11 +65,9 @@ def board(request: HttpRequest) -> HttpResponse:
             pass
 
     posts_query = Post.objects.select_related('category', 'author', 'chat_room').prefetch_related(Prefetch('chat_room__messages', queryset=Message.objects.only('id', 'room')), 'chat_room__seen_by')
-    visible_filter = Q(is_private=False, is_public=True)
-    if request.user.is_authenticated:
-        posts_all = posts_query.filter(visible_filter | Q(author=request.user))
-    else:
-        posts_all = posts_query.filter(visible_filter)
+    posts_all = posts_query.filter(Post.visibility_filter_for_user(request.user))
+    if search_query:
+        posts_all = posts_all.filter(Q(title__icontains=search_query) | Q(subtitle__icontains=search_query) | Q(text__icontains=search_query))
 
     categories = list(PostCategory.objects.all())
     posts_by_cat = {}
@@ -103,13 +104,14 @@ def board(request: HttpRequest) -> HttpResponse:
 
     next_order = "asc" if order == "desc" else "desc"
     cat_query = "".join(f"&category={pk}" for pk in active_categories)
+    search_query_param = f"&q={quote_plus(search_query)}" if search_query else ""
 
     if sort == 'date':
-        title_url = reverse("board:start") + f"?sort=title&order=asc{cat_query}"
-        date_url = reverse("board:start") + f"?sort=date&order={next_order}{cat_query}"
+        title_url = reverse("board:start") + f"?sort=title&order=asc{cat_query}{search_query_param}"
+        date_url = reverse("board:start") + f"?sort=date&order={next_order}{cat_query}{search_query_param}"
     else:
-        title_url = reverse("board:start") + f"?sort=title&order={next_order}{cat_query}"
-        date_url = reverse("board:start") + f"?sort=date&order=desc{cat_query}"
+        title_url = reverse("board:start") + f"?sort=title&order={next_order}{cat_query}{search_query_param}"
+        date_url = reverse("board:start") + f"?sort=date&order=desc{cat_query}{search_query_param}"
 
     toolbar_sort_items = [
         {"url": title_url, "label": gettext_lazy("A-Z"), "active": sort == 'title', "icon": "up" if (sort == 'title' and order == 'asc') or sort != 'title' else "down"},
@@ -128,6 +130,7 @@ def board(request: HttpRequest) -> HttpResponse:
             'active_categories': active_categories,
             'toolbar_sort_items': toolbar_sort_items,
             'toolbar_views': toolbar_views,
+            'search_query': search_query,
         },
     )
 
@@ -166,11 +169,8 @@ class PostUpdateView(PostFormViewMixin, UpdateView):
 
 
 def _post_queryset_for_user(user):
-    """Return posts visible to the given user (public or authored by the user)."""
-    visible_filter = Q(is_private=False, is_public=True)
-    if user.is_authenticated:
-        return Post.objects.select_related('author', 'category').filter(visible_filter | Q(author=user))
-    return Post.objects.select_related('author', 'category').filter(visible_filter)
+    """Return posts visible to the given user."""
+    return Post.objects.select_related('author', 'category').filter(Post.visibility_filter_for_user(user))
 
 
 def _post_detail_context(request: HttpRequest, post: Post):

@@ -56,4 +56,5 @@ def tasks_stepper(context):
         'cta_icon': 'plus',
         'cta_label': cta_label,
         'cta_title': cta_label,
+        'css_class': 'tw-tasks-stepper',
     }

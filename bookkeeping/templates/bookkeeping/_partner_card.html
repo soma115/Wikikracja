@@ -1,0 +1,49 @@
+{% load i18n %}
+
+<div class="tw-proposal-card">
+  <div class="tw-proposal-card-header"
+       data-detail-url="{% url 'bookkeeping:partner_detail' partner.pk %}"
+       role="link"
+       tabindex="0">
+    <div class="tw-proposal-card-title-row">
+      <span class="tw-proposal-card-num">#{{ partner.pk }}</span>
+      <span class="tw-proposal-card-title">{{ partner.name }}</span>
+    </div>
+
+    <div class="tw-proposal-card-badges-row">
+      <span class="tw-badge-status tw-badge-approved"><i class="fas fa-handshake fa-fw"></i> {% trans 'Partner' %}</span>
+      {% if partner.country %}<span class="tw-badge tw-badge-secondary">{{ partner.country }}</span>{% endif %}
+    </div>
+
+    <div class="tw-proposal-card-meta">
+      {% if partner.city %}<span><i class="fas fa-globe fa-fw"></i> {{ partner.city }}</span>{% endif %}
+      {% if partner.web_page %}<span><i class="fas fa-link fa-fw"></i> {% trans 'Website' %}</span>{% endif %}
+    </div>
+  </div>
+
+  {% if partner.notes or partner.web_page %}
+    <div class="tw-proposal-card-body" data-view-only="grid"
+         data-detail-url="{% url 'bookkeeping:partner_detail' partner.pk %}"
+         role="link"
+         tabindex="0">
+      {% if partner.notes %}
+        <div class="tw-proposal-section--reasoning">
+          <div class="tw-proposal-section-label"><i class="fas fa-file-lines fa-fw"></i> {% trans 'Notes' %}</div>
+          <div class="tw-proposal-section-text">{{ partner.notes|linebreaksbr }}</div>
+        </div>
+      {% endif %}
+      {% if partner.web_page %}
+        <div class="tw-proposal-section--law">
+          <div class="tw-proposal-section-label"><i class="fas fa-link fa-fw"></i> {% trans 'Website' %}</div>
+          <div class="tw-proposal-section-text tw-break-words">
+            {% if partner.web_page|slice:":4" == "http" %}
+              <a href="{{ partner.web_page }}" target="_blank" rel="noopener noreferrer" data-tw-stop-propagation>{{ partner.web_page }}</a>
+            {% else %}
+              <a href="https://{{ partner.web_page }}" target="_blank" rel="noopener noreferrer" data-tw-stop-propagation>{{ partner.web_page }}</a>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>

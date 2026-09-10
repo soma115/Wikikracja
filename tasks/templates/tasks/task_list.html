@@ -7,7 +7,7 @@
 {% block tasks %}
 
 {# ── TOOLBAR ── #}
-{% include 'home/includes/toolbar.html' with sort_items=toolbar_sort_items show_category_filter=1 categories=category_list views=toolbar_views %}
+{% include 'home/includes/toolbar.html' with sort_items=toolbar_sort_items show_category_filter=1 categories=category_list views=toolbar_views search_include='tasks/_task_search.html' %}
 
 {# ── CONTENT ── #}
 <div id="tw-tasks-list-container" class="tw-proposals-list" data-view-container>

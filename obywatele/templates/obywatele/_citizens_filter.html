@@ -1,8 +1,6 @@
 {% load i18n %}
-<input type="search" id="citizens-search" class="tw-citizens-search-input"
-       placeholder="{% trans 'Search user...' %}" autocomplete="off">
-
 <div class="tw-dropdown">
+
   <button class="tw-citizens-filter-btn{% if aktywnosc %} tw-active{% endif %}"
           type="button" data-tw-toggle="dropdown" aria-expanded="false">
     <i class="fas fa-filter"></i>
@@ -37,5 +35,5 @@
       <a class="tw-dropdown-item{% if aktywnosc == 'nieaktywni' %} tw-active{% endif %}"
          href="?aktywnosc=nieaktywni{% if sort_param %}&{{ sort_param }}{% endif %}">{% trans "Inactive 30+ days" %}</a>
     </li>
-  </ul>
+    </ul>
 </div>

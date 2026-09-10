@@ -5,7 +5,21 @@ Pokaż mi co zamierzasz zrobić przed zmianami w kodzie.
 
 # PILNE
 
+# DROBNE
+
+- środkowy guzik myszy nie wszędzie działa. Napraw to. Zanim zaczniesz, daj znać, jeśli to może wywołać gdzieś problemy.
+-Wszystkie guziki sortowania powinny mieć trzy stany: posortowane w przód, posortowane w tył i wyłączone sortowanie. Dodaj to do standardów i przerób sposób działania tych guzików.
+- w /aktywnosc/ W przypadku dokumentów pokazuj tylko podtytuł, ale nie pokazuj treści.
+
+
 # OGÓLNE
+
+
+- Przy dużych ikonach użytkowników - imię i nazwisko pod sobą
+
+- Przechodzimy na nicki w postaci - dwie pierwsze litery imienia, dwie pierwsze litery nazwiska. Jeśli ktoś nie wpisał imienia i nazwiska, to nick pozostaje bez zmian.
+
+
 - Są dwa specjalne pokoje na czacie, Inbox i Ważne. To powinny być pokoje systemowe tworzone wraz z instancją aplikacji. Nie powinno dać się ich skasować ani zmienić ich nazw. Oczywiście powinno dać się je tłumaczyć nazwy tych pokoi.Te pokoje powinny wyróżniać się na liście. Nie powinno dać się wyłączyć powiadomień z pokoju Ważne. W pokoju Ważne powinien być slow-mode - dana osoba powinna móc wysłać wiadomość tylko raz dziennie.
 
 - Zunifikowanie kart listy/siatki – to największa część. Karty głosowań, ankiet, zadań, wydarzeń, dokumentów i obywateli mają różną strukturę i często dedykowaną logikę (np. głosowanie w liście ankiet, koordynator w zadaniach). Można to zrobić na dwa sposoby:
@@ -37,10 +51,14 @@ Pokaż mi co zamierzasz zrobić przed zmianami w kodzie.
   - glosowania > voting
   - obywatele > citizens
 
+- site_settings_siteparameters i site_settings_sitesettings nie musi być oddzielną tabelą. Dotyczą tego samego.
+
 # AKTYWNOSC
 
 - Na pulpicie kliknięcie w kafelku aktywność na ikonę dzwonka z liczbą nieprzeczytanych przenosi do aktywność i pokazuje tylko nieprzeczytane. I to jest dobrze. 
 Natomiast kliknięcie w tym kafelku na tytuł czy też na górną belkę powinno pokazywać całą aktywność, czyli powinno wyłączać filtr nieprzeczytane.
+
+- powiadomienie po dodaniu argumentu za/przeciw do referendum .
 
 # GÓRNE MENU
 
@@ -51,6 +69,13 @@ Natomiast kliknięcie w tym kafelku na tytuł czy też na górną belkę powinno
 - Umiejętności wybierane z listy i współdzielone z Działaniami. Jedna osoba dodaje umiejętność/zainteresowanie/hobby, pozostałe osoby mogą wybrać te rzeczy z listy.
 - Powinniśmy dodać ludziom wybór co do formy kontaktu. Niektórzy ludzie wolą telefon, a inni komunikatory. Niektóre komunikatory używają numeru telefonu, a inne nie. Komunikatory, których używamy, to Facebook, Discord, WhatsApp, Telegram, Signal. Opracuj sprytny formularz w taki sposób, żeby użytkownik mógł wybrać jedną lub wiele form kontaktu i żeby to było intuicyjne. Możliwość dodawania specyficznie m.in.: x.com, fb, insta, itd.
 
+- Automatyczne robienie nick. Np. rofi.
+
+# ANKIETY
+
+wiki - ankiety: punkt otwarty i czat
+
+
 # DOKUMENTY
 
 - Prosta historia edycji dokumentów. Przydałoby się zapisywać przynajmniej kto edytował kiedy i nie wiem ile zostało zmienione. Nie wiem czy przechowywanie wersji dokumentu ma sens.
@@ -58,7 +83,7 @@ Natomiast kliknięcie w tym kafelku na tytuł czy też na górną belkę powinno
 # ZADANIA (TASKS)
 - Corowa część Zadania w Realizacji nie może być modyfikowana.
 
-- Task jaki eksperyment: hipoteza, test, wynik. Spodziewamy efekt, eksperymenty, rzeczywisty efekt.
+- Task jako eksperyment: hipoteza, test, wynik. Spodziewamy efekt, eksperymenty, rzeczywisty efekt.
   1. Hipoteza — "Jeśli zrobimy X, stanie się Y" (jedno zdanie)
   2. Metryka sukcesu — konkretna, mierzalna wartość/warunek, po którym poznamy, że hipoteza się potwierdziła
   3. Termin sprawdzenia — data lub punkt, w którym oceniamy wynik. Moment albo sytuacja, w której spodziewane efekty będą już widoczne. (po wyborach, 3 miesiące po konferencji)
@@ -75,6 +100,7 @@ Natomiast kliknięcie w tym kafelku na tytuł czy też na górną belkę powinno
 # CHAT
 
 - sortowanie pokoi po dacie powinno pokazywać pokoje bez daty zawsze na końcu
+- 'pokaż więcej' w wiadomościach czatu powinno być dynamiczne, to znaczy na dużych ekranach powinno pokazywać więcej treści, a na małych ekranach powinno pokazywać mniej treści.
 
 ## Funkcjonalności
 - Kolejne wiadomości od tej samej osoby: bez ramek
@@ -89,6 +115,8 @@ Natomiast kliknięcie w tym kafelku na tytuł czy też na górną belkę powinno
 - Dodać informację, że podanie emaila jest niezbędne żeby otrzymać hasło
 
 # GŁOSOWANIA
+
+- Za/Przeciw dalej na telefonie, potwierdź oddanie głosu
 
 ## Funkcjonalności
 - Podświetlanie guzików kiedy jest trwające referendum

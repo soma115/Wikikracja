@@ -1,0 +1,23 @@
+{% extends 'bookkeeping/menu.html' %}
+{% load i18n %}
+
+{% block bookkeeping %}
+<div class="tw-container tw-mt-4">
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <h1 class="tw-text-xl tw-font-semibold tw-mb-0"><i class="fas fa-tag tw-text-accent tw-me-2"></i>{{ category.name }}</h1>
+    </div>
+    <div class="tw-card-body">
+      <div class="tw-flex tw-items-center tw-gap-2 tw-text-muted">
+        <i class="fas fa-tags fa-fw"></i>
+        <span>{% trans 'Category' %}</span>
+      </div>
+      <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-4">
+        <a href="{% url 'bookkeeping:category_update' category.pk %}" class="tw-btn tw-btn-primary"><i class="fas fa-pen fa-fw"></i> {% trans 'Edit' %}</a>
+        <a href="{% url 'bookkeeping:category_delete' category.pk %}" class="tw-btn tw-btn-danger"><i class="fas fa-trash fa-fw"></i> {% trans 'Delete' %}</a>
+        <a href="{% url 'bookkeeping:category_list' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-arrow-left fa-fw"></i> {% trans 'Back to list' %}</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -3,14 +3,20 @@
 {% load l10n %}
 {% load feed_filters %}
 
+{% block prefs_scope %}ankiety{% endblock %}
+{% block prefs_tab %}surveys{% endblock %}
+
 {% block content %}
 
 {# ── TOOLBAR ── #}
 {% url 'ankiety:create' as cta_url %}
-{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add survey') cta_end=True sort_items=toolbar_sort_items %}
+<div class="tw-flex tw-justify-end tw-mb-3">
+  <a href="{{ cta_url }}" class="tw-btn-cta"><i class="fas fa-plus"></i><span class="tw-btn-cta-label">{% trans 'Add survey' %}</span></a>
+</div>
+{% include 'home/includes/toolbar.html' with cta_url='' sort_items=toolbar_sort_items views=toolbar_views search_include='ankiety/_survey_search.html' %}
 
 {# ── LIST ── #}
-<div class="tw-proposals-list">
+<div class="tw-proposals-list" data-view-container>
   {% if surveys %}
     {% for survey in surveys %}
       <div class="tw-proposal-card">
@@ -24,11 +30,6 @@
               <span class="tw-badge-status tw-badge-discussion">{% trans 'Ongoing' %}</span>
             {% else %}
               <span class="tw-badge-status tw-badge-approved">{% trans 'Finished' %}</span>
-            {% endif %}
-            {% if survey.can_edit %}
-              <a href="{% url 'ankiety:edit' survey.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-primary tw-ms-auto">
-                <i class="fas fa-pen"></i> {% trans 'Edit' %}
-              </a>
             {% endif %}
           </div>
 
@@ -60,7 +61,7 @@
           </div>
         </div>
 
-        <div class="tw-proposal-card-body">
+        <div class="tw-proposal-card-body" data-view-only="grid">
           {% if survey.description %}
             <a href="{% url 'ankiety:detail' survey.pk %}" class="tw-block tw-text-muted tw-text-sm tw-no-underline">
               {{ survey.description|striptags|truncatewords:30 }}

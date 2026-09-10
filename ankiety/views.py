@@ -1,7 +1,9 @@
+from urllib.parse import quote_plus
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.db.models import Count, Prefetch
+from django.db.models import Count, Prefetch, Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -69,7 +71,10 @@ def survey_list(request):
         return redirect(f"{reverse('ankiety:list')}?tab={tab}")
 
     now = timezone.now()
+    search_query = request.GET.get("q", "").strip()
     base_qs = Survey.objects.select_related("author").prefetch_related(Prefetch("options", queryset=SurveyOption.objects.annotate(vote_count=Count("votes")).order_by("order", "id")))
+    if search_query:
+        base_qs = base_qs.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
 
     if tab == "active":
         surveys = base_qs.filter(end_date__gte=now).order_by("end_date")
@@ -92,8 +97,10 @@ def survey_list(request):
         survey.has_voted = bool(survey.user_vote_ids)
         survey.can_edit = request.user == survey.author and survey.is_active
 
-    toolbar_sort_items = [{"url": "?tab=active", "label": _("Ongoing"), "active": tab == "active"}, {"url": "?tab=finished", "label": _("Finished"), "active": tab == "finished"}]
-    return render(request, "ankiety/survey_list.html", {"surveys": surveys, "current_tab": tab, "toolbar_sort_items": toolbar_sort_items})
+    query_suffix = f"&q={quote_plus(search_query)}" if search_query else ""
+    toolbar_sort_items = [{"url": f"?tab=active{query_suffix}", "label": _("Ongoing"), "active": tab == "active"}, {"url": f"?tab=finished{query_suffix}", "label": _("Finished"), "active": tab == "finished"}]
+    toolbar_views = [{"name": "list", "icon": "list", "title": _("List")}, {"name": "grid", "icon": "grip", "title": _("Grid")}]
+    return render(request, "ankiety/survey_list.html", {"surveys": surveys, "current_tab": tab, "search_query": search_query, "toolbar_sort_items": toolbar_sort_items, "toolbar_views": toolbar_views})
 
 
 @login_required

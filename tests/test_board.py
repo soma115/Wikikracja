@@ -193,6 +193,23 @@ def test_private_post_visible_only_to_author_on_list(authenticated_client):
 
 
 @pytest.mark.django_db
+def test_system_post_visible_to_authenticated_users_regardless_of_author_or_private_flag(authenticated_client):
+    """System posts are visible to logged-in users even when marked as private."""
+    client, user = authenticated_client
+    other = UserFactory(username='system-owner', email='system-owner@example.com')
+    system_post = PostFactory(system_key='system-visible', author=other, is_public=False, is_private=True)
+
+    response = client.get(reverse('board:view_post', args=[system_post.pk]))
+
+    assert response.status_code == 200
+    assert system_post.title in response.content.decode()
+    assert system_post in Post.objects.filter(Post.visibility_filter_for_user(user))
+
+    client.logout()
+    assert client.get(reverse('board:view_post', args=[system_post.pk])).status_code == 404
+
+
+@pytest.mark.django_db
 def test_private_post_detail_visible_only_to_author(authenticated_client):
     """Szczegóły prywatnego dokumentu dostępne są tylko dla autora."""
     client, user = authenticated_client

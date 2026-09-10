@@ -6,7 +6,7 @@
 {% block prefs_tab %}votings{% endblock %}
 
 {% block glosowania %}
-{% include 'home/includes/toolbar.html' with sort_items=toolbar_sort_items views=toolbar_views %}
+{% include 'home/includes/toolbar.html' with sort_items=toolbar_sort_items views=toolbar_views search_include='glosowania/_search.html' %}
 
 <div class="tw-proposals-list" data-view-container>
   {% if votings %}

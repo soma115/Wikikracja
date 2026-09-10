@@ -1,10 +1,12 @@
 {% extends 'bookkeeping/menu.html' %}
 {% load i18n %}
 {% load bookkeeping_extras %}
-{% load feed_filters %}
 
+{% block prefs_scope %}bookkeeping{% endblock %}
 {% block prefs_tab %}transactions{% endblock %}
 {% block bookkeeping %}
+
+  {% include 'home/includes/toolbar.html' with cta_url='' views=toolbar_views search_include='bookkeeping/_transaction_search.html' %}
 
   {# Pasek sald per asset — cała historia, default first. Tooltip zawiera szczegóły income/expenses. #}
   {% if balances_by_asset %}
@@ -21,47 +23,13 @@
     </div>
   {% endif %}
 
-  {% if transactions %}
-  <div class="tw-citizens-table-wrap">
-    <table class="tw-citizens-table tw-table-sm">
-      <thead>
-        <tr>
-          <th>{% trans "Type" %}</th>
-          <th>{% trans "Date" %}</th>
-          <th>{% trans "Partner" %}</th>
-          <th>{% trans "Category" %}</th>
-          <th>{% trans "Asset" %}</th>
-          <th>{% trans "Amount" %}</th>
-          <th>{% trans "Author" %}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for transaction in transactions %}
-          <tr data-detail-url="{% url 'bookkeeping:transaction_detail' transaction.id %}" role="link" tabindex="0">
-            <td>
-              {% if transaction.type == 'I' %}
-                <small class="tw-text-success">{% trans "Incoming" %}</small>
-              {% else %}
-                <small class="tw-text-danger">{% trans "Outgoing" %}</small>
-              {% endif %}
-            </td>
-            <td>{{ transaction.payment_received_date|date:"Y-m-d" }}</td>
-            <td>{{ transaction.partner }}</td>
-            <td>{{ transaction.category|default:"-" }}</td>
-            <td><small class="tw-text-muted">{{ transaction.asset.code }}</small></td>
-            <td>{{ transaction.amount|normalize_decimal }} {{ transaction.asset.symbol }}</td>
-            <td>
-              <span class="tw-flex tw-items-center tw-gap-2">
-                {% include "home/_user_avatar.html" with user=transaction.author size="xs" %}
-                {{ transaction.author|display_name }}
-              </span>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="tw-proposals-list" data-view-container>
+    {% if transactions %}
+      {% for transaction in transactions %}
+        {% include 'bookkeeping/_transaction_card.html' %}
+      {% endfor %}
+    {% else %}
+      {% include 'home/includes/empty_state.html' with compact=True icon='fa-money-bill-transfer' title=_('No transactions yet.') %}
+    {% endif %}
   </div>
-  {% else %}
-    {% include 'home/includes/empty_state.html' with compact=True icon='fa-money-bill-transfer' title=_('No transactions yet.') %}
-  {% endif %}
 {% endblock %}

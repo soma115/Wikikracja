@@ -1,0 +1,36 @@
+{% load i18n %}
+
+<div class="tw-proposal-card">
+  <div class="tw-proposal-card-header"
+       data-detail-url="{% url 'bookkeeping:asset_detail' asset.pk %}"
+       role="link"
+       tabindex="0">
+    <div class="tw-proposal-card-title-row">
+      <span class="tw-proposal-card-num">#{{ asset.pk }}</span>
+      <span class="tw-proposal-card-title">{{ asset.name }}</span>
+    </div>
+
+    <div class="tw-proposal-card-badges-row">
+      {% if asset.is_default %}
+        <span class="tw-badge-status tw-badge-approved"><i class="fas fa-star fa-fw"></i> {% trans 'Default' %}</span>
+      {% endif %}
+      {% if asset.is_currency %}
+        <span class="tw-badge tw-badge-secondary">{% trans 'Currency' %}</span>
+      {% else %}
+        <span class="tw-badge tw-badge-secondary">{% trans 'Asset' %}</span>
+      {% endif %}
+    </div>
+
+    <div class="tw-proposal-card-meta">
+      <span><i class="fas fa-coins fa-fw"></i> {{ asset.code }} · {{ asset.symbol }}</span>
+      <span>· {% trans 'Decimal places' %}: {{ asset.decimal_places }}</span>
+    </div>
+  </div>
+
+  <div class="tw-proposal-card-body" data-view-only="grid">
+    <div class="tw-proposal-section--law">
+      <div class="tw-proposal-section-label"><i class="fas fa-coins fa-fw"></i> {% trans 'Asset' %}</div>
+      <div class="tw-proposal-section-text">{{ asset.code }} ({{ asset.symbol }}) · {% trans 'Decimal places' %}: {{ asset.decimal_places }}</div>
+    </div>
+  </div>
+</div>

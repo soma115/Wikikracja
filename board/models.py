@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -57,6 +58,13 @@ class Post(ChatRoomModel, models.Model):
     @classmethod
     def get_system_post(cls, system_key):
         return cls.objects.filter(system_key=system_key).first()
+
+    @classmethod
+    def visibility_filter_for_user(cls, user):
+        visible = Q(is_private=False, is_public=True)
+        if user.is_authenticated:
+            visible |= Q(system_key__isnull=False) | Q(author=user)
+        return visible
 
 
 class PostAttachment(models.Model):

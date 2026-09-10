@@ -745,11 +745,56 @@
     --stepper-color-shadow: var(--accent-glow);
   }
   .tw-stepper-nav {display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0;
     margin-bottom: 1.5rem;
     flex-wrap: wrap;
     row-gap: .5rem;
+    position: relative;
+  }
+  .tw-stepper-nav--has-cta {
+    padding-right: 4rem;
+    min-height: var(--arrow-h);
+  }
+  .tw-stepper-main {
+    display: flex;
+    align-items: center;
+    flex: 0 1 100%;
+    width: 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+    row-gap: .5rem;
+  }
+  .tw-stepper-nav > .tw-stepper-cta {
+    position: absolute;
+    top: 0;
+    right: 0;
+    flex: 0 0 auto;
+  }
+  @container stepper (max-width: 960px) {
+    .tw-stepper-cta:not(.tw-btn-cta--round) {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      aspect-ratio: 1;
+    }
+    .tw-stepper-cta .tw-btn-cta-label {
+      display: none;
+    }
+  }
+  @media (max-width: 1024px) {
+    .tw-tasks-stepper.tw-stepper-nav--has-cta {
+      padding-right: 3.5rem;
+    }
+    .tw-tasks-stepper > .tw-stepper-cta:not(.tw-btn-cta--round) {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      aspect-ratio: 1;
+    }
+    .tw-tasks-stepper > .tw-stepper-cta .tw-btn-cta-label {
+      display: none;
+    }
   }
   .tw-stepper-step-wrap {position: relative;
     height: var(--arrow-h);
@@ -4623,10 +4668,48 @@
     margin-bottom: 0.85rem;
     flex-wrap: wrap;
   }
+  .tw-toolbar-group {
+    /* Jedna pozioma grupa kontrolek: filtrów, wyszukiwania albo widoku. */
+    display: flex;
+    /* Wyrównuje guziki i pole formularza do wspólnej osi pionowej. */
+    align-items: center;
+    /* Stały odstęp między elementami wewnątrz grupy. */
+    gap: 0.5rem;
+    /* Pozwala elementom flex skracać się zamiast wypychać toolbar poza ekran. */
+    min-width: 0;
+  }
+  .tw-toolbar-group-filters {
+    /* Grupa filtrów może się kurczyć, ale nie rozciąga się na całe wolne miejsce. */
+    flex: 0 1 auto;
+    /* Zezwala na zawijanie zawartości filtra bez wymuszania szerokości grupy. */
+    min-width: 0;
+  }
+  .tw-toolbar-group-search {
+    /* Pole zachowuje elastyczność i może wykorzystać wolne miejsce w toolbarze. */
+    flex: 1 1 18rem;
+    /* Pozwala grupie skracać się przed zawinięciem całego toolbara. */
+    min-width: 1rem;
+  }
+  .tw-toolbar-group-search > form {
+    /* Formularz wypełnia szerokość kompaktowej grupy wyszukiwania. */
+    flex: 1 1 auto;
+    /* Pozwala inputowi skrócić się razem z grupą bez poziomego overflow. */
+    min-width: 0;
+  }
+  .tw-toolbar-group-view {
+    /* Przyciski widoku i CTA nie kurczą się razem z filtrami. */
+    flex: 0 0 auto;
+    /* Grupa widoku pozostaje dosunięta do prawej strony toolbara. */
+    margin-left: auto;
+  }
   .tw-toolbar-divider {
+    /* Wąska pionowa kreska oddzielająca grupy kontrolek. */
     width: 1px;
+    /* Wysokość kreski nie rozciąga się na całą wysokość toolbaru. */
     height: 20px;
+    /* Kolor korzysta ze wspólnego tokenu obramowania. */
     background: var(--border);
+    /* Divider nigdy nie jest zmniejszany przez flexbox. */
     flex-shrink: 0;
   }
   .tw-toolbar-sort {
@@ -4864,6 +4947,13 @@
     .tw-sort-btn.tw-active .tw-sort-btn-label {
       display: inline;
       margin-left: 0.35rem;
+    }
+    .tw-btn-cta:not(.tw-btn-cta--round) {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      aspect-ratio: 1;
+      border-radius: var(--radius-btn, 0.5rem);
     }
   }
 

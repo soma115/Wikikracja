@@ -1,0 +1,21 @@
+{% load i18n %}
+
+<div class="tw-proposal-card">
+  <div class="tw-proposal-card-header"
+       data-detail-url="{% url 'bookkeeping:category_detail' category.pk %}"
+       role="link"
+       tabindex="0">
+    <div class="tw-proposal-card-title-row">
+      <span class="tw-proposal-card-num">#{{ category.pk }}</span>
+      <span class="tw-proposal-card-title">{{ category.name }}</span>
+    </div>
+
+    <div class="tw-proposal-card-badges-row">
+      <span class="tw-badge-status tw-badge-approved"><i class="fas fa-tag fa-fw"></i> {% trans 'Category' %}</span>
+    </div>
+
+    <div class="tw-proposal-card-meta">
+      <span><i class="fas fa-tags fa-fw"></i> {% trans 'Category' %}</span>
+    </div>
+  </div>
+</div>

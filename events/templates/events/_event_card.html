@@ -58,12 +58,6 @@
              title="{% trans 'Add to Google Calendar' %}">
             <i class="far fa-calendar-plus fa-fw"></i> {% trans 'Calendar' %}
           </a>
-          {% if user.is_authenticated %}
-            <a href="{% url 'events:edit' occ.event.pk %}"
-               class="tw-event-meta-link" data-tw-stop-propagation>
-              <i class="fas fa-pen fa-fw"></i> {% trans 'Edit' %}
-            </a>
-          {% endif %}
         </div>
       </div>
     </div>

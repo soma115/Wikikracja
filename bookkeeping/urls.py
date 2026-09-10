@@ -3,10 +3,12 @@ from django.urls import path
 from .views import (
     AssetCreateView,
     AssetDeleteView,
+    AssetDetailView,
     AssetListView,
     AssetUpdateView,
     CategoryCreateView,
     CategoryDeleteView,
+    CategoryDetailView,
     CategoryListView,
     CategoryUpdateView,
     PartnerCreateView,
@@ -34,6 +36,7 @@ urlpatterns = [
     # Asset URLs
     path('asset/', AssetListView.as_view(), name='asset_list'),
     path('asset/create/', AssetCreateView.as_view(), name='asset_create'),
+    path('asset/<int:pk>/', AssetDetailView.as_view(), name='asset_detail'),
     path('asset/<int:pk>/update/', AssetUpdateView.as_view(), name='asset_update'),
     path('asset/<int:pk>/delete/', AssetDeleteView.as_view(), name='asset_delete'),
     # Partner URLs
@@ -45,6 +48,7 @@ urlpatterns = [
     # Category URLs
     path('category/', CategoryListView.as_view(), name='category_list'),
     path('category/create/', CategoryCreateView.as_view(), name='category_create'),
+    path('category/<int:pk>/', CategoryDetailView.as_view(), name='category_detail'),
     path('category/<int:pk>/update/', CategoryUpdateView.as_view(), name='category_update'),
     path('category/<int:pk>/delete/', CategoryDeleteView.as_view(), name='category_delete'),
     # Report URLs

@@ -1,6 +1,8 @@
 import json
+from urllib.parse import quote_plus
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -76,6 +78,8 @@ class BookkeepingListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         create_url = reverse_lazy(self.create_url_name) if self.create_url_name else None
         context.update(_bookkeeping_toolbar(create_url=create_url, create_label=self.create_label))
+        context['search_query'] = self.request.GET.get('q', '').strip()
+        context['toolbar_views'] = [{'name': 'list', 'icon': 'list', 'title': _('List')}, {'name': 'grid', 'icon': 'grip', 'title': _('Grid')}]
         return context
 
 
@@ -84,6 +88,19 @@ class AssetListView(BookkeepingListView):
     template_name = 'bookkeeping/asset_list.html'
     create_url_name = 'bookkeeping:asset_create'
     create_label = _('Add asset')
+
+    def get_queryset(self):
+        search_query = self.request.GET.get('q', '').strip()
+        queryset = Asset.objects.all()
+        if search_query:
+            queryset = queryset.filter(Q(code__icontains=search_query) | Q(name__icontains=search_query) | Q(symbol__icontains=search_query))
+        return queryset
+
+
+class AssetDetailView(LoginRequiredMixin, DetailView):
+    model = Asset
+    template_name = 'bookkeeping/asset_detail.html'
+    context_object_name = 'asset'
 
 
 class AssetCreateView(LoginRequiredMixin, CreateView):
@@ -116,6 +133,19 @@ class CategoryListView(BookkeepingListView):
     template_name = 'bookkeeping/category_list.html'
     create_url_name = 'bookkeeping:category_create'
     create_label = _('Add category')
+
+    def get_queryset(self):
+        search_query = self.request.GET.get('q', '').strip()
+        queryset = Category.objects.all()
+        if search_query:
+            queryset = queryset.filter(name__icontains=search_query)
+        return queryset
+
+
+class CategoryDetailView(LoginRequiredMixin, DetailView):
+    model = Category
+    template_name = 'bookkeeping/category_detail.html'
+    context_object_name = 'category'
 
 
 class CategoryCreateView(LoginRequiredMixin, CreateView):
@@ -150,16 +180,35 @@ class PartnerListView(BookkeepingListView):
     def get_queryset(self):
         sort = self.request.GET.get('sort', 'name')
         order = self.request.GET.get('order', 'asc')
+        search_query = self.request.GET.get('q', '').strip()
         allowed = ['name', 'city', 'country', 'web_page', 'notes']
         if sort not in allowed:
             sort = 'name'
         prefix = '-' if order == 'desc' else ''
-        return Partner.objects.order_by(f'{prefix}{sort}')
+        queryset = Partner.objects.all()
+        if search_query:
+            queryset = queryset.filter(
+                Q(name__icontains=search_query) | Q(city__icontains=search_query) | Q(country__icontains=search_query) | Q(web_page__icontains=search_query) | Q(notes__icontains=search_query)
+            )
+        return queryset.order_by(f'{prefix}{sort}')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['current_sort'] = self.request.GET.get('sort', 'name')
-        context['current_order'] = self.request.GET.get('order', 'asc')
+        current_sort = self.request.GET.get('sort', 'name')
+        current_order = self.request.GET.get('order', 'asc')
+        search_query = self.request.GET.get('q', '').strip()
+        query_suffix = f'&q={quote_plus(search_query)}' if search_query else ''
+        context['current_sort'] = current_sort
+        context['current_order'] = current_order
+        context['toolbar_sort_items'] = [
+            {
+                'url': f'?sort={field}&order={"desc" if current_sort == field and current_order == "asc" else "asc"}{query_suffix}',
+                'label': label,
+                'active': current_sort == field,
+                'icon': 'up' if current_sort == field and current_order == 'asc' else 'down' if current_sort == field else None,
+            }
+            for field, label in (('name', _('Name')), ('city', _('City')), ('web_page', _('Web Page')), ('notes', _('Notes')))
+        ]
         return context
 
 
@@ -208,7 +257,17 @@ class TransactionListView(BookkeepingListView):
     create_label = _('Add transaction')
 
     def get_queryset(self):
-        return Transaction.objects.select_related('author', 'partner', 'category', 'asset').order_by('-payment_received_date', '-id')
+        search_query = self.request.GET.get('q', '').strip()
+        queryset = Transaction.objects.select_related('author', 'partner', 'category', 'asset')
+        if search_query:
+            queryset = queryset.filter(
+                Q(partner__name__icontains=search_query)
+                | Q(category__name__icontains=search_query)
+                | Q(asset__code__icontains=search_query)
+                | Q(note__icontains=search_query)
+                | Q(author__username__icontains=search_query)
+            )
+        return queryset.order_by('-payment_received_date', '-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -1,0 +1,52 @@
+{% load i18n %}
+{% load bookkeeping_extras %}
+{% load feed_filters %}
+
+<div class="tw-proposal-card" data-status="{{ transaction.type }}">
+  <div class="tw-proposal-card-header"
+       data-detail-url="{% url 'bookkeeping:transaction_detail' transaction.id %}"
+       role="link"
+       tabindex="0">
+    <div class="tw-proposal-card-title-row">
+      <span class="tw-proposal-card-num">#{{ transaction.id }}</span>
+      <span class="tw-proposal-card-title">{{ transaction.partner|default:_('Transaction') }}</span>
+    </div>
+
+    <div class="tw-proposal-card-badges-row">
+      {% if transaction.type == 'I' %}
+        <span class="tw-badge-status tw-badge-success"><i class="fas fa-money-bill-transfer fa-fw"></i> {% trans 'Incoming' %}</span>
+      {% else %}
+        <span class="tw-badge-status tw-badge-danger"><i class="fas fa-money-bill-transfer fa-fw"></i> {% trans 'Outgoing' %}</span>
+      {% endif %}
+      {% if transaction.category %}
+        <span class="tw-badge tw-badge-secondary"><i class="fas fa-tag fa-fw"></i> {{ transaction.category }}</span>
+      {% endif %}
+      <span class="tw-badge tw-badge-secondary">{{ transaction.amount|normalize_decimal }} {{ transaction.asset.symbol }}</span>
+    </div>
+
+    <div class="tw-proposal-card-meta">
+      <span class="tw-proposal-author-link">
+        {% include "home/_user_avatar.html" with user=transaction.author size="xs" %}
+        <span class="tw-proposal-author-name">{{ transaction.author|display_name }}</span>
+      </span>
+      <span class="tw-proposal-meta-sep">·</span>
+      <span class="tw-proposal-date"><i class="fas fa-calendar fa-fw"></i> {{ transaction.payment_received_date|date:"d.m.Y" }}</span>
+      <span class="tw-proposal-meta-sep">·</span>
+      <span><i class="fas fa-coins fa-fw"></i> {{ transaction.asset.code }}</span>
+    </div>
+  </div>
+
+  {% if transaction.note %}
+    <div class="tw-proposal-card-body" data-view-only="grid"
+         data-detail-url="{% url 'bookkeeping:transaction_detail' transaction.id %}"
+         role="link"
+         tabindex="0">
+      <div class="tw-proposal-section--reasoning">
+        <div class="tw-proposal-section-label">
+          <i class="fas fa-file-lines fa-fw"></i> {% trans 'Note' %}
+        </div>
+        <div class="tw-proposal-section-text">{{ transaction.note }}</div>
+      </div>
+    </div>
+  {% endif %}
+</div>
