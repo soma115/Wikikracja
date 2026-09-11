@@ -1,5 +1,13 @@
 # LOG_AI
 
+## 2026-09-11: Uatrakcyjnienie porannego digestu e-mail
+
+- **Zmienione pliki:** `home/templates/emails/digest.html`, `home/test_email_digest.py`.
+- **Co się zmieniło:** Odświeżono wizualną hierarchię digestu: nagłówek otrzymał wyraźniejszą etykietę i typografię, wprowadzono panel wprowadzenia, karty aktywności z akcentem oraz responsywne odstępy. Zachowano bez zmian markup, tekst i adres guzika „Zarządzaj powiadomieniami e-mail”.
+- **Testy:** Test wysyłki digestu sprawdza obecność nowych elementów wizualnych oraz niezmieniony kontrakt guzika i adresu ustawień.
+- **Uzasadnienie:** E-mail wysyłany o 08:00 powinien szybciej prowadzić wzrok do najważniejszych aktywności i dobrze działać na urządzeniach mobilnych, bez ryzyka naruszenia działającej akcji zarządzania powiadomieniami.
+- **Spodziewany efekt:** Czytelniejszy, bardziej nowoczesny digest HTML w jasnym i ciemnym motywie oraz na małych ekranach; wersja tekstowa i działanie guzika pozostają bez zmian.
+
 ## 2026-09-09: Dodanie obowiązku dokumentowania zmian w `docs/LOG_AI.md`
 
 - **Zmieniony plik:** `AGENTS.md`

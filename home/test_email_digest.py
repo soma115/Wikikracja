@@ -12,6 +12,7 @@ from django.core import mail
 from django.core.management import call_command
 from django.test import TransactionTestCase, override_settings
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from board.models import Post
 from chat.models import Message, MessageReadBy, Room
@@ -295,6 +296,11 @@ class SendEmailDigestCommandTest(TransactionTestCase):
 
         emails = [e for e in mail.outbox if user.email in e.to]
         assert len(emails) == 1
+        html = emails[0].alternatives[0][0]
+        assert 'class="email-intro-panel"' in html
+        assert '<a class="email-button" href="' in html
+        assert str(_('Manage email notifications')) in html
+        assert '/obywatele/settings/' in html
 
     def test_digest_puts_restarted_votes_first_with_links(self):
         user = self._make_active_user('restart-recipient', 'restart@example.com')
