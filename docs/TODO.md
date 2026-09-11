@@ -7,11 +7,7 @@ Pokaż mi co zamierzasz zrobić przed zmianami w kodzie.
 
 # DROBNE
 
-- w /aktywnosc/ W przypadku dokumentów pokazuj tylko podtytuł, ale nie pokazuj treści.
--Wszystkie guziki sortowania powinny mieć trzy stany: posortowane w przód, posortowane w tył i wyłączone sortowanie. Dodaj to do standardów i przerób sposób działania tych guzików.
-- ankiety: możliwość dopisania swojej opcji w ankiecie i podpięcie czatu do ankiet.
-- środkowy guzik myszy nie wszędzie działa. Napraw to. Zanim zaczniesz, daj znać, jeśli to może wywołać gdzieś problemy.
-- w aktywnosc/: Jeśli treść zawiera nowe linie to nie obcinaj powiadomienia po nowej linii tylko dołącz dalszy ciąg po myślniku.
+
 
 # OGÓLNE
 

@@ -101,14 +101,19 @@ function bindSortToolbar() {
         likesBtn.classList.toggle('tw-active', SortState.sort_by === 'likes');
         popularBtn.classList.toggle('tw-active', SortState.popular_only);
 
-        const setArrow = (btn, active) => {
+        const setArrow = (btn, state) => {
             const arrow = btn.querySelector('.tw-sort-arrow');
             if (!arrow) return;
-            if (!active) { arrow.className = 'fas fa-arrow-down tw-sort-arrow tw-invisible'; return; }
-            arrow.className = 'fas fa-arrow-' + (SortState.order === 'asc' ? 'up' : 'down') + ' tw-sort-arrow';
+            const active = state !== 'none';
+            const icon = state === 'asc' ? 'arrow-up' : state === 'desc' ? 'arrow-down' : 'sort';
+            arrow.className = `fas fa-${icon} tw-sort-arrow${active ? '' : ' tw-sort-arrow--off'}`;
+            btn.classList.toggle('tw-active', active);
+            btn.classList.toggle('tw-sort-btn--off', !active);
+            btn.dataset.sortState = state;
+            btn.setAttribute('aria-pressed', active ? 'true' : 'false');
         };
-        setArrow(dateBtn, SortState.sort_by === 'date');
-        setArrow(likesBtn, SortState.sort_by === 'likes');
+        setArrow(dateBtn, SortState.sort_by === 'date' ? SortState.order : 'none');
+        setArrow(likesBtn, SortState.sort_by === 'likes' ? SortState.order : 'none');
     };
 
     const refetch = () => {
@@ -117,12 +122,10 @@ function bindSortToolbar() {
     };
 
     const toggleSort = (key) => {
-        if (SortState.sort_by === key) {
-            SortState.order = SortState.order === 'desc' ? 'asc' : 'desc';
-        } else {
-            SortState.sort_by = key;
-            SortState.order = 'desc';
-        }
+        const current = SortState.sort_by === key ? SortState.order : 'none';
+        const next = current === 'none' ? 'asc' : current === 'asc' ? 'desc' : 'none';
+        SortState.sort_by = next === 'none' ? null : key;
+        SortState.order = next === 'none' ? null : next;
         applyActiveStyles();
         refetch();
     };
@@ -637,6 +640,9 @@ function applyRoomSort(mode) {
 
     const btn = $('#sort-activity-btn');
     btn?.classList.add('tw-active');
+    btn?.classList.remove('tw-sort-btn--off');
+    btn?.setAttribute('data-sort-state', mode === 'oldest' ? 'asc' : 'desc');
+    btn?.setAttribute('aria-pressed', 'true');
     const dirIcon = btn?.querySelector('.tw-sort-dir-icon');
     if (dirIcon) dirIcon.className = `tw-sort-dir-icon fas fa-arrow-${mode === 'oldest' ? 'up' : 'down'}`;
     localStorage.setItem('chat-sort-mode', mode);
@@ -657,8 +663,11 @@ function resetRoomSort() {
 
     const btn = $('#sort-activity-btn');
     btn?.classList.remove('tw-active');
+    btn?.classList.add('tw-sort-btn--off');
+    btn?.setAttribute('data-sort-state', 'none');
+    btn?.setAttribute('aria-pressed', 'false');
     const dirIcon = btn?.querySelector('.tw-sort-dir-icon');
-    if (dirIcon) dirIcon.className = 'tw-sort-dir-icon fas fa-arrow-down';
+    if (dirIcon) dirIcon.className = 'tw-sort-dir-icon fas fa-sort';
     localStorage.removeItem('chat-sort-mode');
 }
 
@@ -725,7 +734,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Make function globally available for other modules
     window.updateUnreadFilter = updateUnreadFilter;
 
-    // Sort rooms by last activity — cycles: off → newest → oldest → newest…
+    // Sort rooms by last activity — cycles: off → newest → oldest → off…
     // Logika i model pozycji są na poziomie modułu (patrz sekcja "Model listy
     // pokoi"); tu pozostaje tylko okablowanie przycisków i zapisanej preferencji.
     const savedSort = localStorage.getItem('chat-sort-mode');
@@ -734,7 +743,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     $('#sort-activity-btn')?.addEventListener('click', () => {
-        applyRoomSort(roomSortMode === 'newest' ? 'oldest' : 'newest');
+        if (roomSortMode === null) applyRoomSort('newest');
+        else if (roomSortMode === 'newest') applyRoomSort('oldest');
+        else resetRoomSort();
     });
     $('#sort-reset-btn')?.addEventListener('click', resetRoomSort);
 

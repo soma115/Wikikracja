@@ -18,15 +18,15 @@ const room_template = `
   <div class="tw-chat-breadcrumb-row">
     <div class="tw-chat-breadcrumb" id="chat-breadcrumb" role="button" tabindex="0" aria-label="${_("Show room list")}" aria-expanded="false" aria-controls="room-list"></div>
     <div class="tw-chat-sort-toolbar" id="chat-sort-toolbar" role="toolbar" aria-label="${_("Sorting and filter")}">
-      <button type="button" class="tw-sort-btn tw-active" id="chat-sort-date" data-sort="date" data-order="desc">
+      <button type="button" class="tw-sort-btn tw-active" id="chat-sort-date" data-sort="date" data-order="desc" data-sort-state="desc" aria-pressed="true">
         <i class="fas fa-clock fa-fw"></i>
         <span>${_("Date")}</span>
         <i class="fas fa-arrow-down tw-sort-arrow"></i>
       </button>
-      <button type="button" class="tw-sort-btn" id="chat-sort-likes" data-sort="likes" data-order="desc">
+      <button type="button" class="tw-sort-btn tw-sort-btn--off" id="chat-sort-likes" data-sort="likes" data-order="none" data-sort-state="none" aria-pressed="false">
         <i class="fas fa-thumbs-up fa-fw"></i>
         <span>${_("Likes")}</span>
-        <i class="fas fa-arrow-down tw-sort-arrow tw-invisible"></i>
+        <i class="fas fa-sort tw-sort-arrow tw-sort-arrow--off"></i>
       </button>
       <button type="button" class="tw-sort-btn" id="chat-filter-popular" data-filter="popular">
         <i class="fas fa-fire fa-fw"></i>

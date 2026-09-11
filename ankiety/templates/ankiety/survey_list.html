@@ -81,6 +81,7 @@
                            {% if option.pk in survey.user_vote_ids %}checked{% endif %}>
                     <label class="tw-form-check-label" for="survey_{{ survey.pk }}_option_{{ option.pk }}">
                       {{ option.text }}
+                      {% if option.created_by %}<i class="fas fa-user-plus tw-text-muted tw-ms-1" title="{% trans 'Added by a participant' %}" aria-label="{% trans 'Added by a participant' %}"></i>{% endif %}
                     </label>
                   </div>
                   <span class="tw-text-nowrap tw-text-muted">{{ option.vote_count }} ({{ option.percentage|unlocalize }}%)</span>
@@ -90,7 +91,22 @@
                 <p class="tw-text-muted tw-text-sm tw-mb-0">{% trans 'No options' %}</p>
               {% endfor %}
 
-              <div class="tw-flex tw-gap-2 tw-items-center">
+              {% if survey.custom_option_form %}
+                <div class="tw-border-t tw-border-subtle tw-pt-3 tw-mt-3">
+                  <label class="tw-form-label" for="{{ survey.custom_option_form.text.id_for_label }}">{% trans 'Add your own option' %}</label>
+                  {{ survey.custom_option_form.text }}
+                  {% if survey.custom_option_form.text.errors %}
+                    <div class="tw-text-danger tw-text-sm tw-mt-1" role="alert">
+                      {% for error in survey.custom_option_form.text.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+                    </div>
+                  {% endif %}
+                  <button type="submit" name="custom_option" value="1" class="tw-btn tw-btn-sm tw-btn-outline-secondary tw-mt-2">
+                    <i class="fas fa-plus fa-fw tw-me-1"></i> {% trans 'Add option' %}
+                  </button>
+                </div>
+              {% endif %}
+
+              <div class="tw-flex tw-gap-2 tw-items-center tw-mt-3">
                 <button type="submit" class="tw-btn tw-btn-sm tw-btn-primary">
                   <i class="fas fa-check-to-slot"></i>
                   {% if survey.has_voted %}{% trans 'Change vote' %}{% else %}{% trans 'Vote' %}{% endif %}

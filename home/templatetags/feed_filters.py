@@ -23,6 +23,14 @@ def content_type_color(content_type):
 
 
 @register.filter
+def activity_text(value):
+    """Keep multiline activity text on one preview line."""
+    if not value:
+        return ''
+    return str(value).replace('\r\n', ' | ').replace('\r', ' | ').replace('\n', ' | ')
+
+
+@register.filter
 def content_type_label(content_type):
     """Return translated label for content type"""
     label_map = {

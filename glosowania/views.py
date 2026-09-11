@@ -648,7 +648,7 @@ def parameters_propose(request: HttpRequest, pk: int = None):
 
 def _apply_sort(queryset, sort, order='desc'):
     """Zastosuj sortowanie po dacie do querysetu Decyzja."""
-    return queryset.order_by('pk' if order == 'asc' else '-pk')
+    return queryset if sort == 'none' else queryset.order_by('pk' if order == 'asc' else '-pk')
 
 
 def _glosowania_toolbar_data():
@@ -658,8 +658,10 @@ def _glosowania_toolbar_data():
 
 def _sort_context(request):
     sort = request.GET.get('sort', 'date')
-    order = request.GET.get('order', 'desc')
-    if order not in ('asc', 'desc'):
+    if sort not in ('date', 'none'):
+        sort = 'date'
+    order = request.GET.get('order', 'desc') if sort != 'none' else None
+    if order not in ('asc', 'desc', None):
         order = 'desc'
     return sort, order
 

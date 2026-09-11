@@ -31,10 +31,10 @@ User = get_user_model()
 
 def _task_sort_context(request):
     sort = request.GET.get('sort', 'date')
-    if sort not in ('date', 'score', 'buzz'):
+    if sort not in ('date', 'score', 'buzz', 'none'):
         sort = 'date'
-    order = request.GET.get('order', 'desc')
-    if order not in ('asc', 'desc'):
+    order = request.GET.get('order', 'desc') if sort != 'none' else None
+    if order not in ('asc', 'desc', None):
         order = 'desc'
     tab = request.GET.get('tab', 'mine')
     if tab not in ('mine', 'awaiting', 'active', 'finished'):
@@ -79,6 +79,8 @@ def _task_list_queryset(user, categories, sort, order, search_query=''):
         qs = qs.filter(category__slug__in=categories)
     if search_query:
         qs = qs.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
+    if sort == 'none':
+        return qs
     direction = "-" if order == "desc" else ""
     return qs.order_by(direction + TASK_SORT_FIELDS[sort], *TASK_SORT_TIEBREAK)
 
@@ -156,16 +158,14 @@ def _task_toolbar_data(sort, order, tab, categories, search_query=''):
 
     sort_items = []
     for s in ("date",):
-        active = sort == s
-        next_order = "asc" if (active and order == "desc") else "desc"
-        query = f"sort={s}&order={next_order}"
+        state = order if sort == s else 'none'
+        next_state = 'asc' if state == 'none' else 'desc' if state == 'asc' else 'none'
+        query = f"sort={s}&order={next_state}" if next_state != 'none' else 'sort=none'
         if base_qs:
             query = base_qs + "&" + query
         url = reverse("tasks:list") + "?" + query
-        icon = None
-        if active:
-            icon = "up" if next_order == "desc" else "down"
-        sort_items.append({"url": url, "label": str(labels[s]), "active": active, "pre_icon": icons[s], "icon": icon})
+        icon = "up" if state == "asc" else "down" if state == "desc" else None
+        sort_items.append({"url": url, "label": str(labels[s]), "active": state != 'none', "state": state, "pre_icon": icons[s], "icon": icon})
 
     views = [{"name": "list", "icon": "list", "title": gettext_lazy("List")}, {"name": "grid", "icon": "grip", "title": gettext_lazy("Grid")}]
     return sort_items, views

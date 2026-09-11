@@ -133,7 +133,7 @@
     letter-spacing: -.01em;
     margin-bottom: 1.5rem;
   }
-  .tw-richtext-wrapper {border: 1px solid var(--input-border);
+  .tw-richtext-wrapper {border: 2px solid var(--input-border);
     border-radius: .45rem;
     background-color: var(--input-bg);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, .15);
@@ -285,6 +285,8 @@
     border-color: var(--accent-border);
     background: var(--accent-muted);
     font-weight: 500;
+  }
+  .tw-sort-btn--off .tw-sort-arrow {opacity: .45;
   }
   .tw-sort-arrow {font-size: .65rem;
     opacity: .8;
@@ -6443,13 +6445,10 @@ body.tw-chat-page .tw-main-area {
     padding: .25rem 0;
 }
 #sort-activity-btn .tw-sort-dir-icon {
-    display: none;
+    display: inline;
     font-size: .65em;
     margin-left: 1px;
     vertical-align: middle;
-}
-#sort-activity-btn.tw-active .tw-sort-dir-icon {
-    display: inline;
 }
 /* ============================================================ */
 /* TREE NAVIGATION SIDEBAR                         */

@@ -135,6 +135,7 @@
     // (e.g. [data-detail-url] card navigation) — same as the old inline
     // onclick="event.stopPropagation()".
     document.addEventListener('click', function (e) {
+        if (e.button !== 0) return;
         const stopEl = e.target.closest && e.target.closest('[data-tw-stop-propagation]');
         if (stopEl) {
             e.stopImmediatePropagation();

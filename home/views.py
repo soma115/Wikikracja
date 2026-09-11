@@ -67,8 +67,11 @@ def _build_activity_query(sort, order, is_filtered, active_types, filter_unread,
         else:
             if flag:
                 parts.append(f'{name}=1')
-    parts.append(f'sort={sort}')
-    parts.append(f'order={order}')
+    if sort == 'none':
+        parts.append('sort=none')
+    else:
+        parts.append(f'sort={sort}')
+        parts.append(f'order={order}')
     return '?' + '&'.join(parts)
 
 
@@ -114,15 +117,20 @@ def activity_page(request):
 
     # Sort
     sort = request.GET.get('sort', 'date')
-    order = request.GET.get('order', 'desc')
+    if sort not in ('date', 'none'):
+        sort = 'date'
+    order = request.GET.get('order', 'desc') if sort != 'none' else None
+    if order not in ('asc', 'desc', None):
+        order = 'desc'
     if sort == 'date':
         feed_items.sort(key=lambda x: x['timestamp'], reverse=(order == 'desc'))
 
-    next_order = "asc" if order == "desc" else "desc"
-    sort_url = _build_activity_query(sort, next_order, is_filtered, active_types, filter_unread, filter_bookmarks)
+    state = order if sort == 'date' else 'none'
+    next_state = 'asc' if state == 'none' else 'desc' if state == 'asc' else 'none'
+    sort_url = _build_activity_query('date' if next_state != 'none' else 'none', next_state if next_state != 'none' else None, is_filtered, active_types, filter_unread, filter_bookmarks)
     unread_filter_url = _build_activity_query(sort, order, is_filtered, active_types, filter_unread, filter_bookmarks, toggle='unread')
     bookmarks_filter_url = _build_activity_query(sort, order, is_filtered, active_types, filter_unread, filter_bookmarks, toggle='bookmarks')
-    toolbar_sort_items = [{"url": sort_url, "label": _("Date"), "active": True, "icon": "up" if next_order == "desc" else "down"}]
+    toolbar_sort_items = [{"url": sort_url, "label": _("Date"), "active": state != 'none', "state": state, "icon": "up" if state == "asc" else "down" if state == "desc" else None}]
     toolbar_views = [{"name": "list", "icon": "list", "title": _("List")}, {"name": "grid", "icon": "grip", "title": _("Grid")}]
 
     return render(

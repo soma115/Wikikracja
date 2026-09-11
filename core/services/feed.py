@@ -10,7 +10,7 @@ from core.models import FeedBookmark, ReadStatus
 
 log = logging.getLogger(__name__)
 
-FEED_CACHE_KEY = "feed_raw_v3"
+FEED_CACHE_KEY = "feed_raw_v4"
 FEED_CACHE_TTL = 3600
 FEED_DAYS = 90
 

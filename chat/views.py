@@ -115,11 +115,15 @@ def chat(request: HttpRequest):
     posts_tree_active = base_rooms.filter(source_app='board', archived=False).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
     posts_tree_archived = base_rooms.filter(source_app='board', archived=True).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
 
+    surveys_tree_active = base_rooms.filter(source_app='ankiety', archived=False).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
+    surveys_tree_archived = base_rooms.filter(source_app='ankiety', archived=True).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
+
     room_sections = {
         'public': (public_rooms_active, public_rooms_archived),
         'tasks': (tasks_tree_active, tasks_tree_archived),
         'votes': (votes_tree_active, votes_tree_archived),
         'documents': (posts_tree_active, posts_tree_archived),
+        'surveys': (surveys_tree_active, surveys_tree_archived),
         'private': (private_active, private_archived),
     }
     rooms = [room for groups in room_sections.values() for group in groups for room in group]
@@ -141,6 +145,8 @@ def chat(request: HttpRequest):
             'votes_tree_archived': votes_tree_archived,
             'posts_tree_active': posts_tree_active,
             'posts_tree_archived': posts_tree_archived,
+            'surveys_tree_active': surveys_tree_active,
+            'surveys_tree_archived': surveys_tree_archived,
             'private_active': private_active,
             'private_archived': private_archived,
             'chat_section_unread_counts': chat_section_unread_counts,

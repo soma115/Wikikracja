@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from ankiety.forms import SurveyForm
 from ankiety.models import Survey, SurveyOption, SurveyVote
+from chat.models import Message, Room
 
 User = get_user_model()
 
@@ -29,11 +30,34 @@ class SurveyViewsTests(TestCase):
     def test_create_survey(self):
         self.client.login(username="author", password="pass")
         future = (timezone.now() + timedelta(days=2)).strftime("%Y-%m-%dT%H:%M")
-        self.client.post(reverse("ankiety:create"), {"title": "New survey", "description": "", "end_date": future, "options_text": "Red\nBlue"})
+        self.client.post(reverse("ankiety:create"), {"title": "New survey", "description": "", "end_date": future, "options_text": "Red\nBlue", "allow_custom_options": "on"})
         self.assertEqual(Survey.objects.count(), 1)
         survey = Survey.objects.first()
         self.assertEqual(survey.author, self.author)
+        self.assertTrue(survey.allow_custom_options)
         self.assertEqual(survey.options.count(), 2)
+        self.assertEqual(survey.chat_room.title, "Survey #1: New survey")
+        self.assertEqual(survey.chat_room.source_app, "ankiety")
+
+    def test_survey_detail_embeds_chat_and_shows_unread_count(self):
+        survey = self._create_survey(self.author)
+        Message.objects.create(room=survey.chat_room, sender=self.other, text="Question")
+        self.client.login(username="author", password="pass")
+
+        response = self.client.get(reverse("ankiety:detail", args=[survey.pk]))
+
+        self.assertContains(response, f'data-room-id="{survey.chat_room.pk}"')
+        self.assertContains(response, "Chat")
+        self.assertEqual(response.context["chat_unread_count"], 2)
+
+    def test_deleting_survey_deletes_chat_room(self):
+        survey = self._create_survey(self.author)
+        room_id = survey.chat_room_id
+        self.client.login(username="author", password="pass")
+
+        self.client.post(reverse("ankiety:delete", args=[survey.pk]))
+
+        self.assertFalse(Room.objects.filter(pk=room_id).exists())
 
     def test_create_survey_shows_length_errors(self):
         self.client.login(username="author", password="pass")
@@ -45,6 +69,50 @@ class SurveyViewsTests(TestCase):
         self.assertIn("description", response.context["form"].errors)
         self.assertContains(response, 'class="tw-text-danger tw-text-sm tw-mt-1" role="alert"', count=2)
         self.assertEqual(Survey.objects.count(), 0)
+
+    def test_participant_can_add_custom_option_when_enabled(self):
+        survey = Survey.objects.create(title="Test survey", description="Description", end_date=timezone.now() + timedelta(days=1), author=self.author, allow_custom_options=True)
+        SurveyOption.objects.bulk_create([SurveyOption(survey=survey, text="Yes", order=0), SurveyOption(survey=survey, text="No", order=1)])
+
+        self.client.login(username="other", password="pass")
+        response = self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"custom_option": "1", "text": "Maybe"})
+
+        self.assertRedirects(response, reverse("ankiety:detail", args=[survey.pk]))
+        option = survey.options.get(text="Maybe")
+        self.assertEqual(option.created_by, self.other)
+        self.assertEqual(option.order, 2)
+
+        response = self.client.get(reverse("ankiety:detail", args=[survey.pk]))
+        self.assertContains(response, "fa-user-plus")
+
+    def test_participant_can_add_custom_option_from_survey_list(self):
+        survey = Survey.objects.create(title="Test survey", description="Description", end_date=timezone.now() + timedelta(days=1), author=self.author, allow_custom_options=True)
+        SurveyOption.objects.bulk_create([SurveyOption(survey=survey, text="Yes", order=0), SurveyOption(survey=survey, text="No", order=1)])
+        self.client.login(username="other", password="pass")
+
+        response = self.client.post(reverse("ankiety:list"), {"tab": "active", "survey_id": survey.pk, "custom_option": "1", f"survey-{survey.pk}-custom-text": "Maybe"})
+
+        self.assertRedirects(response, f"{reverse('ankiety:list')}?tab=active")
+        self.assertEqual(survey.options.get(text="Maybe").created_by, self.other)
+
+    def test_participant_cannot_add_custom_option_when_disabled(self):
+        survey = self._create_survey(self.author)
+        self.client.login(username="other", password="pass")
+
+        self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"custom_option": "1", "text": "Maybe"})
+
+        self.assertFalse(survey.options.filter(text="Maybe").exists())
+
+    def test_custom_option_must_be_unique(self):
+        survey = Survey.objects.create(title="Test survey", description="Description", end_date=timezone.now() + timedelta(days=1), author=self.author, allow_custom_options=True)
+        SurveyOption.objects.bulk_create([SurveyOption(survey=survey, text="Yes", order=0), SurveyOption(survey=survey, text="No", order=1)])
+        self.client.login(username="other", password="pass")
+
+        response = self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"custom_option": "1", "text": " yes "})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("text", response.context["custom_option_form"].errors)
+        self.assertEqual(survey.options.count(), 2)
 
     def test_edit_only_by_author(self):
         survey = self._create_survey(self.author)

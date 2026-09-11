@@ -11,10 +11,11 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
+from chat.services import get_unread_message_counts_for_rooms
 from core.signals import survey_created
 from core.utils import build_site_url
 
-from .forms import SurveyForm
+from .forms import CustomSurveyOptionForm, SurveyForm
 from .models import Survey, SurveyOption, SurveyVote
 
 
@@ -59,20 +60,43 @@ def _cast_vote(request, survey):
     return True
 
 
+def _create_custom_option(survey, user, text):
+    last_option = survey.options.order_by("-order", "-id").first()
+    return SurveyOption.objects.create(survey=survey, text=text, order=last_option.order + 1 if last_option else 0, created_by=user)
+
+
 @login_required
 def survey_list(request):
     tab = request.GET.get("tab", "active")
     if tab not in ("active", "finished"):
         tab = "active"
 
+    custom_option_form = None
+    custom_option_survey_id = None
     if request.method == "POST":
         survey = get_object_or_404(Survey, pk=request.POST.get("survey_id"))
-        _cast_vote(request, survey)
-        return redirect(f"{reverse('ankiety:list')}?tab={tab}")
+        if "custom_option" not in request.POST:
+            _cast_vote(request, survey)
+            return redirect(f"{reverse('ankiety:list')}?tab={tab}")
+
+        custom_option_survey_id = survey.pk
+        custom_option_form = CustomSurveyOptionForm(request.POST, survey=survey, prefix=f"survey-{survey.pk}-custom")
+        if not survey.is_active:
+            messages.error(request, _("The survey is closed and options cannot be added."))
+            return redirect(f"{reverse('ankiety:list')}?tab={tab}")
+        if not survey.allow_custom_options:
+            messages.error(request, _("Adding options is not allowed for this survey."))
+            return redirect(f"{reverse('ankiety:list')}?tab={tab}")
+        if custom_option_form.is_valid():
+            _create_custom_option(survey, request.user, custom_option_form.cleaned_data["text"])
+            messages.success(request, _("Your option has been added."))
+            return redirect(f"{reverse('ankiety:list')}?tab={tab}")
 
     now = timezone.now()
     search_query = request.GET.get("q", "").strip()
-    base_qs = Survey.objects.select_related("author").prefetch_related(Prefetch("options", queryset=SurveyOption.objects.annotate(vote_count=Count("votes")).order_by("order", "id")))
+    base_qs = Survey.objects.select_related("author").prefetch_related(
+        Prefetch("options", queryset=SurveyOption.objects.select_related("created_by").annotate(vote_count=Count("votes")).order_by("order", "id"))
+    )
     if search_query:
         base_qs = base_qs.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
 
@@ -96,6 +120,10 @@ def survey_list(request):
             survey.user_vote_ids = {survey_votes[0].option_id} if survey_votes else set()
         survey.has_voted = bool(survey.user_vote_ids)
         survey.can_edit = request.user == survey.author and survey.is_active
+        if survey.is_active and survey.allow_custom_options:
+            survey.custom_option_form = custom_option_form if survey.pk == custom_option_survey_id else CustomSurveyOptionForm(survey=survey, prefix=f"survey-{survey.pk}-custom")
+        else:
+            survey.custom_option_form = None
 
     query_suffix = f"&q={quote_plus(search_query)}" if search_query else ""
     stepper = {
@@ -155,9 +183,9 @@ def survey_edit(request, pk):
 
 @login_required
 def survey_detail(request, pk):
-    survey = get_object_or_404(Survey.objects.select_related("author").prefetch_related("options"), pk=pk)
+    survey = get_object_or_404(Survey.objects.select_related("author", "chat_room").prefetch_related("options"), pk=pk)
 
-    options = list(survey.options.annotate(vote_count=Count("votes")).order_by("order", "id"))
+    options = list(survey.options.select_related("created_by").annotate(vote_count=Count("votes")).order_by("order", "id"))
     total_votes = _compute_vote_results(options)
 
     user_votes = list(SurveyVote.objects.filter(survey=survey, user=request.user).select_related("option").order_by("-created_at"))
@@ -172,9 +200,26 @@ def survey_detail(request, pk):
         voter_choices.setdefault(v.user, []).append(v.option.text)
     voter_choices = dict(sorted(voter_choices.items(), key=lambda item: (item[0].get_full_name() or item[0].username).lower()))
 
+    custom_option_form = CustomSurveyOptionForm(survey=survey)
     if request.method == "POST":
-        _cast_vote(request, survey)
-        return redirect("ankiety:detail", pk=survey.pk)
+        if "custom_option" in request.POST:
+            custom_option_form = CustomSurveyOptionForm(request.POST, survey=survey)
+            if not survey.is_active:
+                messages.error(request, _("The survey is closed and options cannot be added."))
+                return redirect("ankiety:detail", pk=survey.pk)
+            if not survey.allow_custom_options:
+                messages.error(request, _("Adding options is not allowed for this survey."))
+                return redirect("ankiety:detail", pk=survey.pk)
+            if custom_option_form.is_valid():
+                _create_custom_option(survey, request.user, custom_option_form.cleaned_data["text"])
+                messages.success(request, _("Your option has been added."))
+                return redirect("ankiety:detail", pk=survey.pk)
+        else:
+            _cast_vote(request, survey)
+            return redirect("ankiety:detail", pk=survey.pk)
+
+    chat_unread_count = get_unread_message_counts_for_rooms(request.user, [survey.chat_room_id]).get(survey.chat_room_id, 0)
+    chat_room_pulse_class = survey.get_chat_room_pulse_class(request.user) if chat_unread_count else ""
 
     return render(
         request,
@@ -189,6 +234,11 @@ def survey_detail(request, pk):
             "has_voted": bool(user_votes),
             "can_edit": request.user == survey.author and survey.is_active,
             "is_active": survey.is_active,
+            "chat_room": survey.chat_room,
+            "chat_unread_count": chat_unread_count,
+            "chat_room_pulse_class": chat_room_pulse_class,
+            "can_post_in_chat": True,
+            "custom_option_form": custom_option_form,
         },
     )
 

@@ -17,12 +17,13 @@ class SurveyForm(forms.ModelForm):
 
     class Meta:
         model = Survey
-        fields = ["title", "description", "end_date", "allow_multiple_choice"]
+        fields = ["title", "description", "end_date", "allow_multiple_choice", "allow_custom_options"]
         widgets = {
             "title": forms.TextInput(attrs={"class": "tw-form-control"}),
             "description": RichTextWidget(placeholder=_("Describe the survey."), max_length=3000),
             "end_date": DateTimeLocalInput(attrs={"class": "tw-form-control"}),
             "allow_multiple_choice": forms.CheckboxInput(attrs={"class": "tw-form-check-input"}),
+            "allow_custom_options": forms.CheckboxInput(attrs={"class": "tw-form-check-input"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -98,3 +99,19 @@ class SurveyForm(forms.ModelForm):
 
         if to_create:
             SurveyOption.objects.bulk_create(to_create)
+
+
+class CustomSurveyOptionForm(forms.Form):
+    text = forms.CharField(max_length=200, label=_("Your option"), widget=forms.TextInput(attrs={"class": "tw-form-control", "placeholder": _("Add your own option")}))
+
+    def __init__(self, *args, survey=None, **kwargs):
+        self.survey = survey
+        super().__init__(*args, **kwargs)
+
+    def clean_text(self):
+        text = self.cleaned_data.get("text", "").strip()
+        if not text:
+            raise forms.ValidationError(_("Enter an option."))
+        if self.survey and self.survey.options.filter(text__iexact=text).exists():
+            raise forms.ValidationError(_("This option already exists."))
+        return text

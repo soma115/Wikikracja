@@ -79,9 +79,9 @@
       <div class="component-label">Toolbar w module List / Grid</div>
       <div class="tw-toolbar">
         <div class="tw-toolbar-sort">
-          <a href="#" class="tw-sort-btn tw-active"><i class="fas fa-clock-rotate-left fa-fw"></i> <span class="tw-sort-btn-label">Date</span> <i class="fas fa-arrow-down tw-sort-arrow"></i></a>
-          <a href="#" class="tw-sort-btn"><i class="fas fa-pen-nib fa-fw"></i> <span class="tw-sort-btn-label">Score</span></a>
-          <a href="#" class="tw-sort-btn"><i class="fas fa-tag fa-fw"></i> <span class="tw-sort-btn-label">Category</span></a>
+          <a href="#" class="tw-sort-btn tw-active" data-sort-state="desc" aria-pressed="true"><i class="fas fa-clock-rotate-left fa-fw"></i> <span class="tw-sort-btn-label">Date</span> <i class="fas fa-arrow-down tw-sort-arrow"></i></a>
+          <a href="#" class="tw-sort-btn tw-sort-btn--off" data-sort-state="none" aria-pressed="false"><i class="fas fa-pen-nib fa-fw"></i> <span class="tw-sort-btn-label">Score</span> <i class="fas fa-sort tw-sort-arrow tw-sort-arrow--off"></i></a>
+          <a href="#" class="tw-sort-btn tw-sort-btn--off" data-sort-state="none" aria-pressed="false"><i class="fas fa-tag fa-fw"></i> <span class="tw-sort-btn-label">Category</span> <i class="fas fa-sort tw-sort-arrow tw-sort-arrow--off"></i></a>
         </div>
         <span class="tw-toolbar-divider"></span>
         <div class="tw-toolbar-view tw-ms-auto">
@@ -95,9 +95,12 @@
         <li>Przełączniki widoku są w osobnym <code>.tw-toolbar-view</code>, z ikonami <code>fa-list</code> / <code>fa-grip</code> i etykietami <code>List</code> / <code>Grid</code>.</li>
         <li>Dane widoku: <code>{'name': 'list'|'grid', 'icon': 'list'|'grip', 'title': _('List')|_('Grid')}</code>.</li>
         <li>Sortowanie jest opcjonalne. Jeśli moduł go nie obsługuje, nie renderujemy pustych przycisków ani pustej grupy filtrów.</li>
-        <li>Przyciski sortowania mają ikonę pola + etykietę pola + opcjonalną strzałkę kierunku.</li>
+        <li>Przyciski sortowania mają ikonę pola + etykietę pola + wskaźnik stanu.</li>
+        <li>Każdy guzik ma dokładnie trzy stany i cykl: wyłączone (<code>fa-sort</code>) → rosnąco (<code>fa-arrow-up</code>) → malejąco (<code>fa-arrow-down</code>) → wyłączone.</li>
+        <li>Kliknięcie innego pola wyłącza poprzednie sortowanie i uruchamia nowe pole od stanu rosnącego. Przy wyłączonym sortowaniu źródło danych zachowuje swoją domyślną kolejność.</li>
+        <li>Stan jest dostępny także programowo przez <code>data-sort-state="none|asc|desc"</code> i <code>aria-pressed</code>.</li>
         <li>Ikona pola mówi, co jest sortowane: np. <code>fa-calendar</code> dla daty, <code>fa-user</code> dla autora, <code>fa-tag</code> dla kategorii.</li>
-        <li>Strzałka <code>fa-arrow-up</code> / <code>fa-arrow-down</code> oznacza wyłącznie kierunek i nie zastępuje ikony pola.</li>
+        <li>Strzałka <code>fa-arrow-up</code> / <code>fa-arrow-down</code> oznacza wyłącznie kierunek i nie zastępuje ikony pola; stan wyłączony pokazuje <code>fa-sort</code>.</li>
         <li>Na małych ekranach można ukryć tekst etykiety nieaktywnego guzika i pozostawić jego ikonę. Guzik nadal pozostaje widoczny.</li>
         <li>Ukrywanie całych guzików na mobile jest ostatecznością. Najpierw skracamy etykietę, ukrywamy sam tekst albo zmniejszamy odstępy.</li>
         <li>Wyszukiwarka i przełącznik List / Grid pozostają w jednej linii na mobile. Wyszukiwarka elastycznie zajmuje wolne miejsce, a przyciski widoku mają kompaktową formę.</li>
@@ -491,7 +494,7 @@
         <li>Ikony w guzikach zawsze po lewej stronie tekstu, z wyjątkiem CTA (okrągły plus bez tekstu).</li>
         <li>Ikona przed etykietą sortowania reprezentuje sortowane pole; np. <code>fa-calendar</code> — data, <code>fa-user</code> — autor, <code>fa-tag</code> — kategoria, <code>fa-pen-nib</code> — ocena.</li>
         <li>Sortowanie po czasie zawsze <code>fa-clock</code> (lub <code>fa-clock-rotate-left</code> dla daty utworzenia).</li>
-        <li>Strzałki <code>fa-arrow-up</code> / <code>fa-arrow-down</code> służą wyłącznie do wskazania kierunku sortowania.</li>
+        <li>Strzałki <code>fa-arrow-up</code> / <code>fa-arrow-down</code> służą wyłącznie do wskazania kierunku sortowania; <code>fa-sort</code> oznacza sortowanie wyłączone.</li>
         <li>Widok listy zawsze <code>fa-list</code>, widok siatki zawsze <code>fa-grip</code>.</li>
       </ul>
     </div>

@@ -52,7 +52,11 @@ class PostCategoryReorderAPI(CategoryReorderAPI):
 
 def board(request: HttpRequest) -> HttpResponse:
     sort = request.GET.get('sort', 'title')
-    order = request.GET.get('order', 'asc')
+    if sort not in ('title', 'date', 'none'):
+        sort = 'title'
+    order = request.GET.get('order', 'asc') if sort != 'none' else None
+    if order not in ('asc', 'desc', None):
+        order = 'asc'
     search_query = request.GET.get('q', '').strip()
     reverse_order = order == 'desc'
 
@@ -87,30 +91,46 @@ def board(request: HttpRequest) -> HttpResponse:
             return p.updated
         return (p.title or '').lower()
 
+    def sort_posts(posts):
+        return posts if sort == 'none' else sorted(posts, key=sort_key, reverse=reverse_order)
+
     category_groups = []
     for cat in categories:
         cat_posts = posts_by_cat.get(cat.pk, [])
         if cat_posts:
-            sorted_posts = sorted(cat_posts, key=sort_key, reverse=reverse_order)
-            category_groups.append({'category': cat, 'posts': sorted_posts})
+            category_groups.append({'category': cat, 'posts': sort_posts(cat_posts)})
     if uncategorized:
-        sorted_uncategorized = sorted(uncategorized, key=sort_key, reverse=reverse_order)
-        category_groups.append({'category': None, 'posts': sorted_uncategorized})
+        category_groups.append({'category': None, 'posts': sort_posts(uncategorized)})
 
-    next_order = "asc" if order == "desc" else "desc"
     cat_query = "".join(f"&category={pk}" for pk in active_categories)
     search_query_param = f"&q={quote_plus(search_query)}" if search_query else ""
 
-    if sort == 'date':
-        title_url = reverse("board:start") + f"?sort=title&order=asc{cat_query}{search_query_param}"
-        date_url = reverse("board:start") + f"?sort=date&order={next_order}{cat_query}{search_query_param}"
-    else:
-        title_url = reverse("board:start") + f"?sort=title&order={next_order}{cat_query}{search_query_param}"
-        date_url = reverse("board:start") + f"?sort=date&order=desc{cat_query}{search_query_param}"
+    def sort_url(field, state):
+        query = f"sort={field}&order={state}" if state != 'none' else "sort=none"
+        return reverse("board:start") + f"?{query}{cat_query}{search_query_param}"
+
+    def item_state(field):
+        return order if sort == field else 'none'
+
+    def next_state(field):
+        state = item_state(field)
+        return 'asc' if state == 'none' else 'desc' if state == 'asc' else 'none'
 
     toolbar_sort_items = [
-        {"url": title_url, "label": gettext_lazy("A-Z"), "active": sort == 'title', "icon": "up" if (sort == 'title' and order == 'asc') or sort != 'title' else "down"},
-        {"url": date_url, "label": gettext_lazy("Date"), "active": sort == 'date', "icon": "down" if (sort == 'date' and order == 'desc') or sort != 'date' else "up"},
+        {
+            "url": sort_url('title', next_state('title')),
+            "label": gettext_lazy("A-Z"),
+            "active": sort == 'title',
+            "state": item_state('title'),
+            "icon": "up" if item_state('title') == 'asc' else "down" if item_state('title') == 'desc' else None,
+        },
+        {
+            "url": sort_url('date', next_state('date')),
+            "label": gettext_lazy("Date"),
+            "active": sort == 'date',
+            "state": item_state('date'),
+            "icon": "up" if item_state('date') == 'asc' else "down" if item_state('date') == 'desc' else None,
+        },
     ]
     toolbar_views = [{"name": "list", "icon": "list", "title": gettext_lazy("List")}, {"name": "grid", "icon": "grip", "title": gettext_lazy("Grid")}]
 

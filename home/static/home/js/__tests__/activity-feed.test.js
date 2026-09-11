@@ -117,6 +117,48 @@ describe('activity feed interactions', () => {
         }));
     });
 
+    test('middle-click opens a feed row in a new tab without marking it read', () => {
+        const { row } = createActivityRow(false, false);
+        row.setAttribute('data-url', '/post/42/');
+        window.initActivityFeedMarkRead('#activity-list', '.tw-feed-row');
+        const open = jest.spyOn(window, 'open').mockImplementation(() => null);
+
+        row.dispatchEvent(new MouseEvent('auxclick', {
+            bubbles: true,
+            cancelable: true,
+            button: 1,
+        }));
+
+        expect(open).toHaveBeenCalledWith('/post/42/', '_blank', 'noopener,noreferrer');
+        expect(window.apiFetch).not.toHaveBeenCalled();
+        open.mockRestore();
+    });
+
+    test('middle-click opens a detail card in a new tab', () => {
+        document.body.innerHTML = `
+            <div data-detail-url="/tasks/42/" role="link">
+                <span>Task</span>
+            </div>
+        `;
+        window.WK_SEARCH_KEYS = { QUERY: 'test-query' };
+        window.matchMedia = jest.fn(() => ({
+            matches: false,
+            addEventListener: jest.fn(),
+        }));
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+        const card = document.querySelector('[data-detail-url]');
+        const open = jest.spyOn(window, 'open').mockImplementation(() => null);
+
+        card.dispatchEvent(new MouseEvent('auxclick', {
+            bubbles: true,
+            cancelable: true,
+            button: 1,
+        }));
+
+        expect(open).toHaveBeenCalledWith('/tasks/42/', '_blank', 'noopener,noreferrer');
+        open.mockRestore();
+    });
+
     test('toggle read updates data attribute and icon', async () => {
         window.MARK_AS_READ_URL = '/mark-as-read/';
         window.MARK_UNREAD_URL = '/mark-unread/';

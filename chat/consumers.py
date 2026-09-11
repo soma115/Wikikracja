@@ -208,9 +208,9 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def fetch_messages(self, proxy: HandledMessage, room_id, sort_by='date', order='desc', popular_only=False):
         room = await self.repo.get_room_or_error(room_id)
 
-        if sort_by not in ('date', 'likes'):
+        if sort_by not in ('date', 'likes', None):
             sort_by = 'date'
-        if order not in ('asc', 'desc'):
+        if order not in ('asc', 'desc', None):
             order = 'desc'
         popular_only = bool(popular_only)
 

@@ -9,6 +9,7 @@ class AnkietyConfig(AppConfig):
     def ready(self):
         from django.db.models.signals import post_delete, post_save
 
+        import ankiety.signals  # noqa: F401
         from core.dashboard_registry import register_dashboard_provider
         from core.feed_registry import register_feed_provider
         from core.models import ReadStatus

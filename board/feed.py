@@ -14,6 +14,7 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
             {
                 'content_type': 'post',
                 'title': post.title,
+                'subtitle': post.subtitle,
                 'description': plain_text(post.text, 125),
                 'author': post.author,
                 'timestamp': post.updated,

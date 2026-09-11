@@ -229,8 +229,8 @@ export default class WsApi {
     /**
      * Re-fetches messages with given sort/filter parameters (server-side).
      * @param {number} room_id
-     * @param {string} sort_by - 'date' | 'likes'
-     * @param {string} order - 'asc' | 'desc'
+     * @param {string|null} sort_by - 'date' | 'likes' | null (default order)
+     * @param {string|null} order - 'asc' | 'desc' | null
      * @param {boolean} popular_only
      */
     fetchMessages(room_id, sort_by = 'date', order = 'desc', popular_only = false) {

@@ -545,7 +545,9 @@ class ChatRepository:
     def get_recent_messages_batch(self, room_id, user_id, limit=100, sort_by='date', order='desc', popular_only=False, include_voters=False):
         qs = Message.objects.filter(room=room_id).select_related('sender', 'reply_to__sender').prefetch_related(Prefetch('attachments', queryset=MessageAttachment.objects.all()), 'messagehistory')
 
-        if sort_by == 'date' and not popular_only:
+        if sort_by is None and not popular_only:
+            messages = list(qs[:limit])
+        elif sort_by == 'date' and not popular_only:
             # Fast path: DB handles ORDER BY + LIMIT using the (room, time) index
             db_order = 'time' if order == 'asc' else '-time'
             messages = list(qs.order_by(db_order)[:limit])
@@ -566,11 +568,12 @@ class ChatRepository:
             if popular_only:
                 all_messages = [msg for msg in all_messages if msg.upvotes >= 1]
 
-            reverse = order == 'desc'
-            if sort_by == 'likes':
-                all_messages.sort(key=lambda m: (m.upvotes, m.time), reverse=reverse)
-            else:
-                all_messages.sort(key=lambda m: m.time, reverse=reverse)
+            if sort_by is not None:
+                reverse = order == 'desc'
+                if sort_by == 'likes':
+                    all_messages.sort(key=lambda m: (m.upvotes, m.time), reverse=reverse)
+                else:
+                    all_messages.sort(key=lambda m: m.time, reverse=reverse)
 
             messages = all_messages[:limit]
             if sort_by == 'date' and order == 'desc':

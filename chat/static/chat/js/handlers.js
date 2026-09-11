@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const globalArchiveBtn = document.getElementById('archive-toggle-global-btn');
-    const archiveSectionIds = ['pub-rooms-archive', 'tasks-archive', 'votes-archive', 'documents-archive', 'prv-archive'];
+    const archiveSectionIds = ['pub-rooms-archive', 'tasks-archive', 'votes-archive', 'documents-archive', 'surveys-archive', 'prv-archive'];
 
     function setArchivesVisible(visible) {
         archiveSectionIds.forEach(targetId => {
@@ -518,6 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // #chat-breadcrumb: on mobile acts as a back button to the room list.
     document.addEventListener('click', (e) => {
+        if (e.button !== 0) return;
         const bc = closestBreadcrumb(e.target);
         if (!bc) return;
         if (mobileMedia.matches) navigateToRoomList();
@@ -527,6 +528,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // w odsłonięty pasek pokoju po lewej zamyka listę. Capture — przechwytuje
     // klik zanim zadziałają linki/przyciski/podgląd obrazków pod spodem.
     document.addEventListener('click', (e) => {
+        if (e.button !== 0) return;
         if (!mobileMedia.matches) return;
         if (!chatRoomsEl?.classList.contains('tw-room-list-showing')) return;
         if (!e.target.closest('.tw-chat-root-messages')) return;

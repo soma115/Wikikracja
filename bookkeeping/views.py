@@ -182,32 +182,52 @@ class PartnerListView(BookkeepingListView):
         order = self.request.GET.get('order', 'asc')
         search_query = self.request.GET.get('q', '').strip()
         allowed = ['name', 'city', 'country', 'web_page', 'notes']
-        if sort not in allowed:
+        if sort not in [*allowed, 'none']:
             sort = 'name'
+        if sort == 'none':
+            order = None
+        elif order not in ('asc', 'desc'):
+            order = 'asc'
         prefix = '-' if order == 'desc' else ''
         queryset = Partner.objects.all()
         if search_query:
             queryset = queryset.filter(
                 Q(name__icontains=search_query) | Q(city__icontains=search_query) | Q(country__icontains=search_query) | Q(web_page__icontains=search_query) | Q(notes__icontains=search_query)
             )
-        return queryset.order_by(f'{prefix}{sort}')
+        return queryset if sort == 'none' else queryset.order_by(f'{prefix}{sort}')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         current_sort = self.request.GET.get('sort', 'name')
         current_order = self.request.GET.get('order', 'asc')
+        fields = (('name', _('Name')), ('city', _('City')), ('web_page', _('Web Page')), ('notes', _('Notes')))
+        if current_sort not in [field for field, _ in fields] + ['none']:
+            current_sort = 'name'
+        if current_sort == 'none':
+            current_order = None
+        elif current_order not in ('asc', 'desc'):
+            current_order = 'asc'
         search_query = self.request.GET.get('q', '').strip()
         query_suffix = f'&q={quote_plus(search_query)}' if search_query else ''
         context['current_sort'] = current_sort
         context['current_order'] = current_order
+
+        def state(field):
+            return current_order if current_sort == field else 'none'
+
+        def next_state(field):
+            current = state(field)
+            return 'asc' if current == 'none' else 'desc' if current == 'asc' else 'none'
+
         context['toolbar_sort_items'] = [
             {
-                'url': f'?sort={field}&order={"desc" if current_sort == field and current_order == "asc" else "asc"}{query_suffix}',
+                'url': f'?sort={field}&order={next_state(field)}{query_suffix}' if next_state(field) != 'none' else f'?sort=none{query_suffix}',
                 'label': label,
                 'active': current_sort == field,
-                'icon': 'up' if current_sort == field and current_order == 'asc' else 'down' if current_sort == field else None,
+                'state': state(field),
+                'icon': 'up' if state(field) == 'asc' else 'down' if state(field) == 'desc' else None,
             }
-            for field, label in (('name', _('Name')), ('city', _('City')), ('web_page', _('Web Page')), ('notes', _('Notes')))
+            for field, label in fields
         ]
         return context
 

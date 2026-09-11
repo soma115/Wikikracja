@@ -31,6 +31,19 @@ def test_activity_page_renders_read_toggle_buttons(client, activity_user):
 
 
 @pytest.mark.django_db
+def test_activity_documents_show_subtitle_without_content(client, activity_user):
+    client.force_login(activity_user)
+    post = PostFactory(author=activity_user, title='Activity document', subtitle='Document subtitle', text='<p>Document content that must stay hidden</p>')
+    Post.objects.filter(pk=post.pk).update(updated=timezone.now())
+
+    response = client.get(reverse('activity'))
+    content = response.content.decode()
+
+    assert 'Document subtitle' in content
+    assert 'Document content that must stay hidden' not in content
+
+
+@pytest.mark.django_db
 def test_mark_as_read_and_unread_endpoints_work_for_post(client, activity_user):
     client.force_login(activity_user)
     category = PostCategoryFactory()
@@ -53,7 +66,11 @@ def test_activity_shows_each_chat_message_as_separate_item(client, activity_user
     client.force_login(activity_user)
     other = UserFactory(username='activity_other', email='activity_other@example.com')
     room = Room.objects.create(title='Activity test inbox', public=True)
-    messages = [Message.objects.create(room=room, sender=other, text=f'Message {i}') for i in range(3)]
+    messages = [
+        Message.objects.create(room=room, sender=other, text='Message 0\nContinuation'),
+        Message.objects.create(room=room, sender=other, text='Message 1'),
+        Message.objects.create(room=room, sender=other, text='Message 2'),
+    ]
 
     response = client.get(reverse('activity'))
     content = response.content.decode()
@@ -63,6 +80,7 @@ def test_activity_shows_each_chat_message_as_separate_item(client, activity_user
     assert room.title in content
     assert f'Messages in {room.title}' not in content
     assert f'- <strong>{other.username}:' not in content
+    assert 'Message 0 | Continuation' in content
     assert 'chat-message-count' not in content
 
 

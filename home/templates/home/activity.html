@@ -11,7 +11,7 @@
   <form method="get" action="{% url 'activity' %}" id="activity-filter-form" class="tw-toolbar tw-mb-1 tw-flex-wrap">
     <input type="hidden" name="filtered" value="1">
     <input type="hidden" name="sort" value="{{ sort }}">
-    <input type="hidden" name="order" value="{{ order }}">
+    {% if order %}<input type="hidden" name="order" value="{{ order }}">{% endif %}
     {% if filter_unread %}<input type="hidden" name="unread" value="1">{% endif %}
     {% if filter_bookmarks %}<input type="hidden" name="bookmarks" value="1">{% endif %}
     <div class="tw-toolbar-sort tw-flex-wrap tw-gap-35">
@@ -87,8 +87,12 @@
               <i class="fas {% if item.is_read %}fa-eye-slash{% else %}fa-eye{% endif %}"></i>
             </span>
           </div>
-          {% if item.description and item.content_type != 'event' %}
-          <div class="tw-feed-desc">{{ item.description|linebreaksbr }}</div>
+          {% if item.content_type == 'post' %}
+            {% if item.subtitle %}
+            <div class="tw-feed-desc">{{ item.subtitle|activity_text }}</div>
+            {% endif %}
+          {% elif item.description and item.content_type != 'event' %}
+          <div class="tw-feed-desc">{{ item.description|activity_text }}</div>
           {% endif %}
         </div>
 

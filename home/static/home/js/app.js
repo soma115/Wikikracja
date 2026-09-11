@@ -294,10 +294,16 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     /* ── nawigacja kafelków do szczegółów ── */
     document.addEventListener('click', function(e) {
-        if (e.target.closest('a, button')) return;
+        if (e.button !== 0 || e.target.closest('a, button')) return;
         var card = e.target.closest('[data-detail-url]');
         if (!card) return;
         window.location.href = card.dataset.detailUrl;
+    });
+    document.addEventListener('auxclick', function(e) {
+        if (e.button !== 1 || e.target.closest('a, button')) return;
+        var card = e.target.closest('[data-detail-url]');
+        if (!card) return;
+        window.open(card.dataset.detailUrl, '_blank', 'noopener,noreferrer');
     });
     document.addEventListener('keydown', function(e) {
         if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -644,6 +650,7 @@ window.initActivityFeedMarkRead = function(containerSelector, linkSelector) {
     if (!container) return;
 
     container.addEventListener('click', function(e) {
+        if (e.button !== 0) return;
         // Don't navigate when the user clicked the read/unread toggle.
         if (e.target.closest('.tw-feed-toggle')) return;
 
@@ -666,6 +673,13 @@ window.initActivityFeedMarkRead = function(containerSelector, linkSelector) {
         }).finally(function() {
             window.location.href = url;
         });
+    });
+
+    container.addEventListener('auxclick', function(e) {
+        if (e.button !== 1 || e.target.closest('a, button, .tw-feed-toggle')) return;
+        var link = e.target.closest(linkSelector);
+        var url = link && (link.getAttribute('href') || link.getAttribute('data-url'));
+        if (url) window.open(url, '_blank', 'noopener,noreferrer');
     });
 };
 
@@ -762,6 +776,7 @@ window.initActivityFeedToggleRead = function(containerSelector) {
     }
 
     container.addEventListener('click', function(e) {
+        if (e.button !== 0) return;
         var btn = e.target.closest('.tw-feed-toggle[data-is-read]');
         if (!btn) return;
         e.preventDefault();
@@ -828,6 +843,7 @@ window.initActivityFeedToggleBookmark = function(containerSelector) {
     }
 
     container.addEventListener('click', function(e) {
+        if (e.button !== 0) return;
         var btn = e.target.closest('.tw-feed-toggle[data-is-bookmarked]');
         if (!btn) return;
         e.preventDefault();
@@ -872,7 +888,7 @@ function hasSelectedTextInside(container) {
 }
 
 document.addEventListener('click', function(e) {
-    if (e.target.closest('a, button')) return;
+    if (e.button !== 0 || e.target.closest('a, button')) return;
     const el = e.target.closest('.tw-expandable');
     if (!el?.classList.contains('tw-has-overflow')) return;
     const body = el.querySelector('.tw-expandable-body');
@@ -1001,6 +1017,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     circles.forEach(function (circle) {
         circle.addEventListener('click', function (e) {
+            if (e.button !== 0) return;
             e.preventDefault();
             e.stopPropagation();
             var linkId = parseInt(circle.dataset.linkId);
@@ -1009,7 +1026,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.querySelectorAll('.tw-quick-link-row a').forEach(function (link) {
-        link.addEventListener('mousedown', function () {
+        link.addEventListener('mousedown', function (e) {
+            if (e.button !== 0) return;
             var row = link.closest('.tw-quick-link-row');
             if (!row) return;
             var circle = row.querySelector('.tw-quick-link-circle');

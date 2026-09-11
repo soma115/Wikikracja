@@ -27,8 +27,11 @@ def tasks_stepper(context):
         params = []
         if tab:
             params.append(('tab', tab))
-        params.append(('sort', current_sort))
-        params.append(('order', current_order))
+        if current_sort == 'none':
+            params.append(('sort', 'none'))
+        else:
+            params.append(('sort', current_sort))
+            params.append(('order', current_order))
         for c in current_categories:
             params.append(('category', c))
         return f"{url}?{urlencode(params)}"

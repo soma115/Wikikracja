@@ -949,6 +949,10 @@ small,
   font-weight: 500;
 }
 
+.tw-sort-btn--off .tw-sort-arrow {
+  opacity: .45;
+}
+
 .tw-sort-arrow {
   font-size: .65rem;
   opacity: .8;
@@ -9119,14 +9123,10 @@ body.tw-chat-page .tw-main-area {
 }
 
 #sort-activity-btn .tw-sort-dir-icon {
-  display: none;
+  display: inline;
   font-size: .65em;
   margin-left: 1px;
   vertical-align: middle;
-}
-
-#sort-activity-btn.tw-active .tw-sort-dir-icon {
-  display: inline;
 }
 
 /* ============================================================ */
@@ -10011,10 +10011,6 @@ body.tw-chat-page .tw-main-area {
 
 .tw-visible {
   visibility: visible;
-}
-
-.tw-invisible {
-  visibility: hidden;
 }
 
 .tw-collapse {

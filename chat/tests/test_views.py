@@ -62,6 +62,18 @@ class ChatViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(post.chat_room, response.context["posts_tree_active"])
 
+    def test_chat_view_includes_survey_rooms(self):
+        survey_room = Room.objects.create(title="Survey #1: Feedback", source_app="ankiety", source_object_id=1, protected=True)
+        survey_room.allowed.add(self.user)
+
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("chat:chat"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(survey_room, response.context["surveys_tree_active"])
+        self.assertContains(response, 'data-category="surveys"')
+        self.assertContains(response, 'data-room-kind="survey"')
+
     def test_add_room_get_requires_login(self):
         response = self.client.get(reverse("chat:add_room"))
         self.assertEqual(response.status_code, 302)

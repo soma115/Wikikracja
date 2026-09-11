@@ -4,10 +4,10 @@
   <div class="tw-toolbar-group tw-toolbar-group-filters">
     <div class="tw-toolbar-sort">
       {% for item in sort_items %}
-      <a href="{{ item.url }}" class="tw-sort-btn{% if item.active %} tw-active{% endif %}">
+      <a href="{{ item.url }}" class="tw-sort-btn{% if item.active %} tw-active{% else %} tw-sort-btn--off{% endif %}" data-sort-state="{{ item.state|default:'none' }}" aria-pressed="{% if item.active %}true{% else %}false{% endif %}"{% if item.title %} title="{{ item.title }}"{% endif %}>
         {% if item.pre_icon %}<i class="fas fa-{{ item.pre_icon }} fa-fw tw-me-1"></i>{% else %}<i class="fas fa-sort fa-fw tw-me-1"></i>{% endif %}
         <span class="tw-sort-btn-label">{{ item.label }}</span>
-        {% if item.icon %}<i class="fas fa-arrow-{{ item.icon }} tw-sort-arrow"></i>{% endif %}
+        <i class="fas {% if item.icon %}fa-arrow-{{ item.icon }}{% else %}fa-sort{% endif %} tw-sort-arrow{% if not item.icon %} tw-sort-arrow--off{% endif %}"></i>
       </a>
       {% endfor %}
 
