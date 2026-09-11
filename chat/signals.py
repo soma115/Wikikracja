@@ -123,6 +123,14 @@ def create_one2one_rooms(sender, **kwargs):
     Room.create_all_one2one_rooms()
 
 
+@receiver(citizen_accepted)
+def add_citizen_to_public_rooms(sender, user, **kwargs):
+    """Grant a newly accepted citizen access to existing public rooms."""
+    room_ids = Room.objects.filter(public=True).values_list('id', flat=True)
+    membership_model = Room.allowed.through
+    membership_model.objects.bulk_create([membership_model(room_id=room_id, user_id=user.pk) for room_id in room_ids], ignore_conflicts=True)
+
+
 @receiver(citizen_deleted)
 def cleanup_user_chat_rooms(sender, user, **kwargs):
     """Clean up chat rooms after a citizen is deleted.

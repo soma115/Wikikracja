@@ -7,8 +7,6 @@ Pokaż mi co zamierzasz zrobić przed zmianami w kodzie.
 
 # DROBNE
 
-
-
 # OGÓLNE
 
 - widok szczegułów wszędzie zrobić standardowo

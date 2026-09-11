@@ -1,5 +1,6 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
+from django.views.generic import RedirectView
 
 from . import views
 
@@ -11,7 +12,8 @@ urlpatterns = [
     path('toggle-bookmark/', views.toggle_bookmark, name='toggle_bookmark'),
     path('save-filter-state/', views.save_filter_state, name='save_filter_state'),
     path('aktywnosc/', views.activity_page, name='activity'),
-    path('site-settings/', views.site_admin, name='site_admin'),
+    path('ustawienia-grupy/', views.group_settings, name='group_settings'),
+    path('site-settings/', RedirectView.as_view(pattern_name='group_settings', permanent=True), name='legacy_site_settings'),
     path('search/', views.global_search, name='search'),
     path('link-titles/', views.link_titles, name='link_titles'),
     # reset password

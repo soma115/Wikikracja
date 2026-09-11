@@ -3,12 +3,14 @@ import tempfile
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
+from django.urls import reverse
 from django.utils import timezone
 
 from bookkeeping.models import Asset
 from core.models import ReadStatus
 from glosowania.models import Decyzja
 from home.services.dashboard import build_dashboard_context
+from site_settings.models import QuickLink
 from tests.factories import UserFactory
 
 
@@ -122,3 +124,23 @@ def test_home_renders_featured_documents_tile(dashboard_user, client):
             assert response.status_code == 200
             assert 'featured-docs-carousel' in content
             assert 'Featured doc' in content
+
+
+@pytest.mark.django_db
+def test_group_settings_uses_public_name_and_handles_invalid_reorder(dashboard_user, client):
+    client.force_login(dashboard_user)
+
+    response = client.get(reverse('group_settings'))
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert 'Ustawienia grup' in content or 'Ustawienia grupy' in content or 'Group settings' in content
+    assert 'Administracja strony i ustawień globalnych' not in content
+
+    legacy = client.get('/site-settings/')
+    assert legacy.status_code == 301
+    assert legacy.url.endswith('/ustawienia-grupy/')
+
+    before_count = QuickLink.objects.count()
+    invalid = client.post(reverse('group_settings'), {'reorder_quick_links': '1', 'order': '{invalid'})
+    assert invalid.status_code == 400
+    assert QuickLink.objects.count() == before_count

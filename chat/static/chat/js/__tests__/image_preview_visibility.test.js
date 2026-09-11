@@ -119,3 +119,12 @@ test('initial message template safely renders attachment filenames', () => {
     });
     expectSafeImage(document.querySelector('.tw-attached-image'), unsafeFilename);
 });
+
+test('initial message template marks messages unread on entry with the accent class', () => {
+    document.body.innerHTML = renderMessage({
+        own: false, unread_on_entry: true, message_id: 2, room_id: 1, reply_to: null,
+        attachments: {}, raw_message: '', message: 'Unread', username: 'user', latest_ts: '',
+        edited: false, upvotes: 0, downvotes: 0, type: 'private', your_reactions: [], reactions: {}, read_by: [],
+    });
+    expect(document.querySelector('.tw-chat-message').classList.contains('tw-chat-message--unread-on-entry')).toBe(true);
+});

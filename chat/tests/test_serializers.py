@@ -61,6 +61,11 @@ class BuildChatMessagePayloadTest(TestCase):
         payload = build_chat_message_payload(self.base_event, user=self.sender, vote_value=None, current_user=self.viewer, your_reactions=["bulb"])
         self.assertEqual(payload["your_reactions"], ["bulb"])
 
+    def test_payload_preserves_unread_entry_state(self):
+        event = {**self.base_event, "read_by_current_user": False}
+        payload = build_chat_message_payload(event, user=self.sender, vote_value=None, current_user=self.viewer)
+        self.assertFalse(payload["read_by_current_user"])
+
     def test_new_forced_to_false_when_current_user_is_author(self):
         payload = build_chat_message_payload(self.base_event, user=self.sender, vote_value=None, current_user=self.sender)
         self.assertFalse(payload["new"])

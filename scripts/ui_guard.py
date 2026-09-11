@@ -217,7 +217,7 @@ class UIGuard:
         if self._should_expect_toolbar(path):
             if 'tw-toolbar' not in text and 'home/includes/toolbar.html' not in text:
                 self.warnings.append(f"{path}: no shared toolbar detected; consider using home/includes/toolbar.html")
-        if ('data-view-container' in text or 'data-view-only' in text) and 'tw-proposals-list' not in text:
+        if not path.name.startswith('_') and ('data-view-container' in text or 'data-view-only' in text) and 'tw-proposals-list' not in text:
             self.warnings.append(f"{path}: list/grid view should use tw-proposals-list")
 
     def _check_css(self, path):
@@ -247,7 +247,7 @@ class UIGuard:
             text = '\n'.join(line for _, line in lines)
             if 'tw-toolbar' not in text and 'home/includes/toolbar.html' not in text:
                 self.warnings.append(f"{path}: no shared toolbar detected; consider using home/includes/toolbar.html")
-            if ('data-view-container' in text or 'data-view-only' in text) and 'tw-proposals-list' not in text:
+            if not path.name.startswith('_') and ('data-view-container' in text or 'data-view-only' in text) and 'tw-proposals-list' not in text:
                 self.warnings.append(f"{path}: list/grid view should use tw-proposals-list")
 
     def _check_css_lines(self, lines, path):

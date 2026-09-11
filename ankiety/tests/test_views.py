@@ -49,6 +49,8 @@ class SurveyViewsTests(TestCase):
         self.assertContains(response, f'data-room-id="{survey.chat_room.pk}"')
         self.assertContains(response, "Chat")
         self.assertEqual(response.context["chat_unread_count"], 2)
+        self.assertTrue(response.context["ec_translations"])
+        self.assertEqual(response.context["MESSAGE_MAX_LENGTH"], 1500)
 
     def test_deleting_survey_deletes_chat_room(self):
         survey = self._create_survey(self.author)
@@ -198,6 +200,16 @@ class SurveyViewsTests(TestCase):
         self.assertEqual(SurveyVote.objects.filter(survey=survey).count(), 1)
         vote = SurveyVote.objects.get(survey=survey, user=self.other)
         self.assertEqual(vote.option, second_option)
+
+    def test_duplicate_option_ids_are_rejected(self):
+        survey = Survey.objects.create(title="Multiple choice", description="Description", end_date=timezone.now() + timedelta(days=1), author=self.author, allow_multiple_choice=True)
+        SurveyOption.objects.bulk_create([SurveyOption(survey=survey, text="Yes", order=0), SurveyOption(survey=survey, text="No", order=1)])
+        self.client.login(username="other", password="pass")
+
+        response = self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"option": [survey.options.get(text="Yes").pk, survey.options.get(text="Yes").pk]})
+
+        self.assertRedirects(response, reverse("ankiety:detail", args=[survey.pk]))
+        self.assertFalse(SurveyVote.objects.filter(survey=survey, user=self.other).exists())
 
     def test_cannot_vote_after_end(self):
         survey = self._create_survey(self.author, end_delta=timedelta(days=-1))

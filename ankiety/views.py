@@ -1,5 +1,6 @@
 from urllib.parse import quote_plus
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -11,6 +12,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
+from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unread_message_counts_for_rooms
 from core.signals import survey_created
 from core.utils import build_site_url
@@ -39,6 +41,10 @@ def _cast_vote(request, survey):
         option_id = request.POST.get("option")
         option_ids = [option_id] if option_id else []
 
+    if len(option_ids) != len(set(option_ids)):
+        messages.error(request, _("Invalid option selected."))
+        return False
+
     if not option_ids:
         with transaction.atomic():
             deleted = SurveyVote.objects.filter(survey=survey, user=request.user).delete()[0]
@@ -61,8 +67,13 @@ def _cast_vote(request, survey):
 
 
 def _create_custom_option(survey, user, text):
-    last_option = survey.options.order_by("-order", "-id").first()
-    return SurveyOption.objects.create(survey=survey, text=text, order=last_option.order + 1 if last_option else 0, created_by=user)
+    """Create an option while serializing duplicate checks per survey."""
+    with transaction.atomic():
+        locked_survey = Survey.objects.select_for_update().get(pk=survey.pk)
+        if locked_survey.options.filter(text__iexact=text).exists():
+            return None
+        last_option = locked_survey.options.order_by("-order", "-id").first()
+        return SurveyOption.objects.create(survey=locked_survey, text=text, order=last_option.order + 1 if last_option else 0, created_by=user)
 
 
 @login_required
@@ -88,9 +99,12 @@ def survey_list(request):
             messages.error(request, _("Adding options is not allowed for this survey."))
             return redirect(f"{reverse('ankiety:list')}?tab={tab}")
         if custom_option_form.is_valid():
-            _create_custom_option(survey, request.user, custom_option_form.cleaned_data["text"])
-            messages.success(request, _("Your option has been added."))
-            return redirect(f"{reverse('ankiety:list')}?tab={tab}")
+            option = _create_custom_option(survey, request.user, custom_option_form.cleaned_data["text"])
+            if option is None:
+                messages.error(request, _("This option already exists."))
+            else:
+                messages.success(request, _("Your option has been added."))
+                return redirect(f"{reverse('ankiety:list')}?tab={tab}")
 
     now = timezone.now()
     search_query = request.GET.get("q", "").strip()
@@ -211,9 +225,12 @@ def survey_detail(request, pk):
                 messages.error(request, _("Adding options is not allowed for this survey."))
                 return redirect("ankiety:detail", pk=survey.pk)
             if custom_option_form.is_valid():
-                _create_custom_option(survey, request.user, custom_option_form.cleaned_data["text"])
-                messages.success(request, _("Your option has been added."))
-                return redirect("ankiety:detail", pk=survey.pk)
+                option = _create_custom_option(survey, request.user, custom_option_form.cleaned_data["text"])
+                if option is None:
+                    messages.error(request, _("This option already exists."))
+                else:
+                    messages.success(request, _("Your option has been added."))
+                    return redirect("ankiety:detail", pk=survey.pk)
         else:
             _cast_vote(request, survey)
             return redirect("ankiety:detail", pk=survey.pk)
@@ -238,6 +255,8 @@ def survey_detail(request, pk):
             "chat_unread_count": chat_unread_count,
             "chat_room_pulse_class": chat_room_pulse_class,
             "can_post_in_chat": True,
+            "MESSAGE_MAX_LENGTH": settings.MESSAGE_MAX_LENGTH,
+            "ec_translations": get_chat_translations(),
             "custom_option_form": custom_option_form,
         },
     )

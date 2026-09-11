@@ -109,8 +109,6 @@ jobs:
   ui-guard:
     name: UI unification guard
     runs-on: ubuntu-latest
-    # Allowed to fail while historical UI debt is being reduced; review the log.
-    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4

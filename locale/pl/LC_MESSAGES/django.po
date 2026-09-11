@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-11 17:18+0200\n"
+"POT-Creation-Date: 2026-09-11 18:45+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -62,24 +62,24 @@ msgstr "Wprowadź przynajmniej 2 opcje."
 msgid "Each option must be unique."
 msgstr "Każda opcja musi być unikalna."
 
-#: .\ankiety\forms.py:107
+#: .\ankiety\forms.py:105
 #, fuzzy
 #| msgid "No options"
 msgid "Your option"
 msgstr "Brak opcji."
 
-#: .\ankiety\forms.py:108 .\ankiety\templates\ankiety\survey_detail.html:102
+#: .\ankiety\forms.py:105 .\ankiety\templates\ankiety\survey_detail.html:102
 #: .\ankiety\templates\ankiety\survey_list.html:96
 msgid "Add your own option"
 msgstr ""
 
-#: .\ankiety\forms.py:118
+#: .\ankiety\forms.py:114
 #, fuzzy
 #| msgid "Enter at least 2 options."
 msgid "Enter an option."
 msgstr "Wprowadź przynajmniej 2 opcje."
 
-#: .\ankiety\forms.py:120
+#: .\ankiety\forms.py:116 .\ankiety\views.py:104 .\ankiety\views.py:230
 #, fuzzy
 #| msgid "Email already exist"
 msgid "This option already exists."
@@ -141,7 +141,7 @@ msgstr ""
 msgid "If enabled, participants can add their own options while the survey is active."
 msgstr ""
 
-#: .\ankiety\models.py:23 .\ankiety\models.py:56 .\ankiety\models.py:78
+#: .\ankiety\models.py:23 .\ankiety\models.py:56 .\ankiety\models.py:71
 #: .\core\models.py:19 .\home\models.py:19 .\home\templates\home\home.html:156
 msgid "Survey"
 msgstr "Ankieta"
@@ -158,39 +158,39 @@ msgstr "Ankiety"
 msgid "Option text"
 msgstr "Tekst opcji"
 
-#: .\ankiety\models.py:64
+#: .\ankiety\models.py:58
 #, fuzzy
 #| msgid "Updated by"
 msgid "Added by"
 msgstr "Zaktualizowane przez"
 
-#: .\ankiety\models.py:66 .\home\templates\home\site_admin.html:39
+#: .\ankiety\models.py:59 .\home\templates\home\site_admin.html:39
 #: .\site_settings\models.py:135
 msgid "Order"
 msgstr "Kolejność"
 
-#: .\ankiety\models.py:70
+#: .\ankiety\models.py:63
 msgid "Survey option"
 msgstr "Opcje ankiety"
 
-#: .\ankiety\models.py:71
+#: .\ankiety\models.py:64
 msgid "Survey options"
 msgstr "Opcje ankiety"
 
-#: .\ankiety\models.py:79 .\obywatele\management\commands\count_citizens.py:243
+#: .\ankiety\models.py:72 .\obywatele\management\commands\count_citizens.py:243
 #: .\obywatele\models.py:164
 msgid "User"
 msgstr "Użytkownik"
 
-#: .\ankiety\models.py:80
+#: .\ankiety\models.py:73
 msgid "Chosen option"
 msgstr "Wybierz opcję"
 
-#: .\ankiety\models.py:86
+#: .\ankiety\models.py:79
 msgid "Survey vote"
 msgstr "Głos w ankiecie"
 
-#: .\ankiety\models.py:87
+#: .\ankiety\models.py:80
 msgid "Survey votes"
 msgstr "Głosy w ankiecie"
 
@@ -287,12 +287,12 @@ msgid "Votes"
 msgstr "Głosy"
 
 #: .\ankiety\templates\ankiety\survey_detail.html:52
-#: .\ankiety\templates\ankiety\survey_list.html:53 .\ankiety\views.py:134
+#: .\ankiety\templates\ankiety\survey_list.html:53 .\ankiety\views.py:145
 msgid "Ongoing"
 msgstr "Trwające"
 
 #: .\ankiety\templates\ankiety\survey_detail.html:54
-#: .\ankiety\templates\ankiety\survey_list.html:55 .\ankiety\views.py:135
+#: .\ankiety\templates\ankiety\survey_list.html:55 .\ankiety\views.py:146
 #: .\tasks\templatetags\tasks_extras.py:44
 msgid "Finished"
 msgstr "Zakończone"
@@ -369,8 +369,8 @@ msgstr "Wróć"
 msgid "Edit survey"
 msgstr "Edytuj ankietę"
 
-#: .\ankiety\templates\ankiety\survey_form.html:13 .\ankiety\views.py:139
-#: .\ankiety\views.py:140
+#: .\ankiety\templates\ankiety\survey_form.html:13 .\ankiety\views.py:150
+#: .\ankiety\views.py:151
 msgid "Add survey"
 msgstr "Dodaj ankietę"
 
@@ -405,77 +405,77 @@ msgstr "Brak ukończonych ankiet."
 msgid "Add the first survey"
 msgstr "Stwórz pierwszą ankietę"
 
-#: .\ankiety\views.py:33
+#: .\ankiety\views.py:35
 msgid "The survey is closed and votes cannot be cast."
 msgstr "Amkieta jest zamknięta, nie można już głosować."
 
-#: .\ankiety\views.py:46
-msgid "Your vote has been withdrawn."
-msgstr "Twój głos został wycofany."
-
-#: .\ankiety\views.py:48
-msgid "You have not voted in this survey yet."
-msgstr "Jeszcze nie głosowałeś w tej ankicie."
-
-#: .\ankiety\views.py:53
+#: .\ankiety\views.py:45 .\ankiety\views.py:59
 msgid "Invalid option selected."
 msgstr "Wybrana opcja jest nieprawidłowa."
 
-#: .\ankiety\views.py:59
+#: .\ankiety\views.py:52
+msgid "Your vote has been withdrawn."
+msgstr "Twój głos został wycofany."
+
+#: .\ankiety\views.py:54
+msgid "You have not voted in this survey yet."
+msgstr "Jeszcze nie głosowałeś w tej ankicie."
+
+#: .\ankiety\views.py:65
 msgid "Your vote has been saved."
 msgstr "Twój głos został zapisany."
 
-#: .\ankiety\views.py:90 .\ankiety\views.py:211
+#: .\ankiety\views.py:96 .\ankiety\views.py:222
 #, fuzzy
 #| msgid "The survey is closed; options cannot be changed."
 msgid "The survey is closed and options cannot be added."
 msgstr "Amkieta jest zamknięta; opcje nie mogą być zmienione."
 
-#: .\ankiety\views.py:93 .\ankiety\views.py:214
+#: .\ankiety\views.py:99 .\ankiety\views.py:225
 msgid "Adding options is not allowed for this survey."
 msgstr ""
 
-#: .\ankiety\views.py:97 .\ankiety\views.py:218
+#: .\ankiety\views.py:106 .\ankiety\views.py:232
 #, fuzzy
 #| msgid "Your vote has been saved."
 msgid "Your option has been added."
 msgstr "Twój głos został zapisany."
 
-#: .\ankiety\views.py:142 .\board\views.py:123 .\bookkeeping\views.py:82
+#: .\ankiety\views.py:153 .\board\views.py:135 .\bookkeeping\views.py:83
 #: .\events\views.py:52 .\glosowania\views.py:656
 #: .\home\templates\home\includes\toolbar.html:60 .\home\views.py:134
-#: .\obywatele\views.py:298 .\obywatele\views.py:356 .\tasks\views.py:170
+#: .\obywatele\views.py:298 .\obywatele\views.py:356 .\tasks\views.py:184
 msgid "List"
 msgstr "Lista"
 
-#: .\ankiety\views.py:142 .\board\views.py:123 .\bookkeeping\views.py:82
+#: .\ankiety\views.py:153 .\board\views.py:135 .\bookkeeping\views.py:83
 #: .\events\views.py:52 .\glosowania\views.py:656
 #: .\home\templates\home\includes\toolbar.html:55 .\home\views.py:134
-#: .\obywatele\views.py:298 .\obywatele\views.py:356 .\tasks\views.py:170
+#: .\obywatele\views.py:298 .\obywatele\views.py:356 .\tasks\views.py:184
 msgid "Grid"
 msgstr "Siatka"
 
-#: .\ankiety\views.py:157
+#: .\ankiety\views.py:168
 msgid "The survey has been created."
 msgstr "Ankieta została utworzona."
 
-#: .\ankiety\views.py:169
+#: .\ankiety\views.py:180
 msgid "Only the author can edit this survey."
 msgstr "Tylko autor może edytować tę ankietę."
 
-#: .\ankiety\views.py:171
+#: .\ankiety\views.py:182
 msgid "The survey is closed and cannot be edited."
 msgstr "Amkieta jest zamknięta i nie może być edytowana."
 
-#: .\ankiety\views.py:179
+#: .\ankiety\views.py:190
 msgid "The survey has been updated."
 msgstr "Ankieta została zaktualizowana."
 
-#: .\ankiety\views.py:254
+#: .\ankiety\views.py:270
 msgid "Only the author can delete this survey."
 msgstr "Tylko autor może usunąć tę ankietę."
 
-#: .\ankiety\views.py:257
+#: .\ankiety\views.py:273
 msgid "The survey has been deleted."
 msgstr "Ankieta została usunięta."
 
@@ -604,7 +604,7 @@ msgstr "Prywatne"
 
 #: .\board\models.py:34 .\board\templates\board\board.html:57
 #: .\board\templates\board\board.html:82
-#: .\tasks\templates\tasks\_task_card.html:65 .\tasks\views.py:64
+#: .\tasks\templates\tasks\_task_card.html:65 .\tasks\views.py:78
 msgid "Important"
 msgstr "Ważne"
 
@@ -758,11 +758,11 @@ msgstr "Anuluj"
 msgid "Existing attachments"
 msgstr "Załączniki"
 
-#: .\board\views.py:120
+#: .\board\views.py:122
 msgid "A-Z"
 msgstr "A-Z"
 
-#: .\board\views.py:121
+#: .\board\views.py:129
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:23
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:17
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:24
@@ -771,7 +771,7 @@ msgstr "A-Z"
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:10
 #: .\obywatele\templates\obywatele\_citizen_zalozono_partial.html:9
-#: .\obywatele\templates\obywatele\citizen_zadania.html:32 .\tasks\views.py:148
+#: .\obywatele\templates\obywatele\citizen_zadania.html:32 .\tasks\views.py:162
 msgid "Date"
 msgstr "Data"
 
@@ -852,7 +852,7 @@ msgstr "Kod"
 #: .\bookkeeping\templates\bookkeeping\category_confirm_delete.html:12
 #: .\bookkeeping\templates\bookkeeping\partner_confirm_delete.html:12
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:20
-#: .\bookkeeping\views.py:203
+#: .\bookkeeping\views.py:204
 msgid "Name"
 msgstr "Nazwa"
 
@@ -902,7 +902,7 @@ msgstr "Adres"
 
 #: .\bookkeeping\models.py:97
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:45
-#: .\bookkeeping\views.py:203 .\obywatele\models.py:68
+#: .\bookkeeping\views.py:204 .\obywatele\models.py:68
 msgid "City"
 msgstr "Miejscowość"
 
@@ -915,7 +915,7 @@ msgstr "Kraj"
 #: .\bookkeeping\models.py:99
 #: .\bookkeeping\templates\bookkeeping\_partner_card.html:32
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:51
-#: .\bookkeeping\views.py:203
+#: .\bookkeeping\views.py:204
 msgid "Notes"
 msgstr "Notatki"
 
@@ -1148,7 +1148,7 @@ msgid "Phone number"
 msgstr "Numer telefonu"
 
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:29
-#: .\bookkeeping\views.py:203
+#: .\bookkeeping\views.py:204
 msgid "Web Page"
 msgstr "www"
 
@@ -1240,27 +1240,27 @@ msgid "No transactions yet."
 msgstr "transakcji"
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:75
-#: .\bookkeeping\views.py:277
+#: .\bookkeeping\views.py:278
 msgid "Add transaction"
 msgstr "Dodaj Transakcję"
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:76
-#: .\bookkeeping\views.py:178
+#: .\bookkeeping\views.py:179
 msgid "Add partner"
 msgstr "Dodaj Partnera"
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:77
-#: .\bookkeeping\views.py:135
+#: .\bookkeeping\views.py:136
 #: .\categories\templates\categories\_category_modal.html:14
 msgid "Add category"
 msgstr "Dodaj kategorię"
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:78
-#: .\bookkeeping\views.py:90 .\home\templates\home\home.html:375
+#: .\bookkeeping\views.py:91 .\home\templates\home\home.html:375
 msgid "Add asset"
 msgstr "Dodaj aktywo"
 
-#: .\bookkeeping\views.py:66
+#: .\bookkeeping\views.py:67
 #: .\glosowania\templates\glosowania\szczegoly.html:197
 #: .\glosowania\templates\glosowania\szczegoly.html:238
 #: .\glosowania\templatetags\glosowania_stepper.py:42
@@ -1269,15 +1269,15 @@ msgstr "Dodaj aktywo"
 msgid "Add"
 msgstr "Dodaj"
 
-#: .\bookkeeping\views.py:125
+#: .\bookkeeping\views.py:126
 msgid "Cannot delete asset because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć zasobu, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które go wykorzystują."
 
-#: .\bookkeeping\views.py:167
+#: .\bookkeeping\views.py:168
 msgid "Cannot delete category because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć kategorii, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które ją wykorzystują."
 
-#: .\bookkeeping\views.py:266
+#: .\bookkeeping\views.py:267
 msgid "Cannot delete partner because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć partnera, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które go wykorzystują."
 
@@ -1752,7 +1752,7 @@ msgstr "Archiwa"
 msgid "Click the archive button (folder icon) next to each category to show archived rooms."
 msgstr "Kliknij przycisk archiwum (ikona folderu) obok każdej kategorii, aby pokazać zarchiwizowane pokoje."
 
-#: .\chat\templates\chat\guest_message.html:5 .\chat\tests\test_views.py:238
+#: .\chat\templates\chat\guest_message.html:5 .\chat\tests\test_views.py:250
 msgid "Send a message"
 msgstr "Wyślij wiadomość"
 
@@ -2279,7 +2279,7 @@ msgstr "Zatwierdzone"
 
 #: .\glosowania\management\commands\vote.py:229 .\glosowania\models.py:30
 #: .\tasks\models.py:57 .\tasks\templates\tasks\_task_card.html:69
-#: .\tasks\templates\tasks\_task_list_partial.html:44 .\tasks\views.py:64
+#: .\tasks\templates\tasks\_task_list_partial.html:44 .\tasks\views.py:78
 msgid "Rejected"
 msgstr "Odrzucone"
 
@@ -3457,9 +3457,9 @@ msgstr "wyników"
 msgid "No results for the specified phrase in the selected categories."
 msgstr "Brak wyników dla podanej frazy w wybranych kategoriach."
 
-#: .\home\templates\home\site_admin.html:9
-msgid "Site administration and global settings"
-msgstr "Administracja strony i ustawień globalnych"
+#: .\home\templates\home\site_admin.html:9 .\site_settings\params.py:28
+msgid "Group settings"
+msgstr "Ustawienia grupy"
 
 #: .\home\templates\home\site_admin.html:13
 #, fuzzy
@@ -3581,19 +3581,23 @@ msgstr "Twoje hasło zostało zmienione."
 msgid "You typed something wrong. See what error appeared above and try again."
 msgstr "Coś źle wpisałeś. Zobacz, jaki błąd pojawił się powyżej i spróbuj ponownie."
 
-#: .\home\views.py:377
+#: .\home\views.py:389 .\home\views.py:401
+msgid "Enter a valid title, URL and non-negative order."
+msgstr ""
+
+#: .\home\views.py:393
 msgid "Link added."
 msgstr "Link dodany."
 
-#: .\home\views.py:391
+#: .\home\views.py:405
 msgid "Link updated."
 msgstr "Link zaktualizowany."
 
-#: .\home\views.py:393 .\home\views.py:414
+#: .\home\views.py:407 .\home\views.py:433
 msgid "Link doesn't exist."
 msgstr "Link nie istnieje."
 
-#: .\home\views.py:412
+#: .\home\views.py:431
 msgid "Link deleted."
 msgstr "Link usunięty."
 
@@ -4717,10 +4721,6 @@ msgid "Citizens settings"
 msgstr "Ustawienia członkostwa"
 
 #: .\site_settings\params.py:28
-msgid "Group settings"
-msgstr "Ustawienia grup"
-
-#: .\site_settings\params.py:28
 msgid "Site identity"
 msgstr "Tożsamość strony"
 
@@ -4902,11 +4902,11 @@ msgstr "Brak koordynatora"
 msgid "no coordinator"
 msgstr "brak koordynatora"
 
-#: .\tasks\templates\tasks\_task_card.html:63 .\tasks\views.py:64
+#: .\tasks\templates\tasks\_task_card.html:63 .\tasks\views.py:78
 msgid "Critical"
 msgstr "Krytyczne"
 
-#: .\tasks\templates\tasks\_task_card.html:67 .\tasks\views.py:64
+#: .\tasks\templates\tasks\_task_card.html:67 .\tasks\views.py:78
 msgid "Beneficial"
 msgstr "Korzystne"
 

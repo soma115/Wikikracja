@@ -57,7 +57,7 @@ export default class DomApi {
         return room ? $('.tw-chat-messages', room) : null;
     }
 
-    buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null, display_name = null, initials = null) {
+    buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null, display_name = null, initials = null, unread_on_entry = false) {
         const formatted = this.formatMessage(message);
         return Message({
             room_id, user_id, avatar_url, citizen_color_class, message_id, username, display_name, initials,
@@ -72,11 +72,12 @@ export default class DomApi {
             read_by: read_by ?? [],
             upvoters: upvoters ?? [],
             downvoters: downvoters ?? [],
+            unread_on_entry,
         });
     }
 
-    addMessage(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null, temp_id = null, display_name = null, initials = null) {
-        const html = this.buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to, reactions, your_reactions, read_by, upvoters, downvoters, display_name, initials);
+    addMessage(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null, temp_id = null, display_name = null, initials = null, unread_on_entry = false) {
+        const html = this.buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to, reactions, your_reactions, read_by, upvoters, downvoters, display_name, initials, unread_on_entry);
 
         const messagesDiv = this.getMessagesDiv();
         messagesDiv?.insertAdjacentHTML('beforeend', html);
@@ -257,8 +258,69 @@ export default class DomApi {
         return $(`.tw-image-preview-container`);
     }
 
+    _updateSectionUnreadCount(roomLink, delta) {
+        const category = roomLink?.closest('.tw-chat-category');
+        if (!category || !delta) return;
+
+        let badge = category.querySelector('.tw-chat-count--section');
+        const current = badge ? parseInt(badge.textContent, 10) || 0 : 0;
+        const next = Math.max(0, current + delta);
+        if (next === 0) {
+            badge?.remove();
+            return;
+        }
+        if (!badge) {
+            const button = category.querySelector('.tw-chat-cat-btn');
+            if (!button) return;
+            badge = document.createElement('span');
+            badge.className = 'tw-chat-count tw-chat-count--section';
+            button.appendChild(badge);
+        }
+        badge.textContent = String(next);
+    }
+
+    setRoomUnreadCount(room_id, count) {
+        const roomLink = this.getRoomLinkDiv(room_id);
+        if (!roomLink) return;
+
+        const countValue = Math.max(0, Number(count) || 0);
+        const badge = roomLink.querySelector('.tw-avatar .tw-chat-count');
+        const current = badge ? parseInt(badge.textContent, 10) || 0 : 0;
+        const delta = countValue - current;
+        if (countValue === 0) {
+            badge?.remove();
+        } else if (badge) {
+            badge.textContent = String(countValue);
+        } else {
+            const avatar = roomLink.querySelector('.tw-avatar');
+            if (avatar) {
+                const newBadge = document.createElement('span');
+                newBadge.className = 'tw-chat-count';
+                newBadge.textContent = String(countValue);
+                avatar.appendChild(newBadge);
+            }
+        }
+        this._updateSectionUnreadCount(roomLink, delta);
+        roomLink.classList.toggle('tw-room-link--not-seen', countValue > 0);
+        const status = roomLink.querySelector('.tw-room-link-status');
+        if (status && countValue > 0) {
+            status.innerHTML = `<span class="tw-nav-status tw-nav-status--unread" aria-label="${_('Unread')}"></span>`;
+        } else if (status && countValue === 0 && roomLink.dataset.roomArchived !== 'true') {
+            status.innerHTML = '<span class="tw-nav-status tw-nav-status--read" aria-hidden="true"></span>';
+        }
+    }
+
+    incrementRoomUnreadCount(room_id) {
+        const roomLink = this.getRoomLinkDiv(room_id);
+        if (!roomLink) return;
+        const badge = roomLink.querySelector('.tw-avatar .tw-chat-count');
+        const current = badge ? parseInt(badge.textContent, 10) || 0 : 0;
+        this.setRoomUnreadCount(room_id, current + 1);
+    }
+
     seenChat(room_id) {
         const roomLink = this.getRoomLinkDiv(room_id);
+        this.setRoomUnreadCount(room_id, 0);
         roomLink?.classList.remove("tw-room-link--not-seen");
         // Swap unread dot → read circle
         const unreadDot = roomLink?.querySelector('.tw-nav-status--unread');

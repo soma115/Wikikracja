@@ -22,6 +22,7 @@ def build_chat_message_payload(event, *, user, vote_value, current_user, your_re
     payload["citizen_color_class"] = citizen_color_class(username)
     payload.update(presence_data(user) if user and not anonymous else {'presence_status': 'red', 'presence_source': '', 'presence_timestamp': None})
     payload["new"] = event["new"] if current_user != user else False
+    payload["read_by_current_user"] = event.get("read_by_current_user", False)
     payload["your_vote"] = vote_value if vote_value else None
     payload["own"] = current_user == user
 

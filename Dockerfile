@@ -35,8 +35,8 @@ WORKDIR /app
 
 # Runtime environment
 ENV PYTHONUNBUFFERED=1 \
+    DJANGO_SETTINGS_MODULE=zzz.settings \
     SCHEDULER_ENABLED=true \
-    SECRET_KEY=build-time-insecure-secret-key \
     PATH=/root/.local/bin:$PATH \
     EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
 
@@ -67,6 +67,7 @@ COPY --from=builder /app/categories /app/categories
 COPY --from=builder /app/core /app/core
 COPY --from=builder /app/zzz /app/zzz
 COPY --from=builder /app/templates /app/templates
+COPY --from=builder /app/docs /app/docs
 COPY --from=builder /app/locale /app/locale
 COPY --from=builder /app/pyproject.toml /app/
 

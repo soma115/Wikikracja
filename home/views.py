@@ -366,42 +366,61 @@ def dynamic_settings_js(request: HttpRequest):
     return response
 
 
+def _quick_link_data(request):
+    title = (request.POST.get('quick_link_title') or '').strip()
+    url = (request.POST.get('quick_link_url') or '').strip()
+    try:
+        order = int(request.POST.get('quick_link_order', 0))
+    except (TypeError, ValueError):
+        return None
+
+    title_max = QuickLink._meta.get_field('title').max_length
+    url_max = QuickLink._meta.get_field('url').max_length
+    if not title or not url or len(title) > title_max or len(url) > url_max or order < 0:
+        return None
+    return title, url, order
+
+
 @login_required
-def site_admin(request: HttpRequest) -> HttpResponse:
+def group_settings(request: HttpRequest) -> HttpResponse:
     if request.method == 'POST' and 'save_quick_link' in request.POST:
-        title = request.POST.get('quick_link_title')
-        url = request.POST.get('quick_link_url')
-        order = request.POST.get('quick_link_order', 0)
-        if title and url:
+        link_data = _quick_link_data(request)
+        if link_data is None:
+            messages.error(request, _('Enter a valid title, URL and non-negative order.'))
+        else:
+            title, url, order = link_data
             QuickLink.objects.create(title=title, url=url, order=order)
             messages.success(request, _('Link added.'))
-        return redirect('site_admin')
+        return redirect('group_settings')
 
     if request.method == 'POST' and 'edit_quick_link' in request.POST:
-        link_id = request.POST.get('edit_quick_link')
-        title = request.POST.get('quick_link_title')
-        url = request.POST.get('quick_link_url')
-        order = request.POST.get('quick_link_order', 0)
+        link_data = _quick_link_data(request)
         try:
-            link = QuickLink.objects.get(id=link_id)
-            link.title = title
-            link.url = url
-            link.order = order
-            link.save()
-            messages.success(request, _('Link updated.'))
+            link = QuickLink.objects.get(id=request.POST.get('edit_quick_link'))
+            if link_data is None:
+                messages.error(request, _('Enter a valid title, URL and non-negative order.'))
+            else:
+                link.title, link.url, link.order = link_data
+                link.save(update_fields=['title', 'url', 'order'])
+                messages.success(request, _('Link updated.'))
         except QuickLink.DoesNotExist:
             messages.error(request, _("Link doesn't exist."))
-        return redirect('site_admin')
+        return redirect('group_settings')
 
     if request.method == 'POST' and 'reorder_quick_links' in request.POST:
-        order_data = json.loads(request.POST.get('order', '[]'))
+        try:
+            order_data = json.loads(request.POST.get('order', '[]'))
+        except (TypeError, json.JSONDecodeError):
+            return JsonResponse({'ok': False, 'error': 'Invalid order data.'}, status=400)
+        if not isinstance(order_data, list):
+            return JsonResponse({'ok': False, 'error': 'Invalid order data.'}, status=400)
         for index, link_id in enumerate(order_data):
             try:
-                link = QuickLink.objects.get(id=link_id)
-                link.order = index
-                link.save()
-            except QuickLink.DoesNotExist:
+                link = QuickLink.objects.get(id=int(link_id))
+            except (TypeError, ValueError, QuickLink.DoesNotExist):
                 continue
+            link.order = index
+            link.save(update_fields=['order'])
         return JsonResponse({'ok': True})
 
     if request.method == 'POST' and 'delete_quick_link' in request.POST:
@@ -412,6 +431,6 @@ def site_admin(request: HttpRequest) -> HttpResponse:
             messages.success(request, _('Link deleted.'))
         except QuickLink.DoesNotExist:
             messages.error(request, _("Link doesn't exist."))
-        return redirect('site_admin')
+        return redirect('group_settings')
 
-    return render(request, 'home/site_admin.html', dashboard_service.get_site_admin_context(request.user))
+    return render(request, 'home/site_admin.html', dashboard_service.get_group_settings_context(request.user))

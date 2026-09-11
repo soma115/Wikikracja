@@ -33,14 +33,27 @@ class ChatViewsTest(TestCase):
         response = self.client.get(reverse("chat:chat"))
         self.assertEqual(response.status_code, 200)
 
+    def test_newly_accepted_citizen_gets_existing_public_rooms(self):
+        from unittest.mock import patch
+
+        from core.signals import citizen_accepted
+
+        new_user = make_user("newcitizen")
+        self.room.allowed.remove(new_user)
+        with patch("chat.signals.Room.create_all_one2one_rooms"):
+            citizen_accepted.send(sender=self.__class__, user=new_user)
+
+        self.assertTrue(self.room.allowed.filter(pk=new_user.pk).exists())
+
     def test_room_list_shows_exact_unread_message_count(self):
-        read_message = Message.objects.create(room=self.room, sender=self.user, text="Read")
-        Message.objects.create(room=self.room, sender=self.user, text="Unread")
+        other = make_user("chatother")
+        read_message = Message.objects.create(room=self.room, sender=other, text="Read")
+        Message.objects.create(room=self.room, sender=other, text="Unread")
         MessageReadBy.objects.create(message=read_message, user=self.user)
         second_room = Room.objects.create(title="SecondPublicRoom", public=True)
         second_room.allowed.add(self.user)
-        Message.objects.create(room=second_room, sender=self.user, text="Unread 2")
-        Message.objects.create(room=second_room, sender=self.user, text="Unread 3")
+        Message.objects.create(room=second_room, sender=other, text="Unread 2")
+        Message.objects.create(room=second_room, sender=other, text="Unread 3")
         self.client.force_login(self.user)
 
         response = self.client.get(reverse("chat:chat"))
@@ -50,6 +63,15 @@ class ChatViewsTest(TestCase):
         self.assertEqual(response.context["chat_section_unread_counts"]["public"], 3)
         self.assertContains(response, '<span class="tw-chat-count">1</span>')
         self.assertContains(response, '<span class="tw-chat-count tw-chat-count--section">3</span>')
+
+    def test_room_list_does_not_count_own_messages_as_unread(self):
+        Message.objects.create(room=self.room, sender=self.user, text="My message")
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("chat:chat"))
+
+        room = next(room for room in response.context["public_rooms_active"] if room.pk == self.room.pk)
+        self.assertEqual(room.unread_message_count, 0)
 
     def test_chat_view_includes_document_rooms(self):
         from board.models import Post

@@ -413,7 +413,7 @@ export function dateBannerHtml(dateStr) {
  */
 export function _(s) {
     // typeof never throws for undeclared vars — safe in modules without TRANSLATIONS defined
-    const T = typeof TRANSLATIONS !== 'undefined' ? TRANSLATIONS : {};
+    const T = typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS ? TRANSLATIONS : {};
     const translation = T[s];
     if (translation !== undefined) {
         return translation;

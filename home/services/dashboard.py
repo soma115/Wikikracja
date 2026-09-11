@@ -2,7 +2,7 @@ import logging
 
 from django.utils.translation import gettext_lazy as _
 
-from core.dashboard_registry import collect_dashboard_context, collect_public_context, collect_site_admin_context
+from core.dashboard_registry import collect_dashboard_context, collect_group_settings_context, collect_public_context
 from core.services.feed import generate_feed_items, get_bookmarked_items, get_unread_count
 from site_settings.models import QuickLink
 
@@ -68,8 +68,8 @@ def get_public_context():
     return context
 
 
-def get_site_admin_context(user):
-    """Build context for the site admin page."""
-    context = collect_site_admin_context(user)
+def get_group_settings_context(user):
+    """Build context for the group settings page."""
+    context = collect_group_settings_context(user)
     context['quick_links'] = list(QuickLink.objects.order_by('order'))
     return context

@@ -315,6 +315,25 @@ class TakeResignTaskTest(TestCase):
         self.task.refresh_from_db()
         self.assertEqual(self.task.assigned_to, self.user)
 
+    def test_take_task_rejects_completed_task(self):
+        self.task.status = Task.Status.COMPLETED
+        self.task.save(update_fields=["status"])
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+
+        response = self.client.post(reverse("tasks:take", kwargs={"pk": self.task.pk}))
+
+        self.assertEqual(response.status_code, 302)
+        self.task.refresh_from_db()
+        self.assertIsNone(self.task.assigned_to)
+
+    def test_take_task_rejects_external_next_url(self):
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+
+        response = self.client.post(reverse("tasks:take", kwargs={"pk": self.task.pk}), {"next": "https://evil.example/"})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertNotEqual(response.url, "https://evil.example/")
+
     def test_take_task_requires_post(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)
         response = self.client.get(reverse("tasks:take", kwargs={"pk": self.task.pk}))
@@ -478,6 +497,16 @@ class ReopenDeleteTaskTest(TestCase):
         self.client.post(reverse("tasks:reopen", kwargs={"pk": active_task.pk}))
         active_task.refresh_from_db()
         self.assertEqual(active_task.status, Task.Status.ACTIVE)
+
+    def test_reopen_by_unrelated_user_is_denied(self):
+        other = make_user("reopen_intruder")
+        self.client.login(username=other.username, password=other._plain_password)
+
+        response = self.client.post(reverse("tasks:reopen", kwargs={"pk": self.task.pk}))
+
+        self.assertEqual(response.status_code, 302)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.status, Task.Status.COMPLETED)
 
     def test_delete_task_by_creator(self):
         active_task = make_task(created_by=self.user, status=Task.Status.ACTIVE)

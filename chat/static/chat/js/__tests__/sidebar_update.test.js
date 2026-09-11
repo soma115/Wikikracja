@@ -65,6 +65,32 @@ function updateSidebarForMessage(msg, {reorder = true, bumpActivity = reorder} =
     }
 }
 
+function setRoomUnreadCount(roomId, count) {
+    const roomLink = document.querySelector(`.tw-room-link[data-room-id="${roomId}"]`);
+    if (!roomLink) return;
+    const next = Math.max(0, Number(count) || 0);
+    const badge = roomLink.querySelector('.tw-avatar .tw-chat-count');
+    const current = badge ? parseInt(badge.textContent, 10) || 0 : 0;
+    const section = roomLink.closest('.tw-chat-category');
+    const sectionBadge = section?.querySelector('.tw-chat-count--section');
+    const sectionCurrent = sectionBadge ? parseInt(sectionBadge.textContent, 10) || 0 : 0;
+    const sectionNext = Math.max(0, sectionCurrent + next - current);
+
+    if (next === 0) badge?.remove();
+    else if (badge) badge.textContent = String(next);
+    else roomLink.querySelector('.tw-avatar')?.insertAdjacentHTML('beforeend', `<span class="tw-chat-count">${next}</span>`);
+
+    if (sectionNext === 0) sectionBadge?.remove();
+    else if (sectionBadge) sectionBadge.textContent = String(sectionNext);
+    roomLink.classList.toggle('tw-room-link--not-seen', next > 0);
+}
+
+function incrementRoomUnreadCount(roomId) {
+    const roomLink = document.querySelector(`.tw-room-link[data-room-id="${roomId}"]`);
+    const current = parseInt(roomLink?.querySelector('.tw-avatar .tw-chat-count')?.textContent || '0', 10) || 0;
+    setRoomUnreadCount(roomId, current + 1);
+}
+
 // ── helpers ────────────────────────────────────────────────────────────────
 function makeRoomLink(roomId, snippetText = 'old text', archived = false) {
     const div = document.createElement('div');
@@ -76,6 +102,7 @@ function makeRoomLink(roomId, snippetText = 'old text', archived = false) {
         : '<span class="tw-nav-status tw-nav-status--read" aria-hidden="true"></span>';
     div.innerHTML = `
         <div class="tw-room-link-status">${statusIcon}</div>
+        <div class="tw-avatar"></div>
         <span class="tw-room-link-date">yesterday</span>
         <span class="tw-room-link-sender">Alice:</span>
         <span class="tw-room-link-snippet">${snippetText}</span>
@@ -145,6 +172,41 @@ describe('updateSidebarForMessage', () => {
         expect(link.querySelector('.tw-room-link-date').textContent).toBe('yesterday');
         // snippet nadal zaktualizowany
         expect(link.querySelector('.tw-room-link-snippet').textContent).toBe('nowy tekst');
+    });
+
+    test('nowa wiadomość zwiększa licznik pokoju i działu', () => {
+        document.body.innerHTML = `
+            <div class="tw-chat-category">
+                <button class="tw-chat-cat-btn"><span class="tw-chat-count tw-chat-count--section">2</span></button>
+                <div id="room-list-flat"></div>
+            </div>
+        `;
+        const room = makeRoomLink(1);
+        room.querySelector('.tw-avatar').innerHTML = '<span class="tw-chat-count">1</span>';
+        document.getElementById('room-list-flat').appendChild(room);
+
+        incrementRoomUnreadCount(1);
+
+        expect(room.querySelector('.tw-avatar .tw-chat-count').textContent).toBe('2');
+        expect(document.querySelector('.tw-chat-count--section').textContent).toBe('3');
+        expect(room.classList.contains('tw-room-link--not-seen')).toBe(true);
+    });
+
+    test('wejście do pokoju usuwa licznik pokoju i odpowiednią część sumy działu', () => {
+        document.body.innerHTML = `
+            <div class="tw-chat-category">
+                <button class="tw-chat-cat-btn"><span class="tw-chat-count tw-chat-count--section">3</span></button>
+                <div id="room-list-flat"></div>
+            </div>
+        `;
+        const room = makeRoomLink(1);
+        room.querySelector('.tw-avatar').innerHTML = '<span class="tw-chat-count">3</span>';
+        document.getElementById('room-list-flat').appendChild(room);
+
+        setRoomUnreadCount(1, 0);
+
+        expect(room.querySelector('.tw-avatar .tw-chat-count')).toBeNull();
+        expect(document.querySelector('.tw-chat-count--section')).toBeNull();
     });
 
     test('brak rooma w DOM: nie rzuca', () => {

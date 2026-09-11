@@ -12,6 +12,7 @@ from django.db.models.functions import Coalesce
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_POST
@@ -27,6 +28,19 @@ from .forms import TaskForm, TaskStatusForm
 from .models import Category, Task, TaskEvaluation, TaskVote
 
 User = get_user_model()
+
+
+def _safe_next_url(request):
+    next_url = request.POST.get("next")
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return next_url
+    return None
+
+
+def _task_action_denied(request, task, error="action not allowed"):
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse({"ok": False, "error": error}, status=403)
+    return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
 
 
 def _task_sort_context(request):
@@ -343,7 +357,7 @@ def approve_helper(request: HttpRequest, task: Task, user_id: int, is_ajax: bool
     task.approve_helper(helper)
     if is_ajax:
         return JsonResponse({"ok": True, "user_id": helper.id, "approved": True})
-    return redirect(request.POST.get("next") or "tasks:detail", pk=task.pk)
+    return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
 
 
 @require_POST
@@ -354,7 +368,7 @@ def remove_helper(request: HttpRequest, task: Task, user_id: int, is_ajax: bool)
     task.remove_helper(helper)
     if is_ajax:
         return JsonResponse({"ok": True, "user_id": helper.id, "approved": False})
-    return redirect(request.POST.get("next") or "tasks:detail", pk=task.pk)
+    return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
 
 
 @require_POST
@@ -376,19 +390,23 @@ def toggle_helper(request: HttpRequest, task: Task, user_id: int, is_ajax: bool)
 
     if is_ajax:
         return JsonResponse({"ok": True, "user_id": helper.id, "approved": approved})
-    return redirect(request.POST.get("next") or "tasks:detail", pk=task.pk)
+    return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
 
 
 @require_POST
 @login_required
 def take_task(request: HttpRequest, pk: int) -> HttpResponse:
     task = get_object_or_404(Task, pk=pk)
-    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    if not task.is_active:
+        return _task_action_denied(request, task, "task is not active")
+    if task.assigned_to_id and task.assigned_to_id != request.user.id:
+        return _task_action_denied(request, task, "task already has a coordinator")
+
     task.assigned_to = request.user
     task.save(update_fields=["assigned_to", "updated_at"])
-    if is_ajax:
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return JsonResponse({"ok": True, "assigned_to": _serialize_user(request.user), "is_coordinator": True})
-    return redirect(request.POST.get("next") or "tasks:list")
+    return redirect(_safe_next_url(request) or "tasks:list")
 
 
 @require_POST
@@ -396,7 +414,9 @@ def take_task(request: HttpRequest, pk: int) -> HttpResponse:
 def resign_task(request: HttpRequest, pk: int) -> HttpResponse:
     task = get_object_or_404(Task, pk=pk)
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
-    next_url = request.POST.get("next")
+    next_url = _safe_next_url(request)
+    if not task.is_active:
+        return _task_action_denied(request, task, "task is not active")
     if task.assigned_to != request.user:
         if is_ajax:
             return JsonResponse({"ok": False, "error": "not coordinator"}, status=403)
@@ -460,7 +480,7 @@ class TaskEditView(CategoryContextMixin, LoginRequiredMixin, UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         task = self.get_object()
-        if task.assigned_to != request.user:
+        if task.assigned_to != request.user or not task.is_active:
             return redirect("tasks:detail", pk=task.pk)
         return super().dispatch(request, *args, **kwargs)
 
@@ -475,7 +495,7 @@ class TaskCloseView(LoginRequiredMixin, UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         task = self.get_object()
-        if task.assigned_to != request.user:
+        if task.assigned_to != request.user or not task.is_active:
             return redirect("tasks:detail", pk=task.pk)
         return super().dispatch(request, *args, **kwargs)
 
@@ -491,6 +511,8 @@ class TaskCloseView(LoginRequiredMixin, UpdateView):
 def vote_task(request: HttpRequest, pk: int) -> HttpResponse:
     task = get_object_or_404(Task.objects.with_metrics(), pk=pk)
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    if not task.is_active:
+        return _task_action_denied(request, task, "task is not active")
     try:
         value = int(request.POST.get("value", 0))
     except (ValueError, TypeError):
@@ -498,7 +520,7 @@ def vote_task(request: HttpRequest, pk: int) -> HttpResponse:
     if value not in (TaskVote.Value.DOWN, TaskVote.Value.UP):
         if is_ajax:
             return JsonResponse({"error": "invalid value"}, status=400)
-        return redirect(request.POST.get("next") or "tasks:list")
+        return redirect(_safe_next_url(request) or "tasks:list")
 
     new_vote = None
     with transaction.atomic():
@@ -531,24 +553,22 @@ def vote_task(request: HttpRequest, pk: int) -> HttpResponse:
 
     if is_ajax:
         return JsonResponse({"vote": new_vote, "votes_score": votes_score, "votes_up": votes_up, "votes_down": votes_down})
-    return redirect(request.POST.get("next") or "tasks:list")
+    return redirect(_safe_next_url(request) or "tasks:list")
 
 
 @require_POST
 @login_required
 def reopen_task(request: HttpRequest, pk: int) -> HttpResponse:
     task = get_object_or_404(Task, pk=pk)
-    next_url = request.POST.get("next")
+    next_url = _safe_next_url(request)
     if task.is_active:
-        if next_url:
-            return redirect(next_url)
-        return redirect("tasks:detail", pk=pk)
+        return redirect(next_url or "tasks:detail", pk=pk)
+    if task.created_by_id != request.user.id and task.assigned_to_id != request.user.id:
+        return _task_action_denied(request, task, "only the creator or coordinator may reopen a task")
 
     task.status = Task.Status.ACTIVE
     task.save(update_fields=["status", "updated_at"])
-    if next_url:
-        return redirect(next_url)
-    return redirect("tasks:list")
+    return redirect(next_url or "tasks:list")
 
 
 @require_POST
@@ -557,7 +577,7 @@ def evaluate_task(request: HttpRequest, pk: int) -> HttpResponse:
     task = get_object_or_404(Task, pk=pk)
     value = request.POST.get("value")
     if value not in (TaskEvaluation.Value.SUCCESS, TaskEvaluation.Value.FAILURE):
-        return redirect(request.POST.get("next") or "tasks:list")
+        return redirect(_safe_next_url(request) or "tasks:list")
 
     evaluation = TaskEvaluation.objects.filter(task=task, user=request.user).first()
     if evaluation and evaluation.value == value:
@@ -569,7 +589,7 @@ def evaluate_task(request: HttpRequest, pk: int) -> HttpResponse:
         else:
             evaluation.value = value
             evaluation.save(update_fields=["value", "updated_at"])
-    return redirect(request.POST.get("next") or "tasks:list")
+    return redirect(_safe_next_url(request) or "tasks:list")
 
 
 @require_POST

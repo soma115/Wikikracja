@@ -300,6 +300,7 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             return
         if not await self.repo.room_is_seen(room):
             await self.repo.see_room(room)
+            await self.channel_layer.group_send(f"user_{self.scope['user'].id}", {"type": "chat.room_unread", "room_id": room.id, "count": 0})
             await self.push_unread_count()
 
     @handlers.register("room-unseen")
@@ -319,6 +320,17 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     async def chat_unread_count(self, event):
         """Channel layer handler — relays unread count to the WebSocket client."""
         await self.send_json({"unread_count": event["count"]})
+
+    async def chat_room_unread(self, event):
+        """Relay a per-room unread counter update to every user's tab."""
+        if event["room_id"] in self.rooms.items():
+            return
+        payload = {"room_id": event["room_id"]}
+        if "count" in event:
+            payload["count"] = event["count"]
+        else:
+            payload["delta"] = event.get("delta", 0)
+        await self.send_json({"room_unread_count": payload})
 
     async def chat_notification(self, event):
         """Channel layer handler — relay a new-message notification to the client.

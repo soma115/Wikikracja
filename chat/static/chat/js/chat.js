@@ -815,13 +815,19 @@ export async function onSocketMessage(data) {
     else if (data.messages) onReceiveMessages(data.messages);
     else if (data.unsee_room) onRoomUnsee(data.unsee_room);
     else if (data.room_seen) onRoomSeen(data.room_seen);
+    else if (data.room_unread_count) {
+        const update = data.room_unread_count;
+        if (update.count !== undefined) DOM_API.setRoomUnreadCount(update.room_id, update.count);
+        else if (update.delta > 0) DOM_API.incrementRoomUnreadCount(update.room_id);
+    }
     else if (data.update_votes) onReceiveVotes(data.update_votes);
     else if (data.edit_message) onReceiveEdit(data.edit_message);
     else if (data.online_data) onReceiveOnlineUpdates(data.online_data);
     else if (data.update_reactions) onReceiveReactions(data.update_reactions);
     else if (data.messages_read) onReceiveReadBy(data.messages_read);
-    // data.notification jest obsługiwane przez notifications.js (jeden właściciel
-    // browserowych powiadomień — broadcast idzie do wszystkich subskrybentów).
+    // notifications.js owns browser notifications; per-room counters are
+    // updated by the dedicated room_unread_count event.
+    else if (data.notification) { /* handled by notifications.js */ }
     // unread_count is consumed by the home page WS listener — ignore here
     else console.log("Cannot handle message!");
 }
@@ -1013,6 +1019,10 @@ function wasUnreadOnEntry(message) {
     return !message.own && message.read_by_current_user === false;
 }
 
+function isRealtimeMessage(messages) {
+    return messages.length === 1 && Boolean(messages[0]?.new || messages[0]?.temp_id);
+}
+
 /**
  * @param {Array} messages - Array of message objects from server
  */
@@ -1026,7 +1036,7 @@ export async function onReceiveMessages(messages) {
     const msgdiv = DOM_API.getMessagesDiv();
     DOM_API.removeNoMessagesBanner();
 
-    if (messages.length === 1 && messages[0].new) {
+    if (isRealtimeMessage(messages)) {
         // Single real-time message — normal path
         const message = messages[0];
 
@@ -1082,7 +1092,8 @@ export async function onReceiveMessages(messages) {
                 message.your_reactions ?? [],
                 message.read_by ?? [],
                 message.upvoters, message.downvoters,
-                message.display_name ?? null, message.initials ?? null
+                message.display_name ?? null, message.initials ?? null,
+                wasUnreadOnEntry(message)
             );
         }
         if (batchHtml) msgdiv.insertAdjacentHTML('beforeend', batchHtml);

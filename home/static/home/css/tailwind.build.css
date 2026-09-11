@@ -4076,7 +4076,7 @@ small,
   flex: 0 0 auto;
 }
 
-.tw-site-admin-version {
+.tw-group-settings-version {
   font-size: .72rem;
   color: var(--text-muted);
   font-family: var(--font-mono);

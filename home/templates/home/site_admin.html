@@ -6,13 +6,13 @@
 
   <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-4 tw-flex-wrap">
     <span class="tw-section-heading tw-text-md">
-      <i class="fas fa-screwdriver-wrench tw-me-2 tw-text-accent tw-opacity-80"></i>{% trans "Site administration and global settings" %}
+      <i class="fas fa-screwdriver-wrench tw-me-2 tw-text-accent tw-opacity-80"></i>{% trans "Group settings" %}
     </span>
     <div class="tw-flex tw-items-center tw-gap-2">
       <a href="{% url 'ui_standards' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary" target="_blank" rel="noopener">
         <i class="fas fa-link fa-fw tw-me-1"></i>{% trans "UI reference" %}
       </a>
-      <span class="tw-site-admin-version">Wikikracja v.{{ app_version }}</span>
+      <span class="tw-group-settings-version">Wikikracja v.{{ app_version }}</span>
     </div>
   </div>
 
@@ -108,7 +108,7 @@
   var list = document.getElementById('quick-links-list');
   var draggedItem = null;
 
-  list.addEventListener('dragstart', function(e) {
+  list?.addEventListener('dragstart', function(e) {
     if (e.target.classList.contains('tw-quick-link-item')) {
       draggedItem = e.target;
       e.target.classList.add('tw-dragging');
@@ -116,7 +116,7 @@
     }
   });
 
-  list.addEventListener('dragend', function(e) {
+  list?.addEventListener('dragend', function(e) {
     if (e.target.classList.contains('tw-quick-link-item')) {
       e.target.classList.remove('tw-dragging');
       draggedItem = null;
@@ -124,7 +124,7 @@
     }
   });
 
-  list.addEventListener('dragover', function(e) {
+  list?.addEventListener('dragover', function(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     var target = e.target.closest('.tw-quick-link-item');
@@ -147,7 +147,7 @@
     });
 
     // Send order to server
-    fetch('{% url "site_admin" %}', {
+    fetch('{% url "group_settings" %}', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',

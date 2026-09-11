@@ -111,6 +111,28 @@ def tailwind_build_check():
     print("Tailwind build: OK (tailwind.build.css is up to date).")
 
 
+def verify_runtime():
+    """Fail early when verification is run with an incomplete environment."""
+    if sys.version_info < (3, 14):
+        print(f"Python 3.14+ is required; found {sys.version.split()[0]}.")
+        sys.exit(1)
+
+    try:
+        import django
+    except ImportError:
+        print("Django is not installed in the active environment.")
+        sys.exit(1)
+    if django.VERSION < (6, 0):
+        print(f"Django 6.0+ is required; found {django.get_version()}.")
+        sys.exit(1)
+
+    try:
+        import pytest_asyncio  # noqa: F401
+    except ImportError:
+        print("pytest-asyncio is required for the asynchronous WebSocket tests.")
+        sys.exit(1)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run all project checks and tests.")
     parser.add_argument("--no-ruff", action="store_true", help="Skip ruff lint and format checks.")
@@ -123,6 +145,7 @@ def main():
     parser.add_argument("--no-playwright", action="store_true", help="Skip Playwright end-to-end tests.")
     args = parser.parse_args()
 
+    verify_runtime()
     if sys.prefix == sys.base_prefix:
         print("Activate your virtualenv first.")
         sys.exit(1)

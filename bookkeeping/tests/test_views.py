@@ -114,3 +114,12 @@ class BookkeepingViewTests(TestCase):
         self.assertEqual(res.url, next_url)
         txn.refresh_from_db()
         self.assertEqual(txn.type, 'O')
+
+    def test_transaction_update_rejects_external_next_param(self):
+        txn = self._transaction()
+        res = self.client.post(
+            reverse('bookkeeping:transaction_update', args=[txn.pk]) + '?next=https://evil.example/',
+            {'type': 'O', 'asset': self.asset.pk, 'partner': self.partner.pk, 'category': self.category.pk, 'amount': '20', 'payment_received_date': '2026-01-02', 'note': 'x'},
+        )
+        self.assertEqual(res.status_code, 302)
+        self.assertNotEqual(res.url, 'https://evil.example/')

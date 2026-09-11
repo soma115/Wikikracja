@@ -107,7 +107,7 @@ const room_template = `
  * @type {string}
  */
 const message_template = `
-<div class='tw-chat-message <% if (own) { %> tw-chat-message--own <% } %>' data-message-id="<%-message_id%>" data-room-id="<%-room_id%>">
+<div class='tw-chat-message <% if (own) { %> tw-chat-message--own <% } %><% if (typeof unread_on_entry !== 'undefined' && unread_on_entry) { %> tw-chat-message--unread-on-entry <% } %>' data-message-id="<%-message_id%>" data-room-id="<%-room_id%>">
   <div class='tw-chat-message-content'>
 
     <div class='tw-msg-body'>

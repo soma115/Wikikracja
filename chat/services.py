@@ -71,11 +71,11 @@ def get_unseen_room_ids(user) -> set[int]:
 
 
 def get_unread_message_counts_for_rooms(user, room_ids) -> dict[int, int]:
-    """Return per-room message counts not present in the user's MessageReadBy rows."""
+    """Return per-room messages from others not present in the user's read rows."""
     room_ids = {room_id for room_id in room_ids if room_id}
     if not room_ids or not getattr(user, "is_authenticated", False):
         return {}
-    return dict(Message.objects.filter(room_id__in=room_ids).exclude(read_by__user=user).values("room_id").annotate(count=Count("id")).values_list("room_id", "count"))
+    return dict(Message.objects.filter(room_id__in=room_ids).exclude(sender=user).exclude(read_by__user=user).values("room_id").annotate(count=Count("id")).values_list("room_id", "count"))
 
 
 def get_user_public_message_rows(user, viewer) -> list[dict]:
@@ -799,6 +799,10 @@ async def _dispatch_message_notifications(channel_layer, room, message, sender, 
             consumer = online_registry.get_consumer(member)
             is_present = bool(consumer) and consumer.rooms.present(room)
             is_mentioned = member.id in mentioned_user_ids
+
+            # Keep per-room counters in every open chat tab in sync, including
+            # muted rooms where the browser notification is intentionally skipped.
+            await channel_layer.group_send(f"user_{member.id}", {"type": "chat.room_unread", "room_id": room.id, "delta": 1})
 
             if not prefs['muted'] and not is_mentioned:
                 if background:

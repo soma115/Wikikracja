@@ -63,6 +63,14 @@ class PostSendProcessingUnseenTest(TestCase):
     def _notifications(self):
         return [(call.args[0], call.args[1]) for call in self.channel_layer.group_send.await_args_list if call.args[1]['type'] in ('chat.notification', 'chat.mention')]
 
+    def _room_unread_events(self):
+        return [(call.args[0], call.args[1]) for call in self.channel_layer.group_send.await_args_list if call.args[1]['type'] == 'chat.room_unread']
+
+    async def test_message_updates_per_room_unread_counter(self):
+        await self._run(None)
+
+        self.assertEqual(self._room_unread_events(), [(f'user_{self.receiver.id}', {'type': 'chat.room_unread', 'room_id': self.room.id, 'delta': 1})])
+
     async def test_seen_receiver_gets_unseen_count_and_push(self):
         """Receiver had seen the room — repo.unsee_room, push_unread_count and push must be called."""
         await database_sync_to_async(self.room.seen_by.add)(self.receiver)
