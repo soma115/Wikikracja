@@ -35,7 +35,7 @@
 
   <div class="tw-toolbar-group tw-toolbar-group-view">
     {% if cta_url and not cta_end %}
-    <a href="{{ cta_url }}" class="tw-btn-cta{% if cta_round %} tw-btn-cta--round{% endif %}"{% if cta_title %} title="{{ cta_title }}"{% else %} title="{{ cta_label }}"{% endif %}>
+    <a href="{{ cta_url }}" class="tw-btn-cta tw-btn-cta--round"{% if cta_title %} title="{{ cta_title }}"{% else %} title="{{ cta_label }}"{% endif %}>
       <i class="fas fa-{{ cta_icon|default:'plus' }}"></i>
       {% if cta_label %}<span class="tw-btn-cta-label">{{ cta_label }}</span>{% endif %}
     </a>
@@ -65,7 +65,7 @@
     {% endif %}
 
     {% if cta_url and cta_end %}
-    <a href="{{ cta_url }}" class="tw-btn-cta{% if not views %} tw-ms-auto{% endif %}{% if cta_round %} tw-btn-cta--round{% endif %}"{% if cta_title %} title="{{ cta_title }}"{% else %} title="{{ cta_label }}"{% endif %}>
+    <a href="{{ cta_url }}" class="tw-btn-cta tw-btn-cta--round{% if not views %} tw-ms-auto{% endif %}"{% if cta_title %} title="{{ cta_title }}"{% else %} title="{{ cta_label }}"{% endif %}>
       <i class="fas fa-{{ cta_icon|default:'plus' }}"></i>
       {% if cta_label %}<span class="tw-btn-cta-label">{{ cta_label }}</span>{% endif %}
     </a>

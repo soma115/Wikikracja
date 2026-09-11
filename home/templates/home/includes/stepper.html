@@ -15,14 +15,14 @@
         <a href="{{ step.url }}"
            class="tw-stepper-rejected{% if step.active %} tw-active{% endif %}{% if step.css_class %} {{ step.css_class }}{% endif %}">
           <i class="fas fa-{{ step.icon }} fa-fw"></i>
-          {% if step.count %}<span class="tw-stepper-step-count">{{ step.count }}</span>{% endif %}
+          {% if step.count is not None %}<span class="tw-stepper-step-count">{{ step.count }}</span>{% endif %}
         </a>
       {% else %}
         <div class="tw-stepper-step-wrap{% if step.active %} tw-active{% endif %}{% if step.css_class %} {{ step.css_class }}{% endif %}">
           <a href="{{ step.url }}" class="tw-stepper-step">
             <i class="fas fa-{{ step.icon }}" aria-hidden="true"></i>
             <span class="tw-stepper-step-label">{{ step.label }}</span>
-            {% if step.count %}<span class="tw-stepper-step-count">{{ step.count }}</span>{% endif %}
+            {% if step.count is not None %}<span class="tw-stepper-step-count">{{ step.count }}</span>{% endif %}
           </a>
         </div>
       {% endif %}
@@ -31,7 +31,7 @@
 
   {% if stepper.cta_url %}
   <a href="{{ stepper.cta_url }}"
-     class="tw-btn-cta tw-stepper-cta"
+     class="tw-btn-cta tw-btn-cta--round tw-stepper-cta"
      {% if stepper.cta_title %}title="{{ stepper.cta_title }}"{% else %}title="{{ stepper.cta_label }}"{% endif %}>
     <i class="fas fa-{{ stepper.cta_icon|default:'plus' }}"></i>
     {% if stepper.cta_label %}<span class="tw-btn-cta-label">{{ stepper.cta_label }}</span>{% endif %}

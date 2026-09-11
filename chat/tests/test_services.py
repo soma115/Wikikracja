@@ -17,7 +17,7 @@ from firebase_admin import messaging as firebase_messaging
 from push_notifications.models import GCMDevice
 
 from chat.exceptions import ClientError
-from chat.models import Message, Room
+from chat.models import Message, MessageReadBy, Room
 from chat.permissions import _room_permission_checkers, get_room_permission_checker, register_room_permission_checker
 from chat.services import CHAT_UNREAD_CACHE_KEY, ChatRepository, _room_notification_name, can_user_post_in_room, extract_mentions, get_avatar_url, get_unread_count_for_user, get_unseen_room_ids, send_message
 from chat.tests.utils import make_user
@@ -570,6 +570,14 @@ class TaskRoomVoterNamesTest(TestCase):
         msg = batch['messages'][-1]
         self.assertNotIn('upvoters', msg)
         self.assertNotIn('downvoters', msg)
+
+    async def test_batch_marks_current_users_read_state(self):
+        batch = await self.repo.get_recent_messages_batch(self.room.id, self.author.id)
+        self.assertFalse(batch['messages'][-1]['read_by_current_user'])
+
+        await database_sync_to_async(MessageReadBy.objects.create)(message=self.msg, user=self.author)
+        batch = await self.repo.get_recent_messages_batch(self.room.id, self.author.id)
+        self.assertTrue(batch['messages'][-1]['read_by_current_user'])
 
     async def test_get_vote_voters_returns_names(self):
         voters = await self.repo.get_vote_voters(self.msg.id)

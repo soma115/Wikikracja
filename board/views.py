@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
-from django.db.models import Prefetch, Q
+from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -14,7 +14,7 @@ from django.views.generic import CreateView, UpdateView
 
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryItemsAPI, CategoryReorderAPI
 from chat.i18n import get_translations as get_chat_translations
-from chat.models import Message
+from chat.services import get_unread_message_counts_for_rooms
 
 from .forms import PostForm
 from .models import Post, PostAttachment, PostCategory
@@ -64,7 +64,7 @@ def board(request: HttpRequest) -> HttpResponse:
         except (ValueError, TypeError):
             pass
 
-    posts_query = Post.objects.select_related('category', 'author', 'chat_room').prefetch_related(Prefetch('chat_room__messages', queryset=Message.objects.only('id', 'room')), 'chat_room__seen_by')
+    posts_query = Post.objects.select_related('category', 'author', 'updated_by', 'chat_room')
     posts_all = posts_query.filter(Post.visibility_filter_for_user(request.user))
     if search_query:
         posts_all = posts_all.filter(Q(title__icontains=search_query) | Q(subtitle__icontains=search_query) | Q(text__icontains=search_query))
@@ -72,15 +72,10 @@ def board(request: HttpRequest) -> HttpResponse:
     categories = list(PostCategory.objects.all())
     posts_by_cat = {}
     uncategorized = []
+    unread_counts = get_unread_message_counts_for_rooms(request.user, [post.chat_room_id for post in posts_all])
     for post in posts_all:
-        room = post.chat_room
-        if room:
-            post.chat_room_message_count = room.messages.count()
-            is_unseen = request.user.is_authenticated and post.chat_room_message_count and request.user not in room.seen_by.all()
-            post.chat_room_pulse_class = 'tw-chat-room-pulse' if is_unseen else ''
-        else:
-            post.chat_room_message_count = 0
-            post.chat_room_pulse_class = ''
+        post.chat_room_unread_count = unread_counts.get(post.chat_room_id, 0)
+        post.chat_room_pulse_class = 'tw-chat-room-pulse' if post.chat_room_unread_count else ''
 
         if post.category_id:
             posts_by_cat.setdefault(post.category_id, []).append(post)
@@ -136,7 +131,7 @@ def board(request: HttpRequest) -> HttpResponse:
 
 
 class PostFormViewMixin(LoginRequiredMixin):
-    """Wspólna logika create/update Post: autor + ręczny zapis załączników
+    """Wspólna logika create/update Post: autorzy zmian + ręczny zapis załączników
     (pole `attachments` nie należy do modelu, więc nie obsługuje go form.save())."""
 
     model = Post
@@ -145,7 +140,9 @@ class PostFormViewMixin(LoginRequiredMixin):
 
     def form_valid(self, form):
         post = form.save(commit=False)
-        post.author = self.request.user
+        if not post.pk:
+            post.author = self.request.user
+        post.updated_by = self.request.user
         post.save()
 
         for attachment in self.request.FILES.getlist('attachments'):
@@ -170,7 +167,7 @@ class PostUpdateView(PostFormViewMixin, UpdateView):
 
 def _post_queryset_for_user(user):
     """Return posts visible to the given user."""
-    return Post.objects.select_related('author', 'category').filter(Post.visibility_filter_for_user(user))
+    return Post.objects.select_related('author', 'updated_by', 'category').filter(Post.visibility_filter_for_user(user))
 
 
 def _post_detail_context(request: HttpRequest, post: Post):

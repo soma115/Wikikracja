@@ -10,8 +10,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
 from board.models import Post
-from chat.models import Message, Room
-from tests.factories import PostFactory, UserFactory
+from chat.models import Message, MessageReadBy, Room
+from tests.factories import PostCategoryFactory, PostFactory, UserFactory
 
 
 @pytest.mark.django_db
@@ -90,14 +90,18 @@ def test_board_list_renders_chat_link(authenticated_client):
 
 @pytest.mark.django_db
 def test_board_list_chat_pulse_for_unread_message(authenticated_client):
-    """Guzik czatu pulsuje, gdy są nieprzeczytane wiadomości w pokoju dokumentu."""
+    """Guzik czatu pulsuje i liczy tylko wiadomości bez MessageReadBy."""
     client, user = authenticated_client
     post = PostFactory(is_public=True)
-    Message.objects.create(room=post.chat_room, text='Hello', sender=user)
+    Message.objects.create(room=post.chat_room, text='Read', sender=user)
+    MessageReadBy.objects.bulk_create([MessageReadBy(message=message, user=user) for message in post.chat_room.messages.all()])
+    Message.objects.create(room=post.chat_room, text='Unread', sender=user)
 
     res = client.get(reverse('board:start'))
 
     assert res.status_code == 200
+    rendered_post = next(item for group in res.context['category_groups'] for item in group['posts'] if item.pk == post.pk)
+    assert rendered_post.chat_room_unread_count == 1
     assert 'tw-chat-room-pulse' in res.content.decode()
 
 
@@ -113,6 +117,7 @@ def test_create_post_saves_author_and_attachments(authenticated_client):
     assert res.status_code == 302
     assert res.url == reverse('board:view_post', args=[post.pk])
     assert post.author == user
+    assert post.updated_by == user
     assert post.chat_room_id is not None
     attachment = post.attachments.get()
     assert attachment.filename == 'notatka.txt'
@@ -146,8 +151,8 @@ def test_edit_post_updates_fields_and_adds_attachments(authenticated_client):
     assert res.url == reverse('board:view_post', args=[post.pk])
     post.refresh_from_db()
     assert post.title == 'Zmieniony tytuł'
-    # Zachowane dotychczasowe zachowanie: edytujący staje się autorem dokumentu.
     assert post.author == user
+    assert post.updated_by == user
     assert post.attachments.get().filename == 'zalacznik.txt'
 
 
@@ -190,6 +195,19 @@ def test_private_post_visible_only_to_author_on_list(authenticated_client):
     res = client.get(reverse('board:start'))
     assert res.status_code == 200
     assert private.title in res.content.decode()
+
+
+@pytest.mark.django_db
+def test_non_private_post_is_visible_to_other_authenticated_users(authenticated_client):
+    """Zwykły dokument jest widoczny dla każdego zalogowanego użytkownika."""
+    client, _ = authenticated_client
+    author = UserFactory(username='document-author', email='document-author@example.com')
+    post = PostFactory(title='Zwykły dokument', is_public=False, is_private=False, author=author)
+
+    response = client.get(reverse('board:start'))
+
+    assert response.status_code == 200
+    assert post.title in response.content.decode()
 
 
 @pytest.mark.django_db
@@ -282,8 +300,29 @@ def test_edit_post_allows_other_user(authenticated_client):
     assert res.status_code == 302
     post.refresh_from_db()
     assert post.title == 'Zmieniony przez innego'
-    # Edytujący przejmuje autorstwo (dotychczasowe zachowanie).
-    assert post.author == user
+    # Autor pozostaje twórcą, a użytkownik edytujący jest zapisywany osobno.
+    assert post.author == other
+    assert post.updated_by == user
+
+
+@pytest.mark.django_db
+def test_edit_system_post_can_change_public_but_not_category_or_other_flags(authenticated_client):
+    """Dokument systemowy pozwala zmienić publiczność, ale blokuje pozostałe pola chronione."""
+    client, user = authenticated_client
+    original_category = PostCategoryFactory(name='System category')
+    new_category = PostCategoryFactory(name='Other category')
+    post = PostFactory(system_key='protected-system-post', category=original_category, is_public=True, is_private=False, is_important=False)
+
+    response = client.post(reverse('board:edit_post', args=[post.pk]), {'title': 'Zmieniony tytuł', 'text': 'Nowa treść', 'category': new_category.pk, 'is_private': 'on', 'is_important': 'on'})
+
+    assert response.status_code == 302
+    post.refresh_from_db()
+    assert post.title == 'Zmieniony tytuł'
+    assert post.category == original_category
+    assert post.is_public is False
+    assert post.is_private is False
+    assert post.is_important is False
+    assert post.updated_by == user
 
 
 @pytest.mark.django_db

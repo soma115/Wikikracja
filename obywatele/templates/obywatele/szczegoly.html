@@ -43,6 +43,7 @@
       <a href="{% url 'chat:open_dm' pk=b.uid.pk %}" class="tw-chat-link tw-ms-2 tw-text-xs">
         <i class="fas fa-comment-dots"></i>
         <span>{% trans 'Send a private message' %}</span>
+        {% if dm_unread_count %}<span class="tw-chat-count">{{ dm_unread_count }}</span>{% endif %}
       </a>
       {% endif %}
     </div>

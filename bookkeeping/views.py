@@ -11,7 +11,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 
 from .forms import AssetForm, TransactionForm
 from .models import Asset, Category, Partner, Transaction
-from .services import asset_balances, category_breakdown
+from .services import category_breakdown
 
 
 class ProtectedDeleteView(LoginRequiredMixin, DeleteView):
@@ -268,13 +268,6 @@ class TransactionListView(BookkeepingListView):
                 | Q(author__username__icontains=search_query)
             )
         return queryset.order_by('-payment_received_date', '-id')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Pasek sald per asset z CAŁEJ historii — nad tabelą, jako kontekst dla użytkownika.
-        # Sortowanie z asset_balances: default asset pierwszy, reszta wg code alfabetycznie.
-        context['balances_by_asset'] = asset_balances()
-        return context
 
 
 class TransactionDetailView(LoginRequiredMixin, DetailView):

@@ -56,21 +56,26 @@
     <div class="section">
       <div class="component-label">Wspólny przycisk „dodaj” we wszystkich modułach</div>
       <div class="row">
-        <a href="#" class="tw-btn-cta"><i class="fas fa-plus"></i> <span class="tw-btn-cta-label">Add</span></a>
+        <a href="#" class="tw-btn-cta tw-btn-cta--round"><i class="fas fa-plus"></i> <span class="tw-btn-cta-label">Add</span></a>
       </div>
       <ul class="rules">
-        <li>Tekstowy guzik z ikoną i etykietą.</li>
-        <li>Etykieta w <code>&lt;span class="tw-btn-cta-label"&gt;</code> — na mobile ukrywana, zostaje ikona.</li>
-        <li>Mobilny CTA bez napisu zachowuje kwadratową proporcję: około <code>32px × 32px</code>, z ikoną wyśrodkowaną w środku. Wariant okrągły pozostaje sterowany przez <code>tw-btn-cta--round</code>.</li>
+        <li>CTA jest okrągłym guzikiem z ikoną; tekst służy jako dostępny label/title, ale nie jest wyświetlany wizualnie.</li>
+        <li>Etykieta może pozostać w <code>&lt;span class="tw-btn-cta-label"&gt;</code> dla semantyki i dostępności, ale CSS ukrywa ją we wszystkich rozmiarach ekranu.</li>
+        <li>CTA zawsze używa okrągłego wariantu <code>tw-btn-cta--round</code>, również na mobile.</li>
+        <li>Rozmiar standardowy: <code>29px × 29px</code> (o 30% większy od poprzednich 22px).</li>
         <li>Ikona <code>fa-plus</code> domyślnie.</li>
         <li>Kolor tła: <code>var(--accent)</code>.</li>
         <li>W module ze stepperem używamy <code>home/templates/home/includes/stepper.html</code>, w toolbarze <code>home/templates/home/includes/toolbar.html</code>.</li>
-        <li>Opcjonalnie <code>cta_round=True</code> daje okrągły guzik z samą ikoną.</li>
+        <li>Wspólny toolbar może renderować CTA, ale jeśli moduł ma stepper, CTA przekazujemy do <code>stepper.cta_url</code> i nie dublujemy go w toolbarze.</li>
       </ul>
     </div>
 
     <h2>4. Toolbar</h2>
     <div class="section">
+      <div class="component-label">Główne CTA w module bez steppera</div>
+      <div class="tw-flex tw-justify-end tw-mb-3">
+        <a href="#" class="tw-btn-cta tw-btn-cta--round"><i class="fas fa-plus"></i> <span class="tw-btn-cta-label">Add</span></a>
+      </div>
       <div class="component-label">Toolbar w module List / Grid</div>
       <div class="tw-toolbar">
         <div class="tw-toolbar-sort">
@@ -83,13 +88,13 @@
           <button class="tw-view-toggle-btn tw-active" data-view="list"><i class="fas fa-list"></i> <span class="tw-view-label">List</span></button>
           <button class="tw-view-toggle-btn" data-view="grid"><i class="fas fa-grip"></i> <span class="tw-view-label">Grid</span></button>
         </div>
-        <span class="tw-toolbar-divider"></span>
-        <a href="#" class="tw-btn-cta tw-ms-auto"><i class="fas fa-plus"></i> <span class="tw-btn-cta-label">Add</span></a>
       </div>
       <ul class="rules">
-        <li>Po lewej sortowanie / filtry, po prawej przełączniki widoku i CTA.</li>
+        <li>Toolbar ma opcjonalne grupy filtrów/sortowania, wyszukiwarki oraz przełącznika widoku. Każda grupa jest renderowana tylko wtedy, gdy moduł przekazuje dane.</li>
+        <li>W module bez steppera główne CTA może znajdować się w osobnym wierszu nad toolbar’em. W module ze stepperem CTA należy do steppera i nie jest powielane w toolbarze.</li>
         <li>Przełączniki widoku są w osobnym <code>.tw-toolbar-view</code>, z ikonami <code>fa-list</code> / <code>fa-grip</code> i etykietami <code>List</code> / <code>Grid</code>.</li>
         <li>Dane widoku: <code>{'name': 'list'|'grid', 'icon': 'list'|'grip', 'title': _('List')|_('Grid')}</code>.</li>
+        <li>Sortowanie jest opcjonalne. Jeśli moduł go nie obsługuje, nie renderujemy pustych przycisków ani pustej grupy filtrów.</li>
         <li>Przyciski sortowania mają ikonę pola + etykietę pola + opcjonalną strzałkę kierunku.</li>
         <li>Ikona pola mówi, co jest sortowane: np. <code>fa-calendar</code> dla daty, <code>fa-user</code> dla autora, <code>fa-tag</code> dla kategorii.</li>
         <li>Strzałka <code>fa-arrow-up</code> / <code>fa-arrow-down</code> oznacza wyłącznie kierunek i nie zastępuje ikony pola.</li>
@@ -102,6 +107,7 @@
         <li>Jeśli filtr „Wszystkie” należy do wyszukiwarki danego modułu, pozostaje bezpośrednio obok pola Szukaj jako jedna grupa kontrolek.</li>
         <li>Jeśli grupy nie mieszczą się w jednej linii, zawijają się w naturalnej kolejności wynikającej z układu strony. Nie narzucamy osobnej kolejności pionowej grup.</li>
         <li>Jeśli pole „Szukaj” w swojej grupie staje się zbyt wąskie, przechodzi do kolejnego wiersza. Nie zmniejszamy go do rozmiaru utrudniającego wpisywanie tekstu.</li>
+        <li>Moduł może używać toolbaru wyłącznie z wyszukiwarką i przełącznikiem Lista/Siatka, np. ankiety; nie dodajemy wtedy zastępczego sortowania.</li>
       </ul>
       <div class="component-label">Mobile: search + view toggle in one line</div>
       <div class="tw-toolbar">
@@ -157,15 +163,17 @@
             <a href="#" class="tw-stepper-step"><i class="fas fa-check"></i> <span class="tw-stepper-step-label">Finished</span><span class="tw-stepper-step-count">28</span></a>
           </div>
         </div>
-        <a href="#" class="tw-btn-cta tw-stepper-cta"><i class="fas fa-plus"></i> <span class="tw-btn-cta-label">Add</span></a>
+        <a href="#" class="tw-btn-cta tw-btn-cta--round tw-stepper-cta"><i class="fas fa-plus"></i> <span class="tw-btn-cta-label">Add</span></a>
       </div>
       <ul class="rules">
         <li>Wszystkie moduły używają wspólnego partiala <code>home/templates/home/includes/stepper.html</code>.</li>
         <li>Na lewo może być guzik info (np. parametry / pomoc), a CTA Dodaj pozostaje na tym samym poziomie co stepper.</li>
         <li>Stepper rozszerza się tylko do granicy CTA Dodaj; CTA pozostaje osobnym, niekurczącym się elementem po prawej stronie.</li>
-        <li>Etykieta CTA jest owinięta w <code>&lt;span class="tw-btn-cta-label"&gt;</code>; na małych ekranach znika, a guzik przechodzi do kompaktowego kwadratu z samą ikoną.</li>
+        <li>Etykieta CTA jest owinięta w <code>&lt;span class="tw-btn-cta-label"&gt;</code> dla semantyki, ale CTA pozostaje wizualnie guzikiem z samą ikoną w każdym rozmiarze ekranu.</li>
         <li>Zanim stepper zacznie się zawijać, etykiety zakładek są ukrywane i zostają same ikony oraz liczniki. CTA Dodaj pozostaje stale w prawym górnym rogu i nie jest zasłaniane przez stepper.</li>
-        <li>Wariant okrągły CTA jest opcjonalny i sterowany przez <code>cta_round=True</code>; nie przenosimy CTA pod stepper.</li>
+        <li>CTA steppera renderuje się tylko, gdy przekazano <code>stepper.cta_url</code>; standard zawsze używa <code>tw-btn-cta tw-btn-cta--round</code> i nie wymaga <code>cta_round=True</code>.</li>
+        <li>CTA nie jest powielane w toolbarze ani przenoszone pod stepper.</li>
+        <li>Dane steppera mają postać <code>{'steps': [{'url', 'icon', 'label', 'active'}], 'cta_url', 'cta_icon', 'cta_label', 'cta_title'}</code>; etykieta i tytuł CTA są lokalizowane.</li>
         <li>Każda zakładka ma ikonę i etykietę.</li>
         <li>Na desktopie widoczne ikona + tekst.</li>
         <li>Na mobile nieaktywne zakładki pokazują tylko ikonę; aktywna pokazuje ikonę + tekst.</li>
@@ -231,24 +239,20 @@
       <div class="component-label">List view</div>
       <div class="tw-card tw-p-4 tw-mb-4">
         <div class="tw-flex tw-flex-col tw-gap-2">
-          <div class="tw-flex tw-items-center tw-justify-between tw-gap-2">
-            <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-              <span class="tw-text-muted tw-text-sm tw-font-semibold">#1</span>
-              <span class="tw-text-primary tw-font-semibold tw-truncate">Example item title</span>
-            </div>
-            <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
-              <span class="tw-badge tw-badge-proposition">Proposition</span>
-              <a href="#" class="tw-badge tw-badge-secondary"><i class="fas fa-comment-dots tw-me-1"></i> Chat</a>
-            </div>
+          <div class="tw-flex tw-items-center tw-gap-2 tw-flex-nowrap tw-min-w-0">
+            <span class="tw-text-muted tw-text-sm tw-font-semibold tw-flex-shrink-0">#1</span>
+            <span class="tw-text-primary tw-font-semibold tw-truncate">Example item title</span>
           </div>
-          <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-xs tw-text-muted">
-            <span><i class="fas fa-user fa-fw tw-text-accent"></i> author</span>
-            <span class="tw-text-muted">·</span>
-            <span><i class="fas fa-calendar fa-fw tw-text-accent"></i> 06.09.2026</span>
-            <span class="tw-text-muted">·</span>
-            <span><i class="fas fa-stopwatch fa-fw tw-text-accent"></i> Due date</span>
-            <span class="tw-text-muted">·</span>
-            <span><i class="fas fa-comment-dots fa-fw tw-text-accent"></i> 3 comments</span>
+          <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-flex-nowrap tw-text-xs tw-text-muted">
+            <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
+              <span class="tw-truncate"><i class="fas fa-user fa-fw tw-text-accent"></i> author</span>
+              <span class="tw-truncate"><i class="fas fa-user-gear fa-fw tw-text-accent"></i> coordinator</span>
+              <span class="tw-whitespace-nowrap"><i class="fas fa-calendar fa-fw tw-text-accent"></i> 06.09.2026</span>
+            </div>
+            <div class="tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 tw-flex-nowrap">
+              <button type="button" class="tw-sort-btn"><i class="fas fa-tag"></i> category</button>
+              <a href="#" class="tw-chat-link" title="Chat"><i class="fas fa-comment-dots"></i><span class="tw-view-label">Chat</span><span class="tw-chat-count">3</span></a>
+            </div>
           </div>
         </div>
       </div>
@@ -285,83 +289,41 @@
         <li>Karta składa się z klikalnego nagłówka i klikalnego ciała. Używaj atrybutu <code>data-detail-url</code> + <code>role="link"</code> na wrapperach, a linki wewnętrzne oznaczaj atrybutem <code>data-tw-stop-propagation</code> (delegat w <code>common/js/dom-utils.js</code>; nie używaj inline <code>onclick</code>).</li>
         <li>Nagłówek zawiera: numer, tytuł, badge status, meta (autor, data, liczniki).</li>
         <li>Ciało zawiera sekcje z ikoną + etykietą + treścią.</li>
-        <li>Widok listy: karty jedna pod drugą w pionowej kolumnie (<code>.tw-proposals-list</code>), a każda karta ma dwa wiersze informacyjne.</li>
+        <li>Widok listy: karty jedna pod drugą w pionowej kolumnie (<code>.tw-proposals-list</code>), a każdy element ma zawsze dokładnie dwa wiersze informacyjne. Drugi wiersz pozostaje zarezerwowany także wtedy, gdy zawiera mniej danych.</li>
+        <li>W pierwszym wierszu widoku listy są wyłącznie numer i tytuł elementu. Wiersz ma stałą wysokość wynikającą z jednej linii tekstu.</li>
+        <li>Drugi wiersz jest podzielony na dwie grupy: po lewej autor (ikona, imię i nazwisko), opcjonalny koordynator (ikona, imię i nazwisko) oraz istotna data; po prawej opcjonalna kategoria jako button, opcjonalny status przychodzący/wychodzący oraz guzik czatu.</li>
+        <li>Przy dużej ikonie użytkownika, od wariantu <code>tw-avatar-lg</code> wzwyż, imię i nazwisko układamy pionowo: imię w pierwszej linii, nazwisko w drugiej. Nie łączymy ich w jeden poziomy napis.</li>
+        <li>Elementy opcjonalne oznaczamy w standardzie nawiasami kwadratowymi: <code>[element]</code>. Moduł renderuje je tylko wtedy, gdy ma dane lub obsługuje daną funkcję.</li>
+        <li>Żaden z dwóch wierszy nie może się zawijać. Grupy używają układu <code>flex-nowrap</code>; długie napisy skracamy na końcu do trzech kropek <code>...</code> (ellipsis), nigdy nie dopuszczając do wyjścia tekstu poza dostępne miejsce.</li>
+        <li>Każdy wiersz musi mieć wewnętrzny odstęp od ramki karty oraz odstęp między grupą lewej i prawej strony. Skrócony tekst nie może dotykać ramki; stosuj padding karty i gap między elementami.</li>
+        <li>Jeśli pełna etykieta nie mieści się w wierszu, można zastąpić ją samą ikoną, ale ikona musi zachować tooltip lub dostępny label.</li>
+        <li>W widoku listy działania nie są dostępne bezpośrednio na elemencie. Aby użyć guzików działań, użytkownik zawsze przechodzi do szczegółów elementu.</li>
         <li>Widok siatki: karty w CSS Grid — 1 col mobile, 2 col tablet, 3–4 col desktop (<code>.tw-proposals-list.tw-view-grid</code>).</li>
         <li>W siatce karta jest wyższa i zawiera fragment treści, ale zachowuje ten sam nagłówek / badge / strukturę sekcji.</li>
+        <li>Dokument bez obrazka wyróżniającego używa dokładnie tego samego dwuwierszowego układu listy co pozostałe moduły.</li>
+        <li>Dokument z obrazkiem wyróżniającym zachowuje wszystkie elementy listy po lewej, a obrazek umieszcza po prawej. Obrazek używa <code>.tw-post-featured-thumb</code>, ma stałą wysokość <code>58px</code>, automatyczną szerokość wynikającą z proporcji i ograniczoną szerokość maksymalną.</li>
+        <li>Etykiety dokumentu <code>Public</code>, <code>Mine</code>, <code>Important</code> i <code>System</code> pokazujemy, gdy odpowiadają stanowi dokumentu; znajdują się w prawej grupie metadanych razem z czatem.</li>
+        <li>W siatce dokumentów pokazujemy osobno datę utworzenia i datę aktualizacji; każda data ma ikonę kalendarza oraz avatar odpowiednio autora utworzenia i osoby aktualizującej.</li>
+        <li>Jeżeli item pokazuje guzik lub link czatu, musi on pokazywać przez wspólny <code>.tw-chat-count</code> liczbę wiadomości z tego pokoju bez rekordu <code>MessageReadBy</code> dla bieżącego użytkownika. Ta sama reguła obowiązuje przy obywatelu i na liście pokoi; nie pokazujemy całkowitej liczby wiadomości ani liczby nieprzeczytanych pokoi.</li>
         <li>Dla konkretnych domen używaj dziedziczonych klas: <code>.tw-board-post-card</code>, <code>.tw-proposal-card</code> / <code>.tw-task-card</code> / <code>.tw-event-card</code>.</li>
       </ul>
     </div>
 
-    <h2>10. Układ modułu: lista i siatka</h2>
+    <h2>10. Anatomia modułu i mapowanie danych</h2>
     <div class="section">
       <div class="intro">
-        <p>Moduły mogą prezentować różne dane, ale ich układ pozostaje wspólny. Różnica między działami polega na wyborze informacji do tych samych miejsc, a nie na tworzeniu osobnego schematu karty.</p>
-        <p>Lista służy do szybkiego skanowania wielu pozycji. Siatka pokazuje więcej informacji, w tym krótki fragment treści.</p>
+        <p>Moduły mogą prezentować różne dane, ale korzystają ze wspólnego układu strony i tych samych miejsc na informacje.</p>
       </div>
 
       <h3>Stała anatomia strony</h3>
       <ol>
         <li>Nagłówek modułu — nazwa, krótkie objaśnienie i opcjonalna pomoc.</li>
         <li>Stepper lub zakładki — tylko gdy użytkownik przełącza główne stany.</li>
-        <li>Toolbar — sortowanie, wyszukiwanie i filtry po lewej; przełącznik widoku i CTA po prawej.</li>
+        <li>Toolbar — opcjonalne sortowanie, wyszukiwanie i filtry oraz przełącznik widoku; CTA jest w toolbarze tylko bez steppera, a ze stepperem należy do steppera.</li>
         <li>Opcjonalne grupowanie — np. kategoria, status albo dzień.</li>
         <li>Lista lub siatka kart w kontenerze <code>tw-proposals-list</code>.</li>
         <li>Pusty stan z objaśnieniem i CTA, gdy brak wyników.</li>
       </ol>
-
-      <h3>Lista — dokładnie dwa wiersze</h3>
-      <div class="tw-card tw-p-4 tw-mb-4">
-        <div class="tw-flex tw-flex-col tw-gap-2">
-          <div class="tw-flex tw-items-center tw-justify-between tw-gap-2">
-            <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0">
-              <span class="tw-text-muted tw-text-sm tw-font-semibold">#1</span>
-              <span class="tw-text-primary tw-font-semibold tw-truncate">Item title</span>
-            </div>
-            <span class="tw-badge tw-badge-proposition">Status</span>
-          </div>
-          <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-xs tw-text-muted">
-            <span><i class="fas fa-user fa-fw tw-text-accent"></i> Owner</span>
-            <span class="tw-text-muted">·</span>
-            <span><i class="fas fa-tag fa-fw tw-text-accent"></i> Category</span>
-            <span class="tw-text-muted">·</span>
-            <span><i class="fas fa-stopwatch fa-fw tw-text-accent"></i> Due date</span>
-            <span class="tw-text-muted">·</span>
-            <span><i class="fas fa-comment-dots fa-fw tw-text-accent"></i> Counters</span>
-          </div>
-        </div>
-      </div>
-      <ul class="rules">
-        <li>Wiersz 1 rozpoznaje element: identyfikator, tytuł, status i ewentualnie jeden licznik.</li>
-        <li>Wiersz 2 łączy kontekst i stan operacyjny: autora, kategorię, termin, postęp lub liczniki.</li>
-        <li>Opis i pełna treść nie są pokazywane w liście.</li>
-        <li>Na mobile zachowujemy tytuł i status, a drugorzędne dane skracamy lub ukrywamy zamiast tworzyć trzeci wiersz.</li>
-      </ul>
-
-      <h3>Siatka — więcej informacji</h3>
-      <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4 tw-mb-4">
-        <div class="tw-card tw-p-4">
-          <div class="tw-flex tw-flex-col tw-gap-2 tw-pb-3 tw-mb-3 tw-border-b tw-border-subtle">
-            <div class="tw-text-primary tw-font-semibold">[1] Item title</div>
-            <div><span class="tw-badge tw-badge-approved">Status</span></div>
-            <div class="tw-text-xs tw-text-muted"><i class="fas fa-user fa-fw tw-text-accent"></i> Owner · <i class="fas fa-tag fa-fw tw-text-accent"></i> Category</div>
-          </div>
-          <div class="tw-mb-3">
-            <div class="tw-text-xs tw-font-semibold tw-text-muted tw-uppercase tw-tracking-wide tw-mb-1"><i class="fas fa-file-lines fa-fw tw-text-accent"></i> Description</div>
-            <div class="tw-text-sm tw-text-muted">A short excerpt of the item content, limited to three lines. Four lines are allowed only when the content is the primary information.</div>
-          </div>
-          <div class="tw-text-xs tw-text-muted"><i class="fas fa-stopwatch fa-fw tw-text-accent"></i> Due date · Counters</div>
-        </div>
-        <div class="tw-card tw-p-4">
-          <div class="tw-text-primary tw-font-semibold tw-mb-3">The same structure</div>
-          <div class="tw-text-sm tw-text-muted">The module changes the data, not the order of the card sections.</div>
-        </div>
-      </div>
-      <ul class="rules">
-        <li>Karta siatki ma nagłówek, kontekst, fragment treści i metadane stanu.</li>
-        <li>Zwykły opis ma maksymalnie trzy linie; cztery są uzasadnione dla podstawowej treści, np. pytania głosowania.</li>
-        <li>Karta może mieć stopkę tylko dla dodatkowych akcji innych niż edycja i usuwanie.</li>
-        <li>Edycja i usuwanie są dostępne dopiero na stronie szczegółów wpisu, nie na karcie listy ani siatki.</li>
-      </ul>
 
       <h3>Przykładowe mapowanie danych</h3>
       <table class="tw-table tw-table-striped tw-table-hover tw-table-sm">
@@ -375,86 +337,7 @@
       </table>
     </div>
 
-    <h2>11. Kompletna strona modułu</h2>
-    <div class="section">
-      <div class="component-label">Wszystkie standardowe elementy razem — przykładowy moduł Finanse</div>
-
-      <div class="tw-topbar tw-gap-2 tw-px-3 tw-mb-4">
-        <div class="tw-flex tw-items-center tw-gap-2">
-          <button class="tw-btn tw-btn-sm tw-btn-secondary" aria-label="Open menu"><i class="fas fa-bars"></i></button>
-          <i class="fas fa-wallet tw-text-accent"></i>
-        </div>
-        <span class="tw-flex-1 tw-text-center tw-text-sm tw-font-semibold">Finanse</span>
-        <div class="tw-flex tw-items-center tw-gap-2">
-          <i class="fas fa-magnifying-glass tw-text-muted"></i>
-          <i class="fas fa-circle-half-stroke tw-text-muted"></i>
-          <i class="fas fa-bell tw-text-muted"></i>
-        </div>
-      </div>
-
-      <div class="tw-flex tw-items-start tw-justify-between tw-gap-3 tw-mb-3">
-        <div>
-          <h3 class="tw-mb-1"><i class="fas fa-money-bill-transfer tw-text-accent tw-me-2"></i>Finanse</h3>
-          <p class="tw-text-muted tw-text-sm tw-mb-0">Transakcje, aktywa i podsumowania grupy.</p>
-        </div>
-        <a href="#" class="tw-stepper-info-btn" title="Help"><i class="fas fa-circle-info"></i></a>
-      </div>
-
-      <div class="tw-stepper-nav tw-mb-4">
-        <div class="tw-stepper-step-wrap tw-active"><a href="#" class="tw-stepper-step"><i class="fas fa-money-bill-transfer"></i><span class="tw-stepper-step-label">Transactions</span></a></div>
-        <div class="tw-stepper-step-wrap"><a href="#" class="tw-stepper-step"><i class="fas fa-handshake"></i><span class="tw-stepper-step-label">Partners</span></a></div>
-        <div class="tw-stepper-step-wrap"><a href="#" class="tw-stepper-step"><i class="fas fa-tags"></i><span class="tw-stepper-step-label">Categories</span></a></div>
-        <div class="tw-stepper-step-wrap"><a href="#" class="tw-stepper-step"><i class="fas fa-coins"></i><span class="tw-stepper-step-label">Assets</span></a></div>
-      </div>
-
-      <div class="tw-toolbar">
-        <div class="tw-toolbar-sort">
-          <a href="#" class="tw-sort-btn tw-active"><i class="fas fa-calendar fa-fw"></i><span class="tw-sort-btn-label">Date</span><i class="fas fa-arrow-down tw-sort-arrow"></i></a>
-          <a href="#" class="tw-sort-btn"><i class="fas fa-coins fa-fw"></i><span class="tw-sort-btn-label">Amount</span></a>
-          <a href="#" class="tw-sort-btn"><i class="fas fa-tag fa-fw"></i><span class="tw-sort-btn-label">Category</span></a>
-        </div>
-        <span class="tw-toolbar-divider"></span>
-        <input type="search" class="tw-form-control tw-flex-1 tw-min-w-0" placeholder="Search" aria-label="Search">
-        <span class="tw-toolbar-divider tw-ms-auto"></span>
-        <div class="tw-toolbar-view">
-          <button class="tw-view-toggle-btn tw-active" data-view="list"><i class="fas fa-list"></i><span class="tw-view-label">List</span></button>
-          <button class="tw-view-toggle-btn" data-view="grid"><i class="fas fa-grip"></i><span class="tw-view-label">Grid</span></button>
-        </div>
-        <span class="tw-toolbar-divider"></span>
-        <a href="#" class="tw-btn-cta"><i class="fas fa-plus"></i><span class="tw-btn-cta-label">Add transaction</span></a>
-      </div>
-
-      <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mb-3">
-        <span class="tw-text-muted tw-text-sm">Balance:</span>
-        <span class="tw-badge tw-badge-success">PLN: 12 450,00 zł</span>
-        <span class="tw-badge tw-badge-danger">EUR: -120,00 €</span>
-      </div>
-
-      <div class="tw-proposals-list tw-mb-4">
-        <div class="tw-proposal-card">
-          <div class="tw-proposal-card-header">
-            <div class="tw-proposal-card-title-row"><span class="tw-proposal-card-num">#42</span><span class="tw-proposal-card-title">Opłata członkowska — wrzesień</span></div>
-            <div class="tw-proposal-card-badges-row"><span class="tw-badge-status tw-badge-success"><i class="fas fa-money-bill-transfer fa-fw"></i> Incoming</span><span class="tw-badge tw-badge-secondary">+1200 PLN</span></div>
-            <div class="tw-proposal-card-meta"><span><i class="fas fa-handshake fa-fw"></i> Jan Kowalski</span><span class="tw-proposal-meta-sep">·</span><span><i class="fas fa-calendar fa-fw"></i> 05.09.2026</span><span class="tw-proposal-meta-sep">·</span><span><i class="fas fa-tag fa-fw"></i> Membership</span></div>
-          </div>
-        </div>
-        <div class="tw-proposal-card">
-          <div class="tw-proposal-card-header">
-            <div class="tw-proposal-card-title-row"><span class="tw-proposal-card-num">#41</span><span class="tw-proposal-card-title">Zakup materiałów promocyjnych</span></div>
-            <div class="tw-proposal-card-badges-row"><span class="tw-badge-status tw-badge-danger"><i class="fas fa-money-bill-transfer fa-fw"></i> Outgoing</span><span class="tw-badge tw-badge-secondary">-450 PLN</span></div>
-            <div class="tw-proposal-card-meta"><span><i class="fas fa-handshake fa-fw"></i> Drukarnia ABC</span><span class="tw-proposal-meta-sep">·</span><span><i class="fas fa-calendar fa-fw"></i> 28.08.2026</span><span class="tw-proposal-meta-sep">·</span><span><i class="fas fa-tag fa-fw"></i> Marketing</span></div>
-          </div>
-        </div>
-      </div>
-
-      <ul class="rules">
-        <li>Na desktopie widać pełne etykiety; na mobile najpierw znika tekst nieaktywnych przycisków, nie sam przycisk.</li>
-        <li>Wyszukiwarka zachowuje zaokrąglone rogi i ramkę oraz skraca się, aby pozostać w jednej linii z List / Grid.</li>
-        <li>Karty listy mają dokładnie dwa wiersze informacyjne. Kliknięcie karty prowadzi do szczegółów, gdzie znajdują się akcje Edytuj i Usuń.</li>
-      </ul>
-    </div>
-
-    <h2>12. Słownik ikon</h2>
+    <h2>11. Słownik ikon</h2>
     <div class="section">
       <p class="rules-intro">Ta sama ikona znaczy to samo wszędzie na stronie. Nie zamieniaj znaczenia ikony w innym module — jeśli potrzebujesz nowej semantyki, dodaj ją do tego słownika zamiast wymyślać wariant.</p>
       <table class="tw-table tw-table-striped tw-table-hover tw-table-sm">
@@ -613,7 +496,7 @@
       </ul>
     </div>
 
-    <h2>13. Pliki źródłowe</h2>
+    <h2>12. Pliki źródłowe</h2>
     <div class="section">
       <ul class="rules">
         <li>Toolbar: <a class="source-link" href="../home/templates/home/includes/toolbar.html"><code>home/templates/home/includes/toolbar.html</code></a></li>
@@ -623,13 +506,13 @@
       </ul>
     </div>
 
-    <h2>14. Zasady ogólne</h2>
+    <h2>13. Zasady ogólne</h2>
     <div class="section">
       <ul class="rules">
         <li><strong>Jeden komponent = jedno źródło.</strong> Jeśli guzik występuje w wielu miejscach, powinien korzystać z tego samego szablonu / klasy.</li>
         <li><strong>Ikona przy każdym guziku.</strong> Ikona po lewej, tekst po prawej.</li>
         <li><strong>Responsywne etykiety.</strong> Mobile: najpierw ukrywamy sam tekst nieaktywnego guzika i zostawiamy ikonę; całe guziki ukrywamy dopiero jako ostateczność.</li>
-        <li><strong>CTA zawsze taki sam.</strong> Tekstowy guzik z ikoną i etykietą; opcjonalnie okrągły plus 22×22 px.</li>
+        <li><strong>CTA zawsze taki sam.</strong> Kompaktowy guzik z samą ikoną; etykieta tekstowa może istnieć dla dostępności, ale nie jest renderowana wizualnie.</li>
         <li><strong>Widoki: List / Grid.</strong> Zawsze te same ikony i etykiety, umieszczone po prawej stronie toolbaru.</li>
         <li><strong>Zakładki: ikona + etykieta.</strong> Mobile nieaktywne tylko ikona.</li>
         <li><strong>Nie używaj lokalnych stylów inline.</strong> Preferuj klasy CSS i tokeny.</li>
@@ -638,16 +521,18 @@
       </ul>
     </div>
 
-    <h2>15. Akcenty kategorii czatu</h2>
+    <h2>14. Chat</h2>
     <div class="section">
       <ul class="rules">
+        <li>Przed pierwszą wiadomością bez <code>MessageReadBy</code> dla bieżącego użytkownika w momencie wejścia do pokoju pokazujemy separator <code>.tw-chat-unread-divider</code> „Unread”. Wszystkie wiadomości poniżej, które były wtedy nieprzeczytane, otrzymują <code>.tw-chat-message--unread-on-entry</code>: tło akcentowe i lewy pasek bez zmiany układu. Oznaczenie pozostaje do opuszczenia lub ponownego załadowania pokoju.</li>
+        <li>Nagłówek każdego działu czatu pokazuje po prawej stronie nazwy sumę nieprzeczytanych wiadomości ze wszystkich aktywnych i archiwalnych pokoi tego działu. Używa statycznego wariantu <code>.tw-chat-count.tw-chat-count--section</code> i znika dla wartości zero.</li>
         <li>Kategorie pokoi w czacie mają delikatny akcent kolorystyczny sterowany zmienną <code>--chat-cat-accent</code>, ustawianą atrybutami <code>data-category</code> (na <code>.tw-chat-category</code>) i <code>data-room-kind</code> (na <code>.tw-room-link</code>). Akcent: kolor tytułu kategorii + pasek <code>border-left</code> pokoju.</li>
         <li>Mapowanie jest zgodne z <code>core/colors.py</code> (CATEGORY_COLORS): publiczne → <code>info</code>, działania → <code>warning</code>, głosowania → <code>danger</code>, dokumenty → <code>primary</code>, prywatne → <code>secondary</code>. Te same warianty <code>tw-alert-*</code> stosuje modal info czatu.</li>
         <li><code>data-room-kind</code> jest wymagane, bo sortowanie po aktywności przenosi linki pokoi do <code>#room-list-flat</code> poza kontener kategorii.</li>
       </ul>
     </div>
 
-    <h2>16. Wskaźnik aktywności użytkownika</h2>
+    <h2>15. Wskaźnik aktywności użytkownika</h2>
     <div class="section">
       <ul class="rules">
         <li>Wskaźnik <code>.tw-presence-dot</code> jest małą kropką umieszczoną w prawym górnym rogu avatara użytkownika.</li>

@@ -18,6 +18,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from chat.i18n import get_translations as get_chat_translations
+from chat.services import get_unread_message_counts_for_rooms
 from core.signals import vote_state_changed
 from core.utils import build_site_url
 from glosowania.forms import ArgumentForm, DecyzjaForm, ParametersProposalForm
@@ -333,6 +334,8 @@ def details(request: HttpRequest, pk: int):
 
     # Check if chat room has unseen messages
     chat_room_pulse_class = szczegoly.get_chat_room_pulse_class(request.user)
+    chat_unread_counts = get_unread_message_counts_for_rooms(request.user, [chat_room.id] if chat_room else [])
+    chat_unread_count = chat_unread_counts.get(chat_room.id, 0) if chat_room else 0
 
     # Query arguments for this decision
     arguments = Argument.objects.filter(decyzja=pk).select_related('author')
@@ -377,6 +380,7 @@ def details(request: HttpRequest, pk: int):
             'next': next,
             'chat_room': chat_room,
             'chat_room_pulse_class': chat_room_pulse_class,
+            'chat_unread_count': chat_unread_count,
             'positive_arguments': positive_arguments,
             'negative_arguments': negative_arguments,
             'argument_form': argument_form,
@@ -678,10 +682,20 @@ def _status_list(request: HttpRequest, status, *, author_signed=False, pulse=Fal
         qs = qs.filter(Q(title__icontains=search_query) | Q(tresc__icontains=search_query) | Q(uzasadnienie__icontains=search_query))
     if author_signed:
         qs = qs.annotate(_signed=author_signed_exists()).filter(_signed=True)
-    votings = _apply_sort(qs, sort, order)
-    if pulse:
-        votings = list(votings)
-        for voting in votings:
+    votings = list(_apply_sort(qs, sort, order))
+    unread_counts = get_unread_message_counts_for_rooms(request.user, [voting.chat_room_id for voting in votings])
+    for voting in votings:
+        voting.chat_unread_count = unread_counts.get(voting.chat_room_id, 0)
+        if status == Decyzja.Status.PROPOSITION:
+            voting.list_date = voting.data_powstania
+        elif status == Decyzja.Status.DISCUSSION:
+            voting.list_date = voting.data_zebrania_podpisow
+        elif status == Decyzja.Status.REFERENDUM:
+            voting.list_date_start = voting.data_referendum_start
+            voting.list_date_stop = voting.data_referendum_stop
+        else:
+            voting.list_date = voting.data_ostatniej_modyfikacji
+        if pulse:
             voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
     return render(
         request,

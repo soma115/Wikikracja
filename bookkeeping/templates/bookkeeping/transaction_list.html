@@ -1,27 +1,11 @@
 {% extends 'bookkeeping/menu.html' %}
 {% load i18n %}
-{% load bookkeeping_extras %}
 
 {% block prefs_scope %}bookkeeping{% endblock %}
 {% block prefs_tab %}transactions{% endblock %}
 {% block bookkeeping %}
 
   {% include 'home/includes/toolbar.html' with cta_url='' views=toolbar_views search_include='bookkeeping/_transaction_search.html' %}
-
-  {# Pasek sald per asset — cała historia, default first. Tooltip zawiera szczegóły income/expenses. #}
-  {% if balances_by_asset %}
-    <div class="tw-mb-3 tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
-      <small class="tw-text-muted tw-me-1">{% trans "Balance per asset" %}:</small>
-      {% for row in balances_by_asset %}
-        <span class="{% if row.balance >= 0 %}tw-badge tw-badge-success{% else %}tw-badge tw-badge-danger{% endif %}"
-              data-tw-toggle="tooltip"
-              data-tw-placement="top"
-              title="{% trans 'Revenues' %}: {{ row.income|normalize_decimal }} {{ row.asset.symbol }} · {% trans 'Expenses' %}: {{ row.expenses|normalize_decimal }} {{ row.asset.symbol }} · {{ row.txn_count }} {% trans 'transactions' %}">
-          {{ row.asset.code }}: {{ row.balance|normalize_decimal }} {{ row.asset.symbol }}
-        </span>
-      {% endfor %}
-    </div>
-  {% endif %}
 
   <div class="tw-proposals-list" data-view-container>
     {% if transactions %}

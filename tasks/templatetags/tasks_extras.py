@@ -33,11 +33,12 @@ def tasks_stepper(context):
             params.append(('category', c))
         return f"{url}?{urlencode(params)}"
 
+    counts = context.get('task_counts', {})
     steps = [
-        {'url': _url('tasks:list', tab='mine'), 'icon': 'user', 'label': _('Mine'), 'active': active == 'list' and current_tab == 'mine'},
-        {'url': _url('tasks:list', tab='awaiting'), 'icon': 'hourglass-half', 'label': _('Awaiting'), 'active': active == 'list' and current_tab == 'awaiting'},
-        {'url': _url('tasks:list', tab='active'), 'icon': 'spinner', 'label': _('In progress'), 'active': active == 'list' and current_tab == 'active'},
-        {'url': _url('tasks:list', tab='finished'), 'icon': 'check', 'label': _('Finished'), 'active': active == 'list' and current_tab == 'finished'},
+        {'url': _url('tasks:list', tab='mine'), 'icon': 'user', 'label': _('Mine'), 'count': counts.get('mine'), 'active': active == 'list' and current_tab == 'mine'},
+        {'url': _url('tasks:list', tab='awaiting'), 'icon': 'hourglass-half', 'label': _('Awaiting'), 'count': counts.get('awaiting'), 'active': active == 'list' and current_tab == 'awaiting'},
+        {'url': _url('tasks:list', tab='active'), 'icon': 'spinner', 'label': _('In progress'), 'count': counts.get('active'), 'active': active == 'list' and current_tab == 'active'},
+        {'url': _url('tasks:list', tab='finished'), 'icon': 'check', 'label': _('Finished'), 'count': counts.get('finished'), 'active': active == 'list' and current_tab == 'finished'},
         {'url': _url('tasks:stats'), 'icon': 'chart-simple', 'label': _('Statistics'), 'active': active == 'stats'},
     ]
 

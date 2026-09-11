@@ -35,6 +35,17 @@ class SurveyViewsTests(TestCase):
         self.assertEqual(survey.author, self.author)
         self.assertEqual(survey.options.count(), 2)
 
+    def test_create_survey_shows_length_errors(self):
+        self.client.login(username="author", password="pass")
+        future = (timezone.now() + timedelta(days=2)).strftime("%Y-%m-%dT%H:%M")
+        response = self.client.post(reverse("ankiety:create"), {"title": "T" * 201, "description": "D" * 3001, "end_date": future, "options_text": "Red\nBlue"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("title", response.context["form"].errors)
+        self.assertIn("description", response.context["form"].errors)
+        self.assertContains(response, 'class="tw-text-danger tw-text-sm tw-mt-1" role="alert"', count=2)
+        self.assertEqual(Survey.objects.count(), 0)
+
     def test_edit_only_by_author(self):
         survey = self._create_survey(self.author)
         self.client.login(username="other", password="pass")
@@ -93,6 +104,11 @@ class SurveyViewsTests(TestCase):
         response = self.client.get(reverse("ankiety:list"), {"tab": "active"})
         self.assertContains(response, active.title)
         self.assertNotContains(response, finished.title)
+        self.assertContains(response, "tw-stepper-nav")
+        self.assertContains(response, 'href="?tab=active"')
+        self.assertContains(response, 'href="?tab=finished"')
+        self.assertContains(response, f'href="{reverse("ankiety:create")}"')
+        self.assertNotContains(response, "tw-sort-btn")
 
         response = self.client.get(reverse("ankiety:list"), {"tab": "finished"})
         self.assertContains(response, finished.title)

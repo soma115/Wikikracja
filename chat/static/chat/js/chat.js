@@ -998,6 +998,10 @@ export async function onRoomTryLeave(sync_with_server) {
 }
 
 
+function wasUnreadOnEntry(message) {
+    return !message.own && message.read_by_current_user === false;
+}
+
 /**
  * @param {Array} messages - Array of message objects from server
  */
@@ -1011,8 +1015,8 @@ export async function onReceiveMessages(messages) {
     const msgdiv = DOM_API.getMessagesDiv();
     DOM_API.removeNoMessagesBanner();
 
-    if (messages.length === 1) {
-        // Single message (real-time) — normal path
+    if (messages.length === 1 && messages[0].new) {
+        // Single real-time message — normal path
         const message = messages[0];
 
         // Optimistic UI — own message echoed back matches a pending placeholder; skip normal render path.
@@ -1046,12 +1050,17 @@ export async function onReceiveMessages(messages) {
         // Batch load (join room) — build all HTML at once, single DOM insertion
         let batchHtml = '';
         let lastBannerText = DOM_API.lastDateBannerText();
+        let unreadDividerInserted = false;
 
         for (const message of messages) {
             const current_banner = formatDate(message.timestamp);
             if (current_banner !== lastBannerText) {
                 batchHtml += dateBannerHtml(current_banner);
                 lastBannerText = current_banner;
+            }
+            if (!unreadDividerInserted && wasUnreadOnEntry(message)) {
+                batchHtml += `<div class="tw-chat-unread-divider"><span>${_("Unread")}</span></div>`;
+                unreadDividerInserted = true;
             }
             batchHtml += DOM_API.buildMessageHtml(
                 message.room_id, message.user_id ?? null, message.avatar_url ?? null, message.citizen_color_class ?? '', message.message_id, message.username, message.message,
@@ -1069,6 +1078,10 @@ export async function onReceiveMessages(messages) {
 
         // Apply active vote states after batch insert
         for (const message of messages) {
+            const messageDiv = DOM_API.getMessageDiv(message.message_id);
+            if (wasUnreadOnEntry(message)) {
+                messageDiv?.classList.add('tw-chat-message--unread-on-entry');
+            }
             if (message.your_vote) {
                 DOM_API.getVoteDiv(message.message_id, message.your_vote)?.classList.add('tw-active');
             }

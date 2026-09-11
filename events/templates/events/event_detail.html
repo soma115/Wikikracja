@@ -93,7 +93,7 @@
     <a href="{% url 'events:list' %}" class="tw-btn tw-btn-secondary tw-event-back-link" title="{% trans 'Back to Calendar' %}">
       <i class="fas fa-arrow-left"></i> {% trans "Back to Calendar" %}
     </a>
-    <a href="{{ event.google_calendar_url }}" target="_blank" rel="noopener" class="tw-btn-cta" title="{% trans 'Add to Google Calendar' %}">
+    <a href="{{ event.google_calendar_url }}" target="_blank" rel="noopener" class="tw-btn-cta tw-btn-cta--round" title="{% trans 'Add to Google Calendar' %}">
       <i class="far fa-calendar-plus"></i> {% trans "Add to Google Calendar" %}
     </a>
   </div>

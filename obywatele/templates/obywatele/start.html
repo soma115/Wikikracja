@@ -16,23 +16,18 @@
     {# ── List view ── #}
     <div id="citizens-list-view" data-view-only="list" class="tw-proposals-list">
       {% for i in uid %}
-      <div class="tw-proposal-card" data-user-id="{{ i.pk }}" data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
+      <div class="tw-proposal-card tw-user-row" data-user-id="{{ i.pk }}" data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
         <div class="tw-proposal-card-header"
              data-detail-url="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}{% if sort_param %}?{{ sort_param }}{% endif %}"
              role="link" tabindex="0">
-          <div class="tw-proposal-card-title-row">
+          <div class="tw-proposal-card-title-row tw-w-full tw-min-w-0">
             {% include "home/_user_avatar.html" with user=i size="sm" %}
             <span class="tw-proposal-card-title">{% if i.first_name or i.last_name %}{{ i.first_name }} {{ i.last_name }}{% else %}{{ i|display_name }}{% endif %}</span>
-            {% if i.near_threshold %}<span class="tw-badge-status tw-badge-warning" title="{% trans 'This person has low reputation points' %}">!</span>{% endif %}
-            {% if i.pending_deletion %}<span class="tw-badge-status tw-badge-danger" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash"></i></span>{% endif %}
-          </div>
-          <div class="tw-proposal-card-meta">
-            <span><i class="fas fa-globe fa-fw"></i> {% if i.uzytkownik.city %}{{ i.uzytkownik.city }}{% else %}—{% endif %}</span>
-            <span class="tw-proposal-meta-sep">·</span>
-            <span><i class="fas fa-map-marker-alt fa-fw"></i> {% if i.uzytkownik.voivodeship %}{{ i.uzytkownik.voivodeship.name }}{% else %}—{% endif %}</span>
-            {% if i.email %}<a href="mailto:{{ i.email }}" class="tw-btn tw-btn-sm tw-btn-info tw-ms-auto" data-tw-stop-propagation title="{{ i.email }}"><i class="fas fa-envelope"></i></a>{% endif %}
-            {% if i.uzytkownik.phone %}<a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-sm tw-btn-success" data-tw-stop-propagation title="{{ i.uzytkownik.phone }}"><i class="fas fa-phone"></i></a>{% endif %}
-            {% if i.pk != request.user.pk %}<a href="{% url 'chat:open_dm' pk=i.pk %}" class="tw-btn tw-btn-sm tw-btn-primary" data-tw-stop-propagation title="{% trans 'Direct message' %}"><i class="fas fa-comment-dots"></i></a>{% endif %}
+            <div class="tw-flex tw-items-center tw-gap-2 tw-ms-auto tw-shrink-0">
+              {% if i.email %}<a href="mailto:{{ i.email }}" class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-info" data-tw-stop-propagation title="{{ i.email }}"><i class="fas fa-envelope"></i></a>{% else %}<span class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-outline-secondary" data-tw-stop-propagation aria-disabled="true" title="{% trans 'No email' %}"><i class="fas fa-envelope"></i></span>{% endif %}
+              {% if i.uzytkownik.phone %}<a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-success" data-tw-stop-propagation title="{{ i.uzytkownik.phone }}"><i class="fas fa-phone"></i></a>{% else %}<span class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-outline-secondary" data-tw-stop-propagation aria-disabled="true" title="{% trans 'No phone' %}"><i class="fas fa-phone"></i></span>{% endif %}
+              {% if i.pk != request.user.pk %}<a href="{% url 'chat:open_dm' pk=i.pk %}" class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-primary" data-tw-stop-propagation title="{% trans 'Direct message' %}"><i class="fas fa-comment-dots"></i>{% if i.dm_unread_count %}<span class="tw-chat-count">{{ i.dm_unread_count }}</span>{% endif %}</a>{% else %}<span class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-outline-secondary" data-tw-stop-propagation aria-disabled="true" title="{% trans 'This is you' %}"><i class="fas fa-comment-dots"></i></span>{% endif %}
+            </div>
           </div>
         </div>
       </div>
@@ -42,12 +37,12 @@
     {# ── Grid view ── #}
     <div id="citizens-grid-view" data-view-only="grid" class="tw-citizens-grid tw-proposals-list">
       {% for i in uid %}
-      <div class="tw-citizen-card tw-text-start tw-items-start"
+      <div class="tw-citizen-card tw-text-start tw-items-start tw-self-start tw-min-w-0 tw-max-w-full tw-overflow-hidden"
            data-user-id="{{ i.pk }}"
            data-detail-url="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}"
            role="link" tabindex="0"
            data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
-        <div class="tw-flex tw-gap-3 tw-w-full">
+        <div class="tw-flex tw-gap-3 tw-w-full tw-min-w-0 tw-max-w-full">
           <div class="tw-shrink-0 tw-relative">
             {% include "home/_user_avatar.html" with user=i size="5xl" %}
           </div>
@@ -59,48 +54,70 @@
               {% if i.last_name %}{{ i.last_name }}{% else %}-{% endif %}
             </span>
           </div>
-          <div class="tw-flex tw-items-center tw-gap-1 tw-shrink-0">
-            {% if i.near_threshold %}
-            <span class="tw-badge-status tw-badge-warning" title="{% trans 'This person has low reputation points' %}">!</span>
-            {% endif %}
-            {% if i.pending_deletion %}
-            <span class="tw-badge-status tw-badge-danger" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash"></i></span>
+          {% if i.uzytkownik.city or i.uzytkownik.voivodeship or i.near_threshold or i.pending_deletion %}
+          <div class="tw-flex tw-flex-col tw-items-end tw-justify-center tw-gap-1 tw-min-w-0 tw-shrink-0 tw-text-end tw-text-xs tw-text-muted">
+            {% if i.uzytkownik.city %}<span class="tw-max-w-full tw-truncate" title="{{ i.uzytkownik.city }}">{{ i.uzytkownik.city }}</span>{% endif %}
+            {% if i.uzytkownik.voivodeship %}<span class="tw-max-w-full tw-truncate" title="{{ i.uzytkownik.voivodeship.name }}">{{ i.uzytkownik.voivodeship.name }}</span>{% endif %}
+            {% if i.near_threshold or i.pending_deletion %}
+            <div class="tw-flex tw-items-center tw-gap-1">
+              {% if i.near_threshold %}<span class="tw-badge-status tw-badge-warning" title="{% trans 'This person has low reputation points' %}">!</span>{% endif %}
+              {% if i.pending_deletion %}<span class="tw-badge-status tw-badge-danger" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash"></i></span>{% endif %}
+            </div>
             {% endif %}
           </div>
+          {% endif %}
         </div>
         <hr class="tw-w-full tw-border-subtle">
-        <div class="tw-flex tw-justify-between tw-w-full tw-text-sm tw-text-muted">
-          <span class="tw-truncate">{% if i.uzytkownik.city %}{{ i.uzytkownik.city }}{% else %}-{% endif %}</span>
-          <span class="tw-truncate">{% if i.uzytkownik.voivodeship %}{{ i.uzytkownik.voivodeship.name }}{% else %}-{% endif %}</span>
-        </div>
-        <div class="tw-flex tw-justify-center lg:tw-justify-between tw-gap-2 tw-w-full">
+        <div class="tw-flex tw-w-full tw-gap-3 tw-min-w-0 tw-max-w-full tw-overflow-hidden">
+          <div class="tw-flex tw-flex-col tw-flex-1 tw-min-w-0 tw-max-w-full tw-gap-1 tw-text-xs tw-text-muted">
+          <div class="tw-truncate" title="{{ i.uzytkownik.business|default:'—' }}"><span class="tw-font-semibold tw-text-primary">{% trans "Business" %}:</span> {{ i.uzytkownik.business|default:'—' }}</div>
+          <div class="tw-truncate" title="{{ i.uzytkownik.job|default:'—' }}"><span class="tw-font-semibold tw-text-primary">{% trans "Job" %}:</span> {{ i.uzytkownik.job|default:'—' }}</div>
+          <div class="tw-truncate" title="{{ i.uzytkownik.skills_knowledge_hobby|default:'—' }}"><span class="tw-font-semibold tw-text-primary">{% trans "Hobby" %}:</span> {{ i.uzytkownik.skills_knowledge_hobby|default:'—' }}</div>
+          <div class="tw-flex tw-flex-col tw-gap-1 tw-mt-1 tw-pt-1 tw-border-t tw-border-subtle tw-min-w-0 tw-max-w-full">
+            <span class="tw-font-semibold tw-text-primary">{% trans "Activities" %}</span>
+            {% if i.coordinated_tasks %}
+              {% for task in i.coordinated_tasks %}
+              <a href="{% url 'tasks:detail' pk=task.pk %}" class="tw-block tw-w-full tw-min-w-0 tw-max-w-full tw-truncate tw-text-primary tw-no-underline" data-tw-stop-propagation title="{{ task.title }}">{{ task.title }}</a>
+              {% endfor %}
+            {% else %}
+              <span class="tw-flex tw-flex-col tw-gap-1 tw-text-muted" aria-label="{% trans 'No activities' %}">
+                <span>-</span>
+                <span>-</span>
+                <span>-</span>
+              </span>
+            {% endif %}
+          </div>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-end tw-justify-end tw-gap-2 tw-shrink-0">
           {% if i.email %}
-          <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" data-tw-stop-propagation title="{{ i.email }}">
-            <i class="fas fa-envelope tw-text-lg lg:tw-text-2xl"></i>
+          <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation title="{{ i.email }}">
+            <i class="fas fa-envelope tw-text-lg"></i>
           </a>
           {% else %}
-          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" title="{% trans 'No email' %}">
-            <i class="fas fa-envelope tw-text-lg lg:tw-text-2xl"></i>
+          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation aria-disabled="true" title="{% trans 'No email' %}">
+            <i class="fas fa-envelope tw-text-lg"></i>
           </span>
           {% endif %}
           {% if i.uzytkownik.phone %}
-          <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" data-tw-stop-propagation title="{{ i.uzytkownik.phone }}">
-            <i class="fas fa-phone tw-text-lg lg:tw-text-2xl"></i>
+          <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation title="{{ i.uzytkownik.phone }}">
+            <i class="fas fa-phone tw-text-lg"></i>
           </a>
           {% else %}
-          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" title="{% trans 'No phone' %}">
-            <i class="fas fa-phone tw-text-lg lg:tw-text-2xl"></i>
+          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation aria-disabled="true" title="{% trans 'No phone' %}">
+            <i class="fas fa-phone tw-text-lg"></i>
           </span>
           {% endif %}
           {% if i.pk != request.user.pk %}
-          <a href="{% url 'chat:open_dm' pk=i.pk %}" class="tw-btn tw-btn-primary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" data-tw-stop-propagation title="{% trans 'Direct message' %}">
-            <i class="fas fa-comment-dots tw-text-lg lg:tw-text-2xl"></i>
+          <a href="{% url 'chat:open_dm' pk=i.pk %}" class="tw-btn tw-btn-primary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation title="{% trans 'Direct message' %}">
+            <i class="fas fa-comment-dots tw-text-lg"></i>
+            {% if i.dm_unread_count %}<span class="tw-chat-count">{{ i.dm_unread_count }}</span>{% endif %}
           </a>
           {% else %}
-          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" title="{% trans 'This is you' %}">
-            <i class="fas fa-comment-dots tw-text-lg lg:tw-text-2xl"></i>
+          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation aria-disabled="true" title="{% trans 'This is you' %}">
+            <i class="fas fa-comment-dots tw-text-lg"></i>
           </span>
           {% endif %}
+          </div>
         </div>
       </div>
       {% endfor %}

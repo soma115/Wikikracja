@@ -10,7 +10,7 @@ compact (optional, smaller padding/icon for inline/table contexts).
   <div class="tw-empty-state-title">{{ title }}</div>
   {% if text %}<div>{{ text }}</div>{% endif %}
   {% if cta_url %}
-  <a href="{{ cta_url }}" class="tw-btn-cta tw-mt-2">
+  <a href="{{ cta_url }}" class="tw-btn-cta tw-btn-cta--round tw-mt-2" title="{{ cta_label }}">
     {% if cta_icon %}<i class="fas {{ cta_icon }}"></i> {% endif %}
     {% if cta_label %}<span class="tw-btn-cta-label">{{ cta_label }}</span>{% endif %}
   </a>

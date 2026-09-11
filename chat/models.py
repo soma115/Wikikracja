@@ -200,15 +200,15 @@ class Room(models.Model):
         """
         Optimized: Find all private 1-to-1 rooms between the given user and multiple other users.
         Returns a dictionary mapping other_user_id to Room object.
-        This uses a single database query instead of N queries.
+        This uses a constant number of database queries instead of N queries.
         Args:
             user: The main user
             other_user_ids: List or queryset of user IDs to find rooms with
         Returns:
             dict: {other_user_id: Room} for found rooms
         """
-        # Convert to list if needed
-        other_user_ids = list(other_user_ids)
+        # Materialize once and keep membership checks constant-time.
+        other_user_ids = set(other_user_ids)
 
         if not other_user_ids:
             return {}
@@ -218,7 +218,7 @@ class Room(models.Model):
         # 2. user is in allowed
         # 3. room has exactly 2 users (1-to-1)
         # 4. at least one of the other_user_ids is also in allowed
-        rooms = Room.objects.filter(public=False, allowed=user).filter(allowed__id__in=other_user_ids).distinct()
+        rooms = Room.objects.filter(public=False, allowed=user).filter(allowed__id__in=other_user_ids).prefetch_related('allowed').distinct()
 
         # Build mapping: other_user_id -> room
         result = {}
@@ -226,12 +226,10 @@ class Room(models.Model):
         # We need to check each room to find which other user from the pair it corresponds to
         # Since these are 1-to-1 rooms, there should be exactly one other user besides the main user
         for room in rooms:
-            # Get the other user in this room (excluding the main user)
-            other_users = room.allowed.exclude(id=user.id)
-            if other_users.count() == 1:
-                other_user = other_users.first()
-                if other_user.id in other_user_ids:
-                    result[other_user.id] = room
+            # Read the other user from prefetched members instead of querying per room.
+            other_users = [member for member in room.allowed.all() if member.id != user.id]
+            if len(other_users) == 1 and other_users[0].id in other_user_ids:
+                result[other_users[0].id] = room
 
         return result
 

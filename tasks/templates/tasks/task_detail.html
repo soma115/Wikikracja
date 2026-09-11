@@ -18,8 +18,8 @@
                data-tw-stop-propagation>
               <i class="fas fa-comment-dots"></i>
               <span>{% trans "Chat" %}</span>
-              {% with n=task.chat_room.messages.count %}
-                {% if n %}<span>{{ n }}</span>{% endif %}
+              {% with n=task.chat_unread_count|default:0 %}
+                {% if n %}<span class="tw-chat-count">{{ n }}</span>{% endif %}
               {% endwith %}
             </a>
           {% endif %}

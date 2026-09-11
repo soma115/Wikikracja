@@ -70,6 +70,14 @@ def get_unseen_room_ids(user) -> set[int]:
     return set(rooms_with_msgs) - seen_room_ids
 
 
+def get_unread_message_counts_for_rooms(user, room_ids) -> dict[int, int]:
+    """Return per-room message counts not present in the user's MessageReadBy rows."""
+    room_ids = {room_id for room_id in room_ids if room_id}
+    if not room_ids or not getattr(user, "is_authenticated", False):
+        return {}
+    return dict(Message.objects.filter(room_id__in=room_ids).exclude(read_by__user=user).values("room_id").annotate(count=Count("id")).values_list("room_id", "count"))
+
+
 def get_user_public_message_rows(user, viewer) -> list[dict]:
     messages = Message.objects.filter(sender=user, room__public=True, anonymous=False).select_related('room').order_by('-time')
     return [{'room': message.room, 'room_name': message.room.displayed_name(viewer), 'msg': message} for message in messages]
@@ -577,8 +585,11 @@ class ChatRepository:
         message_ids = [msg.id for msg in messages]
         read_by_qs = MessageReadBy.objects.filter(message_id__in=message_ids).select_related('user__uzytkownik').order_by('id')
         read_by_map = {}
+        read_by_current_user_ids = set()
         for entry in read_by_qs:
             read_by_map.setdefault(entry.message_id, []).append(entry)
+            if entry.user_id == user_id:
+                read_by_current_user_ids.add(entry.message_id)
         for mid, entries in read_by_map.items():
             read_by_map[mid] = entries[:10]
 
@@ -599,6 +610,8 @@ class ChatRepository:
             voter_names = _voter_names_by_id(voter_ids)
 
         result = [build_chat_message_event(msg, new=False, include_voters=include_voters, read_by=read_by_map.get(msg.id, []), voter_names=voter_names) for msg in messages]
+        for item, message in zip(result, messages, strict=True):
+            item['read_by_current_user'] = message.id in read_by_current_user_ids
 
         return {'messages': result, 'users': users, 'user_votes': user_votes}
 

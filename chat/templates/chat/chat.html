@@ -82,6 +82,7 @@
               <button class="tw-chat-cat-btn" data-cat-content="cat-public" aria-expanded="true">
                 <span class="tw-chat-cat-arrow">▼</span>
                 {% trans 'Public' %}
+                {% if chat_section_unread_counts.public %}<span class="tw-chat-count tw-chat-count--section">{{ chat_section_unread_counts.public }}</span>{% endif %}
               </button>
             </div>
             <div class="tw-chat-cat-content tw-open" id="cat-public">
@@ -106,6 +107,7 @@
               <button class="tw-chat-cat-btn" data-cat-content="cat-tasks" aria-expanded="true">
                 <span class="tw-chat-cat-arrow">▼</span>
                 {% trans 'Activities' %}
+                {% if chat_section_unread_counts.tasks %}<span class="tw-chat-count tw-chat-count--section">{{ chat_section_unread_counts.tasks }}</span>{% endif %}
               </button>
             </div>
             <div class="tw-chat-cat-content tw-open" id="cat-tasks">
@@ -130,6 +132,7 @@
               <button class="tw-chat-cat-btn" data-cat-content="cat-votes" aria-expanded="true">
                 <span class="tw-chat-cat-arrow">▼</span>
                 {% trans 'Referendums' %}
+                {% if chat_section_unread_counts.votes %}<span class="tw-chat-count tw-chat-count--section">{{ chat_section_unread_counts.votes }}</span>{% endif %}
               </button>
             </div>
             <div class="tw-chat-cat-content tw-open" id="cat-votes">
@@ -154,6 +157,7 @@
               <button class="tw-chat-cat-btn" data-cat-content="cat-documents" aria-expanded="true">
                 <span class="tw-chat-cat-arrow">▼</span>
                 {% trans 'Documents' %}
+                {% if chat_section_unread_counts.documents %}<span class="tw-chat-count tw-chat-count--section">{{ chat_section_unread_counts.documents }}</span>{% endif %}
               </button>
             </div>
             <div class="tw-chat-cat-content tw-open" id="cat-documents">
@@ -178,6 +182,7 @@
               <button class="tw-chat-cat-btn" data-cat-content="cat-private" aria-expanded="true">
                 <span class="tw-chat-cat-arrow">▼</span>
                 {% trans 'Private' %}
+                {% if chat_section_unread_counts.private %}<span class="tw-chat-count tw-chat-count--section">{{ chat_section_unread_counts.private }}</span>{% endif %}
               </button>
             </div>
             <div class="tw-chat-cat-content tw-open" id="cat-private">

@@ -7,12 +7,14 @@
 
 {# ── TOOLBAR ── #}
 {% if user.is_authenticated %}{% url 'events:create' as cta_url %}{% endif %}
-{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add Event') cta_end=True views=toolbar_views %}
+{% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add Event') cta_end=True %}
 
 {# Stały mini-kalendarz — nawigacja zmienia tylko jego miesiąc. #}
 <div id="events-calendar" class="tw-w-full" data-month="{{ current_month_iso }}" data-today-month="{{ today_month_iso }}">
   {% include 'obywatele/_calendar_partial.html' with cal_weeks=current_month_weeks cal_year=current_month_year cal_month=current_month_num cal_first_day=current_month_first_day prev_month=current_month_prev next_month=current_month_next %}
 </div>
+
+{% include 'home/includes/toolbar.html' with cta_url='' views=toolbar_views %}
 
 {# ── AGENDA + GRID ── #}
 <div data-view-container>

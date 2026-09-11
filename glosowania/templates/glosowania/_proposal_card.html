@@ -18,64 +18,56 @@
       <span class="tw-proposal-card-title">{{ i.display_title }}</span>
     </div>
 
-    <div class="tw-proposal-card-badges-row">
-      {% if i.status == i.Status.PROPOSITION %}
-        <span class="tw-badge-status tw-badge-proposition">{{ i.get_status_display }}</span>
-      {% elif i.status == i.Status.DISCUSSION %}
-        <span class="tw-badge-status tw-badge-discussion">{{ i.get_status_display }}</span>
-      {% elif i.status == i.Status.REFERENDUM %}
-        <span class="tw-badge-status tw-badge-referendum">{{ i.get_status_display }}</span>
-      {% elif i.status == i.Status.REJECTED %}
-        <span class="tw-badge-status tw-badge-rejected">{{ i.get_status_display }}</span>
-      {% elif i.status == i.Status.APPROVED %}
-        <span class="tw-badge-status tw-badge-approved">{{ i.get_status_display }}</span>
-      {% endif %}
-
-      {% if i.chat_room_pulse_class %}
-        <a href="{{ i.chat_room_url }}"
-           class="tw-chat-link {{ i.chat_room_pulse_class }}"
-           data-tw-stop-propagation>
-          <i class="fas fa-comment-dots"></i>
-          <span>{% trans 'Chat' %}</span>
-          {% with n=i.chat_room.messages.count %}
-            {% if n %}<span>{{ n }}</span>{% endif %}
-          {% endwith %}
+    <div class="tw-proposal-card-meta tw-flex-nowrap">
+      <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
+        {% if i.author %}
+        <a href="{% url 'obywatele:obywatele_szczegoly' pk=i.author.pk %}"
+           class="tw-proposal-author-link tw-truncate" data-tw-stop-propagation
+           title="{{ i.author|display_name }}">
+          {% include "home/_user_avatar.html" with user=i.author size="md" %}
+          <span class="tw-proposal-author-name">{{ i.author|display_name }}</span>
         </a>
-      {% elif i.chat_room %}
-        <a href="{{ i.chat_room_url }}"
-           class="tw-chat-link"
-           data-tw-stop-propagation>
-          <i class="fas fa-comment-dots"></i>
-          <span>{% trans 'Chat' %}</span>
-          {% with n=i.chat_room.messages.count %}
-            {% if n %}<span>{{ n }}</span>{% endif %}
-          {% endwith %}
-        </a>
-      {% endif %}
-    </div>
-
-    {# Pasek meta: autor (klikalny → profil) + data + podpisy #}
-    <div class="tw-proposal-card-meta">
-
-      {% if i.author %}
-      <a href="{% url 'obywatele:obywatele_szczegoly' pk=i.author.pk %}"
-         class="tw-proposal-author-link" data-tw-stop-propagation
-         title="{{ i.author|display_name }}">
-        {% include "home/_user_avatar.html" with user=i.author size="md" %}
-        <span class="tw-proposal-author-name">{{ i.author|display_name }}</span>
-      </a>
-      {% else %}
-      <span class="tw-proposal-author-name">—</span>
-      {% endif %}
-
-      <span class="tw-proposal-meta-sep">·</span>
-      <span class="tw-proposal-date">{{ i.data_powstania|date:"d.m.Y" }}</span>
-
-      <span class="tw-proposal-meta-sep">·</span>
-      <span class="tw-proposal-signatures">
-        <i class="fas fa-pen-nib fa-fw"></i> {{ i.ile_osob_podpisalo|default:0 }}
-      </span>
-
+        {% else %}
+        <span class="tw-proposal-author-name">—</span>
+        {% endif %}
+        <span class="tw-proposal-meta-sep">·</span>
+        <span class="tw-proposal-date tw-whitespace-nowrap" title="{% trans 'Stage date' %}">
+          <i class="fas fa-calendar fa-fw" aria-hidden="true"></i>
+          {% if i.list_date_start or i.list_date_stop %}
+            {{ i.list_date_start|date:"d.m.Y"|default:"—" }}–{{ i.list_date_stop|date:"d.m.Y"|default:"—" }}
+          {% else %}
+            {{ i.list_date|date:"d.m.Y"|default:"—" }}
+          {% endif %}
+        </span>
+        <span class="tw-proposal-meta-sep">·</span>
+        <span class="tw-proposal-signatures tw-whitespace-nowrap">
+          <i class="fas fa-pen-nib fa-fw"></i> {{ i.ile_osob_podpisalo|default:0 }}
+        </span>
+      </div>
+      <div class="tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 tw-flex-nowrap">
+        {% if i.status == i.Status.PROPOSITION %}
+          <span class="tw-badge-status tw-badge-proposition">{{ i.get_status_display }}</span>
+        {% elif i.status == i.Status.DISCUSSION %}
+          <span class="tw-badge-status tw-badge-discussion">{{ i.get_status_display }}</span>
+        {% elif i.status == i.Status.REFERENDUM %}
+          <span class="tw-badge-status tw-badge-referendum">{{ i.get_status_display }}</span>
+        {% elif i.status == i.Status.REJECTED %}
+          <span class="tw-badge-status tw-badge-rejected">{{ i.get_status_display }}</span>
+        {% elif i.status == i.Status.APPROVED %}
+          <span class="tw-badge-status tw-badge-approved">{{ i.get_status_display }}</span>
+        {% endif %}
+        {% if i.chat_room_pulse_class %}
+          <a href="{{ i.chat_room_url }}" class="tw-chat-link {{ i.chat_room_pulse_class }}" data-tw-stop-propagation>
+            <i class="fas fa-comment-dots"></i><span class="tw-view-label">{% trans 'Chat' %}</span>
+            {% with n=i.chat_unread_count|default:0 %}{% if n %}<span class="tw-chat-count">{{ n }}</span>{% endif %}{% endwith %}
+          </a>
+        {% elif i.chat_room %}
+          <a href="{{ i.chat_room_url }}" class="tw-chat-link" data-tw-stop-propagation>
+            <i class="fas fa-comment-dots"></i><span class="tw-view-label">{% trans 'Chat' %}</span>
+            {% with n=i.chat_unread_count|default:0 %}{% if n %}<span class="tw-chat-count">{{ n }}</span>{% endif %}{% endwith %}
+          </a>
+        {% endif %}
+      </div>
     </div>
 
   </div>{# /.tw-proposal-card-header #}

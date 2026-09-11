@@ -484,11 +484,49 @@
     min-width: 0;
     margin-left: auto;
   }
-  .tw-proposals-list:not(.tw-view-grid) .tw-proposal-section--consequences,
-  .tw-proposals-list:not(.tw-view-grid) .tw-proposal-section--reasoning,
-  .tw-proposals-list:not(.tw-view-grid) .tw-proposal-section--referendum {display: none;
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-body {display: none;
+  }
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-description-section,
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-assignee-row {display: none;
+  }
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-header,
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-header {display: grid;
+    grid-template-rows: minmax(1.35em, auto) minmax(1.35em, auto);
+    row-gap: .65rem;
+  }
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-title-row,
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-title-row {flex-wrap: nowrap;
+    align-items: center;
+  }
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-title,
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-title {overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-meta,
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-meta {width: 100%;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-meta > :first-child,
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-meta > :first-child {flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-meta > :last-child,
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-meta > :last-child {flex: 0 0 auto;
+    margin-left: auto;
+  }
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-body {display: none;
   }
   .tw-proposals-list.tw-view-compact .tw-proposal-section--law {display: none;
+  }
+  .tw-proposals-list:not(.tw-view-grid) .tw-user-row .tw-proposal-card-header {display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .55rem .75rem .45rem;
   }
   .tw-proposal-card,
   .tw-task-card,
@@ -720,6 +758,10 @@
     color: var(--text-primary);
     line-height: 1.6;
   }
+  .tw-chat-link,
+  .tw-btn,
+  .tw-room-link-meta {position: relative;
+  }
   .tw-chat-link {display: inline-flex;
     align-items: center;
     gap: .3rem;
@@ -736,6 +778,35 @@
   .tw-chat-link:hover {background: var(--accent-muted);
     border-color: var(--accent);
     box-shadow: 0 0 8px var(--accent-glow);
+  }
+  .tw-chat-count {position: absolute;
+    top: -0.35rem;
+    right: -0.35rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.18rem;
+    height: 1.18rem;
+    padding: 0 .3rem;
+    border: 1px solid var(--bg-card);
+    border-radius: 9999px;
+    background: var(--accent);
+    color: var(--text-inverse);
+    font-size: .76rem;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .tw-chat-count--section {position: static;
+    inset: auto;
+    margin-left: .25rem;
+    transform: none;
+  }
+  .tw-btn .tw-chat-count {top: 50%;
+    right: auto;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
   :root {--arrow-h: 36px;
     --arrow-tip: 12px;
@@ -4789,6 +4860,9 @@
   .tw-view-label {
     font-size: 0.78rem;
   }
+  .tw-btn-cta-label {
+    display: none;
+  }
   .tw-btn-cta {
     display: inline-flex;
     align-items: center;
@@ -4809,8 +4883,8 @@
     color: var(--text-on-accent);
   }
   .tw-btn-cta--round {
-    width: 22px;
-    height: 22px;
+    width: 29px;
+    height: 29px;
     border-radius: 50%;
     padding: 0;
   }
@@ -4840,10 +4914,10 @@
   }
   .tw-post-row-link {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: stretch;
     gap: 0.75rem;
-    padding: 0.65rem 0.75rem;
+    padding: 0.75rem;
     border-bottom: 1px solid var(--border);
     cursor: pointer;
     color: inherit;
@@ -4890,11 +4964,20 @@
     opacity: 0.8;
   }
   .tw-post-featured-thumb {
-    width: 50%;
-    height: auto;
-    object-fit: contain;
-    object-position: top center;
-    border-radius: var(--radius-card);
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 35%;
+    height: 58px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: var(--radius-xs);
+  }
+  @media (max-width: 480px) {
+    .tw-post-row-link {gap: .5rem;
+      padding: .65rem;
+    }
+    .tw-post-featured-thumb {max-width: 40%;
+    }
   }
   .tw-text-meta {
     font-size: 0.72rem;
@@ -5047,6 +5130,13 @@
   .tw-avatar-presence {
     position: relative;
     display: inline-flex;
+  }
+  .tw-avatar-presence > .tw-chat-count {
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
   .tw-presence-dot {
     position: absolute;
@@ -5829,6 +5919,28 @@ body.tw-chat-page .tw-main-area {
 .tw-chat-messages .tw-chat-message.tw-msg-highlight .tw-chat-message-content {
     box-shadow: 0 0 10px 2px var(--accent);
     transition: box-shadow 5s ease;
+}
+.tw-chat-messages .tw-chat-message.tw-chat-message--unread-on-entry .tw-chat-message-content {
+    background: var(--accent-muted);
+    box-shadow: inset 4px 0 0 var(--accent);
+    --expandable-bg: var(--accent-muted);
+}
+.tw-chat-unread-divider {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin: .4rem .3rem .65rem;
+    color: var(--accent);
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+.tw-chat-unread-divider::before,
+.tw-chat-unread-divider::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid var(--accent-border);
 }
 .tw-chat-messages .tw-chat-message.tw-chat-message--pending {
     opacity: 0.55;

@@ -42,6 +42,7 @@
         {% if chat_room %}
         <a href="{% url 'chat:chat' %}#room_id={{ chat_room.id }}" class="tw-chat-link {{ chat_room_pulse_class }} tw-no-underline">
           <i class="fas fa-comment-dots"></i> {% trans 'Chat' %}
+          {% if chat_unread_count %}<span class="tw-chat-count">{{ chat_unread_count }}</span>{% endif %}
         </a>
         {% endif %}
         <div class="tw-detail-nav tw-flex tw-gap-1">

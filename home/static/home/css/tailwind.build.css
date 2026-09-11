@@ -1232,14 +1232,70 @@ small,
   margin-left: auto;
 }
 
-.tw-proposals-list:not(.tw-view-grid) .tw-proposal-section--consequences,
-  .tw-proposals-list:not(.tw-view-grid) .tw-proposal-section--reasoning,
-  .tw-proposals-list:not(.tw-view-grid) .tw-proposal-section--referendum {
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-body {
+  display: none;
+}
+
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-description-section,
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-assignee-row {
+  display: none;
+}
+
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-header,
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-header {
+  display: grid;
+  grid-template-rows: minmax(1.35em, auto) minmax(1.35em, auto);
+  row-gap: .65rem;
+}
+
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-title-row,
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-title-row {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-title,
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-meta,
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-meta {
+  width: 100%;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-meta > :first-child,
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-meta > :first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-meta > :last-child,
+  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-meta > :last-child {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-body {
   display: none;
 }
 
 .tw-proposals-list.tw-view-compact .tw-proposal-section--law {
   display: none;
+}
+
+.tw-proposals-list:not(.tw-view-grid) .tw-user-row .tw-proposal-card-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .55rem .75rem .45rem;
 }
 
 .tw-proposal-card,
@@ -1416,28 +1472,6 @@ small,
   opacity: .8;
 }
 
-button.tw-task-helpers-btn,
-  button.tw-task-against-btn {
-  background: transparent;
-  border: none;
-  padding: 2px 4px;
-  margin: -2px -4px;
-  border-radius: .35rem;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast);
-}
-
-button.tw-task-helpers-btn:hover,
-  button.tw-task-helpers-btn:focus-visible,
-  button.tw-task-against-btn:hover,
-  button.tw-task-against-btn:focus-visible {
-  background: var(--color-surface-offset);
-  color: var(--text-primary);
-  outline: none;
-}
-
 .tw-helpers-popover {
   --popover-bg: var(--bg-card);
   --popover-border-color: var(--border);
@@ -1551,6 +1585,12 @@ button.tw-task-helpers-btn:hover,
   line-height: 1.6;
 }
 
+.tw-chat-link,
+  .tw-btn,
+  .tw-room-link-meta {
+  position: relative;
+}
+
 .tw-chat-link {
   display: inline-flex;
   align-items: center;
@@ -1570,6 +1610,41 @@ button.tw-task-helpers-btn:hover,
   background: var(--accent-muted);
   border-color: var(--accent);
   box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.tw-chat-count {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.18rem;
+  height: 1.18rem;
+  padding: 0 .3rem;
+  border: 1px solid var(--bg-card);
+  border-radius: 9999px;
+  background: var(--accent);
+  color: var(--text-inverse);
+  font-size: .76rem;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.tw-chat-count--section {
+  position: static;
+  inset: auto;
+  margin-left: .25rem;
+  transform: none;
+}
+
+.tw-btn .tw-chat-count {
+  top: 50%;
+  right: auto;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 :root {
@@ -7123,6 +7198,10 @@ input.tw-form-switch:focus,
   font-size: 0.78rem;
 }
 
+.tw-btn-cta-label {
+  display: none;
+}
+
 .tw-btn-cta {
   display: inline-flex;
   align-items: center;
@@ -7145,8 +7224,8 @@ input.tw-form-switch:focus,
 }
 
 .tw-btn-cta--round {
-  width: 22px;
-  height: 22px;
+  width: 29px;
+  height: 29px;
   border-radius: 50%;
   padding: 0;
 }
@@ -7185,10 +7264,10 @@ input.tw-form-switch:focus,
 
 .tw-post-row-link {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: stretch;
   gap: 0.75rem;
-  padding: 0.65rem 0.75rem;
+  padding: 0.75rem;
   border-bottom: 1px solid var(--border);
   cursor: pointer;
   color: inherit;
@@ -7243,13 +7322,26 @@ input.tw-form-switch:focus,
 }
 
 .tw-post-featured-thumb {
-  width: 50%;
-  height: auto;
-  -o-object-fit: contain;
-     object-fit: contain;
-  -o-object-position: top center;
-     object-position: top center;
-  border-radius: var(--radius-card);
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 35%;
+  height: 58px;
+  -o-object-fit: cover;
+     object-fit: cover;
+  -o-object-position: center;
+     object-position: center;
+  border-radius: var(--radius-xs);
+}
+
+@media (max-width: 480px) {
+  .tw-post-row-link {
+    gap: .5rem;
+    padding: .65rem;
+  }
+
+  .tw-post-featured-thumb {
+    max-width: 40%;
+  }
 }
 
 .tw-text-meta {
@@ -7429,6 +7521,14 @@ input.tw-form-switch:focus,
 .tw-avatar-presence {
   position: relative;
   display: inline-flex;
+}
+
+.tw-avatar-presence > .tw-chat-count {
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .tw-presence-dot {
@@ -8377,6 +8477,31 @@ body.tw-chat-page .tw-main-area {
 .tw-chat-messages .tw-chat-message.tw-msg-highlight .tw-chat-message-content {
   box-shadow: 0 0 10px 2px var(--accent);
   transition: box-shadow 5s ease;
+}
+
+.tw-chat-messages .tw-chat-message.tw-chat-message--unread-on-entry .tw-chat-message-content {
+  background: var(--accent-muted);
+  box-shadow: inset 4px 0 0 var(--accent);
+  --expandable-bg: var(--accent-muted);
+}
+
+.tw-chat-unread-divider {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin: .4rem .3rem .65rem;
+  color: var(--accent);
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.tw-chat-unread-divider::before,
+.tw-chat-unread-divider::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--accent-border);
 }
 
 .tw-chat-messages .tw-chat-message.tw-chat-message--pending {
@@ -10038,6 +10163,10 @@ body.tw-chat-page .tw-main-area {
   height: 2.5rem;
 }
 
+.tw-h-8 {
+  height: 2rem;
+}
+
 .tw-h-auto {
   height: auto;
 }
@@ -10058,6 +10187,10 @@ body.tw-chat-page .tw-main-area {
   width: 83.333333%;
 }
 
+.tw-w-8 {
+  width: 2rem;
+}
+
 .tw-w-auto {
   width: auto;
 }
@@ -10076,6 +10209,10 @@ body.tw-chat-page .tw-main-area {
 
 .tw-min-w-20 {
   min-width: 5rem;
+}
+
+.tw-max-w-full {
+  max-width: 100%;
 }
 
 .tw-max-w-md {
@@ -10130,8 +10267,16 @@ body.tw-chat-page .tw-main-area {
   flex-wrap: wrap;
 }
 
+.tw-flex-nowrap {
+  flex-wrap: nowrap;
+}
+
 .tw-items-start {
   align-items: flex-start;
+}
+
+.tw-items-end {
+  align-items: flex-end;
 }
 
 .tw-items-center {
@@ -10181,6 +10326,10 @@ body.tw-chat-page .tw-main-area {
 .tw-truncate {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tw-whitespace-nowrap {
   white-space: nowrap;
 }
 
@@ -10329,11 +10478,6 @@ body.tw-chat-page .tw-main-area {
   padding-bottom: 0.5rem;
 }
 
-.tw-py-3 {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-}
-
 .tw-pb-2 {
   padding-bottom: 0.5rem;
 }
@@ -10344,6 +10488,10 @@ body.tw-chat-page .tw-main-area {
 
 .tw-pl-3 {
   padding-left: 0.75rem;
+}
+
+.tw-pt-1 {
+  padding-top: 0.25rem;
 }
 
 .tw-pt-3 {
@@ -10427,10 +10575,6 @@ body.tw-chat-page .tw-main-area {
 
 .tw-italic {
   font-style: italic;
-}
-
-.tw-tracking-wide {
-  letter-spacing: 0.025em;
 }
 
 .tw-text-accent {
@@ -10569,18 +10713,6 @@ body.tw-chat-page .tw-main-area {
 }
 
 @media (min-width: 992px) {
-  .lg\:tw-h-auto {
-    height: auto;
-  }
-
-  .lg\:tw-w-auto {
-    width: auto;
-  }
-
-  .lg\:tw-flex-1 {
-    flex: 1 1 0%;
-  }
-
   .lg\:tw-grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -10591,18 +10723,5 @@ body.tw-chat-page .tw-main-area {
 
   .lg\:tw-grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .lg\:tw-justify-between {
-    justify-content: space-between;
-  }
-
-  .lg\:tw-p-2 {
-    padding: 0.5rem;
-  }
-
-  .lg\:tw-text-2xl {
-    font-size: 1.5rem;
-    line-height: 2rem;
   }
 }

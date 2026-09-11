@@ -98,9 +98,18 @@ def survey_list(request):
         survey.can_edit = request.user == survey.author and survey.is_active
 
     query_suffix = f"&q={quote_plus(search_query)}" if search_query else ""
-    toolbar_sort_items = [{"url": f"?tab=active{query_suffix}", "label": _("Ongoing"), "active": tab == "active"}, {"url": f"?tab=finished{query_suffix}", "label": _("Finished"), "active": tab == "finished"}]
+    stepper = {
+        "steps": [
+            {"url": f"?tab=active{query_suffix}", "icon": "spinner", "label": _("Ongoing"), "active": tab == "active"},
+            {"url": f"?tab=finished{query_suffix}", "icon": "check", "label": _("Finished"), "active": tab == "finished"},
+        ],
+        "cta_url": reverse("ankiety:create"),
+        "cta_icon": "plus",
+        "cta_label": _("Add survey"),
+        "cta_title": _("Add survey"),
+    }
     toolbar_views = [{"name": "list", "icon": "list", "title": _("List")}, {"name": "grid", "icon": "grip", "title": _("Grid")}]
-    return render(request, "ankiety/survey_list.html", {"surveys": surveys, "current_tab": tab, "search_query": search_query, "toolbar_sort_items": toolbar_sort_items, "toolbar_views": toolbar_views})
+    return render(request, "ankiety/survey_list.html", {"surveys": surveys, "current_tab": tab, "search_query": search_query, "stepper": stepper, "toolbar_views": toolbar_views})
 
 
 @login_required

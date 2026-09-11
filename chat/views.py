@@ -26,7 +26,7 @@ from PIL import Image
 from chat.forms import GuestMessageForm, RoomForm
 from chat.i18n import get_translations
 from chat.models import Room
-from chat.services import send_message
+from chat.services import get_unread_message_counts_for_rooms, send_message
 from site_settings.params import get_param
 
 log = logging.getLogger(__name__)
@@ -115,6 +115,19 @@ def chat(request: HttpRequest):
     posts_tree_active = base_rooms.filter(source_app='board', archived=False).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
     posts_tree_archived = base_rooms.filter(source_app='board', archived=True).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
 
+    room_sections = {
+        'public': (public_rooms_active, public_rooms_archived),
+        'tasks': (tasks_tree_active, tasks_tree_archived),
+        'votes': (votes_tree_active, votes_tree_archived),
+        'documents': (posts_tree_active, posts_tree_archived),
+        'private': (private_active, private_archived),
+    }
+    rooms = [room for groups in room_sections.values() for group in groups for room in group]
+    unread_counts = get_unread_message_counts_for_rooms(request.user, [room.pk for room in rooms])
+    for room in rooms:
+        room.unread_message_count = unread_counts.get(room.pk, 0)
+    chat_section_unread_counts = {section: sum(room.unread_message_count for group in groups for room in group) for section, groups in room_sections.items()}
+
     return render(
         request,
         "chat/chat.html",
@@ -130,6 +143,7 @@ def chat(request: HttpRequest):
             'posts_tree_archived': posts_tree_archived,
             'private_active': private_active,
             'private_archived': private_archived,
+            'chat_section_unread_counts': chat_section_unread_counts,
             'user': request.user,
             'ARCHIVE_PUBLIC_CHAT_ROOM': td(days=get_param('archive_public_chat_room')).days,
             'DELETE_PUBLIC_CHAT_ROOM': td(days=get_param('delete_public_chat_room')).days,

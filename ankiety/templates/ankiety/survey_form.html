@@ -21,13 +21,21 @@
     <div class="tw-mb-3">
       <label class="tw-form-label" for="{{ form.title.id_for_label }}">{% trans 'Title' %}</label>
       {{ form.title }}
-      {{ form.title.errors }}
+      {% if form.title.errors %}
+        <div class="tw-text-danger tw-text-sm tw-mt-1" role="alert">
+          {% for error in form.title.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+        </div>
+      {% endif %}
     </div>
 
     <div class="tw-mb-3">
       <label class="tw-form-label" for="{{ form.description.id_for_label }}">{% trans 'Description' %}</label>
       {{ form.description }}
-      {{ form.description.errors }}
+      {% if form.description.errors %}
+        <div class="tw-text-danger tw-text-sm tw-mt-1" role="alert">
+          {% for error in form.description.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+        </div>
+      {% endif %}
     </div>
 
     <div class="tw-mb-3">

@@ -19,7 +19,7 @@ from django.utils import timezone as django_timezone
 from django.utils.translation import gettext as _
 from django.utils.translation import override, pgettext
 
-from chat.models import Message, Room
+from chat.models import Message, MessageReadBy, Room
 from chat.services import get_user_public_message_rows
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 from obywatele.auth_backends import CaseInsensitiveEmailBackend
@@ -183,6 +183,56 @@ class CitizenZalozonoTemplateTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'obywatele/_citizen_zalozono_partial.html')
+
+
+class CitizenListViewTest(TestCase):
+    def test_grid_cards_include_only_active_tasks_coordinated_by_each_citizen(self):
+        citizen = User.objects.create_user(username='coordinator', password='secret', is_active=True)
+        other = User.objects.create_user(username='other-coordinator', password='secret', is_active=True)
+        User.objects.create_user(username='empty-coordinator', password='secret', is_active=True)
+        active_task = Task.objects.create(title='Active coordinated task', assigned_to=citizen)
+        long_task_title = 'A very long coordinated task title ' * 4
+        long_task = Task.objects.create(title=long_task_title, assigned_to=citizen)
+        third_task = Task.objects.create(title='Third coordinated task', assigned_to=citizen)
+        fourth_task = Task.objects.create(title='Fourth coordinated task', assigned_to=citizen)
+        completed_task = Task.objects.create(title='Completed coordinated task', assigned_to=citizen, status=Task.Status.COMPLETED)
+        Task.objects.create(title='Other person task', assigned_to=other)
+        TaskVote.objects.create(task=active_task, user=other, value=TaskVote.Value.DOWN)
+        TaskVote.objects.create(task=long_task, user=other, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=fourth_task, user=other, value=TaskVote.Value.DOWN)
+        self.client.force_login(other)
+
+        response = self.client.get(reverse('obywatele:obywatele'))
+
+        self.assertEqual(response.status_code, 200)
+        citizen_row = next(user for user in response.context['uid'] if user.pk == citizen.pk)
+        self.assertEqual(list(citizen_row.coordinated_tasks), [long_task, third_task, active_task])
+        self.assertContains(response, _('Business'))
+        self.assertContains(response, _('Job'))
+        self.assertContains(response, _('Hobby'))
+        self.assertContains(response, '<span>-</span>', count=3)
+        self.assertContains(response, active_task.title)
+        self.assertContains(response, reverse('tasks:detail', kwargs={'pk': active_task.pk}))
+        self.assertContains(response, long_task_title)
+        self.assertContains(response, 'tw-block tw-w-full tw-min-w-0 tw-max-w-full tw-truncate')
+        self.assertContains(response, f'title="{long_task_title}"')
+        self.assertNotContains(response, fourth_task.title)
+        self.assertNotContains(response, completed_task.title)
+
+    def test_chat_button_shows_exact_unread_dm_count(self):
+        viewer = User.objects.create_user(username='dm-viewer', password='secret', is_active=True)
+        citizen = User.objects.create_user(username='dm-citizen', password='secret', is_active=True)
+        room = Room.get_or_create_for_users(viewer, citizen)
+        read_message = Message.objects.create(room=room, sender=citizen, text='Read')
+        Message.objects.create(room=room, sender=citizen, text='Unread')
+        MessageReadBy.objects.create(message=read_message, user=viewer)
+        self.client.force_login(viewer)
+
+        response = self.client.get(reverse('obywatele:obywatele'))
+
+        citizen_row = next(user for user in response.context['uid'] if user.pk == citizen.pk)
+        self.assertEqual(citizen_row.dm_unread_count, 1)
+        self.assertContains(response, '<span class="tw-chat-count">1</span>')
 
 
 @override_settings(LANGUAGE_CODE='en')

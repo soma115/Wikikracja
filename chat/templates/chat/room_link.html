@@ -28,6 +28,7 @@
     {% else %}
       <i class="fas fa-users" aria-hidden="true"></i>
     {% endif %}
+    {% if room.unread_message_count %}<span class="tw-chat-count">{{ room.unread_message_count }}</span>{% endif %}
   </div>
 
   <div class="tw-room-link-status">

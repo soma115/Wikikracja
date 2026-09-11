@@ -53,7 +53,7 @@ module.exports = {
     'tw-event-meta-past',
     'tw-onboarding-hint', 'tw-chat-msg-row', 'tw-chat-msg-sender', 'tw-chat-msg-room', 'tw-chat-msg-meta', 'tw-chat-msg-link',
     'tw-asset-chip', 'tw-wspol-stat-value',
-    'tw-section', 'tw-toolbar', 'tw-toolbar-divider', 'tw-toolbar-sort', 'tw-sort-btn', 'tw-sort-btn-label', 'tw-sort-arrow', 'tw-toolbar-sort-sep', 'tw-toolbar-view', 'tw-view-toggle-btn', 'tw-view-label', 'tw-btn-cta', 'tw-btn-cta--round', 'tw-btn-cta-label',
+    'tw-section', 'tw-toolbar', 'tw-toolbar-divider', 'tw-toolbar-sort', 'tw-sort-btn', 'tw-sort-btn-label', 'tw-sort-arrow', 'tw-toolbar-sort-sep', 'tw-toolbar-view', 'tw-view-toggle-btn', 'tw-view-label', 'tw-btn-cta', 'tw-btn-cta--round', 'tw-btn-cta-label', 'tw-chat-count', 'tw-chat-count--section',
     'tw-board-category-group', 'tw-board-posts-list', 'tw-board-posts-grid', 'tw-board-post-row', 'tw-post-row-link', 'tw-post-card-link', 'tw-post-card-link--featured', 'tw-cat-group-icon', 'tw-post-featured-thumb',
     'tw-text-meta', 'tw-text-title-clamp', 'tw-text-title-clamp-2', 'tw-text-subtitle-clamp', 'tw-text-subtitle-clamp-2',
     'tw-board-post-card', 'tw-post-header', 'tw-post-title', 'tw-post-subtitle', 'tw-post-featured-image', 'tw-post-content', 'tw-post-attachments', 'tw-attachment-uploaded-at', 'tw-list-group', 'tw-list-group-item',
@@ -68,7 +68,7 @@ module.exports = {
     // Chat dynamic state classes toggled by JS (docs/CHAT_REWORK_PLAN.md, 16.4.6).
     // Active states on sort/vote/anonymous-toggle use the shared 'tw-active'.
     'tw-room-link--online', 'tw-room-link--joined', 'tw-room-link--not-seen', 'tw-room-link--filtered-out', 'tw-room-link--search-filtered-out', 'tw-room-link--tapping', 'tw-room-link--connecting',
-    'tw-chat-message--own', 'tw-chat-message--pending', 'tw-chat-message--failed', 'tw-msg-highlight', 'tw-msg-highlighted',
+    'tw-chat-message--own', 'tw-chat-message--pending', 'tw-chat-message--failed', 'tw-chat-message--unread-on-entry', 'tw-chat-unread-divider', 'tw-msg-highlight', 'tw-msg-highlighted',
     'tw-reaction-btn--active', 'tw-msg-counter--warn', 'tw-msg-counter--error', 'tw-compose-box--error',
     'tw-open', 'tw-visible', 'tw-room-active', 'tw-room-list-showing', 'tw-room-list-hidden',
     'tw-toast', 'tw-toast--visible', 'tw-chat-has-messages',

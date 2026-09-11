@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -8,6 +10,24 @@ from .models import Task, TaskEvaluation, TaskVote
 
 def get_user_tasks(user):
     return Task.objects.filter(Q(created_by=user) | Q(assigned_to=user)).distinct().order_by('-created_at')
+
+
+def get_active_coordinated_tasks_by_user_ids(user_ids):
+    """Return active coordinated tasks grouped by coordinator ID in one query."""
+    user_ids = set(user_ids)
+    if not user_ids:
+        return {}
+
+    tasks_by_user = defaultdict(list)
+    tasks = (
+        Task.objects.with_metrics()
+        .filter(assigned_to_id__in=user_ids, status=Task.Status.ACTIVE)
+        .only('id', 'title', 'assigned_to_id')
+        .order_by('-votes_score', '-votes_up', 'assigned_to_id', 'created_at', 'id')
+    )
+    for task in tasks:
+        tasks_by_user[task.assigned_to_id].append(task)
+    return {user_id: user_tasks[:3] for user_id, user_tasks in tasks_by_user.items()}
 
 
 def get_user_created_items(user) -> list[dict]:

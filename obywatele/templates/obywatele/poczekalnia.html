@@ -26,7 +26,7 @@
     {# ── List view ── #}
     <div id="citizens-list-view" data-view-only="list" class="tw-proposals-list">
       {% for i in uid|dictsortreversed:"date_joined" %}
-      <div class="tw-proposal-card" data-user-id="{{ i.pk }}" data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
+      <div class="tw-proposal-card tw-user-row" data-user-id="{{ i.pk }}" data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
         <div class="tw-proposal-card-header" data-detail-url="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}" role="link" tabindex="0">
           <div class="tw-proposal-card-title-row">
             {% include "home/_user_avatar.html" with user=i size="sm" %}
@@ -51,7 +51,7 @@
     {# ── Grid view ── #}
     <div id="citizens-grid-view" data-view-only="grid" class="tw-citizens-grid tw-proposals-list">
       {% for i in uid|dictsortreversed:"date_joined" %}
-      <div class="tw-citizen-card tw-text-start tw-items-start"
+      <div class="tw-citizen-card tw-text-start tw-items-start tw-self-start"
            data-user-id="{{ i.pk }}"
            data-detail-url="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}"
            role="link" tabindex="0"
@@ -83,23 +83,23 @@
           <span class="tw-truncate">{% if i.uzytkownik.city %}{{ i.uzytkownik.city }}{% else %}-{% endif %}</span>
           <span class="tw-truncate">{% if i.uzytkownik.voivodeship %}{{ i.uzytkownik.voivodeship.name }}{% else %}-{% endif %}</span>
         </div>
-        <div class="tw-flex tw-justify-center lg:tw-justify-between tw-gap-2 tw-w-full">
+        <div class="tw-flex tw-justify-end tw-gap-2 tw-w-full">
           {% if i.email %}
-          <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" data-tw-stop-propagation title="{{ i.email }}">
-            <i class="fas fa-envelope tw-text-lg lg:tw-text-2xl"></i>
+          <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation title="{{ i.email }}">
+            <i class="fas fa-envelope tw-text-lg"></i>
           </a>
           {% else %}
-          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" title="{% trans 'No email' %}">
-            <i class="fas fa-envelope tw-text-lg lg:tw-text-2xl"></i>
+          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation aria-disabled="true" title="{% trans 'No email' %}">
+            <i class="fas fa-envelope tw-text-lg"></i>
           </span>
           {% endif %}
           {% if i.uzytkownik.phone %}
-          <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" data-tw-stop-propagation title="{{ i.uzytkownik.phone }}">
-            <i class="fas fa-phone tw-text-lg lg:tw-text-2xl"></i>
+          <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation title="{{ i.uzytkownik.phone }}">
+            <i class="fas fa-phone tw-text-lg"></i>
           </a>
           {% else %}
-          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1 lg:tw-flex-1 lg:tw-w-auto lg:tw-h-auto lg:tw-p-2" title="{% trans 'No phone' %}">
-            <i class="fas fa-phone tw-text-lg lg:tw-text-2xl"></i>
+          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation aria-disabled="true" title="{% trans 'No phone' %}">
+            <i class="fas fa-phone tw-text-lg"></i>
           </span>
           {% endif %}
         </div>

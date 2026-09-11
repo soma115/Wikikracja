@@ -1,6 +1,6 @@
 # To są notatki użytkownika, AI nie wolno tutaj zmieniać nic.
 
-Zachowaj standardy tw-* i dąż do unifikację i prostoty.
+Zachowaj standardy ui i tw-* i dąż do unifikację i prostoty.
 Pokaż mi co zamierzasz zrobić przed zmianami w kodzie.
 
 # PILNE

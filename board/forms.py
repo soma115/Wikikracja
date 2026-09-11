@@ -10,6 +10,8 @@ from .models import Post
 
 
 class PostForm(forms.ModelForm):
+    SYSTEM_LOCKED_FIELDS = ('category', 'is_private', 'is_important')
+
     text = forms.CharField(widget=TinyMCE(), label=_("Text"))
     attachments = forms.FileField(required=False, label=_("Attachments"))
 
@@ -27,6 +29,10 @@ class PostForm(forms.ModelForm):
         self.fields['is_private'].label = _('Mine')
         self.fields['is_private'].help_text = _('Checking this option will make the document visible only to you.')
         self.fields['is_important'].help_text = _('A message will be sent to the Important chat room that this content has been changed.')
+        if self.instance and self.instance.pk and self.instance.system_key:
+            for field_name in self.SYSTEM_LOCKED_FIELDS:
+                self.fields[field_name].disabled = True
+                self.fields[field_name].help_text = _('This field cannot be changed for a system document.')
         self.fields['featured_image'].help_text = _("Maximum image size: %(max_size)s MB.") % {'max_size': settings.UPLOAD_IMAGE_MAX_SIZE_MB}
         self.fields['featured_image'].widget.attrs['data-max-size-mb'] = settings.UPLOAD_IMAGE_MAX_SIZE_MB
         self.fields['featured_image'].widget.attrs['data-max-size-error'] = _("Image is too large (max %s MB).")

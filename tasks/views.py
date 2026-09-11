@@ -19,7 +19,7 @@ from django.views.generic import CreateView, DetailView, TemplateView, UpdateVie
 
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryReorderAPI
 from chat.i18n import get_translations as get_chat_translations
-from chat.services import get_unseen_room_ids
+from chat.services import get_unread_message_counts_for_rooms, get_unseen_room_ids
 from core.presence import presence_data
 from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
 
@@ -83,6 +83,23 @@ def _task_list_queryset(user, categories, sort, order, search_query=''):
     return qs.order_by(direction + TASK_SORT_FIELDS[sort], *TASK_SORT_TIEBREAK)
 
 
+def _task_tab_counts(user, categories, search_query=''):
+    """Return counts for the task list tabs using the same filters as the list."""
+    qs = Task.objects.with_metrics()
+    if categories:
+        qs = qs.filter(category__slug__in=categories)
+    if search_query:
+        qs = qs.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
+
+    supported = TaskVote.objects.filter(user=user, value=TaskVote.Value.UP).values('task_id')
+    return {
+        'mine': qs.filter(status=Task.Status.ACTIVE).filter(Q(assigned_to=user) | Q(pk__in=supported)).distinct().count(),
+        'awaiting': qs.filter(status=Task.Status.ACTIVE, votes_score__gte=-1).filter(Q(assigned_to__isnull=True) | Q(votes_score__lt=2)).count(),
+        'active': qs.filter(status=Task.Status.ACTIVE, assigned_to__isnull=False, votes_score__gte=2).count(),
+        'finished': qs.filter(Q(status__in=(Task.Status.COMPLETED, Task.Status.CANCELLED), votes_score__gte=-1) | Q(votes_score__lte=-2)).count(),
+    }
+
+
 def _compute_priority_map(rows):
     """rows: [(task_id, votes_score)] w kanonicznej kolejności.
     Zwraca {task_id: (priority_label, priority_category)}."""
@@ -117,7 +134,7 @@ def _priority_map(active: bool):
 
 
 def _prepare_task_cards(tasks, pulse_room_ids, priority_map=None):
-    """Attach per-request display attributes: priority badge and chat pulse."""
+    """Attach per-request display attributes for priority and chat pulse."""
     for task in tasks:
         task.priority_label, task.priority_category = priority_map.get(task.id, (None, None)) if priority_map else (None, None)
         task.chat_room_pulse_class = "tw-chat-room-pulse" if task.chat_room_id in pulse_room_ids else ""
@@ -194,6 +211,11 @@ class TaskListView(LoginRequiredMixin, TemplateView):
                 task.priority_category = "rejected"
             lists["finished_rejected"] = rejected
 
+        displayed_tasks = [task for task_list in lists.values() for task in task_list]
+        unread_counts = get_unread_message_counts_for_rooms(user, [task.chat_room_id for task in displayed_tasks])
+        for task in displayed_tasks:
+            task.chat_unread_count = unread_counts.get(task.chat_room_id, 0)
+
         sort_items, views = _task_toolbar_data(sort, order, tab, categories, search_query)
         context.update(
             {
@@ -203,6 +225,7 @@ class TaskListView(LoginRequiredMixin, TemplateView):
                 "current_order": order,
                 "current_categories": categories,
                 "search_query": search_query,
+                "task_counts": _task_tab_counts(user, categories, search_query),
                 "category_list": list(Category.objects.values("id", "slug", "name", "description", "order", "is_protected")),
                 "toolbar_sort_items": sort_items,
                 "toolbar_views": views,
@@ -419,8 +442,8 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
             vote = TaskVote.objects.filter(task=task, user=self.request.user).first()
             context["user_vote_value"] = vote.value if vote else None
 
-            # Check if chat room has unseen messages
-            task.chat_room_pulse_class = task.get_chat_room_pulse_class(self.request.user)
+            task.chat_unread_count = get_unread_message_counts_for_rooms(self.request.user, [task.chat_room_id]).get(task.chat_room_id, 0)
+            task.chat_room_pulse_class = "tw-chat-room-pulse" if task.chat_unread_count else ""
             context["can_post_in_chat"] = task.can_user_post(self.request.user)
         else:
             context["can_post_in_chat"] = False

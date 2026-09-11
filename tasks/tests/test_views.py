@@ -169,6 +169,22 @@ class TaskListFilteringTest(TestCase):
         self.assertEqual(task.votes_up, 2)
         self.assertEqual(task.user_vote_value, TaskVote.Value.UP)
 
+    def test_stepper_contains_counts_for_each_task_tab(self):
+        make_task(title="Moje", assigned_to=self.user)
+        make_task(title="Oczekujące")
+        active = make_task(title="Aktywne", assigned_to=self.other)
+        self.upvote(active, self.user)
+        self.upvote(active, self.other)
+        finished = make_task(title="Zakończone")
+        finished.status = Task.Status.COMPLETED
+        finished.save(update_fields=["status"])
+
+        response = self.get_list("?tab=mine")
+
+        self.assertEqual(response.context["task_counts"], {"mine": 2, "awaiting": 2, "active": 1, "finished": 1})
+        self.assertContains(response, 'class="tw-stepper-step-count">2</span>', count=2)
+        self.assertContains(response, 'class="tw-stepper-step-count">1</span>', count=2)
+
 
 class TaskCreateViewTest(TestCase):
     def setUp(self):

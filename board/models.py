@@ -25,6 +25,7 @@ class Post(ChatRoomModel, models.Model):
     subtitle = models.CharField(max_length=200, null=True, blank=True, verbose_name=_("Subtitle"))
     text = models.TextField(verbose_name=_("Text"))
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name=_("Author"))
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="updated_board_posts", verbose_name=_("Updated by"))
     created = models.DateTimeField(auto_now_add=True, verbose_name=_("Created"))
     updated = models.DateTimeField(auto_now=True, verbose_name=_("Updated"))
     category = models.ForeignKey(PostCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name="posts", verbose_name=_("Category"))
@@ -61,10 +62,9 @@ class Post(ChatRoomModel, models.Model):
 
     @classmethod
     def visibility_filter_for_user(cls, user):
-        visible = Q(is_private=False, is_public=True)
-        if user.is_authenticated:
-            visible |= Q(system_key__isnull=False) | Q(author=user)
-        return visible
+        if not user.is_authenticated:
+            return Q(is_private=False, is_public=True)
+        return Q(is_private=False) | Q(system_key__isnull=False) | Q(author=user)
 
 
 class PostAttachment(models.Model):

@@ -1,5 +1,6 @@
 """Tests for glosowania views."""
 
+from datetime import date
 from unittest.mock import patch
 
 import pytest
@@ -7,6 +8,7 @@ import redis
 from django.contrib.auth import get_user_model
 from django.db import OperationalError
 from django.test import Client
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
@@ -352,14 +354,21 @@ def test_rejected_and_approved_ignore_author_signature(sample_users):
 
 
 @pytest.mark.django_db
-def test_only_referendum_list_shows_dates(sample_users):
+def test_status_lists_show_stage_specific_dates(sample_users):
     author = sample_users[0]
-    for status in (Decyzja.Status.PROPOSITION, Decyzja.Status.DISCUSSION, Decyzja.Status.REFERENDUM, Decyzja.Status.REJECTED, Decyzja.Status.APPROVED):
-        d = Decyzja.objects.create(title=f'D{status}', tresc='x', author=author, status=status)
-        ZebranePodpisy.objects.create(projekt=d, podpis_uzytkownika=author)
+    proposition = Decyzja.objects.create(title='Proposition date', tresc='x', author=author, status=Decyzja.Status.PROPOSITION)
+    discussion = Decyzja.objects.create(title='Discussion date', tresc='x', author=author, status=Decyzja.Status.DISCUSSION, data_zebrania_podpisow=date(2026, 2, 2))
+    referendum = Decyzja.objects.create(title='Referendum dates', tresc='x', author=author, status=Decyzja.Status.REFERENDUM, data_referendum_start=date(2026, 2, 3), data_referendum_stop=date(2026, 2, 4))
+    approved = Decyzja.objects.create(title='Approved date', tresc='x', author=author, status=Decyzja.Status.APPROVED)
+    for decision in (discussion, referendum):
+        ZebranePodpisy.objects.create(projekt=decision, podpis_uzytkownika=author)
 
     client = Client()
     client.force_login(author)
+    assert client.get('/glosowania/proposition/').context['votings'][0] == proposition
+    assert proposition.data_powstania.strftime('%d.%m.%Y') in client.get('/glosowania/proposition/').content.decode()
+    assert '02.02.2026' in client.get('/glosowania/discussion/').content.decode()
+    assert '03.02.2026–04.02.2026' in client.get('/glosowania/referendum/').content.decode()
+    approved_date = timezone.localtime(approved.data_ostatniej_modyfikacji).strftime('%d.%m.%Y')
+    assert approved_date in client.get('/glosowania/approved/').content.decode()
     assert client.get('/glosowania/referendum/').context['show_dates'] is True
-    for url in ('/glosowania/proposition/', '/glosowania/discussion/', '/glosowania/rejected/', '/glosowania/approved/'):
-        assert client.get(url).context['show_dates'] is False

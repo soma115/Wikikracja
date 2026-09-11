@@ -12,7 +12,7 @@ from django.utils.translation import gettext as _
 from push_notifications.models import GCMDevice
 
 # Local folder imports
-from chat.models import Message, Room
+from chat.models import Message, MessageReadBy, Room
 from chat.tests.utils import make_user
 
 
@@ -32,6 +32,24 @@ class ChatViewsTest(TestCase):
         self.client.force_login(self.user)
         response = self.client.get(reverse("chat:chat"))
         self.assertEqual(response.status_code, 200)
+
+    def test_room_list_shows_exact_unread_message_count(self):
+        read_message = Message.objects.create(room=self.room, sender=self.user, text="Read")
+        Message.objects.create(room=self.room, sender=self.user, text="Unread")
+        MessageReadBy.objects.create(message=read_message, user=self.user)
+        second_room = Room.objects.create(title="SecondPublicRoom", public=True)
+        second_room.allowed.add(self.user)
+        Message.objects.create(room=second_room, sender=self.user, text="Unread 2")
+        Message.objects.create(room=second_room, sender=self.user, text="Unread 3")
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("chat:chat"))
+
+        room = next(room for room in response.context["public_rooms_active"] if room.pk == self.room.pk)
+        self.assertEqual(room.unread_message_count, 1)
+        self.assertEqual(response.context["chat_section_unread_counts"]["public"], 3)
+        self.assertContains(response, '<span class="tw-chat-count">1</span>')
+        self.assertContains(response, '<span class="tw-chat-count tw-chat-count--section">3</span>')
 
     def test_chat_view_includes_document_rooms(self):
         from board.models import Post

@@ -27,7 +27,8 @@ from django.views.decorators.http import require_POST
 from django_filters.views import FilterView
 from django_tables2.views import SingleTableMixin
 
-from chat.services import get_user_public_message_rows
+from chat.models import Room
+from chat.services import get_unread_message_counts_for_rooms, get_user_public_message_rows
 from core.signals import citizen_proposed
 from obywatele.filters import UzytkownikFilter
 from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, UserForm, UsernameChangeForm
@@ -35,7 +36,7 @@ from obywatele.models import DeletionRequest, Rate, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items
 from obywatele.tables import UzytkownikTable
 from site_settings.params import get_param
-from tasks.activity import get_user_tasks
+from tasks.activity import get_active_coordinated_tasks_by_user_ids, get_user_tasks
 
 log = logging.getLogger(__name__)
 
@@ -275,6 +276,14 @@ def obywatele(request: HttpRequest):
             user.activity_status = 'inactive'
 
         users_with_reputation.append(user)
+
+    coordinated_tasks = get_active_coordinated_tasks_by_user_ids(user.pk for user in users_with_reputation)
+    private_rooms = Room.find_private_rooms_for_user_pairs(request.user, [user.pk for user in users_with_reputation if user.pk != request.user.pk])
+    unread_counts = get_unread_message_counts_for_rooms(request.user, [room.pk for room in private_rooms.values()])
+    for user in users_with_reputation:
+        user.coordinated_tasks = coordinated_tasks.get(user.pk, [])
+        room = private_rooms.get(user.pk)
+        user.dm_unread_count = unread_counts.get(room.pk, 0) if room else 0
 
     _aktywnosc_ctx = aktywnosc if aktywnosc in _aktywnosc_filters else ''
     sort_param = f'sort={requested_sort}' if requested_sort != default_sort else ''
@@ -702,6 +711,9 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
     sort_param = f'sort={requested_sort}' if requested_sort != default_sort else ''
 
     candidate_deletion_request = getattr(candidate_user, 'deletion_request', None)
+    dm_room = Room.find_private_rooms_for_user_pairs(request.user, [candidate_user.pk]).get(candidate_user.pk)
+    dm_unread_counts = get_unread_message_counts_for_rooms(request.user, [dm_room.pk] if dm_room else [])
+    dm_unread_count = dm_unread_counts.get(dm_room.pk, 0) if dm_room else 0
 
     return render(
         request,
@@ -721,6 +733,7 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
             'ratings_neutral': ratings_neutral,
             'ratings_negative': ratings_negative,
             'candidate_deletion_request': candidate_deletion_request,
+            'dm_unread_count': dm_unread_count,
             'sort_param': sort_param,
         },
     )

@@ -3,7 +3,7 @@
 {% load feed_filters %}
 {% comment %}
   Partial: kafelek zadania (Agora-style).
-  Oczekiwana zmienna: task — obiekt Task (z with_metrics + chat_msg_count)
+  Oczekiwana zmienna: task — obiekt Task (z with_metrics + chat_msg_count + chat_unread_count)
 {% endcomment %}
 
 <div class="tw-task-card" data-category="{{ task.category.slug }}">
@@ -16,117 +16,66 @@
       <span class="tw-task-card-title">{{ task.title }}</span>
     </div>
 
-    {# Badges: priorytet / status + chat #}
-    <div class="tw-task-card-badges-row">
-      {% if task.priority_category == 'critical' %}
-        <span class="tw-badge-status tw-badge-danger">{% trans 'Critical' %}</span>
-      {% elif task.priority_category == 'important' %}
-        <span class="tw-badge-status tw-badge-warning">{% trans 'Important' %}</span>
-      {% elif task.priority_category == 'beneficial' %}
-        <span class="tw-badge-status tw-badge-success">{% trans 'Beneficial' %}</span>
-      {% elif task.priority_category == 'rejected' %}
-        <span class="tw-badge-status tw-badge-rejected">{% trans 'Rejected' %}</span>
-      {% endif %}
-
-      {% if task.status == 'completed' %}
-        <span class="tw-badge-status tw-badge-approved">{% trans 'Completed' %}</span>
-      {% elif task.status == 'cancelled' %}
-        <span class="tw-badge-status tw-badge-discussion">{% trans 'Cancelled' %}</span>
-      {% endif %}
-
-      {% if task.chat_room_url %}
-        <a href="{{ task.chat_room_url }}"
-           class="tw-chat-link {{ task.chat_room_pulse_class|default:'' }}"
-           data-tw-stop-propagation>
-          <i class="fas fa-comment-dots"></i>
-          <span>{% trans 'Chat' %}</span>
-          {% with n=task.chat_msg_count %}
-            {% if n %}<span class="tw-text-xs tw-font-semibold">{{ n }}</span>{% endif %}
-          {% endwith %}
-        </a>
-      {% endif %}
-    </div>
-
-    {# Meta strip #}
-    <div class="tw-task-card-meta">
-      {% if task.assigned_to and task.assigned_to != request.user %}
-        {# Someone else is coordinator — static, no live update possible from this user #}
-        <a href="{% url 'obywatele:obywatele_szczegoly' pk=task.assigned_to.pk %}"
-           class="tw-task-coordinator-link" data-tw-stop-propagation
-           data-tw-toggle="tooltip"
-           title="{% trans 'Coordinator' %}: {{ task.assigned_to|display_name }}">
-          <i class="fas fa-user-gear tw-task-role-icon" aria-hidden="true"></i>
-          {% include "home/_user_avatar.html" with user=task.assigned_to size="md" %}
-          <span class="tw-task-coordinator-name">{{ task.assigned_to|display_name }}</span>
-        </a>
-      {% else %}
-        {# I'm coordinator OR no coordinator — pre-render both; JS toggles `hidden` on take/resign #}
-        <a href="{% url 'obywatele:obywatele_szczegoly' pk=request.user.pk %}"
-           class="tw-task-coordinator-link" data-tw-stop-propagation
-           data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}
-           data-tw-toggle="tooltip"
-           title="{% trans 'Coordinator' %}: {{ request.user|display_name }}">
-          <i class="fas fa-user-gear tw-task-role-icon" aria-hidden="true"></i>
-          {% include "home/_user_avatar.html" with user=request.user size="md" %}
-          <span class="tw-task-coordinator-name">{{ request.user|display_name }}</span>
-        </a>
-        <span class="tw-task-coordinator-empty"
-              data-coord-state="empty"{% if task.assigned_to %} hidden{% endif %}
-              data-tw-toggle="tooltip" title="{% trans 'No coordinator yet' %}">
-          <i class="fas fa-user-gear tw-task-role-icon" aria-hidden="true"></i>
-          <span>{% trans 'no coordinator' %}</span>
+    <div class="tw-task-card-meta tw-flex-nowrap">
+      <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
+        {% if task.assigned_to and task.assigned_to != request.user %}
+          <a href="{% url 'obywatele:obywatele_szczegoly' pk=task.assigned_to.pk %}"
+             class="tw-task-coordinator-link tw-truncate" data-tw-stop-propagation
+             data-tw-toggle="tooltip"
+             title="{% trans 'Coordinator' %}: {{ task.assigned_to|display_name }}">
+            <i class="fas fa-user-gear tw-task-role-icon" aria-hidden="true"></i>
+            {% include "home/_user_avatar.html" with user=task.assigned_to size="md" %}
+            <span class="tw-task-coordinator-name">{{ task.assigned_to|display_name }}</span>
+          </a>
+        {% else %}
+          <a href="{% url 'obywatele:obywatele_szczegoly' pk=request.user.pk %}"
+             class="tw-task-coordinator-link tw-truncate" data-tw-stop-propagation
+             data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}
+             data-tw-toggle="tooltip"
+             title="{% trans 'Coordinator' %}: {{ request.user|display_name }}">
+            <i class="fas fa-user-gear tw-task-role-icon" aria-hidden="true"></i>
+            {% include "home/_user_avatar.html" with user=request.user size="md" %}
+            <span class="tw-task-coordinator-name">{{ request.user|display_name }}</span>
+          </a>
+          <span class="tw-task-coordinator-empty tw-truncate"
+                data-coord-state="empty"{% if task.assigned_to %} hidden{% endif %}
+                data-tw-toggle="tooltip" title="{% trans 'No coordinator yet' %}">
+            <i class="fas fa-user-gear tw-task-role-icon" aria-hidden="true"></i>
+            <span>{% trans 'no coordinator' %}</span>
+          </span>
+        {% endif %}
+        <span class="tw-task-meta-sep">·</span>
+        <span class="tw-task-date tw-whitespace-nowrap"
+              data-tw-toggle="tooltip"
+              title="{% trans 'Created' %}: {{ task.created_at|date:'d.m.Y H:i' }}">
+          <i class="fas fa-clock-rotate-left tw-task-role-icon" aria-hidden="true"></i>
+          {{ task.created_at|date:"d.m.Y" }}
         </span>
-      {% endif %}
-
-      <span class="tw-task-meta-sep">·</span>
-      <span class="tw-task-date"
-            data-tw-toggle="tooltip"
-            title="{% trans 'Created' %}: {{ task.created_at|date:'d.m.Y H:i' }}">
-        <i class="fas fa-clock-rotate-left tw-task-role-icon" aria-hidden="true"></i>
-        {{ task.created_at|date:"d.m.Y" }}
-      </span>
-
-      {% if task.category %}
-      <span class="tw-task-meta-sep">·</span>
-      <span data-tw-toggle="tooltip"
-            title="{% trans 'Category' %}: {{ task.category.name }}">
-        <i class="fas fa-tag tw-task-role-icon" aria-hidden="true"></i>
-        {{ task.category.name }}
-      </span>
-      {% endif %}
-
-      <span class="tw-task-meta-sep">·</span>
-      <button type="button"
-              class="tw-task-helpers-btn"
-              data-tw-stop-propagation
-              data-task-helpers="{{ task.pk }}"
-              data-helpers-url="{% url 'tasks:helpers_json' pk=task.pk %}"
-              data-tw-toggle="popover"
-              data-tw-trigger="manual"
-              data-tw-placement="bottom"
-              data-tw-html="true"
-              data-tw-title="{% trans 'People helping' % }"
-              data-tw-content="<div class='tw-helpers-popover-loading'>{% trans 'Loading…' %}</div>"
-              aria-label="{% trans 'People helping. Click to see the list.' %}">
-        <i class="fas fa-hand-holding-heart fa-fw"></i>
-        <span class="tw-task-helpers-count">{{ task.votes_up|default:0 }}</span>
-      </button>
-
-      <button type="button"
-              class="tw-task-against tw-task-against-btn"
-              data-tw-stop-propagation
-              data-task-against="{{ task.pk }}"
-              data-against-url="{% url 'tasks:against_json' pk=task.pk %}"
-              data-tw-toggle="popover"
-              data-tw-trigger="manual"
-              data-tw-placement="bottom"
-              data-tw-html="true"
-              data-tw-title="{% trans 'People against' %}"
-              data-tw-content="<div class='tw-helpers-popover-loading'>{% trans 'Loading…' %}</div>"
-              aria-label="{% trans 'People against. Click to see the list.' %}">
-        <i class="fas fa-thumbs-down fa-fw"></i>
-        <span class="tw-task-against-count">{{ task.votes_down|default:0 }}</span>
-      </button>
+      </div>
+      <div class="tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 tw-flex-nowrap">
+        {% if task.category %}
+          <span class="tw-badge tw-badge-secondary" title="{% trans 'Category' %}: {{ task.category.name }}">
+            <i class="fas fa-tag tw-task-role-icon" aria-hidden="true"></i>
+            <span class="tw-view-label">{{ task.category.name }}</span>
+          </span>
+        {% endif %}
+        {% if task.priority_category == 'critical' %}
+          <span class="tw-badge-status tw-badge-danger">{% trans 'Critical' %}</span>
+        {% elif task.priority_category == 'important' %}
+          <span class="tw-badge-status tw-badge-warning">{% trans 'Important' %}</span>
+        {% elif task.priority_category == 'beneficial' %}
+          <span class="tw-badge-status tw-badge-success">{% trans 'Beneficial' %}</span>
+        {% elif task.priority_category == 'rejected' %}
+          <span class="tw-badge-status tw-badge-rejected">{% trans 'Rejected' %}</span>
+        {% endif %}
+        {% if task.status == 'completed' %}<span class="tw-badge-status tw-badge-approved">{% trans 'Completed' %}</span>{% elif task.status == 'cancelled' %}<span class="tw-badge-status tw-badge-discussion">{% trans 'Cancelled' %}</span>{% endif %}
+        {% if task.chat_room_url %}
+          <a href="{{ task.chat_room_url }}" class="tw-chat-link {{ task.chat_room_pulse_class|default:'' }}" data-tw-stop-propagation>
+            <i class="fas fa-comment-dots"></i><span class="tw-view-label">{% trans 'Chat' %}</span>
+            {% with n=task.chat_unread_count|default:0 %}{% if n %}<span class="tw-chat-count">{{ n }}</span>{% endif %}{% endwith %}
+          </a>
+        {% endif %}
+      </div>
     </div>
 
   </div>{# /.tw-task-card-header #}
@@ -136,7 +85,7 @@
 
     {# Pełny opis #}
     {% if task.description %}
-    <div>
+    <div class="tw-task-description-section">
       <div class="tw-task-section-label">
         <i class="fas fa-file-lines fa-fw"></i> {% trans 'Description' %}
       </div>
@@ -158,7 +107,7 @@
 
     {# Actions: głosy + podejmij/zrezygnuj #}
     {% if task.is_active %}
-    <div class="tw-task-vote-row">
+    <div class="tw-task-vote-row" data-view-only="grid">
       <form method="post" action="{% url 'tasks:vote' task.pk %}">
         {% csrf_token %}
         <input type="hidden" name="value" value="1">
