@@ -31,6 +31,8 @@ urlpatterns: List[URLPattern | URLResolver] = [
     path('tasks/', include('tasks.urls', namespace='tasks')),
     path('ankiety/', include('ankiety.urls', namespace='ankiety')),
     path('i18n/', include('django.conf.urls.i18n')),
+    path('docs/UI_STANDARDS.html', serve, {'document_root': settings.BASE_DIR / 'docs', 'path': 'UI_STANDARDS.html'}, name='ui_standards'),
+    path('docs/ui-standards.css', serve, {'document_root': settings.BASE_DIR / 'docs', 'path': 'ui-standards.css'}, name='ui_standards_css'),
     path('<slug:slug>/', bv.view_post_by_slug, name='board_post_by_slug'),
 ]
 

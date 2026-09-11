@@ -8,7 +8,12 @@
     <span class="tw-section-heading tw-text-md">
       <i class="fas fa-screwdriver-wrench tw-me-2 tw-text-accent tw-opacity-80"></i>{% trans "Site administration and global settings" %}
     </span>
-    <span class="tw-site-admin-version">Wikikracja v.{{ app_version }}</span>
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <a href="{% url 'ui_standards' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary" target="_blank" rel="noopener">
+        <i class="fas fa-link fa-fw tw-me-1"></i>{% trans "UI reference" %}
+      </a>
+      <span class="tw-site-admin-version">Wikikracja v.{{ app_version }}</span>
+    </div>
   </div>
 
   {# ── QUICK LINKS ── #}
