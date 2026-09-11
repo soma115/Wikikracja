@@ -11,7 +11,7 @@
 <div class="tw-proposals-list" data-view-container>
   {% if votings %}
     {% for i in votings %}
-      {% include 'glosowania/_proposal_card.html' with show_dates=show_dates %}
+      {% include 'glosowania/_proposal_card.html' %}
     {% endfor %}
   {% else %}
     {% trans 'There is no proposal with this status' as proposals_empty_title %}

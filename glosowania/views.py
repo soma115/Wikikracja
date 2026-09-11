@@ -4,6 +4,8 @@ import logging
 import random
 import re
 import time
+from datetime import datetime, timedelta
+from datetime import time as datetime_time
 from urllib.parse import quote_plus
 
 import redis
@@ -662,12 +664,18 @@ def _sort_context(request):
     return sort, order
 
 
-def _status_list(request: HttpRequest, status, *, author_signed=False, pulse=False, show_dates=False):
+def _countdown_end(value):
+    """Return a timezone-aware local midnight for a date-based deadline."""
+    if not value:
+        return None
+    return timezone.make_aware(datetime.combine(value, datetime_time.min), timezone.get_current_timezone())
+
+
+def _status_list(request: HttpRequest, status, *, author_signed=False, pulse=False):
     """Shared list view for a single Decyzja status.
 
     - author_signed: keep only proposals signed by their author (discussion/referendum)
     - pulse: annotate each item with chat_room_pulse_class for the current user
-    - show_dates: show referendum dates on the proposal card
     """
     sort, order = _sort_context(request)
     search_query = request.GET.get('q', '').strip()
@@ -684,23 +692,23 @@ def _status_list(request: HttpRequest, status, *, author_signed=False, pulse=Fal
         qs = qs.annotate(_signed=author_signed_exists()).filter(_signed=True)
     votings = list(_apply_sort(qs, sort, order))
     unread_counts = get_unread_message_counts_for_rooms(request.user, [voting.chat_room_id for voting in votings])
+    parameters = SiteParameters.get() if status == Decyzja.Status.PROPOSITION else None
     for voting in votings:
         voting.chat_unread_count = unread_counts.get(voting.chat_room_id, 0)
-        if status == Decyzja.Status.PROPOSITION:
-            voting.list_date = voting.data_powstania
+        voting.countdown_end = None
+        if status == Decyzja.Status.PROPOSITION and voting.data_powstania:
+            deadline = voting.data_powstania + timedelta(days=parameters.czas_na_zebranie_podpisow + 1)
+            voting.countdown_end = _countdown_end(deadline)
         elif status == Decyzja.Status.DISCUSSION:
-            voting.list_date = voting.data_zebrania_podpisow
-        elif status == Decyzja.Status.REFERENDUM:
-            voting.list_date_start = voting.data_referendum_start
-            voting.list_date_stop = voting.data_referendum_stop
-        else:
-            voting.list_date = voting.data_ostatniej_modyfikacji
+            voting.countdown_end = _countdown_end(voting.data_referendum_start)
+        elif status == Decyzja.Status.REFERENDUM and voting.data_referendum_stop:
+            voting.countdown_end = _countdown_end(voting.data_referendum_stop + timedelta(days=1))
         if pulse:
             voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
     return render(
         request,
         'glosowania/list.html',
-        {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views, 'show_dates': show_dates, 'search_query': search_query},
+        {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views, 'search_query': search_query},
     )
 
 
@@ -716,7 +724,7 @@ def discussion(request: HttpRequest):
 
 @login_required
 def referendum(request: HttpRequest):
-    return _status_list(request, Decyzja.Status.REFERENDUM, author_signed=True, pulse=True, show_dates=True)
+    return _status_list(request, Decyzja.Status.REFERENDUM, author_signed=True, pulse=True)
 
 
 @login_required

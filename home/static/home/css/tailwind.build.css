@@ -1095,6 +1095,19 @@ small,
   align-items: stretch;
 }
 
+.tw-proposals-list.tw-view-grid .tw-proposal-section--consequences,
+  .tw-proposals-list.tw-view-grid .tw-proposal-section--reasoning {
+  display: none;
+}
+
+.tw-proposals-list.tw-view-grid .tw-proposal-section--law .tw-proposal-section-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .tw-proposals-list.tw-view-grid>.tw-tasks-section-label {
   grid-column: 1 / -1;
 }

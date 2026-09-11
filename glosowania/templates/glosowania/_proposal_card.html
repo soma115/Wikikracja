@@ -5,7 +5,6 @@
   Partial: kafelek propozycji.
   Oczekiwane zmienne z {% include ... with i=item %}:
     i          — obiekt Decyzja
-    show_dates — bool, czy pokazać daty referendum (tylko widok referendum)
 {% endcomment %}
 
 <div class="tw-proposal-card" data-status="{{ i.status }}">
@@ -33,10 +32,12 @@
         <span class="tw-proposal-meta-sep">·</span>
         <span class="tw-proposal-date tw-whitespace-nowrap" title="{% trans 'Stage date' %}">
           <i class="fas fa-calendar fa-fw" aria-hidden="true"></i>
-          {% if i.list_date_start or i.list_date_stop %}
-            {{ i.list_date_start|date:"d.m.Y"|default:"—" }}–{{ i.list_date_stop|date:"d.m.Y"|default:"—" }}
+          {% if i.countdown_end %}
+            <span data-countdown data-countdown-minutes data-end="{{ i.countdown_end|date:'c' }}">{{ i.countdown_end|timeuntil }}</span>
+          {% elif i.status == i.Status.REJECTED or i.status == i.Status.APPROVED %}
+            {{ i.data_ostatniej_modyfikacji|date:"d.m.Y"|default:"—" }}
           {% else %}
-            {{ i.list_date|date:"d.m.Y"|default:"—" }}
+            —
           {% endif %}
         </span>
         <span class="tw-proposal-meta-sep">·</span>
@@ -102,18 +103,6 @@
     </div>
     {% endif %}
 
-    {% if show_dates %}
-    <div class="tw-proposal-section--referendum">
-      <div class="tw-proposal-section-label">
-        <i class="fas fa-calendar fa-fw"></i> {% trans 'Referendum' %}
-      </div>
-      <div class="tw-proposal-section-text">
-        {% trans 'Start' %}: {{ i.data_referendum_start|date:"d.m.Y"|default:"—" }}
-        &nbsp;·&nbsp;
-        {% trans 'End' %}: {{ i.data_referendum_stop|date:"d.m.Y"|default:"—" }}
-      </div>
-    </div>
-    {% endif %}
 
   </div>{# /.tw-proposal-card-body #}
 
