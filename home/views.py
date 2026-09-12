@@ -130,7 +130,7 @@ def activity_page(request):
     sort_url = _build_activity_query('date' if next_state != 'none' else 'none', next_state if next_state != 'none' else None, is_filtered, active_types, filter_unread, filter_bookmarks)
     unread_filter_url = _build_activity_query(sort, order, is_filtered, active_types, filter_unread, filter_bookmarks, toggle='unread')
     bookmarks_filter_url = _build_activity_query(sort, order, is_filtered, active_types, filter_unread, filter_bookmarks, toggle='bookmarks')
-    toolbar_sort_items = [{"url": sort_url, "label": _("Date"), "active": state != 'none', "state": state, "icon": "up" if state == "asc" else "down" if state == "desc" else None}]
+    toolbar_sort_items = [{"url": sort_url, "label": _("Date"), "active": state != 'none', "state": state, "pre_icon": "clock", "icon": "up" if state == "asc" else "down" if state == "desc" else None}]
     toolbar_views = [{"name": "list", "icon": "list", "title": _("List")}, {"name": "grid", "icon": "grip", "title": _("Grid")}]
 
     return render(

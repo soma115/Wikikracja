@@ -1,7 +1,7 @@
 """Tests for glosowania views."""
 
 from datetime import date, timedelta
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 import pytest
 import redis
@@ -74,6 +74,47 @@ def test_voting_retries_when_database_is_locked(sample_users):
     assert save_calls[0] == 2
     assert KtoJuzGlosowal.objects.filter(projekt=decyzja, ktory_uzytkownik_juz_zaglosowal=voter).count() == 1
     mock_push.assert_called_once()
+
+
+@pytest.mark.django_db
+def test_voting_retries_with_exponential_delays(sample_users):
+    author = sample_users[0]
+    voter = sample_users[1]
+    decyzja = Decyzja.objects.create(title='Referendum Bill', tresc='Test law text', kara='Test penalty', author=author, status=Decyzja.Status.REFERENDUM)
+    client = Client()
+    client.force_login(voter)
+    original_save = KtoJuzGlosowal.save
+    save_calls = [0]
+
+    def save_with_two_locks(instance, *args, **kwargs):
+        save_calls[0] += 1
+        if save_calls[0] < 3:
+            raise OperationalError('database is locked')
+        return original_save(instance, *args, **kwargs)
+
+    with patch.object(KtoJuzGlosowal, 'save', save_with_two_locks), patch('glosowania.views.time.sleep') as sleep, patch('glosowania.views.push_pending_vote'):
+        response = client.post(f'/glosowania/details/{decyzja.pk}/', {'tak': '1'})
+
+    assert response.status_code == 302
+    assert sleep.call_args_list == [call(0.9), call(1.8)]
+    assert save_calls[0] == 3
+
+
+@pytest.mark.django_db
+def test_voting_lock_timeout_redirects_without_marking_user(sample_users):
+    author = sample_users[0]
+    voter = sample_users[1]
+    decyzja = Decyzja.objects.create(title='Referendum Bill', tresc='Test law text', kara='Test penalty', author=author, status=Decyzja.Status.REFERENDUM)
+    client = Client()
+    client.force_login(voter)
+
+    with patch.object(KtoJuzGlosowal, 'save', side_effect=OperationalError('database is locked')), patch('glosowania.views.time.sleep'), patch('glosowania.views.push_pending_vote') as mock_push:
+        response = client.post(f'/glosowania/details/{decyzja.pk}/', {'nie': '1'})
+
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decyzja.pk}/'
+    assert not KtoJuzGlosowal.objects.filter(projekt=decyzja, ktory_uzytkownik_juz_zaglosowal=voter).exists()
+    mock_push.assert_not_called()
 
 
 @pytest.mark.django_db

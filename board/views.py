@@ -152,6 +152,7 @@ def board(request: HttpRequest) -> HttpResponse:
         {
             'url': sort_url('title', next_state('title')),
             'label': gettext_lazy('A-Z'),
+            'pre_icon': 'list',
             'active': sort == 'title',
             'state': item_state('title'),
             'icon': 'up' if item_state('title') == 'asc' else 'down' if item_state('title') == 'desc' else None,
@@ -159,6 +160,7 @@ def board(request: HttpRequest) -> HttpResponse:
         {
             'url': sort_url('date', next_state('date')),
             'label': gettext_lazy('Date'),
+            'pre_icon': 'clock',
             'active': sort == 'date',
             'state': item_state('date'),
             'icon': 'up' if item_state('date') == 'asc' else 'down' if item_state('date') == 'desc' else None,

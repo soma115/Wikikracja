@@ -117,7 +117,8 @@ PRESENCE_GREEN_MINUTES = env_int("PRESENCE_GREEN_MINUTES", 15)
 PRESENCE_YELLOW_DAYS = env_int("PRESENCE_YELLOW_DAYS", 7)
 
 REDIS_HOST = getenv("REDIS_HOST", "redis://redis:6379/1")
-CHANNEL_LAYERS = {'default': {'BACKEND': 'channels_redis.core.RedisChannelLayer', 'CONFIG': {'hosts': [REDIS_HOST]}}}
+REDIS_CHANNEL_PREFIX = getenv("REDIS_CHANNEL_PREFIX", "wikikracja-default")
+CHANNEL_LAYERS = {'default': {'BACKEND': 'channels_redis.core.RedisChannelLayer', 'CONFIG': {'hosts': [REDIS_HOST], 'prefix': REDIS_CHANNEL_PREFIX}}}
 
 CACHES = {'default': {'BACKEND': 'django.core.cache.backends.redis.RedisCache', 'LOCATION': REDIS_HOST}}
 

@@ -4853,8 +4853,11 @@
   .tw-sort-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.3rem;
-    padding: 0.28rem 0.65rem;
+    min-width: 32px;
+    height: 32px;
+    padding: 0.28rem 0.55rem;
     border-radius: var(--radius-btn, 0.5rem);
     border: 1px solid var(--border);
     background: transparent;

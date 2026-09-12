@@ -186,6 +186,20 @@ def _is_database_locked(error):
     return 'database is locked' in str(error).lower()
 
 
+def _handle_locked_vote(request, pk):
+    """Return a safe response when a vote transaction remains locked."""
+    try:
+        voted = KtoJuzGlosowal.objects.filter(projekt=pk, ktory_uzytkownik_juz_zaglosowal=request.user).exists()
+    except OperationalError:
+        voted = False
+
+    if voted:
+        messages.info(request, _('You have already voted in this referendum'))
+    else:
+        messages.error(request, _('Voting is temporarily unavailable. Please try again in a moment.'))
+    return redirect('glosowania:details', pk)
+
+
 def _cast_vote(request, pk, vote):
     """Record a vote and queue its anonymous verification code.
 
@@ -269,6 +283,11 @@ def details(request: HttpRequest, pk: int):
             log.error(f"Vote storage unavailable while casting a vote on decyzja {pk}", exc_info=True)
             messages.error(request, _('Voting is temporarily unavailable. Please try again in a moment.'))
             return redirect('glosowania:details', pk)
+        except OperationalError as error:
+            if not _is_database_locked(error):
+                raise
+            log.error('SQLite remained locked while casting a vote on decyzja %s', pk, exc_info=True)
+            return _handle_locked_vote(request, pk)
 
         message1 = str(_('Your vote has been saved. You voted Yes.'))
         messages.success(request, (message1), extra_tags='persist')
@@ -290,6 +309,11 @@ def details(request: HttpRequest, pk: int):
             log.error(f"Vote storage unavailable while casting a vote on decyzja {pk}", exc_info=True)
             messages.error(request, _('Voting is temporarily unavailable. Please try again in a moment.'))
             return redirect('glosowania:details', pk)
+        except OperationalError as error:
+            if not _is_database_locked(error):
+                raise
+            log.error('SQLite remained locked while casting a vote on decyzja %s', pk, exc_info=True)
+            return _handle_locked_vote(request, pk)
 
         message1 = str(_('Your vote has been saved. You voted No.'))
         messages.success(request, (message1), extra_tags='persist')

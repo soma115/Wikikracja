@@ -229,6 +229,7 @@ class PartnerListView(BookkeepingListView):
                 'label': label,
                 'active': current_sort == field,
                 'state': state(field),
+                'pre_icon': 'list' if field == 'name' else None,
                 'icon': 'up' if state(field) == 'asc' else 'down' if state(field) == 'desc' else None,
             }
             for field, label in fields

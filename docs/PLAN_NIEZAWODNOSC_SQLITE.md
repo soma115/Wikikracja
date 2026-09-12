@@ -26,6 +26,21 @@ Plan nie zakłada migracji na PostgreSQL ani zmian zasad głosowania, anonimowo�
 5. Nie używać blokad procesowych jako jedynej ochrony, jeśli aplikacja może działać w wielu procesach.
 6. Dla ścieżek głosowania i innych operacji audytowalnych preferować poprawność i jawny błąd nad cichą utratą lub powtórzeniem zapisu.
 
+## Aktualny zakres realizacji
+
+Na obecnym etapie realizujemy wyłącznie podstawową ochronę ścieżki oddawania głosu:
+
+- [x] Retry dla przejściowego `database is locked` w głosowaniu.
+- [x] Wycofanie transakcji po nieudanym zapisie.
+- [x] Redirect zamiast błędu 500 po końcowej blokadzie SQLite.
+- [x] Ponowny odczyt, czy głos został zapisany.
+- [x] Komunikat dla użytkownika o konieczności ponowienia próby.
+- [x] Spinner i blokada podwójnego wysłania formularza.
+- [x] Przywracanie stanu spinnera po powrocie strony z cache (`pageshow`).
+
+Pozostałe prace optymalizacyjne SQLite, schedulera, obecności i globalnego
+retry są odłożone do czasu osobnej decyzji.
+
 ## Status wdrożenia
 
 Wykonane i pozostawione w kodzie:
@@ -36,6 +51,8 @@ Wykonane i pozostawione w kodzie:
 - [x] `TRUNCATE` checkpoint wymaga jawnego potwierdzenia.
 - [x] Dokumentacja operacyjna backupu, restore i checkpointu.
 - [x] Udokumentowana strategia timeoutu głosowania: spinner, komunikat, ponowny odczyt statusu i brak automatycznego drugiego POST-a.
+- [x] Skrypt `scripts/sqlite_contention_test.py` do bezpiecznego testu na tymczasowej bazie/kopii, z writerami, backupem i opcjonalnym `VACUUM`.
+- [x] Skrypt raportuje liczbę blokad, czas testu, przepustowość, czas backupu oraz szczytowy i końcowy rozmiar WAL/SHM.
 
 Celowo wycofane przed produkcją z powodu ryzyka dla trwających głosowań,
 Redis, obecności i schedulera:
@@ -52,6 +69,34 @@ Do wykonania osobno, po pomiarach:
 - [ ] Formalne ograniczenie liczby workerów i opis produkcyjnego modelu uruchomienia.
 - [ ] Monitoring liczby blokad, czasu transakcji i rozmiaru WAL.
 - [ ] Regularny automatyczny test odtworzenia backupu.
+
+## Status etapów planu
+
+- [x] Etap 0 — inwentaryzacja miejsc zapisu i mapa `INSERT`/`UPDATE`/`DELETE`.
+- [x] Etap 1 — narzędzie backupu przez SQLite Backup API, kontrola integralności i ręczne restore na kopii testowej.
+- [x] Etap 2a — konfiguracja ścieżki bazy i katalogu backupów przez zmienne `SQLITE_*`.
+- [x] Etap 2b — jawny timeout backupu 60 sekund i kopiowanie porcjami.
+- [x] Etap 2c — kontrolowany `VACUUM` po backupie przez `--vacuum-after`.
+- [ ] Etap 3 — pełny monitoring blokad, czasu transakcji i rozmiaru WAL.
+- [x] Etap 4a — retry głosowania 3/6/12 sekund.
+- [x] Etap 4c — spinner, blokada podwójnego POST-a i bezpieczny redirect po końcowym locku głosowania.
+- [ ] Etap 4b — globalna polityka retry dla innych operacji bez efektów ubocznych.
+- [ ] Etap 5 — audyt i skrócenie wszystkich długich transakcji.
+- [ ] Etap 6 — międzyprocesowa serializacja zadań schedulera.
+- [ ] Etap 7 — test obciążeniowy i formalny model liczby workerów.
+- [ ] Etap 8 — automatyczny test odtworzenia oraz produkcyjny monitoring.
+
+## Wyniki testów obciążeniowych SQLite
+
+- [x] Test 4 writerów × 250 operacji, timeout 0,1 s, backup online: 1000 udanych zapisów, 0 blokad, backup i integralność poprawne; szczytowy WAL 1,07 MB, SHM 32 KB.
+- [x] Test 8 writerów × 1000 operacji, timeout 0,1 s, backup online: 8000 udanych zapisów, 0 blokad, backup i integralność poprawne.
+- [x] Test 16 writerów × 5000 operacji, timeout 0,1 s, backup online: 74882 udane zapisy, 5118 blokad, 0 innych błędów, backup i integralność poprawne.
+- [x] Test 16 writerów × 5000 operacji, timeout 1,0 s, backup online: 79312 udanych zapisów, 688 blokad, 0 innych błędów, backup i integralność poprawne; czas testu 127,43 s.
+- [x] Test z równoległym `VACUUM`: `VACUUM` otrzymał `database is locked`, co potwierdza konieczność okna serwisowego.
+
+Wyniki są zależne od obciążenia i systemu, dlatego nie są jeszcze podstawą
+do zmiany timeoutu produkcyjnego ani do globalnego retry. Służą jako baseline
+do kolejnych pomiarów.
 
 ---
 
@@ -71,7 +116,7 @@ serwerze produkcyjnym:
 - [ ] Odtworzona kopia przechodzi `integrity-check`, `manage.py check` i smoke test.
 - [ ] Sprawdzono wolne miejsce na dysku z zapasem na bazę, WAL, backup i logi.
 - [ ] Ustalono sposób monitorowania `database is locked`, rozmiaru WAL i czasu zadań schedulera.
-- [ ] Redis oraz bufor głosowań mają osobną procedurę backupu/odtworzenia albo zaakceptowano ich odrębne ryzyko.
+- [x] Redis nie jest backupowany; bufor głosowań pozostaje poza zakresem backupu SQLite zgodnie z decyzją projektową.
 - [ ] **DO ZROBIENIA PRZEZ CIEBIE:** na systemie backupowym ustawić proces kopiujący ukończone pliki `.sqlite3` z katalogu backupów na zewnętrzny NAS; pliki tymczasowe `.part` ignorować, jeśli zostaną wprowadzone.
 - [ ] Jest procedura zatrzymania aplikacji, schedulera i odtworzenia bazy bez użycia starych plików `-wal`/`-shm`.
 
@@ -222,15 +267,15 @@ usuwa kopii bezpieczeństwa.
 
 ## Obsługa timeoutu głosowania: plan UX i backendu
 
-- [ ] Po kliknięciu „Tak” lub „Nie” natychmiast wyłączyć oba przyciski.
-- [ ] Pokazać spinner oraz komunikat „Zapisywanie głosu…”, z `aria-busy="true"`.
-- [ ] Nie wysyłać automatycznie drugiego POST-a po timeoutcie.
+- [x] Po kliknięciu „Tak” lub „Nie” natychmiast wyłączyć oba przyciski.
+- [x] Pokazać spinner oraz komunikat „Zapisywanie głosu…”, z `aria-busy="true"`.
+- [x] Nie wysyłać automatycznie drugiego POST-a po timeoutcie.
 - [ ] Po zakończeniu żądania przywrócić stan formularza, także po powrocie z cache przeglądarki (`pageshow`).
-- [ ] Przy końcowym `database is locked` obsłużyć błąd po stronie Django i wykonać redirect do szczegółów referendum zamiast 500.
-- [ ] Po błędzie ponownie odczytać, czy `KtoJuzGlosowal` zawiera użytkownika, ponieważ timeout HTTP nie dowodzi, że commit się nie udał.
-- [ ] Pokazać komunikat rozróżniający: głos potwierdzony, głos niepotwierdzony albo chwilowa niedostępność.
-- [ ] Nie ponawiać automatycznie operacji, która mogła już zapisać fakt głosowania lub wysłać dane do Redis.
-- [ ] Dodać testy formularza, komunikatu timeoutu, stanu przycisków i braku podwójnego POST-a.
+- [x] Przy końcowym `database is locked` obsłużyć błąd po stronie Django i wykonać redirect do szczegółów referendum zamiast 500.
+- [x] Po błędzie ponownie odczytać, czy `KtoJuzGlosowal` zawiera użytkownika, ponieważ timeout HTTP nie dowodzi, że commit się nie udał.
+- [x] Pokazać komunikat rozróżniający: głos potwierdzony, głos niepotwierdzony albo chwilowa niedostępność.
+- [x] Nie ponawiać automatycznie operacji, która mogła już zapisać fakt głosowania lub wysłać dane do Redis.
+- [x] Dodać testy backendu i formularza dla komunikatu timeoutu, stanu przycisków i braku podwójnego POST-a.
 
 Spinner ma informować o oczekiwaniu, ale nie może anulować ani dublować zapisu.
 Jeżeli frontendowy timeout nastąpi przed odpowiedzią serwera, backend może nadal

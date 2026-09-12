@@ -79,7 +79,7 @@
       <div class="component-label">Toolbar w module List / Grid</div>
       <div class="tw-toolbar" data-responsive-toolbar>
         <div class="tw-toolbar-sort" data-responsive-controls>
-          <a href="#" class="tw-sort-btn tw-active" data-sort-state="desc" aria-pressed="true"><i class="fas fa-clock-rotate-left fa-fw"></i> <span class="tw-sort-btn-label">Date</span> <i class="fas fa-arrow-down tw-sort-arrow"></i></a>
+          <a href="#" class="tw-sort-btn tw-active" data-sort-state="desc" aria-pressed="true"><i class="fas fa-clock fa-fw"></i> <span class="tw-sort-btn-label">Date</span> <i class="fas fa-arrow-down tw-sort-arrow"></i></a>
           <a href="#" class="tw-sort-btn tw-sort-btn--off" data-sort-state="none" aria-pressed="false"><i class="fas fa-pen-nib fa-fw"></i> <span class="tw-sort-btn-label">Score</span> <i class="fas fa-sort tw-sort-arrow tw-sort-arrow--off"></i></a>
           <a href="#" class="tw-sort-btn tw-sort-btn--off" data-sort-state="none" aria-pressed="false"><i class="fas fa-tag fa-fw"></i> <span class="tw-sort-btn-label">Category</span> <i class="fas fa-sort tw-sort-arrow tw-sort-arrow--off"></i></a>
         </div>
@@ -97,10 +97,11 @@
         <li>Dane widoku: <code>{'name': 'list'|'grid', 'icon': 'list'|'grip', 'title': _('List')|_('Grid')}</code>.</li>
         <li>Sortowanie jest opcjonalne. Jeśli moduł go nie obsługuje, nie renderujemy pustych przycisków ani pustej grupy filtrów.</li>
         <li>Przyciski sortowania mają ikonę pola + etykietę pola + wskaźnik stanu.</li>
+        <li>Przyciski sortowania i List / Grid mają wspólny rozmiar toolbaru: <code>32px</code> wysokości i co najmniej <code>32px</code> szerokości. Ukrycie etykiety nie zmienia wysokości ani minimalnej szerokości guzika.</li>
         <li>Każdy guzik ma dokładnie trzy stany i cykl: wyłączone (<code>fa-sort</code>) → rosnąco (<code>fa-arrow-up</code>) → malejąco (<code>fa-arrow-down</code>) → wyłączone.</li>
         <li>Kliknięcie innego pola wyłącza poprzednie sortowanie i uruchamia nowe pole od stanu rosnącego. Przy wyłączonym sortowaniu źródło danych zachowuje swoją domyślną kolejność.</li>
         <li>Stan jest dostępny także programowo przez <code>data-sort-state="none|asc|desc"</code> i <code>aria-pressed</code>.</li>
-        <li>Ikona pola mówi, co jest sortowane: np. <code>fa-calendar</code> dla daty, <code>fa-user</code> dla autora, <code>fa-tag</code> dla kategorii.</li>
+        <li>Ikona pola mówi, co jest sortowane: <code>fa-list</code> dla sortowania alfabetycznego A-Z, <code>fa-clock</code> dla czasu/daty, <code>fa-user</code> dla autora, <code>fa-tag</code> dla kategorii.</li>
         <li>Strzałka <code>fa-arrow-up</code> / <code>fa-arrow-down</code> oznacza wyłącznie kierunek i nie zastępuje ikony pola; stan wyłączony pokazuje <code>fa-sort</code>.</li>
         <li>Na dużych ekranach każdy guzik sortowania pokazuje ikonę pola, etykietę i wskaźnik kierunku.</li>
         <li>Układ kontrolek jest mierzony dynamicznie na podstawie dostępnej szerokości konkretnej grupy, niezależnie od breakpointu ekranu; używamy obserwacji rozmiaru, nie progów typu „poniżej 480 px ukryj etykiety”.</li>
@@ -399,7 +400,7 @@
           <tr><td><i class="fas fa-right-to-bracket"></i></td><td><code>fa-right-to-bracket</code></td><td>Zaloguj</td><td>guzik Login</td></tr>
           <tr><td><i class="fas fa-right-from-bracket"></i></td><td><code>fa-right-from-bracket</code></td><td>Wyloguj</td><td>guzik Logout</td></tr>
           <tr><td><i class="fas fa-user-plus"></i></td><td><code>fa-user-plus</code></td><td>Zarejestruj</td><td>guzik Register</td></tr>
-          <tr><td><i class="fas fa-list"></i></td><td><code>fa-list</code></td><td>Widok listy</td><td>przełącznik List</td></tr>
+          <tr><td><i class="fas fa-list"></i></td><td><code>fa-list</code></td><td>Widok listy / A-Z</td><td>przełącznik List, sortowanie alfabetyczne</td></tr>
           <tr><td><i class="fas fa-grip"></i></td><td><code>fa-grip</code></td><td>Widok siatki</td><td>przełącznik Grid</td></tr>
           <tr><td><i class="fas fa-filter"></i></td><td><code>fa-filter</code></td><td>Filtruj</td><td>dropdown filtrów</td></tr>
           <tr><td><i class="fas fa-sort"></i></td><td><code>fa-sort</code></td><td>Sortuj</td><td>guziki sortowania w toolbarze</td></tr>
@@ -533,8 +534,8 @@
       <ul class="rules">
         <li>Używaj <code>fa-fw</code> przed <code>me-1</code> (np. <code>&lt;i class="fas fa-clock fa-fw tw-me-1"&gt;&lt;/i&gt;</code>), żeby ikony były wyrównane w pionie i oddzielone od tekstu.</li>
         <li>Ikony w guzikach zawsze po lewej stronie tekstu, z wyjątkiem CTA (okrągły plus bez tekstu).</li>
-        <li>Ikona przed etykietą sortowania reprezentuje sortowane pole; np. <code>fa-calendar</code> — data, <code>fa-user</code> — autor, <code>fa-tag</code> — kategoria, <code>fa-pen-nib</code> — ocena.</li>
-        <li>Sortowanie po czasie zawsze <code>fa-clock</code> (lub <code>fa-clock-rotate-left</code> dla daty utworzenia).</li>
+        <li>Ikona przed etykietą sortowania reprezentuje sortowane pole: <code>fa-list</code> — A-Z, <code>fa-clock</code> — czas/data, <code>fa-user</code> — autor, <code>fa-tag</code> — kategoria, <code>fa-pen-nib</code> — ocena.</li>
+        <li>Sortowanie po czasie lub dacie zawsze używa <code>fa-clock</code>; nie używamy <code>fa-calendar</code> ani <code>fa-clock-rotate-left</code> jako ikon sortowania.</li>
         <li>Strzałki <code>fa-arrow-up</code> / <code>fa-arrow-down</code> służą wyłącznie do wskazania kierunku sortowania; <code>fa-sort</code> oznacza sortowanie wyłączone.</li>
         <li>Widok listy zawsze <code>fa-list</code>, widok siatki zawsze <code>fa-grip</code>.</li>
         <li>Dynamiczne liczniki odliczające w dół pokazują dni, godziny i minuty — nigdy sekund.</li>

@@ -174,6 +174,36 @@
 
     document.addEventListener('submit', function (e) {
         const msg = e.target.getAttribute && e.target.getAttribute('data-tw-confirm');
-        if (msg && !window.confirm(msg)) e.preventDefault();
+        if (msg && !window.confirm(msg)) {
+            e.preventDefault();
+            return;
+        }
+
+        const voteForm = e.target.matches && e.target.matches('[data-vote-submit]') ? e.target : null;
+        if (!voteForm) return;
+        if (voteForm.dataset.submitting === 'true') {
+            e.preventDefault();
+            return;
+        }
+
+        voteForm.dataset.submitting = 'true';
+        voteForm.setAttribute('aria-busy', 'true');
+        voteForm.querySelectorAll('button[type="submit"]').forEach((button) => {
+            button.disabled = true;
+        });
+        const status = voteForm.querySelector('[data-vote-submit-status]');
+        if (status) status.classList.remove('tw-hidden');
+    });
+
+    window.addEventListener('pageshow', function () {
+        document.querySelectorAll('[data-vote-submit]').forEach(function (voteForm) {
+            voteForm.dataset.submitting = 'false';
+            voteForm.removeAttribute('aria-busy');
+            voteForm.querySelectorAll('button[type="submit"]').forEach(function (button) {
+                button.disabled = false;
+            });
+            const status = voteForm.querySelector('[data-vote-submit-status]');
+            if (status) status.classList.add('tw-hidden');
+        });
     });
 })();

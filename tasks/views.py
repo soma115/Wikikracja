@@ -160,7 +160,7 @@ def _prepare_task_cards(tasks, pulse_room_ids, priority_map=None):
 def _task_toolbar_data(sort, order, tab, categories, search_query=''):
     """Generate sort and view toggle data for the shared toolbar template."""
     labels = {"date": gettext_lazy("Date")}
-    icons = {"date": "clock-rotate-left"}
+    icons = {"date": "clock"}
     params = []
     if tab:
         params.append(f"tab={tab}")

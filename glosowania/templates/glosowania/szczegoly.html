@@ -42,10 +42,13 @@
       {% if not voted %}
       <div class="tw-flex tw-flex-col tw-gap-2">
         <span class="tw-vote-question">{% trans 'Would you like to implement this rule?' %}</span>
-        <form method="post" class="tw-mb-0 tw-flex tw-gap-2">
+        <form method="post" class="tw-mb-0 tw-flex tw-flex-wrap tw-items-center tw-gap-2" data-vote-submit>
           {% csrf_token %}
           <button type="submit" name="tak" value="1" class="tw-action-btn tw-action-btn-yes"><i class="fas fa-check fa-fw tw-me-1"></i> {% trans 'Yes' %}</button>
           <button type="submit" name="nie" value="1" class="tw-action-btn tw-action-btn-no"><i class="fas fa-times fa-fw tw-me-1"></i> {% trans 'No' %}</button>
+          <span class="tw-hidden tw-text-muted tw-text-sm" data-vote-submit-status role="status" aria-live="polite">
+            <i class="fas fa-spinner fa-spin tw-me-1" aria-hidden="true"></i>{% trans 'Saving your vote...' %}
+          </span>
         </form>
       </div>
       {% else %}
