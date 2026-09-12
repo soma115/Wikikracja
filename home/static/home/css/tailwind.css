@@ -286,7 +286,7 @@
     background: var(--accent-muted);
     font-weight: 500;
   }
-  .tw-sort-btn--off .tw-sort-arrow {opacity: .45;
+  .tw-sort-btn--off .tw-sort-arrow {opacity: .8;
   }
   .tw-sort-arrow {font-size: .65rem;
     opacity: .8;
@@ -1010,10 +1010,14 @@
     font-weight: 700;
     color: var(--text-primary);
     flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
     line-height: 1.3;
   }
   .tw-detail-nav {display: flex;
+    flex-wrap: wrap;
     gap: .35rem;
+    max-width: 100%;
     flex-shrink: 0;
   }
   .tw-detail-nav-btn {display: inline-flex;
@@ -1029,9 +1033,16 @@
     transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
   }
   .tw-detail-nav-btn:hover,
+  .tw-detail-nav-btn:focus-visible,
   .tw-task-vote-btn--down:hover {color: var(--text-primary);
     border-color: rgba(255, 255, 255, .2);
     background: var(--color-surface-offset);
+  }
+  .tw-detail-nav-btn:focus-visible {outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .tw-detail-nav-btn.tw-text-danger:hover,
+  .tw-detail-nav-btn.tw-text-danger:focus-visible {color: var(--badge-rejected-color);
   }
   .tw-detail-nav-btn.tw-disabled {opacity: .3;
     pointer-events: none;
@@ -1052,6 +1063,61 @@
     transition: background var(--transition-fast);
   }
   .tw-detail-author-link:hover {background: var(--color-surface-dynamic);
+  }
+  .tw-detail-meta {display: flex;
+    flex-wrap: wrap;
+    gap: .55rem;
+    align-items: stretch;
+  }
+  .tw-detail-meta-item {display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 100%;
+    gap: .35rem;
+    padding: .35rem .65rem;
+    border-radius: var(--radius-btn);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    font-size: .82rem;
+    color: var(--text-muted);
+    box-shadow: var(--shadow-sm);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  }
+  .tw-detail-meta-item:hover {border-color: var(--accent-glow);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+  }
+  .tw-detail-meta-icon {color: var(--accent);
+    font-size: .75rem;
+  }
+  .tw-detail-meta-label {font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .tw-detail-meta-value {color: var(--text-primary);
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-weight: 600;
+    font-size: .9rem;
+  }
+  .tw-detail-meta-status-active {color: var(--status-online-color);
+  }
+  .tw-detail-meta-status-completed {color: var(--badge-approved-color);
+  }
+  .tw-detail-meta-status-cancelled,
+  .tw-detail-meta-status-rejected {color: var(--badge-rejected-color);
+  }
+  .tw-detail-fields {display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: .75rem;
+  }
+  .tw-detail-fields dt {color: var(--text-muted);
+    font-size: .8rem;
+    font-weight: 600;
+  }
+  .tw-detail-fields dd {min-width: 0;
+    overflow-wrap: anywhere;
+    margin: 0;
+    color: var(--text-primary);
   }
   .tw-detail-section-label {font-size: .7rem;
     font-weight: 700;
@@ -2306,44 +2372,6 @@
   .tw-partner-name-link:hover {color: var(--accent);
     text-decoration: underline;
   }
-  .tw-task-meta-row {display: flex;
-    flex-wrap: wrap;
-    gap: .55rem;
-    align-items: stretch;
-  }
-  .tw-task-meta-item {display: inline-flex;
-    align-items: center;
-    gap: .35rem;
-    padding: .35rem .65rem;
-    border-radius: var(--radius-btn);
-    border: 1px solid var(--border);
-    background: var(--bg-card);
-    font-size: .82rem;
-    color: var(--text-muted);
-    box-shadow: var(--shadow-sm);
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-  }
-  .tw-task-meta-item:hover {border-color: var(--accent-glow);
-    box-shadow: 0 0 0 2px var(--accent-glow);
-  }
-  .tw-task-meta-icon {color: var(--accent);
-    font-size: .75rem;
-  }
-  .tw-task-meta-label {font-size: .7rem;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-  }
-  .tw-task-meta-value {color: var(--text-primary);
-    font-weight: 600;
-    font-size: .9rem;
-  }
-  .tw-task-meta-status-active {color: var(--status-online-color);
-  }
-  .tw-task-meta-status-completed {color: var(--badge-approved-color);
-  }
-  .tw-task-meta-status-cancelled,
-  .tw-task-meta-status-rejected {color: var(--badge-rejected-color);
-  }
   .tw-helpers-voter-list {display: flex;
     flex-direction: column;
     gap: .4rem;
@@ -2430,9 +2458,9 @@
     color: var(--badge-rejected-color);
   }
   @media (max-width: 540px) {
-  .tw-task-meta-row {gap: .4rem;
+  .tw-detail-meta {gap: .4rem;
   }
-  .tw-task-meta-item {padding: .3rem .5rem;
+  .tw-detail-meta-item {padding: .3rem .5rem;
       font-size: .75rem;
   }
   .tw-helpers-voter-item {flex-wrap: wrap;
@@ -2488,8 +2516,6 @@
   .tw-brand-mark-sm {max-height: 64px; width: auto;
   }
   .tw-brand-mark-lg {max-height: 96px; width: auto;
-  }
-  .tw-event-delete-btn {color: var(--badge-rejected-color);
   }
   .tw-event-link {color: var(--accent); text-decoration: none;
   }
@@ -4768,9 +4794,9 @@
     min-width: 0;
   }
   .tw-toolbar-group-search {
-    /* Pole zachowuje elastyczność i może wykorzystać wolne miejsce w toolbarze. */
-    flex: 1 1 18rem;
-    /* Pozwala grupie skracać się przed zawinięciem całego toolbara. */
+    /* Pole zachowuje elastyczność, wykorzystuje wolne miejsce i może skurczyć się między kontrolkami. */
+    flex: 1 1 0;
+    /* Zachowuje minimalny rozmiar użyteczny do wpisywania przed zawinięciem. */
     min-width: 1rem;
   }
   .tw-toolbar-group-search > form {
@@ -4784,6 +4810,16 @@
     flex: 0 0 auto;
     /* Grupa widoku pozostaje dosunięta do prawej strony toolbara. */
     margin-left: auto;
+  }
+  /* Poniżej tego progu wyszukiwarka przechodzi do pełnego wiersza. */
+  @media (max-width: 591.98px) {
+    .tw-toolbar-group-search {
+      flex: 0 0 100%;
+      order: -1;
+    }
+    .tw-toolbar-group-view {
+      order: 2;
+    }
   }
   .tw-toolbar-divider {
     /* Wąska pionowa kreska oddzielająca grupy kontrolek. */
@@ -4819,6 +4855,12 @@
   .tw-sort-btn:hover {
     color: var(--text-primary);
     border-color: rgba(255, 255, 255, 0.2);
+  }
+  .tw-sort-btn[data-sort-state] {
+    color: var(--accent);
+    border-color: var(--accent-border);
+    background: var(--accent-muted);
+    font-weight: 500;
   }
   .tw-sort-btn.tw-active {
     color: var(--accent);
@@ -5034,12 +5076,10 @@
       gap: 0;
     }
     .tw-view-toggle-btn .tw-view-label,
-    .tw-sort-btn .tw-sort-btn-label,
     .tw-btn-cta .tw-btn-cta-label {
       display: none;
     }
-    .tw-view-toggle-btn.tw-active .tw-view-label,
-    .tw-sort-btn.tw-active .tw-sort-btn-label {
+    .tw-sort-btn .tw-sort-btn-label {
       display: inline;
       margin-left: 0.35rem;
     }

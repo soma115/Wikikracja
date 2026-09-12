@@ -5,12 +5,7 @@
 
 {% block content %}
 <div class="tw-container tw-my-4">
-{% include 'home/includes/detail_header.html' with title=post.title %}
-<div class="tw-mb-3">
-  <a href="#" data-tw-back data-tw-back-skip-referrer="/edit/" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
-    <i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans "Back" %}
-  </a>
-</div>
+{% include 'home/includes/detail_header.html' with title=post.title back_include='board/_post_detail_back.html' navigation_include='home/includes/detail_navigation.html' actions_include='board/_post_detail_actions.html' meta_include='board/_post_detail_meta.html' %}
 
 <div class="tw-board-post-card">
   <div class="tw-post-header">
@@ -31,7 +26,7 @@
 
   {% if post.attachments.all %}
   <div class="tw-post-attachments tw-mt-4">
-    <h4>{% trans 'Attachments' %}</h4>
+    <h2 class="tw-text-lg tw-font-semibold tw-mb-3">{% trans 'Attachments' %}</h2>
     <ul class="tw-list-group">{% for attachment in post.attachments.all %}<li class="tw-list-group-item">
       <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}">
         <i class="fas fa-paperclip tw-me-2"></i>{{ attachment.filename }}
@@ -41,14 +36,6 @@
   </div>
   {% endif %}
 </div>
-
-  <p class="tw-text-muted tw-flex tw-items-center tw-gap-2">{% if user.is_authenticated or not post.is_public or post.is_private %}{% trans 'Author' %}: {% if post.author %}{% include "home/_user_avatar.html" with user=post.author size="sm" %}{{ post.author|display_name }}{% else %} -- {% endif %} | {% endif %}{% trans 'Created' %}: {{ post.created|date:"Y-m-d" }} | {% trans 'Updated' %}: {{ post.updated|date:"Y-m-d" }}{% if post.is_public and not post.is_private %} | {% trans 'Public' %}{% endif %}</p>
-
-  {% if user.is_authenticated %}
-    <a href="{% url 'board:edit_post' post.pk %}" class="tw-btn tw-btn-primary"><i class="fas fa-pen fa-fw tw-me-1"></i> {% trans 'Edit' %}</a>
-    <a href="{% url 'board:delete_post' post.pk %}" class="tw-btn tw-btn-danger"><i class="fas fa-trash fa-fw tw-me-1"></i> {% trans 'Delete' %}</a>
-    {% endif %}
-  <a href="{% url 'board:start' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-arrow-left fa-fw tw-me-1"></i> {% trans 'Back' %}</a>
 
   {% with chat_room=chat_room %}
     {% include 'chat/_embedded_chat.html' %}

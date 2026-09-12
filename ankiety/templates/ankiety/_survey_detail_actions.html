@@ -1,0 +1,14 @@
+{% load i18n %}
+{% if can_edit %}
+<div class="tw-detail-nav tw-flex tw-flex-wrap tw-gap-1">
+  <a href="{% url 'ankiety:edit' survey.pk %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}">
+    <i class="fas fa-pen fa-fw" aria-hidden="true"></i>
+  </a>
+  <form method="post" action="{% url 'ankiety:delete' survey.pk %}" data-confirm="{% trans 'Are you sure you want to delete this survey?' %}">
+    {% csrf_token %}
+    <button type="submit" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}">
+      <i class="fas fa-trash fa-fw" aria-hidden="true"></i>
+    </button>
+  </form>
+</div>
+{% endif %}

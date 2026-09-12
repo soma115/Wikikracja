@@ -10,7 +10,7 @@
       </div>
       <div class="tw-agenda-day-events">
         {% for occ in day_group.list %}
-          <a href="{% url 'events:detail' occ.event.pk %}"
+          <a href="{{ occ.detail_url }}"
              class="tw-agenda-event-chip{% if occ.is_past %} tw-agenda-event-chip--past{% endif %}{% if not occ.event.is_public %} tw-agenda-event-chip--private{% endif %}"
              title="{{ occ.event.title }}{% if occ.event.place %} · {{ occ.event.place }}{% endif %}">
             <i class="fas fa-{% if occ.event.frequency == 'once' %}calendar-day{% else %}repeat{% endif %} fa-fw tw-agenda-event-icon"></i>

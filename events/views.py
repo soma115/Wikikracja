@@ -1,12 +1,16 @@
 from datetime import date as _date
+from urllib.parse import urlencode
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpRequest
 from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+
+from core.utils import build_detail_navigation
 
 from .calendar import adjacent_months, build_calendar_grid, month_bounds, parse_month_param, year_options
 from .forms import EventForm
@@ -23,7 +27,13 @@ def _month_occurrences(request, year, month):
     events = _visible_events(request)
 
     now = timezone.now()
-    occurrences = [{'event': event, 'date': occurrence, 'is_past': occurrence < now} for event in events for occurrence in event.get_occurrences(range_start, range_end)]
+    month = f'{year}-{month:02d}'
+    occurrences = []
+    for event in events:
+        for occurrence in event.get_occurrences(range_start, range_end):
+            detail_url = reverse('events:detail', kwargs={'pk': event.pk})
+            detail_url = f"{detail_url}?{urlencode({'month': month, 'occurrence': occurrence.isoformat()})}"
+            occurrences.append({'event': event, 'date': occurrence, 'is_past': occurrence < now, 'detail_url': detail_url})
     return sorted(occurrences, key=lambda item: item['date'])
 
 
@@ -109,6 +119,40 @@ class EventDetailView(DetailView):
             queryset = queryset.filter(is_public=True)
 
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cal_year, cal_month = parse_month_param(self.request.GET.get('month', ''))
+        occurrences = _month_occurrences(self.request, cal_year, cal_month)
+        occurrence = parse_datetime(self.request.GET.get('occurrence', ''))
+        current_item = next((item for item in occurrences if item['event'].pk == self.object.pk and (occurrence is None or item['date'] == occurrence)), None)
+        current_key = None
+        if current_item:
+            current_key = (current_item['event'].pk, current_item['date'].isoformat())
+
+        def occurrence_query(item):
+            params = self.request.GET.copy()
+            params['occurrence'] = item['date'].isoformat()
+            return params.urlencode()
+
+        context.update(
+            build_detail_navigation(
+                self.request,
+                occurrences,
+                current_key,
+                'events:detail',
+                item_key=lambda item: (item['event'].pk, item['date'].isoformat()),
+                url_kwargs=lambda item: {'pk': item['event'].pk},
+                query_string_for_item=occurrence_query,
+            )
+        )
+
+        list_params = self.request.GET.copy()
+        list_params.pop('occurrence', None)
+        context['list_url'] = reverse('events:list')
+        if list_params:
+            context['list_url'] = f"{context['list_url']}?{list_params.urlencode()}"
+        return context
 
 
 class EventCreateView(LoginRequiredMixin, CreateView):

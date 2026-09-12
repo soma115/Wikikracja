@@ -3,17 +3,13 @@
 
 {% block bookkeeping %}
 <div class="tw-container tw-my-4">
+  {% url 'bookkeeping:category_list' as category_list_url %}
+  {% include 'home/includes/detail_header.html' with title=category.name back_url=category_list_url actions_include='bookkeeping/_detail_actions.html' %}
   <div class="tw-card">
-    {% url 'bookkeeping:category_list' as category_list_url %}
-    {% include 'home/includes/detail_header.html' with title=category.name back_url=category_list_url %}
     <div class="tw-card-body">
       <div class="tw-flex tw-items-center tw-gap-2 tw-text-muted">
         <i class="fas fa-tags fa-fw"></i>
         <span>{% trans 'Category' %}</span>
-      </div>
-      <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-4">
-        <a href="{% url 'bookkeeping:category_update' category.pk %}" class="tw-btn tw-btn-primary"><i class="fas fa-pen fa-fw"></i> {% trans 'Edit' %}</a>
-        <a href="{% url 'bookkeeping:category_delete' category.pk %}" class="tw-btn tw-btn-danger"><i class="fas fa-trash fa-fw"></i> {% trans 'Delete' %}</a>
       </div>
     </div>
   </div>

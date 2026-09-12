@@ -7,49 +7,13 @@
 
 {% block glosowania %}
 
-{% include 'home/includes/detail_header.html' with title=id.display_title %}
+<div class="tw-container tw-my-4">
+{% include 'home/includes/detail_header.html' with title=id.display_title meta_include='glosowania/_detail_meta.html' navigation_include='glosowania/_detail_navigation.html' actions_include='glosowania/_detail_actions.html' %}
 <div class="tw-flex tw-flex-col tw-gap-3 tw-mb-3">
 
   {# Karta: info + akcja #}
   <div class="tw-card">
     <div class="tw-card-body tw-flex tw-flex-col tw-gap-2 tw-text-sm">
-
-      <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-muted tw-text-sm">
-        <span class="tw-text-muted tw-font-normal">#{{ id.id }}</span>
-        {% if id.author %}
-        <a href="{% url 'obywatele:obywatele_szczegoly' pk=id.author.pk %}" class="tw-detail-author-link tw-flex tw-items-center tw-gap-1 tw-no-underline">
-          {% include "home/_user_avatar.html" with user=id.author size="sm" %}
-          <span class="tw-text-accent">{{ id.author|display_name }}</span>
-        </a>
-        <span class="tw-detail-meta-sep">·</span>
-        {% endif %}
-        {% if id.data_powstania %}<span title="{% trans 'Creation date' %}"><i class="fas fa-calendar-plus fa-fw"></i> {{ id.data_powstania|date:"d.m.Y" }}</span>{% endif %}
-        {% if id.data_ostatniej_modyfikacji and id.data_ostatniej_modyfikacji|date:"d.m.Y" != id.data_powstania|date:"d.m.Y" %}<span class="tw-detail-meta-arrow">→</span><span title="{% trans 'Last modification date' %}"><i class="fas fa-pen fa-fw"></i> {{ id.data_ostatniej_modyfikacji|date:"d.m.Y" }}</span>{% endif %}
-        <span class="tw-detail-meta-sep">·</span>
-        <span title="{% if id.data_zebrania_podpisow %}{% trans 'Date signatures were collected' %}{% else %}{% trans 'Signatures collected' %}{% endif %}">{{ id.ile_osob_podpisalo|default:"0" }} <i class="fas fa-pen-nib fa-fw"></i>{% if id.data_zebrania_podpisow %} · {{ id.data_zebrania_podpisow|date:"d.m.Y" }}{% endif %}</span>
-        {% if id.data_referendum_start %}<span class="tw-detail-meta-arrow">→</span><span title="{% trans 'Referendum period' %}"><i class="fas fa-person-booth fa-fw"></i> {{ id.data_referendum_start|date:"d.m.Y" }}{% if data_referendum_stop %}–{{ data_referendum_stop|date:"d.m.Y" }}{% endif %}</span>{% endif %}
-        <span class="tw-detail-meta-sep">·</span>
-        <span class="tw-detail-status-badge tw-detail-status-badge--s{{ id.status }}">
-          {% if id.status == id.Status.PROPOSITION %}<i class="fas fa-file-pen"></i> {{ id.get_status_display }}
-          {% elif id.status == id.Status.DISCUSSION %}<i class="fas fa-comments"></i> {{ id.get_status_display }}
-          {% elif id.status == id.Status.REFERENDUM %}<i class="fas fa-person-booth"></i> {{ id.get_status_display }}
-          {% elif id.status == id.Status.REJECTED %}<i class="fas fa-ban"></i> {{ id.get_status_display }}
-          {% elif id.status == id.Status.APPROVED %}<i class="fas fa-check-circle"></i> {{ id.get_status_display }}
-          {% endif %}
-        </span>
-        {% if chat_room %}
-        <a href="{% url 'chat:chat' %}#room_id={{ chat_room.id }}" class="tw-chat-link {{ chat_room_pulse_class }} tw-no-underline">
-          <i class="fas fa-comment-dots"></i> {% trans 'Chat' %}
-          {% if chat_unread_count %}<span class="tw-chat-count">{{ chat_unread_count }}</span>{% endif %}
-        </a>
-        {% endif %}
-        <div class="tw-detail-nav tw-flex tw-gap-1">
-          {% if prev %}<a href="{% url 'glosowania:details' pk=prev.id %}" class="tw-detail-nav-btn" title="{% trans 'Previous' %}"><i class="fas fa-chevron-left"></i></a>
-          {% else %}<span class="tw-detail-nav-btn tw-disabled"><i class="fas fa-chevron-left"></i></span>{% endif %}
-          {% if next %}<a href="{% url 'glosowania:details' pk=next.id %}" class="tw-detail-nav-btn" title="{% trans 'Next' %}"><i class="fas fa-chevron-right"></i></a>
-          {% else %}<span class="tw-detail-nav-btn tw-disabled"><i class="fas fa-chevron-right"></i></span>{% endif %}
-        </div>
-      </div>
 
       {% if id.status == id.Status.PROPOSITION %}
       <div class="tw-flex tw-items-center tw-gap-1 tw-text-muted tw-text-sm">
@@ -68,9 +32,6 @@
           {% csrf_token %}
           <button type="submit" name="withdraw" value="1" class="tw-action-btn tw-action-btn-withdraw"><i class="fas fa-times fa-fw tw-me-1"></i> {% trans 'Withdraw signature' %}</button>
         </form>
-        {% endif %}
-        {% if id.author == None or id.author == current_user %}
-        <a href="{% url 'glosowania:edit' id.pk %}" class="tw-action-btn tw-action-btn-edit"><i class="fas fa-pen fa-fw tw-me-1"></i> {% trans 'Edit' %}</a>
         {% endif %}
         {% if id.wersje.exists %}
         <a href="{% url 'glosowania:historia' id.pk %}" class="tw-action-btn tw-text-xs"><i class="fas fa-clock-rotate-left fa-fw tw-me-1"></i> {% trans 'Changes' %} ({{ id.wersje.count }})</a>
@@ -117,7 +78,7 @@
     <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
       <div class="tw-flex tw-items-center tw-gap-2">
         <i class="fas fa-scroll tw-text-accent tw-text-sm"></i>
-        <span class="tw-section-heading tw-text-sm">{% trans 'Law text' %}</span>
+        <h2 class="tw-section-heading tw-text-sm tw-mb-0">{% trans 'Law text' %}</h2>
       </div>
       {% if id.tresc %}
       <div class="tw-detail-subsection">
@@ -174,8 +135,8 @@
         <div class="tw-arg-card-content">{{ arg.content|richtext }}</div>
         {% if arg.author == current_user and not id.voting_has_ended %}
         <div class="tw-arg-card-footer">
-          <a href="{% url 'glosowania:edit_argument' arg.id %}" class="tw-arg-edit-btn"><i class="fas fa-pen fa-fw tw-me-1"></i>{% trans 'Edit' %}</a>
-          <a href="{% url 'glosowania:delete_argument' arg.id %}" class="tw-arg-edit-btn tw-arg-edit-btn--danger"><i class="fas fa-trash fa-fw tw-me-1"></i>{% trans 'Delete' %}</a>
+          <a href="{% url 'glosowania:edit_argument' arg.id %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
+          <a href="{% url 'glosowania:delete_argument' arg.id %}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></a>
         </div>
         {% endif %}
       </div>
@@ -215,8 +176,8 @@
         <div class="tw-arg-card-content">{{ arg.content|richtext }}</div>
         {% if arg.author == current_user and not id.voting_has_ended %}
         <div class="tw-arg-card-footer">
-          <a href="{% url 'glosowania:edit_argument' arg.id %}" class="tw-arg-edit-btn"><i class="fas fa-pen fa-fw tw-me-1"></i>{% trans 'Edit' %}</a>
-          <a href="{% url 'glosowania:delete_argument' arg.id %}" class="tw-arg-edit-btn tw-arg-edit-btn--danger"><i class="fas fa-trash fa-fw tw-me-1"></i>{% trans 'Delete' %}</a>
+          <a href="{% url 'glosowania:edit_argument' arg.id %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
+          <a href="{% url 'glosowania:delete_argument' arg.id %}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></a>
         </div>
         {% endif %}
       </div>
@@ -244,5 +205,6 @@
 {% with chat_room=chat_room %}
   {% include 'chat/_embedded_chat.html' %}
 {% endwith %}
+</div>
 
 {% endblock glosowania %}

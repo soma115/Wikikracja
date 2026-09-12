@@ -1,25 +1,17 @@
 {% load i18n %}
-<div class="tw-event-card-badges-row">
-  <span class="tw-badge-status tw-badge-{% if event.frequency == 'once' %}discussion{% else %}rejected{% endif %}">
-    <i class="fas fa-{% if event.frequency == 'once' %}calendar-day{% else %}repeat{% endif %} fa-fw"></i>
-    {{ event.get_frequency_display }}
+<div class="tw-detail-meta">
+  <span class="tw-detail-meta-item" title="{% trans 'Frequency' %}">
+    <i class="fas fa-{% if event.frequency == 'once' %}calendar-day{% else %}repeat{% endif %} tw-detail-meta-icon" aria-hidden="true"></i>
+    <span class="tw-detail-meta-label">{% trans "Frequency" %}</span>
+    <strong class="tw-detail-meta-value">{{ event.get_frequency_display }}</strong>
   </span>
-  {% if event.is_active %}
-    <span class="tw-badge-status tw-badge-approved">
-      <i class="fas fa-check-circle fa-fw"></i> {% trans "Active" %}
-    </span>
-  {% else %}
-    <span class="tw-badge-status tw-badge-rejected">
-      <i class="fas fa-times-circle fa-fw"></i> {% trans "Inactive" %}
-    </span>
-  {% endif %}
-  {% if event.is_public %}
-    <span class="tw-badge-status tw-badge-discussion" title="{% trans 'Visible to everyone' %}">
-      <i class="fas fa-globe fa-fw"></i> {% trans "Public" %}
-    </span>
-  {% else %}
-    <span class="tw-badge-status" title="{% trans 'Visible only to logged-in users' %}">
-      <i class="fas fa-lock fa-fw"></i> {% trans "Private" %}
-    </span>
-  {% endif %}
+  <span class="tw-detail-meta-item" title="{% if event.is_active %}{% trans 'Active' %}{% else %}{% trans 'Inactive' %}{% endif %}">
+    <i class="fas {% if event.is_active %}fa-check-circle{% else %}fa-times-circle{% endif %} tw-detail-meta-icon" aria-hidden="true"></i>
+    <span class="tw-detail-meta-label">{% trans "Status" %}</span>
+    <strong class="tw-detail-meta-value"><span class="tw-badge-status tw-badge-{% if event.is_active %}approved{% else %}rejected{% endif %}">{% if event.is_active %}{% trans "Active" %}{% else %}{% trans "Inactive" %}{% endif %}</span></strong>
+  </span>
+  <span class="tw-detail-meta-item" title="{% if event.is_public %}{% trans 'Visible to everyone' %}{% else %}{% trans 'Visible only to logged-in users' %}{% endif %}">
+    <i class="fas {% if event.is_public %}fa-globe{% else %}fa-lock{% endif %} tw-detail-meta-icon" aria-hidden="true"></i>
+    <span class="tw-detail-meta-label">{% if event.is_public %}{% trans "Public" %}{% else %}{% trans "Private" %}{% endif %}</span>
+  </span>
 </div>

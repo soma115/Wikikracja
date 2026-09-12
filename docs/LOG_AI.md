@@ -1,5 +1,15 @@
 # LOG_AI
 
+## 2026-09-12: Nawigacja Previous/Next na szczegółach ankiet, transakcji, wydarzeń i dokumentów
+
+- **Zmienione obszary:** `core.utils`, wspólny partial `home/templates/home/includes/detail_navigation.html`, aplikacje `ankiety`, `bookkeeping`, `events` i `board` oraz ich testy.
+- **Co się zmieniło:** Dodano wspólny builder URL-i nawigacji oraz wspólny partial renderujący ikonowe guziki „Previous”/„Next”. Widoki szczegółów wyliczają sąsiadów w kolejności bieżącej listy, zachowują parametry wyszukiwania, sortowania, zakładki, kategorii i miesiąca, a na krańcach listy renderują nieaktywne guziki z `aria-disabled`. Linki z list przekazują ten sam kontekst do szczegółu.
+- **Wydarzenia:** linki zawierają także identyfikator wystąpienia, dzięki czemu nawigacja może przejść przez każde wystąpienie wydarzenia cyklicznego bez zapętlenia na tym samym URL-u.
+- **Ujednolicenie:** logika sąsiadów i markup UI nie są kopiowane między modułami; listy dokumentów korzystają z wyodrębnionej wspólnej logiki sortowania i filtrowania także przy budowaniu nawigacji.
+- **Testy:** Dodano testy zachowania kolejności, zachowania kontekstu i stanów brzegowych dla ankiet, transakcji, wydarzeń oraz dokumentów.
+- **Uzasadnienie:** Użytkownik może przechodzić między elementami bez powrotu do listy i bez utraty aktywnego widoku, a wspólny komponent ogranicza rozbieżności dostępności i wyglądu.
+- **Spodziewany efekt:** Spójne guziki Previous/Next na czterech typach szczegółów, poprawna nawigacja przez filtrowane listy i wystąpienia kalendarza oraz prostsze utrzymanie wspólnego wzorca.
+
 ## 2026-09-11: Uatrakcyjnienie porannego digestu e-mail
 
 - **Zmienione pliki:** `home/templates/emails/digest.html`, `home/test_email_digest.py`.

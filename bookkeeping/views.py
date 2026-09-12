@@ -4,11 +4,13 @@ from urllib.parse import quote_plus
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
 from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
+
+from core.utils import build_detail_navigation
 
 from .forms import AssetForm, TransactionForm
 from .models import Asset, Category, Partner, Transaction
@@ -80,6 +82,7 @@ class BookkeepingListView(LoginRequiredMixin, ListView):
         create_url = reverse_lazy(self.create_url_name) if self.create_url_name else None
         context.update(_bookkeeping_toolbar(create_url=create_url, create_label=self.create_label))
         context['search_query'] = self.request.GET.get('q', '').strip()
+        context['detail_query'] = self.request.GET.urlencode()
         context['toolbar_views'] = [{'name': 'list', 'icon': 'list', 'title': _('List')}, {'name': 'grid', 'icon': 'grip', 'title': _('Grid')}]
         return context
 
@@ -270,6 +273,19 @@ class PartnerDeleteView(ProtectedDeleteView):
 # #########################  Transaction ###########################
 
 
+def _transaction_queryset(search_query=''):
+    queryset = Transaction.objects.select_related('author', 'partner', 'category', 'asset')
+    if search_query:
+        queryset = queryset.filter(
+            Q(partner__name__icontains=search_query)
+            | Q(category__name__icontains=search_query)
+            | Q(asset__code__icontains=search_query)
+            | Q(note__icontains=search_query)
+            | Q(author__username__icontains=search_query)
+        )
+    return queryset.order_by('-payment_received_date', '-id')
+
+
 class TransactionListView(BookkeepingListView):
     model = Transaction
     template_name = 'bookkeeping/transaction_list.html'
@@ -278,17 +294,16 @@ class TransactionListView(BookkeepingListView):
     create_label = _('Add transaction')
 
     def get_queryset(self):
-        search_query = self.request.GET.get('q', '').strip()
-        queryset = Transaction.objects.select_related('author', 'partner', 'category', 'asset')
-        if search_query:
-            queryset = queryset.filter(
-                Q(partner__name__icontains=search_query)
-                | Q(category__name__icontains=search_query)
-                | Q(asset__code__icontains=search_query)
-                | Q(note__icontains=search_query)
-                | Q(author__username__icontains=search_query)
-            )
-        return queryset.order_by('-payment_received_date', '-id')
+        return _transaction_queryset(self.request.GET.get('q', '').strip())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        detail_query = self.request.GET.urlencode()
+        for transaction in context['transactions']:
+            transaction.detail_url = reverse('bookkeeping:transaction_detail', kwargs={'pk': transaction.pk})
+            if detail_query:
+                transaction.detail_url = f"{transaction.detail_url}?{detail_query}"
+        return context
 
 
 class TransactionDetailView(LoginRequiredMixin, DetailView):
@@ -299,6 +314,15 @@ class TransactionDetailView(LoginRequiredMixin, DetailView):
 
     template_name = 'bookkeeping/transaction_detail.html'
     context_object_name = 'transaction'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        search_query = self.request.GET.get('q', '').strip()
+        context.update(build_detail_navigation(self.request, _transaction_queryset(search_query), self.object.pk, 'bookkeeping:transaction_detail'))
+        context['list_url'] = reverse_lazy('bookkeeping:transaction_list')
+        if self.request.GET:
+            context['list_url'] = f"{context['list_url']}?{self.request.GET.urlencode()}"
+        return context
 
 
 def _asset_decimal_places_json():

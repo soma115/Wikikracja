@@ -3,19 +3,11 @@
 
 {% block bookkeeping %}
 <div class="tw-container tw-my-4">
+  {% url 'bookkeeping:partner_list' as partner_list_url %}
+  {% include 'home/includes/detail_header.html' with title=partner.name back_url=partner_list_url navigation_include='bookkeeping/_partner_detail_navigation.html' actions_include='bookkeeping/_detail_actions.html' %}
   <div class="tw-card">
-    {% url 'bookkeeping:partner_list' as partner_list_url %}
-    {% include 'home/includes/detail_header.html' with title=partner.name back_url=partner_list_url %}
     <div class="tw-card-body">
-      <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mb-3">
-        {% if prev_partner %}
-          <a href="{% url 'bookkeeping:partner_detail' prev_partner.pk %}" class="tw-btn tw-btn-sm tw-btn-secondary"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Previous' %}</a>
-        {% endif %}
-        {% if next_partner %}
-          <a href="{% url 'bookkeeping:partner_detail' next_partner.pk %}" class="tw-btn tw-btn-sm tw-btn-secondary"><i class="fas fa-arrow-right fa-fw tw-me-1"></i>{% trans 'Next' %}</a>
-        {% endif %}
-      </div>
-      <dl class="tw-grid tw-grid-cols-12 tw-gap-3">
+      <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-3">
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Name' %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ partner.name }}</dd>
 
@@ -51,9 +43,6 @@
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ partner.notes|default:"—"|linebreaks }}</dd>
       </dl>
 
-      <div class="tw-mt-3">
-        <a href="{% url 'bookkeeping:partner_update' partner.pk %}" class="tw-btn tw-btn-primary"><i class="fas fa-pen fa-fw tw-me-1"></i>{% trans 'Edit' %}</a>
-      </div>
     </div>
   </div>
 </div>

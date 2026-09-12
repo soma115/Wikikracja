@@ -82,7 +82,7 @@ module.exports = {
     { pattern: /^tw-citizen-color-\d+$/ },
     { pattern: /^tw-avatar-(xs|sm|md|lg|xl|[2-7]xl)$/ },
     { pattern: /^tw-status-dot--\w+$/ },
-    { pattern: /^tw-task-meta-status-\w+$/ },
+    { pattern: /^tw-detail-meta-status-\w+$/ },
     { pattern: /^tw-detail-status-badge--s[1-5]$/ },
   ],
   theme: {

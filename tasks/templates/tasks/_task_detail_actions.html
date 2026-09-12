@@ -1,0 +1,25 @@
+{% load i18n %}
+<div class="tw-detail-nav tw-flex tw-flex-wrap tw-gap-1">
+  {% if task.is_active %}
+    {% if not task.assigned_to or task.assigned_to == request.user %}
+    <a class="tw-detail-nav-btn"
+       href="{% url 'tasks:edit' task.pk %}"
+       data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}
+       data-tw-toggle="tooltip"
+       title="{% trans 'Edit title, description and category' %}"
+       aria-label="{% trans 'Edit title, description and category' %}">
+      <i class="fas fa-pen fa-fw" aria-hidden="true"></i>
+    </a>
+    {% endif %}
+  {% endif %}
+  {% if task.created_by == request.user and task.is_active %}
+    <button type="button"
+            class="tw-detail-nav-btn tw-text-danger"
+            data-tw-toggle="modal"
+            data-tw-target="#confirmDeleteModal"
+            title="{% trans 'Delete activity' %}"
+            aria-label="{% trans 'Delete activity' %}">
+      <i class="fas fa-trash fa-fw" aria-hidden="true"></i>
+    </button>
+  {% endif %}
+</div>

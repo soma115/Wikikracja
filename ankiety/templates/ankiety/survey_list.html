@@ -19,10 +19,10 @@
   {% if surveys %}
     {% for survey in surveys %}
       <div class="tw-proposal-card">
-        <div class="tw-proposal-card-header" data-detail-url="{% url 'ankiety:detail' survey.pk %}" role="link" tabindex="0">
+        <div class="tw-proposal-card-header" data-detail-url="{{ survey.detail_url }}" role="link" tabindex="0">
           <div class="tw-proposal-card-title-row">
             <span class="tw-proposal-card-num">#{{ survey.pk }}</span>
-            <a href="{% url 'ankiety:detail' survey.pk %}" class="tw-proposal-card-title tw-no-underline">
+            <a href="{{ survey.detail_url }}" class="tw-proposal-card-title tw-no-underline">
               {{ survey.title }}
             </a>
           </div>
@@ -60,7 +60,7 @@
 
         <div class="tw-proposal-card-body" data-view-only="grid">
           {% if survey.description %}
-            <a href="{% url 'ankiety:detail' survey.pk %}" class="tw-block tw-text-muted tw-text-sm tw-no-underline">
+            <a href="{{ survey.detail_url }}" class="tw-block tw-text-muted tw-text-sm tw-no-underline">
               {{ survey.description|striptags|truncatewords:30 }}
             </a>
           {% endif %}

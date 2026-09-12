@@ -2,6 +2,8 @@
 Project-wide utility functions
 """
 
+from django.urls import reverse
+
 
 def get_site_domain():
     """
@@ -31,3 +33,26 @@ def build_site_url(path: str) -> str:
     scheme = getattr(settings, "SITE_PROTOCOL", "http")
     host = get_site_domain()
     return f"{scheme}://{host}{path}"
+
+
+def build_detail_navigation(request, items, current_key, url_name, *, item_key=None, url_kwargs=None, query_string_for_item=None):
+    """Build Previous/Next URLs for an ordered detail-page sequence."""
+    items = list(items)
+    item_key = item_key or (lambda item: item.pk)
+    url_kwargs = url_kwargs or (lambda item: {"pk": item.pk})
+    keys = [item_key(item) for item in items]
+
+    try:
+        current_index = keys.index(current_key)
+    except ValueError:
+        return {"previous_url": None, "next_url": None}
+
+    query_string = request.GET.urlencode()
+    query_string_for_item = query_string_for_item or (lambda item: query_string)
+
+    def item_url(item):
+        url = reverse(url_name, kwargs=url_kwargs(item))
+        item_query_string = query_string_for_item(item)
+        return f"{url}?{item_query_string}" if item_query_string else url
+
+    return {"previous_url": item_url(items[current_index - 1]) if current_index > 0 else None, "next_url": item_url(items[current_index + 1]) if current_index < len(items) - 1 else None}

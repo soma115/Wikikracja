@@ -1,4 +1,4 @@
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urlencode
 
 from django.conf import settings
 from django.contrib import messages
@@ -15,6 +15,7 @@ from django.views.generic import CreateView, UpdateView
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryItemsAPI, CategoryReorderAPI
 from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unread_message_counts_for_rooms
+from core.utils import build_detail_navigation
 
 from .forms import PostForm
 from .models import Post, PostAttachment, PostCategory
@@ -50,64 +51,95 @@ class PostCategoryReorderAPI(CategoryReorderAPI):
     order_field = "priority"
 
 
-def board(request: HttpRequest) -> HttpResponse:
+def _board_list_state(request):
     sort = request.GET.get('sort', 'title')
     if sort not in ('title', 'date', 'none'):
         sort = 'title'
     order = request.GET.get('order', 'asc') if sort != 'none' else None
     if order not in ('asc', 'desc', None):
         order = 'asc'
-    search_query = request.GET.get('q', '').strip()
-    reverse_order = order == 'desc'
 
-    raw_pks = request.GET.getlist('category')
     active_categories = []
-    for pk in raw_pks:
+    for raw_pk in request.GET.getlist('category'):
         try:
-            active_categories.append(int(pk))
+            active_categories.append(int(raw_pk))
         except (ValueError, TypeError):
             pass
 
+    return sort, order, active_categories, request.GET.get('q', '').strip()
+
+
+def _board_listing(request, *, include_chat_counts=True):
+    sort, order, active_categories, search_query = _board_list_state(request)
     posts_query = Post.objects.select_related('category', 'author', 'updated_by', 'chat_room')
     posts_all = posts_query.filter(Post.visibility_filter_for_user(request.user))
     if search_query:
         posts_all = posts_all.filter(Q(title__icontains=search_query) | Q(subtitle__icontains=search_query) | Q(text__icontains=search_query))
+    posts_all = list(posts_all)
+
+    if include_chat_counts:
+        unread_counts = get_unread_message_counts_for_rooms(request.user, [post.chat_room_id for post in posts_all])
+        for post in posts_all:
+            post.chat_room_unread_count = unread_counts.get(post.chat_room_id, 0)
+            post.chat_room_pulse_class = 'tw-chat-room-pulse' if post.chat_room_unread_count else ''
 
     categories = list(PostCategory.objects.all())
     posts_by_cat = {}
     uncategorized = []
-    unread_counts = get_unread_message_counts_for_rooms(request.user, [post.chat_room_id for post in posts_all])
     for post in posts_all:
-        post.chat_room_unread_count = unread_counts.get(post.chat_room_id, 0)
-        post.chat_room_pulse_class = 'tw-chat-room-pulse' if post.chat_room_unread_count else ''
-
         if post.category_id:
             posts_by_cat.setdefault(post.category_id, []).append(post)
         else:
             uncategorized.append(post)
 
-    def sort_key(p):
-        if sort == 'date':
-            return p.updated
-        return (p.title or '').lower()
-
     def sort_posts(posts):
-        return posts if sort == 'none' else sorted(posts, key=sort_key, reverse=reverse_order)
+        if sort == 'none':
+            return posts
+        key = (lambda post: post.updated) if sort == 'date' else (lambda post: (post.title or '').lower())
+        return sorted(posts, key=key, reverse=order == 'desc')
 
     category_groups = []
-    for cat in categories:
-        cat_posts = posts_by_cat.get(cat.pk, [])
-        if cat_posts:
-            category_groups.append({'category': cat, 'posts': sort_posts(cat_posts)})
+    for category in categories:
+        category_posts = posts_by_cat.get(category.pk, [])
+        if category_posts:
+            category_groups.append({'category': category, 'posts': sort_posts(category_posts)})
     if uncategorized:
         category_groups.append({'category': None, 'posts': sort_posts(uncategorized)})
 
-    cat_query = "".join(f"&category={pk}" for pk in active_categories)
-    search_query_param = f"&q={quote_plus(search_query)}" if search_query else ""
+    ordered_posts = [post for group in category_groups for post in group['posts']]
+    navigation_posts = [post for post in ordered_posts if not active_categories or post.category_id in active_categories]
+    query_params = [('sort', sort)]
+    if order is not None:
+        query_params.append(('order', order))
+    query_params.extend(('category', category) for category in active_categories)
+    if search_query:
+        query_params.append(('q', search_query))
+
+    return {
+        'category_groups': category_groups,
+        'categories': categories,
+        'sort': sort,
+        'order': order,
+        'active_categories': active_categories,
+        'search_query': search_query,
+        'ordered_posts': ordered_posts,
+        'navigation_posts': navigation_posts,
+        'detail_query': urlencode(query_params),
+    }
+
+
+def board(request: HttpRequest) -> HttpResponse:
+    listing = _board_listing(request)
+    sort = listing['sort']
+    order = listing['order']
+    active_categories = listing['active_categories']
+    search_query = listing['search_query']
+    cat_query = ''.join(f"&category={pk}" for pk in active_categories)
+    search_query_param = f"&q={quote_plus(search_query)}" if search_query else ''
 
     def sort_url(field, state):
-        query = f"sort={field}&order={state}" if state != 'none' else "sort=none"
-        return reverse("board:start") + f"?{query}{cat_query}{search_query_param}"
+        query = f"sort={field}&order={state}" if state != 'none' else 'sort=none'
+        return reverse('board:start') + f"?{query}{cat_query}{search_query_param}"
 
     def item_state(field):
         return order if sort == field else 'none'
@@ -118,36 +150,34 @@ def board(request: HttpRequest) -> HttpResponse:
 
     toolbar_sort_items = [
         {
-            "url": sort_url('title', next_state('title')),
-            "label": gettext_lazy("A-Z"),
-            "active": sort == 'title',
-            "state": item_state('title'),
-            "icon": "up" if item_state('title') == 'asc' else "down" if item_state('title') == 'desc' else None,
+            'url': sort_url('title', next_state('title')),
+            'label': gettext_lazy('A-Z'),
+            'active': sort == 'title',
+            'state': item_state('title'),
+            'icon': 'up' if item_state('title') == 'asc' else 'down' if item_state('title') == 'desc' else None,
         },
         {
-            "url": sort_url('date', next_state('date')),
-            "label": gettext_lazy("Date"),
-            "active": sort == 'date',
-            "state": item_state('date'),
-            "icon": "up" if item_state('date') == 'asc' else "down" if item_state('date') == 'desc' else None,
+            'url': sort_url('date', next_state('date')),
+            'label': gettext_lazy('Date'),
+            'active': sort == 'date',
+            'state': item_state('date'),
+            'icon': 'up' if item_state('date') == 'asc' else 'down' if item_state('date') == 'desc' else None,
         },
     ]
-    toolbar_views = [{"name": "list", "icon": "list", "title": gettext_lazy("List")}, {"name": "grid", "icon": "grip", "title": gettext_lazy("Grid")}]
+    for post in listing['ordered_posts']:
+        post.detail_url = reverse('board:view_post', kwargs={'pk': post.pk})
+        if listing['detail_query']:
+            post.detail_url = f"{post.detail_url}?{listing['detail_query']}"
 
-    return render(
-        request,
-        'board/board.html',
+    listing.update(
         {
-            'category_groups': category_groups,
-            'categories': categories,
             'current_sort': sort,
             'current_order': order,
-            'active_categories': active_categories,
             'toolbar_sort_items': toolbar_sort_items,
-            'toolbar_views': toolbar_views,
-            'search_query': search_query,
-        },
+            'toolbar_views': [{'name': 'list', 'icon': 'list', 'title': gettext_lazy('List')}, {'name': 'grid', 'icon': 'grip', 'title': gettext_lazy('Grid')}],
+        }
     )
+    return render(request, 'board/board.html', listing)
 
 
 class PostFormViewMixin(LoginRequiredMixin):
@@ -192,7 +222,12 @@ def _post_queryset_for_user(user):
 
 def _post_detail_context(request: HttpRequest, post: Post):
     """Build common context for document detail views (including embedded chat)."""
-    return {'post': post, 'chat_room': post.chat_room, 'MESSAGE_MAX_LENGTH': settings.MESSAGE_MAX_LENGTH, 'ec_translations': get_chat_translations()}
+    listing = _board_listing(request, include_chat_counts=False)
+    context = {'post': post, 'chat_room': post.chat_room, 'MESSAGE_MAX_LENGTH': settings.MESSAGE_MAX_LENGTH, 'ec_translations': get_chat_translations(), 'list_url': reverse('board:start')}
+    if listing['detail_query']:
+        context['list_url'] = f"{context['list_url']}?{listing['detail_query']}"
+    context.update(build_detail_navigation(request, listing['navigation_posts'], post.pk, 'board:view_post'))
+    return context
 
 
 def view_post(request: HttpRequest, pk: int):

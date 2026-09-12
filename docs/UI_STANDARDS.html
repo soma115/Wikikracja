@@ -101,29 +101,36 @@
         <li>Stan jest dostępny także programowo przez <code>data-sort-state="none|asc|desc"</code> i <code>aria-pressed</code>.</li>
         <li>Ikona pola mówi, co jest sortowane: np. <code>fa-calendar</code> dla daty, <code>fa-user</code> dla autora, <code>fa-tag</code> dla kategorii.</li>
         <li>Strzałka <code>fa-arrow-up</code> / <code>fa-arrow-down</code> oznacza wyłącznie kierunek i nie zastępuje ikony pola; stan wyłączony pokazuje <code>fa-sort</code>.</li>
-        <li>Na małych ekranach można ukryć tekst etykiety nieaktywnego guzika i pozostawić jego ikonę. Guzik nadal pozostaje widoczny.</li>
+        <li>Wszystkie trzy stany mają identyczny rozmiar i wygląd obramowania, tła oraz tekstu; stan sortowania wskazuje wyłącznie ikona kierunku lub <code>fa-sort</code>.</li>
+        <li>Na małych ekranach etykiety guzików sortowania pozostają widoczne, aby stan nieposortowany nie zmieniał rozmiaru względem aktywnego.</li>
         <li>Ukrywanie całych guzików na mobile jest ostatecznością. Najpierw skracamy etykietę, ukrywamy sam tekst albo zmniejszamy odstępy.</li>
-        <li>Wyszukiwarka i przełącznik List / Grid pozostają w jednej linii na mobile. Wyszukiwarka elastycznie zajmuje wolne miejsce, a przyciski widoku mają kompaktową formę.</li>
+        <li>Na szerokim ekranie wszystkie grupy toolbaru — sortowanie, kategoria, Szukaj i List / Grid — pozostają w jednej linii.</li>
+        <li>Grupa Szukaj używa <code>flex: 1 1 0</code> i <code>min-width: 1rem</code>, dzięki czemu rozciąga się na wolne miejsce, ale może skurczyć się między kontrolkami bez wymuszania wcześniejszego zawijania.</li>
+        <li>Na ekranach poniżej <code>591.98px</code> wyszukiwarka zajmuje pełny pierwszy wiersz, a sortowanie, kategoria i List / Grid pozostają razem w drugim wierszu.</li>
         <li>Wyszukiwarka używa <code>tw-form-control</code>: ma zaokrąglone rogi, widoczną ramkę i kontrast wystarczający do rozpoznania pola.</li>
         <li>Każde pole tekstowe, w tym wielowierszowe i rich text, ma widoczną ramkę podobną do <code>tw-form-control</code>, aby jednoznacznie wskazywać miejsce wpisywania treści.</li>
-        <li>Toolbar składa się z trzech grup: (1) widok Lista/Siatka + Dodaj, (2) sortowanie i wybór kategorii, (3) pole Szukaj.</li>
+        <li>Toolbar składa się z trzech grup: (1) sortowanie i wybór kategorii, (2) pole Szukaj, (3) widok Lista/Siatka + Dodaj.</li>
         <li>Na szerokim ekranie grupa Szukaj stoi bezpośrednio za sortowaniem i kategorią, po lewej stronie grupy widoku. Pole nie jest dosuwane do List / Grid / Dodaj.</li>
         <li>Jeśli filtr „Wszystkie” należy do wyszukiwarki danego modułu, pozostaje bezpośrednio obok pola Szukaj jako jedna grupa kontrolek.</li>
-        <li>Jeśli grupy nie mieszczą się w jednej linii, zawijają się w naturalnej kolejności wynikającej z układu strony. Nie narzucamy osobnej kolejności pionowej grup.</li>
-        <li>Jeśli pole „Szukaj” w swojej grupie staje się zbyt wąskie, przechodzi do kolejnego wiersza. Nie zmniejszamy go do rozmiaru utrudniającego wpisywanie tekstu.</li>
+        <li>Na ekranach poniżej <code>591.98px</code> nie polegamy na naturalnym zawijaniu: grupa Szukaj ma pełną szerokość i kolejność przed grupą filtrów, a grupa List / Grid pozostaje w wierszu przycisków.</li>
+        <li>Nie zmniejszamy pola Szukaj do rozmiaru utrudniającego wpisywanie tekstu ani nie tworzymy lokalnych wariantów kolejności toolbaru.</li>
         <li>Moduł może używać toolbaru wyłącznie z wyszukiwarką i przełącznikiem Lista/Siatka, np. ankiety; nie dodajemy wtedy zastępczego sortowania.</li>
       </ul>
-      <div class="component-label">Mobile: search + view toggle in one line</div>
+      <div class="component-label">Mobile: search above filter and view controls</div>
       <div class="tw-toolbar">
-        <input type="search" class="tw-form-control tw-flex-1 tw-min-w-0" placeholder="Search" aria-label="Search">
-        <div class="tw-toolbar-view">
-          <button class="tw-view-toggle-btn" data-view="list" title="List view"><i class="fas fa-list"></i></button>
-          <button class="tw-view-toggle-btn tw-active" data-view="grid" title="Grid view"><i class="fas fa-grip"></i></button>
+        <div class="tw-toolbar-group tw-toolbar-group-search">
+          <input type="search" class="tw-form-control tw-w-full" placeholder="Search" aria-label="Search">
+        </div>
+        <div class="tw-toolbar-group tw-toolbar-group-view">
+          <div class="tw-toolbar-view">
+            <button class="tw-view-toggle-btn" data-view="list" title="List view"><i class="fas fa-list"></i></button>
+            <button class="tw-view-toggle-btn tw-active" data-view="grid" title="Grid view"><i class="fas fa-grip"></i></button>
+          </div>
         </div>
       </div>
       <ul class="rules">
-        <li>Pole wyszukiwania ma <code>tw-flex-1 tw-min-w-0</code> i skraca się, zamiast wypychać przełącznik poza ekran.</li>
-        <li>Przełącznik listy/siatki pozostaje w tej samej linii i zachowuje oba przyciski.</li>
+        <li>Poniżej <code>591.98px</code> pole wyszukiwania ma pełną szerokość i znajduje się nad grupą przycisków.</li>
+        <li>Przełącznik listy/siatki pozostaje w jednym wierszu razem z pozostałymi przyciskami.</li>
       </ul>
 
       <div class="component-label">Interaktywny filtr kategorii</div>
@@ -323,11 +330,26 @@
       <p>Każdy widok szczegółów używa <code>home/templates/home/includes/detail_header.html</code>. Wspólny nagłówek zawiera tytuł, opcjonalny link powrotu, akcje, badge statusu i metadane.</p>
       <ol>
         <li>Kontener strony: <code>tw-container</code> z odstępem pionowym.</li>
+        <li>Odstęp między kafelkiem tytułu (<code>detail_header</code>) a pierwszą kartą treści wynosi dokładnie <code>1rem</code>, zgodnie z <code>tw-detail-header</code>; nie dodawaj drugiego odstępu przez rodzicielski <code>gap</code>.</li>
         <li>Wspólny nagłówek szczegółów: <code>detail_header.html</code>; link powrotu przekazuj przez <code>back_url</code>, zamiast renderować drugi link w treści.</li>
         <li>Treść domenowa w jednej lub kilku kartach <code>tw-card</code>; akcje domenowe pozostają przy treści, jeśli nie pasują do nagłówka.</li>
         <li>Sekcje treści używają etykiety z ikoną (<code>tw-detail-section-label</code>) i wartości (<code>tw-detail-section-text</code>); kolejne sekcje mogą użyć <code>tw-detail-subsection</code>.</li>
         <li>Elementy dodatkowe, takie jak czat, wyniki, argumenty i załączniki, pozostają modułowe, ale korzystają ze wspólnych kart, badge’y, przycisków i pustych stanów.</li>
       </ol>
+
+      <h4>Warianty metadanych</h4>
+      <ul class="rules">
+        <li><code>tw-detail-meta</code> służy do krótkiego, zawijanego paska autora, daty, statusu i liczników.</li>
+        <li><code>tw-detail-fields</code> służy do układu wielu pól etykieta–wartość; wartości nie mogą powodować poziomego scrolla.</li>
+        <li>W jednym widoku używaj jednego wariantu dla informacji tego samego rodzaju; nie mieszaj chipów i tabeli bez uzasadnienia domenowego.</li>
+        <li>Hierarchia nagłówków widoku szczegółów: <code>h1</code> dla tytułu, <code>h2</code> dla głównych sekcji i <code>h3</code> dla podsekcji.</li>
+        <li>Treść z etykietą i ikoną używa <code>tw-detail-section-label</code>, <code>tw-detail-section-text</code> oraz <code>tw-detail-subsection</code>.</li>
+        <li>Powrót do listy używa obrysowanego przycisku <code>tw-btn tw-btn-sm tw-btn-outline-secondary</code> z ikoną <code>fa-arrow-left</code>.</li>
+        <li>Nawigacja Previous/Next używa ikonowych <code>tw-detail-nav-btn</code> z chevronami, tytułem i etykietą ARIA; przy braku elementu stosuje <code>tw-disabled</code> i <code>aria-disabled</code>.</li>
+        <li>Akcje edycji i usuwania w widoku szczegółów są ikonowe: odpowiednio <code>fa-pen</code> i <code>fa-trash</code>, z <code>title</code> oraz <code>aria-label</code>; tekst pozostaje w tooltipie lub etykiecie dostępności.</li>
+        <li>Ikona usuwania używa zawsze <code>tw-text-danger</code> oraz <code>var(--badge-rejected-color)</code>, także w stanie hover/focus; nie używaj lokalnych wariantów koloru kosza.</li>
+        <li>Jeżeli szczegół zawiera osadzony czat, nie pokazuj dodatkowego guzika „Chat” prowadzącego do tego samego pokoju.</li>
+      </ul>
 
       <h3>Stała anatomia strony</h3>
       <ol>
@@ -507,6 +529,7 @@
         <li>Sortowanie po czasie zawsze <code>fa-clock</code> (lub <code>fa-clock-rotate-left</code> dla daty utworzenia).</li>
         <li>Strzałki <code>fa-arrow-up</code> / <code>fa-arrow-down</code> służą wyłącznie do wskazania kierunku sortowania; <code>fa-sort</code> oznacza sortowanie wyłączone.</li>
         <li>Widok listy zawsze <code>fa-list</code>, widok siatki zawsze <code>fa-grip</code>.</li>
+        <li>Dynamiczne liczniki odliczające w dół pokazują dni, godziny i minuty — nigdy sekund.</li>
       </ul>
     </div>
 

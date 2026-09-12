@@ -37,7 +37,7 @@
     {# lista #}
     <div class="tw-board-posts-list tw-proposals-list">
       {% for post in group.posts %}
-      <div class="tw-board-post-row tw-post-row-link" data-detail-url="{% url 'board:view_post' post.pk %}" role="link" tabindex="0">
+      <div class="tw-board-post-row tw-post-row-link" data-detail-url="{{ post.detail_url }}" role="link" tabindex="0">
         <div class="tw-flex tw-flex-1 tw-flex-col tw-justify-between tw-gap-2 tw-min-w-0">
           <div class="tw-flex tw-w-full tw-items-center tw-gap-2 tw-flex-nowrap tw-min-w-0">
             <span class="tw-proposal-card-num tw-flex-shrink-0">#{{ post.pk }}</span>
@@ -72,7 +72,7 @@
       <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-2">
         {% for post in group.posts %}
         <div>
-          <div class="tw-post-card-link{% if post.featured_image %} tw-post-card-link--featured{% endif %}" data-detail-url="{% url 'board:view_post' post.pk %}" role="link" tabindex="0"{% if post.featured_image %} style="--featured-img: url('{{ post.featured_image.url }}')"{% endif %}>
+          <div class="tw-post-card-link{% if post.featured_image %} tw-post-card-link--featured{% endif %}" data-detail-url="{{ post.detail_url }}" role="link" tabindex="0"{% if post.featured_image %} style="--featured-img: url('{{ post.featured_image.url }}')"{% endif %}>
             <div class="tw-card-body tw-p-3 tw-flex tw-flex-col tw-gap-2 tw-flex-1">
               <div class="tw-flex tw-items-start tw-gap-2">
                 <div class="tw-font-semibold tw-text-title-clamp-2 tw-min-w-0 tw-flex-1">{{ post.title }}</div>

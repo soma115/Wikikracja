@@ -70,12 +70,25 @@ The partial accepts:
 
 - `title` — required;
 - `back_url` and `back_label` — optional navigation back to a list;
+- `back_include` — optional contextual back-link partial when navigation needs `data-tw-back`;
 - `badges_include` — optional status badges partial;
 - `meta_include` — optional metadata partial;
 - `actions_include` — optional action buttons partial;
+- `navigation_include` — optional Previous/Next controls partial;
 - `extra_class` — optional additional class.
 
 The partial standardizes the header only. It does **not** remove or replace module-specific content. Voting arguments, survey results, document attachments, task actions, chat links and other domain sections remain in the page or in their own partials.
+
+Use the shared metadata variants when presenting detail data:
+
+- `tw-detail-meta` for a short, wrapping row of author, date, status and counters;
+- `tw-detail-fields` for a multi-field label/value layout, typically on a `<dl>`.
+
+Do not mix metadata variants for equivalent information within one page unless the domain structure requires it.
+
+For detail page headings use `h1` for the page title, `h2` for major sections and `h3` for subsections. Use `tw-detail-section-label`, `tw-detail-section-text` and `tw-detail-subsection` for labelled content sections. Keep exactly `1rem` between `detail_header` and the first content card; do not add a second parent `gap` on that boundary. Keep domain-specific cards such as arguments, attachments and profile tables when they provide meaningful structure.
+
+Use `tw-btn tw-btn-sm tw-btn-outline-secondary` with `fa-arrow-left` for back navigation. Use `tw-detail-nav` and `tw-detail-nav-btn` with chevron icons for Previous/Next controls; icon-only controls require `title` and `aria-label`, while unavailable items use `tw-disabled` and `aria-disabled="true"`. Edit and delete actions in detail views are icon-only `tw-detail-nav-btn` controls with `fa-pen` / `fa-trash` and accessible labels. Delete controls always add `tw-text-danger`; do not introduce module-specific delete colors. Put author, coordinator, dates and status in the header metadata row below the title. If the page includes an embedded chat for the same object, do not render a second standalone chat link.
 
 If an existing detail page has actions that do not fit `actions_include`, keep those actions in the page body while still using the shared header. Do not duplicate the title or move business logic into the shared partial.
 
@@ -192,14 +205,14 @@ Current icon conventions include:
 
 ## 8. Responsive behavior
 
-Use the existing Tailwind breakpoints. The shared mobile media query is `767.98px`; use `window.wkMobileMedia` instead of hardcoding another threshold.
+Use the existing Tailwind breakpoints. The shared toolbar responsive breakpoint is `591.98px`; other mobile behavior uses `767.98px` and `window.wkMobileMedia` instead of hardcoding another threshold.
 
 On mobile:
 
 - preserve access to all actions;
 - prefer shorter labels or icon-only controls with accessible labels before hiding anything;
-- keep search and list/grid controls usable in the shared toolbar;
-- allow toolbar groups to wrap naturally when they no longer fit;
+- in the shared toolbar, keep the search group flexible (`flex: 1 1 0`, `min-width: 1rem`) above `591.98px`, and move it to a full-width row above the filter and List / Grid button row below `591.98px`;
+- keep the filter and List / Grid buttons together in their row; do not implement a module-specific ordering;
 - keep list items compact while allowing grid cards to show more information.
 
 ## 9. Introducing a genuinely new pattern

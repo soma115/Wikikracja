@@ -1,0 +1,23 @@
+{% load i18n %}
+{% load feed_filters %}
+<div class="tw-detail-meta">
+  <span class="tw-detail-meta-item" title="{% trans 'Proposal number' %}">#{{ id.id }}</span>
+  {% if id.author %}
+    <span class="tw-detail-meta-item" title="{% trans 'Author' %}">
+      <i class="fas fa-user-pen tw-detail-meta-icon" aria-hidden="true"></i>
+      <span class="tw-detail-meta-label">{% trans 'Author' %}</span>
+      <strong class="tw-detail-meta-value tw-flex tw-items-center tw-gap-1">{% include "home/_user_avatar.html" with user=id.author size="xs" %}{{ id.author|display_name }}</strong>
+    </span>
+  {% endif %}
+  {% if id.data_powstania %}
+    <span class="tw-detail-meta-item" title="{% trans 'Creation date' %}"><i class="fas fa-calendar-plus tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Created' %}</span><strong class="tw-detail-meta-value">{{ id.data_powstania|date:"d.m.Y" }}</strong></span>
+  {% endif %}
+  {% if id.data_ostatniej_modyfikacji and id.data_ostatniej_modyfikacji|date:"d.m.Y" != id.data_powstania|date:"d.m.Y" %}
+    <span class="tw-detail-meta-item" title="{% trans 'Last modification date' %}"><i class="fas fa-calendar-check tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Updated' %}</span><strong class="tw-detail-meta-value">{{ id.data_ostatniej_modyfikacji|date:"d.m.Y" }}</strong></span>
+  {% endif %}
+  <span class="tw-detail-meta-item" title="{% trans 'Signatures collected' %}"><i class="fas fa-pen-nib tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Signatures' %}</span><strong class="tw-detail-meta-value">{{ id.ile_osob_podpisalo|default:"0" }}{% if id.data_zebrania_podpisow %} · {{ id.data_zebrania_podpisow|date:"d.m.Y" }}{% endif %}</strong></span>
+  {% if id.data_referendum_start %}
+    <span class="tw-detail-meta-item" title="{% trans 'Referendum period' %}"><i class="fas fa-person-booth tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Referendum' %}</span><strong class="tw-detail-meta-value">{{ id.data_referendum_start|date:"d.m.Y" }}{% if data_referendum_stop %}–{{ data_referendum_stop|date:"d.m.Y" }}{% endif %}</strong></span>
+  {% endif %}
+  <span class="tw-detail-meta-item" title="{{ id.get_status_display }}"><i class="fas fa-circle-info tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Status' %}</span><strong class="tw-detail-meta-value">{{ id.get_status_display }}</strong></span>
+</div>

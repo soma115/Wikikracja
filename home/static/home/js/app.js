@@ -922,12 +922,12 @@ window.wkOnReady(function () {
     });
 });
 
-// Live countdown for surveys — updates [data-countdown] every second.
+// Live countdown for surveys — updates [data-countdown] every second without seconds.
 window.wkOnReady(function () {
     var elements = document.querySelectorAll('[data-countdown]');
     if (!elements.length) return;
 
-    function formatRemaining(ms, includeSeconds) {
+    function formatRemaining(ms) {
         var totalSeconds = Math.max(0, Math.floor(ms / 1000));
         var days = Math.floor(totalSeconds / 86400);
         var hours = Math.floor((totalSeconds % 86400) / 3600);
@@ -938,8 +938,7 @@ window.wkOnReady(function () {
         }
         parts.push(
             String(hours).padStart(2, '0') + ':' +
-            String(minutes).padStart(2, '0') +
-            (includeSeconds ? ':' + String(totalSeconds % 60).padStart(2, '0') : '')
+            String(minutes).padStart(2, '0')
         );
         return parts.join(' ');
     }
@@ -949,7 +948,7 @@ window.wkOnReady(function () {
         elements.forEach(function (el) {
             var end = new Date(el.dataset.end.replace(/\.\d+/, '')).getTime();
             var remaining = end - now;
-            el.textContent = formatRemaining(remaining, !el.hasAttribute('data-countdown-minutes'));
+            el.textContent = formatRemaining(remaining);
         });
     }
 

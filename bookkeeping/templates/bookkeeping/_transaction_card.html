@@ -4,7 +4,7 @@
 
 <div class="tw-proposal-card" data-status="{{ transaction.type }}">
   <div class="tw-proposal-card-header"
-       data-detail-url="{% url 'bookkeeping:transaction_detail' transaction.id %}"
+       data-detail-url="{{ transaction.detail_url }}"
        role="link"
        tabindex="0">
     <div class="tw-proposal-card-title-row">
@@ -37,7 +37,7 @@
 
   {% if transaction.note %}
     <div class="tw-proposal-card-body" data-view-only="grid"
-         data-detail-url="{% url 'bookkeeping:transaction_detail' transaction.id %}"
+         data-detail-url="{{ transaction.detail_url }}"
          role="link"
          tabindex="0">
       <div class="tw-proposal-section--reasoning">

@@ -1,0 +1,8 @@
+{% load i18n %}
+{% if not active %}
+<div class="tw-detail-nav tw-flex tw-flex-wrap tw-gap-1">
+  <a href="{% url 'obywatele:candidate_edit' pk=b.uid.pk %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}">
+    <i class="fas fa-pen fa-fw" aria-hidden="true"></i>
+  </a>
+</div>
+{% endif %}

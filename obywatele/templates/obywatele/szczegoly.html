@@ -4,33 +4,8 @@
 {% load feed_filters %}
 
 {% block citizens %}
-<div>
-  {% include 'home/includes/detail_header.html' with title=b|display_name %}
-  <div class="tw-mb-3">
-    {% if active %}
-      {% if next %}
-        <a href="{% url 'obywatele:obywatele_szczegoly' pk=next.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="tw-btn tw-btn-sm tw-btn-outline-success"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Previous' %}</a>
-      {% else %}
-        <button class="tw-btn tw-btn-sm tw-btn-outline-secondary" disabled><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Previous' %}</button>
-      {% endif %}
-      {% if prev %}
-        <a href="{% url 'obywatele:obywatele_szczegoly' pk=prev.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="tw-btn tw-btn-sm tw-btn-outline-success"><i class="fas fa-arrow-right fa-fw tw-me-1"></i>{% trans 'Next' %}</a>
-      {% else %}
-        <button class="tw-btn tw-btn-sm tw-btn-outline-secondary" disabled><i class="fas fa-arrow-right fa-fw tw-me-1"></i>{% trans 'Next' %}</button>
-      {% endif %}
-    {% else %}
-      {% if next %}
-        <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=next.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Previous' %}</a>
-      {% else %}
-        <button class="tw-btn tw-btn-sm tw-btn-outline-secondary" disabled><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Previous' %}</button>
-      {% endif %}
-      {% if prev %}
-        <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=prev.id %}{% if sort_param %}?{{ sort_param }}{% endif %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary"><i class="fas fa-arrow-right fa-fw tw-me-1"></i>{% trans 'Next' %}</a>
-      {% else %}
-        <button class="tw-btn tw-btn-sm tw-btn-outline-secondary" disabled><i class="fas fa-arrow-right fa-fw tw-me-1"></i>{% trans 'Next' %}</button>
-      {% endif %}
-    {% endif %}
-  </div>
+<div class="tw-container tw-my-4">
+  {% include 'home/includes/detail_header.html' with title=b|display_name navigation_include='obywatele/_citizen_detail_navigation.html' actions_include='obywatele/_citizen_detail_actions.html' %}
 
   <div class="tw-card tw-mb-3">
     <div class="tw-card-header tw-flex tw-items-center tw-gap-3">
@@ -47,7 +22,7 @@
       {% endif %}
     </div>
     <div class="tw-card-body">
-      <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-2">
+      <div class="tw-detail-fields tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-2">
         <div class="tw-mb-2">
           <strong class="tw-font-semibold">{% trans 'Login' %}:</strong> {{ b.uid }}
         </div>
@@ -103,7 +78,7 @@
   {% else %}
     <div class="tw-card tw-mb-3">
       <div class="tw-card-body">
-        <h6 class="tw-text-base tw-font-semibold tw-mb-2">{% trans 'What is your attitude towards this person?' %}</h6>
+        <h2 class="tw-text-base tw-font-semibold tw-mb-2">{% trans 'What is your attitude towards this person?' %}</h2>
         <form action="#" method="post" class="tw-mt-3">
           {% csrf_token %}
           <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-2">
@@ -124,12 +99,7 @@
 
   <div class="tw-card tw-mb-3">
     <div class="tw-card-header tw-flex tw-items-center tw-justify-between">
-      <span class="tw-section-heading">{% trans 'Profile Details' %}</span>
-      {% if not active %}
-      <a href="{% url 'obywatele:candidate_edit' pk=b.uid.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
-        <i class="fas fa-pen fa-fw tw-me-1"></i>{% trans 'Edit' %}
-      </a>
-      {% endif %}
+      <h2 class="tw-section-heading tw-mb-0">{% trans 'Profile Details' %}</h2>
     </div>
     <div class="tw-card-body tw-p-0">
       <div class="tw-citizens-table-wrap">
@@ -196,7 +166,7 @@
   {% if active %}
   <div class="tw-card tw-mb-3">
     <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
-      <span class="tw-section-heading">{% trans 'Activity' %}</span>
+      <h2 class="tw-section-heading tw-mb-0">{% trans 'Activity' %}</h2>
     </div>
     <div class="tw-card-body tw-flex tw-flex-wrap tw-gap-2 tw-pb-2">
       <button class="tw-btn tw-btn-outline-secondary tw-btn-sm tw-citizen-section-btn"

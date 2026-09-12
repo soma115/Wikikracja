@@ -1,0 +1,9 @@
+{% load i18n %}
+<div class="tw-detail-nav tw-flex tw-flex-wrap tw-gap-1">
+  {% if prev_partner %}
+    <a href="{% url 'bookkeeping:partner_detail' prev_partner.pk %}" class="tw-detail-nav-btn" title="{% trans 'Previous' %}" aria-label="{% trans 'Previous' %}"><i class="fas fa-chevron-left fa-fw" aria-hidden="true"></i></a>
+  {% endif %}
+  {% if next_partner %}
+    <a href="{% url 'bookkeeping:partner_detail' next_partner.pk %}" class="tw-detail-nav-btn" title="{% trans 'Next' %}" aria-label="{% trans 'Next' %}"><i class="fas fa-chevron-right fa-fw" aria-hidden="true"></i></a>
+  {% endif %}
+</div>

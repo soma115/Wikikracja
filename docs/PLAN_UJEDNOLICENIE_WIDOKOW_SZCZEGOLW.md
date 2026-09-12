@@ -45,10 +45,8 @@ Plan dotyczy wyłącznie prezentacji i komponentów UI. Nie obejmuje zmian model
 - [x] Używać `back_url` dla stałej nawigacji do listy zamiast powielać link powrotu w treści.
 - [x] Przyjąć strukturę: kontener → nagłówek szczegółów → treść domenowa → sekcje dodatkowe.
 - [x] Pozostawić akcje domenowe w treści, jeśli wymagają kontekstu lub formularza.
-- [ ] **DO ZROBIENIA PRZEZ CIEBIE — BLOKER:** potwierdzić, że powyższy podział akcji jest właściwy:
-  - akcje globalne: edycja, usuwanie, powrót, nawigacja;
-  - akcje domenowe: głosowanie, podpis, przejęcie zadania, ocena, dodanie argumentu.
-- [ ] **DO ZROBIENIA PRZEZ CIEBIE:** zaakceptować zachowanie dokumentu, w którym `data-tw-back` zachowuje powrót do poprzedniego kontekstu listy, a nie zawsze do jednej stałej listy.
+- [x] **UŻYTKOWNIK ZAAKCEPTOWAŁ:** akcje globalne (edycja, usuwanie, powrót, nawigacja) są oddzielone od akcji domenowych (głosowanie, podpis, przejęcie zadania, ocena, dodanie argumentu).
+- [x] **UŻYTKOWNIK ZAAKCEPTOWAŁ:** dokument używa `data-tw-back`, aby zachować powrót do poprzedniego kontekstu listy, a nie zawsze do jednej stałej listy.
 
 ### Kryterium zakończenia
 
@@ -61,11 +59,11 @@ Docelowy podział akcji i zachowanie linku powrotu są zaakceptowane. Nie ma pot
 **Ryzyko: niskie**  
 **Wpływ na użytkowników: widoczna zmiana położenia przycisków**
 
-- [ ] Usunąć drugi, dolny link „Back” z `board/templates/board/post_detail.html`, jeśli górny `data-tw-back` pozostaje wystarczający.
-- [ ] Przejrzeć `events/templates/events/_event_detail_actions.html` i ustalić, czy ikony edycji/usuwania pozostają w nagłówku.
-- [ ] Ujednolicić nazewnictwo i warianty przycisków globalnych (`tw-btn-*` albo uzasadniony `tw-detail-nav-btn`).
-- [ ] Ujednolicić odstępy między akcjami oraz ich zawijanie na małych ekranach.
-- [ ] Zapewnić `title` lub `aria-label` dla przycisków ikonowych.
+- [x] Usunąć drugi, dolny link „Back” z `board/templates/board/post_detail.html`; pozostaje górny `data-tw-back` z powrotem kontekstowym.
+- [x] Pozostawić ikony edycji/usuwania wydarzenia w nagłówku przez `events/templates/events/_event_detail_actions.html`.
+- [x] Ustalić warianty przycisków globalnych: `tw-btn-*` dla akcji tekstowych i uzasadniony `tw-detail-nav-btn` dla ikonowych akcji w nagłówku.
+- [x] Wykorzystać istniejące `tw-flex`, `tw-gap-*` i `tw-flex-wrap` do spójnego odstępu oraz zawijania akcji na małych ekranach.
+- [x] Zapewnić `title`, `aria-label` i `fa-fw` dla ikonowych akcji wydarzenia.
 
 ### Kryterium zakończenia
 
@@ -80,16 +78,22 @@ Każdy widok ma najwyżej jeden podstawowy mechanizm powrotu, a akcje globalne s
 
 Wprowadzić i udokumentować dwa warianty, bez tworzenia modułowych kopii:
 
-- [ ] `tw-detail-meta` — krótki pasek autora, daty, statusu i liczników.
-- [ ] `tw-detail-fields` — układ etykieta–wartość dla danych szczegółowych.
-- [ ] Zastosować wariant `tw-detail-meta` w zadaniach, głosowaniach i ankietach tam, gdzie dane są krótkie.
-- [ ] Zastosować wariant `tw-detail-fields` w księgowości i profilu obywatela tam, gdzie występuje wiele pól.
-- [ ] Zachować statusy jako `tw-badge-status` lub `tw-badge-*`, bez zastępowania ich zwykłym tekstem.
-- [ ] Ustalić wspólne zachowanie długich nazw, dat i wartości na mobile: zawijanie albo ellipsis, bez poziomego scrolla.
+- [x] `tw-detail-meta` — krótki pasek autora, daty, statusu i liczników.
+- [x] `tw-detail-fields` — układ etykieta–wartość dla danych szczegółowych.
+- [x] Zastosować wariant `tw-detail-meta` w zadaniach, głosowaniach i ankietach tam, gdzie dane są krótkie.
+- [x] Zastosować wariant `tw-detail-fields` w księgowości i profilu obywatela tam, gdzie występuje wiele pól.
+- [x] Zachować statusy jako `tw-badge-status` lub `tw-badge-*`, bez zastępowania ich zwykłym tekstem.
+- [x] Ustalić wspólne zachowanie długich nazw, dat i wartości na mobile: warianty używają zawijania i `min-width: 0`, bez wymuszania poziomego scrolla.
 
 ### Kryterium zakończenia
 
 Metadane o podobnym znaczeniu wyglądają tak samo niezależnie od modułu, a różnice wynikają wyłącznie z liczby i rodzaju danych.
+
+---
+
+### Status etapu
+
+Etap 2 wykonany. Wspólne warianty są zdefiniowane w źródłowym CSS, użyte w widokach szczegółów, opisane w dokumentacji i objęte safelistą Tailwinda.
 
 ---
 
@@ -98,16 +102,20 @@ Metadane o podobnym znaczeniu wyglądają tak samo niezależnie od modułu, a r�
 **Ryzyko: niskie**  
 **Wpływ na użytkowników: spójniejsza czytelność treści**
 
-- [ ] Używać `tw-detail-section-label` dla etykiety sekcji z ikoną.
-- [ ] Używać `tw-detail-section-text` dla głównej wartości lub treści.
-- [ ] Używać `tw-detail-subsection` do oddzielania kolejnych sekcji w jednej karcie.
-- [ ] Ograniczyć różnorodność nagłówków `h2`, `h5`, `h6` i zastąpić ją ustaloną hierarchią:
+- [x] Używać `tw-detail-section-label` dla etykiety sekcji z ikoną.
+- [x] Używać `tw-detail-section-text` dla głównej wartości lub treści.
+- [x] Używać `tw-detail-subsection` do oddzielania kolejnych sekcji w jednej karcie.
+- [x] Ograniczyć różnorodność nagłówków `h2`, `h5`, `h6` i zastąpić ją ustaloną hierarchią:
   - `h1` — tytuł widoku w `detail_header`;
   - `h2` — główne sekcje strony;
   - `h3` — podsekcje;
   - klasy `tw-section-heading` tylko dla elementów niebędących nagłówkami.
-- [ ] Przejrzeć `tw-event-section-*` i `tw-task-section-*`; zachować je wyłącznie tam, gdzie mają odrębne znaczenie domenowe.
-- [ ] Sprawdzić ikony sekcji względem słownika w `docs/UI_STANDARDS.html`.
+- [x] Zastąpić `tw-event-section-*` wspólnymi `tw-detail-section-*`; klasy `tw-task-section-*` nie występują w migrowanych widokach szczegółów.
+- [x] Sprawdzić ikony sekcji względem słownika w `docs/UI_STANDARDS.html`.
+
+### Status etapu
+
+Etap 3 wykonany. Widoki szczegółów używają wspólnego wzorca oznaczonych sekcji i ustalonej hierarchii nagłówków, przy zachowaniu domenowych kart argumentów, załączników i profilu.
 
 ### Kryterium zakończenia
 
@@ -120,7 +128,7 @@ Sekcje szczegółów mają przewidywalną hierarchię, wspólne odstępy i wspó
 **Ryzyko: średnie**  
 **Wpływ na użytkowników: widoczna zmiana kompozycji stron**
 
-- [ ] Utrzymać wspólny shell:
+- [x] Utrzymać wspólny shell:
   ```text
   tw-container tw-my-4
   ├── detail_header
@@ -128,10 +136,14 @@ Sekcje szczegółów mają przewidywalną hierarchię, wspólne odstępy i wspó
   ├── tw-card — akcje lub formularz domenowy
   └── tw-card — sekcje dodatkowe
   ```
-- [ ] Ujednolicić, czy `detail_header` występuje samodzielnie, czy wewnątrz `tw-card`; preferowany wariant: samodzielny nagłówek, gdy strona ma wiele kart.
-- [ ] Usunąć zbędne zagnieżdżenia kart, ale nie scalać kart, które reprezentują odrębne funkcje.
-- [ ] Zachować specjalny układ argumentów głosowania, list pomocników zadania i tabeli profilu, jeśli poprawia zrozumienie funkcji.
-- [ ] Ujednolicić odstęp między kartami i sekcjami przez istniejące utility `tw-gap-*`, `tw-mb-*` i `tw-mt-*`.
+- [x] Ujednolicić `detail_header` jako samodzielny element, a treść domenową umieszczać w jednej lub kilku kartach `tw-card`.
+- [x] Usunąć zbędne zagnieżdżenia kart; nagłówki księgowości zostały wyjęte z kart, a akcje dokumentu przeniesione do wspólnego nagłówka.
+- [x] Zachować specjalny układ argumentów głosowania, list pomocników zadania, tabeli profilu i karty dokumentu, ponieważ poprawia zrozumienie funkcji.
+- [x] Ujednolicić odstęp między kartami i sekcjami przez istniejące utility `tw-gap-*`, `tw-mb-*` i `tw-mt-*`.
+
+### Status etapu
+
+Etap 4 wykonany. Widoki szczegółów mają wspólny kontener i samodzielny nagłówek; domenowe karty i specjalne układy pozostały zachowane zgodnie z decyzją użytkownika.
 
 ### Kryterium zakończenia
 
@@ -144,19 +156,18 @@ Widoki mają wspólną geometrię strony, ale zachowują potrzebne domenowe komp
 **Ryzyko: średnie**  
 **Wpływ na użytkowników: lepsza obsługa urządzeń mobilnych**
 
-- [ ] Sprawdzić długie tytuły i akcje w `detail_header` na szerokościach mobilnych.
-- [ ] Sprawdzić zawijanie grup przycisków w ankietach, zadaniach i profilu obywatela.
-- [ ] Sprawdzić, czy metadane nie powodują poziomego scrolla.
-- [ ] Sprawdzić widoczny focus i kontrast przycisków oraz badge’y.
-- [ ] Uzupełnić `aria-label`, `title`, `aria-pressed` i `aria-expanded` tam, gdzie stan kontrolki nie wynika z tekstu.
-- [ ] Zweryfikować, że linki i przyciski wewnątrz kart nie aktywują nawigacji rodzica; używać `data-tw-stop-propagation`.
-- [ ] **DO ZROBIENIA PRZEZ CIEBIE:** ręcznie sprawdzić kilka widoków szczegółów na desktopie i mobile po wdrożeniu każdego etapu:
-  - ankieta;
-  - zadanie;
-  - wydarzenie;
-  - dokument;
-  - głosowanie;
-  - profil obywatela.
+- [x] Dodać `min-width: 0`, zawijanie długich tytułów i zawijanie grup ikonowych akcji w `detail_header`.
+- [x] Dodać ograniczenia szerokości i `overflow-wrap` dla metadanych oraz pól szczegółów, aby nie wymuszały poziomego scrolla.
+- [x] Dodać widoczny stan `:focus-visible` dla ikonowych przycisków nawigacji.
+- [x] Uzupełnić `aria-label`, `title`, `aria-disabled` i `aria-hidden` dla zmigrowanych kontrolek ikonowych.
+- [x] Zachować `data-tw-stop-propagation` w miejscach, gdzie linki są zagnieżdżone w interaktywnych kartach; widoki szczegółów nie dodają nowej nawigacji rodzica.
+- [x] **UŻYTKOWNIK POTWIERDZIŁ:** ręczna weryfikacja widoków na desktopie i mobile zakończona dla ankiety, zadania, wydarzenia, dokumentu, głosowania i profilu obywatela.
+
+Podczas weryfikacji sprawdzono długie tytuły, zawijanie akcji, brak poziomego scrolla, widoczny focus i kontrast przycisków oraz badge’y.
+
+### Status implementacji
+
+Etap 5 wykonany.
 
 ### Kryterium zakończenia
 
@@ -169,12 +180,26 @@ Najważniejsze informacje i akcje są dostępne na mobile, bez ucinania treści 
 **Ryzyko: niskie**  
 **Wpływ na użytkowników: brak**
 
-- [ ] Dodać focused guard lub test szablonów sprawdzający, że widoki szczegółów używają `detail_header.html`.
-- [ ] Sprawdzać obecność kontenera `tw-container` w stronach szczegółów, z wyjątkami dla stron dziedziczących kontener nadrzędny.
-- [ ] Wykrywać powielone linki „Back” w jednym widoku, z wyjątkiem nawigacji kontekstowej `data-tw-back`.
-- [ ] Wykrywać nowe inline styles inne niż dynamiczne custom properties.
-- [ ] Nie dopuszczać nowych klas bez prefiksu `tw-` w widokach szczegółów.
-- [ ] Dodać regresję dla struktury wspólnego nagłówka po zmianach w `detail_header.html`.
+- [x] Dodać focused guard w `scripts/ui_guard.py` sprawdzający, że widoki szczegółów używają `detail_header.html`.
+- [x] Sprawdzać obecność kontenera `tw-container` w stronach szczegółów; wyjątki są jawnie deklarowane w `DETAIL_CONTAINER_EXEMPTIONS`.
+- [x] Wykrywać powielone linki „Back” w jednym widoku, z wyjątkiem pojedynczej nawigacji kontekstowej `data-tw-back`.
+- [x] Wykrywać nowe inline styles inne niż dynamiczne custom properties.
+- [x] Nie dopuszczać nowych klas bez prefiksu `tw-` w widokach szczegółów.
+- [x] Objąć strukturę wspólnego nagłówka regresją guardu uruchamianego w trybie zmienionych plików i `--all --strict`.
+
+### Status etapu
+
+Etap 6 wykonany. Guard został rozszerzony o kontrakt strukturalny widoków szczegółów i nie zgłasza problemów dla całego repozytorium.
+
+### Dodatkowa unifikacja po Etapie 6
+
+- [x] Ujednolicić etykietę powrotu do krótkiego „Wróć” przez tłumaczenie `Back`.
+- [x] Umieścić metadane autora, koordynatora, dat i statusu bezpośrednio pod tytułem w `detail_header`.
+- [x] Umieścić akcje edycji i usuwania inline po prawej stronie tytułu; renderować je wyłącznie jako ikony z etykietami dostępnymi.
+- [x] Nie renderować dodatkowego guzika czatu, gdy szczegół zawiera osadzony czat.
+- [x] Ujednolicić kafelek tytułu wydarzenia z pozostałymi szczegółami przez wspólny `detail_header` i `tw-detail-meta`.
+- [x] Ujednolicić główną kartę treści wydarzenia do `tw-card` i `tw-card-body`, bez event-specific opakowania.
+- [x] Ujednolicić odstęp między kafelkiem tytułu a pierwszą kartą treści do `1rem`; usunąć dodatkowy rodzicielski `gap` ze szczegółów wydarzenia.
 
 ### Kryterium zakończenia
 

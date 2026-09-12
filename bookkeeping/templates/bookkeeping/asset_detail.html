@@ -3,22 +3,18 @@
 
 {% block bookkeeping %}
 <div class="tw-container tw-my-4">
+  {% url 'bookkeeping:asset_list' as asset_list_url %}
+  {% include 'home/includes/detail_header.html' with title=asset.name back_url=asset_list_url actions_include='bookkeeping/_detail_actions.html' %}
   <div class="tw-card">
-    {% url 'bookkeeping:asset_list' as asset_list_url %}
-    {% include 'home/includes/detail_header.html' with title=asset.name back_url=asset_list_url %}
     <div class="tw-card-body">
       <div class="tw-mb-3"><span class="tw-badge tw-badge-secondary">{{ asset.code }}</span></div>
-      <dl class="tw-grid tw-grid-cols-12 tw-gap-3">
+      <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-3">
         <dt class="tw-col-span-12 sm:tw-col-span-4">{% trans 'Code' %}</dt><dd class="tw-col-span-12 sm:tw-col-span-8">{{ asset.code }}</dd>
         <dt class="tw-col-span-12 sm:tw-col-span-4">{% trans 'Symbol' %}</dt><dd class="tw-col-span-12 sm:tw-col-span-8">{{ asset.symbol }}</dd>
         <dt class="tw-col-span-12 sm:tw-col-span-4">{% trans 'Decimal places' %}</dt><dd class="tw-col-span-12 sm:tw-col-span-8">{{ asset.decimal_places }}</dd>
         <dt class="tw-col-span-12 sm:tw-col-span-4">{% trans 'Is currency' %}</dt><dd class="tw-col-span-12 sm:tw-col-span-8">{% if asset.is_currency %}{% trans 'Yes' %}{% else %}{% trans 'No' %}{% endif %}</dd>
         <dt class="tw-col-span-12 sm:tw-col-span-4">{% trans 'Default' %}</dt><dd class="tw-col-span-12 sm:tw-col-span-8">{% if asset.is_default %}{% trans 'Yes' %}{% else %}{% trans 'No' %}{% endif %}</dd>
       </dl>
-      <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-4">
-        <a href="{% url 'bookkeeping:asset_update' asset.pk %}" class="tw-btn tw-btn-primary"><i class="fas fa-pen fa-fw"></i> {% trans 'Edit' %}</a>
-        <a href="{% url 'bookkeeping:asset_delete' asset.pk %}" class="tw-btn tw-btn-danger"><i class="fas fa-trash fa-fw"></i> {% trans 'Delete' %}</a>
-      </div>
     </div>
   </div>
 </div>

@@ -15,7 +15,7 @@ from django.views.decorators.http import require_POST
 from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unread_message_counts_for_rooms
 from core.signals import survey_created
-from core.utils import build_site_url
+from core.utils import build_detail_navigation, build_site_url
 
 from .forms import CustomSurveyOptionForm, SurveyForm
 from .models import Survey, SurveyOption, SurveyVote
@@ -76,11 +76,27 @@ def _create_custom_option(survey, user, text):
         return SurveyOption.objects.create(survey=locked_survey, text=text, order=last_option.order + 1 if last_option else 0, created_by=user)
 
 
-@login_required
-def survey_list(request):
+def _survey_list_state(request):
     tab = request.GET.get("tab", "active")
     if tab not in ("active", "finished"):
         tab = "active"
+    return tab, request.GET.get("q", "").strip()
+
+
+def _survey_queryset(tab, search_query):
+    queryset = Survey.objects.select_related("author")
+    if search_query:
+        queryset = queryset.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
+
+    now = timezone.now()
+    if tab == "active":
+        return queryset.filter(end_date__gte=now).order_by("end_date")
+    return queryset.filter(end_date__lt=now).order_by("-end_date")
+
+
+@login_required
+def survey_list(request):
+    tab, search_query = _survey_list_state(request)
 
     custom_option_form = None
     custom_option_survey_id = None
@@ -106,20 +122,9 @@ def survey_list(request):
                 messages.success(request, _("Your option has been added."))
                 return redirect(f"{reverse('ankiety:list')}?tab={tab}")
 
-    now = timezone.now()
-    search_query = request.GET.get("q", "").strip()
-    base_qs = Survey.objects.select_related("author").prefetch_related(
-        Prefetch("options", queryset=SurveyOption.objects.select_related("created_by").annotate(vote_count=Count("votes")).order_by("order", "id"))
+    surveys = list(
+        _survey_queryset(tab, search_query).prefetch_related(Prefetch("options", queryset=SurveyOption.objects.select_related("created_by").annotate(vote_count=Count("votes")).order_by("order", "id")))
     )
-    if search_query:
-        base_qs = base_qs.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
-
-    if tab == "active":
-        surveys = base_qs.filter(end_date__gte=now).order_by("end_date")
-    else:
-        surveys = base_qs.filter(end_date__lt=now).order_by("-end_date")
-
-    surveys = list(surveys)
 
     user_votes_by_survey = {}
     for vote in SurveyVote.objects.filter(survey_id__in=[s.pk for s in surveys], user=request.user).order_by("-created_at"):
@@ -138,6 +143,12 @@ def survey_list(request):
             survey.custom_option_form = custom_option_form if survey.pk == custom_option_survey_id else CustomSurveyOptionForm(survey=survey, prefix=f"survey-{survey.pk}-custom")
         else:
             survey.custom_option_form = None
+
+    detail_query = request.GET.urlencode()
+    for survey in surveys:
+        survey.detail_url = reverse("ankiety:detail", kwargs={"pk": survey.pk})
+        if detail_query:
+            survey.detail_url = f"{survey.detail_url}?{detail_query}"
 
     query_suffix = f"&q={quote_plus(search_query)}" if search_query else ""
     stepper = {
@@ -198,6 +209,11 @@ def survey_edit(request, pk):
 @login_required
 def survey_detail(request, pk):
     survey = get_object_or_404(Survey.objects.select_related("author", "chat_room").prefetch_related("options"), pk=pk)
+    tab, search_query = _survey_list_state(request)
+    navigation = build_detail_navigation(request, _survey_queryset(tab, search_query), survey.pk, "ankiety:detail")
+    list_url = reverse("ankiety:list")
+    if request.GET:
+        list_url = f"{list_url}?{request.GET.urlencode()}"
 
     options = list(survey.options.select_related("created_by").annotate(vote_count=Count("votes")).order_by("order", "id"))
     total_votes = _compute_vote_results(options)
@@ -243,6 +259,8 @@ def survey_detail(request, pk):
         "ankiety/survey_detail.html",
         {
             "survey": survey,
+            "list_url": list_url,
+            **navigation,
             "options": options,
             "total_votes": total_votes,
             "user_votes": user_votes,

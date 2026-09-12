@@ -1,0 +1,26 @@
+{% load i18n %}
+{% load feed_filters %}
+<div class="tw-detail-meta">
+  <span class="tw-detail-meta-item" title="{% trans 'End date' %}">
+    <i class="fas fa-stopwatch tw-detail-meta-icon" aria-hidden="true"></i>
+    <span class="tw-detail-meta-label">{% trans 'End date' %}</span>
+    <strong class="tw-detail-meta-value">{% if is_active %}<span data-countdown data-end="{{ survey.end_date|date:'c' }}">{{ survey.end_date|timeuntil }}</span>{% else %}{{ survey.end_date|date:'d.m.Y H:i' }}{% endif %}</strong>
+  </span>
+  <span class="tw-detail-meta-item" title="{% trans 'Votes' %}">
+    <i class="fas fa-check-to-slot tw-detail-meta-icon" aria-hidden="true"></i>
+    <span class="tw-detail-meta-label">{% trans 'Votes' %}</span>
+    <strong class="tw-detail-meta-value">{{ total_votes }}</strong>
+  </span>
+  <span class="tw-detail-meta-item" title="{% if survey.is_active %}{% trans 'Ongoing' %}{% else %}{% trans 'Finished' %}{% endif %}">
+    <i class="fas fa-circle-info tw-detail-meta-icon" aria-hidden="true"></i>
+    <span class="tw-detail-meta-label">{% trans 'Status' %}</span>
+    <strong class="tw-detail-meta-value"><span class="tw-badge-status tw-badge-{% if survey.is_active %}discussion{% else %}approved{% endif %}">{% if survey.is_active %}{% trans 'Ongoing' %}{% else %}{% trans 'Finished' %}{% endif %}</span></strong>
+  </span>
+  <span class="tw-detail-meta-item" title="{% trans 'Author' %}">
+    <i class="fas fa-user-pen tw-detail-meta-icon" aria-hidden="true"></i>
+    <span class="tw-detail-meta-label">{% trans 'Author' %}</span>
+    <strong class="tw-detail-meta-value tw-flex tw-items-center tw-gap-1">
+      {% if survey.author %}{% include "home/_user_avatar.html" with user=survey.author size="xs" %}{{ survey.author|display_name }}{% else %}—{% endif %}
+    </strong>
+  </span>
+</div>

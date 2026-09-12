@@ -1,0 +1,42 @@
+{% load i18n %}
+{% load feed_filters %}
+<div class="tw-detail-meta">
+  <span class="tw-detail-meta-item" title="{% trans 'Author' %}">
+    <i class="fas fa-user-pen tw-detail-meta-icon" aria-hidden="true"></i>
+    <span class="tw-detail-meta-label">{% trans "Author" %}</span>
+    <strong class="tw-detail-meta-value tw-flex tw-items-center tw-gap-1">
+      {% if task.created_by %}{% include "home/_user_avatar.html" with user=task.created_by size="xs" %}{{ task.created_by|display_name }}{% else %}{% trans "Unknown" %}{% endif %}
+    </strong>
+  </span>
+  <span class="tw-detail-meta-item" title="{% trans 'Coordinator' %}">
+    <i class="fas fa-user-shield tw-detail-meta-icon" aria-hidden="true"></i>
+    <span class="tw-detail-meta-label">{% trans "Coordinator" %}</span>
+    <strong class="tw-detail-meta-value tw-flex tw-items-center tw-gap-1" data-coord-label>
+      {% if task.assigned_to %}{% include "home/_user_avatar.html" with user=task.assigned_to size="xs" %}{{ task.assigned_to|display_name }}{% else %}{% trans "None" %}{% endif %}
+    </strong>
+  </span>
+  <span class="tw-detail-meta-item" title="{% trans 'Status' %}">
+    <i class="fas fa-circle-info tw-detail-meta-icon" aria-hidden="true"></i>
+    <span class="tw-detail-meta-label">{% trans "Status" %}</span>
+    <strong class="tw-detail-meta-value tw-detail-meta-status-{{ task.status }}">{{ task.get_status_display }}</strong>
+  </span>
+  {% if task.category %}
+    <span class="tw-detail-meta-item" title="{% trans 'Category' %}">
+      <i class="fas fa-tag tw-detail-meta-icon" aria-hidden="true"></i>
+      <span class="tw-detail-meta-label">{% trans "Category" %}</span>
+      <strong class="tw-detail-meta-value">{{ task.category.name }}</strong>
+    </span>
+  {% endif %}
+  <span class="tw-detail-meta-item" title="{% trans 'Created' %}">
+    <i class="fas fa-calendar-plus tw-detail-meta-icon" aria-hidden="true"></i>
+    <span class="tw-detail-meta-label">{% trans "Created" %}</span>
+    <strong class="tw-detail-meta-value">{{ task.created_at|date:"Y-m-d H:i" }}</strong>
+  </span>
+  {% if task.priority_label %}
+    <span class="tw-detail-meta-item" title="{% trans 'Priority' %}">
+      <i class="fas fa-star tw-detail-meta-icon" aria-hidden="true"></i>
+      <span class="tw-detail-meta-label">{% trans "Priority" %}</span>
+      <strong class="tw-detail-meta-value">{{ task.priority_label }}</strong>
+    </span>
+  {% endif %}
+</div>

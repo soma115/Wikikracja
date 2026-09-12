@@ -1,5 +1,7 @@
 import secrets
 from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
+from urllib.parse import urlencode
 
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
@@ -26,6 +28,17 @@ class EventViewTest(TestCase):
         response = self.client.get(reverse('events:detail', kwargs={'pk': self.event.pk}))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Event")
+
+    def test_event_detail_navigation_preserves_month_and_occurrence(self):
+        events = [Event.objects.create(title=f'Navigation {day}', start_date=timezone.make_aware(datetime(2030, 9, day, 10)), frequency='once') for day in (1, 2, 3)]
+        occurrence_query = urlencode({'occurrence': events[1].start_date.isoformat()})
+
+        response = self.client.get(f"{reverse('events:detail', args=[events[1].pk])}?month=2030-09&{occurrence_query}")
+
+        previous_query = urlencode({'month': '2030-09', 'occurrence': events[0].start_date.astimezone(dt_timezone.utc).isoformat()})
+        next_query = urlencode({'month': '2030-09', 'occurrence': events[2].start_date.astimezone(dt_timezone.utc).isoformat()})
+        self.assertEqual(response.context['previous_url'], f"{reverse('events:detail', args=[events[0].pk])}?{previous_query}")
+        self.assertEqual(response.context['next_url'], f"{reverse('events:detail', args=[events[2].pk])}?{next_query}")
 
     def test_event_create_view_requires_login(self):
         response = self.client.get(reverse('events:create'))

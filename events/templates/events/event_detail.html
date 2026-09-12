@@ -3,65 +3,64 @@
 {% load richtext %}
 
 {% block content %}
-<div class="tw-container tw-my-4 tw-detail-layout tw-flex tw-flex-col tw-gap-3">
+<div class="tw-container tw-my-4">
 
-  {% url 'events:list' as event_list_url %}
-  {% include 'home/includes/detail_header.html' with title=event.title back_url=event_list_url actions_include='events/_event_detail_actions.html' badges_include='events/_event_detail_badges.html' %}
+  {% include 'home/includes/detail_header.html' with title=event.title back_url=list_url navigation_include='home/includes/detail_navigation.html' actions_include='events/_event_detail_actions.html' badges_include='events/_event_detail_badges.html' extra_class='tw-w-full' %}
 
-  <div class="tw-event-card">
-    <div class="tw-event-card-body tw-flex tw-flex-col tw-gap-2">
+  <div class="tw-card tw-w-full">
+    <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
 
-      <div>
-        <div class="tw-event-section-label">
+      <div class="tw-detail-subsection">
+        <div class="tw-detail-section-label">
           <i class="fas fa-calendar fa-fw"></i> {% trans "Start Date" %}
         </div>
-        <div class="tw-event-section-text">{{ event.start_date|date:"l, Y-m-d H:i" }}</div>
+        <div class="tw-detail-section-text">{{ event.start_date|date:"l, Y-m-d H:i" }}</div>
       </div>
 
       {% if event.end_date %}
-        <div>
-          <div class="tw-event-section-label">
+        <div class="tw-detail-subsection">
+          <div class="tw-detail-section-label">
             <i class="fas fa-calendar-check fa-fw"></i> {% trans "End Date" %}
           </div>
-          <div class="tw-event-section-text">{{ event.end_date|date:"l, Y-m-d H:i" }}</div>
+          <div class="tw-detail-section-text">{{ event.end_date|date:"l, Y-m-d H:i" }}</div>
         </div>
       {% endif %}
 
       {% if event.frequency != 'once' and event.is_active %}
         {% with next_occurrence=event.get_next_occurrence %}
           {% if next_occurrence %}
-            <div>
-              <div class="tw-event-section-label">
+            <div class="tw-detail-subsection">
+              <div class="tw-detail-section-label">
                 <i class="fas fa-clock fa-fw"></i> {% trans "Next Occurrence" %}
               </div>
-              <div class="tw-event-section-text tw-text-accent">{{ next_occurrence|date:"l, Y-m-d H:i" }}</div>
+              <div class="tw-detail-section-text tw-text-accent">{{ next_occurrence|date:"l, Y-m-d H:i" }}</div>
             </div>
           {% else %}
-            <div>
-              <div class="tw-event-section-label">
+            <div class="tw-detail-subsection">
+              <div class="tw-detail-section-label">
                 <i class="fas fa-clock fa-fw"></i> {% trans "Next Occurrence" %}
               </div>
-              <div class="tw-event-section-text tw-text-muted">{% trans "No upcoming occurrences" %}</div>
+              <div class="tw-detail-section-text tw-text-muted">{% trans "No upcoming occurrences" %}</div>
             </div>
           {% endif %}
         {% endwith %}
       {% endif %}
 
       {% if event.place %}
-        <div>
-          <div class="tw-event-section-label">
+        <div class="tw-detail-subsection">
+          <div class="tw-detail-section-label">
             <i class="fas fa-map-marker-alt fa-fw"></i> {% trans "Place" %}
           </div>
-          <div class="tw-event-section-text">{{ event.place }}</div>
+          <div class="tw-detail-section-text">{{ event.place }}</div>
         </div>
       {% endif %}
 
       {% if event.link %}
-        <div>
-          <div class="tw-event-section-label">
+        <div class="tw-detail-subsection">
+          <div class="tw-detail-section-label">
             <i class="fas fa-link fa-fw"></i> {% trans "Link to the meeting" %}
           </div>
-          <div class="tw-event-section-text">
+          <div class="tw-detail-section-text">
             <a href="{{ event.link }}" target="_blank" rel="noopener" class="tw-event-link">
               {{ event.link }} <i class="fas fa-external-link-alt fa-sm"></i>
             </a>
@@ -70,11 +69,11 @@
       {% endif %}
 
       {% if event.description %}
-        <div>
-          <div class="tw-event-section-label">
+        <div class="tw-detail-subsection">
+          <div class="tw-detail-section-label">
             <i class="fas fa-file-lines fa-fw"></i> {% trans "Agenda" %}
           </div>
-          <div class="tw-event-section-text">{{ event.description|richtext }}</div>
+          <div class="tw-detail-section-text">{{ event.description|richtext }}</div>
         </div>
       {% endif %}
 

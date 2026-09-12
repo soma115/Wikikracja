@@ -10,7 +10,7 @@
 <div class="tw-event-card{% if occ.is_past %} tw-event-card--past{% endif %}">
 
   <div class="tw-event-card-header"
-       data-detail-url="{% url 'events:detail' occ.event.pk %}"
+       data-detail-url="{{ occ.detail_url }}"
        role="link" tabindex="0">
 
     <div class="tw-event-card-inner">
@@ -64,7 +64,7 @@
   </div>{# /.tw-event-card-header #}
 
   <div class="tw-event-card-body"
-       data-detail-url="{% url 'events:detail' occ.event.pk %}"
+       data-detail-url="{{ occ.detail_url }}"
        role="link" tabindex="0">
 
     <div class="tw-event-card-description">

@@ -5,6 +5,8 @@ toolbar w kontekście list, redirecty na listy po create/update/delete,
 ochrona usuwania przez ProtectedDeleteView i własność transakcji.
 """
 
+from datetime import date
+
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -30,8 +32,11 @@ class BookkeepingViewTests(TestCase):
         self.client = Client()
         self.client.force_login(self.user)
 
-    def _transaction(self, author=None):
-        return Transaction.objects.create(type='I', asset=self.asset, category=self.category, partner=self.partner, amount=10, author=author or self.user)
+    def _transaction(self, author=None, payment_received_date=None, note=''):
+        data = {'type': 'I', 'asset': self.asset, 'category': self.category, 'partner': self.partner, 'amount': 10, 'author': author or self.user, 'note': note}
+        if payment_received_date is not None:
+            data['payment_received_date'] = payment_received_date
+        return Transaction.objects.create(**data)
 
     def test_list_views_render_with_menu_and_cta(self):
         for url_name in LIST_URL_NAMES:
@@ -82,6 +87,16 @@ class BookkeepingViewTests(TestCase):
         res = self.client.post(reverse('bookkeeping:category_delete', args=[self.category.pk]))
         self.assertRedirects(res, reverse('bookkeeping:category_list'))
         self.assertFalse(Category.objects.filter(pk=self.category.pk).exists())
+
+    def test_transaction_detail_navigation_preserves_search_context(self):
+        first = self._transaction(payment_received_date=date(2026, 1, 1), note='navigation')
+        middle = self._transaction(payment_received_date=date(2026, 1, 2), note='navigation')
+        last = self._transaction(payment_received_date=date(2026, 1, 3), note='navigation')
+
+        response = self.client.get(reverse('bookkeeping:transaction_detail', args=[middle.pk]), {'q': 'navigation'})
+
+        self.assertEqual(response.context['previous_url'], f"{reverse('bookkeeping:transaction_detail', args=[last.pk])}?q=navigation")
+        self.assertEqual(response.context['next_url'], f"{reverse('bookkeeping:transaction_detail', args=[first.pk])}?q=navigation")
 
     def test_transaction_update_and_delete_only_by_author(self):
         other = User.objects.create_user(username='other', email='o@example.com', password='x')

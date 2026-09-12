@@ -1,0 +1,42 @@
+{% load i18n %}
+{% load feed_filters %}
+<div class="tw-detail-meta tw-mt-3">
+  {% if user.is_authenticated or not post.is_public or post.is_private %}
+    <span class="tw-detail-meta-item" title="{% trans 'Author' %}">
+      <i class="fas fa-user-pen tw-detail-meta-icon" aria-hidden="true"></i>
+      <span class="tw-detail-meta-label">{% trans 'Author' %}</span>
+      <strong class="tw-detail-meta-value tw-flex tw-items-center tw-gap-1">
+        {% if post.author %}
+          {% include "home/_user_avatar.html" with user=post.author size="xs" %}{{ post.author|display_name }}
+        {% else %}
+          —
+        {% endif %}
+      </strong>
+    </span>
+    {% if post.updated_by %}
+      <span class="tw-detail-meta-item" title="{% trans 'Updated by' %}">
+        <i class="fas fa-user-pen tw-detail-meta-icon" aria-hidden="true"></i>
+        <span class="tw-detail-meta-label">{% trans 'Updated by' %}</span>
+        <strong class="tw-detail-meta-value tw-flex tw-items-center tw-gap-1">
+          {% include "home/_user_avatar.html" with user=post.updated_by size="xs" %}{{ post.updated_by|display_name }}
+        </strong>
+      </span>
+    {% endif %}
+  {% endif %}
+  <span class="tw-detail-meta-item" title="{% trans 'Created' %}">
+    <i class="fas fa-calendar-plus tw-detail-meta-icon" aria-hidden="true"></i>
+    <span class="tw-detail-meta-label">{% trans 'Created' %}</span>
+    <strong class="tw-detail-meta-value">{{ post.created|date:"Y-m-d" }}</strong>
+  </span>
+  <span class="tw-detail-meta-item" title="{% trans 'Updated' %}">
+    <i class="fas fa-calendar-check tw-detail-meta-icon" aria-hidden="true"></i>
+    <span class="tw-detail-meta-label">{% trans 'Updated' %}</span>
+    <strong class="tw-detail-meta-value">{{ post.updated|date:"Y-m-d" }}</strong>
+  </span>
+  {% if post.is_public and not post.is_private %}
+    <span class="tw-detail-meta-item" title="{% trans 'Public' %}">
+      <i class="fas fa-globe tw-detail-meta-icon" aria-hidden="true"></i>
+      <span class="tw-detail-meta-label">{% trans 'Public' %}</span>
+    </span>
+  {% endif %}
+</div>

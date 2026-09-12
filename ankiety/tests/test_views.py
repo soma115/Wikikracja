@@ -184,6 +184,29 @@ class SurveyViewsTests(TestCase):
         self.assertContains(response, finished.title)
         self.assertNotContains(response, active.title)
 
+    def test_detail_navigation_follows_active_tab_and_search(self):
+        first = self._create_survey(self.author, end_delta=timedelta(days=1), title="Navigation first")
+        middle = self._create_survey(self.author, end_delta=timedelta(days=2), title="Navigation middle")
+        last = self._create_survey(self.author, end_delta=timedelta(days=3), title="Navigation last")
+        self.client.login(username="author", password="pass")
+
+        response = self.client.get(reverse("ankiety:detail", args=[middle.pk]), {"tab": "active", "q": "Navigation"})
+
+        self.assertEqual(response.context["previous_url"], f"{reverse('ankiety:detail', args=[first.pk])}?tab=active&q=Navigation")
+        self.assertEqual(response.context["next_url"], f"{reverse('ankiety:detail', args=[last.pk])}?tab=active&q=Navigation")
+        self.assertContains(response, "fa-chevron-left")
+        self.assertContains(response, "fa-chevron-right")
+
+    def test_detail_navigation_disables_missing_directions(self):
+        first = self._create_survey(self.author, title="Only navigation survey")
+        self.client.login(username="author", password="pass")
+
+        response = self.client.get(reverse("ankiety:detail", args=[first.pk]), {"tab": "active", "q": "Only navigation"})
+
+        self.assertIsNone(response.context["previous_url"])
+        self.assertIsNone(response.context["next_url"])
+        self.assertContains(response, 'class="tw-detail-nav-btn tw-disabled"', count=2)
+
     def test_voting(self):
         survey = self._create_survey(self.author)
         first_option = survey.options.first()

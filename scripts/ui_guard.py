@@ -35,6 +35,10 @@ GENERATED_DIRS = {'static'}
 # Paths intentionally exempt from full UI guard (self-styled docs page).
 EXEMPT_FILES = {'docs/UI_STANDARDS.html'}
 
+# Detail pages share a header and page container. Parent templates may provide
+# the container in the future; keep exceptions explicit rather than implicit.
+DETAIL_CONTAINER_EXEMPTIONS = set()
+
 # Allow-list for non-tw-* semantic hooks. Each entry is a regex.
 FONTAWESOME_PREFIXES = {'fas', 'far', 'fab', 'fal', 'fa-fw'}
 
@@ -191,6 +195,39 @@ class UIGuard:
         for match in JS_INLINE_STYLE_RE.finditer(code):
             self.warnings.append(f"{path}:{line_no}: JS inline style '{match.group(0).strip()}' — prefer a tw-* class (display/CSS variables are allowed)")
 
+    def _is_detail_template(self, path):
+        """Return whether a template is an application detail page."""
+        if path.name.startswith('_'):
+            return False
+        return path.name.endswith('_detail.html') or path.name == 'szczegoly.html'
+
+    def _check_detail_template(self, path, text):
+        """Enforce the shared structural contract for detail pages."""
+        if not self._is_detail_template(path):
+            return
+
+        rel = '/'.join(path.relative_to(BASE_DIR).parts)
+        if 'home/includes/detail_header.html' not in text:
+            self.issues.append(f"{path}: detail page must include home/includes/detail_header.html")
+
+        if rel not in DETAIL_CONTAINER_EXEMPTIONS and 'tw-container' not in text:
+            self.issues.append(f"{path}: detail page must use tw-container or an explicit guard exception")
+
+        # A contextual data-tw-back link already includes its visible Back label;
+        # do not count that line as a second navigation mechanism.
+        lines_without_context_back = '\n'.join(line for line in text.splitlines() if 'data-tw-back' not in line)
+        has_header_back = bool(re.search(r'back_url\s*=', lines_without_context_back))
+        body_back_count = len(
+            re.findall(
+                r'<(?:a|button)[^>]*class=["\'][^"\']*tw-btn[^"\']*["\'][^>]*>[^<]*'
+                r'\{%\s*trans\s+["\']Back(?: to [^"\']+)?["\']\s*%\}',
+                lines_without_context_back,
+                re.IGNORECASE,
+            )
+        )
+        if int(has_header_back) + body_back_count > 1:
+            self.issues.append(f"{path}: detail page has duplicate Back navigation; use one shared or contextual mechanism")
+
     def _should_expect_toolbar(self, path):
         """Shared toolbar is only mandatory on main module list views."""
         name = path.name
@@ -212,6 +249,8 @@ class UIGuard:
             self._link_stylesheet_issues(line, i, path)
             self._style_block_issues(line, i, path)
             self._js_inline_style_issues(line, i, path)
+
+        self._check_detail_template(path, text)
 
         # Structural guidance
         if self._should_expect_toolbar(path):
@@ -243,6 +282,8 @@ class UIGuard:
             self._link_stylesheet_issues(line, i, path)
             self._style_block_issues(line, i, path)
             self._js_inline_style_issues(line, i, path)
+        if path.exists():
+            self._check_detail_template(path, path.read_text(encoding='utf-8', errors='ignore'))
         if is_new_file and self._should_expect_toolbar(path):
             text = '\n'.join(line for _, line in lines)
             if 'tw-toolbar' not in text and 'home/includes/toolbar.html' not in text:

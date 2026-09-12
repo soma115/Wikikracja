@@ -1,0 +1,13 @@
+{% load i18n %}
+<div class="tw-detail-nav tw-flex tw-flex-wrap tw-gap-1">
+  {% if prev %}
+    <a href="{% url 'glosowania:details' pk=prev.id %}" class="tw-detail-nav-btn" title="{% trans 'Previous' %}" aria-label="{% trans 'Previous' %}"><i class="fas fa-chevron-left fa-fw" aria-hidden="true"></i></a>
+  {% else %}
+    <span class="tw-detail-nav-btn tw-disabled" aria-disabled="true" aria-label="{% trans 'Previous' %}"><i class="fas fa-chevron-left fa-fw" aria-hidden="true"></i></span>
+  {% endif %}
+  {% if next %}
+    <a href="{% url 'glosowania:details' pk=next.id %}" class="tw-detail-nav-btn" title="{% trans 'Next' %}" aria-label="{% trans 'Next' %}"><i class="fas fa-chevron-right fa-fw" aria-hidden="true"></i></a>
+  {% else %}
+    <span class="tw-detail-nav-btn tw-disabled" aria-disabled="true" aria-label="{% trans 'Next' %}"><i class="fas fa-chevron-right fa-fw" aria-hidden="true"></i></span>
+  {% endif %}
+</div>

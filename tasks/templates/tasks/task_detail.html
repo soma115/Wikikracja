@@ -6,73 +6,17 @@
 {% block content %}
 <div class="tw-container tw-my-4">
   {% url 'tasks:list' as task_list_url %}
-  {% include 'home/includes/detail_header.html' with title=task.title back_url=task_list_url %}
+  {% include 'home/includes/detail_header.html' with title=task.title back_url=task_list_url meta_include='tasks/_task_detail_meta.html' actions_include='tasks/_task_detail_actions.html' %}
 
   <div class="tw-card tw-mb-4">
     <div class="tw-card-body">
-      <div class="tw-flex tw-justify-between tw-items-center tw-flex-wrap tw-gap-2">
-        {% if task.chat_room_url %}
-          <a href="{{ task.chat_room_url }}"
-             class="tw-chat-link {{ task.chat_room_pulse_class|default:'' }}"
-             data-tw-stop-propagation>
-            <i class="fas fa-comment-dots"></i>
-            <span>{% trans "Chat" %}</span>
-            {% with n=task.chat_unread_count|default:0 %}
-              {% if n %}<span class="tw-chat-count">{{ n }}</span>{% endif %}
-            {% endwith %}
-          </a>
-        {% endif %}
-        {% if task.priority_label %}
-          {% with task.priority_category as category %}
-            {% if category == "critical" %}
-              <span class="tw-badge-status tw-badge-danger tw-uppercase">{{ task.priority_label }}</span>
-            {% elif category == "important" %}
-              <span class="tw-badge-status tw-badge-warning tw-uppercase">{{ task.priority_label }}</span>
-            {% elif category == "beneficial" %}
-              <span class="tw-badge-status tw-badge-success tw-uppercase">{{ task.priority_label }}</span>
-            {% elif category == "rejected" %}
-              <span class="tw-badge-status tw-badge-secondary tw-uppercase">{{ task.priority_label }}</span>
-            {% else %}
-              <span class="tw-badge-status tw-badge-info tw-uppercase">{{ task.priority_label }}</span>
-            {% endif %}
-          {% endwith %}
-        {% endif %}
-      </div>
-      <div class="tw-task-meta-row tw-flex tw-flex-wrap tw-gap-2 tw-mb-3">
-        <span class="tw-task-meta-item" title="{% trans 'Author' %}">
-          <i class="fas fa-user-pen tw-task-meta-icon"></i>
-          <span class="tw-task-meta-label">{% trans "Author" %}</span>
-          <strong class="tw-task-meta-value tw-flex tw-items-center tw-gap-1">
-            {% if task.created_by %}{% include "home/_user_avatar.html" with user=task.created_by size="xs" %}{{ task.created_by|display_name }}{% else %}{% trans "Unknown" %}{% endif %}
-          </strong>
-        </span>
-        <span class="tw-task-meta-item" title="{% trans 'Coordinator' %}">
-          <i class="fas fa-user-shield tw-task-meta-icon"></i>
-          <span class="tw-task-meta-label">{% trans "Coordinator" %}</span>
-          <strong class="tw-task-meta-value tw-flex tw-items-center tw-gap-1" data-coord-label>
-            {% if task.assigned_to %}{% include "home/_user_avatar.html" with user=task.assigned_to size="xs" %}{{ task.assigned_to|display_name }}{% else %}{% trans "None" %}{% endif %}
-          </strong>
-        </span>
-        <span class="tw-task-meta-item" title="{% trans 'Status' %}">
-          <i class="fas fa-circle-info tw-task-meta-icon"></i>
-          <span class="tw-task-meta-label">{% trans "Status" %}</span>
-          <strong class="tw-task-meta-value tw-task-meta-status-{{ task.status }}">{{ task.get_status_display }}</strong>
-        </span>
-        {% if task.category %}
-        <span class="tw-task-meta-item" title="{% trans 'Category' %}">
-          <i class="fas fa-tag tw-task-meta-icon"></i>
-          <span class="tw-task-meta-label">{% trans "Category" %}</span>
-          <strong class="tw-task-meta-value">{{ task.category.name }}</strong>
-        </span>
-        {% endif %}
-        <span class="tw-task-meta-item" title="{% trans 'Created' %}">
-          <i class="fas fa-calendar-plus tw-task-meta-icon"></i>
-          <span class="tw-task-meta-label">{% trans "Created" %}</span>
-          <strong class="tw-task-meta-value">{{ task.created_at|date:"Y-m-d H:i" }}</strong>
-        </span>
-      </div>
 
-      <p>{{ task.description|richtext }}</p>
+      <div class="tw-detail-subsection">
+        <div class="tw-detail-section-label">
+          <i class="fas fa-file-lines fa-fw"></i> {% trans "Description" %}
+        </div>
+        <div class="tw-detail-section-text">{{ task.description|richtext }}</div>
+      </div>
 
       <div class="tw-mt-3 tw-flex tw-flex-wrap tw-gap-2">
         <span class="tw-badge-status tw-badge-light" data-votes-badge="{% trans "Votes" %}: ">{% trans "Votes" %}: {{ task.votes_score|default:0 }}</span>
@@ -153,13 +97,6 @@
             <i class="fas fa-right-from-bracket fa-fw"></i> {% trans "Resign as coordinator" %}
           </button>
         </form>
-        <a class="tw-action-btn tw-action-btn-edit"
-           href="{% url 'tasks:edit' task.pk %}"
-           data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}
-           data-tw-toggle="tooltip"
-           title="{% trans "Edit title, description and category" %}">
-          <i class="fas fa-pen fa-fw"></i> {% trans "Edit" %}
-        </a>
         <a class="tw-action-btn tw-action-btn-sign"
            href="{% url 'tasks:close' task.pk %}"
            data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}
@@ -170,14 +107,6 @@
       {% endif %}
     {% endif %}
 
-    {% if task.created_by == request.user and task.is_active %}
-      <button type="button"
-              class="tw-action-btn tw-action-btn-withdraw"
-              data-tw-toggle="modal"
-              data-tw-target="#confirmDeleteModal">
-        <i class="fas fa-trash fa-fw"></i> {% trans "Delete activity" %}
-      </button>
-    {% endif %}
   </div>
 
   <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4 tw-mb-4">

@@ -8,61 +8,21 @@
 <div class="tw-container tw-my-4">
 
   {# ── HEADER ── #}
-  {% url 'ankiety:list' as survey_list_url %}
-  {% include 'home/includes/detail_header.html' with title=survey.title back_url=survey_list_url %}
-  <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mb-3">
-    {% if chat_room %}
-      <a href="{{ survey.chat_room_url }}" class="tw-chat-link {{ chat_room_pulse_class }} tw-no-underline" data-tw-stop-propagation>
-        <i class="fas fa-comment-dots"></i> {% trans 'Chat' %}
-        {% if chat_unread_count %}<span class="tw-chat-count">{{ chat_unread_count }}</span>{% endif %}
-      </a>
-    {% endif %}
-    {% if can_edit %}
-      <a href="{% url 'ankiety:edit' survey.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-primary">
-        <i class="fas fa-pen fa-fw tw-me-1"></i> {% trans 'Edit' %}
-      </a>
-      <form method="post" action="{% url 'ankiety:delete' survey.pk %}" data-confirm="{% trans 'Are you sure you want to delete this survey?' %}">
-        {% csrf_token %}
-        <button type="submit" class="tw-btn tw-btn-sm tw-btn-outline-danger">
-          <i class="fas fa-trash fa-fw tw-me-1"></i> {% trans 'Delete' %}
-        </button>
-      </form>
-    {% endif %}
-  </div>
+  {% include 'home/includes/detail_header.html' with title=survey.title back_url=list_url meta_include='ankiety/_survey_detail_meta.html' navigation_include='home/includes/detail_navigation.html' actions_include='ankiety/_survey_detail_actions.html' %}
 
   {% if survey.description %}
-    <div class="tw-mb-3">
-      {{ survey.description|richtext }}
+    <div class="tw-card tw-mb-4">
+      <div class="tw-card-body">
+        <div class="tw-detail-subsection">
+          <div class="tw-detail-section-label">
+            <i class="fas fa-file-lines fa-fw"></i> {% trans "Description" %}
+          </div>
+          <div class="tw-detail-section-text">{{ survey.description|richtext }}</div>
+        </div>
+      </div>
     </div>
   {% endif %}
 
-  <div class="tw-proposal-card-meta tw-mb-4">
-    <span class="tw-proposal-date" title="{% trans 'End date' %}">
-      <i class="fas fa-stopwatch tw-proposal-role-icon" aria-hidden="true"></i>
-      {% if is_active %}<span data-countdown data-end="{{ survey.end_date|date:'c' }}">{{ survey.end_date|timeuntil }}</span>{% else %}{{ survey.end_date|date:'d.m.Y H:i' }}{% endif %}
-    </span>
-    <span class="tw-proposal-meta-sep">·</span>
-    <span class="tw-proposal-signatures" title="{% trans 'Votes' %}">
-      <i class="fas fa-check-to-slot tw-proposal-role-icon" aria-hidden="true"></i>
-      {{ total_votes }}
-    </span>
-    <span class="tw-proposal-meta-sep">·</span>
-    {% if survey.is_active %}
-      <span class="tw-badge-status tw-badge-discussion">{% trans 'Ongoing' %}</span>
-    {% else %}
-      <span class="tw-badge-status tw-badge-approved">{% trans 'Finished' %}</span>
-    {% endif %}
-    <span class="tw-proposal-meta-sep">·</span>
-    {% if survey.author %}
-      <a href="{% url 'obywatele:obywatele_szczegoly' survey.author.pk %}" class="tw-proposal-author-link tw-flex tw-items-center tw-gap-1">
-        <i class="fas fa-user-pen tw-proposal-role-icon" aria-hidden="true"></i>
-        {% include "home/_user_avatar.html" with user=survey.author size="xs" %}
-        {{ survey.author|display_name }}
-      </a>
-    {% else %}
-      <span class="tw-proposal-author-name">—</span>
-    {% endif %}
-  </div>
 
   {# ── VOTING FORM ── #}
   {% if is_active %}
@@ -74,9 +34,9 @@
     {% endif %}
     <form method="post" class="tw-card tw-p-4 tw-mb-4">
       {% csrf_token %}
-      <h5 class="tw-text-lg tw-font-semibold tw-mb-3">
+      <h2 class="tw-text-lg tw-font-semibold tw-mb-3">
         {% if has_voted %}{% trans 'Change vote' %}{% else %}{% trans 'Vote' %}{% endif %}
-      </h5>
+      </h2>
       {% if survey.allow_multiple_choice %}
         <p class="tw-form-text tw-text-sm">
           <i class="fas fa-circle-info"></i> {% trans 'You can select more than one option.' %}
@@ -126,7 +86,7 @@
 
   {# ── RESULTS ── #}
   {% if not is_active %}
-    <h5 class="tw-text-lg tw-font-semibold tw-mb-3">{% trans 'Results' %}</h5>
+    <h2 class="tw-text-lg tw-font-semibold tw-mb-3">{% trans 'Results' %}</h2>
     {% if options %}
       <div class="tw-card tw-p-4">
         {% include 'ankiety/_survey_results.html' with options=options total_votes=total_votes %}
@@ -141,7 +101,7 @@
 
   {# ── VOTERS ── #}
   {% if voter_choices %}
-    <h5 class="tw-text-lg tw-font-semibold tw-mb-3 tw-mt-4">{% trans 'Voters' %}</h5>
+    <h2 class="tw-text-lg tw-font-semibold tw-mb-3 tw-mt-4">{% trans 'Voters' %}</h2>
     <div class="tw-card tw-p-0">
       <div class="tw-list-group">
         {% for user, choices in voter_choices.items %}

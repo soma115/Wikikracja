@@ -5,12 +5,11 @@
 
 {% block bookkeeping %}
 <div class="tw-container tw-my-4">
+  {% trans "Transaction" as transaction_title %}
+  {% include 'home/includes/detail_header.html' with title=transaction_title back_url=list_url navigation_include='home/includes/detail_navigation.html' actions_include='bookkeeping/_detail_actions.html' %}
   <div class="tw-card">
-    {% trans "Transaction" as transaction_title %}
-    {% url 'bookkeeping:transaction_list' as transaction_list_url %}
-    {% include 'home/includes/detail_header.html' with title=transaction_title back_url=transaction_list_url %}
     <div class="tw-card-body">
-      <dl class="tw-grid tw-grid-cols-12 tw-gap-3">
+      <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-3">
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Type' %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">
           {% if transaction.type == 'I' %}
@@ -46,10 +45,6 @@
       </dl>
 
       {% if transaction.author == request.user %}
-      <div class="tw-mt-3 tw-flex tw-flex-wrap tw-gap-2">
-        <a href="{% url 'bookkeeping:transaction_update' transaction.id %}" class="tw-btn tw-btn-primary"><i class="fas fa-pen fa-fw tw-me-1"></i>{% trans 'Edit' %}</a>
-        <a href="{% url 'bookkeeping:transaction_delete' transaction.id %}" class="tw-btn tw-btn-danger"><i class="fas fa-trash fa-fw tw-me-1"></i>{% trans 'Delete' %}</a>
-      </div>
       {% endif %}
     </div>
   </div>
