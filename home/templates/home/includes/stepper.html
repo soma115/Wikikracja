@@ -1,6 +1,6 @@
 {% load i18n %}
 <nav class="tw-stepper-nav{% if stepper.css_class %} {{ stepper.css_class }}{% endif %}{% if stepper.cta_url %} tw-stepper-nav--has-cta{% endif %}">
-  <div class="tw-stepper-main">
+  <div class="tw-stepper-main" data-responsive-controls>
     {% if stepper.info_url %}
     <a href="{{ stepper.info_url }}"
        class="tw-stepper-info-btn{% if stepper.info_active %} tw-active{% endif %}"

@@ -77,8 +77,8 @@
         <a href="#" class="tw-btn-cta tw-btn-cta--round"><i class="fas fa-plus"></i> <span class="tw-btn-cta-label">Add</span></a>
       </div>
       <div class="component-label">Toolbar w module List / Grid</div>
-      <div class="tw-toolbar">
-        <div class="tw-toolbar-sort">
+      <div class="tw-toolbar" data-responsive-toolbar>
+        <div class="tw-toolbar-sort" data-responsive-controls>
           <a href="#" class="tw-sort-btn tw-active" data-sort-state="desc" aria-pressed="true"><i class="fas fa-clock-rotate-left fa-fw"></i> <span class="tw-sort-btn-label">Date</span> <i class="fas fa-arrow-down tw-sort-arrow"></i></a>
           <a href="#" class="tw-sort-btn tw-sort-btn--off" data-sort-state="none" aria-pressed="false"><i class="fas fa-pen-nib fa-fw"></i> <span class="tw-sort-btn-label">Score</span> <i class="fas fa-sort tw-sort-arrow tw-sort-arrow--off"></i></a>
           <a href="#" class="tw-sort-btn tw-sort-btn--off" data-sort-state="none" aria-pressed="false"><i class="fas fa-tag fa-fw"></i> <span class="tw-sort-btn-label">Category</span> <i class="fas fa-sort tw-sort-arrow tw-sort-arrow--off"></i></a>
@@ -93,6 +93,7 @@
         <li>Toolbar ma opcjonalne grupy filtrów/sortowania, wyszukiwarki oraz przełącznika widoku. Każda grupa jest renderowana tylko wtedy, gdy moduł przekazuje dane.</li>
         <li>W module bez steppera główne CTA może znajdować się w osobnym wierszu nad toolbar’em. W module ze stepperem CTA należy do steppera i nie jest powielane w toolbarze.</li>
         <li>Przełączniki widoku są w osobnym <code>.tw-toolbar-view</code>, z ikonami <code>fa-list</code> / <code>fa-grip</code> i etykietami <code>List</code> / <code>Grid</code>.</li>
+        <li>Etykiety przełączników widoku nie znikają tylko dlatego, że ekran jest mały; gdy grupa przechodzi do własnego wiersza i ma miejsce, przyciski zachowują pełny rozmiar z napisami.</li>
         <li>Dane widoku: <code>{'name': 'list'|'grid', 'icon': 'list'|'grip', 'title': _('List')|_('Grid')}</code>.</li>
         <li>Sortowanie jest opcjonalne. Jeśli moduł go nie obsługuje, nie renderujemy pustych przycisków ani pustej grupy filtrów.</li>
         <li>Przyciski sortowania mają ikonę pola + etykietę pola + wskaźnik stanu.</li>
@@ -101,9 +102,14 @@
         <li>Stan jest dostępny także programowo przez <code>data-sort-state="none|asc|desc"</code> i <code>aria-pressed</code>.</li>
         <li>Ikona pola mówi, co jest sortowane: np. <code>fa-calendar</code> dla daty, <code>fa-user</code> dla autora, <code>fa-tag</code> dla kategorii.</li>
         <li>Strzałka <code>fa-arrow-up</code> / <code>fa-arrow-down</code> oznacza wyłącznie kierunek i nie zastępuje ikony pola; stan wyłączony pokazuje <code>fa-sort</code>.</li>
-        <li>Wszystkie trzy stany mają identyczny rozmiar i wygląd obramowania, tła oraz tekstu; stan sortowania wskazuje wyłącznie ikona kierunku lub <code>fa-sort</code>.</li>
-        <li>Na małych ekranach etykiety guzików sortowania pozostają widoczne, aby stan nieposortowany nie zmieniał rozmiaru względem aktywnego.</li>
-        <li>Ukrywanie całych guzików na mobile jest ostatecznością. Najpierw skracamy etykietę, ukrywamy sam tekst albo zmniejszamy odstępy.</li>
+        <li>Na dużych ekranach każdy guzik sortowania pokazuje ikonę pola, etykietę i wskaźnik kierunku.</li>
+        <li>Układ kontrolek jest mierzony dynamicznie na podstawie dostępnej szerokości konkretnej grupy, niezależnie od breakpointu ekranu; używamy obserwacji rozmiaru, nie progów typu „poniżej 480 px ukryj etykiety”.</li>
+        <li>Priorytet oszczędzania miejsca jest stały: najpierw zwijamy sidebar, potem ukrywamy etykiety nieaktywnych guzików, następnie etykiety wszystkich guzików, a zawijanie wiersza jest ostatnim krokiem.</li>
+        <li>Grupa sortowania i grupa Lista/Siatka są traktowane jako jedna linia kontrolna. Jeżeli jedna z nich chce przejść do nowego wiersza, najpierw skracane są guziki obu grup; nie zmniejszamy wyłącznie grupy, która już się przeniosła.</li>
+        <li>Zawijanie jest dozwolone dopiero po zastosowaniu wcześniejszych etapów; zawinięcie nie przywraca automatycznie etykiet, jeśli grupa nadal nie mieści się po skróceniu.</li>
+        <li>Pole Szukaj jest wyjątkiem: jego elastyczność i przejście do osobnego wiersza pozostają niezależne od kompaktowania grup sortowania i widoku.</li>
+        <li>Wspólny toolbar oznacza kontener przez <code>data-responsive-toolbar</code>, grupy przez <code>data-responsive-toolbar-group</code>, a mierzone kontrolki przez <code>data-responsive-controls</code>.</li>
+        <li>Stan sortowania wskazuje ikona kierunku lub <code>fa-sort</code>; dynamiczne skracanie grupy nie zmienia cyklu ani dostępności stanu.</li>
         <li>Na szerokim ekranie wszystkie grupy toolbaru — sortowanie, kategoria, Szukaj i List / Grid — pozostają w jednej linii.</li>
         <li>Grupa Szukaj używa <code>flex: 1 1 0</code> i <code>min-width: 1rem</code>, dzięki czemu rozciąga się na wolne miejsce, ale może skurczyć się między kontrolkami bez wymuszania wcześniejszego zawijania.</li>
         <li>Na ekranach poniżej <code>591.98px</code> wyszukiwarka zajmuje pełny pierwszy wiersz, a sortowanie, kategoria i List / Grid pozostają razem w drugim wierszu.</li>
@@ -123,8 +129,8 @@
         </div>
         <div class="tw-toolbar-group tw-toolbar-group-view">
           <div class="tw-toolbar-view">
-            <button class="tw-view-toggle-btn" data-view="list" title="List view"><i class="fas fa-list"></i></button>
-            <button class="tw-view-toggle-btn tw-active" data-view="grid" title="Grid view"><i class="fas fa-grip"></i></button>
+            <button class="tw-view-toggle-btn" data-view="list" title="List view"><i class="fas fa-list"></i> <span class="tw-view-label">List</span></button>
+            <button class="tw-view-toggle-btn tw-active" data-view="grid" title="Grid view"><i class="fas fa-grip"></i> <span class="tw-view-label">Grid</span></button>
           </div>
         </div>
       </div>
@@ -159,7 +165,7 @@
     <div class="section">
       <div class="component-label">Stepper we wszystkich modułach</div>
       <div class="tw-stepper-nav">
-        <div class="tw-stepper-main">
+        <div class="tw-stepper-main" data-responsive-controls>
           <a href="#" class="tw-stepper-info-btn" title="Help"><i class="fas fa-circle-info"></i></a>
           <div class="tw-stepper-step-wrap tw-active">
             <a href="#" class="tw-stepper-step"><i class="fas fa-user"></i> <span class="tw-stepper-step-label">Mine</span><span class="tw-stepper-step-count">12</span></a>
@@ -181,13 +187,14 @@
         <li>Na lewo może być guzik info (np. parametry / pomoc), a CTA Dodaj pozostaje na tym samym poziomie co stepper.</li>
         <li>Stepper rozszerza się tylko do granicy CTA Dodaj; CTA pozostaje osobnym, niekurczącym się elementem po prawej stronie.</li>
         <li>Etykieta CTA jest owinięta w <code>&lt;span class="tw-btn-cta-label"&gt;</code> dla semantyki, ale CTA pozostaje wizualnie guzikiem z samą ikoną w każdym rozmiarze ekranu.</li>
-        <li>Zanim stepper zacznie się zawijać, etykiety zakładek są ukrywane i zostają same ikony oraz liczniki. CTA Dodaj pozostaje stale w prawym górnym rogu i nie jest zasłaniane przez stepper.</li>
+        <li>Zanim stepper zacznie się zawijać, stosuje się ten sam priorytet: zwinięcie sidebaru, ukrycie etykiet nieaktywnych kroków, ukrycie etykiet wszystkich kroków, a dopiero na końcu zawinięcie grupy. Decyzja wynika z dostępnej szerokości, nie z breakpointu.</li>
         <li>CTA steppera renderuje się tylko, gdy przekazano <code>stepper.cta_url</code>; standard zawsze używa <code>tw-btn-cta tw-btn-cta--round</code> i nie wymaga <code>cta_round=True</code>.</li>
         <li>CTA nie jest powielane w toolbarze ani przenoszone pod stepper.</li>
         <li>Dane steppera mają postać <code>{'steps': [{'url', 'icon', 'label', 'active'}], 'cta_url', 'cta_icon', 'cta_label', 'cta_title'}</code>; etykieta i tytuł CTA są lokalizowane.</li>
         <li>Każda zakładka ma ikonę i etykietę.</li>
         <li>Na desktopie widoczne ikona + tekst.</li>
-        <li>Na mobile nieaktywne zakładki pokazują tylko ikonę; aktywna pokazuje ikonę + tekst.</li>
+        <li>Na mobile etykiety kroków są skracane dynamicznie według powyższego priorytetu; aktywny krok nie ma specjalnego wyjątku, jeśli grupa nadal się nie mieści.</li>
+        <li>Liczniki steppera są ukrywane razem z etykietami w fazie pełnego skrócenia grupy, a nie na podstawie samej szerokości viewportu.</li>
         <li>Stepper pokazuje licznik elementów dla każdej zakładki, jeśli liczba ma znaczenie dla wyboru widoku.</li>
         <li>Licznik używa <code>.tw-stepper-step-count</code> i znajduje się przy etykiecie zakładki.</li>
         <li>Licznik oznacza liczbę elementów, nie liczbę nieprzeczytanych powiadomień; dla nieprzeczytanych używamy osobnego badge.</li>

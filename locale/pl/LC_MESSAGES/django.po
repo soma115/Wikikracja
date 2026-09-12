@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-12 11:56+0200\n"
+"POT-Creation-Date: 2026-09-12 14:16+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -75,7 +75,7 @@ msgstr "Dodaj własną opcję"
 msgid "Enter an option."
 msgstr "Wprowadź opcję."
 
-#: .\ankiety\forms.py:116 .\ankiety\views.py:120 .\ankiety\views.py:248
+#: .\ankiety\forms.py:116 .\ankiety\views.py:120 .\ankiety\views.py:246
 msgid "This option already exists."
 msgstr "Ta opcja już istnieje."
 
@@ -250,13 +250,13 @@ msgstr "Głosy"
 
 #: .\ankiety\templates\ankiety\_survey_detail_meta.html:14
 #: .\ankiety\templates\ankiety\_survey_detail_meta.html:17
-#: .\ankiety\templates\ankiety\survey_list.html:53 .\ankiety\views.py:158
+#: .\ankiety\templates\ankiety\survey_list.html:53 .\ankiety\views.py:156
 msgid "Ongoing"
 msgstr "Trwające"
 
 #: .\ankiety\templates\ankiety\_survey_detail_meta.html:14
 #: .\ankiety\templates\ankiety\_survey_detail_meta.html:17
-#: .\ankiety\templates\ankiety\survey_list.html:55 .\ankiety\views.py:159
+#: .\ankiety\templates\ankiety\survey_list.html:55 .\ankiety\views.py:157
 #: .\tasks\templatetags\tasks_extras.py:44
 msgid "Finished"
 msgstr "Zakończone"
@@ -350,8 +350,8 @@ msgstr "Głosujący"
 msgid "Edit survey"
 msgstr "Edytuj ankietę"
 
-#: .\ankiety\templates\ankiety\survey_form.html:13 .\ankiety\views.py:163
-#: .\ankiety\views.py:164
+#: .\ankiety\templates\ankiety\survey_form.html:13 .\ankiety\views.py:161
+#: .\ankiety\views.py:162
 msgid "Add survey"
 msgstr "Dodaj ankietę"
 
@@ -419,53 +419,53 @@ msgstr "Jeszcze nie głosowałeś w tej ankicie."
 msgid "Your vote has been saved."
 msgstr "Twój głos został zapisany."
 
-#: .\ankiety\views.py:112 .\ankiety\views.py:240
+#: .\ankiety\views.py:112 .\ankiety\views.py:238
 msgid "The survey is closed and options cannot be added."
 msgstr "Ankieta jest zamknięta i nie można dodawać opcji."
 
-#: .\ankiety\views.py:115 .\ankiety\views.py:243
+#: .\ankiety\views.py:115 .\ankiety\views.py:241
 msgid "Adding options is not allowed for this survey."
 msgstr "Dodawanie opcji w tej ankiecie jest niedozwolone."
 
-#: .\ankiety\views.py:122 .\ankiety\views.py:250
+#: .\ankiety\views.py:122 .\ankiety\views.py:248
 msgid "Your option has been added."
 msgstr "Twoja opcja została dodana."
 
-#: .\ankiety\views.py:166 .\board\views.py:172 .\bookkeeping\views.py:86
+#: .\ankiety\views.py:164 .\board\views.py:177 .\bookkeeping\views.py:86
 #: .\events\views.py:62 .\glosowania\views.py:656
 #: .\home\templates\home\includes\toolbar.html:60 .\home\views.py:134
 #: .\obywatele\views.py:298 .\obywatele\views.py:356 .\tasks\views.py:184
 msgid "List"
 msgstr "Lista"
 
-#: .\ankiety\views.py:166 .\board\views.py:172 .\bookkeeping\views.py:86
+#: .\ankiety\views.py:164 .\board\views.py:177 .\bookkeeping\views.py:86
 #: .\events\views.py:62 .\glosowania\views.py:656
 #: .\home\templates\home\includes\toolbar.html:55 .\home\views.py:134
 #: .\obywatele\views.py:298 .\obywatele\views.py:356 .\tasks\views.py:184
 msgid "Grid"
 msgstr "Siatka"
 
-#: .\ankiety\views.py:181
+#: .\ankiety\views.py:179
 msgid "The survey has been created."
 msgstr "Ankieta została utworzona."
 
-#: .\ankiety\views.py:193
+#: .\ankiety\views.py:191
 msgid "Only the author can edit this survey."
 msgstr "Tylko autor może edytować tę ankietę."
 
-#: .\ankiety\views.py:195
+#: .\ankiety\views.py:193
 msgid "The survey is closed and cannot be edited."
 msgstr "Amkieta jest zamknięta i nie może być edytowana."
 
-#: .\ankiety\views.py:203
+#: .\ankiety\views.py:201
 msgid "The survey has been updated."
 msgstr "Ankieta została zaktualizowana."
 
-#: .\ankiety\views.py:290
+#: .\ankiety\views.py:288
 msgid "Only the author can delete this survey."
 msgstr "Tylko autor może usunąć tę ankietę."
 
-#: .\ankiety\views.py:293
+#: .\ankiety\views.py:291
 msgid "The survey has been deleted."
 msgstr "Ankieta została usunięta."
 

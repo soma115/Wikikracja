@@ -104,6 +104,161 @@ if (typeof window.wkOnReady !== 'function') {
 })();
 
 // ============================================================
+// Responsive controls — preserve one line through prioritized compaction.
+// ============================================================
+(function() {
+    const containers = new Set();
+    const toolbars = new Set();
+    const stageClasses = [
+        'tw-responsive-hide-inactive',
+        'tw-responsive-hide-labels',
+        'tw-responsive-wrap',
+    ];
+    let resizeScheduled = false;
+
+    function isVisible(element) {
+        return element.getClientRects().length > 0;
+    }
+
+    function clearStages(container) {
+        stageClasses.forEach((className) => container.classList.remove(className));
+    }
+
+    function getResponsiveToolbarGroups(toolbar) {
+        return Array.from(toolbar.children)
+            .filter((child) => child.matches('[data-responsive-toolbar-group]') && isVisible(child));
+    }
+
+    function getToolbarControlWidth(toolbar, groups) {
+        const gap = parseFloat(getComputedStyle(toolbar).columnGap) || 0;
+        return groups.reduce((total, group) => {
+            const width = group.getBoundingClientRect().width;
+            return total + Math.max(width, group.scrollWidth);
+        }, 0) + gap * (groups.length - 1);
+    }
+
+    function isToolbarLineWrapped(container) {
+        if (!container.matches('[data-responsive-toolbar-group]')) return false;
+        const toolbar = container.parentElement;
+        if (!toolbar?.matches('[data-responsive-toolbar]')) return false;
+        const groups = getResponsiveToolbarGroups(toolbar);
+        if (groups.length < 2) return false;
+        const tops = groups.map((group) => group.getBoundingClientRect().top);
+        return Math.max(...tops) > Math.min(...tops) + 1;
+    }
+
+    function isToolbarLineTooWide(container) {
+        if (!container.matches('[data-responsive-toolbar-group]')) return false;
+        const toolbar = container.parentElement;
+        if (!toolbar?.matches('[data-responsive-toolbar]')) return false;
+        const groups = getResponsiveToolbarGroups(toolbar);
+        return groups.length > 1
+            && getToolbarControlWidth(toolbar, groups) > toolbar.clientWidth + 1;
+    }
+
+    function isDirectlyOverflowing(container) {
+        return isVisible(container) && container.scrollWidth > container.clientWidth + 1;
+    }
+
+    function isOverflowing(container) {
+        return isDirectlyOverflowing(container)
+            || isToolbarLineWrapped(container)
+            || isToolbarLineTooWide(container);
+    }
+
+    function anyDirectOverflow() {
+        return Array.from(containers).some(isDirectlyOverflowing);
+    }
+
+    function applyStage(className) {
+        containers.forEach((container) => {
+            if (isOverflowing(container)) container.classList.add(className);
+        });
+    }
+
+    function relayout() {
+        resizeScheduled = false;
+        containers.forEach(clearStages);
+
+        const sidebar = document.getElementById('sidebar');
+        const canAutoCollapseSidebar = sidebar
+            && !sidebar.classList.contains('tw-collapsed')
+            && typeof window.matchMedia === 'function'
+            && window.matchMedia('(min-width: 768px)').matches;
+        const autoSidebarCollapsed = sidebar?.classList.contains('tw-auto-collapsed');
+        const sidebarIcon = document.getElementById('sidebar-collapse-icon');
+        const setAutoSidebar = (collapsed) => {
+            sidebar?.classList.toggle('tw-auto-collapsed', collapsed);
+            if (!sidebarIcon || sidebar?.classList.contains('tw-collapsed')) return;
+            sidebarIcon.classList.toggle('fa-angles-left', !collapsed);
+            sidebarIcon.classList.toggle('fa-angles-right', collapsed);
+        };
+
+        if (!canAutoCollapseSidebar) {
+            setAutoSidebar(false);
+        } else if (autoSidebarCollapsed && !anyDirectOverflow()) {
+            setAutoSidebar(false);
+            if (anyDirectOverflow()) setAutoSidebar(true);
+        } else if (!autoSidebarCollapsed && anyDirectOverflow()) {
+            setAutoSidebar(true);
+        }
+
+        applyStage('tw-responsive-hide-inactive');
+        applyStage('tw-responsive-hide-labels');
+        applyStage('tw-responsive-wrap');
+    }
+
+    function scheduleRelayout() {
+        if (resizeScheduled) return;
+        resizeScheduled = true;
+        const schedule = window.requestAnimationFrame || window.setTimeout;
+        schedule(relayout, 0);
+    }
+
+    function observe(container) {
+        if (containers.has(container)) return;
+        containers.add(container);
+        if (typeof ResizeObserver === 'function') {
+            const observer = new ResizeObserver(scheduleRelayout);
+            observer.observe(container);
+        }
+    }
+
+    function observeToolbar(toolbar) {
+        if (toolbars.has(toolbar)) return;
+        toolbars.add(toolbar);
+        if (typeof ResizeObserver === 'function') {
+            const observer = new ResizeObserver(scheduleRelayout);
+            observer.observe(toolbar);
+        }
+    }
+
+    window.initResponsiveControls = function(root) {
+        if (!root) return;
+        if (root.matches?.('[data-responsive-controls], [data-responsive-toolbar-group]')) observe(root);
+        if (root.matches?.('[data-responsive-toolbar]')) observeToolbar(root);
+        root.querySelectorAll?.('[data-responsive-controls], [data-responsive-toolbar-group]').forEach(observe);
+        root.querySelectorAll?.('[data-responsive-toolbar]').forEach(observeToolbar);
+        scheduleRelayout();
+    };
+    // Kept as a compatibility alias for dynamically rendered chat markup.
+    window.initSortButtonResponsiveness = window.initResponsiveControls;
+
+    window.wkOnReady(function() {
+        window.initResponsiveControls(document);
+        const mutationObserver = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node instanceof Element) window.initResponsiveControls(node);
+                });
+            });
+        });
+        if (document.body) mutationObserver.observe(document.body, {childList: true, subtree: true});
+        window.addEventListener('resize', scheduleRelayout);
+    });
+})();
+
+// ============================================================
 // Topbar search: remember the last query in localStorage so the field
 // isn't cleared when navigating between pages. Shared key with the
 // search page's own input, see search.html and search-keys.js.

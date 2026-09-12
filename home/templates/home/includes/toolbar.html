@@ -1,8 +1,8 @@
 {% load i18n %}
-<div class="tw-toolbar{% if toolbar_class %} {{ toolbar_class }}{% endif %}">
+<div class="tw-toolbar{% if toolbar_class %} {{ toolbar_class }}{% endif %}" data-responsive-toolbar>
   {% if sort_items or extra or extra_include or show_category_filter %}
-  <div class="tw-toolbar-group tw-toolbar-group-filters">
-    <div class="tw-toolbar-sort">
+  <div class="tw-toolbar-group tw-toolbar-group-filters" data-responsive-toolbar-group>
+    <div class="tw-toolbar-sort"{% if sort_items %} data-responsive-controls{% endif %}>
       {% for item in sort_items %}
       <a href="{{ item.url }}" class="tw-sort-btn{% if item.active %} tw-active{% else %} tw-sort-btn--off{% endif %}" data-sort-state="{{ item.state|default:'none' }}" aria-pressed="{% if item.active %}true{% else %}false{% endif %}"{% if item.title %} title="{{ item.title }}"{% endif %}>
         {% if item.pre_icon %}<i class="fas fa-{{ item.pre_icon }} fa-fw tw-me-1"></i>{% else %}<i class="fas fa-sort fa-fw tw-me-1"></i>{% endif %}
@@ -33,7 +33,7 @@
   </div>
   {% endif %}
 
-  <div class="tw-toolbar-group tw-toolbar-group-view">
+  <div class="tw-toolbar-group tw-toolbar-group-view"{% if views %} data-responsive-controls data-responsive-toolbar-group{% endif %}>
     {% if cta_url and not cta_end %}
     <a href="{{ cta_url }}" class="tw-btn-cta tw-btn-cta--round"{% if cta_title %} title="{{ cta_title }}"{% else %} title="{{ cta_label }}"{% endif %}>
       <i class="fas fa-{{ cta_icon|default:'plus' }}"></i>
