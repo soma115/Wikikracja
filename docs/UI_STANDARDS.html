@@ -104,11 +104,12 @@
         <li>Strzałka <code>fa-arrow-up</code> / <code>fa-arrow-down</code> oznacza wyłącznie kierunek i nie zastępuje ikony pola; stan wyłączony pokazuje <code>fa-sort</code>.</li>
         <li>Na dużych ekranach każdy guzik sortowania pokazuje ikonę pola, etykietę i wskaźnik kierunku.</li>
         <li>Układ kontrolek jest mierzony dynamicznie na podstawie dostępnej szerokości konkretnej grupy, niezależnie od breakpointu ekranu; używamy obserwacji rozmiaru, nie progów typu „poniżej 480 px ukryj etykiety”.</li>
-        <li>Priorytet oszczędzania miejsca jest stały: najpierw zwijamy sidebar, potem ukrywamy etykiety nieaktywnych guzików, następnie etykiety wszystkich guzików, a zawijanie wiersza jest ostatnim krokiem.</li>
+        <li>W toolbarze priorytet oszczędzania miejsca jest stały: najpierw zwijamy sidebar, potem ukrywamy etykiety nieaktywnych guzików, następnie etykiety wszystkich guzików, a zawijanie wiersza jest ostatnim krokiem.</li>
         <li>Grupa sortowania i grupa Lista/Siatka są traktowane jako jedna linia kontrolna. Jeżeli jedna z nich chce przejść do nowego wiersza, najpierw skracane są guziki obu grup; nie zmniejszamy wyłącznie grupy, która już się przeniosła.</li>
         <li>Zawijanie jest dozwolone dopiero po zastosowaniu wcześniejszych etapów; zawinięcie nie przywraca automatycznie etykiet, jeśli grupa nadal nie mieści się po skróceniu.</li>
         <li>Pole Szukaj jest wyjątkiem: jego elastyczność i przejście do osobnego wiersza pozostają niezależne od kompaktowania grup sortowania i widoku.</li>
         <li>Wspólny toolbar oznacza kontener przez <code>data-responsive-toolbar</code>, grupy przez <code>data-responsive-toolbar-group</code>, a mierzone kontrolki przez <code>data-responsive-controls</code>.</li>
+        <li>Przepełnienie wspólnego steppera nie zwija głównego sidebara: stepper kompaktuje etykiety i liczniki własnym mechanizmem, aby menu modułu pozostało dostępne.</li>
         <li>Stan sortowania wskazuje ikona kierunku lub <code>fa-sort</code>; dynamiczne skracanie grupy nie zmienia cyklu ani dostępności stanu.</li>
         <li>Na szerokim ekranie wszystkie grupy toolbaru — sortowanie, kategoria, Szukaj i List / Grid — pozostają w jednej linii.</li>
         <li>Grupa Szukaj używa <code>flex: 1 1 0</code> i <code>min-width: 1rem</code>, dzięki czemu rozciąga się na wolne miejsce, ale może skurczyć się między kontrolkami bez wymuszania wcześniejszego zawijania.</li>
@@ -187,7 +188,7 @@
         <li>Na lewo może być guzik info (np. parametry / pomoc), a CTA Dodaj pozostaje na tym samym poziomie co stepper.</li>
         <li>Stepper rozszerza się tylko do granicy CTA Dodaj; CTA pozostaje osobnym, niekurczącym się elementem po prawej stronie.</li>
         <li>Etykieta CTA jest owinięta w <code>&lt;span class="tw-btn-cta-label"&gt;</code> dla semantyki, ale CTA pozostaje wizualnie guzikiem z samą ikoną w każdym rozmiarze ekranu.</li>
-        <li>Zanim stepper zacznie się zawijać, stosuje się ten sam priorytet: zwinięcie sidebaru, ukrycie etykiet nieaktywnych kroków, ukrycie etykiet wszystkich kroków, a dopiero na końcu zawinięcie grupy. Decyzja wynika z dostępnej szerokości, nie z breakpointu.</li>
+        <li>Stepper kompaktuje się dynamicznie na podstawie dostępnej szerokości: najpierw ukrywa etykiety nieaktywnych kroków, następnie etykiety wszystkich kroków, a dopiero na końcu zawija grupę. Jego przepełnienie nie powoduje automatycznego zwinięcia głównego sidebara, dzięki czemu menu modułu pozostaje dostępne.</li>
         <li>CTA steppera renderuje się tylko, gdy przekazano <code>stepper.cta_url</code>; standard zawsze używa <code>tw-btn-cta tw-btn-cta--round</code> i nie wymaga <code>cta_round=True</code>.</li>
         <li>CTA nie jest powielane w toolbarze ani przenoszone pod stepper.</li>
         <li>Dane steppera mają postać <code>{'steps': [{'url', 'icon', 'label', 'active'}], 'cta_url', 'cta_icon', 'cta_label', 'cta_title'}</code>; etykieta i tytuł CTA są lokalizowane.</li>

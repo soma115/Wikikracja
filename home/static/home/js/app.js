@@ -166,8 +166,12 @@ if (typeof window.wkOnReady !== 'function') {
             || isToolbarLineTooWide(container);
     }
 
+    function isSidebarOverflowing(container) {
+        return !container.matches('.tw-stepper-main') && isDirectlyOverflowing(container);
+    }
+
     function anyDirectOverflow() {
-        return Array.from(containers).some(isDirectlyOverflowing);
+        return Array.from(containers).some(isSidebarOverflowing);
     }
 
     function applyStage(className) {
@@ -184,7 +188,7 @@ if (typeof window.wkOnReady !== 'function') {
         const canAutoCollapseSidebar = sidebar
             && !sidebar.classList.contains('tw-collapsed')
             && typeof window.matchMedia === 'function'
-            && window.matchMedia('(min-width: 768px)').matches;
+            && window.matchMedia('(min-width: 700px)').matches;
         const autoSidebarCollapsed = sidebar?.classList.contains('tw-auto-collapsed');
         const sidebarIcon = document.getElementById('sidebar-collapse-icon');
         const setAutoSidebar = (collapsed) => {

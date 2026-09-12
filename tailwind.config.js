@@ -89,7 +89,7 @@ module.exports = {
     // Preserve the established responsive breakpoints across all modules.
     screens: {
       sm: '576px',
-      md: '768px',
+      md: '700px',
       lg: '992px',
       xl: '1200px',
       '2xl': '1400px',

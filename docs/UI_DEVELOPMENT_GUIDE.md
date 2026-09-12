@@ -205,7 +205,7 @@ Current icon conventions include:
 
 ## 8. Responsive behavior
 
-Use the existing Tailwind breakpoints. The shared toolbar responsive breakpoint is `591.98px`; other mobile behavior uses `767.98px` and `window.wkMobileMedia` instead of hardcoding another threshold.
+Use the existing Tailwind breakpoints. The shared toolbar responsive breakpoint is `591.98px`; other mobile behavior uses `699.98px` and `window.wkMobileMedia` instead of hardcoding another threshold.
 
 On mobile:
 
