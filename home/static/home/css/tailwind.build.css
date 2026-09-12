@@ -2938,6 +2938,7 @@ small,
 .tw-cal-month-controls {
   display: inline-flex;
   align-items: center;
+  min-width: 0;
   gap: .6rem;
 }
 
@@ -2961,9 +2962,10 @@ small,
 }
 
 .tw-cal-year-select {
-  width: -moz-max-content;
-  width: max-content;
-  padding: .28rem 1.8rem .28rem .55rem;
+  width: clamp(4rem, 10vw, 7rem);
+  min-width: 0;
+  flex-shrink: 1;
+  padding: .28rem 0rem .28rem .55rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-btn);
   background: var(--bg-card);

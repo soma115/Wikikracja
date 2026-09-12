@@ -1783,6 +1783,7 @@
   }
   .tw-cal-month-controls {display: inline-flex;
     align-items: center;
+    min-width: 0;
     gap: .6rem;
   }
   #events-calendar {margin-bottom: .75rem;
@@ -1796,8 +1797,10 @@
   }
   #events-calendar .tw-cal-toolbar-nav {margin-left: auto;
   }
-  .tw-cal-year-select {width: max-content;
-    padding: .28rem 1.8rem .28rem .55rem;
+  .tw-cal-year-select {width: clamp(4rem, 10vw, 7rem);
+    min-width: 0;
+    flex-shrink: 1;
+    padding: .28rem 0rem .28rem .55rem;
     border: 1px solid var(--border);
     border-radius: var(--radius-btn);
     background: var(--bg-card);
