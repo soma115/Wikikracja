@@ -14,7 +14,7 @@ Migracja bazowa jest zakończona. Nowe zmiany UI nie powinny tworzyć kolejnej f
 - szablony formularzy: `home/templates/tw/`;
 - wspólne interakcje: `home/static/common/js/tw-*.js`;
 - standardy wizualne i ikony: `docs/UI_STANDARDS.html`;
-- checklista nowych elementów: `docs/ADDING_NEW_UI.md`.
+- przewodnik tworzenia i utrzymania UI: `docs/UI_DEVELOPMENT_GUIDE.md`.
 
 ## Zasady utrzymania
 
@@ -90,13 +90,13 @@ Dla nowego wspólnego wzorca należy dodatkowo zaktualizować:
 
 1. `home/static/home/css/tailwind.css` oraz ewentualnie safelistę w `tailwind.config.js`;
 2. `docs/UI_STANDARDS.html`;
-3. `docs/ADDING_NEW_UI.md`, jeśli zmienia się checklista;
+3. `docs/UI_DEVELOPMENT_GUIDE.md`, jeśli zmieniają się zasady tworzenia lub utrzymania UI;
 4. ten dokument tylko wtedy, gdy wzorzec zmienia trwałe zasady architektury lub pipeline'u.
 
 ## Granice odpowiedzialności dokumentów
 
 - `docs/UI_STANDARDS.html` — wizualne wzorce, komponenty i słownik ikon;
-- `docs/ADDING_NEW_UI.md` — checklista pracy nad nowym UI;
+- `docs/UI_DEVELOPMENT_GUIDE.md` — przewodnik pracy nad nowym UI;
 - ten dokument — historia migracji, aktualny pipeline i zasady jego utrzymania;
 - `docs/TODO.md` — osobista lista użytkownika, której nie aktualizujemy automatycznie.
 

@@ -1,7 +1,7 @@
 // Przywraca pozycję scrolla po przeładowaniu strony wywołanym przez form submit.
 // Użycie: dodaj data-preserve-scroll do <form>.
 // Dodatkowo: auto-ukrywa toast messages po 4 sekundach.
-document.addEventListener('DOMContentLoaded', function () {
+window.wkOnReady(function () {
   document.querySelectorAll('#django-toasts .tw-toast-msg:not(.tw-toast-persist)').forEach(function (el) {
     setTimeout(function () {
       el.classList.add('tw-toast-msg--out');
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  document.addEventListener('DOMContentLoaded', function () {
+  window.wkOnReady(function () {
     document.querySelectorAll('form[data-preserve-scroll]').forEach(function (form) {
       form.addEventListener('submit', function () {
         sessionStorage.setItem(KEY, window.scrollY);

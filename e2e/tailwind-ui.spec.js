@@ -48,13 +48,13 @@ test.describe('desktop', () => {
         expect(after).not.toBe(before);
     });
 
-    test('table list renders project table markup', async ({ page }) => {
+    test('citizen list renders project list markup', async ({ page }) => {
         await page.goto('/obywatele/');
         await waitForLayout(page);
 
-        const table = page.locator('table');
-        await expect(table).toBeVisible();
-        await expect(table).toHaveClass(/tw-table|table/);
+        const list = page.locator('[data-view-only="list"]');
+        await expect(list).toBeVisible();
+        await expect(list).toHaveClass(/tw-proposals-list/);
     });
 
     test('form page renders project form controls', async ({ page }) => {

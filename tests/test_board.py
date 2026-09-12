@@ -93,9 +93,10 @@ def test_board_list_chat_pulse_for_unread_message(authenticated_client):
     """Guzik czatu pulsuje i liczy tylko wiadomości bez MessageReadBy."""
     client, user = authenticated_client
     post = PostFactory(is_public=True)
-    Message.objects.create(room=post.chat_room, text='Read', sender=user)
+    other = UserFactory()
+    Message.objects.create(room=post.chat_room, text='Read', sender=other)
     MessageReadBy.objects.bulk_create([MessageReadBy(message=message, user=user) for message in post.chat_room.messages.all()])
-    Message.objects.create(room=post.chat_room, text='Unread', sender=user)
+    Message.objects.create(room=post.chat_room, text='Unread', sender=other)
 
     res = client.get(reverse('board:start'))
 

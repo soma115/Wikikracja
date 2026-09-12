@@ -5,6 +5,7 @@
 
 {% block citizens %}
 <div>
+  {% include 'home/includes/detail_header.html' with title=b|display_name %}
   <div class="tw-mb-3">
     {% if active %}
       {% if next %}
@@ -34,11 +35,9 @@
   <div class="tw-card tw-mb-3">
     <div class="tw-card-header tw-flex tw-items-center tw-gap-3">
       {% include "home/_user_avatar.html" with user=b size="6xl" %}
-      <h5 class="tw-mb-0 tw-text-lg tw-font-semibold">{{ b|display_name }}
-        {% if candidate_deletion_request %}
-        <span class="tw-badge-status tw-badge-danger tw-ms-1" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash"></i></span>
-        {% endif %}
-      </h5>
+      {% if candidate_deletion_request %}
+      <span class="tw-badge-status tw-badge-danger" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash"></i></span>
+      {% endif %}
       {% if active %}
       <a href="{% url 'chat:open_dm' pk=b.uid.pk %}" class="tw-chat-link tw-ms-2 tw-text-xs">
         <i class="fas fa-comment-dots"></i>

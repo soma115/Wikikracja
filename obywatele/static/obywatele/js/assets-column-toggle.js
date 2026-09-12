@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+window.wkOnReady(function() {
     const STORAGE_KEY = 'assets_table_columns';
     const DEFAULT_COLUMNS = ['uid', 'city', 'responsibilities', 'voivodeship'];
 

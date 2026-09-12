@@ -4,18 +4,16 @@
 {% block bookkeeping %}
 <div class="tw-container tw-mt-4">
   <div class="tw-card">
-    <div class="tw-card-header tw-bg-info tw-text-white tw-flex tw-justify-between tw-items-center">
-      <h4 class="tw-mb-0">{{ partner.name }}</h4>
-      <div>
+    {% include 'home/includes/detail_header.html' with title=partner.name %}
+    <div class="tw-card-body">
+      <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mb-3">
         {% if prev_partner %}
-          <a href="{% url 'bookkeeping:partner_detail' prev_partner.pk %}" class="tw-btn tw-btn-sm tw-btn-light tw-me-1"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Previous' %}</a>
+          <a href="{% url 'bookkeeping:partner_detail' prev_partner.pk %}" class="tw-btn tw-btn-sm tw-btn-secondary"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Previous' %}</a>
         {% endif %}
         {% if next_partner %}
-          <a href="{% url 'bookkeeping:partner_detail' next_partner.pk %}" class="tw-btn tw-btn-sm tw-btn-light"><i class="fas fa-arrow-right fa-fw tw-me-1"></i>{% trans 'Next' %}</a>
+          <a href="{% url 'bookkeeping:partner_detail' next_partner.pk %}" class="tw-btn tw-btn-sm tw-btn-secondary"><i class="fas fa-arrow-right fa-fw tw-me-1"></i>{% trans 'Next' %}</a>
         {% endif %}
       </div>
-    </div>
-    <div class="tw-card-body">
       <dl class="tw-grid tw-grid-cols-12 tw-gap-3">
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Name' %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ partner.name }}</dd>

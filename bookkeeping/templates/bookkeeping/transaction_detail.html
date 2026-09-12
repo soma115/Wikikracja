@@ -6,11 +6,10 @@
 {% block bookkeeping %}
 <div class="tw-container tw-mt-4">
   <div class="tw-card">
-    <div class="tw-card-header tw-bg-info tw-text-white tw-flex tw-justify-between tw-items-center">
-      <h4 class="tw-mb-0">{% trans "Transaction" %} #{{ transaction.id }}</h4>
-      <a href="{% url 'bookkeeping:transaction_list' %}" class="tw-btn tw-btn-sm tw-btn-light"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Back to list' %}</a>
-    </div>
+    {% trans "Transaction" as transaction_title %}
+    {% include 'home/includes/detail_header.html' with title=transaction_title %}
     <div class="tw-card-body">
+      <a href="{% url 'bookkeeping:transaction_list' %}" class="tw-btn tw-btn-secondary tw-mb-3"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Back to list' %}</a>
       <dl class="tw-grid tw-grid-cols-12 tw-gap-3">
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Type' %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">

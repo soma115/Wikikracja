@@ -30,6 +30,7 @@ module.exports = {
     'tw-form-control', 'tw-form-select', 'tw-form-label',
     'tw-form-text', 'tw-form-check', 'tw-form-check-input', 'tw-form-check-label', 'tw-form-switch',
     'tw-form-control-sm', 'tw-form-select-sm', 'tw-input-group', 'tw-input-group-text', 'tw-invalid-feedback',
+    'tw-richtext-wrapper', 'tw-message-input-rich',
     'tw-alert', 'tw-alert-primary', 'tw-alert-secondary', 'tw-alert-info', 'tw-alert-success', 'tw-alert-warning', 'tw-alert-danger', 'tw-alert-dark',
     'tw-badge', 'tw-badge-proposition', 'tw-badge-discussion', 'tw-badge-referendum',
     'tw-badge-approved', 'tw-badge-rejected',

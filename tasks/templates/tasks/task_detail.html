@@ -5,25 +5,23 @@
 
 {% block content %}
 <div class="tw-container tw-my-4">
+  {% include 'home/includes/detail_header.html' with title=task.title %}
   <a href="{% url 'tasks:list' %}" class="tw-btn tw-btn-link tw-px-0 tw-mb-3">&larr; {% trans "Back to list" %}</a>
 
   <div class="tw-card tw-mb-4">
     <div class="tw-card-body">
       <div class="tw-flex tw-justify-between tw-items-center tw-flex-wrap tw-gap-2">
-        <h1 class="tw-text-xl tw-font-bold">
-          {{ task.title }}
-{% if task.chat_room_url %}
-            <a href="{{ task.chat_room_url }}"
-               class="tw-chat-link {{ task.chat_room_pulse_class|default:'' }} tw-ms-2"
-               data-tw-stop-propagation>
-              <i class="fas fa-comment-dots"></i>
-              <span>{% trans "Chat" %}</span>
-              {% with n=task.chat_unread_count|default:0 %}
-                {% if n %}<span class="tw-chat-count">{{ n }}</span>{% endif %}
-              {% endwith %}
-            </a>
-          {% endif %}
-        </h1>
+        {% if task.chat_room_url %}
+          <a href="{{ task.chat_room_url }}"
+             class="tw-chat-link {{ task.chat_room_pulse_class|default:'' }}"
+             data-tw-stop-propagation>
+            <i class="fas fa-comment-dots"></i>
+            <span>{% trans "Chat" %}</span>
+            {% with n=task.chat_unread_count|default:0 %}
+              {% if n %}<span class="tw-chat-count">{{ n }}</span>{% endif %}
+            {% endwith %}
+          </a>
+        {% endif %}
         {% if task.priority_label %}
           {% with task.priority_category as category %}
             {% if category == "critical" %}

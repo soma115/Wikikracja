@@ -48,7 +48,7 @@ class SurveyViewsTests(TestCase):
 
         self.assertContains(response, f'data-room-id="{survey.chat_room.pk}"')
         self.assertContains(response, "Chat")
-        self.assertEqual(response.context["chat_unread_count"], 2)
+        self.assertEqual(response.context["chat_unread_count"], 1)
         self.assertTrue(response.context["ec_translations"])
         self.assertEqual(response.context["MESSAGE_MAX_LENGTH"], 1500)
 

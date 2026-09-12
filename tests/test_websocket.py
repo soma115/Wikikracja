@@ -16,7 +16,10 @@ from zzz.routing import application
 
 async def _consume_initial(communicator):
     """Po connect ChatConsumer wysyła {unread_count}. Zjadamy żeby kolejne receive zwracało odpowiedź na nasze polecenie."""
-    await communicator.receive_json_from()
+    while True:
+        response = await communicator.receive_json_from()
+        if 'unread_count' in response:
+            return
 
 
 @pytest.fixture

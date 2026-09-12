@@ -25,10 +25,10 @@ class PostForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_enctype = 'multipart/form-data'
         self.helper.add_input(Submit('submit', _('Save')))
-        self.fields['is_public'].help_text = _('This document will be available to unauthenticated users.')
+        self.fields['is_public'].help_text = _('This document is publicly accessible')
         self.fields['is_private'].label = _('Mine')
-        self.fields['is_private'].help_text = _('Checking this option will make the document visible only to you.')
-        self.fields['is_important'].help_text = _('A message will be sent to the Important chat room that this content has been changed.')
+        self.fields['is_private'].help_text = _('This document will be visible on for you')
+        self.fields['is_important'].help_text = _('The Important chat room will be notified')
         if self.instance and self.instance.pk and self.instance.system_key:
             for field_name in self.SYSTEM_LOCKED_FIELDS:
                 self.fields[field_name].disabled = True

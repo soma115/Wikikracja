@@ -3,13 +3,9 @@ import django.db.models.deletion
 
 
 INITIAL_CATEGORIES = [
-    ("it",           "Wikikracja i IT",          "Rozwój Wikikracji, poprawki kodu, hosting, administracja techniczna.", 1,  False),
-    ("internal",     "Sprawy Wewnętrzne LO",      "My, nasi ludzie i zasady — onboarding, rekrutacja, powitania, spotkania.", 2, False),
-    ("education",    "Edukacja i Wiedza",          "Baza wiedzy, informacje dot. DB, linki, listy, manuale.", 3, False),
-    ("promo",        "Promocja i Zasięgi",         "Social media, PR, newslettery, grafika, akcje ulotkowe.", 4, False),
-    ("resources",    "Zasoby i Biznes",            "Projekty zarobkowe, składki, zarządzanie majątkiem, spółdzielnie.", 5, False),
-    ("intervention", "Interwencja Obywatelska",    "Lobbying, petycje, wdrażanie DB w gminach, kontakt z politykami.", 6, False),
-    ("other",        "Inne",                       "Zadania bez przypisanej kategorii.", 99, True),
+    ("meetings",  "Spotkania", "Sprawy na spotkania", 1, False),
+    ("education", "Edukacja",  "Dzielenie się wiedzą", 2, False),
+    ("other",     "Inne",      "", 99, True),
 ]
 
 

@@ -89,7 +89,7 @@ wiki - ankiety: punkt otwarty i czat
 
 # GŁOSOWANIA
 
-- Za/Przeciw dalej od siebie na telefonie, potwierdź oddanie głosu
+- Za/Przeciw dalej od siebie na telefonie, potwierdź oddanie głosu. Czy na pewno chcesz oddać głos na Tak/Nie. Tej decyzji nie da się wycofać.
 
 ## Funkcjonalności
 - Podświetlanie guzików kiedy jest trwające referendum

@@ -499,7 +499,7 @@ async function initEmbeddedChat(container) {
 }
 
 // ── Initialization ────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+window.wkOnReady(() => {
     initGlobalPasteImageHandler();
     for (const el of document.querySelectorAll('.tw-embedded-chat[data-room-id]')) {
         initEmbeddedChat(el);

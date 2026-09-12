@@ -43,25 +43,25 @@
             <div class="tw-flex tw-items-center tw-gap-3">
               <input type="checkbox" name="{{ form.is_public.html_name }}" id="{{ form.is_public.id_for_label }}" class="tw-form-switch"{% if form.is_public.value %} checked{% endif %}{% if form.is_public.field.disabled %} disabled{% endif %}>
               <label for="{{ form.is_public.id_for_label }}" class="tw-form-check-label">{{ form.is_public.label }}</label>
+              <div class="tw-alert tw-alert-secondary tw-mt-0 tw-text-sm">{{ form.is_public.help_text }}</div>
             </div>
             {% if form.is_public.errors %}<div class="tw-invalid-feedback">{{ form.is_public.errors }}</div>{% endif %}
-            <div class="tw-alert tw-alert-secondary tw-mt-2 tw-text-sm">{{ form.is_public.help_text }}</div>
           </div>
           <div>
             <div class="tw-flex tw-items-center tw-gap-3">
               <input type="checkbox" name="{{ form.is_private.html_name }}" id="{{ form.is_private.id_for_label }}" class="tw-form-switch"{% if form.is_private.value %} checked{% endif %}{% if form.is_private.field.disabled %} disabled{% endif %}>
               <label for="{{ form.is_private.id_for_label }}" class="tw-form-check-label">{{ form.is_private.label }}</label>
+              <div class="tw-alert tw-alert-secondary tw-mt-0 tw-text-sm">{{ form.is_private.help_text }}</div>
             </div>
             {% if form.is_private.errors %}<div class="tw-invalid-feedback">{{ form.is_private.errors }}</div>{% endif %}
-            <div class="tw-alert tw-alert-secondary tw-mt-2 tw-text-sm">{{ form.is_private.help_text }}</div>
           </div>
           <div>
             <div class="tw-flex tw-items-center tw-gap-3">
               <input type="checkbox" name="{{ form.is_important.html_name }}" id="{{ form.is_important.id_for_label }}" class="tw-form-switch"{% if form.is_important.value %} checked{% endif %}{% if form.is_important.field.disabled %} disabled{% endif %}>
               <label for="{{ form.is_important.id_for_label }}" class="tw-form-check-label">{{ form.is_important.label }}</label>
+              <div class="tw-alert tw-alert-secondary tw-mt-0 tw-text-sm">{{ form.is_important.help_text }}</div>
             </div>
             {% if form.is_important.errors %}<div class="tw-invalid-feedback">{{ form.is_important.errors }}</div>{% endif %}
-            <div class="tw-alert tw-alert-secondary tw-mt-2 tw-text-sm">{{ form.is_important.help_text }}</div>
           </div>
         </div>
         {{ form.text|as_crispy_field }}

@@ -4,6 +4,7 @@
 {% load feed_filters %}
 
 {% block content %}
+{% include 'home/includes/detail_header.html' with title=post.title %}
 <div class="tw-mb-3">
   <a href="#" data-tw-back data-tw-back-skip-referrer="/edit/" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
     <i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans "Back" %}
@@ -12,9 +13,6 @@
 
 <div class="tw-board-post-card">
   <div class="tw-post-header">
-    <h1 class="tw-post-title">
-      {{ post.title }}
-    </h1>
     {% if post.subtitle %}
       <h2 class="tw-post-subtitle">{{ post.subtitle }}</h2>
     {% endif %}

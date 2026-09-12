@@ -4,9 +4,7 @@
 {% block bookkeeping %}
 <div class="tw-container tw-mt-4">
   <div class="tw-card">
-    <div class="tw-card-header">
-      <h1 class="tw-text-xl tw-font-semibold tw-mb-0"><i class="fas fa-tag tw-text-accent tw-me-2"></i>{{ category.name }}</h1>
-    </div>
+    {% include 'home/includes/detail_header.html' with title=category.name %}
     <div class="tw-card-body">
       <div class="tw-flex tw-items-center tw-gap-2 tw-text-muted">
         <i class="fas fa-tags fa-fw"></i>

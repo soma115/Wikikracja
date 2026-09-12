@@ -140,4 +140,4 @@ function initializePresence() {
     refreshPresenceStatuses();
 }
 
-document.addEventListener('DOMContentLoaded', initializePresence);
+window.wkOnReady(initializePresence);

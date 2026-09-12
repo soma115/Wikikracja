@@ -8,27 +8,26 @@
 <div class="tw-container tw-my-4">
 
   {# ── HEADER ── #}
-  <div class="tw-flex tw-items-start tw-justify-between tw-mb-3">
-    <h1 class="tw-text-2xl tw-font-bold">{{ survey.title }}</h1>
-    <div class="tw-flex tw-gap-2">
-      {% if chat_room %}
-        <a href="{{ survey.chat_room_url }}" class="tw-chat-link {{ chat_room_pulse_class }} tw-no-underline" data-tw-stop-propagation>
-          <i class="fas fa-comment-dots"></i> {% trans 'Chat' %}
-          {% if chat_unread_count %}<span class="tw-chat-count">{{ chat_unread_count }}</span>{% endif %}
-        </a>
-      {% endif %}
-      {% if can_edit %}
-        <a href="{% url 'ankiety:edit' survey.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-primary">
-          <i class="fas fa-pen fa-fw tw-me-1"></i> {% trans 'Edit' %}
-        </a>
-        <form method="post" action="{% url 'ankiety:delete' survey.pk %}" data-confirm="{% trans 'Are you sure you want to delete this survey?' %}">
-          {% csrf_token %}
-          <button type="submit" class="tw-btn tw-btn-sm tw-btn-outline-danger">
-            <i class="fas fa-trash fa-fw tw-me-1"></i> {% trans 'Delete' %}
-          </button>
-        </form>
-      {% endif %}
-    </div>
+  {% url 'ankiety:list' as survey_list_url %}
+  {% include 'home/includes/detail_header.html' with title=survey.title back_url=survey_list_url %}
+  <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mb-3">
+    {% if chat_room %}
+      <a href="{{ survey.chat_room_url }}" class="tw-chat-link {{ chat_room_pulse_class }} tw-no-underline" data-tw-stop-propagation>
+        <i class="fas fa-comment-dots"></i> {% trans 'Chat' %}
+        {% if chat_unread_count %}<span class="tw-chat-count">{{ chat_unread_count }}</span>{% endif %}
+      </a>
+    {% endif %}
+    {% if can_edit %}
+      <a href="{% url 'ankiety:edit' survey.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-primary">
+        <i class="fas fa-pen fa-fw tw-me-1"></i> {% trans 'Edit' %}
+      </a>
+      <form method="post" action="{% url 'ankiety:delete' survey.pk %}" data-confirm="{% trans 'Are you sure you want to delete this survey?' %}">
+        {% csrf_token %}
+        <button type="submit" class="tw-btn tw-btn-sm tw-btn-outline-danger">
+          <i class="fas fa-trash fa-fw tw-me-1"></i> {% trans 'Delete' %}
+        </button>
+      </form>
+    {% endif %}
   </div>
 
   {% if survey.description %}

@@ -1,7 +1,7 @@
 import { FIREBASE_CONFIG, FIREBASE_VAPID_KEY } from '/dynamic-settings.js';
 import { sendNotificationAck } from './utility.js';
 
-document.addEventListener('DOMContentLoaded', async function() {
+window.wkOnReady(async function() {
     const enabled = await PushNotificationManager.initialize();
     console.log('[NOTIFDBG] Push notifications enabled:', enabled);
 });

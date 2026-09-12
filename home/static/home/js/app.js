@@ -3,6 +3,17 @@
  * Consolidates inline scripts from various templates
  */
 
+if (typeof window.wkOnReady !== 'function') {
+    window.wkOnReady = function(callback) {
+        if (typeof callback !== 'function') return;
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', callback, {once: true});
+        } else {
+            callback();
+        }
+    };
+}
+
 (function() {
     const cache = new Map();
     const waiting = new Map();
@@ -86,7 +97,7 @@
         return observer;
     };
 
-    document.addEventListener('DOMContentLoaded', function() {
+    window.wkOnReady(function() {
         const main = document.querySelector('main');
         if (main) window.initLocalLinkTitles(main);
     });
@@ -97,8 +108,9 @@
 // isn't cleared when navigating between pages. Shared key with the
 // search page's own input, see search.html and search-keys.js.
 // ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-    var QUERY_KEY = window.WK_SEARCH_KEYS.QUERY;
+window.wkOnReady(function() {
+    var QUERY_KEY = window.WK_SEARCH_KEYS && window.WK_SEARCH_KEYS.QUERY;
+    if (!QUERY_KEY) return;
     var input = document.getElementById('topbar-q');
     var form = document.getElementById('topbar-search-form');
     if (!input || !form) return;
@@ -122,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================
 // Global notification permission banner handler - from base.html
 // ============================================================
-document.addEventListener('DOMContentLoaded', function() {
+window.wkOnReady(function() {
     const banner = document.getElementById('notification-permission-banner');
     const blockedBanner = document.getElementById('notification-blocked-banner');
     if (!banner || !blockedBanner) return;
@@ -261,8 +273,10 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================
 // Theme toggle — applyTheme exposed globally for other scripts
 // ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-    const themeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+window.wkOnReady(function() {
+    const themeMedia = typeof window.matchMedia === 'function'
+        ? window.matchMedia('(prefers-color-scheme: dark)')
+        : {matches: false, addEventListener() {}};
     function resolveTheme(pref) {
         return pref === 'auto' ? (themeMedia.matches ? 'dark' : 'light') : pref;
     }
@@ -291,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+window.wkOnReady(function() {
     /* ── nawigacja kafelków do szczegółów ── */
     document.addEventListener('click', function(e) {
         if (e.button !== 0 || e.target.closest('a, button')) return;
@@ -521,11 +535,11 @@ document.addEventListener('DOMContentLoaded', function() {
         patchSidebarLinks: patchSidebarLinks
     };
 
-    document.addEventListener('DOMContentLoaded', init);
-    document.addEventListener('DOMContentLoaded', patchSidebarLinks);
+    window.wkOnReady(init);
+    window.wkOnReady(patchSidebarLinks);
 })();
 
-document.addEventListener('DOMContentLoaded', function() {
+window.wkOnReady(function() {
     // Board category filter
     const categoryChips = document.querySelectorAll('.tw-category-chip');
     categoryChips.forEach(function(chip) {
@@ -547,7 +561,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+window.wkOnReady(function() {
     (function() {
         const sidebar = document.getElementById('sidebar');
         const toggle = document.getElementById('sidebar-toggle');
@@ -612,7 +626,7 @@ document.addEventListener('DOMContentLoaded', function() {
     })();
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+window.wkOnReady(function() {
     const sidebar = document.getElementById('sidebar');
     const mainArea = document.querySelector('.tw-main-area');
     const btn = document.getElementById('sidebar-collapse-btn');
@@ -899,7 +913,7 @@ document.addEventListener('click', function(e) {
 // Globalna inicjalizacja Tailwind tooltipów — każdy [data-tw-toggle="tooltip"] działa
 // bez per-page boilerplate'u. Trigger 'hover' (bez focus) żeby chip nie zostawał
 // "kliknięty" po tap'ie na mobile.
-document.addEventListener('DOMContentLoaded', function () {
+window.wkOnReady(function () {
     if (typeof TwTooltip === 'undefined') return;
     document.querySelectorAll('[data-tw-toggle="tooltip"]').forEach(function (el) {
         var t = TwTooltip.getInstance(el);
@@ -909,7 +923,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Live countdown for surveys — updates [data-countdown] every second.
-document.addEventListener('DOMContentLoaded', function () {
+window.wkOnReady(function () {
     var elements = document.querySelectorAll('[data-countdown]');
     if (!elements.length) return;
 
@@ -944,7 +958,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Apply CSS custom properties from data-* attributes (avoids inline styles in HTML)
-document.addEventListener('DOMContentLoaded', function () {
+window.wkOnReady(function () {
     document.querySelectorAll('[data-progress]').forEach(function (el) {
         el.style.setProperty('--progress', el.dataset.progress + '%');
         if (el.getAttribute('role') === 'progressbar') {
@@ -959,7 +973,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // ============================================================
 // Quick links read-state (home page onboarding card)
 // ============================================================
-document.addEventListener('DOMContentLoaded', function () {
+window.wkOnReady(function () {
     var STORAGE_KEY = 'quick_links_read';
     var circles = document.querySelectorAll('.tw-quick-link-circle');
     if (!circles.length) return;
@@ -1381,7 +1395,7 @@ window.initCategoryFilter = function(options) {
     updateUI();
 };
 
-document.addEventListener('DOMContentLoaded', function() {
+window.wkOnReady(function() {
     window.initCategoryFilter();
 });
 
@@ -1394,7 +1408,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================
 // Citizen profile section toggles (lazy-loaded via AJAX)
 // ============================================================
-document.addEventListener('DOMContentLoaded', function () {
+window.wkOnReady(function () {
     document.querySelectorAll('.tw-citizen-section-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var targetId = btn.dataset.target;
@@ -1429,7 +1443,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // ============================================================
 // Trim activity feed rows to fit card height (home + activity widgets)
 // ============================================================
-document.addEventListener('DOMContentLoaded', function () {
+window.wkOnReady(function () {
     var body = document.getElementById('activity-feed-body');
     if (!body) return;
 
@@ -1465,7 +1479,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', trimActivityFeed);
+        window.wkOnReady(trimActivityFeed);
     } else {
         trimActivityFeed();
     }
@@ -1490,7 +1504,7 @@ document.addEventListener('click', function(e) {
 // ============================================================
 // File upload size validation
 // ============================================================
-document.addEventListener('DOMContentLoaded', function() {
+window.wkOnReady(function() {
     document.querySelectorAll('input[type="file"][data-max-size-mb]').forEach(function(input) {
         input.addEventListener('change', function() {
             var maxSizeMb = parseInt(input.dataset.maxSizeMb, 10);
@@ -1548,5 +1562,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    document.addEventListener('DOMContentLoaded', updateTopbarSubtitle);
+    window.wkOnReady(updateTopbarSubtitle);
 })();

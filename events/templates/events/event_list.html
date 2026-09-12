@@ -197,7 +197,7 @@
       });
   }
 
-  document.addEventListener('DOMContentLoaded', function(){
+  window.wkOnReady(function(){
     var prefs = (window.PagePrefs && PagePrefs.read()) || {};
     var view = prefs.view;
     if (view !== 'list' && view !== 'grid') {

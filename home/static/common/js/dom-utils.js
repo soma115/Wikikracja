@@ -16,6 +16,15 @@
 (function () {
     'use strict';
 
+    window.wkOnReady = function wkOnReady(callback) {
+        if (typeof callback !== 'function') return;
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', callback, {once: true});
+        } else {
+            callback();
+        }
+    };
+
     /** Escapes HTML special characters for safe interpolation into markup. */
     window.escapeHtml = function escapeHtml(unsafe) {
         return String(unsafe == null ? '' : unsafe)

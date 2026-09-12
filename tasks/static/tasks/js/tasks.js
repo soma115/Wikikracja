@@ -373,7 +373,7 @@
 
   document.addEventListener('change', handleHelperToggleChange, true);
 
-  document.addEventListener('DOMContentLoaded', function () {
+  window.wkOnReady(function () {
     if (typeof window.reinitTaskCards === 'function') window.reinitTaskCards();
 
     // Single document-level click listener closes any open voter popover when

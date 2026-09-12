@@ -4,11 +4,9 @@
 {% block bookkeeping %}
 <div class="tw-container tw-mt-4">
   <div class="tw-card">
-    <div class="tw-card-header tw-flex tw-items-center tw-justify-between tw-gap-2">
-      <h1 class="tw-text-xl tw-font-semibold tw-mb-0"><i class="fas fa-coins tw-text-accent tw-me-2"></i>{{ asset.name }}</h1>
-      <span class="tw-badge tw-badge-secondary">{{ asset.code }}</span>
-    </div>
+    {% include 'home/includes/detail_header.html' with title=asset.name %}
     <div class="tw-card-body">
+      <div class="tw-mb-3"><span class="tw-badge tw-badge-secondary">{{ asset.code }}</span></div>
       <dl class="tw-grid tw-grid-cols-12 tw-gap-3">
         <dt class="tw-col-span-12 sm:tw-col-span-4">{% trans 'Code' %}</dt><dd class="tw-col-span-12 sm:tw-col-span-8">{{ asset.code }}</dd>
         <dt class="tw-col-span-12 sm:tw-col-span-4">{% trans 'Symbol' %}</dt><dd class="tw-col-span-12 sm:tw-col-span-8">{{ asset.symbol }}</dd>

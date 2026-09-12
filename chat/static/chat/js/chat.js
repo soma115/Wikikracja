@@ -693,7 +693,7 @@ function updateRoomListForMessage(msg, opts) {
     resortFlatRoomList();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+window.wkOnReady(() => {
     WS_API = new WsApi();
     DOM_API = new DomApi();
 

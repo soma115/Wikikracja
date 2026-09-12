@@ -67,7 +67,7 @@ function handleNotificationMessage(data) {
 // Notification.permission i zawsze wysyła delivery ack do serwera, a handler
 // `unread_count` obsługuje też badge "chat-has-messages" na belce nawigacji,
 // który nie powinien zależeć od zgody na powiadomienia systemowe.
-document.addEventListener('DOMContentLoaded', function() {
+window.wkOnReady(function() {
     // Get shared WebSocket connection and register handler
     let ws = getSharedWebSocket();
     ws.subscribeMessages(handleNotificationMessage);

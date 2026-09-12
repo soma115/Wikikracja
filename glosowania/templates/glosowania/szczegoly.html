@@ -7,17 +7,15 @@
 
 {% block glosowania %}
 
+{% include 'home/includes/detail_header.html' with title=id.display_title %}
 <div class="tw-flex tw-flex-col tw-gap-3 tw-mb-3">
 
   {# Karta: info + akcja #}
   <div class="tw-card">
     <div class="tw-card-body tw-flex tw-flex-col tw-gap-2 tw-text-sm">
 
-      <p class="tw-mb-0 tw-font-semibold tw-text-body">
-        <span class="tw-text-muted tw-font-normal">#{{ id.id }}</span> {{ id.display_title }}
-      </p>
-
       <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-text-muted tw-text-sm">
+        <span class="tw-text-muted tw-font-normal">#{{ id.id }}</span>
         {% if id.author %}
         <a href="{% url 'obywatele:obywatele_szczegoly' pk=id.author.pk %}" class="tw-detail-author-link tw-flex tw-items-center tw-gap-1 tw-no-underline">
           {% include "home/_user_avatar.html" with user=id.author size="sm" %}

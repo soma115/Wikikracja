@@ -63,7 +63,9 @@ Nie uruchamiaj testów dla prostych i niebudzących wątpliwości zmian.
 
 Testy uruchamiaj tylko na fragmentach kodu, których dotyka zmiana.
 
-Jeśli potrzebne są testy na całości aplikacji, używaj scripts/run_tests.py
+Jeśli potrzebne są testy na całości aplikacji, używaj `scripts/run_tests.py`.
+
+Zawsze uruchamiaj komendy Pythonowe i testy przez interpreter z repozytoryjnego `.venv`, np. `.venv\Scripts\python.exe scripts\run_tests.py`, `.venv\Scripts\python.exe manage.py check` oraz `.venv\Scripts\python.exe -m pytest`. Nie używaj systemowych aliasów `python`, `pytest` ani `ruff` z `PATH`. Przed weryfikacją sprawdź wersję poleceniem `.venv\Scripts\python.exe --version`.
 
 Pełny runner przygotowuje `.env` (może zmienić `SECRET_KEY`) i wykonuje `collectstatic --clear`. Przy weryfikacji bez ingerencji w środowisko aplikacji pomijaj przygotowanie/ładowanie `.env` w runnerze i ustaw `PYTHON_DOTENV_DISABLED=1`, a komendy Django kieruj do bazy w pamięci i tymczasowych `MEDIA_ROOT`/`STATIC_ROOT`, z wyłączonym schedulerem, bez poświadczeń Firebase i z lokalnym backendem poczty. `zzz.test_settings` zmienia tylko `DATABASES['default']['TEST']`, więc dla `check`/`collectstatic` trzeba również nadpisać zwykłe `DATABASES['default']['NAME']`. Jeśli nadpisujesz ustawienia tylko w procesie uruchamiającym pytest, używaj `-n 0` — procesy xdist nie odziedziczą tych nadpisań. Nie wyłączaj przy tym właściwych kontroli (Ruff, Django check, collectstatic, pytest, Jest).
 
@@ -95,7 +97,7 @@ Nie uruchamiaj podglądu w przeglądarce (browser preview) — weryfikuj zmiany 
 - **Nie twórz one-offowych klas:** zanim dodasz klasę typu `.module-specific-thing`, sprawdź `UI_STANDARDS.html` i istniejące `tw-*`; jeśli istniejący komponent nie pasuje, rozszerz go zamiast wymyślać nowy.
 - **Wspólne komponenty nadrzędne:** powtarzalne elementy (toolbar, stepper, kafelek, przycisk CTA, tabela, formularz, badge, alert, modal, dropdown, zakładka) muszą korzystać ze wspólnych partiali/komponentów (`home/templates/home/includes/toolbar.html`, `home/templates/tw/`, `home/static/common/js/tw-*.js`) zamiast być kopiowane między modułami.
 - **Ikony zgodnie ze słownikiem:** nowa ikona lub nowa semantyka ikony powinna być zgodna z `docs/UI_STANDARDS.html`; jeśli jej tam nie ma, dodaj ją lub użyj istniejącej semantyki. Unikaj różnych ikon dla tej samej akcji (np. `fa-pen` vs `fa-pen-nib` dla edycji, `fa-check` vs `fa-save` dla zapisu, `fa-trash` vs `fa-times` dla usuwania).
-- **Nowy wzorzec = aktualizacja trzech miejsc:** wprowadzenie nowego komponentu wymaga zaktualizowania: (1) `tailwind.css` + `tailwind.config.js` safelist, (2) `docs/UI_STANDARDS.html`, (3) ewentualnie `docs/TAILWIND_MIGRATION_PLAN.md` i testów regresji.
+- **Nowy wzorzec = aktualizacja trzech miejsc:** wprowadzenie nowego komponentu wymaga zaktualizowania: (1) `tailwind.css` + `tailwind.config.js` safelist, (2) `docs/UI_STANDARDS.html`, (3) ewentualnie `docs/TAILWIND_UI_GUIDE.md` i testów regresji.
 - **Inline style tylko dla dynamicznych wartości:** `style="..."` dopuszczalne wyłącznie tam, gdzie wartość pochodzi z danych (np. `style="--featured-img: url('...')"`, `style="--vote-progress: <%- pct %>%"`). Style statyczne (np. `display`, `visibility`, `table-layout`, `color`) muszą być klasami `tw-*`.
 
 ### Kolejność ładowania
@@ -132,7 +134,7 @@ Wikikracja ma jeden pipeline Tailwind, jeden arkusz komponentów (`home/static/h
 - **Formularze:** preferuj `{% crispy form %}` z `FormHelper` albo `home/templates/tw/field.html` z `crispy_classmap`. Nie ręcznie składaj pól formularza z `is-invalid` / `form-control`.
 - **Puste stany, karty, liczniki, empty states:** używaj wspólnych partiali: `home/templates/home/includes/empty_state.html`, `tw-card`, `tw-badge-*`, `tw-chat-count`. Nie wklejaj własnej kopii w każdym module.
 - **Weryfikacja:** po każdej zmianie UI uruchom `npm run build:css`, `python scripts/regression_scan.py` i `python scripts/ui_guard.py` (jeśli istnieje). Nie commituj ręcznie edytowanego `tailwind.build.css`.
-- **Nowy wzorzec?** Zanim go wprowadzisz, udokumentuj go w `docs/ADDING_NEW_UI.md` (checklist), `docs/UI_STANDARDS.html` (jeśli to guzik/komponent/ikona) i `TAILWIND_MIGRATION_PLAN.md`.
+- **Nowy wzorzec?** Zanim go wprowadzisz, udokumentuj go w `docs/UI_DEVELOPMENT_GUIDE.md`, `docs/UI_STANDARDS.html` (jeśli to guzik/komponent/ikona) i `TAILWIND_UI_GUIDE.md`.
 
 ## 7. Znane pułapki / decyzje historyczne
 

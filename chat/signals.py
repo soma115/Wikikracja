@@ -1,6 +1,7 @@
 import logging
 
 from asgiref.sync import async_to_sync
+from django.contrib.auth import get_user_model
 from django.db.models import F
 from django.db.models.functions import Greatest
 from django.db.models.signals import m2m_changed, post_delete, post_migrate, post_save
@@ -128,7 +129,10 @@ def add_citizen_to_public_rooms(sender, user, **kwargs):
     """Grant a newly accepted citizen access to existing public rooms."""
     room_ids = Room.objects.filter(public=True).values_list('id', flat=True)
     membership_model = Room.allowed.through
-    membership_model.objects.bulk_create([membership_model(room_id=room_id, user_id=user.pk) for room_id in room_ids], ignore_conflicts=True)
+    user_id = getattr(user, 'pk', getattr(user, 'id', None))
+    if not user_id or not get_user_model().objects.filter(pk=user_id).exists():
+        return
+    membership_model.objects.bulk_create([membership_model(room_id=room_id, user_id=user_id) for room_id in room_ids], ignore_conflicts=True)
 
 
 @receiver(citizen_deleted)

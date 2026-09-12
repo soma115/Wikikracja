@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+window.wkOnReady(function () {
     const listView = document.getElementById('citizens-list-view');
     const gridView = document.getElementById('citizens-grid-view');
     const countEl  = document.getElementById('citizens-count');

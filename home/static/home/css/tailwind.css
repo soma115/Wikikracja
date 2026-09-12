@@ -133,9 +133,9 @@
     letter-spacing: -.01em;
     margin-bottom: 1.5rem;
   }
-  .tw-richtext-wrapper {border: 2px solid var(--input-border);
-    border-radius: .45rem;
-    background-color: var(--input-bg);
+  .tw-richtext-wrapper {border: 1px solid var(--input-border);
+    border-radius: var(--radius-btn);
+    background: var(--input-bg);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, .15);
     overflow: hidden;
     transition: border-color .15s;

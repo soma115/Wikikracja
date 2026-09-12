@@ -69,7 +69,7 @@ function updateSearchEmptyState(query) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+window.wkOnReady(function() {
     initGlobalPasteImageHandler();
     const MSG_MAX = window.SITE_SETTINGS?.messageMaxLength ?? 500;
 

@@ -1,6 +1,6 @@
 // Profile page - notification and theme settings
 
-document.addEventListener('DOMContentLoaded', function() {
+window.wkOnReady(function() {
 	const toggles = document.querySelectorAll('[id^="toggle-"]');
 	const frequencySelect = document.getElementById('email-frequency');
 	const themeSwitcher = document.getElementById('theme-switcher');

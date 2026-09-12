@@ -431,7 +431,7 @@
       // czekamy na koniec animacji — toast pojawi się od razu we właściwym miejscu,
       // bez przeskoku. Bez banera pozycjonujemy natychmiast. setTimeout to bezpiecznik,
       // gdyby transitionend nie wystartował (np. baner nie zmienił wysokości).
-      document.addEventListener('DOMContentLoaded', function() {
+      window.wkOnReady(function() {
         var expanding = null;
         document.querySelectorAll('.tw-notif-banner-wrap').forEach(function(w) {
           var mh = w.style.maxHeight;
