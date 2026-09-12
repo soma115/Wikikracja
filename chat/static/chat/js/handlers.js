@@ -141,8 +141,8 @@ window.wkOnReady(function() {
     }
 
     // Tree sidebar — nav-cat-btn collapse/expand
-    // Default state is derived from unread rooms: categories with at least one
-    // .tw-room-link.tw-room-link--not-seen are expanded; others are collapsed.
+    // Default state is derived from unread rooms: the first category with an
+    // .tw-room-link.tw-room-link--not-seen is expanded; others are collapsed.
     // Explicit user preference (expanded/collapsed in localStorage) takes precedence.
     function categoryHasUnreadRoom(content) {
         return !!content.querySelector('.tw-room-link.tw-room-link--not-seen');
@@ -162,6 +162,7 @@ window.wkOnReady(function() {
             isOpen = categoryHasUnreadRoom(content);
         }
 
+        if (isOpen) closeOtherCategories(content);
         content.classList.toggle('tw-open', isOpen);
         btn.setAttribute('aria-expanded', String(isOpen));
 
@@ -176,6 +177,18 @@ window.wkOnReady(function() {
         }
     }
 
+    function closeOtherCategories(content, persist = false) {
+        document.querySelectorAll('.tw-chat-cat-content').forEach(otherContent => {
+            if (otherContent === content) return;
+            otherContent.classList.remove('tw-open');
+            const otherBtn = document.querySelector(`[data-cat-content="${otherContent.id}"]`);
+            otherBtn?.setAttribute('aria-expanded', 'false');
+            if (persist && otherContent.id) {
+                localStorage.setItem(`chat-cat-${otherContent.id}`, 'collapsed');
+            }
+        });
+    }
+
     document.querySelectorAll('.tw-chat-cat-btn').forEach(btn => {
         const contentId = btn.dataset.catContent;
         const content = contentId ? document.getElementById(contentId) : null;
@@ -185,11 +198,27 @@ window.wkOnReady(function() {
 
     const globalArchiveBtn = document.getElementById('archive-toggle-global-btn');
     const archiveSectionIds = ['pub-rooms-archive', 'tasks-archive', 'votes-archive', 'documents-archive', 'surveys-archive', 'prv-archive'];
+    const activeSectionIds = ['pub-rooms-active', 'tasks-active', 'votes-active', 'documents-active', 'surveys-active', 'prv-active'];
+
+    function expandCategoriesWithArchivedRooms() {
+        document.querySelectorAll('.tw-chat-cat-content').forEach(content => {
+            if (!content.querySelector('.tw-archive-section .tw-room-link')) return;
+            content.classList.add('tw-open');
+            const catBtn = document.querySelector(`[data-cat-content="${content.id}"]`);
+            catBtn?.setAttribute('aria-expanded', 'true');
+        });
+    }
 
     function setArchivesVisible(visible) {
         archiveSectionIds.forEach(targetId => {
             document.getElementById(`content-${targetId}`)?.classList.toggle('tw-visible', visible);
         });
+        activeSectionIds.forEach(targetId => {
+            document.getElementById(`content-${targetId}`)?.classList.toggle('tw-d-none', visible);
+        });
+        if (visible) expandCategoriesWithArchivedRooms();
+        document.getElementById('room-list')?.classList.toggle('tw-archive-mode', visible);
+        document.dispatchEvent(new CustomEvent('chat-archive-visibility-changed', { detail: { visible } }));
         globalArchiveBtn?.classList.toggle('tw-active', visible);
         if (visible) localStorage.setItem('chat-archive-global', 'visible');
         else localStorage.removeItem('chat-archive-global');
@@ -203,6 +232,19 @@ window.wkOnReady(function() {
         setArchivesVisible(!globalArchiveBtn.classList.contains('tw-active'));
     });
 
+    function toggleCategory(btn, content) {
+        const isOpen = content.classList.contains('tw-open');
+        if (!isOpen && !globalArchiveBtn?.classList.contains('tw-active')) {
+            closeOtherCategories(content, true);
+        }
+        content.classList.toggle('tw-open', !isOpen);
+        btn.setAttribute('aria-expanded', String(!isOpen));
+        const contentId = btn.dataset.catContent;
+        if (contentId) {
+            localStorage.setItem(`chat-cat-${contentId}`, isOpen ? 'collapsed' : 'expanded');
+        }
+    }
+
     const roomSearchInput = document.getElementById('room-search');
     roomSearchInput?.addEventListener('input', () => {
         const query = roomSearchInput.value.trim().toLowerCase();
@@ -213,6 +255,116 @@ window.wkOnReady(function() {
         updateSearchEmptyState(query);
     });
 
+    // New-room modal: search all public rooms as the name is typed. The server
+    // intentionally includes archived rooms so old discussions can be reused.
+    const addRoomForm = document.getElementById('add-room-form');
+    const addRoomInput = document.getElementById('add-room-input');
+    const addRoomResults = document.getElementById('add-room-results');
+    const addRoomError = document.getElementById('add-room-error');
+    let addRoomSearchTimer;
+    let addRoomSearchController;
+
+    function renderAddRoomResults(rooms) {
+        if (!addRoomResults) return;
+        addRoomResults.replaceChildren();
+        if (!rooms.length) return;
+
+        const heading = document.createElement('p');
+        heading.className = 'tw-text-muted tw-mb-2';
+        heading.textContent = _('Existing rooms matching this name:');
+        addRoomResults.appendChild(heading);
+
+        const list = document.createElement('div');
+        list.className = 'tw-list-group';
+        rooms.forEach(room => {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'tw-list-group-item tw-flex tw-items-center tw-justify-between tw-gap-2 tw-text-start';
+            item.dataset.roomId = room.id;
+
+            const name = document.createElement('span');
+            name.className = 'tw-flex-1';
+            name.textContent = room.title;
+            item.appendChild(name);
+
+            if (room.archived) {
+                const badge = document.createElement('span');
+                badge.className = 'tw-badge tw-badge-secondary tw-flex-shrink-0';
+                badge.textContent = _('Archived');
+                item.appendChild(badge);
+            }
+            list.appendChild(item);
+        });
+        addRoomResults.appendChild(list);
+    }
+
+    addRoomInput?.addEventListener('input', () => {
+        const query = addRoomInput.value.trim();
+        clearTimeout(addRoomSearchTimer);
+        addRoomSearchController?.abort();
+        renderAddRoomResults([]);
+        if (!query) return;
+
+        addRoomSearchTimer = setTimeout(async () => {
+            addRoomSearchController = new AbortController();
+            try {
+                const url = new URL(addRoomInput.dataset.searchUrl, window.location.origin);
+                url.searchParams.set('q', query);
+                const response = await window.apiFetch(url.pathname + url.search, {
+                    fetchOptions: { signal: addRoomSearchController.signal },
+                });
+                if (response.ok) renderAddRoomResults((await response.json()).rooms || []);
+            } catch (error) {
+                if (error.name !== 'AbortError') renderAddRoomResults([]);
+            }
+        }, 200);
+    });
+
+    addRoomResults?.addEventListener('click', (event) => {
+        const room = event.target.closest('[data-room-id]');
+        if (!room) return;
+        if (typeof TwModal !== 'undefined') TwModal.hide(document.getElementById('add-room-modal'));
+        navigateToRoom(room.dataset.roomId);
+    });
+
+    addRoomForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const title = addRoomInput?.value.trim() || '';
+        if (!title) return;
+        addRoomError?.classList.add('tw-d-none');
+        try {
+            const response = await window.apiFetch(addRoomForm.action, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: new URLSearchParams({ title }),
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                if (addRoomError) {
+                    addRoomError.textContent = data.error || _('Could not create the room.');
+                    addRoomError.classList.remove('tw-d-none');
+                }
+                return;
+            }
+            if (typeof TwModal !== 'undefined') TwModal.hide(document.getElementById('add-room-modal'));
+            navigateToRoom(data.room_id);
+        } catch {
+            if (addRoomError) {
+                addRoomError.textContent = _('Connection error.');
+                addRoomError.classList.remove('tw-d-none');
+            }
+        }
+    });
+
+    document.getElementById('add-room-modal')?.addEventListener('shown.tw.modal', () => {
+        addRoomInput?.focus();
+    });
+    document.getElementById('add-room-modal')?.addEventListener('hidden.tw.modal', () => {
+        if (addRoomInput) addRoomInput.value = '';
+        addRoomError?.classList.add('tw-d-none');
+        renderAddRoomResults([]);
+    });
+
     // nav-cat-btn click: toggle category open/closed
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.tw-chat-cat-btn');
@@ -220,27 +372,7 @@ window.wkOnReady(function() {
         const contentId = btn.dataset.catContent;
         const content = contentId ? document.getElementById(contentId) : null;
         if (!content) return;
-        const isOpen = content.classList.contains('tw-open');
-        content.classList.toggle('tw-open', !isOpen);
-        btn.setAttribute('aria-expanded', String(!isOpen));
-        if (contentId) {
-            localStorage.setItem(`chat-cat-${contentId}`, isOpen ? 'collapsed' : 'expanded');
-        }
-    });
-
-    // collapse-all-btn: toggle all categories at once
-    document.getElementById('collapse-all-btn')?.addEventListener('click', () => {
-        const allOpen = [...document.querySelectorAll('.tw-chat-cat-content')].every(c => c.classList.contains('tw-open'));
-        document.querySelectorAll('.tw-chat-cat-btn').forEach(btn => {
-            const contentId = btn.dataset.catContent;
-            const content = contentId ? document.getElementById(contentId) : null;
-            if (!content) return;
-            content.classList.toggle('tw-open', !allOpen);
-            btn.setAttribute('aria-expanded', String(!allOpen));
-            if (contentId) localStorage.setItem(`chat-cat-${contentId}`, allOpen ? 'collapsed' : 'expanded');
-        });
-        const icon = document.querySelector('#collapse-all-btn i');
-        if (icon) icon.className = allOpen ? 'fas fa-angles-down' : 'fas fa-angles-up';
+        toggleCategory(btn, content);
     });
 
     document.addEventListener("click", (e) => {
@@ -486,6 +618,61 @@ window.wkOnReady(function() {
 
     // ── Breadcrumb aria-expanded mirror ───────────────────────────────────────
     const chatRoomsEl = $('.tw-chat-rooms');
+
+    // Chat-only swipe: right-to-left opens the room list. Keep the Android
+    // system back-gesture area free by ignoring touches that start at the edge.
+    (function initRoomListSwipe() {
+        if (!chatRoomsEl) return;
+
+        const MIN_DX = 60;
+        const LEFT_EDGE_GUARD_RATIO = 0.25;
+        const RIGHT_EDGE_GUARD = 32;
+        let startX = 0;
+        let startY = 0;
+        let tracking = false;
+        let canOpenRoomList = false;
+        let suppressClickUntil = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            if (!mobileMedia.matches || e.touches.length !== 1) return;
+            if (!e.target.closest('.tw-chat-root-messages')) return;
+            if (e.target.closest('input, textarea, select, [contenteditable]')) return;
+
+            const touch = e.touches[0];
+            tracking = true;
+            canOpenRoomList = !document.getElementById('sidebar')?.classList.contains('tw-sidebar-open')
+                && !chatRoomsEl.classList.contains('tw-room-list-showing')
+                && touch.clientX > window.innerWidth * LEFT_EDGE_GUARD_RATIO
+                && touch.clientX < window.innerWidth - RIGHT_EDGE_GUARD;
+            startX = touch.clientX;
+            startY = touch.clientY;
+        }, { passive: true });
+
+        const stopTracking = () => {
+            tracking = false;
+        };
+
+        document.addEventListener('touchcancel', stopTracking, { passive: true });
+        document.addEventListener('touchend', (e) => {
+            if (!tracking) return;
+            tracking = false;
+            const touch = e.changedTouches[0];
+            if (!touch) return;
+
+            const dx = touch.clientX - startX;
+            const dy = touch.clientY - startY;
+            if (Math.abs(dy) > Math.abs(dx)) return;
+            if (Math.abs(dx) >= MIN_DX) suppressClickUntil = Date.now() + 500;
+            if (canOpenRoomList && dx <= -MIN_DX) navigateToRoomList();
+        }, { passive: true });
+
+        document.addEventListener('click', (e) => {
+            if (Date.now() >= suppressClickUntil) return;
+            e.preventDefault();
+            e.stopPropagation();
+            suppressClickUntil = 0;
+        }, true);
+    })();
 
     function updateBreadcrumbAria() {
         const listShowing = chatRoomsEl?.classList.contains('tw-room-list-showing');

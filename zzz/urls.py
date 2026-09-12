@@ -20,7 +20,7 @@ urlpatterns: List[URLPattern | URLResolver] = [
     path('kandydaci/', RedirectView.as_view(url='/obywatele/poczekalnia/'), name='kandydaci'),
     path('accounts/confirm-email/', RedirectView.as_view(url='/obywatele/onboarding/', permanent=False)),
     path('accounts/', include('allauth.urls')),
-    path('favicon.ico', RedirectView.as_view(url='/static/home/images/favicon.ico')),  # TODO: robots.txt this way?
+    path('favicon.ico', RedirectView.as_view(url='/static/home/images/favicon.ico')),
     path('captcha/', include('captcha.urls')),
     path('glosowania/', include('glosowania.urls', namespace='glosowania')),
     path('obywatele/', include('obywatele.urls', namespace='obywatele')),

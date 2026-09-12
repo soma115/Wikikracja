@@ -1,12 +1,11 @@
-{% extends "home/base.html" %}
+{% extends "tasks/menu.html" %}
 {% load i18n %}
 {% load richtext %}
 {% load feed_filters %}
 
-{% block content %}
+{% block tasks %}
 <div class="tw-container tw-my-4">
-  {% url 'tasks:list' as task_list_url %}
-  {% include 'home/includes/detail_header.html' with title=task.title back_url=task_list_url meta_include='tasks/_task_detail_meta.html' actions_include='tasks/_task_detail_actions.html' %}
+  {% include 'home/includes/detail_header.html' with title=task.title navigation_include='home/includes/detail_navigation.html' meta_include='tasks/_task_detail_meta.html' actions_include='tasks/_task_detail_actions.html' %}
 
   <div class="tw-card tw-mb-4">
     <div class="tw-card-body">
@@ -34,7 +33,7 @@
         <input type="hidden" name="value" value="1">
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
         <button type="submit"
-                class="tw-task-vote-btn tw-task-vote-btn--up{% if vote_value == 1 %} tw-active{% endif %}"
+                class="tw-btn tw-btn-outline-success tw-task-vote-btn tw-task-vote-btn--up{% if vote_value == 1 %} tw-active{% endif %}"
                 data-tw-toggle="tooltip"
                 data-text-active="{% trans 'Helping' %}"
                 data-text-inactive="{% trans 'I want to help' %}"
@@ -56,7 +55,7 @@
         <input type="hidden" name="value" value="-1">
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
         <button type="submit"
-                class="tw-task-vote-btn tw-task-vote-btn--down{% if vote_value == -1 %} tw-active{% endif %}"
+                class="tw-btn tw-btn-outline-secondary tw-task-vote-btn tw-task-vote-btn--down{% if vote_value == -1 %} tw-active{% endif %}"
                 data-tw-toggle="tooltip"
                 data-text-active="{% trans 'Against' %}"
                 data-text-inactive="{% trans "Let's not do that" %}"
@@ -80,7 +79,7 @@
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
           <button type="submit"
-                  class="tw-action-btn tw-action-btn-take"
+                  class="tw-btn tw-btn-outline-primary"
                   data-tw-toggle="tooltip"
                   title="{% trans "Take responsibility for coordinating this activity" %}">
             <i class="fas fa-user-gear fa-fw"></i> {% trans "Become coordinator" %}
@@ -91,13 +90,13 @@
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
           <button type="submit"
-                  class="tw-action-btn tw-action-btn-withdraw"
+                  class="tw-btn tw-btn-outline-danger"
                   data-tw-toggle="tooltip"
                   title="{% trans "Step down and release this activity back to the waiting pool" %}">
             <i class="fas fa-right-from-bracket fa-fw"></i> {% trans "Resign as coordinator" %}
           </button>
         </form>
-        <a class="tw-action-btn tw-action-btn-sign"
+        <a class="tw-btn tw-btn-primary"
            href="{% url 'tasks:close' task.pk %}"
            data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}
            data-tw-toggle="tooltip"
@@ -171,11 +170,11 @@
   </div>
 
   {% if not task.is_active %}
-    <div class="tw-flex tw-gap-2 tw-mb-4">
+    <div class="tw-task-actions tw-flex tw-flex-wrap tw-gap-2 tw-items-center tw-mb-4">
       <form method="post" action="{% url 'tasks:reopen' task.pk %}">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ request.get_full_path }}">
-        <button type="submit" class="tw-action-btn tw-action-btn-sign">
+        <button type="submit" class="tw-btn tw-btn-primary">
           <i class="fas fa-redo fa-fw"></i> {% trans "Reopen activity" %}
         </button>
       </form>
@@ -183,12 +182,12 @@
     <div class="tw-card">
       <div class="tw-card-body">
         <h2 class="tw-text-lg tw-font-semibold tw-mb-3">{% blocktrans with status=task.get_status_display %}Was it good that this activity was {{ status }}?{% endblocktrans %}</h2>
-        <div class="tw-flex tw-gap-2">
+        <div class="tw-task-actions tw-flex tw-flex-wrap tw-gap-2 tw-items-center">
           <form method="post" action="{% url 'tasks:evaluate' task.pk %}">
             {% csrf_token %}
             <input type="hidden" name="value" value="success">
             <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            <button type="submit" class="tw-action-btn tw-action-btn-yes">
+            <button type="submit" class="tw-btn tw-btn-success">
               <i class="fas fa-thumbs-up fa-fw"></i> {% trans "Success" %}
             </button>
           </form>
@@ -196,7 +195,7 @@
             {% csrf_token %}
             <input type="hidden" name="value" value="failure">
             <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            <button type="submit" class="tw-action-btn tw-action-btn-no">
+            <button type="submit" class="tw-btn tw-btn-danger">
               <i class="fas fa-thumbs-down fa-fw"></i> {% trans "Failure" %}
             </button>
           </form>
@@ -218,7 +217,7 @@
           <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-times fa-fw"></i> {% trans "Cancel" %}</button>
           <form method="post" action="{% url 'tasks:delete' task.pk %}">
             {% csrf_token %}
-            <button type="submit" class="tw-action-btn tw-action-btn-withdraw">{% trans "Yes, delete" %}</button>
+            <button type="submit" class="tw-btn tw-btn-danger">{% trans "Yes, delete" %}</button>
           </form>
         </div>
       </div>

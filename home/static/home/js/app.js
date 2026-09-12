@@ -587,7 +587,8 @@ window.wkOnReady(function() {
         if (!s || !b) return;
         var filters = window.location.search;
         if (filters) write({ filters: filters });
-        if (s !== b || filters || document.documentElement.dataset.prefsTab) {
+        var canSaveParentUrl = b !== 'bookkeeping' || document.documentElement.dataset.prefsTab;
+        if (canSaveParentUrl && (s !== b || filters || document.documentElement.dataset.prefsTab)) {
             writeTo(b, { lastUrl: window.location.pathname + filters });
         }
     }
@@ -663,13 +664,20 @@ window.wkOnReady(function() {
         });
     }
 
+    function normalizeBookkeepingLastUrl(lastUrl) {
+        var match = String(lastUrl).match(/^\/bookkeeping\/(transaction|partner|category|asset)\/[^/?]+(?:\/[^?]*)?(\?.*)?$/);
+        if (!match) return lastUrl;
+        return '/bookkeeping/' + match[1] + '/' + (match[2] || '');
+    }
+
     function patchSidebarLinks() {
         document.querySelectorAll('[data-prefs-link-scope]').forEach(function(link) {
             var scopeName = link.dataset.prefsLinkScope;
             if (!scopeName) return;
             var data = read(scopeName);
             if (data && data.lastUrl) {
-                link.setAttribute('href', data.lastUrl);
+                var lastUrl = scopeName === 'bookkeeping' ? normalizeBookkeepingLastUrl(data.lastUrl) : data.lastUrl;
+                link.setAttribute('href', lastUrl);
                 return;
             }
             if (!data || !data.filters || data.filters === '?') return;
@@ -754,6 +762,10 @@ window.wkOnReady(function() {
         // Swipe: right opens the sidebar, left on open sidebar closes it (mobile only).
         (function() {
             const MIN_DX = 60;
+            // Android edge-back gestures can reach the page well past the
+            // nominal system inset, so keep a wider activation-free zone.
+            const LEFT_EDGE_GUARD_RATIO = 0.20;
+            const LEFT_EDGE_GUARD_MIN = 48;
             const mobileQuery = window.wkMobileMedia || { matches: false };
             let startX = 0;
             let startY = 0;
@@ -766,6 +778,11 @@ window.wkOnReady(function() {
                 const t = e.touches[0];
                 openedAtStart = sidebar.classList.contains('tw-sidebar-open');
                 if (openedAtStart && !sidebar.contains(e.target)) return;
+                const leftEdgeGuard = Math.max(
+                    LEFT_EDGE_GUARD_MIN,
+                    window.innerWidth * LEFT_EDGE_GUARD_RATIO,
+                );
+                if (!openedAtStart && t.clientX <= leftEdgeGuard) return;
                 tracking = true;
                 startX = t.clientX;
                 startY = t.clientY;
@@ -1572,10 +1589,9 @@ window.wkOnReady(function () {
             var targetId = btn.dataset.target;
             var section = document.getElementById(targetId);
             if (!section) return;
-            var isOpen = !section.classList.contains('tw-d-none');
+            if (!section.classList.contains('tw-d-none')) return;
             document.querySelectorAll('.tw-citizen-section').forEach(function (s) { s.classList.add('tw-d-none'); });
             document.querySelectorAll('.tw-citizen-section-btn').forEach(function (b) { b.classList.remove('tw-active'); });
-            if (isOpen) return;
             btn.classList.add('tw-active');
             if (section.dataset.loaded) {
                 section.classList.remove('tw-d-none');
@@ -1691,7 +1707,7 @@ window.wkOnReady(function() {
 });
 
 // ============================================================
-// Mobile topbar breadcrumb subtitle
+// Topbar breadcrumb category
 // ============================================================
 (function() {
     function updateTopbarSubtitle() {
@@ -1700,16 +1716,16 @@ window.wkOnReady(function() {
         if (!subtitle || !textEl) return;
 
         var activeStep = document.querySelector('.tw-stepper-nav .tw-stepper-step-wrap.tw-active .tw-stepper-step-label');
+        var categoryLabel = document.getElementById('catFilterLabel');
         var activeSort = document.querySelector('.tw-toolbar .tw-sort-btn.tw-active .tw-sort-btn-label');
-        var activeCat = document.querySelector('.tw-cat-filter-btn.tw-active .tw-cat-filter-label');
 
         var text = '';
         if (activeStep) {
             text = activeStep.textContent.trim();
+        } else if (categoryLabel) {
+            text = categoryLabel.textContent.trim();
         } else if (activeSort) {
             text = activeSort.textContent.trim();
-        } else if (activeCat) {
-            text = activeCat.textContent.trim();
         }
 
         if (text) {

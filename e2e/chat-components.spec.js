@@ -88,8 +88,6 @@ test.describe('chat — komponenty tw-* po migracji Tailwind', () => {
         await setupChatPage(page);
 
         const sortBtn = page.locator('#sort-activity-btn');
-        const resetBtn = page.locator('#sort-reset-btn');
-
         // 1. Pierwszy klik → 'newest': płaska lista, grupy ukryte.
         await sortBtn.click();
         await expect(page.locator('#room-list-flat')).toBeVisible();
@@ -108,8 +106,8 @@ test.describe('chat — komponenty tw-* po migracji Tailwind', () => {
                 .map(l => parseInt(l.dataset.lastActivity || '0', 10)));
         expect(orderAsc).toEqual([...orderAsc].sort((a, b) => a - b));
 
-        // 3. Reset → z powrotem drzewo kategorii.
-        await resetBtn.click();
+        // 3. Trzeci klik resetuje sortowanie → z powrotem drzewo kategorii.
+        await sortBtn.click();
         await expect(page.locator('#room-list-flat')).toHaveCount(0);
         await expect(page.locator('#room-list .tw-room-list-groups')).toBeVisible();
     });

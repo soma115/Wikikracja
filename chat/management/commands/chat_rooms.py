@@ -65,7 +65,6 @@ class Command(BaseCommand):
                     try:
                         last_message = Message.objects.filter(room_id=room.id).latest('time')
                     except Message.DoesNotExist:
-                        # TODO This happens only for rooms without messages so not really needed
                         # logger.info(f'Message.DoesNotExist2 in {room}')
                         continue
                     if last_message.time < (timezone.now() - td(days=get_param('delete_inactive_user_after'))):  # delete inactive users private room

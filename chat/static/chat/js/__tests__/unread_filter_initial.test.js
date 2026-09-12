@@ -5,7 +5,7 @@
  *   - jeśli nie ma nieprzeczytanych pokoi, filtr wyłącza się automatycznie
  *     (niezależnie od intencji w URL),
  *   - gdy filtr jest aktywny, kategorie i archiwa z nieprzeczytanymi
- *     pokojami rozwijają się automatycznie,
+ *     pokojem rozwija się automatycznie (zgodnie z akordeonem),
  *   - stan filtra NIE jest persystowany w localStorage — każde wejście
  *     na stronę startuje z filtrem wyłączonym (chyba że URL prosi o niego).
  *
@@ -108,20 +108,26 @@ function scheduleExpandCategoriesForUnreadRooms() {
 
 function expandCategoriesForUnreadRooms() {
     const unreadLinks = getUnreadRoomLinks();
-    for (const roomLink of unreadLinks) {
-        const navCatContent = roomLink.closest('.tw-chat-cat-content');
-        if (navCatContent && !navCatContent.classList.contains('tw-open')) {
-            navCatContent.classList.add('tw-open');
-            const catId = navCatContent.id;
-            const catBtn = catId ? document.querySelector(`[data-cat-content="${catId}"]`) : null;
-            if (catBtn) catBtn.setAttribute('aria-expanded', 'true');
-        }
+    const navCatContent = unreadLinks[0]?.closest('.tw-chat-cat-content');
+    if (!navCatContent) return;
 
-        const archiveSection = roomLink.closest('.tw-archive-section');
-        if (archiveSection) {
+    document.querySelectorAll('.tw-chat-cat-content').forEach(otherContent => {
+        if (otherContent === navCatContent) return;
+        otherContent.classList.remove('tw-open');
+        const otherBtn = document.querySelector(`[data-cat-content="${otherContent.id}"]`);
+        otherBtn?.setAttribute('aria-expanded', 'false');
+    });
+
+    navCatContent.classList.add('tw-open');
+    const catId = navCatContent.id;
+    const catBtn = catId ? document.querySelector(`[data-cat-content="${catId}"]`) : null;
+    catBtn?.setAttribute('aria-expanded', 'true');
+
+    navCatContent.querySelectorAll('.tw-archive-section').forEach(archiveSection => {
+        if (archiveSection.querySelector('.tw-room-link.tw-room-link--not-seen')) {
             archiveSection.classList.add('tw-visible');
         }
-    }
+    });
 }
 
 function setUnreadFilter(wantedActive) {
@@ -283,6 +289,28 @@ describe('setUnreadFilter — auto-rozwinięcie kategorii', () => {
         // Nieprzeczytany widoczny, przeczytany schowany
         expect(unreadLink.classList.contains('tw-room-link--filtered-out')).toBe(false);
         expect(readLink.classList.contains('tw-room-link--filtered-out')).toBe(true);
+    });
+
+    test('przy wielu nieprzeczytanych rozwija tylko pierwszą kategorię', () => {
+        const catA = makeCategory({ id: 'cat-a', open: false });
+        const catB = makeCategory({ id: 'cat-b', open: false });
+        catA.querySelector('.tw-chat-cat-content').appendChild(makeRoomLink({ id: 1, unread: true }));
+        catB.querySelector('.tw-chat-cat-content').appendChild(makeRoomLink({ id: 2, unread: true }));
+
+        const roomList = document.createElement('div');
+        roomList.id = 'room-list';
+        const groups = document.createElement('div');
+        groups.className = 'tw-room-list-groups';
+        groups.append(catA, catB);
+        roomList.appendChild(groups);
+        document.body.innerHTML = '<button id="unread-filter-btn"></button>';
+        document.body.appendChild(roomList);
+
+        setUnreadFilter(true);
+
+        expect(getCategoryContent('cat-a').classList.contains('tw-open')).toBe(true);
+        expect(getCategoryContent('cat-b').classList.contains('tw-open')).toBe(false);
+        expect(getCategoryButton('cat-b').getAttribute('aria-expanded')).toBe('false');
     });
 
     test('rozwija archiwum zawierające nieprzeczytany pokój', () => {

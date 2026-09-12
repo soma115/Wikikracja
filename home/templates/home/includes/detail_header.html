@@ -21,8 +21,8 @@ Shared detail page header. Params:
 
   <div class="tw-detail-header-top tw-flex tw-items-start tw-justify-between tw-gap-2 tw-flex-wrap">
     <h1 class="tw-detail-title tw-text-2xl tw-font-bold">{{ title }}</h1>
-    {% if navigation_include %}{% include navigation_include %}{% endif %}
     {% if actions_include %}{% include actions_include %}{% endif %}
+    {% if navigation_include %}{% include navigation_include %}{% endif %}
   </div>
 
   {% if badges_include %}{% include badges_include %}{% endif %}

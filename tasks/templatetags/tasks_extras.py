@@ -38,10 +38,10 @@ def tasks_stepper(context):
 
     counts = context.get('task_counts', {})
     steps = [
-        {'url': _url('tasks:list', tab='mine'), 'icon': 'user', 'label': _('Mine'), 'count': counts.get('mine'), 'active': active == 'list' and current_tab == 'mine'},
-        {'url': _url('tasks:list', tab='awaiting'), 'icon': 'hourglass-half', 'label': _('Awaiting'), 'count': counts.get('awaiting'), 'active': active == 'list' and current_tab == 'awaiting'},
-        {'url': _url('tasks:list', tab='active'), 'icon': 'spinner', 'label': _('In progress'), 'count': counts.get('active'), 'active': active == 'list' and current_tab == 'active'},
-        {'url': _url('tasks:list', tab='finished'), 'icon': 'check', 'label': _('Finished'), 'count': counts.get('finished'), 'active': active == 'list' and current_tab == 'finished'},
+        {'url': _url('tasks:list', tab='mine'), 'icon': 'user', 'label': _('Mine'), 'count': counts.get('mine'), 'active': active in ('list', 'detail') and current_tab == 'mine'},
+        {'url': _url('tasks:list', tab='awaiting'), 'icon': 'hourglass-half', 'label': _('Awaiting'), 'count': counts.get('awaiting'), 'active': active in ('list', 'detail') and current_tab == 'awaiting'},
+        {'url': _url('tasks:list', tab='active'), 'icon': 'spinner', 'label': _('In progress'), 'count': counts.get('active'), 'active': active in ('list', 'detail') and current_tab == 'active'},
+        {'url': _url('tasks:list', tab='finished'), 'icon': 'check', 'label': _('Finished'), 'count': counts.get('finished'), 'active': active in ('list', 'detail') and current_tab == 'finished'},
         {'url': _url('tasks:stats'), 'icon': 'chart-simple', 'label': _('Statistics'), 'active': active == 'stats'},
     ]
 

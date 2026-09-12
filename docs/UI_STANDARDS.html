@@ -99,6 +99,7 @@
         <li>Przyciski sortowania mają ikonę pola + etykietę pola + wskaźnik stanu.</li>
         <li>Przyciski sortowania i List / Grid mają wspólny rozmiar toolbaru: <code>32px</code> wysokości i co najmniej <code>32px</code> szerokości. Ukrycie etykiety nie zmienia wysokości ani minimalnej szerokości guzika.</li>
         <li>Każdy guzik ma dokładnie trzy stany i cykl: wyłączone (<code>fa-sort</code>) → rosnąco (<code>fa-arrow-up</code>) → malejąco (<code>fa-arrow-down</code>) → wyłączone.</li>
+        <li>Stan wyłączony / bez sortowania używa klasy <code>tw-sort-btn--off</code> i jest wizualnie wyszarzony; stan aktywnego sortowania używa <code>tw-active</code> i pozostaje podświetlony.</li>
         <li>Kliknięcie innego pola wyłącza poprzednie sortowanie i uruchamia nowe pole od stanu rosnącego. Przy wyłączonym sortowaniu źródło danych zachowuje swoją domyślną kolejność.</li>
         <li>Stan jest dostępny także programowo przez <code>data-sort-state="none|asc|desc"</code> i <code>aria-pressed</code>.</li>
         <li>Ikona pola mówi, co jest sortowane: <code>fa-list</code> dla sortowania alfabetycznego A-Z, <code>fa-clock</code> dla czasu/daty, <code>fa-user</code> dla autora, <code>fa-tag</code> dla kategorii.</li>
@@ -354,7 +355,8 @@
         <li>Hierarchia nagłówków widoku szczegółów: <code>h1</code> dla tytułu, <code>h2</code> dla głównych sekcji i <code>h3</code> dla podsekcji.</li>
         <li>Treść z etykietą i ikoną używa <code>tw-detail-section-label</code>, <code>tw-detail-section-text</code> oraz <code>tw-detail-subsection</code>.</li>
         <li>Powrót do listy używa obrysowanego przycisku <code>tw-btn tw-btn-sm tw-btn-outline-secondary</code> z ikoną <code>fa-arrow-left</code>.</li>
-        <li>Nawigacja Previous/Next używa ikonowych <code>tw-detail-nav-btn</code> z chevronami, tytułem i etykietą ARIA; przy braku elementu stosuje <code>tw-disabled</code> i <code>aria-disabled</code>.</li>
+        <li>Nawigacja Previous/Next zawsze renderuje obie strzałki, nawet gdy sąsiadujący element nie istnieje; niedostępny kierunek pozostaje widoczny jako nieaktywny <code>tw-detail-nav-btn tw-disabled</code> z <code>aria-disabled="true"</code>, bez linku i bez możliwości kliknięcia.</li>
+        <li>W nagłówku szczegółów kolejność grup akcji jest stała: najpierw Usuń, potem Edytuj, następnie Poprzedni i Następny. W obrębie każdej grupy zachowaj kolejność Usuń → Edytuj oraz Poprzedni → Następny.</li>
         <li>Akcje edycji i usuwania w widoku szczegółów są ikonowe: odpowiednio <code>fa-pen</code> i <code>fa-trash</code>, z <code>title</code> oraz <code>aria-label</code>; tekst pozostaje w tooltipie lub etykiecie dostępności.</li>
         <li>Ikona usuwania używa zawsze <code>tw-text-danger</code> oraz <code>var(--badge-rejected-color)</code>, także w stanie hover/focus; nie używaj lokalnych wariantów koloru kosza.</li>
         <li>Jeżeli szczegół zawiera osadzony czat, nie pokazuj dodatkowego guzika „Chat” prowadzącego do tego samego pokoju.</li>

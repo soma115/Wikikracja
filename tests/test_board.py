@@ -301,7 +301,6 @@ def test_edit_post_allows_other_user(authenticated_client):
     assert res.status_code == 302
     post.refresh_from_db()
     assert post.title == 'Zmieniony przez innego'
-    # Autor pozostaje twórcą, a użytkownik edytujący jest zapisywany osobno.
     assert post.author == other
     assert post.updated_by == user
 
@@ -327,18 +326,14 @@ def test_edit_system_post_can_change_public_but_not_category_or_other_flags(auth
 
 
 @pytest.mark.django_db
-def test_delete_post_restricted_to_author(authenticated_client):
-    """Usuwanie dokumentu dostępne jest tylko dla autora."""
-    client, user = authenticated_client
+def test_delete_post_is_available_to_other_users(authenticated_client):
+    """Zalogowany użytkownik może przenieść cudzy dokument do kosza."""
+    client, _ = authenticated_client
     other = UserFactory(username='other4', email='other4@example.com')
     private = PostFactory(title='Do usunięcia', is_private=True, author=other)
 
-    # Nie-autor nie może usunąć
-    res = client.get(reverse('board:delete_post', args=[private.pk]))
-    assert res.status_code == 404
-
-    # Autor może usunąć
-    client.force_login(other)
     res = client.post(reverse('board:delete_post', args=[private.pk]))
+
     assert res.status_code == 302
-    assert not Post.objects.filter(pk=private.pk).exists()
+    private.refresh_from_db()
+    assert private.is_deleted

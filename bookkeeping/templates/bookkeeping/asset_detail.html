@@ -3,11 +3,9 @@
 
 {% block bookkeeping %}
 <div class="tw-container tw-my-4">
-  {% url 'bookkeeping:asset_list' as asset_list_url %}
-  {% include 'home/includes/detail_header.html' with title=asset.name back_url=asset_list_url actions_include='bookkeeping/_detail_actions.html' %}
+  {% include 'home/includes/detail_header.html' with title=asset.name actions_include='bookkeeping/_detail_actions.html' %}
   <div class="tw-card">
     <div class="tw-card-body">
-      <div class="tw-mb-3"><span class="tw-badge tw-badge-secondary">{{ asset.code }}</span></div>
       <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-3">
         <dt class="tw-col-span-12 sm:tw-col-span-4">{% trans 'Code' %}</dt><dd class="tw-col-span-12 sm:tw-col-span-8">{{ asset.code }}</dd>
         <dt class="tw-col-span-12 sm:tw-col-span-4">{% trans 'Symbol' %}</dt><dd class="tw-col-span-12 sm:tw-col-span-8">{{ asset.symbol }}</dd>

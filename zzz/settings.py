@@ -131,7 +131,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = env_int("DATA_UPLOAD_MAX_MEMORY_SIZE", 10485760)
 
 # X_FRAME_OPTIONS = 'SAMEORIGIN'
 # X_FRAME_OPTIONS = 'ALLOW'
-# TODO: Na produkcji jest:
+# Na produkcji jest:
 X_FRAME_OPTIONS = 'DENY'
 # Dlaczego?
 

@@ -27,6 +27,7 @@ from django.views.decorators.http import require_POST
 from django_filters.views import FilterView
 from django_tables2.views import SingleTableMixin
 
+from chat.i18n import get_translations as get_chat_translations
 from chat.models import Room
 from chat.services import get_unread_message_counts_for_rooms, get_user_public_message_rows
 from core.signals import citizen_proposed
@@ -711,7 +712,12 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
     sort_param = f'sort={requested_sort}' if requested_sort != default_sort else ''
 
     candidate_deletion_request = getattr(candidate_user, 'deletion_request', None)
-    dm_room = Room.find_private_rooms_for_user_pairs(request.user, [candidate_user.pk]).get(candidate_user.pk)
+    dm_room = None
+    if obj.is_active and candidate_user != request.user:
+        dm_room = Room.get_or_create_for_users(request.user, candidate_user)
+        if dm_room.archived:
+            dm_room.archived = False
+            dm_room.save(update_fields=['archived'])
     dm_unread_counts = get_unread_message_counts_for_rooms(request.user, [dm_room.pk] if dm_room else [])
     dm_unread_count = dm_unread_counts.get(dm_room.pk, 0) if dm_room else 0
 
@@ -733,8 +739,11 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
             'ratings_neutral': ratings_neutral,
             'ratings_negative': ratings_negative,
             'candidate_deletion_request': candidate_deletion_request,
+            'dm_room': dm_room if obj.is_active else None,
             'dm_unread_count': dm_unread_count,
             'sort_param': sort_param,
+            'MESSAGE_MAX_LENGTH': s.MESSAGE_MAX_LENGTH,
+            'ec_translations': get_chat_translations(),
         },
     )
 

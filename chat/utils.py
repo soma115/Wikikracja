@@ -114,7 +114,6 @@ class HandledMessage:
     def get_messages(self):
         return self.messages
 
-    # TODO: perhaps passing lambda to handle message and perform post-processing is a good idea
     async def send_all(self, consumer):
         """
         Sends all prepared messages in case post-processing is not needed.

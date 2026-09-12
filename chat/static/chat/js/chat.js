@@ -91,16 +91,10 @@ function clearDraft(roomId) {
 }
 
 function bindSortToolbar() {
-    const dateBtn = $('#chat-sort-date');
     const likesBtn = $('#chat-sort-likes');
-    const popularBtn = $('#chat-filter-popular');
-    if (!dateBtn || !likesBtn || !popularBtn) return;
+    if (!likesBtn) return;
 
     const applyActiveStyles = () => {
-        dateBtn.classList.toggle('tw-active', SortState.sort_by === 'date');
-        likesBtn.classList.toggle('tw-active', SortState.sort_by === 'likes');
-        popularBtn.classList.toggle('tw-active', SortState.popular_only);
-
         const setArrow = (btn, state) => {
             const arrow = btn.querySelector('.tw-sort-arrow');
             if (!arrow) return;
@@ -112,7 +106,6 @@ function bindSortToolbar() {
             btn.dataset.sortState = state;
             btn.setAttribute('aria-pressed', active ? 'true' : 'false');
         };
-        setArrow(dateBtn, SortState.sort_by === 'date' ? SortState.order : 'none');
         setArrow(likesBtn, SortState.sort_by === 'likes' ? SortState.order : 'none');
     };
 
@@ -130,13 +123,7 @@ function bindSortToolbar() {
         refetch();
     };
 
-    dateBtn.addEventListener('click', () => toggleSort('date'));
     likesBtn.addEventListener('click', () => toggleSort('likes'));
-    popularBtn.addEventListener('click', () => {
-        SortState.popular_only = !SortState.popular_only;
-        applyActiveStyles();
-        refetch();
-    });
 
     applyActiveStyles();
 }
@@ -188,8 +175,6 @@ const ViewState = {
 let JoinGeneration = 0;
 /** Klucz ostatnio zastosowanej trasy — deduplikacja popstate + hashchange. */
 let LastAppliedRouteKey = null;
-/** Czy normalizacja stosu Wstecz dla deep-linka już się wykonała. */
-let HistoryNormalized = false;
 
 // Filtr nieprzeczytanych — stan modułowy (współdzielą go router i handlery).
 let isUnreadFilterActive = false;
@@ -279,20 +264,26 @@ function scheduleExpandCategoriesForUnreadRooms() {
  */
 function expandCategoriesForUnreadRooms() {
     const unreadLinks = getUnreadRoomLinks();
-    for (const roomLink of unreadLinks) {
-        const navCatContent = roomLink.closest('.tw-chat-cat-content');
-        if (navCatContent && !navCatContent.classList.contains('tw-open')) {
-            navCatContent.classList.add('tw-open');
-            const catId = navCatContent.id;
-            const catBtn = catId ? document.querySelector(`[data-cat-content="${catId}"]`) : null;
-            if (catBtn) catBtn.setAttribute('aria-expanded', 'true');
-        }
+    const navCatContent = unreadLinks[0]?.closest('.tw-chat-cat-content');
+    if (!navCatContent) return;
 
-        const archiveSection = roomLink.closest('.tw-archive-section');
-        if (archiveSection) {
+    document.querySelectorAll('.tw-chat-cat-content').forEach(otherContent => {
+        if (otherContent === navCatContent) return;
+        otherContent.classList.remove('tw-open');
+        const otherBtn = document.querySelector(`[data-cat-content="${otherContent.id}"]`);
+        otherBtn?.setAttribute('aria-expanded', 'false');
+    });
+
+    navCatContent.classList.add('tw-open');
+    const catId = navCatContent.id;
+    const catBtn = catId ? document.querySelector(`[data-cat-content="${catId}"]`) : null;
+    catBtn?.setAttribute('aria-expanded', 'true');
+
+    navCatContent.querySelectorAll('.tw-archive-section').forEach(archiveSection => {
+        if (archiveSection.querySelector('.tw-room-link.tw-room-link--not-seen')) {
             archiveSection.classList.add('tw-visible');
         }
-    }
+    });
 }
 
 function setUnreadFilter(wantedActive) {
@@ -351,16 +342,6 @@ function syncRouteFromLocation({ initial = false } = {}) {
     const key = routeKey(route);
     if (!initial && key === LastAppliedRouteKey) return;
     LastAppliedRouteKey = key;
-    if (initial && !HistoryNormalized) {
-        HistoryNormalized = true;
-        if (route.view === 'room') {
-            // Deep-link: pod wpis pokoju wkładamy wpis listy, żeby pierwszy
-            // Wstecz pokazał listę pokoi, a nie opuszczał stronę czatu.
-            const roomUrl = location.pathname + location.search + location.hash;
-            history.replaceState(null, '', location.pathname + location.search);
-            history.pushState(null, '', roomUrl);
-        }
-    }
     applyChatRoute(route, { initial });
 }
 
@@ -388,7 +369,8 @@ function applyChatRoute(route, { initial = false } = {}) {
     else if (route.view === 'rooms') applyUnreadUrlIntent('off');
     if (initial && route.view === 'default') {
         const roomId = pickInitialRoomId();
-        // pushState nad wpisem /chat/ — Wstecz wraca do listy pokoi.
+        // Pokój jest wpisywany bez dokładania wewnętrznego kroku historii;
+        // Androidowe Wstecz opuszcza wtedy czat zamiast otwierać listę pokoi.
         if (roomId) navigateToRoom(roomId);
     }
 }
@@ -409,23 +391,23 @@ function pickInitialRoomId() {
     return publicRooms.length ? parseInt(publicRooms[0].dataset.roomId) : ([...allowedRoomIds][0] ?? 0);
 }
 
-/** Nawigacja do pokoju — pushState + jawne zastosowanie trasy. */
+/** Nawigacja do pokoju — replaceState + jawne zastosowanie trasy. */
 export function navigateToRoom(roomId, messageId = null) {
     roomId = parseInt(roomId);
     if (!roomId) return;
     const hash = `#room_id=${roomId}` + (messageId ? `&message_id=${messageId}` : '');
     const target = location.pathname + location.search + hash;
     if (location.pathname + location.search + location.hash !== target) {
-        history.pushState(null, '', target);
+        history.replaceState(null, '', target);
     }
     syncRouteFromLocation();
 }
 
-/** Nawigacja do listy pokoi — usuwa hash, zachowuje parametry ?view. */
+/** Nawigacja do listy pokoi — replaceState usuwa hash, zachowując ?view. */
 export function navigateToRoomList() {
     const wasRoomPanel = mobileMedia.matches && ViewState.panel === 'room';
     if (location.hash) {
-        history.pushState(null, '', location.pathname + location.search);
+        history.replaceState(null, '', location.pathname + location.search);
     }
     syncRouteFromLocation();
     // a11y: po powrocie z pokoju na listę przywracamy fokus linkowi aktywnego
@@ -584,8 +566,11 @@ function roomLinkComparator(mode) {
         : roomLinkSortKey(b) - roomLinkSortKey(a);
 }
 
-/** Pokój bierze udział w płaskim widoku, gdy nie siedzi w ukrytym archiwum. */
+/** Pokój bierze udział w płaskim widoku, gdy należy do aktualnego widoku. */
 function isRoomListLinkVisible(link) {
+    const archiveMode = document.getElementById('room-list')?.classList.contains('tw-archive-mode')
+        || localStorage.getItem('chat-archive-global') === 'visible';
+    if (archiveMode) return link.dataset.roomArchived === 'True' || link.dataset.roomArchived === 'true';
     const archive = link.closest('.tw-archive-section');
     return !archive || archive.classList.contains('tw-visible');
 }
@@ -747,7 +732,13 @@ window.wkOnReady(() => {
         else if (roomSortMode === 'newest') applyRoomSort('oldest');
         else resetRoomSort();
     });
-    $('#sort-reset-btn')?.addEventListener('click', resetRoomSort);
+
+    document.addEventListener('chat-archive-visibility-changed', () => {
+        if (roomSortMode === null) return;
+        const mode = roomSortMode;
+        resetRoomSort();
+        applyRoomSort(mode);
+    });
 
     // Trasa z URL jest stosowana natychmiast — niezależnie od stanu socketu.
     // Join do pokoju i tak kolejkuje się do pierwszego otwarcia socketu
@@ -874,10 +865,10 @@ function deriveBreadcrumb(room_id) {
         const catId = navCatContent.id;
         const catBtn = catId ? document.querySelector(`[data-cat-content="${catId}"]`) : null;
         if (catBtn) {
-            // Extract text nodes only (skip .nav-cat-arrow span)
-            const label = Array.from(catBtn.childNodes)
-                .filter(n => n.nodeType === Node.TEXT_NODE)
-                .map(n => n.textContent.trim())
+            // The label is wrapped in a span; exclude the arrow and unread count.
+            const label = Array.from(catBtn.children)
+                .filter(child => !child.classList.contains('tw-chat-cat-arrow') && !child.classList.contains('tw-chat-count--section'))
+                .map(child => child.textContent.trim())
                 .filter(Boolean)
                 .join('');
             if (label) parts.push({ label });
@@ -961,7 +952,6 @@ export async function onRoomTryJoin(room_id, { preserveView = false } = {}) {
     localStorage.lastUsedRoomID = room_id;
     CurrentRoomId = room_id;
     ViewState.joinStatus = 'joined';
-    // TODO: send seen confirmation to server after a little while
     DOM_API.seenChat(room_id);
     WS_API.seenRoom(room_id);
     DOM_API.setRoomNotifications(response.notifications);

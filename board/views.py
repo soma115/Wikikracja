@@ -1,10 +1,8 @@
 from urllib.parse import quote_plus, urlencode
 
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -52,6 +50,10 @@ class PostCategoryReorderAPI(CategoryReorderAPI):
 
 
 def _board_list_state(request):
+    default_tab = 'public'
+    tab = request.GET.get('tab', default_tab)
+    if tab not in ('mine', 'public', 'important', 'trash') or (not request.user.is_authenticated and tab in ('mine', 'trash')):
+        tab = default_tab
     sort = request.GET.get('sort', 'title')
     if sort not in ('title', 'date', 'none'):
         sort = 'title'
@@ -66,13 +68,26 @@ def _board_list_state(request):
         except (ValueError, TypeError):
             pass
 
-    return sort, order, active_categories, request.GET.get('q', '').strip()
+    return tab, sort, order, active_categories, request.GET.get('q', '').strip()
+
+
+def _board_tab_filter(user, tab):
+    if tab == 'mine':
+        return Q(is_private=True, author=user, is_deleted=False)
+    if tab == 'public':
+        return Q(is_public=True, is_private=False, is_deleted=False)
+    if tab == 'important':
+        return Q(is_important=True, is_deleted=False)
+    return Q(is_deleted=True)
 
 
 def _board_listing(request, *, include_chat_counts=True):
-    sort, order, active_categories, search_query = _board_list_state(request)
+    tab, sort, order, active_categories, search_query = _board_list_state(request)
     posts_query = Post.objects.select_related('category', 'author', 'updated_by', 'chat_room')
-    posts_all = posts_query.filter(Post.visibility_filter_for_user(request.user))
+    if tab == 'trash':
+        posts_all = posts_query.filter(_board_tab_filter(request.user, tab))
+    else:
+        posts_all = posts_query.filter(Post.visibility_filter_for_user(request.user), _board_tab_filter(request.user, tab))
     if search_query:
         posts_all = posts_all.filter(Q(title__icontains=search_query) | Q(subtitle__icontains=search_query) | Q(text__icontains=search_query))
     posts_all = list(posts_all)
@@ -108,16 +123,31 @@ def _board_listing(request, *, include_chat_counts=True):
 
     ordered_posts = [post for group in category_groups for post in group['posts']]
     navigation_posts = [post for post in ordered_posts if not active_categories or post.category_id in active_categories]
-    query_params = [('sort', sort)]
+    query_params = []
+    if tab != 'public' or request.GET.get('tab'):
+        query_params.append(('tab', tab))
+    query_params.append(('sort', sort))
     if order is not None:
         query_params.append(('order', order))
     query_params.extend(('category', category) for category in active_categories)
     if search_query:
         query_params.append(('q', search_query))
 
+    tab_counts = {}
+    for tab_name in ('mine', 'public', 'important', 'trash'):
+        if tab_name == 'trash' and not request.user.is_authenticated:
+            tab_query = Post.objects.none()
+        else:
+            tab_query = Post.objects.filter(_board_tab_filter(request.user, tab_name))
+            if tab_name != 'trash':
+                tab_query = tab_query.filter(Post.visibility_filter_for_user(request.user))
+        tab_counts[tab_name] = tab_query.count()
+
     return {
         'category_groups': category_groups,
         'categories': categories,
+        'current_tab': tab,
+        'board_tab_counts': tab_counts,
         'sort': sort,
         'order': order,
         'active_categories': active_categories,
@@ -125,6 +155,27 @@ def _board_listing(request, *, include_chat_counts=True):
         'ordered_posts': ordered_posts,
         'navigation_posts': navigation_posts,
         'detail_query': urlencode(query_params),
+    }
+
+
+def _board_stepper(request: HttpRequest, listing):
+    def tab_url(tab_name):
+        params = [('tab', tab_name), ('sort', listing['sort'])]
+        if listing['order'] is not None:
+            params.append(('order', listing['order']))
+        params.extend(('category', category) for category in listing['active_categories'])
+        if listing['search_query']:
+            params.append(('q', listing['search_query']))
+        return f"{reverse('board:start')}?{urlencode(params)}"
+
+    return {
+        'steps': [
+            {'url': tab_url('mine'), 'icon': 'user', 'label': gettext_lazy('Mine'), 'count': listing['board_tab_counts']['mine'], 'active': listing['current_tab'] == 'mine'},
+            {'url': tab_url('public'), 'icon': 'globe', 'label': gettext_lazy('Public'), 'count': listing['board_tab_counts']['public'], 'active': listing['current_tab'] == 'public'},
+            {'url': tab_url('important'), 'icon': 'star', 'label': gettext_lazy('Important'), 'count': listing['board_tab_counts']['important'], 'active': listing['current_tab'] == 'important'},
+            {'url': tab_url('trash'), 'icon': 'trash', 'label': gettext_lazy('Trash'), 'count': listing['board_tab_counts']['trash'], 'active': listing['current_tab'] == 'trash'},
+        ],
+        'css_class': 'tw-board-stepper',
     }
 
 
@@ -177,6 +228,7 @@ def board(request: HttpRequest) -> HttpResponse:
             'current_order': order,
             'toolbar_sort_items': toolbar_sort_items,
             'toolbar_views': [{'name': 'list', 'icon': 'list', 'title': gettext_lazy('List')}, {'name': 'grid', 'icon': 'grip', 'title': gettext_lazy('Grid')}],
+            'stepper': _board_stepper(request, listing),
         }
     )
     return render(request, 'board/board.html', listing)
@@ -214,45 +266,56 @@ class PostCreateView(PostFormViewMixin, CreateView):
 
 
 class PostUpdateView(PostFormViewMixin, UpdateView):
-    pass
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
 
 
-def _post_queryset_for_user(user):
+def _post_queryset_for_user(user, *, include_deleted=False):
     """Return posts visible to the given user."""
-    return Post.objects.select_related('author', 'updated_by', 'category').filter(Post.visibility_filter_for_user(user))
+    queryset = Post.objects.select_related('author', 'updated_by', 'category')
+    if include_deleted:
+        return queryset.filter(is_deleted=True)
+    return queryset.filter(Post.visibility_filter_for_user(user), is_deleted=False)
 
 
 def _post_detail_context(request: HttpRequest, post: Post):
     """Build common context for document detail views (including embedded chat)."""
     listing = _board_listing(request, include_chat_counts=False)
-    context = {'post': post, 'chat_room': post.chat_room, 'MESSAGE_MAX_LENGTH': settings.MESSAGE_MAX_LENGTH, 'ec_translations': get_chat_translations(), 'list_url': reverse('board:start')}
-    if listing['detail_query']:
-        context['list_url'] = f"{context['list_url']}?{listing['detail_query']}"
+    context = {'post': post, 'chat_room': post.chat_room, 'MESSAGE_MAX_LENGTH': settings.MESSAGE_MAX_LENGTH, 'ec_translations': get_chat_translations(), 'stepper': _board_stepper(request, listing)}
     context.update(build_detail_navigation(request, listing['navigation_posts'], post.pk, 'board:view_post'))
     return context
 
 
 def view_post(request: HttpRequest, pk: int):
-    post = get_object_or_404(_post_queryset_for_user(request.user).select_related('chat_room'), pk=pk)
+    include_deleted = request.user.is_authenticated and request.GET.get('tab') == 'trash'
+    post = get_object_or_404(_post_queryset_for_user(request.user, include_deleted=include_deleted).select_related('chat_room'), pk=pk)
     return render(request, 'board/post_detail.html', _post_detail_context(request, post))
 
 
 def view_post_by_slug(request: HttpRequest, slug: str):
-    post = get_object_or_404(_post_queryset_for_user(request.user).select_related('chat_room'), slug=slug)
+    include_deleted = request.user.is_authenticated and request.GET.get('tab') == 'trash'
+    post = get_object_or_404(_post_queryset_for_user(request.user, include_deleted=include_deleted).select_related('chat_room'), slug=slug)
     return render(request, 'board/post_detail.html', _post_detail_context(request, post))
 
 
 @login_required
 def delete_post(request: HttpRequest, pk: int):
-    post = get_object_or_404(Post, pk=pk, author=request.user)
+    post = get_object_or_404(Post, pk=pk, system_key__isnull=True, is_deleted=False)
     if request.method == 'POST':
-        try:
-            post.delete()
-            return redirect('board:start')
-        except ValidationError as e:
-            messages.error(request, str(e))
-            return redirect('board:view_post', pk=pk)
+        post.is_deleted = True
+        post.save(update_fields=('is_deleted', 'updated'))
+        return redirect(f"{reverse('board:start')}?tab=trash")
     return render(request, 'board/post_confirm_delete.html', {'post': post})
+
+
+@login_required
+def restore_post(request: HttpRequest, pk: int):
+    post = get_object_or_404(Post, pk=pk, is_deleted=True)
+    if request.method == 'POST':
+        post.is_deleted = False
+        post.save(update_fields=('is_deleted', 'updated'))
+        return redirect(f"{reverse('board:start')}?tab=mine")
+    return redirect('board:view_post', pk=pk)
 
 
 @login_required

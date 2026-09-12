@@ -2,39 +2,56 @@
 {% load static %}
 {% load i18n %}
 {% load feed_filters %}
+{% load richtext %}
 
 {% block content %}
+{% include 'home/includes/stepper.html' with stepper=stepper %}
 <div class="tw-container tw-my-4">
-{% include 'home/includes/detail_header.html' with title=post.title back_include='board/_post_detail_back.html' navigation_include='home/includes/detail_navigation.html' actions_include='board/_post_detail_actions.html' meta_include='board/_post_detail_meta.html' %}
+{% include 'home/includes/detail_header.html' with title=post.title navigation_include='home/includes/detail_navigation.html' actions_include='board/_post_detail_actions.html' meta_include='board/_post_detail_meta.html' %}
 
-<div class="tw-board-post-card">
-  <div class="tw-post-header">
+<div class="tw-card tw-mb-4">
+  <div class="tw-card-body">
     {% if post.subtitle %}
-      <h2 class="tw-post-subtitle">{{ post.subtitle }}</h2>
+    <div class="tw-detail-subsection">
+      <div class="tw-detail-section-label">
+        <i class="fas fa-file-lines fa-fw"></i> {% trans 'Subtitle' %}
+      </div>
+      <div class="tw-detail-section-text tw-post-subtitle">{{ post.subtitle }}</div>
+    </div>
+    {% endif %}
+
+    {% if post.featured_image %}
+    <div class="tw-detail-subsection">
+      <div class="tw-detail-section-label">
+        <i class="fas fa-image fa-fw"></i> {% trans 'Featured Image' %}
+      </div>
+      <div class="tw-post-featured-image">
+        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="tw-detail-subsection">
+      <div class="tw-detail-section-label">
+        <i class="fas fa-file-lines fa-fw"></i> {% trans 'Content' %}
+      </div>
+      <div class="tw-detail-section-text tw-post-content">{{ post.text|richtext }}</div>
+    </div>
+
+    {% if post.attachments.exists %}
+    <div class="tw-detail-subsection tw-post-attachments">
+      <div class="tw-detail-section-label">
+        <i class="fas fa-paperclip fa-fw"></i> {% trans 'Attachments' %}
+      </div>
+      <ul class="tw-list-group">{% for attachment in post.attachments.all %}<li class="tw-list-group-item">
+        <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}">
+          <i class="fas fa-paperclip tw-me-2"></i>{{ attachment.filename }}
+        </a>
+        <span class="tw-text-muted tw-attachment-uploaded-at">{{ attachment.uploaded_at|date:"Y-m-d H:i" }}</span>
+        </li>{% endfor %}</ul>
+    </div>
     {% endif %}
   </div>
-
-  {% if post.featured_image %}
-  <div class="tw-post-featured-image tw-mb-3">
-    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
-  </div>
-  {% endif %}
-
-  <div class="tw-post-content">
-    {{ post.text|safe }}
-  </div>
-
-  {% if post.attachments.all %}
-  <div class="tw-post-attachments tw-mt-4">
-    <h2 class="tw-text-lg tw-font-semibold tw-mb-3">{% trans 'Attachments' %}</h2>
-    <ul class="tw-list-group">{% for attachment in post.attachments.all %}<li class="tw-list-group-item">
-      <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}">
-        <i class="fas fa-paperclip tw-me-2"></i>{{ attachment.filename }}
-      </a>
-      <span class="tw-text-muted tw-attachment-uploaded-at">{{ attachment.uploaded_at|date:"Y-m-d H:i" }}</span>
-      </li>{% endfor %}</ul>
-  </div>
-  {% endif %}
 </div>
 
   {% with chat_room=chat_room %}

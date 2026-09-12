@@ -64,7 +64,15 @@ The list view is compact and shows less information. The grid view may show more
 
 ### 3.2 Detail pages
 
-Every detail page uses `home/templates/home/includes/detail_header.html` for its main header.
+Every detail page uses `home/templates/home/includes/detail_header.html` for its main header and a `tw-container tw-my-4` page container. The standard page anatomy is:
+
+```text
+tw-container tw-my-4
+├── detail_header
+├── tw-card — podstawowe informacje
+├── tw-card — akcje lub formularz domenowy
+└── tw-card — sekcje dodatkowe
+```
 
 The partial accepts:
 
@@ -79,16 +87,51 @@ The partial accepts:
 
 The partial standardizes the header only. It does **not** remove or replace module-specific content. Voting arguments, survey results, document attachments, task actions, chat links and other domain sections remain in the page or in their own partials.
 
-Use the shared metadata variants when presenting detail data:
+#### Detail page contract
 
-- `tw-detail-meta` for a short, wrapping row of author, date, status and counters;
-- `tw-detail-fields` for a multi-field label/value layout, typically on a `<dl>`.
+- Use one shared header and one primary back-navigation mechanism. Preserve the previous list context with `data-tw-back` when the page was opened from a contextual list.
+- Keep global actions (edit, delete, back and Previous/Next) separate from domain actions (vote, sign, take responsibility, evaluate and add an argument). Keep domain actions in the body when they require a form or page-specific context.
+- Render header action controls before navigation controls: Delete, Edit, Previous, Next. Icon-only controls require localized `title` and `aria-label`; unavailable navigation remains visible with `tw-disabled` and `aria-disabled="true"`.
+- Keep exactly `1rem` between `detail_header` and the first content card. Do not add a second parent `gap` on that boundary.
+- Use `tw-detail-meta` for a short, wrapping row of author, date, status and counters. Use `tw-detail-fields` for a multi-field label/value layout, typically on a semantic `<dl>`. Do not mix equivalent metadata variants without a domain reason.
+- Use `h1` for the page title, `h2` for major sections and `h3` for subsections. Label content sections with `tw-detail-section-label`, `tw-detail-section-text` and `tw-detail-subsection`.
+- Use `tw-card` for ordinary content and retain a domain-specific card or layout only when it improves understanding, for example argument columns, attachments, helper lists, profile fields or an embedded chat.
+- Use shared empty states, form fields, buttons, badges and rich-text rendering. Do not hand-roll a module-specific replacement when an existing shared component expresses the same meaning.
+- If the page includes an embedded chat for the same object, do not render a second standalone chat link.
+- New detail pages must not introduce module-specific stylesheets, unprefixed visual classes, duplicate titles or duplicate back links.
 
-Do not mix metadata variants for equivalent information within one page unless the domain structure requires it.
+#### Current detail-page coverage
 
-For detail page headings use `h1` for the page title, `h2` for major sections and `h3` for subsections. Use `tw-detail-section-label`, `tw-detail-section-text` and `tw-detail-subsection` for labelled content sections. Keep exactly `1rem` between `detail_header` and the first content card; do not add a second parent `gap` on that boundary. Keep domain-specific cards such as arguments, attachments and profile tables when they provide meaningful structure.
+The contract is implemented by these ten views:
 
-Use `tw-btn tw-btn-sm tw-btn-outline-secondary` with `fa-arrow-left` for back navigation. Use `tw-detail-nav` and `tw-detail-nav-btn` with chevron icons for Previous/Next controls; icon-only controls require `title` and `aria-label`, while unavailable items use `tw-disabled` and `aria-disabled="true"`. Edit and delete actions in detail views are icon-only `tw-detail-nav-btn` controls with `fa-pen` / `fa-trash` and accessible labels. Delete controls always add `tw-text-danger`; do not introduce module-specific delete colors. Put author, coordinator, dates and status in the header metadata row below the title. If the page includes an embedded chat for the same object, do not render a second standalone chat link.
+- `obywatele/templates/obywatele/szczegoly.html`;
+- `glosowania/templates/glosowania/szczegoly.html`;
+- `ankiety/templates/ankiety/survey_detail.html`;
+- `board/templates/board/post_detail.html`;
+- `events/templates/events/event_detail.html`;
+- `tasks/templates/tasks/task_detail.html`;
+- `bookkeeping/templates/bookkeeping/asset_detail.html`;
+- `bookkeeping/templates/bookkeeping/category_detail.html`;
+- `bookkeeping/templates/bookkeeping/partner_detail.html`;
+- `bookkeeping/templates/bookkeeping/transaction_detail.html`.
+
+Domain-specific exceptions are intentional: voting arguments retain their two-column cards, tasks retain helper and evaluation sections, citizens retain profile fields, activity tabs and embedded chat, Board retains rich-text content and attachments, and bookkeeping retains relational fields linking to other detail pages.
+
+#### Detail page implementation checklist
+
+Before considering a detail page complete, verify:
+
+- [ ] the page includes `detail_header.html` and `tw-container`;
+- [ ] there is no duplicate title or back link;
+- [ ] global and domain actions are separated;
+- [ ] metadata uses `tw-detail-meta` or `tw-detail-fields` consistently;
+- [ ] content sections use the shared `tw-detail-*` classes where no domain exception applies;
+- [ ] forms use Crispy/Tailwind fields or `home/templates/tw/field.html`;
+- [ ] rich text uses the shared `richtext` mechanism rather than `safe` output;
+- [ ] empty results use `home/templates/home/includes/empty_state.html`;
+- [ ] icon-only controls have accessible labels and visible focus;
+- [ ] long content wraps without horizontal scrolling;
+- [ ] the relevant UI guard and regression scan pass.
 
 If an existing detail page has actions that do not fit `actions_include`, keep those actions in the page body while still using the shared header. Do not duplicate the title or move business logic into the shared partial.
 

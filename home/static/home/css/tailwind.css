@@ -286,6 +286,11 @@
     background: var(--accent-muted);
     font-weight: 500;
   }
+  .tw-sort-btn.tw-sort-btn--off {color: var(--text-muted);
+    border-color: var(--border);
+    background: transparent;
+    opacity: 1;
+  }
   .tw-sort-btn--off .tw-sort-arrow {opacity: .8;
   }
   .tw-sort-arrow {font-size: .65rem;
@@ -812,7 +817,9 @@
   }
   .tw-chat-count--section {position: static;
     inset: auto;
-    margin-left: .25rem;
+    order: -1;
+    margin-left: 0;
+    margin-right: .25rem;
     transform: none;
   }
   .tw-btn .tw-chat-count {top: 50%;
@@ -1033,8 +1040,7 @@
     transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
   }
   .tw-detail-nav-btn:hover,
-  .tw-detail-nav-btn:focus-visible,
-  .tw-task-vote-btn--down:hover {color: var(--text-primary);
+  .tw-detail-nav-btn:focus-visible {color: var(--text-primary);
     border-color: rgba(255, 255, 255, .2);
     background: var(--color-surface-offset);
   }
@@ -1388,18 +1394,6 @@
   .tw-task-take-btn:hover {filter: brightness(1.2);
     border-color: var(--badge-proposition-color);
   }
-  .tw-task-actions .tw-task-vote-btn,
-  .tw-task-actions .tw-action-btn {min-height: 2.25rem;
-    padding: .35rem .75rem;
-    font-size: .85rem;
-    font-weight: 600;
-    line-height: 1.4;
-    border-radius: .5rem;
-    gap: .4rem;
-    box-sizing: border-box;
-    margin-bottom: 0;
-    border: 1px solid var(--border);
-  }
   .tw-result-bar {margin-bottom: .65rem;
   }
   .tw-result-bar-labels {display: flex;
@@ -1468,7 +1462,7 @@
     gap: .45rem;
     flex-wrap: wrap;
   }
-  .tw-task-vote-btn {display: inline-flex;
+  .tw-task-card .tw-task-vote-btn {display: inline-flex;
     align-items: center;
     gap: .3rem;
     padding: .28rem .7rem;
@@ -1479,13 +1473,13 @@
     cursor: pointer;
     transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
   }
-  .tw-task-vote-btn--up {color: var(--badge-approved-color);
+  .tw-task-card .tw-task-vote-btn--up {color: var(--badge-approved-color);
   }
   .tw-task-vote-btn--up.tw-active,
-  .tw-task-vote-btn--up:hover {background: var(--badge-approved-bg);
+  .tw-task-card .tw-task-vote-btn--up:hover {background: var(--badge-approved-bg);
     border-color: var(--badge-approved-border);
   }
-  .tw-task-vote-btn--down {color: var(--text-muted);
+  .tw-task-card .tw-task-vote-btn--down {color: var(--text-muted);
   }
   .tw-task-vote-btn--down.tw-active {background: var(--color-surface-offset);
     border-color: var(--border);
@@ -2943,6 +2937,7 @@
   .tw-topbar .tw-topbar-breadcrumb {flex: 1;
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: .4rem;
     font-size: .82rem;
     color: var(--text-muted);
@@ -3061,19 +3056,21 @@
   }
   .tw-topbar .tw-btn-cta-label {display: none;
   }
-  .tw-topbar .tw-topbar-breadcrumb .tw-sep,
-  .tw-topbar .tw-topbar-breadcrumb .tw-current {display: none;
+  .tw-topbar .tw-topbar-breadcrumb > .tw-sep {display: none;
   }
   .tw-topbar .tw-topbar-logo .tw-logo-label {display: none;
   }
   .tw-topbar .tw-topbar-breadcrumb {position: relative;
-      justify-content: center;
+      justify-content: flex-start;
   }
   .tw-topbar .tw-topbar-breadcrumb .tw-current {display: inline;
+      flex: 1 1 auto;
+      min-width: 0;
+      padding-left: 4.25rem;
       font-size: .9rem;
       font-weight: 600;
       color: var(--text-primary);
-      max-width: 45%;
+      max-width: none;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -4576,36 +4573,9 @@
   }
 
   /* ── 4.1 Board detail ────────────────────────────────────── */
-  .tw-board-post-card {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
-    margin: 0.75rem 0;
-    background: var(--bg-card);
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
-    box-shadow: var(--shadow-overlay);
-  }
-  .tw-post-header {
-    border-bottom: 2px solid var(--border);
-    padding-bottom: 1.5rem;
-    margin-bottom: 2rem;
-    text-align: center;
-  }
-  .tw-post-title {
-    color: var(--badge-proposition-color);
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin: 0 0 1rem 0;
-    letter-spacing: 0.5px;
-  }
   .tw-post-subtitle {
     color: var(--text-muted);
-    font-size: 1.5rem;
-    font-weight: 400;
-    margin: 0;
     font-style: italic;
-    opacity: 0.9;
   }
   .tw-post-featured-image {
     margin-bottom: 1rem;
@@ -4672,15 +4642,15 @@
     margin: 2rem 0;
     border: 1px solid var(--border);
   }
-  .tw-board-post-card table,
-  .tw-board-post-card .tw-table {
+  .tw-post-content table,
+  .tw-post-content .tw-table {
     border-collapse: collapse;
     width: 100%;
   }
-  .tw-board-post-card table td,
-  .tw-board-post-card table th,
-  .tw-board-post-card .tw-table td,
-  .tw-board-post-card .tw-table th {
+  .tw-post-content table td,
+  .tw-post-content table th,
+  .tw-post-content .tw-table td,
+  .tw-post-content .tw-table th {
     border: 1px solid var(--border);
     padding: 8px;
   }
@@ -4742,37 +4712,17 @@
     border-bottom-right-radius: 0;
   }
   @media (max-width: 699.98px) {
-    .tw-board-post-card {
-      margin: 0.5rem 0;
-      padding: 1rem;
-      max-width: 98%;
-      min-width: 0;
-      box-sizing: border-box;
-    }
-    .tw-board-post-card .tw-post-header {
-      min-width: 0;
-      max-width: 100%;
-    }
-    .tw-post-title { font-size: 1.75rem; }
-    .tw-post-subtitle { font-size: 1.2rem; }
-    .tw-board-post-card table,
-    .tw-board-post-card .tw-table {
+    .tw-post-content table,
+    .tw-post-content .tw-table {
       font-size: 0.8rem;
     }
-    .tw-board-post-card table td,
-    .tw-board-post-card table th,
-    .tw-board-post-card .tw-table td,
-    .tw-board-post-card .tw-table th {
+    .tw-post-content table td,
+    .tw-post-content table th,
+    .tw-post-content .tw-table td,
+    .tw-post-content .tw-table th {
       padding: 4px 2px;
       white-space: normal;
     }
-  }
-  @media (max-width: 480px) {
-    .tw-board-post-card {
-      padding: 0.75rem;
-    }
-    .tw-post-title { font-size: 1.5rem; }
-    .tw-post-subtitle { font-size: 1.1rem; }
   }
 
   /* ── 4.1 Board / shared toolbar ──────────────────────────── */
@@ -4871,7 +4821,7 @@
     color: var(--text-primary);
     border-color: rgba(255, 255, 255, 0.2);
   }
-  .tw-sort-btn[data-sort-state] {
+  .tw-sort-btn[data-sort-state]:not([data-sort-state="none"]) {
     color: var(--accent);
     border-color: var(--accent-border);
     background: var(--accent-muted);
@@ -4882,6 +4832,12 @@
     border-color: var(--accent-border);
     background: var(--accent-muted);
     font-weight: 500;
+  }
+  .tw-sort-btn.tw-sort-btn--off {
+    color: var(--text-muted);
+    border-color: var(--border);
+    background: transparent;
+    opacity: 1;
   }
   .tw-sort-btn-label {
     font-size: 0.78rem;
@@ -5205,6 +5161,17 @@
   .tw-citizen-card-top {
     position: relative;
     display: inline-flex;
+  }
+  .tw-citizen-section {
+    height: 28rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .tw-citizen-section-btn.tw-active {
+    color: var(--accent);
+    border-color: var(--accent-border);
+    background: var(--accent-muted);
+    font-weight: 500;
   }
   .tw-avatar-presence {
     position: relative;
@@ -5694,6 +5661,7 @@
   }
   .tw-collapse.tw-show {
     display: block;
+    visibility: visible;
   }
   tr.tw-collapse.tw-show {
     display: table-row;
@@ -5931,12 +5899,14 @@ body.tw-chat-page .tw-main-area {
     overflow: clip;
 }
 .tw-room-list-col {
+    --room-list-min-width: 17rem;
     display: flex;
     flex-direction: column;
     min-height: 0;
     overflow: clip;
-    flex: 0 0 41.666667%;
-    max-width: 41.666667%;
+    flex: 0 0 clamp(var(--room-list-min-width), 34vw, 26rem);
+    width: clamp(var(--room-list-min-width), 34vw, 26rem);
+    max-width: clamp(var(--room-list-min-width), 34vw, 26rem);
     padding: 0;
 }
 .tw-chat-root-messages {
@@ -6335,6 +6305,7 @@ body.tw-chat-page .tw-main-area {
     z-index: 5;
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: .5rem;
     background: var(--bg-card);
     border-bottom: 1px solid var(--border);
@@ -6344,11 +6315,27 @@ body.tw-chat-page .tw-main-area {
 }
 .tw-chat-breadcrumb-row .tw-chat-breadcrumb {
     position: static;
-    border-bottom: none;
-    padding: 0;
-    flex: 1 1 auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-btn);
+    padding: .25rem .5rem;
+    flex: 0 0 auto;
+    width: fit-content;
+    max-width: 100%;
     min-width: 0;
-    background: transparent;
+    margin-left: auto;
+    background: var(--btn-glass-bg);
+    cursor: pointer;
+    transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.tw-chat-breadcrumb-row .tw-chat-breadcrumb:hover {
+    border-color: var(--btn-glass-hover-border);
+    background: var(--btn-glass-hover-bg);
+}
+
+.tw-chat-breadcrumb-row .tw-chat-breadcrumb:focus-visible {
+    outline: 2px solid var(--accent-border);
+    outline-offset: 1px;
 }
 .tw-chat-sort-toolbar {
     display: flex;
@@ -6442,13 +6429,27 @@ body.tw-chat-page .tw-main-area {
 }
 .tw-room-list-controls-inner {
     display: flex;
+    flex-direction: column;
+    gap: .325rem;
+}
+.tw-room-list-controls-row {
+    display: flex;
     align-items: center;
-    gap: .25rem;
+    gap: .325rem;
+    min-width: 0;
+    overflow-x: auto;
+}
+.tw-room-list-controls-row--top {
     justify-content: flex-end;
 }
-.tw-room-list-controls-inner .tw-sort-btn {
-    padding: .28rem .45rem;
-    flex-shrink: 0;
+.tw-room-list-controls-row::-webkit-scrollbar {
+    display: none;
+}
+.tw-room-list-controls-inner .tw-room-control-btn {
+    min-height: 42px;
+    padding: .36rem .6rem;
+    flex: 0 0 auto;
+    font-size: 1rem;
 }
 .tw-room-search-wrapper {
     position: relative;
@@ -6457,12 +6458,13 @@ body.tw-chat-page .tw-main-area {
 }
 .tw-room-search-input {
     width: 100%;
-    padding: .28rem .65rem .28rem 1.8rem;
+    min-height: 42px;
+    padding: .36rem .85rem .36rem 2.35rem;
     background: transparent;
     border: 1px solid var(--border);
     border-radius: .4rem;
     color: var(--text-primary);
-    font-size: .8rem;
+    font-size: 1.04rem;
     line-height: 1.2;
     transition: border-color var(--transition-fast), background var(--transition-fast);
 }
@@ -6476,11 +6478,11 @@ body.tw-chat-page .tw-main-area {
 }
 .tw-room-search-icon {
     position: absolute;
-    left: .55rem;
+    left: .72rem;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-muted);
-    font-size: .75rem;
+    font-size: .975rem;
     pointer-events: none;
 }
 .tw-chat-messages::-webkit-scrollbar,
@@ -6545,10 +6547,12 @@ body.tw-chat-page .tw-main-area {
     min-width: 0;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: .35rem;
     padding: .4rem .5rem;
-    background: none;
-    border: none;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-btn);
     color: var(--chat-cat-accent, var(--text-muted));
     font-size: .82rem;
     font-weight: 600;
@@ -6562,6 +6566,7 @@ body.tw-chat-page .tw-main-area {
     color: var(--text-primary);
 }
 .tw-chat-cat-arrow {
+    order: 2;
     font-size: .7rem;
     transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
     flex-shrink: 0;
@@ -6758,15 +6763,6 @@ body.tw-chat-page .tw-main-area {
     color: var(--text-primary);
     background: var(--color-surface-offset);
 }
-@media (hover: hover) {
-    .tw-room-link-chevron {
-        opacity: 0;
-    }
-    .tw-room-link:hover .tw-room-link-chevron,
-    .tw-room-link-chevron[aria-expanded="true"] {
-        opacity: 1;
-    }
-}
 .tw-copy-feedback {
     position: absolute;
     top: -0.2rem;
@@ -6810,10 +6806,7 @@ body.tw-chat-page .tw-main-area {
 }
 
 /* Hidden active sections shown via JS */
-#content-pub-rooms-active,
-#content-tasks-active,
-#content-votes-active,
-#content-prv-active {
+.tw-archive-mode .tw-active-rooms-section {
     display: none;
 }
 
@@ -6837,7 +6830,7 @@ body.tw-chat-page .tw-main-area {
     }
     /* Desktop: room list is always visible; breadcrumb is redundant. */
     .tw-chat-breadcrumb-row {
-        justify-content: flex-end;
+        justify-content: flex-start;
     }
     .tw-chat-breadcrumb-row .tw-chat-breadcrumb {
         display: none;
@@ -6864,7 +6857,7 @@ body.tw-chat-page .tw-main-area {
     .tw-modal-body p {
         font-size: 0.8rem;
     }
-    /* Mobile: room-list-col is an 80% drawer from the right, over the
+    /* Mobile: room-list-col is a 75% drawer from the right, over the
        messages/placeholder area. position:fixed anchors it to the viewport
        exactly like .tw-chat-root-messages — .tw-room-list (flex:1 1 auto)
        otherwise collapses to 0px whenever the body.tw-chat-page/100dvh
@@ -6873,11 +6866,11 @@ body.tw-chat-page .tw-main-area {
         position: fixed;
         top: var(--topbar-height, 60px);
         bottom: env(safe-area-inset-bottom, 0px);
-        left: 20%;
-        right: 0;
-        width: 80% !important;
-        max-width: 80% !important;
-        flex: 0 0 80% !important;
+        left: calc(100% - max(75%, var(--room-list-min-width))) !important;
+        right: auto;
+        width: max(75%, var(--room-list-min-width)) !important;
+        max-width: max(75%, var(--room-list-min-width)) !important;
+        flex: 0 0 max(75%, var(--room-list-min-width)) !important;
         display: flex !important;
         background: var(--bg-base);
         border-left: 1px solid var(--border);
@@ -6939,13 +6932,6 @@ body.tw-chat-page .tw-main-area {
     }
     .tw-compose-bar-right {
         margin-left: auto;
-    }
-    /* Mobile: category headers aligned to the right (thumb reach) */
-    .tw-chat-cat-btn {
-        justify-content: flex-end;
-    }
-    .tw-chat-cat-arrow {
-        order: 1;
     }
     /* Mobile: breadcrumb becomes the room-list toggle, ordered right-to-left:
        [room name ...] [back icon] [category]. Sort toolbar stays on the left. */

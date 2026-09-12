@@ -4,7 +4,11 @@ from .models import Post
 def get_context(user, month_param: str = '') -> dict:
     """Return dashboard widgets for the board app (featured documents carousel)."""
     featured_documents = (
-        Post.objects.filter(Post.visibility_filter_for_user(user)).filter(featured_image__isnull=False).exclude(featured_image='').order_by('-updated').only('pk', 'title', 'subtitle', 'featured_image')[:10]
+        Post.objects.filter(Post.visibility_filter_for_user(user), is_deleted=False)
+        .filter(featured_image__isnull=False)
+        .exclude(featured_image='')
+        .order_by('-updated')
+        .only('pk', 'title', 'subtitle', 'featured_image')[:10]
     )
     return {'featured_documents': featured_documents}
 

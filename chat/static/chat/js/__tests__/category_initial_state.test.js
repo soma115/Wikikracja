@@ -13,6 +13,26 @@ function categoryHasUnreadRoom(content) {
     return !!content.querySelector('.tw-room-link.tw-room-link--not-seen');
 }
 
+function closeOtherCategories(content) {
+    document.querySelectorAll('.tw-chat-cat-content').forEach(otherContent => {
+        if (otherContent === content) return;
+        otherContent.classList.remove('tw-open');
+        const otherBtn = document.querySelector(`[data-cat-content="${otherContent.id}"]`);
+        otherBtn?.setAttribute('aria-expanded', 'false');
+    });
+}
+
+let globalArchiveBtn;
+
+function toggleCategory(btn, content) {
+    const isOpen = content.classList.contains('tw-open');
+    if (!isOpen && !globalArchiveBtn?.classList.contains('tw-active')) {
+        closeOtherCategories(content);
+    }
+    content.classList.toggle('tw-open', !isOpen);
+    btn.setAttribute('aria-expanded', String(!isOpen));
+}
+
 function applyInitialCategoryState(btn, content) {
     const contentId = btn.dataset.catContent;
     if (!contentId || !content) return;
@@ -27,6 +47,7 @@ function applyInitialCategoryState(btn, content) {
         isOpen = categoryHasUnreadRoom(content);
     }
 
+    if (isOpen) closeOtherCategories(content);
     content.classList.toggle('tw-open', isOpen);
     btn.setAttribute('aria-expanded', String(isOpen));
 
@@ -39,10 +60,20 @@ function applyInitialCategoryState(btn, content) {
     }
 }
 
+function expandCategoriesWithArchivedRooms() {
+    document.querySelectorAll('.tw-chat-cat-content').forEach(content => {
+        if (!content.querySelector('.tw-archive-section .tw-room-link')) return;
+        content.classList.add('tw-open');
+        const catBtn = document.querySelector(`[data-cat-content="${content.id}"]`);
+        catBtn?.setAttribute('aria-expanded', 'true');
+    });
+}
+
 // ── helpers testowe ──────────────────────────────────────────────────────────
 
 beforeEach(() => {
     document.body.innerHTML = '';
+    globalArchiveBtn = null;
     localStorage.clear();
 });
 
@@ -74,6 +105,79 @@ function makeCategory({ id, withArchive = false } = {}) {
 }
 
 // ── domyślny stan na podstawie nieprzeczytanych ──────────────────────────────
+
+describe('expandCategoriesWithArchivedRooms', () => {
+    test('rozwija wszystkie działy zawierające zarchiwizowane pokoje', () => {
+        const withArchivedRooms = makeCategory({ id: 'cat-archived' });
+        const withoutArchivedRooms = makeCategory({ id: 'cat-empty' });
+        withoutArchivedRooms.content.classList.remove('tw-open');
+        withoutArchivedRooms.btn.setAttribute('aria-expanded', 'false');
+        const archive = document.createElement('div');
+        archive.className = 'tw-archive-section';
+        archive.appendChild(makeRoomLink({ id: 1, archived: true }));
+        withArchivedRooms.content.appendChild(archive);
+        document.body.append(withArchivedRooms.cat, withoutArchivedRooms.cat);
+
+        expandCategoriesWithArchivedRooms();
+
+        expect(withArchivedRooms.content.classList.contains('tw-open')).toBe(true);
+        expect(withArchivedRooms.btn.getAttribute('aria-expanded')).toBe('true');
+        expect(withoutArchivedRooms.content.classList.contains('tw-open')).toBe(false);
+        expect(withoutArchivedRooms.btn.getAttribute('aria-expanded')).toBe('false');
+    });
+});
+
+describe('toggleCategory', () => {
+    test('po włączeniu archiwum pozwala otworzyć wiele działów', () => {
+        const first = makeCategory({ id: 'cat-first' });
+        const second = makeCategory({ id: 'cat-second' });
+        first.content.classList.remove('tw-open');
+        first.btn.setAttribute('aria-expanded', 'false');
+        second.content.classList.remove('tw-open');
+        second.btn.setAttribute('aria-expanded', 'false');
+        globalArchiveBtn = document.createElement('button');
+        globalArchiveBtn.classList.add('tw-active');
+        document.body.append(first.cat, second.cat, globalArchiveBtn);
+
+        toggleCategory(first.btn, first.content);
+        toggleCategory(second.btn, second.content);
+
+        expect(first.content.classList.contains('tw-open')).toBe(true);
+        expect(second.content.classList.contains('tw-open')).toBe(true);
+    });
+
+    test('po wyłączeniu archiwum zachowuje wyłączność otwartego działu', () => {
+        const first = makeCategory({ id: 'cat-first' });
+        const second = makeCategory({ id: 'cat-second' });
+        first.content.classList.remove('tw-open');
+        first.btn.setAttribute('aria-expanded', 'false');
+        second.content.classList.remove('tw-open');
+        second.btn.setAttribute('aria-expanded', 'false');
+        document.body.append(first.cat, second.cat);
+
+        toggleCategory(first.btn, first.content);
+        toggleCategory(second.btn, second.content);
+
+        expect(first.content.classList.contains('tw-open')).toBe(false);
+        expect(second.content.classList.contains('tw-open')).toBe(true);
+    });
+});
+
+describe('applyInitialCategoryState — wykluczające się kategorie', () => {
+    test('pozostawia otwartą najwyżej jedną kategorię', () => {
+        const first = makeCategory({ id: 'cat-first' });
+        const second = makeCategory({ id: 'cat-second' });
+        document.body.append(first.cat, second.cat);
+        localStorage.setItem('chat-cat-cat-first', 'expanded');
+
+        applyInitialCategoryState(first.btn, first.content);
+        applyInitialCategoryState(second.btn, second.content);
+
+        expect(first.content.classList.contains('tw-open')).toBe(true);
+        expect(second.content.classList.contains('tw-open')).toBe(false);
+        expect(second.btn.getAttribute('aria-expanded')).toBe('false');
+    });
+});
 
 describe('applyInitialCategoryState — domyślny stan od nieprzeczytanych', () => {
 

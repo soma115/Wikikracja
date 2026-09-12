@@ -96,6 +96,22 @@ class ChatViewsTest(TestCase):
         self.assertContains(response, 'data-category="surveys"')
         self.assertContains(response, 'data-room-kind="survey"')
 
+    def test_search_rooms_requires_login(self):
+        response = self.client.get(reverse("chat:search_rooms"), {"q": "Public"})
+        self.assertEqual(response.status_code, 302)
+
+    def test_search_rooms_includes_archived_public_rooms_but_not_private_rooms(self):
+        archived = Room.objects.create(title="PublicRoom Archive", public=True, archived=True)
+        archived.allowed.add(self.user)
+        private = Room.objects.create(title="PublicRoom private", public=False, archived=True)
+        private.allowed.add(self.user)
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("chat:search_rooms"), {"q": "publicroom"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["rooms"], [{"id": self.room.id, "title": "PublicRoom", "archived": False}, {"id": archived.id, "title": "PublicRoom Archive", "archived": True}])
+
     def test_add_room_get_requires_login(self):
         response = self.client.get(reverse("chat:add_room"))
         self.assertEqual(response.status_code, 302)
@@ -110,6 +126,12 @@ class ChatViewsTest(TestCase):
         response = self.client.post(reverse("chat:add_room"), {"title": "NowyPokój"})
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Room.objects.filter(title="NowyPokój").exists())
+
+    def test_add_room_ajax_returns_created_room_id(self):
+        self.client.force_login(self.user)
+        response = self.client.post(reverse("chat:add_room"), {"title": "Pokój z popupu"}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["room_id"], Room.objects.get(title="Pokój z popupu").id)
 
     def test_add_room_post_duplicate_title_shows_form_errors(self):
         self.client.force_login(self.user)

@@ -1,5 +1,19 @@
 # LOG_AI
 
+## 2026-09-12: Wyrównanie kategorii czatu do prawej
+
+- **Zmieniony plik:** `home/static/home/css/tailwind.css`.
+- **Co się zmieniło:** Zawartość przycisków kategorii czatu jest wyrównana do prawej strony niezależnie od szerokości ekranu; usunięto redundantne nadpisanie mobilne.
+- **Uzasadnienie:** Użytkownik poprosił o dosunięcie nagłówków kategorii do prawej strony przy zachowaniu kolejności licznika, nazwy i strzałki.
+- **Spodziewany efekt:** Nagłówki wszystkich kategorii czatu są skupione przy prawej krawędzi panelu.
+
+## 2026-09-12: Kolejność elementów nagłówków kategorii czatu
+
+- **Zmienione pliki:** `chat/templates/chat/chat.html`, `home/static/home/css/tailwind.css`.
+- **Co się zmieniło:** Nazwy kategorii zostały opakowane w elementy flex, a strzałki otrzymały stałą kolejność po nazwie. Licznik nieprzeczytanych pozostaje przed nazwą dzięki istniejącemu porządkowi CSS.
+- **Uzasadnienie:** Nagłówki kategorii powinny być czytelne i spójne: patrząc od prawej, strzałka stanu, nazwa kategorii, a następnie po lewej liczba nieprzeczytanych wiadomości.
+- **Spodziewany efekt:** Na desktopie i urządzeniach mobilnych przyciski kategorii mają kolejność wizualną: licznik, nazwa, strzałka od lewej do prawej.
+
 ## 2026-09-12: Nawigacja Previous/Next na szczegółach ankiet, transakcji, wydarzeń i dokumentów
 
 - **Zmienione obszary:** `core.utils`, wspólny partial `home/templates/home/includes/detail_navigation.html`, aplikacje `ankiety`, `bookkeeping`, `events` i `board` oraz ich testy.

@@ -44,19 +44,9 @@ class Decyzja(ChatRoomModel, models.Model):
     )
     uzasadnienie = models.TextField(max_length=4000, null=True, verbose_name=_('Reasoning'), help_text=_('Why do we need this law? What events or thoughts inspired this bill? What are the expected results?'))
     args_for = models.TextField(
-        # TODO: This field should be filled out by anyone - like comments or chat:
-        max_length=1500,
-        null=True,
-        verbose_name=_('Positive Aspects of the Idea'),
-        help_text=_('Enter the benefits for the group, environment, economy, etc. resulting from the introduction of the idea.'),
+        max_length=1500, null=True, verbose_name=_('Positive Aspects of the Idea'), help_text=_('Enter the benefits for the group, environment, economy, etc. resulting from the introduction of the idea.')
     )
-    args_against = models.TextField(
-        # TODO: This field should be filled out by anyone - like comments or chat:
-        max_length=1500,
-        null=True,
-        verbose_name=_('Negative Aspects of the Idea'),
-        help_text=_('Enter the potential threat associated with the proposal.'),
-    )
+    args_against = models.TextField(max_length=1500, null=True, verbose_name=_('Negative Aspects of the Idea'), help_text=_('Enter the potential threat associated with the proposal.'))
     znosi = models.CharField(
         max_length=50,
         null=True,

@@ -3,9 +3,10 @@
 {% load richtext %}
 
 {% block content %}
+{% include 'home/includes/stepper.html' with stepper=stepper %}
 <div class="tw-container tw-my-4">
 
-  {% include 'home/includes/detail_header.html' with title=event.title back_url=list_url navigation_include='home/includes/detail_navigation.html' actions_include='events/_event_detail_actions.html' badges_include='events/_event_detail_badges.html' extra_class='tw-w-full' %}
+  {% include 'home/includes/detail_header.html' with title=event.title navigation_include='home/includes/detail_navigation.html' actions_include='events/_event_detail_actions.html' badges_include='events/_event_detail_badges.html' extra_class='tw-w-full' %}
 
   <div class="tw-card tw-w-full">
     <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
@@ -61,7 +62,7 @@
             <i class="fas fa-link fa-fw"></i> {% trans "Link to the meeting" %}
           </div>
           <div class="tw-detail-section-text">
-            <a href="{{ event.link }}" target="_blank" rel="noopener" class="tw-event-link">
+            <a href="{{ event.link }}" target="_blank" rel="noopener" class="tw-text-primary-link tw-break-words">
               {{ event.link }} <i class="fas fa-external-link-alt fa-sm"></i>
             </a>
           </div>
@@ -90,8 +91,8 @@
   </div>
 
   <div class="tw-flex tw-gap-2 tw-mt-4">
-    <a href="{{ event.google_calendar_url }}" target="_blank" rel="noopener" class="tw-btn-cta tw-btn-cta--round" title="{% trans 'Add to Google Calendar' %}">
-      <i class="far fa-calendar-plus"></i> {% trans "Add to Google Calendar" %}
+    <a href="{{ event.google_calendar_url }}" target="_blank" rel="noopener" class="tw-btn tw-btn-secondary" title="{% trans 'Add to Google Calendar' %}">
+      <i class="fas fa-calendar-plus fa-fw"></i> {% trans "Add to Google Calendar" %}
     </a>
   </div>
 

@@ -5,6 +5,8 @@
 
 {% block content %}
 
+{% include 'home/includes/stepper.html' with stepper=stepper %}
+
 {# ── TOOLBAR ── #}
 {% if user.is_authenticated %}{% url 'events:create' as cta_url %}{% endif %}
 {% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add Event') cta_end=True %}

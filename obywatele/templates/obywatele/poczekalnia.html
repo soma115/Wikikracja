@@ -19,9 +19,8 @@
 
 {% endif %}
 
-<div class="tw-card">
-  {% if uid %}
-  <div class="tw-card-body tw-p-0" data-view-container>
+{% if uid %}
+  <div data-view-container>
 
     {# ── List view ── #}
     <div id="citizens-list-view" data-view-only="list" class="tw-proposals-list">
@@ -51,7 +50,7 @@
     {# ── Grid view ── #}
     <div id="citizens-grid-view" data-view-only="grid" class="tw-citizens-grid tw-proposals-list">
       {% for i in uid|dictsortreversed:"date_joined" %}
-      <div class="tw-citizen-card tw-text-start tw-items-start tw-self-start"
+      <div class="tw-citizen-card tw-text-start tw-items-start"
            data-user-id="{{ i.pk }}"
            data-detail-url="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}"
            role="link" tabindex="0"
@@ -124,12 +123,9 @@
 
   </div>
 
-  {% else %}
-  <div class="tw-card-body">
-    <div class="tw-alert tw-alert-info tw-mb-0">{% trans "No candidates" %}</div>
-  </div>
-  {% endif %}
-</div>
+{% else %}
+<div class="tw-alert tw-alert-info">{% trans "No candidates" %}</div>
+{% endif %}
 
 <script src="{% static 'obywatele/js/citizens_list.js' %}"></script>
 

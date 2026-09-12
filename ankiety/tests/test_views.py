@@ -116,11 +116,17 @@ class SurveyViewsTests(TestCase):
         self.assertIn("text", response.context["custom_option_form"].errors)
         self.assertEqual(survey.options.count(), 2)
 
-    def test_edit_only_by_author(self):
+    def test_any_logged_in_user_can_edit_active_survey(self):
         survey = self._create_survey(self.author)
         self.client.login(username="other", password="pass")
         response = self.client.get(reverse("ankiety:edit", args=[survey.pk]))
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
+
+        future = (timezone.now() + timedelta(days=3)).strftime("%Y-%m-%dT%H:%M")
+        response = self.client.post(reverse("ankiety:edit", args=[survey.pk]), {"title": "Updated by other", "description": "", "end_date": future, "options_text": "One\nTwo"})
+        self.assertRedirects(response, reverse("ankiety:detail", args=[survey.pk]))
+        survey.refresh_from_db()
+        self.assertEqual(survey.title, "Updated by other")
 
     def test_author_can_edit(self):
         survey = self._create_survey(self.author)
@@ -183,6 +189,15 @@ class SurveyViewsTests(TestCase):
         response = self.client.get(reverse("ankiety:list"), {"tab": "finished"})
         self.assertContains(response, finished.title)
         self.assertNotContains(response, active.title)
+
+    def test_detail_stepper_returns_to_selected_survey_category(self):
+        survey = self._create_survey(self.author)
+        self.client.login(username="author", password="pass")
+
+        response = self.client.get(reverse("ankiety:detail", args=[survey.pk]), {"tab": "active", "q": "Test"})
+
+        self.assertEqual(response.context["stepper"]["steps"][0]["url"], f"{reverse('ankiety:list')}?tab=active&q=Test")
+        self.assertEqual(response.context["stepper"]["steps"][1]["url"], f"{reverse('ankiety:list')}?tab=finished&q=Test")
 
     def test_detail_navigation_follows_active_tab_and_search(self):
         first = self._create_survey(self.author, end_delta=timedelta(days=1), title="Navigation first")
@@ -278,6 +293,24 @@ class SurveyViewsTests(TestCase):
         response = self.client.get(reverse("ankiety:detail", args=[survey.pk]))
         self.assertEqual(response.context["total_votes"], 0)
         self.assertTrue(all(opt.percentage == 0 for opt in response.context["options"]))
+
+    def test_detail_without_options_uses_shared_empty_state(self):
+        survey = Survey.objects.create(title="Empty survey", end_date=timezone.now() - timedelta(days=1), author=self.author)
+        self.client.login(username="author", password="pass")
+
+        response = self.client.get(reverse("ankiety:detail", args=[survey.pk]))
+
+        self.assertContains(response, "tw-empty-state")
+        self.assertContains(response, "tw-empty-state-title")
+
+    def test_detail_custom_option_uses_standard_field_markup(self):
+        survey = Survey.objects.create(title="Custom options", end_date=timezone.now() + timedelta(days=1), author=self.author, allow_custom_options=True)
+        self.client.login(username="author", password="pass")
+
+        response = self.client.get(reverse("ankiety:detail", args=[survey.pk]))
+
+        self.assertContains(response, "tw-form-label")
+        self.assertContains(response, "tw-form-control")
 
     def test_list_results_show_percentages_for_finished_survey(self):
         survey = self._create_survey(self.author, end_delta=timedelta(days=-1))

@@ -98,6 +98,39 @@ class BookkeepingViewTests(TestCase):
         self.assertEqual(response.context['previous_url'], f"{reverse('bookkeeping:transaction_detail', args=[last.pk])}?q=navigation")
         self.assertEqual(response.context['next_url'], f"{reverse('bookkeeping:transaction_detail', args=[first.pk])}?q=navigation")
 
+    def test_transaction_detail_links_related_objects(self):
+        transaction = self._transaction()
+
+        response = self.client.get(reverse('bookkeeping:transaction_detail', args=[transaction.pk]))
+
+        self.assertContains(response, f'href="{reverse("bookkeeping:partner_detail", args=[self.partner.pk])}"')
+        self.assertContains(response, f'href="{reverse("bookkeeping:category_detail", args=[self.category.pk])}"')
+        self.assertContains(response, f'href="{reverse("bookkeeping:asset_detail", args=[self.asset.pk])}"')
+
+    def test_asset_detail_does_not_repeat_code_as_badge(self):
+        response = self.client.get(reverse('bookkeeping:asset_detail', args=[self.asset.pk]))
+
+        self.assertNotContains(response, 'tw-badge tw-badge-secondary')
+
+    def test_partner_detail_keeps_missing_navigation_directions_visible(self):
+        first = self.partner
+        middle = Partner.objects.create(name='Middle Partner')
+        last = Partner.objects.create(name='Last Partner')
+
+        response = self.client.get(reverse('bookkeeping:partner_detail', args=[first.pk]))
+        self.assertIsNone(response.context['prev_partner'])
+        self.assertEqual(response.context['next_partner'].pk, middle.pk)
+        self.assertContains(response, 'fa-chevron-left')
+        self.assertContains(response, 'fa-chevron-right')
+        self.assertContains(response, 'class="tw-detail-nav-btn tw-disabled"', count=1)
+
+        response = self.client.get(reverse('bookkeeping:partner_detail', args=[last.pk]))
+        self.assertEqual(response.context['prev_partner'].pk, middle.pk)
+        self.assertIsNone(response.context['next_partner'])
+        self.assertContains(response, 'fa-chevron-left')
+        self.assertContains(response, 'fa-chevron-right')
+        self.assertContains(response, 'class="tw-detail-nav-btn tw-disabled"', count=1)
+
     def test_transaction_update_and_delete_only_by_author(self):
         other = User.objects.create_user(username='other', email='o@example.com', password='x')
         txn = self._transaction(author=other)

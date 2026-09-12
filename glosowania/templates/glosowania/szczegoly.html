@@ -78,13 +78,13 @@
   {# Treść przepisu #}
   {% if id.tresc or id.kara or id.uzasadnienie or id.znosi %}
   <div class="tw-card">
+    <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
+      <h2 class="tw-section-heading tw-mb-0"><i class="fas fa-scroll tw-text-accent tw-me-1"></i>{% trans 'Law text' %}</h2>
+    </div>
     <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
-      <div class="tw-flex tw-items-center tw-gap-2">
-        <i class="fas fa-scroll tw-text-accent tw-text-sm"></i>
-        <h2 class="tw-section-heading tw-text-sm tw-mb-0">{% trans 'Law text' %}</h2>
-      </div>
       {% if id.tresc %}
       <div class="tw-detail-subsection">
+        <div class="tw-detail-section-label"><i class="fas fa-file-lines fa-fw"></i>{% trans 'Content' %}</div>
         <div class="tw-detail-section-text tw-text-sm">{{ id.tresc|richtext }}</div>
       </div>
       {% endif %}
@@ -138,8 +138,8 @@
         <div class="tw-arg-card-content">{{ arg.content|richtext }}</div>
         {% if arg.author == current_user and not id.voting_has_ended %}
         <div class="tw-arg-card-footer">
-          <a href="{% url 'glosowania:edit_argument' arg.id %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
           <a href="{% url 'glosowania:delete_argument' arg.id %}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></a>
+          <a href="{% url 'glosowania:edit_argument' arg.id %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
         </div>
         {% endif %}
       </div>
@@ -155,7 +155,7 @@
       <form method="POST" action="{% url 'glosowania:add_argument' id.pk %}">
         {% csrf_token %}
         <input type="hidden" name="argument_type" value="FOR">
-        <textarea name="content" rows="3" maxlength="1000" placeholder="{% trans 'Your argument for...' %}" required></textarea>
+        <textarea name="content" rows="3" maxlength="1000" class="tw-form-control" placeholder="{% trans 'Your argument for...' %}" required></textarea>
         <button type="submit" class="tw-arg-inline-submit tw-arg-inline-submit--for"><i class="fas fa-plus fa-fw tw-me-1"></i> {% trans 'Add' %}</button>
       </form>
     </div>
@@ -179,8 +179,8 @@
         <div class="tw-arg-card-content">{{ arg.content|richtext }}</div>
         {% if arg.author == current_user and not id.voting_has_ended %}
         <div class="tw-arg-card-footer">
-          <a href="{% url 'glosowania:edit_argument' arg.id %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
           <a href="{% url 'glosowania:delete_argument' arg.id %}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></a>
+          <a href="{% url 'glosowania:edit_argument' arg.id %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
         </div>
         {% endif %}
       </div>
@@ -196,7 +196,7 @@
       <form method="POST" action="{% url 'glosowania:add_argument' id.pk %}">
         {% csrf_token %}
         <input type="hidden" name="argument_type" value="AGAINST">
-        <textarea name="content" rows="3" maxlength="1000" placeholder="{% trans 'Your argument against...' %}" required></textarea>
+        <textarea name="content" rows="3" maxlength="1000" class="tw-form-control" placeholder="{% trans 'Your argument against...' %}" required></textarea>
         <button type="submit" class="tw-arg-inline-submit tw-arg-inline-submit--against"><i class="fas fa-plus fa-fw tw-me-1"></i> {% trans 'Add' %}</button>
       </form>
     </div>

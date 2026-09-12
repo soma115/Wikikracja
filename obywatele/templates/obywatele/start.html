@@ -10,8 +10,7 @@
 {# ── Toolbar z wyszukiwarką, filtrem i przełącznikiem widoku ── #}
 {% include 'home/includes/toolbar.html' with views=toolbar_views search_include='obywatele/_citizens_search.html' search_extra_include='obywatele/_citizens_filter.html' %}
 
-<div class="tw-card">
-  <div class="tw-card-body tw-p-0" data-view-container>
+<div data-view-container>
 
     {# ── List view ── #}
     <div id="citizens-list-view" data-view-only="list" class="tw-proposals-list">
@@ -37,7 +36,7 @@
     {# ── Grid view ── #}
     <div id="citizens-grid-view" data-view-only="grid" class="tw-citizens-grid tw-proposals-list">
       {% for i in uid %}
-      <div class="tw-citizen-card tw-text-start tw-items-start tw-self-start tw-min-w-0 tw-max-w-full tw-overflow-hidden"
+      <div class="tw-citizen-card tw-text-start tw-items-start tw-min-w-0 tw-max-w-full tw-overflow-hidden"
            data-user-id="{{ i.pk }}"
            data-detail-url="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}"
            role="link" tabindex="0"
@@ -123,7 +122,6 @@
       {% endfor %}
     </div>
 
-  </div>
 </div>
 
 <script src="{% static 'obywatele/js/citizens_list.js' %}"></script>

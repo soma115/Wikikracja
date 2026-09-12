@@ -5,10 +5,11 @@
 {% load feed_filters %}
 
 {% block content %}
+{% include 'home/includes/stepper.html' with stepper=stepper %}
 <div class="tw-container tw-my-4">
 
   {# ── HEADER ── #}
-  {% include 'home/includes/detail_header.html' with title=survey.title back_url=list_url meta_include='ankiety/_survey_detail_meta.html' navigation_include='home/includes/detail_navigation.html' actions_include='ankiety/_survey_detail_actions.html' %}
+  {% include 'home/includes/detail_header.html' with title=survey.title meta_include='ankiety/_survey_detail_meta.html' navigation_include='home/includes/detail_navigation.html' actions_include='ankiety/_survey_detail_actions.html' %}
 
   {% if survey.description %}
     <div class="tw-card tw-mb-4">
@@ -58,13 +59,7 @@
       </div>
       {% if survey.allow_custom_options %}
         <div class="tw-border-t tw-border-subtle tw-pt-3 tw-mt-3">
-          <label class="tw-form-label" for="{{ custom_option_form.text.id_for_label }}">{% trans 'Add your own option' %}</label>
-          {{ custom_option_form.text }}
-          {% if custom_option_form.text.errors %}
-            <div class="tw-text-danger tw-text-sm tw-mt-1" role="alert">
-              {% for error in custom_option_form.text.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
-            </div>
-          {% endif %}
+          {% include 'tw/field.html' with field=custom_option_form.text form_show_labels=True %}
           <button type="submit" name="custom_option" value="1" class="tw-btn tw-btn-outline-secondary tw-mt-2">
             <i class="fas fa-plus fa-fw tw-me-1"></i> {% trans 'Add option' %}
           </button>
@@ -86,31 +81,39 @@
 
   {# ── RESULTS ── #}
   {% if not is_active %}
-    <h2 class="tw-text-lg tw-font-semibold tw-mb-3">{% trans 'Results' %}</h2>
-    {% if options %}
-      <div class="tw-card tw-p-4">
-        {% include 'ankiety/_survey_results.html' with options=options total_votes=total_votes %}
-        <div class="tw-mt-2 tw-text-muted tw-text-end">
-          {% trans 'Total votes' %}: {{ total_votes }}
-        </div>
+    <div class="tw-card tw-mb-4">
+      <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
+        <h2 class="tw-section-heading tw-mb-0"><i class="fas fa-chart-bar fa-fw tw-me-1"></i>{% trans 'Results' %}</h2>
       </div>
-    {% else %}
-      <p class="tw-text-muted">{% trans 'No options.' %}</p>
-    {% endif %}
+      <div class="tw-card-body">
+        {% if options %}
+          {% include 'ankiety/_survey_results.html' with options=options total_votes=total_votes %}
+          <div class="tw-mt-2 tw-text-muted tw-text-end">
+            {% trans 'Total votes' %}: {{ total_votes }}
+          </div>
+        {% else %}
+          {% include 'home/includes/empty_state.html' with compact=True icon='fa-list-ul' title=_('No options.') %}
+        {% endif %}
+      </div>
+    </div>
   {% endif %}
 
   {# ── VOTERS ── #}
   {% if voter_choices %}
-    <h2 class="tw-text-lg tw-font-semibold tw-mb-3 tw-mt-4">{% trans 'Voters' %}</h2>
-    <div class="tw-card tw-p-0">
-      <div class="tw-list-group">
-        {% for user, choices in voter_choices.items %}
-          <div class="tw-list-group-item tw-flex tw-items-center tw-gap-2">
-            {% include "home/_user_avatar.html" with user=user size="sm" %}
-            <span>{{ user|display_name }}</span>
-            <span class="tw-text-muted tw-text-end">{{ choices|join:", " }}</span>
-          </div>
-        {% endfor %}
+    <div class="tw-card tw-mb-4">
+      <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
+        <h2 class="tw-section-heading tw-mb-0"><i class="fas fa-users fa-fw tw-me-1"></i>{% trans 'Voters' %}</h2>
+      </div>
+      <div class="tw-card-body tw-p-0">
+        <div class="tw-list-group">
+          {% for user, choices in voter_choices.items %}
+            <div class="tw-list-group-item tw-flex tw-items-center tw-gap-2">
+              {% include "home/_user_avatar.html" with user=user size="sm" %}
+              <span>{{ user|display_name }}</span>
+              <span class="tw-text-muted tw-text-end">{{ choices|join:", " }}</span>
+            </div>
+          {% endfor %}
+        </div>
       </div>
     </div>
   {% endif %}

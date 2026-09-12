@@ -3,8 +3,7 @@
 
 {% block bookkeeping %}
 <div class="tw-container tw-my-4">
-  {% url 'bookkeeping:partner_list' as partner_list_url %}
-  {% include 'home/includes/detail_header.html' with title=partner.name back_url=partner_list_url navigation_include='bookkeeping/_partner_detail_navigation.html' actions_include='bookkeeping/_detail_actions.html' %}
+  {% include 'home/includes/detail_header.html' with title=partner.name navigation_include='bookkeeping/_partner_detail_navigation.html' actions_include='bookkeeping/_detail_actions.html' %}
   <div class="tw-card">
     <div class="tw-card-body">
       <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-3">

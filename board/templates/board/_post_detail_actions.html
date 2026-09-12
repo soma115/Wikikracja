@@ -1,11 +1,22 @@
 {% load i18n %}
 {% if user.is_authenticated %}
 <div class="tw-detail-nav tw-flex tw-gap-1">
-  <a href="{% url 'board:edit_post' post.pk %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}">
-    <i class="fas fa-pen fa-fw" aria-hidden="true"></i>
-  </a>
-  <a href="{% url 'board:delete_post' post.pk %}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}">
-    <i class="fas fa-trash fa-fw" aria-hidden="true"></i>
-  </a>
+  {% if post.is_deleted %}
+    {% if post.author_id == user.pk %}
+    <form method="post" action="{% url 'board:restore_post' post.pk %}" class="tw-inline">
+      {% csrf_token %}
+      <button type="submit" class="tw-detail-nav-btn" title="{% trans 'Restore' %}" aria-label="{% trans 'Restore' %}">
+        <i class="fas fa-rotate-left fa-fw" aria-hidden="true"></i>
+      </button>
+    </form>
+    {% endif %}
+  {% else %}
+    <a href="{% url 'board:delete_post' post.pk %}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}">
+      <i class="fas fa-trash fa-fw" aria-hidden="true"></i>
+    </a>
+    <a href="{% url 'board:edit_post' post.pk %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}">
+      <i class="fas fa-pen fa-fw" aria-hidden="true"></i>
+    </a>
+  {% endif %}
 </div>
 {% endif %}

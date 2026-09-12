@@ -32,6 +32,7 @@ class Post(ChatRoomModel, models.Model):
     is_public = models.BooleanField(default=False, verbose_name=_("Public"))
     is_private = models.BooleanField(default=False, verbose_name=_("Private"))
     is_important = models.BooleanField(default=False, verbose_name=_("Important"))
+    is_deleted = models.BooleanField(default=False, verbose_name=_("In trash"))
     featured_image = models.ImageField(upload_to='board/featured/', null=True, blank=True, verbose_name=_("Featured Image"))
     system_key = models.CharField(max_length=50, unique=True, null=True, blank=True, verbose_name=_("System Key"))
     slug = models.SlugField(max_length=200, unique=True, null=True, blank=True, verbose_name=_("Link Alias"))

@@ -7,197 +7,171 @@
 <div class="tw-container tw-my-4">
   {% include 'home/includes/detail_header.html' with title=b|display_name navigation_include='obywatele/_citizen_detail_navigation.html' actions_include='obywatele/_citizen_detail_actions.html' %}
 
-  <div class="tw-card tw-mb-3">
-    <div class="tw-card-header tw-flex tw-items-center tw-gap-3">
-      {% include "home/_user_avatar.html" with user=b size="6xl" %}
-      {% if candidate_deletion_request %}
-      <span class="tw-badge-status tw-badge-danger" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash"></i></span>
-      {% endif %}
-      {% if active %}
-      <a href="{% url 'chat:open_dm' pk=b.uid.pk %}" class="tw-chat-link tw-ms-2 tw-text-xs">
-        <i class="fas fa-comment-dots"></i>
-        <span>{% trans 'Send a private message' %}</span>
-        {% if dm_unread_count %}<span class="tw-chat-count">{{ dm_unread_count }}</span>{% endif %}
-      </a>
+  <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-4 tw-items-start">
+    <div class="tw-space-y-4">
+      <section class="tw-card">
+        <div class="tw-card-body tw-flex tw-flex-col tw-items-center tw-text-center tw-gap-3">
+          <div class="tw-relative">
+            {% include "home/_user_avatar.html" with user=b size="6xl" %}
+            {% if candidate_deletion_request %}
+              <span class="tw-badge-status tw-badge-danger tw-absolute tw-end-0 tw-bottom-0" title="{% trans 'This person has requested account deletion' %}">
+                <i class="fas fa-trash" aria-hidden="true"></i>
+              </span>
+            {% endif %}
+          </div>
+          <div>
+            <h2 class="tw-text-xl tw-font-bold tw-mb-1">{{ b|display_name }}</h2>
+            <p class="tw-text-muted tw-mb-0">{{ b.uid }}</p>
+          </div>
+          {% if active %}
+            <a href="{% url 'chat:open_dm' pk=b.uid.pk %}" class="tw-chat-link tw-text-xs">
+              <i class="fas fa-comment-dots" aria-hidden="true"></i>
+              <span>{% trans 'Send a private message' %}</span>
+              {% if dm_unread_count %}<span class="tw-chat-count">{{ dm_unread_count }}</span>{% endif %}
+            </a>
+          {% endif %}
+          <div class="tw-w-full tw-border-t tw-border-subtle tw-pt-3 tw-text-start">
+            <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-y-3">
+              <dt class="tw-col-span-5">{% trans 'Email' %}</dt>
+              <dd class="tw-col-span-7 tw-text-end"><a href="mailto:{{ b.uid.email }}" class="tw-break-words"><i class="fas fa-envelope tw-me-1" aria-hidden="true"></i>{{ b.uid.email }}</a></dd>
+              <dt class="tw-col-span-5">{% trans 'Joined at' %}</dt>
+              <dd class="tw-col-span-7 tw-text-end">{{ b.data_przyjecia|date:"Y-m-d"|default:"-" }}</dd>
+              <dt class="tw-col-span-5">{% trans 'Email confirmed' %}</dt>
+              <dd class="tw-col-span-7 tw-text-end">
+                {% if email_confirmed %}<span class="tw-badge-status tw-badge-success">{% trans 'Yes' %}</span>{% else %}<span class="tw-badge-status tw-badge-warning">{% trans 'No' %}</span>{% endif %}
+              </dd>
+              <dt class="tw-col-span-5">{% trans 'Form completed' %}</dt>
+              <dd class="tw-col-span-7">
+                <div class="tw-flex tw-items-center tw-gap-2">
+                  <div class="tw-progress tw-progress-thick tw-flex-1">
+                    <div class="tw-progress-bar {% if form_completion_percent == 100 %}tw-bg-success{% elif form_completion_percent >= 50 %}tw-bg-warning{% else %}tw-bg-danger{% endif %}"
+                         role="progressbar"
+                         aria-label="{% trans 'Form completed' %}"
+                         data-progress="{{ form_completion_percent }}"
+                         aria-valuenow="0"
+                         aria-valuemin="0"
+                         aria-valuemax="100"></div>
+                  </div>
+                  <span class="tw-text-nowrap">{{ form_completion_percent }}%</span>
+                </div>
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      {% if b.id == d.id %}
+        <div class="tw-alert tw-alert-info">
+          <strong class="tw-font-semibold">{% trans 'This is you' %} {{ b.uid }}.</strong>
+          <a href="{% url 'obywatele:my_profile' %}">{% trans 'You can find more setting in your profile' %}</a>
+        </div>
+      {% else %}
+        <section class="tw-card">
+          <div class="tw-card-body">
+            <h2 class="tw-section-heading tw-mb-3">{% trans 'What is your attitude towards this person?' %}</h2>
+            <form action="#" method="post">
+              {% csrf_token %}
+              <div class="tw-flex tw-flex-col tw-gap-2">
+                <button class="tw-btn {% if rate == 'positive' %}tw-btn-primary{% else %}tw-btn-secondary{% endif %} tw-justify-start" type="submit" name="action" value="accept">
+                  <i class="fas fa-check fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'I accept this person' %}
+                </button>
+                <button class="tw-btn {% if rate == 'neutral' %}tw-btn-primary{% else %}tw-btn-secondary{% endif %} tw-justify-start" type="submit" name="action" value="reset">
+                  <i class="fas fa-minus fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'Indifferent' %}
+                </button>
+                <button class="tw-btn {% if rate == 'negative' %}tw-btn-primary{% else %}tw-btn-secondary{% endif %} tw-justify-start" type="submit" name="action" value="reject">
+                  <i class="fas fa-times fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'I do not accept' %}
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
       {% endif %}
     </div>
-    <div class="tw-card-body">
-      <div class="tw-detail-fields tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-2">
-        <div class="tw-mb-2">
-          <strong class="tw-font-semibold">{% trans 'Login' %}:</strong> {{ b.uid }}
+
+    <div class="lg:tw-col-span-2 tw-space-y-4">
+      <section class="tw-card">
+        <div class="tw-card-header">
+          <h2 class="tw-section-heading tw-mb-0">{% trans 'Profile Details' %}</h2>
         </div>
-        <div class="tw-mb-2">
-          <strong class="tw-font-semibold">{% trans 'Email' %}:</strong> <a href="mailto:{{ b.uid.email }}"><i class="fas fa-envelope tw-me-1"></i>{{ b.uid.email }}</a>
-        </div>
-        <div class="tw-mb-2">
-          <strong class="tw-font-semibold">{% trans 'Recommended by' %}:</strong> {{ b.polecajacy|default:"-" }}
-        </div>
-        <div class="tw-mb-2">
-          <strong class="tw-font-semibold">{% trans 'Joined at' %}:</strong> {{ b.data_przyjecia|date:"Y-m-d"|default:"-" }}
-        </div>
-        <div class="tw-mb-2">
-          <strong class="tw-font-semibold">{% trans 'Email confirmed' %}:</strong>
-          {% if email_confirmed %}
-            <span class="tw-badge-status tw-badge-success">{% trans 'Yes' %}</span>
-          {% else %}
-            <span class="tw-badge-status tw-badge-warning">{% trans 'No' %}</span>
+        <div class="tw-card-body tw-space-y-5">
+          <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-x-6 tw-gap-y-4">
+            <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Communicator / Phone" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.phone|default:"—" }}</dd>
+            <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Job" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.job|default:"—" }}</dd>
+            <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "City / Commune" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.city|default:"—" }}</dd>
+            <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Voivodeship" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.voivodeship.name|default:"—" }}</dd>
+            <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Recommended by" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.polecajacy|default:"—" }}</dd>
+            <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Responsibilities" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.responsibilities|default:"—" }}</dd>
+          </dl>
+
+          <div class="tw-border-t tw-border-subtle tw-pt-4">
+            <h3 class="tw-section-heading tw-mb-3">{% trans "Skills / Knowledge / Hobby" %}</h3>
+            <p class="tw-mb-0 tw-whitespace-pre-wrap">{{ b.skills_knowledge_hobby|default:"—" }}</p>
+          </div>
+
+          <div class="tw-border-t tw-border-subtle tw-pt-4">
+            <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-x-6 tw-gap-y-4">
+              <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "To give away" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.to_give_away|default:"—" }}</dd>
+              <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "To borrow" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.to_borrow|default:"—" }}</dd>
+              <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "For sale" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.for_sale|default:"—" }}</dd>
+              <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "I need" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.i_need|default:"—" }}</dd>
+              <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "I want to learn" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.want_to_learn|default:"—" }}</dd>
+              <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Business" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.business|default:"—" }}</dd>
+              <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Why do you want to join?" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.why|default:"—" }}</dd>
+            </dl>
+          </div>
+
+          {% if not active %}
+            <div class="tw-border-t tw-border-subtle tw-pt-4">
+              <span class="tw-flex tw-items-center tw-gap-2" data-tw-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
+                <span class="tw-text-muted tw-text-sm">{% trans 'Ratings' %}</span>
+                <span class="tw-font-semibold tw-text-success">{{ ratings_positive }}</span>/<span class="tw-font-semibold">{{ ratings_neutral }}</span>/<span class="tw-font-semibold tw-text-danger">{{ ratings_negative }}</span>
+              </span>
+            </div>
           {% endif %}
         </div>
-        <div class="tw-mb-2">
-          <strong class="tw-font-semibold">{% trans 'Form completed' %}:</strong>
-          <div class="tw-flex tw-items-center tw-gap-2 tw-mt-1">
-            <div class="tw-progress tw-progress-thick tw-flex-1">
-              <div class="tw-progress-bar {% if form_completion_percent == 100 %}tw-bg-success{% elif form_completion_percent >= 50 %}tw-bg-warning{% else %}tw-bg-danger{% endif %}"
-                   role="progressbar"
-                   aria-label="{% trans 'Form completed' %}"
-                   data-progress="{{ form_completion_percent }}"
-                   aria-valuenow="0"
-                   aria-valuemin="0"
-                   aria-valuemax="100"></div>
-            </div>
-            <span class="tw-text-nowrap tw-min-w-12">{{ form_completion_percent }}%</span>
-          </div>
-        </div>
-        {% if not active %}
-        <div class="tw-mb-2">
-          <strong class="tw-font-semibold">{% trans 'Ratings' %}:</strong>
-          <span data-tw-toggle="tooltip" title="{% trans 'Positive / Neutral / Negative ratings' %}">
-            <span class="tw-font-semibold tw-text-success">{{ ratings_positive }}</span>/<span class="tw-font-semibold">{{ ratings_neutral }}</span>/<span class="tw-font-semibold tw-text-danger">{{ ratings_negative }}</span>
-          </span>
-        </div>
-        {% endif %}
-      </div>
+      </section>
     </div>
-  </div>
 
-  {% if b.id == d.id %}
-    <div class="tw-alert tw-alert-info">
-      <strong class="tw-font-semibold">{% trans 'This is you' %} {{ b.uid }}.</strong>
-      <a href="{% url 'obywatele:my_profile' %}">{% trans 'You can find more setting in your profile' %}</a>
-    </div>
-  {% else %}
-    <div class="tw-card tw-mb-3">
-      <div class="tw-card-body">
-        <h2 class="tw-text-base tw-font-semibold tw-mb-2">{% trans 'What is your attitude towards this person?' %}</h2>
-        <form action="#" method="post" class="tw-mt-3">
-          {% csrf_token %}
-          <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-2">
-            <button class="tw-btn {% if rate == 'positive' %}tw-btn-primary{% else %}tw-btn-secondary{% endif %}" type="submit" name="action" value="accept">
-              <i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'I accept this person' %}
+    {% if active %}
+      <div class="lg:tw-col-span-3 tw-space-y-4">
+        {% with chat_room=dm_room %}
+          {% include 'chat/_embedded_chat.html' %}
+        {% endwith %}
+
+        <section class="tw-card">
+          <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
+            <h2 class="tw-section-heading tw-mb-0">{% trans 'Activity' %}</h2>
+          </div>
+          <div class="tw-card-body tw-flex tw-flex-wrap tw-gap-2 tw-pb-2">
+            <button class="tw-btn tw-btn-outline-secondary tw-btn-sm tw-citizen-section-btn"
+                    data-url="{% url 'obywatele:citizen_zadania' pk=b.uid.pk %}"
+                    data-target="section-zadania"
+                    data-default="true">
+              <i class="fas fa-list-check fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Activities" %}
             </button>
-            <button class="tw-btn {% if rate == 'neutral' %}tw-btn-primary{% else %}tw-btn-secondary{% endif %}" type="submit" name="action" value="reset">
-              <i class="fas fa-minus fa-fw tw-me-1"></i>{% trans 'Indifferent' %}
+            <button class="tw-btn tw-btn-outline-secondary tw-btn-sm tw-citizen-section-btn"
+                    data-url="{% url 'obywatele:citizen_czaty' pk=b.uid.pk %}"
+                    data-target="section-czaty">
+              <i class="fas fa-comments fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Chats" %}
             </button>
-            <button class="tw-btn {% if rate == 'negative' %}tw-btn-primary{% else %}tw-btn-secondary{% endif %}" type="submit" name="action" value="reject">
-              <i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'I do not accept' %}
+            <button class="tw-btn tw-btn-outline-secondary tw-btn-sm tw-citizen-section-btn"
+                    data-url="{% url 'obywatele:citizen_aktywnosc' pk=b.uid.pk %}"
+                    data-target="section-aktywnosc">
+              <i class="fas fa-stream fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Activity" %}
+            </button>
+            <button class="tw-btn tw-btn-outline-secondary tw-btn-sm tw-citizen-section-btn"
+                    data-url="{% url 'obywatele:citizen_zalozono' pk=b.uid.pk %}"
+                    data-target="section-zalozono">
+              <i class="fas fa-plus-circle fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Founded" %}
             </button>
           </div>
-        </form>
+          <div id="section-zadania" class="tw-citizen-section tw-d-none"></div>
+          <div id="section-czaty" class="tw-citizen-section tw-d-none"></div>
+          <div id="section-aktywnosc" class="tw-citizen-section tw-d-none"></div>
+          <div id="section-zalozono" class="tw-citizen-section tw-d-none"></div>
+        </section>
       </div>
-    </div>
-  {% endif %}
-
-  <div class="tw-card tw-mb-3">
-    <div class="tw-card-header tw-flex tw-items-center tw-justify-between">
-      <h2 class="tw-section-heading tw-mb-0">{% trans 'Profile Details' %}</h2>
-    </div>
-    <div class="tw-card-body tw-p-0">
-      <div class="tw-citizens-table-wrap">
-        <table class="tw-citizens-table tw-table-sm tw-mb-0">
-          <tbody>
-            <tr>
-              <th class="tw-width-30" scope="row">{% trans "Communicator / Phone" %}</th>
-              <td>{{ b.phone|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Job" %}</th>
-              <td>{{ b.job|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "City / Commune" %}</th>
-              <td>{{ b.city|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Voivodeship" %}</th>
-              <td>{{ b.voivodeship.name|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Responsibilities" %}</th>
-              <td>{{ b.responsibilities|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Skills / Knowledge / Hobby" %}</th>
-              <td>{{ b.skills_knowledge_hobby|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "To give away" %}</th>
-              <td>{{ b.to_give_away|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "To borrow" %}</th>
-              <td>{{ b.to_borrow|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "For sale" %}</th>
-              <td>{{ b.for_sale|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "I need" %}</th>
-              <td>{{ b.i_need|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "I want to learn" %}</th>
-              <td>{{ b.want_to_learn|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Business" %}</th>
-              <td>{{ b.business|default:"—" }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Why do you want to join?" %}</th>
-              <td>{{ b.why|default:"—" }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    {% endif %}
   </div>
-
-  {% if active %}
-  <div class="tw-card tw-mb-3">
-    <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
-      <h2 class="tw-section-heading tw-mb-0">{% trans 'Activity' %}</h2>
-    </div>
-    <div class="tw-card-body tw-flex tw-flex-wrap tw-gap-2 tw-pb-2">
-      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm tw-citizen-section-btn"
-              data-url="{% url 'obywatele:citizen_zadania' pk=b.uid.pk %}"
-              data-target="section-zadania"
-              data-default="true">
-        <i class="fas fa-list-check fa-fw tw-me-1"></i>{% trans "Activities" %}
-      </button>
-      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm tw-citizen-section-btn"
-              data-url="{% url 'obywatele:citizen_czaty' pk=b.uid.pk %}"
-              data-target="section-czaty">
-        <i class="fas fa-comments fa-fw tw-me-1"></i>{% trans "Chats" %}
-      </button>
-      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm tw-citizen-section-btn"
-              data-url="{% url 'obywatele:citizen_aktywnosc' pk=b.uid.pk %}"
-              data-target="section-aktywnosc">
-        <i class="fas fa-stream fa-fw tw-me-1"></i>{% trans "Activity" %}
-      </button>
-      <button class="tw-btn tw-btn-outline-secondary tw-btn-sm tw-citizen-section-btn"
-              data-url="{% url 'obywatele:citizen_zalozono' pk=b.uid.pk %}"
-              data-target="section-zalozono">
-        <i class="fas fa-plus-circle fa-fw tw-me-1"></i>{% trans "Founded" %}
-      </button>
-    </div>
-    <div id="section-zadania" class="tw-citizen-section tw-d-none"></div>
-    <div id="section-czaty" class="tw-citizen-section tw-d-none"></div>
-    <div id="section-aktywnosc" class="tw-citizen-section tw-d-none"></div>
-    <div id="section-zalozono" class="tw-citizen-section tw-d-none"></div>
-  </div>
-
-  {% endif %}
 </div>
-
 {% endblock citizens %}

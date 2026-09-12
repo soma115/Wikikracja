@@ -280,9 +280,9 @@
           {% include 'home/_brand_mark.html' %}
           <span class="tw-logo-label tw-ms-1">{{ site_name }}</span>
         </a>
-        <span class="tw-sep">›</span>
         <span class="tw-current">
           {% if request.resolver_match.url_name == 'home' %}{% trans "Desktop" %}
+          {% elif request.resolver_match.url_name == 'activity' %}{% trans "Activity" %}
           {% elif request.resolver_match.namespace == 'glosowania' %}{% trans "Votings" %}
           {% elif request.resolver_match.namespace == 'board' %}{% trans "Documents" %}
           {% elif request.resolver_match.namespace == 'tasks' %}{% trans "Activities" %}
@@ -293,10 +293,12 @@
           {% elif request.resolver_match.namespace == 'bookkeeping' %}{% trans "Finance" %}
           {% elif request.resolver_match.namespace == 'chat' %}{% trans "Chat" %}
           {% else %}…{% endif %}
-          <span class="tw-topbar-subtitle tw-d-none md:tw-hidden tw-text-muted tw-text-sm" id="topbar-subtitle" data-topbar-subtitle>
-            <span class="tw-sep">›</span>
-            <span id="topbar-subtitle-text"></span>
-          </span>
+          {% if request.resolver_match.url_name != 'activity' %}
+            <span class="tw-topbar-subtitle tw-d-none tw-text-muted tw-text-sm" id="topbar-subtitle" data-topbar-subtitle>
+              <span class="tw-sep">&gt;</span>
+              <span id="topbar-subtitle-text"></span>
+            </span>
+          {% endif %}
         </span>
       </div>
 

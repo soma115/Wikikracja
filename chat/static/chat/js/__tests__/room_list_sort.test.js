@@ -4,7 +4,7 @@
  * Testy modelu i sortowania listy pokoi (Etap H, CHAT_REWORK_PLAN §10).
  * Pokrywa:
  *   - komparator data-last-activity (newest/oldest, brak danych = 0),
- *   - widoczność linku (ukryte archiwum wyklucza z płaskiej listy),
+ *   - widoczność linku (ukryte archiwum wyklucza z płaskiej listy, widok archiwum wyklucza aktywne pokoje),
  *   - model pozycji domowych: capture + deterministyczny restore po indeksie,
  *     niezależny od przypadkowego nextSibling,
  *   - pełny cykl applyRoomSort/resetRoomSort wraz z preferencją localStorage,
@@ -29,6 +29,9 @@ function roomLinkComparator(mode) {
 }
 
 function isRoomListLinkVisible(link) {
+    const archiveMode = document.getElementById('room-list')?.classList.contains('tw-archive-mode')
+        || localStorage.getItem('chat-archive-global') === 'visible';
+    if (archiveMode) return link.dataset.roomArchived === 'True' || link.dataset.roomArchived === 'true';
     const archive = link.closest('.tw-archive-section');
     return !archive || archive.classList.contains('tw-visible');
 }
@@ -111,10 +114,11 @@ function resortFlatRoomList(mode = roomSortMode) {
 
 // ── pomocnicze ──────────────────────────────────────────────────────────────
 
-function roomLink(id, lastActivity) {
+function roomLink(id, lastActivity, archived = false) {
     const el = document.createElement('a');
     el.className = 'tw-room-link';
     el.dataset.roomId = String(id);
+    el.dataset.roomArchived = String(archived);
     if (lastActivity !== undefined) el.dataset.lastActivity = String(lastActivity);
     return el;
 }
@@ -192,9 +196,21 @@ describe('isRoomListLinkVisible', () => {
     test('pokój w rozwiniętym archiwum jest widoczny', () => {
         const { archive } = buildRoomListDom();
         archive.classList.add('tw-visible');
-        const link = roomLink(1, 10);
+        const link = roomLink(1, 10, true);
         archive.appendChild(link);
         expect(isRoomListLinkVisible(link)).toBe(true);
+    });
+
+    test('widok archiwum pomija aktywne pokoje', () => {
+        const { catA, archive } = buildRoomListDom();
+        document.getElementById('room-list').classList.add('tw-archive-mode');
+        const active = roomLink(1, 10, false);
+        const archived = roomLink(2, 20, true);
+        catA.appendChild(active);
+        archive.appendChild(archived);
+
+        expect(isRoomListLinkVisible(active)).toBe(false);
+        expect(isRoomListLinkVisible(archived)).toBe(true);
     });
 });
 

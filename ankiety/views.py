@@ -94,6 +94,20 @@ def _survey_queryset(tab, search_query):
     return queryset.filter(end_date__lt=now).order_by("-end_date")
 
 
+def _survey_stepper(tab, search_query, *, list_url=""):
+    query_suffix = f"&q={quote_plus(search_query)}" if search_query else ""
+    return {
+        "steps": [
+            {"url": f"{list_url}?tab=active{query_suffix}", "icon": "spinner", "label": _("Ongoing"), "active": tab == "active"},
+            {"url": f"{list_url}?tab=finished{query_suffix}", "icon": "check", "label": _("Finished"), "active": tab == "finished"},
+        ],
+        "cta_url": reverse("ankiety:create"),
+        "cta_icon": "plus",
+        "cta_label": _("Add survey"),
+        "cta_title": _("Add survey"),
+    }
+
+
 @login_required
 def survey_list(request):
     tab, search_query = _survey_list_state(request)
@@ -138,7 +152,7 @@ def survey_list(request):
         else:
             survey.user_vote_ids = {survey_votes[0].option_id} if survey_votes else set()
         survey.has_voted = bool(survey.user_vote_ids)
-        survey.can_edit = request.user == survey.author and survey.is_active
+        survey.can_edit = request.user.is_authenticated and survey.is_active
         if survey.is_active and survey.allow_custom_options:
             survey.custom_option_form = custom_option_form if survey.pk == custom_option_survey_id else CustomSurveyOptionForm(survey=survey, prefix=f"survey-{survey.pk}-custom")
         else:
@@ -150,17 +164,7 @@ def survey_list(request):
         if detail_query:
             survey.detail_url = f"{survey.detail_url}?{detail_query}"
 
-    query_suffix = f"&q={quote_plus(search_query)}" if search_query else ""
-    stepper = {
-        "steps": [
-            {"url": f"?tab=active{query_suffix}", "icon": "spinner", "label": _("Ongoing"), "active": tab == "active"},
-            {"url": f"?tab=finished{query_suffix}", "icon": "check", "label": _("Finished"), "active": tab == "finished"},
-        ],
-        "cta_url": reverse("ankiety:create"),
-        "cta_icon": "plus",
-        "cta_label": _("Add survey"),
-        "cta_title": _("Add survey"),
-    }
+    stepper = _survey_stepper(tab, search_query)
     toolbar_views = [{"name": "list", "icon": "list", "title": _("List")}, {"name": "grid", "icon": "grip", "title": _("Grid")}]
     return render(request, "ankiety/survey_list.html", {"surveys": surveys, "current_tab": tab, "search_query": search_query, "stepper": stepper, "toolbar_views": toolbar_views})
 
@@ -187,8 +191,6 @@ def survey_create(request):
 @login_required
 def survey_edit(request, pk):
     survey = get_object_or_404(Survey, pk=pk)
-    if survey.author != request.user:
-        return HttpResponseForbidden(_("Only the author can edit this survey."))
     if not survey.is_active:
         return HttpResponseForbidden(_("The survey is closed and cannot be edited."))
 
@@ -211,10 +213,6 @@ def survey_detail(request, pk):
     survey = get_object_or_404(Survey.objects.select_related("author", "chat_room").prefetch_related("options"), pk=pk)
     tab, search_query = _survey_list_state(request)
     navigation = build_detail_navigation(request, _survey_queryset(tab, search_query), survey.pk, "ankiety:detail")
-    list_url = reverse("ankiety:list")
-    if request.GET:
-        list_url = f"{list_url}?{request.GET.urlencode()}"
-
     options = list(survey.options.select_related("created_by").annotate(vote_count=Count("votes")).order_by("order", "id"))
     total_votes = _compute_vote_results(options)
 
@@ -259,7 +257,7 @@ def survey_detail(request, pk):
         "ankiety/survey_detail.html",
         {
             "survey": survey,
-            "list_url": list_url,
+            "stepper": _survey_stepper(tab, search_query, list_url=reverse("ankiety:list")),
             **navigation,
             "options": options,
             "total_votes": total_votes,
@@ -267,7 +265,8 @@ def survey_detail(request, pk):
             "user_vote_ids": user_vote_ids,
             "voter_choices": voter_choices,
             "has_voted": bool(user_votes),
-            "can_edit": request.user == survey.author and survey.is_active,
+            "can_edit": request.user.is_authenticated and survey.is_active,
+            "can_delete": request.user == survey.author,
             "is_active": survey.is_active,
             "chat_room": survey.chat_room,
             "chat_unread_count": chat_unread_count,

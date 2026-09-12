@@ -20,6 +20,7 @@ describe('PagePrefs patchSidebarLinks', () => {
     beforeEach(() => {
         document.body.innerHTML = '';
         document.documentElement.removeAttribute('data-prefs-scope');
+        document.documentElement.removeAttribute('data-prefs-tab');
         if (typeof localStorage !== 'undefined') localStorage.clear();
     });
 
@@ -84,6 +85,7 @@ describe('PagePrefs patchSidebarLinks', () => {
     test('saveCurrentFilters writes lastUrl under base scope for multi-page scope', () => {
         if (typeof localStorage === 'undefined') return;
         document.documentElement.setAttribute('data-prefs-scope', 'bookkeeping');
+        document.documentElement.setAttribute('data-prefs-tab', 'transactions');
         const locationSpy = jest.spyOn(window, 'location', 'get').mockReturnValue({
             pathname: '/bookkeeping/transaction/',
             search: '?sort=date&order=asc',
@@ -117,6 +119,35 @@ describe('PagePrefs patchSidebarLinks', () => {
         expect(subData.filters).toBeUndefined();
 
         locationSpy.mockRestore();
+    });
+
+    test('does not overwrite bookkeeping category with a detail view', () => {
+        if (typeof localStorage === 'undefined') return;
+        document.documentElement.setAttribute('data-prefs-scope', 'bookkeeping');
+        localStorage.setItem('wikikracja:prefs:bookkeeping', JSON.stringify({ lastUrl: '/bookkeeping/partner/' }));
+        const locationSpy = jest.spyOn(window, 'location', 'get').mockReturnValue({
+            pathname: '/bookkeeping/transaction/42/',
+            search: '',
+            href: 'http://localhost/bookkeeping/transaction/42/',
+        });
+
+        window.PagePrefs.saveCurrentFilters();
+
+        const data = JSON.parse(localStorage.getItem('wikikracja:prefs:bookkeeping') || '{}');
+        expect(data.lastUrl).toBe('/bookkeeping/partner/');
+
+        locationSpy.mockRestore();
+    });
+
+    test('normalizes an old bookkeeping detail URL to its list', () => {
+        if (typeof localStorage === 'undefined') return;
+        localStorage.setItem('wikikracja:prefs:bookkeeping', JSON.stringify({ lastUrl: '/bookkeeping/transaction/42/?q=recent' }));
+        document.body.innerHTML = '<a id="finance-link" href="/bookkeeping/transaction/" data-prefs-link-scope="bookkeeping" data-prefs-base-href="/bookkeeping/transaction/">Finance</a>';
+
+        window.PagePrefs.patchSidebarLinks();
+
+        const link = document.getElementById('finance-link');
+        expect(link.getAttribute('href')).toBe('/bookkeeping/transaction/?q=recent');
     });
 
     test('saveCurrentFilters writes lastUrl for obywatele subpage', () => {

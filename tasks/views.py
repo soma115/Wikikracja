@@ -22,6 +22,7 @@ from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI
 from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unread_message_counts_for_rooms, get_unseen_room_ids
 from core.presence import presence_data
+from core.utils import build_detail_navigation
 from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
 
 from .forms import TaskForm, TaskStatusForm
@@ -468,6 +469,20 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
         else:
             context["can_post_in_chat"] = False
         context["task"] = task
+        sort, order, tab, categories = _task_sort_context(self.request)
+        search_query = self.request.GET.get("q", "").strip()
+        navigation_queryset = _task_list_queryset(self.request.user, categories, sort, order, search_query)
+        if tab == "mine":
+            supported = TaskVote.objects.filter(user=self.request.user, value=TaskVote.Value.UP).values("task_id")
+            navigation_queryset = navigation_queryset.filter(Q(assigned_to=self.request.user) | Q(pk__in=supported), status=Task.Status.ACTIVE).distinct()
+        elif tab == "awaiting":
+            navigation_queryset = navigation_queryset.filter(status=Task.Status.ACTIVE, votes_score__gte=-1).filter(Q(assigned_to__isnull=True) | Q(votes_score__lt=2))
+        elif tab == "active":
+            navigation_queryset = navigation_queryset.filter(status=Task.Status.ACTIVE, assigned_to__isnull=False, votes_score__gte=2)
+        else:
+            navigation_queryset = navigation_queryset.filter(Q(status=Task.Status.COMPLETED, votes_score__gte=-1) | Q(status=Task.Status.CANCELLED, votes_score__gte=-1) | Q(votes_score__lte=-2))
+        context.update({"current_tab": tab, "current_sort": sort, "current_order": order, "current_categories": categories, "task_counts": _task_tab_counts(self.request.user, categories, search_query)})
+        context.update(build_detail_navigation(self.request, navigation_queryset, task.pk, "tasks:detail"))
         context["MESSAGE_MAX_LENGTH"] = settings.MESSAGE_MAX_LENGTH
         context["ec_translations"] = get_chat_translations()
         return context

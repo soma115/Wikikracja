@@ -49,6 +49,29 @@ class EventViewTest(TestCase):
         response = self.client.get(reverse('events:create'))
         self.assertEqual(response.status_code, 200)
 
+    def test_any_logged_in_user_can_edit_event(self):
+        other = User.objects.create_user(username='event-editor', email='event-editor@example.com', password='x')
+        self.client.force_login(other)
+        response = self.client.post(
+            reverse('events:edit', args=[self.event.pk]),
+            {
+                'title': 'Updated by other',
+                'description': '',
+                'link': '',
+                'place': '',
+                'start_date': '2030-01-01T10:00',
+                'end_date': '',
+                'frequency': 'once',
+                'ordinal': '',
+                'weekday': '',
+                'is_active': 'on',
+                'is_public': 'on',
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.title, 'Updated by other')
+
     def test_private_event_hidden_in_list_for_anonymous(self):
         from events.models import Event as E
 

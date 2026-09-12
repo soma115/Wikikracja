@@ -55,6 +55,16 @@ def open_dm(request: HttpRequest, pk: int):
 
 
 @login_required
+def search_rooms(request: HttpRequest):
+    query = (request.GET.get('q') or '').strip()
+    if not query:
+        return JsonResponse({'rooms': []})
+
+    rooms = Room.objects.filter(public=True, title__icontains=query).order_by(Lower('title')).values('id', 'title', 'archived')[:20]
+    return JsonResponse({'rooms': list(rooms)})
+
+
+@login_required
 def add_room(request: HttpRequest):
     """
     Add public chat room
@@ -64,6 +74,9 @@ def add_room(request: HttpRequest):
 
     form = RoomForm(request.POST)
     if not form.is_valid():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            errors = form.errors.get('title', [])
+            return JsonResponse({'error': errors[0] if errors else _('Invalid room name.')}, status=400)
         return render(request, 'chat/add.html', {'form': form})
 
     room = form.save(commit=False)
@@ -74,6 +87,8 @@ def add_room(request: HttpRequest):
     active_users = User.objects.filter(is_active=True)
     room.allowed.set(active_users)
 
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'room_id': room.id})
     return redirect(f"{reverse('chat:chat')}#room_id={room.id}")
 
 

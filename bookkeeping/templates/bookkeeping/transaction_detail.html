@@ -6,7 +6,7 @@
 {% block bookkeeping %}
 <div class="tw-container tw-my-4">
   {% trans "Transaction" as transaction_title %}
-  {% include 'home/includes/detail_header.html' with title=transaction_title back_url=list_url navigation_include='home/includes/detail_navigation.html' actions_include='bookkeeping/_detail_actions.html' %}
+  {% include 'home/includes/detail_header.html' with title=transaction_title navigation_include='home/includes/detail_navigation.html' actions_include='bookkeeping/_detail_actions.html' %}
   <div class="tw-card">
     <div class="tw-card-body">
       <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-3">
@@ -23,13 +23,19 @@
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.payment_received_date|date:"Y-m-d" }}</dd>
 
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Partner' %}</dt>
-        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.partner }}</dd>
+        <dd class="tw-col-span-12 sm:tw-col-span-9"><a href="{% url 'bookkeeping:partner_detail' transaction.partner.pk %}">{{ transaction.partner }}</a></dd>
 
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Category' %}</dt>
-        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.category|default:"—" }}</dd>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">
+          {% if transaction.category %}
+            <a href="{% url 'bookkeeping:category_detail' transaction.category.pk %}">{{ transaction.category }}</a>
+          {% else %}
+            —
+          {% endif %}
+        </dd>
 
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Asset' %}</dt>
-        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.asset }}</dd>
+        <dd class="tw-col-span-12 sm:tw-col-span-9"><a href="{% url 'bookkeeping:asset_detail' transaction.asset.pk %}">{{ transaction.asset }}</a></dd>
 
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Amount' %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.amount|normalize_decimal }} {{ transaction.asset.symbol }}</dd>
@@ -44,8 +50,6 @@
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.note|default:"—"|linebreaks }}</dd>
       </dl>
 
-      {% if transaction.author == request.user %}
-      {% endif %}
     </div>
   </div>
 </div>

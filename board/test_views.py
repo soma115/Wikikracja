@@ -37,3 +37,43 @@ class BoardDetailNavigationTests(TestCase):
 
         self.assertEqual(response.context['previous_url'], reverse('board:view_post', args=[first.pk]) + f'?category={self.category.pk}')
         self.assertIsNone(response.context['next_url'])
+
+    def test_board_stepper_filters_documents(self):
+        self._post('Public')
+        Post.objects.create(title='Mine', text='Mine text', author=self.user, is_private=True)
+        Post.objects.create(title='Important', text='Important text', author=self.user, is_important=True)
+        deleted = self._post('Deleted')
+        deleted.is_deleted = True
+        deleted.save(update_fields=['is_deleted'])
+
+        response = self.client.get(reverse('board:start'), {'tab': 'mine'})
+        self.assertEqual([post.title for post in response.context['ordered_posts']], ['Mine'])
+        self.assertEqual(response.context['board_tab_counts'], {'mine': 1, 'public': 1, 'important': 1, 'trash': 1})
+
+    def test_delete_moves_document_to_trash_and_restore_recovers_it(self):
+        post = self._post('Movable')
+
+        delete_response = self.client.post(reverse('board:delete_post', args=[post.pk]))
+        self.assertRedirects(delete_response, reverse('board:start') + '?tab=trash')
+        post.refresh_from_db()
+        self.assertTrue(post.is_deleted)
+
+        trash_response = self.client.get(reverse('board:start'), {'tab': 'trash'})
+        self.assertContains(trash_response, 'Movable')
+
+        restore_response = self.client.post(reverse('board:restore_post', args=[post.pk]))
+        self.assertRedirects(restore_response, reverse('board:start') + '?tab=mine')
+        post.refresh_from_db()
+        self.assertFalse(post.is_deleted)
+
+    def test_detail_uses_shared_card_and_sanitizes_document_content(self):
+        post = self._post('Safe document')
+        post.text = '<b>Visible formatting</b><script>alert("unsafe")</script>'
+        post.save(update_fields=['text'])
+
+        response = self.client.get(reverse('board:view_post', args=[post.pk]))
+
+        self.assertContains(response, 'tw-card')
+        self.assertNotContains(response, 'tw-board-post-card')
+        self.assertContains(response, '<b>Visible formatting</b>', html=True)
+        self.assertNotContains(response, '<script>alert("unsafe")</script>')

@@ -62,7 +62,7 @@ test.describe('chat mobile — room list collapse on tap of active room', () => 
         await expect(chatRooms).toHaveClass(/tw-room-active/);
     });
 
-    test('mobile: Wstecz z pokoju wraca do listy pokoi', async ({ page }, testInfo) => {
+    test('mobile: Wstecz z pokoju opuszcza czat zamiast otwierać listę', async ({ page }, testInfo) => {
         test.skip(testInfo.project.name !== 'mobile-chromium', 'Mobile-only test');
         const roomLink = await setupChatPage(page);
         const chatRooms = page.locator('.tw-chat-rooms');
@@ -71,16 +71,9 @@ test.describe('chat mobile — room list collapse on tap of active room', () => 
         await expect(chatRooms).toHaveClass(/tw-room-active/, { timeout: 10000 });
         await expect(page).toHaveURL(/#room_id=\d+/);
 
-        // Wstecz → wpis /chat/?view=rooms → lista (pokój zostaje dołączony w tle).
+        // Wstecz nie dostaje już dodatkowego wpisu z listą pokoi.
         await page.goBack();
-        await expect(chatRooms).toHaveClass(/tw-room-list-showing/);
-        await expect(chatRooms).toHaveClass(/tw-room-active/);
-        await expect(page).not.toHaveURL(/#room_id=/);
-
-        // Naprzód → z powrotem w pokoju.
-        await page.goForward();
-        await expect(page).toHaveURL(/#room_id=\d+/);
-        await expect(chatRooms).not.toHaveClass(/tw-room-list-showing/);
+        await expect(page).not.toHaveURL(/\/chat\//);
     });
 
     test('mobile: refresh na ?view=rooms reprodukuje listę (URL jest źródłem prawdy)', async ({ page }, testInfo) => {

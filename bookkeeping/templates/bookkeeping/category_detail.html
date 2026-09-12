@@ -3,13 +3,14 @@
 
 {% block bookkeeping %}
 <div class="tw-container tw-my-4">
-  {% url 'bookkeeping:category_list' as category_list_url %}
-  {% include 'home/includes/detail_header.html' with title=category.name back_url=category_list_url actions_include='bookkeeping/_detail_actions.html' %}
+  {% include 'home/includes/detail_header.html' with title=category.name actions_include='bookkeeping/_detail_actions.html' %}
   <div class="tw-card">
     <div class="tw-card-body">
-      <div class="tw-flex tw-items-center tw-gap-2 tw-text-muted">
-        <i class="fas fa-tags fa-fw"></i>
-        <span>{% trans 'Category' %}</span>
+      <div class="tw-detail-subsection">
+        <div class="tw-detail-section-label">
+          <i class="fas fa-tags fa-fw"></i> {% trans 'Name' %}
+        </div>
+        <div class="tw-detail-section-text">{{ category.name }}</div>
       </div>
     </div>
   </div>

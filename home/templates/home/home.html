@@ -303,9 +303,9 @@
   <div class="tw-dashboard-tile tw-dashboard-tile--2x1" data-tile-id="chat">
     <div class="tw-card tw-dashboard-tile tw-h-full tw-relative">
       <div class="tw-card-header tw-dashboard-tile-header">
-        <span class="tw-section-heading tw-tile-heading">
+        <a href="{% url 'chat:chat' %}?view=rooms" class="tw-section-heading tw-tile-heading tw-relative tw-z-50">
           <i class="fas fa-comments"></i>{% trans "Chat" %}
-        </span>
+        </a>
         <a id="chat-unread-badge"
            href="{% url 'chat:chat' %}?view=unread"
            data-count-url="{% url 'chat:unread_count' %}"

@@ -22,6 +22,10 @@ def _visible_events(request):
     return events if request.user.is_authenticated else events.filter(is_public=True)
 
 
+def _events_stepper():
+    return {'steps': [{'url': reverse('events:list'), 'icon': 'calendar', 'label': gettext_lazy('Calendar'), 'active': True}]}
+
+
 def _month_occurrences(request, year, month):
     range_start, range_end = month_bounds(year, month)
     events = _visible_events(request)
@@ -73,6 +77,7 @@ class EventListView(ListView):
                 'current_month_next': next_month,
                 'year_options': year_options(cal_year),
                 'toolbar_views': toolbar_views,
+                'stepper': _events_stepper(),
             }
         )
         return context
@@ -147,11 +152,7 @@ class EventDetailView(DetailView):
             )
         )
 
-        list_params = self.request.GET.copy()
-        list_params.pop('occurrence', None)
-        context['list_url'] = reverse('events:list')
-        if list_params:
-            context['list_url'] = f"{context['list_url']}?{list_params.urlencode()}"
+        context['stepper'] = _events_stepper()
         return context
 
 

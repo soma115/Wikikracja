@@ -9,6 +9,8 @@ Pokaż mi co zamierzasz zrobić przed zmianami w kodzie.
 
 # OGÓLNE
 
+- Przejmowanie własności. Jeżeli jakaś treść jest porzucona, to można kliknąć Przejmij i wtedy po trzech dniach się przejmuje, o ile nie ma sprzeciwu właściciela. Informacja o tym, że ktoś chce przejąć Twój dokument, powinna być wysyłana w prywatnej wiadomości na czacie. I na czacie powinny być guziki, zgódź się albo nie zgódź się.
+- wersjonowanie dokumentów, Działań. Tylko jedna wersja na dzień. 
 - widok szczegułów wszędzie zrobić standardowo
 - Działania zniknęły finanse > transakcje. Zmieńmy sposób działania. Niech kliknięcie na transakcję pozwala na wejście w jej szczegóły i tam powinna być edycja i jej usuwanie.
 - guziki Przewijania itmów nie są ustandaryzowane i brakuje ich w dokumentach, działaniach, kalendarzu, finansach i ankietach.

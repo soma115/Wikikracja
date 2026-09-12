@@ -204,8 +204,8 @@ class PartnerListView(BookkeepingListView):
         context = super().get_context_data(**kwargs)
         current_sort = self.request.GET.get('sort', 'name')
         current_order = self.request.GET.get('order', 'asc')
-        fields = (('name', _('Name')), ('city', _('City')), ('web_page', _('Web Page')), ('notes', _('Notes')))
-        if current_sort not in [field for field, _ in fields] + ['none']:
+        fields = (('name', _('Name'), 'list'), ('city', _('City'), 'map-marker-alt'), ('web_page', _('Web Page'), 'globe'), ('notes', _('Notes'), 'file-lines'))
+        if current_sort not in [field for field, _, _ in fields] + ['none']:
             current_sort = 'name'
         if current_sort == 'none':
             current_order = None
@@ -229,10 +229,10 @@ class PartnerListView(BookkeepingListView):
                 'label': label,
                 'active': current_sort == field,
                 'state': state(field),
-                'pre_icon': 'list' if field == 'name' else None,
+                'pre_icon': icon,
                 'icon': 'up' if state(field) == 'asc' else 'down' if state(field) == 'desc' else None,
             }
-            for field, label in fields
+            for field, label, icon in fields
         ]
         return context
 
@@ -300,10 +300,10 @@ class TransactionListView(BookkeepingListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         detail_query = self.request.GET.urlencode()
-        for transaction in context['transactions']:
-            transaction.detail_url = reverse('bookkeeping:transaction_detail', kwargs={'pk': transaction.pk})
+        for item in context['transactions']:
+            item.detail_url = reverse('bookkeeping:transaction_detail', kwargs={'pk': item.pk})
             if detail_query:
-                transaction.detail_url = f"{transaction.detail_url}?{detail_query}"
+                item.detail_url = f"{item.detail_url}?{detail_query}"
         return context
 
 
@@ -320,9 +320,6 @@ class TransactionDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         search_query = self.request.GET.get('q', '').strip()
         context.update(build_detail_navigation(self.request, _transaction_queryset(search_query), self.object.pk, 'bookkeeping:transaction_detail'))
-        context['list_url'] = reverse_lazy('bookkeeping:transaction_list')
-        if self.request.GET:
-            context['list_url'] = f"{context['list_url']}?{self.request.GET.urlencode()}"
         return context
 
 

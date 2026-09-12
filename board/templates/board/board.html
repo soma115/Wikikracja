@@ -9,6 +9,9 @@
 
 <div data-view-container>
 
+{# ── STEPPER ── #}
+{% include 'home/includes/stepper.html' with stepper=stepper %}
+
 {# ── TOOLBAR ── #}
 {% if request.user.is_authenticated %}{% url 'board:create_post' as cta_url %}{% endif %}
 {% if cta_url %}

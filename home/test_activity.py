@@ -23,6 +23,9 @@ def test_activity_page_renders_read_toggle_buttons(client, activity_user):
     response = client.get(reverse('activity'))
     assert response.status_code == 200
     content = response.content.decode()
+    assert 'tw-current' in content
+    assert 'Aktywność' in content
+    assert 'id="topbar-subtitle"' not in content
     assert 'tw-feed-toggle' in content
     assert 'data-content-type="post"' in content
     assert f'data-object-id="{post.pk}"' in content
