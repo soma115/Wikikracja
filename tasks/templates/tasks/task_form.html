@@ -6,50 +6,51 @@
 
 {% block content %}
 <div class="tw-container tw-my-4">
-  <h1 class="tw-text-2xl tw-font-bold tw-mb-4">
-    {% if form.instance.pk %}
-      {% trans "Edit activity" %}
-    {% else %}
-      {% trans "Add new activity" %}
-    {% endif %}
-  </h1>
-
-  <form method="post" class="tw-card tw-p-4" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-
-    <div class="tw-mb-3">
-      <label class="tw-form-label" for="{{ form.title.id_for_label }}">{% trans "Title" %}</label>
-      {{ form.title }}
-      {{ form.title.errors }}
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <h1 class="tw-section-heading tw-mb-0">
+        {% if form.instance.pk %}{% trans "Edit activity" %}{% else %}{% trans "Add new activity" %}{% endif %}
+      </h1>
     </div>
+    <div class="tw-card-body">
+      <form method="post" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="tw-alert tw-alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
 
-    <div class="tw-mb-3">
-      <label class="tw-form-label" for="{{ form.description.id_for_label }}">{% trans "Description" %}</label>
-      {{ form.description }}
-      {{ form.description.errors }}
-    </div>
+        <div class="tw-mb-3">
+          <label class="tw-form-label" for="{{ form.title.id_for_label }}">{% trans "Title" %}</label>
+          {{ form.title }}
+          {% if form.title.errors %}<div class="tw-alert tw-alert-danger tw-mt-1" role="alert">{{ form.title.errors }}</div>{% endif %}
+        </div>
 
-    <div class="tw-mb-3">
-      <label class="tw-form-label tw-flex tw-items-center tw-gap-2" for="{{ form.category.id_for_label }}">
-        {% trans "Category" %}
-        <button type="button" class="tw-info-icon-btn"
-                data-tw-toggle="popover" data-tw-placement="right" data-tw-html="true"
-                data-tw-trigger="focus hover"
-                data-tw-title="{% trans 'Categories' %}"
-                data-tw-content="{% spaceless %}{% for cat in category_list %}<p class='tw-mb-1'><strong>{{ cat.name }}</strong>{% if cat.description %}<br><span class='tw-text-muted tw-text-sm'>{{ cat.description }}</span>{% endif %}</p>{% endfor %}{% endspaceless %}">
-          <i class="fas fa-circle-info"></i>
-        </button>
-      </label>
-      {{ form.category }}
-      {{ form.category.errors }}
-    </div>
+        <div class="tw-mb-3">
+          <label class="tw-form-label" for="{{ form.description.id_for_label }}">{% trans "Description" %}</label>
+          {{ form.description }}
+          {% if form.description.errors %}<div class="tw-alert tw-alert-danger tw-mt-1" role="alert">{{ form.description.errors }}</div>{% endif %}
+        </div>
 
-    <div class="tw-flex">
-      <button type="submit" class="tw-btn tw-btn-primary tw-me-2"><i class="fas fa-check fa-fw"></i> {% trans "Save" %}</button>
-      <a href="{% url 'tasks:list' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-arrow-left fa-fw"></i> {% trans "Back" %}</a>
+        <div class="tw-mb-3">
+          <label class="tw-form-label tw-flex tw-items-center tw-gap-2" for="{{ form.category.id_for_label }}">
+            {% trans "Category" %}
+            <button type="button" class="tw-info-icon-btn"
+                    data-tw-toggle="popover" data-tw-placement="right" data-tw-html="true"
+                    data-tw-trigger="focus hover"
+                    data-tw-title="{% trans 'Categories' %}"
+                    data-tw-content="{% spaceless %}{% for cat in category_list %}<p class='tw-mb-1'><strong>{{ cat.name }}</strong>{% if cat.description %}<br><span class='tw-text-muted tw-text-sm'>{{ cat.description }}</span>{% endif %}</p>{% endfor %}{% endspaceless %}">
+              <i class="fas fa-circle-info"></i>
+            </button>
+          </label>
+          {{ form.category }}
+          {% if form.category.errors %}<div class="tw-alert tw-alert-danger tw-mt-1" role="alert">{{ form.category.errors }}</div>{% endif %}
+        </div>
+
+        <div class="tw-flex tw-gap-2">
+          <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-check fa-fw tw-me-1"></i> {% trans "Save" %}</button>
+          <a href="{% url 'tasks:list' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-arrow-left fa-fw tw-me-1"></i> {% trans "Back" %}</a>
+        </div>
+      </form>
     </div>
-  </form>
+  </div>
 </div>
 {% block extra_js %}
 <script src="{% static 'common/js/form-autosave.js' %}"></script>

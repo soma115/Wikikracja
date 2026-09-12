@@ -3,14 +3,14 @@
 {% load crispy_forms_tags %}
 
 {% block bookkeeping %}
-<div class="tw-container tw-mt-4">
+<div class="tw-container tw-my-4">
   <div class="tw-card tw-shadow-sm tw-mb-4">
     <div class="tw-card-body">
       <form method="post">
         {% csrf_token %}
 
         <div class="tw-card tw-mb-3">
-          <div class="tw-card-header tw-bg-primary tw-text-white">
+          <div class="tw-card-header">
             <h5 class="tw-mb-0">{% if transaction_form.instance.pk %}{% trans "Update Transaction" %}{% else %}{% trans "New Transaction" %}{% endif %}</h5>
           </div>
           <div class="tw-card-body">

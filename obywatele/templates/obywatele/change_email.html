@@ -1,30 +1,28 @@
 {% extends "home/base.html" %}
-{% block title %}Hasło{% endblock %}
 {% load crispy_forms_tags %}
 {% load i18n %}
+{% block title %}{% trans 'Change email' %}{% endblock %}
 
 {% block content %}
-<h3 class="tw-text-xl tw-font-semibold tw-mb-3">{% trans 'Change email' %}</h3>
-
-<p class="tw-font-bold">{% trans "Your current email" %}: {{ request.user.email }}</p>
-
-<form method="post" action="{% url 'obywatele:change_email' %}">{% csrf_token %}
-  <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-3">
-    <div>
-      {{ form.new_email1|as_crispy_field }}
+<div class="tw-container tw-my-4">
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <h1 class="tw-section-heading tw-mb-0">{% trans 'Change email' %}</h1>
+    </div>
+    <div class="tw-card-body">
+      <p class="tw-font-bold">{% trans "Your current email" %}: {{ request.user.email }}</p>
+      <form method="post" action="{% url 'obywatele:change_email' %}">
+        {% csrf_token %}
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-3">
+          {{ form.new_email1|as_crispy_field }}
+          {{ form.new_email2|as_crispy_field }}
+        </div>
+        <div class="tw-flex tw-gap-2 tw-mt-4">
+          <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
+          <a href="{% url 'obywatele:my_profile' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'Cancel' %}</a>
+        </div>
+      </form>
     </div>
   </div>
-  <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-3 tw-mt-3">
-    <div>
-      {{ form.new_email2|as_crispy_field }}
-    </div>
-  </div>
-
-  <div class="tw-flex tw-gap-2 tw-mt-4">
-    <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
-    <a href="{% url 'obywatele:my_profile' %}" class="tw-btn tw-btn-secondary tw-btn-sm"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'Cancel' %}</a>
-  </div>
-
-</form>
-
+</div>
 {% endblock %}

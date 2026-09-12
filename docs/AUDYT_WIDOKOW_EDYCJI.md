@@ -155,7 +155,22 @@ Poza zakresem pozostają audyty API, migracji, historii głosowań, schedulerów
 6. [ ] Dodać wyłącznie focused testy renderowania i zachowania zmienionych formularzy.
 7. [ ] Po zmianach UI uruchomić `npm run build:css`, `python scripts/regression_scan.py` i `python scripts/ui_guard.py`.
 
-## 5. Kryterium zamknięcia audytu
+## 5. Status wykonania audytu UI
+
+W ramach bieżącego etapu ujednolicono lub objęto wspólnym standardem formularze:
+
+- Board: `post_form.html`;
+- Ankiety: `survey_form.html` i akcje na szczegółach;
+- Event: `event_form.html`;
+- Tasks: `task_form.html`;
+- Bookkeeping: formularze Asset, Category, Partner i Transaction;
+- Głosowania: edycja propozycji, argumentu i parametrów;
+- Obywatele: edycja kandydata, zasobów, e-maila i nazwy użytkownika;
+- Ustawienia grupy: quick links.
+
+Wspólny zakres poprawionych elementów obejmuje kontenery i karty, nagłówki, akcje formularzy, klasy layoutu oraz komunikaty błędów. Nie zmieniano logiki API kategorii ani pozostałych obszarów backendowych poza uzgodnionym udostępnieniem edycji aktywnych ankiet wszystkim zalogowanym użytkownikom.
+
+## 6. Kryterium zamknięcia audytu
 
 1. [ ] Każdy objęty audytem formularz ma oceniony układ, pola, akcje i responsywność.
 2. [ ] Każdy znaleziony problem UI ma status: naprawiony, świadomie zaakceptowany albo odłożony z uzasadnieniem.
@@ -166,7 +181,7 @@ Poza zakresem pozostają audyty API, migracji, historii głosowań, schedulerów
 7. [ ] Nie zmodyfikowano `docs/TODO.md`.
 8. [ ] Dla zmienionych obszarów uruchomiono właściwe testy i guardraile.
 
-## 6. Etap 1 audytu — potwierdzone obserwacje
+## 7. Etap 1 audytu — potwierdzone obserwacje
 
 Ten etap jest audytem read-only: nie zmienia reguł dostępu ani logiki biznesowej. Problemy wymagające decyzji domenowej pozostają nierozstrzygnięte.
 
@@ -197,7 +212,7 @@ Ten etap jest audytem read-only: nie zmienia reguł dostępu ani logiki biznesow
 2. Następnie przejrzeć szczegółowo przepływy formularzy i błędów: `obywatele`, `ankiety`, `glosowania` oraz quick links w `home`.
 3. Dopiero po ustaleniu reguł przygotować testy regresji, a poprawki UI wykonywać według `UI_DEVELOPMENT_GUIDE.md` i wspólnych partiali.
 
-## 7. Potwierdzone decyzje domenowe
+## 8. Potwierdzone decyzje domenowe
 
 - **Domyślna reguła:** nie wprowadzamy w tym audycie uogólnionej własności dokumentów. Poza poniższymi wyjątkami każdy zalogowany użytkownik może edytować dokumenty.
 - **Przejmowanie własności:** mechanizm w `docs/PLAN_PRZEJMOWANIE_WLASNOSCI.md` jest odłożony i nie stanowi zakresu tego audytu.

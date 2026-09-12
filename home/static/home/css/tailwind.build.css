@@ -7824,10 +7824,6 @@ input.tw-form-switch:focus,
   }
 }
 
-.tw-bg-primary {
-  background-color: var(--color-primary) !important;
-}
-
 .tw-bg-body-tertiary {
   background-color: var(--bg-tertiary) !important;
 }
@@ -10433,14 +10429,6 @@ body.tw-chat-page .tw-main-area {
 
 .tw-bg-danger {
   background-color: var(--badge-rejected-color);
-}
-
-.tw-bg-info {
-  background-color: var(--color-info);
-}
-
-.tw-bg-primary {
-  background-color: var(--color-primary);
 }
 
 .tw-bg-success {

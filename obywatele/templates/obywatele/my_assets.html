@@ -5,11 +5,15 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-
-<p class="tw-mb-4">{% trans 'Here you can edit your assets' %} <b>{{ user|display_name }}</b></p>
-
-	<form action="#" method="post" enctype="multipart/form-data">{% csrf_token %}
-		<div class="tw-container">
+<div class="tw-container tw-my-4">
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <h1 class="tw-section-heading tw-mb-0">{% trans 'Edit profile assets' %}</h1>
+    </div>
+    <div class="tw-card-body">
+      <p class="tw-mb-4">{% trans 'Here you can edit your assets' %} <b>{{ user|display_name }}</b></p>
+      <form action="#" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
 
 			<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3">
 				<div>
@@ -80,10 +84,13 @@
 				</div>
 			</div>
 
-		</div>
-		<div class="tw-flex tw-gap-2 tw-mt-4">
-			<button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
-			<a href="{% url 'obywatele:my_profile' %}" class="tw-btn tw-btn-secondary tw-btn-sm"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'Cancel' %}</a>
-		</div>
-	</form>
+        </div>
+        <div class="tw-flex tw-gap-2 tw-mt-4">
+          <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
+          <a href="{% url 'obywatele:my_profile' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'Cancel' %}</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}

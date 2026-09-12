@@ -6,8 +6,12 @@
 {% block extra_css %}{{ form.media }}{% endblock %}
 
 {% block glosowania %}
-<h2 class="tw-text-xl tw-font-bold tw-mb-4">{% trans 'Edit Argument' %}</h2>
-
+<div class="tw-container tw-my-4">
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <h1 class="tw-section-heading tw-mb-0">{% trans 'Edit Argument' %}</h1>
+    </div>
+    <div class="tw-card-body">
 <div class="tw-mb-3">
     <p><strong class="tw-font-semibold">{% trans 'Decision' %}:</strong> #{{ decyzja.pk }} - {{ decyzja.title }}</p>
     <p><small>
@@ -29,4 +33,7 @@
       <a href="{% url 'glosowania:details' decyzja.pk %}" class="tw-btn tw-btn-secondary tw-btn-sm"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'Cancel' %}</a>
     </div>
 </form>
+    </div>
+  </div>
+</div>
 {% endblock %}
