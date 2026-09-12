@@ -2,9 +2,10 @@
 {% load i18n %}
 
 {% block bookkeeping %}
-<div class="tw-container tw-mt-4">
+<div class="tw-container tw-my-4">
   <div class="tw-card">
-    {% include 'home/includes/detail_header.html' with title=asset.name %}
+    {% url 'bookkeeping:asset_list' as asset_list_url %}
+    {% include 'home/includes/detail_header.html' with title=asset.name back_url=asset_list_url %}
     <div class="tw-card-body">
       <div class="tw-mb-3"><span class="tw-badge tw-badge-secondary">{{ asset.code }}</span></div>
       <dl class="tw-grid tw-grid-cols-12 tw-gap-3">
@@ -17,7 +18,6 @@
       <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-4">
         <a href="{% url 'bookkeeping:asset_update' asset.pk %}" class="tw-btn tw-btn-primary"><i class="fas fa-pen fa-fw"></i> {% trans 'Edit' %}</a>
         <a href="{% url 'bookkeeping:asset_delete' asset.pk %}" class="tw-btn tw-btn-danger"><i class="fas fa-trash fa-fw"></i> {% trans 'Delete' %}</a>
-        <a href="{% url 'bookkeeping:asset_list' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-arrow-left fa-fw"></i> {% trans 'Back to list' %}</a>
       </div>
     </div>
   </div>

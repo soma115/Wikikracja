@@ -319,6 +319,16 @@
         <p>Moduły mogą prezentować różne dane, ale korzystają ze wspólnego układu strony i tych samych miejsc na informacje.</p>
       </div>
 
+      <h3>Widok szczegółów</h3>
+      <p>Każdy widok szczegółów używa <code>home/templates/home/includes/detail_header.html</code>. Wspólny nagłówek zawiera tytuł, opcjonalny link powrotu, akcje, badge statusu i metadane.</p>
+      <ol>
+        <li>Kontener strony: <code>tw-container</code> z odstępem pionowym.</li>
+        <li>Wspólny nagłówek szczegółów: <code>detail_header.html</code>; link powrotu przekazuj przez <code>back_url</code>, zamiast renderować drugi link w treści.</li>
+        <li>Treść domenowa w jednej lub kilku kartach <code>tw-card</code>; akcje domenowe pozostają przy treści, jeśli nie pasują do nagłówka.</li>
+        <li>Sekcje treści używają etykiety z ikoną (<code>tw-detail-section-label</code>) i wartości (<code>tw-detail-section-text</code>); kolejne sekcje mogą użyć <code>tw-detail-subsection</code>.</li>
+        <li>Elementy dodatkowe, takie jak czat, wyniki, argumenty i załączniki, pozostają modułowe, ale korzystają ze wspólnych kart, badge’y, przycisków i pustych stanów.</li>
+      </ol>
+
       <h3>Stała anatomia strony</h3>
       <ol>
         <li>Nagłówek modułu — nazwa, krótkie objaśnienie i opcjonalna pomoc.</li>

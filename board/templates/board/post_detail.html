@@ -4,6 +4,7 @@
 {% load feed_filters %}
 
 {% block content %}
+<div class="tw-container tw-my-4">
 {% include 'home/includes/detail_header.html' with title=post.title %}
 <div class="tw-mb-3">
   <a href="#" data-tw-back data-tw-back-skip-referrer="/edit/" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
@@ -52,5 +53,5 @@
   {% with chat_room=chat_room %}
     {% include 'chat/_embedded_chat.html' %}
   {% endwith %}
-
+</div>
 {% endblock %}

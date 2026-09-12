@@ -5,8 +5,8 @@
 
 {% block content %}
 <div class="tw-container tw-my-4">
-  {% include 'home/includes/detail_header.html' with title=task.title %}
-  <a href="{% url 'tasks:list' %}" class="tw-btn tw-btn-link tw-px-0 tw-mb-3">&larr; {% trans "Back to list" %}</a>
+  {% url 'tasks:list' as task_list_url %}
+  {% include 'home/includes/detail_header.html' with title=task.title back_url=task_list_url %}
 
   <div class="tw-card tw-mb-4">
     <div class="tw-card-body">

@@ -4,12 +4,12 @@
 {% load bookkeeping_extras %}
 
 {% block bookkeeping %}
-<div class="tw-container tw-mt-4">
+<div class="tw-container tw-my-4">
   <div class="tw-card">
     {% trans "Transaction" as transaction_title %}
-    {% include 'home/includes/detail_header.html' with title=transaction_title %}
+    {% url 'bookkeeping:transaction_list' as transaction_list_url %}
+    {% include 'home/includes/detail_header.html' with title=transaction_title back_url=transaction_list_url %}
     <div class="tw-card-body">
-      <a href="{% url 'bookkeeping:transaction_list' %}" class="tw-btn tw-btn-secondary tw-mb-3"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Back to list' %}</a>
       <dl class="tw-grid tw-grid-cols-12 tw-gap-3">
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Type' %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">

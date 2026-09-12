@@ -2,9 +2,10 @@
 {% load i18n %}
 
 {% block bookkeeping %}
-<div class="tw-container tw-mt-4">
+<div class="tw-container tw-my-4">
   <div class="tw-card">
-    {% include 'home/includes/detail_header.html' with title=partner.name %}
+    {% url 'bookkeeping:partner_list' as partner_list_url %}
+    {% include 'home/includes/detail_header.html' with title=partner.name back_url=partner_list_url %}
     <div class="tw-card-body">
       <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mb-3">
         {% if prev_partner %}
@@ -52,7 +53,6 @@
 
       <div class="tw-mt-3">
         <a href="{% url 'bookkeeping:partner_update' partner.pk %}" class="tw-btn tw-btn-primary"><i class="fas fa-pen fa-fw tw-me-1"></i>{% trans 'Edit' %}</a>
-        <a href="{% url 'bookkeeping:partner_list' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Back to list' %}</a>
       </div>
     </div>
   </div>
