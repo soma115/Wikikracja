@@ -1,5 +1,7 @@
+import atexit
 import logging
 import os
+import sys
 import tempfile
 import threading
 
@@ -13,7 +15,9 @@ log = logging.getLogger(__name__)
 # Needed in case chat_rooms and count_citizens run concurrently. Both writing a lot to database.
 _db_lock = threading.Lock()
 
-# Global variable to hold the lock file descriptor
+# Global variables keep the scheduler singleton and its inter-process lock alive.
+_scheduler = None
+_scheduler_lock = threading.Lock()
 _scheduler_lock_fd = None
 
 
@@ -41,7 +45,30 @@ def _acquire_scheduler_lock(lock_file_path):
         return None
 
 
+def should_start_scheduler():
+    """Return whether the current process is an allowed scheduler process."""
+    if os.getenv('SCHEDULER_ENABLED', '').lower() != 'true':
+        return False
+    command = sys.argv[1] if len(sys.argv) > 1 else ''
+    if command == 'run_scheduler':
+        return True
+    return command == 'runserver' and os.getenv('RUN_MAIN') == 'true'
+
+
 def start_scheduler():
+    """Start the process-local scheduler once when this process is allowed to run it."""
+    global _scheduler
+    with _scheduler_lock:
+        if _scheduler is not None and _scheduler.running:
+            return _scheduler
+        if not should_start_scheduler():
+            return None
+        _scheduler = _start_scheduler()
+        atexit.register(stop_scheduler)
+        return _scheduler
+
+
+def _start_scheduler():
     """
     Start APScheduler to run management commands on schedule.
     Uses file-based lock to ensure only one scheduler instance runs across multiple workers.
@@ -90,6 +117,18 @@ def start_scheduler():
     log.info("APScheduler started successfully")
 
     return scheduler
+
+
+def stop_scheduler():
+    """Stop the process-local scheduler and release its file lock."""
+    global _scheduler, _scheduler_lock_fd
+    with _scheduler_lock:
+        if _scheduler is not None and _scheduler.running:
+            _scheduler.shutdown(wait=False)
+        _scheduler = None
+        if _scheduler_lock_fd is not None:
+            _scheduler_lock_fd.close()
+            _scheduler_lock_fd = None
 
 
 def run_meeting_notification():

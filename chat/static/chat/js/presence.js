@@ -126,6 +126,7 @@ function initializePresence() {
             const popover = presencePopovers.get(element);
             if (popover) popover.setContent({ '.tw-popover-header': title });
         });
+        document.dispatchEvent(new CustomEvent('wk:presence-update', { detail: presence }));
     };
 
     websocket.subscribeMessages((data) => {

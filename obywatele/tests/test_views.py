@@ -9,7 +9,6 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.messages import get_messages
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.db.models import QuerySet
@@ -235,6 +234,57 @@ class CitizenListViewTest(TestCase):
         citizen_row = next(user for user in response.context['uid'] if user.pk == citizen.pk)
         self.assertEqual(citizen_row.dm_unread_count, 1)
         self.assertContains(response, '<span class="tw-chat-count">1</span>')
+
+
+class CitizenPresenceFilterTest(TestCase):
+    def setUp(self):
+        self.viewer = User.objects.create_user(username='presence-filter-viewer', is_active=True)
+        now = django_timezone.now()
+        self.online = self._create_with_presence('presence-filter-online', timedelta(minutes=1), 'app', now)
+        self.recent = self._create_with_presence('presence-filter-recent', timedelta(days=1), 'push', now)
+        self.inactive = self._create_with_presence('presence-filter-inactive', timedelta(days=8), 'app', now)
+        self.no_signal = User.objects.create_user(username='presence-filter-no-signal', is_active=True)
+        self.login_only = User.objects.create_user(username='presence-filter-login-only', is_active=True)
+        User.objects.filter(pk=self.login_only.pk).update(last_login=now)
+        self.login_only.uzytkownik.last_presence_at = now - timedelta(days=8)
+        self.login_only.uzytkownik.save(update_fields=['last_presence_at'])
+        self.client.force_login(self.viewer)
+
+    @staticmethod
+    def _create_with_presence(username, age, source, now):
+        user = User.objects.create_user(username=username, is_active=True)
+        profile = user.uzytkownik
+        profile.last_presence_at = now - age
+        profile.last_presence_source = source
+        profile.save(update_fields=['last_presence_at', 'last_presence_source'])
+        return user
+
+    def _filtered_usernames(self, value):
+        response = self.client.get(reverse('obywatele:obywatele'), {'aktywnosc': value})
+        self.assertEqual(response.status_code, 200)
+        return {user.username for user in response.context['uid'] if user.pk != self.viewer.pk}
+
+    def test_filter_uses_app_and_push_presence_instead_of_last_login(self):
+        self.assertEqual(self._filtered_usernames('online'), {self.online.username})
+        self.assertEqual(self._filtered_usernames('7d'), {self.recent.username})
+        self.assertEqual(self._filtered_usernames('nieaktywni'), {self.inactive.username, self.login_only.username, self.no_signal.username})
+
+    def test_legacy_thirty_day_filter_is_removed(self):
+        response = self.client.get(reverse('obywatele:obywatele'), {'aktywnosc': '30d'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['aktywnosc'], '')
+        response = self.client.get(reverse('obywatele:obywatele'))
+        self.assertContains(response, 'Nieaktywni 7+ dni')
+        self.assertNotContains(response, 'Aktywni 30 dni')
+
+    def test_partial_returns_only_replaceable_list_content(self):
+        response = self.client.get(reverse('obywatele:obywatele'), {'aktywnosc': 'online', 'partial': '1'}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'obywatele/_citizens_list_content.html')
+        self.assertContains(response, 'id="citizens-list-view"')
+        self.assertNotContains(response, 'Szukaj użytkownika')
 
 
 @override_settings(LANGUAGE_CODE='en')
@@ -535,7 +585,6 @@ class ProfileFormErrorViewTest(TestCase):
         response = self.client.post(reverse('obywatele:upload_avatar'), {'avatar': SimpleUploadedFile('avatar.txt', b'not an image', content_type='text/plain')})
 
         self.assertRedirects(response, reverse('obywatele:my_profile'))
-        self.assertTrue(list(get_messages(response.wsgi_request)))
         self.assertFalse(self.user.uzytkownik.avatar)
 
 

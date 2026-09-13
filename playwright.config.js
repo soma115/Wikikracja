@@ -1,10 +1,11 @@
 // Minimalna konfiguracja Playwright — mobile + desktop viewport, baseURL na lokalnego Django.
-// Ładuje .env.local (gitignored) z credentialami: E2E_EMAIL, E2E_PASSWORD.
+// Ładuje .env.local (gitignored) z credentialami dedykowanego konta E2E:
+// E2E_EMAIL, E2E_PASSWORD. Nigdy nie używaj konta admina, prywatnego ani dev usera.
 //
 // PREREQUISITES przed `npx playwright test`:
 //   1. Redis up (docker compose) — chat consumers tego wymagają
 //   2. Daphne/runserver na :8000 (`python manage.py runserver 0.0.0.0:8000`)
-//   3. .env.local z E2E_EMAIL + E2E_PASSWORD istniejącego dev usera (verified email)
+//   3. .env.local z danymi konta utworzonego wyłącznie do testów E2E (verified email)
 const fs = require('fs');
 const path = require('path');
 const { defineConfig, devices } = require('@playwright/test');

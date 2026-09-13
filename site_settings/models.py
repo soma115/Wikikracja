@@ -95,13 +95,8 @@ class SiteParameters(models.Model):
 
     @classmethod
     def get(cls):
-        """Return the singleton, creating and seeding it from settings if missing."""
-        from site_settings.params import seed_defaults
-
-        obj = cls.objects.filter(pk=1).first()
-        if obj is None:
-            defaults = {k: v for k, v in seed_defaults().items() if v is not None}
-            obj, _created = cls.objects.get_or_create(pk=1, defaults=defaults)
+        """Return the singleton, creating it with model defaults if missing."""
+        obj, _created = cls.objects.get_or_create(pk=1)
         return obj
 
 

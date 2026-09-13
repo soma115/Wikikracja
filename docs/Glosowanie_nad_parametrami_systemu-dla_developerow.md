@@ -39,7 +39,7 @@ class SiteParameters(models.Model):
     site_description = models.CharField(max_length=500, blank=True, default='')
 ```
 
-Metoda `get()` tworzy singleton przy pierwszym dostępie i inicjalizuje go wartościami domyślnymi z `settings.py`.
+Metoda `get()` tworzy singleton przy pierwszym dostępie, korzystając z domyślnych wartości pól modelu. Istniejące wartości są zawsze pobierane z bazy danych; zmienne środowiskowe nie są już źródłem parametrów.
 
 ### 2. Rejestr parametrów `PARAM_SPECS`
 
@@ -50,15 +50,14 @@ Rejestr wszystkich parametrów z ich specyfikacjami:
 ```python
 PARAM_SPECS = [
     # Parametry głosowań
-    ParamSpec('wymaganych_podpisow', 'WYMAGANYCH_PODPISOW', 'int', CATEGORY_VOTING, ...),
-    ParamSpec('czas_na_zebranie_podpisow', 'CZAS_NA_ZEBRANIE_PODPISOW', 'int', CATEGORY_VOTING, ...),
+    ParamSpec('wymaganych_podpisow', 'int', CATEGORY_VOTING, ...),
+    ParamSpec('czas_na_zebranie_podpisow', 'int', CATEGORY_VOTING, ...),
     # ... inne parametry
 ]
 ```
 
 Każdy `ParamSpec` zawiera:
 - Nazwę pola w bazie
-- Nazwę zmiennej środowiskowej (fallback)
 - Typ danych (`int`, `bool`, `str`)
 - Kategorię (do grupowania w UI)
 - Etykietę i opis
@@ -66,7 +65,7 @@ Każdy `ParamSpec` zawiera:
 
 ### 3. Funkcje pomocnicze
 
-**`get_param(name)`** - odczytuje parametr z bazy lub z settings jako fallback
+**`get_param(name)`** - odczytuje bieżący parametr z singletonu w bazie danych
 **`apply_parameters(changes)`** - stosuje zatwierdzone zmiany do singletonu
 **`apply_brand_mark(image)`** - stosuje nowe logo
 **`_sync_django_site(sp)`** - synchronizuje domenę i nazwę z modelem Django Sites

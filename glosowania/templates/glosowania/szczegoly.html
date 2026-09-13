@@ -136,8 +136,10 @@
             <span class="tw-arg-author-date">{{ arg.created_at|date:"d.m.Y" }}</span>
           </div>
         {% if arg.author %}</a>{% else %}</span>{% endif %}
-        <div class="tw-arg-card-content">{{ arg.content|richtext }}</div>
-        {% include 'glosowania/_argument_actions.html' with arg=arg id=id current_user=current_user %}
+        <div class="tw-arg-card-content">
+          <div class="tw-arg-content-display">{{ arg.content|richtext }}</div>
+          {% include 'glosowania/_argument_actions.html' with arg=arg id=id current_user=current_user %}
+        </div>
       </div>
       {% endfor %}
       </div>
@@ -174,8 +176,10 @@
             <span class="tw-arg-author-date">{{ arg.created_at|date:"d.m.Y" }}</span>
           </div>
         {% if arg.author %}</a>{% else %}</span>{% endif %}
-        <div class="tw-arg-card-content">{{ arg.content|richtext }}</div>
-        {% include 'glosowania/_argument_actions.html' with arg=arg id=id current_user=current_user %}
+        <div class="tw-arg-card-content">
+          <div class="tw-arg-content-display">{{ arg.content|richtext }}</div>
+          {% include 'glosowania/_argument_actions.html' with arg=arg id=id current_user=current_user %}
+        </div>
       </div>
       {% endfor %}
       </div>

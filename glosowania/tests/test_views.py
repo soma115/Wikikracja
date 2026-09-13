@@ -199,6 +199,12 @@ def test_edit_argument_uses_responsive_actions(sample_users):
     assert f'data-tw-target="#deleteArgumentModal{argument.pk}"' in content
     assert 'Argument text' in content
 
+    card_content_start = content.index('class="tw-arg-card-content"')
+    display_start = content.index('class="tw-arg-content-display"', card_content_start)
+    form_start = content.index(f'id="editArgumentForm{argument.pk}"', display_start)
+    footer_start = content.index('class="tw-arg-card-footer"', form_start)
+    assert card_content_start < display_start < form_start < footer_start
+
 
 @pytest.mark.django_db
 def test_edit_argument_updates_content(sample_users):

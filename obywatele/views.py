@@ -205,15 +205,14 @@ def obywatele(request: HttpRequest):
     }
     default_sort = '-joined'
 
-    five_min_ago = timezone.now() - timedelta(minutes=5)
-    seven_days_ago = timezone.now() - timedelta(days=7)
-    thirty_days_ago = timezone.now() - timedelta(days=30)
+    now = timezone.now()
+    green_since = now - timedelta(minutes=s.PRESENCE_GREEN_MINUTES)
+    yellow_since = now - timedelta(days=s.PRESENCE_YELLOW_DAYS)
     aktywnosc = request.GET.get('aktywnosc', '')
-    _aktywnosc_filters = {
-        'online': Q(last_login__gte=five_min_ago),
-        '7d': Q(last_login__gte=seven_days_ago),
-        '30d': Q(last_login__gte=thirty_days_ago),
-        'nieaktywni': Q(last_login__lt=thirty_days_ago) | Q(last_login__isnull=True),
+    presence_filters = {
+        'online': Q(uzytkownik__last_presence_at__gte=green_since),
+        '7d': Q(uzytkownik__last_presence_at__lt=green_since, uzytkownik__last_presence_at__gte=yellow_since),
+        'nieaktywni': Q(uzytkownik__last_presence_at__lt=yellow_since) | Q(uzytkownik__last_presence_at__isnull=True),
     }
 
     requested_sort = request.GET.get('sort', default_sort)
@@ -248,8 +247,8 @@ def obywatele(request: HttpRequest):
         )
         .order_by(*order_by_fields)
     )
-    if aktywnosc in _aktywnosc_filters:
-        uid = uid.filter(_aktywnosc_filters[aktywnosc])
+    if aktywnosc in presence_filters:
+        uid = uid.filter(presence_filters[aktywnosc])
 
     req_rep = required_reputation()
     reputation_by_profile = {row['kandydat_id']: row['total'] or 0 for row in Rate.objects.filter(kandydat_id__in=[user.uzytkownik.id for user in uid]).values('kandydat_id').annotate(total=Sum('rate'))}
@@ -262,17 +261,6 @@ def obywatele(request: HttpRequest):
             user.near_threshold = False
 
         user.pending_deletion = hasattr(user, 'deletion_request')
-        if user.last_login is None:
-            user.activity_status = 'inactive'
-        elif user.last_login >= five_min_ago:
-            user.activity_status = 'online'
-        elif user.last_login >= seven_days_ago:
-            user.activity_status = 'active'
-        elif user.last_login >= thirty_days_ago:
-            user.activity_status = 'dormant'
-        else:
-            user.activity_status = 'inactive'
-
         users_with_reputation.append(user)
 
     coordinated_tasks = get_active_coordinated_tasks_by_user_ids(user.pk for user in users_with_reputation)
@@ -283,19 +271,17 @@ def obywatele(request: HttpRequest):
         room = private_rooms.get(user.pk)
         user.dm_unread_count = unread_counts.get(room.pk, 0) if room else 0
 
-    _aktywnosc_ctx = aktywnosc if aktywnosc in _aktywnosc_filters else ''
+    _aktywnosc_ctx = aktywnosc if aktywnosc in presence_filters else ''
     sort_param = f'sort={requested_sort}' if requested_sort != default_sort else ''
 
-    return render(
-        request,
-        'obywatele/start.html',
-        {
-            'uid': users_with_reputation,  # Don't change to 'user' - it will break menu
-            'aktywnosc': _aktywnosc_ctx,
-            'sort_param': sort_param,
-            'toolbar_views': [{'name': 'list', 'icon': 'list', 'title': _('List')}, {'name': 'grid', 'icon': 'grip', 'title': _('Grid')}],
-        },
-    )
+    context = {
+        'uid': users_with_reputation,  # Don't change to 'user' - it will break menu
+        'aktywnosc': _aktywnosc_ctx,
+        'sort_param': sort_param,
+        'toolbar_views': [{'name': 'list', 'icon': 'list', 'title': _('List')}, {'name': 'grid', 'icon': 'grip', 'title': _('Grid')}],
+    }
+    template_name = 'obywatele/_citizens_list_content.html' if request.GET.get('partial') == '1' else 'obywatele/start.html'
+    return render(request, template_name, context)
 
 
 @login_required

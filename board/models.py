@@ -14,6 +14,11 @@ User = get_user_model()
 class PostCategory(AbstractCategory):
     priority = models.PositiveIntegerField(default=10, verbose_name=_("Priority"))
 
+    def delete(self, *args, **kwargs):
+        if self.is_protected:
+            raise ValidationError(_("Protected categories cannot be deleted."))
+        return super().delete(*args, **kwargs)
+
     class Meta(AbstractCategory.Meta):
         ordering = ['priority', 'name']
         verbose_name = _("Post Category")
@@ -51,6 +56,16 @@ class Post(ChatRoomModel, models.Model):
     @property
     def chat_room_url(self):
         return self.get_chat_room_url()
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            original = type(self).objects.filter(pk=self.pk).values('system_key', 'category_id', 'is_private', 'is_important').first()
+            if original and original['system_key']:
+                self.system_key = original['system_key']
+                self.category_id = original['category_id']
+                self.is_private = original['is_private']
+                self.is_important = original['is_important']
+        return super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         if self.system_key:

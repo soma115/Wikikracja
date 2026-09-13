@@ -389,6 +389,7 @@ class DomainNotificationSignalTest(TestCase):
 
             scheduler = ModuleType("zzz.scheduler")
             scheduler.start_scheduler = MagicMock(side_effect=start_scheduler)
+            scheduler.should_start_scheduler = MagicMock(return_value=False)
             with ExitStack() as stack:
                 stack.enter_context(patch("dotenv.load_dotenv", return_value=False))
                 stack.enter_context(patch.dict(sys.modules, {"zzz.scheduler": scheduler}))
@@ -420,7 +421,7 @@ class DomainNotificationSignalTest(TestCase):
 
                 app_labels = list(django.apps.apps.app_configs)
                 assert app_labels.index("core") < app_labels.index("zzz")
-                expected_starts = int(os.environ["SCHEDULER_ENABLED"] == "true" or os.environ["RUN_MAIN"] == "true")
+                expected_starts = 0
                 assert scheduler.start_scheduler.call_count == expected_starts
                 assert len(scheduler_checks) == expected_starts, "Scheduler swallowed a startup assertion"
                 assert "chat.permissions" in sys.modules, "Startup did not import room permission registry"
@@ -439,6 +440,7 @@ class DomainNotificationSignalTest(TestCase):
                     assert_vote_dispatch()
                 assert sys.modules["zzz.scheduler"] is scheduler
                 assert scheduler.start_scheduler.call_count == expected_starts
+                scheduler.should_start_scheduler.assert_called_once()
                 for guard in guards:
                     guard.assert_not_called()
             """)

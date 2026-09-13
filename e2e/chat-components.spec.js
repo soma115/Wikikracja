@@ -7,9 +7,8 @@ async function setupChatPage(page) {
     // ?view=rooms → lista bez auto-joina (deterministyczny punkt startowy).
     await page.goto('/chat/?view=rooms');
     await page.waitForSelector('.tw-room-link', { timeout: 10000 });
-    await page.evaluate(() => {
-        document.querySelectorAll('.tw-chat-cat-btn[aria-expanded="false"]').forEach(b => b.click());
-    });
+    const publicCategory = page.locator('.tw-chat-cat-btn[data-cat-content="cat-public"]');
+    if (await publicCategory.getAttribute('aria-expanded') !== 'true') await publicCategory.click();
     await page.waitForTimeout(400);
 }
 

@@ -9,11 +9,10 @@ async function setupChatPage(page) {
     // od razu room-active + lista schowana.
     await page.goto('/chat/?view=rooms');
     await page.waitForSelector('.tw-room-link', { timeout: 10000 });
-    // Rozwiń wszystkie kategorie (na mobile często collapsed). evaluate() klika synchronicznie
-    // wszystkie naraz — bez tego per-locator iteracja wpada w race condition gdy lista się przeklika.
-    await page.evaluate(() => {
-        document.querySelectorAll('.tw-chat-cat-btn[aria-expanded="false"]').forEach(b => b.click());
-    });
+    // Rozwiń kategorię Public, która zawiera pierwszy pokój testowy. Kategorie są
+    // wzajemnie wykluczające, więc klikanie wszystkich naraz zostawiłoby otwartą tylko ostatnią.
+    const publicCategory = page.locator('.tw-chat-cat-btn[data-cat-content="cat-public"]');
+    if (await publicCategory.getAttribute('aria-expanded') !== 'true') await publicCategory.click();
     // Buffer na animację collapse — bez tego room-link bywa "not stable" przy kliku.
     await page.waitForTimeout(400);
     // Pierwszy room-link bez visible filter — locator musi pozostać valid PO wejściu w pokój

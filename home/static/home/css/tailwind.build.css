@@ -2194,6 +2194,18 @@ small,
   margin-bottom: .5rem;
 }
 
+.tw-arg-card-content:has(> .tw-arg-inline-form.tw-show) > .tw-arg-content-display,
+  .tw-arg-card-content:has(> .tw-arg-inline-form.tw-show) > .tw-arg-card-footer {
+  display: none;
+}
+
+.tw-arg-card-content > .tw-arg-inline-form {
+  margin-top: 0;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
 .tw-arg-card-footer {
   display: flex;
   align-items: center;

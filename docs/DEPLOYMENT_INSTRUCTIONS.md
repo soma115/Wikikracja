@@ -505,7 +505,7 @@ Key configuration options in `.env`:
 
 - **Logging**: `LOGGING_DESTINATION` (console/file), `LOG_LEVEL` (DEBUG/INFO/WARNING/ERROR)
 - **Sessions**: `SESSION_EXPIRE_AT_BROWSER_CLOSE`, `SESSION_COOKIE_AGE`, `REMEMBER_ME_DAYS`
-- **Voting**: `WYMAGANYCH_PODPISOW`, `CZAS_NA_ZEBRANIE_PODPISOW`, `CZAS_TRWANIA_REFERENDUM`
+- **Voting**: referendum parameters (`wymaganych_podpisow`, `czas_na_zebranie_podpisow`, `dyskusja`, `czas_trwania_referendum`) are stored in the `SiteParameters` database singleton and changed through the referendum workflow; they are not environment variables.
 - **Chat**: `ARCHIVE_PUBLIC_CHAT_ROOM`, `DELETE_PUBLIC_CHAT_ROOM`
 - **Uploads**: `UPLOAD_IMAGE_MAX_SIZE_MB`, `DATA_UPLOAD_MAX_MEMORY_SIZE`
 - **Citizens**: `ACCEPTANCE`, `DELETE_INACTIVE_USER_AFTER`

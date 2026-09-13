@@ -4,7 +4,7 @@ const path = require('path');
 
 const STORAGE_STATE = path.join(__dirname, '.auth/user.json');
 
-setup('login as dev user', async ({ page }) => {
+setup('login as dedicated E2E user', async ({ page }) => {
     const email = process.env.E2E_EMAIL;
     const password = process.env.E2E_PASSWORD;
     if (!email || !password) {
@@ -37,5 +37,11 @@ setup('login as dev user', async ({ page }) => {
         ]);
     }
 
+    const publicCategory = page.locator('#cat-public');
+    const publicCategoryButton = page.locator('.tw-chat-cat-btn[data-cat-content="cat-public"]');
+    if (await publicCategoryButton.getAttribute('aria-expanded') !== 'true') {
+        await publicCategoryButton.click();
+    }
+    await page.locator('#cat-public .tw-room-link').first().waitFor({ state: 'visible', timeout: 15000 });
     await page.context().storageState({ path: STORAGE_STATE });
 });

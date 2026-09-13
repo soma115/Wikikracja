@@ -11,12 +11,12 @@ Scheduled Tasks:
     - count_citizens: Runs every 10 minutes (manages user reputation and activation)
     - update_site: Runs every hour (syncs Site model with environment variables)
 
-The scheduler only starts when SCHEDULER_ENABLED=true is set in the environment
-or when RUN_MAIN=true (Django development server reload detection).
+The scheduler only starts in the dedicated ``run_scheduler`` management
+command or in the child process of the Django development server.
 """
 
 import logging
-import os
+import sys
 
 from django.apps import AppConfig
 
@@ -46,13 +46,14 @@ class SchedulerConfig(AppConfig):
 
         connection_created.connect(configure_sqlite, dispatch_uid='zzz.sqlite.configure', weak=False)
 
-        # Only start scheduler in the main process, not in Django management commands
-        # and not during migrations or other special operations
-        if os.environ.get('RUN_MAIN') == 'true' or os.environ.get('SCHEDULER_ENABLED') == 'true':
-            try:
-                from zzz.scheduler import start_scheduler
+        # Start only in the dedicated scheduler command or the runserver child.
+        # Management commands such as migrate and update_site must stay side-effect free.
+        try:
+            from zzz.scheduler import should_start_scheduler, start_scheduler
 
-                start_scheduler()
-                log.info("APScheduler initialized from SchedulerConfig.ready()")
-            except Exception as e:
-                log.error(f"Failed to start APScheduler: {e}", exc_info=True)
+            command = sys.argv[1] if len(sys.argv) > 1 else ''
+            if should_start_scheduler() and command != 'run_scheduler':
+                if start_scheduler() is not None:
+                    log.info("APScheduler initialized from SchedulerConfig.ready()")
+        except Exception as e:
+            log.error(f"Failed to initialize APScheduler: {e}", exc_info=True)

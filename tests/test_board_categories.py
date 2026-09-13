@@ -8,6 +8,7 @@
 """
 
 import pytest
+from django.core.exceptions import ValidationError
 from django.test import Client
 from django.urls import reverse
 
@@ -44,6 +45,11 @@ def test_delete_protected_category_blocked(authenticated_client):
     res = client.post(reverse('board:api_category_delete', args=[cat.pk]))
 
     assert res.status_code == 403
+    assert PostCategory.objects.filter(pk=cat.pk).exists()
+
+    with pytest.raises(ValidationError):
+        cat.delete()
+
     assert PostCategory.objects.filter(pk=cat.pk).exists()
 
 

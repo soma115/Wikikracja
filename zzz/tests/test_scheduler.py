@@ -1,8 +1,28 @@
+import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
+from unittest.mock import patch
 
-from zzz.scheduler import _acquire_scheduler_lock
+from zzz.scheduler import _acquire_scheduler_lock, should_start_scheduler
+
+
+class SchedulerStartGuardTest(TestCase):
+    def test_management_commands_do_not_start_scheduler(self):
+        with patch.dict(os.environ, {'SCHEDULER_ENABLED': 'true', 'RUN_MAIN': 'false'}), patch('zzz.scheduler.sys.argv', ['manage.py', 'migrate']):
+            self.assertFalse(should_start_scheduler())
+
+    def test_dedicated_command_starts_scheduler(self):
+        with patch.dict(os.environ, {'SCHEDULER_ENABLED': 'true', 'RUN_MAIN': 'false'}), patch('zzz.scheduler.sys.argv', ['manage.py', 'run_scheduler']):
+            self.assertTrue(should_start_scheduler())
+
+    def test_help_command_does_not_start_scheduler(self):
+        with patch.dict(os.environ, {'SCHEDULER_ENABLED': 'true', 'RUN_MAIN': 'false'}), patch('zzz.scheduler.sys.argv', ['manage.py', 'help', 'run_scheduler']):
+            self.assertFalse(should_start_scheduler())
+
+    def test_http_process_stays_disabled(self):
+        with patch.dict(os.environ, {'SCHEDULER_ENABLED': 'false', 'RUN_MAIN': 'false'}), patch('zzz.scheduler.sys.argv', ['daphne', 'zzz.routing:application']):
+            self.assertFalse(should_start_scheduler())
 
 
 class SchedulerLockTest(TestCase):

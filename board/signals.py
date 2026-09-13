@@ -2,6 +2,7 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.urls import reverse
@@ -13,11 +14,17 @@ from core.signals import important_post_published
 from core.utils import build_site_url, get_site_domain
 from zzz.templatetags.citizen_filters import user_display_name
 
-from .models import Post
+from .models import Post, PostCategory
 
 log = logging.getLogger(__name__)
 
 User = get_user_model()
+
+
+@receiver(pre_delete, sender=PostCategory)
+def prevent_protected_category_delete(sender, instance, **kwargs):
+    if instance.is_protected:
+        raise ValidationError(_("Protected categories cannot be deleted."))
 
 
 @receiver(post_save, sender=Post)
@@ -80,7 +87,7 @@ def create_or_update_chat_room_for_post(sender, instance, created, **kwargs):
 def delete_post_chat_room(sender, instance, **kwargs):
     """Automatically delete the associated chat room when a document is deleted."""
     if instance.system_key:
-        return
+        raise ValidationError(_("System posts cannot be deleted."))
     room = instance.chat_room
     if room:
         room.delete()

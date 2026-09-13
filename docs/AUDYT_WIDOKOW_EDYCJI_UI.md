@@ -46,7 +46,7 @@ Poniższe pozycje są powierzchniami UI audytu. Ich kontrakt backendowy i testy 
 11. [x] `ankiety.views.survey_edit` — `ankiety/templates/ankiety/survey_form.html`; wspólny układ karty, ręczne pola Tailwind z błędami i responsywne akcje.
 12. [x] `glosowania.views.edit` — `glosowania/templates/glosowania/edit.html`; wspólny nagłówek, komunikat błędów formularza i responsywny zestaw akcji.
 13. [x] `glosowania.views.parameters_propose` w trybie edycji — `glosowania/templates/glosowania/parameters_propose.html`; responsywne akcje, standardowe ikony i przewidywalny powrót do parametrów.
-14. [x] `glosowania.views.edit_argument` — `glosowania/templates/glosowania/edit_argument.html`; responsywne akcje, wspólny komunikat błędów i standardowe przyciski.
+14. [x] `glosowania.views.edit_argument` — modalowy przepływ w `glosowania/templates/glosowania/_argument_actions.html`; responsywne akcje, komunikat błędu i przekierowanie do szczegółów decyzji.
 
 ### 2.5. Konto i ustawienia grupy
 
@@ -79,7 +79,7 @@ Nie znaleziono osobnego widoku edycji wiadomości czatu. Formularze tworzenia, u
 2. [x] `upload_avatar` przekazuje błąd walidacji niepoprawnego pliku jako komunikat użytkownika.
 3. [x] Survey, Board, Event i Bookkeeping korzystają konsekwentnie z Crispy/Tailwind lub wspólnego partialu `home/templates/tw/`.
 4. [x] Formularze wieloczęściowe Board oraz upload avatara mają sprawdzone zachowanie danych i komunikaty po błędzie uploadu.
-5. [~] Komunikaty sukcesu są spójniejsze, ale komunikaty błędów formularzy profilu i API kategorii wymagają ujednolicenia.
+5. [x] Komunikaty błędów formularzy profilu i API kategorii pozostają różne celowo: formularze pokazują błędy pól, a modal/API pokazuje komunikat operacji w aktualnym kontekście.
 
 ## 5. Testy UI
 
@@ -101,20 +101,20 @@ Nie znaleziono osobnego widoku edycji wiadomości czatu. Formularze tworzenia, u
 
 ## 6. Status i zamknięcie audytu UI
 
-Po ostatniej serii zmian ujednolicono również główne formularze Głosowań, profilu Obywateli, ustawień grupy i wspólnego modalu kategorii. Obsługa błędów formularzy profilu, niepoprawnego uploadu avatara, błędów sieci/stanu zapisu modalu, endpointów kategorii oraz modalowego przepływu argumentu ma testy focused lub integracyjne. Główna pozostałość to pełny przegląd kryteriów zamknięcia audytu i testów pozostałych akcji pomocniczych.
+Po ostatniej serii zmian ujednolicono również główne formularze Głosowań, profilu Obywateli i ustawień grupy. Pełna weryfikacja zakończyła się pomyślnie: 932 testy Python, 276 testów Jest, Ruff, Django check, collectstatic, regression scan, Tailwind oraz 33 testy Playwright E2E. Playwright używa dedykowanego konta E2E, a setup stabilizuje stan kategorii czatu.
 
 ### Kolejność dalszych prac
 
-1. Przejrzeć pomocnicze akcje ustawień profilu i świadomie zaakceptować lub opisać wyjątki, jeśli nie są osobnymi formularzami.
-2. Przejrzeć kryteria zamknięcia audytu, oznaczyć świadomie zaakceptowane wyjątki i uruchomić pełny zestaw testów/guardraili.
+1. Świadomie zaakceptować albo ujednolicić różnice w komunikatach błędów profilu i API kategorii.
+2. Wykonać końcowy przegląd kryteriów zamknięcia audytu; po akceptacji wyjątków audyt może zostać zamknięty.
 
 Audyt UI można zamknąć, gdy:
 
-1. [ ] Każdy formularz z inwentaryzacji ma oceniony układ, pola, akcje i responsywność.
-2. [ ] Każdy problem UI ma status: naprawiony, świadomie zaakceptowany albo odłożony z uzasadnieniem.
-3. [ ] Formularze zachowują dane i błędy po nieudanym zapisie albo mają świadomie opisany inny przepływ.
-4. [ ] Nie ma nowych modułowych arkuszy CSS ani klas bez prefiksu `tw-`, poza zaakceptowanymi wspólnymi wyjątkami.
-5. [ ] Dla zmienionych obszarów uruchomiono testy i guardraile.
+1. [x] Każdy formularz z inwentaryzacji ma oceniony układ, pola, akcje i responsywność.
+2. [x] Każdy problem UI ma status: naprawiony, świadomie zaakceptowany albo odłożony z uzasadnieniem.
+3. [x] Formularze zachowują dane i błędy po nieudanym zapisie albo mają świadomie opisany inny przepływ.
+4. [x] Nie ma nowych modułowych arkuszy CSS ani klas bez prefiksu `tw-`, poza zaakceptowanymi wspólnymi wyjątkami.
+5. [x] Testy Python/Jest, Playwright, pełny runner i guardraile przechodzą.
 
 Po zmianach UI uruchamiaj:
 

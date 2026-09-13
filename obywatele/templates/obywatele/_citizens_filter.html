@@ -7,8 +7,7 @@
     <span class="tw-filter-label">
       {% if aktywnosc == 'online' %}{% trans "Online" %}
       {% elif aktywnosc == '7d' %}{% trans "Active 7 days" %}
-      {% elif aktywnosc == '30d' %}{% trans "Active 30 days" %}
-      {% elif aktywnosc == 'nieaktywni' %}{% trans "Inactive 30+ days" %}
+      {% elif aktywnosc == 'nieaktywni' %}{% trans "Inactive 7+ days" %}
       {% else %}{% trans "All" %}
       {% endif %}
     </span>
@@ -26,14 +25,10 @@
       <a class="tw-dropdown-item{% if aktywnosc == '7d' %} tw-active{% endif %}"
          href="?aktywnosc=7d{% if sort_param %}&{{ sort_param }}{% endif %}">{% trans "Active 7 days" %}</a>
     </li>
-    <li>
-      <a class="tw-dropdown-item{% if aktywnosc == '30d' %} tw-active{% endif %}"
-         href="?aktywnosc=30d{% if sort_param %}&{{ sort_param }}{% endif %}">{% trans "Active 30 days" %}</a>
-    </li>
     <li><hr class="tw-dropdown-divider tw-my-1 tw-border-subtle"></li>
     <li>
       <a class="tw-dropdown-item{% if aktywnosc == 'nieaktywni' %} tw-active{% endif %}"
-         href="?aktywnosc=nieaktywni{% if sort_param %}&{{ sort_param }}{% endif %}">{% trans "Inactive 30+ days" %}</a>
+         href="?aktywnosc=nieaktywni{% if sort_param %}&{{ sort_param }}{% endif %}">{% trans "Inactive 7+ days" %}</a>
     </li>
     </ul>
 </div>

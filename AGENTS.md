@@ -69,7 +69,9 @@ Zawsze uruchamiaj komendy Pythonowe i testy przez interpreter z repozytoryjnego 
 
 Pełny runner przygotowuje `.env` (może zmienić `SECRET_KEY`) i wykonuje `collectstatic --clear`. Przy weryfikacji bez ingerencji w środowisko aplikacji pomijaj przygotowanie/ładowanie `.env` w runnerze i ustaw `PYTHON_DOTENV_DISABLED=1`, a komendy Django kieruj do bazy w pamięci i tymczasowych `MEDIA_ROOT`/`STATIC_ROOT`, z wyłączonym schedulerem, bez poświadczeń Firebase i z lokalnym backendem poczty. `zzz.test_settings` zmienia tylko `DATABASES['default']['TEST']`, więc dla `check`/`collectstatic` trzeba również nadpisać zwykłe `DATABASES['default']['NAME']`. Jeśli nadpisujesz ustawienia tylko w procesie uruchamiającym pytest, używaj `-n 0` — procesy xdist nie odziedziczą tych nadpisań. Nie wyłączaj przy tym właściwych kontroli (Ruff, Django check, collectstatic, pytest, Jest).
 
-Nie uruchamiaj podglądu w przeglądarce (browser preview) — weryfikuj zmiany wyłącznie testami i komendami CLI.
+Automatyczne testy Playwright są dozwolone i należy je uruchamiać w pełnym runnerze, gdy zmiana dotyczy UI lub przepływów E2E. Nie uruchamiaj interaktywnego podglądu w przeglądarce przez narzędzie browser preview.
+
+Playwright musi używać wyłącznie dedykowanego konta E2E skonfigurowanego przez `E2E_EMAIL` i `E2E_PASSWORD` w ignorowanym pliku `.env.local`. Konto to należy utworzyć wyłącznie do testów i nie może być kontem administratora, użytkownika deweloperskiego ani prywatnym kontem użytkownika. Testy nie mogą logować się na konta `admin`, `a`, `b`, `c` ani modyfikować danych tych kont. Dane tworzone przez E2E powinny mieć jednoznaczny prefiks testowy i być ograniczone do dedykowanego konta.
 
 ## 5. Konwencje
 

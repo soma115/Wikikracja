@@ -5,7 +5,7 @@ They are now stored on the ``SiteParameters`` singleton so citizens can change
 them through a referendum (see ``glosowania``). This module is the single
 source of truth describing every votable parameter and drives:
 
-- seeding of the singleton from ``settings`` defaults,
+- the definitions used by the proposal form and approval flow,
 - the proposal form (``ParametersProposalForm``),
 - the human readable change list shown in the referendum,
 - applying approved changes back onto the singleton (and Django Sites).
@@ -34,9 +34,8 @@ CATEGORY_ORDER = [CATEGORY_VOTING, CATEGORY_CHAT, CATEGORY_CITIZENS, CATEGORY_GR
 class ParamSpec:
     """Describes a single votable parameter."""
 
-    def __init__(self, name, settings_name, kind, category, label, help_text='', unit='', warning='', min_value=None, max_value=None):
+    def __init__(self, name, kind, category, label, help_text='', unit='', warning='', min_value=None, max_value=None):
         self.name = name  # field name on SiteParameters
-        self.settings_name = settings_name  # django.conf.settings attribute used as seed default
         self.kind = kind  # 'int' | 'bool' | 'str'
         self.category = category
         self.label = label
@@ -50,19 +49,9 @@ class ParamSpec:
 
 PARAM_SPECS = [
     # --- Voting parameters ---
-    ParamSpec(
-        'wymaganych_podpisow',
-        'WYMAGANYCH_PODPISOW',
-        'int',
-        CATEGORY_VOTING,
-        _('Required signatures for referendum'),
-        _('Number of signatures a new proposal must gather to trigger a referendum.'),
-        min_value=2,
-        max_value=20,
-    ),
+    ParamSpec('wymaganych_podpisow', 'int', CATEGORY_VOTING, _('Required signatures for referendum'), _('Number of signatures a new proposal must gather to trigger a referendum.'), min_value=2, max_value=20),
     ParamSpec(
         'czas_na_zebranie_podpisow',
-        'CZAS_NA_ZEBRANIE_PODPISOW',
         'int',
         CATEGORY_VOTING,
         _('Time to gather signatures'),
@@ -71,14 +60,11 @@ PARAM_SPECS = [
         min_value=1,
         max_value=3650,
     ),
-    ParamSpec(
-        'dyskusja', 'DYSKUSJA', 'int', CATEGORY_VOTING, _('Discussion period'), _('Number of days a proposal stays in queue/discussion before the referendum starts.'), unit=_('days'), min_value=1, max_value=365
-    ),
-    ParamSpec('czas_trwania_referendum', 'CZAS_TRWANIA_REFERENDUM', 'int', CATEGORY_VOTING, _('Referendum duration'), _('Number of days a referendum lasts.'), unit=_('days'), min_value=1, max_value=365),
+    ParamSpec('dyskusja', 'int', CATEGORY_VOTING, _('Discussion period'), _('Number of days a proposal stays in queue/discussion before the referendum starts.'), unit=_('days'), min_value=1, max_value=365),
+    ParamSpec('czas_trwania_referendum', 'int', CATEGORY_VOTING, _('Referendum duration'), _('Number of days a referendum lasts.'), unit=_('days'), min_value=1, max_value=365),
     # --- Chat settings ---
     ParamSpec(
         'archive_public_chat_room',
-        'ARCHIVE_PUBLIC_CHAT_ROOM',
         'int',
         CATEGORY_CHAT,
         _('Archive public chat room after'),
@@ -89,7 +75,6 @@ PARAM_SPECS = [
     ),
     ParamSpec(
         'delete_public_chat_room',
-        'DELETE_PUBLIC_CHAT_ROOM',
         'int',
         CATEGORY_CHAT,
         _('Delete public chat room after'),
@@ -99,22 +84,14 @@ PARAM_SPECS = [
         max_value=3650,
     ),
     # --- Citizens settings ---
-    ParamSpec('acceptance', 'ACCEPTANCE', 'int', CATEGORY_CITIZENS, _('Acceptance threshold'), _('Reputation threshold for accepting new members and protecting existing ones.'), min_value=1, max_value=100),
+    ParamSpec('acceptance', 'int', CATEGORY_CITIZENS, _('Acceptance threshold'), _('Reputation threshold for accepting new members and protecting existing ones.'), min_value=1, max_value=100),
     ParamSpec(
-        'delete_inactive_user_after',
-        'DELETE_INACTIVE_USER_AFTER',
-        'int',
-        CATEGORY_CITIZENS,
-        _('Delete inactive user after'),
-        _('Inactive/unconfirmed users are removed after this many days.'),
-        unit=_('days'),
-        min_value=1,
-        max_value=3650,
+        'delete_inactive_user_after', 'int', CATEGORY_CITIZENS, _('Delete inactive user after'), _('Inactive/unconfirmed users are removed after this many days.'), unit=_('days'), min_value=1, max_value=3650
     ),
     # --- Group settings ---
-    ParamSpec('group_is_public', 'GROUP_IS_PUBLIC', 'bool', CATEGORY_GROUP, _('Group is public'), _('If enabled, anyone can register and the public inbox is available.')),
+    ParamSpec('group_is_public', 'bool', CATEGORY_GROUP, _('Group is public'), _('If enabled, anyone can register and the public inbox is available.')),
     # --- Site identity ---
-    ParamSpec('site_name', 'SITE_NAME', 'str', CATEGORY_SITE, _('Site name'), _('Full name of the instance shown across the site.')),
+    ParamSpec('site_name', 'str', CATEGORY_SITE, _('Site name'), _('Full name of the instance shown across the site.')),
 ]
 
 SPECS_BY_NAME = {spec.name: spec for spec in PARAM_SPECS}
@@ -126,16 +103,6 @@ def specs_by_category():
         specs = [s for s in PARAM_SPECS if s.category == category]
         if specs:
             yield category, CATEGORY_LABELS[category], specs
-
-
-def seed_defaults():
-    """Return a dict of ``{name: default}`` seeded from ``django.conf.settings``."""
-    from django.conf import settings
-
-    defaults = {}
-    for spec in PARAM_SPECS:
-        defaults[spec.name] = getattr(settings, spec.settings_name, None)
-    return defaults
 
 
 def coerce(spec, raw):

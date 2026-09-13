@@ -1,15 +1,6 @@
 {% load i18n %}
 {% if arg.author == current_user and not id.voting_has_ended %}
 {% with arg_suffix=arg.id|stringformat:'s' %}
-<div class="tw-arg-card-footer">
-  <button type="button" class="tw-detail-nav-btn tw-text-danger" data-tw-toggle="modal" data-tw-target="#deleteArgumentModal{{ arg.id }}" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}">
-    <i class="fas fa-trash fa-fw" aria-hidden="true"></i>
-  </button>
-  <button type="button" class="tw-detail-nav-btn" data-tw-toggle="collapse" data-tw-target="#editArgumentForm{{ arg.id }}" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}">
-    <i class="fas fa-pen fa-fw" aria-hidden="true"></i>
-  </button>
-</div>
-
 <div class="tw-arg-inline-form tw-collapse" id="editArgumentForm{{ arg.id }}" data-tw-autofocus>
   <form method="post" action="{% url 'glosowania:edit_argument' arg.id %}">
     {% csrf_token %}
@@ -21,6 +12,15 @@
       <button type="submit" class="tw-arg-inline-submit tw-arg-inline-submit--{{ arg.argument_type|lower }}"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
     </div>
   </form>
+</div>
+
+<div class="tw-arg-card-footer">
+  <button type="button" class="tw-detail-nav-btn tw-text-danger" data-tw-toggle="modal" data-tw-target="#deleteArgumentModal{{ arg.id }}" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}">
+    <i class="fas fa-trash fa-fw" aria-hidden="true"></i>
+  </button>
+  <button type="button" class="tw-detail-nav-btn" data-tw-toggle="collapse" data-tw-target="#editArgumentForm{{ arg.id }}" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}">
+    <i class="fas fa-pen fa-fw" aria-hidden="true"></i>
+  </button>
 </div>
 
 {% trans 'Delete Argument' as delete_title %}

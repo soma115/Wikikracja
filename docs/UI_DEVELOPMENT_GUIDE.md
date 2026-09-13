@@ -181,6 +181,17 @@ Use semantic HTML:
 - `<button type="button">` for in-page actions;
 - submit buttons inside forms for form submission.
 
+### 3.5 Form submission channels
+
+Wikikracja intentionally uses two submission channels, selected by the interaction type:
+
+- **Full-page forms** such as profile, survey, document, event, task and bookkeeping forms use standard Django POST handling. Validation errors re-render the bound form with field data and errors; successful submissions use the established redirect and message flow.
+- **Contextual modals and asynchronous controls** such as category management and notification/theme toggles use JSON requests through `window.apiFetch`. They return structured success/error data, keep the current page context and update the component in place.
+
+This separation is intentional, not a temporary inconsistency. Do not convert a substantial full-page form to JSON only for uniformity. Do not implement a modal/API operation as a full-page redirect. In both channels, use the same validation rules, translated messages, CSRF protection, accessible error presentation and disabled state during submission.
+
+For JSON operations use the shared response semantics already established by category management: successful data for HTTP 2xx responses, structured validation errors for HTTP 400, permission errors for HTTP 401/403 and conflicts for HTTP 409. Full-page forms must preserve submitted values and errors when validation fails.
+
 ## 4. Shared components
 
 Prefer these existing components before writing new markup:

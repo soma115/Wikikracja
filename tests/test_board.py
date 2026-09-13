@@ -370,6 +370,31 @@ def test_edit_system_post_can_change_public_but_not_category_or_other_flags(auth
 
 
 @pytest.mark.django_db
+def test_system_post_cannot_be_deleted_or_have_protected_fields_changed(authenticated_client):
+    client, _ = authenticated_client
+    original_category = PostCategoryFactory(name='System')
+    new_category = PostCategoryFactory(name='Other')
+    post = PostFactory(system_key='immutable-system-post', category=original_category, is_private=False, is_important=False)
+
+    response = client.post(reverse('board:delete_post', args=[post.pk]))
+    assert response.status_code == 404
+    post.refresh_from_db()
+    assert not post.is_deleted
+
+    post.category = new_category
+    post.is_private = True
+    post.is_important = True
+    post.system_key = None
+    post.save()
+    post.refresh_from_db()
+
+    assert post.system_key == 'immutable-system-post'
+    assert post.category_id == original_category.pk
+    assert post.is_private is False
+    assert post.is_important is False
+
+
+@pytest.mark.django_db
 def test_delete_post_is_available_to_other_users(authenticated_client):
     """Zalogowany użytkownik może przenieść cudzy dokument do kosza."""
     client, _ = authenticated_client
