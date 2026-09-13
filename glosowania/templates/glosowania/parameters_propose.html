@@ -1,5 +1,4 @@
 {% extends 'glosowania/menu.html' %}
-{% load static %}
 {% load crispy_forms_tags %}
 {% load i18n %}
 
@@ -16,7 +15,7 @@
         {% trans 'Adjust the values below. Only the parameters you change will be included in the referendum.' %}
       </p>
 
-      <form action="." method="POST" enctype="multipart/form-data" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
+      <form action="." method="POST" enctype="multipart/form-data">
     {% csrf_token %}
 
     {% if form.non_field_errors %}
@@ -50,9 +49,9 @@
       {{ form.uzasadnienie|as_crispy_field }}
     </div>
 
-    <div class="tw-flex tw-gap-2">
-      <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas {% if decyzja %}fa-check{% else %}fa-plus{% endif %} fa-fw tw-me-1"></i>{% if decyzja %}{% trans 'Save' %}{% else %}{% trans 'Create referendum' %}{% endif %}</button>
-      <a href="{% url 'glosowania:parameters' %}" class="tw-btn tw-btn-secondary tw-btn-sm"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Back' %}</a>
+    <div class="tw-flex tw-flex-wrap tw-gap-2">
+      <button type="submit" class="tw-btn tw-btn-primary"><i class="fas {% if decyzja %}fa-check{% else %}fa-plus{% endif %} fa-fw tw-me-1" aria-hidden="true"></i>{% if decyzja %}{% trans 'Save' %}{% else %}{% trans 'Create referendum' %}{% endif %}</button>
+      <a href="{% url 'glosowania:parameters' %}" class="tw-btn tw-btn-secondary" data-autosave-clear><i class="fas fa-arrow-left fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'Back' %}</a>
     </div>
       </form>
     </div>
@@ -60,6 +59,3 @@
 </div>
 {% endblock glosowania %}
 
-{% block extra_js %}
-<script src="{% static 'common/js/form-autosave.js' %}"></script>
-{% endblock extra_js %}

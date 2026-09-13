@@ -61,6 +61,41 @@ class BookkeepingViewTests(TestCase):
         asset.refresh_from_db()
         self.assertEqual(asset.name, 'Polski złoty')
 
+    def test_edit_forms_render_prefilled_data(self):
+        transaction = self._transaction()
+        cases = (
+            ('bookkeeping:asset_update', self.asset, 'form'),
+            ('bookkeeping:category_update', self.category, 'form'),
+            ('bookkeeping:partner_update', self.partner, 'form'),
+            ('bookkeeping:transaction_update', transaction, 'transaction_form'),
+        )
+
+        for url_name, instance, context_name in cases:
+            with self.subTest(url_name=url_name):
+                response = self.client.get(reverse(url_name, args=[instance.pk]))
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.context[context_name].instance, instance)
+
+    def test_edit_forms_rerender_errors_without_saving(self):
+        transaction = self._transaction()
+        cases = (
+            ('bookkeeping:asset_update', self.asset, {'code': '', 'name': 'Test Asset', 'symbol': 'T', 'decimal_places': 2}, 'form'),
+            ('bookkeeping:category_update', self.category, {'name': ''}, 'form'),
+            ('bookkeeping:partner_update', self.partner, {'name': ''}, 'form'),
+            (
+                'bookkeeping:transaction_update',
+                transaction,
+                {'type': 'I', 'asset': self.asset.pk, 'partner': self.partner.pk, 'category': self.category.pk, 'amount': '-1', 'payment_received_date': '2026-01-01', 'note': ''},
+                'transaction_form',
+            ),
+        )
+
+        for url_name, instance, data, context_name in cases:
+            with self.subTest(url_name=url_name):
+                response = self.client.post(reverse(url_name, args=[instance.pk]), data)
+                self.assertEqual(response.status_code, 200)
+                self.assertTrue(response.context[context_name].errors)
+
     def test_category_and_partner_create_redirect_to_list(self):
         res = self.client.post(reverse('bookkeeping:category_create'), {'name': 'Nowa'})
         self.assertRedirects(res, reverse('bookkeeping:category_list'))

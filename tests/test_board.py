@@ -108,12 +108,12 @@ def test_board_list_chat_pulse_for_unread_message(authenticated_client):
 
 
 @pytest.mark.django_db
-def test_create_post_saves_author_and_attachments(authenticated_client):
-    """POST create tworzy dokument z autorem z request.user i zapisuje załączniki."""
+def test_create_post_saves_author_and_multiple_attachments(authenticated_client):
+    """POST create tworzy dokument z autorem i zapisuje wiele załączników."""
     client, user = authenticated_client
-    upload = SimpleUploadedFile('notatka.txt', b'zawartosc')
+    uploads = [SimpleUploadedFile('notatka.txt', b'zawartosc'), SimpleUploadedFile('plan.pdf', b'plan')]
 
-    res = client.post(reverse('board:create_post'), {'title': 'Nowy dokument', 'text': 'Treść', 'attachments': upload})
+    res = client.post(reverse('board:create_post'), {'title': 'Nowy dokument', 'text': 'Treść', 'attachments': uploads})
 
     post = Post.objects.get(title='Nowy dokument')
     assert res.status_code == 302
@@ -121,8 +121,7 @@ def test_create_post_saves_author_and_attachments(authenticated_client):
     assert post.author == user
     assert post.updated_by == user
     assert post.chat_room_id is not None
-    attachment = post.attachments.get()
-    assert attachment.filename == 'notatka.txt'
+    assert set(post.attachments.values_list('filename', flat=True)) == {'notatka.txt', 'plan.pdf'}
 
 
 @pytest.mark.django_db
@@ -156,6 +155,35 @@ def test_edit_post_updates_fields_and_adds_attachments(authenticated_client):
     assert post.author == user
     assert post.updated_by == user
     assert post.attachments.get().filename == 'zalacznik.txt'
+
+
+@pytest.mark.django_db
+def test_post_form_uses_shared_uploaders_and_places_attachments_at_bottom(authenticated_client):
+    client, _ = authenticated_client
+    response = client.get(reverse('board:create_post'))
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert 'data-file-upload-single' in content
+    assert 'accept="image/*"' in content
+    assert 'tw-file-upload' in content
+    assert content.index('name="attachments"') > content.index('name="text"')
+    assert content.index('form="post-form"') > content.index('name="attachments"')
+
+
+@pytest.mark.django_db
+def test_delete_featured_image_is_immediate_and_requires_post(authenticated_client):
+    client, user = authenticated_client
+    post = PostFactory(author=user)
+    post.featured_image = SimpleUploadedFile('cover.jpg', b'image data', content_type='image/jpeg')
+    post.save(update_fields=('featured_image',))
+
+    response = client.post(reverse('board:delete_featured_image', args=[post.pk]))
+
+    assert response.status_code == 302
+    assert response.url == reverse('board:edit_post', args=[post.pk])
+    post.refresh_from_db()
+    assert not post.featured_image
 
 
 @pytest.mark.django_db

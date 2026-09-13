@@ -57,7 +57,7 @@
         
         <div class="tw-mb-3">
           <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Save Partner" %}</button>
-          <a href="{% url 'bookkeeping:partner_list' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</a>
+          <a href="{% url 'bookkeeping:partner_list' %}" class="tw-btn tw-btn-secondary" data-autosave-clear><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</a>
         </div>
       </form>
     </div>

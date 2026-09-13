@@ -17,6 +17,7 @@ from board.models import Post
 from core.signals import citizen_accepted, citizen_blocked, citizen_deleted
 from core.utils import build_site_url, get_site_domain
 from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
+from obywatele.services import publish_deletion_feedback
 from obywatele.views import population, required_reputation
 
 log = logging.getLogger(__name__)
@@ -254,17 +255,23 @@ class Command(BaseCommand):
         overdue = DeletionRequest.objects.filter(scheduled_for__lte=now()).select_related('user')
         for dr in overdue:
             user = dr.user
-            log.info(f'Processing deletion request for user {user.username} (id={user.id})')
+            username = user.username
+            author_name = user.get_full_name() or username
+            reason = dr.reason.strip() if dr.reason else ''
+            publish_after_deletion = dr.publish_after_deletion
+            publish_anonymously = dr.publish_anonymously
+            log.info(f'Processing deletion request for user {username} (id={user.id})')
             citizen_deleted.send(sender='count_citizens', user=user)
             try:
                 if hasattr(user, 'uzytkownik'):
                     user.uzytkownik.delete()
 
-                username = user.username
                 user.delete()
+                if reason and publish_after_deletion:
+                    publish_deletion_feedback(reason, anonymous=publish_anonymously, author_name=author_name)
                 log.info(f'Deleted account (user-requested): {username}')
             except Exception as e:
-                log.error(f'Failed to delete user {user.id} (user-requested): {str(e)}')
+                log.error(f'Failed to delete user {username} (user-requested): {str(e)}')
 
     def delete_inactive_users(self):
         """Delete inactive users who haven't logged in for a while"""

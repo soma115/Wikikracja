@@ -271,6 +271,15 @@ class TaskEditViewTest(TestCase):
         self.task.refresh_from_db()
         self.assertEqual(self.task.title, "Zmieniony tytuł")
 
+    def test_edit_invalid_title_rerenders_form_without_saving(self):
+        self.client.login(username=self.owner.username, password=self.owner._plain_password)
+        response = self.client.post(reverse("tasks:edit", kwargs={"pk": self.task.pk}), {"title": "", "description": "Nowy opis"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["form"].errors)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.title, "Zadanie")
+
 
 class TaskCloseViewTest(TestCase):
     def setUp(self):
@@ -603,6 +612,24 @@ class CategoryAPITest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["slug"], "nowa-1")
         self.assertTrue(Category.objects.filter(slug="nowa-1").exists())
+
+    def test_edit_category_get_returns_categories(self):
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+        response = self.client.get(reverse("tasks:api_categories"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(any(item["id"] == self.cat.pk for item in response.json()["categories"]))
+
+    def test_edit_category_requires_csrf_when_checks_are_enabled(self):
+        from django.test import Client
+
+        csrf_client = Client(enforce_csrf_checks=True)
+        csrf_client.force_login(self.user)
+        response = csrf_client.post(reverse("tasks:api_category_edit", kwargs={"pk": self.cat.pk}), {"name": "Updated", "description": ""})
+
+        self.assertEqual(response.status_code, 403)
+        self.cat.refresh_from_db()
+        self.assertEqual(self.cat.name, "Test")
 
     def test_edit_category(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)

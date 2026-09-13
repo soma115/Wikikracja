@@ -8,6 +8,7 @@ from allauth.account.models import EmailAddress
 from allauth.account.signals import email_confirmed, user_signed_up
 from django.conf import settings as s
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.messages import error, success
@@ -34,7 +35,7 @@ from core.signals import citizen_proposed
 from obywatele.filters import UzytkownikFilter
 from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, UserForm, UsernameChangeForm
 from obywatele.models import DeletionRequest, Rate, Uzytkownik
-from obywatele.services import get_citizen_activity, get_citizen_created_items
+from obywatele.services import get_citizen_activity, get_citizen_created_items, publish_deletion_feedback
 from obywatele.tables import UzytkownikTable
 from site_settings.params import get_param
 from tasks.activity import get_active_coordinated_tasks_by_user_ids, get_user_tasks
@@ -159,9 +160,7 @@ def change_email(request: HttpRequest):
             success(request, (message))
             return redirect('obywatele:my_profile')
         else:
-            message = form.non_field_errors().as_text() or next(iter(form.errors.values()))
-            error(request, (message))
-            return redirect('obywatele:my_profile')
+            return render(request, 'obywatele/change_email.html', {'form': form})
     else:
         return render(request, 'obywatele/change_email.html', {'form': form})
 
@@ -176,9 +175,7 @@ def change_username(request: HttpRequest):
             success(request, (message))
             return redirect('obywatele:my_profile')
         else:
-            message = form.errors
-            error(request, (message))
-            return redirect('obywatele:my_profile')
+            return render(request, 'obywatele/change_username.html', {'form': form})
     else:
         form = UsernameChangeForm(request.user)
     return render(request, 'obywatele/change_username.html', {'form': form})
@@ -499,6 +496,9 @@ def my_profile(request: HttpRequest):
             'push_notifications': push_notifications,
             'push_devices': push_devices,
             'avatar_form': AvatarForm(),
+            'password_form': PasswordChangeForm(user),
+            'email_form': EmailChangeForm(user),
+            'username_form': UsernameChangeForm(user),
             'deletion_request': deletion_request,
         },
     )
@@ -511,6 +511,9 @@ def upload_avatar(request: HttpRequest):
         form = AvatarForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
+        else:
+            message = next(iter(form.errors.get('avatar', [])), _('Please correct the highlighted errors.'))
+            error(request, message)
     return redirect('obywatele:my_profile')
 
 
@@ -583,11 +586,10 @@ def my_assets(request: HttpRequest):
             success(request, _('Changes was saved'))
             return redirect('obywatele:my_profile')
         else:  # form.is_NOT_valid():
-            error(request, form.errors)
-            return redirect('obywatele:my_profile')
+            return render(request, 'obywatele/my_assets.html', {'user': user, 'profile': profile, 'form': form})
     else:  # request.method != 'POST':
         form = ProfileForm(instance=profile, initial={'first_name': user.first_name, 'last_name': user.last_name})
-        return render(request, 'obywatele/my_assets.html', {'user': user, 'profile': profile, 'form': form})
+    return render(request, 'obywatele/my_assets.html', {'user': user, 'profile': profile, 'form': form})
 
 
 class AssetListView(LoginRequiredMixin, SingleTableMixin, FilterView):
@@ -893,9 +895,14 @@ def request_deletion(request: HttpRequest):
         return redirect('obywatele:my_profile')
 
     reason = request.POST.get('reason', '').strip()
+    publish_after_deletion = request.POST.get('publication_timing') == 'after_deletion'
+    publish_anonymously = request.POST.get('publication_identity', 'anonymous') != 'named'
+    if reason and not publish_after_deletion:
+        publish_deletion_feedback(reason, anonymous=publish_anonymously, author_name=user.get_full_name() or user.username)
+
     scheduled = timezone.now() + timedelta(days=30)
-    DeletionRequest.objects.create(user=user, scheduled_for=scheduled, reason=reason)
-    log.info(f'User {user.username} (id={user.id}) requested account deletion, scheduled for {scheduled.date()}, reason: {reason[:100] if reason else "not provided"}')
+    DeletionRequest.objects.create(user=user, scheduled_for=scheduled, reason=reason if publish_after_deletion else '', publish_after_deletion=publish_after_deletion, publish_anonymously=publish_anonymously)
+    log.info(f'User {user.username} (id={user.id}) requested account deletion, scheduled for {scheduled.date()}')
     success(request, _('Your account deletion has been scheduled. Your data will be permanently removed in 30 days. You can cancel this request at any time before then.'))
     return redirect('obywatele:my_profile')
 

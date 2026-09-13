@@ -102,7 +102,7 @@
         <li>Stan wyłączony / bez sortowania używa klasy <code>tw-sort-btn--off</code> i jest wizualnie wyszarzony; stan aktywnego sortowania używa <code>tw-active</code> i pozostaje podświetlony.</li>
         <li>Kliknięcie innego pola wyłącza poprzednie sortowanie i uruchamia nowe pole od stanu rosnącego. Przy wyłączonym sortowaniu źródło danych zachowuje swoją domyślną kolejność.</li>
         <li>Stan jest dostępny także programowo przez <code>data-sort-state="none|asc|desc"</code> i <code>aria-pressed</code>.</li>
-        <li>Ikona pola mówi, co jest sortowane: <code>fa-list</code> dla sortowania alfabetycznego A-Z, <code>fa-clock</code> dla czasu/daty, <code>fa-user</code> dla autora, <code>fa-tag</code> dla kategorii.</li>
+        <li>Ikona pola mówi, co jest sortowane: <code>fa-list</code> dla sortowania alfabetycznego A-Z, <code>fa-clock</code> dla czasu/daty, <code>fa-user</code> dla autora, <code>fa-tag</code> dla kategorii.</li>q
         <li>Strzałka <code>fa-arrow-up</code> / <code>fa-arrow-down</code> oznacza wyłącznie kierunek i nie zastępuje ikony pola; stan wyłączony pokazuje <code>fa-sort</code>.</li>
         <li>Na dużych ekranach każdy guzik sortowania pokazuje ikonę pola, etykietę i wskaźnik kierunku.</li>
         <li>Układ kontrolek jest mierzony dynamicznie na podstawie dostępnej szerokości konkretnej grupy, niezależnie od breakpointu ekranu; używamy obserwacji rozmiaru, nie progów typu „poniżej 480 px ukryj etykiety”.</li>
@@ -187,6 +187,8 @@
       </div>
       <ul class="rules">
         <li>Wszystkie moduły używają wspólnego partiala <code>home/templates/home/includes/stepper.html</code>.</li>
+        <li>Stepper jest widoczny na stronach listy/siatki, szczegółu oraz na wszystkich formularzach dodawania i edycji należących do modułu.</li>
+        <li>Na formularzu stepper pozostaje nawigacją modułu; nie dodajemy dodatkowego guzika „Wróć” do listy. Akcja „Anuluj” może pozostać, jeśli odrzuca zmiany albo wraca do edytowanego szczegółu.</li>
         <li>Na lewo może być guzik info (np. parametry / pomoc), a CTA Dodaj pozostaje na tym samym poziomie co stepper.</li>
         <li>Stepper rozszerza się tylko do granicy CTA Dodaj; CTA pozostaje osobnym, niekurczącym się elementem po prawej stronie.</li>
         <li>Etykieta CTA jest owinięta w <code>&lt;span class="tw-btn-cta-label"&gt;</code> dla semantyki, ale CTA pozostaje wizualnie guzikiem z samą ikoną w każdym rozmiarze ekranu.</li>
@@ -257,22 +259,42 @@
 
     <h2>9. Kafelki — widok listy i siatki</h2>
     <div class="section">
-      <div class="component-label">List view</div>
-      <div class="tw-card tw-p-4 tw-mb-4">
-        <div class="tw-flex tw-flex-col tw-gap-2">
-          <div class="tw-flex tw-items-center tw-gap-2 tw-flex-nowrap tw-min-w-0">
-            <span class="tw-text-muted tw-text-sm tw-font-semibold tw-flex-shrink-0">#1</span>
-            <span class="tw-text-primary tw-font-semibold tw-truncate">Example item title</span>
-          </div>
-          <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-flex-nowrap tw-text-xs tw-text-muted">
-            <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
-              <span class="tw-truncate"><i class="fas fa-user fa-fw tw-text-accent"></i> author</span>
-              <span class="tw-truncate"><i class="fas fa-user-gear fa-fw tw-text-accent"></i> coordinator</span>
-              <span class="tw-whitespace-nowrap"><i class="fas fa-calendar fa-fw tw-text-accent"></i> 06.09.2026</span>
+      <div class="component-label">List view — compact cards</div>
+      <div class="tw-proposals-list">
+        <div class="tw-proposal-card">
+          <div class="tw-proposal-card-header" data-detail-url="#" role="link" tabindex="0">
+            <div class="tw-proposal-card-title-row">
+              <span class="tw-proposal-card-num">#1</span>
+              <span class="tw-proposal-card-title">Example item title</span>
             </div>
-            <div class="tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 tw-flex-nowrap">
-              <button type="button" class="tw-sort-btn"><i class="fas fa-tag"></i> category</button>
-              <a href="#" class="tw-chat-link" title="Chat"><i class="fas fa-comment-dots"></i><span class="tw-view-label">Chat</span><span class="tw-chat-count">3</span></a>
+            <div class="tw-proposal-card-meta tw-flex-nowrap">
+              <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
+                <span class="tw-proposal-author-name tw-flex tw-items-center tw-gap-1 tw-truncate"><i class="fas fa-user fa-fw tw-proposal-role-icon"></i> author</span>
+                <span class="tw-proposal-meta-sep">·</span>
+                <span class="tw-truncate"><i class="fas fa-user-gear fa-fw tw-proposal-role-icon"></i> coordinator</span>
+                <span class="tw-proposal-meta-sep">·</span>
+                <span class="tw-proposal-date tw-whitespace-nowrap"><i class="fas fa-calendar fa-fw"></i> 06.09.2026</span>
+              </div>
+              <div class="tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 tw-flex-nowrap">
+                <button type="button" class="tw-sort-btn"><i class="fas fa-tag"></i> category</button>
+                <a href="#" class="tw-chat-link" data-tw-stop-propagation title="Chat"><i class="fas fa-comment-dots"></i><span class="tw-view-label">Chat</span><span class="tw-chat-count">3</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tw-proposal-card">
+          <div class="tw-proposal-card-header" data-detail-url="#" role="link" tabindex="0">
+            <div class="tw-proposal-card-title-row">
+              <span class="tw-proposal-card-num">#2</span>
+              <span class="tw-proposal-card-title">Item with fewer metadata</span>
+            </div>
+            <div class="tw-proposal-card-meta tw-flex-nowrap">
+              <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
+                <span class="tw-proposal-author-name tw-flex tw-items-center tw-gap-1 tw-truncate"><i class="fas fa-user fa-fw tw-proposal-role-icon"></i> author</span>
+              </div>
+              <div class="tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 tw-flex-nowrap">
+                <span class="tw-badge-status tw-badge-discussion">Discussion</span>
+              </div>
             </div>
           </div>
         </div>
@@ -384,7 +406,58 @@
       </table>
     </div>
 
-    <h2>11. Słownik ikon</h2>
+    <h2>11. Upload wielu plików</h2>
+    <div class="section">
+      <p class="rules-intro">Formularze przyjmujące pliki używają wspólnego pola <code>tw-file-upload</code>; wariant <code>data-file-upload-single</code> służy do pojedynczego obrazka wyróżniającego.</p>
+      <div class="tw-file-upload">
+        <span class="tw-file-upload-prompt"><i class="fas fa-paperclip fa-fw tw-me-2" aria-hidden="true"></i>Choose files or drag them here</span>
+      </div>
+      <div class="tw-file-upload-list">
+        <div class="tw-file-upload-item"><span class="tw-file-upload-name">meeting-notes.pdf</span><span class="tw-file-upload-size">1.2 MB</span><button type="button" class="tw-btn tw-btn-sm tw-btn-secondary" aria-label="Remove file"><i class="fas fa-times fa-fw" aria-hidden="true"></i></button></div>
+      </div>
+      <ul class="rules">
+        <li>Native input ma atrybut <code>multiple</code> i pozostaje dostępny z klawiatury.</li>
+        <li>Upuszczenie plików oraz kolejne otwarcie selektora dopisują pliki do bieżącego wyboru; duplikaty są pomijane.</li>
+        <li>Każdy wybrany plik można usunąć przed zapisaniem dokumentu, a nazwa pliku jest renderowana jako tekst.</li>
+        <li>Limit rozmiaru jest egzekwowany po stronie serwera; komunikat klienta nie zastępuje walidacji formularza.</li>
+      </ul>
+    </div>
+
+    <h2>12. Modale a pełne podstrony</h2>
+    <div class="section">
+      <div class="component-label">Modal operacji kontekstowej</div>
+      <div class="tw-modal tw-modal-demo" aria-hidden="true">
+        <div class="tw-modal-dialog">
+          <div class="tw-modal-content">
+            <div class="tw-modal-header">
+              <h5 class="tw-modal-title"><i class="fas fa-trash tw-me-2"></i>Delete item</h5>
+              <button type="button" class="tw-btn-close" aria-label="Close"></button>
+            </div>
+            <div class="tw-modal-body">
+              <p>Confirm the operation without leaving the current detail page.</p>
+              <div class="tw-alert tw-alert-warning"><strong>Item:</strong> Example title</div>
+              <p class="tw-text-danger"><strong>This action cannot be undone.</strong></p>
+            </div>
+            <div class="tw-modal-footer">
+              <button type="button" class="tw-btn tw-btn-secondary"><i class="fas fa-times fa-fw tw-me-1"></i>Cancel</button>
+              <button type="button" class="tw-btn tw-btn-danger"><i class="fas fa-trash fa-fw tw-me-1"></i>Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="rules">
+        <li>Modal służy do krótkiej, kontekstowej operacji na obiekcie już widocznym na stronie: drobnej edycji, pojedynczej zmiany stanu albo potwierdzenia usunięcia.</li>
+        <li>Liczba pól nie jest samodzielnym kryterium. Podstawowe typy treści pozostają na pełnych podstronach również wtedy, gdy konkretna edycja ma niewiele pól.</li>
+        <li>Pełna podstrona jest właściwa dla tworzenia i edycji podstawowych typów treści oraz formularzy rozbudowanych, wielosekcyjnych, z uploadem, autosave, zależnościami albo historią.</li>
+        <li>Każde usuwanie używa wspólnego partiala <code>home/templates/home/includes/delete_modal.html</code>; różnić może się treść ostrzeżenia i podsumowanie obiektu, ale nie mechanizm POST, anulowania, dostępności i wizualnego odróżnienia akcji destrukcyjnej.</li>
+        <li>Nie używamy natywnego <code>confirm()</code> i nie renderujemy osobnej strony potwierdzenia z poziomu interfejsu.</li>
+        <li>Modal musi zawsze pokazywać tytuł lub nazwę identyfikującą kasowany item.</li>
+        <li>Jeśli kasowanie jest nieodwracalne, modal musi zawierać jednoznaczną informację, że tej operacji nie można cofnąć. Przy operacji odwracalnej, np. przeniesieniu do kosza, nie pokazujemy tego ostrzeżenia.</li>
+        <li>Modal musi jasno wskazywać skutek: trwałe usunięcie, przeniesienie do kosza albo blokadę wynikającą z zależności.</li>
+      </ul>
+    </div>
+
+    <h2>13. Słownik ikon</h2>
     <div class="section">
       <p class="rules-intro">Ta sama ikona znaczy to samo wszędzie na stronie. Nie zamieniaj znaczenia ikony w innym module — jeśli potrzebujesz nowej semantyki, dodaj ją do tego słownika zamiast wymyślać wariant.</p>
       <table class="tw-table tw-table-striped tw-table-hover tw-table-sm">
@@ -544,7 +617,7 @@
       </ul>
     </div>
 
-    <h2>12. Pliki źródłowe</h2>
+    <h2>14. Pliki źródłowe</h2>
     <div class="section">
       <ul class="rules">
         <li>Toolbar: <a class="source-link" href="../home/templates/home/includes/toolbar.html"><code>home/templates/home/includes/toolbar.html</code></a></li>
@@ -554,7 +627,7 @@
       </ul>
     </div>
 
-    <h2>13. Zasady ogólne</h2>
+    <h2>15. Zasady ogólne</h2>
     <div class="section">
       <ul class="rules">
         <li><strong>Jeden komponent = jedno źródło.</strong> Jeśli guzik występuje w wielu miejscach, powinien korzystać z tego samego szablonu / klasy.</li>
@@ -569,7 +642,7 @@
       </ul>
     </div>
 
-    <h2>14. Chat</h2>
+    <h2>16. Chat</h2>
     <div class="section">
       <ul class="rules">
         <li>Przed pierwszą wiadomością bez <code>MessageReadBy</code> dla bieżącego użytkownika w momencie wejścia do pokoju pokazujemy separator <code>.tw-chat-unread-divider</code> „Unread”. Wszystkie wiadomości poniżej, które były wtedy nieprzeczytane, otrzymują <code>.tw-chat-message--unread-on-entry</code>: tło akcentowe i lewy pasek bez zmiany układu. Oznaczenie pozostaje do opuszczenia lub ponownego załadowania pokoju.</li>
@@ -580,7 +653,7 @@
       </ul>
     </div>
 
-    <h2>15. Wskaźnik aktywności użytkownika</h2>
+    <h2>17. Wskaźnik aktywności użytkownika</h2>
     <div class="section">
       <ul class="rules">
         <li>Wskaźnik <code>.tw-presence-dot</code> jest małą kropką umieszczoną w prawym górnym rogu avatara użytkownika.</li>

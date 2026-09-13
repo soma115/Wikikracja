@@ -42,11 +42,13 @@ Ustandaryzowano między innymi:
 
 - przyciski, karty, badge i alerty;
 - formularze oraz własny template pack `tw` dla Crispy Forms;
+- wieloplikowy upload `tw-file-upload` z drag and drop oraz listą wybranych plików;
 - toolbar i przełączniki widoku listy/siatki;
 - modale, dropdowny, collapse, tooltipy, popovery i zakładki;
 - pusty stan, nagłówki modali, przyciski potwierdzeń i filtry chip;
 - wspólne helpery DOM, toastów, liczników i nawigacji klikalnych kart/wierszy;
-- nagłówek widoku szczegółów oraz warianty metadanych `tw-detail-meta` i `tw-detail-fields`.
+- nagłówek widoku szczegółów oraz warianty metadanych `tw-detail-meta` i `tw-detail-fields`;
+- wspólny modal potwierdzenia usuwania `home/templates/home/includes/delete_modal.html`, z wariantami treści dla różnych konsekwencji operacji.
 
 ### Moduły aplikacji
 

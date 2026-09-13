@@ -1,5 +1,4 @@
 {% extends 'glosowania/menu.html' %}
-{% load static %}
 {% load crispy_forms_tags %}
 {% load i18n %}
 
@@ -9,19 +8,19 @@
 <div class="tw-container tw-my-4">
 <div class="tw-card">
   <div class="tw-card-header">
-    <span class="tw-section-heading">{% trans 'Edit law proposal' %}</span>
+    <h1 class="tw-section-heading tw-mb-0">{% trans 'Edit law proposal' %}</h1>
   </div>
   <div class="tw-card-body">
-    <form action="." method="POST" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
+    <form action="." method="POST">
       {% csrf_token %}
+      {% if form.non_field_errors %}<div class="tw-alert tw-alert-danger tw-mb-3" role="alert">{{ form.non_field_errors }}</div>{% endif %}
       {{ form.title|as_crispy_field }}
       {{ form.tresc|as_crispy_field }}
       {{ form.uzasadnienie|as_crispy_field }}
       {{ form.kara|as_crispy_field }}
       {{ form.znosi|as_crispy_field }}
-      <div class="tw-flex tw-gap-2 tw-mt-4">
-        <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
-        <button data-tw-back class="tw-btn tw-btn-secondary tw-btn-sm" type="button"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Back' %}</button>
+      <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-4">
+        <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-check fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'Save' %}</button>
       </div>
     </form>
   </div>
@@ -29,6 +28,3 @@
 </div>
 {% endblock glosowania %}
 
-{% block extra_js %}
-<script src="{% static 'common/js/form-autosave.js' %}"></script>
-{% endblock extra_js %}

@@ -34,12 +34,17 @@ class SchedulerConfig(AppConfig):
         """
         from django.db.backends.signals import connection_created
 
-        def set_sqlite_wal(sender, connection, **kwargs):
-            if connection.vendor == 'sqlite':
-                cursor = connection.cursor()
-                cursor.execute('PRAGMA journal_mode=WAL;')
+        def configure_sqlite(sender, connection, **kwargs):
+            if connection.vendor != 'sqlite':
+                return
+            timeout = float(connection.settings_dict.get('OPTIONS', {}).get('timeout', 60))
+            with connection.cursor() as cursor:
+                cursor.execute('PRAGMA journal_mode=WAL')
+                cursor.execute('PRAGMA foreign_keys=ON')
+                cursor.execute(f'PRAGMA busy_timeout={int(timeout * 1000)}')
+            log.info('SQLite connection configured with WAL, foreign_keys=ON, busy_timeout_ms=%s', int(timeout * 1000))
 
-        connection_created.connect(set_sqlite_wal)
+        connection_created.connect(configure_sqlite, dispatch_uid='zzz.sqlite.configure', weak=False)
 
         # Only start scheduler in the main process, not in Django management commands
         # and not during migrations or other special operations

@@ -13,7 +13,10 @@ def build_chat_message_payload(event, *, user, vote_value, current_user, your_re
     """
     anonymous = event.get("anonymous", False)
     payload = {k: v for k, v in event.items() if k not in ("type",)}
+    author_display_name = event.get("author_display_name", "")
     username = "System" if user is None else ("Anonymous" if anonymous else user.username)
+    if user is None and author_display_name:
+        username = author_display_name
     payload["user_id"] = None if anonymous or user is None else user.id
     payload["username"] = username
     payload["display_name"] = user_display_name(user) if (user and not anonymous) else username

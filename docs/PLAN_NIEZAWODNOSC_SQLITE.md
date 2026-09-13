@@ -38,8 +38,8 @@ Na obecnym etapie realizujemy wyłącznie podstawową ochronę ścieżki oddawan
 - [x] Spinner i blokada podwójnego wysłania formularza.
 - [x] Przywracanie stanu spinnera po powrocie strony z cache (`pageshow`).
 
-Pozostałe prace optymalizacyjne SQLite, schedulera, obecności i globalnego
-retry są odłożone do czasu osobnej decyzji.
+Pozostałe prace optymalizacyjne SQLite, schedulera, obecności i retry
+zostały wznowione po zakończeniu trwających głosowań.
 
 ## Status wdrożenia
 
@@ -49,31 +49,30 @@ Wykonane i pozostawione w kodzie:
 - [x] Backup używa 60-sekundowego timeoutu oraz kopiuje bazę porcjami z krótkim oczekiwaniem między stronami.
 - [x] Narzędzie nie nadpisuje istniejącego backupu bez jawnego usunięcia pliku docelowego.
 - [x] `TRUNCATE` checkpoint wymaga jawnego potwierdzenia.
-- [x] Dokumentacja operacyjna backupu, restore i checkpointu.
+- [x] Dokumentacja operacyjna backupu, kontroli integralności i checkpointu.
 - [x] Udokumentowana strategia timeoutu głosowania: spinner, komunikat, ponowny odczyt statusu i brak automatycznego drugiego POST-a.
 - [x] Skrypt `scripts/sqlite_contention_test.py` do bezpiecznego testu na tymczasowej bazie/kopii, z writerami, backupem i opcjonalnym `VACUUM`.
 - [x] Skrypt raportuje liczbę blokad, czas testu, przepustowość, czas backupu oraz szczytowy i końcowy rozmiar WAL/SHM.
 
-Celowo wycofane przed produkcją z powodu ryzyka dla trwających głosowań,
-Redis, obecności i schedulera:
+Wznowione po zakończeniu trwających głosowań; nadal wymagają wykonania
+oraz osobnej weryfikacji przed produkcją:
 
-- [ ] Wspólne pragmy SQLite poza istniejącym WAL.
-- [ ] Wspólny retry aktualizacji obecności.
-- [ ] Dodatkowa diagnostyka runtime retry.
-- [ ] Zmiana międzyprocesowej blokady schedulera.
+- [x] Wspólne pragmy SQLite: WAL, `foreign_keys=ON` i `busy_timeout` zgodny z timeoutem.
+- [x] Wspólny, ograniczony retry aktualizacji obecności.
+- [x] Dodatkowa diagnostyka runtime retry bez danych wrażliwych.
+- [x] Międzyprocesowa blokada schedulera z obsługą Linux i Windows.
 
 Do wykonania osobno, po pomiarach:
 
 - [ ] Audyt wszystkich długich transakcji i efektów zewnętrznych.
-- [ ] Test obciążeniowy wielu procesów HTTP, WebSocketów i schedulera.
-- [ ] Formalne ograniczenie liczby workerów i opis produkcyjnego modelu uruchomienia.
+- [ ] Test obciążeniowy wielu procesów HTTP, WebSocketów i schedulera, także na docelowym klastrze Kubernetes.
+- [ ] Formalne ograniczenie liczby workerów i opis produkcyjnego modelu uruchomienia, w tym wariantu Kubernetes z jednym writer’em SQLite.
 - [ ] Monitoring liczby blokad, czasu transakcji i rozmiaru WAL.
-- [ ] Regularny automatyczny test odtworzenia backupu.
 
 ## Status etapów planu
 
 - [x] Etap 0 — inwentaryzacja miejsc zapisu i mapa `INSERT`/`UPDATE`/`DELETE`.
-- [x] Etap 1 — narzędzie backupu przez SQLite Backup API, kontrola integralności i ręczne restore na kopii testowej.
+- [x] Etap 1 — narzędzie backupu przez SQLite Backup API i kontrola integralności.
 - [x] Etap 2a — konfiguracja ścieżki bazy i katalogu backupów przez zmienne `SQLITE_*`.
 - [x] Etap 2b — jawny timeout backupu 60 sekund i kopiowanie porcjami.
 - [x] Etap 2c — kontrolowany `VACUUM` po backupie przez `--vacuum-after`.
@@ -82,9 +81,9 @@ Do wykonania osobno, po pomiarach:
 - [x] Etap 4c — spinner, blokada podwójnego POST-a i bezpieczny redirect po końcowym locku głosowania.
 - [ ] Etap 4b — globalna polityka retry dla innych operacji bez efektów ubocznych.
 - [ ] Etap 5 — audyt i skrócenie wszystkich długich transakcji.
-- [ ] Etap 6 — międzyprocesowa serializacja zadań schedulera.
+- [x] Etap 6 — międzyprocesowa serializacja zadań schedulera.
 - [ ] Etap 7 — test obciążeniowy i formalny model liczby workerów.
-- [ ] Etap 8 — automatyczny test odtworzenia oraz produkcyjny monitoring.
+- [ ] Etap 8 — procedury awaryjne oraz produkcyjny monitoring.
 
 ## Wyniki testów obciążeniowych SQLite
 
@@ -112,17 +111,64 @@ serwerze produkcyjnym:
 - [ ] Znana jest liczba procesów HTTP/ASGI zapisujących do pliku.
 - [ ] Działa dokładnie jeden scheduler dla tej bazy.
 - [ ] Liczba workerów jest zgodna z zaakceptowanym limitem dla SQLite.
-- [ ] Backup wykonany przez `scripts/sqlite_maintenance.py backup` został odtworzony na osobnym pliku.
-- [ ] Odtworzona kopia przechodzi `integrity-check`, `manage.py check` i smoke test.
 - [ ] Sprawdzono wolne miejsce na dysku z zapasem na bazę, WAL, backup i logi.
 - [ ] Ustalono sposób monitorowania `database is locked`, rozmiaru WAL i czasu zadań schedulera.
 - [x] Redis nie jest backupowany; bufor głosowań pozostaje poza zakresem backupu SQLite zgodnie z decyzją projektową.
 - [ ] **DO ZROBIENIA PRZEZ CIEBIE:** na systemie backupowym ustawić proces kopiujący ukończone pliki `.sqlite3` z katalogu backupów na zewnętrzny NAS; pliki tymczasowe `.part` ignorować, jeśli zostaną wprowadzone.
-- [ ] Jest procedura zatrzymania aplikacji, schedulera i odtworzenia bazy bez użycia starych plików `-wal`/`-shm`.
 
 Brak któregokolwiek z punktów oznacza **NO-GO operacyjnie**, nawet jeśli testy
 aplikacji przechodzą. Testy potwierdzają poprawność kodu, ale nie potwierdzają
 konfiguracji konkretnego serwera, systemu plików ani procesu wdrożeniowego.
+
+## Zadania wdrożeniowe na klastrze Kubernetes
+
+Kubernetes może uruchamiać Wikikrację z SQLite tylko w modelu jednego kontrolowanego
+writer’a. Nie wolno skalować aplikacji do wielu podów zapisujących do tego samego
+pliku SQLite ani montować bazy przez NFS/SMB lub storage bez gwarancji poprawnych
+blokad plikowych.
+
+Przed uznaniem wdrożenia Kubernetes za gotowe należy:
+
+- [ ] Przygotować wersjonowane manifesty Kubernetes dla aplikacji, Redis, PVC,
+      migracji, schedulera, Service i Ingress.
+- [ ] Ustawić dokładnie jedną replikę poda aplikacji zapisującego do SQLite.
+- [ ] Przydzielić bazie PVC z lokalnym, wspieranym storage i trybem dostępu
+      ograniczającym liczbę writerów; baza oraz pliki `-wal`/`-shm` muszą być
+      na tym samym wolumenie.
+- [ ] Ustawić `SQLITE_DATABASE_PATH` na ścieżkę wewnątrz PVC oraz
+      `SQLITE_BACKUP_DIR` na osobny trwały wolumen backupów.
+- [ ] Uruchamiać migracje jako osobny Job przed wdrożeniem aplikacji, a nie
+      przy starcie każdej repliki.
+- [ ] Wyłączyć `SCHEDULER_ENABLED` w podach aplikacji HTTP/ASGI.
+- [ ] Uruchomić dokładnie jeden osobny pod schedulera z `SCHEDULER_ENABLED=true`
+      oraz jawnie ustalonym `SCHEDULER_LOCK_FILE`.
+- [ ] Nie używać blokady plikowej jako jedynej ochrony przed wieloma schedulerami;
+      ograniczyć scheduler przez `replicas: 1` i politykę wdrożeniową.
+- [ ] Uruchomić Redis jako osobny Service i zweryfikować jego dostępność dla
+      bufora głosów oraz Django Channels.
+- [ ] Dodać readiness i liveness probes obejmujące rzeczywistą gotowość
+      aplikacji, a nie tylko import Django.
+- [ ] Ustawić `resources.requests` i `resources.limits`, aby backup, scheduler
+      i głosowanie nie konkurowały niekontrolowanie o zasoby.
+- [ ] Zdefiniować `PodDisruptionBudget`, politykę aktualizacji i procedurę
+      restartu bez uruchamiania drugiego writer’a.
+- [ ] Uruchomić backup przez osobny CronJob lub uzgodnioną procedurę operatorską;
+      nie wykonywać `VACUUM` podczas normalnego ruchu.
+- [ ] Wykonać test na docelowym storage z jednoczesnym HTTP, WebSocketami,
+      schedulerem i głosowaniem.
+- [ ] Zweryfikować po restarcie poda zachowanie WAL, Redis, schedulera i
+      ścieżki oddawania głosu.
+- [ ] Ustawić monitoring `database is locked`, czasu transakcji, rozmiaru WAL,
+      restartów podów, błędów schedulera i niedostępności Redis.
+- [ ] Potwierdzić, że liczba workerów HTTP/ASGI i liczba procesów zapisujących
+      odpowiada zaakceptowanemu limitowi dla SQLite.
+
+### Kryterium zakończenia wdrożenia Kubernetes
+
+Wdrożenie przechodzi test obciążeniowy i restartowy bez równoległych writerów
+SQLite, bez konkurencyjnych schedulerów oraz bez niekontrolowanej utraty lub
+podwójnego zapisu głosu. Konfiguracja storage, replik, schedulera, Redis,
+backupów i monitoringu jest zapisana w manifestach oraz runbooku operatorskim.
 
 ## Mapa zapisów SQLite według czynności użytkownika
 
@@ -330,12 +376,10 @@ Powstaje mapa procesów i miejsc zapisu oraz bazowy raport obciążenia. Na tym 
   ```
 
 - Ustalić retencję backupów i miejsce przechowywania poza katalogiem aplikacji.
-- Przetestować odtworzenie backupu do tymczasowego pliku i uruchomienie na nim `manage.py check` oraz odczytu podstawowych danych.
-- Udokumentować procedurę awaryjnego zatrzymania schedulerów przed operacją przywracania.
 
 ### Kryterium zakończenia
 
-Można odtworzyć działającą kopię bazy bez ręcznego kopiowania plików WAL. Backup i restore są sprawdzane automatycznie lub według powtarzalnej procedury.
+Backup i kontrola integralności są wykonywane według powtarzalnej procedury.
 
 ### Rollback
 
@@ -518,7 +562,7 @@ Powrót do poprzedniej liczby workerów i poprzedniego harmonogramu. Jeśli baza
 
 ---
 
-## Etap 8 — procedury awaryjne i testy odtworzeniowe
+## Etap 8 — procedury awaryjne i monitoring produkcyjny
 
 **Ryzyko: wysokie operacyjnie**  
 **Wpływ na dostępność podczas ćwiczeń lub awarii**
@@ -531,16 +575,13 @@ Powrót do poprzedniej liczby workerów i poprzedniego harmonogramu. Jeśli baza
   - błędu `database disk image is malformed`;
   - braku miejsca na dysku;
   - przerwanego checkpointu;
-  - odtworzenia backupu.
-- Regularnie wykonywać test odtworzenia na osobnym pliku/kopii.
 - Sprawdzać integralność przed i po operacjach serwisowych.
 - Ustalić, kiedy zatrzymać aplikację zamiast ryzykować kolejne zapisy.
-- Dokumentować maksymalną akceptowalną utratę danych oraz czas odtworzenia.
 - Wykonać kontrolowany test awarii procesu w środowisku testowym, nigdy przez celowe uszkadzanie produkcyjnego pliku.
 
 ### Kryterium zakończenia
 
-Inna osoba niż autor procedury może odtworzyć działającą bazę i uruchomić aplikację według runbooka.
+Inna osoba niż autor procedury może wykonać opisane czynności awaryjne według runbooka.
 
 ### Rollback
 
@@ -558,7 +599,7 @@ Procedury awaryjne nie zmieniają kodu produkcyjnego. Każda operacja na produkc
 6. Skrócenie transakcji.
 7. Serializacja zapisów zadań wewnętrznych.
 8. Ograniczenie modelu uruchomieniowego.
-9. Procedury awaryjne i regularne testy odtworzeniowe.
+9. Procedury awaryjne i monitoring produkcyjny.
 
 Nie należy rozpoczynać etapów 5–8 bez wykonania etapu 1 i 2. Bez pomiarów oraz sprawdzonego backupu trudno odróżnić poprawę od maskowania problemu i nie ma bezpiecznego sposobu wycofania awarii.
 
@@ -567,7 +608,7 @@ Nie należy rozpoczynać etapów 5–8 bez wykonania etapu 1 i 2. Bez pomiarów 
 - Baza pozostaje SQLite3 i działa na lokalnym, wspieranym systemie plików.
 - Brak niekontrolowanych błędów `database is locked` w scenariuszu obciążenia referencyjnego.
 - Retry nie powoduje podwójnych zapisów, podwójnych głosów ani podwójnych efektów zewnętrznych.
-- Backup aktywnej bazy można odtworzyć i przejść nim podstawowe kontrole Django.
+- Backup aktywnej bazy jest wykonywany przez SQLite Backup API i przechodzi kontrolę integralności.
 - Rozmiar WAL, blokady i czas transakcji są obserwowalne.
 - Scheduler nie uruchamia konkurencyjnych ciężkich zadań zapisujących.
 - Każda zmiana wpływająca na głosowania ma test regresyjny i osobną akceptację przed wdrożeniem.

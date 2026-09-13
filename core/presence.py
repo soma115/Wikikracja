@@ -1,19 +1,24 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timedelta
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.conf import settings
 from django.contrib.auth.signals import user_logged_in
+from django.db import OperationalError
 from django.db.models import Q
 from django.dispatch import receiver
 from django.utils import timezone
+
+from core.sqlite import is_locked, run_with_lock_retry
 
 PRESENCE_GROUP = 'presence'
 PRESENCE_GREEN_MINUTES = 15
 PRESENCE_YELLOW_DAYS = 7
 PRESENCE_SOURCES = frozenset({'app', 'push'})
+log = logging.getLogger(__name__)
 
 
 def record_presence(user, source: str, *, timestamp=None) -> bool:
@@ -22,12 +27,22 @@ def record_presence(user, source: str, *, timestamp=None) -> bool:
         return False
 
     timestamp = timestamp or timezone.now()
-    profile = user.uzytkownik
-    updated = type(profile).objects.filter(pk=profile.pk).filter(Q(last_presence_at__isnull=True) | Q(last_presence_at__lt=timestamp)).update(last_presence_at=timestamp, last_presence_source=source)
-    if updated:
-        profile.last_presence_at = timestamp
-        profile.last_presence_source = source
-    return bool(updated)
+
+    def update_presence():
+        profile = user.uzytkownik
+        updated = type(profile).objects.filter(pk=profile.pk).filter(Q(last_presence_at__isnull=True) | Q(last_presence_at__lt=timestamp)).update(last_presence_at=timestamp, last_presence_source=source)
+        if updated:
+            profile.last_presence_at = timestamp
+            profile.last_presence_source = source
+        return bool(updated)
+
+    try:
+        return run_with_lock_retry('core.presence.record_presence', update_presence)
+    except OperationalError as error:
+        if not is_locked(error):
+            raise
+        log.warning('SQLite remained locked during operation=core.presence.record_presence')
+        return False
 
 
 def get_presence_status(last_presence_at, now=None):

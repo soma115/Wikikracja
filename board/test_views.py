@@ -18,6 +18,37 @@ class BoardDetailNavigationTests(TestCase):
     def _post(self, title, category=None):
         return Post.objects.create(title=title, text=f'{title} text', author=self.user, category=category, is_public=True)
 
+    def test_post_edit_get_renders_prefilled_form(self):
+        post = self._post('Editable')
+
+        response = self.client.get(reverse('board:edit_post', args=[post.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['form'].instance, post)
+        self.assertContains(response, 'tw-card')
+
+    def test_post_edit_updates_document(self):
+        post = self._post('Editable')
+        response = self.client.post(
+            reverse('board:edit_post', args=[post.pk]),
+            {'title': 'Updated document', 'subtitle': '', 'category': self.category.pk, 'text': 'Updated text', 'is_public': 'on', 'is_private': '', 'is_important': '', 'slug': ''},
+        )
+
+        self.assertRedirects(response, reverse('board:view_post', args=[post.pk]))
+        post.refresh_from_db()
+        self.assertEqual(post.title, 'Updated document')
+
+    def test_post_edit_invalid_title_rerenders_form_without_saving(self):
+        post = self._post('Editable')
+        response = self.client.post(
+            reverse('board:edit_post', args=[post.pk]), {'title': '', 'subtitle': '', 'category': self.category.pk, 'text': 'Updated text', 'is_public': 'on', 'is_private': '', 'is_important': '', 'slug': ''}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].errors)
+        post.refresh_from_db()
+        self.assertEqual(post.title, 'Editable')
+
     def test_detail_navigation_preserves_sort_and_search_context(self):
         first = self._post('Alpha')
         middle = self._post('Bravo')

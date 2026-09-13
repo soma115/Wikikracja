@@ -3,6 +3,7 @@
 {% load i18n %}
 {% load profile_tags %}
 {% load feed_filters %}
+{% load crispy_forms_tags %}
 
 {% block extra_js %}
 <script src="{% static 'obywatele/js/profile.js' %}"></script>
@@ -81,15 +82,78 @@
       {% endif %}
 
       <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-3">
-        <a href="{% url 'account_change_password' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+        <button type="button" class="tw-btn tw-btn-sm tw-btn-outline-secondary" data-tw-toggle="modal" data-tw-target="#changePasswordModal">
           <i class="fas fa-key fa-fw tw-me-1"></i>{% trans "Change password" %}
-        </a>
-        <a href="{% url 'obywatele:change_email' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+        </button>
+        <button type="button" class="tw-btn tw-btn-sm tw-btn-outline-secondary" data-tw-toggle="modal" data-tw-target="#changeEmailModal">
           <i class="fas fa-envelope fa-fw tw-me-1"></i>{% trans "Change email" %}
-        </a>
-        <a href="{% url 'obywatele:change_username' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+        </button>
+        <button type="button" class="tw-btn tw-btn-sm tw-btn-outline-secondary" data-tw-toggle="modal" data-tw-target="#changeUsernameModal">
           <i class="fas fa-at fa-fw tw-me-1"></i>{% trans "Change username" %}
-        </a>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  {# ── MODALE USTAWIEŃ KONTA ── #}
+  <div class="tw-modal tw-fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="tw-modal-dialog" role="document">
+      <div class="tw-modal-content">
+        {% trans "Change password" as modal_title %}
+        {% include 'home/includes/modal_header.html' with title=modal_title title_icon='fa-key' title_id='changePasswordModalLabel' %}
+        <form method="post" action="{% url 'haslo' %}">
+          {% csrf_token %}
+          <div class="tw-modal-body">
+            {{ password_form.old_password|as_crispy_field }}
+            {{ password_form.new_password1|as_crispy_field }}
+            {{ password_form.new_password2|as_crispy_field }}
+          </div>
+          <div class="tw-modal-footer">
+            <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</button>
+            <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Save" %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="tw-modal tw-fade" id="changeEmailModal" tabindex="-1" role="dialog" aria-labelledby="changeEmailModalLabel" aria-hidden="true">
+    <div class="tw-modal-dialog" role="document">
+      <div class="tw-modal-content">
+        {% trans "Change email" as modal_title %}
+        {% include 'home/includes/modal_header.html' with title=modal_title title_icon='fa-envelope' title_id='changeEmailModalLabel' %}
+        <form method="post" action="{% url 'obywatele:change_email' %}">
+          {% csrf_token %}
+          <div class="tw-modal-body">
+            <p class="tw-font-bold">{% trans "Your current email" %}: {{ user.email }}</p>
+            {{ email_form.new_email1|as_crispy_field }}
+            {{ email_form.new_email2|as_crispy_field }}
+          </div>
+          <div class="tw-modal-footer">
+            <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</button>
+            <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Save" %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="tw-modal tw-fade" id="changeUsernameModal" tabindex="-1" role="dialog" aria-labelledby="changeUsernameModalLabel" aria-hidden="true">
+    <div class="tw-modal-dialog" role="document">
+      <div class="tw-modal-content">
+        {% trans "Change username" as modal_title %}
+        {% include 'home/includes/modal_header.html' with title=modal_title title_icon='fa-at' title_id='changeUsernameModalLabel' %}
+        <form method="post" action="{% url 'obywatele:change_username' %}">
+          {% csrf_token %}
+          <div class="tw-modal-body">
+            <p class="tw-font-bold">{% trans "Username" %}: {{ user.username }}</p>
+            {{ username_form.username|as_crispy_field }}
+          </div>
+          <div class="tw-modal-footer">
+            <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</button>
+            <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Save" %}</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -279,24 +343,48 @@
     <div class="tw-modal-content">
       {% trans "Delete account" as modal_title %}
       {% include 'home/includes/modal_header.html' with title=modal_title title_icon='fa-triangle-exclamation' title_class='tw-text-danger' title_id='deletionModalLabel' %}
-      <div class="tw-modal-body">
-        <p>{% trans "Are you sure you want to request deletion of your account and all your data?" %}</p>
-        <p><strong class="tw-font-semibold">{% trans "Your account will remain active for 30 days. After that, all data will be permanently removed and cannot be recovered." %}</strong></p>
-        <p>{% trans "You can cancel this request at any time during the 30-day period." %}</p>
-        <div class="tw-mb-3">
-          <label for="deletionReason" class="tw-form-label">{% trans "We would be very grateful if you could provide a reason for deleting your account (optional)." %}</label>
-          <textarea class="tw-form-control" id="deletionReason" name="reason" rows="3" placeholder="{% trans 'Your feedback helps us improve...' %}"></textarea>
+      <form method="post" action="{% url 'obywatele:request_deletion' %}">
+        {% csrf_token %}
+        <div class="tw-modal-body">
+          <p>{% trans "Are you sure you want to request deletion of your account and all your data?" %}</p>
+          <p><strong class="tw-font-semibold">{% trans "Your account will remain active for 30 days. After that, all data will be permanently removed and cannot be recovered." %}</strong></p>
+          <p>{% trans "You can cancel this request at any time during the 30-day period." %}</p>
+          <div class="tw-mb-3">
+            <label for="deletionReason" class="tw-form-label">{% trans "We would be very grateful if you could provide a reason for deleting your account (optional)." %}</label>
+            <textarea class="tw-form-control" id="deletionReason" name="reason" rows="3" placeholder="{% trans 'Your feedback helps us improve...' %}"></textarea>
+          </div>
+          <fieldset class="tw-mb-3">
+            <legend class="tw-form-label">{% trans "Opinion publication" %}</legend>
+            <div class="tw-form-check">
+              <input class="tw-form-check-input" type="radio" name="publication_timing" id="publishNow" value="now" checked>
+              <label class="tw-form-check-label" for="publishNow">{% trans "Publish now" %}</label>
+            </div>
+            <div class="tw-form-check">
+              <input class="tw-form-check-input" type="radio" name="publication_timing" id="publishAfterDeletion" value="after_deletion">
+              <label class="tw-form-check-label" for="publishAfterDeletion">{% trans "Publish after my account is deleted" %}</label>
+            </div>
+            <p class="tw-form-text tw-mb-0">{% trans "Publish now makes the opinion visible to group members immediately. The later option waits until your account is deleted; a waiting opinion is deleted if you cancel." %}</p>
+          </fieldset>
+          <fieldset>
+            <legend class="tw-form-label">{% trans "Author visibility" %}</legend>
+            <div class="tw-form-check">
+              <input class="tw-form-check-input" type="radio" name="publication_identity" id="publishAnonymous" value="anonymous" checked>
+              <label class="tw-form-check-label" for="publishAnonymous">{% trans "Anonymous" %}</label>
+            </div>
+            <div class="tw-form-check">
+              <input class="tw-form-check-input" type="radio" name="publication_identity" id="publishNamed" value="named">
+              <label class="tw-form-check-label" for="publishNamed">{% trans "With my name" %}</label>
+            </div>
+            <p class="tw-form-text tw-mb-0">{% trans "Anonymous opinions do not identify you. A named opinion shows the name on your profile." %}</p>
+          </fieldset>
         </div>
-      </div>
-      <div class="tw-modal-footer">
-        <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</button>
-        <form method="post" action="{% url 'obywatele:request_deletion' %}" class="tw-inline">
-          {% csrf_token %}
+        <div class="tw-modal-footer">
+          <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</button>
           <button type="submit" class="tw-btn tw-btn-danger">
             <i class="fas fa-trash fa-fw tw-me-1"></i>{% trans "Yes, schedule deletion" %}
           </button>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   </div>
 </div>

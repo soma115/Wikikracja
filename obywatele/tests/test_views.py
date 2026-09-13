@@ -9,6 +9,8 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.db.models import QuerySet
 from django.shortcuts import resolve_url
@@ -23,7 +25,7 @@ from chat.models import Message, MessageReadBy, Room
 from chat.services import get_user_public_message_rows
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 from obywatele.auth_backends import CaseInsensitiveEmailBackend
-from obywatele.models import CitizenActivity, Rate, Uzytkownik
+from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items
 from tasks.activity import get_user_tasks
 from tasks.models import Task, TaskEvaluation, TaskVote
@@ -508,6 +510,35 @@ class CitizenTabContentTest(TestCase):
         self.assertEqual(self.client.get(reverse('obywatele:citizen_aktywnosc', kwargs={'pk': self.user.pk})).status_code, 404)
 
 
+class ProfileFormErrorViewTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='profile-errors', email='old@example.com', password='secret', is_active=True)
+        self.client.force_login(self.user)
+
+    def test_change_email_rerenders_invalid_form(self):
+        response = self.client.post(reverse('obywatele:change_email'), {'new_email1': 'new@example.com', 'new_email2': 'different@example.com'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].errors)
+        self.assertContains(response, 'new@example.com')
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, 'old@example.com')
+
+    def test_change_username_rerenders_invalid_form(self):
+        response = self.client.post(reverse('obywatele:change_username'), {'username': ''})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].errors)
+        self.assertIn('username', response.context['form'].errors)
+
+    def test_upload_avatar_reports_invalid_file(self):
+        response = self.client.post(reverse('obywatele:upload_avatar'), {'avatar': SimpleUploadedFile('avatar.txt', b'not an image', content_type='text/plain')})
+
+        self.assertRedirects(response, reverse('obywatele:my_profile'))
+        self.assertTrue(list(get_messages(response.wsgi_request)))
+        self.assertFalse(self.user.uzytkownik.avatar)
+
+
 class MyAssetsViewTest(TestCase):
     """my_assets zapisuje pola profilu przez form.save() oraz imię/nazwisko na User."""
 
@@ -542,11 +573,13 @@ class MyAssetsViewTest(TestCase):
         # Nadal ten sam rekord profilu — form.save() z instance= nie tworzy nowego.
         self.assertEqual(Uzytkownik.objects.filter(uid=self.user).count(), 1)
 
-    def test_post_invalid_redirects_without_saving(self):
+    def test_post_invalid_rerenders_form_without_saving(self):
         data = {**PROFILE_POST_DATA, 'phone': ''}
         response = self.client.post(self.url, data)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].errors)
+        self.assertEqual(response.context['form']['city'].value(), 'Gdańsk')
         self.profile.refresh_from_db()
         self.assertEqual(self.profile.city, 'Stare miasto')
 
@@ -646,3 +679,60 @@ class CitizenPresenceTemplateTest(TestCase):
         self.assertEqual(context['active_yellow'], 1)
         self.assertEqual(context['active_recent'], 1)
         self.assertEqual(context['active_last_month'], 3)
+
+
+class AccountDeletionFeedbackTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='leaving', password='secret', first_name='Leaving', last_name='Member')
+        self.client.force_login(self.user)
+        self.url = reverse('obywatele:request_deletion')
+
+    @patch('obywatele.views.publish_deletion_feedback')
+    def test_immediate_feedback_is_published_and_not_kept_on_request(self, publish):
+        response = self.client.post(self.url, {'reason': 'Brakuje mi spokojniejszej dyskusji.', 'publication_timing': 'now', 'publication_identity': 'named'})
+
+        self.assertEqual(response.status_code, 302)
+        publish.assert_called_once_with('Brakuje mi spokojniejszej dyskusji.', anonymous=False, author_name='Leaving Member')
+        deletion = DeletionRequest.objects.get(user=self.user)
+        self.assertEqual(deletion.reason, '')
+        self.assertFalse(deletion.publish_after_deletion)
+        self.assertFalse(deletion.publish_anonymously)
+
+    @patch('obywatele.views.publish_deletion_feedback')
+    def test_delayed_feedback_is_kept_until_deletion(self, publish):
+        self.client.post(self.url, {'reason': 'Potrzebuję innego trybu współpracy.', 'publication_timing': 'after_deletion', 'publication_identity': 'anonymous'})
+
+        publish.assert_not_called()
+        deletion = DeletionRequest.objects.get(user=self.user)
+        self.assertEqual(deletion.reason, 'Potrzebuję innego trybu współpracy.')
+        self.assertTrue(deletion.publish_after_deletion)
+        self.assertTrue(deletion.publish_anonymously)
+
+    def test_canceling_deletion_removes_delayed_feedback(self):
+        self.client.post(self.url, {'reason': 'Jeszcze się zastanowię.', 'publication_timing': 'after_deletion', 'publication_identity': 'anonymous'})
+
+        response = self.client.post(reverse('obywatele:cancel_deletion'))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(DeletionRequest.objects.filter(user=self.user).exists())
+
+    @patch('obywatele.management.commands.count_citizens.citizen_deleted.send')
+    @patch('obywatele.management.commands.count_citizens.publish_deletion_feedback')
+    def test_delayed_feedback_is_published_after_account_deletion(self, publish, deleted_signal):
+        from obywatele.management.commands.count_citizens import Command
+
+        user_id = self.user.id
+        DeletionRequest.objects.create(
+            user=self.user, scheduled_for=django_timezone.now() - timedelta(days=1), reason='Nie odnajduję się już w tej formule.', publish_after_deletion=True, publish_anonymously=False
+        )
+
+        def assert_account_is_gone(*args, **kwargs):
+            self.assertFalse(User.objects.filter(pk=user_id).exists())
+
+        publish.side_effect = assert_account_is_gone
+        Command().process_deletion_requests()
+
+        deleted_signal.assert_called_once()
+        publish.assert_called_once_with('Nie odnajduję się już w tej formule.', anonymous=False, author_name='Leaving Member')
+        self.assertFalse(User.objects.filter(pk=user_id).exists())
+        self.assertFalse(DeletionRequest.objects.exists())

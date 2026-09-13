@@ -1,185 +1,171 @@
 /**
  * @file form-autosave.js
- * Persist partially typed form data to sessionStorage so a page reload does
- * not lose the user's draft.  The draft is cleared when the form is actually
- * submitted.
- *
- * Usage: add `data-autosave="<unique-key>"` to the <form> element.
+ * Persist partially typed form data to localStorage so navigation or a page
+ * reload does not lose the user's draft.  Drafts are cleared on submit or
+ * when a form explicitly marks a cancel/back action.
  */
 
 (function () {
     'use strict';
 
-    const STORAGE = window.sessionStorage;
-    const KEY_PREFIX = 'wk:form:';
+    let STORAGE = null;
+    try {
+        STORAGE = window.localStorage;
+    } catch (error) {
+        // Storage may be blocked by browser privacy settings.
+    }
+    const KEY_PREFIX = 'wk:form:v2:';
     const RICHTEXT_SELECTOR = '[data-richtext]';
 
-    function storageKey(formKey, name) {
-        return KEY_PREFIX + formKey + ':' + name;
+    function storageKey(form, index) {
+        const action = new URL(form.getAttribute('action') || window.location.href, window.location.href);
+        action.hash = '';
+        const userId = document.documentElement.dataset.userId || 'anonymous';
+        return KEY_PREFIX + encodeURIComponent(userId + ':' + action.href) + ':' + index;
     }
 
-    function getRichTextEditable(hiddenInput) {
-        const wrapper = hiddenInput.closest(RICHTEXT_SELECTOR);
-        if (!wrapper) return null;
-        return wrapper.querySelector('.tw-richtext-input');
+    function isIgnored(form) {
+        return form.dataset.autosaveIgnore === '1'
+            || form.method.toLowerCase() === 'get'
+            || form.closest('.tw-chat-page') !== null
+            || form.closest('[data-chat-form]') !== null;
     }
 
-    function getRichTextHidden(editable) {
-        const wrapper = editable.closest(RICHTEXT_SELECTOR);
-        if (!wrapper) return null;
-        return wrapper.querySelector('input[type="hidden"]');
+    function isPassword(input) {
+        return input.type && input.type.toLowerCase() === 'password';
     }
 
-    function saveValue(formKey, name, value) {
-        if (value === undefined || value === null || value === '') {
-            try {
-                STORAGE.removeItem(storageKey(formKey, name));
-            } catch (e) { /* storage unavailable */ }
-            return;
-        }
-        try {
-            STORAGE.setItem(storageKey(formKey, name), JSON.stringify(value));
-        } catch (e) { /* quota / private mode */ }
+    function isSupported(input) {
+        if (!input.name || input.name === 'csrfmiddlewaretoken' || isPassword(input)) return false;
+        if (input.disabled || ['file', 'submit', 'button', 'reset', 'image'].includes(input.type)) return false;
+        return ['input', 'textarea', 'select'].includes(input.tagName.toLowerCase());
     }
 
-    function getValue(formKey, name) {
-        try {
-            const raw = STORAGE.getItem(storageKey(formKey, name));
-            if (raw === null) return undefined;
-            return JSON.parse(raw);
-        } catch (e) {
-            return undefined;
-        }
-    }
-
-    function clearForm(formKey) {
-        try {
-            const prefix = storageKey(formKey, '');
-            for (let i = STORAGE.length - 1; i >= 0; i--) {
-                const key = STORAGE.key(i);
-                if (key && key.startsWith(prefix)) {
-                    STORAGE.removeItem(key);
-                }
-            }
-        } catch (e) { /* storage unavailable */ }
-    }
-
-    function setInputValue(input, value) {
-        const tag = input.tagName.toLowerCase();
-        const type = input.type;
-
-        if (tag === 'select') {
-            if (input.multiple) {
-                const values = Array.isArray(value) ? value : [value];
-                Array.from(input.options).forEach(function (opt) {
-                    opt.selected = values.indexOf(opt.value) !== -1;
-                });
-            } else {
-                input.value = value;
-            }
-        } else if (type === 'checkbox') {
-            input.checked = Boolean(value);
-        } else if (type === 'radio') {
-            input.checked = (input.value === String(value));
-        } else if (type === 'file') {
-            // File inputs cannot be restored programmatically.
-        } else {
-            input.value = (value == null) ? '' : value;
-        }
-    }
-
-    function readInputValue(input) {
-        const tag = input.tagName.toLowerCase();
-        const type = input.type;
-
-        if (tag === 'select') {
-            if (input.multiple) {
-                return Array.from(input.selectedOptions).map(function (o) { return o.value; });
-            }
-            return input.value;
-        } else if (type === 'checkbox') {
-            return input.checked;
-        } else if (type === 'radio') {
-            return input.checked ? input.value : undefined;
-        } else if (type === 'file') {
-            return undefined;
+    function readValue(input) {
+        const type = (input.type || '').toLowerCase();
+        if (type === 'checkbox') return input.checked;
+        if (type === 'radio') return input.checked ? input.value : undefined;
+        if (input.tagName.toLowerCase() === 'select' && input.multiple) {
+            return Array.from(input.selectedOptions).map(option => option.value);
         }
         return input.value;
     }
 
-    function initRichTextInput(formKey, input, editable) {
-        const name = input.name;
-
-        // Restore previously saved draft into both the hidden input and the
-        // visible contenteditable.  richtext-input.js keeps them in sync on the
-        // next user interaction.
-        const stored = getValue(formKey, name);
-        if (stored !== undefined && stored !== null) {
-            input.value = stored;
-            editable.innerHTML = stored;
+    function setValue(input, value) {
+        const type = (input.type || '').toLowerCase();
+        if (type === 'checkbox') {
+            input.checked = Boolean(value);
+        } else if (type === 'radio') {
+            input.checked = input.value === String(value);
+        } else if (input.tagName.toLowerCase() === 'select' && input.multiple) {
+            const values = Array.isArray(value) ? value : [value];
+            Array.from(input.options).forEach(option => {
+                option.selected = values.includes(option.value);
+            });
+        } else {
+            input.value = value == null ? '' : value;
         }
-
-        function persist() {
-            // richtext-input.js keeps the hidden input in sync on the same
-            // contenteditable 'input' event.  Defer the save by one tick so we
-            // always read the already-updated hidden value, regardless of the
-            // order in which the two listeners were attached.
-            setTimeout(function () {
-                saveValue(formKey, name, input.value);
-            }, 0);
-        }
-
-        editable.addEventListener('input', persist);
-        editable.addEventListener('blur', persist);
     }
 
-    function initPlainInput(formKey, input) {
-        const name = input.name;
+    function readForm(form) {
+        const values = {};
+        form.querySelectorAll('input, textarea, select').forEach(input => {
+            if (!isSupported(input)) return;
+            const value = readValue(input);
+            if (value !== undefined) values[input.name] = value;
+        });
 
-        const stored = getValue(formKey, name);
-        if (stored !== undefined) {
-            setInputValue(input, stored);
-        }
-
-        function persist() {
-            const value = readInputValue(input);
-            saveValue(formKey, name, value);
-        }
-
-        input.addEventListener('input', persist);
-        input.addEventListener('change', persist);
+        form.querySelectorAll(`${RICHTEXT_SELECTOR} input[type="hidden"]`).forEach(input => {
+            if (input.name && input.name !== 'csrfmiddlewaretoken' && !isPassword(input)) {
+                values[input.name] = input.value;
+            }
+        });
+        return values;
     }
 
-    function initForm(form) {
-        if (form.dataset.autosaveInit === '1') return;
-        const formKey = form.dataset.autosave;
-        if (!formKey) return;
-        form.dataset.autosaveInit = '1';
-
-        const inputs = Array.from(form.querySelectorAll('input, textarea, select'));
-        inputs.forEach(function (input) {
-            if (input.name === 'csrfmiddlewaretoken') return;
-            if (!input.name) return;
-
-            const editable = getRichTextEditable(input);
-            if (editable) {
-                initRichTextInput(formKey, input, editable);
-            } else {
-                initPlainInput(formKey, input);
+    function restoreForm(form, values) {
+        form.querySelectorAll('input, textarea, select').forEach(input => {
+            if (isSupported(input) && Object.prototype.hasOwnProperty.call(values, input.name)) {
+                setValue(input, values[input.name]);
             }
         });
 
-        form.addEventListener('submit', function () {
-            clearForm(formKey);
+        form.querySelectorAll(`${RICHTEXT_SELECTOR} input[type="hidden"]`).forEach(input => {
+            const editable = input.closest(RICHTEXT_SELECTOR)?.querySelector('.tw-richtext-input');
+            if (editable && Object.prototype.hasOwnProperty.call(values, input.name)) {
+                input.value = values[input.name];
+                editable.innerHTML = values[input.name];
+            }
+        });
+    }
+
+    function readDraft(key) {
+        try {
+            const draft = STORAGE.getItem(key);
+            return draft ? JSON.parse(draft) : null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function saveDraft(key, form) {
+        try {
+            const values = readForm(form);
+            if (Object.keys(values).length) STORAGE.setItem(key, JSON.stringify(values));
+            else STORAGE.removeItem(key);
+        } catch (error) {
+            // Storage may be unavailable or full; form submission still works.
+        }
+    }
+
+    function clearDraft(key) {
+        try {
+            STORAGE.removeItem(key);
+        } catch (error) {
+            // Storage may be unavailable.
+        }
+    }
+
+    function initForm(form, index) {
+        if (form.dataset.autosaveInit === '1' || isIgnored(form)) return;
+        form.dataset.autosaveInit = '1';
+        const key = storageKey(form, index);
+        form.dataset.autosaveKey = key;
+        const draft = readDraft(key);
+        if (draft) restoreForm(form, draft);
+
+        const persist = () => saveDraft(key, form);
+        form.addEventListener('input', persist);
+        form.addEventListener('change', persist);
+        form.addEventListener('submit', () => clearDraft(key));
+        form.addEventListener('click', event => {
+            if (event.target.closest('[data-autosave-clear], [data-tw-back]')) clearDraft(key);
         });
     }
 
     function initAll(root) {
-        (root || document).querySelectorAll('form[data-autosave]').forEach(initForm);
+        const forms = Array.from((root || document).querySelectorAll('form'));
+        const keys = new Map();
+        forms.forEach(form => {
+            const action = new URL(form.getAttribute('action') || window.location.href, window.location.href).href;
+            const index = keys.get(action) || 0;
+            keys.set(action, index + 1);
+            initForm(form, index);
+        });
     }
 
+    function clearRelatedDrafts(control) {
+        const scope = control.closest('form, .tw-card, main, body');
+        scope.querySelectorAll('form[data-autosave-key]').forEach(form => clearDraft(form.dataset.autosaveKey));
+    }
+
+    document.addEventListener('click', event => {
+        const control = event.target.closest('[data-autosave-clear], [data-tw-back]');
+        if (control) clearRelatedDrafts(control);
+    });
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () { initAll(); });
+        document.addEventListener('DOMContentLoaded', () => initAll());
     } else {
         initAll();
     }

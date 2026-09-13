@@ -126,8 +126,9 @@
       <span class="tw-args-col-icon">+</span> {% trans 'Arguments FOR' %}
     </div>
     {% if positive_arguments %}
+      <div class="tw-flex tw-flex-col tw-gap-3">
       {% for arg in positive_arguments %}
-      <div class="tw-arg-card tw-arg-card--for">
+      <div class="tw-arg-card tw-arg-card--for tw-mb-0">
         {% if arg.author %}<a href="{% url 'obywatele:obywatele_szczegoly' pk=arg.author.pk %}" class="tw-arg-card-author">{% else %}<span class="tw-arg-card-author">{% endif %}
           {% include "home/_user_avatar.html" with user=arg.author size="lg" %}
           <div class="tw-arg-author-info">
@@ -136,14 +137,10 @@
           </div>
         {% if arg.author %}</a>{% else %}</span>{% endif %}
         <div class="tw-arg-card-content">{{ arg.content|richtext }}</div>
-        {% if arg.author == current_user and not id.voting_has_ended %}
-        <div class="tw-arg-card-footer">
-          <a href="{% url 'glosowania:delete_argument' arg.id %}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></a>
-          <a href="{% url 'glosowania:edit_argument' arg.id %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
-        </div>
-        {% endif %}
+        {% include 'glosowania/_argument_actions.html' with arg=arg id=id current_user=current_user %}
       </div>
       {% endfor %}
+      </div>
     {% else %}
       {% include 'home/includes/empty_state.html' with compact=True icon='fa-comments' title=_('No arguments for.') %}
     {% endif %}
@@ -167,8 +164,9 @@
       <span class="tw-args-col-icon">−</span> {% trans 'Arguments AGAINST' %}
     </div>
     {% if negative_arguments %}
+      <div class="tw-flex tw-flex-col tw-gap-3">
       {% for arg in negative_arguments %}
-      <div class="tw-arg-card tw-arg-card--against">
+      <div class="tw-arg-card tw-arg-card--against tw-mb-0">
         {% if arg.author %}<a href="{% url 'obywatele:obywatele_szczegoly' pk=arg.author.pk %}" class="tw-arg-card-author">{% else %}<span class="tw-arg-card-author">{% endif %}
           {% include "home/_user_avatar.html" with user=arg.author size="lg" %}
           <div class="tw-arg-author-info">
@@ -177,14 +175,10 @@
           </div>
         {% if arg.author %}</a>{% else %}</span>{% endif %}
         <div class="tw-arg-card-content">{{ arg.content|richtext }}</div>
-        {% if arg.author == current_user and not id.voting_has_ended %}
-        <div class="tw-arg-card-footer">
-          <a href="{% url 'glosowania:delete_argument' arg.id %}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></a>
-          <a href="{% url 'glosowania:edit_argument' arg.id %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
-        </div>
-        {% endif %}
+        {% include 'glosowania/_argument_actions.html' with arg=arg id=id current_user=current_user %}
       </div>
       {% endfor %}
+      </div>
     {% else %}
       {% include 'home/includes/empty_state.html' with compact=True icon='fa-comments' title=_('No arguments against.') %}
     {% endif %}

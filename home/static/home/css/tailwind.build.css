@@ -1892,19 +1892,6 @@ small,
   background: var(--badge-rejected-bg);
 }
 
-.tw-detail-layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.25rem;
-  align-items: start;
-}
-
-@media (max-width: 900px) {
-  .tw-detail-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
 .tw-detail-header {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -3961,12 +3948,6 @@ small,
   width: auto;
 }
 
-.tw-event-back-link {
-  width: auto;
-  padding: 0 .85rem;
-  gap: .4rem;
-}
-
 .tw-quick-link-item {
   background: var(--color-surface-offset);
   border-radius: var(--radius-xs);
@@ -5443,6 +5424,91 @@ a:hover {
 }
 
 /* ── Forms ───────────────────────────────────────────────── */
+
+.tw-file-upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 5rem;
+  padding: 1rem;
+  border: 1px dashed var(--input-border);
+  border-radius: var(--radius-btn);
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+}
+
+.tw-file-upload:hover,
+  .tw-file-upload--active,
+  .tw-file-upload:focus-within {
+  border-color: var(--accent);
+  background-color: var(--accent-muted);
+  color: var(--text-primary);
+}
+
+.tw-file-upload-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.tw-file-upload-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+}
+
+.tw-file-upload-current {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.tw-file-upload-preview {
+  max-width: 100%;
+  max-height: 15rem;
+  border-radius: var(--radius-btn);
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+
+.tw-file-upload-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  background: var(--bg-card);
+}
+
+.tw-file-upload-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tw-file-upload-size {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.tw-file-upload-item .tw-btn {
+  flex: 0 0 auto;
+}
 
 .tw-form-control,
   .tw-form-select {
@@ -10110,6 +10176,10 @@ body.tw-chat-page .tw-main-area {
   margin-top: 1rem;
 }
 
+.tw-mt-6 {
+  margin-top: 1.5rem;
+}
+
 .tw-mt-8 {
   margin-top: 2rem;
 }
@@ -10212,10 +10282,6 @@ body.tw-chat-page .tw-main-area {
 
 .tw-max-w-md {
   max-width: 28rem;
-}
-
-.tw-max-w-xl {
-  max-width: 36rem;
 }
 
 .tw-flex-1 {
@@ -10403,10 +10469,6 @@ body.tw-chat-page .tw-main-area {
   border-bottom-width: 1px;
 }
 
-.tw-border-l-4 {
-  border-left-width: 4px;
-}
-
 .tw-border-r-0 {
   border-right-width: 0px;
 }
@@ -10506,10 +10568,6 @@ body.tw-chat-page .tw-main-area {
   padding-bottom: 0.75rem;
 }
 
-.tw-pl-3 {
-  padding-left: 0.75rem;
-}
-
 .tw-pt-1 {
   padding-top: 0.25rem;
 }
@@ -10587,10 +10645,6 @@ body.tw-chat-page .tw-main-area {
 
 .tw-font-semibold {
   font-weight: 600;
-}
-
-.tw-italic {
-  font-style: italic;
 }
 
 .tw-text-accent {

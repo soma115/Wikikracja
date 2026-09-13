@@ -9,6 +9,7 @@ urlpatterns = (
     path('', RedirectView.as_view(url='/glosowania/proposition/', permanent=False)),
     path('details/<int:pk>/', v.details, name='details'),
     path('edit/<int:pk>/', v.edit, name='edit'),
+    path('delete/<int:pk>/', v.delete_proposal, name='delete_proposal'),
     path('nowy/', v.dodaj, name='dodaj_nowy'),
     path('proposition/', v.proposition, name='proposition'),
     path('discussion/', v.discussion, name='discussion'),

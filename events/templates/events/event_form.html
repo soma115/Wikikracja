@@ -5,42 +5,34 @@
 {% block extra_css %}{{ form.media }}{% endblock %}
 
 {% block content %}
-<div class="tw-detail-layout tw-flex tw-flex-col tw-gap-3">
-
-  <div class="tw-detail-header">
-    <div class="tw-detail-header-top">
-      <h1 class="tw-detail-title tw-text-2xl tw-font-bold">
+{% include 'home/includes/stepper.html' with stepper=stepper %}
+<div class="tw-container tw-my-4">
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <h1 class="tw-section-heading tw-mb-0">
         {% if form.instance.pk %}
-          <i class="fas fa-pen fa-fw tw-text-accent"></i>
-          {% trans "Edit Event" %}: {{ form.instance.title }}
+          <i class="fas fa-pen fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Edit Event" %}: {{ form.instance.title }}
         {% else %}
-          <i class="fas fa-plus fa-fw tw-text-accent"></i>
-          {% trans "Create New Event" %}
+          <i class="fas fa-plus fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Create New Event" %}
         {% endif %}
       </h1>
     </div>
+    <div class="tw-card-body">
+      <form method="post" action="">
+        {% csrf_token %}
+        {% crispy form %}
+        <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-3">
+          <button type="submit" class="tw-btn tw-btn-primary">
+            <i class="fas fa-check fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'Save Event' %}
+          </button>
+          {% if form.instance.pk %}
+            <a href="{% url 'events:detail' form.instance.pk %}" class="tw-btn tw-btn-secondary">
+              <i class="fas fa-eye fa-fw tw-me-1" aria-hidden="true"></i>{% trans "View Event" %}
+            </a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
   </div>
-
-  <div class="tw-event-card">
-    <form method="post" action="" class="tw-event-card-body tw-d-block tw-cursor-default">
-      {% csrf_token %}
-      {% crispy form %}
-      <button type="submit" class="tw-btn tw-btn-primary tw-mt-3">
-        <i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save Event' %}
-      </button>
-    </form>
-  </div>
-
-  <div class="tw-flex tw-gap-2 tw-mt-4">
-    <a href="{% url 'events:list' %}" class="tw-btn tw-btn-secondary tw-event-back-link" title="{% trans 'Back to Calendar' %}">
-      <i class="fas fa-arrow-left"></i> {% trans "Back to Calendar" %}
-    </a>
-    {% if form.instance.pk %}
-      <a href="{% url 'events:detail' form.instance.pk %}" class="tw-btn tw-btn-secondary tw-event-back-link" title="{% trans 'View Event' %}">
-        <i class="fas fa-eye"></i> {% trans "View Event" %}
-      </a>
-    {% endif %}
-  </div>
-
 </div>
 {% endblock %}

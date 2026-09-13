@@ -5,13 +5,15 @@ from unittest.mock import call, patch
 
 import pytest
 import redis
+from django import forms
 from django.contrib.auth import get_user_model
 from django.db import OperationalError
 from django.test import Client
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
+from glosowania.forms import ParametersProposalForm
+from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 from site_settings.models import SiteParameters
 
 User = get_user_model()
@@ -27,6 +29,210 @@ def test_details_does_not_show_edit_action_for_orphaned_proposition(sample_users
 
     assert response.status_code == 200
     assert f'/glosowania/edit/{decyzja.pk}/' not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_author_sees_delete_action_for_proposition(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Deletable proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author)
+    client = Client()
+    client.force_login(author)
+
+    response = client.get(f'/glosowania/details/{decision.pk}/')
+
+    content = response.content.decode()
+    assert response.status_code == 200
+    assert 'data-tw-target="#deleteProposalModal"' in content
+    assert f'action="/glosowania/delete/{decision.pk}/"' in content
+
+
+@pytest.mark.django_db
+def test_author_can_delete_proposition(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Deletable proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author)
+    client = Client()
+    client.force_login(author)
+
+    response = client.post(f'/glosowania/delete/{decision.pk}/')
+
+    assert response.status_code == 302
+    assert response.url == '/glosowania/proposition/'
+    assert not Decyzja.objects.filter(pk=decision.pk).exists()
+
+
+@pytest.mark.django_db
+def test_other_user_cannot_delete_proposition(sample_users):
+    author, other = sample_users[:2]
+    decision = Decyzja.objects.create(title='Protected proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author)
+    client = Client()
+    client.force_login(other)
+
+    response = client.post(f'/glosowania/delete/{decision.pk}/')
+
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decision.pk}/'
+    assert Decyzja.objects.filter(pk=decision.pk).exists()
+
+
+@pytest.mark.django_db
+def test_edit_proposal_uses_shared_form_layout(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Editable proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author)
+    client = Client()
+    client.force_login(author)
+
+    response = client.get(f'/glosowania/edit/{decision.pk}/')
+
+    assert response.status_code == 200
+    assert 'tw-section-heading tw-mb-0' in response.content.decode()
+    assert 'tw-alert tw-alert-danger' not in response.content.decode()
+    assert 'tw-flex tw-flex-wrap tw-gap-2' in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_edit_proposal_updates_fields_and_creates_version(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Editable proposal', tresc='Old text', status=Decyzja.Status.PROPOSITION, author=author)
+    client = Client()
+    client.force_login(author)
+
+    with patch('glosowania.views._safe_send_vote_state_changed'):
+        response = client.post(f'/glosowania/edit/{decision.pk}/', {'title': 'Updated proposal', 'tresc': 'New text', 'uzasadnienie': 'Reason', 'kara': '', 'znosi': ''})
+
+    assert response.status_code == 302
+    assert response.url == '/glosowania/proposition/'
+    decision.refresh_from_db()
+    assert decision.title == 'Updated proposal'
+    assert decision.tresc == 'New text'
+    assert DecyzjaWersja.objects.filter(decyzja=decision, version_number=1).exists()
+
+
+@pytest.mark.django_db
+def test_edit_proposal_invalid_post_rerenders_errors(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Editable proposal', tresc='Old text', status=Decyzja.Status.PROPOSITION, author=author)
+    client = Client()
+    client.force_login(author)
+
+    response = client.post(f'/glosowania/edit/{decision.pk}/', {'title': '', 'tresc': '', 'uzasadnienie': '', 'kara': '', 'znosi': ''})
+
+    assert response.status_code == 200
+    assert response.context['form'].errors
+    decision.refresh_from_db()
+    assert decision.title == 'Editable proposal'
+
+
+@pytest.mark.django_db
+def test_edit_parameters_updates_fields_and_creates_version(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Parameter proposal', tresc='Old parameters', uzasadnienie='Old reason', status=Decyzja.Status.PROPOSITION, author=author, proposed_parameters={'acceptance': 10})
+    form = ParametersProposalForm(decyzja=decision)
+    data = {}
+    for name, field in form.fields.items():
+        value = field.initial
+        if isinstance(field, forms.BooleanField):
+            if value:
+                data[name] = 'on'
+        elif value is not None:
+            data[name] = str(value)
+    data['uzasadnienie'] = 'Updated reason'
+    data['acceptance'] = '11'
+
+    client = Client()
+    client.force_login(author)
+    response = client.post(f'/glosowania/parameters/propose/{decision.pk}/', data)
+
+    assert response.status_code == 302
+    assert response.url == '/glosowania/proposition/'
+    decision.refresh_from_db()
+    assert decision.proposed_parameters['acceptance'] == 11
+    assert DecyzjaWersja.objects.filter(decyzja=decision, version_number=1).exists()
+
+
+@pytest.mark.django_db
+def test_edit_parameters_invalid_post_rerenders_errors(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Parameter proposal', status=Decyzja.Status.PROPOSITION, author=author, proposed_parameters={'acceptance': 10})
+    client = Client()
+    client.force_login(author)
+
+    response = client.post(f'/glosowania/parameters/propose/{decision.pk}/', {})
+
+    assert response.status_code == 200
+    assert response.context['form'].errors
+    assert not DecyzjaWersja.objects.filter(decyzja=decision).exists()
+
+
+@pytest.mark.django_db
+def test_edit_parameters_form_uses_responsive_actions(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Parameter proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author, proposed_parameters={'acceptance': 10})
+    client = Client()
+    client.force_login(author)
+
+    response = client.get(f'/glosowania/parameters/propose/{decision.pk}/')
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert 'tw-flex tw-flex-wrap tw-gap-2' in content
+    assert 'tw-btn tw-btn-primary tw-btn-sm' not in content
+    assert '/glosowania/parameters/' in content
+
+
+@pytest.mark.django_db
+def test_edit_argument_uses_responsive_actions(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Argument proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author)
+    argument = Argument.objects.create(decyzja=decision, author=author, argument_type='FOR', content='Argument text')
+    client = Client()
+    client.force_login(author)
+
+    response = client.get(f'/glosowania/details/{decision.pk}/', follow=True)
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert f'id="editArgumentForm{argument.pk}"' in content
+    assert f'data-tw-toggle="collapse" data-tw-target="#editArgumentForm{argument.pk}"' in content
+    assert f'action="/glosowania/argument/{argument.pk}/edit/"' in content
+    assert f'name="argument_type" value="{argument.argument_type}"' in content
+    assert f'id="argumentType{argument.pk}"' not in content
+    assert f'data-tw-target="#deleteArgumentModal{argument.pk}"' in content
+    assert 'Argument text' in content
+
+
+@pytest.mark.django_db
+def test_edit_argument_updates_content(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Argument proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author)
+    argument = Argument.objects.create(decyzja=decision, author=author, argument_type='FOR', content='Old argument')
+    client = Client()
+    client.force_login(author)
+
+    response = client.post(f'/glosowania/argument/{argument.pk}/edit/', {'argument_type': 'AGAINST', 'content': 'Updated argument'})
+
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decision.pk}/'
+    argument.refresh_from_db()
+    assert argument.content == 'Updated argument'
+    assert argument.argument_type == 'AGAINST'
+
+
+@pytest.mark.django_db
+def test_edit_argument_invalid_post_redirects_with_error_message(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Argument proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author)
+    argument = Argument.objects.create(decyzja=decision, author=author, argument_type='FOR', content='Old argument')
+    client = Client()
+    client.force_login(author)
+
+    with patch('glosowania.views.ArgumentForm.is_valid', return_value=False), patch('glosowania.views.messages.error') as error_message:
+        response = client.post(f'/glosowania/argument/{argument.pk}/edit/', {'argument_type': 'FOR', 'content': 'Updated argument'})
+
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decision.pk}/'
+    error_message.assert_called_once()
+    argument.refresh_from_db()
+    assert argument.content == 'Old argument'
 
 
 @pytest.mark.django_db
@@ -172,8 +378,10 @@ def test_voting_does_not_write_vote_code_directly(sample_users):
     assert VoteCode.objects.filter(project=decyzja).count() == 0
 
     mock_push.assert_called_once()
-    called_decyzja_id, called_code, called_vote = mock_push.call_args[0]
+    called_decyzja_id, operation_id, called_code, called_vote = mock_push.call_args[0]
     assert called_decyzja_id == decyzja.id
+    assert len(operation_id) == 32
+    assert called_code
     assert called_vote is True
 
     decyzja.refresh_from_db()

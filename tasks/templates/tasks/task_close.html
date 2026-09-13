@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="tw-container tw-my-4">
-  <a href="{% url 'tasks:detail' form.instance.pk %}" class="tw-btn tw-btn-link tw-px-0 tw-mb-3">&larr; {% trans "Back to activity" %}</a>
+  <a href="{% url 'tasks:detail' form.instance.pk %}" class="tw-btn tw-btn-link tw-px-0 tw-mb-3" data-autosave-clear>&larr; {% trans "Back to activity" %}</a>
 
   <div class="tw-card">
     <div class="tw-card-body">

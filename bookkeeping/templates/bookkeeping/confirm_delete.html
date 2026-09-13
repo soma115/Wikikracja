@@ -62,6 +62,7 @@
           <p><strong>{% block confirm_question %}{% endblock %}</strong></p>
           {% block object_details %}{% endblock %}
         </div>
+        <p class="tw-text-danger"><strong class="tw-font-semibold">{% trans "This action cannot be undone." %}</strong></p>
 
         <form method="post">
           {% csrf_token %}

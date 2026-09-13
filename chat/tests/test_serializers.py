@@ -33,6 +33,19 @@ class BuildChatMessagePayloadTest(TestCase):
         self.assertEqual(payload["username"], "System")
         self.assertIsNone(payload["user_id"])
 
+    def test_system_message_can_keep_a_published_author_name(self):
+        event = {**self.base_event, "user_id": None, "anonymous": False, "author_display_name": "Former Member"}
+        payload = build_chat_message_payload(event, user=None, vote_value=None, current_user=self.viewer)
+        self.assertEqual(payload["username"], "Former Member")
+        self.assertEqual(payload["display_name"], "Former Member")
+        self.assertIsNone(payload["user_id"])
+
+    def test_anonymous_published_message_can_use_a_neutral_author_label(self):
+        event = {**self.base_event, "user_id": None, "anonymous": True, "author_display_name": "Former group member"}
+        payload = build_chat_message_payload(event, user=None, vote_value=None, current_user=self.viewer)
+        self.assertEqual(payload["username"], "Former group member")
+        self.assertIsNone(payload["user_id"])
+
     def test_your_vote_passthrough_upvote(self):
         payload = build_chat_message_payload(self.base_event, user=self.sender, vote_value="upvote", current_user=self.viewer)
         self.assertEqual(payload["your_vote"], "upvote")

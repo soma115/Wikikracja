@@ -17,6 +17,30 @@ _db_lock = threading.Lock()
 _scheduler_lock_fd = None
 
 
+def _acquire_scheduler_lock(lock_file_path):
+    """Acquire a non-blocking process lock and keep its descriptor open."""
+    lock_fd = None
+    try:
+        lock_fd = open(lock_file_path, 'a+')
+        if os.name == 'nt':
+            import msvcrt
+
+            lock_fd.seek(0)
+            lock_fd.write('1')
+            lock_fd.flush()
+            lock_fd.seek(0)
+            msvcrt.locking(lock_fd.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return lock_fd
+    except (IOError, OSError):
+        if lock_fd is not None:
+            lock_fd.close()
+        return None
+
+
 def start_scheduler():
     """
     Start APScheduler to run management commands on schedule.
@@ -30,18 +54,12 @@ def start_scheduler():
     """
     global _scheduler_lock_fd
 
-    # Try to acquire exclusive lock on scheduler lock file
-    lock_file_path = os.getenv("SCHEDULER_LOCK_FILE", os.path.join(tempfile.gettempdir(), 'wikikracja_scheduler.lock'))
-    try:
-        _scheduler_lock_fd = open(lock_file_path, 'w')
-        if os.name != 'nt':
-            import fcntl
-
-            fcntl.flock(_scheduler_lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            log.info(f"Acquired scheduler lock: {lock_file_path}")
-    except IOError as e:
-        log.info("Scheduler already running in another worker/process - skipping initialization " + str(e))
+    lock_file_path = os.getenv('SCHEDULER_LOCK_FILE', os.path.join(tempfile.gettempdir(), 'wikikracja_scheduler.lock'))
+    _scheduler_lock_fd = _acquire_scheduler_lock(lock_file_path)
+    if _scheduler_lock_fd is None:
+        log.info('Scheduler already running in another worker/process - skipping initialization')
         return None
+    log.info('Acquired scheduler lock: %s', lock_file_path)
 
     scheduler = BackgroundScheduler(timezone=settings.TIME_ZONE)
 

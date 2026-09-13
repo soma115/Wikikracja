@@ -12,6 +12,7 @@ urlpatterns = [
     path('view/<slug:slug>/', views.view_post_by_slug, name='view_post_by_slug'),
     path('delete/<int:pk>/', views.delete_post, name='delete_post'),
     path('restore/<int:pk>/', views.restore_post, name='restore_post'),
+    path('edit/<int:pk>/featured-image/delete/', views.delete_featured_image, name='delete_featured_image'),
     path('edit/<int:pk>/attachment/<int:attachment_id>/delete/', views.delete_attachment, name='delete_attachment'),
     path('api/categories/', views.PostCategoryAPI.as_view(), name='api_categories'),
     path('api/categories/<int:pk>/edit/', views.PostCategoryEditAPI.as_view(), name='api_category_edit'),

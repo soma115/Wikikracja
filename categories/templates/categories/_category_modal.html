@@ -5,11 +5,11 @@
       {% trans 'Manage categories' as modal_title %}
       {% include 'home/includes/modal_header.html' with title=modal_title title_icon='fa-gear' title_class='tw-text-base tw-font-semibold' title_id='manageCategoriesModalLabel' %}
       <div class="tw-modal-body">
-        <ul class="tw-cat-mgr-list" id="catMgrList"></ul>
-        <div class="tw-cat-mgr-error tw-d-none" id="catMgrError"></div>
+        <ul class="tw-cat-mgr-list" id="catMgrList" aria-live="polite"></ul>
+        <div class="tw-cat-mgr-error tw-d-none" id="catMgrError" role="alert" aria-live="assertive"></div>
         <div class="tw-cat-mgr-add-row" id="catMgrAddRow">
-          <input type="text" class="tw-cat-mgr-input" id="catMgrNewName" placeholder="{% trans 'Category name' %}" maxlength="100">
-          <input type="text" class="tw-cat-mgr-input" id="catMgrNewDesc" placeholder="{% trans 'Description (optional)' %}">
+          <input type="text" class="tw-cat-mgr-input" id="catMgrNewName" placeholder="{% trans 'Category name' %}" aria-label="{% trans 'Category name' %}" maxlength="100">
+          <input type="text" class="tw-cat-mgr-input" id="catMgrNewDesc" placeholder="{% trans 'Description (optional)' %}" aria-label="{% trans 'Description (optional)' %}">
           <button type="button" class="tw-btn tw-btn-sm tw-btn-primary" id="catMgrAddBtn">
             <i class="fas fa-plus fa-fw tw-me-1"></i>{% trans 'Add category' %}
           </button>

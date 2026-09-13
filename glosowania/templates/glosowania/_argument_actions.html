@@ -1,0 +1,33 @@
+{% load i18n %}
+{% if arg.author == current_user and not id.voting_has_ended %}
+{% with arg_suffix=arg.id|stringformat:'s' %}
+<div class="tw-arg-card-footer">
+  <button type="button" class="tw-detail-nav-btn tw-text-danger" data-tw-toggle="modal" data-tw-target="#deleteArgumentModal{{ arg.id }}" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}">
+    <i class="fas fa-trash fa-fw" aria-hidden="true"></i>
+  </button>
+  <button type="button" class="tw-detail-nav-btn" data-tw-toggle="collapse" data-tw-target="#editArgumentForm{{ arg.id }}" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}">
+    <i class="fas fa-pen fa-fw" aria-hidden="true"></i>
+  </button>
+</div>
+
+<div class="tw-arg-inline-form tw-collapse" id="editArgumentForm{{ arg.id }}" data-tw-autofocus>
+  <form method="post" action="{% url 'glosowania:edit_argument' arg.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="argument_type" value="{{ arg.argument_type }}">
+    <label class="tw-form-label" for="argumentContent{{ arg.id }}">{% trans 'Content' %}</label>
+    <textarea class="tw-form-control" id="argumentContent{{ arg.id }}" name="content" rows="3" maxlength="1000" required>{{ arg.content }}</textarea>
+    <div class="tw-flex tw-justify-end tw-gap-2">
+      <button type="button" class="tw-btn tw-btn-secondary" data-tw-toggle="collapse" data-tw-target="#editArgumentForm{{ arg.id }}"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans 'Cancel' %}</button>
+      <button type="submit" class="tw-arg-inline-submit tw-arg-inline-submit--{{ arg.argument_type|lower }}"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
+    </div>
+  </form>
+</div>
+
+{% trans 'Delete Argument' as delete_title %}
+{% trans 'Are you sure you want to delete this argument?' as delete_message %}
+{% trans 'Yes, Delete' as delete_confirm_label %}
+{% url 'glosowania:delete_argument' arg.id as delete_url %}
+{% trans 'Argument' as item_title_label %}
+{% include 'home/includes/delete_modal.html' with modal_id='deleteArgumentModal'|add:arg_suffix title=delete_title title_icon='fa-trash' message=delete_message item_title=arg.content|striptags|truncatechars:240 item_title_label=item_title_label action_url=delete_url confirm_label=delete_confirm_label irreversible=True %}
+{% endwith %}
+{% endif %}

@@ -51,6 +51,21 @@ p, li {
   margin-bottom: .75rem;
 }
 
+.tw-modal.tw-modal-demo {
+  position: relative;
+  top: auto;
+  left: auto;
+  display: block;
+  height: auto;
+  overflow: visible;
+  z-index: auto;
+}
+
+.tw-modal.tw-modal-demo .tw-modal-dialog {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
 .row {
   display: flex;
   align-items: center;

@@ -178,6 +178,7 @@ def build_chat_message_event(message: Message, *, new: bool = False, temp_id: st
         'message_id': message.id,
         'message': message.text,
         'anonymous': message.anonymous,
+        'author_display_name': message.sender_display_name,
         'upvotes': upvotes,
         'downvotes': downvotes,
         'new': new,
@@ -716,9 +717,9 @@ def can_user_post_in_room(room, user):
     return True
 
 
-def _create_message(room, sender, text, anonymous, guest_email, guest_name, reply_to_id):
+def _create_message(room, sender, text, anonymous, guest_email, guest_name, sender_display_name, reply_to_id):
     """Create and save a Message row, returning the instance."""
-    message = Message(sender=sender, text=text, room=room, anonymous=anonymous, guest_email=guest_email, guest_name=guest_name, reply_to_id=reply_to_id)
+    message = Message(sender=sender, text=text, room=room, anonymous=anonymous, guest_email=guest_email, guest_name=guest_name, sender_display_name=sender_display_name, reply_to_id=reply_to_id)
     message.save()
     return message
 
@@ -730,7 +731,7 @@ def _get_mentioned_users_sync(room, usernames):
     return list(room.allowed.filter(username__in=usernames, is_active=True))
 
 
-def _create_and_build_message(room, text, sender, anonymous, attachments, reply_to_id, temp_id, guest_email, guest_name, linkify, include_voters):
+def _create_and_build_message(room, text, sender, anonymous, attachments, reply_to_id, temp_id, guest_email, guest_name, sender_display_name, linkify, include_voters):
     """Sync body of send_message: validate, persist, and build the channel event."""
     message_text = _prepare_message_text(text, linkify=linkify)
     if not _is_message_non_empty(message_text, attachments):
@@ -749,7 +750,7 @@ def _create_and_build_message(room, text, sender, anonymous, attachments, reply_
     if reply_to_id:
         reply_to = _get_reply_to_data_sync(reply_to_id, room.id, user=sender)
 
-    message = _create_message(room, sender, message_text, anonymous, guest_email, guest_name, reply_to_id)
+    message = _create_message(room, sender, message_text, anonymous, guest_email, guest_name, sender_display_name, reply_to_id)
 
     if attachments:
         _save_attachments_sync(message.id, attachments)
@@ -874,6 +875,7 @@ async def send_message(
     temp_id=None,
     guest_email='',
     guest_name='',
+    sender_display_name='',
     linkify=False,
     include_voters=False,
     channel_layer=None,
@@ -903,6 +905,7 @@ async def send_message(
         temp_id=temp_id,
         guest_email=guest_email,
         guest_name=guest_name,
+        sender_display_name=sender_display_name,
         linkify=linkify,
         include_voters=include_voters,
     )

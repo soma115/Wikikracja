@@ -4,6 +4,7 @@ import logging
 import random
 import re
 import time
+import uuid
 from datetime import datetime, timedelta
 from datetime import time as datetime_time
 from urllib.parse import quote_plus
@@ -12,7 +13,7 @@ import redis
 from django.conf import settings as s
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db import OperationalError, transaction
+from django.db import IntegrityError, OperationalError, transaction
 from django.db.models import F, Q
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect, render
@@ -25,7 +26,7 @@ from core.signals import vote_state_changed
 from core.utils import build_site_url
 from glosowania.forms import ArgumentForm, DecyzjaForm, ParametersProposalForm
 from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy, author_signed_exists
-from glosowania.vote_buffer import push_pending_vote
+from glosowania.vote_buffer import discard_pending_vote, push_pending_vote
 from site_settings.models import SiteParameters
 from site_settings.params import describe_changes, specs_by_category
 from zzz.templatetags.citizen_filters import user_display_name
@@ -162,6 +163,20 @@ def edit(request: HttpRequest, pk: int):
     return render(request, 'glosowania/edit.html', {'form': form})
 
 
+@login_required
+def delete_proposal(request: HttpRequest, pk: int):
+    decision = get_object_or_404(Decyzja, pk=pk)
+    if decision.author != request.user or decision.status != Decyzja.Status.PROPOSITION:
+        return redirect('glosowania:details', pk)
+
+    if request.method == 'POST':
+        decision.delete()
+        messages.success(request, _('Your proposal has been deleted.'))
+        return redirect('glosowania:proposition')
+
+    return redirect('glosowania:details', pk)
+
+
 def generate_code():
     return ''.join([random.SystemRandom().choice('abcdefghjkmnoprstuvwxyz23456789') for i in range(5)])
 
@@ -204,11 +219,13 @@ def _cast_vote(request, pk, vote):
     """Record a vote and queue its anonymous verification code.
 
     SQLite can fail while upgrading the read lock from ``select_for_update`` to
-    the insert below. Retrying the complete transaction keeps the duplicate-vote
-    check and the voter marker in the same atomic operation.
+    the insert below. The Redis operation id is generated once for the whole
+    request, so retrying the transaction cannot enqueue the same vote twice.
     """
     max_retries = 3
     retry_delay = 0.9
+    operation_id = uuid.uuid4().hex
+    code = generate_code()
 
     for attempt in range(max_retries):
         try:
@@ -224,15 +241,25 @@ def _cast_vote(request, pk, vote):
 
                 glos = KtoJuzGlosowal(projekt=decision, ktory_uzytkownik_juz_zaglosowal=voter)
                 glos.save()
-                code = generate_code()
                 # The vote's content is queued outside the SQL database (see
                 # glosowania.vote_buffer) instead of being written to VoteCode
                 # here, so it isn't created in the same instant/order as the
                 # KtoJuzGlosowal row above. It is shuffled into VoteCode - and
                 # counted into za/przeciw - only once the referendum closes
-                # (glosowania.management.commands.vote).
-                push_pending_vote(decision.id, code, vote)
+                # (glosowania.management.commands.vote). The operation id is
+                # not stored in SQLite and is only used for Redis deduplication.
+                push_pending_vote(decision.id, operation_id, code, vote)
             return code, None
+        except IntegrityError:
+            # A concurrent request may have won the unique constraint after
+            # both requests passed the existence check. Its vote is the one
+            # that counts; remove this request's known Redis reservation.
+            try:
+                discard_pending_vote(pk, operation_id)
+            except redis.RedisError:
+                log.error('Could not discard an uncommitted vote buffer entry for decyzja %s', pk, exc_info=True)
+                raise
+            return None, redirect('glosowania:details', pk)
         except OperationalError as error:
             if not _is_database_locked(error) or attempt == max_retries - 1:
                 raise
@@ -466,11 +493,10 @@ def edit_argument(request: HttpRequest, argument_id: int):
             form.save()
             messages.success(request, _("Your argument has been updated."))
             log.info(f"User {request.user} edited argument #{argument_id}")
-            return redirect('glosowania:details', argument.decyzja.pk)
-    else:
-        form = ArgumentForm(instance=argument)
+        else:
+            messages.error(request, _("There was an error with your argument. Please try again."))
 
-    return render(request, 'glosowania/edit_argument.html', {'form': form, 'argument': argument, 'decyzja': argument.decyzja})
+    return redirect('glosowania:details', argument.decyzja.pk)
 
 
 @login_required
@@ -495,7 +521,7 @@ def delete_argument(request: HttpRequest, argument_id: int):
         messages.success(request, _("Your argument has been deleted."))
         return redirect('glosowania:details', decyzja_pk)
 
-    return render(request, 'glosowania/delete_argument.html', {'argument': argument, 'decyzja': argument.decyzja})
+    return redirect('glosowania:details', decyzja_pk)
 
 
 def _strip_html(text):

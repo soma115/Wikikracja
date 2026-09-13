@@ -1,0 +1,26 @@
+{% load i18n %}
+<div class="tw-modal tw-fade" id="{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="{{ modal_id }}Label" aria-hidden="true">
+  <div class="tw-modal-dialog{% if modal_scrollable %} tw-modal-dialog-scrollable{% endif %}" role="document">
+    <div class="tw-modal-content">
+      {% include 'home/includes/modal_header.html' with title=title title_icon=title_icon title_class=title_class title_id=modal_id|add:'Label' %}
+      <div class="tw-modal-body">
+        {% if message %}<p>{{ message }}</p>{% endif %}
+        {% if item_title %}<div class="tw-alert tw-alert-warning"><strong class="tw-font-semibold">{% if item_title_label %}{{ item_title_label }}{% else %}{% trans 'Item' %}{% endif %}:</strong> {{ item_title }}</div>{% endif %}
+        {% if details %}<div class="tw-text-muted tw-text-sm tw-mb-2">{{ details }}</div>{% endif %}
+        {% if warning %}<p class="tw-text-danger"><strong class="tw-font-semibold">{{ warning }}</strong></p>{% endif %}
+        {% if irreversible %}<p class="tw-text-danger"><strong class="tw-font-semibold">{% trans 'This action cannot be undone.' %}</strong></p>{% endif %}
+      </div>
+      <div class="tw-modal-footer">
+        <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal">
+          <i class="fas fa-times fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'Cancel' %}
+        </button>
+        <form method="post" action="{{ action_url }}">
+          {% csrf_token %}
+          <button type="submit" class="tw-btn tw-btn-danger">
+            <i class="fas fa-trash fa-fw tw-me-1" aria-hidden="true"></i>{{ confirm_label|default:_('Delete') }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

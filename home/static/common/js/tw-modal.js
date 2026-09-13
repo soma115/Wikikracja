@@ -39,6 +39,56 @@
     return instance;
   };
 
+  TwModal.confirm = function (options) {
+    const modal = document.createElement('div');
+    modal.className = 'tw-modal tw-fade';
+    modal.setAttribute('tabindex', '-1');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-label', options.title || 'Confirm action');
+    modal.setAttribute('aria-hidden', 'true');
+    modal.innerHTML = `
+      <div class="tw-modal-dialog" role="document">
+        <div class="tw-modal-content">
+          <div class="tw-modal-header">
+            <h5 class="tw-modal-title"></h5>
+            <button type="button" class="tw-btn-close" data-tw-dismiss="modal"></button>
+          </div>
+          <div class="tw-modal-body">
+            <div class="tw-alert tw-alert-warning tw-d-none" data-confirm-item-title></div>
+            <p data-confirm-message></p>
+            <p class="tw-text-danger tw-d-none" data-confirm-irreversible><strong class="tw-font-semibold"></strong></p>
+          </div>
+          <div class="tw-modal-footer">
+            <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"></button>
+            <button type="button" class="tw-btn tw-btn-danger" data-tw-confirm-action></button>
+          </div>
+        </div>
+      </div>`;
+    modal.querySelector('.tw-modal-title').textContent = options.title || '';
+    modal.querySelector('[data-tw-dismiss="modal"]').textContent = options.cancelLabel || 'Cancel';
+    modal.querySelector('[data-tw-dismiss="modal"]').setAttribute('aria-label', options.cancelLabel || 'Cancel');
+    modal.querySelector('[data-tw-confirm-action]').textContent = options.confirmLabel || 'Delete';
+    modal.querySelector('[data-confirm-message]').textContent = options.message || '';
+    if (options.itemTitle) {
+      const itemTitle = modal.querySelector('[data-confirm-item-title]');
+      itemTitle.textContent = `${options.itemTitleLabel || 'Item'}: ${options.itemTitle}`;
+      itemTitle.classList.remove('tw-d-none');
+    }
+    if (options.irreversible) {
+      const warning = modal.querySelector('[data-confirm-irreversible]');
+      warning.querySelector('strong').textContent = options.irreversibleLabel || 'This action cannot be undone.';
+      warning.classList.remove('tw-d-none');
+    }
+    modal.querySelector('[data-tw-confirm-action]').addEventListener('click', function () {
+      if (options.onConfirm) options.onConfirm();
+      TwModal.hide(modal);
+      modal.addEventListener('hidden.tw.modal', function () { modal.remove(); }, { once: true });
+    });
+    document.body.appendChild(modal);
+    TwModal.show(modal);
+    return modal;
+  };
+
   TwModal.prototype.show = function () {
     if (this._isShown || this._isTransitioning) return;
     const el = this._element;

@@ -3,7 +3,7 @@ from urllib.parse import urlencode
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpRequest
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -156,14 +156,21 @@ class EventDetailView(DetailView):
         return context
 
 
-class EventCreateView(LoginRequiredMixin, CreateView):
+class EventFormViewMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['stepper'] = _events_stepper()
+        return context
+
+
+class EventCreateView(EventFormViewMixin, LoginRequiredMixin, CreateView):
     model = Event
     form_class = EventForm
     template_name = 'events/event_form.html'
     success_url = reverse_lazy('events:list')
 
 
-class EventUpdateView(LoginRequiredMixin, UpdateView):
+class EventUpdateView(EventFormViewMixin, LoginRequiredMixin, UpdateView):
     model = Event
     form_class = EventForm
     template_name = 'events/event_form.html'
@@ -172,5 +179,7 @@ class EventUpdateView(LoginRequiredMixin, UpdateView):
 
 class EventDeleteView(LoginRequiredMixin, DeleteView):
     model = Event
-    template_name = 'events/event_confirm_delete.html'
     success_url = reverse_lazy('events:list')
+
+    def get(self, request, *args, **kwargs):
+        return redirect('events:detail', pk=kwargs['pk'])

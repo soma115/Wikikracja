@@ -2,6 +2,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
+from django.db import OperationalError
 from django.test import TestCase
 from django.utils import timezone
 
@@ -37,4 +38,10 @@ class PresenceStatusTest(TestCase):
     def test_invalid_source_is_ignored(self):
         with patch('core.presence.timezone.now', return_value=timezone.now()):
             self.assertFalse(record_presence(self.user, 'invalid'))
+        self.assertIsNone(self.user.uzytkownik.last_presence_at)
+
+    def test_transient_lock_is_noncritical_after_bounded_retry(self):
+        with patch('core.presence.run_with_lock_retry', side_effect=OperationalError('database is locked')):
+            self.assertFalse(record_presence(self.user, 'app'))
+        self.user.uzytkownik.refresh_from_db()
         self.assertIsNone(self.user.uzytkownik.last_presence_at)

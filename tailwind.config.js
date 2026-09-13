@@ -29,7 +29,7 @@ module.exports = {
     'tw-card', 'tw-card-header', 'tw-card-body', 'tw-card-footer',
     'tw-form-control', 'tw-form-select', 'tw-form-label',
     'tw-form-text', 'tw-form-check', 'tw-form-check-input', 'tw-form-check-label', 'tw-form-switch',
-    'tw-form-control-sm', 'tw-form-select-sm', 'tw-input-group', 'tw-input-group-text', 'tw-invalid-feedback',
+    'tw-form-control-sm', 'tw-form-select-sm', 'tw-input-group', 'tw-input-group-text', 'tw-invalid-feedback', 'tw-file-upload', 'tw-file-upload-input', 'tw-file-upload-prompt', 'tw-file-upload-list', 'tw-file-upload-current', 'tw-file-upload-preview', 'tw-file-upload-item', 'tw-file-upload-name', 'tw-file-upload-size', 'tw-file-upload--active',
     'tw-richtext-wrapper', 'tw-message-input-rich',
     'tw-alert', 'tw-alert-primary', 'tw-alert-secondary', 'tw-alert-info', 'tw-alert-success', 'tw-alert-warning', 'tw-alert-danger', 'tw-alert-dark',
     'tw-badge', 'tw-badge-proposition', 'tw-badge-discussion', 'tw-badge-referendum',

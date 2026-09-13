@@ -245,6 +245,11 @@ class PostFormViewMixin(LoginRequiredMixin):
     form_class = PostForm
     template_name = 'board/post_form.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['stepper'] = _board_stepper(self.request, _board_listing(self.request))
+        return context
+
     def form_valid(self, form):
         post = form.save(commit=False)
         if not post.pk:
@@ -308,7 +313,7 @@ def delete_post(request: HttpRequest, pk: int):
         post.is_deleted = True
         post.save(update_fields=('is_deleted', 'updated'))
         return redirect(f"{reverse('board:start')}?tab=trash")
-    return render(request, 'board/post_confirm_delete.html', {'post': post})
+    return redirect('board:view_post', pk=pk)
 
 
 @login_required
@@ -322,10 +327,20 @@ def restore_post(request: HttpRequest, pk: int):
 
 
 @login_required
+def delete_featured_image(request: HttpRequest, pk: int):
+    post = get_object_or_404(Post, pk=pk, is_deleted=False)
+    if request.method == 'POST' and post.featured_image:
+        post.featured_image.delete(save=False)
+        post.featured_image = None
+        post.save(update_fields=('featured_image', 'updated'))
+    return redirect('board:edit_post', pk=pk)
+
+
+@login_required
 def delete_attachment(request: HttpRequest, pk: int, attachment_id: int):
     post = get_object_or_404(Post, pk=pk)
     attachment = get_object_or_404(PostAttachment, pk=attachment_id, post=post)
     if request.method == 'POST':
         attachment.delete()
         return redirect('board:edit_post', pk=pk)
-    return render(request, 'board/attachment_confirm_delete.html', {'attachment': attachment, 'post': post})
+    return redirect('board:edit_post', pk=pk)

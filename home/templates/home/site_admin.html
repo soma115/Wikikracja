@@ -35,7 +35,6 @@
           <div class="tw-quick-link-form tw-flex tw-gap-2 tw-flex-wrap">
             <input type="text" name="quick_link_title" id="quick_link_title" placeholder="{% trans 'Title' %}" class="tw-form-control tw-form-control-sm tw-quick-link-input tw-quick-link-input-title" required>
             <input type="text" name="quick_link_url" id="quick_link_url" placeholder="{% trans 'URL' %}" class="tw-form-control tw-form-control-sm tw-quick-link-input tw-quick-link-input-url" required>
-            <input type="number" name="quick_link_order" id="quick_link_order" placeholder="{% trans 'Order' %}" class="tw-form-control tw-form-control-sm tw-quick-link-input tw-quick-link-input-order" value="0">
             <button type="submit" class="tw-btn tw-btn-sm tw-btn-primary tw-quick-link-form-btn" id="submit-btn"><i class="fas fa-plus fa-fw tw-me-1"></i>{% trans "Add" %}</button>
             <button type="button" class="tw-btn tw-btn-sm tw-btn-secondary tw-quick-link-form-btn tw-d-none" id="cancel-edit-btn"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</button>
           </div>
@@ -54,7 +53,7 @@
             <i class="fas fa-grip-vertical tw-text-muted tw-text-xs tw-opacity-50"></i>
             <span class="tw-quick-link-title">{{ link.title }}</span>
             <span class="tw-quick-link-url">{{ link.url }}</span>
-            <button type="button" class="tw-btn tw-btn-sm tw-btn-outline-secondary tw-quick-link-edit" data-link-id="{{ link.id }}" data-title="{{ link.title }}" data-url="{{ link.url }}" data-order="{{ link.order }}"><i class="fas fa-pen fa-fw tw-me-1"></i>{% trans "Edit" %}</button>
+            <button type="button" class="tw-btn tw-btn-sm tw-btn-outline-secondary tw-quick-link-edit" data-link-id="{{ link.id }}" data-title="{{ link.title }}" data-url="{{ link.url }}"><i class="fas fa-pen fa-fw tw-me-1"></i>{% trans "Edit" %}</button>
             <form class="tw-inline" method="post">
               {% csrf_token %}
               <input type="hidden" name="delete_quick_link" value="{{ link.id }}">
@@ -75,11 +74,9 @@
       var linkId = this.dataset.linkId;
       var title = this.dataset.title;
       var url = this.dataset.url;
-      var order = this.dataset.order;
 
       document.getElementById('quick_link_title').value = title;
       document.getElementById('quick_link_url').value = url;
-      document.getElementById('quick_link_order').value = order;
 
       document.getElementById('form-action').name = 'edit_quick_link';
       document.getElementById('form-action').value = linkId;
@@ -92,7 +89,6 @@
   document.getElementById('cancel-edit-btn').addEventListener('click', function() {
     document.getElementById('quick_link_title').value = '';
     document.getElementById('quick_link_url').value = '';
-    document.getElementById('quick_link_order').value = '0';
 
     document.getElementById('form-action').name = 'save_quick_link';
     document.getElementById('form-action').value = '1';

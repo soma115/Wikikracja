@@ -8,6 +8,7 @@
 """
 
 import pytest
+from django.test import Client
 from django.urls import reverse
 
 from tests.factories import PostCategoryFactory, PostFactory
@@ -93,6 +94,42 @@ def test_category_list_respects_priority_order(authenticated_client):
     data = res.json()
     ids = [c["id"] for c in data["categories"]]
     assert ids.index(first.pk) < ids.index(second.pk)
+
+
+@pytest.mark.django_db
+def test_category_list_and_edit_api_support_valid_and_invalid_posts(authenticated_client):
+    from board.models import PostCategory
+
+    client, _ = authenticated_client
+    category = PostCategoryFactory(name='Original')
+
+    list_response = client.get(reverse('board:api_categories'))
+    assert list_response.status_code == 200
+    assert any(item['id'] == category.pk for item in list_response.json()['categories'])
+
+    edit_response = client.post(reverse('board:api_category_edit', args=[category.pk]), {'name': 'Updated', 'description': 'Details'})
+    assert edit_response.status_code == 200
+    category.refresh_from_db()
+    assert category.name == 'Updated'
+
+    invalid_response = client.post(reverse('board:api_category_edit', args=[category.pk]), {'name': '', 'description': ''})
+    assert invalid_response.status_code == 400
+    assert PostCategory.objects.get(pk=category.pk).name == 'Updated'
+
+
+@pytest.mark.django_db
+def test_category_edit_api_requires_csrf_when_checks_are_enabled(authenticated_client):
+    client, user = authenticated_client
+    from board.models import PostCategory
+
+    category = PostCategoryFactory(name='CSRF category')
+    csrf_client = Client(enforce_csrf_checks=True)
+    csrf_client.force_login(user)
+
+    response = csrf_client.post(reverse('board:api_category_edit', args=[category.pk]), {'name': 'Updated', 'description': ''})
+
+    assert response.status_code == 403
+    assert PostCategory.objects.get(pk=category.pk).name == 'CSRF category'
 
 
 @pytest.mark.django_db

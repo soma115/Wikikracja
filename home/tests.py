@@ -16,19 +16,30 @@ class QuickLinkSettingsTest(TestCase):
         self.url = reverse('group_settings')
 
     def test_quick_links_accept_relative_and_http_urls(self):
+        last_order = QuickLink.objects.order_by('-order').values_list('order', flat=True).first()
+        last_order = last_order if last_order is not None else -1
+        created_links = []
         for link_url in ('/chat/', 'https://example.com/help'):
             with self.subTest(link_url=link_url):
-                response = self.client.post(self.url, {'save_quick_link': '1', 'quick_link_title': 'Link', 'quick_link_url': link_url, 'quick_link_order': '0'})
+                response = self.client.post(self.url, {'save_quick_link': '1', 'quick_link_title': 'Link', 'quick_link_url': link_url})
                 self.assertEqual(response.status_code, 302)
+                created_links.append(QuickLink.objects.order_by('-id').first())
 
+        self.assertEqual([link.order for link in created_links], [last_order + 1, last_order + 2])
         self.assertTrue(QuickLink.objects.filter(url='/chat/').exists())
         self.assertTrue(QuickLink.objects.filter(url='https://example.com/help').exists())
 
     def test_quick_links_reject_unsafe_url_schemes(self):
-        response = self.client.post(self.url, {'save_quick_link': '1', 'quick_link_title': 'Unsafe', 'quick_link_url': 'javascript:alert(1)', 'quick_link_order': '0'})
+        response = self.client.post(self.url, {'save_quick_link': '1', 'quick_link_title': 'Unsafe', 'quick_link_url': 'javascript:alert(1)'})
 
         self.assertEqual(response.status_code, 302)
         self.assertFalse(QuickLink.objects.filter(title='Unsafe').exists())
+
+    def test_quick_link_form_does_not_expose_order_field(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'name="quick_link_order"')
 
 
 class ActivityFeedChatTest(TestCase):

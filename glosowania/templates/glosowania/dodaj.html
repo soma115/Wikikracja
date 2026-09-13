@@ -1,5 +1,4 @@
 {% extends 'glosowania/menu.html' %}
-{% load static %}
 {% load crispy_forms_tags %}
 {% load i18n %}
 
@@ -15,7 +14,7 @@
   </div>
 </div>
 
-<form action="." method="POST" data-autosave="{{ request.path_info }}:{{ request.user.id }}">
+<form action="." method="POST">
     {% csrf_token %}
     <div class="tw-grid tw-grid-cols-1 tw-gap-3">
       {{ form.title|as_crispy_field }}
@@ -26,11 +25,7 @@
     </div>
     <div class="tw-flex tw-gap-2 tw-mt-4">
       <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
-      <button data-tw-back class="tw-btn tw-btn-secondary tw-btn-sm" type="button"><i class="fas fa-arrow-left fa-fw tw-me-1"></i>{% trans 'Back' %}</button>
     </div>
 </form>
 {% endblock glosowania %}
 
-{% block extra_js %}
-<script src="{% static 'common/js/form-autosave.js' %}"></script>
-{% endblock extra_js %}

@@ -52,6 +52,8 @@ List/grid pages use this anatomy:
 5. `tw-proposals-list` with `data-view-container`;
 6. shared empty state when there are no results.
 
+The shared stepper is also rendered on module detail pages and on every create/edit form. On forms it provides module navigation, so do not add a separate “Back” link to the list. Keep a “Cancel” action only when it discards changes or returns to the edited detail page.
+
 Use:
 
 - `home/templates/home/includes/toolbar.html` for sorting, filtering, search and view switching;
@@ -135,7 +137,33 @@ Before considering a detail page complete, verify:
 
 If an existing detail page has actions that do not fit `actions_include`, keep those actions in the page body while still using the shared header. Do not duplicate the title or move business logic into the shared partial.
 
-### 3.3 Forms
+### 3.3 Modals versus full pages
+
+Use a modal only for a short, contextual operation on an object already visible on the current page. Typical modal operations are:
+
+- a small edit of a subordinate element, such as an argument or category;
+- a single state change;
+- confirmation of a destructive action.
+
+A modal must preserve the page context, fit the operation without complicated navigation, and remain usable on mobile. The number of fields is not the primary criterion: the semantic role of the operation is. A basic content type remains a full page even when one particular form happens to have few fields.
+
+Use a full page for creating or editing a basic content type, or whenever the form is substantial, multi-section, includes uploads, autosave, dependencies, history, or other context that would make a modal difficult to understand. Examples include proposals, surveys, activities, events, documents, transactions, partners and profiles.
+
+Destructive actions always use the project-owned modal confirmation model, never the browser-native `confirm()`. The shared partial `home/templates/home/includes/delete_modal.html` provides the common modal shell, header, cancel/submit actions, CSRF-protected POST and accessibility contract. Its text may vary by operation: for example, a simple confirmation, moving a document to the trash, or explaining dependencies. Do not duplicate the shell in module templates.
+
+A destructive action must:
+
+- use a real POST form with CSRF protection;
+- state the actual consequence (permanent deletion versus moving to trash);
+- provide an explicit Cancel action that closes the modal;
+- keep the destructive submit action visually distinct;
+- always show the title or identifying name of the item being deleted;
+- render any object summary or dependency warning inside the modal when it is needed for an informed decision;
+- explicitly state that the action cannot be undone whenever deletion is irreversible; reversible actions, such as moving an item to the trash, must not show that warning.
+
+GET requests must not render standalone confirmation pages for actions exposed through the UI. Existing GET confirmation endpoints should be removed or redirected to the object context; the modal submits the canonical POST action.
+
+### 3.4 Forms
 
 Use the project Crispy/Tailwind form integration:
 
@@ -144,6 +172,8 @@ Use the project Crispy/Tailwind form integration:
 ```
 
 When a field must be rendered separately, use `home/templates/tw/field.html` and the `crispy_classmap` filter. Do not hand-roll Bootstrap-style `form-control` or `is-invalid` wrappers.
+
+For file uploads, use the shared `tw-file-upload` pattern: keep the native input inside the drop target, use `data-file-upload-single` for a single featured image, preserve selected files when the user adds another attachment batch, render a removable file list, and use `textContent` for filenames. Validate file size on the server as the authoritative check; client-side feedback is only an aid.
 
 Use semantic HTML:
 

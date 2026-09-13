@@ -370,19 +370,15 @@ def dynamic_settings_js(request: HttpRequest):
 def _quick_link_data(request):
     title = (request.POST.get('quick_link_title') or '').strip()
     url = (request.POST.get('quick_link_url') or '').strip()
-    try:
-        order = int(request.POST.get('quick_link_order', 0))
-    except (TypeError, ValueError):
-        return None
 
     title_max = QuickLink._meta.get_field('title').max_length
     url_max = QuickLink._meta.get_field('url').max_length
     parsed_url = urlsplit(url)
     is_relative_url = url.startswith('/') and not url.startswith('//')
     is_external_url = parsed_url.scheme in {'http', 'https'} and bool(parsed_url.netloc)
-    if not title or not url or len(title) > title_max or len(url) > url_max or order < 0 or not (is_relative_url or is_external_url):
+    if not title or not url or len(title) > title_max or len(url) > url_max or not (is_relative_url or is_external_url):
         return None
-    return title, url, order
+    return title, url
 
 
 @login_required
@@ -390,10 +386,12 @@ def group_settings(request: HttpRequest) -> HttpResponse:
     if request.method == 'POST' and 'save_quick_link' in request.POST:
         link_data = _quick_link_data(request)
         if link_data is None:
-            messages.error(request, _('Enter a valid title, URL and non-negative order.'))
+            messages.error(request, _('Enter a valid title and URL.'))
         else:
-            title, url, order = link_data
-            QuickLink.objects.create(title=title, url=url, order=order)
+            title, url = link_data
+            last_link = QuickLink.objects.order_by('-order').first()
+            next_order = last_link.order + 1 if last_link else 0
+            QuickLink.objects.create(title=title, url=url, order=next_order)
             messages.success(request, _('Link added.'))
         return redirect('group_settings')
 
@@ -402,10 +400,10 @@ def group_settings(request: HttpRequest) -> HttpResponse:
         try:
             link = QuickLink.objects.get(id=request.POST.get('edit_quick_link'))
             if link_data is None:
-                messages.error(request, _('Enter a valid title, URL and non-negative order.'))
+                messages.error(request, _('Enter a valid title and URL.'))
             else:
-                link.title, link.url, link.order = link_data
-                link.save(update_fields=['title', 'url', 'order'])
+                link.title, link.url = link_data
+                link.save(update_fields=['title', 'url'])
                 messages.success(request, _('Link updated.'))
         except QuickLink.DoesNotExist:
             messages.error(request, _("Link doesn't exist."))

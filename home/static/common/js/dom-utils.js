@@ -11,7 +11,6 @@
  *     referrer contains the given fragment
  *   data-tw-remove="selector"         - removes closest matching ancestor
  *   data-tw-submit-once               - disables the button and submits its form
- *   data-tw-confirm="message"         - on a <form>: cancels submit unless confirmed
  */
 (function () {
     'use strict';
@@ -173,12 +172,6 @@
     });
 
     document.addEventListener('submit', function (e) {
-        const msg = e.target.getAttribute && e.target.getAttribute('data-tw-confirm');
-        if (msg && !window.confirm(msg)) {
-            e.preventDefault();
-            return;
-        }
-
         const voteForm = e.target.matches && e.target.matches('[data-vote-submit]') ? e.target : null;
         if (!voteForm) return;
         if (voteForm.dataset.submitting === 'true') {

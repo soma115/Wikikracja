@@ -303,6 +303,7 @@ class Message(models.Model):
     # Guest contact details for messages submitted by non-logged-in users
     guest_email = models.EmailField(blank=True, default='')
     guest_name = models.CharField(max_length=255, blank=True, default='')
+    sender_display_name = models.CharField(max_length=255, blank=True, default='')
 
     # ZMIANA 2 — cytowanie: opcjonalne odwołanie do wiadomości-rodzica
     reply_to = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='replies')

@@ -165,6 +165,8 @@ class DeletionRequest(models.Model):
     requested_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Requested at'))
     scheduled_for = models.DateTimeField(verbose_name=_('Scheduled for'))
     reason = models.TextField(blank=True, null=True, verbose_name=_('Reason for deletion'))
+    publish_after_deletion = models.BooleanField(default=False, verbose_name=_('Publish feedback after deletion'))
+    publish_anonymously = models.BooleanField(default=True, verbose_name=_('Publish feedback anonymously'))
 
     class Meta:
         verbose_name = _('Deletion request')

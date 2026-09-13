@@ -1,12 +1,25 @@
 from datetime import datetime, timezone
 
-from django.utils.translation import gettext_lazy as _
+from asgiref.sync import async_to_sync
+from django.utils.translation import gettext as _
 
-from chat.services import get_user_created_room_items
+from chat.models import Room
+from chat.services import get_user_created_room_items, send_message
 from glosowania import activity as voting_activity
 from tasks import activity as task_activity
 
 from .models import CitizenActivity
+
+
+def publish_deletion_feedback(reason, *, anonymous, author_name=''):
+    """Publish an account-deletion opinion in the shared Inbox."""
+    inbox = Room.objects.filter(is_inbox=True, public=True).first() or Room.create_inbox()
+    if inbox is None:
+        raise RuntimeError('The Inbox room is unavailable.')
+
+    author_label = _('Former group member') if anonymous else author_name
+    message_text = _('Account-deletion feedback from a former group member. This message was published because its author chose to share it.\n\n%(reason)s') % {'reason': reason}
+    async_to_sync(send_message)(inbox, message_text, sender=None, anonymous=anonymous, sender_display_name=author_label, linkify=True)
 
 
 def _sort_activity_items(items):

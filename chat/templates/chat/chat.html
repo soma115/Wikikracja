@@ -250,7 +250,7 @@
       <div class="tw-modal-content">
         {% trans 'New room' as modal_title %}
         {% include 'home/includes/modal_header.html' with title=modal_title %}
-        <form id="add-room-form" action="{% url 'chat:add_room' %}" method="post">
+        <form id="add-room-form" action="{% url 'chat:add_room' %}" method="post" data-autosave-ignore="1">
           {% csrf_token %}
           <div class="tw-modal-body">
             <p class="tw-text-muted tw-mb-3">{% trans 'Check existing rooms before creating a new one. Archived rooms are included.' %}</p>

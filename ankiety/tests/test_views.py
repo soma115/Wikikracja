@@ -39,6 +39,41 @@ class SurveyViewsTests(TestCase):
         self.assertEqual(survey.chat_room.title, "Survey #1: New survey")
         self.assertEqual(survey.chat_room.source_app, "ankiety")
 
+    def test_edit_survey_get_renders_prefilled_form(self):
+        survey = self._create_survey(self.author)
+        self.client.login(username="author", password="pass")
+
+        response = self.client.get(reverse("ankiety:edit", args=[survey.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["form"].instance, survey)
+        self.assertContains(response, "tw-card")
+
+    def test_edit_survey_updates_options(self):
+        survey = self._create_survey(self.author)
+        self.client.login(username="author", password="pass")
+        future = (timezone.now() + timedelta(days=2)).strftime("%Y-%m-%dT%H:%M")
+
+        response = self.client.post(
+            reverse("ankiety:edit", args=[survey.pk]), {"title": "Updated survey", "description": "Updated", "end_date": future, "options_text": "Maybe\nNo", "allow_custom_options": "on"}
+        )
+
+        self.assertRedirects(response, reverse("ankiety:detail", args=[survey.pk]))
+        survey.refresh_from_db()
+        self.assertEqual(survey.title, "Updated survey")
+        self.assertEqual(list(survey.options.values_list("text", flat=True)), ["Maybe", "No"])
+
+    def test_edit_survey_invalid_post_rerenders_errors_without_saving(self):
+        survey = self._create_survey(self.author)
+        self.client.login(username="author", password="pass")
+
+        response = self.client.post(reverse("ankiety:edit", args=[survey.pk]), {"title": "", "description": "Updated", "end_date": "", "options_text": "Only one"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["form"].errors)
+        survey.refresh_from_db()
+        self.assertEqual(survey.title, "Test survey")
+
     def test_survey_detail_embeds_chat_and_shows_unread_count(self):
         survey = self._create_survey(self.author)
         Message.objects.create(room=survey.chat_room, sender=self.other, text="Question")

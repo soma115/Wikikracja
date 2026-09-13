@@ -49,6 +49,41 @@ class EventViewTest(TestCase):
         response = self.client.get(reverse('events:create'))
         self.assertEqual(response.status_code, 200)
 
+    def test_event_form_uses_shared_edit_layout(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('events:edit', args=[self.event.pk]))
+
+        self.assertContains(response, 'tw-container tw-my-4')
+        self.assertContains(response, 'tw-card-header')
+        self.assertContains(response, 'tw-btn tw-btn-primary')
+        self.assertContains(response, 'tw-stepper-nav')
+        self.assertNotContains(response, 'Back to Calendar')
+        self.assertNotContains(response, 'tw-event-back-link')
+
+    def test_event_edit_invalid_title_rerenders_form_without_saving(self):
+        self.client.force_login(self.user)
+        response = self.client.post(
+            reverse('events:edit', args=[self.event.pk]),
+            {
+                'title': '',
+                'description': 'Updated description',
+                'link': '',
+                'place': '',
+                'start_date': '2030-01-01T10:00',
+                'end_date': '',
+                'frequency': 'once',
+                'ordinal': '',
+                'weekday': '',
+                'is_active': 'on',
+                'is_public': 'on',
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].errors)
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.title, 'Test Event')
+
     def test_any_logged_in_user_can_edit_event(self):
         other = User.objects.create_user(username='event-editor', email='event-editor@example.com', password='x')
         self.client.force_login(other)

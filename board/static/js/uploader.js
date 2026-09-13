@@ -51,3 +51,106 @@ tinymce.init({
   },
   content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }"
 });
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function initAttachmentUploader(container) {
+  const input = container.querySelector('.tw-file-upload-input');
+  const list = container.parentElement.querySelector('[data-file-upload-list]');
+  const error = container.parentElement.querySelector('[data-file-upload-error]');
+  if (!input || !list || !error) return;
+
+  let selectedFiles = Array.from(input.files || []);
+  const maxBytes = Number(container.dataset.maxSizeMb || 0) * 1_000_000;
+  const maxSizeError = container.dataset.maxSizeError || '';
+  const removeLabel = container.dataset.removeLabel || 'Remove file';
+  const singleFile = container.hasAttribute('data-file-upload-single');
+  const currentFile = container.parentElement.querySelector('[data-file-upload-current]');
+
+  function fileKey(file) {
+    return `${file.name}:${file.size}:${file.lastModified}`;
+  }
+
+  function syncInput() {
+    if (typeof DataTransfer === 'undefined') return;
+    const transfer = new DataTransfer();
+    selectedFiles.forEach(file => transfer.items.add(file));
+    input.files = transfer.files;
+  }
+
+  function renderFiles() {
+    list.replaceChildren();
+    selectedFiles.forEach((file, index) => {
+      const item = document.createElement('div');
+      item.className = 'tw-file-upload-item';
+      const name = document.createElement('span');
+      name.className = 'tw-file-upload-name';
+      name.textContent = file.name;
+      const size = document.createElement('span');
+      size.className = 'tw-file-upload-size';
+      size.textContent = formatFileSize(file.size);
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'tw-btn tw-btn-sm tw-btn-secondary';
+      remove.dataset.fileIndex = index;
+      remove.title = removeLabel;
+      remove.setAttribute('aria-label', `${removeLabel}: ${file.name}`);
+      remove.innerHTML = '<i class="fas fa-times fa-fw" aria-hidden="true"></i>';
+      item.append(name, size, remove);
+      list.append(item);
+    });
+  }
+
+  function addFiles(files) {
+    const rejected = [];
+    const known = new Set(selectedFiles.map(fileKey));
+    const filesToAdd = singleFile ? Array.from(files).slice(0, 1) : Array.from(files);
+    if (singleFile) selectedFiles = [];
+    filesToAdd.forEach(file => {
+      if (maxBytes && file.size > maxBytes) {
+        rejected.push(file.name);
+      } else if (!known.has(fileKey(file)) || singleFile) {
+        selectedFiles.push(file);
+        known.add(fileKey(file));
+      }
+    });
+    error.hidden = rejected.length === 0;
+    error.textContent = rejected.length ? `${maxSizeError} (${rejected.join(', ')})` : '';
+    if (currentFile) currentFile.hidden = selectedFiles.length > 0;
+    syncInput();
+    renderFiles();
+  }
+
+  input.addEventListener('change', event => addFiles(event.target.files));
+  container.addEventListener('dragover', event => {
+    event.preventDefault();
+    container.classList.add('tw-file-upload--active');
+  });
+  container.addEventListener('dragleave', event => {
+    if (!container.contains(event.relatedTarget)) container.classList.remove('tw-file-upload--active');
+  });
+  container.addEventListener('drop', event => {
+    event.preventDefault();
+    container.classList.remove('tw-file-upload--active');
+    addFiles(event.dataTransfer.files);
+  });
+  list.addEventListener('click', event => {
+    const button = event.target.closest('[data-file-index]');
+    if (!button) return;
+    selectedFiles.splice(Number(button.dataset.fileIndex), 1);
+    if (currentFile) currentFile.hidden = selectedFiles.length > 0;
+    syncInput();
+    renderFiles();
+  });
+
+  syncInput();
+  renderFiles();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-file-upload]').forEach(initAttachmentUploader);
+});

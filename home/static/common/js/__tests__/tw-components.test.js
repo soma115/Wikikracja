@@ -203,6 +203,31 @@ describe('Tailwind UI components', () => {
       expect(modal.classList.contains('tw-show')).toBe(false);
       expect(document.body.classList.contains('tw-modal-open')).toBe(false);
     });
+
+    test('confirm uses the project modal instead of the browser dialog', () => {
+      const onConfirm = jest.fn();
+      const modal = window.TwModal.confirm({
+        title: 'Delete',
+        message: 'Are you sure?',
+        itemTitle: 'Example item',
+        itemTitleLabel: 'Item',
+        irreversible: true,
+        irreversibleLabel: 'Cannot be undone.',
+        confirmLabel: 'Delete',
+        cancelLabel: 'Cancel',
+        onConfirm,
+      });
+
+      expect(modal.classList.contains('tw-modal')).toBe(true);
+      expect(modal.textContent).toContain('Are you sure?');
+      expect(modal.textContent).toContain('Item: Example item');
+      expect(modal.textContent).toContain('Cannot be undone.');
+      jest.advanceTimersByTime(300);
+      modal.querySelector('[data-tw-confirm-action]').click();
+      expect(onConfirm).toHaveBeenCalledTimes(1);
+      jest.advanceTimersByTime(300);
+      expect(document.body.contains(modal)).toBe(false);
+    });
   });
 
   describe('TwPopover', () => {
@@ -281,5 +306,66 @@ describe('Tailwind UI components', () => {
       expect(document.querySelector('.tw-tooltip')).toBeNull();
       expect(btn.hasAttribute('aria-describedby')).toBe(false);
     });
+  });
+});
+
+describe('Category manager', () => {
+  beforeEach(() => {
+    document.body.insertAdjacentHTML('beforeend', `
+      <div id="category-modal">
+        <ul id="catMgrList"></ul>
+        <div id="catMgrError" class="tw-d-none"></div>
+        <input id="catMgrNewName">
+        <input id="catMgrNewDesc">
+        <button id="catMgrAddBtn" type="button">Add</button>
+      </div>
+    `);
+    require('../../../home/js/category-manager.js');
+    window.initCategoryManager('category-modal', { list: '/categories/' }, {
+      category: 'Category',
+      description: 'Description',
+      error: 'Request failed',
+      name_req: 'Name required',
+      items_suffix: 'items',
+    });
+  });
+
+  afterEach(() => {
+    document.getElementById('category-modal')?.remove();
+    delete window.apiFetch;
+  });
+
+  test('disables add controls while saving and restores them after success', async () => {
+    let resolveRequest;
+    window.apiFetch = jest.fn(() => new Promise((resolve) => { resolveRequest = resolve; }));
+    const name = document.getElementById('catMgrNewName');
+    const add = document.getElementById('catMgrAddBtn');
+    name.value = 'New category';
+
+    add.click();
+
+    expect(add.disabled).toBe(true);
+    expect(name.disabled).toBe(true);
+    expect(document.getElementById('category-modal').getAttribute('aria-busy')).toBe('true');
+
+    resolveRequest({ ok: true, json: () => Promise.resolve({ id: 1, name: 'New category' }) });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(add.disabled).toBe(false);
+    expect(name.disabled).toBe(false);
+    expect(document.getElementById('category-modal').getAttribute('aria-busy')).toBe('false');
+  });
+
+  test('shows a message when the API request fails', async () => {
+    window.apiFetch = jest.fn(() => Promise.reject(new Error('offline')));
+    const name = document.getElementById('catMgrNewName');
+    name.value = 'New category';
+
+    document.getElementById('catMgrAddBtn').click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const error = document.getElementById('catMgrError');
+    expect(error.textContent).toBe('Request failed');
+    expect(error.classList.contains('tw-d-none')).toBe(false);
   });
 });

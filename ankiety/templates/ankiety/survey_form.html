@@ -5,6 +5,7 @@
 {% block extra_css %}{{ form.media }}{% endblock %}
 
 {% block content %}
+{% include 'home/includes/stepper.html' with stepper=stepper %}
 <div class="tw-container tw-my-4">
   <div class="tw-card">
     <div class="tw-card-header">
@@ -71,7 +72,6 @@
 
     <div class="tw-flex">
       <button type="submit" class="tw-btn tw-btn-primary tw-me-2"><i class="fas fa-check fa-fw tw-me-1"></i> {% trans 'Save' %}</button>
-      <a href="{% url 'ankiety:list' %}" class="tw-btn tw-btn-secondary"><i class="fas fa-arrow-left fa-fw tw-me-1"></i> {% trans 'Back' %}</a>
     </div>
       </form>
     </div>

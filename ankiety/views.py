@@ -185,7 +185,8 @@ def survey_create(request):
     else:
         form = SurveyForm()
 
-    return render(request, "ankiety/survey_form.html", {"form": form})
+    tab, search_query = _survey_list_state(request)
+    return render(request, "ankiety/survey_form.html", {"form": form, "stepper": _survey_stepper(tab, search_query, list_url=reverse("ankiety:list"))})
 
 
 @login_required
@@ -205,7 +206,8 @@ def survey_edit(request, pk):
     else:
         form = SurveyForm(instance=survey)
 
-    return render(request, "ankiety/survey_form.html", {"form": form})
+    tab, search_query = _survey_list_state(request)
+    return render(request, "ankiety/survey_form.html", {"form": form, "stepper": _survey_stepper(tab, search_query, list_url=reverse("ankiety:list"))})
 
 
 @login_required
