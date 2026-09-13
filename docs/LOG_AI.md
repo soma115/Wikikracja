@@ -1,5 +1,12 @@
 # LOG_AI
 
+## 2026-09-14: Usunięcie tekstowych dzieci z list błędów formularzy
+
+- **Zmienione pliki:** `obywatele/templates/obywatele/my_assets.html`, `obywatele/templates/obywatele/onboarding_details.html`.
+- **Co się zmieniło:** Pętle renderujące błędy formularzy zostały złożone bezpośrednio wewnątrz elementów `<ul>`, bez białych znaków będących tekstowymi dziećmi listy.
+- **Uzasadnienie:** Narzędzia Microsoft Edge zgłaszały ostrzeżenie HTML, ponieważ `<ul>` miał bezpośrednie dzieci tekstowe obok dozwolonych elementów `<li>`.
+- **Spodziewany efekt:** Ostrzeżenia walidatora znikają, a lista błędów zachowuje dotychczasową treść i działanie.
+
 ## 2026-09-12: Wyrównanie kategorii czatu do prawej
 
 - **Zmieniony plik:** `home/static/home/css/tailwind.css`.
