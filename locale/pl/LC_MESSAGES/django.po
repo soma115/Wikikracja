@@ -523,10 +523,8 @@ msgid "Priority"
 msgstr "Priorytet"
 
 #: .\board\models.py:19 .\board\signals.py:27
-#, fuzzy
-#| msgid "Protected — cannot be deleted"
 msgid "Protected categories cannot be deleted."
-msgstr "Chroniona — nie można usunąć"
+msgstr "Chronionych kategorii nie można usunąć."
 
 #: .\board\models.py:24
 msgid "Post Category"
@@ -1409,10 +1407,8 @@ msgid "Description (optional)"
 msgstr "Opis (opcjonalny)"
 
 #: .\chat\forms.py:19
-#, fuzzy
-#| msgid "The Inbox room cannot be renamed."
 msgid "System rooms cannot be renamed."
-msgstr "Pokój Inbox nie może być zmieniony."
+msgstr "Nazwy pokoi systemowych nie mogą być zmieniane."
 
 #: .\chat\forms.py:31 .\obywatele\tables.py:11
 msgid "Name and surname"
@@ -1734,7 +1730,7 @@ msgstr "Tutaj pojawiają się wiadomości od niezalogowanych ludzi z zewnątrz, 
 
 #: .\chat\services.py:34
 msgid "Important documents and announcements appear in this room."
-msgstr ""
+msgstr "W tym pokoju pojawiają się ważne dokumenty i ogłoszenia."
 
 #: .\chat\templates\chat\_embedded_chat.html:18
 msgid "Open in chat"
@@ -2814,10 +2810,9 @@ msgstr "Głosuj na TAK"
 
 #: .\glosowania\templates\glosowania\szczegoly.html:49
 #: .\glosowania\templates\glosowania\szczegoly.html:50
-#, fuzzy, python-format
-#| msgid "Are you sure you want to vote Yes?"
+#, python-format
 msgid "Are you sure you want to vote %(choice)s?"
-msgstr "Czy na pewno chcesz oddać głos na TAK?"
+msgstr "Czy na pewno chcesz zagłosować na %(choice)s?"
 
 #: .\glosowania\templates\glosowania\szczegoly.html:50
 msgid "Vote No"
@@ -3801,30 +3796,24 @@ msgid "New email address confirmation"
 msgstr "Potwierdź nowy email"
 
 #: .\obywatele\forms.py:148 .\obywatele\models.py:81
-#, fuzzy
-#| msgid "Phone number"
 msgid "Phone country"
-msgstr "Numer telefonu"
+msgstr "Kraj numeru telefonu"
 
 #: .\obywatele\forms.py:173
-#, fuzzy
-#| msgid "Phone number"
 msgid "Phone number (optional)"
-msgstr "Numer telefonu"
+msgstr "Numer telefonu (opcjonalnie)"
 
 #: .\obywatele\forms.py:183
 msgid "Preferred contact method (optional)"
-msgstr ""
+msgstr "Preferowana metoda kontaktu (opcjonalnie)"
 
 #: .\obywatele\forms.py:185
-#, fuzzy
-#| msgid "Profile Details"
 msgid "Profile link"
-msgstr "Szczegóły"
+msgstr "Link do profilu"
 
 #: .\obywatele\forms.py:186
 msgid "Use the public profile link from the selected service."
-msgstr ""
+msgstr "Użyj publicznego linku do profilu z wybranego serwisu."
 
 #: .\obywatele\forms.py:193 .\obywatele\models.py:85 .\obywatele\tables.py:12
 #: .\obywatele\templates\obywatele\my_profile.html:172
@@ -3841,26 +3830,24 @@ msgid "Job is required."
 msgstr "Zawód jest wymagany"
 
 #: .\obywatele\forms.py:209 .\obywatele\forms.py:211
-#, fuzzy
-#| msgid "Enter a descriptive name for the event"
 msgid "Enter a valid phone number for the selected country."
-msgstr "Wpisz opisową nazwę wydarzenia"
+msgstr "Wpisz prawidłowy numer telefonu dla wybranego kraju."
 
 #: .\obywatele\forms.py:222
 msgid "This contact method requires a phone number."
-msgstr ""
+msgstr "Ta metoda kontaktu wymaga podania numeru telefonu."
 
 #: .\obywatele\forms.py:225
 msgid "Signal requires a phone number or a profile link."
-msgstr ""
+msgstr "Signal wymaga podania numeru telefonu lub linku do profilu."
 
 #: .\obywatele\forms.py:227
 msgid "This contact method requires a profile link."
-msgstr ""
+msgstr "Ta metoda kontaktu wymaga podania linku do profilu."
 
 #: .\obywatele\forms.py:237
 msgid "Use a secure profile link from the selected service."
-msgstr ""
+msgstr "Użyj bezpiecznego linku do profilu z wybranego serwisu."
 
 #: .\obywatele\forms.py:299
 msgid "Your candidacy is still in the queue. Please wait for verification."
@@ -3951,35 +3938,31 @@ msgstr "Ciemny"
 
 #: .\obywatele\models.py:62
 msgid "Telephone"
-msgstr ""
+msgstr "Telefon"
 
 #: .\obywatele\models.py:63
 msgid "SMS"
-msgstr ""
+msgstr "SMS"
 
 #: .\obywatele\models.py:64
-#, fuzzy
-#| msgid "Chats"
 msgid "WhatsApp"
-msgstr "Czaty"
+msgstr "WhatsApp"
 
 #: .\obywatele\models.py:65
 msgid "Facebook"
-msgstr ""
+msgstr "Facebook"
 
 #: .\obywatele\models.py:66
 msgid "Discord"
-msgstr ""
+msgstr "Discord"
 
 #: .\obywatele\models.py:67
 msgid "Telegram"
-msgstr ""
+msgstr "Telegram"
 
 #: .\obywatele\models.py:68
-#, fuzzy
-#| msgid "Signed"
 msgid "Signal"
-msgstr "Podpisana"
+msgstr "Signal"
 
 #: .\obywatele\models.py:73
 #: .\obywatele\templates\obywatele\change_username.html:13
@@ -3990,15 +3973,15 @@ msgstr "Użytkownik"
 
 #: .\obywatele\models.py:80
 msgid "Enter a local or international phone number"
-msgstr ""
+msgstr "Wpisz lokalny lub międzynarodowy numer telefonu"
 
 #: .\obywatele\models.py:82 .\obywatele\templates\obywatele\my_profile.html:174
 msgid "Preferred contact method"
-msgstr ""
+msgstr "Preferowana metoda kontaktu"
 
 #: .\obywatele\models.py:83 .\obywatele\templates\obywatele\my_profile.html:175
 msgid "Contact profile link"
-msgstr ""
+msgstr "Link do profilu kontaktowego"
 
 #: .\obywatele\models.py:84
 msgid "Where one spend most of their time"
@@ -4385,10 +4368,8 @@ msgstr "Brak e-maila"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:16
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:94
-#, fuzzy
-#| msgid "No coordinator yet"
 msgid "No contact method"
-msgstr "Brak koordynatora"
+msgstr "Brak metody kontaktu"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:17
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:99
@@ -4510,7 +4491,7 @@ msgstr "Tutaj możesz edytować twoje zasoby"
 #: .\obywatele\templates\obywatele\my_assets.html:22
 #: .\obywatele\templates\obywatele\onboarding_details.html:21
 msgid "The form could not be saved. Please correct the following errors:"
-msgstr ""
+msgstr "Nie udało się zapisać formularza. Popraw następujące błędy:"
 
 #: .\obywatele\templates\obywatele\my_profile.html:71
 msgid "Member since"

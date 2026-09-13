@@ -99,6 +99,7 @@ class ChatNotificationService:
             'body': _("Sender: %(author)s") % {'author': author},
             'icon': f"{site_url}/favicon.ico",
             'click_action': f"{site_url}/chat#room_id={room_id}",
+            'tag': f'chat-{room_id}',
             'room_name': room_name,
         }
 

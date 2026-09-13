@@ -156,12 +156,14 @@ class PostSendProcessingUnseenTest(TestCase):
                 [(group, event)] = self._notifications()
                 self.assertEqual(group, f'user_{self.receiver.id}')
                 self.assertEqual(event['type'], kind)
+                self.assertEqual(event['room_id'], self.room.id)
                 self.assertEqual(self.push.call_args.args[0], self.receiver)
                 self.assertEqual(self.push.call_args.kwargs['notification_type'], 'chat')
                 for payload in (event['notification'], self.push.call_args.args[1]):
                     self.assertIn('Anonymous', payload['body'])
                     self.assertNotIn(self.sender.username, json.dumps(payload))
                     self.assertEqual(payload['room_id'], self.room.id)
+                    self.assertEqual(payload['tag'], f'chat-{self.room.id}')
                     self.assertIn(f'#room_id={self.room.id}', payload['click_action'])
 
     async def test_muting_suppresses_ordinary_but_not_explicit_mentions(self):

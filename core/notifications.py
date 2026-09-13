@@ -239,7 +239,10 @@ def send_websocket_to_user_sync(user_id, notification, ws_type='notification'):
 
     try:
         log.debug(f"{NOTIF_LOG_TAG} group_send notification_id={notification_id} to user_{user_id} (type={ws_type})")
-        async_to_sync(channel_layer.group_send)(f"user_{user_id}", {"type": ws_type, "notification": notification})
+        event = {"type": ws_type, "notification": notification}
+        if "room_id" in notification:
+            event["room_id"] = notification["room_id"]
+        async_to_sync(channel_layer.group_send)(f"user_{user_id}", event)
     except Exception as e:
         log.warning(f"{NOTIF_LOG_TAG} WebSocket notification_id={notification_id} failed for user {user_id}: {e}")
 

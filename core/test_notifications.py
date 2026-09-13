@@ -187,6 +187,15 @@ def test_websocket_recipient_groups_and_preferences(users, payload, transport, s
     assert all(call.args[1] == {'type': 'event.notification', 'notification': payload} for call in calls)
 
 
+def test_websocket_user_includes_room_id_for_chat_notifications(users, payload, transport):
+    user = users('chat-recipient')
+    notification = {**payload, 'room_id': 7}
+
+    notify.send_websocket_to_user_sync(user.pk, notification, 'chat.notification')
+
+    transport.channel.group_send.assert_awaited_once_with(f'user_{user.pk}', {'type': 'chat.notification', 'notification': notification, 'room_id': 7})
+
+
 def test_websocket_failure_does_not_skip_remaining_recipients(users, payload, transport):
     first, second = users('first'), users('second')
     transport.channel.group_send.side_effect = [RuntimeError('local channel failure'), None]
