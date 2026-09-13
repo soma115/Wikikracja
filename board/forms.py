@@ -48,6 +48,8 @@ class PostForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        if cleaned_data.get('is_private'):
+            cleaned_data['is_public'] = False
         files = getattr(self, 'files', None)
         if files:
             max_size = settings.UPLOAD_ATTACHMENT_MAX_SIZE_MB * 1_000_000

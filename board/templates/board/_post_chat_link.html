@@ -1,10 +1,10 @@
 {% load i18n %}
 {% if request.user.is_authenticated and post.chat_room %}
 <a href="{{ post.chat_room_url }}"
-   class="tw-chat-link {{ post.chat_room_pulse_class|default:'' }}"
-   data-tw-stop-propagation>
+   class="tw-chat-link {{ post.chat_room_pulse_class|default:'' }}{% if compact %} tw-shrink-0{% endif %}"
+   data-tw-stop-propagation{% if compact %} title="{% trans 'Chat' %}" aria-label="{% trans 'Chat' %}"{% endif %}>
   <i class="fas fa-comment-dots"></i>
-  <span>{% trans 'Chat' %}</span>
+  {% if not compact %}<span>{% trans 'Chat' %}</span>{% endif %}
   {% with n=post.chat_room_unread_count|default:0 %}
     {% if n %}<span class="tw-chat-count">{{ n }}</span>{% endif %}
   {% endwith %}

@@ -259,6 +259,43 @@ describe('initCategoryFilter', () => {
         expect(sessionStorage.getItem('catFilterOpen')).toBeNull();
     });
 
+    test('toolbar overflow does not auto-collapse the sidebar', () => {
+        document.body.innerHTML = `
+            <aside id="sidebar"><i id="sidebar-collapse-icon" class="fa-angles-left"></i></aside>
+            <div class="tw-toolbar">
+                <div data-responsive-controls data-responsive-toolbar-group></div>
+            </div>
+        `;
+        const controls = document.querySelector('[data-responsive-controls]');
+        Object.defineProperty(controls, 'clientWidth', { configurable: true, value: 100 });
+        Object.defineProperty(controls, 'scrollWidth', { configurable: true, value: 200 });
+        controls.getClientRects = () => [{ width: 100 }];
+        window.matchMedia = () => ({ matches: true });
+        jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => callback());
+
+        window.initResponsiveControls(document);
+
+        expect(document.getElementById('sidebar').classList.contains('tw-auto-collapsed')).toBe(false);
+    });
+
+    test('exclusive inputs uncheck the other input in their group', () => {
+        document.body.innerHTML = `
+            <input type="checkbox" data-exclusive-group="visibility" id="public">
+            <input type="checkbox" data-exclusive-group="visibility" id="private">
+        `;
+        window.initExclusiveInputs();
+
+        const publicInput = document.getElementById('public');
+        const privateInput = document.getElementById('private');
+        publicInput.checked = true;
+        publicInput.dispatchEvent(new Event('change', { bubbles: true }));
+        privateInput.checked = true;
+        privateInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+        expect(privateInput.checked).toBe(true);
+        expect(publicInput.checked).toBe(false);
+    });
+
     test('PagePrefs saves view per tab', () => {
         document.documentElement.setAttribute('data-prefs-scope', 'tasks');
         document.body.innerHTML = `

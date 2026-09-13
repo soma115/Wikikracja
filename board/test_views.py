@@ -49,6 +49,18 @@ class BoardDetailNavigationTests(TestCase):
         post.refresh_from_db()
         self.assertEqual(post.title, 'Editable')
 
+    def test_post_edit_visibility_switches_are_exclusive(self):
+        post = self._post('Editable')
+        response = self.client.post(
+            reverse('board:edit_post', args=[post.pk]),
+            {'title': 'Editable', 'subtitle': '', 'category': self.category.pk, 'text': 'Updated text', 'is_public': 'on', 'is_private': 'on', 'is_important': '', 'slug': ''},
+        )
+
+        self.assertRedirects(response, reverse('board:view_post', args=[post.pk]))
+        post.refresh_from_db()
+        self.assertTrue(post.is_private)
+        self.assertFalse(post.is_public)
+
     def test_detail_navigation_preserves_sort_and_search_context(self):
         first = self._post('Alpha')
         middle = self._post('Bravo')
@@ -88,6 +100,16 @@ class BoardDetailNavigationTests(TestCase):
         self.assertNotIn('Public', internal_titles)
         self.assertNotIn('Mine', internal_titles)
         self.assertNotIn('Deleted', internal_titles)
+
+    def test_sort_links_preserve_active_stepper_tab(self):
+        response = self.client.get(reverse('board:start'), {'tab': 'important'})
+        sort_urls = [item['url'] for item in response.context['toolbar_sort_items']]
+
+        self.assertEqual(len(sort_urls), 2)
+        self.assertTrue(any('sort=title' in url and 'tab=important' in url for url in sort_urls))
+        self.assertTrue(any('sort=date' in url and 'tab=important' in url for url in sort_urls))
+        self.assertEqual(response.context['current_tab'], 'important')
+        self.assertTrue(response.context['stepper']['steps'][3]['active'])
 
     def test_delete_moves_document_to_trash_and_restore_recovers_it(self):
         post = self._post('Movable')

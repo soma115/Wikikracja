@@ -52,7 +52,7 @@
         <div class="tw-flex tw-flex-col tw-gap-4 tw-mb-3">
           <div>
             <div class="tw-flex tw-items-center tw-gap-3">
-              <input type="checkbox" name="{{ form.is_public.html_name }}" id="{{ form.is_public.id_for_label }}" class="tw-form-switch"{% if form.is_public.value %} checked{% endif %}{% if form.is_public.field.disabled %} disabled{% endif %}>
+              <input type="checkbox" name="{{ form.is_public.html_name }}" id="{{ form.is_public.id_for_label }}" class="tw-form-switch" data-exclusive-group="document-visibility"{% if form.is_public.value %} checked{% endif %}{% if form.is_public.field.disabled %} disabled{% endif %}>
               <label for="{{ form.is_public.id_for_label }}" class="tw-form-check-label">{{ form.is_public.label }}</label>
               <div class="tw-alert tw-alert-secondary tw-mt-0 tw-text-sm">{{ form.is_public.help_text }}</div>
             </div>
@@ -60,7 +60,7 @@
           </div>
           <div>
             <div class="tw-flex tw-items-center tw-gap-3">
-              <input type="checkbox" name="{{ form.is_private.html_name }}" id="{{ form.is_private.id_for_label }}" class="tw-form-switch"{% if form.is_private.value %} checked{% endif %}{% if form.is_private.field.disabled %} disabled{% endif %}>
+              <input type="checkbox" name="{{ form.is_private.html_name }}" id="{{ form.is_private.id_for_label }}" class="tw-form-switch" data-exclusive-group="document-visibility"{% if form.is_private.value %} checked{% endif %}{% if form.is_private.field.disabled %} disabled{% endif %}>
               <label for="{{ form.is_private.id_for_label }}" class="tw-form-check-label">{{ form.is_private.label }}</label>
               <div class="tw-alert tw-alert-secondary tw-mt-0 tw-text-sm">{{ form.is_private.help_text }}</div>
             </div>

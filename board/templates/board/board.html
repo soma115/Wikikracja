@@ -79,16 +79,14 @@
         <div>
           <div class="tw-post-card-link{% if post.featured_image %} tw-post-card-link--featured{% endif %}" data-detail-url="{{ post.detail_url }}" role="link" tabindex="0"{% if post.featured_image %} style="--featured-img: url('{{ post.featured_image.url }}')"{% endif %}>
             <div class="tw-card-body tw-p-3 tw-flex tw-flex-col tw-gap-2 tw-flex-1">
-              <div class="tw-flex tw-items-start tw-gap-2">
-                <div class="tw-font-semibold tw-text-title-clamp-2 tw-min-w-0 tw-flex-1">{{ post.title }}</div>
-                <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap tw-justify-end tw-shrink-0">
-                  {% if post.is_public and not post.is_private %}<span class="tw-badge-status tw-badge-primary tw-text-nowrap">{% trans 'Public' %}</span>{% endif %}
-                  {% if post.is_private %}<span class="tw-badge-status tw-badge-secondary tw-text-nowrap">{% trans 'Mine' %}</span>{% endif %}
-                  {% if post.is_important %}<span class="tw-badge-status tw-badge-warning tw-text-nowrap">{% trans 'Important' %}</span>{% endif %}
-                  {% if post.system_key %}<span class="tw-badge-status tw-badge-info tw-text-nowrap">{% trans 'System' %}</span>{% endif %}
-                  {% include "board/_post_chat_link.html" with post=post %}
-                </div>
+              <div class="tw-flex tw-items-center tw-gap-1 tw-flex-nowrap tw-overflow-hidden">
+                {% if post.is_public and not post.is_private %}<span class="tw-badge-status tw-badge-primary tw-text-nowrap tw-shrink-0">{% trans 'Public' %}</span>{% endif %}
+                {% if post.is_private %}<span class="tw-badge-status tw-badge-secondary tw-text-nowrap tw-shrink-0">{% trans 'Mine' %}</span>{% endif %}
+                {% if post.is_important %}<span class="tw-badge-status tw-badge-warning tw-text-nowrap tw-shrink-0">{% trans 'Important' %}</span>{% endif %}
+                {% if post.system_key %}<span class="tw-badge-status tw-badge-info tw-text-nowrap tw-shrink-0">{% trans 'System' %}</span>{% endif %}
+                {% include "board/_post_chat_link.html" with post=post compact=True %}
               </div>
+              <div class="tw-font-semibold tw-text-title-clamp-2 tw-min-w-0">{{ post.title }}</div>
               {% if post.subtitle %}
               <div class="tw-text-subtitle-clamp-2">{{ post.subtitle }}</div>
               {% endif %}

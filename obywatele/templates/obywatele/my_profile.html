@@ -249,13 +249,10 @@
           <tbody>
             <tr>
               <td>
-                <strong class="tw-font-semibold">{% trans "Email frequency" %}</strong>
-              </td>
-              <td>
-                <small class="tw-text-muted">{% trans "How often to receive an activity digest by email" %}</small>
+                <strong class="tw-font-semibold">{% trans "How often do you want to receive emails?" %}</strong>
               </td>
               <td class="tw-text-end tw-email-frequency-cell">
-                <select id="email-frequency" class="tw-form-select tw-form-select-sm" aria-label="{% trans "Email frequency" %}" data-url="{% url 'obywatele:toggle_notification' %}?type=email_frequency">
+                <select id="email-frequency" class="tw-form-select tw-form-select-sm" aria-label="{% trans "How often do you want to receive emails?" %}" data-url="{% url 'obywatele:toggle_notification' %}?type=email_frequency">
                   {% for value, label in email_frequency_choices %}
                   <option value="{{ value }}" {% if email_frequency == value %}selected{% endif %}>{{ label }}</option>
                   {% endfor %}

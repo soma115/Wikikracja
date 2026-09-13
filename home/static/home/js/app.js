@@ -167,7 +167,9 @@ if (typeof window.wkOnReady !== 'function') {
     }
 
     function isSidebarOverflowing(container) {
-        return !container.matches('.tw-stepper-main') && isDirectlyOverflowing(container);
+        return !container.matches('.tw-stepper-main')
+            && !container.closest('.tw-toolbar')
+            && isDirectlyOverflowing(container);
     }
 
     function anyDirectOverflow() {
@@ -1597,6 +1599,20 @@ window.initCategoryFilter = function(options) {
 window.wkOnReady(function() {
     window.initCategoryFilter();
 });
+
+window.initExclusiveInputs = function () {
+    document.querySelectorAll('[data-exclusive-group]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            if (!input.checked) return;
+            var group = input.dataset.exclusiveGroup;
+            document.querySelectorAll('[data-exclusive-group]').forEach(function (other) {
+                if (other !== input && other.dataset.exclusiveGroup === group && !other.disabled) other.checked = false;
+            });
+        });
+    });
+};
+
+window.wkOnReady(window.initExclusiveInputs);
 
 // ============================================================
 // Argument form toggles (voting details) — handled by the shared

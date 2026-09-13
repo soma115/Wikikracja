@@ -196,7 +196,7 @@ def board(request: HttpRequest) -> HttpResponse:
     search_query_param = f"&q={quote_plus(search_query)}" if search_query else ''
 
     def sort_url(field, state):
-        tab_query = f"tab={listing['current_tab']}&" if request.GET.get('tab') else ''
+        tab_query = f"tab={listing['current_tab']}&"
         query = f"{tab_query}sort={field}&order={state}" if state != 'none' else f"{tab_query}sort=none"
         return reverse('board:start') + f"?{query}{cat_query}{search_query_param}"
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-13 18:09+0200\n"
+"POT-Creation-Date: 2026-09-13 18:49+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -426,14 +426,14 @@ msgstr "Dodawanie opcji w tej ankiecie jest niedozwolone."
 msgid "Your option has been added."
 msgstr "Twoja opcja została dodana."
 
-#: .\ankiety\views.py:168 .\board\views.py:231 .\bookkeeping\views.py:86
+#: .\ankiety\views.py:168 .\board\views.py:238 .\bookkeeping\views.py:86
 #: .\events\views.py:66 .\glosowania\views.py:706
 #: .\home\templates\home\includes\toolbar.html:60 .\home\views.py:135
 #: .\obywatele\views.py:281 .\obywatele\views.py:340 .\tasks\views.py:185
 msgid "List"
 msgstr "Lista"
 
-#: .\ankiety\views.py:168 .\board\views.py:231 .\bookkeeping\views.py:86
+#: .\ankiety\views.py:168 .\board\views.py:238 .\bookkeeping\views.py:86
 #: .\events\views.py:66 .\glosowania\views.py:706
 #: .\home\templates\home\includes\toolbar.html:55 .\home\views.py:135
 #: .\obywatele\views.py:281 .\obywatele\views.py:340 .\tasks\views.py:185
@@ -474,7 +474,7 @@ msgid "This document is publicly accessible"
 msgstr "Ten dokument jest publicznie dostępny."
 
 #: .\board\forms.py:29 .\board\templates\board\board.html:61
-#: .\board\templates\board\board.html:86 .\board\views.py:172
+#: .\board\templates\board\board.html:84 .\board\views.py:172
 #: .\tasks\templates\tasks\task_help.html:11
 #: .\tasks\templatetags\tasks_extras.py:41
 msgid "Mine"
@@ -512,7 +512,7 @@ msgstr "Maksymalny rozmiar pliku: %(max_size)s MB."
 msgid "Image is too large (max %(max_size)s MB)."
 msgstr "Obraz jest za duży (maks. %(max_size)s MB)."
 
-#: .\board\forms.py:59
+#: .\board\forms.py:61
 #, python-format
 msgid "File '%(filename)s' is too large (max %(max_size)s MB)."
 msgstr "Plik '%(filename)s' jest za duży (maks. %(max_size)s MB)."
@@ -547,7 +547,7 @@ msgstr "Zaktualizowane przez"
 
 #: .\board\models.py:34 .\board\templates\board\_post_detail_meta.html:26
 #: .\board\templates\board\_post_detail_meta.html:28
-#: .\board\templates\board\board.html:96 .\bookkeeping\models.py:111
+#: .\board\templates\board\board.html:94 .\bookkeeping\models.py:111
 #: .\events\templates\events\event_detail.html:83
 #: .\glosowania\templates\glosowania\_detail_meta.html:13
 #: .\tasks\templates\tasks\_task_card.html:50
@@ -558,7 +558,7 @@ msgstr "Utworzone"
 
 #: .\board\models.py:35 .\board\templates\board\_post_detail_meta.html:31
 #: .\board\templates\board\_post_detail_meta.html:33
-#: .\board\templates\board\board.html:101
+#: .\board\templates\board\board.html:99
 #: .\events\templates\events\event_detail.html:85
 #: .\glosowania\templates\glosowania\_detail_meta.html:16
 msgid "Updated"
@@ -582,7 +582,7 @@ msgstr "Kategoria"
 
 #: .\board\models.py:37 .\board\templates\board\_post_detail_meta.html:37
 #: .\board\templates\board\_post_detail_meta.html:39
-#: .\board\templates\board\board.html:60 .\board\templates\board\board.html:85
+#: .\board\templates\board\board.html:60 .\board\templates\board\board.html:83
 #: .\board\views.py:174 .\chat\templates\chat\chat.html:82
 #: .\events\models.py:31 .\events\templates\events\_event_detail_badges.html:15
 msgid "Public"
@@ -595,7 +595,7 @@ msgid "Private"
 msgstr "Prywatne"
 
 #: .\board\models.py:39 .\board\templates\board\board.html:62
-#: .\board\templates\board\board.html:87 .\board\views.py:175
+#: .\board\templates\board\board.html:85 .\board\views.py:179
 #: .\tasks\templates\tasks\_task_card.html:65 .\tasks\views.py:79
 msgid "Important"
 msgstr "Ważne"
@@ -660,6 +660,7 @@ msgstr "Zaktualizowałem Ważny dokument: <a href='%(post_url)s'>%(title)s</a>"
 msgid "Discussion room for document: <a href='%(url)s'>%(title)s</a>"
 msgstr "Pokój dyskusji do dokumentu: <a href='%(url)s'>%(title)s</a>"
 
+#: .\board\templates\board\_post_chat_link.html:5
 #: .\board\templates\board\_post_chat_link.html:7 .\chat\search.py:20
 #: .\chat\services.py:648 .\chat\templates\chat\_embedded_chat.html:16
 #: .\glosowania\templates\glosowania\_proposal_card.html:62
@@ -714,25 +715,25 @@ msgstr "Bez kategorii"
 msgid "Create"
 msgstr "Utwórz"
 
-#: .\board\templates\board\board.html:63 .\board\templates\board\board.html:88
+#: .\board\templates\board\board.html:63 .\board\templates\board\board.html:86
 #: .\chat\search.py:25 .\chat\templates\chat\room_link.html:55
 #: .\core\notifications.py:557
 msgid "System"
 msgstr "System"
 
-#: .\board\templates\board\board.html:117
+#: .\board\templates\board\board.html:115
 msgid "No documents yet."
 msgstr "Nie ma jeszcze dokumentów."
 
-#: .\board\templates\board\board.html:117
+#: .\board\templates\board\board.html:115
 msgid "Add the first document"
 msgstr "Dodaj pierwszy dokument"
 
-#: .\board\templates\board\board.html:131
+#: .\board\templates\board\board.html:129
 msgid "documents"
 msgstr "dokumenty"
 
-#: .\board\templates\board\board.html:132
+#: .\board\templates\board\board.html:130
 #, python-brace-format
 msgid "This category has {n} document(s). Deleting it will leave those documents without a category. Continue?"
 msgstr "Ta kategoria ma {n} dokument(ów). Usunięcie jej pozostawi te dokumenty bez kategorii. Kontynuować?"
@@ -840,7 +841,7 @@ msgstr "Załącznik"
 #: .\obywatele\templates\obywatele\my_profile.html:112
 #: .\obywatele\templates\obywatele\my_profile.html:133
 #: .\obywatele\templates\obywatele\my_profile.html:153
-#: .\obywatele\templates\obywatele\my_profile.html:382
+#: .\obywatele\templates\obywatele\my_profile.html:379
 #: .\tasks\templates\tasks\task_close.html:22
 msgid "Cancel"
 msgstr "Anuluj"
@@ -849,15 +850,15 @@ msgstr "Anuluj"
 msgid "Internal"
 msgstr "Wewnętrzne"
 
-#: .\board\views.py:176
+#: .\board\views.py:183
 msgid "Trash"
 msgstr "Kosz"
 
-#: .\board\views.py:206
+#: .\board\views.py:213
 msgid "A-Z"
 msgstr "A-Z"
 
-#: .\board\views.py:214
+#: .\board\views.py:221
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:23
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:17
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:22
@@ -1434,7 +1435,7 @@ msgstr "Jutro"
 
 #: .\chat\i18n.py:12 .\chat\search.py:25
 #: .\chat\templates\chat\room_link.html:55
-#: .\obywatele\templates\obywatele\my_profile.html:372
+#: .\obywatele\templates\obywatele\my_profile.html:369
 msgid "Anonymous"
 msgstr "Anonim"
 
@@ -4012,8 +4013,7 @@ msgstr "Źródło aktywności"
 msgid "How often to receive email activity digests"
 msgstr "Jak często otrzymywać e-mailowe podsumowania aktywności"
 
-#: .\obywatele\models.py:93 .\obywatele\templates\obywatele\my_profile.html:252
-#: .\obywatele\templates\obywatele\my_profile.html:258
+#: .\obywatele\models.py:93
 msgid "Email frequency"
 msgstr "Częstotliwość e-maili"
 
@@ -4428,96 +4428,97 @@ msgstr "Wygląd"
 msgid "Email Notifications"
 msgstr "Powiadomienia email"
 
+#: .\obywatele\templates\obywatele\my_profile.html:252
 #: .\obywatele\templates\obywatele\my_profile.html:255
-msgid "How often to receive an activity digest by email"
-msgstr "Jak często otrzymywać podsumowanie aktywności e-mailem"
+msgid "How often do you want to receive emails?"
+msgstr "Jak często chcesz otrzymywać e-maile?"
 
-#: .\obywatele\templates\obywatele\my_profile.html:274
+#: .\obywatele\templates\obywatele\my_profile.html:271
 msgid "Push Notifications"
 msgstr "Powiadomienia Push"
 
-#: .\obywatele\templates\obywatele\my_profile.html:292
+#: .\obywatele\templates\obywatele\my_profile.html:289
 msgid "Notifications on devices"
 msgstr "Powiadomienia na urządzeniach"
 
-#: .\obywatele\templates\obywatele\my_profile.html:310
-#: .\obywatele\templates\obywatele\my_profile.html:344
+#: .\obywatele\templates\obywatele\my_profile.html:307
+#: .\obywatele\templates\obywatele\my_profile.html:341
 msgid "Delete account"
 msgstr "Usuń konto"
 
-#: .\obywatele\templates\obywatele\my_profile.html:315
+#: .\obywatele\templates\obywatele\my_profile.html:312
 msgid "Your account is scheduled for permanent deletion on"
 msgstr "Twoje konto zostanie trwale usunięte w dniu"
 
-#: .\obywatele\templates\obywatele\my_profile.html:317
+#: .\obywatele\templates\obywatele\my_profile.html:314
 msgid "You can cancel this request before that date."
 msgstr "Możesz anulować to żądanie przed tą datą."
 
-#: .\obywatele\templates\obywatele\my_profile.html:322
+#: .\obywatele\templates\obywatele\my_profile.html:319
 msgid "Cancel deletion request"
 msgstr "Anuluj żądanie usunięcia"
 
-#: .\obywatele\templates\obywatele\my_profile.html:327
+#: .\obywatele\templates\obywatele\my_profile.html:324
 msgid "Permanently delete your account and all associated data."
 msgstr "Trwale usuń swoje konto i wszystkie powiązane dane."
 
-#: .\obywatele\templates\obywatele\my_profile.html:329
+#: .\obywatele\templates\obywatele\my_profile.html:326
 msgid "This action has a 30-day grace period — you can cancel any time before the deadline."
 msgstr "Ta czynność ma 30-dniowy okres karencji — możesz anulować w dowolnym momencie przed upływem terminu."
 
-#: .\obywatele\templates\obywatele\my_profile.html:332
+#: .\obywatele\templates\obywatele\my_profile.html:329
 msgid "Delete all my data"
 msgstr "Skasuj wszystkie moje dane"
 
-#: .\obywatele\templates\obywatele\my_profile.html:349
+#: .\obywatele\templates\obywatele\my_profile.html:346
 msgid "Are you sure you want to request deletion of your account and all your data?"
 msgstr "Czy na pewno chcesz zażądać usunięcia swojego konta i danych?"
 
-#: .\obywatele\templates\obywatele\my_profile.html:350
+#: .\obywatele\templates\obywatele\my_profile.html:347
 msgid "Your account will remain active for 30 days. After that, all data will be permanently removed and cannot be recovered."
 msgstr "Twoje konto pozostanie aktywne przez 30 dni. Po tym czasie wszystkie dane zostaną trwale usunięte i nie będą mogły być przywrócone."
 
-#: .\obywatele\templates\obywatele\my_profile.html:351
+#: .\obywatele\templates\obywatele\my_profile.html:348
 msgid "You can cancel this request at any time during the 30-day period."
 msgstr "Możesz anulować to żądanie w dowolnym momencie w ciągu 30 dni."
 
-#: .\obywatele\templates\obywatele\my_profile.html:353
+#: .\obywatele\templates\obywatele\my_profile.html:350
 msgid "We would be very grateful if you could provide a reason for deleting your account (optional)."
 msgstr "Będziemy bardzo wdzięczni, jeśli podasz nam powód usunięcia konta (opcjonalnie)."
 
-#: .\obywatele\templates\obywatele\my_profile.html:354
+#: .\obywatele\templates\obywatele\my_profile.html:351
 msgid "Your feedback helps us improve..."
 msgstr "Twoja opinia pomaga nam się rozwijać..."
 
-#: .\obywatele\templates\obywatele\my_profile.html:357
+#: .\obywatele\templates\obywatele\my_profile.html:354
 msgid "Opinion publication"
 msgstr "Publikacja opinii"
 
-#: .\obywatele\templates\obywatele\my_profile.html:360
+#: .\obywatele\templates\obywatele\my_profile.html:357
 msgid "Publish now"
 msgstr "Opublikuj teraz"
 
-#: .\obywatele\templates\obywatele\my_profile.html:364
+#: .\obywatele\templates\obywatele\my_profile.html:361
 msgid "Publish after my account is deleted"
 msgstr "Opublikuj po usunięciu mojego konta"
 
-#: .\obywatele\templates\obywatele\my_profile.html:366
+#: .\obywatele\templates\obywatele\my_profile.html:363
 msgid "Publish now makes the opinion visible to group members immediately. The later option waits until your account is deleted; a waiting opinion is deleted if you cancel."
 msgstr "Publikacja teraz oznacza, że opinia będzie od razu widoczna dla członków grupy. Druga opcja opublikuje ją dopiero po usunięciu konta; anulowanie usuwa oczekującą opinię."
 
-#: .\obywatele\templates\obywatele\my_profile.html:369
+#: .\obywatele\templates\obywatele\my_profile.html:366
 msgid "Author visibility"
 msgstr "Widoczność autora"
 
-#: .\obywatele\templates\obywatele\my_profile.html:376
+#: .\obywatele\templates\obywatele\my_profile.html:373
 msgid "With my name"
 msgstr "Z moim imieniem i nazwiskiem"
 
-#: .\obywatele\templates\obywatele\my_profile.html:378
+#: .\obywatele\templates\obywatele\my_profile.html:375
 msgid "Anonymous opinions do not identify you. A named opinion shows the name on your profile."
 msgstr "Anonimowa opinia nie ujawnia Twojej tożsamości. Imienna opinia pokaże nazwę z Twojego profilu."
 
-#: .\obywatele\templates\obywatele\my_profile.html:384
+#: .\obywatele\templates\obywatele\my_profile.html:381
 msgid "Yes, schedule deletion"
 msgstr "Tak, zaplanuj usunięcie"
 
