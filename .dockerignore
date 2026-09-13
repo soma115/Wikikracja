@@ -70,9 +70,10 @@ coverage.xml
 /static/*
 !/static/.gitignore
 
-# Development scripts
-/scripts/
-!.gitignore
+# Development scripts (keep only the production SQLite maintenance helper)
+/scripts/*
+!/scripts/
+!/scripts/sqlite_maintenance.py
 
 # Tests
 /tests/
