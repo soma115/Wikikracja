@@ -10,7 +10,7 @@ from django.dispatch import Signal, receiver
 from core.signals import citizen_accepted, citizen_deleted
 
 from .models import Message, Room
-from .services import send_message
+from .services import ensure_system_rooms, send_message
 
 log = logging.getLogger(__name__)
 
@@ -19,11 +19,11 @@ chat_message_requested = Signal()
 
 
 @receiver(post_migrate)
-def create_inbox_room(sender, **kwargs):
-    """Create the guest-facing Inbox room when the app is initialized."""
+def ensure_system_chat_rooms(sender, **kwargs):
+    """Create the application-managed chat rooms when the app is initialized."""
     if sender.name != 'chat':
         return
-    Room.create_inbox()
+    ensure_system_rooms()
 
 
 @receiver(post_save, sender=Message)
@@ -107,12 +107,13 @@ def on_chat_room_requested(sender, instance, title, founder, allowed_users, welc
 
 
 @receiver(chat_message_requested)
-def on_chat_message_requested(sender, room_title, message_text, from_user=None, anonymous=True, guest_email='', guest_name='', **kwargs):
+def on_chat_message_requested(sender, room_title='', message_text='', from_user=None, anonymous=True, guest_email='', guest_name='', system_key='', **kwargs):
     """Deliver a message to a chat room on behalf of another app."""
-    try:
-        room = Room.objects.get(title=room_title)
-    except Room.DoesNotExist:
-        log.error(f"Room '{room_title}' does not exist")
+    room = Room.objects.filter(system_key=system_key).first() if system_key else None
+    if room is None:
+        room = Room.objects.filter(title=room_title).first()
+    if room is None:
+        log.error(f"Chat room '{system_key or room_title}' does not exist")
         return
 
     async_to_sync(send_message)(room, message_text, sender=from_user, anonymous=anonymous, guest_email=guest_email, guest_name=guest_name, linkify=False)

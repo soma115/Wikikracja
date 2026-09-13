@@ -262,7 +262,7 @@ def guest_message(request: HttpRequest):
             if attempts >= 3:
                 form.add_error(None, _('Too many messages. Please try again later.'))
             else:
-                inbox = Room.objects.filter(is_inbox=True, public=True).first()
+                inbox = Room.objects.filter(system_key='inbox', public=True).first()
                 if inbox is None:
                     form.add_error(None, _('The public inbox is not available at the moment.'))
                 else:

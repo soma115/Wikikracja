@@ -55,43 +55,19 @@ class Room(models.Model):
     # Marks the special guest-facing room automatically created for public groups
     is_inbox = models.BooleanField(default=False)
 
+    # Stable identifier for rooms managed by the application itself
+    system_key = models.CharField(max_length=50, blank=True, null=True, unique=True)
+
     # Source app/object for rooms created by other apps (tasks, votes, etc.)
     source_app = models.CharField(max_length=50, blank=True, default='', db_index=True)
     source_object_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
 
     @staticmethod
     def create_inbox():
-        """Ensure the guest-facing Inbox room exists and contains its welcome message. Returns the room or None."""
-        from django.conf import settings
-        from django.contrib.auth.models import User
-        from django.db import IntegrityError, OperationalError
+        """Ensure the system rooms exist and return the Inbox room."""
+        from .services import ensure_system_rooms
 
-        if not getattr(settings, 'GROUP_IS_PUBLIC', True):
-            return None
-        try:
-            room, created = Room.objects.get_or_create(is_inbox=True, defaults={'title': 'Inbox', 'public': True, 'protected': True, 'source_app': ''})
-        except (IntegrityError, OperationalError):
-            return None
-
-        # Inbox must be a plain public room (source_app='') to show up in the public-rooms list.
-        if room.source_app != '':
-            room.source_app = ''
-            room.save(update_fields=['source_app'])
-
-        try:
-            room.allowed.set(User.objects.filter(is_active=True))
-        except OperationalError:
-            pass
-
-        if not room.messages.exists():
-            try:
-                Message.objects.create(
-                    room=room, sender=None, anonymous=False, text=_("This is where messages from unregistered people outside the group appear. They used the Contact (Send a message to the group) option.")
-                )
-                room.seen_by.set(User.objects.filter(is_active=True))
-            except (IntegrityError, OperationalError):
-                pass
-        return room
+        return ensure_system_rooms().get('inbox')
 
     def __str__(self):
         return self.title

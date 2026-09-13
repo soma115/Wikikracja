@@ -29,6 +29,9 @@ async function sendMessage(page, text) {
     // Czekamy aż wiadomość trafi do DOM (own + treść) — wracamy z return tego elementu.
     const ownMessages = page.locator('.tw-chat-message.tw-chat-message--own .tw-msg-text', { hasText: text });
     await expect(ownMessages.last()).toBeVisible({ timeout: 10000 });
+
+    const message = page.locator('.tw-chat-message.tw-chat-message--own', { has: page.locator('.tw-msg-text', { hasText: text }) }).last();
+    await expect(message).not.toHaveAttribute('data-temp-id', { timeout: 10000 });
     return ownMessages.last();
 }
 

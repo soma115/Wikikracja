@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.utils import timezone
 
 from core.feed_registry import DIGEST_GROUP_ID
@@ -11,7 +12,7 @@ from .services import extract_mentions, mark_message_read_for_user, mark_message
 def get_feed_items(since: timezone.datetime) -> list[dict]:
     """Return feed items for non-archived chat rooms with recent messages."""
     # The guest Inbox is a contact channel, not part of the group's activity feed.
-    all_rooms = Room.objects.filter(archived=False, is_inbox=False).prefetch_related('allowed', 'messages', 'messages__sender', 'messages__sender__uzytkownik')
+    all_rooms = Room.objects.filter(archived=False).exclude(Q(is_inbox=True) | Q(system_key='inbox')).prefetch_related('allowed', 'messages', 'messages__sender', 'messages__sender__uzytkownik')
 
     items = []
     for room in all_rooms:

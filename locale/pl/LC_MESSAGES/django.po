@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-13 22:11+0200\n"
+"POT-Creation-Date: 2026-09-13 23:00+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -374,7 +374,7 @@ msgstr "Dodaj ankietę"
 #: .\obywatele\templates\obywatele\change_email.html:21
 #: .\obywatele\templates\obywatele\change_username.html:20
 #: .\obywatele\templates\obywatele\dodaj.html:92
-#: .\obywatele\templates\obywatele\my_assets.html:71
+#: .\obywatele\templates\obywatele\my_assets.html:66
 #: .\obywatele\templates\obywatele\my_profile.html:114
 #: .\obywatele\templates\obywatele\my_profile.html:135
 #: .\obywatele\templates\obywatele\my_profile.html:155
@@ -661,7 +661,7 @@ msgid "Discussion room for document: <a href='%(url)s'>%(title)s</a>"
 msgstr "Pokój dyskusji do dokumentu: <a href='%(url)s'>%(title)s</a>"
 
 #: .\board\templates\board\_post_chat_link.html:5
-#: .\board\templates\board\_post_chat_link.html:7 .\chat\notifications.py:113
+#: .\board\templates\board\_post_chat_link.html:7 .\chat\notifications.py:98
 #: .\chat\search.py:20 .\chat\templates\chat\_embedded_chat.html:16
 #: .\glosowania\templates\glosowania\_proposal_card.html:62
 #: .\glosowania\templates\glosowania\_proposal_card.html:67
@@ -838,7 +838,7 @@ msgstr "Załącznik"
 #: .\obywatele\templates\obywatele\candidate_edit.html:55
 #: .\obywatele\templates\obywatele\change_email.html:22
 #: .\obywatele\templates\obywatele\change_username.html:21
-#: .\obywatele\templates\obywatele\my_assets.html:70
+#: .\obywatele\templates\obywatele\my_assets.html:65
 #: .\obywatele\templates\obywatele\my_profile.html:113
 #: .\obywatele\templates\obywatele\my_profile.html:134
 #: .\obywatele\templates\obywatele\my_profile.html:154
@@ -1409,7 +1409,9 @@ msgid "Description (optional)"
 msgstr "Opis (opcjonalny)"
 
 #: .\chat\forms.py:19
-msgid "The Inbox room cannot be renamed."
+#, fuzzy
+#| msgid "The Inbox room cannot be renamed."
+msgid "System rooms cannot be renamed."
 msgstr "Pokój Inbox nie może być zmieniony."
 
 #: .\chat\forms.py:31 .\obywatele\tables.py:11
@@ -1706,22 +1708,18 @@ msgstr "Brak wiadomości. Napisz pierwszy!"
 msgid "No access to this chat."
 msgstr "Brak dostępu do tego czatu."
 
-#: .\chat\models.py:11 .\chat\services.py:123
+#: .\chat\models.py:11 .\chat\services.py:187
 #: .\obywatele\tests\test_views.py:428 .\obywatele\tests\test_views.py:429
 #: .\obywatele\tests\test_views.py:432
 msgid "Chat room"
 msgstr "Pokój czatu"
 
-#: .\chat\models.py:89
-msgid "This is where messages from unregistered people outside the group appear. They used the Contact (Send a message to the group) option."
-msgstr "Tutaj pojawiają się wiadomości od niezalogowanych ludzi z zewnątrz, którzy użyli opcji Kontakt (Wyślij wiadomość do grupy)."
-
-#: .\chat\notifications.py:113
+#: .\chat\notifications.py:98
 #, python-format
 msgid "Room: %(room)s"
 msgstr "Pokój: %(room)s"
 
-#: .\chat\notifications.py:114
+#: .\chat\notifications.py:99
 #, python-format
 msgid "Sender: %(author)s"
 msgstr "Nadawca: %(author)s"
@@ -1729,6 +1727,14 @@ msgstr "Nadawca: %(author)s"
 #: .\chat\search.py:29
 msgid "Chat message"
 msgstr "Wiadomość"
+
+#: .\chat\services.py:30
+msgid "This is where messages from unregistered people outside the group appear. They used the Contact (Send a message to the group) option."
+msgstr "Tutaj pojawiają się wiadomości od niezalogowanych ludzi z zewnątrz, którzy użyli opcji Kontakt (Wyślij wiadomość do grupy)."
+
+#: .\chat\services.py:34
+msgid "Important documents and announcements appear in this room."
+msgstr ""
 
 #: .\chat\templates\chat\_embedded_chat.html:18
 msgid "Open in chat"
@@ -4242,11 +4248,11 @@ msgstr "Żądanie usunięcia"
 msgid "Deletion requests"
 msgstr "Żądanie usunięcia"
 
-#: .\obywatele\services.py:20
+#: .\obywatele\services.py:22
 msgid "Former group member"
 msgstr "Były członek grupy"
 
-#: .\obywatele\services.py:21
+#: .\obywatele\services.py:23
 #, python-format
 msgid ""
 "Account-deletion feedback from a former group member. This message was published because its author chose to share it.\n"
@@ -4257,7 +4263,7 @@ msgstr ""
 "\n"
 "%(reason)s"
 
-#: .\obywatele\services.py:35 .\obywatele\tests\test_views.py:357
+#: .\obywatele\services.py:37 .\obywatele\tests\test_views.py:357
 msgid "Citizenship event"
 msgstr "Zdarzenie obywatelskie"
 
@@ -4637,23 +4643,23 @@ msgstr "Formularz rejestracyjny"
 msgid "Remember: your email is not confirmed yet. Please confirm it using the link from your inbox."
 msgstr "Pamiętaj: Twój email nie został jeszcze potwierdzony. Poprosimy o potwierdzenie go poprzez kliknięcie linka z emaila wysłanego do Ciebie."
 
-#: .\obywatele\templates\obywatele\onboarding_details.html:32
+#: .\obywatele\templates\obywatele\onboarding_details.html:27
 msgid "Please fill the form below."
 msgstr "Wypełnij proszę poniższy formularz."
 
-#: .\obywatele\templates\obywatele\onboarding_details.html:33
+#: .\obywatele\templates\obywatele\onboarding_details.html:28
 msgid "This information will allow us to contact you and activate your account."
 msgstr "Te informacje pozwolą nam skontaktować się z Tobą i aktywować Twoje konto."
 
-#: .\obywatele\templates\obywatele\onboarding_details.html:34
+#: .\obywatele\templates\obywatele\onboarding_details.html:29
 msgid "You will be able to edit this information later."
 msgstr "Później będziesz mógł edytować te informacje."
 
-#: .\obywatele\templates\obywatele\onboarding_details.html:35
+#: .\obywatele\templates\obywatele\onboarding_details.html:30
 msgid "Mandatory fields are marked with *."
 msgstr "Pola obowiązkowe oznaczone są gwiazdką*."
 
-#: .\obywatele\templates\obywatele\onboarding_details.html:53
+#: .\obywatele\templates\obywatele\onboarding_details.html:48
 msgid "Save form"
 msgstr "Zapisz formularz"
 

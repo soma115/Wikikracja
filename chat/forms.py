@@ -15,8 +15,8 @@ class RoomForm(forms.ModelForm):
 
     def clean_title(self):
         title = self.cleaned_data.get('title')
-        if self.instance and self.instance.pk and getattr(self.instance, 'is_inbox', False):
-            raise ValidationError(_("The Inbox room cannot be renamed."), code='inbox_rename_forbidden')
+        if self.instance and self.instance.pk and self.instance.system_key:
+            raise ValidationError(_("System rooms cannot be renamed."), code='system_room_rename_forbidden')
         if title:
             title_cf = title.casefold()
             qs = Room.objects.values_list('title', 'pk')

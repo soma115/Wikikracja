@@ -4,44 +4,51 @@ from django.core.management import call_command
 from django.test import TestCase
 
 from chat.models import Room
-from site_settings.models import SiteParameters
 
 
-class CreateInboxCommandTest(TestCase):
+class CreateSystemRoomsCommandTest(TestCase):
     def setUp(self):
-        Room.objects.filter(is_inbox=True).delete()
+        Room.objects.filter(system_key__isnull=False).delete()
 
-    def test_creates_inbox_when_missing(self):
-        self.assertFalse(Room.objects.filter(is_inbox=True).exists())
+    def test_creates_both_system_rooms_when_missing(self):
+        self.assertFalse(Room.objects.filter(system_key__isnull=False).exists())
         out = StringIO()
         call_command('create_inbox', stdout=out)
-        self.assertTrue(Room.objects.filter(is_inbox=True).exists())
-        room = Room.objects.get(is_inbox=True)
-        self.assertEqual(room.title, 'Inbox')
-        self.assertEqual(room.source_app, '')
-        self.assertTrue(room.public)
-        self.assertTrue(room.protected)
-        self.assertEqual(room.messages.count(), 1)
-        message = room.messages.first()
-        self.assertIsNone(message.sender)
-        self.assertFalse(message.anonymous)
-        self.assertIn('Created Inbox room', out.getvalue())
 
-    def test_skips_when_inbox_exists(self):
-        room = Room.objects.create(title='Inbox', public=True, protected=True, is_inbox=True)
+        inbox = Room.objects.get(system_key='inbox')
+        important = Room.objects.get(system_key='important')
+        self.assertEqual(inbox.title, 'Inbox')
+        self.assertEqual(important.title, 'Ważne')
+        for room in (inbox, important):
+            self.assertTrue(room.public)
+            self.assertTrue(room.protected)
+            self.assertEqual(room.messages.count(), 1)
+        self.assertEqual(inbox.source_app, '')
+        self.assertIsNone(inbox.messages.first().sender)
+        self.assertFalse(inbox.messages.first().anonymous)
+        self.assertIn('System chat rooms ready', out.getvalue())
+
+    def test_is_idempotent(self):
         out = StringIO()
         call_command('create_inbox', stdout=out)
-        self.assertEqual(Room.objects.filter(is_inbox=True).count(), 1)
-        self.assertIn('already exists', out.getvalue())
-        room.refresh_from_db()
-        self.assertEqual(room.source_app, '')
-        self.assertEqual(room.messages.count(), 1)
+        inbox_message = Room.objects.get(system_key='inbox').messages.first()
+        important_message = Room.objects.get(system_key='important').messages.first()
 
-    def test_skips_when_group_is_not_public(self):
+        call_command('create_inbox', stdout=out)
+
+        self.assertEqual(Room.objects.filter(system_key='inbox').count(), 1)
+        self.assertEqual(Room.objects.filter(system_key='important').count(), 1)
+        self.assertEqual(Room.objects.get(system_key='inbox').messages.first().pk, inbox_message.pk)
+        self.assertEqual(Room.objects.get(system_key='important').messages.first().pk, important_message.pk)
+
+    def test_creates_inbox_when_group_is_not_public(self):
+        from site_settings.models import SiteParameters
+
         sp = SiteParameters.get()
         sp.group_is_public = False
         sp.save()
-        out = StringIO()
-        call_command('create_inbox', stdout=out)
-        self.assertFalse(Room.objects.filter(is_inbox=True).exists())
-        self.assertIn('GROUP_IS_PUBLIC is False', out.getvalue())
+        call_command('create_inbox', stdout=StringIO())
+
+        inbox = Room.objects.get(system_key='inbox')
+        self.assertTrue(inbox.public)
+        self.assertTrue(inbox.is_inbox)

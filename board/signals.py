@@ -43,7 +43,7 @@ def notify_important_chat_on_important_post(sender, instance, created, **kwargs)
     else:
         message = _("I've updated Important document: <a href='%(post_url)s'>%(title)s</a>") % {'post_url': post_url, 'title': instance.title}
 
-    chat_message_requested.send(sender=Post, room_title="Ważne", message_text=message, from_user=instance.author, anonymous=False)
+    chat_message_requested.send(sender=Post, system_key='important', room_title="Ważne", message_text=message, from_user=instance.author, anonymous=False)
     important_post_published.send(sender=Post, post=instance, url=build_site_url(post_path), created=created)
 
 

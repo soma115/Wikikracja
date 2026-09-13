@@ -23,6 +23,54 @@ log = logging.getLogger(__name__)
 CHAT_UNREAD_CACHE_KEY = "chat_unread:{user_id}"
 CHAT_UNREAD_CACHE_TTL = 300
 
+SYSTEM_ROOM_DEFINITIONS = {
+    'inbox': {
+        'title': 'Inbox',
+        'is_inbox': True,
+        'welcome_message': gettext_lazy('This is where messages from unregistered people outside the group appear. They used the Contact (Send a message to the group) option.'),
+    },
+    'important': {'title': 'Ważne', 'welcome_message': gettext_lazy('Important documents and announcements appear in this room.')},
+}
+
+
+def ensure_system_rooms():
+    """Create or repair the rooms managed by the application."""
+    from django.db import IntegrityError, transaction
+    from django.db.models import Q
+
+    active_users = User.objects.filter(is_active=True)
+    rooms = {}
+    for system_key, definition in SYSTEM_ROOM_DEFINITIONS.items():
+        try:
+            with transaction.atomic():
+                room = Room.objects.filter(system_key=system_key).first()
+                if room is None:
+                    legacy_filter = Q(title=definition['title'])
+                    if system_key == 'inbox':
+                        legacy_filter |= Q(is_inbox=True)
+                    room = Room.objects.filter(legacy_filter).first()
+                if room is None:
+                    room = Room.objects.create(title=definition['title'], system_key=system_key, public=True, archived=False, protected=True, is_inbox=definition.get('is_inbox', False))
+                else:
+                    changed_fields = []
+                    for field, value in (('system_key', system_key), ('title', definition['title']), ('public', True), ('archived', False), ('protected', True), ('is_inbox', definition.get('is_inbox', False))):
+                        if getattr(room, field) != value:
+                            setattr(room, field, value)
+                            changed_fields.append(field)
+                    if changed_fields:
+                        room.save(update_fields=changed_fields)
+
+                room.allowed.set(active_users)
+                if not room.messages.exists():
+                    Message.objects.create(room=room, sender=None, anonymous=False, text=definition['welcome_message'])
+                    room.seen_by.set(active_users)
+                rooms[system_key] = room
+        except IntegrityError:
+            # A concurrent post_migrate invocation may have created this room.
+            rooms[system_key] = Room.objects.get(system_key=system_key)
+    return rooms
+
+
 # Matches @username in message text. User must type the exact nickname; no autocomplete.
 _MENTION_RE = re.compile(r'(?<!\w)@([\w@.+-]+)')
 

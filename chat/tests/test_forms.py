@@ -44,11 +44,11 @@ class RoomFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_inbox_rename_is_rejected(self):
-        Room.objects.filter(is_inbox=True).delete()
-        inbox = Room.objects.create(title="Inbox", public=True, protected=True, is_inbox=True)
+        Room.objects.filter(system_key='inbox').delete()
+        inbox = Room.objects.create(title="Inbox", public=True, protected=True, is_inbox=True, system_key='inbox')
         form = RoomForm(data={"title": "New Title"}, instance=inbox)
         self.assertFalse(form.is_valid())
-        self.assertTrue(form.has_error('title', code='inbox_rename_forbidden'))
+        self.assertTrue(form.has_error('title', code='system_room_rename_forbidden'))
 
 
 class GuestMessageFormTest(TestCase):

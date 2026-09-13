@@ -226,7 +226,10 @@ export default class DomApi {
         if (!msgDiv) return '';
         const msgText = $(".tw-msg-text", msgDiv);
         if (!msgText) return '';
-        return msgText.dataset.raw ?? msgText.innerHTML ?? '';
+        return msgText.dataset.raw
+            ?? $(".tw-expandable-body", msgText)?.innerHTML
+            ?? msgText.innerHTML
+            ?? '';
     }
 
     formatMessage(raw_message) {

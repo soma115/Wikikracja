@@ -269,8 +269,8 @@ class RenameRoomViewTest(TestCase):
 class GuestMessageViewTest(TestCase):
     def setUp(self):
         cache.clear()
-        Room.objects.filter(is_inbox=True).delete()
-        self.inbox = Room.objects.create(title="Inbox", public=True, protected=True, is_inbox=True)
+        Room.objects.filter(system_key='inbox').delete()
+        self.inbox = Room.objects.create(title="Inbox", public=True, protected=True, is_inbox=True, system_key='inbox')
 
     def _captcha_data(self):
         store = CaptchaStore.objects.create(challenge='test', response='test')
