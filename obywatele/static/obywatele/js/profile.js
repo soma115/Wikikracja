@@ -1,6 +1,37 @@
 // Profile page - notification and theme settings
 
 window.wkOnReady(function() {
+	const contactMethod = document.querySelector('[data-contact-method]');
+	const contactLinkField = document.querySelector('[data-contact-link-field]');
+	const phoneFields = document.querySelectorAll('[data-contact-phone-field]');
+	const phoneCountry = document.querySelector('[data-phone-country]');
+	const phoneInput = document.querySelector('[data-phone-input]');
+
+	function updateContactFields() {
+		const method = contactMethod ? contactMethod.value : '';
+		const needsLink = ['facebook', 'discord', 'telegram', 'signal'].includes(method);
+		if (contactLinkField) {
+			contactLinkField.classList.toggle('tw-d-none', !needsLink);
+		}
+		phoneFields.forEach(field => field.classList.toggle('tw-d-none', false));
+	}
+
+	if (contactMethod) {
+		contactMethod.addEventListener('change', updateContactFields);
+		updateContactFields();
+	}
+
+	if (phoneCountry && phoneInput) {
+		let previousCountryCode = phoneCountry.options[phoneCountry.selectedIndex]?.textContent.match(/\+(\d+)/)?.[1] || '';
+		phoneCountry.addEventListener('change', function() {
+			const value = phoneInput.value.trim();
+			if (previousCountryCode && value.startsWith(`+${previousCountryCode}`)) {
+				phoneInput.value = value.slice(previousCountryCode.length + 1).trim();
+			}
+			previousCountryCode = this.options[this.selectedIndex]?.textContent.match(/\+(\d+)/)?.[1] || '';
+		});
+	}
+
 	const toggles = document.querySelectorAll('[id^="toggle-"]');
 	const frequencySelect = document.getElementById('email-frequency');
 	const themeSwitcher = document.getElementById('theme-switcher');

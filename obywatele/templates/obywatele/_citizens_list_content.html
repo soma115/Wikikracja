@@ -13,7 +13,7 @@
             <span class="tw-proposal-card-title">{% if i.first_name or i.last_name %}{{ i.first_name }} {{ i.last_name }}{% else %}{{ i|display_name }}{% endif %}</span>
             <div class="tw-flex tw-items-center tw-gap-2 tw-ms-auto tw-shrink-0">
               {% if i.email %}<a href="mailto:{{ i.email }}" class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-info" data-tw-stop-propagation title="{{ i.email }}"><i class="fas fa-envelope"></i></a>{% else %}<span class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-outline-secondary" data-tw-stop-propagation aria-disabled="true" title="{% trans 'No email' %}"><i class="fas fa-envelope"></i></span>{% endif %}
-              {% if i.uzytkownik.phone %}<a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-success" data-tw-stop-propagation title="{{ i.uzytkownik.phone }}"><i class="fas fa-phone"></i></a>{% else %}<span class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-outline-secondary" data-tw-stop-propagation aria-disabled="true" title="{% trans 'No phone' %}"><i class="fas fa-phone"></i></span>{% endif %}
+              {% if i.uzytkownik.contact_url %}<a href="{{ i.uzytkownik.contact_url }}" class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-contact" data-contact-method="{{ i.uzytkownik.effective_contact_method }}" data-tw-stop-propagation target="_blank" rel="noopener" title="{{ i.uzytkownik.get_effective_contact_method_display|default:'Contact' }}"><i class="{{ i.uzytkownik.contact_icon }}"></i></a>{% else %}<span class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-outline-secondary" data-tw-stop-propagation aria-disabled="true" title="{% trans 'No contact method' %}"><i class="fas fa-phone"></i></span>{% endif %}
               {% if i.pk != request.user.pk %}<a href="{% url 'chat:open_dm' pk=i.pk %}" class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-primary" data-tw-stop-propagation title="{% trans 'Direct message' %}"><i class="fas fa-comment-dots"></i>{% if i.dm_unread_count %}<span class="tw-chat-count">{{ i.dm_unread_count }}</span>{% endif %}</a>{% else %}<span class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-outline-secondary" data-tw-stop-propagation aria-disabled="true" title="{% trans 'This is you' %}"><i class="fas fa-comment-dots"></i></span>{% endif %}
             </div>
           </div>
@@ -56,7 +56,7 @@
           {% endif %}
         </div>
         <hr class="tw-w-full tw-border-subtle">
-        <div class="tw-flex tw-w-full tw-gap-3 tw-min-w-0 tw-max-w-full tw-overflow-hidden">
+        <div class="tw-flex tw-flex-1 tw-w-full tw-gap-3 tw-min-w-0 tw-max-w-full tw-overflow-hidden">
           <div class="tw-flex tw-flex-col tw-flex-1 tw-min-w-0 tw-max-w-full tw-gap-1 tw-text-xs tw-text-muted">
           <div class="tw-truncate" title="{{ i.uzytkownik.business|default:'—' }}"><span class="tw-font-semibold tw-text-primary">{% trans "Business" %}:</span> {{ i.uzytkownik.business|default:'—' }}</div>
           <div class="tw-truncate" title="{{ i.uzytkownik.job|default:'—' }}"><span class="tw-font-semibold tw-text-primary">{% trans "Job" %}:</span> {{ i.uzytkownik.job|default:'—' }}</div>
@@ -86,12 +86,12 @@
             <i class="fas fa-envelope tw-text-lg"></i>
           </span>
           {% endif %}
-          {% if i.uzytkownik.phone %}
-          <a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-success tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation title="{{ i.uzytkownik.phone }}">
-            <i class="fas fa-phone tw-text-lg"></i>
+          {% if i.uzytkownik.contact_url %}
+          <a href="{{ i.uzytkownik.contact_url }}" class="tw-btn tw-btn-contact tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-contact-method="{{ i.uzytkownik.effective_contact_method }}" data-tw-stop-propagation target="_blank" rel="noopener" title="{{ i.uzytkownik.get_effective_contact_method_display|default:'Contact' }}">
+            <i class="{{ i.uzytkownik.contact_icon }} tw-text-lg"></i>
           </a>
           {% else %}
-          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation aria-disabled="true" title="{% trans 'No phone' %}">
+          <span class="tw-btn tw-btn-outline-secondary tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation aria-disabled="true" title="{% trans 'No contact method' %}">
             <i class="fas fa-phone tw-text-lg"></i>
           </span>
           {% endif %}

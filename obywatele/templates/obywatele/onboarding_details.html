@@ -1,6 +1,11 @@
 {% extends "home/base.html" %}
 {% load i18n %}
 {% load crispy_forms_tags %}
+{% load static %}
+
+{% block extra_js %}
+<script src="{% static 'obywatele/js/profile.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 <h1 class="tw-text-2xl tw-font-bold tw-mb-4">{% trans "Onboarding form" %}</h1>
@@ -9,6 +14,18 @@
   <div class="tw-alert tw-alert-info tw-mb-3">
     {% trans "Remember: your email is not confirmed yet. Please confirm it using the link from your inbox." %}
   </div>
+{% endif %}
+
+{% if form.errors %}
+<div class="tw-alert tw-alert-danger tw-mb-4" role="alert">
+  <strong>{% trans 'The form could not be saved. Please correct the following errors:' %}</strong>
+  <ul class="tw-mb-0">
+    {% for field in form %}
+      {% for error in field.errors %}<li>{{ field.label }}: {{ error }}</li>{% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+  </ul>
+</div>
 {% endif %}
 
 <p class="tw-font-bold tw-mb-3">
@@ -22,7 +39,10 @@
   {% csrf_token %}
   {{ form.first_name|as_crispy_field }}
   {{ form.last_name|as_crispy_field }}
-  {{ form.phone|as_crispy_field }}
+  <div data-contact-phone-field>{{ form.phone_country|as_crispy_field }}</div>
+  <div data-contact-phone-field>{{ form.phone|as_crispy_field }}</div>
+  <div>{{ form.preferred_contact_method|as_crispy_field }}</div>
+  <div data-contact-link-field class="tw-d-none">{{ form.contact_link|as_crispy_field }}</div>
   {{ form.city|as_crispy_field }}
   {{ form.voivodeship|as_crispy_field }}
   {{ form.job|as_crispy_field }}

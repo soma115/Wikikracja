@@ -5,7 +5,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 # Local folder imports
-from chat.models import Room
+from chat.models import Message, Room
 from tasks.models import Category, Task, TaskEvaluation, TaskVote
 from tasks.tests.utils import make_task, make_user
 
@@ -17,6 +17,7 @@ class TaskListViewTest(TestCase):
         self.addCleanup(notification_patch.stop)
         self.client = Client()
         self.user = make_user("listuser")
+        self.other_user = make_user("listother")
 
     def test_requires_login(self):
         response = self.client.get(reverse("tasks:list"))
@@ -51,6 +52,8 @@ class TaskListViewTest(TestCase):
         unlisted.chat_room.allowed.clear()
         inbox.chat_room.is_inbox = True
         inbox.chat_room.save(update_fields=['is_inbox'])
+        for task in (unread, read, archived, unlisted, inbox):
+            Message.objects.create(room=task.chat_room, sender=self.other_user, text="Unread state")
         self.client.force_login(self.user)
         expected = {unread.pk: "tw-chat-room-pulse", read.pk: "", empty.pk: "", archived.pk: "tw-chat-room-pulse", unlisted.pk: "tw-chat-room-pulse", inbox.pk: "tw-chat-room-pulse"}
 

@@ -42,13 +42,12 @@ test.describe('chat mobile — room list collapse on tap of active room', () => 
         await expect(page.locator('#chat-breadcrumb')).toHaveClass(/tw-chat-breadcrumb--flash/);
     });
 
-    test('mobile: dotknięcie listy anuluje automatyczne schowanie', async ({ page }, testInfo) => {
+    test('mobile: dotknięcie listy nie chowa jej natychmiast', async ({ page }, testInfo) => {
         test.skip(testInfo.project.name !== 'mobile-chromium', 'Mobile-only test');
-        await page.goto('/chat/');
+        await page.goto('/chat/?view=rooms');
         const chatRooms = page.locator('.tw-chat-rooms');
-        await expect(chatRooms).toHaveClass(/tw-room-list-showing/, { timeout: 10000 });
-        await page.locator('.tw-room-list').dispatchEvent('touchstart');
-        await page.waitForTimeout(2200);
+        await expect(page.locator('.tw-room-list')).toBeVisible();
+        await page.locator('.tw-room-list').tap({ position: { x: 5, y: 5 } });
         await expect(chatRooms).toHaveClass(/tw-room-list-showing/);
     });
 

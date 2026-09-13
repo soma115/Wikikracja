@@ -174,6 +174,26 @@
     document.addEventListener('submit', function (e) {
         const voteForm = e.target.matches && e.target.matches('[data-vote-submit]') ? e.target : null;
         if (!voteForm) return;
+        if (voteForm.dataset.confirmed !== 'true') {
+            const submitter = e.submitter;
+            if (submitter && submitter.dataset.voteConfirmMessage && window.TwModal?.confirm) {
+                e.preventDefault();
+                window.TwModal.confirm({
+                    title: voteForm.dataset.voteConfirmTitle,
+                    message: submitter.dataset.voteConfirmMessage,
+                    confirmLabel: submitter.dataset.voteConfirmAction,
+                    cancelLabel: voteForm.dataset.voteConfirmCancel,
+                    onConfirm: function () {
+                        voteForm.dataset.confirmed = 'true';
+                        if (typeof voteForm.requestSubmit === 'function') voteForm.requestSubmit(submitter);
+                        else submitter.click();
+                    },
+                });
+                return;
+            }
+        } else {
+            delete voteForm.dataset.confirmed;
+        }
         if (voteForm.dataset.submitting === 'true') {
             e.preventDefault();
             return;
@@ -181,6 +201,14 @@
 
         voteForm.dataset.submitting = 'true';
         voteForm.setAttribute('aria-busy', 'true');
+        if (e.submitter?.name) {
+            const selectedVote = document.createElement('input');
+            selectedVote.type = 'hidden';
+            selectedVote.name = e.submitter.name;
+            selectedVote.value = e.submitter.value;
+            selectedVote.dataset.voteSubmitValue = 'true';
+            voteForm.appendChild(selectedVote);
+        }
         voteForm.querySelectorAll('button[type="submit"]').forEach((button) => {
             button.disabled = true;
         });
@@ -195,6 +223,7 @@
             voteForm.querySelectorAll('button[type="submit"]').forEach(function (button) {
                 button.disabled = false;
             });
+            voteForm.querySelector('[data-vote-submit-value]')?.remove();
             const status = voteForm.querySelector('[data-vote-submit-status]');
             if (status) status.classList.add('tw-hidden');
         });

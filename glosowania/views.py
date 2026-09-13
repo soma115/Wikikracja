@@ -22,6 +22,7 @@ from django.utils.translation import gettext_lazy as _
 
 from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unread_message_counts_for_rooms
+from chat.signals import chat_message_requested
 from core.signals import vote_state_changed
 from core.utils import build_site_url
 from glosowania.forms import ArgumentForm, DecyzjaForm, ParametersProposalForm
@@ -460,6 +461,13 @@ def add_argument(request: HttpRequest, pk: int):
             argument.decyzja = decyzja
             argument.author = request.user
             argument.save()
+
+            if decyzja.chat_room_id:
+                try:
+                    referendum_url = build_site_url(f'/glosowania/details/{pk}')
+                    chat_message_requested.send(sender=Argument, room_title=decyzja.chat_room.title, message_text="<a href='%s'>%s</a>" % (referendum_url, _("Referendum")), from_user=None, anonymous=False)
+                except Exception:
+                    log.exception("Failed to notify referendum chat about argument #%s", argument.pk)
 
             arg_type = argument.get_argument_type_display()
             message = _("Your {type} argument has been added.").format(type=arg_type.lower())

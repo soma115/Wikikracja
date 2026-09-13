@@ -21,7 +21,7 @@ Migracja bazowa jest zakończona. Nowe zmiany UI nie powinny tworzyć kolejnej f
 1. **Jedno źródło stylów.** Nowe style trafiają do `tailwind.css`; nie dodajemy arkuszy CSS per moduł ani kolejnych tagów `<link rel="stylesheet">`.
 2. **Prefiks `tw-`.** Nowe klasy komponentów i utility muszą mieć prefiks `tw-`. Wyjątki są dozwolone tylko dla istniejących, udokumentowanych haków JS lub kontraktów z bibliotekami zewnętrznymi.
 3. **Wspólne komponenty przed lokalnymi wyjątkami.** Najpierw używamy istniejących wzorców: `tw-btn`, `tw-card`, `tw-toolbar`, `tw-form-*`, `tw-modal`, `tw-dropdown`, `tw-alert`, `tw-proposals-list` i wspólnych partiali. Wspólny toolbar używa dla grupy wyszukiwania `flex: 1 1 0` oraz `min-width: 1rem`, dzięki czemu pole może kurczyć się między kontrolkami; poniżej `591.98px` umieszcza wyszukiwarkę w pełnym wierszu nad filtrami i przełącznikiem List / Grid. Nie twórz lokalnych wariantów tej kolejności.
-4. **Tokeny zamiast wartości lokalnych.** Kolory i parametry motywu pochodzą z `tokens.css`; nie duplikujemy ich w modułach.
+4. **Tokeny zamiast wartości lokalnych.** Kolory i parametry motywu pochodzą z `tokens.css`; nie duplikujemy ich w modułach. Przyciski kontaktowe używają wspólnego `tw-btn-contact` i `data-contact-method`, które wybiera centralny token koloru komunikatora.
 5. **Inline style tylko dla danych dynamicznych.** Dopuszczalne są dynamiczne zmienne CSS, np. `--featured-img` lub `--vote-progress`. Widoczność, odstępy, kolory i wymiary realizujemy klasami.
 6. **Ikony ze słownika.** Nową semantykę ikony najpierw dodajemy do `UI_STANDARDS.html`.
 7. **Generowane pliki są nietykalne.** Po zmianie źródła uruchamiamy `npm run build:css`; `tailwind.build.css` nie modyfikujemy ręcznie.

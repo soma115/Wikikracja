@@ -94,6 +94,7 @@ class HomeChatBadgeTest(TestCase):
     def setUp(self):
         cache.clear()
         self.user = User.objects.create_user(username='dashuser', password='pass')
+        self.other_user = User.objects.create_user(username='dashother', password='pass')
 
     def tearDown(self):
         cache.clear()
@@ -111,7 +112,7 @@ class HomeChatBadgeTest(TestCase):
         """Gdy sa nieprzeczytane wiadomosci, licznik chatu jest wiekszy od 0."""
         room = Room.objects.create(title='Pokój A', public=False)
         room.allowed.add(self.user)
-        Message.objects.create(sender=self.user, text='hej', room=room)
+        Message.objects.create(sender=self.other_user, text='hej', room=room)
 
         self.client.force_login(self.user)
         response = self.client.get(reverse('home'))
@@ -142,6 +143,7 @@ class UnreadCountConsistencyTest(TestCase):
     def setUp(self):
         cache.clear()
         self.user = User.objects.create_user(username='consistent', password='pass')
+        self.other_user = User.objects.create_user(username='consistent-other', password='pass')
 
     def tearDown(self):
         cache.clear()
@@ -153,7 +155,7 @@ class UnreadCountConsistencyTest(TestCase):
     def test_feed_and_chat_agree_when_unread(self):
         room = Room.objects.create(title='Pokoj A', public=False)
         room.allowed.add(self.user)
-        Message.objects.create(sender=self.user, text='hej', room=room)
+        Message.objects.create(sender=self.other_user, text='hej', room=room)
 
         self.assertEqual(get_unread_count_for_user(self.user), 1)
         self.assertEqual(self._unread_chat_rooms(self.user), 1)
@@ -163,7 +165,7 @@ class UnreadCountConsistencyTest(TestCase):
         musi od razu widziec ten pokoj jako przeczytany."""
         room = Room.objects.create(title='Pokoj A', public=False)
         room.allowed.add(self.user)
-        Message.objects.create(sender=self.user, text='hej', room=room)
+        Message.objects.create(sender=self.other_user, text='hej', room=room)
 
         room.seen_by.add(self.user)
 
@@ -175,7 +177,7 @@ class UnreadCountConsistencyTest(TestCase):
         cache czatu, zeby oba liczniki byly spojne."""
         room = Room.objects.create(title='Pokoj A', public=False)
         room.allowed.add(self.user)
-        message = Message.objects.create(sender=self.user, text='hej', room=room)
+        message = Message.objects.create(sender=self.other_user, text='hej', room=room)
 
         self.client.force_login(self.user)
         response = self.client.post(reverse('mark_as_read'), {'content_type': 'room_messages', 'object_id': message.id})
@@ -189,7 +191,7 @@ class UnreadCountConsistencyTest(TestCase):
         cache czatu."""
         room = Room.objects.create(title='Pokoj A', public=False)
         room.allowed.add(self.user)
-        message = Message.objects.create(sender=self.user, text='hej', room=room)
+        message = Message.objects.create(sender=self.other_user, text='hej', room=room)
         room.seen_by.add(self.user)
 
         self.client.force_login(self.user)

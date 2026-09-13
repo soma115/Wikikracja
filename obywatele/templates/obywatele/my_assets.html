@@ -4,6 +4,10 @@
 {% load feed_filters %}
 {% load crispy_forms_tags %}
 
+{% block extra_js %}
+<script src="{% static 'obywatele/js/profile.js' %}"></script>
+{% endblock %}
+
 {% block content %}
 <div class="tw-section tw-max-w-640">
   <div class="tw-card">
@@ -13,6 +17,17 @@
     </div>
     <div class="tw-card-body">
       <p class="tw-mb-4 tw-text-sm tw-text-muted">{% trans 'Here you can edit your assets' %} <strong class="tw-text-primary">{{ user|display_name }}</strong></p>
+      {% if form.errors %}
+      <div class="tw-alert tw-alert-danger tw-mb-4" role="alert">
+        <strong>{% trans 'The form could not be saved. Please correct the following errors:' %}</strong>
+        <ul class="tw-mb-0">
+          {% for field in form %}
+            {% for error in field.errors %}<li>{{ field.label }}: {{ error }}</li>{% endfor %}
+          {% endfor %}
+          {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
       <form action="#" method="post" enctype="multipart/form-data" class="tw-flex tw-flex-col tw-gap-3">
         {% csrf_token %}
 
@@ -25,13 +40,18 @@
           <div>{{ form.voivodeship|as_crispy_field }}</div>
         </div>
         <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
-          <div>{{ form.phone|as_crispy_field }}</div>
-          <div>{{ form.job|as_crispy_field }}</div>
+          <div data-contact-phone-field>{{ form.phone_country|as_crispy_field }}</div>
+          <div data-contact-phone-field>{{ form.phone|as_crispy_field }}</div>
         </div>
         <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
-          <div>{{ form.responsibilities|as_crispy_field }}</div>
-          <div>{{ form.business|as_crispy_field }}</div>
+          <div>{{ form.preferred_contact_method|as_crispy_field }}</div>
+          <div data-contact-link-field class="tw-d-none">{{ form.contact_link|as_crispy_field }}</div>
         </div>
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
+          <div>{{ form.job|as_crispy_field }}</div>
+          <div>{{ form.responsibilities|as_crispy_field }}</div>
+        </div>
+        <div>{{ form.business|as_crispy_field }}</div>
         <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
           <div>{{ form.to_give_away|as_crispy_field }}</div>
           <div>{{ form.to_borrow|as_crispy_field }}</div>

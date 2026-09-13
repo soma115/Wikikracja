@@ -408,7 +408,7 @@
     {% if messages %}
     <div class="tw-toast-container" id="django-toasts">
       {% for message in messages %}
-      <div class="tw-toast-msg tw-toast-{{ message.level_tag }}{% if 'persist' in message.tags %} tw-toast-persist{% endif %}" role="alert">
+      <div class="tw-toast-msg tw-toast-{{ message.level_tag }}{% if 'persist' in message.tags %} tw-toast-persist{% endif %}" role="alert" data-tw-remove=".tw-toast-msg">
         {{ message }}
         <button type="button" class="tw-toast-close" data-tw-remove=".tw-toast-msg">×</button>
       </div>
@@ -418,12 +418,11 @@
     (function() {
       var toasts = document.getElementById('django-toasts');
 
-      // Ustaw pozycję nad kartą i dopiero wtedy pokaż toast (startuje ukryty w CSS).
+      // Wyśrodkuj względem karty i dopiero wtedy pokaż toast (startuje ukryty w CSS).
       function place() {
         var card = document.querySelector('main .tw-card');
         if (card) {
           var r = card.getBoundingClientRect();
-          toasts.style.top  = (r.top + 22) + 'px';
           toasts.style.left = (r.left + r.width / 2) + 'px';
         }
         toasts.classList.add('tw-visible');

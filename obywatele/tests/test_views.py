@@ -24,6 +24,7 @@ from chat.models import Message, MessageReadBy, Room
 from chat.services import get_user_public_message_rows
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 from obywatele.auth_backends import CaseInsensitiveEmailBackend
+from obywatele.forms import ProfileForm, phone_country_choices
 from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items
 from tasks.activity import get_user_tasks
@@ -615,7 +616,7 @@ class MyAssetsViewTest(TestCase):
         self.profile.refresh_from_db()
         self.user.refresh_from_db()
         self.assertEqual(self.profile.city, 'Gdańsk')
-        self.assertEqual(self.profile.phone, '123456789')
+        self.assertEqual(self.profile.phone, '+48123456789')
         self.assertEqual(self.profile.for_sale, 'Kanapa')
         self.assertEqual(self.user.first_name, 'Jan')
         self.assertEqual(self.user.last_name, 'Kowalski')
@@ -623,14 +624,98 @@ class MyAssetsViewTest(TestCase):
         self.assertEqual(Uzytkownik.objects.filter(uid=self.user).count(), 1)
 
     def test_post_invalid_rerenders_form_without_saving(self):
-        data = {**PROFILE_POST_DATA, 'phone': ''}
+        data = {**PROFILE_POST_DATA, 'city': ''}
         response = self.client.post(self.url, data)
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['form'].errors)
-        self.assertEqual(response.context['form']['city'].value(), 'Gdańsk')
+        self.assertContains(response, 'The form could not be saved.')
+        self.assertEqual(response.context['form']['city'].value(), '')
         self.profile.refresh_from_db()
         self.assertEqual(self.profile.city, 'Stare miasto')
+
+
+class ContactPreferenceFormTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='contact-form', password='secret', is_active=True)
+        self.profile = self.user.uzytkownik
+        self.client.force_login(self.user)
+        self.common = {**PROFILE_POST_DATA, 'first_name': 'Jan', 'last_name': 'Kowalski'}
+
+    def test_link_contact_does_not_require_phone(self):
+        data = {**self.common, 'phone': '', 'preferred_contact_method': 'signal', 'contact_link': 'https://signal.me/#p/example'}
+
+        form = ProfileForm(data=data, instance=self.profile)
+
+        self.assertTrue(form.is_valid(), form.errors)
+        profile = form.save()
+        self.assertEqual(profile.phone, '')
+        self.assertEqual(profile.preferred_contact_method, 'signal')
+
+    def test_whatsapp_requires_and_normalizes_phone(self):
+        data = {**self.common, 'phone': '501 234 567', 'phone_country': 'PL', 'preferred_contact_method': 'whatsapp', 'contact_link': ''}
+
+        form = ProfileForm(data=data, instance=self.profile)
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['phone'], '+48501234567')
+        self.assertEqual(form.cleaned_data['phone_country'], 'PL')
+
+    def test_phone_country_choices_use_full_country_names(self):
+        choices = dict(phone_country_choices())
+
+        self.assertEqual(choices['PL'], '+48 — Poland')
+        self.assertEqual(choices['AC'], '+247 — Ascension Island')
+        self.assertEqual(choices['US'], '+1 — United States')
+
+    def test_existing_phone_is_displayed_without_country_prefix(self):
+        self.profile.phone = '+48501234567'
+        self.profile.phone_country = 'PL'
+        self.profile.save()
+
+        form = ProfileForm(instance=self.profile)
+
+        self.assertEqual(form['phone'].value(), '501 234 567')
+
+    def test_country_is_repaired_from_existing_phone_when_data_is_inconsistent(self):
+        self.profile.phone = '+48123123123'
+        self.profile.phone_country = 'AC'
+        self.profile.save()
+
+        form = ProfileForm(instance=self.profile)
+
+        self.assertEqual(form['phone_country'].value(), 'PL')
+        self.assertEqual(form['phone'].value(), '12 312 31 23')
+
+    def test_local_phone_is_normalized_for_selected_country(self):
+        data = {**self.common, 'phone': '123123', 'phone_country': 'AC', 'preferred_contact_method': 'phone', 'contact_link': ''}
+
+        form = ProfileForm(data=data, instance=self.profile)
+
+        self.assertTrue(form.is_valid(), form.errors)
+        profile = form.save()
+        self.assertEqual(profile.phone, '+247123123')
+        self.assertEqual(profile.phone_country, 'AC')
+
+    def test_signal_accepts_phone_without_profile_link(self):
+        data = {**self.common, 'phone': '501 234 567', 'phone_country': 'PL', 'preferred_contact_method': 'signal', 'contact_link': ''}
+
+        form = ProfileForm(data=data, instance=self.profile)
+
+        self.assertTrue(form.is_valid(), form.errors)
+        profile = form.save()
+        self.assertEqual(profile.contact_url, 'https://signal.me/#p/+48501234567')
+
+    def test_view_saves_and_restores_contact_preference(self):
+        data = {**self.common, 'phone': '501 234 567', 'phone_country': 'PL', 'preferred_contact_method': 'signal', 'contact_link': ''}
+
+        response = self.client.post(reverse('obywatele:my_assets'), data)
+
+        self.assertEqual(response.status_code, 302)
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.preferred_contact_method, 'signal')
+        response = self.client.get(reverse('obywatele:my_assets'))
+        self.assertEqual(response.context['form']['preferred_contact_method'].value(), 'signal')
 
 
 class DodajViewTest(TestCase):
@@ -654,7 +739,8 @@ class DodajViewTest(TestCase):
         profile = candidate.uzytkownik
         self.assertEqual(profile.polecajacy, 'proposer')
         for field in Uzytkownik.ONBOARDING_FORM_FIELDS:
-            self.assertEqual(getattr(profile, field) or '', PROFILE_POST_DATA[field])
+            expected = '+48123456789' if field == 'phone' else PROFILE_POST_DATA[field]
+            self.assertEqual(getattr(profile, field) or '', expected)
 
         self.assertTrue(Rate.objects.filter(kandydat=profile, obywatel=self.user.uzytkownik, rate=1).exists())
 

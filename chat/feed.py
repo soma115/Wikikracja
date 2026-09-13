@@ -5,7 +5,7 @@ from core.richtext import plain_text
 from zzz.templatetags.citizen_filters import user_display_name
 
 from .models import Message, MessageReadBy, Room
-from .services import extract_mentions, mark_room_read_for_user, mark_room_unread_for_user
+from .services import extract_mentions, mark_message_read_for_user, mark_message_unread_for_user
 
 
 def get_feed_items(since: timezone.datetime) -> list[dict]:
@@ -109,15 +109,15 @@ def prepare_digest_items(items, user, since) -> list[dict | None]:
 
 def mark_as_read(object_id: int, user) -> None:
     try:
-        message = Message.objects.get(pk=object_id)
-        mark_room_read_for_user(user, message.room)
+        message = Message.objects.select_related('room').get(pk=object_id)
+        mark_message_read_for_user(user, message)
     except Message.DoesNotExist:
         pass
 
 
 def mark_as_unread(object_id: int, user) -> None:
     try:
-        message = Message.objects.get(pk=object_id)
-        mark_room_unread_for_user(user, message.room)
+        message = Message.objects.select_related('room').get(pk=object_id)
+        mark_message_unread_for_user(user, message)
     except Message.DoesNotExist:
         pass

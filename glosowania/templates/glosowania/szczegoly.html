@@ -42,10 +42,12 @@
       {% if not voted %}
       <div class="tw-flex tw-flex-col tw-gap-2">
         <span class="tw-vote-question">{% trans 'Would you like to implement this rule?' %}</span>
-        <form method="post" class="tw-mb-0 tw-flex tw-flex-wrap tw-items-center tw-gap-2" data-vote-submit>
+        {% trans 'Yes' as vote_yes_label %}
+        {% trans 'No' as vote_no_label %}
+        <form method="post" class="tw-mb-0 tw-flex tw-flex-wrap tw-items-center tw-gap-2" data-vote-submit data-vote-confirm-title="{% trans 'Confirm your vote' %}" data-vote-confirm-cancel="{% trans 'Cancel' %}">
           {% csrf_token %}
-          <button type="submit" name="tak" value="1" class="tw-action-btn tw-action-btn-yes"><i class="fas fa-check fa-fw tw-me-1"></i> {% trans 'Yes' %}</button>
-          <button type="submit" name="nie" value="1" class="tw-action-btn tw-action-btn-no"><i class="fas fa-times fa-fw tw-me-1"></i> {% trans 'No' %}</button>
+          <button type="submit" name="tak" value="1" class="tw-action-btn tw-action-btn-yes" data-vote-confirm-action="{% trans 'Vote Yes' %}" data-vote-confirm-message="{% blocktrans with choice=vote_yes_label %}Are you sure you want to vote {{ choice }}?{% endblocktrans %}"><i class="fas fa-check fa-fw tw-me-1"></i> {{ vote_yes_label }}</button>
+          <button type="submit" name="nie" value="1" class="tw-action-btn tw-action-btn-no" data-vote-confirm-action="{% trans 'Vote No' %}" data-vote-confirm-message="{% blocktrans with choice=vote_no_label %}Are you sure you want to vote {{ choice }}?{% endblocktrans %}"><i class="fas fa-times fa-fw tw-me-1"></i> {{ vote_no_label }}</button>
           <span class="tw-hidden tw-text-muted tw-text-sm" data-vote-submit-status role="status" aria-live="polite">
             <i class="fas fa-spinner fa-spin tw-me-1" aria-hidden="true"></i>{% trans 'Saving your vote...' %}
           </span>

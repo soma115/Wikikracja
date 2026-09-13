@@ -5225,6 +5225,45 @@ a:hover {
   color: var(--btn-glass-hover-color);
 }
 
+.tw-btn-contact {
+  --contact-color: var(--color-success);
+  background: var(--contact-color);
+  border: 1px solid var(--contact-color);
+  color: var(--text-inverse);
+}
+
+.tw-btn-contact[data-contact-method="sms"] {
+  --contact-color: var(--color-info);
+}
+
+.tw-btn-contact[data-contact-method="whatsapp"] {
+  --contact-color: var(--brand-whatsapp);
+}
+
+.tw-btn-contact[data-contact-method="facebook"] {
+  --contact-color: var(--brand-facebook);
+}
+
+.tw-btn-contact[data-contact-method="discord"] {
+  --contact-color: var(--brand-discord);
+}
+
+.tw-btn-contact[data-contact-method="telegram"] {
+  --contact-color: var(--brand-telegram);
+}
+
+.tw-btn-contact[data-contact-method="signal"] {
+  --contact-color: var(--brand-signal);
+}
+
+.tw-btn-contact:hover,
+  .tw-btn-contact:focus {
+  background: var(--contact-color);
+  border-color: var(--contact-color);
+  color: var(--text-inverse);
+  filter: brightness(.9);
+}
+
 .tw-btn-outline-primary {
   background: transparent;
   border: 1px solid var(--accent-border);
@@ -6633,7 +6672,7 @@ input.tw-form-switch:focus,
 
 .tw-toast-container {
   position: fixed;
-  top: 33%;
+  top: 1rem;
   left: 50%;
   transform: translateX(-50%);
   visibility: hidden;
@@ -6662,6 +6701,7 @@ input.tw-form-switch:focus,
   background: var(--bg-card);
   color: var(--text-primary);
   box-shadow: var(--shadow-overlay);
+  cursor: pointer;
   animation: tw-toast-in 0.2s ease;
   transition: opacity .4s;
 }
@@ -10330,6 +10370,10 @@ body.tw-chat-page .tw-main-area {
 
 .tw-max-w-full {
   max-width: 100%;
+}
+
+.tw-max-w-lg {
+  max-width: 32rem;
 }
 
 .tw-max-w-md {

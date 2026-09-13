@@ -201,6 +201,7 @@ Prefer these existing components before writing new markup:
 - `tw-btn`, `tw-btn-primary`, `tw-btn-secondary`, `tw-btn-warning`, `tw-btn-danger`;
 - `tw-btn-ghost` for low-emphasis or icon actions;
 - `tw-btn-cta tw-btn-cta--round` for the shared add/primary CTA;
+- `tw-btn-contact` with `data-contact-method` for brand-recognizable contact actions;
 - `tw-card`, `tw-card-header`, `tw-card-body`;
 - `tw-badge-*` for statuses and categories;
 - `tw-alert` and its level variants;

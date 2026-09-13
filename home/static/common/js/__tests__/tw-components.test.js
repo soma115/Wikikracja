@@ -222,6 +222,9 @@ describe('Tailwind UI components', () => {
       expect(modal.textContent).toContain('Are you sure?');
       expect(modal.textContent).toContain('Item: Example item');
       expect(modal.textContent).toContain('Cannot be undone.');
+      expect(modal.querySelector('.tw-btn-close').innerHTML).toBe('<i class="fas fa-times" aria-hidden="true"></i>');
+      expect(modal.querySelector('.tw-btn-close').getAttribute('aria-label')).toBe('Cancel');
+      expect(modal.querySelector('.tw-modal-footer [data-tw-dismiss="modal"]').textContent).toBe('Cancel');
       jest.advanceTimersByTime(300);
       modal.querySelector('[data-tw-confirm-action]').click();
       expect(onConfirm).toHaveBeenCalledTimes(1);

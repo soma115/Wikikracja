@@ -1,7 +1,10 @@
 import logging
 import secrets
 import string
+from urllib.parse import urlsplit
 
+import phonenumbers
+import pycountry
 from allauth.account.forms import SignupForm
 from captcha.fields import CaptchaField, CaptchaTextInput
 from django import forms
@@ -14,6 +17,50 @@ from core.signals import citizen_proposed
 from obywatele.models import Region, Uzytkownik
 
 log = logging.getLogger(__name__)
+
+
+PHONE_COUNTRY_NAME_OVERRIDES = {'AC': 'Ascension Island', 'TA': 'Tristan da Cunha', 'XK': 'Kosovo'}
+
+
+def phone_country_choices():
+    regions = []
+    for country_code, country_regions in phonenumbers.COUNTRY_CODE_TO_REGION_CODE.items():
+        for region in country_regions:
+            if region != '001':
+                country = pycountry.countries.get(alpha_2=region)
+                name = PHONE_COUNTRY_NAME_OVERRIDES.get(region) or (country.name if country else region)
+                regions.append((name, region, country_code))
+    regions.sort(key=lambda item: item[0])
+    return [('PL', '+48 — Poland')] + [(region, f'+{country_code} — {name}') for name, region, country_code in regions if region != 'PL']
+
+
+def phone_region(value):
+    if not value:
+        return ''
+    try:
+        parsed = phonenumbers.parse(value, None)
+    except phonenumbers.NumberParseException:
+        return ''
+    return phonenumbers.region_code_for_number(parsed) if phonenumbers.is_valid_number(parsed) else ''
+
+
+def local_phone_value(value, region):
+    if not value:
+        return ''
+    try:
+        parsed = phonenumbers.parse(value, None)
+    except phonenumbers.NumberParseException:
+        return value
+    if not phonenumbers.is_valid_number(parsed):
+        return value
+    if phonenumbers.region_code_for_number(parsed) == region:
+        return phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.NATIONAL)
+    national_number = phonenumbers.national_significant_number(parsed)
+    try:
+        candidate = phonenumbers.parse(national_number, region)
+    except phonenumbers.NumberParseException:
+        return national_number
+    return phonenumbers.format_number(candidate, phonenumbers.PhoneNumberFormat.NATIONAL) if phonenumbers.is_valid_number(candidate) else national_number
 
 
 class UserForm(forms.ModelForm):
@@ -98,15 +145,46 @@ class EmailChangeForm(forms.Form):
 class ProfileForm(forms.ModelForm):
     first_name = forms.CharField(max_length=150, label=_('First name'), required=True)
     last_name = forms.CharField(max_length=150, label=_('Last name'), required=True)
+    phone_country = forms.ChoiceField(choices=phone_country_choices, label=_('Phone country'), required=False)
 
     class Meta:
         model = Uzytkownik
-        fields = ('phone', 'responsibilities', 'city', 'voivodeship', 'skills_knowledge_hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'want_to_learn', 'business', 'job', 'why')
+        fields = (
+            'phone_country',
+            'phone',
+            'preferred_contact_method',
+            'contact_link',
+            'responsibilities',
+            'city',
+            'voivodeship',
+            'skills_knowledge_hobby',
+            'to_give_away',
+            'to_borrow',
+            'for_sale',
+            'i_need',
+            'want_to_learn',
+            'business',
+            'job',
+            'why',
+        )
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
-        self.fields['phone'].label = _('Communicator or Phone')
-        self.fields['phone'].required = True
+        self.fields['phone'].label = _('Phone number (optional)')
+        self.fields['phone'].required = False
+        self.fields['phone'].widget.attrs['data-phone-input'] = 'true'
+        stored_country = self.instance.phone_country or 'PL'
+        actual_country = phone_region(self.instance.phone)
+        self.fields['phone_country'].initial = actual_country or stored_country
+        self.initial['phone_country'] = actual_country or stored_country
+        self.fields['phone_country'].widget.attrs['data-phone-country'] = 'true'
+        if not self.is_bound and self.instance.phone:
+            self.initial['phone'] = local_phone_value(self.instance.phone, self.fields['phone_country'].initial)
+        self.fields['preferred_contact_method'].label = _('Preferred contact method (optional)')
+        self.fields['preferred_contact_method'].widget.attrs['data-contact-method'] = 'true'
+        self.fields['contact_link'].label = _('Profile link')
+        self.fields['contact_link'].help_text = _('Use the public profile link from the selected service.')
+        self.fields['contact_link'].required = False
         self.fields['city'].required = True
         self.fields['job'].required = True
 
@@ -117,9 +195,47 @@ class ProfileForm(forms.ModelForm):
 
         self.fields['first_name'].error_messages['required'] = _('First name is required.')
         self.fields['last_name'].error_messages['required'] = _('Last name is required.')
-        self.fields['phone'].error_messages['required'] = _('Phone number is required.')
         self.fields['city'].error_messages['required'] = _('City / Commune is required.')
         self.fields['job'].error_messages['required'] = _('Job is required.')
+
+    def clean_phone(self):
+        value = (self.cleaned_data.get('phone') or '').strip()
+        if not value:
+            return ''
+        region = self.cleaned_data.get('phone_country') or 'PL'
+        try:
+            parsed = phonenumbers.parse(value, region)
+        except phonenumbers.NumberParseException as exc:
+            raise forms.ValidationError(_('Enter a valid phone number for the selected country.')) from exc
+        if not phonenumbers.is_valid_number(parsed):
+            raise forms.ValidationError(_('Enter a valid phone number for the selected country.'))
+        normalized = phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
+        self.cleaned_data['phone_country'] = phone_region(normalized) or region
+        return normalized
+
+    def clean(self):
+        cleaned_data = super().clean()
+        method = cleaned_data.get('preferred_contact_method')
+        phone = cleaned_data.get('phone')
+        link = cleaned_data.get('contact_link')
+        if method in Uzytkownik.PHONE_CONTACT_METHODS and not phone:
+            self.add_error('phone', _('This contact method requires a phone number.'))
+        elif method in Uzytkownik.LINK_CONTACT_METHODS:
+            if method == Uzytkownik.ContactMethod.SIGNAL and not phone and not link:
+                self.add_error('contact_link', _('Signal requires a phone number or a profile link.'))
+            elif method != Uzytkownik.ContactMethod.SIGNAL and not link:
+                self.add_error('contact_link', _('This contact method requires a profile link.'))
+            if link:
+                allowed_hosts = {
+                    Uzytkownik.ContactMethod.FACEBOOK: {'facebook.com', 'www.facebook.com', 'm.facebook.com'},
+                    Uzytkownik.ContactMethod.DISCORD: {'discord.com', 'www.discord.com', 'discordapp.com', 'www.discordapp.com'},
+                    Uzytkownik.ContactMethod.TELEGRAM: {'t.me', 'telegram.me', 'www.telegram.me'},
+                    Uzytkownik.ContactMethod.SIGNAL: {'signal.me', 'www.signal.me'},
+                }[method]
+                parsed = urlsplit(link)
+                if parsed.scheme != 'https' or parsed.hostname not in allowed_hosts:
+                    self.add_error('contact_link', _('Use a secure profile link from the selected service.'))
+        return cleaned_data
 
 
 class AvatarForm(forms.ModelForm):
@@ -145,7 +261,7 @@ class OnboardingDetailsForm(ProfileForm):
     """Onboarding subset of ProfileForm — same field setup, fewer fields."""
 
     class Meta(ProfileForm.Meta):
-        fields = ('why', 'phone', 'city', 'voivodeship', 'job', 'skills_knowledge_hobby', 'business')
+        fields = ('why', 'phone_country', 'phone', 'preferred_contact_method', 'contact_link', 'city', 'voivodeship', 'job', 'skills_knowledge_hobby', 'business')
 
 
 class CustomSignupForm(SignupForm):

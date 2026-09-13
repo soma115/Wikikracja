@@ -51,7 +51,7 @@
         <div class="tw-modal-content">
           <div class="tw-modal-header">
             <h5 class="tw-modal-title"></h5>
-            <button type="button" class="tw-btn-close" data-tw-dismiss="modal"></button>
+            <button type="button" class="tw-btn-close" data-tw-dismiss="modal"><i class="fas fa-times" aria-hidden="true"></i></button>
           </div>
           <div class="tw-modal-body">
             <div class="tw-alert tw-alert-warning tw-d-none" data-confirm-item-title></div>
@@ -65,8 +65,10 @@
         </div>
       </div>`;
     modal.querySelector('.tw-modal-title').textContent = options.title || '';
-    modal.querySelector('[data-tw-dismiss="modal"]').textContent = options.cancelLabel || 'Cancel';
-    modal.querySelector('[data-tw-dismiss="modal"]').setAttribute('aria-label', options.cancelLabel || 'Cancel');
+    const closeButton = modal.querySelector('.tw-btn-close');
+    const cancelButton = modal.querySelector('.tw-modal-footer [data-tw-dismiss="modal"]');
+    closeButton.setAttribute('aria-label', options.cancelLabel || 'Cancel');
+    cancelButton.textContent = options.cancelLabel || 'Cancel';
     modal.querySelector('[data-tw-confirm-action]').textContent = options.confirmLabel || 'Delete';
     modal.querySelector('[data-confirm-message]').textContent = options.message || '';
     if (options.itemTitle) {

@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
+import phonenumbers
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.signals import post_save
@@ -57,6 +58,18 @@ class Uzytkownik(models.Model):
         LIGHT = 'light', _('Bright')
         DARK = 'dark', _('Dark')
 
+    class ContactMethod(models.TextChoices):
+        PHONE = 'phone', _('Telephone')
+        SMS = 'sms', _('SMS')
+        WHATSAPP = 'whatsapp', _('WhatsApp')
+        FACEBOOK = 'facebook', _('Facebook')
+        DISCORD = 'discord', _('Discord')
+        TELEGRAM = 'telegram', _('Telegram')
+        SIGNAL = 'signal', _('Signal')
+
+    PHONE_CONTACT_METHODS = frozenset({ContactMethod.PHONE, ContactMethod.SMS, ContactMethod.WHATSAPP})
+    LINK_CONTACT_METHODS = frozenset({ContactMethod.FACEBOOK, ContactMethod.DISCORD, ContactMethod.TELEGRAM, ContactMethod.SIGNAL})
+
     uid = models.OneToOneField(User, on_delete=models.CASCADE, editable=False, null=True, verbose_name=_('Username'))
 
     reputation = models.SmallIntegerField(null=True, default=0)
@@ -64,7 +77,10 @@ class Uzytkownik(models.Model):
     polecajacy = models.CharField(editable=False, null=True, max_length=64)
     data_przyjecia = models.DateField(null=True, editable=False)
 
-    phone = models.CharField(null=True, blank=True, max_length=72, help_text=_('Preferred communicator or phone number'), verbose_name=_('Phone number'))
+    phone = models.CharField(null=True, blank=True, max_length=32, help_text=_('Enter a local or international phone number'), verbose_name=_('Phone number'))
+    phone_country = models.CharField(max_length=2, blank=True, default='PL', verbose_name=_('Phone country'))
+    preferred_contact_method = models.CharField(max_length=16, choices=ContactMethod.choices, blank=True, default='', verbose_name=_('Preferred contact method'))
+    contact_link = models.URLField(max_length=500, blank=True, default='', verbose_name=_('Contact profile link'))
     city = models.CharField(null=True, blank=True, max_length=72, help_text=_('Where one spend most of their time'), verbose_name=_('City'))
     voivodeship = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True, blank=True, related_name='citizens', verbose_name=_('Voivodeship'))
     responsibilities = models.CharField(null=True, blank=True, max_length=622, help_text=_('Activities performed in our group'), verbose_name=_('Responsibilities'))
@@ -125,6 +141,58 @@ class Uzytkownik(models.Model):
     class Meta:
         verbose_name = _("Citizen")
         verbose_name_plural = _("Citizens")
+
+    @property
+    def effective_contact_method(self):
+        if self.preferred_contact_method:
+            return self.preferred_contact_method
+        return self.ContactMethod.PHONE if self.phone else ''
+
+    @property
+    def contact_icon(self):
+        return {
+            self.ContactMethod.PHONE: 'fas fa-phone',
+            self.ContactMethod.SMS: 'fas fa-comment-sms',
+            self.ContactMethod.WHATSAPP: 'fab fa-whatsapp',
+            self.ContactMethod.FACEBOOK: 'fab fa-facebook',
+            self.ContactMethod.DISCORD: 'fab fa-discord',
+            self.ContactMethod.TELEGRAM: 'fab fa-telegram',
+            self.ContactMethod.SIGNAL: 'fab fa-signal-messenger',
+        }.get(self.effective_contact_method, 'fas fa-phone')
+
+    @property
+    def contact_url(self):
+        method = self.effective_contact_method
+        if method == self.ContactMethod.PHONE and self.phone:
+            return f'tel:{self.phone}'
+        if method == self.ContactMethod.SMS and self.phone:
+            return f'sms:{self.phone}'
+        if method == self.ContactMethod.WHATSAPP and self.phone:
+            return f'https://wa.me/{str(self.phone).lstrip("+")}'
+        if method in self.LINK_CONTACT_METHODS:
+            if self.contact_link:
+                return self.contact_link
+            if method == self.ContactMethod.SIGNAL and self.phone:
+                return f'https://signal.me/#p/{self.phone}'
+        return ''
+
+    @property
+    def formatted_phone(self):
+        if not self.phone:
+            return ''
+        try:
+            parsed = phonenumbers.parse(self.phone, None)
+        except phonenumbers.NumberParseException:
+            return self.phone
+        return phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+
+    @property
+    def contact_value(self):
+        return self.phone if self.effective_contact_method in self.PHONE_CONTACT_METHODS else self.contact_link
+
+    def get_effective_contact_method_display(self):
+        method = self.effective_contact_method
+        return dict(self.ContactMethod.choices).get(method, _('Contact'))
 
     def get_absolute_url(self):
         from django.urls import reverse

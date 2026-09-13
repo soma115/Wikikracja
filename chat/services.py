@@ -71,10 +71,22 @@ def mark_room_read_for_user(user, room):
     _invalidate_unread_cache(user.id)
 
 
+def mark_message_read_for_user(user, message):
+    MessageReadBy.objects.get_or_create(message=message, user=user)
+    message.room.seen_by.add(user)
+    _invalidate_unread_cache(user.id)
+
+
 def mark_room_unread_for_user(user, room):
     """Make messages from other users in a room unread again."""
     MessageReadBy.objects.filter(message__room=room, user_id=user.id).exclude(message__sender_id=user.id).delete()
     room.seen_by.remove(user)
+    _invalidate_unread_cache(user.id)
+
+
+def mark_message_unread_for_user(user, message):
+    MessageReadBy.objects.filter(message=message, user_id=user.id).delete()
+    message.room.seen_by.remove(user)
     _invalidate_unread_cache(user.id)
 
 

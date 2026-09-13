@@ -102,8 +102,9 @@ test.describe('chat — komponenty tw-* po migracji Tailwind', () => {
         await expect(page.locator('#sort-activity-btn .tw-sort-dir-icon')).toHaveClass(/fa-arrow-up/);
         const orderAsc = await page.evaluate(() =>
             [...document.querySelectorAll('#room-list-flat .tw-room-link[data-room-id]')]
-                .map(l => parseInt(l.dataset.lastActivity || '0', 10)));
-        expect(orderAsc).toEqual([...orderAsc].sort((a, b) => a - b));
+                .map(l => l.dataset.lastActivity ? parseInt(l.dataset.lastActivity, 10) : null));
+        const datedRooms = orderAsc.filter(value => value !== null);
+        expect(orderAsc).toEqual([...datedRooms].sort((a, b) => a - b).concat(orderAsc.filter(value => value === null)));
 
         // 3. Trzeci klik resetuje sortowanie → z powrotem drzewo kategorii.
         await sortBtn.click();

@@ -207,6 +207,43 @@ def test_edit_argument_uses_responsive_actions(sample_users):
 
 
 @pytest.mark.django_db
+def test_add_argument_notifies_referendum_chat_once(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Argument proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author)
+    client = Client()
+    client.force_login(author)
+
+    with patch('glosowania.views.chat_message_requested.send') as send_message:
+        response = client.post(f'/glosowania/details/{decision.pk}/add-argument/', {'argument_type': 'FOR', 'content': 'Argument text'})
+
+    assert response.status_code == 302
+    assert Argument.objects.filter(decyzja=decision, content='Argument text').exists()
+    send_message.assert_called_once()
+    call_kwargs = send_message.call_args.kwargs
+    assert call_kwargs['sender'] is Argument
+    assert call_kwargs['room_title'] == decision.chat_room.title
+    assert call_kwargs['from_user'] is None
+    assert call_kwargs['anonymous'] is False
+    assert call_kwargs['message_text'].startswith("<a href='")
+    assert call_kwargs['message_text'].endswith('>Referendum</a>')
+
+
+@pytest.mark.django_db
+def test_edit_argument_does_not_notify_referendum_chat(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Argument proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author)
+    argument = Argument.objects.create(decyzja=decision, author=author, argument_type='FOR', content='Old argument')
+    client = Client()
+    client.force_login(author)
+
+    with patch('glosowania.views.chat_message_requested.send') as send_message:
+        response = client.post(f'/glosowania/argument/{argument.pk}/edit/', {'argument_type': 'AGAINST', 'content': 'Updated argument'})
+
+    assert response.status_code == 302
+    send_message.assert_not_called()
+
+
+@pytest.mark.django_db
 def test_edit_argument_updates_content(sample_users):
     author = sample_users[0]
     decision = Decyzja.objects.create(title='Argument proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author)
