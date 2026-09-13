@@ -7,6 +7,11 @@
 
 ### Refactor
 
+- **chat**: Osobista dostawa powiadomień wiadomości, wzmianek i push została wydzielona
+  do `chat/notifications.py`. Web zapisuje wiadomość, aktualizuje unread i broadcastuje
+  ją do pokoju bezpośrednio, a powiadomienia użytkowników trafiają do Redis Streama
+  obsługiwanego przez `chat_notifications_worker`. Worker używa consumer group,
+  reclaimuje porzucone zadania i potwierdza wpis dopiero po dostarczeniu.
 - **chat**: Współdzielony WebSocket (`websocket-manager.js`) przeszedł na model subskrypcyjny:
   `subscribeMessages(handler)` i `subscribeConnection({onOpen, onClose})` zamiast pojedynczych
   callbacków. Pełny czat (`wsapi.js`), `notifications.js` i embedded chat (`chat-embedded.js`)

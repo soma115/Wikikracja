@@ -7,16 +7,17 @@ This document contains instructions for developers setting up the development en
 2. [Running the Application](#running-the-application)
 3. [Database Management](#database-management)
 4. [Deployment](#deployment)
-5. [Common Issues and Fixes](#common-issues-and-fixes)
-6. [Chat Room Categorization Fix](#chat-room-categorization-fix)
+5. [Chat Notification Worker](#chat-notification-worker)
+6. [Common Issues and Fixes](#common-issues-and-fixes)
+7. [Chat Room Categorization Fix](#chat-room-categorization-fix)
 
 ## Development Setup
 
 ### Prerequisites
 - Python 3.11+
 - PostgreSQL (for production) or SQLite (for development)
-- Redis (for chat functionality)
-- Docker and Docker Compose (optional)
+- Redis (for chat functionality and notification delivery)
+- Docker and Docker Compose (recommended for Redis and the notification worker)
 
 ### Local Development Setup
 
@@ -171,12 +172,24 @@ python manage.py runserver
 
 ### Using Docker
 ```bash
-# Build and run with Docker Compose
-docker-compose up --build
+# Build and start web, Redis and the chat notification worker
+docker compose up --build
+
+# Run in the background
+docker compose up --build -d
+
+# Stop the stack
+docker compose down
 
 # Or use the Windows script
 .\scripts\build_docker_localy_on_windows.ps1
 ```
+
+The Compose stack does not create or persist Redis. Both `web` and
+`chat_notifications_worker` connect to the externally managed Redis configured by
+`REDIS_HOST` in `.env`. The worker consumes the
+`wikikracja:chat:notifications` Redis Stream. Configure Redis persistence and
+availability outside this repository according to the cluster's policy.
 
 ### Running Tests
 ```bash
@@ -356,6 +369,118 @@ See `.github/workflows/docker-build.yml` for details.
    supervisorctl restart wikikracja
    ```
 
+## Chat Notification Worker
+
+Chat message delivery is split into two parts:
+
+1. the web process saves the message, updates unread state and broadcasts the message
+   to the room immediately;
+2. personal WebSocket notifications, push notifications and mention notifications are
+   queued in Redis Streams and delivered by `chat_notifications_worker`.
+
+The worker uses an at-least-once delivery model. It acknowledges a Redis Stream entry
+only after delivery succeeds and reclaims entries left pending by a stopped worker.
+A short-lived delivery marker prevents normal redelivery of an already completed job.
+A crash between external delivery and the marker can still produce a duplicate, so
+consumers must remain tolerant of duplicate notification IDs.
+
+### Docker Compose
+
+The worker starts automatically with:
+
+```bash
+docker compose up --build -d
+```
+
+Inspect worker logs with:
+
+```bash
+docker compose logs -f chat_notifications_worker
+```
+
+Restart only the worker with:
+
+```bash
+docker compose restart chat_notifications_worker
+```
+
+### Manual worker
+
+When running Django outside Docker, start Redis first and run the worker in a separate
+terminal using the same environment as Django:
+
+```bash
+.venv/Scripts/python.exe manage.py run_chat_notifications_worker
+```
+
+On Linux/macOS use `.venv/bin/python` instead. The worker must run continuously; it is
+not started by Daphne automatically.
+
+### Kubernetes
+
+This repository does not deploy Redis to Kubernetes. Use the existing managed Redis
+service and configure the same endpoint for both the web Deployment and the chat
+notification worker Deployment.
+
+Create or update a Secret (use your cluster's secret-management process in production):
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: wikikracja-runtime
+  namespace: wikikracja
+stringData:
+  REDIS_HOST: rediss://:<redis-password>@managed-redis.example:6379/1
+  REDIS_CHANNEL_PREFIX: wikikracja-production
+```
+
+Use `redis://` instead of `rediss://` only when Redis is inside a trusted private
+network without TLS. The password must be URL-encoded if it contains URL-reserved
+characters.
+
+Reference the Secret from both application workloads:
+
+```yaml
+envFrom:
+  - secretRef:
+      name: wikikracja-runtime
+```
+
+The worker workload must use the same image and environment as the web workload, but
+run this command instead of Daphne:
+
+```yaml
+command: ["python", "manage.py", "run_chat_notifications_worker"]
+```
+
+Do not add a Redis StatefulSet, Redis PVC, or Redis Service from this repository. Redis
+is intentionally external and may be configured as in-memory only. With an in-memory
+Redis, a Redis restart loses queued personal notifications and Channels presence state;
+messages remain stored in SQLite. Run at least one worker replica, and scale workers
+only when the shared Redis and database can support it. The consumer group safely
+assigns new jobs between multiple workers.
+
+The cluster must provide:
+
+- network access from both Deployments to the Redis endpoint;
+- Redis Streams commands (`XADD`, `XREADGROUP`, `XAUTOCLAIM`, `XACK`);
+- enough memory for Channels, cache and the notification Stream;
+- a restart policy for the worker;
+- Firebase credentials separately if FCM push delivery is required.
+
+### Redis availability and durability
+
+The worker uses the existing `REDIS_HOST` setting and does not require or create a
+second Redis server. Redis is an external dependency of both the web process and the
+worker. Configure the endpoint in `.env` for local Docker, or through a Kubernetes
+Secret/Deployment environment variable in the cluster.
+
+This chat queue is compatible with an in-memory Redis. Chat messages remain safe in
+SQLite, but queued personal push/WebSocket notifications may be lost if Redis restarts
+before delivery. If the cluster's Redis policy allows persistence, it can be enabled
+there independently of this repository.
+
 ## Common Issues and Fixes
 
 ### Multiple Users with Same Email Error
@@ -483,10 +608,11 @@ EMAIL_HOST_PASSWORD=your-password
 SERVER_EMAIL=noreply@yourdomain.com
 DEFAULT_FROM_EMAIL=noreply@yourdomain.com
 
-# Redis (for Django Channels and caching)
-# Use 'redis' hostname when running with docker-compose
-# Use '127.0.0.1' when running Django locally
-REDIS_HOST=redis://redis:6379/1
+# Redis (Channels, caching and chat notification queue)
+# Docker Desktop with Redis exposed on the host:
+REDIS_HOST=redis://host.docker.internal:6379/1
+# Kubernetes: replace this with the managed Redis service endpoint.
+# Local Django outside Docker can use redis://127.0.0.1:6379/1
 ```
 
 ### Generate SECRET_KEY
@@ -517,6 +643,7 @@ Custom management commands available:
 ```bash
 # Chat management
 python manage.py chat_rooms         # Manage chat rooms
+python manage.py run_chat_notifications_worker  # Deliver Redis Stream notifications
 
 # User management
 python manage.py count_citizens     # Count registered citizens
@@ -536,18 +663,22 @@ python manage.py update_site        # Update site domain and name from environme
 └────────────────┬────────────────────────────────┘
                  │ HTTPS
                  ▼
-┌─────────────────────────────────────────────────┐
-│  Django Application (Daphne ASGI Server)        │
-│  ┌────────────────────────────────────────────┐ │
-│  │ Django Views (HTTP)                        │ │
-│  │ Django Channels (WebSocket)                │ │
-│  └────────────────────────────────────────────┘ │
-└──────┬──────────────────────┬───────────────────┘
-       │                      │
-       ▼                      ▼
-┌─────────────┐      ┌──────────────────┐
-│   SQLite    │      │   Redis          │
-│  (Database) │      │ (Channels Layer) │
-└─────────────┘      └──────────────────┘
+┌────────────────────────────────────────────────────────┐
+│  Web / Daphne ASGI                                     │
+│  HTTP views + Django Channels WebSocket                │
+└──────────────┬───────────────────────┬─────────────────┘
+               │                       │
+               ▼                       ▼
+┌─────────────────────┐      ┌──────────────────────────┐
+│       SQLite        │      │          Redis            │
+│      (Database)     │      │ Channels + notification  │
+└─────────────────────┘      │ Stream / cache           │
+                             └────────────┬─────────────┘
+                                          │
+                                          ▼
+                             ┌──────────────────────────┐
+                             │ chat_notifications_worker│
+                             │ Redis Stream consumer    │
+                             └──────────────────────────┘
 ```
 

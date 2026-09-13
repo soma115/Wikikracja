@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-13 21:04+0200\n"
+"POT-Creation-Date: 2026-09-13 22:11+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -80,7 +80,7 @@ msgstr "Ta opcja już istnieje."
 
 #: .\ankiety\models.py:12 .\ankiety\templates\ankiety\survey_form.html:22
 #: .\board\models.py:29 .\chat\i18n.py:27 .\events\models.py:19
-#: .\glosowania\models.py:34 .\glosowania\views.py:573
+#: .\glosowania\models.py:34 .\glosowania\views.py:567
 #: .\home\templates\home\site_admin.html:36
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:7
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:7
@@ -427,14 +427,14 @@ msgid "Your option has been added."
 msgstr "Twoja opcja została dodana."
 
 #: .\ankiety\views.py:168 .\board\views.py:238 .\bookkeeping\views.py:86
-#: .\events\views.py:66 .\glosowania\views.py:720
+#: .\events\views.py:66 .\glosowania\views.py:714
 #: .\home\templates\home\includes\toolbar.html:60 .\home\views.py:135
 #: .\obywatele\views.py:281 .\obywatele\views.py:340 .\tasks\views.py:185
 msgid "List"
 msgstr "Lista"
 
 #: .\ankiety\views.py:168 .\board\views.py:238 .\bookkeeping\views.py:86
-#: .\events\views.py:66 .\glosowania\views.py:720
+#: .\events\views.py:66 .\glosowania\views.py:714
 #: .\home\templates\home\includes\toolbar.html:55 .\home\views.py:135
 #: .\obywatele\views.py:281 .\obywatele\views.py:340 .\tasks\views.py:185
 msgid "Grid"
@@ -661,8 +661,8 @@ msgid "Discussion room for document: <a href='%(url)s'>%(title)s</a>"
 msgstr "Pokój dyskusji do dokumentu: <a href='%(url)s'>%(title)s</a>"
 
 #: .\board\templates\board\_post_chat_link.html:5
-#: .\board\templates\board\_post_chat_link.html:7 .\chat\search.py:20
-#: .\chat\services.py:676 .\chat\templates\chat\_embedded_chat.html:16
+#: .\board\templates\board\_post_chat_link.html:7 .\chat\notifications.py:113
+#: .\chat\search.py:20 .\chat\templates\chat\_embedded_chat.html:16
 #: .\glosowania\templates\glosowania\_proposal_card.html:62
 #: .\glosowania\templates\glosowania\_proposal_card.html:67
 #: .\home\services\dashboard.py:34 .\home\templates\home\base.html:214
@@ -1706,7 +1706,7 @@ msgstr "Brak wiadomości. Napisz pierwszy!"
 msgid "No access to this chat."
 msgstr "Brak dostępu do tego czatu."
 
-#: .\chat\models.py:11 .\chat\services.py:116
+#: .\chat\models.py:11 .\chat\services.py:123
 #: .\obywatele\tests\test_views.py:428 .\obywatele\tests\test_views.py:429
 #: .\obywatele\tests\test_views.py:432
 msgid "Chat room"
@@ -1716,19 +1716,19 @@ msgstr "Pokój czatu"
 msgid "This is where messages from unregistered people outside the group appear. They used the Contact (Send a message to the group) option."
 msgstr "Tutaj pojawiają się wiadomości od niezalogowanych ludzi z zewnątrz, którzy użyli opcji Kontakt (Wyślij wiadomość do grupy)."
 
-#: .\chat\search.py:29
-msgid "Chat message"
-msgstr "Wiadomość"
-
-#: .\chat\services.py:676
+#: .\chat\notifications.py:113
 #, python-format
 msgid "Room: %(room)s"
 msgstr "Pokój: %(room)s"
 
-#: .\chat\services.py:677
+#: .\chat\notifications.py:114
 #, python-format
 msgid "Sender: %(author)s"
 msgstr "Nadawca: %(author)s"
+
+#: .\chat\search.py:29
+msgid "Chat message"
+msgstr "Wiadomość"
 
 #: .\chat\templates\chat\_embedded_chat.html:18
 msgid "Open in chat"
@@ -2248,7 +2248,7 @@ msgstr "Propozycja głosowania"
 #: .\glosowania\dashboard.py:30 .\glosowania\management\commands\vote.py:136
 #: .\glosowania\models.py:29
 #: .\glosowania\templates\glosowania\_detail_meta.html:20
-#: .\glosowania\templatetags\glosowania_stepper.py:33 .\glosowania\views.py:471
+#: .\glosowania\templatetags\glosowania_stepper.py:33 .\glosowania\views.py:468
 msgid "Referendum"
 msgstr "Referendum"
 
@@ -2263,7 +2263,7 @@ msgstr "podpisy"
 #: .\glosowania\forms.py:38 .\glosowania\models.py:45 .\glosowania\search.py:30
 #: .\glosowania\templates\glosowania\_proposal_card.html:100
 #: .\glosowania\templates\glosowania\szczegoly.html:101
-#: .\glosowania\views.py:573
+#: .\glosowania\views.py:567
 msgid "Reasoning"
 msgstr "Uzasadnienie"
 
@@ -2415,7 +2415,7 @@ msgstr "Odrzucone"
 msgid "Enter only existing bill numbers here"
 msgstr "Wpisz tutaj tylko numery istniejących przepisów"
 
-#: .\glosowania\models.py:27 .\glosowania\views.py:65 .\glosowania\views.py:660
+#: .\glosowania\models.py:27 .\glosowania\views.py:65 .\glosowania\views.py:654
 msgid "Proposition"
 msgstr "Propozycja"
 
@@ -2426,7 +2426,7 @@ msgstr "Wpisz krótki tytuł opisujący nowe prawo."
 #: .\glosowania\models.py:35
 #: .\glosowania\templates\glosowania\_proposal_card.html:82
 #: .\glosowania\templates\glosowania\szczegoly.html:84
-#: .\glosowania\views.py:573
+#: .\glosowania\views.py:567
 msgid "Law text"
 msgstr "Treść przepisu"
 
@@ -2758,7 +2758,7 @@ msgid "Adjust the values below. Only the parameters you change will be included 
 msgstr "Dostosuj poniższe wartości. Tylko zmienione przez Ciebie parametry zostaną uwzględnione w referendum."
 
 #: .\glosowania\templates\glosowania\parameters_propose.html:38
-#: .\glosowania\views.py:656
+#: .\glosowania\views.py:650
 msgid "Logo"
 msgstr "Logo"
 
@@ -2886,16 +2886,16 @@ msgstr "Jak działają głosowania?"
 msgid "Please correct the errors below."
 msgstr "Popraw poniższe błędy."
 
-#: .\glosowania\views.py:70 .\glosowania\views.py:683
+#: .\glosowania\views.py:70 .\glosowania\views.py:677
 msgid "New proposal has been saved."
 msgstr "Nowa propozycja została zapisana."
 
 #: .\glosowania\views.py:74 .\glosowania\views.py:82 .\glosowania\views.py:86
-#: .\glosowania\views.py:690 .\glosowania\views.py:694
+#: .\glosowania\views.py:684 .\glosowania\views.py:688
 msgid "New law proposal"
 msgstr "Nowa propozycja przepisu"
 
-#: .\glosowania\views.py:87 .\glosowania\views.py:695
+#: .\glosowania\views.py:87 .\glosowania\views.py:689
 #, python-brace-format
 msgid ""
 "{user} added new law proposal: \"{title}\"\n"
@@ -2904,7 +2904,7 @@ msgstr ""
 "{user} dodał/a nową propozycję przepisu: \"{title}\"\n"
 "Możesz ją zobaczyć tutaj: {url}"
 
-#: .\glosowania\views.py:135 .\glosowania\views.py:705
+#: .\glosowania\views.py:135 .\glosowania\views.py:699
 msgid "Saved."
 msgstr "Zapisane."
 
@@ -2973,56 +2973,56 @@ msgstr "Twój głos został zapisany. Zagłosowałeś na Nie."
 msgid "Arguments cannot be added after voting has ended."
 msgstr "Argumenty nie mogą być dodawane po zakończeniu głosowania."
 
-#: .\glosowania\views.py:479
+#: .\glosowania\views.py:473
 #, python-brace-format
 msgid "Your {type} argument has been added."
 msgstr "Twój argument {type} został dodany."
 
-#: .\glosowania\views.py:484 .\glosowania\views.py:511
+#: .\glosowania\views.py:478 .\glosowania\views.py:505
 msgid "There was an error with your argument. Please try again."
 msgstr "Wystąpił błąd z twoim argumentem. Spróbuj ponownie."
 
-#: .\glosowania\views.py:496
+#: .\glosowania\views.py:490
 msgid "You can only edit your own arguments."
 msgstr "Możesz edytować tylko własne argumenty."
 
-#: .\glosowania\views.py:501
+#: .\glosowania\views.py:495
 msgid "Arguments cannot be edited after voting has ended."
 msgstr "Argumenty nie mogą być edytowane po zakończeniu głosowania."
 
-#: .\glosowania\views.py:508
+#: .\glosowania\views.py:502
 msgid "Your argument has been updated."
 msgstr "Twój argument został zaktualizowany."
 
-#: .\glosowania\views.py:524
+#: .\glosowania\views.py:518
 msgid "You can only delete your own arguments."
 msgstr "Możesz usuwać tylko własne argumenty."
 
-#: .\glosowania\views.py:529
+#: .\glosowania\views.py:523
 msgid "Arguments cannot be deleted after voting has ended."
 msgstr "Argumenty nie mogą być usuwane po zakończeniu głosowania."
 
-#: .\glosowania\views.py:535
+#: .\glosowania\views.py:529
 msgid "Your argument has been deleted."
 msgstr "Twój argument został usunięty."
 
-#: .\glosowania\views.py:573
+#: .\glosowania\views.py:567
 msgid "Penalty"
 msgstr "Konsekwencje"
 
-#: .\glosowania\views.py:573
+#: .\glosowania\views.py:567
 msgid "Abolishes"
 msgstr "Znosi"
 
-#: .\glosowania\views.py:656
+#: .\glosowania\views.py:650
 msgid "new logo"
 msgstr "nowe logo"
 
-#: .\glosowania\views.py:657
+#: .\glosowania\views.py:651
 msgid "Proposed change of system parameters:"
 msgstr "Proponowana zmiana parametrów systemu:"
 
-#: .\glosowania\views.py:660
+#: .\glosowania\views.py:654
 msgid "System parameters change"
 msgstr "Zmiana parametrów systemu"
 
@@ -3762,11 +3762,11 @@ msgstr "Imię"
 msgid "Last name"
 msgstr "Nazwisko"
 
-#: .\obywatele\forms.py:77 .\obywatele\forms.py:179
+#: .\obywatele\forms.py:77 .\obywatele\forms.py:196
 msgid "First name is required."
 msgstr "Imię jest wymagane"
 
-#: .\obywatele\forms.py:78 .\obywatele\forms.py:180
+#: .\obywatele\forms.py:78 .\obywatele\forms.py:197
 msgid "Last name is required."
 msgstr "Nazwisko jest wymagane"
 
@@ -3782,7 +3782,7 @@ msgstr "Dwa pola adresów e-mail nie zgadzają się"
 msgid "The email address is the same as the one already defined."
 msgstr "Nowy email jest taki sam jak obecny."
 
-#: .\obywatele\forms.py:108 .\obywatele\forms.py:284
+#: .\obywatele\forms.py:108 .\obywatele\forms.py:301
 msgid "An account with this email address already exists."
 msgstr "Konto z tym adresem email już istnieje."
 
@@ -3800,63 +3800,63 @@ msgstr "Potwierdź nowy email"
 msgid "Phone country"
 msgstr "Numer telefonu"
 
-#: .\obywatele\forms.py:156
+#: .\obywatele\forms.py:173
 #, fuzzy
 #| msgid "Phone number"
 msgid "Phone number (optional)"
 msgstr "Numer telefonu"
 
-#: .\obywatele\forms.py:166
+#: .\obywatele\forms.py:183
 msgid "Preferred contact method (optional)"
 msgstr ""
 
-#: .\obywatele\forms.py:168
+#: .\obywatele\forms.py:185
 #, fuzzy
 #| msgid "Profile Details"
 msgid "Profile link"
 msgstr "Szczegóły"
 
-#: .\obywatele\forms.py:169
+#: .\obywatele\forms.py:186
 msgid "Use the public profile link from the selected service."
 msgstr ""
 
-#: .\obywatele\forms.py:176 .\obywatele\models.py:85 .\obywatele\tables.py:12
+#: .\obywatele\forms.py:193 .\obywatele\models.py:85 .\obywatele\tables.py:12
 #: .\obywatele\templates\obywatele\my_profile.html:172
 #: .\obywatele\templates\obywatele\szczegoly.html:101
 msgid "Voivodeship"
 msgstr "Województwo"
 
-#: .\obywatele\forms.py:181
+#: .\obywatele\forms.py:198
 msgid "City / Commune is required."
 msgstr "Miejscowość / Powiat jest wymagany"
 
-#: .\obywatele\forms.py:182
+#: .\obywatele\forms.py:199
 msgid "Job is required."
 msgstr "Zawód jest wymagany"
 
-#: .\obywatele\forms.py:192 .\obywatele\forms.py:194
+#: .\obywatele\forms.py:209 .\obywatele\forms.py:211
 #, fuzzy
 #| msgid "Enter a descriptive name for the event"
 msgid "Enter a valid phone number for the selected country."
 msgstr "Wpisz opisową nazwę wydarzenia"
 
-#: .\obywatele\forms.py:205
+#: .\obywatele\forms.py:222
 msgid "This contact method requires a phone number."
 msgstr ""
 
-#: .\obywatele\forms.py:208
+#: .\obywatele\forms.py:225
 msgid "Signal requires a phone number or a profile link."
 msgstr ""
 
-#: .\obywatele\forms.py:210
+#: .\obywatele\forms.py:227
 msgid "This contact method requires a profile link."
 msgstr ""
 
-#: .\obywatele\forms.py:220
+#: .\obywatele\forms.py:237
 msgid "Use a secure profile link from the selected service."
 msgstr ""
 
-#: .\obywatele\forms.py:282
+#: .\obywatele\forms.py:299
 msgid "Your candidacy is still in the queue. Please wait for verification."
 msgstr "Twoja kandydatura nadal czeka na zatwierdzenie. Poprosimy jeszcze o trochę cierpliwości."
 

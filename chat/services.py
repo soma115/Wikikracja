@@ -1,21 +1,16 @@
-import asyncio
 import logging
 import re
-import uuid
 
 from channels.db import database_sync_to_async
 from channels.layers import get_channel_layer
-from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db.models import Count, Prefetch
 from django.urls import reverse
-from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
-from core.notifications import NOTIF_LOG_TAG
 from core.presence import presence_data
 from core.richtext import sanitize, strip_tags
-from core.utils import get_site_domain
 from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
 
 from .exceptions import ClientError
@@ -673,25 +668,6 @@ class ChatRepository:
             return False
 
 
-def _room_notification_name(room, sender):
-    """Room name to display in notifications: public room clean title, private chat = sender."""
-    return room.clean_title() if room.public else (user_display_name(sender) if sender else "System")
-
-
-async def _build_chat_notification(author, room_id, room_name=None):
-    """Build the title/body/icon/click_action shared by WS and FCM chat notifications."""
-    site_url = f"https://{await database_sync_to_async(get_site_domain)()}"
-    notification_id = uuid.uuid4().hex
-    log.debug(f"{NOTIF_LOG_TAG} Built chat notification {notification_id} for room {room_id} (author={author})")
-    return {
-        'notification_id': notification_id,
-        'title': _("Room: %(room)s") % {'room': room_name} if room_name else _("Chat"),
-        'body': _("Sender: %(author)s") % {'author': author},
-        'icon': f"{site_url}/favicon.ico",
-        'click_action': f"{site_url}/chat#room_id={room_id}",
-    }
-
-
 def _prepare_message_text(text, linkify=False):
     """Sanitize and normalize raw message text for storage."""
     if text is None:
@@ -803,108 +779,6 @@ def _create_and_build_message(room, text, sender, anonymous, attachments, reply_
     return message, event, mentioned_users
 
 
-async def _dispatch_message_notifications(channel_layer, room, message, sender, event, mentioned_users, online_registry, *, background=False):
-    """Notify recipients after a message has been broadcast.
-
-    Handles unread state for offline users, WebSocket notifications for online
-    users, and both push + channel mention events for explicitly mentioned users.
-
-    When ``background=True`` (WebSocket consumer), push/mention work is scheduled
-    as fire-and-forget tasks so the consumer can return immediately.  When
-    ``background=False`` (REST views / signals), all work is awaited so that
-    ``async_to_sync`` callers do not kill the event loop before pushes finish.
-    """
-    try:
-        mentioned_user_ids = {u.id for u in mentioned_users}
-        room_members = await database_sync_to_async(lambda: list(room.allowed.all()))()
-        other_members = [m for m in room_members if m.id != (sender.id if sender else None)]
-        if not other_members:
-            return
-
-        other_member_ids = [m.id for m in other_members]
-
-        online_ids = set(online_registry.get_online())
-        offline_ids = [mid for mid in other_member_ids if mid not in online_ids]
-        if offline_ids:
-            await database_sync_to_async(lambda: MessageReadBy.objects.filter(message__room_id=room.id, user_id__in=offline_ids).delete())()
-            await database_sync_to_async(lambda: Room.seen_by.through.objects.filter(room_id=room.id, user_id__in=offline_ids).delete())()
-        await database_sync_to_async(lambda: cache.delete_many([CHAT_UNREAD_CACHE_KEY.format(user_id=uid) for uid in other_member_ids]))()
-
-        membership_prefs = await database_sync_to_async(Room.get_membership_preferences_bulk)(room.id, other_member_ids)
-
-        author = "Anonymous" if message.anonymous else (user_display_name(sender) if sender else "System")
-        notify_room_name = _room_notification_name(room, sender)
-        notification = await _build_chat_notification(author, room.id, notify_room_name)
-
-        for member in other_members:
-            prefs = membership_prefs.get(member.id, {'seen': False, 'muted': True})
-            consumer = online_registry.get_consumer(member)
-            is_present = bool(consumer) and consumer.rooms.present(room)
-            is_mentioned = member.id in mentioned_user_ids
-
-            # Keep per-room counters in every open chat tab in sync, including
-            # muted rooms where the browser notification is intentionally skipped.
-            await channel_layer.group_send(f"user_{member.id}", {"type": "chat.room_unread", "room_id": room.id, "delta": 1})
-
-            if not prefs['muted'] and not is_mentioned:
-                if background:
-                    asyncio.create_task(_send_push_to_user(member, message, room, notify_room_name))
-                else:
-                    await _send_push_to_user(member, message, room, notify_room_name)
-                log.debug(f"{NOTIF_LOG_TAG} group_send chat.notification notification_id={notification['notification_id']} to user_{member.id} for message {message.id} (present={is_present})")
-                await channel_layer.group_send(f"user_{member.id}", {"type": "chat.notification", "room_id": room.id, "notification": {**notification, "room_id": room.id}})
-
-            if consumer and not is_present and prefs['seen']:
-                await consumer.repo.unsee_room(room)
-                await consumer.push_unread_count()
-                await consumer.send_json({"unsee_room": room.id})
-
-        if mentioned_users:
-            for user in mentioned_users:
-                if user.id == (sender.id if sender else None):
-                    continue
-                if background:
-                    asyncio.create_task(_send_mention(channel_layer, room, message, user, notify_room_name, online_registry))
-                else:
-                    await _send_mention(channel_layer, room, message, user, notify_room_name, online_registry)
-    except Exception as e:
-        log.error(f"{NOTIF_LOG_TAG} Error in dispatch_message_notifications for message {message.id}: {e}", exc_info=True)
-
-
-async def _send_push_to_user(user, message, room, room_name):
-    """Send a single push notification via ChatRepository."""
-    try:
-        author = "Anonymous" if message.anonymous else (user_display_name(message.sender) if message.sender else "System")
-        notification = await _build_chat_notification(author, room.id, room_name)
-        repo = ChatRepository(AnonymousUser())
-        success = await repo.send_push_notification_sync(user, notification['title'], notification['body'], notification['click_action'], room.id, room_name=room_name)
-        if success:
-            log.info(f"{NOTIF_LOG_TAG} Push notification sent to user {user.id} for message {message.id} (ws notification_id={notification['notification_id']})")
-        else:
-            log.debug(f"{NOTIF_LOG_TAG} No push devices active for user {user.id} (ws notification_id={notification['notification_id']})")
-    except Exception as e:
-        log.error(f"{NOTIF_LOG_TAG} Error sending push notification to user {user.id}: {e}", exc_info=True)
-
-
-async def _send_mention(channel_layer, room, message, user, room_name, online_registry):
-    """Send a WebSocket mention event and a push for a single mention."""
-    try:
-        author = "Anonymous" if message.anonymous else (user_display_name(message.sender) if message.sender else "System")
-        notification = await _build_chat_notification(author, room.id, room_name)
-
-        log.debug(f"{NOTIF_LOG_TAG} group_send chat.mention notification_id={notification['notification_id']} to user_{user.id} for message {message.id}")
-        await channel_layer.group_send(f"user_{user.id}", {"type": "chat.mention", "room_id": room.id, "notification": {**notification, "room_id": room.id}})
-
-        repo = ChatRepository(AnonymousUser())
-        success = await repo.send_push_notification_sync(user, notification['title'], notification['body'], notification['click_action'], room.id, room_name=room_name)
-        if success:
-            log.info(f"{NOTIF_LOG_TAG} Mention notification sent to user {user.id} for message {message.id} (ws notification_id={notification['notification_id']})")
-        else:
-            log.debug(f"{NOTIF_LOG_TAG} No push devices active for mention to user {user.id} (ws notification_id={notification['notification_id']})")
-    except Exception as e:
-        log.error(f"{NOTIF_LOG_TAG} Error sending mention notification to user {user.id}: {e}", exc_info=True)
-
-
 async def send_message(
     room,
     text,
@@ -953,9 +827,7 @@ async def send_message(
 
     await channel_layer.group_send(room.group_name, event)
 
-    if background:
-        asyncio.create_task(_dispatch_message_notifications(channel_layer, room, message, sender, event, mentioned_users, online_registry, background=True))
-    else:
-        await _dispatch_message_notifications(channel_layer, room, message, sender, event, mentioned_users, online_registry, background=False)
+    from .notifications import ChatNotificationService
 
+    await ChatNotificationService(channel_layer, online_registry).dispatch_message(room, message, sender, mentioned_users)
     return message

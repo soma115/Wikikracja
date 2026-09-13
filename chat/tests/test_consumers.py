@@ -9,7 +9,8 @@ from django.test import TestCase, override_settings
 from chat.consumers import ChatConsumer
 from chat.exceptions import ClientError
 from chat.models import Message, Room
-from chat.services import CHAT_UNREAD_CACHE_KEY, ChatRepository, _send_mention, send_message
+from chat.notifications import ChatNotificationService
+from chat.services import CHAT_UNREAD_CACHE_KEY, ChatRepository, send_message
 from chat.tests.utils import make_user
 from chat.utils import HandledMessage
 from tasks.models import TaskVote
@@ -27,11 +28,19 @@ class PostSendProcessingUnseenTest(TestCase):
     def setUp(self):
         cache.clear()
         self.addCleanup(cache.clear)
-        self.push = self.enterContext(patch('core.notifications.send_fcm_to_user_sync', return_value=1))
+        self.push = MagicMock()
+        self.queued_notifications = []
+        self.enterContext(patch('chat.notifications.enqueue_notification', side_effect=self._queue_notification))
         self.sender = make_user("sender")
         self.receiver = make_user("receiver")
         self.room = Room.objects.create(title="test-room", public=False)
         self.room.allowed.add(self.sender, self.receiver)
+
+    def _queue_notification(self, *, user_id, room_id, notification, kind):
+        user = self.receiver if user_id == self.receiver.id else MagicMock(id=user_id)
+        self.queued_notifications.append((f'user_{user_id}', {'type': f'chat.{kind}', 'room_id': room_id, 'notification': notification}))
+        self.push(user, notification, notification_type='chat')
+        return f'test-job-{len(self.queued_notifications)}'
 
     def _make_receiver_consumer(self):
         consumer = MagicMock(spec=ChatConsumer)
@@ -51,6 +60,8 @@ class PostSendProcessingUnseenTest(TestCase):
         return registry
 
     async def _run(self, receiver_consumer, text="hello", *, anonymous=False, online=True):
+        self.queued_notifications.clear()
+        self.push.reset_mock()
         self.channel_layer = AsyncMock()
         online_registry = self._make_online_registry(receiver_consumer)
         if not online:
@@ -61,7 +72,7 @@ class PostSendProcessingUnseenTest(TestCase):
         return self.push
 
     def _notifications(self):
-        return [(call.args[0], call.args[1]) for call in self.channel_layer.group_send.await_args_list if call.args[1]['type'] in ('chat.notification', 'chat.mention')]
+        return [(group, event) for group, event in self.queued_notifications]
 
     def _room_unread_events(self):
         return [(call.args[0], call.args[1]) for call in self.channel_layer.group_send.await_args_list if call.args[1]['type'] == 'chat.room_unread']
@@ -221,24 +232,22 @@ class MentionNotificationTest(TestCase):
         self.room.allowed.set([self.sender, self.receiver])
 
     async def test_send_mention_notification_private_room_uses_sender_username(self):
-        """Mention notification for a private room must use the sender's username as room name."""
+        """Mention jobs for private rooms preserve the sender username as room name."""
         message = await database_sync_to_async(lambda: Message.objects.create(room=self.room, sender=self.sender, text="@bob"))()
         channel_layer = AsyncMock()
+        online_registry = MagicMock()
+        online_registry.get_online.return_value = []
+        online_registry.get_consumer.return_value = None
 
-        with patch('core.notifications.send_fcm_to_user_sync', return_value=1) as push:
-            await _send_mention(channel_layer, self.room, message, self.receiver, self.sender.username, None)
+        with patch('chat.notifications.enqueue_notification') as enqueue:
+            await ChatNotificationService(channel_layer, online_registry).dispatch_message(self.room, message, self.sender, [self.receiver])
 
-        channel_layer.group_send.assert_awaited_once()
-        group, payload = channel_layer.group_send.call_args.args
-        self.assertEqual(group, f"user_{self.receiver.id}")
-        self.assertEqual(payload["type"], "chat.mention")
-        self.assertEqual(payload["room_id"], self.room.id)
-        self.assertEqual(payload["notification"]["room_id"], self.room.id)
-        self.assertIn(f"#room_id={self.room.id}", payload["notification"]["click_action"])
-
-        push.assert_called_once()
-        self.assertEqual(push.call_args.args[0], self.receiver)
-        self.assertEqual(push.call_args.args[1]['room_name'], self.sender.username)
+        enqueue.assert_called_once()
+        payload = enqueue.call_args.kwargs['notification']
+        self.assertEqual(enqueue.call_args.kwargs['kind'], 'mention')
+        self.assertEqual(payload['room_id'], self.room.id)
+        self.assertEqual(payload['room_name'], self.sender.username)
+        self.assertIn(f"#room_id={self.room.id}", payload['click_action'])
 
 
 class BroadcastVoteUpdateTest(TestCase):
@@ -303,7 +312,7 @@ class TaskRoomSendPermissionTest(TestCase):
         self.assertIsInstance(consumer.repo, ChatRepository)
         proxy = HandledMessage()
 
-        with patch('chat.services._dispatch_message_notifications', new_callable=AsyncMock) as notifications:
+        with patch('chat.notifications.ChatNotificationService.dispatch_message', new_callable=AsyncMock) as notifications:
             with self.assertRaises(ClientError) as denied:
                 await consumer.send_message_to_room(proxy, self.room.id, "Helper message", False, {})
 

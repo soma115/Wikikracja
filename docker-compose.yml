@@ -1,19 +1,21 @@
 services:
-  redis:
-    image: redis:8-alpine
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-
   web:
     build: .
-    depends_on:
-      - redis
     restart: unless-stopped
     env_file:
       - .env
     ports:
       - "8000:8000"
+    volumes:
+      - ./data/db:/app/db
+      - ./data/media:/app/media
+
+  chat_notifications_worker:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    command: ["python", "manage.py", "run_chat_notifications_worker"]
     volumes:
       - ./data/db:/app/db
       - ./data/media:/app/media

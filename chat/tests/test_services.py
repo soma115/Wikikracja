@@ -18,11 +18,11 @@ from push_notifications.models import GCMDevice
 
 from chat.exceptions import ClientError
 from chat.models import Message, MessageReadBy, Room
+from chat.notifications import ChatNotificationService
 from chat.permissions import _room_permission_checkers, get_room_permission_checker, register_room_permission_checker
 from chat.services import (
     CHAT_UNREAD_CACHE_KEY,
     ChatRepository,
-    _room_notification_name,
     can_user_post_in_room,
     extract_mentions,
     get_avatar_url,
@@ -181,7 +181,7 @@ class RoomPermissionRegistryTest(TestCase):
     def setUp(self):
         self.enterContext(patch.dict(_room_permission_checkers))
         self.enterContext(patch("core.notifications._dispatch_notification"))
-        self.notify = self.enterContext(patch("chat.services._dispatch_message_notifications", new_callable=AsyncMock))
+        self.notify = self.enterContext(patch("chat.notifications.ChatNotificationService.dispatch_message", new_callable=AsyncMock))
         self.user = make_user("permission-user")
         self.room = Room.objects.create(title="Custom source room", public=True, source_app="test_source", source_object_id=1)
         self.checker = MagicMock(return_value=True)
@@ -764,13 +764,13 @@ class FCMDeviceTypeFilterTest(TestCase):
 class RoomNotificationNameTest(TestCase):
     def test_public_task_room_uses_clean_title(self):
         room = Room.objects.create(title='Task #42: Clean title', public=True, source_app='tasks', source_object_id=42)
-        self.assertEqual(_room_notification_name(room, None), 'Clean title')
+        self.assertEqual(ChatNotificationService._room_notification_name(room, None), 'Clean title')
 
     def test_public_room_without_prefix_uses_title(self):
         room = Room.objects.create(title='Custom room', public=True)
-        self.assertEqual(_room_notification_name(room, None), 'Custom room')
+        self.assertEqual(ChatNotificationService._room_notification_name(room, None), 'Custom room')
 
     def test_private_room_uses_sender_name(self):
         sender = make_user('sender')
         room = Room.objects.create(title='Private room', public=False)
-        self.assertEqual(_room_notification_name(room, sender), sender.username)
+        self.assertEqual(ChatNotificationService._room_notification_name(room, sender), sender.username)
