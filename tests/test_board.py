@@ -298,7 +298,17 @@ def test_public_post_visible_to_everyone(client, authenticated_client):
 
     res = client.get(reverse('board:start'))
     assert res.status_code == 200
-    assert public.title in res.content.decode()
+    content = res.content.decode()
+    assert public.title in content
+    assert 'tw-board-stepper' not in content
+    assert 'tw-toolbar' in content
+    assert 'id="catFilter"' not in content
+    assert 'name="q"' not in content
+    assert 'data-sort-state' not in content
+    assert 'data-view="grid"' in content
+    assert 'data-view="list"' in content
+    assert 'data-default-view="grid"' in content
+    assert 'tw-chat-link' not in content
 
     client_auth, _ = authenticated_client
     res = client_auth.get(reverse('board:start'))
@@ -307,7 +317,10 @@ def test_public_post_visible_to_everyone(client, authenticated_client):
 
     res = client.get(reverse('board:view_post', args=[public.pk]))
     assert res.status_code == 200
-    assert public.title in res.content.decode()
+    content = res.content.decode()
+    assert public.title in content
+    assert 'tw-board-stepper' not in content
+    assert 'tw-ec-section' not in content
 
 
 @pytest.mark.django_db

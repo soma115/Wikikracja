@@ -71,6 +71,7 @@ class BoardDetailNavigationTests(TestCase):
 
     def test_board_stepper_filters_documents(self):
         self._post('Public')
+        Post.objects.create(title='Internal', text='Internal text', author=self.user)
         Post.objects.create(title='Mine', text='Mine text', author=self.user, is_private=True)
         Post.objects.create(title='Important', text='Important text', author=self.user, is_important=True)
         deleted = self._post('Deleted')
@@ -79,7 +80,14 @@ class BoardDetailNavigationTests(TestCase):
 
         response = self.client.get(reverse('board:start'), {'tab': 'mine'})
         self.assertEqual([post.title for post in response.context['ordered_posts']], ['Mine'])
-        self.assertEqual(response.context['board_tab_counts'], {'mine': 1, 'public': 1, 'important': 1, 'trash': 1})
+        self.assertEqual(response.context['board_tab_counts'], {'mine': 1, 'internal': 5, 'public': 1, 'important': 1, 'trash': 1})
+
+        internal_response = self.client.get(reverse('board:start'), {'tab': 'internal'})
+        internal_titles = {post.title for post in internal_response.context['ordered_posts']}
+        self.assertIn('Internal', internal_titles)
+        self.assertNotIn('Public', internal_titles)
+        self.assertNotIn('Mine', internal_titles)
+        self.assertNotIn('Deleted', internal_titles)
 
     def test_delete_moves_document_to_trash_and_restore_recovers_it(self):
         post = self._post('Movable')

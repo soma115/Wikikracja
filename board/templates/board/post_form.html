@@ -28,7 +28,7 @@
         {{ form.category|as_crispy_field }}
         <div class="tw-mb-3">
           <label for="{{ form.featured_image.id_for_label }}" class="tw-form-label">{{ form.featured_image.label }}</label>
-          <label class="tw-file-upload" data-file-upload data-file-upload-single data-max-size-mb="{{ UPLOAD_IMAGE_MAX_SIZE_MB }}" data-max-size-error="{{ UPLOAD_IMAGE_MAX_SIZE_MESSAGE }}" data-remove-label="{% trans 'Remove image' %}">
+          <label class="tw-file-upload" data-file-upload data-file-upload-single data-max-size-mb="{{ UPLOAD_IMAGE_MAX_SIZE_MB }}" data-max-size-error="{{ UPLOAD_IMAGE_MAX_SIZE_MESSAGE }}" data-remove-label="{% trans 'Remove image' %}" data-preview-label="{% trans 'Selected image' %}">
             <input type="file" name="{{ form.featured_image.name }}" class="tw-file-upload-input" id="{{ form.featured_image.id_for_label }}" accept="image/*" aria-describedby="{{ form.featured_image.id_for_label }}-hint">
             <span class="tw-file-upload-prompt"><i class="fas fa-image fa-fw tw-me-2" aria-hidden="true"></i>{% trans 'Choose an image or drag it here' %}</span>
           </label>
@@ -114,12 +114,13 @@
           <h6 class="tw-text-base tw-mb-2">{% trans 'Existing attachments' %}</h6>
         <ul class="tw-list-group">
           {% for attachment in object.attachments.all %}
-            <li class="tw-list-group-item">
+            <li class="tw-file-upload-item">
               {% with attachment_suffix=attachment.pk|stringformat:'s' %}
-              <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}">
-                <i class="fas fa-paperclip tw-me-2"></i>&nbsp;{{ attachment.filename }}
+              <a href="{{ attachment.file.url }}" download="{{ attachment.filename }}" class="tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+                <i class="fas fa-paperclip fa-fw tw-text-accent" aria-hidden="true"></i>
+                <span class="tw-file-upload-name">{{ attachment.filename }}</span>
               </a>
-              <button type="button" class="tw-btn tw-btn-sm tw-btn-danger" data-tw-toggle="modal" data-tw-target="#deleteAttachmentModal{{ attachment.pk }}" title="{% trans 'Delete attachment' %}" aria-label="{% trans 'Delete attachment' %}">
+              <button type="button" class="tw-btn tw-btn-sm tw-btn-danger tw-ms-auto" data-tw-toggle="modal" data-tw-target="#deleteAttachmentModal{{ attachment.pk }}" title="{% trans 'Delete attachment' %}" aria-label="{% trans 'Delete attachment' %}">
                 <i class="fas fa-trash fa-fw tw-me-1"></i>
               </button>
               {% trans 'Delete attachment' as delete_title %}

@@ -3576,8 +3576,18 @@
   .tw-file-upload-name {
     min-width: 0;
     overflow: hidden;
+    color: var(--text-primary);
+    font-weight: 500;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .tw-file-upload-item .tw-file-upload-preview {
+    width: 4rem;
+    height: 3rem;
+    flex: 0 0 4rem;
+    border: 1px solid var(--border);
+    background: var(--color-surface-offset);
+    object-fit: cover;
   }
   .tw-file-upload-size {
     margin-left: auto;

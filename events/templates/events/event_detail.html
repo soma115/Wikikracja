@@ -3,7 +3,7 @@
 {% load richtext %}
 
 {% block content %}
-{% include 'home/includes/stepper.html' with stepper=stepper %}
+{% if request.user.is_authenticated %}{% include 'home/includes/stepper.html' with stepper=stepper %}{% endif %}
 <div class="tw-container tw-my-4">
 
   {% include 'home/includes/detail_header.html' with title=event.title navigation_include='home/includes/detail_navigation.html' actions_include='events/_event_detail_actions.html' badges_include='events/_event_detail_badges.html' extra_class='tw-w-full' %}

@@ -7,19 +7,21 @@
 
 {% block content %}
 
-<div data-view-container>
+<div data-view-container{% if not request.user.is_authenticated %} data-default-view="grid"{% endif %}>
 
+{% if request.user.is_authenticated %}
 {# ── STEPPER ── #}
 {% include 'home/includes/stepper.html' with stepper=stepper %}
 
 {# ── TOOLBAR ── #}
-{% if request.user.is_authenticated %}{% url 'board:create_post' as cta_url %}{% endif %}
-{% if cta_url %}
+{% url 'board:create_post' as cta_url %}
 <div class="tw-flex tw-justify-end tw-mb-3">
   <a href="{{ cta_url }}" class="tw-btn-cta tw-btn-cta--round" title="{% trans 'Create document' %}"><i class="fas fa-plus"></i><span class="tw-btn-cta-label">{% trans 'Create document' %}</span></a>
 </div>
+{% include 'home/includes/toolbar.html' with cta_url='' sort_items=toolbar_sort_items search_include='board/_search.html' show_category_filter=True categories=categories key_attr='pk' views=toolbar_views %}
+{% else %}
+{% include 'home/includes/toolbar.html' with views=toolbar_views %}
 {% endif %}
-{% include 'home/includes/toolbar.html' with cta_url='' sort_items=toolbar_sort_items search_include='board/_search.html' show_category_filter=request.user.is_authenticated categories=categories key_attr='pk' views=toolbar_views %}
 
 {# ── KAFLE KATEGORII ── #}
 {% for group in category_groups %}

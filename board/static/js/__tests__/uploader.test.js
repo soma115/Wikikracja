@@ -76,6 +76,31 @@ test('replaces the current file in single-file mode', () => {
     expect(document.querySelector('.tw-file-upload-name').textContent).toBe('second.png');
 });
 
+test('shows an immediate thumbnail for selected images', () => {
+    document.body.innerHTML = `
+        <div>
+            <label data-file-upload data-file-upload-single data-max-size-mb="1" data-preview-label="Selected image">
+                <input class="tw-file-upload-input" type="file" accept="image/*">
+            </label>
+            <div data-file-upload-list></div>
+            <div data-file-upload-error hidden></div>
+            <div data-file-upload-current></div>
+        </div>
+    `;
+    const input = document.querySelector('input');
+    Object.defineProperty(input, 'files', { configurable: true, writable: true, value: [] });
+    loadUploader()(document.querySelector('[data-file-upload]'));
+    const image = new File(['image'], 'cover.avif', { type: '' });
+
+    input.files = [image];
+    input.dispatchEvent(new Event('change'));
+
+    const preview = document.querySelector('.tw-file-upload-preview');
+    expect(preview).not.toBeNull();
+    expect(preview.alt).toBe('Selected image: cover.avif');
+    expect(document.querySelector('[data-file-upload-current]').hidden).toBe(true);
+});
+
 test('adds dropped files and rejects oversized files', () => {
     const { dropzone, list } = createUploader();
     const accepted = new File(['ok'], 'accepted.txt');

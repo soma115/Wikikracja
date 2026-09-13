@@ -1,5 +1,6 @@
 {% load i18n %}
 <form method="get" class="tw-flex-1 tw-min-w-0">
+  {% if request.GET.tab %}<input type="hidden" name="tab" value="{{ request.GET.tab }}">{% endif %}
   <input type="hidden" name="sort" value="{{ request.GET.sort }}">
   <input type="hidden" name="order" value="{{ request.GET.order }}">
   {% for category in active_categories %}<input type="hidden" name="category" value="{{ category }}">{% endfor %}

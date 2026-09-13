@@ -5,11 +5,13 @@
 
 {% block content %}
 
+{% if user.is_authenticated %}
 {% include 'home/includes/stepper.html' with stepper=stepper %}
 
 {# ── TOOLBAR ── #}
-{% if user.is_authenticated %}{% url 'events:create' as cta_url %}{% endif %}
+{% url 'events:create' as cta_url %}
 {% include 'home/includes/toolbar.html' with cta_url=cta_url cta_icon='plus' cta_label=_('Add Event') cta_end=True %}
+{% endif %}
 
 {# Stały mini-kalendarz — nawigacja zmienia tylko jego miesiąc. #}
 <div id="events-calendar" class="tw-w-full" data-month="{{ current_month_iso }}" data-today-month="{{ today_month_iso }}">
@@ -19,7 +21,7 @@
 {% include 'home/includes/toolbar.html' with cta_url='' views=toolbar_views %}
 
 {# ── AGENDA + GRID ── #}
-<div data-view-container>
+<div data-view-container{% if not user.is_authenticated %} data-default-view="grid"{% endif %}>
   <div class="tw-events-agenda" data-view-only="list">
     {% include 'events/_agenda_chunk.html' %}
   </div>
@@ -200,13 +202,6 @@
   }
 
   window.wkOnReady(function(){
-    var prefs = (window.PagePrefs && PagePrefs.read()) || {};
-    var view = prefs.view;
-    if (view !== 'list' && view !== 'grid') {
-      view = 'list';
-      if (window.PagePrefs) PagePrefs.write({view: 'list'});
-    }
-
     document.querySelectorAll('[data-view]').forEach(function(b){
       b.addEventListener('click', function(){
         if (b.dataset.view === 'grid' && activeFromDate) setGridFromDate(activeFromDate);

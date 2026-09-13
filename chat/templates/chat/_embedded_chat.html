@@ -10,7 +10,7 @@ Użycie:
   {% include 'chat/_embedded_chat.html' %}
 {% endcomment %}
 
-{% if chat_room %}
+{% if request.user.is_authenticated and chat_room %}
 <section class="tw-ec-section tw-w-full tw-mt-8 tw-pt-5 tw-border-t">
   <h2 class="tw-ec-section-title">
     <i class="fas fa-comments fa-fw"></i> {% trans 'Chat' %}

@@ -19,7 +19,7 @@
         </a>
       {% else %}
         <div class="tw-stepper-step-wrap{% if step.active %} tw-active{% endif %}{% if step.css_class %} {{ step.css_class }}{% endif %}">
-          <a href="{{ step.url }}" class="tw-stepper-step">
+          <a href="{{ step.url }}" class="tw-stepper-step"{% if step.tab %} data-prefs-tab="{{ step.tab }}"{% endif %}>
             <i class="fas fa-{{ step.icon }}" aria-hidden="true"></i>
             <span class="tw-stepper-step-label">{{ step.label }}</span>
             {% if step.count is not None %}<span class="tw-stepper-step-count">{{ step.count }}</span>{% endif %}

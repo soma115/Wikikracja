@@ -530,6 +530,12 @@ window.wkOnReady(function() {
     function writeTo(scopeName, patch) {
         if (!scopeName) return;
         var data = Object.assign(read(scopeName), patch);
+        if (Object.prototype.hasOwnProperty.call(patch, 'filters')) {
+            var tab = new URLSearchParams(window.location.search).get('tab') || '__default';
+            var filtersByTab = data.filtersByTab || {};
+            filtersByTab[tab] = patch.filters || '';
+            data.filtersByTab = filtersByTab;
+        }
         localStorage.setItem(KEY_PREFIX + scopeName, JSON.stringify(data));
     }
 
@@ -617,13 +623,30 @@ window.wkOnReady(function() {
         });
     }
 
+    function restoreTabFilters() {
+        var data = read();
+        var filtersByTab = data.filtersByTab || {};
+        document.querySelectorAll('[data-prefs-tab]').forEach(function(link) {
+            var tab = link.dataset.prefsTab;
+            var savedFilters = filtersByTab[tab];
+            if (!savedFilters) return;
+            try {
+                var url = new URL(link.href, window.location.href);
+                url.search = savedFilters;
+                link.href = url.pathname + url.search + url.hash;
+            } catch (e) {}
+        });
+    }
+
     function init() {
         if (!scope()) return;
 
         // 1. Widok lista/grid/compact per zakładka, fallback na globalny view
         var data = read();
         var tab = new URLSearchParams(window.location.search).get('tab');
-        var savedView = (tab && data.views && data.views[tab]) || data.view || 'list';
+        var container = document.querySelector('[data-view-container]');
+        var defaultView = (container && container.dataset.defaultView) || 'list';
+        var savedView = (tab && data.views && data.views[tab]) || data.view || defaultView;
         var availableViews = Array.from(document.querySelectorAll('[data-view]')).map(function(b) { return b.dataset.view; });
         if (availableViews.length && availableViews.indexOf(savedView) === -1) {
             savedView = availableViews[0];
@@ -632,6 +655,7 @@ window.wkOnReady(function() {
 
         // 2. Zapisz aktualny URL (gdy ma params — pokrywa reload, klik linka sortowania)
         saveCurrentFilters();
+        restoreTabFilters();
 
         // 3. Patch history.pushState — łapie zmiany URL przez JS (kategoria filter w tasks/board)
         var origPush = history.pushState;

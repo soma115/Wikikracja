@@ -23,11 +23,16 @@ class EventViewTest(TestCase):
         response = self.client.get(reverse('events:list'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Event")
+        self.assertNotContains(response, 'tw-stepper-nav')
+        self.assertContains(response, 'data-view="grid"')
+        self.assertContains(response, 'data-view="list"')
+        self.assertContains(response, 'data-default-view="grid"')
 
     def test_event_detail_view(self):
         response = self.client.get(reverse('events:detail', kwargs={'pk': self.event.pk}))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Event")
+        self.assertNotContains(response, 'tw-stepper-nav')
 
     def test_event_detail_navigation_preserves_month_and_occurrence(self):
         events = [Event.objects.create(title=f'Navigation {day}', start_date=timezone.make_aware(datetime(2030, 9, day, 10)), frequency='once') for day in (1, 2, 3)]

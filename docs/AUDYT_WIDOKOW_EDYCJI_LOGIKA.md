@@ -1,6 +1,6 @@
 # Audyt widoków edycji — logika i kontrakty
 
-Ten dokument obejmuje wszystko poza warstwą UI: autoryzację, zakres dostępu, kontrakty endpointów, integralność i atomowość zapisu, semantykę danych oraz testy regresji. Warstwa prezentacji jest opisana w [`AUDYT_WIDOKOW_EDYCJI_UI.md`](AUDYT_WIDOKOW_EDYCJI_UI.md).
+Ten dokument obejmuje wszystko poza warstwą UI: autoryzację, zakres dostępu, kontrakty endpointów, integralność i atomowość zapisu, semantykę danych oraz testy regresji. Zasady warstwy prezentacji i aktualny baseline widoków edycji są opisane w [`UI_DEVELOPMENT_GUIDE.md`](UI_DEVELOPMENT_GUIDE.md), a wzorce wizualne w [`UI_STANDARDS.html`](UI_STANDARDS.html).
 
 Checkbox oznacza zadanie do wykonania lub decyzję do potwierdzenia; nie oznacza, że poprawka została już wdrożona.
 

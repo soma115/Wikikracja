@@ -82,6 +82,58 @@ describe('PagePrefs patchSidebarLinks', () => {
         expect(link.getAttribute('href')).toBe('/obywatele/assets/');
     });
 
+    test('restores filters independently for each stepper tab', () => {
+        if (typeof localStorage === 'undefined') return;
+        document.documentElement.setAttribute('data-prefs-scope', 'board');
+        localStorage.setItem('wikikracja:prefs:board', JSON.stringify({
+            filtersByTab: {
+                internal: '?tab=internal&category=2',
+                public: '?tab=public&sort=date&order=desc',
+            },
+        }));
+        document.body.innerHTML = `
+            <a id="internal" href="/board/?tab=internal" data-prefs-tab="internal">Internal</a>
+            <a id="public" href="/board/?tab=public" data-prefs-tab="public">Public</a>
+        `;
+
+        window.PagePrefs.init();
+
+        expect(document.getElementById('internal').getAttribute('href')).toBe('/board/?tab=internal&category=2');
+        expect(document.getElementById('public').getAttribute('href')).toBe('/board/?tab=public&sort=date&order=desc');
+    });
+
+    test('uses the container default view when no view preference exists', () => {
+        if (typeof localStorage === 'undefined') return;
+        document.documentElement.setAttribute('data-prefs-scope', 'board');
+        document.body.innerHTML = `
+            <div data-view-container data-default-view="grid">
+                <button data-view="list"></button>
+                <button data-view="grid"></button>
+            </div>
+        `;
+
+        window.PagePrefs.init();
+
+        expect(document.querySelector('[data-view-container]').classList.contains('tw-view-grid')).toBe(true);
+        expect(document.querySelector('[data-view="grid"]').classList.contains('tw-active')).toBe(true);
+    });
+
+    test('saves filter state under the active tab', () => {
+        if (typeof localStorage === 'undefined') return;
+        document.documentElement.setAttribute('data-prefs-scope', 'board');
+        const locationSpy = jest.spyOn(window, 'location', 'get');
+        locationSpy.mockReturnValue({ search: '?tab=internal&category=2' });
+        window.PagePrefs.write({ filters: '?tab=internal&category=2' });
+        locationSpy.mockReturnValue({ search: '?tab=public&sort=date' });
+        window.PagePrefs.write({ filters: '?tab=public&sort=date' });
+
+        const data = JSON.parse(localStorage.getItem('wikikracja:prefs:board') || '{}');
+        expect(data.filtersByTab.internal).toBe('?tab=internal&category=2');
+        expect(data.filtersByTab.public).toBe('?tab=public&sort=date');
+
+        locationSpy.mockRestore();
+    });
+
     test('saveCurrentFilters writes lastUrl under base scope for multi-page scope', () => {
         if (typeof localStorage === 'undefined') return;
         document.documentElement.setAttribute('data-prefs-scope', 'bookkeeping');

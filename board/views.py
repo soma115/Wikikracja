@@ -52,7 +52,7 @@ class PostCategoryReorderAPI(CategoryReorderAPI):
 def _board_list_state(request):
     default_tab = 'public'
     tab = request.GET.get('tab', default_tab)
-    if tab not in ('mine', 'public', 'important', 'trash') or (not request.user.is_authenticated and tab in ('mine', 'trash')):
+    if tab not in ('mine', 'internal', 'public', 'important', 'trash') or (not request.user.is_authenticated and tab in ('mine', 'internal', 'trash')):
         tab = default_tab
     sort = request.GET.get('sort', 'title')
     if sort not in ('title', 'date', 'none'):
@@ -76,6 +76,8 @@ def _board_tab_filter(user, tab):
         if not user.is_authenticated:
             return Q(pk__in=[])
         return Q(is_private=True, author=user, is_deleted=False)
+    if tab == 'internal':
+        return Q(is_public=False, is_private=False, is_deleted=False)
     if tab == 'public':
         return Q(is_public=True, is_private=False, is_deleted=False)
     if tab == 'important':
@@ -137,7 +139,7 @@ def _board_listing(request, *, include_chat_counts=True):
         query_params.append(('q', search_query))
 
     tab_counts = {}
-    for tab_name in ('mine', 'public', 'important', 'trash'):
+    for tab_name in ('mine', 'internal', 'public', 'important', 'trash'):
         if tab_name == 'trash' and not request.user.is_authenticated:
             tab_query = Post.objects.none()
         else:
@@ -163,20 +165,22 @@ def _board_listing(request, *, include_chat_counts=True):
 
 def _board_stepper(request: HttpRequest, listing):
     def tab_url(tab_name):
-        params = [('tab', tab_name), ('sort', listing['sort'])]
-        if listing['order'] is not None:
-            params.append(('order', listing['order']))
-        params.extend(('category', category) for category in listing['active_categories'])
-        if listing['search_query']:
-            params.append(('q', listing['search_query']))
-        return f"{reverse('board:start')}?{urlencode(params)}"
+        return f"{reverse('board:start')}?{urlencode({'tab': tab_name})}"
 
     return {
         'steps': [
-            {'url': tab_url('mine'), 'icon': 'user', 'label': gettext_lazy('Mine'), 'count': listing['board_tab_counts']['mine'], 'active': listing['current_tab'] == 'mine'},
-            {'url': tab_url('public'), 'icon': 'globe', 'label': gettext_lazy('Public'), 'count': listing['board_tab_counts']['public'], 'active': listing['current_tab'] == 'public'},
-            {'url': tab_url('important'), 'icon': 'star', 'label': gettext_lazy('Important'), 'count': listing['board_tab_counts']['important'], 'active': listing['current_tab'] == 'important'},
-            {'url': tab_url('trash'), 'icon': 'trash', 'label': gettext_lazy('Trash'), 'count': listing['board_tab_counts']['trash'], 'active': listing['current_tab'] == 'trash'},
+            {'url': tab_url('mine'), 'tab': 'mine', 'icon': 'user', 'label': gettext_lazy('Mine'), 'count': listing['board_tab_counts']['mine'], 'active': listing['current_tab'] == 'mine'},
+            {'url': tab_url('internal'), 'tab': 'internal', 'icon': 'users', 'label': gettext_lazy('Internal'), 'count': listing['board_tab_counts']['internal'], 'active': listing['current_tab'] == 'internal'},
+            {'url': tab_url('public'), 'tab': 'public', 'icon': 'globe', 'label': gettext_lazy('Public'), 'count': listing['board_tab_counts']['public'], 'active': listing['current_tab'] == 'public'},
+            {
+                'url': tab_url('important'),
+                'tab': 'important',
+                'icon': 'star',
+                'label': gettext_lazy('Important'),
+                'count': listing['board_tab_counts']['important'],
+                'active': listing['current_tab'] == 'important',
+            },
+            {'url': tab_url('trash'), 'tab': 'trash', 'icon': 'trash', 'label': gettext_lazy('Trash'), 'count': listing['board_tab_counts']['trash'], 'active': listing['current_tab'] == 'trash'},
         ],
         'css_class': 'tw-board-stepper',
     }
@@ -192,7 +196,8 @@ def board(request: HttpRequest) -> HttpResponse:
     search_query_param = f"&q={quote_plus(search_query)}" if search_query else ''
 
     def sort_url(field, state):
-        query = f"sort={field}&order={state}" if state != 'none' else 'sort=none'
+        tab_query = f"tab={listing['current_tab']}&" if request.GET.get('tab') else ''
+        query = f"{tab_query}sort={field}&order={state}" if state != 'none' else f"{tab_query}sort=none"
         return reverse('board:start') + f"?{query}{cat_query}{search_query_param}"
 
     def item_state(field):

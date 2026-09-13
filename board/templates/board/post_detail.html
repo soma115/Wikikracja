@@ -5,7 +5,7 @@
 {% load richtext %}
 
 {% block content %}
-{% include 'home/includes/stepper.html' with stepper=stepper %}
+{% if request.user.is_authenticated %}{% include 'home/includes/stepper.html' with stepper=stepper %}{% endif %}
 <div class="tw-container tw-my-4">
 {% include 'home/includes/detail_header.html' with title=post.title navigation_include='home/includes/detail_navigation.html' actions_include='board/_post_detail_actions.html' meta_include='board/_post_detail_meta.html' %}
 

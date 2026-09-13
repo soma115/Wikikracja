@@ -175,7 +175,7 @@ Use the project Crispy/Tailwind form integration:
 
 When a field must be rendered separately, use `home/templates/tw/field.html` and the `crispy_classmap` filter. Do not hand-roll Bootstrap-style `form-control` or `is-invalid` wrappers.
 
-For file uploads, use the shared `tw-file-upload` pattern: keep the native input inside the drop target, use `data-file-upload-single` for a single featured image, preserve selected files when the user adds another attachment batch, render a removable file list, and use `textContent` for filenames. Validate file size on the server as the authoritative check; client-side feedback is only an aid.
+For file uploads, use the shared `tw-file-upload` pattern: keep the native input inside the drop target, use `data-file-upload-single` for a single featured image, preserve selected files when the user adds another attachment batch, render a removable file list, and use `textContent` for filenames. A selected image should render an immediate thumbnail, while attachments should show a clear paperclip icon, filename and size. Validate file size on the server as the authoritative check; client-side feedback is only an aid.
 
 Use semantic HTML:
 
@@ -336,6 +336,20 @@ For a broad UI change, also run:
 ```powershell
 .venv\Scripts\python.exe scripts\ui_guard.py --all --strict
 ```
+
+## 11. Current edit-flow audit baseline
+
+The edit-flow UI review covers Board, Bookkeeping, Events, Tasks, Surveys, Voting, citizen profile/settings and group settings. The current baseline is:
+
+- all inventoried edit surfaces use the shared `tw-*` page/card/form patterns or a documented domain-specific component;
+- focused and integration tests cover the reviewed GET, successful POST and validation-error paths, including profile errors, Board uploads, category APIs and modal argument editing;
+- the shared category manager has disabled states, network-error handling, focus/ARIA support and API tests;
+- full verification has passed: Ruff, Django check, collectstatic, regression scan, Tailwind freshness, 932 Python tests, 276 Jest tests and 33 Playwright E2E tests, with 12 intentionally skipped tests;
+- Playwright uses a dedicated E2E account from the ignored `.env.local` file and must never use administrator, developer or personal accounts.
+
+Error channels are intentionally split by interaction type. Full-page Django forms preserve submitted values and render field errors before the established redirect-on-success flow. Contextual modals and asynchronous controls use `window.apiFetch`, structured JSON responses and in-place error presentation. This is an intentional UI architecture decision, not an unfinished migration.
+
+When a future UI change affects an inventoried edit flow, update this baseline only when the behavior, test coverage or accepted exception actually changes; do not recreate a separate audit document for routine maintenance.
 
 ### Django, Python or static-file change
 

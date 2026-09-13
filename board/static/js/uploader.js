@@ -68,6 +68,7 @@ function initAttachmentUploader(container) {
   const maxBytes = Number(container.dataset.maxSizeMb || 0) * 1_000_000;
   const maxSizeError = container.dataset.maxSizeError || '';
   const removeLabel = container.dataset.removeLabel || 'Remove file';
+  const previewLabel = container.dataset.previewLabel || 'Selected image';
   const singleFile = container.hasAttribute('data-file-upload-single');
   const currentFile = container.parentElement.querySelector('[data-file-upload-current]');
 
@@ -87,6 +88,23 @@ function initAttachmentUploader(container) {
     selectedFiles.forEach((file, index) => {
       const item = document.createElement('div');
       item.className = 'tw-file-upload-item';
+      const isImage = singleFile || file.type.startsWith('image/');
+      if (isImage) {
+        const preview = document.createElement('img');
+        preview.className = 'tw-file-upload-preview';
+        preview.alt = `${previewLabel}: ${file.name}`;
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+          preview.src = reader.result;
+        });
+        reader.readAsDataURL(file);
+        item.append(preview);
+      } else {
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-paperclip fa-fw tw-text-accent';
+        icon.setAttribute('aria-hidden', 'true');
+        item.append(icon);
+      }
       const name = document.createElement('span');
       name.className = 'tw-file-upload-name';
       name.textContent = file.name;

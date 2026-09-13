@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-13 14:05+0200\n"
+"POT-Creation-Date: 2026-09-13 18:09+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -289,7 +289,7 @@ msgid "No options"
 msgstr "Brak opcji."
 
 #: .\ankiety\templates\ankiety\_survey_search.html:4
-#: .\board\templates\board\_search.html:6
+#: .\board\templates\board\_search.html:7
 #: .\bookkeeping\templates\bookkeeping\_list_search.html:3
 #: .\glosowania\templates\glosowania\_search.html:5
 #: .\home\templates\home\base.html:312 .\home\templates\home\base.html:314
@@ -361,7 +361,7 @@ msgid "Add survey"
 msgstr "Dodaj ankietę"
 
 #: .\ankiety\templates\ankiety\survey_form.html:74 .\board\forms.py:27
-#: .\board\templates\board\post_form.html:139 .\bookkeeping\forms.py:22
+#: .\board\templates\board\post_form.html:140 .\bookkeeping\forms.py:22
 #: .\bookkeeping\forms.py:52
 #: .\categories\templates\categories\_category_manager_init.html:19
 #: .\chat\templates\chat\add.html:15 .\chat\templates\chat\chat.html:299
@@ -426,14 +426,14 @@ msgstr "Dodawanie opcji w tej ankiecie jest niedozwolone."
 msgid "Your option has been added."
 msgstr "Twoja opcja została dodana."
 
-#: .\ankiety\views.py:168 .\board\views.py:233 .\bookkeeping\views.py:86
+#: .\ankiety\views.py:168 .\board\views.py:231 .\bookkeeping\views.py:86
 #: .\events\views.py:66 .\glosowania\views.py:706
 #: .\home\templates\home\includes\toolbar.html:60 .\home\views.py:135
 #: .\obywatele\views.py:281 .\obywatele\views.py:340 .\tasks\views.py:185
 msgid "List"
 msgstr "Lista"
 
-#: .\ankiety\views.py:168 .\board\views.py:233 .\bookkeeping\views.py:86
+#: .\ankiety\views.py:168 .\board\views.py:231 .\bookkeeping\views.py:86
 #: .\events\views.py:66 .\glosowania\views.py:706
 #: .\home\templates\home\includes\toolbar.html:55 .\home\views.py:135
 #: .\obywatele\views.py:281 .\obywatele\views.py:340 .\tasks\views.py:185
@@ -473,8 +473,8 @@ msgstr "Załączniki"
 msgid "This document is publicly accessible"
 msgstr "Ten dokument jest publicznie dostępny."
 
-#: .\board\forms.py:29 .\board\templates\board\board.html:59
-#: .\board\templates\board\board.html:84 .\board\views.py:176
+#: .\board\forms.py:29 .\board\templates\board\board.html:61
+#: .\board\templates\board\board.html:86 .\board\views.py:172
 #: .\tasks\templates\tasks\task_help.html:11
 #: .\tasks\templatetags\tasks_extras.py:41
 msgid "Mine"
@@ -547,7 +547,7 @@ msgstr "Zaktualizowane przez"
 
 #: .\board\models.py:34 .\board\templates\board\_post_detail_meta.html:26
 #: .\board\templates\board\_post_detail_meta.html:28
-#: .\board\templates\board\board.html:94 .\bookkeeping\models.py:111
+#: .\board\templates\board\board.html:96 .\bookkeeping\models.py:111
 #: .\events\templates\events\event_detail.html:83
 #: .\glosowania\templates\glosowania\_detail_meta.html:13
 #: .\tasks\templates\tasks\_task_card.html:50
@@ -558,7 +558,7 @@ msgstr "Utworzone"
 
 #: .\board\models.py:35 .\board\templates\board\_post_detail_meta.html:31
 #: .\board\templates\board\_post_detail_meta.html:33
-#: .\board\templates\board\board.html:99
+#: .\board\templates\board\board.html:101
 #: .\events\templates\events\event_detail.html:85
 #: .\glosowania\templates\glosowania\_detail_meta.html:16
 msgid "Updated"
@@ -582,8 +582,8 @@ msgstr "Kategoria"
 
 #: .\board\models.py:37 .\board\templates\board\_post_detail_meta.html:37
 #: .\board\templates\board\_post_detail_meta.html:39
-#: .\board\templates\board\board.html:58 .\board\templates\board\board.html:83
-#: .\board\views.py:177 .\chat\templates\chat\chat.html:82
+#: .\board\templates\board\board.html:60 .\board\templates\board\board.html:85
+#: .\board\views.py:174 .\chat\templates\chat\chat.html:82
 #: .\events\models.py:31 .\events\templates\events\_event_detail_badges.html:15
 msgid "Public"
 msgstr "Publiczne"
@@ -594,8 +594,8 @@ msgstr "Publiczne"
 msgid "Private"
 msgstr "Prywatne"
 
-#: .\board\models.py:39 .\board\templates\board\board.html:60
-#: .\board\templates\board\board.html:85 .\board\views.py:178
+#: .\board\models.py:39 .\board\templates\board\board.html:62
+#: .\board\templates\board\board.html:87 .\board\views.py:175
 #: .\tasks\templates\tasks\_task_card.html:65 .\tasks\views.py:79
 msgid "Important"
 msgstr "Ważne"
@@ -706,33 +706,33 @@ msgstr "Wróć"
 msgid "Create document"
 msgstr "Utwórz dokument"
 
-#: .\board\templates\board\board.html:30
+#: .\board\templates\board\board.html:32
 msgid "Uncategorized"
 msgstr "Bez kategorii"
 
-#: .\board\templates\board\board.html:34
+#: .\board\templates\board\board.html:36
 msgid "Create"
 msgstr "Utwórz"
 
-#: .\board\templates\board\board.html:61 .\board\templates\board\board.html:86
+#: .\board\templates\board\board.html:63 .\board\templates\board\board.html:88
 #: .\chat\search.py:25 .\chat\templates\chat\room_link.html:55
 #: .\core\notifications.py:557
 msgid "System"
 msgstr "System"
 
-#: .\board\templates\board\board.html:115
+#: .\board\templates\board\board.html:117
 msgid "No documents yet."
 msgstr "Nie ma jeszcze dokumentów."
 
-#: .\board\templates\board\board.html:115
+#: .\board\templates\board\board.html:117
 msgid "Add the first document"
 msgstr "Dodaj pierwszy dokument"
 
-#: .\board\templates\board\board.html:129
+#: .\board\templates\board\board.html:131
 msgid "documents"
 msgstr "dokumenty"
 
-#: .\board\templates\board\board.html:130
+#: .\board\templates\board\board.html:132
 #, python-brace-format
 msgid "This category has {n} document(s). Deleting it will leave those documents without a category. Continue?"
 msgstr "Ta kategoria ma {n} dokument(ów). Usunięcie jej pozostawi te dokumenty bez kategorii. Kontynuować?"
@@ -757,6 +757,10 @@ msgstr "Utwórz ogłoszenie"
 #: .\board\templates\board\post_form.html:107
 msgid "Remove image"
 msgstr "Usuń obrazek"
+
+#: .\board\templates\board\post_form.html:31
+msgid "Selected image"
+msgstr "Wybrany obrazek"
 
 #: .\board\templates\board\post_form.html:33
 msgid "Choose an image or drag it here"
@@ -798,22 +802,22 @@ msgstr "Obraz wyróżniony"
 msgid "Existing attachments"
 msgstr "Załączniki"
 
-#: .\board\templates\board\post_form.html:122
-#: .\board\templates\board\post_form.html:125
-#: .\board\templates\board\post_form.html:127
+#: .\board\templates\board\post_form.html:123
+#: .\board\templates\board\post_form.html:126
+#: .\board\templates\board\post_form.html:128
 msgid "Delete attachment"
 msgstr "Usuń załącznik"
 
-#: .\board\templates\board\post_form.html:126
+#: .\board\templates\board\post_form.html:127
 msgid "Are you sure you want to delete this attachment?"
 msgstr "Czy na pewno chcesz usunąć ten załącznik?"
 
-#: .\board\templates\board\post_form.html:129
+#: .\board\templates\board\post_form.html:130
 msgid "Attachment"
 msgstr "Załącznik"
 
-#: .\board\templates\board\post_form.html:141
-#: .\board\templates\board\post_form.html:143
+#: .\board\templates\board\post_form.html:142
+#: .\board\templates\board\post_form.html:144
 #: .\bookkeeping\templates\bookkeeping\asset_form.html:45
 #: .\bookkeeping\templates\bookkeeping\category_form.html:28
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:74
@@ -841,15 +845,19 @@ msgstr "Załącznik"
 msgid "Cancel"
 msgstr "Anuluj"
 
-#: .\board\views.py:179
+#: .\board\views.py:173
+msgid "Internal"
+msgstr "Wewnętrzne"
+
+#: .\board\views.py:176
 msgid "Trash"
 msgstr "Kosz"
 
-#: .\board\views.py:208
+#: .\board\views.py:206
 msgid "A-Z"
 msgstr "A-Z"
 
-#: .\board\views.py:216
+#: .\board\views.py:214
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:23
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:17
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:22
@@ -2206,15 +2214,15 @@ msgstr "Zapisz Wydarzenie"
 msgid "View Event"
 msgstr "Wyświetl Wydarzenie"
 
-#: .\events\templates\events\event_list.html:12
+#: .\events\templates\events\event_list.html:13
 msgid "Add Event"
 msgstr "Dodaj Wydarzenie"
 
-#: .\events\templates\events\event_list.html:37
+#: .\events\templates\events\event_list.html:39
 msgid "No events in the selected month"
 msgstr "Brak wydarzeń w wybranym miesiącu"
 
-#: .\events\templates\events\event_list.html:40
+#: .\events\templates\events\event_list.html:42
 msgid "Add the first event"
 msgstr "Stwórz pierwsze wydarzenie"
 
