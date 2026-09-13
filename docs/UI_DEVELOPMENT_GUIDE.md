@@ -167,9 +167,11 @@ GET requests must not render standalone confirmation pages for actions exposed t
 
 Use the project Crispy/Tailwind form integration:
 
+{% raw %}
 ```django
 {% crispy form %}
 ```
+{% endraw %}
 
 When a field must be rendered separately, use `home/templates/tw/field.html` and the `crispy_classmap` filter. Do not hand-roll Bootstrap-style `form-control` or `is-invalid` wrappers.
 

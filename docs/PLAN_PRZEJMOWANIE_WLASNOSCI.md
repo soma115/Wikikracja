@@ -116,7 +116,7 @@ Automatyzację zrealizować jako istniejące zadanie Django uruchamiane przez ob
 - Status oczekujący, zaakceptowany i odrzucony powinien korzystać z istniejących `tw-badge-status` lub `tw-alert-*` oraz wspólnych tokenów kolorów.
 - Przyciski akcji w czacie powinny być czytelne na mobile, umieszczone w dolnej/prawej części grupy akcji, z pełnymi etykietami tekstowymi i bez polegania wyłącznie na kolorze.
 - Jeżeli okaże się konieczny nowy wzorzec „wiadomość z akcjami”, przed implementacją udokumentować go w `docs/UI_STANDARDS.html`, `docs/UI_DEVELOPMENT_GUIDE.md` i odpowiednim przewodniku Tailwind; klasy dodać wyłącznie do `home/static/home/css/tailwind.css` i safelisty, gdy są generowane dynamicznie.
-- Wszystkie nowe teksty oznaczyć `{% trans %}`/`gettext`, a po implementacji uzupełnić lokalizacje.
+- Wszystkie nowe teksty oznaczyć tagami tłumaczeń Django lub `gettext`, a po implementacji uzupełnić lokalizacje.
 
 ## 9. Testy
 

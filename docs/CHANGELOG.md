@@ -1,5 +1,7 @@
 # CHANGELOG
 
+{% raw %}
+
 
 ## Unreleased
 
@@ -157,7 +159,7 @@ System messages (sender=None, non-anonymous — e.g. room rename) were rendered 
 
 - serializers.py: username falls back to "System" for sender-less, non-anonymous messages
   (consistent with the notification title path, which already used "System"). - room_link.html: else
-  branch renders {% trans 'System' %} instead of "—".
+  branch renders the translated "System" label instead of "—".
 
 The .po diff is otherwise pure churn — line-number updates and a reorder of the already-translated
   "Change language" string; the only new entry is "System" / "System".
@@ -2223,3 +2225,5 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 
 - Yapf formatter, ruff linter and import sorter
   ([`ea9e90a`](https://github.com/soma115/Wikikracja/commit/ea9e90acfeda9b998d3f1ef859b80f65c18d5123))
+
+{% endraw %}
