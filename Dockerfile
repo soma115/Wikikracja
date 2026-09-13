@@ -8,7 +8,6 @@ WORKDIR /app
 # Build environment
 ENV PYTHONDONTWRITEBYTECODE=1 \
     DEBUG=False \
-    SECRET_KEY=build-time-insecure-secret-key \
     EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend \
     PATH=/root/.local/bin:$PATH
 
@@ -23,11 +22,12 @@ RUN AUTOBAHN_USE_NVX=0 pip install --no-cache-dir --no-compile --user -r require
 
 # Copy application code (after dependencies for better caching)
 COPY . /app/
+RUN test -f /app/BUILD_SHA || echo "unknown" > /app/BUILD_SHA
 
 # Build-time operations
-RUN python manage.py collectstatic --noinput -v 2 \
-    || (echo "Static collection failed, continuing..." && python manage.py collectstatic --noinput -v 2 --clear)
-RUN python manage.py compilemessages --ignore=.git/* --ignore=static/* --ignore=.mypy_cache/* --ignore=.venv/*
+RUN SECRET_KEY=build-time-insecure-secret-key python manage.py collectstatic --noinput -v 2 \
+    || (echo "Static collection failed, continuing..." && SECRET_KEY=build-time-insecure-secret-key python manage.py collectstatic --noinput -v 2 --clear)
+RUN SECRET_KEY=build-time-insecure-secret-key python manage.py compilemessages --ignore=.git/* --ignore=static/* --ignore=.mypy_cache/* --ignore=.venv/*
 
 # 2. Runtime stage - minimal Alpine image
 FROM python:3.14-alpine AS runtime
