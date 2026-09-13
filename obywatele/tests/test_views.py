@@ -629,7 +629,7 @@ class MyAssetsViewTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['form'].errors)
-        self.assertContains(response, 'The form could not be saved.')
+        self.assertContains(response, _('The form could not be saved. Please correct the following errors:'))
         self.assertEqual(response.context['form']['city'].value(), '')
         self.profile.refresh_from_db()
         self.assertEqual(self.profile.city, 'Stare miasto')
