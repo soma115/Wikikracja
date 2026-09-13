@@ -8,34 +8,34 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models import DateTimeField, ImageField
 from django.test import TestCase, override_settings
 
-from site_settings.models import SiteSettings
+from site_settings.models import SiteParameters
 from site_settings.tests.utils import make_branding_image, make_branding_png
 
 
-class SiteSettingsBrandingFieldsTest(TestCase):
+class SiteParametersBrandingFieldsTest(TestCase):
     """Test 1 (TDD red): pola brandingowe istnieją na modelu + singleton działa."""
 
     def test_brand_mark_is_optional_image_field(self):
-        field = SiteSettings._meta.get_field('brand_mark')
+        field = SiteParameters._meta.get_field('brand_mark')
         self.assertIsInstance(field, ImageField)
         self.assertTrue(field.blank)
         self.assertTrue(field.null)
         self.assertEqual(field.upload_to, 'site_branding/')
 
     def test_updated_at_is_auto_now_datetime(self):
-        field = SiteSettings._meta.get_field('updated_at')
+        field = SiteParameters._meta.get_field('updated_at')
         self.assertIsInstance(field, DateTimeField)
         self.assertTrue(field.auto_now)
 
     def test_singleton_get_returns_settings_with_empty_branding_and_timestamp(self):
-        ss = SiteSettings.get()
+        ss = SiteParameters.get()
         # brand_mark jest opcjonalne, na świeżym singletonie jest puste
         self.assertFalse(bool(ss.brand_mark))
         # updated_at musi być ustawiony automatycznie przez auto_now przy create
         self.assertIsNotNone(ss.updated_at)
 
 
-class SiteSettingsBrandingSizeValidatorTest(TestCase):
+class SiteParametersBrandingSizeValidatorTest(TestCase):
     """Test 2 (TDD red): walidator rozmiaru pliku — limit 5 MB dla pól brandingowych."""
 
     LIMIT_BYTES = 5 * 1024 * 1024  # 5 MB
@@ -57,11 +57,11 @@ class SiteSettingsBrandingSizeValidatorTest(TestCase):
     def test_brand_mark_field_has_size_validator_attached(self):
         from site_settings.validators import validate_branding_image_size
 
-        field = SiteSettings._meta.get_field('brand_mark')
+        field = SiteParameters._meta.get_field('brand_mark')
         self.assertIn(validate_branding_image_size, field.validators)
 
 
-class SiteSettingsBrandingDimensionsValidatorTest(TestCase):
+class SiteParametersBrandingDimensionsValidatorTest(TestCase):
     """Test 3 (TDD red): walidator wymiarów źródła — rozsądny zakres 64-4096 px."""
 
     def test_validator_accepts_minimum_source_64px(self):
@@ -97,11 +97,11 @@ class SiteSettingsBrandingDimensionsValidatorTest(TestCase):
     def test_brand_mark_field_has_dimensions_validator_attached(self):
         from site_settings.validators import validate_brand_mark_dimensions
 
-        field = SiteSettings._meta.get_field('brand_mark')
+        field = SiteParameters._meta.get_field('brand_mark')
         self.assertIn(validate_brand_mark_dimensions, field.validators)
 
 
-class SiteSettingsBrandMarkFormatValidatorTest(TestCase):
+class SiteParametersBrandMarkFormatValidatorTest(TestCase):
     """Test: walidator akceptuje PNG/JPEG/WebP/GIF — pipeline konwertuje do PNG."""
 
     def test_validator_accepts_png(self):
@@ -134,11 +134,11 @@ class SiteSettingsBrandMarkFormatValidatorTest(TestCase):
     def test_brand_mark_field_has_format_validator_attached(self):
         from site_settings.validators import validate_brand_mark_format
 
-        field = SiteSettings._meta.get_field('brand_mark')
+        field = SiteParameters._meta.get_field('brand_mark')
         self.assertIn(validate_brand_mark_format, field.validators)
 
 
-class SiteSettingsBrandingDerivativesTest(TestCase):
+class SiteParametersBrandingDerivativesTest(TestCase):
     """Test 4 (TDD red): po zapisie brand_mark Pillow generuje derivatives faviconu/PWA."""
 
     def setUp(self):
@@ -150,8 +150,8 @@ class SiteSettingsBrandingDerivativesTest(TestCase):
         self.override.disable()
         shutil.rmtree(self.tmp_media, ignore_errors=True)
 
-    def _save_brand_mark(self, size: int = 1024) -> SiteSettings:
-        ss = SiteSettings.get()
+    def _save_brand_mark(self, size: int = 1024) -> SiteParameters:
+        ss = SiteParameters.get()
         ss.brand_mark = make_branding_png(size, color=(255, 0, 0, 255))
         ss.save()
         return ss
@@ -189,14 +189,14 @@ class SiteSettingsBrandingDerivativesTest(TestCase):
             self.assertEqual(img.size, (512, 512))
 
     def test_save_without_brand_mark_does_not_create_derivatives(self):
-        ss = SiteSettings.get()
+        ss = SiteParameters.get()
         ss.save()
         derived_dir = os.path.join(settings.MEDIA_ROOT, 'site_branding', 'derived')
         has_files = os.path.exists(derived_dir) and bool(os.listdir(derived_dir))
         self.assertFalse(has_files, 'derived dir should be empty without brand_mark')
 
 
-class SiteSettingsBrandingNormalizationTest(TestCase):
+class SiteParametersBrandingNormalizationTest(TestCase):
     """Test: po zapisie brand_mark jest zawsze normalizowany do 1024×1024 PNG."""
 
     def setUp(self):
@@ -211,7 +211,7 @@ class SiteSettingsBrandingNormalizationTest(TestCase):
     def test_save_normalizes_small_image_to_1024(self):
         from PIL import Image
 
-        ss = SiteSettings.get()
+        ss = SiteParameters.get()
         ss.brand_mark = make_branding_png(300, 200, color=(255, 0, 0, 255))
         ss.save()
         with Image.open(ss.brand_mark.path) as img:
@@ -221,7 +221,7 @@ class SiteSettingsBrandingNormalizationTest(TestCase):
     def test_save_normalizes_jpeg_to_png(self):
         from PIL import Image
 
-        ss = SiteSettings.get()
+        ss = SiteParameters.get()
         ss.brand_mark = make_branding_image('JPEG', 3000, 2000)
         ss.save()
         with Image.open(ss.brand_mark.path) as img:
@@ -231,7 +231,7 @@ class SiteSettingsBrandingNormalizationTest(TestCase):
     def test_save_letterboxes_wide_brand_mark_to_square(self):
         from PIL import Image
 
-        ss = SiteSettings.get()
+        ss = SiteParameters.get()
         ss.brand_mark = make_branding_png(1024, 500, color=(255, 0, 0, 255))
         ss.save()
         with Image.open(ss.brand_mark.path) as img:
@@ -240,7 +240,7 @@ class SiteSettingsBrandingNormalizationTest(TestCase):
     def test_save_letterboxes_tall_brand_mark_to_square(self):
         from PIL import Image
 
-        ss = SiteSettings.get()
+        ss = SiteParameters.get()
         ss.brand_mark = make_branding_png(600, 1024, color=(255, 0, 0, 255))
         ss.save()
         with Image.open(ss.brand_mark.path) as img:

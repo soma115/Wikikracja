@@ -6,6 +6,29 @@ from django.urls import reverse
 from chat.models import Message, Room
 from chat.services import get_unread_count_for_user
 from core.services.feed import FEED_CACHE_KEY, generate_feed_items
+from site_settings.models import QuickLink
+
+
+class QuickLinkSettingsTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='quick-links', password='pass')
+        self.client.force_login(self.user)
+        self.url = reverse('group_settings')
+
+    def test_quick_links_accept_relative_and_http_urls(self):
+        for link_url in ('/chat/', 'https://example.com/help'):
+            with self.subTest(link_url=link_url):
+                response = self.client.post(self.url, {'save_quick_link': '1', 'quick_link_title': 'Link', 'quick_link_url': link_url, 'quick_link_order': '0'})
+                self.assertEqual(response.status_code, 302)
+
+        self.assertTrue(QuickLink.objects.filter(url='/chat/').exists())
+        self.assertTrue(QuickLink.objects.filter(url='https://example.com/help').exists())
+
+    def test_quick_links_reject_unsafe_url_schemes(self):
+        response = self.client.post(self.url, {'save_quick_link': '1', 'quick_link_title': 'Unsafe', 'quick_link_url': 'javascript:alert(1)', 'quick_link_order': '0'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(QuickLink.objects.filter(title='Unsafe').exists())
 
 
 class ActivityFeedChatTest(TestCase):

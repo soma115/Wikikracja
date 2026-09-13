@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import re
+from urllib.parse import urlsplit
 
 from django.conf import settings
 from django.contrib import messages
@@ -15,7 +16,7 @@ from django.views.decorators.http import require_POST
 
 from core.search_registry import collect_search_results
 from core.services import feed as feed_service
-from site_settings.models import QuickLink, SiteSettings
+from site_settings.models import QuickLink, SiteParameters
 from site_settings.services import get_branding_version
 
 from .link_titles import resolve_link_titles
@@ -288,7 +289,7 @@ def haslo(request: HttpRequest):
 
 def manifest(request):
     """Serve dynamic PWA manifest JSON"""
-    ss = SiteSettings.get()
+    ss = SiteParameters.get()
     if ss.has_brand_derivatives():
         derived_url = settings.MEDIA_URL + 'site_branding/derived/'
         version_q = f'?v={get_branding_version(ss)}'
@@ -376,7 +377,10 @@ def _quick_link_data(request):
 
     title_max = QuickLink._meta.get_field('title').max_length
     url_max = QuickLink._meta.get_field('url').max_length
-    if not title or not url or len(title) > title_max or len(url) > url_max or order < 0:
+    parsed_url = urlsplit(url)
+    is_relative_url = url.startswith('/') and not url.startswith('//')
+    is_external_url = parsed_url.scheme in {'http', 'https'} and bool(parsed_url.netloc)
+    if not title or not url or len(title) > title_max or len(url) > url_max or order < 0 or not (is_relative_url or is_external_url):
         return None
     return title, url, order
 

@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from site_settings.models import SiteSettings
+from site_settings.models import SiteParameters
 from site_settings.tests.utils import make_branding_png
 
 
@@ -33,7 +33,7 @@ class SidebarBrandMarkRenderingTest(TestCase):
         self.assertNotIn('class="tw-brand-mark"', content)
 
     def test_renders_img_brand_mark_when_brand_mark_exists(self):
-        ss = SiteSettings.get()
+        ss = SiteParameters.get()
         ss.brand_mark = make_branding_png()
         ss.save()
 
@@ -69,7 +69,7 @@ class ManifestAndAppleTouchIconBrandTest(TestCase):
         self.assertTrue(all('/static/home/images/' in src for src in srcs))
 
     def test_manifest_uses_media_derivatives_with_brand_mark(self):
-        ss = SiteSettings.get()
+        ss = SiteParameters.get()
         ss.brand_mark = make_branding_png()
         ss.save()
 
@@ -85,7 +85,7 @@ class ManifestAndAppleTouchIconBrandTest(TestCase):
         self.assertIn('/static/home/images/favicon.ico', content)
 
     def test_apple_touch_icon_link_uses_media_with_brand_mark(self):
-        ss = SiteSettings.get()
+        ss = SiteParameters.get()
         ss.brand_mark = make_branding_png()
         ss.save()
 
@@ -101,7 +101,7 @@ class ManifestAndAppleTouchIconBrandTest(TestCase):
         self.assertIn('/static/home/images/favicon.ico', content)
 
     def test_favicon_link_uses_media_with_brand_mark(self):
-        ss = SiteSettings.get()
+        ss = SiteParameters.get()
         ss.brand_mark = make_branding_png()
         ss.save()
 
@@ -128,7 +128,7 @@ class CacheBustVersioningTest(TestCase):
         shutil.rmtree(self.tmp_media, ignore_errors=True)
 
     def test_brand_mark_url_in_template_has_version_param(self):
-        ss = SiteSettings.get()
+        ss = SiteParameters.get()
         ss.brand_mark = make_branding_png()
         ss.save()
 
@@ -138,7 +138,7 @@ class CacheBustVersioningTest(TestCase):
         self.assertIn(f'{ss.brand_mark.url}?v={expected_ts}', content)
 
     def test_manifest_media_icons_have_version_param(self):
-        ss = SiteSettings.get()
+        ss = SiteParameters.get()
         ss.brand_mark = make_branding_png()
         ss.save()
 
@@ -153,7 +153,7 @@ class CacheBustVersioningTest(TestCase):
         self.assertFalse(any('?v=' in src for src in srcs))
 
     def test_apple_touch_icon_link_has_version_param_with_brand_mark(self):
-        ss = SiteSettings.get()
+        ss = SiteParameters.get()
         ss.brand_mark = make_branding_png()
         ss.save()
 

@@ -18,6 +18,18 @@ User = get_user_model()
 
 
 @pytest.mark.django_db
+def test_details_does_not_show_edit_action_for_orphaned_proposition(sample_users):
+    client = Client()
+    client.force_login(sample_users[0])
+    decyzja = Decyzja.objects.create(title='Orphaned proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=None)
+
+    response = client.get(f'/glosowania/details/{decyzja.pk}/')
+
+    assert response.status_code == 200
+    assert f'/glosowania/edit/{decyzja.pk}/' not in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_details_view_retries_on_database_lock(sample_users):
     """Test that details view retries on database lock error."""
     from django.test import RequestFactory

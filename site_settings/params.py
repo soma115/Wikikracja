@@ -218,18 +218,18 @@ def apply_parameters(proposed):
 
 
 def apply_brand_mark(image_field_file):
-    """Copy a proposed logo file onto the SiteSettings brand mark and save.
+    """Copy a proposed logo file onto the SiteParameters brand mark and save.
 
-    Saving triggers SiteSettings.save(), which letterboxes the image and
+    Saving triggers SiteParameters.save(), which letterboxes the image and
     regenerates favicon / PWA derivatives.
     """
     import os
 
-    from site_settings.models import SiteSettings
+    from site_settings.models import SiteParameters
 
     if not image_field_file:
         return
-    ss = SiteSettings.get()
+    ss = SiteParameters.get()
     image_field_file.open('rb')
     ss.brand_mark.save(os.path.basename(image_field_file.name), image_field_file, save=True)
 

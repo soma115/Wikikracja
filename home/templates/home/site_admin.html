@@ -26,7 +26,6 @@
       <form method="post" id="tw-quick-link-form" data-preserve-scroll>
         {% csrf_token %}
         <input type="hidden" name="save_quick_link" value="1" id="form-action">
-        <input type="hidden" name="edit_link_id" value="" id="edit-link-id">
 
         <div class="tw-mb-3">
           <div class="tw-font-semibold tw-mb-2 tw-text-md">
@@ -78,7 +77,6 @@
       var url = this.dataset.url;
       var order = this.dataset.order;
 
-      document.getElementById('edit-link-id').value = linkId;
       document.getElementById('quick_link_title').value = title;
       document.getElementById('quick_link_url').value = url;
       document.getElementById('quick_link_order').value = order;
@@ -92,7 +90,6 @@
   });
 
   document.getElementById('cancel-edit-btn').addEventListener('click', function() {
-    document.getElementById('edit-link-id').value = '';
     document.getElementById('quick_link_title').value = '';
     document.getElementById('quick_link_url').value = '';
     document.getElementById('quick_link_order').value = '0';

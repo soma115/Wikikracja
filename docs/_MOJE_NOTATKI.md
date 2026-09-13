@@ -9,24 +9,21 @@ Pokaż mi co zamierzasz zrobić przed zmianami w kodzie.
 
 # OGÓLNE
 
-- Przejmowanie własności. Jeżeli jakaś treść jest porzucona, to można kliknąć Przejmij i wtedy po trzech dniach się przejmuje, o ile nie ma sprzeciwu właściciela. Informacja o tym, że ktoś chce przejąć Twój dokument, powinna być wysyłana w prywatnej wiadomości na czacie. I na czacie powinny być guziki, zgódź się albo nie zgódź się.
+Unowocześnij:
+  http://127.0.0.1:8000/accounts/password/change/
+  http://127.0.0.1:8000/obywatele/change_email/
+  http://127.0.0.1:8000/obywatele/change_username/
+
 - wersjonowanie dokumentów, Działań. Tylko jedna wersja na dzień. 
-- widok szczegułów wszędzie zrobić standardowo
-- Działania zniknęły finanse > transakcje. Zmieńmy sposób działania. Niech kliknięcie na transakcję pozwala na wejście w jej szczegóły i tam powinna być edycja i jej usuwanie.
-- guziki Przewijania itmów nie są ustandaryzowane i brakuje ich w dokumentach, działaniach, kalendarzu, finansach i ankietach.
-- Zalogowanie się w systemie oznacza zgodę na warunki. Będąc członkiem grupy masz wpływ na przepisy w takim samym stopniu jak każdy inny obywatel.
-- Dokończyć Fixtures (przepisy, pokoje, ogłoszenia, Start, Footer, Custom email) i dodać je do skryptu instalacyjnego. Start, Footer i Custom emails powinny mieć swój oddzielny dział / znaczniki typu.
 - Backup kontaktów, przepisów, ogłoszeń, itd. Każdy powinien móc zrobić w postaci fixtures i md.
-- Wszędzie: Ograniczyć możliwość dodawania treść po to żeby uniknąć manipulacji polegającej na tym, że zły aktor zarzuca grupę dużą ilością głosowań i przemyca w ten sposób niekorzystne dla grupy rozwiązania.
-- Mobile: swipe left/right żeby przejść do różnych działów?
-- Mapa ze społecznościami. Zlinkować otwarte grupy, zaprzyjaźnione biznesy, siebie. Automatycznie można na podstawie miasta.
-- Pakiet ustaw - powinno dać się zaznaczyć w przepisie, że ten przepis wchodzi w życie razem z innymi przepisami. Może np. dopiero jak wszystkie zbiorą wymagane podpisy.
-- site_settings_siteparameters i site_settings_sitesettings nie musi być oddzielną tabelą. Dotyczą tego samego.
+- Mapa ze społecznościami. Zlinkować otwarte grupy, partnerów z Finanse, Obywateli. Automatycznie można na podstawie miasta.
 - Refaktoryzacje:
   - board > documents
   - events > calendar
   - glosowania > voting
   - obywatele > citizens
+- Dokończyć Fixtures (przepisy, pokoje, ogłoszenia, Start, Footer, Custom email) i dodać je do skryptu instalacyjnego. Start, Footer i Custom emails powinny mieć swój oddzielny dział / znaczniki typu.
+- Wszędzie: Ograniczyć możliwość dodawania treść po to żeby uniknąć manipulacji polegającej na tym, że zły aktor zarzuca grupę dużą ilością głosowań i przemyca w ten sposób niekorzystne dla grupy rozwiązania.
 
 # AKTYWNOSC
 

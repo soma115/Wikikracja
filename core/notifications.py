@@ -22,7 +22,7 @@ from push_notifications.models import GCMDevice
 from core.richtext import strip_tags
 from core.signals import citizen_accepted, citizen_blocked, citizen_proposed, event_starting, important_post_published, survey_created, task_created, vote_started, vote_state_changed
 from core.utils import build_site_url
-from site_settings.models import SiteSettings
+from site_settings.models import SiteParameters
 from site_settings.services import get_branding_version
 
 log = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ NOTIF_LOG_TAG = "[NOTIFDBG]"
 
 
 def _icon_url():
-    ss = SiteSettings.get()
+    ss = SiteParameters.get()
     derived_favicon = os.path.join(settings.MEDIA_ROOT, 'site_branding', 'derived', 'favicon.ico')
     if ss.brand_mark and os.path.isfile(derived_favicon):
         version = get_branding_version(ss)

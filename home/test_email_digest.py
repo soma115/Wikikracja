@@ -310,10 +310,10 @@ class SendEmailDigestCommandTest(TransactionTestCase):
         self._run_digest()
 
         email = next(e for e in mail.outbox if user.email in e.to)
-        assert 'Important: voting was restarted after a technical failure' in email.body
+        assert str(_('Important: voting was restarted after a technical failure')) in email.body
         assert 'Restarted referendum' in email.body
         assert f'/glosowania/details/{decision.pk}/' in email.body
-        assert email.body.index('Important:') < email.body.index('Restarted referendum')
+        assert email.body.index(str(_('Important: voting was restarted after a technical failure'))) < email.body.index('Restarted referendum')
         assert 'Restarted referendum' in email.alternatives[0][0]
 
     def test_digest_no_email_when_not_due(self):

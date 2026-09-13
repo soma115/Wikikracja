@@ -73,6 +73,8 @@ def _board_list_state(request):
 
 def _board_tab_filter(user, tab):
     if tab == 'mine':
+        if not user.is_authenticated:
+            return Q(pk__in=[])
         return Q(is_private=True, author=user, is_deleted=False)
     if tab == 'public':
         return Q(is_public=True, is_private=False, is_deleted=False)
@@ -87,7 +89,8 @@ def _board_listing(request, *, include_chat_counts=True):
     if tab == 'trash':
         posts_all = posts_query.filter(_board_tab_filter(request.user, tab))
     else:
-        posts_all = posts_query.filter(Post.visibility_filter_for_user(request.user), _board_tab_filter(request.user, tab))
+        tab_filter = Q(is_deleted=False) if tab == 'public' and 'tab' not in request.GET else _board_tab_filter(request.user, tab)
+        posts_all = posts_query.filter(Post.visibility_filter_for_user(request.user), tab_filter)
     if search_query:
         posts_all = posts_all.filter(Q(title__icontains=search_query) | Q(subtitle__icontains=search_query) | Q(text__icontains=search_query))
     posts_all = list(posts_all)

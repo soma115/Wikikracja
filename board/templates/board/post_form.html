@@ -28,7 +28,7 @@
         {{ form.featured_image|as_crispy_field }}
         <div class="tw-mb-3">
           <label for="{{ form.attachments.id_for_label }}" class="tw-form-label">{{ form.attachments.label }}</label>
-          <input type="file" name="{{ form.attachments.name }}" class="tw-form-control{% if form.attachments.errors %} is-invalid{% endif %}" id="{{ form.attachments.id_for_label }}" multiple data-max-size-mb="{{ UPLOAD_ATTACHMENT_MAX_SIZE_MB }}" data-max-size-error="{{ UPLOAD_ATTACHMENT_MAX_SIZE_MESSAGE }}">
+          <input type="file" name="{{ form.attachments.name }}" class="tw-form-control" id="{{ form.attachments.id_for_label }}" multiple data-max-size-mb="{{ UPLOAD_ATTACHMENT_MAX_SIZE_MB }}" data-max-size-error="{{ UPLOAD_ATTACHMENT_MAX_SIZE_MESSAGE }}">
           {% if form.attachments.errors %}
             <div class="tw-invalid-feedback tw-block tw-text-danger">
               {% for error in form.attachments.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}

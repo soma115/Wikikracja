@@ -7,6 +7,7 @@ na tej samej zasadzie co tasks i glosowania.
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from django.urls import reverse
 
 from board.models import Post
@@ -155,6 +156,21 @@ def test_edit_post_updates_fields_and_adds_attachments(authenticated_client):
     assert post.author == user
     assert post.updated_by == user
     assert post.attachments.get().filename == 'zalacznik.txt'
+
+
+@pytest.mark.django_db
+@override_settings(UPLOAD_ATTACHMENT_MAX_SIZE_MB=1)
+def test_invalid_attachment_uses_tw_error_class(authenticated_client):
+    client, _ = authenticated_client
+    post = PostFactory()
+    oversized = SimpleUploadedFile('large.txt', b'x' * 1_000_001)
+
+    response = client.post(reverse('board:edit_post', args=[post.pk]), {'title': post.title, 'text': post.text, 'attachments': oversized})
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert 'is-invalid' not in content
+    assert 'tw-invalid-feedback' in content
 
 
 @pytest.mark.django_db
