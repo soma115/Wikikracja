@@ -19,6 +19,7 @@ import {
 import {
     copyMessageLink,
     copyRoomLink,
+    cancelInitialRoomPreview,
     getCurrentRoomId,
     navigateToRoom,
     navigateToRoomList,
@@ -599,6 +600,7 @@ window.wkOnReady(function() {
         if (e.target.closest('.tw-room-link-actions')) return;
         const roomLink = e.target.closest('.tw-room-link');
         if (!roomLink) return;
+        cancelInitialRoomPreview();
         if (roomLink.classList.contains("tw-room-link--joined")) {
             // Mobile: klik w już aktywny pokój = wróć do niego (lista nakłada się
             // na pokój). Nawigacja przez URL — router sam zauważy identyczną trasę.
@@ -618,6 +620,8 @@ window.wkOnReady(function() {
 
     // ── Breadcrumb aria-expanded mirror ───────────────────────────────────────
     const chatRoomsEl = $('.tw-chat-rooms');
+    const roomListCol = $('.tw-room-list-col');
+    roomListCol?.addEventListener('touchstart', cancelInitialRoomPreview, { passive: true });
 
     // Chat-only swipe: right-to-left opens the room list. Keep the Android
     // system back-gesture area free by ignoring touches that start at the edge.
@@ -674,12 +678,31 @@ window.wkOnReady(function() {
         }, true);
     })();
 
+    let breadcrumbFlashTimer = null;
+    let previousListShowing = chatRoomsEl?.classList.contains('tw-room-list-showing') || false;
+
+    function flashBreadcrumbOnListHide() {
+        if (!mobileMedia.matches) return;
+        const bc = document.getElementById('chat-breadcrumb');
+        if (!bc) return;
+        bc.classList.remove('tw-chat-breadcrumb--flash');
+        void bc.offsetWidth;
+        bc.classList.add('tw-chat-breadcrumb--flash');
+        if (breadcrumbFlashTimer !== null) clearTimeout(breadcrumbFlashTimer);
+        breadcrumbFlashTimer = setTimeout(() => {
+            bc.classList.remove('tw-chat-breadcrumb--flash');
+            breadcrumbFlashTimer = null;
+        }, 1400);
+    }
+
     function updateBreadcrumbAria() {
-        const listShowing = chatRoomsEl?.classList.contains('tw-room-list-showing');
+        const listShowing = chatRoomsEl?.classList.contains('tw-room-list-showing') || false;
         const bc = document.getElementById('chat-breadcrumb');
         if (bc) {
-            bc.setAttribute('aria-expanded', String(!!listShowing));
+            bc.setAttribute('aria-expanded', String(listShowing));
+            if (previousListShowing && !listShowing) flashBreadcrumbOnListHide();
         }
+        previousListShowing = listShowing;
     }
 
     // Desktop room-list collapse is no longer supported — always show the list.

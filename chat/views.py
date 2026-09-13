@@ -25,7 +25,7 @@ from PIL import Image
 
 from chat.forms import GuestMessageForm, RoomForm
 from chat.i18n import get_translations
-from chat.models import Room
+from chat.models import Message, Room
 from chat.services import get_unread_message_counts_for_rooms, send_message
 from site_settings.params import get_param
 
@@ -111,7 +111,10 @@ def chat(request: HttpRequest):
     base_rooms = (
         Room.objects.filter(allowed=request.user.id)
         .select_related('last_message_sender')
-        .annotate(messages_count=Count('messages'), is_seen=Exists(Room.seen_by.through.objects.filter(room_id=OuterRef('pk'), user_id=request.user.id)))
+        .annotate(
+            messages_count=Count('messages'),
+            is_seen=~Exists(Message.objects.filter(room_id=OuterRef('pk')).exclude(room__seen_by=request.user).exclude(sender_id=request.user.id).exclude(read_by__user_id=request.user.id)),
+        )
         .order_by(Lower('title'))
     )
 

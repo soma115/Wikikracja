@@ -175,6 +175,27 @@ const ViewState = {
 let JoinGeneration = 0;
 /** Klucz ostatnio zastosowanej trasy — deduplikacja popstate + hashchange. */
 let LastAppliedRouteKey = null;
+let initialRoomPreviewActive = false;
+let initialRoomPreviewTimer = null;
+
+function cancelInitialRoomPreview() {
+    initialRoomPreviewActive = false;
+    if (initialRoomPreviewTimer !== null) {
+        clearTimeout(initialRoomPreviewTimer);
+        initialRoomPreviewTimer = null;
+    }
+}
+
+function scheduleInitialRoomPreviewHide() {
+    if (!mobileMedia.matches || !initialRoomPreviewActive) return;
+    initialRoomPreviewTimer = setTimeout(() => {
+        initialRoomPreviewTimer = null;
+        if (!initialRoomPreviewActive) return;
+        initialRoomPreviewActive = false;
+        ViewState.panel = 'room';
+        renderChatView();
+    }, 2000);
+}
 
 // Filtr nieprzeczytanych — stan modułowy (współdzielą go router i handlery).
 let isUnreadFilterActive = false;
@@ -347,6 +368,7 @@ function syncRouteFromLocation({ initial = false } = {}) {
 
 function applyChatRoute(route, { initial = false } = {}) {
     if (route.view === 'room') {
+        if (!initialRoomPreviewActive) cancelInitialRoomPreview();
         ViewState.panel = 'room';
         ViewState.requestedRoomId = route.roomId;
         if (route.messageId) ScrollToMessageId = route.messageId;
@@ -360,6 +382,7 @@ function applyChatRoute(route, { initial = false } = {}) {
     }
 
     // Widok listy: 'rooms' | 'unread' | 'default' poza startem (powrót Wstecz)
+    if (!initial) cancelInitialRoomPreview();
     ViewState.panel = 'list';
     ViewState.requestedRoomId = null;
     $('.tw-chat-rooms')?.classList.remove('tw-room-list-hidden');
@@ -371,7 +394,17 @@ function applyChatRoute(route, { initial = false } = {}) {
         const roomId = pickInitialRoomId();
         // Pokój jest wpisywany bez dokładania wewnętrznego kroku historii;
         // Androidowe Wstecz opuszcza wtedy czat zamiast otwierać listę pokoi.
-        if (roomId) navigateToRoom(roomId);
+        if (roomId) {
+            if (mobileMedia.matches) {
+                initialRoomPreviewActive = true;
+                navigateToRoom(roomId);
+                ViewState.panel = 'list';
+                renderChatView();
+                scheduleInitialRoomPreviewHide();
+            } else {
+                navigateToRoom(roomId);
+            }
+        }
     }
 }
 
@@ -421,6 +454,8 @@ export function navigateToRoomList() {
 export function getCurrentRoomId() {
     return CurrentRoomId;
 }
+
+export { cancelInitialRoomPreview };
 
 // Placeholder "Wybierz pokoj" w lewej kolumnie — gdy nie ma joinowanego pokoju.
 // Tekst budujemy przez textContent (defense-in-depth — gdyby kiedys w tlumaczeniu
@@ -554,16 +589,23 @@ function hideUnreadEmptyState() {
 // nadrzędny + indeks wśród jego dzieci. Reset odtwarza pozycję z modelu,
 // więc nie zależy od przypadkowego nextSibling.
 
-/** Klucz sortowania pokoju — unix seconds z data-last-activity. */
+/** Klucz sortowania pokoju — unix seconds z data-last-activity albo null. */
 function roomLinkSortKey(link) {
-    return parseInt(link.dataset.lastActivity || '0', 10);
+    const raw = link.dataset.lastActivity;
+    if (!raw) return null;
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : null;
 }
 
 /** Komparator płaskiej listy: 'newest' malejąco, 'oldest' rosnąco. */
 function roomLinkComparator(mode) {
-    return (a, b) => mode === 'oldest'
-        ? roomLinkSortKey(a) - roomLinkSortKey(b)
-        : roomLinkSortKey(b) - roomLinkSortKey(a);
+    return (a, b) => {
+        const aKey = roomLinkSortKey(a);
+        const bKey = roomLinkSortKey(b);
+        if (aKey === null) return bKey === null ? 0 : 1;
+        if (bKey === null) return -1;
+        return mode === 'oldest' ? aKey - bKey : bKey - aKey;
+    };
 }
 
 /** Pokój bierze udział w płaskim widoku, gdy należy do aktualnego widoku. */
@@ -966,7 +1008,7 @@ export async function onRoomTryJoin(room_id, { preserveView = false } = {}) {
         expandCategoryForRoom(roomLink);
     }
 
-    if (!stale && !preserveView) {
+    if (!stale && !preserveView && !initialRoomPreviewActive) {
         ViewState.panel = 'room';
         hideRoomPlaceholder();
     }

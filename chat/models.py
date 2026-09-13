@@ -270,7 +270,6 @@ class Room(models.Model):
         # except (cls.DoesNotExist):
         #     return {user_id: {'seen': False, 'muted': False} for user_id in user_ids}
 
-        # Get all users with their relationships in 2 queries
         users = (
             get_user_model()
             .objects.filter(id__in=user_ids)
@@ -279,10 +278,15 @@ class Room(models.Model):
                 Prefetch('muted_rooms', queryset=cls.objects.filter(id=room_id), to_attr='prefetched_muted_rooms'),
             )
         )
+        message_rows = list(Message.objects.filter(room_id=room_id).values_list('id', 'sender_id'))
+        message_ids = [message_id for message_id, _sender_id in message_rows]
+        read_pairs = set(MessageReadBy.objects.filter(message_id__in=message_ids, user_id__in=user_ids).values_list('message_id', 'user_id'))
 
         result = {}
         for user in users:
-            result[user.id] = {'seen': bool(user.prefetched_seen_rooms), 'muted': bool(user.prefetched_muted_rooms)}
+            has_unread = any(sender_id != user.id and (message_id, user.id) not in read_pairs for message_id, sender_id in message_rows)
+            is_seen = bool(user.prefetched_seen_rooms) or (bool(message_rows) and not has_unread)
+            result[user.id] = {'seen': is_seen, 'muted': bool(user.prefetched_muted_rooms)}
 
         # Fill in missing users (shouldn't happen but defensive)
         for user_id in user_ids:

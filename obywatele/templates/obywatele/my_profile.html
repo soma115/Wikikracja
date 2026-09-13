@@ -48,6 +48,7 @@
       {# Avatar z inline upload overlay #}
       <form id="avatar-form" method="post" action="{% url 'obywatele:upload_avatar' %}" enctype="multipart/form-data" class="tw-flex-shrink-0">
         {% csrf_token %}
+        <label class="tw-sr-only" for="avatar-input">{% trans "Avatar" %}</label>
         <input class="tw-d-none" type="file" id="avatar-input" name="avatar" accept="image/*">
         <div class="tw-avatar-upload-wrap" id="avatar-wrap">
           {% include "home/_user_avatar.html" with user=user size="7xl" extra_class="tw-avatar-bordered" id="avatar-img" loading_lazy=False %}

@@ -6738,6 +6738,10 @@ body.tw-chat-page .tw-main-area {
     display: flex;
     align-items: center;
 }
+.tw-room-link-actions--no-rename .tw-room-rename-divider,
+.tw-room-link-actions--no-rename .tw-room-rename-item {
+    display: none;
+}
 .tw-room-link-body {
     flex: 1 1 auto;
     min-width: 0;
@@ -7041,6 +7045,25 @@ body.tw-chat-page .tw-main-area {
     }
     .tw-chat-breadcrumb:hover {
         color: var(--accent);
+    }
+    @keyframes tw-chat-breadcrumb-flash {
+        0%, 100% {
+            background: var(--btn-glass-bg);
+            border-color: var(--border);
+        }
+        35% {
+            background: var(--accent-muted);
+            border-color: var(--accent);
+        }
+    }
+    .tw-chat-breadcrumb.tw-chat-breadcrumb--flash {
+        animation: tw-chat-breadcrumb-flash 0.7s ease 2;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .tw-chat-breadcrumb.tw-chat-breadcrumb--flash {
+            animation: none;
+            border-color: var(--accent);
+        }
     }
     .tw-chat-breadcrumb .tw-bc-seg:not(.tw-bc-seg--active),
     .tw-chat-breadcrumb .tw-bc-sep {

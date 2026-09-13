@@ -3,7 +3,7 @@
  *
  * Testy modelu i sortowania listy pokoi (Etap H, CHAT_REWORK_PLAN §10).
  * Pokrywa:
- *   - komparator data-last-activity (newest/oldest, brak danych = 0),
+ *   - komparator data-last-activity (newest/oldest, brak danych zawsze na końcu),
  *   - widoczność linku (ukryte archiwum wyklucza z płaskiej listy, widok archiwum wyklucza aktywne pokoje),
  *   - model pozycji domowych: capture + deterministyczny restore po indeksie,
  *     niezależny od przypadkowego nextSibling,
@@ -19,13 +19,20 @@ const $$ = (sel) => document.querySelectorAll(sel);
 // ── wierne kopie z chat.js (synchronizowac przy zmianie!) ──────────────────
 
 function roomLinkSortKey(link) {
-    return parseInt(link.dataset.lastActivity || '0', 10);
+    const raw = link.dataset.lastActivity;
+    if (!raw) return null;
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : null;
 }
 
 function roomLinkComparator(mode) {
-    return (a, b) => mode === 'oldest'
-        ? roomLinkSortKey(a) - roomLinkSortKey(b)
-        : roomLinkSortKey(b) - roomLinkSortKey(a);
+    return (a, b) => {
+        const aKey = roomLinkSortKey(a);
+        const bKey = roomLinkSortKey(b);
+        if (aKey === null) return bKey === null ? 0 : 1;
+        if (bKey === null) return -1;
+        return mode === 'oldest' ? aKey - bKey : bKey - aKey;
+    };
 }
 
 function isRoomListLinkVisible(link) {
@@ -169,9 +176,15 @@ describe('roomLinkComparator', () => {
         expect(rooms.map(r => r.dataset.roomId)).toEqual(['2', '3', '1']);
     });
 
-    test('brak data-last-activity traktowany jako 0', () => {
+    test('brak data-last-activity jest na końcu przy sortowaniu malejącym', () => {
         const rooms = [roomLink(1), roomLink(2, 50)];
         rooms.sort(roomLinkComparator('newest'));
+        expect(rooms.map(r => r.dataset.roomId)).toEqual(['2', '1']);
+    });
+
+    test('brak data-last-activity jest na końcu przy sortowaniu rosnącym', () => {
+        const rooms = [roomLink(1), roomLink(2, 50)];
+        rooms.sort(roomLinkComparator('oldest'));
         expect(rooms.map(r => r.dataset.roomId)).toEqual(['2', '1']);
     });
 });

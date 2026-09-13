@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 
+from chat.models import Message
+
 register = template.Library()
 
 
@@ -40,15 +42,10 @@ def other_user(room, user):
 
 
 def _is_seen(room, user):
-    """Core logic: returns True if room has been seen by user."""
-    # Annotated queryset (fast path)
+    """Return True when the user has read every message from other users."""
     if hasattr(room, 'is_seen') and hasattr(room, 'messages_count'):
         return room.is_seen or room.messages_count == 0
-    # Prefetched seen_by (e.g. via select_related + Prefetch on task.chat_room)
-    if hasattr(room, '_prefetched_objects_cache') and 'seen_by' in room._prefetched_objects_cache:
-        return any(u.id == user.id for u in room.seen_by.all())
-    # Fallback: direct query
-    return room.messages.all().count() == 0 or room.seen_by.filter(id=user.id).exists()
+    return not Message.objects.filter(room_id=room.pk).exclude(room__seen_by=user).exclude(sender_id=user.id).exclude(read_by__user_id=user.id).exists()
 
 
 @register.filter('is_seen_by')

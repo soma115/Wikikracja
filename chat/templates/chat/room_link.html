@@ -7,7 +7,7 @@
   data-room-kind="{{ room_kind }}"
   data-room-id="{{ room.id }}"
   data-room-archived="{{ room.archived }}"
-  data-last-activity="{{ room.last_message_at|default_if_none:room.last_activity|date:'U' }}">
+  data-last-activity="{{ room.last_message_at|date:'U' }}">
 
   <div class="tw-avatar tw-avatar-xl tw-avatar-presence">
     {% if room_kind == 'task' %}
@@ -66,45 +66,37 @@
     {% endif %}
   </div>
 
-  <div class="tw-room-link-actions tw-dropdown">
+  <div class="tw-room-link-actions tw-dropdown{% if not room.public or room.protected %} tw-room-link-actions--no-rename{% endif %}">
     <button type="button" class="tw-room-link-chevron" data-tw-toggle="dropdown" data-tw-dropdown-fixed aria-expanded="false" aria-label="{% trans 'Room actions' %}">
       <i class="fas fa-chevron-down" aria-hidden="true"></i>
     </button>
-    <ul class="tw-dropdown-menu tw-dropdown-menu-end tw-absolute tw-z-50 tw-bg-bg-card tw-border tw-border-subtle tw-rounded-card">
-      <li>
+    <ul class="tw-dropdown-menu tw-dropdown-menu-end tw-absolute tw-z-50 tw-bg-bg-card tw-border tw-border-subtle tw-rounded-card"><li>
         <button type="button"
           class="tw-dropdown-item tw-seen-switch tw-block tw-w-full tw-text-start"
           data-room-id="{{ room.id }}"
           data-seen="{{ room|is_seen_by:user }}">
           <i class="fas fa-eye{% if room|is_seen_by:user == "true" %}{% else %}-slash{% endif %} fa-fw tw-me-1"></i>{% trans 'Mark as unread' %}
         </button>
-      </li>
-      <li>
+      </li><li>
         <button type="button"
           class="tw-dropdown-item tw-notif-switch tw-block tw-w-full tw-text-start"
           data-room-id="{{ room.id }}"
           data-enabled="{% if room|is_muted_by:user %}false{% else %}true{% endif %}">
           <i class="fas {% if room|is_muted_by:user %}fa-bell-slash{% else %}fa-bell{% endif %} fa-fw tw-me-1"></i><span class="tw-notif-label">{% if room|is_muted_by:user %}{% trans 'Unmute room' %}{% else %}{% trans 'Mute room' %}{% endif %}</span>
         </button>
-      </li>
-      <li>
+      </li><li>
         <button type="button"
           class="tw-dropdown-item tw-copy-room-url tw-block tw-w-full tw-text-start"
           data-room-id="{{ room.id }}">
           <i class="fas fa-link fa-fw tw-me-1"></i>{% trans 'Copy link' %}
         </button>
-      </li>
-      {% if room.public and not room.protected %}
-      <li><hr class="tw-dropdown-divider tw-my-1 tw-border-subtle"></li>
-      <li>
+      </li><li class="tw-room-rename-divider"><hr class="tw-dropdown-divider tw-my-1 tw-border-subtle"></li><li class="tw-room-rename-item">
         <button type="button"
           class="tw-dropdown-item tw-rename-room-btn tw-block tw-w-full tw-text-start"
           data-room-id="{{ room.id }}"
           data-room-title="{{ room.title }}">
           <i class="fas fa-pen fa-fw tw-me-1"></i>{% trans 'Rename room' %}
         </button>
-      </li>
-      {% endif %}
-    </ul>
+      </li></ul>
   </div>
 </div>

@@ -19,7 +19,19 @@ from push_notifications.models import GCMDevice
 from chat.exceptions import ClientError
 from chat.models import Message, MessageReadBy, Room
 from chat.permissions import _room_permission_checkers, get_room_permission_checker, register_room_permission_checker
-from chat.services import CHAT_UNREAD_CACHE_KEY, ChatRepository, _room_notification_name, can_user_post_in_room, extract_mentions, get_avatar_url, get_unread_count_for_user, get_unseen_room_ids, send_message
+from chat.services import (
+    CHAT_UNREAD_CACHE_KEY,
+    ChatRepository,
+    _room_notification_name,
+    can_user_post_in_room,
+    extract_mentions,
+    get_avatar_url,
+    get_unread_count_for_user,
+    get_unseen_room_ids,
+    mark_room_read_for_user,
+    mark_room_unread_for_user,
+    send_message,
+)
 from chat.tests.utils import make_user
 from core import signals
 from core.notifications import build_notification, send_fcm_to_all_sync, send_fcm_to_user_sync
@@ -274,6 +286,7 @@ class GetUnseenRoomIdsTest(TestCase):
         self.enterContext(patch("core.notifications._dispatch_notification"))
         self.user = make_user("unseen-user")
         self.other = make_user("other-unseen-user")
+        self.third = make_user("third-unseen-user")
         for user in (self.user, self.other):
             user.seen_rooms.set(Room.objects.all())
             key = CHAT_UNREAD_CACHE_KEY.format(user_id=user.id)
@@ -282,7 +295,7 @@ class GetUnseenRoomIdsTest(TestCase):
 
     def make_message_room(self, title, *, member=True, **kwargs):
         room = Room.objects.create(title=title, **kwargs)
-        Message.objects.create(room=room, sender=self.user, text="Unread message")
+        Message.objects.create(room=room, sender=self.third, text="Unread message")
         if member:
             room.allowed.add(self.user, self.other)
         return room
@@ -326,13 +339,28 @@ class GetUnseenRoomIdsTest(TestCase):
         self.assertEqual(get_unseen_room_ids(self.user), set())
         self.assertEqual(cache.get(key), 777)
 
-    def test_query_count_stays_two_for_multiple_rooms_and_messages(self):
+    def test_mark_room_read_and_unread_updates_both_read_states(self):
+        room = self.make_message_room("Read state")
+
+        mark_room_read_for_user(self.user, room)
+
+        self.assertEqual(get_unseen_room_ids(self.user), set())
+        self.assertTrue(room.seen_by.filter(pk=self.user.pk).exists())
+        self.assertTrue(MessageReadBy.objects.filter(message__room=room, user=self.user).exists())
+
+        mark_room_unread_for_user(self.user, room)
+
+        self.assertEqual(get_unseen_room_ids(self.user), {room.id})
+        self.assertFalse(room.seen_by.filter(pk=self.user.pk).exists())
+        self.assertFalse(MessageReadBy.objects.filter(message__room=room, user=self.user).exists())
+
+    def test_query_count_stays_one_for_multiple_rooms_and_messages(self):
         room_ids = set()
         for index in range(5):
             room = self.make_message_room(f"Batch room {index}")
             Message.objects.create(room=room, sender=self.other, text="Second unread message")
             room_ids.add(room.id)
-            with self.subTest(room_count=len(room_ids)), self.assertNumQueries(2):
+            with self.subTest(room_count=len(room_ids)), self.assertNumQueries(1):
                 self.assertEqual(get_unseen_room_ids(self.user), room_ids)
 
 

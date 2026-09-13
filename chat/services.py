@@ -51,23 +51,51 @@ def _reply_snippet(text: str, max_len: int = 240) -> str:
     return plain[:max_len]
 
 
+def _unread_messages(user, room_ids=None):
+    """Return messages from others that the user has not marked as read."""
+    messages = Message.objects.exclude(room__seen_by=user).exclude(sender_id=user.id).exclude(read_by__user_id=user.id)
+    if room_ids is not None:
+        messages = messages.filter(room_id__in=room_ids)
+    return messages
+
+
+def _invalidate_unread_cache(user_id):
+    cache.delete(CHAT_UNREAD_CACHE_KEY.format(user_id=user_id))
+
+
+def mark_room_read_for_user(user, room):
+    """Mark every message from other users in a room as read."""
+    message_ids = Message.objects.filter(room=room).exclude(sender_id=user.id).values_list('id', flat=True)
+    MessageReadBy.objects.bulk_create([MessageReadBy(message_id=message_id, user_id=user.id) for message_id in message_ids], ignore_conflicts=True)
+    room.seen_by.add(user)
+    _invalidate_unread_cache(user.id)
+
+
+def mark_room_unread_for_user(user, room):
+    """Make messages from other users in a room unread again."""
+    MessageReadBy.objects.filter(message__room=room, user_id=user.id).exclude(message__sender_id=user.id).delete()
+    room.seen_by.remove(user)
+    _invalidate_unread_cache(user.id)
+
+
+def is_room_seen_for_user(user, room) -> bool:
+    """Return whether a room has no unread messages for the user."""
+    return not _unread_messages(user, [room.id]).exists()
+
+
 def get_unread_count_for_user(user) -> int:
     key = CHAT_UNREAD_CACHE_KEY.format(user_id=user.id)
     cached = cache.get(key)
     if cached is not None:
         return cached
-    count = Room.objects.filter(allowed=user, archived=False).exclude(seen_by=user).annotate(messages_count=Count('messages')).filter(messages_count__gt=0).count()
+    count = _unread_messages(user).filter(room__allowed=user, room__archived=False).values('room_id').distinct().count()
     cache.set(key, count, CHAT_UNREAD_CACHE_TTL)
     return count
 
 
 def get_unseen_room_ids(user) -> set[int]:
-    """Return IDs of rooms with messages not marked as seen by the user."""
-
-    # Rooms with at least one message, minus rooms the user has already seen
-    rooms_with_msgs = Room.objects.filter(messages__isnull=False).values_list("id", flat=True).distinct()
-    seen_room_ids = set(user.seen_rooms.filter(id__in=rooms_with_msgs).values_list("id", flat=True))
-    return set(rooms_with_msgs) - seen_room_ids
+    """Return IDs of rooms containing unread messages for the user."""
+    return set(_unread_messages(user).values_list('room_id', flat=True).distinct())
 
 
 def get_unread_message_counts_for_rooms(user, room_ids) -> dict[int, int]:
@@ -75,7 +103,7 @@ def get_unread_message_counts_for_rooms(user, room_ids) -> dict[int, int]:
     room_ids = {room_id for room_id in room_ids if room_id}
     if not room_ids or not getattr(user, "is_authenticated", False):
         return {}
-    return dict(Message.objects.filter(room_id__in=room_ids).exclude(sender=user).exclude(read_by__user=user).values("room_id").annotate(count=Count("id")).values_list("room_id", "count"))
+    return dict(_unread_messages(user, room_ids).values("room_id").annotate(count=Count("id")).values_list("room_id", "count"))
 
 
 def get_user_public_message_rows(user, viewer) -> list[dict]:
@@ -276,17 +304,15 @@ class ChatRepository:
 
     @database_sync_to_async
     def room_is_seen(self, room):
-        return room.messages.all().count() == 0 or self.user.seen_rooms.filter(id=room.id).exists()
+        return is_room_seen_for_user(self.user, room)
 
     @database_sync_to_async
     def see_room(self, room):
-        room.seen_by.add(self.user)
-        cache.delete(CHAT_UNREAD_CACHE_KEY.format(user_id=self.user.id))
+        mark_room_read_for_user(self.user, room)
 
     @database_sync_to_async
     def unsee_room(self, room):
-        room.seen_by.remove(self.user)
-        cache.delete(CHAT_UNREAD_CACHE_KEY.format(user_id=self.user.id))
+        mark_room_unread_for_user(self.user, room)
 
     @database_sync_to_async
     def get_unread_count(self) -> int:
@@ -501,6 +527,7 @@ class ChatRepository:
         """Mark message as read by current user."""
         message = self._get_accessible_message(message_id)
         MessageReadBy.objects.get_or_create(message=message, user=self.user)
+        _invalidate_unread_cache(self.user.id)
 
     @database_sync_to_async
     def mark_messages_read_bulk(self, message_ids: list, room_id: int) -> list:
@@ -517,6 +544,7 @@ class ChatRepository:
         new_ids = requested_ids - existing
         if new_ids:
             MessageReadBy.objects.bulk_create([MessageReadBy(message_id=mid, user=self.user) for mid in new_ids], ignore_conflicts=True)
+            _invalidate_unread_cache(self.user.id)
         return list(new_ids)
 
     @database_sync_to_async
@@ -786,8 +814,9 @@ async def _dispatch_message_notifications(channel_layer, room, message, sender, 
         online_ids = set(online_registry.get_online())
         offline_ids = [mid for mid in other_member_ids if mid not in online_ids]
         if offline_ids:
+            await database_sync_to_async(lambda: MessageReadBy.objects.filter(message__room_id=room.id, user_id__in=offline_ids).delete())()
             await database_sync_to_async(lambda: Room.seen_by.through.objects.filter(room_id=room.id, user_id__in=offline_ids).delete())()
-            await database_sync_to_async(lambda: cache.delete_many([CHAT_UNREAD_CACHE_KEY.format(user_id=uid) for uid in offline_ids]))()
+        await database_sync_to_async(lambda: cache.delete_many([CHAT_UNREAD_CACHE_KEY.format(user_id=uid) for uid in other_member_ids]))()
 
         membership_prefs = await database_sync_to_async(Room.get_membership_preferences_bulk)(room.id, other_member_ids)
 

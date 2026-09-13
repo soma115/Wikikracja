@@ -32,6 +32,26 @@ async function expectPositiveBox(locator, label) {
 }
 
 test.describe('chat mobile — room list collapse on tap of active room', () => {
+    test('mobile: czyste wejście pokazuje listę przez dwie sekundy przed jej schowaniem', async ({ page }, testInfo) => {
+        test.skip(testInfo.project.name !== 'mobile-chromium', 'Mobile-only test');
+        await page.goto('/chat/');
+        const chatRooms = page.locator('.tw-chat-rooms');
+        await expect(chatRooms).toHaveClass(/tw-room-active/, { timeout: 10000 });
+        await expect(chatRooms).toHaveClass(/tw-room-list-showing/, { timeout: 1000 });
+        await expect(chatRooms).not.toHaveClass(/tw-room-list-showing/, { timeout: 3000 });
+        await expect(page.locator('#chat-breadcrumb')).toHaveClass(/tw-chat-breadcrumb--flash/);
+    });
+
+    test('mobile: dotknięcie listy anuluje automatyczne schowanie', async ({ page }, testInfo) => {
+        test.skip(testInfo.project.name !== 'mobile-chromium', 'Mobile-only test');
+        await page.goto('/chat/');
+        const chatRooms = page.locator('.tw-chat-rooms');
+        await expect(chatRooms).toHaveClass(/tw-room-list-showing/, { timeout: 10000 });
+        await page.locator('.tw-room-list').dispatchEvent('touchstart');
+        await page.waitForTimeout(2200);
+        await expect(chatRooms).toHaveClass(/tw-room-list-showing/);
+    });
+
     test('mobile: klik aktywnego pokoju z rozwiniętej listy zdejmuje room-list-showing', async ({ page }, testInfo) => {
         // Tylko mobile-chromium. Na desktop project ten test się nie odpala
         // (feature jest mobile-only przez guard mobileMedia.matches).
