@@ -4343,6 +4343,13 @@
     color: var(--text-primary);
     font-weight: 500;
   }
+  .tw-topbar-breadcrumb .tw-topbar-current-link {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .tw-topbar-breadcrumb .tw-topbar-current-link:hover {
+    color: var(--accent);
+  }
   .tw-topbar-logo {
     display: none;
     align-items: center;

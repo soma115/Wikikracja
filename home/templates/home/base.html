@@ -196,11 +196,11 @@
           <span class="tw-logo-label tw-ms-1">{{ site_name }}</span>
         </a>
         <span class="tw-current">
-          {{ current_module }}
+          <a href="{{ current_module_url }}" class="tw-topbar-current-link">{{ current_module }}</a>
           {% if request.resolver_match.url_name != 'activity' %}
             <span class="tw-topbar-subtitle tw-d-none tw-text-muted tw-text-sm" id="topbar-subtitle" data-topbar-subtitle>
               <span class="tw-sep">&gt;</span>
-              <span id="topbar-subtitle-text"></span>
+              <a id="topbar-subtitle-link" href="{{ current_module_url }}"><span id="topbar-subtitle-text"></span></a>
             </span>
           {% endif %}
         </span>

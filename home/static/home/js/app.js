@@ -1751,23 +1751,28 @@ window.wkOnReady(function() {
     function updateTopbarSubtitle() {
         var subtitle = document.getElementById('topbar-subtitle');
         var textEl = document.getElementById('topbar-subtitle-text');
-        if (!subtitle || !textEl) return;
+        var linkEl = document.getElementById('topbar-subtitle-link');
+        if (!subtitle || !textEl || !linkEl) return;
 
-        var activeStep = document.querySelector('.tw-stepper-nav .tw-stepper-step-wrap.tw-active .tw-stepper-step-label');
+        var activeStep = document.querySelector('.tw-stepper-nav .tw-stepper-step-wrap.tw-active .tw-stepper-step');
         var categoryLabel = document.getElementById('catFilterLabel');
-        var activeSort = document.querySelector('.tw-toolbar .tw-sort-btn.tw-active .tw-sort-btn-label');
+        var activeSort = document.querySelector('.tw-toolbar .tw-sort-btn.tw-active');
 
         var text = '';
+        var href = '';
         if (activeStep) {
-            text = activeStep.textContent.trim();
+            text = activeStep.querySelector('.tw-stepper-step-label')?.textContent.trim() || '';
+            href = activeStep.href;
         } else if (categoryLabel) {
             text = categoryLabel.textContent.trim();
         } else if (activeSort) {
-            text = activeSort.textContent.trim();
+            text = activeSort.querySelector('.tw-sort-btn-label')?.textContent.trim() || '';
+            href = activeSort.href || '';
         }
 
-        if (text) {
+        if (text && href) {
             textEl.textContent = text;
+            linkEl.href = href;
             subtitle.classList.remove('tw-d-none');
         } else {
             subtitle.classList.add('tw-d-none');

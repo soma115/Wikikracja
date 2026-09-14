@@ -31,12 +31,14 @@ class NavigationContextTest(TestCase):
         self.assertEqual(items['tasks:list']['prefs_scope'], 'tasks')
         self.assertTrue(items['tasks:list']['active'])
         self.assertEqual(str(context['current_module']), str(items['tasks:list']['label']))
+        self.assertEqual(context['current_module_url'], reverse('tasks:list'))
 
     def test_settings_page_is_not_marked_as_citizens_module(self):
         context = self._context_for('obywatele:my_profile')
         items = {item['url_name']: item for item in context['navigation_items']}
 
         self.assertEqual(str(context['current_module']), str(_('Settings')))
+        self.assertEqual(context['current_module_url'], reverse('obywatele:my_profile'))
         self.assertTrue(context['settings_active'])
         self.assertFalse(items['obywatele:obywatele']['active'])
 

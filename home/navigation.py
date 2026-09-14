@@ -47,6 +47,21 @@ def _current_module(match):
     return _('…')
 
 
+def _current_module_url(match):
+    if not match:
+        return reverse('home')
+    if match.url_name == 'home':
+        return reverse('home')
+    if match.url_name == 'activity':
+        return reverse('activity')
+    if _is_citizen_settings_page(match):
+        return reverse('obywatele:my_profile')
+    for item in NAVIGATION_ITEMS:
+        if item['namespace'] == match.namespace:
+            return reverse(item['url_name'])
+    return reverse('home')
+
+
 def get_navigation_context(request):
     match = getattr(request, 'resolver_match', None)
     items = []
@@ -56,4 +71,9 @@ def get_navigation_context(request):
             nav_item['base_href'] = nav_item['href']
         items.append(nav_item)
 
-    return {'navigation_items': items, 'current_module': _current_module(match), 'settings_active': bool(match and match.namespace == 'obywatele' and match.url_name in CITIZEN_SETTINGS_NAV_NAMES)}
+    return {
+        'navigation_items': items,
+        'current_module': _current_module(match),
+        'current_module_url': _current_module_url(match),
+        'settings_active': bool(match and match.namespace == 'obywatele' and match.url_name in CITIZEN_SETTINGS_NAV_NAMES),
+    }

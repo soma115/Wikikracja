@@ -172,6 +172,13 @@ Jeśli użytkownik wydaje komendę „posprzątaj”, to znaczy, że chodzi o pr
 
 Po zakończeniu każdego zadania dokumentuj w pliku `docs/LOG_AI.md` wszystkie zmiany w kodzie, które wprowadziłeś, wraz z uzasadnieniem, opisem tego, co się zmieniło, oraz spodziewanym efektem. Celem jest utrzymanie przejrzystej historii decyzji podejmowanych przez asystenta AI i ułatwienie późniejszej inspekcji.
 
+## 10. Proces pracy asystenta
+
+- Jeśli na początku zadania istnieje istotna niepewność lub decyzja projektowa, zadawaj użytkownikowi pytania zamknięte z wyborem odpowiedzi A/B/C. Nie zgaduj intencji użytkownika.
+- Przed rozpoczęciem zmian w kodzie przedstaw użytkownikowi zwięzły plan high-level: zakres, główne kroki i sposób weryfikacji.
+- Przy każdej zmianie dbaj o zgodność z obowiązującymi standardami UI oraz dąż do unifikacji, prostoty i ponownego użycia istniejących wzorców.
+- Jeśli zmiana jest duża, przed edycją kodu utwórz nowy plik planu zawierający ponumerowane fazy i taski zapisane jako checkboxy (`- [ ]` / `- [x]`). Aktualizuj jego status w trakcie realizacji.
+
 ---
 
 *Aktualizuj ten plik przy każdej zmianie procesu, stacku, konwencji lub decyzji architektonicznej.*
