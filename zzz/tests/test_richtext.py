@@ -8,7 +8,7 @@ filter / RichTextWidget initial value nie produkował ghost empty lines.
 
 from django.test import TestCase
 
-from core.richtext import one_line_snippet, plain_text, sanitize, strip_tags
+from core.richtext import one_line_snippet, plain_text, sanitize, sanitize_tinymce, strip_tags
 
 
 class SanitizeNormalizesNewlinesTests(TestCase):
@@ -58,6 +58,28 @@ class SanitizeKeepsAllowedTagsTests(TestCase):
     def test_newline_between_tags_normalized(self):
         # \n między tagami (typowy whitespace formatowania w legacy content).
         self.assertEqual(sanitize('<b>A</b>\n<b>B</b>', linkify=False), '<b>A</b><br><b>B</b>')
+
+
+class TinyMCEContentTests(TestCase):
+    def test_preserves_tinymce_structure(self):
+        content = '<h2>Title</h2><p>Text</p><ul><li>One</li></ul><table><tr><td>Cell</td></tr></table>'
+        result = sanitize_tinymce(content)
+        for fragment in ('<h2>Title</h2>', '<p>Text</p>', '<ul><li>One</li></ul>', '<td>Cell</td>'):
+            self.assertIn(fragment, result)
+
+    def test_preserves_formatting_attributes(self):
+        content = '<p><span style="color: red">Text</span> <a href="https://example.com" target="_blank">link</a></p>'
+        result = sanitize_tinymce(content)
+        self.assertIn('style="color: red;"', result)
+        self.assertIn('<a href="https://example.com" target="_blank">link</a>', result)
+
+    def test_removes_only_executable_content(self):
+        content = '<p onclick="alert(1)">Safe</p><script>alert(2)</script><a href="javascript:alert(3)">Link</a>'
+        result = sanitize_tinymce(content)
+        self.assertEqual(result, '<p>Safe</p>alert(2)<a>Link</a>')
+
+    def test_plain_legacy_text_keeps_line_breaks(self):
+        self.assertEqual(sanitize_tinymce('A\nB'), 'A<br>B')
 
 
 class StripTagsTests(TestCase):

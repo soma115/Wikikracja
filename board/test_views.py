@@ -140,12 +140,14 @@ class BoardDetailNavigationTests(TestCase):
 
     def test_detail_uses_shared_card_and_sanitizes_document_content(self):
         post = self._post('Safe document')
-        post.text = '<b>Visible formatting</b><script>alert("unsafe")</script>'
+        post.text = '<h2>Visible heading</h2><ul><li>Visible item</li></ul><b>Visible formatting</b><script>alert("unsafe")</script>'
         post.save(update_fields=['text'])
 
         response = self.client.get(reverse('board:view_post', args=[post.pk]))
 
         self.assertContains(response, 'tw-card')
         self.assertNotContains(response, 'tw-board-post-card')
+        self.assertContains(response, '<h2>Visible heading</h2>', html=True)
+        self.assertContains(response, '<ul><li>Visible item</li></ul>', html=True)
         self.assertContains(response, '<b>Visible formatting</b>', html=True)
         self.assertNotContains(response, '<script>alert("unsafe")</script>')

@@ -2,7 +2,8 @@ tinymce.init({
   selector: 'textarea',
 
   skin: 'oxide-dark',
-  content_css: 'dark',
+  content_css: '/static/home/css/tailwind.build.css',
+  body_class: 'tw-post-content',
 
   menubar: false,
   toolbar_mode: 'sliding',
@@ -48,8 +49,7 @@ tinymce.init({
       reader.readAsDataURL(file);
     };
     input.click();
-  },
-  content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }"
+  }
 });
 
 function formatFileSize(bytes) {

@@ -5016,6 +5016,22 @@ a:hover {
 
 .tox-tinymce {
   width: 100% !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-card) !important;
+  overflow: hidden;
+  background: var(--bg-card);
+}
+
+.tox .tox-editor-header,
+  .tox .tox-toolbar,
+  .tox .tox-toolbar__primary {
+  background: var(--bg-card);
+}
+
+.tox .tox-tbtn:hover,
+  .tox .tox-tbtn:focus,
+  .tox .tox-tbtn.tox-tbtn--enabled {
+  background: var(--color-surface-dynamic);
 }
 
 @media (max-width: 576px) {
@@ -6965,8 +6981,33 @@ input.tw-form-switch:focus,
 
 .tw-post-content ul,
   .tw-post-content ol {
-  margin-bottom: 1rem;
+  margin: 0 0 1rem;
   padding-left: 2rem;
+}
+
+.tw-post-content li {
+  margin-bottom: .35rem;
+}
+
+.tw-post-content a {
+  color: var(--accent);
+}
+
+.tw-post-content img,
+  .tw-post-content video,
+  .tw-post-content iframe {
+  max-width: 100%;
+}
+
+.tw-post-content img,
+  .tw-post-content video {
+  height: auto;
+}
+
+.tw-post-content hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
 }
 
 .tw-post-content blockquote {

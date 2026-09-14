@@ -35,7 +35,7 @@
       <div class="tw-detail-section-label">
         <i class="fas fa-file-lines fa-fw"></i> {% trans 'Content' %}
       </div>
-      <div class="tw-detail-section-text tw-post-content">{{ post.text|richtext }}</div>
+      <div class="tw-detail-section-text tw-post-content">{{ post.text|tinymce_content }}</div>
     </div>
 
     {% if post.attachments.exists %}
