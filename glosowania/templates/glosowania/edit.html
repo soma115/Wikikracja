@@ -13,15 +13,15 @@
   <div class="tw-card-body">
     <form action="." method="POST">
       {% csrf_token %}
+      <div class="tw-form-actions tw-form-actions--top">
+        <button type="submit" class="tw-btn tw-btn-primary tw-form-action-btn" title="{% trans 'Save' %}" aria-label="{% trans 'Save' %}"><i class="fas fa-floppy-disk fa-fw" aria-hidden="true"></i>{% trans 'Save' %}</button>
+      </div>
       {% if form.non_field_errors %}<div class="tw-alert tw-alert-danger tw-mb-3" role="alert">{{ form.non_field_errors }}</div>{% endif %}
       {{ form.title|as_crispy_field }}
       {{ form.tresc|as_crispy_field }}
       {{ form.uzasadnienie|as_crispy_field }}
       {{ form.kara|as_crispy_field }}
       {{ form.znosi|as_crispy_field }}
-      <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-4">
-        <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-check fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'Save' %}</button>
-      </div>
     </form>
   </div>
 </div>

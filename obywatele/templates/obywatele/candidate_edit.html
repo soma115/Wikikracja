@@ -16,6 +16,14 @@
     <div class="tw-card-body">
       <form method="post">
         {% csrf_token %}
+        <div class="tw-form-actions tw-form-actions--top">
+          <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=candidate_user.pk %}" class="tw-btn tw-btn-outline-secondary tw-form-action-btn" data-autosave-clear title="{% trans 'Cancel' %}" aria-label="{% trans 'Cancel' %}">
+            <i class="fas fa-rotate-left fa-fw" aria-hidden="true"></i>{% trans "Cancel" %}
+          </a>
+          <button type="submit" class="tw-btn tw-btn-primary tw-form-action-btn" title="{% trans 'Save' %}" aria-label="{% trans 'Save' %}">
+            <i class="fas fa-floppy-disk fa-fw" aria-hidden="true"></i>{% trans "Save" %}
+          </button>
+        </div>
         <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
           <div>{{ form.first_name|as_crispy_field }}</div>
           <div>{{ form.last_name|as_crispy_field }}</div>
@@ -46,14 +54,6 @@
         </div>
         <div class="tw-grid tw-grid-cols-1 tw-gap-3 tw-mt-3">
           <div>{{ form.why|as_crispy_field }}</div>
-        </div>
-        <div class="tw-flex tw-gap-2 tw-mt-3">
-          <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm">
-            <i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Save" %}
-          </button>
-          <a href="{% url 'obywatele:poczekalnia_szczegoly' pk=candidate_user.pk %}" class="tw-btn tw-btn-outline-secondary tw-btn-sm" data-autosave-clear>
-            <i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}
-          </a>
         </div>
       </form>
     </div>

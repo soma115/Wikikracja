@@ -3475,6 +3475,51 @@
     padding: 0.25rem 0.625rem;
     font-size: 0.75rem;
   }
+  .tw-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .35rem;
+    margin-top: 1.5rem;
+  }
+  .tw-form-actions--header,
+  .tw-form-actions--top {
+    margin-top: 0;
+    margin-left: auto;
+  }
+  .tw-form-actions--top {
+    margin-bottom: 1.5rem;
+  }
+  .tw-form-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 30px;
+    width: 30px;
+    min-width: 30px;
+    max-width: 30px;
+    height: 30px;
+    min-height: 30px;
+    max-height: 30px;
+    box-sizing: border-box;
+    padding: 0;
+    border-radius: .4rem;
+    line-height: 1;
+    font-size: 0;
+  }
+  .tw-form-action-btn i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 1em;
+    margin: 0;
+    font-size: .8rem;
+    line-height: 1;
+    vertical-align: middle;
+    transform: translateX(4px);
+  }
   .tw-btn-danger {
     background: var(--btn-danger-bg);
     border: 1px solid var(--badge-rejected-color);

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-14 23:57+0200\n"
+"POT-Creation-Date: 2026-09-15 01:29+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 
-#: .\ankiety\forms.py:13 .\ankiety\templates\ankiety\survey_form.html:49
+#: .\ankiety\forms.py:13 .\ankiety\templates\ankiety\survey_form.html:52
 #: .\ankiety\templates\ankiety\survey_list.html:49
 msgid "Options"
 msgstr "Opcje"
@@ -78,7 +78,7 @@ msgstr "Wprowadź opcję."
 msgid "This option already exists."
 msgstr "Ta opcja już istnieje."
 
-#: .\ankiety\models.py:12 .\ankiety\templates\ankiety\survey_form.html:22
+#: .\ankiety\models.py:12 .\ankiety\templates\ankiety\survey_form.html:25
 #: .\board\models.py:44 .\chat\i18n.py:27 .\events\models.py:19
 #: .\glosowania\models.py:34 .\glosowania\views.py:570
 #: .\home\templates\home\site_admin.html:36
@@ -86,24 +86,24 @@ msgstr "Ta opcja już istnieje."
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:7
 #: .\obywatele\templates\obywatele\_citizen_zalozono_partial.html:7
 #: .\obywatele\templates\obywatele\citizen_zadania.html:29
-#: .\site_settings\models.py:104 .\tasks\templates\tasks\task_form.html:23
+#: .\site_settings\models.py:104 .\tasks\templates\tasks\task_form.html:26
 msgid "Title"
 msgstr "Tytuł"
 
 #: .\ankiety\models.py:13 .\ankiety\templates\ankiety\survey_detail.html:19
-#: .\ankiety\templates\ankiety\survey_form.html:32
+#: .\ankiety\templates\ankiety\survey_form.html:35
 #: .\categories\templates\categories\_category_manager_init.html:22
 #: .\events\models.py:20 .\events\templates\events\_event_card.html:72
 #: .\tasks\templates\tasks\_task_card.html:90
 #: .\tasks\templates\tasks\task_detail.html:15
-#: .\tasks\templates\tasks\task_form.html:29 .\zzz\scheduler.py:169
+#: .\tasks\templates\tasks\task_form.html:32 .\zzz\scheduler.py:169
 msgid "Description"
 msgstr "Opis"
 
 #: .\ankiety\models.py:14
 #: .\ankiety\templates\ankiety\_survey_detail_meta.html:4
 #: .\ankiety\templates\ankiety\_survey_detail_meta.html:6
-#: .\ankiety\templates\ankiety\survey_form.html:42
+#: .\ankiety\templates\ankiety\survey_form.html:45
 #: .\ankiety\templates\ankiety\survey_list.html:42
 msgid "End date"
 msgstr "Data końca"
@@ -359,25 +359,25 @@ msgstr "Edytuj ankietę"
 msgid "Add survey"
 msgstr "Dodaj ankietę"
 
-#: .\ankiety\templates\ankiety\survey_form.html:74 .\board\forms.py:29
-#: .\board\templates\board\post_form.html:138 .\bookkeeping\forms.py:22
+#: .\ankiety\templates\ankiety\survey_form.html:20 .\board\forms.py:29
+#: .\board\templates\board\post_form.html:13 .\bookkeeping\forms.py:22
 #: .\bookkeeping\forms.py:52
 #: .\categories\templates\categories\_category_manager_init.html:19
 #: .\chat\templates\chat\add.html:15 .\chat\templates\chat\chat.html:299
 #: .\glosowania\templates\glosowania\_argument_actions.html:12
 #: .\glosowania\templates\glosowania\dodaj.html:27
-#: .\glosowania\templates\glosowania\edit.html:23
+#: .\glosowania\templates\glosowania\edit.html:17
 #: .\glosowania\templates\glosowania\parameters_propose.html:53
 #: .\home\templates\home\haslo.html:20 .\home\templates\home\site_admin.html:84
-#: .\obywatele\templates\obywatele\candidate_edit.html:52
+#: .\obywatele\templates\obywatele\candidate_edit.html:21
 #: .\obywatele\templates\obywatele\change_email.html:21
 #: .\obywatele\templates\obywatele\change_username.html:20
 #: .\obywatele\templates\obywatele\dodaj.html:92
-#: .\obywatele\templates\obywatele\my_assets.html:66
+#: .\obywatele\templates\obywatele\my_assets.html:29
 #: .\obywatele\templates\obywatele\my_profile.html:114
 #: .\obywatele\templates\obywatele\my_profile.html:135
 #: .\obywatele\templates\obywatele\my_profile.html:155
-#: .\tasks\templates\tasks\task_form.html:50
+#: .\tasks\templates\tasks\task_form.html:21
 msgid "Save"
 msgstr "Zapisz"
 
@@ -464,7 +464,7 @@ msgid "Text"
 msgstr "Treść"
 
 #: .\board\forms.py:17 .\board\templates\board\post_detail.html:44
-#: .\board\templates\board\post_form.html:79
+#: .\board\templates\board\post_form.html:87
 msgid "Attachments"
 msgstr "Załączniki"
 
@@ -602,7 +602,7 @@ msgstr "Zaktualizowane"
 #: .\tasks\templates\tasks\_task_card.html:57
 #: .\tasks\templates\tasks\_task_detail_meta.html:24
 #: .\tasks\templates\tasks\_task_detail_meta.html:26
-#: .\tasks\templates\tasks\task_form.html:36
+#: .\tasks\templates\tasks\task_form.html:39
 msgid "Category"
 msgstr "Kategoria"
 
@@ -659,22 +659,22 @@ msgstr "Załączniki"
 msgid "New important document by %(username)s: %(link)s"
 msgstr "Nowy ważny dokument od %(username)s: <a href='%(post_url)s'>%(title)s</a>"
 
-#: .\board\signals.py:52 .\tests\test_board.py:640
+#: .\board\signals.py:52 .\tests\test_board.py:659
 #, python-format
 msgid "Document is no longer marked as important: %(link)s"
 msgstr "Dokument nie jest już oznaczony jako ważny: %(link)s"
 
-#: .\board\signals.py:54 .\tests\test_board.py:626
+#: .\board\signals.py:54 .\tests\test_board.py:645
 #, python-format
 msgid "Important document was made private: %(link)s"
 msgstr "Ważny dokument został oznaczony jako prywatny: %(link)s"
 
-#: .\board\signals.py:56 .\tests\test_board.py:657
+#: .\board\signals.py:56 .\tests\test_board.py:676
 #, python-format
 msgid "Important document was archived: %(link)s"
 msgstr "Ważny dokument został zarchiwizowany: %(link)s"
 
-#: .\board\signals.py:58 .\tests\test_board.py:658
+#: .\board\signals.py:58 .\tests\test_board.py:677
 #, python-format
 msgid "Important document was made visible again: %(link)s"
 msgstr "Ważny dokument został ponownie udostępniony: %(link)s"
@@ -782,83 +782,14 @@ msgstr "Edytuj ogłoszenie"
 msgid "Create post"
 msgstr "Utwórz ogłoszenie"
 
-#: .\board\templates\board\post_form.html:29
-msgid "System documents always belong to the System category."
-msgstr ""
-
-#: .\board\templates\board\post_form.html:32
-#: .\board\templates\board\post_form.html:42
-#: .\board\templates\board\post_form.html:43
-#: .\board\templates\board\post_form.html:105
-msgid "Remove image"
-msgstr "Usuń obrazek"
-
-#: .\board\templates\board\post_form.html:32
-msgid "Selected image"
-msgstr "Wybrany obrazek"
-
-#: .\board\templates\board\post_form.html:34
-msgid "Choose an image or drag it here"
-msgstr "Wybierz obrazek lub przeciągnij go tutaj"
-
-#: .\board\templates\board\post_form.html:36
-msgid "Select one image."
-msgstr "Wybierz jeden obrazek."
-
-#: .\board\templates\board\post_form.html:41
-msgid "Current featured image"
-msgstr "Obecny obrazek wyróżniający"
-
-#: .\board\templates\board\post_form.html:82
-msgid "Remove file"
-msgstr "Usuń plik"
-
-#: .\board\templates\board\post_form.html:84
-msgid "Choose files or drag them here"
-msgstr "Wybierz pliki lub przeciągnij je tutaj"
-
-#: .\board\templates\board\post_form.html:86
-msgid "You can select multiple files."
-msgstr "Możesz wybrać wiele plików."
-
-#: .\board\templates\board\post_form.html:102
-msgid "Remove featured image"
-msgstr "Usuń obraz wyróżniony"
-
-#: .\board\templates\board\post_form.html:103
-msgid "Are you sure you want to remove this featured image?"
-msgstr "Czy na pewno chcesz usunąć ten obraz wyróżniony?"
-
-#: .\board\templates\board\post_form.html:104
-msgid "Featured image"
-msgstr "Obraz wyróżniony"
-
-#: .\board\templates\board\post_form.html:112
-msgid "Existing attachments"
-msgstr "Załączniki"
-
-#: .\board\templates\board\post_form.html:121
-#: .\board\templates\board\post_form.html:124
-#: .\board\templates\board\post_form.html:126
-msgid "Delete attachment"
-msgstr "Usuń załącznik"
-
-#: .\board\templates\board\post_form.html:125
-msgid "Are you sure you want to delete this attachment?"
-msgstr "Czy na pewno chcesz usunąć ten załącznik?"
-
-#: .\board\templates\board\post_form.html:128
-msgid "Attachment"
-msgstr "Załącznik"
-
-#: .\board\templates\board\post_form.html:140
-#: .\board\templates\board\post_form.html:142
-#: .\bookkeeping\templates\bookkeeping\asset_form.html:45
-#: .\bookkeeping\templates\bookkeeping\category_form.html:28
+#: .\board\templates\board\post_form.html:15
+#: .\board\templates\board\post_form.html:17
+#: .\bookkeeping\templates\bookkeeping\asset_form.html:15
+#: .\bookkeeping\templates\bookkeeping\category_form.html:15
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:74
-#: .\bookkeeping\templates\bookkeeping\partner_form.html:60
-#: .\bookkeeping\templates\bookkeeping\transaction_form.html:52
-#: .\bookkeeping\templates\bookkeeping\transaction_form.html:54
+#: .\bookkeeping\templates\bookkeeping\partner_form.html:14
+#: .\bookkeeping\templates\bookkeeping\transaction_form.html:15
+#: .\bookkeeping\templates\bookkeeping\transaction_form.html:17
 #: .\categories\templates\categories\_category_manager_init.html:18
 #: .\chat\templates\chat\chat.html:263 .\chat\templates\chat\chat.html:298
 #: .\glosowania\templates\glosowania\_argument_actions.html:11
@@ -869,10 +800,10 @@ msgstr "Załącznik"
 #: .\home\templates\home\includes\delete_modal.html:15
 #: .\home\templates\home\site_admin.html:39
 #: .\obywatele\templates\obywatele\candidate_edit.html:13
-#: .\obywatele\templates\obywatele\candidate_edit.html:55
+#: .\obywatele\templates\obywatele\candidate_edit.html:24
 #: .\obywatele\templates\obywatele\change_email.html:22
 #: .\obywatele\templates\obywatele\change_username.html:21
-#: .\obywatele\templates\obywatele\my_assets.html:65
+#: .\obywatele\templates\obywatele\my_assets.html:30
 #: .\obywatele\templates\obywatele\my_profile.html:113
 #: .\obywatele\templates\obywatele\my_profile.html:134
 #: .\obywatele\templates\obywatele\my_profile.html:154
@@ -881,11 +812,80 @@ msgstr "Załącznik"
 msgid "Cancel"
 msgstr "Anuluj"
 
-#: .\board\templates\board\public_board.html:25
+#: .\board\templates\board\post_form.html:37
+msgid "System documents always belong to the System category."
+msgstr ""
+
+#: .\board\templates\board\post_form.html:40
+#: .\board\templates\board\post_form.html:50
+#: .\board\templates\board\post_form.html:51
+#: .\board\templates\board\post_form.html:113
+msgid "Remove image"
+msgstr "Usuń obrazek"
+
+#: .\board\templates\board\post_form.html:40
+msgid "Selected image"
+msgstr "Wybrany obrazek"
+
+#: .\board\templates\board\post_form.html:42
+msgid "Choose an image or drag it here"
+msgstr "Wybierz obrazek lub przeciągnij go tutaj"
+
+#: .\board\templates\board\post_form.html:44
+msgid "Select one image."
+msgstr "Wybierz jeden obrazek."
+
+#: .\board\templates\board\post_form.html:49
+msgid "Current featured image"
+msgstr "Obecny obrazek wyróżniający"
+
+#: .\board\templates\board\post_form.html:90
+msgid "Remove file"
+msgstr "Usuń plik"
+
+#: .\board\templates\board\post_form.html:92
+msgid "Choose files or drag them here"
+msgstr "Wybierz pliki lub przeciągnij je tutaj"
+
+#: .\board\templates\board\post_form.html:94
+msgid "You can select multiple files."
+msgstr "Możesz wybrać wiele plików."
+
+#: .\board\templates\board\post_form.html:110
+msgid "Remove featured image"
+msgstr "Usuń obraz wyróżniony"
+
+#: .\board\templates\board\post_form.html:111
+msgid "Are you sure you want to remove this featured image?"
+msgstr "Czy na pewno chcesz usunąć ten obraz wyróżniony?"
+
+#: .\board\templates\board\post_form.html:112
+msgid "Featured image"
+msgstr "Obraz wyróżniony"
+
+#: .\board\templates\board\post_form.html:120
+msgid "Existing attachments"
+msgstr "Załączniki"
+
+#: .\board\templates\board\post_form.html:129
+#: .\board\templates\board\post_form.html:132
+#: .\board\templates\board\post_form.html:134
+msgid "Delete attachment"
+msgstr "Usuń załącznik"
+
+#: .\board\templates\board\post_form.html:133
+msgid "Are you sure you want to delete this attachment?"
+msgstr "Czy na pewno chcesz usunąć ten załącznik?"
+
+#: .\board\templates\board\post_form.html:136
+msgid "Attachment"
+msgstr "Załącznik"
+
+#: .\board\templates\board\public_board.html:26
 msgid "Read more"
 msgstr ""
 
-#: .\board\templates\board\public_board.html:31
+#: .\board\templates\board\public_board.html:32
 #, fuzzy
 #| msgid "No partners yet."
 msgid "No publications yet."
@@ -1080,7 +1080,7 @@ msgstr "Partnerzy"
 
 #: .\bookkeeping\templates\bookkeeping\_nav.html:7
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:69
-#: .\tasks\templates\tasks\task_form.html:40
+#: .\tasks\templates\tasks\task_form.html:43
 msgid "Categories"
 msgstr "Kategorie"
 
@@ -1184,17 +1184,17 @@ msgstr "Tak"
 msgid "No"
 msgstr "Nie"
 
-#: .\bookkeeping\templates\bookkeeping\asset_form.html:15
+#: .\bookkeeping\templates\bookkeeping\asset_form.html:14
+msgid "Save Asset"
+msgstr "Zapisz aktywo"
+
+#: .\bookkeeping\templates\bookkeeping\asset_form.html:20
 msgid "Update Asset"
 msgstr "Edytuj aktywo"
 
-#: .\bookkeeping\templates\bookkeeping\asset_form.html:15
+#: .\bookkeeping\templates\bookkeeping\asset_form.html:20
 msgid "New Asset"
 msgstr "Nowe aktywo"
-
-#: .\bookkeeping\templates\bookkeeping\asset_form.html:44
-msgid "Save Asset"
-msgstr "Zapisz aktywo"
 
 #: .\bookkeeping\templates\bookkeeping\asset_list.html:14
 msgid "No assets yet."
@@ -1224,17 +1224,17 @@ msgstr "Czy na pewno chcesz usunąć tę kategorię?"
 msgid "Yes, Delete Category"
 msgstr "Tak, usuń Kategorię"
 
-#: .\bookkeeping\templates\bookkeeping\category_form.html:15
+#: .\bookkeeping\templates\bookkeeping\category_form.html:14
+msgid "Save Category"
+msgstr "Zapisz Kategorię"
+
+#: .\bookkeeping\templates\bookkeeping\category_form.html:20
 msgid "Update Category"
 msgstr "Zaktualizuj Kategorię"
 
-#: .\bookkeeping\templates\bookkeeping\category_form.html:15
+#: .\bookkeeping\templates\bookkeeping\category_form.html:20
 msgid "New category"
 msgstr "Nowa kategoria"
-
-#: .\bookkeeping\templates\bookkeeping\category_form.html:27
-msgid "Save Category"
-msgstr "Zapisz Kategorię"
 
 #: .\bookkeeping\templates\bookkeeping\category_list.html:14
 msgid "No categories yet."
@@ -1291,17 +1291,17 @@ msgstr "Numer telefonu"
 msgid "Web Page"
 msgstr "www"
 
-#: .\bookkeeping\templates\bookkeeping\partner_form.html:14
+#: .\bookkeeping\templates\bookkeeping\partner_form.html:13
+msgid "Save Partner"
+msgstr "Zapisz Partnera"
+
+#: .\bookkeeping\templates\bookkeeping\partner_form.html:19
 msgid "Update Partner"
 msgstr "Zaktualizuj Partnera"
 
-#: .\bookkeeping\templates\bookkeeping\partner_form.html:14
+#: .\bookkeeping\templates\bookkeeping\partner_form.html:19
 msgid "New Partner"
 msgstr "Nowy Partner"
-
-#: .\bookkeeping\templates\bookkeeping\partner_form.html:59
-msgid "Save Partner"
-msgstr "Zapisz Partnera"
 
 #: .\bookkeeping\templates\bookkeeping\partner_list.html:14
 msgid "No partners yet."
@@ -1358,17 +1358,17 @@ msgstr "Czy na pewno chcesz skasować tę transakcję?"
 msgid "Yes, Delete Transaction"
 msgstr "Tak, usuń transakcję"
 
-#: .\bookkeeping\templates\bookkeeping\transaction_form.html:14
+#: .\bookkeeping\templates\bookkeeping\transaction_form.html:13
+msgid "Save Transaction"
+msgstr "Zapisz Transakcję"
+
+#: .\bookkeeping\templates\bookkeeping\transaction_form.html:23
 msgid "Update Transaction"
 msgstr "Zaktualizuj Transakcję"
 
-#: .\bookkeeping\templates\bookkeeping\transaction_form.html:14
+#: .\bookkeeping\templates\bookkeeping\transaction_form.html:23
 msgid "New Transaction"
 msgstr "Nowa Transakcja"
-
-#: .\bookkeeping\templates\bookkeeping\transaction_form.html:50
-msgid "Save Transaction"
-msgstr "Zapisz Transakcję"
 
 #: .\bookkeeping\templates\bookkeeping\transaction_list.html:16
 msgid "No transactions yet."
@@ -2256,11 +2256,11 @@ msgstr "Edytuj Wydarzenie"
 msgid "Create New Event"
 msgstr "Stwórz nowe Wydarzenie"
 
-#: .\events\templates\events\event_form.html:26
+#: .\events\templates\events\event_form.html:25
 msgid "Save Event"
 msgstr "Zapisz Wydarzenie"
 
-#: .\events\templates\events\event_form.html:30
+#: .\events\templates\events\event_form.html:29
 msgid "View Event"
 msgstr "Wyświetl Wydarzenie"
 

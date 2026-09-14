@@ -426,6 +426,20 @@ def test_public_blog_lists_only_regular_public_posts(client, authenticated_clien
 
 
 @pytest.mark.django_db
+def test_public_blog_decodes_entities_in_article_excerpt(client, authenticated_client):
+    _, user = authenticated_client
+    public = PostFactory(title='Oferta usług', text='<p>Usługi z &oacute; polskimi znakami&nbsp;dla grupy.</p>', visibility=Post.Visibility.PUBLIC, author=user)
+
+    response = client.get(reverse('board:public_start'))
+
+    content = response.content.decode()
+    assert 'Usługi z ó polskimi znakami dla grupy.' in content
+    assert '&oacute;' not in content
+    assert '&nbsp;' not in content
+    assert public.title in content
+
+
+@pytest.mark.django_db
 def test_public_blog_detail_has_no_internal_controls_or_chat(client, authenticated_client):
     """Publiczny detail jest minimalistycznym artykułem bez elementów wewnętrznych."""
     _, user = authenticated_client

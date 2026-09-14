@@ -202,6 +202,7 @@ Prefer these existing components before writing new markup:
 - `tw-btn-ghost` for low-emphasis or icon actions;
 - `tw-btn-cta tw-btn-cta--round` for the shared add/primary CTA;
 - `tw-btn-contact` with `data-contact-method` for brand-recognizable contact actions;
+- `tw-form-actions tw-form-actions--top` and `tw-form-action-btn` for full-page form actions;
 - `tw-card`, `tw-card-header`, `tw-card-body`;
 - `tw-badge-*` for statuses and categories;
 - `tw-alert` and its level variants;
@@ -213,6 +214,10 @@ Prefer these existing components before writing new markup:
 - `home/templates/tw/` form/layout templates.
 
 Repeated empty states, card structures, counters, toolbars and modals should be extended centrally instead of copied into each application.
+
+### 3.6 Full-page form actions
+
+Full-page create/edit forms place Cancel/View first and Save second in the upper-right action row, before the fields. Use `tw-form-actions tw-form-actions--top` inside the form and apply `tw-form-action-btn` to each action. The shared action buttons are compact 30px square icon controls, matching detail-header actions; provide localized `title` and `aria-label` values even when the visible text is visually hidden. Modal and inline edit actions keep their contextual footer placement.
 
 ## 5. CSS rules
 
@@ -281,8 +286,10 @@ Use `data-detail-url` with `role="link"` and `tabindex="0"`. Navigation and keyb
 
 Current icon conventions include:
 
-- `fa-check` — save/confirm;
-- `fa-times` — cancel/close;
+- `fa-floppy-disk` — save;
+- `fa-rotate-left` — cancel/undo;
+- `fa-check` — confirm/status OK;
+- `fa-times` — close/reject;
 - `fa-arrow-left` — back;
 - `fa-pen` — edit;
 - `fa-trash` — delete;

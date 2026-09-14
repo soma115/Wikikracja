@@ -52,7 +52,22 @@
       <p>Każdy guzik powinien mieć ikonę. Ikona zawsze po lewej, tekst po prawej.</p>
     </div>
 
-    <h2>3. Guzik CTA (dodawanie treści)</h2>
+    <h2>3. Akcje formularza</h2>
+    <div class="section">
+      <div class="component-label">Zapisz / Anuluj — prawy górny róg formularza</div>
+      <div class="tw-form-actions tw-form-actions--top">
+        <a href="#" class="tw-btn tw-btn-secondary tw-form-action-btn" title="Cancel" aria-label="Cancel"><i class="fas fa-rotate-left fa-fw"></i></a>
+        <button class="tw-btn tw-btn-primary tw-form-action-btn" title="Save" aria-label="Save"><i class="fas fa-floppy-disk fa-fw"></i></button>
+      </div>
+      <ul class="rules">
+        <li>Akcje formularzy pełnostronicowych są umieszczone w prawym górnym obszarze formularza, przed polami.</li>
+        <li>Używamy wspólnego kontenera <code>tw-form-actions tw-form-actions--top</code> oraz przycisków <code>tw-form-action-btn</code>.</li>
+        <li>Przyciski są ikonowe, mają rozmiar <code>30px × 30px</code> i wyglądają tak samo jak akcje Edytuj/Usuń w nagłówku szczegółów.</li>
+        <li>Każdy przycisk musi mieć lokalizowane <code>title</code> i <code>aria-label</code>; kolejność akcji to Anuluj, następnie Zapisz.</li>
+      </ul>
+    </div>
+
+    <h2>4. Guzik CTA (dodawanie treści)</h2>
     <div class="section">
       <div class="component-label">Wspólny przycisk „dodaj” we wszystkich modułach</div>
       <div class="row">
@@ -465,8 +480,10 @@
           <tr><th>Ikona</th><th>Klasa</th><th>Znaczenie</th><th>Użycie</th></tr>
         </thead>
         <tbody>
-          <tr><td><i class="fas fa-check"></i></td><td><code>fa-check</code></td><td>Zapisz / Potwierdź</td><td>guzik Save, akcja zatwierdzenia</td></tr>
-          <tr><td><i class="fas fa-times"></i></td><td><code>fa-times</code></td><td>Anuluj / Zamknij</td><td>guzik Cancel, zamykanie modalu</td></tr>
+          <tr><td><i class="fas fa-floppy-disk"></i></td><td><code>fa-floppy-disk</code></td><td>Zapisz</td><td>guzik Save formularza</td></tr>
+          <tr><td><i class="fas fa-rotate-left"></i></td><td><code>fa-rotate-left</code></td><td>Anuluj / Cofnij</td><td>guzik Cancel formularza, wycofanie zmiany</td></tr>
+          <tr><td><i class="fas fa-check"></i></td><td><code>fa-check</code></td><td>Potwierdź</td><td>potwierdzenie operacji, status OK</td></tr>
+          <tr><td><i class="fas fa-times"></i></td><td><code>fa-times</code></td><td>Zamknij / Odrzuć</td><td>zamykanie modalu, odmowa</td></tr>
           <tr><td><i class="fas fa-arrow-left"></i></td><td><code>fa-arrow-left</code></td><td>Powrót</td><td>guzik Back</td></tr>
           <tr><td><i class="fas fa-trash"></i></td><td><code>fa-trash</code></td><td>Usuń</td><td>guzik Delete</td></tr>
           <tr><td><i class="fas fa-pen"></i></td><td><code>fa-pen</code></td><td>Edytuj</td><td>guzik Edit</td></tr>

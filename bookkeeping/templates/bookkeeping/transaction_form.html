@@ -9,6 +9,15 @@
       <form method="post">
         {% csrf_token %}
 
+        <div class="tw-form-actions tw-form-actions--top">
+          {% if transaction_form.instance.pk %}
+          <a href="{% url 'bookkeeping:transaction_detail' transaction_form.instance.pk %}" class="tw-btn tw-btn-secondary tw-form-action-btn" data-autosave-clear title="{% trans 'Cancel' %}" aria-label="{% trans 'Cancel' %}"><i class="fas fa-rotate-left fa-fw" aria-hidden="true"></i>{% trans "Cancel" %}</a>
+          {% else %}
+          <a href="{% url 'bookkeeping:transaction_list' %}" class="tw-btn tw-btn-secondary tw-form-action-btn" data-autosave-clear title="{% trans 'Cancel' %}" aria-label="{% trans 'Cancel' %}"><i class="fas fa-rotate-left fa-fw" aria-hidden="true"></i>{% trans "Cancel" %}</a>
+          {% endif %}
+          <button type="submit" class="tw-btn tw-btn-primary tw-form-action-btn" title="{% trans 'Save Transaction' %}" aria-label="{% trans 'Save Transaction' %}"><i class="fas fa-floppy-disk fa-fw" aria-hidden="true"></i>{% trans "Save Transaction" %}</button>
+        </div>
+
         <div class="tw-card tw-mb-3">
           <div class="tw-card-header">
             <h5 class="tw-mb-0">{% if transaction_form.instance.pk %}{% trans "Update Transaction" %}{% else %}{% trans "New Transaction" %}{% endif %}</h5>
@@ -46,14 +55,6 @@
           </div>
         </div>
 
-        <div class="tw-mb-3 tw-flex">
-          <button type="submit" class="tw-btn tw-btn-primary tw-me-2"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Save Transaction" %}</button>
-          {% if transaction_form.instance.pk %}
-          <a href="{% url 'bookkeeping:transaction_detail' transaction_form.instance.pk %}" class="tw-btn tw-btn-secondary" data-autosave-clear><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</a>
-          {% else %}
-          <a href="{% url 'bookkeeping:transaction_list' %}" class="tw-btn tw-btn-secondary" data-autosave-clear><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</a>
-          {% endif %}
-        </div>
       </form>
     </div>
   </div>

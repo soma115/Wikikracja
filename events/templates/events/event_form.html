@@ -20,17 +20,17 @@
     <div class="tw-card-body">
       <form method="post" action="">
         {% csrf_token %}
-        {% crispy form %}
-        <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-3">
-          <button type="submit" class="tw-btn tw-btn-primary">
-            <i class="fas fa-check fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'Save Event' %}
-          </button>
+        <div class="tw-form-actions tw-form-actions--top">
           {% if form.instance.pk %}
-            <a href="{% url 'events:detail' form.instance.pk %}" class="tw-btn tw-btn-secondary">
-              <i class="fas fa-eye fa-fw tw-me-1" aria-hidden="true"></i>{% trans "View Event" %}
+            <a href="{% url 'events:detail' form.instance.pk %}" class="tw-btn tw-btn-secondary tw-form-action-btn" title="{% trans 'View Event' %}" aria-label="{% trans 'View Event' %}">
+              <i class="fas fa-eye fa-fw" aria-hidden="true"></i>{% trans "View Event" %}
             </a>
           {% endif %}
+          <button type="submit" class="tw-btn tw-btn-primary tw-form-action-btn" title="{% trans 'Save Event' %}" aria-label="{% trans 'Save Event' %}">
+            <i class="fas fa-floppy-disk fa-fw" aria-hidden="true"></i>{% trans 'Save Event' %}
+          </button>
         </div>
+        {% crispy form %}
       </form>
     </div>
   </div>

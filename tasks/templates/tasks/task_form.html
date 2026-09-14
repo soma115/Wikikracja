@@ -17,6 +17,9 @@
     <div class="tw-card-body">
       <form method="post">
         {% csrf_token %}
+        <div class="tw-form-actions tw-form-actions--top">
+          <button type="submit" class="tw-btn tw-btn-primary tw-form-action-btn" title="{% trans 'Save' %}" aria-label="{% trans 'Save' %}"><i class="fas fa-floppy-disk fa-fw" aria-hidden="true"></i> {% trans "Save" %}</button>
+        </div>
         {% if form.non_field_errors %}<div class="tw-alert tw-alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
 
         <div class="tw-mb-3">
@@ -46,9 +49,6 @@
           {% if form.category.errors %}<div class="tw-alert tw-alert-danger tw-mt-1" role="alert">{{ form.category.errors }}</div>{% endif %}
         </div>
 
-        <div class="tw-flex tw-gap-2">
-          <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-check fa-fw tw-me-1"></i> {% trans "Save" %}</button>
-        </div>
       </form>
     </div>
   </div>

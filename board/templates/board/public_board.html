@@ -1,8 +1,9 @@
 {% extends "home/base.html" %}
 {% load i18n %}
+{% load richtext %}
 
 {% block content %}
-<div class="tw-w-full tw-max-w-6xl tw-mx-auto">
+<div class="tw-w-full tw-max-w-6xl tw-mx-auto tw-pt-3">
   {% if posts %}
   <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4">
     {% for post in posts %}
@@ -21,7 +22,7 @@
           <a href="{{ post.public_detail_url }}" class="tw-no-underline">{{ post.get_display_title }}</a>
         </h2>
         {% if post.subtitle %}<p class="tw-mt-2 tw-text-muted tw-leading-relaxed">{{ post.subtitle }}</p>{% endif %}
-        <p class="tw-mt-3 tw-text-body tw-leading-relaxed">{{ post.text|striptags|truncatewords:30 }}</p>
+        <p class="tw-mt-3 tw-text-body tw-leading-relaxed">{{ post.text|plain_text|truncatewords:30 }}</p>
         <a href="{{ post.public_detail_url }}" class="tw-link-more tw-mt-auto tw-pt-4">{% trans "Read more" %} <span aria-hidden="true">→</span></a>
       </div>
     </article>

@@ -1,7 +1,7 @@
 from django import template
 from django.utils.safestring import mark_safe
 
-from core.richtext import sanitize, sanitize_tinymce
+from core.richtext import plain_text, sanitize, sanitize_tinymce
 
 register = template.Library()
 
@@ -17,6 +17,12 @@ def richtext(value):
     if not value:
         return ''
     return mark_safe(sanitize(str(value), linkify=True))
+
+
+@register.filter(name='plain_text')
+def plain_text_filter(value):
+    """Convert rich text to plain text and decode HTML entities for snippets."""
+    return plain_text(str(value)) if value else ''
 
 
 @register.filter(name='tinymce_content', is_safe=True)
