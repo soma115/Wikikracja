@@ -23,7 +23,8 @@ We welcome contributions! Here's how you can help.
 
 - Follow the project's ruff configuration (`pyproject.toml`)
 - Run `ruff check .` and `ruff format --check .` before submitting
-- Install and enable pre-commit hooks: `pip install pre-commit && pre-commit install`
+- Install and enable local checks: `.venv\Scripts\python.exe -m pip install pre-commit`, `.venv\Scripts\python.exe -m pre_commit install` and `.venv\Scripts\python.exe -m pre_commit install --hook-type pre-push`
+- The regular commit hook runs fast static checks; the pre-push hook runs the smoke suite and tests for changed Django modules with the repository virtualenv. Run `.venv\Scripts\python.exe -m pre_commit run --all-files` and `.venv\Scripts\python.exe scripts\pre_push_tests.py --dry-run --files chat\services.py` to inspect the selected tests.
 - Add comments for complex logic
 - Update documentation for new features
 - Test your changes locally before submitting

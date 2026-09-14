@@ -17,3 +17,10 @@ repos:
         entry: python scripts/ui_guard.py
         language: system
         pass_filenames: false
+      - id: python-tests
+        name: Change-aware Python tests (pre-push)
+        entry: .venv/Scripts/python.exe
+        args: [scripts/pre_push_tests.py]
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
