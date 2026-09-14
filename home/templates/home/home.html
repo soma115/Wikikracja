@@ -2,26 +2,22 @@
 {% block title %}Desktop{% endblock %}
 {% load i18n %}
 {% load feed_filters %}
+{% load richtext %}
 
 {% block content %}
 
 {% if not user.is_authenticated %}
-<div class="tw-section">
-  <p>{{ start.text|safe }}</p>
-  <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-4 tw-mb-4">
-    <a href="{% url 'login' %}" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-right-to-bracket fa-fw tw-me-1"></i>{% trans 'Login' %}</a>
-    {% if group_is_public %}
-    <a href="{% url 'account_signup' %}" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-user-plus fa-fw tw-me-1"></i>{% trans 'Sign Up' %}</a>
-    {% endif %}
-    <a href="{% url 'password_reset' %}" class="tw-btn tw-btn-outline-secondary tw-btn-sm"><i class="fas fa-key fa-fw tw-me-1"></i>{% trans 'Reset password' %}</a>
-    <a href="https://wikikracja.pl/kontakt/" target="_blank" rel="noopener" class="tw-btn tw-btn-outline-secondary tw-btn-sm"><i class="fas fa-paper-plane fa-fw tw-me-1"></i>{% trans 'Message developer' %}</a>
-  </div>
-
-  <h4 class="tw-section-heading tw-mb-3">{% trans "Platform modules" %}</h4>
-  <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-3">
-    {% for module in dashboard_modules %}
-    {% include 'home/includes/module_card.html' with module=module %}
-    {% endfor %}
+<div class="tw-section tw-mt-0">
+  <div class="tw-post-content tw-pt-0">{{ start.text|tinymce_content }}</div>
+  <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mt-4 tw-mb-4">
+    <div class="tw-flex tw-flex-wrap tw-gap-2">
+      <a href="{% url 'login' %}" class="tw-btn tw-btn-outline-secondary tw-btn-sm"><i class="fas fa-right-to-bracket fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'Login' %}</a>
+      {% if group_is_public %}
+      <a href="{% url 'account_signup' %}" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-user-plus fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'Join' %}</a>
+      {% endif %}
+      <a href="{% url 'password_reset' %}" class="tw-btn tw-btn-outline-secondary tw-btn-sm"><i class="fas fa-key fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'Reset password' %}</a>
+      <a href="{% url 'chat:guest_message' %}" class="tw-btn tw-btn-outline-secondary tw-btn-sm"><i class="fas fa-envelope fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'Contact' %}</a>
+    </div>
   </div>
 </div>
 {% endif %}
@@ -124,7 +120,7 @@
         {% if upcoming_events %}
         <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-2 tw-flex-1 tw-text-sm">{% spaceless %}{% for occ in upcoming_events %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
             <span class="tw-shrink-0 {% if occ.event.is_public %}tw-dot-public{% else %}tw-dot-private{% endif %}"></span>
-            <span class="tw-shrink-0 tw-text-muted tw-text-nowrap">{{ occ.date|date:"D d M · H:i" }}</span>
+            <span class="tw-shrink-0 tw-text-muted tw-whitespace-nowrap">{{ occ.date|date:"D d M · H:i" }}</span>
             <a href="{% url 'events:detail' occ.event.pk %}"
                class="tw-text-primary-link"
                title="{{ occ.event.title }}">{{ occ.event.title }}</a>
@@ -216,9 +212,9 @@
             <div class="tw-featured-carousel-track">
               {% for post in featured_documents %}
               <div class="tw-featured-carousel-item">
-                <a href="{% url 'board:view_post' post.pk %}" title="{{ post.title }}">
-                  <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
-                  <span class="tw-featured-carousel-title">{{ post.title }}{% if post.subtitle %}<span class="tw-featured-carousel-subtitle">{{ post.subtitle }}</span>{% endif %}</span>
+                <a href="{% url 'board:view_post' post.pk %}" title="{{ post.get_display_title }}">
+                  <img src="{{ post.featured_image.url }}" alt="{{ post.get_display_title }}">
+                  <span class="tw-featured-carousel-title">{{ post.get_display_title }}{% if post.subtitle %}<span class="tw-featured-carousel-subtitle">{{ post.subtitle }}</span>{% endif %}</span>
                 </a>
               </div>
               {% endfor %}
@@ -324,9 +320,9 @@
           </div>
           <div class="tw-min-w-0 tw-flex-1">
             <div class="tw-flex tw-items-center tw-gap-2">
-              <span class="tw-chat-msg-sender tw-text-nowrap">{{ msg.sender|display_name }}</span>
+              <span class="tw-chat-msg-sender tw-whitespace-nowrap">{{ msg.sender|display_name }}</span>
               <span class="tw-chat-msg-room tw-truncate tw-flex-1 tw-min-w-0">{{ msg.room.title|truncatechars:18 }}</span>
-              <span class="tw-chat-msg-meta tw-text-nowrap">{{ msg.time|date:"H:i" }}</span>
+              <span class="tw-chat-msg-meta tw-whitespace-nowrap">{{ msg.time|date:"H:i" }}</span>
             </div>
             <div class="tw-chat-msg-link tw-truncate">{{ msg.text|striptags|truncatechars:120 }}</div>
           </div>
@@ -394,7 +390,7 @@
         <ul class="tw-list-none tw-mb-0 tw-flex tw-flex-col tw-gap-1 tw-flex-1">{% spaceless %}{% for cit in new_people|slice:":6" %}<li class="tw-task-dash-row tw-flex tw-items-center tw-gap-2 tw-min-w-0">
             {% include "home/_user_avatar.html" with user=cit size="lg" %}
             <span class="tw-truncate tw-flex-1 tw-min-w-0">{{ cit|display_name }}</span>
-            <span class="tw-shrink-0 tw-text-xs tw-text-muted tw-ms-auto tw-text-nowrap">{{ cit.uid.date_joined|date:"d.m.Y" }}</span>
+            <span class="tw-shrink-0 tw-text-xs tw-text-muted tw-ms-auto tw-whitespace-nowrap">{{ cit.uid.date_joined|date:"d.m.Y" }}</span>
           </li>{% endfor %}{% endspaceless %}</ul>
         {% else %}
         <p class="tw-mb-0 tw-text-muted tw-text-sm">{% trans "No new people" %}</p>

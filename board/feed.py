@@ -13,7 +13,7 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
         items.append(
             {
                 'content_type': 'post',
-                'title': post.title,
+                'title': post.get_display_title(),
                 'subtitle': post.subtitle,
                 'description': plain_text(post.text, 125),
                 'author': post.author,

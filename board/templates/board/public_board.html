@@ -1,0 +1,34 @@
+{% extends "home/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="tw-w-full tw-max-w-6xl tw-mx-auto">
+  {% if posts %}
+  <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4">
+    {% for post in posts %}
+    <article class="tw-card tw-h-full tw-overflow-hidden">
+      {% if post.featured_image %}
+      <a href="{{ post.public_detail_url }}" class="tw-block" aria-label="{{ post.get_display_title }}">
+        <img src="{{ post.featured_image.url }}" alt="" class="tw-w-full tw-h-48 tw-object-cover">
+      </a>
+      {% endif %}
+      <div class="tw-card-body tw-flex tw-flex-col tw-h-full tw-p-4">
+        <div class="tw-flex tw-items-center tw-gap-2 tw-text-meta">
+          <time datetime="{{ post.updated|date:'Y-m-d' }}">{{ post.updated|date:"d.m.Y" }}</time>
+          {% if post.category %}<span aria-hidden="true">·</span><span class="tw-truncate">{{ post.category.name }}</span>{% endif %}
+        </div>
+        <h2 class="tw-mt-2 tw-text-xl tw-font-semibold tw-leading-tight">
+          <a href="{{ post.public_detail_url }}" class="tw-no-underline">{{ post.get_display_title }}</a>
+        </h2>
+        {% if post.subtitle %}<p class="tw-mt-2 tw-text-muted tw-leading-relaxed">{{ post.subtitle }}</p>{% endif %}
+        <p class="tw-mt-3 tw-text-body tw-leading-relaxed">{{ post.text|striptags|truncatewords:30 }}</p>
+        <a href="{{ post.public_detail_url }}" class="tw-link-more tw-mt-auto tw-pt-4">{% trans "Read more" %} <span aria-hidden="true">→</span></a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+    {% include 'home/includes/empty_state.html' with icon='fa-newspaper' title=_('No publications yet.') %}
+  {% endif %}
+</div>
+{% endblock %}

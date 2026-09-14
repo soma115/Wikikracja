@@ -5,8 +5,8 @@
       <thead>
         <tr>
           <th>{% trans "Title" %}</th>
-          <th class="tw-text-end tw-text-nowrap">{% trans "Type" %}</th>
-          <th class="tw-text-end tw-text-nowrap">{% trans "Date" %}</th>
+          <th class="tw-text-end tw-whitespace-nowrap">{% trans "Type" %}</th>
+          <th class="tw-text-end tw-whitespace-nowrap">{% trans "Date" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -19,10 +19,10 @@
                 {{ item.title }}
               {% endif %}
             </td>
-            <td class="tw-text-end tw-text-nowrap">
+            <td class="tw-text-end tw-whitespace-nowrap">
               <span class="tw-badge-status tw-badge-secondary">{{ item.label }}</span>
             </td>
-            <td class="tw-text-muted tw-text-nowrap tw-text-end">{% if item.ts %}{{ item.ts|date:"d.m.Y" }}{% endif %}</td>
+            <td class="tw-text-muted tw-whitespace-nowrap tw-text-end">{% if item.ts %}{{ item.ts|date:"d.m.Y" }}{% endif %}</td>
           </tr>
         {% endfor %}
       </tbody>

@@ -41,6 +41,14 @@ function initializePresence() {
         });
     };
 
+    const presenceTitle = (status, source, timestamp) => {
+        const labels = window.WK_PRESENCE_I18N || {};
+        const statusLabel = labels.statusLabels?.[status] || status || '';
+        const sourceLabel = labels.sourceLabels?.[source] || source || '';
+        const relative = relativePresenceTime(timestamp);
+        return [statusLabel, sourceLabel, relative].filter(Boolean).join(' / ');
+    };
+
     const relativeTitle = (element) => {
         const relative = relativePresenceTime(element.dataset.presenceTimestamp);
         if (!relative) return element.getAttribute('title') || '';
@@ -62,7 +70,7 @@ function initializePresence() {
         if (typeof window.TwPopover === 'undefined') return;
         document.querySelectorAll('[data-presence-user-id]').forEach((element) => {
             if (presencePopovers.has(element)) return;
-            const initialTitle = relativeTitle(element) || `${element.dataset.presenceStatus || ''}: ${element.dataset.presenceSource || ''}: ${relativePresenceTime(element.dataset.presenceTimestamp)}`;
+            const initialTitle = relativeTitle(element) || presenceTitle(element.dataset.presenceStatus, element.dataset.presenceSource, element.dataset.presenceTimestamp);
             element.setAttribute('title', initialTitle);
             element.dataset.twTitle = initialTitle;
             const popover = new window.TwPopover(element, { trigger: 'manual', placement: 'top', title: initialTitle });
@@ -120,7 +128,7 @@ function initializePresence() {
             element.dataset.presenceTimestamp = presence.timestamp || '';
             element.classList.remove('tw-presence-green', 'tw-presence-yellow', 'tw-presence-red');
             element.classList.add(`tw-presence-${presence.status}`);
-            const title = `${presence.status}: ${presence.source}: ${relativePresenceTime(presence.timestamp)}`;
+            const title = presenceTitle(presence.status, presence.source, presence.timestamp);
             element.setAttribute('title', title);
             element.dataset.twTitle = title;
             const popover = presencePopovers.get(element);

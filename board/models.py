@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
+from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 
 from categories.models import AbstractCategory
@@ -32,6 +33,8 @@ class PostCategory(AbstractCategory):
 
 
 class Post(ChatRoomModel, models.Model):
+    SYSTEM_TITLES = {'start': {'en': 'Start page', 'pl': 'Strona startowa'}, 'footer': {'en': 'Page footer', 'pl': 'Stopka strony'}, 'welcome_email': {'en': 'Welcome email', 'pl': 'Email powitalny'}}
+
     class Visibility(models.TextChoices):
         PRIVATE = 'private', _('Only me')
         GROUP = 'group', _('Group')
@@ -52,11 +55,17 @@ class Post(ChatRoomModel, models.Model):
     system_key = models.CharField(max_length=50, unique=True, null=True, blank=True, verbose_name=_("System Key"))
     slug = models.SlugField(max_length=200, unique=True, null=True, blank=True, verbose_name=_("Link Alias"))
 
-    def __str__(self):
+    def get_display_title(self):
+        if self.system_key in self.SYSTEM_TITLES:
+            titles = self.SYSTEM_TITLES[self.system_key]
+            return titles.get((get_language() or 'en').split('-')[0], titles['en'])
         return self.title
 
+    def __str__(self):
+        return self.get_display_title()
+
     def get_chat_room_title(self):
-        return f"Document #{self.id}: {self.title}"[:90]
+        return f"Document #{self.id}: {self.get_display_title()}"[:90]
 
     def get_chat_room_url(self):
         if self.chat_room_id:
@@ -76,6 +85,8 @@ class Post(ChatRoomModel, models.Model):
             self.visibility = original['visibility']
             self.is_important = True
         if self.system_key:
+            if self.system_key in self.SYSTEM_TITLES:
+                self.title = self.SYSTEM_TITLES[self.system_key]['en']
             system_category = PostCategory.get_system_category()
             if system_category is None:
                 system_category = PostCategory.objects.create(name=PostCategory.SYSTEM_NAME, priority=900, is_protected=True)
@@ -83,8 +94,10 @@ class Post(ChatRoomModel, models.Model):
             self.visibility = self.Visibility.PUBLIC
             self.is_important = True
             update_fields = kwargs.get('update_fields')
-            if update_fields is not None and 'category' not in update_fields and 'category_id' not in update_fields:
-                kwargs['update_fields'] = tuple(update_fields) + ('category',)
+            if update_fields is not None:
+                update_fields = set(update_fields)
+                update_fields.update(('category', 'title'))
+                kwargs['update_fields'] = tuple(update_fields)
         return super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):

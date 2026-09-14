@@ -1,0 +1,26 @@
+{% extends 'home/base.html' %}
+{% load i18n %}
+{% load richtext %}
+
+{% block content %}
+<div class="tw-container tw-w-full tw-max-w-4xl tw-mx-auto">
+  {% url 'board:public_start' as public_board_url %}
+  {% include 'home/includes/detail_header.html' with title=post.get_display_title back_url=public_board_url back_label=_('Back to publications') %}
+
+  <article class="tw-card">
+    <div class="tw-card-body tw-p-4 sm:tw-p-6">
+      <div class="tw-flex tw-items-center tw-gap-2 tw-text-meta">
+        <time datetime="{{ post.updated|date:'Y-m-d' }}">{{ post.updated|date:"d.m.Y" }}</time>
+        {% if post.category %}<span aria-hidden="true">·</span><span>{{ post.category.name }}</span>{% endif %}
+      </div>
+      {% if post.subtitle %}<p class="tw-mt-3 tw-text-xl tw-text-muted tw-leading-relaxed">{{ post.subtitle }}</p>{% endif %}
+
+      {% if post.featured_image %}
+      <img src="{{ post.featured_image.url }}" alt="" class="tw-w-full tw-max-h-96 tw-object-cover tw-mt-4">
+      {% endif %}
+
+      <div class="tw-post-content">{{ post.text|tinymce_content }}</div>
+    </div>
+  </article>
+</div>
+{% endblock %}

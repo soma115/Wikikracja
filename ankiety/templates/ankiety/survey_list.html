@@ -84,7 +84,7 @@
                       {% if option.created_by %}<i class="fas fa-user-plus tw-text-muted tw-ms-1" title="{% trans 'Added by a participant' %}" aria-label="{% trans 'Added by a participant' %}"></i>{% endif %}
                     </label>
                   </div>
-                  <span class="tw-text-nowrap tw-text-muted">{{ option.vote_count }} ({{ option.percentage|unlocalize }}%)</span>
+                  <span class="tw-whitespace-nowrap tw-text-muted">{{ option.vote_count }} ({{ option.percentage|unlocalize }}%)</span>
                 </div>
                 <div class="tw-result-bar-track tw-w-full tw-mb-2"><div class="tw-result-bar-fill" data-progress="{{ option.percentage|unlocalize }}"></div></div>
               {% empty %}

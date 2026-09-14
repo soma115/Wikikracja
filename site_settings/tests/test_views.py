@@ -46,6 +46,17 @@ class SidebarBrandMarkRenderingTest(TestCase):
         # URL z MEDIA_URL
         self.assertIn('/media/site_branding/', content)
 
+    def test_renders_img_brand_mark_for_anonymous_users(self):
+        ss = SiteParameters.get()
+        ss.brand_mark = make_branding_png()
+        ss.save()
+        self.client.logout()
+
+        response = self.client.get(self.url)
+        content = response.content.decode('utf-8')
+        self.assertIn('class="tw-brand-mark', content)
+        self.assertNotIn('fa-building-columns', content)
+
 
 class ManifestAndAppleTouchIconBrandTest(TestCase):
     """Test 9 (TDD red): manifest icons + apple-touch-icon link używają derivatives gdy brand_mark istnieje."""

@@ -46,32 +46,35 @@
         <div class="tw-flex tw-flex-1 tw-flex-col tw-justify-between tw-gap-2 tw-min-w-0">
           <div class="tw-flex tw-w-full tw-items-center tw-gap-2 tw-flex-nowrap tw-min-w-0">
             <span class="tw-proposal-card-num tw-flex-shrink-0">#{{ post.pk }}</span>
-            <span class="tw-font-semibold tw-text-title-clamp tw-min-w-0 tw-flex-1">{{ post.title }}</span>
+            <span class="tw-font-semibold tw-text-title-clamp tw-min-w-0 tw-flex-1">{{ post.get_display_title }}</span>
+            {% if post.subtitle %}
+            <span class="tw-text-subtitle-clamp tw-text-end tw-ms-auto tw-min-w-0 tw-flex-1">{{ post.subtitle }}</span>
+            {% endif %}
           </div>
           <div class="tw-flex tw-w-full tw-items-center tw-justify-between tw-gap-2 tw-flex-nowrap tw-min-w-0">
             <div class="tw-flex tw-flex-1 tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
-              {% if post.system_key %}
+              {% if post.updated_by %}
+                {% include "home/_user_avatar.html" with user=post.updated_by size="xs" %}
+              {% elif post.system_key %}
                 {% include 'home/_brand_mark.html' %}
-                <span class="tw-text-meta tw-truncate">{% trans 'System' %}</span>
-              {% elif post.author %}
-                {% include "home/_user_avatar.html" with user=post.author size="xs" %}
-                <span class="tw-text-meta tw-truncate">{{ post.author|display_name }}</span>
+              {% else %}
+                <i class="fas fa-user fa-fw" aria-hidden="true"></i>
               {% endif %}
               <span class="tw-text-meta tw-whitespace-nowrap"><i class="fas fa-calendar fa-fw"></i> {{ post.updated|date:"d.m.Y" }}</span>
             </div>
             <div class="tw-ms-auto tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 tw-flex-nowrap">
-              {% if post.visibility == 'public' %}<span class="tw-badge-status tw-badge-primary tw-text-nowrap tw-shrink-0">{% trans 'Public' %}</span>{% endif %}
-              {% if post.visibility == 'group' %}<span class="tw-badge-status tw-badge-secondary tw-text-nowrap tw-shrink-0">{% trans 'Group' %}</span>{% endif %}
-              {% if post.visibility == 'private' %}<span class="tw-badge-status tw-badge-secondary tw-text-nowrap tw-shrink-0">{% trans 'Only me' %}</span>{% endif %}
-              {% if post.visibility == 'archive' %}<span class="tw-badge-status tw-badge-secondary tw-text-nowrap tw-shrink-0">{% trans 'Archive' %}</span>{% endif %}
-              {% if post.is_important %}<span class="tw-badge-status tw-badge-warning tw-text-nowrap tw-shrink-0">{% trans 'Important' %}</span>{% endif %}
-              {% if post.system_key %}<span class="tw-badge-status tw-badge-info tw-text-nowrap tw-shrink-0">{% trans 'System' %}</span>{% endif %}
+              {% if post.visibility == 'public' %}<span class="tw-badge-status tw-badge-primary tw-whitespace-nowrap tw-shrink-0">{% trans 'Public' %}</span>{% endif %}
+              {% if post.visibility == 'group' %}<span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap tw-shrink-0">{% trans 'Group' %}</span>{% endif %}
+              {% if post.visibility == 'private' %}<span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap tw-shrink-0">{% trans 'Only me' %}</span>{% endif %}
+              {% if post.visibility == 'archive' %}<span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap tw-shrink-0">{% trans 'Archive' %}</span>{% endif %}
+              {% if post.is_important %}<span class="tw-badge-status tw-badge-warning tw-whitespace-nowrap tw-shrink-0">{% trans 'Important' %}</span>{% endif %}
+              {% if post.system_key %}<span class="tw-badge-status tw-badge-info tw-whitespace-nowrap tw-shrink-0">{% trans 'System' %}</span>{% endif %}
               {% include "board/_post_chat_link.html" with post=post %}
             </div>
           </div>
         </div>
         {% if post.featured_image %}
-        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="tw-post-featured-thumb tw-shrink-0">
+        <img src="{{ post.featured_image.url }}" alt="{{ post.get_display_title }}" class="tw-post-featured-thumb tw-shrink-0">
         {% endif %}
       </div>
       {% endfor %}
@@ -83,36 +86,25 @@
         {% for post in group.posts %}
         <div>
           <div class="tw-post-card-link{% if post.featured_image %} tw-post-card-link--featured{% endif %}" data-detail-url="{{ post.detail_url }}" role="link" tabindex="0"{% if post.featured_image %} style="--featured-img: url('{{ post.featured_image.url }}')"{% endif %}>
-            <div class="tw-card-body tw-p-3 tw-flex tw-flex-col tw-gap-2 tw-flex-1">
+            <div class="tw-card-body tw-p-3 tw-flex tw-flex-col tw-gap-3 tw-flex-1">
               <div class="tw-flex tw-items-center tw-gap-1 tw-flex-nowrap tw-overflow-hidden">
-                {% if post.visibility == 'public' %}<span class="tw-badge-status tw-badge-primary tw-text-nowrap tw-shrink-0">{% trans 'Public' %}</span>{% endif %}
-                {% if post.visibility == 'group' %}<span class="tw-badge-status tw-badge-secondary tw-text-nowrap tw-shrink-0">{% trans 'Group' %}</span>{% endif %}
-                {% if post.visibility == 'private' %}<span class="tw-badge-status tw-badge-secondary tw-text-nowrap tw-shrink-0">{% trans 'Only me' %}</span>{% endif %}
-                {% if post.visibility == 'archive' %}<span class="tw-badge-status tw-badge-secondary tw-text-nowrap tw-shrink-0">{% trans 'Archive' %}</span>{% endif %}
-                {% if post.is_important %}<span class="tw-badge-status tw-badge-warning tw-text-nowrap tw-shrink-0">{% trans 'Important' %}</span>{% endif %}
-                {% if post.system_key %}<span class="tw-badge-status tw-badge-info tw-text-nowrap tw-shrink-0">{% trans 'System' %}</span>{% endif %}
+                {% if post.visibility == 'public' %}<span class="tw-badge-status tw-badge-primary tw-whitespace-nowrap tw-shrink-0">{% trans 'Public' %}</span>{% endif %}
+                {% if post.visibility == 'group' %}<span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap tw-shrink-0">{% trans 'Group' %}</span>{% endif %}
+                {% if post.visibility == 'private' %}<span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap tw-shrink-0">{% trans 'Only me' %}</span>{% endif %}
+                {% if post.visibility == 'archive' %}<span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap tw-shrink-0">{% trans 'Archive' %}</span>{% endif %}
+                {% if post.is_important %}<span class="tw-badge-status tw-badge-warning tw-whitespace-nowrap tw-shrink-0">{% trans 'Important' %}</span>{% endif %}
+                {% if post.system_key %}<span class="tw-badge-status tw-badge-info tw-whitespace-nowrap tw-shrink-0">{% trans 'System' %}</span>{% endif %}
                 {% include "board/_post_chat_link.html" with post=post compact=True %}
               </div>
-              <div class="tw-font-semibold tw-text-title-clamp-2 tw-min-w-0">{{ post.title }}</div>
-              {% if post.subtitle %}
-              <div class="tw-text-subtitle-clamp-2">{{ post.subtitle }}</div>
-              {% endif %}
-              <div class="tw-flex tw-flex-col tw-gap-1 tw-text-meta">
-                <span class="tw-flex tw-items-center tw-gap-1 tw-truncate" title="{% trans 'Created' %}: {{ post.created|date:'d.m.Y' }}">
-                  <i class="fas fa-user fa-fw"></i>
-                  {% if post.system_key %}
-                    {% include 'home/_brand_mark.html' %}
-                  {% elif post.author %}
-                    {% include "home/_user_avatar.html" with user=post.author size="xs" %}
-                  {% endif %}
-                  <span class="tw-truncate">{% if post.system_key %}{% trans 'System' %}{% elif post.author %}{{ post.author|display_name }}{% endif %}</span>
-                  <i class="fas fa-calendar-plus fa-fw tw-ms-1"></i>
-                  <span class="tw-whitespace-nowrap">{{ post.created|date:"d.m.Y" }}</span>
-                </span>
+              <div class="tw-font-semibold tw-text-title-clamp-2 tw-min-w-0">{{ post.get_display_title }}</div>
+              <div class="tw-text-subtitle-clamp-2">{% if post.subtitle %}{{ post.subtitle }}{% else %}&nbsp;{% endif %}</div>
+              <div class="tw-flex tw-flex-col tw-gap-2 tw-text-meta">
                 <span class="tw-flex tw-items-center tw-gap-1 tw-truncate" title="{% trans 'Updated' %}: {{ post.updated|date:'d.m.Y' }}">
-                  <i class="fas fa-user fa-fw"></i>
-                  {% if post.updated_by %}{% include "home/_user_avatar.html" with user=post.updated_by size="xs" %}{% endif %}
-                  <span class="tw-truncate">{% if post.updated_by %}{{ post.updated_by|display_name }}{% endif %}</span>
+                  {% if post.updated_by %}
+                    {% include "home/_user_avatar.html" with user=post.updated_by size="xs" %}
+                  {% else %}
+                    <i class="fas fa-user fa-fw" aria-hidden="true"></i>
+                  {% endif %}
                   <i class="fas fa-calendar-check fa-fw tw-ms-1"></i>
                   <span class="tw-whitespace-nowrap">{{ post.updated|date:"d.m.Y" }}</span>
                 </span>

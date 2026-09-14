@@ -9,7 +9,7 @@ import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.urls import reverse
-from django.utils.translation import gettext
+from django.utils.translation import gettext, override
 
 from board.models import Post
 from chat.models import Message, MessageReadBy, Room
@@ -406,6 +406,54 @@ def test_public_post_visible_to_everyone(client, authenticated_client):
 
 
 @pytest.mark.django_db
+def test_public_blog_lists_only_regular_public_posts(client, authenticated_client):
+    """Publiczny blog pokazuje wyłącznie zwykłe wpisy publiczne."""
+    _, user = authenticated_client
+    public = PostFactory(title='Publiczny wpis', visibility=Post.Visibility.PUBLIC, author=user)
+    PostFactory(title='Wewnętrzny wpis', visibility=Post.Visibility.GROUP, author=user)
+    PostFactory(title='Systemowy wpis', visibility=Post.Visibility.PUBLIC, author=user, system_key='public-blog-system')
+
+    response = client.get(reverse('board:public_start'))
+
+    assert response.status_code == 200
+    assert [post.pk for post in response.context['posts']] == [public.pk]
+    content = response.content.decode()
+    assert 'Publiczny wpis' in content
+    assert 'Wewnętrzny wpis' not in content
+    assert 'Systemowy wpis' not in content
+    assert 'tw-board-stepper' not in content
+    assert 'tw-ec-section' not in content
+
+
+@pytest.mark.django_db
+def test_public_blog_detail_has_no_internal_controls_or_chat(client, authenticated_client):
+    """Publiczny detail jest minimalistycznym artykułem bez elementów wewnętrznych."""
+    _, user = authenticated_client
+    post = PostFactory(title='Artykuł publiczny', visibility=Post.Visibility.PUBLIC, author=user, subtitle='Lead')
+
+    response = client.get(reverse('board:public_view_post', args=[post.pk]))
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert post.title in content
+    assert post.subtitle in content
+    assert 'tw-ec-section' not in content
+    assert 'tw-detail-nav' not in content
+    assert 'tw-post-content' in content
+
+
+@pytest.mark.django_db
+def test_public_blog_slug_detail(client, authenticated_client):
+    _, user = authenticated_client
+    post = PostFactory(title='Slug article', visibility=Post.Visibility.PUBLIC, author=user, slug='slug-article')
+
+    response = client.get(reverse('board:public_view_post_by_slug', kwargs={'slug': post.slug}))
+
+    assert response.status_code == 200
+    assert post.title in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_private_flag_overrides_public(authenticated_client):
     """Prywatne ma pierwszeństwo nad publicznym — dokument widoczny tylko dla autora."""
     client, user = authenticated_client
@@ -449,18 +497,32 @@ def test_only_author_can_make_document_private(authenticated_client):
 
 
 @pytest.mark.django_db
-def test_edit_system_post_can_change_public_but_not_category_or_other_flags(authenticated_client):
-    """Dokument systemowy zawsze należy do kategorii System i nie zmienia flag zabezpieczających."""
+def test_system_post_titles_are_localized_and_system_assigned():
+    post = Post.objects.get(system_key='start')
+    post.title = 'Dowolny tytuł'
+    post.save()
+    post.refresh_from_db()
+
+    assert post.title == 'Start page'
+    with override('pl'):
+        assert post.get_display_title() == 'Strona startowa'
+    with override('en'):
+        assert post.get_display_title() == 'Start page'
+
+
+@pytest.mark.django_db
+def test_edit_system_post_can_change_content_but_not_title_category_or_other_flags(authenticated_client):
+    """Dokument systemowy nie pozwala zmienić tytułu ani pól zabezpieczających."""
     client, user = authenticated_client
     original_category = PostCategoryFactory(name='System category')
     new_category = PostCategoryFactory(name='Other category')
-    post = PostFactory(system_key='protected-system-post', category=original_category, visibility='public', is_important=True)
+    post = PostFactory(title='Stały tytuł', system_key='protected-system-post', category=original_category, visibility='public', is_important=True)
 
     response = client.post(reverse('board:edit_post', args=[post.pk]), {'title': 'Zmieniony tytuł', 'text': 'Nowa treść', 'category': new_category.pk, 'is_private': 'on', 'is_important': 'on'})
 
     assert response.status_code == 302
     post.refresh_from_db()
-    assert post.title == 'Zmieniony tytuł'
+    assert post.title == 'Stały tytuł'
     assert post.category.name == 'System'
     assert post.category != new_category
     assert post.visibility == Post.Visibility.PUBLIC
@@ -474,6 +536,11 @@ def test_system_post_cannot_be_deleted_or_have_protected_fields_changed(authenti
     original_category = PostCategoryFactory(name='System')
     new_category = PostCategoryFactory(name='Other')
     post = PostFactory(system_key='immutable-system-post', category=original_category, visibility='public', is_important=True)
+
+    detail_response = client.get(reverse('board:view_post', args=[post.pk]))
+    assert detail_response.status_code == 200
+    assert 'deletePostModal' not in detail_response.content.decode()
+    assert reverse('board:delete_post', args=[post.pk]) not in detail_response.content.decode()
 
     response = client.post(reverse('board:delete_post', args=[post.pk]))
     assert response.status_code == 404

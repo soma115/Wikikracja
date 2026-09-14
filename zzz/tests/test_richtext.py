@@ -81,6 +81,11 @@ class TinyMCEContentTests(TestCase):
     def test_plain_legacy_text_keeps_line_breaks(self):
         self.assertEqual(sanitize_tinymce('A\nB'), 'A<br>B')
 
+    def test_preserves_relative_image_urls(self):
+        content = '<p><img src="/media/uploads/image.webp" alt="Image"></p>'
+        result = sanitize_tinymce(content)
+        self.assertIn('<img src="/media/uploads/image.webp" alt="Image">', result)
+
 
 class StripTagsTests(TestCase):
     """Sanity check — strip_tags pozostaje bez zmian."""

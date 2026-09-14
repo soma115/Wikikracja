@@ -561,6 +561,12 @@ video {
   display: none;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+       text-size-adjust: 100%;
+}
+
 .tw-container {
   width: 100%;
 }
@@ -4531,8 +4537,8 @@ html,
 }
 
 .tw-sidebar-logo .tw-brand-mark {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   flex-shrink: 0;
 }
 
@@ -4547,6 +4553,13 @@ html,
   -o-object-fit: contain;
      object-fit: contain;
   vertical-align: -.125em;
+}
+
+.tw-topbar-logo .tw-brand-mark,
+  .tw-anon-topbar .tw-brand-mark {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
 }
 
 .tw-sidebar-nav .tw-nav-item {
@@ -4640,6 +4653,46 @@ html,
 .tw-topbar .tw-topbar-breadcrumb a {
   color: var(--text-muted);
   text-decoration: none;
+}
+
+.tw-anon-site-name {
+  display: inline-block;
+  max-width: 8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.1;
+  vertical-align: middle;
+}
+
+@media (max-width: 420px) {
+  .tw-anon-site-name {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: break-word;
+  }
+}
+
+.tw-anon-topbar .tw-topbar-breadcrumb {
+  font-size: .793rem;
+}
+
+.tw-anon-topbar .tw-anon-nav-link {
+  font-size: .755rem;
+}
+
+.tw-anon-topbar.tw-topbar > .tw-btn {
+  font-size: .525rem;
+}
+
+.tw-anon-topbar .tw-dropdown-item {
+  font-size: .755rem;
+  white-space: nowrap;
+}
+
+.tw-anon-topbar .tw-dropdown-menu {
+  min-width: 6.6rem;
 }
 
 .tw-topbar .tw-topbar-breadcrumb a:hover {
@@ -4752,7 +4805,11 @@ html,
   }
 
   .tw-anon-nav-text {
-    display: none;
+    display: inline;
+  }
+
+  .tw-anon-topbar .tw-topbar-btn-label {
+    display: inline;
   }
 
   .tw-anon-nav-link {
@@ -4765,6 +4822,7 @@ html,
   }
 
   .tw-topbar .tw-btn-outline-secondary,
+  .tw-topbar .tw-btn-primary,
   .tw-topbar .tw-btn-cta {
     padding: .32rem .55rem;
     font-size: .75rem;
@@ -4798,6 +4856,7 @@ a:hover {
     margin-left: 0;
   }
 
+  .tw-topbar .tw-topbar-btn-label,
   .tw-topbar .tw-btn-cta-label {
     display: none;
   }
@@ -5633,9 +5692,9 @@ a:hover {
   border-radius: 0.25rem;
   background: var(--input-bg);
   color: var(--text-primary);
+  -webkit-appearance: none;
   -moz-appearance: none;
        appearance: none;
-  -webkit-appearance: none;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
@@ -5678,9 +5737,9 @@ input.tw-form-switch,
   background: var(--input-border);
   position: relative;
   cursor: pointer;
+  -webkit-appearance: none;
   -moz-appearance: none;
        appearance: none;
-  -webkit-appearance: none;
   transition: background 0.15s;
   border: none;
 }
@@ -5930,6 +5989,14 @@ input.tw-form-switch:focus,
 .tw-section {
   margin-top: 1rem;
   margin-bottom: 1rem;
+}
+
+.tw-section > .tw-post-content > h1:first-child {
+  margin-top: 0.44rem;
+}
+
+main.tw-main-content.tw-pt-3 {
+  padding-top: 0.54rem;
 }
 
 .tw-section-heading {
@@ -10223,6 +10290,11 @@ body.tw-chat-page .tw-main-area {
   margin-right: 0.5rem;
 }
 
+.tw-mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .tw-my-1 {
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
@@ -10357,6 +10429,10 @@ body.tw-chat-page .tw-main-area {
   height: 2.5rem;
 }
 
+.tw-h-48 {
+  height: 12rem;
+}
+
 .tw-h-8 {
   height: 2rem;
 }
@@ -10367,6 +10443,10 @@ body.tw-chat-page .tw-main-area {
 
 .tw-h-full {
   height: 100%;
+}
+
+.tw-max-h-96 {
+  max-height: 24rem;
 }
 
 .tw-min-h-0 {
@@ -10408,6 +10488,14 @@ body.tw-chat-page .tw-main-area {
 
 .tw-min-w-20 {
   min-width: 5rem;
+}
+
+.tw-max-w-4xl {
+  max-width: 56rem;
+}
+
+.tw-max-w-6xl {
+  max-width: 72rem;
 }
 
 .tw-max-w-full {
@@ -10565,10 +10653,6 @@ body.tw-chat-page .tw-main-area {
   white-space: pre-wrap;
 }
 
-.tw-text-nowrap {
-  text-wrap: nowrap;
-}
-
 .tw-break-words {
   overflow-wrap: break-word;
 }
@@ -10652,6 +10736,11 @@ body.tw-chat-page .tw-main-area {
   --tw-bg-opacity: 0.1;
 }
 
+.tw-object-cover {
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+
 .tw-p-0 {
   padding: 0px;
 }
@@ -10708,6 +10797,10 @@ body.tw-chat-page .tw-main-area {
 
 .tw-pb-3 {
   padding-bottom: 0.75rem;
+}
+
+.tw-pt-0 {
+  padding-top: 0px;
 }
 
 .tw-pt-1 {
@@ -10787,6 +10880,14 @@ body.tw-chat-page .tw-main-area {
 
 .tw-font-semibold {
   font-weight: 600;
+}
+
+.tw-leading-relaxed {
+  line-height: 1.625;
+}
+
+.tw-leading-tight {
+  line-height: 1.25;
 }
 
 .tw-text-accent {
@@ -10875,6 +10976,10 @@ body.tw-chat-page .tw-main-area {
 
   .sm\:tw-grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sm\:tw-p-6 {
+    padding: 1.5rem;
   }
 }
 

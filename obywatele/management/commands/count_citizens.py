@@ -194,7 +194,7 @@ class Command(BaseCommand):
                         message = welcome_post.text.format(username=uname, email=uemail, password=password, host=host, login_url=f"{host}/login/", password_url=f"{host}/haslo/")
                         # Convert HTML <br> to newlines for plain text email
                         message = message.replace('<br>', '\n').replace('<p>', '').replace('</p>', '')
-                        subject = f"[{host}] {welcome_post.title}"
+                        subject = f"[{host}] {welcome_post.get_display_title()}"
                         log.info(f'Using welcome email from system post for user {uemail}')
                     except KeyError as e:
                         log.error(f'Missing placeholder in welcome email template: {e}')

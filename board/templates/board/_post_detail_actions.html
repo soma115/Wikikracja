@@ -11,18 +11,20 @@
     </form>
     {% endif %}
   {% else %}
+    {% if post.system_key is None %}
     <button type="button" class="tw-detail-nav-btn tw-text-danger" data-tw-toggle="modal" data-tw-target="#deletePostModal" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}">
       <i class="fas fa-trash fa-fw" aria-hidden="true"></i>
     </button>
-    <a href="{% url 'board:edit_post' post.pk %}{% if detail_query %}?{{ detail_query }}{% endif %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}">
-      <i class="fas fa-pen fa-fw" aria-hidden="true"></i>
-    </a>
     {% trans 'Move document to trash' as delete_title %}
     {% trans 'Are you sure you want to move this document to the trash?' as delete_message %}
     {% trans 'Move to trash' as delete_confirm_label %}
     {% url 'board:delete_post' post.pk as delete_url %}
     {% trans 'Document' as item_title_label %}
-    {% include 'home/includes/delete_modal.html' with modal_id='deletePostModal' title=delete_title title_icon='fa-trash' message=delete_message item_title=post.title item_title_label=item_title_label action_url=delete_url confirm_label=delete_confirm_label %}
+    {% include 'home/includes/delete_modal.html' with modal_id='deletePostModal' title=delete_title title_icon='fa-trash' message=delete_message item_title=post.get_display_title item_title_label=item_title_label action_url=delete_url confirm_label=delete_confirm_label %}
+    {% endif %}
+    <a href="{% url 'board:edit_post' post.pk %}{% if detail_query %}?{{ detail_query }}{% endif %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}">
+      <i class="fas fa-pen fa-fw" aria-hidden="true"></i>
+    </a>
   {% endif %}
 </div>
 {% endif %}

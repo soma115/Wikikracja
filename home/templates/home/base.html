@@ -92,7 +92,17 @@
       hours: "{% trans 'Active %s hours ago' %}",
       yesterday: "{% trans 'Active yesterday at %s' %}",
       days: "{% trans 'Active %s days ago' %}",
-      onDate: "{% trans 'Active on %s' %}"
+      onDate: "{% trans 'Active on %s' %}",
+      statusLabels: {
+        green: "{% trans 'Active now' %}",
+        yellow: "{% trans 'Active recently' %}",
+        red: "{% trans 'No recent activity' %}"
+      },
+      sourceLabels: {
+        app: "{% trans 'Application activity' %}",
+        push: "{% trans 'Push notification received' %}",
+        up: "{% trans 'Application activity' %}"
+      }
     };
   </script>
   <script src="{% static 'chat/js/presence.js' %}" type="module"></script>
@@ -116,7 +126,7 @@
     <!-- Logo -->
     <div class="tw-sidebar-logo">
       <a href="{% url 'home' %}" class="tw-no-underline">
-        <span class="tw-logo-title">{% include 'home/_brand_mark.html' %}<span class="tw-logo-label tw-ms-1">{{ site_name }}</span></span>
+        <span class="tw-logo-title tw-flex tw-items-center tw-flex-nowrap">{% include 'home/_brand_mark.html' %}<span class="tw-logo-label tw-ms-1">{{ site_name }}</span></span>
       </a>
       <a href="{% url 'group_settings' %}" class="tw-no-underline"><span class="tw-logo-sub">Wikikracja v.{{ app_version }}</span></a>
     </div>
@@ -188,10 +198,11 @@
 
       <!-- Breadcrumb -->
       <div class="tw-topbar-breadcrumb">
-        <button class="tw-btn tw-btn-sm md:tw-hidden tw-me-2 tw-p-1" id="sidebar-toggle">
+        <button class="tw-btn tw-btn-sm md:tw-hidden tw-me-2 tw-p-1" id="sidebar-toggle"
+                aria-label="{% trans 'Open navigation' %}" title="{% trans 'Open navigation' %}">
           <i class="fas fa-bars"></i>
         </button>
-        <a href="{% url 'home' %}" class="tw-topbar-logo">
+        <a href="{% url 'home' %}" class="tw-topbar-logo tw-flex tw-items-center tw-flex-nowrap" aria-label="{% trans 'Home' %}" title="{% trans 'Home' %}">
           {% include 'home/_brand_mark.html' %}
           <span class="tw-logo-label tw-ms-1">{{ site_name }}</span>
         </a>
@@ -251,15 +262,16 @@
     {% endif %}
 
     {% if not user.is_authenticated %}
+    {% get_current_language as CURRENT_LANG %}
     <!-- Minimal top bar for unauthenticated users -->
-    <nav class="tw-topbar">
+    <nav class="tw-topbar tw-anon-topbar">
       <div class="tw-topbar-breadcrumb">
-        <a href="{% url 'home' %}" class="tw-text-accent tw-font-bold tw-text-base">
-          <i class="fas fa-building-columns tw-me-1"></i>{{ site_name }}
+        <a href="{% url 'home' %}" class="tw-text-accent tw-font-bold tw-flex tw-items-center tw-flex-nowrap" aria-label="{% trans 'Home' %}" title="{% trans 'Home' %}">
+          {% include 'home/_brand_mark.html' %}<span class="tw-anon-site-name tw-ms-1">{{ site_name }}</span>
         </a>
       </div>
       <div class="tw-anon-nav">
-        <a href="{% url 'board:start' %}"
+        <a href="{% url 'board:public_start' %}"
            class="tw-anon-nav-link {% if request.resolver_match.namespace == 'board' %}tw-active{% endif %}">
           <i class="fas fa-bullhorn"></i><span class="tw-anon-nav-text">{% trans "Announcements" %}</span>
         </a>
@@ -268,18 +280,26 @@
           <i class="fas fa-calendar-days"></i><span class="tw-anon-nav-text">{% trans "Calendar" %}</span>
         </a>
       </div>
-      <a href="{% url 'login' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary tw-me-1"><i class="fas fa-right-to-bracket fa-fw"></i> {% trans "Login" %}</a>
-      {% if group_is_public %}<a href="{% url 'account_signup' %}" class="tw-btn-cta tw-btn-cta--round tw-me-1" title="{% trans 'Register' %}"><i class="fas fa-user-plus"></i> <span class="tw-btn-cta-label">{% trans "Register" %}</span></a>{% endif %}
-      <a href="{% url 'chat:guest_message' %}"
-         title="{% trans 'Send a message to the group' %}"
-         class="tw-anon-nav-link tw-me-1 {% if request.resolver_match.url_name == 'guest_message' %}tw-active{% endif %}">
-        <i class="fas fa-envelope"></i><span class="tw-anon-nav-text">{% trans "Contact" %}</span>
-      </a>
-      {% include 'home/_language_switcher.html' %}
-      <button id="theme-toggle-btn" class="tw-notif-bell tw-icon-btn"
-              title="{% trans 'Toggle light / dark mode' %}">
-        <i id="theme-toggle-icon" class="fas fa-circle-half-stroke"></i>
-      </button>
+      <div class="tw-dropdown">
+        <button type="button" class="tw-btn tw-btn-sm tw-btn-secondary tw-icon-btn"
+                data-tw-toggle="dropdown" aria-expanded="false"
+                aria-label="{% trans 'Open menu' %}" title="{% trans 'Open menu' %}">
+          <i class="fas fa-bars"></i>
+        </button>
+        <ul class="tw-dropdown-menu tw-dropdown-menu-end">{% spaceless %}<li><a href="{% url 'login' %}" class="tw-dropdown-item tw-justify-end tw-text-end">{% trans "Login" %}<i class="fas fa-right-to-bracket fa-fw tw-ms-2"></i></a></li>
+          {% if group_is_public %}<li><a href="{% url 'account_signup' %}" class="tw-dropdown-item tw-justify-end tw-text-end">{% trans "Join" %}<i class="fas fa-user-plus fa-fw tw-ms-2"></i></a></li>{% endif %}
+          <li><a href="{% url 'chat:guest_message' %}" class="tw-dropdown-item tw-justify-end tw-text-end {% if request.resolver_match.url_name == 'guest_message' %}tw-active{% endif %}">{% trans "Contact" %}<i class="fas fa-envelope fa-fw tw-ms-2"></i></a></li>
+          <li class="tw-dropdown-divider"></li>
+          <li>
+            <form method="post" action="{% url 'obywatele:set_language' %}">
+              {% csrf_token %}
+              <input type="hidden" name="language" value="{% if CURRENT_LANG == 'pl' %}en{% else %}pl{% endif %}">
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button type="submit" class="tw-dropdown-item tw-justify-end tw-text-end">{% if CURRENT_LANG == 'pl' %}{% trans 'English' %}{% else %}{% trans 'Polish' %}{% endif %}<i class="fas fa-language fa-fw tw-ms-2"></i></button>
+            </form>
+          </li>
+          <li><button id="theme-toggle-btn" class="tw-dropdown-item tw-justify-end tw-text-end" type="button" title="{% trans 'Theme' %}">{% trans 'Theme' %}<i id="theme-toggle-icon" class="fas fa-circle-half-stroke fa-fw tw-ms-2"></i></button></li>{% endspaceless %}</ul>
+      </div>
     </nav>
     {% endif %}
 
@@ -354,13 +374,18 @@
     {% endif %}
 
     <!-- ==== CONTENT ==== -->
-    <main class="tw-main-content">
+    <main class="tw-main-content{% if not user.is_authenticated %} tw-pt-3{% endif %}">
       {% block content_fullscreen %}{% endblock content_fullscreen %}
       {% block content %}{% endblock content %}
     </main>
 
     {% if request.resolver_match.namespace != 'chat' %}
     <footer class="tw-px-4 tw-pb-2 tw-mt-auto tw-text-muted tw-text-sm">{{ footer.text|safe }}</footer>
+    {% if not user.is_authenticated and request.resolver_match.url_name == 'home' %}
+    <a href="https://wikikracja.pl/kontakt/" target="_blank" rel="noopener" class="tw-block tw-mt-2 tw-pb-2 tw-text-center tw-text-muted tw-text-xs tw-opacity-70" title="Made with ❤️ for democratic communities">
+      Made with ❤️ for democratic communities
+    </a>
+    {% endif %}
     {% endif %}
 
   </div>

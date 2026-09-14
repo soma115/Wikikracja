@@ -10,7 +10,7 @@ from .models import Post
 
 
 class PostForm(forms.ModelForm):
-    SYSTEM_LOCKED_FIELDS = ('category', 'visibility', 'is_important')
+    SYSTEM_LOCKED_FIELDS = ('title', 'category', 'visibility', 'is_important')
 
     text = forms.CharField(widget=TinyMCE(), label=_("Text"))
 
@@ -29,6 +29,8 @@ class PostForm(forms.ModelForm):
         self.helper.add_input(Submit('submit', _('Save')))
         self.fields['visibility'].required = False
         self.fields['visibility'].help_text = _('Who can see this document')
+        if self.instance and self.instance.pk and self.instance.system_key:
+            self.initial['title'] = self.instance.get_display_title()
         self.fields['is_important'].help_text = _('The Important chat room will be notified')
         if self.instance and self.instance.pk and self.instance.system_key:
             for field_name in self.SYSTEM_LOCKED_FIELDS:

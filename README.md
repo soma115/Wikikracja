@@ -119,3 +119,7 @@ Pre-commit hooks run `ruff` and `ruff-format` automatically before each commit.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+Made with ❤️ for democratic communities

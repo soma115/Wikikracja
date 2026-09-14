@@ -9,6 +9,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+}
+
 @layer components {
 
   /* -- Parity rules: old-class rules covered by tw-* twins lacked these
@@ -2848,8 +2855,8 @@
     flex-shrink: 0;
     transition: width .2s ease;
   }
-  .tw-sidebar-logo .tw-brand-mark {width: 30px;
-    height: 30px;
+  .tw-sidebar-logo .tw-brand-mark {width: 36px;
+    height: 36px;
     flex-shrink: 0;
   }
   .tw-sidebar-logo .tw-logo-label {overflow-wrap: anywhere;
@@ -2859,6 +2866,11 @@
     height: 1em;
     object-fit: contain;
     vertical-align: -.125em;
+  }
+  .tw-topbar-logo .tw-brand-mark,
+  .tw-anon-topbar .tw-brand-mark {width: 28px;
+    height: 28px;
+    flex-shrink: 0;
   }
   .tw-sidebar-nav .tw-nav-item {list-style: none;
   }
@@ -2930,6 +2942,32 @@
   }
   .tw-topbar .tw-topbar-breadcrumb a {color: var(--text-muted);
     text-decoration: none;
+  }
+  .tw-anon-site-name {display: inline-block;
+    max-width: 8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.1;
+    vertical-align: middle;
+  }
+  @media (max-width: 420px) {
+    .tw-anon-site-name {white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      overflow-wrap: break-word;
+    }
+  }
+  .tw-anon-topbar .tw-topbar-breadcrumb {font-size: .793rem;
+  }
+  .tw-anon-topbar .tw-anon-nav-link {font-size: .755rem;
+  }
+  .tw-anon-topbar.tw-topbar > .tw-btn {font-size: .525rem;
+  }
+  .tw-anon-topbar .tw-dropdown-item {font-size: .755rem;
+    white-space: nowrap;
+  }
+  .tw-anon-topbar .tw-dropdown-menu {min-width: 6.6rem;
   }
   .tw-topbar .tw-topbar-breadcrumb a:hover {color: var(--text-primary);
   }
@@ -3009,7 +3047,9 @@
   .tw-topbar {padding: 0 .75rem;
       gap: .35rem;
   }
-  .tw-anon-nav-text {display: none;
+  .tw-anon-nav-text {display: inline;
+  }
+  .tw-anon-topbar .tw-topbar-btn-label {display: inline;
   }
   .tw-anon-nav-link {padding: .25rem .35rem;
   }
@@ -3017,6 +3057,7 @@
       font-size: .92rem;
   }
   .tw-topbar .tw-btn-outline-secondary,
+  .tw-topbar .tw-btn-primary,
   .tw-topbar .tw-btn-cta {padding: .32rem .55rem;
       font-size: .75rem;
   }
@@ -3038,6 +3079,7 @@
   }
   .tw-main-area {margin-left: 0;
   }
+  .tw-topbar .tw-topbar-btn-label,
   .tw-topbar .tw-btn-cta-label {display: none;
   }
   .tw-topbar .tw-topbar-breadcrumb > .tw-sep {display: none;
@@ -3663,8 +3705,8 @@
     border-radius: 0.25rem;
     background: var(--input-bg);
     color: var(--text-primary);
-    appearance: none;
     -webkit-appearance: none;
+    appearance: none;
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
   }
@@ -3700,8 +3742,8 @@
     background: var(--input-border);
     position: relative;
     cursor: pointer;
-    appearance: none;
     -webkit-appearance: none;
+    appearance: none;
     transition: background 0.15s;
     border: none;
   }
@@ -3924,6 +3966,12 @@
   .tw-section {
     margin-top: 1rem;
     margin-bottom: 1rem;
+  }
+  .tw-section > .tw-post-content > h1:first-child {
+    margin-top: 0.44rem;
+  }
+  main.tw-main-content.tw-pt-3 {
+    padding-top: 0.54rem;
   }
   .tw-section-heading {
     font-size: 0.9rem;

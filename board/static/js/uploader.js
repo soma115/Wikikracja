@@ -15,11 +15,26 @@ tinymce.init({
 
   image_title: false,
   image_caption: false,
-  automatic_uploads: false,
+  automatic_uploads: true,
   image_advtab: false,
   file_picker_types: "image media",
 
-  images_upload_url: 'uploads/',
+  images_upload_handler: function(blobInfo, progress) {
+    var formData = new FormData();
+    formData.append('images', blobInfo.blob(), blobInfo.filename());
+    return window.apiFetch('/chat/upload/', {
+      method: 'POST',
+      body: formData
+    }).then(function(response) {
+      return response.json().then(function(data) {
+        if (!response.ok || !data.filenames || !data.filenames[0]) {
+          throw new Error(data.error || 'Image upload failed');
+        }
+        progress(100);
+        return '/media/uploads/' + encodeURIComponent(data.filenames[0]);
+      });
+    });
+  },
 
   plugins: "advlist anchor autolink autosave codesample fullscreen image importcss link lists media nonbreaking searchreplace table code",
 

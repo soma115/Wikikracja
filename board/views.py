@@ -346,6 +346,30 @@ class PostUpdateView(PostFormViewMixin, UpdateView):
         return super().get_queryset().filter(Post.editable_filter_for_user(self.request.user))
 
 
+def _public_post_queryset():
+    """Return only regular public posts intended for the external blog."""
+    return Post.objects.filter(visibility=Post.Visibility.PUBLIC, system_key__isnull=True).select_related('category', 'author').order_by('-updated', '-pk')
+
+
+def public_board(request: HttpRequest) -> HttpResponse:
+    posts = list(_public_post_queryset())
+    for post in posts:
+        post.public_detail_url = reverse('board:public_view_post', kwargs={'pk': post.pk})
+        if post.slug:
+            post.public_detail_url = reverse('board:public_view_post_by_slug', kwargs={'slug': post.slug})
+    return render(request, 'board/public_board.html', {'posts': posts})
+
+
+def public_view_post(request: HttpRequest, pk: int):
+    post = get_object_or_404(_public_post_queryset(), pk=pk)
+    return render(request, 'board/public_post_detail.html', {'post': post})
+
+
+def public_view_post_by_slug(request: HttpRequest, slug: str):
+    post = get_object_or_404(_public_post_queryset(), slug=slug)
+    return render(request, 'board/public_post_detail.html', {'post': post})
+
+
 def _post_queryset_for_user(user, *, include_archive=False):
     """Return posts visible to the given user."""
     queryset = Post.objects.select_related('author', 'updated_by', 'category')

@@ -40,7 +40,8 @@ class ParametersProposalForm(forms.Form):
     brand_mark = forms.ImageField(
         required=False,
         label=_('New logo (optional)'),
-        help_text=_('PNG/JPEG/WebP/GIF, max 5 MB, any longest side 64-4096 px. Automatically resized to 1024×1024 px PNG and applied as the site logo if the referendum is approved.'),
+        help_text=_('PNG only, max 5 MB, any longest side 64-4096 px. Use a transparent background. Automatically resized to 1024×1024 px PNG and applied as the site logo if the referendum is approved.'),
+        widget=forms.ClearableFileInput(attrs={'accept': 'image/png'}),
         validators=[validate_branding_image_size, validate_brand_mark_dimensions, validate_brand_mark_format],
     )
 
@@ -94,6 +95,8 @@ class ParametersProposalForm(forms.Form):
         file = self.cleaned_data.get('brand_mark')
         if not file:
             return file
+        if not file.name.lower().endswith('.png') or (getattr(file, 'image', None) and file.image.format != 'PNG'):
+            raise forms.ValidationError(_('The logo must be a PNG file with a transparent background.'), code='branding_png_required')
         from site_settings.services import normalize_brand_mark
 
         return normalize_brand_mark(file)

@@ -7,7 +7,7 @@
 {% block content %}
 {% if request.user.is_authenticated %}{% include 'home/includes/stepper.html' with stepper=stepper %}{% endif %}
 <div class="tw-container tw-my-4">
-{% include 'home/includes/detail_header.html' with title=post.title navigation_include='home/includes/detail_navigation.html' actions_include='board/_post_detail_actions.html' meta_include='board/_post_detail_meta.html' %}
+{% include 'home/includes/detail_header.html' with title=post.get_display_title navigation_include='home/includes/detail_navigation.html' actions_include='board/_post_detail_actions.html' meta_include='board/_post_detail_meta.html' %}
 
 <div class="tw-card tw-mb-4">
   <div class="tw-card-body">
@@ -26,7 +26,7 @@
         <i class="fas fa-image fa-fw"></i> {% trans 'Featured Image' %}
       </div>
       <div class="tw-post-featured-image">
-        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+        <img src="{{ post.featured_image.url }}" alt="{{ post.get_display_title }}>
       </div>
     </div>
     {% endif %}

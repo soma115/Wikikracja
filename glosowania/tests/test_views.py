@@ -1,5 +1,6 @@
 """Tests for glosowania views."""
 
+import io
 from datetime import date, timedelta
 from unittest.mock import call, patch
 
@@ -7,16 +8,48 @@ import pytest
 import redis
 from django import forms
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import OperationalError
 from django.test import Client
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from PIL import Image
 
 from glosowania.forms import ParametersProposalForm
 from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 from site_settings.models import SiteParameters
 
 User = get_user_model()
+
+
+def _image_upload(name, image_format):
+    output = io.BytesIO()
+    mode = 'RGB' if image_format == 'JPEG' else 'RGBA'
+    Image.new(mode, (64, 64), (0, 0, 0) if mode == 'RGB' else (0, 0, 0, 0)).save(output, format=image_format)
+    return SimpleUploadedFile(name, output.getvalue(), content_type=f'image/{image_format.lower()}')
+
+
+@pytest.mark.django_db
+def test_parameters_proposal_accepts_only_png_logo():
+    form = ParametersProposalForm()
+    assert form.fields['brand_mark'].widget.attrs['accept'] == 'image/png'
+    assert 'transparent background' in str(form.fields['brand_mark'].help_text)
+
+    jpeg = form.fields['brand_mark'].clean(_image_upload('logo.jpg', 'JPEG'))
+    form.cleaned_data = {'brand_mark': jpeg}
+    with pytest.raises(forms.ValidationError, match='PNG'):
+        form.clean_brand_mark()
+
+
+@pytest.mark.django_db
+def test_parameters_proposal_accepts_png_logo():
+    form = ParametersProposalForm()
+    png = form.fields['brand_mark'].clean(_image_upload('logo.png', 'PNG'))
+    form.cleaned_data = {'brand_mark': png}
+
+    normalized = form.clean_brand_mark()
+
+    assert normalized.name == 'brand_mark.png'
 
 
 @pytest.mark.django_db

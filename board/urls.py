@@ -6,6 +6,9 @@ app_name = 'board'
 
 urlpatterns = [
     path('', views.board, name='start'),
+    path('public/', views.public_board, name='public_start'),
+    path('public/view/<int:pk>/', views.public_view_post, name='public_view_post'),
+    path('public/<slug:slug>/', views.public_view_post_by_slug, name='public_view_post_by_slug'),
     path('create/', views.PostCreateView.as_view(), name='create_post'),
     path('edit/<int:pk>/', views.PostUpdateView.as_view(), name='edit_post'),
     path('view/<int:pk>/', views.view_post, name='view_post'),
