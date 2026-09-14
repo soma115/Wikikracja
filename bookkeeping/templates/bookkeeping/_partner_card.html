@@ -1,16 +1,16 @@
 {% load i18n %}
 
-<div class="tw-proposal-card">
-  <div class="tw-proposal-card-header"
+<div class="tw-content-card">
+  <div class="tw-content-card-header"
        data-detail-url="{% url 'bookkeeping:partner_detail' partner.pk %}"
        role="link"
        tabindex="0">
-    <div class="tw-proposal-card-title-row">
+    <div class="tw-content-card-title-row">
       <span class="tw-proposal-card-num">#{{ partner.pk }}</span>
-      <span class="tw-proposal-card-title">{{ partner.name }}</span>
+      <span class="tw-content-card-title">{{ partner.name }}</span>
     </div>
 
-    <div class="tw-proposal-card-meta tw-flex-nowrap">
+    <div class="tw-content-card-meta tw-flex-nowrap">
       <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
         {% if partner.city %}<span class="tw-whitespace-nowrap"><i class="fas fa-globe fa-fw"></i> {{ partner.city }}</span>{% endif %}
         {% if partner.web_page %}<span class="tw-whitespace-nowrap"><i class="fas fa-link fa-fw"></i> {% trans 'Website' %}</span>{% endif %}
@@ -23,7 +23,7 @@
   </div>
 
   {% if partner.notes or partner.web_page %}
-    <div class="tw-proposal-card-body" data-view-only="grid"
+    <div class="tw-content-card-body" data-view-only="grid"
          data-detail-url="{% url 'bookkeeping:partner_detail' partner.pk %}"
          role="link"
          tabindex="0">

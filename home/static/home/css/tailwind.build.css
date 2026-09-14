@@ -1149,21 +1149,19 @@ small,
   }
 }
 
-.tw-proposals-list.tw-view-compact .tw-proposal-card,
-  .tw-proposals-list.tw-view-compact .tw-task-card {
+.tw-proposals-list.tw-view-compact .tw-content-card {
   border-radius: var(--radius-sm, .35rem);
 }
 
-.tw-proposals-list.tw-view-compact .tw-proposal-card-header,
-  .tw-proposals-list.tw-view-compact .tw-task-card-header {
+.tw-proposals-list.tw-view-compact .tw-content-card-header {
   padding: .55rem .75rem .45rem;
 }
 
-.tw-proposals-list.tw-view-compact .tw-proposal-card-body {
+.tw-proposals-list.tw-view-compact .tw-content-card-body {
   padding: .45rem .75rem .55rem;
 }
 
-.tw-proposals-list.tw-view-compact .tw-task-card-header {
+.tw-proposals-list.tw-view-compact .tw-content-card-header {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
@@ -1171,13 +1169,13 @@ small,
   gap: .5rem;
 }
 
-.tw-proposals-list.tw-view-compact .tw-task-card-title-row {
+.tw-proposals-list.tw-view-compact .tw-content-card-title-row {
   flex: 0 1 auto;
   min-width: 0;
   margin-bottom: 0;
 }
 
-.tw-proposals-list.tw-view-compact .tw-task-card-title {
+.tw-proposals-list.tw-view-compact .tw-content-card-title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1187,25 +1185,25 @@ small,
   display: none;
 }
 
-.tw-proposals-list.tw-view-compact .tw-task-card-meta {
+.tw-proposals-list.tw-view-compact .tw-content-card-meta {
   flex: 0 1 auto;
   min-width: 0;
   margin-left: auto;
   gap: .4rem;
 }
 
-.tw-proposals-list.tw-view-compact .tw-task-card-body {
+.tw-proposals-list.tw-view-compact .tw-content-card-body {
   display: none;
 }
 
-.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-header {
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-content-card-header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: .25rem .5rem;
 }
 
-.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-title-row {
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-content-card-title-row {
   display: inline-flex;
   flex: 1 1 auto;
   min-width: 0;
@@ -1213,7 +1211,7 @@ small,
   gap: .35rem;
 }
 
-.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-title {
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-content-card-title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1225,7 +1223,7 @@ small,
   margin-bottom: .15rem;
 }
 
-.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-meta {
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-content-card-meta {
   display: inline-flex;
   flex: 0 1 auto;
   min-width: 0;
@@ -1236,14 +1234,14 @@ small,
   display: none;
 }
 
-.tw-proposals-list:not(.tw-view-grid) .tw-proposal-card-header {
+.tw-proposals-list:not(.tw-view-grid) .tw-content-card-header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: .25rem .5rem;
 }
 
-.tw-proposals-list:not(.tw-view-grid) .tw-proposal-card-title-row {
+.tw-proposals-list:not(.tw-view-grid) .tw-content-card-title-row {
   display: inline-flex;
   flex: 1 1 auto;
   min-width: 0;
@@ -1251,7 +1249,7 @@ small,
   gap: .35rem;
 }
 
-.tw-proposals-list:not(.tw-view-grid) .tw-proposal-card-title {
+.tw-proposals-list:not(.tw-view-grid) .tw-content-card-title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1263,14 +1261,14 @@ small,
   margin-bottom: .15rem;
 }
 
-.tw-proposals-list:not(.tw-view-grid) .tw-proposal-card-meta {
+.tw-proposals-list:not(.tw-view-grid) .tw-content-card-meta {
   display: inline-flex;
   flex: 0 1 auto;
   min-width: 0;
   margin-left: auto;
 }
 
-.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-body {
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-content-card-body {
   display: none;
 }
 
@@ -1279,28 +1277,24 @@ small,
   display: none;
 }
 
-.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-header,
-  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-header {
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-content-card-header {
   display: grid;
   grid-template-rows: minmax(1.35em, auto) minmax(1.35em, auto);
   row-gap: .65rem;
 }
 
-.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-title-row,
-  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-title-row {
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-content-card-title-row {
   flex-wrap: nowrap;
   align-items: center;
 }
 
-.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-title,
-  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-title {
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-content-card-title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-meta,
-  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-meta {
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-content-card-meta {
   width: 100%;
   flex-wrap: nowrap;
   justify-content: flex-start;
@@ -1308,20 +1302,18 @@ small,
   overflow: hidden;
 }
 
-.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-meta > :first-child,
-  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-meta > :first-child {
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-content-card-meta > :first-child {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
 }
 
-.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-proposal-card-meta > :last-child,
-  .tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-meta > :last-child {
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-content-card-meta > :last-child {
   flex: 0 0 auto;
   margin-left: auto;
 }
 
-.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-task-card-body {
+.tw-proposals-list:not(.tw-view-grid):not(.tw-view-compact) .tw-content-card-body {
   display: none;
 }
 
@@ -1329,16 +1321,14 @@ small,
   display: none;
 }
 
-.tw-proposals-list:not(.tw-view-grid) .tw-user-row .tw-proposal-card-header {
+.tw-proposals-list:not(.tw-view-grid) .tw-user-row .tw-content-card-header {
   display: flex;
   align-items: center;
   gap: .5rem;
   padding: .55rem .75rem .45rem;
 }
 
-.tw-proposal-card,
-  .tw-task-card,
-  .tw-event-card {
+.tw-content-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
@@ -1347,9 +1337,7 @@ small,
   position: relative;
 }
 
-.tw-proposal-card:hover,
-  .tw-task-card:hover,
-  .tw-event-card:hover {
+.tw-content-card:hover {
   border-color: var(--accent);
   box-shadow:
       0 0 0 1px var(--accent-border),
@@ -1358,9 +1346,7 @@ small,
       0 6px 24px rgba(0, 0, 0, .4);
 }
 
-.tw-proposal-card-header,
-  .tw-task-card-header,
-  .tw-event-card-header {
+.tw-content-card-header {
   position: relative;
   padding: .9rem 1.1rem .75rem;
   cursor: pointer;
@@ -1369,16 +1355,12 @@ small,
        user-select: none;
 }
 
-.tw-proposal-card-header:focus-visible,
-  .tw-task-card-header:focus-visible,
-  .tw-event-card-header:focus-visible {
+.tw-content-card-header:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: -2px;
 }
 
-.tw-proposal-card-title-row,
-  .tw-task-card-title-row,
-  .tw-event-card-title-row {
+.tw-content-card-title-row {
   display: flex;
   align-items: flex-start;
   gap: .5rem;
@@ -1394,9 +1376,7 @@ small,
   padding-top: 2px;
 }
 
-.tw-proposal-card-title,
-  .tw-task-card-title,
-  .tw-event-card-title {
+.tw-content-card-title {
   font-size: .95rem;
   font-weight: 600;
   color: var(--text-primary);
@@ -1405,19 +1385,13 @@ small,
   line-height: 1.35;
 }
 
-.tw-proposal-card-meta,
-  .tw-task-card-meta {
+.tw-content-card-meta {
   display: flex;
   align-items: center;
   gap: .45rem;
   font-size: .75rem;
   color: var(--text-muted);
   flex-wrap: wrap;
-}
-
-.tw-task-card-meta {
-  flex-wrap: nowrap;
-  white-space: nowrap;
 }
 
 .tw-proposal-author-link,
@@ -1577,9 +1551,9 @@ small,
   font-style: italic;
 }
 
-.tw-proposal-card-body,
-  .tw-task-card-body,
-  .tw-event-card-body {
+.tw-content-card-body,
+  .tw-content-card-body,
+  .tw-content-card-body {
   border-top: 1px solid var(--border);
   padding: 1.1rem 1.1rem 1.1rem 1rem;
   display: flex;
@@ -2481,7 +2455,7 @@ small,
   flex-wrap: wrap;
 }
 
-.tw-task-card .tw-task-vote-btn {
+.tw-content-card[data-card-type="task"] .tw-task-vote-btn {
   display: inline-flex;
   align-items: center;
   gap: .3rem;
@@ -2494,17 +2468,17 @@ small,
   transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
 }
 
-.tw-task-card .tw-task-vote-btn--up {
+.tw-content-card[data-card-type="task"] .tw-task-vote-btn--up {
   color: var(--badge-approved-color);
 }
 
 .tw-task-vote-btn--up.tw-active,
-  .tw-task-card .tw-task-vote-btn--up:hover {
+  .tw-content-card[data-card-type="task"] .tw-task-vote-btn--up:hover {
   background: var(--badge-approved-bg);
   border-color: var(--badge-approved-border);
 }
 
-.tw-task-card .tw-task-vote-btn--down {
+.tw-content-card[data-card-type="task"] .tw-task-vote-btn--down {
   color: var(--text-muted);
 }
 
@@ -3243,14 +3217,14 @@ small,
   font-variant-numeric: tabular-nums;
 }
 
-.tw-event-card-title-row {
+.tw-content-card-title-row {
   display: flex;
   align-items: flex-start;
   gap: .5rem;
   margin-bottom: .35rem;
 }
 
-.tw-event-card-meta {
+.tw-content-card-meta {
   display: flex;
   align-items: center;
   gap: .55rem;
@@ -5143,11 +5117,11 @@ a:hover {
   color: var(--text-primary);
 }
 
-[data-theme="light"] .tw-proposal-card-header:hover {
+[data-theme="light"] .tw-content-card-header:hover {
   background: rgba(0, 0, 0, .025);
 }
 
-[data-theme="light"] .tw-proposal-card-body:hover {
+[data-theme="light"] .tw-content-card-body:hover {
   background: var(--accent-muted);
 }
 
@@ -7198,6 +7172,18 @@ input.tw-form-switch:focus,
 
   .tw-toolbar-group-view {
     order: 2;
+  }
+
+  .tw-toolbar .tw-sort-btn--off .tw-sort-btn-label,
+    .tw-toolbar .tw-view-toggle-btn:not(.tw-active) .tw-view-label {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .tw-toolbar .tw-sort-btn-label,
+    .tw-toolbar .tw-view-label {
+    display: none;
   }
 }
 

@@ -7,17 +7,17 @@
     i          — obiekt Decyzja
 {% endcomment %}
 
-<div class="tw-proposal-card" data-status="{{ i.status }}">
+<div class="tw-content-card" data-status="{{ i.status }}">
 
   {# ── NAGŁÓWEK (klikalny → szczegóły, poza linkami dzieci) ── #}
-  <div class="tw-proposal-card-header" data-detail-url="{% url 'glosowania:details' pk=i.pk %}" role="link" tabindex="0">
+  <div class="tw-content-card-header" data-detail-url="{% url 'glosowania:details' pk=i.pk %}" role="link" tabindex="0">
 
-    <div class="tw-proposal-card-title-row">
+    <div class="tw-content-card-title-row">
       <span class="tw-proposal-card-num">#{{ i.pk }}</span>
-      <span class="tw-proposal-card-title">{{ i.display_title }}</span>
+      <span class="tw-content-card-title">{{ i.display_title }}</span>
     </div>
 
-    <div class="tw-proposal-card-meta tw-flex-nowrap">
+    <div class="tw-content-card-meta tw-flex-nowrap">
       <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
         {% if i.author %}
         <a href="{% url 'obywatele:obywatele_szczegoly' pk=i.author.pk %}"
@@ -71,10 +71,10 @@
       </div>
     </div>
 
-  </div>{# /.tw-proposal-card-header #}
+  </div>{# /.tw-content-card-header #}
 
   {# ── CIAŁO — klikalne → szczegóły ── #}
-  <div class="tw-proposal-card-body" data-detail-url="{% url 'glosowania:details' pk=i.pk %}" role="link" tabindex="0">
+  <div class="tw-content-card-body" data-detail-url="{% url 'glosowania:details' pk=i.pk %}" role="link" tabindex="0">
 
     {% if i.tresc %}
     <div class="tw-proposal-section--law">
@@ -104,6 +104,6 @@
     {% endif %}
 
 
-  </div>{# /.tw-proposal-card-body #}
+  </div>{# /.tw-content-card-body #}
 
-</div>{# /.tw-proposal-card #}
+</div>{# /.tw-content-card #}

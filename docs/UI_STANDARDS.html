@@ -261,13 +261,13 @@
     <div class="section">
       <div class="component-label">List view — compact cards</div>
       <div class="tw-proposals-list">
-        <div class="tw-proposal-card">
-          <div class="tw-proposal-card-header" data-detail-url="#" role="link" tabindex="0">
-            <div class="tw-proposal-card-title-row">
+        <div class="tw-content-card">
+          <div class="tw-content-card-header" data-detail-url="#" role="link" tabindex="0">
+            <div class="tw-content-card-title-row">
               <span class="tw-proposal-card-num">#1</span>
-              <span class="tw-proposal-card-title">Example item title</span>
+              <span class="tw-content-card-title">Example item title</span>
             </div>
-            <div class="tw-proposal-card-meta tw-flex-nowrap">
+            <div class="tw-content-card-meta tw-flex-nowrap">
               <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
                 <span class="tw-proposal-author-name tw-flex tw-items-center tw-gap-1 tw-truncate"><i class="fas fa-user fa-fw tw-proposal-role-icon"></i> author</span>
                 <span class="tw-proposal-meta-sep">·</span>
@@ -282,13 +282,13 @@
             </div>
           </div>
         </div>
-        <div class="tw-proposal-card">
-          <div class="tw-proposal-card-header" data-detail-url="#" role="link" tabindex="0">
-            <div class="tw-proposal-card-title-row">
+        <div class="tw-content-card">
+          <div class="tw-content-card-header" data-detail-url="#" role="link" tabindex="0">
+            <div class="tw-content-card-title-row">
               <span class="tw-proposal-card-num">#2</span>
-              <span class="tw-proposal-card-title">Item with fewer metadata</span>
+              <span class="tw-content-card-title">Item with fewer metadata</span>
             </div>
-            <div class="tw-proposal-card-meta tw-flex-nowrap">
+            <div class="tw-content-card-meta tw-flex-nowrap">
               <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
                 <span class="tw-proposal-author-name tw-flex tw-items-center tw-gap-1 tw-truncate"><i class="fas fa-user fa-fw tw-proposal-role-icon"></i> author</span>
               </div>
@@ -348,7 +348,7 @@
         <li>Etykiety dokumentu <code>Public</code>, <code>Mine</code>, <code>Important</code> i <code>System</code> pokazujemy, gdy odpowiadają stanowi dokumentu; znajdują się w prawej grupie metadanych razem z czatem.</li>
         <li>W siatce dokumentów pokazujemy osobno datę utworzenia i datę aktualizacji; każda data ma ikonę kalendarza oraz avatar odpowiednio autora utworzenia i osoby aktualizującej.</li>
         <li>Jeżeli item pokazuje guzik lub link czatu, musi on pokazywać przez wspólny <code>.tw-chat-count</code> liczbę wiadomości z tego pokoju bez rekordu <code>MessageReadBy</code> dla bieżącego użytkownika. Ta sama reguła obowiązuje przy obywatelu i na liście pokoi; nie pokazujemy całkowitej liczby wiadomości ani liczby nieprzeczytanych pokoi.</li>
-        <li>Dla konkretnych domen używaj dziedziczonych klas: <code>.tw-board-post-card</code>, <code>.tw-proposal-card</code> / <code>.tw-task-card</code> / <code>.tw-event-card</code>.</li>
+        <li>Struktura kart używa wspólnych klas <code>.tw-content-card</code>, <code>.tw-content-card-header</code>, <code>.tw-content-card-title-row</code>, <code>.tw-content-card-title</code>, <code>.tw-content-card-meta</code> i <code>.tw-content-card-body</code>. Klasy domenowe pozostają tylko dla unikalnych danych i akcji.</li>
       </ul>
     </div>
 

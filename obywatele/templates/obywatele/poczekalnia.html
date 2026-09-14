@@ -25,14 +25,14 @@
     {# ── List view ── #}
     <div id="citizens-list-view" data-view-only="list" class="tw-proposals-list">
       {% for i in uid|dictsortreversed:"date_joined" %}
-      <div class="tw-proposal-card tw-user-row" data-user-id="{{ i.pk }}" data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
-        <div class="tw-proposal-card-header" data-detail-url="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}" role="link" tabindex="0">
-          <div class="tw-proposal-card-title-row">
+      <div class="tw-content-card tw-user-row" data-user-id="{{ i.pk }}" data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }} {{ i.email }}">
+        <div class="tw-content-card-header" data-detail-url="{% url 'obywatele:poczekalnia_szczegoly' pk=i.pk %}" role="link" tabindex="0">
+          <div class="tw-content-card-title-row">
             {% include "home/_user_avatar.html" with user=i size="sm" %}
-            <span class="tw-proposal-card-title">{% if i.first_name or i.last_name %}{{ i.first_name }} {{ i.last_name }}{% else %}{{ i|display_name }}{% endif %}</span>
+            <span class="tw-content-card-title">{% if i.first_name or i.last_name %}{{ i.first_name }} {{ i.last_name }}{% else %}{{ i|display_name }}{% endif %}</span>
             {% if i.rating == 1 %}<span class="tw-badge-status tw-badge-approved" title="{% trans 'You accepted this candidate' %}"><i class="fas fa-check"></i></span>{% elif i.rating == -1 %}<span class="tw-badge-status tw-badge-rejected" title="{% trans 'You rejected this candidate' %}"><i class="fas fa-times"></i></span>{% else %}<span class="tw-badge-status tw-badge-secondary" title="{% trans 'You are neutral about this candidate' %}"><i class="fas fa-circle"></i></span>{% endif %}
           </div>
-          <div class="tw-proposal-card-meta">
+          <div class="tw-content-card-meta">
             <span><i class="fas fa-star fa-fw"></i> {{ i.ratings_positive }}/{{ i.ratings_neutral }}/{{ i.ratings_negative }}</span>
             <span class="tw-proposal-meta-sep">·</span>
             <span><i class="fas fa-calendar fa-fw"></i> {{ i.date_joined|date:"Y-m-d" }}</span>

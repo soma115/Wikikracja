@@ -1,16 +1,16 @@
 {% load i18n %}
 
-<div class="tw-proposal-card">
-  <div class="tw-proposal-card-header"
+<div class="tw-content-card">
+  <div class="tw-content-card-header"
        data-detail-url="{% url 'bookkeeping:asset_detail' asset.pk %}"
        role="link"
        tabindex="0">
-    <div class="tw-proposal-card-title-row">
+    <div class="tw-content-card-title-row">
       <span class="tw-proposal-card-num">#{{ asset.pk }}</span>
-      <span class="tw-proposal-card-title">{{ asset.name }}</span>
+      <span class="tw-content-card-title">{{ asset.name }}</span>
     </div>
 
-    <div class="tw-proposal-card-meta tw-flex-nowrap">
+    <div class="tw-content-card-meta tw-flex-nowrap">
       <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
         <span class="tw-whitespace-nowrap"><i class="fas fa-coins fa-fw"></i> {{ asset.code }} · {{ asset.symbol }}</span>
         <span class="tw-proposal-meta-sep">·</span>
@@ -23,7 +23,7 @@
     </div>
   </div>
 
-  <div class="tw-proposal-card-body" data-view-only="grid">
+  <div class="tw-content-card-body" data-view-only="grid">
     <div class="tw-proposal-section--law">
       <div class="tw-proposal-section-label"><i class="fas fa-coins fa-fw"></i> {% trans 'Asset' %}</div>
       <div class="tw-proposal-section-text">{{ asset.code }} ({{ asset.symbol }}) · {% trans 'Decimal places' %}: {{ asset.decimal_places }}</div>

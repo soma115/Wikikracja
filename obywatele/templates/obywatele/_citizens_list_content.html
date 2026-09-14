@@ -4,13 +4,13 @@
     {# ── List view ── #}
     <div id="citizens-list-view" data-view-only="list" class="tw-proposals-list">
       {% for i in uid %}
-      <div class="tw-proposal-card tw-user-row" data-user-id="{{ i.pk }}" data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
-        <div class="tw-proposal-card-header"
+      <div class="tw-content-card tw-user-row" data-user-id="{{ i.pk }}" data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
+        <div class="tw-content-card-header"
              data-detail-url="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}{% if sort_param %}?{{ sort_param }}{% endif %}"
              role="link" tabindex="0">
-          <div class="tw-proposal-card-title-row tw-w-full tw-min-w-0">
+          <div class="tw-content-card-title-row tw-w-full tw-min-w-0">
             {% include "home/_user_avatar.html" with user=i size="sm" %}
-            <span class="tw-proposal-card-title">{% if i.first_name or i.last_name %}{{ i.first_name }} {{ i.last_name }}{% else %}{{ i|display_name }}{% endif %}</span>
+            <span class="tw-content-card-title">{% if i.first_name or i.last_name %}{{ i.first_name }} {{ i.last_name }}{% else %}{{ i|display_name }}{% endif %}</span>
             <div class="tw-flex tw-items-center tw-gap-2 tw-ms-auto tw-shrink-0">
               {% if i.email %}<a href="mailto:{{ i.email }}" class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-info" data-tw-stop-propagation title="{{ i.email }}"><i class="fas fa-envelope"></i></a>{% else %}<span class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-outline-secondary" data-tw-stop-propagation aria-disabled="true" title="{% trans 'No email' %}"><i class="fas fa-envelope"></i></span>{% endif %}
               {% if i.uzytkownik.contact_url %}<a href="{{ i.uzytkownik.contact_url }}" class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-contact" data-contact-method="{{ i.uzytkownik.effective_contact_method }}" data-tw-stop-propagation target="_blank" rel="noopener" title="{{ i.uzytkownik.get_effective_contact_method_display|default:'Contact' }}"><i class="{{ i.uzytkownik.contact_icon }}"></i></a>{% else %}<span class="tw-btn tw-w-8 tw-h-8 tw-p-0 tw-aspect-square tw-flex-none tw-btn-outline-secondary" data-tw-stop-propagation aria-disabled="true" title="{% trans 'No contact method' %}"><i class="fas fa-phone"></i></span>{% endif %}

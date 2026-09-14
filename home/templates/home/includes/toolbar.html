@@ -4,7 +4,7 @@
   <div class="tw-toolbar-group tw-toolbar-group-filters" data-responsive-toolbar-group>
     <div class="tw-toolbar-sort"{% if sort_items %} data-responsive-controls{% endif %}>
       {% for item in sort_items %}
-      <a href="{{ item.url }}" class="tw-sort-btn{% if item.active %} tw-active{% else %} tw-sort-btn--off{% endif %}" data-sort-state="{{ item.state|default:'none' }}" aria-pressed="{% if item.active %}true{% else %}false{% endif %}"{% if item.title %} title="{{ item.title }}"{% endif %}>
+      <a href="{{ item.url }}" class="tw-sort-btn{% if item.active %} tw-active{% else %} tw-sort-btn--off{% endif %}" data-sort-state="{{ item.state|default:'none' }}" aria-pressed="{% if item.active %}true{% else %}false{% endif %}" aria-label="{{ item.label }}"{% if item.title %} title="{{ item.title }}"{% endif %}>
         {% if item.pre_icon %}<i class="fas fa-{{ item.pre_icon }} fa-fw tw-me-1"></i>{% else %}<i class="fas fa-sort fa-fw tw-me-1"></i>{% endif %}
         <span class="tw-sort-btn-label">{{ item.label }}</span>
         <i class="fas {% if item.icon %}fa-arrow-{{ item.icon }}{% else %}fa-sort{% endif %} tw-sort-arrow{% if not item.icon %} tw-sort-arrow--off{% endif %}"></i>
@@ -40,7 +40,7 @@
       {% if cta_label %}<span class="tw-btn-cta-label">{{ cta_label }}</span>{% endif %}
     </a>
     {% elif cta_button and not cta_end %}
-    <button type="button" class="tw-sort-btn {{ cta_button_class|default:'' }}" id="{{ cta_button }}">
+    <button type="button" class="tw-sort-btn {{ cta_button_class|default:'' }}" id="{{ cta_button }}"{% if cta_label %} title="{{ cta_label }}" aria-label="{{ cta_label }}"{% endif %}>
       <i class="fas fa-{{ cta_icon|default:'plus' }}"></i>
       <span class="tw-sort-btn-label">{{ cta_label }}</span>
     </button>
@@ -70,7 +70,7 @@
       {% if cta_label %}<span class="tw-btn-cta-label">{{ cta_label }}</span>{% endif %}
     </a>
     {% elif cta_button and cta_end %}
-    <button type="button" class="tw-sort-btn{% if not views %} tw-ms-auto{% endif %} {{ cta_button_class|default:'' }}">
+    <button type="button" class="tw-sort-btn{% if not views %} tw-ms-auto{% endif %} {{ cta_button_class|default:'' }}"{% if cta_label %} title="{{ cta_label }}" aria-label="{{ cta_label }}"{% endif %}>
       <i class="fas fa-{{ cta_icon|default:'plus' }}"></i>
       <span class="tw-sort-btn-label">{{ cta_label }}</span>
     </button>

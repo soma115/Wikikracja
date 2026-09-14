@@ -6,17 +6,17 @@
   Oczekiwana zmienna: task — obiekt Task (z with_metrics + chat_msg_count + chat_unread_count)
 {% endcomment %}
 
-<div class="tw-task-card" data-category="{{ task.category.slug }}">
+<div class="tw-content-card" data-card-type="task" data-category="{{ task.category.slug }}">
 
   {# ── NAGŁÓWEK (klikalny → szczegóły) ── #}
-  <div class="tw-task-card-header" data-detail-url="{% url 'tasks:detail' pk=task.pk %}" role="link" tabindex="0">
+  <div class="tw-content-card-header" data-detail-url="{% url 'tasks:detail' pk=task.pk %}" role="link" tabindex="0">
 
-    <div class="tw-task-card-title-row">
+    <div class="tw-content-card-title-row">
       <span class="tw-task-card-num">#{{ task.pk }}</span>
-      <span class="tw-task-card-title">{{ task.title }}</span>
+      <span class="tw-content-card-title">{{ task.title }}</span>
     </div>
 
-    <div class="tw-task-card-meta tw-flex-nowrap">
+    <div class="tw-content-card-meta tw-flex-nowrap">
       <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
         {% if task.assigned_to and task.assigned_to != request.user %}
           <a href="{% url 'obywatele:obywatele_szczegoly' pk=task.assigned_to.pk %}"
@@ -78,10 +78,10 @@
       </div>
     </div>
 
-  </div>{# /.tw-task-card-header #}
+  </div>{# /.tw-content-card-header #}
 
   {# ── CIAŁO (klikalne → szczegóły) ── #}
-  <div class="tw-task-card-body" data-detail-url="{% url 'tasks:detail' pk=task.pk %}" role="link" tabindex="0">
+  <div class="tw-content-card-body" data-detail-url="{% url 'tasks:detail' pk=task.pk %}" role="link" tabindex="0">
 
     {# Pełny opis #}
     {% if task.description %}
@@ -178,6 +178,6 @@
     </div>
     {% endif %}
 
-  </div>{# /.tw-task-card-body #}
+  </div>{# /.tw-content-card-body #}
 
-</div>{# /.tw-task-card #}
+</div>{# /.tw-content-card #}

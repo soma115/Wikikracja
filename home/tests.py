@@ -1,12 +1,52 @@
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.test import TestCase
-from django.urls import reverse
+from django.test import RequestFactory, TestCase
+from django.urls import resolve, reverse
+from django.utils.translation import gettext as _
 
 from chat.models import Message, Room
 from chat.services import get_unread_count_for_user
 from core.services.feed import FEED_CACHE_KEY, generate_feed_items
+from home.navigation import get_navigation_context
 from site_settings.models import QuickLink
+
+
+class NavigationContextTest(TestCase):
+    def _context_for(self, url_name):
+        path = reverse(url_name)
+        request = RequestFactory().get(path)
+        request.resolver_match = resolve(path)
+        return get_navigation_context(request)
+
+    def test_navigation_items_keep_order_and_page_prefs_contract(self):
+        context = self._context_for('tasks:list')
+        items = {item['url_name']: item for item in context['navigation_items']}
+
+        self.assertEqual(
+            [item['url_name'] for item in context['navigation_items']],
+            ['home', 'tasks:list', 'obywatele:obywatele', 'board:start', 'events:list', 'glosowania:proposition', 'bookkeeping:transaction_list', 'ankiety:list', 'chat:chat'],
+        )
+        self.assertEqual(items['tasks:list']['href'], reverse('tasks:list'))
+        self.assertEqual(items['tasks:list']['base_href'], reverse('tasks:list'))
+        self.assertEqual(items['tasks:list']['prefs_scope'], 'tasks')
+        self.assertTrue(items['tasks:list']['active'])
+        self.assertEqual(str(context['current_module']), str(items['tasks:list']['label']))
+
+    def test_settings_page_is_not_marked_as_citizens_module(self):
+        context = self._context_for('obywatele:my_profile')
+        items = {item['url_name']: item for item in context['navigation_items']}
+
+        self.assertEqual(str(context['current_module']), str(_('Settings')))
+        self.assertTrue(context['settings_active'])
+        self.assertFalse(items['obywatele:obywatele']['active'])
+
+    def test_home_page_marks_desktop_as_active(self):
+        context = self._context_for('home')
+        items = {item['url_name']: item for item in context['navigation_items']}
+
+        self.assertEqual(str(context['current_module']), str(items['home']['label']))
+        self.assertTrue(items['home']['active'])
+        self.assertEqual(items['chat:chat']['active_class'], 'tw-active')
 
 
 class QuickLinkSettingsTest(TestCase):

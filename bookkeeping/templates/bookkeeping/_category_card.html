@@ -1,16 +1,16 @@
 {% load i18n %}
 
-<div class="tw-proposal-card">
-  <div class="tw-proposal-card-header"
+<div class="tw-content-card">
+  <div class="tw-content-card-header"
        data-detail-url="{% url 'bookkeeping:category_detail' category.pk %}"
        role="link"
        tabindex="0">
-    <div class="tw-proposal-card-title-row">
+    <div class="tw-content-card-title-row">
       <span class="tw-proposal-card-num">#{{ category.pk }}</span>
-      <span class="tw-proposal-card-title">{{ category.name }}</span>
+      <span class="tw-content-card-title">{{ category.name }}</span>
     </div>
 
-    <div class="tw-proposal-card-meta tw-flex-nowrap">
+    <div class="tw-content-card-meta tw-flex-nowrap">
       <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
         <span class="tw-whitespace-nowrap"><i class="fas fa-tags"></i> {% trans 'Category' %}</span>
       </div>

@@ -22,7 +22,7 @@
   }
 
   function updateVoteCounts(form, data) {
-    var card = form.closest('.tw-task-card');
+    var card = form.closest('.tw-content-card[data-card-type="task"]');
     if (card) {
       var countEl = card.querySelector('.tw-task-helpers-count');
       if (countEl) {
@@ -284,8 +284,8 @@
 
   function updateCoordinatorUI(form, data) {
     var isAssigned = data.assigned_to !== null;
-    // Scope to enclosing card on task list; document elsewhere (detail page has no .tw-task-card)
-    var card = form.closest('.tw-task-card');
+    // Scope to enclosing card on task list; document elsewhere (detail page has no task content-card)
+    var card = form.closest('.tw-content-card[data-card-type="task"]');
     var scope = card || document;
 
     scope.querySelectorAll('[data-coord-state="empty"]').forEach(function (el) {

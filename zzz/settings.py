@@ -180,6 +180,7 @@ TEMPLATES = [
                 'zzz.context_processors.unread_count',
                 'zzz.context_processors.upload_limits',
                 'zzz.context_processors.presence_thresholds',
+                'home.navigation.get_navigation_context',
             ],
             'debug': False,
         },

@@ -1388,10 +1388,8 @@ window.initCategoryFilter = function(options) {
 
     var itemsSelector = options.itemsSelector;
     if (!itemsSelector) {
-        if (document.querySelector('.tw-task-card[data-category]')) {
-            itemsSelector = '.tw-task-card[data-category]';
-        } else if (document.querySelector('.tw-proposal-card[data-category]')) {
-            itemsSelector = '.tw-proposal-card[data-category]';
+        if (document.querySelector('.tw-content-card[data-category]')) {
+            itemsSelector = '.tw-content-card[data-category]';
         } else if (document.querySelector('.tw-board-category-group[data-category-pk]')) {
             itemsSelector = '.tw-board-category-group[data-category-pk]';
         }
@@ -1402,7 +1400,7 @@ window.initCategoryFilter = function(options) {
         items = Array.from(document.querySelectorAll(itemsSelector));
         var sectionSelector = options.sectionSelector;
         if (!sectionSelector) {
-            if (itemsSelector.indexOf('tw-task-card') !== -1 || itemsSelector.indexOf('tw-proposal-card') !== -1) {
+            if (itemsSelector.indexOf('tw-content-card') !== -1) {
                 sectionSelector = '.tw-tasks-section-label';
             }
         }

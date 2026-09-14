@@ -18,16 +18,16 @@
 <div class="tw-proposals-list" data-view-container>
   {% if surveys %}
     {% for survey in surveys %}
-      <div class="tw-proposal-card">
-        <div class="tw-proposal-card-header" data-detail-url="{{ survey.detail_url }}" role="link" tabindex="0">
-          <div class="tw-proposal-card-title-row">
+      <div class="tw-content-card">
+        <div class="tw-content-card-header" data-detail-url="{{ survey.detail_url }}" role="link" tabindex="0">
+          <div class="tw-content-card-title-row">
             <span class="tw-proposal-card-num">#{{ survey.pk }}</span>
-            <a href="{{ survey.detail_url }}" class="tw-proposal-card-title tw-no-underline">
+            <a href="{{ survey.detail_url }}" class="tw-content-card-title tw-no-underline">
               {{ survey.title }}
             </a>
           </div>
 
-          <div class="tw-proposal-card-meta tw-flex-nowrap">
+          <div class="tw-content-card-meta tw-flex-nowrap">
             <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0 tw-overflow-hidden tw-flex-nowrap">
               {% if survey.author %}
                 <span class="tw-proposal-author-name tw-flex tw-items-center tw-gap-1 tw-truncate">
@@ -58,7 +58,7 @@
           </div>
         </div>
 
-        <div class="tw-proposal-card-body" data-view-only="grid">
+        <div class="tw-content-card-body" data-view-only="grid">
           {% if survey.description %}
             <a href="{{ survey.detail_url }}" class="tw-block tw-text-muted tw-text-sm tw-no-underline">
               {{ survey.description|striptags|truncatewords:30 }}

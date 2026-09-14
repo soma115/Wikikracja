@@ -7,9 +7,9 @@
 {% endcomment %}
 
 {% with pk=occ.event.pk dt=occ.date|date:"YmdHis" %}
-<div class="tw-event-card{% if occ.is_past %} tw-event-card--past{% endif %}">
+<div class="tw-content-card{% if occ.is_past %} tw-event-card--past{% endif %}" data-card-type="event">
 
-  <div class="tw-event-card-header"
+  <div class="tw-content-card-header"
        data-detail-url="{{ occ.detail_url }}"
        role="link" tabindex="0">
 
@@ -21,11 +21,11 @@
       </div>
 
       <div class="tw-event-card-content">
-        <div class="tw-event-card-title-row">
-          <span class="tw-event-card-title">{{ occ.event.title }}</span>
+        <div class="tw-content-card-title-row">
+          <span class="tw-content-card-title">{{ occ.event.title }}</span>
         </div>
 
-        <div class="tw-event-card-meta">
+        <div class="tw-content-card-meta">
           <span class="tw-event-meta-item tw-event-meta-frequency"
                 title="{{ occ.event.get_frequency_display }}">
             <i class="fas fa-{% if occ.event.frequency == 'once' %}calendar-day{% else %}repeat{% endif %} fa-fw"></i>
@@ -61,9 +61,9 @@
         </div>
       </div>
     </div>
-  </div>{# /.tw-event-card-header #}
+  </div>{# /.tw-content-card-header #}
 
-  <div class="tw-event-card-body"
+  <div class="tw-content-card-body"
        data-detail-url="{{ occ.detail_url }}"
        role="link" tabindex="0">
 
@@ -74,7 +74,7 @@
       <div class="tw-event-section-text">{{ occ.event.description|default:"&nbsp;"|richtext }}</div>
     </div>
 
-  </div>{# /.tw-event-card-body #}
+  </div>{# /.tw-content-card-body #}
 
 </div>
 {% endwith %}

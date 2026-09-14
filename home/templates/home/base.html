@@ -123,103 +123,17 @@
 
     <!-- Main navigation -->
     <nav class="tw-sidebar-nav">
-      <ul class="tw-list-none tw-mb-0">
-
-        <li class="tw-nav-item">
-          <a href="{% url 'home' %}"
-             title="{% trans 'Desktop' %}"
-             class="{% if request.resolver_match.url_name == 'home' %}active tw-active{% endif %}">
-            <i class="fas fa-fw fa-house tw-nav-icon"></i>
-            <span class="tw-nav-text">{% trans "Desktop" %}</span>
+      <ul class="tw-list-none tw-mb-0">{% for item in navigation_items %}<li class="tw-nav-item">
+          <a href="{{ item.href }}"
+             {% if item.prefs_scope %}data-prefs-link-scope="{{ item.prefs_scope }}"
+             data-prefs-base-href="{{ item.base_href }}"{% endif %}
+             title="{{ item.label }}"
+             {% if item.data_nav %}data-nav="{{ item.data_nav }}"{% endif %}
+             class="{% if item.active %}{{ item.active_class }}{% endif %}">
+            <i class="fas fa-fw fa-{{ item.icon }} tw-nav-icon"></i>
+            <span class="tw-nav-text">{{ item.label }}</span>
           </a>
-        </li>
-
-        <li class="tw-nav-item">
-          <a href="{% url 'tasks:list' %}"
-             data-prefs-link-scope="tasks"
-             data-prefs-base-href="{% url 'tasks:list' %}"
-             title="{% trans 'Activities' %}"
-             class="{% if request.resolver_match.namespace == 'tasks' %}active tw-active{% endif %}">
-            <i class="fas fa-fw fa-bolt tw-nav-icon"></i>
-            <span class="tw-nav-text">{% trans "Activities" %}</span>
-          </a>
-        </li>
-
-        <li class="tw-nav-item">
-          <a href="{% url 'obywatele:obywatele' %}"
-             data-prefs-link-scope="obywatele"
-             data-prefs-base-href="{% url 'obywatele:obywatele' %}"
-             title="{% trans 'Citizens' %}"
-             class="{% if request.resolver_match.namespace == 'obywatele' and request.resolver_match.url_name != 'my_profile' and request.resolver_match.url_name != 'haslo' and request.resolver_match.url_name != 'my_assets' and request.resolver_match.url_name != 'change_email' and request.resolver_match.url_name != 'change_username' and request.resolver_match.url_name != 'upload_avatar' and request.resolver_match.url_name != 'set_language' and request.resolver_match.url_name != 'toggle_notification' and request.resolver_match.url_name != 'request_deletion' and request.resolver_match.url_name != 'cancel_deletion' %}active tw-active{% endif %}">
-            <i class="fas fa-fw fa-users tw-nav-icon"></i>
-            <span class="tw-nav-text">{% trans "Citizens" %}</span>
-          </a>
-        </li>
-
-        <li class="tw-nav-item">
-          <a href="{% url 'board:start' %}"
-             data-prefs-link-scope="board"
-             data-prefs-base-href="{% url 'board:start' %}"
-             title="{% trans 'Documents' %}"
-             class="{% if request.resolver_match.namespace == 'board' %}active tw-active{% endif %}">
-            <i class="fas fa-fw fa-chalkboard tw-nav-icon"></i>
-            <span class="tw-nav-text">{% trans "Documents" %}</span>
-          </a>
-        </li>
-
-        <li class="tw-nav-item">
-          <a href="{% url 'events:list' %}"
-             data-prefs-link-scope="events"
-             data-prefs-base-href="{% url 'events:list' %}"
-             title="{% trans 'Calendar' %}"
-             class="{% if request.resolver_match.namespace == 'events' %}active tw-active{% endif %}">
-            <i class="fas fa-fw fa-calendar-days tw-nav-icon"></i>
-            <span class="tw-nav-text">{% trans "Calendar" %}</span>
-          </a>
-        </li>
-
-        <li class="tw-nav-item">
-          <a href="{% url 'glosowania:proposition' %}"
-             data-prefs-link-scope="glosowania"
-             data-prefs-base-href="{% url 'glosowania:proposition' %}"
-             title="{% trans 'Votings' %}"
-             class="{% if request.resolver_match.namespace == 'glosowania' %}active tw-active{% endif %}">
-            <i class="fas fa-fw fa-landmark tw-nav-icon"></i>
-            <span class="tw-nav-text">{% trans "Votings" %}</span>
-          </a>
-        </li>
-
-        <li class="tw-nav-item">
-          <a href="{% url 'bookkeeping:transaction_list' %}"
-             data-prefs-link-scope="bookkeeping"
-             data-prefs-base-href="{% url 'bookkeeping:transaction_list' %}"
-             title="{% trans 'Finance' %}"
-             class="{% if request.resolver_match.namespace == 'bookkeeping' %}active tw-active{% endif %}">
-            <i class="fas fa-fw fa-wallet tw-nav-icon"></i>
-            <span class="tw-nav-text">{% trans "Finance" %}</span>
-          </a>
-        </li>
-
-        <li class="tw-nav-item">
-          <a href="{% url 'ankiety:list' %}"
-             title="{% trans 'Surveys' %}"
-             class="{% if request.resolver_match.namespace == 'ankiety' %}active tw-active{% endif %}">
-            <i class="fas fa-fw fa-clipboard-question tw-nav-icon"></i>
-            <span class="tw-nav-text">{% trans "Surveys" %}</span>
-          </a>
-        </li>
-
-        <li class="tw-nav-item">
-          <a href="{% url 'chat:chat' %}"
-             title="{% trans 'Chat' %}"
-             data-nav="chat"
-             class="{% if request.resolver_match.namespace == 'chat' %}tw-active{% endif %}">
-            <i class="fas fa-fw fa-comment-dots tw-nav-icon"></i>
-            <span class="tw-nav-text">{% trans "Chat" %}</span>
-          </a>
-        </li>
-
-      </ul>
+        </li>{% endfor %}</ul>
     </nav>
 
     <!-- Bottom links: settings + logout -->
@@ -228,7 +142,7 @@
         <li class="tw-nav-item">
           <a href="{% url 'obywatele:my_profile' %}"
              title="{% trans 'Settings' %}" aria-label="{% trans 'Settings' %}"
-             class="{% if request.resolver_match.url_name == 'my_profile' or request.resolver_match.url_name == 'haslo' or request.resolver_match.url_name == 'my_assets' or request.resolver_match.url_name == 'change_email' or request.resolver_match.url_name == 'change_username' %}active tw-active{% endif %}">
+             class="{% if settings_active %}active tw-active{% endif %}">
             <i class="fas fa-fw fa-gear tw-nav-icon"></i>
           </a>
         </li>
@@ -282,18 +196,7 @@
           <span class="tw-logo-label tw-ms-1">{{ site_name }}</span>
         </a>
         <span class="tw-current">
-          {% if request.resolver_match.url_name == 'home' %}{% trans "Desktop" %}
-          {% elif request.resolver_match.url_name == 'activity' %}{% trans "Activity" %}
-          {% elif request.resolver_match.namespace == 'glosowania' %}{% trans "Votings" %}
-          {% elif request.resolver_match.namespace == 'board' %}{% trans "Documents" %}
-          {% elif request.resolver_match.namespace == 'tasks' %}{% trans "Activities" %}
-          {% elif request.resolver_match.namespace == 'ankiety' %}{% trans "Surveys" %}
-          {% elif request.resolver_match.namespace == 'events' %}{% trans "Calendar" %}
-          {% elif request.resolver_match.namespace == 'obywatele' %}
-            {% if request.resolver_match.url_name == 'my_profile' or request.resolver_match.url_name == 'haslo' or request.resolver_match.url_name == 'my_assets' or request.resolver_match.url_name == 'change_email' or request.resolver_match.url_name == 'change_username' or request.resolver_match.url_name == 'upload_avatar' or request.resolver_match.url_name == 'set_language' or request.resolver_match.url_name == 'toggle_notification' or request.resolver_match.url_name == 'request_deletion' or request.resolver_match.url_name == 'cancel_deletion' %}{% trans "Settings" %}{% else %}{% trans "Citizens" %}{% endif %}
-          {% elif request.resolver_match.namespace == 'bookkeeping' %}{% trans "Finance" %}
-          {% elif request.resolver_match.namespace == 'chat' %}{% trans "Chat" %}
-          {% else %}…{% endif %}
+          {{ current_module }}
           {% if request.resolver_match.url_name != 'activity' %}
             <span class="tw-topbar-subtitle tw-d-none tw-text-muted tw-text-sm" id="topbar-subtitle" data-topbar-subtitle>
               <span class="tw-sep">&gt;</span>

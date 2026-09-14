@@ -59,14 +59,14 @@ describe('initCategoryFilter', () => {
         document.documentElement.removeAttribute('data-prefs-scope');
     });
 
-    test('toggles the dropdown panel for tw-task-card items', () => {
+    test('toggles the dropdown panel for task content-card items', () => {
         document.body.innerHTML = `
             <div class="proposals-list">
-                <div class="tw-task-card" data-category="urgent">Urgent task</div>
-                <div class="tw-task-card" data-category="later">Later task</div>
+                <div class="tw-content-card" data-card-type="task" data-category="urgent">Urgent task</div>
+                <div class="tw-content-card" data-card-type="task" data-category="later">Later task</div>
             </div>
         `;
-        const items = document.querySelectorAll('.tw-task-card');
+        const items = document.querySelectorAll('.tw-content-card[data-card-type="task"]');
         document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
 
         window.initCategoryFilter();
@@ -79,17 +79,17 @@ describe('initCategoryFilter', () => {
         expect(btn.getAttribute('aria-expanded')).toBe('true');
     });
 
-    test('filters tw-task-card items by category and hides empty sections', () => {
+    test('filters task content-card items by category and hides empty sections', () => {
         document.body.innerHTML = `
             <div class="proposals-list">
                 <div class="tw-tasks-section-label">Active</div>
-                <div class="tw-task-card" data-category="urgent">Urgent task</div>
-                <div class="tw-task-card" data-category="later">Later task</div>
+                <div class="tw-content-card" data-card-type="task" data-category="urgent">Urgent task</div>
+                <div class="tw-content-card" data-card-type="task" data-category="later">Later task</div>
                 <div class="tw-tasks-section-label">Done</div>
-                <div class="tw-task-card" data-category="done">Done task</div>
+                <div class="tw-content-card" data-card-type="task" data-category="done">Done task</div>
             </div>
         `;
-        const items = document.querySelectorAll('.tw-task-card');
+        const items = document.querySelectorAll('.tw-content-card[data-card-type="task"]');
         document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
 
         window.initCategoryFilter();
@@ -99,7 +99,7 @@ describe('initCategoryFilter', () => {
 
         click(urgentRow);
 
-        const cards = Array.from(document.querySelectorAll('.tw-task-card'));
+        const cards = Array.from(document.querySelectorAll('.tw-content-card[data-card-type="task"]'));
         expect(cards[0].classList.contains('tw-d-none')).toBe(false);
         expect(cards[1].classList.contains('tw-d-none')).toBe(true);
         expect(cards[2].classList.contains('tw-d-none')).toBe(true);
@@ -109,15 +109,15 @@ describe('initCategoryFilter', () => {
         expect(sections[1].classList.contains('tw-d-none')).toBe(true);
     });
 
-    test('recognizes tw-proposal-card items', () => {
+    test('recognizes content-card items', () => {
         document.body.innerHTML = `
             <div class="proposals-list">
                 <div class="tw-tasks-section-label">Proposals</div>
-                <div class="tw-proposal-card" data-category="budget">Budget proposal</div>
-                <div class="tw-proposal-card" data-category="rules">Rules proposal</div>
+                <div class="tw-content-card" data-category="budget">Budget proposal</div>
+                <div class="tw-content-card" data-category="rules">Rules proposal</div>
             </div>
         `;
-        const items = document.querySelectorAll('.tw-proposal-card');
+        const items = document.querySelectorAll('.tw-content-card');
         document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
 
         window.initCategoryFilter();
@@ -125,7 +125,7 @@ describe('initCategoryFilter', () => {
         const rows = document.querySelectorAll('.tw-cat-filter-item:not(.tw-cat-filter-all)');
         click(rows[0]);
 
-        const cards = Array.from(document.querySelectorAll('.tw-proposal-card'));
+        const cards = Array.from(document.querySelectorAll('.tw-content-card'));
         expect(cards[0].classList.contains('tw-d-none')).toBe(false);
         expect(cards[1].classList.contains('tw-d-none')).toBe(true);
     });
@@ -171,11 +171,11 @@ describe('initCategoryFilter', () => {
     test('clicking "All" shows every item again', () => {
         document.body.innerHTML = `
             <div class="proposals-list">
-                <div class="tw-task-card" data-category="a">A</div>
-                <div class="tw-task-card" data-category="b">B</div>
+                <div class="tw-content-card" data-card-type="task" data-category="a">A</div>
+                <div class="tw-content-card" data-card-type="task" data-category="b">B</div>
             </div>
         `;
-        const items = document.querySelectorAll('.tw-task-card');
+        const items = document.querySelectorAll('.tw-content-card[data-card-type="task"]');
         document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
 
         window.initCategoryFilter();
@@ -186,7 +186,7 @@ describe('initCategoryFilter', () => {
         const allRow = document.getElementById('catAllRow');
         click(allRow);
 
-        const cards = Array.from(document.querySelectorAll('.tw-task-card'));
+        const cards = Array.from(document.querySelectorAll('.tw-content-card[data-card-type="task"]'));
         expect(cards[0].classList.contains('tw-d-none')).toBe(false);
         expect(cards[1].classList.contains('tw-d-none')).toBe(false);
     });
@@ -195,11 +195,11 @@ describe('initCategoryFilter', () => {
         document.documentElement.setAttribute('data-prefs-scope', 'tasks');
         document.body.innerHTML = `
             <div class="proposals-list">
-                <div class="tw-task-card" data-category="urgent">Urgent task</div>
-                <div class="tw-task-card" data-category="later">Later task</div>
+                <div class="tw-content-card" data-card-type="task" data-category="urgent">Urgent task</div>
+                <div class="tw-content-card" data-card-type="task" data-category="later">Later task</div>
             </div>
         `;
-        const items = document.querySelectorAll('.tw-task-card');
+        const items = document.querySelectorAll('.tw-content-card[data-card-type="task"]');
         document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
 
         const onNavigate = jest.fn();
@@ -214,7 +214,7 @@ describe('initCategoryFilter', () => {
         expect(writeSpy).toHaveBeenCalledWith({ filters: '?category=urgent', lastUrl: '/?category=urgent' });
         expect(onNavigate).toHaveBeenCalledWith('/?category=urgent');
 
-        const cards = Array.from(document.querySelectorAll('.tw-task-card'));
+        const cards = Array.from(document.querySelectorAll('.tw-content-card[data-card-type="task"]'));
         expect(cards[0].classList.contains('tw-d-none')).toBe(false);
         expect(cards[1].classList.contains('tw-d-none')).toBe(true);
     });
@@ -241,10 +241,10 @@ describe('initCategoryFilter', () => {
     test('reopens the panel on load when a category was just selected (sessionStorage flag)', () => {
         document.body.innerHTML = `
             <div class="proposals-list">
-                <div class="tw-task-card" data-category="urgent">Urgent task</div>
+                <div class="tw-content-card" data-card-type="task" data-category="urgent">Urgent task</div>
             </div>
         `;
-        const items = document.querySelectorAll('.tw-task-card');
+        const items = document.querySelectorAll('.tw-content-card[data-card-type="task"]');
         document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
 
         sessionStorage.setItem('catFilterOpen', '1');
