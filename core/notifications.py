@@ -584,7 +584,9 @@ def on_important_post_published(sender, post, url, created=False, **kwargs):
         author = post.author.get_full_name() or post.author.username
     else:
         author = _('System')
-    body = f'{post.get_display_title()}\n{_("by")} {author}\n{url}'
+    display_title = getattr(post, 'get_display_title', None)
+    display_title = display_title() if callable(display_title) else post.title
+    body = f'{display_title}\n{_("by")} {author}\n{url}'
     _dispatch_notification(
         title, body, url, f'post-{post.id}', notification_type='post', ws_type='post.notification', email_subject=title, email_body=body, send_push=True, send_websocket=True, send_email=False, post_id=post.id
     )

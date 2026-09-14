@@ -13,6 +13,7 @@ from django.db import OperationalError
 from django.test import Client
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from django.utils.translation import override
 from PIL import Image
 
 from glosowania.forms import ParametersProposalForm
@@ -33,7 +34,8 @@ def _image_upload(name, image_format):
 def test_parameters_proposal_accepts_only_png_logo():
     form = ParametersProposalForm()
     assert form.fields['brand_mark'].widget.attrs['accept'] == 'image/png'
-    assert 'transparent background' in str(form.fields['brand_mark'].help_text)
+    with override('en'):
+        assert 'transparent background' in str(form.fields['brand_mark'].help_text)
 
     jpeg = form.fields['brand_mark'].clean(_image_upload('logo.jpg', 'JPEG'))
     form.cleaned_data = {'brand_mark': jpeg}
