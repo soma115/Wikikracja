@@ -3949,7 +3949,7 @@
   .tw-dashboard-tile--2x1 {
     min-width: 0;
   }
-  @media (min-width: 700px) {
+  @media (min-width: 850px) {
     .tw-dashboard-grid {
       grid-template-columns: repeat(2, 1fr);
       grid-auto-rows: minmax(240px, auto);
