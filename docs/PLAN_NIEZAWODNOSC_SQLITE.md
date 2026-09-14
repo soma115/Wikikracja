@@ -675,20 +675,17 @@ z wcześniejszymi, historycznymi checkboxami powyżej obowiązuje ta sekcja.
 
 ## P0.2 — rozdzielenie HTTP, migracji i schedulera
 
-**Status: `[x]` zaimplementowane w kodzie i manifestach; rollout produkcyjny
-został wykonany dla pierwszego pilota.**
+**Status: `[x]` zaimplementowane i zweryfikowane dla wszystkich skonfigurowanych instancji 1, 2, 3 i 5–14. Prace implementacyjne są wstrzymane na etapie obserwacji operacyjnej.**
 
 - [x] HTTP uruchamia wyłącznie Daphne.
 - [x] Migracje są osobnymi Jobami, bez schedulera.
-- [x] Nowe instancje mają osobny scheduler `run_scheduler`.
+- [x] Każda zmigrowana instancja ma osobny scheduler `run_scheduler`.
 - [x] Scheduler ma `replicas: 1`, lock na PVC i `strategy: Recreate`.
-- [x] Flux jest podzielony na warstwy base, old i new.
-- [x] Instance-1 korzysta z osobnego Redis Service `redis-1`.
-- [x] Stare instancje pozostają przypięte do starego obrazu i starego modelu
-      do czasu ich migracji.
-- [x] Migracje instance-1 oraz starych instancji zostały wykonane.
-- [ ] Zweryfikować po każdym kolejnym rolloutcie brak drugiego schedulera i
-      poprawny stan wszystkich podów.
+- [x] Każda zmigrowana instancja ma osobny chat notifications worker.
+- [x] Flux używa warstw base, old oraz osobnych migracji i runtime per-instance.
+- [x] Zmigrowane instancje używają `redis-1` z osobną logiczną bazą Redis.
+- [x] Rollout instance-1, 2, 3 i 5–14 potwierdził po jednym HTTP, schedulerze i workerze bez restartów.
+- [x] Wadliwa próba batch runtime 7–14 została wycofana; nie należy wracać do tego modelu.
 
 ## P0.3 — odtwarzanie danych
 
@@ -788,15 +785,15 @@ SQLite z WAL:
 
 Przed migracją kolejnej instancji wszystkie poniższe punkty muszą być spełnione:
 
-- [ ] Sprawdzony backup tej instancji.
-- [ ] Brak aktywnego referendum albo zaakceptowany restart bufora Redis.
-- [ ] PVC jest lokalny, dostępny i ma zapas miejsca.
-- [ ] Działa dokładnie jeden scheduler dla tej bazy.
-- [ ] Działa dokładnie jeden kontrolowany writer SQLite.
-- [ ] Migracja Job zakończyła się sukcesem.
-- [ ] Smoke test HTTP, logowania, WebSocketów, Redis i głosowania przeszedł.
-- [ ] Jest znany rollback do poprzedniego obrazu i `REDIS_HOST`.
-- [ ] Po migracji nie ma błędów `no such table`, `no such column` ani
+- [x] Sprawdzony backup każdej instancji.
+- [x] Brak aktywnego referendum albo zaakceptowany restart bufora Redis.
+- [x] PVC są lokalne, dostępne i mają zapas miejsca.
+- [x] Działa dokładnie jeden scheduler dla każdej bazy.
+- [x] Działa dokładnie jeden kontrolowany writer SQLite dla każdej instancji.
+- [x] Wszystkie migration Joby zakończyły się sukcesem.
+- [x] Smoke testy HTTP, logowania, WebSocketów, Redis i głosowania przeszły.
+- [x] Jest znany rollback do poprzedniego obrazu i `REDIS_HOST`.
+- [x] Po migracji nie ma błędów `no such table`, `no such column` ani
       `database is locked` w krytycznych ścieżkach.
 
 Brak któregokolwiek punktu oznacza **NO-GO** dla danej instancji.
@@ -806,8 +803,10 @@ Brak któregokolwiek punktu oznacza **NO-GO** dla danej instancji.
 1. [x] P0 — spójność głosowania SQLite–Redis.
 2. [x] P0.2 — fizyczny podział Flux i pilot instance-1.
 3. [x] P0.3 — restore instance-1 i instance-2.
-4. [ ] P1 — audyt długich transakcji.
-5. [ ] P1 — testy konkurencji rzeczywistych ścieżek Django.
+4. [ ] P1 — audyt pozostałych długich transakcji.
+5. [-] P1 — wykonano testy konkurencji głosowania, ankiet i zadań; pozostaje pełny test HTTP + WebSocket + scheduler + backup.
 6. [ ] P1 — ograniczona polityka retry poza głosowaniem i obecnością.
-7. [ ] P2 — monitoring blokad, transakcji, WAL, Redis i schedulerów.
-8. [ ] P3 — migracja kolejnych instancji według osobnego planu migracji.
+7. [-] P2 — działają logi i alerty blokad, WAL, schedulerów, Redis i backupów; pozostają niezależne metryki i progi.
+8. [x] P3 — wszystkie skonfigurowane instancje 1, 2, 3 i 5–14 zmigrowane.
+
+Prace implementacyjne zostają zatrzymane w tym miejscu. Dalszy etap to obserwacja produkcji i ewentualne niezależne metryki Prometheus; nie zmieniać timeoutu SQLite bez nowych pomiarów.
