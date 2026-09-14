@@ -15,10 +15,13 @@ When it runs:
     Can also be run manually: python manage.py update_site
 """
 
+import logging
 from types import SimpleNamespace
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+
+log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -31,7 +34,7 @@ class Command(BaseCommand):
         try:
             sp = SiteParameters.get()
         except Exception as e:
-            self.stderr.write(self.style.WARNING(f'Could not load SiteParameters: {e}. Using environment fallback.'))
+            log.warning('Could not load SiteParameters: %s. Using environment fallback.', e)
             sp = SimpleNamespace(site_name='')
 
         _sync_django_site(sp, fallback_name=settings.SITE_NAME)
@@ -39,4 +42,4 @@ class Command(BaseCommand):
         from django.contrib.sites.models import Site
 
         site = Site.objects.get(id=1)
-        self.stdout.write(self.style.SUCCESS(f'Site: {site.domain} - {site.name}'))
+        log.info('Site: %s - %s', site.domain, site.name)

@@ -4,7 +4,7 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 from unittest.mock import patch
 
-from zzz.scheduler import _acquire_scheduler_lock, should_start_scheduler
+from zzz.scheduler import _acquire_scheduler_lock, _run_command, should_start_scheduler
 
 
 class SchedulerStartGuardTest(TestCase):
@@ -23,6 +23,31 @@ class SchedulerStartGuardTest(TestCase):
     def test_http_process_stays_disabled(self):
         with patch.dict(os.environ, {'SCHEDULER_ENABLED': 'false', 'RUN_MAIN': 'false'}), patch('zzz.scheduler.sys.argv', ['daphne', 'zzz.routing:application']):
             self.assertFalse(should_start_scheduler())
+
+
+class SchedulerCommandMonitoringTest(TestCase):
+    def test_command_logs_duration_and_wal_size(self):
+        with (
+            patch('zzz.scheduler.call_command'),
+            patch('zzz.scheduler.wal_size', return_value=4096),
+            patch('zzz.scheduler.time.monotonic', side_effect=[10.0, 10.25]),
+            self.assertLogs('zzz.scheduler', level='INFO') as logs,
+        ):
+            _run_command('count_citizens')
+
+        self.assertTrue(any('Scheduler command finished command=count_citizens duration=0.250s wal_size=4096' in message for message in logs.output))
+
+    def test_command_logs_failure_and_still_reports_duration(self):
+        with (
+            patch('zzz.scheduler.call_command', side_effect=RuntimeError('forced failure')),
+            patch('zzz.scheduler.wal_size', return_value=None),
+            patch('zzz.scheduler.time.monotonic', side_effect=[20.0, 20.5]),
+            self.assertLogs('zzz.scheduler', level='INFO') as logs,
+        ):
+            _run_command('vote')
+
+        self.assertTrue(any('Scheduler command failed command=vote' in message for message in logs.output))
+        self.assertTrue(any('Scheduler command finished command=vote duration=0.500s wal_size=None' in message for message in logs.output))
 
 
 class SchedulerLockTest(TestCase):

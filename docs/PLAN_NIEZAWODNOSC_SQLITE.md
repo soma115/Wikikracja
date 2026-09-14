@@ -774,6 +774,16 @@ SQLite z WAL:
 - [ ] Nie włączać `synchronous=OFF`.
 - [ ] Nie zwiększać timeoutu ponad 60 sekund bez pomiarów.
 
+### Wyniki P2a — podstawowa obserwowalność
+
+- [x] Wyczerpanie retry SQLite loguje operację, liczbę prób, czas i rozmiar WAL.
+- [x] Scheduler loguje czas rozpoczęcia/zakończenia komendy, status i rozmiar WAL.
+- [x] Błędy komend schedulera zachowują traceback i końcowy pomiar czasu.
+- [x] Flux Loki alertuje o powtarzających się blokadach SQLite i błędach komend schedulera.
+- [x] Flux Prometheus ma alerty na stary/nieudany backup oraz zapełnienie PVC danych.
+- [ ] Zweryfikować reconcile i rzeczywiste alerty na klastrze.
+- [ ] Dodać osobny licznik/metrykę końcowych blokad niezależny od logów.
+
 ## P3 — bramka GO/NO-GO dla każdej instancji
 
 Przed migracją kolejnej instancji wszystkie poniższe punkty muszą być spełnione:

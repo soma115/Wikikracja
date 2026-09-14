@@ -16,7 +16,7 @@
 {# ── TOOLBAR ── #}
 {% url 'board:create_post' as cta_url %}
 <div class="tw-flex tw-justify-end tw-mb-3">
-  <a href="{{ cta_url }}" class="tw-btn-cta tw-btn-cta--round" title="{% trans 'Create document' %}"><i class="fas fa-plus"></i><span class="tw-btn-cta-label">{% trans 'Create document' %}</span></a>
+  <a href="{{ cta_url }}?tab={{ current_tab }}" class="tw-btn-cta tw-btn-cta--round" title="{% trans 'Create document' %}"><i class="fas fa-plus"></i><span class="tw-btn-cta-label">{% trans 'Create document' %}</span></a>
 </div>
 {% include 'home/includes/toolbar.html' with cta_url='' sort_items=toolbar_sort_items search_include='board/_search.html' show_category_filter=True categories=categories key_attr='pk' views=toolbar_views %}
 {% else %}
@@ -32,7 +32,7 @@
       {% if group.category %}{{ group.category.name }}{% else %}{% trans "Uncategorized" %}{% endif %}
     </span>
     {% if user.is_authenticated %}
-    <a href="{% url 'board:create_post' %}{% if group.category %}?category={{ group.category.pk }}{% endif %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+    <a href="{% url 'board:create_post' %}?tab={{ current_tab }}{% if group.category %}&category={{ group.category.pk }}{% endif %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
       <i class="fas fa-plus tw-me-1"></i>{% trans "Create" %}
     </a>
     {% endif %}
@@ -127,7 +127,7 @@
 </div>
 {% empty %}
   {% if request.user.is_authenticated %}{% url 'board:create_post' as board_create_url %}{% endif %}
-  {% include 'home/includes/empty_state.html' with icon='fa-bullhorn' title=_('No documents yet.') cta_url=board_create_url cta_label=_('Add the first document') cta_icon='fa-plus' %}
+  {% include 'home/includes/empty_state.html' with icon='fa-bullhorn' title=_('No documents yet.') cta_url=board_create_url|add:'?tab='|add:current_tab cta_label=_('Add the first document') cta_icon='fa-plus' %}
 {% endfor %}
 
 </div>{# /section #}

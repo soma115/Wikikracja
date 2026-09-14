@@ -1,9 +1,12 @@
+import logging
 import time
 
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 
 from zzz.scheduler import start_scheduler, stop_scheduler
+
+log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -15,11 +18,11 @@ class Command(BaseCommand):
         if scheduler is None:
             raise CommandError('Scheduler did not start; enable SCHEDULER_ENABLED for run_scheduler.')
 
-        self.stdout.write(self.style.SUCCESS('Wikikracja scheduler is running.'))
+        log.info('Wikikracja scheduler is running.')
         try:
             while True:
                 time.sleep(1)
         except KeyboardInterrupt:
-            self.stdout.write('Stopping Wikikracja scheduler...')
+            log.info('Stopping Wikikracja scheduler...')
         finally:
             stop_scheduler()

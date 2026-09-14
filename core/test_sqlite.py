@@ -29,6 +29,15 @@ class SQLiteRetryTest(SimpleTestCase):
         self.assertEqual(operation.calls, 1)
         sleep.assert_not_called()
 
+    def test_logs_when_lock_retries_are_exhausted(self):
+        operation = MockOperation([OperationalError('database is locked'), OperationalError('database is locked')])
+
+        with patch('core.sqlite.time.sleep'), self.assertLogs('core.sqlite', level='ERROR') as logs:
+            with self.assertRaisesMessage(OperationalError, 'database is locked'):
+                run_with_lock_retry('test.operation', operation, delays=(0.1,))
+
+        self.assertTrue(any('SQLite database is locked; retry exhausted operation=test.operation' in message for message in logs.output))
+
 
 @pytest.mark.django_db
 def test_new_sqlite_connection_configures_required_pragmas(tmp_path):

@@ -33,7 +33,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         ts = now().strftime('%Y-%m-%d %H:%M:%S%z')
-        self.stdout.write(f'[{ts}] Starting citizen count and reputation check...')
+        log.info('[%s] Starting citizen count and reputation check...', ts)
 
         # Clean up duplicate users FIRST
         self.cleanup_duplicate_users()
@@ -57,7 +57,7 @@ class Command(BaseCommand):
         self.process_deletion_requests()
 
         ts = now().strftime('%Y-%m-%d %H:%M:%S%z')
-        self.stdout.write(self.style.SUCCESS(f'[{ts}] Successfully processed citizens'))
+        log.info('[%s] Successfully processed citizens', ts)
 
     def cleanup_duplicate_users(self):
         """Remove duplicate users with the same email before processing"""

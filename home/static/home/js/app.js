@@ -321,7 +321,7 @@ window.wkOnReady(function() {
 
     // Check if Notification API is supported
     if (!('Notification' in window)) {
-        console.log('Notifications not supported');
+        console.info('Notifications not supported');
         return;
     }
 
@@ -339,12 +339,12 @@ window.wkOnReady(function() {
     // Handle "Enable Notifications" button
     document.getElementById('enable-notifications-global')?.addEventListener('click', async function(e) {
         e.preventDefault();
-        console.log('Enable notifications clicked, current permission:', Notification.permission);
+        console.debug('Enable notifications clicked, current permission:', Notification.permission);
 
         try {
             // Request permission
             const permission = await Notification.requestPermission();
-            console.log('Permission result:', permission);
+            console.debug('Permission result:', permission);
 
             if (permission === 'granted') {
                 hideBanner(banner);
@@ -359,7 +359,7 @@ window.wkOnReady(function() {
                 localStorage.setItem('notification-blocked-dismissed', Date.now() + (30 * 24 * 60 * 60 * 1000));
             } else {
                 // Permission is still 'default' - user dismissed the prompt
-                console.log('User dismissed the permission prompt');
+                console.debug('User dismissed the permission prompt');
             }
         } catch (error) {
             console.error('Error requesting notification permission:', error);

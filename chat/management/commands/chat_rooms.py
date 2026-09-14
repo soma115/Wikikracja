@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         ts = timezone.now().strftime('%Y-%m-%d %H:%M:%S%z')
-        self.stdout.write(f'[{ts}] Starting chat_rooms command...')
+        log.info('[%s] Starting chat_rooms command...', ts)
 
         # Allow active user access to all public rooms
         public_rooms = Room.objects.filter(public=True)

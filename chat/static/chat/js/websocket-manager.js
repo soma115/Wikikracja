@@ -47,7 +47,7 @@ function createWebSocketManager() {
     // Determine WebSocket URL based on current protocol
     let ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
     let ws_path = ws_scheme + '://' + window.location.host + "/chat/stream/";
-    console.log("Connecting to " + ws_path);
+    console.debug("Connecting to " + ws_path);
 
     // Create WebSocket connection
     let socket = new ReconnectingWebSocket(ws_path);
@@ -111,7 +111,7 @@ function createWebSocketManager() {
     };
 
     socket.onclose = function() {
-        console.log("Disconnected from socket");
+        console.debug("Disconnected from socket");
         socketOpen = false;
         // Nie odrzucamy oczekujących żądań: ReconnectingWebSocket kolejkuje
         // wysyłki na czas rozłączenia i wypycha je po ponownym open — timeout
@@ -121,7 +121,7 @@ function createWebSocketManager() {
 
     // Set up beforeunload handler to close socket
     window.addEventListener('beforeunload', () => {
-        console.log("beforeunload: Closing connection " + ws_path);
+        console.debug("beforeunload: Closing connection " + ws_path);
         socket.close();
     });
 

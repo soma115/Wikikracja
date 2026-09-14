@@ -10,6 +10,8 @@ from firebase_admin import credentials
 
 from zzz.settings_base import BASE_DIR, DATABASES  # noqa: F401
 
+log = logging.getLogger(__name__)
+
 # Register additional MIME types not recognized by default
 mimetypes.add_type('image/webp', '.webp')
 
@@ -276,7 +278,7 @@ if LOGGING_JSON:
         LOGGING = json.loads(LOGGING_JSON)
     except json.JSONDecodeError as e:
         err = "LOGGING_JSON contains invalid JSON: " + LOGGING_JSON + " Stack: " + e.args[0]
-        print(err)
+        log.error(err)
         raise RuntimeError(err) from None
 
 EMAIL_BACKEND = getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend" if DEBUG else "django.core.mail.backends.smtp.EmailBackend")

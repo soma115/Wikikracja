@@ -29,7 +29,7 @@ class Command(BaseCommand):
         block_ms = options['block_ms']
         claim_after_ms = options['claim_after_ms']
         ensure_consumer_group(client)
-        self.stdout.write(self.style.SUCCESS(f'Chat notification worker started as {consumer}'))
+        log.info('Chat notification worker started as %s', consumer)
 
         try:
             while True:
@@ -38,7 +38,7 @@ class Command(BaseCommand):
                 for stream_id, job in [*claimed, *fresh]:
                     self._process_job(client, stream_id, job)
         except KeyboardInterrupt:
-            self.stdout.write('Chat notification worker stopped.')
+            log.info('Chat notification worker stopped.')
 
     @staticmethod
     def _process_job(client, stream_id, job):

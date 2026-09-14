@@ -89,14 +89,21 @@ def _board_tab_filter(user, tab):
     return Q(visibility=Post.Visibility.ARCHIVE)
 
 
+def _board_visibility_filter_for_user(user, *, include_archive=False):
+    visibility_filter = Post.visibility_filter_for_user(user, include_archive=include_archive)
+    if not user.is_authenticated:
+        visibility_filter &= Q(system_key__isnull=True)
+    return visibility_filter
+
+
 def _board_listing(request, *, include_chat_counts=True):
     tab, sort, order, active_categories, search_query = _board_list_state(request)
     posts_query = Post.objects.select_related('category', 'author', 'updated_by', 'chat_room')
     if tab == 'archive':
-        posts_all = posts_query.filter(_board_tab_filter(request.user, tab), Post.visibility_filter_for_user(request.user, include_archive=True))
+        posts_all = posts_query.filter(_board_tab_filter(request.user, tab), _board_visibility_filter_for_user(request.user, include_archive=True))
     else:
         tab_filter = Q(visibility=Post.Visibility.PUBLIC) if tab == 'public' and 'tab' not in request.GET else _board_tab_filter(request.user, tab)
-        posts_all = posts_query.filter(Post.visibility_filter_for_user(request.user), tab_filter)
+        posts_all = posts_query.filter(_board_visibility_filter_for_user(request.user), tab_filter)
     if search_query:
         posts_all = posts_all.filter(Q(title__icontains=search_query) | Q(subtitle__icontains=search_query) | Q(text__icontains=search_query))
     posts_all = list(posts_all)
@@ -148,7 +155,7 @@ def _board_listing(request, *, include_chat_counts=True):
             tab_query = Post.objects.none()
         else:
             tab_query = Post.objects.filter(_board_tab_filter(request.user, tab_name))
-            tab_query = tab_query.filter(Post.visibility_filter_for_user(request.user, include_archive=tab_name == 'archive'))
+            tab_query = tab_query.filter(_board_visibility_filter_for_user(request.user, include_archive=tab_name == 'archive'))
         tab_counts[tab_name] = tab_query.count()
 
     return {
@@ -273,12 +280,21 @@ class PostFormViewMixin(LoginRequiredMixin):
         for attachment in self.request.FILES.getlist('attachments'):
             PostAttachment.objects.create(post=post, file=attachment, filename=attachment.name)
 
-        return redirect('board:view_post', post.pk)
+        detail_url = reverse('board:view_post', kwargs={'pk': post.pk})
+        if post.visibility == Post.Visibility.ARCHIVE:
+            detail_url = f'{detail_url}?tab=archive'
+        return redirect(detail_url)
 
 
 class PostCreateView(PostFormViewMixin, CreateView):
     def get_initial(self):
         initial = super().get_initial()
+        tab = self.request.GET.get('tab')
+        visibility_by_tab = {'mine': Post.Visibility.PRIVATE, 'group': Post.Visibility.GROUP, 'public': Post.Visibility.PUBLIC, 'important': Post.Visibility.GROUP, 'archive': Post.Visibility.ARCHIVE}
+        if tab in visibility_by_tab:
+            initial['visibility'] = visibility_by_tab[tab]
+        if tab in ('public', 'important'):
+            initial['is_important'] = True
         try:
             initial['category'] = PostCategory.objects.get(pk=int(self.request.GET.get('category', ''))).pk
         except (ValueError, TypeError, PostCategory.DoesNotExist):
@@ -294,7 +310,7 @@ class PostUpdateView(PostFormViewMixin, UpdateView):
 def _post_queryset_for_user(user, *, include_archive=False):
     """Return posts visible to the given user."""
     queryset = Post.objects.select_related('author', 'updated_by', 'category')
-    return queryset.filter(Post.visibility_filter_for_user(user, include_archive=include_archive))
+    return queryset.filter(_board_visibility_filter_for_user(user, include_archive=include_archive))
 
 
 def _post_detail_context(request: HttpRequest, post: Post):

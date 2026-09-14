@@ -50,7 +50,7 @@ export default class WsApi {
                 if (handler) handler.call(this, evt);
             },
             onClose: () => {
-                console.log("Disconnected from chat socket");
+                console.debug("Disconnected from chat socket");
                 if (this.wsOnDisconnect) this.wsOnDisconnect();
             },
         });

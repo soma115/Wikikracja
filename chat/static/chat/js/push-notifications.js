@@ -3,7 +3,7 @@ import { sendNotificationAck } from './utility.js';
 
 window.wkOnReady(async function() {
     const enabled = await PushNotificationManager.initialize();
-    console.log('[NOTIFDBG] Push notifications enabled:', enabled);
+    console.debug('[NOTIFDBG] Push notifications enabled:', enabled);
 });
 
 const PushNotificationManager = {
@@ -37,7 +37,7 @@ const PushNotificationManager = {
     async _doInitFCM() {
         try {
             if (Notification.permission !== 'granted') {
-                console.log('[NOTIFDBG] Notification permission not granted yet; skipping FCM token retrieval.');
+                console.debug('[NOTIFDBG] Notification permission not granted yet; skipping FCM token retrieval.');
                 return false;
             }
             if (!FIREBASE_CONFIG ||
@@ -80,7 +80,7 @@ const PushNotificationManager = {
             // On Android Chrome, showNotification is more reliable when triggered from the
             // service worker context. We post a message to the SW and let it display.
             messaging.onMessage((payload) => {
-                console.log('[NOTIFDBG] FCM foreground message:', payload);
+                console.debug('[NOTIFDBG] FCM foreground message:', payload);
                 const notification = payload.notification || {};
                 const data = payload.data || {};
                 const notificationId = data.notification_id || null;
@@ -208,7 +208,7 @@ const PushNotificationManager = {
             });
             const data = await response.json();
             if (response.ok && data.success) {
-                console.log('[NOTIFDBG] Device registered successfully:', data);
+                console.debug('[NOTIFDBG] Device registered successfully:', data);
                 return data;
             } else {
                 console.error('[NOTIFDBG] Device registration failed:', data);
@@ -237,7 +237,7 @@ const PushNotificationManager = {
             });
             const data = await response.json();
             if (response.ok && data.success) {
-                console.log('[NOTIFDBG] Device unregistered:', data);
+                console.debug('[NOTIFDBG] Device unregistered:', data);
                 return data;
             } else {
                 console.error('[NOTIFDBG] Device unregistration failed:', data);

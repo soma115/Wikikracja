@@ -54,7 +54,7 @@ function postAck(info) {
 // Handle background messages only if FCM was initialized
 if (messaging) {
     messaging.onBackgroundMessage((payload) => {
-        console.log('[NOTIFDBG] FCM background message:', payload);
+        console.debug('[NOTIFDBG] FCM background message:', payload);
 
         const notification = payload.notification || {};
         const data = payload.data || {};
@@ -105,7 +105,7 @@ if (messaging) {
 // missing. It parses the raw Web Push payload and displays the notification.
 if (!messaging) {
     self.addEventListener('push', (event) => {
-        console.log('[NOTIFDBG] Fallback push handler received event:', event);
+        console.debug('[NOTIFDBG] Fallback push handler received event:', event);
         let notificationId = null;
         let tag = 'unknown';
         try {

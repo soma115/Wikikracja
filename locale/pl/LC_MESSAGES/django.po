@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-14 12:11+0200\n"
+"POT-Creation-Date: 2026-09-14 13:27+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -96,7 +96,7 @@ msgstr "Tytuł"
 #: .\events\models.py:20 .\events\templates\events\_event_card.html:72
 #: .\tasks\templates\tasks\_task_card.html:90
 #: .\tasks\templates\tasks\task_detail.html:15
-#: .\tasks\templates\tasks\task_form.html:29 .\zzz\scheduler.py:166
+#: .\tasks\templates\tasks\task_form.html:29 .\zzz\scheduler.py:169
 msgid "Description"
 msgstr "Opis"
 
@@ -661,22 +661,22 @@ msgstr "Załączniki"
 msgid "New important document by %(username)s: %(link)s"
 msgstr "Nowy ważny dokument od %(username)s: <a href='%(post_url)s'>%(title)s</a>"
 
-#: .\board\signals.py:52 .\tests\test_board.py:489
+#: .\board\signals.py:52 .\tests\test_board.py:542
 #, python-format
 msgid "Document is no longer marked as important: %(link)s"
 msgstr "Dokument nie jest już oznaczony jako ważny: %(link)s"
 
-#: .\board\signals.py:54 .\tests\test_board.py:475
+#: .\board\signals.py:54 .\tests\test_board.py:528
 #, python-format
 msgid "Important document was made private: %(link)s"
 msgstr "Ważny dokument został oznaczony jako prywatny: %(link)s"
 
-#: .\board\signals.py:56 .\tests\test_board.py:506
+#: .\board\signals.py:56 .\tests\test_board.py:559
 #, python-format
 msgid "Important document was archived: %(link)s"
 msgstr "Ważny dokument został zarchiwizowany: %(link)s"
 
-#: .\board\signals.py:58 .\tests\test_board.py:507
+#: .\board\signals.py:58 .\tests\test_board.py:560
 #, python-format
 msgid "Important document was made visible again: %(link)s"
 msgstr "Ważny dokument został ponownie udostępniony: %(link)s"
@@ -2118,7 +2118,7 @@ msgid "Optional link to event details, registration, or location"
 msgstr "Opcjonalny link do szczegółów wydarzenia, rejestrowania lub miejsca"
 
 #: .\events\models.py:22 .\events\templates\events\event_detail.html:53
-#: .\zzz\scheduler.py:160
+#: .\zzz\scheduler.py:163
 msgid "Place"
 msgstr "Miejsce"
 
@@ -3172,11 +3172,11 @@ msgstr "Ankiety i szybkie głosowania — zbieraj opinie, przeprowadzaj sondaże
 msgid "Change language"
 msgstr "Zmień język"
 
-#: .\home\templates\home\_language_switcher.html:21 .\zzz\settings.py:109
+#: .\home\templates\home\_language_switcher.html:21 .\zzz\settings.py:111
 msgid "Polish"
 msgstr "Polski"
 
-#: .\home\templates\home\_language_switcher.html:31 .\zzz\settings.py:109
+#: .\home\templates\home\_language_switcher.html:31 .\zzz\settings.py:111
 msgid "English"
 msgstr "Angielski"
 
@@ -5854,7 +5854,7 @@ msgstr "Zespół %(site_name)s"
 msgid "File is too large (max %s MB)."
 msgstr "Plik jest za duży (maks. %s MB)."
 
-#: .\zzz\scheduler.py:157
+#: .\zzz\scheduler.py:160
 msgid "Time"
 msgstr "Godzina"
 

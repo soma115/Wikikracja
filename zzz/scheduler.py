@@ -4,11 +4,14 @@ import os
 import sys
 import tempfile
 import threading
+import time
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from django.conf import settings
 from django.core.management import call_command
+
+from core.sqlite import wal_size
 
 log = logging.getLogger(__name__)
 
@@ -172,13 +175,15 @@ def run_meeting_notification():
 
 
 def _run_command(command_name):
-    """Generic command runner with error handling"""
+    """Generic command runner with timing and error handling."""
+    started_at = time.monotonic()
     try:
-        log.info(f"Running {command_name} command")
+        log.info('Running scheduler command=%s', command_name)
         call_command(command_name)
-        log.info(f"{command_name} command completed")
-    except Exception as e:
-        log.error(f"Error running {command_name}: {e}", exc_info=True)
+    except Exception as error:
+        log.error('Scheduler command failed command=%s error=%s', command_name, error, exc_info=True)
+    finally:
+        log.info('Scheduler command finished command=%s duration=%.3fs wal_size=%s', command_name, time.monotonic() - started_at, wal_size())
 
 
 def run_send_email_digest():

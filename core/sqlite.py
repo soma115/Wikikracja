@@ -45,12 +45,17 @@ def run_with_lock_retry(operation: str, function: Callable[[], T], *, max_attemp
     started_at = time.monotonic()
     for attempt in range(max_attempts):
         try:
-            return function()
+            result = function()
+            log.debug('SQLite operation completed operation=%s attempts=%s elapsed=%.3fs wal_size=%s', operation, attempt + 1, time.monotonic() - started_at, wal_size())
+            return result
         except OperationalError as error:
-            if not is_locked(error) or attempt == max_attempts - 1:
+            if not is_locked(error):
+                raise
+            if attempt == max_attempts - 1:
+                log.error('SQLite database is locked; retry exhausted operation=%s attempts=%s elapsed=%.3fs wal_size=%s', operation, attempt + 1, time.monotonic() - started_at, wal_size(), exc_info=True)
                 raise
             delay = delays[attempt]
-            log.warning('SQLite lock during operation=%s attempt=%s wait=%.3fs transaction_time=%.3fs wal_size=%s', operation, attempt + 1, delay, time.monotonic() - started_at, wal_size())
+            log.warning('SQLite lock during operation=%s attempt=%s wait=%.3fs elapsed=%.3fs wal_size=%s', operation, attempt + 1, delay, time.monotonic() - started_at, wal_size())
             time.sleep(delay)
 
     raise AssertionError('unreachable')

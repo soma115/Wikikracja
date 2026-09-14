@@ -126,6 +126,40 @@ def test_create_post_saves_author_and_multiple_attachments(authenticated_client)
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('tab', 'visibility', 'is_important'),
+    [
+        ('mine', Post.Visibility.PRIVATE, False),
+        ('group', Post.Visibility.GROUP, False),
+        ('public', Post.Visibility.PUBLIC, True),
+        ('important', Post.Visibility.GROUP, True),
+        ('archive', Post.Visibility.ARCHIVE, False),
+    ],
+)
+def test_create_form_prefills_settings_from_board_tab(authenticated_client, tab, visibility, is_important):
+    """Formularz nowego dokumentu dziedziczy ustawienia aktywnej zakładki."""
+    client, _ = authenticated_client
+
+    response = client.get(reverse('board:create_post'), {'tab': tab})
+
+    assert response.status_code == 200
+    assert response.context['form'].initial['visibility'] == visibility
+    assert response.context['form'].initial.get('is_important', False) is is_important
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('tab', ['mine', 'group', 'public', 'important', 'archive'])
+def test_board_create_links_preserve_active_tab(authenticated_client, tab):
+    """Guziki tworzenia dokumentu przekazują aktywną zakładkę do formularza."""
+    client, _ = authenticated_client
+
+    response = client.get(reverse('board:start'), {'tab': tab})
+
+    assert response.status_code == 200
+    assert f'href="/board/create/?tab={tab}"' in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_create_private_post(authenticated_client):
     """Tworzenie dokumentu z zaznaczonym checkboxem 'Prywatne' zapisuje is_private=True."""
     client, user = authenticated_client
@@ -137,6 +171,22 @@ def test_create_private_post(authenticated_client):
     assert res.status_code == 302
     assert post.author == user
     assert post.visibility == Post.Visibility.PRIVATE
+
+
+@pytest.mark.django_db
+def test_create_archived_post_redirects_to_visible_detail(authenticated_client):
+    """Nowy dokument archiwalny pozostaje dostępny po zapisie."""
+    client, user = authenticated_client
+
+    res = client.post(reverse('board:create_post'), {'title': 'Dokument archiwalny', 'text': 'Treść', 'visibility': Post.Visibility.ARCHIVE})
+
+    post = Post.objects.get(title='Dokument archiwalny')
+    detail_url = f'{reverse("board:view_post", args=[post.pk])}?tab=archive'
+    assert res.status_code == 302
+    assert res.url == detail_url
+    assert post.author == user
+    assert post.visibility == Post.Visibility.ARCHIVE
+    assert client.get(res.url).status_code == 200
 
 
 @pytest.mark.django_db
@@ -269,7 +319,9 @@ def test_system_post_visible_to_authenticated_users_regardless_of_author_or_priv
     assert system_post in Post.objects.filter(Post.visibility_filter_for_user(user))
 
     client.logout()
-    assert client.get(reverse('board:view_post', args=[system_post.pk])).status_code == 200
+    assert client.get(reverse('board:start')).status_code == 200
+    assert system_post.title not in client.get(reverse('board:start')).content.decode()
+    assert client.get(reverse('board:view_post', args=[system_post.pk])).status_code == 404
 
 
 @pytest.mark.django_db
