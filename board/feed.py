@@ -7,7 +7,7 @@ from .models import Post
 
 def get_feed_items(since: timezone.datetime) -> list[dict]:
     """Return feed items for board posts modified since `since`."""
-    posts = Post.objects.filter(updated__gte=since, is_deleted=False).select_related('author', 'author__uzytkownik').order_by('-updated')
+    posts = Post.objects.filter(updated__gte=since, visibility__in=(Post.Visibility.GROUP, Post.Visibility.PUBLIC)).select_related('author', 'author__uzytkownik').order_by('-updated')
     items = []
     for post in posts:
         items.append(
@@ -20,7 +20,8 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
                 'timestamp': post.updated,
                 'url': f"/board/view/{post.pk}/",
                 'object_id': post.pk,
-                'is_public': post.is_public,
+                'visibility': post.visibility,
+                'is_public': post.visibility == Post.Visibility.PUBLIC,
                 'author_id': post.author_id,
             }
         )
@@ -28,18 +29,12 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
 
 
 def prepare_items(items, user):
-    """Hide private posts from everyone except the author."""
-    prepared = []
-    for item in items:
-        if item['is_public']:
-            prepared.append(item)
-        elif user.is_authenticated and item['author_id'] == user.pk:
-            prepared.append(item)
-        else:
-            prepared.append(None)
-    return prepared
+    """Show group documents only to authenticated members."""
+    if user.is_authenticated:
+        return items
+    return [item if item['visibility'] == Post.Visibility.PUBLIC else None for item in items]
 
 
 def prepare_digest_items(items, user, since):
-    """Hide private posts from everyone except the author in email digests."""
+    """Apply the same visibility policy to email digests."""
     return prepare_items(items, user)

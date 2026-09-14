@@ -19,7 +19,7 @@ def test_post_factory_with_relations():
     assert post.id is not None
     assert post.author is not None
     assert post.category is not None
-    assert post.is_public is True
+    assert post.visibility == 'public'
 
 
 @pytest.mark.django_db

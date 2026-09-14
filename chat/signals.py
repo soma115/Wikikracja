@@ -70,7 +70,7 @@ def _invalidate_feed_cache_on_room_change(sender, **kwargs):
 
 
 @receiver(chat_room_requested)
-def on_chat_room_requested(sender, instance, title, founder, allowed_users, welcome_message, source_app, source_object_id, **kwargs):
+def on_chat_room_requested(sender, instance, title, founder, allowed_users, welcome_message, source_app, source_object_id, room_public=True, room_archived=False, **kwargs):
     """Create or update a chat room on behalf of another app."""
     room = getattr(instance, 'chat_room', None)
     if room is None:
@@ -80,12 +80,21 @@ def on_chat_room_requested(sender, instance, title, founder, allowed_users, welc
 
     created = False
     if room is None:
-        room = Room.objects.create(title=title, public=True, archived=False, protected=True, founder=founder, source_app=source_app, source_object_id=source_object_id)
+        room = Room.objects.create(title=title, public=room_public, archived=room_archived, protected=True, founder=founder, source_app=source_app, source_object_id=source_object_id)
         created = True
     else:
+        changed_fields = []
         if room.title != title:
             room.title = title
-            room.save(update_fields=['title'])
+            changed_fields.append('title')
+        if room.public != room_public:
+            room.public = room_public
+            changed_fields.append('public')
+        if room.archived != room_archived:
+            room.archived = room_archived
+            changed_fields.append('archived')
+        if changed_fields:
+            room.save(update_fields=changed_fields)
 
     if room.source_app != source_app or room.source_object_id != source_object_id:
         room.source_app = source_app
@@ -102,7 +111,7 @@ def on_chat_room_requested(sender, instance, title, founder, allowed_users, welc
         message_anonymous = kwargs.get('welcome_message_anonymous', True)
         Message.objects.create(room=room, text=welcome_message, sender=message_sender, anonymous=message_anonymous)
 
-    if created and allowed_users is not None:
+    if allowed_users is not None:
         room.allowed.set(allowed_users)
 
 

@@ -53,8 +53,8 @@ class LinkTitlesTests(TestCase):
         )
 
     def test_anonymous_user_only_sees_public_content(self):
-        public_post = Post.objects.create(title='Public document', text='Text', author=self.user, is_public=True)
-        private_post = Post.objects.create(title='Private document', text='Text', author=self.user, is_public=False)
+        public_post = Post.objects.create(title='Public document', text='Text', author=self.user, visibility=Post.Visibility.PUBLIC)
+        private_post = Post.objects.create(title='Private document', text='Text', author=self.user, visibility=Post.Visibility.GROUP)
         public_event = Event.objects.create(title='Public event', start_date=timezone.now(), is_public=True)
         private_event = Event.objects.create(title='Private event', start_date=timezone.now(), is_public=False)
         task = Task.objects.create(title='Members only', description='Description', created_by=self.user)

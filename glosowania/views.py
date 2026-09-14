@@ -234,6 +234,9 @@ def _cast_vote(request, pk, vote):
                 decision, response = _get_and_check_decision(request, pk, Decyzja.Status.REFERENDUM, _('This motion is not currently open for voting.'))
                 if response:
                     return None, response
+                if decision.data_referendum_stop and decision.data_referendum_stop < timezone.localdate():
+                    messages.error(request, _('This motion is not currently open for voting.'))
+                    return None, redirect('glosowania:details', pk)
 
                 voter = request.user
                 already_voted = KtoJuzGlosowal.objects.filter(projekt=decision, ktory_uzytkownik_juz_zaglosowal=voter).exists()

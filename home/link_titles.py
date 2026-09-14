@@ -20,6 +20,7 @@ class LinkRoute:
     public_field: str = ''
     author_field: str = ''
     system_field: str = ''
+    visibility_field: str = ''
 
 
 ROUTES = {
@@ -29,9 +30,9 @@ ROUTES = {
     'events:detail': LinkRoute('events', 'Event', 'pk', 'title', login_required=False, public_field='is_public'),
     'obywatele:obywatele_szczegoly': LinkRoute('auth', 'User', 'pk', 'user'),
     'obywatele:poczekalnia_szczegoly': LinkRoute('auth', 'User', 'pk', 'user'),
-    'board:view_post': LinkRoute('board', 'Post', 'pk', 'title', login_required=False, public_field='is_public', author_field='author', system_field='system_key'),
-    'board:view_post_by_slug': LinkRoute('board', 'Post', 'slug', 'title', login_required=False, public_field='is_public', author_field='author', system_field='system_key'),
-    'board_post_by_slug': LinkRoute('board', 'Post', 'slug', 'title', login_required=False, public_field='is_public', author_field='author', system_field='system_key'),
+    'board:view_post': LinkRoute('board', 'Post', 'pk', 'title', login_required=False, author_field='author', system_field='system_key', visibility_field='visibility'),
+    'board:view_post_by_slug': LinkRoute('board', 'Post', 'slug', 'title', login_required=False, author_field='author', system_field='system_key', visibility_field='visibility'),
+    'board_post_by_slug': LinkRoute('board', 'Post', 'slug', 'title', login_required=False, author_field='author', system_field='system_key', visibility_field='visibility'),
 }
 
 
@@ -100,7 +101,15 @@ def resolve_link_titles(urls, request):
         model = apps.get_model(route.app_label, route.model_name)
         values = {value for _, value in links}
         queryset = model.objects.filter(**{f'{route.lookup}__in': values})
-        if route.public_field:
+        if route.visibility_field:
+            visibility = Q(**{route.visibility_field: 'public'})
+            if request.user.is_authenticated:
+                visibility |= Q(**{route.visibility_field: 'group'})
+                visibility |= Q(**{route.visibility_field: 'private', route.author_field: request.user})
+                if route.system_field:
+                    visibility |= Q(**{f'{route.system_field}__isnull': False})
+            queryset = queryset.filter(visibility)
+        elif route.public_field:
             visibility = Q(**{route.public_field: True})
             if request.user.is_authenticated:
                 if route.author_field:

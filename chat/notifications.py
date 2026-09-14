@@ -61,7 +61,7 @@ class ChatNotificationService:
                 await self._enqueue_delivery(member.id, room.id, notification, 'notification')
 
             if consumer and not is_present and prefs['seen']:
-                await consumer.repo.unsee_room(room)
+                await getattr(consumer, 'room_repo', consumer.repo).unsee_room(room)
                 await consumer.push_unread_count()
                 await consumer.send_json({"unsee_room": room.id})
 

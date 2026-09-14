@@ -26,6 +26,12 @@ class PostCategory(AbstractCategory):
 
 
 class Post(ChatRoomModel, models.Model):
+    class Visibility(models.TextChoices):
+        PRIVATE = 'private', _('Only me')
+        GROUP = 'group', _('Group')
+        PUBLIC = 'public', _('Public')
+        ARCHIVE = 'archive', _('Archive')
+
     title = models.CharField(max_length=200, verbose_name=_("Title"))
     subtitle = models.CharField(max_length=200, null=True, blank=True, verbose_name=_("Subtitle"))
     text = models.TextField(verbose_name=_("Text"))
@@ -34,10 +40,8 @@ class Post(ChatRoomModel, models.Model):
     created = models.DateTimeField(auto_now_add=True, verbose_name=_("Created"))
     updated = models.DateTimeField(auto_now=True, verbose_name=_("Updated"))
     category = models.ForeignKey(PostCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name="posts", verbose_name=_("Category"))
-    is_public = models.BooleanField(default=False, verbose_name=_("Public"))
-    is_private = models.BooleanField(default=False, verbose_name=_("Private"))
+    visibility = models.CharField(max_length=10, choices=Visibility.choices, default=Visibility.GROUP, verbose_name=_("Visibility"))
     is_important = models.BooleanField(default=False, verbose_name=_("Important"))
-    is_deleted = models.BooleanField(default=False, verbose_name=_("In trash"))
     featured_image = models.ImageField(upload_to='board/featured/', null=True, blank=True, verbose_name=_("Featured Image"))
     system_key = models.CharField(max_length=50, unique=True, null=True, blank=True, verbose_name=_("System Key"))
     slug = models.SlugField(max_length=200, unique=True, null=True, blank=True, verbose_name=_("Link Alias"))
@@ -58,13 +62,17 @@ class Post(ChatRoomModel, models.Model):
         return self.get_chat_room_url()
 
     def save(self, *args, **kwargs):
-        if self.pk:
-            original = type(self).objects.filter(pk=self.pk).values('system_key', 'category_id', 'is_private', 'is_important').first()
-            if original and original['system_key']:
-                self.system_key = original['system_key']
-                self.category_id = original['category_id']
-                self.is_private = original['is_private']
-                self.is_important = original['is_important']
+        original = type(self).objects.filter(pk=self.pk).values('system_key', 'category_id', 'visibility', 'is_important').first() if self.pk else None
+        self._previous_visibility = original['visibility'] if original else None
+        self._previous_is_important = original['is_important'] if original else None
+        if original and original['system_key']:
+            self.system_key = original['system_key']
+            self.category_id = original['category_id']
+            self.visibility = original['visibility']
+            self.is_important = True
+        if self.system_key:
+            self.visibility = self.Visibility.PUBLIC
+            self.is_important = True
         return super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
@@ -77,10 +85,21 @@ class Post(ChatRoomModel, models.Model):
         return cls.objects.filter(system_key=system_key).first()
 
     @classmethod
-    def visibility_filter_for_user(cls, user):
+    def visibility_filter_for_user(cls, user, *, include_archive=False):
         if not user.is_authenticated:
-            return Q(is_private=False, is_public=True)
-        return Q(is_private=False) | Q(system_key__isnull=False) | Q(author=user)
+            return Q(visibility=cls.Visibility.PUBLIC)
+        visible = Q(visibility__in=(cls.Visibility.GROUP, cls.Visibility.PUBLIC)) | Q(system_key__isnull=False)
+        visible |= Q(visibility=cls.Visibility.PRIVATE, author=user)
+        if include_archive:
+            visible |= Q(visibility=cls.Visibility.ARCHIVE)
+        return visible
+
+    @classmethod
+    def editable_filter_for_user(cls, user):
+        return Q(visibility__in=(cls.Visibility.GROUP, cls.Visibility.PUBLIC)) | Q(visibility=cls.Visibility.PRIVATE, author=user)
+
+    def can_edit(self, user):
+        return user.is_authenticated and self.visibility != self.Visibility.ARCHIVE and (self.visibility != self.Visibility.PRIVATE or self.author_id == user.pk)
 
 
 class PostAttachment(models.Model):

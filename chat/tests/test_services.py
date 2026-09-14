@@ -20,6 +20,7 @@ from chat.exceptions import ClientError
 from chat.models import Message, MessageReadBy, Room
 from chat.notifications import ChatNotificationService
 from chat.permissions import _room_permission_checkers, get_room_permission_checker, register_room_permission_checker
+from chat.room_repository import ChatRoomRepository
 from chat.services import (
     CHAT_UNREAD_CACHE_KEY,
     ChatRepository,
@@ -34,7 +35,7 @@ from chat.services import (
 )
 from chat.tests.utils import make_user
 from core import signals
-from core.notifications import build_notification, send_fcm_to_all_sync, send_fcm_to_user_sync
+from core.notifications import build_notification, send_fcm_to_user_sync
 from tasks.tests.utils import make_task
 
 
@@ -111,24 +112,24 @@ class CanPostInRoomTest(TestCase):
         self.assertEqual(get_room_permission_checker('tasks'), checker)
 
     async def test_coordinator_can_post(self):
-        repo = ChatRepository(self.coordinator)
+        repo = ChatRoomRepository(self.coordinator)
         self.assertTrue(await repo.can_post_in_room(self.room))
 
     async def test_approved_helper_can_post(self):
-        repo = ChatRepository(self.approved)
+        repo = ChatRoomRepository(self.approved)
         self.assertTrue(await repo.can_post_in_room(self.room))
 
     async def test_unapproved_helper_cannot_post(self):
-        repo = ChatRepository(self.helper)
+        repo = ChatRoomRepository(self.helper)
         self.assertFalse(await repo.can_post_in_room(self.room))
 
     async def test_stranger_cannot_post(self):
-        repo = ChatRepository(self.stranger)
+        repo = ChatRoomRepository(self.stranger)
         self.assertFalse(await repo.can_post_in_room(self.room))
 
     async def test_old_task_allows_everyone(self):
         old_task = await database_sync_to_async(make_task)(created_by=self.coordinator, team_mode=False)
-        repo = ChatRepository(self.stranger)
+        repo = ChatRoomRepository(self.stranger)
         self.assertTrue(await repo.can_post_in_room(old_task.chat_room))
 
     async def test_unauthenticated_users_cannot_post_in_public_or_private_rooms(self):
@@ -136,41 +137,41 @@ class CanPostInRoomTest(TestCase):
             self.room.public = public
             for name, user in (('none', None), ('anonymous', AnonymousUser())):
                 with self.subTest(public=public, user=name):
-                    self.assertFalse(await ChatRepository(user).can_post_in_room(self.room))
+                    self.assertFalse(await ChatRoomRepository(user).can_post_in_room(self.room))
 
     async def test_private_membership_allows_unapproved_helper(self):
         self.room.public = False
         await database_sync_to_async(self.room.allowed.set)([self.helper])
-        self.assertTrue(await ChatRepository(self.helper).can_post_in_room(self.room))
+        self.assertTrue(await ChatRoomRepository(self.helper).can_post_in_room(self.room))
 
     async def test_private_nonmember_coordinator_cannot_post(self):
         self.room.public = False
         await database_sync_to_async(self.room.allowed.set)([self.helper])
-        self.assertFalse(await ChatRepository(self.coordinator).can_post_in_room(self.room))
+        self.assertFalse(await ChatRoomRepository(self.coordinator).can_post_in_room(self.room))
 
     async def test_plain_public_room_allows_nonmember(self):
         room = await database_sync_to_async(Room.objects.create)(title="Plain public room", public=True)
-        self.assertTrue(await ChatRepository(self.stranger).can_post_in_room(room))
+        self.assertTrue(await ChatRoomRepository(self.stranger).can_post_in_room(room))
 
     async def test_public_task_room_without_object_id_allows_nonmember(self):
         room = await database_sync_to_async(Room.objects.create)(title="Task without object ID", public=True, source_app="tasks")
-        self.assertTrue(await ChatRepository(self.stranger).can_post_in_room(room))
+        self.assertTrue(await ChatRoomRepository(self.stranger).can_post_in_room(room))
 
     async def test_public_task_room_with_missing_task_currently_allows_nonmember(self):
         room = await database_sync_to_async(Room.objects.create)(title="Missing task", public=True, source_app="tasks", source_object_id=self.task.pk + 1)
-        self.assertTrue(await ChatRepository(self.stranger).can_post_in_room(room))
+        self.assertTrue(await ChatRoomRepository(self.stranger).can_post_in_room(room))
 
     async def test_assigned_coordinator_not_creator_controls_team_posting(self):
         task = await database_sync_to_async(make_task)(created_by=self.stranger, assigned_to=self.coordinator, team_mode=True)
-        self.assertTrue(await ChatRepository(self.coordinator).can_post_in_room(task.chat_room))
-        self.assertFalse(await ChatRepository(self.stranger).can_post_in_room(task.chat_room))
+        self.assertTrue(await ChatRoomRepository(self.coordinator).can_post_in_room(task.chat_room))
+        self.assertFalse(await ChatRoomRepository(self.stranger).can_post_in_room(task.chat_room))
 
     async def test_creator_of_unassigned_team_task_cannot_post(self):
         task = await database_sync_to_async(make_task)(created_by=self.stranger, team_mode=True)
-        self.assertFalse(await ChatRepository(self.stranger).can_post_in_room(task.chat_room))
+        self.assertFalse(await ChatRoomRepository(self.stranger).can_post_in_room(task.chat_room))
 
     async def test_revoked_helper_approval_removes_posting_permission(self):
-        repo = ChatRepository(self.approved)
+        repo = ChatRoomRepository(self.approved)
         self.assertTrue(await repo.can_post_in_room(self.room))
         await database_sync_to_async(self.task.remove_helper)(self.approved)
         self.assertTrue(await database_sync_to_async(self.task.is_user_helper)(self.approved))
@@ -621,64 +622,6 @@ class TaskRoomVoterNamesTest(TestCase):
         await database_sync_to_async(self.voter_up.delete)()
         voters = await self.repo.get_vote_voters(self.msg.id)
         self.assertEqual(voters, {'upvoters': [], 'downvoters': ['downvoter']})
-
-
-class SendPushNotificationSyncTest(TestCase):
-    """Regression tests for the FCM message built by send_push_notification_sync."""
-
-    def setUp(self):
-        self.user = make_user("pushuser")
-        self.repo = ChatRepository(self.user)
-
-        self.mock_queryset = MagicMock()
-        self.mock_queryset.exists.return_value = True
-        self.mock_queryset.send_message.return_value = MagicMock(success_count=1, responses=[MagicMock(success=True)])
-
-    def test_firebase_disabled_skips_user_and_broadcast_fcm(self):
-        notification = {"notification_id": "disabled-fcm", "title": "Title", "body": "Body"}
-        for send, args in ((send_fcm_to_user_sync, (self.user, notification)), (send_fcm_to_all_sync, (notification,))):
-            with self.subTest(send=send.__name__), patch.object(firebase_admin, "_apps", {}), patch("core.notifications.GCMDevice") as devices:
-                with patch.object(firebase_messaging, "send_each") as send_each, self.assertNumQueries(0):
-                    self.assertEqual(send(*args, notification_type="chat"), 0)
-                self.assertEqual(devices.mock_calls, [])
-                send_each.assert_not_called()
-
-    async def test_builds_full_fcm_message(self):
-        """The message must contain top-level notification, data payload and webpush notification."""
-        with patch("core.notifications.GCMDevice") as mock_gcm:
-            mock_gcm.objects.filter.return_value = self.mock_queryset
-            with patch.object(firebase_admin, "_apps", {"[DEFAULT]": MagicMock()}):
-                await self.repo.send_push_notification_sync(self.user, "Room: Test", "Sender: Alice", "https://example.com/chat#room_id=1", 1, room_name="Test")
-
-        self.assertTrue(self.mock_queryset.send_message.called)
-        message = self.mock_queryset.send_message.call_args[0][0]
-        self.assertIsInstance(message, firebase_messaging.Message)
-
-        # Top-level notification lets the FCM SDK display the notification automatically.
-        self.assertEqual(message.notification.title, "Room: Test")
-        self.assertEqual(message.notification.body, "Sender: Alice")
-
-        # Data payload is used by onMessage and onBackgroundMessage.
-        self.assertEqual(message.data["title"], "Room: Test")
-        self.assertEqual(message.data["body"], "Sender: Alice")
-        self.assertEqual(message.data["room_id"], "1")
-        self.assertEqual(message.data["room_name"], "Test")
-        self.assertEqual(message.data["click_action"], "https://example.com/chat#room_id=1")
-        self.assertIn("favicon.ico", message.data["icon"])
-
-        # webpush.notification is needed for the killed-browser/PWA case.
-        webpush_notification = message.webpush.notification
-        self.assertEqual(webpush_notification.title, "Room: Test")
-        self.assertEqual(webpush_notification.body, "Sender: Alice")
-        self.assertEqual(webpush_notification.tag, "chat-1")
-        self.assertTrue(webpush_notification.require_interaction)
-        self.assertEqual(webpush_notification.data["room_id"], "1")
-        self.assertEqual(webpush_notification.data["click_action"], "https://example.com/chat#room_id=1")
-        self.assertIn("favicon.ico", webpush_notification.icon)
-        self.assertIn("favicon.ico", webpush_notification.badge)
-
-        # webpush.fcm_options.link handles notification click.
-        self.assertEqual(message.webpush.fcm_options.link, "https://example.com/chat#room_id=1")
 
 
 class FCMDeviceDeactivationTest(TestCase):

@@ -20,7 +20,7 @@ from glosowania.models import Decyzja
 from home.templatetags.feed_filters import content_type_label
 from zzz.email import send_bulk_email_in_thread
 from zzz.management.base_command import TranslatedCommand
-from zzz.templatetags.citizen_filters import user_display_name
+from zzz.templatetags.citizen_filters import user_initials
 
 log = logging.getLogger(__name__)
 
@@ -160,7 +160,7 @@ class Command(TranslatedCommand):
                 title = item['title'] or '—'
                 author = item.get('author')
                 if author and content_type != 'citizen':
-                    title = f'{title} — {author.get_full_name() or author.username}'
+                    title = f'{title} — {user_initials(author)}'
 
                 update_count = item.get('update_count', 1)
                 meta = ''
@@ -195,7 +195,7 @@ class Command(TranslatedCommand):
             'user': user,
             'site_name': get_site_domain(),
             'title': _('Activity digest'),
-            'digest_intro': _('Activity digest for %(username)s since %(date)s') % {'username': user_display_name(user), 'date': since_str},
+            'digest_intro': _('Activity digest for %(username)s since %(date)s') % {'username': user_initials(user), 'date': since_str},
             'restarted_votes': restarted_votes or [],
             'restarted_votes_title': _('Important: voting was restarted after a technical failure'),
             'restarted_votes_intro': _('Votes cast before the failure were lost and these referenda have started again. Please vote again:'),

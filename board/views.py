@@ -52,7 +52,11 @@ class PostCategoryReorderAPI(CategoryReorderAPI):
 def _board_list_state(request):
     default_tab = 'public'
     tab = request.GET.get('tab', default_tab)
-    if tab not in ('mine', 'internal', 'public', 'important', 'trash') or (not request.user.is_authenticated and tab in ('mine', 'internal', 'trash')):
+    if tab == 'internal':
+        tab = 'group'
+    elif tab == 'trash':
+        tab = 'archive'
+    if tab not in ('mine', 'group', 'public', 'important', 'archive') or (not request.user.is_authenticated and tab in ('mine', 'group', 'archive')):
         tab = default_tab
     sort = request.GET.get('sort', 'title')
     if sort not in ('title', 'date', 'none'):
@@ -75,23 +79,23 @@ def _board_tab_filter(user, tab):
     if tab == 'mine':
         if not user.is_authenticated:
             return Q(pk__in=[])
-        return Q(is_private=True, author=user, is_deleted=False)
-    if tab == 'internal':
-        return Q(is_public=False, is_private=False, is_deleted=False)
+        return Q(visibility=Post.Visibility.PRIVATE, author=user)
+    if tab == 'group':
+        return Q(visibility=Post.Visibility.GROUP)
     if tab == 'public':
-        return Q(is_public=True, is_private=False, is_deleted=False)
+        return Q(visibility=Post.Visibility.PUBLIC)
     if tab == 'important':
-        return Q(is_important=True, is_deleted=False)
-    return Q(is_deleted=True)
+        return Q(is_important=True, visibility__in=(Post.Visibility.GROUP, Post.Visibility.PUBLIC))
+    return Q(visibility=Post.Visibility.ARCHIVE)
 
 
 def _board_listing(request, *, include_chat_counts=True):
     tab, sort, order, active_categories, search_query = _board_list_state(request)
     posts_query = Post.objects.select_related('category', 'author', 'updated_by', 'chat_room')
-    if tab == 'trash':
-        posts_all = posts_query.filter(_board_tab_filter(request.user, tab))
+    if tab == 'archive':
+        posts_all = posts_query.filter(_board_tab_filter(request.user, tab), Post.visibility_filter_for_user(request.user, include_archive=True))
     else:
-        tab_filter = Q(is_deleted=False) if tab == 'public' and 'tab' not in request.GET else _board_tab_filter(request.user, tab)
+        tab_filter = Q(visibility=Post.Visibility.PUBLIC) if tab == 'public' and 'tab' not in request.GET else _board_tab_filter(request.user, tab)
         posts_all = posts_query.filter(Post.visibility_filter_for_user(request.user), tab_filter)
     if search_query:
         posts_all = posts_all.filter(Q(title__icontains=search_query) | Q(subtitle__icontains=search_query) | Q(text__icontains=search_query))
@@ -139,13 +143,12 @@ def _board_listing(request, *, include_chat_counts=True):
         query_params.append(('q', search_query))
 
     tab_counts = {}
-    for tab_name in ('mine', 'internal', 'public', 'important', 'trash'):
-        if tab_name == 'trash' and not request.user.is_authenticated:
+    for tab_name in ('mine', 'group', 'public', 'important', 'archive'):
+        if tab_name == 'archive' and not request.user.is_authenticated:
             tab_query = Post.objects.none()
         else:
             tab_query = Post.objects.filter(_board_tab_filter(request.user, tab_name))
-            if tab_name != 'trash':
-                tab_query = tab_query.filter(Post.visibility_filter_for_user(request.user))
+            tab_query = tab_query.filter(Post.visibility_filter_for_user(request.user, include_archive=tab_name == 'archive'))
         tab_counts[tab_name] = tab_query.count()
 
     return {
@@ -169,8 +172,8 @@ def _board_stepper(request: HttpRequest, listing):
 
     return {
         'steps': [
-            {'url': tab_url('mine'), 'tab': 'mine', 'icon': 'user', 'label': gettext_lazy('Mine'), 'count': listing['board_tab_counts']['mine'], 'active': listing['current_tab'] == 'mine'},
-            {'url': tab_url('internal'), 'tab': 'internal', 'icon': 'users', 'label': gettext_lazy('Internal'), 'count': listing['board_tab_counts']['internal'], 'active': listing['current_tab'] == 'internal'},
+            {'url': tab_url('mine'), 'tab': 'mine', 'icon': 'user', 'label': gettext_lazy('Only me'), 'count': listing['board_tab_counts']['mine'], 'active': listing['current_tab'] == 'mine'},
+            {'url': tab_url('group'), 'tab': 'group', 'icon': 'users', 'label': gettext_lazy('Group'), 'count': listing['board_tab_counts']['group'], 'active': listing['current_tab'] == 'group'},
             {'url': tab_url('public'), 'tab': 'public', 'icon': 'globe', 'label': gettext_lazy('Public'), 'count': listing['board_tab_counts']['public'], 'active': listing['current_tab'] == 'public'},
             {
                 'url': tab_url('important'),
@@ -180,7 +183,7 @@ def _board_stepper(request: HttpRequest, listing):
                 'count': listing['board_tab_counts']['important'],
                 'active': listing['current_tab'] == 'important',
             },
-            {'url': tab_url('trash'), 'tab': 'trash', 'icon': 'trash', 'label': gettext_lazy('Trash'), 'count': listing['board_tab_counts']['trash'], 'active': listing['current_tab'] == 'trash'},
+            {'url': tab_url('archive'), 'tab': 'archive', 'icon': 'archive', 'label': gettext_lazy('Archive'), 'count': listing['board_tab_counts']['archive'], 'active': listing['current_tab'] == 'archive'},
         ],
         'css_class': 'tw-board-stepper',
     }
@@ -250,6 +253,11 @@ class PostFormViewMixin(LoginRequiredMixin):
     form_class = PostForm
     template_name = 'board/post_form.html'
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['stepper'] = _board_stepper(self.request, _board_listing(self.request))
@@ -280,15 +288,13 @@ class PostCreateView(PostFormViewMixin, CreateView):
 
 class PostUpdateView(PostFormViewMixin, UpdateView):
     def get_queryset(self):
-        return super().get_queryset().filter(is_deleted=False)
+        return super().get_queryset().filter(Post.editable_filter_for_user(self.request.user))
 
 
-def _post_queryset_for_user(user, *, include_deleted=False):
+def _post_queryset_for_user(user, *, include_archive=False):
     """Return posts visible to the given user."""
     queryset = Post.objects.select_related('author', 'updated_by', 'category')
-    if include_deleted:
-        return queryset.filter(is_deleted=True)
-    return queryset.filter(Post.visibility_filter_for_user(user), is_deleted=False)
+    return queryset.filter(Post.visibility_filter_for_user(user, include_archive=include_archive))
 
 
 def _post_detail_context(request: HttpRequest, post: Post):
@@ -300,40 +306,42 @@ def _post_detail_context(request: HttpRequest, post: Post):
 
 
 def view_post(request: HttpRequest, pk: int):
-    include_deleted = request.user.is_authenticated and request.GET.get('tab') == 'trash'
-    post = get_object_or_404(_post_queryset_for_user(request.user, include_deleted=include_deleted).select_related('chat_room'), pk=pk)
+    include_archive = request.user.is_authenticated and request.GET.get('tab') == 'archive'
+    post = get_object_or_404(_post_queryset_for_user(request.user, include_archive=include_archive).select_related('chat_room'), pk=pk)
     return render(request, 'board/post_detail.html', _post_detail_context(request, post))
 
 
 def view_post_by_slug(request: HttpRequest, slug: str):
-    include_deleted = request.user.is_authenticated and request.GET.get('tab') == 'trash'
-    post = get_object_or_404(_post_queryset_for_user(request.user, include_deleted=include_deleted).select_related('chat_room'), slug=slug)
+    include_archive = request.user.is_authenticated and request.GET.get('tab') == 'archive'
+    post = get_object_or_404(_post_queryset_for_user(request.user, include_archive=include_archive).select_related('chat_room'), slug=slug)
     return render(request, 'board/post_detail.html', _post_detail_context(request, post))
 
 
 @login_required
 def delete_post(request: HttpRequest, pk: int):
-    post = get_object_or_404(Post, pk=pk, system_key__isnull=True, is_deleted=False)
+    post = get_object_or_404(Post.objects.filter(Post.editable_filter_for_user(request.user)), pk=pk, system_key__isnull=True)
     if request.method == 'POST':
-        post.is_deleted = True
-        post.save(update_fields=('is_deleted', 'updated'))
-        return redirect(f"{reverse('board:start')}?tab=trash")
+        post.visibility = Post.Visibility.ARCHIVE
+        post.updated_by = request.user
+        post.save(update_fields=('visibility', 'updated_by', 'updated'))
+        return redirect(f"{reverse('board:start')}?tab=archive")
     return redirect('board:view_post', pk=pk)
 
 
 @login_required
 def restore_post(request: HttpRequest, pk: int):
-    post = get_object_or_404(Post, pk=pk, is_deleted=True)
+    post = get_object_or_404(Post, pk=pk, visibility=Post.Visibility.ARCHIVE, system_key__isnull=True)
     if request.method == 'POST':
-        post.is_deleted = False
-        post.save(update_fields=('is_deleted', 'updated'))
-        return redirect(f"{reverse('board:start')}?tab=mine")
+        post.visibility = Post.Visibility.GROUP
+        post.updated_by = request.user
+        post.save(update_fields=('visibility', 'updated_by', 'updated'))
+        return redirect(f"{reverse('board:start')}?tab=group")
     return redirect('board:view_post', pk=pk)
 
 
 @login_required
 def delete_featured_image(request: HttpRequest, pk: int):
-    post = get_object_or_404(Post, pk=pk, is_deleted=False)
+    post = get_object_or_404(Post.objects.filter(Post.editable_filter_for_user(request.user)), pk=pk)
     if request.method == 'POST' and post.featured_image:
         post.featured_image.delete(save=False)
         post.featured_image = None
@@ -343,7 +351,7 @@ def delete_featured_image(request: HttpRequest, pk: int):
 
 @login_required
 def delete_attachment(request: HttpRequest, pk: int, attachment_id: int):
-    post = get_object_or_404(Post, pk=pk)
+    post = get_object_or_404(Post.objects.filter(Post.editable_filter_for_user(request.user)), pk=pk)
     attachment = get_object_or_404(PostAttachment, pk=attachment_id, post=post)
     if request.method == 'POST':
         attachment.delete()

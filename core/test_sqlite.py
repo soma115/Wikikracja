@@ -1,6 +1,8 @@
 from unittest.mock import patch
 
+import pytest
 from django.db import OperationalError
+from django.db.utils import ConnectionHandler
 from django.test import SimpleTestCase
 
 from core.sqlite import run_with_lock_retry
@@ -26,6 +28,23 @@ class SQLiteRetryTest(SimpleTestCase):
 
         self.assertEqual(operation.calls, 1)
         sleep.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_new_sqlite_connection_configures_required_pragmas(tmp_path):
+    connections = ConnectionHandler({'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': tmp_path / 'pragmas.sqlite3', 'OPTIONS': {'timeout': 0.25}}})
+    connection = connections['default']
+    try:
+        with connection.cursor() as cursor:
+            journal_mode = cursor.execute('PRAGMA journal_mode').fetchone()[0]
+            foreign_keys = cursor.execute('PRAGMA foreign_keys').fetchone()[0]
+            busy_timeout = cursor.execute('PRAGMA busy_timeout').fetchone()[0]
+    finally:
+        connection.close()
+
+    assert journal_mode == 'wal'
+    assert foreign_keys == 1
+    assert busy_timeout == 250
 
 
 class MockOperation:

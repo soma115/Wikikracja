@@ -40,7 +40,7 @@ def users(django_user_model):
 
 @pytest.fixture
 def payload():
-    return notify.build_notification('Title', 'Body', '/vote/7', 'vote-7', vote_id=7)
+    return notify.build_notification('Title', 'Body', 'https://example.test/vote/7', 'vote-7', vote_id=7)
 
 
 def device(user, name='desktop', **kwargs):
@@ -258,7 +258,10 @@ def test_channel_flags_reach_transports_and_skip_unused_recipient_queries(users,
     device(user)
     options = {'send_push': push, 'send_websocket': websocket, 'notification_type': 'events', 'ws_type': 'event.notification'}
     with patch.object(notify, '_push_user_ids', wraps=notify._push_user_ids) as recipients:
-        with django_assert_num_queries(1 + 2 * int(push) + int(websocket) if push or websocket else 0):
+        expected_queries = 1 + 2 * int(push) + int(websocket) if push or websocket else 0
+        if push and entrypoint == 'dispatch-background':
+            expected_queries += 1
+        with django_assert_num_queries(expected_queries):
             if entrypoint == 'sync':
                 notify.send_notification_to_all_sync(payload, **options)
             elif entrypoint == 'thread':
@@ -351,10 +354,19 @@ def test_email_backend_failure_respects_raise_on_error(transport, raise_on_error
     transport.channel.group_send.assert_not_awaited()
 
 
+@pytest.mark.parametrize(
+    'url,expected', [('http://example.test/vote/7', 'https://example.test/vote/7'), ('https://example.test/vote/7', 'https://example.test/vote/7'), ('/vote/7', 'https://example.test/vote/7')]
+)
+def test_fcm_click_action_is_normalized_to_absolute_https(url, expected, monkeypatch):
+    monkeypatch.setattr(notify, 'build_site_url', lambda path: f'https://example.test{path}')
+    assert notify._fcm_https_url(url) == expected
+
+
 def test_fcm_payload_stringifies_metadata_without_adding_identity(payload):
     original = payload.copy()
     message = notify._build_fcm_message(payload)
     assert message.data == {key: str(value) for key, value in original.items()}
-    assert message.webpush.notification.data == {'click_action': '/vote/7', 'vote_id': '7'}
+    assert message.webpush.notification.data == {'click_action': 'https://example.test/vote/7', 'vote_id': '7'}
+    assert message.webpush.fcm_options.link == 'https://example.test/vote/7'
     assert payload == original
     assert set(message.data) == {'notification_id', 'title', 'body', 'icon', 'click_action', 'tag', 'vote_id'}

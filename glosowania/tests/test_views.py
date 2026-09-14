@@ -379,6 +379,31 @@ def test_voting_lock_timeout_redirects_without_marking_user(sample_users):
 
 
 @pytest.mark.django_db
+def test_voting_is_rejected_after_referendum_deadline(sample_users):
+    author = sample_users[0]
+    voter = sample_users[1]
+    decyzja = Decyzja.objects.create(
+        title='Expired referendum',
+        tresc='Test law text',
+        kara='Test penalty',
+        author=author,
+        status=Decyzja.Status.REFERENDUM,
+        data_referendum_start=timezone.localdate() - timedelta(days=4),
+        data_referendum_stop=timezone.localdate() - timedelta(days=1),
+    )
+    client = Client()
+    client.force_login(voter)
+
+    with patch('glosowania.views.push_pending_vote') as push_vote:
+        response = client.post(f'/glosowania/details/{decyzja.pk}/', {'tak': '1'})
+
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decyzja.pk}/'
+    assert not KtoJuzGlosowal.objects.filter(projekt=decyzja, ktory_uzytkownik_juz_zaglosowal=voter).exists()
+    push_vote.assert_not_called()
+
+
+@pytest.mark.django_db
 def test_details_view_with_chat_room(sample_users):
     """Test that details view loads correctly with chat room."""
     from django.test import Client

@@ -1,16 +1,18 @@
 {% load citizen_filters feed_filters %}
 {% with u=user.uid|default:user %}
+{% with profile=u.uzytkownik|default:u %}
 {% firstof alt u|display_name as display %}
-{% with presence_status=u.uzytkownik.last_presence_at|presence_status %}
+{% with presence_status=profile.last_presence_at|presence_status %}
 <span class="tw-avatar-presence">
-  {% if u.uzytkownik.avatar %}
-    <img{% if id %} id="{{ id }}"{% endif %} class="tw-avatar tw-avatar-{{ size }}{% if extra_class %} {{ extra_class }}{% endif %}" src="{{ u.uzytkownik.avatar.url }}" alt="{{ display }}"{% if loading_lazy != False %} loading="lazy"{% endif %}>
+  {% if profile.avatar %}
+    <img{% if id %} id="{{ id }}"{% endif %} class="tw-avatar tw-avatar-{{ size }}{% if extra_class %} {{ extra_class }}{% endif %}" src="{{ profile.avatar.url }}" alt="{{ display }}"{% if loading_lazy != False %} loading="lazy"{% endif %}>
   {% else %}
     <span{% if id %} id="{{ id }}"{% endif %} class="tw-avatar tw-avatar-{{ size }} tw-avatar-fallback {{ u.username|citizen_color_class }}{% if extra_class %} {{ extra_class }}{% endif %}" title="{{ display }}">
       {{ u|user_initials }}
     </span>
   {% endif %}
-  <span class="tw-presence-dot tw-presence-{{ presence_status }}" data-presence-user-id="{{ u.pk }}" data-presence-status="{{ presence_status }}" data-presence-source="{{ u.uzytkownik.last_presence_source }}" data-presence-timestamp="{{ u.uzytkownik.last_presence_at|date:'c' }}" data-presence-green-minutes="{{ presence_green_minutes }}" data-presence-yellow-days="{{ presence_yellow_days }}" title="{{ presence_status|presence_status_label }} / {{ u.uzytkownik.last_presence_source|presence_source_label }} / {{ u.uzytkownik.last_presence_at|date:'d.m.Y H:i' }}" aria-label="{{ presence_status|presence_status_label }}: {{ u.uzytkownik.last_presence_source|presence_source_label }}"></span>
+  <span class="tw-presence-dot tw-presence-{{ presence_status }}" data-presence-user-id="{{ u.pk }}" data-presence-status="{{ presence_status }}" data-presence-source="{{ profile.last_presence_source }}" data-presence-timestamp="{{ profile.last_presence_at|date:'c' }}" data-presence-green-minutes="{{ presence_green_minutes }}" data-presence-yellow-days="{{ presence_yellow_days }}" title="{{ presence_status|presence_status_label }} / {{ profile.last_presence_source|presence_source_label }} / {{ profile.last_presence_at|date:'d.m.Y H:i' }}" aria-label="{{ presence_status|presence_status_label }}: {{ profile.last_presence_source|presence_source_label }}"></span>
 </span>
+{% endwith %}
 {% endwith %}
 {% endwith %}

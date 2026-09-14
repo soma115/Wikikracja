@@ -29,58 +29,78 @@ def prevent_protected_category_delete(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Post)
 def notify_important_chat_on_important_post(sender, instance, created, **kwargs):
-    """Send notification to "Ważne" chat room when a post is important."""
-    if not instance.is_important or not instance.is_public:
+    """Keep a history of important-document status changes in the "Ważne" room."""
+    public_visibilities = (Post.Visibility.GROUP, Post.Visibility.PUBLIC)
+    previous_visibility = getattr(instance, '_previous_visibility', None)
+    previous_important = getattr(instance, '_previous_is_important', None)
+    visibility_changed = previous_visibility is not None and previous_visibility != instance.visibility
+    important_changed = previous_important is not None and previous_important != instance.is_important
+    was_important = created or previous_important is True
+    is_important_context = instance.is_important or was_important
+
+    if not is_important_context:
         return
 
-    # Determine if this is a new important post or an update to an existing one
     post_path = reverse('board:view_post', args=[instance.pk])
     protocol = 'http' if settings.DEBUG else 'https'
     post_url = f"{protocol}://{get_site_domain()}{post_path}"
+    link = f"<a href='{post_url}'>{instance.title}</a>"
 
-    if created:
-        message = _("New important document by %(username)s: <a href='%(post_url)s'>%(title)s</a>") % {'username': user_display_name(instance.author), 'post_url': post_url, 'title': instance.title}
+    if created and instance.is_important and instance.visibility in public_visibilities:
+        message = _("New important document by %(username)s: %(link)s") % {'username': user_display_name(instance.author), 'link': link}
+    elif important_changed and not instance.is_important:
+        message = _("Document is no longer marked as important: %(link)s") % {'link': link}
+    elif visibility_changed and instance.visibility == Post.Visibility.PRIVATE:
+        message = _("Important document was made private: %(link)s") % {'link': link}
+    elif visibility_changed and instance.visibility == Post.Visibility.ARCHIVE:
+        message = _("Important document was archived: %(link)s") % {'link': link}
+    elif visibility_changed and previous_visibility in (Post.Visibility.PRIVATE, Post.Visibility.ARCHIVE) and instance.visibility in public_visibilities:
+        message = _("Important document was made visible again: %(link)s") % {'link': link}
+    elif instance.is_important and instance.visibility in public_visibilities:
+        message = _("I've updated Important document: %(link)s") % {'link': link}
     else:
-        message = _("I've updated Important document: <a href='%(post_url)s'>%(title)s</a>") % {'post_url': post_url, 'title': instance.title}
+        return
 
     chat_message_requested.send(sender=Post, system_key='important', room_title="Ważne", message_text=message, from_user=instance.author, anonymous=False)
-    important_post_published.send(sender=Post, post=instance, url=build_site_url(post_path), created=created)
+    if instance.is_important and instance.visibility in public_visibilities:
+        important_post_published.send(sender=Post, post=instance, url=build_site_url(post_path), created=created)
 
 
 @receiver(post_save, sender=Post)
 def create_or_update_chat_room_for_post(sender, instance, created, **kwargs):
-    """Ask the chat app to create or update a discussion room for this document."""
-    if created:
-        room_title = instance.get_chat_room_title()
+    """Create, archive, or update a document discussion room according to visibility."""
+    if instance.visibility == Post.Visibility.PRIVATE and not instance.chat_room_id:
+        return
 
-        post_path = reverse('board:view_post', args=[instance.pk])
-        post_url = build_site_url(post_path)
-        welcome_message = _("Discussion room for document: <a href='%(url)s'>%(title)s</a>") % {'title': instance.title, 'url': post_url}
+    room_title = instance.get_chat_room_title()
+    post_path = reverse('board:view_post', args=[instance.pk])
+    post_url = build_site_url(post_path)
+    welcome_message = _("Discussion room for document: <a href='%(url)s'>%(title)s</a>") % {'title': instance.title, 'url': post_url}
+    is_public = instance.visibility == Post.Visibility.PUBLIC
+    is_archived = instance.visibility in (Post.Visibility.PRIVATE, Post.Visibility.ARCHIVE)
+    if is_public or instance.visibility == Post.Visibility.GROUP:
+        allowed_users = User.objects.filter(is_active=True)
+    elif instance.author_id:
+        allowed_users = User.objects.filter(pk=instance.author_id)
+    else:
+        allowed_users = User.objects.none()
 
-        if instance.is_public:
-            allowed_users = User.objects.filter(is_active=True)
-        else:
-            allowed_users = User.objects.filter(pk=instance.author_id) if instance.author_id else User.objects.none()
+    chat_room_requested.send(
+        sender=Post,
+        instance=instance,
+        title=room_title,
+        founder=instance.author,
+        allowed_users=allowed_users,
+        welcome_message=welcome_message if created else '',
+        welcome_message_sender=instance.author,
+        welcome_message_anonymous=False,
+        room_public=is_public,
+        room_archived=is_archived,
+        source_app='board',
+        source_object_id=instance.pk,
+    )
 
-        chat_room_requested.send(
-            sender=Post,
-            instance=instance,
-            title=room_title,
-            founder=instance.author,
-            allowed_users=allowed_users,
-            welcome_message=welcome_message,
-            welcome_message_sender=instance.author,
-            welcome_message_anonymous=False,
-            source_app='board',
-            source_object_id=instance.pk,
-        )
-
-        log.info(f'Chat room "{room_title}" requested for document #{instance.pk}')
-    elif instance.chat_room_id:
-        # Request a title update if the document title changed.
-        chat_room_requested.send(
-            sender=Post, instance=instance, title=instance.get_chat_room_title(), founder=instance.author, allowed_users=None, welcome_message='', source_app='board', source_object_id=instance.pk
-        )
+    log.info(f'Chat room "{room_title}" requested for document #{instance.pk}')
 
 
 @receiver(pre_delete, sender=Post)

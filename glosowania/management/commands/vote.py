@@ -4,13 +4,15 @@ import re
 from datetime import timedelta
 
 from django.db import transaction
+from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from chat.models import Room
 from core.signals import vote_started, vote_state_changed
-from glosowania.models import Decyzja, KtoJuzGlosowal, VoteCode
-from glosowania.vote_buffer import pop_all_pending_votes
+from core.utils import build_site_url
+from glosowania.models import Decyzja, KtoJuzGlosowal, ReferendumEffect, VoteCode
+from glosowania.vote_buffer import acknowledge_claimed_votes, claim_pending_votes, clear_pending_votes
 from site_settings.models import SiteParameters
 from site_settings.params import apply_brand_mark, apply_parameters
 from zzz.management.base_command import TranslatedCommand
@@ -18,12 +20,31 @@ from zzz.management.base_command import TranslatedCommand
 log = logging.getLogger(__name__)
 
 
+def apply_pending_referendum_effects():
+    effect_ids = list(ReferendumEffect.objects.filter(applied_at__isnull=True).values_list('id', flat=True))
+    for effect_id in effect_ids:
+        effect = ReferendumEffect.objects.select_related('decision').get(pk=effect_id)
+        try:
+            if effect.kind == ReferendumEffect.Kind.PARAMETERS:
+                apply_parameters(effect.decision.proposed_parameters)
+            elif effect.kind == ReferendumEffect.Kind.BRAND_MARK:
+                apply_brand_mark(effect.decision.proposed_brand_mark)
+            elif effect.kind == ReferendumEffect.Kind.BUFFER_ACK:
+                acknowledge_claimed_votes(effect.decision_id)
+            else:
+                raise ValueError(f'Unknown referendum effect kind: {effect.kind}')
+        except Exception as error:
+            ReferendumEffect.objects.filter(pk=effect_id, applied_at__isnull=True).update(attempts=F('attempts') + 1, last_error=str(error)[:2000])
+            log.error('Failed referendum effect %s for decyzja %s; it will be retried.', effect.kind, effect.decision_id, exc_info=True)
+        else:
+            ReferendumEffect.objects.filter(pk=effect_id, applied_at__isnull=True).update(attempts=F('attempts') + 1, last_error='', applied_at=timezone.now())
+            log.info('Applied referendum effect %s for decyzja %s.', effect.kind, effect.decision_id)
+
+
 class Command(TranslatedCommand):
     help = 'Send chat messages through email'
 
     def run(self, *args, **options):
-        HOST = self.host
-
         pending_signals = []
 
         def _queue_vote_signal(signal, decyzja, transition, title, body, email_subject, email_body, details_url):
@@ -108,7 +129,7 @@ class Command(TranslatedCommand):
                         i.data_referendum_start = i.data_zebrania_podpisow + timedelta(days=sp.dyskusja)
                         i.data_referendum_stop = i.data_referendum_start + timedelta(days=sp.czas_trwania_referendum)
                         i.save()
-                        details_url = f"http://{HOST}/glosowania/details/{i.id}"
+                        details_url = build_site_url(f'/glosowania/details/{i.id}')
                         subject = f"{prop_number} {i.id} {approved_for}"
                         body = f"{prop_number} {i.id} '{i.title}' {gathered} {i.data_referendum_start} {to} {i.data_referendum_stop}\n{click}: {details_url}"
                         _queue_vote_signal(vote_state_changed, i, 'discussion_started', subject, i.title, subject, body, details_url)
@@ -124,7 +145,7 @@ class Command(TranslatedCommand):
                         i.status = rejected
                         i.path = str(i.path) + " -> " + _("Not enough signatures")
                         i.save()
-                        details_url = f"http://{HOST}/glosowania/details/{i.id}"
+                        details_url = build_site_url(f'/glosowania/details/{i.id}')
                         subject = f"{prop_number} {i.id} {not_gathered}"
                         body = f"{prop_number} {i.id} '{i.title}' {not_gathered} {was_removed}. {feel_free}\n{click}: {details_url}"
                         _queue_vote_signal(vote_state_changed, i, 'rejected_no_signatures', subject, i.title, subject, body, details_url)
@@ -135,7 +156,7 @@ class Command(TranslatedCommand):
                     i.status = referendum
                     i.path = i.path + " -> " + _("Referendum")
                     i.save()
-                    details_url = f"http://{HOST}/glosowania/details/{i.id}"
+                    details_url = build_site_url(f'/glosowania/details/{i.id}')
                     subject = f"{ref_num} {i.id} {starting_now}"
                     body = f"{time_to_vote} {i.id} '{i.title}'\n{ends_at} {i.data_referendum_stop}\n{click}: {details_url}"
                     _queue_vote_signal(vote_started, i, 'started', subject, i.title, subject, body, details_url)
@@ -144,7 +165,7 @@ class Command(TranslatedCommand):
 
                 # LAST DAY OF REFERENDUM REMINDER
                 if i.status == referendum and i.data_referendum_stop == dzisiaj:
-                    details_url = f"http://{HOST}/glosowania/details/{i.id}"
+                    details_url = build_site_url(f'/glosowania/details/{i.id}')
                     subject = f"{last_day} {i.id}"
                     body = f"{last_day_reminder}\n{ref_num} {i.id} '{i.title}' {ends_at} {i.data_referendum_stop}\n{click}: {details_url}"
                     _queue_vote_signal(vote_state_changed, i, 'last_day', subject, i.title, subject, body, details_url)
@@ -153,13 +174,13 @@ class Command(TranslatedCommand):
 
                 # FROM REFERENDUM TO APPROVED OR REJECTED
                 if i.status == referendum and i.data_referendum_stop < dzisiaj:
-                    # Reveal the votes now: pop everything buffered outside the
+                    # Reveal the votes now: claim everything buffered outside the
                     # database for this referendum, shuffle it so on-disk order
                     # says nothing about voting order, and only now write the
                     # verification codes and tally them. Until this point za/przeciw
                     # stay at 0, i.e. no one (not even someone with DB access) could
                     # see a running tally while the referendum was open.
-                    pending_votes = pop_all_pending_votes(i.id)
+                    pending_votes = claim_pending_votes(i.id)
                     expected_voters = KtoJuzGlosowal.objects.filter(projekt=i).count()
 
                     if expected_voters != len(pending_votes):
@@ -172,12 +193,13 @@ class Command(TranslatedCommand):
                             f"but {expected_voters} users are recorded as having voted. "
                             "Votes were lost (e.g. vote storage restart) - restarting the referendum from scratch."
                         )
+                        clear_pending_votes(i.id)
                         KtoJuzGlosowal.objects.filter(projekt=i).delete()
                         i.data_referendum_start = dzisiaj
                         i.data_referendum_stop = dzisiaj + timedelta(days=sp.czas_trwania_referendum)
                         i.referendum_restart_count += 1
                         i.save()
-                        details_url = f"http://{HOST}/glosowania/details/{i.id}"
+                        details_url = build_site_url(f'/glosowania/details/{i.id}')
                         subject = f"{ref_num} {i.id}: {buffer_lost_subject}"
                         body = (
                             f"{ref_num} {i.id} '{i.title}': {buffer_lost_subject}.\n"
@@ -196,20 +218,10 @@ class Command(TranslatedCommand):
                     if i.za > i.przeciw:
                         i.status = approved
                         i.path = i.path + " -> " + _("Approved")
-                        # Apply system parameter changes if this is a parameter referendum
                         if i.proposed_parameters:
-                            try:
-                                apply_parameters(i.proposed_parameters)
-                                log.info(f"Applied system parameters from referendum {i.id}: {i.proposed_parameters}")
-                            except Exception as e:
-                                log.error(f"Failed to apply parameters from referendum {i.id}: {e}")
-                        # Apply logo change if this referendum proposed a new logo
+                            ReferendumEffect.objects.get_or_create(decision=i, kind=ReferendumEffect.Kind.PARAMETERS)
                         if i.proposed_brand_mark:
-                            try:
-                                apply_brand_mark(i.proposed_brand_mark)
-                                log.info(f"Applied logo from referendum {i.id}")
-                            except Exception as e:
-                                log.error(f"Failed to apply logo from referendum {i.id}: {e}")
+                            ReferendumEffect.objects.get_or_create(decision=i, kind=ReferendumEffect.Kind.BRAND_MARK)
                         # Reject bills
                         if i.znosi:
                             separated = re.split(r'\W+', i.znosi)
@@ -219,7 +231,7 @@ class Command(TranslatedCommand):
                                 abolish.save()
                                 log.info(f"Proposition {z} was rejected in {i.id}")
                         i.save()
-                        details_url = f"http://{HOST}/glosowania/details/{i.id}"
+                        details_url = build_site_url(f'/glosowania/details/{i.id}')
                         subject = f"{prop_number} {i.id} {in_effect}"
                         body = f"{prop_number} {i.id} '{i.title}' {became}\n{click}: {details_url}"
                         _queue_vote_signal(vote_state_changed, i, 'approved', subject, i.title, subject, body, details_url)
@@ -228,11 +240,13 @@ class Command(TranslatedCommand):
                         i.status = rejected
                         i.path = i.path + " -> " + _("Rejected")
                         i.save()
-                        details_url = f"http://{HOST}/glosowania/details/{i.id}"
+                        details_url = build_site_url(f'/glosowania/details/{i.id}')
                         subject = f"{prop_number} {i.id} {was_rejected}"
                         body = f"{prop_number} {i.id} '{i.title}' {rejected_in}\n{feel_free}\n{click}: {details_url}"
                         _queue_vote_signal(vote_state_changed, i, 'rejected', subject, i.title, subject, body, details_url)
                         log.info("Proposition {i.id} changed status from REFERENDUM to REJECTED.")
+
+                    ReferendumEffect.objects.get_or_create(decision=i, kind=ReferendumEffect.Kind.BUFFER_ACK)
 
             # Each decision is processed in its own transaction so that a
             # failure handling one of them (e.g. the vote storage being
@@ -249,6 +263,7 @@ class Command(TranslatedCommand):
                     log.error(f"Failed to process decyzja {decyzja_id} this run; it will be retried next time.", exc_info=True)
 
         zliczaj_wszystko()
+        apply_pending_referendum_effects()
 
         for signal, kwargs in pending_signals:
             signal.send(**kwargs)

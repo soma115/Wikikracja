@@ -4,7 +4,7 @@ from .models import Post
 def get_context(user, month_param: str = '') -> dict:
     """Return dashboard widgets for the board app (featured documents carousel)."""
     featured_documents = (
-        Post.objects.filter(Post.visibility_filter_for_user(user), is_deleted=False)
+        Post.objects.filter(Post.visibility_filter_for_user(user), visibility__in=(Post.Visibility.GROUP, Post.Visibility.PUBLIC))
         .filter(featured_image__isnull=False)
         .exclude(featured_image='')
         .order_by('-updated')

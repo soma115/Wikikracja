@@ -66,7 +66,7 @@ def test_post_delete_deletes_chat_room():
 def test_view_post_renders_embedded_chat(authenticated_client):
     """Widok dokumentu zawiera osadzony czat dla zalogowanego użytkownika."""
     client, _ = authenticated_client
-    post = PostFactory(is_public=True)
+    post = PostFactory(visibility='public')
 
     res = client.get(reverse('board:view_post', args=[post.pk]))
 
@@ -79,7 +79,7 @@ def test_view_post_renders_embedded_chat(authenticated_client):
 def test_board_list_renders_chat_link(authenticated_client):
     """Widok listy dokumentów pokazuje guzik czatu obok tytułu w obu układach."""
     client, _ = authenticated_client
-    post = PostFactory(is_public=True)
+    post = PostFactory(visibility='public')
 
     res = client.get(reverse('board:start'))
 
@@ -93,7 +93,7 @@ def test_board_list_renders_chat_link(authenticated_client):
 def test_board_list_chat_pulse_for_unread_message(authenticated_client):
     """Guzik czatu pulsuje i liczy tylko wiadomości bez MessageReadBy."""
     client, user = authenticated_client
-    post = PostFactory(is_public=True)
+    post = PostFactory(visibility='public')
     other = UserFactory()
     Message.objects.create(room=post.chat_room, text='Read', sender=other)
     MessageReadBy.objects.bulk_create([MessageReadBy(message=message, user=user) for message in post.chat_room.messages.all()])
@@ -130,13 +130,12 @@ def test_create_private_post(authenticated_client):
     client, user = authenticated_client
     upload = SimpleUploadedFile('notatka.txt', b'zawartosc')
 
-    res = client.post(reverse('board:create_post'), {'title': 'Dokument prywatny', 'text': 'Treść', 'is_private': 'on', 'attachments': upload})
+    res = client.post(reverse('board:create_post'), {'title': 'Dokument prywatny', 'text': 'Treść', 'visibility': Post.Visibility.PRIVATE, 'attachments': upload})
 
     post = Post.objects.get(title='Dokument prywatny')
     assert res.status_code == 302
     assert post.author == user
-    assert post.is_private is True
-    assert post.is_public is False
+    assert post.visibility == Post.Visibility.PRIVATE
 
 
 @pytest.mark.django_db
@@ -213,7 +212,7 @@ def test_create_and_edit_post_require_login(client):
 def test_view_post_detail_has_no_chat_link_next_to_title(authenticated_client):
     """Widok szczegółów dokumentu nie pokazuje guzika czatu obok tytułu."""
     client, _ = authenticated_client
-    post = PostFactory(is_public=True)
+    post = PostFactory(visibility='public')
 
     res = client.get(reverse('board:view_post', args=[post.pk]))
 
@@ -229,15 +228,15 @@ def test_private_post_visible_only_to_author_on_list(authenticated_client):
     """Prywatny dokument na liście jest widoczny tylko dla autora."""
     client, user = authenticated_client
     other = UserFactory(username='other', email='other@example.com')
-    private = PostFactory(title='Prywatny', is_private=True, author=other)
+    private = PostFactory(title='Prywatny', visibility='private', author=other)
 
     res = client.get(reverse('board:start'))
     assert res.status_code == 200
     assert private.title not in res.content.decode()
 
-    # Dla autora dokument jest widoczny
+    # Dla autora dokument jest widoczny w zakładce prywatnej
     client.force_login(other)
-    res = client.get(reverse('board:start'))
+    res = client.get(reverse('board:start'), {'tab': 'mine'})
     assert res.status_code == 200
     assert private.title in res.content.decode()
 
@@ -247,9 +246,9 @@ def test_non_private_post_is_visible_to_other_authenticated_users(authenticated_
     """Zwykły dokument jest widoczny dla każdego zalogowanego użytkownika."""
     client, _ = authenticated_client
     author = UserFactory(username='document-author', email='document-author@example.com')
-    post = PostFactory(title='Zwykły dokument', is_public=False, is_private=False, author=author)
+    post = PostFactory(title='Zwykły dokument', visibility='group', author=author)
 
-    response = client.get(reverse('board:start'))
+    response = client.get(reverse('board:start'), {'tab': 'group'})
 
     assert response.status_code == 200
     assert post.title in response.content.decode()
@@ -260,7 +259,7 @@ def test_system_post_visible_to_authenticated_users_regardless_of_author_or_priv
     """System posts are visible to logged-in users even when marked as private."""
     client, user = authenticated_client
     other = UserFactory(username='system-owner', email='system-owner@example.com')
-    system_post = PostFactory(system_key='system-visible', author=other, is_public=False, is_private=True)
+    system_post = PostFactory(system_key='system-visible', author=other, visibility='public', is_important=True)
 
     response = client.get(reverse('board:view_post', args=[system_post.pk]))
 
@@ -269,7 +268,7 @@ def test_system_post_visible_to_authenticated_users_regardless_of_author_or_priv
     assert system_post in Post.objects.filter(Post.visibility_filter_for_user(user))
 
     client.logout()
-    assert client.get(reverse('board:view_post', args=[system_post.pk])).status_code == 404
+    assert client.get(reverse('board:view_post', args=[system_post.pk])).status_code == 200
 
 
 @pytest.mark.django_db
@@ -277,7 +276,7 @@ def test_private_post_detail_visible_only_to_author(authenticated_client):
     """Szczegóły prywatnego dokumentu dostępne są tylko dla autora."""
     client, user = authenticated_client
     other = UserFactory(username='other2', email='other2@example.com')
-    private = PostFactory(title='Prywatny szczegóły', is_private=True, author=other)
+    private = PostFactory(title='Prywatny szczegóły', visibility='private', author=other)
 
     # Nie-autor dostaje 404
     res = client.get(reverse('board:view_post', args=[private.pk]))
@@ -294,7 +293,7 @@ def test_private_post_detail_visible_only_to_author(authenticated_client):
 def test_public_post_visible_to_everyone(client, authenticated_client):
     """Publiczny dokument jest widoczny dla anonimowego i zalogowanego użytkownika."""
     _, user = authenticated_client
-    public = PostFactory(title='Publiczny dokument', is_public=True, author=user)
+    public = PostFactory(title='Publiczny dokument', visibility='public', author=user)
 
     res = client.get(reverse('board:start'))
     assert res.status_code == 200
@@ -328,7 +327,7 @@ def test_private_flag_overrides_public(authenticated_client):
     """Prywatne ma pierwszeństwo nad publicznym — dokument widoczny tylko dla autora."""
     client, user = authenticated_client
     other = UserFactory(username='other5', email='other5@example.com')
-    private = PostFactory(title='Niby publiczny, ale prywatny', is_public=True, is_private=True, author=other)
+    private = PostFactory(title='Niby publiczny, ale prywatny', visibility='private', author=other)
 
     res = client.get(reverse('board:start'))
     assert res.status_code == 200
@@ -344,22 +343,26 @@ def test_private_flag_overrides_public(authenticated_client):
 
 
 @pytest.mark.django_db
-def test_edit_post_allows_other_user(authenticated_client):
-    """Każdy zalogowany użytkownik może edytować dokument."""
-    client, user = authenticated_client
+def test_private_post_cannot_be_edited_by_other_user(authenticated_client):
+    client, _ = authenticated_client
     other = UserFactory(username='other3', email='other3@example.com')
-    post = PostFactory(title='Do edycji', is_private=True, author=other)
+    post = PostFactory(title='Do edycji', visibility='private', author=other)
 
-    res = client.get(reverse('board:edit_post', args=[post.pk]))
-    assert res.status_code == 200
-    assert 'Do edycji' in res.content.decode()
+    assert client.get(reverse('board:edit_post', args=[post.pk])).status_code == 404
 
-    res = client.post(reverse('board:edit_post', args=[post.pk]), {'title': 'Zmieniony przez innego', 'text': 'Nowa treść'})
-    assert res.status_code == 302
+
+@pytest.mark.django_db
+def test_only_author_can_make_document_private(authenticated_client):
+    client, _ = authenticated_client
+    author = UserFactory(username='private-author', email='private-author@example.com')
+    post = PostFactory(author=author, visibility=Post.Visibility.PUBLIC)
+
+    response = client.post(reverse('board:edit_post', args=[post.pk]), {'title': post.title, 'text': post.text, 'visibility': Post.Visibility.PRIVATE})
+
+    assert response.status_code == 200
+    assert response.context['form'].has_error('visibility')
     post.refresh_from_db()
-    assert post.title == 'Zmieniony przez innego'
-    assert post.author == other
-    assert post.updated_by == user
+    assert post.visibility == Post.Visibility.PUBLIC
 
 
 @pytest.mark.django_db
@@ -368,7 +371,7 @@ def test_edit_system_post_can_change_public_but_not_category_or_other_flags(auth
     client, user = authenticated_client
     original_category = PostCategoryFactory(name='System category')
     new_category = PostCategoryFactory(name='Other category')
-    post = PostFactory(system_key='protected-system-post', category=original_category, is_public=True, is_private=False, is_important=False)
+    post = PostFactory(system_key='protected-system-post', category=original_category, visibility='public', is_important=True)
 
     response = client.post(reverse('board:edit_post', args=[post.pk]), {'title': 'Zmieniony tytuł', 'text': 'Nowa treść', 'category': new_category.pk, 'is_private': 'on', 'is_important': 'on'})
 
@@ -376,9 +379,8 @@ def test_edit_system_post_can_change_public_but_not_category_or_other_flags(auth
     post.refresh_from_db()
     assert post.title == 'Zmieniony tytuł'
     assert post.category == original_category
-    assert post.is_public is False
-    assert post.is_private is False
-    assert post.is_important is False
+    assert post.visibility == Post.Visibility.PUBLIC
+    assert post.is_important is True
     assert post.updated_by == user
 
 
@@ -387,24 +389,24 @@ def test_system_post_cannot_be_deleted_or_have_protected_fields_changed(authenti
     client, _ = authenticated_client
     original_category = PostCategoryFactory(name='System')
     new_category = PostCategoryFactory(name='Other')
-    post = PostFactory(system_key='immutable-system-post', category=original_category, is_private=False, is_important=False)
+    post = PostFactory(system_key='immutable-system-post', category=original_category, visibility='public', is_important=True)
 
     response = client.post(reverse('board:delete_post', args=[post.pk]))
     assert response.status_code == 404
     post.refresh_from_db()
-    assert not post.is_deleted
+    assert post.visibility == Post.Visibility.PUBLIC
 
     post.category = new_category
-    post.is_private = True
-    post.is_important = True
+    post.visibility = Post.Visibility.ARCHIVE
+    post.is_important = False
     post.system_key = None
     post.save()
     post.refresh_from_db()
 
     assert post.system_key == 'immutable-system-post'
     assert post.category_id == original_category.pk
-    assert post.is_private is False
-    assert post.is_important is False
+    assert post.visibility == Post.Visibility.PUBLIC
+    assert post.is_important is True
 
 
 @pytest.mark.django_db
@@ -412,10 +414,93 @@ def test_delete_post_is_available_to_other_users(authenticated_client):
     """Zalogowany użytkownik może przenieść cudzy dokument do kosza."""
     client, _ = authenticated_client
     other = UserFactory(username='other4', email='other4@example.com')
-    private = PostFactory(title='Do usunięcia', is_private=True, author=other)
+    private = PostFactory(title='Do usunięcia', visibility='group', author=other)
 
     res = client.post(reverse('board:delete_post', args=[private.pk]))
 
     assert res.status_code == 302
     private.refresh_from_db()
-    assert private.is_deleted
+    assert private.visibility == Post.Visibility.ARCHIVE
+
+
+@pytest.mark.django_db
+def test_private_post_has_no_discussion_room_and_is_not_in_activity(authenticated_client):
+    client, user = authenticated_client
+    post = PostFactory(title='Prywatny bez pokoju', visibility=Post.Visibility.PRIVATE, author=user)
+
+    assert post.chat_room_id is None
+    response = client.get(reverse('activity'))
+    assert post.title not in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_private_transition_archives_discussion_room(authenticated_client):
+    client, user = authenticated_client
+    post = PostFactory(author=user, visibility=Post.Visibility.PUBLIC)
+    room = post.chat_room
+
+    response = client.post(reverse('board:edit_post', args=[post.pk]), {'title': post.title, 'text': post.text, 'visibility': Post.Visibility.PRIVATE})
+
+    assert response.status_code == 302
+    room.refresh_from_db()
+    assert room.archived is True
+    assert room.public is False
+    assert list(room.allowed.values_list('pk', flat=True)) == [user.pk]
+
+
+@pytest.mark.django_db
+def test_private_important_post_does_not_notify_important_room(authenticated_client):
+    _, user = authenticated_client
+    important_room = Room.objects.get(system_key='important')
+    important_room.messages.all().delete()
+    post = PostFactory(author=user, visibility=Post.Visibility.PRIVATE, is_important=True)
+
+    assert important_room.messages.count() == 0
+    assert post.visibility == Post.Visibility.PRIVATE
+
+
+@pytest.mark.django_db
+def test_making_important_post_private_keeps_history_and_adds_status_message(authenticated_client):
+    _, user = authenticated_client
+    important_room = Room.objects.get(system_key='important')
+    important_room.messages.all().delete()
+    post = PostFactory(author=user, visibility=Post.Visibility.PUBLIC, is_important=True)
+    assert important_room.messages.count() == 1
+
+    post.visibility = Post.Visibility.PRIVATE
+    post.save(update_fields=['visibility'])
+
+    assert important_room.messages.count() == 2
+    assert 'made private' in important_room.messages.order_by('-id').first().text
+
+
+@pytest.mark.django_db
+def test_disabling_important_marker_adds_status_message(authenticated_client):
+    _, user = authenticated_client
+    important_room = Room.objects.get(system_key='important')
+    important_room.messages.all().delete()
+    post = PostFactory(author=user, visibility=Post.Visibility.PUBLIC, is_important=True)
+
+    post.is_important = False
+    post.save(update_fields=['is_important'])
+
+    assert important_room.messages.count() == 2
+    assert 'no longer marked as important' in important_room.messages.order_by('-id').first().text
+
+
+@pytest.mark.django_db
+def test_archived_important_post_keeps_history_and_notifies_when_restored(authenticated_client):
+    _, user = authenticated_client
+    important_room = Room.objects.get(system_key='important')
+    important_room.messages.all().delete()
+    post = PostFactory(author=user, visibility=Post.Visibility.PUBLIC, is_important=True)
+
+    post.visibility = Post.Visibility.ARCHIVE
+    post.save(update_fields=['visibility'])
+    post.visibility = Post.Visibility.GROUP
+    post.save(update_fields=['visibility'])
+
+    messages = list(important_room.messages.order_by('id').values_list('text', flat=True))
+    assert len(messages) == 3
+    assert 'archived' in messages[1]
+    assert 'visible again' in messages[2]

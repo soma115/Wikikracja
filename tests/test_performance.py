@@ -18,7 +18,7 @@ def test_bulk_create_posts_uses_minimal_queries(board_category):
     from board.models import Post
 
     user = UserFactory()
-    posts = [Post(title=f'Bulk {i}', subtitle='Sub', text=f'<p>{i}</p>', author=user, category=board_category, is_public=True) for i in range(100)]
+    posts = [Post(title=f'Bulk {i}', subtitle='Sub', text=f'<p>{i}</p>', author=user, category=board_category, visibility='public') for i in range(100)]
 
     with CaptureQueriesContext(connection) as ctx:
         Post.objects.bulk_create(posts)

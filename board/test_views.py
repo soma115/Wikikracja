@@ -16,7 +16,7 @@ class BoardDetailNavigationTests(TestCase):
         self.client.force_login(self.user)
 
     def _post(self, title, category=None):
-        return Post.objects.create(title=title, text=f'{title} text', author=self.user, category=category, is_public=True)
+        return Post.objects.create(title=title, text=f'{title} text', author=self.user, category=category, visibility=Post.Visibility.PUBLIC)
 
     def test_post_edit_get_renders_prefilled_form(self):
         post = self._post('Editable')
@@ -31,7 +31,7 @@ class BoardDetailNavigationTests(TestCase):
         post = self._post('Editable')
         response = self.client.post(
             reverse('board:edit_post', args=[post.pk]),
-            {'title': 'Updated document', 'subtitle': '', 'category': self.category.pk, 'text': 'Updated text', 'is_public': 'on', 'is_private': '', 'is_important': '', 'slug': ''},
+            {'title': 'Updated document', 'subtitle': '', 'category': self.category.pk, 'text': 'Updated text', 'visibility': Post.Visibility.PUBLIC, 'is_important': '', 'slug': ''},
         )
 
         self.assertRedirects(response, reverse('board:view_post', args=[post.pk]))
@@ -41,7 +41,7 @@ class BoardDetailNavigationTests(TestCase):
     def test_post_edit_invalid_title_rerenders_form_without_saving(self):
         post = self._post('Editable')
         response = self.client.post(
-            reverse('board:edit_post', args=[post.pk]), {'title': '', 'subtitle': '', 'category': self.category.pk, 'text': 'Updated text', 'is_public': 'on', 'is_private': '', 'is_important': '', 'slug': ''}
+            reverse('board:edit_post', args=[post.pk]), {'title': '', 'subtitle': '', 'category': self.category.pk, 'text': 'Updated text', 'visibility': Post.Visibility.PUBLIC, 'is_important': '', 'slug': ''}
         )
 
         self.assertEqual(response.status_code, 200)
@@ -53,13 +53,12 @@ class BoardDetailNavigationTests(TestCase):
         post = self._post('Editable')
         response = self.client.post(
             reverse('board:edit_post', args=[post.pk]),
-            {'title': 'Editable', 'subtitle': '', 'category': self.category.pk, 'text': 'Updated text', 'is_public': 'on', 'is_private': 'on', 'is_important': '', 'slug': ''},
+            {'title': 'Editable', 'subtitle': '', 'category': self.category.pk, 'text': 'Updated text', 'visibility': Post.Visibility.PRIVATE, 'is_important': '', 'slug': ''},
         )
 
         self.assertRedirects(response, reverse('board:view_post', args=[post.pk]))
         post.refresh_from_db()
-        self.assertTrue(post.is_private)
-        self.assertFalse(post.is_public)
+        self.assertEqual(post.visibility, Post.Visibility.PRIVATE)
 
     def test_detail_navigation_preserves_sort_and_search_context(self):
         first = self._post('Alpha')
@@ -83,18 +82,18 @@ class BoardDetailNavigationTests(TestCase):
 
     def test_board_stepper_filters_documents(self):
         self._post('Public')
-        Post.objects.create(title='Internal', text='Internal text', author=self.user)
-        Post.objects.create(title='Mine', text='Mine text', author=self.user, is_private=True)
+        Post.objects.create(title='Internal', text='Internal text', author=self.user, visibility=Post.Visibility.GROUP)
+        Post.objects.create(title='Mine', text='Mine text', author=self.user, visibility=Post.Visibility.PRIVATE)
         Post.objects.create(title='Important', text='Important text', author=self.user, is_important=True)
         deleted = self._post('Deleted')
-        deleted.is_deleted = True
-        deleted.save(update_fields=['is_deleted'])
+        deleted.visibility = Post.Visibility.ARCHIVE
+        deleted.save(update_fields=['visibility'])
 
         response = self.client.get(reverse('board:start'), {'tab': 'mine'})
         self.assertEqual([post.title for post in response.context['ordered_posts']], ['Mine'])
-        self.assertEqual(response.context['board_tab_counts'], {'mine': 1, 'internal': 5, 'public': 1, 'important': 1, 'trash': 1})
+        self.assertEqual(response.context['board_tab_counts'], {'mine': 1, 'group': 2, 'public': 4, 'important': 4, 'archive': 1})
 
-        internal_response = self.client.get(reverse('board:start'), {'tab': 'internal'})
+        internal_response = self.client.get(reverse('board:start'), {'tab': 'group'})
         internal_titles = {post.title for post in internal_response.context['ordered_posts']}
         self.assertIn('Internal', internal_titles)
         self.assertNotIn('Public', internal_titles)
@@ -115,17 +114,17 @@ class BoardDetailNavigationTests(TestCase):
         post = self._post('Movable')
 
         delete_response = self.client.post(reverse('board:delete_post', args=[post.pk]))
-        self.assertRedirects(delete_response, reverse('board:start') + '?tab=trash')
+        self.assertRedirects(delete_response, reverse('board:start') + '?tab=archive')
         post.refresh_from_db()
-        self.assertTrue(post.is_deleted)
+        self.assertEqual(post.visibility, Post.Visibility.ARCHIVE)
 
-        trash_response = self.client.get(reverse('board:start'), {'tab': 'trash'})
+        trash_response = self.client.get(reverse('board:start'), {'tab': 'archive'})
         self.assertContains(trash_response, 'Movable')
 
         restore_response = self.client.post(reverse('board:restore_post', args=[post.pk]))
-        self.assertRedirects(restore_response, reverse('board:start') + '?tab=mine')
+        self.assertRedirects(restore_response, reverse('board:start') + '?tab=group')
         post.refresh_from_db()
-        self.assertFalse(post.is_deleted)
+        self.assertEqual(post.visibility, Post.Visibility.GROUP)
 
     def test_detail_uses_shared_card_and_sanitizes_document_content(self):
         post = self._post('Safe document')

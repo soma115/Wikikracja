@@ -66,7 +66,7 @@ module.exports = {
     'tw-modal', 'tw-modal-dialog', 'tw-modal-dialog-scrollable', 'tw-modal-content', 'tw-modal-header', 'tw-modal-title', 'tw-modal-body', 'tw-modal-footer', 'tw-modal-backdrop', 'tw-fade', 'tw-btn-close',
     'tw-dropdown', 'tw-dropdown-menu', 'tw-dropdown-menu-end', 'tw-dropdown-item', 'tw-dropdown-divider',
     'tw-collapse', 'tw-show',
-    // Chat dynamic state classes toggled by JS (docs/CHAT_REWORK_PLAN.md, 16.4.6).
+    // Chat dynamic state classes toggled by JS.
     // Active states on sort/vote/anonymous-toggle use the shared 'tw-active'.
     'tw-room-link--online', 'tw-room-link--joined', 'tw-room-link--not-seen', 'tw-room-link--filtered-out', 'tw-room-link--search-filtered-out', 'tw-room-link--tapping', 'tw-room-link--connecting',
     'tw-chat-message--own', 'tw-chat-message--pending', 'tw-chat-message--failed', 'tw-chat-message--unread-on-entry', 'tw-chat-unread-divider', 'tw-msg-highlight', 'tw-msg-highlighted',

@@ -7,6 +7,18 @@
 
 ### Refactor
 
+- **chat**: Wszystkie komendy WebSocket zostały wydzielone z `ChatConsumer` do
+  testowalnej warstwy `ChatCommandHandlers`. Jawne specyfikacje komend zastąpiły
+  introspekcję argumentów, wspólny builder payloadów usunął duplikację join/fetch,
+  a nieużywane `Handlers`, `HandledMessage` i `helper_method` zostały usunięte.
+  `ChatConsumer` odpowiada teraz za lifecycle połączenia, dispatch i eventy Channels.
+- **chat**: Martwy transport FCM został usunięty z `ChatRepository`; transport push ma jedno
+  źródło prawdy w `core.notifications` i workerze powiadomień.
+- **chat**: Dostęp do pokoi, membership, mute i read/unread ma kanoniczny
+  `ChatRoomRepository`. Publiczne pokojowe adaptery usunięto z `ChatRepository`; jego
+  prywatny mostek autoryzacji wiadomości pozostaje, aby nie dublować reguł dostępu.
+- **chat**: Reguły zmiany głosów i toggle reakcji zostały wydzielone do
+  `ChatReactionService`; repozytorium pozostaje warstwą danych dla tych operacji.
 - **chat**: Osobista dostawa powiadomień wiadomości, wzmianek i push została wydzielona
   do `chat/notifications.py`. Web zapisuje wiadomość, aktualizuje unread i broadcastuje
   ją do pokoju bezpośrednio, a powiadomienia użytkowników trafiają do Redis Streama
@@ -23,6 +35,9 @@
 
 ### Bug Fixes
 
+- **notifications**: Scheduler głosowań nie buduje już linków FCM z hardcoded `http://`;
+  używa wspólnego `build_site_url()`. Warstwa FCM dodatkowo normalizuje względne i HTTP
+  `click_action` do bezwzględnego HTTPS wymaganego przez `WebpushFCMOptions.link`.
 - **chat**: Embedded chat po reconnect sam rejoinuje pokój (serwer gubi członkostwo przy zerwaniu),
   buforuje wiadomości z okna między joinem a historią (`pendingMessages`/`joinDone`) bez duplikacji
   renderu i retry'uje join przy `REQUEST_TIMEOUT` zamiast pokazywać „brak dostępu".

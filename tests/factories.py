@@ -50,7 +50,7 @@ class PostFactory(DjangoModelFactory):
     title = factory.Sequence(lambda n: f'Post {n}')
     subtitle = factory.Sequence(lambda n: f'Subtitle {n}')
     text = factory.Sequence(lambda n: f'<p>Content {n}</p>')
-    is_public = True
+    visibility = 'public'
     is_important = False
 
     author = factory.SubFactory(UserFactory)

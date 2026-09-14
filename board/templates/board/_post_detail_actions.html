@@ -1,8 +1,8 @@
 {% load i18n %}
 {% if user.is_authenticated %}
 <div class="tw-detail-nav tw-flex tw-gap-1">
-  {% if post.is_deleted %}
-    {% if post.author_id == user.pk %}
+  {% if post.visibility == 'archive' %}
+    {% if post.author_id == user.pk or post.system_key is None %}
     <form method="post" action="{% url 'board:restore_post' post.pk %}" class="tw-inline">
       {% csrf_token %}
       <button type="submit" class="tw-detail-nav-btn" title="{% trans 'Restore' %}" aria-label="{% trans 'Restore' %}">

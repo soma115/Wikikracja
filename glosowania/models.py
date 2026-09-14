@@ -129,6 +129,23 @@ class Decyzja(ChatRoomModel, models.Model):
         return self.status in (self.Status.REJECTED, self.Status.APPROVED)
 
 
+class ReferendumEffect(models.Model):
+    class Kind(models.TextChoices):
+        PARAMETERS = 'parameters', _('System parameters')
+        BRAND_MARK = 'brand_mark', _('Brand mark')
+        BUFFER_ACK = 'buffer_ack', _('Vote buffer acknowledgement')
+
+    decision = models.ForeignKey(Decyzja, on_delete=models.CASCADE, related_name='referendum_effects')
+    kind = models.CharField(max_length=32, choices=Kind.choices)
+    attempts = models.PositiveIntegerField(default=0)
+    last_error = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+    applied_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['decision', 'kind'], name='unique_referendum_effect_kind')]
+
+
 class Argument(models.Model):
     ARGUMENT_TYPE_CHOICES = [('FOR', _('Positive')), ('AGAINST', _('Negative'))]
 

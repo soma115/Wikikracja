@@ -10,24 +10,25 @@ from .models import Post
 
 
 class PostForm(forms.ModelForm):
-    SYSTEM_LOCKED_FIELDS = ('category', 'is_private', 'is_important')
+    SYSTEM_LOCKED_FIELDS = ('visibility', 'is_important')
 
     text = forms.CharField(widget=TinyMCE(), label=_("Text"))
+
     attachments = forms.FileField(required=False, label=_("Attachments"))
 
     class Meta:
         model = Post
-        fields = ('title', 'subtitle', 'category', 'text', 'is_public', 'is_private', 'is_important', 'featured_image', 'slug')
+        fields = ('title', 'subtitle', 'category', 'text', 'visibility', 'is_important', 'featured_image', 'slug')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
+        self.user = user
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_enctype = 'multipart/form-data'
         self.helper.add_input(Submit('submit', _('Save')))
-        self.fields['is_public'].help_text = _('This document is publicly accessible')
-        self.fields['is_private'].label = _('Mine')
-        self.fields['is_private'].help_text = _('This document will be visible on for you')
+        self.fields['visibility'].required = False
+        self.fields['visibility'].help_text = _('Who can see this document')
         self.fields['is_important'].help_text = _('The Important chat room will be notified')
         if self.instance and self.instance.pk and self.instance.system_key:
             for field_name in self.SYSTEM_LOCKED_FIELDS:
@@ -48,8 +49,10 @@ class PostForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data.get('is_private'):
-            cleaned_data['is_public'] = False
+        if not cleaned_data.get('visibility'):
+            cleaned_data['visibility'] = self.instance.visibility if self.instance.pk else Post.Visibility.GROUP
+        if cleaned_data.get('visibility') == Post.Visibility.PRIVATE and self.instance.pk and self.instance.author_id != getattr(self.user, 'pk', None):
+            self.add_error('visibility', _('Only the author can make a document private.'))
         files = getattr(self, 'files', None)
         if files:
             max_size = settings.UPLOAD_ATTACHMENT_MAX_SIZE_MB * 1_000_000

@@ -286,21 +286,16 @@ def build_chat_message_event(message: Message, *, new: bool = False, temp_id: st
 
 class ChatRepository:
     def __init__(self, user):
+        from .room_repository import ChatRoomRepository
+
         self.user = user
+        self.room_repo = ChatRoomRepository(user)
 
     def _ensure_room_access(self, room):
-        if not self.user.is_authenticated:
-            raise ClientError("USER_HAS_TO_LOGIN")
-        if not room.public and not room.allowed.filter(id=self.user.id).exists():
-            raise ClientError("ACCESS_DENIED")
+        return self.room_repo.ensure_room_access(room)
 
     def _get_accessible_room(self, room_id):
-        try:
-            room = Room.objects.get(pk=room_id)
-        except Room.DoesNotExist:
-            raise ClientError("ROOM_INVALID") from None
-        self._ensure_room_access(room)
-        return room
+        return self.room_repo.get_accessible_room_sync(room_id)
 
     def _get_accessible_message(self, message_id, room_id=None):
         try:
@@ -311,67 +306,6 @@ class ChatRepository:
             raise ClientError("ACCESS_DENIED")
         self._ensure_room_access(message.room)
         return message
-
-    # -- Room methods --
-    @database_sync_to_async
-    def get_room_or_error(self, room_id):
-        """Tries to fetch a room for the user, checking permissions along the way."""
-        return self._get_accessible_room(room_id)
-
-    @database_sync_to_async
-    def find_rooms_with(self, *users):
-        """Find private 1 to 1 room with given users"""
-        return list(Room.find_all_with_users(*users))
-
-    @database_sync_to_async
-    def find_private_rooms_for_user_pairs(self, user, other_user_ids):
-        """Optimized batch version: Find all private 1-to-1 rooms between the given user and multiple other users."""
-        return Room.find_private_rooms_for_user_pairs(user, other_user_ids)
-
-    @database_sync_to_async
-    def has_muted_room(self, room_id):
-        room = self._get_accessible_room(room_id)
-        return Room.muted_by.through.objects.filter(room_id=room.id, user_id=self.user.id).exists()
-
-    @database_sync_to_async
-    def user_has_muted_room(self, user_id, room_id):
-        return Room.muted_by.through.objects.filter(room_id=room_id, user_id=user_id).exists()
-
-    @database_sync_to_async
-    def unmute_room(self, room_id):
-        self._get_accessible_room(room_id).muted_by.remove(self.user)
-
-    @database_sync_to_async
-    def mute_room(self, room_id):
-        room = self._get_accessible_room(room_id)
-        if not room.muted_by.filter(id=self.user.id).exists():
-            room.muted_by.add(self.user)
-
-    @database_sync_to_async
-    def get_rooms_with_notifications_enabled(self):
-        """Returns list of rooms where user is allowed and not muted."""
-        return list(Room.objects.filter(allowed=self.user).exclude(muted_by=self.user))
-
-    @database_sync_to_async
-    def can_post_in_room(self, room):
-        """Return True if the current user may write in the given room."""
-        return can_user_post_in_room(room, self.user)
-
-    @database_sync_to_async
-    def room_is_seen(self, room):
-        return is_room_seen_for_user(self.user, room)
-
-    @database_sync_to_async
-    def see_room(self, room):
-        mark_room_read_for_user(self.user, room)
-
-    @database_sync_to_async
-    def unsee_room(self, room):
-        mark_room_unread_for_user(self.user, room)
-
-    @database_sync_to_async
-    def get_unread_count(self) -> int:
-        return get_unread_count_for_user(self.user)
 
     # -- User methods --
     @database_sync_to_async
@@ -701,19 +635,6 @@ class ChatRepository:
             item['read_by_current_user'] = message.id in read_by_current_user_ids
 
         return {'messages': result, 'users': users, 'user_votes': user_votes}
-
-    # -- Push notification methods --
-    @database_sync_to_async
-    def send_push_notification_sync(self, user, title, body, deep_link, room_id, room_name=""):
-        """Synchronous push notification sending via the shared notifications backend."""
-        try:
-            from core.notifications import NOTIF_LOG_TAG, build_notification, send_fcm_to_user_sync
-
-            notification = build_notification(title, body, deep_link, f"chat-{room_id}", room_id=room_id, room_name=room_name)
-            return send_fcm_to_user_sync(user, notification, notification_type='chat')
-        except Exception as e:
-            log.error(f"{NOTIF_LOG_TAG} Error in send_push_notification_sync: {e}", exc_info=True)
-            return False
 
 
 def _prepare_message_text(text, linkify=False):

@@ -13,10 +13,10 @@ To break that correlation, the vote's content (code + choice) is buffered
 here, in Redis, instead of being written straight to `VoteCode`. It never
 touches the relational database - and therefore never appears in a SQL
 backup/dump - until the referendum closes. At that point
-`glosowania.management.commands.vote` pops the whole buffer for a
+`glosowania.management.commands.vote` claims the whole buffer for a
 referendum, shuffles it, and bulk-writes it to `VoteCode` in one go, so the
 resulting row order carries no information about when/in what order votes
-were cast.
+were cast. The claim is acknowledged only after SQLite commits.
 
 This does not provide cryptographic (zero-knowledge) anonymity - someone
 actively monitoring the server in real time, at the exact moment a vote is
@@ -80,39 +80,47 @@ def discard_pending_vote(decyzja_id, operation_id):
     return bool(_get_client().hdel(_buffer_key(decyzja_id), operation_id))
 
 
-_POP_PENDING_VOTES_SCRIPT = """
+def _claim_key(decyzja_id):
+    return f'glosowania:vote_buffer:claim:v1:{decyzja_id}'
+
+
+_CLAIM_PENDING_VOTES_SCRIPT = """
 local current = redis.call('HGETALL', KEYS[1])
 local legacy = redis.call('LRANGE', KEYS[2], 0, -1)
+for index = 1, #current, 2 do
+    redis.call('HSET', KEYS[3], current[index], current[index + 1])
+end
+local offset = redis.call('HLEN', KEYS[3])
+for index = 1, #legacy do
+    redis.call('HSET', KEYS[3], 'legacy:' .. (offset + index), legacy[index])
+end
 redis.call('DEL', KEYS[1], KEYS[2])
-return {current, legacy}
+return redis.call('HGETALL', KEYS[3])
 """
 
 
-def pop_all_pending_votes(decyzja_id):
-    """Atomically fetch and clear current and legacy buffered votes.
-
-    The current hash is keyed by an idempotency token, so a retried request
-    cannot add the same vote twice. The legacy list is read once so an
-    already-active referendum can be completed during the key migration.
-    Both keys are fetched and deleted by one Lua script; a pipeline containing
-    HGET/LRANGE followed by DELETE could lose a vote added between commands.
-    Callers MUST shuffle the returned list before persisting it anywhere
-    queryable (e.g. VoteCode).
-    """
-    raw_hash, raw_legacy = _get_client().eval(_POP_PENDING_VOTES_SCRIPT, 2, _buffer_key(decyzja_id), _legacy_buffer_key(decyzja_id))
+def claim_pending_votes(decyzja_id):
+    """Atomically move current and legacy votes into a retryable claim."""
+    raw_hash = _get_client().eval(_CLAIM_PENDING_VOTES_SCRIPT, 3, _buffer_key(decyzja_id), _legacy_buffer_key(decyzja_id), _claim_key(decyzja_id))
     votes = []
     for index in range(1, len(raw_hash), 2):
         payload = raw_hash[index]
         if isinstance(payload, bytes):
             payload = payload.decode()
         votes.append(json.loads(payload))
-    for payload in raw_legacy:
-        if isinstance(payload, bytes):
-            payload = payload.decode()
-        votes.append(json.loads(payload))
     return votes
+
+
+def acknowledge_claimed_votes(decyzja_id):
+    """Delete a claimed snapshot after its SQLite result commits."""
+    return bool(_get_client().delete(_claim_key(decyzja_id)))
+
+
+def clear_pending_votes(decyzja_id):
+    """Clear every buffer generation when a referendum must restart."""
+    return _get_client().delete(_buffer_key(decyzja_id), _legacy_buffer_key(decyzja_id), _claim_key(decyzja_id))
 
 
 def pending_vote_count(decyzja_id):
     client = _get_client()
-    return client.hlen(_buffer_key(decyzja_id)) + client.llen(_legacy_buffer_key(decyzja_id))
+    return client.hlen(_buffer_key(decyzja_id)) + client.llen(_legacy_buffer_key(decyzja_id)) + client.hlen(_claim_key(decyzja_id))

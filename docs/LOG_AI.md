@@ -1,5 +1,14 @@
 # LOG_AI
 
+## 2026-09-14: Cztery stany widoczności dokumentów
+
+- **Zmienione obszary:** `board`, synchronizacja pokoi `chat`, aktywność i wyszukiwanie dokumentów, tłumaczenia oraz testy.
+- **Co się zmieniło:** Zastąpiono trzy flagi widoczności jednym polem `Post.visibility` ze stanami „Tylko ja”, „Grupa”, „Publiczny” i „Archiwum”. Dodano migrację zachowującą dotychczasowe znaczenie flag, z priorytetem archiwum, prywatności i publiczności oraz wymuszeniem publiczności i ważności dokumentów systemowych.
+- **Uprawnienia:** Tylko autor może ustawić dokument jako prywatny; prywatny dokument jest czytelny i edytowalny wyłącznie dla autora. Dokumenty grupowe są widoczne dla zalogowanych członków, publiczne także dla gości, a archiwalne są tylko do odczytu i przywracają się do grupy.
+- **Czat i aktywność:** Prywatne i archiwalne dokumenty nie trafiają do aktywności. Historia pokoju „Ważne” nie jest usuwana; wyłączenie znacznika „Ważne” oraz zmiany widoczności ważnego dokumentu publikują komunikaty statusu, także przy ponownym udostępnieniu.
+- **UI:** Opcje widoczności są prezentowane inline, metadane kart siatki mają kolejność: ikona użytkownika, autor, data, a autor systemowy korzysta ze wspólnego partialu `home/_brand_mark.html`, który pobiera logo ustawione w parametrach systemowych przez głosowanie.
+- **Spodziewany efekt:** Znika ujawnianie prywatnych dokumentów w aktywności, zapis prywatności nie kończy się błędem 404, a dokumenty systemowe zachowują publiczny i ważny charakter przy zapisie `updated_by`.
+
 ## 2026-09-14: Usunięcie tekstowych dzieci z list błędów formularzy
 
 - **Zmienione pliki:** `obywatele/templates/obywatele/my_assets.html`, `obywatele/templates/obywatele/onboarding_details.html`.

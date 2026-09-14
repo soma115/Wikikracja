@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  *
- * Testy modelu i sortowania listy pokoi (Etap H, CHAT_REWORK_PLAN §10).
+ * Testy modelu i sortowania listy pokoi.
  * Pokrywa:
  *   - komparator data-last-activity (newest/oldest, brak danych zawsze na końcu),
  *   - widoczność linku (ukryte archiwum wyklucza z płaskiej listy, widok archiwum wyklucza aktywne pokoje),

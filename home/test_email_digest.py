@@ -262,8 +262,29 @@ def test_digest_author_follows_latest_message_anonymity(digest_user, another_use
     assert item['message_count'] == item['update_count'] == 2
     context = Command()._build_digest_context(digest_user, [item])
     title = context['sections'][0]['items'][0]['title']
-    assert (another_user.username in title) is (not latest_anonymous)
+    assert ('AN' in title) is (not latest_anonymous)
     assert room.title in title
+
+
+@pytest.mark.django_db
+def test_digest_context_uses_uppercase_initials_instead_of_names(digest_user, another_user):
+    digest_user.first_name = 'Anna'
+    digest_user.last_name = 'Nowak'
+    digest_user.save(update_fields=['first_name', 'last_name'])
+    another_user.first_name = 'Jan'
+    another_user.last_name = 'Kowalski'
+    another_user.save(update_fields=['first_name', 'last_name'])
+    room = Room.objects.create(title='Initials room', public=True)
+    message = Message.objects.create(room=room, sender=another_user, text='Hello')
+    item = next(item for item in build_user_digest(digest_user, timezone.now() - td(hours=1)) if item['object_id'] == message.pk)
+
+    context = Command()._build_digest_context(digest_user, [item])
+    title = context['sections'][0]['items'][0]['title']
+
+    assert title == 'Initials room — JK'
+    assert 'Jan Kowalski' not in title
+    assert 'Anna Nowak' not in context['digest_intro']
+    assert 'AN' in context['digest_intro']
 
 
 @override_settings(**FAST_EMAIL_SETTINGS)
@@ -281,7 +302,7 @@ class SendEmailDigestCommandTest(TransactionTestCase):
         from board.models import Post, PostCategory
 
         category = PostCategory.objects.create(name='Digest', priority=1)
-        return Post.objects.create(title='Digest post', text='<p>body</p>', author=author, category=category, is_public=True)
+        return Post.objects.create(title='Digest post', text='<p>body</p>', author=author, category=category, visibility=Post.Visibility.PUBLIC)
 
     def _run_digest(self):
         with patch('home.management.commands.send_email_digest.timezone.now', return_value=FIXED_NOW):

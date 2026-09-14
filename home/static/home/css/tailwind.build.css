@@ -10561,6 +10561,10 @@ body.tw-chat-page .tw-main-area {
   border-width: 1px;
 }
 
+.tw-border-0 {
+  border-width: 0px;
+}
+
 .tw-border-b {
   border-bottom-width: 1px;
 }

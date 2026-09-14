@@ -1,4 +1,5 @@
 import pytest
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.utils import timezone
 
@@ -31,6 +32,20 @@ def test_activity_page_renders_read_toggle_buttons(client, activity_user):
     assert f'data-object-id="{post.pk}"' in content
     assert 'window.MARK_UNREAD_URL' in content
     assert 'window.initActivityFeedToggleRead' in content
+
+
+@pytest.mark.django_db
+def test_activity_renders_author_avatar(client, activity_user, settings, tmp_path):
+    client.force_login(activity_user)
+    settings.MEDIA_ROOT = tmp_path
+    activity_user.uzytkownik.avatar = SimpleUploadedFile('activity-avatar.png', b'fake-image', content_type='image/png')
+    activity_user.uzytkownik.save(update_fields=['avatar'])
+    post = PostFactory(author=activity_user, title='Activity avatar', text='<p>body</p>')
+    Post.objects.filter(pk=post.pk).update(updated=timezone.now())
+
+    response = client.get(reverse('activity'))
+
+    assert 'src="/media/avatars/activity-avatar.png"' in response.content.decode()
 
 
 @pytest.mark.django_db

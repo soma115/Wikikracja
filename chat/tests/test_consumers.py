@@ -1,18 +1,19 @@
 import asyncio
 import json
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from channels.db import database_sync_to_async
 from django.core.cache import cache
 from django.test import TestCase, override_settings
 
+from chat.command_handlers import ChatCommandHandlers
 from chat.consumers import ChatConsumer
 from chat.exceptions import ClientError
 from chat.models import Message, Room
 from chat.notifications import ChatNotificationService
 from chat.services import CHAT_UNREAD_CACHE_KEY, ChatRepository, send_message
 from chat.tests.utils import make_user
-from chat.utils import HandledMessage
 from tasks.models import TaskVote
 from tasks.tests.utils import make_task
 
@@ -48,6 +49,7 @@ class PostSendProcessingUnseenTest(TestCase):
         consumer.rooms = MagicMock()
         consumer.rooms.present = MagicMock(return_value=False)
         consumer.repo = AsyncMock()
+        consumer.room_repo = consumer.repo
         consumer.repo.unsee_room = AsyncMock()
         consumer.push_unread_count = AsyncMock()
         consumer.send_json = AsyncMock()
@@ -269,23 +271,26 @@ class BroadcastVoteUpdateTest(TestCase):
         self.msg_plain.reactions = {'upvotes': [self.voter.id]}
         self.msg_plain.save(update_fields=['reactions'])
 
-    def _consumer(self):
-        consumer = ChatConsumer.__new__(ChatConsumer)
-        consumer.scope = {'user': self.voter}
-        return consumer
+    def _handler(self):
+        repo = SimpleNamespace(
+            get_room_by_message=AsyncMock(side_effect=lambda message_id: self.task_room if message_id == self.msg_task.id else self.plain_room),
+            get_vote_voters=AsyncMock(return_value={'upvoters': ['voter'], 'downvoters': []}),
+        )
+        consumer = SimpleNamespace(scope={'user': self.voter}, repo=repo, channel_layer=AsyncMock())
+        return ChatCommandHandlers(consumer, MagicMock())
 
     async def test_task_room_includes_voter_names(self):
-        proxy = HandledMessage()
-        await self._consumer()._broadcast_vote_update(proxy, self.msg_task.id, 'upvote', 1, 0, True)
-        group, message = proxy.get_messages()[0][:2]
+        handler = self._handler()
+        await handler._broadcast_vote_update(self.msg_task.id, 'upvote', 1, 0, True)
+        group, message = handler.consumer.channel_layer.group_send.await_args.args
         self.assertEqual(group, self.task_room.group_name)
         self.assertEqual(message['update_votes']['upvoters'], ['voter'])
         self.assertEqual(message['update_votes']['downvoters'], [])
 
     async def test_plain_room_omits_voter_names(self):
-        proxy = HandledMessage()
-        await self._consumer()._broadcast_vote_update(proxy, self.msg_plain.id, 'upvote', 1, 0, True)
-        group, message = proxy.get_messages()[0][:2]
+        handler = self._handler()
+        await handler._broadcast_vote_update(self.msg_plain.id, 'upvote', 1, 0, True)
+        group, message = handler.consumer.channel_layer.group_send.await_args.args
         self.assertEqual(group, self.plain_room.group_name)
         self.assertNotIn('upvoters', message['update_votes'])
         self.assertNotIn('downvoters', message['update_votes'])
@@ -312,20 +317,19 @@ class TaskRoomSendPermissionTest(TestCase):
         consumer.rooms.items.return_value = [self.room.id]
         consumer.channel_layer = AsyncMock()
         self.assertIsInstance(consumer.repo, ChatRepository)
-        proxy = HandledMessage()
+        handler = ChatCommandHandlers(consumer, ChatConsumer.online_registry)
 
         with patch('chat.notifications.ChatNotificationService.dispatch_message', new_callable=AsyncMock) as notifications:
             with self.assertRaises(ClientError) as denied:
-                await consumer.send_message_to_room(proxy, self.room.id, "Helper message", False, {})
+                await handler.send(self.room.id, "Helper message", False, {})
 
             self.assertEqual(denied.exception.code, "ACCESS_DENIED")
             self.assertEqual(await database_sync_to_async(self.room.messages.count)(), self.initial_message_count)
             consumer.channel_layer.group_send.assert_not_awaited()
             notifications.assert_not_called()
-            self.assertEqual(proxy.get_messages(), [])
 
             await database_sync_to_async(self.task.approve_helper)(self.helper)
-            await consumer.send_message_to_room(proxy, self.room.id, "Helper message", False, {})
+            await handler.send(self.room.id, "Helper message", False, {})
             await asyncio.sleep(0)
 
             self.assertEqual(await database_sync_to_async(self.room.messages.count)(), self.initial_message_count + 1)
@@ -338,28 +342,3 @@ class TaskRoomSendPermissionTest(TestCase):
             self.assertEqual(event['room_id'], self.room.pk)
             self.assertEqual(event['user_id'], self.helper.pk)
             notifications.assert_awaited_once()
-
-
-class HandledMessageSendAllTest(TestCase):
-    """Regression tests for HandledMessage.send_all: it must dispatch all queued messages,
-    not stop after the first one."""
-
-    async def test_send_all_dispatches_group_consumer_and_self_messages(self):
-        """A proxy with a group broadcast, a per-consumer message and a self message must send all three."""
-        consumer = MagicMock()
-        consumer.channel_layer = AsyncMock()
-        consumer.send_json = AsyncMock()
-
-        other_consumer = MagicMock()
-        other_consumer.send_json = AsyncMock()
-
-        proxy = HandledMessage()
-        proxy.group_send('room_1', {'type': 'chat.message', 'text': 'broadcast'})
-        proxy.send_json({'text': 'to_other'}, to_consumer=other_consumer)
-        proxy.send_json({'text': 'to_self'})
-
-        await proxy.send_all(consumer)
-
-        consumer.channel_layer.group_send.assert_awaited_once_with('room_1', {'type': 'chat.message', 'text': 'broadcast'})
-        other_consumer.send_json.assert_awaited_once_with({'text': 'to_other'})
-        consumer.send_json.assert_awaited_once_with({'text': 'to_self'})

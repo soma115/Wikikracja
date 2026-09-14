@@ -5,6 +5,7 @@ import re
 import threading
 import time
 import uuid
+from urllib.parse import urlsplit, urlunsplit
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
@@ -58,24 +59,35 @@ def build_notification(title, body, click_action, tag, icon=None, **extra):
     return notification
 
 
+def _fcm_https_url(url):
+    """Return an absolute HTTPS URL accepted by Firebase Webpush."""
+    if url.startswith('/'):
+        url = build_site_url(url)
+    parsed = urlsplit(url)
+    if not parsed.netloc or parsed.scheme not in ('http', 'https'):
+        raise ValueError('FCM click_action must be an absolute HTTP(S) URL')
+    return urlunsplit(parsed._replace(scheme='https'))
+
+
 def _build_fcm_message(notification):
     """Build a Firebase `messaging.Message` from a generic notification payload."""
-    data = {k: str(v) for k, v in notification.items()}
+    fcm_notification = {**notification, 'click_action': _fcm_https_url(notification['click_action'])}
+    data = {k: str(v) for k, v in fcm_notification.items()}
     return messaging.Message(
-        notification=messaging.Notification(title=notification['title'], body=notification['body']),
+        notification=messaging.Notification(title=fcm_notification['title'], body=fcm_notification['body']),
         data=data,
         webpush=messaging.WebpushConfig(
             headers={'Urgency': 'high'},
             notification=messaging.WebpushNotification(
-                title=notification['title'],
-                body=notification['body'],
-                icon=notification['icon'],
-                badge=notification['icon'],
-                tag=notification['tag'],
+                title=fcm_notification['title'],
+                body=fcm_notification['body'],
+                icon=fcm_notification['icon'],
+                badge=fcm_notification['icon'],
+                tag=fcm_notification['tag'],
                 require_interaction=True,
-                data={k: str(v) for k, v in notification.items() if k in ('click_action', 'room_id', 'room_name', 'event_id', 'vote_id', 'citizen_id')},
+                data={k: str(v) for k, v in fcm_notification.items() if k in ('click_action', 'room_id', 'room_name', 'event_id', 'vote_id', 'citizen_id')},
             ),
-            fcm_options=messaging.WebpushFCMOptions(link=notification['click_action']),
+            fcm_options=messaging.WebpushFCMOptions(link=fcm_notification['click_action']),
         ),
     )
 
