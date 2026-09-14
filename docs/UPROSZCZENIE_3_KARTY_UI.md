@@ -1,98 +1,85 @@
-# Uproszczenie 3 — wspólny system kart i list
+# Uproszczenie 3 — wspólne podstawy kart UI
 
-Dokument opisuje propozycję ujednolicenia wizualnej i CSS-owej struktury kart. Checkbox oznacza zadanie do wykonania albo decyzję do potwierdzenia; nie oznacza wykonania zmiany.
+Dokument opisuje ostrożne ujednolicenie powtarzalnej struktury kart. Checkbox oznacza zadanie do wykonania albo decyzję do potwierdzenia; nie oznacza wykonania zmiany.
 
-## 1. Cel
+## 1. Cel i zakres
 
-1. [ ] Zdefiniować wspólną strukturę karty dla propozycji, zadań i wydarzeń.
-2. [ ] Ujednolicić nagłówek, tytuł, metadane, treść i sekcje karty.
-3. [ ] Zostawić klasy domenowe tylko dla rzeczywiście unikalnych elementów.
-4. [ ] Ograniczyć liczbę specjalnych reguł CSS dla listy, siatki i trybu kompaktowego.
-5. [ ] Zachować obecne dane, akcje i logikę domenową.
+Najbardziej opłacalna jest redukcja powtarzających się reguł strukturalnych, nie pełne ujednolicenie kart wszystkich modułów.
 
-## 2. Znaleziony problem
+1. [ ] Zidentyfikować wspólne elementy kart propozycji, zadań i wydarzeń.
+2. [ ] Ujednolicić tylko podstawy: nagłówek, tytuł, metadane i opcjonalne ciało.
+3. [ ] Zachować dane, akcje, gęstość list/siatek i unikalne elementy domenowe.
+4. [ ] Nie wprowadzać nowego arkusza ani zmiany logiki domenowej.
 
-Propozycje, zadania i wydarzenia korzystają z bardzo podobnego modelu markup'u, ale mają osobne hierarchie klas:
+### Poza zakresem
 
-1. [ ] `tw-proposal-card` / `tw-proposal-card-header` / `tw-proposal-card-meta` / `tw-proposal-card-body`.
-2. [ ] `tw-task-card` / `tw-task-card-header` / `tw-task-card-meta` / `tw-task-card-body`.
-3. [ ] `tw-event-card` / `tw-event-card-header` / `tw-event-card-meta` / `tw-event-card-body`.
+Nie robimy teraz:
 
-Reprezentatywne szablony:
+- jednego ogromnego partiala dla trzech modułów;
+- pełnego przepisywania wszystkich kart i wszystkich wariantów `list`, `grid`, `compact`;
+- łączenia na siłę kart księgowości, obywateli i czatu;
+- usuwania starych klas w tym samym kroku co wprowadzenie nowych;
+- zmiany endpointów, dostępności, obsługi kliknięć ani logiki głosowania.
+
+## 2. Problem
+
+Szablony:
 
 - `glosowania/templates/glosowania/_proposal_card.html`;
 - `tasks/templates/tasks/_task_card.html`;
-- `events/templates/events/_event_card.html`.
+- `events/templates/events/_event_card.html`
 
-CSS częściowo scala podstawowe deklaracje, ale następnie rozdziela je na wiele wariantów domenowych i widokowych. Szczególnie rozbudowane są reguły dla `tw-proposals-list`, `tw-view-grid`, `tw-view-compact` oraz osobnych kart propozycji i zadań.
+mają podobny układ, ale osobne klasy strukturalne. Wspólne reguły są przez to powtarzane w `home/static/home/css/tailwind.css`, szczególnie przy kartach propozycji i zadań.
 
-Główne miejsce:
+Nie wszystkie trzy karty muszą jednak mieć ten sam wygląd. Najpierw trzeba znaleźć realne przecięcie, a nie narzucać wspólny model na podstawie nazw klas.
 
-- `home/static/home/css/tailwind.css:387-752`.
+## 3. Minimalne rozwiązanie
 
-## 3. Docelowy kontrakt wizualny
-
-Wspólna warstwa strukturalna powinna używać kilku klas:
+Zacząć od dwóch najbardziej podobnych kart: propozycji i zadania. Wprowadzić kilka wspólnych klas strukturalnych tylko tam, gdzie markup i zachowanie są faktycznie równoważne, np.:
 
 ```text
 tw-content-card
 tw-content-card-header
-tw-content-card-title-row
 tw-content-card-title
 tw-content-card-meta
 tw-content-card-body
-tw-content-card-section
-tw-content-card-section-label
-tw-content-card-section-text
 ```
 
-1. [ ] Zastąpić wspólne selektory trzech kart klasami `tw-content-card-*`.
-2. [ ] Zostawić klasy domenowe wyłącznie dla unikalnych fragmentów, np.:
-   - `tw-task-vote-row`;
-   - `tw-event-date-pill`;
-   - `tw-proposal-status`;
-   - `tw-proposal-section--consequences`.
-3. [ ] Nie przenosić całej zawartości kart do jednego ogromnego partiala.
-4. [ ] Współdzielić strukturę i style, ale pozwolić modułom zachować własne pola danych.
-5. [ ] Ustalić jeden sposób oznaczania tytułu, metadanych, badge'y i akcji.
-6. [ ] Ustalić, które sekcje są widoczne w widoku listy, a które w siatce.
+1. [ ] Zestawić markup, style i warianty obu kart.
+2. [ ] Wybrać najmniejszy wspólny zestaw klas.
+3. [ ] Dodać wspólne reguły do istniejącego `home/static/home/css/tailwind.css`.
+4. [ ] Migrować kartę propozycji i zadania stopniowo, zachowując stare klasy jako aliasy przejściowe, jeśli są potrzebne.
+5. [ ] Ocenić kartę wydarzenia dopiero po porównaniu jej semantyki; pill daty pozostawić klasą domenową.
+6. [ ] Nie przenosić zawartości kart do wspólnego partiala.
+7. [ ] Usunąć stare klasy i zmniejszyć safelistę dopiero po znalezieniu wszystkich użytkowników.
 
-## 4. Uproszczenie wyglądu
+Unikalne elementy, takie jak głosowanie, status propozycji, termin wydarzenia i akcje zadania, pozostają w modułach domenowych.
 
-1. [ ] Ujednolicić padding i wysokość nagłówków kart.
-2. [ ] Ujednolicić rozmiar tytułu i tekstu metadanych.
-3. [ ] Ujednolicić położenie badge'y i akcji po prawej stronie.
-4. [ ] Ujednolicić zachowanie hover/focus dla całej karty.
-5. [ ] Ujednolicić sposób skracania długich tytułów.
-6. [ ] Ograniczyć liczbę wyjątków, które ukrywają całe ciało karty zależnie od kombinacji klas.
-7. [ ] Zachować osobny wygląd tylko wtedy, gdy wynika z semantyki danych, a nie z historii modułu.
+## 4. Kolejność realizacji
 
-## 5. Kolejność realizacji
+1. [ ] Zainwentaryzować markup i selektory dwóch kart pilotażowych.
+2. [ ] Potwierdzić, że wspólne klasy zmniejszą liczbę reguł zamiast dodać kolejną warstwę aliasów.
+3. [ ] Dodać wspólny kontrakt w źródłowym `tailwind.css`.
+4. [ ] Przepisać najpierw jeden fragment, np. nagłówek i metadane, oraz porównać wygląd.
+5. [ ] Dokończyć migrację propozycji i zadania tylko po udanym porównaniu.
+6. [ ] Osobno zdecydować, czy wydarzenia rzeczywiście korzystają ze wspólnego kontraktu.
+7. [ ] Zaktualizować `docs/UI_STANDARDS.html` tylko jeśli powstanie trwały, wspólny wzorzec.
+8. [ ] Nie edytować ręcznie `home/static/home/css/tailwind.build.css`.
 
-1. [ ] Zainwentaryzować klasy strukturalne używane w trzech wskazanych partialach.
-2. [ ] Wyodrębnić deklaracje wspólne z `tw-proposal-card`, `tw-task-card` i `tw-event-card`.
-3. [ ] Dodać wspólny kontrakt `tw-content-card-*` w `home/static/home/css/tailwind.css`.
-4. [ ] Przepisać najpierw kartę propozycji i kartę zadania.
-5. [ ] Przepisać kartę wydarzenia po potwierdzeniu, że jej pill daty pozostaje klasą domenową.
-6. [ ] Ograniczyć selektory `tw-proposals-list` do układu listy/siatki, nie do szczegółów każdej domeny.
-7. [ ] Zmniejszyć safelistę w `tailwind.config.js` dopiero po usunięciu wszystkich użytkowników starych klas.
-8. [ ] Zaktualizować `docs/UI_STANDARDS.html` jako wspólny wzorzec karty.
-9. [ ] Nie edytować ręcznie `home/static/home/css/tailwind.build.css`.
+## 5. Kryteria akceptacji
 
-## 6. Kryteria akceptacji
+1. [ ] Karty propozycji i zadań współdzielą tylko potwierdzoną strukturę podstawową.
+2. [ ] Zmiana wspólnego paddingu lub typografii wymaga zmiany jednego zestawu reguł.
+3. [ ] Unikalne akcje i dane nadal działają bez zmiany endpointów.
+4. [ ] Lista, siatka i ewentualny compact zachowują dotychczasową gęstość informacji.
+5. [ ] Zachowane są `data-detail-url`, role, linki dzieci oraz `data-tw-stop-propagation`.
+6. [ ] Wszystkie nowe klasy mają prefiks `tw-` i pochodzą z głównego pipeline'u CSS.
+7. [ ] Nie powstaje nowy wzorzec UI bez aktualizacji dokumentacji wymaganej przez standardy projektu.
 
-1. [ ] Propozycja, zadanie i wydarzenie mają wspólną strukturę nagłówka, metadanych i ciała.
-2. [ ] Zmiana wspólnego paddingu lub typografii wymaga edycji jednego zestawu reguł.
-3. [ ] Unikalne akcje głosowania, koordynacji i kalendarza nadal działają bez zmiany endpointów.
-4. [ ] Listy i siatki zachowują swoją odrębną gęstość informacji.
-5. [ ] Karty pozostają dostępne klawiaturą i zachowują `data-detail-url`, role oraz istniejące linki dzieci.
-6. [ ] Nie dodano nowych arkuszy CSS ani klas bez prefiksu `tw-`.
-7. [ ] Zaktualizowano dokumentację wzorca i sprawdzono regresję szablonów.
+## 6. Ryzyko i weryfikacja
 
-## 7. Ryzyko i granice
-
-1. [ ] Nie łączyć na siłę kart księgowości, obywateli i czatu, jeśli mają odmienną semantykę.
-2. [ ] Nie zmieniać logiki głosowania, liczenia podpisów, koordynacji ani widoczności danych.
-3. [ ] Zweryfikować klikane nagłówki kart oraz linki i przyciski z `data-tw-stop-propagation`.
-4. [ ] Sprawdzić desktop, tablet, mobile, listę, siatkę i ewentualny tryb kompaktowy.
-5. [ ] Uruchomić po zmianie UI `npm run build:css`, `python scripts/regression_scan.py` i `python scripts/ui_guard.py`.
+1. [ ] Nie łączyć kart o odmiennej semantyce tylko dla redukcji nazw klas.
+2. [ ] Sprawdzić klikane nagłówki, przyciski i linki z zatrzymaniem propagacji.
+3. [ ] Porównać desktop, tablet, mobile, listę i siatkę dla obu kart pilotażowych.
+4. [ ] Po zmianie UI uruchomić `npm run build:css`, `.venv\Scripts\python.exe scripts\regression_scan.py` i `.venv\Scripts\python.exe scripts\ui_guard.py`, jeśli istnieje.
+5. [ ] Uruchomić focused testy szablonów/regresji, jeśli są dostępne.

@@ -7,6 +7,7 @@
 
 ### Refactor
 
+- **board/editor**: Dokumenty korzystają z osobnego renderowania treści TinyMCE, zachowują strukturę HTML5 (w tym listy, nagłówki, tabele i formatowanie), a obszar edycji i widok artykułu używają wspólnego stylowania UI. Prosty `RichTextWidget` pozostaje niezależny. Minimalne filtrowanie usuwa tylko skrypty, event handlery i niebezpieczne protokoły URL. Projekt używa `django-tinymce==5.0.0` z TinyMCE 7.8.0; `tinycss2==1.5.1` obsługuje bezpieczne style CSS.
 - **chat**: Wszystkie komendy WebSocket zostały wydzielone z `ChatConsumer` do
   testowalnej warstwy `ChatCommandHandlers`. Jawne specyfikacje komend zastąpiły
   introspekcję argumentów, wspólny builder payloadów usunął duplikację join/fetch,

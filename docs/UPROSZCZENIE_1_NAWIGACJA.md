@@ -1,80 +1,76 @@
-# Uproszczenie 1 — jedna nawigacja i globalna powłoka
+# Uproszczenie 1 — ograniczenie duplikacji nawigacji
 
-Dokument opisuje największą propozycję uproszczenia globalnego layoutu aplikacji. Checkbox oznacza zadanie do wykonania albo decyzję do potwierdzenia; nie oznacza wykonania zmiany.
+Dokument opisuje małą refaktoryzację istniejącego zalogowanego layoutu. Checkbox oznacza zadanie do wykonania albo decyzję do potwierdzenia; nie oznacza wykonania zmiany.
 
-## 1. Cel
+## 1. Cel i zakres
 
-1. [ ] Zdefiniować jedną listę elementów nawigacji dla wszystkich wariantów layoutu.
-2. [ ] Używać tej samej definicji do renderowania sidebara, topbara mobilnego i nazwy bieżącego modułu.
-3. [ ] Usunąć duplikację reguł aktywnego linku, ikon, etykiet i zakresów `PagePrefs`.
-4. [ ] Zachować istniejące URL-e, wyjątki stron ustawień i kontrakty JavaScript.
+Najbardziej opłacalna zmiana to usunięcie powtórzeń nazw i identyfikacji modułów między sidebarem a breadcrumbem, bez budowy nowego systemu nawigacji.
 
-## 2. Znaleziony problem
+1. [ ] Zachować obecny wygląd, kolejność, URL-e i zachowanie linków.
+2. [ ] Utrzymywać nazwę i identyfikację modułu w jednym prostym miejscu.
+3. [ ] Zachować `PagePrefs`, w tym `data-prefs-link-scope` i `data-prefs-base-href`.
+4. [ ] Nie zmieniać routingu, uprawnień, uwierzytelniania ani logiki modułów.
 
-1. [ ] Potwierdzić, że `home/templates/home/base.html` ręcznie definiuje kilka reprezentacji tej samej nawigacji:
-   - sidebar desktopowy;
-   - topbar z breadcrumbem;
-   - nawigację mobilną;
-   - osobne linki ustawień i wylogowania.
-2. [ ] Potwierdzić, że aktywność linków jest wyliczana przez długie warunki zależne od `namespace`, `url_name` i wyjątków stron.
-3. [ ] Potwierdzić, że nazwy modułów i logo są renderowane niezależnie w sidebarze i topbarze.
-4. [ ] Uwzględnić, że część linków posiada dodatkowy kontrakt `data-prefs-link-scope` / `data-prefs-base-href`.
+### Poza zakresem
 
-Główne miejsca:
+Nie obejmuje to:
 
-- `home/templates/home/base.html:111-249` — sidebar i linki modułów;
-- `home/templates/home/base.html:275-301` — breadcrumb i nazwa bieżącego modułu;
-- `home/templates/home/base.html:305-341` — wyszukiwanie, motyw i aktywność;
-- `home/static/home/js/app.js` — obsługa `PagePrefs` i patchowanie linków sidebaru.
+- generalnego systemu nawigacji dla wszystkich layoutów;
+- przebudowy nawigacji anonimowej, ustawień, wylogowania, wyszukiwania, motywu ani powiadomień;
+- zmian w `PagePrefs` i kontraktach JavaScript;
+- przenosin kodu z `zzz` do `core`;
+- zmiany wyglądu lub responsywności.
 
-## 3. Docelowe uproszczenie
+## 2. Problem
 
-Jedna definicja elementu nawigacji powinna zawierać wyłącznie dane potrzebne do prezentacji i identyfikacji modułu, na przykład:
+W `home/templates/home/base.html` sidebar i breadcrumb niezależnie powtarzają namespace'y, nazwy modułów, ikony oraz wyjątki stron ustawień obywatela. Linki sidebara mają ponadto różne URL-e i opcjonalne atrybuty `PagePrefs`, więc nie wszystkie da się bezpiecznie uogólnić.
+
+To uzasadnia współdzielenie wyłącznie danych prezentacyjnych i identyfikacyjnych. Nie uzasadnia jeszcze tworzenia nowego rejestru, context processora ani przenoszenia całej logiki linków.
+
+## 3. Minimalne rozwiązanie
+
+W istniejącej warstwie `home` ustalić małą definicję modułów zawierającą tylko dane wspólne dla sidebara i breadcrumbu:
 
 ```python
-{"url": "tasks:list", "label": _("Activities"), "icon": "bolt", "namespace": "tasks", "prefs_scope": "tasks"}
+{
+    "namespace": "tasks",
+    "label": _("Activities"),
+    "icon": "bolt",
+}
 ```
 
-1. [ ] Ustalić minimalny kontrakt elementu nawigacji.
-2. [ ] Przenieść listę modułów do istniejącej warstwy `home` zamiast tworzyć nowy moduł infrastrukturalny.
-3. [ ] Zastąpić powtarzające się fragmenty HTML pętlą w istniejącym partialu.
-4. [ ] Wyprowadzać etykietę breadcrumb z tej samej listy.
-5. [ ] Wyprowadzać stan aktywny z jednej funkcji albo jednego filtra, z jawną listą wyjątków.
-6. [ ] Nie zmieniać nazw tras ani znaczenia istniejących scope'ów `PagePrefs`.
+URL-e, zakresy `PagePrefs`, wyjątki aktywności i elementy specjalne pozostają jawne tam, gdzie są obecnie potrzebne.
 
-## 4. Powiązane uproszczenie architektoniczne
+1. [ ] Zidentyfikować faktycznie wspólne dane oraz wyjątki.
+2. [ ] Umieścić wspólną listę w istniejącym mechanizmie `home`, bez nowego modułu.
+3. [ ] Użyć jej do nazwy bieżącego modułu w breadcrumbzie.
+4. [ ] Użyć jej w sidebarze tylko wtedy, gdy pętla nie komplikuje obsługi URL-i, `PagePrefs` i klas aktywności.
+5. [ ] Zachować osobną, jawną obsługę ustawień obywatela, czatu, ankiet oraz linków ustawień/wylogowania.
+6. [ ] Nie zmieniać `home/static/home/js/app.js`.
 
-Pakiet `zzz` powinien pozostać warstwą ustawień, routingu i procesów startowych. Tymczasem wspólne funkcje prezentacyjne są implementowane w `zzz.templatetags.citizen_filters` i importowane przez wiele aplikacji.
+Jeśli wspólna lista wymaga większej abstrakcji niż obecny szablon, pozostawić ją jako mały helper/partial albo ograniczyć zmianę do breadcrumbu. Nie budować infrastruktury na przyszłość.
 
-1. [ ] Przenieść kanoniczną implementację funkcji wyświetlania obywatela do istniejącej warstwy `core`.
-2. [ ] Zachować tymczasowy adapter w `zzz.templatetags.citizen_filters`, aby nie łamać istniejących template tagów i importów.
-3. [ ] Stopniowo zmienić importy aplikacji domenowych z `zzz` na `core`.
-4. [ ] Dopiero po migracji wszystkich użytkowników usunąć adapter, jeśli nie jest już potrzebny.
-5. [ ] Nie scalać mechanicznie `feed_registry`, `search_registry` i `dashboard_registry`; ich rozdzielenie jest świadomą granicą modułów.
+## 4. Kolejność realizacji
 
-## 5. Kolejność realizacji
+1. [ ] Zainwentaryzować warunki sidebara i breadcrumbu w `base.html`.
+2. [ ] Spisać wyjątki `url_name` dotyczące ustawień obywatela.
+3. [ ] Wydzielić wyłącznie dane rzeczywiście wspólne.
+4. [ ] Podłączyć breadcrumb, a następnie — tylko jeśli upraszcza kod — sidebar.
+5. [ ] Porównać wyrenderowany HTML dla strony głównej, modułu, czatu i ustawień.
+6. [ ] Uruchomić tylko testy dotyczące zmienionego renderowania, jeśli istniejące pokrycie nie wystarcza.
 
-1. [ ] Zainwentaryzować wszystkie linki renderowane przez `base.html`.
-2. [ ] Zidentyfikować wyjątki dla stron ustawień i zapisać je w jednym miejscu.
-3. [ ] Przygotować listę nawigacji bez zmiany wyglądu.
-4. [ ] Podłączyć sidebar do wspólnej listy.
-5. [ ] Podłączyć breadcrumb/topbar do wspólnej listy.
-6. [ ] Podłączyć linki mobilne i zakresy `PagePrefs`.
-7. [ ] Usunąć nieużywane ręczne warunki dopiero po porównaniu wyrenderowanego HTML.
-8. [ ] Dodać focused test renderowania aktywnego modułu i stron ustawień.
+## 5. Kryteria akceptacji
 
-## 6. Kryteria akceptacji
+1. [ ] Zmiana nazwy modułu nie wymaga poprawiania dwóch niezależnych warunków.
+2. [ ] Sidebar i breadcrumb pokazują tę samą nazwę modułu.
+3. [ ] Kolejność, URL-e, ikony, klasy aktywności i wygląd pozostają bez zmian.
+4. [ ] Ustawienia obywatela nadal są oznaczane jako „Settings”.
+5. [ ] Linki `PagePrefs` działają dokładnie jak przed zmianą.
+6. [ ] Nie zmieniono routingu, autoryzacji ani logiki biznesowej.
 
-1. [ ] Dodanie nowego modułu wymaga zmiany tylko jednej listy nawigacji.
-2. [ ] Sidebar i breadcrumb pokazują tę samą nazwę oraz ikonę modułu.
-3. [ ] Strony ustawień nie są oznaczane jako zwykły moduł obywateli.
-4. [ ] Linki zachowują zapisane filtry i zakładki.
-5. [ ] Użytkownik anonimowy nadal widzi wyłącznie dozwoloną nawigację publiczną.
-6. [ ] Nie zmieniono uwierzytelniania, autoryzacji ani routingu.
+## 6. Ryzyko i kontrola zakresu
 
-## 7. Ryzyko
-
-1. [ ] Przetestować wszystkie wyjątki `url_name` w aplikacji `obywatele`.
-2. [ ] Przetestować moduły bez `data-prefs-link-scope`.
-3. [ ] Przetestować layout anonimowy, desktopowy i mobilny.
-4. [ ] Nie wykonywać refaktoryzacji logiki głosowań, członkostwa ani autoryzacji w ramach tego zadania.
+1. [ ] Sprawdzić moduły bez `data-prefs-link-scope` oraz link czatu.
+2. [ ] Sprawdzić layout zalogowany na desktopie i mobile.
+3. [ ] Nie wykonywać przy okazji refaktoryzacji `zzz`/`core`, `PagePrefs` ani logiki domenowej.
+4. [ ] Jeśli abstrakcja zwiększa złożoność, zachować obecny sidebar i ograniczyć zmianę do wspólnej nazwy breadcrumbu.
