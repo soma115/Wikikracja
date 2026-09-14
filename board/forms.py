@@ -10,7 +10,7 @@ from .models import Post
 
 
 class PostForm(forms.ModelForm):
-    SYSTEM_LOCKED_FIELDS = ('visibility', 'is_important')
+    SYSTEM_LOCKED_FIELDS = ('category', 'visibility', 'is_important')
 
     text = forms.CharField(widget=TinyMCE(), label=_("Text"))
 

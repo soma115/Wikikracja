@@ -38,6 +38,18 @@ class BoardDetailNavigationTests(TestCase):
         post.refresh_from_db()
         self.assertEqual(post.title, 'Updated document')
 
+    def test_post_edit_returns_to_source_tab(self):
+        post = self._post('Private document')
+        post.visibility = Post.Visibility.PRIVATE
+        post.save(update_fields=('visibility',))
+        edit_url = f'{reverse("board:edit_post", args=[post.pk])}?tab=mine'
+        detail_response = self.client.get(reverse('board:view_post', args=[post.pk]), {'tab': 'mine'})
+        self.assertContains(detail_response, f'href="{edit_url}"')
+
+        response = self.client.post(edit_url, {'title': post.title, 'subtitle': '', 'category': '', 'text': post.text, 'visibility': Post.Visibility.PRIVATE, 'is_important': '', 'slug': ''})
+
+        self.assertRedirects(response, f'{reverse("board:view_post", args=[post.pk])}?tab=mine')
+
     def test_post_edit_invalid_title_rerenders_form_without_saving(self):
         post = self._post('Editable')
         response = self.client.post(

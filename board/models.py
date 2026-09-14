@@ -12,7 +12,13 @@ User = get_user_model()
 
 
 class PostCategory(AbstractCategory):
+    SYSTEM_NAME = 'System'
+
     priority = models.PositiveIntegerField(default=10, verbose_name=_("Priority"))
+
+    @classmethod
+    def get_system_category(cls):
+        return cls.objects.filter(name=cls.SYSTEM_NAME, is_protected=True).order_by('pk').first()
 
     def delete(self, *args, **kwargs):
         if self.is_protected:
@@ -67,12 +73,18 @@ class Post(ChatRoomModel, models.Model):
         self._previous_is_important = original['is_important'] if original else None
         if original and original['system_key']:
             self.system_key = original['system_key']
-            self.category_id = original['category_id']
             self.visibility = original['visibility']
             self.is_important = True
         if self.system_key:
+            system_category = PostCategory.get_system_category()
+            if system_category is None:
+                system_category = PostCategory.objects.create(name=PostCategory.SYSTEM_NAME, priority=900, is_protected=True)
+            self.category_id = system_category.pk
             self.visibility = self.Visibility.PUBLIC
             self.is_important = True
+            update_fields = kwargs.get('update_fields')
+            if update_fields is not None and 'category' not in update_fields and 'category_id' not in update_fields:
+                kwargs['update_fields'] = tuple(update_fields) + ('category',)
         return super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):

@@ -316,12 +316,42 @@ def test_system_post_visible_to_authenticated_users_regardless_of_author_or_priv
 
     assert response.status_code == 200
     assert system_post.title in response.content.decode()
+    system_post.refresh_from_db()
+    assert system_post.category.name == 'System'
+
+    listing_response = client.get(reverse('board:start'))
+    system_group = next(group for group in listing_response.context['category_groups'] if group['category'] and group['category'].name == 'System')
+    assert system_post in system_group['posts']
+    assert not any(system_post in group['posts'] for group in listing_response.context['category_groups'] if group['category'] is None)
     assert system_post in Post.objects.filter(Post.visibility_filter_for_user(user))
 
     client.logout()
     assert client.get(reverse('board:start')).status_code == 200
     assert system_post.title not in client.get(reverse('board:start')).content.decode()
     assert client.get(reverse('board:view_post', args=[system_post.pk])).status_code == 404
+
+
+@pytest.mark.django_db
+def test_system_posts_use_protected_system_category(authenticated_client):
+    client, _ = authenticated_client
+
+    from board.models import PostCategory
+
+    system_category = PostCategory.get_system_category()
+    duplicate_category = PostCategoryFactory(name='System')
+    existing_system_posts = PostFactory.create_batch(5, category=duplicate_category)
+    for post in existing_system_posts:
+        Post.objects.filter(pk=post.pk).update(system_key=f'existing-system-{post.pk}')
+
+    assert system_category.is_protected is True
+    assert PostCategory.get_system_category().pk == system_category.pk
+    edited_system_post = PostFactory(system_key='edited-system-post', category=duplicate_category)
+    edited_system_post.refresh_from_db()
+
+    assert edited_system_post.category_id == system_category.pk
+    response = client.get(reverse('board:start'))
+    system_group = next(group for group in response.context['category_groups'] if group['category'] and group['category'].pk == system_category.pk)
+    assert {post.pk for post in existing_system_posts} | {edited_system_post.pk} <= {post.pk for post in system_group['posts']}
 
 
 @pytest.mark.django_db
@@ -420,7 +450,7 @@ def test_only_author_can_make_document_private(authenticated_client):
 
 @pytest.mark.django_db
 def test_edit_system_post_can_change_public_but_not_category_or_other_flags(authenticated_client):
-    """Dokument systemowy pozwala zmienić publiczność, ale blokuje pozostałe pola chronione."""
+    """Dokument systemowy zawsze należy do kategorii System i nie zmienia flag zabezpieczających."""
     client, user = authenticated_client
     original_category = PostCategoryFactory(name='System category')
     new_category = PostCategoryFactory(name='Other category')
@@ -431,7 +461,8 @@ def test_edit_system_post_can_change_public_but_not_category_or_other_flags(auth
     assert response.status_code == 302
     post.refresh_from_db()
     assert post.title == 'Zmieniony tytuł'
-    assert post.category == original_category
+    assert post.category.name == 'System'
+    assert post.category != new_category
     assert post.visibility == Post.Visibility.PUBLIC
     assert post.is_important is True
     assert post.updated_by == user
@@ -457,7 +488,8 @@ def test_system_post_cannot_be_deleted_or_have_protected_fields_changed(authenti
     post.refresh_from_db()
 
     assert post.system_key == 'immutable-system-post'
-    assert post.category_id == original_category.pk
+    assert post.category.name == 'System'
+    assert post.category != new_category
     assert post.visibility == Post.Visibility.PUBLIC
     assert post.is_important is True
 

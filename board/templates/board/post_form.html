@@ -26,6 +26,7 @@
           {% endif %}
         </div>
         {{ form.category|as_crispy_field }}
+        {% if object and object.system_key %}<div class="tw-form-text tw-mb-3">{% trans 'System documents always belong to the System category.' %}</div>{% endif %}
         <div class="tw-mb-3">
           <label for="{{ form.featured_image.id_for_label }}" class="tw-form-label">{{ form.featured_image.label }}</label>
           <label class="tw-file-upload" data-file-upload data-file-upload-single data-max-size-mb="{{ UPLOAD_IMAGE_MAX_SIZE_MB }}" data-max-size-error="{{ UPLOAD_IMAGE_MAX_SIZE_MESSAGE }}" data-remove-label="{% trans 'Remove image' %}" data-preview-label="{% trans 'Selected image' %}">
@@ -136,7 +137,7 @@
       <div class="tw-mt-4 tw-flex tw-flex-wrap tw-gap-2">
         <button type="submit" form="post-form" class="tw-btn tw-btn-primary" data-tw-submit-once><i class="fas fa-check fa-fw tw-me-1" aria-hidden="true"></i> {% trans 'Save' %}</button>
         {% if object %}
-          <a href="{% url 'board:view_post' object.pk %}" class="tw-btn tw-btn-secondary" data-autosave-clear><i class="fas fa-times fa-fw tw-me-1" aria-hidden="true"></i> {% trans 'Cancel' %}</a>
+          <a href="{% url 'board:view_post' object.pk %}{% if detail_query %}?{{ detail_query }}{% endif %}" class="tw-btn tw-btn-secondary" data-autosave-clear><i class="fas fa-times fa-fw tw-me-1" aria-hidden="true"></i> {% trans 'Cancel' %}</a>
         {% else %}
           <a href="{% url 'board:start' %}" class="tw-btn tw-btn-secondary" data-autosave-clear><i class="fas fa-times fa-fw tw-me-1" aria-hidden="true"></i> {% trans 'Cancel' %}</a>
         {% endif %}

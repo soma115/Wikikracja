@@ -24,6 +24,19 @@ class PostCategoryAPI(CategoryAPIBase):
     related_count_field = "posts"
     order_field = "priority"
 
+    def _get_queryset(self):
+        queryset = super()._get_queryset()
+        system_category = PostCategory.get_system_category()
+        if system_category:
+            queryset = queryset.filter(~Q(name=PostCategory.SYSTEM_NAME) | Q(pk=system_category.pk))
+        return queryset
+
+    def serialize(self, cat):
+        data = super().serialize(cat)
+        if cat.name == PostCategory.SYSTEM_NAME:
+            data['item_count'] = Post.objects.filter(system_key__isnull=False).count()
+        return data
+
 
 class PostCategoryEditAPI(CategoryEditAPI):
     model = PostCategory
@@ -75,6 +88,21 @@ def _board_list_state(request):
     return tab, sort, order, active_categories, request.GET.get('q', '').strip()
 
 
+def _board_return_query(request, listing):
+    """Keep only the list state explicitly present when opening a document."""
+    query_params = []
+    if 'tab' in request.GET:
+        query_params.append(('tab', listing['current_tab']))
+    if 'sort' in request.GET:
+        query_params.append(('sort', listing['sort']))
+        if listing['order'] is not None and 'order' in request.GET:
+            query_params.append(('order', listing['order']))
+    query_params.extend(('category', category) for category in listing['active_categories'])
+    if 'q' in request.GET and listing['search_query']:
+        query_params.append(('q', listing['search_query']))
+    return urlencode(query_params)
+
+
 def _board_tab_filter(user, tab):
     if tab == 'mine':
         if not user.is_authenticated:
@@ -114,12 +142,17 @@ def _board_listing(request, *, include_chat_counts=True):
             post.chat_room_unread_count = unread_counts.get(post.chat_room_id, 0)
             post.chat_room_pulse_class = 'tw-chat-room-pulse' if post.chat_room_unread_count else ''
 
-    categories = list(PostCategory.objects.all())
+    system_category = PostCategory.get_system_category()
+    categories_query = PostCategory.objects.all()
+    if system_category:
+        categories_query = categories_query.filter(~Q(name=PostCategory.SYSTEM_NAME) | Q(pk=system_category.pk))
+    categories = list(categories_query)
     posts_by_cat = {}
     uncategorized = []
     for post in posts_all:
-        if post.category_id:
-            posts_by_cat.setdefault(post.category_id, []).append(post)
+        category_id = system_category.pk if system_category and post.system_key else post.category_id
+        if category_id:
+            posts_by_cat.setdefault(category_id, []).append(post)
         else:
             uncategorized.append(post)
 
@@ -138,7 +171,7 @@ def _board_listing(request, *, include_chat_counts=True):
         category_groups.append({'category': None, 'posts': sort_posts(uncategorized)})
 
     ordered_posts = [post for group in category_groups for post in group['posts']]
-    navigation_posts = [post for post in ordered_posts if not active_categories or post.category_id in active_categories]
+    navigation_posts = [post for post in ordered_posts if not active_categories or (system_category.pk if system_category and post.system_key else post.category_id) in active_categories]
     query_params = []
     if tab != 'public' or request.GET.get('tab'):
         query_params.append(('tab', tab))
@@ -267,7 +300,9 @@ class PostFormViewMixin(LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['stepper'] = _board_stepper(self.request, _board_listing(self.request))
+        listing = _board_listing(self.request, include_chat_counts=False)
+        context['stepper'] = _board_stepper(self.request, listing)
+        context['detail_query'] = _board_return_query(self.request, listing)
         return context
 
     def form_valid(self, form):
@@ -281,8 +316,12 @@ class PostFormViewMixin(LoginRequiredMixin):
             PostAttachment.objects.create(post=post, file=attachment, filename=attachment.name)
 
         detail_url = reverse('board:view_post', kwargs={'pk': post.pk})
+        listing = _board_listing(self.request, include_chat_counts=False)
+        detail_query = _board_return_query(self.request, listing)
         if post.visibility == Post.Visibility.ARCHIVE:
-            detail_url = f'{detail_url}?tab=archive'
+            detail_query = 'tab=archive'
+        if detail_query:
+            detail_url = f'{detail_url}?{detail_query}'
         return redirect(detail_url)
 
 
@@ -316,7 +355,14 @@ def _post_queryset_for_user(user, *, include_archive=False):
 def _post_detail_context(request: HttpRequest, post: Post):
     """Build common context for document detail views (including embedded chat)."""
     listing = _board_listing(request, include_chat_counts=False)
-    context = {'post': post, 'chat_room': post.chat_room, 'MESSAGE_MAX_LENGTH': settings.MESSAGE_MAX_LENGTH, 'ec_translations': get_chat_translations(), 'stepper': _board_stepper(request, listing)}
+    context = {
+        'post': post,
+        'chat_room': post.chat_room,
+        'MESSAGE_MAX_LENGTH': settings.MESSAGE_MAX_LENGTH,
+        'ec_translations': get_chat_translations(),
+        'stepper': _board_stepper(request, listing),
+        'detail_query': _board_return_query(request, listing),
+    }
     context.update(build_detail_navigation(request, listing['navigation_posts'], post.pk, 'board:view_post'))
     return context
 
