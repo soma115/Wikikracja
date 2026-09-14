@@ -47,7 +47,7 @@ class ChatNotificationService:
         membership_prefs = await database_sync_to_async(Room.get_membership_preferences_bulk)(room.id, other_member_ids)
         author = "Anonymous" if message.anonymous else (user_display_name(sender) if sender else "System")
         room_name = self._room_notification_name(room, sender)
-        notification = await self._build_notification(author, room.id, room_name)
+        notification = await self._build_notification(author, room.id, room_name, sender.id if sender and not message.anonymous else None)
 
         for member in other_members:
             prefs = membership_prefs.get(member.id, {'seen': False, 'muted': True})
@@ -89,7 +89,7 @@ class ChatNotificationService:
         return room.clean_title() if room.public else (user_display_name(sender) if sender else "System")
 
     @staticmethod
-    async def _build_notification(author, room_id, room_name):
+    async def _build_notification(author, room_id, room_name, source_user_id=None):
         site_url = f"https://{await database_sync_to_async(get_site_domain)()}"
         notification_id = uuid.uuid4().hex
         log.debug("%s Built chat notification %s for room %s", NOTIF_LOG_TAG, notification_id, room_id)
@@ -101,6 +101,7 @@ class ChatNotificationService:
             'click_action': f"{site_url}/chat#room_id={room_id}",
             'tag': f'chat-{room_id}',
             'room_name': room_name,
+            'source_user_id': source_user_id,
         }
 
 
@@ -110,5 +111,5 @@ def deliver_notification_job(job):
     notification = {**job['notification'], 'room_id': job['room_id']}
     ws_type = 'chat.mention' if job['kind'] == 'mention' else 'chat.notification'
     core_notifications.send_websocket_to_user_sync(user.id, notification, ws_type=ws_type)
-    core_notifications.send_fcm_to_user_sync(user, notification, notification_type='chat')
+    core_notifications.send_fcm_to_user_sync(user, notification, notification_type='chat', source_user_id=notification.get('source_user_id'))
     log.info("%s Delivered chat notification job %s to user %s", NOTIF_LOG_TAG, job['job_id'], user.id)

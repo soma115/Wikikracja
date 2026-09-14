@@ -59,8 +59,8 @@
                 <span class="tw-form-check-label">{{ label }}</span>
               </label>
               {% endfor %}
+              <div class="tw-alert tw-alert-secondary tw-mt-0 tw-text-sm tw-w-fit tw-max-w-full">{{ form.visibility.help_text }}</div>
             </div>
-            <div class="tw-alert tw-alert-secondary tw-mt-2 tw-text-sm">{{ form.visibility.help_text }}</div>
             {% if form.visibility.errors %}<div class="tw-invalid-feedback">{{ form.visibility.errors }}</div>{% endif %}
           </fieldset>
           <div>

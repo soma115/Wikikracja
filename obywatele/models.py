@@ -113,6 +113,7 @@ class Uzytkownik(models.Model):
     theme = models.CharField(max_length=10, choices=Theme.choices, default=Theme.AUTO, help_text=_('Preferred UI theme for web and emails'), verbose_name=_('Theme'))
 
     # Push notification preferences
+    muted_push_users = models.ManyToManyField(User, blank=True, related_name='push_muted_by', verbose_name=_('Muted people'))
     push_notifications_obywatele = models.BooleanField(default=True, help_text=_('Receive push notifications about new citizens and membership requests'), verbose_name=_('Push citizenship notifications'))
     push_notifications_glosowania = models.BooleanField(default=True, help_text=_('Receive push notifications about law proposals and voting'), verbose_name=_('Push voting notifications'))
     push_notifications_chat = models.BooleanField(default=True, help_text=_('Receive push notifications about new chat messages'), verbose_name=_('Push chat notifications'))

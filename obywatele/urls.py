@@ -21,6 +21,7 @@ urlpatterns = (
     path('settings/avatar/', v.upload_avatar, name='upload_avatar'),
     path('settings/language/', v.set_user_language, name='set_language'),
     path('toggle_notification/', v.toggle_notification, name='toggle_notification'),
+    path('toggle_person_push/<int:pk>/', v.toggle_person_push, name='toggle_person_push'),
     path('my_assets/', v.my_assets, name='my_assets'),
     path('nowy/', v.dodaj, name='zaproponuj_osobe'),
     path('change_username/', v.change_username, name='change_username'),

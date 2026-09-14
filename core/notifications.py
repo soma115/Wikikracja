@@ -143,6 +143,16 @@ def _push_enabled_for_user(user, notification_type):
         return True
 
 
+def _push_muted_for_source(user, source_user_id):
+    """Return whether the recipient muted the chat message author."""
+    if not source_user_id:
+        return False
+    try:
+        return user.uzytkownik.muted_push_users.filter(pk=source_user_id).exists()
+    except Exception:
+        return False
+
+
 def _push_user_ids(notification_type):
     """Return active user IDs that have push enabled for the given category."""
     if not notification_type:
@@ -158,7 +168,7 @@ def _push_user_ids(notification_type):
         return set()
 
 
-def send_fcm_to_user_sync(user, notification, notification_type=None):
+def send_fcm_to_user_sync(user, notification, notification_type=None, source_user_id=None):
     """Send an FCM push notification to a single user's active devices."""
     notification_id = notification.get('notification_id', '?')
     if not _fcm_ready():
@@ -167,6 +177,10 @@ def send_fcm_to_user_sync(user, notification, notification_type=None):
 
     if not _push_enabled_for_user(user, notification_type):
         log.debug(f"{NOTIF_LOG_TAG} Push disabled for user {user.id} ({notification_type}), notification_id={notification_id}")
+        return 0
+
+    if _push_muted_for_source(user, source_user_id):
+        log.debug(f"{NOTIF_LOG_TAG} Push muted for source user {source_user_id}, recipient {user.id}, notification_id={notification_id}")
         return 0
 
     _migrate_legacy_gcm_devices()

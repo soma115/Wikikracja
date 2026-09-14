@@ -47,6 +47,16 @@ def device(user, name='desktop', **kwargs):
     return GCMDevice.objects.create(user=user, name=name, registration_id=f'local-test-{user.pk}-{GCMDevice.objects.count()}', **{'active': True, 'cloud_message_type': 'FCM', **kwargs})
 
 
+def test_muted_chat_source_does_not_send_push(users, payload, transport):
+    sender = users('sender')
+    recipient = users('recipient')
+    recipient.uzytkownik.muted_push_users.add(sender)
+    device(recipient)
+
+    assert notify.send_fcm_to_user_sync(recipient, payload, 'chat', source_user_id=sender.pk) == 0
+    transport.fcm.assert_not_called()
+
+
 @pytest.mark.parametrize('category', ['obywatele', 'glosowania', 'chat', 'events', 'post', 'task', 'survey'])
 def test_category_selects_only_active_opted_in_users(users, payload, transport, category, django_assert_num_queries):
     field = f'push_notifications_{category}'

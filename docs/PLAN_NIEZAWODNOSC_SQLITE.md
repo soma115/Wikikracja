@@ -734,6 +734,19 @@ Testy wykonane 2026-09-14 potwierdziły:
       i Redis;
 - [x] implementacja claim/ack przeszła test z rzeczywistym Redis 7.
 
+### Wyniki testów P1b — konkurencja ankiet i zadań
+
+Testy wykonane 2026-09-14 na osobnych procesach Django i tymczasowych plikach
+SQLite z WAL:
+
+- [x] równoczesna zmiana wyboru tego samego użytkownika w ankiecie pozostawia
+      najwyżej jeden głos;
+- [x] równoczesne wycofanie i zapisanie głosu nie tworzy duplikatu;
+- [x] wielu użytkowników może oddać po jednym głosie na tę samą ankietę;
+- [x] równoczesne głosy na jedno zadanie dają deterministyczny wynik agregacji
+      i status `REJECTED` przy wyniku `-2`;
+- [x] pomiary czasu zapisano jako baseline bez progów CI.
+
 ## P1 — ograniczone retry
 
 - [ ] Retry stosować wyłącznie do operacji idempotentnych albo posiadających

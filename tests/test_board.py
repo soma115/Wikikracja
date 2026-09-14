@@ -9,6 +9,7 @@ import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 from django.urls import reverse
+from django.utils.translation import gettext
 
 from board.models import Post
 from chat.models import Message, MessageReadBy, Room
@@ -471,7 +472,7 @@ def test_making_important_post_private_keeps_history_and_adds_status_message(aut
     post.save(update_fields=['visibility'])
 
     assert important_room.messages.count() == 2
-    assert 'made private' in important_room.messages.order_by('-id').first().text
+    assert gettext('Important document was made private: %(link)s') % {'link': ''} in important_room.messages.order_by('-id').first().text
 
 
 @pytest.mark.django_db
@@ -485,7 +486,7 @@ def test_disabling_important_marker_adds_status_message(authenticated_client):
     post.save(update_fields=['is_important'])
 
     assert important_room.messages.count() == 2
-    assert 'no longer marked as important' in important_room.messages.order_by('-id').first().text
+    assert gettext('Document is no longer marked as important: %(link)s') % {'link': ''} in important_room.messages.order_by('-id').first().text
 
 
 @pytest.mark.django_db
@@ -502,5 +503,5 @@ def test_archived_important_post_keeps_history_and_notifies_when_restored(authen
 
     messages = list(important_room.messages.order_by('id').values_list('text', flat=True))
     assert len(messages) == 3
-    assert 'archived' in messages[1]
-    assert 'visible again' in messages[2]
+    assert gettext('Important document was archived: %(link)s') % {'link': ''} in messages[1]
+    assert gettext('Important document was made visible again: %(link)s') % {'link': ''} in messages[2]

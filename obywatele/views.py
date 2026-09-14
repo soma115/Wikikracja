@@ -505,6 +505,29 @@ def upload_avatar(request: HttpRequest):
 
 @login_required
 @require_POST
+def toggle_person_push(request: HttpRequest, pk: int):
+    target = get_object_or_404(User, pk=pk, is_active=True)
+    if target == request.user:
+        return JsonResponse({'success': False, 'error': 'Invalid target'}, status=400)
+
+    try:
+        enabled = json.loads(request.body).get('enabled', False)
+    except (json.JSONDecodeError, AttributeError):
+        return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
+
+    if not isinstance(enabled, bool):
+        return JsonResponse({'success': False, 'error': 'Invalid enabled value'}, status=400)
+
+    muted_users = request.user.uzytkownik.muted_push_users
+    if enabled:
+        muted_users.remove(target)
+    else:
+        muted_users.add(target)
+    return JsonResponse({'success': True})
+
+
+@login_required
+@require_POST
 def toggle_notification(request: HttpRequest):
 
     PUSH_FIELDS = {
@@ -700,6 +723,7 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
     sort_param = f'sort={requested_sort}' if requested_sort != default_sort else ''
 
     candidate_deletion_request = getattr(candidate_user, 'deletion_request', None)
+    person_push_enabled = candidate_user != request.user and not citizen_profile.muted_push_users.filter(pk=candidate_user.pk).exists()
     dm_room = None
     if obj.is_active and candidate_user != request.user:
         dm_room = Room.get_or_create_for_users(request.user, candidate_user)
@@ -727,6 +751,7 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
             'ratings_neutral': ratings_neutral,
             'ratings_negative': ratings_negative,
             'candidate_deletion_request': candidate_deletion_request,
+            'person_push_enabled': person_push_enabled,
             'dm_room': dm_room if obj.is_active else None,
             'dm_unread_count': dm_unread_count,
             'sort_param': sort_param,

@@ -1,5 +1,12 @@
 # LOG_AI
 
+## 2026-09-14: Naprawa pełnego pipeline'u testów
+
+- **Zmienione pliki:** `tests/test_board.py`, `tests/test_sqlite_business_concurrency.py`.
+- **Co się zmieniło:** Asercje komunikatów pokoju „Ważne” uwzględniają aktywne tłumaczenie zamiast zakładać język angielski. Testy współbieżności dostały brakujące importy, przekazują zwykłą wartość głosu do procesów potomnych oraz bezpiecznie zamykają tymczasowe bazy SQLite na Windows.
+- **Uzasadnienie:** Pełny runner ujawnił 7 błędów: 3 wynikające z lokalizacji `pl` oraz 4 związane z inicjalizacją modeli w procesach `spawn` i blokadą pliku SQLite podczas sprzątania.
+- **Weryfikacja:** pełny pipeline zakończył się powodzeniem: 1001 testów pytest, 285 testów Jest oraz 35 testów Playwright (14 pominiętych), a także Ruff, Django check, collectstatic, skan regresji i kontrola buildu Tailwind.
+
 ## 2026-09-14: Cztery stany widoczności dokumentów
 
 - **Zmienione obszary:** `board`, synchronizacja pokoi `chat`, aktywność i wyszukiwanie dokumentów, tłumaczenia oraz testy.

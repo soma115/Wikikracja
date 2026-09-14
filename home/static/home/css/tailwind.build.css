@@ -5519,7 +5519,8 @@ a:hover {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  flex-wrap: wrap;
   gap: 1rem;
   margin-top: 0.75rem;
 }
@@ -10350,6 +10351,11 @@ body.tw-chat-page .tw-main-area {
 
 .tw-w-auto {
   width: auto;
+}
+
+.tw-w-fit {
+  width: -moz-fit-content;
+  width: fit-content;
 }
 
 .tw-w-full {

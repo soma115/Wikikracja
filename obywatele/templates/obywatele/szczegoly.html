@@ -3,6 +3,22 @@
 {% load i18n %}
 {% load feed_filters %}
 
+{% block extra_js %}
+<script>
+window.wkOnReady(function() {
+  const toggle = document.getElementById('toggle-person-push');
+  if (!toggle) return;
+  toggle.addEventListener('change', function() {
+    const previous = !this.checked;
+    window.apiFetch(this.dataset.url, { method: 'POST', body: { enabled: this.checked } })
+      .then(response => response.json())
+      .then(data => { if (!data.success) this.checked = previous; })
+      .catch(() => { this.checked = previous; });
+  });
+});
+</script>
+{% endblock %}
+
 {% block citizens %}
 <div class="tw-container tw-my-4">
   {% include 'home/includes/detail_header.html' with title=b|display_name navigation_include='obywatele/_citizen_detail_navigation.html' actions_include='obywatele/_citizen_detail_actions.html' %}
@@ -29,6 +45,15 @@
               <span>{% trans 'Send a private message' %}</span>
               {% if dm_unread_count %}<span class="tw-chat-count">{{ dm_unread_count }}</span>{% endif %}
             </a>
+            <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-center tw-gap-2">
+              <label class="tw-flex tw-items-center tw-gap-2 tw-text-sm">
+                <span>{% trans 'Push notifications from this person' %}</span>
+                <span class="tw-form-switch">
+                  <input class="tw-form-check-input" type="checkbox" id="toggle-person-push" {% if person_push_enabled %}checked{% endif %}
+                         data-url="{% url 'obywatele:toggle_person_push' pk=b.uid.pk %}">
+                </span>
+              </label>
+            </div>
           {% endif %}
           <div class="tw-w-full tw-border-t tw-border-subtle tw-pt-3 tw-text-start">
             <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-y-3">

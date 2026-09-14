@@ -561,6 +561,28 @@ class CitizenTabContentTest(TestCase):
         self.assertEqual(self.client.get(reverse('obywatele:citizen_aktywnosc', kwargs={'pk': self.user.pk})).status_code, 404)
 
 
+class PersonPushMuteViewTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='push-muter', password='secret', is_active=True)
+        self.target = User.objects.create_user(username='push-target', password='secret', is_active=True)
+        self.client.force_login(self.user)
+        self.url = reverse('obywatele:toggle_person_push', kwargs={'pk': self.target.pk})
+
+    def test_toggle_mutes_and_unmutes_target(self):
+        response = self.client.post(self.url, data='{"enabled": false}', content_type='application/json')
+        self.assertEqual(response.json(), {'success': True})
+        self.assertTrue(self.user.uzytkownik.muted_push_users.filter(pk=self.target.pk).exists())
+
+        response = self.client.post(self.url, data='{"enabled": true}', content_type='application/json')
+        self.assertEqual(response.json(), {'success': True})
+        self.assertFalse(self.user.uzytkownik.muted_push_users.filter(pk=self.target.pk).exists())
+
+    def test_cannot_mute_self(self):
+        url = reverse('obywatele:toggle_person_push', kwargs={'pk': self.user.pk})
+        response = self.client.post(url, data='{"enabled": false}', content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+
 class ProfileFormErrorViewTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='profile-errors', email='old@example.com', password='secret', is_active=True)
