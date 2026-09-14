@@ -73,10 +73,26 @@ class TinyMCEContentTests(TestCase):
         self.assertIn('style="color: red;"', result)
         self.assertIn('<a href="https://example.com" target="_blank">link</a>', result)
 
+    def test_preserves_layout_styles_from_editor(self):
+        content = '<div style="display: flex; flex-wrap: wrap; gap: 1.5rem; flex: 1 1 320px; justify-content: center; align-items: stretch; background: linear-gradient(135deg, rgba(79,124,255,.12), transparent 60%), rgba(255,255,255,.03);"><custom-element data-kind="hero">Centered</custom-element></div>'
+        result = sanitize_tinymce(content)
+        self.assertIn('display: flex;', result)
+        self.assertIn('gap: 1.5rem;', result)
+        self.assertIn('flex: 1 1 320px;', result)
+        self.assertIn('background: linear-gradient(135deg, rgba(79,124,255,.12), transparent 60%), rgba(255,255,255,.03);', result)
+        self.assertIn('<custom-element data-kind="hero">Centered</custom-element>', result)
+
+    def test_does_not_restore_unsafe_style_urls(self):
+        content = '<p style="background-image: url(javascript:alert(1)); color: red;">Safe text</p>'
+        result = sanitize_tinymce(content)
+        self.assertNotIn('javascript:', result.lower())
+        self.assertNotIn('background-image:', result)
+        self.assertIn('color: red;', result)
+
     def test_removes_only_executable_content(self):
         content = '<p onclick="alert(1)">Safe</p><script>alert(2)</script><a href="javascript:alert(3)">Link</a>'
         result = sanitize_tinymce(content)
-        self.assertEqual(result, '<p>Safe</p>alert(2)<a>Link</a>')
+        self.assertEqual(result, '<p>Safe</p><a>Link</a>')
 
     def test_plain_legacy_text_keeps_line_breaks(self):
         self.assertEqual(sanitize_tinymce('A\nB'), 'A<br>B')

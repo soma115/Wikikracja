@@ -1,5 +1,12 @@
 # LOG_AI
 
+## 2026-09-14: Zachowanie pełnego formatowania artykułów TinyMCE
+
+- **Zmienione pliki:** `core/richtext.py`, `zzz/tests/test_richtext.py`.
+- **Co się zmieniło:** Usunięto whitelistę tagów, atrybutów i właściwości CSS dla treści TinyMCE. Sanitizer zachowuje dowolny HTML/CSS użyty w artykule, usuwając tylko elementy wykonywalne: bloki `<script>`, event handlery, niebezpieczne URL-e oraz niebezpieczne URL-e w CSS. Dodano regresję opartą o responsywny layout z `flex`, `gap`, `flex-basis` i gradientem.
+- **Uzasadnienie:** Poprzednia whitelist wycinała legalne właściwości layoutu (`flex`, `flex-wrap`, `gap`, `justify-content`, `background`), przez co artykuł na stronie tracił responsywność i formatowanie widoczne w edytorze.
+- **Spodziewany efekt:** Artykuł zachowuje układ, odstępy, tła, gradienty, responsywne kolumny i niestandardowe elementy HTML z edytora, przy zachowaniu blokady wykonania skryptu.
+
 ## 2026-09-14: Naprawa pełnego pipeline'u testów
 
 - **Zmienione pliki:** `tests/test_board.py`, `tests/test_sqlite_business_concurrency.py`.

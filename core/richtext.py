@@ -10,105 +10,67 @@ import html as _html
 import re
 
 import bleach
+import tinycss2
 from bleach.css_sanitizer import CSSSanitizer
 
 ALLOWED_TAGS = ['b', 'i', 'u', 'br', 'a']
 ALLOWED_ATTRS = {'a': ['href', 'rel', 'target']}
-TINYMCE_TAGS = {
-    'a',
-    'abbr',
-    'address',
-    'article',
-    'aside',
-    'audio',
-    'b',
-    'blockquote',
-    'br',
-    'caption',
-    'cite',
-    'code',
-    'col',
-    'colgroup',
-    'dd',
-    'del',
-    'details',
-    'div',
-    'dl',
-    'dt',
-    'em',
-    'figcaption',
-    'figure',
-    'footer',
-    'h1',
-    'h2',
-    'h3',
-    'h4',
-    'h5',
-    'h6',
-    'header',
-    'hr',
-    'i',
-    'img',
-    'ins',
-    'kbd',
-    'li',
-    'main',
-    'mark',
-    'nav',
-    'ol',
-    'p',
-    'pre',
-    'q',
-    's',
-    'samp',
-    'section',
-    'small',
-    'source',
-    'span',
-    'strong',
-    'sub',
-    'summary',
-    'sup',
-    'table',
-    'tbody',
-    'td',
-    'tfoot',
-    'th',
-    'thead',
-    'time',
-    'tr',
-    'u',
-    'ul',
-    'var',
-    'video',
-}
-TINYMCE_URL_ATTRS = {'action', 'cite', 'href', 'poster', 'src'}
-TINYMCE_PROTOCOLS = ['http', 'https', 'mailto']
-TINYMCE_GLOBAL_ATTRS = {'class', 'dir', 'id', 'lang', 'role', 'style', 'title'}
-TINYMCE_TAG_ATTRS = {
-    'a': {'download', 'rel', 'target'},
-    'audio': {'controls', 'loop', 'muted', 'preload'},
-    'col': {'span', 'width'},
-    'colgroup': {'span', 'width'},
-    'img': {'alt', 'height', 'loading', 'width'},
-    'iframe': {'allow', 'allowfullscreen', 'frameborder', 'height', 'loading', 'name', 'referrerpolicy', 'sandbox', 'width'},
-    'source': {'height', 'media', 'sizes', 'type', 'width'},
-    'table': {'border', 'cellpadding', 'cellspacing', 'height', 'width'},
-    'td': {'colspan', 'headers', 'rowspan', 'scope'},
-    'th': {'colspan', 'headers', 'rowspan', 'scope'},
-    'video': {'autoplay', 'controls', 'height', 'loop', 'muted', 'poster', 'preload', 'width'},
-}
-TINYMCE_TAGS.add('iframe')
-TINYMCE_CSS_SANITIZER = CSSSanitizer()
+TINYMCE_URL_ATTRS = {'action', 'cite', 'formaction', 'href', 'poster', 'src', 'srcdoc'}
+TINYMCE_UNSAFE_PROTOCOLS = ('javascript:', 'vbscript:', 'data:')
+TINYMCE_TAG_RE = re.compile(r'<\s*/?\s*([A-Za-z][^\s/>]*)')
+TINYMCE_SCRIPT_RE = re.compile(r'<script\b[^>]*>.*?</script\s*>', re.IGNORECASE | re.DOTALL)
+
+
+def _is_unsafe_url(value):
+    normalized = re.sub(r'[\s\x00-\x1f]+', '', value).lower()
+    return normalized.startswith(TINYMCE_UNSAFE_PROTOCOLS)
+
+
+def _css_has_unsafe_url(tokens):
+    for token in tokens:
+        if token.type in ('error', 'parse-error'):
+            return True
+        if token.type == 'url' and _is_unsafe_url(token.value):
+            return True
+        if token.type == 'function':
+            if token.lower_name == 'url' and _is_unsafe_url(tinycss2.serialize(token.arguments).strip(' \'"')):
+                return True
+            if _css_has_unsafe_url(token.arguments):
+                return True
+    return False
+
+
+class TinyMCSSanitizer(CSSSanitizer):
+    """Keep editor CSS declarations while rejecting executable URL values."""
+
+    def sanitize_css(self, style):
+        parsed = tinycss2.parse_declaration_list(style)
+        if not parsed:
+            return ''
+
+        cleaned = []
+        for token in parsed:
+            if token.type == 'declaration':
+                if not _css_has_unsafe_url(token.value):
+                    cleaned.append(token)
+            elif token.type in ('comment', 'whitespace'):
+                if cleaned and cleaned[-1].type != token.type:
+                    cleaned.append(token)
+        return tinycss2.serialize(cleaned).strip()
+
+
+TINYMCE_CSS_SANITIZER = TinyMCSSanitizer()
 
 
 def _allow_tinymce_attribute(tag, name, value):
-    if name.lower().startswith(('on', 'xmlns')):
+    name = name.lower()
+    if name.startswith(('on', 'xmlns')) or name == 'srcdoc':
         return False
     if name in TINYMCE_URL_ATTRS:
-        normalized = value.strip().lower()
-        return not normalized.startswith(('javascript:', 'vbscript:', 'data:'))
-    return name in TINYMCE_GLOBAL_ATTRS or name in TINYMCE_TAG_ATTRS.get(tag, set()) or name.startswith(('aria-', 'data-'))
+        return not _is_unsafe_url(value)
+    if name == 'style':
+        return not _css_has_unsafe_url(tinycss2.parse_declaration_list(value))
+    return True
 
 
 def _set_link_target(attrs, new=False):
@@ -136,13 +98,16 @@ def sanitize(text: str, *, linkify: bool = True) -> str:
 
 
 def sanitize_tinymce(text: str) -> str:
-    """Preserve TinyMCE HTML while removing executable content and unsafe URLs."""
+    """Preserve TinyMCE HTML and CSS, removing executable content only."""
     if not text:
         return ''
     normalized = text.replace('\r\n', '\n').replace('\r', '\n')
+    normalized = TINYMCE_SCRIPT_RE.sub('', normalized)
+    normalized = re.sub(r'<script\b[^>]*/?>', '', normalized, flags=re.IGNORECASE)
     if not re.search(r'<[A-Za-z][^>]*>', normalized):
         normalized = normalized.replace('\n', '<br>')
-    return bleach.clean(normalized, tags=TINYMCE_TAGS, attributes=_allow_tinymce_attribute, protocols=TINYMCE_PROTOCOLS, css_sanitizer=TINYMCE_CSS_SANITIZER, strip=True)
+    tags = {tag.lower() for tag in TINYMCE_TAG_RE.findall(normalized)}
+    return bleach.clean(normalized, tags=tags, attributes=_allow_tinymce_attribute, css_sanitizer=TINYMCE_CSS_SANITIZER, strip=True)
 
 
 _TAG_RE = re.compile(r'<[^>]+>')

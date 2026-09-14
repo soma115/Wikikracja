@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-14 21:38+0200\n"
+"POT-Creation-Date: 2026-09-14 23:57+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -79,7 +79,7 @@ msgid "This option already exists."
 msgstr "Ta opcja już istnieje."
 
 #: .\ankiety\models.py:12 .\ankiety\templates\ankiety\survey_form.html:22
-#: .\board\models.py:41 .\chat\i18n.py:27 .\events\models.py:19
+#: .\board\models.py:44 .\chat\i18n.py:27 .\events\models.py:19
 #: .\glosowania\models.py:34 .\glosowania\views.py:570
 #: .\home\templates\home\site_admin.html:36
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:7
@@ -114,7 +114,7 @@ msgstr "Po tym czasie ankieta zostanie zamknięta."
 
 #: .\ankiety\models.py:15
 #: .\ankiety\templates\ankiety\_survey_detail_meta.html:19
-#: .\ankiety\templates\ankiety\_survey_detail_meta.html:21 .\board\models.py:44
+#: .\ankiety\templates\ankiety\_survey_detail_meta.html:21 .\board\models.py:47
 #: .\board\templates\board\_post_detail_meta.html:5
 #: .\board\templates\board\_post_detail_meta.html:7 .\bookkeeping\models.py:119
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:43
@@ -291,8 +291,8 @@ msgstr "Brak opcji."
 #: .\board\templates\board\_search.html:7
 #: .\bookkeeping\templates\bookkeeping\_list_search.html:3
 #: .\glosowania\templates\glosowania\_search.html:5
-#: .\home\templates\home\base.html:215 .\home\templates\home\base.html:217
-#: .\home\templates\home\base.html:226 .\home\templates\home\search.html:15
+#: .\home\templates\home\base.html:226 .\home\templates\home\base.html:228
+#: .\home\templates\home\base.html:237 .\home\templates\home\search.html:15
 #: .\home\templates\home\search.html:37
 #: .\tasks\templates\tasks\_task_search.html:7
 msgid "Search"
@@ -459,7 +459,7 @@ msgstr "Tylko autor może usunąć tę ankietę."
 msgid "The survey has been deleted."
 msgstr "Ankieta została usunięta."
 
-#: .\board\forms.py:15 .\board\models.py:43
+#: .\board\forms.py:15 .\board\models.py:46
 msgid "Text"
 msgstr "Treść"
 
@@ -472,110 +472,109 @@ msgstr "Załączniki"
 msgid "Who can see this document"
 msgstr "Kto może zobaczyć ten dokument"
 
-#: .\board\forms.py:32
+#: .\board\forms.py:34
 msgid "The Important chat room will be notified"
 msgstr "Pokój czatu Ważne otrzyma powiadomienie."
 
-#: .\board\forms.py:36
+#: .\board\forms.py:38
 msgid "This field cannot be changed for a system document."
 msgstr "Tego pola nie można zmienić w dokumencie systemowym."
 
-#: .\board\forms.py:37
+#: .\board\forms.py:39
 #, python-format
 msgid "Maximum image size: %(max_size)s MB."
 msgstr "Maksymalny rozmiar obrazu: %(max_size)s MB."
 
-#: .\board\forms.py:39 .\zzz\context_processors.py:50
+#: .\board\forms.py:41 .\zzz\context_processors.py:50
 #, python-format
 msgid "Image is too large (max %s MB)."
 msgstr "Obraz jest za duży (maks. %s MB)."
 
-#: .\board\forms.py:40
+#: .\board\forms.py:42
 #, python-format
 msgid "Maximum file size: %(max_size)s MB."
 msgstr "Maksymalny rozmiar pliku: %(max_size)s MB."
 
-#: .\board\forms.py:47
+#: .\board\forms.py:49
 #, python-format
 msgid "Image is too large (max %(max_size)s MB)."
 msgstr "Obraz jest za duży (maks. %(max_size)s MB)."
 
-#: .\board\forms.py:55
+#: .\board\forms.py:57
 msgid "Only the author can make a document private."
 msgstr "Tylko autor może ustawić dokument jako prywatny."
 
-#: .\board\forms.py:64
+#: .\board\forms.py:66
 #, python-format
 msgid "File '%(filename)s' is too large (max %(max_size)s MB)."
 msgstr "Plik '%(filename)s' jest za duży (maks. %(max_size)s MB)."
 
-#: .\board\migrations\0020_post_visibility.py:44 .\board\models.py:36
+#: .\board\migrations\0020_post_visibility.py:44 .\board\models.py:39
 #: .\board\templates\board\_post_detail_meta.html:49
 #: .\board\templates\board\_post_detail_meta.html:51
-#: .\board\templates\board\board.html:65 .\board\templates\board\board.html:90
+#: .\board\templates\board\board.html:68 .\board\templates\board\board.html:93
 #: .\board\views.py:215
 msgid "Only me"
 msgstr "Tylko ja"
 
-#: .\board\migrations\0020_post_visibility.py:44 .\board\models.py:37
+#: .\board\migrations\0020_post_visibility.py:44 .\board\models.py:40
 #: .\board\templates\board\_post_detail_meta.html:44
 #: .\board\templates\board\_post_detail_meta.html:46
-#: .\board\templates\board\board.html:64 .\board\templates\board\board.html:89
+#: .\board\templates\board\board.html:67 .\board\templates\board\board.html:92
 #: .\board\views.py:216
 msgid "Group"
 msgstr "Grupa"
 
-#: .\board\migrations\0020_post_visibility.py:44 .\board\models.py:38
+#: .\board\migrations\0020_post_visibility.py:44 .\board\models.py:41
 #: .\board\templates\board\_post_detail_meta.html:39
 #: .\board\templates\board\_post_detail_meta.html:41
-#: .\board\templates\board\board.html:63 .\board\templates\board\board.html:88
+#: .\board\templates\board\board.html:66 .\board\templates\board\board.html:91
 #: .\board\views.py:217 .\chat\templates\chat\chat.html:82
 #: .\events\models.py:31 .\events\templates\events\_event_detail_badges.html:15
 msgid "Public"
 msgstr "Publiczne"
 
-#: .\board\migrations\0020_post_visibility.py:44 .\board\models.py:39
+#: .\board\migrations\0020_post_visibility.py:44 .\board\models.py:42
 #: .\board\templates\board\_post_detail_meta.html:54
 #: .\board\templates\board\_post_detail_meta.html:56
-#: .\board\templates\board\board.html:66 .\board\templates\board\board.html:91
+#: .\board\templates\board\board.html:69 .\board\templates\board\board.html:94
 #: .\board\views.py:226
 msgid "Archive"
 msgstr "Archiwum"
 
-#: .\board\migrations\0020_post_visibility.py:47 .\board\models.py:49
+#: .\board\migrations\0020_post_visibility.py:47 .\board\models.py:52
 msgid "Visibility"
 msgstr "Widoczność"
 
-#: .\board\models.py:17 .\tasks\templates\tasks\_task_detail_meta.html:36
+#: .\board\models.py:18 .\tasks\templates\tasks\_task_detail_meta.html:36
 #: .\tasks\templates\tasks\_task_detail_meta.html:38
 msgid "Priority"
 msgstr "Priorytet"
 
-#: .\board\models.py:25 .\board\signals.py:27
+#: .\board\models.py:26 .\board\signals.py:27
 msgid "Protected categories cannot be deleted."
 msgstr "Chronionych kategorii nie można usunąć."
 
-#: .\board\models.py:30
+#: .\board\models.py:31
 msgid "Post Category"
 msgstr "Kategoria"
 
-#: .\board\models.py:31
+#: .\board\models.py:32
 msgid "Post Categories"
 msgstr "Kategorie"
 
-#: .\board\models.py:42 .\board\templates\board\post_detail.html:17
+#: .\board\models.py:45 .\board\templates\board\post_detail.html:17
 msgid "Subtitle"
 msgstr "Podtytuł"
 
-#: .\board\models.py:45 .\board\templates\board\_post_detail_meta.html:19
+#: .\board\models.py:48 .\board\templates\board\_post_detail_meta.html:19
 #: .\board\templates\board\_post_detail_meta.html:21
 msgid "Updated by"
 msgstr "Zaktualizowane przez"
 
-#: .\board\models.py:46 .\board\templates\board\_post_detail_meta.html:28
+#: .\board\models.py:49 .\board\templates\board\_post_detail_meta.html:28
 #: .\board\templates\board\_post_detail_meta.html:30
-#: .\board\templates\board\board.html:101 .\bookkeeping\models.py:111
-#: .\events\templates\events\event_detail.html:83
+#: .\bookkeeping\models.py:111 .\events\templates\events\event_detail.html:83
 #: .\glosowania\templates\glosowania\_detail_meta.html:13
 #: .\tasks\templates\tasks\_task_card.html:50
 #: .\tasks\templates\tasks\_task_detail_meta.html:30
@@ -583,15 +582,15 @@ msgstr "Zaktualizowane przez"
 msgid "Created"
 msgstr "Utworzone"
 
-#: .\board\models.py:47 .\board\templates\board\_post_detail_meta.html:33
+#: .\board\models.py:50 .\board\templates\board\_post_detail_meta.html:33
 #: .\board\templates\board\_post_detail_meta.html:35
-#: .\board\templates\board\board.html:112
+#: .\board\templates\board\board.html:102
 #: .\events\templates\events\event_detail.html:85
 #: .\glosowania\templates\glosowania\_detail_meta.html:16
 msgid "Updated"
 msgstr "Zaktualizowane"
 
-#: .\board\models.py:48 .\bookkeeping\forms.py:36 .\bookkeeping\models.py:115
+#: .\board\models.py:51 .\bookkeeping\forms.py:36 .\bookkeeping\models.py:115
 #: .\bookkeeping\templates\bookkeeping\_category_card.html:15
 #: .\bookkeeping\templates\bookkeeping\_category_card.html:18
 #: .\bookkeeping\templates\bookkeeping\_report_pivot.html:23
@@ -607,50 +606,50 @@ msgstr "Zaktualizowane"
 msgid "Category"
 msgstr "Kategoria"
 
-#: .\board\models.py:50 .\board\templates\board\board.html:67
-#: .\board\templates\board\board.html:92 .\board\views.py:222
+#: .\board\models.py:53 .\board\templates\board\board.html:70
+#: .\board\templates\board\board.html:95 .\board\views.py:222
 #: .\tasks\templates\tasks\_task_card.html:65 .\tasks\views.py:79
 msgid "Important"
 msgstr "Ważne"
 
-#: .\board\models.py:51 .\board\templates\board\post_detail.html:26
+#: .\board\models.py:54 .\board\templates\board\post_detail.html:26
 msgid "Featured Image"
 msgstr "Obrazek wyróżniający"
 
-#: .\board\models.py:52
+#: .\board\models.py:55
 msgid "System Key"
 msgstr "Klucz systemowy"
 
-#: .\board\models.py:53
+#: .\board\models.py:56
 msgid "Link Alias"
 msgstr "Alias linku"
 
-#: .\board\models.py:92 .\board\signals.py:110
+#: .\board\models.py:105 .\board\signals.py:110
 msgid "System posts cannot be deleted."
 msgstr "Dokumenty systemowe nie mogą być usunięte"
 
-#: .\board\models.py:118 .\board\search.py:17 .\core\models.py:13
+#: .\board\models.py:131 .\board\search.py:17 .\core\models.py:13
 #: .\home\models.py:13
 msgid "Post"
 msgstr "Dokument"
 
-#: .\board\models.py:119
+#: .\board\models.py:132
 msgid "File"
 msgstr "Plik"
 
-#: .\board\models.py:120
+#: .\board\models.py:133
 msgid "Filename"
 msgstr "Nazwa pliku"
 
-#: .\board\models.py:121
+#: .\board\models.py:134
 msgid "Uploaded At"
 msgstr "Przesłano"
 
-#: .\board\models.py:124
+#: .\board\models.py:137
 msgid "Post Attachment"
 msgstr "Załącznik"
 
-#: .\board\models.py:125
+#: .\board\models.py:138
 msgid "Post Attachments"
 msgstr "Załączniki"
 
@@ -660,22 +659,22 @@ msgstr "Załączniki"
 msgid "New important document by %(username)s: %(link)s"
 msgstr "Nowy ważny dokument od %(username)s: <a href='%(post_url)s'>%(title)s</a>"
 
-#: .\board\signals.py:52 .\tests\test_board.py:626
+#: .\board\signals.py:52 .\tests\test_board.py:640
 #, python-format
 msgid "Document is no longer marked as important: %(link)s"
 msgstr "Dokument nie jest już oznaczony jako ważny: %(link)s"
 
-#: .\board\signals.py:54 .\tests\test_board.py:612
+#: .\board\signals.py:54 .\tests\test_board.py:626
 #, python-format
 msgid "Important document was made private: %(link)s"
 msgstr "Ważny dokument został oznaczony jako prywatny: %(link)s"
 
-#: .\board\signals.py:56 .\tests\test_board.py:643
+#: .\board\signals.py:56 .\tests\test_board.py:657
 #, python-format
 msgid "Important document was archived: %(link)s"
 msgstr "Ważny dokument został zarchiwizowany: %(link)s"
 
-#: .\board\signals.py:58 .\tests\test_board.py:644
+#: .\board\signals.py:58 .\tests\test_board.py:658
 #, python-format
 msgid "Important document was made visible again: %(link)s"
 msgstr "Ważny dokument został ponownie udostępniony: %(link)s"
@@ -734,8 +733,7 @@ msgid "Back"
 msgstr "Wróć"
 
 #: .\board\templates\board\_post_detail_meta.html:12
-#: .\board\templates\board\board.html:55 .\board\templates\board\board.html:68
-#: .\board\templates\board\board.html:93 .\board\templates\board\board.html:108
+#: .\board\templates\board\board.html:71 .\board\templates\board\board.html:96
 #: .\chat\search.py:25 .\chat\templates\chat\room_link.html:55
 #: .\core\notifications.py:586
 msgid "System"
@@ -753,19 +751,19 @@ msgstr "Bez kategorii"
 msgid "Create"
 msgstr "Utwórz"
 
-#: .\board\templates\board\board.html:130
+#: .\board\templates\board\board.html:122
 msgid "No documents yet."
 msgstr "Nie ma jeszcze dokumentów."
 
-#: .\board\templates\board\board.html:130
+#: .\board\templates\board\board.html:122
 msgid "Add the first document"
 msgstr "Dodaj pierwszy dokument"
 
-#: .\board\templates\board\board.html:144
+#: .\board\templates\board\board.html:136
 msgid "documents"
 msgstr "dokumenty"
 
-#: .\board\templates\board\board.html:145
+#: .\board\templates\board\board.html:137
 #, python-brace-format
 msgid "This category has {n} document(s). Deleting it will leave those documents without a category. Continue?"
 msgstr "Ta kategoria ma {n} dokument(ów). Usunięcie jej pozostawi te dokumenty bez kategorii. Kontynuować?"
@@ -1484,7 +1482,7 @@ msgstr "Jutro"
 msgid "Anonymous"
 msgstr "Anonim"
 
-#: .\chat\i18n.py:13 .\home\templates\home\base.html:293
+#: .\chat\i18n.py:13 .\home\templates\home\base.html:313
 msgid "Enable Notifications"
 msgstr "Włącz powiadomienia"
 
@@ -1940,7 +1938,6 @@ msgid "Send a message"
 msgstr "Wyślij wiadomość"
 
 #: .\chat\templates\chat\guest_message.html:11
-#: .\home\templates\home\base.html:274
 msgid "Send a message to the group"
 msgstr "Wyślij wiadomość do grupy"
 
@@ -2041,11 +2038,11 @@ msgstr "Opublikowano ważny wpis"
 msgid "Important post updated"
 msgstr "Zaktualizowano ważny wpis"
 
-#: .\core\notifications.py:587
+#: .\core\notifications.py:589
 msgid "by"
 msgstr "przez"
 
-#: .\core\notifications.py:596
+#: .\core\notifications.py:598
 msgid "New survey created"
 msgstr "Utworzono nową ankietę"
 
@@ -2215,7 +2212,7 @@ msgstr "Dodaj do swojego Kalendarza Google"
 
 #: .\events\templates\events\_event_card.html:59 .\events\views.py:26
 #: .\home\navigation.py:13 .\home\services\dashboard.py:26
-#: .\home\templates\home\base.html:268 .\home\templates\home\home.html:455
+#: .\home\templates\home\base.html:280 .\home\templates\home\home.html:455
 #: .\home\views.py:101 .\obywatele\views.py:457
 msgid "Calendar"
 msgstr "Kalendarz"
@@ -2330,15 +2327,15 @@ msgstr "Nowe logo (opcjonalne)"
 msgid "PNG only, max 5 MB, any longest side 64-4096 px. Use a transparent background. Automatically resized to 1024×1024 px PNG and applied as the site logo if the referendum is approved."
 msgstr "Tylko PNG, maks. 5 MB, dowolny najdłuższy bok 64–4096 px. Użyj przezroczystego tła. Automatycznie skalowane do formatu PNG 1024×1024 px i stosowane jako logo witryny w przypadku zatwierdzenia referendum."
 
-#: .\glosowania\forms.py:98
-msgid "The logo must be a PNG file with a transparent background."
-msgstr "Logo musi być plikiem PNG z przezroczystym tłem."
-
-#: .\glosowania\forms.py:67
+#: .\glosowania\forms.py:68
 msgid "allowed range"
 msgstr "dozwolony zakres"
 
-#: .\glosowania\forms.py:104
+#: .\glosowania\forms.py:99
+msgid "The logo must be a PNG file with a transparent background."
+msgstr "Logo musi być plikiem PNG z przezroczystym tłem."
+
+#: .\glosowania\forms.py:107
 msgid "You did not change any parameter."
 msgstr "Nie zmieniłeś żadnych parametrów."
 
@@ -2948,7 +2945,7 @@ msgstr "Propozycje"
 msgid "How do votes work?"
 msgstr "Jak działają głosowania?"
 
-#: .\glosowania\tests\test_views.py:606 .\glosowania\views.py:98
+#: .\glosowania\tests\test_views.py:641 .\glosowania\views.py:98
 msgid "Please correct the errors below."
 msgstr "Popraw poniższe błędy."
 
@@ -3167,7 +3164,7 @@ msgstr "Finanse"
 msgid "…"
 msgstr ""
 
-#: .\home\navigation.py:41 .\home\templates\home\base.html:242
+#: .\home\navigation.py:41 .\home\templates\home\base.html:253
 #: .\home\templates\home\home.html:73 .\home\templates\home\home.html:102
 #: .\home\templates\home\home.html:444
 #: .\obywatele\templates\obywatele\szczegoly.html:168
@@ -3176,7 +3173,7 @@ msgstr ""
 msgid "Activity"
 msgstr "Aktywność"
 
-#: .\home\navigation.py:43 .\home\templates\home\base.html:144
+#: .\home\navigation.py:43 .\home\templates\home\base.html:154
 #: .\home\tests.py:40
 msgid "Settings"
 msgstr "Ustawienia"
@@ -3221,11 +3218,13 @@ msgstr "Ankiety i szybkie głosowania — zbieraj opinie, przeprowadzaj sondaże
 msgid "Change language"
 msgstr "Zmień język"
 
-#: .\home\templates\home\_language_switcher.html:21 .\zzz\settings.py:111
+#: .\home\templates\home\_language_switcher.html:21
+#: .\home\templates\home\base.html:298 .\zzz\settings.py:111
 msgid "Polish"
 msgstr "Polski"
 
-#: .\home\templates\home\_language_switcher.html:31 .\zzz\settings.py:111
+#: .\home\templates\home\_language_switcher.html:31
+#: .\home\templates\home\base.html:298 .\zzz\settings.py:111
 msgid "English"
 msgstr "Angielski"
 
@@ -3292,7 +3291,8 @@ msgstr "Usuń zakładkę"
 msgid "No activity"
 msgstr "Brak aktywności"
 
-#: .\home\templates\home\base.html:88 .\zzz\templatetags\citizen_filters.py:62
+#: .\home\templates\home\base.html:88 .\home\templates\home\base.html:97
+#: .\zzz\templatetags\citizen_filters.py:62
 msgid "Active now"
 msgstr "Aktywny teraz"
 
@@ -3329,62 +3329,90 @@ msgstr "Aktywny %%s dni temu"
 msgid "Active on %%s"
 msgstr "Aktywny %%s"
 
-#: .\home\templates\home\base.html:150
+#: .\home\templates\home\base.html:98 .\zzz\templatetags\citizen_filters.py:62
+msgid "Active recently"
+msgstr "Aktywny niedawno"
+
+#: .\home\templates\home\base.html:99 .\zzz\templatetags\citizen_filters.py:62
+#: .\zzz\templatetags\citizen_filters.py:67
+msgid "No recent activity"
+msgstr "Brak świeżej aktywności"
+
+#: .\home\templates\home\base.html:102 .\home\templates\home\base.html:104
+#: .\zzz\templatetags\citizen_filters.py:67
+msgid "Application activity"
+msgstr "Aktywność w aplikacji"
+
+#: .\home\templates\home\base.html:103 .\zzz\templatetags\citizen_filters.py:67
+msgid "Push notification received"
+msgstr "Odebrano powiadomienie push"
+
+#: .\home\templates\home\base.html:160
 msgid "Log out"
 msgstr "Wyloguj"
 
-#: .\home\templates\home\base.html:156
+#: .\home\templates\home\base.html:166
 msgid "Close menu"
 msgstr "Zwiń menu"
 
-#: .\home\templates\home\base.html:162
+#: .\home\templates\home\base.html:172
 msgid "Collapse/expand menu"
 msgstr "Zwiń/rozwiń menu"
 
-#: .\home\templates\home\base.html:274
-msgid "Open menu"
-msgstr "Otwórz menu"
+#: .\home\templates\home\base.html:202
+#, fuzzy
+#| msgid "Table navigation"
+msgid "Open navigation"
+msgstr "Nawigacja po tabeli"
 
-#: .\home\templates\home\base.html:233 .\home\templates\home\base.html:280
+#: .\home\templates\home\base.html:205 .\home\templates\home\base.html:269
+msgid "Home"
+msgstr ""
+
+#: .\home\templates\home\base.html:244
 msgid "Toggle light / dark mode"
 msgstr "Przełącz tryb jasny/ciemny"
 
-#: .\home\templates\home\base.html:264
+#: .\home\templates\home\base.html:276
 msgid "Announcements"
 msgstr "Ogłoszenia"
 
-#: .\home\templates\home\base.html:271 .\home\templates\home\home.html:14
+#: .\home\templates\home\base.html:286
+msgid "Open menu"
+msgstr "Otwórz menu"
+
+#: .\home\templates\home\base.html:289 .\home\templates\home\home.html:14
 msgid "Login"
 msgstr "Zaloguj"
 
-#: .\home\templates\home\base.html:272 .\home\templates\home\home.html:16
+#: .\home\templates\home\base.html:290 .\home\templates\home\home.html:16
 msgid "Join"
 msgstr "Dołącz"
 
-#: .\home\templates\home\base.html:276 .\home\templates\home\home.html:19
+#: .\home\templates\home\base.html:291 .\home\templates\home\home.html:19
 #: .\obywatele\models.py:196
 msgid "Contact"
 msgstr "Kontakt"
 
-#: .\home\templates\home\base.html:291
+#: .\home\templates\home\base.html:301 .\obywatele\models.py:113
+msgid "Theme"
+msgstr "Motyw"
+
+#: .\home\templates\home\base.html:311
 msgid "Enable notifications to stay updated with new messages and activities"
 msgstr "Włącz powiadomienia, aby być na bieżąco z nowymi wiadomościami i aktywnościami"
 
-#: .\home\templates\home\base.html:296
+#: .\home\templates\home\base.html:316
 msgid "Not now"
 msgstr "Nie teraz"
 
-#: .\home\templates\home\base.html:303
+#: .\home\templates\home\base.html:323
 msgid "Notifications are blocked. Please enable them in your browser settings"
 msgstr "Powiadomienia są zablokowane. Włącz je w ustawieniach przeglądarki"
 
-#: .\home\templates\home\base.html:305
+#: .\home\templates\home\base.html:325
 msgid "Dismiss"
 msgstr "Odrzuć"
-
-#: .\home\templates\home\base.html:364 .\home\templates\home\base.html:365
-msgid "Wikikracja"
-msgstr ""
 
 #: .\home\templates\home\haslo.html:3
 msgid "Password"
@@ -4177,10 +4205,6 @@ msgstr "Ostatnie podsumowanie e-mail wysłano"
 #: .\obywatele\models.py:113
 msgid "Preferred UI theme for web and emails"
 msgstr "Preferowany motyw interfejsu dla strony i maili"
-
-#: .\obywatele\models.py:113
-msgid "Theme"
-msgstr "Motyw"
 
 #: .\obywatele\models.py:116
 msgid "Muted people"
@@ -5878,20 +5902,3 @@ msgstr "Plik jest za duży (maks. %s MB)."
 #: .\zzz\scheduler.py:160
 msgid "Time"
 msgstr "Godzina"
-
-#: .\zzz\templatetags\citizen_filters.py:62
-msgid "Active recently"
-msgstr "Aktywny niedawno"
-
-#: .\zzz\templatetags\citizen_filters.py:62
-#: .\zzz\templatetags\citizen_filters.py:67
-msgid "No recent activity"
-msgstr "Brak świeżej aktywności"
-
-#: .\zzz\templatetags\citizen_filters.py:67
-msgid "Application activity"
-msgstr "Aktywność w aplikacji"
-
-#: .\zzz\templatetags\citizen_filters.py:67
-msgid "Push notification received"
-msgstr "Odebrano powiadomienie push"
