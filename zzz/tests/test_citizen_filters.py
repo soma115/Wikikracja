@@ -11,8 +11,8 @@ def _user(username='jkowalski', first_name='', last_name=''):
 
 
 class UserDisplayNameTest(SimpleTestCase):
-    def test_prefers_full_name(self):
-        assert user_display_name(_user(first_name='Jan', last_name='Kowalski')) == 'Jan Kowalski'
+    def test_title_cases_full_name_for_display(self):
+        assert user_display_name(_user(first_name='jan', last_name='kowalski')) == 'Jan Kowalski'
 
     def test_falls_back_to_single_name_part(self):
         assert user_display_name(_user(first_name='Jan')) == 'Jan'

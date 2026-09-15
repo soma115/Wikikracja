@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-15 11:32+0200\n"
+"POT-Creation-Date: 2026-09-15 14:36+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -152,7 +152,7 @@ msgstr "Ankieta"
 
 #: .\ankiety\models.py:24 .\chat\templates\chat\chat.html:190
 #: .\home\navigation.py:16 .\home\services\dashboard.py:35
-#: .\home\templates\home\home.html:147 .\home\views.py:260
+#: .\home\templates\home\home.html:147 .\home\views.py:278
 #: .\obywatele\views.py:459
 msgid "Surveys"
 msgstr "Ankiety"
@@ -195,7 +195,7 @@ msgid "Survey votes"
 msgstr "Głosy w ankiecie"
 
 #: .\ankiety\search.py:18 .\home\templatetags\feed_filters.py:46
-#: .\home\views.py:100
+#: .\home\views.py:118
 msgid "Ankiety"
 msgstr "Ankiety"
 
@@ -428,14 +428,14 @@ msgstr "Twoja opcja została dodana."
 
 #: .\ankiety\views.py:168 .\board\views.py:281 .\bookkeeping\views.py:86
 #: .\events\views.py:66 .\glosowania\views.py:717
-#: .\home\templates\home\includes\toolbar.html:60 .\home\views.py:135
+#: .\home\templates\home\includes\toolbar.html:60 .\home\views.py:153
 #: .\obywatele\views.py:281 .\obywatele\views.py:340 .\tasks\views.py:185
 msgid "List"
 msgstr "Lista"
 
 #: .\ankiety\views.py:168 .\board\views.py:281 .\bookkeeping\views.py:86
 #: .\events\views.py:66 .\glosowania\views.py:717
-#: .\home\templates\home\includes\toolbar.html:55 .\home\views.py:135
+#: .\home\templates\home\includes\toolbar.html:55 .\home\views.py:153
 #: .\obywatele\views.py:281 .\obywatele\views.py:340 .\tasks\views.py:185
 msgid "Grid"
 msgstr "Siatka"
@@ -699,7 +699,7 @@ msgstr "Pokój dyskusji do dokumentu: <a href='%(url)s'>%(title)s</a>"
 #: .\home\navigation.py:17 .\home\services\dashboard.py:34
 #: .\home\templates\home\home.html:303 .\home\templates\home\home.html:312
 #: .\home\templates\home\home.html:335 .\home\templatetags\feed_filters.py:41
-#: .\home\views.py:103 .\home\views.py:260 .\obywatele\views.py:460
+#: .\home\views.py:121 .\home\views.py:278 .\obywatele\views.py:460
 #: .\tasks\templates\tasks\_task_card.html:74
 msgid "Chat"
 msgstr "Czat"
@@ -885,7 +885,7 @@ msgstr "Załącznik"
 
 #: .\board\templates\board\public_board.html:26
 msgid "Read more"
-msgstr ""
+msgstr "Czytaj więcej"
 
 #: .\board\templates\board\public_board.html:32
 #, fuzzy
@@ -907,7 +907,7 @@ msgstr "A-Z"
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:23
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:17
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:22
-#: .\chat\i18n.py:47 .\home\views.py:134
+#: .\chat\i18n.py:47 .\home\views.py:152
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:10
@@ -1338,7 +1338,7 @@ msgstr "Podsumowanie wszystkich lat"
 #: .\bookkeeping\templates\bookkeeping\report_list.html:38
 #: .\categories\templates\categories\_category_filter.html:9
 #: .\categories\templates\categories\_category_filter.html:11
-#: .\home\templates\home\activity.html:30 .\home\views.py:96
+#: .\home\templates\home\activity.html:30 .\home\views.py:114
 #: .\obywatele\templates\obywatele\_citizens_filter.html:11
 #: .\obywatele\templates\obywatele\_citizens_filter.html:18
 msgid "All"
@@ -1822,8 +1822,8 @@ msgid "None"
 msgstr "Brak"
 
 #: .\chat\templates\chat\chat.html:109 .\chat\templates\chat\chat.html:343
-#: .\home\navigation.py:10 .\home\services\dashboard.py:27 .\home\views.py:98
-#: .\home\views.py:260
+#: .\home\navigation.py:10 .\home\services\dashboard.py:27 .\home\views.py:116
+#: .\home\views.py:278
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:65
 #: .\obywatele\templates\obywatele\szczegoly.html:175 .\obywatele\views.py:454
 msgid "Activities"
@@ -1834,8 +1834,8 @@ msgid "Referendums"
 msgstr "Głosowania"
 
 #: .\chat\templates\chat\chat.html:163 .\chat\templates\chat\chat.html:351
-#: .\home\navigation.py:12 .\home\services\dashboard.py:21 .\home\views.py:97
-#: .\home\views.py:260 .\obywatele\views.py:456
+#: .\home\navigation.py:12 .\home\services\dashboard.py:21 .\home\views.py:115
+#: .\home\views.py:278 .\obywatele\views.py:456
 msgid "Documents"
 msgstr "Dokumenty"
 
@@ -1987,7 +1987,7 @@ msgstr "Działanie"
 
 #: .\core\models.py:15 .\events\models.py:37 .\events\search.py:18
 #: .\events\templates\events\_event_detail_actions.html:15 .\home\models.py:15
-#: .\home\views.py:260
+#: .\home\views.py:278
 msgid "Event"
 msgstr "Wydarzenie"
 
@@ -2215,7 +2215,7 @@ msgstr "Dodaj do swojego Kalendarza Google"
 #: .\events\templates\events\_event_card.html:59 .\events\views.py:26
 #: .\home\navigation.py:13 .\home\services\dashboard.py:26
 #: .\home\templates\home\base.html:280 .\home\templates\home\home.html:455
-#: .\home\views.py:101 .\obywatele\views.py:457
+#: .\home\views.py:119 .\obywatele\views.py:457
 msgid "Calendar"
 msgstr "Kalendarz"
 
@@ -2548,6 +2548,9 @@ msgstr "Jeśli zostanie użyte, referendum zmieni ustawienia systemu. Zmiana zos
 
 #: .\glosowania\models.py:78
 #: .\glosowania\templates\glosowania\_proposed_brand_mark.html:3
+#: .\glosowania\templates\glosowania\_proposed_brand_mark.html:7
+#: .\glosowania\templates\glosowania\_proposed_brand_mark.html:13
+#: .\glosowania\templates\glosowania\_proposed_brand_mark.html:16
 #: .\glosowania\templates\glosowania\szczegoly.html:113
 msgid "Proposed logo"
 msgstr "Propozycja logo"
@@ -3150,13 +3153,13 @@ msgstr "Możesz zarządzać swoimi powiadomieniami e-mail tutaj:"
 msgid "Desktop"
 msgstr "Pulpit"
 
-#: .\home\navigation.py:11 .\home\services\dashboard.py:19 .\home\views.py:102
-#: .\home\views.py:260 .\obywatele\models.py:144
+#: .\home\navigation.py:11 .\home\services\dashboard.py:19 .\home\views.py:120
+#: .\home\views.py:278 .\obywatele\models.py:144
 #: .\obywatele\templatetags\profile_tags.py:59
 msgid "Citizens"
 msgstr "Ludzie"
 
-#: .\home\navigation.py:14 .\home\views.py:99 .\home\views.py:260
+#: .\home\navigation.py:14 .\home\views.py:117 .\home\views.py:278
 msgid "Votings"
 msgstr "Głosowania"
 
@@ -3178,7 +3181,7 @@ msgid "Activity"
 msgstr "Aktywność"
 
 #: .\home\navigation.py:43 .\home\templates\home\base.html:154
-#: .\home\tests.py:40
+#: .\home\tests.py:63
 msgid "Settings"
 msgstr "Ustawienia"
 
@@ -3296,7 +3299,7 @@ msgid "No activity"
 msgstr "Brak aktywności"
 
 #: .\home\templates\home\base.html:88 .\home\templates\home\base.html:97
-#: .\zzz\templatetags\citizen_filters.py:62
+#: .\zzz\templatetags\citizen_filters.py:63
 msgid "Active now"
 msgstr "Aktywny teraz"
 
@@ -3333,21 +3336,21 @@ msgstr "Aktywny %%s dni temu"
 msgid "Active on %%s"
 msgstr "Aktywny %%s"
 
-#: .\home\templates\home\base.html:98 .\zzz\templatetags\citizen_filters.py:62
+#: .\home\templates\home\base.html:98 .\zzz\templatetags\citizen_filters.py:63
 msgid "Active recently"
 msgstr "Aktywny niedawno"
 
-#: .\home\templates\home\base.html:99 .\zzz\templatetags\citizen_filters.py:62
-#: .\zzz\templatetags\citizen_filters.py:67
+#: .\home\templates\home\base.html:99 .\zzz\templatetags\citizen_filters.py:63
+#: .\zzz\templatetags\citizen_filters.py:68
 msgid "No recent activity"
 msgstr "Brak świeżej aktywności"
 
 #: .\home\templates\home\base.html:102 .\home\templates\home\base.html:104
-#: .\zzz\templatetags\citizen_filters.py:67
+#: .\zzz\templatetags\citizen_filters.py:68
 msgid "Application activity"
 msgstr "Aktywność w aplikacji"
 
-#: .\home\templates\home\base.html:103 .\zzz\templatetags\citizen_filters.py:67
+#: .\home\templates\home\base.html:103 .\zzz\templatetags\citizen_filters.py:68
 msgid "Push notification received"
 msgstr "Odebrano powiadomienie push"
 
@@ -3822,31 +3825,31 @@ msgstr "Ludzie"
 msgid "Membership"
 msgstr "Członkostwo"
 
-#: .\home\views.py:281
+#: .\home\views.py:299
 msgid "Your password has been changed."
 msgstr "Twoje hasło zostało zmienione."
 
-#: .\home\views.py:284
+#: .\home\views.py:302
 msgid "You typed something wrong. See what error appeared above and try again."
 msgstr "Coś źle wpisałeś. Zobacz, jaki błąd pojawił się powyżej i spróbuj ponownie."
 
-#: .\home\views.py:389 .\home\views.py:403
+#: .\home\views.py:407 .\home\views.py:421
 msgid "Enter a valid title and URL."
 msgstr "Wprowadź prawidłowy tytuł i adres URL."
 
-#: .\home\views.py:395
+#: .\home\views.py:413
 msgid "Link added."
 msgstr "Link dodany."
 
-#: .\home\views.py:407
+#: .\home\views.py:425
 msgid "Link updated."
 msgstr "Link zaktualizowany."
 
-#: .\home\views.py:409 .\home\views.py:435
+#: .\home\views.py:427 .\home\views.py:453
 msgid "Link doesn't exist."
 msgstr "Link nie istnieje."
 
-#: .\home\views.py:433
+#: .\home\views.py:451
 msgid "Link deleted."
 msgstr "Link usunięty."
 

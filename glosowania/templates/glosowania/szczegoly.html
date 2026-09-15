@@ -111,7 +111,7 @@
       {% if id.proposed_brand_mark %}
       <div class="tw-detail-subsection">
         <div class="tw-detail-section-label"><i class="fas fa-image"></i>{% trans 'Proposed logo' %}</div>
-        {% include "glosowania/_proposed_brand_mark.html" with brand_mark=id.proposed_brand_mark img_class="tw-brand-mark-lg" %}
+        {% include "glosowania/_proposed_brand_mark.html" with brand_mark=id.proposed_brand_mark img_class="tw-brand-mark-lg" modal_id="proposedBrandMarkModal" %}
       </div>
       {% endif %}
     </div>

@@ -122,7 +122,7 @@ window.wkOnReady(function() {
           <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-x-6 tw-gap-y-4">
             <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Communicator / Phone" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.phone|default:"—" }}</dd>
             <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Job" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.job|default:"—" }}</dd>
-            <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "City / Commune" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.city|default:"—" }}</dd>
+            <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "City / Commune" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.city|default:"—"|title }}</dd>
             <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Voivodeship" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.voivodeship.name|default:"—" }}</dd>
             <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Recommended by" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.polecajacy|default:"—" }}</dd>
             <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Responsibilities" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.responsibilities|default:"—" }}</dd>

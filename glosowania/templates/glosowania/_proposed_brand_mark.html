@@ -1,4 +1,21 @@
 {% load i18n %}
+{% if modal_id %}
+<a href="{{ brand_mark.url }}" class="tw-inline-block" data-tw-toggle="modal" data-tw-target="#{{ modal_id }}" aria-controls="{{ modal_id }}" aria-label="{% trans 'Proposed logo' %}">
+{% else %}
 <a href="{{ brand_mark.url }}" target="_blank" rel="noopener">
+{% endif %}
   <img src="{{ brand_mark.url }}" alt="{% trans 'Proposed logo' %}" class="tw-border tw-rounded tw-p-1 tw-bg-white {{ img_class }}">
 </a>
+{% if modal_id %}
+<div class="tw-modal tw-fade" id="{{ modal_id }}" tabindex="-1" role="dialog" aria-labelledby="{{ modal_id }}Label" aria-hidden="true">
+  <div class="tw-modal-dialog tw-modal-dialog-scrollable" role="document">
+    <div class="tw-modal-content">
+      {% trans 'Proposed logo' as proposed_logo_title %}
+      {% include 'home/includes/modal_header.html' with title=proposed_logo_title title_icon='fa-image' title_id=modal_id|add:'Label' %}
+      <div class="tw-modal-body tw-text-center">
+        <img src="{{ brand_mark.url }}" alt="{% trans 'Proposed logo' %}" class="tw-w-full tw-max-w-full tw-rounded">
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}

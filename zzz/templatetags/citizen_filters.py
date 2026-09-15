@@ -34,7 +34,8 @@ def user_display_name(user):
     user = _as_user(user)
     if not user:
         return ''
-    return user.get_full_name() or user.username
+    full_name = user.get_full_name()
+    return full_name.title() if full_name else user.username
 
 
 def user_initials(user):

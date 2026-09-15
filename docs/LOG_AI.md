@@ -1,5 +1,15 @@
 # LOG_AI
 
+## 2026-09-15: Audyt kompatybilności ze starymi urządzeniami — bez zmian w kodzie
+
+- **Status:** Tylko udokumentowane znalezisko; nie wprowadzono żadnych zmian w kodzie, konfiguracji ani zależnościach.
+- **Problem:** Na starych fizycznych urządzeniach anonimowy Burger Menu może być niewidoczny i nie reagować. Przycisk zależy od JavaScriptowego dropdownu, który używa m.in. `Element.closest()`, `const`/`let` i `Object.assign()`, a sama ikona jest dostarczana przez zewnętrzny Font Awesome 7. Menu jest ukryte przez CSS (`display: none`) do czasu dodania klasy `tw-show`, więc awaria JS blokuje całą zawartość menu.
+- **Szersze znalezisko:** `home/static/home/js/app.js` zawiera optional chaining, a czat i część funkcji współdzielonych używają nowoczesnej składni JavaScript, modułów ES, `async`/`await`, `fetch()`, `URLSearchParams`, `AbortController`, obserwatorów DOM i innych API. Starsza przeglądarka może odrzucić cały plik podczas parsowania, przez co przestaną działać m.in. motyw, mobilny sidebar, PagePrefs, filtry, część akcji aktywności, modale, zakładki i czat.
+- **Warstwa wizualna:** CSS opiera się na custom properties, Flexbox/Grid, `gap`, `position: sticky` i miejscami `:has()`. Font Awesome 7 używa nowocześniejszych mechanizmów CSS i może dodatkowo nie załadować się na starym urządzeniu albo przy problemach z CDN, co ukrywa także inne ikony w aplikacji.
+- **Brak kompatybilności:** Projekt nie ma obecnie Babela, `browserslist`, polyfilli ani osobnego pakietu legacy; JavaScript jest dostarczany bezpośrednio jako źródłowy kod, a część skryptów jako `type="module"`.
+- **Wniosek:** Najprostsza docelowa strategia to zapewnić anonimowym akcjom (logowanie, rejestracja, kontakt, język) działanie z samego HTML jako progressive enhancement, a następnie — jeśli zostanie określona minimalna wersja urządzeń — dodać wspólny build legacy, polyfille oraz fallback CSS/ikon. Sama ręczna zamiana pojedynczych konstrukcji JS nie rozwiąże problemów CSS, CDN, modułów, WebSocketów ani push.
+- **Decyzja:** Na tym etapie niczego nie naprawiamy; wpis zachowuje diagnozę i kierunek ewentualnego przyszłego zadania.
+
 ## 2026-09-15: Gmail-odporny nagłówek codziennego digestu
 
 - **Zmienione pliki:** `home/templates/emails/digest.html`, `home/test_email_digest.py`.
