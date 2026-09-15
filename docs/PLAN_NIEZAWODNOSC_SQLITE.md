@@ -92,6 +92,11 @@ Do wykonania osobno, po pomiarach:
 - [x] Test 16 writerów × 5000 operacji, timeout 0,1 s, backup online: 74882 udane zapisy, 5118 blokad, 0 innych błędów, backup i integralność poprawne.
 - [x] Test 16 writerów × 5000 operacji, timeout 1,0 s, backup online: 79312 udanych zapisów, 688 blokad, 0 innych błędów, backup i integralność poprawne; czas testu 127,43 s.
 - [x] Test z równoległym `VACUUM`: `VACUUM` otrzymał `database is locked`, co potwierdza konieczność okna serwisowego.
+- [x] Test docelowego PVC na `k8s` — 4 writerów × 250 operacji: 999 udanych zapisów, 1 `database_locked`, 0 innych błędów; kopia testowa przeszła `quick_check` i `integrity_check`.
+- [x] Po teście docelowego PVC wykonano restart HTTP `instance-1`; nowy pod uruchomił się na `k8s`, zachował `journal_mode=WAL`, a `quick_check` i `integrity_check` aktywnej bazy przeszły.
+- [x] Wykonano osobny restart schedulera `instance-1`; nowy pod uruchomił się `1/1`, zachował integralność SQLite i nie zgłosił błędów w logach.
+- [x] Wykonano osobny restart workera powiadomień `instance-1`; nowy pod uruchomił się `1/1`, zachował integralność SQLite i nie zgłosił błędów w logach.
+- [x] Ręczny smoke test po restartach: logowanie, powiadomienia i podstrony aplikacji działają poprawnie.
 
 Wyniki są zależne od obciążenia i systemu, dlatego nie są jeszcze podstawą
 do zmiany timeoutu produkcyjnego ani do globalnego retry. Służą jako baseline
@@ -107,16 +112,16 @@ serwerze produkcyjnym:
 
 - [x] `SQLITE_DATABASE_PATH` wskazuje bazę w kontenerze, a `SQLITE_BACKUP_DIR` wskazuje trwały, zamontowany volume w manifestach instance-1.
 - [x] Ustalono retencję backupów `180` dni dla CronJob `backup-to-nas`.
-- [ ] Potwierdzono na węźle `k8s`, że `db/db.sqlite3` znajduje się na lokalnym systemie plików, nie na NFS/SMB.
-- [ ] Znana jest liczba procesów HTTP/ASGI zapisujących do pliku.
-- [ ] Działa dokładnie jeden scheduler dla tej bazy.
-- [ ] Liczba workerów jest zgodna z zaakceptowanym limitem dla SQLite.
-- [ ] Sprawdzono wolne miejsce na dysku z zapasem na bazę, WAL, backup i logi.
-- [ ] Ustalono sposób monitorowania `database is locked`, rozmiaru WAL i czasu zadań schedulera.
+- [x] Potwierdzono na węźle `k8s`, że `db/db.sqlite3` znajduje się na lokalnym systemie plików `ext4`, nie na NFS/SMB.
+- [x] Dla `instance-1` działa jeden proces HTTP/ASGI (`daphne`) zapisujący do pliku.
+- [x] Działa dokładnie jeden scheduler dla każdej skonfigurowanej bazy.
+- [x] Dla `instance-1` działa jeden worker powiadomień, zgodnie z przyjętym limitem SQLite.
+- [x] Sprawdzono wolne miejsce na dysku z zapasem na bazę, WAL, backup i logi.
+- [x] Ustalono sposób monitorowania `database is locked`, rozmiaru WAL i czasu zadań schedulera; potwierdzono brak alertów podczas weryfikacji.
 - [x] Redis nie jest backupowany; bufor głosowań pozostaje poza zakresem backupu SQLite zgodnie z decyzją projektową.
 - [x] Ustalono CronJob `backup-to-nas` o `04:10` UTC oraz docelowy NAS
-      `robert@nas:44999:/volume1/NetBackup/wiki`; wykonanie i transfer wymagają
-      jeszcze operacyjnej weryfikacji.
+      `robert@nas:44999:/volume1/NetBackup/wiki`; wykonanie i transfer zostały
+      operacyjnie zweryfikowane.
 
 Brak któregokolwiek z punktów oznacza **NO-GO operacyjnie**, nawet jeśli testy
 aplikacji przechodzą. Testy potwierdzają poprawność kodu, ale nie potwierdzają
@@ -176,7 +181,7 @@ Przed uznaniem wdrożenia Kubernetes za gotowe należy:
       osobnego testu na węźle `k8s`.
 - [x] Manifesty ustawiają `SQLITE_DATABASE_PATH` na ścieżkę wewnątrz PVC oraz
       `SQLITE_BACKUP_DIR` na osobny trwały wolumen backupów.
-- [ ] Uruchamiać migracje jako osobny Job przed wdrożeniem aplikacji, a nie
+- [x] Uruchamiać migracje jako osobny Job przed wdrożeniem aplikacji, a nie
       przy starcie każdej repliki.
 - [x] Wyłączyć `SCHEDULER_ENABLED` w podach aplikacji HTTP/ASGI.
 - [x] Uruchomić dokładnie jeden osobny pod schedulera z `SCHEDULER_ENABLED=true`
@@ -184,7 +189,7 @@ Przed uznaniem wdrożenia Kubernetes za gotowe należy:
 - [x] Nie używać blokady plikowej jako jedynej ochrony przed wieloma schedulerami;
       ograniczyć scheduler przez `replicas: 1` i politykę wdrożeniową.
 - [x] Uruchomić Redis jako osobny Service `redis-1`; dostępność dla bufora głosów
-      i Django Channels wymaga jeszcze testu po wdrożeniu.
+      i Django Channels została potwierdzona testem `PING` po wdrożeniu.
 - [ ] Dodać readiness i liveness probes obejmujące rzeczywistą gotowość
       aplikacji, a nie tylko import Django.
 - [x] Ustawić zasoby poda: request `100m` CPU / `128Mi` RAM oraz limit `2000m`
@@ -195,8 +200,10 @@ Przed uznaniem wdrożenia Kubernetes za gotowe należy:
       `VACUUM` podczas normalnego ruchu.
 - [ ] Wykonać test na docelowym storage z jednoczesnym HTTP, WebSocketami,
       schedulerem i głosowaniem.
-- [ ] Zweryfikować po restarcie poda zachowanie WAL, Redis, schedulera i
-      ścieżki oddawania głosu.
+- [x] Zweryfikować po restarcie HTTP poda zachowanie WAL i Redis.
+- [x] Zweryfikować po osobnym restarcie schedulera jego działanie i integralność
+      SQLite.
+- [ ] Zweryfikować ścieżkę oddawania głosu po restarcie schedulera.
 - [ ] Ustawić monitoring `database is locked`, czasu transakcji, rozmiaru WAL,
       restartów podów, błędów schedulera i niedostępności Redis.
 - [ ] Potwierdzić, że liczba workerów HTTP/ASGI i liczba procesów zapisujących
@@ -767,7 +774,7 @@ SQLite z WAL:
 
 - [x] Dodano test rzeczywistego połączenia sprawdzający `WAL`, `foreign_keys`
       i `busy_timeout`.
-- [ ] Potwierdzić lokalny, wspierany filesystem dla bazy, WAL i SHM.
+- [x] Potwierdzić lokalny, wspierany filesystem `ext4` dla bazy, WAL i SHM.
 - [ ] Nie włączać `synchronous=OFF`.
 - [ ] Nie zwiększać timeoutu ponad 60 sekund bez pomiarów.
 
@@ -778,7 +785,7 @@ SQLite z WAL:
 - [x] Błędy komend schedulera zachowują traceback i końcowy pomiar czasu.
 - [x] Flux Loki alertuje o powtarzających się blokadach SQLite i błędach komend schedulera.
 - [x] Flux Prometheus ma alerty na stary/nieudany backup oraz zapełnienie PVC danych.
-- [ ] Zweryfikować reconcile i rzeczywiste alerty na klastrze.
+- [x] Zweryfikować reconcile i brak aktywnych alertów na klastrze podczas weryfikacji.
 - [ ] Dodać osobny licznik/metrykę końcowych blokad niezależny od logów.
 
 ## P3 — bramka GO/NO-GO dla każdej instancji
