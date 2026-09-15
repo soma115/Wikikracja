@@ -85,6 +85,11 @@ class Event(models.Model):
 
         return None
 
+    @staticmethod
+    def _replace_calendar_date(value, year, month, day):
+        safe_day = min(day, calendar.monthrange(year, month)[1])
+        return value.replace(year=year, month=month, day=safe_day)
+
     def get_next_occurrence(self):
         """Get the next occurrence of this event based on frequency"""
         if self.frequency == 'once':
@@ -92,6 +97,7 @@ class Event(models.Model):
 
         now = timezone.now()
         next_date = self.start_date
+        anchor_day = self.start_date.day
 
         if self.frequency == 'daily':
             while next_date <= now:
@@ -102,10 +108,10 @@ class Event(models.Model):
         elif self.frequency == 'monthly':
             while next_date <= now:
                 if next_date.month == 12:
-                    next_date = next_date.replace(year=next_date.year + 1, month=1)
+                    next_year, next_month = next_date.year + 1, 1
                 else:
-                    next_date = next_date.replace(month=next_date.month + 1)
-                # Ensure timezone-aware after replace
+                    next_year, next_month = next_date.year, next_date.month + 1
+                next_date = self._replace_calendar_date(next_date, next_year, next_month, anchor_day)
                 if timezone.is_naive(next_date):
                     next_date = timezone.make_aware(next_date)
         elif self.frequency == 'monthly_ordinal':
@@ -136,8 +142,7 @@ class Event(models.Model):
                     return None
         elif self.frequency == 'yearly':
             while next_date <= now:
-                next_date = next_date.replace(year=next_date.year + 1)
-                # Ensure timezone-aware after replace
+                next_date = self._replace_calendar_date(next_date, next_date.year + 1, next_date.month, anchor_day)
                 if timezone.is_naive(next_date):
                     next_date = timezone.make_aware(next_date)
 
@@ -194,14 +199,16 @@ class Event(models.Model):
 
         elif self.frequency == 'monthly':
             current = self.start_date
+            anchor_day = self.start_date.day
             safety = 0
             while current <= range_end and safety < 1200:
                 if current >= range_start:
                     occurrences.append(current)
                 if current.month == 12:
-                    current = current.replace(year=current.year + 1, month=1)
+                    next_year, next_month = current.year + 1, 1
                 else:
-                    current = current.replace(month=current.month + 1)
+                    next_year, next_month = current.year, current.month + 1
+                current = self._replace_calendar_date(current, next_year, next_month, anchor_day)
                 if timezone.is_naive(current):
                     current = timezone.make_aware(current)
                 safety += 1
@@ -232,11 +239,12 @@ class Event(models.Model):
 
         elif self.frequency == 'yearly':
             current = self.start_date
+            anchor_day = self.start_date.day
             safety = 0
             while current <= range_end and safety < 100:
                 if current >= range_start:
                     occurrences.append(current)
-                current = current.replace(year=current.year + 1)
+                current = self._replace_calendar_date(current, current.year + 1, current.month, anchor_day)
                 if timezone.is_naive(current):
                     current = timezone.make_aware(current)
                 safety += 1

@@ -1,6 +1,6 @@
 {% load i18n %}
 {% if modal_id %}
-<a href="{{ brand_mark.url }}" class="tw-inline-block" data-tw-toggle="modal" data-tw-target="#{{ modal_id }}" aria-controls="{{ modal_id }}" aria-label="{% trans 'Proposed logo' %}">
+<a href="{{ brand_mark.url }}" class="tw-inline-block" data-tw-toggle="modal" data-tw-target="#{{ modal_id }}" aria-label="{% trans 'Proposed logo' %}">
 {% else %}
 <a href="{{ brand_mark.url }}" target="_blank" rel="noopener">
 {% endif %}

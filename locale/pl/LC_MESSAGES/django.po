@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-15 16:03+0200\n"
+"POT-Creation-Date: 2026-09-15 20:30+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -96,7 +96,7 @@ msgstr "Tytuł"
 #: .\events\models.py:20 .\events\templates\events\_event_card.html:72
 #: .\tasks\templates\tasks\_task_card.html:90
 #: .\tasks\templates\tasks\task_detail.html:15
-#: .\tasks\templates\tasks\task_form.html:32 .\zzz\scheduler.py:169
+#: .\tasks\templates\tasks\task_form.html:32 .\zzz\scheduler.py:176
 msgid "Description"
 msgstr "Opis"
 
@@ -427,14 +427,14 @@ msgid "Your option has been added."
 msgstr "Twoja opcja została dodana."
 
 #: .\ankiety\views.py:168 .\board\views.py:281 .\bookkeeping\views.py:86
-#: .\events\views.py:66 .\glosowania\views.py:722
+#: .\events\views.py:66 .\glosowania\views.py:716
 #: .\home\templates\home\includes\toolbar.html:60 .\home\views.py:153
 #: .\obywatele\views.py:281 .\obywatele\views.py:340 .\tasks\views.py:185
 msgid "List"
 msgstr "Lista"
 
 #: .\ankiety\views.py:168 .\board\views.py:281 .\bookkeeping\views.py:86
-#: .\events\views.py:66 .\glosowania\views.py:722
+#: .\events\views.py:66 .\glosowania\views.py:716
 #: .\home\templates\home\includes\toolbar.html:55 .\home\views.py:153
 #: .\obywatele\views.py:281 .\obywatele\views.py:340 .\tasks\views.py:185
 msgid "Grid"
@@ -2133,7 +2133,7 @@ msgid "Optional link to event details, registration, or location"
 msgstr "Opcjonalny link do szczegółów wydarzenia, rejestrowania lub miejsca"
 
 #: .\events\models.py:22 .\events\templates\events\event_detail.html:53
-#: .\zzz\scheduler.py:163
+#: .\zzz\scheduler.py:170
 msgid "Place"
 msgstr "Miejsce"
 
@@ -2471,7 +2471,7 @@ msgstr "Odrzucone"
 msgid "Enter only existing bill numbers here"
 msgstr "Wpisz tutaj tylko numery istniejących przepisów"
 
-#: .\glosowania\models.py:27 .\glosowania\views.py:66 .\glosowania\views.py:662
+#: .\glosowania\models.py:27 .\glosowania\views.py:66 .\glosowania\views.py:656
 msgid "Proposition"
 msgstr "Propozycja"
 
@@ -2881,7 +2881,7 @@ msgid "Adjust the values below. Only the parameters you change will be included 
 msgstr "Dostosuj poniższe wartości. Tylko zmienione przez Ciebie parametry zostaną uwzględnione w referendum."
 
 #: .\glosowania\templates\glosowania\parameters_propose.html:38
-#: .\glosowania\views.py:658
+#: .\glosowania\views.py:652
 msgid "Logo"
 msgstr "Logo"
 
@@ -3008,16 +3008,16 @@ msgstr "Jak działają głosowania?"
 msgid "Please correct the errors below."
 msgstr "Popraw poniższe błędy."
 
-#: .\glosowania\views.py:71 .\glosowania\views.py:685
+#: .\glosowania\views.py:71 .\glosowania\views.py:679
 msgid "New proposal has been saved."
 msgstr "Nowa propozycja została zapisana."
 
 #: .\glosowania\views.py:75 .\glosowania\views.py:83 .\glosowania\views.py:87
-#: .\glosowania\views.py:692 .\glosowania\views.py:696
+#: .\glosowania\views.py:686 .\glosowania\views.py:690
 msgid "New law proposal"
 msgstr "Nowa propozycja przepisu"
 
-#: .\glosowania\views.py:88 .\glosowania\views.py:697
+#: .\glosowania\views.py:88 .\glosowania\views.py:691
 #, python-brace-format
 msgid ""
 "{user} added new law proposal: \"{title}\"\n"
@@ -3026,7 +3026,7 @@ msgstr ""
 "{user} dodał/a nową propozycję przepisu: \"{title}\"\n"
 "Możesz ją zobaczyć tutaj: {url}"
 
-#: .\glosowania\views.py:136 .\glosowania\views.py:707
+#: .\glosowania\views.py:136 .\glosowania\views.py:701
 msgid "Saved."
 msgstr "Zapisane."
 
@@ -3136,15 +3136,15 @@ msgstr "Konsekwencje"
 msgid "Abolishes"
 msgstr "Znosi"
 
-#: .\glosowania\views.py:658
+#: .\glosowania\views.py:652
 msgid "new logo"
 msgstr "nowe logo"
 
-#: .\glosowania\views.py:659
+#: .\glosowania\views.py:653
 msgid "Proposed change of system parameters:"
 msgstr "Proponowana zmiana parametrów systemu:"
 
-#: .\glosowania\views.py:662
+#: .\glosowania\views.py:656
 msgid "System parameters change"
 msgstr "Zmiana parametrów systemu"
 
@@ -5906,6 +5906,6 @@ msgstr "Zespół %(site_name)s"
 msgid "File is too large (max %s MB)."
 msgstr "Plik jest za duży (maks. %s MB)."
 
-#: .\zzz\scheduler.py:160
+#: .\zzz\scheduler.py:167
 msgid "Time"
 msgstr "Godzina"

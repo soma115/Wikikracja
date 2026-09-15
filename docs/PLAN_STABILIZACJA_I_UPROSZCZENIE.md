@@ -152,15 +152,17 @@ Cel: stabilizować zachowanie bez naruszania zasad systemu.
 
 ## Faza 5 — uproszczenie frontendu i UI
 
-Cel: zmniejszyć liczbę wariantów UI, kodu JS i źródeł stylów.
+Cel: zmniejszyć liczbę wariantów UI, kodu JS i źródeł stylów, bez pogorszenia ergonomii i atrakcyjności interfejsu.
+
+Kierunek docelowy: Django jako źródło prawdy, HTMX dla komunikacji HTTP, Alpine.js dla lokalnego stanu UI oraz Django Channels i dedykowany JavaScript dla czatu realtime. Redukujemy własną infrastrukturę JS, a nie interakcje, które realnie poprawiają doświadczenie użytkownika.
 
 - [ ] Utrzymać jeden produkcyjny pipeline `tailwind.css` → `tailwind.build.css`; nie edytować ręcznie pliku generowanego.
 - [ ] Zinwentaryzować klasy Bootstrap, modułowe arkusze, inline styles, duplikaty partiali i jednorazowe komponenty.
-- [ ] Migrować powtarzalne elementy do istniejących `tw-*`, partiali `home/templates/home/includes/`, `home/templates/tw/` i wspólnych modułów JS.
+- [ ] Migrować powtarzalne elementy do istniejących `tw-*`, partiali `home/templates/home/includes/`, `home/templates/tw/`, HTMX i Alpine.js.
 - [ ] Nie dodawać nowych klas bez prefiksu `tw-`, poza krótkotrwałymi, semantycznymi hookami JS.
 - [ ] Usuwać duplikaty po sprawdzeniu wszystkich użyć, a nie przez masową zamianę tekstu.
-- [ ] Ujednolicić formularze, alerty, badge, karty, toolbary, tabele, empty states, modale, dropdowny, ikony i widoki list/siatek.
-- [ ] Rozdzielić logikę JS od DOM tam, gdzie pozwala to na test jednostkowy; zachować jeden kontrakt wspólnego WebSocketu.
+- [ ] Ujednolicić formularze, alerty, badge, karty, toolbary, tabele, empty states, modale, dropdowny, ikony i widoki list/siatek bez budowania kolejnego globalnego frameworka UI.
+- [ ] Rozdzielić logikę JS od DOM tam, gdzie pozwala to na test jednostkowy; zachować jeden kontrakt wspólnego WebSocketu i izolować klienta czatu.
 - [ ] Dodać testy dla nowych lub zmienionych interakcji i sprawdzić dostępność klawiaturą, focus, komunikaty błędów oraz mobile.
 - [ ] Po każdej zmianie UI uruchomić `npm run build:css`, `scripts/regression_scan.py` i `scripts/ui_guard.py`, gdy dotyczy.
 - [ ] Aktualizować `docs/UI_STANDARDS.html` i przewodniki tylko wtedy, gdy powstaje lub zmienia się wspólny wzorzec.

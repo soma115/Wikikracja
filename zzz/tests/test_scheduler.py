@@ -1,10 +1,39 @@
 import os
+from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 from unittest.mock import patch
 
-from zzz.scheduler import _acquire_scheduler_lock, _run_command, should_start_scheduler
+from django.test import TestCase as DjangoTestCase
+from django.utils import timezone
+
+from events.models import Event
+from zzz.scheduler import _acquire_scheduler_lock, _run_command, run_meeting_notification, should_start_scheduler
+
+
+class MeetingNotificationTest(DjangoTestCase):
+    def test_notifies_when_recurring_occurrence_starts(self):
+        current = timezone.make_aware(datetime(2026, 1, 8, 10, 15, 30))
+        event = Event.objects.create(title='Weekly meeting', start_date=timezone.make_aware(datetime(2026, 1, 1, 10, 15)), frequency='weekly')
+
+        with patch('django.utils.timezone.now', return_value=current), patch('events.services.notify_event_starting') as notify:
+            run_meeting_notification()
+
+        notify.assert_called_once()
+        self.assertEqual(notify.call_args.args[0].pk, event.pk)
+        self.assertIn('10:15', notify.call_args.kwargs['body'])
+
+    def test_notifies_clamped_monthly_occurrence(self):
+        current = timezone.make_aware(datetime(2026, 2, 28, 10, 15, 30))
+        event = Event.objects.create(title='Month-end meeting', start_date=timezone.make_aware(datetime(2026, 1, 31, 10, 15)), frequency='monthly')
+
+        with patch('django.utils.timezone.now', return_value=current), patch('events.services.notify_event_starting') as notify:
+            run_meeting_notification()
+
+        notify.assert_called_once()
+        self.assertEqual(notify.call_args.args[0].pk, event.pk)
+        self.assertIn('10:15', notify.call_args.kwargs['body'])
 
 
 class SchedulerStartGuardTest(TestCase):

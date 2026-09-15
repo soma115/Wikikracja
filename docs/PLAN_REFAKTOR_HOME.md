@@ -45,14 +45,14 @@ logikę biznesową z widoków do przetestowalnych funkcji.
 
 ## Faza 0 — siatka bezpieczeństwa (przed jakimkolwiek refaktorem)
 
-1. Dodać testy charakteryzujące bieżące zachowanie tam, gdzie go nie ma:
+- [ ] Dodać testy charakteryzujące bieżące zachowanie tam, gdzie go nie ma:
    - `_generate_feed_raw()` — kolejność sortowania (events chronologicznie
      rosnąco, resztę malejąco), obcinanie opisów do 125 znaków, cache hit/miss.
    - `global_search()` — po jednym teście na każdą kategorię (`decision`,
      `event`, `citizen`, `chat`) + test na `active_cats` filtrujący kategorie.
    - `home()` — test na `active_referendum` (kolory progress bara wg
      `time_pct`) i na `default_asset is None` (ścieżka onboardingu finansów).
-2. Uruchomić `pytest home` i zanotować bieżący czas/wynik jako baseline.
+- [ ] Uruchomić `pytest home` i zanotować bieżący czas/wynik jako baseline.
 
 Bez tego refaktor rozproszonej logiki (feed, search, dashboard) jest zbyt
 ryzykowny — dużo gałęzi warunkowych bez testów.
@@ -99,7 +99,7 @@ zachowania. Testy z Fazy 0 muszą przejść bez zmian.
 To jest właściwa naprawa problemu #1: `home` przestaje wiedzieć, że istnieją
 `Post`, `Task`, `Event`, `Decyzja`, `CitizenActivity`, `Room`/`Message`.
 
-1. Zdefiniować kontrakt w `home/feed_registry.py`. Element feedu to zwykły
+1. [ ] Zdefiniować kontrakt w `home/feed_registry.py`. Element feedu to zwykły
    `dict` w formacie już używanym w `_generate_feed_raw` (`content_type`,
    `title`, `description`, `author`, `timestamp`, `url`, `object_id`, ...) —
    na tym etapie nie trzeba wprowadzać nowego typu, ewentualny `TypedDict`
@@ -120,7 +120,7 @@ To jest właściwa naprawa problemu #1: `home` przestaje wiedzieć, że istniej�
            items.extend(provider(since))
        return items
    ```
-2. Każda aplikacja-właściciel danych (board, tasks, events, glosowania,
+2. [ ] Każda aplikacja-właściciel danych (board, tasks, events, glosowania,
    obywatele, chat) dostaje `feed.py` z funkcją `get_feed_items(since)`,
    zwracającą listę słowników w ujednoliconym formacie (już używanym w
    `_generate_feed_raw`), i rejestruje ją w `apps.py::ready()`:
@@ -132,10 +132,10 @@ To jest właściwa naprawa problemu #1: `home` przestaje wiedzieć, że istniej�
 
        register_feed_provider(get_feed_items)
    ```
-3. `home/services/feed.py::_generate_feed_raw()` zamienia 6 bloków
+3. [ ] `home/services/feed.py::_generate_feed_raw()` zamienia 6 bloków
    `Post.objects.filter(...)` / `Task.objects.filter(...)` / ... na jedno
    wywołanie `collect_feed_items(since=timezone.now() - td(days=30))`.
-4. Analogicznie dla cache invalidation: `home/signals.py` przestaje importować
+4. [ ] Analogicznie dla cache invalidation: `home/signals.py` przestaje importować
    modele z 6 aplikacji. Zamiast tego każda aplikacja, zmieniając swój model
    feedowy, woła generyczny sygnał `home.signals.feed_changed.send(sender=...)`
    we własnym `signals.py` (albo — prościej — `home` udostępnia publiczną
@@ -166,13 +166,13 @@ przy *zapisie* stanu przeczytania.
 
 Dwie opcje, od najprostszej:
 
-1. **Zaakceptować jako świadomy wyjątek i udokumentować.** Czat i tak ma
+1. **[x] Zaakceptować jako świadomy wyjątek i udokumentować.** Czat i tak ma
    specjalny status w `ReadStatus.ContentType`/`_CONTENT_TYPE_MAP` (mapa już
    wie o `room_messages`), więc jedna dodatkowa zależność `home → chat` w
    miejscu odczytu/zapisu stanu przeczytania jest mniejszym złem niż
    dodawanie kolejnej warstwy abstrakcji dla pojedynczego przypadku. To
    rekomendowana opcja na start — nie blokuje Fazy 2.
-2. **Rozszerzyć kontrakt registry o hooki zapisu** (`mark_read(object_id, user)`
+2. **[ ] Rozszerzyć kontrakt registry o hooki zapisu** (`mark_read(object_id, user)`
    / `mark_unread(object_id, user)`) analogicznie do `FeedProvider`, które
    `chat` (i w przyszłości inne aplikacje o niestandardowym mechanizmie
    read/unread) rejestrowałby tak jak `get_feed_items`. Ma sens tylko jeśli
@@ -208,7 +208,7 @@ akceptowalny, opisany wyjątek, nie regresja.
 
 ## Kryteria akceptacji
 
-- `home/views.py` nie importuje żadnego modelu z `board`, `bookkeeping`,
+- [ ] `home/views.py` nie importuje żadnego modelu z `board`,
   `chat`, `events`, `glosowania`, `obywatele`, `tasks` do generowania feedu
   i wyszukiwania. Wyjątki dopuszczone i opisane w tym dokumencie:
   `site_settings` przy `manifest()` (config, nie dane feedu) oraz `chat.Room`

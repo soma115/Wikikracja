@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from django.test import TestCase
 from django.utils import timezone
@@ -46,3 +46,17 @@ class EventModelTest(TestCase):
     def test_get_next_occurrence_monthly_ordinal_none_fields_returns_none(self):
         event = Event.objects.create(title="Ordinal No Fields", start_date=timezone.now() + timedelta(days=1), frequency='monthly_ordinal', monthly_ordinal=None, monthly_weekday=None)
         self.assertIsNone(event.get_next_occurrence())
+
+    def test_monthly_occurrences_clamp_to_last_day_without_drifting(self):
+        event = Event.objects.create(title='Month End', start_date=timezone.make_aware(datetime(2026, 1, 31, 10)), frequency='monthly')
+
+        occurrences = event.get_occurrences(timezone.make_aware(datetime(2026, 2, 1)), timezone.make_aware(datetime(2026, 4, 1)))
+
+        self.assertEqual([occurrence.day for occurrence in occurrences], [28, 31])
+
+    def test_yearly_occurrences_clamp_february_29_in_non_leap_years(self):
+        event = Event.objects.create(title='Leap Day', start_date=timezone.make_aware(datetime(2024, 2, 29, 10)), frequency='yearly')
+
+        occurrences = event.get_occurrences(timezone.make_aware(datetime(2025, 1, 1)), timezone.make_aware(datetime(2027, 3, 1)))
+
+        self.assertEqual([(occurrence.year, occurrence.month, occurrence.day) for occurrence in occurrences], [(2025, 2, 28), (2026, 2, 28), (2027, 2, 28)])

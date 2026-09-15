@@ -148,15 +148,22 @@ def run_meeting_notification():
     start_of_minute = now.replace(second=0, microsecond=0)
     end_of_minute = start_of_minute + timedelta(minutes=1)
 
-    starting_events = Event.objects.filter(is_active=True, start_date__gte=start_of_minute, start_date__lt=end_of_minute).order_by('start_date')
+    starting_occurrences = []
+    one_time_events = Event.objects.filter(is_active=True, frequency='once', start_date__gte=start_of_minute, start_date__lt=end_of_minute)
+    starting_occurrences.extend((event, event.start_date) for event in one_time_events)
 
-    if not starting_events.exists():
+    recurring_events = Event.objects.filter(is_active=True, frequency__in=('daily', 'weekly', 'monthly', 'monthly_ordinal', 'yearly'), start_date__lt=end_of_minute)
+    for event in recurring_events:
+        starting_occurrences.extend((event, occurrence) for occurrence in event.get_occurrences(start_of_minute, end_of_minute) if occurrence < end_of_minute)
+
+    if not starting_occurrences:
         return  # Silent return - no events starting this minute
 
-    for event in starting_events:
+    starting_occurrences.sort(key=lambda item: item[1])
+    for event, occurrence in starting_occurrences:
         try:
             # Format detailed notification body (time, place, description)
-            event_time = timezone.localtime(event.start_date).strftime('%H:%M')
+            event_time = timezone.localtime(occurrence).strftime('%H:%M')
             body_parts = [f"{_('Time')}: {event_time}"]
 
             if event.place:

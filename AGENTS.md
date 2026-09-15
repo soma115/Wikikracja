@@ -177,6 +177,7 @@ Po zakończeniu każdego zadania dokumentuj w pliku `docs/LOG_AI.md` wszystkie z
 - Jeśli na początku zadania istnieje istotna niepewność lub decyzja projektowa, zadawaj użytkownikowi pytania zamknięte z wyborem odpowiedzi A/B/C. Nie zgaduj intencji użytkownika.
 - Przed rozpoczęciem zmian w kodzie przedstaw użytkownikowi zwięzły plan high-level: zakres, główne kroki i sposób weryfikacji.
 - Przy każdej zmianie dbaj o zgodność z obowiązującymi standardami UI oraz dąż do unifikacji, prostoty i ponownego użycia istniejących wzorców.
+- **Minimalizuj własny JavaScript, nie ergonomię:** przy nowych funkcjach najpierw sprawdzaj Django, HTML/CSS, HTMX i Alpine.js. HTMX jest domyślnym wyborem dla akcji HTTP, formularzy i wymiany renderowanych przez Django fragmentów, a Alpine.js dla lokalnego stanu komponentu UI. JavaScript pozostaje uzasadniony, gdy poprawia ergonomię, atrakcyjność wizualną, dostępność interakcji albo jest technicznie niezbędny (w szczególności czat, WebSocket, push, Service Worker, edytory i uploady). Czat jest odrębną wyspą opartą na Django Channels i nie należy przenosić jego reconnectu, rejoinu, obecności ani synchronizacji do ogólnego frameworka UI. Nie twórz własnego globalnego frameworka w `app.js`; preferuj istniejące warstwy i małe, izolowane moduły.
 - Jeśli zmiana jest duża, przed edycją kodu utwórz nowy plik planu zawierający ponumerowane fazy i taski zapisane jako checkboxy (`- [ ]` / `- [x]`). Aktualizuj jego status w trakcie realizacji.
 
 ---

@@ -1,4 +1,4 @@
-# Deployment Instructions for WikiKracja
+# Deployment Instructions for Wikikracja
 
 This document contains instructions for developers setting up the development environment and deploying the Wikikracja application.
 
