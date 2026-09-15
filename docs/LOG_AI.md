@@ -1,5 +1,12 @@
 # LOG_AI
 
+## 2026-09-15: Gmail-odporny nagłówek codziennego digestu
+
+- **Zmienione pliki:** `home/templates/emails/digest.html`, `home/test_email_digest.py`.
+- **Co się zmieniło:** Nagłówek digestu dostał solidny kolor tła jako fallback oraz atrybut `bgcolor`, ponieważ Gmail nie renderuje niezawodnie gradientów i zmiennych CSS z makiety. Nazwa strony jest większa, a automatyczne linkowanie domeny przez Gmaila nie powinno już zmieniać jej kontrastu na białym tle. Usunięto inline CSS, aby szablon nie generował ostrzeżeń narzędzi HTML/CSS.
+- **Uzasadnienie:** Rzeczywisty e-mail w Gmailu tracił tło nagłówka, przez co biały tytuł był niewidoczny, a nazwa strony wyglądała jak mały niebieski link oddzielony od treści.
+- **Spodziewany efekt:** W Gmailu i starszych klientach pocztowych nagłówek pozostaje widocznym, turkusowym blokiem z większą nazwą strony i białym tytułem; nowoczesne klienty nadal mogą korzystać z gradientu i motywu.
+
 ## 2026-09-14: Zachowanie pełnego formatowania artykułów TinyMCE
 
 - **Zmienione pliki:** `core/richtext.py`, `zzz/tests/test_richtext.py`.

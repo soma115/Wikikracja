@@ -218,7 +218,7 @@ def test_post_form_uses_shared_uploaders_and_places_attachments_at_bottom(authen
     assert 'accept="image/*"' in content
     assert 'tw-file-upload' in content
     assert content.index('name="attachments"') > content.index('name="text"')
-    assert content.index('form="post-form"') > content.index('name="attachments"')
+    assert content.index('form="post-form"') < content.index('name="attachments"')
 
 
 @pytest.mark.django_db

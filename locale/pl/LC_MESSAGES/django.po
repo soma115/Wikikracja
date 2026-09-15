@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-15 01:29+0200\n"
+"POT-Creation-Date: 2026-09-15 10:58+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -360,7 +360,7 @@ msgid "Add survey"
 msgstr "Dodaj ankietę"
 
 #: .\ankiety\templates\ankiety\survey_form.html:20 .\board\forms.py:29
-#: .\board\templates\board\post_form.html:13 .\bookkeeping\forms.py:22
+#: .\board\templates\board\post_form.html:18 .\bookkeeping\forms.py:22
 #: .\bookkeeping\forms.py:52
 #: .\categories\templates\categories\_category_manager_init.html:19
 #: .\chat\templates\chat\add.html:15 .\chat\templates\chat\chat.html:299
@@ -369,11 +369,12 @@ msgstr "Dodaj ankietę"
 #: .\glosowania\templates\glosowania\edit.html:17
 #: .\glosowania\templates\glosowania\parameters_propose.html:53
 #: .\home\templates\home\haslo.html:20 .\home\templates\home\site_admin.html:84
-#: .\obywatele\templates\obywatele\candidate_edit.html:21
+#: .\obywatele\templates\obywatele\candidate_edit.html:23
+#: .\obywatele\templates\obywatele\candidate_edit.html:24
 #: .\obywatele\templates\obywatele\change_email.html:21
 #: .\obywatele\templates\obywatele\change_username.html:20
 #: .\obywatele\templates\obywatele\dodaj.html:92
-#: .\obywatele\templates\obywatele\my_assets.html:29
+#: .\obywatele\templates\obywatele\my_assets.html:30
 #: .\obywatele\templates\obywatele\my_profile.html:114
 #: .\obywatele\templates\obywatele\my_profile.html:135
 #: .\obywatele\templates\obywatele\my_profile.html:155
@@ -659,22 +660,22 @@ msgstr "Załączniki"
 msgid "New important document by %(username)s: %(link)s"
 msgstr "Nowy ważny dokument od %(username)s: <a href='%(post_url)s'>%(title)s</a>"
 
-#: .\board\signals.py:52 .\tests\test_board.py:659
+#: .\board\signals.py:52 .\tests\test_board.py:654
 #, python-format
 msgid "Document is no longer marked as important: %(link)s"
 msgstr "Dokument nie jest już oznaczony jako ważny: %(link)s"
 
-#: .\board\signals.py:54 .\tests\test_board.py:645
+#: .\board\signals.py:54 .\tests\test_board.py:640
 #, python-format
 msgid "Important document was made private: %(link)s"
 msgstr "Ważny dokument został oznaczony jako prywatny: %(link)s"
 
-#: .\board\signals.py:56 .\tests\test_board.py:676
+#: .\board\signals.py:56 .\tests\test_board.py:671
 #, python-format
 msgid "Important document was archived: %(link)s"
 msgstr "Ważny dokument został zarchiwizowany: %(link)s"
 
-#: .\board\signals.py:58 .\tests\test_board.py:677
+#: .\board\signals.py:58 .\tests\test_board.py:672
 #, python-format
 msgid "Important document was made visible again: %(link)s"
 msgstr "Ważny dokument został ponownie udostępniony: %(link)s"
@@ -782,14 +783,14 @@ msgstr "Edytuj ogłoszenie"
 msgid "Create post"
 msgstr "Utwórz ogłoszenie"
 
-#: .\board\templates\board\post_form.html:15
-#: .\board\templates\board\post_form.html:17
-#: .\bookkeeping\templates\bookkeeping\asset_form.html:15
-#: .\bookkeeping\templates\bookkeeping\category_form.html:15
+#: .\board\templates\board\post_form.html:14
+#: .\board\templates\board\post_form.html:16
+#: .\bookkeeping\templates\bookkeeping\asset_form.html:14
+#: .\bookkeeping\templates\bookkeeping\category_form.html:14
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:74
-#: .\bookkeeping\templates\bookkeeping\partner_form.html:14
-#: .\bookkeeping\templates\bookkeeping\transaction_form.html:15
-#: .\bookkeeping\templates\bookkeeping\transaction_form.html:17
+#: .\bookkeeping\templates\bookkeeping\partner_form.html:13
+#: .\bookkeeping\templates\bookkeeping\transaction_form.html:14
+#: .\bookkeeping\templates\bookkeeping\transaction_form.html:16
 #: .\categories\templates\categories\_category_manager_init.html:18
 #: .\chat\templates\chat\chat.html:263 .\chat\templates\chat\chat.html:298
 #: .\glosowania\templates\glosowania\_argument_actions.html:11
@@ -800,10 +801,11 @@ msgstr "Utwórz ogłoszenie"
 #: .\home\templates\home\includes\delete_modal.html:15
 #: .\home\templates\home\site_admin.html:39
 #: .\obywatele\templates\obywatele\candidate_edit.html:13
-#: .\obywatele\templates\obywatele\candidate_edit.html:24
+#: .\obywatele\templates\obywatele\candidate_edit.html:20
+#: .\obywatele\templates\obywatele\candidate_edit.html:21
 #: .\obywatele\templates\obywatele\change_email.html:22
 #: .\obywatele\templates\obywatele\change_username.html:21
-#: .\obywatele\templates\obywatele\my_assets.html:30
+#: .\obywatele\templates\obywatele\my_assets.html:29
 #: .\obywatele\templates\obywatele\my_profile.html:113
 #: .\obywatele\templates\obywatele\my_profile.html:134
 #: .\obywatele\templates\obywatele\my_profile.html:154
@@ -1184,7 +1186,7 @@ msgstr "Tak"
 msgid "No"
 msgstr "Nie"
 
-#: .\bookkeeping\templates\bookkeeping\asset_form.html:14
+#: .\bookkeeping\templates\bookkeeping\asset_form.html:15
 msgid "Save Asset"
 msgstr "Zapisz aktywo"
 
@@ -1224,7 +1226,7 @@ msgstr "Czy na pewno chcesz usunąć tę kategorię?"
 msgid "Yes, Delete Category"
 msgstr "Tak, usuń Kategorię"
 
-#: .\bookkeeping\templates\bookkeeping\category_form.html:14
+#: .\bookkeeping\templates\bookkeeping\category_form.html:15
 msgid "Save Category"
 msgstr "Zapisz Kategorię"
 
@@ -1291,7 +1293,7 @@ msgstr "Numer telefonu"
 msgid "Web Page"
 msgstr "www"
 
-#: .\bookkeeping\templates\bookkeeping\partner_form.html:13
+#: .\bookkeeping\templates\bookkeeping\partner_form.html:14
 msgid "Save Partner"
 msgstr "Zapisz Partnera"
 
@@ -1358,7 +1360,7 @@ msgstr "Czy na pewno chcesz skasować tę transakcję?"
 msgid "Yes, Delete Transaction"
 msgstr "Tak, usuń transakcję"
 
-#: .\bookkeeping\templates\bookkeeping\transaction_form.html:13
+#: .\bookkeeping\templates\bookkeeping\transaction_form.html:18
 msgid "Save Transaction"
 msgstr "Zapisz Transakcję"
 
@@ -2257,12 +2259,14 @@ msgid "Create New Event"
 msgstr "Stwórz nowe Wydarzenie"
 
 #: .\events\templates\events\event_form.html:25
-msgid "Save Event"
-msgstr "Zapisz Wydarzenie"
-
-#: .\events\templates\events\event_form.html:29
+#: .\events\templates\events\event_form.html:26
 msgid "View Event"
 msgstr "Wyświetl Wydarzenie"
+
+#: .\events\templates\events\event_form.html:29
+#: .\events\templates\events\event_form.html:30
+msgid "Save Event"
+msgstr "Zapisz Wydarzenie"
 
 #: .\events\templates\events\event_list.html:13
 msgid "Add Event"
@@ -3115,12 +3119,13 @@ msgid "Activity digest"
 msgstr "Podsumowanie aktywności"
 
 #: .\home\management\commands\send_email_digest.py:198
-#, python-format
-msgid "Activity digest for %(username)s since %(date)s"
+#, fuzzy, python-format
+#| msgid "Activity digest for %(username)s since %(date)s"
+msgid "Activity digest since %(date)s"
 msgstr "Podsumowanie aktywności dla %(username)s od %(date)s"
 
 #: .\home\management\commands\send_email_digest.py:200
-#: .\home\test_email_digest.py:334 .\home\test_email_digest.py:337
+#: .\home\test_email_digest.py:336 .\home\test_email_digest.py:339
 msgid "Important: voting was restarted after a technical failure"
 msgstr "Ważne: głosowanie zostało wznowione po awarii technicznej"
 
@@ -3133,7 +3138,7 @@ msgid "No activity in this section."
 msgstr "Brak aktywności w tej sekcji."
 
 #: .\home\management\commands\send_email_digest.py:203
-#: .\home\test_email_digest.py:323
+#: .\home\test_email_digest.py:325
 msgid "Manage email notifications"
 msgstr "Zarządzaj powiadomieniami e-mail"
 

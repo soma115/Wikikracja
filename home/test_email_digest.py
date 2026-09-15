@@ -319,6 +319,8 @@ class SendEmailDigestCommandTest(TransactionTestCase):
         assert len(emails) == 1
         html = emails[0].alternatives[0][0]
         assert 'class="email-intro-panel"' in html
+        assert 'bgcolor="#059984"' in html
+        assert '<p class="email-kicker">' in html
         assert '<a class="email-button" href="' in html
         assert str(_('Manage email notifications')) in html
         assert '/obywatele/settings/' in html

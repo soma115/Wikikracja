@@ -14,7 +14,9 @@
     <form action="." method="POST">
       {% csrf_token %}
       <div class="tw-form-actions tw-form-actions--top">
-        <button type="submit" class="tw-btn tw-btn-primary tw-form-action-btn" title="{% trans 'Save' %}" aria-label="{% trans 'Save' %}"><i class="fas fa-floppy-disk fa-fw" aria-hidden="true"></i>{% trans 'Save' %}</button>
+        <div class="tw-flex tw-flex-wrap tw-gap-2">
+          <button type="submit" class="tw-btn tw-btn-primary tw-form-action-btn" title="{% trans 'Save' %}" aria-label="{% trans 'Save' %}"><i class="fas fa-floppy-disk fa-fw" aria-hidden="true"></i>{% trans 'Save' %}</button>
+        </div>
       </div>
       {% if form.non_field_errors %}<div class="tw-alert tw-alert-danger tw-mb-3" role="alert">{{ form.non_field_errors }}</div>{% endif %}
       {{ form.title|as_crispy_field }}

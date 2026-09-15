@@ -195,7 +195,7 @@ class Command(TranslatedCommand):
             'user': user,
             'site_name': get_site_domain(),
             'title': _('Activity digest'),
-            'digest_intro': _('Activity digest for %(username)s since %(date)s') % {'username': user_initials(user), 'date': since_str},
+            'digest_intro': _('Activity digest since %(date)s') % {'username': user_initials(user), 'date': since_str},
             'restarted_votes': restarted_votes or [],
             'restarted_votes_title': _('Important: voting was restarted after a technical failure'),
             'restarted_votes_intro': _('Votes cast before the failure were lost and these referenda have started again. Please vote again:'),
