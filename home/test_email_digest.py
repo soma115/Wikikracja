@@ -267,7 +267,7 @@ def test_digest_author_follows_latest_message_anonymity(digest_user, another_use
 
 
 @pytest.mark.django_db
-def test_digest_context_uses_uppercase_initials_instead_of_names(digest_user, another_user):
+def test_digest_context_uses_initials_for_authors_but_not_intro(digest_user, another_user):
     digest_user.first_name = 'Anna'
     digest_user.last_name = 'Nowak'
     digest_user.save(update_fields=['first_name', 'last_name'])
@@ -284,7 +284,7 @@ def test_digest_context_uses_uppercase_initials_instead_of_names(digest_user, an
     assert title == 'Initials room — JK'
     assert 'Jan Kowalski' not in title
     assert 'Anna Nowak' not in context['digest_intro']
-    assert 'AN' in context['digest_intro']
+    assert 'AN' not in context['digest_intro']
 
 
 @override_settings(**FAST_EMAIL_SETTINGS)

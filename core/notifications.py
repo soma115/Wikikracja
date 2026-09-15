@@ -11,6 +11,7 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core.mail import send_mail
 from django.db.models import Q
 from django.db.utils import DatabaseError
@@ -22,7 +23,7 @@ from push_notifications.models import GCMDevice
 
 from core.richtext import strip_tags
 from core.signals import citizen_accepted, citizen_blocked, citizen_proposed, event_starting, important_post_published, survey_created, task_created, vote_started, vote_state_changed
-from core.utils import build_site_url
+from core.utils import build_site_url, get_site_domain
 from site_settings.models import SiteParameters
 from site_settings.services import get_branding_version
 
@@ -337,6 +338,21 @@ def send_notification_to_all_in_thread(notification, ws_type='notification', not
     return t
 
 
+def _claim_post_update_notification(post_id):
+    """Claim the 90-minute notification window for a post update."""
+    try:
+        instance = get_site_domain()
+        key = f'notification-throttle:{instance}:post:{post_id}:updated'
+        claimed = cache.add(key, True, timeout=settings.NOTIFICATION_THROTTLE_SECONDS)
+    except Exception as error:
+        log.warning(f'{NOTIF_LOG_TAG} Post update throttling unavailable; sending notification: {error}')
+        return True
+
+    if not claimed:
+        log.debug(f'{NOTIF_LOG_TAG} Skipping repeated post update notification for post {post_id}')
+    return claimed
+
+
 def _dispatch_notification(title, body, click_action, tag, **kwargs):
     """Central helper used by domain-signal receivers to send FCM, WebSocket and/or email.
 
@@ -576,6 +592,8 @@ def on_task_created(sender, task, url, **kwargs):
 @receiver(important_post_published)
 def on_important_post_published(sender, post, url, created=False, **kwargs):
     """Notify all active users about an important board post."""
+    if not created and not _claim_post_update_notification(post.id):
+        return
     if created:
         title = _('Important post published')
     else:

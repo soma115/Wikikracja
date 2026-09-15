@@ -3119,10 +3119,8 @@ msgid "Activity digest"
 msgstr "Podsumowanie aktywności"
 
 #: .\home\management\commands\send_email_digest.py:198
-#, fuzzy, python-format
-#| msgid "Activity digest for %(username)s since %(date)s"
 msgid "Activity digest since %(date)s"
-msgstr "Podsumowanie aktywności dla %(username)s od %(date)s"
+msgstr "Podsumowanie aktywności od %(date)s"
 
 #: .\home\management\commands\send_email_digest.py:200
 #: .\home\test_email_digest.py:336 .\home\test_email_digest.py:339

@@ -3,6 +3,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
+from django.core.cache import cache
 from django.db import DatabaseError
 from push_notifications.models import GCMDevice
 
@@ -21,9 +22,11 @@ def transport(monkeypatch):
     monkeypatch.setattr(notify, 'get_channel_layer', lambda: channel)
     monkeypatch.setattr(notify, 'threading', SimpleNamespace(Thread=thread))
     monkeypatch.setattr(notify, 'send_mail', mail)
+    cache.clear()
     with patch.object(type(GCMDevice.objects.all()), 'send_message', autospec=True) as fcm:
         fcm.side_effect = lambda qs, message: SimpleNamespace(success_count=qs.count(), responses=[])
         yield SimpleNamespace(fcm=fcm, channel=channel, thread=thread, mail=mail)
+    cache.clear()
 
 
 @pytest.fixture
@@ -259,6 +262,30 @@ def test_dispatch_honors_independent_channel_flags(push, websocket, transport):
     assert ws.call_count == int(websocket)
     transport.mail.assert_not_called()
     transport.thread.assert_not_called()
+
+
+def test_post_update_throttle_uses_instance_namespace(settings):
+    settings.NOTIFICATION_THROTTLE_SECONDS = 5400
+    with patch.object(notify, 'get_site_domain', return_value='example.test'):
+        assert notify._claim_post_update_notification(7) is True
+        assert notify._claim_post_update_notification(7) is False
+        assert notify._claim_post_update_notification(8) is True
+
+
+def test_post_update_throttle_fails_open(caplog):
+    with caplog.at_level('WARNING', logger='core.notifications'), patch.object(notify.cache, 'add', side_effect=RuntimeError('cache unavailable')):
+        assert notify._claim_post_update_notification(7) is True
+    assert 'cache unavailable' in caplog.text
+
+
+def test_updated_post_notification_is_sent_once_per_throttle_window(transport):
+    post = SimpleNamespace(id=7, title='Post title', author=None)
+    with patch.object(notify, 'get_site_domain', return_value='example.test'), patch.object(notify, '_dispatch_notification') as dispatch:
+        notify.on_important_post_published(sender=None, post=post, url='https://example.test/post/7', created=False)
+        notify.on_important_post_published(sender=None, post=post, url='https://example.test/post/7', created=False)
+    dispatch.assert_called_once()
+    assert dispatch.call_args.args[1].startswith('Post title\n')
+    assert dispatch.call_args.args[2:] == ('https://example.test/post/7', 'post-7')
 
 
 @pytest.mark.parametrize('entrypoint', ['sync', 'thread', 'dispatch-background'])

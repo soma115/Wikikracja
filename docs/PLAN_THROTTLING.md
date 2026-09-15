@@ -1,52 +1,44 @@
 # Plan ograniczenia hałasu powiadomień
 
-## Cel
+Celem jest ograniczenie hałasu przy zachowaniu prostoty. Najpierw wdrażamy małą zmianę rozwiązującą konkretny problem, a dopiero później rozważamy uogólnienie mechanizmu.
 
-Ograniczyć powtarzające się powiadomienia generowane przez wielokrotne zdarzenia dotyczące tego samego źródła, bez gubienia niezależnych i istotnych zmian.
+## Część I — minimalna pierwsza wersja
 
-Przykład: wielokrotna edycja dokumentu nie powinna wysyłać użytkownikom kolejnego powiadomienia częściej niż raz na 90 minut.
+### Cel
 
-## Uzgodnione zasady
+Ograniczyć powiadomienia generowane przez kolejne, następujące po sobie edycje tego samego dokumentu.
 
-- Throttling obejmuje wszystkie powiadomienia dotyczące tego samego źródła.
-- Źródło jest identyfikowane jako `obiekt + typ zdarzenia`, np. `post:123:updated`.
-- Różne typy zdarzeń tego samego obiektu mają osobne klucze i nie blokują się wzajemnie.
-- Pierwsze powiadomienie o nowym źródle jest zawsze wysyłane.
-- Kolejne powiadomienie z tym samym kluczem w ciągu 90 minut jest pomijane.
-- Pominięcie nie przesuwa początku okna; TTL liczy się od pierwszego przyznanego powiadomienia.
-- Push i WebSocket współdzielą jedno okno throttlingu.
-- E-mail nie jest objęty tym mechanizmem.
-- Throttling działa wspólnie dla workerów jednej instancji Wikikracji.
-- Trzynaście instancji Wikikracji korzysta ze wspólnego Redis, ale każda instancja ma oddzielny namespace kluczy.
-- W przypadku niedostępności cache obowiązuje fail-open: powiadomienie zostaje wysłane.
+Przykład:
 
-## Proponowane rozwiązanie
+1. dokument zostaje zmieniony — wysyłamy powiadomienie;
+2. dokument zostaje zmieniony ponownie po kilku minutach — pomijamy powiadomienie;
+3. po wygaśnięciu 90 minut kolejna edycja może ponownie wysłać powiadomienie.
 
-### 1. Centralny mechanizm w `core.notifications`
+### Zakres
 
-Dodać w `core.notifications` mały helper, który atomowo rezerwuje wysyłkę powiadomienia dla danego klucza źródła.
+Pierwsza wersja obejmuje wyłącznie powiadomienie o aktualizacji ważnego dokumentu, czyli przypadek `created=False` w odbiorniku `important_post_published`.
 
-Mechanizm powinien korzystać z `django.core.cache.cache.add(key, value, timeout)`, a nie z sekwencji `get()` i `set()`.
+Nie zmieniamy zachowania:
 
-`cache.add()` zapewnia, że przy równoczesnym zdarzeniu obsługiwanym przez kilka workerów tylko jeden worker uzyska prawo do wysyłki.
+- pierwszej publikacji dokumentu;
+- utworzenia nowego dokumentu;
+- zmiany widoczności;
+- archiwizacji;
+- ponownego udostępnienia;
+- innych kategorii powiadomień;
+- wiadomości e-mail.
 
-Proponowane zachowanie helpera:
+Dzięki temu pierwsza wersja nie ryzykuje ukrycia ważnych zmian statusu ani nie przebudowuje całego systemu powiadomień.
 
-1. Zbudować pełny klucz throttlingu.
-2. Wywołać atomowe `cache.add()` z TTL 90 minut.
-3. Zwrócić `True`, jeśli wpis został utworzony i powiadomienie można wysłać.
-4. Zwrócić `False`, jeśli klucz już istnieje i powiadomienie należy pominąć.
-5. Przy błędzie backendu cache zalogować ostrzeżenie i zwrócić `True` zgodnie z zasadą fail-open.
+### Zasada throttlingu
 
-### 2. Namespace instancji Wikikracja
-
-Redis jest wspólny dla trzynastu instancji, dlatego klucz nie może składać się wyłącznie ze źródła i typu zdarzenia.
-
-Proponowany format:
+Dla kolejnych edycji tego samego dokumentu używamy jednego klucza:
 
 ```text
-notification-throttle:{instance}:{source}:{event}
+notification-throttle:{instance}:post:{post_id}:updated
 ```
+
+`{instance}` izoluje trzynaście instancji Wikikracji korzystających ze wspólnego Redisa. Jako identyfikator instancji należy wykorzystać istniejącą domenę instancji, bez dodawania nowego modelu ani osobnego systemu konfiguracji.
 
 Przykład:
 
@@ -54,111 +46,65 @@ Przykład:
 notification-throttle:example.org:post:123:updated
 ```
 
-Jako identyfikator instancji należy wykorzystać domenę bieżącej instancji z `django_site`, ponieważ jest już częścią istniejącej konfiguracji aplikacji i rozróżnia wdrożenia bez dodawania nowego parametru środowiskowego.
+### Implementacja
 
-Jeżeli pobranie domeny wymaga dostępu do bazy w miejscu, w którym może to powodować problemy, należy zamiast tego użyć istniejącego `settings.SITE_DOMAIN`, z bezpiecznym i stabilnym fallbackiem. Wybór powinien zachować tę samą wartość dla wszystkich workerów danej instancji.
+1. Dodać w `core.notifications` mały helper oparty o `django.core.cache.cache.add()`.
+2. Ustawić TTL na 90 minut, najlepiej przez jedną wartość konfiguracyjną:
 
-### 3. Integracja z dispatcherem
+   ```python
+   NOTIFICATION_THROTTLE_SECONDS = 90 * 60
+   ```
 
-Rozszerzyć `_dispatch_notification` o opcjonalny parametr techniczny, np. `throttle_key` albo `notification_source`.
+3. W `on_important_post_published` wywoływać helper tylko dla aktualizacji (`created=False`).
+4. Jeżeli `cache.add()` utworzy klucz, wysłać istniejące powiadomienie push i WebSocket.
+5. Jeżeli klucz już istnieje, pominąć oba kanały.
+6. Przy błędzie cache zastosować fail-open: zalogować ostrzeżenie i wysłać powiadomienie.
+7. Nie zmieniać payloadu FCM/WebSocket i nie dodawać parametrów technicznych do komunikatu dla klienta.
 
-Parametr powinien:
+`cache.add()` jest istotne, ponieważ kilka workerów może jednocześnie obsługiwać edycje. Sekwencja `get()` + `set()` mogłaby wysłać duplikaty.
 
-- zostać zużyty wyłącznie po stronie serwera;
-- nie trafić do payloadu FCM ani WebSocket;
-- nie zmienić zachowania istniejących wywołań, które nie korzystają z throttlingu;
-- być sprawdzany przed utworzeniem payloadu i uruchomieniem wysyłki push/WebSocket.
+### Testy pierwszej wersji
 
-Jeżeli throttling zablokuje powiadomienie, dispatcher nie powinien uruchamiać żadnego z tych dwóch kanałów. Ewentualne niezależne wysyłanie e-maila powinno zachować dotychczasowe zachowanie, ponieważ e-mail nie należy do zakresu throttlingu.
+Dodać tylko testy potrzebne dla tego przypadku:
 
-### 4. Zastosowanie do źródeł powiadomień
-
-Każdy odbiornik sygnału, który ma podlegać throttlingowi, powinien przekazać jawny klucz źródła i typu zdarzenia.
-
-Dla dokumentów przykładowe klucze to:
-
-- `post:{id}:created`
-- `post:{id}:updated`
-- `post:{id}:visibility-changed`
-- `post:{id}:archived`
-- `post:{id}:published`
-
-Ważne zdarzenia statusowe powinny mieć osobne klucze. Dzięki temu zwykła edycja nie zablokuje np. archiwizacji lub ponownego opublikowania dokumentu.
-
-Pierwsza publikacja nowego obiektu powinna korzystać z klucza typu `created` lub `published`, a nie z ogólnego klucza obiektu.
-
-Podczas implementacji należy przejrzeć wszystkie odbiorniki sygnałów w `core.notifications` i przypisać klucze tylko do rzeczywistych źródeł zdarzeń. Nie należy deduplikować powiadomień na podstawie samego tekstu, tytułu ani tagu przeglądarkowego.
-
-## Zakres plików
-
-Najbardziej prawdopodobne miejsca zmian:
-
-- `core/notifications.py` — helper, konfiguracja parametru oraz centralne sprawdzanie throttlingu;
-- `core/test_notifications.py` — testy mechanizmu, atomowości i integracji z dispatcherem;
-- odbiorniki sygnałów, które będą przekazywać klucze źródeł, w szczególności miejsca obsługujące dokumenty;
-- ustawienia projektu — domyślne 90 minut, jeżeli wartość nie będzie trzymana wyłącznie jako stała modułu.
-
-Nie przewiduje się:
-
-- migracji bazy danych;
-- nowego modelu powiadomień;
-- osobnej tabeli deduplikacji;
-- osobnego Redisa dla każdej instancji;
-- zmian w kontraktach payloadów wysyłanych do klientów.
-
-## Konfiguracja czasu
-
-Dodać jedną wartość konfiguracyjną z domyślną wartością 90 minut, np.:
-
-```python
-NOTIFICATION_THROTTLE_SECONDS = 90 * 60
-```
-
-Wartość powinna być używana jako TTL wpisu cache. Nie należy kodować liczby `5400` w wielu miejscach.
-
-## Zachowanie przy awarii
-
-Mechanizm ma działać w trybie fail-open:
-
-- błąd połączenia z Redis/cache nie może zablokować ważnego powiadomienia;
-- błąd powinien zostać zalogowany bez ujawniania danych wrażliwych;
-- wysłanie bez aktywnego throttlingu może chwilowo dopuścić duplikat, ale nie powoduje utraty komunikatu.
-
-## Testy
-
-W `core/test_notifications.py` należy dodać testy obejmujące:
-
-1. pierwsze powiadomienie dla klucza jest wysyłane;
-2. drugie powiadomienie z tym samym kluczem jest pomijane;
-3. TTL wynosi 90 minut lub wartość skonfigurowaną w ustawieniach;
+1. pierwsza edycja dokumentu wysyła powiadomienie;
+2. kolejna edycja tego samego dokumentu w ciągu 90 minut nie wysyła push ani WebSocket;
+3. edycja innego dokumentu nie jest blokowana;
 4. po wygaśnięciu TTL powiadomienie może zostać wysłane ponownie;
-5. różne źródła nie blokują się wzajemnie;
-6. różne typy zdarzeń tego samego obiektu nie blokują się wzajemnie;
-7. namespace dwóch instancji powoduje niezależne limity;
-8. push i WebSocket są pomijane razem dla zablokowanego klucza;
-9. parametr techniczny throttlingu nie trafia do payloadu;
-10. błąd cache uruchamia fail-open;
-11. równoczesna próba używa atomowej operacji cache zamiast `get()` + `set()`;
-12. pierwsza publikacja nowego źródła nadal wysyła powiadomienie;
-13. istotne zmiany statusu korzystające z osobnych kluczy nadal są wysyłane.
+5. pierwsza publikacja dokumentu nadal wysyła powiadomienie;
+6. awaria cache nie blokuje wysyłki;
+7. klucz zawiera identyfikator instancji;
+8. wartość throttlingu nie trafia do payloadu.
 
-Jeżeli zmiana obejmie odbiorniki board, dodać także testy potwierdzające mapowanie zdarzeń dokumentu na właściwe klucze.
+### Kryteria akceptacji
 
-## Kolejność realizacji
+- Kolejne edycje tego samego ważnego dokumentu generują najwyżej jedno powiadomienie push/WebSocket w ciągu 90 minut.
+- Edycje różnych dokumentów nie blokują się wzajemnie.
+- Powiadomienia o utworzeniu i zmianach statusu pozostają bez zmian.
+- Nie jest potrzebna migracja bazy danych.
+- Nie powstaje nowa tabela ani ogólny framework deduplikacji.
 
-1. Potwierdzić sposób uzyskiwania stabilnego identyfikatora instancji — preferowana domena instancji.
-2. Dodać konfigurację TTL i helper atomowego claimowania klucza.
-3. Rozszerzyć centralny dispatcher o opcjonalny throttling.
-4. Dodać klucze do odbiorników źródeł powiadomień.
-5. Dodać testy jednostkowe i integracyjne ograniczone do zmienionego przepływu.
-6. Uruchomić wersję `.venv` i testy dotyczące `core.test_notifications` oraz zmienionych odbiorników.
-7. Sprawdzić, że istniejące payloady i kanały bez throttlingu zachowują dotychczasowe działanie.
+## Część II — plan przyszły, nieobjęty pierwszą wersją
 
-## Kryteria akceptacji
+Dopiero po sprawdzeniu działania minimalnej wersji można rozważyć uogólnienie mechanizmu na inne źródła powiadomień.
 
-- Wielokrotna edycja tego samego dokumentu generuje najwyżej jedno powiadomienie push/WebSocket w ciągu 90 minut na danej instancji.
-- Ta sama edycja na dwóch różnych instancjach nie powoduje wzajemnego blokowania.
-- Dwa workery jednej instancji nie wysyłają tego samego powiadomienia równocześnie.
-- Niezależne typy zdarzeń nie są tłumione przez wspólny, zbyt szeroki klucz.
-- Awaria Redis nie powoduje utraty powiadomień.
-- Nie jest wymagana zmiana schematu bazy danych.
+Potencjalny zakres przyszłej zmiany:
+
+- wspólny parametr throttlingu w centralnym dispatcherze;
+- klucze `obiekt + typ zdarzenia` dla wszystkich kategorii;
+- osobne klucze dla publikacji, archiwizacji, zmiany widoczności i edycji;
+- niezależne zasady dla e-maili;
+- konfiguracja różnych okien czasowych dla różnych typów zdarzeń;
+- agregowanie pominiętych zdarzeń i wysyłanie podsumowań;
+- dodatkowe metryki i diagnostyka throttlingu;
+- szersze testy współbieżności dla wielu workerów i instancji.
+
+Ta część nie powinna być implementowana razem z pierwszą wersją. Każde rozszerzenie należy najpierw uzasadnić konkretnym problemem i zaprojektować tak, aby nie komplikowało podstawowego przepływu.
+
+## Pliki przewidziane do zmiany w pierwszej wersji
+
+- `core/notifications.py` — prosty helper oraz użycie go dla aktualizacji dokumentu;
+- `core/test_notifications.py` — testy ograniczone do aktualizacji dokumentów;
+- ustawienia projektu — jedna wartość TTL, jeśli nie zostanie pozostawiona jako stała modułu.
+
+Nie przewiduje się zmian w schemacie bazy danych, migracjach, kontraktach payloadów ani konfiguracji osobnych instancji Redis.
