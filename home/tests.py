@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase
@@ -9,6 +11,27 @@ from chat.services import get_unread_count_for_user
 from core.services.feed import FEED_CACHE_KEY, generate_feed_items
 from home.navigation import get_navigation_context
 from site_settings.models import QuickLink
+
+
+class HealthChecksTest(TestCase):
+    def test_liveness_does_not_require_authentication(self):
+        response = self.client.get(reverse('healthz_live'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'ok')
+
+    def test_readiness_checks_database_and_cache(self):
+        response = self.client.get(reverse('healthz_ready'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'ok')
+
+    @patch('home.views.cache.get', side_effect=RuntimeError)
+    def test_readiness_returns_service_unavailable_when_dependency_fails(self, cache_get):
+        response = self.client.get(reverse('healthz_ready'))
+
+        self.assertEqual(response.status_code, 503)
+        cache_get.assert_called_once_with('healthz')
 
 
 class NavigationContextTest(TestCase):

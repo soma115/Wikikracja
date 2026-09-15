@@ -5,6 +5,8 @@ from django.views.generic import RedirectView
 from . import views
 
 urlpatterns = [
+    path('healthz/live/', views.healthz_live, name='healthz_live'),
+    path('healthz/ready/', views.healthz_ready, name='healthz_ready'),
     path('', views.home, name='home'),
     path('mark-as-read/', views.mark_as_read, name='mark_as_read'),
     path('mark-all-read/', views.mark_all_read, name='mark_all_read'),

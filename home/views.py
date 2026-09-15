@@ -9,10 +9,12 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
+from django.core.cache import cache
+from django.db import connection
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
 from core.search_registry import collect_search_results
 from core.services import feed as feed_service
@@ -25,6 +27,22 @@ from .services import dashboard as dashboard_service
 log = logging.getLogger(__name__)
 
 ALL_SEARCH_CATS = ['post', 'task', 'decision', 'survey', 'event', 'citizen', 'chat']
+
+
+@require_GET
+def healthz_live(request: HttpRequest):
+    return HttpResponse('ok', content_type='text/plain')
+
+
+@require_GET
+def healthz_ready(request: HttpRequest):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT 1')
+        cache.get('healthz')
+    except Exception:
+        return HttpResponse('not ready', status=503, content_type='text/plain')
+    return HttpResponse('ok', content_type='text/plain')
 
 
 def home(request: HttpRequest):
