@@ -56,9 +56,10 @@ Try the live demo: **https://demo.wikikracja.pl/**
 
 4. **Install dependencies**
    ```bash
-   pip install -r requirements.txt
+   python -m pip install --upgrade pip setuptools==80.9.0
+   python -m pip install --no-build-isolation -r requirements.txt
    npm install
-   pre-commit install
+   .venv\Scripts\python.exe -m pre_commit install
    ```
 
 ## Quick Start
@@ -96,7 +97,7 @@ For a single combined command, use:
 python scripts/run_tests.py
 ```
 
-Pre-commit hooks run `ruff` and `ruff-format` automatically before each commit.
+The installed hooks run fast static checks before each commit and change-aware Python, Jest and generated CSS checks before each push.
 
 ## Documentation
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-15 10:58+0200\n"
+"POT-Creation-Date: 2026-09-15 11:32+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -366,7 +366,7 @@ msgstr "Dodaj ankietę"
 #: .\chat\templates\chat\add.html:15 .\chat\templates\chat\chat.html:299
 #: .\glosowania\templates\glosowania\_argument_actions.html:12
 #: .\glosowania\templates\glosowania\dodaj.html:27
-#: .\glosowania\templates\glosowania\edit.html:17
+#: .\glosowania\templates\glosowania\edit.html:18
 #: .\glosowania\templates\glosowania\parameters_propose.html:53
 #: .\home\templates\home\haslo.html:20 .\home\templates\home\site_admin.html:84
 #: .\obywatele\templates\obywatele\candidate_edit.html:23
@@ -736,7 +736,7 @@ msgstr "Wróć"
 #: .\board\templates\board\_post_detail_meta.html:12
 #: .\board\templates\board\board.html:71 .\board\templates\board\board.html:96
 #: .\chat\search.py:25 .\chat\templates\chat\room_link.html:55
-#: .\core\notifications.py:586
+#: .\core\notifications.py:604
 msgid "System"
 msgstr "System"
 
@@ -2000,51 +2000,51 @@ msgstr "Referendum"
 msgid "Citizen Activity"
 msgstr "Aktywność obywatela"
 
-#: .\core\notifications.py:403 .\obywatele\views.py:425
+#: .\core\notifications.py:419 .\obywatele\views.py:425
 msgid "New citizen has been proposed"
 msgstr "Został zaproponowany nowy użytkownik"
 
-#: .\core\notifications.py:404
+#: .\core\notifications.py:420
 msgid "A new citizen has been proposed"
 msgstr "Został zaproponowany nowy użytkownik"
 
-#: .\core\notifications.py:407
+#: .\core\notifications.py:423
 msgid "A new citizen has been proposed. You can view the waiting room here:"
 msgstr "Został zaproponowany nowy użytkownik. Poczekalnię możesz zobaczyć tutaj:"
 
-#: .\core\notifications.py:409
+#: .\core\notifications.py:425
 msgid "New person requested membership"
 msgstr "Nowa osoba poprosiła o dołączenie do grupy"
 
-#: .\core\notifications.py:410
+#: .\core\notifications.py:426
 msgid "A new person has requested membership"
 msgstr "Nowa osoba poprosiła o dołączenie do grupy"
 
-#: .\core\notifications.py:413
+#: .\core\notifications.py:429
 msgid "A new person has requested membership. You can view the waiting room here:"
 msgstr "Nowa osoba poprosiła o dołączenie do grupy. Poczekalnię możesz zobaczyć tutaj:"
 
-#: .\core\notifications.py:548
+#: .\core\notifications.py:564
 msgid "starting now"
 msgstr "zaczyna się teraz"
 
-#: .\core\notifications.py:569
+#: .\core\notifications.py:585
 msgid "New activity created"
 msgstr "Utworzono nowe działanie"
 
-#: .\core\notifications.py:580
+#: .\core\notifications.py:598
 msgid "Important post published"
 msgstr "Opublikowano ważny wpis"
 
-#: .\core\notifications.py:582
+#: .\core\notifications.py:600
 msgid "Important post updated"
 msgstr "Zaktualizowano ważny wpis"
 
-#: .\core\notifications.py:589
+#: .\core\notifications.py:607
 msgid "by"
 msgstr "przez"
 
-#: .\core\notifications.py:598
+#: .\core\notifications.py:616
 msgid "New survey created"
 msgstr "Utworzono nową ankietę"
 
@@ -3119,6 +3119,7 @@ msgid "Activity digest"
 msgstr "Podsumowanie aktywności"
 
 #: .\home\management\commands\send_email_digest.py:198
+#, python-format
 msgid "Activity digest since %(date)s"
 msgstr "Podsumowanie aktywności od %(date)s"
 
