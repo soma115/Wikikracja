@@ -190,8 +190,8 @@ Przed uznaniem wdrożenia Kubernetes za gotowe należy:
       ograniczyć scheduler przez `replicas: 1` i politykę wdrożeniową.
 - [x] Uruchomić Redis jako osobny Service `redis-1`; dostępność dla bufora głosów
       i Django Channels została potwierdzona testem `PING` po wdrożeniu.
-- [-] Dodano lekką liveness `/healthz/live/` oraz readiness `/healthz/ready/`
-      sprawdzającą SQLite i Redis; wdrożenie wymaga weryfikacji na klastrze.
+- [x] Dodano i zweryfikowano lekką liveness `/healthz/live/` oraz readiness
+      `/healthz/ready/` sprawdzającą SQLite i Redis; wszystkie instancje zwracają `200 ok`.
 - [x] Ustawić zasoby poda: request `100m` CPU / `128Mi` RAM oraz limit `2000m`
       CPU / `512Mi` RAM; wpływ na backup, scheduler i głosowanie wymaga testu.
 - [ ] Zdefiniować `PodDisruptionBudget`, politykę aktualizacji i procedurę
