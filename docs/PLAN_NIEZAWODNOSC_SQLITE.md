@@ -689,10 +689,10 @@ z wcześniejszymi, historycznymi checkboxami powyżej obowiązuje ta sekcja.
 - [x] Każda zmigrowana instancja ma osobny scheduler `run_scheduler`.
 - [x] Scheduler ma `replicas: 1`, lock na PVC i `strategy: Recreate`.
 - [x] Każda zmigrowana instancja ma osobny chat notifications worker.
-- [x] Flux używa warstw base, old oraz osobnych migracji i runtime per-instance.
+- [x] Flux używa warstw base, old oraz osobnych migracji i runtime per-instance dla wszystkich aktywnych instancji.
 - [x] Zmigrowane instancje używają `redis-1` z osobną logiczną bazą Redis.
-- [x] Rollout instance-1, 2, 3 i 5–14 potwierdził po jednym HTTP, schedulerze i workerze bez restartów.
-- [x] Wadliwa próba batch runtime 7–14 została wycofana; nie należy wracać do tego modelu.
+- [x] Rollout wszystkich instancji potwierdził po jednym HTTP, schedulerze i workerze bez restartów.
+- [x] Próba batch runtime 7–14 została wycofana; pozostałe katalogi batch są nieaktywne i nie są częścią obecnego modelu.
 
 ## P0.3 — odtwarzanie danych
 
