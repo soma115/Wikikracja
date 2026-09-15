@@ -9,15 +9,16 @@ This document contains instructions for developers setting up the development en
 4. [Deployment](#deployment)
 5. [Chat Notification Worker](#chat-notification-worker)
 6. [Common Issues and Fixes](#common-issues-and-fixes)
-7. [Chat Room Categorization Fix](#chat-room-categorization-fix)
+7. [Chat Room Categorization](#chat-room-categorization)
 
 ## Development Setup
 
 ### Prerequisites
-- Python 3.11+
-- PostgreSQL (for production) or SQLite (for development)
-- Redis (for chat functionality and notification delivery)
-- Docker and Docker Compose (recommended for Redis and the notification worker)
+- Python 3.14+ (the repository and CI currently target Python 3.14)
+- SQLite3 (the application and the Kubernetes deployment use SQLite)
+- Redis (for Channels, cache and notification delivery)
+- Docker and Docker Compose (recommended for local development)
+- Node.js 22+ and npm (for the Tailwind and Jest checks)
 
 ### Local Development Setup
 
@@ -218,49 +219,54 @@ python manage.py migrate
 ```
 
 ### Database Backup
-```bash
-# PostgreSQL
-pg_dump wikikracja_db > backup.sql
 
-# SQLite — run in the 04:00 maintenance window; backup first, then VACUUM
-python scripts/sqlite_maintenance.py backup backups/db-$(date +%Y%m%d-%H%M%S).sqlite3 --vacuum-after
+Wikikracja uses SQLite3. Create a consistent backup with the SQLite Backup API;
+do not copy only `db.sqlite3` while its WAL sidecar may be active.
+
+```bash
+# Create a timestamped backup in SQLITE_BACKUP_DIR (or ./backups)
+python scripts/sqlite_maintenance.py backup
+
+# Create a backup at an explicit destination
+python scripts/sqlite_maintenance.py backup backups/db-20260915-040000.sqlite3
 ```
 
+The cluster's `backup-to-nas` CronJob runs this tool against every active instance
+PVC and transfers the completed backup to the configured NAS. It is the production
+backup path; the local commands above are for development or controlled recovery.
+
 ### Database Restore
-Stop all application and scheduler processes before restoring SQLite. Move the
-current database and its `-wal`/`-shm` sidecars to a quarantine directory instead
-of deleting them. Do not let the restored database reuse old sidecars.
+
+Stop the application, scheduler and worker for the affected instance before
+restoring SQLite. Move the current database and its `-wal`/`-shm` sidecars to a
+quarantine directory instead of deleting them. Do not let the restored database
+reuse old sidecars.
 
 ```bash
-# PostgreSQL
-psql wikikracja_db < backup.sql
-
-# SQLite — after stopping the application
 mkdir -p restore-quarantine
 mv db.sqlite3 db.sqlite3-wal db.sqlite3-shm restore-quarantine/ 2>/dev/null || true
 cp backup.sqlite3 db.sqlite3
 python scripts/sqlite_maintenance.py integrity-check
 ```
 
+For a Kubernetes restore, use the cluster's restore runbook and stop the relevant
+per-instance HTTP, scheduler and worker workloads before touching the PVC. Never
+restore a production database by copying files into a live mounted volume.
+
 ### SQLite Maintenance
-For containers, configure the database and backup volume explicitly:
+
+The application and container image use the same database path:
 
 ```env
 SQLITE_DATABASE_PATH=/app/db/db.sqlite3
-SQLITE_BACKUP_DIR=/var/backups/wikikracja
-SQLITE_BACKUP_RETENTION_DAYS=30
 ```
 
-Mount `SQLITE_BACKUP_DIR` as a persistent volume. The application database path
-and maintenance script use the same `SQLITE_DATABASE_PATH`. For an active SQLite
-database, use the SQLite backup API instead of copying only `db.sqlite3` while
-WAL files may be present:
+`SQLITE_BACKUP_DIR` is available for local or explicitly configured maintenance
+jobs, but the current Kubernetes backup CronJob writes a staged backup to NAS and
+does not rely on a backup PVC or on this variable. For an active SQLite database,
+use the SQLite Backup API:
 
 ```bash
-# Create a consistent backup and then compact the live database
-# Use only during the 04:00 maintenance window when application writes are blocked.
-python scripts/sqlite_maintenance.py backup backups/db-$(date +%Y%m%d-%H%M%S).sqlite3 --vacuum-after
-
 # Verify the database
 python scripts/sqlite_maintenance.py integrity-check
 
@@ -268,106 +274,95 @@ python scripts/sqlite_maintenance.py integrity-check
 python scripts/sqlite_maintenance.py checkpoint --mode PASSIVE
 ```
 
-Run `TRUNCATE` checkpoints only as a controlled maintenance operation after
-checking active processes and confirming a current backup.
+Run `VACUUM` or a `TRUNCATE` checkpoint only as a controlled maintenance operation
+after checking active processes and confirming a current backup.
 
 ## Deployment
 
 ### Official Docker Images
 
-Pre-built images are automatically published to GitHub Container Registry:
+GitHub Actions publishes the image to GitHub Container Registry after the CI workflow
+succeeds. The cluster consumes the public image
+`ghcr.io/soma115/wikikracja`.
+
+The important tags are:
+
+- `latest` — convenience tag for the default branch;
+- `main-<UTC timestamp>` — sortable tag consumed by Flux ImagePolicy;
+- branch, pull-request, SHA and semver tags — auxiliary build tags.
+
+Do not use `latest` as the deployment reference in GitOps manifests. Flux updates
+all Wikikracja workloads, migration Jobs and the backup CronJob from the sortable
+`main-<timestamp>` tag.
+
+### Building and running a local image
 
 ```bash
-# Pull latest official image
-docker pull ghcr.io/soma115/wikikracja:latest
-
-# Run with docker-compose
-docker-compose up
-```
-
-**Available tags:**
-- `latest` - Latest stable release (main branch)
-- `develop` - Development branch
-- `v1.2.3` - Specific version tags
-- `main-abc1234` - Commit-specific builds
-
-### Building Your Own Image
-
-#### Option 1: Using the build script
-
-```bash
-# Build and push to your own registry
-REGISTRY_IMAGE=ghcr.io/<your-username>/wikikracja ./scripts/build_and_push_docker_image.sh
-
-# Or for other registries:
-# GitLab: REGISTRY_IMAGE=registry.gitlab.com/<username>/wikikracja ./scripts/build_and_push_docker_image.sh
-# Docker Hub: REGISTRY_IMAGE=<username>/wikikracja ./scripts/build_and_push_docker_image.sh
-```
-
-#### Option 2: Manual build
-
-```bash
-# Build locally
 docker build -t wikikracja:test .
-
-# Test locally
 docker run -p 8000:8000 --env-file .env wikikracja:test
 ```
 
-#### Option 3: Automatic builds with GitHub Actions
+For the local multi-container setup use Docker Compose:
 
-Fork this repository and GitHub Actions will automatically build and push images on every commit to `main`.
+```bash
+docker compose up --build
+docker compose up --build -d
+docker compose down
+```
 
-**Setup:**
-1. Fork the repository
-2. Enable GitHub Actions in your fork
-3. Images will be automatically built and pushed to `ghcr.io/<your-username>/wikikracja`
-4. (Optional) Make package public in GitHub settings
+The GitHub Actions workflow is defined in `.github/workflows/docker-build.yml`.
+It builds multi-architecture images (`linux/amd64` and `linux/arm64`) and pushes
+them to GHCR. A fork must configure its own package permissions and image name.
 
-See `.github/workflows/docker-build.yml` for details.
+### Kubernetes deployment (GitOps)
 
-### Production Deployment with Docker
+The production-like deployment is managed in the separate `flux-cluster`
+repository. Do not deploy the cluster by running `docker compose`, `gunicorn`,
+`systemctl` or `manage.py migrate` manually on a node. Push the application
+change to `main`; CI builds the image and Flux Image Automation updates the
+sortable image tag in the GitOps repository.
 
-1. **Build the image**
-   ```bash
-   docker build -t wikikracja .
-   ```
+The declarative deployment is split into the following Flux layers:
 
-2. **Deploy with Docker Compose**
-   ```bash
-   docker-compose -f docker-compose.yml up -d
-   ```
+- `apps-wikikracja-base` — namespace, shared ConfigMaps, Redis and per-instance PVCs;
+- `apps-wikikracja-shared` — middleware, Firebase secret reference and the NAS backup CronJob;
+- `apps-wikikracja-instance-N-migrations` — one migration Job per active instance;
+- `apps-wikikracja-instance-N` — one HTTP, scheduler and chat-notification-worker Deployment per active instance.
 
-### Manual Deployment
+Active instances are `1`, `2`, `3` and `5–14` (there is no instance 4). Each
+instance has one SQLite PVC (`ReadWriteOnce`, currently requested size `1Gi`),
+one HTTP replica, one scheduler replica and one notification-worker replica.
+The workloads are intentionally kept at one replica because each instance writes
+to its own SQLite database.
 
-1. **Install dependencies on server**
-   ```bash
-   pip install -r requirements.txt
-   ```
+The currently declared public hosts are:
 
-2. **Set environment variables**
-   ```bash
-   export DEBUG=False
-   export DATABASE_URL=postgresql://user:pass@localhost/wikikracja
-   export SECRET_KEY=your-secret-key
-   ```
+| Instance | Primary host | Aliases |
+| --- | --- | --- |
+| 1 | `test.wikikracja.pl` | `t.wikikracja.pl` |
+| 2 | `demo.wikikracja.pl` | — |
+| 3 | `e501.wikikracja.pl` | — |
+| 5 | `czik.wikikracja.pl` | — |
+| 6 | `lobbyobywatelskie.wikikracja.pl` | `lo.wikikracja.pl` |
+| 7 | `obywatele.wikikracja.pl` | — |
+| 8 | `bractwo.wikikracja.pl` | — |
+| 9 | `grupaperu.wikikracja.pl` | — |
+| 10 | `lyski.wikikracja.pl` | — |
+| 11 | `mojglos.wikikracja.pl` | — |
+| 12 | `odswojego.wikikracja.pl` | `z.wikikracja.pl`, `ziomki.wikikracja.pl` |
+| 13 | `wszyscywon.wikikracja.pl` | `w.wikikracja.pl` |
+| 14 | `pls2027.wikikracja.pl` | `pls.wikikracja.pl` |
 
-3. **Apply migrations**
-   ```bash
-   python manage.py migrate
-   ```
+The runtime image is `ghcr.io/soma115/wikikracja:main-<timestamp>` and the
+workloads use the `wikikracja` namespace. The HTTP container runs Daphne on port
+`8000`; the scheduler runs `python manage.py run_scheduler`; the worker runs
+`python manage.py run_chat_notifications_worker`. HTTP pods have the scheduler
+disabled. Migration Jobs run `python manage.py migrate --noinput` before the
+corresponding runtime layer is reconciled.
 
-4. **Collect static files**
-   ```bash
-   python manage.py collectstatic --noinput
-   ```
-
-5. **Restart application server**
-   ```bash
-   systemctl restart gunicorn
-   # or
-   supervisorctl restart wikikracja
-   ```
+For the current domains, PVC names, Redis logical databases and resource limits,
+treat the manifests in `flux-cluster/clusters/apps/wikikracja-base/` and
+`flux-cluster/clusters/apps/wikikracja-instance-*/` as the source of truth.
 
 ## Chat Notification Worker
 
@@ -418,68 +413,103 @@ not started by Daphne automatically.
 
 ### Kubernetes
 
-This repository does not deploy Redis to Kubernetes. Use the existing managed Redis
-service and configure the same endpoint for both the web Deployment and the chat
-notification worker Deployment.
+The current manifests deploy one shared Redis 7 instance as `redis-1` in the
+`wikikracja` namespace. It is scheduled on node `k8s`, has one replica and uses
+`emptyDir` storage. It is a cache and queue, not durable application storage.
+Each Wikikracja instance selects a separate logical Redis database (`1`, `2`, `3`
+and `5` through `14`) and a separate `REDIS_CHANNEL_PREFIX`.
 
-Create or update a Secret (use your cluster's secret-management process in production):
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: wikikracja-runtime
-  namespace: wikikracja
-stringData:
-  REDIS_HOST: rediss://:<redis-password>@managed-redis.example:6379/1
-  REDIS_CHANNEL_PREFIX: wikikracja-production
-```
-
-Use `redis://` instead of `rediss://` only when Redis is inside a trusted private
-network without TLS. The password must be URL-encoded if it contains URL-reserved
-characters.
-
-Reference the Secret from both application workloads:
-
-```yaml
-envFrom:
-  - secretRef:
-      name: wikikracja-runtime
-```
-
-The worker workload must use the same image and environment as the web workload, but
-run this command instead of Daphne:
+Both the HTTP and chat-notification-worker Deployments receive the same Redis
+endpoint from the instance ConfigMap. The worker runs:
 
 ```yaml
 command: ["python", "manage.py", "run_chat_notifications_worker"]
 ```
 
-Do not add a Redis StatefulSet, Redis PVC, or Redis Service from this repository. Redis
-is intentionally external and may be configured as in-memory only. With an in-memory
-Redis, a Redis restart loses queued personal notifications and Channels presence state;
-messages remain stored in SQLite. Run at least one worker replica, and scale workers
-only when the shared Redis and database can support it. The consumer group safely
-assigns new jobs between multiple workers.
+A Redis restart can lose queued personal notifications and Channels presence state;
+messages and other durable application data remain in the instance SQLite PVCs.
+Do not add a second Redis per instance or move SQLite databases to Redis.
 
-The cluster must provide:
+The cluster manifests also provide:
 
-- network access from both Deployments to the Redis endpoint;
-- Redis Streams commands (`XADD`, `XREADGROUP`, `XAUTOCLAIM`, `XACK`);
-- enough memory for Channels, cache and the notification Stream;
-- a restart policy for the worker;
-- Firebase credentials separately if FCM push delivery is required.
+- HTTP → HTTPS redirection and TLS through Traefik `IngressRoute` resources;
+- `/healthz/live/` for liveness and `/healthz/ready/` for SQLite and Redis readiness;
+- a dedicated migration Job before each instance runtime layer;
+- one scheduler Deployment per instance with `SCHEDULER_ENABLED=true`;
+- one notification-worker Deployment per instance;
+- a daily `backup-to-nas` CronJob at `04:10 UTC` with `180` days of retention;
+- Firebase Admin credentials through the cluster secret used for push delivery.
+
+The source of truth is the `flux-cluster` repository, not a hand-written Secret
+copied from this document. Keep credentials in the repository's secret-management
+process and never put them into application documentation.
+
+### Cluster placement
+
+The declared placement relevant to Wikikracja is:
+
+- `k8s` is the control-plane worker and hosts all Wikikracja HTTP, scheduler,
+  notification-worker, migration, Redis and backup workloads;
+- `k8s1` is a plain worker used by selected Jitsi workloads, not Wikikracja;
+- `traefik` is the tainted, dedicated public-facing worker for Traefik, JVB and
+  TURN, not Wikikracja.
+
+The node role labels and the `traefik` taint are applied by
+`flux-cluster/clusters/infrastructure/node-labels.yaml`. The live snapshot confirms
+the expected node labels and that Wikikracja workloads run on `k8s`; the taint
+still requires an explicit `get nodes -o yaml` or `describe node` check.
+
+### Live cluster verification
+
+The live output supplied on 2026-09-15 confirms the following:
+
+- all listed Flux Kustomizations are `Ready=True`; application layers use
+  `main@sha1:48dc738c`, while `infrastructure-secrets` is at
+  `main@sha1:29bf8638`;
+- all displayed Wikikracja application, migration and backup workloads use image
+  `ghcr.io/soma115/wikikracja:main-20260915113429`;
+- Redis `redis-1` is `1/1` and runs on `k8s`;
+- every active instance (`1`, `2`, `3` and `5–14`) has HTTP, scheduler and
+  chat-notifications-worker Deployments with `1/1` available, all on `k8s`;
+- all migration Jobs are `Complete` (`1/1`); instance 1 uses the historical Job
+  name `wikikracja-instance-1-migrate`, while the remaining instances use
+  `wikikracja-instance-N-migrate-new`;
+- every instance PVC is `Bound`, `1Gi`, `RWO` and uses `microk8s-hostpath`;
+- the latest displayed `backup-to-nas` Job completed successfully;
+- nodes `k8s`, `k8s1` and `traefik` are `Ready`; the expected control-plane,
+  worker and `traefik` labels are present, and Wikikracja workloads run on `k8s`.
+
+The supplied `get nodes --show-labels` output does not independently confirm the
+`NoSchedule` taint on `traefik`. It also does not confirm backup transfer and
+integrity, free disk space, application logs, smoke tests, SQLite filesystem
+semantics or the absence of alerts. Those checks remain operational follow-ups.
+
+For a later read-only verification on the MicroK8s control-plane host:
+
+```bash
+flux get kustomizations -n flux-system
+microk8s kubectl get deployments -n wikikracja -o wide
+microk8s kubectl get jobs -n wikikracja -l app.kubernetes.io/part-of=wikikracja-new -o wide
+microk8s kubectl get pvc -n wikikracja
+microk8s kubectl get pods -n wikikracja -o wide
+microk8s kubectl get nodes --show-labels
+
+# Check one migration separately.
+microk8s kubectl get jobs -n wikikracja -l instance=instance-14 -o wide
+```
 
 ### Redis availability and durability
 
 The worker uses the existing `REDIS_HOST` setting and does not require or create a
-second Redis server. Redis is an external dependency of both the web process and the
-worker. Configure the endpoint in `.env` for local Docker, or through a Kubernetes
-Secret/Deployment environment variable in the cluster.
+second Redis server. In local Docker, configure the endpoint in `.env`. In the
+current cluster, the endpoint is declared in each instance ConfigMap and points to
+the shared `redis-1` Service with an instance-specific logical database.
 
-This chat queue is compatible with an in-memory Redis. Chat messages remain safe in
-SQLite, but queued personal push/WebSocket notifications may be lost if Redis restarts
-before delivery. If the cluster's Redis policy allows persistence, it can be enabled
-there independently of this repository.
+Redis is a runtime dependency of both the web process and the worker. The current
+cluster uses `emptyDir`, so a Redis restart can lose queued personal push/WebSocket
+notifications and Channels presence state. Chat messages remain safe in SQLite.
+Redis persistence would be a separate cluster-storage decision, not an application
+configuration change.
 
 ## Common Issues and Fixes
 
@@ -496,7 +526,7 @@ The issue is resolved at the source - no manual migration required.
 
 ### Chat Room Categorization Issues
 
-See the dedicated section below for detailed fix instructions.
+See the dedicated section below for the current room-title contracts and deployment path.
 
 ### Static Files Not Loading
 
@@ -511,76 +541,23 @@ python manage.py collectstatic --noinput
 chmod -R 755 media/
 ```
 
-## Chat Room Categorization Fix
+## Chat Room Categorization
 
-### Problem
-Chat rooms are not properly categorized in production. Rooms have Polish prefixes ("Zadanie #", "Głosowanie #"), but the code filters by English prefixes.
+Chat rooms are linked to their source object through `source_app` and
+`source_object_id`; categorization must not depend only on translated room names.
+The current application uses these title contracts:
 
-### Solution
-Changes have been made to:
-1. Use constant English prefixes ("Task #", "Vote #") in room titles
-2. Filter rooms by English prefixes (without translation)
-3. Add a command to update existing rooms
+- tasks: `Task #<id>: <title>`;
+- decisions/votes: `<id>. <title>`;
+- surveys: `Survey #<id>: <title>`;
+- documents: `Document #<id>: <title>`.
 
-### Implementation Steps
-
-1. **Deploy code changes**
-   Deploy the following files to production:
-   - `chat/views.py` (lines 80-88) - changed filtering
-   - `tasks/models.py` (lines 74-76) - English prefix in get_chat_room_title
-   - `glosowania/models.py` (lines 90-92) - English prefix in get_chat_room_title
-   - `glosowania/signals.py` (lines 21-22, 69-70) - English prefix in signals
-   - `glosowania/views.py` (lines 227-231) - use model methods
-   - `chat/management/commands/fix_room_titles.py` - new command
-
-2. **Run the fix command**
-   After deploying code, run the command on production server:
-   ```bash
-   python manage.py fix_room_titles
-   ```
-
-3. **Restart the server**
-   ```bash
-   systemctl restart gunicorn
-   # or
-   systemctl restart uwsgi
-   # or
-   supervisorctl restart wikikracja
-   ```
-
-4. **Verify the fix**
-   Check that:
-   - Rooms are properly categorized in chat interface
-   - Links from Tasks and Votes work correctly
-   - New rooms are created with English prefixes
-
-### Command Output Example
-```
-Updated: "Zadanie #1: test" -> "Task #1: test"
-Updated: "Zadanie #2: przykład" -> "Task #2: przykład"
-Updated: "Głosowanie #1: propozycja" -> "Vote #1: propozycja"
-Updated: "Głosowanie #2: test" -> "Vote #2: test"
-
-Total rooms updated: 4 (2 tasks, 2 votes)
-```
-
-### What Changed
-
-**Before:**
-- Rooms created with translated prefixes (language-dependent)
-- Filtering used `_("Task #")` and `_("Vote #")` (translated at runtime)
-- Inconsistency between room titles and filtering
-
-**After:**
-- Rooms always created with English prefixes "Task #" and "Vote #"
-- Filtering uses constant strings "Task #" and "Vote #"
-- Consistency between room titles and filtering
-
-### Notes
-- The command is safe and can be run multiple times
-- If no rooms need updating, it will show an appropriate message
-- The command doesn't delete or modify message content in rooms
-- Only room titles are changed
+The code also derives notification and display names from the source relation.
+There is no current `fix_room_titles` management command and no supported
+procedure that rewrites all production room names. Do not copy old instructions
+that restart Gunicorn/UWSGI or run that nonexistent command. Deploy chat changes
+through the normal image build and Flux rollout, then verify the relevant room
+links and notification names in the affected instance.
 
 ## Configuration
 
@@ -611,7 +588,8 @@ DEFAULT_FROM_EMAIL=noreply@yourdomain.com
 # Redis (Channels, caching and chat notification queue)
 # Docker Desktop with Redis exposed on the host:
 REDIS_HOST=redis://host.docker.internal:6379/1
-# Kubernetes: replace this with the managed Redis service endpoint.
+# Kubernetes: use the instance-specific endpoint from the GitOps ConfigMap,
+# e.g. redis://redis-1:6379/1 for instance-1.
 # Local Django outside Docker can use redis://127.0.0.1:6379/1
 ```
 
@@ -671,14 +649,14 @@ python manage.py update_site        # Update site domain and name from environme
                ▼                       ▼
 ┌─────────────────────┐      ┌──────────────────────────┐
 │       SQLite        │      │          Redis            │
-│      (Database)     │      │ Channels + notification  │
-└─────────────────────┘      │ Stream / cache           │
-                             └────────────┬─────────────┘
-                                          │
-                                          ▼
-                             ┌──────────────────────────┐
-                             │ chat_notifications_worker│
-                             │ Redis Stream consumer    │
-                             └──────────────────────────┘
+│   per-instance PVC  │      │ Channels + notification  │
+└──────────┬──────────┘      │ Stream / cache           │
+           │                 └────────────┬─────────────┘
+           │                              │
+           ▼                              ▼
+┌─────────────────────┐      ┌──────────────────────────┐
+│      scheduler      │      │ chat_notifications_worker│
+│ one per instance    │      │ one per instance         │
+└─────────────────────┘      └──────────────────────────┘
 ```
 

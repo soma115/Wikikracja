@@ -28,7 +28,10 @@ Plan nie zakłada migracji na PostgreSQL ani zmian zasad głosowania, anonimowo�
 
 ## Aktualny zakres realizacji
 
-Na obecnym etapie realizujemy wyłącznie podstawową ochronę ścieżki oddawania głosu:
+Podstawowa ochrona ścieżki oddawania głosu oraz rozdzielenie procesów
+produkcyjnych są zaimplementowane. Plan pozostaje otwarty wyłącznie dla prac
+pomiarowych, audytowych i operacyjnych — nie oznacza to, że bieżący klaster
+należy skalować ponad przyjęty model jednego writera SQLite na instancję.
 
 - [x] Retry dla przejściowego `database is locked` w głosowaniu.
 - [x] Wycofanie transakcji po nieudanym zapisie.
@@ -37,9 +40,10 @@ Na obecnym etapie realizujemy wyłącznie podstawową ochronę ścieżki oddawan
 - [x] Komunikat dla użytkownika o konieczności ponowienia próby.
 - [x] Spinner i blokada podwójnego wysłania formularza.
 - [x] Przywracanie stanu spinnera po powrocie strony z cache (`pageshow`).
-
-Pozostałe prace optymalizacyjne SQLite, schedulera, obecności i retry
-zostały wznowione po zakończeniu trwających głosowań.
+- [x] HTTP, migracje, scheduler i worker powiadomień są osobnymi procesami
+      Kubernetes.
+- [x] Każda aktywna instancja ma własny PVC SQLite i po jednej replice HTTP,
+      schedulera oraz workera.
 
 ## Status wdrożenia
 
@@ -53,21 +57,17 @@ Wykonane i pozostawione w kodzie:
 - [x] Udokumentowana strategia timeoutu głosowania: spinner, komunikat, ponowny odczyt statusu i brak automatycznego drugiego POST-a.
 - [x] Skrypt `scripts/sqlite_contention_test.py` do bezpiecznego testu na tymczasowej bazie/kopii, z writerami, backupem i opcjonalnym `VACUUM`.
 - [x] Skrypt raportuje liczbę blokad, czas testu, przepustowość, czas backupu oraz szczytowy i końcowy rozmiar WAL/SHM.
-
-Wznowione po zakończeniu trwających głosowań; nadal wymagają wykonania
-oraz osobnej weryfikacji przed produkcją:
-
 - [x] Wspólne pragmy SQLite: WAL, `foreign_keys=ON` i `busy_timeout` zgodny z timeoutem.
 - [x] Wspólny, ograniczony retry aktualizacji obecności.
 - [x] Dodatkowa diagnostyka runtime retry bez danych wrażliwych.
 - [x] Międzyprocesowa blokada schedulera z obsługą Linux i Windows.
 
-Do wykonania osobno, po pomiarach:
+Do wykonania osobno, po pomiarach i z weryfikacją na klastrze:
 
 - [ ] Audyt wszystkich długich transakcji i efektów zewnętrznych.
-- [ ] Test obciążeniowy wielu procesów HTTP, WebSocketów i schedulera, także na docelowym klastrze Kubernetes.
-- [ ] Formalne ograniczenie liczby workerów i opis produkcyjnego modelu uruchomienia, w tym wariantu Kubernetes z jednym writer’em SQLite.
-- [ ] Monitoring liczby blokad, czasu transakcji i rozmiaru WAL.
+- [ ] Test obciążeniowy HTTP, WebSocketów, schedulera, workera, Redis i backupu na docelowym storage.
+- [ ] Formalne potwierdzenie limitu procesów zapisujących do SQLite po każdym typie restartu i rollout’u.
+- [ ] Niezależna metryka końcowych blokad, czasu transakcji i rozmiaru WAL oraz progi alertów.
 
 ## Status etapów planu
 
@@ -93,10 +93,11 @@ Do wykonania osobno, po pomiarach:
 - [x] Test 16 writerów × 5000 operacji, timeout 1,0 s, backup online: 79312 udanych zapisów, 688 blokad, 0 innych błędów, backup i integralność poprawne; czas testu 127,43 s.
 - [x] Test z równoległym `VACUUM`: `VACUUM` otrzymał `database is locked`, co potwierdza konieczność okna serwisowego.
 - [x] Test docelowego PVC na `k8s` — 4 writerów × 250 operacji: 999 udanych zapisów, 1 `database_locked`, 0 innych błędów; kopia testowa przeszła `quick_check` i `integrity_check`.
-- [x] Po teście docelowego PVC wykonano restart HTTP `instance-1`; nowy pod uruchomił się na `k8s`, zachował `journal_mode=WAL`, a `quick_check` i `integrity_check` aktywnej bazy przeszły.
-- [x] Wykonano osobny restart schedulera `instance-1`; nowy pod uruchomił się `1/1`, zachował integralność SQLite i nie zgłosił błędów w logach.
-- [x] Wykonano osobny restart workera powiadomień `instance-1`; nowy pod uruchomił się `1/1`, zachował integralność SQLite i nie zgłosił błędów w logach.
-- [x] Ręczny smoke test po restartach: logowanie, powiadomienia i podstrony aplikacji działają poprawnie.
+- [x] Dla pilota `instance-1` po restarcie HTTP zachowano `journal_mode=WAL`, a `quick_check` i `integrity_check` aktywnej bazy przeszły.
+- [x] Dla pilota `instance-1` osobne restarty schedulera i workera zakończyły się uruchomieniem podów `1/1`, zachowaniem integralności SQLite i bez błędów w logach.
+- [x] Ręczny smoke test pilota po restartach: logowanie, powiadomienia i podstrony aplikacji działały poprawnie.
+
+Powyższe wyniki są wynikami testów pilota, a nie bieżącym odczytem stanu każdego poda. Aktualna deklaracja klastra obejmuje instancje `1`, `2`, `3` i `5–14`.
 
 Wyniki są zależne od obciążenia i systemu, dlatego nie są jeszcze podstawą
 do zmiany timeoutu produkcyjnego ani do globalnego retry. Służą jako baseline
@@ -106,26 +107,43 @@ do kolejnych pomiarów.
 
 ## Bramka przed produkcją: GO / NO-GO
 
-Kod i testy są gotowe do przygotowania wdrożenia, ale samo wdrożenie produkcyjne
-może otrzymać status **GO** dopiero po potwierdzeniu poniższych warunków na
-serwerze produkcyjnym:
+Kod, manifesty i częściowa weryfikacja live są gotowe, ale status **GO** dla
+bieżącego klastra nadal wymaga domknięcia kontroli operacyjnych. Poniższy stan
+live pochodzi ze zrzutu przekazanego 2026-09-15; nie jest automatycznie aktualny
+po kolejnych rolloutach.
 
-- [x] `SQLITE_DATABASE_PATH` wskazuje bazę w kontenerze, a `SQLITE_BACKUP_DIR` wskazuje trwały, zamontowany volume w manifestach instance-1.
-- [x] Ustalono retencję backupów `180` dni dla CronJob `backup-to-nas`.
-- [x] Potwierdzono na węźle `k8s`, że `db/db.sqlite3` znajduje się na lokalnym systemie plików `ext4`, nie na NFS/SMB.
-- [x] Dla `instance-1` działa jeden proces HTTP/ASGI (`daphne`) zapisujący do pliku.
-- [x] Działa dokładnie jeden scheduler dla każdej skonfigurowanej bazy.
-- [x] Dla `instance-1` działa jeden worker powiadomień, zgodnie z przyjętym limitem SQLite.
-- [x] Sprawdzono wolne miejsce na dysku z zapasem na bazę, WAL, backup i logi.
-- [x] Ustalono sposób monitorowania `database is locked`, rozmiaru WAL i czasu zadań schedulera; potwierdzono brak alertów podczas weryfikacji.
-- [x] Redis nie jest backupowany; bufor głosowań pozostaje poza zakresem backupu SQLite zgodnie z decyzją projektową.
-- [x] Ustalono CronJob `backup-to-nas` o `04:10` UTC oraz docelowy NAS
-      `robert@nas:44999:/volume1/NetBackup/wiki`; wykonanie i transfer zostały
-      operacyjnie zweryfikowane.
+**Potwierdzone w repozytorium i zrzucie live:**
 
-Brak któregokolwiek z punktów oznacza **NO-GO operacyjnie**, nawet jeśli testy
-aplikacji przechodzą. Testy potwierdzają poprawność kodu, ale nie potwierdzają
-konfiguracji konkretnego serwera, systemu plików ani procesu wdrożeniowego.
+- [x] `SQLITE_DATABASE_PATH` wskazuje `/app/db/db.sqlite3` w PVC każdej instancji.
+- [x] Migracje są osobnymi Jobami, a HTTP, scheduler i worker są rozdzielone.
+- [x] Wszystkie aktywne instancje mają gotowy HTTP, scheduler i worker; każdy
+      Deployment ma jedną dostępną replikę.
+- [x] Wszystkie migration Joby są `Complete`; Job instance-1 nazywa się
+      `wikikracja-instance-1-migrate`, a pozostałe używają wariantu
+      `wikikracja-instance-N-migrate-new`.
+- [x] Wszystkie PVC są `Bound`, mają `1Gi`, `RWO` i StorageClass
+      `microk8s-hostpath`.
+- [x] Redis `redis-1` działa `1/1` na `k8s`.
+- [x] Flux Kustomizations są `Ready=True`; aplikacyjne warstwy używają rewizji
+      `main@sha1:48dc738c`.
+- [x] Wszystkie wyświetlone workloady Wikikracji używają obrazu
+      `ghcr.io/soma115/wikikracja:main-20260915113429`.
+- [x] W zrzucie widoczny jest zakończony Job `backup-to-nas`.
+
+**Warunki GO nadal wymagające potwierdzenia:**
+
+- [ ] Potwierdzić, że nie ma drugiego writera podczas rollout’u, restartu i
+      odtwarzania oraz wykonać test blokad SQLite na aktywnym storage.
+- [ ] Potwierdzić typ i semantykę filesystemu pod `microk8s-hostpath`, w tym
+      zachowanie blokad `flock`/`fcntl` oraz WAL/SHM.
+- [ ] Potwierdzić transfer ostatniego backupu na NAS, jego integralność i retencję;
+      status `Completed` Joba nie jest dowodem poprawnego transferu.
+- [ ] Sprawdzić wolne miejsce na bazę, WAL, media, staging backupu i logi.
+- [ ] Potwierdzić monitoring blokad SQLite, WAL, schedulerów, Redis i backupów.
+- [ ] Wykonać smoke test logowania, czatu, głosowania i schedulera po restartach.
+
+Brak któregokolwiek warunku live oznacza **NO-GO operacyjnie**, nawet jeśli testy
+aplikacji, render manifestów i status Flux przechodzą.
 
 ## Zadania wdrożeniowe na klastrze Kubernetes
 
@@ -134,80 +152,93 @@ writer’a. Nie wolno skalować aplikacji do wielu podów zapisujących do tego 
 pliku SQLite ani montować bazy przez NFS/SMB lub storage bez gwarancji poprawnych
 blokad plikowych.
 
-### Ustalona konfiguracja instance-1
+### Aktualna konfiguracja klastra
 
 - Namespace: `wikikracja`.
-- Obraz: `ghcr.io/soma115/wikikracja`, z sortowalnym tagiem `main-<timestamp>`
-  zarządzanym przez Flux Image Automation.
-- Domena: `test.wikikracja.pl`, alias `t.wikikracja.pl`.
-- Ingress: Traefik `IngressRoute`, przekierowanie HTTP → HTTPS, resolver TLS
-  `letsencrypt`.
-- Storage: PVC `wikikracja-instance-1-data`, `1Gi`, `ReadWriteOnce`,
-  `Filesystem`, `microk8s-hostpath`, provisioner `microk8s.io/hostpath`,
-  obecnie zbindowany do węzła `k8s`.
-- Zasoby poda: request `100m` CPU i `128Mi` RAM; limit `2000m` CPU i `512Mi` RAM.
-- Redis: `redis://redis-1:6379/1`, Service `redis-1` w namespace `wikikracja`.
-- Backup: CronJob `backup-to-nas` codziennie o `04:10` UTC, retencja `180` dni,
-  docelowo `robert@nas:44999:/volume1/NetBackup/wiki`.
+- Aktywne instancje: `1`, `2`, `3` i `5–14`; instancja `4` nie jest wdrożona.
+- Obraz: `ghcr.io/soma115/wikikracja`, sortowalny tag `main-<timestamp>`
+  zarządzany przez Flux Image Automation.
+- Każda instancja ma własny PVC `wikikracja-instance-N-data`, żądanie `1Gi`
+  i `ReadWriteOnce`; deklarowane zasoby HTTP to request `100m` CPU / `128Mi`
+  RAM oraz limit `2000m` CPU / `512Mi` RAM.
+- Każda instancja ma dokładnie po jednej replice HTTP, schedulera i workera
+  powiadomień. Wszystkie te pody są przypinane do węzła `k8s`.
+- Wspólny Redis to Deployment `redis-1` (`redis:7-alpine`), jedna replika,
+  `emptyDir`, również na `k8s`. Instancje używają osobnych logicznych baz Redis
+  `1`, `2`, `3` i `5–14`.
+- HTTP używa Traefik `IngressRoute`, przekierowania HTTP → HTTPS i resolvera
+  `letsencrypt`. Domeny i aliasy wynikają z ConfigMap oraz manifestów
+  `wikikracja-instance-N.yaml`; nie należy kopiować historycznej domeny
+  `w1.wikikracja.pl`.
+- Migracje są osobnymi Jobami i są zależnością odpowiedniego runtime Flux;
+  instance-1 używa Joba `wikikracja-instance-1-migrate`, a instancje 2, 3 i 5–14
+  używają nazw `wikikracja-instance-N-migrate-new`.
+- Backup wszystkich aktywnych PVC wykonuje `backup-to-nas` codziennie o `04:10`
+  UTC, z retencją `180` dni, na `robert@nas:44999:/volume1/NetBackup/wiki`.
+- Zrzut live potwierdza, że wszystkie PVC są `Bound`, mają `1Gi`, `RWO` i
+  StorageClass `microk8s-hostpath`; wszystkie obserwowane pody Wikikracji i Redis
+  działają na `k8s`.
+- Zrzut live potwierdza status `Ready` warstw Flux, gotowość Deploymentów oraz
+  ukończenie migracji dla wszystkich aktywnych instancji.
 
-`microk8s-hostpath` wygląda na lokalny storage odpowiedni dla pojedynczego
-writera, ale sam status PVC nie potwierdza jeszcze poprawnego działania blokad
-SQLite. Przed GO trzeba sprawdzić filesystem na węźle `k8s`, wykluczyć warstwę
-sieciową, wykonać test `flock`/`fcntl` oraz test równoległego zapisu SQLite,
-a następnie powtórzyć go po restarcie i ponownym zamontowaniu PVC.
-
-Redis używa `emptyDir` i pozostaje buforem/cache, a nie trwałym magazynem SQLite.
-Jego utrata może mieć wpływ na bufor głosów, dlatego należy osobno zweryfikować
-zachowanie Redis podczas restartu poda. Konfiguracja instance-1 używa obecnie
-`test.wikikracja.pl`; ewentualna rozbieżność z historycznym `w1.wikikracja.pl`
-musi zostać rozstrzygnięta przed zmianą domeny.
+StorageClass i binding PVC są potwierdzone z klastra, ale sam zrzut `get pvc` nie
+potwierdza typu filesystemu, poprawności blokad SQLite ani integralności backupu.
+`emptyDir` Redis jest buforem/cache i nie jest backupowany jako trwała baza
+aplikacji.
 
 Źródła manifestów:
 
-- `clusters/apps/wikikracja-base/namespace.yaml`
-- `clusters/apps/wikikracja-base/wikikracja-instance-base.yaml`
-- `clusters/apps/wikikracja-instance-1/wikikracja-instance-1.yaml`
-- `clusters/apps/wikikracja-instance-1/kustomization.yaml`
-- `clusters/apps/wikikracja-base/redis-1.yaml`
-- `clusters/apps/wikikracja-old/backup-to-nas-cronjob.yaml`
+- `clusters/apps/kustomization.yaml`
+- `clusters/apps/wikikracja-base/`
+- `clusters/apps/wikikracja-shared/backup-to-nas-cronjob.yaml`
+- `clusters/apps/wikikracja-migrations/` for instance-1 and
+  `clusters/apps/wikikracja-migrations-N/` for instances 2, 3 and 5–14
+- `clusters/apps/wikikracja-instance-N/` for each active instance
+- `clusters/infrastructure/image-automation.yaml`
 
-Przed uznaniem wdrożenia Kubernetes za gotowe należy:
+The paths above are relative to the `flux-cluster` repository.
 
-- [x] Wskazano wersjonowane manifesty Kubernetes dla aplikacji, Redis, PVC,
-      migracji, schedulera, Service i Ingress; wymagają weryfikacji w klastrze.
-- [x] Manifesty utrzymują dokładnie jedną replikę poda aplikacji zapisującego do SQLite.
-- [x] Manifesty używają PVC `wikikracja-instance-1-data` z `ReadWriteOnce`,
-      `Filesystem` i `microk8s-hostpath`; poprawność blokad filesystemu wymaga
-      osobnego testu na węźle `k8s`.
-- [x] Manifesty ustawiają `SQLITE_DATABASE_PATH` na ścieżkę wewnątrz PVC oraz
-      `SQLITE_BACKUP_DIR` na osobny trwały wolumen backupów.
-- [x] Uruchamiać migracje jako osobny Job przed wdrożeniem aplikacji, a nie
-      przy starcie każdej repliki.
-- [x] Wyłączyć `SCHEDULER_ENABLED` w podach aplikacji HTTP/ASGI.
-- [x] Uruchomić dokładnie jeden osobny pod schedulera z `SCHEDULER_ENABLED=true`
-      oraz jawnie ustalonym `SCHEDULER_LOCK_FILE`.
-- [x] Nie używać blokady plikowej jako jedynej ochrony przed wieloma schedulerami;
-      ograniczyć scheduler przez `replicas: 1` i politykę wdrożeniową.
-- [x] Uruchomić Redis jako osobny Service `redis-1`; dostępność dla bufora głosów
-      i Django Channels została potwierdzona testem `PING` po wdrożeniu.
-- [x] Dodano i zweryfikowano lekką liveness `/healthz/live/` oraz readiness
-      `/healthz/ready/` sprawdzającą SQLite i Redis; wszystkie instancje zwracają `200 ok`.
-- [x] Ustawić zasoby poda: request `100m` CPU / `128Mi` RAM oraz limit `2000m`
-      CPU / `512Mi` RAM; wpływ na backup, scheduler i głosowanie wymaga testu.
-- [ ] Zdefiniować `PodDisruptionBudget`, politykę aktualizacji i procedurę
-      restartu bez uruchamiania drugiego writer’a.
-- [x] Skonfigurować osobny CronJob `backup-to-nas` o `04:10` UTC; nie wykonywać
-      `VACUUM` podczas normalnego ruchu.
-- [ ] Wykonać test na docelowym storage z jednoczesnym HTTP, WebSocketami,
-      schedulerem i głosowaniem.
-- [x] Zweryfikować po restarcie HTTP poda zachowanie WAL i Redis.
-- [x] Zweryfikować po osobnym restarcie schedulera jego działanie i integralność
-      SQLite.
-- [ ] Zweryfikować ścieżkę oddawania głosu po restarcie schedulera.
-- [ ] Ustawić monitoring `database is locked`, czasu transakcji, rozmiaru WAL,
-      restartów podów, błędów schedulera i niedostępności Redis.
-- [ ] Potwierdzić, że liczba workerów HTTP/ASGI i liczba procesów zapisujących
-      odpowiada zaakceptowanemu limitowi dla SQLite.
+Przed uznaniem wdrożenia Kubernetes za gotowe należy rozdzielić stan
+manifestów od stanu live.
+
+**Potwierdzone w manifestach:**
+
+- [x] Jest osobny layer base z namespace, wspólną konfiguracją, Redis i PVC.
+- [x] Jest osobny layer shared z middleware i backupem NAS.
+- [x] Każda aktywna instancja ma osobny Job migracji oraz osobną warstwę runtime.
+- [x] HTTP ma `replicas: 1` i `strategy: Recreate`, a scheduler i worker mają po
+      jednej replice i również `strategy: Recreate`.
+- [x] HTTP ma wyłączony scheduler; scheduler jest uruchamiany wyłącznie przez
+      `python manage.py run_scheduler` z `SCHEDULER_ENABLED=true`.
+- [x] Worker jest uruchamiany wyłącznie przez
+      `python manage.py run_chat_notifications_worker`.
+- [x] Wszystkie komponenty instancji montują jej własny PVC pod `/app/db`;
+      HTTP i procesy pomocnicze korzystają z tej samej bazy instancji.
+- [x] `SQLITE_DATABASE_PATH` wskazuje `/app/db/db.sqlite3`.
+- [x] Redis jest osobnym Service `redis-1`, a konfiguracja używa osobnych baz
+      logicznych i prefiksów kanałów.
+- [x] Są endpointy `/healthz/live/` i `/healthz/ready/`, przy czym readiness
+      sprawdza SQLite oraz cache/Redis.
+- [x] CronJob `backup-to-nas` działa o `04:10` UTC, ma `concurrencyPolicy: Forbid`
+      i obejmuje PVC aktywnych instancji w trybie tylko do odczytu.
+
+**Do potwierdzenia na klastrze:**
+
+- [x] Status Flux Kustomizations, Deploymentów i Jobów migracji — zrzut z
+      2026-09-15 pokazuje `Ready=True`, gotowe Deploymenty i Joby `Complete`.
+- [x] Gotowość osobno HTTP, schedulera i workera dla każdej instancji — każdy
+      Deployment ma `1/1` dostępnych replik.
+- [x] Status i storageClass/binding PVC — wszystkie są `Bound`, `1Gi`, `RWO`,
+      `microk8s-hostpath`.
+- [ ] Typ i semantyka filesystemu dla SQLite/WAL/SHM oraz poprawność blokad.
+- [ ] Brak drugiego writera podczas rollout’u, restartu i odtwarzania.
+- [ ] Test równoległego zapisu SQLite na docelowym storage po restarcie i
+      ponownym zamontowaniu PVC.
+- [ ] Smoke test głosowania po restarcie schedulera i workera.
+- [ ] Ostatni backup NAS, jego integralność, transfer i retencja.
+- [ ] Monitoring blokad SQLite, WAL, restartów, schedulera, Redis i backupu.
+- [ ] Sposób ochrony przed zwiększeniem replik ponad jednego writera (w tym
+      ewentualny `PodDisruptionBudget` i procedura restartu).
 
 ### Kryterium zakończenia wdrożenia Kubernetes
 
@@ -663,8 +694,10 @@ Nie należy rozpoczynać etapów 5–8 bez wykonania etapu 1 i 2. Bez pomiarów 
 
 # Aktualny status i następne kroki — kanoniczna sekcja operacyjna
 
-Ta sekcja jest aktualnym podsumowaniem wykonania planu. W razie rozbieżności
-z wcześniejszymi, historycznymi checkboxami powyżej obowiązuje ta sekcja.
+Ta sekcja jest podsumowaniem ostatnich zapisanych wyników planu. W razie
+rozbieżności z wcześniejszymi, historycznymi checkboxami powyżej obowiązuje ta
+sekcja, ale checkboxy dotyczące stanu live nie zastępują bieżącej weryfikacji na
+klastrze. Aktualny stan live należy potwierdzić procedurą GO/NO-GO powyżej.
 
 ## P0 — spójność SQLite–Redis w głosowaniu
 
@@ -682,17 +715,17 @@ z wcześniejszymi, historycznymi checkboxami powyżej obowiązuje ta sekcja.
 
 ## P0.2 — rozdzielenie HTTP, migracji i schedulera
 
-**Status: `[x]` zaimplementowane i zweryfikowane dla wszystkich skonfigurowanych instancji 1, 2, 3 i 5–14. Prace implementacyjne są wstrzymane na etapie obserwacji operacyjnej.**
+**Status: `[x]` zaimplementowane i potwierdzone w zrzucie live z 2026-09-15 dla wszystkich skonfigurowanych instancji 1, 2, 3 i 5–14. Wszystkie warstwy Flux są gotowe, Deploymenty mają `1/1`, a migracje są `Complete`.**
 
 - [x] HTTP uruchamia wyłącznie Daphne.
 - [x] Migracje są osobnymi Jobami, bez schedulera.
 - [x] Każda zmigrowana instancja ma osobny scheduler `run_scheduler`.
 - [x] Scheduler ma `replicas: 1`, lock na PVC i `strategy: Recreate`.
 - [x] Każda zmigrowana instancja ma osobny chat notifications worker.
-- [x] Flux używa warstw base, old oraz osobnych migracji i runtime per-instance dla wszystkich aktywnych instancji.
+- [x] Flux używa warstw base, shared oraz osobnych migracji i runtime per-instance dla wszystkich aktywnych instancji.
 - [x] Zmigrowane instancje używają `redis-1` z osobną logiczną bazą Redis.
-- [x] Rollout wszystkich instancji potwierdził po jednym HTTP, schedulerze i workerze bez restartów.
-- [x] Próba batch runtime 7–14 została wycofana; pozostałe katalogi batch są nieaktywne i nie są częścią obecnego modelu.
+- [x] Każda aktywna instancja ma deklaratywnie po jednym HTTP, schedulerze i workerze.
+- [x] Historyczne warstwy batch/remaining nie są częścią obecnego modelu i nie mogą być ponownie wprowadzane.
 
 ## P0.3 — odtwarzanie danych
 
@@ -808,7 +841,7 @@ Brak któregokolwiek punktu oznacza **NO-GO** dla danej instancji.
 ## Kolejność dalszych prac
 
 1. [x] P0 — spójność głosowania SQLite–Redis.
-2. [x] P0.2 — fizyczny podział Flux i pilot instance-1.
+2. [x] P0.2 — fizyczny podział Flux i uruchomienie warstw per-instance.
 3. [x] P0.3 — restore instance-1 i instance-2.
 4. [ ] P1 — audyt pozostałych długich transakcji.
 5. [-] P1 — wykonano testy konkurencji głosowania, ankiet i zadań; pozostaje pełny test HTTP + WebSocket + scheduler + backup.

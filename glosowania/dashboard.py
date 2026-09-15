@@ -45,8 +45,8 @@ def get_context(user, month_param: str = '') -> dict:
     }
 
 
-def get_group_settings_context(user) -> dict:
-    """Return group-settings context for voting restarts."""
+def get_vote_storage_reliability_context() -> dict:
+    """Return vote storage reliability context for the voting parameters page."""
     restarted_referendums = Decyzja.objects.filter(referendum_restart_count__gt=0).order_by('-referendum_restart_count')
     total_referendum_restarts = sum(d.referendum_restart_count for d in restarted_referendums)
 

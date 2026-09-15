@@ -25,6 +25,7 @@ from chat.services import get_unread_message_counts_for_rooms
 from chat.signals import chat_message_requested
 from core.signals import vote_state_changed
 from core.utils import build_site_url
+from glosowania.dashboard import get_vote_storage_reliability_context
 from glosowania.forms import ArgumentForm, DecyzjaForm, ParametersProposalForm
 from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy, author_signed_exists
 from glosowania.vote_buffer import discard_pending_vote, push_pending_vote
@@ -616,11 +617,9 @@ def parameters(request: HttpRequest):
     for _key, label, specs in specs_by_category():
         groups.append((label, [(spec, getattr(sp, spec.name)) for spec in specs]))
 
-    return render(
-        request,
-        'glosowania/parameters.html',
-        {'signatures': sp.wymaganych_podpisow, 'signatures_span': sp.czas_na_zebranie_podpisow, 'queue_span': sp.dyskusja, 'referendum_span': sp.czas_trwania_referendum, 'parameter_groups': groups},
-    )
+    context = {'signatures': sp.wymaganych_podpisow, 'signatures_span': sp.czas_na_zebranie_podpisow, 'queue_span': sp.dyskusja, 'referendum_span': sp.czas_trwania_referendum, 'parameter_groups': groups}
+    context.update(get_vote_storage_reliability_context())
+    return render(request, 'glosowania/parameters.html', context)
 
 
 @login_required
