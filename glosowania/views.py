@@ -469,7 +469,9 @@ def add_argument(request: HttpRequest, pk: int):
             if decyzja.chat_room_id:
                 try:
                     referendum_url = build_site_url(f'/glosowania/details/{pk}')
-                    chat_message_requested.send(sender=Argument, room_title=decyzja.chat_room.title, message_text="<a href='%s'>%s</a>" % (referendum_url, _("Referendum")), from_user=None, anonymous=False)
+                    message_text = _("A new argument was added to this referendum:")
+                    message_text += " <a href='%s'>%s</a>" % (referendum_url, _("Referendum"))
+                    chat_message_requested.send(sender=Argument, room_title=decyzja.chat_room.title, message_text=message_text, from_user=None, anonymous=False)
                 except Exception:
                     log.exception("Failed to notify referendum chat about argument #%s", argument.pk)
 

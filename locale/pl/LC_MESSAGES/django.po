@@ -3095,6 +3095,10 @@ msgstr "Twój głos został zapisany. Zagłosowałeś na Nie."
 msgid "Arguments cannot be added after voting has ended."
 msgstr "Argumenty nie mogą być dodawane po zakończeniu głosowania."
 
+#: .\glosowania\views.py:472
+msgid "A new argument was added to this referendum:"
+msgstr "Dodano nowy argument do tego głosowania:"
+
 #: .\glosowania\views.py:477
 #, python-brace-format
 msgid "Your {type} argument has been added."
