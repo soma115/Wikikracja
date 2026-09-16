@@ -186,8 +186,8 @@ jobs:
               username='e2e',
               defaults={
                   'email': 'e2e@example.com',
-                  'is_staff': True,
-                  'is_superuser': True,
+                  'is_staff': False,
+                  'is_superuser': False,
                   'is_active': True,
                   'first_name': 'E2E',
                   'last_name': 'Test',

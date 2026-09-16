@@ -34,22 +34,14 @@ async function expectPositiveBox(locator, label) {
 test.describe('chat mobile — room list collapse on tap of active room', () => {
     test('mobile: czyste wejście pokazuje listę przez dwie sekundy przed jej schowaniem', async ({ page }, testInfo) => {
         test.skip(testInfo.project.name !== 'mobile-chromium', 'Mobile-only test');
-        await page.addInitScript(() => {
-            window.__chatBreadcrumbFlashObserved = false;
-            const observer = new MutationObserver(() => {
-                if (document.querySelector('#chat-breadcrumb.tw-chat-breadcrumb--flash')) {
-                    window.__chatBreadcrumbFlashObserved = true;
-                    observer.disconnect();
-                }
-            });
-            observer.observe(document, { subtree: true, attributes: true, attributeFilter: ['class'] });
-        });
         await page.goto('/chat/');
         const chatRooms = page.locator('.tw-chat-rooms');
+        const breadcrumb = page.locator('#chat-breadcrumb');
         await expect(chatRooms).toHaveClass(/tw-room-active/, { timeout: 10000 });
         await expect(chatRooms).toHaveClass(/tw-room-list-showing/, { timeout: 1000 });
-        await expect.poll(() => page.evaluate(() => window.__chatBreadcrumbFlashObserved)).toBe(true);
+        await expect(breadcrumb).toHaveAttribute('aria-expanded', 'true');
         await expect(chatRooms).not.toHaveClass(/tw-room-list-showing/, { timeout: 3000 });
+        await expect(breadcrumb).toHaveAttribute('aria-expanded', 'false');
     });
 
     test('mobile: dotknięcie listy nie chowa jej natychmiast', async ({ page }, testInfo) => {

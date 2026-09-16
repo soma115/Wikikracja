@@ -94,6 +94,7 @@ def playwright_check():
     else:
         print("Using existing Django development server at http://127.0.0.1:8006/")
 
+    os.environ["PLAYWRIGHT_BASE_URL"] = "http://127.0.0.1:8006"
     try:
         _run_step([npx, "playwright", "test", "--reporter=line"], "Playwright end-to-end tests")
     finally:
