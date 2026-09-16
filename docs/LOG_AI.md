@@ -20,9 +20,9 @@
 ## 2026-09-15: Gmail-odporny nagłówek codziennego digestu
 
 - **Zmienione pliki:** `home/templates/emails/digest.html`, `home/test_email_digest.py`.
-- **Co się zmieniło:** Nagłówek digestu dostał solidny kolor tła jako fallback oraz atrybut `bgcolor`, ponieważ Gmail nie renderuje niezawodnie gradientów i zmiennych CSS z makiety. Nazwa strony jest większa, a automatyczne linkowanie domeny przez Gmaila nie powinno już zmieniać jej kontrastu na białym tle. Usunięto inline CSS, aby szablon nie generował ostrzeżeń narzędzi HTML/CSS.
-- **Uzasadnienie:** Rzeczywisty e-mail w Gmailu tracił tło nagłówka, przez co biały tytuł był niewidoczny, a nazwa strony wyglądała jak mały niebieski link oddzielony od treści.
-- **Spodziewany efekt:** W Gmailu i starszych klientach pocztowych nagłówek pozostaje widocznym, turkusowym blokiem z większą nazwą strony i białym tytułem; nowoczesne klienty nadal mogą korzystać z gradientu i motywu.
+- **Co się zmieniło:** Nagłówek digestu zastąpiono panelem `<div>` wzorowanym na działającym panelu podsumowania: ma jasne, kontrastowe tło, większą nazwę strony i ciemną typografię. Usunięto zależność od tła komórki tabeli, `bgcolor` oraz inline CSS.
+- **Uzasadnienie:** Gmail nadal renderował obszar nagłówka jako biały, przez co biały tytuł i nazwa strony były niewidoczne. Panel typu `div`, tak jak istniejący panel podsumowania, jest faktycznie widoczny w odebranej wiadomości.
+- **Spodziewany efekt:** W Gmailu nazwa strony i tekst „Activity digest” są widoczne na jasnofioletowym panelu bez zielonego akcentu; motyw ciemny zachowuje własny wariant tła.
 
 ## 2026-09-14: Zachowanie pełnego formatowania artykułów TinyMCE
 
