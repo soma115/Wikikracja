@@ -1,45 +1,39 @@
 default_install_hook_types: [pre-commit, pre-push]
 
+default_stages: [pre-commit]
+
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.16.2
     hooks:
       - id: ruff
         args: [--fix]
+        stages: [pre-commit]
       - id: ruff-format
+        stages: [pre-commit]
   - repo: local
     hooks:
       - id: regression-scan
         name: Bootstrap / UI regression scan
-        entry: python scripts/regression_scan.py
+        entry: .venv/Scripts/python.exe scripts/regression_scan.py
         language: system
         pass_filenames: false
+        stages: [pre-commit]
       - id: ui-guard
         name: UI unification guard
-        entry: python scripts/ui_guard.py
+        entry: .venv/Scripts/python.exe scripts/ui_guard.py
         language: system
         pass_filenames: false
+        stages: [pre-commit]
       - id: django-check
         name: Django system check
         entry: .venv/Scripts/python.exe manage.py check
         language: system
         pass_filenames: false
-      - id: python-tests
-        name: Change-aware Python tests (pre-push)
-        entry: .venv/Scripts/python.exe
-        args: [scripts/pre_push_tests.py]
-        language: system
-        pass_filenames: false
-        stages: [pre-push]
-      - id: tailwind-build-check
-        name: Check generated Tailwind CSS
-        entry: .venv/Scripts/python.exe scripts/check_generated_css.py
-        language: system
-        pass_filenames: false
-        stages: [pre-push]
-      - id: jest
-        name: Jest tests (pre-push)
-        entry: npm test -- --runInBand
+        stages: [pre-commit]
+      - id: full-pipeline
+        name: Full local CI verification (pre-push)
+        entry: .venv/Scripts/python.exe scripts/run_tests.py
         language: system
         pass_filenames: false
         stages: [pre-push]

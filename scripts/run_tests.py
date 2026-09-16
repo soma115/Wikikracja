@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Run the full verification pipeline: ruff, Django system checks,
-collectstatic, pytest and jest.
+Run the full verification pipeline: ruff, UI guards, Django system checks,
+translation compilation, collectstatic, pytest, jest and Playwright.
 
 Reuses the environment helpers from `start_dev.py` so both scripts keep a
 single source of truth for .env handling and command execution.
@@ -19,10 +19,10 @@ from regression_scan import run_regression_scan
 from start_dev import BASE_DIR, copy_env, ensure_secret_key, load_env, run
 
 
-def _dev_server_is_ready(url="http://127.0.0.1:8000/", timeout=1):
+def _dev_server_is_ready(url="http://127.0.0.1:8000/healthz/live/", timeout=1):
     try:
         with urllib.request.urlopen(url, timeout=timeout) as resp:
-            return resp.status == 200
+            return resp.status == 200 and resp.read().decode().strip() == "ok"
     except Exception:
         return False
 
@@ -35,6 +35,9 @@ def _start_dev_server():
     for _ in range(30):
         if _dev_server_is_ready():
             return proc
+        if proc.poll() is not None:
+            print("Could not start the Django development server; port 8000 may already be in use.")
+            sys.exit(1)
         time.sleep(1)
     proc.terminate()
     try:
@@ -111,6 +114,17 @@ def tailwind_build_check():
     print("Tailwind build: OK (tailwind.build.css is up to date).")
 
 
+def _ui_guard_base():
+    configured = os.environ.get("UI_GUARD_BASE")
+    if configured:
+        return configured
+    try:
+        subprocess.run(["git", "rev-parse", "--verify", "origin/main"], cwd=BASE_DIR, check=True, capture_output=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return "HEAD"
+    return "origin/main"
+
+
 def verify_runtime():
     """Fail early when verification is run with an incomplete environment."""
     if sys.version_info < (3, 14):
@@ -141,7 +155,9 @@ def main():
     parser.add_argument("--no-pytest", action="store_true", help="Skip Python tests.")
     parser.add_argument("--no-jest", action="store_true", help="Skip JavaScript tests.")
     parser.add_argument("--no-regression-scan", action="store_true", help="Skip Bootstrap/deleted-CSS regression scan.")
+    parser.add_argument("--no-ui-guard", action="store_true", help="Skip the changed-file UI unification guard.")
     parser.add_argument("--no-tailwind-build-check", action="store_true", help="Skip tailwind.build.css freshness check.")
+    parser.add_argument("--no-compilemessages", action="store_true", help="Skip translation compilation.")
     parser.add_argument("--no-playwright", action="store_true", help="Skip Playwright end-to-end tests.")
     args = parser.parse_args()
 
@@ -164,6 +180,9 @@ def main():
         if run_regression_scan() != 0:
             sys.exit(1)
 
+    if not args.no_ui_guard:
+        run([sys.executable, "scripts/ui_guard.py", "--base", _ui_guard_base()])
+
     if not args.no_tailwind_build_check:
         tailwind_build_check()
 
@@ -171,6 +190,9 @@ def main():
 
     if not args.no_django_check:
         run(manage + ["check"])
+
+    if not args.no_compilemessages:
+        run(manage + ["compilemessages", "-v", "0"])
 
     if not args.no_collectstatic:
         run(manage + ["collectstatic", "--noinput", "--clear"])

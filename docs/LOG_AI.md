@@ -1,5 +1,13 @@
 # LOG_AI
 
+## 2026-09-16: Synchronizacja własnego statusu aktywności bez zakłócania odpowiedzi WebSocket
+
+- **Zmienione pliki:** `chat/consumers.py`, `tests/test_websocket.py`.
+- **Co się zmieniło:** Początkowa odpowiedź WebSocket zawiera razem z `unread_count` także własny `presence_update`, jeśli zapis aktywności zmienił stan. Broadcast do pozostałych klientów odbywa się przed dołączeniem nowego połączenia do grupy `presence`, a klient dołącza do niej zawsze po wysłaniu odpowiedzi początkowej.
+- **Uzasadnienie:** Dołączenie klienta do grupy przed pierwszym broadcastem aktualizowało jego zieloną kropkę, ale zostawiało niezależny komunikat `presence_update` przed odpowiedzią na pierwszą komendę czatu. Z kolei całkowite pominięcie członkostwa bieżącego klienta usuwało mu przyszłe aktualizacje obecności. Połączenie obu danych w jednym pakiecie zachowuje zieloną kropkę i deterministyczną kolejność odpowiedzi.
+- **Testy:** Dodano regresję własnego statusu oraz broadcastu statusu do już połączonego klienta.
+- **Spodziewany efekt:** Własna i cudza obecność w czacie pozostają aktualne, bez pojawiania się niezamówionego komunikatu przed odpowiedzią `join`/`error`.
+
 ## 2026-09-16: Własny status aktywności w czacie
 
 - **Zmieniony plik:** `chat/consumers.py`.

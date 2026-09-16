@@ -59,8 +59,35 @@ async def test_authenticated_user_receives_unread_count(public_room_with_user):
     response = await communicator.receive_json_from()
     assert 'unread_count' in response
     assert isinstance(response['unread_count'], int)
+    assert response['presence_update']['user_id'] == user.id
+    assert response['presence_update']['status'] == 'green'
 
     await communicator.disconnect()
+
+
+@pytest.mark.django_db(transaction=True)
+async def test_presence_update_reaches_existing_chat_client():
+    first_user = await sync_to_async(UserFactory)(username='ws-presence-first', email='ws-presence-first@example.com')
+    second_user = await sync_to_async(UserFactory)(username='ws-presence-second', email='ws-presence-second@example.com')
+    first = WebsocketCommunicator(application, "/chat/stream/")
+    first.scope['user'] = first_user
+    connected, _ = await first.connect()
+    assert connected is True
+    await _consume_initial(first)
+
+    second = WebsocketCommunicator(application, "/chat/stream/")
+    second.scope['user'] = second_user
+    connected, _ = await second.connect()
+    assert connected is True
+    initial = await second.receive_json_from()
+    assert initial['presence_update']['user_id'] == second_user.id
+
+    update = await first.receive_json_from()
+    assert update['presence_update']['user_id'] == second_user.id
+    assert update['presence_update']['status'] == 'green'
+
+    await first.disconnect()
+    await second.disconnect()
 
 
 @pytest.mark.django_db(transaction=True)

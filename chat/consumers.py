@@ -51,16 +51,18 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
             # join personal group for user-targeted pushes (e.g. unread count)
             await self.channel_layer.group_add(f"user_{self.scope['user'].id}", self.channel_name)
-            await self.channel_layer.group_add(PRESENCE_GROUP, self.channel_name)
 
-            presence_update = await self.record_presence('app')
-
-            # send current unread count immediately on connect
+            # send current unread count and own presence immediately on connect
             count = await self.room_repo.get_unread_count()
-            await self.send_json({"unread_count": count})
+            presence_update = await self.record_presence('app')
+            initial_response = {"unread_count": count}
+            if presence_update:
+                initial_response['presence_update'] = presence_update
+            await self.send_json(initial_response)
 
             if presence_update:
                 await self.channel_layer.group_send(PRESENCE_GROUP, {'type': 'presence.update', **presence_update})
+            await self.channel_layer.group_add(PRESENCE_GROUP, self.channel_name)
 
             await ChatCommandHandlers(self, ChatConsumer.online_registry).send_online_update(True)
 
