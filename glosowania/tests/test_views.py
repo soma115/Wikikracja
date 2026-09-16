@@ -2,7 +2,7 @@
 
 import io
 from datetime import date, timedelta
-from unittest.mock import call, patch
+from unittest.mock import AsyncMock, call, patch
 
 import pytest
 import redis
@@ -16,6 +16,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import override
 from PIL import Image
 
+from chat.models import Message
 from glosowania.forms import ParametersProposalForm
 from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 from site_settings.models import SiteParameters
@@ -261,6 +262,27 @@ def test_add_argument_notifies_referendum_chat_once(sample_users):
     assert call_kwargs['anonymous'] is False
     assert call_kwargs['message_text'].startswith(f"{_('A new argument was added to this referendum:')} <a href='")
     assert call_kwargs['message_text'].endswith('>Referendum</a>')
+
+
+@pytest.mark.django_db(transaction=True)
+def test_add_argument_persists_system_message_in_referendum_chat(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Argument proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author)
+    initial_message_count = decision.chat_room.messages.count()
+    client = Client()
+    client.force_login(author)
+
+    with patch('chat.notifications.ChatNotificationService.dispatch_message', new_callable=AsyncMock):
+        response = client.post(f'/glosowania/details/{decision.pk}/add-argument/', {'argument_type': 'FOR', 'content': 'Argument text'})
+
+    assert response.status_code == 302
+    assert decision.chat_room.messages.count() == initial_message_count + 1
+    chat_message = Message.objects.filter(room=decision.chat_room).latest('pk')
+    assert chat_message.sender is None
+    assert chat_message.anonymous is False
+    assert chat_message.text.startswith(f'{_("A new argument was added to this referendum:")} <a href="')
+    assert f'/glosowania/details/{decision.pk}' in chat_message.text
+    assert chat_message.text.endswith(f">{_('Referendum')}</a>")
 
 
 @pytest.mark.django_db

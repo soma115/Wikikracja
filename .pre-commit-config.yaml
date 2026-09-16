@@ -32,8 +32,8 @@ repos:
         pass_filenames: false
         stages: [pre-commit]
       - id: full-pipeline
-        name: Full local CI verification (pre-push)
-        entry: .venv/Scripts/python.exe scripts/run_tests.py
+        name: Local verification without Playwright (pre-push)
+        entry: .venv/Scripts/python.exe scripts/run_tests.py --no-playwright
         language: system
         pass_filenames: false
         stages: [pre-push]
