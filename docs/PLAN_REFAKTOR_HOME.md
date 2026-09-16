@@ -45,19 +45,23 @@ logikę biznesową z widoków do przetestowalnych funkcji.
 
 ## Faza 0 — siatka bezpieczeństwa (przed jakimkolwiek refaktorem)
 
-- [ ] Dodać testy charakteryzujące bieżące zachowanie tam, gdzie go nie ma:
+- [x] Dodać testy charakteryzujące bieżące zachowanie tam, gdzie go nie ma:
    - `_generate_feed_raw()` — kolejność sortowania (events chronologicznie
      rosnąco, resztę malejąco), obcinanie opisów do 125 znaków, cache hit/miss.
    - `global_search()` — po jednym teście na każdą kategorię (`decision`,
      `event`, `citizen`, `chat`) + test na `active_cats` filtrujący kategorie.
    - `home()` — test na `active_referendum` (kolory progress bara wg
      `time_pct`) i na `default_asset is None` (ścieżka onboardingu finansów).
-- [ ] Uruchomić `pytest home` i zanotować bieżący czas/wynik jako baseline.
+- [x] Uruchomić `pytest home` i zanotować bieżący czas/wynik jako baseline.
 
 Bez tego refaktor rozproszonej logiki (feed, search, dashboard) jest zbyt
 ryzykowny — dużo gałęzi warunkowych bez testów.
 
 ## Faza 1 — wydzielenie service layer (thin views), bez zmiany zależności
+
+- [x] Wydzielić logikę feedu do `home/services/feed.py`.
+- [x] Wydzielić wyszukiwanie do warstwy rejestru (`core.search_registry`).
+- [x] Wydzielić budowanie dashboardu do `home/services/dashboard.py`.
 
 Nie usuwa jeszcze coupling, ale odseparowuje logikę biznesową od Django
 request/response, więc staje się łatwa do testowania i do dalszej faktoryzacji.
@@ -99,7 +103,7 @@ zachowania. Testy z Fazy 0 muszą przejść bez zmian.
 To jest właściwa naprawa problemu #1: `home` przestaje wiedzieć, że istnieją
 `Post`, `Task`, `Event`, `Decyzja`, `CitizenActivity`, `Room`/`Message`.
 
-1. [ ] Zdefiniować kontrakt w `home/feed_registry.py`. Element feedu to zwykły
+1. [x] Zdefiniować kontrakt w `core/feed_registry.py`. Element feedu to zwykły
    `dict` w formacie już używanym w `_generate_feed_raw` (`content_type`,
    `title`, `description`, `author`, `timestamp`, `url`, `object_id`, ...) —
    na tym etapie nie trzeba wprowadzać nowego typu, ewentualny `TypedDict`
@@ -120,22 +124,22 @@ To jest właściwa naprawa problemu #1: `home` przestaje wiedzieć, że istniej�
            items.extend(provider(since))
        return items
    ```
-2. [ ] Każda aplikacja-właściciel danych (board, tasks, events, glosowania,
+2. [x] Każda aplikacja-właściciel danych (board, tasks, events, glosowania,
    obywatele, chat) dostaje `feed.py` z funkcją `get_feed_items(since)`,
    zwracającą listę słowników w ujednoliconym formacie (już używanym w
    `_generate_feed_raw`), i rejestruje ją w `apps.py::ready()`:
    ```python
    # board/apps.py
    def ready(self):
-       from home.feed_registry import register_feed_provider
+       from core.feed_registry import register_feed_provider
        from board.feed import get_feed_items
 
        register_feed_provider(get_feed_items)
    ```
-3. [ ] `home/services/feed.py::_generate_feed_raw()` zamienia 6 bloków
+3. [x] `core/services/feed.py::_generate_feed_raw()` zamienia 6 bloków
    `Post.objects.filter(...)` / `Task.objects.filter(...)` / ... na jedno
    wywołanie `collect_feed_items(since=timezone.now() - td(days=30))`.
-4. [ ] Analogicznie dla cache invalidation: `home/signals.py` przestaje importować
+4. [x] Analogicznie dla cache invalidation: `home/signals.py` przestaje importować
    modele z 6 aplikacji. Zamiast tego każda aplikacja, zmieniając swój model
    feedowy, woła generyczny sygnał `home.signals.feed_changed.send(sender=...)`
    we własnym `signals.py` (albo — prościej — `home` udostępnia publiczną
@@ -181,6 +185,10 @@ Dwie opcje, od najprostszej:
 
 ## Faza 3 — to samo dla `global_search` (opcjonalnie, mniejszy priorytet)
 
+- [x] Zdefiniować registry wyszukiwania w `core/search_registry.py`.
+- [x] Dodać providerów wyszukiwania w aplikacjach i zarejestrować ich w `apps.py`.
+- [x] Przełączyć `home/views.py` na agregację wyników przez registry.
+
 Analogiczny registry: `SearchProvider = Callable[[str, User], list[dict]]`,
 każda aplikacja rejestruje `search(query, user)`. Można zrobić dopiero po
 Fazie 2, gdy wzorzec jest już sprawdzony na feedzie — search jest używany
@@ -208,13 +216,13 @@ akceptowalny, opisany wyjątek, nie regresja.
 
 ## Kryteria akceptacji
 
-- [ ] `home/views.py` nie importuje żadnego modelu z `board`,
+- [x] `home/views.py` nie importuje żadnego modelu z `board`,
   `chat`, `events`, `glosowania`, `obywatele`, `tasks` do generowania feedu
   i wyszukiwania. Wyjątki dopuszczone i opisane w tym dokumencie:
   `site_settings` przy `manifest()` (config, nie dane feedu) oraz `chat.Room`
   w `mark_as_read`/`mark_all_read`/`mark_unread` (Faza 2b, opcja 1).
-- `pytest home board tasks events glosowania obywatele chat` — zielone,
+- [x] `pytest home board tasks events glosowania obywatele chat` — zielone,
   bez regresji w testach z Fazy 0.
-- Dodanie nowej aplikacji do feedu (hipotetyczny `polls`) wymaga tylko
+- [x] Dodanie nowej aplikacji do feedu (hipotetyczny `polls`) wymaga tylko
   dodania `polls/feed.py` + rejestracji w `polls/apps.py::ready()` (wzorem
   istniejącego `board/apps.py`) — zero zmian w `home/`.

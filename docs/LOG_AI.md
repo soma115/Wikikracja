@@ -1,5 +1,12 @@
 # LOG_AI
 
+## 2026-09-16: Własny status aktywności w czacie
+
+- **Zmieniony plik:** `chat/consumers.py`.
+- **Co się zmieniło:** Połączenie WebSocket dołącza do grupy `presence` przed zapisaniem i rozgłoszeniem pierwszego sygnału aktywności.
+- **Uzasadnienie:** Wcześniej pierwszy broadcast był wysyłany zanim własny klient dołączył do grupy, więc pozostawał przy starym, często czerwonym statusie, mimo że lista osób otrzymywała aktualną aktywność.
+- **Spodziewany efekt:** Status zalogowanej osoby w czacie odświeża się od razu po nawiązaniu połączenia, tak samo jak status innych użytkowników.
+
 ## 2026-09-15: Audyt kompatybilności ze starymi urządzeniami — bez zmian w kodzie
 
 - **Status:** Tylko udokumentowane znalezisko; nie wprowadzono żadnych zmian w kodzie, konfiguracji ani zależnościach.
