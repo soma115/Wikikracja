@@ -38,8 +38,8 @@ test.describe('chat mobile — room list collapse on tap of active room', () => 
         const chatRooms = page.locator('.tw-chat-rooms');
         await expect(chatRooms).toHaveClass(/tw-room-active/, { timeout: 10000 });
         await expect(chatRooms).toHaveClass(/tw-room-list-showing/, { timeout: 1000 });
+        await expect(page.locator('#chat-breadcrumb')).toHaveClass(/tw-chat-breadcrumb--flash/, { timeout: 3000 });
         await expect(chatRooms).not.toHaveClass(/tw-room-list-showing/, { timeout: 3000 });
-        await expect(page.locator('#chat-breadcrumb')).toHaveClass(/tw-chat-breadcrumb--flash/);
     });
 
     test('mobile: dotknięcie listy nie chowa jej natychmiast', async ({ page }, testInfo) => {

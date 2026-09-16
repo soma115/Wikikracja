@@ -76,6 +76,7 @@ def run(cmd, allow_failure=False):
 def main():
     parser = argparse.ArgumentParser(description="Start dev environment quickly; use --full for slow/setup tasks.")
     parser.add_argument("--full", action="store_true", help="Run full setup (pip install, makemigrations, i18n messages, collectstatic) before start.")
+    parser.add_argument("--port", type=int, default=8006, help="Port for Django runserver (default: %(default)s).")
     args = parser.parse_args()
 
     if sys.prefix == sys.base_prefix:
@@ -109,8 +110,8 @@ def main():
 
     print("\nDevelopment instance started\n")
     # run(["daphne", "zzz.asgi:application"])
-    run(manage + ["runserver", "0.0.0.0:8000"])
-    # run(manage + ["runserver_plus", "--cert", "cert", "0.0.0.0:8000"]) # ssl
+    run(manage + ["runserver", f"0.0.0.0:{args.port}"])
+    # run(manage + ["runserver_plus", "--cert", "cert", f"0.0.0.0:{args.port}"]) # ssl
 
 
 if __name__ == "__main__":

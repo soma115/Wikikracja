@@ -82,4 +82,4 @@ echo ''
 echo 'Development instance started'
 echo ''
 
-daphne zzz.asgi:application  # chat works only on daphne
+daphne zzz.asgi:application -p 8006  # chat works only on daphne
