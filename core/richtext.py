@@ -19,6 +19,7 @@ TINYMCE_URL_ATTRS = {'action', 'cite', 'formaction', 'href', 'poster', 'src', 's
 TINYMCE_UNSAFE_PROTOCOLS = ('javascript:', 'vbscript:', 'data:')
 TINYMCE_TAG_RE = re.compile(r'<\s*/?\s*([A-Za-z][^\s/>]*)')
 TINYMCE_SCRIPT_RE = re.compile(r'<script\b[^>]*>.*?</script\s*>', re.IGNORECASE | re.DOTALL)
+TINYMCE_RELATIVE_MEDIA_RE = re.compile(r'(\bsrc\s*=\s*["\'])(?:\.\.?/)*media/', re.IGNORECASE)
 
 
 def _is_unsafe_url(value):
@@ -107,7 +108,8 @@ def sanitize_tinymce(text: str) -> str:
     if not re.search(r'<[A-Za-z][^>]*>', normalized):
         normalized = normalized.replace('\n', '<br>')
     tags = {tag.lower() for tag in TINYMCE_TAG_RE.findall(normalized)}
-    return bleach.clean(normalized, tags=tags, attributes=_allow_tinymce_attribute, css_sanitizer=TINYMCE_CSS_SANITIZER, strip=True)
+    cleaned = bleach.clean(normalized, tags=tags, attributes=_allow_tinymce_attribute, css_sanitizer=TINYMCE_CSS_SANITIZER, strip=True)
+    return TINYMCE_RELATIVE_MEDIA_RE.sub(r'\1/media/', cleaned)
 
 
 _TAG_RE = re.compile(r'<[^>]+>')

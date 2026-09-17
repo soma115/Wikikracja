@@ -1,11 +1,6 @@
 import { FIREBASE_CONFIG, FIREBASE_VAPID_KEY } from '/dynamic-settings.js';
 import { sendNotificationAck } from './utility.js';
 
-window.wkOnReady(async function() {
-    const enabled = await PushNotificationManager.initialize();
-    console.debug('[NOTIFDBG] Push notifications enabled:', enabled);
-});
-
 const PushNotificationManager = {
     async initialize() {
         if ('Notification' in window && 'serviceWorker' in navigator) {
@@ -252,5 +247,11 @@ const PushNotificationManager = {
 
 
 };
+
+window.wkOnReady(async function() {
+    const enabled = await PushNotificationManager.initialize();
+    console.debug('[NOTIFDBG] Push notifications enabled:', enabled);
+});
+
 // Export for ES modules
 export { PushNotificationManager };

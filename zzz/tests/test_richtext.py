@@ -102,6 +102,11 @@ class TinyMCEContentTests(TestCase):
         result = sanitize_tinymce(content)
         self.assertIn('<img src="/media/uploads/image.webp" alt="Image">', result)
 
+    def test_normalizes_relative_media_image_urls_for_public_pages(self):
+        content = '<p><img src="media/uploads/image.webp" alt="Image"></p>'
+        result = sanitize_tinymce(content)
+        self.assertIn('<img src="/media/uploads/image.webp" alt="Image">', result)
+
 
 class StripTagsTests(TestCase):
     """Sanity check — strip_tags pozostaje bez zmian."""

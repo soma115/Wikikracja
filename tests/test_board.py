@@ -457,6 +457,17 @@ def test_public_blog_detail_has_no_internal_controls_or_chat(client, authenticat
 
 
 @pytest.mark.django_db
+def test_public_blog_detail_normalizes_relative_image_urls(client, authenticated_client):
+    _, user = authenticated_client
+    post = PostFactory(title='Artykuł z obrazkiem', text='<p><img src="media/uploads/article.webp" alt="Article image"></p>', visibility=Post.Visibility.PUBLIC, author=user)
+
+    response = client.get(reverse('board:public_view_post', args=[post.pk]))
+
+    assert response.status_code == 200
+    assert '<img src="/media/uploads/article.webp" alt="Article image">' in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_public_blog_slug_detail(client, authenticated_client):
     _, user = authenticated_client
     post = PostFactory(title='Slug article', visibility=Post.Visibility.PUBLIC, author=user, slug='slug-article')
