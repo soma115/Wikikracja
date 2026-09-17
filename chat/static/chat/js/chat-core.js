@@ -14,7 +14,7 @@ export {
     insertPlainTextAtCaret,
 } from '../../common/js/richtext-core.js';
 
-const UPLOAD_IMAGE_MAX_SIZE_MB = (window.SITE_SETTINGS && window.SITE_SETTINGS.uploadImageMaxSizeMb) || 5;
+const UPLOAD_IMAGE_MAX_SIZE_MB = (window.SITE_SETTINGS && window.SITE_SETTINGS.uploadImageMaxSizeMb) || 15;
 export const UPLOAD_MAX_BYTES = UPLOAD_IMAGE_MAX_SIZE_MB * 1_000_000;
 const UPLOAD_TIMEOUT_MS = 60_000;
 const IMAGE_MAX_DIMENSION = 1280;

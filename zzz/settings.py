@@ -125,8 +125,8 @@ CHANNEL_LAYERS = {'default': {'BACKEND': 'channels_redis.core.RedisChannelLayer'
 CACHES = {'default': {'BACKEND': 'django.core.cache.backends.redis.RedisCache', 'LOCATION': REDIS_HOST}}
 NOTIFICATION_THROTTLE_SECONDS = env_int("NOTIFICATION_THROTTLE_SECONDS", 90 * 60)
 
-UPLOAD_IMAGE_MAX_SIZE_MB = env_int("UPLOAD_IMAGE_MAX_SIZE_MB", 5)
-UPLOAD_ATTACHMENT_MAX_SIZE_MB = env_int("UPLOAD_ATTACHMENT_MAX_SIZE_MB", 5)
+UPLOAD_IMAGE_MAX_SIZE_MB = env_int("UPLOAD_IMAGE_MAX_SIZE_MB", 15)
+UPLOAD_ATTACHMENT_MAX_SIZE_MB = env_int("UPLOAD_ATTACHMENT_MAX_SIZE_MB", 15)
 
 # ZMIANA 5: maksymalna długość wiadomości czatu (konfigurowalna)
 MESSAGE_MAX_LENGTH = env_int("MESSAGE_MAX_LENGTH", 1500)

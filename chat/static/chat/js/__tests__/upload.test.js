@@ -157,7 +157,7 @@ describe.each(['embedded', 'full-page'])('%s upload', mode => {
         Object.defineProperty(files[0], 'size', { value: core.UPLOAD_MAX_BYTES + 1 });
         const { xhr } = await start(upload, files);
         expect(xhr.body.getAll('images')).toEqual([]);
-        expect(window.showToast).toHaveBeenCalledWith('Image is too large (max 5 MB).');
+        expect(window.showToast).toHaveBeenCalledWith('Image is too large (max 15 MB).');
     });
 });
 
