@@ -266,6 +266,7 @@ async def deliver_reaction(room, message_id, reaction, added, actor_id, actor_na
             'actor_id': str(actor_id),
             'actor_name': actor_name,
         }
+        log.info('Sending federated reaction target=%s reaction=%s message=%s', room.federated_instance_url, reaction, message_id)
         await _deliver_event(room, FEDERATION_REACTION_PATH, payload)
     except asyncio.CancelledError:
         raise
@@ -278,6 +279,7 @@ async def deliver_read(room, message_id, actor_id, actor_name):
         source_url = local_instance_url()
         message_source_url, message_source_id = await _message_federation_reference(message_id)
         payload = {'source_url': source_url, 'message_source_url': message_source_url, 'message_source_id': message_source_id, 'actor_id': str(actor_id), 'actor_name': actor_name}
+        log.info('Sending federated read target=%s message=%s', room.federated_instance_url, message_id)
         await _deliver_event(room, FEDERATION_READ_PATH, payload)
     except asyncio.CancelledError:
         raise

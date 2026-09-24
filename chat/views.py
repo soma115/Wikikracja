@@ -341,6 +341,7 @@ def federation_reaction(request: HttpRequest):
     else:
         event = {'type': 'chat.reaction', 'update_reactions': {'message_id': message.id, 'reaction': reaction, 'counts': counts, 'user_id': None, 'added': bool(payload.get('added'))}}
     async_to_sync(get_channel_layer().group_send)(message.room.group_name, event)
+    log.info('Federated reaction accepted source=%s reaction=%s message=%s', source_url, reaction, message.id)
     return JsonResponse({'accepted': True})
 
 
@@ -358,6 +359,7 @@ def federation_read(request: HttpRequest):
         return JsonResponse({'error': 'message_not_found'}, status=404)
     message, read_by = result
     async_to_sync(get_channel_layer().group_send)(message.room.group_name, {'type': 'chat.read', 'messages_read': {'message_id': message.id, 'read_by': read_by}})
+    log.info('Federated read accepted source=%s message=%s readers=%s', source_url, message.id, len(read_by))
     return JsonResponse({'accepted': True})
 
 
