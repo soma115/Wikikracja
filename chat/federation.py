@@ -17,13 +17,16 @@ from django.utils.translation import gettext_lazy as gettext
 
 from core.richtext import strip_tags
 from site_settings.params import get_param
+from zzz.templatetags.citizen_filters import user_display_name
 
-from .models import Room
+from .models import Message, Room
 
 log = logging.getLogger(__name__)
 
 FEDERATION_SOURCE = 'federation'
 FEDERATION_MESSAGE_PATH = 'chat/federation/message/'
+FEDERATION_REACTION_PATH = 'chat/federation/reaction/'
+FEDERATION_READ_PATH = 'chat/federation/read/'
 FEDERATION_INFO_PATH = 'chat/federation/info/'
 FEDERATION_TIMEOUT = 5
 FEDERATION_MAX_BODY = 64 * 1024
@@ -187,24 +190,180 @@ def make_federation_message_id(source_url, source_message_id):
     return hashlib.sha256(f'{source_url}\0{source_message_id}'.encode('utf-8')).hexdigest()
 
 
+@database_sync_to_async
+def _local_sender_name(message_id):
+    message = Message.objects.select_related('sender').get(pk=message_id)
+    if message.anonymous:
+        return 'Anonymous'
+    if message.sender is None:
+        return 'System'
+    return user_display_name(message.sender)
+
+
+@database_sync_to_async
+def _message_federation_reference(message_id):
+    message = Message.objects.get(pk=message_id)
+    source_url = message.federation_source_url or local_instance_url()
+    source_message_id = message.federation_source_message_id or str(message.id)
+    return source_url, source_message_id
+
+
+async def _deliver_event(room, path, payload):
+    if not room.federated_instance_url:
+        return
+    validate_outbound_host(room.federated_instance_url)
+    await asyncio.to_thread(_read_json, instance_endpoint(room.federated_instance_url, path), payload)
+
+
 async def deliver_message(room, message):
     """Send a local message to its configured peer without blocking chat."""
     try:
-        if not room.federated_instance_url:
-            return
-        sender_name = 'Anonymous' if message.anonymous else (message.sender_display_name or (message.sender.username if message.sender else 'System'))
         source_url = local_instance_url()
-        source_name = await database_sync_to_async(local_instance_name)()
-        payload = {'source_url': source_url, 'source_name': source_name, 'source_message_id': str(message.id), 'sender_name': sender_name, 'message': strip_tags(message.text)}
         if not source_url:
             log.warning('Cannot federate message %s: local instance URL is not configured', message.id)
             return
-        validate_outbound_host(room.federated_instance_url)
-        await asyncio.to_thread(_read_json, instance_endpoint(room.federated_instance_url, FEDERATION_MESSAGE_PATH), payload)
+        sender_name = await _local_sender_name(message.id)
+        source_name = await database_sync_to_async(local_instance_name)()
+        payload = {'source_url': source_url, 'source_name': source_name, 'source_message_id': str(message.id), 'sender_name': sender_name, 'message': strip_tags(message.text)}
+        await _deliver_event(room, FEDERATION_MESSAGE_PATH, payload)
     except asyncio.CancelledError:
         raise
     except Exception:
         log.exception('Federated message %s could not be sent to %s', message.id, room.federated_instance_url)
+
+
+@database_sync_to_async
+def federated_actor_name(user_id):
+    user = User.objects.select_related('uzytkownik').get(pk=user_id)
+    return user_display_name(user)
+
+
+def schedule_federated_event(coroutine):
+    task = asyncio.create_task(coroutine)
+    task.add_done_callback(_log_federated_event_error)
+    return task
+
+
+def _log_federated_event_error(task):
+    try:
+        task.result()
+    except asyncio.CancelledError:
+        return
+    except Exception:
+        log.exception('Federated event task failed')
+
+
+async def deliver_reaction(room, message_id, reaction, added, actor_id, actor_name):
+    try:
+        source_url = local_instance_url()
+        message_source_url, message_source_id = await _message_federation_reference(message_id)
+        payload = {
+            'source_url': source_url,
+            'message_source_url': message_source_url,
+            'message_source_id': message_source_id,
+            'reaction': reaction,
+            'added': bool(added),
+            'actor_id': str(actor_id),
+            'actor_name': actor_name,
+        }
+        await _deliver_event(room, FEDERATION_REACTION_PATH, payload)
+    except asyncio.CancelledError:
+        raise
+    except Exception:
+        log.exception('Federated reaction for message %s could not be sent to %s', message_id, room.federated_instance_url)
+
+
+async def deliver_read(room, message_id, actor_id, actor_name):
+    try:
+        source_url = local_instance_url()
+        message_source_url, message_source_id = await _message_federation_reference(message_id)
+        payload = {'source_url': source_url, 'message_source_url': message_source_url, 'message_source_id': message_source_id, 'actor_id': str(actor_id), 'actor_name': actor_name}
+        await _deliver_event(room, FEDERATION_READ_PATH, payload)
+    except asyncio.CancelledError:
+        raise
+    except Exception:
+        log.exception('Federated read marker for message %s could not be sent to %s', message_id, room.federated_instance_url)
+
+
+def _find_federated_message(source_url, message_source_url, message_source_id):
+    local_url = local_instance_url()
+    if message_source_url == local_url:
+        try:
+            message_id = int(message_source_id)
+        except (TypeError, ValueError):
+            return None
+        return Message.objects.filter(room__federated_instance_url=source_url, pk=message_id).first()
+    return Message.objects.filter(federation_source_url=message_source_url, federation_source_message_id=str(message_source_id)).first()
+
+
+def _federated_read_by_payload(message):
+    from core.presence import presence_data
+    from zzz.templatetags.citizen_filters import citizen_color_class, user_initials
+
+    entries = []
+    for entry in message.read_by.select_related('user__uzytkownik').order_by('id'):
+        user = entry.user
+        entries.append(
+            {
+                'user_id': user.id,
+                'username': user.username,
+                'display_name': user_display_name(user),
+                'initials': user_initials(user),
+                'avatar_url': '/static/home/images/favicon.ico',
+                'citizen_color_class': citizen_color_class(user.username),
+                **presence_data(user),
+            }
+        )
+    for entry in message.federated_read_by or []:
+        if isinstance(entry, dict) and entry.get('display_name'):
+            display_name = str(entry['display_name'])
+            entries.append(
+                {
+                    'user_id': None,
+                    'username': display_name,
+                    'display_name': display_name,
+                    'initials': display_name[:2].upper(),
+                    'avatar_url': '/static/home/images/anonymous.svg',
+                    'citizen_color_class': citizen_color_class(display_name),
+                    'presence_status': 'red',
+                    'presence_source': '',
+                    'presence_timestamp': None,
+                }
+            )
+    return entries
+
+
+def apply_federated_reaction(source_url, message_source_url, message_source_id, reaction, added, actor_id, actor_name):
+    message = _find_federated_message(source_url, message_source_url, message_source_id)
+    if message is None or reaction not in {'bulb', 'question', 'upvote', 'downvote'}:
+        return None
+    reactions = message.reactions if isinstance(message.reactions, dict) else {}
+    actor_key = f'{source_url}:{actor_id}'
+    values = list(reactions.get(reaction, []))
+    if added and actor_key not in values:
+        values.append(actor_key)
+    if not added:
+        values = [value for value in values if value != actor_key]
+    reactions[reaction] = values
+    if reaction in {'upvote', 'downvote'}:
+        opposite = 'downvote' if reaction == 'upvote' else 'upvote'
+        reactions[opposite] = [value for value in reactions.get(opposite, []) if value != actor_key]
+    message.reactions = reactions
+    message.save(update_fields=['reactions'])
+    return message, {'bulb': len(reactions.get('bulb', [])), 'question': len(reactions.get('question', [])), 'upvotes': len(reactions.get('upvotes', [])), 'downvotes': len(reactions.get('downvotes', []))}
+
+
+def apply_federated_read(source_url, message_source_url, message_source_id, actor_id, actor_name):
+    message = _find_federated_message(source_url, message_source_url, message_source_id)
+    if message is None:
+        return None
+    entries = list(message.federated_read_by or [])
+    key = (source_url, str(actor_id))
+    if not any((entry.get('source_url'), str(entry.get('actor_id'))) == key for entry in entries if isinstance(entry, dict)):
+        entries.append({'source_url': source_url, 'actor_id': str(actor_id), 'display_name': str(actor_name)[:255]})
+        message.federated_read_by = entries
+        message.save(update_fields=['federated_read_by'])
+    return message, _federated_read_by_payload(message)
 
 
 def validate_incoming_payload(payload):

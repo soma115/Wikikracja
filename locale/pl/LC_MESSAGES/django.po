@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-24 21:03+0200\n"
+"POT-Creation-Date: 2026-09-24 22:59+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -1455,23 +1455,23 @@ msgstr "Nazwa kategorii"
 msgid "Description (optional)"
 msgstr "Opis (opcjonalny)"
 
-#: .\chat\federation.py:46
+#: .\chat\federation.py:50
 msgid "Use a valid HTTPS instance address."
 msgstr ""
 
-#: .\chat\federation.py:48
+#: .\chat\federation.py:52
 msgid "Enter only the instance address, without a path."
 msgstr ""
 
-#: .\chat\federation.py:52
+#: .\chat\federation.py:56
 msgid "The instance address contains an invalid port."
 msgstr ""
 
-#: .\chat\federation.py:88
+#: .\chat\federation.py:92
 msgid "The instance address cannot point to a local network."
 msgstr ""
 
-#: .\chat\federation.py:108
+#: .\chat\federation.py:112
 msgid "The remote instance did not provide a group name."
 msgstr ""
 
@@ -1773,7 +1773,7 @@ msgstr "Brak wiadomości. Napisz pierwszy!"
 msgid "No access to this chat."
 msgstr "Brak dostępu do tego czatu."
 
-#: .\chat\models.py:11 .\chat\services.py:171
+#: .\chat\models.py:11 .\chat\services.py:183
 #: .\obywatele\tests\test_views.py:438 .\obywatele\tests\test_views.py:439
 #: .\obywatele\tests\test_views.py:442
 msgid "Chat room"
@@ -1793,11 +1793,11 @@ msgstr "Nadawca: %(author)s"
 msgid "Chat message"
 msgstr "Wiadomość"
 
-#: .\chat\services.py:30
+#: .\chat\services.py:42
 msgid "This is where messages from unregistered people outside the group appear. They used the Contact (Send a message to the group) option."
 msgstr "Tutaj pojawiają się wiadomości od niezalogowanych ludzi z zewnątrz, którzy użyli opcji Kontakt (Wyślij wiadomość do grupy)."
 
-#: .\chat\services.py:32
+#: .\chat\services.py:44
 msgid "Important documents and announcements appear in this room."
 msgstr "W tym pokoju pojawiają się ważne dokumenty i ogłoszenia."
 
@@ -1994,15 +1994,15 @@ msgstr "Działania"
 msgid "Mark as unread"
 msgstr "Oznacz jako nieprzeczytane"
 
-#: .\chat\views.py:82
+#: .\chat\views.py:83
 msgid "Invalid room name."
 msgstr "Nieprawidłowa nazwa pokoju."
 
-#: .\chat\views.py:307
+#: .\chat\views.py:362
 msgid "Too many messages. Please try again later."
 msgstr "Zbyt wiele wiadomości. Spróbuj ponownie później."
 
-#: .\chat\views.py:311
+#: .\chat\views.py:366
 msgid "The public inbox is not available at the moment."
 msgstr "Publiczna skrzynka nie jest obecnie dostępna."
 

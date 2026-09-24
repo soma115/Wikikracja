@@ -266,6 +266,24 @@ def build_chat_message_event(message: Message, *, new: bool = False, temp_id: st
                 }
             )
 
+    for remote_reader in message.federated_read_by or []:
+        if not isinstance(remote_reader, dict) or not remote_reader.get('display_name'):
+            continue
+        display_name = str(remote_reader['display_name'])
+        read_by_data.append(
+            {
+                'user_id': None,
+                'username': display_name,
+                'display_name': display_name,
+                'initials': display_name[:2].upper(),
+                'avatar_url': '/static/home/images/anonymous.svg',
+                'citizen_color_class': citizen_color_class(display_name),
+                'presence_status': 'red',
+                'presence_source': '',
+                'presence_timestamp': None,
+            }
+        )
+
     event = {
         'type': 'chat.message',
         'room_id': message.room_id,
@@ -714,7 +732,7 @@ def can_user_post_in_room(room, user):
     return True
 
 
-def _create_message(room, sender, text, anonymous, guest_email, guest_name, sender_display_name, reply_to_id, federation_message_id):
+def _create_message(room, sender, text, anonymous, guest_email, guest_name, sender_display_name, reply_to_id, federation_message_id, federation_source_url, federation_source_message_id):
     """Create and save a Message row, returning the instance."""
     message = Message(
         sender=sender,
@@ -726,6 +744,8 @@ def _create_message(room, sender, text, anonymous, guest_email, guest_name, send
         sender_display_name=sender_display_name,
         reply_to_id=reply_to_id,
         federation_message_id=federation_message_id or None,
+        federation_source_url=federation_source_url or '',
+        federation_source_message_id=federation_source_message_id or '',
     )
     message.save()
     return message
@@ -738,7 +758,23 @@ def _get_mentioned_users_sync(room, usernames):
     return list(room.allowed.filter(username__in=usernames, is_active=True))
 
 
-def _create_and_build_message(room, text, sender, anonymous, attachments, reply_to_id, temp_id, guest_email, guest_name, sender_display_name, linkify, include_voters, federation_message_id):
+def _create_and_build_message(
+    room,
+    text,
+    sender,
+    anonymous,
+    attachments,
+    reply_to_id,
+    temp_id,
+    guest_email,
+    guest_name,
+    sender_display_name,
+    linkify,
+    include_voters,
+    federation_message_id,
+    federation_source_url,
+    federation_source_message_id,
+):
     """Sync body of send_message: validate, persist, and build the channel event."""
     message_text = _prepare_message_text(text, linkify=linkify)
     if not _is_message_non_empty(message_text, attachments):
@@ -757,7 +793,7 @@ def _create_and_build_message(room, text, sender, anonymous, attachments, reply_
     if reply_to_id:
         reply_to = _get_reply_to_data_sync(reply_to_id, room.id, user=sender)
 
-    message = _create_message(room, sender, message_text, anonymous, guest_email, guest_name, sender_display_name, reply_to_id, federation_message_id)
+    message = _create_message(room, sender, message_text, anonymous, guest_email, guest_name, sender_display_name, reply_to_id, federation_message_id, federation_source_url, federation_source_message_id)
 
     if attachments:
         _save_attachments_sync(message.id, attachments)
@@ -788,6 +824,8 @@ async def send_message(
     online_registry=None,
     background=False,
     federation_message_id='',
+    federation_source_url='',
+    federation_source_message_id='',
     propagate_federated=True,
 ):
     """Create a chat message, broadcast it, and dispatch notifications.
@@ -817,6 +855,8 @@ async def send_message(
         linkify=linkify,
         include_voters=include_voters,
         federation_message_id=federation_message_id,
+        federation_source_url=federation_source_url,
+        federation_source_message_id=federation_source_message_id,
     )
 
     await channel_layer.group_send(room.group_name, event)

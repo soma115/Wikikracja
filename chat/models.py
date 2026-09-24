@@ -301,6 +301,9 @@ class Message(models.Model):
 
     # Stable id used to make incoming federated messages idempotent.
     federation_message_id = models.CharField(max_length=64, blank=True, null=True, unique=True)
+    federation_source_url = models.URLField(max_length=500, blank=True, default='')
+    federation_source_message_id = models.CharField(max_length=100, blank=True, default='')
+    federated_read_by = models.JSONField(default=list, blank=True)
 
     class Meta:
         unique_together = ('sender', 'text', 'room', 'time')

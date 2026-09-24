@@ -22,4 +22,6 @@ urlpatterns = [
     path('guest-message/', views.guest_message, name='guest_message'),
     path('federation/info/', views.federation_info, name='federation_info'),
     path('federation/message/', views.federation_message, name='federation_message'),
+    path('federation/reaction/', views.federation_reaction, name='federation_reaction'),
+    path('federation/read/', views.federation_read, name='federation_read'),
 ]

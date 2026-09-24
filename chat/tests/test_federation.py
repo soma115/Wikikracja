@@ -69,6 +69,31 @@ class FederationViewsTest(TestCase):
         self.assertEqual(payload['source_name'], 'Local group')
         self.assertEqual(payload['message'], 'Hello')
 
+    def make_remote_message(self):
+        room = Room.objects.create(title='Remote group', source_app='federation', public=True, protected=True, federated_instance_url='https://remote.test', federated_instance_name='Remote group')
+        room.allowed.add(self.user)
+        return room, Message.objects.create(room=room, text='Hello', federation_source_url='https://local.test', federation_source_message_id='5')
+
+    def test_reaction_is_applied_to_remote_message(self):
+        room, message = self.make_remote_message()
+        payload = {'source_url': 'https://remote.test', 'message_source_url': 'https://local.test', 'message_source_id': '5', 'reaction': 'bulb', 'added': True, 'actor_id': '7', 'actor_name': 'Remote User'}
+
+        response = self.client.post(reverse('chat:federation_reaction'), payload, content_type='application/json')
+
+        self.assertEqual(response.status_code, 200)
+        message.refresh_from_db()
+        self.assertEqual(message.reactions['bulb'], ['https://remote.test:7'])
+
+    def test_read_marker_is_applied_to_remote_message(self):
+        room, message = self.make_remote_message()
+        payload = {'source_url': 'https://remote.test', 'message_source_url': 'https://local.test', 'message_source_id': '5', 'actor_id': '7', 'actor_name': 'Remote User'}
+
+        response = self.client.post(reverse('chat:federation_read'), payload, content_type='application/json')
+
+        self.assertEqual(response.status_code, 200)
+        message.refresh_from_db()
+        self.assertEqual(message.federated_read_by, [{'source_url': 'https://remote.test', 'actor_id': '7', 'display_name': 'Remote User'}])
+
     def test_message_requires_mutual_configuration(self):
         payload = {'source_url': 'https://remote.test', 'source_name': 'Remote group', 'source_message_id': '1', 'sender_name': 'Remote user', 'message': 'Hello'}
 
@@ -87,4 +112,6 @@ class FederationViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         send_message.assert_awaited_once()
         self.assertEqual(send_message.await_args.kwargs['propagate_federated'], False)
+        self.assertEqual(send_message.await_args.kwargs['sender_display_name'], 'Remote user')
+        self.assertEqual(send_message.await_args.kwargs['federation_source_url'], 'https://remote.test')
         self.assertEqual(send_message.await_args.args[0], room)
