@@ -862,6 +862,7 @@ export async function onSocketMessage(data) {
     // updated by the dedicated room_unread_count event.
     else if (data.notification) { /* handled by notifications.js */ }
     // unread_count is consumed by the home page WS listener — ignore here
+    else if (data.unread_count !== undefined) { /* handled by the home page listener */ }
     else console.warn("Cannot handle message!");
 }
 

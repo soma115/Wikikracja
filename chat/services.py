@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import re
 
@@ -19,6 +20,17 @@ from .permissions import get_room_permission_checker
 from .utils import get_upload_path
 
 log = logging.getLogger(__name__)
+
+
+def _log_federated_delivery_error(task):
+    """Retrieve background delivery exceptions so asyncio does not hide them."""
+    try:
+        task.result()
+    except asyncio.CancelledError:
+        return
+    except Exception:
+        log.exception('Federated message delivery task failed')
+
 
 CHAT_UNREAD_CACHE_KEY = "chat_unread:{user_id}"
 CHAT_UNREAD_CACHE_TTL = 300
@@ -813,9 +825,8 @@ async def send_message(
 
     await ChatNotificationService(channel_layer, online_registry).dispatch_message(room, message, sender, mentioned_users)
     if propagate_federated and room.federated_instance_url:
-        import asyncio
-
         from .federation import deliver_message
 
-        asyncio.create_task(deliver_message(room, message))
+        delivery_task = asyncio.create_task(deliver_message(room, message))
+        delivery_task.add_done_callback(_log_federated_delivery_error)
     return message

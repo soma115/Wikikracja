@@ -132,7 +132,7 @@ def refresh_federated_status(room, force=False):
         communication_ok = True
         last_communication = now
     except (OSError, URLError, ValueError, TimeoutError) as exc:
-        log.info('Federation status check failed for %s: %s', room.federated_instance_url, exc)
+        log.info('Federation status check failed for %s from %s: %s', room.federated_instance_url, local_instance_url(), exc)
 
     room.federation_peer_configured = peer_configured
     room.federation_communication_ok = communication_ok
@@ -188,18 +188,21 @@ def make_federation_message_id(source_url, source_message_id):
 
 async def deliver_message(room, message):
     """Send a local message to its configured peer without blocking chat."""
-    if not room.federated_instance_url:
-        return
-    sender_name = 'Anonymous' if message.anonymous else (message.sender_display_name or (message.sender.username if message.sender else 'System'))
-    payload = {'source_url': local_instance_url(), 'source_name': local_instance_name(), 'source_message_id': str(message.id), 'sender_name': sender_name, 'message': strip_tags(message.text)}
-    if not payload['source_url']:
-        log.warning('Cannot federate message %s: local instance URL is not configured', message.id)
-        return
     try:
+        if not room.federated_instance_url:
+            return
+        sender_name = 'Anonymous' if message.anonymous else (message.sender_display_name or (message.sender.username if message.sender else 'System'))
+        source_url = local_instance_url()
+        payload = {'source_url': source_url, 'source_name': local_instance_name(), 'source_message_id': str(message.id), 'sender_name': sender_name, 'message': strip_tags(message.text)}
+        if not source_url:
+            log.warning('Cannot federate message %s: local instance URL is not configured', message.id)
+            return
         validate_outbound_host(room.federated_instance_url)
         await asyncio.to_thread(_read_json, instance_endpoint(room.federated_instance_url, FEDERATION_MESSAGE_PATH), payload)
-    except (OSError, URLError, ValueError, TimeoutError) as exc:
-        log.warning('Federated message %s could not be sent to %s: %s', message.id, room.federated_instance_url, exc)
+    except asyncio.CancelledError:
+        raise
+    except Exception:
+        log.exception('Federated message %s could not be sent to %s', message.id, room.federated_instance_url)
 
 
 def validate_incoming_payload(payload):
