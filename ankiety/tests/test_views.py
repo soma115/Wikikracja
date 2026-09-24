@@ -107,6 +107,17 @@ class SurveyViewsTests(TestCase):
         self.assertContains(response, 'class="tw-text-danger tw-text-sm tw-mt-1" role="alert"', count=2)
         self.assertEqual(Survey.objects.count(), 0)
 
+    def test_participant_can_vote_without_adding_custom_option_when_enabled(self):
+        survey = Survey.objects.create(title="Test survey", description="Description", end_date=timezone.now() + timedelta(days=1), author=self.author, allow_custom_options=True)
+        yes = SurveyOption.objects.create(survey=survey, text="Yes", order=0)
+        SurveyOption.objects.create(survey=survey, text="No", order=1)
+
+        self.client.login(username="other", password="pass")
+        response = self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"option": yes.pk})
+
+        self.assertRedirects(response, reverse("ankiety:detail", args=[survey.pk]))
+        self.assertTrue(SurveyVote.objects.filter(survey=survey, user=self.other, option=yes).exists())
+
     def test_participant_can_add_custom_option_when_enabled(self):
         survey = Survey.objects.create(title="Test survey", description="Description", end_date=timezone.now() + timedelta(days=1), author=self.author, allow_custom_options=True)
         SurveyOption.objects.bulk_create([SurveyOption(survey=survey, text="Yes", order=0), SurveyOption(survey=survey, text="No", order=1)])
@@ -337,6 +348,16 @@ class SurveyViewsTests(TestCase):
 
         self.assertContains(response, "tw-empty-state")
         self.assertContains(response, "tw-empty-state-title")
+
+    def test_detail_custom_option_is_not_required_for_voting(self):
+        survey = Survey.objects.create(title="Custom options", end_date=timezone.now() + timedelta(days=1), author=self.author, allow_custom_options=True)
+        SurveyOption.objects.create(survey=survey, text="Yes", order=0)
+        SurveyOption.objects.create(survey=survey, text="No", order=1)
+        self.client.login(username="author", password="pass")
+
+        response = self.client.get(reverse("ankiety:detail", args=[survey.pk]))
+
+        self.assertNotContains(response, 'name="text" required')
 
     def test_detail_custom_option_uses_standard_field_markup(self):
         survey = Survey.objects.create(title="Custom options", end_date=timezone.now() + timedelta(days=1), author=self.author, allow_custom_options=True)

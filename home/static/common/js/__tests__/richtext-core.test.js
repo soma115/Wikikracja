@@ -293,6 +293,46 @@ describe('insertPlainTextAtCaret — DOM structure', () => {
     });
 });
 
+// ── Regresja: link w wiadomości pozostaje po wejściu w tryb edycji ────────────
+
+describe('edycja wiadomości — zachowanie linków', () => {
+    let previousPurify;
+
+    beforeEach(() => {
+        previousPurify = global.DOMPurify;
+        global.DOMPurify = { sanitize: value => value };
+    });
+
+    afterEach(() => {
+        global.DOMPurify = previousPurify;
+    });
+
+    test('serializacja i ponowne renderowanie nie psują istniejącego linku', () => {
+        const original = 'Zobacz <a href="https://example.com/page?a=1&amp;b=2" target="_blank" rel="noopener">dokument</a>';
+        const input = makeEditable(original);
+
+        const serialized = core.getInputHtml(input);
+        input.innerHTML = serialized;
+        const rendered = core.formatMessage(core.getInputHtml(input));
+
+        expect(rendered).toContain('href="https://example.com/page?a=1&amp;b=2"');
+        expect(rendered).toContain('>dokument</a>');
+        expect(rendered).not.toMatch(/<a[^>]*><a/);
+    });
+
+    test('link pozostaje poprawny po dwóch kolejnych edycjach', () => {
+        const input = makeEditable('<a href="https://example.com">pierwsza wersja</a>');
+
+        for (const suffix of [' druga wersja', ' trzecia wersja']) {
+            input.innerHTML = core.getInputHtml(input) + suffix;
+            input.innerHTML = core.getInputHtml(input);
+        }
+
+        const result = core.formatMessage(core.getInputHtml(input));
+        expect(result).toBe('<a href="https://example.com">pierwsza wersja</a> druga wersja trzecia wersja');
+    });
+});
+
 // ── formatMessage: linkifikacja URL-i z &amp; w query stringu ─────────────────
 //
 // Bug: URL_REGEX nie zawierał ';' w character class query stringu, więc gdy

@@ -46,8 +46,10 @@ def notify_important_chat_on_important_post(sender, instance, created, **kwargs)
     post_url = f"{protocol}://{get_site_domain()}{post_path}"
     link = f"<a href='{post_url}'>{instance.title}</a>"
 
+    actor = instance.author if created else instance.updated_by
+
     if created and instance.is_important and instance.visibility in public_visibilities:
-        message = _("New important document by %(username)s: %(link)s") % {'username': user_display_name(instance.author), 'link': link}
+        message = _("New important document by %(username)s: %(link)s") % {'username': user_display_name(actor), 'link': link}
     elif important_changed and not instance.is_important:
         message = _("Document is no longer marked as important: %(link)s") % {'link': link}
     elif visibility_changed and instance.visibility == Post.Visibility.PRIVATE:
@@ -61,7 +63,7 @@ def notify_important_chat_on_important_post(sender, instance, created, **kwargs)
     else:
         return
 
-    chat_message_requested.send(sender=Post, system_key='important', room_title="Ważne", message_text=message, from_user=instance.author, anonymous=False)
+    chat_message_requested.send(sender=Post, system_key='important', room_title="Ważne", message_text=message, from_user=actor, anonymous=False)
     if instance.is_important and instance.visibility in public_visibilities:
         important_post_published.send(sender=Post, post=instance, url=build_site_url(post_path), created=created)
 

@@ -7079,6 +7079,14 @@ main.tw-main-content.tw-pt-3 {
   text-align: justify;
 }
 
+.tw-post-content ul {
+  list-style-type: disc;
+}
+
+.tw-post-content ol {
+  list-style-type: decimal;
+}
+
 .tw-post-content ul,
   .tw-post-content ol {
   margin: 0 0 1rem;

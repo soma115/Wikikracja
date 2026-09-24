@@ -12,7 +12,9 @@ from .models import Post
 class PostForm(forms.ModelForm):
     SYSTEM_LOCKED_FIELDS = ('title', 'category', 'visibility', 'is_important')
 
-    text = forms.CharField(widget=TinyMCE(), label=_("Text"))
+    text = forms.CharField(
+        widget=TinyMCE(mce_attrs={"content_style": "ul { list-style-type: disc; padding-left: 2rem; } ol { list-style-type: decimal; padding-left: 2rem; } li { margin-bottom: .35rem; }"}), label=_("Text")
+    )
 
     attachments = forms.FileField(required=False, label=_("Attachments"))
 

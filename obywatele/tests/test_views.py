@@ -221,6 +221,16 @@ class CitizenListViewTest(TestCase):
         self.assertNotContains(response, fourth_task.title)
         self.assertNotContains(response, completed_task.title)
 
+    def test_list_and_grid_show_pending_deletion_badge(self):
+        viewer = User.objects.create_user(username='deletion-viewer', password='secret', is_active=True)
+        citizen = User.objects.create_user(username='deletion-citizen', password='secret', is_active=True)
+        DeletionRequest.objects.create(user=citizen, scheduled_for=django_timezone.now() + timedelta(days=1))
+        self.client.force_login(viewer)
+
+        response = self.client.get(reverse('obywatele:obywatele'))
+
+        self.assertContains(response, f'title="{_("This person has requested account deletion")}"', count=2)
+
     def test_chat_button_shows_exact_unread_dm_count(self):
         viewer = User.objects.create_user(username='dm-viewer', password='secret', is_active=True)
         citizen = User.objects.create_user(username='dm-citizen', password='secret', is_active=True)

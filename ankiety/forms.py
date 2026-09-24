@@ -102,7 +102,7 @@ class SurveyForm(forms.ModelForm):
 
 
 class CustomSurveyOptionForm(forms.Form):
-    text = forms.CharField(max_length=200, label=_("Your option"), widget=forms.TextInput(attrs={"class": "tw-form-control", "placeholder": _("Add your own option")}))
+    text = forms.CharField(required=False, max_length=200, label=_("Your option"), widget=forms.TextInput(attrs={"class": "tw-form-control", "placeholder": _("Add your own option")}))
 
     def __init__(self, *args, survey=None, **kwargs):
         self.survey = survey

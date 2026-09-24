@@ -637,6 +637,22 @@ def test_private_important_post_does_not_notify_important_room(authenticated_cli
 
 
 @pytest.mark.django_db
+def test_important_post_update_message_uses_modifier_as_sender(authenticated_client):
+    _, author = authenticated_client
+    editor = UserFactory(username='document-editor', email='document-editor@example.com')
+    important_room = Room.objects.get(system_key='important')
+    important_room.messages.all().delete()
+    post = PostFactory(author=author, visibility=Post.Visibility.PUBLIC, is_important=True)
+
+    post.title = 'Zmieniony ważny dokument'
+    post.updated_by = editor
+    post.save(update_fields=['title', 'updated_by'])
+
+    message = important_room.messages.order_by('-id').first()
+    assert message.sender_id == editor.pk
+
+
+@pytest.mark.django_db
 def test_making_important_post_private_keeps_history_and_adds_status_message(authenticated_client):
     _, user = authenticated_client
     important_room = Room.objects.get(system_key='important')
@@ -663,6 +679,34 @@ def test_disabling_important_marker_adds_status_message(authenticated_client):
 
     assert important_room.messages.count() == 2
     assert gettext('Document is no longer marked as important: %(link)s') % {'link': ''} in important_room.messages.order_by('-id').first().text
+
+
+@pytest.mark.django_db
+def test_tinymce_list_configuration_and_markup_survive_post_save(authenticated_client):
+    client, _ = authenticated_client
+    form_response = client.get(reverse('board:create_post'))
+    config = form_response.context['form'].fields['text'].widget.get_mce_config({'id': 'id_text'})
+    assert 'list-style-type: disc' in config['content_style']
+    assert 'list-style-type: decimal' in config['content_style']
+    response = client.post(reverse('board:create_post'), {'title': 'Dokument z listą', 'text': '<ul><li>Pierwszy punkt</li><li>Drugi punkt</li></ul>', 'visibility': Post.Visibility.GROUP})
+
+    assert response.status_code == 302
+    post = Post.objects.get(title='Dokument z listą')
+    assert '<ul><li>Pierwszy punkt</li><li>Drugi punkt</li></ul>' in post.text
+
+
+@pytest.mark.django_db
+def test_important_post_update_without_modifier_uses_system_sender(authenticated_client):
+    _, author = authenticated_client
+    important_room = Room.objects.get(system_key='important')
+    important_room.messages.all().delete()
+    post = PostFactory(author=author, visibility=Post.Visibility.PUBLIC, is_important=True)
+
+    post.title = 'Zmiana bez znanego modyfikatora'
+    post.updated_by = None
+    post.save(update_fields=['title', 'updated_by'])
+
+    assert important_room.messages.order_by('-id').first().sender_id is None
 
 
 @pytest.mark.django_db
