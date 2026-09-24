@@ -88,10 +88,11 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         # leave personal group
         await self.channel_layer.group_discard(f"user_{self.scope['user'].id}", self.channel_name)
 
-        # remove user from online list
-        ChatConsumer.online_registry.make_offline(self)
-
-        await command_handlers.send_online_update(False)
+        # Only announce offline after the user's last tab disconnects. A stale
+        # connection must not hide a newer connection in the registry.
+        went_offline = ChatConsumer.online_registry.make_offline(self)
+        if went_offline:
+            await command_handlers.send_online_update(False)
 
     async def receive_json(self, content):
         """

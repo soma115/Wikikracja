@@ -1094,7 +1094,8 @@ export async function onReceiveMessages(messages) {
             message.your_reactions ?? [],
             message.read_by ?? [],
             message.upvoters, message.downvoters,
-            null, message.display_name ?? null, message.initials ?? null
+            null, message.display_name ?? null, message.initials ?? null, false,
+            message.presence_status ?? 'red', message.presence_source ?? '', message.presence_timestamp ?? null
         );
         if (message.new) updateRoomListForMessage(message);
         if (message.new && !message.own) WS_API?.markMessageRead(message.message_id);
@@ -1125,7 +1126,7 @@ export async function onReceiveMessages(messages) {
                 message.read_by ?? [],
                 message.upvoters, message.downvoters,
                 message.display_name ?? null, message.initials ?? null,
-                wasUnreadOnEntry(message)
+                wasUnreadOnEntry(message), message.presence_status ?? 'red', message.presence_source ?? '', message.presence_timestamp ?? null
             );
         }
         if (batchHtml) msgdiv.insertAdjacentHTML('beforeend', batchHtml);
@@ -1186,7 +1187,8 @@ export async function onReplaceMessages(messages, room_id) {
             message.your_reactions ?? [],
             message.read_by ?? [],
             message.upvoters, message.downvoters,
-            null, message.display_name ?? null, message.initials ?? null
+            null, message.display_name ?? null, message.initials ?? null, false,
+            message.presence_status ?? 'red', message.presence_source ?? '', message.presence_timestamp ?? null
         );
         if (message.your_vote) {
             DOM_API.getVoteDiv(message.message_id, message.your_vote)?.classList.add('tw-active');

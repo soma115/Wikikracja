@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-20 18:40+0200\n"
+"POT-Creation-Date: 2026-09-24 18:28+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -359,7 +359,7 @@ msgstr "Edytuj ankietę"
 msgid "Add survey"
 msgstr "Dodaj ankietę"
 
-#: .\ankiety\templates\ankiety\survey_form.html:20 .\board\forms.py:29
+#: .\ankiety\templates\ankiety\survey_form.html:20 .\board\forms.py:31
 #: .\board\templates\board\post_form.html:18 .\bookkeeping\forms.py:22
 #: .\bookkeeping\forms.py:52
 #: .\categories\templates\categories\_category_manager_init.html:19
@@ -460,52 +460,52 @@ msgstr "Tylko autor może usunąć tę ankietę."
 msgid "The survey has been deleted."
 msgstr "Ankieta została usunięta."
 
-#: .\board\forms.py:15 .\board\models.py:46
+#: .\board\forms.py:16 .\board\models.py:46
 msgid "Text"
 msgstr "Treść"
 
-#: .\board\forms.py:17 .\board\templates\board\post_detail.html:44
+#: .\board\forms.py:19 .\board\templates\board\post_detail.html:44
 #: .\board\templates\board\post_form.html:87
 msgid "Attachments"
 msgstr "Załączniki"
 
-#: .\board\forms.py:31
+#: .\board\forms.py:33
 msgid "Who can see this document"
 msgstr "Kto może zobaczyć ten dokument"
 
-#: .\board\forms.py:34
+#: .\board\forms.py:36
 msgid "The Important chat room will be notified"
 msgstr "Pokój czatu Ważne otrzyma powiadomienie."
 
-#: .\board\forms.py:38
+#: .\board\forms.py:40
 msgid "This field cannot be changed for a system document."
 msgstr "Tego pola nie można zmienić w dokumencie systemowym."
 
-#: .\board\forms.py:39
+#: .\board\forms.py:41
 #, python-format
 msgid "Maximum image size: %(max_size)s MB."
 msgstr "Maksymalny rozmiar obrazu: %(max_size)s MB."
 
-#: .\board\forms.py:41 .\zzz\context_processors.py:50
+#: .\board\forms.py:43 .\zzz\context_processors.py:50
 #, python-format
 msgid "Image is too large (max %s MB)."
 msgstr "Obraz jest za duży (maks. %s MB)."
 
-#: .\board\forms.py:42
+#: .\board\forms.py:44
 #, python-format
 msgid "Maximum file size: %(max_size)s MB."
 msgstr "Maksymalny rozmiar pliku: %(max_size)s MB."
 
-#: .\board\forms.py:49
+#: .\board\forms.py:51
 #, python-format
 msgid "Image is too large (max %(max_size)s MB)."
 msgstr "Obraz jest za duży (maks. %(max_size)s MB)."
 
-#: .\board\forms.py:57
+#: .\board\forms.py:59
 msgid "Only the author can make a document private."
 msgstr "Tylko autor może ustawić dokument jako prywatny."
 
-#: .\board\forms.py:66
+#: .\board\forms.py:68
 #, python-format
 msgid "File '%(filename)s' is too large (max %(max_size)s MB)."
 msgstr "Plik '%(filename)s' jest za duży (maks. %(max_size)s MB)."
@@ -625,7 +625,7 @@ msgstr "Klucz systemowy"
 msgid "Link Alias"
 msgstr "Alias linku"
 
-#: .\board\models.py:105 .\board\signals.py:110
+#: .\board\models.py:105 .\board\signals.py:112
 msgid "System posts cannot be deleted."
 msgstr "Dokumenty systemowe nie mogą być usunięte"
 
@@ -654,39 +654,39 @@ msgstr "Załącznik"
 msgid "Post Attachments"
 msgstr "Załączniki"
 
-#: .\board\signals.py:50
+#: .\board\signals.py:52
 #, fuzzy, python-format
 #| msgid "New important document by %(username)s: <a href='%(post_url)s'>%(title)s</a>"
 msgid "New important document by %(username)s: %(link)s"
 msgstr "Nowy ważny dokument od %(username)s: <a href='%(post_url)s'>%(title)s</a>"
 
-#: .\board\signals.py:52 .\tests\test_board.py:665
+#: .\board\signals.py:54 .\tests\test_board.py:681
 #, python-format
 msgid "Document is no longer marked as important: %(link)s"
 msgstr "Dokument nie jest już oznaczony jako ważny: %(link)s"
 
-#: .\board\signals.py:54 .\tests\test_board.py:651
+#: .\board\signals.py:56 .\tests\test_board.py:667
 #, python-format
 msgid "Important document was made private: %(link)s"
 msgstr "Ważny dokument został oznaczony jako prywatny: %(link)s"
 
-#: .\board\signals.py:56 .\tests\test_board.py:682
+#: .\board\signals.py:58 .\tests\test_board.py:726
 #, python-format
 msgid "Important document was archived: %(link)s"
 msgstr "Ważny dokument został zarchiwizowany: %(link)s"
 
-#: .\board\signals.py:58 .\tests\test_board.py:683
+#: .\board\signals.py:60 .\tests\test_board.py:727
 #, python-format
 msgid "Important document was made visible again: %(link)s"
 msgstr "Ważny dokument został ponownie udostępniony: %(link)s"
 
-#: .\board\signals.py:60
+#: .\board\signals.py:62
 #, fuzzy, python-format
 #| msgid "I've updated Important document: <a href='%(post_url)s'>%(title)s</a>"
 msgid "I've updated Important document: %(link)s"
 msgstr "Zaktualizowałem Ważny dokument: <a href='%(post_url)s'>%(title)s</a>"
 
-#: .\board\signals.py:78
+#: .\board\signals.py:80
 #, python-format
 msgid "Discussion room for document: <a href='%(url)s'>%(title)s</a>"
 msgstr "Pokój dyskusji do dokumentu: <a href='%(url)s'>%(title)s</a>"
@@ -1751,8 +1751,8 @@ msgid "No access to this chat."
 msgstr "Brak dostępu do tego czatu."
 
 #: .\chat\models.py:11 .\chat\services.py:171
-#: .\obywatele\tests\test_views.py:428 .\obywatele\tests\test_views.py:429
-#: .\obywatele\tests\test_views.py:432
+#: .\obywatele\tests\test_views.py:438 .\obywatele\tests\test_views.py:439
+#: .\obywatele\tests\test_views.py:442
 msgid "Chat room"
 msgstr "Pokój czatu"
 
@@ -1824,7 +1824,7 @@ msgstr "Brak"
 #: .\chat\templates\chat\chat.html:109 .\chat\templates\chat\chat.html:343
 #: .\home\navigation.py:10 .\home\services\dashboard.py:27 .\home\views.py:116
 #: .\home\views.py:278
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:65
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:66
 #: .\obywatele\templates\obywatele\szczegoly.html:175 .\obywatele\views.py:454
 msgid "Activities"
 msgstr "Działania"
@@ -1979,7 +1979,7 @@ msgid "The public inbox is not available at the moment."
 msgstr "Publiczna skrzynka nie jest obecnie dostępna."
 
 #: .\core\models.py:14 .\home\models.py:14
-#: .\home\templatetags\feed_filters.py:38 .\obywatele\tests\test_views.py:430
+#: .\home\templatetags\feed_filters.py:38 .\obywatele\tests\test_views.py:440
 #: .\tasks\activity.py:36 .\tasks\search.py:18
 msgctxt "task"
 msgid "Activity"
@@ -2280,20 +2280,20 @@ msgstr "Brak wydarzeń w wybranym miesiącu"
 msgid "Add the first event"
 msgstr "Stwórz pierwsze wydarzenie"
 
-#: .\glosowania\activity.py:13 .\obywatele\tests\test_views.py:355
+#: .\glosowania\activity.py:13 .\obywatele\tests\test_views.py:365
 msgid "Added argument"
 msgstr "Dodano argument"
 
-#: .\glosowania\activity.py:17 .\obywatele\tests\test_views.py:361
+#: .\glosowania\activity.py:17 .\obywatele\tests\test_views.py:371
 msgid "Signed proposal"
 msgstr "Podpisano propozycję"
 
-#: .\glosowania\activity.py:20 .\obywatele\tests\test_views.py:374
+#: .\glosowania\activity.py:20 .\obywatele\tests\test_views.py:384
 msgid "Voted in referendum"
 msgstr "Zagłosowano w referendum"
 
-#: .\glosowania\activity.py:32 .\obywatele\tests\test_views.py:431
-#: .\obywatele\tests\test_views.py:433
+#: .\glosowania\activity.py:32 .\obywatele\tests\test_views.py:441
+#: .\obywatele\tests\test_views.py:443
 msgid "Voting proposal"
 msgstr "Propozycja głosowania"
 
@@ -4159,7 +4159,7 @@ msgid "If running a business"
 msgstr "Jaki prowadzisz biznes. Np adres www."
 
 #: .\obywatele\models.py:93
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:61
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:62
 #: .\obywatele\templates\obywatele\my_profile.html:178
 #: .\obywatele\templates\obywatele\szczegoly.html:143
 #: .\obywatele\tests\test_views.py:212
@@ -4171,7 +4171,7 @@ msgid "Profession"
 msgstr "Wykonywany zawód"
 
 #: .\obywatele\models.py:94
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:62
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:63
 #: .\obywatele\templates\obywatele\my_profile.html:176
 #: .\obywatele\templates\obywatele\szczegoly.html:124
 #: .\obywatele\tests\test_views.py:213
@@ -4350,7 +4350,7 @@ msgstr ""
 "\n"
 "%(reason)s"
 
-#: .\obywatele\services.py:37 .\obywatele\tests\test_views.py:357
+#: .\obywatele\services.py:37 .\obywatele\tests\test_views.py:367
 msgid "Citizenship event"
 msgstr "Zdarzenie obywatelskie"
 
@@ -4464,43 +4464,45 @@ msgstr "Aktywni 7 dni"
 msgid "Inactive 7+ days"
 msgstr "Nieaktywni 7+ dni"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:15
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:85
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:14
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:53
+#: .\obywatele\templates\obywatele\szczegoly.html:33
+#: .\obywatele\tests\test_views.py:232
+msgid "This person has requested account deletion"
+msgstr "Ta osoba zażądała usunięcia swojego konta"
+
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:16
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:86
 #: .\obywatele\templates\obywatele\poczekalnia.html:91
 msgid "No email"
 msgstr "Brak e-maila"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:16
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:94
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:17
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:95
 msgid "No contact method"
 msgstr "Brak metody kontaktu"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:17
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:99
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:18
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:100
 msgid "Direct message"
 msgstr "Wiadomość bezpośrednia"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:17
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:104
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:18
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:105
 #: .\obywatele\templates\obywatele\szczegoly.html:90
 msgid "This is you"
 msgstr "To jesteś Ty"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:51
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:52
 msgid "This person has low reputation points"
 msgstr "Ta osoba ma mało punktów reputacji"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:52
-#: .\obywatele\templates\obywatele\szczegoly.html:33
-msgid "This person has requested account deletion"
-msgstr "Ta osoba zażądała usunięcia swojego konta"
-
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:63
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:64
 #: .\obywatele\tests\test_views.py:214
 msgid "Hobby"
 msgstr "Hobby"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:71
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:72
 msgid "No activities"
 msgstr "Brak działań"
 
@@ -4594,7 +4596,7 @@ msgstr "Tutaj możesz edytować twoje zasoby"
 
 #: .\obywatele\templates\obywatele\my_assets.html:22
 #: .\obywatele\templates\obywatele\onboarding_details.html:21
-#: .\obywatele\tests\test_views.py:654
+#: .\obywatele\tests\test_views.py:664
 msgid "The form could not be saved. Please correct the following errors:"
 msgstr "Nie udało się zapisać formularza. Popraw następujące błędy:"
 
@@ -4905,19 +4907,19 @@ msgstr "Zaproś"
 msgid "Parameters"
 msgstr "Parametry"
 
-#: .\obywatele\tests\test_views.py:356 .\tasks\activity.py:44
+#: .\obywatele\tests\test_views.py:366 .\tasks\activity.py:44
 msgid "Assigned activity"
 msgstr "Przydzielone działanie"
 
-#: .\obywatele\tests\test_views.py:358 .\tasks\activity.py:47
+#: .\obywatele\tests\test_views.py:368 .\tasks\activity.py:47
 msgid "Voted on activity"
 msgstr "Zagłosowano na działanie"
 
-#: .\obywatele\tests\test_views.py:359 .\tasks\activity.py:50
+#: .\obywatele\tests\test_views.py:369 .\tasks\activity.py:50
 msgid "Evaluated activity"
 msgstr "Oceniono działanie"
 
-#: .\obywatele\tests\test_views.py:360 .\tasks\activity.py:41
+#: .\obywatele\tests\test_views.py:370 .\tasks\activity.py:41
 msgid "Created activity"
 msgstr "Utworzone działanie"
 

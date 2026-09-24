@@ -37,18 +37,19 @@ class OnlineUserRegistry:
         self._reg[user.id] = consumer
 
     def make_offline(self, consumer):
+        """Remove a connection and return whether the user is now offline."""
         user = consumer.scope['user']
         if not user.is_authenticated:
-            for user_id, cons in list(self._reg.items()):
-                if cons == consumer:
+            for user_id, registered_consumer in list(self._reg.items()):
+                if registered_consumer is consumer:
                     del self._reg[user_id]
-                    return
-            return
-        try:
-            if self._reg.get(user.id) is consumer:
-                del self._reg[user.id]
-        except KeyError:
-            pass  # User already removed from registry, this is normal
+                    return True
+            return False
+
+        if self._reg.get(user.id) is not consumer:
+            return False
+        del self._reg[user.id]
+        return True
 
     def is_online(self, user):
         if user is not None:

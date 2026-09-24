@@ -1,10 +1,27 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.test import SimpleTestCase
 
-from chat.utils import get_upload_path
+from chat.utils import OnlineUserRegistry, get_upload_path
+
+
+class OnlineUserRegistryTest(SimpleTestCase):
+    def test_stale_tab_disconnect_does_not_mark_user_offline(self):
+        user = SimpleNamespace(id=1, is_authenticated=True)
+        first = SimpleNamespace(scope={'user': user})
+        second = SimpleNamespace(scope={'user': user})
+        registry = OnlineUserRegistry()
+
+        registry.make_online(user, first)
+        registry.make_online(user, second)
+
+        self.assertFalse(registry.make_offline(first))
+        self.assertIs(registry.get_consumer(user), second)
+        self.assertTrue(registry.make_offline(second))
+        self.assertEqual(registry.get_online(), [])
 
 
 class UploadPathTest(SimpleTestCase):

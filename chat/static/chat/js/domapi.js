@@ -57,7 +57,7 @@ export default class DomApi {
         return room ? $('.tw-chat-messages', room) : null;
     }
 
-    buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null, display_name = null, initials = null, unread_on_entry = false) {
+    buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null, display_name = null, initials = null, unread_on_entry = false, presence_status = 'red', presence_source = '', presence_timestamp = null) {
         const formatted = this.formatMessage(message);
         return Message({
             room_id, user_id, avatar_url, citizen_color_class, message_id, username, display_name, initials,
@@ -72,12 +72,15 @@ export default class DomApi {
             read_by: read_by ?? [],
             upvoters: upvoters ?? [],
             downvoters: downvoters ?? [],
+            presence_status,
+            presence_source,
+            presence_timestamp,
             unread_on_entry,
         });
     }
 
-    addMessage(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null, temp_id = null, display_name = null, initials = null, unread_on_entry = false) {
-        const html = this.buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to, reactions, your_reactions, read_by, upvoters, downvoters, display_name, initials, unread_on_entry);
+    addMessage(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to = null, reactions = null, your_reactions = null, read_by = null, upvoters = null, downvoters = null, temp_id = null, display_name = null, initials = null, unread_on_entry = false, presence_status = 'red', presence_source = '', presence_timestamp = null) {
+        const html = this.buildMessageHtml(room_id, user_id, avatar_url, citizen_color_class, message_id, username, message, upvotes, downvotes, vote, own, edited, attachments, original_ts, latest_ts, reply_to, reactions, your_reactions, read_by, upvoters, downvoters, display_name, initials, unread_on_entry, presence_status, presence_source, presence_timestamp);
 
         const messagesDiv = this.getMessagesDiv();
         messagesDiv?.insertAdjacentHTML('beforeend', html);
