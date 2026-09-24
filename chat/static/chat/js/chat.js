@@ -1052,6 +1052,10 @@ function wasUnreadOnEntry(message) {
     return !message.own && message.read_by_current_user === false;
 }
 
+function ownMessagePresenceStatus(isAnonymous) {
+    return isAnonymous ? 'red' : 'green';
+}
+
 function isRealtimeMessage(messages) {
     return messages.length === 1 && Boolean(messages[0]?.new || messages[0]?.temp_id);
 }
@@ -1512,7 +1516,8 @@ export async function onSubmitMessage(message, editing_message_id) {
             0, 0, null, true, false,
             attachments, now, now,
             reply_to, { bulb: 0, question: 0 }, [], [],
-            null, null, temp_id, ownUsername, ownInitials
+            null, null, temp_id, ownUsername, ownInitials, false,
+            ownMessagePresenceStatus(is_anonymous)
         );
         requestAnimationFrame(() => DOM_API.markOverflow(DOM_API.getMessageDiv(temp_id)));
         if (msgdiv) msgdiv.scrollTop = msgdiv.scrollHeight;
