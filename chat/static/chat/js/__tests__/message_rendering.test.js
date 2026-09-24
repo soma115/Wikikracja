@@ -2,17 +2,20 @@ const fs = require('fs');
 const path = require('path');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'chat.js'), 'utf8');
-const helperSource = source.match(/function ownMessagePresenceStatus\([\s\S]*?\n}\n/)[0];
-const ownMessagePresenceStatus = new Function(`${helperSource}; return ownMessagePresenceStatus;`)();
+const helperSource = source.match(/function ownMessagePresence\([\s\S]*?\n}\n/)[0];
+const ownMessagePresence = new Function(`${helperSource}; return ownMessagePresence;`)();
 const realtimeHelperSource = source.match(/function isRealtimeMessage\([\s\S]*?\n}\n/)[0];
 const isRealtimeMessage = new Function(`${realtimeHelperSource}; return isRealtimeMessage;`)();
 
-test('marks a non-anonymous optimistic message as online', () => {
-    expect(ownMessagePresenceStatus(false)).toBe('green');
+test('marks a non-anonymous optimistic message as online with a parseable timestamp', () => {
+    const presence = ownMessagePresence(false, 0);
+    expect(presence.status).toBe('green');
+    expect(presence.source).toBe('app');
+    expect(Date.parse(presence.timestamp)).toBe(0);
 });
 
 test('keeps anonymous optimistic messages red', () => {
-    expect(ownMessagePresenceStatus(true)).toBe('red');
+    expect(ownMessagePresence(true, 0)).toEqual({ status: 'red', source: '', timestamp: null });
 });
 
 test('treats the sender echo with temp_id as a realtime message', () => {

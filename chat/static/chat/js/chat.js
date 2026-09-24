@@ -1052,8 +1052,9 @@ function wasUnreadOnEntry(message) {
     return !message.own && message.read_by_current_user === false;
 }
 
-function ownMessagePresenceStatus(isAnonymous) {
-    return isAnonymous ? 'red' : 'green';
+function ownMessagePresence(isAnonymous, timestamp) {
+    if (isAnonymous) return { status: 'red', source: '', timestamp: null };
+    return { status: 'green', source: 'app', timestamp: new Date(timestamp).toISOString() };
 }
 
 function isRealtimeMessage(messages) {
@@ -1506,6 +1507,7 @@ export async function onSubmitMessage(message, editing_message_id) {
             ? 'AN'
             : (userNameEl?.dataset?.initials || '');
         const now = Date.now();
+        const ownPresence = ownMessagePresence(is_anonymous, now);
 
         DOM_API.removeNoMessagesBanner();
         const msgdiv = DOM_API.getMessagesDiv();
@@ -1517,7 +1519,7 @@ export async function onSubmitMessage(message, editing_message_id) {
             attachments, now, now,
             reply_to, { bulb: 0, question: 0 }, [], [],
             null, null, temp_id, ownUsername, ownInitials, false,
-            ownMessagePresenceStatus(is_anonymous)
+            ownPresence.status, ownPresence.source, ownPresence.timestamp
         );
         requestAnimationFrame(() => DOM_API.markOverflow(DOM_API.getMessageDiv(temp_id)));
         if (msgdiv) msgdiv.scrollTop = msgdiv.scrollHeight;
