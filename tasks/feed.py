@@ -14,7 +14,7 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
     """
     tasks = (
         Task.objects.filter(Q(updated_at__gte=since) | Q(assigned_to__isnull=False, status=Task.Status.ACTIVE))
-        .select_related('created_by', 'created_by__uzytkownik', 'assigned_to', 'assigned_to__uzytkownik')
+        .select_related('created_by', 'created_by__uzytkownik', 'assigned_to', 'assigned_to__uzytkownik', 'category')
         .order_by('-updated_at')
     )
     items = []
@@ -25,6 +25,9 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
                 'title': task.title,
                 'description': plain_text(task.description, 125),
                 'author': task.created_by or task.assigned_to,
+                'status_label': task.get_status_display(),
+                'status_color': {Task.Status.ACTIVE: 'warning', Task.Status.COMPLETED: 'success', Task.Status.CANCELLED: 'secondary', Task.Status.REJECTED: 'danger'}.get(task.status, 'secondary'),
+                'category_label': task.category.name if task.category else None,
                 'timestamp': task.updated_at,
                 'url': f"/tasks/{task.pk}/",
                 'object_id': task.pk,

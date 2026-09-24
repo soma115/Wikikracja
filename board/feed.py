@@ -7,7 +7,7 @@ from .models import Post
 
 def get_feed_items(since: timezone.datetime) -> list[dict]:
     """Return feed items for board posts modified since `since`."""
-    posts = Post.objects.filter(updated__gte=since, visibility__in=(Post.Visibility.GROUP, Post.Visibility.PUBLIC)).select_related('author', 'author__uzytkownik').order_by('-updated')
+    posts = Post.objects.filter(updated__gte=since, visibility__in=(Post.Visibility.GROUP, Post.Visibility.PUBLIC)).select_related('author', 'author__uzytkownik', 'category').order_by('-updated')
     items = []
     for post in posts:
         items.append(
@@ -17,6 +17,7 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
                 'subtitle': post.subtitle,
                 'description': plain_text(post.text, 125),
                 'author': post.author,
+                'category_label': post.category.name if post.category else None,
                 'timestamp': post.updated,
                 'url': f"/board/view/{post.pk}/",
                 'object_id': post.pk,

@@ -77,6 +77,23 @@ def test_feed_description_truncation(feed_user):
 
 
 @pytest.mark.django_db
+def test_feed_items_include_voting_status_and_post_category(feed_user):
+    cache.delete(FEED_CACHE_KEY)
+    category = PostCategoryFactory(name='Community')
+    post = PostFactory(author=feed_user, category=category, title='Categorized post', text='Post body')
+    Post.objects.filter(pk=post.pk).update(updated=timezone.now())
+    decision = Decyzja.objects.create(title='Current decision', tresc='Decision body', author=feed_user, status=Decyzja.Status.REFERENDUM)
+
+    items = generate_feed_raw()
+    post_item = next(item for item in items if item['content_type'] == 'post' and item['object_id'] == post.pk)
+    decision_item = next(item for item in items if item['content_type'] == 'decision' and item['object_id'] == decision.pk)
+
+    assert post_item['category_label'] == 'Community'
+    assert decision_item['status_label'] == Decyzja.Status.REFERENDUM.label
+    assert decision_item['status_color'] == 'warning'
+
+
+@pytest.mark.django_db
 def test_feed_raw_cache_hit_and_miss(feed_user):
     cache.delete(FEED_CACHE_KEY)
     category = PostCategoryFactory()

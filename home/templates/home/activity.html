@@ -60,6 +60,12 @@
               <span>{{ item.author|display_name }}</span>
             </span>
             {% endif %}
+            {% if item.status_label %}
+            <span class="tw-badge-status tw-badge-{{ item.status_color|default:'secondary' }} tw-badge-status-xs">{{ item.status_label }}</span>
+            {% endif %}
+            {% if item.category_label %}
+            <span class="tw-badge-status tw-badge-secondary tw-badge-status-xs">{{ item.category_label }}</span>
+            {% endif %}
             <span class="tw-feed-toggle"
                   role="button"
                   tabindex="0"
