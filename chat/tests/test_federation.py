@@ -1,10 +1,11 @@
 from unittest.mock import AsyncMock, patch
 
+from asgiref.sync import async_to_sync
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from chat.federation import normalize_instance_url, refresh_federated_status
-from chat.models import Room
+from chat.federation import deliver_message, normalize_instance_url, refresh_federated_status
+from chat.models import Message, Room
 from chat.tests.utils import make_user
 
 
@@ -54,6 +55,19 @@ class FederationViewsTest(TestCase):
         self.assertTrue(room.federation_communication_ok)
         self.assertIsNotNone(room.federation_last_checked_at)
         self.assertIsNotNone(room.federation_last_communication_at)
+
+    def test_delivery_reads_site_name_without_sync_database_error(self):
+        room = Room.objects.create(title='Remote group', source_app='federation', public=True, protected=True, federated_instance_url='https://remote.test', federated_instance_name='Remote group')
+        room.allowed.add(self.user)
+        message = Message.objects.create(room=room, sender=self.user, text='Hello')
+
+        with patch('chat.federation._read_json', return_value={'accepted': True}) as read_json:
+            async_to_sync(deliver_message)(room, message)
+
+        payload = read_json.call_args.args[1]
+        self.assertEqual(payload['source_url'], 'http://local.test')
+        self.assertEqual(payload['source_name'], 'Local group')
+        self.assertEqual(payload['message'], 'Hello')
 
     def test_message_requires_mutual_configuration(self):
         payload = {'source_url': 'https://remote.test', 'source_name': 'Remote group', 'source_message_id': '1', 'sender_name': 'Remote user', 'message': 'Hello'}

@@ -9,6 +9,7 @@ from urllib.error import URLError
 from urllib.parse import urlencode, urlsplit, urlunsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
+from channels.db import database_sync_to_async
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -193,7 +194,8 @@ async def deliver_message(room, message):
             return
         sender_name = 'Anonymous' if message.anonymous else (message.sender_display_name or (message.sender.username if message.sender else 'System'))
         source_url = local_instance_url()
-        payload = {'source_url': source_url, 'source_name': local_instance_name(), 'source_message_id': str(message.id), 'sender_name': sender_name, 'message': strip_tags(message.text)}
+        source_name = await database_sync_to_async(local_instance_name)()
+        payload = {'source_url': source_url, 'source_name': source_name, 'source_message_id': str(message.id), 'sender_name': sender_name, 'message': strip_tags(message.text)}
         if not source_url:
             log.warning('Cannot federate message %s: local instance URL is not configured', message.id)
             return
