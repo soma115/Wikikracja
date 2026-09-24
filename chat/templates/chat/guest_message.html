@@ -16,7 +16,7 @@
         </div>
       {% endif %}
 
-      <form method="post" action="{% url 'chat:guest_message' %}">
+      <form method="post" action="{% url 'contact' %}">
         {% csrf_token %}
         {{ form|crispy }}
         <button type="submit" class="tw-btn tw-btn-info tw-block tw-w-full tw-m-2 tw-btn-sm">

@@ -8,6 +8,7 @@ from django.views.generic import RedirectView
 from django.views.static import serve
 
 from board import views as bv
+from chat import views as cv
 from home import views as hv
 from obywatele import views as ov
 
@@ -22,6 +23,7 @@ urlpatterns: List[URLPattern | URLResolver] = [
     path('accounts/', include('allauth.urls')),
     path('favicon.ico', RedirectView.as_view(url='/static/home/images/favicon.ico')),
     path('captcha/', include('captcha.urls')),
+    path('contact', cv.guest_message, name='contact'),
     path('glosowania/', include('glosowania.urls', namespace='glosowania')),
     path('obywatele/', include('obywatele.urls', namespace='obywatele')),
     path('chat/', include('chat.urls', namespace='chat')),

@@ -288,7 +288,7 @@
         </button>
         <ul class="tw-dropdown-menu tw-dropdown-menu-end">{% spaceless %}<li><a href="{% url 'login' %}" class="tw-dropdown-item tw-justify-end tw-text-end">{% trans "Login" %}<i class="fas fa-right-to-bracket fa-fw tw-ms-2"></i></a></li>
           {% if group_is_public %}<li><a href="{% url 'account_signup' %}" class="tw-dropdown-item tw-justify-end tw-text-end">{% trans "Join" %}<i class="fas fa-user-plus fa-fw tw-ms-2"></i></a></li>{% endif %}
-          <li><a href="{% url 'chat:guest_message' %}" class="tw-dropdown-item tw-justify-end tw-text-end {% if request.resolver_match.url_name == 'guest_message' %}tw-active{% endif %}">{% trans "Contact" %}<i class="fas fa-envelope fa-fw tw-ms-2"></i></a></li>
+          <li><a href="{% url 'contact' %}" class="tw-dropdown-item tw-justify-end tw-text-end {% if request.resolver_match.url_name == 'contact' %}tw-active{% endif %}">{% trans "Contact" %}<i class="fas fa-envelope fa-fw tw-ms-2"></i></a></li>
           <li class="tw-dropdown-divider"></li>
           <li>
             <form method="post" action="{% url 'obywatele:set_language' %}">

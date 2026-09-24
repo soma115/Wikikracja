@@ -277,12 +277,12 @@ class GuestMessageViewTest(TestCase):
         return {'guest_email': 'guest@example.com', 'guest_name': 'Jan Kowalski', 'message': 'Hello from a guest', 'captcha_0': store.hashkey, 'captcha_1': 'test'}
 
     def test_guest_message_get(self):
-        response = self.client.get(reverse("chat:guest_message"))
+        response = self.client.get(reverse("contact"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, _("Send a message"))
 
     def test_guest_message_post_creates_message(self):
-        response = self.client.post(reverse("chat:guest_message"), self._captcha_data())
+        response = self.client.post(reverse("contact"), self._captcha_data())
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context.get('sent'))
         self.assertTrue(Message.objects.filter(room=self.inbox, anonymous=True).exists())
@@ -296,7 +296,7 @@ class GuestMessageViewTest(TestCase):
     def test_guest_message_post_invalid_captcha(self):
         data = self._captcha_data()
         data['captcha_1'] = 'wrong'
-        response = self.client.post(reverse("chat:guest_message"), data)
+        response = self.client.post(reverse("contact"), data)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Message.objects.filter(room=self.inbox).exists())
 
@@ -304,13 +304,13 @@ class GuestMessageViewTest(TestCase):
         for i in range(3):
             data = self._captcha_data()
             data['message'] = f'Message {i}'
-            self.client.post(reverse("chat:guest_message"), data)
+            self.client.post(reverse("contact"), data)
         self.assertEqual(Message.objects.filter(room=self.inbox).count(), 3)
 
         # Fourth message should be rejected by the rate limiter
         data = self._captcha_data()
         data['message'] = 'Message 4'
-        response = self.client.post(reverse("chat:guest_message"), data)
+        response = self.client.post(reverse("contact"), data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Message.objects.filter(room=self.inbox).count(), 3)
 
