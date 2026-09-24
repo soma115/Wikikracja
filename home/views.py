@@ -16,6 +16,7 @@ from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_GET, require_POST
 
+from chat.federation import deactivate_federated_room, discover_instance, ensure_federated_room, normalize_instance_url
 from core.search_registry import collect_search_results
 from core.services import feed as feed_service
 from site_settings.models import QuickLink, SiteParameters
@@ -401,6 +402,26 @@ def _quick_link_data(request):
 
 @login_required
 def group_settings(request: HttpRequest) -> HttpResponse:
+    if request.method == 'POST' and 'add_federated_instance' in request.POST:
+        try:
+            instance_url = normalize_instance_url(request.POST.get('federated_instance_url'))
+            name = discover_instance(instance_url)
+        except (ValueError, OSError):
+            messages.error(request, _('Could not connect to a valid Wikikracja instance.'))
+        else:
+            ensure_federated_room(instance_url, name)
+            messages.success(request, _('Other group added.'))
+        return redirect('group_settings')
+
+    if request.method == 'POST' and 'delete_federated_instance' in request.POST:
+        try:
+            instance_url = normalize_instance_url(request.POST.get('delete_federated_instance'))
+            deactivate_federated_room(instance_url)
+            messages.success(request, _('Other group archived.'))
+        except ValueError:
+            messages.error(request, _('Invalid instance address.'))
+        return redirect('group_settings')
+
     if request.method == 'POST' and 'save_quick_link' in request.POST:
         link_data = _quick_link_data(request)
         if link_data is None:

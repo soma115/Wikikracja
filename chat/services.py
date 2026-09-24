@@ -702,9 +702,19 @@ def can_user_post_in_room(room, user):
     return True
 
 
-def _create_message(room, sender, text, anonymous, guest_email, guest_name, sender_display_name, reply_to_id):
+def _create_message(room, sender, text, anonymous, guest_email, guest_name, sender_display_name, reply_to_id, federation_message_id):
     """Create and save a Message row, returning the instance."""
-    message = Message(sender=sender, text=text, room=room, anonymous=anonymous, guest_email=guest_email, guest_name=guest_name, sender_display_name=sender_display_name, reply_to_id=reply_to_id)
+    message = Message(
+        sender=sender,
+        text=text,
+        room=room,
+        anonymous=anonymous,
+        guest_email=guest_email,
+        guest_name=guest_name,
+        sender_display_name=sender_display_name,
+        reply_to_id=reply_to_id,
+        federation_message_id=federation_message_id or None,
+    )
     message.save()
     return message
 
@@ -716,7 +726,7 @@ def _get_mentioned_users_sync(room, usernames):
     return list(room.allowed.filter(username__in=usernames, is_active=True))
 
 
-def _create_and_build_message(room, text, sender, anonymous, attachments, reply_to_id, temp_id, guest_email, guest_name, sender_display_name, linkify, include_voters):
+def _create_and_build_message(room, text, sender, anonymous, attachments, reply_to_id, temp_id, guest_email, guest_name, sender_display_name, linkify, include_voters, federation_message_id):
     """Sync body of send_message: validate, persist, and build the channel event."""
     message_text = _prepare_message_text(text, linkify=linkify)
     if not _is_message_non_empty(message_text, attachments):
@@ -735,7 +745,7 @@ def _create_and_build_message(room, text, sender, anonymous, attachments, reply_
     if reply_to_id:
         reply_to = _get_reply_to_data_sync(reply_to_id, room.id, user=sender)
 
-    message = _create_message(room, sender, message_text, anonymous, guest_email, guest_name, sender_display_name, reply_to_id)
+    message = _create_message(room, sender, message_text, anonymous, guest_email, guest_name, sender_display_name, reply_to_id, federation_message_id)
 
     if attachments:
         _save_attachments_sync(message.id, attachments)
@@ -765,6 +775,8 @@ async def send_message(
     channel_layer=None,
     online_registry=None,
     background=False,
+    federation_message_id='',
+    propagate_federated=True,
 ):
     """Create a chat message, broadcast it, and dispatch notifications.
 
@@ -792,6 +804,7 @@ async def send_message(
         sender_display_name=sender_display_name,
         linkify=linkify,
         include_voters=include_voters,
+        federation_message_id=federation_message_id,
     )
 
     await channel_layer.group_send(room.group_name, event)
@@ -799,4 +812,10 @@ async def send_message(
     from .notifications import ChatNotificationService
 
     await ChatNotificationService(channel_layer, online_registry).dispatch_message(room, message, sender, mentioned_users)
+    if propagate_federated and room.federated_instance_url:
+        import asyncio
+
+        from .federation import deliver_message
+
+        asyncio.create_task(deliver_message(room, message))
     return message

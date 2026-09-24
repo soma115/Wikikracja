@@ -16,6 +16,54 @@
     </div>
   </div>
 
+  {# ── FEDERATED CHAT ── #}
+  <div class="tw-card tw-mb-4">
+    <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
+      <i class="fas fa-users tw-text-accent tw-text-sm tw-opacity-80"></i>
+      <span class="tw-section-heading tw-text-sm">{% trans "Other Wikikracja groups" %}</span>
+    </div>
+    <div class="tw-card-body">
+      <p class="tw-text-muted tw-text-sm">{% trans "Add the HTTPS address of another Wikikracja instance. The other group must add this instance as well." %}</p>
+      <form method="post" class="tw-flex tw-gap-2 tw-flex-wrap">
+        {% csrf_token %}
+        <input type="hidden" name="add_federated_instance" value="1">
+        <input type="url" name="federated_instance_url" class="tw-form-control tw-form-control-sm" placeholder="https://test.wikikracja.pl/" required>
+        <button type="submit" class="tw-btn tw-btn-sm tw-btn-primary"><i class="fas fa-plus fa-fw tw-me-1"></i>{% trans "Add group" %}</button>
+      </form>
+      {% if federated_rooms %}
+      <div class="tw-mt-3 tw-flex tw-flex-col tw-gap-2">
+        {% for room in federated_rooms %}
+        <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+          <span class="tw-font-semibold">{{ room.federated_instance_name|default:room.title }}</span>
+          <span class="tw-text-muted tw-text-sm">{{ room.federated_instance_url }}</span>
+          {% if room.federation_peer_configured %}
+            <span class="tw-badge-status tw-badge-success tw-whitespace-nowrap" title="{% trans 'The other group has added this instance' %}"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Mutual connection" %}</span>
+          {% elif room.federation_peer_configured == False %}
+            <span class="tw-badge-status tw-badge-warning tw-whitespace-nowrap" title="{% trans 'The other group has not added this instance' %}"><i class="fas fa-hourglass-half fa-fw tw-me-1"></i>{% trans "Waiting for the other group" %}</span>
+          {% else %}
+            <span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap">{% trans "Not checked" %}</span>
+          {% endif %}
+          {% if room.federation_communication_ok %}
+            <span class="tw-badge-status tw-badge-success tw-whitespace-nowrap" title="{% trans 'The last status check succeeded' %}"><i class="fas fa-link fa-fw tw-me-1"></i>{% trans "Communication works" %}</span>
+          {% elif room.federation_communication_ok == False %}
+            <span class="tw-badge-status tw-badge-danger tw-whitespace-nowrap" title="{% trans 'The last status check failed' %}"><i class="fas fa-times-circle fa-fw tw-me-1"></i>{% trans "No communication" %}</span>
+          {% else %}
+            <span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap">{% trans "Not checked" %}</span>
+          {% endif %}
+          {% if room.archived %}<span class="tw-badge tw-badge-secondary">{% trans "Archived" %}</span>{% endif %}
+          {% if not room.archived %}
+          <form method="post" class="tw-inline">
+            {% csrf_token %}
+            <button type="submit" name="delete_federated_instance" value="{{ room.federated_instance_url }}" class="tw-btn tw-btn-sm tw-btn-outline-danger"><i class="fas fa-archive fa-fw tw-me-1"></i>{% trans "Archive" %}</button>
+          </form>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
   {# ── QUICK LINKS ── #}
   <div class="tw-card tw-mb-4">
     <div class="tw-card-header tw-flex tw-items-center tw-gap-2">

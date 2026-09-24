@@ -20,6 +20,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from PIL import Image
 
@@ -28,6 +29,8 @@ from chat.i18n import get_translations
 from chat.models import Message, Room
 from chat.services import get_unread_message_counts_for_rooms, send_message
 from site_settings.params import get_param
+
+from .federation import FEDERATION_MAX_BODY, FEDERATION_SOURCE, get_configured_room, make_federation_message_id, validate_incoming_payload
 
 log = logging.getLogger(__name__)
 
@@ -136,12 +139,16 @@ def chat(request: HttpRequest):
     surveys_tree_active = base_rooms.filter(source_app='ankiety', archived=False).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
     surveys_tree_archived = base_rooms.filter(source_app='ankiety', archived=True).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
 
+    federated_active = base_rooms.filter(source_app=FEDERATION_SOURCE, archived=False).prefetch_related(*_public_room_prefetch()).order_by(Lower('title'))
+    federated_archived = base_rooms.filter(source_app=FEDERATION_SOURCE, archived=True).prefetch_related(*_public_room_prefetch()).order_by(Lower('title'))
+
     room_sections = {
         'public': (public_rooms_active, public_rooms_archived),
         'tasks': (tasks_tree_active, tasks_tree_archived),
         'votes': (votes_tree_active, votes_tree_archived),
         'documents': (posts_tree_active, posts_tree_archived),
         'surveys': (surveys_tree_active, surveys_tree_archived),
+        'federated': (federated_active, federated_archived),
         'private': (private_active, private_archived),
     }
     rooms = [room for groups in room_sections.values() for group in groups for room in group]
@@ -165,6 +172,8 @@ def chat(request: HttpRequest):
             'posts_tree_archived': posts_tree_archived,
             'surveys_tree_active': surveys_tree_active,
             'surveys_tree_archived': surveys_tree_archived,
+            'federated_active': federated_active,
+            'federated_archived': federated_archived,
             'private_active': private_active,
             'private_archived': private_archived,
             'chat_section_unread_counts': chat_section_unread_counts,
@@ -247,6 +256,41 @@ def rename_room(request: HttpRequest, room_id: int):
         log.info(f"Room {room_id} renamed from '{old_title}' to '{room.title}' by user {request.user.id}")
         async_to_sync(send_message)(room, f'📝 {request.user.username} zmienił(a) nazwę pokoju z "{old_title}" na "{room.title}".', sender=None, anonymous=False, linkify=False)
     return JsonResponse({'success': True, 'title': room.title})
+
+
+@require_http_methods(['GET'])
+def federation_info(request: HttpRequest):
+    from .federation import local_instance_name, local_instance_url
+
+    source_url = request.GET.get('source_url')
+    return JsonResponse({'name': local_instance_name(), 'url': local_instance_url(), 'accepts_source_url': bool(source_url and get_configured_room(source_url))})
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def federation_message(request: HttpRequest):
+    if len(request.body) > FEDERATION_MAX_BODY:
+        return JsonResponse({'error': 'payload_too_large'}, status=413)
+    try:
+        payload = json.loads(request.body)
+        source_url, source_message_id, sender_name, message_text = validate_incoming_payload(payload)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return JsonResponse({'error': 'invalid_payload'}, status=400)
+
+    room = get_configured_room(source_url)
+    if room is None:
+        return JsonResponse({'error': 'instance_not_configured'}, status=403)
+
+    federation_message_id = make_federation_message_id(source_url, source_message_id)
+    if Message.objects.filter(federation_message_id=federation_message_id).exists():
+        return JsonResponse({'accepted': True, 'duplicate': True})
+
+    remote_sender = f'{sender_name} · {room.federated_instance_name or source_url}'
+    try:
+        async_to_sync(send_message)(room, message_text, sender=None, anonymous=False, sender_display_name=remote_sender[:255], federation_message_id=federation_message_id, propagate_federated=False)
+    except IntegrityError:
+        return JsonResponse({'accepted': True, 'duplicate': True})
+    return JsonResponse({'accepted': True})
 
 
 @require_http_methods(['GET', 'POST'])

@@ -198,8 +198,8 @@ window.wkOnReady(function() {
     });
 
     const globalArchiveBtn = document.getElementById('archive-toggle-global-btn');
-    const archiveSectionIds = ['pub-rooms-archive', 'tasks-archive', 'votes-archive', 'documents-archive', 'surveys-archive', 'prv-archive'];
-    const activeSectionIds = ['pub-rooms-active', 'tasks-active', 'votes-active', 'documents-active', 'surveys-active', 'prv-active'];
+    const archiveSectionIds = ['pub-rooms-archive', 'tasks-archive', 'votes-archive', 'documents-archive', 'surveys-archive', 'federated-archive', 'prv-archive'];
+    const activeSectionIds = ['pub-rooms-active', 'tasks-active', 'votes-active', 'documents-active', 'surveys-active', 'federated-active', 'prv-active'];
 
     function expandCategoriesWithArchivedRooms() {
         document.querySelectorAll('.tw-chat-cat-content').forEach(content => {

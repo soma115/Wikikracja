@@ -62,6 +62,14 @@ class Room(models.Model):
     source_app = models.CharField(max_length=50, blank=True, default='', db_index=True)
     source_object_id = models.PositiveIntegerField(null=True, blank=True, db_index=True)
 
+    # Remote Wikikracja instance for federated chat rooms.
+    federated_instance_url = models.URLField(max_length=500, blank=True, null=True, unique=True)
+    federated_instance_name = models.CharField(max_length=255, blank=True, default='')
+    federation_peer_configured = models.BooleanField(null=True, blank=True)
+    federation_communication_ok = models.BooleanField(null=True, blank=True)
+    federation_last_checked_at = models.DateTimeField(null=True, blank=True)
+    federation_last_communication_at = models.DateTimeField(null=True, blank=True)
+
     @staticmethod
     def create_inbox():
         """Ensure the system rooms exist and return the Inbox room."""
@@ -290,6 +298,9 @@ class Message(models.Model):
 
     # JSONField to store reactions: {upvotes: [user_ids], downvotes: [user_ids], bulb: [user_ids], question: [user_ids]}
     reactions = models.JSONField(default=dict, null=True, blank=True)
+
+    # Stable id used to make incoming federated messages idempotent.
+    federation_message_id = models.CharField(max_length=64, blank=True, null=True, unique=True)
 
     class Meta:
         unique_together = ('sender', 'text', 'room', 'time')

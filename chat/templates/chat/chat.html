@@ -101,6 +101,33 @@
             </div>
           </div>
 
+          <!-- ── Other Wikikracja groups ── -->
+          <div class="tw-chat-category" data-category="federated">
+            <div class="tw-chat-cat-header">
+              <button class="tw-chat-cat-btn" data-cat-content="cat-federated" aria-expanded="false">
+                <span class="tw-chat-cat-arrow">▼</span>
+                <span>{% trans 'Other Wikikracja groups' %}</span>
+                {% if chat_section_unread_counts.federated %}<span class="tw-chat-count tw-chat-count--section">{{ chat_section_unread_counts.federated }}</span>{% endif %}
+              </button>
+            </div>
+            <div class="tw-chat-cat-content" id="cat-federated">
+              <div id="content-federated-active" class="tw-active-rooms-section">
+                {% for room in federated_active %}
+                  {% include 'chat/room_link.html' with room_kind='federated' %}
+                {% empty %}
+                  <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
+                {% endfor %}
+              </div>
+              <div id="content-federated-archive" class="tw-archive-section">
+                {% for room in federated_archived %}
+                  {% include 'chat/room_link.html' with room_kind='federated' %}
+                {% empty %}
+                  <p class="tw-text-muted tw-text-center tw-text-sm">{% trans 'None' %}</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
           <!-- ── Tasks ── -->
           <div class="tw-chat-category" data-category="tasks">
             <div class="tw-chat-cat-header">

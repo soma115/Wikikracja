@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-24 20:11+0200\n"
+"POT-Creation-Date: 2026-09-24 20:57+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -81,7 +81,7 @@ msgstr "Ta opcja już istnieje."
 #: .\ankiety\models.py:12 .\ankiety\templates\ankiety\survey_form.html:25
 #: .\board\models.py:44 .\chat\i18n.py:27 .\events\models.py:19
 #: .\glosowania\models.py:34 .\glosowania\views.py:573
-#: .\home\templates\home\site_admin.html:36
+#: .\home\templates\home\site_admin.html:84
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:7
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:7
 #: .\obywatele\templates\obywatele\_citizen_zalozono_partial.html:7
@@ -151,9 +151,9 @@ msgstr "Jeśli ta opcja jest włączona, uczestnicy mogą dodawać własne opcje
 msgid "Survey"
 msgstr "Ankieta"
 
-#: .\ankiety\models.py:24 .\chat\templates\chat\chat.html:190
+#: .\ankiety\models.py:24 .\chat\templates\chat\chat.html:217
 #: .\home\navigation.py:16 .\home\services\dashboard.py:35
-#: .\home\templates\home\home.html:147 .\home\views.py:278
+#: .\home\templates\home\home.html:147 .\home\views.py:279
 #: .\obywatele\views.py:459
 msgid "Surveys"
 msgstr "Ankiety"
@@ -196,7 +196,7 @@ msgid "Survey votes"
 msgstr "Głosy w ankiecie"
 
 #: .\ankiety\search.py:18 .\home\templatetags\feed_filters.py:46
-#: .\home\views.py:118
+#: .\home\views.py:119
 msgid "Ankiety"
 msgstr "Ankiety"
 
@@ -216,7 +216,7 @@ msgstr "Pokój dyskusji do ankiety: <a href='%(survey_url)s'>%(survey_title)s</a
 #: .\glosowania\templates\glosowania\_detail_actions.html:5
 #: .\home\templates\home\includes\confirm_delete_buttons.html:17
 #: .\home\templates\home\includes\delete_modal.html:20
-#: .\home\templates\home\site_admin.html:60
+#: .\home\templates\home\site_admin.html:108
 msgid "Delete"
 msgstr "Usuń"
 
@@ -231,7 +231,7 @@ msgstr "Usuń"
 #: .\events\templates\events\_event_detail_actions.html:7
 #: .\glosowania\templates\glosowania\_argument_actions.html:21
 #: .\glosowania\templates\glosowania\_detail_actions.html:8
-#: .\home\templates\home\site_admin.html:56
+#: .\home\templates\home\site_admin.html:104
 #: .\obywatele\templates\obywatele\_citizen_detail_actions.html:4
 #: .\obywatele\templates\obywatele\my_profile.html:167
 msgid "Edit"
@@ -364,12 +364,13 @@ msgstr "Dodaj ankietę"
 #: .\board\templates\board\post_form.html:18 .\bookkeeping\forms.py:22
 #: .\bookkeeping\forms.py:52
 #: .\categories\templates\categories\_category_manager_init.html:19
-#: .\chat\templates\chat\add.html:15 .\chat\templates\chat\chat.html:299
+#: .\chat\templates\chat\add.html:15 .\chat\templates\chat\chat.html:326
 #: .\glosowania\templates\glosowania\_argument_actions.html:12
 #: .\glosowania\templates\glosowania\dodaj.html:27
 #: .\glosowania\templates\glosowania\edit.html:18
 #: .\glosowania\templates\glosowania\parameters_propose.html:53
-#: .\home\templates\home\haslo.html:20 .\home\templates\home\site_admin.html:84
+#: .\home\templates\home\haslo.html:20
+#: .\home\templates\home\site_admin.html:132
 #: .\obywatele\templates\obywatele\candidate_edit.html:23
 #: .\obywatele\templates\obywatele\candidate_edit.html:24
 #: .\obywatele\templates\obywatele\change_email.html:21
@@ -430,14 +431,14 @@ msgstr "Twoja opcja została dodana."
 
 #: .\ankiety\views.py:168 .\board\views.py:281 .\bookkeeping\views.py:86
 #: .\events\views.py:66 .\glosowania\views.py:718
-#: .\home\templates\home\includes\toolbar.html:60 .\home\views.py:153
+#: .\home\templates\home\includes\toolbar.html:60 .\home\views.py:154
 #: .\obywatele\views.py:281 .\obywatele\views.py:340 .\tasks\views.py:185
 msgid "List"
 msgstr "Lista"
 
 #: .\ankiety\views.py:168 .\board\views.py:281 .\bookkeeping\views.py:86
 #: .\events\views.py:66 .\glosowania\views.py:718
-#: .\home\templates\home\includes\toolbar.html:55 .\home\views.py:153
+#: .\home\templates\home\includes\toolbar.html:55 .\home\views.py:154
 #: .\obywatele\views.py:281 .\obywatele\views.py:340 .\tasks\views.py:185
 msgid "Grid"
 msgstr "Siatka"
@@ -541,7 +542,7 @@ msgstr "Publiczne"
 #: .\board\templates\board\_post_detail_meta.html:54
 #: .\board\templates\board\_post_detail_meta.html:56
 #: .\board\templates\board\board.html:69 .\board\templates\board\board.html:94
-#: .\board\views.py:226
+#: .\board\views.py:226 .\home\templates\home\site_admin.html:57
 msgid "Archive"
 msgstr "Archiwum"
 
@@ -701,7 +702,7 @@ msgstr "Pokój dyskusji do dokumentu: <a href='%(url)s'>%(title)s</a>"
 #: .\home\navigation.py:17 .\home\services\dashboard.py:34
 #: .\home\templates\home\home.html:303 .\home\templates\home\home.html:312
 #: .\home\templates\home\home.html:335 .\home\templatetags\feed_filters.py:41
-#: .\home\views.py:121 .\home\views.py:278 .\obywatele\views.py:460
+#: .\home\views.py:122 .\home\views.py:279 .\obywatele\views.py:460
 #: .\tasks\templates\tasks\_task_card.html:74
 msgid "Chat"
 msgstr "Czat"
@@ -737,7 +738,7 @@ msgstr "Wróć"
 
 #: .\board\templates\board\_post_detail_meta.html:12
 #: .\board\templates\board\board.html:71 .\board\templates\board\board.html:96
-#: .\chat\search.py:25 .\chat\templates\chat\room_link.html:55
+#: .\chat\search.py:25 .\chat\templates\chat\room_link.html:57
 #: .\core\notifications.py:604
 msgid "System"
 msgstr "System"
@@ -794,14 +795,14 @@ msgstr "Utwórz ogłoszenie"
 #: .\bookkeeping\templates\bookkeeping\transaction_form.html:14
 #: .\bookkeeping\templates\bookkeeping\transaction_form.html:16
 #: .\categories\templates\categories\_category_manager_init.html:18
-#: .\chat\templates\chat\chat.html:263 .\chat\templates\chat\chat.html:298
+#: .\chat\templates\chat\chat.html:290 .\chat\templates\chat\chat.html:325
 #: .\glosowania\templates\glosowania\_argument_actions.html:11
 #: .\glosowania\templates\glosowania\szczegoly.html:47
 #: .\home\templates\home\haslo.html:21
 #: .\home\templates\home\includes\confirm_delete_buttons.html:13
 #: .\home\templates\home\includes\confirm_delete_buttons.html:21
 #: .\home\templates\home\includes\delete_modal.html:15
-#: .\home\templates\home\site_admin.html:39
+#: .\home\templates\home\site_admin.html:87
 #: .\obywatele\templates\obywatele\candidate_edit.html:13
 #: .\obywatele\templates\obywatele\candidate_edit.html:20
 #: .\obywatele\templates\obywatele\candidate_edit.html:21
@@ -909,7 +910,7 @@ msgstr "A-Z"
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:23
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:17
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:22
-#: .\chat\i18n.py:47 .\home\views.py:152
+#: .\chat\i18n.py:47 .\home\views.py:153
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:10
@@ -1340,7 +1341,7 @@ msgstr "Podsumowanie wszystkich lat"
 #: .\bookkeeping\templates\bookkeeping\report_list.html:38
 #: .\categories\templates\categories\_category_filter.html:9
 #: .\categories\templates\categories\_category_filter.html:11
-#: .\home\templates\home\activity.html:30 .\home\views.py:114
+#: .\home\templates\home\activity.html:30 .\home\views.py:115
 #: .\obywatele\templates\obywatele\_citizens_filter.html:11
 #: .\obywatele\templates\obywatele\_citizens_filter.html:18
 msgid "All"
@@ -1403,8 +1404,8 @@ msgstr "Dodaj aktywo"
 #: .\glosowania\templates\glosowania\szczegoly.html:160
 #: .\glosowania\templates\glosowania\szczegoly.html:200
 #: .\glosowania\templatetags\glosowania_stepper.py:42
-#: .\home\templates\home\site_admin.html:38
-#: .\home\templates\home\site_admin.html:96
+#: .\home\templates\home\site_admin.html:86
+#: .\home\templates\home\site_admin.html:144
 msgid "Add"
 msgstr "Dodaj"
 
@@ -1454,6 +1455,26 @@ msgstr "Nazwa kategorii"
 msgid "Description (optional)"
 msgstr "Opis (opcjonalny)"
 
+#: .\chat\federation.py:46
+msgid "Use a valid HTTPS instance address."
+msgstr ""
+
+#: .\chat\federation.py:48
+msgid "Enter only the instance address, without a path."
+msgstr ""
+
+#: .\chat\federation.py:52
+msgid "The instance address contains an invalid port."
+msgstr ""
+
+#: .\chat\federation.py:88
+msgid "The instance address cannot point to a local network."
+msgstr ""
+
+#: .\chat\federation.py:108
+msgid "The remote instance did not provide a group name."
+msgstr ""
+
 #: .\chat\forms.py:19
 msgid "System rooms cannot be renamed."
 msgstr "Nazwy pokoi systemowych nie mogą być zmieniane."
@@ -1481,7 +1502,7 @@ msgid "Tomorrow"
 msgstr "Jutro"
 
 #: .\chat\i18n.py:12 .\chat\search.py:25
-#: .\chat\templates\chat\room_link.html:55
+#: .\chat\templates\chat\room_link.html:57
 #: .\obywatele\templates\obywatele\my_profile.html:372
 msgid "Anonymous"
 msgstr "Anonim"
@@ -1502,8 +1523,8 @@ msgstr "edytowano"
 msgid "Changes History"
 msgstr "Historia zmian"
 
-#: .\chat\i18n.py:18 .\chat\templates\chat\chat.html:280
-#: .\chat\templates\chat\chat.html:364
+#: .\chat\i18n.py:18 .\chat\templates\chat\chat.html:307
+#: .\chat\templates\chat\chat.html:391
 #: .\home\templates\home\includes\modal_header.html:14
 msgid "Close"
 msgstr "Zamknij"
@@ -1512,7 +1533,7 @@ msgstr "Zamknij"
 msgid "Loading..."
 msgstr "Ładowanie…"
 
-#: .\chat\i18n.py:20 .\chat\templates\chat\room_link.html:91
+#: .\chat\i18n.py:20 .\chat\templates\chat\room_link.html:93
 msgid "Copy link"
 msgstr "Skopiuj link"
 
@@ -1616,8 +1637,8 @@ msgstr "lis"
 msgid "Dec"
 msgstr "gru"
 
-#: .\chat\i18n.py:48 .\chat\templates\chat\chat.html:326
-#: .\chat\templates\chat\room_link.html:40
+#: .\chat\i18n.py:48 .\chat\templates\chat\chat.html:353
+#: .\chat\templates\chat\room_link.html:42
 #: .\home\templates\home\activity.html:20
 msgid "Unread"
 msgstr "Nieprzeczytane"
@@ -1646,15 +1667,15 @@ msgstr "Pokaż listę pokoi"
 msgid "Hide room list"
 msgstr "Ukryj listę pokoi"
 
-#: .\chat\i18n.py:55 .\chat\templates\chat\room_link.html:57
+#: .\chat\i18n.py:55 .\chat\templates\chat\room_link.html:59
 msgid "attachment"
 msgstr "załącznik"
 
-#: .\chat\i18n.py:56 .\chat\templates\chat\room_link.html:85
+#: .\chat\i18n.py:56 .\chat\templates\chat\room_link.html:87
 msgid "Mute room"
 msgstr "Wycisz pokój"
 
-#: .\chat\i18n.py:57 .\chat\templates\chat\room_link.html:85
+#: .\chat\i18n.py:57 .\chat\templates\chat\room_link.html:87
 msgid "Unmute room"
 msgstr "Cofnij wyciszenie"
 
@@ -1715,7 +1736,7 @@ msgstr "Żaden pokój nie pasuje do wyszukiwania."
 msgid "Existing rooms matching this name:"
 msgstr "Istniejące pokoje pasujące do tej nazwy:"
 
-#: .\chat\i18n.py:72
+#: .\chat\i18n.py:72 .\home\templates\home\site_admin.html:53
 msgid "Archived"
 msgstr "Zarchiwizowane"
 
@@ -1788,23 +1809,23 @@ msgstr "Otwórz w czacie"
 msgid "Connecting…"
 msgstr "Łączenie…"
 
-#: .\chat\templates\chat\add.html:8 .\chat\templates\chat\chat.html:251
+#: .\chat\templates\chat\add.html:8 .\chat\templates\chat\chat.html:278
 msgid "New room"
 msgstr "Nowy pokój"
 
-#: .\chat\templates\chat\chat.html:47 .\chat\templates\chat\chat.html:318
+#: .\chat\templates\chat\chat.html:47 .\chat\templates\chat\chat.html:345
 msgid "Info"
 msgstr "Info"
 
-#: .\chat\templates\chat\chat.html:50 .\chat\templates\chat\chat.html:322
+#: .\chat\templates\chat\chat.html:50 .\chat\templates\chat\chat.html:349
 msgid "Add room"
 msgstr "Nowy pokój"
 
-#: .\chat\templates\chat\chat.html:53 .\chat\templates\chat\chat.html:330
+#: .\chat\templates\chat\chat.html:53 .\chat\templates\chat\chat.html:357
 msgid "Show archived rooms"
 msgstr "Pokaż zarchiwizowane pokoje"
 
-#: .\chat\templates\chat\chat.html:59 .\chat\templates\chat\chat.html:334
+#: .\chat\templates\chat\chat.html:59 .\chat\templates\chat\chat.html:361
 msgid "Sort by latest activity"
 msgstr "Sortuj wg ostatniej aktywności"
 
@@ -1818,122 +1839,127 @@ msgstr "Szukaj pokoi"
 #: .\chat\templates\chat\chat.html:172 .\chat\templates\chat\chat.html:179
 #: .\chat\templates\chat\chat.html:199 .\chat\templates\chat\chat.html:206
 #: .\chat\templates\chat\chat.html:226 .\chat\templates\chat\chat.html:233
+#: .\chat\templates\chat\chat.html:253 .\chat\templates\chat\chat.html:260
 #: .\tasks\templates\tasks\_task_detail_meta.html:15
 #: .\tasks\templates\tasks\task_detail.html:231
 msgid "None"
 msgstr "Brak"
 
-#: .\chat\templates\chat\chat.html:109 .\chat\templates\chat\chat.html:343
-#: .\home\navigation.py:10 .\home\services\dashboard.py:27 .\home\views.py:116
-#: .\home\views.py:278
+#: .\chat\templates\chat\chat.html:109 .\home\templates\home\site_admin.html:23
+msgid "Other Wikikracja groups"
+msgstr "Inne grupy Wikikracji"
+
+#: .\chat\templates\chat\chat.html:136 .\chat\templates\chat\chat.html:370
+#: .\home\navigation.py:10 .\home\services\dashboard.py:27 .\home\views.py:117
+#: .\home\views.py:279
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:66
 #: .\obywatele\templates\obywatele\szczegoly.html:189 .\obywatele\views.py:454
 msgid "Activities"
 msgstr "Działania"
 
-#: .\chat\templates\chat\chat.html:136 .\chat\templates\chat\chat.html:347
+#: .\chat\templates\chat\chat.html:163 .\chat\templates\chat\chat.html:374
 msgid "Referendums"
 msgstr "Głosowania"
 
-#: .\chat\templates\chat\chat.html:163 .\chat\templates\chat\chat.html:351
-#: .\home\navigation.py:12 .\home\services\dashboard.py:21 .\home\views.py:115
-#: .\home\views.py:278 .\obywatele\views.py:456
+#: .\chat\templates\chat\chat.html:190 .\chat\templates\chat\chat.html:378
+#: .\home\navigation.py:12 .\home\services\dashboard.py:21 .\home\views.py:116
+#: .\home\views.py:279 .\obywatele\views.py:456
 msgid "Documents"
 msgstr "Dokumenty"
 
-#: .\chat\templates\chat\chat.html:217
+#: .\chat\templates\chat\chat.html:244
 #: .\events\templates\events\_event_card.html:41
 #: .\events\templates\events\_event_detail_badges.html:15
 msgid "Private"
 msgstr "Prywatne"
 
-#: .\chat\templates\chat\chat.html:256
+#: .\chat\templates\chat\chat.html:283
 msgid "Check existing rooms before creating a new one. Archived rooms are included."
 msgstr "Przed utworzeniem nowego pokoju sprawdź istniejące pokoje. Uwzględniono pokoje zarchiwizowane."
 
-#: .\chat\templates\chat\chat.html:257
+#: .\chat\templates\chat\chat.html:284
 msgid "Room name"
 msgstr "Nazwa pokoju"
 
-#: .\chat\templates\chat\chat.html:264
+#: .\chat\templates\chat\chat.html:291
 msgid "Create room"
 msgstr "Utwórz pokój"
 
-#: .\chat\templates\chat\chat.html:276
+#: .\chat\templates\chat\chat.html:303
 msgid "Changes history"
 msgstr "Historia zmian"
 
-#: .\chat\templates\chat\chat.html:291 .\chat\templates\chat\room_link.html:98
+#: .\chat\templates\chat\chat.html:318 .\chat\templates\chat\room_link.html:100
 msgid "Rename room"
 msgstr "Zmień nazwę"
 
-#: .\chat\templates\chat\chat.html:294
+#: .\chat\templates\chat\chat.html:321
 msgid "New room name"
 msgstr "Nowa nazwa pokoju"
 
-#: .\chat\templates\chat\chat.html:310
+#: .\chat\templates\chat\chat.html:337
 msgid "Chat Information"
 msgstr "Informacje o czacie"
 
-#: .\chat\templates\chat\chat.html:314
+#: .\chat\templates\chat\chat.html:341
 msgid "Chat controls"
 msgstr "Sterowanie czatem"
 
-#: .\chat\templates\chat\chat.html:318
+#: .\chat\templates\chat\chat.html:345
 msgid "Opens this window with information about chat rooms and controls."
 msgstr "Otwiera to okno z informacjami o pokojach czatu i przyciskach sterowania."
 
-#: .\chat\templates\chat\chat.html:322
+#: .\chat\templates\chat\chat.html:349
 msgid "Opens the form for creating a new chat room."
 msgstr "Otwiera formularz tworzenia nowego pokoju czatu."
 
-#: .\chat\templates\chat\chat.html:326
+#: .\chat\templates\chat\chat.html:353
 msgid "Shows only rooms with unread messages."
 msgstr "Pokazuje tylko pokoje z nieprzeczytanymi wiadomościami."
 
-#: .\chat\templates\chat\chat.html:330
+#: .\chat\templates\chat\chat.html:357
 msgid "Shows or hides archived rooms in every category."
 msgstr "Pokazuje lub ukrywa zarchiwizowane pokoje we wszystkich kategoriach."
 
-#: .\chat\templates\chat\chat.html:334
+#: .\chat\templates\chat\chat.html:361
 msgid "Sorts rooms by latest activity; click repeatedly to change direction and return to the default order."
 msgstr "Sortuje pokoje według ostatniej aktywności; kolejne kliknięcia zmieniają kierunek i przywracają domyślną kolejność."
 
-#: .\chat\templates\chat\chat.html:339
+#: .\chat\templates\chat\chat.html:366
 msgid "Public Rooms"
 msgstr "Publiczne"
 
-#: .\chat\templates\chat\chat.html:340
+#: .\chat\templates\chat\chat.html:367
 #, python-format
 msgid "Public chat rooms are archived if they are not used for %(archive_days)s days. After %(delete_days)s days they are deleted."
 msgstr "Publiczne pokoje czatu są archiwizowane, jeśli nie są używane przez %(archive_days)s dni. Po %(delete_days)s dniach są usuwane."
 
-#: .\chat\templates\chat\chat.html:344
+#: .\chat\templates\chat\chat.html:371
 msgid "Activity rooms are created for specific activities and projects. They are protected from automatic deletion and are used for collaborative work discussions."
 msgstr "Pokoje działań są tworzone dla konkretnych działań i projektów. Są chronione przed automatycznym usunięciem i służą do dyskusji nad pracą zespołową."
 
-#: .\chat\templates\chat\chat.html:348
+#: .\chat\templates\chat\chat.html:375
 msgid "Referendum rooms are created for voting and decision-making processes. They are protected from automatic deletion and provide a space for discussions about proposals."
 msgstr "Pokoje głosowań są tworzone dla procesów głosowania i podejmowania decyzji. Są one chronione przed automatycznym usunięciem i zapewniają przestrzeń do dyskusji na temat propozycji."
 
-#: .\chat\templates\chat\chat.html:352
+#: .\chat\templates\chat\chat.html:379
 msgid "Document rooms are created for each board document. They are protected from automatic deletion and provide a space for discussions about documents."
 msgstr "Pokoje dokumentów są tworzone dla każdego dokumentu tablicy. Są chronione przed automatycznym usunięciem i zapewniają przestrzeń do dyskusji na temat dokumentów."
 
-#: .\chat\templates\chat\chat.html:355
+#: .\chat\templates\chat\chat.html:382
 msgid "Private Messages"
 msgstr "Prywatne wiadomości"
 
-#: .\chat\templates\chat\chat.html:356
+#: .\chat\templates\chat\chat.html:383
 #, python-format
 msgid "Private messages are archived when user is blocked and deleted after %(delete_days)s days."
 msgstr "Prywatne wiadomości są archiwizowane, gdy użytkownik jest blokowany i usuwany po %(delete_days)s dniach."
 
-#: .\chat\templates\chat\chat.html:359
+#: .\chat\templates\chat\chat.html:386
 msgid "Archives"
 msgstr "Archiwa"
 
-#: .\chat\templates\chat\chat.html:360
+#: .\chat\templates\chat\chat.html:387
 msgid "Click the archive button (folder icon) next to each category to show archived rooms."
 msgstr "Kliknij przycisk archiwum (ikona folderu) obok każdej kategorii, aby pokazać zarchiwizowane pokoje."
 
@@ -1953,30 +1979,30 @@ msgstr "Twoja wiadomość została wysłana. Dziękujemy!"
 msgid "Send message"
 msgstr "Wyślij wiadomość"
 
-#: .\chat\templates\chat\room_link.html:65
+#: .\chat\templates\chat\room_link.html:67
 msgid "Muted"
 msgstr "Wyciszony"
 
-#: .\chat\templates\chat\room_link.html:70
+#: .\chat\templates\chat\room_link.html:72
 msgid "Room actions"
 msgstr "Działania"
 
-#: .\chat\templates\chat\room_link.html:78
+#: .\chat\templates\chat\room_link.html:80
 #: .\home\templates\home\activity.html:90
 #: .\home\templates\home\activity.html:91
 #: .\home\templates\home\activity.html:92
 msgid "Mark as unread"
 msgstr "Oznacz jako nieprzeczytane"
 
-#: .\chat\views.py:79
+#: .\chat\views.py:82
 msgid "Invalid room name."
 msgstr "Nieprawidłowa nazwa pokoju."
 
-#: .\chat\views.py:263
+#: .\chat\views.py:321
 msgid "Too many messages. Please try again later."
 msgstr "Zbyt wiele wiadomości. Spróbuj ponownie później."
 
-#: .\chat\views.py:267
+#: .\chat\views.py:325
 msgid "The public inbox is not available at the moment."
 msgstr "Publiczna skrzynka nie jest obecnie dostępna."
 
@@ -1989,7 +2015,7 @@ msgstr "Działanie"
 
 #: .\core\models.py:15 .\events\models.py:37 .\events\search.py:18
 #: .\events\templates\events\_event_detail_actions.html:15 .\home\models.py:15
-#: .\home\views.py:278
+#: .\home\views.py:279
 msgid "Event"
 msgstr "Wydarzenie"
 
@@ -2217,7 +2243,7 @@ msgstr "Dodaj do swojego Kalendarza Google"
 #: .\events\templates\events\_event_card.html:59 .\events\views.py:26
 #: .\home\navigation.py:13 .\home\services\dashboard.py:26
 #: .\home\templates\home\base.html:280 .\home\templates\home\home.html:455
-#: .\home\views.py:119 .\obywatele\views.py:457
+#: .\home\views.py:120 .\obywatele\views.py:457
 msgid "Calendar"
 msgstr "Kalendarz"
 
@@ -3213,13 +3239,13 @@ msgstr "Możesz zarządzać swoimi powiadomieniami e-mail tutaj:"
 msgid "Desktop"
 msgstr "Pulpit"
 
-#: .\home\navigation.py:11 .\home\services\dashboard.py:19 .\home\views.py:120
-#: .\home\views.py:278 .\obywatele\models.py:144
+#: .\home\navigation.py:11 .\home\services\dashboard.py:19 .\home\views.py:121
+#: .\home\views.py:279 .\obywatele\models.py:144
 #: .\obywatele\templatetags\profile_tags.py:59
 msgid "Citizens"
 msgstr "Ludzie"
 
-#: .\home\navigation.py:14 .\home\views.py:117 .\home\views.py:278
+#: .\home\navigation.py:14 .\home\views.py:118 .\home\views.py:279
 msgid "Votings"
 msgstr "Głosowania"
 
@@ -3779,24 +3805,69 @@ msgstr "Ustawienia grupy"
 msgid "UI reference"
 msgstr "Wzorce interfejsu"
 
-#: .\home\templates\home\site_admin.html:23 .\site_settings\models.py:111
+#: .\home\templates\home\site_admin.html:26
+msgid "Add the HTTPS address of another Wikikracja instance. The other group must add this instance as well."
+msgstr "Dodaj adres HTTPS innej instancji Wikikracji. Druga grupa również musi dodać tę instancję."
+
+#: .\home\templates\home\site_admin.html:31
+msgid "Add group"
+msgstr "Dodaj grupę"
+
+#: .\home\templates\home\site_admin.html:40
+msgid "The other group has added this instance"
+msgstr "Druga grupa dodała tę instancję"
+
+#: .\home\templates\home\site_admin.html:40
+msgid "Mutual connection"
+msgstr "Połączenie obustronne"
+
+#: .\home\templates\home\site_admin.html:42
+msgid "The other group has not added this instance"
+msgstr "Druga grupa nie dodała tej instancji"
+
+#: .\home\templates\home\site_admin.html:42
+msgid "Waiting for the other group"
+msgstr "Oczekiwanie na drugą grupę"
+
+#: .\home\templates\home\site_admin.html:44
+#: .\home\templates\home\site_admin.html:51
+msgid "Not checked"
+msgstr "Nie sprawdzono"
+
+#: .\home\templates\home\site_admin.html:47
+msgid "The last status check succeeded"
+msgstr "Ostatnie sprawdzenie statusu zakończyło się powodzeniem"
+
+#: .\home\templates\home\site_admin.html:47
+msgid "Communication works"
+msgstr "Komunikacja działa"
+
+#: .\home\templates\home\site_admin.html:49
+msgid "The last status check failed"
+msgstr "Ostatnie sprawdzenie statusu nie powiodło się"
+
+#: .\home\templates\home\site_admin.html:49
+msgid "No communication"
+msgstr "Brak komunikacji"
+
+#: .\home\templates\home\site_admin.html:71 .\site_settings\models.py:111
 msgid "Quick links"
 msgstr "Pierwsze kroki"
 
-#: .\home\templates\home\site_admin.html:33
-#: .\home\templates\home\site_admin.html:95
+#: .\home\templates\home\site_admin.html:81
+#: .\home\templates\home\site_admin.html:143
 msgid "Add new link"
 msgstr "Dodaj nowy link"
 
-#: .\home\templates\home\site_admin.html:37 .\site_settings\models.py:105
+#: .\home\templates\home\site_admin.html:85 .\site_settings\models.py:105
 msgid "URL"
 msgstr "URL"
 
-#: .\home\templates\home\site_admin.html:48
+#: .\home\templates\home\site_admin.html:96
 msgid "Existing links"
 msgstr "Istniejące linki"
 
-#: .\home\templates\home\site_admin.html:83
+#: .\home\templates\home\site_admin.html:131
 msgid "Edit link"
 msgstr "Edytuj link"
 
@@ -3833,31 +3904,47 @@ msgstr "Ludzie"
 msgid "Membership"
 msgstr "Członkostwo"
 
-#: .\home\views.py:299
+#: .\home\views.py:300
 msgid "Your password has been changed."
 msgstr "Twoje hasło zostało zmienione."
 
-#: .\home\views.py:302
+#: .\home\views.py:303
 msgid "You typed something wrong. See what error appeared above and try again."
 msgstr "Coś źle wpisałeś. Zobacz, jaki błąd pojawił się powyżej i spróbuj ponownie."
 
-#: .\home\views.py:407 .\home\views.py:421
+#: .\home\views.py:410
+msgid "Could not connect to a valid Wikikracja instance."
+msgstr "Nie można połączyć się z prawidłową instancją Wikikracji."
+
+#: .\home\views.py:413
+msgid "Other group added."
+msgstr "Dodano inną grupę."
+
+#: .\home\views.py:420
+msgid "Other group archived."
+msgstr "Zarchiwizowano inną grupę."
+
+#: .\home\views.py:422
+msgid "Invalid instance address."
+msgstr "Nieprawidłowy adres instancji."
+
+#: .\home\views.py:428 .\home\views.py:442
 msgid "Enter a valid title and URL."
 msgstr "Wprowadź prawidłowy tytuł i adres URL."
 
-#: .\home\views.py:413
+#: .\home\views.py:434
 msgid "Link added."
 msgstr "Link dodany."
 
-#: .\home\views.py:425
+#: .\home\views.py:446
 msgid "Link updated."
 msgstr "Link zaktualizowany."
 
-#: .\home\views.py:427 .\home\views.py:453
+#: .\home\views.py:448 .\home\views.py:474
 msgid "Link doesn't exist."
 msgstr "Link nie istnieje."
 
-#: .\home\views.py:451
+#: .\home\views.py:472
 msgid "Link deleted."
 msgstr "Link usunięty."
 
