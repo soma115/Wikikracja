@@ -561,7 +561,8 @@ video {
   display: none;
 }
 
-html {
+:host,
+  html {
   -webkit-text-size-adjust: 100%;
   -moz-text-size-adjust: 100%;
        text-size-adjust: 100%;
@@ -9565,6 +9566,7 @@ body.tw-chat-page .tw-main-area {
   flex-shrink: 0;
   border-radius: .25rem;
   border-left-width: 3px;
+  border-left-color: var(--chat-cat-accent, transparent);
   border-left-color: color-mix(in srgb, var(--chat-cat-accent, transparent) 50%, transparent);
 }
 

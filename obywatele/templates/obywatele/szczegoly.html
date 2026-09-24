@@ -7,14 +7,15 @@
 <script>
 window.wkOnReady(function() {
   const toggle = document.getElementById('toggle-person-push');
-  if (!toggle) return;
-  toggle.addEventListener('change', function() {
-    const previous = !this.checked;
-    window.apiFetch(this.dataset.url, { method: 'POST', body: { enabled: this.checked } })
-      .then(response => response.json())
-      .then(data => { if (!data.success) this.checked = previous; })
-      .catch(() => { this.checked = previous; });
-  });
+  if (toggle) {
+    toggle.addEventListener('change', function() {
+      const previous = !this.checked;
+      window.apiFetch(this.dataset.url, { method: 'POST', body: { enabled: this.checked } })
+        .then(response => response.json())
+        .then(data => { if (!data.success) this.checked = previous; })
+        .catch(() => { this.checked = previous; });
+    });
+  }
 });
 </script>
 {% endblock %}
@@ -106,6 +107,19 @@ window.wkOnReady(function() {
                 <button class="tw-btn {% if rate == 'negative' %}tw-btn-primary{% else %}tw-btn-secondary{% endif %} tw-justify-start" type="submit" name="action" value="reject">
                   <i class="fas fa-times fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'I do not accept' %}
                 </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="tw-card">
+          <div class="tw-card-body">
+            <h2 class="tw-section-heading tw-mb-3">{% trans 'Private note' %}</h2>
+            <form method="post" action="{{ private_note_url }}">
+              {% csrf_token %}
+              <textarea name="content" class="tw-form-control" rows="3" maxlength="{{ private_note_max_length }}" aria-label="{% trans 'Private note' %}">{% if person_private_note %}{{ person_private_note.content }}{% endif %}</textarea>
+              <div class="tw-flex tw-justify-end tw-mt-2">
+                <button type="submit" class="tw-btn tw-btn-primary">{% trans 'Save' %}</button>
               </div>
             </form>
           </div>

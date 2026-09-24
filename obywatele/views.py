@@ -34,7 +34,7 @@ from chat.services import get_unread_message_counts_for_rooms, get_user_public_m
 from core.signals import citizen_proposed
 from obywatele.filters import UzytkownikFilter
 from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, UserForm, UsernameChangeForm
-from obywatele.models import DeletionRequest, Rate, Uzytkownik
+from obywatele.models import DeletionRequest, PrivateNote, Rate, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items, publish_deletion_feedback
 from obywatele.tables import UzytkownikTable
 from site_settings.params import get_param
@@ -613,6 +613,27 @@ class AssetListView(LoginRequiredMixin, SingleTableMixin, FilterView):
 
 
 @login_required
+@require_POST
+def private_note(request: HttpRequest, pk: int):
+    subject = get_object_or_404(Uzytkownik, uid_id=pk)
+    author = request.user.uzytkownik
+    if subject == author:
+        return JsonResponse({'error': _('You cannot create a note about yourself.')}, status=400)
+
+    content = request.POST.get('content', '')
+    content = '\n'.join(line.strip() for line in content.splitlines()).strip()
+    if len(content) > 500:
+        return JsonResponse({'error': _('The note cannot exceed 500 characters.')}, status=400)
+
+    if content:
+        PrivateNote.objects.update_or_create(author=author, subject=subject, defaults={'content': content})
+    else:
+        PrivateNote.objects.filter(author=author, subject=subject).delete()
+
+    return redirect(reverse('obywatele:obywatele_szczegoly', kwargs={'pk': pk}))
+
+
+@login_required
 def obywatele_szczegoly(request: HttpRequest, pk: int):
     '''
     -[x] There has to be a table relating user and new person. This table is needed because vote for person may be withdrawn at some point. So there are 3 states:
@@ -724,6 +745,7 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
 
     candidate_deletion_request = getattr(candidate_user, 'deletion_request', None)
     person_push_enabled = candidate_user != request.user and not citizen_profile.muted_push_users.filter(pk=candidate_user.pk).exists()
+    person_private_note = None if candidate_profile == citizen_profile else PrivateNote.objects.filter(author=citizen_profile, subject=candidate_profile).first()
     dm_room = None
     if obj.is_active and candidate_user != request.user:
         dm_room = Room.get_or_create_for_users(request.user, candidate_user)
@@ -752,6 +774,9 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
             'ratings_negative': ratings_negative,
             'candidate_deletion_request': candidate_deletion_request,
             'person_push_enabled': person_push_enabled,
+            'person_private_note': person_private_note,
+            'private_note_max_length': PrivateNote._meta.get_field('content').max_length,
+            'private_note_url': reverse('obywatele:private_note', kwargs={'pk': pk}),
             'dm_room': dm_room if obj.is_active else None,
             'dm_unread_count': dm_unread_count,
             'sort_param': sort_param,

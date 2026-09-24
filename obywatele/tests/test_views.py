@@ -25,7 +25,7 @@ from chat.services import get_user_public_message_rows
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 from obywatele.auth_backends import CaseInsensitiveEmailBackend
 from obywatele.forms import ProfileForm, phone_country_choices
-from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
+from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items
 from tasks.activity import get_user_tasks
 from tasks.models import Task, TaskEvaluation, TaskVote
@@ -591,6 +591,46 @@ class PersonPushMuteViewTest(TestCase):
         url = reverse('obywatele:toggle_person_push', kwargs={'pk': self.user.pk})
         response = self.client.post(url, data='{"enabled": false}', content_type='application/json')
         self.assertEqual(response.status_code, 400)
+
+
+class PrivateNoteViewTest(TestCase):
+    def setUp(self):
+        self.author = User.objects.create_user(username='note-author', password='secret', is_active=True)
+        self.subject = User.objects.create_user(username='note-subject', password='secret', is_active=True)
+        self.client.force_login(self.author)
+        self.url = reverse('obywatele:private_note', kwargs={'pk': self.subject.pk})
+
+    def test_create_update_and_delete_note(self):
+        detail_url = reverse('obywatele:obywatele_szczegoly', kwargs={'pk': self.subject.pk})
+        response = self.client.post(self.url, {'content': 'First note'})
+        self.assertRedirects(response, detail_url)
+        note = PrivateNote.objects.get(author=self.author.uzytkownik, subject=self.subject.uzytkownik)
+        self.assertEqual(note.content, 'First note')
+
+        response = self.client.post(self.url, {'content': '  Updated note  \n  second line '})
+        self.assertRedirects(response, detail_url)
+        note.refresh_from_db()
+        self.assertEqual(note.content, 'Updated note\nsecond line')
+
+        response = self.client.post(self.url, {'content': '  '})
+        self.assertRedirects(response, detail_url)
+        self.assertFalse(PrivateNote.objects.filter(pk=note.pk).exists())
+
+    def test_note_is_private_and_validates_length_and_self(self):
+        response = self.client.post(self.url, {'content': 'x' * 501})
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(PrivateNote.objects.exists())
+
+        self_url = reverse('obywatele:private_note', kwargs={'pk': self.author.pk})
+        response = self.client.post(self_url, {'content': 'Self note'})
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(PrivateNote.objects.exists())
+
+        other = User.objects.create_user(username='other-note-author', password='secret', is_active=True)
+        PrivateNote.objects.create(author=self.author.uzytkownik, subject=self.subject.uzytkownik, content='Only mine')
+        self.client.force_login(other)
+        detail = self.client.get(reverse('obywatele:obywatele_szczegoly', kwargs={'pk': self.subject.pk}))
+        self.assertEqual(detail.context['person_private_note'], None)
 
 
 class ProfileFormErrorViewTest(TestCase):

@@ -208,6 +208,17 @@ class Uzytkownik(models.Model):
             Uzytkownik.objects.create(uid=instance)
 
 
+class PrivateNote(models.Model):
+    author = models.ForeignKey(Uzytkownik, on_delete=models.CASCADE, related_name='private_notes_authored', verbose_name=_('Author'))
+    subject = models.ForeignKey(Uzytkownik, on_delete=models.CASCADE, related_name='private_notes_received', verbose_name=_('Person'))
+    content = models.TextField(max_length=500, verbose_name=_('Private note'))
+
+    class Meta:
+        verbose_name = _('Private note')
+        verbose_name_plural = _('Private notes')
+        constraints = [models.UniqueConstraint(fields=('author', 'subject'), name='unique_private_note_author_subject')]
+
+
 class CitizenActivity(models.Model):
     """Track activities related to citizens"""
 
