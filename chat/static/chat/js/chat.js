@@ -1219,10 +1219,9 @@ export async function onReceiveVotes(event) {
     DOM_API.getMessageUpvotesCountDiv(event.message_id).textContent = event.upvotes;
     DOM_API.getMessageDownvotesCountDiv(event.message_id).textContent = event.downvotes;
 
-    if (event.your_vote /* vote type e.g. upvote or downvote or null if it wasn't you who triggered */) {
-        const active_btn = DOM_API.getVoteDiv(event.message_id, event.your_vote);
-        if (message_div) $$('.tw-msg-vote', message_div).forEach(btn => btn.classList.remove('tw-active'));
-        if (event.add) active_btn?.classList.add('tw-active');
+    if (message_div) {
+        DOM_API.getVoteDiv(event.message_id, 'upvote')?.classList.toggle('tw-active', event.upvotes > 0);
+        DOM_API.getVoteDiv(event.message_id, 'downvote')?.classList.toggle('tw-active', event.downvotes > 0);
     }
 
     // Pokoje zadań: serwer dosyła nicki głosujących — odśwież tooltipsy łapek.
@@ -1249,6 +1248,7 @@ export async function onReceiveReactions(event) {
         const countEl = $(`.tw-reaction-btn[data-reaction="${key}"] .tw-reaction-count`, msgDiv);
         const btn = $(`.tw-reaction-btn[data-reaction="${key}"]`, msgDiv);
         if (!btn) continue;
+        btn.classList.toggle('tw-reaction-btn--active', count > 0);
         if (count > 0) {
             if (countEl) {
                 countEl.textContent = count;
@@ -1260,11 +1260,6 @@ export async function onReceiveReactions(event) {
         }
     }
 
-    // Toggle active state if it was the current user
-    if (event.your_reaction !== undefined && event.your_reaction !== null) {
-        const btn = $(`.tw-reaction-btn[data-reaction="${event.your_reaction}"]`, msgDiv);
-        if (btn) btn.classList.toggle('tw-reaction-btn--active', event.added ?? false);
-    }
 }
 
 /**
