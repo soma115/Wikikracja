@@ -4,7 +4,11 @@
 
 Zwiększyć odporność aplikacji Wikikracja na równoczesne odczyty i zapisy przy zachowaniu SQLite3 jako jedynego silnika bazy danych.
 
-Plan nie zakłada migracji na PostgreSQL ani zmian zasad głosowania, anonimowości, kodów jednorazowych lub innych reguł biznesowych.
+Plan nie zakłada migracji na MariaDB ani zmian zasad głosowania, anonimowości, kodów jednorazowych lub innych reguł biznesowych.
+
+Plan docelowej migracji do MariaDB znajduje się w `docs/PLAN_MIGRACJI_MARIADB.md`.
+Ten dokument opisuje stan SQLite, który należy utrzymać do czasu zakończenia
+migracji oraz wykorzystać jako źródło wymagań dla rollbacku.
 
 ## Stan początkowy
 
@@ -15,7 +19,7 @@ Plan nie zakłada migracji na PostgreSQL ani zmian zasad głosowania, anonimowo�
 - Scheduler ma osobną blokadę plikową ograniczającą liczbę jego instancji.
 - Ścieżka oddawania głosu ma retry dla przejściowego `database is locked`.
 - Dokumentacja zawiera historyczną instrukcję kopiowania SQLite, ale aktualna procedura używa SQLite Backup API i kontroli integralności.
-- `select_for_update()` nie zapewnia na SQLite takiej ochrony przed konkurencją jak na PostgreSQL.
+- `select_for_update()` nie zapewnia na SQLite takiej ochrony przed konkurencją jak na MariaDB z InnoDB.
 
 ## Zasady realizacji
 

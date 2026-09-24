@@ -21,7 +21,7 @@ Try the live demo: **https://demo.wikikracja.pl/**
 
 - **Backend**: Django ~6.0.4, Django Channels 4.3.2 + Daphne (ASGI), Python >=3.14, JavaScript, CSS
 - **Frontend**: Tailwind CSS 3.4 (prefixed `tw-`), django-crispy-forms, TinyMCE
-- **Database**: SQLite (development), PostgreSQL (production)
+- **Database**: SQLite (development), MariaDB (production)
 - **Cache/Channels**: Redis (cache and channel layer)
 - **Deployment**: Docker, GitHub Actions
 - **Authentication**: django-allauth
