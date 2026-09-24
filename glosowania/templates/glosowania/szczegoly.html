@@ -54,7 +54,7 @@
         </form>
       </div>
       {% else %}
-      <span class="tw-text-muted tw-text-xs"><i class="fas fa-check-circle tw-text-success"></i> {% trans 'You have already voted in this referendum' %}</span>
+      <span class="tw-vote-question"><i class="fas fa-check-circle tw-text-success"></i> {% trans 'You have already voted in this referendum' %}</span>
       {% endif %}
 
       {% elif id.voting_has_ended %}
