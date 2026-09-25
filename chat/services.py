@@ -266,24 +266,6 @@ def build_chat_message_event(message: Message, *, new: bool = False, temp_id: st
                 }
             )
 
-    for remote_reader in message.federated_read_by or []:
-        if not isinstance(remote_reader, dict) or not remote_reader.get('display_name'):
-            continue
-        display_name = str(remote_reader['display_name'])
-        read_by_data.append(
-            {
-                'user_id': None,
-                'username': display_name,
-                'display_name': display_name,
-                'initials': display_name[:2].upper(),
-                'avatar_url': '/static/home/images/anonymous.svg',
-                'citizen_color_class': citizen_color_class(display_name),
-                'presence_status': 'red',
-                'presence_source': '',
-                'presence_timestamp': None,
-            }
-        )
-
     event = {
         'type': 'chat.message',
         'room_id': message.room_id,

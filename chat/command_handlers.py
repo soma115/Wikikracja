@@ -11,7 +11,6 @@ from core.richtext import sanitize
 from zzz.templatetags.citizen_filters import user_display_name
 
 from .exceptions import ClientError
-from .federation import deliver_reaction, deliver_read, federated_actor_name, schedule_federated_event
 from .reactions import ChatReactionService
 from .serializers import build_chat_message_payload
 from .services import get_avatar_url, send_message
@@ -174,33 +173,17 @@ class ChatCommandHandlers:
         rooms = await self.room_repo.find_private_rooms_for_user_pairs(scoped_user, online_user_ids)
         return CommandResult([{'online_data': [{'user_id': user_id, 'room_id': rooms[user_id].id, 'online': True} for user_id in online_user_ids if user_id in rooms]}])
 
-    async def _schedule_federated_reaction(self, message_id, reaction, added):
-        room = await self.consumer.repo.get_room_by_message(message_id)
-        if not isinstance(getattr(room, 'federated_instance_url', None), str) or not room.federated_instance_url:
-            return
-        actor_name = await federated_actor_name(self.consumer.scope['user'].id)
-        schedule_federated_event(deliver_reaction(room, message_id, reaction, added, self.consumer.scope['user'].id, actor_name))
-
-    async def _schedule_federated_read(self, message_id):
-        room = await self.consumer.repo.get_room_by_message(message_id)
-        if not isinstance(getattr(room, 'federated_instance_url', None), str) or not room.federated_instance_url:
-            return
-        actor_name = await federated_actor_name(self.consumer.scope['user'].id)
-        schedule_federated_event(deliver_read(room, message_id, self.consumer.scope['user'].id, actor_name))
-
     async def add_vote(self, vote, message_id):
         counts = await self.reaction_service.add_vote(vote, message_id)
         if counts is None:
             return CommandResult()
         upvotes, downvotes = counts
         await self._broadcast_vote_update(message_id, vote, upvotes, downvotes, add=True)
-        await self._schedule_federated_reaction(message_id, vote, True)
         return CommandResult()
 
     async def remove_vote(self, vote, message_id):
         upvotes, downvotes = await self.reaction_service.remove_vote(vote, message_id)
         await self._broadcast_vote_update(message_id, vote, upvotes, downvotes, add=False)
-        await self._schedule_federated_reaction(message_id, vote, False)
         return CommandResult()
 
     async def _broadcast_vote_update(self, message_id, vote, upvotes, downvotes, add):
@@ -216,7 +199,6 @@ class ChatCommandHandlers:
         await self.consumer.channel_layer.group_send(
             room.group_name, {'type': 'chat.reaction', 'update_reactions': {'message_id': message_id, 'reaction': reaction, 'counts': counts, 'user_id': self.consumer.scope['user'].id, 'added': added}}
         )
-        await self._schedule_federated_reaction(message_id, reaction, added)
         return CommandResult()
 
     async def mark_read(self, message_id):
@@ -224,7 +206,6 @@ class ChatCommandHandlers:
         read_by = await self.consumer.repo.get_read_by_data(message_id)
         room = await self.consumer.repo.get_room_by_message(message_id)
         await self.consumer.channel_layer.group_send(room.group_name, {'type': 'chat.read', 'messages_read': {'message_id': message_id, 'read_by': read_by}})
-        await self._schedule_federated_read(message_id)
         return CommandResult()
 
     async def mark_read_bulk(self, message_ids, room_id):
@@ -233,7 +214,6 @@ class ChatCommandHandlers:
         for message_id in new_ids:
             read_by = await self.consumer.repo.get_read_by_data(message_id)
             await self.consumer.channel_layer.group_send(room.group_name, {'type': 'chat.read', 'messages_read': {'message_id': message_id, 'read_by': read_by}})
-            await self._schedule_federated_read(message_id)
         return CommandResult()
 
     async def get_message_history(self, message_id):

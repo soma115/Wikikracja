@@ -172,11 +172,11 @@ const message_template = `
     %>
     <div class="tw-msg-meta-row">
       <% if (type == "public") { %>
-        <button type='button' data-event-name='upvote' data-message-id="<%-message_id%>" class='tw-btn tw-btn-sm tw-message-btn tw-msg-vote<% if (upvotes > 0) { %> tw-active<% } %>' title='${_("Upvote")}<% if (typeof upvoters !== "undefined" && upvoters && upvoters.length) { %>: <%= upvoters.join(", ") %><% } %>'>
+        <button type='button' data-event-name='upvote' data-message-id="<%-message_id%>" class='tw-btn tw-btn-sm tw-message-btn tw-msg-vote' title='${_("Upvote")}<% if (typeof upvoters !== "undefined" && upvoters && upvoters.length) { %>: <%= upvoters.join(", ") %><% } %>'>
           <i class='fas fa-thumbs-up'></i>
           <span class='tw-msg-upvotes'><%-upvotes%></span>
         </button>
-        <button type='button' data-event-name='downvote' data-message-id="<%-message_id%>" class='tw-btn tw-btn-sm tw-message-btn tw-msg-vote<% if (downvotes > 0) { %> tw-active<% } %>' title='${_("Downvote")}<% if (typeof downvoters !== "undefined" && downvoters && downvoters.length) { %>: <%= downvoters.join(", ") %><% } %>'>
+        <button type='button' data-event-name='downvote' data-message-id="<%-message_id%>" class='tw-btn tw-btn-sm tw-message-btn tw-msg-vote' title='${_("Downvote")}<% if (typeof downvoters !== "undefined" && downvoters && downvoters.length) { %>: <%= downvoters.join(", ") %><% } %>'>
           <i class='fas fa-thumbs-down'></i>
           <span class='tw-msg-downvotes'><%-downvotes%></span>
         </button>
@@ -192,7 +192,7 @@ const message_template = `
       <span class="tw-msg-divider" aria-hidden="true"></span>
 
       <% for (const [_key, _emoji, _label] of [['bulb','💡','Ciekawe'],['question','❓','Mam pytanie']]) { %>
-        <button class="tw-reaction-btn<% if ((reactions[_key]||0) > 0) { %> tw-reaction-btn--active<% } %>"
+        <button class="tw-reaction-btn<% if ((your_reactions||[]).includes(_key)) { %> tw-reaction-btn--active<% } %>"
                 data-reaction="<%- _key %>" data-message-id="<%- message_id %>"
                 type="button" title="<%- _label %>">
           <%- _emoji %><% if ((reactions[_key]||0) > 0) { %><span class="tw-reaction-count"><%- reactions[_key] %></span><% } %>

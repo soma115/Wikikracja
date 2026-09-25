@@ -6,7 +6,6 @@ import uuid
 from datetime import timedelta as td
 
 from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -31,7 +30,7 @@ from chat.models import Message, Room
 from chat.services import get_unread_message_counts_for_rooms, send_message
 from site_settings.params import get_param
 
-from .federation import FEDERATION_MAX_BODY, FEDERATION_SOURCE, apply_federated_reaction, apply_federated_read, get_configured_room, make_federation_message_id, normalize_instance_url, validate_incoming_payload
+from .federation import FEDERATION_MAX_BODY, FEDERATION_SOURCE, get_configured_room, make_federation_message_id, validate_incoming_payload
 
 log = logging.getLogger(__name__)
 
@@ -300,66 +299,6 @@ def federation_message(request: HttpRequest):
         )
     except IntegrityError:
         return JsonResponse({'accepted': True, 'duplicate': True})
-    return JsonResponse({'accepted': True})
-
-
-def _federation_event_payload(request):
-    if len(request.body) > FEDERATION_MAX_BODY:
-        raise ValueError('payload_too_large')
-    payload = json.loads(request.body)
-    source_url = normalize_instance_url(payload.get('source_url'))
-    message_source_url = normalize_instance_url(payload.get('message_source_url'))
-    message_source_id = str(payload.get('message_source_id') or '').strip()
-    actor_id = str(payload.get('actor_id') or '').strip()
-    actor_name = str(payload.get('actor_name') or '').strip()
-    if not message_source_id or len(message_source_id) > 100 or not actor_id or len(actor_id) > 100 or not actor_name or len(actor_name) > 255:
-        raise ValueError('invalid_payload')
-    return payload, source_url, message_source_url, message_source_id, actor_id, actor_name
-
-
-@csrf_exempt
-@require_http_methods(['POST'])
-def federation_reaction(request: HttpRequest):
-    try:
-        payload, source_url, message_source_url, message_source_id, actor_id, actor_name = _federation_event_payload(request)
-        reaction = str(payload.get('reaction') or '').strip()
-        if reaction not in {'bulb', 'question', 'upvote', 'downvote'}:
-            raise ValueError('invalid_payload')
-    except (TypeError, ValueError, json.JSONDecodeError):
-        return JsonResponse({'error': 'invalid_payload'}, status=400)
-    if get_configured_room(source_url) is None:
-        return JsonResponse({'error': 'instance_not_configured'}, status=403)
-    result = apply_federated_reaction(source_url, message_source_url, message_source_id, reaction, bool(payload.get('added')), actor_id, actor_name)
-    if result is None:
-        return JsonResponse({'error': 'message_not_found'}, status=404)
-    message, counts = result
-    if reaction in {'upvote', 'downvote'}:
-        event = {
-            'type': 'chat.vote',
-            'update_votes': {'message_id': message.id, 'upvotes': counts['upvotes'], 'downvotes': counts['downvotes'], 'user_id': None, 'vote': reaction, 'add': bool(payload.get('added'))},
-        }
-    else:
-        event = {'type': 'chat.reaction', 'update_reactions': {'message_id': message.id, 'reaction': reaction, 'counts': counts, 'user_id': None, 'added': bool(payload.get('added'))}}
-    async_to_sync(get_channel_layer().group_send)(message.room.group_name, event)
-    log.info('Federated reaction accepted source=%s reaction=%s message=%s', source_url, reaction, message.id)
-    return JsonResponse({'accepted': True})
-
-
-@csrf_exempt
-@require_http_methods(['POST'])
-def federation_read(request: HttpRequest):
-    try:
-        _payload, source_url, message_source_url, message_source_id, actor_id, actor_name = _federation_event_payload(request)
-    except (TypeError, ValueError, json.JSONDecodeError):
-        return JsonResponse({'error': 'invalid_payload'}, status=400)
-    if get_configured_room(source_url) is None:
-        return JsonResponse({'error': 'instance_not_configured'}, status=403)
-    result = apply_federated_read(source_url, message_source_url, message_source_id, actor_id, actor_name)
-    if result is None:
-        return JsonResponse({'error': 'message_not_found'}, status=404)
-    message, read_by = result
-    async_to_sync(get_channel_layer().group_send)(message.room.group_name, {'type': 'chat.read', 'messages_read': {'message_id': message.id, 'read_by': read_by}})
-    log.info('Federated read accepted source=%s message=%s readers=%s', source_url, message.id, len(read_by))
     return JsonResponse({'accepted': True})
 
 
