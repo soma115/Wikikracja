@@ -838,6 +838,7 @@ class TaskDetailTeamModeContextTest(TestCase):
         response = self.client.get(reverse("tasks:detail", kwargs={"pk": self.task.pk}))
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.context["can_post_in_chat"])
+        self.assertContains(response, 'data-can-post="false"')
 
     def test_detail_context_can_post_approved_helper_true(self):
         self.task.approve_helper(self.helper)
