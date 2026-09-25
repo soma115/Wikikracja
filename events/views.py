@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from core.utils import build_detail_navigation
+from home.navigation import default_toolbar_views
 
 from .calendar import adjacent_months, build_calendar_grid, month_bounds, parse_month_param, year_options
 from .forms import EventForm
@@ -63,7 +64,7 @@ class EventListView(ListView):
         cal_year, cal_month = parse_month_param(self.request.GET.get('month', ''))
         events_qs = _visible_events(self.request)
         prev_month, next_month = adjacent_months(cal_year, cal_month)
-        toolbar_views = [{'name': 'list', 'icon': 'list', 'title': gettext_lazy('List')}, {'name': 'grid', 'icon': 'grip', 'title': gettext_lazy('Grid')}]
+        toolbar_views = default_toolbar_views()
 
         context.update(
             {

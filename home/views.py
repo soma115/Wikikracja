@@ -23,6 +23,7 @@ from site_settings.models import QuickLink, SiteParameters
 from site_settings.services import get_branding_version
 
 from .link_titles import resolve_link_titles
+from .navigation import default_toolbar_views
 from .services import dashboard as dashboard_service
 
 log = logging.getLogger(__name__)
@@ -151,7 +152,7 @@ def activity_page(request):
     unread_filter_url = _build_activity_query(sort, order, is_filtered, active_types, filter_unread, filter_bookmarks, toggle='unread')
     bookmarks_filter_url = _build_activity_query(sort, order, is_filtered, active_types, filter_unread, filter_bookmarks, toggle='bookmarks')
     toolbar_sort_items = [{"url": sort_url, "label": _("Date"), "active": state != 'none', "state": state, "pre_icon": "clock", "icon": "up" if state == "asc" else "down" if state == "desc" else None}]
-    toolbar_views = [{"name": "list", "icon": "list", "title": _("List")}, {"name": "grid", "icon": "grip", "title": _("Grid")}]
+    toolbar_views = default_toolbar_views()
 
     return render(
         request,

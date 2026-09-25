@@ -2,6 +2,16 @@ from core.presence import presence_data
 from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
 
 
+def build_chat_message_payloads(batch_data, current_user, avatar_url_for_user):
+    """Serialize one repository batch using the canonical message serializer."""
+    users = batch_data['users']
+    votes = batch_data['user_votes']
+    return [
+        build_chat_message_payload(event, user=users.get(event['user_id']), vote_value=votes.get(event['message_id']), current_user=current_user, avatar_url=avatar_url_for_user(users.get(event['user_id'])))
+        for event in batch_data['messages']
+    ]
+
+
 def build_chat_message_payload(event, *, user, vote_value, current_user, your_reactions=None, avatar_url=None):
     """Buduje payload wiadomości chata wysyłany do klienta (WebSocket -> JS).
 

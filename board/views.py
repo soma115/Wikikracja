@@ -14,6 +14,7 @@ from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI
 from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unread_message_counts_for_rooms
 from core.utils import build_detail_navigation
+from home.navigation import default_toolbar_views
 
 from .forms import PostForm
 from .models import Post, PostAttachment, PostCategory
@@ -273,15 +274,7 @@ def board(request: HttpRequest) -> HttpResponse:
         if listing['detail_query']:
             post.detail_url = f"{post.detail_url}?{listing['detail_query']}"
 
-    listing.update(
-        {
-            'current_sort': sort,
-            'current_order': order,
-            'toolbar_sort_items': toolbar_sort_items,
-            'toolbar_views': [{'name': 'list', 'icon': 'list', 'title': gettext_lazy('List')}, {'name': 'grid', 'icon': 'grip', 'title': gettext_lazy('Grid')}],
-            'stepper': _board_stepper(request, listing),
-        }
-    )
+    listing.update({'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': default_toolbar_views(), 'stepper': _board_stepper(request, listing)})
     return render(request, 'board/board.html', listing)
 
 

@@ -13,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
 
 from core.utils import build_detail_navigation
+from home.navigation import default_toolbar_views
 
 from .forms import AssetForm, TransactionForm
 from .models import Asset, Category, Partner, Transaction
@@ -85,8 +86,30 @@ class BookkeepingListView(LoginRequiredMixin, ListView):
         context.update(_bookkeeping_toolbar(create_url=create_url, create_label=self.create_label))
         context['search_query'] = self.request.GET.get('q', '').strip()
         context['detail_query'] = self.request.GET.urlencode()
-        context['toolbar_views'] = [{'name': 'list', 'icon': 'list', 'title': _('List')}, {'name': 'grid', 'icon': 'grip', 'title': _('Grid')}]
+        context['toolbar_views'] = default_toolbar_views()
         return context
+
+
+class BookkeepingDetailView(LoginRequiredMixin, DetailView):
+    """Shared authenticated detail view for bookkeeping models."""
+
+
+class BookkeepingCreateView(LoginRequiredMixin, CreateView):
+    """Shared authenticated create view with a declarative list redirect."""
+
+    success_url_name = None
+
+    def get_success_url(self):
+        return reverse(self.success_url_name)
+
+
+class BookkeepingUpdateView(LoginRequiredMixin, UpdateView):
+    """Shared authenticated update view with a declarative list redirect."""
+
+    success_url_name = None
+
+    def get_success_url(self):
+        return reverse(self.success_url_name)
 
 
 class AssetListView(BookkeepingListView):
@@ -103,24 +126,24 @@ class AssetListView(BookkeepingListView):
         return queryset
 
 
-class AssetDetailView(LoginRequiredMixin, DetailView):
+class AssetDetailView(BookkeepingDetailView):
     model = Asset
     template_name = 'bookkeeping/asset_detail.html'
     context_object_name = 'asset'
 
 
-class AssetCreateView(LoginRequiredMixin, CreateView):
+class AssetCreateView(BookkeepingCreateView):
     model = Asset
     form_class = AssetForm
     template_name = 'bookkeeping/asset_form.html'
-    success_url = reverse_lazy('bookkeeping:asset_list')
+    success_url_name = 'bookkeeping:asset_list'
 
 
-class AssetUpdateView(LoginRequiredMixin, UpdateView):
+class AssetUpdateView(BookkeepingUpdateView):
     model = Asset
     form_class = AssetForm
     template_name = 'bookkeeping/asset_form.html'
-    success_url = reverse_lazy('bookkeeping:asset_list')
+    success_url_name = 'bookkeeping:asset_list'
 
 
 class AssetDeleteView(ProtectedDeleteView):
@@ -148,22 +171,22 @@ class CategoryListView(BookkeepingListView):
         return queryset
 
 
-class CategoryDetailView(LoginRequiredMixin, DetailView):
+class CategoryDetailView(BookkeepingDetailView):
     model = Category
     template_name = 'bookkeeping/category_detail.html'
     context_object_name = 'category'
 
 
-class CategoryCreateView(LoginRequiredMixin, CreateView):
+class CategoryCreateView(BookkeepingCreateView):
     model = Category
     fields = '__all__'
-    success_url = reverse_lazy('bookkeeping:category_list')
+    success_url_name = 'bookkeeping:category_list'
 
 
-class CategoryUpdateView(LoginRequiredMixin, UpdateView):
+class CategoryUpdateView(BookkeepingUpdateView):
     model = Category
     fields = '__all__'
-    success_url = reverse_lazy('bookkeeping:category_list')
+    success_url_name = 'bookkeeping:category_list'
 
 
 class CategoryDeleteView(ProtectedDeleteView):
@@ -239,7 +262,7 @@ class PartnerListView(BookkeepingListView):
         return context
 
 
-class PartnerDetailView(LoginRequiredMixin, DetailView):
+class PartnerDetailView(BookkeepingDetailView):
     model = Partner
     template_name = 'bookkeeping/partner_detail.html'
     context_object_name = 'partner'
@@ -254,16 +277,16 @@ class PartnerDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class PartnerCreateView(LoginRequiredMixin, CreateView):
+class PartnerCreateView(BookkeepingCreateView):
     model = Partner
     fields = '__all__'
-    success_url = reverse_lazy('bookkeeping:partner_list')
+    success_url_name = 'bookkeeping:partner_list'
 
 
-class PartnerUpdateView(LoginRequiredMixin, UpdateView):
+class PartnerUpdateView(BookkeepingUpdateView):
     model = Partner
     fields = '__all__'
-    success_url = reverse_lazy('bookkeeping:partner_list')
+    success_url_name = 'bookkeeping:partner_list'
 
 
 class PartnerDeleteView(ProtectedDeleteView):

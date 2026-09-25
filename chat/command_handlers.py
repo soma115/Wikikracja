@@ -12,7 +12,7 @@ from zzz.templatetags.citizen_filters import user_display_name
 
 from .exceptions import ClientError
 from .reactions import ChatReactionService
-from .serializers import build_chat_message_payload
+from .serializers import build_chat_message_payloads
 from .services import get_avatar_url, send_message
 from .utils import get_upload_path
 
@@ -51,13 +51,8 @@ COMMAND_SPECS = {
 
 
 def build_message_payloads(batch_data, current_user):
-    """Build client payloads from one repository message batch."""
-    users = batch_data['users']
-    votes = batch_data['user_votes']
-    return [
-        build_chat_message_payload(event, user=users.get(event['user_id']), vote_value=votes.get(event['message_id']), current_user=current_user, avatar_url=get_avatar_url(users.get(event['user_id'])))
-        for event in batch_data['messages']
-    ]
+    """Backward-compatible wrapper around the canonical batch serializer."""
+    return build_chat_message_payloads(batch_data, current_user, get_avatar_url)
 
 
 class ChatCommandHandlers:

@@ -32,6 +32,7 @@ from chat.i18n import get_translations as get_chat_translations
 from chat.models import Room
 from chat.services import get_unread_message_counts_for_rooms, get_user_public_message_rows
 from core.signals import citizen_proposed
+from home.navigation import default_toolbar_views
 from obywatele.filters import UzytkownikFilter
 from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, UserForm, UsernameChangeForm
 from obywatele.models import DeletionRequest, PrivateNote, Rate, Uzytkownik
@@ -278,7 +279,7 @@ def obywatele(request: HttpRequest):
         'uid': users_with_reputation,  # Don't change to 'user' - it will break menu
         'aktywnosc': _aktywnosc_ctx,
         'sort_param': sort_param,
-        'toolbar_views': [{'name': 'list', 'icon': 'list', 'title': _('List')}, {'name': 'grid', 'icon': 'grip', 'title': _('Grid')}],
+        'toolbar_views': default_toolbar_views(),
     }
     template_name = 'obywatele/_citizens_list_content.html' if request.GET.get('partial') == '1' else 'obywatele/start.html'
     return render(request, template_name, context)
@@ -337,7 +338,7 @@ def poczekalnia(request: HttpRequest):
             'acceptance': get_param('acceptance'),
             'delete_inactive_user_after': get_param('delete_inactive_user_after'),
             'required_reputation': required_reputation(),
-            'toolbar_views': [{'name': 'list', 'icon': 'list', 'title': _('List')}, {'name': 'grid', 'icon': 'grip', 'title': _('Grid')}],
+            'toolbar_views': default_toolbar_views(),
         },
     )
 

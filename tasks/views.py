@@ -23,6 +23,7 @@ from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unread_message_counts_for_rooms, get_unseen_room_ids
 from core.presence import presence_data
 from core.utils import build_detail_navigation
+from home.navigation import default_toolbar_views
 from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
 
 from .forms import TaskForm, TaskStatusForm
@@ -182,7 +183,7 @@ def _task_toolbar_data(sort, order, tab, categories, search_query=''):
         icon = "up" if state == "asc" else "down" if state == "desc" else None
         sort_items.append({"url": url, "label": str(labels[s]), "active": state != 'none', "state": state, "pre_icon": icons[s], "icon": icon})
 
-    views = [{"name": "list", "icon": "list", "title": gettext_lazy("List")}, {"name": "grid", "icon": "grip", "title": gettext_lazy("Grid")}]
+    views = default_toolbar_views()
     return sort_items, views
 
 

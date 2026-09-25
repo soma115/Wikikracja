@@ -16,6 +16,7 @@ from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unread_message_counts_for_rooms
 from core.signals import survey_created
 from core.utils import build_detail_navigation, build_site_url
+from home.navigation import default_toolbar_views
 
 from .forms import CustomSurveyOptionForm, SurveyForm
 from .models import Survey, SurveyOption, SurveyVote
@@ -165,7 +166,7 @@ def survey_list(request):
             survey.detail_url = f"{survey.detail_url}?{detail_query}"
 
     stepper = _survey_stepper(tab, search_query)
-    toolbar_views = [{"name": "list", "icon": "list", "title": _("List")}, {"name": "grid", "icon": "grip", "title": _("Grid")}]
+    toolbar_views = default_toolbar_views()
     return render(request, "ankiety/survey_list.html", {"surveys": surveys, "current_tab": tab, "search_query": search_query, "stepper": stepper, "toolbar_views": toolbar_views})
 
 

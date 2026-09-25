@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from chat.serializers import build_chat_message_payload
+from chat.serializers import build_chat_message_payload, build_chat_message_payloads
 from chat.tests.utils import make_user
 
 
@@ -9,6 +9,15 @@ class BuildChatMessagePayloadTest(TestCase):
         self.sender = make_user("alice")
         self.viewer = make_user("bob")
         self.base_event = {"type": "chat.message", "user_id": self.sender.id, "message_id": 42, "room_id": 1, "message": "hi", "anonymous": False, "new": True}
+
+    def test_batch_serializer_uses_the_canonical_message_serializer(self):
+        batch = {"users": {self.sender.id: self.sender}, "user_votes": {42: "upvote"}, "messages": [self.base_event]}
+
+        payloads = build_chat_message_payloads(batch, self.viewer, lambda user: "/avatar.png")
+
+        self.assertEqual(payloads[0]["user_id"], self.sender.id)
+        self.assertEqual(payloads[0]["your_vote"], "upvote")
+        self.assertEqual(payloads[0]["avatar_url"], "/avatar.png")
 
     def test_payload_keeps_user_id_for_non_anonymous(self):
         payload = build_chat_message_payload(self.base_event, user=self.sender, vote_value=None, current_user=self.viewer)

@@ -29,6 +29,7 @@ from glosowania.dashboard import get_vote_storage_reliability_context
 from glosowania.forms import ArgumentForm, DecyzjaForm, ParametersProposalForm
 from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy, author_signed_exists
 from glosowania.vote_buffer import discard_pending_vote, push_pending_vote
+from home.navigation import default_toolbar_views
 from site_settings.models import SiteParameters
 from site_settings.params import describe_changes, specs_by_category
 from zzz.templatetags.citizen_filters import user_display_name
@@ -715,7 +716,7 @@ def _apply_sort(queryset, sort, order='desc'):
 
 def _glosowania_toolbar_data():
     """Generate view toggle data for the shared toolbar template."""
-    return [], [{"name": "list", "icon": "list", "title": _("List")}, {"name": "grid", "icon": "grip", "title": _("Grid")}]
+    return [], default_toolbar_views()
 
 
 def _sort_context(request):

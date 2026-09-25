@@ -5,6 +5,11 @@ CITIZEN_SETTINGS_PAGE_NAMES = frozenset({'my_profile', 'haslo', 'my_assets', 'ch
 
 CITIZEN_SETTINGS_NAV_NAMES = frozenset({'my_profile', 'haslo', 'my_assets', 'change_email', 'change_username'})
 
+
+def default_toolbar_views():
+    return [{'name': 'list', 'icon': 'list', 'title': _('List')}, {'name': 'grid', 'icon': 'grip', 'title': _('Grid')}]
+
+
 NAVIGATION_ITEMS = (
     {'namespace': None, 'url_name': 'home', 'label': _('Desktop'), 'icon': 'house', 'active_class': 'active tw-active'},
     {'namespace': 'tasks', 'url_name': 'tasks:list', 'label': _('Activities'), 'icon': 'bolt', 'prefs_scope': 'tasks', 'active_class': 'active tw-active'},
