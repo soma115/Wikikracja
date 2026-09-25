@@ -195,7 +195,7 @@ aplikacji.
 - `clusters/apps/kustomization.yaml`
 - `clusters/apps/wikikracja-base/`
 - `clusters/apps/wikikracja-shared/backup-to-nas-cronjob.yaml`
-- `clusters/apps/wikikracja-migrations/` for instance-1 and
+- `clusters/apps/wikikracja-migrations-1/` for instance-1 and
   `clusters/apps/wikikracja-migrations-N/` for instances 2, 3 and 5–14
 - `clusters/apps/wikikracja-instance-N/` for each active instance
 - `clusters/infrastructure/image-automation.yaml`

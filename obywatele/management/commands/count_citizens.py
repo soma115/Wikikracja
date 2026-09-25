@@ -17,7 +17,7 @@ from board.models import Post
 from core.signals import citizen_accepted, citizen_blocked, citizen_deleted
 from core.utils import build_site_url, get_site_domain
 from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
-from obywatele.services import publish_deletion_feedback
+from obywatele.services import publish_deletion_feedback, release_blocked_user_resources
 from obywatele.views import population, required_reputation
 
 log = logging.getLogger(__name__)
@@ -219,6 +219,7 @@ class Command(BaseCommand):
                 i.uid.is_active = False
                 i.uid.save()
                 i.save()
+                release_blocked_user_resources(i.uid)
                 log.info(f'Blocking user {i.uid}')
 
                 # Banned person resets other people's reputation to Neutral

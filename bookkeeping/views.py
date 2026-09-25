@@ -2,8 +2,10 @@ import json
 from urllib.parse import quote_plus
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db import transaction as db_transaction
 from django.db.models import Q
-from django.shortcuts import redirect, render
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -356,6 +358,19 @@ class TransactionCreateView(LoginRequiredMixin, View):
             return redirect('bookkeeping:transaction_detail', pk=transaction.pk)
 
         return render(request, self.template_name, {'transaction_form': transaction_form, 'asset_decimal_places_json': _asset_decimal_places_json()})
+
+
+class TransactionClaimView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        if not request.user.is_active:
+            return HttpResponseForbidden()
+        with db_transaction.atomic():
+            transaction = get_object_or_404(Transaction.objects.select_for_update(), pk=pk)
+            if transaction.author_id is not None:
+                return redirect('bookkeeping:transaction_detail', pk=pk)
+            transaction.author = request.user
+            transaction.save(update_fields=['author'])
+        return redirect('bookkeeping:transaction_detail', pk=pk)
 
 
 class TransactionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):

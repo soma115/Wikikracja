@@ -17,6 +17,7 @@ from .views import (
     PartnerListView,
     PartnerUpdateView,
     ReportView,
+    TransactionClaimView,
     TransactionCreateView,
     TransactionDeleteView,
     TransactionDetailView,
@@ -31,6 +32,7 @@ urlpatterns = [
     path('transaction/', TransactionListView.as_view(), name='transaction_list'),
     path('transaction/create/', TransactionCreateView.as_view(), name='transaction_create'),
     path('transaction/<int:pk>/', TransactionDetailView.as_view(), name='transaction_detail'),
+    path('transaction/<int:pk>/claim/', TransactionClaimView.as_view(), name='transaction_claim'),
     path('transaction/<int:pk>/update/', TransactionUpdateView.as_view(), name='transaction_update'),
     path('transaction/<int:pk>/delete/', TransactionDeleteView.as_view(), name='transaction_delete'),
     # Asset URLs

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 00:42+0200\n"
+"POT-Creation-Date: 2026-09-25 08:37+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -178,7 +178,7 @@ msgstr "Opcje ankiety"
 msgid "Survey options"
 msgstr "Opcje ankiety"
 
-#: .\ankiety\models.py:72 .\obywatele\management\commands\count_citizens.py:244
+#: .\ankiety\models.py:72 .\obywatele\management\commands\count_citizens.py:245
 #: .\obywatele\models.py:244
 msgid "User"
 msgstr "Użytkownik"
@@ -209,7 +209,7 @@ msgstr "Pokój dyskusji do ankiety: <a href='%(survey_url)s'>%(survey_title)s</a
 #: .\board\templates\board\_post_detail_actions.html:15
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:4
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:7
-#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:12
+#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:17
 #: .\categories\templates\categories\_category_manager_init.html:20
 #: .\events\templates\events\_event_detail_actions.html:4
 #: .\glosowania\templates\glosowania\_argument_actions.html:18
@@ -225,7 +225,7 @@ msgstr "Usuń"
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:5
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:8
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:10
-#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:13
+#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:18
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:47
 #: .\categories\templates\categories\_category_manager_init.html:17
 #: .\events\templates\events\_event_detail_actions.html:7
@@ -429,14 +429,14 @@ msgstr "Dodawanie opcji w tej ankiecie jest niedozwolone."
 msgid "Your option has been added."
 msgstr "Twoja opcja została dodana."
 
-#: .\ankiety\views.py:168 .\board\views.py:281 .\bookkeeping\views.py:86
+#: .\ankiety\views.py:168 .\board\views.py:281 .\bookkeeping\views.py:88
 #: .\events\views.py:66 .\glosowania\views.py:718
 #: .\home\templates\home\includes\toolbar.html:60 .\home\views.py:154
 #: .\obywatele\views.py:281 .\obywatele\views.py:340 .\tasks\views.py:185
 msgid "List"
 msgstr "Lista"
 
-#: .\ankiety\views.py:168 .\board\views.py:281 .\bookkeeping\views.py:86
+#: .\ankiety\views.py:168 .\board\views.py:281 .\bookkeeping\views.py:88
 #: .\events\views.py:66 .\glosowania\views.py:718
 #: .\home\templates\home\includes\toolbar.html:55 .\home\views.py:154
 #: .\obywatele\views.py:281 .\obywatele\views.py:340 .\tasks\views.py:185
@@ -979,7 +979,7 @@ msgstr "Data otrzymania płatności"
 #: .\bookkeeping\forms.py:42 .\bookkeeping\models.py:118
 #: .\bookkeeping\templates\bookkeeping\_transaction_card.html:45
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:27
-#: .\bookkeeping\templates\bookkeeping\transaction_detail.html:49
+#: .\bookkeeping\templates\bookkeeping\transaction_detail.html:53
 #: .\templates\allauth\account\snippets\already_logged_in.html:5
 msgid "Note"
 msgstr "Notatka"
@@ -997,7 +997,7 @@ msgstr "Kod"
 #: .\bookkeeping\templates\bookkeeping\category_detail.html:11
 #: .\bookkeeping\templates\bookkeeping\partner_confirm_delete.html:12
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:10
-#: .\bookkeeping\views.py:207
+#: .\bookkeeping\views.py:209
 msgid "Name"
 msgstr "Nazwa"
 
@@ -1047,7 +1047,7 @@ msgstr "Adres"
 
 #: .\bookkeeping\models.py:97
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:35
-#: .\bookkeeping\views.py:207 .\obywatele\models.py:84
+#: .\bookkeeping\views.py:209 .\obywatele\models.py:84
 msgid "City"
 msgstr "Miejscowość"
 
@@ -1060,7 +1060,7 @@ msgstr "Kraj"
 #: .\bookkeeping\models.py:99
 #: .\bookkeeping\templates\bookkeeping\_partner_card.html:32
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:41
-#: .\bookkeeping\views.py:207
+#: .\bookkeeping\views.py:209
 msgid "Notes"
 msgstr "Notatki"
 
@@ -1072,6 +1072,10 @@ msgstr "Domyślne"
 #: .\bookkeeping\templates\bookkeeping\_asset_card.html:21
 msgid "Currency"
 msgstr "Waluta"
+
+#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:14
+msgid "Take ownership"
+msgstr "Przejmij własność"
 
 #: .\bookkeeping\templates\bookkeeping\_nav.html:5
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:67
@@ -1292,7 +1296,7 @@ msgid "Phone number"
 msgstr "Numer telefonu"
 
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:19
-#: .\bookkeeping\views.py:207
+#: .\bookkeeping\views.py:209
 msgid "Web Page"
 msgstr "www"
 
@@ -1363,6 +1367,10 @@ msgstr "Czy na pewno chcesz skasować tę transakcję?"
 msgid "Yes, Delete Transaction"
 msgstr "Tak, usuń transakcję"
 
+#: .\bookkeeping\templates\bookkeeping\transaction_detail.html:49
+msgid "No owner"
+msgstr "Brak właściciela"
+
 #: .\bookkeeping\templates\bookkeeping\transaction_form.html:18
 msgid "Save Transaction"
 msgstr "Zapisz Transakcję"
@@ -1380,27 +1388,27 @@ msgid "No transactions yet."
 msgstr "Nie ma jeszcze transakcji."
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:75
-#: .\bookkeeping\views.py:295
+#: .\bookkeeping\views.py:297
 msgid "Add transaction"
 msgstr "Dodaj Transakcję"
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:76
-#: .\bookkeeping\views.py:182
+#: .\bookkeeping\views.py:184
 msgid "Add partner"
 msgstr "Dodaj Partnera"
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:77
-#: .\bookkeeping\views.py:139
+#: .\bookkeeping\views.py:141
 #: .\categories\templates\categories\_category_modal.html:14
 msgid "Add category"
 msgstr "Dodaj kategorię"
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:78
-#: .\bookkeeping\views.py:94 .\home\templates\home\home.html:371
+#: .\bookkeeping\views.py:96 .\home\templates\home\home.html:371
 msgid "Add asset"
 msgstr "Dodaj aktywo"
 
-#: .\bookkeeping\views.py:69
+#: .\bookkeeping\views.py:71
 #: .\glosowania\templates\glosowania\szczegoly.html:160
 #: .\glosowania\templates\glosowania\szczegoly.html:200
 #: .\glosowania\templatetags\glosowania_stepper.py:42
@@ -1409,15 +1417,15 @@ msgstr "Dodaj aktywo"
 msgid "Add"
 msgstr "Dodaj"
 
-#: .\bookkeeping\views.py:129
+#: .\bookkeeping\views.py:131
 msgid "Cannot delete asset because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć zasobu, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które go wykorzystują."
 
-#: .\bookkeeping\views.py:171
+#: .\bookkeeping\views.py:173
 msgid "Cannot delete category because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć kategorii, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które ją wykorzystują."
 
-#: .\bookkeeping\views.py:271
+#: .\bookkeeping\views.py:273
 msgid "Cannot delete partner because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć partnera, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które go wykorzystują."
 
@@ -1994,15 +2002,15 @@ msgstr "Działania"
 msgid "Mark as unread"
 msgstr "Oznacz jako nieprzeczytane"
 
-#: .\chat\views.py:83
+#: .\chat\views.py:82
 msgid "Invalid room name."
 msgstr "Nieprawidłowa nazwa pokoju."
 
-#: .\chat\views.py:375
+#: .\chat\views.py:316
 msgid "Too many messages. Please try again later."
 msgstr "Zbyt wiele wiadomości. Spróbuj ponownie później."
 
-#: .\chat\views.py:379
+#: .\chat\views.py:320
 msgid "The public inbox is not available at the moment."
 msgstr "Publiczna skrzynka nie jest obecnie dostępna."
 
@@ -4050,24 +4058,24 @@ msgstr "Twoja kandydatura nadal czeka na zatwierdzenie. Poprosimy jeszcze o troc
 msgid "Candidate has been accepted as a citizen"
 msgstr "Kandydat został zaakceptowany"
 
-#: .\obywatele\management\commands\count_citizens.py:231
+#: .\obywatele\management\commands\count_citizens.py:232
 msgid "Your account has been blocked"
 msgstr "Twoje konto zostało zablokowane"
 
-#: .\obywatele\management\commands\count_citizens.py:233
+#: .\obywatele\management\commands\count_citizens.py:234
 msgid "Welcome"
 msgstr "Witaj"
 
-#: .\obywatele\management\commands\count_citizens.py:234
+#: .\obywatele\management\commands\count_citizens.py:235
 msgid "Your account on"
 msgstr "Twoje konto na"
 
-#: .\obywatele\management\commands\count_citizens.py:234
-#: .\obywatele\management\commands\count_citizens.py:244
+#: .\obywatele\management\commands\count_citizens.py:235
+#: .\obywatele\management\commands\count_citizens.py:245
 msgid "has been blocked"
 msgstr "został zablokowany"
 
-#: .\obywatele\management\commands\count_citizens.py:243
+#: .\obywatele\management\commands\count_citizens.py:244
 msgid "Citizen has been banned"
 msgstr "Ta osoba została zbanowana"
 
@@ -4438,11 +4446,11 @@ msgstr "Żądanie usunięcia"
 msgid "Deletion requests"
 msgstr "Żądanie usunięcia"
 
-#: .\obywatele\services.py:22
+#: .\obywatele\services.py:42
 msgid "Former group member"
 msgstr "Były członek grupy"
 
-#: .\obywatele\services.py:23
+#: .\obywatele\services.py:43
 #, python-format
 msgid ""
 "Account-deletion feedback from a former group member. This message was published because its author chose to share it.\n"
@@ -4453,7 +4461,7 @@ msgstr ""
 "\n"
 "%(reason)s"
 
-#: .\obywatele\services.py:37 .\obywatele\tests\test_views.py:367
+#: .\obywatele\services.py:57 .\obywatele\tests\test_views.py:367
 msgid "Citizenship event"
 msgstr "Zdarzenie obywatelskie"
 

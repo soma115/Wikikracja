@@ -177,6 +177,23 @@ class BookkeepingViewTests(TestCase):
         res = self.client.get(reverse('bookkeeping:transaction_update', args=[txn.pk]))
         self.assertEqual(res.status_code, 403)
 
+    def test_unowned_transaction_can_be_claimed_once(self):
+        transaction = self._transaction()
+        transaction.author = None
+        transaction.save(update_fields=['author'])
+
+        response = self.client.post(reverse('bookkeeping:transaction_claim', args=[transaction.pk]))
+
+        self.assertRedirects(response, reverse('bookkeeping:transaction_detail', args=[transaction.pk]))
+        transaction.refresh_from_db()
+        self.assertEqual(transaction.author, self.user)
+
+        other = User.objects.create_user(username='claim-other', email='claim-other@example.com', password='x')
+        self.client.force_login(other)
+        self.client.post(reverse('bookkeeping:transaction_claim', args=[transaction.pk]))
+        transaction.refresh_from_db()
+        self.assertEqual(transaction.author, self.user)
+
     def test_transaction_create_sets_author_and_redirects(self):
         res = self.client.post(
             reverse('bookkeeping:transaction_create'),

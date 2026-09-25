@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from asgiref.sync import async_to_sync
+from django.db import transaction
 from django.utils.translation import gettext as _
 
 from chat.models import Room
@@ -9,6 +10,25 @@ from glosowania import activity as voting_activity
 from tasks import activity as task_activity
 
 from .models import CitizenActivity
+
+
+def release_blocked_user_resources(user):
+    """Release resources that cannot remain owned by a blocked user."""
+    from board.models import Post
+    from bookkeeping.models import Transaction
+    from tasks.models import Task, TaskVote
+
+    with transaction.atomic():
+        Task.objects.filter(assigned_to=user).update(assigned_to=None)
+        Task.approved_helpers.through.objects.filter(user_id=user.pk).delete()
+        TaskVote.objects.filter(user=user).delete()
+
+        private_posts = Post.objects.filter(author=user, visibility=Post.Visibility.PRIVATE)
+        for post in private_posts:
+            post.visibility = Post.Visibility.GROUP
+            post.save(update_fields=['visibility', 'updated'])
+
+        Transaction.objects.filter(author=user).update(author=None)
 
 
 def publish_deletion_feedback(reason, *, anonymous, author_name=''):

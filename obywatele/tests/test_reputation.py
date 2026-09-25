@@ -8,7 +8,11 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.test import TestCase
 
+from board.models import Post
+from bookkeeping.models import Asset, Category, Partner, Transaction
 from obywatele.models import Rate, Uzytkownik
+from obywatele.services import release_blocked_user_resources
+from tasks.models import Task, TaskVote
 
 User = get_user_model()
 
@@ -53,3 +57,29 @@ class RateAndReputationTest(TestCase):
             Rate.objects.create(kandydat=self.candidate, obywatel=rater, rate=1)
 
         self.assertEqual(Rate.objects.filter(kandydat=self.candidate).count(), len(self.raters))
+
+
+class BlockedUserResourcesTest(TestCase):
+    def test_blocking_releases_tasks_documents_and_transactions(self):
+        blocked = User.objects.create_user(username='blocked', email='blocked@example.com', password='x')
+        task = Task.objects.create(title='Task', description='Description', assigned_to=blocked)
+        task.approved_helpers.add(blocked)
+        TaskVote.objects.create(task=task, user=blocked, value=TaskVote.Value.UP)
+        down_task = Task.objects.create(title='Down task', description='Description')
+        TaskVote.objects.create(task=down_task, user=blocked, value=TaskVote.Value.DOWN)
+        post = Post.objects.create(title='Private', text='Text', author=blocked, visibility=Post.Visibility.PRIVATE)
+        asset = Asset.objects.create(code='BLK', name='Blocked asset', symbol='B')
+        category = Category.objects.create(name='Blocked category')
+        partner = Partner.objects.create(name='Blocked partner')
+        transaction = Transaction.objects.create(type='I', asset=asset, category=category, partner=partner, amount=10, author=blocked)
+
+        release_blocked_user_resources(blocked)
+
+        task.refresh_from_db()
+        post.refresh_from_db()
+        transaction.refresh_from_db()
+        self.assertIsNone(task.assigned_to)
+        self.assertFalse(task.approved_helpers.filter(pk=blocked.pk).exists())
+        self.assertFalse(TaskVote.objects.filter(user=blocked).exists())
+        self.assertEqual(post.visibility, Post.Visibility.GROUP)
+        self.assertIsNone(transaction.author)

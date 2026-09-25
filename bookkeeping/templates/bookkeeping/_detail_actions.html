@@ -8,6 +8,11 @@
     <a href="{% url 'bookkeeping:category_update' category.pk %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
   {% elif partner %}
     <a href="{% url 'bookkeeping:partner_update' partner.pk %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
+  {% elif transaction and not transaction.author and request.user.is_active %}
+    <form method="post" action="{% url 'bookkeeping:transaction_claim' transaction.id %}">
+      {% csrf_token %}
+      <button type="submit" class="tw-detail-nav-btn" title="{% trans 'Take ownership' %}" aria-label="{% trans 'Take ownership' %}"><i class="fas fa-hand-holding-heart fa-fw" aria-hidden="true"></i></button>
+    </form>
   {% elif transaction and transaction.author == request.user %}
     <a href="{% url 'bookkeeping:transaction_delete' transaction.id %}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></a>
     <a href="{% url 'bookkeeping:transaction_update' transaction.id %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
