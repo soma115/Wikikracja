@@ -177,6 +177,38 @@ def test_board_create_links_preserve_active_tab(authenticated_client, tab):
 
 
 @pytest.mark.django_db
+def test_archived_post_can_be_opened_from_a_direct_link(authenticated_client):
+    client, user = authenticated_client
+    post = PostFactory(title='Archived document', visibility=Post.Visibility.ARCHIVE, author=user)
+
+    response = client.get(reverse('board:view_post', args=[post.pk]))
+
+    assert response.status_code == 200
+    assert post.title in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_message_in_archived_document_chat_restores_document(authenticated_client):
+    _, user = authenticated_client
+    other = UserFactory(username='archive-chat-writer', email='archive-chat-writer@example.com')
+    post = PostFactory(title='Archived discussion', visibility=Post.Visibility.GROUP, author=user)
+    post.visibility = Post.Visibility.ARCHIVE
+    post.save(update_fields=['visibility', 'updated'])
+    room = post.chat_room
+
+    assert room.archived is True
+    assert room.allowed.filter(pk=other.pk).exists()
+
+    Message.objects.create(room=room, sender=other, text='Restore this document')
+
+    post.refresh_from_db()
+    room.refresh_from_db()
+    assert post.visibility == Post.Visibility.GROUP
+    assert post.updated_by == other
+    assert room.archived is False
+
+
+@pytest.mark.django_db
 def test_create_archived_post_redirects_to_visible_detail(authenticated_client):
     """Nowy dokument archiwalny pozostaje dostępny po zapisie."""
     client, user = authenticated_client

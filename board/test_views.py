@@ -109,6 +109,25 @@ class BoardDetailNavigationTests(TestCase):
         self.assertEqual(response.context['current_tab'], 'important')
         self.assertTrue(response.context['stepper']['steps'][2]['active'])
 
+    def test_archived_document_can_be_opened_without_archive_tab(self):
+        post = self._post('Archived')
+        post.visibility = Post.Visibility.ARCHIVE
+        post.save(update_fields=('visibility',))
+
+        response = self.client.get(reverse('board:view_post', args=[post.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Archived')
+
+    def test_restore_already_active_document_is_idempotent(self):
+        post = self._post('Already restored')
+
+        response = self.client.post(reverse('board:restore_post', args=[post.pk]))
+
+        self.assertRedirects(response, reverse('board:view_post', args=[post.pk]))
+        post.refresh_from_db()
+        self.assertEqual(post.visibility, Post.Visibility.PUBLIC)
+
     def test_delete_moves_document_to_trash_and_restore_recovers_it(self):
         post = self._post('Movable')
 

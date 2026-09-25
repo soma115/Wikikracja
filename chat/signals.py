@@ -31,6 +31,7 @@ def _sync_room_last_message(sender, instance, created, **kwargs):
     # Denormalizujemy ostatnią wiadomość do Room, żeby sidebar mógł renderować podgląd bez JOIN-a.
     # last_activity przez Greatest() — nigdy nie cofamy czasu (room mógł być bumpowany później przez inną akcję).
     if created:
+        room = Room.objects.filter(id=instance.room_id).first()
         Room.objects.filter(id=instance.room_id).update(
             last_message_text=instance.text[:200],
             last_message_sender_id=instance.sender_id,
@@ -39,6 +40,14 @@ def _sync_room_last_message(sender, instance, created, **kwargs):
             last_activity=Greatest(F('last_activity'), instance.time),
             archived=False,
         )
+        if room and room.archived and room.source_app == 'board':
+            from board.models import Post
+
+            post = Post.objects.filter(pk=room.source_object_id, visibility=Post.Visibility.ARCHIVE).first()
+            if post is not None:
+                post.visibility = Post.Visibility.GROUP
+                post.updated_by = instance.sender
+                post.save(update_fields=['visibility', 'updated_by', 'updated'])
     else:
         # Na edycji: interesuje nas tylko zmiana tekstu.
         uf = kwargs.get('update_fields')

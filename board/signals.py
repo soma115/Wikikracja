@@ -75,7 +75,7 @@ def create_or_update_chat_room_for_post(sender, instance, created, **kwargs):
     welcome_message = _("Discussion room for document: <a href='%(url)s'>%(title)s</a>") % {'title': instance.title, 'url': post_url}
     is_public = instance.visibility == Post.Visibility.PUBLIC
     is_archived = instance.visibility == Post.Visibility.ARCHIVE
-    if is_public or instance.visibility == Post.Visibility.GROUP:
+    if is_public or instance.visibility in (Post.Visibility.GROUP, Post.Visibility.ARCHIVE):
         allowed_users = User.objects.filter(is_active=True)
     elif instance.author_id:
         allowed_users = User.objects.filter(pk=instance.author_id)
@@ -88,7 +88,7 @@ def create_or_update_chat_room_for_post(sender, instance, created, **kwargs):
         title=room_title,
         founder=instance.author,
         allowed_users=allowed_users,
-        welcome_message=welcome_message,
+        welcome_message=welcome_message if instance.visibility != Post.Visibility.ARCHIVE else '',
         welcome_message_sender=instance.author,
         welcome_message_anonymous=False,
         room_public=is_public,

@@ -380,13 +380,13 @@ def _post_detail_context(request: HttpRequest, post: Post):
 
 
 def view_post(request: HttpRequest, pk: int):
-    include_archive = request.user.is_authenticated and request.GET.get('tab') == 'archive'
+    include_archive = request.user.is_authenticated
     post = get_object_or_404(_post_queryset_for_user(request.user, include_archive=include_archive).select_related('chat_room'), pk=pk)
     return render(request, 'board/post_detail.html', _post_detail_context(request, post))
 
 
 def view_post_by_slug(request: HttpRequest, slug: str):
-    include_archive = request.user.is_authenticated and request.GET.get('tab') == 'archive'
+    include_archive = request.user.is_authenticated
     post = get_object_or_404(_post_queryset_for_user(request.user, include_archive=include_archive).select_related('chat_room'), slug=slug)
     return render(request, 'board/post_detail.html', _post_detail_context(request, post))
 
@@ -404,7 +404,9 @@ def delete_post(request: HttpRequest, pk: int):
 
 @login_required
 def restore_post(request: HttpRequest, pk: int):
-    post = get_object_or_404(Post, pk=pk, visibility=Post.Visibility.ARCHIVE, system_key__isnull=True)
+    post = get_object_or_404(Post, pk=pk, system_key__isnull=True)
+    if post.visibility != Post.Visibility.ARCHIVE:
+        return redirect('board:view_post', pk=pk)
     if request.method == 'POST':
         post.visibility = Post.Visibility.GROUP
         post.updated_by = request.user
