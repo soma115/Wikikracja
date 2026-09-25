@@ -198,8 +198,6 @@
   --alert-dark-bg: var(--color-dark);
   --alert-dark-color: var(--text-inverse);
   --alert-dark-border: var(--border);
-  /* Featured images are darkened in dark theme, brightened in light theme */
-  --featured-img-brightness: 0.6;
 }
 /* Tokyo Night theme — deep indigo surfaces with blue and cyan accents */
 [data-theme="tokyo-night"] {
@@ -320,5 +318,4 @@
   --alert-dark-bg: rgba(33, 37, 41, .07);
   --alert-dark-color: #212529;
   --alert-dark-border: rgba(33, 37, 41, .2);
-  --featured-img-brightness: 2.9;
 }
