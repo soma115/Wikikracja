@@ -52,7 +52,7 @@ List/grid pages use this anatomy:
 5. `tw-proposals-list` with `data-view-container`;
 6. shared empty state when there are no results.
 
-The shared stepper is also rendered on module detail pages and on every create/edit form. On forms it provides module navigation, so do not add a separate “Back” link to the list. Keep a “Cancel” action only when it discards changes or returns to the edited detail page.
+The shared stepper is also rendered on module detail pages and on every create/edit form. On forms it provides module navigation, so do not add a separate “Back” link to the list. Keep a “Cancel” action only when it discards changes or returns to the edited detail page. Detail pages must derive the active step from the canonical domain status or preserved list context, not from the detail URL name; informational pages should activate the stepper info control instead of a content step.
 
 Use:
 

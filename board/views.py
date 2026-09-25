@@ -70,7 +70,7 @@ def _board_list_state(request):
         tab = 'group'
     elif tab == 'trash':
         tab = 'archive'
-    if tab not in ('mine', 'group', 'public', 'important', 'archive') or (not request.user.is_authenticated and tab in ('mine', 'group', 'archive')):
+    if tab not in ('group', 'public', 'important', 'archive') or (not request.user.is_authenticated and tab in ('group', 'archive')):
         tab = default_tab
     sort = request.GET.get('sort', 'title')
     if sort not in ('title', 'date', 'none'):
@@ -105,10 +105,6 @@ def _board_return_query(request, listing):
 
 
 def _board_tab_filter(user, tab):
-    if tab == 'mine':
-        if not user.is_authenticated:
-            return Q(pk__in=[])
-        return Q(visibility=Post.Visibility.PRIVATE, author=user)
     if tab == 'group':
         return Q(visibility=Post.Visibility.GROUP)
     if tab == 'public':
@@ -184,7 +180,7 @@ def _board_listing(request, *, include_chat_counts=True):
         query_params.append(('q', search_query))
 
     tab_counts = {}
-    for tab_name in ('mine', 'group', 'public', 'important', 'archive'):
+    for tab_name in ('group', 'public', 'important', 'archive'):
         if tab_name == 'archive' and not request.user.is_authenticated:
             tab_query = Post.objects.none()
         else:
@@ -213,7 +209,6 @@ def _board_stepper(request: HttpRequest, listing):
 
     return {
         'steps': [
-            {'url': tab_url('mine'), 'tab': 'mine', 'icon': 'user', 'label': gettext_lazy('Only me'), 'count': listing['board_tab_counts']['mine'], 'active': listing['current_tab'] == 'mine'},
             {'url': tab_url('group'), 'tab': 'group', 'icon': 'users', 'label': gettext_lazy('Group'), 'count': listing['board_tab_counts']['group'], 'active': listing['current_tab'] == 'group'},
             {'url': tab_url('public'), 'tab': 'public', 'icon': 'globe', 'label': gettext_lazy('Public'), 'count': listing['board_tab_counts']['public'], 'active': listing['current_tab'] == 'public'},
             {
@@ -322,7 +317,7 @@ class PostCreateView(PostFormViewMixin, CreateView):
     def get_initial(self):
         initial = super().get_initial()
         tab = self.request.GET.get('tab')
-        visibility_by_tab = {'mine': Post.Visibility.PRIVATE, 'group': Post.Visibility.GROUP, 'public': Post.Visibility.PUBLIC, 'important': Post.Visibility.GROUP, 'archive': Post.Visibility.ARCHIVE}
+        visibility_by_tab = {'group': Post.Visibility.GROUP, 'public': Post.Visibility.PUBLIC, 'important': Post.Visibility.GROUP, 'archive': Post.Visibility.ARCHIVE}
         if tab in visibility_by_tab:
             initial['visibility'] = visibility_by_tab[tab]
         if tab in ('public', 'important'):

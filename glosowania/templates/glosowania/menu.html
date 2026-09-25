@@ -5,7 +5,7 @@
 
 {% block content %}
 
-{% glosowania_stepper as stepper %}
+{% glosowania_stepper decision=id as stepper %}
 {% include 'home/includes/stepper.html' with stepper=stepper %}
 
 {% block glosowania %}

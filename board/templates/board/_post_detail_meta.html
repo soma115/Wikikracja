@@ -45,11 +45,6 @@
       <i class="fas fa-users tw-detail-meta-icon" aria-hidden="true"></i>
       <span class="tw-detail-meta-label">{% trans 'Group' %}</span>
     </span>
-  {% elif post.visibility == 'private' %}
-    <span class="tw-detail-meta-item" title="{% trans 'Only me' %}">
-      <i class="fas fa-lock tw-detail-meta-icon" aria-hidden="true"></i>
-      <span class="tw-detail-meta-label">{% trans 'Only me' %}</span>
-    </span>
   {% elif post.visibility == 'archive' %}
     <span class="tw-detail-meta-item" title="{% trans 'Archive' %}">
       <i class="fas fa-archive tw-detail-meta-icon" aria-hidden="true"></i>

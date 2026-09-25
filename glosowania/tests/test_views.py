@@ -19,6 +19,7 @@ from PIL import Image
 from chat.models import Message
 from glosowania.forms import ParametersProposalForm
 from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
+from glosowania.templatetags.glosowania_stepper import glosowania_stepper
 from site_settings.models import SiteParameters
 
 User = get_user_model()
@@ -53,6 +54,35 @@ def test_parameters_proposal_accepts_png_logo():
     normalized = form.clean_brand_mark()
 
     assert normalized.name == 'brand_mark.png'
+
+
+@pytest.mark.django_db
+def test_parameters_highlights_stepper_info_control(sample_users):
+    client = Client()
+    client.force_login(sample_users[0])
+
+    response = client.get('/glosowania/parameters/')
+
+    assert response.status_code == 200
+    assert response.context['stepper_info_active'] is True
+    stepper = glosowania_stepper({'request': response.wsgi_request, 'stepper_info_active': True})
+    assert stepper['info_active'] is True
+    assert not any(step['active'] for step in stepper['steps'])
+
+
+@pytest.mark.django_db
+def test_details_highlights_stepper_for_decision_status(sample_users):
+    client = Client()
+    client.force_login(sample_users[0])
+    decyzja = Decyzja.objects.create(title='Referendum', tresc='Text', status=Decyzja.Status.REFERENDUM, author=sample_users[0])
+
+    response = client.get(f'/glosowania/details/{decyzja.pk}/?sort=none')
+
+    assert response.status_code == 200
+    assert response.context['stepper_status'] == Decyzja.Status.REFERENDUM
+    stepper = glosowania_stepper({'request': response.wsgi_request, 'stepper_status': Decyzja.Status.REFERENDUM})
+    assert stepper['steps'][2]['active'] is True
+    assert not stepper['info_active']
 
 
 @pytest.mark.django_db

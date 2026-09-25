@@ -65,7 +65,6 @@
             <div class="tw-ms-auto tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 tw-flex-nowrap">
               {% if post.visibility == 'public' %}<span class="tw-badge-status tw-badge-primary tw-whitespace-nowrap tw-shrink-0">{% trans 'Public' %}</span>{% endif %}
               {% if post.visibility == 'group' %}<span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap tw-shrink-0">{% trans 'Group' %}</span>{% endif %}
-              {% if post.visibility == 'private' %}<span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap tw-shrink-0">{% trans 'Only me' %}</span>{% endif %}
               {% if post.visibility == 'archive' %}<span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap tw-shrink-0">{% trans 'Archive' %}</span>{% endif %}
               {% if post.is_important %}<span class="tw-badge-status tw-badge-warning tw-whitespace-nowrap tw-shrink-0">{% trans 'Important' %}</span>{% endif %}
               {% if post.system_key %}<span class="tw-badge-status tw-badge-info tw-whitespace-nowrap tw-shrink-0">{% trans 'System' %}</span>{% endif %}
@@ -90,8 +89,7 @@
               <div class="tw-flex tw-items-center tw-gap-1 tw-flex-nowrap tw-overflow-hidden">
                 {% if post.visibility == 'public' %}<span class="tw-badge-status tw-badge-primary tw-whitespace-nowrap tw-shrink-0">{% trans 'Public' %}</span>{% endif %}
                 {% if post.visibility == 'group' %}<span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap tw-shrink-0">{% trans 'Group' %}</span>{% endif %}
-                {% if post.visibility == 'private' %}<span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap tw-shrink-0">{% trans 'Only me' %}</span>{% endif %}
-                {% if post.visibility == 'archive' %}<span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap tw-shrink-0">{% trans 'Archive' %}</span>{% endif %}
+                  {% if post.visibility == 'archive' %}<span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap tw-shrink-0">{% trans 'Archive' %}</span>{% endif %}
                 {% if post.is_important %}<span class="tw-badge-status tw-badge-warning tw-whitespace-nowrap tw-shrink-0">{% trans 'Important' %}</span>{% endif %}
                 {% if post.system_key %}<span class="tw-badge-status tw-badge-info tw-whitespace-nowrap tw-shrink-0">{% trans 'System' %}</span>{% endif %}
                 {% include "board/_post_chat_link.html" with post=post compact=True %}

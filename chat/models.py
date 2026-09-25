@@ -103,8 +103,8 @@ class Room(models.Model):
     # Name that user will see in chats list
     def displayed_name(self, user):
         title_len = 90
-        if self.public:
-            # Clip public room names to title_len characters for display
+        if self.public or self.source_app:
+            # Source-managed rooms use their source title even when access is restricted.
             title = self.clean_title()
             return title[:title_len] if len(title) > title_len else title
 

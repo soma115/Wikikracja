@@ -445,6 +445,8 @@ def details(request: HttpRequest, pk: int):
             'argument_form': argument_form,
             'MESSAGE_MAX_LENGTH': s.MESSAGE_MAX_LENGTH,
             'ec_translations': get_chat_translations(),
+            'stepper_status': szczegoly.status,
+            'detail_query': request.GET.urlencode(),
         },
     )
 
@@ -620,7 +622,14 @@ def parameters(request: HttpRequest):
     for _key, label, specs in specs_by_category():
         groups.append((label, [(spec, getattr(sp, spec.name)) for spec in specs]))
 
-    context = {'signatures': sp.wymaganych_podpisow, 'signatures_span': sp.czas_na_zebranie_podpisow, 'queue_span': sp.dyskusja, 'referendum_span': sp.czas_trwania_referendum, 'parameter_groups': groups}
+    context = {
+        'signatures': sp.wymaganych_podpisow,
+        'signatures_span': sp.czas_na_zebranie_podpisow,
+        'queue_span': sp.dyskusja,
+        'referendum_span': sp.czas_trwania_referendum,
+        'parameter_groups': groups,
+        'stepper_info_active': True,
+    }
     context.update(get_vote_storage_reliability_context())
     return render(request, 'glosowania/parameters.html', context)
 
@@ -773,7 +782,15 @@ def _status_list(request: HttpRequest, status, *, author_signed=False, pulse=Fal
     return render(
         request,
         'glosowania/list.html',
-        {'votings': votings, 'current_sort': sort, 'current_order': order, 'toolbar_sort_items': toolbar_sort_items, 'toolbar_views': toolbar_views, 'search_query': search_query},
+        {
+            'votings': votings,
+            'current_sort': sort,
+            'current_order': order,
+            'toolbar_sort_items': toolbar_sort_items,
+            'toolbar_views': toolbar_views,
+            'search_query': search_query,
+            'detail_query': request.GET.urlencode(),
+        },
     )
 
 

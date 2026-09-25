@@ -221,6 +221,15 @@ class CitizenListViewTest(TestCase):
         self.assertNotContains(response, fourth_task.title)
         self.assertNotContains(response, completed_task.title)
 
+    def test_citizen_detail_highlights_citizens_stepper(self):
+        citizen = User.objects.create_user(username='stepper-citizen', password='secret', is_active=True)
+        viewer = User.objects.create_user(username='stepper-viewer', password='secret', is_active=True)
+        self.client.force_login(viewer)
+        response = self.client.get(reverse('obywatele:obywatele_szczegoly', kwargs={'pk': citizen.pk}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="tw-stepper-step-wrap tw-active"')
+
     def test_list_and_grid_show_pending_deletion_badge(self):
         viewer = User.objects.create_user(username='deletion-viewer', password='secret', is_active=True)
         citizen = User.objects.create_user(username='deletion-citizen', password='secret', is_active=True)

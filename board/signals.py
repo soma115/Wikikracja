@@ -52,11 +52,9 @@ def notify_important_chat_on_important_post(sender, instance, created, **kwargs)
         message = _("New important document by %(username)s: %(link)s") % {'username': user_display_name(actor), 'link': link}
     elif important_changed and not instance.is_important:
         message = _("Document is no longer marked as important: %(link)s") % {'link': link}
-    elif visibility_changed and instance.visibility == Post.Visibility.PRIVATE:
-        message = _("Important document was made private: %(link)s") % {'link': link}
     elif visibility_changed and instance.visibility == Post.Visibility.ARCHIVE:
         message = _("Important document was archived: %(link)s") % {'link': link}
-    elif visibility_changed and previous_visibility in (Post.Visibility.PRIVATE, Post.Visibility.ARCHIVE) and instance.visibility in public_visibilities:
+    elif visibility_changed and previous_visibility == Post.Visibility.ARCHIVE and instance.visibility in public_visibilities:
         message = _("Important document was made visible again: %(link)s") % {'link': link}
     elif instance.is_important and instance.visibility in public_visibilities:
         message = _("I've updated Important document: %(link)s") % {'link': link}
@@ -71,15 +69,12 @@ def notify_important_chat_on_important_post(sender, instance, created, **kwargs)
 @receiver(post_save, sender=Post)
 def create_or_update_chat_room_for_post(sender, instance, created, **kwargs):
     """Create, archive, or update a document discussion room according to visibility."""
-    if instance.visibility == Post.Visibility.PRIVATE and not instance.chat_room_id:
-        return
-
     room_title = instance.get_chat_room_title()
     post_path = reverse('board:view_post', args=[instance.pk])
     post_url = build_site_url(post_path)
     welcome_message = _("Discussion room for document: <a href='%(url)s'>%(title)s</a>") % {'title': instance.title, 'url': post_url}
     is_public = instance.visibility == Post.Visibility.PUBLIC
-    is_archived = instance.visibility in (Post.Visibility.PRIVATE, Post.Visibility.ARCHIVE)
+    is_archived = instance.visibility == Post.Visibility.ARCHIVE
     if is_public or instance.visibility == Post.Visibility.GROUP:
         allowed_users = User.objects.filter(is_active=True)
     elif instance.author_id:
@@ -93,7 +88,7 @@ def create_or_update_chat_room_for_post(sender, instance, created, **kwargs):
         title=room_title,
         founder=instance.author,
         allowed_users=allowed_users,
-        welcome_message=welcome_message if created else '',
+        welcome_message=welcome_message,
         welcome_message_sender=instance.author,
         welcome_message_anonymous=False,
         room_public=is_public,

@@ -10,7 +10,7 @@
 <div class="tw-content-card" data-status="{{ i.status }}">
 
   {# ── NAGŁÓWEK (klikalny → szczegóły, poza linkami dzieci) ── #}
-  <div class="tw-content-card-header" data-detail-url="{% url 'glosowania:details' pk=i.pk %}" role="link" tabindex="0">
+  <div class="tw-content-card-header" data-detail-url="{% url 'glosowania:details' pk=i.pk %}{% if detail_query %}?{{ detail_query }}{% endif %}" role="link" tabindex="0">
 
     <div class="tw-content-card-title-row">
       <span class="tw-proposal-card-num">#{{ i.pk }}</span>
@@ -74,7 +74,7 @@
   </div>{# /.tw-content-card-header #}
 
   {# ── CIAŁO — klikalne → szczegóły ── #}
-  <div class="tw-content-card-body" data-detail-url="{% url 'glosowania:details' pk=i.pk %}" role="link" tabindex="0">
+  <div class="tw-content-card-body" data-detail-url="{% url 'glosowania:details' pk=i.pk %}{% if detail_query %}?{{ detail_query }}{% endif %}" role="link" tabindex="0">
 
     {% if i.tresc %}
     <div class="tw-proposal-section--law">

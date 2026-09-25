@@ -78,10 +78,8 @@ def on_chat_room_requested(sender, instance, title, founder, allowed_users, welc
     if room is None:
         room = Room.objects.filter(title=title).first()
 
-    created = False
     if room is None:
         room = Room.objects.create(title=title, public=room_public, archived=room_archived, protected=True, founder=founder, source_app=source_app, source_object_id=source_object_id)
-        created = True
     else:
         changed_fields = []
         if room.title != title:
@@ -106,7 +104,7 @@ def on_chat_room_requested(sender, instance, title, founder, allowed_users, welc
         type(instance).objects.filter(pk=instance.pk).update(chat_room=room)
         instance.chat_room = room
 
-    if created and welcome_message:
+    if welcome_message and not room.messages.exists():
         message_sender = kwargs.get('welcome_message_sender')
         message_anonymous = kwargs.get('welcome_message_anonymous', True)
         Message.objects.create(room=room, text=welcome_message, sender=message_sender, anonymous=message_anonymous)

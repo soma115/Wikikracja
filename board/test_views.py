@@ -38,18 +38,6 @@ class BoardDetailNavigationTests(TestCase):
         post.refresh_from_db()
         self.assertEqual(post.title, 'Updated document')
 
-    def test_post_edit_returns_to_source_tab(self):
-        post = self._post('Private document')
-        post.visibility = Post.Visibility.PRIVATE
-        post.save(update_fields=('visibility',))
-        edit_url = f'{reverse("board:edit_post", args=[post.pk])}?tab=mine'
-        detail_response = self.client.get(reverse('board:view_post', args=[post.pk]), {'tab': 'mine'})
-        self.assertContains(detail_response, f'href="{edit_url}"')
-
-        response = self.client.post(edit_url, {'title': post.title, 'subtitle': '', 'category': '', 'text': post.text, 'visibility': Post.Visibility.PRIVATE, 'is_important': '', 'slug': ''})
-
-        self.assertRedirects(response, f'{reverse("board:view_post", args=[post.pk])}?tab=mine')
-
     def test_post_edit_invalid_title_rerenders_form_without_saving(self):
         post = self._post('Editable')
         response = self.client.post(
@@ -65,12 +53,12 @@ class BoardDetailNavigationTests(TestCase):
         post = self._post('Editable')
         response = self.client.post(
             reverse('board:edit_post', args=[post.pk]),
-            {'title': 'Editable', 'subtitle': '', 'category': self.category.pk, 'text': 'Updated text', 'visibility': Post.Visibility.PRIVATE, 'is_important': '', 'slug': ''},
+            {'title': 'Editable', 'subtitle': '', 'category': self.category.pk, 'text': 'Updated text', 'visibility': Post.Visibility.GROUP, 'is_important': '', 'slug': ''},
         )
 
         self.assertRedirects(response, reverse('board:view_post', args=[post.pk]))
         post.refresh_from_db()
-        self.assertEqual(post.visibility, Post.Visibility.PRIVATE)
+        self.assertEqual(post.visibility, Post.Visibility.GROUP)
 
     def test_detail_navigation_preserves_sort_and_search_context(self):
         first = self._post('Alpha')
@@ -95,21 +83,20 @@ class BoardDetailNavigationTests(TestCase):
     def test_board_stepper_filters_documents(self):
         self._post('Public')
         Post.objects.create(title='Internal', text='Internal text', author=self.user, visibility=Post.Visibility.GROUP)
-        Post.objects.create(title='Mine', text='Mine text', author=self.user, visibility=Post.Visibility.PRIVATE)
         Post.objects.create(title='Important', text='Important text', author=self.user, is_important=True)
         deleted = self._post('Deleted')
         deleted.visibility = Post.Visibility.ARCHIVE
         deleted.save(update_fields=['visibility'])
 
-        response = self.client.get(reverse('board:start'), {'tab': 'mine'})
-        self.assertEqual([post.title for post in response.context['ordered_posts']], ['Mine'])
-        self.assertEqual(response.context['board_tab_counts'], {'mine': 1, 'group': 2, 'public': 4, 'important': 4, 'archive': 1})
+        response = self.client.get(reverse('board:start'), {'tab': 'group'})
+        self.assertEqual([post.title for post in response.context['ordered_posts']], ['Important', 'Internal'])
+        self.assertEqual(set(response.context['board_tab_counts']), {'group', 'public', 'important', 'archive'})
+        self.assertNotIn('mine', response.context['board_tab_counts'])
 
-        internal_response = self.client.get(reverse('board:start'), {'tab': 'group'})
-        internal_titles = {post.title for post in internal_response.context['ordered_posts']}
+        internal_titles = {post.title for post in response.context['ordered_posts']}
         self.assertIn('Internal', internal_titles)
+        self.assertIn('Important', internal_titles)
         self.assertNotIn('Public', internal_titles)
-        self.assertNotIn('Mine', internal_titles)
         self.assertNotIn('Deleted', internal_titles)
 
     def test_sort_links_preserve_active_stepper_tab(self):
@@ -120,7 +107,7 @@ class BoardDetailNavigationTests(TestCase):
         self.assertTrue(any('sort=title' in url and 'tab=important' in url for url in sort_urls))
         self.assertTrue(any('sort=date' in url and 'tab=important' in url for url in sort_urls))
         self.assertEqual(response.context['current_tab'], 'important')
-        self.assertTrue(response.context['stepper']['steps'][3]['active'])
+        self.assertTrue(response.context['stepper']['steps'][2]['active'])
 
     def test_delete_moves_document_to_trash_and_restore_recovers_it(self):
         post = self._post('Movable')

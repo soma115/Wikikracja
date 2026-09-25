@@ -28,7 +28,7 @@
       {% for i in uid %}
       <div class="tw-citizen-card tw-text-start tw-items-start tw-min-w-0 tw-max-w-full tw-overflow-hidden"
            data-user-id="{{ i.pk }}"
-           data-detail-url="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}"
+           data-detail-url="{% url 'obywatele:obywatele_szczegoly' pk=i.pk %}{% if sort_param %}?{{ sort_param }}{% endif %}"
            role="link" tabindex="0"
            data-search="{{ i.username }} {{ i.first_name }} {{ i.last_name }}">
         <div class="tw-flex tw-gap-3 tw-w-full tw-min-w-0 tw-max-w-full">

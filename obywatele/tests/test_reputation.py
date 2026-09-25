@@ -67,7 +67,7 @@ class BlockedUserResourcesTest(TestCase):
         TaskVote.objects.create(task=task, user=blocked, value=TaskVote.Value.UP)
         down_task = Task.objects.create(title='Down task', description='Description')
         TaskVote.objects.create(task=down_task, user=blocked, value=TaskVote.Value.DOWN)
-        post = Post.objects.create(title='Private', text='Text', author=blocked, visibility=Post.Visibility.PRIVATE)
+        post = Post.objects.create(title='Group document', text='Text', author=blocked, visibility=Post.Visibility.GROUP)
         asset = Asset.objects.create(code='BLK', name='Blocked asset', symbol='B')
         category = Category.objects.create(name='Blocked category')
         partner = Partner.objects.create(name='Blocked partner')

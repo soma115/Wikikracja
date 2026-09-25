@@ -56,8 +56,8 @@ def obywatele_stepper(context):
         return url
 
     steps = [
-        {'url': _url('obywatele:obywatele'), 'icon': 'users', 'label': _('Citizens'), 'active': active == 'obywatele'},
-        {'url': _url('obywatele:poczekalnia'), 'icon': 'user-clock', 'label': _('Candidates'), 'active': active == 'poczekalnia'},
+        {'url': _url('obywatele:obywatele'), 'icon': 'users', 'label': _('Citizens'), 'active': active in ('obywatele', 'obywatele_szczegoly')},
+        {'url': _url('obywatele:poczekalnia'), 'icon': 'user-clock', 'label': _('Candidates'), 'active': active in ('poczekalnia', 'poczekalnia_szczegoly')},
         {'url': _url('obywatele:assets'), 'icon': 'boxes-stacked', 'label': _('Resources'), 'active': active == 'assets'},
     ]
 

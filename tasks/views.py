@@ -246,6 +246,7 @@ class TaskListView(LoginRequiredMixin, TemplateView):
                 "category_list": list(Category.objects.values("id", "slug", "name", "description", "order", "is_protected")),
                 "toolbar_sort_items": sort_items,
                 "toolbar_views": views,
+                "detail_query": self.request.GET.urlencode(),
             }
         )
         return context

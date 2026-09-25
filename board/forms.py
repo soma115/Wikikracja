@@ -55,8 +55,6 @@ class PostForm(forms.ModelForm):
         cleaned_data = super().clean()
         if not cleaned_data.get('visibility'):
             cleaned_data['visibility'] = self.instance.visibility if self.instance.pk else Post.Visibility.GROUP
-        if cleaned_data.get('visibility') == Post.Visibility.PRIVATE and self.instance.pk and self.instance.author_id != getattr(self.user, 'pk', None):
-            self.add_error('visibility', _('Only the author can make a document private.'))
         files = getattr(self, 'files', None)
         if files:
             max_size = settings.UPLOAD_ATTACHMENT_MAX_SIZE_MB * 1_000_000

@@ -9,7 +9,7 @@
 <div class="tw-content-card" data-card-type="task" data-category="{{ task.category.slug }}">
 
   {# ── NAGŁÓWEK (klikalny → szczegóły) ── #}
-  <div class="tw-content-card-header" data-detail-url="{% url 'tasks:detail' pk=task.pk %}" role="link" tabindex="0">
+  <div class="tw-content-card-header" data-detail-url="{% url 'tasks:detail' pk=task.pk %}{% if detail_query %}?{{ detail_query }}{% endif %}" role="link" tabindex="0">
 
     <div class="tw-content-card-title-row">
       <span class="tw-task-card-num">#{{ task.pk }}</span>
@@ -81,7 +81,7 @@
   </div>{# /.tw-content-card-header #}
 
   {# ── CIAŁO (klikalne → szczegóły) ── #}
-  <div class="tw-content-card-body" data-detail-url="{% url 'tasks:detail' pk=task.pk %}" role="link" tabindex="0">
+  <div class="tw-content-card-body" data-detail-url="{% url 'tasks:detail' pk=task.pk %}{% if detail_query %}?{{ detail_query }}{% endif %}" role="link" tabindex="0">
 
     {# Pełny opis #}
     {% if task.description %}

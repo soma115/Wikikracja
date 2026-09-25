@@ -36,7 +36,6 @@ class Post(ChatRoomModel, models.Model):
     SYSTEM_TITLES = {'start': {'en': 'Start page', 'pl': 'Strona startowa'}, 'footer': {'en': 'Page footer', 'pl': 'Stopka strony'}, 'welcome_email': {'en': 'Welcome email', 'pl': 'Email powitalny'}}
 
     class Visibility(models.TextChoices):
-        PRIVATE = 'private', _('Only me')
         GROUP = 'group', _('Group')
         PUBLIC = 'public', _('Public')
         ARCHIVE = 'archive', _('Archive')
@@ -114,17 +113,16 @@ class Post(ChatRoomModel, models.Model):
         if not user.is_authenticated:
             return Q(visibility=cls.Visibility.PUBLIC)
         visible = Q(visibility__in=(cls.Visibility.GROUP, cls.Visibility.PUBLIC)) | Q(system_key__isnull=False)
-        visible |= Q(visibility=cls.Visibility.PRIVATE, author=user)
         if include_archive:
             visible |= Q(visibility=cls.Visibility.ARCHIVE)
         return visible
 
     @classmethod
     def editable_filter_for_user(cls, user):
-        return Q(visibility__in=(cls.Visibility.GROUP, cls.Visibility.PUBLIC)) | Q(visibility=cls.Visibility.PRIVATE, author=user)
+        return Q(visibility__in=(cls.Visibility.GROUP, cls.Visibility.PUBLIC))
 
     def can_edit(self, user):
-        return user.is_authenticated and self.visibility != self.Visibility.ARCHIVE and (self.visibility != self.Visibility.PRIVATE or self.author_id == user.pk)
+        return user.is_authenticated and self.visibility != self.Visibility.ARCHIVE
 
 
 class PostAttachment(models.Model):

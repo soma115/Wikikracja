@@ -111,6 +111,19 @@ class TaskListFilteringTest(TestCase):
         # score>=2 ale bez koordynatora → nadal oczekujące
         self.assertNotIn("Bez koordynatora", titles)
 
+    def test_task_detail_links_preserve_current_tab(self):
+        awaiting = make_task(title="Oczekujące")
+        active = make_task(title="W realizacji", assigned_to=self.other)
+        self.upvote(active, self.user)
+        self.upvote(active, self.other)
+        finished = make_task(title="Zakończone", status=Task.Status.COMPLETED)
+
+        for tab, task in (("awaiting", awaiting), ("active", active), ("finished", finished)):
+            with self.subTest(tab=tab):
+                response = self.get_list(f"?tab={tab}")
+                detail_url = reverse("tasks:detail", kwargs={"pk": task.pk})
+                self.assertContains(response, f'data-detail-url="{detail_url}?tab={tab}"')
+
     def test_finished_tab_collects_all_rejected(self):
         rejected = make_task(title="Odrzucone")
         self.upvote(rejected, self.user, TaskVote.Value.DOWN)
