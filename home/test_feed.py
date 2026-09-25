@@ -2,6 +2,7 @@ import pytest
 from django.core.cache import cache
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.translation import gettext
 
 from board.models import Post
 from chat.models import Message, MessageReadBy, Room
@@ -12,7 +13,8 @@ from core.services import feed as feed_service
 from core.services.feed import FEED_CACHE_KEY, generate_feed_items, generate_feed_raw, get_unread_count
 from events.models import Event
 from glosowania.models import Decyzja
-from tasks.models import Task
+from tasks.feed import get_feed_items
+from tasks.models import Task, TaskVote
 from tests.factories import PostCategoryFactory, PostFactory, UserFactory
 
 
@@ -61,6 +63,20 @@ def test_generate_feed_raw_sorts_events_ascending_others_descending(feed_user, a
     positions = {(item['content_type'], item['object_id']): index for index, item in enumerate(non_event_items)}
     assert positions[('decision', decision.pk)] < positions[('post', post.pk)]
     assert positions[('post', post.pk)] < positions[('task', task.pk)]
+
+
+@pytest.mark.django_db
+def test_task_activity_feed_uses_workflow_status_labels(feed_user, another_user):
+    awaiting = Task.objects.create(title='Awaiting task', description='Task body', created_by=feed_user)
+    in_progress = Task.objects.create(title='In progress task', description='Task body', created_by=feed_user, assigned_to=another_user)
+    TaskVote.objects.create(task=in_progress, user=feed_user, value=TaskVote.Value.UP)
+    TaskVote.objects.create(task=in_progress, user=another_user, value=TaskVote.Value.UP)
+
+    items = get_feed_items(timezone.now() - timezone.timedelta(days=1))
+    labels = {item['object_id']: item['status_label'] for item in items if item['content_type'] == 'task'}
+
+    assert str(labels[awaiting.pk]) == gettext('Awaiting')
+    assert str(labels[in_progress.pk]) == gettext('In progress')
 
 
 @pytest.mark.django_db

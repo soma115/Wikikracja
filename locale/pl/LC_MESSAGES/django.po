@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 09:38+0200\n"
+"POT-Creation-Date: 2026-09-25 10:01+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -152,7 +152,7 @@ msgid "Survey"
 msgstr "Ankieta"
 
 #: .\ankiety\models.py:24 .\chat\templates\chat\chat.html:217
-#: .\home\navigation.py:23 .\home\services\dashboard.py:35
+#: .\home\navigation.py:21 .\home\services\dashboard.py:35
 #: .\home\templates\home\home.html:147 .\home\views.py:280
 #: .\obywatele\views.py:460
 msgid "Surveys"
@@ -685,7 +685,7 @@ msgstr "Pokój dyskusji do dokumentu: <a href='%(url)s'>%(title)s</a>"
 #: .\chat\search.py:20 .\chat\templates\chat\_embedded_chat.html:16
 #: .\glosowania\templates\glosowania\_proposal_card.html:62
 #: .\glosowania\templates\glosowania\_proposal_card.html:67
-#: .\home\navigation.py:24 .\home\services\dashboard.py:34
+#: .\home\navigation.py:22 .\home\services\dashboard.py:34
 #: .\home\templates\home\home.html:303 .\home\templates\home\home.html:312
 #: .\home\templates\home\home.html:335 .\home\templatetags\feed_filters.py:41
 #: .\home\views.py:123 .\home\views.py:280 .\obywatele\views.py:461
@@ -1844,7 +1844,7 @@ msgid "Other Wikikracja groups"
 msgstr "Inne grupy Wikikracji"
 
 #: .\chat\templates\chat\chat.html:136 .\chat\templates\chat\chat.html:370
-#: .\home\navigation.py:17 .\home\services\dashboard.py:27 .\home\views.py:118
+#: .\home\navigation.py:15 .\home\services\dashboard.py:27 .\home\views.py:118
 #: .\home\views.py:280
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:66
 #: .\obywatele\templates\obywatele\szczegoly.html:189 .\obywatele\views.py:455
@@ -1856,7 +1856,7 @@ msgid "Referendums"
 msgstr "Głosowania"
 
 #: .\chat\templates\chat\chat.html:190 .\chat\templates\chat\chat.html:378
-#: .\home\navigation.py:19 .\home\services\dashboard.py:21 .\home\views.py:117
+#: .\home\navigation.py:17 .\home\services\dashboard.py:21 .\home\views.py:117
 #: .\home\views.py:280 .\obywatele\views.py:457
 msgid "Documents"
 msgstr "Dokumenty"
@@ -2235,7 +2235,7 @@ msgid "Add to Google Calendar"
 msgstr "Dodaj do swojego Kalendarza Google"
 
 #: .\events\templates\events\_event_card.html:59 .\events\views.py:27
-#: .\home\navigation.py:20 .\home\services\dashboard.py:26
+#: .\home\navigation.py:18 .\home\services\dashboard.py:26
 #: .\home\templates\home\base.html:280 .\home\templates\home\home.html:455
 #: .\home\views.py:121 .\obywatele\views.py:458
 msgid "Calendar"
@@ -3232,34 +3232,34 @@ msgstr "Możesz zarządzać swoimi powiadomieniami e-mail tutaj:"
 msgid "List"
 msgstr "Lista"
 
-#: .\home\navigation.py:11 .\home\templates\home\includes\toolbar.html:55
+#: .\home\navigation.py:10 .\home\templates\home\includes\toolbar.html:55
 msgid "Grid"
 msgstr "Siatka"
 
-#: .\home\navigation.py:16 .\home\navigation.py:46
+#: .\home\navigation.py:14 .\home\navigation.py:44
 #: .\home\templates\home\home.html:29
 msgid "Desktop"
 msgstr "Pulpit"
 
-#: .\home\navigation.py:18 .\home\services\dashboard.py:19 .\home\views.py:122
+#: .\home\navigation.py:16 .\home\services\dashboard.py:19 .\home\views.py:122
 #: .\home\views.py:280 .\obywatele\models.py:144
 #: .\obywatele\templatetags\profile_tags.py:59
 msgid "Citizens"
 msgstr "Ludzie"
 
-#: .\home\navigation.py:21 .\home\views.py:119 .\home\views.py:280
+#: .\home\navigation.py:19 .\home\views.py:119 .\home\views.py:280
 msgid "Votings"
 msgstr "Głosowania"
 
-#: .\home\navigation.py:22
+#: .\home\navigation.py:20
 msgid "Finance"
 msgstr "Finanse"
 
-#: .\home\navigation.py:44 .\home\navigation.py:54
+#: .\home\navigation.py:42 .\home\navigation.py:52
 msgid "…"
 msgstr ""
 
-#: .\home\navigation.py:48 .\home\templates\home\base.html:253
+#: .\home\navigation.py:46 .\home\templates\home\base.html:253
 #: .\home\templates\home\home.html:73 .\home\templates\home\home.html:102
 #: .\home\templates\home\home.html:444
 #: .\obywatele\templates\obywatele\szczegoly.html:182
@@ -3268,7 +3268,7 @@ msgstr ""
 msgid "Activity"
 msgstr "Aktywność"
 
-#: .\home\navigation.py:50 .\home\templates\home\base.html:154
+#: .\home\navigation.py:48 .\home\templates\home\base.html:154
 #: .\home\tests.py:63
 msgid "Settings"
 msgstr "Ustawienia"

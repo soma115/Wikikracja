@@ -8,6 +8,19 @@ from django.utils.translation import pgettext_lazy
 from .models import Task, TaskEvaluation, TaskVote
 
 
+def get_task_status_label(task):
+    """Return the workflow label shown for a task outside its detail view."""
+    if not task.is_active:
+        return task.get_status_display()
+
+    votes_score = getattr(task, "votes_score", 0) or 0
+    if task.assigned_to_id and votes_score >= 2:
+        return _("In progress")
+    if votes_score >= -1 and (task.assigned_to_id is None or votes_score < 2):
+        return _("Awaiting")
+    return task.get_status_display()
+
+
 def get_user_tasks(user):
     return Task.objects.filter(Q(created_by=user) | Q(assigned_to=user)).distinct().order_by('-created_at')
 

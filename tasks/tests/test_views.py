@@ -3,6 +3,7 @@ from unittest.mock import patch
 # Third party imports
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.utils.translation import gettext
 
 # Local folder imports
 from chat.models import Message, Room
@@ -249,6 +250,32 @@ class TaskDetailViewTest(TestCase):
         self.client.login(username=self.user.username, password=self.user._plain_password)
         response = self.client.get(reverse("tasks:detail", kwargs={"pk": 99999}))
         self.assertEqual(response.status_code, 404)
+
+    def test_detail_labels_unassigned_active_task_as_awaiting(self):
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+        response = self.client.get(reverse("tasks:detail", kwargs={"pk": self.task.pk}))
+        expected_label = gettext("Awaiting")
+        self.assertEqual(str(response.context["task_status_label"]), expected_label)
+        self.assertContains(response, expected_label)
+
+    def test_detail_labels_assigned_supported_task_as_in_progress(self):
+        coordinator = make_user("detailcoordinator")
+        self.task.assigned_to = coordinator
+        self.task.save(update_fields=["assigned_to"])
+        TaskVote.objects.create(task=self.task, user=self.user, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=self.task, user=coordinator, value=TaskVote.Value.UP)
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+        response = self.client.get(reverse("tasks:detail", kwargs={"pk": self.task.pk}))
+        expected_label = gettext("In progress")
+        self.assertEqual(str(response.context["task_status_label"]), expected_label)
+        self.assertContains(response, expected_label)
+
+    def test_detail_keeps_terminal_status_label(self):
+        self.task.status = Task.Status.COMPLETED
+        self.task.save(update_fields=["status"])
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+        response = self.client.get(reverse("tasks:detail", kwargs={"pk": self.task.pk}))
+        self.assertEqual(str(response.context["task_status_label"]), gettext("Completed"))
 
 
 class TaskEditViewTest(TestCase):

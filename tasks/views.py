@@ -26,6 +26,7 @@ from core.utils import build_detail_navigation
 from home.navigation import default_toolbar_views
 from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
 
+from .activity import get_task_status_label
 from .forms import TaskForm, TaskStatusForm
 from .models import Category, Task, TaskEvaluation, TaskVote
 
@@ -470,6 +471,7 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
         else:
             context["can_post_in_chat"] = False
         context["task"] = task
+        context["task_status_label"] = get_task_status_label(task)
         sort, order, tab, categories = _task_sort_context(self.request)
         search_query = self.request.GET.get("q", "").strip()
         navigation_queryset = _task_list_queryset(self.request.user, categories, sort, order, search_query)

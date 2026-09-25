@@ -18,7 +18,7 @@
   <span class="tw-detail-meta-item" title="{% trans 'Status' %}">
     <i class="fas fa-circle-info tw-detail-meta-icon" aria-hidden="true"></i>
     <span class="tw-detail-meta-label">{% trans "Status" %}</span>
-    <strong class="tw-detail-meta-value tw-detail-meta-status-{{ task.status }}">{{ task.get_status_display }}</strong>
+    <strong class="tw-detail-meta-value tw-detail-meta-status-{{ task.status }}">{{ task_status_label }}</strong>
   </span>
   {% if task.category %}
     <span class="tw-detail-meta-item" title="{% trans 'Category' %}">
