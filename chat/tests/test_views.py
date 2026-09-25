@@ -96,6 +96,18 @@ class ChatViewsTest(TestCase):
         self.assertContains(response, 'data-category="surveys"')
         self.assertContains(response, 'data-room-kind="survey"')
 
+    def test_document_room_is_not_listed_as_private(self):
+        from board.models import Post
+
+        post = Post.objects.create(title="Group document", text="<p>content</p>", author=self.user)
+        document_room = post.chat_room
+
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("chat:chat"))
+
+        self.assertIn(document_room, response.context["posts_tree_active"])
+        self.assertNotIn(document_room, response.context["private_active"])
+
     def test_search_rooms_requires_login(self):
         response = self.client.get(reverse("chat:search_rooms"), {"q": "Public"})
         self.assertEqual(response.status_code, 302)

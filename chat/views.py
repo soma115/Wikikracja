@@ -124,8 +124,8 @@ def chat(request: HttpRequest):
     public_rooms_active = base_rooms.filter(public=True, archived=False, source_app='').prefetch_related(*_public_room_prefetch())
     public_rooms_archived = base_rooms.filter(public=True, archived=True, source_app='').prefetch_related(*_public_room_prefetch())
 
-    private_active = base_rooms.filter(public=False, archived=False).prefetch_related(*_private_room_prefetch())
-    private_archived = base_rooms.filter(public=False, archived=True).prefetch_related(*_private_room_prefetch())
+    private_active = base_rooms.filter(public=False, source_app='', archived=False).prefetch_related(*_private_room_prefetch())
+    private_archived = base_rooms.filter(public=False, source_app='', archived=True).prefetch_related(*_private_room_prefetch())
 
     tasks_tree_active = base_rooms.filter(source_app='tasks', archived=False).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
     tasks_tree_archived = base_rooms.filter(source_app='tasks', archived=True).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
