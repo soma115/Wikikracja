@@ -439,11 +439,12 @@ window.wkOnReady(function() {
         ? window.matchMedia('(prefers-color-scheme: dark)')
         : {matches: false, addEventListener() {}};
     function resolveTheme(pref) {
-        return pref === 'auto' ? (themeMedia.matches ? 'dark' : 'light') : pref;
+        return pref === 'auto' ? (themeMedia.matches ? 'tokyo-night' : 'light') : pref;
     }
     window.applyTheme = function applyTheme(pref) {
         localStorage.setItem('app-theme', pref);
-        document.documentElement.setAttribute('data-theme', resolveTheme(pref));
+        const theme = pref === 'light' ? 'light' : pref === 'auto' ? resolveTheme(pref) : 'tokyo-night';
+        document.documentElement.setAttribute('data-theme', theme);
     }
     // Preferencja 'auto' podąża za zmianą motywu systemu operacyjnego.
     themeMedia.addEventListener('change', function() {
@@ -453,7 +454,8 @@ window.wkOnReady(function() {
     const btn = document.getElementById('theme-toggle-btn');
     if (btn) {
         btn.addEventListener('click', function() {
-            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'light' ? 'tokyo-night' : 'light';
             applyTheme(next);
             const url = btn.dataset.url;
             if (url) {

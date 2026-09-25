@@ -5,7 +5,7 @@
 {% load citizen_filters %}
 
 <!DOCTYPE html>
-<html lang="{{ request.LANGUAGE_CODE }}" data-theme="dark" data-prefs-scope="{% block prefs_scope %}{% endblock %}" data-prefs-tab="{% block prefs_tab %}{% endblock %}" data-presence-green-minutes="{{ presence_green_minutes }}" data-presence-yellow-days="{{ presence_yellow_days }}" data-user-id="{{ request.user.id|default:'anonymous' }}">
+<html lang="{{ request.LANGUAGE_CODE }}" data-theme="tokyo-night" data-prefs-scope="{% block prefs_scope %}{% endblock %}" data-prefs-tab="{% block prefs_tab %}{% endblock %}" data-presence-green-minutes="{{ presence_green_minutes }}" data-presence-yellow-days="{{ presence_yellow_days }}" data-user-id="{{ request.user.id|default:'anonymous' }}">
 <head>
 	<title>{{ site_name }}</title>
 	<meta charset="utf-8">
@@ -15,7 +15,7 @@
 	<link rel="manifest" href="{% url 'manifest' %}">
 	<link rel="icon" type="image/x-icon" href="{% if branding.has_brand_derivatives %}{{ MEDIA_URL }}site_branding/derived/favicon.ico?v={{ branding_version }}{% else %}{% static 'home/images/favicon.ico' %}{% endif %}">
 	<link rel="apple-touch-icon" href="{% if branding.has_brand_derivatives %}{{ MEDIA_URL }}site_branding/derived/apple-touch-icon.png?v={{ branding_version }}{% else %}{% static 'home/images/favicon.ico' %}{% endif %}">
-	<meta name="theme-color" content="#00d1b2">
+	<meta name="theme-color" content="#7aa2f7">
 	<!-- Android/Chrome PWA install -->
 	<meta name="mobile-web-app-capable" content="yes">
 	<!-- iOS "Add to Home Screen" support (Safari ignores manifest.json for these) -->
@@ -24,7 +24,7 @@
 	<meta name="apple-mobile-web-app-title" content="{{ site_name }}">
 
 	<!-- Anti-FOUC: restore theme before CSS loads -->
-	<script>(function(){var t=localStorage.getItem('app-theme')||'auto';if(t==='auto'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();</script>
+	<script>(function(){var t=localStorage.getItem('app-theme')||'auto';if(t==='auto'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'tokyo-night':'light';}else if(t!=='light'){t='tokyo-night';}document.documentElement.setAttribute('data-theme',t);})();</script>
 	<!-- Anti-FOUC: restore saved activity filters when no query string is present -->
 	<script>
 	(function() {

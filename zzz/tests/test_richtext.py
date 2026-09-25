@@ -97,6 +97,9 @@ class TinyMCEContentTests(TestCase):
     def test_plain_legacy_text_keeps_line_breaks(self):
         self.assertEqual(sanitize_tinymce('A\nB'), 'A<br>B')
 
+    def test_repairs_mojibake_bullet_marker(self):
+        self.assertEqual(sanitize_tinymce('<p>âœ” Help one another</p>'), '<p>✔ Help one another</p>')
+
     def test_preserves_relative_image_urls(self):
         content = '<p><img src="/media/uploads/image.webp" alt="Image"></p>'
         result = sanitize_tinymce(content)

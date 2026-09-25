@@ -87,10 +87,21 @@ def _set_link_target(attrs, new=False):
     return attrs
 
 
+def _repair_utf8_mojibake(text: str) -> str:
+    """Repair common UTF-8 text decoded once with a legacy code page."""
+    if not any(marker in text for marker in ('Ã', 'Â', 'â', 'ð')):
+        return text
+    try:
+        return text.encode('cp1252').decode('utf-8')
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        return text
+
+
 def sanitize(text: str, *, linkify: bool = True) -> str:
     """Sanitize simple rich text and normalize its line endings."""
     if not text:
         return ''
+    text = _repair_utf8_mojibake(text)
     normalized = text.replace('\r\n', '\n').replace('\r', '\n').replace('\n', '<br>')
     cleaned = bleach.clean(normalized, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, strip=True)
     if linkify:
@@ -102,6 +113,7 @@ def sanitize_tinymce(text: str) -> str:
     """Preserve TinyMCE HTML and CSS, removing executable content only."""
     if not text:
         return ''
+    text = _repair_utf8_mojibake(text)
     normalized = text.replace('\r\n', '\n').replace('\r', '\n')
     normalized = TINYMCE_SCRIPT_RE.sub('', normalized)
     normalized = re.sub(r'<script\b[^>]*/?>', '', normalized, flags=re.IGNORECASE)
