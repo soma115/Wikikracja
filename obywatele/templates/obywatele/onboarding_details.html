@@ -42,7 +42,11 @@
   {{ form.voivodeship|as_crispy_field }}
   {{ form.job|as_crispy_field }}
   {{ form.skills_knowledge_hobby|as_crispy_field }}
-  {{ form.business|as_crispy_field }}
+  {{ form.business_active|as_crispy_field }}
+  <div data-business-fields class="tw-d-none tw-space-y-3">
+    <div>{{ form.business_website|as_crispy_field }}</div>
+    <div>{{ form.business_description|as_crispy_field }}</div>
+  </div>
   {{ form.why|as_crispy_field }}
 
   <button type="submit" class="tw-btn tw-btn-info tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Save form" %}</button>

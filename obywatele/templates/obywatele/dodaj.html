@@ -3,6 +3,10 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
+{% block extra_js %}
+<script src="{% static 'obywatele/js/profile.js' %}"></script>
+{% endblock %}
+
 {% block citizens %}
 
 <form action="." method="POST" enctype="multipart/form-data">{% csrf_token %}
@@ -46,13 +50,10 @@
 		{% trans "Below fields are not mandatory but they will help us with cooperate." %}
 	</p>
 
-	<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3">
-		<div>
-			{{ profile_form.responsibilities|as_crispy_field }}
-		</div>
-		<div>
-			{{ profile_form.business|as_crispy_field }}
-		</div>
+	{{ profile_form.business_active|as_crispy_field }}
+	<div data-business-fields class="tw-d-none tw-space-y-3 tw-mt-3">
+		<div>{{ profile_form.business_website|as_crispy_field }}</div>
+		<div>{{ profile_form.business_description|as_crispy_field }}</div>
 	</div>
 
 	<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3 tw-mt-3">

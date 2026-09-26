@@ -46,11 +46,12 @@
           <div>{{ form.preferred_contact_method|as_crispy_field }}</div>
           <div data-contact-link-field class="tw-d-none">{{ form.contact_link|as_crispy_field }}</div>
         </div>
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
-          <div>{{ form.job|as_crispy_field }}</div>
-          <div>{{ form.responsibilities|as_crispy_field }}</div>
+        <div>{{ form.job|as_crispy_field }}</div>
+        <div>{{ form.business_active|as_crispy_field }}</div>
+        <div data-business-fields class="tw-d-none tw-space-y-3">
+          <div>{{ form.business_website|as_crispy_field }}</div>
+          <div>{{ form.business_description|as_crispy_field }}</div>
         </div>
-        <div>{{ form.business|as_crispy_field }}</div>
         <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
           <div>{{ form.to_give_away|as_crispy_field }}</div>
           <div>{{ form.to_borrow|as_crispy_field }}</div>

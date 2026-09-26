@@ -4,6 +4,10 @@
 {% load feed_filters %}
 {% load crispy_forms_tags %}
 
+{% block extra_js %}
+<script src="{% static 'obywatele/js/profile.js' %}"></script>
+{% endblock %}
+
 {% block citizens %}
 <div class="tw-container tw-my-4">
   <div class="tw-card">
@@ -36,9 +40,10 @@
           <div>{{ form.phone|as_crispy_field }}</div>
           <div>{{ form.job|as_crispy_field }}</div>
         </div>
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-mt-3">
-          <div>{{ form.responsibilities|as_crispy_field }}</div>
-          <div>{{ form.business|as_crispy_field }}</div>
+        <div>{{ form.business_active|as_crispy_field }}</div>
+        <div data-business-fields class="tw-d-none tw-space-y-3 tw-mt-3">
+          <div>{{ form.business_website|as_crispy_field }}</div>
+          <div>{{ form.business_description|as_crispy_field }}</div>
         </div>
         <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-mt-3">
           <div>{{ form.to_give_away|as_crispy_field }}</div>

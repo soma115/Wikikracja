@@ -69,7 +69,8 @@ class Command(BaseCommand):
             profile.onboarding_status = Uzytkownik.OnboardingStatus.FORM_COMPLETED
             profile.data_przyjecia = profile.data_przyjecia or timezone.localdate() - timedelta(days=90)
             profile.city = {"alex": "Portland", "jordan": "Bristol", "morgan": "Toronto", "taylor": "Austin"}[key]
-            profile.responsibilities = {
+            profile.business_active = True
+            profile.business_description = {
                 "alex": "Community facilitation and meeting notes",
                 "jordan": "Accessibility and inclusive participation",
                 "morgan": "Budget review and open records",

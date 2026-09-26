@@ -9,6 +9,7 @@ from allauth.account.forms import SignupForm
 from captcha.fields import CaptchaField, CaptchaTextInput
 from django import forms
 from django.contrib.auth.models import User
+from django.core.validators import URLValidator
 from django.db import IntegrityError
 from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
@@ -146,6 +147,7 @@ class ProfileForm(forms.ModelForm):
     first_name = forms.CharField(max_length=150, label=_('First name'), required=True)
     last_name = forms.CharField(max_length=150, label=_('Last name'), required=True)
     phone_country = forms.ChoiceField(choices=phone_country_choices, label=_('Phone country'), required=False)
+    business_website = forms.CharField(max_length=500, label=_('Business website'), required=False, widget=forms.TextInput)
 
     class Meta:
         model = Uzytkownik
@@ -154,7 +156,6 @@ class ProfileForm(forms.ModelForm):
             'phone',
             'preferred_contact_method',
             'contact_link',
-            'responsibilities',
             'city',
             'voivodeship',
             'skills_knowledge_hobby',
@@ -163,7 +164,9 @@ class ProfileForm(forms.ModelForm):
             'for_sale',
             'i_need',
             'want_to_learn',
-            'business',
+            'business_active',
+            'business_website',
+            'business_description',
             'job',
             'why',
         )
@@ -186,7 +189,9 @@ class ProfileForm(forms.ModelForm):
         self.fields['contact_link'].help_text = _('Use the public profile link from the selected service.')
         self.fields['contact_link'].required = False
         self.fields['city'].required = True
-        self.fields['job'].required = True
+        self.fields['business_active'].widget.attrs['data-business-toggle'] = 'true'
+        self.fields['business_website'].widget.attrs['data-business-field'] = 'true'
+        self.fields['business_description'].widget = forms.Textarea(attrs={'rows': 3, 'data-business-field': 'true'})
 
         # Filter voivodeship to show regions from Poland (can be extended for other countries)
         self.fields['voivodeship'].queryset = Region.objects.filter(country__code='PL').order_by('name')
@@ -196,7 +201,18 @@ class ProfileForm(forms.ModelForm):
         self.fields['first_name'].error_messages['required'] = _('First name is required.')
         self.fields['last_name'].error_messages['required'] = _('Last name is required.')
         self.fields['city'].error_messages['required'] = _('City / Commune is required.')
-        self.fields['job'].error_messages['required'] = _('Job is required.')
+
+    def clean_business_website(self):
+        value = (self.cleaned_data.get('business_website') or '').strip()
+        if not value:
+            return ''
+        if not urlsplit(value).scheme:
+            value = f'https://{value}'
+        try:
+            URLValidator(schemes=('http', 'https'))(value)
+        except forms.ValidationError as exc:
+            raise forms.ValidationError(_('Enter a valid business website URL.')) from exc
+        return value
 
     def clean_phone(self):
         value = (self.cleaned_data.get('phone') or '').strip()
@@ -235,6 +251,9 @@ class ProfileForm(forms.ModelForm):
                 parsed = urlsplit(link)
                 if parsed.scheme != 'https' or parsed.hostname not in allowed_hosts:
                     self.add_error('contact_link', _('Use a secure profile link from the selected service.'))
+        if not cleaned_data.get('business_active'):
+            cleaned_data['business_website'] = ''
+            cleaned_data['business_description'] = ''
         return cleaned_data
 
 
@@ -261,7 +280,20 @@ class OnboardingDetailsForm(ProfileForm):
     """Onboarding subset of ProfileForm — same field setup, fewer fields."""
 
     class Meta(ProfileForm.Meta):
-        fields = ('why', 'phone_country', 'phone', 'preferred_contact_method', 'contact_link', 'city', 'voivodeship', 'job', 'skills_knowledge_hobby', 'business')
+        fields = (
+            'why',
+            'phone_country',
+            'phone',
+            'preferred_contact_method',
+            'contact_link',
+            'city',
+            'voivodeship',
+            'job',
+            'skills_knowledge_hobby',
+            'business_active',
+            'business_website',
+            'business_description',
+        )
 
 
 class CustomSignupForm(SignupForm):

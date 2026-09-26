@@ -249,7 +249,7 @@ Django już posiada widoki kalendarza i partiale. Zostaje pełna funkcjonalnoś�
 Możliwe warianty:
 
 - usunięcie personalizacji kolumn;
-- parametr GET `?columns=uid,city,responsibilities` obsługiwany przez Django;
+- parametr GET `?columns=uid,city,voivodeship` obsługiwany przez Django;
 - zwykły formularz GET, który przeładowuje stronę.
 
 Nie powinno się utrzymywać równolegle lokalnego stanu JS i serwerowego stanu tabeli.

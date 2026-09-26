@@ -8,7 +8,6 @@ from obywatele.models import Uzytkownik
 class UzytkownikFilter(django_filters.FilterSet):
     # city = django_filters.CharFilter(method='custom_filter')
     city = django_filters.CharFilter(lookup_expr='icontains')
-    responsibilities = django_filters.CharFilter(lookup_expr='icontains')
     hobby = django_filters.CharFilter(lookup_expr='icontains')
     to_give_away = django_filters.CharFilter(lookup_expr='icontains')
     to_borrow = django_filters.CharFilter(lookup_expr='icontains')
@@ -17,11 +16,11 @@ class UzytkownikFilter(django_filters.FilterSet):
     skills = django_filters.CharFilter(lookup_expr='icontains')
     knowledge = django_filters.CharFilter(lookup_expr='icontains')
     want_to_learn = django_filters.CharFilter(lookup_expr='icontains')
-    business = django_filters.CharFilter(lookup_expr='icontains')
+    business_description = django_filters.CharFilter(lookup_expr='icontains')
     job = django_filters.CharFilter(lookup_expr='icontains')
     other = django_filters.CharFilter(lookup_expr='icontains')
     why = django_filters.CharFilter(lookup_expr='icontains')
 
     class Meta:
         model = Uzytkownik
-        fields = ['city', 'responsibilities', 'hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'skills', 'knowledge', 'want_to_learn', 'business', 'job', 'other', 'why']
+        fields = ['city', 'hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'skills', 'knowledge', 'want_to_learn', 'business_description', 'job', 'other', 'why']

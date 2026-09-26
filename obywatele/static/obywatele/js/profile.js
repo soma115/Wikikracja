@@ -6,6 +6,8 @@ window.wkOnReady(function() {
 	const phoneFields = document.querySelectorAll('[data-contact-phone-field]');
 	const phoneCountry = document.querySelector('[data-phone-country]');
 	const phoneInput = document.querySelector('[data-phone-input]');
+	const businessToggle = document.querySelector('[data-business-toggle]');
+	const businessFields = document.querySelectorAll('[data-business-fields]');
 
 	function updateContactFields() {
 		const method = contactMethod ? contactMethod.value : '';
@@ -30,6 +32,15 @@ window.wkOnReady(function() {
 			}
 			previousCountryCode = this.options[this.selectedIndex]?.textContent.match(/\+(\d+)/)?.[1] || '';
 		});
+	}
+
+	function updateBusinessFields() {
+		businessFields.forEach(field => field.classList.toggle('tw-d-none', !businessToggle.checked));
+	}
+
+	if (businessToggle) {
+		businessToggle.addEventListener('change', updateBusinessFields);
+		updateBusinessFields();
 	}
 
 	const toggles = document.querySelectorAll('[id^="toggle-"]');

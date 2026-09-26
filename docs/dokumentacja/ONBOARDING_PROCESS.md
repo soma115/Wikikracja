@@ -70,7 +70,7 @@ Proces przyjmowania nowej osoby składa się z następujących etapów:
 **Opcjonalne pola:**
 - Województwo (`voivodeship`) — lista ograniczona do regionów Polski (`country__code='PL'`)
 - Umiejętności, wiedza, hobby (`skills_knowledge_hobby`)
-- Biznes (`business`)
+- Prowadzę swój biznes (`business_active`), adres strony (`business_website`) i opis działalności (`business_description`)
 - Dlaczego chcesz dołączyć? (`why`)
 
 **Status:** `FORM_COMPLETED` (po zapisaniu formularza, niezależnie od procentu wypełnienia)
@@ -81,7 +81,7 @@ Proces przyjmowania nowej osoby składa się z następujących etapów:
 - Fallback dla aktywnych użytkowników z nieukończonym onboarding (`EMAIL_ENTERED` lub `EMAIL_CONFIRMED`)
 
 **Formularz pełny profilu (dla polecenia):**
-Widok `obywatele.views.dodaj` ("Zaproponuj osobę") używa pełnego `ProfileForm` z dodatkowymi polami: `responsibilities`, `to_give_away`, `to_borrow`, `for_sale`, `i_need`, `want_to_learn`.
+Widok `obywatele.views.dodaj` ("Zaproponuj osobę") używa pełnego `ProfileForm` z dodatkowymi polami: `to_give_away`, `to_borrow`, `for_sale`, `i_need`, `want_to_learn`.
 
 ### 4. Poczekalnia (Waiting Room)
 

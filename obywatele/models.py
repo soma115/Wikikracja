@@ -83,14 +83,15 @@ class Uzytkownik(models.Model):
     contact_link = models.URLField(max_length=500, blank=True, default='', verbose_name=_('Contact profile link'))
     city = models.CharField(null=True, blank=True, max_length=72, help_text=_('Where one spend most of their time'), verbose_name=_('City'))
     voivodeship = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True, blank=True, related_name='citizens', verbose_name=_('Voivodeship'))
-    responsibilities = models.CharField(null=True, blank=True, max_length=622, help_text=_('Activities performed in our group'), verbose_name=_('Responsibilities'))
     skills_knowledge_hobby = models.CharField(null=True, blank=True, max_length=1866, help_text=_('Skills, knowledge, and hobbies'), verbose_name=_('Skills / Knowledge / Hobby'))
     to_give_away = models.CharField(null=True, blank=True, max_length=622, help_text=_('Things you are willing to give away for free'), verbose_name=_('To give away'))
     to_borrow = models.CharField(null=True, blank=True, max_length=622, help_text=_('Stuff you can borrow to others'), verbose_name=_('To borrow'))
     for_sale = models.CharField(null=True, blank=True, max_length=622, help_text=_('Stuff you have for sale'), verbose_name=_('For sale'))
     i_need = models.CharField(null=True, blank=True, max_length=622, help_text=_('What do you need'), verbose_name=_('I need'))
     want_to_learn = models.CharField(null=True, blank=True, max_length=622, help_text=_('Things one would like to learn'), verbose_name=_('I want to learn'))
-    business = models.CharField(null=True, blank=True, max_length=622, help_text=_('If running a business'), verbose_name=_('Business'))
+    business_active = models.BooleanField(default=False, verbose_name=_('I run my own business'))
+    business_website = models.URLField(max_length=500, blank=True, default='', verbose_name=_('Business website'))
+    business_description = models.TextField(max_length=1866, blank=True, default='', verbose_name=_('What does your business do?'))
     job = models.CharField(null=True, blank=True, max_length=622, help_text=_('Profession'), verbose_name=_('Job'))
     why = models.CharField(null=True, blank=True, max_length=662, help_text=_("In your own words please explain why do you want join our group"), verbose_name=_("Why do you want to join?"))
 
@@ -126,7 +127,7 @@ class Uzytkownik(models.Model):
     push_phone_enabled = models.BooleanField(default=True, help_text=_('Receive push notifications on phones and tablets'), verbose_name=_('Push on phone'))
     push_computer_enabled = models.BooleanField(default=True, help_text=_('Receive push notifications on desktop computers and laptops'), verbose_name=_('Push on computer'))
 
-    ONBOARDING_FORM_FIELDS = ('phone', 'responsibilities', 'city', 'voivodeship', 'skills_knowledge_hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'want_to_learn', 'business', 'job', 'why')
+    ONBOARDING_FORM_FIELDS = ('phone', 'city', 'voivodeship', 'skills_knowledge_hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'want_to_learn', 'business_active', 'job', 'why')
 
     @property
     def form_completion_percent(self) -> int:

@@ -37,7 +37,6 @@ PROFILE_POST_DATA = {
     'phone': '123456789',
     'city': 'Gdańsk',
     'job': 'Programista',
-    'responsibilities': '',
     'voivodeship': '',
     'skills_knowledge_hobby': 'Python',
     'to_give_away': 'Rower',
@@ -45,7 +44,9 @@ PROFILE_POST_DATA = {
     'for_sale': 'Kanapa',
     'i_need': 'Pomoc',
     'want_to_learn': 'Go',
-    'business': 'IT',
+    'business_active': True,
+    'business_website': 'https://example.com',
+    'business_description': 'Tworzenie oprogramowania',
     'why': 'Chcę pomagać',
 }
 
@@ -786,6 +787,32 @@ class ContactPreferenceFormTest(TestCase):
         self.assertTrue(form.is_valid(), form.errors)
         profile = form.save()
         self.assertEqual(profile.contact_url, 'https://signal.me/#p/+48501234567')
+
+    def test_business_details_are_saved_when_enabled(self):
+        data = {**self.common, 'business_website': 'example.com'}
+        form = ProfileForm(data=data, instance=self.profile)
+
+        self.assertEqual(form.fields['business_website'].widget.input_type, 'text')
+        self.assertTrue(form.is_valid(), form.errors)
+        profile = form.save()
+        self.assertTrue(profile.business_active)
+        self.assertEqual(profile.business_website, 'https://example.com')
+        self.assertEqual(profile.business_description, 'Tworzenie oprogramowania')
+
+    def test_business_details_are_cleared_when_disabled(self):
+        self.profile.business_active = True
+        self.profile.business_website = 'https://example.com'
+        self.profile.business_description = 'Old description'
+        self.profile.save()
+        data = {**self.common, 'business_active': False}
+
+        form = ProfileForm(data=data, instance=self.profile)
+
+        self.assertTrue(form.is_valid(), form.errors)
+        profile = form.save()
+        self.assertFalse(profile.business_active)
+        self.assertEqual(profile.business_website, '')
+        self.assertEqual(profile.business_description, '')
 
     def test_view_saves_and_restores_contact_preference(self):
         data = {**self.common, 'phone': '501 234 567', 'phone_country': 'PL', 'preferred_contact_method': 'signal', 'contact_link': ''}

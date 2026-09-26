@@ -139,7 +139,6 @@ window.wkOnReady(function() {
             <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "City / Commune" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.city|default:"—"|title }}</dd>
             <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Voivodeship" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.voivodeship.name|default:"—" }}</dd>
             <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Recommended by" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.polecajacy|default:"—" }}</dd>
-            <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Responsibilities" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.responsibilities|default:"—" }}</dd>
           </dl>
 
           <div class="tw-border-t tw-border-subtle tw-pt-4">
@@ -154,7 +153,10 @@ window.wkOnReady(function() {
               <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "For sale" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.for_sale|default:"—" }}</dd>
               <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "I need" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.i_need|default:"—" }}</dd>
               <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "I want to learn" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.want_to_learn|default:"—" }}</dd>
-              <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Business" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.business|default:"—" }}</dd>
+              {% if b.business_active %}
+              <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Business website" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{% if b.business_website %}<a href="{{ b.business_website }}" target="_blank" rel="noopener noreferrer">{{ b.business_website|cut:"https://"|cut:"http://" }}</a>{% else %}—{% endif %}</dd>
+              <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "What does your business do?" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8 tw-whitespace-pre-wrap">{{ b.business_description|default:"—" }}</dd>
+              {% endif %}
               <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Why do you want to join?" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.why|default:"—" }}</dd>
             </dl>
           </div>
