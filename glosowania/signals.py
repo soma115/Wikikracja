@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.utils.translation import gettext as _
+from django.utils.translation import override
 
 from chat.signals import chat_room_requested
 from core.services.feed import invalidate_feed_cache_on_change
@@ -26,9 +27,10 @@ def create_or_update_chat_room_for_referendum(sender, instance, created, **kwarg
         HOST = get_site_domain()
         protocol = getattr(settings, 'SITE_PROTOCOL', 'http')
         details_url = f"{protocol}://{HOST}/glosowania/details/{instance.pk}"
-        welcome_message = _("This chat room has been created for project #{id} <a href='{details_url}'>{title}</a>.\nDiscuss the proposal, share your thoughts, and ask questions here.").format(
-            id=instance.pk, title=instance.title, details_url=details_url
-        )
+        with override(settings.LANGUAGE_CODE):
+            welcome_message = _("This chat room has been created for project #{id} <a href='{details_url}'>{title}</a>.\nDiscuss the proposal, share your thoughts, and ask questions here.").format(
+                id=instance.pk, title=instance.title, details_url=details_url
+            )
 
         chat_room_requested.send(
             sender=Decyzja,

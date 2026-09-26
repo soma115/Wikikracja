@@ -39,6 +39,16 @@ def test_post_creation_creates_chat_room():
 
 
 @pytest.mark.django_db
+@override_settings(LANGUAGE_CODE='pl')
+def test_document_chat_welcome_uses_instance_language():
+    with override('en'):
+        post = PostFactory(title='Translated document')
+
+    welcome_message = post.chat_room.messages.get().text
+    assert welcome_message.startswith('Pokój dyskusji do dokumentu:')
+
+
+@pytest.mark.django_db
 def test_group_document_room_uses_document_title_for_display():
     post = PostFactory(title='Group document', visibility=Post.Visibility.GROUP)
 

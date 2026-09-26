@@ -1,10 +1,12 @@
 import logging
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.utils.translation import override
 
 from chat.signals import chat_room_requested
 from core.services.feed import invalidate_feed_cache_on_change
@@ -26,7 +28,8 @@ def create_task_chat_room(sender, instance, created, **kwargs):
 
     task_path = reverse('tasks:detail', kwargs={'pk': instance.pk})
     task_url = build_site_url(task_path)
-    message_text = _("Discussion room for activity: <a href='%(task_url)s'>%(task_title)s</a>") % {'task_title': instance.title, 'task_url': task_url}
+    with override(settings.LANGUAGE_CODE):
+        message_text = _("Discussion room for activity: <a href='%(task_url)s'>%(task_title)s</a>") % {'task_title': instance.title, 'task_url': task_url}
 
     chat_room_requested.send(
         sender=Task,

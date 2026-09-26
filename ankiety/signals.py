@@ -1,9 +1,11 @@
 import logging
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.utils.translation import gettext as _
+from django.utils.translation import override
 
 from chat.signals import chat_room_requested
 from core.utils import build_site_url
@@ -27,7 +29,8 @@ def create_or_update_survey_chat_room(sender, instance, created, **kwargs):
 
     if created:
         survey_url = build_site_url(instance.get_absolute_url())
-        welcome_message = _("Discussion room for survey: <a href='%(survey_url)s'>%(survey_title)s</a>") % {"survey_title": instance.title, "survey_url": survey_url}
+        with override(settings.LANGUAGE_CODE):
+            welcome_message = _("Discussion room for survey: <a href='%(survey_url)s'>%(survey_title)s</a>") % {"survey_title": instance.title, "survey_url": survey_url}
         allowed_users = User.objects.filter(is_active=True)
         welcome_message_sender = instance.author
         welcome_message_anonymous = False

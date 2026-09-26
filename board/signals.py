@@ -7,6 +7,7 @@ from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.utils.translation import override
 
 from chat.signals import chat_message_requested, chat_room_requested
 from core.services.feed import invalidate_feed_cache_on_change
@@ -72,7 +73,8 @@ def create_or_update_chat_room_for_post(sender, instance, created, **kwargs):
     room_title = instance.get_chat_room_title()
     post_path = reverse('board:view_post', args=[instance.pk])
     post_url = build_site_url(post_path)
-    welcome_message = _("Discussion room for document: <a href='%(url)s'>%(title)s</a>") % {'title': instance.title, 'url': post_url}
+    with override(settings.LANGUAGE_CODE):
+        welcome_message = _("Discussion room for document: <a href='%(url)s'>%(title)s</a>") % {'title': instance.title, 'url': post_url}
     is_public = instance.visibility == Post.Visibility.PUBLIC
     is_archived = instance.visibility == Post.Visibility.ARCHIVE
     if is_public or instance.visibility in (Post.Visibility.GROUP, Post.Visibility.ARCHIVE):
