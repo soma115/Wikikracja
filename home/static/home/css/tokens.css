@@ -89,8 +89,8 @@
   --accent-glow-medium: color-mix(in srgb, var(--accent) 15%, transparent);
   --accent-glow-faint: color-mix(in srgb, var(--accent) 8%, transparent);
   --accent-border: color-mix(in srgb, var(--accent) 45%, transparent);
-  --text-primary: #e8eaf0;
-  --text-muted: rgb(232, 234, 240);
+  --text-primary: color-mix(in srgb, #e8eaf0 10%, white 90%);
+  --text-muted: color-mix(in srgb, rgb(232, 234, 240) 30%, white 70%);
   --border: rgba(255, 255, 255, .08);
   --btn-glass-bg: rgba(255, 255, 255, .06);
   --btn-glass-border: rgba(255, 255, 255, .12);
@@ -206,8 +206,8 @@
   --bg-card: #24283b;
   --accent: #7aa2f7;
   --accent-hover: #89ddff;
-  --text-primary: #ccd6ff;
-  --text-muted: #acb6e5;
+  --text-primary: color-mix(in srgb, #ccd6ff 20%, white 80%);
+  --text-muted: color-mix(in srgb, #acb6e5 20%, white 80%);
   --input-bg: #292e42;
   --bg-tertiary: #292e42;
   --surface-elevated: #292e42;
