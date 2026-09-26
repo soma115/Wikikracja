@@ -20,7 +20,7 @@ from core.models import ReadStatus
 from core.services.feed import build_user_digest
 from events.models import Event
 from glosowania.models import Decyzja
-from home.management.commands.send_email_digest import Command, _period_start
+from home.management.commands.send_email_digest import Command, _collapse_excess_newlines, _period_start
 from obywatele.models import CitizenActivity, Uzytkownik
 from tasks.models import Task
 from tests.factories import PostCategoryFactory, PostFactory, UserFactory
@@ -28,6 +28,11 @@ from tests.factories import PostCategoryFactory, PostFactory, UserFactory
 FAST_EMAIL_SETTINGS = {'EMAIL_BACKEND': 'django.core.mail.backends.locmem.EmailBackend', 'EMAIL_SEND_DELAY_SECONDS': 0}
 
 FIXED_NOW = timezone.make_aware(datetime(2026, 9, 2, 10, 0, 0))
+
+
+@pytest.mark.parametrize(('value', 'expected'), [('before\n\n\nafter', 'before\n\nafter'), ('before\r\n\r\n\r\nafter', 'before\n\nafter'), ('before\n\nafter', 'before\n\nafter')])
+def test_digest_collapses_excess_newlines(value, expected):
+    assert _collapse_excess_newlines(value) == expected
 
 
 def test_weekly_digest_period_starts_on_saturday():

@@ -2,6 +2,7 @@
 
 import html
 import logging
+import re
 from datetime import datetime
 from datetime import timedelta as td
 
@@ -27,6 +28,13 @@ log = logging.getLogger(__name__)
 
 DIGEST_SEND_HOUR = 8
 DIGEST_SEND_MINUTE = 0
+MAX_CONSECUTIVE_NEWLINES = 2
+
+
+def _collapse_excess_newlines(text: str) -> str:
+    """Keep at most one empty line in digest text."""
+    normalized = text.replace('\r\n', '\n').replace('\r', '\n')
+    return re.sub(r'\n{%d,}' % (MAX_CONSECUTIVE_NEWLINES + 1), '\n' * MAX_CONSECUTIVE_NEWLINES, normalized)
 
 
 def _period_start(now: datetime, frequency: str) -> datetime:
@@ -121,7 +129,7 @@ class Command(TranslatedCommand):
             with override(get_user_language(user)):
                 context = self._build_digest_context(user, items, restarted_votes)
                 subject = _('[{HOST}] Activity digest').format(HOST=self.host)
-                text = render_to_string('emails/digest.txt', context)
+                text = _collapse_excess_newlines(render_to_string('emails/digest.txt', context))
                 html = render_to_string('emails/digest.html', context)
 
             try:
@@ -180,6 +188,7 @@ class Command(TranslatedCommand):
                     description = one_line_snippet(raw_description, 120)
                 else:
                     description = html.unescape(strip_tags(raw_description)).strip()
+                description = _collapse_excess_newlines(description)
 
                 section['items'].append(
                     {
