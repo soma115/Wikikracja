@@ -3924,6 +3924,11 @@
     padding: 0.75rem;
     font-size: 0.875rem;
   }
+  .tw-alert a {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+  }
   .tw-alert-dismissible {
     position: relative;
     padding-right: 3rem;

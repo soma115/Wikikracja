@@ -25,7 +25,7 @@ from chat.services import get_user_public_message_rows
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 from obywatele.auth_backends import CaseInsensitiveEmailBackend
 from obywatele.forms import ProfileForm, phone_country_choices
-from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, Uzytkownik
+from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, ResourceAssignment, ResourceItem, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items
 from tasks.activity import get_user_tasks
 from tasks.models import Task, TaskEvaluation, TaskVote
@@ -39,10 +39,6 @@ PROFILE_POST_DATA = {
     'job': 'Programista',
     'voivodeship': '',
     'skills_knowledge_hobby': 'Python',
-    'to_give_away': 'Rower',
-    'to_borrow': 'Wiertarka',
-    'for_sale': 'Kanapa',
-    'i_need': 'Pomoc',
     'want_to_learn': 'Go',
     'business_active': True,
     'business_website': 'https://example.com',
@@ -699,7 +695,6 @@ class MyAssetsViewTest(TestCase):
         self.user.refresh_from_db()
         self.assertEqual(self.profile.city, 'Gdańsk')
         self.assertEqual(self.profile.phone, '+48123456789')
-        self.assertEqual(self.profile.for_sale, 'Kanapa')
         self.assertEqual(self.user.first_name, 'Jan')
         self.assertEqual(self.user.last_name, 'Kowalski')
         # Nadal ten sam rekord profilu — form.save() z instance= nie tworzy nowego.
@@ -824,6 +819,86 @@ class ContactPreferenceFormTest(TestCase):
         self.assertEqual(self.profile.preferred_contact_method, 'signal')
         response = self.client.get(reverse('obywatele:my_assets'))
         self.assertEqual(response.context['form']['preferred_contact_method'].value(), 'signal')
+
+
+class ResourceAssignmentViewTest(TestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(username='resource-owner', password='secret', is_active=True)
+        self.assignment_url = reverse('obywatele:save_resource_assignment')
+        self.client.force_login(self.owner)
+
+    def test_existing_resources_are_not_edited(self):
+        response = self.client.post(self.assignment_url, {'kind': 'give', 'name': 'Rower'})
+
+        self.assertRedirects(response, reverse('obywatele:my_assets'))
+        assignment = ResourceAssignment.objects.get(profile=self.owner.uzytkownik)
+        response = self.client.post(self.assignment_url, {'assignment_id': assignment.pk, 'name': 'Rower miejski', 'kind': 'give'})
+
+        self.assertRedirects(response, reverse('obywatele:my_assets'))
+        assignment.item.refresh_from_db()
+        self.assertEqual(assignment.item.name, 'Rower')
+
+    def test_owner_can_delete_assignment_and_unused_item(self):
+        item = ResourceItem.objects.create(name='Wiertarka')
+        assignment = ResourceAssignment.objects.create(profile=self.owner.uzytkownik, item=item, kind=ResourceAssignment.Kind.BORROW)
+
+        response = self.client.post(reverse('obywatele:delete_resource_assignment', kwargs={'pk': assignment.pk}))
+
+        self.assertRedirects(response, reverse('obywatele:my_assets'))
+        self.assertFalse(ResourceAssignment.objects.filter(pk=assignment.pk).exists())
+        self.assertFalse(ResourceItem.objects.filter(pk=item.pk).exists())
+
+
+class ResourceSearchViewTest(TestCase):
+    def setUp(self):
+        self.viewer = User.objects.create_user(username='resource-search-viewer', password='secret', is_active=True)
+        self.offer_user = User.objects.create_user(username='resource-offer', first_name='Offer', password='secret', is_active=True)
+        self.need_user = User.objects.create_user(username='resource-need', first_name='Need', password='secret', is_active=True)
+        self.other_user = User.objects.create_user(username='resource-no-assignment', first_name='Other', password='secret', is_active=True)
+        self.other_user.uzytkownik.city = 'Kraków'
+        self.other_user.uzytkownik.save(update_fields=['city'])
+        self.offer_user.uzytkownik.city = 'Gdańsk'
+        self.offer_user.uzytkownik.job = 'Product designer'
+        self.offer_user.uzytkownik.save(update_fields=['city', 'job'])
+        item = ResourceItem.objects.create(name='Rower')
+        ResourceAssignment.objects.create(profile=self.offer_user.uzytkownik, item=item, kind=ResourceAssignment.Kind.GIVE)
+        ResourceAssignment.objects.create(profile=self.need_user.uzytkownik, item=item, kind=ResourceAssignment.Kind.NEED)
+        self.client.force_login(self.viewer)
+
+    def test_resource_autocomplete_respects_selected_kind(self):
+        item = ResourceItem.objects.create(name='Wiertarka')
+        ResourceAssignment.objects.create(profile=self.offer_user.uzytkownik, item=item, kind=ResourceAssignment.Kind.GIVE)
+
+        response = self.client.get(reverse('obywatele:search_resource_items'), {'q': 'Wiert', 'kind': 'need'})
+
+        self.assertEqual(response.json()['items'], [])
+
+    def test_assets_separates_offers_and_needs(self):
+        response = self.client.get(reverse('obywatele:assets'), {'q': 'Rower'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['offer_assignments']), 1)
+        self.assertEqual(len(response.context['need_assignments']), 1)
+        self.assertContains(response, 'Offers')
+        self.assertContains(response, 'Needs')
+        self.assertContains(response, 'data-resource-suggestions')
+        self.assertContains(response, 'Gdańsk')
+        self.assertContains(response, 'Kraków')
+        self.assertNotContains(response, 'Product designer')
+
+    def test_assets_shows_people_when_searching_by_location(self):
+        response = self.client.get(reverse('obywatele:assets'), {'city': 'Kraków'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual([profile.pk for profile in response.context['location_profiles']], [self.other_user.uzytkownik.pk])
+        self.assertContains(response, 'Other')
+
+    def test_assets_filters_by_kind_and_city(self):
+        response = self.client.get(reverse('obywatele:assets'), {'kind': 'give', 'city': 'Gdańsk'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['offer_assignments']), 1)
+        self.assertEqual(len(response.context['need_assignments']), 0)
 
 
 class DodajViewTest(TestCase):

@@ -5,6 +5,7 @@ from datetime import datetime
 import phonenumbers
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models.functions import Lower
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -39,6 +40,20 @@ class Region(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.country.code})"
+
+
+class ResourceItem(models.Model):
+    name = models.CharField(max_length=200, verbose_name=_('Name'))
+    created_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='created_resource_items', verbose_name=_('Created by'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
+
+    class Meta:
+        ordering = ('name',)
+        constraints = [models.UniqueConstraint(Lower('name'), name='unique_resource_item_name_ci')]
+
+    def __str__(self):
+        return self.name
 
 
 class Uzytkownik(models.Model):
@@ -84,10 +99,6 @@ class Uzytkownik(models.Model):
     city = models.CharField(null=True, blank=True, max_length=72, help_text=_('Where one spend most of their time'), verbose_name=_('City'))
     voivodeship = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True, blank=True, related_name='citizens', verbose_name=_('Voivodeship'))
     skills_knowledge_hobby = models.CharField(null=True, blank=True, max_length=1866, help_text=_('Skills, knowledge, and hobbies'), verbose_name=_('Skills / Knowledge / Hobby'))
-    to_give_away = models.CharField(null=True, blank=True, max_length=622, help_text=_('Things you are willing to give away for free'), verbose_name=_('To give away'))
-    to_borrow = models.CharField(null=True, blank=True, max_length=622, help_text=_('Stuff you can borrow to others'), verbose_name=_('To borrow'))
-    for_sale = models.CharField(null=True, blank=True, max_length=622, help_text=_('Stuff you have for sale'), verbose_name=_('For sale'))
-    i_need = models.CharField(null=True, blank=True, max_length=622, help_text=_('What do you need'), verbose_name=_('I need'))
     want_to_learn = models.CharField(null=True, blank=True, max_length=622, help_text=_('Things one would like to learn'), verbose_name=_('I want to learn'))
     business_active = models.BooleanField(default=False, verbose_name=_('I run my own business'))
     business_website = models.URLField(max_length=500, blank=True, default='', verbose_name=_('Business website'))
@@ -127,7 +138,7 @@ class Uzytkownik(models.Model):
     push_phone_enabled = models.BooleanField(default=True, help_text=_('Receive push notifications on phones and tablets'), verbose_name=_('Push on phone'))
     push_computer_enabled = models.BooleanField(default=True, help_text=_('Receive push notifications on desktop computers and laptops'), verbose_name=_('Push on computer'))
 
-    ONBOARDING_FORM_FIELDS = ('phone', 'city', 'voivodeship', 'skills_knowledge_hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'want_to_learn', 'business_active', 'job', 'why')
+    ONBOARDING_FORM_FIELDS = ('phone', 'city', 'voivodeship', 'skills_knowledge_hobby', 'want_to_learn', 'business_active', 'job', 'why')
 
     @property
     def form_completion_percent(self) -> int:
@@ -207,6 +218,27 @@ class Uzytkownik(models.Model):
         if created:
             # no, there should be no 'self':
             Uzytkownik.objects.create(uid=instance)
+
+
+class ResourceAssignment(models.Model):
+    class Kind(models.TextChoices):
+        GIVE = 'give', _('Give away')
+        BORROW = 'borrow', _('Lend')
+        SALE = 'sale', _('For sale')
+        NEED = 'need', _('I need')
+
+    profile = models.ForeignKey(Uzytkownik, on_delete=models.CASCADE, related_name='resource_assignments', verbose_name=_('Profile'))
+    item = models.ForeignKey(ResourceItem, on_delete=models.PROTECT, related_name='assignments', verbose_name=_('Resource'))
+    kind = models.CharField(max_length=10, choices=Kind.choices, verbose_name=_('Type'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
+
+    class Meta:
+        ordering = ('kind', 'item__name')
+        constraints = [models.UniqueConstraint(fields=('profile', 'item', 'kind'), name='unique_resource_assignment')]
+
+    def __str__(self):
+        return f'{self.profile} — {self.item} ({self.get_kind_display()})'
 
 
 class PrivateNote(models.Model):

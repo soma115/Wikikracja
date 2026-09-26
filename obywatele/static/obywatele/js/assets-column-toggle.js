@@ -3,7 +3,7 @@ window.wkOnReady(function() {
     const DEFAULT_COLUMNS = ['uid', 'city', 'voivodeship'];
 
     // Field names in the same order as defined in UzytkownikTable.Meta.fields
-    const FIELD_NAMES = ['uid', 'city', 'voivodeship', 'skills_knowledge_hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'want_to_learn', 'business_description', 'job', 'why'];
+    const FIELD_NAMES = ['uid', 'city', 'voivodeship', 'resources', 'want_to_learn', 'business_description', 'job', 'why'];
     
     const table = document.querySelector('table[data-column-toggle="true"]');
     if (!table) return;

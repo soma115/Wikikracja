@@ -57,7 +57,7 @@ window.wkOnReady(function() {
             </div>
           {% endif %}
           <div class="tw-w-full tw-border-t tw-border-subtle tw-pt-3 tw-text-start">
-            <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-y-3">
+            {% spaceless %}<dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-y-3">
               <dt class="tw-col-span-5">{% trans 'Email' %}</dt>
               <dd class="tw-col-span-7 tw-text-end"><a href="mailto:{{ b.uid.email }}" class="tw-break-words"><i class="fas fa-envelope tw-me-1" aria-hidden="true"></i>{{ b.uid.email }}</a></dd>
               <dt class="tw-col-span-5">{% trans 'Joined at' %}</dt>
@@ -81,7 +81,7 @@ window.wkOnReady(function() {
                   <span class="tw-whitespace-nowrap">{{ form_completion_percent }}%</span>
                 </div>
               </dd>
-            </dl>
+            </dl>{% endspaceless %}
           </div>
         </div>
       </section>
@@ -147,18 +147,25 @@ window.wkOnReady(function() {
           </div>
 
           <div class="tw-border-t tw-border-subtle tw-pt-4">
-            <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-x-6 tw-gap-y-4">
-              <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "To give away" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.to_give_away|default:"—" }}</dd>
-              <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "To borrow" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.to_borrow|default:"—" }}</dd>
-              <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "For sale" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.for_sale|default:"—" }}</dd>
-              <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "I need" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.i_need|default:"—" }}</dd>
+            <h3 class="tw-section-heading tw-mb-3">{% trans "Resources" %}</h3>
+            {% for assignment in b.resource_assignments.all %}
+            <div class="tw-border tw-border-subtle tw-rounded-card tw-p-3 tw-mb-3">
+              <div class="tw-font-semibold">{{ assignment.get_kind_display }}: {{ assignment.item.name }}</div>
+            </div>
+            {% empty %}
+            <p class="tw-text-muted">—</p>
+            {% endfor %}
+          </div>
+
+          <div class="tw-border-t tw-border-subtle tw-pt-4">
+            <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-x-6 tw-gap-y-4">{% spaceless %}
               <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "I want to learn" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.want_to_learn|default:"—" }}</dd>
               {% if b.business_active %}
               <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Business website" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{% if b.business_website %}<a href="{{ b.business_website }}" target="_blank" rel="noopener noreferrer">{{ b.business_website|cut:"https://"|cut:"http://" }}</a>{% else %}—{% endif %}</dd>
               <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "What does your business do?" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8 tw-whitespace-pre-wrap">{{ b.business_description|default:"—" }}</dd>
               {% endif %}
               <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Why do you want to join?" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.why|default:"—" }}</dd>
-            </dl>
+            {% endspaceless %}</dl>
           </div>
 
           {% if not active %}

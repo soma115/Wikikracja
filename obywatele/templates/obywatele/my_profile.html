@@ -180,10 +180,11 @@
       {% endif %}
       <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Skills / Knowledge / Hobby" %}</span><span class="tw-profile-val {% if not profile.skills_knowledge_hobby %}tw-profile-val--empty{% endif %}">{{ profile.skills_knowledge_hobby|default:"—" }}</span></div>
       <div class="tw-profile-row"><span class="tw-profile-key">{% trans "I want to learn" %}</span><span class="tw-profile-val {% if not profile.want_to_learn %}tw-profile-val--empty{% endif %}">{{ profile.want_to_learn|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "To give away" %}</span><span class="tw-profile-val {% if not profile.to_give_away %}tw-profile-val--empty{% endif %}">{{ profile.to_give_away|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "To borrow" %}</span><span class="tw-profile-val {% if not profile.to_borrow %}tw-profile-val--empty{% endif %}">{{ profile.to_borrow|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "For sale" %}</span><span class="tw-profile-val {% if not profile.for_sale %}tw-profile-val--empty{% endif %}">{{ profile.for_sale|default:"—" }}</span></div>
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "I need" %}</span><span class="tw-profile-val {% if not profile.i_need %}tw-profile-val--empty{% endif %}">{{ profile.i_need|default:"—" }}</span></div>
+      {% for assignment in profile.resource_assignments.all %}
+      <div class="tw-profile-row"><span class="tw-profile-key">{{ assignment.get_kind_display }}</span><span class="tw-profile-val"><strong>{{ assignment.item.name }}</strong></span></div>
+      {% empty %}
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Resources" %}</span><span class="tw-profile-val tw-profile-val--empty">—</span></div>
+      {% endfor %}
       <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Why do you want to join?" %}</span><span class="tw-profile-val {% if not profile.why %}tw-profile-val--empty{% endif %}">{{ profile.why|default:"—" }}</span></div>
     </div>
   </div>

@@ -5,7 +5,7 @@
 {% load crispy_forms_tags %}
 
 {% block extra_js %}
-<script src="{% static 'obywatele/js/profile.js' %}"></script>
+<script src="{% static 'obywatele/js/profile.js' %}?v=3"></script>
 {% endblock %}
 
 {% block content %}
@@ -53,20 +53,43 @@
           <div>{{ form.business_description|as_crispy_field }}</div>
         </div>
         <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
-          <div>{{ form.to_give_away|as_crispy_field }}</div>
-          <div>{{ form.to_borrow|as_crispy_field }}</div>
-        </div>
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
-          <div>{{ form.for_sale|as_crispy_field }}</div>
-          <div>{{ form.i_need|as_crispy_field }}</div>
-        </div>
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
           <div>{{ form.want_to_learn|as_crispy_field }}</div>
           <div>{{ form.skills_knowledge_hobby|as_crispy_field }}</div>
         </div>
         <div>{{ form.why|as_crispy_field }}</div>
-
       </form>
+
+      <section class="tw-border-t tw-border-subtle tw-pt-4" data-resource-section data-resource-search-url="{% url 'obywatele:search_resource_items' %}">
+        <h2 class="tw-section-heading tw-mb-3">{% trans 'Resources' %}</h2>
+        {% if resource_assignments %}
+        <div class="tw-flex tw-flex-col tw-gap-2 tw-mb-4">
+          {% for assignment in resource_assignments %}
+          <div class="tw-flex tw-items-start tw-justify-between tw-gap-3 tw-border tw-border-subtle tw-rounded-card tw-p-3">
+            <div class="tw-min-w-0">
+              <div class="tw-font-semibold">{{ assignment.item.name }} <span class="tw-badge-status tw-badge-info">{{ assignment.get_kind_display }}</span></div>
+            </div>
+            <div class="tw-flex tw-gap-2 tw-shrink-0">
+              <form method="post" action="{% url 'obywatele:delete_resource_assignment' pk=assignment.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="tw-btn tw-btn-sm tw-btn-outline-danger">{% trans 'Delete' %}</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <form method="post" action="{% url 'obywatele:save_resource_assignment' %}">
+          {% csrf_token %}
+          {{ resource_form.kind|as_crispy_field }}
+          <div class="tw-dropdown">
+            {{ resource_form.name|as_crispy_field }}
+            <div class="tw-dropdown-menu tw-w-full" data-resource-suggestions></div>
+          </div>
+          <div class="tw-flex tw-gap-2">
+            <button type="submit" class="tw-btn tw-btn-secondary tw-btn-sm">{% trans 'Save resource' %}</button>
+          </div>
+        </form>
+      </section>
     </div>
   </div>
 </div>

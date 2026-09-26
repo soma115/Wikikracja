@@ -5936,6 +5936,12 @@ input.tw-form-switch:focus,
   font-size: 0.875rem;
 }
 
+.tw-alert a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
 .tw-alert-dismissible {
   position: relative;
   padding-right: 3rem;
@@ -10694,6 +10700,18 @@ body.tw-chat-page .tw-main-area {
   row-gap: 1rem;
 }
 
+.tw-space-y-2 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
+}
+
+.tw-space-y-3 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
+}
+
 .tw-space-y-4 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;
   margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
@@ -11111,6 +11129,10 @@ body.tw-chat-page .tw-main-area {
 
   .lg\:tw-col-span-3 {
     grid-column: span 3 / span 3;
+  }
+
+  .lg\:tw-col-span-4 {
+    grid-column: span 4 / span 4;
   }
 
   .lg\:tw-grid-cols-2 {

@@ -81,7 +81,7 @@ Proces przyjmowania nowej osoby składa się z następujących etapów:
 - Fallback dla aktywnych użytkowników z nieukończonym onboarding (`EMAIL_ENTERED` lub `EMAIL_CONFIRMED`)
 
 **Formularz pełny profilu (dla polecenia):**
-Widok `obywatele.views.dodaj` ("Zaproponuj osobę") używa pełnego `ProfileForm` z dodatkowymi polami: `to_give_away`, `to_borrow`, `for_sale`, `i_need`, `want_to_learn`.
+Widok `obywatele.views.dodaj` ("Zaproponuj osobę") używa pełnego `ProfileForm` z dodatkowymi polami: `want_to_learn`, `business_active`, `business_website`, `business_description`.
 
 ### 4. Poczekalnia (Waiting Room)
 

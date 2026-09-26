@@ -45,6 +45,16 @@ class RoomModelTest(TestCase):
         charlie = make_user("charlie")
         self.assertIsNone(Room.find_with_users(self.alice, charlie))
 
+    def test_get_or_create_keeps_existing_room_when_title_is_taken(self):
+        self.private_room.title = 'legacy-title'
+        self.private_room.save(update_fields=['title'])
+        Room.objects.create(title='alice-bob', public=False)
+
+        room = Room.get_or_create_for_users(self.alice, self.bob)
+
+        self.assertEqual(room.pk, self.private_room.pk)
+        self.assertEqual(room.title, 'legacy-title')
+
     def test_find_private_rooms_for_user_pairs_returns_mapping(self):
         result = Room.find_private_rooms_for_user_pairs(self.alice, [self.bob.id])
         self.assertEqual(result[self.bob.id], self.private_room)

@@ -1,37 +1,130 @@
 {% extends 'obywatele/menu.html' %}
-{% load static %}
 {% load i18n %}
-{% load render_table from django_tables2 %}
-{% load crispy_forms_tags %}
+{% load feed_filters %}
+{% load static %}
+
+{% block extra_js %}
+<script src="{% static 'obywatele/js/profile.js' %}?v=3"></script>
+{% endblock %}
 
 {% block prefs_scope %}obywatele{% endblock %}
 {% block prefs_tab %}assets{% endblock %}
 
 {% block citizens %}
-<div class="tw-card">
-  <div class="tw-card-header tw-flex tw-justify-between tw-items-center tw-flex-wrap tw-gap-2">
-    <span class="tw-section-heading">{% trans "Resources" %}</span>
-    <div class="tw-flex tw-gap-2 tw-items-center">
-      <div class="tw-dropdown">
-        <button class="tw-btn tw-btn-outline-secondary tw-btn-sm" type="button" data-tw-toggle="dropdown">
-          {% trans "Columns" %}
-        </button>
-        <div class="tw-dropdown-menu tw-absolute tw-z-50 tw-bg-bg-card tw-border tw-border-subtle tw-rounded-card tw-p-3" id="column-toggle-menu">
-          <h6 class="tw-text-sm tw-font-semibold tw-mb-2">{% trans "Visible columns" %}</h6>
-          <div id="column-checkboxes"></div>
+<div class="tw-section tw-space-y-4">
+  <div class="tw-card">
+    <div class="tw-card-header">
+      <h1 class="tw-section-heading tw-mb-0">{% trans "Search resources" %}</h1>
+    </div>
+    <div class="tw-card-body">
+      <form method="get" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-3" data-resource-section data-resource-search-url="{% url 'obywatele:search_resource_items' %}" data-resource-kind-required="false">
+        <div>
+          <label class="tw-form-label" for="resource-kind">{% trans "Type" %}</label>
+          <select id="resource-kind" name="kind" class="tw-form-select">
+            <option value="">{% trans "All types" %}</option>
+            {% for value, label in resource_kinds %}
+            <option value="{{ value }}"{% if search_values.kind == value %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
         </div>
-      </div>
+        <div class="tw-dropdown">
+          <label class="tw-form-label" for="resource-search">{% trans "Resource" %}</label>
+          <input id="resource-search" name="q" type="search" value="{{ search_values.q }}" class="tw-form-control" data-resource-name="true" placeholder="{% trans 'What are you looking for?' %}" autocomplete="off">
+          <div class="tw-dropdown-menu tw-w-full" data-resource-suggestions></div>
+        </div>
+        <div>
+          <label class="tw-form-label" for="resource-city">{% trans "City / Commune" %}</label>
+          <select id="resource-city" name="city" class="tw-form-select">
+            <option value="">{% trans "All cities" %}</option>
+            {% for city in cities %}<option value="{{ city }}"{% if search_values.city == city %} selected{% endif %}>{{ city }}</option>{% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="tw-form-label" for="resource-voivodeship">{% trans "Voivodeship" %}</label>
+          <select id="resource-voivodeship" name="voivodeship" class="tw-form-select">
+            <option value="">{% trans "All voivodeships" %}</option>
+            {% for voivodeship in voivodeships %}<option value="{{ voivodeship }}"{% if search_values.voivodeship == voivodeship %} selected{% endif %}>{{ voivodeship }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="tw-flex tw-items-end tw-gap-2 md:tw-col-span-2 lg:tw-col-span-4">
+          <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-magnifying-glass fa-fw tw-me-1"></i>{% trans "Search" %}</button>
+          <a href="{% url 'obywatele:assets' %}" class="tw-btn tw-btn-outline-secondary tw-btn-sm">{% trans "Clear" %}</a>
+        </div>
+      </form>
     </div>
   </div>
-  <div class="tw-card-body tw-p-0">
-    <div class="tw-p-3 tw-border-b">
-      <input type="text" id="global-search" class="tw-form-control" placeholder="{% trans 'Search all fields...' %}">
-    </div>
-    <div class="tw-citizens-table-wrap">
-      {% render_table table %}
-    </div>
-  </div>
-</div>
 
-<script src="{% static 'obywatele/js/assets-column-toggle.js' %}"></script>
+  {% if location_profiles %}
+  <section>
+    <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-3">
+      <h2 class="tw-section-heading tw-mb-0">{% trans "People in selected location" %}</h2>
+      <span class="tw-badge-status tw-badge-info">{{ location_profiles|length }}</span>
+    </div>
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-3">
+      {% for profile in location_profiles %}
+      <article class="tw-card">
+        <div class="tw-card-body tw-space-y-2">
+          <a href="{{ profile.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ profile.uid|display_name }}</a>
+          <div class="tw-text-sm tw-text-muted"><span class="tw-font-semibold">{% trans "City / Commune" %}:</span> {{ profile.city|default:"—"|title }}<br><span class="tw-font-semibold">{% trans "Voivodeship" %}:</span> {{ profile.voivodeship.name|default:"—" }}</div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section>
+    <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-3">
+      <h2 class="tw-section-heading tw-mb-0">{% trans "Offers" %}</h2>
+      <span class="tw-badge-status tw-badge-success">{{ offer_assignments|length }}</span>
+    </div>
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-3">
+      {% for assignment in offer_assignments %}
+      <article class="tw-card">
+        <div class="tw-card-header tw-flex tw-items-start tw-justify-between tw-gap-2">
+          <h3 class="tw-font-semibold tw-mb-0">{{ assignment.item.name }}</h3>
+          <span class="tw-badge-status tw-badge-success">{{ assignment.get_kind_display }}</span>
+        </div>
+        <div class="tw-card-body tw-space-y-2">
+          <a href="{{ assignment.profile.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ assignment.profile.uid|display_name }}</a>
+          <div class="tw-text-sm tw-text-muted"><span class="tw-font-semibold">{% trans "City / Commune" %}:</span> {{ assignment.profile.city|default:"—"|title }}<br><span class="tw-font-semibold">{% trans "Voivodeship" %}:</span> {{ assignment.profile.voivodeship.name|default:"—" }}</div>
+        </div>
+      </article>
+      {% empty %}
+      <div class="tw-alert tw-alert-info md:tw-col-span-2 lg:tw-col-span-3">{% trans "No offers match your search." %}</div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section>
+    <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-3">
+      <h2 class="tw-section-heading tw-mb-0">{% trans "Needs" %}</h2>
+      <span class="tw-badge-status tw-badge-warning">{{ need_assignments|length }}</span>
+    </div>
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-3">
+      {% for assignment in need_assignments %}
+      <article class="tw-card">
+        <div class="tw-card-header tw-flex tw-items-start tw-justify-between tw-gap-2">
+          <h3 class="tw-font-semibold tw-mb-0">{{ assignment.item.name }}</h3>
+          <span class="tw-badge-status tw-badge-warning">{{ assignment.get_kind_display }}</span>
+        </div>
+        <div class="tw-card-body tw-space-y-2">
+          <a href="{{ assignment.profile.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ assignment.profile.uid|display_name }}</a>
+          <div class="tw-text-sm tw-text-muted"><span class="tw-font-semibold">{% trans "City / Commune" %}:</span> {{ assignment.profile.city|default:"—"|title }}<br><span class="tw-font-semibold">{% trans "Voivodeship" %}:</span> {{ assignment.profile.voivodeship.name|default:"—" }}</div>
+        </div>
+      </article>
+      {% empty %}
+      <div class="tw-alert tw-alert-info md:tw-col-span-2 lg:tw-col-span-3">{% trans "No needs match your search." %}</div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if is_paginated %}
+  <nav class="tw-flex tw-items-center tw-justify-between tw-gap-3" aria-label="{% trans 'Resource pages' %}">
+    {% if page_obj.has_previous %}<a class="tw-btn tw-btn-outline-secondary tw-btn-sm" href="{% querystring page=page_obj.previous_page_number %}">{% trans "Previous" %}</a>{% else %}<span></span>{% endif %}
+    <span class="tw-text-sm tw-text-muted">{% blocktrans with current=page_obj.number total=page_obj.paginator.num_pages %}Page {{ current }} of {{ total }}{% endblocktrans %}</span>
+    {% if page_obj.has_next %}<a class="tw-btn tw-btn-outline-secondary tw-btn-sm" href="{% querystring page=page_obj.next_page_number %}">{% trans "Next" %}</a>{% else %}<span></span>{% endif %}
+  </nav>
+  {% endif %}
+</div>
 {% endblock citizens %}

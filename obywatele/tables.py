@@ -12,6 +12,7 @@ class UzytkownikTable(tables.Table):
     voivodeship = tables.Column(accessor='voivodeship__name', verbose_name=_('Voivodeship'), default='—')
     why = tables.Column(verbose_name=_('Why?'))
     business_description = tables.Column(verbose_name=_('Business'))
+    resources = tables.Column(verbose_name=_('Resources'), empty_values=())
 
     def render_uid(self, record):
         return user_display_name(record.uid)
@@ -19,9 +20,12 @@ class UzytkownikTable(tables.Table):
     def render_business_description(self, record):
         return record.business_description if record.business_active else '—'
 
+    def render_resources(self, record):
+        return ', '.join(f'{assignment.item.name} ({assignment.get_kind_display()})' for assignment in record.resource_assignments.all()) or '—'
+
     class Meta:
         model = Uzytkownik
-        fields = ('uid', 'city', 'voivodeship', 'skills_knowledge_hobby', 'to_give_away', 'to_borrow', 'for_sale', 'i_need', 'want_to_learn', 'business_description', 'job', 'why')
+        fields = ('uid', 'city', 'voivodeship', 'resources', 'want_to_learn', 'business_description', 'job', 'why')
         template_name = "tw/table.html"
         attrs = {'class': 'tw-citizens-table tw-table-hover tw-table-sm tw-align-middle tw-mb-0', 'data-column-toggle': 'true'}
         paginate_by = False

@@ -152,9 +152,6 @@ class Room(models.Model):
         title = '-'.join(sorted(u.username for u in users))
         room = cls.find_with_users(*users)
         if room is not None:
-            if room.title != title:
-                room.title = title
-                room.save(update_fields=['title'])
             return room
 
         try:

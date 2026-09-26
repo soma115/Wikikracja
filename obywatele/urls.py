@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required
 from django.urls import path
 
 from obywatele import views as v
@@ -24,10 +23,13 @@ urlpatterns = (
     path('toggle_person_push/<int:pk>/', v.toggle_person_push, name='toggle_person_push'),
     path('<int:pk>/private-note/', v.private_note, name='private_note'),
     path('my_assets/', v.my_assets, name='my_assets'),
+    path('my_assets/resources/save/', v.save_resource_assignment, name='save_resource_assignment'),
+    path('my_assets/resources/<int:pk>/delete/', v.delete_resource_assignment, name='delete_resource_assignment'),
+    path('my_assets/resources/search/', v.search_resource_items, name='search_resource_items'),
     path('nowy/', v.dodaj, name='zaproponuj_osobe'),
     path('change_username/', v.change_username, name='change_username'),
     path('change_email/', v.change_email, name='change_email'),
-    path("assets/", login_required(v.AssetListView.as_view()), name='assets'),
+    path("assets/", v.AssetSearchView.as_view(), name='assets'),
     path('parameters/', v.parameters, name='parameters'),
     path('settings/delete/', v.request_deletion, name='request_deletion'),
     path('settings/delete/cancel/', v.cancel_deletion, name='cancel_deletion'),

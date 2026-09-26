@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from .models import Uzytkownik
+from .models import ResourceAssignment, Uzytkownik
 
 
 def get_context(user, month_param: str = '') -> dict:
@@ -24,9 +24,9 @@ def get_context(user, month_param: str = '') -> dict:
     active_pct = round(active_last_month / pop * 100) if pop else 0
 
     skills_knowledge_hobby_count = Uzytkownik.objects.exclude(skills_knowledge_hobby__isnull=True).exclude(skills_knowledge_hobby='').count()
-    give_away_count = Uzytkownik.objects.exclude(to_give_away__isnull=True).exclude(to_give_away='').count()
-    borrow_count = Uzytkownik.objects.exclude(to_borrow__isnull=True).exclude(to_borrow='').count()
-    for_sale_count = Uzytkownik.objects.exclude(for_sale__isnull=True).exclude(for_sale='').count()
+    give_away_count = ResourceAssignment.objects.filter(kind=ResourceAssignment.Kind.GIVE).values('profile_id').distinct().count()
+    borrow_count = ResourceAssignment.objects.filter(kind=ResourceAssignment.Kind.BORROW).values('profile_id').distinct().count()
+    for_sale_count = ResourceAssignment.objects.filter(kind=ResourceAssignment.Kind.SALE).values('profile_id').distinct().count()
 
     return {
         'new_people': new_people,
