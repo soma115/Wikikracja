@@ -256,7 +256,7 @@
       </a>
 
       <!-- Current user display name and initials for JS (hidden) -->
-      <span class="tw-user-name tw-d-none" data-initials="{{ user|user_initials }}">{{ user|display_name }}</span>
+      <span class="tw-user-name tw-d-none" data-initials="{{ user|user_initials }}"{% if user.uzytkownik.avatar %} data-avatar="{{ user.uzytkownik.avatar.url }}"{% endif %}>{{ user|display_name }}</span>
 
     </header>
     {% endif %}

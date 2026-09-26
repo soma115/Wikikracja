@@ -4,6 +4,8 @@ const path = require('path');
 const source = fs.readFileSync(path.join(__dirname, '..', 'chat.js'), 'utf8');
 const helperSource = source.match(/function ownMessagePresence\([\s\S]*?\n}\n/)[0];
 const ownMessagePresence = new Function(`${helperSource}; return ownMessagePresence;`)();
+const avatarHelperSource = source.match(/function ownMessageAvatar\([\s\S]*?\n}\n/)[0];
+const ownMessageAvatar = new Function(`${avatarHelperSource}; return ownMessageAvatar;`)();
 const realtimeHelperSource = source.match(/function isRealtimeMessage\([\s\S]*?\n}\n/)[0];
 const isRealtimeMessage = new Function(`${realtimeHelperSource}; return isRealtimeMessage;`)();
 
@@ -16,6 +18,14 @@ test('marks a non-anonymous optimistic message as online with a parseable timest
 
 test('keeps anonymous optimistic messages red', () => {
     expect(ownMessagePresence(true, 0)).toEqual({ status: 'red', source: '', timestamp: null });
+});
+
+test('uses the current user avatar for non-anonymous optimistic messages', () => {
+    expect(ownMessageAvatar(false, { dataset: { avatar: '/media/avatar.png' } })).toBe('/media/avatar.png');
+});
+
+test('does not expose the current user avatar for anonymous messages', () => {
+    expect(ownMessageAvatar(true, { dataset: { avatar: '/media/avatar.png' } })).toBeNull();
 });
 
 test('treats the sender echo with temp_id as a realtime message', () => {

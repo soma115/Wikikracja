@@ -1057,6 +1057,10 @@ function ownMessagePresence(isAnonymous, timestamp) {
     return { status: 'green', source: 'app', timestamp: new Date(timestamp).toISOString() };
 }
 
+function ownMessageAvatar(isAnonymous, userNameEl) {
+    return isAnonymous ? null : (userNameEl?.dataset?.avatar || null);
+}
+
 function isRealtimeMessage(messages) {
     return messages.length === 1 && Boolean(messages[0]?.new || messages[0]?.temp_id);
 }
@@ -1506,6 +1510,7 @@ export async function onSubmitMessage(message, editing_message_id) {
         const ownInitials = is_anonymous
             ? 'AN'
             : (userNameEl?.dataset?.initials || '');
+        const ownAvatar = ownMessageAvatar(is_anonymous, userNameEl);
         const now = Date.now();
         const ownPresence = ownMessagePresence(is_anonymous, now);
 
@@ -1514,7 +1519,7 @@ export async function onSubmitMessage(message, editing_message_id) {
         DOM_API.appendDateBanner(formatDate(now));
 
         DOM_API.addMessage(
-            CurrentRoomId, null, null, '', temp_id, ownUsername, message,
+            CurrentRoomId, null, ownAvatar, '', temp_id, ownUsername, message,
             0, 0, null, true, false,
             attachments, now, now,
             reply_to, { bulb: 0, question: 0 }, [], [],
