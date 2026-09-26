@@ -12,10 +12,11 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import escape, mark_safe
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import override
 
 from core.richtext import one_line_snippet, strip_tags
 from core.services.feed import build_user_digest
-from core.utils import build_site_url, get_site_domain
+from core.utils import build_site_url, get_site_domain, get_user_language
 from glosowania.models import Decyzja
 from home.templatetags.feed_filters import content_type_label
 from zzz.email import send_bulk_email_in_thread
@@ -117,10 +118,11 @@ class Command(TranslatedCommand):
                 log.info(f'No digest items for user {user.id}; skipping')
                 continue
 
-            context = self._build_digest_context(user, items, restarted_votes)
-            subject = _('[{HOST}] Activity digest').format(HOST=self.host)
-            text = render_to_string('emails/digest.txt', context)
-            html = render_to_string('emails/digest.html', context)
+            with override(get_user_language(user)):
+                context = self._build_digest_context(user, items, restarted_votes)
+                subject = _('[{HOST}] Activity digest').format(HOST=self.host)
+                text = render_to_string('emails/digest.txt', context)
+                html = render_to_string('emails/digest.html', context)
 
             try:
                 send_bulk_email_in_thread(

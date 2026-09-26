@@ -18,12 +18,13 @@ from django.db.utils import DatabaseError
 from django.dispatch import receiver
 from django.utils import formats
 from django.utils.translation import gettext as _
+from django.utils.translation import override
 from firebase_admin import messaging
 from push_notifications.models import GCMDevice
 
 from core.richtext import strip_tags
 from core.signals import citizen_accepted, citizen_blocked, citizen_proposed, event_starting, important_post_published, survey_created, task_created, vote_started, vote_state_changed
-from core.utils import build_site_url, get_site_domain
+from core.utils import build_site_url, get_site_domain, get_user_language
 from site_settings.models import SiteParameters
 from site_settings.services import get_branding_version
 
@@ -364,6 +365,7 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
     email_subject = kwargs.pop('email_subject', None) or title
     email_body = kwargs.pop('email_body', None) or body
     recipient_email = kwargs.pop('recipient_email', None)
+    recipient_user = kwargs.pop('recipient_user', None)
     recipient_subject = kwargs.pop('recipient_subject', None)
     recipient_body = kwargs.pop('recipient_body', None)
     send_push = kwargs.pop('send_push', True)
@@ -404,7 +406,8 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
         subject = recipient_subject or email_subject
         message = recipient_body or email_body
         try:
-            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [recipient_email], fail_silently=False)
+            with override(get_user_language(recipient_user) if recipient_user else settings.LANGUAGE_CODE):
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [recipient_email], fail_silently=False)
             log.debug(f'{log_tag} Email sent to {recipient_email}; subject: {subject}')
         except Exception as e:
             log.error(f'{log_tag} Failed to send email to {recipient_email}: {e}', exc_info=True)
@@ -467,6 +470,7 @@ def on_citizen_accepted(sender, user, **kwargs):
         send_websocket=False,
         send_email=True,
         recipient_email=recipient_email,
+        recipient_user=user,
         recipient_subject=recipient_subject,
         recipient_body=recipient_body,
         sleep_before=sleep_before,
@@ -500,6 +504,7 @@ def on_citizen_blocked(sender, user, **kwargs):
             send_websocket=False,
             send_email=True,
             recipient_email=recipient,
+            recipient_user=user,
             recipient_subject=recipient_subject,
             recipient_body=recipient_body,
             sleep_before=sleep_before,

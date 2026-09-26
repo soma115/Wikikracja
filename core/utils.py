@@ -2,7 +2,18 @@
 Project-wide utility functions
 """
 
+from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
+
+
+def get_user_language(user):
+    """Return a user's explicit language or the instance default."""
+    try:
+        language = user.uzytkownik.language
+    except (AttributeError, ObjectDoesNotExist):
+        language = ''
+    return language or settings.LANGUAGE_CODE
 
 
 def get_site_domain():

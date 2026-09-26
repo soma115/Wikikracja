@@ -4,6 +4,8 @@ from django.core.cache import cache
 from django.http import HttpResponsePermanentRedirect
 from django.utils import timezone, translation
 
+from core.utils import get_user_language
+
 User = get_user_model()
 
 
@@ -49,10 +51,9 @@ class UserLanguageMiddleware:
     def __call__(self, request):
         if request.user.is_authenticated:
             try:
-                lang = request.user.uzytkownik.language
-                if lang:
-                    translation.activate(lang)
-                    request.LANGUAGE_CODE = lang
+                lang = get_user_language(request.user)
+                translation.activate(lang)
+                request.LANGUAGE_CODE = lang
             except Exception:
                 pass
         return self.get_response(request)

@@ -12,10 +12,11 @@ from django.db import IntegrityError
 from django.db.models import Sum
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from django.utils.translation import override
 
 from board.models import Post
 from core.signals import citizen_accepted, citizen_blocked, citizen_deleted
-from core.utils import build_site_url, get_site_domain
+from core.utils import build_site_url, get_site_domain, get_user_language
 from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
 from obywatele.services import publish_deletion_feedback, release_blocked_user_resources
 from obywatele.views import population, required_reputation
@@ -185,28 +186,29 @@ class Command(BaseCommand):
                 # Get the domain from django_site table
                 host = get_site_domain()
 
-                # Get welcome email content from system post
-                welcome_post = Post.get_system_post('welcome_email')
+                with override(get_user_language(i.uid)):
+                    # Get welcome email content from system post
+                    welcome_post = Post.get_system_post('welcome_email')
 
-                if welcome_post and welcome_post.text:
-                    # Use system post content with placeholders
-                    try:
-                        message = welcome_post.text.format(username=uname, email=uemail, password=password, host=host, login_url=f"{host}/login/", password_url=f"{host}/haslo/")
-                        # Convert HTML <br> to newlines for plain text email
-                        message = message.replace('<br>', '\n').replace('<p>', '').replace('</p>', '')
-                        subject = f"[{host}] {welcome_post.get_display_title()}"
-                        log.info(f'Using welcome email from system post for user {uemail}')
-                    except KeyError as e:
-                        log.error(f'Missing placeholder in welcome email template: {e}')
+                    if welcome_post and welcome_post.text:
+                        # Use system post content with placeholders
+                        try:
+                            message = welcome_post.text.format(username=uname, email=uemail, password=password, host=host, login_url=f"{host}/login/", password_url=f"{host}/haslo/")
+                            # Convert HTML <br> to newlines for plain text email
+                            message = message.replace('<br>', '\n').replace('<p>', '').replace('</p>', '')
+                            subject = f"[{host}] {welcome_post.get_display_title()}"
+                            log.info(f'Using welcome email from system post for user {uemail}')
+                        except KeyError as e:
+                            log.error(f'Missing placeholder in welcome email template: {e}')
+                            return
+                    else:
+                        log.warning(f'Welcome email system post not found, skipping email for user {uemail}')
                         return
-                else:
-                    log.warning(f'Welcome email system post not found, skipping email for user {uemail}')
-                    return
 
-                # Notify the chat app and the central dispatcher that a citizen was accepted
-                log.info(f'EMAIL_DIAG trigger=user_accepted_signal user_id={i.uid.id} email={uemail} username={uname} source=count_citizens.activate_eligible_users')
-                log.info(f'EMAIL_DIAG trigger=welcome_email user_id={i.uid.id} email={uemail} username={uname} source=count_citizens.activate_eligible_users subject={subject}')
-                citizen_accepted.send(sender='count_citizens', user=i.uid, recipient_email=uemail, recipient_subject=subject, recipient_body=message, sleep_before=s.EMAIL_SEND_DELAY_SECONDS)
+                    # Notify the chat app and the central dispatcher that a citizen was accepted
+                    log.info(f'EMAIL_DIAG trigger=user_accepted_signal user_id={i.uid.id} email={uemail} username={uname} source=count_citizens.activate_eligible_users')
+                    log.info(f'EMAIL_DIAG trigger=welcome_email user_id={i.uid.id} email={uemail} username={uname} source=count_citizens.activate_eligible_users subject={subject}')
+                    citizen_accepted.send(sender='count_citizens', user=i.uid, recipient_email=uemail, recipient_subject=subject, recipient_body=message, sleep_before=s.EMAIL_SEND_DELAY_SECONDS)
 
     def block_ineligible_users(self):
         """Block users with insufficient reputation.
@@ -229,27 +231,28 @@ class Command(BaseCommand):
 
                 uname = str(i.uid.username)
 
-                personal_subject = '[' + host + '] ' + _('Your account has been blocked')
-                personal_message = f"""\
+                with override(get_user_language(i.uid)):
+                    personal_subject = '[' + host + '] ' + _('Your account has been blocked')
+                    personal_message = f"""\
 {_('Welcome')} {uname} \n\
 {_('Your account on')} {host} {_('has been blocked')}\n\n\
 """
 
-                citizen_blocked.send(
-                    sender='count_citizens',
-                    user=i.uid,
-                    recipient_subject=personal_subject,
-                    recipient_body=personal_message,
-                    sleep_before=s.EMAIL_SEND_DELAY_SECONDS,
-                    title=_('Citizen has been banned'),
-                    body=f"{_('User')} {uname} {_('has been blocked')}",
-                    click_action=build_site_url('/obywatele/'),
-                    tag=f'citizen-{i.uid.id}',
-                    in_thread=False,
-                    daemon=False,
-                    strip_html=True,
-                    was_previously_active=was_active,
-                )
+                    citizen_blocked.send(
+                        sender='count_citizens',
+                        user=i.uid,
+                        recipient_subject=personal_subject,
+                        recipient_body=personal_message,
+                        sleep_before=s.EMAIL_SEND_DELAY_SECONDS,
+                        title=_('Citizen has been banned'),
+                        body=f"{_('User')} {uname} {_('has been blocked')}",
+                        click_action=build_site_url('/obywatele/'),
+                        tag=f'citizen-{i.uid.id}',
+                        in_thread=False,
+                        daemon=False,
+                        strip_html=True,
+                        was_previously_active=was_active,
+                    )
 
     def process_deletion_requests(self):
         """Delete accounts where the 30-day grace period has expired."""

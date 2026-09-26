@@ -164,6 +164,26 @@ Update translation files on Windows.
 ./scripts/update_translations.ps1 -PythonBin .venv\Scripts\python.exe
 ```
 
+## Localization and Language Defaults
+
+Set the instance-wide default language with the `LANGUAGE_CODE` environment variable:
+
+```env
+LANGUAGE_CODE=pl
+```
+
+The value is the fallback language for the web interface, system notifications and
+emails. Each user may select a personal language in their profile. A non-empty
+`Uzytkownik.language` overrides `LANGUAGE_CODE`; selecting `Auto` clears that value
+and restores inheritance from the instance default.
+
+The application does not write the default language to every user profile at
+startup. This means changing `LANGUAGE_CODE` affects users who have not selected
+a personal language while preserving explicit user preferences. Digest and
+personal system emails are rendered using the recipient's effective language.
+
+Only language codes listed in `zzz.settings.LANGUAGES` are supported.
+
 ## Running the Application
 
 ### Development Server

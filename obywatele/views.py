@@ -22,7 +22,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.translation import check_for_language
+from django.utils.translation import check_for_language, override
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 from django_filters.views import FilterView
@@ -32,6 +32,7 @@ from chat.i18n import get_translations as get_chat_translations
 from chat.models import Room
 from chat.services import get_unread_message_counts_for_rooms, get_user_public_message_rows
 from core.signals import citizen_proposed
+from core.utils import get_user_language
 from home.navigation import default_toolbar_views
 from obywatele.filters import UzytkownikFilter
 from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, UserForm, UsernameChangeForm
@@ -837,9 +838,10 @@ def set_onboarding_email_confirmed(sender, request, email_address, **kwargs):
         query_params = urlencode({'token': onboarding_token})
         onboarding_url = request.build_absolute_uri(reverse('obywatele:onboarding_details') + f'?{query_params}')
 
-        subject = _('Fill out your onboarding form')
-        body = _('Your email has been confirmed.\n\nPlease fill out your onboarding form here: %(link)s') % {'link': onboarding_url}
-        send_mail(subject, body, s.DEFAULT_FROM_EMAIL, [email_address.email], fail_silently=False)
+        with override(get_user_language(user)):
+            subject = _('Fill out your onboarding form')
+            body = _('Your email has been confirmed.\n\nPlease fill out your onboarding form here: %(link)s') % {'link': onboarding_url}
+            send_mail(subject, body, s.DEFAULT_FROM_EMAIL, [email_address.email], fail_silently=False)
 
 
 @require_POST
