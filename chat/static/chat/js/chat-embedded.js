@@ -97,7 +97,8 @@ async function initEmbeddedChat(container) {
     if (!canPost) {
         const inputArea = container.querySelector('.tw-ec-input-area');
         if (inputArea) {
-            inputArea.innerHTML = `<div class="tw-ec-readonly-notice"><i class="fas fa-lock"></i> ${_("Only approved helpers can write here.")}</div>`;
+            const notice = container.dataset.sourceApp === 'tasks' ? _("Only approved helpers can write here.") : _("You cannot write in this room.");
+            inputArea.innerHTML = `<div class="tw-ec-readonly-notice"><i class="fas fa-lock"></i> ${notice}</div>`;
         }
     }
 

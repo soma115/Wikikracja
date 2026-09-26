@@ -31,7 +31,7 @@ export default class DomApi {
         return $(`.tw-room-link[data-room-id="${room_id}"]`);
     }
 
-    createRoomDiv(room_id, title, is_public, notifs_enabled, can_post = true) {
+    createRoomDiv(room_id, title, is_public, notifs_enabled, can_post = true, source_app = '') {
         const messageMaxLength = window.SITE_SETTINGS?.messageMaxLength ?? 500;
         const html = Room({ room_id, title, is_public, notifs_enabled, messageMaxLength });
         const container = $('.tw-chat-root-messages');
@@ -41,7 +41,8 @@ export default class DomApi {
         if (!can_post) {
             const controls = $('.tw-chat-controls', room);
             if (controls) {
-                controls.innerHTML = `<div class="tw-ec-readonly-notice"><i class="fas fa-lock"></i> ${_("Only approved helpers can write here.")}</div>`;
+                const notice = source_app === 'tasks' ? _("Only approved helpers can write here.") : _("You cannot write in this room.");
+                controls.innerHTML = `<div class="tw-ec-readonly-notice"><i class="fas fa-lock"></i> ${notice}</div>`;
                 controls.classList.add('tw-chat-controls--readonly');
             }
         }

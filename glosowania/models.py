@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_comma_separated_integer_list
 from django.db import models, transaction
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from chat.models import ChatRoomModel
@@ -89,26 +88,6 @@ class Decyzja(ChatRoomModel, models.Model):
 
     def get_chat_room_title(self):
         return f"{self.pk}. {self.title}"[:90]
-
-    def get_chat_room(self):
-        return self.chat_room
-
-    def get_chat_room_url(self):
-        room = self.get_chat_room()
-        if room:
-            return f"{reverse('chat:chat')}#room_id={room.id}"
-        return None
-
-    @property
-    def chat_room_url(self):
-        return self.get_chat_room_url()
-
-    def get_chat_room_pulse_class(self, user):
-        """Return CSS class for chat room pulse indicator if there are unseen messages"""
-        chat_room = self.chat_room
-        if chat_room and chat_room.messages.exists() and not chat_room.seen_by.filter(id=user.id).exists():
-            return "tw-chat-room-pulse"
-        return ""
 
     @property
     def is_author_signed(self):

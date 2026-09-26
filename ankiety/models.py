@@ -32,21 +32,6 @@ class Survey(ChatRoomModel, models.Model):
     def get_chat_room_title(self):
         return f"Survey #{self.pk}: {self.title}"[:90]
 
-    def get_chat_room_url(self):
-        if self.chat_room_id:
-            return f"{reverse('chat:chat')}#room_id={self.chat_room_id}"
-        return None
-
-    @property
-    def chat_room_url(self):
-        return self.get_chat_room_url()
-
-    def get_chat_room_pulse_class(self, user):
-        room = self.chat_room
-        if room and room.messages.exists() and not room.seen_by.filter(id=user.id).exists():
-            return "tw-chat-room-pulse"
-        return ""
-
     @property
     def is_active(self):
         return self.end_date >= timezone.now()

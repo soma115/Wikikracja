@@ -158,14 +158,18 @@ window.wkOnReady(function() {
           </div>
 
           <div class="tw-border-t tw-border-subtle tw-pt-4">
-            <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-x-6 tw-gap-y-4">{% spaceless %}
+            <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-x-6 tw-gap-y-4">
               <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "I want to learn" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.want_to_learn|default:"—" }}</dd>
-              {% if b.business_active %}
+            </dl>
+            {% if b.business_active %}
+            <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-x-6 tw-gap-y-4 tw-mt-4">
               <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Business website" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{% if b.business_website %}<a href="{{ b.business_website }}" target="_blank" rel="noopener noreferrer">{{ b.business_website|cut:"https://"|cut:"http://" }}</a>{% else %}—{% endif %}</dd>
               <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "What does your business do?" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8 tw-whitespace-pre-wrap">{{ b.business_description|default:"—" }}</dd>
-              {% endif %}
+            </dl>
+            {% endif %}
+            <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-x-6 tw-gap-y-4 tw-mt-4">
               <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Why do you want to join?" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.why|default:"—" }}</dd>
-            {% endspaceless %}</dl>
+            </dl>
           </div>
 
           {% if not active %}

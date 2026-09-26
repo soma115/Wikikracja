@@ -7,9 +7,10 @@ class AnkietyConfig(AppConfig):
     verbose_name = "Ankiety"
 
     def ready(self):
-        from django.db.models.signals import post_delete, post_save
+        from django.db.models.signals import post_delete, post_save, pre_delete
 
         import ankiety.signals  # noqa: F401
+        from chat.signals import delete_linked_chat_room
         from core.dashboard_registry import register_dashboard_provider
         from core.feed_registry import register_feed_provider
         from core.models import ReadStatus
@@ -28,3 +29,4 @@ class AnkietyConfig(AppConfig):
 
         post_save.connect(invalidate_feed_cache_on_change, sender=Survey)
         post_delete.connect(invalidate_feed_cache_on_change, sender=Survey)
+        pre_delete.connect(delete_linked_chat_room, sender=Survey)

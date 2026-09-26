@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Prefetch
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 
@@ -12,6 +13,15 @@ class ChatRoomModel(models.Model):
 
     class Meta:
         abstract = True
+
+    def get_chat_room_url(self):
+        if self.chat_room_id:
+            return f"{reverse('chat:chat')}#room_id={self.chat_room_id}"
+        return None
+
+    @property
+    def chat_room_url(self):
+        return self.get_chat_room_url()
 
 
 class Room(models.Model):

@@ -253,7 +253,7 @@ def survey_detail(request, pk):
             return redirect("ankiety:detail", pk=survey.pk)
 
     chat_unread_count = get_unread_message_counts_for_rooms(request.user, [survey.chat_room_id]).get(survey.chat_room_id, 0)
-    chat_room_pulse_class = survey.get_chat_room_pulse_class(request.user) if chat_unread_count else ""
+    chat_room_pulse_class = "tw-chat-room-pulse" if chat_unread_count else ""
 
     return render(
         request,
@@ -274,7 +274,6 @@ def survey_detail(request, pk):
             "chat_room": survey.chat_room,
             "chat_unread_count": chat_unread_count,
             "chat_room_pulse_class": chat_room_pulse_class,
-            "can_post_in_chat": True,
             "MESSAGE_MAX_LENGTH": settings.MESSAGE_MAX_LENGTH,
             "ec_translations": get_chat_translations(),
             "custom_option_form": custom_option_form,

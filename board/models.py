@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
-from django.urls import reverse
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 
@@ -65,15 +64,6 @@ class Post(ChatRoomModel, models.Model):
 
     def get_chat_room_title(self):
         return f"Document #{self.id}: {self.get_display_title()}"[:90]
-
-    def get_chat_room_url(self):
-        if self.chat_room_id:
-            return f"{reverse('chat:chat')}#room_id={self.chat_room_id}"
-        return None
-
-    @property
-    def chat_room_url(self):
-        return self.get_chat_room_url()
 
     def save(self, *args, **kwargs):
         original = type(self).objects.filter(pk=self.pk).values('system_key', 'category_id', 'visibility', 'is_important').first() if self.pk else None

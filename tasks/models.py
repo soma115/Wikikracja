@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.db import models, transaction
 from django.db.models import Count, F, Max, Q
-from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
@@ -87,22 +86,6 @@ class Task(ChatRoomModel, models.Model):
 
     def get_chat_room_title(self):
         return f"Task #{self.id}: {self.title}"[:90]
-
-    def get_chat_room_url(self):
-        if self.chat_room_id:
-            return f"{reverse('chat:chat')}#room_id={self.chat_room_id}"
-        return None
-
-    @property
-    def chat_room_url(self):
-        return self.get_chat_room_url()
-
-    def get_chat_room_pulse_class(self, user):
-        """Return CSS class for chat room pulse indicator if there are unseen messages"""
-        room = self.chat_room
-        if room and room.messages.exists() and not room.seen_by.filter(id=user.id).exists():
-            return "tw-chat-room-pulse"
-        return ""
 
     def is_user_helper(self, user):
         """Return True if the user clicked "I want to help" (TaskVote.Value.UP)."""

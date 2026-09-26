@@ -18,6 +18,38 @@ chat_room_requested = Signal()
 chat_message_requested = Signal()
 
 
+def request_discussion_room(instance, *, founder, allowed_users=None, welcome_message='', welcome_message_sender=None, welcome_message_anonymous=True, public=True, archived=False):
+    """Ask chat to create or update the discussion room linked to a ChatRoomModel instance.
+
+    Title and source coordinates are derived from the instance, so each app
+    supplies only what actually differs.
+    """
+    room_title = instance.get_chat_room_title()
+    chat_room_requested.send(
+        sender=type(instance),
+        instance=instance,
+        title=room_title,
+        founder=founder,
+        allowed_users=allowed_users,
+        welcome_message=welcome_message,
+        welcome_message_sender=welcome_message_sender,
+        welcome_message_anonymous=welcome_message_anonymous,
+        room_public=public,
+        room_archived=archived,
+        source_app=instance._meta.app_label,
+        source_object_id=instance.pk,
+    )
+    log.info("Discussion room '%s' requested for %s #%s", room_title, instance._meta.label, instance.pk)
+
+
+def delete_linked_chat_room(sender, instance, **kwargs):
+    """pre_delete receiver: delete the discussion room linked to the instance."""
+    room = instance.chat_room
+    if room:
+        room.delete()
+        log.info("Deleted chat room '%s' linked to %s #%s", room.title, instance._meta.label, instance.pk)
+
+
 @receiver(post_migrate)
 def ensure_system_chat_rooms(sender, **kwargs):
     """Create the application-managed chat rooms when the app is initialized."""

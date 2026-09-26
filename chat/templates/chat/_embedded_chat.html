@@ -5,6 +5,9 @@ Partial: embedded chat widget.
 Wymagane zmienne z kontekstu:
   chat_room  — obiekt chat.Room (lub None)
   request    — standardowy request Django (do csrf_token)
+Opcjonalne:
+  can_post   — literalne False oznacza pokój tylko do odczytu (np. tasks bez
+               zatwierdzonego helpera); brak zmiennej = pisanie dozwolone
 
 Użycie:
   {% include 'chat/_embedded_chat.html' %}
@@ -22,8 +25,9 @@ Użycie:
 
   <div class="tw-embedded-chat"
        data-room-id="{{ chat_room.pk }}"
+       data-source-app="{{ chat_room.source_app }}"
        data-csrf="{{ csrf_token }}"
-       data-can-post="{{ can_post|default_if_none:'true'|yesno:'true,false' }}">
+       {% if can_post == False %}data-can-post="false"{% endif %}>
     {# chat-embedded.js wypełni ten div #}
     <div class="tw-ec-loading">{% trans 'Connecting…' %}</div>
   </div>

@@ -96,7 +96,14 @@ class ChatCommandHandlers:
         self.consumer.rooms.join(room_id)
         await self.consumer.channel_layer.group_add(room.group_name, self.consumer.channel_name)
         responses = [
-            {'join': str(room.id), 'title': room.title, 'public': room.public, 'notifications': not await self.room_repo.has_muted_room(room.id), 'can_post': await self.room_repo.can_post_in_room(room)}
+            {
+                'join': str(room.id),
+                'title': room.title,
+                'public': room.public,
+                'notifications': not await self.room_repo.has_muted_room(room.id),
+                'can_post': await self.room_repo.can_post_in_room(room),
+                'source_app': room.source_app,
+            }
         ]
         batch = await self.consumer.repo.get_recent_messages_batch(room_id, self.consumer.scope['user'].id, limit=100, include_voters=room.source_app == 'tasks')
         messages = build_message_payloads(batch, self.consumer.scope['user'])

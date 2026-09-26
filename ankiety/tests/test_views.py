@@ -82,6 +82,8 @@ class SurveyViewsTests(TestCase):
         response = self.client.get(reverse("ankiety:detail", args=[survey.pk]))
 
         self.assertContains(response, f'data-room-id="{survey.chat_room.pk}"')
+        self.assertContains(response, 'data-source-app="ankiety"')
+        self.assertNotContains(response, 'data-can-post="false"')
         self.assertContains(response, "Chat")
         self.assertEqual(response.context["chat_unread_count"], 1)
         self.assertTrue(response.context["ec_translations"])

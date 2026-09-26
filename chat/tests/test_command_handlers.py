@@ -55,6 +55,16 @@ class ChatCommandHandlersTest(SimpleTestCase):
         self.channel_layer.group_add.assert_awaited_once_with('room-3', 'channel-1')
         build.assert_called_once()
 
+    async def test_join_marks_restricted_task_room_with_source_app(self):
+        room = SimpleNamespace(id=4, group_name='room-4', title='Task room', public=True, source_app='tasks')
+        self.repo.get_room_or_error.return_value = room
+        self.repo.can_post_in_room.return_value = False
+        with patch('chat.command_handlers.build_message_payloads', return_value=[]):
+            result = await self.handlers.join(room.id)
+
+        self.assertEqual(result.responses[0]['source_app'], 'tasks')
+        self.assertFalse(result.responses[0]['can_post'])
+
     async def test_fetch_normalizes_sort_options_and_uses_shared_builder(self):
         room = SimpleNamespace(id=3, source_app='')
         self.repo.get_room_or_error.return_value = room

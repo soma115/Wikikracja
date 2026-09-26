@@ -388,13 +388,12 @@ def details(request: HttpRequest, pk: int):
     prev = Decyzja.objects.filter(pk__lt=szczegoly.pk, status=szczegoly.status).order_by('-pk').first()
     next = Decyzja.objects.filter(pk__gt=szczegoly.pk, status=szczegoly.status).order_by('pk').first()
 
-    # Find associated chat room using model method
-    chat_room = szczegoly.get_chat_room()
+    chat_room = szczegoly.chat_room
 
     # Check if chat room has unseen messages
-    chat_room_pulse_class = szczegoly.get_chat_room_pulse_class(request.user)
     chat_unread_counts = get_unread_message_counts_for_rooms(request.user, [chat_room.id] if chat_room else [])
     chat_unread_count = chat_unread_counts.get(chat_room.id, 0) if chat_room else 0
+    chat_room_pulse_class = "tw-chat-room-pulse" if chat_unread_count else ""
 
     # Query arguments for this decision
     arguments = Argument.objects.filter(decyzja=pk).select_related('author')
@@ -778,7 +777,7 @@ def _status_list(request: HttpRequest, status, *, author_signed=False, pulse=Fal
         elif status == Decyzja.Status.REFERENDUM and voting.data_referendum_stop:
             voting.countdown_end = _countdown_end(voting.data_referendum_stop + timedelta(days=1))
         if pulse:
-            voting.chat_room_pulse_class = voting.get_chat_room_pulse_class(request.user)
+            voting.chat_room_pulse_class = "tw-chat-room-pulse" if voting.chat_unread_count else ""
     return render(
         request,
         'glosowania/list.html',
