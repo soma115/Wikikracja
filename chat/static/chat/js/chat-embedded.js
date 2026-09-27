@@ -138,6 +138,9 @@ async function initEmbeddedChat(container) {
             read_by: msg.read_by ?? [],
             upvoters: msg.upvoters ?? null,
             downvoters: msg.downvoters ?? null,
+            presence_status: msg.presence_status ?? 'red',
+            presence_source: msg.presence_source ?? '',
+            presence_timestamp: msg.presence_timestamp ?? null,
         });
         messagesEl.insertAdjacentHTML('beforeend', html);
         if (msg.your_vote) {
