@@ -2,7 +2,7 @@ import logging
 
 from asgiref.sync import async_to_sync
 from django.contrib.auth import get_user_model
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import F
 from django.db.models.functions import Greatest
 from django.db.models.signals import m2m_changed, post_delete, post_migrate, post_save
@@ -133,6 +133,21 @@ def _invalidate_feed_cache_on_room_change(sender, **kwargs):
     invalidate_feed_cache()
 
 
+def _create_discussion_room(title, *, public, archived, founder, source_app, source_object_id):
+    """Create a room with a display-only collision suffix; lookup remains ID-based."""
+    for attempt in range(10):
+        suffix = '' if attempt == 0 else f' [{source_app}#{source_object_id}-{attempt}]'
+        candidate = f'{title[: 255 - len(suffix)]}{suffix}'
+        try:
+            with transaction.atomic():
+                return Room.objects.create(title=candidate, public=public, archived=archived, protected=True, founder=founder, source_app=source_app, source_object_id=source_object_id)
+        except IntegrityError:
+            existing = Room.objects.filter(source_app=source_app, source_object_id=source_object_id).first()
+            if existing is not None:
+                return existing
+    raise IntegrityError(f'Could not create a unique title for {source_app} #{source_object_id}')
+
+
 @receiver(chat_room_requested)
 def on_chat_room_requested(sender, instance, title, founder, allowed_users, welcome_message, source_app, source_object_id, room_public=True, room_archived=False, **kwargs):
     """Create or update a chat room using the source object's stable ID only."""
@@ -144,10 +159,13 @@ def on_chat_room_requested(sender, instance, title, founder, allowed_users, welc
             room = Room.objects.filter(source_app=source_app, source_object_id=source_object_id).first()
 
         if room is None:
-            room = Room.objects.create(title=title, public=room_public, archived=room_archived, protected=True, founder=founder, source_app=source_app, source_object_id=source_object_id)
+            room = _create_discussion_room(title, public=room_public, archived=room_archived, founder=founder, source_app=source_app, source_object_id=source_object_id)
         else:
             changed_fields = []
             if room.title != title:
+                if Room.objects.filter(title=title).exclude(pk=room.pk).exists():
+                    suffix = f' [{source_app}#{source_object_id}]'
+                    title = f'{title[: 255 - len(suffix)]}{suffix}'
                 room.title = title
                 changed_fields.append('title')
             if room.public != room_public:

@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 from ankiety.models import Survey
 from board.models import Post
@@ -20,6 +20,7 @@ class Command(BaseCommand):
         models = {options['app']: self.model_map[options['app']]} if options['app'] else self.model_map
         missing = 0
         repaired = 0
+        failures = []
 
         for app_label, model in models.items():
             queryset = model.objects.filter(chat_room__isnull=True).order_by('pk')
@@ -28,9 +29,16 @@ class Command(BaseCommand):
                 if options['dry_run']:
                     self.stdout.write(f'{app_label} #{instance.pk}: {instance}')
                     continue
-                ensure_discussion_room_for_instance(instance)
+                try:
+                    ensure_discussion_room_for_instance(instance)
+                except Exception as exc:
+                    failures.append(f'{app_label} #{instance.pk}: {exc}')
+                    self.stderr.write(self.style.ERROR(f'Failed {app_label} #{instance.pk}: {exc}'))
+                    continue
                 repaired += 1
                 self.stdout.write(f'Repaired {app_label} #{instance.pk}: {instance}')
 
         action = 'would repair' if options['dry_run'] else 'repaired'
         self.stdout.write(self.style.SUCCESS(f'{action} {missing} missing discussion room(s); {repaired} changed.'))
+        if failures:
+            raise CommandError(f'{len(failures)} room(s) could not be repaired.')
