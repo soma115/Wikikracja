@@ -138,6 +138,16 @@ class Room(models.Model):
     federation_last_checked_at = models.DateTimeField(null=True, blank=True)
     federation_last_communication_at = models.DateTimeField(null=True, blank=True)
 
+    SOURCE_URL_NAMES = {'tasks': 'tasks:detail', 'board': 'board:view_post', 'glosowania': 'glosowania:details', 'ankiety': 'ankiety:detail'}
+
+    @property
+    def source_url(self):
+        """Return the canonical URL of the content this room discusses."""
+        url_name = self.SOURCE_URL_NAMES.get(self.source_app)
+        if not url_name or not self.source_object_id:
+            return None
+        return reverse(url_name, kwargs={'pk': self.source_object_id})
+
     @staticmethod
     def create_inbox():
         """Ensure the system rooms exist and return the Inbox room."""

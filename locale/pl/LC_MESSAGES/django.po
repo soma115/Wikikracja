@@ -1785,11 +1785,16 @@ msgstr "Tutaj pojawiają się wiadomości od niezalogowanych ludzi z zewnątrz, 
 msgid "Important documents and announcements appear in this room."
 msgstr "W tym pokoju pojawiają się ważne dokumenty i ogłoszenia."
 
+#: .\chat\templates\chat\room_link.html:77
+msgid "Open related content"
+msgstr "Otwórz powiązaną treść"
+
 #: .\chat\templates\chat\_embedded_chat.html:21
+#: .\chat\templates\chat\_embedded_chat.html:23
 msgid "Open in chat"
 msgstr "Otwórz w czacie"
 
-#: .\chat\templates\chat\_embedded_chat.html:32
+#: .\chat\templates\chat\_embedded_chat.html:33
 msgid "Connecting…"
 msgstr "Łączenie…"
 

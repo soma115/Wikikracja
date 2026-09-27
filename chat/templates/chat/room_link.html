@@ -72,7 +72,10 @@
     <button type="button" class="tw-room-link-chevron" data-tw-toggle="dropdown" data-tw-dropdown-fixed aria-expanded="false" aria-label="{% trans 'Room actions' %}">
       <i class="fas fa-chevron-down" aria-hidden="true"></i>
     </button>
-    <ul class="tw-dropdown-menu tw-dropdown-menu-end tw-absolute tw-z-50 tw-bg-bg-card tw-border tw-border-subtle tw-rounded-card"><li>
+    <ul class="tw-dropdown-menu tw-dropdown-menu-end tw-absolute tw-z-50 tw-bg-bg-card tw-border tw-border-subtle tw-rounded-card"><li class="tw-room-source-link">{% if room.source_url %}<a href="{{ room.source_url }}"
+          class="tw-dropdown-item tw-block tw-w-full tw-text-start">
+          <i class="fas fa-external-link-alt fa-fw tw-me-1"></i>{% trans 'Open related content' %}
+        </a>{% endif %}</li><li>
         <button type="button"
           class="tw-dropdown-item tw-seen-switch tw-block tw-w-full tw-text-start"
           data-room-id="{{ room.id }}"

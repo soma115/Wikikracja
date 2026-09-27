@@ -16,10 +16,10 @@ Użycie:
 {% if request.user.is_authenticated and chat_room %}
 <section class="tw-ec-section tw-w-full tw-mt-8 tw-pt-5 tw-border-t">
   <h2 class="tw-ec-section-title">
-    <i class="fas fa-comments fa-fw"></i> {% trans 'Chat' %}
+    <i class="fas fa-comments fa-fw"></i>
     <a href="{% url 'chat:chat' %}#room_id={{ chat_room.pk }}"
-       class="tw-ec-open-full tw-text-xs tw-ms-auto tw-no-underline" title="{% trans 'Open in chat' %}">
-      <i class="fas fa-external-link-alt fa-fw"></i>
+       class="tw-ec-open-full tw-no-underline" title="{% trans 'Open in chat' %}">
+      {% trans 'Chat' %} <i class="fas fa-external-link-alt fa-fw" aria-hidden="true"></i>
     </a>
   </h2>
 

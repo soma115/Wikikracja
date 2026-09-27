@@ -27,6 +27,16 @@ class RoomModelTest(TestCase):
         room = Room.objects.create(title=long_title, public=True)
         self.assertEqual(len(room.displayed_name(self.alice)), 90)
 
+    def test_source_url_uses_canonical_content_route(self):
+        routes = {'tasks': '/tasks/12/', 'board': '/board/view/12/', 'glosowania': '/glosowania/details/12/', 'ankiety': '/ankiety/12/'}
+        for source_app, expected_url in routes.items():
+            with self.subTest(source_app=source_app):
+                room = Room.objects.create(title=f'{source_app}-room', source_app=source_app, source_object_id=12)
+                self.assertEqual(room.source_url, expected_url)
+
+    def test_source_url_is_empty_for_unlinked_room(self):
+        self.assertIsNone(self.public_room.source_url)
+
     def test_displayed_name_private_room_shows_other_user(self):
         self.assertEqual(self.private_room.displayed_name(self.alice), "bob")
 

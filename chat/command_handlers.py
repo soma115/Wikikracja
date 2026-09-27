@@ -103,6 +103,7 @@ class ChatCommandHandlers:
                 'notifications': not await self.room_repo.has_muted_room(room.id),
                 'can_post': await self.room_repo.can_post_in_room(room),
                 'source_app': room.source_app,
+                'source_url': getattr(room, 'source_url', None),
             }
         ]
         batch = await self.consumer.repo.get_recent_messages_batch(room_id, self.consumer.scope['user'].id, limit=100, include_voters=room.source_app == 'tasks')

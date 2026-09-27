@@ -1517,9 +1517,9 @@
   }
   .tw-ec-section-title i {color: var(--accent);
   }
-  .tw-ec-open-full {margin-left: auto;
+  .tw-ec-open-full {margin-left: 0;
     color: var(--text-muted);
-    font-size: .75rem;
+    font-size: inherit;
     text-decoration: none;
     transition: color var(--transition-fast);
   }
@@ -6902,6 +6902,8 @@ body.tw-chat-page .tw-main-area {
     flex-shrink: 0;
     display: flex;
     align-items: center;
+}
+.tw-room-source-link:empty {display: none;
 }
 .tw-room-link-actions--no-rename .tw-room-rename-divider,
 .tw-room-link-actions--no-rename .tw-room-rename-item {
