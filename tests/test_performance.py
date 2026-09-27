@@ -2,7 +2,7 @@
 
 Asercja na liczbie zapytań (CaptureQueriesContext), nie na czasie wykonania —
 czas w SQLite testowej jest zbyt zmienny i nigdy nie wykryje N+1 w sensownym progu.
-N+1 dla bulk_create(100) dałoby 100+ INSERT queries; poprawny bulk_create wykonuje 1-2.
+N+1 dla bulk_create(100) dałoby 100+ INSERT queries; utworzenie powiązanych pokoi pozostaje stałe względem liczby obiektów.
 """
 
 import pytest
@@ -14,7 +14,7 @@ from tests.factories import UserFactory
 
 @pytest.mark.django_db
 def test_bulk_create_posts_uses_minimal_queries(board_category):
-    """bulk_create 100 postów wykonuje ≤ 5 zapytań (regresja na N+1 dałaby 100+)."""
+    """bulk_create 100 postów i ich pokoi wykonuje stałą liczbę zapytań."""
     from board.models import Post
 
     user = UserFactory()
@@ -24,7 +24,7 @@ def test_bulk_create_posts_uses_minimal_queries(board_category):
         Post.objects.bulk_create(posts)
 
     query_count = len(ctx.captured_queries)
-    assert query_count <= 5, f'bulk_create 100 posts wykonał {query_count} zapytań — możliwy N+1 lub utrata bulk semantyki'
+    assert query_count <= 10, f'bulk_create 100 posts wykonał {query_count} zapytań — możliwy N+1 lub utrata bulk semantyki'
     assert Post.objects.filter(title__startswith='Bulk ').count() == 100
 
 

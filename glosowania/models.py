@@ -6,7 +6,7 @@ from django.core.validators import validate_comma_separated_integer_list
 from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
 
-from chat.models import ChatRoomModel
+from chat.models import ChatRoomModel, ChatRoomQuerySet
 
 User = get_user_model()
 
@@ -80,7 +80,7 @@ class Decyzja(ChatRoomModel, models.Model):
     def __str__(self):
         return '%s: %s on %s' % (self.pk, self.tresc, self.status)
 
-    objects = models.Manager()
+    objects = ChatRoomQuerySet.as_manager()
 
     def save(self, *args, **kwargs):
         with transaction.atomic():

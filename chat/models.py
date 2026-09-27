@@ -6,10 +6,68 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 
+class ChatRoomQuerySet(models.QuerySet):
+    """Create linked discussion rooms for objects inserted in bulk."""
+
+    def bulk_create(self, objs, *args, **kwargs):
+        from django.db import transaction
+
+        instances = list(objs)
+        with transaction.atomic():
+            created = super().bulk_create(instances, *args, **kwargs)
+            self._bulk_create_discussion_rooms(created)
+        return created
+
+    def _bulk_create_discussion_rooms(self, instances):
+        from django.contrib.auth import get_user_model
+
+        if not instances:
+            return
+
+        source_app = self.model._meta.app_label
+        object_ids = [instance.pk for instance in instances if not instance.chat_room_id]
+        existing = {room.source_object_id: room for room in Room.objects.filter(source_app=source_app, source_object_id__in=object_ids)}
+        users = list(get_user_model().objects.filter(is_active=True).values_list('pk', flat=True))
+        rooms_to_create = []
+
+        for instance in instances:
+            if instance.chat_room_id:
+                continue
+            room = existing.get(instance.pk)
+            if room is None:
+                public = True
+                archived = False
+                if source_app == 'board':
+                    public = instance.visibility == 'public'
+                    archived = instance.visibility == 'archive'
+                founder_id = getattr(instance, 'author_id', None) or getattr(instance, 'created_by_id', None)
+                room = Room(title=instance.get_chat_room_title(), public=public, archived=archived, protected=True, founder_id=founder_id, source_app=source_app, source_object_id=instance.pk)
+                rooms_to_create.append(room)
+            existing[instance.pk] = room
+            instance.chat_room_id = room.pk
+
+        if rooms_to_create:
+            Room.objects.bulk_create(rooms_to_create)
+            existing.update({room.source_object_id: room for room in rooms_to_create})
+
+        for instance in instances:
+            if not instance.chat_room_id:
+                instance.chat_room_id = existing[instance.pk].pk
+
+        links = [instance for instance in instances if instance.chat_room_id]
+        if links:
+            self.model.objects.bulk_update(links, ['chat_room'])
+
+        memberships = [Room.allowed.through(room_id=room.pk, user_id=user_id) for room in existing.values() for user_id in users]
+        if memberships:
+            Room.allowed.through.objects.bulk_create(memberships, ignore_conflicts=True)
+
+
 class ChatRoomModel(models.Model):
     """Abstract base for models that have an optional associated chat room."""
 
     chat_room = models.ForeignKey("chat.Room", null=True, blank=True, on_delete=models.SET_NULL, related_name="%(class)s", verbose_name=_("Chat room"))
+    objects = ChatRoomQuerySet.as_manager()
 
     class Meta:
         abstract = True

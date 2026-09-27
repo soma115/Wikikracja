@@ -2,6 +2,7 @@ import logging
 
 from asgiref.sync import async_to_sync
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.db.models import F
 from django.db.models.functions import Greatest
 from django.db.models.signals import m2m_changed, post_delete, post_migrate, post_save
@@ -40,6 +41,27 @@ def request_discussion_room(instance, *, founder, allowed_users=None, welcome_me
         source_object_id=instance.pk,
     )
     log.info("Discussion room '%s' requested for %s #%s", room_title, instance._meta.label, instance.pk)
+
+
+def ensure_discussion_room_for_instance(instance):
+    """Create a missing room for a ChatRoomModel instance without a welcome message."""
+    from django.contrib.auth import get_user_model
+
+    if instance.chat_room_id:
+        return instance.chat_room
+
+    users = get_user_model().objects.filter(is_active=True)
+    app_label = instance._meta.app_label
+    public = True
+    archived = False
+    if app_label == 'board':
+        from board.models import Post
+
+        public = instance.visibility == Post.Visibility.PUBLIC
+        archived = instance.visibility == Post.Visibility.ARCHIVE
+
+    request_discussion_room(instance, founder=getattr(instance, 'author', None) or getattr(instance, 'created_by', None), allowed_users=users, public=public, archived=archived)
+    return instance.chat_room
 
 
 def delete_linked_chat_room(sender, instance, **kwargs):
@@ -112,56 +134,54 @@ def _invalidate_feed_cache_on_room_change(sender, **kwargs):
 
 @receiver(chat_room_requested)
 def on_chat_room_requested(sender, instance, title, founder, allowed_users, welcome_message, source_app, source_object_id, room_public=True, room_archived=False, **kwargs):
-    """Create or update a chat room on behalf of another app."""
-    room = getattr(instance, 'chat_room', None)
-    if room is None:
-        room = Room.objects.filter(source_app=source_app, source_object_id=source_object_id).first()
-    if room is None:
-        room = Room.objects.filter(title=title).first()
+    """Create or update a chat room using the source object's stable ID only."""
+    with transaction.atomic():
+        room = None
+        if getattr(instance, 'chat_room_id', None):
+            room = Room.objects.filter(pk=instance.chat_room_id, source_app=source_app, source_object_id=source_object_id).first()
+        if room is None:
+            room = Room.objects.filter(source_app=source_app, source_object_id=source_object_id).first()
 
-    if room is None:
-        room = Room.objects.create(title=title, public=room_public, archived=room_archived, protected=True, founder=founder, source_app=source_app, source_object_id=source_object_id)
-    else:
-        changed_fields = []
-        if room.title != title:
-            room.title = title
-            changed_fields.append('title')
-        if room.public != room_public:
-            room.public = room_public
-            changed_fields.append('public')
-        if room.archived != room_archived:
-            room.archived = room_archived
-            changed_fields.append('archived')
-        if changed_fields:
-            room.save(update_fields=changed_fields)
+        if room is None:
+            room = Room.objects.create(title=title, public=room_public, archived=room_archived, protected=True, founder=founder, source_app=source_app, source_object_id=source_object_id)
+        else:
+            changed_fields = []
+            if room.title != title:
+                room.title = title
+                changed_fields.append('title')
+            if room.public != room_public:
+                room.public = room_public
+                changed_fields.append('public')
+            if room.archived != room_archived:
+                room.archived = room_archived
+                changed_fields.append('archived')
+            if changed_fields:
+                room.save(update_fields=changed_fields)
 
-    if room.source_app != source_app or room.source_object_id != source_object_id:
-        room.source_app = source_app
-        room.source_object_id = source_object_id
-        room.save(update_fields=['source_app', 'source_object_id'])
+        # Link the source instance without re-firing post_save.
+        if hasattr(instance, 'chat_room_id') and instance.chat_room_id != room.id:
+            type(instance).objects.filter(pk=instance.pk).update(chat_room=room)
+            instance.chat_room = room
 
-    # Link the source instance without re-firing post_save.
-    if hasattr(instance, 'chat_room_id') and instance.chat_room_id != room.id:
-        type(instance).objects.filter(pk=instance.pk).update(chat_room=room)
-        instance.chat_room = room
+        if welcome_message and not room.messages.exists():
+            message_sender = kwargs.get('welcome_message_sender')
+            message_anonymous = kwargs.get('welcome_message_anonymous', True)
+            Message.objects.create(room=room, text=welcome_message, sender=message_sender, anonymous=message_anonymous)
 
-    if welcome_message and not room.messages.exists():
-        message_sender = kwargs.get('welcome_message_sender')
-        message_anonymous = kwargs.get('welcome_message_anonymous', True)
-        Message.objects.create(room=room, text=welcome_message, sender=message_sender, anonymous=message_anonymous)
+        if allowed_users is not None:
+            room.allowed.set(allowed_users)
 
-    if allowed_users is not None:
-        room.allowed.set(allowed_users)
+    return room
 
 
 @receiver(chat_message_requested)
-def on_chat_message_requested(sender, room_title='', message_text='', from_user=None, anonymous=True, guest_email='', guest_name='', system_key='', **kwargs):
+def on_chat_message_requested(sender, message_text='', from_user=None, anonymous=True, guest_email='', guest_name='', system_key='', room_id=None, **kwargs):
     """Deliver a message to a chat room on behalf of another app."""
-    room = Room.objects.filter(system_key=system_key).first() if system_key else None
+    room = Room.objects.filter(pk=room_id).first() if room_id else None
+    if room is None and system_key:
+        room = Room.objects.filter(system_key=system_key).first()
     if room is None:
-        room = Room.objects.filter(title=room_title).first()
-    if room is None:
-        log.error(f"Chat room '{system_key or room_title}' does not exist")
+        log.error("Chat room '%s' does not exist", room_id or system_key)
         return
 
     async_to_sync(send_message)(room, message_text, sender=from_user, anonymous=anonymous, guest_email=guest_email, guest_name=guest_name, linkify=False)

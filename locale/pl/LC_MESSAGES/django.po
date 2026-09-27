@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-27 01:43+0200\n"
+"POT-Creation-Date: 2026-09-27 12:48+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -4682,6 +4682,7 @@ msgid "People in selected location"
 msgstr "Osoby w wybranej lokalizacji"
 
 #: .\obywatele\templates\obywatele\assets.html:78
+#: .\obywatele\tests\test_views.py:882
 msgid "Offers"
 msgstr "Oferty"
 
@@ -4690,6 +4691,7 @@ msgid "No offers match your search."
 msgstr "Żadna oferta nie pasuje do wyszukiwania."
 
 #: .\obywatele\templates\obywatele\assets.html:101
+#: .\obywatele\tests\test_views.py:883
 msgid "Needs"
 msgstr "Potrzeby"
 

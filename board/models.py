@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
@@ -66,6 +66,10 @@ class Post(ChatRoomModel, models.Model):
         return f"Document #{self.id}: {self.get_display_title()}"[:90]
 
     def save(self, *args, **kwargs):
+        with transaction.atomic():
+            self._save_with_chat(*args, **kwargs)
+
+    def _save_with_chat(self, *args, **kwargs):
         original = type(self).objects.filter(pk=self.pk).values('system_key', 'category_id', 'visibility', 'is_important').first() if self.pk else None
         self._previous_visibility = original['visibility'] if original else None
         self._previous_is_important = original['is_important'] if original else None

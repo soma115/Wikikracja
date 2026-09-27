@@ -5,7 +5,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from categories.models import AbstractCategory
-from chat.models import ChatRoomModel
+from chat.models import ChatRoomModel, ChatRoomQuerySet
 
 User = settings.AUTH_USER_MODEL
 
@@ -31,7 +31,7 @@ class Category(AbstractCategory):
         super().save(*args, **kwargs)
 
 
-class TaskQuerySet(models.QuerySet):
+class TaskQuerySet(ChatRoomQuerySet):
     def with_metrics(self):
         return self.annotate(
             votes_up=Count("votes", filter=Q(votes__value=TaskVote.Value.UP), distinct=True),

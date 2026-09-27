@@ -287,7 +287,7 @@ def test_add_argument_notifies_referendum_chat_once(sample_users):
     send_message.assert_called_once()
     call_kwargs = send_message.call_args.kwargs
     assert call_kwargs['sender'] is Argument
-    assert call_kwargs['room_title'] == decision.chat_room.title
+    assert call_kwargs['room_id'] == decision.chat_room_id
     assert call_kwargs['from_user'] is None
     assert call_kwargs['anonymous'] is False
     assert call_kwargs['message_text'].startswith(f"{_('A new argument was added to this referendum:')} <a href='")
