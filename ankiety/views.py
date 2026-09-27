@@ -85,7 +85,7 @@ def _survey_list_state(request):
 
 
 def _survey_queryset(tab, search_query):
-    queryset = Survey.objects.select_related("author")
+    queryset = Survey.objects.select_related("author", "chat_room")
     if search_query:
         queryset = queryset.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
 
@@ -140,6 +140,11 @@ def survey_list(request):
     surveys = list(
         _survey_queryset(tab, search_query).prefetch_related(Prefetch("options", queryset=SurveyOption.objects.select_related("created_by").annotate(vote_count=Count("votes")).order_by("order", "id")))
     )
+
+    unread_counts = get_unread_message_counts_for_rooms(request.user, [survey.chat_room_id for survey in surveys if survey.chat_room_id])
+    for survey in surveys:
+        survey.chat_unread_count = unread_counts.get(survey.chat_room_id, 0)
+        survey.chat_room_pulse_class = "tw-chat-room-pulse" if survey.chat_unread_count else ""
 
     user_votes_by_survey = {}
     for vote in SurveyVote.objects.filter(survey_id__in=[s.pk for s in surveys], user=request.user).order_by("-created_at"):

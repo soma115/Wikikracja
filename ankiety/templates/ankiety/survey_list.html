@@ -54,6 +54,12 @@
               {% else %}
                 <span class="tw-badge-status tw-badge-approved">{% trans 'Finished' %}</span>
               {% endif %}
+              {% if survey.chat_room %}
+                <a href="{{ survey.chat_room_url }}" class="tw-chat-link {{ survey.chat_room_pulse_class|default:'' }}" data-tw-stop-propagation>
+                  <i class="fas fa-comment-dots"></i><span class="tw-view-label">{% trans 'Chat' %}</span>
+                  {% with n=survey.chat_unread_count|default:0 %}{% if n %}<span class="tw-chat-count">{{ n }}</span>{% endif %}{% endwith %}
+                </a>
+              {% endif %}
             </div>
           </div>
         </div>

@@ -353,30 +353,45 @@ function routeKey(route) {
     return `${route.view}|${route.roomId ?? ''}|${route.messageId ?? ''}`;
 }
 
+function shouldPreserveInitialCategory() {
+    if (!document.referrer) return true;
+
+    try {
+        const referrer = new URL(document.referrer);
+        return referrer.origin === location.origin && referrer.pathname === location.pathname;
+    } catch {
+        return false;
+    }
+}
+
 /**
  * Parsuje aktualny URL i stosuje trasę. Idempotentne: ta sama trasa
  * zastosowana drugi raz (np. popstate + hashchange przy jednym Wstecz)
  * jest pomijana.
  */
-function syncRouteFromLocation({ initial = false } = {}) {
+function syncRouteFromLocation({ initial = false, preserveCategory = null } = {}) {
     const route = parseChatLocation({ search: location.search, hash: location.hash });
     const key = routeKey(route);
     if (!initial && key === LastAppliedRouteKey) return;
     LastAppliedRouteKey = key;
-    applyChatRoute(route, { initial });
+    applyChatRoute(route, {
+        initial,
+        preserveCategory: preserveCategory ?? (initial && shouldPreserveInitialCategory()),
+    });
 }
 
-function applyChatRoute(route, { initial = false } = {}) {
+function applyChatRoute(route, { initial = false, preserveCategory = false } = {}) {
     if (route.view === 'room') {
         if (!initialRoomPreviewActive) cancelInitialRoomPreview();
         ViewState.panel = 'room';
         ViewState.requestedRoomId = route.roomId;
         if (route.messageId) ScrollToMessageId = route.messageId;
         if (CurrentRoomId === route.roomId) {
+            if (!initial) expandCategoryForRoom(DOM_API?.getRoomLinkDiv(route.roomId));
             hideRoomPlaceholder();
             renderChatView(); // już dołączony — tylko pokaż panel pokoju
         } else {
-            void onRoomTryJoin(route.roomId);
+            void onRoomTryJoin(route.roomId, { preserveCategory: initial && preserveCategory });
         }
         return;
     }
@@ -397,12 +412,12 @@ function applyChatRoute(route, { initial = false } = {}) {
         if (roomId) {
             if (mobileMedia.matches) {
                 initialRoomPreviewActive = true;
-                navigateToRoom(roomId);
+                navigateToRoom(roomId, null, { initial: true, preserveCategory: true });
                 ViewState.panel = 'list';
                 renderChatView();
                 scheduleInitialRoomPreviewHide();
             } else {
-                navigateToRoom(roomId);
+                navigateToRoom(roomId, null, { initial: true, preserveCategory: true });
             }
         }
     }
@@ -425,7 +440,7 @@ function pickInitialRoomId() {
 }
 
 /** Nawigacja do pokoju — replaceState + jawne zastosowanie trasy. */
-export function navigateToRoom(roomId, messageId = null) {
+export function navigateToRoom(roomId, messageId = null, { initial = false, preserveCategory = null } = {}) {
     roomId = parseInt(roomId);
     if (!roomId) return;
     const hash = `#room_id=${roomId}` + (messageId ? `&message_id=${messageId}` : '');
@@ -433,7 +448,7 @@ export function navigateToRoom(roomId, messageId = null) {
     if (location.pathname + location.search + location.hash !== target) {
         history.replaceState(null, '', target);
     }
-    syncRouteFromLocation();
+    syncRouteFromLocation({ initial, preserveCategory });
 }
 
 /** Nawigacja do listy pokoi — replaceState usuwa hash, zachowując ?view. */
@@ -835,7 +850,7 @@ window.wkOnReady(() => {
         } else if (CurrentRoomId) {
             const roomToRejoin = CurrentRoomId;
             CurrentRoomId = null; // odblokuj short-circuit w onRoomTryJoin
-            void onRoomTryJoin(roomToRejoin, { preserveView: true });
+            void onRoomTryJoin(roomToRejoin, { preserveView: true, preserveCategory: true });
         }
     };
 
@@ -866,14 +881,29 @@ export async function onSocketMessage(data) {
     else console.warn("Cannot handle message!");
 }
 
+function collapseOtherCategories(content) {
+    document.querySelectorAll('.tw-chat-cat-content').forEach(otherContent => {
+        if (otherContent === content) return;
+        otherContent.classList.remove('tw-open');
+        const otherBtn = document.querySelector(`[data-cat-content="${otherContent.id}"]`);
+        otherBtn?.setAttribute('aria-expanded', 'false');
+        if (otherContent.id) {
+            localStorage.setItem(`chat-cat-${otherContent.id}`, 'collapsed');
+        }
+    });
+}
+
 /**
  * Expands the nav-cat-content (and archive section if needed) for the given room link.
  * @param {HTMLElement} roomLink - The room link element
  */
-function expandCategoryForRoom(roomLink) {
+function expandCategoryForRoom(roomLink, { preserve = false } = {}) {
+    if (!roomLink || preserve) return;
+
     // Expand the nav-cat-content that wraps this room
     const navCatContent = roomLink.closest('.tw-chat-cat-content');
     if (navCatContent) {
+        collapseOtherCategories(navCatContent);
         if (!navCatContent.classList.contains('tw-open')) {
             navCatContent.classList.add('tw-open');
             const catId = navCatContent.id;
@@ -932,8 +962,9 @@ function deriveBreadcrumb(room_id) {
  * @param {number} room_id
  * @param {Object} [options]
  * @param {boolean} [options.preserveView] - reconnect: dołącz bez zmiany panelu
+ * @param {boolean} [options.preserveCategory] - nie zmieniaj stanu kategorii przy odtwarzaniu pokoju
  */
-export async function onRoomTryJoin(room_id, { preserveView = false } = {}) {
+export async function onRoomTryJoin(room_id, { preserveView = false, preserveCategory = false } = {}) {
     room_id = parseInt(room_id);
     if (room_id === CurrentRoomId) {
         // Już dołączony — upewnij się tylko, że panel pokoju jest widoczny.
@@ -1003,10 +1034,10 @@ export async function onRoomTryJoin(room_id, { preserveView = false } = {}) {
     bindSortToolbar();
     DOM_API.updateBreadcrumb(deriveBreadcrumb(room_id));
 
-    // Auto-expand category and archive section if needed
+    // Auto-expand category and archive section for explicit navigation.
     const roomLink = DOM_API.getRoomLinkDiv(room_id);
     if (roomLink) {
-        expandCategoryForRoom(roomLink);
+        expandCategoryForRoom(roomLink, { preserve: preserveCategory });
     }
 
     if (!stale && !preserveView && !initialRoomPreviewActive) {

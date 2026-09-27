@@ -69,6 +69,30 @@ function expandCategoriesWithArchivedRooms() {
     });
 }
 
+function collapseOtherCategories(content) {
+    document.querySelectorAll('.tw-chat-cat-content').forEach(otherContent => {
+        if (otherContent === content) return;
+        otherContent.classList.remove('tw-open');
+        const otherBtn = document.querySelector(`[data-cat-content="${otherContent.id}"]`);
+        otherBtn?.setAttribute('aria-expanded', 'false');
+        if (otherContent.id) {
+            localStorage.setItem(`chat-cat-${otherContent.id}`, 'collapsed');
+        }
+    });
+}
+
+function expandCategoryForRoom(roomLink, { preserve = false } = {}) {
+    if (!roomLink || preserve) return;
+
+    const content = roomLink.closest('.tw-chat-cat-content');
+    if (!content) return;
+    collapseOtherCategories(content);
+    content.classList.add('tw-open');
+    const catBtn = document.querySelector(`[data-cat-content="${content.id}"]`);
+    catBtn?.setAttribute('aria-expanded', 'true');
+    if (content.id) localStorage.setItem(`chat-cat-${content.id}`, 'expanded');
+}
+
 // ── helpers testowe ──────────────────────────────────────────────────────────
 
 beforeEach(() => {
@@ -124,6 +148,54 @@ describe('expandCategoriesWithArchivedRooms', () => {
         expect(withArchivedRooms.btn.getAttribute('aria-expanded')).toBe('true');
         expect(withoutArchivedRooms.content.classList.contains('tw-open')).toBe(false);
         expect(withoutArchivedRooms.btn.getAttribute('aria-expanded')).toBe('false');
+    });
+});
+
+describe('expandCategoryForRoom', () => {
+    test('otwiera kategorię przy nawigacji do pokoju', () => {
+        const { cat, content, btn } = makeCategory({ id: 'cat-active' });
+        content.classList.remove('tw-open');
+        btn.setAttribute('aria-expanded', 'false');
+        const roomLink = makeRoomLink({ id: 1 });
+        content.appendChild(roomLink);
+        document.body.appendChild(cat);
+
+        expandCategoryForRoom(roomLink);
+
+        expect(content.classList.contains('tw-open')).toBe(true);
+        expect(btn.getAttribute('aria-expanded')).toBe('true');
+        expect(localStorage.getItem('chat-cat-cat-active')).toBe('expanded');
+    });
+
+    test('zwija poprzednią kategorię przy nawigacji do pokoju', () => {
+        const previous = makeCategory({ id: 'cat-previous' });
+        const active = makeCategory({ id: 'cat-active' });
+        const roomLink = makeRoomLink({ id: 2 });
+        active.content.appendChild(roomLink);
+        document.body.append(previous.cat, active.cat);
+
+        expandCategoryForRoom(roomLink);
+
+        expect(previous.content.classList.contains('tw-open')).toBe(false);
+        expect(previous.btn.getAttribute('aria-expanded')).toBe('false');
+        expect(localStorage.getItem('chat-cat-cat-previous')).toBe('collapsed');
+        expect(active.content.classList.contains('tw-open')).toBe(true);
+    });
+
+    test('zachowuje ręcznie zwiniętą kategorię przy odtworzeniu pokoju', () => {
+        const { cat, content, btn } = makeCategory({ id: 'cat-restored' });
+        content.classList.remove('tw-open');
+        btn.setAttribute('aria-expanded', 'false');
+        localStorage.setItem('chat-cat-cat-restored', 'collapsed');
+        const roomLink = makeRoomLink({ id: 2 });
+        content.appendChild(roomLink);
+        document.body.appendChild(cat);
+
+        expandCategoryForRoom(roomLink, { preserve: true });
+
+        expect(content.classList.contains('tw-open')).toBe(false);
+        expect(btn.getAttribute('aria-expanded')).toBe('false');
+        expect(localStorage.getItem('chat-cat-cat-restored')).toBe('collapsed');
     });
 });
 

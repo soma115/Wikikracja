@@ -74,6 +74,17 @@ class SurveyViewsTests(TestCase):
         survey.refresh_from_db()
         self.assertEqual(survey.title, "Test survey")
 
+    def test_survey_list_shows_chat_link_and_unread_count(self):
+        survey = self._create_survey(self.author)
+        Message.objects.create(room=survey.chat_room, sender=self.other, text="Question")
+        self.client.login(username="author", password="pass")
+
+        response = self.client.get(reverse("ankiety:list"))
+
+        self.assertContains(response, f'href="{survey.chat_room_url}"')
+        self.assertContains(response, "fa-comment-dots")
+        self.assertContains(response, 'class="tw-chat-count">1</span>')
+
     def test_survey_detail_embeds_chat_and_shows_unread_count(self):
         survey = self._create_survey(self.author)
         Message.objects.create(room=survey.chat_room, sender=self.other, text="Question")

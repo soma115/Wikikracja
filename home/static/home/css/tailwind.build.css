@@ -9504,6 +9504,10 @@ body.tw-chat-page .tw-main-area {
   color: var(--text-primary);
 }
 
+.tw-chat-category:has(.tw-room-link[aria-current="true"]) .tw-chat-cat-btn {
+  border-color: var(--accent);
+}
+
 .tw-chat-cat-arrow {
   order: 2;
   font-size: .7rem;

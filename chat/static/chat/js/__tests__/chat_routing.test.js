@@ -21,6 +21,17 @@ function parseParms(str) {
     return Object.fromEntries(new URLSearchParams(str));
 }
 
+function shouldPreserveInitialCategory({ referrer = '', origin = 'https://example.test', pathname = '/chat' } = {}) {
+    if (!referrer) return true;
+
+    try {
+        const referrerUrl = new URL(referrer);
+        return referrerUrl.origin === origin && referrerUrl.pathname === pathname;
+    } catch {
+        return false;
+    }
+}
+
 function parseChatLocation({ search = '', hash = '' } = {}) {
     const hashParams = parseParms(hash.startsWith('#') ? hash.slice(1) : hash);
     const roomId = hashParams.room_id ? parseInt(hashParams.room_id, 10) : null;
@@ -37,6 +48,24 @@ function parseChatLocation({ search = '', hash = '' } = {}) {
     }
     return { view: 'default', roomId: null, messageId: null };
 }
+
+describe('initial category state', () => {
+    test('zachowuje stan po odświeżeniu czatu', () => {
+        expect(shouldPreserveInitialCategory()).toBe(true);
+        expect(shouldPreserveInitialCategory({
+            referrer: 'https://example.test/chat#room_id=42',
+        })).toBe(true);
+    });
+
+    test('rozwija kategorię po wejściu z innego widoku', () => {
+        expect(shouldPreserveInitialCategory({
+            referrer: 'https://example.test/tasks/42',
+        })).toBe(false);
+        expect(shouldPreserveInitialCategory({
+            referrer: 'https://example.test/glosowania/42',
+        })).toBe(false);
+    });
+});
 
 // ── hash #room_id=X — priorytet nad query params ─────────────────────────────
 
