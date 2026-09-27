@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-27 01:21+0200\n"
+"POT-Creation-Date: 2026-09-27 01:43+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -669,7 +669,7 @@ msgstr "Pokój dyskusji do dokumentu: <a href='%(url)s'>%(title)s</a>"
 
 #: .\board\templates\board\_post_chat_link.html:5
 #: .\board\templates\board\_post_chat_link.html:7 .\chat\notifications.py:98
-#: .\chat\search.py:20 .\chat\templates\chat\_embedded_chat.html:16
+#: .\chat\search.py:20 .\chat\templates\chat\_embedded_chat.html:19
 #: .\glosowania\templates\glosowania\_proposal_card.html:62
 #: .\glosowania\templates\glosowania\_proposal_card.html:67
 #: .\home\navigation.py:22 .\home\services\dashboard.py:34
@@ -1785,11 +1785,11 @@ msgstr "Tutaj pojawiają się wiadomości od niezalogowanych ludzi z zewnątrz, 
 msgid "Important documents and announcements appear in this room."
 msgstr "W tym pokoju pojawiają się ważne dokumenty i ogłoszenia."
 
-#: .\chat\templates\chat\_embedded_chat.html:18
+#: .\chat\templates\chat\_embedded_chat.html:21
 msgid "Open in chat"
 msgstr "Otwórz w czacie"
 
-#: .\chat\templates\chat\_embedded_chat.html:29
+#: .\chat\templates\chat\_embedded_chat.html:32
 msgid "Connecting…"
 msgstr "Łączenie…"
 

@@ -1,5 +1,13 @@
 # LOG_AI
 
+## 2026-09-27: Odporne testy wyszukiwania zasobow na aktywny jezyk
+
+- **Zmieniony plik:** `obywatele/tests/test_views.py`.
+- **Co sie zmienilo:** Test widoku zasobow porownuje naglowki `Offers` i `Needs` przez istniejaca funkcje tlumaczen zamiast oczekiwac angielskich tekstow niezaleznie od aktywnego jezyka.
+- **Uzasadnienie:** Pelny runner kompiluje katalogi tlumaczen przed pytestem, a domyslnym jezykiem instancji jest polski. Wtedy poprawnie przetlumaczony interfejs zwracal `Oferty` i `Potrzeby`, co ujawnialo bledne, jezykowo zalezne asercje testu.
+- **Testy:** Przeszedl test regresyjny wyszukiwania zasobow, wszystkie 1087 testow pytest, wszystkie 294 testy Jest oraz 35 uruchomionych scenariuszy Playwright (14 pozostalo pominietych zgodnie z konfiguracja projektow).
+- **Spodziewany efekt:** Test zachowuje sprawdzanie obecnosci naglowkow i przechodzi zarowno dla polskiego, jak i angielskiego aktywnego jezyka.
+
 ## 2026-09-16: Synchronizacja własnego statusu aktywności bez zakłócania odpowiedzi WebSocket
 
 - **Zmienione pliki:** `chat/consumers.py`, `tests/test_websocket.py`.
