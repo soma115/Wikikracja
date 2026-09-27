@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -80,7 +81,8 @@ def main() -> int:
 
     files = args.files if args.files is not None and args.files else _git_changed_files()
     tests = _tests_for_files(files)
-    command = [sys.executable, "-m", "pytest", "-q", "-n", "0", *tests]
+    test_workers = os.cpu_count() or 1
+    command = [sys.executable, "-m", "pytest", "-q", "-n", str(test_workers), *tests]
 
     print("Changed files:", ", ".join(files) if files else "none")
     print("Selected tests:", " ".join(tests))

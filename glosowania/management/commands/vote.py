@@ -64,6 +64,8 @@ class Command(TranslatedCommand):
                         'email_body': email_body,
                         'notification_type': 'glosowania',
                         'ws_type': 'vote.notification',
+                        'send_push': True,
+                        'send_websocket': True,
                         'log_prefix': 'glosowania: ',
                         'raise_on_error': False,
                         'vote_id': decyzja.id,
