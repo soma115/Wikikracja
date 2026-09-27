@@ -86,6 +86,7 @@ def _sync_room_last_message(sender, instance, created, **kwargs):
     # last_activity przez Greatest() — nigdy nie cofamy czasu (room mógł być bumpowany później przez inną akcję).
     if created:
         room = Room.objects.filter(id=instance.room_id).first()
+        was_archived = room is not None and room.archived
         Room.objects.filter(id=instance.room_id).update(
             last_message_text=instance.text[:200],
             last_message_sender_id=instance.sender_id,
@@ -94,7 +95,7 @@ def _sync_room_last_message(sender, instance, created, **kwargs):
             last_activity=Greatest(F('last_activity'), instance.time),
             archived=False,
         )
-        if room and room.archived and room.source_app == 'board':
+        if was_archived and room.source_app == 'board':
             from board.models import Post
 
             post = Post.objects.filter(pk=room.source_object_id, visibility=Post.Visibility.ARCHIVE).first()
@@ -161,6 +162,7 @@ def on_chat_room_requested(sender, instance, title, founder, allowed_users, welc
         # Link the source instance without re-firing post_save.
         if hasattr(instance, 'chat_room_id') and instance.chat_room_id != room.id:
             type(instance).objects.filter(pk=instance.pk).update(chat_room=room)
+        if hasattr(instance, 'chat_room_id'):
             instance.chat_room = room
 
         if welcome_message and not room.messages.exists():

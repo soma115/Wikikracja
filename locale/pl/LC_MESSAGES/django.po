@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-27 12:48+0200\n"
+"POT-Creation-Date: 2026-09-27 13:49+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -145,7 +145,7 @@ msgstr "Zezwól uczestnikom dodawać opcje"
 msgid "If enabled, participants can add their own options while the survey is active."
 msgstr "Jeśli ta opcja jest włączona, uczestnicy mogą dodawać własne opcje, dopóki ankieta jest aktywna."
 
-#: .\ankiety\models.py:23 .\ankiety\models.py:41 .\ankiety\models.py:56
+#: .\ankiety\models.py:23 .\ankiety\models.py:45 .\ankiety\models.py:60
 #: .\ankiety\templates\ankiety\_survey_detail_actions.html:18
 #: .\core\models.py:19 .\home\models.py:19 .\home\templates\home\home.html:152
 msgid "Survey"
@@ -158,40 +158,40 @@ msgstr "Ankieta"
 msgid "Surveys"
 msgstr "Ankiety"
 
-#: .\ankiety\models.py:42
+#: .\ankiety\models.py:46
 msgid "Option text"
 msgstr "Tekst opcji"
 
-#: .\ankiety\models.py:43
+#: .\ankiety\models.py:47
 msgid "Added by"
 msgstr "Dodano przez"
 
-#: .\ankiety\models.py:44 .\site_settings\models.py:106
+#: .\ankiety\models.py:48 .\site_settings\models.py:106
 msgid "Order"
 msgstr "Kolejność"
 
-#: .\ankiety\models.py:48
+#: .\ankiety\models.py:52
 msgid "Survey option"
 msgstr "Opcje ankiety"
 
-#: .\ankiety\models.py:49
+#: .\ankiety\models.py:53
 msgid "Survey options"
 msgstr "Opcje ankiety"
 
-#: .\ankiety\models.py:57 .\obywatele\management\commands\count_citizens.py:248
+#: .\ankiety\models.py:61 .\obywatele\management\commands\count_citizens.py:248
 #: .\obywatele\models.py:277
 msgid "User"
 msgstr "Użytkownik"
 
-#: .\ankiety\models.py:58
+#: .\ankiety\models.py:62
 msgid "Chosen option"
 msgstr "Wybierz opcję"
 
-#: .\ankiety\models.py:64
+#: .\ankiety\models.py:68
 msgid "Survey vote"
 msgstr "Głos w ankiecie"
 
-#: .\ankiety\models.py:65
+#: .\ankiety\models.py:69
 msgid "Survey votes"
 msgstr "Głosy w ankiecie"
 
@@ -608,32 +608,32 @@ msgstr "Klucz systemowy"
 msgid "Link Alias"
 msgstr "Alias linku"
 
-#: .\board\models.py:94 .\board\signals.py:94
+#: .\board\models.py:98 .\board\signals.py:94
 msgid "System posts cannot be deleted."
 msgstr "Dokumenty systemowe nie mogą być usunięte"
 
-#: .\board\models.py:119 .\board\search.py:17 .\core\models.py:13
+#: .\board\models.py:123 .\board\search.py:17 .\core\models.py:13
 #: .\home\models.py:13
 msgid "Post"
 msgstr "Dokument"
 
-#: .\board\models.py:120
+#: .\board\models.py:124
 msgid "File"
 msgstr "Plik"
 
-#: .\board\models.py:121
+#: .\board\models.py:125
 msgid "Filename"
 msgstr "Nazwa pliku"
 
-#: .\board\models.py:122
+#: .\board\models.py:126
 msgid "Uploaded At"
 msgstr "Przesłano"
 
-#: .\board\models.py:125
+#: .\board\models.py:129
 msgid "Post Attachment"
 msgstr "Załącznik"
 
-#: .\board\models.py:126
+#: .\board\models.py:130
 msgid "Post Attachments"
 msgstr "Załączniki"
 
@@ -1757,7 +1757,7 @@ msgstr "Brak wiadomości. Napisz pierwszy!"
 msgid "No access to this chat."
 msgstr "Brak dostępu do tego czatu."
 
-#: .\chat\models.py:12 .\chat\services.py:183
+#: .\chat\models.py:69 .\chat\services.py:183
 #: .\obywatele\tests\test_views.py:444 .\obywatele\tests\test_views.py:445
 #: .\obywatele\tests\test_views.py:448
 msgid "Chat room"
