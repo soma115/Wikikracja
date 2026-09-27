@@ -10808,10 +10808,6 @@ body.tw-chat-page .tw-main-area {
   border-color: var(--badge-rejected-color);
 }
 
-.tw-border-primary {
-  border-color: var(--color-primary);
-}
-
 .tw-bg-bg-card {
   background-color: var(--bg-card);
 }
