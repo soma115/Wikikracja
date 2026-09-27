@@ -54,13 +54,15 @@ class ChatRoomRepository:
 
     @database_sync_to_async
     def unmute_room(self, room_id):
-        self.get_accessible_room_sync(room_id).muted_by.remove(self.user)
+        room = self.get_accessible_room_sync(room_id)
+        room.muted_by.remove(self.user)
+        room.manually_muted_by.remove(self.user)
 
     @database_sync_to_async
     def mute_room(self, room_id):
         room = self.get_accessible_room_sync(room_id)
-        if not room.muted_by.filter(id=self.user.id).exists():
-            room.muted_by.add(self.user)
+        room.muted_by.add(self.user)
+        room.manually_muted_by.add(self.user)
 
     @database_sync_to_async
     def get_rooms_with_notifications_enabled(self):

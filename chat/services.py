@@ -777,6 +777,9 @@ def _create_and_build_message(
 
     message = _create_message(room, sender, message_text, anonymous, guest_email, guest_name, sender_display_name, reply_to_id, federation_message_id, federation_source_url, federation_source_message_id)
 
+    if sender is not None:
+        Room.enable_notifications_after_message(room.id, sender.id)
+
     if attachments:
         _save_attachments_sync(message.id, attachments)
 

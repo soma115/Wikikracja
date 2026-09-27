@@ -61,6 +61,7 @@ class ChatRoomQuerySet(models.QuerySet):
         memberships = [Room.allowed.through(room_id=room.pk, user_id=user_id) for room in existing.values() for user_id in users]
         if memberships:
             Room.allowed.through.objects.bulk_create(memberships, ignore_conflicts=True)
+            Room.apply_default_notification_preferences([room.pk for room in rooms_to_create], users)
 
 
 class ChatRoomModel(models.Model):
@@ -102,8 +103,11 @@ class Room(models.Model):
     # List of users who saw all messages in this chat
     seen_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="seen_rooms")
 
-    # List of users who disabled notifications
+    # List of users who disabled notifications (including default room preferences)
     muted_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='muted_rooms')
+
+    # Users who explicitly disabled notifications for this room.
+    manually_muted_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='manually_muted_rooms')
 
     # Last activity timestamp
     last_activity = models.DateTimeField(auto_now=True)
@@ -139,6 +143,26 @@ class Room(models.Model):
     federation_last_communication_at = models.DateTimeField(null=True, blank=True)
 
     SOURCE_URL_NAMES = {'tasks': 'tasks:detail', 'board': 'board:view_post', 'glosowania': 'glosowania:details', 'ankiety': 'ankiety:detail'}
+    DEFAULT_MUTED_SOURCE_APPS = frozenset({'tasks', 'board', 'glosowania', 'ankiety'})
+
+    def has_default_muted_notifications(self):
+        """Return whether new members should initially mute this room."""
+        return bool(self.federated_instance_url or self.source_app in self.DEFAULT_MUTED_SOURCE_APPS)
+
+    @classmethod
+    def apply_default_notification_preferences(cls, room_ids, user_ids):
+        """Mute newly added users in rooms whose default is notifications-off."""
+        if not room_ids or not user_ids:
+            return
+        muted_room_ids = cls.objects.filter(pk__in=room_ids).filter(models.Q(federated_instance_url__isnull=False) | models.Q(source_app__in=cls.DEFAULT_MUTED_SOURCE_APPS)).values_list('pk', flat=True)
+        cls.muted_by.through.objects.bulk_create([cls.muted_by.through(room_id=room_id, user_id=user_id) for room_id in muted_room_ids for user_id in user_ids], ignore_conflicts=True)
+
+    @classmethod
+    def enable_notifications_after_message(cls, room_id, user_id):
+        """Enable default-muted room notifications after a user's first message."""
+        if cls.manually_muted_by.through.objects.filter(room_id=room_id, user_id=user_id).exists():
+            return
+        cls.muted_by.through.objects.filter(room_id=room_id, user_id=user_id).delete()
 
     @property
     def source_url(self):

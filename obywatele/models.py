@@ -126,13 +126,13 @@ class Uzytkownik(models.Model):
 
     # Push notification preferences
     muted_push_users = models.ManyToManyField(User, blank=True, related_name='push_muted_by', verbose_name=_('Muted people'))
-    push_notifications_obywatele = models.BooleanField(default=True, help_text=_('Receive push notifications about new citizens and membership requests'), verbose_name=_('Push citizenship notifications'))
-    push_notifications_glosowania = models.BooleanField(default=True, help_text=_('Receive push notifications about law proposals and voting'), verbose_name=_('Push voting notifications'))
+    push_notifications_obywatele = models.BooleanField(default=False, help_text=_('Receive push notifications about new citizens and membership requests'), verbose_name=_('Push citizenship notifications'))
+    push_notifications_glosowania = models.BooleanField(default=False, help_text=_('Receive push notifications about law proposals and voting'), verbose_name=_('Push voting notifications'))
     push_notifications_chat = models.BooleanField(default=True, help_text=_('Receive push notifications about new chat messages'), verbose_name=_('Push chat notifications'))
     push_notifications_events = models.BooleanField(default=True, help_text=_('Receive push notifications about events'), verbose_name=_('Push event notifications'))
-    push_notifications_post = models.BooleanField(default=True, help_text=_('Receive push notifications about new and updated documents'), verbose_name=_('Push document notifications'))
-    push_notifications_task = models.BooleanField(default=True, help_text=_('Receive push notifications about new activities'), verbose_name=_('Push activity notifications'))
-    push_notifications_survey = models.BooleanField(default=True, help_text=_('Receive push notifications about new surveys'), verbose_name=_('Push survey notifications'))
+    push_notifications_post = models.BooleanField(default=False, help_text=_('Receive push notifications about new and updated documents'), verbose_name=_('Push document notifications'))
+    push_notifications_task = models.BooleanField(default=False, help_text=_('Receive push notifications about new activities'), verbose_name=_('Push activity notifications'))
+    push_notifications_survey = models.BooleanField(default=False, help_text=_('Receive push notifications about new surveys'), verbose_name=_('Push survey notifications'))
 
     # Per-device-type push toggles (phone = mobile/tablet, computer = desktop browsers/PWAs)
     push_phone_enabled = models.BooleanField(default=True, help_text=_('Receive push notifications on phones and tablets'), verbose_name=_('Push on phone'))

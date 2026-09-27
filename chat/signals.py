@@ -19,6 +19,13 @@ chat_room_requested = Signal()
 chat_message_requested = Signal()
 
 
+@receiver(m2m_changed, sender=Room.allowed.through)
+def apply_default_room_notification_preferences(sender, instance, action, pk_set, **kwargs):
+    """Mute source-managed rooms for newly added members by default."""
+    if action == 'post_add':
+        Room.apply_default_notification_preferences([instance.pk], pk_set)
+
+
 def request_discussion_room(instance, *, founder, allowed_users=None, welcome_message='', welcome_message_sender=None, welcome_message_anonymous=True, public=True, archived=False):
     """Ask chat to create or update the discussion room linked to a ChatRoomModel instance.
 
@@ -216,12 +223,13 @@ def create_one2one_rooms(sender, **kwargs):
 @receiver(citizen_accepted)
 def add_citizen_to_public_rooms(sender, user, **kwargs):
     """Grant a newly accepted citizen access to existing public rooms."""
-    room_ids = Room.objects.filter(public=True).values_list('id', flat=True)
+    room_ids = list(Room.objects.filter(public=True).values_list('id', flat=True))
     membership_model = Room.allowed.through
     user_id = getattr(user, 'pk', getattr(user, 'id', None))
     if not user_id or not get_user_model().objects.filter(pk=user_id).exists():
         return
     membership_model.objects.bulk_create([membership_model(room_id=room_id, user_id=user_id) for room_id in room_ids], ignore_conflicts=True)
+    Room.apply_default_notification_preferences(room_ids, [user_id])
 
 
 @receiver(citizen_deleted)
@@ -238,4 +246,5 @@ def cleanup_user_chat_rooms(sender, user, **kwargs):
 
     user.rooms.clear()
     user.muted_rooms.clear()
+    user.manually_muted_rooms.clear()
     user.seen_rooms.clear()

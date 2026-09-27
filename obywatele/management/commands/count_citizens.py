@@ -205,7 +205,6 @@ class Command(BaseCommand):
                         log.warning(f'Welcome email system post not found, skipping email for user {uemail}')
                         return
 
-                    # Notify the chat app and the central dispatcher that a citizen was accepted
                     log.info(f'EMAIL_DIAG trigger=user_accepted_signal user_id={i.uid.id} email={uemail} username={uname} source=count_citizens.activate_eligible_users')
                     log.info(f'EMAIL_DIAG trigger=welcome_email user_id={i.uid.id} email={uemail} username={uname} source=count_citizens.activate_eligible_users subject={subject}')
                     citizen_accepted.send(sender='count_citizens', user=i.uid, recipient_email=uemail, recipient_subject=subject, recipient_body=message, sleep_before=s.EMAIL_SEND_DELAY_SECONDS)

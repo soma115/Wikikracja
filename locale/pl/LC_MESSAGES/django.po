@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-27 15:05+0200\n"
+"POT-Creation-Date: 2026-09-27 18:44+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -66,7 +66,7 @@ msgstr "Każda opcja musi być unikalna."
 msgid "Your option"
 msgstr "Twoja opcja"
 
-#: .\ankiety\forms.py:105 .\ankiety\templates\ankiety\survey_list.html:96
+#: .\ankiety\forms.py:105 .\ankiety\templates\ankiety\survey_list.html:102
 msgid "Add your own option"
 msgstr "Dodaj własną opcję"
 
@@ -74,7 +74,7 @@ msgstr "Dodaj własną opcję"
 msgid "Enter an option."
 msgstr "Wprowadź opcję."
 
-#: .\ankiety\forms.py:116 .\ankiety\views.py:135 .\ankiety\views.py:247
+#: .\ankiety\forms.py:116 .\ankiety\views.py:135 .\ankiety\views.py:252
 msgid "This option already exists."
 msgstr "Ta opcja już istnieje."
 
@@ -178,7 +178,7 @@ msgstr "Opcje ankiety"
 msgid "Survey options"
 msgstr "Opcje ankiety"
 
-#: .\ankiety\models.py:61 .\obywatele\management\commands\count_citizens.py:248
+#: .\ankiety\models.py:61 .\obywatele\management\commands\count_citizens.py:219
 #: .\obywatele\models.py:277
 msgid "User"
 msgstr "Użytkownik"
@@ -280,12 +280,12 @@ msgstr "Status"
 
 #: .\ankiety\templates\ankiety\_survey_results.html:8
 #: .\ankiety\templates\ankiety\survey_detail.html:55
-#: .\ankiety\templates\ankiety\survey_list.html:84
+#: .\ankiety\templates\ankiety\survey_list.html:90
 msgid "Added by a participant"
 msgstr "Dodane przez uczestnika"
 
 #: .\ankiety\templates\ankiety\_survey_results.html:20
-#: .\ankiety\templates\ankiety\survey_list.html:91
+#: .\ankiety\templates\ankiety\survey_list.html:97
 msgid "No options"
 msgstr "Brak opcji."
 
@@ -302,28 +302,28 @@ msgid "Search"
 msgstr "Szukaj"
 
 #: .\ankiety\templates\ankiety\survey_detail.html:33
-#: .\ankiety\templates\ankiety\survey_list.html:123
+#: .\ankiety\templates\ankiety\survey_list.html:129
 msgid "You can change your vote."
 msgstr "Możesz zmienić swój głos."
 
 #: .\ankiety\templates\ankiety\survey_detail.html:39
 #: .\ankiety\templates\ankiety\survey_detail.html:71
-#: .\ankiety\templates\ankiety\survey_list.html:112
+#: .\ankiety\templates\ankiety\survey_list.html:118
 msgid "Change vote"
 msgstr "Zmień głos"
 
 #: .\ankiety\templates\ankiety\survey_detail.html:39
-#: .\ankiety\templates\ankiety\survey_list.html:112
+#: .\ankiety\templates\ankiety\survey_list.html:118
 msgid "Vote"
 msgstr "Głosuj"
 
 #: .\ankiety\templates\ankiety\survey_detail.html:43
-#: .\ankiety\templates\ankiety\survey_list.html:128
+#: .\ankiety\templates\ankiety\survey_list.html:134
 msgid "You can select more than one option."
 msgstr "Możesz wybrać więcej niż jedną opcję."
 
 #: .\ankiety\templates\ankiety\survey_detail.html:64
-#: .\ankiety\templates\ankiety\survey_list.html:104
+#: .\ankiety\templates\ankiety\survey_list.html:110
 msgid "Add option"
 msgstr "Dodaj opcję"
 
@@ -332,7 +332,7 @@ msgid "Send vote"
 msgstr "Wyślij głos"
 
 #: .\ankiety\templates\ankiety\survey_detail.html:75
-#: .\ankiety\templates\ankiety\survey_list.html:116
+#: .\ankiety\templates\ankiety\survey_list.html:122
 msgid "Withdraw vote"
 msgstr "Wycofaj głos"
 
@@ -387,15 +387,29 @@ msgstr "Dodaj ankietę"
 msgid "Save"
 msgstr "Zapisz"
 
-#: .\ankiety\templates\ankiety\survey_list.html:140
+#: .\ankiety\templates\ankiety\survey_list.html:59
+#: .\board\templates\board\_post_chat_link.html:5
+#: .\board\templates\board\_post_chat_link.html:7 .\chat\notifications.py:98
+#: .\chat\search.py:20 .\chat\templates\chat\_embedded_chat.html:22
+#: .\glosowania\templates\glosowania\_proposal_card.html:62
+#: .\glosowania\templates\glosowania\_proposal_card.html:67
+#: .\home\navigation.py:22 .\home\services\dashboard.py:34
+#: .\home\templates\home\home.html:303 .\home\templates\home\home.html:312
+#: .\home\templates\home\home.html:335 .\home\templatetags\feed_filters.py:41
+#: .\home\views.py:123 .\home\views.py:280 .\obywatele\views.py:460
+#: .\tasks\templates\tasks\_task_card.html:74
+msgid "Chat"
+msgstr "Czat"
+
+#: .\ankiety\templates\ankiety\survey_list.html:146
 msgid "No ongoing surveys."
 msgstr "Brak trwających ankiet."
 
-#: .\ankiety\templates\ankiety\survey_list.html:142
+#: .\ankiety\templates\ankiety\survey_list.html:148
 msgid "No finished surveys."
 msgstr "Brak ukończonych ankiet."
 
-#: .\ankiety\templates\ankiety\survey_list.html:145
+#: .\ankiety\templates\ankiety\survey_list.html:151
 msgid "Add the first survey"
 msgstr "Stwórz pierwszą ankietę"
 
@@ -419,35 +433,35 @@ msgstr "Jeszcze nie głosowałeś w tej ankicie."
 msgid "Your vote has been saved."
 msgstr "Twój głos został zapisany."
 
-#: .\ankiety\views.py:127 .\ankiety\views.py:239
+#: .\ankiety\views.py:127 .\ankiety\views.py:244
 msgid "The survey is closed and options cannot be added."
 msgstr "Ankieta jest zamknięta i nie można dodawać opcji."
 
-#: .\ankiety\views.py:130 .\ankiety\views.py:242
+#: .\ankiety\views.py:130 .\ankiety\views.py:247
 msgid "Adding options is not allowed for this survey."
 msgstr "Dodawanie opcji w tej ankiecie jest niedozwolone."
 
-#: .\ankiety\views.py:137 .\ankiety\views.py:249
+#: .\ankiety\views.py:137 .\ankiety\views.py:254
 msgid "Your option has been added."
 msgstr "Twoja opcja została dodana."
 
-#: .\ankiety\views.py:184
+#: .\ankiety\views.py:189
 msgid "The survey has been created."
 msgstr "Ankieta została utworzona."
 
-#: .\ankiety\views.py:197
+#: .\ankiety\views.py:202
 msgid "The survey is closed and cannot be edited."
 msgstr "Ankieta jest zamknięta i nie może być edytowana."
 
-#: .\ankiety\views.py:205
+#: .\ankiety\views.py:210
 msgid "The survey has been updated."
 msgstr "Ankieta została zaktualizowana."
 
-#: .\ankiety\views.py:289
+#: .\ankiety\views.py:294
 msgid "Only the author can delete this survey."
 msgstr "Tylko autor może usunąć tę ankietę."
 
-#: .\ankiety\views.py:292
+#: .\ankiety\views.py:297
 msgid "The survey has been deleted."
 msgstr "Ankieta została usunięta."
 
@@ -667,19 +681,6 @@ msgstr "Zaktualizowałem ważny dokument: %(link)s"
 msgid "Discussion room for document: <a href='%(url)s'>%(title)s</a>"
 msgstr "Pokój dyskusji do dokumentu: <a href='%(url)s'>%(title)s</a>"
 
-#: .\board\templates\board\_post_chat_link.html:5
-#: .\board\templates\board\_post_chat_link.html:7 .\chat\notifications.py:98
-#: .\chat\search.py:20 .\chat\templates\chat\_embedded_chat.html:22
-#: .\glosowania\templates\glosowania\_proposal_card.html:62
-#: .\glosowania\templates\glosowania\_proposal_card.html:67
-#: .\home\navigation.py:22 .\home\services\dashboard.py:34
-#: .\home\templates\home\home.html:303 .\home\templates\home\home.html:312
-#: .\home\templates\home\home.html:335 .\home\templatetags\feed_filters.py:41
-#: .\home\views.py:123 .\home\views.py:280 .\obywatele\views.py:460
-#: .\tasks\templates\tasks\_task_card.html:74
-msgid "Chat"
-msgstr "Czat"
-
 #: .\board\templates\board\_post_detail_actions.html:8
 msgid "Restore"
 msgstr "Przywróć"
@@ -712,7 +713,7 @@ msgstr "Wróć"
 #: .\board\templates\board\_post_detail_meta.html:12
 #: .\board\templates\board\board.html:70 .\board\templates\board\board.html:94
 #: .\chat\search.py:25 .\chat\templates\chat\room_link.html:57
-#: .\core\notifications.py:609
+#: .\core\notifications.py:497
 msgid "System"
 msgstr "System"
 
@@ -888,7 +889,8 @@ msgstr "A-Z"
 msgid "Date"
 msgstr "Data"
 
-#: .\bookkeeping\forms.py:28 .\bookkeeping\models.py:108
+#: .\bookkeeping\feed.py:15 .\bookkeeping\forms.py:28
+#: .\bookkeeping\models.py:108
 #: .\bookkeeping\templates\bookkeeping\_transaction_card.html:29
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:37
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:9
@@ -896,7 +898,8 @@ msgstr "Data"
 msgid "Incoming"
 msgstr "Przychodzący"
 
-#: .\bookkeeping\forms.py:28 .\bookkeeping\models.py:108
+#: .\bookkeeping\feed.py:15 .\bookkeeping\forms.py:28
+#: .\bookkeeping\models.py:108
 #: .\bookkeeping\templates\bookkeeping\_transaction_card.html:31
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:39
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:11
@@ -1115,7 +1118,6 @@ msgstr "Suma"
 
 #: .\bookkeeping\templates\bookkeeping\_transaction_card.html:12
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:8
-#: .\home\templatetags\feed_filters.py:45
 msgid "Transaction"
 msgstr "Transakcja"
 
@@ -1757,7 +1759,7 @@ msgstr "Brak wiadomości. Napisz pierwszy!"
 msgid "No access to this chat."
 msgstr "Brak dostępu do tego czatu."
 
-#: .\chat\models.py:69 .\chat\services.py:183
+#: .\chat\models.py:70 .\chat\services.py:183
 #: .\obywatele\tests\test_views.py:444 .\obywatele\tests\test_views.py:445
 #: .\obywatele\tests\test_views.py:448
 msgid "Chat room"
@@ -2016,51 +2018,27 @@ msgstr "Referendum"
 msgid "Citizen Activity"
 msgstr "Aktywność obywatela"
 
-#: .\core\notifications.py:422 .\obywatele\views.py:425
-msgid "New citizen has been proposed"
-msgstr "Został zaproponowany nowy użytkownik"
-
-#: .\core\notifications.py:423
-msgid "A new citizen has been proposed"
-msgstr "Został zaproponowany nowy użytkownik"
-
-#: .\core\notifications.py:426
-msgid "A new citizen has been proposed. You can view the waiting room here:"
-msgstr "Został zaproponowany nowy użytkownik. Poczekalnię możesz zobaczyć tutaj:"
-
-#: .\core\notifications.py:428
-msgid "New person requested membership"
-msgstr "Nowa osoba poprosiła o dołączenie do grupy"
-
-#: .\core\notifications.py:429
-msgid "A new person has requested membership"
-msgstr "Nowa osoba poprosiła o dołączenie do grupy"
-
-#: .\core\notifications.py:432
-msgid "A new person has requested membership. You can view the waiting room here:"
-msgstr "Nowa osoba poprosiła o dołączenie do grupy. Poczekalnię możesz zobaczyć tutaj:"
-
-#: .\core\notifications.py:569
+#: .\core\notifications.py:457
 msgid "starting now"
 msgstr "zaczyna się teraz"
 
-#: .\core\notifications.py:590
+#: .\core\notifications.py:478
 msgid "New activity created"
 msgstr "Utworzono nowe działanie"
 
-#: .\core\notifications.py:603
+#: .\core\notifications.py:491
 msgid "Important post published"
 msgstr "Opublikowano ważny wpis"
 
-#: .\core\notifications.py:605
+#: .\core\notifications.py:493
 msgid "Important post updated"
 msgstr "Zaktualizowano ważny wpis"
 
-#: .\core\notifications.py:612
+#: .\core\notifications.py:500
 msgid "by"
 msgstr "przez"
 
-#: .\core\notifications.py:621
+#: .\core\notifications.py:509
 msgid "New survey created"
 msgstr "Utworzono nową ankietę"
 
@@ -3898,6 +3876,12 @@ msgstr "Ludzie"
 msgid "Membership"
 msgstr "Członkostwo"
 
+#: .\home\templatetags\feed_filters.py:45
+#, fuzzy
+#| msgid "Finance"
+msgid "Finanse"
+msgstr "Finanse"
+
 #: .\home\test_feed.py:78 .\tasks\activity.py:20
 #: .\tasks\templatetags\tasks_extras.py:42 .\tasks\tests\test_views.py:270
 msgid "Awaiting"
@@ -4073,28 +4057,28 @@ msgstr "Wprowadź nazwę."
 msgid "Your candidacy is still in the queue. Please wait for verification."
 msgstr "Twoja kandydatura nadal czeka na zatwierdzenie. Poprosimy jeszcze o trochę cierpliwości."
 
-#: .\obywatele\management\commands\count_citizens.py:175
+#: .\obywatele\management\commands\count_citizens.py:174
 msgid "Candidate has been accepted as a citizen"
 msgstr "Kandydat został zaakceptowany"
 
-#: .\obywatele\management\commands\count_citizens.py:235
+#: .\obywatele\management\commands\count_citizens.py:206
 msgid "Your account has been blocked"
 msgstr "Twoje konto zostało zablokowane"
 
-#: .\obywatele\management\commands\count_citizens.py:237
+#: .\obywatele\management\commands\count_citizens.py:208
 msgid "Welcome"
 msgstr "Witaj"
 
-#: .\obywatele\management\commands\count_citizens.py:238
+#: .\obywatele\management\commands\count_citizens.py:209
 msgid "Your account on"
 msgstr "Twoje konto na"
 
-#: .\obywatele\management\commands\count_citizens.py:238
-#: .\obywatele\management\commands\count_citizens.py:248
+#: .\obywatele\management\commands\count_citizens.py:209
+#: .\obywatele\management\commands\count_citizens.py:219
 msgid "has been blocked"
 msgstr "został zablokowany"
 
-#: .\obywatele\management\commands\count_citizens.py:247
+#: .\obywatele\management\commands\count_citizens.py:218
 msgid "Citizen has been banned"
 msgstr "Ta osoba została zbanowana"
 
@@ -5138,6 +5122,10 @@ msgstr "Email już istnieje"
 #: .\obywatele\views.py:421
 msgid "The new user has been saved"
 msgstr "Nowy użytkownik został zapisany."
+
+#: .\obywatele\views.py:425
+msgid "New citizen has been proposed"
+msgstr "Został zaproponowany nowy użytkownik"
 
 #: .\obywatele\views.py:439 .\obywatele\views.py:501 .\obywatele\views.py:895
 msgid "Please correct the highlighted errors."

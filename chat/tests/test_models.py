@@ -95,6 +95,36 @@ class RoomModelTest(TestCase):
         result = Room.get_membership_preferences_bulk(self.public_room.id, [self.alice.id])
         self.assertTrue(result[self.alice.id]["muted"])
 
+    def test_source_room_is_muted_for_new_members(self):
+        room = Room.objects.create(title='Task room', public=True, source_app='tasks', source_object_id=1)
+        room.allowed.add(self.alice)
+
+        preferences = Room.get_membership_preferences_bulk(room.id, [self.alice.id])
+
+        self.assertTrue(preferences[self.alice.id]['muted'])
+        self.assertFalse(room.manually_muted_by.filter(pk=self.alice.pk).exists())
+
+    def test_public_and_private_rooms_are_enabled_for_new_members(self):
+        public_room = Room.objects.create(title='Public room', public=True)
+        private_room = Room.objects.create(title='Private room', public=False)
+        public_room.allowed.add(self.alice)
+        private_room.allowed.add(self.alice)
+
+        self.assertFalse(public_room.muted_by.filter(pk=self.alice.pk).exists())
+        self.assertFalse(private_room.muted_by.filter(pk=self.alice.pk).exists())
+
+    def test_message_enables_default_muted_room_unless_manually_muted(self):
+        room = Room.objects.create(title='Task room', public=True, source_app='tasks', source_object_id=1)
+        room.allowed.add(self.alice)
+
+        Room.enable_notifications_after_message(room.id, self.alice.id)
+        self.assertFalse(room.muted_by.filter(pk=self.alice.pk).exists())
+
+        room.muted_by.add(self.alice)
+        room.manually_muted_by.add(self.alice)
+        Room.enable_notifications_after_message(room.id, self.alice.id)
+        self.assertTrue(room.muted_by.filter(pk=self.alice.pk).exists())
+
     def test_get_membership_preferences_bulk_empty_user_ids(self):
         self.assertEqual(Room.get_membership_preferences_bulk(self.public_room.id, []), {})
 

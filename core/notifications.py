@@ -23,7 +23,7 @@ from firebase_admin import messaging
 from push_notifications.models import GCMDevice
 
 from core.richtext import strip_tags
-from core.signals import citizen_accepted, citizen_blocked, citizen_proposed, event_starting, important_post_published, survey_created, task_created, vote_started, vote_state_changed
+from core.signals import citizen_accepted, event_starting, important_post_published, survey_created, task_created, vote_started, vote_state_changed
 from core.utils import build_site_url, get_site_domain, get_user_language
 from site_settings.models import SiteParameters
 from site_settings.services import get_branding_version
@@ -415,38 +415,6 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
                 raise
 
 
-@receiver(citizen_proposed)
-def on_citizen_proposed(sender, candidate, proposed_by=None, **kwargs):
-    """Notify all active users that a new citizen has been proposed or signed up."""
-    if proposed_by:
-        title = _('New citizen has been proposed')
-        body = _('A new citizen has been proposed')
-        click_action = build_site_url(f'/obywatele/poczekalnia/{candidate.id}')
-        tag = f'citizen-{candidate.id}'
-        email_body = _('A new citizen has been proposed. You can view the waiting room here:') + f' {click_action}'
-    else:
-        title = _('New person requested membership')
-        body = _('A new person has requested membership')
-        click_action = build_site_url('/obywatele/poczekalnia/')
-        tag = f'citizen-signup-{candidate.id}'
-        email_body = _('A new person has requested membership. You can view the waiting room here:') + f' {click_action}'
-
-    _dispatch_notification(
-        title,
-        body,
-        click_action,
-        tag,
-        notification_type='obywatele',
-        ws_type='citizen.notification',
-        email_subject=title,
-        email_body=email_body,
-        send_push=True,
-        send_websocket=True,
-        send_email=True,
-        citizen_id=candidate.id,
-    )
-
-
 @receiver(citizen_accepted)
 def on_citizen_accepted(sender, user, **kwargs):
     """Send a welcome email to the freshly-activated citizen."""
@@ -477,58 +445,6 @@ def on_citizen_accepted(sender, user, **kwargs):
     )
 
 
-@receiver(citizen_blocked)
-def on_citizen_blocked(sender, user, **kwargs):
-    """Notify the blocked citizen personally and broadcast the ban to active users."""
-    title = kwargs.pop('title', '')
-    body = kwargs.pop('body', '')
-    click_action = kwargs.pop('click_action', '')
-    tag = kwargs.pop('tag', '')
-    recipient_subject = kwargs.pop('recipient_subject', None)
-    recipient_body = kwargs.pop('recipient_body', None)
-    recipient_email = kwargs.pop('recipient_email', None)
-    sleep_before = kwargs.pop('sleep_before', 0)
-    kwargs.pop('was_previously_active', None)
-
-    # Personal email to the banned citizen
-    recipient = recipient_email or (user.email if user else None)
-    if recipient and recipient_subject and recipient_body:
-        _dispatch_notification(
-            recipient_subject,
-            recipient_body,
-            '',
-            f'citizen-blocked-{user.id}',
-            notification_type='obywatele',
-            ws_type='citizen.notification',
-            send_push=False,
-            send_websocket=False,
-            send_email=True,
-            recipient_email=recipient,
-            recipient_user=user,
-            recipient_subject=recipient_subject,
-            recipient_body=recipient_body,
-            sleep_before=sleep_before,
-        )
-
-    # Broadcast notification to remaining active users
-    if title and body and click_action and tag:
-        _dispatch_notification(
-            title,
-            body,
-            click_action,
-            tag,
-            notification_type='obywatele',
-            ws_type='citizen.notification',
-            send_push=True,
-            send_websocket=True,
-            send_email=False,
-            in_thread=False,
-            daemon=False,
-            strip_html=True,
-            citizen_id=user.id if user else None,
-        )
-
-
 @receiver(vote_started)
 @receiver(vote_state_changed)
 def on_vote_notification(sender, **kwargs):
@@ -544,6 +460,8 @@ def on_vote_notification(sender, **kwargs):
     kwargs.setdefault('in_thread', False)
     kwargs.setdefault('daemon', False)
     # Digest emails are sent once daily; do not send immediate vote emails.
+    kwargs.setdefault('send_push', False)
+    kwargs.setdefault('send_websocket', False)
     kwargs.setdefault('send_email', False)
 
     if 'title' in kwargs and 'body' in kwargs and 'click_action' in kwargs and 'tag' in kwargs:
@@ -590,7 +508,7 @@ def on_task_created(sender, task, url, **kwargs):
     title = _('New activity created')
     body = f'{task.title}\n{url}'
     _dispatch_notification(
-        title, body, url, f'task-{task.id}', notification_type='task', ws_type='task.notification', email_subject=title, email_body=body, send_push=True, send_websocket=True, send_email=False, task_id=task.id
+        title, body, url, f'task-{task.id}', notification_type='task', ws_type='task.notification', email_subject=title, email_body=body, send_push=False, send_websocket=False, send_email=False, task_id=task.id
     )
 
 
@@ -611,7 +529,7 @@ def on_important_post_published(sender, post, url, created=False, **kwargs):
     display_title = display_title() if callable(display_title) else post.title
     body = f'{display_title}\n{_("by")} {author}\n{url}'
     _dispatch_notification(
-        title, body, url, f'post-{post.id}', notification_type='post', ws_type='post.notification', email_subject=title, email_body=body, send_push=True, send_websocket=True, send_email=False, post_id=post.id
+        title, body, url, f'post-{post.id}', notification_type='post', ws_type='post.notification', email_subject=title, email_body=body, send_push=False, send_websocket=False, send_email=False, post_id=post.id
     )
 
 
@@ -629,8 +547,8 @@ def on_survey_created(sender, survey, url, **kwargs):
         ws_type='survey.notification',
         email_subject=title,
         email_body=body,
-        send_push=True,
-        send_websocket=True,
+        send_push=False,
+        send_websocket=False,
         send_email=False,
         survey_id=survey.id,
     )

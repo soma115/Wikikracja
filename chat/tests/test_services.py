@@ -1,4 +1,3 @@
-import json
 import os
 import subprocess
 import sys
@@ -367,6 +366,8 @@ class GetUnseenRoomIdsTest(TestCase):
 
 class DomainNotificationSignalTest(TestCase):
     def setUp(self):
+        cache.clear()
+        self.addCleanup(cache.clear)
         self.dispatch = self.enterContext(patch("core.notifications._dispatch_notification"))
         self.user = SimpleNamespace(id=41, username="citizen", email="citizen@example.com", get_full_name=lambda: "Citizen")
 
@@ -498,8 +499,6 @@ class DomainNotificationSignalTest(TestCase):
         event = SimpleNamespace(id=44, title="Event title", link="https://example.com/event")
         survey = SimpleNamespace(id=45, title="Survey title")
         cases = (
-            ("citizen signup", signals.citizen_proposed, {"candidate": self.user}, "obywatele", "citizen.notification", "citizen-signup-41", {"citizen_id": 41}),
-            ("citizen proposed", signals.citizen_proposed, {"candidate": self.user, "proposed_by": self.user}, "obywatele", "citizen.notification", "citizen-41", {"citizen_id": 41}),
             ("task", signals.task_created, {"task": task, "url": "https://example.com/task"}, "task", "task.notification", "task-42", {"task_id": 42}),
             ("new post", signals.important_post_published, {"post": post, "url": "https://example.com/post", "created": True}, "post", "post.notification", "post-43", {"post_id": 43}),
             ("updated post", signals.important_post_published, {"post": post, "url": "https://example.com/post", "created": False}, "post", "post.notification", "post-43", {"post_id": 43}),
@@ -541,38 +540,24 @@ class DomainNotificationSignalTest(TestCase):
             signals.citizen_accepted.send(sender=type(self), user=self.user)
         self.dispatch.assert_not_called()
 
-    def test_citizen_blocked_dispatches_one_broadcast(self):
+    def test_citizen_blocked_does_not_dispatch_notification(self):
         signals.citizen_blocked.send(
             sender=type(self), user=self.user, title="Citizen blocked", body="Blocked body", click_action="https://example.com/citizens", tag="citizen-blocked-41", was_previously_active=False
         )
-        args, kwargs = self.assert_single_dispatch("obywatele", "citizen.notification", "citizen-blocked-41", citizen_id=self.user.id)
-        self.assertEqual(args, ("Citizen blocked", "Blocked body", "https://example.com/citizens", "citizen-blocked-41"))
-        self.assertNotIn("was_previously_active", kwargs)
-        self.assertTrue(kwargs["send_push"])
-        self.assertTrue(kwargs["send_websocket"])
-        self.assertFalse(kwargs["send_email"])
+        self.dispatch.assert_not_called()
 
-    def test_citizen_blocked_dispatches_one_personal_email(self):
+    def test_citizen_blocked_does_not_dispatch_personal_email(self):
         signals.citizen_blocked.send(sender=type(self), user=self.user, recipient_subject="Membership ended", recipient_body="Personal body", was_previously_active=False)
-        args, kwargs = self.assert_single_dispatch("obywatele", "citizen.notification", "citizen-blocked-41")
-        self.assertEqual(args, ("Membership ended", "Personal body", "", "citizen-blocked-41"))
-        self.assertEqual(kwargs["recipient_email"], self.user.email)
-        self.assertTrue(kwargs["send_email"])
-        self.assertFalse(kwargs["send_push"])
-        self.assertFalse(kwargs["send_websocket"])
+        self.dispatch.assert_not_called()
 
 
 class VoteNotificationPayloadTest(TestCase):
-    def test_vote_notification_payload_is_json_serializable(self):
+    def test_vote_notifications_are_not_dispatched_immediately(self):
         for name, signal in (('vote_started', signals.vote_started), ('vote_state_changed', signals.vote_state_changed)):
             with self.subTest(signal=name), patch('core.notifications.send_notification_to_all_sync') as deliver:
                 signal.send(sender=type(self), title='Vote title', body='Vote body', click_action='https://example.com/vote/1', tag='vote-1', vote_id=1)
 
-                deliver.assert_called_once()
-                payload = deliver.call_args.args[0]
-                self.assertEqual(json.loads(json.dumps(payload)), payload)
-                self.assertNotIn('signal', payload)
-                self.assertEqual(payload['vote_id'], 1)
+                deliver.assert_not_called()
 
 
 class TaskRoomVoterNamesTest(TestCase):
