@@ -23,6 +23,7 @@ from firebase_admin import messaging
 from push_notifications.models import GCMDevice
 
 from core.richtext import strip_tags
+from core.services.notifications import notifications_unsubscribed, unsubscribe_headers
 from core.signals import citizen_accepted, event_starting, important_post_published, survey_created, task_created, vote_started, vote_state_changed
 from core.utils import build_site_url, get_site_domain, get_user_language
 from site_settings.models import SiteParameters
@@ -134,6 +135,8 @@ _PUSH_FIELDS = {
 
 def _push_enabled_for_user(user, notification_type):
     """Return True if the user has not disabled push for the given category."""
+    if notifications_unsubscribed(user):
+        return False
     if not notification_type:
         return True
     field = _PUSH_FIELDS.get(notification_type)
@@ -164,7 +167,7 @@ def _push_user_ids(notification_type):
         return None
     User = get_user_model()
     try:
-        return set(User.objects.filter(is_active=True, **{f'uzytkownik__{field}': True}).values_list('id', flat=True))
+        return set(User.objects.filter(is_active=True, uzytkownik__notifications_unsubscribed_at__isnull=True, **{f'uzytkownik__{field}': True}).values_list('id', flat=True))
     except DatabaseError as e:
         log.warning(f'{NOTIF_LOG_TAG} Failed to load push recipients for {notification_type}: {e}')
         return set()
@@ -232,7 +235,7 @@ def send_fcm_to_all_sync(notification, user_ids=None, notification_type=None):
 
     _migrate_legacy_gcm_devices()
     try:
-        qs = GCMDevice.objects.filter(user__is_active=True, active=True, cloud_message_type='FCM').exclude(
+        qs = GCMDevice.objects.filter(user__is_active=True, user__uzytkownik__notifications_unsubscribed_at__isnull=True, active=True, cloud_message_type='FCM').exclude(
             Q(name__in=('mobile', 'tablet'), user__uzytkownik__push_phone_enabled=False) | Q(name='desktop', user__uzytkownik__push_computer_enabled=False)
         )
         if user_ids is not None:
@@ -295,7 +298,7 @@ def send_websocket_to_all_sync(notification, ws_type='notification', notificatio
         return
 
     User = get_user_model()
-    queryset = User.objects.filter(is_active=True)
+    queryset = User.objects.filter(is_active=True, uzytkownik__notifications_unsubscribed_at__isnull=True)
     if user_ids is not None:
         queryset = queryset.filter(id__in=user_ids)
     sent = 0
@@ -371,6 +374,7 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
     send_push = kwargs.pop('send_push', True)
     send_websocket = kwargs.pop('send_websocket', True)
     send_email = kwargs.pop('send_email', True)
+    transactional = kwargs.pop('transactional', False)
     in_thread = kwargs.pop('in_thread', True)
     daemon = kwargs.pop('daemon', True)
     strip_html = kwargs.pop('strip_html', False)
@@ -402,12 +406,13 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
     if sleep_before:
         time.sleep(sleep_before)
 
-    if send_email and recipient_email:
+    if send_email and recipient_email and (transactional or not notifications_unsubscribed(recipient_user)):
         subject = recipient_subject or email_subject
         message = recipient_body or email_body
         try:
             with override(get_user_language(recipient_user) if recipient_user else settings.LANGUAGE_CODE):
-                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [recipient_email], fail_silently=False)
+                mail_options = {'headers': unsubscribe_headers(recipient_user)} if not transactional and recipient_user else {}
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [recipient_email], fail_silently=False, **mail_options)
             log.debug(f'{log_tag} Email sent to {recipient_email}; subject: {subject}')
         except Exception as e:
             log.error(f'{log_tag} Failed to send email to {recipient_email}: {e}', exc_info=True)
@@ -441,6 +446,7 @@ def on_citizen_accepted(sender, user, **kwargs):
         recipient_user=user,
         recipient_subject=recipient_subject,
         recipient_body=recipient_body,
+        transactional=True,
         sleep_before=sleep_before,
     )
 

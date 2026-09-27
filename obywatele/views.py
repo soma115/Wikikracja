@@ -17,19 +17,21 @@ from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
 from django.db import DatabaseError, IntegrityError
 from django.db.models import Case, Count, IntegerField, Q, Sum, Value, When
 from django.dispatch import receiver
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import check_for_language, override
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods, require_POST
 from django.views.generic import ListView
 
 from chat.i18n import get_translations as get_chat_translations
 from chat.models import Room
 from chat.services import get_unread_message_counts_for_rooms, get_user_public_message_rows
+from core.services.notifications import clear_notifications_unsubscribe, unsubscribe_user_notifications, user_from_unsubscribe_token
 from core.signals import citizen_proposed
 from core.utils import get_user_language
 from home.navigation import default_toolbar_views
@@ -445,6 +447,28 @@ def dodaj(request: HttpRequest):
     return render(request, 'obywatele/dodaj.html', {'user_form': user_form, 'profile_form': profile_form})
 
 
+@csrf_exempt
+@require_http_methods(['GET', 'POST'])
+def unsubscribe_notifications(request: HttpRequest, token: str):
+    try:
+        user = user_from_unsubscribe_token(token)
+    except (BadSignature, SignatureExpired, User.DoesNotExist, KeyError, TypeError):
+        return HttpResponse('Invalid or expired unsubscribe link.', status=400)
+
+    if request.method == 'POST':
+        if request.POST.get('List-Unsubscribe') != 'One-Click':
+            return HttpResponse('Invalid unsubscribe request.', status=400)
+        unsubscribe_user_notifications(user, source='gmail_one_click')
+        return HttpResponse(status=200)
+
+    return HttpResponse(
+        '<!doctype html><meta charset="utf-8"><title>Unsubscribe</title>'
+        '<h1>Unsubscribe from notifications</h1>'
+        '<p>Click the button below to stop activity emails and push notifications.</p>'
+        '<form method="post"><button type="submit">Unsubscribe</button></form>'
+    )
+
+
 @login_required
 def my_profile(request: HttpRequest):
     user = request.user
@@ -553,6 +577,8 @@ def toggle_notification(request: HttpRequest):
             if value not in [choice[0] for choice in Uzytkownik.EmailFrequency.choices]:
                 return JsonResponse({'success': False, 'error': 'Invalid frequency'})
             profile.email_frequency = value
+            if value != Uzytkownik.EmailFrequency.NEVER:
+                clear_notifications_unsubscribe(profile)
             profile.save()
             return JsonResponse({'success': True})
 
@@ -570,6 +596,8 @@ def toggle_notification(request: HttpRequest):
 
         enabled = data.get('enabled', False)
         setattr(profile, field_name, enabled)
+        if enabled:
+            clear_notifications_unsubscribe(profile)
         profile.save()
 
         return JsonResponse({'success': True})

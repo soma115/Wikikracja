@@ -20,4 +20,6 @@
 {% endfor %}
 
 {{ manage_text }}
-{{ settings_url }}{% endautoescape %}
+{{ settings_url }}
+Unsubscribe from all notifications:
+{{ unsubscribe_url }}{% endautoescape %}

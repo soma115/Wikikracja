@@ -120,6 +120,8 @@ class Uzytkownik(models.Model):
     # Email digest frequency
     email_frequency = models.CharField(max_length=10, choices=EmailFrequency.choices, default=EmailFrequency.DAILY, help_text=_('How often to receive email activity digests'), verbose_name=_('Email frequency'))
     last_email_digest_at = models.DateTimeField(default=timezone.now, verbose_name=_('Last email digest sent at'))
+    notifications_unsubscribed_at = models.DateTimeField(null=True, blank=True, verbose_name=_('All notifications unsubscribed at'))
+    notifications_unsubscribe_source = models.CharField(max_length=32, blank=True, default='', verbose_name=_('Unsubscribe source'))
 
     # UI theme
     theme = models.CharField(max_length=10, choices=Theme.choices, default=Theme.AUTO, help_text=_('Preferred UI theme for web and emails'), verbose_name=_('Theme'))

@@ -24,6 +24,7 @@ urlpatterns: List[URLPattern | URLResolver] = [
     path('favicon.ico', RedirectView.as_view(url='/static/home/images/favicon.ico')),
     path('captcha/', include('captcha.urls')),
     path('contact', cv.guest_message, name='contact'),
+    path('email/unsubscribe/<str:token>/', ov.unsubscribe_notifications, name='unsubscribe_notifications'),
     path('glosowania/', include('glosowania.urls', namespace='glosowania')),
     path('obywatele/', include('obywatele.urls', namespace='obywatele')),
     path('chat/', include('chat.urls', namespace='chat')),

@@ -17,6 +17,7 @@ from django.utils.translation import override
 
 from core.richtext import one_line_snippet, strip_tags
 from core.services.feed import build_user_digest
+from core.services.notifications import build_unsubscribe_url, unsubscribe_headers
 from core.utils import build_site_url, get_site_domain, get_user_language
 from glosowania.models import Decyzja
 from home.templatetags.feed_filters import content_type_label
@@ -104,7 +105,12 @@ class Command(TranslatedCommand):
         User = get_user_model()
         now = timezone.localtime(timezone.now())
 
-        profiles = User.objects.filter(is_active=True, uzytkownik__isnull=False).select_related('uzytkownik').exclude(uzytkownik__email_frequency='never').order_by('id')
+        profiles = (
+            User.objects.filter(is_active=True, uzytkownik__isnull=False, uzytkownik__notifications_unsubscribed_at__isnull=True)
+            .select_related('uzytkownik')
+            .exclude(uzytkownik__email_frequency='never')
+            .order_by('id')
+        )
 
         sent = 0
         skipped = 0
@@ -134,7 +140,16 @@ class Command(TranslatedCommand):
 
             try:
                 send_bulk_email_in_thread(
-                    [user.email], subject, text, html_message=html, fail_silently=True, sleep_before=0, per_recipient_sleep=s.EMAIL_SEND_DELAY_SECONDS, raise_on_error=False, daemon=False
+                    [user.email],
+                    subject,
+                    text,
+                    html_message=html,
+                    headers=unsubscribe_headers(user),
+                    fail_silently=True,
+                    sleep_before=0,
+                    per_recipient_sleep=s.EMAIL_SEND_DELAY_SECONDS,
+                    raise_on_error=False,
+                    daemon=False,
                 ).join()
 
                 profile.last_email_digest_at = now
@@ -215,6 +230,7 @@ class Command(TranslatedCommand):
             'manage_text': _('You can manage your email notifications here:'),
             'since': since_str,
             'settings_url': build_site_url('/obywatele/settings/'),
+            'unsubscribe_url': build_unsubscribe_url(user),
             'sections': sections,
             'sections_html': _build_sections_html(sections),
             'theme': getattr(user, 'uzytkownik', None) and user.uzytkownik.theme or 'auto',

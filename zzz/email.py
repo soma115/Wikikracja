@@ -10,7 +10,9 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 log = logging.getLogger(__name__)
 
 
-def send_bulk_email_in_thread(recipients, subject, body, *, html_message=None, from_email=None, fail_silently=False, sleep_before=0, per_recipient_sleep=0, raise_on_error=True, log_prefix="", daemon=True):
+def send_bulk_email_in_thread(
+    recipients, subject, body, *, html_message=None, from_email=None, headers=None, fail_silently=False, sleep_before=0, per_recipient_sleep=0, raise_on_error=True, log_prefix="", daemon=True
+):
     """Send the same email to a list of recipients in a background thread.
 
     Args:
@@ -19,6 +21,7 @@ def send_bulk_email_in_thread(recipients, subject, body, *, html_message=None, f
         body: Plain-text email body (already localized/formatted).
         html_message: Optional HTML alternative body.
         from_email: Sender address (defaults to settings.DEFAULT_FROM_EMAIL).
+        headers: Mapping or callable returning per-recipient message headers.
         fail_silently: Passed to EmailMessage.send().
         sleep_before: Seconds to sleep before starting to send.
         per_recipient_sleep: Seconds to sleep after each recipient.
@@ -37,11 +40,12 @@ def send_bulk_email_in_thread(recipients, subject, body, *, html_message=None, f
             recipient_list = recipients() if callable(recipients) else recipients
             for recipient in recipient_list:
                 try:
+                    recipient_headers = headers(recipient) if callable(headers) else (headers or {})
                     if html_message:
-                        email_message = EmailMultiAlternatives(from_email=from_email, to=[recipient], subject=subject, body=body)
+                        email_message = EmailMultiAlternatives(from_email=from_email, to=[recipient], subject=subject, body=body, headers=recipient_headers)
                         email_message.attach_alternative(html_message, 'text/html')
                     else:
-                        email_message = EmailMessage(from_email=from_email, to=[recipient], subject=subject, body=body)
+                        email_message = EmailMessage(from_email=from_email, to=[recipient], subject=subject, body=body, headers=recipient_headers)
                     email_message.send(fail_silently=fail_silently)
                     log.info(f"{log_prefix}Email sent to {recipient}; subject: {subject}")
                 except Exception as e:
