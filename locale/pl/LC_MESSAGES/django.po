@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-27 13:49+0200\n"
+"POT-Creation-Date: 2026-09-27 15:05+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -669,7 +669,7 @@ msgstr "Pokój dyskusji do dokumentu: <a href='%(url)s'>%(title)s</a>"
 
 #: .\board\templates\board\_post_chat_link.html:5
 #: .\board\templates\board\_post_chat_link.html:7 .\chat\notifications.py:98
-#: .\chat\search.py:20 .\chat\templates\chat\_embedded_chat.html:19
+#: .\chat\search.py:20 .\chat\templates\chat\_embedded_chat.html:22
 #: .\glosowania\templates\glosowania\_proposal_card.html:62
 #: .\glosowania\templates\glosowania\_proposal_card.html:67
 #: .\home\navigation.py:22 .\home\services\dashboard.py:34
@@ -1513,7 +1513,7 @@ msgstr "Zamknij"
 msgid "Loading..."
 msgstr "Ładowanie…"
 
-#: .\chat\i18n.py:20 .\chat\templates\chat\room_link.html:93
+#: .\chat\i18n.py:20 .\chat\templates\chat\room_link.html:96
 msgid "Copy link"
 msgstr "Skopiuj link"
 
@@ -1651,11 +1651,11 @@ msgstr "Ukryj listę pokoi"
 msgid "attachment"
 msgstr "załącznik"
 
-#: .\chat\i18n.py:56 .\chat\templates\chat\room_link.html:87
+#: .\chat\i18n.py:56 .\chat\templates\chat\room_link.html:90
 msgid "Mute room"
 msgstr "Wycisz pokój"
 
-#: .\chat\i18n.py:57 .\chat\templates\chat\room_link.html:87
+#: .\chat\i18n.py:57 .\chat\templates\chat\room_link.html:90
 msgid "Unmute room"
 msgstr "Cofnij wyciszenie"
 
@@ -1785,16 +1785,11 @@ msgstr "Tutaj pojawiają się wiadomości od niezalogowanych ludzi z zewnątrz, 
 msgid "Important documents and announcements appear in this room."
 msgstr "W tym pokoju pojawiają się ważne dokumenty i ogłoszenia."
 
-#: .\chat\templates\chat\room_link.html:77
-msgid "Open related content"
-msgstr "Otwórz powiązaną treść"
-
 #: .\chat\templates\chat\_embedded_chat.html:21
-#: .\chat\templates\chat\_embedded_chat.html:23
 msgid "Open in chat"
 msgstr "Otwórz w czacie"
 
-#: .\chat\templates\chat\_embedded_chat.html:33
+#: .\chat\templates\chat\_embedded_chat.html:32
 msgid "Connecting…"
 msgstr "Łączenie…"
 
@@ -1878,7 +1873,7 @@ msgstr "Utwórz pokój"
 msgid "Changes history"
 msgstr "Historia zmian"
 
-#: .\chat\templates\chat\chat.html:318 .\chat\templates\chat\room_link.html:100
+#: .\chat\templates\chat\chat.html:318 .\chat\templates\chat\room_link.html:103
 msgid "Rename room"
 msgstr "Zmień nazwę"
 
@@ -1976,7 +1971,11 @@ msgstr "Wyciszony"
 msgid "Room actions"
 msgstr "Działania"
 
-#: .\chat\templates\chat\room_link.html:80
+#: .\chat\templates\chat\room_link.html:77
+msgid "Open related content"
+msgstr "Otwórz powiązaną treść"
+
+#: .\chat\templates\chat\room_link.html:83
 #: .\home\templates\home\activity.html:90
 #: .\home\templates\home\activity.html:91
 #: .\home\templates\home\activity.html:92

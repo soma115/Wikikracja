@@ -6956,12 +6956,12 @@ body.tw-chat-page .tw-main-area {
 }
 .tw-room-link.tw-room-link--joined {
     background: var(--accent-muted);
+    border-color: var(--accent);
     border-left-color: var(--accent);
     font-weight: 500;
     color: var(--text-primary);
 }
 .tw-room-link.tw-room-link--not-seen {
-    border-color: var(--accent);
     color: var(--status-online-color);
 }
 /* Unread filter button */

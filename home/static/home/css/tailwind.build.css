@@ -2546,9 +2546,9 @@ small,
 }
 
 .tw-ec-open-full {
-  margin-left: auto;
+  margin-left: 0;
   color: var(--text-muted);
-  font-size: .75rem;
+  font-size: inherit;
   text-decoration: none;
   transition: color var(--transition-fast);
 }
@@ -9603,6 +9603,10 @@ body.tw-chat-page .tw-main-area {
   align-items: center;
 }
 
+.tw-room-source-link:empty {
+  display: none;
+}
+
 .tw-room-link-actions--no-rename .tw-room-rename-divider,
 .tw-room-link-actions--no-rename .tw-room-rename-item {
   display: none;
@@ -9663,13 +9667,13 @@ body.tw-chat-page .tw-main-area {
 
 .tw-room-link.tw-room-link--joined {
   background: var(--accent-muted);
+  border-color: var(--accent);
   border-left-color: var(--accent);
   font-weight: 500;
   color: var(--text-primary);
 }
 
 .tw-room-link.tw-room-link--not-seen {
-  border-color: var(--accent);
   color: var(--status-online-color);
 }
 
