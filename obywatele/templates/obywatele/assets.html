@@ -83,7 +83,7 @@
       <article class="tw-card">
         <div class="tw-card-header tw-flex tw-items-start tw-justify-between tw-gap-2">
           <h3 class="tw-font-semibold tw-mb-0">{{ assignment.item.name }}</h3>
-          <span class="tw-badge-status tw-badge-success">{{ assignment.get_kind_display }}</span>
+          <span class="tw-badge-status {% if assignment.kind == 'borrow' %}tw-badge-info{% elif assignment.kind == 'give' %}tw-badge-success{% elif assignment.kind == 'sale' %}tw-badge-danger{% else %}tw-badge-warning{% endif %}">{{ assignment.get_kind_display }}</span>
         </div>
         <div class="tw-card-body tw-space-y-2">
           <a href="{{ assignment.profile.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ assignment.profile.uid|display_name }}</a>

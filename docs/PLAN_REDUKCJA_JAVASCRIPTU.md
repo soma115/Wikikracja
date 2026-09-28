@@ -242,17 +242,9 @@ Można zastąpić go zwykłymi linkami:
 
 Django już posiada widoki kalendarza i partiale. Zostaje pełna funkcjonalność, ale każde przejście przeładowuje stronę.
 
-### 7. Kolumny tabeli majątku
+### 7. Kolumny tabeli obywateli — zakończone
 
-`obywatele/static/obywatele/js/assets-column-toggle.js` tworzy checkboxy, zapisuje wybór w `localStorage` i ukrywa komórki tabeli.
-
-Możliwe warianty:
-
-- usunięcie personalizacji kolumn;
-- parametr GET `?columns=uid,city,voivodeship` obsługiwany przez Django;
-- zwykły formularz GET, który przeładowuje stronę.
-
-Nie powinno się utrzymywać równolegle lokalnego stanu JS i serwerowego stanu tabeli.
+Usunięto nieużywaną tabelę Django Tables 2, jej filtr Django Filter oraz skrypt personalizacji kolumn. Bieżący widok obywateli renderuje własny szablon i nie korzystał z tej obsługi.
 
 ### 8. Transakcje księgowe
 

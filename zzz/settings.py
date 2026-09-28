@@ -206,8 +206,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'tinymce',
-    'django_tables2',
-    'django_filters',
     'corsheaders',  # https://stackoverflow.com/questions/22355540/access-control-allow-origin-in-django-app
     'obywatele',
     'glosowania',

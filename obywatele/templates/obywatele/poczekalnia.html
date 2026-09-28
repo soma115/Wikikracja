@@ -37,9 +37,9 @@
             <span class="tw-proposal-meta-sep">·</span>
             <span><i class="fas fa-calendar fa-fw"></i> {{ i.date_joined|date:"Y-m-d" }}</span>
             <span class="tw-proposal-meta-sep">·</span>
-            <span>{% if i.email_confirmed %}<i class="fas fa-envelope tw-text-success"></i>{% else %}<i class="fas fa-envelope tw-text-danger"></i>{% endif %}</span>
-            <span>{% if i.form_completion_percent == 100 %}<i class="fas fa-file-alt tw-text-success"></i>{% else %}<i class="fas fa-file-alt tw-text-danger"></i>{% endif %}</span>
-            {% if i.email %}<a href="mailto:{{ i.email }}" class="tw-btn tw-btn-sm tw-btn-info tw-ms-auto" data-tw-stop-propagation title="{{ i.email }}"><i class="fas fa-envelope"></i></a>{% endif %}
+            <span data-tw-toggle="tooltip" title="{% if i.email_confirmed %}{% trans 'Email confirmed' %}{% else %}{% trans 'Email not confirmed' %}{% endif %}">{% if i.email_confirmed %}<i class="fas fa-envelope tw-text-success"></i>{% else %}<i class="fas fa-envelope tw-text-danger"></i>{% endif %}</span>
+            <span data-tw-toggle="tooltip" title="{% if i.form_completion_percent == 100 %}{% trans 'Form completed' %}{% else %}{% trans 'Form not completed' %}{% endif %}">{% if i.form_completion_percent == 100 %}<i class="fas fa-file-alt tw-text-success"></i>{% else %}<i class="fas fa-file-alt tw-text-danger"></i>{% endif %}</span>
+            {% if i.email %}<a href="mailto:{{ i.email }}" class="tw-btn tw-btn-sm tw-btn-info tw-ms-auto" data-tw-stop-propagation data-tw-toggle="tooltip" title="{{ i.email }}"><i class="fas fa-envelope"></i></a>{% endif %}
             {% if i.uzytkownik.phone %}<a href="tel:{{ i.uzytkownik.phone }}" class="tw-btn tw-btn-sm tw-btn-success" data-tw-stop-propagation title="{{ i.uzytkownik.phone }}"><i class="fas fa-phone"></i></a>{% endif %}
           </div>
         </div>
@@ -84,7 +84,7 @@
         </div>
         <div class="tw-flex tw-justify-end tw-gap-2 tw-w-full">
           {% if i.email %}
-          <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation title="{{ i.email }}">
+          <a href="mailto:{{ i.email }}" class="tw-btn tw-btn-info tw-w-10 tw-h-10 tw-flex-none tw-aspect-square tw-p-1" data-tw-stop-propagation data-tw-toggle="tooltip" title="{{ i.email }}">
             <i class="fas fa-envelope tw-text-lg"></i>
           </a>
           {% else %}
@@ -108,10 +108,10 @@
             <i class="fas fa-star"></i>
           </span>
           <span class="tw-flex tw-items-center tw-gap-1">
-            <span title="{% if i.email_confirmed %}{% trans 'Email confirmed' %}{% else %}{% trans 'Email not confirmed' %}{% endif %}">
+            <span data-tw-toggle="tooltip" title="{% if i.email_confirmed %}{% trans 'Email confirmed' %}{% else %}{% trans 'Email not confirmed' %}{% endif %}">
               {% if i.email_confirmed %}<i class="fas fa-envelope tw-text-success"></i>{% else %}<i class="fas fa-envelope tw-text-danger"></i>{% endif %}
             </span>
-            <span title="{% if i.form_completion_percent == 100 %}{% trans 'Form completed' %}{% else %}{% trans 'Form not completed' %}{% endif %}">
+            <span data-tw-toggle="tooltip" title="{% if i.form_completion_percent == 100 %}{% trans 'Form completed' %}{% else %}{% trans 'Form not completed' %}{% endif %}">
               {% if i.form_completion_percent == 100 %}<i class="fas fa-file-alt tw-text-success"></i>{% else %}<i class="fas fa-file-alt tw-text-danger"></i>{% endif %}
             </span>
           </span>

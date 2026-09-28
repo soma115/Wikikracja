@@ -25,7 +25,7 @@ Try the live demo: **https://demo.wikikracja.pl/**
 - **Cache/Channels**: Redis (cache and channel layer)
 - **Deployment**: Docker, GitHub Actions
 - **Authentication**: django-allauth
-- **Additional libraries**: django-tables2, django-filter, APScheduler, firebase-admin (FCM)
+- **Additional libraries**: APScheduler, firebase-admin (FCM)
 - **Testing**: Jest (JavaScript, Node 22), pytest (Python), Ruff (linting)
 
 ## Prerequisites
