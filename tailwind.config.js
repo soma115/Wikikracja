@@ -110,7 +110,7 @@ module.exports = {
         info: 'var(--color-info)',
       },
       borderRadius: {
-        card: '0.75rem',
+        card: 'var(--radius-card)',
       },
     },
   },

@@ -27,19 +27,19 @@ p, li {
   color: var(--text-muted);
 }
 
-.intro {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-}
-
+.intro,
 .section {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
   padding: 1.5rem;
+}
+
+.intro {
+  margin-bottom: 2rem;
+}
+
+.section {
   margin-bottom: 1.5rem;
 }
 
