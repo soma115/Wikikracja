@@ -99,39 +99,33 @@
 
               {% if survey.custom_option_form %}
                 <div class="tw-border-t tw-border-subtle tw-pt-3 tw-mt-3">
-                  <label class="tw-form-label" for="{{ survey.custom_option_form.text.id_for_label }}">{% trans 'Add your own option' %}</label>
                   {{ survey.custom_option_form.text }}
                   {% if survey.custom_option_form.text.errors %}
                     <div class="tw-text-danger tw-text-sm tw-mt-1" role="alert">
                       {% for error in survey.custom_option_form.text.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
                     </div>
                   {% endif %}
-                  <button type="submit" name="custom_option" value="1" class="tw-btn tw-btn-sm tw-btn-outline-secondary tw-mt-2">
-                    <i class="fas fa-plus fa-fw tw-me-1"></i> {% trans 'Add option' %}
-                  </button>
                 </div>
               {% endif %}
 
               <div class="tw-flex tw-gap-2 tw-items-center tw-mt-3">
                 <button type="submit" class="tw-btn tw-btn-sm tw-btn-primary">
-                  <i class="fas fa-check-to-slot"></i>
-                  {% if survey.has_voted %}{% trans 'Change vote' %}{% else %}{% trans 'Vote' %}{% endif %}
+                  <i class="fas fa-check-to-slot"></i> {% trans 'Save vote' %}
                 </button>
-                {% if survey.has_voted %}
-                  <button type="button" class="tw-btn tw-btn-sm tw-btn-outline-secondary" data-withdraw-vote>
-                    <i class="fas fa-rotate-left"></i> {% trans 'Withdraw vote' %}
-                  </button>
-                {% endif %}
               </div>
 
-              {% if survey.has_voted %}
-                <div class="tw-text-muted tw-text-sm tw-mb-1">
-                  <i class="fas fa-circle-info"></i> {% trans 'You can change your vote.' %}
-                </div>
-              {% endif %}
-              {% if survey.allow_multiple_choice %}
-                <div class="tw-text-muted tw-text-sm tw-mb-1">
-                  <i class="fas fa-circle-info"></i> {% trans 'You can select more than one option.' %}
+              {% if survey.has_voted or survey.allow_multiple_choice %}
+                <div class="tw-mt-2 tw-flex tw-flex-col tw-gap-1">
+                  {% if survey.has_voted %}
+                    <div class="tw-text-muted tw-text-sm">
+                      <i class="fas fa-circle-info"></i> {% trans 'You can change your vote.' %}
+                    </div>
+                  {% endif %}
+                  {% if survey.allow_multiple_choice %}
+                    <div class="tw-text-muted tw-text-sm">
+                      <i class="fas fa-circle-info"></i> {% trans 'You can select more than one option.' %}
+                    </div>
+                  {% endif %}
                 </div>
               {% endif %}
             </form>

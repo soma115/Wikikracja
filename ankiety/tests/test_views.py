@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import override
 
 from ankiety.forms import SurveyForm
 from ankiety.models import Survey, SurveyOption, SurveyVote
@@ -131,36 +132,55 @@ class SurveyViewsTests(TestCase):
         self.assertRedirects(response, reverse("ankiety:detail", args=[survey.pk]))
         self.assertTrue(SurveyVote.objects.filter(survey=survey, user=self.other, option=yes).exists())
 
-    def test_participant_can_add_custom_option_when_enabled(self):
+    def test_voting_with_custom_option_creates_and_votes_for_it(self):
         survey = Survey.objects.create(title="Test survey", description="Description", end_date=timezone.now() + timedelta(days=1), author=self.author, allow_custom_options=True)
-        SurveyOption.objects.bulk_create([SurveyOption(survey=survey, text="Yes", order=0), SurveyOption(survey=survey, text="No", order=1)])
-
+        yes = SurveyOption.objects.create(survey=survey, text="Yes", order=0)
+        no = SurveyOption.objects.create(survey=survey, text="No", order=1)
+        SurveyVote.objects.create(survey=survey, user=self.other, option=yes)
         self.client.login(username="other", password="pass")
-        response = self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"custom_option": "1", "text": "Maybe"})
+
+        response = self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"option": no.pk, "text": "Maybe"})
 
         self.assertRedirects(response, reverse("ankiety:detail", args=[survey.pk]))
         option = survey.options.get(text="Maybe")
         self.assertEqual(option.created_by, self.other)
         self.assertEqual(option.order, 2)
+        self.assertEqual(list(SurveyVote.objects.filter(survey=survey, user=self.other).values_list("option_id", flat=True)), [option.pk])
 
         response = self.client.get(reverse("ankiety:detail", args=[survey.pk]))
         self.assertContains(response, "fa-user-plus")
 
-    def test_participant_can_add_custom_option_from_survey_list(self):
-        survey = Survey.objects.create(title="Test survey", description="Description", end_date=timezone.now() + timedelta(days=1), author=self.author, allow_custom_options=True)
-        SurveyOption.objects.bulk_create([SurveyOption(survey=survey, text="Yes", order=0), SurveyOption(survey=survey, text="No", order=1)])
+    def test_multiple_choice_vote_includes_custom_option(self):
+        survey = Survey.objects.create(title="Test survey", description="Description", end_date=timezone.now() + timedelta(days=1), author=self.author, allow_custom_options=True, allow_multiple_choice=True)
+        yes = SurveyOption.objects.create(survey=survey, text="Yes", order=0)
+        SurveyOption.objects.create(survey=survey, text="No", order=1)
         self.client.login(username="other", password="pass")
 
-        response = self.client.post(reverse("ankiety:list"), {"tab": "active", "survey_id": survey.pk, "custom_option": "1", f"survey-{survey.pk}-custom-text": "Maybe"})
+        response = self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"option": [str(yes.pk)], "text": "Maybe"})
+
+        self.assertRedirects(response, reverse("ankiety:detail", args=[survey.pk]))
+        option = survey.options.get(text="Maybe")
+        self.assertEqual(set(SurveyVote.objects.filter(survey=survey, user=self.other).values_list("option_id", flat=True)), {yes.pk, option.pk})
+
+    def test_survey_list_vote_creates_and_votes_for_custom_option(self):
+        survey = Survey.objects.create(title="Test survey", description="Description", end_date=timezone.now() + timedelta(days=1), author=self.author, allow_custom_options=True)
+        yes = SurveyOption.objects.create(survey=survey, text="Yes", order=0)
+        no = SurveyOption.objects.create(survey=survey, text="No", order=1)
+        SurveyVote.objects.create(survey=survey, user=self.other, option=yes)
+        self.client.login(username="other", password="pass")
+
+        response = self.client.post(reverse("ankiety:list"), {"tab": "active", "survey_id": survey.pk, "option": no.pk, f"survey-{survey.pk}-custom-text": "Maybe"})
 
         self.assertRedirects(response, f"{reverse('ankiety:list')}?tab=active")
-        self.assertEqual(survey.options.get(text="Maybe").created_by, self.other)
+        option = survey.options.get(text="Maybe")
+        self.assertEqual(option.created_by, self.other)
+        self.assertEqual(list(SurveyVote.objects.filter(survey=survey, user=self.other).values_list("option_id", flat=True)), [option.pk])
 
     def test_participant_cannot_add_custom_option_when_disabled(self):
         survey = self._create_survey(self.author)
         self.client.login(username="other", password="pass")
 
-        self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"custom_option": "1", "text": "Maybe"})
+        self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"text": "Maybe"})
 
         self.assertFalse(survey.options.filter(text="Maybe").exists())
 
@@ -169,7 +189,7 @@ class SurveyViewsTests(TestCase):
         SurveyOption.objects.bulk_create([SurveyOption(survey=survey, text="Yes", order=0), SurveyOption(survey=survey, text="No", order=1)])
         self.client.login(username="other", password="pass")
 
-        response = self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"custom_option": "1", "text": " yes "})
+        response = self.client.post(reverse("ankiety:detail", args=[survey.pk]), {"text": " yes "})
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("text", response.context["custom_option_form"].errors)
@@ -372,14 +392,35 @@ class SurveyViewsTests(TestCase):
 
         self.assertNotContains(response, 'name="text" required')
 
-    def test_detail_custom_option_uses_standard_field_markup(self):
+    def test_custom_option_labels_are_hidden_and_input_stays_accessible(self):
         survey = Survey.objects.create(title="Custom options", end_date=timezone.now() + timedelta(days=1), author=self.author, allow_custom_options=True)
         self.client.login(username="author", password="pass")
 
-        response = self.client.get(reverse("ankiety:detail", args=[survey.pk]))
+        with override("pl"):
+            responses = [self.client.get(reverse("ankiety:detail", args=[survey.pk])), self.client.get(reverse("ankiety:list"), {"tab": "active"})]
 
-        self.assertContains(response, "tw-form-label")
-        self.assertContains(response, "tw-form-control")
+        for response in responses:
+            self.assertContains(response, 'aria-label="Twoja opcja"')
+            self.assertNotContains(response, 'class="tw-form-label"')
+            self.assertContains(response, "tw-form-control")
+
+    def test_vote_buttons_use_save_vote_label_without_withdraw_action(self):
+        survey = self._create_survey(self.author)
+        SurveyVote.objects.create(survey=survey, user=self.other, option=survey.options.first())
+        self.client.login(username="other", password="pass")
+
+        with override("pl"):
+            detail_response = self.client.get(reverse("ankiety:detail", args=[survey.pk]))
+            list_response = self.client.get(reverse("ankiety:list"), {"tab": "active"})
+
+        self.assertContains(detail_response, "Zapisz głos", count=2)
+        self.assertNotContains(detail_response, "data-withdraw-vote")
+        self.assertNotContains(detail_response, 'name="custom_option"')
+        self.assertContains(list_response, "Zapisz głos")
+        self.assertNotContains(list_response, "data-withdraw-vote")
+        self.assertNotContains(list_response, 'name="custom_option"')
+        self.assertNotContains(list_response, "Dodaj opcję")
+        self.assertContains(list_response, 'class="tw-mt-2 tw-flex tw-flex-col tw-gap-1"')
 
     def test_list_results_show_percentages_for_finished_survey(self):
         survey = self._create_survey(self.author, end_delta=timedelta(days=-1))

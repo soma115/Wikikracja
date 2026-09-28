@@ -30,7 +30,7 @@ def _compute_vote_results(options):
     return total_votes
 
 
-def _cast_vote(request, survey):
+def _cast_vote(request, survey, custom_option_id=None):
     """Handle a voting POST for the given survey. Returns True on success."""
     if not survey.is_active:
         messages.error(request, _("The survey is closed and votes cannot be cast."))
@@ -38,6 +38,10 @@ def _cast_vote(request, survey):
 
     if survey.allow_multiple_choice:
         option_ids = [oid for oid in request.POST.getlist("option") if oid]
+        if custom_option_id is not None:
+            option_ids.append(str(custom_option_id))
+    elif custom_option_id is not None:
+        option_ids = [str(custom_option_id)]
     else:
         option_id = request.POST.get("option")
         option_ids = [option_id] if option_id else []
@@ -75,6 +79,22 @@ def _create_custom_option(survey, user, text):
             return None
         last_option = locked_survey.options.order_by("-order", "-id").first()
         return SurveyOption.objects.create(survey=locked_survey, text=text, order=last_option.order + 1 if last_option else 0, created_by=user)
+
+
+def _cast_vote_with_custom_option(request, survey, form):
+    if not survey.is_active:
+        _cast_vote(request, survey)
+        return True
+    if not form.is_valid():
+        return False
+
+    with transaction.atomic():
+        option = _create_custom_option(survey, request.user, form.cleaned_data["text"])
+        if option is None:
+            messages.error(request, _("This option already exists."))
+        elif not _cast_vote(request, survey, custom_option_id=option.pk):
+            transaction.set_rollback(True)
+    return True
 
 
 def _survey_list_state(request):
@@ -117,25 +137,18 @@ def survey_list(request):
     custom_option_survey_id = None
     if request.method == "POST":
         survey = get_object_or_404(Survey, pk=request.POST.get("survey_id"))
-        if "custom_option" not in request.POST:
-            _cast_vote(request, survey)
-            return redirect(f"{reverse('ankiety:list')}?tab={tab}")
+        prefix = f"survey-{survey.pk}-custom"
+        form = CustomSurveyOptionForm(request.POST, survey=survey, prefix=prefix)
+        redirect_url = f"{reverse('ankiety:list')}?tab={tab}"
 
-        custom_option_survey_id = survey.pk
-        custom_option_form = CustomSurveyOptionForm(request.POST, survey=survey, prefix=f"survey-{survey.pk}-custom")
-        if not survey.is_active:
-            messages.error(request, _("The survey is closed and options cannot be added."))
-            return redirect(f"{reverse('ankiety:list')}?tab={tab}")
-        if not survey.allow_custom_options:
-            messages.error(request, _("Adding options is not allowed for this survey."))
-            return redirect(f"{reverse('ankiety:list')}?tab={tab}")
-        if custom_option_form.is_valid():
-            option = _create_custom_option(survey, request.user, custom_option_form.cleaned_data["text"])
-            if option is None:
-                messages.error(request, _("This option already exists."))
-            else:
-                messages.success(request, _("Your option has been added."))
-                return redirect(f"{reverse('ankiety:list')}?tab={tab}")
+        if survey.allow_custom_options and request.POST.get(form.add_prefix("text"), "").strip():
+            custom_option_form = form
+            custom_option_survey_id = survey.pk
+            if _cast_vote_with_custom_option(request, survey, form):
+                return redirect(redirect_url)
+        else:
+            _cast_vote(request, survey)
+            return redirect(redirect_url)
 
     surveys = list(
         _survey_queryset(tab, search_query).prefetch_related(Prefetch("options", queryset=SurveyOption.objects.select_related("created_by").annotate(vote_count=Count("votes")).order_by("order", "id")))
@@ -238,21 +251,11 @@ def survey_detail(request, pk):
 
     custom_option_form = CustomSurveyOptionForm(survey=survey)
     if request.method == "POST":
-        if "custom_option" in request.POST:
+        option_text = request.POST.get("text", "").strip()
+        if option_text and survey.allow_custom_options:
             custom_option_form = CustomSurveyOptionForm(request.POST, survey=survey)
-            if not survey.is_active:
-                messages.error(request, _("The survey is closed and options cannot be added."))
+            if _cast_vote_with_custom_option(request, survey, custom_option_form):
                 return redirect("ankiety:detail", pk=survey.pk)
-            if not survey.allow_custom_options:
-                messages.error(request, _("Adding options is not allowed for this survey."))
-                return redirect("ankiety:detail", pk=survey.pk)
-            if custom_option_form.is_valid():
-                option = _create_custom_option(survey, request.user, custom_option_form.cleaned_data["text"])
-                if option is None:
-                    messages.error(request, _("This option already exists."))
-                else:
-                    messages.success(request, _("Your option has been added."))
-                    return redirect("ankiety:detail", pk=survey.pk)
         else:
             _cast_vote(request, survey)
             return redirect("ankiety:detail", pk=survey.pk)

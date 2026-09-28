@@ -39,8 +39,8 @@
   --status-online-color: #22c55e;
   --status-online-glow: rgba(34, 197, 94, .55);
   --badge-rejected-glow: rgba(239, 68, 68, .55);
-  --status-dormant-color: #f39c12;
-  --status-warning-color: #f39c12;
+  --status-dormant-color: var(--color-warning);
+  --status-warning-color: var(--color-warning);
   --status-warning-bg: rgba(243, 156, 18, .08);
   --status-warning-border: rgba(243, 156, 18, .25);
   /* Layout limits */
@@ -73,7 +73,7 @@
   --diff-del-bg: var(--badge-rejected-bg);
   --diff-del-color: var(--badge-rejected-color);
 }
-/* Dark theme (Tokyo Night palette) */
+/* Shared dark defaults; the root and legacy "dark" theme use these, while Tokyo Night overrides selected tokens below. */
 :root,
 [data-theme="dark"],
 [data-theme="tokyo-night"] {
@@ -90,7 +90,7 @@
   --accent-glow-faint: color-mix(in srgb, var(--accent) 8%, transparent);
   --accent-border: color-mix(in srgb, var(--accent) 45%, transparent);
   --text-primary: color-mix(in srgb, #e8eaf0 10%, white 90%);
-  --text-muted: color-mix(in srgb, rgb(232, 234, 240) 30%, white 70%);
+  --text-muted: color-mix(in srgb, color-mix(in srgb, rgb(232, 234, 240) 30%, white 70%) 80%, black);
   --border: rgba(255, 255, 255, .08);
   --btn-glass-bg: rgba(255, 255, 255, .06);
   --btn-glass-border: rgba(255, 255, 255, .12);
@@ -108,7 +108,7 @@
   --badge-referendum-bg: rgba(249, 115, 22, .15);
   --badge-referendum-color: #fb923c;
   --badge-approved-bg: rgba(0, 188, 140, .15);
-  --badge-approved-color: #00bc8c;
+  --badge-approved-color: var(--color-success);
   --badge-approved-border: rgba(0, 188, 140, .25);
   --badge-rejected-bg: rgba(239, 68, 68, .15);
   --badge-rejected-color: #f87171;
@@ -117,17 +117,17 @@
   --btn-success-bg: color-mix(in srgb, var(--badge-approved-color) 85%, transparent);
   --btn-warning-bg: color-mix(in srgb, var(--status-warning-color) 85%, transparent);
   /* Alert & badge tokens — dark theme uses solid, light theme uses subtle pastels */
-  --alert-info-bg: #3498db;
-  --alert-info-color: #fff;
+  --alert-info-bg: var(--color-info);
+  --alert-info-color: var(--text-inverse);
   --alert-info-border: var(--border);
-  --alert-success-bg: #00bc8c;
-  --alert-success-color: #fff;
+  --alert-success-bg: var(--color-success);
+  --alert-success-color: var(--text-inverse);
   --alert-success-border: var(--border);
-  --alert-warning-bg: #f39c12;
-  --alert-warning-color: #fff;
+  --alert-warning-bg: var(--color-warning);
+  --alert-warning-color: var(--text-inverse);
   --alert-warning-border: var(--border);
-  --alert-danger-bg: #e74c3c;
-  --alert-danger-color: #fff;
+  --alert-danger-bg: var(--color-danger);
+  --alert-danger-color: var(--text-inverse);
   --alert-danger-border: var(--border);
   --badge-danger-text: var(--text-inverse);
   --badge-warning-text: var(--text-inverse);
@@ -140,7 +140,7 @@
   --btn-outline-primary-hover-shadow: 0 0 8px var(--accent-glow);
   --btn-outline-secondary-hover-bg: var(--btn-glass-hover-bg);
   --btn-outline-secondary-hover-border: var(--btn-glass-hover-border);
-  --input-bg: #252d4a;
+  --input-bg: var(--bg-tertiary);
   --input-border: rgba(255, 255, 255, .25);
   /* Project color tokens */
   --color-primary: var(--accent);
@@ -149,7 +149,7 @@
   --color-dark: var(--color-gray-800);
   --bg-tertiary: #252d4a;
   --surface: var(--bg-card);
-  --surface-elevated: #252d4a;
+  --surface-elevated: var(--bg-tertiary);
   --progress-bg: var(--color-gray-700);
   /* Table tokens */
   --table-bg: transparent;
@@ -199,7 +199,7 @@
   --alert-dark-color: var(--text-inverse);
   --alert-dark-border: var(--border);
 }
-/* Tokyo Night theme — deep indigo surfaces with blue and cyan accents */
+/* Tokyo Night overrides the shared dark defaults with indigo surfaces and blue accents. */
 [data-theme="tokyo-night"] {
   --bg-base: #1a1b26;
   --bg-sidebar: #16161e;
@@ -207,12 +207,12 @@
   --accent: #7aa2f7;
   --accent-hover: #89ddff;
   --text-primary: color-mix(in srgb, #ccd6ff 20%, white 80%);
-  --text-muted: color-mix(in srgb, #acb6e5 20%, white 80%);
-  --input-bg: #292e42;
+  --text-muted: color-mix(in srgb, color-mix(in srgb, #acb6e5 20%, white 80%) 80%, black);
+  --input-bg: var(--bg-tertiary);
   --bg-tertiary: #292e42;
-  --surface-elevated: #292e42;
+  --surface-elevated: var(--bg-tertiary);
 }
-/* Catppuccin Latte theme */
+/* Light mode overrides; unspecified tokens keep their shared defaults. */
 [data-theme="light"] {
   color-scheme: light;
   --bg-base: #eff1f5;
@@ -222,10 +222,6 @@
   --accent-hover: #209fb5;
   --accent-muted: color-mix(in srgb, var(--accent) 10%, transparent);
   --accent-glow: color-mix(in srgb, var(--accent) 30%, transparent);
-  --accent-glow-soft: color-mix(in srgb, var(--accent) 20%, transparent);
-  --accent-glow-medium: color-mix(in srgb, var(--accent) 15%, transparent);
-  --accent-glow-faint: color-mix(in srgb, var(--accent) 8%, transparent);
-  --accent-border: color-mix(in srgb, var(--accent) 45%, transparent);
   --text-primary: #000000;
   --text-muted: #424451;
   --border: rgba(76, 79, 105, .22);
@@ -250,9 +246,6 @@
   --badge-rejected-bg: rgba(239, 68, 68, .12);
   --badge-rejected-color: #dc2626;
   --badge-rejected-border: rgba(220, 38, 38, .3);
-  --btn-danger-bg: color-mix(in srgb, var(--badge-rejected-color) 85%, transparent);
-  --btn-success-bg: color-mix(in srgb, var(--badge-approved-color) 85%, transparent);
-  --btn-warning-bg: color-mix(in srgb, var(--status-warning-color) 85%, transparent);
   /* Alert & badge tokens — light theme uses subtle pastels */
   --alert-info-bg: rgba(52, 152, 219, .07);
   --alert-info-color: #1a6e9e;
@@ -277,28 +270,24 @@
   --btn-outline-primary-hover-shadow: none;
   --btn-outline-secondary-hover-bg: rgba(0, 0, 0, .06);
   --btn-outline-secondary-hover-border: rgba(0, 0, 0, .2);
-  --input-bg: #e6e9ef;
+  --input-bg: var(--bg-sidebar);
   --input-border: rgba(76, 79, 105, .3);
   /* Project color tokens (light theme) */
-  --color-primary: var(--accent);
-  --color-secondary: #6c6f85;
-  --color-light: #e6e9ef;
-  --color-dark: #4c4f69;
+  --color-secondary: var(--color-gray-600);
+  --color-light: var(--bg-sidebar);
+  --color-dark: var(--color-gray-800);
   --color-gray-600: #6c6f85;
   --color-gray-700: #5c5f77;
   --color-gray-800: #4c4f69;
   --color-gray-900: #303446;
-  --bg-tertiary: #e6e9ef;
-  --surface: #e6e9ef;
+  --bg-tertiary: var(--bg-sidebar);
+  --surface: var(--bg-sidebar);
   --surface-elevated: #eff1f5;
   --progress-bg: #ccd0da;
   /* Table tokens */
   --table-striped-bg: rgba(0, 0, 0, .025);
   --table-hover-bg: rgba(0, 153, 132, .05);
   /* Generic badge tokens — subtle pastels (light: ~.12 alpha bg) */
-  --badge-primary-bg: var(--accent-muted);
-  --badge-primary-color: var(--accent);
-  --badge-primary-border: var(--accent-border);
   --badge-secondary-bg: rgba(108, 117, 125, .12);
   --badge-secondary-color: #495057;
   --badge-secondary-border: rgba(108, 117, 125, .3);

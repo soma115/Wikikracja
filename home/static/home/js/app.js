@@ -1701,21 +1701,6 @@ window.wkOnReady(function () {
 });
 
 // ============================================================
-// Survey vote withdrawal — clear selected options and submit
-// ============================================================
-document.addEventListener('click', function(e) {
-    var withdrawBtn = e.target.closest('[data-withdraw-vote]');
-    if (!withdrawBtn) return;
-    e.preventDefault();
-    var form = withdrawBtn.closest('form');
-    if (!form) return;
-    form.querySelectorAll('input[name="option"]').forEach(function(input) {
-        input.checked = false;
-    });
-    form.submit();
-});
-
-// ============================================================
 // File upload size validation
 // ============================================================
 window.wkOnReady(function() {
