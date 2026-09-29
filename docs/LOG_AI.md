@@ -1,5 +1,13 @@
 # LOG_AI
 
+## 2026-09-29: Inicjały nadawcy w powiadomieniach czatu
+
+- **Zmienione pliki:** `chat/notifications.py`, `chat/tests/test_consumers.py`, `chat/tests/test_services.py`, `docs/LOG_AI.md`.
+- **Co się zmieniło:** Powiadomienia czatu używają inicjałów nadawcy w treści oraz w nazwie pokoju prywatnego; wiadomości anonimowe nadal pokazują wyłącznie „Anonymous”.
+- **Uzasadnienie:** Ten sam payload trafia do powiadomień WebSocket i FCM, wyświetlanych na komputerze oraz telefonie. Zmiana wspólnego źródła usuwa pełne imię i nazwisko z obu kanałów.
+- **Testy:** Dodano regresję inicjałów dla prywatnego powiadomienia o wzmiance oraz kontrolę zachowania anonimowości.
+- **Spodziewany efekt:** Na wszystkich urządzeniach nadawca jest rozpoznawalny po inicjałach, bez ujawniania pełnego imienia i nazwiska.
+
 ## 2026-09-29: Licznik pozycji zasobów w stepperze obywateli
 
 - **Zmienione pliki:** `obywatele/templatetags/profile_tags.py`, `obywatele/tests/test_views.py`, `docs/LOG_AI.md`.

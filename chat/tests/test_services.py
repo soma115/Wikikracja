@@ -698,7 +698,16 @@ class RoomNotificationNameTest(TestCase):
         room = Room.objects.create(title='Custom room', public=True)
         self.assertEqual(ChatNotificationService._room_notification_name(room, None), 'Custom room')
 
-    def test_private_room_uses_sender_name(self):
+    def test_private_room_uses_sender_initials(self):
         sender = make_user('sender')
+        sender.first_name = 'Jan'
+        sender.last_name = 'Kowalski'
         room = Room.objects.create(title='Private room', public=False)
-        self.assertEqual(ChatNotificationService._room_notification_name(room, sender), sender.username)
+        self.assertEqual(ChatNotificationService._room_notification_name(room, sender), 'JK')
+
+    def test_anonymous_private_room_hides_sender_identity(self):
+        sender = make_user('sender')
+        sender.first_name = 'Jan'
+        sender.last_name = 'Kowalski'
+        room = Room.objects.create(title='Private room', public=False)
+        self.assertEqual(ChatNotificationService._room_notification_name(room, sender, anonymous=True), 'Anonymous')

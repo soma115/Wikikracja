@@ -231,12 +231,15 @@ class MentionNotificationTest(TestCase):
 
     def setUp(self):
         self.sender = make_user("alice")
+        self.sender.first_name = "Jan"
+        self.sender.last_name = "Kowalski"
+        self.sender.save(update_fields=["first_name", "last_name"])
         self.receiver = make_user("bob")
         self.room = Room.objects.create(title="alice-bob", public=False)
         self.room.allowed.set([self.sender, self.receiver])
 
-    async def test_send_mention_notification_private_room_uses_sender_username(self):
-        """Mention jobs for private rooms preserve the sender username as room name."""
+    async def test_send_mention_notification_private_room_uses_sender_initials(self):
+        """Mention notifications show sender initials in the private room name and body."""
         message = await database_sync_to_async(lambda: Message.objects.create(room=self.room, sender=self.sender, text="@bob"))()
         channel_layer = AsyncMock()
         online_registry = MagicMock()
@@ -250,7 +253,9 @@ class MentionNotificationTest(TestCase):
         payload = enqueue.call_args.kwargs['notification']
         self.assertEqual(enqueue.call_args.kwargs['kind'], 'mention')
         self.assertEqual(payload['room_id'], self.room.id)
-        self.assertEqual(payload['room_name'], self.sender.username)
+        self.assertEqual(payload['room_name'], 'JK')
+        self.assertTrue(payload['body'].endswith('JK'))
+        self.assertNotIn('Kowalski', payload['title'] + payload['body'])
         self.assertIn(f"#room_id={self.room.id}", payload['click_action'])
 
 

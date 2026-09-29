@@ -14,7 +14,7 @@ from django.utils.translation import gettext as _
 from core import notifications as core_notifications
 from core.notifications import NOTIF_LOG_TAG
 from core.utils import get_site_domain
-from zzz.templatetags.citizen_filters import user_display_name
+from zzz.templatetags.citizen_filters import user_initials
 
 from .models import MessageReadBy, Room
 from .notification_queue import enqueue_notification
@@ -45,8 +45,8 @@ class ChatNotificationService:
         await database_sync_to_async(self._clear_unread_caches)(other_member_ids)
 
         membership_prefs = await database_sync_to_async(Room.get_membership_preferences_bulk)(room.id, other_member_ids)
-        author = "Anonymous" if message.anonymous else (user_display_name(sender) if sender else "System")
-        room_name = self._room_notification_name(room, sender)
+        author = "Anonymous" if message.anonymous else (user_initials(sender) if sender else "System")
+        room_name = self._room_notification_name(room, sender, anonymous=message.anonymous)
         notification = await self._build_notification(author, room.id, room_name, sender.id if sender and not message.anonymous else None)
 
         for member in other_members:
@@ -85,8 +85,12 @@ class ChatNotificationService:
         cache.delete_many([CHAT_UNREAD_CACHE_KEY.format(user_id=user_id) for user_id in user_ids])
 
     @staticmethod
-    def _room_notification_name(room, sender):
-        return room.clean_title() if room.public else (user_display_name(sender) if sender else "System")
+    def _room_notification_name(room, sender, anonymous=False):
+        if room.public:
+            return room.clean_title()
+        if anonymous:
+            return "Anonymous"
+        return user_initials(sender) if sender else "System"
 
     @staticmethod
     async def _build_notification(author, room_id, room_name, source_user_id=None):
