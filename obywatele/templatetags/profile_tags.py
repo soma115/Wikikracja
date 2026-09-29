@@ -2,9 +2,13 @@ import html
 from urllib.parse import urlencode
 
 from django import template
+from django.contrib.auth.models import User
+from django.db.models import Count, Q
 from django.urls import reverse
 from django.utils.html import strip_tags
 from django.utils.translation import gettext_lazy as _
+
+from obywatele.models import ResourceAssignment
 
 register = template.Library()
 
@@ -55,10 +59,12 @@ def obywatele_stepper(context):
                 url += '?' + urlencode(params)
         return url
 
+    counts = User.objects.aggregate(citizens=Count('id', filter=Q(is_active=True)), candidates=Count('id', filter=Q(is_active=False, uzytkownik__isnull=False)))
+    resource_count = ResourceAssignment.objects.filter(profile__uid__is_active=True).count()
     steps = [
-        {'url': _url('obywatele:obywatele'), 'icon': 'users', 'label': _('Citizens'), 'active': active in ('obywatele', 'obywatele_szczegoly')},
-        {'url': _url('obywatele:poczekalnia'), 'icon': 'user-clock', 'label': _('Candidates'), 'active': active in ('poczekalnia', 'poczekalnia_szczegoly')},
-        {'url': _url('obywatele:assets'), 'icon': 'boxes-stacked', 'label': _('Resources'), 'active': active == 'assets'},
+        {'url': _url('obywatele:obywatele'), 'icon': 'users', 'label': _('Citizens'), 'count': counts['citizens'], 'active': active in ('obywatele', 'obywatele_szczegoly')},
+        {'url': _url('obywatele:poczekalnia'), 'icon': 'user-clock', 'label': _('Candidates'), 'count': counts['candidates'], 'active': active in ('poczekalnia', 'poczekalnia_szczegoly')},
+        {'url': _url('obywatele:assets'), 'icon': 'boxes-stacked', 'label': _('Resources'), 'count': resource_count, 'active': active == 'assets'},
     ]
 
     cta_url = ''

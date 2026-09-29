@@ -1,5 +1,20 @@
 # LOG_AI
 
+## 2026-09-29: Licznik pozycji zasobów w stepperze obywateli
+
+- **Zmienione pliki:** `obywatele/templatetags/profile_tags.py`, `obywatele/tests/test_views.py`, `docs/LOG_AI.md`.
+- **Co się zmieniło:** Krok „Zasoby” pokazuje liczbę aktywnych przypisań zasobów wszystkich typów: do oddania, do pożyczenia, do sprzedania i potrzeb. Każdy rekord przypisania jest liczony jako jedna pozycja, zgodnie z modelem bez pola ilości.
+- **Uzasadnienie:** Użytkownik poprosił o łączną liczbę pojedynczych pozycji z wszystkich czterech kategorii; liczenie przypisań pomija pozycje nieaktywnego profilu i nie zależy od filtrów widoku.
+- **Testy:** Dodano regresję sprawdzającą wszystkie typy, filtr widoku oraz wykluczenie nieaktywnego właściciela.
+- **Spodziewany efekt:** Licznik „Zasoby” pokazuje sumę widocznych pozycji wszystkich aktywnych obywateli.
+
+## 2026-09-29: Liczniki obywateli i kandydatów w stepperze
+
+- **Zmienione pliki:** `obywatele/templatetags/profile_tags.py`, `obywatele/tests/test_views.py`, `docs/LOG_AI.md`.
+- **Co się zmieniło:** Stepper obywateli przekazuje liczbę aktywnych kont oraz nieaktywnych kont z profilem kandydata, zliczonych jednym agregatem ORM. Dodano test renderowania obu wartości.
+- **Uzasadnienie:** Wspólny partial steppera już obsługuje liczniki, ale builder obywateli nie dostarczał danych.
+- **Spodziewany efekt:** Przy zakładkach „Obywatele” i „Kandydaci” widać aktualną liczbę elementów z odpowiadających im list.
+
 ## 2026-09-27: Odporne testy wyszukiwania zasobow na aktywny jezyk
 
 - **Zmieniony plik:** `obywatele/tests/test_views.py`.

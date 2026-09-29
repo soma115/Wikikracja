@@ -185,6 +185,19 @@ class CitizenZalozonoTemplateTest(TestCase):
 
 
 class CitizenListViewTest(TestCase):
+    def test_stepper_shows_citizen_and_candidate_counts(self):
+        viewer = User.objects.create_user(username='stepper-viewer', password='secret', is_active=True)
+        User.objects.create_user(username='stepper-citizen', password='secret', is_active=True)
+        for index in range(3):
+            User.objects.create_user(username=f'stepper-candidate-{index}', password='secret', is_active=False)
+        self.client.force_login(viewer)
+
+        response = self.client.get(reverse('obywatele:obywatele'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="tw-stepper-step-count">2</span>')
+        self.assertContains(response, 'class="tw-stepper-step-count">3</span>')
+
     def test_grid_cards_include_only_active_tasks_coordinated_by_each_citizen(self):
         citizen = User.objects.create_user(username='coordinator', password='secret', is_active=True)
         other = User.objects.create_user(username='other-coordinator', password='secret', is_active=True)
@@ -885,6 +898,20 @@ class ResourceSearchViewTest(TestCase):
         self.assertContains(response, 'Gdańsk')
         self.assertContains(response, 'Kraków')
         self.assertNotContains(response, 'Product designer')
+
+    def test_assets_stepper_counts_all_active_resource_assignments(self):
+        for index, kind in enumerate((ResourceAssignment.Kind.BORROW, ResourceAssignment.Kind.SALE, ResourceAssignment.Kind.GIVE)):
+            item = ResourceItem.objects.create(name=f'Additional resource {index}')
+            ResourceAssignment.objects.create(profile=self.offer_user.uzytkownik, item=item, kind=kind)
+
+        inactive_user = User.objects.create_user(username='inactive-resource-owner', password='secret', is_active=False)
+        inactive_item = ResourceItem.objects.create(name='Inactive resource')
+        ResourceAssignment.objects.create(profile=inactive_user.uzytkownik, item=inactive_item, kind=ResourceAssignment.Kind.GIVE)
+
+        response = self.client.get(reverse('obywatele:assets'), {'kind': ResourceAssignment.Kind.NEED})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="tw-stepper-step-count">5</span>')
 
     def test_assets_shows_people_when_searching_by_location(self):
         response = self.client.get(reverse('obywatele:assets'), {'city': 'Kraków'})
