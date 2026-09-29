@@ -58,6 +58,23 @@
         --email-item-border: rgba(255, 255, 255, .08);
         --email-link: #00d1b2;
       }
+
+      .email-wrapper[data-theme="auto"] .email-header-panel {
+        background-color: #2d3154;
+        color: #e8eaf0;
+        color: var(--email-text);
+      }
+
+      .email-wrapper[data-theme="auto"] .email-intro-panel {
+        background-color: #203d3d;
+        border-left-color: #00d1b2;
+      }
+
+      .email-wrapper[data-theme="auto"] .email-item {
+        border-color: rgba(255, 255, 255, .08);
+        border-left-color: var(--email-accent);
+        background-color: #242a47;
+      }
     }
 
     .email-body { margin: 0; padding: 0; }
@@ -108,8 +125,7 @@
       text-decoration: none !important;
     }
 
-    .email-wrapper[data-theme="dark"] .email-header-panel,
-    .email-wrapper[data-theme="auto"] .email-header-panel {
+    .email-wrapper[data-theme="dark"] .email-header-panel {
       background-color: #2d3154;
       color: #e8eaf0;
       color: var(--email-text);
@@ -128,8 +144,7 @@
       border-radius: 0.45rem;
     }
 
-    .email-wrapper[data-theme="dark"] .email-intro-panel,
-    .email-wrapper[data-theme="auto"] .email-intro-panel {
+    .email-wrapper[data-theme="dark"] .email-intro-panel {
       background-color: #203d3d;
       border-left-color: #00d1b2;
     }
@@ -205,8 +220,7 @@
       background-color: #fbfcfc;
     }
 
-    .email-wrapper[data-theme="dark"] .email-item,
-    .email-wrapper[data-theme="auto"] .email-item {
+    .email-wrapper[data-theme="dark"] .email-item {
       border-color: rgba(255, 255, 255, .08);
       border-left-color: var(--email-accent);
       background-color: #242a47;
