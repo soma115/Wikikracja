@@ -36,7 +36,7 @@ from core.signals import citizen_proposed
 from core.utils import get_user_language
 from home.navigation import default_toolbar_views
 from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, ResourceAssignmentForm, UserForm, UsernameChangeForm
-from obywatele.models import DeletionRequest, PrivateNote, Rate, ResourceAssignment, ResourceItem, Uzytkownik
+from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, ResourceAssignment, ResourceItem, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items, publish_deletion_feedback
 from site_settings.params import get_param
 from tasks.activity import get_active_coordinated_tasks_by_user_ids, get_user_tasks
@@ -1058,6 +1058,7 @@ def request_deletion(request: HttpRequest):
 
     scheduled = timezone.now() + timedelta(days=30)
     DeletionRequest.objects.create(user=user, scheduled_for=scheduled, reason=reason if publish_after_deletion else '', publish_after_deletion=publish_after_deletion, publish_anonymously=publish_anonymously)
+    CitizenActivity.objects.create(uzytkownik=user.uzytkownik, activity_type=CitizenActivity.ActivityType.DELETION_REQUESTED)
     log.info(f'User {user.username} (id={user.id}) requested account deletion, scheduled for {scheduled.date()}')
     success(request, _('Your account deletion has been scheduled. Your data will be permanently removed in 30 days. You can cancel this request at any time before then.'))
     return redirect('obywatele:my_profile')

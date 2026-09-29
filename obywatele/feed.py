@@ -15,7 +15,7 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
             {
                 'content_type': 'citizen',
                 'title': activity.get_activity_type_display(),
-                'description': f"{user_display_name(activity.uzytkownik.uid)} - {_(activity.description)}",
+                'description': f"{user_display_name(activity.uzytkownik.uid)} - {_(activity.description)}" if activity.description else '',
                 'author': activity.uzytkownik.uid,
                 'timestamp': activity.timestamp,
                 'url': f"/obywatele/{activity.uzytkownik.uid.id}/",

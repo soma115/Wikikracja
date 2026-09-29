@@ -4,8 +4,10 @@ from django.urls import reverse
 from django.utils import timezone
 
 from board.models import Post
+from bookkeeping.models import Asset, Partner, Transaction
 from chat.models import Message, MessageReadBy, Room
 from core.models import FeedBookmark, ReadStatus
+from core.services.feed import generate_feed_raw
 from tests.factories import DecyzjaFactory, PostCategoryFactory, PostFactory, UserFactory
 
 
@@ -100,6 +102,40 @@ def test_activity_shows_each_chat_message_as_separate_item(client, activity_user
     assert f'- <strong>{other.username}:' not in content
     assert 'Message 0 | Continuation' in content
     assert 'chat-message-count' not in content
+
+
+@pytest.mark.django_db
+def test_activity_includes_public_guest_inbox_messages(client, activity_user):
+    client.force_login(activity_user)
+    inbox = Room.objects.get(system_key='inbox')
+    message = Message.objects.create(room=inbox, sender=None, anonymous=True, text='From: Guest Name (guest@example.com)\nPlease contact me')
+
+    response = client.get(reverse('activity'))
+    content = response.content.decode()
+
+    assert f'data-object-id="{message.pk}"' in content
+    assert inbox.title in content
+    assert 'Guest Name (guest@example.com)' in content
+    assert 'Please contact me' in content
+
+
+@pytest.mark.django_db
+def test_activity_items_can_be_filtered_by_finances(client, activity_user):
+    client.force_login(activity_user)
+    asset = Asset.objects.create(code='ACT', name='Activity currency', symbol='ACT')
+    partner = Partner.objects.create(name='Activity finance partner')
+    post = PostFactory(author=activity_user, title='Excluded document', text='<p>body</p>')
+    Post.objects.filter(pk=post.pk).update(updated=timezone.now())
+    generate_feed_raw()
+    transaction = Transaction.objects.create(asset=asset, partner=partner, amount=25)
+
+    response = client.get(reverse('activity'), {'filtered': '1', 'type': 'transaction'})
+    content = response.content.decode()
+
+    assert f'data-object-id="{transaction.pk}"' in content
+    assert partner.name in content
+    assert post.title not in content
+    assert 'name="type" value="transaction"' in content
 
 
 @pytest.mark.django_db

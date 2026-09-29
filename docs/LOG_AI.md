@@ -1,5 +1,14 @@
 # LOG_AI
 
+## 2026-09-29: Aktywność usunięcia konta, Inbox i filtr finansów
+
+- **Zmienione obszary:** `obywatele` (aktywność i prośby usunięcia konta), `chat.feed`, aktywność `home`, provider `bookkeeping`, testy, polski katalog tłumaczeń i ten log.
+- **Co się zmieniło:** Złożenie prośby tworzy ogólny wpis `CitizenActivity` bez powodu; pozostaje on po anulowaniu prośby, a znika wraz z usunięciem konta. Aktywność czatu obejmuje teraz pełną treść wiadomości z publicznego Inboxa. Dodano filtr „Finance” i unieważnianie cache’u po utworzeniu/usunięciu transakcji.
+- **Migracja:** Zaktualizowano stan choices `CitizenActivity.activity_type`; nie zmienia to fizycznej kolumny bazy.
+- **Audyt dokumentów:** Bieżący model nie ma widoczności „prywatny”. Pozostała wzmianka w `LOG_AI.md` opisuje historyczny stan z datowanego wpisu; nie zmieniano historii ani odniesień do prywatnych pokoi czatu.
+- **Uzasadnienie:** Zmiany odpowiadają na prośbę o widoczność tych wpisów i filtr finansowy, zachowując powód usunięcia poza publicznym feedem.
+- **Spodziewany efekt:** Prośba o usunięcie, wiadomości Inboxa i transakcje są widoczne w aktywności zgodnie z wybranym zakresem.
+
 ## 2026-09-29: Inicjały nadawcy w powiadomieniach czatu
 
 - **Zmienione pliki:** `chat/notifications.py`, `chat/tests/test_consumers.py`, `chat/tests/test_services.py`, `docs/LOG_AI.md`.

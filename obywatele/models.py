@@ -261,6 +261,7 @@ class CitizenActivity(models.Model):
         NEW_CANDIDATE = 'new_candidate', _('New Candidate')
         USER_ACTIVATED = 'user_activated', _('User Activated')
         USER_BLOCKED = 'user_blocked', _('User Blocked')
+        DELETION_REQUESTED = 'deletion_requested', _('Account deletion requested')
 
     uzytkownik = models.ForeignKey(Uzytkownik, on_delete=models.CASCADE, related_name='activities')
     activity_type = models.CharField(max_length=20, choices=ActivityType.choices)

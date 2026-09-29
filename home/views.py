@@ -119,6 +119,7 @@ def activity_page(request):
         ('decision', _('Votings')),
         ('survey', _('Ankiety')),
         ('event', _('Calendar')),
+        ('transaction', _('Finance')),
         ('citizen', _('Citizens')),
         ('room_messages', _('Chat')),
     ]

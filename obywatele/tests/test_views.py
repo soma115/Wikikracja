@@ -1042,6 +1042,11 @@ class AccountDeletionFeedbackTest(TestCase):
         self.assertEqual(deletion.reason, '')
         self.assertFalse(deletion.publish_after_deletion)
         self.assertFalse(deletion.publish_anonymously)
+        activity = CitizenActivity.objects.get(uzytkownik=self.user.uzytkownik, activity_type=CitizenActivity.ActivityType.DELETION_REQUESTED)
+        self.assertEqual(activity.description, '')
+        feed_response = self.client.get(reverse('activity'))
+        self.assertContains(feed_response, activity.get_activity_type_display())
+        self.assertNotContains(feed_response, 'Brakuje mi spokojniejszej dyskusji.')
 
     @patch('obywatele.views.publish_deletion_feedback')
     def test_delayed_feedback_is_kept_until_deletion(self, publish):
@@ -1060,6 +1065,8 @@ class AccountDeletionFeedbackTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertFalse(DeletionRequest.objects.filter(user=self.user).exists())
+        activity = CitizenActivity.objects.get(uzytkownik=self.user.uzytkownik, activity_type=CitizenActivity.ActivityType.DELETION_REQUESTED)
+        self.assertContains(self.client.get(reverse('activity')), activity.get_activity_type_display())
 
     @patch('obywatele.management.commands.count_citizens.citizen_deleted.send')
     @patch('obywatele.management.commands.count_citizens.publish_deletion_feedback')
