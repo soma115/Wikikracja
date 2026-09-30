@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-29 14:46+0200\n"
+"POT-Creation-Date: 2026-09-30 09:06+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -2175,7 +2175,7 @@ msgstr "Spotkanie"
 msgid "Add to Google Calendar"
 msgstr "Dodaj do swojego Kalendarza Google"
 
-#: .\events\templates\events\_event_card.html:59 .\events\views.py:27
+#: .\events\templates\events\_event_card.html:59 .\events\views.py:28
 #: .\home\navigation.py:18 .\home\services\dashboard.py:26
 #: .\home\templates\home\base.html:280 .\home\templates\home\home.html:455
 #: .\home\views.py:121 .\obywatele\views.py:481
@@ -2235,11 +2235,15 @@ msgstr "Zapisz Wydarzenie"
 msgid "Add Event"
 msgstr "Dodaj Wydarzenie"
 
-#: .\events\templates\events\event_list.html:39
-msgid "No events in the selected month"
-msgstr "Brak wydarzeń w wybranym miesiącu"
+#: .\events\templates\events\event_list.html:21
+msgid "The list shows events from the selected month's start through the next 31 days."
+msgstr "Lista pokazuje wydarzenia od początku wybranego miesiąca do 31 dni naprzód."
 
-#: .\events\templates\events\event_list.html:42
+#: .\events\templates\events\event_list.html:40
+msgid "No events in this period"
+msgstr "Brak wydarzeń w tym przedziale czasu"
+
+#: .\events\templates\events\event_list.html:43
 msgid "Add the first event"
 msgstr "Stwórz pierwsze wydarzenie"
 
@@ -3163,11 +3167,11 @@ msgstr "Brak aktywności w tej sekcji."
 #: .\home\management\commands\send_email_digest.py:229
 #: .\home\test_email_digest.py:330
 msgid "Manage email notifications"
-msgstr "Zarządzaj powiadomieniami e-mail"
+msgstr "Zarządzaj powiadomieniami"
 
 #: .\home\management\commands\send_email_digest.py:230
-msgid "You can manage your email notifications here:"
-msgstr "Możesz zarządzać swoimi powiadomieniami e-mail tutaj:"
+msgid "Unsubscribe from all notifications"
+msgstr "Wyłącz wszystkie powiadomienia"
 
 #: .\home\navigation.py:10 .\home\templates\home\includes\toolbar.html:60
 msgid "List"

@@ -18,6 +18,7 @@
   {% include 'obywatele/_calendar_partial.html' with cal_weeks=current_month_weeks cal_year=current_month_year cal_month=current_month_num cal_first_day=current_month_first_day prev_month=current_month_prev next_month=current_month_next %}
 </div>
 
+<p class="tw-text-sm tw-text-muted tw-my-2">{% trans "The list shows events from the selected month's start through the next 31 days." %}</p>
 {% include 'home/includes/toolbar.html' with cta_url='' views=toolbar_views %}
 
 {# ── AGENDA + GRID ── #}
@@ -36,7 +37,7 @@
   </div>
 </div>
 
-{% trans "No events in the selected month" as events_empty_title %}
+{% trans "No events in this period" as events_empty_title %}
 {% if user.is_authenticated %}
   {% url 'events:create' as events_empty_cta %}
   {% trans "Add the first event" as events_empty_cta_label %}
@@ -51,7 +52,8 @@
   var calendarEl = document.getElementById('events-calendar');
   var calUrl          = '{% url "events:calendar" %}';
   var agendaChunkUrl  = '{% url "events:agenda_chunk" %}';
-  var activeFromDate  = null;
+  var createEventPath = new URL('{% url "events:create" %}', window.location.href).pathname;
+  var activeDate  = null;
   var pendingFetch    = null;
 
   function highlightSelectedDay(iso) {
@@ -65,25 +67,38 @@
     }
   }
 
+  function updateEmptyState() {
+    if (emptyEl) emptyEl.classList.toggle('tw-d-none', Boolean(document.querySelector('.tw-agenda-day:not(.tw-d-none)')));
+  }
+
+  function updateCreateEventLinks(iso) {
+    document.querySelectorAll('a[href]').forEach(function(link){
+      if (link.pathname !== createEventPath) return;
+      var url = new URL(link.href, window.location.href);
+      if (iso) url.searchParams.set('date', iso);
+      else url.searchParams.delete('date');
+      link.href = url.pathname + url.search + url.hash;
+    });
+  }
+
   function resetDateFilter() {
-    activeFromDate = null;
+    activeDate = null;
+    updateCreateEventLinks(null);
     highlightSelectedDay(null);
     document.querySelectorAll('.tw-agenda-day, [data-view-only="grid"] [data-date]').forEach(function(el){
       el.classList.remove('tw-d-none');
     });
+    updateEmptyState();
   }
 
-  // Hide everything before `iso` (YYYY-MM-DD), reveal everything from `iso` onwards.
-  function setFromDate(iso) {
-    document.querySelectorAll('.tw-agenda-day').forEach(function(d){
-      d.classList.toggle('tw-d-none', d.id.replace('day-','') < iso);
+  function setDateFilter(iso) {
+    document.querySelectorAll('.tw-agenda-day').forEach(function(day){
+      day.classList.toggle('tw-d-none', day.id.replace('day-','') !== iso);
     });
-  }
-
-  function setGridFromDate(iso) {
     document.querySelectorAll('[data-view-only="grid"] [data-date]').forEach(function(el){
-      el.classList.toggle('tw-d-none', el.dataset.date < iso);
+      el.classList.toggle('tw-d-none', el.dataset.date !== iso);
     });
+    updateEmptyState();
   }
 
   function insertChunkIntoAgenda(wrapper) {
@@ -96,7 +111,7 @@
       agenda.appendChild(node.cloneNode(true));
     });
 
-    if (emptyEl) emptyEl.classList.toggle('tw-d-none', Boolean(wrapper.querySelector('.tw-agenda-day')));
+    updateEmptyState();
   }
 
   function insertChunkIntoGrid(wrapper) {
@@ -132,17 +147,16 @@
   }
 
   function jumpToDay(iso) {
-    activeFromDate = iso;
+    activeDate = iso;
+    updateCreateEventLinks(iso);
     highlightSelectedDay(iso);
 
     if (calendarEl.dataset.month === iso.slice(0, 7)) {
-      setFromDate(iso);
-      setGridFromDate(iso);
+      setDateFilter(iso);
       history.replaceState(null, '', window.location.pathname + '?month=' + iso.slice(0, 7) + '#day-' + iso);
     } else {
       loadChunk(iso.slice(0, 7)).then(function() {
-        setFromDate(iso);
-        setGridFromDate(iso);
+        setDateFilter(iso);
         history.replaceState(null, '', window.location.pathname + '?month=' + iso.slice(0, 7) + '#day-' + iso);
       });
     }
@@ -204,7 +218,7 @@
   window.wkOnReady(function(){
     document.querySelectorAll('[data-view]').forEach(function(b){
       b.addEventListener('click', function(){
-        if (b.dataset.view === 'grid' && activeFromDate) setGridFromDate(activeFromDate);
+        if (b.dataset.view === 'grid' && activeDate) setDateFilter(activeDate);
       });
     });
 

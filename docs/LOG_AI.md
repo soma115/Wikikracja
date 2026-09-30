@@ -1,5 +1,13 @@
 # LOG_AI
 
+## 2026-09-30: Krocząca lista wydarzeń i responsywna siatka
+
+- **Zmienione obszary:** `events` (widok, szablon, testy), wspólny CSS Tailwind, standard UI, polskie tłumaczenia i ten log.
+- **Co się zmieniło:** Lista wydarzeń obejmuje daty od początku miesiąca wybranego w mini-kalendarzu do 31 dni naprzód. Kliknięcie dnia filtruje listę do dokładnie tego dnia i przekazuje tę datę do formularza nowego wydarzenia. Nowe wydarzenie domyślnie zaczyna się o 12:00 w bieżącym dniu lokalnym. Siatka kart dobiera kolumny do szerokości kontenera, a dzisiejszy dzień z wydarzeniem zachowuje kontrastowy tekst.
+- **Uzasadnienie:** Ograniczenie historii do ostatnich 5 dni ukrywało starsze wydarzenia wybranego miesiąca, a kolor tekstu dnia z wydarzeniem nadpisywał kontrast dnia bieżącego; siatka mogła też wymuszać przepełnienie poziome.
+- **Weryfikacja:** 17 testów `events/tests/test_views.py`, Ruff, Django check, kompilacja tłumaczeń, regression scan, UI guard i `git diff --check` przeszły. Playwright nie został uruchomiony: brak lokalnego `.env.local` z dedykowanym kontem E2E, a pełny runner przygotowuje `.env` i wykonuje `collectstatic --clear`.
+- **Spodziewany efekt:** Wydarzenia od początku wybranego miesiąca są widoczne razem z najbliższymi 31 dniami, kliknięcie daty zawęża je do jednego dnia, dzień bieżący pozostaje czytelny, a karty zawijają się do szerokości ekranu.
+
 ## 2026-09-29: Aktywność usunięcia konta, Inbox i filtr finansów
 
 - **Zmienione obszary:** `obywatele` (aktywność i prośby usunięcia konta), `chat.feed`, aktywność `home`, provider `bookkeeping`, testy, polski katalog tłumaczeń i ten log.

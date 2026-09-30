@@ -1,4 +1,5 @@
 from datetime import date as _date
+from datetime import datetime, time, timedelta
 from urllib.parse import urlencode
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -6,7 +7,7 @@ from django.http import HttpRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.utils.dateparse import parse_datetime
+from django.utils.dateparse import parse_date, parse_datetime
 from django.utils.translation import gettext_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
@@ -27,32 +28,41 @@ def _events_stepper():
     return {'steps': [{'url': reverse('events:list'), 'icon': 'calendar', 'label': gettext_lazy('Calendar'), 'active': True}]}
 
 
-def _month_occurrences(request, year, month):
-    range_start, range_end = month_bounds(year, month)
-    events = _visible_events(request)
+EVENTS_FUTURE_DAYS = 31
 
+
+def _occurrences_between(request, range_start, range_end):
     now = timezone.now()
-    month = f'{year}-{month:02d}'
     occurrences = []
-    for event in events:
+    for event in _visible_events(request):
         for occurrence in event.get_occurrences(range_start, range_end):
+            month = timezone.localtime(occurrence).strftime('%Y-%m')
             detail_url = reverse('events:detail', kwargs={'pk': event.pk})
             detail_url = f"{detail_url}?{urlencode({'month': month, 'occurrence': occurrence.isoformat()})}"
             occurrences.append({'event': event, 'date': occurrence, 'is_past': occurrence < now, 'detail_url': detail_url})
     return sorted(occurrences, key=lambda item: item['date'])
 
 
+def _month_occurrences(request, year, month):
+    return _occurrences_between(request, *month_bounds(year, month))
+
+
+def _list_occurrences(request, year, month):
+    range_start, _ = month_bounds(year, month)
+    future_end = timezone.localdate() + timedelta(days=EVENTS_FUTURE_DAYS)
+    range_end = timezone.make_aware(datetime.combine(future_end, time.max))
+    return _occurrences_between(request, range_start, range_end)
+
+
 class EventListView(ListView):
-    """Renders an agenda-style list of all occurrences in the selected month.
-    Day clicks in the calendar widget scroll to in-page anchors
-    `#day-YYYY-MM-DD`."""
+    """Renders selected-month occurrences through the rolling future window."""
 
     template_name = 'events/event_list.html'
     context_object_name = 'occurrences'
 
     def get_queryset(self):
-        cal_year, cal_month = parse_month_param(self.request.GET.get('month', ''))
-        return _month_occurrences(self.request, cal_year, cal_month)
+        year, month = parse_month_param(self.request.GET.get('month', ''))
+        return _list_occurrences(self.request, year, month)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -85,10 +95,9 @@ class EventListView(ListView):
 
 
 def events_agenda_chunk(request: HttpRequest):
-    """AJAX: returns an agenda partial for the given month."""
-    cal_year, cal_month = parse_month_param(request.GET.get('month', ''))
-
-    occurrences = _month_occurrences(request, cal_year, cal_month)
+    """AJAX: returns the agenda partial for the selected month and future window."""
+    year, month = parse_month_param(request.GET.get('month', ''))
+    occurrences = _list_occurrences(request, year, month)
     return render(request, 'events/_agenda_chunk.html', {'occurrences': occurrences, 'now': timezone.now(), 'include_grid_chunk': True})
 
 
@@ -169,6 +178,16 @@ class EventCreateView(EventFormViewMixin, LoginRequiredMixin, CreateView):
     form_class = EventForm
     template_name = 'events/event_form.html'
     success_url = reverse_lazy('events:list')
+
+    def get_initial(self):
+        initial = super().get_initial()
+        try:
+            selected_date = parse_date(self.request.GET.get('date', ''))
+        except ValueError:
+            selected_date = None
+        start_date = selected_date or timezone.localdate()
+        initial['start_date'] = timezone.make_aware(datetime.combine(start_date, time(hour=12)))
+        return initial
 
 
 class EventUpdateView(EventFormViewMixin, LoginRequiredMixin, UpdateView):

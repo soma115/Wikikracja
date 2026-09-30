@@ -1,5 +1,5 @@
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from datetime import timezone as dt_timezone
 from urllib.parse import urlencode
 
@@ -19,6 +19,12 @@ class EventViewTest(TestCase):
         self.user = User.objects.create_user(username='testuser', email='test@example.com', password=self.test_password)
         self.event = Event.objects.create(title="Test Event", description="Test Description", start_date=timezone.now() + timedelta(days=1), frequency='once')
 
+    def create_event_on_date(self, title, date):
+        return Event.objects.create(title=title, start_date=timezone.make_aware(datetime.combine(date, time(hour=12))), frequency='once')
+
+    def create_event_at_offset(self, title, days):
+        return self.create_event_on_date(title, timezone.localdate() + timedelta(days=days))
+
     def test_event_list_view(self):
         response = self.client.get(reverse('events:list'))
         self.assertEqual(response.status_code, 200)
@@ -27,6 +33,36 @@ class EventViewTest(TestCase):
         self.assertContains(response, 'data-view="grid"')
         self.assertContains(response, 'data-view="list"')
         self.assertContains(response, 'data-default-view="grid"')
+
+    def test_event_list_shows_selected_month_and_31_future_days(self):
+        today = timezone.localdate()
+        month_start = today.replace(day=1)
+        previous_month = month_start - timedelta(days=1)
+        visible_titles = ('Month Start', 'Today', 'In 31 Days')
+        for title, date in (('Month Start', month_start), ('Today', today), ('In 31 Days', today + timedelta(days=31))):
+            self.create_event_on_date(title, date)
+        self.create_event_on_date('Previous Month', previous_month)
+        self.create_event_at_offset('In 32 Days', 32)
+
+        response = self.client.get(reverse('events:list'), {'month': today.strftime('%Y-%m')})
+
+        for title in visible_titles:
+            self.assertContains(response, title)
+        self.assertContains(response, 'class="tw-cal-day tw-cal-day-has-event tw-cal-day-today"')
+        self.assertNotContains(response, 'Previous Month')
+        self.assertNotContains(response, 'In 32 Days')
+
+    def test_event_list_uses_month_selected_in_calendar(self):
+        month_start = timezone.localdate().replace(day=1)
+        selected_month_end = month_start - timedelta(days=1)
+        selected_month_start = selected_month_end.replace(day=1)
+        selected_month_event = self.create_event_on_date('Selected Month Start', selected_month_start)
+        older_event = self.create_event_on_date('Before Selected Month', selected_month_start - timedelta(days=1))
+
+        response = self.client.get(reverse('events:list'), {'month': selected_month_start.strftime('%Y-%m')})
+
+        self.assertContains(response, selected_month_event.title)
+        self.assertNotContains(response, older_event.title)
 
     def test_event_detail_view(self):
         response = self.client.get(reverse('events:detail', kwargs={'pk': self.event.pk}))
@@ -53,6 +89,22 @@ class EventViewTest(TestCase):
         self.client.login(username='testuser', password=self.test_password)
         response = self.client.get(reverse('events:create'))
         self.assertEqual(response.status_code, 200)
+
+    def test_new_event_defaults_to_today_at_noon(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('events:create'))
+
+        start_date = timezone.localtime(response.context['form'].initial['start_date'])
+        self.assertEqual(start_date.date(), timezone.localdate())
+        self.assertEqual(start_date.time(), time(hour=12))
+
+    def test_new_event_uses_selected_calendar_day_at_noon(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('events:create'), {'date': '2030-08-17'})
+
+        start_date = timezone.localtime(response.context['form'].initial['start_date'])
+        self.assertEqual(start_date.date().isoformat(), '2030-08-17')
+        self.assertEqual(start_date.time(), time(hour=12))
 
     def test_event_form_uses_shared_edit_layout(self):
         self.client.force_login(self.user)
@@ -134,21 +186,21 @@ class EventViewTest(TestCase):
         response = self.client.get(reverse('events:list'))
         self.assertContains(response, "Private Visible")
 
-    def test_past_event_is_visible_in_selected_month(self):
-        past_event = Event.objects.create(title='Past Event', start_date=timezone.make_aware(datetime(2026, 6, 10, 10)), frequency='once')
-        response = self.client.get(reverse('events:list'), {'month': '2026-06'})
-        self.assertContains(response, past_event.title)
-        self.assertNotContains(response, 'agenda-month-header')
+    def test_event_beyond_31_day_future_window_is_not_visible(self):
+        future_event = self.create_event_at_offset('Outside Event', 32)
+        response = self.client.get(reverse('events:list'))
+        self.assertNotContains(response, future_event.title)
 
-    def test_event_from_next_month_is_not_visible(self):
-        Event.objects.create(title='Next Month Event', start_date=timezone.make_aware(datetime(2026, 7, 1)), frequency='once')
-        response = self.client.get(reverse('events:list'), {'month': '2026-06'})
-        self.assertNotContains(response, 'Next Month Event')
-
-    def test_agenda_chunk_loads_past_event_from_selected_month(self):
-        start_date = timezone.now() - timedelta(days=60)
-        past_event = Event.objects.create(title='Older Past Event', start_date=start_date, frequency='once')
-        month = timezone.localtime(start_date).strftime('%Y-%m')
-        response = self.client.get(reverse('events:agenda_chunk'), {'month': month}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+    def test_agenda_chunk_uses_selected_month_and_31_future_days(self):
+        today = timezone.localdate()
+        month_start = today.replace(day=1)
+        past_event = self.create_event_on_date('Month Start Event', month_start)
+        older_event = self.create_event_on_date('Previous Month Event', month_start - timedelta(days=1))
+        future_event = self.create_event_at_offset('Future Boundary Event', 31)
+        outside_event = self.create_event_at_offset('Outside Future Event', 32)
+        response = self.client.get(reverse('events:agenda_chunk'), {'month': today.strftime('%Y-%m')}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, past_event.title)
+        self.assertContains(response, future_event.title)
+        self.assertNotContains(response, older_event.title)
+        self.assertNotContains(response, outside_event.title)

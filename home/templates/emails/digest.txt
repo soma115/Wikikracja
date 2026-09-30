@@ -19,7 +19,6 @@
 {% endfor %}
 {% endfor %}
 
-{{ manage_text }}
 {{ settings_url }}
-Unsubscribe from all notifications:
+{{ unsubscribe_text }}:
 {{ unsubscribe_url }}{% endautoescape %}

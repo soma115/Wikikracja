@@ -227,7 +227,7 @@ class Command(TranslatedCommand):
             'restarted_votes_intro': _('Votes cast before the failure were lost and these referenda have started again. Please vote again:'),
             'no_activity_text': _('No activity in this section.'),
             'manage_button_text': _('Manage email notifications'),
-            'manage_text': _('You can manage your email notifications here:'),
+            'unsubscribe_text': _('Unsubscribe from all notifications'),
             'since': since_str,
             'settings_url': build_site_url('/obywatele/settings/'),
             'unsubscribe_url': build_unsubscribe_url(user),
