@@ -37,6 +37,7 @@ Nie modyfikuj bez konsultacji obszarów krytycznych dla bezpieczeństwa, integra
 - Nie wprowadzaj nowych modułów, plików czy warstw bez uzasadnienia; rozszerzaj istniejące.
 - Nie dubluj kodu, klas, funkcji ani reguł.
 - commity, push, force-push i inna modyfikacja historii gita — nigdy nie wykonuj ich samodzielnie
+- Każdą logicznie niezależną zmianę dodawaj do Git staging osobno, aby zakresy commitów się nie mieszały. Nie dodawaj do stagingu zmian niezwiązanych z bieżącym zadaniem.
 - Nie modyfikuj pliku `docs/TODO.md`; jest to osobista lista użytkownika i nie należy do kodu aplikacji.
 
 ## 3. Kontekst projektu
