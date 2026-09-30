@@ -81,7 +81,7 @@ def main() -> int:
 
     files = args.files if args.files is not None and args.files else _git_changed_files()
     tests = _tests_for_files(files)
-    test_workers = os.cpu_count() or 1
+    test_workers = max(1, (os.cpu_count() or 1) // 2)
     command = [sys.executable, "-m", "pytest", "-q", "-n", str(test_workers), *tests]
 
     print("Changed files:", ", ".join(files) if files else "none")

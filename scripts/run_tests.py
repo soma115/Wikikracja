@@ -224,8 +224,8 @@ def main():
         _run_step(manage + ["collectstatic", "--noinput", "--clear"], "Django collectstatic")
 
     if not args.no_pytest:
-        # Use every available CPU thread so the test suite runs as fast as possible.
-        test_threads = os.cpu_count() or 2
+        # Use half of the available CPU threads for the test suite.
+        test_threads = max(1, (os.cpu_count() or 1) // 2)
         _run_step([sys.executable, "-m", "pytest", "-q", "-n", str(test_threads)], "pytest")
 
     if not args.no_jest:
