@@ -1,5 +1,39 @@
 # LOG_AI
 
+## 2026-09-30: Zabezpieczenia SQLite przed migracją do MariaDB
+
+- **Zmienione obszary:** `core/sqlite.py`, `glosowania` (oddawanie głosu), `scripts/sqlite_maintenance.py`, `scripts/sqlite_contention_test.py`, konfiguracja SQLite, scheduler oraz instrukcje operacyjne.
+- **Co się zmieniło:** Dodano bezpieczny backup przez SQLite Backup API z kontrolą integralności, checkpointem WAL i opcjonalnym `VACUUM` po backupie; istniejący plik backupu nie jest nadpisywany bez jawnego usunięcia, a checkpoint `TRUNCATE` wymaga potwierdzenia. Dodano test współbieżności na kopii/tymczasowej bazie z pomiarem blokad i WAL/SHM. Połączenia używają wspólnych pragm SQLite (`WAL`, `foreign_keys`, `busy_timeout`), retry pozostaje ograniczone i ma diagnostykę bez danych wrażliwych, a scheduler ma międzyprocesową blokadę dla Linux i Windows. Końcowy błąd blokady przy głosowaniu daje bezpieczny redirect i komunikat zamiast 500; interfejs blokuje podwójne wysłanie i nie ponawia POST-a automatycznie.
+- **Wyniki zachowane do porównania:** W historycznych testach 16 writerów po 5000 operacji odnotowano 74882 zapisy i 5118 blokad przy timeout 0,1 s oraz 79312 zapisów i 688 blokad przy timeout 1 s. Test pilota na docelowym PVC uzyskał 999/1000 zapisów i jedną blokadę; kopia przeszła kontrole integralności. Są to baseline'y testów/pilota, nie bieżące potwierdzenie bezpieczeństwa całego klastra.
+- **Decyzje i ograniczenia:** Zabezpieczenia SQLite pozostają wymagane do cutoveru i ewentualnego rollbacku; ich usunięcie jest odroczone do Etapu 7 `PLAN_MIGRACJI_MARIADB.md`. Przed operacją produkcyjną nadal trzeba potwierdzić aktualny backup, integralność, filesystem/blokady, wolne miejsce i monitoring. Nie uruchamiać `VACUUM` równolegle z aktywną bazą.
+- **Uzasadnienie:** Ograniczenia współbieżności SQLite wymagają odrębnego modelu operacyjnego; zachowanie kontrolowanego backupu i bezpiecznej ścieżki głosowania chroni dane do czasu przejścia na MariaDB.
+- **Weryfikacja:** W planie odnotowano testy obciążeniowe, kontrolę integralności i smoke testy restartów pilota. Nie wykonywałem ich ponownie przy porządkowaniu dokumentacji.
+- **Spodziewany efekt:** Obecne instancje mogą pozostać na SQLite z zachowaniem ograniczeń i procedur, a wyniki pomiarów służą jako punkt odniesienia dla migracji bez traktowania historycznego statusu jako bieżącego GO.
+
+## 2026-09-30: Status aktywności na podstawie push i aktywności aplikacji
+
+- **Zmienione obszary:** `core.presence`, aplikacje `obywatele` i `chat`, model profilu i migracja, wspólny avatar/UI, dashboard aktywności oraz testy i dokumentacja UI.
+- **Co się zmieniło:** Dodano indeksowany znacznik czasu i źródło ostatniego sygnału (`app`/`push`) na poziomie użytkownika. Sygnały aplikacji obejmują logowanie, heartbeat, widoczność karty, interakcje i WebSocket; kliknięcia i wpisywanie są ograniczone do zapisu najwyżej raz na 5 minut. Obecność push aktualizuje wyłącznie uwierzytelniony użytkownik po ACK `shown` po pokazaniu powiadomienia; `skipped` i `error` nie aktualizują statusu. Zapis jest monotoniczny, nie przechowuje tokenów FCM, a zmiany są rozgłaszane przez istniejący WebSocket. Status ma konfigurowalne progi: zielony do 15 minut, żółty do 7 dni, czerwony przy starszym lub brakującym sygnale.
+- **UI i dashboard:** Wspólny partial avatara pokazuje dostępny kropkowy wskaźnik z opisem źródła i czasu; dotknięcie otwiera popover. Wzorzec działa w listach, siatkach, profilach, aktywności, dokumentach, głosowaniach, zadaniach, dashboardzie i prywatnym czacie. Kafelek aktywności pokazuje podział świeżości sygnałów dla ostatnich 30 dni, procent i liczby oraz prowadzi do listy z filtrem; opiera się wyłącznie na `last_presence_at`.
+- **Decyzje i ograniczenia:** Status jest heurystyką ostatniego wiarygodnego sygnału, nie dowodem obecności człowieka. Nie opiera się na samym `last_login`, aktywnym tokenie ani wysłaniu push. Model przechowuje tylko najnowszy sygnał, dlatego historia dzienna i heatmapa 30-dniowa pozostają poza zakresem.
+- **Uzasadnienie:** Jeden wskaźnik ma informować o ostatniej potwierdzonej aktywności także osób bez push, bez utożsamiania rejestracji tokena lub próby wysłania z faktycznym odbiorem powiadomienia.
+- **Weryfikacja:** Zgodnie z planem przeszły testy dotkniętych obszarów backendu i frontendu, Django check, linting, test migracji, build CSS, regression scan i UI guard. Test listy obywateli sprawdza, że liczba zapytań nie rośnie proporcjonalnie do liczby użytkowników.
+- **Spodziewany efekt:** Użytkownicy widzą przy avatarach aktualny, opisany status wynikający z najnowszego sygnału z dowolnego urządzenia; aktywność może być raportowana zarówno z aplikacji, jak i z potwierdzonego odbioru push.
+
+## 2026-09-30: Refaktoryzacja architektury między aplikacjami
+
+- **Zmienione obszary:** `chat`, `glosowania`, `tasks`, `board`, `home`, `zzz`, aplikacje dostarczające dane do dashboardu i wyszukiwania oraz powiązane migracje i testy.
+- **Co się zmieniło:**
+  - Czat komunikuje się z `glosowania`, `tasks` i `board` przez sygnały domenowe (`chat_room_requested`, `chat_message_requested`) zamiast bezpośredniego tworzenia wiadomości/pokoi lub wywoływania usług czatu. `Room` przechowuje `source_app` i `source_object_id`; backfill istniejących rekordów rozdzielono na migracje `tasks` i `glosowania`, aby uniknąć cyklicznej zależności. Widoki i komendy grupują pokoje po `source_app`, a naprawa połączeń używa `django.apps` zamiast importów modeli `Task`/`Decyzja`. `Room.clean_title()` usuwa techniczne prefiksy tytułów przy wyświetlaniu. Testy błędnego tworzenia pokoju mockują teraz `chat.signals.Room.objects.create`.
+  - Dashboard i wyszukiwanie korzystają z rejestrów providerów per aplikacja oraz cienkich usług agregujących; `home/views.py` nie importuje już modeli innych aplikacji. W `home/services/dashboard.py` pozostały elementy należące do `home` (feed, quick links i `DASHBOARD_MODULES`).
+  - Wspólne widgety przeniesiono z `home/widgets.py` do `zzz/widgets.py`, a `citizen_color_class`/`citizen_color` do `zzz/templatetags/citizen_filters.py`; zaktualizowano zależne importy i szablon avatara.
+  - Powiadomienia scentralizowano przez sygnały domenowe w `zzz/signals.py` i odbiorców w `zzz/notifications.py`, które wybierają kanał FCM, WebSocket lub email. Ręczne wywołania zastąpiono emisją zdarzeń; obsługę pokoi 1-to-1 oraz chatowe sprzątanie po usunięciu obywatela wydzielono do `chat/signals.py`. Obsłużono też błędy `DatabaseError` przy dostępie do odbiorców push i broadcastach, żeby blokada SQLite nie kończyła pracy tła nieobsłużonym wyjątkiem.
+  - `count_citizens` rozdziela liczenie reputacji/aktywację od operacji czatu, a `chat_messages` grupuje pokoje dynamicznie po `source_app` z fallbackiem `public`/`private`.
+- **Decyzje i ograniczenia:** Przeniesienie `FeedItem` i `ReadStatus` z `home/models.py` do `core` pozostawiono poza zakresem — wymagałoby nowej aplikacji i migracji schematu.
+- **Uzasadnienie:** Zmiany zmniejszają sprzężenie między aplikacjami i skupiają obsługę integracji w jawnych kontraktach, rejestrach oraz odbiorcach zdarzeń.
+- **Weryfikacja:** Według wykonanych raportów przeszły `manage.py check`, `makemigrations --check --dry-run`, Ruff (`check` i `format --check`), 461 testów pytest oraz 97 testów Jest.
+- **Spodziewany efekt:** Moduły zależą od jawnych kontraktów i rejestrów zamiast bezpośrednio od modeli i efektów ubocznych innych aplikacji; dokumentacja planu została zastąpiona tym podsumowaniem wykonanych prac.
+
 ## 2026-09-30: Inbox wyłączony z digestu e-mailowego
 
 - **Zmienione pliki:** `chat/feed.py`, `home/test_email_digest.py`, `docs/LOG_AI.md`.

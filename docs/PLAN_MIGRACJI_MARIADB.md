@@ -62,8 +62,11 @@ anonimowości, ponieważ pełnią one niezależne funkcje biznesowe i operacyjne
 - Backup produkcyjny kopiuje bazy SQLite i media z PVC na NAS przez Kubernetes
   CronJob.
 
-Dokumentacja SQLite pozostaje użyteczna jako opis stanu bieżącego i planu
-przejściowego: `docs/PLAN_NIEZAWODNOSC_SQLITE.md`.
+### SQLite do cutoveru
+
+Do migracji każdej instancji zachować jej bazę i obecne zabezpieczenia SQLite.
+Przed cutoverem wykonać zweryfikowany backup i potwierdzić brak aktywnego
+referendum. Procedura backupu i restore: `docs/dokumentacja/DEPLOYMENT_INSTRUCTIONS.md`.
 
 ## Docelowa architektura
 
@@ -230,13 +233,17 @@ udokumentowane RPO/RTO dla każdej instancji.
 - [ ] Skonfigurować `utf8mb4`, uzgodnioną collation, tryb ścisły SQL oraz poziom
   izolacji wspierający oczekiwane zachowanie transakcji Django.
 - [ ] Dodać wspierany przez Django sterownik `mysqlclient` do
-  `requirements.txt` oraz lock/build verification zgodną z polityką projektu.
+  `requirements.txt` oraz potwierdzić jego build i działanie w obrazie Python
+  3.14 Alpine na `amd64` i `arm64`.
 - [ ] Usunąć zależność ustawień od `SQLITE_DATABASE_PATH`, `SQLITE_TIMEOUT`
   i produkcyjnych pragm SQLite.
 - [ ] Zaktualizować development, testy, Docker Compose i CI tak, aby używały
   tej samej głównej wersji MariaDB; nie utrzymywać równoległej ścieżki SQLite.
-- [ ] Sprawdzić wszystkie surowe zapytania SQL, funkcje SQLite, `PRAGMA`, typy
-  pól, długości indeksów, constraints, wartości domyślne i zachowanie dat/czasów.
+- [ ] Zapewnić, że pełna historia migracji działa na czystej MariaDB i SQLite;
+  szczególnie rozwiązać SQLite-only SQL w `bookkeeping.0026` (`sqlite_master`,
+  `PRAGMA`, placeholdery `?`).
+- [ ] Sprawdzić pozostałe surowe zapytania SQL, funkcje SQLite, typy pól,
+  długości indeksów, constraints, wartości domyślne i zachowanie dat/czasów.
 - [ ] Sprawdzić różnice collation i porównań tekstu, w szczególności wielkość
   liter, polskie znaki oraz unikalność identyfikatorów i adresów e-mail.
 - [ ] Zastąpić logowanie `wal_size` i retry `database is locked` metrykami oraz
@@ -380,33 +387,12 @@ Redisowy bufor głosów, Redis Channels, kolejka powiadomień i ich monitoring
 pozostają. Zmienia się tylko model: każdy z tych elementów działa w Redisie
 należącym wyłącznie do jednej instancji.
 
-## Strategia rollbacku
+## Rollback
 
-Rollback musi być możliwy na dwóch poziomach:
-
-### Rollback przed przełączeniem ruchu
-
-- pozostawić starą instancję SQLite wyłączoną lub gotową do kontrolowanego
-  uruchomienia;
-- nie usuwać PVC, backupu MariaDB ani konfiguracji osobnego Redisa
-  instancji;
-- przywrócić poprzednią konfigurację Flux, obraz i endpointy wyłącznie tej
-  instancji;
-- uruchomić pusty Redis instancji i potwierdzić, że nie ma aktywnego
-  referendum wymagającego zachowania bufora;
-- nie przełączać ani nie odtwarzać zasobów innych instancji.
-
-### Rollback po rozpoczęciu zapisu do MariaDB
-
-Nie wolno po prostu przełączyć aplikacji z powrotem na SQLite, jeśli MariaDB
-przyjął nowe zapisy. Należy wtedy albo:
-
-1. wycofać ruch i odtworzyć MariaDB z właściwego backupu/snapshotu; albo
-2. wykonać kontrolowaną migrację przyrostową MariaDB → SQLite.
-
-Drugi wariant jest trudniejszy i nie może być domyślną procedurą awaryjną.
-Przed produkcją należy przećwiczyć pierwszy wariant i jasno określić punkt,
-do którego rollback jest bezstratny.
+Zatrzymać zapisy, odtworzyć ostatni zweryfikowany backup bazy danej instancji,
+uruchomić aplikację z konfiguracją zgodną z odtworzoną bazą i sprawdzić jej
+integralność przed wznowieniem ruchu. Backup wyznacza punkt odtworzenia; zapisy
+wykonane później nie będą w nim obecne.
 
 ## Kryteria zakończenia projektu
 
@@ -439,9 +425,9 @@ Migrację uznajemy za zakończoną dopiero, gdy:
 
 ## Powiązane dokumenty i źródła prawdy
 
-- `docs/PLAN_NIEZAWODNOSC_SQLITE.md` — stan obecny i zabezpieczenia SQLite;
-- `docs/dokumentacja/DEPLOYMENT_INSTRUCTIONS.md` — uruchamianie aplikacji i
-  aktualna architektura runtime;
+- sekcja „SQLite do cutoveru” powyżej — warunki zachowania obecnej bazy;
+- `docs/dokumentacja/DEPLOYMENT_INSTRUCTIONS.md` — uruchamianie aplikacji,
+  aktualna architektura runtime oraz procedury backupu/restore SQLite;
 - `flux-cluster/docs/PLAN_MIGRACJI_INSTANCJI_WIKIKRACJA.md` — kolejność i
   model warstw Flux per instancja;
 - `flux-cluster/docs/BACKUP_STRATEGY.md` — obecna strategia backupu SQLite,

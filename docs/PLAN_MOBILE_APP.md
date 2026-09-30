@@ -17,30 +17,6 @@ Dokument ten zakłada, że obowiązują dotychczasowe reguły architektoniczne: 
 
 ## 2. Architektura ogólna
 
-```mermaid
-flowchart LR
-  subgraph "Urządzenie mobilne"
-    A[Natywna aplikacja Wikikracji]
-    B[WebView z aplikacją web]
-    C[Silnik push natywny]
-    A --> B
-    A --> C
-  end
-
-  B <-->|HTTPS + JS bridge| D[Wikikracja / Django]
-
-  D --> E[mobile_push gateway]
-  E --> F[FCM / Google]
-  E --> G[APNs / Apple]
-  E --> H[(ntfy / UnifiedPush)]
-
-  F --> A
-  G --> A
-  H --> A
-```
-
----
-
 ## 3. Aplikacja mobilna (kliencka)
 
 ### 3.1. Rekomendowany stack — Capacitor

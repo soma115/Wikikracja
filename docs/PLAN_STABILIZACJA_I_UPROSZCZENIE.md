@@ -37,7 +37,7 @@ Powiązane dokumenty:
 
 - `docs/PLAN_refaktoryzacja_architektury.md` — granice modułów, rejestry i dekompozycja zależności;
 - `docs/PLAN_refaktoryzacja_home.md` — historyczny coupling `home` i plan jego ograniczania;
-- `docs/PLAN_NIEZAWODNOSC_SQLITE.md` — backupy, blokady, transakcje, scheduler i model jednego writera;
+- `docs/PLAN_MIGRACJI_MARIADB.md` — migracja silnika bazy, zabezpieczenia SQLite do cutoveru, współbieżność, backup i rollback;
 - `docs/UI_STANDARDS.html`, `docs/UI_DEVELOPMENT_GUIDE.md`, `docs/TAILWIND_UI_GUIDE.md` — wspólny system UI;
 - `scripts/run_tests.py` i `scripts/pre_push_tests.py` — odpowiednio pełna i zmieniona-zakresowo weryfikacja.
 
@@ -100,19 +100,16 @@ Cel: każdy deweloper i CI uruchamiają te same kontrole, a błąd środowiska n
 
 Cel: chronić integralność danych i przewidywalność operacji bez zmiany reguł biznesowych.
 
-- [ ] Dokończyć otwarte zadania z `docs/PLAN_NIEZAWODNOSC_SQLITE.md`:
-  - [ ] audyt długich transakcji i efektów zewnętrznych wykonywanych w transakcji;
-  - [ ] globalny monitoring blokad, czasu transakcji i rozmiaru WAL;
-  - [ ] test obciążeniowy HTTP, WebSocketów, schedulera i głosowania na docelowym modelu uruchomienia;
-  - [ ] formalne ograniczenie liczby procesów zapisujących do SQLite;
-  - [ ] procedury backupu, integralności, odtworzenia i awarii;
-  - [ ] testy restartu oraz monitorowanie schedulera, Redis i ścieżki głosowania.
+- [ ] Dokończyć kontrole niezawodności bazy zgodnie z etapami
+  `docs/PLAN_MIGRACJI_MARIADB.md`: audyt transakcji i efektów zewnętrznych,
+  testy współbieżności/restartów, backup/restore oraz monitoring. Do cutoveru
+  utrzymać ograniczenia SQLite opisane w tym planie migracji.
 - [ ] Sprawdzić wszystkie operacje zapisu pod kątem atomowości, powtórzenia żądania i częściowego wykonania.
 - [ ] Zostawić retry wyłącznie przy błędach przejściowych i operacjach bezpiecznych do powtórzenia; głosowanie i inne zapisy audytowalne muszą mieć jawny wynik.
 - [ ] Uporządkować granice `transaction.atomic()`: krótki zapis w bazie, efekty zewnętrzne po zatwierdzeniu albo jawny mechanizm kompensacji.
 - [ ] Zweryfikować idempotencję sygnałów, powiadomień, komend zarządzających i zadań schedulera.
 - [ ] Sprawdzić backup na kopii i wykonać kontrolowane odtworzenie, bez operowania na jedynej produkcyjnej kopii.
-- [ ] Nie skalować SQLite poza zaakceptowany model jednego kontrolowanego writera; ewentualną zmianę silnika traktować jako osobną decyzję architektoniczną.
+- [ ] Nie skalować SQLite poza zaakceptowany model jednego kontrolowanego writera do czasu cutoveru; migrację silnika prowadzić zgodnie z `docs/PLAN_MIGRACJI_MARIADB.md`.
 
 **Bramka F2:** krytyczne zapisy mają testy integralności i konkurencji, backup można odtworzyć, a liczba procesów i retry jest jawnie określona.
 
