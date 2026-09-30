@@ -1,11 +1,8 @@
 import logging
 from collections import defaultdict
 from datetime import timedelta as td
-from random import choice
-from string import ascii_letters, digits
 
 from django.conf import settings as s
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
@@ -18,14 +15,10 @@ from board.models import Post
 from core.signals import citizen_accepted, citizen_blocked, citizen_deleted
 from core.utils import build_site_url, get_site_domain, get_user_language
 from obywatele.models import CitizenActivity, DeletionRequest, Rate, Uzytkownik
-from obywatele.services import publish_deletion_feedback, release_blocked_user_resources
+from obywatele.services import invalidate_user_sessions, publish_deletion_feedback, release_blocked_user_resources
 from obywatele.views import population, required_reputation
 
 log = logging.getLogger(__name__)
-
-
-def password_generator(size=8, chars=ascii_letters + digits):
-    return ''.join(choice(chars) for i in range(size))
 
 
 # count_citizens command
@@ -155,12 +148,9 @@ class Command(BaseCommand):
 
             if i.reputation > req_rep:
                 log.info(f'EMAIL_DIAG trigger=count_citizens_activation_check user_id={i.uid.id} email={i.uid.email} username={i.uid.username} reputation={i.reputation} required_reputation={req_rep}')
-                # Generate password first
-                password = password_generator()
-
                 # Atomically activate user only if still inactive (prevents race condition)
                 # This returns number of rows updated - will be 0 if user already active
-                rows_updated = User.objects.filter(id=i.uid.id, is_active=False).update(is_active=True, password=make_password(password))
+                rows_updated = User.objects.filter(id=i.uid.id, is_active=False).update(is_active=True)
 
                 # If no rows updated, user was already activated by another process
                 if rows_updated == 0:
@@ -174,8 +164,6 @@ class Command(BaseCommand):
 
                 CitizenActivity.objects.create(uzytkownik=i, activity_type=CitizenActivity.ActivityType.USER_ACTIVATED, description=_('Candidate has been accepted as a citizen'))
 
-                # Log the generated password for debugging
-                log.info(f'Generated password for {i.uid.email}: {password}')
                 log.info(f'ACTIVATED: user_id={i.uid.id}, email={i.uid.email}')
 
                 self.grant_automatic_reputation(i)
@@ -193,9 +181,9 @@ class Command(BaseCommand):
                     if welcome_post and welcome_post.text:
                         # Use system post content with placeholders
                         try:
-                            message = welcome_post.text.format(username=uname, email=uemail, password=password, host=host, login_url=f"{host}/login/", password_url=f"{host}/haslo/")
-                            # Convert HTML <br> to newlines for plain text email
+                            message = welcome_post.text.format(username=uname, email=uemail, password='', host=host, login_url=f"{host}/login/", password_url=build_site_url('/password_reset/'))
                             message = message.replace('<br>', '\n').replace('<p>', '').replace('</p>', '')
+                            message += '\n\n' + _('Set your password by requesting a password reset: %(link)s') % {'link': build_site_url('/password_reset/')}
                             subject = f"[{host}] {welcome_post.get_display_title()}"
                             log.info(f'Using welcome email from system post for user {uemail}')
                         except KeyError as e:
@@ -219,6 +207,7 @@ class Command(BaseCommand):
 
                 i.uid.is_active = False
                 i.uid.save()
+                invalidate_user_sessions(i.uid)
                 i.save()
                 release_blocked_user_resources(i.uid)
                 log.info(f'Blocking user {i.uid}')

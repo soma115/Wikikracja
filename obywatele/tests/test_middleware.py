@@ -5,12 +5,16 @@ requeście zalogowanego usera, ale max raz na 5 min (throttling przez cache).
 
 from datetime import timedelta
 
+from django.contrib.auth import SESSION_KEY
 from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.sessions.backends.db import SessionStore
+from django.contrib.sessions.models import Session
 from django.core.cache import cache
 from django.test import RequestFactory, TestCase
 from django.utils import timezone
 
 from obywatele.middleware import UpdateLastSeenMiddleware
+from obywatele.services import invalidate_user_sessions
 
 
 class UpdateLastSeenMiddlewareUnitTest(TestCase):
@@ -24,6 +28,7 @@ class UpdateLastSeenMiddlewareUnitTest(TestCase):
     def _process(self, user):
         request = self.factory.get('/')
         request.user = user
+        request.session = SessionStore()
         middleware = UpdateLastSeenMiddleware(lambda r: 'response')
         return middleware(request)
 
@@ -69,6 +74,20 @@ class UpdateLastSeenMiddlewareUnitTest(TestCase):
         self.user.refresh_from_db()
         self.assertEqual(self.user.first_name, 'TestName', "QuerySet.update(last_login=...) must only touch the last_login column")
 
+    def test_inactive_authenticated_request_is_logged_out(self):
+        self.user.is_active = False
+        self.user.save(update_fields=['is_active'])
+        request = self.factory.get('/')
+        request.user = self.user
+        request.session = SessionStore()
+        request.session[SESSION_KEY] = str(self.user.pk)
+        request.session.save()
+
+        UpdateLastSeenMiddleware(lambda r: 'response')(request)
+
+        self.assertIsInstance(request.user, AnonymousUser)
+        self.assertNotIn(SESSION_KEY, request.session)
+
     def test_inactive_user_does_not_update_last_login(self):
         """User z is_active=False nie powinien aktualizowac last_login -
         chroni komende count_citizens przed blokowaniem usuwania zdezaktywowanych userow."""
@@ -79,6 +98,23 @@ class UpdateLastSeenMiddlewareUnitTest(TestCase):
         self._process(self.user)
         self.user.refresh_from_db()
         self.assertIsNone(self.user.last_login, "Inactive users must not have last_login updated by middleware")
+
+
+class InvalidateUserSessionsTest(TestCase):
+    def test_deactivation_removes_database_sessions_for_user_only(self):
+        user = User.objects.create_user(username='session-revoke', password='secret')
+        other = User.objects.create_user(username='session-keep', password='secret')
+        sessions = []
+        for session_user in (user, other):
+            session = SessionStore()
+            session[SESSION_KEY] = str(session_user.pk)
+            session.save()
+            sessions.append(session.session_key)
+
+        invalidate_user_sessions(user)
+
+        self.assertFalse(Session.objects.filter(session_key=sessions[0]).exists())
+        self.assertTrue(Session.objects.filter(session_key=sessions[1]).exists())
 
 
 class UpdateLastSeenMiddlewareDbEfficiencyTest(TestCase):
@@ -92,6 +128,7 @@ class UpdateLastSeenMiddlewareDbEfficiencyTest(TestCase):
     def _process(self, user):
         request = self.factory.get('/')
         request.user = user
+        request.session = SessionStore()
         middleware = UpdateLastSeenMiddleware(lambda r: 'response')
         return middleware(request)
 

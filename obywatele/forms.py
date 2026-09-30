@@ -6,6 +6,7 @@ from urllib.parse import urlsplit
 import phonenumbers
 import pycountry
 from allauth.account.forms import SignupForm
+from allauth.account.models import EmailAddress
 from captcha.fields import CaptchaField, CaptchaTextInput
 from django import forms
 from django.contrib.auth.models import User
@@ -112,6 +113,7 @@ class EmailChangeForm(forms.Form):
     new_email1 = forms.EmailField(label=_("New email address"), widget=forms.EmailInput)
 
     new_email2 = forms.EmailField(label=_("New email address confirmation"), widget=forms.EmailInput)
+    password = forms.CharField(label=_('Current password'), widget=forms.PasswordInput, strip=False)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
@@ -121,26 +123,30 @@ class EmailChangeForm(forms.Form):
         old_email = self.user.email
         new_email1 = self.cleaned_data.get('new_email1')
         if new_email1 and old_email:
-            if new_email1 == old_email:
+            if new_email1.casefold() == old_email.casefold():
                 raise forms.ValidationError(self.error_messages['not_changed'], code='not_changed')
-        if new_email1 and User.objects.filter(email__iexact=new_email1).exclude(pk=self.user.pk).exists():
+        if new_email1 and (
+            User.objects.filter(email__iexact=new_email1).exclude(pk=self.user.pk).exists() or EmailAddress.objects.filter(email__iexact=new_email1, verified=True).exclude(user=self.user).exists()
+        ):
             raise forms.ValidationError(self.error_messages['already_exists'], code='already_exists')
-        return new_email1
+        return new_email1.lower() if new_email1 else new_email1
 
     def clean_new_email2(self):
         new_email1 = self.cleaned_data.get('new_email1')
         new_email2 = self.cleaned_data.get('new_email2')
         if new_email1 and new_email2:
-            if new_email1 != new_email2:
+            if new_email1.casefold() != new_email2.casefold():
                 raise forms.ValidationError(self.error_messages['email_mismatch'], code='email_mismatch')
-        return new_email2
+        return new_email2.lower() if new_email2 else new_email2
 
-    def save(self, commit=True):
-        email = self.cleaned_data["new_email1"]
-        self.user.email = email
-        if commit:
-            self.user.save()
-        return self.user
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        if not self.user.check_password(password):
+            raise forms.ValidationError(_('Enter your current password.'), code='incorrect_password')
+        return password
+
+    def save(self, request):
+        return EmailAddress.objects.add_new_email(request, self.user, self.cleaned_data['new_email1'])
 
 
 class ProfileForm(forms.ModelForm):

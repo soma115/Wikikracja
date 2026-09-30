@@ -7,13 +7,14 @@ Testy widoku set_user_language: wybór języka musi działać dla NIEzalogowanyc
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
+from allauth.account.models import EmailAddress, EmailConfirmationHMAC
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.db.models import QuerySet
 from django.shortcuts import resolve_url
-from django.test import TestCase, override_settings
+from django.test import RequestFactory, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone as django_timezone
@@ -23,10 +24,12 @@ from django.utils.translation import override, pgettext
 from chat.models import Message, MessageReadBy, Room
 from chat.services import get_user_public_message_rows
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
+from obywatele.adapter import CustomAccountAdapter
 from obywatele.auth_backends import CaseInsensitiveEmailBackend
 from obywatele.forms import ProfileForm, phone_country_choices
 from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, ResourceAssignment, ResourceItem, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items
+from obywatele.views import is_email_confirmed_for_candidate
 from tasks.activity import get_user_tasks
 from tasks.models import Task, TaskEvaluation, TaskVote
 from tests.factories import DecyzjaFactory, RoomFactory
@@ -63,6 +66,26 @@ class DebugSkipAuthTest(TestCase):
         authenticated = self.backend.authenticate(None, username=self.user.email, password='wrong-password')
 
         self.assertEqual(authenticated, self.user)
+
+
+class LoginRedirectSafetyTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='redirect-user', email='redirect@example.com', password='secret')
+        self.adapter = CustomAccountAdapter()
+        self.factory = RequestFactory()
+
+    def test_login_redirect_rejects_external_token_url(self):
+        request = self.factory.get('/accounts/login/', {'next': 'https://attacker.example/?token=abc'})
+        request.user = self.user
+
+        self.assertEqual(self.adapter.get_login_redirect_url(request), settings.LOGIN_REDIRECT_URL)
+
+    def test_login_redirect_preserves_safe_internal_token_url(self):
+        next_url = '/obywatele/onboarding/?token=abc'
+        request = self.factory.get('/accounts/login/', {'next': next_url})
+        request.user = self.user
+
+        self.assertEqual(self.adapter.get_login_redirect_url(request), next_url)
 
 
 class SetLanguageAnonymousTest(TestCase):
@@ -657,14 +680,54 @@ class ProfileFormErrorViewTest(TestCase):
         self.user = User.objects.create_user(username='profile-errors', email='old@example.com', password='secret', is_active=True)
         self.client.force_login(self.user)
 
+    def test_profile_email_change_form_renders_current_password_field(self):
+        response = self.client.get(reverse('obywatele:my_profile'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="password"')
+
+    def test_candidate_email_confirmation_must_match_current_user_email(self):
+        profile = self.user.uzytkownik
+        EmailAddress.objects.create(user=self.user, email='old@example.com', verified=True, primary=True)
+        self.user.email = 'new@example.com'
+        self.user.save(update_fields=['email'])
+
+        self.assertFalse(is_email_confirmed_for_candidate(self.user, profile))
+
     def test_change_email_rerenders_invalid_form(self):
-        response = self.client.post(reverse('obywatele:change_email'), {'new_email1': 'new@example.com', 'new_email2': 'different@example.com'})
+        response = self.client.post(reverse('obywatele:change_email'), {'new_email1': 'new@example.com', 'new_email2': 'different@example.com', 'password': 'secret'})
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['form'].errors)
         self.assertContains(response, 'new@example.com')
         self.user.refresh_from_db()
         self.assertEqual(self.user.email, 'old@example.com')
+
+    def test_change_email_requires_current_password(self):
+        response = self.client.post(reverse('obywatele:change_email'), {'new_email1': 'new@example.com', 'new_email2': 'new@example.com', 'password': 'wrong'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('password', response.context['form'].errors)
+        self.assertFalse(EmailAddress.objects.filter(user=self.user).exists())
+
+    def test_change_email_waits_for_new_address_confirmation(self):
+        response = self.client.post(reverse('obywatele:change_email'), {'new_email1': 'new@example.com', 'new_email2': 'new@example.com', 'password': 'secret'})
+
+        self.assertRedirects(response, reverse('obywatele:my_profile'))
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, 'old@example.com')
+        pending_email = EmailAddress.objects.get(user=self.user, email='new@example.com')
+        self.assertFalse(pending_email.verified)
+
+        confirmation = EmailConfirmationHMAC.create(pending_email)
+        response = self.client.get(reverse('account_confirm_email', kwargs={'key': confirmation.key}))
+
+        self.assertRedirects(response, reverse('obywatele:my_profile'))
+        self.user.refresh_from_db()
+        pending_email.refresh_from_db()
+        self.assertEqual(self.user.email, 'new@example.com')
+        self.assertTrue(pending_email.verified)
+        self.assertTrue(pending_email.primary)
 
     def test_change_username_rerenders_invalid_form(self):
         response = self.client.post(reverse('obywatele:change_username'), {'username': ''})

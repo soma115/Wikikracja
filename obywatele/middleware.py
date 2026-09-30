@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, logout
 from django.core.cache import cache
 from django.http import HttpResponsePermanentRedirect
 from django.utils import timezone, translation
@@ -79,6 +79,8 @@ class UpdateLastSeenMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        if request.user.is_authenticated and not request.user.is_active:
+            logout(request)
         if request.user.is_authenticated and request.user.is_active:
             try:
                 cache_key = f'last_seen:{request.user.pk}'

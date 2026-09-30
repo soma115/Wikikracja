@@ -3938,6 +3938,14 @@ msgstr "Nowy email"
 msgid "New email address confirmation"
 msgstr "Potwierdź nowy email"
 
+#: .\obywatele\forms.py
+msgid "Current password"
+msgstr "Obecne hasło"
+
+#: .\obywatele\forms.py
+msgid "Enter your current password."
+msgstr "Wprowadź obecne hasło."
+
 #: .\obywatele\forms.py:149 .\obywatele\models.py:96
 msgid "Phone country"
 msgstr "Kraj numeru telefonu"
@@ -5066,9 +5074,14 @@ msgstr "Oceniono działanie"
 msgid "Created activity"
 msgstr "Utworzone działanie"
 
-#: .\obywatele\views.py:160
-msgid "Your new email has been saved."
-msgstr "Twój nowy email został zapisany."
+#: .\obywatele\views.py
+msgid "A confirmation link has been sent to your new email address."
+msgstr "Link potwierdzający został wysłany na nowy adres e-mail."
+
+#: .\obywatele\management\commands\count_citizens.py
+#, python-format
+msgid "Set your password by requesting a password reset: %(link)s"
+msgstr "Ustaw hasło, korzystając z formularza odzyskiwania: %(link)s"
 
 #: .\obywatele\views.py:175
 msgid "Your name has been saved."

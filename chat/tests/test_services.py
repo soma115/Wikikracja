@@ -205,6 +205,13 @@ class RoomPermissionRegistryTest(TestCase):
                 register_room_permission_checker(self.room.source_app, checker)
         self.assertIsNone(get_room_permission_checker(self.room.source_app))
 
+    def test_inactive_user_cannot_post_to_public_room(self):
+        self.user.is_active = False
+        self.user.save(update_fields=['is_active'])
+
+        self.assertFalse(can_user_post_in_room(self.room, self.user))
+        self.checker.assert_not_called()
+
     def test_custom_source_controls_public_posting(self):
         register_room_permission_checker(self.room.source_app, self.checker)
         for allowed in (True, False):

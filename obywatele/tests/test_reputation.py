@@ -4,12 +4,16 @@ Reputation jest pochodną sumy Rate.rate gdzie kandydat = ten user. Test sprawdz
 zbudować ten flow w ORM i że unique_together(kandydat, obywatel) zabezpiecza przed multi-vote.
 """
 
+from types import SimpleNamespace
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.test import TestCase
 
 from board.models import Post
 from bookkeeping.models import Asset, Category, Partner, Transaction
+from obywatele.management.commands.count_citizens import Command as CountCitizensCommand
 from obywatele.models import Rate, Uzytkownik
 from obywatele.services import release_blocked_user_resources
 from tasks.models import Task, TaskVote
@@ -57,6 +61,36 @@ class RateAndReputationTest(TestCase):
             Rate.objects.create(kandydat=self.candidate, obywatel=rater, rate=1)
 
         self.assertEqual(Rate.objects.filter(kandydat=self.candidate).count(), len(self.raters))
+
+
+class ActivationPasswordTest(TestCase):
+    def test_activated_account_keeps_password_reset_eligible_without_emailing_password(self):
+        user = User.objects.create_user(username='activation-password', email='activation@example.com', password='hidden-random-secret', is_active=False)
+        profile = user.uzytkownik
+        profile.reputation = 1
+        profile.save(update_fields=['reputation'])
+        welcome_post = SimpleNamespace(text='Login: {login_url}; legacy password: {password}', get_display_title=lambda: 'Welcome')
+        command = CountCitizensCommand()
+
+        with (
+            patch('obywatele.management.commands.count_citizens.required_reputation', return_value=0),
+            patch.object(command, 'grant_automatic_reputation'),
+            patch('obywatele.management.commands.count_citizens.Post.get_system_post', return_value=welcome_post),
+            patch('obywatele.management.commands.count_citizens.get_site_domain', return_value='example.test'),
+            patch('obywatele.management.commands.count_citizens.build_site_url', side_effect=lambda path: f'https://example.test{path}'),
+            patch('obywatele.management.commands.count_citizens.get_user_language', return_value='en'),
+            patch('obywatele.management.commands.count_citizens.citizen_accepted.send') as accepted,
+        ):
+            command.activate_eligible_users()
+
+        user.refresh_from_db()
+        self.assertTrue(user.is_active)
+        self.assertTrue(user.has_usable_password())
+        self.assertTrue(user.check_password('hidden-random-secret'))
+        email_body = accepted.call_args.kwargs['recipient_body']
+        self.assertIn('legacy password: ', email_body)
+        self.assertNotIn('hidden-random-secret', email_body)
+        self.assertIn('https://example.test/password_reset/', email_body)
 
 
 class BlockedUserResourcesTest(TestCase):

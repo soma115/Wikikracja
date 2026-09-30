@@ -18,6 +18,35 @@ from tasks.models import TaskVote
 from tasks.tests.utils import make_task
 
 
+class InactiveWebSocketAccessTest(TestCase):
+    def setUp(self):
+        self.user = make_user('inactive-ws')
+        self.consumer = ChatConsumer()
+        self.consumer.scope = {'user': self.user, 'session': {}}
+        self.consumer.close = AsyncMock()
+
+    async def test_connect_rejects_inactive_user(self):
+        await database_sync_to_async(type(self.user).objects.filter(pk=self.user.pk).update)(is_active=False)
+
+        await self.consumer.connect()
+
+        self.consumer.close.assert_awaited_once_with(code=4401)
+
+    async def test_existing_connection_closes_before_sending_after_deactivation(self):
+        await database_sync_to_async(type(self.user).objects.filter(pk=self.user.pk).update)(is_active=False)
+
+        await self.consumer.send_json({'notification': 'private'})
+
+        self.consumer.close.assert_awaited_once_with(code=4401)
+
+    async def test_inactive_user_cannot_dispatch_commands(self):
+        await database_sync_to_async(type(self.user).objects.filter(pk=self.user.pk).update)(is_active=False)
+
+        await self.consumer.receive_json({'command': 'join', 'room': 1})
+
+        self.consumer.close.assert_awaited_once_with(code=4401)
+
+
 @override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}})
 class PostSendProcessingUnseenTest(TestCase):
     """

@@ -74,6 +74,10 @@ def test_gmail_one_click_unsubscribe_requires_exact_post_value(users, client):
     token = make_unsubscribe_token(user)
     url = reverse('unsubscribe_notifications', kwargs={'token': token})
 
+    response = client.get(url)
+    assert response.status_code == 200
+    assert 'name="List-Unsubscribe" value="One-Click"' in response.content.decode()
+
     response = client.post(url, {'List-Unsubscribe': 'wrong'})
     assert response.status_code == 400
     user.uzytkownik.refresh_from_db()

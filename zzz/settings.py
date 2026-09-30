@@ -326,6 +326,7 @@ ACCOUNT_INACTIVE_REDIRECT_URL = '/obywatele/onboarding/'
 ACCOUNT_LOGIN_METHODS = set(env_list("ACCOUNT_LOGIN_METHODS", default=["email"]))
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']  # , 'password2*'*/]
 ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_CHANGE_EMAIL = True
 # CRITICAL: Email verification settings for onboarding flow
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # Must verify email to continue
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True  # Allow GET requests for email confirmation

@@ -129,6 +129,7 @@
             <p class="tw-font-bold">{% trans "Your current email" %}: {{ user.email }}</p>
             {{ email_form.new_email1|as_crispy_field }}
             {{ email_form.new_email2|as_crispy_field }}
+            {{ email_form.password|as_crispy_field }}
           </div>
           <div class="tw-modal-footer">
             <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-times fa-fw tw-me-1"></i>{% trans "Cancel" %}</button>

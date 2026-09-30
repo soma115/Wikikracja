@@ -2,6 +2,7 @@ import logging
 
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from django.contrib.auth import get_user_model
 
 from core.notifications import NOTIF_LOG_TAG
 from core.presence import PRESENCE_GROUP, get_presence_status, record_presence
@@ -31,16 +32,25 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     def room_repo(self):
         return ChatRoomRepository(self.scope['user'])
 
+    @database_sync_to_async
+    def _user_is_active(self):
+        return get_user_model().objects.filter(pk=self.scope['user'].pk, is_active=True).exists()
+
+    async def send_json(self, content, close=False):
+        if not await self._user_is_active():
+            await self.close(code=4401)
+            return
+        await super().send_json(content, close=close)
+
     # WebSocket event handlers
     async def connect(self):
         """
         Called when the websocket is handshaking as part of initial connection.
         """
         # Are they logged in?
-        if self.scope["user"].is_anonymous:
-            # Reject the connection
-            log.warning(f"WebSocket connection rejected: user is anonymous. Session data: {self.scope.get('session', {})}")
-            await self.close()
+        if self.scope["user"].is_anonymous or not await self._user_is_active():
+            log.warning("WebSocket connection rejected for unauthenticated or inactive user")
+            await self.close(code=4401)
         else:
             # Accept the connection
             log.info(f"WebSocket connection accepted for user: {self.scope['user'].username}")
@@ -100,6 +110,10 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         the payload for us and pass it as the first argument.
         """
         # Messages will have a "command" key we can switch on
+        if not await self._user_is_active():
+            await self.close(code=4401)
+            return
+
         command = content.get("command", None)
 
         # trace id is a identifier attached to the message by client,

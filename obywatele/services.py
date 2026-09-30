@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
 
 from asgiref.sync import async_to_sync
+from django.contrib.auth import SESSION_KEY
+from django.contrib.sessions.models import Session
 from django.db import transaction
 from django.utils.translation import gettext as _
 
@@ -10,6 +12,12 @@ from glosowania import activity as voting_activity
 from tasks import activity as task_activity
 
 from .models import CitizenActivity
+
+
+def invalidate_user_sessions(user):
+    session_ids = [session.pk for session in Session.objects.all().iterator() if session.get_decoded().get(SESSION_KEY) == str(user.pk)]
+    if session_ids:
+        Session.objects.filter(pk__in=session_ids).delete()
 
 
 def release_blocked_user_resources(user):

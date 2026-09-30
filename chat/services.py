@@ -703,7 +703,7 @@ def _save_attachments_sync(message_id, attachments):
 
 def can_user_post_in_room(room, user):
     """Return True if an authenticated user may write in the room."""
-    if not user or not user.is_authenticated:
+    if not user or not user.is_authenticated or not user.is_active:
         return False
     if not room.public:
         return room.allowed.filter(id=user.id).exists()

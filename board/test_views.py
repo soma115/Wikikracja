@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -59,6 +60,15 @@ class BoardDetailNavigationTests(TestCase):
         self.assertRedirects(response, reverse('board:view_post', args=[post.pk]))
         post.refresh_from_db()
         self.assertEqual(post.visibility, Post.Visibility.GROUP)
+
+    def test_featured_image_alt_attribute_is_well_formed(self):
+        post = self._post('Featured image title')
+        post.featured_image = SimpleUploadedFile('featured.jpg', b'not-an-image', content_type='image/jpeg')
+        post.save(update_fields=['featured_image'])
+
+        response = self.client.get(reverse('board:view_post', args=[post.pk]))
+
+        self.assertContains(response, 'alt="Featured image title">')
 
     def test_detail_navigation_preserves_sort_and_search_context(self):
         first = self._post('Alpha')

@@ -15,7 +15,7 @@ from django.contrib.messages import error, success
 from django.core.mail import send_mail
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
 from django.db import DatabaseError, IntegrityError
-from django.db.models import Case, Count, IntegerField, Q, Sum, Value, When
+from django.db.models import Case, Count, F, IntegerField, Q, Sum, Value, When
 from django.dispatch import receiver
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -37,7 +37,7 @@ from core.utils import get_user_language
 from home.navigation import default_toolbar_views
 from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, ResourceAssignmentForm, UserForm, UsernameChangeForm
 from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, ResourceAssignment, ResourceItem, Uzytkownik
-from obywatele.services import get_citizen_activity, get_citizen_created_items, publish_deletion_feedback
+from obywatele.services import get_citizen_activity, get_citizen_created_items, invalidate_user_sessions, publish_deletion_feedback
 from site_settings.params import get_param
 from tasks.activity import get_active_coordinated_tasks_by_user_ids, get_user_tasks
 
@@ -49,7 +49,7 @@ signer = TimestampSigner()
 def is_email_confirmed_for_candidate(user: User, profile: Uzytkownik) -> bool:
     if profile.polecajacy:
         return True
-    return EmailAddress.objects.filter(user=user, verified=True).exists()
+    return EmailAddress.objects.filter(user=user, email__iexact=user.email, verified=True).exists()
 
 
 def get_onboarding_user_from_request(request: HttpRequest):
@@ -156,14 +156,10 @@ def change_email(request: HttpRequest):
     if request.method == 'POST':
         form = EmailChangeForm(request.user, request.POST)
         if form.is_valid():
-            form.save()
-            message = _("Your new email has been saved.")
-            success(request, (message))
+            form.save(request)
+            success(request, _('A confirmation link has been sent to your new email address.'))
             return redirect('obywatele:my_profile')
-        else:
-            return render(request, 'obywatele/change_email.html', {'form': form})
-    else:
-        return render(request, 'obywatele/change_email.html', {'form': form})
+    return render(request, 'obywatele/change_email.html', {'form': form})
 
 
 @login_required()
@@ -290,7 +286,7 @@ def obywatele(request: HttpRequest):
 def poczekalnia(request: HttpRequest):
     # zliczaj_obywateli(request)
     uid = User.objects.filter(is_active=False).select_related('uzytkownik', 'uzytkownik__voivodeship')
-    verified_user_ids = set(EmailAddress.objects.filter(user__in=uid, verified=True).values_list('user_id', flat=True))
+    verified_user_ids = set(EmailAddress.objects.filter(user__in=uid, verified=True, email__iexact=F('user__email')).values_list('user_id', flat=True))
 
     # Get the current user's profile
     try:
@@ -368,7 +364,7 @@ def onboarding_details(request: HttpRequest):
     else:
         form = OnboardingDetailsForm(instance=profile, initial={'first_name': user.first_name, 'last_name': user.last_name})
 
-    return render(request, 'obywatele/onboarding_details.html', {'form': form, 'email_confirmed': EmailAddress.objects.filter(user=user, verified=True).exists()})
+    return render(request, 'obywatele/onboarding_details.html', {'form': form, 'email_confirmed': is_email_confirmed_for_candidate(user, profile)})
 
 
 def onboarding_waiting(request: HttpRequest):
@@ -377,7 +373,7 @@ def onboarding_waiting(request: HttpRequest):
         error(request, _('Could not find your onboarding account.'))
         return redirect('account_signup')
 
-    return render(request, 'obywatele/onboarding_waiting.html', {'email_confirmed': EmailAddress.objects.filter(user=user, verified=True).exists()})
+    return render(request, 'obywatele/onboarding_waiting.html', {'email_confirmed': is_email_confirmed_for_candidate(user, user.uzytkownik)})
 
 
 @login_required
@@ -465,7 +461,8 @@ def unsubscribe_notifications(request: HttpRequest, token: str):
         '<!doctype html><meta charset="utf-8"><title>Unsubscribe</title>'
         '<h1>Unsubscribe from notifications</h1>'
         '<p>Click the button below to stop activity emails and push notifications.</p>'
-        '<form method="post"><button type="submit">Unsubscribe</button></form>'
+        '<form method="post"><input type="hidden" name="List-Unsubscribe" value="One-Click">'
+        '<button type="submit">Unsubscribe</button></form>'
     )
 
 
@@ -937,6 +934,7 @@ def DeactivateNewUser(sender, **kwargs):
     if user.is_active:
         user.is_active = False
         user.save(update_fields=['is_active'])
+        invalidate_user_sessions(user)
 
 
 @receiver(email_confirmed)
