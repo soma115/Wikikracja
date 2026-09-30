@@ -202,6 +202,16 @@ def test_digest_omits_archived_rooms_and_guest_inbox(digest_user, another_user, 
 
 
 @pytest.mark.django_db
+def test_digest_omits_system_inbox_room(digest_user, another_user):
+    room = Room.objects.get(system_key='inbox')
+    Message.objects.create(room=room, sender=another_user, text='Excluded system Inbox message')
+
+    items = build_user_digest(digest_user, timezone.now() - td(hours=1))
+
+    assert not any(item['content_type'] == 'room_messages' and item['room_id'] == room.pk for item in items)
+
+
+@pytest.mark.django_db
 def test_digest_groups_citizen_activities_by_user_and_keeps_latest(digest_user, another_user):
     since = timezone.now() - td(hours=1)
     CitizenActivity.objects.filter(uzytkownik__uid__in=(digest_user, another_user)).update(timestamp=since - td(seconds=1))

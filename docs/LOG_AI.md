@@ -1,5 +1,13 @@
 # LOG_AI
 
+## 2026-09-30: Inbox wyłączony z digestu e-mailowego
+
+- **Zmienione pliki:** `chat/feed.py`, `home/test_email_digest.py`, `docs/LOG_AI.md`.
+- **Co się zmieniło:** Liczenie wiadomości do digestu pomija pokoje oznaczone jako Inbox zarówno flagą `is_inbox`, jak i kluczem systemowym `inbox`. Test digestu pokrywa oba znaczniki; publiczny Inbox pozostaje dostępny w aktywności.
+- **Uzasadnienie:** Wspólne źródło aktywności zaczęło uwzględniać publiczny Inbox, przez co wiadomości gości trafiały także do digestu e-mailowego, który nie powinien zawierać tego kanału.
+- **Weryfikacja:** Pełna bramka lokalna bez Playwrighta przeszła: Ruff, regression scan, UI guard, Django check, kontrola buildu Tailwind, 1107 testów pytest i 299 testów Jest. Po rozszerzeniu regresji testy `home/test_email_digest.py` i `home/test_activity.py` przeszły (43 testy). `collectstatic --clear` sprawdzono tylko w trybie `--dry-run`, a `compilemessages` pominięto, by nie czyścić ignorowanego katalogu `static/` ani nie nadpisywać skompilowanych katalogów tłumaczeń bez osobnej zgody.
+- **Spodziewany efekt:** Aktywność nadal pokazuje wiadomości z publicznego Inboxa, a digest e-mailowy je pomija.
+
 ## 2026-09-30: Krocząca lista wydarzeń i responsywna siatka
 
 - **Zmienione obszary:** `events` (widok, szablon, testy), wspólny CSS Tailwind, standard UI, polskie tłumaczenia i ten log.
