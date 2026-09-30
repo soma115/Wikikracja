@@ -238,6 +238,7 @@ class ExtractedCommandDispatchTest(SimpleTestCase):
     async def test_receive_json_preserves_trace_id_for_extracted_command(self):
         consumer = ChatConsumer.__new__(ChatConsumer)
         consumer.send_json = AsyncMock()
+        consumer._user_is_active = AsyncMock(return_value=True)
         with patch('chat.consumers.ChatCommandHandlers.dispatch', new_callable=AsyncMock, return_value=CommandResult([{'join': '3'}, {'messages': [{'message_id': 4}]}])):
             await consumer.receive_json({'command': 'join', 'room_id': 3, '__TRACE_ID': 'trace-1'})
 
