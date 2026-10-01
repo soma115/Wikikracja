@@ -3173,6 +3173,34 @@ msgstr "Zarządzaj powiadomieniami"
 msgid "Unsubscribe from all notifications"
 msgstr "Wyłącz wszystkie powiadomienia"
 
+#: .\obywatele\templates\obywatele\unsubscribe_notifications.html
+msgid "Notifications disabled"
+msgstr "Powiadomienia wyłączone"
+
+#: .\obywatele\templates\obywatele\unsubscribe_notifications.html
+msgid "Activity emails and push notifications have been turned off."
+msgstr "E-maile o aktywności i powiadomienia push zostały wyłączone."
+
+#: .\obywatele\templates\obywatele\unsubscribe_notifications.html
+msgid "Unsubscribe from notifications"
+msgstr "Wyłącz powiadomienia"
+
+#: .\obywatele\templates\obywatele\unsubscribe_notifications.html
+msgid "Click the button below to stop activity emails and push notifications."
+msgstr "Kliknij poniższy przycisk, aby wyłączyć e-maile o aktywności i powiadomienia push."
+
+#: .\obywatele\templates\obywatele\unsubscribe_notifications.html
+msgid "Unsubscribe"
+msgstr "Wyłącz powiadomienia"
+
+#: .\obywatele\views.py
+msgid "This unsubscribe link is invalid or has expired."
+msgstr "Ten link do wyłączenia powiadomień jest nieprawidłowy lub wygasł."
+
+#: .\obywatele\views.py
+msgid "Invalid unsubscribe request."
+msgstr "Nieprawidłowe żądanie wyłączenia powiadomień."
+
 #: .\home\navigation.py:10 .\home\templates\home\includes\toolbar.html:60
 msgid "List"
 msgstr "Lista"

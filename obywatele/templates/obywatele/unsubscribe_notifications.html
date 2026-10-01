@@ -1,0 +1,29 @@
+{% extends 'home/base.html' %}
+{% load i18n %}
+
+{% block content %}
+  <section class="tw-card tw-mx-auto tw-my-6 tw-w-full tw-max-w-xl">
+    <div class="tw-card-header tw-flex tw-items-center tw-gap-3">
+      {% if unsubscribed %}
+        <i class="fas fa-check-circle tw-text-success" aria-hidden="true"></i>
+        <h1 class="tw-m-0 tw-text-lg">{% trans 'Notifications disabled' %}</h1>
+      {% else %}
+        <i class="fas fa-bell-slash tw-text-danger" aria-hidden="true"></i>
+        <h1 class="tw-m-0 tw-text-lg">{% trans 'Unsubscribe from notifications' %}</h1>
+      {% endif %}
+    </div>
+    <div class="tw-card-body tw-p-4">
+      {% if unsubscribed %}
+        <div class="tw-alert tw-alert-success" role="status">{% trans 'Activity emails and push notifications have been turned off.' %}</div>
+      {% else %}
+        <p>{% trans 'Click the button below to stop activity emails and push notifications.' %}</p>
+        <form method="post" class="tw-mt-4">
+          <input type="hidden" name="List-Unsubscribe" value="One-Click">
+          <button type="submit" class="tw-btn tw-btn-danger tw-w-full tw-justify-center">
+            <i class="fas fa-bell-slash fa-fw tw-me-1" aria-hidden="true"></i>{% trans 'Unsubscribe' %}
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

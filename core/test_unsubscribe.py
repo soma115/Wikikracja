@@ -76,6 +76,7 @@ def test_gmail_one_click_unsubscribe_requires_exact_post_value(users, client):
 
     response = client.get(url)
     assert response.status_code == 200
+    assert 'tw-card' in response.content.decode()
     assert 'name="List-Unsubscribe" value="One-Click"' in response.content.decode()
 
     response = client.post(url, {'List-Unsubscribe': 'wrong'})
@@ -85,6 +86,9 @@ def test_gmail_one_click_unsubscribe_requires_exact_post_value(users, client):
 
     response = client.post(url, {'List-Unsubscribe': 'One-Click'})
     assert response.status_code == 200
+    assert response.context['unsubscribed'] is True
+    assert 'tw-alert-success' in response.content.decode()
+    assert 'name="List-Unsubscribe"' not in response.content.decode()
     user.uzytkownik.refresh_from_db()
     assert user.uzytkownik.email_frequency == 'never'
 

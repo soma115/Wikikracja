@@ -449,21 +449,15 @@ def unsubscribe_notifications(request: HttpRequest, token: str):
     try:
         user = user_from_unsubscribe_token(token)
     except (BadSignature, SignatureExpired, User.DoesNotExist, KeyError, TypeError):
-        return HttpResponse('Invalid or expired unsubscribe link.', status=400)
+        return HttpResponse(_('This unsubscribe link is invalid or has expired.'), status=400)
 
     if request.method == 'POST':
         if request.POST.get('List-Unsubscribe') != 'One-Click':
-            return HttpResponse('Invalid unsubscribe request.', status=400)
+            return HttpResponse(_('Invalid unsubscribe request.'), status=400)
         unsubscribe_user_notifications(user, source='gmail_one_click')
-        return HttpResponse(status=200)
+        return render(request, 'obywatele/unsubscribe_notifications.html', {'unsubscribed': True})
 
-    return HttpResponse(
-        '<!doctype html><meta charset="utf-8"><title>Unsubscribe</title>'
-        '<h1>Unsubscribe from notifications</h1>'
-        '<p>Click the button below to stop activity emails and push notifications.</p>'
-        '<form method="post"><input type="hidden" name="List-Unsubscribe" value="One-Click">'
-        '<button type="submit">Unsubscribe</button></form>'
-    )
+    return render(request, 'obywatele/unsubscribe_notifications.html')
 
 
 @login_required

@@ -10388,6 +10388,11 @@ body.tw-chat-page .tw-main-area {
   margin-bottom: 1rem;
 }
 
+.tw-my-6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
 .tw-mb-0 {
   margin-bottom: 0px;
 }
@@ -10591,6 +10596,10 @@ body.tw-chat-page .tw-main-area {
 
 .tw-max-w-md {
   max-width: 28rem;
+}
+
+.tw-max-w-xl {
+  max-width: 36rem;
 }
 
 .tw-flex-1 {
