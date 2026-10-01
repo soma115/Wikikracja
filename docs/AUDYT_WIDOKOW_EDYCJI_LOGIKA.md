@@ -82,7 +82,7 @@ Potwierdzone wyjątki: Transaction — autor; argument głosowania — właścic
 ## 8. Potwierdzone decyzje domenowe
 
 - Nie wprowadzamy w tym audycie uogólnionej własności dokumentów.
-- Mechanizm przejmowania własności z `docs/PLAN_PRZEJMOWANIE_WLASNOSCI.md` jest odłożony.
+- Mechanizm przejmowania własności z [`PLAN_PRZEJMOWANIE_WŁASNOŚCI_TREŚCI.md`](PLAN_PRZEJMOWANIE_WŁASNOŚCI_TREŚCI.md) jest odłożony.
 - Transaction edytuje i usuwa wyłącznie autor.
 - Argument edytuje wyłącznie właściciel.
 - Zadanie edytuje koordynator albo członek zespołu.

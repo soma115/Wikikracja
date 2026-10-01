@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wikikracja — Standardy UI</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
   <link rel="stylesheet" href="/static/home/css/tokens.css">
   <link rel="stylesheet" href="/static/home/css/tailwind.build.css">
   <link rel="stylesheet" href="/docs/ui-standards.css">
@@ -117,7 +117,7 @@
         <li>Stan wyłączony / bez sortowania używa klasy <code>tw-sort-btn--off</code> i jest wizualnie wyszarzony; stan aktywnego sortowania używa <code>tw-active</code> i pozostaje podświetlony.</li>
         <li>Kliknięcie innego pola wyłącza poprzednie sortowanie i uruchamia nowe pole od stanu rosnącego. Przy wyłączonym sortowaniu źródło danych zachowuje swoją domyślną kolejność.</li>
         <li>Stan jest dostępny także programowo przez <code>data-sort-state="none|asc|desc"</code> i <code>aria-pressed</code>.</li>
-        <li>Ikona pola mówi, co jest sortowane: <code>fa-list</code> dla sortowania alfabetycznego A-Z, <code>fa-clock</code> dla czasu/daty, <code>fa-user</code> dla autora, <code>fa-tag</code> dla kategorii.</li>q
+        <li>Ikona pola mówi, co jest sortowane: <code>fa-list</code> dla sortowania alfabetycznego A-Z, <code>fa-clock</code> dla czasu/daty, <code>fa-user</code> dla autora, <code>fa-tag</code> dla kategorii.</li>
         <li>Strzałka <code>fa-arrow-up</code> / <code>fa-arrow-down</code> oznacza wyłącznie kierunek i nie zastępuje ikony pola; stan wyłączony pokazuje <code>fa-sort</code>.</li>
         <li>Na dużych ekranach każdy guzik sortowania pokazuje ikonę pola, etykietę i wskaźnik kierunku.</li>
         <li>Układ kontrolek jest mierzony dynamicznie na podstawie dostępnej szerokości konkretnej grupy, niezależnie od breakpointu ekranu; używamy obserwacji rozmiaru, nie progów typu „poniżej 480 px ukryj etykiety”.</li>

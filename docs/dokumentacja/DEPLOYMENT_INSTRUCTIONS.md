@@ -581,7 +581,7 @@ links and notification names in the affected instance.
 
 ## Configuration
 
-All configuration is done via environment variables. See `.env.example` for the complete list of available options.
+Technical and deployment configuration is supplied through environment variables; `.env.example` lists the repository-supported options. User-governed site parameters are stored separately in the `SiteParameters` database singleton and are changed through referenda.
 
 ### Essential Settings in `.env`
 
@@ -629,10 +629,8 @@ Key configuration options in `.env`:
 
 - **Logging**: `LOGGING_DESTINATION` (console/file), `LOG_LEVEL` (DEBUG/INFO/WARNING/ERROR)
 - **Sessions**: `SESSION_EXPIRE_AT_BROWSER_CLOSE`, `SESSION_COOKIE_AGE`, `REMEMBER_ME_DAYS`
-- **Voting**: referendum parameters (`wymaganych_podpisow`, `czas_na_zebranie_podpisow`, `dyskusja`, `czas_trwania_referendum`) are stored in the `SiteParameters` database singleton and changed through the referendum workflow; they are not environment variables.
-- **Chat**: `ARCHIVE_PUBLIC_CHAT_ROOM`, `DELETE_PUBLIC_CHAT_ROOM`
-- **Uploads**: `UPLOAD_IMAGE_MAX_SIZE_MB`, `DATA_UPLOAD_MAX_MEMORY_SIZE`
-- **Citizens**: `ACCEPTANCE`, `DELETE_INACTIVE_USER_AFTER`
+- **Voting, chat, group and membership rules**: referendum-managed values are stored in `SiteParameters` and changed through the referendum workflow; they are not environment variables. The current votable fields are listed in [the technical parameter guide](Glosowanie_nad_parametrami_systemu-dla_developerow.md).
+- **Uploads**: `UPLOAD_IMAGE_MAX_SIZE_MB`, `UPLOAD_ATTACHMENT_MAX_SIZE_MB`, `DATA_UPLOAD_MAX_MEMORY_SIZE`
 
 ## Management Commands
 

@@ -25,8 +25,9 @@ Wcześniej wiele ustawień systemu (jak nazwa strony, opis, czas trwania głosow
 
 ### Tożsamość strony
 - **Nazwa strony** - pełna nazwa widoczna w całej witrynie
-- **Krótka nazwa (PWA)** - nazwa używana przez zainstalowaną aplikację (maks. 12 znaków)
-- **Opis** - krótki opis instancji
+- **Logo** - opcjonalna grafika marki; jest proponowana jako osobna zmiana w tym samym referendum
+
+Krótka nazwa PWA i opis instancji nie są obecnie parametrami dostępnymi w tym formularzu.
 
 ## Jak zaproponować zmianę parametrów?
 
@@ -34,7 +35,7 @@ Wcześniej wiele ustawień systemu (jak nazwa strony, opis, czas trwania głosow
 2. Kliknij przycisk **"Utwórz referendum dotyczące zmiany parametrów systemu"**
 3. Zobaczysz formularz z wszystkimi parametrami pogrupowanymi według kategorii
 4. Zmień tylko te parametry, które chcesz zmienić
-5. Opcjonalnie możesz dodać **nowe logo** (PNG, najdłuższy bok 512-1024 px, maks. 1 MB)
+5. Opcjonalnie możesz dodać **nowe logo** (PNG, maks. 5 MB, najdłuższy bok 64–4096 px). Po zatwierdzeniu system normalizuje je do PNG 1024×1024 px i generuje z niego ikony.
 6. Wypełnij pole **"Uzasadnienie"** - dlaczego te zmiany są potrzebne
 7. Kliknij **"Utwórz referendum"**
 
@@ -54,8 +55,8 @@ Jeśli Twoja propozycja zmiany parametrów jest jeszcze w fazie zbierania podpis
 
 Zmiany wchodzą w życie **natychmiast po zatwierdzeniu referendum** przez społeczność. Nie jest wymagany restart aplikacji.
 
-- **Nazwa strony, opis, krótka nazwa PWA** - zmiana jest widoczna od razu w przeglądarce
-- **Logo** - zmiana jest widoczna od razu w przeglądarce
+- **Nazwa strony** - zmiana jest synchronizowana z nazwą witryny Django
+- **Logo** - po zatwierdzeniu aktualizuje markę strony oraz generowane ikony
 - **Parametry głosowań** - dotyczą nowych referendów utworzonych po zatwierdzeniu
 - **Parametry czatu** - dotyczą nowych operacji archiwizacji/usuwania
 - **Parametry członkostwa** - dotyczą nowych akceptacji i usuwań
@@ -63,17 +64,15 @@ Zmiany wchodzą w życie **natychmiast po zatwierdzeniu referendum** przez społ
 ## Ważne uwagi
 
 ### Logo
-- Nowe logo musi być w formacie PNG
-- Najdłuższy bok musi mieć 512-1024 pikseli
-- Maksymalny rozmiar to 1 MB
-- Logo jest stosowane tylko po zatwierdzeniu referendum
+- Formularz referendum przyjmuje plik PNG do 5 MB; najdłuższy bok obrazu źródłowego musi mieć 64–4096 pikseli.
+- Po zatwierdzeniu obraz jest normalizowany do kwadratowego PNG 1024×1024 px, a system generuje ikony dla przeglądarki i PWA.
+- Zmiana marki jest stosowana dopiero po zatwierdzeniu referendum.
 
 ### Nazwa strony
-- Nazwa strony jest ustawiana przez referendum i widać ją od razu po zatwierdzeniu
+- Nazwa strony jest zmieniana przez referendum i synchronizowana z nazwą witryny Django.
 
 ### Zainstalowana aplikacja PWA
-- Nazwa i ikona w już zainstalowanej aplikacji PWA mogą pozostać stare do ponownej instalacji
-- To ograniczenie systemu operacyjnego, nie serwera
+- System odświeża wygenerowane ikony, ale moment ich ponownego pobrania/zastosowania zależy od cache'u przeglądarki i systemu operacyjnego.
 
 ## Gdzie mogę zobaczyć bieżące wartości parametrów?
 

@@ -17,7 +17,7 @@ For the visual reference and icon semantics, always consult [`UI_STANDARDS.html`
 | Shared page partials | `home/templates/home/includes/` |
 | Crispy/Tailwind form templates | `home/templates/tw/` |
 | Shared UI behavior | `home/static/common/js/tw-*.js` |
-| Shared application behavior | `home/static/home/js/app.js` |
+| Global application behavior | `home/static/home/js/app.js`; view-specific behavior belongs in view-scoped scripts |
 | Shared ready handler | `window.wkOnReady` in `home/static/common/js/dom-utils.js` |
 | Mobile media query | `window.wkMobileMedia` from `home/static/common/js/breakpoints.js` |
 | Migration history | `docs/TAILWIND_UI_GUIDE.md` |
@@ -257,6 +257,15 @@ window.wkOnReady(function () {
 `window.wkOnReady` runs the callback once whether the script loads before or after `DOMContentLoaded`. Keep initializers safe for pages where their target elements are absent and safe to call for dynamic content.
 
 Do not add another independent `DOMContentLoaded` listener when an existing shared initializer already handles the component. The shared component scripts in `home/static/common/js/` already implement their own ready-state handling and should not be duplicated.
+
+### Script ownership and loading
+
+- Keep `home/templates/home/base.html` limited to scripts needed across its pages. Load page-specific scripts in their owning templates and verify all consumers before moving shared dependencies.
+- Put repeated script dependencies in a shared template include. For example, `home/templates/home/includes/sortable_scripts.html` is used by the dashboard and category-management views that need Sortable.
+- Keep `app.js` for genuinely global behavior. A shared feature used by only a few pages should have a view-scoped script loaded only by those consumers; `category-filter.js` is shared by the task list and authenticated board.
+- Use `window.apiFetch()` for compatible same-origin JSON requests. Keep direct `fetch()` where the response is an HTML fragment or has different semantics; do not add a second general request helper.
+- Do not reduce JavaScript by removing useful interactions or persisted preferences. Preserve `PagePrefs`, URL/history behavior and dashboard preferences unless a separate UX decision approves a change.
+- Prefer native HTML and existing Django/JavaScript patterns. Add HTMX or Alpine.js only after a focused pilot shows a simpler result than the existing approach.
 
 Use the existing interaction primitives and their `data-tw-*` contracts:
 

@@ -26,7 +26,7 @@ Ewentualne umożliwienie obywatelowi zgłoszenia chęci przejęcia porzuconej tr
 
 Jeżeli temat zostanie kiedyś wznowiony, przed implementacją trzeba ponownie zatwierdzić poniższe punkty, ponieważ wpływają na model danych i uprawnienia. Żaden z nich nie jest obecnie obowiązującą regułą aplikacji:
 
-1. **Definicja porzucenia:** czy porzucona jest wyłącznie treść z `author IS NULL`, czy także treść z istniejącym autorem, który nie wykonał określonej czynności przez ustalony czas? Obecny kod traktuje `author IS NULL` jako treść możliwą do przejęcia przy edycji.
+1. **Definicja porzucenia:** czy porzucona jest wyłącznie treść z `author IS NULL`, czy także treść z istniejącym autorem, który nie wykonał określonej czynności przez ustalony czas? Samo `author IS NULL` nie oznacza obecnie odrębnej kwalifikacji do przejęcia; obecne uprawnienia edycji pozostają zgodne z regułami domenowymi wskazanymi na początku dokumentu.
 2. **Zakres pierwszej wersji:** rekomendowany jest najpierw `board.Post`, a następnie rozszerzenie na `Event`, zasoby księgowe i inne typy przez wspólny adapter/rejestr. Dzięki temu nie zmieniamy od razu wszystkich kontraktów modułów.
 3. **Znaczenie zgody:** rekomendowane jest natychmiastowe przejęcie po kliknięciu **Zgódź się**; **Nie zgódź się** kończy wniosek odmową i blokuje ten konkretny wniosek.
 4. **Ponowna próba:** czy po odmowie można od razu złożyć nowy wniosek, czy obowiązuje blokada do czasu ręcznego wznowienia przez właściciela? Rekomendacja: nie tworzyć kolejnego aktywnego wniosku, a ponowną próbę dopuścić dopiero po jawnej regule biznesowej.

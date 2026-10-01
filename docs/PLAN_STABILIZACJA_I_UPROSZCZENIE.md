@@ -35,9 +35,9 @@ Istnieją już podstawowe bramki jakościowe: Ruff, Django check, pytest, Jest, 
 
 Powiązane dokumenty:
 
-- `docs/PLAN_refaktoryzacja_architektury.md` — granice modułów, rejestry i dekompozycja zależności;
-- `docs/PLAN_refaktoryzacja_home.md` — historyczny coupling `home` i plan jego ograniczania;
-- `docs/PLAN_MIGRACJI_MARIADB.md` — migracja silnika bazy, zabezpieczenia SQLite do cutoveru, współbieżność, backup i rollback;
+- `AGENTS.md` — aktualne granice modułów i utrwalone decyzje architektoniczne;
+- `docs/LOG_AI.md` — historyczne podsumowanie zakończonej refaktoryzacji między aplikacjami;
+- `docs/PLAN_MIGRACJI_MARIADB.md` — przyszła migracja silnika bazy, zabezpieczenia SQLite do cutoveru, współbieżność, backup i rollback;
 - `docs/UI_STANDARDS.html`, `docs/UI_DEVELOPMENT_GUIDE.md`, `docs/TAILWIND_UI_GUIDE.md` — wspólny system UI;
 - `scripts/run_tests.py` i `scripts/pre_push_tests.py` — odpowiednio pełna i zmieniona-zakresowo weryfikacja.
 
@@ -151,11 +151,11 @@ Cel: stabilizować zachowanie bez naruszania zasad systemu.
 
 Cel: zmniejszyć liczbę wariantów UI, kodu JS i źródeł stylów, bez pogorszenia ergonomii i atrakcyjności interfejsu.
 
-Kierunek docelowy: Django jako źródło prawdy, HTMX dla komunikacji HTTP, Alpine.js dla lokalnego stanu UI oraz Django Channels i dedykowany JavaScript dla czatu realtime. Redukujemy własną infrastrukturę JS, a nie interakcje, które realnie poprawiają doświadczenie użytkownika.
+Kierunek: Django i natywny HTML/formularze jako domyślna obsługa danych i prostych akcji; Django Channels oraz dedykowany JavaScript dla czatu realtime. HTMX lub Alpine.js rozważać dopiero po małym pilotażu wykazującym, że upraszcza on istniejące rozwiązanie bez pogorszenia UX. Redukujemy zbędną infrastrukturę JS, a nie interakcje, które realnie poprawiają doświadczenie użytkownika.
 
 - [ ] Utrzymać jeden produkcyjny pipeline `tailwind.css` → `tailwind.build.css`; nie edytować ręcznie pliku generowanego.
 - [ ] Zinwentaryzować klasy Bootstrap, modułowe arkusze, inline styles, duplikaty partiali i jednorazowe komponenty.
-- [ ] Migrować powtarzalne elementy do istniejących `tw-*`, partiali `home/templates/home/includes/`, `home/templates/tw/`, HTMX i Alpine.js.
+- [ ] Migrować powtarzalne elementy do istniejących `tw-*` i partiali `home/templates/home/includes/` oraz `home/templates/tw/`; HTMX lub Alpine.js stosować wyłącznie wtedy, gdy pilotaż potwierdzi uproszczenie.
 - [ ] Nie dodawać nowych klas bez prefiksu `tw-`, poza krótkotrwałymi, semantycznymi hookami JS.
 - [ ] Usuwać duplikaty po sprawdzeniu wszystkich użyć, a nie przez masową zamianę tekstu.
 - [ ] Ujednolicić formularze, alerty, badge, karty, toolbary, tabele, empty states, modale, dropdowny, ikony i widoki list/siatek bez budowania kolejnego globalnego frameworka UI.

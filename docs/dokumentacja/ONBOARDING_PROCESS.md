@@ -21,13 +21,13 @@ Proces przyjmowania nowej osoby składa się z następujących etapów:
   - Adres email
   - CAPTCHA (zabezpieczenie przed botami)
 - Hasło jest generowane automatycznie (12 znaków, alfanumeryczne) w `CustomSignupForm.clean_password1`
-- Użytkownik nigdy nie widzi tego hasła — logowanie odbywa się wyłącznie przez email
-- Konto tworzone jest jako nieaktywne (`is_active = False`) przez handler `DeactivateNewUser`
+- Użytkownik nigdy nie widzi hasła wygenerowanego przy rejestracji; logowanie jest skonfigurowane przez email. Po przyjęciu ustawia własne hasło przez link do resetu hasła w wiadomości powitalnej.
+- Konto kandydata jest nieaktywne (`is_active = False`) do czasu spełnienia warunków przyjęcia
 
 **Status:** `EMAIL_ENTERED`
 
 **Wymagane pola:**
-- Email (wymagany, unikalny case-insensitive)
+- Email (wymagany; formularz odrzuca adres już używany, porównując bez rozróżniania wielkości liter)
 
 **Powiadomienia:**
 - Email z linkiem potwierdzającym jest wysyłany ręcznie w `CustomSignupForm.save()` za pomocą `EmailConfirmationHMAC` i `adapter.send_confirmation_mail`
@@ -60,16 +60,15 @@ Proces przyjmowania nowej osoby składa się z następujących etapów:
 - Użytkownik wypełnia formularz z danymi osobowymi (`OnboardingDetailsForm`)
 - Dane są zapisywane w profilu `Uzytkownik` oraz w polach `first_name` / `last_name` modelu `User`
 
-**Wymagane pola (oznaczone `*`):**
+**Wymagane pola:**
 - Imię (`first_name`)
 - Nazwisko (`last_name`)
-- Telefon / komunikator (`phone`)
 - Miejscowość (`city`)
-- Zawód (`job`)
 
-**Opcjonalne pola:**
-- Województwo (`voivodeship`) — lista ograniczona do regionów Polski (`country__code='PL'`)
-- Umiejętności, wiedza, hobby (`skills_knowledge_hobby`)
+**Pozostałe pola formularza:**
+- Telefon (`phone`) jest opcjonalny; formularz oferuje także kraj numeru, preferowaną metodę kontaktu i link do profilu. Wybrana metoda może wymagać numeru telefonu lub właściwego linku.
+- Województwo (`voivodeship`) — opcjonalna lista regionów Polski (`country__code='PL'`)
+- Zawód (`job`), umiejętności/wiedza/hobby (`skills_knowledge_hobby`) i rzeczy do nauczenia (`want_to_learn`)
 - Prowadzę swój biznes (`business_active`), adres strony (`business_website`) i opis działalności (`business_description`)
 - Dlaczego chcesz dołączyć? (`why`)
 
@@ -98,14 +97,15 @@ Widok `obywatele.views.dodaj` ("Zaproponuj osobę") używa pełnego `ProfileForm
 - Formularz onboarding jest wyświetlany jako procent wypełnienia (`form_completion_percent`), ale nie blokuje możliwości głosowania w kodzie
 
 **Próg akceptacji:**
-- Wymagana liczba akceptacji: parametr `ACCEPTANCE` (domyślnie zarządzany przez referendum, seed z `settings.ACCEPTANCE`)
-- Próg jest dynamiczny i zależy od populacji (funkcja `required_reputation`):
-  - Jeśli populacja < 2 × ACCEPTANCE: próg = populacja - ACCEPTANCE
-  - Jeśli populacja >= 2 × ACCEPTANCE: próg = ACCEPTANCE
+- Parametr progowy to `acceptance` z singletonu `SiteParameters`; zmienia się go przez referendum.
+- Wymagana reputacja jest dynamiczna i zależy od populacji (funkcja `required_reputation()`):
+  - Jeśli populacja < 2 × `acceptance`: próg = populacja - `acceptance`
+  - Jeśli populacja >= 2 × `acceptance`: próg = `acceptance`
+- Komenda przyjmuje kandydata, gdy jego reputacja jest większa od wyliczonego progu.
 - Mechanizm ten zapobiega sytuacji, w której mała grupa nie może przyjąć nowych członków
 
 **Czas oczekiwania:**
-- Maksymalny czas w poczekalni: `DELETE_INACTIVE_USER_AFTER` dni (domyślnie zarządzany przez referendum)
+- Maksymalny okres nieaktywności: `delete_inactive_user_after` dni z `SiteParameters`; parametr zmienia się przez referendum.
 - Po tym czasie konto kandydata jest automatycznie usuwane przez komendę `count_citizens` (patrz `delete_inactive_users`)
 - Licznik opiera się na `last_login`; jeśli kandydat nigdy się nie logował, `last_login` jest ustawiane na `now()` przy pierwszym sprawdzeniu
 
@@ -116,13 +116,12 @@ Widok `obywatele.views.dodaj` ("Zaproponuj osobę") używa pełnego `ProfileForm
 
 **Działania:**
 - Akceptacja odbywa się automatycznie przez scheduler/komendę `count_citizens` (`activate_eligible_users`)
-- Gdy kandydat uzyska wymaganą liczbę akceptacji:
+- Gdy reputacja kandydata przekroczy dynamiczny próg wymagany przez `required_reputation()`:
   - Konto jest aktywowane (`is_active = True`)
-  - Hasło logowania jest generowane na nowo (8 znaków, `password_generator`)
   - Data przyjęcia jest zapisywana (`data_przyjecia`)
-  - Tworzone są prywatne pokoje 1-to-1 z każdym obywatelem (`chat.signals.create_one2one_rooms`)
-  - Wysyłany jest email powitalny z hasłem (zawartość z postu systemowego `welcome_email`)
-  - Wszyscy inni obywatele zyskują +1 punkt reputacji, ale tylko gdy populacja <= 2 × ACCEPTANCE (`grant_automatic_reputation`)
+  - Odbiorcy sygnału `citizen_accepted` tworzą pokoje 1-to-1 i przyznają dostęp do istniejących pokoi publicznych
+  - Wysyłany jest email powitalny na podstawie postu systemowego `welcome_email`, z linkiem do ustawienia hasła przez reset hasła; komenda nie generuje ani nie wysyła nowego hasła
+  - Pozostali obywatele zyskują +1 punkt reputacji, ale tylko gdy populacja nie przekracza 2 × `acceptance` (`grant_automatic_reputation`)
 - Użytkownik otrzymuje pełny dostęp do funkcji platformy
 
 **Status:** `ACTIVE` (obywatel)
@@ -140,14 +139,14 @@ Istnieje możliwość polecenia nowej osoby przez istniejącego obywatela:
 1. Obywatel wypełnia formularz "Zaproponuj osobę" (`/obywatele/nowy/`)
 2. Konto kandydata jest tworzone jako nieaktywne
 3. Pole `polecajacy` jest ustawiane na nazwę użytkownika polecającego
-4. Polecający automatycznie przyznaje kandydatowi +1 akceptację (`Rate.rate = 1`)
+4. Polecający automatycznie zapisuje kandydatowi ocenę +1 (`Rate.rate = 1`)
 5. Wszyscy obywatele otrzymują powiadomienie o nowym kandydacie (`citizen_proposed`)
 6. Kandydat nie musi potwierdzać email (`EmailAddress` tworzony z `verified=True`)
 7. Pozostałe kroki są takie same jak w standardowym procesie
 
 ## Konfiguracja
 
-Parametry członkostwa (`ACCEPTANCE`, `DELETE_INACTIVE_USER_AFTER`) oraz pozostałe parametry systemu są zarządzane przez referendum (aplikacja `site_settings` / `glosowania`). Szczegółowy opis dla użytkowników znajduje się w [Glosowanie_nad_parametrami_systemu-dla_uzytkownikow.md](Glosowanie_nad_parametrami_systemu-dla_uzytkownikow.md), a opis techniczny w [Glosowanie_nad_parametrami_systemu-dla_developerow.md](Glosowanie_nad_parametrami_systemu-dla_developerow.md).
+Parametry członkostwa (`acceptance`, `delete_inactive_user_after`) są przechowywane w singletonie `SiteParameters` i zmieniane przez referendum. Aktualny opis dla użytkowników znajduje się w [przewodniku parametrów](Glosowanie_nad_parametrami_systemu-dla_uzytkownikow.md), a szczegóły implementacji w [dokumentacji technicznej](Glosowanie_nad_parametrami_systemu-dla_developerow.md).
 
 Podstawowa konfiguracja SMTP i zmiennych środowiskowych (`EMAIL_*`, `SECRET_KEY`, `REDIS_HOST` itp.) opisana jest w [DEPLOYMENT_INSTRUCTIONS.md](DEPLOYMENT_INSTRUCTIONS.md).
 
@@ -218,7 +217,7 @@ Relacja między obywatelem a kandydatem:
 Śledzenie aktywności związanych z obywatelami:
 
 - `uzytkownik` — FK do `Uzytkownik`
-- `activity_type` — Typ aktywności (`NEW_CANDIDATE`, `USER_ACTIVATED`, `USER_BLOCKED`)
+- `activity_type` — Typ aktywności (`NEW_CANDIDATE`, `USER_ACTIVATED`, `USER_BLOCKED`, `DELETION_REQUESTED`)
 - `timestamp` — Czas aktywności
 - `description` — Opis aktywności
 
@@ -229,7 +228,7 @@ System wysyła powiadomienia w następujących sytuacjach:
 1. **Nowa rejestracja** — Email z linkiem potwierdzającym email
 2. **Potwierdzenie email** — Drugi email z linkiem do formularzu onboarding
 3. **Polecenie osoby** — Powiadomienie do wszystkich aktywnych obywateli (`citizen_proposed`, kategoria `obywatele`)
-4. **Akceptacja kandydata** — Email powitalny z hasłem do nowemu obywatelowi
+4. **Akceptacja kandydata** — Email powitalny z linkiem do ustawienia hasła przez reset hasła
 
 Użytkownicy mogą zarządzać preferencjami powiadomień w swoim profilu (`/obywatele/settings/`):
 
@@ -242,15 +241,15 @@ Użytkownicy mogą zarządzać preferencjami powiadomień w swoim profilu (`/oby
 - **Push:**
   - `push_notifications_obywatele`, `push_notifications_glosowania`, `push_notifications_chat`, `push_notifications_events`, `push_notifications_post`, `push_notifications_task`, `push_notifications_survey`
 
-Szczegóły techniczne pipeline powiadomień znajdują się w [POWIADOMIENIA.md](POWIADOMIENIA.md).
+Wspólna wysyłka FCM/WebSocket/e-mail znajduje się w `core/notifications.py`; payloady czatu w `chat/notifications.py`, a obsługa workera Redis Stream w [instrukcji wdrożenia](DEPLOYMENT_INSTRUCTIONS.md#chat-notification-worker).
 
 ## Bezpieczeństwo
 
 ### Ochrona przed duplikatami
-- Unikalne ograniczenie na polu `email` w bazie danych
-- Obsługa błędu `MultipleObjectsReturned` w `CaseInsensitiveEmailBackend`
-- Mechanizm usuwania duplikatów w komendzie `count_citizens.cleanup_duplicate_users`
-- Migracja `0027_auto_verify_email_addresses` naprawia brakujące `EmailAddress` dla aktywnych użytkowników
+- Formularz rejestracji sprawdza istniejący adres e-mail bez rozróżniania wielkości liter; model konta może zawierać historyczne duplikaty.
+- `CaseInsensitiveEmailBackend` obsługuje przypadki, w których dla adresu istnieje więcej niż jedno konto.
+- Komenda `count_citizens` zawiera `cleanup_duplicate_users`, która porządkuje historyczne duplikaty.
+- Migracja `0027_auto_verify_email_addresses` naprawia brakujące rekordy `EmailAddress` dla aktywnych użytkowników.
 
 ### Ochrona przed botami
 - CAPTCHA w formularzu rejestracyjnym (`django-simple-captcha`)
@@ -302,7 +301,7 @@ python manage.py migrate
 - Sprawdź, czy `count_citizens` jest uruchamiany regularnie (scheduler lub ręcznie)
 
 ### Konto kandydata zostało usunięte
-- Sprawdź, czy minął czas `DELETE_INACTIVE_USER_AFTER` dni
+- Sprawdź wartość `delete_inactive_user_after` w parametrach instancji i czy upłynął wskazany okres
 - Kandydat musi zarejestrować się ponownie
 
 ## Podsumowanie

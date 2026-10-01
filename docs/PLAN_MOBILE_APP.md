@@ -1,5 +1,7 @@
 # Natywna aplikacja mobilna Wikikracji — projekt
 
+> **Status: propozycja niezaimplementowana.** W repozytorium nie ma obecnie klienta Capacitor ani aplikacji `mobile_push`; poniższe endpointy, modele i gateway są szkicem przyszłego rozwiązania, nie istniejącym API.
+
 ## 1. Cel i ograniczenia projektowe
 
 Stworzyć **natywną aplikację na Androida i iOS**, którą można instalować ze sklepu (Play / App Store / F-Droid).
@@ -138,7 +140,7 @@ Obsługa przychodzących powiadomień:
 
 ### 4.1. Słownik
 
-- **Serwer powiadomień** — logika w Django, która decyduje o wysyłce (np. `zzz/notifications.py`, `chat/services.py`).
+- **Serwer powiadomień** — istniejąca logika wysyłki w `core/notifications.py` oraz składanie powiadomień czatu w `chat/notifications.py`; przykładowe rozszerzenia w tym planie są przyszłą propozycją.
 - **Push gateway** — warstwa abstrakcji w Django (`mobile_push/gateway.py`), która przyjmuje powiadomienie i wysyła je do konkretnego providera push.
 - **Provider ostatniej mili** — usługa, która fizycznie dostarcza powiadomienie do urządzenia: FCM (Google), APNs (Apple), ntfy/UnifiedPush (własny lub wspólnotowy).
 
@@ -195,7 +197,7 @@ class PushProvider(abc.ABC):
 
 class FCMProvider(PushProvider):
     name = 'fcm'
-    # używa firebase_admin.messaging (już obecne w zzz/notifications.py)
+    # używa firebase_admin.messaging (już obecne w core/notifications.py)
 
 
 class APNSProvider(PushProvider):
@@ -257,10 +259,10 @@ Przykładowy payload rejestracji:
 
 #### 4.2.4. Integracja z istniejącym systemem powiadomień
 
-Obecnie `zzz/notifications.py` buduje powiadomienie i wysyła przez FCM / WebSocket / e-mail. Należy dodać trzeci kanał:
+Obecnie `core/notifications.py` obsługuje wysyłkę FCM / WebSocket / e-mail. Należy dodać trzeci kanał:
 
 ```python
-# zzz/notifications.py
+# core/notifications.py (future integration sketch)
 from mobile_push.gateway import get_mobile_push_gateway
 
 
@@ -290,7 +292,7 @@ Własny gateway **ogranicza** wyciek: to serwer Wikikracji (a nie każdy klient 
 
 1. Użytkownik wysyła wiadomość → `ChatConsumer` / `chat/services.py`.
 2. Wołany jest `build_notification(...)` z `notification_id`, `title`, `body`, `room_id`, `click_action`.
-3. `zzz/notifications.py` dystrybuuje:
+3. `core/notifications.py` dystrybuuje:
    - WebSocket do otwartych kart,
    - FCM do PWA (`GCMDevice`),
    - `MobilePushGateway.send_to_user()` do aplikacji natywnych.
@@ -302,7 +304,7 @@ Własny gateway **ogranicza** wyciek: to serwer Wikikracji (a nie każdy klient 
 
 ### 4.5. Obsługa martwych tokenów
 
-Podobnie jak w `POWIADOMIENIA.md` dla FCM, gateway musi dezaktywować urządzenia przy błędach:
+Obecna integracja FCM oparta o `django-push-notifications` dezaktywuje błędne tokeny. Przyszły gateway powinien jawnie mapować błędy pozostałych providerów na dezaktywację urządzenia:
 
 - FCM: `UnregisteredError`, `SenderIdMismatch`, `InvalidArgument`.
 - APNs: `Unregistered`, `BadDeviceToken`.
@@ -360,7 +362,7 @@ Aplikacja natywna po otwarciu `click_action` ustawia `WebView.src = 'https://<in
    - `FCMProvider` (korzysta z `firebase_admin`),
    - `APNSProvider` (korzysta z `aioapns` / `apns2`),
    - endpointy `/mobile/push/register/`, `/mobile/push/unregister/`, `/mobile/push/ack/`.
-5. Zintegrować `MobilePushGateway` z `zzz/notifications.py`.
+5. Zintegrować `MobilePushGateway` z `core/notifications.py`.
 6. Zmodyfikować `push-notifications.js` / `app.js`, by w trybie natywnym nie ładowały FCM web.
 7. Skonfigurować FCM dla Androida i APNs dla iOS.
 8. Przetestować powiadomienia w tle i klikanie (deep links).

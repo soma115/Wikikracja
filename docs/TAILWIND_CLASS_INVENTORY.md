@@ -1,6 +1,6 @@
-# Inwentaryzacja klas CSS do migracji na Tailwind
+# Historyczna inwentaryzacja klas CSS do migracji na Tailwind
 
-Plik pomocniczy do planu migracji. Zawiera listę klas używanych w szablonach, podzieloną na komponenty. Odhaczamy (`[x]`) klasę dopiero wtedy, gdy ma gotowy Tailindowy odpowiednik i została zamieniona we wszystkich szablonach.
+Migracja bazowa została zakończona. Poniższa lista jest zachowana jako historyczny zakres inwentaryzacji; niezaznaczone checkboxy nie są aktualnym backlogiem i nie opisują bieżącego stanu szablonów. Aktualne zasady oraz produkcyjne źródła prawdy znajdują się w [`TAILWIND_UI_GUIDE.md`](TAILWIND_UI_GUIDE.md) i [`UI_DEVELOPMENT_GUIDE.md`](UI_DEVELOPMENT_GUIDE.md).
 
 ## Komponenty ogólne
 
