@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load static %}
 {% comment %}
 Shared initCategoryManager() call — pairs with categories/_category_modal.html.
 Params:
@@ -8,6 +9,8 @@ Params:
   items_suffix - label for the item-count badge (e.g. 'documents')
   confirm_del  - delete-confirmation message containing '{n}'
 {% endcomment %}
+{% include 'home/includes/sortable_scripts.html' %}
+<script src="{% static 'home/js/category-manager.js' %}"></script>
 <script
   data-list-url="{{ list_url }}"
   data-reorder-url="{{ reorder_url }}"

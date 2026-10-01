@@ -20,6 +20,7 @@
 {% endblock tasks %}
 
 {% block extra_js %}
+<script src="{% static 'home/js/category-filter.js' %}"></script>
 <script>
   window.TASK_HELPERS_I18N = {
     empty: "{% trans 'No one helps yet' %}",

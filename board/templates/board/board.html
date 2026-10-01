@@ -129,6 +129,7 @@
 
 {% block extra_js %}
 {% if request.user.is_authenticated %}
+<script src="{% static 'home/js/category-filter.js' %}"></script>
 {% url 'board:api_categories' as cat_list_url %}
 {% url 'board:api_category_reorder' as cat_reorder_url %}
 {% trans "documents" as cat_items_suffix %}

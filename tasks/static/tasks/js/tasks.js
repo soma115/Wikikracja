@@ -437,7 +437,7 @@
       popover.setContent({ '.popover-body': sanitize(helpersCache.get(taskId)) });
       return;
     }
-    fetch(btn.dataset.helpersUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    window.apiFetch(btn.dataset.helpersUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         var html = renderVotersHtml(data, i18n);
@@ -456,7 +456,7 @@
       popover.setContent({ '.popover-body': sanitize(againstCache.get(taskId)) });
       return;
     }
-    fetch(btn.dataset.againstUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+    window.apiFetch(btn.dataset.againstUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         var html = renderVotersHtml(data, againstI18n);

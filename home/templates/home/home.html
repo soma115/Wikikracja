@@ -542,6 +542,7 @@
 </script>
 
 {% if user.is_authenticated %}
+{% include 'home/includes/sortable_scripts.html' %}
 <script>
 (function () {
   var grid = document.getElementById('dashboard-grid');

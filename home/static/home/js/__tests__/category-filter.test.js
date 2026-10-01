@@ -5,9 +5,16 @@ const fs = require('fs');
 const path = require('path');
 
 const APP_JS_PATH = path.join(__dirname, '..', 'app.js');
+const CATEGORY_FILTER_JS_PATH = path.join(__dirname, '..', 'category-filter.js');
 
 function loadAppScript() {
     const src = fs.readFileSync(APP_JS_PATH, 'utf8');
+    const run = new Function(src);
+    run();
+}
+
+function loadCategoryFilterScript() {
+    const src = fs.readFileSync(CATEGORY_FILTER_JS_PATH, 'utf8');
     const run = new Function(src);
     run();
 }
@@ -42,11 +49,17 @@ function click(el) {
 }
 
 describe('initCategoryFilter', () => {
+    let originalFetch;
+    let originalReinitTaskCards;
+
     beforeAll(() => {
         loadAppScript();
+        loadCategoryFilterScript();
     });
 
     beforeEach(() => {
+        originalFetch = window.fetch;
+        originalReinitTaskCards = window.reinitTaskCards;
         document.body.innerHTML = '';
         document.documentElement.removeAttribute('data-prefs-scope');
         jest.spyOn(history, 'pushState').mockImplementation(() => {});
@@ -56,6 +69,10 @@ describe('initCategoryFilter', () => {
 
     afterEach(() => {
         jest.restoreAllMocks();
+        if (typeof originalFetch === 'undefined') delete window.fetch;
+        else window.fetch = originalFetch;
+        if (typeof originalReinitTaskCards === 'undefined') delete window.reinitTaskCards;
+        else window.reinitTaskCards = originalReinitTaskCards;
         document.documentElement.removeAttribute('data-prefs-scope');
     });
 
@@ -217,6 +234,47 @@ describe('initCategoryFilter', () => {
         const cards = Array.from(document.querySelectorAll('.tw-content-card[data-card-type="task"]'));
         expect(cards[0].classList.contains('tw-d-none')).toBe(false);
         expect(cards[1].classList.contains('tw-d-none')).toBe(true);
+    });
+
+    test('updates the task list over HTTP while preserving navigation and page preferences', async () => {
+        document.documentElement.setAttribute('data-prefs-scope', 'tasks');
+        document.body.innerHTML = `
+            <div id="tw-tasks-list-container" data-view-container>Old task list</div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', buildCatFilter([], ['urgent']));
+
+        const locationSpy = jest.spyOn(window, 'location', 'get');
+        locationSpy.mockReturnValue({
+            search: '?tab=mine&sort=created&order=asc',
+            pathname: '/tasks/',
+            href: 'http://localhost/tasks/?tab=mine&sort=created&order=asc',
+        });
+        const fetchMock = jest.fn().mockResolvedValue({
+            ok: true,
+            text: () => Promise.resolve('Filtered task list'),
+        });
+        window.fetch = fetchMock;
+        window.reinitTaskCards = jest.fn();
+        const applyViewSpy = jest.spyOn(window.PagePrefs, 'applyView');
+        const saveFiltersSpy = jest.spyOn(window.PagePrefs, 'saveCurrentFilters');
+
+        window.initCategoryFilter();
+        click(document.querySelector('.tw-cat-filter-item:not(.tw-cat-filter-all)'));
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        expect(fetchMock).toHaveBeenCalledWith(
+            '/tasks/?tab=mine&sort=created&order=asc&category=urgent',
+            { headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+        );
+        expect(document.getElementById('tw-tasks-list-container').textContent).toBe('Filtered task list');
+        expect(history.pushState).toHaveBeenCalledWith(
+            null,
+            '',
+            '/tasks/?tab=mine&sort=created&order=asc&category=urgent'
+        );
+        expect(window.reinitTaskCards).toHaveBeenCalled();
+        expect(applyViewSpy).toHaveBeenCalled();
+        expect(saveFiltersSpy).toHaveBeenCalled();
     });
 
     test('initializes and toggles panel even when there are no items to filter', () => {
