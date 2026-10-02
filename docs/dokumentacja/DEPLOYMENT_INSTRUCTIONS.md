@@ -434,10 +434,12 @@ not started by Daphne automatically.
 ### Kubernetes
 
 The current manifests deploy one shared Redis 7 instance as `redis-1` in the
-`wikikracja` namespace. It is scheduled on node `k8s`, has one replica and uses
-`emptyDir` storage. It is a cache and queue, not durable application storage.
-Each Wikikracja instance selects a separate logical Redis database (`1`, `2`, `3`
-and `5` through `14`) and a separate `REDIS_CHANNEL_PREFIX`.
+`wikikracja` namespace. It is scheduled on node `k8s` and has one replica. Redis
+must be RAM-only: disable RDB snapshots with `--save ""` and the append-only file
+with `--appendonly no`, and do not mount a data volume. This is important because
+Redis temporarily holds referendum vote codes and choices as well as cache and
+queue data. Each Wikikracja instance selects a separate logical Redis database
+(`1`, `2`, `3` and `5` through `14`) and a separate `REDIS_CHANNEL_PREFIX`.
 
 Both the HTTP and chat-notification-worker Deployments receive the same Redis
 endpoint from the instance ConfigMap. The worker runs:
@@ -525,11 +527,13 @@ second Redis server. In local Docker, configure the endpoint in `.env`. In the
 current cluster, the endpoint is declared in each instance ConfigMap and points to
 the shared `redis-1` Service with an instance-specific logical database.
 
-Redis is a runtime dependency of both the web process and the worker. The current
-cluster uses `emptyDir`, so a Redis restart can lose queued personal push/WebSocket
-notifications and Channels presence state. Chat messages remain safe in SQLite.
-Redis persistence would be a separate cluster-storage decision, not an application
-configuration change.
+Redis is a runtime dependency of both the web process and the worker, and must
+remain RAM-only in every deployment: do not enable RDB snapshots or AOF, and do not
+add persistent storage. In Kubernetes, `redis-1` explicitly starts with
+`--save ""` and `--appendonly no`. A Redis restart loses its in-memory state,
+including queued notifications, Channels presence and any pending vote buffer;
+Wikikracja detects a lost vote buffer and restarts that referendum. Durable chat
+messages and other application data remain in SQLite.
 
 ## Common Issues and Fixes
 
