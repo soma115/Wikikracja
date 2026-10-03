@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
-Dev starter for Windows/Linux.
-Default: prepare .env, ensure SECRET_KEY, load env, create media/uploads,
-run migrations and start Daphne.
-With --full: additionally pip install -r requirements.txt, install pre-commit
-hooks, makemigrations for listed apps, makemessages/compilemessages and
-collectstatic.
+Start the Django development server on Windows/Linux.
+Default: prepare .env, ensure SECRET_KEY, load the environment, apply migrations
+and start Django's development server.
+With --full: also install Python dependencies and pre-commit hooks, create
+migrations for the supported apps, update/compile translations and collect static files.
 """
 
 import argparse

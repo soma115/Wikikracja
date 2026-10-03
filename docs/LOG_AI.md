@@ -1,5 +1,13 @@
 # LOG_AI
 
+## 2026-10-03: Uproszczenie instrukcji uruchamiania i helpera Compose
+
+- **Zmienione obszary:** `docs/DEPLOYMENT_INSTRUCTIONS.md`, `scripts/build_docker_localy_on_windows.ps1`, `scripts/start_dev.py`.
+- **Co się zmieniło:** Skrócono lokalny setup, usunięto odwołanie do skasowanego `start_dev.sh` i instrukcję importowania fixture’ów. Windowsowy helper tworzy `.env` z przykładu, sprawdza Docker Compose v2, zatrzymuje lokalne kontenery, buduje obraz, wykonuje migracje i uruchamia usługi; reset bazy wymaga wpisania `RESET`. Opis `start_dev.py` dopasowano do rzeczywistego serwera Django.
+- **Uzasadnienie:** Dokumentacja zawierała powielone kroki i nieaktualne informacje o Redisie, migracjach oraz skryptach; helper nie uruchamiał migracji i obie gałęzie startowały w trybie odłączonym.
+- **Weryfikacja:** Parser PowerShella zaakceptował zmieniony skrypt. Testów aplikacji nie uruchamiano; zmiany dotyczą instrukcji i lokalnego helpera.
+- **Spodziewany efekt:** Powtarzalniejszy start Compose i mniej ręcznych kroków przy lokalnym uruchomieniu; produkcyjny rollout nadal pozostaje zarządzany przez CI i Flux.
+
 ## 2026-09-30: Zabezpieczenia SQLite przed migracją do MariaDB
 
 - **Zmienione obszary:** `core/sqlite.py`, `glosowania` (oddawanie głosu), `scripts/sqlite_maintenance.py`, `scripts/sqlite_contention_test.py`, konfiguracja SQLite, scheduler oraz instrukcje operacyjne.

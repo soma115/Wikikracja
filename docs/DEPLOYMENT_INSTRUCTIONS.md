@@ -22,137 +22,78 @@ This document contains instructions for developers setting up the development en
 
 ### Local Development Setup
 
-1. **Clone the repository**
+1. Clone the repository and create a virtual environment:
+
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/soma115/wikikracja.git
    cd wikikracja
-   ```
-
-2. **Start Redis with Docker Desktop**
-   - Open Docker Desktop
-   - Run Redis container:
-   ```bash
-   docker run -d -p 6379:6379 redis:latest
-   ```
-
-3. **Create and activate virtual environment**
-   ```bash
    python -m venv .venv
-   # Windows
-   .venv\Scripts\activate
-   # Linux/Mac
-   source .venv/bin/activate
    ```
 
-4. **Run the automated setup**
+   Activate it with `.venv\Scripts\activate` on Windows or
+   `source .venv/bin/activate` on Linux/macOS.
+
+2. Start Redis 7. For example, with Docker:
+
+   ```bash
+   docker run -d -p 6379:6379 redis:7
+   ```
+
+3. Copy `.env.example` to `.env`. For Django running directly on the host, set
+   `REDIS_HOST=redis://127.0.0.1:6379/1`; `host.docker.internal` is for Docker
+   containers.
+
+4. Run the setup script:
+
    ```bash
    python scripts/start_dev.py --full
    ```
 
-The `start_dev.py --full` command will:
-- Copy `.env.example` to `.env` if needed
-- Generate a secure `SECRET_KEY`
-- Install dependencies from `requirements.txt`
-- Create and apply migrations
-- Update translation files
-- Collect static files
-- Start the development server
-
-### Quick Start (Subsequent Runs)
-For subsequent development sessions, just run:
-```bash
-# Start Redis if not running (ensure Docker Desktop is open)
-docker run -d -p 6379:6379 redis:latest
-
-# Activate virtual environment
-.venv\Scripts\activate
-
-# Start development server
-python scripts/start_dev.py
-```
+   It installs Python dependencies and pre-commit hooks, creates/applies development
+   migrations, updates Polish translations, collects static files and starts the server.
+   On later runs,
+   activate `.venv` and use `python scripts/start_dev.py`; migrations still run.
+   The default port is `8006`; change it with `--port`. This script is for development only; production migrations run through the GitOps migration Jobs.
 
 ## Development Scripts
 
-The `scripts/` directory contains utility scripts to streamline development and deployment tasks:
-
-### Development Setup Scripts
-
-#### `start_dev.py` (Cross-platform)
-Quick development server starter for Windows/Linux.
-```bash
-# Basic start (fast)
-python scripts/start_dev.py
-
-# Full setup (slower, includes migrations, i18n, static files)
-python scripts/start_dev.py --full
-```
-
-Features:
-- Automatically copies `.env.example` to `.env` if needed
-- Generates secure `SECRET_KEY` automatically
-- Runs migrations and starts development server
-- With `--full`: installs dependencies, creates migrations, updates translations
-
-#### `start_dev.sh` (Linux)
-Linux-specific development setup with system dependencies.
-```bash
-./scripts/start_dev.sh
-```
-
-Features:
-- Installs system dependencies (gettext, sqlite3, redis)
-- Sets up and starts Redis server
-- Runs full migration and translation setup
-- Starts Daphne server (required for chat functionality)
+- `scripts/run_tests.py` runs the complete verification pipeline. See [Running Tests](#running-tests) for prerequisites and side effects.
+- `scripts/pre_push_tests.py` runs a change-aware subset of pytest; it is not a replacement for the full CI gate.
+- `scripts/update_translations.ps1` updates and compiles Polish translations on Windows.
 
 ### Docker Scripts
 
 #### `build_docker_localy_on_windows.ps1` (Windows)
-Build and run Docker containers locally on Windows.
+Creates `.env` from the sample when needed, stops existing local containers, builds
+images, applies migrations and starts the app. Redis remains external and must be
+reachable through `REDIS_HOST` in `.env`.
+
 ```powershell
-# Start containers
-.\scripts\build_docker_localy_on_windows.ps1
-
-# Start in detached mode
-.\scripts\build_docker_localy_on_windows.ps1 -Detached
-
-# Stop containers
+.\scripts\build_docker_localy_on_windows.ps1 [-Detached]
 .\scripts\build_docker_localy_on_windows.ps1 -Stop
-
-# Restart containers
-.\scripts\build_docker_localy_on_windows.ps1 -Restart
-
-# Reset database
 .\scripts\build_docker_localy_on_windows.ps1 -ResetDb
 ```
 
+`-ResetDb` requires typing `RESET` and then deletes the local SQLite database files.
+
 #### `build_and_push_docker_image.sh` (Linux)
-Build and push Docker image to registry.
+Builds and pushes an image for a fork or custom registry. Production images for the
+main deployment are built by GitHub Actions; do not use this helper to deploy or
+update Flux-managed production workloads.
+
 ```bash
-# Push to custom registry
-REGISTRY_IMAGE=ghcr.io/username/wikikracja ./scripts/build_and_push_docker_image.sh
-
-# Push to official registry (maintainer only)
-CONFIRM_OFFICIAL_PUSH=1 ./scripts/build_and_push_docker_image.sh
-
-# Custom tag
-TAG=v1.2.3 ./scripts/build_and_push_docker_image.sh
+REGISTRY_IMAGE=ghcr.io/username/wikikracja TAG=v1.2.3 PUSH_LATEST=0 ./scripts/build_and_push_docker_image.sh
 ```
 
 ### Utility Scripts
 
-#### `import_fixtures.sh`
-Import database fixtures for initial data.
-```bash
-./scripts/import_fixtures.sh
-```
-
 #### `repair_file_rights.sh`
-Fix file permissions for production deployment.
+Permission helper. It recursively changes ownership and permissions; do not
+run it on a live deployment without reviewing the target and confirming the service
+user/group first.
+
 ```bash
-./scripts/repair_file_rights /path/to/app user group
-# Example:
-./scripts/repair_file_rights . www-data www-data
+sudo ./scripts/repair_file_rights.sh /path/to/app user group
 ```
 
 #### `update_translations.ps1` (Windows)
@@ -186,45 +127,44 @@ Only language codes listed in `zzz.settings.LANGUAGES` are supported.
 
 ## Running the Application
 
-### Development Server
+### Using Docker Compose
+
+For Windows, use `scripts/build_docker_localy_on_windows.ps1`; it builds, migrates and
+starts the services. Elsewhere, run:
+
 ```bash
-python manage.py runserver
-```
-
-### Using Docker
-```bash
-# Build and start web, Redis and the chat notification worker
-docker compose up --build
-
-# Run in the background
-docker compose up --build -d
-
-# Stop the stack
 docker compose down
-
-# Or use the Windows script
-.\scripts\build_docker_localy_on_windows.ps1
+docker compose build
+docker compose run --rm web python manage.py migrate --noinput
+docker compose up
 ```
 
-The Compose stack does not create or persist Redis. Both `web` and
-`chat_notifications_worker` connect to the externally managed Redis configured by
-`REDIS_HOST` in `.env`. The worker consumes the
-`wikikracja:chat:notifications` Redis Stream. Configure Redis persistence and
-availability outside this repository according to the cluster's policy.
+Add `-d` to `up` to run in the background; stop the containers with `docker compose down`.
+Compose does not start Redis, so both services need a reachable `REDIS_HOST` in `.env`.
+The worker consumes the `wikikracja:chat:notifications` Redis Stream. This stack is
+for local development, not production.
 
 ### Running Tests
+Run focused checks from the activated virtual environment, for example:
+
 ```bash
-# Run all tests
-python manage.py test
-
-# Run specific app tests
-python manage.py test chat
-python manage.py test tasks
-
-# Linting and formatting checks
-ruff check .
-ruff format --check .
+python -m pytest chat -q
+python -m ruff check .
+python -m ruff format --check .
+npm test
 ```
+
+For the complete verification pipeline, use:
+
+```bash
+python scripts/run_tests.py
+```
+
+The full runner also runs Playwright. Install Node dependencies with `npm ci`, install
+Chromium with `npx playwright install chromium`, and set `E2E_EMAIL` and
+`E2E_PASSWORD` in the ignored `.env.local` for a dedicated, non-admin E2E account.
+The runner prepares `.env` (and may replace a placeholder `SECRET_KEY`) and runs
+`collectstatic --clear`, so use focused commands when you do not want those effects.
 
 ## Database Management
 
@@ -315,21 +255,6 @@ Do not use `latest` as the deployment reference in GitOps manifests. Flux update
 all Wikikracja workloads, migration Jobs and the backup CronJob from the sortable
 `main-<timestamp>` tag.
 
-### Building and running a local image
-
-```bash
-docker build -t wikikracja:test .
-docker run -p 8000:8000 --env-file .env wikikracja:test
-```
-
-For the local multi-container setup use Docker Compose:
-
-```bash
-docker compose up --build
-docker compose up --build -d
-docker compose down
-```
-
 The GitHub Actions workflow is defined in `.github/workflows/docker-build.yml`.
 It builds multi-architecture images (`linux/amd64` and `linux/arm64`) and pushes
 them to GHCR. A fork must configure its own package permissions and image name.
@@ -354,24 +279,6 @@ instance has one SQLite PVC (`ReadWriteOnce`, currently requested size `1Gi`),
 one HTTP replica, one scheduler replica and one notification-worker replica.
 The workloads are intentionally kept at one replica because each instance writes
 to its own SQLite database.
-
-The currently declared public hosts are:
-
-| Instance | Primary host | Aliases |
-| --- | --- | --- |
-| 1 | `test.wikikracja.pl` | `t.wikikracja.pl` |
-| 2 | `demo.wikikracja.pl` | — |
-| 3 | `e501.wikikracja.pl` | — |
-| 5 | `czik.wikikracja.pl` | — |
-| 6 | `lobbyobywatelskie.wikikracja.pl` | `lo.wikikracja.pl` |
-| 7 | `obywatele.wikikracja.pl` | — |
-| 8 | `bractwo.wikikracja.pl` | — |
-| 9 | `grupaperu.wikikracja.pl` | — |
-| 10 | `lyski.wikikracja.pl` | — |
-| 11 | `mojglos.wikikracja.pl` | — |
-| 12 | `odswojego.wikikracja.pl` | `z.wikikracja.pl`, `ziomki.wikikracja.pl` |
-| 13 | `wszyscywon.wikikracja.pl` | `w.wikikracja.pl` |
-| 14 | `pls2027.wikikracja.pl` | `pls.wikikracja.pl` |
 
 The runtime image is `ghcr.io/soma115/wikikracja:main-<timestamp>` and the
 workloads use the `wikikracja` namespace. The HTTP container runs Daphne on port
@@ -401,11 +308,7 @@ consumers must remain tolerant of duplicate notification IDs.
 
 ### Docker Compose
 
-The worker starts automatically with:
-
-```bash
-docker compose up --build -d
-```
+The worker is included in the Compose stack; use the [Docker Compose setup](#using-docker-compose) above.
 
 Inspect worker logs with:
 
@@ -554,16 +457,15 @@ See the dedicated section below for the current room-title contracts and deploym
 
 ### Static Files Not Loading
 
-```bash
-python manage.py collectstatic --noinput
-```
+For local development, `python scripts/start_dev.py --full` collects static files.
+Production images collect them during the Docker build; rebuild and roll out through
+CI/Flux rather than running `collectstatic` on a production node.
 
 ### Permission Issues
 
-```bash
-# Fix file permissions for media files
-chmod -R 755 media/
-```
+Check the owner and required access for the specific path. Avoid blanket recursive
+`chmod`; `scripts/repair_file_rights.sh` changes ownership and permissions recursively
+and should only be used after reviewing its target.
 
 ## Chat Room Categorization
 
@@ -589,33 +491,44 @@ Technical and deployment configuration is supplied through environment variables
 
 ### Essential Settings in `.env`
 
-```bash
-# Security (REQUIRED in production)
-SECRET_KEY=your-secret-key-here
-DEBUG=False
+The following values illustrate configuration; do not use placeholders as production
+secrets. In production, keep credentials in the deployment platform's secret manager.
 
-# Site configuration
-SITE_DOMAIN=yourdomain.com
-SITE_NAME="Your Site Name"
+```env
+# Security
+SECRET_KEY=<unique-secret-value>
+DEBUG=False
 ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
 CSRF_TRUSTED_ORIGINS=https://yourdomain.com
 
-# Email (REQUIRED for user registration)
+# Canonical site and absolute URLs
+SITE_DOMAIN=yourdomain.com
+SITE_NAME=Your Site Name
+
+# SMTP (required for outbound registration and account emails)
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 EMAIL_HOST=smtp.example.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
-EMAIL_HOST_USER=your-email@example.com
-EMAIL_HOST_PASSWORD=your-password
+EMAIL_HOST_USER=<smtp-user>
+EMAIL_HOST_PASSWORD=<smtp-password>
 SERVER_EMAIL=noreply@yourdomain.com
 DEFAULT_FROM_EMAIL=noreply@yourdomain.com
 
-# Redis (Channels, caching and chat notification queue)
-# Docker Desktop with Redis exposed on the host:
-REDIS_HOST=redis://host.docker.internal:6379/1
-# Kubernetes: use the instance-specific endpoint from the GitOps ConfigMap,
-# e.g. redis://redis-1:6379/1 for instance-1.
-# Local Django outside Docker can use redis://127.0.0.1:6379/1
+# Redis (Channels, cache and chat notification queue)
+# Local Django process:
+REDIS_HOST=redis://127.0.0.1:6379/1
+# Docker Desktop container connecting to Redis exposed by the host:
+# REDIS_HOST=redis://host.docker.internal:6379/1
+# Kubernetes: use the instance-specific endpoint from the GitOps ConfigMap.
+
+# SQLite database path (the production deployment mounts persistent storage here)
+SQLITE_DATABASE_PATH=/app/db/db.sqlite3
 ```
+
+Firebase credentials are optional for deployments that need push notifications; use
+the supported `FIREBASE_CERT_*` or `GOOGLE_APPLICATION_CREDENTIALS` options from
+`.env.example` and store server credentials outside the repository.
 
 ### Generate SECRET_KEY
 

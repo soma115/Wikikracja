@@ -11,7 +11,7 @@
 
 ## Features
 
-A community platform with modules for voting, citizens, chat, board, bookkeeping, events and tasks.
+A community platform for citizen-led groups, with modules for proposals and voting, surveys, documents, chat, events, tasks and bookkeeping.
 
 ## Demo
 
@@ -21,9 +21,9 @@ Try the live demo: **https://demo.wikikracja.pl/**
 
 - **Backend**: Django ~6.0.4, Django Channels 4.3.2 + Daphne (ASGI), Python >=3.14, JavaScript, CSS
 - **Frontend**: Tailwind CSS 3.4 (prefixed `tw-`), django-crispy-forms, TinyMCE
-- **Database**: SQLite (development), MariaDB (production)
-- **Cache/Channels**: Redis (cache and channel layer)
-- **Deployment**: Docker, GitHub Actions
+- **Database**: SQLite in development and production (one database per deployed instance)
+- **Cache/Channels**: Redis (cache, channel layer and notification queue)
+- **Deployment**: Docker images published to GitHub Container Registry; production is managed with Kubernetes and Flux
 - **Authentication**: django-allauth
 - **Additional libraries**: APScheduler, firebase-admin (FCM)
 - **Testing**: Jest (JavaScript, Node 22), pytest (Python), Ruff (linting)
@@ -31,8 +31,9 @@ Try the live demo: **https://demo.wikikracja.pl/**
 ## Prerequisites
 
 - Python 3.14+
-- Redis (for channels/cache; can run via Docker)
-- Node 22 (optional, for JavaScript tests)
+- Redis 7 (for Channels, cache and notification delivery; it can run in Docker)
+- Node.js 22+ and npm (optional, for frontend tests and CSS development)
+- Docker and Docker Compose (optional, for the local container setup)
 
 ## Setup
 
@@ -42,62 +43,68 @@ Try the live demo: **https://demo.wikikracja.pl/**
    cd wikikracja
    ```
 
-2. **Start Redis**
-   ```bash
-   docker run -d -p 6379:6379 redis:latest
-   ```
-
-3. **Create and activate a virtual environment**
+2. **Create and activate a virtual environment**
    ```bash
    python -m venv .venv
    .venv\Scripts\activate            # Windows
-   # source .venv/bin/activate       # Linux/Mac
+   # source .venv/bin/activate       # Linux/macOS
    ```
 
-4. **Install dependencies**
+3. **Install Python dependencies**
    ```bash
    python -m pip install --upgrade pip setuptools==80.9.0
    python -m pip install --no-build-isolation -r requirements.txt
-   npm install
-   .venv\Scripts\python.exe -m pre_commit install
+   ```
+
+4. **Start Redis 7** (for example, with Docker)
+   ```bash
+   docker run -d -p 6379:6379 redis:7
+   ```
+   You can use an existing local or managed Redis service instead.
+
+   Before the first start, copy `.env.example` to `.env` (`copy .env.example .env` on Windows, `cp .env.example .env` on Linux/macOS). For Django running directly on your computer, set `REDIS_HOST=redis://127.0.0.1:6379/1`; the sample `host.docker.internal` address is for Docker containers.
+
+5. **Optional: install frontend dependencies** (for Jest, Playwright and CSS builds)
+   ```bash
+   npm ci
    ```
 
 ## Quick Start
 
-Run the automated development setup:
+With the virtual environment activated and Redis running, start the development setup:
 
 ```bash
 python scripts/start_dev.py --full
 ```
 
-For subsequent runs:
+The script prepares `.env` on first run, applies migrations and starts the development server. Subsequent runs can skip the slower setup tasks:
 
 ```bash
 python scripts/start_dev.py
 ```
 
-Access the application at http://localhost:8000.
+The server listens at http://localhost:8006 by default; pass `--port 8000` to use another port.
 
-For detailed setup, deployment, Docker, configuration and management commands, see [docs/DEPLOYMENT_INSTRUCTIONS.md](docs/DEPLOYMENT_INSTRUCTIONS.md).
+For detailed development, testing, Docker, deployment, configuration and management instructions, see [docs/DEPLOYMENT_INSTRUCTIONS.md](docs/DEPLOYMENT_INSTRUCTIONS.md).
 
 ## Testing
 
-After changes, run the test suites and linting:
+Run focused checks from the activated virtual environment, for example:
 
 ```bash
-npx jest
 python -m pytest -q
-ruff check .
-ruff format --check .
+python -m ruff check .
+python -m ruff format --check .
+npm test
 ```
 
-For a single combined command, use:
+The full project verification pipeline is available through:
 
 ```bash
 python scripts/run_tests.py
 ```
 
-The installed hooks run fast static checks before each commit and change-aware Python, Jest and generated CSS checks before each push.
+It also runs Playwright end-to-end tests, so install the Node dependencies and Chromium and configure the dedicated test account in the ignored `.env.local` (`E2E_EMAIL` and `E2E_PASSWORD`). The runner prepares `.env` and runs `collectstatic --clear`; use focused checks when you do not need the full pipeline.
 
 ## Documentation
 
