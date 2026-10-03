@@ -34,7 +34,7 @@ Nie modyfikuj bez konsultacji obszarów krytycznych dla bezpieczeństwa, integra
 ### Twardy zakaz
 
 - Nie modyfikuj ręcznie plików generowanych lub zarządzanych automatycznie.
-- Nie wprowadzaj nowych modułów, plików czy warstw bez uzasadnienia; rozszerzaj istniejące.
+- Nie wprowadzaj nowych modułów, plików czy warstw bez uzasadnienia; rozszerzaj istniejące. Wyjątek: jeśli użytkownik potwierdzi, że nowy plik ma zostać utworzony, utwórz go.
 - Nie dubluj kodu, klas, funkcji ani reguł.
 - commity, push, force-push i inna modyfikacja historii gita — nigdy nie wykonuj ich samodzielnie
 - Każdą logicznie niezależną zmianę dodawaj do Git staging osobno, aby zakresy commitów się nie mieszały. Nie dodawaj do stagingu zmian niezwiązanych z bieżącym zadaniem.
