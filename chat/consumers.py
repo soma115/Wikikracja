@@ -220,6 +220,10 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         """Channel layer handler — relay a survey notification to the client."""
         await self.send_json({"notification": event["notification"]})
 
+    async def transaction_notification(self, event):
+        """Channel layer handler — relay a financial transaction notification."""
+        await self.send_json({"notification": event["notification"]})
+
     ###########################################################
     # Handlers for messages sent over the channel layer       #
     ###########################################################

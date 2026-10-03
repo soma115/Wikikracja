@@ -1,6 +1,7 @@
 import secrets
 from datetime import datetime, time, timedelta
 from datetime import timezone as dt_timezone
+from unittest.mock import patch
 from urllib.parse import urlencode
 
 from django.contrib.auth.models import User
@@ -90,6 +91,30 @@ class EventViewTest(TestCase):
         response = self.client.get(reverse('events:create'))
         self.assertEqual(response.status_code, 200)
 
+    def test_create_event_emits_push_event(self):
+        self.client.force_login(self.user)
+        data = {
+            'title': 'Push test event',
+            'description': '',
+            'link': '',
+            'place': '',
+            'start_date': '2030-01-01T10:00',
+            'end_date': '',
+            'frequency': 'once',
+            'ordinal': '',
+            'weekday': '',
+            'is_active': 'on',
+            'is_public': 'on',
+        }
+
+        with patch('core.notifications._dispatch_notification') as dispatch:
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(reverse('events:create'), data)
+
+        self.assertEqual(response.status_code, 302)
+        dispatch.assert_called_once()
+        self.assertEqual(dispatch.call_args.kwargs['push_event'], 'event.created')
+
     def test_new_event_defaults_to_today_at_noon(self):
         self.client.force_login(self.user)
         response = self.client.get(reverse('events:create'))
@@ -163,6 +188,30 @@ class EventViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.event.refresh_from_db()
         self.assertEqual(self.event.title, 'Updated by other')
+
+    def test_event_update_emits_push_event(self):
+        self.client.force_login(self.user)
+        data = {
+            'title': 'Updated push event',
+            'description': 'Updated description',
+            'link': '',
+            'place': '',
+            'start_date': '2030-01-01T10:00',
+            'end_date': '',
+            'frequency': 'once',
+            'ordinal': '',
+            'weekday': '',
+            'is_active': 'on',
+            'is_public': 'on',
+        }
+
+        with patch('core.notifications._dispatch_notification') as dispatch:
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(reverse('events:edit', args=[self.event.pk]), data)
+
+        self.assertEqual(response.status_code, 302)
+        dispatch.assert_called_once()
+        self.assertEqual(dispatch.call_args.kwargs['push_event'], 'event.updated')
 
     def test_private_event_hidden_in_list_for_anonymous(self):
         from events.models import Event as E

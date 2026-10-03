@@ -37,6 +37,7 @@ class ChatCommandHandlersTest(SimpleTestCase):
             repo=self.repo, rooms=self.rooms, channel_layer=self.channel_layer, channel_name='channel-1', scope={'user': self.user}, push_unread_count=AsyncMock(), record_presence=AsyncMock()
         )
         self.online_registry = MagicMock()
+        self.reset_room_push_state = self.enterContext(patch('chat.command_handlers.clear_room_notification_state'))
         self.handlers = ChatCommandHandlers(self.consumer, self.online_registry)
 
     async def test_dispatch_rejects_missing_required_data(self):
@@ -53,6 +54,7 @@ class ChatCommandHandlersTest(SimpleTestCase):
         self.assertEqual(result.responses[0]['join'], '3')
         self.assertEqual(result.responses[1], {'messages': [{'message_id': 1}]})
         self.channel_layer.group_add.assert_awaited_once_with('room-3', 'channel-1')
+        self.reset_room_push_state.assert_called_once_with(self.user.id, room.id)
         build.assert_called_once()
 
     async def test_join_marks_restricted_task_room_with_source_app(self):
@@ -230,6 +232,7 @@ class ChatCommandHandlersTest(SimpleTestCase):
         await self.handlers.mark_room_seen(room.id)
 
         self.repo.see_room.assert_awaited_once_with(room)
+        self.reset_room_push_state.assert_called_once_with(self.user.id, room.id)
         self.channel_layer.group_send.assert_awaited_once_with(f'user_{self.user.id}', {'type': 'chat.room_unread', 'room_id': room.id, 'count': 0})
         self.consumer.push_unread_count.assert_awaited_once()
 

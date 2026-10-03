@@ -530,6 +530,36 @@ class DomainNotificationSignalTest(TestCase):
                 self.assertFalse(kwargs["in_thread"])
                 self.assertFalse(kwargs["daemon"])
                 self.assertFalse(kwargs["send_email"])
+                self.assertEqual(kwargs['push_event'], 'vote.started')
+
+    def test_vote_status_transitions_map_to_specific_push_events(self):
+        decision = SimpleNamespace(id=48)
+        transitions = {
+            'proposed': 'vote.proposed',
+            'discussion_started': 'vote.discussion_started',
+            'started': 'vote.started',
+            'approved': 'vote.approved',
+            'rejected': 'vote.rejected',
+            'rejected_no_signatures': 'vote.rejected_no_signatures',
+            'last_day': 'vote.last_day',
+            'buffer_restart': 'vote.buffer_restarted',
+        }
+        for transition, event_key in transitions.items():
+            with self.subTest(transition=transition):
+                self.dispatch.reset_mock()
+                signals.vote_state_changed.send(sender=type(self), decyzja=decision, transition=transition, title='Vote title', body='Vote body', click_action='https://example.com/vote/48', tag='vote-48')
+                self.assertEqual(self.dispatch.call_args.kwargs['push_event'], event_key)
+
+    def test_modified_vote_proposal_uses_disabled_push_event(self):
+        decision = SimpleNamespace(id=47)
+        payload = {'title': 'Edited proposal', 'body': 'Body', 'click_action': 'https://example.com/vote/47', 'tag': 'vote-47'}
+
+        signals.vote_state_changed.send(sender=type(self), decyzja=decision, transition='modified', **payload)
+
+        self.dispatch.assert_called_once()
+        self.assertEqual(self.dispatch.call_args.kwargs['push_event'], 'vote.modified')
+        self.assertTrue(self.dispatch.call_args.kwargs['send_push'])
+        self.assertTrue(self.dispatch.call_args.kwargs['send_websocket'])
 
     def test_citizen_accepted_dispatches_one_welcome_email(self):
         with patch("chat.signals.Room.create_all_one2one_rooms") as create_rooms:
@@ -539,8 +569,8 @@ class DomainNotificationSignalTest(TestCase):
         self.assertEqual(args, ("Welcome", "Welcome body", "", "citizen-accepted-41"))
         self.assertEqual(kwargs["recipient_email"], self.user.email)
         self.assertTrue(kwargs["send_email"])
-        self.assertFalse(kwargs["send_push"])
-        self.assertFalse(kwargs["send_websocket"])
+        self.assertEqual(kwargs['push_event'], 'citizen.accepted')
+        self.assertEqual(kwargs['recipient_ids'], {self.user.id})
 
     def test_citizen_accepted_without_email_content_does_not_dispatch(self):
         with patch("chat.signals.Room.create_all_one2one_rooms"):
@@ -552,6 +582,15 @@ class DomainNotificationSignalTest(TestCase):
             sender=type(self), user=self.user, title="Citizen blocked", body="Blocked body", click_action="https://example.com/citizens", tag="citizen-blocked-41", was_previously_active=False
         )
         self.dispatch.assert_not_called()
+
+    def test_citizen_blocked_can_be_configured_for_other_members(self):
+        with patch('core.notifications._push_user_ids', return_value={41, 42}):
+            signals.citizen_blocked.send(
+                sender=type(self), user=self.user, title='Citizen blocked', body='Blocked body', click_action='https://example.com/citizens', tag='citizen-blocked-41', was_previously_active=True
+            )
+
+        self.assertEqual(self.dispatch.call_args.kwargs['push_event'], 'citizen.blocked')
+        self.assertEqual(self.dispatch.call_args.kwargs['recipient_ids'], {42})
 
     def test_citizen_blocked_does_not_dispatch_personal_email(self):
         signals.citizen_blocked.send(sender=type(self), user=self.user, recipient_subject="Membership ended", recipient_body="Personal body", was_previously_active=False)

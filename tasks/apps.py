@@ -19,7 +19,7 @@ class TasksConfig(AppConfig):
 
         from .dashboard import get_context as get_dashboard_context
         from .feed import get_feed_items
-        from .models import Task
+        from .models import Task, TaskVote
         from .search import search
 
         register_room_permission_checker(self.label, Task.can_user_post_in_chat_room)
@@ -30,4 +30,6 @@ class TasksConfig(AppConfig):
 
         post_save.connect(invalidate_feed_cache_on_change, sender=Task)
         post_delete.connect(invalidate_feed_cache_on_change, sender=Task)
+        post_save.connect(invalidate_feed_cache_on_change, sender=TaskVote)
+        post_delete.connect(invalidate_feed_cache_on_change, sender=TaskVote)
         pre_delete.connect(delete_linked_chat_room, sender=Task)

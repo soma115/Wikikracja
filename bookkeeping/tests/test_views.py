@@ -6,6 +6,7 @@ ochrona usuwania przez ProtectedDeleteView i własność transakcji.
 """
 
 from datetime import date
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
@@ -202,6 +203,31 @@ class BookkeepingViewTests(TestCase):
         txn = Transaction.objects.get()
         self.assertRedirects(res, reverse('bookkeeping:transaction_detail', args=[txn.pk]))
         self.assertEqual(txn.author, self.user)
+
+    def test_new_transaction_emits_push_event(self):
+        with patch('core.notifications._dispatch_notification') as dispatch:
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    reverse('bookkeeping:transaction_create'),
+                    {'type': 'I', 'asset': self.asset.pk, 'partner': self.partner.pk, 'category': self.category.pk, 'amount': '10.5', 'payment_received_date': '2026-01-01', 'note': ''},
+                )
+
+        self.assertEqual(response.status_code, 302)
+        dispatch.assert_called_once()
+        self.assertEqual(dispatch.call_args.kwargs['push_event'], 'transaction.created')
+
+    def test_transaction_update_emits_push_event(self):
+        transaction = self._transaction()
+        with patch('core.notifications._dispatch_notification') as dispatch:
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    reverse('bookkeeping:transaction_update', args=[transaction.pk]),
+                    {'type': 'O', 'asset': self.asset.pk, 'partner': self.partner.pk, 'category': self.category.pk, 'amount': '20', 'payment_received_date': '2026-01-02', 'note': 'Updated'},
+                )
+
+        self.assertEqual(response.status_code, 302)
+        dispatch.assert_called_once()
+        self.assertEqual(dispatch.call_args.kwargs['push_event'], 'transaction.updated')
 
     def test_transaction_update_respects_next_param(self):
         txn = self._transaction()

@@ -1,19 +1,63 @@
 import pytest
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext
 
 from board.models import Post
 from bookkeeping.models import Asset, Partner, Transaction
 from chat.models import Message, MessageReadBy, Room
 from core.models import FeedBookmark, ReadStatus
-from core.services.feed import generate_feed_raw
+from core.services.feed import FEED_CACHE_KEY, generate_feed_raw
+from glosowania.models import Argument
+from tasks.models import Task, TaskVote
 from tests.factories import DecyzjaFactory, PostCategoryFactory, PostFactory, UserFactory
 
 
 @pytest.fixture
 def activity_user(db):
     return UserFactory(username='activity', email='activity@example.com')
+
+
+@pytest.mark.django_db
+def test_activity_includes_new_voting_arguments_and_invalidates_feed_cache(client, activity_user):
+    author = UserFactory(username='argument_author', email='argument-author@example.com')
+    decision = DecyzjaFactory(author=author, title='Argument activity proposal')
+    cache.delete(FEED_CACHE_KEY)
+    assert not any(item['content_type'] == 'decision' and item['description'].startswith('Argument:') for item in generate_feed_raw())
+
+    argument = Argument.objects.create(decyzja=decision, author=author, argument_type='FOR', content='A new supporting argument')
+
+    raw_items = generate_feed_raw()
+    argument_item = next(item for item in raw_items if item['content_type'] == 'decision' and item['object_id'] == decision.pk and item.get('activity_kind') == 'argument')
+    assert argument_item['argument_id'] == argument.pk
+    assert 'A new supporting argument' in argument_item['description']
+
+    client.force_login(activity_user)
+    response = client.get(reverse('activity'))
+    content = response.content.decode()
+    assert f'data-object-id="{decision.pk}"' in content
+    assert 'A new supporting argument' in content
+
+
+@pytest.mark.django_db
+def test_activity_includes_new_votes_on_actions_and_invalidates_feed_cache(client, activity_user):
+    coordinator = UserFactory(username='activity_task_coordinator', email='activity-task-coordinator@example.com')
+    helper = UserFactory(username='activity_task_helper', email='activity-task-helper@example.com')
+    task = Task.objects.create(title='Activity task vote', description='Description', created_by=coordinator, assigned_to=coordinator)
+    cache.delete(FEED_CACHE_KEY)
+    generate_feed_raw()
+
+    TaskVote.objects.create(task=task, user=helper, value=TaskVote.Value.UP)
+    client.force_login(activity_user)
+    response = client.get(reverse('activity'))
+
+    item = next(item for item in generate_feed_raw() if item['content_type'] == 'task' and item['object_id'] == task.pk and item.get('activity_kind') == 'vote')
+    assert item['vote_id'] is not None
+    assert item['author'] == helper
+    assert response.status_code == 200
+    assert str(gettext('Wants to help')) in response.content.decode()
 
 
 @pytest.mark.django_db

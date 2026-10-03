@@ -47,6 +47,13 @@ Provides arguments:
         'rejected_no_signatures'.
 """
 
+vote_argument_added = Signal()
+"""Sent when a new argument is added to a voting proposal.
+
+Provides arguments:
+    argument: The Argument instance.
+"""
+
 
 task_created = Signal()
 """Sent when a new task is created.
@@ -54,6 +61,66 @@ task_created = Signal()
 Provides arguments:
     task: The newly created Task instance.
     url: Absolute URL to the task detail page.
+"""
+
+task_helper_joined = Signal()
+"""Sent when a user becomes willing to help with a coordinated task.
+
+Provides arguments:
+    task: The Task instance.
+    helper: The User who became willing to help.
+    coordinator_id: The task coordinator's user ID.
+"""
+
+task_status_changed = Signal()
+"""Sent when a task changes status.
+
+Provides arguments:
+    task: The Task instance after the status change.
+    previous_status: The previous status value.
+"""
+
+
+document_created = Signal()
+"""Sent when a visible document is created.
+
+Provides arguments:
+    post: The Post instance.
+    url: Absolute URL to the document.
+"""
+
+
+event_created = Signal()
+"""Sent when a calendar event is created.
+
+Provides arguments:
+    event: The Event instance.
+    url: Absolute URL to the event.
+"""
+
+event_updated = Signal()
+"""Sent when an existing calendar event is edited.
+
+Provides arguments:
+    event: The Event instance.
+    url: Absolute URL to the event.
+"""
+
+
+transaction_created = Signal()
+"""Sent when a financial transaction is created.
+
+Provides arguments:
+    transaction: The Transaction instance.
+    url: Absolute URL to the transaction.
+"""
+
+transaction_updated = Signal()
+"""Sent when an existing financial transaction is edited.
+
+Provides arguments:
+    transaction: The Transaction instance.
+    url: Absolute URL to the transaction.
 """
 
 
@@ -78,6 +145,14 @@ Provides arguments:
 
 survey_created = Signal()
 """Sent when a new survey is created.
+
+Provides arguments:
+    survey: The Survey instance.
+    url: Absolute URL to the survey detail page.
+"""
+
+survey_updated = Signal()
+"""Sent when an existing survey is edited.
 
 Provides arguments:
     survey: The Survey instance.

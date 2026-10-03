@@ -5,7 +5,7 @@ import time
 import redis
 from django.core.management.base import BaseCommand
 
-from chat.notification_queue import CLAIM_IDLE_MS, acknowledge_notification, claim_notifications, ensure_consumer_group, read_notifications
+from chat.notification_queue import CLAIM_IDLE_MS, acknowledge_notification, claim_notifications, deliver_due_chat_notifications, dispatch_or_defer_chat_notification, ensure_consumer_group, read_notifications
 from chat.notifications import deliver_notification_job
 
 log = logging.getLogger(__name__)
@@ -33,6 +33,7 @@ class Command(BaseCommand):
 
         try:
             while True:
+                deliver_due_chat_notifications(client, deliver_notification_job)
                 claimed = claim_notifications(client, consumer, count=batch_size, min_idle_ms=claim_after_ms)
                 fresh = read_notifications(client, consumer, count=batch_size, block_ms=block_ms)
                 for stream_id, job in [*claimed, *fresh]:
@@ -43,16 +44,22 @@ class Command(BaseCommand):
     @staticmethod
     def _process_job(client, stream_id, job):
         delivered_key = f"wikikracja:chat:notification-delivered:{job['job_id']}"
-        if client.exists(delivered_key):
+        deferred_key = f"wikikracja:chat:notification-deferred:{job['job_id']}"
+        if client.exists(delivered_key) or client.exists(deferred_key):
             acknowledge_notification(client, stream_id)
             return
 
         try:
-            deliver_notification_job(job)
+            outcome = dispatch_or_defer_chat_notification(client, job, deliver_notification_job)
         except Exception as exc:
             log.error('Chat notification job %s failed and will be retried: %s', job['job_id'], exc, exc_info=True)
             time.sleep(0.1)
             return
 
-        client.set(delivered_key, '1', ex=7 * 24 * 60 * 60)
+        if outcome is None:
+            return
+        if outcome == 'delivered':
+            client.set(delivered_key, '1', ex=7 * 24 * 60 * 60)
+        elif outcome == 'deferred':
+            client.set(deferred_key, '1', ex=7 * 24 * 60 * 60)
         acknowledge_notification(client, stream_id)

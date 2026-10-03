@@ -17,7 +17,7 @@ class VotingConfig(AppConfig):
 
         from .dashboard import get_context as get_dashboard_context
         from .feed import get_feed_items
-        from .models import Decyzja
+        from .models import Argument, Decyzja
         from .search import search
 
         mark_as_read, mark_as_unread = make_read_status_markers(ReadStatus.ContentType.DECISION)
@@ -27,4 +27,6 @@ class VotingConfig(AppConfig):
 
         post_save.connect(invalidate_feed_cache_on_change, sender=Decyzja)
         post_delete.connect(invalidate_feed_cache_on_change, sender=Decyzja)
+        post_save.connect(invalidate_feed_cache_on_change, sender=Argument)
+        post_delete.connect(invalidate_feed_cache_on_change, sender=Argument)
         pre_delete.connect(delete_linked_chat_room, sender=Decyzja)

@@ -23,7 +23,7 @@ from django.utils.translation import gettext_lazy as _
 from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unread_message_counts_for_rooms
 from chat.signals import chat_message_requested
-from core.signals import vote_state_changed
+from core.signals import vote_argument_added, vote_state_changed
 from core.utils import build_site_url
 from glosowania.dashboard import get_vote_storage_reliability_context
 from glosowania.forms import ArgumentForm, DecyzjaForm, ParametersProposalForm
@@ -151,8 +151,6 @@ def edit(request: HttpRequest, pk: int):
                 email_body=_('{user} modified proposal: "{title}"\nYou can read new version here: {url}').format(user=user_display_name(request.user), title=decision.title, url=click_action),
                 notification_type='glosowania',
                 ws_type='vote.notification',
-                send_push=False,
-                send_websocket=False,
                 in_thread=True,
                 daemon=True,
                 log_prefix='glosowania: ',
@@ -473,9 +471,11 @@ def add_argument(request: HttpRequest, pk: int):
                     referendum_url = build_site_url(f'/glosowania/details/{pk}')
                     message_text = _("A new argument was added to this referendum:")
                     message_text += " <a href='%s'>%s</a>" % (referendum_url, _("Referendum"))
-                    chat_message_requested.send(sender=Argument, room_id=decyzja.chat_room_id, message_text=message_text, from_user=None, anonymous=False)
+                    chat_message_requested.send(sender=Argument, room_id=decyzja.chat_room_id, message_text=message_text, from_user=None, anonymous=False, push_event='vote.argument_added')
                 except Exception:
                     log.exception("Failed to notify referendum chat about argument #%s", argument.pk)
+            else:
+                vote_argument_added.send(sender=Argument, argument=argument)
 
             arg_type = argument.get_argument_type_display()
             message = _("Your {type} argument has been added.").format(type=arg_type.lower())

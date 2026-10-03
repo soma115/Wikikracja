@@ -11,6 +11,39 @@ from tasks.models import Category, Task, TaskEvaluation, TaskVote
 from tasks.tests.utils import make_task, make_user
 
 
+class TaskNotificationSignalTest(TestCase):
+    def setUp(self):
+        dispatch = patch('core.notifications._dispatch_notification')
+        self.dispatch = dispatch.start()
+        self.addCleanup(dispatch.stop)
+
+    def test_new_willing_helper_notifies_only_the_coordinator(self):
+        coordinator = make_user('task-notification-coordinator')
+        helper = make_user('task-notification-helper')
+        task = make_task(created_by=coordinator, assigned_to=coordinator)
+        self.dispatch.reset_mock()
+
+        with self.captureOnCommitCallbacks(execute=True):
+            TaskVote.objects.create(task=task, user=helper, value=TaskVote.Value.UP)
+
+        self.dispatch.assert_called_once()
+        self.assertEqual(self.dispatch.call_args.kwargs['push_event'], 'task.helper_joined')
+        self.assertEqual(self.dispatch.call_args.kwargs['recipient_ids'], {coordinator.pk})
+
+    def test_task_status_change_notifies_its_coordinator(self):
+        coordinator = make_user('task-status-coordinator')
+        task = make_task(created_by=coordinator, assigned_to=coordinator)
+        self.dispatch.reset_mock()
+        task.status = Task.Status.COMPLETED
+
+        with self.captureOnCommitCallbacks(execute=True):
+            task.save(update_fields=['status'])
+
+        self.dispatch.assert_called_once()
+        self.assertEqual(self.dispatch.call_args.kwargs['push_event'], 'task.status_changed')
+        self.assertEqual(self.dispatch.call_args.kwargs['recipient_ids'], {coordinator.pk})
+
+
 class TaskListViewTest(TestCase):
     def setUp(self):
         notification_patch = patch('core.notifications._dispatch_notification')

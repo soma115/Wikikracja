@@ -18,6 +18,17 @@ from tasks.models import TaskVote
 from tasks.tests.utils import make_task
 
 
+class NotificationWebSocketDispatchTest(TestCase):
+    async def test_transaction_notification_relays_payload(self):
+        consumer = ChatConsumer()
+        consumer.send_json = AsyncMock()
+        notification = {'title': 'New financial transaction'}
+
+        await consumer.transaction_notification({'notification': notification})
+
+        consumer.send_json.assert_awaited_once_with({'notification': notification})
+
+
 class InactiveWebSocketAccessTest(TestCase):
     def setUp(self):
         self.user = make_user('inactive-ws')
@@ -66,10 +77,10 @@ class PostSendProcessingUnseenTest(TestCase):
         self.room = Room.objects.create(title="test-room", public=False)
         self.room.allowed.add(self.sender, self.receiver)
 
-    def _queue_notification(self, *, user_id, room_id, notification, kind):
+    def _queue_notification(self, *, user_id, room_id, notification, kind, push_event):
         user = self.receiver if user_id == self.receiver.id else MagicMock(id=user_id)
         self.queued_notifications.append((f'user_{user_id}', {'type': f'chat.{kind}', 'room_id': room_id, 'notification': notification}))
-        self.push(user, notification, notification_type='chat')
+        self.push(user, notification, notification_type='chat', push_event=push_event)
         return f'test-job-{len(self.queued_notifications)}'
 
     def _make_receiver_consumer(self):
@@ -190,6 +201,7 @@ class PostSendProcessingUnseenTest(TestCase):
                 self.assertEqual(event['room_id'], self.room.id)
                 self.assertEqual(self.push.call_args.args[0], self.receiver)
                 self.assertEqual(self.push.call_args.kwargs['notification_type'], 'chat')
+                self.assertEqual(self.push.call_args.kwargs['push_event'], 'chat.mention' if kind == 'chat.mention' else 'chat.message')
                 for payload in (event['notification'], self.push.call_args.args[1]):
                     self.assertIn('Anonymous', payload['body'])
                     self.assertNotIn(self.sender.username, json.dumps(payload))

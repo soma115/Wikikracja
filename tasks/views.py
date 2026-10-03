@@ -22,6 +22,7 @@ from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI
 from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unread_message_counts_for_rooms, get_unseen_room_ids
 from core.presence import presence_data
+from core.signals import task_status_changed
 from core.utils import build_detail_navigation
 from home.navigation import default_toolbar_views
 from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
@@ -567,8 +568,10 @@ def vote_task(request: HttpRequest, pk: int) -> HttpResponse:
         votes_up = metrics["votes_up"] if metrics else 0
         votes_down = metrics["votes_down"] if metrics else 0
         if votes_score <= -2 and task.status != Task.Status.REJECTED:
+            previous_status = task.status
             Task.objects.filter(pk=task.pk).update(status=Task.Status.REJECTED, updated_at=models.F("updated_at"))
             task.status = Task.Status.REJECTED
+            transaction.on_commit(lambda: task_status_changed.send(sender=Task, task=task, previous_status=previous_status))
 
     if is_ajax:
         return JsonResponse({"vote": new_vote, "votes_score": votes_score, "votes_up": votes_up, "votes_down": votes_down})

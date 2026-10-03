@@ -4,42 +4,44 @@
 
 - Potwierdzenie e-maila, reset hasła i link onboardingowy po potwierdzeniu są wysyłane natychmiast; nie należą do digestu.
 - Digest obejmuje zmiany w Działaniach, Ludziach, Dokumentach, Kalendarzu, Głosowaniach, Finansach i Ankietach oraz nowe wiadomości czatu z fragmentem treści. Częstotliwość wynika z profilu: codziennie, tygodniowo, miesięcznie albo nigdy.
+- „Ludzie” oznacza zdarzenia członkowskie (propozycja, przyjęcie, blokada); edycje pól profilu nie są wpisami digestu ani aktywności.
 - `/aktywnosc/` pokazuje zmiany ze wszystkich modułów, w tym dodanie argumentu Za/Przeciw w głosowaniu.
 - Push FCM i WebSocket trafia do aktywnych użytkowników z włączonymi powiadomieniami danego modułu; odbiorcy nie są dodatkowo ograniczani do osób powiązanych z obiektem.
 - Powiadomienia czatu są limitowane osobno dla użytkownika i pokoju: pierwsze jest natychmiastowe; kolejne w ciągu godziny zastępują oczekujące, a po godzinie wysyłane jest najnowsze. Otwarcie pokoju odblokowuje natychmiastową wysyłkę.
 - Wysłanie wiadomości przez użytkownika włącza powiadomienia w tym pokoju, także po wcześniejszym ręcznym wyciszeniu. Nie zmienia globalnego ustawienia w `/obywatele/settings/`.
-- W ustawieniach profilu ma być przełącznik PUSH dla Finansów.
+- W ustawieniach profilu jest przełącznik PUSH dla Finansów.
 
-## Stan obecny i braki
+## Stan wdrożenia
 
 ### E-maile natychmiastowe
 
-- **Stan:** potwierdzenie adresu i link onboardingowy są obsługiwane w przepływie allauth/onboardingu; reset hasła obsługuje allauth. Przyjęcie obywatela ma osobny e-mail powitalny.
-- **Brak:** zachować istniejące przepływy i objąć je testami regresji; nie przenosić ich do digestu.
+Potwierdzenie adresu, reset hasła, link onboardingowy po potwierdzeniu i e-mail powitalny przy przyjęciu obywatela pozostały w dotychczasowych przepływach. Nie przeniesiono ich do digestu; pełny zestaw testów projektu przeszedł.
 
-### Digest
+### Digest i `/aktywnosc/`
 
-- **Stan:** częstotliwości `daily` / `weekly` / `monthly` / `never` i cykliczna wysyłka już istnieją. Digest korzysta ze wspólnego feedu, agreguje wpisy i wiadomości czatu oraz zawiera fragment treści wiadomości.
-- **Brak:** zweryfikować kompletność zmian ze wszystkich modułów. Argumenty głosowań nie są obecnie wpisami globalnego feedu.
+Wspólny feed i digest uwzględniają wpisy modułów oraz:
 
-### `/aktywnosc/`
+- nowe argumenty Za/Przeciw w Głosowaniach;
+- głosy Pomogę/Nie róbmy przy Działaniach;
+- zmiany Kalendarza niezależnie od tego, czy wydarzenie zaczyna się w najbliższych 6 dniach; nadchodzące terminy nadal są osobnymi przypomnieniami;
+- utworzenie i edycje Ankiet;
+- utworzenie i edycje transakcji; historyczne transakcje bez `updated_at` zachowują datę utworzenia.
 
-- **Stan:** wspólny feed zbiera wpisy z Obywateli, Głosowań, Działań, Dokumentów, Kalendarza, Finansów, Ankiet i Czatu.
-- **Brak:** provider Głosowań zwraca zmodyfikowane decyzje, ale nie dodane argumenty. Osobista aktywność argumentów autora nie zastępuje wpisu w globalnym feedzie.
+Wpisy argumentów i głosów działają na istniejącym typie/read-state elementu nadrzędnego, bez dokładania nowego typu w bazie.
 
-### PUSH według modułów
+### PUSH
 
-- **Stan:** istnieją kategorie preferencji dla Obywateli, Głosowań, Czatu, Wydarzeń, Dokumentów, Działań i Ankiet. Wspólny broadcast filtruje odbiorców według preferencji kategorii.
-- **Braki:** nie ma kategorii Finansów. Nowe działanie, ważny dokument i ankieta mają odbiorniki, które obecnie nie wysyłają FCM ani WebSocket. Nie ma odbiornika propozycji nowego użytkownika ani nowego wydarzenia. Rozpoczynające się wydarzenie wysyła oba kanały. Zadanie cykliczne jawnie wysyła powiadomienia o obsługiwanych zmianach głosowań, w tym ostatnim dniu i restarcie po błędzie bufora; trzeba sprawdzić pełne pokrycie propozycji i zmian stanu. Edycja propozycji i argumenty należą do digestu/aktywności, nie do uzgodnionego zakresu PUSH. Dla Finansów feed transakcji istnieje, ale brak powiadomień PUSH.
-- **Czat:** wiadomości przechodzą przez kolejkę Redis i są wysyłane przez WebSocket oraz FCM. Nie ma limitu godzinnego per użytkownik/pokój; potwierdzenie kliknięcia powiadomienia jedynie zapisuje log. FCM sprawdza ustawienia profilu, ale WebSocket z indywidualnej kolejki nie stosuje ich w ten sam sposób. Po napisaniu wiadomości usuwane jest domyślne wyciszenie pokoju, lecz ręczne wyciszenie pozostaje.
+Katalog zdarzeń `PUSH_EVENTS` znajduje się w `zzz.settings.py`, a wspólny dispatcher jest w `core.notifications`. Wszystkie uzgodnione klucze są obecne; flagi FCM i WebSocket można wyłączać niezależnie. Nieznany klucz blokuje wysyłkę i jest logowany. Nadal obowiązują ustawienia użytkownika, globalne wypisanie, ustawienia urządzenia i wyciszenie pokoju.
 
-Preferencje profilu dostępne obecnie dla PUSH: `push_notifications_obywatele`, `push_notifications_glosowania`, `push_notifications_chat`, `push_notifications_events`, `push_notifications_post`, `push_notifications_task`, `push_notifications_survey`. Ich wartości domyślne nie są jednakowe.
+Preferencja Finansów `push_notifications_bookkeeping` jest domyślnie wyłączona. Dodano ją do profilu, filtra odbiorców i przełącznika `/obywatele/settings/` (migracja `obywatele.0053`). `bookkeeping.0033` dodaje `Transaction.updated_at` dla digestu/aktywności edytowanych transakcji.
+
+### Czat
+
+Kolejka i istniejący worker Redis limitują powiadomienia osobno dla użytkownika i pokoju; w trakcie limitu zachowują najnowszą wiadomość. Otwarcie lub oznaczenie pokoju jako przeczytanego usuwa oczekujące powiadomienie i limit. WebSocket respektuje teraz tę samą preferencję profilu co FCM. Wiadomość wysłana przez użytkownika usuwa jego wpis zarówno z `muted_by`, jak i `manually_muted_by`, bez zmiany ustawień profilu.
 
 ## Konfiguracja zdarzeń PUSH
 
-Konfiguracja jest przeznaczona dla programistów — nie dodajemy użytkownikom przełączników dla poszczególnych zdarzeń. Ustawienia profilu pozostają nadrzędne: zdarzenie i kanał mogą być włączone w konfiguracji, ale PUSH nadal nie zostanie wysłany, jeśli użytkownik wyłączył powiadomienia modułu lub wszystkie powiadomienia. Preferencje urządzenia oraz wyciszenie pokoju również pozostają dodatkowymi warunkami.
-
-Katalog `PUSH_EVENTS` będzie utrzymywany w istniejących ustawieniach Django (`zzz.settings.py`), a wspólny dispatcher w `core.notifications` będzie go odczytywał. Każde zdarzenie ma stabilny klucz, kategorię preferencji użytkownika i niezależne flagi kanałów FCM/WebSocket. Programista może wyłączyć zdarzenie albo pojedynczy kanał przez zmianę wartości `True` na `False`. Na początku katalog zawiera wszystkie klucze z poniższej listy; wszystkie kanały są domyślnie włączone zgodnie z uzgodnionym zakresem.
+Konfiguracja jest przeznaczona dla programistów — użytkownicy nie dostają przełączników poszczególnych zdarzeń. Preferencja użytkownika pozostaje nadrzędna wobec `PUSH_EVENTS`: wyłączona kategoria lub globalne wypisanie blokuje wysyłkę nawet wtedy, gdy klucz i kanał są włączone. Istniejące wcześniej, ale celowo wyłączone typy zdarzeń również są wymienione; ich FCM i WebSocket domyślnie mają `False`.
 
 ```python
 PUSH_EVENTS = {
@@ -47,19 +49,21 @@ PUSH_EVENTS = {
     "task.created": {"module": "task", "fcm": True, "websocket": True},
     "task.helper_joined": {"module": "task", "fcm": True, "websocket": True},
     "task.status_changed": {"module": "task", "fcm": True, "websocket": True},
-
     # Ludzie — preferencja: obywatele
     "citizen.proposed": {"module": "obywatele", "fcm": True, "websocket": True},
-
+    "citizen.accepted": {"module": "obywatele", "fcm": False, "websocket": False},
+    "citizen.blocked": {"module": "obywatele", "fcm": False, "websocket": False},
     # Dokumenty — preferencja: post
     "document.created": {"module": "post", "fcm": True, "websocket": True},
-
+    "document.important_updated": {"module": "post", "fcm": False, "websocket": False},
     # Kalendarz — preferencja: events
     "event.created": {"module": "events", "fcm": True, "websocket": True},
+    "event.updated": {"module": "events", "fcm": False, "websocket": False},
     "event.starting": {"module": "events", "fcm": True, "websocket": True},
-
     # Głosowania — preferencja: glosowania
     "vote.proposed": {"module": "glosowania", "fcm": True, "websocket": True},
+    "vote.modified": {"module": "glosowania", "fcm": False, "websocket": False},
+    "vote.argument_added": {"module": "glosowania", "fcm": False, "websocket": False},
     "vote.discussion_started": {"module": "glosowania", "fcm": True, "websocket": True},
     "vote.started": {"module": "glosowania", "fcm": True, "websocket": True},
     "vote.approved": {"module": "glosowania", "fcm": True, "websocket": True},
@@ -67,40 +71,40 @@ PUSH_EVENTS = {
     "vote.rejected_no_signatures": {"module": "glosowania", "fcm": True, "websocket": True},
     "vote.last_day": {"module": "glosowania", "fcm": True, "websocket": True},
     "vote.buffer_restarted": {"module": "glosowania", "fcm": True, "websocket": True},
-
-    # Finanse — preferencja: bookkeeping (do dodania)
+    # Finanse — preferencja: bookkeeping
     "transaction.created": {"module": "bookkeeping", "fcm": True, "websocket": True},
-
+    "transaction.updated": {"module": "bookkeeping", "fcm": False, "websocket": False},
     # Ankiety — preferencja: survey
     "survey.created": {"module": "survey", "fcm": True, "websocket": True},
-
+    "survey.updated": {"module": "survey", "fcm": False, "websocket": False},
     # Czat — preferencja: chat; dodatkowo obowiązuje wyciszenie per pokój
     "chat.message": {"module": "chat", "fcm": True, "websocket": True},
     "chat.mention": {"module": "chat", "fcm": True, "websocket": True},
 }
 ```
 
-Nadawcy będą przekazywać klucz zdarzenia do wspólnego dispatchera zamiast samodzielnie ustawiać `send_push` i `send_websocket`. Dispatcher sprawdzi flagę zdarzenia/kanału, a następnie preferencję modułu i globalne wyłączenie użytkownika. Nieznane klucze powinny powodować czytelny błąd walidacji lub testu, nie ciche wysłanie bez konfiguracji. Nie dodajemy osobnego pliku YAML/JSON ani per-zdarzeniowych przełączników użytkownika.
-
 ## Zadania
 
-1. [ ] Zachować natychmiastową wysyłkę potwierdzenia e-maila, resetu hasła i linku onboardingowego; dodać lub uzupełnić testy bez zmian w tych przepływach.
-2. [ ] Zweryfikować kompletność digestu dla Działań, Ludzi, Dokumentów, Kalendarza, Głosowań, Finansów, Ankiet i Czatu; zachować częstotliwości z profilu oraz fragmenty wiadomości czatu.
-3. [ ] Dodać wpis o nowym argumencie Za/Przeciw do wspólnego feedu Głosowań, aby pojawiał się w `/aktywnosc/` i digescie; zachować grupowanie oraz oznaczanie jako przeczytane.
-4. [ ] Dodać i podłączyć wszystkie zdarzenia z katalogu `PUSH_EVENTS`; osobne klucze statusów głosowań umożliwiają ich późniejsze niezależne włączanie i wyłączanie.
-5. [ ] Zastosować bramkowanie katalogu w dispatcherze dla FCM i WebSocket. Preferencje użytkownika, globalne wyłączenie, preferencje urządzenia i wyciszenie pokoju muszą pozostać nadrzędnymi warunkami wysyłki.
-6. [ ] Dodać preferencję PUSH Finansów do profilu, filtrowania odbiorców, endpointu przełącznika i widoku `/obywatele/settings/`; uzupełnić tłumaczenia. Zmiana schematu wymaga migracji i osobnego potwierdzenia przed jej wykonaniem.
-7. [ ] Dodać limit czatu per użytkownik i pokój: pierwsze powiadomienie natychmiast, kolejne w ciągu godziny zastępowane najnowszym, najnowsze wysyłane po godzinie. Otwarcie pokoju odblokowuje wysyłkę; reguła obejmuje wszystkie pokoje oraz FCM/WebSocket.
-8. [ ] Po wysłaniu wiadomości usuwać wyciszenie danego pokoju zarówno z `muted_by`, jak i `manually_muted_by`. Nie zmieniać preferencji profilu ani wyciszeń w innych pokojach.
-9. [ ] Dodać testy regresji: kompletność katalogu i obsługa nieznanych kluczy, pierwszeństwo preferencji użytkownika, oba kanały PUSH, ustawienie Finansów, pokrycie feedu/digestu, limit czatu, najnowsze oczekujące powiadomienie, odblokowanie po otwarciu pokoju i usunięcie ręcznego wyciszenia po wysłaniu wiadomości.
+1. [x] Zachować natychmiastowe e-maile i istniejące przepływy.
+2. [x] Uzupełnić digest dla wskazanych modułów i zachować częstotliwości oraz fragmenty wiadomości czatu.
+3. [x] Dodać argumenty głosowań i głosy na Działania do `/aktywnosc/` oraz digestu.
+4. [x] Podłączyć wszystkie zdarzenia PUSH z katalogu, z odbiorcami zgodnymi z preferencjami modułów.
+5. [x] Dodać `PUSH_EVENTS` z pełnym zestawem kluczy, niezależnymi kanałami i blokowaniem nieznanych zdarzeń.
+6. [x] Dodać przełącznik PUSH Finansów i `updated_at` transakcji wraz z migracjami i tłumaczeniami.
+7. [x] Dodać throttling czatu, scalanie do najnowszej wiadomości i reset po otwarciu pokoju.
+8. [x] Po wysłaniu wiadomości usuwać także ręczne wyciszenie danego pokoju; nie zmieniać profilu.
+9. [x] Dodać testy regresji dla feedów, odbiorców, katalogu PUSH, Finansów i czatu.
 
-## Źródła obecnej implementacji
+## Weryfikacja
 
-- Digest: `home/management/commands/send_email_digest.py`, `core/services/feed.py`.
-- Preferencje profilu i przełączniki: `obywatele/models.py`, `obywatele/views.py`.
-- Dispatcher, kategorie PUSH i sygnały: `core/notifications.py`, `core/signals.py`.
-- Aktywność i Głosowania: `core/feed_registry.py`, `home/views.py`, `glosowania/feed.py`.
-- Kolejka i powiadomienia czatu: `chat/notification_queue.py`, `chat/notifications.py`, `chat/models.py`, `chat/services.py`, `chat/push_api.py`.
-- Ustawienia Django: `zzz/settings.py`.
+- [x] Pełny runner: Ruff, formatowanie, regression scan, UI guard, Tailwind, Django check, `compilemessages`, `collectstatic --clear`, 1155 testów pytest i 300 testów Jest — zaliczone.
+- [x] Playwright na dedykowanym koncie z ignorowanego `.env.local`: 35 testów zaliczonych, 14 pominiętych.
 
-**Status:** wymagania i katalog zdarzeń opisane; poniższe zadania nie są jeszcze wdrożone.
+## Źródła implementacji
+
+- PUSH: `zzz/settings.py`, `core/notifications.py`, `core/signals.py`.
+- Digest/feed: `core/services/feed.py`, `glosowania/feed.py`, `tasks/feed.py`, `events/feed.py`, `ankiety/feed.py`, `bookkeeping/feed.py`.
+- Czat: `chat/notification_queue.py`, `chat/notifications.py`, `chat/command_handlers.py`, `chat/models.py`.
+- Preferencje: `obywatele/models.py`, `obywatele/views.py`.
+
+**Status:** implementacja i weryfikacja planu zakończone.

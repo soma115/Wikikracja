@@ -12,7 +12,8 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
 
-from core.utils import build_detail_navigation
+from core.signals import transaction_created, transaction_updated
+from core.utils import build_detail_navigation, build_site_url
 from home.navigation import default_toolbar_views
 
 from .forms import AssetForm, TransactionForm
@@ -377,6 +378,8 @@ class TransactionCreateView(LoginRequiredMixin, View):
             )
             transaction.created_date = timezone.now()
             transaction.save()
+            transaction_url = build_site_url(reverse('bookkeeping:transaction_detail', kwargs={'pk': transaction.pk}))
+            db_transaction.on_commit(lambda: transaction_created.send(sender=Transaction, transaction=transaction, url=transaction_url))
 
             return redirect('bookkeeping:transaction_detail', pk=transaction.pk)
 
@@ -410,6 +413,13 @@ class TransactionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
         if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={self.request.get_host()}, require_https=self.request.is_secure()):
             return next_url
         return reverse_lazy('bookkeeping:transaction_detail', kwargs={'pk': self.object.pk})
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        transaction = self.object
+        transaction_url = build_site_url(reverse('bookkeeping:transaction_detail', kwargs={'pk': transaction.pk}))
+        db_transaction.on_commit(lambda: transaction_updated.send(sender=Transaction, transaction=transaction, url=transaction_url))
+        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

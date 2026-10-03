@@ -159,10 +159,9 @@ class Room(models.Model):
 
     @classmethod
     def enable_notifications_after_message(cls, room_id, user_id):
-        """Enable default-muted room notifications after a user's first message."""
-        if cls.manually_muted_by.through.objects.filter(room_id=room_id, user_id=user_id).exists():
-            return
+        """Enable room notifications for a user after they send a message."""
         cls.muted_by.through.objects.filter(room_id=room_id, user_id=user_id).delete()
+        cls.manually_muted_by.through.objects.filter(room_id=room_id, user_id=user_id).delete()
 
     @property
     def source_url(self):

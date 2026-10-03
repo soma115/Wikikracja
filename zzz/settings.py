@@ -461,6 +461,36 @@ except ValueError:
     else:
         logging.warning("Firebase not initialized: No valid credentials found. Set FIREBASE_CERT_PATH (file path or JSON), GOOGLE_APPLICATION_CREDENTIALS, FIREBASE_CERT_JSON or FIREBASE_CERT_BASE64.")
 
+PUSH_EVENTS = {
+    'task.created': {'module': 'task', 'fcm': True, 'websocket': True},
+    'task.helper_joined': {'module': 'task', 'fcm': True, 'websocket': True},
+    'task.status_changed': {'module': 'task', 'fcm': True, 'websocket': True},
+    'citizen.proposed': {'module': 'obywatele', 'fcm': True, 'websocket': True},
+    'citizen.accepted': {'module': 'obywatele', 'fcm': False, 'websocket': False},
+    'citizen.blocked': {'module': 'obywatele', 'fcm': False, 'websocket': False},
+    'document.created': {'module': 'post', 'fcm': True, 'websocket': True},
+    'document.important_updated': {'module': 'post', 'fcm': False, 'websocket': False},
+    'event.created': {'module': 'events', 'fcm': True, 'websocket': True},
+    'event.updated': {'module': 'events', 'fcm': False, 'websocket': False},
+    'event.starting': {'module': 'events', 'fcm': True, 'websocket': True},
+    'vote.proposed': {'module': 'glosowania', 'fcm': True, 'websocket': True},
+    'vote.modified': {'module': 'glosowania', 'fcm': False, 'websocket': False},
+    'vote.argument_added': {'module': 'glosowania', 'fcm': False, 'websocket': False},
+    'vote.discussion_started': {'module': 'glosowania', 'fcm': True, 'websocket': True},
+    'vote.started': {'module': 'glosowania', 'fcm': True, 'websocket': True},
+    'vote.approved': {'module': 'glosowania', 'fcm': True, 'websocket': True},
+    'vote.rejected': {'module': 'glosowania', 'fcm': True, 'websocket': True},
+    'vote.rejected_no_signatures': {'module': 'glosowania', 'fcm': True, 'websocket': True},
+    'vote.last_day': {'module': 'glosowania', 'fcm': True, 'websocket': True},
+    'vote.buffer_restarted': {'module': 'glosowania', 'fcm': True, 'websocket': True},
+    'transaction.created': {'module': 'bookkeeping', 'fcm': True, 'websocket': True},
+    'transaction.updated': {'module': 'bookkeeping', 'fcm': False, 'websocket': False},
+    'survey.created': {'module': 'survey', 'fcm': True, 'websocket': True},
+    'survey.updated': {'module': 'survey', 'fcm': False, 'websocket': False},
+    'chat.message': {'module': 'chat', 'fcm': True, 'websocket': True},
+    'chat.mention': {'module': 'chat', 'fcm': True, 'websocket': True},
+}
+
 PUSH_NOTIFICATIONS_SETTINGS = {"CONFIG": "core.notifications.WikikracjaPushConfig", "FIREBASE_APP": firebase_admin.get_app() if firebase_admin._apps else None, "FCM_MAX_RECIPIENTS": 1000}
 
 # Firebase Client Configuration (for Web/Android FCM)

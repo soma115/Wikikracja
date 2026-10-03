@@ -135,6 +135,7 @@ class Uzytkownik(models.Model):
     push_notifications_post = models.BooleanField(default=False, help_text=_('Receive push notifications about new and updated documents'), verbose_name=_('Push document notifications'))
     push_notifications_task = models.BooleanField(default=False, help_text=_('Receive push notifications about new activities'), verbose_name=_('Push activity notifications'))
     push_notifications_survey = models.BooleanField(default=False, help_text=_('Receive push notifications about new surveys'), verbose_name=_('Push survey notifications'))
+    push_notifications_bookkeeping = models.BooleanField(default=False, help_text=_('Receive push notifications about new financial transactions'), verbose_name=_('Push finance notifications'))
 
     # Per-device-type push toggles (phone = mobile/tablet, computer = desktop browsers/PWAs)
     push_phone_enabled = models.BooleanField(default=True, help_text=_('Receive push notifications on phones and tablets'), verbose_name=_('Push on phone'))

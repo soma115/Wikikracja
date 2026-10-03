@@ -222,13 +222,15 @@ def _digest_group_key(item):
 
 
 def _sort_digest_items(items):
-    """Sort digest items: newest non-events first, upcoming events last."""
+    """Sort recent changes before upcoming calendar occurrences."""
     epoch = timezone.datetime(1970, 1, 1, tzinfo=dt_timezone.utc)
-    events = [i for i in items if i['content_type'] == 'event']
+    events = [i for i in items if i['content_type'] == 'event' and i.get('activity_kind') != 'change']
+    event_changes = [i for i in items if i['content_type'] == 'event' and i.get('activity_kind') == 'change']
     others = [i for i in items if i['content_type'] != 'event']
     events.sort(key=lambda x: x['timestamp'] or epoch)
+    event_changes.sort(key=lambda x: x['timestamp'] or epoch, reverse=True)
     others.sort(key=lambda x: x['timestamp'] or epoch, reverse=True)
-    return others + events
+    return others + event_changes + events
 
 
 def build_user_digest(user, since):
@@ -236,7 +238,7 @@ def build_user_digest(user, since):
 
     Aggregates multiple feed rows for the same user/room/object into one
     item and counts how many new messages appeared in chat rooms since
-    `since`. Items are sorted with upcoming events first, then newest first.
+    `since`. Upcoming calendar occurrences are kept separate from recent event changes.
     """
     raw_items = collect_feed_items(since)
     prepared = _prepare_provider_items(raw_items, user, since)
@@ -260,6 +262,13 @@ def build_user_digest(user, since):
 
         user_items.append(item)
 
+    now = timezone.now()
+    event_horizon = now + td(days=6)
+    upcoming_event_ids = {
+        item['object_id'] for item in user_items if item['content_type'] == 'event' and item.get('activity_kind') != 'change' and item.get('timestamp') is not None and now <= item['timestamp'] <= event_horizon
+    }
+    user_items = [item for item in user_items if not (item['content_type'] == 'event' and item.get('activity_kind') == 'change' and item['object_id'] in upcoming_event_ids)]
+
     # Aggregate multiple activities for the same citizen/room/object.
     grouped = {}
     counts = {}
@@ -269,15 +278,12 @@ def build_user_digest(user, since):
             grouped[key] = item
         counts[key] = counts.get(key, 0) + 1
 
-    now = timezone.now()
-    event_horizon = now + td(days=6)
-
     aggregated = []
     for key, item in grouped.items():
         item = {**item, 'update_count': counts[key]}
         item.pop(DIGEST_GROUP_ID, None)
         # Keep only calendar events that start within the next 6 days.
-        if item['content_type'] == 'event':
+        if item['content_type'] == 'event' and item.get('activity_kind') != 'change':
             ts = item.get('timestamp')
             if ts is None or ts < now or ts > event_horizon:
                 continue

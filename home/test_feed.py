@@ -80,6 +80,20 @@ def test_task_activity_feed_uses_workflow_status_labels(feed_user, another_user)
 
 
 @pytest.mark.django_db
+def test_task_feed_includes_recent_votes_and_invalidates_raw_cache(feed_user, another_user):
+    cache.delete(FEED_CACHE_KEY)
+    task = Task.objects.create(title='Activity helper vote', description='Task body', created_by=another_user, assigned_to=another_user)
+    generate_feed_raw()
+
+    vote = TaskVote.objects.create(task=task, user=feed_user, value=TaskVote.Value.UP)
+
+    vote_item = next(item for item in generate_feed_raw() if item['content_type'] == 'task' and item['object_id'] == task.pk and item.get('activity_kind') == 'vote')
+    assert vote_item['vote_id'] == vote.pk
+    assert vote_item['author'] == feed_user
+    assert str(gettext('Wants to help')) in vote_item['description']
+
+
+@pytest.mark.django_db
 def test_feed_description_truncation(feed_user):
     cache.delete(FEED_CACHE_KEY)
     category = PostCategoryFactory()

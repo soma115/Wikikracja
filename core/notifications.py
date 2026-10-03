@@ -24,7 +24,26 @@ from push_notifications.models import GCMDevice
 
 from core.richtext import strip_tags
 from core.services.notifications import notifications_unsubscribed, unsubscribe_headers
-from core.signals import citizen_accepted, event_starting, important_post_published, survey_created, task_created, vote_started, vote_state_changed
+from core.signals import (
+    citizen_accepted,
+    citizen_blocked,
+    citizen_proposed,
+    document_created,
+    event_created,
+    event_starting,
+    event_updated,
+    important_post_published,
+    survey_created,
+    survey_updated,
+    task_created,
+    task_helper_joined,
+    task_status_changed,
+    transaction_created,
+    transaction_updated,
+    vote_argument_added,
+    vote_started,
+    vote_state_changed,
+)
 from core.utils import build_site_url, get_site_domain, get_user_language
 from site_settings.models import SiteParameters
 from site_settings.services import get_branding_version
@@ -130,7 +149,18 @@ _PUSH_FIELDS = {
     'post': 'push_notifications_post',
     'task': 'push_notifications_task',
     'survey': 'push_notifications_survey',
+    'bookkeeping': 'push_notifications_bookkeeping',
 }
+
+
+def get_push_event_config(event_key):
+    """Return a validated event policy or None so unknown events fail closed."""
+    events = getattr(settings, 'PUSH_EVENTS', {})
+    config = events.get(event_key) if isinstance(events, dict) else None
+    if not isinstance(config, dict) or config.get('module') not in _PUSH_FIELDS or any(type(config.get(channel)) is not bool for channel in ('fcm', 'websocket')):
+        log.error('%s Unknown or invalid PUSH event configuration: %s', NOTIF_LOG_TAG, event_key)
+        return None
+    return config
 
 
 def _push_enabled_for_user(user, notification_type):
@@ -173,9 +203,14 @@ def _push_user_ids(notification_type):
         return set()
 
 
-def send_fcm_to_user_sync(user, notification, notification_type=None, source_user_id=None):
+def send_fcm_to_user_sync(user, notification, notification_type=None, source_user_id=None, push_event=None):
     """Send an FCM push notification to a single user's active devices."""
     notification_id = notification.get('notification_id', '?')
+    if push_event:
+        config = get_push_event_config(push_event)
+        if not config or not config['fcm'] or (notification_type and notification_type != config['module']):
+            return 0
+        notification_type = config['module']
     if not _fcm_ready():
         log.warning(f"{NOTIF_LOG_TAG} FCM skipped for user {user.id} (notification_id={notification_id}): Firebase not initialized")
         return 0
@@ -260,9 +295,18 @@ def send_fcm_to_all_sync(notification, user_ids=None, notification_type=None):
     return 0
 
 
-def send_websocket_to_user_sync(user_id, notification, ws_type='notification'):
+def send_websocket_to_user_sync(user_id, notification, ws_type='notification', notification_type=None, push_event=None):
     """Send a WebSocket notification to a single user's personal group."""
     notification_id = notification.get('notification_id', '?')
+    if push_event:
+        config = get_push_event_config(push_event)
+        if not config or not config['websocket'] or (notification_type and notification_type != config['module']):
+            return
+        notification_type = config['module']
+    if notification_type:
+        user = get_user_model().objects.filter(pk=user_id, is_active=True).first()
+        if not user or not _push_enabled_for_user(user, notification_type):
+            return
     channel_layer = get_channel_layer()
     if channel_layer is None:
         log.warning(f"{NOTIF_LOG_TAG} Channel layer not configured; skipping WebSocket notification_id={notification_id} for user {user_id}")
@@ -311,12 +355,15 @@ def send_websocket_to_all_sync(notification, ws_type='notification', notificatio
     log.debug(f"{NOTIF_LOG_TAG} WebSocket broadcast notification_id={notification_id} group_send to {sent} user(s)")
 
 
-def send_notification_to_all_sync(notification, ws_type='notification', notification_type=None, *, send_push=True, send_websocket=True):
-    """Send both FCM and WebSocket notifications to all active users."""
+def send_notification_to_all_sync(notification, ws_type='notification', notification_type=None, *, send_push=True, send_websocket=True, recipient_ids=None):
+    """Send both FCM and WebSocket notifications to active users."""
     if not (send_push or send_websocket):
         return
     try:
         user_ids = _push_user_ids(notification_type)
+        if recipient_ids is not None:
+            recipient_ids = set(recipient_ids)
+            user_ids = recipient_ids if user_ids is None else user_ids & recipient_ids
         if send_push:
             send_fcm_to_all_sync(notification, user_ids=user_ids)
         if send_websocket:
@@ -327,17 +374,12 @@ def send_notification_to_all_sync(notification, ws_type='notification', notifica
         log.error(f'{NOTIF_LOG_TAG} Broadcast notification failed: {e}', exc_info=True)
 
 
-def send_notification_to_all_in_thread(notification, ws_type='notification', notification_type=None, daemon=True, *, send_push=True, send_websocket=True):
-    """Send both FCM and WebSocket notifications to all active users in a background thread.
-
-    Use this from request-handling code paths (views, forms) so the HTTP response doesn't
-    block on the WebSocket broadcast loop (one channel-layer round trip per active user).
-    Mirrors the pattern used by `send_bulk_email_in_thread` for emails. Management commands
-    that already run out-of-band can keep using `send_notification_to_all_sync` directly.
-    """
-    t = threading.Thread(
-        target=send_notification_to_all_sync, args=(notification,), kwargs={'ws_type': ws_type, 'notification_type': notification_type, 'send_push': send_push, 'send_websocket': send_websocket}, daemon=daemon
-    )
+def send_notification_to_all_in_thread(notification, ws_type='notification', notification_type=None, daemon=True, *, send_push=True, send_websocket=True, recipient_ids=None):
+    """Send both FCM and WebSocket notifications to active users in a background thread."""
+    kwargs = {'ws_type': ws_type, 'notification_type': notification_type, 'send_push': send_push, 'send_websocket': send_websocket}
+    if recipient_ids is not None:
+        kwargs['recipient_ids'] = recipient_ids
+    t = threading.Thread(target=send_notification_to_all_sync, args=(notification,), kwargs=kwargs, daemon=daemon)
     t.start()
     return t
 
@@ -364,6 +406,8 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
     notifications (e.g. `vote_id`, `citizen_id`).
     """
     notification_type = kwargs.pop('notification_type', None)
+    push_event = kwargs.pop('push_event', None)
+    recipient_ids = kwargs.pop('recipient_ids', None)
     ws_type = kwargs.pop('ws_type', 'notification')
     email_subject = kwargs.pop('email_subject', None) or title
     email_body = kwargs.pop('email_body', None) or body
@@ -374,6 +418,14 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
     send_push = kwargs.pop('send_push', True)
     send_websocket = kwargs.pop('send_websocket', True)
     send_email = kwargs.pop('send_email', True)
+    if push_event:
+        config = get_push_event_config(push_event)
+        if not config or (notification_type and notification_type != config['module']):
+            send_push = send_websocket = False
+        else:
+            notification_type = config['module']
+            send_push = send_push and config['fcm']
+            send_websocket = send_websocket and config['websocket']
     transactional = kwargs.pop('transactional', False)
     in_thread = kwargs.pop('in_thread', True)
     daemon = kwargs.pop('daemon', True)
@@ -398,10 +450,13 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
     notification = None
     if send_push or send_websocket:
         notification = build_notification(title, body, click_action, tag, **extra)
+        delivery_options = {'ws_type': ws_type, 'notification_type': notification_type, 'send_push': send_push, 'send_websocket': send_websocket}
+        if recipient_ids is not None:
+            delivery_options['recipient_ids'] = recipient_ids
         if in_thread:
-            send_notification_to_all_in_thread(notification, ws_type=ws_type, notification_type=notification_type, daemon=daemon, send_push=send_push, send_websocket=send_websocket)
+            send_notification_to_all_in_thread(notification, daemon=daemon, **delivery_options)
         else:
-            send_notification_to_all_sync(notification, ws_type=ws_type, notification_type=notification_type, send_push=send_push, send_websocket=send_websocket)
+            send_notification_to_all_sync(notification, **delivery_options)
 
     if sleep_before:
         time.sleep(sleep_before)
@@ -418,6 +473,14 @@ def _dispatch_notification(title, body, click_action, tag, **kwargs):
             log.error(f'{log_tag} Failed to send email to {recipient_email}: {e}', exc_info=True)
             if raise_on_error:
                 raise
+
+
+@receiver(citizen_proposed)
+def on_citizen_proposed(sender, candidate, proposed_by=None, **kwargs):
+    """Notify opted-in users when a new candidate is proposed."""
+    title = _('New citizen proposed')
+    body = f'{candidate.get_full_name() or candidate.username}\n{build_site_url("/obywatele/poczekalnia/")}'
+    _dispatch_notification(title, body, '/obywatele/poczekalnia/', f'citizen-proposed-{candidate.id}', push_event='citizen.proposed', ws_type='citizen.notification', send_email=False, citizen_id=candidate.id)
 
 
 @receiver(citizen_accepted)
@@ -438,9 +501,9 @@ def on_citizen_accepted(sender, user, **kwargs):
         '',
         f'citizen-accepted-{user.id}',
         notification_type='obywatele',
+        push_event='citizen.accepted',
         ws_type='citizen.notification',
-        send_push=False,
-        send_websocket=False,
+        recipient_ids={user.id},
         send_email=True,
         recipient_email=recipient_email,
         recipient_user=user,
@@ -451,27 +514,99 @@ def on_citizen_accepted(sender, user, **kwargs):
     )
 
 
+@receiver(citizen_blocked)
+def on_citizen_blocked(sender, user, was_previously_active=False, title=None, body=None, click_action=None, tag=None, strip_html=False, **kwargs):
+    if not (was_previously_active and title and body and click_action and tag):
+        return
+
+    recipient_ids = _push_user_ids('obywatele') - {user.id}
+    _dispatch_notification(
+        title,
+        body,
+        click_action,
+        tag,
+        notification_type='obywatele',
+        push_event='citizen.blocked',
+        ws_type='citizen.notification',
+        send_email=False,
+        in_thread=False,
+        recipient_ids=recipient_ids,
+        strip_html=strip_html,
+        citizen_id=user.id,
+    )
+
+
+_VOTE_PUSH_EVENTS = {
+    'proposed': 'vote.proposed',
+    'modified': 'vote.modified',
+    'discussion_started': 'vote.discussion_started',
+    'started': 'vote.started',
+    'approved': 'vote.approved',
+    'rejected': 'vote.rejected',
+    'rejected_no_signatures': 'vote.rejected_no_signatures',
+    'last_day': 'vote.last_day',
+    'buffer_restart': 'vote.buffer_restarted',
+}
+
+
 @receiver(vote_started)
 @receiver(vote_state_changed)
 def on_vote_notification(sender, **kwargs):
-    """Dispatch vote-related notifications using the payload supplied by the sender."""
-    # Pop domain objects that should not leak into FCM/WebSocket payloads.
+    """Dispatch vote notifications through their event-specific PUSH policy."""
     kwargs.pop('signal', None)
     kwargs.pop('decyzja', None)
-    kwargs.pop('transition', None)
+    transition = kwargs.pop('transition', None)
 
-    # Defaults for vote notifications emitted from management commands.
     kwargs.setdefault('notification_type', 'glosowania')
     kwargs.setdefault('ws_type', 'vote.notification')
     kwargs.setdefault('in_thread', False)
     kwargs.setdefault('daemon', False)
-    # Digest emails are sent once daily; do not send immediate vote emails.
-    kwargs.setdefault('send_push', False)
-    kwargs.setdefault('send_websocket', False)
     kwargs.setdefault('send_email', False)
+    push_event = _VOTE_PUSH_EVENTS.get(transition)
+    if push_event:
+        kwargs['push_event'] = push_event
+        kwargs.setdefault('send_push', True)
+        kwargs.setdefault('send_websocket', True)
+    else:
+        kwargs['send_push'] = False
+        kwargs['send_websocket'] = False
 
     if 'title' in kwargs and 'body' in kwargs and 'click_action' in kwargs and 'tag' in kwargs:
         _dispatch_notification(kwargs.pop('title'), kwargs.pop('body'), kwargs.pop('click_action'), kwargs.pop('tag'), **kwargs)
+
+
+@receiver(vote_argument_added)
+def on_vote_argument_added(sender, argument, **kwargs):
+    decision = argument.decyzja
+    url = build_site_url(f'/glosowania/details/{decision.id}')
+    title = _('New argument added to a voting proposal')
+    body = f'{decision.title}: {argument.get_argument_type_display()}\n{url}'
+    _dispatch_notification(
+        title,
+        body,
+        url,
+        f'vote-argument-{argument.id}',
+        notification_type='glosowania',
+        push_event='vote.argument_added',
+        ws_type='vote.notification',
+        send_email=False,
+        vote_id=decision.id,
+        argument_id=argument.id,
+    )
+
+
+@receiver(event_created)
+def on_event_created(sender, event, url, **kwargs):
+    title = _('New event created')
+    body = f'{event.title}\n{url}'
+    _dispatch_notification(title, body, url, f'event-created-{event.id}', push_event='event.created', ws_type='event.notification', send_email=False, event_id=event.id)
+
+
+@receiver(event_updated)
+def on_event_updated(sender, event, url, **kwargs):
+    title = _('Calendar event updated')
+    body = f'{event.title}\n{url}'
+    _dispatch_notification(title, body, url, f'event-updated-{event.id}', push_event='event.updated', ws_type='event.notification', send_email=False, event_id=event.id)
 
 
 @receiver(event_starting)
@@ -497,6 +632,7 @@ def on_event_starting(sender, event, body=None, **kwargs):
         click_action,
         f'event-{event.id}',
         notification_type='events',
+        push_event='event.starting',
         ws_type='event.notification',
         email_subject=title,
         email_body=f"{notification_body}\n\n{click_action}",
@@ -510,12 +646,61 @@ def on_event_starting(sender, event, body=None, **kwargs):
 
 @receiver(task_created)
 def on_task_created(sender, task, url, **kwargs):
-    """Notify all active users about a newly created task."""
+    """Notify opted-in users about a newly created task."""
     title = _('New activity created')
     body = f'{task.title}\n{url}'
+    _dispatch_notification(title, body, url, f'task-{task.id}', notification_type='task', push_event='task.created', ws_type='task.notification', send_email=False, task_id=task.id)
+
+
+@receiver(task_helper_joined)
+def on_task_helper_joined(sender, task, helper, coordinator_id, **kwargs):
+    """Notify the coordinator when someone volunteers to help with their task."""
+    if coordinator_id == helper.id:
+        return
+    url = build_site_url(f'/tasks/{task.id}/')
+    title = _('Someone wants to help with your activity')
+    body = f'{helper.get_full_name() or helper.username}\n{task.title}\n{url}'
     _dispatch_notification(
-        title, body, url, f'task-{task.id}', notification_type='task', ws_type='task.notification', email_subject=title, email_body=body, send_push=False, send_websocket=False, send_email=False, task_id=task.id
+        title,
+        body,
+        url,
+        f'task-helper-{task.id}-{helper.id}',
+        notification_type='task',
+        push_event='task.helper_joined',
+        ws_type='task.notification',
+        send_email=False,
+        recipient_ids={coordinator_id},
+        task_id=task.id,
     )
+
+
+@receiver(task_status_changed)
+def on_task_status_changed(sender, task, previous_status, **kwargs):
+    """Notify the coordinator when their task changes status."""
+    if not task.assigned_to_id:
+        return
+    url = build_site_url(f'/tasks/{task.id}/')
+    title = _('Activity status changed')
+    body = f'{task.title}: {task.get_status_display()}\n{url}'
+    _dispatch_notification(
+        title,
+        body,
+        url,
+        f'task-status-{task.id}-{task.status}',
+        notification_type='task',
+        push_event='task.status_changed',
+        ws_type='task.notification',
+        send_email=False,
+        recipient_ids={task.assigned_to_id},
+        task_id=task.id,
+    )
+
+
+@receiver(document_created)
+def on_document_created(sender, post, url, **kwargs):
+    title = _('New document created')
+    body = f'{post.title}\n{url}'
+    _dispatch_notification(title, body, url, f'document-created-{post.id}', notification_type='post', push_event='document.created', ws_type='post.notification', send_email=False, post_id=post.id)
 
 
 @receiver(important_post_published)
@@ -535,7 +720,45 @@ def on_important_post_published(sender, post, url, created=False, **kwargs):
     display_title = display_title() if callable(display_title) else post.title
     body = f'{display_title}\n{_("by")} {author}\n{url}'
     _dispatch_notification(
-        title, body, url, f'post-{post.id}', notification_type='post', ws_type='post.notification', email_subject=title, email_body=body, send_push=False, send_websocket=False, send_email=False, post_id=post.id
+        title,
+        body,
+        url,
+        f'post-{post.id}',
+        notification_type='post',
+        push_event='document.important_updated' if not created else None,
+        ws_type='post.notification',
+        email_subject=title,
+        email_body=body,
+        send_push=not created,
+        send_websocket=not created,
+        send_email=False,
+        post_id=post.id,
+    )
+
+
+@receiver(transaction_created)
+def on_transaction_created(sender, transaction, url, **kwargs):
+    title = _('New financial transaction')
+    body = f'{transaction.get_type_display()}: {transaction.amount} {transaction.asset.symbol}\n{transaction.partner}\n{url}'
+    _dispatch_notification(
+        title, body, url, f'transaction-{transaction.id}', notification_type='bookkeeping', push_event='transaction.created', ws_type='transaction.notification', send_email=False, transaction_id=transaction.id
+    )
+
+
+@receiver(transaction_updated)
+def on_transaction_updated(sender, transaction, url, **kwargs):
+    title = _('Financial transaction updated')
+    body = f'{transaction.get_type_display()}: {transaction.amount} {transaction.asset.symbol}\n{transaction.partner}\n{url}'
+    _dispatch_notification(
+        title,
+        body,
+        url,
+        f'transaction-updated-{transaction.id}',
+        notification_type='bookkeeping',
+        push_event='transaction.updated',
+        ws_type='transaction.notification',
+        send_email=False,
+        transaction_id=transaction.id,
     )
 
 
@@ -550,14 +773,20 @@ def on_survey_created(sender, survey, url, **kwargs):
         url,
         f'survey-{survey.id}',
         notification_type='survey',
+        push_event='survey.created',
         ws_type='survey.notification',
         email_subject=title,
         email_body=body,
-        send_push=False,
-        send_websocket=False,
         send_email=False,
         survey_id=survey.id,
     )
+
+
+@receiver(survey_updated)
+def on_survey_updated(sender, survey, url, **kwargs):
+    title = _('Survey updated')
+    body = f'{survey.title}\n{url}'
+    _dispatch_notification(title, body, url, f'survey-updated-{survey.id}', notification_type='survey', push_event='survey.updated', ws_type='survey.notification', send_email=False, survey_id=survey.id)
 
 
 class WikikracjaPushConfig:

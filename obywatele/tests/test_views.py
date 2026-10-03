@@ -4,6 +4,7 @@ Testy widoku set_user_language: wybór języka musi działać dla NIEzalogowanyc
 `django_language`, a dla zalogowanych dodatkowo zapisywać się do profilu.
 """
 
+import json
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
@@ -685,6 +686,19 @@ class ProfileFormErrorViewTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'name="password"')
+
+    def test_finance_push_setting_renders_and_can_be_toggled(self):
+        response = self.client.get(reverse('obywatele:my_profile'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(any(item['type'] == 'push_bookkeeping' for item in response.context['push_notifications']))
+
+        response = self.client.post(f"{reverse('obywatele:toggle_notification')}?type=push_bookkeeping", data=json.dumps({'enabled': True}), content_type='application/json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['success'])
+        self.user.uzytkownik.refresh_from_db()
+        self.assertTrue(self.user.uzytkownik.push_notifications_bookkeeping)
 
     def test_candidate_email_confirmation_must_match_current_user_email(self):
         profile = self.user.uzytkownik

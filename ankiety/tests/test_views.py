@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
@@ -63,6 +64,21 @@ class SurveyViewsTests(TestCase):
         survey.refresh_from_db()
         self.assertEqual(survey.title, "Updated survey")
         self.assertEqual(list(survey.options.values_list("text", flat=True)), ["Maybe", "No"])
+
+    def test_survey_edit_emits_push_event(self):
+        survey = self._create_survey(self.author)
+        self.client.force_login(self.author)
+        future = (timezone.now() + timedelta(days=2)).strftime("%Y-%m-%dT%H:%M")
+
+        with patch('core.notifications._dispatch_notification') as dispatch:
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.post(
+                    reverse("ankiety:edit", args=[survey.pk]), {"title": "Updated survey", "description": "Updated", "end_date": future, "options_text": "Maybe\nNo", "allow_custom_options": "on"}
+                )
+
+        self.assertEqual(response.status_code, 302)
+        dispatch.assert_called_once()
+        self.assertEqual(dispatch.call_args.kwargs['push_event'], 'survey.updated')
 
     def test_edit_survey_invalid_post_rerenders_errors_without_saving(self):
         survey = self._create_survey(self.author)

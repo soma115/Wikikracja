@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
@@ -18,6 +20,14 @@ class BoardDetailNavigationTests(TestCase):
 
     def _post(self, title, category=None):
         return Post.objects.create(title=title, text=f'{title} text', author=self.user, category=category, visibility=Post.Visibility.PUBLIC)
+
+    def test_new_visible_document_emits_push_event(self):
+        with patch('core.notifications._dispatch_notification') as dispatch:
+            with self.captureOnCommitCallbacks(execute=True):
+                self._post('New document')
+
+        dispatch.assert_called_once()
+        self.assertEqual(dispatch.call_args.kwargs['push_event'], 'document.created')
 
     def test_post_edit_get_renders_prefilled_form(self):
         post = self._post('Editable')

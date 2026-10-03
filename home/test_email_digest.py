@@ -14,16 +14,18 @@ from django.test import TransactionTestCase, override_settings
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
+from ankiety.models import Survey
 from board.models import Post
+from bookkeeping.models import Asset, Partner, Transaction
 from chat.models import Message, MessageReadBy, Room
 from core.models import ReadStatus
 from core.services.feed import build_user_digest
 from events.models import Event
-from glosowania.models import Decyzja
+from glosowania.models import Argument, Decyzja
 from home.management.commands.send_email_digest import Command, _collapse_excess_newlines, _period_start
 from obywatele.models import CitizenActivity, Uzytkownik
-from tasks.models import Task
-from tests.factories import PostCategoryFactory, PostFactory, UserFactory
+from tasks.models import Task, TaskVote
+from tests.factories import DecyzjaFactory, PostCategoryFactory, PostFactory, UserFactory
 
 FAST_EMAIL_SETTINGS = {'EMAIL_BACKEND': 'django.core.mail.backends.locmem.EmailBackend', 'EMAIL_SEND_DELAY_SECONDS': 0}
 
@@ -63,6 +65,84 @@ def digest_user(db):
 @pytest.fixture
 def another_user(db):
     return UserFactory(username='another', email='another@example.com')
+
+
+@pytest.mark.django_db
+def test_build_user_digest_includes_and_groups_new_voting_arguments(digest_user, another_user):
+    decision = DecyzjaFactory(author=another_user, title='Digest argument proposal')
+    since = timezone.now() - td(hours=1)
+    Decyzja.objects.filter(pk=decision.pk).update(data_ostatniej_modyfikacji=since - td(hours=1))
+    Argument.objects.create(decyzja=decision, author=another_user, argument_type='FOR', content='Support the proposal')
+    Argument.objects.create(decyzja=decision, author=digest_user, argument_type='AGAINST', content='Oppose the proposal')
+
+    items = build_user_digest(digest_user, since)
+
+    decision_items = [item for item in items if item['content_type'] == 'decision' and item['object_id'] == decision.pk]
+    assert len(decision_items) == 1
+    assert decision_items[0]['update_count'] == 2
+    assert 'proposal' in decision_items[0]['description'].lower()
+
+
+@pytest.mark.django_db
+def test_build_user_digest_includes_recent_votes_on_actions(digest_user, another_user):
+    task = Task.objects.create(title='Digest task vote', description='Task description', created_by=another_user, assigned_to=another_user)
+    since = timezone.now() - td(hours=1)
+    Task.objects.filter(pk=task.pk).update(updated_at=since - td(hours=1))
+    TaskVote.objects.create(task=task, user=digest_user, value=TaskVote.Value.UP)
+
+    items = build_user_digest(digest_user, since)
+
+    task_items = [item for item in items if item['content_type'] == 'task' and item['object_id'] == task.pk]
+    assert len(task_items) == 1
+    assert task_items[0]['update_count'] == 1
+    assert task_items[0]['activity_kind'] == 'vote'
+
+
+@pytest.mark.django_db
+def test_build_user_digest_includes_recent_calendar_change_beyond_upcoming_horizon(digest_user):
+    since = timezone.now() - td(hours=1)
+    event = Event.objects.create(title='Changed calendar event', description='Changed details', start_date=timezone.now() + td(days=20), frequency='once')
+
+    items = build_user_digest(digest_user, since)
+
+    event_items = [item for item in items if item['content_type'] == 'event' and item['object_id'] == event.pk]
+    assert len(event_items) == 1
+    assert event_items[0]['activity_kind'] == 'change'
+    assert event_items[0]['description'] == 'Changed details'
+
+
+@pytest.mark.django_db
+def test_build_user_digest_includes_modified_survey(digest_user, another_user):
+    since = timezone.now() - td(hours=1)
+    survey = Survey.objects.create(title='Survey before edit', description='Initial', end_date=timezone.now() + td(days=30), author=another_user)
+    Survey.objects.filter(pk=survey.pk).update(created_at=since - td(hours=1), updated_at=since - td(hours=1))
+    survey.refresh_from_db()
+    survey.title = 'Survey after edit'
+    survey.description = 'Updated survey details'
+    survey.save()
+
+    items = build_user_digest(digest_user, since)
+
+    survey_item = next(item for item in items if item['content_type'] == 'survey' and item['object_id'] == survey.pk)
+    assert survey_item['title'] == 'Survey after edit'
+    assert survey_item['description'] == 'Updated survey details'
+
+
+@pytest.mark.django_db
+def test_build_user_digest_includes_modified_transaction(digest_user, another_user):
+    asset = Asset.objects.create(code='DIG', name='Digest currency', symbol='DIG')
+    partner = Partner.objects.create(name='Digest finance partner')
+    transaction = Transaction.objects.create(asset=asset, partner=partner, amount=25, author=another_user)
+    since = timezone.now() - td(hours=1)
+    Transaction.objects.filter(pk=transaction.pk).update(created_date=since.date() - td(days=1), updated_at=None)
+    transaction.refresh_from_db()
+    transaction.note = 'Updated transaction details'
+    transaction.save()
+
+    items = build_user_digest(digest_user, since)
+
+    transaction_item = next(item for item in items if item['content_type'] == 'transaction' and item['object_id'] == transaction.pk)
+    assert transaction_item['description'] == 'Updated transaction details'
 
 
 @pytest.mark.django_db
@@ -232,16 +312,20 @@ def test_digest_groups_citizen_activities_by_user_and_keeps_latest(digest_user, 
 
 
 @pytest.mark.django_db
-def test_digest_includes_only_events_within_six_days(digest_user):
+def test_digest_includes_calendar_changes_and_only_nearby_occurrences(digest_user):
     now = timezone.now()
+    since = now - td(hours=1)
     within = Event.objects.create(title='Within', start_date=now + td(days=5), frequency='once', is_active=True)
     too_late = Event.objects.create(title='Too late', start_date=now + td(days=7), frequency='once', is_active=True)
 
-    items = build_user_digest(digest_user, now - td(hours=1))
-    event_ids = {item['object_id'] for item in items if item['content_type'] == 'event'}
+    items = [item for item in build_user_digest(digest_user, since) if item['content_type'] == 'event']
+    within_items = [item for item in items if item['object_id'] == within.pk]
+    too_late_items = [item for item in items if item['object_id'] == too_late.pk]
 
-    assert within.pk in event_ids
-    assert too_late.pk not in event_ids
+    assert len(within_items) == 1
+    assert within_items[0]['activity_kind'] == 'upcoming'
+    assert len(too_late_items) == 1
+    assert too_late_items[0]['activity_kind'] == 'change'
 
 
 @pytest.mark.django_db

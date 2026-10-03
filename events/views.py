@@ -3,6 +3,7 @@ from datetime import datetime, time, timedelta
 from urllib.parse import urlencode
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
@@ -11,7 +12,8 @@ from django.utils.dateparse import parse_date, parse_datetime
 from django.utils.translation import gettext_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
-from core.utils import build_detail_navigation
+from core.signals import event_created, event_updated
+from core.utils import build_detail_navigation, build_site_url
 from home.navigation import default_toolbar_views
 
 from .calendar import adjacent_months, build_calendar_grid, month_bounds, parse_month_param, year_options
@@ -189,12 +191,26 @@ class EventCreateView(EventFormViewMixin, LoginRequiredMixin, CreateView):
         initial['start_date'] = timezone.make_aware(datetime.combine(start_date, time(hour=12)))
         return initial
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        event = self.object
+        event_url = build_site_url(event.get_absolute_url())
+        transaction.on_commit(lambda: event_created.send(sender=Event, event=event, url=event_url))
+        return response
+
 
 class EventUpdateView(EventFormViewMixin, LoginRequiredMixin, UpdateView):
     model = Event
     form_class = EventForm
     template_name = 'events/event_form.html'
     success_url = reverse_lazy('events:list')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        event = self.object
+        event_url = build_site_url(event.get_absolute_url())
+        transaction.on_commit(lambda: event_updated.send(sender=Event, event=event, url=event_url))
+        return response
 
 
 class EventDeleteView(LoginRequiredMixin, DeleteView):

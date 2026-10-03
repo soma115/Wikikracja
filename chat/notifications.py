@@ -30,7 +30,7 @@ class ChatNotificationService:
         self.channel_layer = channel_layer
         self.online_registry = online_registry
 
-    async def dispatch_message(self, room, message, sender, mentioned_users):
+    async def dispatch_message(self, room, message, sender, mentioned_users, push_event=None):
         mentioned_user_ids = {user.id for user in mentioned_users}
         room_members = await database_sync_to_async(lambda: list(room.allowed.all()))()
         other_members = [member for member in room_members if member.id != (sender.id if sender else None)]
@@ -58,7 +58,7 @@ class ChatNotificationService:
             await self.channel_layer.group_send(f"user_{member.id}", {"type": "chat.room_unread", "room_id": room.id, "delta": 1})
 
             if not prefs['muted'] and not is_mentioned:
-                await self._enqueue_delivery(member.id, room.id, notification, 'notification')
+                await self._enqueue_delivery(member.id, room.id, notification, 'notification', push_event or 'chat.message')
 
             if consumer and not is_present and prefs['seen']:
                 await getattr(consumer, 'room_repo', consumer.repo).unsee_room(room)
@@ -67,11 +67,11 @@ class ChatNotificationService:
 
         for user in mentioned_users:
             if user.id != (sender.id if sender else None):
-                await self._enqueue_delivery(user.id, room.id, notification, 'mention')
+                await self._enqueue_delivery(user.id, room.id, notification, 'mention', push_event or 'chat.mention')
 
-    async def _enqueue_delivery(self, user_id, room_id, notification, kind):
+    async def _enqueue_delivery(self, user_id, room_id, notification, kind, push_event):
         try:
-            await sync_to_async(enqueue_notification, thread_sensitive=False)(user_id=user_id, room_id=room_id, notification={**notification, "room_id": room_id}, kind=kind)
+            await sync_to_async(enqueue_notification, thread_sensitive=False)(user_id=user_id, room_id=room_id, notification={**notification, "room_id": room_id}, kind=kind, push_event=push_event)
         except Exception:
             log.error("%s Failed to queue %s notification for user %s in room %s", NOTIF_LOG_TAG, kind, user_id, room_id, exc_info=True)
 
@@ -113,7 +113,11 @@ def deliver_notification_job(job):
     """Deliver one queued job. Exceptions intentionally propagate for retry."""
     user = get_user_model().objects.get(pk=job['user_id'], is_active=True)
     notification = {**job['notification'], 'room_id': job['room_id']}
-    ws_type = 'chat.mention' if job['kind'] == 'mention' else 'chat.notification'
-    core_notifications.send_websocket_to_user_sync(user.id, notification, ws_type=ws_type)
-    core_notifications.send_fcm_to_user_sync(user, notification, notification_type='chat', source_user_id=notification.get('source_user_id'))
+    is_mention = job['kind'] == 'mention'
+    push_event = job.get('push_event') or ('chat.mention' if is_mention else 'chat.message')
+    event_config = core_notifications.get_push_event_config(push_event)
+    notification_type = event_config['module'] if event_config else 'chat'
+    ws_type = 'chat.mention' if is_mention else 'chat.notification'
+    core_notifications.send_websocket_to_user_sync(user.id, notification, ws_type=ws_type, notification_type=notification_type, push_event=push_event)
+    core_notifications.send_fcm_to_user_sync(user, notification, notification_type=notification_type, source_user_id=notification.get('source_user_id'), push_event=push_event)
     log.info("%s Delivered chat notification job %s to user %s", NOTIF_LOG_TAG, job['job_id'], user.id)

@@ -3,6 +3,7 @@
 import re
 from dataclasses import dataclass, field
 
+from asgiref.sync import sync_to_async
 from channels.db import database_sync_to_async
 from django.utils import timezone
 
@@ -11,6 +12,7 @@ from core.richtext import sanitize
 from zzz.templatetags.citizen_filters import user_display_name
 
 from .exceptions import ClientError
+from .notification_queue import clear_room_notification_state
 from .reactions import ChatReactionService
 from .serializers import build_chat_message_payloads
 from .services import get_avatar_url, send_message
@@ -70,6 +72,9 @@ class ChatCommandHandlers:
     def reaction_service(self):
         return ChatReactionService(self.consumer.repo)
 
+    async def _clear_room_notification_state(self, room_id):
+        await sync_to_async(clear_room_notification_state, thread_sensitive=False)(self.consumer.scope['user'].id, room_id)
+
     @staticmethod
     def handles(command):
         return command in COMMAND_SPECS
@@ -85,6 +90,7 @@ class ChatCommandHandlers:
 
     async def join(self, room_id):
         room = await self.room_repo.get_room_or_error(room_id)
+        await self._clear_room_notification_state(room.id)
         for joined_room_id in self.consumer.rooms.items():
             try:
                 joined_room = await self.room_repo.get_room_or_error(joined_room_id)
@@ -150,6 +156,7 @@ class ChatCommandHandlers:
             room = await self.room_repo.get_room_or_error(room_id)
         except ClientError:
             return CommandResult()
+        await self._clear_room_notification_state(room.id)
         if not await self.room_repo.room_is_seen(room):
             await self.room_repo.see_room(room)
             await self.consumer.channel_layer.group_send(f"user_{self.consumer.scope['user'].id}", {'type': 'chat.room_unread', 'room_id': room.id, 'count': 0})

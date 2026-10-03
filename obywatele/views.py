@@ -472,6 +472,7 @@ def my_profile(request: HttpRequest):
         {'type': 'push_events', 'title': _('Calendar'), 'description': _('Upcoming events, reminders'), 'enabled': profile.push_notifications_events},
         {'type': 'push_glosowania', 'title': _('Voting'), 'description': _('Law proposals, voting reminders, results'), 'enabled': profile.push_notifications_glosowania},
         {'type': 'push_survey', 'title': _('Surveys'), 'description': _('New surveys'), 'enabled': profile.push_notifications_survey},
+        {'type': 'push_bookkeeping', 'title': _('Finance'), 'description': _('New financial transactions'), 'enabled': profile.push_notifications_bookkeeping},
         {'type': 'push_chat', 'title': _('Chat'), 'description': _('New messages from rooms you haven\'t muted'), 'enabled': profile.push_notifications_chat},
     ]
 
@@ -553,6 +554,7 @@ def toggle_notification(request: HttpRequest):
         'push_post': 'push_notifications_post',
         'push_task': 'push_notifications_task',
         'push_survey': 'push_notifications_survey',
+        'push_bookkeeping': 'push_notifications_bookkeeping',
         'push_phone': 'push_phone_enabled',
         'push_computer': 'push_computer_enabled',
     }

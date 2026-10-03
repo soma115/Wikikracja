@@ -113,17 +113,16 @@ class RoomModelTest(TestCase):
         self.assertFalse(public_room.muted_by.filter(pk=self.alice.pk).exists())
         self.assertFalse(private_room.muted_by.filter(pk=self.alice.pk).exists())
 
-    def test_message_enables_default_muted_room_unless_manually_muted(self):
+    def test_message_enables_room_notifications_even_after_manual_mute(self):
         room = Room.objects.create(title='Task room', public=True, source_app='tasks', source_object_id=1)
         room.allowed.add(self.alice)
-
-        Room.enable_notifications_after_message(room.id, self.alice.id)
-        self.assertFalse(room.muted_by.filter(pk=self.alice.pk).exists())
-
         room.muted_by.add(self.alice)
         room.manually_muted_by.add(self.alice)
+
         Room.enable_notifications_after_message(room.id, self.alice.id)
-        self.assertTrue(room.muted_by.filter(pk=self.alice.pk).exists())
+
+        self.assertFalse(room.muted_by.filter(pk=self.alice.pk).exists())
+        self.assertFalse(room.manually_muted_by.filter(pk=self.alice.pk).exists())
 
     def test_get_membership_preferences_bulk_empty_user_ids(self):
         self.assertEqual(Room.get_membership_preferences_bulk(self.public_room.id, []), {})

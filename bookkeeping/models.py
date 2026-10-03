@@ -109,6 +109,7 @@ class Transaction(models.Model):
     type = models.CharField(max_length=1, choices=TYPES, default=INCOMING, verbose_name=_("Type"))
 
     created_date = models.DateField(auto_now_add=True, verbose_name=_("Created"))
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True, verbose_name=_("Last updated"))
     payment_received_date = models.DateField(null=True, blank=True, default=datetime.now, editable=True, verbose_name=_("Payment received date"))
 
     asset = models.ForeignKey(Asset, on_delete=models.PROTECT, blank=False, verbose_name=_("Asset"))

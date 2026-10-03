@@ -60,7 +60,7 @@ def test_muted_chat_source_does_not_send_push(users, payload, transport):
     transport.fcm.assert_not_called()
 
 
-@pytest.mark.parametrize('category', ['obywatele', 'glosowania', 'chat', 'events', 'post', 'task', 'survey'])
+@pytest.mark.parametrize('category', ['obywatele', 'glosowania', 'chat', 'events', 'post', 'task', 'survey', 'bookkeeping'])
 def test_category_selects_only_active_opted_in_users(users, payload, transport, category, django_assert_num_queries):
     field = f'push_notifications_{category}'
     enabled = users('enabled', **dict.fromkeys(notify._PUSH_FIELDS.values(), False))
@@ -209,6 +209,49 @@ def test_websocket_user_includes_room_id_for_chat_notifications(users, payload, 
     transport.channel.group_send.assert_awaited_once_with(f'user_{user.pk}', {'type': 'chat.notification', 'notification': notification, 'room_id': 7})
 
 
+def test_chat_websocket_respects_profile_preference(users, payload, transport):
+    disabled = users('chat-disabled', push_notifications_chat=False)
+
+    notify.send_websocket_to_user_sync(disabled.pk, payload, 'chat.notification', notification_type='chat', push_event='chat.message')
+
+    transport.channel.group_send.assert_not_awaited()
+
+
+def test_push_event_registry_starts_with_all_requested_keys(settings):
+    expected = {
+        'task.created',
+        'task.helper_joined',
+        'task.status_changed',
+        'citizen.proposed',
+        'citizen.accepted',
+        'citizen.blocked',
+        'document.created',
+        'document.important_updated',
+        'event.created',
+        'event.updated',
+        'event.starting',
+        'vote.proposed',
+        'vote.modified',
+        'vote.argument_added',
+        'vote.discussion_started',
+        'vote.started',
+        'vote.approved',
+        'vote.rejected',
+        'vote.rejected_no_signatures',
+        'vote.last_day',
+        'vote.buffer_restarted',
+        'transaction.created',
+        'transaction.updated',
+        'survey.created',
+        'survey.updated',
+        'chat.message',
+        'chat.mention',
+    }
+    assert set(settings.PUSH_EVENTS) == expected
+    omitted_until_enabled = {'citizen.accepted', 'citizen.blocked', 'document.important_updated', 'event.updated', 'vote.modified', 'vote.argument_added', 'transaction.updated', 'survey.updated'}
+    assert all(settings.PUSH_EVENTS[key]['fcm'] is False and settings.PUSH_EVENTS[key]['websocket'] is False for key in omitted_until_enabled)
+
+
 def test_websocket_failure_does_not_skip_remaining_recipients(users, payload, transport):
     first, second = users('first'), users('second')
     transport.channel.group_send.side_effect = [RuntimeError('local channel failure'), None]
@@ -254,6 +297,74 @@ def test_fcm_backend_outcomes_do_not_trigger_other_channels(users, payload, tran
     transport.mail.assert_not_called()
 
 
+def test_dispatch_event_policy_filters_channels_and_preserves_user_preferences(users, transport, settings):
+    settings.PUSH_EVENTS = {'task.created': {'module': 'task', 'fcm': True, 'websocket': False}}
+    enabled = users('enabled', push_notifications_task=True)
+    users('disabled', push_notifications_task=False)
+
+    with patch.object(notify, 'send_fcm_to_all_sync') as fcm, patch.object(notify, 'send_websocket_to_all_sync') as websocket:
+        notify._dispatch_notification('Title', 'Body', '/tasks/1/', 'task-1', push_event='task.created', send_email=False, in_thread=False)
+
+    fcm.assert_called_once()
+    assert fcm.call_args.kwargs['user_ids'] == {enabled.pk}
+    assert fcm.call_args.args[0]['title'] == 'Title'
+    websocket.assert_not_called()
+
+
+def test_disabled_known_push_event_does_not_send(transport, settings):
+    settings.PUSH_EVENTS = {'transaction.updated': {'module': 'bookkeeping', 'fcm': False, 'websocket': False}}
+
+    with patch.object(notify, 'send_fcm_to_all_sync') as fcm, patch.object(notify, 'send_websocket_to_all_sync') as websocket:
+        notify._dispatch_notification('Title', 'Body', '/transactions/1/', 'transaction-1', push_event='transaction.updated', send_email=False, in_thread=False)
+
+    fcm.assert_not_called()
+    websocket.assert_not_called()
+
+
+def test_unknown_push_event_fails_closed(transport, settings):
+    settings.PUSH_EVENTS = {}
+
+    with patch.object(notify, 'send_fcm_to_all_sync') as fcm, patch.object(notify, 'send_websocket_to_all_sync') as websocket:
+        notify._dispatch_notification('Title', 'Body', '/tasks/1/', 'task-1', push_event='task.missing', send_email=False, in_thread=False)
+
+    fcm.assert_not_called()
+    websocket.assert_not_called()
+
+
+def test_domain_handlers_use_registered_push_event_keys():
+    candidate = SimpleNamespace(id=1, username='candidate', email='candidate@example.test', get_full_name=lambda: 'Candidate')
+    post = SimpleNamespace(id=2, title='Document', author=None)
+    event = SimpleNamespace(id=3, title='Event')
+    survey = SimpleNamespace(id=4, title='Survey')
+    task = SimpleNamespace(id=5, title='Task', assigned_to_id=9, status='completed', get_status_display=lambda: 'Completed')
+    transaction = SimpleNamespace(id=6, get_type_display=lambda: 'Incoming', amount='12', asset=SimpleNamespace(symbol='PLN'), partner='Partner')
+    helper = SimpleNamespace(id=8, username='helper', get_full_name=lambda: 'Helper')
+    decision = SimpleNamespace(id=10, title='Proposal')
+    argument = SimpleNamespace(id=11, decyzja=decision, get_argument_type_display=lambda: 'Positive')
+    cases = (
+        ('citizen.proposed', lambda: notify.on_citizen_proposed(sender=None, candidate=candidate)),
+        ('citizen.accepted', lambda: notify.on_citizen_accepted(sender=None, user=candidate, recipient_subject='Welcome', recipient_body='Welcome')),
+        ('citizen.blocked', lambda: notify.on_citizen_blocked(sender=None, user=candidate, was_previously_active=True, title='Blocked', body='Body', click_action='/obywatele/', tag='citizen-blocked-1')),
+        ('document.created', lambda: notify.on_document_created(sender=None, post=post, url='/documents/2/')),
+        ('document.important_updated', lambda: notify.on_important_post_published(sender=None, post=post, url='/documents/2/', created=False)),
+        ('event.created', lambda: notify.on_event_created(sender=None, event=event, url='/events/3/')),
+        ('event.updated', lambda: notify.on_event_updated(sender=None, event=event, url='/events/3/')),
+        ('transaction.created', lambda: notify.on_transaction_created(sender=None, transaction=transaction, url='/transactions/6/')),
+        ('transaction.updated', lambda: notify.on_transaction_updated(sender=None, transaction=transaction, url='/transactions/6/')),
+        ('survey.created', lambda: notify.on_survey_created(sender=None, survey=survey, url='/surveys/4/')),
+        ('survey.updated', lambda: notify.on_survey_updated(sender=None, survey=survey, url='/surveys/4/')),
+        ('vote.modified', lambda: notify.on_vote_notification(sender=None, transition='modified', title='Edited', body='Body', click_action='/votes/10/', tag='vote-10')),
+        ('vote.argument_added', lambda: notify.on_vote_argument_added(sender=None, argument=argument)),
+        ('task.created', lambda: notify.on_task_created(sender=None, task=task, url='/tasks/5/')),
+        ('task.helper_joined', lambda: notify.on_task_helper_joined(sender=None, task=task, helper=helper, coordinator_id=9)),
+        ('task.status_changed', lambda: notify.on_task_status_changed(sender=None, task=task, previous_status='active')),
+    )
+    for event_key, handler in cases:
+        with patch.object(notify, '_dispatch_notification') as dispatch:
+            handler()
+        assert dispatch.call_args.kwargs['push_event'] == event_key
+
+
 @pytest.mark.parametrize('push,websocket', [(True, False), (False, True), (False, False), (True, True)])
 def test_dispatch_honors_independent_channel_flags(push, websocket, transport):
     with patch.object(notify, 'send_fcm_to_all_sync') as fcm, patch.object(notify, 'send_websocket_to_all_sync') as ws:
@@ -286,6 +397,7 @@ def test_updated_post_notification_is_sent_once_per_throttle_window(transport):
     dispatch.assert_called_once()
     assert dispatch.call_args.args[1].startswith('Post title\n')
     assert dispatch.call_args.args[2:] == ('https://example.test/post/7', 'post-7')
+    assert dispatch.call_args.kwargs['push_event'] == 'document.important_updated'
 
 
 @pytest.mark.parametrize('entrypoint', ['sync', 'thread', 'dispatch-background'])
