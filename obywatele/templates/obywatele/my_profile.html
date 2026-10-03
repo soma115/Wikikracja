@@ -182,7 +182,7 @@
       <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Skills / Knowledge / Hobby" %}</span><span class="tw-profile-val {% if not profile.skills_knowledge_hobby %}tw-profile-val--empty{% endif %}">{{ profile.skills_knowledge_hobby|default:"—" }}</span></div>
       <div class="tw-profile-row"><span class="tw-profile-key">{% trans "I want to learn" %}</span><span class="tw-profile-val {% if not profile.want_to_learn %}tw-profile-val--empty{% endif %}">{{ profile.want_to_learn|default:"—" }}</span></div>
       {% for assignment in profile.resource_assignments.all %}
-      <div class="tw-profile-row"><span class="tw-profile-key">{{ assignment.get_kind_display }}</span><span class="tw-profile-val"><strong>{{ assignment.item.name }}</strong></span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{{ assignment.get_kind_display }}</span><span class="tw-profile-val"><strong>{{ assignment.name }}</strong>{% if assignment.description %}<br>{{ assignment.description|urlize|linebreaksbr }}{% endif %}</span></div>
       {% empty %}
       <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Resources" %}</span><span class="tw-profile-val tw-profile-val--empty">—</span></div>
       {% endfor %}

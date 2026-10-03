@@ -261,7 +261,13 @@ class ProfileForm(forms.ModelForm):
 
 class ResourceAssignmentForm(forms.Form):
     kind = forms.ChoiceField(choices=(('', _('Select type')), *ResourceAssignment.Kind.choices), label=_('Type'))
-    name = forms.CharField(max_length=200, label=_('Name'), widget=forms.TextInput(attrs={'data-resource-name': 'true', 'autocomplete': 'off'}))
+    name = forms.CharField(max_length=200, label=_('Name'))
+    description = forms.CharField(max_length=1866, required=False, label=_('Description'), widget=forms.Textarea(attrs={'rows': 3}))
+
+    def __init__(self, *args, profile=None, assignment=None, **kwargs):
+        self.profile = profile
+        self.assignment = assignment
+        super().__init__(*args, **kwargs)
 
     def clean_kind(self):
         value = self.cleaned_data.get('kind')
@@ -273,6 +279,12 @@ class ResourceAssignmentForm(forms.Form):
         value = ' '.join((self.cleaned_data.get('name') or '').split())
         if not value:
             raise forms.ValidationError(_('Enter a name.'))
+        if self.profile:
+            assignments = ResourceAssignment.objects.filter(profile=self.profile, name__iexact=value, kind=self.cleaned_data.get('kind'))
+            if self.assignment:
+                assignments = assignments.exclude(pk=self.assignment.pk)
+            if assignments.exists():
+                raise forms.ValidationError(_('This item is already assigned with this type.'))
         return value
 
 

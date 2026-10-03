@@ -24,6 +24,7 @@ urlpatterns = (
     path('<int:pk>/private-note/', v.private_note, name='private_note'),
     path('my_assets/', v.my_assets, name='my_assets'),
     path('my_assets/resources/save/', v.save_resource_assignment, name='save_resource_assignment'),
+    path('my_assets/resources/<int:pk>/edit/', v.edit_resource_assignment, name='edit_resource_assignment'),
     path('my_assets/resources/<int:pk>/delete/', v.delete_resource_assignment, name='delete_resource_assignment'),
     path('my_assets/resources/search/', v.search_resource_items, name='search_resource_items'),
     path('nowy/', v.dodaj, name='zaproponuj_osobe'),

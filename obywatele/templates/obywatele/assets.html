@@ -82,10 +82,11 @@
       {% for assignment in offer_assignments %}
       <article class="tw-card">
         <div class="tw-card-header tw-flex tw-items-start tw-justify-between tw-gap-2">
-          <h3 class="tw-font-semibold tw-mb-0">{{ assignment.item.name }}</h3>
+          <h3 class="tw-font-semibold tw-mb-0">{{ assignment.name }}</h3>
           <span class="tw-badge-status {% if assignment.kind == 'borrow' %}tw-badge-info{% elif assignment.kind == 'give' %}tw-badge-success{% elif assignment.kind == 'sale' %}tw-badge-danger{% else %}tw-badge-warning{% endif %}">{{ assignment.get_kind_display }}</span>
         </div>
         <div class="tw-card-body tw-space-y-2">
+          {% if assignment.description %}<p class="tw-mb-0 tw-whitespace-pre-wrap tw-text-sm">{{ assignment.description|urlize|linebreaksbr }}</p>{% endif %}
           <a href="{{ assignment.profile.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ assignment.profile.uid|display_name }}</a>
           <div class="tw-text-sm tw-text-muted"><span class="tw-font-semibold">{% trans "City / Commune" %}:</span> {{ assignment.profile.city|default:"—"|title }}<br><span class="tw-font-semibold">{% trans "Voivodeship" %}:</span> {{ assignment.profile.voivodeship.name|default:"—" }}</div>
         </div>
@@ -105,10 +106,11 @@
       {% for assignment in need_assignments %}
       <article class="tw-card">
         <div class="tw-card-header tw-flex tw-items-start tw-justify-between tw-gap-2">
-          <h3 class="tw-font-semibold tw-mb-0">{{ assignment.item.name }}</h3>
+          <h3 class="tw-font-semibold tw-mb-0">{{ assignment.name }}</h3>
           <span class="tw-badge-status tw-badge-warning">{{ assignment.get_kind_display }}</span>
         </div>
         <div class="tw-card-body tw-space-y-2">
+          {% if assignment.description %}<p class="tw-mb-0 tw-whitespace-pre-wrap tw-text-sm">{{ assignment.description|urlize|linebreaksbr }}</p>{% endif %}
           <a href="{{ assignment.profile.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ assignment.profile.uid|display_name }}</a>
           <div class="tw-text-sm tw-text-muted"><span class="tw-font-semibold">{% trans "City / Commune" %}:</span> {{ assignment.profile.city|default:"—"|title }}<br><span class="tw-font-semibold">{% trans "Voivodeship" %}:</span> {{ assignment.profile.voivodeship.name|default:"—" }}</div>
         </div>

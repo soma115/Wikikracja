@@ -123,7 +123,7 @@
   --alert-success-bg: var(--color-success);
   --alert-success-color: var(--text-inverse);
   --alert-success-border: var(--border);
-  --alert-warning-bg: var(--color-warning);
+  --alert-warning-bg: #8a5d00;
   --alert-warning-color: var(--text-inverse);
   --alert-warning-border: var(--border);
   --alert-danger-bg: var(--color-danger);
@@ -253,9 +253,9 @@
   --alert-success-bg: rgba(0, 153, 132, .07);
   --alert-success-color: #065f50;
   --alert-success-border: rgba(0, 153, 132, .2);
-  --alert-warning-bg: rgba(243, 156, 18, .07);
-  --alert-warning-color: #8a5d00;
-  --alert-warning-border: rgba(243, 156, 18, .2);
+  --alert-warning-bg: rgba(243, 156, 18, .12);
+  --alert-warning-color: #704500;
+  --alert-warning-border: rgba(243, 156, 18, .3);
   --alert-danger-bg: rgba(239, 68, 68, .07);
   --alert-danger-color: #991b1b;
   --alert-danger-border: rgba(239, 68, 68, .2);

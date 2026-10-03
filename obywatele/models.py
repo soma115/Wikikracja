@@ -42,20 +42,6 @@ class Region(models.Model):
         return f"{self.name} ({self.country.code})"
 
 
-class ResourceItem(models.Model):
-    name = models.CharField(max_length=200, verbose_name=_('Name'))
-    created_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='created_resource_items', verbose_name=_('Created by'))
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
-    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
-
-    class Meta:
-        ordering = ('name',)
-        constraints = [models.UniqueConstraint(Lower('name'), name='unique_resource_item_name_ci')]
-
-    def __str__(self):
-        return self.name
-
-
 class Uzytkownik(models.Model):
     class OnboardingStatus(models.TextChoices):
         EMAIL_ENTERED = 'email_entered', _('Email entered')
@@ -231,17 +217,18 @@ class ResourceAssignment(models.Model):
         NEED = 'need', _('I need')
 
     profile = models.ForeignKey(Uzytkownik, on_delete=models.CASCADE, related_name='resource_assignments', verbose_name=_('Profile'))
-    item = models.ForeignKey(ResourceItem, on_delete=models.PROTECT, related_name='assignments', verbose_name=_('Resource'))
+    name = models.CharField(max_length=200, verbose_name=_('Name'))
+    description = models.TextField(max_length=1866, blank=True, default='', verbose_name=_('Description'))
     kind = models.CharField(max_length=10, choices=Kind.choices, verbose_name=_('Type'))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
 
     class Meta:
-        ordering = ('kind', 'item__name')
-        constraints = [models.UniqueConstraint(fields=('profile', 'item', 'kind'), name='unique_resource_assignment')]
+        ordering = ('kind', 'name')
+        constraints = [models.UniqueConstraint(Lower('name'), 'profile', 'kind', name='unique_resource_assignment_name_ci')]
 
     def __str__(self):
-        return f'{self.profile} — {self.item} ({self.get_kind_display()})'
+        return f'{self.profile} — {self.name} ({self.get_kind_display()})'
 
 
 class PrivateNote(models.Model):

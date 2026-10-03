@@ -150,7 +150,8 @@ window.wkOnReady(function() {
             <h3 class="tw-section-heading tw-mb-3">{% trans "Resources" %}</h3>
             {% for assignment in b.resource_assignments.all %}
             <div class="tw-border tw-border-subtle tw-rounded-card tw-p-3 tw-mb-3">
-              <div class="tw-font-semibold">{{ assignment.get_kind_display }}: {{ assignment.item.name }}</div>
+              <div class="tw-font-semibold">{{ assignment.get_kind_display }}: {{ assignment.name }}</div>
+              {% if assignment.description %}<p class="tw-mt-1 tw-mb-0">{{ assignment.description|urlize|linebreaksbr }}</p>{% endif %}
             </div>
             {% empty %}
             <p class="tw-text-muted">—</p>

@@ -14,8 +14,8 @@ from django.contrib.auth.models import User
 from django.contrib.messages import error, success
 from django.core.mail import send_mail
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
-from django.db import DatabaseError, IntegrityError
-from django.db.models import Case, Count, F, IntegerField, Q, Sum, Value, When
+from django.db import DatabaseError, IntegrityError, transaction
+from django.db.models import Case, Count, F, IntegerField, Min, Q, Sum, Value, When
 from django.dispatch import receiver
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -36,7 +36,7 @@ from core.signals import citizen_proposed
 from core.utils import get_user_language
 from home.navigation import default_toolbar_views
 from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, ResourceAssignmentForm, UserForm, UsernameChangeForm
-from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, ResourceAssignment, ResourceItem, Uzytkownik
+from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, ResourceAssignment, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items, invalidate_user_sessions, publish_deletion_feedback
 from site_settings.params import get_param
 from tasks.activity import get_active_coordinated_tasks_by_user_ids, get_user_tasks
@@ -232,7 +232,7 @@ def obywatele(request: HttpRequest):
     uid = (
         User.objects.filter(is_active=True)
         .select_related('uzytkownik', 'uzytkownik__voivodeship')
-        .prefetch_related('uzytkownik__resource_assignments__item')
+        .prefetch_related('uzytkownik__resource_assignments')
         .annotate(
             username_is_blank=Case(When(Q(username__isnull=True) | Q(username__exact=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
             email_is_blank=Case(When(Q(email__isnull=True) | Q(email__exact=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
@@ -463,7 +463,7 @@ def unsubscribe_notifications(request: HttpRequest, token: str):
 @login_required
 def my_profile(request: HttpRequest):
     user = request.user
-    profile = Uzytkownik.objects.prefetch_related('resource_assignments__item').get(pk=request.user.uzytkownik.pk)
+    profile = Uzytkownik.objects.prefetch_related('resource_assignments').get(pk=request.user.uzytkownik.pk)
 
     push_notifications = [
         {'type': 'push_task', 'title': _('Activities'), 'description': _('New activities'), 'enabled': profile.push_notifications_task},
@@ -599,8 +599,15 @@ def toggle_notification(request: HttpRequest):
         return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 
-def _my_assets_context(user, profile, form, resource_form=None):
-    return {'user': user, 'profile': profile, 'form': form, 'resource_form': resource_form or ResourceAssignmentForm(), 'resource_assignments': profile.resource_assignments.select_related('item')}
+def _my_assets_context(user, profile, form, resource_form=None, edit_assignment=None):
+    return {
+        'user': user,
+        'profile': profile,
+        'form': form,
+        'resource_form': resource_form or ResourceAssignmentForm(profile=profile),
+        'resource_assignments': profile.resource_assignments.all(),
+        'edit_assignment': edit_assignment,
+    }
 
 
 @login_required
@@ -628,24 +635,13 @@ def my_assets(request: HttpRequest):
 def save_resource_assignment(request: HttpRequest):
     user = request.user
     profile = user.uzytkownik
-    form = ResourceAssignmentForm(request.POST)
+    form = ResourceAssignmentForm(request.POST, profile=profile)
     profile_form = ProfileForm(instance=profile, initial={'first_name': user.first_name, 'last_name': user.last_name})
     if not form.is_valid():
         return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, profile_form, form))
 
-    item = ResourceItem.objects.filter(name__iexact=form.cleaned_data['name']).first()
-    if item is not None and ResourceAssignment.objects.filter(profile=profile, item=item, kind=form.cleaned_data['kind']).exists():
-        form.add_error('kind', _('This item is already assigned with this type.'))
-        return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, profile_form, form))
-
-    if item is None:
-        try:
-            item = ResourceItem.objects.create(name=form.cleaned_data['name'], created_by=user)
-        except IntegrityError:
-            item = get_object_or_404(ResourceItem, name__iexact=form.cleaned_data['name'])
-
     try:
-        ResourceAssignment.objects.create(profile=profile, item=item, kind=form.cleaned_data['kind'])
+        ResourceAssignment.objects.create(profile=profile, name=form.cleaned_data['name'], description=form.cleaned_data['description'], kind=form.cleaned_data['kind'])
     except IntegrityError:
         form.add_error('kind', _('This item is already assigned with this type.'))
         return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, profile_form, form))
@@ -653,13 +649,34 @@ def save_resource_assignment(request: HttpRequest):
 
 
 @login_required
+def edit_resource_assignment(request: HttpRequest, pk: int):
+    user = request.user
+    profile = user.uzytkownik
+    assignment = get_object_or_404(ResourceAssignment, pk=pk, profile=profile)
+    profile_form = ProfileForm(instance=profile, initial={'first_name': user.first_name, 'last_name': user.last_name})
+    initial = {'kind': assignment.kind, 'name': assignment.name, 'description': assignment.description}
+    form = ResourceAssignmentForm(request.POST if request.method == 'POST' else None, initial=initial, profile=profile, assignment=assignment)
+
+    if request.method == 'POST' and form.is_valid():
+        assignment.name = form.cleaned_data['name']
+        assignment.description = form.cleaned_data['description']
+        assignment.kind = form.cleaned_data['kind']
+        try:
+            with transaction.atomic():
+                assignment.save(update_fields=['name', 'description', 'kind', 'updated_at'])
+        except IntegrityError:
+            form.add_error('kind', _('This item is already assigned with this type.'))
+        else:
+            return redirect('obywatele:my_assets')
+
+    return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, profile_form, form, assignment))
+
+
+@login_required
 @require_POST
 def delete_resource_assignment(request: HttpRequest, pk: int):
     assignment = get_object_or_404(ResourceAssignment, pk=pk, profile=request.user.uzytkownik)
-    item = assignment.item
     assignment.delete()
-    if not item.assignments.exists():
-        item.delete()
     return redirect('obywatele:my_assets')
 
 
@@ -667,13 +684,13 @@ def delete_resource_assignment(request: HttpRequest, pk: int):
 def search_resource_items(request: HttpRequest):
     query = (request.GET.get('q') or '').strip()
     kind = request.GET.get('kind')
-    items = ResourceItem.objects.all()
+    assignments = ResourceAssignment.objects.filter(profile__uid__is_active=True)
     if kind in ResourceAssignment.Kind.values:
-        items = items.filter(assignments__kind=kind).distinct()
+        assignments = assignments.filter(kind=kind)
     if query:
-        items = items.filter(name__icontains=query)
-    items = items.order_by('name')[:20]
-    return JsonResponse({'items': [{'id': item.pk, 'name': item.name} for item in items]})
+        assignments = assignments.filter(name__icontains=query)
+    items = assignments.values('name').annotate(id=Min('pk')).order_by('name')[:20]
+    return JsonResponse({'items': [{'id': item['id'], 'name': item['name']} for item in items]})
 
 
 class AssetSearchView(LoginRequiredMixin, ListView):
@@ -683,20 +700,20 @@ class AssetSearchView(LoginRequiredMixin, ListView):
     paginate_by = 24
 
     def get_queryset(self):
-        queryset = ResourceAssignment.objects.filter(profile__uid__is_active=True).select_related('profile__uid', 'profile__voivodeship', 'item')
+        queryset = ResourceAssignment.objects.filter(profile__uid__is_active=True).select_related('profile__uid', 'profile__voivodeship')
         query = (self.request.GET.get('q') or '').strip()
         kind = self.request.GET.get('kind')
         city = (self.request.GET.get('city') or '').strip()
         voivodeship = (self.request.GET.get('voivodeship') or '').strip()
         if query:
-            queryset = queryset.filter(item__name__icontains=query)
+            queryset = queryset.filter(name__icontains=query)
         if kind in ResourceAssignment.Kind.values:
             queryset = queryset.filter(kind=kind)
         if city:
             queryset = queryset.filter(profile__city=city)
         if voivodeship:
             queryset = queryset.filter(profile__voivodeship__name=voivodeship)
-        return queryset.order_by('kind', 'item__name', 'profile__uid__last_name', 'profile__uid__first_name')
+        return queryset.order_by('kind', 'name', 'profile__uid__last_name', 'profile__uid__first_name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -761,7 +778,7 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
     '''
     # zliczaj_obywateli(request)  # run reputation counting because a lot can change in the meanwhile
 
-    candidate_profile = get_object_or_404(Uzytkownik.objects.prefetch_related('resource_assignments__item'), uid_id=pk)
+    candidate_profile = get_object_or_404(Uzytkownik.objects.prefetch_related('resource_assignments'), uid_id=pk)
     candidate_user = User.objects.get(pk=pk)
     email_confirmed = is_email_confirmed_for_candidate(candidate_user, candidate_profile)
     form_completion_percent = candidate_profile.form_completion_percent
