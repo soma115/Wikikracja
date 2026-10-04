@@ -243,7 +243,7 @@ def send_fcm_to_user_sync(user, notification, notification_type=None, source_use
         log.debug(f"{NOTIF_LOG_TAG} Sending FCM notification_id={notification_id} to user {user.id} ({device_count} device(s))")
         result = fcm_devices.send_message(message)
         if result and result.success_count > 0:
-            log.info(f"{NOTIF_LOG_TAG} FCM sent {result.success_count}/{device_count} notification(s) to user {user.id}, notification_id={notification_id}")
+            log.debug(f"{NOTIF_LOG_TAG} FCM sent {result.success_count}/{device_count} notification(s) to user {user.id}, notification_id={notification_id}")
         if result:
             for idx, resp in enumerate(result.responses):
                 if not resp.success:
@@ -282,7 +282,7 @@ def send_fcm_to_all_sync(notification, user_ids=None, notification_type=None):
         message = _build_fcm_message(notification)
         result = qs.send_message(message)
         if result and result.success_count > 0:
-            log.info(f"{NOTIF_LOG_TAG} FCM broadcast sent {result.success_count} notification(s), notification_id={notification_id}")
+            log.debug(f"{NOTIF_LOG_TAG} FCM broadcast sent {result.success_count} notification(s), notification_id={notification_id}")
         if result:
             for idx, resp in enumerate(result.responses):
                 if not resp.success:

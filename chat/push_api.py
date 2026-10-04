@@ -51,7 +51,7 @@ class PushDeviceRegisterView(View):
                 # previously unregistered devices.
                 existing = GCMDevice.objects.filter(user=user, registration_id=registration_id).first()
                 if existing and existing.active and cache.get(debounce_key):
-                    log.info(f"{NOTIF_LOG_TAG} User {user.id} debounced duplicate push registration: {platform}")
+                    log.debug(f"{NOTIF_LOG_TAG} User {user.id} debounced duplicate push registration: {platform}")
                     return JsonResponse({'success': True, 'platform': platform, 'debounced': True})
 
                 # A registration_id (FCM token) identifies one physical
@@ -81,7 +81,7 @@ class PushDeviceRegisterView(View):
             else:
                 return JsonResponse({'error': f'Unsupported platform: {platform}'}, status=400)
 
-            log.info(f"{NOTIF_LOG_TAG} User {user.id} registered push device: {platform}")
+            log.debug(f"{NOTIF_LOG_TAG} User {user.id} registered push device: {platform}")
 
             return JsonResponse({'success': True, 'device_id': device.id, 'platform': platform, 'created': created})
 
@@ -129,7 +129,7 @@ class PushDeviceUnregisterView(View):
                 # (e.g. user toggled notifications off and back on).
                 cache.delete(f'push_reg_debounce:{registration_id}')
 
-            log.info(f"{NOTIF_LOG_TAG} User {user.id} unregistered {count} {platform} device(s)")
+            log.debug(f"{NOTIF_LOG_TAG} User {user.id} unregistered {count} {platform} device(s)")
 
             return JsonResponse({'success': True, 'deactivated': count})
 
@@ -193,7 +193,7 @@ class PushNotificationAckView(View):
         if status == 'error':
             log.warning(log_line)
         else:
-            log.info(log_line)
+            log.debug(log_line)
 
         presence_updated = status == 'shown' and record_presence(request.user, 'push')
         if presence_updated:

@@ -120,4 +120,4 @@ def deliver_notification_job(job):
     ws_type = 'chat.mention' if is_mention else 'chat.notification'
     core_notifications.send_websocket_to_user_sync(user.id, notification, ws_type=ws_type, notification_type=notification_type, push_event=push_event)
     core_notifications.send_fcm_to_user_sync(user, notification, notification_type=notification_type, source_user_id=notification.get('source_user_id'), push_event=push_event)
-    log.info("%s Delivered chat notification job %s to user %s", NOTIF_LOG_TAG, job['job_id'], user.id)
+    log.debug("%s Delivered chat notification job %s to user %s", NOTIF_LOG_TAG, job['job_id'], user.id)

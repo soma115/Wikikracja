@@ -448,7 +448,7 @@ class PushNotificationAckViewTest(TestCase):
                 response = self._ack(payload)
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response.json(), {'success': True})
-                logger, unused = (log.warning, log.info) if status == 'error' else (log.info, log.warning)
+                logger, unused = (log.warning, log.debug) if status == 'error' else (log.debug, log.warning)
                 logger.assert_called_once()
                 unused.assert_not_called()
                 line = logger.call_args.args[0]
@@ -477,9 +477,9 @@ class PushNotificationAckViewTest(TestCase):
         with patch('chat.push_api.log') as log:
             response = self._ack({})
         self.assertEqual(response.status_code, 200)
-        log.info.assert_called_once()
+        log.debug.assert_called_once()
         for field in ('notification_id=?', 'status=unknown', 'source=unknown'):
-            self.assertIn(field, log.info.call_args.args[0])
+            self.assertIn(field, log.debug.call_args.args[0])
 
     def test_ack_rejects_non_object_json(self):
         self.client.raise_request_exception = False
@@ -493,5 +493,5 @@ class PushNotificationAckViewTest(TestCase):
                 response = self.client.post(reverse('chat:push_ack'), data=body, content_type='application/json')
                 self.assertEqual(response.status_code, 400)
                 self.assertEqual(response.json(), {'error': 'Invalid JSON'})
-                log.info.assert_not_called()
+                log.debug.assert_not_called()
                 log.warning.assert_not_called()
