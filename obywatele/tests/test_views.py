@@ -264,6 +264,21 @@ class CitizenListViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="tw-stepper-step-wrap tw-active"')
 
+    def test_low_reputation_badge_is_shown_in_list_and_grid(self):
+        viewer = User.objects.create_user(username='low-reputation-viewer', password='secret', is_active=True)
+        citizen = User.objects.create_user(username='high-reputation-citizen', password='secret', is_active=True)
+        Rate.objects.create(kandydat=citizen.uzytkownik, obywatel=viewer.uzytkownik, rate=2)
+        self.client.force_login(viewer)
+
+        with patch('obywatele.views.required_reputation', return_value=0):
+            response = self.client.get(reverse('obywatele:obywatele'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'title="{_("This person has low reputation points")}"', count=2)
+        citizens = {user.username: user for user in response.context['uid']}
+        self.assertTrue(citizens[viewer.username].near_threshold)
+        self.assertFalse(citizens[citizen.username].near_threshold)
+
     def test_list_and_grid_show_pending_deletion_badge(self):
         viewer = User.objects.create_user(username='deletion-viewer', password='secret', is_active=True)
         citizen = User.objects.create_user(username='deletion-citizen', password='secret', is_active=True)
