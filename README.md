@@ -83,7 +83,7 @@ The script prepares `.env` on first run, applies migrations and starts the devel
 python scripts/start_dev.py
 ```
 
-The server listens at http://localhost:8006 by default; pass `--port 8000` to use another port.
+The server listens at http://localhost:8006 by default; pass `--port <port>` to use another port.
 
 For detailed development, testing, Docker, deployment, configuration and management instructions, see [docs/DEPLOYMENT_INSTRUCTIONS.md](docs/DEPLOYMENT_INSTRUCTIONS.md).
 

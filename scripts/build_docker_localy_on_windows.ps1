@@ -87,7 +87,7 @@ try {
     Invoke-Compose @("run", "--rm", "web", "python", "manage.py", "migrate", "--noinput")
 
     Write-Host "Redis is external to this Compose stack; verify REDIS_HOST in .env."
-    Write-Host "Application URL: http://localhost:8000"
+    Write-Host "Application URL: http://localhost:8006"
     if ($Detached) {
         Invoke-Compose @("up", "-d")
         Write-Host "Containers started in the background. View logs with: docker compose logs -f"
