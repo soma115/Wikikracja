@@ -10,6 +10,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.management import call_command
+from django.template.loader import render_to_string
 from django.test import TransactionTestCase, override_settings
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -363,6 +364,20 @@ def test_digest_author_follows_latest_message_anonymity(digest_user, another_use
     title = context['sections'][0]['items'][0]['title']
     assert ('AN' in title) is (not latest_anonymous)
     assert room.title in title
+
+
+@pytest.mark.django_db
+def test_digest_mentions_are_prominent_in_html_and_text(digest_user, another_user):
+    room = Room.objects.create(title='Mentioned room', public=True)
+    Message.objects.create(room=room, sender=another_user, text=f'Hej @{digest_user.username}')
+    item = next(item for item in build_user_digest(digest_user, timezone.now() - td(hours=1)) if item['content_type'] == 'room_messages' and item['room_id'] == room.pk)
+    assert item['is_mentioned']
+
+    context = Command()._build_digest_context(digest_user, [item])
+    label = f'[{_("mentioned you")}]'
+    assert context['sections'][0]['items'][0]['title'].startswith(f'{label} ')
+    assert label in render_to_string('emails/digest.html', context)
+    assert label in render_to_string('emails/digest.txt', context)
 
 
 @pytest.mark.django_db

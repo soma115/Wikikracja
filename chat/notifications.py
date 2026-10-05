@@ -65,9 +65,10 @@ class ChatNotificationService:
                 await consumer.push_unread_count()
                 await consumer.send_json({"unsee_room": room.id})
 
+        mention_notification = {**notification, 'title': f'[{_("mentioned you")}] {room_name or _("Chat")}'}
         for user in mentioned_users:
             if user.id != (sender.id if sender else None):
-                await self._enqueue_delivery(user.id, room.id, notification, 'mention', push_event or 'chat.mention')
+                await self._enqueue_delivery(user.id, room.id, mention_notification, 'mention', push_event or 'chat.mention')
 
     async def _enqueue_delivery(self, user_id, room_id, notification, kind, push_event):
         try:

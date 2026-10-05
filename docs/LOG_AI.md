@@ -1,5 +1,23 @@
 # LOG_AI
 
+## 2026-10-05: Wyraźne oznaczenie wzmianek w pushu i digescie
+
+- **Zmienione obszary:** `chat.notifications`, `home.management.commands.send_email_digest` oraz testy tych dwóch kanałów.
+- **Co się zmieniło:** Tytuł istniejącego powiadomienia o wzmiance i tytuł pozycji czatu w digescie HTML/tekstowym rozpoczyna się od `[wzmianka o Tobie]` (z użyciem już przetłumaczonego tekstu). W digescie etykieta została przeniesiona z małego metadopisku do widocznego tytułu.
+- **Uzasadnienie:** Push FCM dla `chat.mention` już działał, ale miał taki sam tytuł jak zwykła wiadomość. Wspólna kolejka, godzinny limit i ustawienia użytkownika pozostają bez zmian zgodnie z decyzją użytkownika; czekające powiadomienie nadal może zostać zastąpione najnowszą wiadomością z pokoju. Nie powstaje dodatkowy e-mail ani drugi push.
+- **Weryfikacja:** 29 testów czatu i kolejki oraz 33 testy digestu, Django check, Ruff, build CSS, regression scan, UI guard i `git diff --check`. Wykorzystano istniejący przetłumaczony tekst `mentioned you`, więc nie dodano nowych kluczy tłumaczeń.
+- **Spodziewany efekt:** Odbiorca widzi, że został zawołany, zarówno w istniejącym powiadomieniu push, jak i w e-mailowym podsumowaniu.
+
+## 2026-10-05: Jednoznaczne podpowiedzi wzmianek na czacie
+
+- **Zmienione obszary:** endpoint i testy widoków czatu, wspólna logika edytorów głównego i osadzonego czatu.
+- **Co się zmieniło:** Wpisanie `@` i fragmentu imienia, nazwiska lub loginu może pokazać jedną podpowiedź uczestnika pokoju. Podpowiedź pojawia się wyłącznie przy jednym dopasowaniu i można ją wybrać Tabem lub kliknięciem; do wiadomości trafia istniejący format `@username`.
+- **Uzasadnienie:** Wykorzystuje obecny mechanizm powiadomień o wzmiankach, nie zmienia formatu wiadomości ani schematu danych; brak automatycznego wyboru przy kilku trafieniach chroni przed omyłkowym zawołaniem innej osoby.
+- **Weryfikacja:** Testy widoków czatu i Jest dla czatu, Django check, Ruff, build CSS, regression scan oraz UI guard. Uruchomienie testów odświeżyło również `locale/pl/LC_MESSAGES/django.po`; plik pozostawiono zgodnie z decyzją użytkownika.
+- **Poprawka kursora:** Po zatwierdzeniu podpowiedzi Tabem lub kliknięciem edytor odzyskuje fokus, a kursor trafia na koniec wstawionego `@username `, nie przed wzmiankę. Testy JS sprawdzają oba sposoby zatwierdzenia oraz pozycję zaznaczenia.
+- **Separator po wzmiance:** Zwykłą spację na końcu wstawionego węzła zastąpiono spacją niełamliwą, żeby edytor HTML nie zwijał jej przy dalszym pisaniu. Testy sprawdzają zachowanie separatora i wykrywanie wzmianki przez serwer także po serializacji jako `&nbsp;`.
+- **Spodziewany efekt:** Szybsze i bezpieczniejsze wołanie osób także w czatach osadzonych bez rozwijanej listy.
+
 ## 2026-10-03: Uproszczenie instrukcji uruchamiania i helpera Compose
 
 - **Zmienione obszary:** `docs/DEPLOYMENT_INSTRUCTIONS.md`, `scripts/build_docker_localy_on_windows.ps1`, `scripts/start_dev.py`.

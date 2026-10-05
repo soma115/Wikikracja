@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 23:07+0200\n"
+"POT-Creation-Date: 2026-10-05 18:31+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -373,8 +373,9 @@ msgstr "Zapisz"
 
 #: .\ankiety\templates\ankiety\survey_list.html:59
 #: .\board\templates\board\_post_chat_link.html:5
-#: .\board\templates\board\_post_chat_link.html:7 .\chat\notifications.py:102
-#: .\chat\search.py:20 .\chat\templates\chat\_embedded_chat.html:22
+#: .\board\templates\board\_post_chat_link.html:7 .\chat\notifications.py:68
+#: .\chat\notifications.py:103 .\chat\search.py:20
+#: .\chat\templates\chat\_embedded_chat.html:22
 #: .\glosowania\templates\glosowania\_proposal_card.html:62
 #: .\glosowania\templates\glosowania\_proposal_card.html:67
 #: .\home\navigation.py:22 .\home\services\dashboard.py:34
@@ -1740,17 +1741,24 @@ msgid "No access to this chat."
 msgstr "Brak dostępu do tego czatu."
 
 #: .\chat\models.py:70 .\chat\services.py:183
-#: .\obywatele\tests\test_views.py:481 .\obywatele\tests\test_views.py:482
-#: .\obywatele\tests\test_views.py:485
+#: .\obywatele\tests\test_views.py:496 .\obywatele\tests\test_views.py:497
+#: .\obywatele\tests\test_views.py:500
 msgid "Chat room"
 msgstr "Pokój czatu"
 
-#: .\chat\notifications.py:102
+#: .\chat\notifications.py:68 .\chat\tests\test_consumers.py:221
+#: .\chat\tests\test_consumers.py:222
+#: .\home\management\commands\send_email_digest.py:194
+#: .\home\test_email_digest.py:377
+msgid "mentioned you"
+msgstr "wzmianka o Tobie"
+
+#: .\chat\notifications.py:103
 #, python-format
 msgid "Room: %(room)s"
 msgstr "Pokój: %(room)s"
 
-#: .\chat\notifications.py:103
+#: .\chat\notifications.py:104
 #, python-format
 msgid "Sender: %(author)s"
 msgstr "Nadawca: %(author)s"
@@ -1818,7 +1826,7 @@ msgstr "Inne grupy Wikikracji"
 #: .\chat\templates\chat\chat.html:136 .\chat\templates\chat\chat.html:370
 #: .\home\navigation.py:15 .\home\services\dashboard.py:27 .\home\views.py:118
 #: .\home\views.py:281
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:67
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:68
 #: .\obywatele\templates\obywatele\szczegoly.html:203 .\obywatele\views.py:469
 msgid "Activities"
 msgstr "Działania"
@@ -1929,7 +1937,7 @@ msgstr "Archiwa"
 msgid "Click the archive button (folder icon) next to each category to show archived rooms."
 msgstr "Kliknij przycisk archiwum (ikona folderu) obok każdej kategorii, aby pokazać zarchiwizowane pokoje."
 
-#: .\chat\templates\chat\guest_message.html:5 .\chat\tests\test_views.py:294
+#: .\chat\templates\chat\guest_message.html:5 .\chat\tests\test_views.py:352
 msgid "Send a message"
 msgstr "Wyślij wiadomość"
 
@@ -1964,20 +1972,20 @@ msgstr "Otwórz powiązaną treść"
 msgid "Mark as unread"
 msgstr "Oznacz jako nieprzeczytane"
 
-#: .\chat\views.py:82
+#: .\chat\views.py:93
 msgid "Invalid room name."
 msgstr "Nieprawidłowa nazwa pokoju."
 
-#: .\chat\views.py:316
+#: .\chat\views.py:327
 msgid "Too many messages. Please try again later."
 msgstr "Zbyt wiele wiadomości. Spróbuj ponownie później."
 
-#: .\chat\views.py:320
+#: .\chat\views.py:331
 msgid "The public inbox is not available at the moment."
 msgstr "Publiczna skrzynka nie jest obecnie dostępna."
 
 #: .\core\models.py:14 .\home\models.py:14
-#: .\home\templatetags\feed_filters.py:38 .\obywatele\tests\test_views.py:483
+#: .\home\templatetags\feed_filters.py:38 .\obywatele\tests\test_views.py:498
 #: .\tasks\activity.py:49 .\tasks\search.py:18
 msgctxt "task"
 msgid "Activity"
@@ -2298,20 +2306,20 @@ msgstr "Brak wydarzeń w tym przedziale czasu"
 msgid "Add the first event"
 msgstr "Stwórz pierwsze wydarzenie"
 
-#: .\glosowania\activity.py:13 .\obywatele\tests\test_views.py:408
+#: .\glosowania\activity.py:13 .\obywatele\tests\test_views.py:423
 msgid "Added argument"
 msgstr "Dodano argument"
 
-#: .\glosowania\activity.py:17 .\obywatele\tests\test_views.py:414
+#: .\glosowania\activity.py:17 .\obywatele\tests\test_views.py:429
 msgid "Signed proposal"
 msgstr "Podpisano propozycję"
 
-#: .\glosowania\activity.py:20 .\obywatele\tests\test_views.py:427
+#: .\glosowania\activity.py:20 .\obywatele\tests\test_views.py:442
 msgid "Voted in referendum"
 msgstr "Zagłosowano w referendum"
 
-#: .\glosowania\activity.py:32 .\obywatele\tests\test_views.py:484
-#: .\obywatele\tests\test_views.py:486
+#: .\glosowania\activity.py:32 .\obywatele\tests\test_views.py:499
+#: .\obywatele\tests\test_views.py:501
 msgid "Voting proposal"
 msgstr "Propozycja głosowania"
 
@@ -3181,46 +3189,42 @@ msgstr "[{HOST}] Podsumowanie aktywności"
 msgid "Untitled referendum"
 msgstr "Referendum bez tytułu"
 
-#: .\home\management\commands\send_email_digest.py:194
-msgid "mentioned you"
-msgstr "wzmianka o Tobie"
-
 #: .\home\management\commands\send_email_digest.py:196
 msgid "messages"
 msgstr "wiadomości"
 
-#: .\home\management\commands\send_email_digest.py:199
+#: .\home\management\commands\send_email_digest.py:198
 msgid "updates"
 msgstr "aktualizacje"
 
-#: .\home\management\commands\send_email_digest.py:223
+#: .\home\management\commands\send_email_digest.py:222
 msgid "Activity digest"
 msgstr "Podsumowanie aktywności"
 
-#: .\home\management\commands\send_email_digest.py:224
+#: .\home\management\commands\send_email_digest.py:223
 #, python-format
 msgid "Activity digest since %(date)s"
 msgstr "Podsumowanie aktywności od %(date)s"
 
-#: .\home\management\commands\send_email_digest.py:226
-#: .\home\test_email_digest.py:435 .\home\test_email_digest.py:438
+#: .\home\management\commands\send_email_digest.py:225
+#: .\home\test_email_digest.py:450 .\home\test_email_digest.py:453
 msgid "Important: voting was restarted after a technical failure"
 msgstr "Ważne: głosowanie zostało wznowione po awarii technicznej"
 
-#: .\home\management\commands\send_email_digest.py:227
+#: .\home\management\commands\send_email_digest.py:226
 msgid "Votes cast before the failure were lost and these referenda have started again. Please vote again:"
 msgstr "Głosy oddane przed awarią zostały utracone, a te referenda rozpoczęły się ponownie. Zagłosuj ponownie:"
 
-#: .\home\management\commands\send_email_digest.py:228
+#: .\home\management\commands\send_email_digest.py:227
 msgid "No activity in this section."
 msgstr "Brak aktywności w tej sekcji."
 
-#: .\home\management\commands\send_email_digest.py:229
-#: .\home\test_email_digest.py:424
+#: .\home\management\commands\send_email_digest.py:228
+#: .\home\test_email_digest.py:439
 msgid "Manage email notifications"
 msgstr "Zarządzaj powiadomieniami"
 
-#: .\home\management\commands\send_email_digest.py:230
+#: .\home\management\commands\send_email_digest.py:229
 msgid "Unsubscribe from all notifications"
 msgstr "Wyłącz wszystkie powiadomienia"
 
@@ -4034,7 +4038,7 @@ msgstr "Użyj publicznego linku do profilu z wybranego serwisu."
 #: .\obywatele\templates\obywatele\assets.html:115
 #: .\obywatele\templates\obywatele\my_profile.html:173
 #: .\obywatele\templates\obywatele\szczegoly.html:140
-#: .\obywatele\tests\test_views.py:1021
+#: .\obywatele\tests\test_views.py:1036
 msgid "Voivodeship"
 msgstr "Województwo"
 
@@ -4257,7 +4261,7 @@ msgid "Profession"
 msgstr "Wykonywany zawód"
 
 #: .\obywatele\models.py:92
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:64
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:65
 #: .\obywatele\templates\obywatele\my_profile.html:177
 #: .\obywatele\templates\obywatele\szczegoly.html:138
 #: .\obywatele\tests\test_views.py:247
@@ -4500,7 +4504,7 @@ msgstr ""
 "\n"
 "%(reason)s"
 
-#: .\obywatele\services.py:59 .\obywatele\tests\test_views.py:410
+#: .\obywatele\services.py:59 .\obywatele\tests\test_views.py:425
 msgid "Citizenship event"
 msgstr "Zdarzenie obywatelskie"
 
@@ -4612,43 +4616,45 @@ msgstr "Nieaktywni 7+ dni"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:14
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:53
+#: .\obywatele\tests\test_views.py:277
+msgid "This person has low reputation points"
+msgstr "Ta osoba ma mało punktów reputacji"
+
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:15
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:54
 #: .\obywatele\templates\obywatele\szczegoly.html:34
-#: .\obywatele\tests\test_views.py:275
+#: .\obywatele\tests\test_views.py:290
 msgid "This person has requested account deletion"
 msgstr "Ta osoba zażądała usunięcia swojego konta"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:16
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:87
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:17
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:88
 #: .\obywatele\templates\obywatele\poczekalnia.html:91
 msgid "No email"
 msgstr "Brak e-maila"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:17
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:96
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:18
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:97
 msgid "No contact method"
 msgstr "Brak metody kontaktu"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:18
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:101
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:19
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:102
 msgid "Direct message"
 msgstr "Wiadomość bezpośrednia"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:18
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:106
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:19
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:107
 #: .\obywatele\templates\obywatele\szczegoly.html:91
 msgid "This is you"
 msgstr "To jesteś Ty"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:52
-msgid "This person has low reputation points"
-msgstr "Ta osoba ma mało punktów reputacji"
-
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:62
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:63
 #: .\obywatele\tests\test_views.py:246
 msgid "Business"
 msgstr "Biznes"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:63
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:64
 #: .\obywatele\templates\obywatele\my_assets.html:63
 #: .\obywatele\templates\obywatele\my_profile.html:187
 #: .\obywatele\templates\obywatele\szczegoly.html:150
@@ -4656,12 +4662,12 @@ msgstr "Biznes"
 msgid "Resources"
 msgstr "Zasoby"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:65
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:66
 #: .\obywatele\tests\test_views.py:248
 msgid "Hobby"
 msgstr "Hobby"
 
-#: .\obywatele\templates\obywatele\_citizens_list_content.html:73
+#: .\obywatele\templates\obywatele\_citizens_list_content.html:74
 msgid "No activities"
 msgstr "Brak działań"
 
@@ -4711,7 +4717,7 @@ msgid "People in selected location"
 msgstr "Osoby w wybranej lokalizacji"
 
 #: .\obywatele\templates\obywatele\assets.html:78
-#: .\obywatele\tests\test_views.py:1007
+#: .\obywatele\tests\test_views.py:1022
 msgid "Offers"
 msgstr "Oferty"
 
@@ -4720,7 +4726,7 @@ msgid "No offers match your search."
 msgstr "Żadna oferta nie pasuje do wyszukiwania."
 
 #: .\obywatele\templates\obywatele\assets.html:102
-#: .\obywatele\tests\test_views.py:1008
+#: .\obywatele\tests\test_views.py:1023
 msgid "Needs"
 msgstr "Potrzeby"
 
@@ -4810,7 +4816,7 @@ msgstr "Tutaj możesz edytować twoje zasoby"
 
 #: .\obywatele\templates\obywatele\my_assets.html:22
 #: .\obywatele\templates\obywatele\onboarding_details.html:21
-#: .\obywatele\tests\test_views.py:799
+#: .\obywatele\tests\test_views.py:814
 msgid "The form could not be saved. Please correct the following errors:"
 msgstr "Nie udało się zapisać formularza. Popraw następujące błędy:"
 
@@ -5142,19 +5148,19 @@ msgstr "Zaproś"
 msgid "Parameters"
 msgstr "Parametry"
 
-#: .\obywatele\tests\test_views.py:409 .\tasks\activity.py:57
+#: .\obywatele\tests\test_views.py:424 .\tasks\activity.py:57
 msgid "Assigned activity"
 msgstr "Przydzielone działanie"
 
-#: .\obywatele\tests\test_views.py:411 .\tasks\activity.py:60
+#: .\obywatele\tests\test_views.py:426 .\tasks\activity.py:60
 msgid "Voted on activity"
 msgstr "Zagłosowano na działanie"
 
-#: .\obywatele\tests\test_views.py:412 .\tasks\activity.py:63
+#: .\obywatele\tests\test_views.py:427 .\tasks\activity.py:63
 msgid "Evaluated activity"
 msgstr "Oceniono działanie"
 
-#: .\obywatele\tests\test_views.py:413 .\tasks\activity.py:54
+#: .\obywatele\tests\test_views.py:428 .\tasks\activity.py:54
 msgid "Created activity"
 msgstr "Utworzone działanie"
 

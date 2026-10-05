@@ -4,7 +4,7 @@
  * Coordinates between WebSocket API (WsApi) and DOM API (DomApi) to provide chat functionality.
  */
 
-import { clearReplyTarget as coreClearReplyTarget, setReplyTarget as coreSetReplyTarget, voteButtonTitle } from './chat-core.js';
+import { clearReplyTarget as coreClearReplyTarget, initMentionSuggestion, setReplyTarget as coreSetReplyTarget, voteButtonTitle } from './chat-core.js';
 import DomApi from './domapi.js';
 import { MessageHistory } from './templates.js';
 import { $, $$, _, dateBannerHtml, formatDate, formatDateTime, Lock, mobileMedia, parseParms } from './utility.js';
@@ -1030,6 +1030,7 @@ export async function onRoomTryJoin(room_id, { preserveView = false, preserveCat
     WS_API.seenRoom(room_id);
     DOM_API.setRoomNotifications(response.notifications);
     DOM_API.createRoomDiv(room_id, response.title, response.public, response.notifications, response.can_post ?? true, response.source_app ?? '');
+    initMentionSuggestion(DOM_API.getMessageInput(), () => CurrentRoomId);
     resetSortState();
     bindSortToolbar();
     DOM_API.updateBreadcrumb(deriveBreadcrumb(room_id));

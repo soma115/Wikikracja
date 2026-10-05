@@ -87,6 +87,10 @@ class ExtractMentionsTest(TestCase):
     def test_deduplicates_mentions(self):
         self.assertEqual(extract_mentions("@alice @alice"), {"alice"})
 
+    def test_nonbreaking_space_after_mention_still_notifies(self):
+        self.assertEqual(extract_mentions("@alice\u00a0tekst"), {"alice"})
+        self.assertEqual(extract_mentions("@alice&nbsp;tekst"), {"alice"})
+
 
 class CanPostInRoomTest(TestCase):
     def setUp(self):

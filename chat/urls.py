@@ -9,6 +9,7 @@ urlpatterns = [
     path('dm/<int:pk>/', views.open_dm, name='open_dm'),
     path('add_room/', views.add_room, name='add_room'),
     path('api/rooms/search/', views.search_rooms, name='search_rooms'),
+    path('api/room/<int:room_id>/mention/', views.mention_suggestion, name='mention_suggestion'),
     path('upload/', views.upload_image),
     # Push notification API endpoints
     path('api/push/register/', push_api.PushDeviceRegisterView.as_view(), name='push_register'),

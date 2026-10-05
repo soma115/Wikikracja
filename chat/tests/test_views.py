@@ -124,6 +124,64 @@ class ChatViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["rooms"], [{"id": self.room.id, "title": "PublicRoom", "archived": False}, {"id": archived.id, "title": "PublicRoom Archive", "archived": True}])
 
+    def test_mention_suggestion_requires_room_membership(self):
+        candidate = make_user("candidate")
+        candidate.first_name = "Anna"
+        candidate.save(update_fields=["first_name"])
+        self.room.allowed.add(candidate)
+        url = reverse("chat:mention_suggestion", args=[self.room.pk])
+
+        self.assertEqual(self.client.get(url, {"q": "Ann"}).status_code, 302)
+        outsider = make_user("outsider")
+        self.client.force_login(outsider)
+        self.assertEqual(self.client.get(url, {"q": "Ann"}).status_code, 404)
+
+    def test_mention_suggestion_matches_name_but_inserts_username(self):
+        candidate = make_user("candidate")
+        candidate.first_name = "Anna"
+        candidate.last_name = "Nowak"
+        candidate.save(update_fields=["first_name", "last_name"])
+        self.room.allowed.add(candidate)
+        self.client.force_login(self.user)
+        url = reverse("chat:mention_suggestion", args=[self.room.pk])
+
+        self.assertEqual(self.client.get(url, {"q": "ann"}).json(), {"user": {"username": "candidate", "name": "Anna Nowak"}})
+        self.assertEqual(self.client.get(url, {"q": "now"}).json()["user"]["username"], "candidate")
+        self.assertEqual(self.client.get(url, {"q": "candi"}).json()["user"]["username"], "candidate")
+
+    def test_mention_suggestion_only_uses_members_of_selected_private_room(self):
+        candidate = make_user("privatecandidate")
+        private = Room.objects.create(title="Private mention", public=False)
+        private.allowed.add(self.user, candidate)
+        self.client.force_login(self.user)
+
+        self.assertEqual(self.client.get(reverse("chat:mention_suggestion", args=[private.pk]), {"q": "private"}).json()["user"]["username"], "privatecandidate")
+        self.assertIsNone(self.client.get(reverse("chat:mention_suggestion", args=[self.room.pk]), {"q": "private"}).json()["user"])
+
+    def test_mention_suggestion_never_guesses_among_multiple_matches(self):
+        for username in ("anna1", "anna2"):
+            candidate = make_user(username)
+            self.room.allowed.add(candidate)
+        self.client.force_login(self.user)
+        url = reverse("chat:mention_suggestion", args=[self.room.pk])
+
+        self.assertIsNone(self.client.get(url, {"q": "anna"}).json()["user"])
+        self.assertEqual(self.client.get(url, {"q": "anna1"}).json()["user"]["username"], "anna1")
+
+    def test_mention_suggestion_ignores_nonmembers_inactive_users_and_self(self):
+        make_user("other")
+        inactive = make_user("inactive")
+        inactive.is_active = False
+        inactive.save(update_fields=["is_active"])
+        self.room.allowed.add(inactive)
+        self.client.force_login(self.user)
+        url = reverse("chat:mention_suggestion", args=[self.room.pk])
+
+        self.assertIsNone(self.client.get(url, {"q": "other"}).json()["user"])
+        self.assertIsNone(self.client.get(url, {"q": "inactive"}).json()["user"])
+        self.assertIsNone(self.client.get(url, {"q": "chatuser"}).json()["user"])
+        self.assertIsNone(self.client.get(url, {"q": ""}).json()["user"])
+
     def test_add_room_get_requires_login(self):
         response = self.client.get(reverse("chat:add_room"))
         self.assertEqual(response.status_code, 302)

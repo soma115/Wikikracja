@@ -191,10 +191,9 @@ class Command(TranslatedCommand):
                 meta = ''
                 if content_type == 'room_messages':
                     if item.get('is_mentioned'):
-                        meta = _('mentioned you')
+                        title = f'[{_("mentioned you")}] {title}'
                     if update_count > 1:
-                        message_count = f'{update_count} {_("messages")}'
-                        meta = f'{message_count} • {meta}' if meta else message_count
+                        meta = f'{update_count} {_("messages")}'
                 elif update_count > 1:
                     meta = f'{update_count} {_("updates")}'
 

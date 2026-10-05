@@ -13,7 +13,7 @@ from django.core.cache import cache
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import IntegrityError
-from django.db.models import Count, Exists, OuterRef, Prefetch
+from django.db.models import Count, Exists, OuterRef, Prefetch, Q
 from django.db.models.functions import Lower
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -65,6 +65,17 @@ def search_rooms(request: HttpRequest):
 
     rooms = Room.objects.filter(public=True, title__icontains=query).order_by(Lower('title')).values('id', 'title', 'archived')[:20]
     return JsonResponse({'rooms': list(rooms)})
+
+
+@login_required
+@require_http_methods(['GET'])
+def mention_suggestion(request: HttpRequest, room_id: int):
+    room = get_object_or_404(Room, pk=room_id, allowed=request.user)
+    query = (request.GET.get('q') or '').strip()[:64]
+    users = room.allowed.filter(is_active=True).exclude(pk=request.user.pk)
+    matches = list(users.filter(Q(username__icontains=query) | Q(first_name__icontains=query) | Q(last_name__icontains=query)).order_by('pk')[:2])
+    user = matches[0] if len(matches) == 1 else None
+    return JsonResponse({'user': {'username': user.username, 'name': user.get_full_name() or user.username} if user else None})
 
 
 @login_required

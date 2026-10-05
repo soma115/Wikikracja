@@ -444,3 +444,80 @@ export function createImageClickHandler() {
         openBigImage(images.map(i => i.src), images.indexOf(img));
     };
 }
+
+export function initMentionSuggestion(inputEl, getRoomId) {
+    if (!inputEl) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'tw-dropdown-item tw-d-none';
+    inputEl.after(button);
+    let suggestedUser = null;
+    let timer;
+    let generation = 0;
+
+    function currentMention() {
+        const selection = window.getSelection();
+        const node = selection?.anchorNode;
+        if (!selection?.isCollapsed || !node || node.nodeType !== Node.TEXT_NODE || !inputEl.contains(node)) return null;
+        const before = node.textContent.slice(0, selection.anchorOffset);
+        const match = before.match(/(?:^|[^\p{L}\p{N}_])@([\p{L}\p{N}_@.+-]*)$/u);
+        return match ? { node, end: selection.anchorOffset, query: match[1] } : null;
+    }
+
+    function hide() {
+        generation++;
+        clearTimeout(timer);
+        suggestedUser = null;
+        button.classList.add('tw-d-none');
+    }
+
+    function accept() {
+        const mention = currentMention();
+        if (!mention || !suggestedUser || suggestedUser.query !== mention.query || suggestedUser.roomId !== getRoomId()) return;
+        const range = document.createRange();
+        range.setStart(mention.node, mention.end - mention.query.length - 1);
+        range.setEnd(mention.node, mention.end);
+        range.deleteContents();
+        const inserted = document.createTextNode(`@${suggestedUser.username}\u00a0`);
+        range.insertNode(inserted);
+        hide();
+        inputEl.focus();
+        range.setStart(inserted, inserted.length);
+        range.collapse(true);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        inputEl.dispatchEvent(new InputEvent('input', { bubbles: true }));
+    }
+
+    inputEl.addEventListener('input', () => {
+        hide();
+        const mention = currentMention();
+        const roomId = getRoomId();
+        if (!mention || !roomId || mention.query.length > 64) return;
+        const { query } = mention;
+        const request = generation;
+        timer = setTimeout(async () => {
+            try {
+                const response = await fetch(`/chat/api/room/${roomId}/mention/?q=${encodeURIComponent(query)}`);
+                if (!response.ok) return;
+                const { user } = await response.json();
+                if (request !== generation || !inputEl.isConnected || getRoomId() !== roomId || document.activeElement !== inputEl || currentMention()?.query !== query || !user) return;
+                suggestedUser = { ...user, query, roomId };
+                button.textContent = `${user.name} (@${user.username})`;
+                button.classList.remove('tw-d-none');
+            } catch {
+                if (request === generation) hide();
+            }
+        }, 150);
+    });
+
+    inputEl.addEventListener('blur', hide);
+    inputEl.addEventListener('keydown', (event) => {
+        if (button.classList.contains('tw-d-none')) return;
+        if (event.key === 'Escape') { hide(); return; }
+        if (event.key === 'Tab' && !event.shiftKey) { event.preventDefault(); accept(); }
+    });
+    button.addEventListener('pointerdown', (event) => event.preventDefault());
+    button.addEventListener('click', accept);
+}

@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from channels.db import database_sync_to_async
 from django.core.cache import cache
 from django.test import TestCase, override_settings
+from django.utils.translation import gettext as _
 
 from chat.command_handlers import ChatCommandHandlers
 from chat.consumers import ChatConsumer
@@ -208,6 +209,20 @@ class PostSendProcessingUnseenTest(TestCase):
                     self.assertEqual(payload['room_id'], self.room.id)
                     self.assertEqual(payload['tag'], f'chat-{self.room.id}')
                     self.assertIn(f'#room_id={self.room.id}', payload['click_action'])
+
+    async def test_mention_push_title_calls_out_recipient_without_changing_chat_link(self):
+        await self._run(None, 'hello')
+        ordinary = self.push.call_args.args[1]
+        self.push.reset_mock()
+
+        await self._run(None, '@receiver')
+        mentioned = self.push.call_args.args[1]
+
+        self.assertNotIn(f'[{_("mentioned you")}]', ordinary['title'])
+        self.assertTrue(mentioned['title'].startswith(f'[{_("mentioned you")}] '))
+        self.assertEqual(mentioned['click_action'], ordinary['click_action'])
+        self.assertEqual(mentioned['body'], ordinary['body'])
+        self.assertEqual(self._notifications()[-1][1]['notification']['title'], mentioned['title'])
 
     async def test_muting_suppresses_ordinary_but_not_explicit_mentions(self):
         await database_sync_to_async(self.room.muted_by.add)(self.receiver)
