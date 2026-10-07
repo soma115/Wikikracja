@@ -4,6 +4,24 @@
 
 require('../dom-utils.js');
 
+describe('submit-once button', () => {
+  test('submits through requestSubmit so form submit handlers run', () => {
+    document.body.innerHTML = '<form><button type="submit" data-tw-submit-once>Save</button></form>';
+    const form = document.querySelector('form');
+    const button = form.querySelector('button');
+    const submitHandler = jest.fn();
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      submitHandler();
+    });
+
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }));
+
+    expect(submitHandler).toHaveBeenCalledTimes(1);
+    expect(button.disabled).toBe(true);
+  });
+});
+
 describe('vote submit state', () => {
   beforeEach(() => {
     document.body.innerHTML = `

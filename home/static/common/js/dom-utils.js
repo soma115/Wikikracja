@@ -166,8 +166,17 @@
         const onceEl = e.target.closest && e.target.closest('[data-tw-submit-once]');
         if (onceEl) {
             e.preventDefault();
-            onceEl.disabled = true;
-            if (onceEl.form) onceEl.form.submit();
+            const form = onceEl.form;
+            if (!form) return;
+            if (typeof form.requestSubmit === 'function') {
+                let submitted = false;
+                form.addEventListener('submit', () => { submitted = true; }, {once: true});
+                form.requestSubmit(onceEl);
+                if (submitted) onceEl.disabled = true;
+            } else {
+                onceEl.disabled = true;
+                form.submit();
+            }
         }
     });
 

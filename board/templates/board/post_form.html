@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="tw-card-body">
-      <form id="post-form" method="POST" enctype="multipart/form-data">
+      <form id="post-form" method="POST" enctype="multipart/form-data" data-autosave-ignore="1">
         {% csrf_token %}
         {{ form.title|as_crispy_field }}
         {{ form.subtitle|as_crispy_field }}

@@ -37,6 +37,7 @@ class BoardDetailNavigationTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['form'].instance, post)
         self.assertContains(response, 'tw-card')
+        self.assertContains(response, 'data-autosave-ignore="1"')
 
     def test_post_edit_updates_document(self):
         post = self._post('Editable')
