@@ -2,7 +2,7 @@
 
 ## Status
 
-Kod, testy i narzędzia audytu/naprawy są zaimplementowane. Pozostaje audyt i ewentualna naprawa danych na starszej instancji oraz weryfikacja po wdrożeniu; nie uruchamiałem tych operacji na bazie wdrożonej.
+Kod i testy są zaimplementowane. Audyt oraz jednoznaczne naprawy wykonano na obu starszych instancjach, a ponowny audyt nie wykazał niespójności. Pozostaje kontrola UI po wdrożeniu; nie uruchamiałem pełnego E2E.
 
 ## Cel i przyczyna
 
@@ -52,12 +52,13 @@ Kod, testy i narzędzia audytu/naprawy są zaimplementowane. Pozostaje audyt i e
 
 - [x] Poszerzyć obsługę `citizen_accepted` o istniejące pokoje dokumentów grupowych i archiwalnych (również już automatycznie zarchiwizowane), korzystając z metadanych źródła i istniejącej logiki preferencji powiadomień; nie dodawać użytkownika do DM. Przetestować widoczność w czacie, aktywności i możliwość wejścia do pokoju.
 - [x] Dodać `repair_discussion_rooms --audit` jako raport wyłącznie do odczytu: wykrywa brakujące i niespójne powiązania, duplikaty, brakujące/nadmiarowe członkostwa oraz niejednoznaczne prywatne pokoje. Raport należy uruchomić i przejrzeć osobno na starszej instancji przed naprawą.
-- [x] Dodać idempotentny `repair_discussion_rooms --repair-source-data`, który wymaga `--confirm-reviewed-backup`, naprawia tylko jednoznaczne braki i dodaje brakujących aktywnych członków; nie usuwa wiadomości ani nie zmienia niejednoznacznych rekordów. Trybu naprawczego nie uruchamiano na żadnej wdrożonej bazie.
+- [x] Dodać idempotentny `repair_discussion_rooms --repair-source-data`, który wymaga `--confirm-reviewed-backup`, naprawia tylko jednoznaczne braki i dodaje brakujących aktywnych członków; nie usuwa wiadomości ani nie zmienia niejednoznacznych rekordów. Na wdrożonych instancjach naprawiono wyłącznie zgłoszone braki, a następny audyt był czysty.
 - [x] Potwierdzić, że istniejące `source_app/source_object_id` wystarcza dla obsługiwanych pokoi źródłowych; nie dodawać pola `kind` ani migracji. Jeśli raport produkcyjny ujawni wyjątek nieklasyfikowalny z tych danych, wrócić z odrębną propozycją przed zmianą schematu.
 
 ## 6. Weryfikacja i wdrożenie
 
 - [x] Uruchomić testy dotyczące wyłącznie zmienionych obszarów (`chat`, `home` feed/digest/aktywność, `board`, onboarding), najpierw jako regresje, potem po poprawkach. Komendy Pythonowe uruchamiać przez repozytoryjne `.venv`; przed nimi sprawdzić wersję interpretera, stosować izolowane ustawienia testowe zgodnie z `AGENTS.md`.
 - [x] Sprawdzić Django check, lint oraz testy zapytań, anonimowości, uprawnień i wspólnego cache'u. Jeśli dotknięty zostanie UI/JS, użyć odpowiednich kontroli UI i testów E2E wyłącznie na dedykowanym koncie.
-- [ ] Na starszej instancji najpierw uruchomić `repair_discussion_rooms --audit` i przejrzeć raport. Po kopii zapasowej można uruchomić `--repair-source-data --confirm-reviewed-backup` tylko dla jednoznacznych przypadków; następnie sprawdzić stary wpis aktywności, nową wiadomość, DM, digest, powiadomienia i archiwizację. Nie wykonywać napraw na wdrożonej bazie bez tego przeglądu.
+- [x] Na obu starszych instancjach wykonano audyt, przejrzano raport, a naprawę uruchomiono z potwierdzeniem backupu: w jednym przypadku dodano 4 brakujących członków do `board #87`, w drugim uzupełniono metadane 5 pokoi zadań. Ponowne audyty na obu instancjach nie wykazały niespójności.
+- [ ] Po wdrożeniu sprawdzić w UI istniejący wpis aktywności i nową wiadomość dokumentu grupowego oraz zachowanie DM, digestu, powiadomień i archiwizacji.
 - [x] Opisać wykonane zmiany i decyzje w `docs/LOG_AI.md`; aktualizować checkboxy etapami. Nie wykonywać commitów ani push bez polecenia użytkownika.
