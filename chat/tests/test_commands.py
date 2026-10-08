@@ -6,7 +6,7 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.utils import timezone
 
-from chat.models import Room
+from chat.models import Message, Room
 
 
 class CreateSystemRoomsCommandTest(TestCase):
@@ -73,3 +73,14 @@ class ChatRoomsArchivingCommandTest(TestCase):
         self.assertTrue(old_room.archived)
         self.assertFalse(recent_room.archived)
         self.assertEqual(old_room.last_activity, old_activity)
+
+    def test_deletes_old_unprotected_public_room_without_recreating_it(self):
+        room = Room.objects.create(title='Old public room', public=True)
+        message = Message.objects.create(room=room, text='Old message')
+        Message.objects.filter(pk=message.pk).update(time=timezone.now() - timedelta(days=400))
+
+        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360}
+        with patch('site_settings.params.get_param', side_effect=params.__getitem__):
+            call_command('chat_rooms')
+
+        self.assertFalse(Room.objects.filter(title=room.title).exists())

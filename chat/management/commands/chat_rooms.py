@@ -60,7 +60,6 @@ class Command(BaseCommand):
             if last_message.time < (timezone.now() - td(days=delete_after)):  # delete after 1 year
                 log.info(f'Chat room {room.title} deleted.')
                 room.delete()  # delete
-                room.save()
 
         # Archive/Delete old private chat room
         for room in private_rooms:
