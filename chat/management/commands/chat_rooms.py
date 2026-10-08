@@ -33,19 +33,25 @@ class Command(BaseCommand):
 
         archive_after = get_param('archive_public_chat_room')
         delete_after = get_param('delete_public_chat_room')
+        archive_cutoff = timezone.now() - td(days=archive_after)
         for room in public_rooms:
             try:
                 last_message = Message.objects.filter(room_id=room.id).latest('time')
             except Message.DoesNotExist:
-                # logger.info(f'Message.DoesNotExist1 in {room}')
+                last_message = None
+
+            activity_at = last_message.time if last_message is not None else room.last_activity
+            if activity_at < archive_cutoff:
+                if not room.archived:
+                    log.info(f'Chat room {room.title} archived.')
+                    room.archived = True
+                    room.save(update_fields=['archived'])
+            elif last_message is not None and room.archived:
+                room.archived = False
+                room.save(update_fields=['archived'])
+
+            if last_message is None:
                 continue
-            if last_message.time < (timezone.now() - td(days=archive_after)):  # archive public after 3 months
-                log.info(f'Chat room {room.title} archived.')
-                room.archived = True  # archive
-                room.save()
-            elif last_message.time > (timezone.now() - td(days=archive_after)):  # unarchive
-                room.archived = False  # unarchive
-                room.save()
 
             # Skip deletion for protected rooms (for tasks, voting) - they should only be deleted when the task/vote is deleted
             if room.protected:
