@@ -23,10 +23,10 @@ def invalidate_feed_cache():
 
 
 def build_read_status_map(user):
-    return {
-        content_type: set(object_ids)
-        for content_type, object_ids in ((content_type, ReadStatus.objects.filter(user=user, content_type=content_type).values_list('object_id', flat=True)) for content_type in ReadStatus.ContentType.values)
-    }
+    read_status_map = {}
+    for content_type, object_id in ReadStatus.objects.filter(user=user).values_list('content_type', 'object_id'):
+        read_status_map.setdefault(content_type, set()).add(object_id)
+    return read_status_map
 
 
 def build_bookmark_map(user):
@@ -114,14 +114,6 @@ def generate_feed_items(user):
     read_status_map = build_read_status_map(user)
     bookmark_map = build_bookmark_map(user)
 
-    ct_map = {
-        'post': ReadStatus.ContentType.POST,
-        'task': ReadStatus.ContentType.TASK,
-        'event': ReadStatus.ContentType.EVENT,
-        'decision': ReadStatus.ContentType.DECISION,
-        'citizen': ReadStatus.ContentType.CITIZEN,
-        'survey': ReadStatus.ContentType.SURVEY,
-    }
     prepared = _prepare_provider_items(raw_items, user)
 
     feed_items = []
@@ -132,8 +124,7 @@ def generate_feed_items(user):
             if item is None:
                 continue
         if 'is_read' not in item:
-            rs_ct = ct_map.get(ct)
-            item = {**item, 'is_read': (item['object_id'] in read_status_map[rs_ct]) if rs_ct else False}
+            item = {**item, 'is_read': item['object_id'] in read_status_map.get(ct, ())}
         item['is_bookmarked'] = (item['content_type'], item['object_id']) in bookmark_map
         feed_items.append(item)
 

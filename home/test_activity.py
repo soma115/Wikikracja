@@ -9,7 +9,7 @@ from board.models import Post
 from bookkeeping.models import Asset, Partner, Transaction
 from chat.models import Message, MessageReadBy, Room
 from core.models import FeedBookmark, ReadStatus
-from core.services.feed import FEED_CACHE_KEY, generate_feed_raw
+from core.services.feed import FEED_CACHE_KEY, generate_feed_items, generate_feed_raw
 from glosowania.models import Argument
 from tasks.models import Task, TaskVote
 from tests.factories import DecyzjaFactory, PostCategoryFactory, PostFactory, UserFactory
@@ -123,6 +123,30 @@ def test_mark_as_read_and_unread_endpoints_work_for_post(client, activity_user):
     assert response.status_code == 200
     assert response.json()['success'] is True
     assert not ReadStatus.objects.filter(user=activity_user, content_type=ReadStatus.ContentType.POST, object_id=post.pk).exists()
+
+
+@pytest.mark.django_db
+def test_finance_activity_items_can_be_marked_read_and_unread(client, activity_user):
+    client.force_login(activity_user)
+    asset = Asset.objects.create(code='READ', name='Read status currency', symbol='READ')
+    transaction = Transaction.objects.create(asset=asset, amount=25)
+
+    response = client.post(reverse('mark_as_read'), {'content_type': 'transaction', 'object_id': transaction.pk})
+
+    assert response.status_code == 200
+    assert response.json()['success'] is True
+    read_status = ReadStatus.objects.get(user=activity_user, content_type='transaction', object_id=transaction.pk)
+    assert read_status.content_type == 'transaction'
+    feed_item = next(item for item in generate_feed_items(activity_user) if item['content_type'] == 'transaction' and item['object_id'] == transaction.pk)
+    assert feed_item['is_read'] is True
+
+    response = client.post(reverse('mark_unread'), {'content_type': 'transaction', 'object_id': transaction.pk})
+
+    assert response.status_code == 200
+    assert response.json()['success'] is True
+    assert not ReadStatus.objects.filter(user=activity_user, content_type='transaction', object_id=transaction.pk).exists()
+    feed_item = next(item for item in generate_feed_items(activity_user) if item['content_type'] == 'transaction' and item['object_id'] == transaction.pk)
+    assert feed_item['is_read'] is False
 
 
 @pytest.mark.django_db
