@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-05 18:31+0200\n"
+"POT-Creation-Date: 2026-10-08 08:24+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -1749,7 +1749,7 @@ msgstr "Pokój czatu"
 #: .\chat\notifications.py:68 .\chat\tests\test_consumers.py:221
 #: .\chat\tests\test_consumers.py:222
 #: .\home\management\commands\send_email_digest.py:194
-#: .\home\test_email_digest.py:377
+#: .\home\test_email_digest.py:392
 msgid "mentioned you"
 msgstr "wzmianka o Tobie"
 
@@ -3207,7 +3207,7 @@ msgid "Activity digest since %(date)s"
 msgstr "Podsumowanie aktywności od %(date)s"
 
 #: .\home\management\commands\send_email_digest.py:225
-#: .\home\test_email_digest.py:450 .\home\test_email_digest.py:453
+#: .\home\test_email_digest.py:465 .\home\test_email_digest.py:468
 msgid "Important: voting was restarted after a technical failure"
 msgstr "Ważne: głosowanie zostało wznowione po awarii technicznej"
 
@@ -3220,7 +3220,7 @@ msgid "No activity in this section."
 msgstr "Brak aktywności w tej sekcji."
 
 #: .\home\management\commands\send_email_digest.py:228
-#: .\home\test_email_digest.py:439
+#: .\home\test_email_digest.py:454
 msgid "Manage email notifications"
 msgstr "Zarządzaj powiadomieniami"
 

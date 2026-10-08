@@ -183,6 +183,30 @@ def test_activity_items_can_be_filtered_by_finances(client, activity_user):
 
 
 @pytest.mark.django_db
+def test_activity_finances_sort_and_display_by_last_modified_time(client, activity_user):
+    client.force_login(activity_user)
+    asset = Asset.objects.create(code='ACT', name='Activity currency', symbol='ACT')
+    partner = Partner.objects.create(name='Activity finance partner')
+    latest = Transaction.objects.create(asset=asset, partner=partner, amount=20)
+    previous = Transaction.objects.create(asset=asset, partner=partner, amount=10)
+    now = timezone.now()
+    latest_update = now - timezone.timedelta(minutes=10)
+    previous_update = now - timezone.timedelta(minutes=20)
+    Transaction.objects.filter(pk__in=(latest.pk, previous.pk)).update(created_date=timezone.localdate() - timezone.timedelta(days=120), updated_at=previous_update)
+    Transaction.objects.filter(pk=latest.pk).update(updated_at=latest_update, payment_received_date=timezone.localdate() - timezone.timedelta(days=5))
+    Transaction.objects.filter(pk=previous.pk).update(payment_received_date=timezone.localdate())
+    cache.delete(FEED_CACHE_KEY)
+
+    response = client.get(reverse('activity'), {'filtered': '1', 'type': 'transaction'})
+    content = response.content.decode()
+    feed_items = [item for item in response.context['feed_items'] if item['content_type'] == 'transaction']
+
+    assert [item['object_id'] for item in feed_items] == [latest.pk, previous.pk]
+    assert feed_items[0]['timestamp'] == latest_update
+    assert timezone.localtime(latest_update).strftime('%d.%m %H:%M') in content
+
+
+@pytest.mark.django_db
 def test_chat_activity_items_are_read_per_message(client, activity_user):
     client.force_login(activity_user)
     other = UserFactory(username='activity_unread', email='activity_unread@example.com')

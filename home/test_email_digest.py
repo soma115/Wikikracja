@@ -346,6 +346,21 @@ def test_digest_sorts_newest_posts_first_then_upcoming_events(digest_user):
 
 
 @pytest.mark.django_db
+def test_digest_sorts_transactions_by_newest_first_when_timestamps_match(digest_user):
+    now = timezone.now()
+    asset = Asset.objects.create(code='DIG', name='Digest currency', symbol='DIG')
+    partner = Partner.objects.create(name='Digest finance partner')
+    older = Transaction.objects.create(asset=asset, partner=partner, amount=10)
+    newer = Transaction.objects.create(asset=asset, partner=partner, amount=20)
+    Transaction.objects.filter(pk__in=(older.pk, newer.pk)).update(created_date=timezone.localdate(), updated_at=None)
+
+    items = build_user_digest(digest_user, now - td(days=1))
+    transaction_ids = [item['object_id'] for item in items if item['content_type'] == 'transaction']
+
+    assert transaction_ids == [newer.pk, older.pk]
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize('latest_anonymous', [False, True])
 def test_digest_author_follows_latest_message_anonymity(digest_user, another_user, latest_anonymous):
     room = Room.objects.create(title='Digest privacy', public=True)

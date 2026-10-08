@@ -28,4 +28,5 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
                 'object_id': transaction.pk,
             }
         )
+    items.sort(key=lambda item: (item['timestamp'], item['object_id']), reverse=True)
     return items
