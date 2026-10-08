@@ -1,5 +1,13 @@
 # LOG_AI
 
+## 2026-10-08: Zapis ważnego dokumentu nie zamyka transakcji SQLite
+
+- **Zmiana:** powiadomienie w pokoju „Ważne” jest wysyłane przez `transaction.on_commit()` zamiast wewnątrz transakcji `Post.save()`. Sygnał zachowuje dotychczasowe argumenty; przy wycofaniu transakcji wiadomość nie powstaje.
+- **Powód:** `database_sync_to_async` w usłudze czatu zamykało plikowe połączenie SQLite podczas zapisu ważnego dokumentu, powodując HTTP 500 (`Cannot operate on a closed database`).
+- **Testy:** dodano test edycji przez formularz na plikowej bazie SQLite odtwarzający wyjątek przed zmianą oraz test braku wiadomości po wycofaniu transakcji. Istniejące testy historii ważnych dokumentów wykonują teraz rzeczywisty commit.
+- **Weryfikacja:** 64 testy `board` przeszły na bazie w pamięci, a 6 testów ważnych dokumentów na plikowej SQLite; Django check, Ruff i `git diff --check` przeszły. Na Windowsie teardown testów z plikową SQLite zgłasza ostrzeżenie o zajętym pliku po zakończeniu testów.
+- **Spodziewany efekt:** zapis ważnego dokumentu kończy się poprawnie, a wiadomość na czacie trafia dopiero po zatwierdzeniu danych.
+
 ## 2026-10-08: Samodzielny audyt pokoi na podach przed migracją
 
 - **Zmienione obszary:** nowy `scripts/audit_discussion_rooms_pods.sh`, instrukcja wdrożenia w `docs/ongoing/PLAN_NAPRAWY_POKOI_CZATU.md`.

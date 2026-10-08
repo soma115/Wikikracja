@@ -601,7 +601,38 @@ def test_delete_post_is_available_to_other_users(authenticated_client):
     assert private.visibility == Post.Visibility.ARCHIVE
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
+def test_edit_important_post_commits_and_notifies(authenticated_client):
+    client, author = authenticated_client
+    post = PostFactory(author=author, visibility=Post.Visibility.PUBLIC)
+    important_room = Room.objects.get(system_key='important')
+
+    response = client.post(reverse('board:edit_post', args=[post.pk]), {'title': 'Zmieniony ważny dokument', 'text': 'Zmieniona treść', 'visibility': Post.Visibility.PUBLIC, 'is_important': 'on'})
+
+    assert response.status_code == 302
+    post.refresh_from_db()
+    assert post.title == 'Zmieniony ważny dokument'
+    assert important_room.messages.filter(sender=author, text__contains=post.title).count() == 1
+
+
+@pytest.mark.django_db(transaction=True)
+def test_rolled_back_important_post_does_not_notify():
+    post = PostFactory(visibility=Post.Visibility.PUBLIC)
+    important_room = Room.objects.get(system_key='important')
+    important_room.messages.all().delete()
+
+    with pytest.raises(RuntimeError), transaction.atomic():
+        post.is_important = True
+        post.save()
+        assert not important_room.messages.exists()
+        raise RuntimeError('Rollback document update')
+
+    post.refresh_from_db()
+    assert post.is_important is False
+    assert not important_room.messages.exists()
+
+
+@pytest.mark.django_db(transaction=True)
 def test_important_post_update_message_uses_modifier_as_sender(authenticated_client):
     _, author = authenticated_client
     editor = UserFactory(username='document-editor', email='document-editor@example.com')
@@ -617,7 +648,7 @@ def test_important_post_update_message_uses_modifier_as_sender(authenticated_cli
     assert message.sender_id == editor.pk
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 def test_disabling_important_marker_adds_status_message(authenticated_client):
     _, user = authenticated_client
     important_room = Room.objects.get(system_key='important')
@@ -645,7 +676,7 @@ def test_tinymce_list_configuration_and_markup_survive_post_save(authenticated_c
     assert '<ul><li>Pierwszy punkt</li><li>Drugi punkt</li></ul>' in post.text
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 def test_important_post_update_without_modifier_uses_system_sender(authenticated_client):
     _, author = authenticated_client
     important_room = Room.objects.get(system_key='important')
@@ -659,7 +690,7 @@ def test_important_post_update_without_modifier_uses_system_sender(authenticated
     assert important_room.messages.order_by('-id').first().sender_id is None
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 def test_archived_important_post_keeps_history_and_notifies_when_restored(authenticated_client):
     _, user = authenticated_client
     important_room = Room.objects.get(system_key='important')

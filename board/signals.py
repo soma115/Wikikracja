@@ -54,7 +54,7 @@ def notify_important_chat_on_important_post(sender, instance, created, **kwargs)
     else:
         return
 
-    chat_message_requested.send(sender=Post, system_key='important', room_title="Ważne", message_text=message, from_user=actor, anonymous=False)
+    transaction.on_commit(lambda: chat_message_requested.send(sender=Post, system_key='important', room_title="Ważne", message_text=message, from_user=actor, anonymous=False), using=kwargs.get('using'))
     if instance.is_important and instance.visibility in public_visibilities:
         important_post_published.send(sender=Post, post=instance, url=post_url, created=created)
 
