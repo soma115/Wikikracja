@@ -1,5 +1,6 @@
 from datetime import timedelta
 from io import StringIO
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.core.management import call_command
@@ -7,8 +8,11 @@ from django.core.management.base import CommandError
 from django.test import TestCase
 from django.utils import timezone
 
+from chat.management.commands.repair_discussion_rooms import Command as RepairDiscussionRoomsCommand
 from chat.models import Message, Room
 from chat.tests.utils import make_user
+from tasks.models import Task
+from tasks.tests.utils import make_task
 from tests.factories import PostFactory
 
 
@@ -123,7 +127,7 @@ class ChatRoomsArchivingCommandTest(TestCase):
         inactive_user = make_user('source-room-inactive')
         inactive_user.is_active = False
         inactive_user.save(update_fields=['is_active'])
-        room = Room.objects.create(title='Old group document', public=False, source_app='board', source_object_id=1)
+        room = Room.objects.create(title='Old group document', public=False, source_app='board', source_object_id=9001)
         room.allowed.set([active_user, inactive_user])
         message = Message.objects.create(room=room, sender=active_user, text='Old message')
         old_time = timezone.now() - timedelta(days=400)
@@ -139,10 +143,33 @@ class ChatRoomsArchivingCommandTest(TestCase):
         self.assertTrue(room.archived)
         self.assertEqual(room.messages.count(), 1)
         self.assertEqual(room.source_app, 'board')
-        self.assertEqual(room.source_object_id, 1)
+        self.assertEqual(room.source_object_id, 9001)
 
 
 class DiscussionRoomAuditCommandTest(TestCase):
+    def test_duplicate_room_link_preflight_detects_cross_app_references(self):
+        objects_by_app = {'board': [SimpleNamespace(pk=1, chat_room_id=8)], 'tasks': [SimpleNamespace(pk=2, chat_room_id=8)]}
+
+        self.assertEqual(RepairDiscussionRoomsCommand._duplicate_room_links(objects_by_app), {8: ['board #1', 'tasks #2']})
+
+    def test_duplicate_source_key_preflight_includes_unregistered_apps(self):
+        room_keys = [(1, 'external', 42), (2, 'external', 42), (3, 'board', 7), (4, 'external', None)]
+
+        self.assertEqual(RepairDiscussionRoomsCommand._duplicate_source_room_keys(room_keys), {('external', 42): [1, 2]})
+
+    def test_scoped_audit_detects_cross_app_room_links_without_writing(self):
+        post = PostFactory(title='Post linked from task')
+        task = make_task()
+        Task.objects.filter(pk=task.pk).update(chat_room_id=post.chat_room_id)
+        output = StringIO()
+
+        call_command('repair_discussion_rooms', '--audit', '--app', 'board', stdout=output)
+
+        self.assertIn(f"Room #{post.chat_room_id} is linked to multiple source objects: ['board #{post.pk}', 'tasks #{task.pk}']", output.getvalue())
+        task.refresh_from_db()
+        self.assertEqual(task.chat_room_id, post.chat_room_id)
+        self.assertIn('no data was changed', output.getvalue())
+
     def test_audit_reports_missing_source_metadata_without_writing(self):
         post = PostFactory(title='Legacy room without source metadata')
         room = post.chat_room

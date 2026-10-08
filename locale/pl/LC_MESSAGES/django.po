@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-08 14:42+0200\n"
+"POT-Creation-Date: 2026-10-08 18:50+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -369,7 +369,7 @@ msgstr "Zapisz"
 #: .\ankiety\templates\ankiety\survey_list.html:59
 #: .\board\templates\board\_post_chat_link.html:5
 #: .\board\templates\board\_post_chat_link.html:7 .\chat\notifications.py:68
-#: .\chat\notifications.py:103 .\chat\search.py:20
+#: .\chat\notifications.py:104 .\chat\search.py:20
 #: .\chat\templates\chat\_embedded_chat.html:22
 #: .\glosowania\templates\glosowania\_proposal_card.html:62
 #: .\glosowania\templates\glosowania\_proposal_card.html:67
@@ -624,17 +624,17 @@ msgstr "Załączniki"
 msgid "New important document by %(username)s: %(link)s"
 msgstr "Nowy ważny dokument od %(username)s: %(link)s"
 
-#: .\board\signals.py:47 .\tests\test_board.py:590
+#: .\board\signals.py:47 .\tests\test_board.py:631
 #, python-format
 msgid "Document is no longer marked as important: %(link)s"
 msgstr "Dokument nie jest już oznaczony jako ważny: %(link)s"
 
-#: .\board\signals.py:49 .\tests\test_board.py:635
+#: .\board\signals.py:49 .\tests\test_board.py:676
 #, python-format
 msgid "Important document was archived: %(link)s"
 msgstr "Ważny dokument został zarchiwizowany: %(link)s"
 
-#: .\board\signals.py:51 .\tests\test_board.py:636
+#: .\board\signals.py:51 .\tests\test_board.py:677
 #, python-format
 msgid "Important document was made visible again: %(link)s"
 msgstr "Ważny dokument został ponownie udostępniony: %(link)s"
@@ -1734,7 +1734,7 @@ msgstr "Brak wiadomości. Napisz pierwszy!"
 msgid "No access to this chat."
 msgstr "Brak dostępu do tego czatu."
 
-#: .\chat\models.py:70 .\chat\services.py:183
+#: .\chat\models.py:83 .\chat\services.py:183
 #: .\obywatele\tests\test_views.py:496 .\obywatele\tests\test_views.py:497
 #: .\obywatele\tests\test_views.py:500
 msgid "Chat room"
@@ -1747,12 +1747,12 @@ msgstr "Pokój czatu"
 msgid "mentioned you"
 msgstr "wzmianka o Tobie"
 
-#: .\chat\notifications.py:103
+#: .\chat\notifications.py:104
 #, python-format
 msgid "Room: %(room)s"
 msgstr "Pokój: %(room)s"
 
-#: .\chat\notifications.py:104
+#: .\chat\notifications.py:105
 #, python-format
 msgid "Sender: %(author)s"
 msgstr "Nadawca: %(author)s"
@@ -1931,7 +1931,7 @@ msgstr "Archiwa"
 msgid "Click the archive button (folder icon) next to each category to show archived rooms."
 msgstr "Kliknij przycisk archiwum (ikona folderu) obok każdej kategorii, aby pokazać zarchiwizowane pokoje."
 
-#: .\chat\templates\chat\guest_message.html:5 .\chat\tests\test_views.py:354
+#: .\chat\templates\chat\guest_message.html:5 .\chat\tests\test_views.py:380
 msgid "Send a message"
 msgstr "Wyślij wiadomość"
 
@@ -1962,15 +1962,15 @@ msgstr "Działania"
 msgid "Mark as unread"
 msgstr "Oznacz jako nieprzeczytane"
 
-#: .\chat\views.py:93
+#: .\chat\views.py:86
 msgid "Invalid room name."
 msgstr "Nieprawidłowa nazwa pokoju."
 
-#: .\chat\views.py:327
+#: .\chat\views.py:320
 msgid "Too many messages. Please try again later."
 msgstr "Zbyt wiele wiadomości. Spróbuj ponownie później."
 
-#: .\chat\views.py:331
+#: .\chat\views.py:324
 msgid "The public inbox is not available at the moment."
 msgstr "Publiczna skrzynka nie jest obecnie dostępna."
 

@@ -1,13 +1,30 @@
 # LOG_AI
 
+## 2026-10-08: Samodzielny audyt pokoi na podach przed migracją
+
+- **Zmienione obszary:** nowy `scripts/audit_discussion_rooms_pods.sh`, instrukcja wdrożenia w `docs/ongoing/PLAN_NAPRAWY_POKOI_CZATU.md`.
+- **Powód:** wdrożenie nowego obrazu automatycznie uruchamia migracje, więc audyt danych musi działać bez aktualizacji aplikacji.
+- **Działanie:** skrypt Bash uruchamiany ręcznie na serwerze odpytuje 13 wskazanych podów przez `microk8s kubectl exec -i`, przekazując przez stdin samodzielny kod Python/SQLite. Baza jest otwierana tylko do odczytu, bez importu Django i bez migracji. Raport rozróżnia blokery nowych ograniczeń od pozostałych uwag, kontynuuje po błędzie jednego poda i podaje zbiorczy wynik. Nie naprawia danych.
+- **Weryfikacja:** `bash -n` oraz próby na izolowanej starej strukturze SQLite: stan czysty, zduplikowany klucz źródła i współdzielony pokój, uwaga o brakującej relacji. Nie uruchamiano skryptu na serwerze.
+
 ## 2026-10-08: Rozdzielenie rodzaju i dostępu do pokojów czatu
 
 - **Zmienione obszary:** `chat` (modele, feed, powiadomienia, sygnały, widoki, komenda archiwizacji i narzędzie audytu/naprawy), testy `chat` oraz feedu, aktywności i digestu w `home`.
 - **Co się zmieniło:** `public` nadal określa dostęp, a wspólna reguła oparta o istniejące `source_app` odróżnia pokoje treści od DM. Feed, digest i push zachowują tytuł źródłowy dla grupowych dokumentów; nazwy ankiet są oczyszczane przy wyświetlaniu. Wyszukiwanie, obecność i widoki DM wymagają pokoju bez źródła z dokładnie dwiema osobami; kolizja tytułu nie przejmuje już obcego pokoju. Usuwanie konta kasuje wyłącznie prawdziwe DM, nowi obywatele dostają członkostwo w grupowych i archiwalnych czatach dokumentów, a scheduler może archiwizować pokoje źródłowe, lecz ich nie usuwa ani nie zamienia nieaktywnego członka w powód usunięcia.
-- **Dane historyczne:** `repair_discussion_rooms --audit` raportuje niespójne powiązania i członkostwa bez zapisu. Po przeglądzie raportu i jawnym potwierdzeniu backupu `--repair-source-data` dodał 4 brakujących członków do pokoju `board #87` na jednej instancji oraz uzupełnił znaczniki źródła dla 5 pokoi zadań na drugiej. Ponowne audyty obu instancji były czyste. Nie usuwano pokojów ani wiadomości i nie dodano pola ani migracji schematu.
+- **Dane historyczne:** `repair_discussion_rooms --audit` jest tylko do odczytu. Po przeglądzie i jawnym potwierdzeniu backupu `--repair-source-data` dodał 4 członków do `board #87`, uzupełnił metadane 5 pokoi zadań i później dodał 12 brakujących członkostw w `instance-12`. Ostatni audyt 13 podów: 9 czystych; w `instance-12` pozostał niejednoznaczny `board #24` i sześć członkostw nieaktywnych kont w czterech pokojach; w `instance-3`, `instance-6` i `instance-8` pozostały 24 prywatne pokoje z 0–1 członkiem. Użytkownik zdecydował zachować członkostwa nieaktywnych osób i nie usuwać niejednoznacznych DM. Nie usunięto pokojów ani wiadomości.
 - **Uzasadnienie:** `public=False` opisywało ograniczenie dostępu, ale było mylone z prywatną rozmową 1:1; skutkowało to błędnym tytułem aktywności oraz ryzykiem pomylenia, archiwizacji lub usunięcia pokoi dokumentów.
-- **Weryfikacja:** 332 testy dotyczące czatu, feedu, aktywności, digestu i dokumentów przeszły; Ruff, Django check, `makemigrations --check --dry-run --noinput` (brak zmian migracji) oraz `git diff --check` przeszły. Audyty wdrożonych instancji wykonano przed naprawami oraz ponownie po nich; nie uruchamiano pełnego E2E.
+- **Weryfikacja:** 332 testy dotyczące czatu, feedu, aktywności, digestu i dokumentów przeszły; Ruff, Django check, `makemigrations --check --dry-run --noinput` (brak zmian migracji) oraz `git diff --check` przeszły. Wykonano audyt 13 wdrożonych podów przed naprawą i ponownie po niej; raport końcowy zawiera wyżej opisane pozostałości do ręcznej oceny. Nie uruchamiano pełnego E2E.
 - **Spodziewany efekt:** Pokoje dokumentów zachowują własne tytuły i dane; działania specyficzne dla DM nie obejmują już pokoju grupowego z błędnej interpretacji `public=False`.
+
+## 2026-10-08: Ograniczenia integralności powiązań pokoi źródłowych
+
+- **Zmienione obszary:** model `chat.Room`, wspólny `ChatRoomModel`, obsługa sygnałów tworzenia/usuwania, preflight `repair_discussion_rooms`, migracje aplikacji `chat`, `board`, `tasks`, `glosowania` i `ankiety` oraz testy cyklu życia.
+- **Co się zmieniło:** Baza wymusza unikalny klucz `(source_app, source_object_id)` i zabrania identyfikatora źródła bez aplikacji. Opcjonalne FK obiektu do pokoju stały się OneToOne z `on_delete=PROTECT`. Wspólny handler odłącza FK transakcyjnie przed usunięciem pokoju przy usuwaniu obiektu źródłowego; bezpośrednie usunięcie pokoju przez ORM jest blokowane. Zapis obiektu przerywa się, gdy istniejący FK wskazuje pokój o innym źródle, a ścieżka `bulk_create` odrzuca błędny prelink.
+- **Migracje:** wygenerowano `chat.0030`, `board.0024`, `tasks.0013`, `glosowania.0029` i `ankiety.0005`. Nie zastosowano ich na wdrożonych bazach. Przed rolloutem trzeba uruchomić samodzielny audyt relacji (w tym duplikatów `chat_room_id`) na każdej instancji, przejrzeć konflikty i wykonać backup; dopiero potem wdrożyć kod z migracjami i powtórzyć audyt. Po zakończeniu testów użytkownik utworzył nowy pusty pokój dla `board #24` (bez odtwarzania wiadomości).
+- **Weryfikacja:** 559 testów dotkniętych modułów przeszło; Ruff, Django check, `makemigrations --check --dry-run --noinput` oraz `git diff --check` przeszły. Testy obejmują wymuszenie unikalności, kolizje powiązań, chronione usuwanie oraz zachowanie pozostałych source apps.
+- **Uzasadnienie:** Metadane źródła i FK obiektu były dwoma niezależnymi, opcjonalnymi zapisami. Ograniczenia oraz fail-closed obsługa ograniczają duplikaty, przypadkowe współdzielenie i ciche przepięcie istniejącego pokoju.
+- **Spodziewany efekt:** Pokój źródłowy ma najwyżej jeden właścicielski obiekt w ramach aplikacji, jego tożsamość nie może się dublować, a ORM nie usunie podpiętego pokoju bez jawnego cyklu usuwania źródła.
+- **Uzupełnienie preflight:** `repair_discussion_rooms --audit` sprawdza duplikaty `(source_app, source_object_id)` także dla nieznanych aplikacji oraz współdzielenie pokojów między wszystkimi aplikacjami nawet przy `--app`. Audyt pozostaje tylko do odczytu, a lokalne sprawdzanie członkostw nadal respektuje `--app`. Testy komendy: 14 zaliczonych w izolowanej bazie w pamięci.
 
 ## 2026-10-05: Wyraźne oznaczenie wzmianek w pushu i digescie
 

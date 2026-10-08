@@ -2,7 +2,7 @@
 
 ## Status
 
-Kod i testy są zaimplementowane. Audyt oraz jednoznaczne naprawy wykonano na obu starszych instancjach, a ponowny audyt nie wykazał niespójności. Pozostaje kontrola UI po wdrożeniu; nie uruchamiałem pełnego E2E.
+Kod, ograniczenia modelu i migracje są przygotowane lokalnie, a 559 testów dotkniętych modułów przeszło. Nowy pusty pokój `board #24` został utworzony. Migracje schematu nie zostały zastosowane na wdrożonych instancjach; przed rolloutem potrzebne są niezależny audyt na bieżących podach (`scripts/audit_discussion_rooms_pods.sh`) i backup.
 
 ## Cel i przyczyna
 
@@ -11,7 +11,7 @@ Kod i testy są zaimplementowane. Audyt oraz jednoznaczne naprawy wykonano na ob
 ## Uzgodnione zasady
 
 - `public` nadal oznacza zasady dostępu; nie przestawiamy go na `True` dla dokumentów grupowych.
-- Rodzaj pokoju ustalamy z istniejącego `source_app`: pokój powiązany z treścią ma oznaczone źródło, a DM nie ma źródła i jest niepubliczny. Przy wyszukiwaniu pary DM trzeba dodatkowo sprawdzić, czy pokój należy dokładnie do dwóch osób. Nie dodajemy teraz pola `kind` ani migracji schematu.
+- Rodzaj pokoju ustalamy z istniejącego `source_app`; nie dodajemy pola `kind`. Unikalny `(source_app, source_object_id)` oraz `OneToOneField` wymuszają pojedynczą tożsamość źródła i pojedyncze przypisanie pokoju do obiektu w każdej aplikacji. DM pozostaje bez źródła i ma dokładnie dwóch członków.
 - W aktywności, digescie, liście czatów i powiadomieniach pokój dokumentu grupowego pokazuje tytuł dokumentu; autor wiadomości jest prezentowany niezależnie. Anonimowość wiadomości i dotychczasowa personalizacja DM pozostają zachowane.
 - Nowo przyjęty obywatel dostaje członkostwo także w istniejących pokojach dokumentów grupowych i archiwalnych. Nie dostaje przez to dostępu do DM.
 - Pokój powiązany z treścią może być automatycznie archiwizowany po bezczynności i ponownie aktywowany zgodnie z istniejącymi regułami; nie może być automatycznie usuwany z powodu wieku wiadomości ani stanu jednego z członków. Zmiany stanu obiektu źródłowego nadal mogą aktualizować stan pokoju.
@@ -59,6 +59,21 @@ Kod i testy są zaimplementowane. Audyt oraz jednoznaczne naprawy wykonano na ob
 
 - [x] Uruchomić testy dotyczące wyłącznie zmienionych obszarów (`chat`, `home` feed/digest/aktywność, `board`, onboarding), najpierw jako regresje, potem po poprawkach. Komendy Pythonowe uruchamiać przez repozytoryjne `.venv`; przed nimi sprawdzić wersję interpretera, stosować izolowane ustawienia testowe zgodnie z `AGENTS.md`.
 - [x] Sprawdzić Django check, lint oraz testy zapytań, anonimowości, uprawnień i wspólnego cache'u. Jeśli dotknięty zostanie UI/JS, użyć odpowiednich kontroli UI i testów E2E wyłącznie na dedykowanym koncie.
-- [x] Na obu starszych instancjach wykonano audyt, przejrzano raport, a naprawę uruchomiono z potwierdzeniem backupu: w jednym przypadku dodano 4 brakujących członków do `board #87`, w drugim uzupełniono metadane 5 pokoi zadań. Ponowne audyty na obu instancjach nie wykazały niespójności.
-- [ ] Po wdrożeniu sprawdzić w UI istniejący wpis aktywności i nową wiadomość dokumentu grupowego oraz zachowanie DM, digestu, powiadomień i archiwizacji.
+- [x] Wykonano audyt i jednoznaczne naprawy na wszystkich 13 podach. Dodano brakujące członkostwa i naprawiono source markers; nie usuwano pokojów ani wiadomości.
+- [x] Utworzono nowy pusty pokój dla `board #24` w `instance-12` przy pomocy guarded helpera; istniejącego pokoju ani historii nie odnaleziono, więc nie odtworzono wiadomości.
+- [x] Po przeglądzie zachować sześć członkostw nieaktywnych kont w czterech pokojach dokumentów, zgodnie z decyzją użytkownika; nie usuwać ich.
+- [x] Wykonać tylko-do-odczytu inwentaryzację 24 prywatnych pokojów z 0–1 członkiem w `instance-3`, `instance-6` i `instance-8`; pozostawić je bez zmian i nie usuwać historii bez odrębnej decyzji.
+- [ ] Przed wdrożeniem skopiować osobno na serwer `scripts/audit_discussion_rooms_pods.sh` i uruchomić `bash audit_discussion_rooms_pods.sh` na aktualnych podach; przejrzeć wszystkie raporty i blokery. Po backupie wdrożyć nowy kod oraz migracje, a następnie ponownie audytować. Wykonać UI smoke test aktywności, czatu, DM, digestu, powiadomień i archiwizacji.
 - [x] Opisać wykonane zmiany i decyzje w `docs/LOG_AI.md`; aktualizować checkboxy etapami. Nie wykonywać commitów ani push bez polecenia użytkownika.
+
+## 7. Ograniczenia integralności bazy danych
+
+`source_app/source_object_id` pozostaje tożsamością pokoju źródłowego; nowego pola `kind` nie dodajemy. Ograniczenia poniżej uzupełniają ją o egzekwowanie unikalności i bezpieczny cykl życia relacji.
+
+- [x] Rozszerzyć `--audit` o wykrywanie powielonych `chat_room_id` między obiektami źródłowymi oraz duplikatów kluczy źródłowych. Raportuje także zachowane przez użytkownika nieaktywne członkostwa i niejednoznaczne DM, ale nigdy nie usuwa ich automatycznie.
+- [x] Dodać do `Room` unikalność `(source_app, source_object_id)` i warunek, że niepuste `source_object_id` wymaga `source_app`. `NULL` dla pokojów bez źródła nadal pozwala na wiele DM.
+- [x] Zmienić opcjonalną relację `ChatRoomModel.chat_room` na `OneToOneField(on_delete=PROTECT)` we wszystkich modułach źródłowych; `makemigrations` wygenerował migracje dla `board`, `tasks`, `glosowania`, `ankiety` oraz `chat`.
+- [x] Wspólne usuwanie obiektu źródłowego w transakcji jawnie odpina pokój, a następnie go usuwa; Django ORM blokuje bezpośrednie usunięcie nadal podpiętego pokoju przez `PROTECT`.
+- [x] Gdy zapisany FK wskazuje pokój o niezgodnym źródle, zapis przerywa się zamiast po cichu tworzyć pokój i przepinać obiekt. Naprawa legacy pozostaje jawna i kontrolowana.
+- [x] Pokryć testami ograniczenia DB, lifecycle usuwania w `board`, `tasks` i `glosowania`, fail-closed dla błędnego FK, preflight duplikatów oraz bulk-create z błędnym pokojem.
+- [ ] Na każdej instancji sprawdzić stare dane bez wdrażania nowego kodu: skrypt Bash `scripts/audit_discussion_rooms_pods.sh` używa `microk8s kubectl exec -i` i wbudowanego w kontener Pythona do otwarcia SQLite w trybie `mode=ro`. Raportuje duplikaty kluczy źródłowych, powielone relacje, niezgodne markery oraz uwagi o członkostwach i DM. Zachowane nieaktywne członkostwa i pokoje 0–1 osobowe pozostawić według uzgodnionej polityki. Po usunięciu blokerów i backupie wdrożyć nowy kod z migracjami; następnie powtórzyć audyt. Nie uruchamiać starego kodu równolegle z migracją.

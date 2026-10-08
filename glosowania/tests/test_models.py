@@ -22,6 +22,14 @@ class DecyzjaChatRoomTest(TestCase):
         self.assertTrue(Room.objects.filter(title=decyzja.get_chat_room_title()).exists())
         self.assertEqual(decyzja.chat_room.title, decyzja.get_chat_room_title())
 
+    def test_deleting_decision_deletes_its_linked_chat_room(self):
+        decision = Decyzja.objects.create(author=self.author, title="Test Bill", tresc="Test law text", status=Decyzja.Status.PROPOSITION)
+        room_id = decision.chat_room_id
+
+        decision.delete()
+
+        self.assertFalse(Room.objects.filter(pk=room_id).exists())
+
     def test_decyzja_not_saved_when_chat_room_creation_fails(self):
         with patch("chat.signals.Room.objects.create", side_effect=RuntimeError("DB unavailable")):
             with self.assertRaises(RuntimeError):

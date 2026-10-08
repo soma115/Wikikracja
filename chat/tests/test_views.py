@@ -240,6 +240,21 @@ class ChatViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("filenames", response.json())
 
+    def test_open_dm_title_collision_does_not_modify_an_unrelated_room(self):
+        self.client.force_login(self.user)
+        other = make_user('title-collision-other')
+        unrelated = Room.objects.create(title='chatuser-title-collision-other', public=True)
+
+        response = self.client.get(reverse('chat:open_dm', kwargs={'pk': other.pk}))
+
+        unrelated.refresh_from_db()
+        dm = Room.find_with_users(self.user, other)
+        self.assertEqual(response.status_code, 302)
+        self.assertIsNotNone(dm)
+        self.assertNotEqual(dm.pk, unrelated.pk)
+        self.assertTrue(unrelated.public)
+        self.assertFalse(unrelated.allowed.filter(pk__in=[self.user.pk, other.pk]).exists())
+
     def test_open_dm_creates_room_when_missing(self):
         self.client.force_login(self.user)
         other = make_user("other")

@@ -63,9 +63,11 @@ class Command(BaseCommand):
     def _audit(self, models):
         active_user_ids = set(get_user_model().objects.filter(is_active=True).values_list('pk', flat=True))
         issue_count = 0
+        objects_by_app = {}
 
         for app_label, model in models.items():
             objects = list(model.objects.select_related('chat_room').prefetch_related('chat_room__allowed').order_by('pk'))
+            objects_by_app[app_label] = objects
             object_ids = {instance.pk for instance in objects}
             rooms = list(Room.objects.filter(source_app=app_label).prefetch_related('allowed').order_by('pk'))
             rooms_by_source_id = defaultdict(list)
@@ -73,7 +75,7 @@ class Command(BaseCommand):
                 rooms_by_source_id[room.source_object_id].append(room)
 
             for source_object_id, matching_rooms in rooms_by_source_id.items():
-                if source_object_id is None or len(matching_rooms) > 1:
+                if source_object_id is None:
                     issue_count += 1
                     self.stdout.write(f'{app_label}: source object #{source_object_id} has {len(matching_rooms)} linked chat room(s): {[room.pk for room in matching_rooms]}')
                 if source_object_id not in object_ids:
@@ -94,6 +96,18 @@ class Command(BaseCommand):
                     self.stdout.write(f'{app_label} #{instance.pk}: room #{room.pk} has source {room.source_app!r} #{room.source_object_id}; expected {app_label!r} #{instance.pk}')
                     issue_count += self._audit_membership(f'{app_label} #{instance.pk}', room, active_user_ids)
 
+        room_keys = Room.objects.exclude(source_object_id__isnull=True).values_list('pk', 'source_app', 'source_object_id')
+        for (app_label, source_object_id), room_ids in self._duplicate_source_room_keys(room_keys).items():
+            issue_count += 1
+            self.stdout.write(f'{app_label}: source object #{source_object_id} has {len(room_ids)} linked chat room(s): {room_ids}')
+
+        for app_label, model in self.model_map.items():
+            if app_label not in objects_by_app:
+                objects_by_app[app_label] = model.objects.only('pk', 'chat_room_id').order_by('pk')
+        for room_id, owners in self._duplicate_room_links(objects_by_app).items():
+            issue_count += 1
+            self.stdout.write(f'Room #{room_id} is linked to multiple source objects: {owners}')
+
         for room in Room.objects.direct_messages().prefetch_related('allowed'):
             if len(room.allowed.all()) != 2:
                 issue_count += 1
@@ -108,6 +122,23 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING(f'Audit found {issue_count} issue(s); no data was changed.'))
         else:
             self.stdout.write(self.style.SUCCESS('Audit found no discussion-room inconsistencies; no data was changed.'))
+
+    @staticmethod
+    def _duplicate_source_room_keys(room_keys):
+        rooms_by_source = defaultdict(list)
+        for room_id, app_label, source_object_id in room_keys:
+            if source_object_id is not None:
+                rooms_by_source[app_label, source_object_id].append(room_id)
+        return {source: room_ids for source, room_ids in rooms_by_source.items() if len(room_ids) > 1}
+
+    @staticmethod
+    def _duplicate_room_links(objects_by_app):
+        owners_by_room = defaultdict(list)
+        for app_label, objects in objects_by_app.items():
+            for instance in objects:
+                if instance.chat_room_id:
+                    owners_by_room[instance.chat_room_id].append(f'{app_label} #{instance.pk}')
+        return {room_id: owners for room_id, owners in owners_by_room.items() if len(owners) > 1}
 
     def _audit_membership(self, label, room, active_user_ids):
         member_ids = {user.pk for user in room.allowed.all()}

@@ -32,6 +32,10 @@ class ChatRoomQuerySet(models.QuerySet):
 
         for instance in instances:
             if instance.chat_room_id:
+                room = Room.objects.filter(pk=instance.chat_room_id, source_app=source_app, source_object_id=instance.pk).first()
+                if room is None:
+                    raise IntegrityError(f'Bulk-created {source_app} #{instance.pk} links to an inconsistent chat room')
+                existing[instance.pk] = room
                 continue
             room = existing.get(instance.pk)
             if room is None:
@@ -76,7 +80,7 @@ class RoomQuerySet(models.QuerySet):
 class ChatRoomModel(models.Model):
     """Abstract base for models that have an optional associated chat room."""
 
-    chat_room = models.ForeignKey("chat.Room", null=True, blank=True, on_delete=models.SET_NULL, related_name="%(class)s", verbose_name=_("Chat room"))
+    chat_room = models.OneToOneField("chat.Room", null=True, blank=True, on_delete=models.PROTECT, related_name="%(class)s", verbose_name=_("Chat room"))
     objects = ChatRoomQuerySet.as_manager()
 
     class Meta:
@@ -155,6 +159,12 @@ class Room(models.Model):
 
     SOURCE_URL_NAMES = {'tasks': 'tasks:detail', 'board': 'board:view_post', 'glosowania': 'glosowania:details', 'ankiety': 'ankiety:detail'}
     DEFAULT_MUTED_SOURCE_APPS = frozenset({'tasks', 'board', 'glosowania', 'ankiety'})
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('source_app', 'source_object_id'), name='chat_room_source_uniq'),
+            models.CheckConstraint(condition=models.Q(source_object_id__isnull=True) | ~models.Q(source_app=''), name='chat_room_source_app_ck'),
+        ]
 
     def has_default_muted_notifications(self):
         """Return whether new members should initially mute this room."""

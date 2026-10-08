@@ -76,7 +76,12 @@ def delete_linked_chat_room(sender, instance, **kwargs):
     """pre_delete receiver: delete the discussion room linked to the instance."""
     room = instance.chat_room
     if room:
-        room.delete()
+        with transaction.atomic():
+            unlinked = type(instance).objects.filter(pk=instance.pk, chat_room_id=room.pk).update(chat_room=None)
+            if not unlinked:
+                raise IntegrityError(f'Could not unlink chat room #{room.pk} from {instance._meta.label} #{instance.pk}')
+            instance.chat_room = None
+            room.delete()
         log.info("Deleted chat room '%s' linked to %s #%s", room.title, instance._meta.label, instance.pk)
 
 
@@ -162,8 +167,10 @@ def on_chat_room_requested(sender, instance, title, founder, allowed_users, welc
     with transaction.atomic():
         room = None
         if getattr(instance, 'chat_room_id', None):
-            room = Room.objects.filter(pk=instance.chat_room_id, source_app=source_app, source_object_id=source_object_id).first()
-        if room is None:
+            room = Room.objects.filter(pk=instance.chat_room_id).first()
+            if room is None or room.source_app != source_app or room.source_object_id != source_object_id:
+                raise IntegrityError(f"Room link for {source_app} #{source_object_id} points to an inconsistent chat room")
+        else:
             room = Room.objects.filter(source_app=source_app, source_object_id=source_object_id).first()
 
         if room is None:

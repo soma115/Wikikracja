@@ -7,6 +7,8 @@ na tej samej zasadzie co tasks i glosowania.
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import IntegrityError, transaction
+from django.db.models.deletion import ProtectedError
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext, override
@@ -88,6 +90,45 @@ def test_post_delete_deletes_chat_room():
 
     assert not Post.objects.filter(pk=post.pk).exists()
     assert not Room.objects.filter(pk=room_id).exists()
+
+
+@pytest.mark.django_db
+def test_linked_room_cannot_be_deleted_without_deleting_its_post():
+    post = PostFactory()
+    room = post.chat_room
+
+    with pytest.raises(ProtectedError):
+        room.delete()
+
+    post.refresh_from_db()
+    assert post.chat_room_id == room.pk
+    assert Room.objects.filter(pk=room.pk).exists()
+
+
+@pytest.mark.django_db
+def test_room_cannot_be_linked_to_two_posts():
+    first = PostFactory(title='First post')
+    second = PostFactory(title='Second post')
+
+    with transaction.atomic(), pytest.raises(IntegrityError):
+        Post.objects.filter(pk=second.pk).update(chat_room_id=first.chat_room_id)
+
+
+@pytest.mark.django_db
+def test_post_save_fails_closed_when_linked_room_has_a_different_source():
+    post = PostFactory(title='Post before mismatch')
+    mismatched_room = Room.objects.create(title='Wrong source room', public=False)
+    Post.objects.filter(pk=post.pk).update(chat_room=mismatched_room)
+    post.refresh_from_db()
+    original_title = post.title
+    post.title = 'Changed title'
+
+    with pytest.raises(IntegrityError):
+        post.save()
+
+    post.refresh_from_db()
+    assert post.title == original_title
+    assert post.chat_room_id == mismatched_room.pk
 
 
 @pytest.mark.django_db

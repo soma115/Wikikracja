@@ -2,6 +2,7 @@
 from unittest.mock import patch
 
 # Third party imports
+from django.db import IntegrityError
 from django.db.models import Count
 from django.test import TestCase
 
@@ -50,6 +51,22 @@ class TaskModelTest(TestCase):
         self.assertTrue(Room.objects.filter(title=task.get_chat_room_title()).exists())
         self.assertEqual(task.chat_room.title, task.get_chat_room_title())
         self.assertEqual(task.chat_room.messages.count(), 0)
+
+    def test_bulk_create_rejects_unrelated_prelinked_room(self):
+        room = Room.objects.create(title='Unrelated room')
+        task = Task(title='Bulk task with wrong room', description='body', status=Task.Status.ACTIVE, created_by=self.user, chat_room=room)
+
+        with self.assertRaises(IntegrityError):
+            Task.objects.bulk_create([task])
+
+        self.assertFalse(Task.objects.filter(title=task.title).exists())
+
+    def test_deleting_task_deletes_its_linked_chat_room(self):
+        room_id = self.task.chat_room_id
+
+        self.task.delete()
+
+        self.assertFalse(Room.objects.filter(pk=room_id).exists())
 
     def test_team_mode_defaults_to_false(self):
         task = make_task(created_by=self.user)
