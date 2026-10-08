@@ -40,6 +40,10 @@ class RoomModelTest(TestCase):
     def test_displayed_name_private_room_shows_other_user(self):
         self.assertEqual(self.private_room.displayed_name(self.alice), "bob")
 
+    def test_clean_title_removes_survey_prefix(self):
+        room = Room.objects.create(title='Survey #42: Feedback', source_app='ankiety', source_object_id=42)
+        self.assertEqual(room.clean_title(), 'Feedback')
+
     def test_displayed_name_private_room_no_other_user_returns_placeholder(self):
         solo_room = Room.objects.create(title="solo", public=False)
         solo_room.allowed.set([self.alice])
@@ -50,6 +54,31 @@ class RoomModelTest(TestCase):
 
     def test_find_with_users_finds_private_room(self):
         self.assertEqual(Room.find_with_users(self.alice, self.bob), self.private_room)
+
+    def test_source_managed_private_room_is_not_a_direct_message(self):
+        room = Room.objects.create(title='Group document', public=False, source_app='board', source_object_id=1)
+        room.allowed.set([self.alice, self.bob])
+
+        self.assertFalse(room.is_direct_message)
+        self.assertNotIn(room, Room.find_all_with_users(self.alice, self.bob))
+
+    def test_find_private_rooms_ignores_two_member_source_room(self):
+        charlie = make_user('charlie')
+        room = Room.objects.create(title='Two-member document', public=False, source_app='board', source_object_id=2)
+        room.allowed.set([self.alice, charlie])
+
+        self.assertNotIn(charlie.pk, Room.find_private_rooms_for_user_pairs(self.alice, [charlie.pk]))
+
+    def test_dm_creation_does_not_reuse_source_room_with_colliding_title(self):
+        charlie = make_user('charlie')
+        source_room = Room.objects.create(title='alice-charlie', public=False, source_app='board', source_object_id=3)
+        source_room.allowed.set([self.alice, charlie, self.bob])
+
+        dm = Room.get_or_create_for_users(self.alice, charlie)
+
+        self.assertNotEqual(dm.pk, source_room.pk)
+        self.assertEqual(dm.source_app, '')
+        self.assertEqual(set(source_room.allowed.all()), {self.alice, self.bob, charlie})
 
     def test_find_with_users_returns_none_when_no_room(self):
         charlie = make_user("charlie")

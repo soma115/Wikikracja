@@ -14,6 +14,7 @@ from push_notifications.models import GCMDevice
 # Local folder imports
 from chat.models import Message, MessageReadBy, Room
 from chat.tests.utils import make_user
+from tests.factories import PostFactory
 
 
 class ChatViewsTest(TestCase):
@@ -41,11 +42,21 @@ class ChatViewsTest(TestCase):
         from core.signals import citizen_accepted
 
         new_user = make_user("newcitizen")
+        other_user = make_user('existing-dm-member')
+        group_document = PostFactory(title='Group document', visibility='group').chat_room
+        archived_document = PostFactory(title='Archived document', visibility='archive').chat_room
+        group_document.allowed.remove(new_user)
+        archived_document.allowed.remove(new_user)
+        dm = Room.objects.create(title='chatuser-existing-dm-member', public=False)
+        dm.allowed.set([self.user, other_user])
         self.room.allowed.remove(new_user)
         with patch("chat.signals.Room.create_all_one2one_rooms"):
             citizen_accepted.send(sender=self.__class__, user=new_user)
 
         self.assertTrue(self.room.allowed.filter(pk=new_user.pk).exists())
+        self.assertTrue(group_document.allowed.filter(pk=new_user.pk).exists())
+        self.assertTrue(archived_document.allowed.filter(pk=new_user.pk).exists())
+        self.assertFalse(dm.allowed.filter(pk=new_user.pk).exists())
 
     def test_room_list_shows_exact_unread_message_count(self):
         other = make_user("chatother")

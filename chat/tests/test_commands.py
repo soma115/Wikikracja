@@ -3,10 +3,13 @@ from io import StringIO
 from unittest.mock import patch
 
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase
 from django.utils import timezone
 
 from chat.models import Message, Room
+from chat.tests.utils import make_user
+from tests.factories import PostFactory
 
 
 class CreateSystemRoomsCommandTest(TestCase):
@@ -84,3 +87,107 @@ class ChatRoomsArchivingCommandTest(TestCase):
             call_command('chat_rooms')
 
         self.assertFalse(Room.objects.filter(title=room.title).exists())
+
+    def test_old_inactive_direct_message_is_still_deleted(self):
+        active_user = make_user('old-dm-active')
+        inactive_user = make_user('old-dm-inactive')
+        inactive_user.is_active = False
+        inactive_user.save(update_fields=['is_active'])
+        room = Room.objects.create(title='old-dm-active-old-dm-inactive', public=False)
+        room.allowed.set([active_user, inactive_user])
+        message = Message.objects.create(room=room, sender=active_user, text='Old direct message')
+        old_time = timezone.now() - timedelta(days=400)
+        Message.objects.filter(pk=message.pk).update(time=old_time)
+        Room.objects.filter(pk=room.pk).update(last_activity=old_time)
+
+        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360, 'delete_inactive_user_after': 30}
+        with patch('site_settings.params.get_param', side_effect=params.__getitem__):
+            call_command('chat_rooms')
+
+        self.assertFalse(Room.objects.filter(pk=room.pk).exists())
+
+    def test_scheduler_does_not_unarchive_archived_source_document(self):
+        post = PostFactory(title='Still archived', visibility='archive')
+        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360}
+
+        with patch('site_settings.params.get_param', side_effect=params.__getitem__):
+            call_command('chat_rooms')
+
+        post.chat_room.refresh_from_db()
+        post.refresh_from_db()
+        self.assertTrue(post.chat_room.archived)
+        self.assertEqual(post.visibility, 'archive')
+
+    def test_old_unprotected_group_document_room_is_archived_not_deleted(self):
+        active_user = make_user('source-room-active')
+        inactive_user = make_user('source-room-inactive')
+        inactive_user.is_active = False
+        inactive_user.save(update_fields=['is_active'])
+        room = Room.objects.create(title='Old group document', public=False, source_app='board', source_object_id=1)
+        room.allowed.set([active_user, inactive_user])
+        message = Message.objects.create(room=room, sender=active_user, text='Old message')
+        old_time = timezone.now() - timedelta(days=400)
+        Message.objects.filter(pk=message.pk).update(time=old_time)
+        Room.objects.filter(pk=room.pk).update(last_activity=old_time)
+
+        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360, 'delete_inactive_user_after': 30}
+        with patch('site_settings.params.get_param', side_effect=params.__getitem__):
+            call_command('chat_rooms')
+
+        room.refresh_from_db()
+        self.assertTrue(Room.objects.filter(pk=room.pk).exists())
+        self.assertTrue(room.archived)
+        self.assertEqual(room.messages.count(), 1)
+        self.assertEqual(room.source_app, 'board')
+        self.assertEqual(room.source_object_id, 1)
+
+
+class DiscussionRoomAuditCommandTest(TestCase):
+    def test_audit_reports_missing_source_metadata_without_writing(self):
+        post = PostFactory(title='Legacy room without source metadata')
+        room = post.chat_room
+        Room.objects.filter(pk=room.pk).update(source_app='', source_object_id=None)
+        output = StringIO()
+
+        call_command('repair_discussion_rooms', '--audit', '--app', 'board', stdout=output)
+
+        room.refresh_from_db()
+        self.assertIn(f"board #{post.pk}: room #{room.pk} has source '' #None", output.getvalue())
+        self.assertIn('no data was changed', output.getvalue())
+        self.assertEqual(room.source_app, '')
+        self.assertIsNone(room.source_object_id)
+
+    def test_repair_requires_review_confirmation_and_is_idempotent(self):
+        post = PostFactory(title='Legacy room for repair', visibility='group')
+        room = post.chat_room
+        Room.objects.filter(pk=room.pk).update(source_app='', source_object_id=None)
+        room.allowed.clear()
+        with self.assertRaises(CommandError):
+            call_command('repair_discussion_rooms', '--repair-source-data', '--app', 'board', stdout=StringIO())
+
+        output = StringIO()
+        call_command('repair_discussion_rooms', '--repair-source-data', '--confirm-reviewed-backup', '--app', 'board', stdout=output)
+        room.refresh_from_db()
+        self.assertEqual(room.source_app, 'board')
+        self.assertEqual(room.source_object_id, post.pk)
+        self.assertTrue(room.allowed.filter(pk=post.author_id).exists())
+        self.assertIn('Repaired 0 room link(s), 1 source marker(s)', output.getvalue())
+
+        output = StringIO()
+        call_command('repair_discussion_rooms', '--repair-source-data', '--confirm-reviewed-backup', '--app', 'board', stdout=output)
+        self.assertIn('Repaired 0 room link(s), 0 source marker(s), and added 0 membership(s)', output.getvalue())
+
+    def test_repair_does_not_create_a_room_for_an_ambiguous_legacy_title(self):
+        post = PostFactory(title='Possible old-title match')
+        room = post.chat_room
+        Room.objects.filter(pk=room.pk).update(source_app='', source_object_id=None)
+        post.__class__.objects.filter(pk=post.pk).update(chat_room=None)
+        room_count = Room.objects.count()
+
+        with self.assertRaises(CommandError):
+            call_command('repair_discussion_rooms', '--repair-source-data', '--confirm-reviewed-backup', '--app', 'board', stdout=StringIO())
+
+        post.refresh_from_db()
+        self.assertIsNone(post.chat_room_id)
+        self.assertEqual(Room.objects.count(), room_count)
+        self.assertTrue(Room.objects.filter(pk=room.pk).exists())

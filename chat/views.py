@@ -41,14 +41,7 @@ def open_dm(request: HttpRequest, pk: int):
     if target == request.user:
         return redirect('chat:chat')
 
-    room = Room.find_with_users(request.user, target)
-    if room is None:
-        title = '-'.join(sorted([request.user.username, target.username]))
-        try:
-            room = Room.objects.create(title=title, public=False)
-        except IntegrityError:
-            room = Room.objects.get(title__iexact=title)
-        room.allowed.set((request.user, target))
+    room = Room.get_or_create_for_users(request.user, target)
 
     if room.archived:
         room.archived = False
@@ -135,8 +128,8 @@ def chat(request: HttpRequest):
     public_rooms_active = base_rooms.filter(public=True, archived=False, source_app='').prefetch_related(*_public_room_prefetch())
     public_rooms_archived = base_rooms.filter(public=True, archived=True, source_app='').prefetch_related(*_public_room_prefetch())
 
-    private_active = base_rooms.filter(public=False, source_app='', archived=False).prefetch_related(*_private_room_prefetch())
-    private_archived = base_rooms.filter(public=False, source_app='', archived=True).prefetch_related(*_private_room_prefetch())
+    private_active = base_rooms.one_to_one().filter(archived=False).prefetch_related(*_private_room_prefetch())
+    private_archived = base_rooms.one_to_one().filter(archived=True).prefetch_related(*_private_room_prefetch())
 
     tasks_tree_active = base_rooms.filter(source_app='tasks', archived=False).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')
     tasks_tree_archived = base_rooms.filter(source_app='tasks', archived=True).prefetch_related(*_public_room_prefetch()).order_by('source_object_id')

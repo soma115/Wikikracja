@@ -35,8 +35,8 @@ def name_for(room, user):
 
 @register.filter('other_user')
 def other_user(room, user):
-    """Returns the other user in a private 1-to-1 room (None for public rooms)."""
-    if room.public:
+    """Returns the other user in a private 1-to-1 room, if any."""
+    if not room.is_direct_message:
         return None
     return room.get_other(user)
 

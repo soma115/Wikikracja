@@ -383,3 +383,18 @@ def test_chat_feed_public_task_room_uses_clean_title(feed_user):
     item = next(item for item in generate_feed_items(feed_user) if item['content_type'] == 'room_messages' and item['room_id'] == room.pk)
     assert item['title'] == 'Public task room'
     assert 'Task #' not in item['title']
+
+
+@pytest.mark.django_db
+def test_chat_feed_group_document_uses_document_title_and_author(feed_user, another_user):
+    cache.delete(FEED_CACHE_KEY)
+    post = PostFactory(title='Restricted group document', visibility=Post.Visibility.GROUP, author=feed_user)
+    post.chat_room.allowed.add(another_user)
+    message = Message.objects.create(room=post.chat_room, sender=feed_user, text='Historical welcome text', anonymous=False)
+
+    item = next(item for item in generate_feed_items(feed_user) if item['content_type'] == 'room_messages' and item['object_id'] == message.pk)
+    raw_item = next(item for item in generate_feed_raw() if item['content_type'] == 'room_messages' and item['object_id'] == message.pk)
+
+    assert item['title'] == post.title
+    assert item['author'] == feed_user
+    assert raw_item['title'] == post.title

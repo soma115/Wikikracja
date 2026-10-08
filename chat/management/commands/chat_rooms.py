@@ -3,6 +3,7 @@ from datetime import timedelta as td
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 from django.utils import timezone
 
 from chat.models import Message, Room
@@ -20,7 +21,8 @@ class Command(BaseCommand):
 
         # Allow active user access to all public rooms
         public_rooms = Room.objects.filter(public=True)
-        private_rooms = Room.objects.filter(public=False)
+        activity_rooms = Room.objects.filter(Q(public=True) | Q(source_app__in=Room.SOURCE_URL_NAMES))
+        private_rooms = Room.objects.one_to_one()
         active_users = User.objects.filter(is_active=True)
 
         for pr in public_rooms:
@@ -34,7 +36,7 @@ class Command(BaseCommand):
         archive_after = get_param('archive_public_chat_room')
         delete_after = get_param('delete_public_chat_room')
         archive_cutoff = timezone.now() - td(days=archive_after)
-        for room in public_rooms:
+        for room in activity_rooms:
             try:
                 last_message = Message.objects.filter(room_id=room.id).latest('time')
             except Message.DoesNotExist:
@@ -46,7 +48,7 @@ class Command(BaseCommand):
                     log.info(f'Chat room {room.title} archived.')
                     room.archived = True
                     room.save(update_fields=['archived'])
-            elif last_message is not None and room.archived:
+            elif last_message is not None and room.archived and room.source_app not in Room.SOURCE_URL_NAMES:
                 room.archived = False
                 room.save(update_fields=['archived'])
 
@@ -54,7 +56,7 @@ class Command(BaseCommand):
                 continue
 
             # Skip deletion for protected rooms (for tasks, voting) - they should only be deleted when the task/vote is deleted
-            if room.protected:
+            if room.protected or room.source_app in Room.SOURCE_URL_NAMES:
                 continue
 
             if last_message.time < (timezone.now() - td(days=delete_after)):  # delete after 1 year

@@ -1,5 +1,14 @@
 # LOG_AI
 
+## 2026-10-08: Rozdzielenie rodzaju i dostępu do pokojów czatu
+
+- **Zmienione obszary:** `chat` (modele, feed, powiadomienia, sygnały, widoki, komenda archiwizacji i narzędzie audytu/naprawy), testy `chat` oraz feedu, aktywności i digestu w `home`.
+- **Co się zmieniło:** `public` nadal określa dostęp, a wspólna reguła oparta o istniejące `source_app` odróżnia pokoje treści od DM. Feed, digest i push zachowują tytuł źródłowy dla grupowych dokumentów; nazwy ankiet są oczyszczane przy wyświetlaniu. Wyszukiwanie, obecność i widoki DM wymagają pokoju bez źródła z dokładnie dwiema osobami; kolizja tytułu nie przejmuje już obcego pokoju. Usuwanie konta kasuje wyłącznie prawdziwe DM, nowi obywatele dostają członkostwo w grupowych i archiwalnych czatach dokumentów, a scheduler może archiwizować pokoje źródłowe, lecz ich nie usuwa ani nie zamienia nieaktywnego członka w powód usunięcia.
+- **Dane historyczne:** `repair_discussion_rooms --audit` raportuje niespójne powiązania i członkostwa bez zapisu. Idempotentny `--repair-source-data` naprawia wyłącznie jednoznaczne braki, wymaga jawnego `--confirm-reviewed-backup` i nie usuwa wiadomości ani członkostw. Żaden audyt ani repair nie został uruchomiony na wdrożonej bazie. Nie dodano pola ani migracji schematu.
+- **Uzasadnienie:** `public=False` opisywało ograniczenie dostępu, ale było mylone z prywatną rozmową 1:1; skutkowało to błędnym tytułem aktywności oraz ryzykiem pomylenia, archiwizacji lub usunięcia pokoi dokumentów.
+- **Weryfikacja:** 332 testy dotyczące czatu, feedu, aktywności, digestu i dokumentów przeszły; Ruff, Django check, `makemigrations --check --dry-run --noinput` (brak zmian migracji) oraz `git diff --check` przeszły. Nie uruchamiano pełnego E2E ani testu na produkcyjnej bazie.
+- **Spodziewany efekt:** Pokoje dokumentów zachowują własne tytuły i dane; działania specyficzne dla DM nie obejmują już pokoju grupowego z błędnej interpretacji `public=False`.
+
 ## 2026-10-05: Wyraźne oznaczenie wzmianek w pushu i digescie
 
 - **Zmienione obszary:** `chat.notifications`, `home.management.commands.send_email_digest` oraz testy tych dwóch kanałów.

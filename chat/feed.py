@@ -17,10 +17,11 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
         allowed_users = list(room.allowed.all())
         room_context = {
             'content_type': 'room_messages',
-            'title': room.clean_title() if room.public else room.title,
+            'title': room.clean_title(),
             'url': f"/chat/#room_id={room.id}",
             'room_id': room.id,
             '_is_public': room.public,
+            '_is_direct_message': room.is_direct_message and len(allowed_users) == 2,
             '_allowed_user_ids': {u.id for u in allowed_users},
             '_allowed_names': {u.id: user_display_name(u) for u in allowed_users},
         }
@@ -38,7 +39,7 @@ def _visible_item(item, user) -> dict | None:
     if not item.get('_is_public') and user.id not in item.get('_allowed_user_ids', set()):
         return None
     item = {**item}
-    if not item.get('_is_public'):
+    if item.get('_is_direct_message'):
         other = next((name for uid, name in item.get('_allowed_names', {}).items() if uid != user.id), None)
         if other:
             item['title'] = other

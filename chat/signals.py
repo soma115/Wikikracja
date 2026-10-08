@@ -1,9 +1,10 @@
 import logging
 
 from asgiref.sync import async_to_sync
+from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
-from django.db.models import F
+from django.db.models import F, Q
 from django.db.models.functions import Greatest
 from django.db.models.signals import m2m_changed, post_delete, post_migrate, post_save
 from django.dispatch import Signal, receiver
@@ -223,7 +224,9 @@ def create_one2one_rooms(sender, **kwargs):
 @receiver(citizen_accepted)
 def add_citizen_to_public_rooms(sender, user, **kwargs):
     """Grant a newly accepted citizen access to existing public rooms."""
-    room_ids = list(Room.objects.filter(public=True).values_list('id', flat=True))
+    Post = apps.get_model('board', 'Post')
+    visible_document_ids = Post.objects.filter(visibility__in=(Post.Visibility.GROUP, Post.Visibility.ARCHIVE)).values_list('pk', flat=True)
+    room_ids = list(Room.objects.filter(Q(public=True) | Q(source_app='board', source_object_id__in=visible_document_ids)).values_list('id', flat=True))
     membership_model = Room.allowed.through
     user_id = getattr(user, 'pk', getattr(user, 'id', None))
     if not user_id or not get_user_model().objects.filter(pk=user_id).exists():
@@ -239,7 +242,7 @@ def cleanup_user_chat_rooms(sender, user, **kwargs):
     Deletes private one-to-one rooms and removes the user from all remaining
     room memberships (allowed, muted, seen).
     """
-    private_rooms = Room.objects.filter(public=False, allowed=user)
+    private_rooms = Room.objects.one_to_one().filter(allowed=user)
     for room in private_rooms:
         log.info(f'Room {room} deleted.')
     private_rooms.delete()

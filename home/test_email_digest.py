@@ -512,3 +512,15 @@ def test_build_user_digest_public_task_room_uses_clean_title(digest_user, anothe
     item = next(item for item in build_user_digest(digest_user, since) if item['content_type'] == 'room_messages' and item['room_id'] == room.pk)
     assert item['title'] == 'Task digest clean title'
     assert 'Task #' not in item['title']
+
+
+@pytest.mark.django_db
+def test_digest_group_document_uses_document_title(digest_user, another_user):
+    post = PostFactory(title='Restricted digest document', visibility='group', author=another_user)
+    post.chat_room.allowed.add(digest_user)
+    Message.objects.create(room=post.chat_room, sender=another_user, text='Historical welcome text', anonymous=False)
+
+    since = timezone.now() - td(hours=1)
+    item = next(item for item in build_user_digest(digest_user, since) if item['content_type'] == 'room_messages' and item['room_id'] == post.chat_room_id)
+
+    assert item['title'] == post.title

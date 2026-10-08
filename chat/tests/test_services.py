@@ -32,6 +32,7 @@ from chat.services import (
     mark_room_unread_for_user,
     send_message,
 )
+from chat.signals import cleanup_user_chat_rooms
 from chat.tests.utils import make_user
 from core import signals
 from core.notifications import build_notification, send_fcm_to_user_sync
@@ -748,6 +749,10 @@ class RoomNotificationNameTest(TestCase):
         room = Room.objects.create(title='Custom room', public=True)
         self.assertEqual(ChatNotificationService._room_notification_name(room, None), 'Custom room')
 
+    def test_restricted_source_room_uses_clean_document_title(self):
+        room = Room.objects.create(title='Document #42: Group document', public=False, source_app='board', source_object_id=42)
+        self.assertEqual(ChatNotificationService._room_notification_name(room, None), 'Group document')
+
     def test_private_room_uses_sender_initials(self):
         sender = make_user('sender')
         sender.first_name = 'Jan'
@@ -761,3 +766,25 @@ class RoomNotificationNameTest(TestCase):
         sender.last_name = 'Kowalski'
         room = Room.objects.create(title='Private room', public=False)
         self.assertEqual(ChatNotificationService._room_notification_name(room, sender, anonymous=True), 'Anonymous')
+
+
+class CleanupUserChatRoomsTest(TestCase):
+    def test_deleting_citizen_only_deletes_direct_messages(self):
+        user = make_user('deleted-citizen')
+        other = make_user('remaining-citizen')
+        third = make_user('third-citizen')
+        dm = Room.objects.create(title='deleted-citizen-remaining-citizen', public=False)
+        dm.allowed.set([user, other])
+        document_room = Room.objects.create(title='Group document room', public=False, source_app='board', source_object_id=10)
+        document_room.allowed.set([user, other])
+        unclassified_group = Room.objects.create(title='Unclassified group room', public=False)
+        unclassified_group.allowed.set([user, other, third])
+
+        cleanup_user_chat_rooms(sender=type(user), user=user)
+
+        self.assertFalse(Room.objects.filter(pk=dm.pk).exists())
+        self.assertTrue(Room.objects.filter(pk=document_room.pk).exists())
+        self.assertFalse(document_room.allowed.filter(pk=user.pk).exists())
+        self.assertTrue(document_room.allowed.filter(pk=other.pk).exists())
+        self.assertTrue(Room.objects.filter(pk=unclassified_group.pk).exists())
+        self.assertFalse(unclassified_group.allowed.filter(pk=user.pk).exists())

@@ -173,6 +173,24 @@ def test_activity_shows_each_chat_message_as_separate_item(client, activity_user
 
 
 @pytest.mark.django_db
+def test_activity_group_document_keeps_document_title_separate_from_author(client, activity_user):
+    client.force_login(activity_user)
+    other = UserFactory(username='activity_random_member', email='activity-random@example.com')
+    post = PostFactory(title='Restricted activity document', visibility=Post.Visibility.GROUP, author=activity_user)
+    post.chat_room.allowed.add(other)
+    message = Message.objects.create(room=post.chat_room, sender=activity_user, text='Historical welcome text', anonymous=False)
+
+    item = next(item for item in generate_feed_items(activity_user) if item['content_type'] == 'room_messages' and item['object_id'] == message.pk)
+    response = client.get(reverse('activity'))
+    content = response.content.decode()
+
+    assert item['title'] == post.title
+    assert item['author'] == activity_user
+    assert f'data-object-id="{message.pk}"' in content
+    assert post.title in content
+
+
+@pytest.mark.django_db
 def test_activity_includes_public_guest_inbox_messages(client, activity_user):
     client.force_login(activity_user)
     inbox = Room.objects.get(system_key='inbox')

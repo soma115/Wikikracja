@@ -46,7 +46,7 @@ class ChatNotificationService:
 
         membership_prefs = await database_sync_to_async(Room.get_membership_preferences_bulk)(room.id, other_member_ids)
         author = "Anonymous" if message.anonymous else (user_initials(sender) if sender else "System")
-        room_name = self._room_notification_name(room, sender, anonymous=message.anonymous)
+        room_name = self._room_notification_name(room, sender, anonymous=message.anonymous, is_direct_message=room.is_direct_message and len(room_members) == 2)
         notification = await self._build_notification(author, room.id, room_name, sender.id if sender and not message.anonymous else None)
 
         for member in other_members:
@@ -86,8 +86,9 @@ class ChatNotificationService:
         cache.delete_many([CHAT_UNREAD_CACHE_KEY.format(user_id=user_id) for user_id in user_ids])
 
     @staticmethod
-    def _room_notification_name(room, sender, anonymous=False):
-        if room.public:
+    def _room_notification_name(room, sender, anonymous=False, is_direct_message=None):
+        is_direct_message = room.is_direct_message if is_direct_message is None else is_direct_message
+        if not is_direct_message:
             return room.clean_title()
         if anonymous:
             return "Anonymous"

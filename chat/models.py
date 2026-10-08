@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db import models
-from django.db.models import Prefetch
+from django.db import IntegrityError, models, transaction
+from django.db.models import Count, OuterRef, Prefetch, Subquery
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -62,6 +62,15 @@ class ChatRoomQuerySet(models.QuerySet):
         if memberships:
             Room.allowed.through.objects.bulk_create(memberships, ignore_conflicts=True)
             Room.apply_default_notification_preferences([room.pk for room in rooms_to_create], users)
+
+
+class RoomQuerySet(models.QuerySet):
+    def direct_messages(self):
+        return self.filter(public=False, source_app='', source_object_id__isnull=True, system_key__isnull=True, federated_instance_url__isnull=True)
+
+    def one_to_one(self):
+        member_count = Room.allowed.through.objects.filter(room_id=OuterRef('pk')).values('room_id').annotate(count=Count('pk')).values('count')
+        return self.direct_messages().annotate(_member_count=Subquery(member_count)).filter(_member_count=2)
 
 
 class ChatRoomModel(models.Model):
@@ -142,6 +151,8 @@ class Room(models.Model):
     federation_last_checked_at = models.DateTimeField(null=True, blank=True)
     federation_last_communication_at = models.DateTimeField(null=True, blank=True)
 
+    objects = RoomQuerySet.as_manager()
+
     SOURCE_URL_NAMES = {'tasks': 'tasks:detail', 'board': 'board:view_post', 'glosowania': 'glosowania:details', 'ankiety': 'ankiety:detail'}
     DEFAULT_MUTED_SOURCE_APPS = frozenset({'tasks', 'board', 'glosowania', 'ankiety'})
 
@@ -181,31 +192,35 @@ class Room(models.Model):
     def __str__(self):
         return self.title
 
+    @property
+    def is_direct_message(self):
+        return not self.public and not self.source_app and self.source_object_id is None and self.system_key is None and self.federated_instance_url is None
+
     def get_other(self, user):
-        assert not self.public
+        assert self.is_direct_message
         # Use prefetched data if available to avoid extra query
         if hasattr(self, '_prefetched_objects_cache') and 'allowed' in self._prefetched_objects_cache:
-            for allowed_user in self.allowed.all():
-                if allowed_user.id != user.id:
-                    return allowed_user
-            return None
-        return self.allowed.exclude(id=user.id).first()
+            other_users = [allowed_user for allowed_user in self.allowed.all() if allowed_user.id != user.id]
+        else:
+            other_users = list(self.allowed.exclude(id=user.id)[:2])
+        return other_users[0] if len(other_users) == 1 else None
 
     def clean_title(self):
-        """Return title without source prefix for task/vote/document rooms."""
+        """Return title without source prefix for linked rooms."""
         if self.source_app == 'tasks' and self.source_object_id and self.title.startswith(f'Task #{self.source_object_id}: '):
             return self.title[len(f'Task #{self.source_object_id}: ') :]
         if self.source_app == 'glosowania' and self.source_object_id and self.title.startswith(f'{self.source_object_id}. '):
             return self.title[len(f'{self.source_object_id}. ') :]
         if self.source_app == 'board' and self.source_object_id and self.title.startswith(f'Document #{self.source_object_id}: '):
             return self.title[len(f'Document #{self.source_object_id}: ') :]
+        if self.source_app == 'ankiety' and self.source_object_id and self.title.startswith(f'Survey #{self.source_object_id}: '):
+            return self.title[len(f'Survey #{self.source_object_id}: ') :]
         return self.title
 
     # Name that user will see in chats list
     def displayed_name(self, user):
         title_len = 90
-        if self.public or self.source_app:
-            # Source-managed rooms use their source title even when access is restricted.
+        if not self.is_direct_message:
             title = self.clean_title()
             return title[:title_len] if len(title) > title_len else title
 
@@ -227,13 +242,15 @@ class Room(models.Model):
 
     @staticmethod
     def find_all_with_users(*users):
-        """
-        Returns queryset of private Room objects containing all given users.
-        """
-        qs = Room.objects.filter(public=False)
-        for user in users:
-            qs = qs.filter(allowed=user)
-        return qs
+        """Return direct-message rooms containing the given users."""
+        user_ids = {user.pk for user in users}
+        if not user_ids or len(user_ids) > 2:
+            return Room.objects.none()
+
+        rooms = Room.objects.one_to_one().filter(allowed__id__in=user_ids)
+        for user_id in user_ids:
+            rooms = rooms.filter(allowed__id=user_id)
+        return rooms.distinct()
 
     @staticmethod
     def find_with_users(*users):
@@ -244,27 +261,29 @@ class Room(models.Model):
 
     @classmethod
     def get_or_create_for_users(cls, *users):
-        """
-        Get or create a private 1-to-1 room for the given users.
-        Uses sorted usernames as the room title and ensures all users are in `allowed`.
-        """
-        from django.db import IntegrityError
+        """Get or create a private one-to-one room for exactly two users."""
+        user_ids = sorted({user.pk for user in users})
+        if len(user_ids) != 2:
+            raise ValueError('A direct message requires exactly two distinct users.')
 
-        title = '-'.join(sorted(u.username for u in users))
         room = cls.find_with_users(*users)
         if room is not None:
             return room
 
-        try:
-            room = cls.objects.create(title=title, public=False)
-        except IntegrityError:
-            room = cls.objects.get(title__iexact=title)
-            room.public = False
-            room.save(update_fields=['public'])
-
-        if room.allowed.count() != len(users):
-            room.allowed.set(users)
-        return room
+        base_title = '-'.join(sorted(user.username for user in users))
+        for attempt in range(10):
+            suffix = '' if attempt == 0 else f' [DM {user_ids[0]}-{user_ids[1]}-{attempt}]'
+            title = f'{base_title[: 255 - len(suffix)]}{suffix}'
+            try:
+                with transaction.atomic():
+                    room = cls.objects.create(title=title, public=False)
+                    room.allowed.set(users)
+                return room
+            except IntegrityError:
+                room = cls.find_with_users(*users)
+                if room is not None:
+                    return room
+        raise IntegrityError(f'Could not create a direct message for users {user_ids[0]} and {user_ids[1]}')
 
     @classmethod
     def create_all_one2one_rooms(cls):
@@ -300,7 +319,7 @@ class Room(models.Model):
         # 2. user is in allowed
         # 3. room has exactly 2 users (1-to-1)
         # 4. at least one of the other_user_ids is also in allowed
-        rooms = Room.objects.filter(public=False, allowed=user).filter(allowed__id__in=other_user_ids).prefetch_related('allowed').distinct()
+        rooms = Room.objects.one_to_one().filter(allowed=user).filter(allowed__id__in=other_user_ids).prefetch_related('allowed').distinct()
 
         # Build mapping: other_user_id -> room
         result = {}
