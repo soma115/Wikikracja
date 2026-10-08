@@ -56,7 +56,7 @@ test.describe('chat — edycja wiadomości nie wstrzykuje markera "pokaż więce
         await enterFirstRoom(page);
 
         const stamp = Date.now();
-        const original = `Krótka treść testowa ${stamp}`;
+        const original = `E2E Playwright: Krótka treść testowa ${stamp}`;
         const appended = ' edytowane';
         await sendMessage(page, original);
         await editOwnMessage(page, original, appended);
@@ -74,7 +74,7 @@ test.describe('chat — edycja wiadomości nie wstrzykuje markera "pokaż więce
         await enterFirstRoom(page);
 
         const stamp = Date.now();
-        const original = `Wiadomość z historii ${stamp}`;
+        const original = `E2E Playwright: Wiadomość z historii ${stamp}`;
         const appended = ' edytowane-z-historii';
         await sendMessage(page, original);
 

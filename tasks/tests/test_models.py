@@ -49,6 +49,7 @@ class TaskModelTest(TestCase):
         self.assertIsNotNone(task.chat_room)
         self.assertTrue(Room.objects.filter(title=task.get_chat_room_title()).exists())
         self.assertEqual(task.chat_room.title, task.get_chat_room_title())
+        self.assertEqual(task.chat_room.messages.count(), 0)
 
     def test_team_mode_defaults_to_false(self):
         task = make_task(created_by=self.user)

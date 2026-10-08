@@ -32,6 +32,8 @@ class ChatViewsTest(TestCase):
         self.client.force_login(self.user)
         response = self.client.get(reverse("chat:chat"))
         self.assertEqual(response.status_code, 200)
+        self.assertIn('Open related content', response.context['translations'])
+        self.assertTrue(response.context['translations']['Open related content'])
 
     def test_newly_accepted_citizen_gets_existing_public_rooms(self):
         from unittest.mock import patch

@@ -34,18 +34,14 @@ def test_post_creation_creates_chat_room():
 
     # Tytuł jest prawidłowo czyszczony przy wyświetlaniu
     assert room.clean_title() == 'Important doc'
-    assert room.messages.count() == 1
-    assert f'/board/view/{post.pk}/' in room.messages.get().text
+    assert room.messages.count() == 0
 
 
 @pytest.mark.django_db
-@override_settings(LANGUAGE_CODE='pl')
-def test_document_chat_welcome_uses_instance_language():
-    with override('en'):
-        post = PostFactory(title='Translated document')
+def test_document_chat_starts_without_a_welcome_message():
+    post = PostFactory(title='Document without welcome')
 
-    welcome_message = post.chat_room.messages.get().text
-    assert welcome_message.startswith('Pokój dyskusji do dokumentu:')
+    assert post.chat_room.messages.count() == 0
 
 
 @pytest.mark.django_db
@@ -57,16 +53,14 @@ def test_group_document_room_uses_document_title_for_display():
 
 
 @pytest.mark.django_db
-def test_empty_document_chat_gets_welcome_message_on_update():
+def test_empty_document_chat_stays_empty_after_update():
     post = PostFactory(title='Document without welcome')
     room = post.chat_room
-    room.messages.all().delete()
 
-    post.title = 'Document with restored welcome'
+    post.title = 'Document updated'
     post.save()
 
-    assert room.messages.count() == 1
-    assert f'/board/view/{post.pk}/' in room.messages.get().text
+    assert room.messages.count() == 0
 
 
 @pytest.mark.django_db

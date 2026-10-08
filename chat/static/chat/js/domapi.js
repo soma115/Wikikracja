@@ -31,9 +31,9 @@ export default class DomApi {
         return $(`.tw-room-link[data-room-id="${room_id}"]`);
     }
 
-    createRoomDiv(room_id, title, is_public, notifs_enabled, can_post = true, source_app = '') {
+    createRoomDiv(room_id, title, is_public, notifs_enabled, can_post = true, source_app = '', source_url = null) {
         const messageMaxLength = window.SITE_SETTINGS?.messageMaxLength ?? 500;
-        const html = Room({ room_id, title, is_public, notifs_enabled, messageMaxLength });
+        const html = Room({ room_id, title, is_public, notifs_enabled, messageMaxLength, source_url });
         const container = $('.tw-chat-root-messages');
         container.innerHTML = '';
         container.insertAdjacentHTML('beforeend', html);

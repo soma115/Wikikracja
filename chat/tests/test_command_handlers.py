@@ -46,12 +46,13 @@ class ChatCommandHandlersTest(SimpleTestCase):
         self.assertEqual(raised.exception.code, 'DATA_MISSING')
 
     async def test_join_returns_metadata_and_messages_from_shared_builder(self):
-        room = SimpleNamespace(id=3, group_name='room-3', title='Room', public=True, source_app='')
+        room = SimpleNamespace(id=3, group_name='room-3', title='Room', public=True, source_app='', source_url='/board/view/3/')
         self.repo.get_room_or_error.return_value = room
         with patch('chat.command_handlers.build_message_payloads', return_value=[{'message_id': 1}]) as build:
             result = await self.handlers.join(room.id)
 
         self.assertEqual(result.responses[0]['join'], '3')
+        self.assertEqual(result.responses[0]['source_url'], '/board/view/3/')
         self.assertEqual(result.responses[1], {'messages': [{'message_id': 1}]})
         self.channel_layer.group_add.assert_awaited_once_with('room-3', 'channel-1')
         self.reset_room_push_state.assert_called_once_with(self.user.id, room.id)

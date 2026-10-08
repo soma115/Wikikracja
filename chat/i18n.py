@@ -18,6 +18,7 @@ def get_translations():
         "Close": _("Close"),
         "Loading...": _("Loading..."),
         "Copy link": _("Copy link"),
+        "Open related content": _("Open related content"),
         "Copy message link": _("Copy message link"),
         "Link copied": _("Link copied"),
         "Could not copy link": _("Could not copy link"),

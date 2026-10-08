@@ -58,7 +58,7 @@ def test_complete_voting_workflow(sample_users):
 
 @pytest.mark.django_db
 def test_signal_auto_creates_chat_room_for_new_decyzja(sample_users):
-    """Każda nowa Decyzja(status=PROPOSITION) ma auto-utworzony chat_room (sygnał) z properties: public, protected, founder=author + welcome message."""
+    """Każda nowa Decyzja(status=PROPOSITION) ma auto-utworzony pusty chat_room z poprawnymi properties."""
     from chat.models import Message
     from glosowania.models import Decyzja
 
@@ -76,10 +76,7 @@ def test_signal_auto_creates_chat_room_for_new_decyzja(sample_users):
     assert room.archived is False
     assert room.founder_id == author.id
 
-    # Welcome message anonimowy
-    welcome_messages = Message.objects.filter(room=room, anonymous=True, sender=None)
-    assert welcome_messages.count() == 1
-    assert f'#{decyzja.pk}' in welcome_messages.first().text
+    assert Message.objects.filter(room=room).count() == 0
 
     # Zaproszeni są wszyscy aktywni userzy (signal wywołuje room.allowed.set(active_users))
     from django.contrib.auth import get_user_model

@@ -40,6 +40,7 @@ class SurveyViewsTests(TestCase):
         self.assertEqual(survey.options.count(), 2)
         self.assertEqual(survey.chat_room.title, "Survey #1: New survey")
         self.assertEqual(survey.chat_room.source_app, "ankiety")
+        self.assertEqual(survey.chat_room.messages.count(), 0)
 
     def test_edit_survey_get_renders_prefilled_form(self):
         survey = self._create_survey(self.author)

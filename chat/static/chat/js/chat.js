@@ -1029,7 +1029,7 @@ export async function onRoomTryJoin(room_id, { preserveView = false, preserveCat
     DOM_API.seenChat(room_id);
     WS_API.seenRoom(room_id);
     DOM_API.setRoomNotifications(response.notifications);
-    DOM_API.createRoomDiv(room_id, response.title, response.public, response.notifications, response.can_post ?? true, response.source_app ?? '');
+    DOM_API.createRoomDiv(room_id, response.title, response.public, response.notifications, response.can_post ?? true, response.source_app ?? '', response.source_url);
     initMentionSuggestion(DOM_API.getMessageInput(), () => CurrentRoomId);
     resetSortState();
     bindSortToolbar();

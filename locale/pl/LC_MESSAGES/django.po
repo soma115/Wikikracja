@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-08 08:24+0200\n"
+"POT-Creation-Date: 2026-10-08 14:42+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -79,7 +79,7 @@ msgid "This option already exists."
 msgstr "Ta opcja już istnieje."
 
 #: .\ankiety\models.py:12 .\ankiety\templates\ankiety\survey_form.html:25
-#: .\board\models.py:42 .\chat\i18n.py:27 .\events\models.py:19
+#: .\board\models.py:42 .\chat\i18n.py:28 .\events\models.py:19
 #: .\glosowania\models.py:33 .\glosowania\views.py:575
 #: .\home\templates\home\site_admin.html:84
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:7
@@ -200,11 +200,6 @@ msgstr "Głosy w ankiecie"
 #: .\home\views.py:120
 msgid "Ankiety"
 msgstr "Ankiety"
-
-#: .\ankiety\signals.py:28
-#, python-format
-msgid "Discussion room for survey: <a href='%(survey_url)s'>%(survey_title)s</a>"
-msgstr "Pokój dyskusji do ankiety: <a href='%(survey_url)s'>%(survey_title)s</a>"
 
 #: .\ankiety\templates\ankiety\_survey_detail_actions.html:5
 #: .\board\templates\board\_post_detail_actions.html:15
@@ -522,7 +517,7 @@ msgstr "Widoczność"
 msgid "Priority"
 msgstr "Priorytet"
 
-#: .\board\models.py:25 .\board\signals.py:24
+#: .\board\models.py:25 .\board\signals.py:22
 msgid "Protected categories cannot be deleted."
 msgstr "Chronionych kategorii nie można usunąć."
 
@@ -595,7 +590,7 @@ msgstr "Klucz systemowy"
 msgid "Link Alias"
 msgstr "Alias linku"
 
-#: .\board\models.py:98 .\board\signals.py:104
+#: .\board\models.py:98 .\board\signals.py:90
 msgid "System posts cannot be deleted."
 msgstr "Dokumenty systemowe nie mogą być usunięte"
 
@@ -624,35 +619,30 @@ msgstr "Załącznik"
 msgid "Post Attachments"
 msgstr "Załączniki"
 
-#: .\board\signals.py:47
+#: .\board\signals.py:45
 #, python-format
 msgid "New important document by %(username)s: %(link)s"
 msgstr "Nowy ważny dokument od %(username)s: %(link)s"
 
-#: .\board\signals.py:49 .\tests\test_board.py:596
+#: .\board\signals.py:47 .\tests\test_board.py:590
 #, python-format
 msgid "Document is no longer marked as important: %(link)s"
 msgstr "Dokument nie jest już oznaczony jako ważny: %(link)s"
 
-#: .\board\signals.py:51 .\tests\test_board.py:641
+#: .\board\signals.py:49 .\tests\test_board.py:635
 #, python-format
 msgid "Important document was archived: %(link)s"
 msgstr "Ważny dokument został zarchiwizowany: %(link)s"
 
-#: .\board\signals.py:53 .\tests\test_board.py:642
+#: .\board\signals.py:51 .\tests\test_board.py:636
 #, python-format
 msgid "Important document was made visible again: %(link)s"
 msgstr "Ważny dokument został ponownie udostępniony: %(link)s"
 
-#: .\board\signals.py:55
+#: .\board\signals.py:53
 #, python-format
 msgid "I've updated Important document: %(link)s"
 msgstr "Zaktualizowałem ważny dokument: %(link)s"
-
-#: .\board\signals.py:78
-#, python-format
-msgid "Discussion room for document: <a href='%(url)s'>%(title)s</a>"
-msgstr "Pokój dyskusji do dokumentu: <a href='%(url)s'>%(title)s</a>"
 
 #: .\board\templates\board\_post_detail_actions.html:8
 msgid "Restore"
@@ -854,7 +844,7 @@ msgstr "A-Z"
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:23
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:17
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:22
-#: .\chat\i18n.py:47 .\home\views.py:155
+#: .\chat\i18n.py:48 .\home\views.py:155
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:10
@@ -1500,243 +1490,247 @@ msgstr "Ładowanie…"
 msgid "Copy link"
 msgstr "Skopiuj link"
 
-#: .\chat\i18n.py:21
+#: .\chat\i18n.py:21 .\chat\templates\chat\room_link.html:77
+msgid "Open related content"
+msgstr "Otwórz powiązaną treść"
+
+#: .\chat\i18n.py:22
 msgid "Copy message link"
 msgstr "Skopiuj link do wiadomości"
 
-#: .\chat\i18n.py:22
+#: .\chat\i18n.py:23
 msgid "Link copied"
 msgstr "Link skopiowany"
 
-#: .\chat\i18n.py:23
+#: .\chat\i18n.py:24
 msgid "Could not copy link"
 msgstr "Nie udało się skopiować linku"
 
-#: .\chat\i18n.py:24
+#: .\chat\i18n.py:25
 msgid "Reply to the appropriate message..."
 msgstr "Odpowiedz na odpowiednią wiadomość..."
 
-#: .\chat\i18n.py:25
+#: .\chat\i18n.py:26
 msgid "Upvote"
 msgstr "Plus"
 
-#: .\chat\i18n.py:26
+#: .\chat\i18n.py:27
 msgid "Downvote"
 msgstr "Minus"
 
-#: .\chat\i18n.py:28 .\events\forms.py:25 .\events\models.py:17
+#: .\chat\i18n.py:29 .\events\forms.py:25 .\events\models.py:17
 msgid "Sunday"
 msgstr "Niedziela"
 
-#: .\chat\i18n.py:29 .\events\forms.py:25 .\events\models.py:17
+#: .\chat\i18n.py:30 .\events\forms.py:25 .\events\models.py:17
 msgid "Monday"
 msgstr "Poniedziałek"
 
-#: .\chat\i18n.py:30 .\events\forms.py:25 .\events\models.py:17
+#: .\chat\i18n.py:31 .\events\forms.py:25 .\events\models.py:17
 msgid "Tuesday"
 msgstr "Wtorek"
 
-#: .\chat\i18n.py:31 .\events\forms.py:25 .\events\models.py:17
+#: .\chat\i18n.py:32 .\events\forms.py:25 .\events\models.py:17
 msgid "Wednesday"
 msgstr "Środa"
 
-#: .\chat\i18n.py:32 .\events\forms.py:25 .\events\models.py:17
+#: .\chat\i18n.py:33 .\events\forms.py:25 .\events\models.py:17
 msgid "Thursday"
 msgstr "Czwartek"
 
-#: .\chat\i18n.py:33 .\events\forms.py:25 .\events\models.py:17
+#: .\chat\i18n.py:34 .\events\forms.py:25 .\events\models.py:17
 msgid "Friday"
 msgstr "Piątek"
 
-#: .\chat\i18n.py:34 .\events\forms.py:25 .\events\models.py:17
+#: .\chat\i18n.py:35 .\events\forms.py:25 .\events\models.py:17
 msgid "Saturday"
 msgstr "Sobota"
 
-#: .\chat\i18n.py:35
+#: .\chat\i18n.py:36
 msgid "Jan"
 msgstr "sty"
 
-#: .\chat\i18n.py:36
+#: .\chat\i18n.py:37
 msgid "Feb"
 msgstr "lut"
 
-#: .\chat\i18n.py:37
+#: .\chat\i18n.py:38
 msgid "Mar"
 msgstr "mar"
 
-#: .\chat\i18n.py:38
+#: .\chat\i18n.py:39
 msgid "Apr"
 msgstr "kwi"
 
-#: .\chat\i18n.py:39
+#: .\chat\i18n.py:40
 msgid "May"
 msgstr "maj"
 
-#: .\chat\i18n.py:40
+#: .\chat\i18n.py:41
 msgid "Jun"
 msgstr "cze"
 
-#: .\chat\i18n.py:41
+#: .\chat\i18n.py:42
 msgid "Jul"
 msgstr "lip"
 
-#: .\chat\i18n.py:42
+#: .\chat\i18n.py:43
 msgid "Aug"
 msgstr "sie"
 
-#: .\chat\i18n.py:43
+#: .\chat\i18n.py:44
 msgid "Sep"
 msgstr "wrz"
 
-#: .\chat\i18n.py:44
+#: .\chat\i18n.py:45
 msgid "Oct"
 msgstr "paź"
 
-#: .\chat\i18n.py:45
+#: .\chat\i18n.py:46
 msgid "Nov"
 msgstr "lis"
 
-#: .\chat\i18n.py:46
+#: .\chat\i18n.py:47
 msgid "Dec"
 msgstr "gru"
 
-#: .\chat\i18n.py:48 .\chat\templates\chat\chat.html:353
+#: .\chat\i18n.py:49 .\chat\templates\chat\chat.html:353
 #: .\chat\templates\chat\room_link.html:42
 #: .\home\templates\home\activity.html:20
 msgid "Unread"
 msgstr "Nieprzeczytane"
 
-#: .\chat\i18n.py:49 .\chat\templates\chat\chat.html:56
+#: .\chat\i18n.py:50 .\chat\templates\chat\chat.html:56
 msgid "Show only unread rooms"
 msgstr "Pokaż tylko nieprzeczytane pokoje"
 
-#: .\chat\i18n.py:50
+#: .\chat\i18n.py:51
 msgid "Sorting and filter"
 msgstr "Sortowanie i filtry"
 
-#: .\chat\i18n.py:51
+#: .\chat\i18n.py:52
 msgid "Likes"
 msgstr "Polubienia"
 
-#: .\chat\i18n.py:52
+#: .\chat\i18n.py:53
 msgid "Popular"
 msgstr "Popularne"
 
-#: .\chat\i18n.py:53
+#: .\chat\i18n.py:54
 msgid "Show room list"
 msgstr "Pokaż listę pokoi"
 
-#: .\chat\i18n.py:54
+#: .\chat\i18n.py:55
 msgid "Hide room list"
 msgstr "Ukryj listę pokoi"
 
-#: .\chat\i18n.py:55 .\chat\templates\chat\room_link.html:59
+#: .\chat\i18n.py:56 .\chat\templates\chat\room_link.html:59
 msgid "attachment"
 msgstr "załącznik"
 
-#: .\chat\i18n.py:56 .\chat\templates\chat\room_link.html:90
+#: .\chat\i18n.py:57 .\chat\templates\chat\room_link.html:90
 msgid "Mute room"
 msgstr "Wycisz pokój"
 
-#: .\chat\i18n.py:57 .\chat\templates\chat\room_link.html:90
+#: .\chat\i18n.py:58 .\chat\templates\chat\room_link.html:90
 msgid "Unmute room"
 msgstr "Cofnij wyciszenie"
 
-#: .\chat\i18n.py:58
+#: .\chat\i18n.py:59
 msgid "Shift/Ctrl+↵ send · Ctrl+B bold · Ctrl+I italic"
 msgstr "Shift+↵ nowa linia · Ctrl+B pogrubienie · Ctrl+I kursywa"
 
-#: .\chat\i18n.py:59
+#: .\chat\i18n.py:60
 msgid "Select a room from the list"
 msgstr "Wybierz pokój z listy"
 
-#: .\chat\i18n.py:60
+#: .\chat\i18n.py:61
 msgid "No unread messages"
 msgstr "Brak nieprzeczytanych wiadomości"
 
-#: .\chat\i18n.py:61
+#: .\chat\i18n.py:62
 #, python-brace-format
 msgid "Tap {icon} above the list to disable the unread filter"
 msgstr "Kliknij {icon} nad listą, aby wyłączyć filtr nieprzeczytanych"
 
-#: .\chat\i18n.py:62
+#: .\chat\i18n.py:63
 msgid "Disable the unread filter"
 msgstr "Wyłącz filtr nieprzeczytanych"
 
-#: .\chat\i18n.py:63
+#: .\chat\i18n.py:64
 msgid "This room is empty, be the first one to write something."
 msgstr "Ten pokój jest pusty, napisz coś jako pierwszy."
 
-#: .\chat\i18n.py:64
+#: .\chat\i18n.py:65
 msgid "Only approved helpers can write here."
 msgstr "Tylko zatwierdzeni pomocnicy mogą tutaj pisać."
 
-#: .\chat\i18n.py:65
+#: .\chat\i18n.py:66
 msgid "You cannot write in this room."
 msgstr "Nie możesz pisać w tym pokoju."
 
-#: .\chat\i18n.py:66
+#: .\chat\i18n.py:67
 msgid "This room is not available."
 msgstr "Ten pokój jest niedostępny."
 
-#: .\chat\i18n.py:67
+#: .\chat\i18n.py:68
 msgid "Could not join the room."
 msgstr "Nie udało się dołączyć do pokoju."
 
-#: .\chat\i18n.py:68
+#: .\chat\i18n.py:69
 msgid "Reconnecting..."
 msgstr "Ponowne łączenie..."
 
-#: .\chat\i18n.py:69
+#: .\chat\i18n.py:70
 msgid "You are offline."
 msgstr "Jesteś offline."
 
-#: .\chat\i18n.py:70
+#: .\chat\i18n.py:71
 msgid "Try again"
 msgstr "Spróbuj ponownie"
 
-#: .\chat\i18n.py:71
+#: .\chat\i18n.py:72
 msgid "No rooms match the search."
 msgstr "Żaden pokój nie pasuje do wyszukiwania."
 
-#: .\chat\i18n.py:72
+#: .\chat\i18n.py:73
 msgid "Existing rooms matching this name:"
 msgstr "Istniejące pokoje pasujące do tej nazwy:"
 
-#: .\chat\i18n.py:73 .\home\templates\home\site_admin.html:53
+#: .\chat\i18n.py:74 .\home\templates\home\site_admin.html:53
 msgid "Archived"
 msgstr "Zarchiwizowane"
 
-#: .\chat\i18n.py:74
+#: .\chat\i18n.py:75
 msgid "Could not create the room."
 msgstr "Nie udało się utworzyć pokoju."
 
-#: .\chat\i18n.py:75
+#: .\chat\i18n.py:76
 #, python-brace-format
 msgid "Message trimmed to {max} characters"
 msgstr "Wiadomość przycięta do {max} znaków"
 
-#: .\chat\i18n.py:76
+#: .\chat\i18n.py:77
 msgid "The name cannot be empty."
 msgstr "Nazwa nie może być pusta."
 
-#: .\chat\i18n.py:77
+#: .\chat\i18n.py:78
 msgid "Error."
 msgstr "Błąd."
 
-#: .\chat\i18n.py:78
+#: .\chat\i18n.py:79
 msgid "Room name changed."
 msgstr "Nazwa pokoju zmieniona."
 
-#: .\chat\i18n.py:79
+#: .\chat\i18n.py:80
 msgid "Connection error."
 msgstr "Błąd połączenia."
 
-#: .\chat\i18n.py:80
+#: .\chat\i18n.py:81
 msgid "No messages. Write the first one!"
 msgstr "Brak wiadomości. Napisz pierwszy!"
 
-#: .\chat\i18n.py:81
+#: .\chat\i18n.py:82
 msgid "No access to this chat."
 msgstr "Brak dostępu do tego czatu."
 
@@ -1937,7 +1931,7 @@ msgstr "Archiwa"
 msgid "Click the archive button (folder icon) next to each category to show archived rooms."
 msgstr "Kliknij przycisk archiwum (ikona folderu) obok każdej kategorii, aby pokazać zarchiwizowane pokoje."
 
-#: .\chat\templates\chat\guest_message.html:5 .\chat\tests\test_views.py:352
+#: .\chat\templates\chat\guest_message.html:5 .\chat\tests\test_views.py:354
 msgid "Send a message"
 msgstr "Wyślij wiadomość"
 
@@ -1960,10 +1954,6 @@ msgstr "Wyciszony"
 #: .\chat\templates\chat\room_link.html:72
 msgid "Room actions"
 msgstr "Działania"
-
-#: .\chat\templates\chat\room_link.html:77
-msgid "Open related content"
-msgstr "Otwórz powiązaną treść"
 
 #: .\chat\templates\chat\room_link.html:83
 #: .\home\templates\home\activity.html:90
@@ -2680,15 +2670,6 @@ msgstr "Głosowania"
 #: .\glosowania\search.py:50 .\tasks\templates\tasks\_task_detail_meta.html:8
 msgid "Unknown"
 msgstr "Nieznane"
-
-#: .\glosowania\signals.py:22
-#, python-brace-format
-msgid ""
-"This chat room has been created for project #{id} <a href='{details_url}'>{title}</a>.\n"
-"Discuss the proposal, share your thoughts, and ask questions here."
-msgstr ""
-"Ten czat został stworzony dla projektu Głosowania #{id} <a href='{details_url}'>{title}</a>.\n"
-"Dyskutuj, dziel się opiniami, pytaj tutaj."
 
 #: .\glosowania\templates\glosowania\_argument_actions.html:26
 msgid "Delete Argument"
@@ -5514,11 +5495,6 @@ msgstr "Sukces"
 #: .\tasks\templates\tasks\task_stats.html:24
 msgid "Failure"
 msgstr "Porażka"
-
-#: .\tasks\signals.py:59
-#, python-format
-msgid "Discussion room for activity: <a href='%(task_url)s'>%(task_title)s</a>"
-msgstr "Pokój dyskusji do działania: <a href='%(task_url)s'>%(task_title)s</a>"
 
 #: .\tasks\templates\tasks\_empty_state.html:4
 msgid "No activities in this category."

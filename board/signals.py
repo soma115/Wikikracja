@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -6,7 +5,6 @@ from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext as _
-from django.utils.translation import override
 
 from chat.signals import chat_message_requested, delete_linked_chat_room, request_discussion_room
 from core.signals import document_created, important_post_published
@@ -73,9 +71,6 @@ def notify_new_visible_document(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Post)
 def create_or_update_chat_room_for_post(sender, instance, created, **kwargs):
     """Create, archive, or update a document discussion room according to visibility."""
-    post_url = build_site_url(reverse('board:view_post', args=[instance.pk]))
-    with override(settings.LANGUAGE_CODE):
-        welcome_message = _("Discussion room for document: <a href='%(url)s'>%(title)s</a>") % {'title': instance.title, 'url': post_url}
     is_public = instance.visibility == Post.Visibility.PUBLIC
     is_archived = instance.visibility == Post.Visibility.ARCHIVE
     if is_public or instance.visibility in (Post.Visibility.GROUP, Post.Visibility.ARCHIVE):
@@ -85,16 +80,7 @@ def create_or_update_chat_room_for_post(sender, instance, created, **kwargs):
     else:
         allowed_users = User.objects.none()
 
-    request_discussion_room(
-        instance,
-        founder=instance.author,
-        allowed_users=allowed_users,
-        welcome_message='' if is_archived else welcome_message,
-        welcome_message_sender=instance.author,
-        welcome_message_anonymous=False,
-        public=is_public,
-        archived=is_archived,
-    )
+    request_discussion_room(instance, founder=instance.author, allowed_users=allowed_users, public=is_public, archived=is_archived)
 
 
 @receiver(pre_delete, sender=Post)

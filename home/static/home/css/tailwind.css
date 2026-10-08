@@ -6566,7 +6566,7 @@ body.tw-chat-page .tw-main-area {
     border: 1px solid var(--border);
     border-radius: var(--radius-btn);
     padding: .25rem .5rem;
-    flex: 0 0 auto;
+    flex: 0 1 auto;
     width: fit-content;
     max-width: 100%;
     min-width: 0;

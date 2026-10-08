@@ -13,6 +13,37 @@ async function setupChatPage(page) {
 }
 
 test.describe('chat — komponenty tw-* po migracji Tailwind', () => {
+    test('belka pokoju pokazuje powiązaną treść i skraca etykiety przy małej szerokości', async ({ page }, testInfo) => {
+        test.skip(testInfo.project.name !== 'desktop-chromium', 'Desktop-only test');
+        await setupChatPage(page);
+
+        const sourceRoom = page.locator('.tw-room-link').filter({ has: page.locator('.tw-room-source-link a') }).first();
+        if (await sourceRoom.count() === 0) test.skip(true, 'No source-linked chat room is available');
+
+        const roomId = await sourceRoom.getAttribute('data-room-id');
+        const sourceLink = sourceRoom.locator('.tw-room-source-link a');
+        const sourceHref = await sourceLink.getAttribute('href');
+        const sourceLabel = (await sourceLink.textContent()).trim();
+        await page.goto(`/chat/#room_id=${roomId}`);
+
+        const toolbarLink = page.locator('#room .tw-chat-breadcrumb-row a');
+        await expect(toolbarLink).toBeVisible();
+        await expect(toolbarLink).toHaveAttribute('href', sourceHref);
+        await expect(toolbarLink).toHaveText(sourceLabel);
+
+        const label = toolbarLink.locator('span');
+        await page.setViewportSize({ width: 260, height: 800 });
+        const labelIsClipped = await label.evaluate(element => element.scrollWidth > element.clientWidth);
+        expect(labelIsClipped).toBe(true);
+        await expect(label).toHaveCSS('text-overflow', 'ellipsis');
+
+        await page.setViewportSize({ width: 180, height: 800 });
+        const roomName = page.locator('#chat-breadcrumb .tw-bc-seg--active');
+        const roomNameIsClipped = await roomName.evaluate(element => element.scrollWidth > element.clientWidth);
+        expect(roomNameIsClipped).toBe(true);
+        await expect(roomName).toHaveCSS('text-overflow', 'ellipsis');
+    });
+
     test('dropdown akcji pokoju: otwiera i zamyka menu (tw-show + aria-expanded)', async ({ page }, testInfo) => {
         test.skip(testInfo.project.name !== 'desktop-chromium', 'Desktop-only test');
         await setupChatPage(page);

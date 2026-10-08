@@ -7,6 +7,8 @@
 
 import { _ } from './utility.js';
 
+const openRelatedContentLabel = _('Open related content');
+
 /**
  * Room template - main chat room layout
  * Contains message container, image preview, and input controls
@@ -23,6 +25,12 @@ const room_template = `
         <i class="fas fa-sort tw-sort-arrow tw-sort-arrow--off" aria-hidden="true"></i>
       </button>
     </div>
+    <% if (source_url) { %>
+      <a class="tw-btn tw-btn-secondary tw-btn-sm tw-min-w-0" href="<%= source_url %>" title="${openRelatedContentLabel}" aria-label="${openRelatedContentLabel}">
+        <i class="fas fa-external-link-alt fa-fw tw-flex-shrink-0" aria-hidden="true"></i>
+        <span class="tw-min-w-0 tw-truncate">${openRelatedContentLabel}</span>
+      </a>
+    <% } %>
   </div>
 
   <div class='tw-chat-messages'>
