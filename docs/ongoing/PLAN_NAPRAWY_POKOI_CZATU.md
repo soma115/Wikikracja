@@ -2,7 +2,7 @@
 
 ## Status
 
-Kod, ograniczenia modelu i migracje są przygotowane lokalnie, a 559 testów dotkniętych modułów przeszło. Nowy pusty pokój `board #24` został utworzony. Migracje schematu nie zostały zastosowane na wdrożonych instancjach; przed rolloutem potrzebne są niezależny audyt na bieżących podach (`scripts/audit_discussion_rooms_pods.sh`) i backup.
+Kod, ograniczenia modelu i migracje są przygotowane lokalnie, a 559 testów dotkniętych modułów przeszło. Nowy pusty pokój `board #24` został utworzony. Samodzielny audyt przed migracją objął 13/13 podów: 0 blokerów, 0 błędów odczytu, 28 uwag zgodnych z decyzją o zachowaniu danych historycznych. Migracje schematu nie zostały zastosowane na wdrożonych instancjach; pozostają backup, wdrożenie i weryfikacja po migracji.
 
 ## Cel i przyczyna
 
@@ -63,7 +63,8 @@ Kod, ograniczenia modelu i migracje są przygotowane lokalnie, a 559 testów dot
 - [x] Utworzono nowy pusty pokój dla `board #24` w `instance-12` przy pomocy guarded helpera; istniejącego pokoju ani historii nie odnaleziono, więc nie odtworzono wiadomości.
 - [x] Po przeglądzie zachować sześć członkostw nieaktywnych kont w czterech pokojach dokumentów, zgodnie z decyzją użytkownika; nie usuwać ich.
 - [x] Wykonać tylko-do-odczytu inwentaryzację 24 prywatnych pokojów z 0–1 członkiem w `instance-3`, `instance-6` i `instance-8`; pozostawić je bez zmian i nie usuwać historii bez odrębnej decyzji.
-- [ ] Przed wdrożeniem skopiować osobno na serwer `scripts/audit_discussion_rooms_pods.sh` i uruchomić `bash audit_discussion_rooms_pods.sh` na aktualnych podach; przejrzeć wszystkie raporty i blokery. Po backupie wdrożyć nowy kod oraz migracje, a następnie ponownie audytować. Wykonać UI smoke test aktywności, czatu, DM, digestu, powiadomień i archiwizacji.
+- [x] Przed wdrożeniem uruchomiono samodzielny audyt `scripts/audit_discussion_rooms_pods.sh` na wszystkich 13 podach; wynik i zachowane uwagi opisano w sekcji 7.
+- [ ] Wykonać backup, wdrożyć nowy kod z migracjami i uruchomić `repair_discussion_rooms --audit` na podach po wdrożeniu (ich nazwy mogą się zmienić). Następnie wykonać UI smoke test aktywności, czatu, DM, digestu, powiadomień i archiwizacji.
 - [x] Opisać wykonane zmiany i decyzje w `docs/LOG_AI.md`; aktualizować checkboxy etapami. Nie wykonywać commitów ani push bez polecenia użytkownika.
 
 ## 7. Ograniczenia integralności bazy danych
@@ -76,4 +77,4 @@ Kod, ograniczenia modelu i migracje są przygotowane lokalnie, a 559 testów dot
 - [x] Wspólne usuwanie obiektu źródłowego w transakcji jawnie odpina pokój, a następnie go usuwa; Django ORM blokuje bezpośrednie usunięcie nadal podpiętego pokoju przez `PROTECT`.
 - [x] Gdy zapisany FK wskazuje pokój o niezgodnym źródle, zapis przerywa się zamiast po cichu tworzyć pokój i przepinać obiekt. Naprawa legacy pozostaje jawna i kontrolowana.
 - [x] Pokryć testami ograniczenia DB, lifecycle usuwania w `board`, `tasks` i `glosowania`, fail-closed dla błędnego FK, preflight duplikatów oraz bulk-create z błędnym pokojem.
-- [ ] Na każdej instancji sprawdzić stare dane bez wdrażania nowego kodu: skrypt Bash `scripts/audit_discussion_rooms_pods.sh` używa `microk8s kubectl exec -i` i wbudowanego w kontener Pythona do otwarcia SQLite w trybie `mode=ro`. Raportuje duplikaty kluczy źródłowych, powielone relacje, niezgodne markery oraz uwagi o członkostwach i DM. Zachowane nieaktywne członkostwa i pokoje 0–1 osobowe pozostawić według uzgodnionej polityki. Po usunięciu blokerów i backupie wdrożyć nowy kod z migracjami; następnie powtórzyć audyt. Nie uruchamiać starego kodu równolegle z migracją.
+Przedwdrożeniowy skrypt Bash `scripts/audit_discussion_rooms_pods.sh` otworzył SQLite tylko do odczytu (`mode=ro`) na wszystkich 13 podach, bez uruchamiania Django i migracji. Wynik: 0 blokerów, 0 błędów odczytu i 28 uwag: sześć zachowanych członkostw nieaktywnych kont w czterech pokojach dokumentów `instance-12` oraz 24 pokoje prywatne z 0–1 członkiem (`instance-3`: 6, `instance-6`: 17, `instance-8`: 1). Uwag tych nie naprawiać automatycznie zgodnie z wcześniejszymi decyzjami. Wynik dotyczy stanu w chwili audytu; przed migracją nadal potrzebny jest backup, a po wdrożeniu ponowny audyt nowym kodem. Nie uruchamiać starego kodu równolegle z migracją.
