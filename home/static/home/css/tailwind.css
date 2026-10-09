@@ -4806,6 +4806,9 @@
     font-size: 1.1rem;
     padding: 1rem 0;
   }
+  body.tw-post-content {
+    padding-inline: 1rem;
+  }
   .tw-post-content h1,
   .tw-post-content h2,
   .tw-post-content h3,
