@@ -22,7 +22,18 @@ def _decision_feed_item(decision, *, timestamp, description, author, activity_ki
     }
     if argument_id is not None:
         item['argument_id'] = argument_id
+        item['bookmark_content_type'] = 'decision_argument'
+        item['bookmark_object_id'] = argument_id
     return item
+
+
+def _decision_activity_item(decision):
+    return _decision_feed_item(decision, timestamp=decision.data_ostatniej_modyfikacji, description=plain_text(decision.tresc or '', 125), author=decision.author, activity_kind='decision')
+
+
+def get_items_by_ids(ids: set[int]) -> list[dict]:
+    decisions = Decyzja.objects.filter(pk__in=ids).select_related('author', 'author__uzytkownik')
+    return [_decision_activity_item(decision) for decision in decisions]
 
 
 def get_feed_items(since: timezone.datetime) -> list[dict]:
@@ -30,10 +41,7 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
     decisions = Decyzja.objects.filter(data_ostatniej_modyfikacji__gte=since).select_related('author', 'author__uzytkownik').order_by('-data_ostatniej_modyfikacji')
     arguments = Argument.objects.filter(created_at__gte=since).select_related('decyzja', 'decyzja__author', 'decyzja__author__uzytkownik', 'author').order_by('-created_at')
 
-    items = [
-        _decision_feed_item(decision, timestamp=decision.data_ostatniej_modyfikacji, description=plain_text(decision.tresc or '', 125), author=decision.author, activity_kind='decision')
-        for decision in decisions
-    ]
+    items = [_decision_activity_item(decision) for decision in decisions]
     items.extend(
         _decision_feed_item(
             argument.decyzja,

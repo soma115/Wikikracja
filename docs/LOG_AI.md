@@ -1,5 +1,14 @@
 # LOG_AI
 
+## 2026-10-10: Bookmarki zdarzeń w aktywności głosowań
+
+- **Zmienione obszary:** feed `glosowania`, rejestr providerów i usługa bookmarków `core`, widok aktywności, obsługa JS, testy i migracja stanu modelu `FeedBookmark`.
+- **Co się zmieniło:** wpis głosowania nadal używa klucza `decision` + ID głosowania, a każdy argument dostaje osobny klucz `decision_argument` + ID argumentu. Odczyt pozostaje przypisany do głosowania. Lista bookmarków na pulpicie, filtr aktywności i przyciski korzystają z identyfikatora bookmarka konkretnego zdarzenia. Starsze zapisane głosowania są pobierane przez hook providera tylko na potrzeby widoków bookmarków, bez rozszerzania zwykłego 90-dniowego feedu. Zwiększono wersję klucza cache surowego feedu.
+- **Migracja:** rozszerzono choices `FeedBookmark.content_type`; `sqlmigrate` potwierdza brak SQL zmieniającego tabelę lub dane.
+- **Uzasadnienie:** wspólny identyfikator głosowania powodował, że bookmark jednego argumentu oznaczał wszystkie zdarzenia związane z tym głosowaniem. Dawny rekord nie wskazuje konkretnego argumentu, więc pozostaje bookmarkiem samego głosowania, widocznym także po wyjściu tego wpisu z okna feedu.
+- **Weryfikacja:** 111 testów feedu, aktywności, digestu i dashboardu, 8 testów Jest aktywności, Django check, Ruff, kontrola migracji i `sqlmigrate`, build CSS, regression scan, UI guard i `git diff --check` przeszły. Testy obejmują niezależność bookmarków argumentów, starsze głosowania, filtr odczytu oraz brak daty modyfikacji.
+- **Spodziewany efekt:** można niezależnie zapisać bookmark dla zdarzenia głosowania oraz każdego argumentu; dotychczasowe bookmarki pozostają dostępne bez zgadywania, który argument był pierwotnie oznaczony.
+
 ## 2026-10-08: Zapis ważnego dokumentu nie zamyka transakcji SQLite
 
 - **Zmiana:** powiadomienie w pokoju „Ważne” jest wysyłane przez `transaction.on_commit()` zamiast wewnątrz transakcji `Post.save()`. Sygnał zachowuje dotychczasowe argumenty; przy wycofaniu transakcji wiadomość nie powstaje.

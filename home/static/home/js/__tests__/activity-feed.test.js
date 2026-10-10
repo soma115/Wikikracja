@@ -200,6 +200,22 @@ describe('activity feed interactions', () => {
         expect(bookmarkIcon.classList.contains('far')).toBe(false);
     });
 
+    test('toggle bookmark posts an event-specific key when provided', async () => {
+        window.TOGGLE_BOOKMARK_URL = '/toggle-bookmark/';
+
+        const { bookmark } = createActivityRow(false, false);
+        bookmark.setAttribute('data-bookmark-content-type', 'decision_argument');
+        bookmark.setAttribute('data-bookmark-object-id', '99');
+        window.initActivityFeedToggleBookmark('#activity-list');
+        bookmark.click();
+
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        const requestBody = window.apiFetch.mock.calls[0][1].body;
+        expect(requestBody.get('content_type')).toBe('decision_argument');
+        expect(requestBody.get('object_id')).toBe('99');
+    });
+
     test('toggle bookmark removes bookmark and switches to empty star', async () => {
         window.TOGGLE_BOOKMARK_URL = '/toggle-bookmark/';
         window.apiFetch = jest.fn(() => Promise.resolve({

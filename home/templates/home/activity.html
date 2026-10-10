@@ -72,6 +72,8 @@
                   data-action="bookmark"
                   data-content-type="{{ item.content_type }}"
                   data-object-id="{{ item.object_id }}"
+                  data-bookmark-content-type="{{ item.bookmark_content_type|default:item.content_type }}"
+                  data-bookmark-object-id="{{ item.bookmark_object_id|default:item.object_id }}"
                   data-is-bookmarked="{{ item.is_bookmarked|yesno:"true,false" }}"
                   data-add-title="{% trans 'Add bookmark' %}"
                   data-remove-title="{% trans 'Remove bookmark' %}"

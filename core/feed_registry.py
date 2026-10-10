@@ -16,6 +16,7 @@ from datetime import datetime
 from typing import Callable, Optional
 
 FeedProvider = Callable[[datetime], list[dict]]
+ItemsByIdsHook = Callable[[set[int]], list[dict]]
 MarkHook = Callable[[int, object], None]
 PrepareItemsHook = Callable[[list[dict], object], list[Optional[dict]]]
 PrepareDigestItemsHook = Callable[[list[dict], object, datetime], list[Optional[dict]]]
@@ -31,6 +32,7 @@ class FeedEntry:
     mark_as_unread: Optional[MarkHook] = None
     prepare_items: Optional[PrepareItemsHook] = None
     prepare_digest_items: Optional[PrepareDigestItemsHook] = None
+    get_items_by_ids: Optional[ItemsByIdsHook] = None
 
 
 _providers: dict[str, FeedEntry] = {}
@@ -44,9 +46,16 @@ def register_feed_provider(
     mark_as_unread: Optional[MarkHook] = None,
     prepare_items: Optional[PrepareItemsHook] = None,
     prepare_digest_items: Optional[PrepareDigestItemsHook] = None,
+    get_items_by_ids: Optional[ItemsByIdsHook] = None,
 ) -> None:
     _providers[content_type] = FeedEntry(
-        content_type=content_type, get_items=get_items, mark_as_read=mark_as_read, mark_as_unread=mark_as_unread, prepare_items=prepare_items, prepare_digest_items=prepare_digest_items
+        content_type=content_type,
+        get_items=get_items,
+        mark_as_read=mark_as_read,
+        mark_as_unread=mark_as_unread,
+        prepare_items=prepare_items,
+        prepare_digest_items=prepare_digest_items,
+        get_items_by_ids=get_items_by_ids,
     )
 
 

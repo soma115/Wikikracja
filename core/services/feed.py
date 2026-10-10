@@ -10,7 +10,7 @@ from core.models import FeedBookmark, ReadStatus
 
 log = logging.getLogger(__name__)
 
-FEED_CACHE_KEY = "feed_raw_v4"
+FEED_CACHE_KEY = "feed_raw_v5"
 FEED_CACHE_TTL = 3600
 FEED_DAYS = 90
 
@@ -34,6 +34,10 @@ def build_bookmark_map(user):
     return set(FeedBookmark.objects.filter(user=user).values_list('content_type', 'object_id'))
 
 
+def _bookmark_key(item):
+    return (item.get('bookmark_content_type', item['content_type']), item.get('bookmark_object_id', item['object_id']))
+
+
 def toggle_feed_bookmark(user, content_type: str, object_id: int) -> bool:
     """Toggle bookmark state for a feed item. Returns True if now bookmarked."""
     bookmark, created = FeedBookmark.objects.get_or_create(user=user, content_type=content_type, object_id=object_id)
@@ -45,19 +49,27 @@ def toggle_feed_bookmark(user, content_type: str, object_id: int) -> bool:
 
 def get_bookmarked_items(user):
     """Return feed items bookmarked by the user, newest bookmark first."""
-    bookmark_map = build_bookmark_map(user)
-    if not bookmark_map:
+    bookmarks = list(FeedBookmark.objects.filter(user=user).order_by('-created_at'))
+    if not bookmarks:
         return []
-    raw_items = generate_feed_raw()
-    item_by_key = {(i['content_type'], i['object_id']): i for i in raw_items}
-    bookmarks = FeedBookmark.objects.filter(user=user).order_by('-created_at')
+    item_by_key = {_bookmark_key(item): item for item in generate_feed_raw()}
+    missing_ids_by_type = {}
+    for bookmark in bookmarks:
+        if (bookmark.content_type, bookmark.object_id) not in item_by_key:
+            missing_ids_by_type.setdefault(bookmark.content_type, set()).add(bookmark.object_id)
+    for content_type, ids in missing_ids_by_type.items():
+        provider = get_provider(content_type)
+        if provider and provider.get_items_by_ids:
+            item_by_key.update((_bookmark_key(item), item) for item in provider.get_items_by_ids(ids))
+
+    read_status_map = build_read_status_map(user)
     items = []
     for bookmark in bookmarks:
         item = item_by_key.get((bookmark.content_type, bookmark.object_id))
         if item is None:
             continue
         item = dict(item)
-        item['is_read'] = item['object_id'] in build_read_status_map(user).get(item['content_type'], set())
+        item['is_read'] = item['object_id'] in read_status_map.get(item['content_type'], set())
         item['is_bookmarked'] = True
         items.append(item)
     return items
@@ -125,7 +137,7 @@ def generate_feed_items(user):
                 continue
         if 'is_read' not in item:
             item = {**item, 'is_read': item['object_id'] in read_status_map.get(ct, ())}
-        item['is_bookmarked'] = (item['content_type'], item['object_id']) in bookmark_map
+        item['is_bookmarked'] = _bookmark_key(item) in bookmark_map
         feed_items.append(item)
 
     return feed_items

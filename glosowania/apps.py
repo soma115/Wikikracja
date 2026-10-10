@@ -16,12 +16,12 @@ class VotingConfig(AppConfig):
         from core.services.feed import invalidate_feed_cache_on_change, make_read_status_markers
 
         from .dashboard import get_context as get_dashboard_context
-        from .feed import get_feed_items
+        from .feed import get_feed_items, get_items_by_ids
         from .models import Argument, Decyzja
         from .search import search
 
         mark_as_read, mark_as_unread = make_read_status_markers(ReadStatus.ContentType.DECISION)
-        register_feed_provider('decision', get_items=get_feed_items, mark_as_read=mark_as_read, mark_as_unread=mark_as_unread)
+        register_feed_provider('decision', get_items=get_feed_items, mark_as_read=mark_as_read, mark_as_unread=mark_as_unread, get_items_by_ids=get_items_by_ids)
         register_search_provider('decision', search=search)
         register_dashboard_provider('glosowania', get_context=get_dashboard_context)
 

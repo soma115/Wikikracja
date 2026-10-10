@@ -36,7 +36,7 @@ class FeedBookmark(models.Model):
     """Track which feed items a user has bookmarked."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    content_type = models.CharField(max_length=20, choices=ReadStatus.ContentType.choices)
+    content_type = models.CharField(max_length=20, choices=[*ReadStatus.ContentType.choices, ('decision_argument', _('Voting argument'))])
     object_id = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
 

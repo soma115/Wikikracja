@@ -1021,8 +1021,8 @@ window.initActivityFeedToggleBookmark = function(containerSelector) {
     if (!container) return;
 
     function toggle(btn) {
-        var contentType = btn.getAttribute('data-content-type');
-        var objectId = btn.getAttribute('data-object-id');
+        var contentType = btn.getAttribute('data-bookmark-content-type') || btn.getAttribute('data-content-type');
+        var objectId = btn.getAttribute('data-bookmark-object-id') || btn.getAttribute('data-object-id');
         if (!contentType || !objectId) return;
 
         window.apiFetch(window.TOGGLE_BOOKMARK_URL || '/toggle-bookmark/', {

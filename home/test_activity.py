@@ -9,8 +9,8 @@ from board.models import Post
 from bookkeeping.models import Asset, Partner, Transaction
 from chat.models import Message, MessageReadBy, Room
 from core.models import FeedBookmark, ReadStatus
-from core.services.feed import FEED_CACHE_KEY, generate_feed_items, generate_feed_raw
-from glosowania.models import Argument
+from core.services.feed import FEED_CACHE_KEY, generate_feed_items, generate_feed_raw, get_bookmarked_items
+from glosowania.models import Argument, Decyzja
 from tasks.models import Task, TaskVote
 from tests.factories import DecyzjaFactory, PostCategoryFactory, PostFactory, UserFactory
 
@@ -39,6 +39,99 @@ def test_activity_includes_new_voting_arguments_and_invalidates_feed_cache(clien
     content = response.content.decode()
     assert f'data-object-id="{decision.pk}"' in content
     assert 'A new supporting argument' in content
+
+
+@pytest.mark.django_db
+def test_voting_event_bookmarks_are_independent(client, activity_user):
+    decision = DecyzjaFactory(author=activity_user, title='Individually bookmarked proposal')
+    arguments = [
+        Argument.objects.create(decyzja=decision, author=activity_user, argument_type='FOR', content='First argument'),
+        Argument.objects.create(decyzja=decision, author=activity_user, argument_type='AGAINST', content='Second argument'),
+    ]
+    cache.delete(FEED_CACHE_KEY)
+
+    items = generate_feed_items(activity_user)
+    decision_item = next(item for item in items if item.get('activity_kind') == 'decision' and item['object_id'] == decision.pk)
+    argument_items = [item for item in items if item.get('activity_kind') == 'argument' and item['object_id'] == decision.pk]
+
+    assert decision_item['is_bookmarked'] is False
+    assert len(argument_items) == 2
+    assert all(item['bookmark_content_type'] == 'decision_argument' for item in argument_items)
+    assert {item['bookmark_object_id'] for item in argument_items} == {argument.pk for argument in arguments}
+
+    client.force_login(activity_user)
+    response = client.post(reverse('toggle_bookmark'), {'content_type': 'decision_argument', 'object_id': arguments[0].pk})
+    assert response.status_code == 200
+    assert response.json()['is_bookmarked'] is True
+    response = client.post(reverse('toggle_bookmark'), {'content_type': 'decision', 'object_id': decision.pk})
+    assert response.status_code == 200
+    assert response.json()['is_bookmarked'] is True
+
+    items = generate_feed_items(activity_user)
+    assert next(item for item in items if item.get('activity_kind') == 'decision' and item['object_id'] == decision.pk)['is_bookmarked'] is True
+    bookmarked_arguments = {item['argument_id']: item['is_bookmarked'] for item in items if item.get('activity_kind') == 'argument' and item['object_id'] == decision.pk}
+    assert bookmarked_arguments == {arguments[0].pk: True, arguments[1].pk: False}
+    assert FeedBookmark.objects.filter(user=activity_user, content_type='decision_argument', object_id=arguments[0].pk).exists()
+
+    bookmarked_items = get_bookmarked_items(activity_user)
+    assert {(item.get('activity_kind'), item.get('argument_id')) for item in bookmarked_items} == {('decision', None), ('argument', arguments[0].pk)}
+
+    response = client.get(reverse('activity'))
+    content = response.content.decode()
+    assert 'data-bookmark-content-type="decision_argument"' in content
+    assert f'data-bookmark-object-id="{arguments[0].pk}"' in content
+
+    bookmarked = client.get(reverse('activity'), {'bookmarks': '1', 'type': 'decision', 'filtered': '1'}).context['feed_items']
+    assert {(item['activity_kind'], item.get('argument_id')) for item in bookmarked} == {('decision', None), ('argument', arguments[0].pk)}
+
+
+@pytest.mark.django_db
+def test_old_decision_bookmark_remains_visible_outside_feed_window(client, activity_user):
+    decision = DecyzjaFactory(author=activity_user, title='Older bookmarked decision')
+    Decyzja.objects.filter(pk=decision.pk).update(data_ostatniej_modyfikacji=timezone.now() - timezone.timedelta(days=91))
+    argument = Argument.objects.create(decyzja=decision, author=activity_user, argument_type='FOR', content='Recent argument')
+    FeedBookmark.objects.create(user=activity_user, content_type='decision', object_id=decision.pk)
+    cache.delete(FEED_CACHE_KEY)
+    client.force_login(activity_user)
+
+    normal_items = client.get(reverse('activity')).context['feed_items']
+    voting_items = [item for item in normal_items if item['content_type'] == 'decision' and item['object_id'] == decision.pk]
+    assert [(item['activity_kind'], item['argument_id']) for item in voting_items] == [('argument', argument.pk)]
+    assert voting_items[0]['is_bookmarked'] is False
+
+    bookmarked = get_bookmarked_items(activity_user)
+    assert [(item['activity_kind'], item['object_id']) for item in bookmarked] == [('decision', decision.pk)]
+
+    response = client.get(reverse('activity'), {'bookmarks': '1', 'type': 'decision', 'filtered': '1'})
+    voting_items = [item for item in response.context['feed_items'] if item['content_type'] == 'decision' and item['object_id'] == decision.pk]
+    assert [(item['activity_kind'], item['is_bookmarked']) for item in voting_items] == [('decision', True)]
+    assert response.context['bookmark_count'] == 1
+
+    dashboard = client.get(reverse('home'))
+    assert any(item['content_type'] == 'decision' and item['object_id'] == decision.pk for item in dashboard.context['bookmarked_items'])
+
+    ReadStatus.objects.create(user=activity_user, content_type=ReadStatus.ContentType.DECISION, object_id=decision.pk)
+    unread_bookmarks = client.get(reverse('activity'), {'bookmarks': '1', 'unread': '1'}).context['feed_items']
+    assert not any(item['content_type'] == 'decision' and item['object_id'] == decision.pk for item in unread_bookmarks)
+
+    response = client.post(reverse('toggle_bookmark'), {'content_type': 'decision', 'object_id': decision.pk})
+    assert response.json()['is_bookmarked'] is False
+    assert get_bookmarked_items(activity_user) == []
+
+
+@pytest.mark.django_db
+def test_bookmarked_decision_without_modified_date_can_be_sorted(client, activity_user):
+    decision = DecyzjaFactory(author=activity_user, title='Undated bookmarked decision')
+    Decyzja.objects.filter(pk=decision.pk).update(data_ostatniej_modyfikacji=None)
+    post = PostFactory(author=activity_user, title='Other bookmarked post')
+    FeedBookmark.objects.create(user=activity_user, content_type='decision', object_id=decision.pk)
+    FeedBookmark.objects.create(user=activity_user, content_type='post', object_id=post.pk)
+    cache.delete(FEED_CACHE_KEY)
+    client.force_login(activity_user)
+
+    response = client.get(reverse('activity'), {'bookmarks': '1'})
+    assert response.status_code == 200
+    assert {item['title'] for item in response.context['feed_items'] if item['title'] in (decision.title, post.title)} == {decision.title, post.title}
 
 
 @pytest.mark.django_db

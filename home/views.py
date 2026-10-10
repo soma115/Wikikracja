@@ -100,7 +100,11 @@ def _build_activity_query(sort, order, is_filtered, active_types, filter_unread,
 def activity_page(request):
     all_items = feed_service.generate_feed_items(request.user)
     unread_count = feed_service.get_unread_count(request.user, all_items)
-    bookmark_count = sum(1 for i in all_items if i.get('is_bookmarked'))
+    recent_decision_ids = {item['object_id'] for item in all_items if item['content_type'] == 'decision' and item.get('activity_kind') == 'decision'}
+    older_bookmarked_decisions = [
+        item for item in feed_service.get_bookmarked_items(request.user) if item['content_type'] == 'decision' and item.get('activity_kind') == 'decision' and item['object_id'] not in recent_decision_ids
+    ]
+    bookmark_count = sum(1 for item in all_items if item.get('is_bookmarked')) + len(older_bookmarked_decisions)
     request._unread_count = unread_count
 
     filter_unread = request.GET.get('unread') == '1'
@@ -108,9 +112,10 @@ def activity_page(request):
 
     feed_items = all_items
     if filter_unread:
-        feed_items = [i for i in feed_items if not i['is_read']]
+        feed_items = [item for item in feed_items if not item['is_read']]
     if filter_bookmarks:
-        feed_items = [i for i in feed_items if i.get('is_bookmarked')]
+        feed_items = [item for item in feed_items if item.get('is_bookmarked')]
+        feed_items.extend(item for item in older_bookmarked_decisions if not filter_unread or not item['is_read'])
 
     content_types = [
         ('', _('All')),
@@ -145,7 +150,7 @@ def activity_page(request):
     if order not in ('asc', 'desc', None):
         order = 'desc'
     if sort == 'date':
-        feed_items.sort(key=lambda x: x['timestamp'], reverse=(order == 'desc'))
+        feed_items.sort(key=lambda item: (item['timestamp'] is not None, item['timestamp']), reverse=(order == 'desc'))
 
     state = order if sort == 'date' else 'none'
     next_state = 'asc' if state == 'none' else 'desc' if state == 'asc' else 'none'
