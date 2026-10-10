@@ -39,6 +39,7 @@ class SiteParameters(models.Model):
     group_is_public = models.BooleanField(default=True, verbose_name=_('Group is public'))
     # Site identity
     site_name = models.CharField(max_length=255, blank=True, default='', verbose_name=_('Site name'))
+    delete_archived_document_after = models.PositiveIntegerField(default=180, verbose_name=_('Delete archived document after (days)'))
 
     updated_at = models.DateTimeField(auto_now=True, null=True)
 

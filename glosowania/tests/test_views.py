@@ -57,6 +57,13 @@ def test_parameters_proposal_accepts_png_logo():
 
 
 @pytest.mark.django_db
+def test_archived_document_retention_is_available_in_parameter_proposals():
+    form = ParametersProposalForm()
+
+    assert form.fields['delete_archived_document_after'].initial == 180
+
+
+@pytest.mark.django_db
 def test_parameters_highlights_stepper_info_control(sample_users):
     client = Client()
     client.force_login(sample_users[0])

@@ -105,6 +105,9 @@ def _start_scheduler():
     scheduler.add_job(run_vote, trigger=CronTrigger(hour=8, minute=5), id='vote', name='Process voting and create 1-to-1 rooms', replace_existing=True)
     log.info("Scheduled job: vote at 08:05 daily")
 
+    scheduler.add_job(run_delete_archived_posts, trigger=CronTrigger(hour=8, minute=10), id='delete_archived_posts', name='Delete expired archived documents', replace_existing=True)
+    log.info("Scheduled job: delete_archived_posts at 08:10 daily")
+
     # Count citizens - runs every 5 minutes
     scheduler.add_job(run_count_citizens, trigger=CronTrigger(minute='*/5'), id='count_citizens', name='Count citizens and manage reputation', replace_existing=True)
     log.info("Scheduled job: count_citizens every 5 minutes")
@@ -215,6 +218,12 @@ def run_count_citizens():
     """Execute count_citizens management command"""
     with _db_lock:
         _run_command('count_citizens')
+
+
+def run_delete_archived_posts():
+    """Execute delete_archived_posts management command"""
+    with _db_lock:
+        _run_command('delete_archived_posts')
 
 
 def run_update_site():

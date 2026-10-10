@@ -3,13 +3,13 @@ from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from django.test import TestCase as DjangoTestCase
 from django.utils import timezone
 
 from events.models import Event
-from zzz.scheduler import _acquire_scheduler_lock, _run_command, run_meeting_notification, should_start_scheduler
+from zzz.scheduler import _acquire_scheduler_lock, _run_command, _start_scheduler, run_delete_archived_posts, run_meeting_notification, should_start_scheduler
 
 
 class MeetingNotificationTest(DjangoTestCase):
@@ -37,6 +37,15 @@ class MeetingNotificationTest(DjangoTestCase):
 
 
 class SchedulerStartGuardTest(TestCase):
+    def test_schedules_archived_document_cleanup(self):
+        scheduler = MagicMock()
+        with patch('zzz.scheduler._acquire_scheduler_lock', return_value=object()), patch('zzz.scheduler.BackgroundScheduler', return_value=scheduler), patch('zzz.scheduler._scheduler_lock_fd', None):
+            _start_scheduler()
+
+        cleanup_jobs = [job for job in scheduler.add_job.call_args_list if job.kwargs.get('id') == 'delete_archived_posts']
+        self.assertEqual(len(cleanup_jobs), 1)
+        self.assertIs(cleanup_jobs[0].args[0], run_delete_archived_posts)
+
     def test_management_commands_do_not_start_scheduler(self):
         with patch.dict(os.environ, {'SCHEDULER_ENABLED': 'true', 'RUN_MAIN': 'false'}), patch('zzz.scheduler.sys.argv', ['manage.py', 'migrate']):
             self.assertFalse(should_start_scheduler())
@@ -55,6 +64,12 @@ class SchedulerStartGuardTest(TestCase):
 
 
 class SchedulerCommandMonitoringTest(TestCase):
+    def test_runs_archived_document_cleanup_command_under_database_lock(self):
+        with patch('zzz.scheduler._db_lock'), patch('zzz.scheduler._run_command') as run_command:
+            run_delete_archived_posts()
+
+        run_command.assert_called_once_with('delete_archived_posts')
+
     def test_command_logs_duration_and_wal_size(self):
         with (
             patch('zzz.scheduler.call_command'),

@@ -38,7 +38,7 @@ Potwierdzone wyjątki: Transaction — autor; argument głosowania — właścic
 5. [x] Argument głosowania pozostaje ograniczony do autora i jest blokowany po zakończeniu głosowania.
 6. [x] Zadanie pozostaje ograniczone do koordynatora albo członka zespołu zgodnie z istniejącą logiką.
 7. [x] `candidate_edit` pozostaje dostępne każdemu zalogowanemu użytkownikowi jako część wspólnego onboardingu.
-8. [x] `CategoryEditAPI` pozostaje dostępne każdemu zalogowanemu użytkownikowi; nie dodajemy ograniczenia właściciela ani roli.
+8. [x] `PostCategoryEditAPI` i `TaskCategoryEditAPI` (wspólna baza `CategoryEditAPI`) pozostają dostępne każdemu zalogowanemu użytkownikowi; nie dodajemy ograniczenia właściciela ani roli.
 9. [x] Warunek wyświetlania akcji edycji propozycji głosowania jest zgodny z warunkiem w widoku.
 10. [ ] Dodać pełne testy dostępu dla każdego endpointu: anonimowy użytkownik, poprawny użytkownik i użytkownik bez uprawnień, jeśli przypadek ma zastosowanie.
 
@@ -53,8 +53,8 @@ Potwierdzone wyjątki: Transaction — autor; argument głosowania — właścic
 
 ## 5. Obsługa błędów i dane formularzy
 
-1. [ ] `change_email`, `change_username` i `my_assets` powinny po błędzie ponownie wyrenderować formularz z danymi i błędami zamiast przekierowania bez kontekstu.
-2. [ ] `upload_avatar` powinien jawnie obsłużyć niepoprawny plik i przekazać użytkownikowi bezpieczny komunikat.
+1. [x] `change_email`, `change_username` i `my_assets` po błędzie ponownie renderują formularz z danymi i błędami; potwierdzają to testy formularzy.
+2. [x] `upload_avatar` jawnie obsługuje niepoprawny plik i przekazuje komunikat walidacji; osobny test limitu rozmiaru pozostaje do dodania (sekcja 6).
 3. [ ] Zweryfikować zachowanie `FILES` oraz błędów w Board, profilu kandydata i propozycji parametrów.
 4. [ ] Ujednolicić komunikaty sukcesu i błędu bez zmieniania istniejących kontraktów tłumaczeń bez planu migracji.
 
@@ -62,14 +62,18 @@ Potwierdzone wyjątki: Transaction — autor; argument głosowania — właścic
 
 1. [x] Board ma test bezpośredniego wejścia na URL przez użytkownika niebędącego autorem.
 2. [ ] Uzupełnić testy ustalonej reguły dostępu dla Event, Asset, Category, Partner i kandydata.
-3. [ ] Uzupełnić testy `CategoryEditAPI`: anonimowy użytkownik, zalogowany użytkownik, niepoprawne dane, CSRF i zakres dozwolonej roli.
-4. [ ] Dodać testy formularzy profilu zachowujące dane i błędy po nieudanym zapisie.
-5. [ ] Dodać test niepoprawnego avatara oraz przekroczenia limitu pliku.
+3. [ ] Uzupełnić testy dostępu `PostCategoryEditAPI` i `TaskCategoryEditAPI` (wspólna baza `CategoryEditAPI`). Istnieją już testy poprawnego i błędnego POST oraz CSRF dla obu implementacji; brakuje testu żądania anonimowego. Każdy zalogowany użytkownik jest dozwolony — nie ma osobnej roli do sprawdzania.
+4. [x] Testy formularzy profilu sprawdzają zachowanie danych i błędów po nieudanym zapisie.
+5. [x] Test niepoprawnego avatara istnieje; [ ] dodać test przekroczenia limitu pliku.
 6. [x] Quick linki mają focused testy dodawania poprawnych URL-i i odrzucania niebezpiecznego schematu.
 7. [ ] Dodać testy quick linków dla edycji, nieistniejącego ID i kolejności.
 8. [ ] Dodać test atomowości historii propozycji, jeżeli decyzja z sekcji 4.1 potwierdzi potrzebę tej zmiany.
 9. [x] Ankiety mają test destrukcyjnego efektu usunięcia opcji i zachowania kolejności.
 10. [ ] Dla każdego endpointu edycji sprawdzić GET, poprawny POST, POST z błędami, anonimowego użytkownika i użytkownika bez uprawnień, jeśli przypadek ma zastosowanie.
+
+### Następny krok
+
+Najpierw dodać test żądania anonimowego dla `PostCategoryEditAPI` i `TaskCategoryEditAPI` (punkt 3 powyżej). Pozostałe kluczowe ścieżki obu API są już pokryte testami poprawnego/błędnego POST i CSRF. Następnie uzupełnić testy dostępu dla Event, Asset, Category, Partner i kandydata; na końcu dodać test limitu rozmiaru avatara i domknąć pozostałe przypadki `FILES`.
 
 ## 7. Kryterium zamknięcia audytu logicznego
 
@@ -87,5 +91,5 @@ Potwierdzone wyjątki: Transaction — autor; argument głosowania — właścic
 - Argument edytuje wyłącznie właściciel.
 - Zadanie edytuje koordynator albo członek zespołu.
 - Ankiety, Board, Event, Asset, Category i Partner pozostają dostępne do edycji każdemu zalogowanemu użytkownikowi.
-- `CategoryEditAPI` pozostaje dostępne każdemu zalogowanemu użytkownikowi.
+- `PostCategoryEditAPI` i `TaskCategoryEditAPI` pozostają dostępne każdemu zalogowanemu użytkownikowi.
 - `candidate_edit` pozostaje dostępne każdemu zalogowanemu użytkownikowi.

@@ -27,6 +27,11 @@ class SiteParametersBrandingFieldsTest(TestCase):
         self.assertIsInstance(field, DateTimeField)
         self.assertTrue(field.auto_now)
 
+    def test_archived_document_retention_defaults_to_180_days(self):
+        field = SiteParameters._meta.get_field('delete_archived_document_after')
+        self.assertEqual(field.default, 180)
+        self.assertEqual(SiteParameters.get().delete_archived_document_after, 180)
+
     def test_singleton_get_returns_settings_with_empty_branding_and_timestamp(self):
         ss = SiteParameters.get()
         # brand_mark jest opcjonalne, na świeżym singletonie jest puste

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 23:51+0200\n"
+"POT-Creation-Date: 2026-10-11 00:19+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -86,7 +86,7 @@ msgstr "Ta opcja już istnieje."
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:7
 #: .\obywatele\templates\obywatele\_citizen_zalozono_partial.html:7
 #: .\obywatele\templates\obywatele\citizen_zadania.html:29
-#: .\site_settings\models.py:104 .\tasks\templates\tasks\task_form.html:26
+#: .\site_settings\models.py:105 .\tasks\templates\tasks\task_form.html:26
 msgid "Title"
 msgstr "Tytuł"
 
@@ -97,7 +97,7 @@ msgstr "Tytuł"
 #: .\obywatele\forms.py:265 .\obywatele\models.py:221
 #: .\tasks\templates\tasks\_task_card.html:90
 #: .\tasks\templates\tasks\task_detail.html:15
-#: .\tasks\templates\tasks\task_form.html:32 .\zzz\scheduler.py:176
+#: .\tasks\templates\tasks\task_form.html:32 .\zzz\scheduler.py:179
 msgid "Description"
 msgstr "Opis"
 
@@ -167,7 +167,7 @@ msgstr "Tekst opcji"
 msgid "Added by"
 msgstr "Dodano przez"
 
-#: .\ankiety\models.py:48 .\site_settings\models.py:106
+#: .\ankiety\models.py:48 .\site_settings\models.py:107
 msgid "Order"
 msgstr "Kolejność"
 
@@ -624,17 +624,17 @@ msgstr "Załączniki"
 msgid "New important document by %(username)s: %(link)s"
 msgstr "Nowy ważny dokument od %(username)s: %(link)s"
 
-#: .\board\signals.py:47 .\tests\test_board.py:662
+#: .\board\signals.py:47 .\tests\test_board.py:699
 #, python-format
 msgid "Document is no longer marked as important: %(link)s"
 msgstr "Dokument nie jest już oznaczony jako ważny: %(link)s"
 
-#: .\board\signals.py:49 .\tests\test_board.py:707
+#: .\board\signals.py:49 .\tests\test_board.py:744
 #, python-format
 msgid "Important document was archived: %(link)s"
 msgstr "Ważny dokument został zarchiwizowany: %(link)s"
 
-#: .\board\signals.py:51 .\tests\test_board.py:708
+#: .\board\signals.py:51 .\tests\test_board.py:745
 #, python-format
 msgid "Important document was made visible again: %(link)s"
 msgstr "Ważny dokument został ponownie udostępniony: %(link)s"
@@ -1125,7 +1125,7 @@ msgstr "Tak, usuń aktywo"
 #: .\glosowania\templates\glosowania\parameters.html:45
 #: .\glosowania\templates\glosowania\szczegoly.html:45
 #: .\obywatele\templates\obywatele\szczegoly.html:67
-#: .\site_settings\params.py:133
+#: .\site_settings\params.py:144
 msgid "Yes"
 msgstr "Tak"
 
@@ -1134,7 +1134,7 @@ msgstr "Tak"
 #: .\glosowania\templates\glosowania\parameters.html:45
 #: .\glosowania\templates\glosowania\szczegoly.html:46
 #: .\obywatele\templates\obywatele\szczegoly.html:67
-#: .\site_settings\params.py:133
+#: .\site_settings\params.py:144
 msgid "No"
 msgstr "Nie"
 
@@ -2151,7 +2151,7 @@ msgid "Optional link to event details, registration, or location"
 msgstr "Opcjonalny link do szczegółów wydarzenia, rejestrowania lub miejsca"
 
 #: .\events\models.py:22 .\events\templates\events\event_detail.html:53
-#: .\zzz\scheduler.py:170
+#: .\zzz\scheduler.py:173
 msgid "Place"
 msgstr "Miejsce"
 
@@ -2323,7 +2323,7 @@ msgstr "Propozycja głosowania"
 #: .\glosowania\models.py:28
 #: .\glosowania\templates\glosowania\_detail_meta.html:20
 #: .\glosowania\templatetags\glosowania_stepper.py:44
-#: .\glosowania\tests\test_views.py:316 .\glosowania\views.py:473
+#: .\glosowania\tests\test_views.py:323 .\glosowania\views.py:473
 msgid "Referendum"
 msgstr "Referendum"
 
@@ -2772,7 +2772,7 @@ msgid "There is no proposal with this status"
 msgstr "Nie ma propozycji o tym statusie"
 
 #: .\glosowania\templates\glosowania\parameters.html:10
-#: .\site_settings\params.py:28
+#: .\site_settings\params.py:29
 msgid "Voting parameters"
 msgstr "Parametry głosowań"
 
@@ -2799,9 +2799,10 @@ msgstr "Czas na dyskusję trwa"
 #: .\glosowania\templates\glosowania\parameters.html:21
 #: .\glosowania\templates\glosowania\parameters.html:24
 #: .\obywatele\templates\obywatele\parameters.html:21
-#: .\site_settings\params.py:59 .\site_settings\params.py:63
-#: .\site_settings\params.py:64 .\site_settings\params.py:72
-#: .\site_settings\params.py:82 .\site_settings\params.py:89
+#: .\site_settings\params.py:60 .\site_settings\params.py:64
+#: .\site_settings\params.py:65 .\site_settings\params.py:73
+#: .\site_settings\params.py:83 .\site_settings\params.py:93
+#: .\site_settings\params.py:100
 msgid "days"
 msgstr "dni"
 
@@ -3018,12 +3019,12 @@ msgstr "Propozycje"
 msgid "How do votes work?"
 msgstr "Jak działają głosowania?"
 
-#: .\glosowania\tests\test_views.py:294 .\glosowania\tests\test_views.py:314
+#: .\glosowania\tests\test_views.py:301 .\glosowania\tests\test_views.py:321
 #: .\glosowania\views.py:472
 msgid "A new argument was added to this referendum:"
 msgstr "Dodano nowy argument do tego głosowania:"
 
-#: .\glosowania\tests\test_views.py:694 .\glosowania\views.py:100
+#: .\glosowania\tests\test_views.py:701 .\glosowania\views.py:100
 msgid "Please correct the errors below."
 msgstr "Popraw poniższe błędy."
 
@@ -3784,7 +3785,7 @@ msgstr "Brak wyników"
 msgid "No results for the specified phrase in the selected categories."
 msgstr "Brak wyników dla podanej frazy w wybranych kategoriach."
 
-#: .\home\templates\home\site_admin.html:9 .\site_settings\params.py:28
+#: .\home\templates\home\site_admin.html:9 .\site_settings\params.py:29
 msgid "Group settings"
 msgstr "Ustawienia grupy"
 
@@ -3792,7 +3793,7 @@ msgstr "Ustawienia grupy"
 msgid "UI reference"
 msgstr "Wzorce interfejsu"
 
-#: .\home\templates\home\site_admin.html:23 .\site_settings\models.py:111
+#: .\home\templates\home\site_admin.html:23 .\site_settings\models.py:112
 msgid "Quick links"
 msgstr "Pierwsze kroki"
 
@@ -3801,7 +3802,7 @@ msgstr "Pierwsze kroki"
 msgid "Add new link"
 msgstr "Dodaj nowy link"
 
-#: .\home\templates\home\site_admin.html:37 .\site_settings\models.py:105
+#: .\home\templates\home\site_admin.html:37 .\site_settings\models.py:106
 msgid "URL"
 msgstr "URL"
 
@@ -5017,7 +5018,7 @@ msgid "Population"
 msgstr "Populacja"
 
 #: .\obywatele\templates\obywatele\parameters.html:15
-#: .\site_settings\models.py:36 .\site_settings\params.py:87
+#: .\site_settings\models.py:36 .\site_settings\params.py:98
 msgid "Acceptance threshold"
 msgstr "Próg akceptacji"
 
@@ -5378,99 +5379,115 @@ msgstr "Usuń publiczny pokój czatu po upływie (dni)"
 msgid "Delete inactive user after (days)"
 msgstr "Usuń nieaktywnego użytkownika po upływie (dni)"
 
-#: .\site_settings\models.py:39 .\site_settings\params.py:92
+#: .\site_settings\models.py:39 .\site_settings\params.py:103
 msgid "Group is public"
 msgstr "Grupa jest publiczna"
 
-#: .\site_settings\models.py:41 .\site_settings\params.py:94
+#: .\site_settings\models.py:41 .\site_settings\params.py:105
 msgid "Site name"
 msgstr "Nazwa strony"
 
-#: .\site_settings\models.py:46 .\site_settings\models.py:47
+#: .\site_settings\models.py:42
+msgid "Delete archived document after (days)"
+msgstr "Usuń zarchiwizowany dokument po upływie (dni)"
+
+#: .\site_settings\models.py:47 .\site_settings\models.py:48
 msgid "Site settings"
 msgstr "Ustawienia witryny"
 
-#: .\site_settings\models.py:110
+#: .\site_settings\models.py:111
 msgid "Quick link"
 msgstr "Pierwsze kroki"
 
-#: .\site_settings\params.py:28
+#: .\site_settings\params.py:29
 msgid "Chat settings"
 msgstr "Ustawienia czatu"
 
-#: .\site_settings\params.py:28
+#: .\site_settings\params.py:29
+msgid "Document settings"
+msgstr "Ustawienia dokumentów"
+
+#: .\site_settings\params.py:29
 msgid "Citizens settings"
 msgstr "Ustawienia członkostwa"
 
-#: .\site_settings\params.py:28
+#: .\site_settings\params.py:29
 msgid "Site identity"
 msgstr "Tożsamość strony"
 
-#: .\site_settings\params.py:52
+#: .\site_settings\params.py:53
 msgid "Required signatures for referendum"
 msgstr "Wymaganych podpisów pod wnioskiem o referendum"
 
-#: .\site_settings\params.py:52
+#: .\site_settings\params.py:53
 msgid "Number of signatures a new proposal must gather to trigger a referendum."
 msgstr "Liczba podpisów, którą nowa propozycja musi zgromadzić, aby wywołać referendum."
 
-#: .\site_settings\params.py:57
+#: .\site_settings\params.py:58
 msgid "Time to gather signatures"
 msgstr "Maksymalny czas na zebranie podpisów"
 
-#: .\site_settings\params.py:58
+#: .\site_settings\params.py:59
 msgid "Maximum number of days to gather signatures before a proposal is rejected."
 msgstr "Maksymalna liczba dni na zebranie podpisów przed odrzuceniem propozycji."
 
-#: .\site_settings\params.py:63
+#: .\site_settings\params.py:64
 msgid "Discussion period"
 msgstr "Okres dyskusji"
 
-#: .\site_settings\params.py:63
+#: .\site_settings\params.py:64
 msgid "Number of days a proposal stays in queue/discussion before the referendum starts."
 msgstr "Liczba dni, przez które propozycja pozostaje w kolejce/dyskusji przed rozpoczęciem referendum."
 
-#: .\site_settings\params.py:64
+#: .\site_settings\params.py:65
 msgid "Referendum duration"
 msgstr "Czas trwania referendum"
 
-#: .\site_settings\params.py:64
+#: .\site_settings\params.py:65
 msgid "Number of days a referendum lasts."
 msgstr "Liczba dni, przez które referendum trwa."
 
-#: .\site_settings\params.py:70
+#: .\site_settings\params.py:71
 msgid "Archive public chat room after"
 msgstr "Archiwizuj publiczny pokój czatu po"
 
-#: .\site_settings\params.py:71
+#: .\site_settings\params.py:72
 msgid "Public chat rooms are archived after this many days without activity."
 msgstr "Publiczne pokoje czatu są archiwizowane po tej liczbie dni bez aktywności."
 
-#: .\site_settings\params.py:80
+#: .\site_settings\params.py:81
 msgid "Delete public chat room after"
 msgstr "Skasuj publiczny pokój po upływie"
 
-#: .\site_settings\params.py:81
+#: .\site_settings\params.py:82
 msgid "Public chat rooms are deleted after this many days without activity."
 msgstr "Publiczne pokoje bez aktywności są kasowane po upływie tylu dni."
 
-#: .\site_settings\params.py:87
+#: .\site_settings\params.py:91
+msgid "Delete archived document after"
+msgstr "Usuń zarchiwizowany dokument po upływie"
+
+#: .\site_settings\params.py:92
+msgid "Archived documents are deleted after this many days."
+msgstr "Zarchiwizowane dokumenty są usuwane po upływie tylu dni."
+
+#: .\site_settings\params.py:98
 msgid "Reputation threshold for accepting new members and protecting existing ones."
 msgstr "Liczba punktów reputacji przy akceptowaniu nowych członków i usuwaniu istniejących."
 
-#: .\site_settings\params.py:89
+#: .\site_settings\params.py:100
 msgid "Delete inactive user after"
 msgstr "Usuń nieaktywnego użytkownika po upływie"
 
-#: .\site_settings\params.py:89
+#: .\site_settings\params.py:100
 msgid "Inactive/unconfirmed users are removed after this many days."
 msgstr "Nieaktywni i niezatwierdzenie użytkownicy są usuwani po upływie tylu dni."
 
-#: .\site_settings\params.py:92
+#: .\site_settings\params.py:103
 msgid "If enabled, anyone can register and the public inbox is available."
 msgstr "Zaznaczenie tej opcja pozwala każdemu zapisać się do grupy."
 
-#: .\site_settings\params.py:94
+#: .\site_settings\params.py:105
 msgid "Full name of the instance shown across the site."
 msgstr "Pełna nazwa instancji widoczna wszędzie w witrynie."
 
@@ -6207,6 +6224,6 @@ msgstr "Zespół %(site_name)s"
 msgid "File is too large (max %s MB)."
 msgstr "Plik jest za duży (maks. %s MB)."
 
-#: .\zzz\scheduler.py:167
+#: .\zzz\scheduler.py:170
 msgid "Time"
 msgstr "Godzina"

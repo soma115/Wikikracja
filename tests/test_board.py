@@ -5,12 +5,17 @@ do odpowiedniego utworzenia/aktualizacji/usunięcia pokoju czatu,
 na tej samej zasadzie co tasks i glosowania.
 """
 
+from datetime import timedelta
+from unittest.mock import patch
+
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
 from django.db import IntegrityError, transaction
 from django.db.models.deletion import ProtectedError
 from django.test import override_settings
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext, override
 
 from board.models import Post
@@ -90,6 +95,38 @@ def test_post_delete_deletes_chat_room():
 
     assert not Post.objects.filter(pk=post.pk).exists()
     assert not Room.objects.filter(pk=room_id).exists()
+
+
+@pytest.mark.django_db
+def test_delete_archived_posts_command_removes_only_expired_archived_documents():
+    old_archived = PostFactory(title='Expired document')
+    recent_archived = PostFactory(title='Recent archived document')
+    old_active = PostFactory(title='Old active document')
+    room_id = old_archived.chat_room_id
+    cutoff = timezone.now() - timedelta(days=180)
+    Post.objects.filter(pk=old_archived.pk).update(visibility=Post.Visibility.ARCHIVE, updated=cutoff - timedelta(seconds=1))
+    Post.objects.filter(pk=recent_archived.pk).update(visibility=Post.Visibility.ARCHIVE, updated=cutoff + timedelta(seconds=1))
+    Post.objects.filter(pk=old_active.pk).update(updated=cutoff - timedelta(days=1))
+
+    with patch('board.management.commands.delete_archived_posts.get_param', return_value=180):
+        call_command('delete_archived_posts')
+
+    assert not Post.objects.filter(pk=old_archived.pk).exists()
+    assert not Room.objects.filter(pk=room_id).exists()
+    assert Post.objects.filter(pk=recent_archived.pk).exists()
+    assert Post.objects.filter(pk=old_active.pk).exists()
+
+
+@pytest.mark.django_db
+def test_delete_archived_posts_command_preserves_system_documents():
+    post = PostFactory(system_key='retention-test')
+    cutoff = timezone.now() - timedelta(days=181)
+    Post.objects.filter(pk=post.pk).update(visibility=Post.Visibility.ARCHIVE, updated=cutoff)
+
+    with patch('board.management.commands.delete_archived_posts.get_param', return_value=180):
+        call_command('delete_archived_posts')
+
+    assert Post.objects.filter(pk=post.pk).exists()
 
 
 @pytest.mark.django_db

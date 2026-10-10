@@ -21,14 +21,22 @@ from django.utils.translation import gettext_lazy as _
 # Category keys used to group parameters in the proposal form / display.
 CATEGORY_VOTING = 'voting'
 CATEGORY_CHAT = 'chat'
+CATEGORY_BOARD = 'board'
 CATEGORY_CITIZENS = 'citizens'
 CATEGORY_GROUP = 'group'
 CATEGORY_SITE = 'site'
 
-CATEGORY_LABELS = {CATEGORY_VOTING: _('Voting parameters'), CATEGORY_CHAT: _('Chat settings'), CATEGORY_CITIZENS: _('Citizens settings'), CATEGORY_GROUP: _('Group settings'), CATEGORY_SITE: _('Site identity')}
+CATEGORY_LABELS = {
+    CATEGORY_VOTING: _('Voting parameters'),
+    CATEGORY_CHAT: _('Chat settings'),
+    CATEGORY_BOARD: _('Document settings'),
+    CATEGORY_CITIZENS: _('Citizens settings'),
+    CATEGORY_GROUP: _('Group settings'),
+    CATEGORY_SITE: _('Site identity'),
+}
 
 # Ordered category list controls display / form ordering.
-CATEGORY_ORDER = [CATEGORY_VOTING, CATEGORY_CHAT, CATEGORY_CITIZENS, CATEGORY_GROUP, CATEGORY_SITE]
+CATEGORY_ORDER = [CATEGORY_VOTING, CATEGORY_CHAT, CATEGORY_BOARD, CATEGORY_CITIZENS, CATEGORY_GROUP, CATEGORY_SITE]
 
 
 class ParamSpec:
@@ -82,6 +90,9 @@ PARAM_SPECS = [
         unit=_('days'),
         min_value=1,
         max_value=3650,
+    ),
+    ParamSpec(
+        'delete_archived_document_after', 'int', CATEGORY_BOARD, _('Delete archived document after'), _('Archived documents are deleted after this many days.'), unit=_('days'), min_value=1, max_value=3650
     ),
     # --- Citizens settings ---
     ParamSpec('acceptance', 'int', CATEGORY_CITIZENS, _('Acceptance threshold'), _('Reputation threshold for accepting new members and protecting existing ones.'), min_value=1, max_value=100),
