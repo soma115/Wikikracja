@@ -316,8 +316,8 @@ def test_digest_groups_citizen_activities_by_user_and_keeps_latest(digest_user, 
 def test_digest_includes_calendar_changes_and_only_nearby_occurrences(digest_user):
     now = timezone.now()
     since = now - td(hours=1)
-    within = Event.objects.create(title='Within', start_date=now + td(days=5), frequency='once', is_active=True)
-    too_late = Event.objects.create(title='Too late', start_date=now + td(days=7), frequency='once', is_active=True)
+    within = Event.objects.create(title='Within', start_date=now + td(days=2), frequency='once', is_active=True)
+    too_late = Event.objects.create(title='Too late', start_date=now + td(days=4), frequency='once', is_active=True)
 
     items = [item for item in build_user_digest(digest_user, since) if item['content_type'] == 'event']
     within_items = [item for item in items if item['object_id'] == within.pk]

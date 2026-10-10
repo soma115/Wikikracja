@@ -254,7 +254,7 @@ def build_user_digest(user, since):
         user_items.append(item)
 
     now = timezone.now()
-    event_horizon = now + td(days=6)
+    event_horizon = now + td(days=3)
     upcoming_event_ids = {
         item['object_id'] for item in user_items if item['content_type'] == 'event' and item.get('activity_kind') != 'change' and item.get('timestamp') is not None and now <= item['timestamp'] <= event_horizon
     }
@@ -273,7 +273,7 @@ def build_user_digest(user, since):
     for key, item in grouped.items():
         item = {**item, 'update_count': counts[key]}
         item.pop(DIGEST_GROUP_ID, None)
-        # Keep only calendar events that start within the next 6 days.
+        # Keep only calendar events that start within the next 3 days.
         if item['content_type'] == 'event' and item.get('activity_kind') != 'change':
             ts = item.get('timestamp')
             if ts is None or ts < now or ts > event_horizon:
