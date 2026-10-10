@@ -530,16 +530,16 @@ REDIS_HOST=redis://127.0.0.1:6379/1
 SQLITE_DATABASE_PATH=/app/db/db.sqlite3
 ```
 
-Adding a peer automatically generates a random secret and displays it in Group
-settings. Share it with the other group over a secure channel, then enter it there as
-the received peer secret. If both groups added each other and generated different
-keys, choose one and set that same value on both sides. Regenerating replaces the
-current key, so update the peer immediately. Secrets are encrypted at rest using
-`SECRET_KEY`. If upgrading from the temporary `FEDERATION_PEER_SECRETS` environment
-setting, copy each value into both peers' settings in the UI, then remove that
-variable. When rotating `SECRET_KEY`, retain the old key in `SECRET_KEY_FALLBACKS`,
-re-enter every peer secret in the UI on both instances, and remove the fallback only
-after that is complete.
+Adding a peer generates this group's outbound secret, shown in Group settings. Share
+it with the other group over a secure channel; they enter it as their inbound secret.
+The other group separately generates its own outbound secret, which this group enters
+as its inbound secret. Both values are needed for two-way messaging. Regenerating an
+outbound secret requires updating that value in the peer's inbound field. The migration
+copies an existing shared key into both directional fields for compatibility; rotate the
+outbound keys separately after deployment. Secrets are encrypted at rest using
+`SECRET_KEY`. When rotating `SECRET_KEY`, retain the old key
+in `SECRET_KEY_FALLBACKS`, re-enter both directional secrets in the UI on both
+instances, and remove the fallback only after that is complete.
 
 Firebase credentials are optional for deployments that need push notifications; use
 the supported `FIREBASE_CERT_*` or `GOOGLE_APPLICATION_CREDENTIALS` options from

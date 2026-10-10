@@ -88,7 +88,8 @@
             {% else %}
               <span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap">{% trans "Not checked" %}</span>
             {% endif %}
-            {% if room.has_federation_secret %}<span class="tw-badge-status tw-badge-success tw-whitespace-nowrap">{% trans "Secret configured" %}</span>{% endif %}
+            {% if room.has_federation_outbound_secret %}<span class="tw-badge-status tw-badge-success tw-whitespace-nowrap">{% trans "Outgoing secret ready" %}</span>{% endif %}
+            {% if room.has_federation_inbound_secret %}<span class="tw-badge-status tw-badge-success tw-whitespace-nowrap">{% trans "Peer secret received" %}</span>{% endif %}
             {% if room.federation_communication_ok %}
               <span class="tw-badge-status tw-badge-success tw-whitespace-nowrap" title="{% trans 'The last status check succeeded' %}"><i class="fas fa-link fa-fw tw-me-1"></i>{% trans "Communication works" %}</span>
             {% elif room.federation_communication_ok == False %}
@@ -108,11 +109,11 @@
             <div class="tw-flex tw-flex-col tw-gap-1 tw-min-w-0">
               <label for="share-federation-secret-{{ room.pk }}" class="tw-text-muted tw-text-sm">{% trans "Secret to share with this group" %}</label>
               <div class="tw-flex tw-items-center tw-gap-2">
-                <input id="share-federation-secret-{{ room.pk }}" type="text" value="{{ room.federation_secret_display }}" class="tw-form-control tw-form-control-sm tw-flex-1 tw-min-w-0" readonly autocomplete="off" spellcheck="false">
+                <input id="share-federation-secret-{{ room.pk }}" type="text" value="{{ room.federation_outbound_secret_display }}" class="tw-form-control tw-form-control-sm tw-flex-1 tw-min-w-0" readonly autocomplete="off" spellcheck="false">
                 <form method="post" class="tw-inline tw-shrink-0">
                   {% csrf_token %}
-                  <button type="submit" name="generate_federated_secret" value="{{ room.federated_instance_url }}" class="tw-btn tw-btn-sm tw-btn-primary">
-                    {% if room.federation_secret_display %}{% trans "Regenerate secret" %}{% else %}{% trans "Generate secret" %}{% endif %}
+                  <button type="submit" name="generate_federation_outbound_secret" value="{{ room.federated_instance_url }}" class="tw-btn tw-btn-sm tw-btn-primary">
+                    {% if room.federation_outbound_secret_display %}{% trans "Regenerate secret" %}{% else %}{% trans "Generate secret" %}{% endif %}
                   </button>
                 </form>
               </div>
@@ -120,10 +121,10 @@
             </div>
             <form method="post" class="tw-flex tw-flex-col tw-gap-1 tw-min-w-0">
               {% csrf_token %}
-              <input type="hidden" name="save_federated_secret" value="{{ room.federated_instance_url }}">
+              <input type="hidden" name="save_federation_inbound_secret" value="{{ room.federated_instance_url }}">
               <label for="received-federation-secret-{{ room.pk }}" class="tw-text-muted tw-text-sm">{% trans "Secret received from peer" %}</label>
               <div class="tw-flex tw-items-center tw-gap-2">
-                <input id="received-federation-secret-{{ room.pk }}" type="password" name="federated_instance_secret" class="tw-form-control tw-form-control-sm tw-flex-1 tw-min-w-0" minlength="32" maxlength="512" autocomplete="off" required>
+                <input id="received-federation-secret-{{ room.pk }}" type="password" name="federation_inbound_secret" class="tw-form-control tw-form-control-sm tw-flex-1 tw-min-w-0" minlength="32" maxlength="512" autocomplete="off" required>
                 <button type="submit" class="tw-btn tw-btn-sm tw-btn-primary tw-shrink-0">{% trans "Save secret" %}</button>
               </div>
               <span class="tw-text-muted tw-text-sm">{% trans "Enter the secret provided by the other group to use the same key on both instances." %}</span>

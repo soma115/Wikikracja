@@ -92,35 +92,41 @@ def decrypt_federation_secret(ciphertext):
         return None
 
 
-def get_federation_peer_secret(instance_url):
+def _get_federation_peer_secret(instance_url, field_name):
     try:
         normalized = normalize_instance_url(instance_url)
     except ValueError:
         return None
-    room = Room.objects.filter(federated_instance_url=normalized, source_app=FEDERATION_SOURCE).only('federation_secret_ciphertext').first()
-    if room is None or not room.federation_secret_ciphertext:
-        return None
-    return decrypt_federation_secret(room.federation_secret_ciphertext)
+    ciphertext = Room.objects.filter(federated_instance_url=normalized, source_app=FEDERATION_SOURCE).values_list(field_name, flat=True).first()
+    return decrypt_federation_secret(ciphertext) if ciphertext else None
 
 
-def generate_federation_peer_secret(instance_url):
+def get_federation_outbound_secret(instance_url):
+    return _get_federation_peer_secret(instance_url, 'federation_outbound_secret_ciphertext')
+
+
+def get_federation_inbound_secret(instance_url):
+    return _get_federation_peer_secret(instance_url, 'federation_inbound_secret_ciphertext')
+
+
+def generate_federation_outbound_secret(instance_url):
     normalized = normalize_instance_url(instance_url)
     room = Room.objects.filter(federated_instance_url=normalized, source_app=FEDERATION_SOURCE).first()
     if room is None:
         return None
-    room.federation_secret_ciphertext = encrypt_federation_secret(secrets.token_urlsafe(32))
-    room.save(update_fields=['federation_secret_ciphertext'])
+    room.federation_outbound_secret_ciphertext = encrypt_federation_secret(secrets.token_urlsafe(32))
+    room.save(update_fields=['federation_outbound_secret_ciphertext'])
     return room
 
 
-def set_federation_peer_secret(instance_url, secret):
+def set_federation_inbound_secret(instance_url, secret):
     normalized = normalize_instance_url(instance_url)
     ciphertext = encrypt_federation_secret(secret)
     room = Room.objects.filter(federated_instance_url=normalized, source_app=FEDERATION_SOURCE).first()
     if room is None:
         return None
-    room.federation_secret_ciphertext = ciphertext
-    room.save(update_fields=['federation_secret_ciphertext'])
+    room.federation_inbound_secret_ciphertext = ciphertext
+    room.save(update_fields=['federation_inbound_secret_ciphertext'])
     return room
 
 
@@ -137,7 +143,7 @@ def create_federation_auth_headers(method, request_path, source_url, body, secre
 
 
 def verify_federation_request(request, source_url):
-    secret = get_federation_peer_secret(source_url)
+    secret = get_federation_inbound_secret(source_url)
     timestamp = request.headers.get(FEDERATION_AUTH_TIMESTAMP_HEADER, '')
     nonce = request.headers.get(FEDERATION_AUTH_NONCE_HEADER, '')
     signature = request.headers.get(FEDERATION_AUTH_SIGNATURE_HEADER, '')
@@ -267,9 +273,9 @@ def ensure_federated_room(instance_url, name=''):
     if room.archived:
         room.archived = False
         changed.append('archived')
-    if not room.federation_secret_ciphertext:
-        room.federation_secret_ciphertext = encrypt_federation_secret(secrets.token_urlsafe(32))
-        changed.append('federation_secret_ciphertext')
+    if not room.federation_outbound_secret_ciphertext:
+        room.federation_outbound_secret_ciphertext = encrypt_federation_secret(secrets.token_urlsafe(32))
+        changed.append('federation_outbound_secret_ciphertext')
     if changed:
         room.save(update_fields=changed)
     room.allowed.set(User.objects.filter(is_active=True))
@@ -315,7 +321,7 @@ async def _deliver_event(room, path, payload):
         return
     validate_outbound_host(room.federated_instance_url)
     source_url = payload.get('source_url')
-    secret = await database_sync_to_async(get_federation_peer_secret)(room.federated_instance_url)
+    secret = await database_sync_to_async(get_federation_outbound_secret)(room.federated_instance_url)
     if not source_url or secret is None:
         raise ValueError('Federation peer authentication is not configured')
     await asyncio.to_thread(_read_json, instance_endpoint(room.federated_instance_url, path), payload, auth_source_url=source_url, auth_secret=secret)

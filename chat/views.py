@@ -30,7 +30,7 @@ from chat.models import Message, Room
 from chat.services import get_unread_message_counts_for_rooms, send_message
 from site_settings.params import get_param
 
-from .federation import FEDERATION_MAX_BODY, FEDERATION_SOURCE, get_configured_room, get_federation_peer_secret, make_federation_message_id, validate_incoming_payload, verify_federation_request
+from .federation import FEDERATION_MAX_BODY, FEDERATION_SOURCE, get_configured_room, get_federation_inbound_secret, make_federation_message_id, validate_incoming_payload, verify_federation_request
 
 log = logging.getLogger(__name__)
 
@@ -267,7 +267,7 @@ def federation_info(request: HttpRequest):
     from .federation import local_instance_name, local_instance_url
 
     source_url = request.GET.get('source_url')
-    return JsonResponse({'name': local_instance_name(), 'url': local_instance_url(), 'accepts_source_url': bool(source_url and get_configured_room(source_url) and get_federation_peer_secret(source_url))})
+    return JsonResponse({'name': local_instance_name(), 'url': local_instance_url(), 'accepts_source_url': bool(source_url and get_configured_room(source_url) and get_federation_inbound_secret(source_url))})
 
 
 @csrf_exempt

@@ -13,7 +13,8 @@ from chat.federation import (
     decrypt_federation_secret,
     deliver_message,
     encrypt_federation_secret,
-    get_federation_peer_secret,
+    get_federation_inbound_secret,
+    get_federation_outbound_secret,
     normalize_instance_url,
     refresh_federated_status,
 )
@@ -40,10 +41,11 @@ class FederationViewsTest(TestCase):
         self.user = make_user('federation-user')
         self.client.force_login(self.user)
         self.secret = 'r' * 32
+        self.peer_secret = 's' * 32
 
     def signed_message_request(self, payload):
         body = json.dumps(payload).encode('utf-8')
-        headers = create_federation_auth_headers('POST', '/chat/federation/message/', payload['source_url'], body, self.secret.encode('utf-8'))
+        headers = create_federation_auth_headers('POST', '/chat/federation/message/', payload['source_url'], body, self.peer_secret.encode('utf-8'))
         http_headers = {f'HTTP_{name.upper().replace("-", "_")}': value for name, value in headers.items()}
         return body, http_headers
 
@@ -55,7 +57,8 @@ class FederationViewsTest(TestCase):
             protected=True,
             federated_instance_url='https://remote.test',
             federated_instance_name='Remote group',
-            federation_secret_ciphertext=encrypt_federation_secret(self.secret),
+            federation_outbound_secret_ciphertext=encrypt_federation_secret(self.secret),
+            federation_inbound_secret_ciphertext=encrypt_federation_secret(self.peer_secret),
         )
 
     def test_outgoing_json_request_is_signed(self):
@@ -96,37 +99,43 @@ class FederationViewsTest(TestCase):
         self.assertEqual(room.title, 'Remote group')
         self.assertEqual(room.source_app, 'federation')
         self.assertIn(self.user, room.allowed.all())
-        generated_secret = get_federation_peer_secret(room.federated_instance_url)
+        generated_secret = get_federation_outbound_secret(room.federated_instance_url)
         self.assertEqual(len(generated_secret), 43)
+        self.assertIsNone(get_federation_inbound_secret(room.federated_instance_url))
         with patch('chat.federation._read_json', return_value={'accepts_source_url': True}):
             page = self.client.get(reverse('group_settings'))
         self.assertContains(page, generated_secret.decode('utf-8'))
-        self.assertNotContains(page, room.federation_secret_ciphertext)
+        self.assertNotContains(page, room.federation_outbound_secret_ciphertext)
         self.assertIn('no-store', page.headers['Cache-Control'])
 
-    def test_group_settings_saves_and_rotates_encrypted_federation_secret(self):
+    def test_group_settings_saves_and_rotates_directional_federation_secrets(self):
         room = Room.objects.create(title='Remote group', source_app='federation', public=True, protected=True, federated_instance_url='https://remote.test')
-        response = self.client.post(reverse('group_settings'), {'save_federated_secret': room.federated_instance_url, 'federated_instance_secret': self.secret})
+        response = self.client.post(reverse('group_settings'), {'save_federation_inbound_secret': room.federated_instance_url, 'federation_inbound_secret': self.peer_secret})
 
         self.assertRedirects(response, reverse('group_settings'))
         room.refresh_from_db()
-        self.assertTrue(room.has_federation_secret)
-        self.assertNotIn(self.secret, room.federation_secret_ciphertext)
-        self.assertEqual(get_federation_peer_secret(room.federated_instance_url), self.secret.encode('utf-8'))
+        self.assertTrue(room.has_federation_inbound_secret)
+        self.assertFalse(room.has_federation_outbound_secret)
+        self.assertNotIn(self.peer_secret, room.federation_inbound_secret_ciphertext)
+        self.assertEqual(get_federation_inbound_secret(room.federated_instance_url), self.peer_secret.encode('utf-8'))
 
-        next_secret = 's' * 32
-        self.client.post(reverse('group_settings'), {'save_federated_secret': room.federated_instance_url, 'federated_instance_secret': next_secret})
-        self.assertEqual(get_federation_peer_secret(room.federated_instance_url), next_secret.encode('utf-8'))
+        next_peer_secret = 't' * 32
+        self.client.post(reverse('group_settings'), {'save_federation_inbound_secret': room.federated_instance_url, 'federation_inbound_secret': next_peer_secret})
+        self.assertEqual(get_federation_inbound_secret(room.federated_instance_url), next_peer_secret.encode('utf-8'))
+        self.assertIsNone(get_federation_outbound_secret(room.federated_instance_url))
 
-        self.client.post(reverse('group_settings'), {'generate_federated_secret': room.federated_instance_url})
-        generated_secret = get_federation_peer_secret(room.federated_instance_url)
-        self.assertEqual(len(generated_secret), 43)
-        self.assertNotEqual(generated_secret, next_secret.encode('utf-8'))
+        self.client.post(reverse('group_settings'), {'generate_federation_outbound_secret': room.federated_instance_url})
+        own_secret = get_federation_outbound_secret(room.federated_instance_url)
+        self.assertEqual(len(own_secret), 43)
+        self.assertNotEqual(own_secret, next_peer_secret.encode('utf-8'))
+        self.assertEqual(get_federation_inbound_secret(room.federated_instance_url), next_peer_secret.encode('utf-8'))
 
         with patch('chat.federation._read_json', return_value={'accepts_source_url': True}):
             page = self.client.get(reverse('group_settings'))
-        self.assertContains(page, generated_secret.decode('utf-8'))
-        self.assertNotContains(page, next_secret)
+        self.assertContains(page, own_secret.decode('utf-8'))
+        self.assertContains(page, 'name="federation_inbound_secret"')
+        room.refresh_from_db()
+        self.assertNotContains(page, room.federation_outbound_secret_ciphertext)
 
     def test_status_reports_peer_configuration_and_communication(self):
         room = Room.objects.create(title='Remote group', source_app='federation', public=True, protected=True, federated_instance_url='https://remote.test', federated_instance_name='Remote group')
@@ -163,6 +172,7 @@ class FederationViewsTest(TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_message_rejects_missing_or_tampered_authentication(self):
+        self.create_peer_room()
         payload = {'source_url': 'https://remote.test', 'source_name': 'Remote group', 'source_message_id': '1', 'sender_name': 'Remote user', 'message': 'Hello'}
         body, headers = self.signed_message_request(payload)
 
@@ -173,11 +183,12 @@ class FederationViewsTest(TestCase):
         self.assertEqual(tampered_response.status_code, 401)
 
     def test_message_rejects_expired_timestamp(self):
+        self.create_peer_room()
         payload = {'source_url': 'https://remote.test', 'source_name': 'Remote group', 'source_message_id': 'expired-1', 'sender_name': 'Remote user', 'message': 'Hello'}
         body = json.dumps(payload).encode('utf-8')
         timestamp = '1'
         nonce = 'n' * 24
-        signature = _federation_signature(self.secret.encode('utf-8'), 'POST', '/chat/federation/message/', payload['source_url'], timestamp, nonce, body)
+        signature = _federation_signature(self.peer_secret.encode('utf-8'), 'POST', '/chat/federation/message/', payload['source_url'], timestamp, nonce, body)
         headers = {'HTTP_X_WIKIKRACJA_TIMESTAMP': timestamp, 'HTTP_X_WIKIKRACJA_NONCE': nonce, 'HTTP_X_WIKIKRACJA_SIGNATURE': signature}
 
         response = self.client.post(reverse('chat:federation_message'), body, content_type='application/json', **headers)
