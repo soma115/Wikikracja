@@ -244,7 +244,7 @@ def test_private_chat_personalization_does_not_leak_through_shared_cache(feed_us
         assert items[0]['object_id'] == message.pk
         assert items[0]['title'] == (another_user.username if user == feed_user else feed_user.username)
         assert items[0]['is_read'] is (user == feed_user)
-        assert items[0]['url'] == f'/chat/#room_id={room.pk}'
+        assert items[0]['url'] == f'/chat/#room_id={room.pk}&message_id={message.pk}'
         assert items[0]['message_count'] == 1
 
     assert generate_feed_raw() == raw
@@ -335,7 +335,7 @@ def test_chat_feed_and_rendered_activity_preserve_message_without_exposing_anony
     assert raw['author'] == item['author'] == expected_author
     assert item['description'] == message.text
     assert item['timestamp'] == message.time
-    assert item['url'] == f'/chat/#room_id={room.pk}'
+    assert item['url'] == f'/chat/#room_id={room.pk}&message_id={message.pk}'
     request = rf.get('/activity/')
     request.user = feed_user
     rendered = render_to_string('home/activity.html', {'feed_items': [item], 'user': feed_user}, request=request)

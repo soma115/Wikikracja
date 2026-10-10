@@ -5,7 +5,7 @@
 - **Zmienione obszary:** linki feedu `chat`, router i API WebSocketu czatu, pobieranie wiadomości w `ChatRepository`, testy feedu i czatu.
 - **Co się zmieniło:** każde zdarzenie wiadomości w aktywności prowadzi do `#room_id=…&message_id=…`. Komenda dołączania może opcjonalnie przyjąć ID wiadomości; repozytorium pobiera maksymalnie 100 wiadomości wokół niej w kolejności chronologicznej, a przy brzegu pokoju uzupełnia porcję z drugiej strony. Nieistniejący lub obcy ID nie ujawnia wiadomości z innego pokoju i powoduje zwykłe pobranie ostatnich wiadomości. Zachowano istniejące przewijanie i podświetlenie, pomijając próbę przewijania przy pojedynczej wiadomości realtime przed historią.
 - **Cache:** podbito `FEED_CACHE_KEY` do `feed_raw_v6`, aby cache nie zwracał starych linków bez `message_id`.
-- **Weryfikacja:** 137 testów Pythona, 38 testów Jest, Django check, Ruff, build CSS, regression scan, UI guard i `git diff --check` przeszły. Playwright nie był uruchamiany.
+- **Weryfikacja:** pełne 1212 testów Pythona i 307 testów Jest, pełny Ruff check/format, Django check, compilemessages, build CSS, regression scan i UI guard przeszły. Pre-push runnera nie uruchamiano, bo wykonuje `collectstatic --clear` i przygotowuje `.env`; te kroki pominięto w bezpiecznej weryfikacji lokalnej. Playwright nie jest częścią pre-push (`--no-playwright`).
 - **Spodziewany efekt:** kliknięcie zdarzenia wiadomości otwiera właściwy pokój, ładuje porcję obejmującą wskazany wpis, przewija do niego i podświetla go.
 
 ## 2026-10-10: Bookmarki zdarzeń w aktywności głosowań

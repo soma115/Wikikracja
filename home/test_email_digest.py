@@ -224,7 +224,7 @@ def test_digest_private_room_title_is_personalized_for_each_member(digest_user, 
     room = Room.objects.create(title='Private digest', public=False)
     room.allowed.add(digest_user, another_user)
     Message.objects.create(room=room, sender=digest_user, text='From first member')
-    Message.objects.create(room=room, sender=another_user, text='From second member')
+    latest_message = Message.objects.create(room=room, sender=another_user, text='From second member')
     since = timezone.now() - td(hours=1)
 
     for user, other in ((digest_user, another_user), (another_user, digest_user), (outsider, None)):
@@ -235,7 +235,7 @@ def test_digest_private_room_title_is_personalized_for_each_member(digest_user, 
             assert len(items) == 1
             assert items[0]['title'] == other.username
             assert items[0]['message_count'] == 1
-            assert items[0]['url'] == f'/chat/#room_id={room.pk}'
+            assert items[0]['url'] == f'/chat/#room_id={room.pk}&message_id={latest_message.pk}'
 
 
 @pytest.mark.django_db

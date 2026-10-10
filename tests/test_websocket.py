@@ -14,6 +14,11 @@ from tests.factories import UserFactory
 from zzz.routing import application
 
 
+@pytest.fixture(autouse=True)
+def skip_external_notification_queue(monkeypatch):
+    monkeypatch.setattr('chat.command_handlers.clear_room_notification_state', lambda *_args, **_kwargs: False)
+
+
 async def _consume_initial(communicator):
     """Po connect ChatConsumer wysyła {unread_count}. Zjadamy żeby kolejne receive zwracało odpowiedź na nasze polecenie."""
     while True:
