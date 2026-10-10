@@ -6,7 +6,7 @@ from channels.db import database_sync_to_async
 from channels.layers import get_channel_layer
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db.models import Count, Prefetch
+from django.db.models import Count, Prefetch, Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy
 
@@ -572,7 +572,7 @@ class ChatRepository:
 
     # -- Recent messages methods --
     @database_sync_to_async
-    def get_recent_messages_batch(self, room_id, user_id, limit=100, sort_by='date', order='desc', popular_only=False, include_voters=False):
+    def get_recent_messages_batch(self, room_id, user_id, limit=100, sort_by='date', order='desc', popular_only=False, include_voters=False, target_message_id=None):
         qs = Message.objects.filter(room=room_id).select_related('sender', 'reply_to__sender').prefetch_related(Prefetch('attachments', queryset=MessageAttachment.objects.all()), 'messagehistory')
 
         if sort_by is None and not popular_only:
@@ -580,9 +580,26 @@ class ChatRepository:
         elif sort_by == 'date' and not popular_only:
             # Fast path: DB handles ORDER BY + LIMIT using the (room, time) index
             db_order = 'time' if order == 'asc' else '-time'
-            messages = list(qs.order_by(db_order)[:limit])
-            if order == 'desc':
-                messages = list(reversed(messages))
+            db_id_order = 'id' if order == 'asc' else '-id'
+            target = qs.filter(pk=target_message_id).first() if target_message_id is not None else None
+            if target is None:
+                messages = list(qs.order_by(db_order, db_id_order)[:limit])
+                if order == 'desc':
+                    messages = list(reversed(messages))
+            else:
+                before_query = Q(time__lt=target.time) | Q(time=target.time, pk__lt=target.pk)
+                after_query = Q(time__gt=target.time) | Q(time=target.time, pk__gt=target.pk)
+                before_query_set = qs.filter(before_query).order_by('-time', '-id')
+                after_query_set = qs.filter(after_query).order_by('time', 'id')
+                before_limit = limit // 2
+                after_limit = limit - before_limit - 1
+                before = list(before_query_set[:before_limit])
+                after = list(after_query_set[:after_limit])
+                if len(before) < before_limit:
+                    after = list(after_query_set[: after_limit + before_limit - len(before)])
+                elif len(after) < after_limit:
+                    before = list(before_query_set[: before_limit + after_limit - len(after)])
+                messages = [*reversed(before), target, *after]
             for msg in messages:
                 r = _reactions(msg)
                 msg.upvotes = len(r.get('upvotes', []))

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-09 11:17+0200\n"
+"POT-Creation-Date: 2026-10-10 19:57+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -154,7 +154,7 @@ msgstr "Ankieta"
 
 #: .\ankiety\models.py:24 .\chat\templates\chat\chat.html:217
 #: .\home\navigation.py:21 .\home\services\dashboard.py:35
-#: .\home\templates\home\home.html:147 .\home\views.py:281
+#: .\home\templates\home\home.html:147 .\home\views.py:286
 #: .\obywatele\views.py:474
 msgid "Surveys"
 msgstr "Ankiety"
@@ -197,7 +197,7 @@ msgid "Survey votes"
 msgstr "Głosy w ankiecie"
 
 #: .\ankiety\search.py:18 .\home\templatetags\feed_filters.py:46
-#: .\home\views.py:120
+#: .\home\views.py:125
 msgid "Ankiety"
 msgstr "Ankiety"
 
@@ -376,7 +376,7 @@ msgstr "Zapisz"
 #: .\home\navigation.py:22 .\home\services\dashboard.py:34
 #: .\home\templates\home\home.html:303 .\home\templates\home\home.html:312
 #: .\home\templates\home\home.html:335 .\home\templatetags\feed_filters.py:41
-#: .\home\views.py:124 .\home\views.py:281 .\obywatele\views.py:476
+#: .\home\views.py:129 .\home\views.py:286 .\obywatele\views.py:476
 #: .\tasks\templates\tasks\_task_card.html:74
 msgid "Chat"
 msgstr "Czat"
@@ -844,7 +844,7 @@ msgstr "A-Z"
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:23
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:17
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:22
-#: .\chat\i18n.py:48 .\home\views.py:155
+#: .\chat\i18n.py:48 .\home\views.py:160
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:10
@@ -1290,7 +1290,7 @@ msgstr "Podsumowanie wszystkich lat"
 #: .\bookkeeping\templates\bookkeeping\report_list.html:38
 #: .\categories\templates\categories\_category_filter.html:9
 #: .\categories\templates\categories\_category_filter.html:11
-#: .\home\templates\home\activity.html:30 .\home\views.py:116
+#: .\home\templates\home\activity.html:30 .\home\views.py:121
 #: .\obywatele\templates\obywatele\_citizens_filter.html:11
 #: .\obywatele\templates\obywatele\_citizens_filter.html:18
 msgid "All"
@@ -1818,8 +1818,8 @@ msgid "Other Wikikracja groups"
 msgstr "Inne grupy Wikikracji"
 
 #: .\chat\templates\chat\chat.html:136 .\chat\templates\chat\chat.html:370
-#: .\home\navigation.py:15 .\home\services\dashboard.py:27 .\home\views.py:118
-#: .\home\views.py:281
+#: .\home\navigation.py:15 .\home\services\dashboard.py:27 .\home\views.py:123
+#: .\home\views.py:286
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:68
 #: .\obywatele\templates\obywatele\szczegoly.html:203 .\obywatele\views.py:469
 msgid "Activities"
@@ -1830,8 +1830,8 @@ msgid "Referendums"
 msgstr "Głosowania"
 
 #: .\chat\templates\chat\chat.html:190 .\chat\templates\chat\chat.html:378
-#: .\home\navigation.py:17 .\home\services\dashboard.py:21 .\home\views.py:117
-#: .\home\views.py:281 .\obywatele\views.py:471
+#: .\home\navigation.py:17 .\home\services\dashboard.py:21 .\home\views.py:122
+#: .\home\views.py:286 .\obywatele\views.py:471
 msgid "Documents"
 msgstr "Dokumenty"
 
@@ -1956,9 +1956,9 @@ msgid "Room actions"
 msgstr "Działania"
 
 #: .\chat\templates\chat\room_link.html:83
-#: .\home\templates\home\activity.html:90
-#: .\home\templates\home\activity.html:91
 #: .\home\templates\home\activity.html:92
+#: .\home\templates\home\activity.html:93
+#: .\home\templates\home\activity.html:94
 msgid "Mark as unread"
 msgstr "Oznacz jako nieprzeczytane"
 
@@ -1983,7 +1983,7 @@ msgstr "Działanie"
 
 #: .\core\models.py:15 .\events\models.py:37 .\events\search.py:18
 #: .\events\templates\events\_event_detail_actions.html:15 .\home\models.py:15
-#: .\home\views.py:281
+#: .\home\views.py:286
 msgid "Event"
 msgstr "Wydarzenie"
 
@@ -1995,6 +1995,12 @@ msgstr "Referendum"
 #: .\core\models.py:18 .\home\models.py:18
 msgid "Citizen Activity"
 msgstr "Aktywność obywatela"
+
+#: .\core\models.py:39
+#, fuzzy
+#| msgid "Voting parameters"
+msgid "Voting argument"
+msgstr "Parametry głosowań"
 
 #: .\core\notifications.py:481
 msgid "New citizen proposed"
@@ -2227,7 +2233,7 @@ msgstr "Dodaj do swojego Kalendarza Google"
 #: .\events\templates\events\_event_card.html:59 .\events\views.py:30
 #: .\home\navigation.py:18 .\home\services\dashboard.py:26
 #: .\home\templates\home\base.html:273 .\home\templates\home\home.html:455
-#: .\home\views.py:121 .\obywatele\views.py:472
+#: .\home\views.py:126 .\obywatele\views.py:472
 msgid "Calendar"
 msgstr "Kalendarz"
 
@@ -3222,17 +3228,17 @@ msgstr "Siatka"
 msgid "Desktop"
 msgstr "Pulpit"
 
-#: .\home\navigation.py:16 .\home\services\dashboard.py:19 .\home\views.py:123
-#: .\home\views.py:281 .\obywatele\models.py:145
+#: .\home\navigation.py:16 .\home\services\dashboard.py:19 .\home\views.py:128
+#: .\home\views.py:286 .\obywatele\models.py:145
 #: .\obywatele\templatetags\profile_tags.py:65
 msgid "Citizens"
 msgstr "Ludzie"
 
-#: .\home\navigation.py:19 .\home\views.py:119 .\home\views.py:281
+#: .\home\navigation.py:19 .\home\views.py:124 .\home\views.py:286
 msgid "Votings"
 msgstr "Głosowania"
 
-#: .\home\navigation.py:20 .\home\views.py:122 .\obywatele\views.py:475
+#: .\home\navigation.py:20 .\home\views.py:127 .\obywatele\views.py:475
 msgid "Finance"
 msgstr "Finanse"
 
@@ -3345,25 +3351,25 @@ msgid "Bookmarks"
 msgstr "Zakładki"
 
 #: .\home\templates\home\activity.html:36
-#: .\home\templates\home\activity.html:89
 #: .\home\templates\home\activity.html:91
-#: .\home\templates\home\activity.html:92
+#: .\home\templates\home\activity.html:93
+#: .\home\templates\home\activity.html:94
 msgid "Mark as read"
 msgstr "Oznacz jako przeczytane"
 
-#: .\home\templates\home\activity.html:76
 #: .\home\templates\home\activity.html:78
-#: .\home\templates\home\activity.html:79
+#: .\home\templates\home\activity.html:80
+#: .\home\templates\home\activity.html:81
 msgid "Add bookmark"
 msgstr "Dodaj zakładkę"
 
-#: .\home\templates\home\activity.html:77
-#: .\home\templates\home\activity.html:78
 #: .\home\templates\home\activity.html:79
+#: .\home\templates\home\activity.html:80
+#: .\home\templates\home\activity.html:81
 msgid "Remove bookmark"
 msgstr "Usuń zakładkę"
 
-#: .\home\templates\home\activity.html:107
+#: .\home\templates\home\activity.html:109
 msgid "No activity"
 msgstr "Brak aktywności"
 
@@ -3879,7 +3885,7 @@ msgstr "Członkostwo"
 msgid "Finanse"
 msgstr "Finanse"
 
-#: .\home\test_activity.py:60 .\home\test_feed.py:93 .\tasks\feed.py:49
+#: .\home\test_activity.py:153 .\home\test_feed.py:93 .\tasks\feed.py:49
 msgid "Wants to help"
 msgstr "Chce pomóc"
 
@@ -3894,47 +3900,47 @@ msgstr "Oczekujące"
 msgid "In progress"
 msgstr "W realizacji"
 
-#: .\home\views.py:302
+#: .\home\views.py:307
 msgid "Your password has been changed."
 msgstr "Twoje hasło zostało zmienione."
 
-#: .\home\views.py:305
+#: .\home\views.py:310
 msgid "You typed something wrong. See what error appeared above and try again."
 msgstr "Coś źle wpisałeś. Zobacz, jaki błąd pojawił się powyżej i spróbuj ponownie."
 
-#: .\home\views.py:412
+#: .\home\views.py:417
 msgid "Could not connect to a valid Wikikracja instance."
 msgstr "Nie można połączyć się z prawidłową instancją Wikikracji."
 
-#: .\home\views.py:415
+#: .\home\views.py:420
 msgid "Other group added."
 msgstr "Dodano inną grupę."
 
-#: .\home\views.py:422
+#: .\home\views.py:427
 msgid "Other group archived."
 msgstr "Zarchiwizowano inną grupę."
 
-#: .\home\views.py:424
+#: .\home\views.py:429
 msgid "Invalid instance address."
 msgstr "Nieprawidłowy adres instancji."
 
-#: .\home\views.py:430 .\home\views.py:444
+#: .\home\views.py:435 .\home\views.py:449
 msgid "Enter a valid title and URL."
 msgstr "Wprowadź prawidłowy tytuł i adres URL."
 
-#: .\home\views.py:436
+#: .\home\views.py:441
 msgid "Link added."
 msgstr "Link dodany."
 
-#: .\home\views.py:448
+#: .\home\views.py:453
 msgid "Link updated."
 msgstr "Link zaktualizowany."
 
-#: .\home\views.py:450 .\home\views.py:476
+#: .\home\views.py:455 .\home\views.py:481
 msgid "Link doesn't exist."
 msgstr "Link nie istnieje."
 
-#: .\home\views.py:474
+#: .\home\views.py:479
 msgid "Link deleted."
 msgstr "Link usunięty."
 

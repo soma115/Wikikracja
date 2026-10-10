@@ -18,7 +18,6 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
         room_context = {
             'content_type': 'room_messages',
             'title': room.clean_title(),
-            'url': f"/chat/#room_id={room.id}",
             'room_id': room.id,
             '_is_public': room.public,
             '_is_direct_message': room.is_direct_message and len(allowed_users) == 2,
@@ -30,7 +29,16 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
             # Skip system messages that have no explicit author and are not anonymous.
             if msg.sender is None and not msg.anonymous:
                 continue
-            items.append({**room_context, 'description': plain_text(msg.text), 'author': None if msg.anonymous else msg.sender, 'timestamp': msg.time, 'object_id': msg.id})
+            items.append(
+                {
+                    **room_context,
+                    'url': f"/chat/#room_id={room.id}&message_id={msg.id}",
+                    'description': plain_text(msg.text),
+                    'author': None if msg.anonymous else msg.sender,
+                    'timestamp': msg.time,
+                    'object_id': msg.id,
+                }
+            )
     return items
 
 

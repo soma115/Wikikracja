@@ -255,9 +255,12 @@ def test_activity_shows_each_chat_message_as_separate_item(client, activity_user
 
     response = client.get(reverse('activity'))
     content = response.content.decode()
+    chat_items = [item for item in response.context['feed_items'] if item['content_type'] == 'room_messages' and item['room_id'] == room.id]
 
+    assert {item['object_id']: item['url'] for item in chat_items} == {message.id: f'/chat/#room_id={room.id}&message_id={message.id}' for message in messages}
     assert content.count('data-content-type="room_messages"') == 9
     assert all(f'data-object-id="{message.id}"' in content for message in messages)
+    assert all(f'data-url="/chat/#room_id={room.id}&amp;message_id={message.id}"' in content for message in messages)
     assert room.title in content
     assert f'Messages in {room.title}' not in content
     assert f'- <strong>{other.username}:' not in content

@@ -49,13 +49,14 @@ class ChatCommandHandlersTest(SimpleTestCase):
         room = SimpleNamespace(id=3, group_name='room-3', title='Room', public=True, source_app='', source_url='/board/view/3/')
         self.repo.get_room_or_error.return_value = room
         with patch('chat.command_handlers.build_message_payloads', return_value=[{'message_id': 1}]) as build:
-            result = await self.handlers.join(room.id)
+            result = await self.handlers.dispatch('join', {'room_id': room.id, 'message_id': 44})
 
         self.assertEqual(result.responses[0]['join'], '3')
         self.assertEqual(result.responses[0]['source_url'], '/board/view/3/')
         self.assertEqual(result.responses[1], {'messages': [{'message_id': 1}]})
         self.channel_layer.group_add.assert_awaited_once_with('room-3', 'channel-1')
         self.reset_room_push_state.assert_called_once_with(self.user.id, room.id)
+        self.repo.get_recent_messages_batch.assert_awaited_once_with(room.id, self.user.id, limit=100, target_message_id=44, include_voters=False)
         build.assert_called_once()
 
     async def test_join_marks_restricted_task_room_with_source_app(self):

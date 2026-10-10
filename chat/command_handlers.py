@@ -32,7 +32,7 @@ class CommandSpec:
 
 
 COMMAND_SPECS = {
-    'join': CommandSpec('join', ('room_id',)),
+    'join': CommandSpec('join', ('room_id',), ('message_id',)),
     'fetch-messages': CommandSpec('fetch_messages', ('room_id',), ('sort_by', 'order', 'popular_only')),
     'send': CommandSpec('send', ('room_id', 'message', 'is_anonymous', 'attachments'), ('reply_to_id', 'temp_id')),
     'room-seen': CommandSpec('mark_room_seen', ('room_id',)),
@@ -88,7 +88,9 @@ class ChatCommandHandlers:
         kwargs.update({name: content[name] for name in spec.optional if content.get(name) is not None})
         return await getattr(self, spec.handler_name)(**kwargs)
 
-    async def join(self, room_id):
+    async def join(self, room_id, message_id=None):
+        if isinstance(message_id, bool) or not isinstance(message_id, int) or message_id < 1:
+            message_id = None
         room = await self.room_repo.get_room_or_error(room_id)
         await self._clear_room_notification_state(room.id)
         for joined_room_id in self.consumer.rooms.items():
@@ -112,7 +114,7 @@ class ChatCommandHandlers:
                 'source_url': getattr(room, 'source_url', None),
             }
         ]
-        batch = await self.consumer.repo.get_recent_messages_batch(room_id, self.consumer.scope['user'].id, limit=100, include_voters=room.source_app == 'tasks')
+        batch = await self.consumer.repo.get_recent_messages_batch(room_id, self.consumer.scope['user'].id, limit=100, target_message_id=message_id, include_voters=room.source_app == 'tasks')
         messages = build_message_payloads(batch, self.consumer.scope['user'])
         if messages:
             responses.append({'messages': messages})

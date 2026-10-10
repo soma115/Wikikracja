@@ -391,7 +391,7 @@ function applyChatRoute(route, { initial = false, preserveCategory = false } = {
             hideRoomPlaceholder();
             renderChatView(); // już dołączony — tylko pokaż panel pokoju
         } else {
-            void onRoomTryJoin(route.roomId, { preserveCategory: initial && preserveCategory });
+            void onRoomTryJoin(route.roomId, { preserveCategory: initial && preserveCategory, targetMessageId: route.messageId });
         }
         return;
     }
@@ -964,7 +964,7 @@ function deriveBreadcrumb(room_id) {
  * @param {boolean} [options.preserveView] - reconnect: dołącz bez zmiany panelu
  * @param {boolean} [options.preserveCategory] - nie zmieniaj stanu kategorii przy odtwarzaniu pokoju
  */
-export async function onRoomTryJoin(room_id, { preserveView = false, preserveCategory = false } = {}) {
+export async function onRoomTryJoin(room_id, { preserveView = false, preserveCategory = false, targetMessageId = null } = {}) {
     room_id = parseInt(room_id);
     if (room_id === CurrentRoomId) {
         // Już dołączony — upewnij się tylko, że panel pokoju jest widoczny.
@@ -992,7 +992,7 @@ export async function onRoomTryJoin(room_id, { preserveView = false, preserveCat
     RoomLock.lock();
     let response;
     try {
-        response = await WS_API.joinRoom(room_id);
+        response = await WS_API.joinRoom(room_id, targetMessageId ?? ScrollToMessageId);
     } catch (error) {
         RoomLock.unlock();
         if (showConnectingSpinner) joiningRoomLink?.classList.remove("tw-room-link--connecting");
@@ -1109,8 +1109,9 @@ export async function onReceiveMessages(messages) {
 
     const msgdiv = DOM_API.getMessagesDiv();
     DOM_API.removeNoMessagesBanner();
+    const realtimeMessage = isRealtimeMessage(messages);
 
-    if (isRealtimeMessage(messages)) {
+    if (realtimeMessage) {
         // Single real-time message — normal path
         const message = messages[0];
 
@@ -1188,13 +1189,11 @@ export async function onReceiveMessages(messages) {
         requestAnimationFrame(() => DOM_API.markOverflow(msgdiv));
     }
 
-    let shouldStickToBottom = !ScrollToMessageId;
-    if (ScrollToMessageId) {
+    let shouldStickToBottom = true;
+    if (!realtimeMessage && ScrollToMessageId) {
         const didScroll = DOM_API.scrollToMessage(ScrollToMessageId);
-        if (didScroll) {
-            shouldStickToBottom = false;
-            ScrollToMessageId = null;
-        }
+        shouldStickToBottom = !didScroll;
+        ScrollToMessageId = null;
     }
     if (shouldStickToBottom && msgdiv) msgdiv.scrollTop = msgdiv.scrollHeight;
 }

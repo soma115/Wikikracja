@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+from datetime import timedelta
 from pathlib import Path
 from textwrap import dedent
 from types import SimpleNamespace
@@ -12,6 +13,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from django.utils import timezone
 from firebase_admin import messaging as firebase_messaging
 from push_notifications.models import GCMDevice
 
@@ -609,6 +611,44 @@ class VoteNotificationPayloadTest(TestCase):
                 signal.send(sender=type(self), title='Vote title', body='Vote body', click_action='https://example.com/vote/1', tag='vote-1', vote_id=1)
 
                 deliver.assert_not_called()
+
+
+class TargetMessageBatchTest(TestCase):
+    def setUp(self):
+        self.user = make_user('target-message-user')
+        self.room = Room.objects.create(title='Target message batch')
+        self.messages = [Message(room=self.room, sender=self.user, text=f'Target batch message {index}') for index in range(40)]
+        Message.objects.bulk_create(self.messages)
+        start = timezone.now() - timedelta(minutes=1)
+        for index, message in enumerate(self.messages):
+            message.time = start + timedelta(seconds=index)
+        Message.objects.bulk_update(self.messages, ['time'])
+        self.repo = ChatRepository(self.user)
+
+    async def test_target_message_is_centered_in_chronological_batch(self):
+        target = self.messages[20]
+
+        batch = await self.repo.get_recent_messages_batch(self.room.id, self.user.id, limit=20, target_message_id=target.id)
+        short_room_batch = await self.repo.get_recent_messages_batch(self.room.id, self.user.id, limit=100, target_message_id=target.id)
+
+        self.assertEqual([item['message_id'] for item in batch['messages']], [message.id for message in self.messages[10:30]])
+        self.assertEqual([item['message_id'] for item in short_room_batch['messages']], [message.id for message in self.messages])
+
+    async def test_target_near_room_edges_fills_batch_from_available_side(self):
+        first = await self.repo.get_recent_messages_batch(self.room.id, self.user.id, limit=20, target_message_id=self.messages[0].id)
+        last = await self.repo.get_recent_messages_batch(self.room.id, self.user.id, limit=20, target_message_id=self.messages[-1].id)
+
+        self.assertEqual([item['message_id'] for item in first['messages']], [message.id for message in self.messages[:20]])
+        self.assertEqual([item['message_id'] for item in last['messages']], [message.id for message in self.messages[-20:]])
+
+    async def test_missing_or_foreign_target_falls_back_to_recent_room_messages(self):
+        other_room = await database_sync_to_async(Room.objects.create)(title='Other target room')
+        foreign_message = await database_sync_to_async(Message.objects.create)(room=other_room, sender=self.user, text='Foreign target')
+
+        for target_id in (foreign_message.id, 999999):
+            with self.subTest(target_id=target_id):
+                batch = await self.repo.get_recent_messages_batch(self.room.id, self.user.id, limit=20, target_message_id=target_id)
+                self.assertEqual([item['message_id'] for item in batch['messages']], [message.id for message in self.messages[-20:]])
 
 
 class TaskRoomVoterNamesTest(TestCase):

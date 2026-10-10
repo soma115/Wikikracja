@@ -113,11 +113,10 @@ export default class WsApi {
      * @param {number} room_id - ID of the room to join
      * @returns {Promise<Object>} - Room data from server
      */
-    async joinRoom(room_id) {
-        return await this.sendJsonAsync({
-            command: "join",
-            room_id: room_id
-        });
+    async joinRoom(room_id, message_id = null) {
+        const payload = { command: "join", room_id: room_id };
+        if (Number.isInteger(message_id) && message_id > 0) payload.message_id = message_id;
+        return await this.sendJsonAsync(payload);
     }
 
     /**
