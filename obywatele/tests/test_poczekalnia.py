@@ -1,7 +1,8 @@
 """Testy widoku poczekalnia i liczenia ocen kandydatów."""
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from obywatele.models import Rate, Uzytkownik
@@ -76,3 +77,28 @@ class CandidateEditRenderTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'obywatele/candidate_edit.html')
+
+    def test_candidate_edit_requires_login(self):
+        client = Client()
+        url = reverse('obywatele:candidate_edit', kwargs={'pk': self.candidate_user.pk})
+
+        self.assertEqual(client.get(url).status_code, 302)
+        self.assertEqual(client.post(url, {}).status_code, 302)
+        self.candidate_user.refresh_from_db()
+        self.assertEqual(self.candidate_user.first_name, '')
+
+    def test_candidate_edit_rerenders_invalid_form(self):
+        response = self.client.post(reverse('obywatele:candidate_edit', kwargs={'pk': self.candidate_user.pk}), {'first_name': '', 'last_name': '', 'city': ''})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].errors)
+
+    def test_candidate_edit_ignores_unsupported_avatar_upload(self):
+        response = self.client.post(
+            reverse('obywatele:candidate_edit', kwargs={'pk': self.candidate_user.pk}),
+            {'first_name': 'Candidate', 'last_name': 'Profile', 'city': 'Warsaw', 'avatar': SimpleUploadedFile('avatar.txt', b'not an image', content_type='text/plain')},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.candidate_user.uzytkownik.refresh_from_db()
+        self.assertFalse(self.candidate_user.uzytkownik.avatar)

@@ -45,7 +45,7 @@ Potwierdzone wyjątki: Transaction — autor; argument głosowania — właścic
 ## 4. Integralność i semantyka zapisu
 
 1. [ ] **Edycja propozycji:** rozważyć objęcie utworzenia `DecyzjaWersja` i zmiany `Decyzja` jedną transakcją. To dotyka audytowanej logiki głosowań i wymaga osobnej decyzji przed implementacją.
-2. [ ] **Edycja parametrów:** potwierdzić atomowość zapisu snapshotu, parametrów i pliku oraz semantykę zastąpienia/usunięcia wcześniej proponowanego logo.
+2. [x] **Edycja parametrów:** snapshot i aktualizacja decyzji zapisują się w jednej transakcji. Snapshot obejmuje poprzednie `proposed_parameters` i kopię logo; brak nowego pliku zachowuje logo, jawna akcja usuwa je z referendum, a poprzedni plik jest usuwany dopiero po sukcesie. Pliki utworzone podczas nieudanej edycji są sprzątane. Wersje sprzed tej migracji mają te dwa nowe pola puste, bo dawnych wartości nie da się odtworzyć.
 3. [x] **Ankiety:** efekt usunięcia opcji i powiązanych głosów jest komunikowany w formularzu; zapis opcji odbywa się w transakcji. Pozostaje utrzymanie testów tego zachowania.
 4. [x] **Quick linki:** usunięto nieużywane pole `edit_link_id`, a backend rozpoznaje jeden kontrakt pola akcji. URL-e są ograniczone do ścieżek względnych i `http(s)`.
 5. [x] Parametr `next` w istniejących przepływach edycji pozostaje chroniony przez `url_has_allowed_host_and_scheme`; nie należy wprowadzać prostego `redirect(request.GET['next'])`.
@@ -54,17 +54,17 @@ Potwierdzone wyjątki: Transaction — autor; argument głosowania — właścic
 ## 5. Obsługa błędów i dane formularzy
 
 1. [x] `change_email`, `change_username` i `my_assets` po błędzie ponownie renderują formularz z danymi i błędami; potwierdzają to testy formularzy.
-2. [x] `upload_avatar` jawnie obsługuje niepoprawny plik i przekazuje komunikat walidacji; osobny test limitu rozmiaru pozostaje do dodania (sekcja 6).
-3. [ ] Zweryfikować zachowanie `FILES` oraz błędów w Board, profilu kandydata i propozycji parametrów.
+2. [x] `upload_avatar` stosuje serwerowo wspólny limit `UPLOAD_IMAGE_MAX_SIZE_MB`; testy potwierdzają komunikat błędu i brak zapisu pliku przekraczającego limit.
+3. [x] Zachowanie `FILES` i błędów zweryfikowano: Board zapisuje załączniki i odrzuca za duże pliki, profil kandydata nie obsługuje uploadu avatara i ponownie renderuje błędny formularz, a propozycja parametrów zapisuje poprawne logo i pokazuje błędy niepoprawnego uploadu.
 4. [ ] Ujednolicić komunikaty sukcesu i błędu bez zmieniania istniejących kontraktów tłumaczeń bez planu migracji.
 
 ## 6. Testy regresji
 
 1. [x] Board ma test bezpośredniego wejścia na URL przez użytkownika niebędącego autorem.
-2. [ ] Uzupełnić testy ustalonej reguły dostępu dla Event, Asset, Category, Partner i kandydata.
-3. [ ] Uzupełnić testy dostępu `PostCategoryEditAPI` i `TaskCategoryEditAPI` (wspólna baza `CategoryEditAPI`). Istnieją już testy poprawnego i błędnego POST oraz CSRF dla obu implementacji; brakuje testu żądania anonimowego. Każdy zalogowany użytkownik jest dozwolony — nie ma osobnej roli do sprawdzania.
+2. [x] Testy dostępu obejmują anonimowy GET i POST dla Event, Asset, Category, Partner i `candidate_edit`; istnieją również testy zalogowanego dostępu zgodnego z ustaloną regułą.
+3. [x] Testy dostępu `PostCategoryEditAPI` i `TaskCategoryEditAPI` (wspólna baza `CategoryEditAPI`) obejmują anonimowy POST, poprawny i błędny POST oraz CSRF. Każdy zalogowany użytkownik jest dozwolony — nie ma osobnej roli do sprawdzania.
 4. [x] Testy formularzy profilu sprawdzają zachowanie danych i błędów po nieudanym zapisie.
-5. [x] Test niepoprawnego avatara istnieje; [ ] dodać test przekroczenia limitu pliku.
+5. [x] Testy avatara obejmują niepoprawny format i odrzucenie pliku przekraczającego wspólny limit.
 6. [x] Quick linki mają focused testy dodawania poprawnych URL-i i odrzucania niebezpiecznego schematu.
 7. [ ] Dodać testy quick linków dla edycji, nieistniejącego ID i kolejności.
 8. [ ] Dodać test atomowości historii propozycji, jeżeli decyzja z sekcji 4.1 potwierdzi potrzebę tej zmiany.
@@ -73,7 +73,7 @@ Potwierdzone wyjątki: Transaction — autor; argument głosowania — właścic
 
 ### Następny krok
 
-Najpierw dodać test żądania anonimowego dla `PostCategoryEditAPI` i `TaskCategoryEditAPI` (punkt 3 powyżej). Pozostałe kluczowe ścieżki obu API są już pokryte testami poprawnego/błędnego POST i CSRF. Następnie uzupełnić testy dostępu dla Event, Asset, Category, Partner i kandydata; na końcu dodać test limitu rozmiaru avatara i domknąć pozostałe przypadki `FILES`.
+Uzgodnione i wdrożone zachowanie edycji parametrów opisuje punkt 4.2. Następnie osobno rozstrzygnąć, czy zwykła edycja propozycji ma atomowo obejmować `DecyzjaWersja` i `Decyzja` (punkt 4.1); to odrębny fragment logiki głosowań i wymaga własnej decyzji przed zmianą.
 
 ## 7. Kryterium zamknięcia audytu logicznego
 
@@ -93,3 +93,4 @@ Najpierw dodać test żądania anonimowego dla `PostCategoryEditAPI` i `TaskCate
 - Ankiety, Board, Event, Asset, Category i Partner pozostają dostępne do edycji każdemu zalogowanemu użytkownikowi.
 - `PostCategoryEditAPI` i `TaskCategoryEditAPI` pozostają dostępne każdemu zalogowanemu użytkownikowi.
 - `candidate_edit` pozostaje dostępne każdemu zalogowanemu użytkownikowi.
+- Przy edycji propozycji parametrów brak nowego logo zachowuje obecne; jawne usunięcie wycofuje logo z referendum, ale nie zmienia bieżącego logo witryny. Historia przechowuje kopię poprzedniego pliku, a jego oryginał jest usuwany po zatwierdzeniu zapisu.

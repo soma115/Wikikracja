@@ -124,6 +124,17 @@ def test_category_list_and_edit_api_support_valid_and_invalid_posts(authenticate
 
 
 @pytest.mark.django_db
+def test_category_edit_api_requires_login(client):
+    category = PostCategoryFactory(name='Private')
+
+    response = client.post(reverse('board:api_category_edit', args=[category.pk]), {'name': 'Changed', 'description': ''})
+
+    assert response.status_code == 302
+    category.refresh_from_db()
+    assert category.name == 'Private'
+
+
+@pytest.mark.django_db
 def test_category_edit_api_requires_csrf_when_checks_are_enabled(authenticated_client):
     client, user = authenticated_client
     from board.models import PostCategory

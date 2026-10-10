@@ -696,6 +696,13 @@ class CategoryAPITest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(any(item["id"] == self.cat.pk for item in response.json()["categories"]))
 
+    def test_edit_category_requires_login(self):
+        response = self.client.post(reverse("tasks:api_category_edit", kwargs={"pk": self.cat.pk}), {"name": "Updated", "description": ""})
+
+        self.assertEqual(response.status_code, 302)
+        self.cat.refresh_from_db()
+        self.assertEqual(self.cat.name, "Test")
+
     def test_edit_category_requires_csrf_when_checks_are_enabled(self):
         from django.test import Client
 

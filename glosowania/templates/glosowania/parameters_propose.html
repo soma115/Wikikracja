@@ -43,6 +43,9 @@
         </div>
       {% endif %}
       {{ form.brand_mark|as_crispy_field }}
+      {% if decyzja.proposed_brand_mark %}
+        {{ form.remove_brand_mark|as_crispy_field }}
+      {% endif %}
     </fieldset>
 
     <div class="tw-mb-3">

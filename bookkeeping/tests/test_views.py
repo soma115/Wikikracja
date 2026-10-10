@@ -52,6 +52,17 @@ class BookkeepingViewTests(TestCase):
         for url_name in LIST_URL_NAMES:
             self.assertEqual(client.get(reverse(url_name)).status_code, 302, url_name)
 
+    def test_shared_edit_views_require_login(self):
+        anonymous_client = Client()
+        cases = (('bookkeeping:asset_update', self.asset), ('bookkeeping:category_update', self.category), ('bookkeeping:partner_update', self.partner))
+
+        for url_name, instance in cases:
+            url = reverse(url_name, args=[instance.pk])
+            with self.subTest(url_name=url_name, method='GET'):
+                self.assertEqual(anonymous_client.get(url).status_code, 302)
+            with self.subTest(url_name=url_name, method='POST'):
+                self.assertEqual(anonymous_client.post(url, {}).status_code, 302)
+
     def test_asset_create_and_update(self):
         res = self.client.post(reverse('bookkeeping:asset_create'), {'code': 'PLN2', 'name': 'Złoty', 'symbol': 'zł', 'decimal_places': 2})
         self.assertEqual(res.status_code, 302)

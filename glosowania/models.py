@@ -154,6 +154,8 @@ class DecyzjaWersja(models.Model):
     kara = models.TextField(max_length=500, null=True, blank=True)
     uzasadnienie = models.TextField(max_length=4000, null=True)
     znosi = models.CharField(max_length=50, null=True, blank=True)
+    proposed_parameters = models.JSONField(null=True, blank=True, editable=False, verbose_name=_('Proposed system parameters'))
+    proposed_brand_mark = models.ImageField(upload_to='site_branding/proposed/versions/', null=True, blank=True, editable=False, verbose_name=_('Proposed logo'))
 
     class Meta:
         ordering = ['version_number']

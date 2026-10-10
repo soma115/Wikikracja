@@ -214,8 +214,9 @@ def test_board_list_chat_pulse_for_unread_message(authenticated_client):
 
 
 @pytest.mark.django_db
-def test_create_post_saves_author_and_multiple_attachments(authenticated_client):
+def test_create_post_saves_author_and_multiple_attachments(authenticated_client, settings, tmp_path):
     """POST create tworzy dokument z autorem i zapisuje wiele załączników."""
+    settings.MEDIA_ROOT = tmp_path
     client, user = authenticated_client
     uploads = [SimpleUploadedFile('notatka.txt', b'zawartosc'), SimpleUploadedFile('plan.pdf', b'plan')]
 
@@ -307,8 +308,9 @@ def test_create_archived_post_redirects_to_visible_detail(authenticated_client):
 
 
 @pytest.mark.django_db
-def test_edit_post_updates_fields_and_adds_attachments(authenticated_client):
+def test_edit_post_updates_fields_and_adds_attachments(authenticated_client, settings, tmp_path):
     """POST edit aktualizuje pola i dopisuje nowe załączniki do istniejącego dokumentu."""
+    settings.MEDIA_ROOT = tmp_path
     client, user = authenticated_client
     post = PostFactory(title='Stary tytuł', author=user)
     upload = SimpleUploadedFile('zalacznik.txt', b'x')
@@ -366,6 +368,7 @@ def test_invalid_attachment_uses_tw_error_class(authenticated_client):
     content = response.content.decode()
     assert 'is-invalid' not in content
     assert 'tw-invalid-feedback' in content
+    assert not post.attachments.exists()
 
 
 @pytest.mark.django_db

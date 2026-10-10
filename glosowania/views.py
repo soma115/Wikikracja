@@ -13,6 +13,7 @@ import redis
 from django.conf import settings as s
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.files import File
 from django.db import IntegrityError, OperationalError, transaction
 from django.db.models import F, Q
 from django.http import HttpRequest
@@ -50,6 +51,13 @@ def _safe_send_vote_state_changed(request: HttpRequest, **kwargs):
         vote_id = kwargs.get('vote_id')
         decision_id = getattr(decyzja, 'id', vote_id)
         log.exception('vote_state_changed failed in %s for decision %s', kwargs.get('sender'), decision_id)
+
+
+def _delete_stored_file(storage, name):
+    try:
+        storage.delete(name)
+    except Exception:
+        log.exception('Failed to delete parameter proposal file %s', name)
 
 
 @login_required
@@ -653,37 +661,61 @@ def parameters_propose(request: HttpRequest, pk: int = None):
         if form.is_valid():
             changes = form.changed_parameters()
             new_logo = form.cleaned_data.get('brand_mark')
+            removes_logo = bool(form.cleaned_data.get('remove_brand_mark'))
+            old_logo = decyzja.proposed_brand_mark if decyzja and decyzja.proposed_brand_mark else None
+            old_logo_name = old_logo.name if old_logo else None
+            stored_files = []
 
             # Build a human readable change list used as the referendum body.
             # NOTE: the |richtext filter only keeps b/i/u/br/a tags, so we use <br>/<b>.
             rows = describe_changes(changes)
             lines = [f'{html.escape(str(label))}: <b>{html.escape(str(old))}</b> → <b>{html.escape(str(new))}</b>' for label, old, new in rows]
-            keeps_logo = bool(decyzja and decyzja.proposed_brand_mark)
-            if new_logo or keeps_logo:
+            if removes_logo and old_logo:
+                lines.append(html.escape(str(_('Proposed logo removed from this referendum'))))
+            elif new_logo or old_logo:
                 lines.append(f'{html.escape(str(_("Logo")))}: <b>{html.escape(str(_("new logo")))}</b>')
             tresc = str(_('Proposed change of system parameters:')) + '<br>' + '<br>'.join(lines)
 
-            if decyzja is None:
-                decyzja = Decyzja(author=request.user, title=str(_('System parameters change')), data_powstania=timezone.localdate(), status=Decyzja.Status.PROPOSITION, path=str(_('Proposition')))
-            else:
-                # Snapshot the current version before overwriting.
-                DecyzjaWersja.objects.create(
-                    decyzja=decyzja,
-                    modified_by=request.user,
-                    version_number=decyzja.wersje.count() + 1,
-                    title=decyzja.title,
-                    tresc=decyzja.tresc,
-                    kara=decyzja.kara,
-                    uzasadnienie=decyzja.uzasadnienie,
-                    znosi=decyzja.znosi,
-                )
+            try:
+                with transaction.atomic():
+                    if decyzja is None:
+                        decyzja = Decyzja(author=request.user, title=str(_('System parameters change')), data_powstania=timezone.localdate(), status=Decyzja.Status.PROPOSITION, path=str(_('Proposition')))
+                    else:
+                        # Snapshot the current version before overwriting.
+                        version = DecyzjaWersja.objects.create(
+                            decyzja=decyzja,
+                            modified_by=request.user,
+                            version_number=decyzja.wersje.count() + 1,
+                            title=decyzja.title,
+                            tresc=decyzja.tresc,
+                            kara=decyzja.kara,
+                            uzasadnienie=decyzja.uzasadnienie,
+                            znosi=decyzja.znosi,
+                            proposed_parameters=decyzja.proposed_parameters,
+                        )
+                        if old_logo:
+                            with old_logo.open('rb') as source:
+                                version.proposed_brand_mark.save(old_logo_name.rsplit('/', 1)[-1], File(source), save=False)
+                            stored_files.append((version.proposed_brand_mark.storage, version.proposed_brand_mark.name))
+                            version.save(update_fields=['proposed_brand_mark'])
 
-            decyzja.tresc = tresc
-            decyzja.uzasadnienie = form.cleaned_data['uzasadnienie']
-            decyzja.proposed_parameters = changes
-            if new_logo:
-                decyzja.proposed_brand_mark = new_logo
-            decyzja.save()
+                    decyzja.tresc = tresc
+                    decyzja.uzasadnienie = form.cleaned_data['uzasadnienie']
+                    decyzja.proposed_parameters = changes
+                    if new_logo:
+                        decyzja.proposed_brand_mark.save(new_logo.name.rsplit('/', 1)[-1], new_logo, save=False)
+                        stored_files.append((decyzja.proposed_brand_mark.storage, decyzja.proposed_brand_mark.name))
+                    elif removes_logo:
+                        decyzja.proposed_brand_mark = None
+                    decyzja.save()
+            except Exception:
+                for storage, name in stored_files:
+                    _delete_stored_file(storage, name)
+                raise
+
+            new_logo_name = decyzja.proposed_brand_mark.name if decyzja.proposed_brand_mark else None
+            if old_logo and old_logo_name != new_logo_name:
+                transaction.on_commit(lambda: _delete_stored_file(old_logo.storage, old_logo_name))
 
             if pk is None:
                 log.info(f'New parameters referendum {decyzja.id} added by {request.user} changes={changes}')

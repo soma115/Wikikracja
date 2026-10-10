@@ -4,6 +4,7 @@ Testy widoku set_user_language: wybór języka musi działać dla NIEzalogowanyc
 `django_language`, a dla zalogowanych dodatkowo zapisywać się do profilu.
 """
 
+import io
 import json
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
@@ -21,6 +22,7 @@ from django.urls import reverse
 from django.utils import timezone as django_timezone
 from django.utils.translation import gettext as _
 from django.utils.translation import override, pgettext
+from PIL import Image
 
 from chat.models import Message, MessageReadBy, Room
 from chat.services import get_user_public_message_rows
@@ -769,6 +771,22 @@ class ProfileFormErrorViewTest(TestCase):
         response = self.client.post(reverse('obywatele:upload_avatar'), {'avatar': SimpleUploadedFile('avatar.txt', b'not an image', content_type='text/plain')})
 
         self.assertRedirects(response, reverse('obywatele:my_profile'))
+        self.assertFalse(self.user.uzytkownik.avatar)
+
+    @override_settings(UPLOAD_IMAGE_MAX_SIZE_MB=1)
+    def test_upload_avatar_rejects_file_over_shared_image_limit(self):
+        image = Image.effect_noise((1200, 1200), 100).convert('RGB')
+        output = io.BytesIO()
+        image.save(output, format='PNG')
+        avatar = SimpleUploadedFile('large.png', output.getvalue(), content_type='image/png')
+
+        self.assertGreater(avatar.size, 1_000_000)
+        response = self.client.post(reverse('obywatele:upload_avatar'), {'avatar': avatar}, follow=True)
+
+        with override('pl'):
+            expected_message = _('Image is too large (max %(max_size)s MB).') % {'max_size': 1}
+        self.assertContains(response, expected_message)
+        self.user.uzytkownik.refresh_from_db()
         self.assertFalse(self.user.uzytkownik.avatar)
 
 

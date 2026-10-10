@@ -44,6 +44,7 @@ class ParametersProposalForm(forms.Form):
         widget=forms.ClearableFileInput(attrs={'accept': 'image/png'}),
         validators=[validate_branding_image_size, validate_brand_mark_dimensions, validate_brand_mark_format],
     )
+    remove_brand_mark = forms.BooleanField(required=False, label=_('Remove the proposed logo'), help_text=_('This only removes the logo from this referendum; it does not change the current site logo.'))
 
     def __init__(self, *args, **kwargs):
         # Optional existing parameter referendum being edited. When provided,
@@ -103,6 +104,9 @@ class ParametersProposalForm(forms.Form):
 
     def clean(self):
         cleaned = super().clean()
-        if not self.errors and not self.changed_parameters() and not cleaned.get('brand_mark'):
+        if cleaned.get('brand_mark') and cleaned.get('remove_brand_mark'):
+            self.add_error('remove_brand_mark', _('Upload a replacement logo or remove the current one, not both.'))
+        removes_existing_logo = bool(self.decyzja and self.decyzja.proposed_brand_mark and cleaned.get('remove_brand_mark'))
+        if not self.errors and not self.changed_parameters() and not cleaned.get('brand_mark') and not removes_existing_logo:
             raise forms.ValidationError(_('You did not change any parameter.'))
         return cleaned

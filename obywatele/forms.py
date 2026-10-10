@@ -9,6 +9,7 @@ from allauth.account.forms import SignupForm
 from allauth.account.models import EmailAddress
 from captcha.fields import CaptchaField, CaptchaTextInput
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.db import IntegrityError
@@ -292,6 +293,13 @@ class AvatarForm(forms.ModelForm):
     class Meta:
         model = Uzytkownik
         fields = ('avatar',)
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get('avatar')
+        uploaded_avatar = self.files.get('avatar')
+        if uploaded_avatar and uploaded_avatar.size > settings.UPLOAD_IMAGE_MAX_SIZE_MB * 1_000_000:
+            raise forms.ValidationError(_('Image is too large (max %(max_size)s MB).'), code='file_too_large', params={'max_size': settings.UPLOAD_IMAGE_MAX_SIZE_MB})
+        return avatar
 
     def save(self, commit=True):
         instance = super().save(commit=False)

@@ -32,6 +32,33 @@ def _image_upload(name, image_format):
     return SimpleUploadedFile(name, output.getvalue(), content_type=f'image/{image_format.lower()}')
 
 
+def _parameters_proposal_data(form, reason):
+    data = {}
+    for name, field in form.fields.items():
+        value = field.initial
+        if isinstance(field, forms.BooleanField):
+            if value:
+                data[name] = 'on'
+        elif value is not None:
+            data[name] = str(value)
+    data['uzasadnienie'] = reason
+    return data
+
+
+def _edit_parameters_post_data(decision, **overrides):
+    form = ParametersProposalForm(decyzja=decision)
+    data = _parameters_proposal_data(form, 'Updated reason')
+    data['acceptance'] = '11'
+    data.update(overrides)
+    return data
+
+
+def _parameter_decision_with_logo(author):
+    decision = Decyzja.objects.create(title='Parameter proposal', tresc='Old parameters', uzasadnienie='Old reason', status=Decyzja.Status.PROPOSITION, author=author, proposed_parameters={'acceptance': 10})
+    decision.proposed_brand_mark.save('old.png', _image_upload('old.png', 'PNG'), save=True)
+    return decision
+
+
 @pytest.mark.django_db
 def test_parameters_proposal_accepts_only_png_logo():
     form = ParametersProposalForm()
@@ -199,27 +226,168 @@ def test_edit_proposal_invalid_post_rerenders_errors(sample_users):
 def test_edit_parameters_updates_fields_and_creates_version(sample_users):
     author = sample_users[0]
     decision = Decyzja.objects.create(title='Parameter proposal', tresc='Old parameters', uzasadnienie='Old reason', status=Decyzja.Status.PROPOSITION, author=author, proposed_parameters={'acceptance': 10})
-    form = ParametersProposalForm(decyzja=decision)
-    data = {}
-    for name, field in form.fields.items():
-        value = field.initial
-        if isinstance(field, forms.BooleanField):
-            if value:
-                data[name] = 'on'
-        elif value is not None:
-            data[name] = str(value)
-    data['uzasadnienie'] = 'Updated reason'
-    data['acceptance'] = '11'
-
     client = Client()
     client.force_login(author)
-    response = client.post(f'/glosowania/parameters/propose/{decision.pk}/', data)
+    response = client.post(f'/glosowania/parameters/propose/{decision.pk}/', _edit_parameters_post_data(decision))
 
     assert response.status_code == 302
     assert response.url == '/glosowania/proposition/'
     decision.refresh_from_db()
     assert decision.proposed_parameters['acceptance'] == 11
     assert DecyzjaWersja.objects.filter(decyzja=decision, version_number=1).exists()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_edit_parameters_snapshots_values_and_preserves_logo_without_upload(sample_users, settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path
+    author = sample_users[0]
+    decision = _parameter_decision_with_logo(author)
+    original_logo_name = decision.proposed_brand_mark.name
+    client = Client()
+    client.force_login(author)
+
+    response = client.post(f'/glosowania/parameters/propose/{decision.pk}/', _edit_parameters_post_data(decision))
+
+    assert response.status_code == 302
+    decision.refresh_from_db()
+    version = DecyzjaWersja.objects.get(decyzja=decision, version_number=1)
+    assert version.proposed_parameters == {'acceptance': 10}
+    assert version.proposed_brand_mark
+    assert version.proposed_brand_mark.name != original_logo_name
+    assert version.proposed_brand_mark.storage.exists(version.proposed_brand_mark.name)
+    assert decision.proposed_parameters['acceptance'] == 11
+    assert decision.proposed_brand_mark.name == original_logo_name
+    assert decision.proposed_brand_mark.storage.exists(original_logo_name)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_edit_parameters_replaces_logo_and_keeps_old_file_in_version(sample_users, settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path
+    author = sample_users[0]
+    decision = _parameter_decision_with_logo(author)
+    original_logo_name = decision.proposed_brand_mark.name
+    data = _edit_parameters_post_data(decision, brand_mark=_image_upload('replacement.png', 'PNG'))
+    client = Client()
+    client.force_login(author)
+
+    response = client.post(f'/glosowania/parameters/propose/{decision.pk}/', data)
+
+    assert response.status_code == 302
+    decision.refresh_from_db()
+    version = DecyzjaWersja.objects.get(decyzja=decision, version_number=1)
+    assert version.proposed_brand_mark.storage.exists(version.proposed_brand_mark.name)
+    assert version.proposed_brand_mark.name != original_logo_name
+    assert decision.proposed_brand_mark
+    assert decision.proposed_brand_mark.name != original_logo_name
+    assert decision.proposed_brand_mark.storage.exists(decision.proposed_brand_mark.name)
+    assert not decision.proposed_brand_mark.storage.exists(original_logo_name)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_edit_parameters_removes_logo_and_keeps_old_file_in_version(sample_users, settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path
+    author = sample_users[0]
+    decision = _parameter_decision_with_logo(author)
+    original_logo_name = decision.proposed_brand_mark.name
+    client = Client()
+    client.force_login(author)
+    form_response = client.get(f'/glosowania/parameters/propose/{decision.pk}/')
+    assert form_response.status_code == 200
+    assert 'name="remove_brand_mark"' in form_response.content.decode()
+
+    response = client.post(f'/glosowania/parameters/propose/{decision.pk}/', _edit_parameters_post_data(decision, remove_brand_mark='on'))
+
+    assert response.status_code == 302
+    decision.refresh_from_db()
+    version = DecyzjaWersja.objects.get(decyzja=decision, version_number=1)
+    assert not decision.proposed_brand_mark
+    assert version.proposed_brand_mark.storage.exists(version.proposed_brand_mark.name)
+    assert version.proposed_brand_mark.name != original_logo_name
+    assert not version.proposed_brand_mark.storage.exists(original_logo_name)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_edit_parameters_rejects_upload_and_remove_together(sample_users, settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path
+    author = sample_users[0]
+    decision = _parameter_decision_with_logo(author)
+    original_logo_name = decision.proposed_brand_mark.name
+    data = _edit_parameters_post_data(decision, brand_mark=_image_upload('replacement.png', 'PNG'), remove_brand_mark='on')
+    client = Client()
+    client.force_login(author)
+
+    response = client.post(f'/glosowania/parameters/propose/{decision.pk}/', data)
+
+    assert response.status_code == 200
+    assert 'remove_brand_mark' in response.context['form'].errors
+    assert not DecyzjaWersja.objects.filter(decyzja=decision).exists()
+    decision.refresh_from_db()
+    assert decision.proposed_brand_mark.name == original_logo_name
+    assert decision.proposed_brand_mark.storage.exists(original_logo_name)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_edit_parameters_rolls_back_snapshot_and_uploaded_files_on_save_failure(sample_users, settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path
+    author = sample_users[0]
+    decision = _parameter_decision_with_logo(author)
+    original_logo_name = decision.proposed_brand_mark.name
+    data = _edit_parameters_post_data(decision, brand_mark=_image_upload('replacement.png', 'PNG'))
+    client = Client()
+    client.force_login(author)
+    original_save = Decyzja.save
+
+    def save_then_fail(instance, *args, **kwargs):
+        original_save(instance, *args, **kwargs)
+        raise RuntimeError('simulated persistence failure')
+
+    with patch.object(Decyzja, 'save', save_then_fail), pytest.raises(RuntimeError, match='simulated persistence failure'):
+        client.post(f'/glosowania/parameters/propose/{decision.pk}/', data)
+
+    decision.refresh_from_db()
+    assert decision.proposed_parameters == {'acceptance': 10}
+    assert decision.proposed_brand_mark.name == original_logo_name
+    assert decision.proposed_brand_mark.storage.exists(original_logo_name)
+    assert not DecyzjaWersja.objects.filter(decyzja=decision).exists()
+    stored_pngs = {path.relative_to(tmp_path).as_posix() for path in tmp_path.rglob('*.png')}
+    assert stored_pngs == {original_logo_name}
+
+
+@pytest.mark.django_db
+def test_parameters_propose_saves_uploaded_logo(sample_users, settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path
+    author = sample_users[0]
+    form = ParametersProposalForm()
+    data = _parameters_proposal_data(form, 'Upload a logo')
+    data['brand_mark'] = _image_upload('logo.png', 'PNG')
+    client = Client()
+    client.force_login(author)
+
+    with patch('glosowania.views._safe_send_vote_state_changed'):
+        response = client.post('/glosowania/parameters/propose/', data)
+
+    assert response.status_code == 302
+    assert response.url == '/glosowania/proposition/'
+    decision = Decyzja.objects.get(author=author)
+    assert decision.proposed_brand_mark
+    assert decision.proposed_brand_mark.storage.exists(decision.proposed_brand_mark.name)
+
+
+@pytest.mark.django_db
+def test_parameters_propose_rerenders_invalid_uploaded_logo(sample_users, settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path
+    author = sample_users[0]
+    form = ParametersProposalForm()
+    data = _parameters_proposal_data(form, 'Upload an invalid logo')
+    data['brand_mark'] = SimpleUploadedFile('logo.png', b'invalid image content', content_type='image/png')
+    client = Client()
+    client.force_login(author)
+
+    response = client.post('/glosowania/parameters/propose/', data)
+
+    assert response.status_code == 200
+    assert 'brand_mark' in response.context['form'].errors
+    assert not Decyzja.objects.filter(author=author).exists()
 
 
 @pytest.mark.django_db

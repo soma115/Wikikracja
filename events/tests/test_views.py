@@ -131,6 +131,14 @@ class EventViewTest(TestCase):
         self.assertEqual(start_date.date().isoformat(), '2030-08-17')
         self.assertEqual(start_date.time(), time(hour=12))
 
+    def test_event_edit_requires_login(self):
+        url = reverse('events:edit', args=[self.event.pk])
+
+        self.assertEqual(self.client.get(url).status_code, 302)
+        self.assertEqual(self.client.post(url, {}).status_code, 302)
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.title, 'Test Event')
+
     def test_event_form_uses_shared_edit_layout(self):
         self.client.force_login(self.user)
         response = self.client.get(reverse('events:edit', args=[self.event.pk]))
