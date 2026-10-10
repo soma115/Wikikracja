@@ -2,7 +2,7 @@
 
 ## Status
 
-Plan projektowy — **niezaimplementowany**. Nie wprowadzać w ramach tego dokumentu zmian kodu, migracji ani konfiguracji wdrożeniowej.
+Plan szerszej federacji — **częściowo zaimplementowany**. Bezpośrednie wiadomości do skonfigurowanego peera używają uwierzytelniania HMAC i ochrony przed replay; discovery, katalog peerów, parowanie/rotacja i decyzje grupowe pozostają niezaimplementowane. Wdrażanie uwierzytelniania wymaga skonfigurowania tego samego sekretu po obu stronach.
 
 ## Cel
 
@@ -20,7 +20,7 @@ Wymaganie „użytkownicy nie wpisują każdej instancji ręcznie” można spe�
 
 ### Wspólny sekret a tożsamość instancji
 
-Sekret powinien uwierzytelniać bezpośrednie połączenie dwóch instancji, a nie być globalnym hasłem współdzielonym przez wszystkie grupy. Preferowane są odrębne, losowe sekrety dla par peerów, przechowywane wyłącznie w konfiguracji sekretów po obu stronach. Żaden sekret nie może być zwracany przez endpoint informacyjny, zapisywany w logach ani przekazywany w katalogu.
+Sekret powinien uwierzytelniać bezpośrednie połączenie dwóch instancji, a nie być globalnym hasłem współdzielonym przez wszystkie grupy. Dla każdej pary peerów aplikacja generuje niezależny, losowy sekret; przechowuje go w bazie wyłącznie w postaci szyfrogramu chronionego `SECRET_KEY` i pokazuje w uwierzytelnionych ustawieniach grupy do bezpiecznego przekazania peerowi. Jawnego sekretu nie wolno zwracać przez endpointy federacyjne ani zapisywać w logach czy katalogu.
 
 Wiadomości powinny być podpisywane HMAC-SHA-256 z kanonicznej reprezentacji metody, ścieżki, identyfikatora nadawcy, timestampu, nonce i surowego body. Odbiorca weryfikuje podpis w stałym czasie, dopuszcza ograniczone odchylenie zegara i odrzuca ponowne użycie nonce (replay). Klucz nie może być wysyłany w samym żądaniu.
 
@@ -50,7 +50,7 @@ Wymiana informacji o peerach wymaga osobnej weryfikowalnej tożsamości nadawcy.
 Przed implementacją należy ustalić, czy wystarczą istniejące modele `FederatedInstance` i pokoje, czy potrzebne są osobne rekordy katalogu oraz relacji:
 
 - **Instancja:** kanoniczny URL, stabilny identyfikator, nazwa, klucz publiczny/tożsamość, status weryfikacji, wersja protokołu, źródła odkrycia, `first_seen`, `last_seen`, data wygaśnięcia.
-- **Relacja bezpośrednia:** para lokalna–zdalna, status parowania, wskaźnik do sekretu z zewnętrznego secret managera/zmiennej środowiskowej, data rotacji i ostatniego poprawnego uwierzytelnienia. W bazie nie przechowywać jawnego sekretu.
+- **Relacja bezpośrednia:** para lokalna–zdalna, status parowania, zaszyfrowany sekret peera ustawiany w UI, data rotacji i ostatniego poprawnego uwierzytelnienia. Jawnego sekretu nie przechowywać w bazie.
 - **Wybór grupy:** instancja oraz stan włączenia, osoba/grupa podejmująca decyzję (zgodnie z modelem kolektywnym), czas i opcjonalny powód.
 - **Pochodzenie rekordu:** peer, który przekazał wpis, podpis/odcisk klucza i status walidacji. Zachować wiele źródeł bez duplikowania tej samej instancji.
 
@@ -84,12 +84,15 @@ Każda migracja musi uwzględnić obecne rekordy `FederatedInstance`, unikalnoś
 - Żądanie wiadomości bez poprawnego podpisu, z odtworzonym nonce lub z niezgodnym źródłem jest odrzucane przed zapisaniem wiadomości.
 - Propagowany wpis zachowuje weryfikowalne pochodzenie; błędny/niepodpisany wpis nie może aktywować peerów.
 - Testy potwierdzają ochronę SSRF także po DNS resolution i po redirectach.
-- Sekrety nie trafiają do DB, API, logów, e-maili ani repozytorium.
+- Jawne sekrety nie trafiają do API, logów, e-maili ani repozytorium; w bazie przechowywane są wyłącznie szyfrogramy.
 - Wyłączenie peerów przez grupę natychmiast zatrzymuje wysyłkę, nie kasując lokalnych danych.
 - Istniejące instancje mogą przejść na nowy protokół bez cichego przejścia na niezabezpieczone żądania.
 
-## Znaleziony problem
+## Postęp zabezpieczeń transportu
 
-- Federacja pozwala podszyć się pod skonfigurowaną instancję. Publiczny endpoint jest zwolniony z CSRF, a instancję nadawcy rozpoznaje wyłącznie po source_url podanym w treści żądania. Każdy, kto zna adres skonfigurowanej instancji, może wysłać wiadomość w jej imieniu do pokoju federacyjnego. Potrzebne jest uwierzytelnianie żądań między instancjami, nie samo sprawdzenie adresu. @C:\Users\Robert\code\gitops\wikikracja\chat\views.py:273-306
+- Wiadomości federacyjne są podpisywane HMAC-SHA-256 kluczem przypisanym do konkretnego peera. Podpis obejmuje metodę, ścieżkę, kanoniczny URL źródła, timestamp, nonce i surowe body; timestamp ma ograniczone okno ważności, a nonce jest atomowo rejestrowany w cache Redis, aby odrzucać replay.
+- Żądania bez sekretu peera, z niepoprawnym podpisem, nieaktualnym timestampem lub powtórzonym nonce są odrzucane przed zapisaniem wiadomości. Nie ma fallbacku do niezabezpieczonego transportu.
+- Nowy peer otrzymuje automatycznie wygenerowany sekret o długości 32 bajtów entropy, pokazywany w ustawieniach grupy do przekazania drugiej instancji. Peer wpisuje ten sam klucz w polu sekretu otrzymanego; jeśli obie strony wygenerowały własne klucze, należy wybrać jeden i ustawić go po obu stronach. Regeneracja unieważnia poprzedni klucz. W bazie jest wyłącznie szyfrogram Fernet chroniony kluczem wyprowadzonym z Django `SECRET_KEY`; po rotacji klucza aplikacji poprzednie klucze należy czasowo podać przez `SECRET_KEY_FALLBACKS`.
+- Zabezpieczenie dotyczy obecnego endpointu wiadomości; przyszłe endpointy reakcji/odczytu muszą korzystać z tej samej weryfikacji. Pozostałe etapy planu nadal wymagają osobnej realizacji.
 
 

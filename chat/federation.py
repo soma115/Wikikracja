@@ -1,17 +1,24 @@
 """Small HTTP protocol for trusted Wikikracja instance-to-instance chat."""
 
 import asyncio
+import base64
 import hashlib
+import hmac
 import ipaddress
 import json
 import logging
+import re
+import secrets
+import time
 from urllib.error import URLError
 from urllib.parse import urlencode, urlsplit, urlunsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from channels.db import database_sync_to_async
+from cryptography.fernet import Fernet, InvalidToken, MultiFernet
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as gettext
 
@@ -31,6 +38,10 @@ FEDERATION_INFO_PATH = 'chat/federation/info/'
 FEDERATION_TIMEOUT = 5
 FEDERATION_MAX_BODY = 64 * 1024
 FEDERATION_STATUS_TTL = 60
+FEDERATION_AUTH_MAX_SKEW = 300
+FEDERATION_AUTH_TIMESTAMP_HEADER = 'X-Wikikracja-Timestamp'
+FEDERATION_AUTH_NONCE_HEADER = 'X-Wikikracja-Nonce'
+FEDERATION_AUTH_SIGNATURE_HEADER = 'X-Wikikracja-Signature'
 
 
 class _NoRedirectHandler(HTTPRedirectHandler):
@@ -59,6 +70,89 @@ def normalize_instance_url(value):
 
 def instance_endpoint(instance_url, path):
     return f'{instance_url.rstrip("/")}/{path}'
+
+
+def _federation_secret_cipher():
+    key_materials = [settings.SECRET_KEY, *settings.SECRET_KEY_FALLBACKS]
+    fernets = [Fernet(base64.urlsafe_b64encode(hashlib.sha256(f'wikikracja:federation-peer-secret:v1:{key}'.encode('utf-8')).digest())) for key in key_materials]
+    return MultiFernet(fernets)
+
+
+def encrypt_federation_secret(secret):
+    secret_bytes = secret.encode('utf-8') if isinstance(secret, str) else b''
+    if not 32 <= len(secret_bytes) <= 512:
+        raise ValueError('Federation secrets must contain between 32 and 512 bytes')
+    return _federation_secret_cipher().encrypt(secret_bytes).decode('ascii')
+
+
+def decrypt_federation_secret(ciphertext):
+    try:
+        return _federation_secret_cipher().decrypt(ciphertext.encode('ascii'))
+    except (InvalidToken, UnicodeEncodeError):
+        return None
+
+
+def get_federation_peer_secret(instance_url):
+    try:
+        normalized = normalize_instance_url(instance_url)
+    except ValueError:
+        return None
+    room = Room.objects.filter(federated_instance_url=normalized, source_app=FEDERATION_SOURCE).only('federation_secret_ciphertext').first()
+    if room is None or not room.federation_secret_ciphertext:
+        return None
+    return decrypt_federation_secret(room.federation_secret_ciphertext)
+
+
+def generate_federation_peer_secret(instance_url):
+    normalized = normalize_instance_url(instance_url)
+    room = Room.objects.filter(federated_instance_url=normalized, source_app=FEDERATION_SOURCE).first()
+    if room is None:
+        return None
+    room.federation_secret_ciphertext = encrypt_federation_secret(secrets.token_urlsafe(32))
+    room.save(update_fields=['federation_secret_ciphertext'])
+    return room
+
+
+def set_federation_peer_secret(instance_url, secret):
+    normalized = normalize_instance_url(instance_url)
+    ciphertext = encrypt_federation_secret(secret)
+    room = Room.objects.filter(federated_instance_url=normalized, source_app=FEDERATION_SOURCE).first()
+    if room is None:
+        return None
+    room.federation_secret_ciphertext = ciphertext
+    room.save(update_fields=['federation_secret_ciphertext'])
+    return room
+
+
+def _federation_signature(secret, method, request_path, source_url, timestamp, nonce, body):
+    signed_fields = json.dumps([method, request_path, source_url, timestamp, nonce], separators=(',', ':')).encode('utf-8')
+    return hmac.new(secret, signed_fields + b'\n' + body, hashlib.sha256).hexdigest()
+
+
+def create_federation_auth_headers(method, request_path, source_url, body, secret):
+    timestamp = str(int(time.time()))
+    nonce = secrets.token_urlsafe(24)
+    signature = _federation_signature(secret, method, request_path, source_url, timestamp, nonce, body)
+    return {FEDERATION_AUTH_TIMESTAMP_HEADER: timestamp, FEDERATION_AUTH_NONCE_HEADER: nonce, FEDERATION_AUTH_SIGNATURE_HEADER: signature}
+
+
+def verify_federation_request(request, source_url):
+    secret = get_federation_peer_secret(source_url)
+    timestamp = request.headers.get(FEDERATION_AUTH_TIMESTAMP_HEADER, '')
+    nonce = request.headers.get(FEDERATION_AUTH_NONCE_HEADER, '')
+    signature = request.headers.get(FEDERATION_AUTH_SIGNATURE_HEADER, '')
+    if secret is None or not timestamp.isascii() or not timestamp.isdigit() or len(timestamp) > 12:
+        return False
+    if not re.fullmatch(r'[A-Za-z0-9_-]{20,128}', nonce) or not re.fullmatch(r'[a-f0-9]{64}', signature):
+        return False
+    if abs(int(time.time()) - int(timestamp)) > FEDERATION_AUTH_MAX_SKEW:
+        return False
+
+    expected = _federation_signature(secret, request.method, request.path_info, source_url, timestamp, nonce, request.body)
+    if not hmac.compare_digest(expected, signature):
+        return False
+    nonce_key = f'federation_nonce:{hashlib.sha256(source_url.encode("utf-8")).hexdigest()}:{nonce}'
+    return cache.add(nonce_key, True, timeout=FEDERATION_AUTH_MAX_SKEW * 2 + 1)
 
 
 def local_instance_url():
@@ -92,9 +186,14 @@ def validate_outbound_host(instance_url):
         raise ValueError(gettext('The instance address cannot point to a local network.'))
 
 
-def _read_json(url, payload=None):
+def _read_json(url, payload=None, *, auth_source_url=None, auth_secret=None):
     data = None if payload is None else json.dumps(payload).encode('utf-8')
-    request = Request(url, data=data, headers={'Accept': 'application/json', 'Content-Type': 'application/json'} if data else {'Accept': 'application/json'}, method='POST' if data else 'GET')
+    headers = {'Accept': 'application/json', 'Content-Type': 'application/json'} if data else {'Accept': 'application/json'}
+    if auth_source_url is not None or auth_secret is not None:
+        if data is None or auth_source_url is None or auth_secret is None:
+            raise ValueError('Federation request authentication requires a POST body, source URL, and secret')
+        headers.update(create_federation_auth_headers('POST', urlsplit(url).path, auth_source_url, data, auth_secret))
+    request = Request(url, data=data, headers=headers, method='POST' if data else 'GET')
     with _federation_opener.open(request, timeout=FEDERATION_TIMEOUT) as response:
         body = response.read(FEDERATION_MAX_BODY + 1)
         if len(body) > FEDERATION_MAX_BODY:
@@ -168,6 +267,9 @@ def ensure_federated_room(instance_url, name=''):
     if room.archived:
         room.archived = False
         changed.append('archived')
+    if not room.federation_secret_ciphertext:
+        room.federation_secret_ciphertext = encrypt_federation_secret(secrets.token_urlsafe(32))
+        changed.append('federation_secret_ciphertext')
     if changed:
         room.save(update_fields=changed)
     room.allowed.set(User.objects.filter(is_active=True))
@@ -212,7 +314,11 @@ async def _deliver_event(room, path, payload):
     if not room.federated_instance_url:
         return
     validate_outbound_host(room.federated_instance_url)
-    await asyncio.to_thread(_read_json, instance_endpoint(room.federated_instance_url, path), payload)
+    source_url = payload.get('source_url')
+    secret = await database_sync_to_async(get_federation_peer_secret)(room.federated_instance_url)
+    if not source_url or secret is None:
+        raise ValueError('Federation peer authentication is not configured')
+    await asyncio.to_thread(_read_json, instance_endpoint(room.federated_instance_url, path), payload, auth_source_url=source_url, auth_secret=secret)
 
 
 async def deliver_message(room, message):

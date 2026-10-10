@@ -8,6 +8,7 @@ from django.db.models import F, Q
 from django.db.models.functions import Greatest
 from django.db.models.signals import m2m_changed, post_delete, post_migrate, post_save
 from django.dispatch import Signal, receiver
+from django.utils import timezone
 
 from core.signals import citizen_accepted, citizen_deleted
 
@@ -25,6 +26,29 @@ def apply_default_room_notification_preferences(sender, instance, action, pk_set
     """Mute source-managed rooms for newly added members by default."""
     if action == 'post_add':
         Room.apply_default_notification_preferences([instance.pk], pk_set)
+
+
+@receiver(m2m_changed, sender=Room.allowed.through)
+def update_empty_direct_message_activity(sender, instance, action, reverse, pk_set, **kwargs):
+    if reverse:
+        if action == 'pre_clear':
+            instance._chat_room_ids_before_clear = tuple(sender.objects.filter(user_id=instance.pk).values_list('room_id', flat=True))
+            return
+        if action == 'post_remove':
+            room_ids = pk_set or ()
+        elif action == 'post_clear':
+            room_ids = getattr(instance, '_chat_room_ids_before_clear', ())
+            if hasattr(instance, '_chat_room_ids_before_clear'):
+                del instance._chat_room_ids_before_clear
+        else:
+            return
+    elif action in {'post_remove', 'post_clear'}:
+        room_ids = (instance.pk,)
+    else:
+        return
+
+    empty_room_ids = Room.objects.direct_messages().filter(pk__in=room_ids, protected=False, is_inbox=False, allowed__isnull=True).values_list('pk', flat=True)
+    Room.objects.filter(pk__in=empty_room_ids).update(last_activity=timezone.now())
 
 
 def request_discussion_room(instance, *, founder, allowed_users=None, welcome_message='', welcome_message_sender=None, welcome_message_anonymous=True, public=True, archived=False):

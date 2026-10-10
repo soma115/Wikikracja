@@ -497,6 +497,8 @@ secrets. In production, keep credentials in the deployment platform's secret man
 ```env
 # Security
 SECRET_KEY=<unique-secret-value>
+# Optional during SECRET_KEY rotation; comma-separated previous values.
+# SECRET_KEY_FALLBACKS=<previous-secret-key>
 DEBUG=False
 ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
 CSRF_TRUSTED_ORIGINS=https://yourdomain.com
@@ -504,6 +506,8 @@ CSRF_TRUSTED_ORIGINS=https://yourdomain.com
 # Canonical site and absolute URLs
 SITE_DOMAIN=yourdomain.com
 SITE_NAME=Your Site Name
+
+# Federation peer secrets are entered in Group settings and stored encrypted in the database.
 
 # SMTP (required for outbound registration and account emails)
 EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
@@ -525,6 +529,17 @@ REDIS_HOST=redis://127.0.0.1:6379/1
 # SQLite database path (the production deployment mounts persistent storage here)
 SQLITE_DATABASE_PATH=/app/db/db.sqlite3
 ```
+
+Adding a peer automatically generates a random secret and displays it in Group
+settings. Share it with the other group over a secure channel, then enter it there as
+the received peer secret. If both groups added each other and generated different
+keys, choose one and set that same value on both sides. Regenerating replaces the
+current key, so update the peer immediately. Secrets are encrypted at rest using
+`SECRET_KEY`. If upgrading from the temporary `FEDERATION_PEER_SECRETS` environment
+setting, copy each value into both peers' settings in the UI, then remove that
+variable. When rotating `SECRET_KEY`, retain the old key in `SECRET_KEY_FALLBACKS`,
+re-enter every peer secret in the UI on both instances, and remove the fallback only
+after that is complete.
 
 Firebase credentials are optional for deployments that need push notifications; use
 the supported `FIREBASE_CERT_*` or `GOOGLE_APPLICATION_CREDENTIALS` options from

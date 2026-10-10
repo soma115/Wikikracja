@@ -14,9 +14,10 @@ from django.db import connection
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_POST
 
-from chat.federation import deactivate_federated_room, discover_instance, ensure_federated_room, normalize_instance_url
+from chat.federation import deactivate_federated_room, discover_instance, ensure_federated_room, generate_federation_peer_secret, normalize_instance_url, set_federation_peer_secret
 from core.search_registry import collect_search_results
 from core.services import feed as feed_service
 from site_settings.models import QuickLink, SiteParameters
@@ -407,8 +408,39 @@ def _quick_link_data(request):
     return title, url
 
 
+@never_cache
 @login_required
 def group_settings(request: HttpRequest) -> HttpResponse:
+    if request.method == 'POST' and 'generate_federated_secret' in request.POST:
+        try:
+            instance_url = normalize_instance_url(request.POST.get('generate_federated_secret'))
+        except ValueError:
+            messages.error(request, _('Invalid instance address.'))
+        else:
+            room = generate_federation_peer_secret(instance_url)
+            if room is None:
+                messages.error(request, _('Invalid instance address.'))
+            else:
+                messages.success(request, _('Federation secret generated.'))
+        return redirect('group_settings')
+
+    if request.method == 'POST' and 'save_federated_secret' in request.POST:
+        try:
+            instance_url = normalize_instance_url(request.POST.get('save_federated_secret'))
+        except ValueError:
+            messages.error(request, _('Invalid instance address.'))
+        else:
+            try:
+                room = set_federation_peer_secret(instance_url, request.POST.get('federated_instance_secret', ''))
+            except ValueError:
+                messages.error(request, _('Federation secret must contain between 32 and 512 bytes.'))
+            else:
+                if room is None:
+                    messages.error(request, _('Invalid instance address.'))
+                else:
+                    messages.success(request, _('Federation secret saved.'))
+        return redirect('group_settings')
+
     if request.method == 'POST' and 'add_federated_instance' in request.POST:
         try:
             instance_url = normalize_instance_url(request.POST.get('federated_instance_url'))

@@ -150,12 +150,17 @@ class Room(models.Model):
     # Remote Wikikracja instance for federated chat rooms.
     federated_instance_url = models.URLField(max_length=500, blank=True, null=True, unique=True)
     federated_instance_name = models.CharField(max_length=255, blank=True, default='')
+    federation_secret_ciphertext = models.TextField(blank=True, default='')
     federation_peer_configured = models.BooleanField(null=True, blank=True)
     federation_communication_ok = models.BooleanField(null=True, blank=True)
     federation_last_checked_at = models.DateTimeField(null=True, blank=True)
     federation_last_communication_at = models.DateTimeField(null=True, blank=True)
 
     objects = RoomQuerySet.as_manager()
+
+    @property
+    def has_federation_secret(self):
+        return bool(self.federation_secret_ciphertext)
 
     SOURCE_URL_NAMES = {'tasks': 'tasks:detail', 'board': 'board:view_post', 'glosowania': 'glosowania:details', 'ankiety': 'ankiety:detail'}
     DEFAULT_MUTED_SOURCE_APPS = frozenset({'tasks', 'board', 'glosowania', 'ankiety'})

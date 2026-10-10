@@ -3,7 +3,7 @@ from datetime import timedelta as td
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
-from django.db.models import Q
+from django.db.models import Count, Max, Q
 from django.utils import timezone
 
 from chat.models import Message, Room
@@ -23,6 +23,10 @@ class Command(BaseCommand):
         public_rooms = Room.objects.filter(public=True)
         activity_rooms = Room.objects.filter(Q(public=True) | Q(source_app__in=Room.SOURCE_URL_NAMES))
         private_rooms = Room.objects.one_to_one()
+        empty_private_rooms = Room.objects.direct_messages().filter(protected=False, is_inbox=False)
+        empty_private_rooms = empty_private_rooms.annotate(member_count=Count('allowed', distinct=True))
+        empty_private_rooms = empty_private_rooms.annotate(latest_message_time=Max('messages__time'))
+        empty_private_rooms = empty_private_rooms.filter(member_count=0)
         active_users = User.objects.filter(is_active=True)
 
         for pr in public_rooms:
@@ -62,6 +66,14 @@ class Command(BaseCommand):
             if last_message.time < (timezone.now() - td(days=delete_after)):  # delete after 1 year
                 log.info(f'Chat room {room.title} deleted.')
                 room.delete()  # delete
+
+        # Delete old empty direct-message rooms
+        empty_dm_cutoff = timezone.now() - td(days=get_param('delete_inactive_user_after'))
+        for room in empty_private_rooms:
+            activity_at = max(room.last_activity, room.latest_message_time or room.last_activity)
+            if activity_at < empty_dm_cutoff:
+                log.info(f'Empty direct-message room {room.pk} deleted after retention period.')
+                room.delete()
 
         # Archive/Delete old private chat room
         for room in private_rooms:

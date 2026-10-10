@@ -1,5 +1,15 @@
 # LOG_AI
 
+## 2026-10-10: Zakończenie naprawy nazw i cyklu życia pokoi czatu
+
+- **Zmienione obszary:** klasyfikacja DM, feed i powiadomienia czatu, cykl życia pokoi, audyt/naprawa danych, ograniczenia relacji i testy `chat` oraz integracji.
+- **Co się zmieniło:** `public` oznacza wyłącznie dostęp; pokoje źródłowe są rozpoznawane po `source_app`, a prawdziwe DM-y są bez źródła i mają dwóch członków. Ograniczenia bazy chronią unikalne powiązania pokoi z obiektami. Nowo przyjęci członkowie są dodawani do istniejących pokojów dokumentów, również archiwalnych. Pokoje źródłowe mogą być archiwizowane, ale scheduler ich nie usuwa.
+- **Naprawa danych i decyzje:** audyt `repair_discussion_rooms --audit` jest tylko do odczytu. Kontrolowana naprawa po przeglądzie raportu i potwierdzeniu backupu uzupełniła jednoznaczne braki; nie usuwano wiadomości ani niejednoznacznych pokojów. Członkostwa nieaktywnych kont pozostają zachowane, ponieważ konto może zostać przywrócone. Jednoosobowe DM-y pozostają do ręcznej oceny; nie są automatycznie kasowane.
+- **Audyt wdrożonych instancji przekazany przez użytkownika:** sprawdzono 13/13 podów, 9 bez uwag. Pozostałe 4 zgłosiły 11 członkostw nieaktywnych kont w pokojach dokumentów (`instance-12`: 3, `instance-6`: 8) oraz 24 prywatne DM-y z 0–1 członkiem (`instance-3`: 6, `instance-6`: 17, `instance-8`: 1). Wśród DM-ów było 21 pokoi z jednym członkiem i 3 bez członków. Audyt nie zmienił danych. Ostrzeżenia o nieaktywnych członkach są zgodne z przyjętą polityką.
+- **Puste DM-y:** niechronione prywatne pokoje bez członków są usuwane wraz z historią po `delete_inactive_user_after` dniach (obecnie 30). Retencja liczona jest od nowszej z dat ostatniej aktywności i wiadomości; usunięcie ostatniego członka odświeża znacznik aktywności. Pokoje publiczne, źródłowe, systemowe, federacyjne, Inbox i chronione są wykluczone. Ta zmiana kodu została wprowadzona po przekazanym audycie i zacznie działać po wdrożeniu nowej wersji. Stare pokoje `instance-6` #133/#147/#148 i `instance-8` #79 są kandydatami do usunięcia przy pierwszym przebiegu schedulera, jeśli ich ostatnia wiadomość również przekracza retencję.
+- **Weryfikacja:** 10 testów cyklu życia `chat_rooms`, Ruff check/format i `git diff --check` przeszły. Testy obejmują retencję i kaskadowe usunięcie historii, odliczanie od odejścia ostatniego członka, świeżą aktywność oraz wykluczenia typów pokoi.
+- **Spodziewany efekt:** rozdzielone reguły dostępu i rodzaju pokoju, zachowana historia aktywnych lub niejednoznacznych DM-ów oraz automatyczne porządkowanie tylko starych, całkowicie pustych DM-ów.
+
 ## 2026-10-10: Aktualizacja zależności zgłoszonych przez Dependabot
 
 - **Zmienione obszary:** `requirements.txt`, generowany przez npm `package-lock.json` oraz testy sanityzacji HTML.
@@ -35,11 +45,11 @@
 
 ## 2026-10-08: Samodzielny audyt pokoi na podach przed migracją
 
-- **Zmienione obszary:** nowy `scripts/audit_discussion_rooms_pods.sh`, instrukcja wdrożenia w `docs/ongoing/PLAN_NAPRAWY_POKOI_CZATU.md`.
+- **Zmienione obszary:** nowy `scripts/audit_discussion_rooms_pods.sh`; procedura bezpiecznej kolejności audytu i wdrożenia jest zachowana w sekcji finalizacji naprawy pokoi czatu powyżej.
 - **Powód:** wdrożenie nowego obrazu automatycznie uruchamia migracje, więc audyt danych musi działać bez aktualizacji aplikacji.
 - **Działanie:** skrypt Bash uruchamiany ręcznie na serwerze odpytuje 13 wskazanych podów przez `microk8s kubectl exec -i`, przekazując przez stdin samodzielny kod Python/SQLite. Baza jest otwierana tylko do odczytu, bez importu Django i bez migracji. Raport rozróżnia blokery nowych ograniczeń od pozostałych uwag, kontynuuje po błędzie jednego poda i podaje zbiorczy wynik. Nie naprawia danych.
 - **Weryfikacja lokalna:** `bash -n` oraz próby na izolowanej starej strukturze SQLite: stan czysty, zduplikowany klucz źródła i współdzielony pokój, uwaga o brakującej relacji.
-- **Wynik audytu serwera przekazany przez użytkownika:** 13/13 podów sprawdzonych, 0 blokerów, 0 błędów odczytu. Pozostało 28 uwag: sześć członkostw nieaktywnych kont w czterech pokojach dokumentów `instance-12` oraz 24 pokoje prywatne z 0–1 członkiem (`instance-3`: 6, `instance-6`: 17, `instance-8`: 1). To wcześniej zaakceptowane pozostałości; nie wykonano napraw ani migracji w ramach audytu. Przed wdrożeniem nadal konieczny jest backup, a po wdrożeniu ponowny audyt z nowym kodem.
+- **Wynik audytu przed wdrożeniem przekazany przez użytkownika:** 13/13 podów sprawdzonych, 0 blokerów, 0 błędów odczytu. Pozostało 28 uwag: sześć członkostw nieaktywnych kont w czterech pokojach dokumentów `instance-12` oraz 24 pokoje prywatne z 0–1 członkiem (`instance-3`: 6, `instance-6`: 17, `instance-8`: 1). Audyt nie zmienił danych. To wynik historyczny sprzed migracji; późniejszy audyt po wdrożeniu i aktualna interpretacja uwag są opisane w sekcji finalizacji powyżej.
 
 ## 2026-10-08: Rozdzielenie rodzaju i dostępu do pokojów czatu
 

@@ -71,7 +71,7 @@ class ChatRoomsArchivingCommandTest(TestCase):
         old_activity = timezone.now() - timedelta(days=30)
         Room.objects.filter(pk=old_room.pk).update(last_activity=old_activity)
 
-        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360}
+        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360, 'delete_inactive_user_after': 30}
         with patch('site_settings.params.get_param', side_effect=params.__getitem__):
             call_command('chat_rooms')
 
@@ -86,7 +86,7 @@ class ChatRoomsArchivingCommandTest(TestCase):
         message = Message.objects.create(room=room, text='Old message')
         Message.objects.filter(pk=message.pk).update(time=timezone.now() - timedelta(days=400))
 
-        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360}
+        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360, 'delete_inactive_user_after': 30}
         with patch('site_settings.params.get_param', side_effect=params.__getitem__):
             call_command('chat_rooms')
 
@@ -110,9 +110,89 @@ class ChatRoomsArchivingCommandTest(TestCase):
 
         self.assertFalse(Room.objects.filter(pk=room.pk).exists())
 
+    def test_deletes_old_empty_direct_message_and_its_history_after_retention(self):
+        room = Room.objects.create(title='Old empty direct message', public=False)
+        message = Message.objects.create(room=room, text='Old private history')
+        old_time = timezone.now() - timedelta(days=31)
+        Message.objects.filter(pk=message.pk).update(time=old_time)
+        Room.objects.filter(pk=room.pk).update(last_activity=old_time)
+
+        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360, 'delete_inactive_user_after': 30}
+        with patch('site_settings.params.get_param', side_effect=params.__getitem__):
+            call_command('chat_rooms')
+
+        self.assertFalse(Room.objects.filter(pk=room.pk).exists())
+        self.assertFalse(Message.objects.filter(pk=message.pk).exists())
+
+    def test_empty_direct_message_retention_starts_when_last_member_leaves(self):
+        rooms = [Room.objects.create(title=f'Newly empty direct message {index}', public=False) for index in range(2)]
+        users = [make_user(f'empty-dm-member-{index}') for index in range(2)]
+        old_time = timezone.now() - timedelta(days=31)
+
+        for room, user in zip(rooms, users, strict=True):
+            room.allowed.add(user)
+            message = Message.objects.create(room=room, sender=user, text='Old private history')
+            Message.objects.filter(pk=message.pk).update(time=old_time)
+            Room.objects.filter(pk=room.pk).update(last_activity=old_time)
+
+        rooms[0].allowed.remove(users[0])
+        users[1].rooms.clear()
+        for room in rooms:
+            room.refresh_from_db()
+            self.assertGreater(room.last_activity, old_time)
+
+        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360, 'delete_inactive_user_after': 30}
+        with patch('site_settings.params.get_param', side_effect=params.__getitem__):
+            call_command('chat_rooms')
+
+        self.assertEqual(Room.objects.filter(pk__in=[room.pk for room in rooms]).count(), len(rooms))
+
+    def test_keeps_empty_direct_message_with_recent_room_activity(self):
+        room = Room.objects.create(title='Recently active empty direct message', public=False)
+        message = Message.objects.create(room=room, text='Old private history')
+        old_time = timezone.now() - timedelta(days=31)
+        Message.objects.filter(pk=message.pk).update(time=old_time)
+
+        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360, 'delete_inactive_user_after': 30}
+        with patch('site_settings.params.get_param', side_effect=params.__getitem__):
+            call_command('chat_rooms')
+
+        self.assertTrue(Room.objects.filter(pk=room.pk).exists())
+        self.assertTrue(Message.objects.filter(pk=message.pk).exists())
+
+    def test_keeps_empty_direct_message_with_recent_message(self):
+        room = Room.objects.create(title='Recently messaged empty direct message', public=False)
+        message = Message.objects.create(room=room, text='Recent private history')
+        old_time = timezone.now() - timedelta(days=31)
+        Room.objects.filter(pk=room.pk).update(last_activity=old_time)
+
+        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360, 'delete_inactive_user_after': 30}
+        with patch('site_settings.params.get_param', side_effect=params.__getitem__):
+            call_command('chat_rooms')
+
+        self.assertTrue(Room.objects.filter(pk=room.pk).exists())
+        self.assertTrue(Message.objects.filter(pk=message.pk).exists())
+
+    def test_keeps_old_empty_rooms_outside_unprotected_direct_messages(self):
+        rooms = [
+            Room.objects.create(title='Protected empty direct message', public=False, protected=True),
+            Room.objects.create(title='Empty source room', public=False, source_app='board', source_object_id=9002),
+            Room.objects.create(title='Empty system room', public=False, system_key='test-empty-system'),
+            Room.objects.create(title='Empty federated room', public=False, federated_instance_url='https://remote.example/empty-room'),
+            Room.objects.create(title='Empty inbox room', public=False, is_inbox=True),
+        ]
+        old_time = timezone.now() - timedelta(days=31)
+        Room.objects.filter(pk__in=[room.pk for room in rooms]).update(last_activity=old_time)
+
+        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360, 'delete_inactive_user_after': 30}
+        with patch('site_settings.params.get_param', side_effect=params.__getitem__):
+            call_command('chat_rooms')
+
+        self.assertEqual(Room.objects.filter(pk__in=[room.pk for room in rooms]).count(), len(rooms))
+
     def test_scheduler_does_not_unarchive_archived_source_document(self):
         post = PostFactory(title='Still archived', visibility='archive')
-        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360}
+        params = {'archive_public_chat_room': 9, 'delete_public_chat_room': 360, 'delete_inactive_user_after': 30}
 
         with patch('site_settings.params.get_param', side_effect=params.__getitem__):
             call_command('chat_rooms')

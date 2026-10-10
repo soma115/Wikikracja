@@ -53,6 +53,7 @@ DEBUG_TOOLBAR = env_bool("DEBUG_TOOLBAR", False)
 SITE_PROTOCOL = "http" if DEBUG else "https"
 
 SECRET_KEY = getenv("SECRET_KEY")
+SECRET_KEY_FALLBACKS = env_list('SECRET_KEY_FALLBACKS', default=[])
 if not SECRET_KEY:
     if DEBUG:
         # Generate a random key for development
