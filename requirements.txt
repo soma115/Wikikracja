@@ -1,10 +1,10 @@
 APScheduler==3.11.2
 asgiref==3.11.1
-bleach==6.3.0
+bleach==6.4.0
 tinycss2==1.5.1
 channels==4.3.2
 channels_redis==4.3.0
-daphne==4.2.1
+daphne==4.2.2
 Django~=6.0.4
 django-allauth~=65.16.1
 django-browser-reload==1.21.0

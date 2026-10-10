@@ -87,3 +87,9 @@ Każda migracja musi uwzględnić obecne rekordy `FederatedInstance`, unikalnoś
 - Sekrety nie trafiają do DB, API, logów, e-maili ani repozytorium.
 - Wyłączenie peerów przez grupę natychmiast zatrzymuje wysyłkę, nie kasując lokalnych danych.
 - Istniejące instancje mogą przejść na nowy protokół bez cichego przejścia na niezabezpieczone żądania.
+
+## Znaleziony problem
+
+- Federacja pozwala podszyć się pod skonfigurowaną instancję. Publiczny endpoint jest zwolniony z CSRF, a instancję nadawcy rozpoznaje wyłącznie po source_url podanym w treści żądania. Każdy, kto zna adres skonfigurowanej instancji, może wysłać wiadomość w jej imieniu do pokoju federacyjnego. Potrzebne jest uwierzytelnianie żądań między instancjami, nie samo sprawdzenie adresu. @C:\Users\Robert\code\gitops\wikikracja\chat\views.py:273-306
+
+

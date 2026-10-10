@@ -100,6 +100,14 @@ class TinyMCEContentTests(TestCase):
     def test_repairs_mojibake_bullet_marker(self):
         self.assertEqual(sanitize_tinymce('<p>âœ” Help one another</p>'), '<p>✔ Help one another</p>')
 
+    def test_rejects_unicode_obfuscated_link_scheme(self):
+        result = sanitize('<a href="javascript\u200b:alert(1)">Link</a>', linkify=False)
+        self.assertEqual(result, '<a>Link</a>')
+
+    def test_rejects_unsafe_formaction(self):
+        result = sanitize_tinymce('<button formaction="javascript\u200b:alert(1)">Submit</button>')
+        self.assertEqual(result, '<button>Submit</button>')
+
     def test_preserves_relative_image_urls(self):
         content = '<p><img src="/media/uploads/image.webp" alt="Image"></p>'
         result = sanitize_tinymce(content)

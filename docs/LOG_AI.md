@@ -1,5 +1,13 @@
 # LOG_AI
 
+## 2026-10-10: Aktualizacja zależności zgłoszonych przez Dependabot
+
+- **Zmienione obszary:** `requirements.txt`, generowany przez npm `package-lock.json` oraz testy sanityzacji HTML.
+- **Co się zmieniło:** podniesiono Bleach do 6.4.0 i Daphne do 4.2.2, a pośrednie zależności narzędzi JS: `form-data` do 4.0.6, `js-yaml` do 3.15.2 i `brace-expansion` do 1.1.21. Dwa testy regresji sprawdzają odrzucanie zamaskowanych Unicode schematów URL w linku oraz atrybucie `formaction` TinyMCE; oba odtwarzały problem przed aktualizacją Bleach.
+- **Uzasadnienie:** poprawione wydania usuwają wskazane podatności bez zmiany głównych narzędzi testowych ani kontraktów aplikacji. Alert Bleach dotyczący `parse_email=True` nie dotyczy obecnego wywołania `bleach.linkify`, które używa domyślnego `False`.
+- **Weryfikacja:** 44 testy Pythona (sanityzacja i WebSocket), 307 testów Jest, Django check, `pip check`, Ruff check/format i kontrola białych znaków w zmienionych plikach przeszły. `npm audit` nadal pokazuje 40 innych problemów w drzewie narzędzi deweloperskich; zgłasza `js-yaml` pośrednio przez jego zależność `argparse`, a nie przez cztery naprawiane tutaj alerty `js-yaml`.
+- **Spodziewany efekt:** zależności używają poprawionych wersji, a sanityzacja odrzuca niebezpieczne schematy URL maskowane znakiem Unicode.
+
 ## 2026-10-10: Przewijanie czatu do wiadomości z aktywności
 
 - **Zmienione obszary:** linki feedu `chat`, router i API WebSocketu czatu, pobieranie wiadomości w `ChatRepository`, testy feedu i czatu.
