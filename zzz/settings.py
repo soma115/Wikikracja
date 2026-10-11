@@ -325,6 +325,8 @@ ACCOUNT_RATE_LIMITS = {
 }
 ACCOUNT_INACTIVE_REDIRECT_URL = '/obywatele/onboarding/'
 ACCOUNT_LOGIN_METHODS = set(env_list("ACCOUNT_LOGIN_METHODS", default=["email"]))
+ACCOUNT_LOGIN_BY_CODE_ENABLED = True
+ACCOUNT_LOGIN_BY_CODE_FORMAT = {"length": 6}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']  # , 'password2*'*/]
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_CHANGE_EMAIL = True

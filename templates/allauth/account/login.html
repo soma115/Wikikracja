@@ -26,6 +26,11 @@
             <button class="tw-btn tw-btn-info tw-me-1 tw-mb-1" type="submit"><i class="fas fa-right-to-bracket fa-fw tw-me-1"></i>{% trans "Sign In" %}</button>
           </div>
         </form>
+        {% if LOGIN_BY_CODE_ENABLED %}
+        <div class="tw-flex tw-justify-center tw-mt-3">
+          <a href="{{ request_login_code_url }}" class="tw-btn tw-btn-outline-secondary tw-btn-sm"><i class="fas fa-envelope fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Send me a sign-in code" %}</a>
+        </div>
+        {% endif %}
         <div class="tw-text-center tw-mt-3">
           <a href="{% url 'contact' %}">{% trans "Send a message to a group" %}</a>
         </div>

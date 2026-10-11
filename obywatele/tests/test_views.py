@@ -14,6 +14,7 @@ from allauth.account.models import EmailAddress, EmailConfirmationHMAC
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.messages import SUCCESS, get_messages
+from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.db.models import QuerySet
@@ -71,6 +72,52 @@ class DebugSkipAuthTest(TestCase):
         authenticated = self.backend.authenticate(None, username=self.user.email, password='wrong-password')
 
         self.assertEqual(authenticated, self.user)
+
+
+class LoginByCodePageTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='login-code', email='login-code@example.com', password='secret', is_active=True)
+        EmailAddress.objects.create(user=self.user, email=self.user.email, verified=False, primary=True)
+
+    def test_login_page_offers_passwordless_email_code(self):
+        response = self.client.get(reverse('account_login'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, reverse('account_request_login_code'))
+        self.assertContains(response, 'name="password"')
+
+    def test_generated_code_has_six_letters_in_three_character_groups(self):
+        code = CustomAccountAdapter().generate_login_code()
+
+        self.assertRegex(code, r"^[BCDFGHJKLMNPQRSTVWXZ]{3}-[BCDFGHJKLMNPQRSTVWXZ]{3}$")
+
+    def test_email_code_logs_user_in_after_confirmation(self):
+        request_page = self.client.get(reverse('account_request_login_code'))
+
+        self.assertEqual(request_page.status_code, 200)
+        self.assertTemplateUsed(request_page, 'account/request_login_code.html')
+        self.assertContains(request_page, 'name="email"')
+
+        with patch.object(CustomAccountAdapter, 'generate_login_code', return_value='HHQ-BRS'):
+            response = self.client.post(reverse('account_request_login_code'), {'email': self.user.email})
+
+        self.assertRedirects(response, reverse('account_confirm_login_code'))
+        self.assertNotIn('_auth_user_id', self.client.session)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('HHQ-BRS', mail.outbox[0].body)
+
+        response = self.client.get(reverse('account_confirm_login_code'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'account/confirm_login_code.html')
+        self.assertContains(response, 'name="code"')
+        self.assertContains(response, 'autocomplete="one-time-code"')
+
+        response = self.client.post(reverse('account_confirm_login_code'), {'code': 'HHQ-BRS'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.client.session['_auth_user_id'], str(self.user.pk))
+        self.assertTrue(EmailAddress.objects.get(user=self.user, email=self.user.email).verified)
 
 
 class LoginRedirectSafetyTest(TestCase):

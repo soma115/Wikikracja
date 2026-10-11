@@ -1,0 +1,49 @@
+{% extends "home/base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block head_title %}{% trans "Sign In" %}{% endblock %}
+
+{% block content %}
+<div class="tw-container tw-my-4">
+  <div class="tw-flex tw-justify-center">
+    <div class="tw-w-full tw-max-w-md">
+      <div class="tw-card">
+        <div class="tw-card-header">
+          <h1 class="tw-section-heading tw-mb-0"><i class="fas fa-envelope tw-text-accent tw-me-1" aria-hidden="true"></i>{% trans "Enter Sign-In Code" %}</h1>
+        </div>
+        <div class="tw-card-body">
+          <p>{% blocktrans with recipient=email %}We've sent a code to {{ recipient }}. The code expires shortly, so please enter it soon.{% endblocktrans %}</p>
+          <form method="post" action="{% url 'account_confirm_login_code' %}">
+            {% csrf_token %}
+            <div class="tw-mb-3">
+              {{ verify_form|crispy }}
+            </div>
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+            {% endif %}
+            <div class="tw-flex tw-justify-end tw-gap-2">
+              <button type="submit" form="logout-from-stage" class="tw-btn tw-btn-outline-secondary tw-btn-sm"><i class="fas fa-arrow-left fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Cancel" %}</button>
+              <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Confirm" %}</button>
+            </div>
+          </form>
+          {% if can_resend %}
+          <form method="post" action="{% url 'account_confirm_login_code' %}" class="tw-mt-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="resend">
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+            {% endif %}
+            <button type="submit" class="tw-btn tw-btn-outline-secondary tw-btn-sm"><i class="fas fa-redo fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Request new code" %}</button>
+          </form>
+          {% endif %}
+          <form id="logout-from-stage" method="post" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{% url 'account_login' %}">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

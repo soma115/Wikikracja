@@ -1,0 +1,37 @@
+{% extends "home/base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block head_title %}{% trans "Send me a sign-in code" %}{% endblock %}
+
+{% block content %}
+<div class="tw-container tw-my-4">
+  <div class="tw-flex tw-justify-center">
+    <div class="tw-w-full tw-max-w-md">
+      <div class="tw-card">
+        <div class="tw-card-header">
+          <h1 class="tw-section-heading tw-mb-0"><i class="fas fa-envelope tw-text-accent tw-me-1" aria-hidden="true"></i>{% trans "Send me a sign-in code" %}</h1>
+        </div>
+        <div class="tw-card-body">
+          <p>{% blocktrans %}You will receive a special code for a password-free sign-in.{% endblocktrans %}</p>
+          <form method="post" action="{{ request_login_code_url }}">
+            {% csrf_token %}
+            <div class="tw-mb-3">
+              {{ form|crispy }}
+            </div>
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+            {% endif %}
+            <div class="tw-flex tw-justify-end">
+              <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-paper-plane fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Request Code" %}</button>
+            </div>
+          </form>
+          <div class="tw-mt-3">
+            <a href="{% url 'account_login' %}" class="tw-btn tw-btn-outline-secondary tw-btn-sm"><i class="fas fa-arrow-left fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Other sign-in options" %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

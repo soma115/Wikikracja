@@ -1,5 +1,13 @@
 # LOG_AI
 
+## 2026-10-11: Logowanie kodem e-mail bez hasła
+
+- **Zmienione obszary:** konfiguracja django-allauth, szablony logowania i formularzy kodu, testy `obywatele`.
+- **Co się zmieniło:** włączono opcjonalne logowanie kodem jednorazowym wysyłanym na e-mail i skrócono go z 8 do 6 niejednoznacznych liter w układzie 3-3. Na dotychczasowym ekranie pozostaje logowanie hasłem, a użytkownik może wybrać osobny formularz prośby o kod i formularz jego potwierdzenia. Formularze korzystają ze wspólnego wyglądu Tailwind i standardowych tłumaczeń allauth; rejestracja/onboarding pozostały bez zmian.
+- **Bezpieczeństwo:** pozostawiono domyślne limity allauth: 3 próby i 3 minuty ważności. Test integracyjny potwierdza, że samo zgłoszenie kodu nie loguje użytkownika, a poprawny kod loguje go dopiero po potwierdzeniu.
+- **Weryfikacja:** po skróceniu kodu przeszły 3 testy logowania kodem, Django check, Ruff check/format i `git diff --check`; wcześniej przeszły też build CSS, regression scan i UI guard. Pełny runner: 1277 testów pytest przeszło, 2 zawiodły — `ProfileFormErrorViewTest.test_change_username_renders_form_for_authenticated_user` (powtarza się także samodzielnie) oraz `TaskCreateViewTest.test_get_returns_form` (przechodzi samodzielnie; awaria równoległa dotyczyła współdzielonego pliku favicon). Playwright: 35 zaliczonych, 16 pominiętych.
+- **Spodziewany efekt:** osoby mające problem z resetowaniem hasła mogą logować się bez hasła, odbierając kod na e-mail; jego poprawne wpisanie potwierdza dostęp do skrzynki. Dotychczasowe logowanie hasłem pozostaje dostępne.
+
 ## 2026-10-10: Zakończenie naprawy nazw i cyklu życia pokoi czatu
 
 - **Zmienione obszary:** klasyfikacja DM, feed i powiadomienia czatu, cykl życia pokoi, audyt/naprawa danych, ograniczenia relacji i testy `chat` oraz integracji.
