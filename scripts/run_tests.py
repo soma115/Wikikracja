@@ -3,20 +3,26 @@
 Run the full verification pipeline: ruff, UI guards, Django system checks,
 translation compilation, collectstatic, pytest, jest and Playwright.
 
-Reuses the environment helpers from `start_dev.py` so both scripts keep a
-single source of truth for .env handling and command execution.
+Runs Django checks against temporary database, media and static paths.
+The shared command runner is reused without loading or changing the local .env.
 """
 
 import argparse
+import atexit
 import os
+import secrets
 import shutil
 import subprocess
 import sys
-import time
+import tempfile
+import urllib.error
 import urllib.request
+from pathlib import Path
+from urllib.parse import urlsplit
 
+from dotenv import dotenv_values
 from regression_scan import run_regression_scan
-from start_dev import BASE_DIR, copy_env, ensure_secret_key, load_env
+from start_dev import BASE_DIR
 from start_dev import run as run_command
 
 
@@ -39,47 +45,84 @@ def _run_step(command, name):
         raise SystemExit(1) from None
 
 
-def _dev_server_is_ready(url="http://127.0.0.1:8006/healthz/live/", timeout=1):
+def _configure_isolated_verification_environment():
+    temporary_directory = tempfile.TemporaryDirectory(prefix="wikikracja-tests-")
+    root = Path(temporary_directory.name)
+    values = {
+        "PYTHON_DOTENV_DISABLED": "1",
+        "DJANGO_SETTINGS_MODULE": "zzz.test_settings",
+        "SECRET_KEY": secrets.token_urlsafe(50),
+        "DEBUG": "false",
+        "SQLITE_DATABASE_PATH": str(root / "db.sqlite3"),
+        "WIKIKRACJA_TEST_MEDIA_ROOT": str(root / "media"),
+        "WIKIKRACJA_TEST_STATIC_ROOT": str(root / "static"),
+        "SCHEDULER_ENABLED": "false",
+        "RUN_MAIN": "false",
+        "EMAIL_BACKEND": "django.core.mail.backends.locmem.EmailBackend",
+        "EMAIL_HOST": "",
+        "EMAIL_HOST_USER": "",
+        "EMAIL_HOST_PASSWORD": "",
+        "FIREBASE_CERT_PATH": "",
+        "FIREBASE_CERT_JSON": "",
+        "FIREBASE_CERT_BASE64": "",
+        "GOOGLE_APPLICATION_CREDENTIALS": "",
+    }
+    previous = {key: os.environ.get(key) for key in values}
+    os.environ.update(values)
+
+    def restore_environment():
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+        temporary_directory.cleanup()
+
+    atexit.register(restore_environment)
+
+
+def _e2e_base_url():
+    local_config = dotenv_values(BASE_DIR / ".env.local")
+    if not local_config.get("E2E_EMAIL") or not local_config.get("E2E_PASSWORD"):
+        raise SystemExit("Playwright requires the dedicated E2E_EMAIL and E2E_PASSWORD in .env.local.")
+
+    base_url = os.environ.get("E2E_BASE_URL") or local_config.get("E2E_BASE_URL")
+    if not base_url:
+        raise SystemExit("Set E2E_BASE_URL to the dedicated local E2E server in .env.local or the environment.")
+
     try:
-        with urllib.request.urlopen(url, timeout=timeout) as resp:
+        parsed = urlsplit(base_url)
+        port = parsed.port
+    except ValueError:
+        raise SystemExit("E2E_BASE_URL must be a valid HTTP(S) URL for a local E2E server.") from None
+
+    if (
+        parsed.scheme not in {"http", "https"}
+        or parsed.hostname not in {"localhost", "127.0.0.1", "::1"}
+        or port == 0
+        or parsed.path not in {"", "/"}
+        or parsed.query
+        or parsed.fragment
+        or parsed.username
+        or parsed.password
+    ):
+        raise SystemExit("E2E_BASE_URL must be an HTTP(S) URL for a local E2E server, without credentials or a path.")
+
+    os.environ["E2E_EMAIL"] = local_config["E2E_EMAIL"]
+    os.environ["E2E_PASSWORD"] = local_config["E2E_PASSWORD"]
+    os.environ["E2E_BASE_URL"] = base_url.rstrip("/")
+    return os.environ["E2E_BASE_URL"]
+
+
+def _dev_server_is_ready(base_url, timeout=1):
+    try:
+        with urllib.request.urlopen(f"{base_url}/healthz/live/", timeout=timeout) as resp:
             return resp.status == 200 and resp.read().decode().strip() == "ok"
-    except Exception:
+    except (OSError, urllib.error.URLError, TimeoutError):
         return False
 
 
-def _start_dev_server():
-    """Start the Django development server for Playwright tests."""
-    env = os.environ.copy()
-    env["PYTHONUNBUFFERED"] = "1"
-    proc = subprocess.Popen([sys.executable, "manage.py", "runserver", "0.0.0.0:8006"], cwd=BASE_DIR, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    for _ in range(30):
-        if _dev_server_is_ready():
-            return proc
-        if proc.poll() is not None:
-            print("Could not start the Django development server; port 8006 may already be in use.")
-            sys.exit(1)
-        time.sleep(1)
-    proc.terminate()
-    try:
-        proc.wait(timeout=5)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-    print("Could not start the Django development server for Playwright tests.")
-    sys.exit(1)
-
-
-def _stop_dev_server(proc):
-    if proc is None:
-        return
-    proc.terminate()
-    try:
-        proc.wait(timeout=5)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-
-
 def playwright_check():
-    """Run Playwright end-to-end tests if a dev server is available or can be started."""
     npx = shutil.which("npx")
     if sys.platform == "win32" and npx and not npx.lower().endswith((".exe", ".cmd", ".bat")):
         npx = shutil.which("npx.cmd") or npx
@@ -87,18 +130,12 @@ def playwright_check():
         print("npx not found in PATH. Install Node or use --no-playwright.")
         sys.exit(1)
 
-    server_proc = None
-    if not _dev_server_is_ready():
-        print("Starting Django development server for Playwright tests...")
-        server_proc = _start_dev_server()
-    else:
-        print("Using existing Django development server at http://127.0.0.1:8006/")
+    base_url = _e2e_base_url()
+    if not _dev_server_is_ready(base_url):
+        raise SystemExit(f"The dedicated E2E server is not ready at {base_url}.")
 
-    os.environ["PLAYWRIGHT_BASE_URL"] = "http://127.0.0.1:8006"
-    try:
-        _run_step([npx, "playwright", "test", "--reporter=line"], "Playwright end-to-end tests")
-    finally:
-        _stop_dev_server(server_proc)
+    os.environ["PLAYWRIGHT_BASE_URL"] = base_url
+    _run_step([npx, "playwright", "test", "--reporter=line"], "Playwright end-to-end tests")
 
 
 def tailwind_build_check():
@@ -115,21 +152,20 @@ def tailwind_build_check():
         print("npx not found. Cannot check Tailwind build freshness.")
         sys.exit(1)
 
-    temp_build = build_file.with_suffix('.build.check.css')
-    cmd = [npx, "tailwindcss", "-i", "./home/static/home/css/tailwind.css", "-o", str(temp_build)]
-    print("$", " ".join(cmd))
-    try:
-        subprocess.run(cmd, check=True, cwd=BASE_DIR, env=os.environ.copy())
-    except subprocess.CalledProcessError as e:
-        temp_build.unlink(missing_ok=True)
-        print("[full-pipeline] FAILED: Tailwind CSS build")
-        print(f"[full-pipeline] Command: {' '.join(map(str, cmd))}")
-        print(f"[full-pipeline] Exit code: {e.returncode}")
-        sys.exit(e.returncode or 1)
+    with tempfile.TemporaryDirectory(prefix="wikikracja-tailwind-") as temp_directory:
+        temp_build = Path(temp_directory) / "tailwind.build.css"
+        cmd = [npx, "tailwindcss", "-i", "./home/static/home/css/tailwind.css", "-o", str(temp_build)]
+        print("$", " ".join(cmd))
+        try:
+            subprocess.run(cmd, check=True, cwd=BASE_DIR, env=os.environ.copy())
+        except subprocess.CalledProcessError as e:
+            print("[full-pipeline] FAILED: Tailwind CSS build")
+            print(f"[full-pipeline] Command: {' '.join(map(str, cmd))}")
+            print(f"[full-pipeline] Exit code: {e.returncode}")
+            sys.exit(e.returncode or 1)
 
-    original = build_file.read_text(encoding='utf-8')
-    rebuilt = temp_build.read_text(encoding='utf-8')
-    temp_build.unlink(missing_ok=True)
+        original = build_file.read_text(encoding='utf-8')
+        rebuilt = temp_build.read_text(encoding='utf-8')
 
     if original != rebuilt:
         print("tailwind.build.css is out of date. Run `npm run build:css` and commit the result.")
@@ -189,10 +225,7 @@ def main():
         print("Activate your virtualenv first.")
         sys.exit(1)
 
-    copy_env()
-    ensure_secret_key()
-    load_env()
-
+    _configure_isolated_verification_environment()
     print(f"Running in: {BASE_DIR}\n")
 
     if not args.no_ruff:

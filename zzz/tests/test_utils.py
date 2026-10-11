@@ -38,3 +38,19 @@ call_command('check')
         env = {**os.environ, 'DJANGO_SETTINGS_MODULE': 'zzz.test_settings', 'RUN_MAIN': 'false', 'SCHEDULER_ENABLED': 'false'}
         result = subprocess.run([sys.executable, '-c', script], cwd=settings.BASE_DIR, env=env, capture_output=True, text=True, timeout=60)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_test_settings_redirect_static_and_media_roots(self):
+        static_root = str(settings.BASE_DIR / 'isolated-test-static')
+        media_root = str(settings.BASE_DIR / 'isolated-test-media')
+        script = 'from django.conf import settings; print(settings.STATIC_ROOT); print(settings.MEDIA_ROOT)'
+        env = {
+            **os.environ,
+            'DJANGO_SETTINGS_MODULE': 'zzz.test_settings',
+            'PYTHON_DOTENV_DISABLED': '1',
+            'SECRET_KEY': 'isolated-test-key',
+            'WIKIKRACJA_TEST_STATIC_ROOT': static_root,
+            'WIKIKRACJA_TEST_MEDIA_ROOT': media_root,
+        }
+        result = subprocess.run([sys.executable, '-c', script], cwd=settings.BASE_DIR, env=env, capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(result.stdout.splitlines(), [static_root, media_root])
