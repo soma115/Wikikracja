@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 12:13+0200\n"
+"POT-Creation-Date: 2026-10-11 17:50+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -80,7 +80,7 @@ msgstr "Ta opcja już istnieje."
 
 #: .\ankiety\models.py:12 .\ankiety\templates\ankiety\survey_form.html:25
 #: .\board\models.py:42 .\chat\i18n.py:28 .\events\models.py:19
-#: .\glosowania\models.py:33 .\glosowania\views.py:584
+#: .\glosowania\models.py:33 .\glosowania\views.py:591
 #: .\home\templates\home\site_admin.html:36
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:7
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:7
@@ -470,7 +470,7 @@ msgid "Maximum file size: %(max_size)s MB."
 msgstr "Maksymalny rozmiar pliku: %(max_size)s MB."
 
 #: .\board\forms.py:51 .\obywatele\forms.py:301
-#: .\obywatele\tests\test_views.py:787
+#: .\obywatele\tests\test_views.py:932
 #, python-format
 msgid "Image is too large (max %(max_size)s MB)."
 msgstr "Obraz jest za duży (maks. %(max_size)s MB)."
@@ -488,7 +488,7 @@ msgstr "Tylko ja"
 #: .\board\templates\board\_post_detail_meta.html:44
 #: .\board\templates\board\_post_detail_meta.html:46
 #: .\board\templates\board\board.html:67 .\board\templates\board\board.html:91
-#: .\board\views.py:212
+#: .\board\views.py:214
 msgid "Group"
 msgstr "Grupa"
 
@@ -496,7 +496,7 @@ msgstr "Grupa"
 #: .\board\templates\board\_post_detail_meta.html:39
 #: .\board\templates\board\_post_detail_meta.html:41
 #: .\board\templates\board\board.html:66 .\board\templates\board\board.html:90
-#: .\board\views.py:213 .\chat\templates\chat\chat.html:82
+#: .\board\views.py:215 .\chat\templates\chat\chat.html:82
 #: .\events\models.py:31 .\events\templates\events\_event_detail_badges.html:15
 msgid "Public"
 msgstr "Publiczne"
@@ -505,7 +505,7 @@ msgstr "Publiczne"
 #: .\board\templates\board\_post_detail_meta.html:49
 #: .\board\templates\board\_post_detail_meta.html:51
 #: .\board\templates\board\board.html:68 .\board\templates\board\board.html:92
-#: .\board\views.py:222 .\home\templates\home\site_admin.html:104
+#: .\board\views.py:224 .\home\templates\home\site_admin.html:104
 msgid "Archive"
 msgstr "Archiwum"
 
@@ -518,7 +518,7 @@ msgstr "Widoczność"
 msgid "Priority"
 msgstr "Priorytet"
 
-#: .\board\models.py:25 .\board\signals.py:22
+#: .\board\models.py:25 .\board\signals.py:23
 msgid "Protected categories cannot be deleted."
 msgstr "Chronionych kategorii nie można usunąć."
 
@@ -574,8 +574,8 @@ msgid "Category"
 msgstr "Kategoria"
 
 #: .\board\models.py:51 .\board\templates\board\board.html:69
-#: .\board\templates\board\board.html:93 .\board\views.py:218
-#: .\tasks\templates\tasks\_task_card.html:65 .\tasks\views.py:82
+#: .\board\templates\board\board.html:93 .\board\views.py:220
+#: .\tasks\templates\tasks\_task_card.html:65 .\tasks\views.py:83
 msgid "Important"
 msgstr "Ważne"
 
@@ -591,56 +591,56 @@ msgstr "Klucz systemowy"
 msgid "Link Alias"
 msgstr "Alias linku"
 
-#: .\board\models.py:98 .\board\signals.py:90
+#: .\board\models.py:106 .\board\signals.py:123
 msgid "System posts cannot be deleted."
 msgstr "Dokumenty systemowe nie mogą być usunięte"
 
-#: .\board\models.py:123 .\board\search.py:17 .\core\models.py:13
+#: .\board\models.py:131 .\board\search.py:17 .\core\models.py:13
 #: .\home\models.py:13
 msgid "Post"
 msgstr "Dokument"
 
-#: .\board\models.py:124
+#: .\board\models.py:132
 msgid "File"
 msgstr "Plik"
 
-#: .\board\models.py:125
+#: .\board\models.py:133
 msgid "Filename"
 msgstr "Nazwa pliku"
 
-#: .\board\models.py:126
+#: .\board\models.py:134
 msgid "Uploaded At"
 msgstr "Przesłano"
 
-#: .\board\models.py:129
+#: .\board\models.py:137
 msgid "Post Attachment"
 msgstr "Załącznik"
 
-#: .\board\models.py:130
+#: .\board\models.py:138
 msgid "Post Attachments"
 msgstr "Załączniki"
 
-#: .\board\signals.py:45
+#: .\board\signals.py:46
 #, python-format
 msgid "New important document by %(username)s: %(link)s"
 msgstr "Nowy ważny dokument od %(username)s: %(link)s"
 
-#: .\board\signals.py:47 .\tests\test_board.py:702
+#: .\board\signals.py:48 .\tests\test_board.py:861
 #, python-format
 msgid "Document is no longer marked as important: %(link)s"
 msgstr "Dokument nie jest już oznaczony jako ważny: %(link)s"
 
-#: .\board\signals.py:49 .\tests\test_board.py:747
+#: .\board\signals.py:50 .\tests\test_board.py:906
 #, python-format
 msgid "Important document was archived: %(link)s"
 msgstr "Ważny dokument został zarchiwizowany: %(link)s"
 
-#: .\board\signals.py:51 .\tests\test_board.py:748
+#: .\board\signals.py:52 .\tests\test_board.py:907
 #, python-format
 msgid "Important document was made visible again: %(link)s"
 msgstr "Ważny dokument został ponownie udostępniony: %(link)s"
 
-#: .\board\signals.py:53
+#: .\board\signals.py:54
 #, python-format
 msgid "I've updated Important document: %(link)s"
 msgstr "Zaktualizowałem ważny dokument: %(link)s"
@@ -753,6 +753,7 @@ msgstr "Utwórz ogłoszenie"
 #: .\obywatele\templates\obywatele\my_profile.html:155
 #: .\obywatele\templates\obywatele\my_profile.html:386
 #: .\tasks\templates\tasks\task_close.html:22
+#: .\templates\allauth\account\confirm_login_code.html:26
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -837,11 +838,11 @@ msgstr "Nie ma jeszcze publikacji."
 msgid "Back to publications"
 msgstr "Powrót do publikacji"
 
-#: .\board\views.py:252
+#: .\board\views.py:254
 msgid "A-Z"
 msgstr "A-Z"
 
-#: .\board\views.py:260
+#: .\board\views.py:262
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:23
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:17
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:22
@@ -850,9 +851,15 @@ msgstr "A-Z"
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:10
 #: .\obywatele\templates\obywatele\_citizen_zalozono_partial.html:9
-#: .\obywatele\templates\obywatele\citizen_zadania.html:32 .\tasks\views.py:166
+#: .\obywatele\templates\obywatele\citizen_zadania.html:32 .\tasks\views.py:165
 msgid "Date"
 msgstr "Data"
+
+#: .\board\views.py:340 .\bookkeeping\views.py:115 .\bookkeeping\views.py:425
+#: .\events\views.py:211 .\glosowania\views.py:153 .\glosowania\views.py:752
+#: .\obywatele\views.py:516 .\tasks\views.py:512
+msgid "Saved."
+msgstr "Zapisane."
 
 #: .\bookkeeping\feed.py:16 .\bookkeeping\forms.py:28
 #: .\bookkeeping\models.py:108
@@ -936,7 +943,7 @@ msgstr "Kod"
 #: .\bookkeeping\templates\bookkeeping\category_detail.html:11
 #: .\bookkeeping\templates\bookkeeping\partner_confirm_delete.html:12
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:10
-#: .\bookkeeping\views.py:233 .\obywatele\forms.py:265
+#: .\bookkeeping\views.py:239 .\obywatele\forms.py:265
 #: .\obywatele\models.py:220
 msgid "Name"
 msgstr "Nazwa"
@@ -987,7 +994,7 @@ msgstr "Adres"
 
 #: .\bookkeeping\models.py:97
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:35
-#: .\bookkeeping\views.py:233 .\obywatele\models.py:85
+#: .\bookkeeping\views.py:239 .\obywatele\models.py:85
 msgid "City"
 msgstr "Miejscowość"
 
@@ -1000,7 +1007,7 @@ msgstr "Kraj"
 #: .\bookkeeping\models.py:99
 #: .\bookkeeping\templates\bookkeeping\_partner_card.html:32
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:41
-#: .\bookkeeping\views.py:233
+#: .\bookkeeping\views.py:239
 msgid "Notes"
 msgstr "Notatki"
 
@@ -1242,7 +1249,7 @@ msgid "Phone number"
 msgstr "Numer telefonu"
 
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:19
-#: .\bookkeeping\views.py:233
+#: .\bookkeeping\views.py:239
 msgid "Web Page"
 msgstr "www"
 
@@ -1334,27 +1341,27 @@ msgid "No transactions yet."
 msgstr "Nie ma jeszcze transakcji."
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:75
-#: .\bookkeeping\views.py:321
+#: .\bookkeeping\views.py:327
 msgid "Add transaction"
 msgstr "Dodaj Transakcję"
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:76
-#: .\bookkeeping\views.py:208
+#: .\bookkeeping\views.py:214
 msgid "Add partner"
 msgstr "Dodaj Partnera"
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:77
-#: .\bookkeeping\views.py:165
+#: .\bookkeeping\views.py:171
 #: .\categories\templates\categories\_category_modal.html:14
 msgid "Add category"
 msgstr "Dodaj kategorię"
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:78
-#: .\bookkeeping\views.py:120 .\home\templates\home\home.html:371
+#: .\bookkeeping\views.py:126 .\home\templates\home\home.html:371
 msgid "Add asset"
 msgstr "Dodaj aktywo"
 
-#: .\bookkeeping\views.py:73
+#: .\bookkeeping\views.py:74
 #: .\glosowania\templates\glosowania\szczegoly.html:160
 #: .\glosowania\templates\glosowania\szczegoly.html:200
 #: .\glosowania\templatetags\glosowania_stepper.py:53
@@ -1363,15 +1370,15 @@ msgstr "Dodaj aktywo"
 msgid "Add"
 msgstr "Dodaj"
 
-#: .\bookkeeping\views.py:155
+#: .\bookkeeping\views.py:161
 msgid "Cannot delete asset because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć zasobu, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które go wykorzystują."
 
-#: .\bookkeeping\views.py:197
+#: .\bookkeeping\views.py:203
 msgid "Cannot delete category because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć kategorii, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które ją wykorzystują."
 
-#: .\bookkeeping\views.py:297
+#: .\bookkeeping\views.py:303
 msgid "Cannot delete partner because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć partnera, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które go wykorzystują."
 
@@ -1735,9 +1742,9 @@ msgstr "Brak wiadomości. Napisz pierwszy!"
 msgid "No access to this chat."
 msgstr "Brak dostępu do tego czatu."
 
-#: .\chat\models.py:83 .\chat\services.py:183
-#: .\obywatele\tests\test_views.py:498 .\obywatele\tests\test_views.py:499
-#: .\obywatele\tests\test_views.py:502
+#: .\chat\models.py:80 .\chat\services.py:183
+#: .\obywatele\tests\test_views.py:552 .\obywatele\tests\test_views.py:553
+#: .\obywatele\tests\test_views.py:556
 msgid "Chat room"
 msgstr "Pokój czatu"
 
@@ -1976,7 +1983,7 @@ msgid "The public inbox is not available at the moment."
 msgstr "Publiczna skrzynka nie jest obecnie dostępna."
 
 #: .\core\models.py:14 .\home\models.py:14
-#: .\home\templatetags\feed_filters.py:38 .\obywatele\tests\test_views.py:500
+#: .\home\templatetags\feed_filters.py:38 .\obywatele\tests\test_views.py:554
 #: .\tasks\activity.py:49 .\tasks\search.py:18
 msgctxt "task"
 msgid "Activity"
@@ -2231,7 +2238,7 @@ msgstr "Spotkanie"
 msgid "Add to Google Calendar"
 msgstr "Dodaj do swojego Kalendarza Google"
 
-#: .\events\templates\events\_event_card.html:59 .\events\views.py:30
+#: .\events\templates\events\_event_card.html:59 .\events\views.py:31
 #: .\home\navigation.py:18 .\home\services\dashboard.py:26
 #: .\home\templates\home\base.html:273 .\home\templates\home\home.html:455
 #: .\home\views.py:127 .\obywatele\views.py:472
@@ -2303,20 +2310,20 @@ msgstr "Brak wydarzeń w tym przedziale czasu"
 msgid "Add the first event"
 msgstr "Stwórz pierwsze wydarzenie"
 
-#: .\glosowania\activity.py:13 .\obywatele\tests\test_views.py:425
+#: .\glosowania\activity.py:13 .\obywatele\tests\test_views.py:479
 msgid "Added argument"
 msgstr "Dodano argument"
 
-#: .\glosowania\activity.py:17 .\obywatele\tests\test_views.py:431
+#: .\glosowania\activity.py:17 .\obywatele\tests\test_views.py:485
 msgid "Signed proposal"
 msgstr "Podpisano propozycję"
 
-#: .\glosowania\activity.py:20 .\obywatele\tests\test_views.py:444
+#: .\glosowania\activity.py:20 .\obywatele\tests\test_views.py:498
 msgid "Voted in referendum"
 msgstr "Zagłosowano w referendum"
 
-#: .\glosowania\activity.py:32 .\obywatele\tests\test_views.py:501
-#: .\obywatele\tests\test_views.py:503
+#: .\glosowania\activity.py:32 .\obywatele\tests\test_views.py:555
+#: .\obywatele\tests\test_views.py:557
 msgid "Voting proposal"
 msgstr "Propozycja głosowania"
 
@@ -2324,7 +2331,7 @@ msgstr "Propozycja głosowania"
 #: .\glosowania\models.py:28
 #: .\glosowania\templates\glosowania\_detail_meta.html:20
 #: .\glosowania\templatetags\glosowania_stepper.py:44
-#: .\glosowania\tests\test_views.py:507 .\glosowania\views.py:482
+#: .\glosowania\tests\test_views.py:596 .\glosowania\views.py:489
 msgid "Referendum"
 msgstr "Referendum"
 
@@ -2339,7 +2346,7 @@ msgstr "podpisy"
 #: .\glosowania\forms.py:38 .\glosowania\models.py:44 .\glosowania\search.py:30
 #: .\glosowania\templates\glosowania\_proposal_card.html:100
 #: .\glosowania\templates\glosowania\szczegoly.html:101
-#: .\glosowania\views.py:584
+#: .\glosowania\views.py:591
 msgid "Reasoning"
 msgstr "Uzasadnienie"
 
@@ -2499,7 +2506,7 @@ msgstr "Zatwierdzone"
 
 #: .\glosowania\management\commands\vote.py:243 .\glosowania\models.py:29
 #: .\tasks\models.py:56 .\tasks\templates\tasks\_task_card.html:69
-#: .\tasks\templates\tasks\_task_list_partial.html:44 .\tasks\views.py:82
+#: .\tasks\templates\tasks\_task_list_partial.html:44 .\tasks\views.py:83
 msgid "Rejected"
 msgstr "Odrzucone"
 
@@ -2507,7 +2514,7 @@ msgstr "Odrzucone"
 msgid "Enter only existing bill numbers here"
 msgstr "Wpisz tutaj tylko numery istniejących przepisów"
 
-#: .\glosowania\models.py:26 .\glosowania\views.py:75 .\glosowania\views.py:683
+#: .\glosowania\models.py:26 .\glosowania\views.py:75 .\glosowania\views.py:690
 msgid "Proposition"
 msgstr "Propozycja"
 
@@ -2518,7 +2525,7 @@ msgstr "Wpisz krótki tytuł opisujący nowe prawo."
 #: .\glosowania\models.py:34
 #: .\glosowania\templates\glosowania\_proposal_card.html:82
 #: .\glosowania\templates\glosowania\szczegoly.html:84
-#: .\glosowania\views.py:584
+#: .\glosowania\views.py:591
 msgid "Law text"
 msgstr "Treść przepisu"
 
@@ -2909,7 +2916,7 @@ msgid "Adjust the values below. Only the parameters you change will be included 
 msgstr "Dostosuj poniższe wartości. Tylko zmienione przez Ciebie parametry zostaną uwzględnione w referendum."
 
 #: .\glosowania\templates\glosowania\parameters_propose.html:38
-#: .\glosowania\views.py:677
+#: .\glosowania\views.py:684
 msgid "Logo"
 msgstr "Logo"
 
@@ -2972,7 +2979,7 @@ msgid "Saving your vote..."
 msgstr "Zapisywanie głosu..."
 
 #: .\glosowania\templates\glosowania\szczegoly.html:57
-#: .\glosowania\views.py:222
+#: .\glosowania\views.py:229
 msgid "You have already voted in this referendum"
 msgstr "Już zagłosowałeś w tym referendum"
 
@@ -3032,25 +3039,25 @@ msgstr "Propozycje"
 msgid "How do votes work?"
 msgstr "Jak działają głosowania?"
 
-#: .\glosowania\tests\test_views.py:485 .\glosowania\tests\test_views.py:505
-#: .\glosowania\views.py:481
+#: .\glosowania\tests\test_views.py:574 .\glosowania\tests\test_views.py:594
+#: .\glosowania\views.py:488
 msgid "A new argument was added to this referendum:"
 msgstr "Dodano nowy argument do tego głosowania:"
 
-#: .\glosowania\tests\test_views.py:885 .\glosowania\views.py:108
+#: .\glosowania\tests\test_views.py:1020 .\glosowania\views.py:108
 msgid "Please correct the errors below."
 msgstr "Popraw poniższe błędy."
 
-#: .\glosowania\views.py:80 .\glosowania\views.py:723
+#: .\glosowania\views.py:80 .\glosowania\views.py:730
 msgid "New proposal has been saved."
 msgstr "Nowa propozycja została zapisana."
 
 #: .\glosowania\views.py:84 .\glosowania\views.py:92 .\glosowania\views.py:96
-#: .\glosowania\views.py:730 .\glosowania\views.py:734
+#: .\glosowania\views.py:737 .\glosowania\views.py:741
 msgid "New law proposal"
 msgstr "Nowa propozycja przepisu"
 
-#: .\glosowania\views.py:97 .\glosowania\views.py:735
+#: .\glosowania\views.py:97 .\glosowania\views.py:742
 #, python-brace-format
 msgid ""
 "{user} added new law proposal: \"{title}\"\n"
@@ -3059,21 +3066,17 @@ msgstr ""
 "{user} dodał/a nową propozycję przepisu: \"{title}\"\n"
 "Możesz ją zobaczyć tutaj: {url}"
 
-#: .\glosowania\views.py:146 .\glosowania\views.py:745
-msgid "Saved."
-msgstr "Zapisane."
-
-#: .\glosowania\views.py:155 .\glosowania\views.py:159
+#: .\glosowania\views.py:162 .\glosowania\views.py:166
 #, python-brace-format
 msgid "Proposal no. {} has been modified"
 msgstr "Propozycja nr. {} została zmodyfikowana"
 
-#: .\glosowania\views.py:156
+#: .\glosowania\views.py:163
 #, python-brace-format
 msgid "{user} modified proposal: \"{title}\""
 msgstr "{user} zmodyfikował/a propozycję: \"{title}\""
 
-#: .\glosowania\views.py:160
+#: .\glosowania\views.py:167
 #, python-brace-format
 msgid ""
 "{user} modified proposal: \"{title}\"\n"
@@ -3082,106 +3085,106 @@ msgstr ""
 "{user} zmodyfikował/a propozycję przepisu: \"{title}\"\n"
 "Możesz zobaczyć nową wersję tutaj: {url}"
 
-#: .\glosowania\views.py:184
+#: .\glosowania\views.py:191
 msgid "Your proposal has been deleted."
 msgstr "Twoja propozycja została usunięta."
 
-#: .\glosowania\views.py:224 .\glosowania\views.py:324
-#: .\glosowania\views.py:350
+#: .\glosowania\views.py:231 .\glosowania\views.py:331
+#: .\glosowania\views.py:357
 msgid "Voting is temporarily unavailable. Please try again in a moment."
 msgstr "Głosowanie jest chwilowo niedostępne. Spróbuj ponownie za chwilę."
 
-#: .\glosowania\views.py:243 .\glosowania\views.py:247
+#: .\glosowania\views.py:250 .\glosowania\views.py:254
 msgid "This motion is not currently open for voting."
 msgstr "Ten projekt nie jest obecnie otwarty do głosowania."
 
-#: .\glosowania\views.py:290 .\glosowania\views.py:303
+#: .\glosowania\views.py:297 .\glosowania\views.py:310
 msgid "This motion no longer accepts signatures."
 msgstr "Ten projekt nie akceptuje już podpisów."
 
-#: .\glosowania\views.py:297
+#: .\glosowania\views.py:304
 msgid "You signed this motion for a referendum."
 msgstr "Podpisałeś ten wniosek o referendum."
 
-#: .\glosowania\views.py:310
+#: .\glosowania\views.py:317
 msgid "Not signed."
 msgstr "Nie podpisane."
 
-#: .\glosowania\views.py:332
+#: .\glosowania\views.py:339
 msgid "Your vote has been saved. You voted Yes."
 msgstr "Twój głos został zapisany. Zagłosowałeś na Tak."
 
-#: .\glosowania\views.py:335 .\glosowania\views.py:361
+#: .\glosowania\views.py:342 .\glosowania\views.py:368
 #, python-format
 msgid "Your verification code is: %(code)s"
 msgstr "Twój kod weryfikacyjny to: %(code)s"
 
-#: .\glosowania\views.py:338 .\glosowania\views.py:364
+#: .\glosowania\views.py:345 .\glosowania\views.py:371
 msgid "Write down your code or create screenshot to verify it when the referendum is over. This code will be presented just once and will be not related to you."
 msgstr "Zapisz swój kod na kartce lub zrób zrzut ekranu aby zweryfikować go po zakończeniu referendum. Ten kod zostanie przedstawiony tylko raz i nie będzie powiązany z twoją osobą."
 
-#: .\glosowania\views.py:358
+#: .\glosowania\views.py:365
 msgid "Your vote has been saved. You voted No."
 msgstr "Twój głos został zapisany. Zagłosowałeś na Nie."
 
-#: .\glosowania\views.py:467
+#: .\glosowania\views.py:474
 msgid "Arguments cannot be added after voting has ended."
 msgstr "Argumenty nie mogą być dodawane po zakończeniu głosowania."
 
-#: .\glosowania\views.py:490
+#: .\glosowania\views.py:497
 #, python-brace-format
 msgid "Your {type} argument has been added."
 msgstr "Twój argument {type} został dodany."
 
-#: .\glosowania\views.py:495 .\glosowania\views.py:522
+#: .\glosowania\views.py:502 .\glosowania\views.py:529
 msgid "There was an error with your argument. Please try again."
 msgstr "Wystąpił błąd z twoim argumentem. Spróbuj ponownie."
 
-#: .\glosowania\views.py:507
+#: .\glosowania\views.py:514
 msgid "You can only edit your own arguments."
 msgstr "Możesz edytować tylko własne argumenty."
 
-#: .\glosowania\views.py:512
+#: .\glosowania\views.py:519
 msgid "Arguments cannot be edited after voting has ended."
 msgstr "Argumenty nie mogą być edytowane po zakończeniu głosowania."
 
-#: .\glosowania\views.py:519
+#: .\glosowania\views.py:526
 msgid "Your argument has been updated."
 msgstr "Twój argument został zaktualizowany."
 
-#: .\glosowania\views.py:535
+#: .\glosowania\views.py:542
 msgid "You can only delete your own arguments."
 msgstr "Możesz usuwać tylko własne argumenty."
 
-#: .\glosowania\views.py:540
+#: .\glosowania\views.py:547
 msgid "Arguments cannot be deleted after voting has ended."
 msgstr "Argumenty nie mogą być usuwane po zakończeniu głosowania."
 
-#: .\glosowania\views.py:546
+#: .\glosowania\views.py:553
 msgid "Your argument has been deleted."
 msgstr "Twój argument został usunięty."
 
-#: .\glosowania\views.py:584
+#: .\glosowania\views.py:591
 msgid "Penalty"
 msgstr "Konsekwencje"
 
-#: .\glosowania\views.py:584
+#: .\glosowania\views.py:591
 msgid "Abolishes"
 msgstr "Znosi"
 
-#: .\glosowania\views.py:675
+#: .\glosowania\views.py:682
 msgid "Proposed logo removed from this referendum"
 msgstr "Proponowane logo usunięto z tego referendum."
 
-#: .\glosowania\views.py:677
+#: .\glosowania\views.py:684
 msgid "new logo"
 msgstr "nowe logo"
 
-#: .\glosowania\views.py:678
+#: .\glosowania\views.py:685
 msgid "Proposed change of system parameters:"
 msgstr "Proponowana zmiana parametrów systemu:"
 
-#: .\glosowania\views.py:683
+#: .\glosowania\views.py:690
 msgid "System parameters change"
 msgstr "Zmiana parametrów systemu"
 
@@ -3274,7 +3277,7 @@ msgid "Activity"
 msgstr "Aktywność"
 
 #: .\home\navigation.py:48 .\home\templates\home\base.html:147
-#: .\home\tests.py:63
+#: .\home\tests.py:64
 msgid "Settings"
 msgstr "Ustawienia"
 
@@ -3946,13 +3949,13 @@ msgid "Wants to help"
 msgstr "Chce pomóc"
 
 #: .\home\test_feed.py:78 .\tasks\activity.py:20
-#: .\tasks\templatetags\tasks_extras.py:42 .\tasks\tests\test_views.py:303
+#: .\tasks\templatetags\tasks_extras.py:42 .\tasks\tests\test_views.py:324
 msgid "Awaiting"
 msgstr "Oczekujące"
 
 #: .\home\test_feed.py:79 .\tasks\activity.py:18
 #: .\tasks\templates\tasks\task_help.html:29
-#: .\tasks\templatetags\tasks_extras.py:43 .\tasks\tests\test_views.py:315
+#: .\tasks\templatetags\tasks_extras.py:43 .\tasks\tests\test_views.py:336
 msgid "In progress"
 msgstr "W realizacji"
 
@@ -4094,7 +4097,7 @@ msgstr "Użyj publicznego linku do profilu z wybranego serwisu."
 #: .\obywatele\templates\obywatele\assets.html:115
 #: .\obywatele\templates\obywatele\my_profile.html:173
 #: .\obywatele\templates\obywatele\szczegoly.html:140
-#: .\obywatele\tests\test_views.py:1054
+#: .\obywatele\tests\test_views.py:1207
 msgid "Voivodeship"
 msgstr "Województwo"
 
@@ -4138,7 +4141,7 @@ msgstr "Wybierz typ."
 msgid "Enter a name."
 msgstr "Wprowadź nazwę."
 
-#: .\obywatele\forms.py:288 .\obywatele\views.py:646 .\obywatele\views.py:668
+#: .\obywatele\forms.py:288 .\obywatele\views.py:647 .\obywatele\views.py:669
 msgid "This item is already assigned with this type."
 msgstr "Ten zasób jest już przypisany z tym typem."
 
@@ -4320,7 +4323,7 @@ msgstr "Wykonywany zawód"
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:65
 #: .\obywatele\templates\obywatele\my_profile.html:177
 #: .\obywatele\templates\obywatele\szczegoly.html:138
-#: .\obywatele\tests\test_views.py:249
+#: .\obywatele\tests\test_views.py:303
 msgid "Job"
 msgstr "Zawód"
 
@@ -4560,7 +4563,7 @@ msgstr ""
 "\n"
 "%(reason)s"
 
-#: .\obywatele\services.py:59 .\obywatele\tests\test_views.py:427
+#: .\obywatele\services.py:59 .\obywatele\tests\test_views.py:481
 msgid "Citizenship event"
 msgstr "Zdarzenie obywatelskie"
 
@@ -4672,14 +4675,14 @@ msgstr "Nieaktywni 7+ dni"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:14
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:53
-#: .\obywatele\tests\test_views.py:279
+#: .\obywatele\tests\test_views.py:333
 msgid "This person has low reputation points"
 msgstr "Ta osoba ma mało punktów reputacji"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:15
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:54
 #: .\obywatele\templates\obywatele\szczegoly.html:34
-#: .\obywatele\tests\test_views.py:292
+#: .\obywatele\tests\test_views.py:346
 msgid "This person has requested account deletion"
 msgstr "Ta osoba zażądała usunięcia swojego konta"
 
@@ -4706,7 +4709,7 @@ msgid "This is you"
 msgstr "To jesteś Ty"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:63
-#: .\obywatele\tests\test_views.py:248
+#: .\obywatele\tests\test_views.py:302
 msgid "Business"
 msgstr "Biznes"
 
@@ -4719,7 +4722,7 @@ msgid "Resources"
 msgstr "Zasoby"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:66
-#: .\obywatele\tests\test_views.py:250
+#: .\obywatele\tests\test_views.py:304
 msgid "Hobby"
 msgstr "Hobby"
 
@@ -4773,7 +4776,7 @@ msgid "People in selected location"
 msgstr "Osoby w wybranej lokalizacji"
 
 #: .\obywatele\templates\obywatele\assets.html:78
-#: .\obywatele\tests\test_views.py:1040
+#: .\obywatele\tests\test_views.py:1193
 msgid "Offers"
 msgstr "Oferty"
 
@@ -4782,7 +4785,7 @@ msgid "No offers match your search."
 msgstr "Żadna oferta nie pasuje do wyszukiwania."
 
 #: .\obywatele\templates\obywatele\assets.html:102
-#: .\obywatele\tests\test_views.py:1041
+#: .\obywatele\tests\test_views.py:1194
 msgid "Needs"
 msgstr "Potrzeby"
 
@@ -4872,7 +4875,7 @@ msgstr "Tutaj możesz edytować twoje zasoby"
 
 #: .\obywatele\templates\obywatele\my_assets.html:22
 #: .\obywatele\templates\obywatele\onboarding_details.html:21
-#: .\obywatele\tests\test_views.py:832
+#: .\obywatele\tests\test_views.py:985
 msgid "The form could not be saved. Please correct the following errors:"
 msgstr "Nie udało się zapisać formularza. Popraw następujące błędy:"
 
@@ -5204,19 +5207,19 @@ msgstr "Zaproś"
 msgid "Parameters"
 msgstr "Parametry"
 
-#: .\obywatele\tests\test_views.py:426 .\tasks\activity.py:57
+#: .\obywatele\tests\test_views.py:480 .\tasks\activity.py:57
 msgid "Assigned activity"
 msgstr "Przydzielone działanie"
 
-#: .\obywatele\tests\test_views.py:428 .\tasks\activity.py:60
+#: .\obywatele\tests\test_views.py:482 .\tasks\activity.py:60
 msgid "Voted on activity"
 msgstr "Zagłosowano na działanie"
 
-#: .\obywatele\tests\test_views.py:429 .\tasks\activity.py:63
+#: .\obywatele\tests\test_views.py:483 .\tasks\activity.py:63
 msgid "Evaluated activity"
 msgstr "Oceniono działanie"
 
-#: .\obywatele\tests\test_views.py:430 .\tasks\activity.py:54
+#: .\obywatele\tests\test_views.py:484 .\tasks\activity.py:54
 msgid "Created activity"
 msgstr "Utworzone działanie"
 
@@ -5252,7 +5255,7 @@ msgstr "Nowy użytkownik został zapisany."
 msgid "New citizen has been proposed"
 msgstr "Został zaproponowany nowy użytkownik"
 
-#: .\obywatele\views.py:437 .\obywatele\views.py:517 .\obywatele\views.py:933
+#: .\obywatele\views.py:437 .\obywatele\views.py:518 .\obywatele\views.py:934
 msgid "Please correct the highlighted errors."
 msgstr "Popraw podświetlone błędy."
 
@@ -5312,32 +5315,32 @@ msgstr "Komputer"
 msgid "Desktop browsers and PWAs"
 msgstr "Przeglądarki i aplikacje PWA na komputerze"
 
-#: .\obywatele\views.py:625
+#: .\obywatele\views.py:626
 msgid "Changes was saved"
 msgstr "Zmiany zostały zapisane"
 
-#: .\obywatele\views.py:750
+#: .\obywatele\views.py:751
 msgid "You cannot create a note about yourself."
 msgstr "Nie możesz utworzyć notatki o sobie."
 
-#: .\obywatele\views.py:755
+#: .\obywatele\views.py:756
 msgid "The note cannot exceed 500 characters."
 msgstr "Notatka nie może przekraczać 500 znaków."
 
-#: .\obywatele\views.py:930
+#: .\obywatele\views.py:931
 msgid "Candidate profile has been updated."
 msgstr "Profil kandydata został zaktualizowany."
 
-#: .\obywatele\views.py:962
+#: .\obywatele\views.py:963
 #, python-format
 msgid "You have confirmed %(email)s."
 msgstr "Potwierdziłeś adres e-mail %(email)s."
 
-#: .\obywatele\views.py:970
+#: .\obywatele\views.py:971
 msgid "Fill out your onboarding form"
 msgstr "Wypełnij formularz rejestracyjny"
 
-#: .\obywatele\views.py:971
+#: .\obywatele\views.py:972
 #, python-format
 msgid ""
 "Your email has been confirmed.\n"
@@ -5348,19 +5351,19 @@ msgstr ""
 "\n"
 "Wypełnij proszę swój formularz rejestracyjny tutaj: %(link)s"
 
-#: .\obywatele\views.py:1061
+#: .\obywatele\views.py:1062
 msgid "A deletion request already exists for your account."
 msgstr "Żądanie usunięcia konta już istnieje."
 
-#: .\obywatele\views.py:1074
+#: .\obywatele\views.py:1075
 msgid "Your account deletion has been scheduled. Your data will be permanently removed in 30 days. You can cancel this request at any time before then."
 msgstr "Usunięcie Twojego konta zostało zaplanowane. Twoje dane zostaną trwale usunięte za 30 dni. Możesz anulować to żądanie w dowolnym momencie przed tym czasem."
 
-#: .\obywatele\views.py:1086
+#: .\obywatele\views.py:1087
 msgid "Your account deletion request has been cancelled."
 msgstr "Twoje żądanie usunięcia konta zostało anulowane."
 
-#: .\obywatele\views.py:1088
+#: .\obywatele\views.py:1089
 msgid "No active deletion request found."
 msgstr "Brak aktywnego żądania usunięcia."
 
@@ -5554,7 +5557,7 @@ msgstr "Nieprawidłowy status zamknięcia."
 
 #: .\tasks\models.py:54 .\tasks\templates\tasks\_task_card.html:71
 #: .\tasks\templates\tasks\_task_list_partial.html:36
-#: .\tasks\templates\tasks\task_help.html:38 .\tasks\tests\test_views.py:324
+#: .\tasks\templates\tasks\task_help.html:38 .\tasks\tests\test_views.py:345
 msgid "Completed"
 msgstr "Ukończone"
 
@@ -5617,11 +5620,11 @@ msgstr "Brak koordynatora"
 msgid "no coordinator"
 msgstr "brak koordynatora"
 
-#: .\tasks\templates\tasks\_task_card.html:63 .\tasks\views.py:82
+#: .\tasks\templates\tasks\_task_card.html:63 .\tasks\views.py:83
 msgid "Critical"
 msgstr "Krytyczne"
 
-#: .\tasks\templates\tasks\_task_card.html:67 .\tasks\views.py:82
+#: .\tasks\templates\tasks\_task_card.html:67 .\tasks\views.py:83
 msgid "Beneficial"
 msgstr "Korzystne"
 
@@ -5922,6 +5925,33 @@ msgstr "Wikikracja Administration"
 msgid "Account Inactive"
 msgstr "Konto Nieaktywne"
 
+#: .\templates\allauth\account\confirm_login_code.html:5
+#: .\templates\allauth\account\login.html:6
+#: .\templates\allauth\account\login.html:15
+#: .\templates\allauth\account\login.html:26
+msgid "Sign In"
+msgstr "Zaloguj się"
+
+#: .\templates\allauth\account\confirm_login_code.html:13
+msgid "Enter Sign-In Code"
+msgstr ""
+
+#: .\templates\allauth\account\confirm_login_code.html:16
+#, python-format
+msgid "We've sent a code to %(recipient)s. The code expires shortly, so please enter it soon."
+msgstr ""
+
+#: .\templates\allauth\account\confirm_login_code.html:27
+#: .\templates\allauth\account\email_confirm.html:22
+msgid "Confirm"
+msgstr "Potwierdź"
+
+#: .\templates\allauth\account\confirm_login_code.html:37
+#, fuzzy
+#| msgid "Requested at"
+msgid "Request new code"
+msgstr "Żądanie złożone dnia"
+
 #: .\templates\allauth\account\email.html:6
 #: .\templates\allauth\account\email.html:9
 msgid "E-mail Addresses"
@@ -6031,22 +6061,18 @@ msgstr "Potwierdź adres email"
 msgid "Please confirm that <a href=\"mailto:%(email)s\">%(email)s</a> is your e-mail."
 msgstr "Potwierdź, że <a href=\"mailto:%(email)s\">%(email)s</a> jest Twoim adresem e-mail."
 
-#: .\templates\allauth\account\email_confirm.html:22
-msgid "Confirm"
-msgstr "Potwierdź"
-
 #: .\templates\allauth\account\email_confirm.html:29
 #, python-format
 msgid "This e-mail confirmation link expired or is invalid. Please <a href=\"%(email_url)s\">issue a new e-mail confirmation request</a>."
 msgstr "Ten link potwierdzający e-mail wygasł lub jest nieprawidłowy. <a href=\"%(email_url)s\">Wyślij nową prośbę o potwierdzenie e-maila</a>."
 
-#: .\templates\allauth\account\login.html:6
-#: .\templates\allauth\account\login.html:15
-#: .\templates\allauth\account\login.html:26
-msgid "Sign In"
-msgstr "Zaloguj się"
+#: .\templates\allauth\account\login.html:31
+#: .\templates\allauth\account\request_login_code.html:5
+#: .\templates\allauth\account\request_login_code.html:13
+msgid "Send me a sign-in code"
+msgstr ""
 
-#: .\templates\allauth\account\login.html:30
+#: .\templates\allauth\account\login.html:35
 msgid "Send a message to a group"
 msgstr "Wyślij wiadomość do grupy"
 
@@ -6147,6 +6173,22 @@ msgstr "Twoje hasło zostało zmienione."
 #: .\templates\allauth\account\password_set.html:14
 msgid "Set Password"
 msgstr "Ustaw hasło"
+
+#: .\templates\allauth\account\request_login_code.html:16
+msgid "You will receive a special code for a password-free sign-in."
+msgstr ""
+
+#: .\templates\allauth\account\request_login_code.html:26
+#, fuzzy
+#| msgid "Requested at"
+msgid "Request Code"
+msgstr "Żądanie złożone dnia"
+
+#: .\templates\allauth\account\request_login_code.html:30
+#, fuzzy
+#| msgid "Enter an option."
+msgid "Other sign-in options"
+msgstr "Wprowadź opcję."
 
 #: .\templates\allauth\account\signup.html:22
 msgid "Sign Up"
