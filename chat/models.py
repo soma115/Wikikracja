@@ -39,11 +39,8 @@ class ChatRoomQuerySet(models.QuerySet):
                 continue
             room = existing.get(instance.pk)
             if room is None:
-                public = True
-                archived = False
-                if source_app == 'board':
-                    public = instance.visibility == 'public'
-                    archived = instance.visibility == 'archive'
+                public = instance.chat_room_public
+                archived = instance.chat_room_archived
                 founder_id = getattr(instance, 'author_id', None) or getattr(instance, 'created_by_id', None)
                 room = Room(title=instance.get_chat_room_title(), public=public, archived=archived, protected=True, founder_id=founder_id, source_app=source_app, source_object_id=instance.pk)
                 rooms_to_create.append(room)
@@ -85,6 +82,14 @@ class ChatRoomModel(models.Model):
 
     class Meta:
         abstract = True
+
+    @property
+    def chat_room_public(self):
+        return True
+
+    @property
+    def chat_room_archived(self):
+        return False
 
     def get_chat_room_url(self):
         if self.chat_room_id:

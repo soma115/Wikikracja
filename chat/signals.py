@@ -1,10 +1,9 @@
 import logging
 
 from asgiref.sync import async_to_sync
-from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
-from django.db.models import F, Q
+from django.db.models import F
 from django.db.models.functions import Greatest
 from django.db.models.signals import m2m_changed, post_delete, post_migrate, post_save
 from django.dispatch import Signal, receiver
@@ -19,6 +18,7 @@ log = logging.getLogger(__name__)
 
 chat_room_requested = Signal()
 chat_message_requested = Signal()
+chat_message_created = Signal()
 
 
 @receiver(m2m_changed, sender=Room.allowed.through)
@@ -83,16 +83,9 @@ def ensure_discussion_room_for_instance(instance):
         return instance.chat_room
 
     users = get_user_model().objects.filter(is_active=True)
-    app_label = instance._meta.app_label
-    public = True
-    archived = False
-    if app_label == 'board':
-        from board.models import Post
-
-        public = instance.visibility == Post.Visibility.PUBLIC
-        archived = instance.visibility == Post.Visibility.ARCHIVE
-
-    request_discussion_room(instance, founder=getattr(instance, 'author', None) or getattr(instance, 'created_by', None), allowed_users=users, public=public, archived=archived)
+    request_discussion_room(
+        instance, founder=getattr(instance, 'author', None) or getattr(instance, 'created_by', None), allowed_users=users, public=instance.chat_room_public, archived=instance.chat_room_archived
+    )
     return instance.chat_room
 
 
@@ -132,14 +125,7 @@ def _sync_room_last_message(sender, instance, created, **kwargs):
             last_activity=Greatest(F('last_activity'), instance.time),
             archived=False,
         )
-        if was_archived and room.source_app == 'board':
-            from board.models import Post
-
-            post = Post.objects.filter(pk=room.source_object_id, visibility=Post.Visibility.ARCHIVE).first()
-            if post is not None:
-                post.visibility = Post.Visibility.GROUP
-                post.updated_by = instance.sender
-                post.save(update_fields=['visibility', 'updated_by', 'updated'])
+        chat_message_created.send(sender=sender, message=instance, room_was_archived=was_archived)
     else:
         # Na edycji: interesuje nas tylko zmiana tekstu.
         uf = kwargs.get('update_fields')
@@ -255,9 +241,7 @@ def create_one2one_rooms(sender, **kwargs):
 @receiver(citizen_accepted)
 def add_citizen_to_public_rooms(sender, user, **kwargs):
     """Grant a newly accepted citizen access to existing public rooms."""
-    Post = apps.get_model('board', 'Post')
-    visible_document_ids = Post.objects.filter(visibility__in=(Post.Visibility.GROUP, Post.Visibility.ARCHIVE)).values_list('pk', flat=True)
-    room_ids = list(Room.objects.filter(Q(public=True) | Q(source_app='board', source_object_id__in=visible_document_ids)).values_list('id', flat=True))
+    room_ids = list(Room.objects.filter(public=True).values_list('id', flat=True))
     membership_model = Room.allowed.through
     user_id = getattr(user, 'pk', getattr(user, 'id', None))
     if not user_id or not get_user_model().objects.filter(pk=user_id).exists():

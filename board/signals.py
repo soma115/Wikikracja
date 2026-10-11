@@ -6,8 +6,9 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from chat.signals import chat_message_requested, delete_linked_chat_room, request_discussion_room
-from core.signals import document_created, important_post_published
+from chat.models import Room
+from chat.signals import chat_message_created, chat_message_requested, delete_linked_chat_room, request_discussion_room
+from core.signals import citizen_accepted, document_created, important_post_published
 from core.utils import build_site_url
 from zzz.templatetags.citizen_filters import user_display_name
 
@@ -71,8 +72,8 @@ def notify_new_visible_document(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Post)
 def create_or_update_chat_room_for_post(sender, instance, created, **kwargs):
     """Create, archive, or update a document discussion room according to visibility."""
-    is_public = instance.visibility == Post.Visibility.PUBLIC
-    is_archived = instance.visibility == Post.Visibility.ARCHIVE
+    is_public = instance.chat_room_public
+    is_archived = instance.chat_room_archived
     if is_public or instance.visibility in (Post.Visibility.GROUP, Post.Visibility.ARCHIVE):
         allowed_users = User.objects.filter(is_active=True)
     elif instance.author_id:
@@ -81,6 +82,38 @@ def create_or_update_chat_room_for_post(sender, instance, created, **kwargs):
         allowed_users = User.objects.none()
 
     request_discussion_room(instance, founder=instance.author, allowed_users=allowed_users, public=is_public, archived=is_archived)
+
+
+@receiver(chat_message_created)
+def restore_archived_post_after_discussion_message(sender, message, room_was_archived, **kwargs):
+    if not room_was_archived:
+        return
+
+    room = Room.objects.filter(pk=message.room_id, source_app=Post._meta.app_label).first()
+    if room is None:
+        return
+
+    post = Post.objects.filter(pk=room.source_object_id, visibility=Post.Visibility.ARCHIVE).first()
+    if post is not None:
+        post.visibility = Post.Visibility.GROUP
+        post.updated_by = message.sender
+        post.save(update_fields=['visibility', 'updated_by', 'updated'])
+
+
+@receiver(citizen_accepted)
+def add_new_citizen_to_document_rooms(sender, user, **kwargs):
+    user_id = getattr(user, 'pk', getattr(user, 'id', None))
+    if not user_id or not User.objects.filter(pk=user_id).exists():
+        return
+
+    visible_document_ids = Post.objects.filter(visibility__in=(Post.Visibility.GROUP, Post.Visibility.ARCHIVE)).values_list('pk', flat=True)
+    room_ids = list(Room.objects.filter(source_app=Post._meta.app_label, source_object_id__in=visible_document_ids).values_list('id', flat=True))
+    if not room_ids:
+        return
+
+    membership_model = Room.allowed.through
+    membership_model.objects.bulk_create([membership_model(room_id=room_id, user_id=user_id) for room_id in room_ids], ignore_conflicts=True)
+    Room.apply_default_notification_preferences(room_ids, [user_id])
 
 
 @receiver(pre_delete, sender=Post)

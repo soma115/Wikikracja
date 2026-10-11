@@ -46,6 +46,18 @@ def test_post_creation_creates_chat_room():
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize(('visibility', 'public', 'archived'), [(Post.Visibility.GROUP, False, False), (Post.Visibility.PUBLIC, True, False), (Post.Visibility.ARCHIVE, False, True)])
+def test_bulk_created_post_configures_chat_room_from_visibility(visibility, public, archived):
+    post = Post(title='Bulk-created document', text='Text', author=UserFactory(), visibility=visibility)
+
+    Post.objects.bulk_create([post])
+
+    room = Room.objects.get(source_app='board', source_object_id=post.pk)
+    assert room.public is public
+    assert room.archived is archived
+
+
+@pytest.mark.django_db
 def test_document_chat_starts_without_a_welcome_message():
     post = PostFactory(title='Document without welcome')
 
@@ -290,6 +302,21 @@ def test_message_in_archived_document_chat_restores_document(authenticated_clien
     assert post.visibility == Post.Visibility.GROUP
     assert post.updated_by == other
     assert room.archived is False
+
+
+@pytest.mark.django_db
+def test_message_in_unarchived_room_does_not_restore_archived_document():
+    post = PostFactory(title='Archived document with active room', visibility=Post.Visibility.GROUP)
+    post.visibility = Post.Visibility.ARCHIVE
+    post.save(update_fields=['visibility', 'updated'])
+    Room.objects.filter(pk=post.chat_room_id).update(archived=False)
+    other = UserFactory(username='active-room-writer', email='active-room-writer@example.com')
+
+    Message.objects.create(room=post.chat_room, sender=other, text='Keep archived')
+
+    post.refresh_from_db()
+    assert post.visibility == Post.Visibility.ARCHIVE
+    assert post.updated_by != other
 
 
 @pytest.mark.django_db

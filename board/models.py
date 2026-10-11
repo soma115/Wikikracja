@@ -65,6 +65,14 @@ class Post(ChatRoomModel, models.Model):
     def get_chat_room_title(self):
         return f"Document #{self.id}: {self.get_display_title()}"[:90]
 
+    @property
+    def chat_room_public(self):
+        return self.visibility == self.Visibility.PUBLIC
+
+    @property
+    def chat_room_archived(self):
+        return self.visibility == self.Visibility.ARCHIVE
+
     def save(self, *args, **kwargs):
         with transaction.atomic():
             self._save_with_chat(*args, **kwargs)

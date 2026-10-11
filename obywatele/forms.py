@@ -89,7 +89,7 @@ class UsernameChangeForm(forms.ModelForm):
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
-        super(UsernameChangeForm, self).__init__(*args, **kwargs)
+        super(UsernameChangeForm, self).__init__(*args, instance=user, **kwargs)
 
     def save(self, commit=True):
         username = self.cleaned_data["username"]
