@@ -109,6 +109,7 @@ def test_category_list_and_edit_api_support_valid_and_invalid_posts(authenticate
     client, _ = authenticated_client
     category = PostCategoryFactory(name='Original')
 
+    assert client.get(reverse('board:api_category_edit', args=[category.pk])).status_code == 405
     list_response = client.get(reverse('board:api_categories'))
     assert list_response.status_code == 200
     assert any(item['id'] == category.pk for item in list_response.json()['categories'])
@@ -126,12 +127,23 @@ def test_category_list_and_edit_api_support_valid_and_invalid_posts(authenticate
 @pytest.mark.django_db
 def test_category_edit_api_requires_login(client):
     category = PostCategoryFactory(name='Private')
+    url = reverse('board:api_category_edit', args=[category.pk])
 
-    response = client.post(reverse('board:api_category_edit', args=[category.pk]), {'name': 'Changed', 'description': ''})
+    assert client.get(url).status_code == 302
+    response = client.post(url, {'name': 'Changed', 'description': ''})
 
     assert response.status_code == 302
     category.refresh_from_db()
     assert category.name == 'Private'
+
+
+@pytest.mark.django_db
+def test_authenticated_category_edit_api_rejects_get(authenticated_client, board_category):
+    client, _ = authenticated_client
+
+    response = client.get(reverse('board:api_category_edit', args=[board_category.pk]))
+
+    assert response.status_code == 405
 
 
 @pytest.mark.django_db

@@ -120,22 +120,15 @@ def _task_tab_counts(user, categories, search_query=''):
     }
 
 
-def _compute_priority_map(rows):
-    """rows: [(task_id, votes_score)] w kanonicznej kolejności.
-    Zwraca {task_id: (priority_label, priority_category)}."""
+def _compute_priority_map(task_ids):
+    """Return labels for task IDs in canonical order."""
     result = {}
-    non_rejected = []
-    for task_id, score in rows:
-        if (score or 0) <= -2:
-            result[task_id] = (PRIORITY_LABELS["rejected"], "rejected")
-        else:
-            non_rejected.append(task_id)
-    total = len(non_rejected)
+    total = len(task_ids)
     if not total:
         return result
     critical_limit = max(1, math.ceil(total * 0.2))
     important_limit = critical_limit + math.ceil(total * 0.3)
-    for idx, task_id in enumerate(non_rejected):
+    for idx, task_id in enumerate(task_ids):
         category = "critical" if idx < critical_limit else "important" if idx < important_limit else "beneficial"
         result[task_id] = (PRIORITY_LABELS[category], category)
     return result
@@ -148,9 +141,12 @@ def _priority_map(active: bool):
     percentylowe muszą dotyczyć wszystkich zadań, nie tylko wyświetlanych.
     """
     qs = Task.objects.with_metrics()
-    qs = qs.filter(status=Task.Status.ACTIVE) if active else qs.exclude(status=Task.Status.ACTIVE)
-    rows = list(qs.order_by("-votes_score", "-updated_at").values_list("id", "votes_score"))
-    return _compute_priority_map(rows)
+    if active:
+        qs = qs.filter(status=Task.Status.ACTIVE)
+    else:
+        qs = qs.filter(status__in=(Task.Status.COMPLETED, Task.Status.CANCELLED))
+    task_ids = list(qs.order_by("-votes_up", "created_at", "id").values_list("id", flat=True))
+    return _compute_priority_map(task_ids)
 
 
 def _prepare_task_cards(tasks, pulse_room_ids, priority_map=None):

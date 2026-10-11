@@ -42,6 +42,17 @@ class SurveyViewsTests(TestCase):
         self.assertEqual(survey.chat_room.source_app, "ankiety")
         self.assertEqual(survey.chat_room.messages.count(), 0)
 
+    def test_edit_survey_requires_login(self):
+        survey = self._create_survey(self.author)
+        url = reverse("ankiety:edit", args=[survey.pk])
+        future = (timezone.now() + timedelta(days=2)).strftime("%Y-%m-%dT%H:%M")
+
+        self.assertEqual(self.client.get(url).status_code, 302)
+        self.assertEqual(self.client.post(url, {"title": "Anonymous", "description": "", "end_date": future, "options_text": "One\nTwo"}).status_code, 302)
+        survey.refresh_from_db()
+        self.assertEqual(survey.title, "Test survey")
+        self.assertEqual(list(survey.options.values_list("text", flat=True)), ["Yes", "No"])
+
     def test_edit_survey_get_renders_prefilled_form(self):
         survey = self._create_survey(self.author)
         self.client.login(username="author", password="pass")

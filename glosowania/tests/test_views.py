@@ -208,6 +208,22 @@ def test_edit_proposal_updates_fields_and_creates_version(sample_users):
 
 
 @pytest.mark.django_db
+def test_edit_proposal_rolls_back_version_when_decision_save_fails(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Editable proposal', tresc='Old text', status=Decyzja.Status.PROPOSITION, author=author)
+    client = Client()
+    client.force_login(author)
+
+    with patch.object(Decyzja, 'save', side_effect=RuntimeError('simulated save failure')), pytest.raises(RuntimeError, match='simulated save failure'):
+        client.post(f'/glosowania/edit/{decision.pk}/', {'title': 'Updated proposal', 'tresc': 'New text', 'uzasadnienie': 'Reason', 'kara': '', 'znosi': ''})
+
+    decision.refresh_from_db()
+    assert decision.title == 'Editable proposal'
+    assert decision.tresc == 'Old text'
+    assert not DecyzjaWersja.objects.filter(decyzja=decision).exists()
+
+
+@pytest.mark.django_db
 def test_edit_proposal_invalid_post_rerenders_errors(sample_users):
     author = sample_users[0]
     decision = Decyzja.objects.create(title='Editable proposal', tresc='Old text', status=Decyzja.Status.PROPOSITION, author=author)
@@ -220,6 +236,52 @@ def test_edit_proposal_invalid_post_rerenders_errors(sample_users):
     assert response.context['form'].errors
     decision.refresh_from_db()
     assert decision.title == 'Editable proposal'
+
+
+@pytest.mark.django_db
+def test_edit_proposal_requires_author_and_login(sample_users):
+    author, other = sample_users[:2]
+    decision = Decyzja.objects.create(title='Protected proposal', tresc='Old text', status=Decyzja.Status.PROPOSITION, author=author)
+    url = f'/glosowania/edit/{decision.pk}/'
+    data = {'title': 'Unauthorized edit', 'tresc': 'Changed text', 'uzasadnienie': 'Reason', 'kara': '', 'znosi': ''}
+    anonymous_client = Client()
+
+    assert anonymous_client.get(url).status_code == 302
+    assert anonymous_client.post(url, data).status_code == 302
+
+    other_client = Client()
+    other_client.force_login(other)
+    response = other_client.get(url)
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decision.pk}/'
+    response = other_client.post(url, data)
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decision.pk}/'
+
+    decision.refresh_from_db()
+    assert decision.title == 'Protected proposal'
+    assert decision.tresc == 'Old text'
+    assert not DecyzjaWersja.objects.filter(decyzja=decision).exists()
+
+
+@pytest.mark.django_db
+def test_edit_proposal_rejects_author_after_proposition(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Closed proposal', tresc='Original text', status=Decyzja.Status.DISCUSSION, author=author)
+    client = Client()
+    client.force_login(author)
+    url = f'/glosowania/edit/{decision.pk}/'
+
+    response = client.get(url)
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decision.pk}/'
+    response = client.post(url, {'title': 'Unauthorized state change', 'tresc': 'Changed text', 'uzasadnienie': 'Reason', 'kara': '', 'znosi': ''})
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decision.pk}/'
+    decision.refresh_from_db()
+    assert decision.title == 'Closed proposal'
+    assert decision.tresc == 'Original text'
+    assert not DecyzjaWersja.objects.filter(decyzja=decision).exists()
 
 
 @pytest.mark.django_db
@@ -405,6 +467,49 @@ def test_edit_parameters_invalid_post_rerenders_errors(sample_users):
 
 
 @pytest.mark.django_db
+def test_edit_parameters_requires_author_and_login(sample_users):
+    author, other = sample_users[:2]
+    decision = Decyzja.objects.create(title='Protected parameter proposal', status=Decyzja.Status.PROPOSITION, author=author, proposed_parameters={'acceptance': 10})
+    url = f'/glosowania/parameters/propose/{decision.pk}/'
+    anonymous_client = Client()
+
+    assert anonymous_client.get(url).status_code == 302
+    assert anonymous_client.post(url, {}).status_code == 302
+
+    other_client = Client()
+    other_client.force_login(other)
+    response = other_client.get(url)
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decision.pk}/'
+    response = other_client.post(url, {})
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decision.pk}/'
+
+    decision.refresh_from_db()
+    assert decision.proposed_parameters == {'acceptance': 10}
+    assert not DecyzjaWersja.objects.filter(decyzja=decision).exists()
+
+
+@pytest.mark.django_db
+def test_edit_parameters_rejects_author_after_proposition(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Closed parameters', status=Decyzja.Status.REFERENDUM, author=author, proposed_parameters={'acceptance': 10})
+    client = Client()
+    client.force_login(author)
+    url = f'/glosowania/parameters/propose/{decision.pk}/'
+
+    response = client.get(url)
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decision.pk}/'
+    response = client.post(url, {})
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decision.pk}/'
+    decision.refresh_from_db()
+    assert decision.proposed_parameters == {'acceptance': 10}
+    assert not DecyzjaWersja.objects.filter(decyzja=decision).exists()
+
+
+@pytest.mark.django_db
 def test_edit_parameters_form_uses_responsive_actions(sample_users):
     author = sample_users[0]
     decision = Decyzja.objects.create(title='Parameter proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author, proposed_parameters={'acceptance': 10})
@@ -539,6 +644,52 @@ def test_edit_argument_invalid_post_redirects_with_error_message(sample_users):
     error_message.assert_called_once()
     argument.refresh_from_db()
     assert argument.content == 'Old argument'
+
+
+@pytest.mark.django_db
+def test_edit_argument_requires_author_and_login(sample_users):
+    author, other = sample_users[:2]
+    decision = Decyzja.objects.create(title='Argument proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author)
+    argument = Argument.objects.create(decyzja=decision, author=author, argument_type='FOR', content='Original argument')
+    url = f'/glosowania/argument/{argument.pk}/edit/'
+    anonymous_client = Client()
+
+    assert anonymous_client.get(url).status_code == 302
+    assert anonymous_client.post(url, {'argument_type': 'AGAINST', 'content': 'Anonymous edit'}).status_code == 302
+
+    author_client = Client()
+    author_client.force_login(author)
+    assert author_client.get(url).url == f'/glosowania/details/{decision.pk}/'
+
+    other_client = Client()
+    other_client.force_login(other)
+    assert other_client.get(url).url == f'/glosowania/details/{decision.pk}/'
+    response = other_client.post(url, {'argument_type': 'AGAINST', 'content': 'Unauthorized edit'})
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decision.pk}/'
+
+    argument.refresh_from_db()
+    assert argument.content == 'Original argument'
+    assert argument.argument_type == 'FOR'
+
+
+@pytest.mark.django_db
+def test_edit_argument_is_blocked_after_voting_ends(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Closed referendum', tresc='Text', status=Decyzja.Status.APPROVED, author=author)
+    argument = Argument.objects.create(decyzja=decision, author=author, argument_type='FOR', content='Original argument')
+    client = Client()
+    client.force_login(author)
+    url = f'/glosowania/argument/{argument.pk}/edit/'
+
+    assert client.get(url).status_code == 302
+    response = client.post(url, {'argument_type': 'AGAINST', 'content': 'Changed after vote'})
+
+    assert response.status_code == 302
+    assert response.url == f'/glosowania/details/{decision.pk}/'
+    argument.refresh_from_db()
+    assert argument.content == 'Original argument'
+    assert argument.argument_type == 'FOR'
 
 
 @pytest.mark.django_db

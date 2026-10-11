@@ -1,8 +1,9 @@
+import json
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.test import RequestFactory, TestCase
+from django.test import Client, RequestFactory, TestCase
 from django.urls import resolve, reverse
 from django.utils.translation import gettext as _
 
@@ -80,6 +81,17 @@ class QuickLinkSettingsTest(TestCase):
         self.client.force_login(self.user)
         self.url = reverse('group_settings')
 
+    def test_group_settings_requires_login_for_quick_link_changes(self):
+        anonymous_client = Client()
+        link_count = QuickLink.objects.count()
+
+        self.assertEqual(anonymous_client.get(self.url).status_code, 302)
+        response = anonymous_client.post(self.url, {'save_quick_link': '1', 'quick_link_title': 'Anonymous', 'quick_link_url': '/anonymous/'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(QuickLink.objects.count(), link_count)
+        self.assertFalse(QuickLink.objects.filter(title='Anonymous').exists())
+
     def test_quick_links_accept_relative_and_http_urls(self):
         last_order = QuickLink.objects.order_by('-order').values_list('order', flat=True).first()
         last_order = last_order if last_order is not None else -1
@@ -105,6 +117,57 @@ class QuickLinkSettingsTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'name="quick_link_order"')
+
+    def test_quick_link_edit_updates_title_and_url_without_changing_order(self):
+        link = QuickLink.objects.create(title='Original', url='/original/', order=15)
+
+        response = self.client.post(self.url, {'edit_quick_link': link.pk, 'quick_link_title': 'Updated', 'quick_link_url': 'https://example.com/updated'})
+
+        self.assertRedirects(response, self.url)
+        link.refresh_from_db()
+        self.assertEqual((link.title, link.url, link.order), ('Updated', 'https://example.com/updated', 15))
+
+    def test_quick_link_edit_ignores_nonexistent_id(self):
+        missing_id = max(QuickLink.objects.values_list('pk', flat=True), default=0) + 1
+        link_count = QuickLink.objects.count()
+
+        response = self.client.post(self.url, {'edit_quick_link': missing_id, 'quick_link_title': 'Missing', 'quick_link_url': '/missing/'})
+
+        self.assertRedirects(response, self.url)
+        self.assertEqual(QuickLink.objects.count(), link_count)
+        self.assertFalse(QuickLink.objects.filter(title='Missing').exists())
+
+    def test_quick_link_edit_rejects_invalid_url_without_saving(self):
+        link = QuickLink.objects.create(title='Original', url='/original/', order=15)
+
+        response = self.client.post(self.url, {'edit_quick_link': link.pk, 'quick_link_title': 'Changed', 'quick_link_url': 'javascript:alert(1)'})
+
+        self.assertRedirects(response, self.url)
+        link.refresh_from_db()
+        self.assertEqual((link.title, link.url), ('Original', '/original/'))
+
+    def test_quick_link_delete_and_missing_id(self):
+        link = QuickLink.objects.create(title='Delete me', url='/delete-me/', order=15)
+
+        response = self.client.post(self.url, {'delete_quick_link': link.pk})
+        self.assertRedirects(response, self.url)
+        self.assertFalse(QuickLink.objects.filter(pk=link.pk).exists())
+
+        response = self.client.post(self.url, {'delete_quick_link': link.pk})
+        self.assertRedirects(response, self.url)
+        self.assertFalse(QuickLink.objects.filter(pk=link.pk).exists())
+
+    def test_quick_link_reorder_updates_display_order(self):
+        first = QuickLink.objects.create(title='Order A', url='/order-a/', order=15)
+        second = QuickLink.objects.create(title='Order B', url='/order-b/', order=16)
+
+        response = self.client.post(self.url, {'reorder_quick_links': '1', 'order': json.dumps([second.pk, first.pk])})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'ok': True})
+        first.refresh_from_db()
+        second.refresh_from_db()
+        self.assertEqual((second.order, first.order), (0, 1))
 
 
 class ActivityFeedChatTest(TestCase):

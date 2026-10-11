@@ -180,13 +180,13 @@ class CategoryDetailView(BookkeepingDetailView):
 
 class CategoryCreateView(BookkeepingCreateView):
     model = Category
-    fields = '__all__'
+    fields = ['name']
     success_url_name = 'bookkeeping:category_list'
 
 
 class CategoryUpdateView(BookkeepingUpdateView):
     model = Category
-    fields = '__all__'
+    fields = ['name']
     success_url_name = 'bookkeeping:category_list'
 
 
@@ -280,13 +280,13 @@ class PartnerDetailView(BookkeepingDetailView):
 
 class PartnerCreateView(BookkeepingCreateView):
     model = Partner
-    fields = '__all__'
+    fields = ['name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'notes']
     success_url_name = 'bookkeeping:partner_list'
 
 
 class PartnerUpdateView(BookkeepingUpdateView):
     model = Partner
-    fields = '__all__'
+    fields = ['name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'notes']
     success_url_name = 'bookkeeping:partner_list'
 
 

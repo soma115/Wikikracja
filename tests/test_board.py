@@ -373,10 +373,74 @@ def test_invalid_attachment_uses_tw_error_class(authenticated_client):
 
 @pytest.mark.django_db
 def test_create_and_edit_post_require_login(client):
-    post = PostFactory()
+    post = PostFactory(title='Login protected')
 
     assert client.get(reverse('board:create_post')).status_code == 302
     assert client.get(reverse('board:edit_post', args=[post.pk])).status_code == 302
+    response = client.post(reverse('board:edit_post', args=[post.pk]), {'title': 'Changed without login', 'text': 'Text'})
+
+    assert response.status_code == 302
+    post.refresh_from_db()
+    assert post.title == 'Login protected'
+
+
+@pytest.mark.django_db
+def test_any_logged_in_user_can_edit_group_post(authenticated_client):
+    client, editor = authenticated_client
+    post = PostFactory(author=UserFactory(username='different-post-author'), visibility=Post.Visibility.GROUP)
+    edit_url = reverse('board:edit_post', args=[post.pk])
+
+    assert client.get(edit_url).status_code == 200
+    response = client.post(edit_url, {'title': 'Edited by member', 'text': 'Updated text'})
+
+    assert response.status_code == 302
+    post.refresh_from_db()
+    assert post.title == 'Edited by member'
+    assert post.author != editor
+    assert post.updated_by == editor
+
+
+@pytest.mark.django_db
+def test_edit_post_invalid_title_rerenders_form_without_saving(authenticated_client):
+    client, user = authenticated_client
+    post = PostFactory(author=user, title='Original')
+
+    response = client.post(reverse('board:edit_post', args=[post.pk]), {'title': '', 'text': 'Updated text'})
+
+    assert response.status_code == 200
+    assert response.context['form'].errors
+    post.refresh_from_db()
+    assert post.title == 'Original'
+
+
+@pytest.mark.django_db
+def test_delete_attachment_requires_login_and_allows_another_logged_in_user(settings, tmp_path):
+    from django.test import Client
+
+    from board.models import PostAttachment
+
+    settings.MEDIA_ROOT = tmp_path
+    post = PostFactory(author=UserFactory(username='attachment-owner'), visibility=Post.Visibility.GROUP)
+    attachment = PostAttachment.objects.create(post=post, file=SimpleUploadedFile('attachment.txt', b'text'), filename='attachment.txt')
+    url = reverse('board:delete_attachment', args=[post.pk, attachment.pk])
+    anonymous_client = Client()
+
+    assert anonymous_client.get(url).status_code == 302
+    assert anonymous_client.post(url).status_code == 302
+    assert PostAttachment.objects.filter(pk=attachment.pk).exists()
+
+    editor_client = Client()
+    editor = UserFactory(username='attachment-editor')
+    editor_client.force_login(editor)
+    response = editor_client.get(url)
+    assert response.status_code == 302
+    assert PostAttachment.objects.filter(pk=attachment.pk).exists()
+
+    response = editor_client.post(url)
+
+    assert response.status_code == 302
+    assert response.url == reverse('board:edit_post', args=[post.pk])
+    assert not PostAttachment.objects.filter(pk=attachment.pk).exists()
 
 
 @pytest.mark.django_db

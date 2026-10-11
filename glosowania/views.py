@@ -132,16 +132,24 @@ def edit(request: HttpRequest, pk: int):
     if request.method == 'POST':
         form = DecyzjaForm(request.POST)
         if form.is_valid():
-            next_version = decision.wersje.count() + 1
-            DecyzjaWersja.objects.create(
-                decyzja=decision, modified_by=request.user, version_number=next_version, title=decision.title, tresc=decision.tresc, kara=decision.kara, uzasadnienie=decision.uzasadnienie, znosi=decision.znosi
-            )
-            decision.title = form.cleaned_data['title']
-            decision.tresc = form.cleaned_data['tresc']
-            decision.kara = form.cleaned_data['kara']
-            decision.uzasadnienie = form.cleaned_data['uzasadnienie']
-            decision.znosi = form.cleaned_data['znosi']
-            decision.save()
+            with transaction.atomic():
+                next_version = decision.wersje.count() + 1
+                DecyzjaWersja.objects.create(
+                    decyzja=decision,
+                    modified_by=request.user,
+                    version_number=next_version,
+                    title=decision.title,
+                    tresc=decision.tresc,
+                    kara=decision.kara,
+                    uzasadnienie=decision.uzasadnienie,
+                    znosi=decision.znosi,
+                )
+                decision.title = form.cleaned_data['title']
+                decision.tresc = form.cleaned_data['tresc']
+                decision.kara = form.cleaned_data['kara']
+                decision.uzasadnienie = form.cleaned_data['uzasadnienie']
+                decision.znosi = form.cleaned_data['znosi']
+                decision.save()
             message = _("Saved.")
             messages.success(request, (message))
 

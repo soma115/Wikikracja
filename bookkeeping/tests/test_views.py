@@ -54,7 +54,8 @@ class BookkeepingViewTests(TestCase):
 
     def test_shared_edit_views_require_login(self):
         anonymous_client = Client()
-        cases = (('bookkeeping:asset_update', self.asset), ('bookkeeping:category_update', self.category), ('bookkeeping:partner_update', self.partner))
+        transaction = self._transaction()
+        cases = (('bookkeeping:asset_update', self.asset), ('bookkeeping:category_update', self.category), ('bookkeeping:partner_update', self.partner), ('bookkeeping:transaction_update', transaction))
 
         for url_name, instance in cases:
             url = reverse(url_name, args=[instance.pk])
@@ -87,6 +88,32 @@ class BookkeepingViewTests(TestCase):
                 response = self.client.get(reverse(url_name, args=[instance.pk]))
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response.context[context_name].instance, instance)
+
+    def test_category_and_partner_forms_use_explicit_field_allowlists(self):
+        cases = (
+            ('bookkeeping:category_create', None, ('name',)),
+            ('bookkeeping:category_update', self.category.pk, ('name',)),
+            ('bookkeeping:partner_create', None, ('name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'notes')),
+            ('bookkeeping:partner_update', self.partner.pk, ('name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'notes')),
+        )
+
+        for url_name, pk, expected_fields in cases:
+            with self.subTest(url_name=url_name):
+                url = reverse(url_name, args=[pk]) if pk else reverse(url_name)
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(tuple(response.context['form'].fields), expected_fields)
+
+    def test_category_and_partner_update_saves_changes(self):
+        response = self.client.post(reverse('bookkeeping:category_update', args=[self.category.pk]), {'name': 'Updated category'})
+        self.assertRedirects(response, reverse('bookkeeping:category_list'))
+        self.category.refresh_from_db()
+        self.assertEqual(self.category.name, 'Updated category')
+
+        response = self.client.post(reverse('bookkeeping:partner_update', args=[self.partner.pk]), {'name': 'Updated partner'})
+        self.assertRedirects(response, reverse('bookkeeping:partner_list'))
+        self.partner.refresh_from_db()
+        self.assertEqual(self.partner.name, 'Updated partner')
 
     def test_edit_forms_rerender_errors_without_saving(self):
         transaction = self._transaction()
@@ -186,8 +213,16 @@ class BookkeepingViewTests(TestCase):
         self.assertEqual(res.status_code, 403)
         self.assertTrue(Transaction.objects.filter(pk=txn.pk).exists())
 
-        res = self.client.get(reverse('bookkeeping:transaction_update', args=[txn.pk]))
+        update_url = reverse('bookkeeping:transaction_update', args=[txn.pk])
+        res = self.client.get(update_url)
         self.assertEqual(res.status_code, 403)
+        res = self.client.post(
+            update_url, {'type': 'O', 'asset': self.asset.pk, 'category': self.category.pk, 'partner': self.partner.pk, 'amount': '99', 'payment_received_date': '2026-01-02', 'note': 'Unauthorized'}
+        )
+        self.assertEqual(res.status_code, 403)
+        txn.refresh_from_db()
+        self.assertEqual(txn.amount, 10)
+        self.assertEqual(txn.note, '')
 
     def test_unowned_transaction_can_be_claimed_once(self):
         transaction = self._transaction()

@@ -9,6 +9,7 @@ from django.utils.translation import gettext
 from chat.models import Message, Room
 from tasks.models import Category, Task, TaskEvaluation, TaskVote
 from tasks.tests.utils import make_task, make_user
+from tasks.views import _priority_map
 
 
 class TaskNotificationSignalTest(TestCase):
@@ -190,6 +191,24 @@ class TaskListFilteringTest(TestCase):
         response = self.get_list("?tab=awaiting&sort=score&order=desc")
         self.assertEqual(response.context["awaiting_tasks"][0].title, "Więcej helpers")
 
+    def test_priority_uses_only_upvotes_and_older_task_wins_ties(self):
+        highest = make_task(title="Najwięcej głosów Za")
+        older = make_task(title="Starsze przy remisie")
+        newer = make_task(title="Nowsze przy remisie")
+        self.upvote(highest, self.user)
+        self.upvote(highest, self.other)
+        self.upvote(older, self.user)
+        self.upvote(older, self.other, TaskVote.Value.DOWN)
+        self.upvote(newer, self.user)
+        Task.objects.filter(pk=older.pk).update(created_at="2020-01-01T00:00:00Z", updated_at="2026-01-01T00:00:00Z")
+        Task.objects.filter(pk=newer.pk).update(created_at="2024-01-01T00:00:00Z", updated_at="2020-01-01T00:00:00Z")
+
+        priority_map = _priority_map(active=True)
+
+        self.assertEqual(priority_map[highest.pk][1], "critical")
+        self.assertEqual(priority_map[older.pk][1], "important")
+        self.assertEqual(priority_map[newer.pk][1], "beneficial")
+
     def test_sort_by_date_asc(self):
         old = make_task(title="Starsze")
         new = make_task(title="Nowsze")
@@ -338,8 +357,34 @@ class TaskEditViewTest(TestCase):
 
     def test_non_assigned_user_redirected_to_detail(self):
         self.client.login(username=self.other.username, password=self.other._plain_password)
+        detail_url = reverse("tasks:detail", kwargs={"pk": self.task.pk})
         response = self.client.get(reverse("tasks:edit", kwargs={"pk": self.task.pk}))
-        self.assertRedirects(response, reverse("tasks:detail", kwargs={"pk": self.task.pk}))
+        self.assertRedirects(response, detail_url)
+        response = self.client.post(reverse("tasks:edit", kwargs={"pk": self.task.pk}), {"title": "Intruder edit", "description": "Not allowed"})
+        self.assertRedirects(response, detail_url)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.title, "Zadanie")
+
+    def test_anonymous_user_cannot_access_edit(self):
+        client = Client()
+        url = reverse("tasks:edit", kwargs={"pk": self.task.pk})
+
+        self.assertEqual(client.get(url).status_code, 302)
+        self.assertEqual(client.post(url, {"title": "Anonymous edit"}).status_code, 302)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.title, "Zadanie")
+
+    def test_inactive_task_cannot_be_edited(self):
+        self.task.status = Task.Status.COMPLETED
+        self.task.save(update_fields=['status'])
+        self.client.force_login(self.owner)
+        detail_url = reverse('tasks:detail', kwargs={'pk': self.task.pk})
+        edit_url = reverse('tasks:edit', kwargs={'pk': self.task.pk})
+
+        self.assertRedirects(self.client.get(edit_url), detail_url)
+        self.assertRedirects(self.client.post(edit_url, {'title': 'Inactive edit'}), detail_url)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.title, 'Zadanie')
 
     def test_edit_updates_title(self):
         self.client.login(username=self.owner.username, password=self.owner._plain_password)
@@ -697,11 +742,21 @@ class CategoryAPITest(TestCase):
         self.assertTrue(any(item["id"] == self.cat.pk for item in response.json()["categories"]))
 
     def test_edit_category_requires_login(self):
-        response = self.client.post(reverse("tasks:api_category_edit", kwargs={"pk": self.cat.pk}), {"name": "Updated", "description": ""})
+        url = reverse("tasks:api_category_edit", kwargs={"pk": self.cat.pk})
+
+        self.assertEqual(self.client.get(url).status_code, 302)
+        response = self.client.post(url, {"name": "Updated", "description": ""})
 
         self.assertEqual(response.status_code, 302)
         self.cat.refresh_from_db()
         self.assertEqual(self.cat.name, "Test")
+
+    def test_authenticated_edit_category_api_rejects_get(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse("tasks:api_category_edit", kwargs={"pk": self.cat.pk}))
+
+        self.assertEqual(response.status_code, 405)
 
     def test_edit_category_requires_csrf_when_checks_are_enabled(self):
         from django.test import Client

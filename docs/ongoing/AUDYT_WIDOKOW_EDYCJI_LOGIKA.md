@@ -44,12 +44,12 @@ Potwierdzone wyjątki: Transaction — autor; argument głosowania — właścic
 
 ## 4. Integralność i semantyka zapisu
 
-1. [ ] **Edycja propozycji:** rozważyć objęcie utworzenia `DecyzjaWersja` i zmiany `Decyzja` jedną transakcją. To dotyka audytowanej logiki głosowań i wymaga osobnej decyzji przed implementacją.
+1. [x] **Edycja propozycji:** utworzenie `DecyzjaWersja` i zmiana `Decyzja` są objęte jedną transakcją; test regresji potwierdza rollback snapshotu przy błędzie zapisu.
 2. [x] **Edycja parametrów:** snapshot i aktualizacja decyzji zapisują się w jednej transakcji. Snapshot obejmuje poprzednie `proposed_parameters` i kopię logo; brak nowego pliku zachowuje logo, jawna akcja usuwa je z referendum, a poprzedni plik jest usuwany dopiero po sukcesie. Pliki utworzone podczas nieudanej edycji są sprzątane. Wersje sprzed tej migracji mają te dwa nowe pola puste, bo dawnych wartości nie da się odtworzyć.
 3. [x] **Ankiety:** efekt usunięcia opcji i powiązanych głosów jest komunikowany w formularzu; zapis opcji odbywa się w transakcji. Pozostaje utrzymanie testów tego zachowania.
 4. [x] **Quick linki:** usunięto nieużywane pole `edit_link_id`, a backend rozpoznaje jeden kontrakt pola akcji. URL-e są ograniczone do ścieżek względnych i `http(s)`.
 5. [x] Parametr `next` w istniejących przepływach edycji pozostaje chroniony przez `url_has_allowed_host_and_scheme`; nie należy wprowadzać prostego `redirect(request.GET['next'])`.
-6. [ ] W `CategoryCreate/UpdateView` i `PartnerCreate/UpdateView` zastąpić `fields = '__all__'` jawnymi listami pól.
+6. [x] `CategoryCreate/UpdateView` jawnie dopuszczają tylko `name`, a `PartnerCreate/UpdateView` tylko `name`, `email`, `phone`, `web_page`, `address`, `city`, `country` i `notes`; testy sprawdzają listy pól dla create i update.
 
 ## 5. Obsługa błędów i dane formularzy
 
@@ -66,14 +66,14 @@ Potwierdzone wyjątki: Transaction — autor; argument głosowania — właścic
 4. [x] Testy formularzy profilu sprawdzają zachowanie danych i błędów po nieudanym zapisie.
 5. [x] Testy avatara obejmują niepoprawny format i odrzucenie pliku przekraczającego wspólny limit.
 6. [x] Quick linki mają focused testy dodawania poprawnych URL-i i odrzucania niebezpiecznego schematu.
-7. [ ] Dodać testy quick linków dla edycji, nieistniejącego ID i kolejności.
-8. [ ] Dodać test atomowości historii propozycji, jeżeli decyzja z sekcji 4.1 potwierdzi potrzebę tej zmiany.
+7. [x] Testy quick linków pokrywają edycję tytułu/URL bez zmiany kolejności, nieistniejące ID bez zapisu oraz trwałą zmianę kolejności.
+8. [x] Test atomowości historii propozycji potwierdza rollback `DecyzjaWersja`, jeśli zapis `Decyzja` nie powiedzie się.
 9. [x] Ankiety mają test destrukcyjnego efektu usunięcia opcji i zachowania kolejności.
-10. [ ] Dla każdego endpointu edycji sprawdzić GET, poprawny POST, POST z błędami, anonimowego użytkownika i użytkownika bez uprawnień, jeśli przypadek ma zastosowanie.
+10. [x] Dla endpointów z inwentaryzacji testy obejmują obsługiwane GET, poprawny i błędny POST, użytkownika anonimowego oraz odmowę użytkownikom bez uprawnień, jeśli przypadek ma zastosowanie; endpointy POST-only mają sprawdzony kontrakt GET.
 
 ### Następny krok
 
-Uzgodnione i wdrożone zachowanie edycji parametrów opisuje punkt 4.2. Następnie osobno rozstrzygnąć, czy zwykła edycja propozycji ma atomowo obejmować `DecyzjaWersja` i `Decyzja` (punkt 4.1); to odrębny fragment logiki głosowań i wymaga własnej decyzji przed zmianą.
+Matryca testów edycji i dostępu dla endpointów z inwentaryzacji jest uzupełniona (punkt 6.10). Następnie ujednolicić komunikaty sukcesu i błędu bez zmiany istniejących identyfikatorów tłumaczeń, zgodnie z punktem 5.4.
 
 ## 7. Kryterium zamknięcia audytu logicznego
 

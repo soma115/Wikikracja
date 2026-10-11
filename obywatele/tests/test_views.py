@@ -7,6 +7,7 @@ Testy widoku set_user_language: wybór języka musi działać dla NIEzalogowanyc
 import io
 import json
 from datetime import datetime, timedelta, timezone
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from allauth.account.models import EmailAddress, EmailConfirmationHMAC
@@ -16,7 +17,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.db.models import QuerySet
 from django.shortcuts import resolve_url
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import Client, RequestFactory, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone as django_timezone
@@ -97,6 +98,11 @@ class SetLanguageAnonymousTest(TestCase):
     def setUp(self):
         self.url = reverse('obywatele:set_language')
         self.cookie_name = settings.LANGUAGE_COOKIE_NAME
+
+    def test_language_endpoint_rejects_get(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 405)
 
     def test_anonymous_can_set_language_sets_cookie(self):
         response = self.client.post(self.url, {'language': 'en', 'next': '/'})
@@ -698,6 +704,43 @@ class ProfileFormErrorViewTest(TestCase):
         self.user = User.objects.create_user(username='profile-errors', email='old@example.com', password='secret', is_active=True)
         self.client.force_login(self.user)
 
+    def test_profile_edit_routes_require_login(self):
+        anonymous_client = Client()
+        routes = (
+            (reverse('obywatele:change_email'), {'new_email1': 'new@example.com', 'new_email2': 'new@example.com', 'password': 'secret'}),
+            (reverse('obywatele:change_username'), {'username': 'new-username'}),
+            (reverse('obywatele:upload_avatar'), {'avatar': SimpleUploadedFile('avatar.txt', b'not an image', content_type='text/plain')}),
+            (reverse('account_change_password'), {'oldpassword': 'secret', 'password1': 'new-secret', 'password2': 'new-secret'}),
+        )
+
+        for url, data in routes:
+            with self.subTest(url=url, method='GET'):
+                self.assertEqual(anonymous_client.get(url).status_code, 302)
+            with self.subTest(url=url, method='POST'):
+                self.assertEqual(anonymous_client.post(url, data).status_code, 302)
+
+        toggle_url = f"{reverse('obywatele:toggle_notification')}?type=push_bookkeeping"
+        self.assertEqual(anonymous_client.get(toggle_url).status_code, 302)
+        self.assertEqual(anonymous_client.post(toggle_url, data=json.dumps({'enabled': True}), content_type='application/json').status_code, 302)
+
+    def test_external_password_change_requires_valid_form(self):
+        url = reverse('account_change_password')
+        self.assertEqual(self.client.get(url).status_code, 200)
+
+        response = self.client.post(url, {})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].errors)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password('secret'))
+
+    def test_external_password_change_accepts_valid_post(self):
+        response = self.client.post(reverse('account_change_password'), {'oldpassword': 'secret', 'password1': 'new-secret', 'password2': 'new-secret'})
+
+        self.assertEqual(response.status_code, 302)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password('new-secret'))
+
     def test_profile_email_change_form_renders_current_password_field(self):
         response = self.client.get(reverse('obywatele:my_profile'))
 
@@ -710,12 +753,25 @@ class ProfileFormErrorViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(any(item['type'] == 'push_bookkeeping' for item in response.context['push_notifications']))
 
-        response = self.client.post(f"{reverse('obywatele:toggle_notification')}?type=push_bookkeeping", data=json.dumps({'enabled': True}), content_type='application/json')
+        toggle_url = f"{reverse('obywatele:toggle_notification')}?type=push_bookkeeping"
+        self.assertEqual(self.client.get(toggle_url).status_code, 405)
+        response = self.client.post(toggle_url, data=json.dumps({'enabled': True}), content_type='application/json')
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()['success'])
         self.user.uzytkownik.refresh_from_db()
         self.assertTrue(self.user.uzytkownik.push_notifications_bookkeeping)
+
+    def test_notification_toggle_reports_invalid_request(self):
+        url = reverse('obywatele:toggle_notification')
+
+        response = self.client.post(f'{url}?type=push_bookkeeping', data='{', content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'success': False, 'error': 'Invalid request'})
+
+        response = self.client.post(f'{url}?type=unknown', data=json.dumps({'enabled': True}), content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'success': False, 'error': 'Invalid notification type'})
 
     def test_candidate_email_confirmation_must_match_current_user_email(self):
         profile = self.user.uzytkownik
@@ -724,6 +780,12 @@ class ProfileFormErrorViewTest(TestCase):
         self.user.save(update_fields=['email'])
 
         self.assertFalse(is_email_confirmed_for_candidate(self.user, profile))
+
+    def test_change_email_get_renders_authenticated_form(self):
+        response = self.client.get(reverse('obywatele:change_email'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('form', response.context)
 
     def test_change_email_rerenders_invalid_form(self):
         response = self.client.post(reverse('obywatele:change_email'), {'new_email1': 'new@example.com', 'new_email2': 'different@example.com', 'password': 'secret'})
@@ -760,6 +822,12 @@ class ProfileFormErrorViewTest(TestCase):
         self.assertTrue(pending_email.verified)
         self.assertTrue(pending_email.primary)
 
+    def test_change_username_get_renders_authenticated_form(self):
+        response = self.client.get(reverse('obywatele:change_username'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('form', response.context)
+
     def test_change_username_rerenders_invalid_form(self):
         response = self.client.post(reverse('obywatele:change_username'), {'username': ''})
 
@@ -767,11 +835,39 @@ class ProfileFormErrorViewTest(TestCase):
         self.assertTrue(response.context['form'].errors)
         self.assertIn('username', response.context['form'].errors)
 
+    def test_change_username_renders_form_for_authenticated_user(self):
+        response = self.client.get(reverse('obywatele:change_username'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['form'].instance, self.user)
+
+    def test_change_username_saves_valid_post(self):
+        response = self.client.post(reverse('obywatele:change_username'), {'username': 'renamed-profile-errors'})
+
+        self.assertRedirects(response, reverse('obywatele:my_profile'))
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.username, 'renamed-profile-errors')
+
     def test_upload_avatar_reports_invalid_file(self):
         response = self.client.post(reverse('obywatele:upload_avatar'), {'avatar': SimpleUploadedFile('avatar.txt', b'not an image', content_type='text/plain')})
 
         self.assertRedirects(response, reverse('obywatele:my_profile'))
         self.assertFalse(self.user.uzytkownik.avatar)
+
+    def test_upload_avatar_saves_valid_image(self):
+        output = io.BytesIO()
+        Image.new('RGB', (32, 32), (10, 20, 30)).save(output, format='PNG')
+        avatar = SimpleUploadedFile('avatar.png', output.getvalue(), content_type='image/png')
+        upload_url = reverse('obywatele:upload_avatar')
+
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            self.assertRedirects(self.client.get(upload_url), reverse('obywatele:my_profile'))
+            response = self.client.post(upload_url, {'avatar': avatar})
+
+            self.assertRedirects(response, reverse('obywatele:my_profile'))
+            self.user.uzytkownik.refresh_from_db()
+            self.assertTrue(self.user.uzytkownik.avatar)
+            self.assertTrue(self.user.uzytkownik.avatar.storage.exists(self.user.uzytkownik.avatar.name))
 
     @override_settings(UPLOAD_IMAGE_MAX_SIZE_MB=1)
     def test_upload_avatar_rejects_file_over_shared_image_limit(self):
@@ -800,6 +896,14 @@ class MyAssetsViewTest(TestCase):
         self.profile.save()
         self.client.force_login(self.user)
         self.url = reverse('obywatele:my_assets')
+
+    def test_anonymous_user_cannot_access_my_assets(self):
+        client = Client()
+
+        self.assertEqual(client.get(self.url).status_code, 302)
+        self.assertEqual(client.post(self.url, PROFILE_POST_DATA).status_code, 302)
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.city, 'Stare miasto')
 
     def test_get_prefills_form_from_instance(self):
         response = self.client.get(self.url)
