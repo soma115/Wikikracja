@@ -1,5 +1,13 @@
 # LOG_AI
 
+## 2026-10-11: Anonimizacja autora w zdarzeniu edycji czatu
+
+- **Zmienione obszary:** payload WebSocket `chat.edit` i testy `chat`.
+- **Co się zmieniło:** dla anonimowych wiadomości zdarzenie edycji zachowuje dotychczasowy zestaw pól, ale wysyła `user_id: null`, `username: "Anonymous"` i `display_name: "Anonymous"`. Edycje wiadomości nieanonimowych nadal zawierają dane autora.
+- **Uzasadnienie:** handler `chat.edit` pomijał serializer chroniący anonimowość i ujawniał odbiorcom pokoju ID oraz nazwę konta autora.
+- **Weryfikacja:** nowy test regresyjny odtwarzał ujawnienie przed poprawką; 21 testów `chat/tests/test_command_handlers.py`, Ruff check/format oraz `git diff --check` przeszły.
+- **Spodziewany efekt:** uczestnicy pokoju nie otrzymują tożsamości autora anonimowej wiadomości w aktualizacji jej treści lub załączników.
+
 ## 2026-10-11: Logowanie kodem e-mail bez hasła
 
 - **Zmienione obszary:** konfiguracja django-allauth, szablony logowania i formularzy kodu, testy `obywatele`.

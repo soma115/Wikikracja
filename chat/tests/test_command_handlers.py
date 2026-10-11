@@ -216,6 +216,27 @@ class ChatCommandHandlersTest(SimpleTestCase):
         self.assertEqual(event['type'], 'chat.edit')
         self.assertEqual(event['edit_message']['text'], 'New')
         self.assertEqual(event['edit_message']['timestamp'], 1000000)
+        self.assertEqual(event['edit_message']['user_id'], self.user.id)
+        self.assertEqual(event['edit_message']['username'], self.user.username)
+
+    async def test_edit_anonymous_message_redacts_author_from_broadcast(self):
+        message = SimpleNamespace(text='Old', anonymous=True)
+        room = SimpleNamespace(id=3, group_name='room-3')
+        state = SimpleNamespace(time=SimpleNamespace(timestamp=lambda: 1000))
+        self.repo.get_message = AsyncMock(return_value=message)
+        self.repo.get_message_sender = AsyncMock(return_value=self.user)
+        self.repo.load_attachments = AsyncMock(return_value={'images': []})
+        self.repo.get_room_by_message = AsyncMock(return_value=room)
+        self.repo.edit_message_and_history = AsyncMock(return_value=state)
+        self.repo.is_last_message_in_room = AsyncMock(return_value=True)
+
+        await self.handlers.edit_message(4, new_message='New')
+
+        _, event = self.channel_layer.group_send.await_args.args
+        edit_message = event['edit_message']
+        self.assertIsNone(edit_message['user_id'])
+        self.assertEqual(edit_message['username'], 'Anonymous')
+        self.assertEqual(edit_message['display_name'], 'Anonymous')
 
     async def test_edit_message_rejects_missing_attachment_file(self):
         message = SimpleNamespace(text='Old', anonymous=False)

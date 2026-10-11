@@ -296,8 +296,8 @@ class ChatCommandHandlers:
                 'edit_message': {
                     'message_id': message_id,
                     'room_id': room.id,
-                    'user_id': self.consumer.scope['user'].id,
-                    'username': self.consumer.scope['user'].username,
+                    'user_id': None if message.anonymous else self.consumer.scope['user'].id,
+                    'username': 'Anonymous' if message.anonymous else self.consumer.scope['user'].username,
                     'display_name': 'Anonymous' if message.anonymous else user_display_name(self.consumer.scope['user']),
                     'anonymous': message.anonymous,
                     'is_last_message': is_last,
