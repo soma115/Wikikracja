@@ -1,9 +1,11 @@
+from datetime import timedelta
 from unittest.mock import patch
 
 # Third party imports
 from django.contrib.messages import SUCCESS, get_messages
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext
 
 # Local folder imports
@@ -522,21 +524,49 @@ class TakeResignTaskTest(TestCase):
         self.task.refresh_from_db()
         self.assertIsNone(self.task.assigned_to)
 
-    def test_resign_does_not_promote_approved_helper(self):
-        # Sukcesja jest wyłączona — zadanie wraca do puli nawet gdy zespół nie jest pusty.
+    def test_resign_promotes_earliest_willing_helper_even_if_not_approved(self):
         helper = make_user("helper")
+        later_helper = make_user("laterhelper")
+        TaskVote.objects.create(task=self.task, user=self.user, value=TaskVote.Value.UP)
         TaskVote.objects.create(task=self.task, user=helper, value=TaskVote.Value.UP)
-        self.task.approved_helpers.add(helper)
+        TaskVote.objects.create(task=self.task, user=later_helper, value=TaskVote.Value.UP)
+        now = timezone.now()
+        TaskVote.objects.filter(task=self.task, user=self.user).update(updated_at=now - timedelta(days=3))
+        TaskVote.objects.filter(task=self.task, user=helper).update(updated_at=now - timedelta(days=2))
+        TaskVote.objects.filter(task=self.task, user=later_helper).update(updated_at=now - timedelta(days=1))
+        self.task.approved_helpers.add(later_helper)
         self.task.assigned_to = self.user
         self.task.save()
         self.client.login(username=self.user.username, password=self.user._plain_password)
+
         response = self.client.post(reverse("tasks:resign", kwargs={"pk": self.task.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+
         self.assertEqual(response.status_code, 200)
+        data = response.json()
         self.task.refresh_from_db()
-        self.assertIsNone(self.task.assigned_to)
-        self.assertIsNone(response.json()["assigned_to"])
-        self.assertFalse(response.json()["in_team"])
-        self.assertTrue(self.task.approved_helpers.filter(pk=helper.pk).exists())
+        self.assertEqual(self.task.assigned_to, helper)
+        self.assertEqual(data["assigned_to"]["id"], helper.pk)
+        self.assertFalse(data["is_coordinator"])
+        self.assertFalse(data["in_team"])
+        self.assertTrue(self.task.is_user_approved(helper))
+        self.assertTrue(self.task.approved_helpers.filter(pk=later_helper.pk).exists())
+
+    def test_former_coordinator_remains_eligible_for_later_succession(self):
+        helper = make_user("helper")
+        TaskVote.objects.create(task=self.task, user=self.user, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=self.task, user=helper, value=TaskVote.Value.UP)
+        self.task.assigned_to = self.user
+        self.task.save()
+
+        self.client.login(username=self.user.username, password=self.user._plain_password)
+        self.client.post(reverse("tasks:resign", kwargs={"pk": self.task.pk}))
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.assigned_to, helper)
+
+        self.client.login(username=helper.username, password=helper._plain_password)
+        self.client.post(reverse("tasks:resign", kwargs={"pk": self.task.pk}))
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.assigned_to, self.user)
 
     def test_resign_keeps_ex_coordinator_in_team(self):
         # Koordynator będący wcześniej zatwierdzonym pomocnikiem zostaje w zespole.

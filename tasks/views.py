@@ -416,22 +416,26 @@ def take_task(request: HttpRequest, pk: int) -> HttpResponse:
 @require_POST
 @login_required
 def resign_task(request: HttpRequest, pk: int) -> HttpResponse:
-    task = get_object_or_404(Task, pk=pk)
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     next_url = _safe_next_url(request)
-    if not task.is_active:
-        return _task_action_denied(request, task, "task is not active")
-    if task.assigned_to != request.user:
-        if is_ajax:
-            return JsonResponse({"ok": False, "error": "not coordinator"}, status=403)
-        if next_url:
-            return redirect(next_url)
-        return redirect("tasks:detail", pk=pk)
+    with transaction.atomic():
+        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
+        if not task.is_active:
+            return _task_action_denied(request, task, "task is not active")
+        if task.assigned_to_id != request.user.id:
+            if is_ajax:
+                return JsonResponse({"ok": False, "error": "not coordinator"}, status=403)
+            if next_url:
+                return redirect(next_url)
+            return redirect("tasks:detail", pk=pk)
 
-    task.assigned_to = None
-    task.save(update_fields=["assigned_to", "updated_at"])
+        successor_vote = TaskVote.objects.filter(task=task, value=TaskVote.Value.UP).exclude(user_id=request.user.id).select_related("user", "user__uzytkownik").order_by("updated_at", "id").first()
+        successor = successor_vote.user if successor_vote else None
+        task.assigned_to = successor
+        task.save(update_fields=["assigned_to", "updated_at"])
+
     if is_ajax:
-        return JsonResponse({"ok": True, "assigned_to": None, "is_coordinator": False, "in_team": task.is_user_approved(request.user)})
+        return JsonResponse({"ok": True, "assigned_to": _serialize_user(successor) if successor else None, "is_coordinator": False, "in_team": task.is_user_approved(request.user)})
     if next_url:
         return redirect(next_url)
     return redirect("tasks:list")

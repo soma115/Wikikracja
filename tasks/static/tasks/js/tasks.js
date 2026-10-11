@@ -227,6 +227,10 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (!data || !data.ok) return;
+        if (/\/resign\/?$/.test(action)) {
+          window.location.reload();
+          return;
+        }
         updateCoordinatorUI(form, data);
       })
       .catch(function () {
