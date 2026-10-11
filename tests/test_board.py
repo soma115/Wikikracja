@@ -19,7 +19,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext, override
 
-from board.models import Post
+from board.models import Post, PostAttachment
 from chat.models import Message, MessageReadBy, Room
 from tests.factories import PostCategoryFactory, PostFactory, UserFactory
 
@@ -443,6 +443,72 @@ def test_delete_attachment_requires_login_and_allows_another_logged_in_user(sett
     assert response.status_code == 302
     assert response.url == reverse('board:edit_post', args=[post.pk])
     assert not PostAttachment.objects.filter(pk=attachment.pk).exists()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('visibility', 'authenticated', 'status_code'),
+    [(Post.Visibility.PUBLIC, False, 200), (Post.Visibility.GROUP, False, 404), (Post.Visibility.ARCHIVE, False, 404), (Post.Visibility.GROUP, True, 200), (Post.Visibility.ARCHIVE, True, 200)],
+)
+def test_post_attachment_download_obeys_document_visibility(settings, tmp_path, visibility, authenticated, status_code):
+    from django.test import Client
+
+    settings.MEDIA_ROOT = tmp_path
+    post = PostFactory(visibility=visibility)
+    attachment = PostAttachment.objects.create(post=post, file=SimpleUploadedFile('page.html', b'<script>alert(1)</script>', content_type='text/html'), filename='page.html')
+    client = Client()
+    if authenticated:
+        client.force_login(UserFactory(username=f'media-reader-{visibility}-{authenticated}'))
+
+    response = client.get(attachment.file.url)
+
+    assert response.status_code == status_code
+    if status_code == 200:
+        assert response['Content-Type'] == 'application/octet-stream'
+        assert response['Content-Disposition'].startswith('attachment;')
+        assert response['X-Content-Type-Options'] == 'nosniff'
+        assert response['Content-Security-Policy'] == "default-src 'none'; sandbox"
+        assert response['Cache-Control'] == 'private, no-store'
+        assert b''.join(response.streaming_content) == b'<script>alert(1)</script>'
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('visibility', 'authenticated', 'status_code'),
+    [(Post.Visibility.PUBLIC, False, 200), (Post.Visibility.GROUP, False, 404), (Post.Visibility.ARCHIVE, False, 404), (Post.Visibility.GROUP, True, 200), (Post.Visibility.ARCHIVE, True, 200)],
+)
+def test_featured_image_access_obeys_document_visibility(settings, tmp_path, visibility, authenticated, status_code):
+    from django.test import Client
+
+    settings.MEDIA_ROOT = tmp_path
+    post = PostFactory(visibility=visibility)
+    post.featured_image = SimpleUploadedFile('cover.png', b'image-bytes', content_type='image/png')
+    post.save(update_fields=('featured_image',))
+    client = Client()
+    if authenticated:
+        client.force_login(UserFactory(username=f'image-reader-{visibility}-{authenticated}'))
+
+    response = client.get(post.featured_image.url)
+
+    assert response.status_code == status_code
+    if status_code == 200:
+        assert response['Content-Type'] == 'image/png'
+        assert response['Content-Disposition'] == 'inline'
+        assert response['X-Content-Type-Options'] == 'nosniff'
+        assert response['Cache-Control'] == 'private, no-store'
+        assert b''.join(response.streaming_content) == b'image-bytes'
+
+
+@pytest.mark.django_db
+def test_orphaned_board_media_is_not_served_by_public_media_fallback(settings, tmp_path):
+    from django.test import Client
+
+    settings.MEDIA_ROOT = tmp_path
+    orphaned_attachment = tmp_path / 'board' / 'attachments' / 'orphan.html'
+    orphaned_attachment.parent.mkdir(parents=True)
+    orphaned_attachment.write_text('<script>alert(1)</script>', encoding='utf-8')
+
+    assert Client().get('/media/board/attachments/orphan.html').status_code == 404
 
 
 @pytest.mark.django_db

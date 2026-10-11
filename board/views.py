@@ -1,3 +1,4 @@
+import mimetypes
 from urllib.parse import quote_plus, urlencode
 
 from django.conf import settings
@@ -5,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.http import HttpRequest, HttpResponse
+from django.http import FileResponse, Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy
@@ -368,6 +369,37 @@ def _post_queryset_for_user(user, *, include_archive=False):
     """Return posts visible to the given user."""
     queryset = Post.objects.select_related('author', 'updated_by', 'category')
     return queryset.filter(_board_visibility_filter_for_user(user, include_archive=include_archive))
+
+
+def _board_file_response(file_field, *, filename=None):
+    as_attachment = filename is not None
+    content_type = 'application/octet-stream' if as_attachment else mimetypes.guess_type(file_field.name)[0]
+    if not as_attachment and (not content_type or not content_type.startswith('image/') or content_type == 'image/svg+xml'):
+        raise Http404
+    try:
+        file_object = file_field.open('rb')
+    except OSError as error:
+        raise Http404 from error
+    response = FileResponse(file_object, as_attachment=as_attachment, filename=filename, content_type=content_type)
+    response['Cache-Control'] = 'private, no-store'
+    response['X-Content-Type-Options'] = 'nosniff'
+    if as_attachment:
+        response['Content-Security-Policy'] = "default-src 'none'; sandbox"
+    else:
+        response['Content-Disposition'] = 'inline'
+    return response
+
+
+def serve_featured_image(request: HttpRequest, path: str):
+    include_archive = request.user.is_authenticated
+    post = get_object_or_404(_post_queryset_for_user(request.user, include_archive=include_archive), featured_image=f'board/featured/{path}')
+    return _board_file_response(post.featured_image)
+
+
+def serve_post_attachment(request: HttpRequest, path: str):
+    include_archive = request.user.is_authenticated
+    attachment = get_object_or_404(PostAttachment.objects.filter(post__in=_post_queryset_for_user(request.user, include_archive=include_archive), file=f'board/attachments/{path}'))
+    return _board_file_response(attachment.file, filename=attachment.filename)
 
 
 def _post_detail_context(request: HttpRequest, post: Post):

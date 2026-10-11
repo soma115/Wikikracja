@@ -52,7 +52,11 @@ if settings.DEBUG:
 # In production, Django will serve these (inefficient but works)
 # TODO: Consider adding nginx sidecar for better performance
 
-urlpatterns += [re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT})]
+urlpatterns += [
+    re_path(r'^media/board/featured/(?P<path>.*)$', bv.serve_featured_image, name='board_featured_image'),
+    re_path(r'^media/board/attachments/(?P<path>.*)$', bv.serve_post_attachment, name='board_post_attachment'),
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]
 '''
 allauth:
 Note that you do not necessarily need the URLs provided by django.contrib.auth.urls.
