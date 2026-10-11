@@ -3,6 +3,7 @@ from functools import wraps
 from urllib.parse import quote_plus
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -501,6 +502,11 @@ class TaskEditView(CategoryContextMixin, LoginRequiredMixin, UpdateView):
         if task.assigned_to != request.user or not task.is_active:
             return redirect("tasks:detail", pk=task.pk)
         return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, gettext_lazy("Saved."))
+        return response
 
     def get_success_url(self):
         return reverse_lazy("tasks:detail", kwargs={"pk": self.object.pk})

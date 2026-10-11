@@ -21,6 +21,7 @@ We welcome contributions! Here's how you can help.
 
 ## Development Guidelines
 
+- Define explicit allowlists in Django `ModelForm.Meta.fields` for create/edit views; avoid `fields = '__all__'` so adding a model field does not silently expose it through a form.
 - Follow the project's ruff configuration (`pyproject.toml`)
 - Run `.venv\Scripts\python.exe -m ruff check .` and `.venv\Scripts\python.exe -m ruff format --check .` before submitting
 - Install and enable both commit and push checks: `.venv\Scripts\python.exe -m pip install pre-commit` and `.venv\Scripts\python.exe -m pre_commit install`

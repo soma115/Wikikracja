@@ -9,6 +9,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
+from django.contrib.messages import SUCCESS, get_messages
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.db import IntegrityError, transaction
@@ -394,6 +395,7 @@ def test_any_logged_in_user_can_edit_group_post(authenticated_client):
     response = client.post(edit_url, {'title': 'Edited by member', 'text': 'Updated text'})
 
     assert response.status_code == 302
+    assert [message.level for message in get_messages(response.wsgi_request)] == [SUCCESS]
     post.refresh_from_db()
     assert post.title == 'Edited by member'
     assert post.author != editor

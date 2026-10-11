@@ -2,6 +2,7 @@ from datetime import date as _date
 from datetime import datetime, time, timedelta
 from urllib.parse import urlencode
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.http import HttpRequest
@@ -207,6 +208,7 @@ class EventUpdateView(EventFormViewMixin, LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        messages.success(self.request, gettext_lazy('Saved.'))
         event = self.object
         event_url = build_site_url(event.get_absolute_url())
         transaction.on_commit(lambda: event_updated.send(sender=Event, event=event, url=event_url))

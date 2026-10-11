@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 # Third party imports
+from django.contrib.messages import SUCCESS, get_messages
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils.translation import gettext
@@ -387,7 +388,8 @@ class TaskEditViewTest(TestCase):
 
     def test_edit_updates_title(self):
         self.client.login(username=self.owner.username, password=self.owner._plain_password)
-        self.client.post(reverse("tasks:edit", kwargs={"pk": self.task.pk}), {"title": "Zmieniony tytuł", "description": "Nowy opis"})
+        response = self.client.post(reverse("tasks:edit", kwargs={"pk": self.task.pk}), {"title": "Zmieniony tytuł", "description": "Nowy opis"})
+        self.assertEqual([message.level for message in get_messages(response.wsgi_request)], [SUCCESS])
         self.task.refresh_from_db()
         self.assertEqual(self.task.title, "Zmieniony tytuł")
 

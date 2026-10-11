@@ -1,6 +1,7 @@
 import json
 from urllib.parse import quote_plus
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db import transaction as db_transaction
 from django.db.models import Q
@@ -108,6 +109,11 @@ class BookkeepingUpdateView(LoginRequiredMixin, UpdateView):
     """Shared authenticated update view with a declarative list redirect."""
 
     success_url_name = None
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, _('Saved.'))
+        return response
 
     def get_success_url(self):
         return reverse(self.success_url_name)
@@ -416,6 +422,7 @@ class TransactionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        messages.success(self.request, _('Saved.'))
         transaction = self.object
         transaction_url = build_site_url(reverse('bookkeeping:transaction_detail', kwargs={'pk': transaction.pk}))
         db_transaction.on_commit(lambda: transaction_updated.send(sender=Transaction, transaction=transaction, url=transaction_url))

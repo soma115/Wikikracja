@@ -12,6 +12,22 @@ Stopka systemowa jest wspólną treścią edytowaną w tym samym modelu. Jej ren
 
 To założenie dotyczy wyłącznie członków dopuszczonych do aplikacji. Nie stanowi podstawy do logowania haseł, przyjmowania nieuwierzytelnionych żądań federacyjnych ani omijania walidacji przekierowań, sesji czy formularzy.
 
+## Zakres edycji pozostałych zasobów
+
+Domyślnie wspólne zasoby grupy (wydarzenia, ankiety, aktywa, kategorie i partnerzy) mogą edytować zalogowani członkowie; te modele nie mają wspólnej blokady właściciela. Jawne wyjątki są domenowe:
+
+- transakcję edytuje wyłącznie jej autor;
+- propozycję głosowania, w tym propozycję parametrów, edytuje jej autor tylko w statusie propozycji;
+- argument edytuje jego autor, dopóki głosowanie się nie zakończyło;
+- `TaskEditView` edytuje wyłącznie aktywne zadanie, w którym bieżący użytkownik jest wskazany przez `assigned_to`;
+- `candidate_edit` pozostaje dostępne każdemu zalogowanemu członkowi jako część onboardingu.
+
+Nie wprowadzamy w tym zakresie uogólnionej własności ani mechanizmu przejmowania treści. Temat pozostaje odłożony w [`PLAN_PRZEJMOWANIE_WŁASNOŚCI_TREŚCI.md`](ongoing/PLAN_PRZEJMOWANIE_WŁASNOŚCI_TREŚCI.md).
+
+`PostCategoryEditAPI` i `TaskCategoryEditAPI` wymagają zalogowania, ale nie stosują ograniczeń właściciela ani roli. Ustawienia grupy i quick linki również wymagają logowania.
+
+Przekierowanie z parametru `next` musi być walidowane przez `url_has_allowed_host_and_scheme`; nie przekierowuj bezpośrednio na wartość z żądania. URL quick linku może być ścieżką względną (bez `//`) albo bezwzględnym `http`/`https`.
+
 ## Publiczna skrzynka kontaktowa
 
 Publiczna skrzynka kontaktowa może przyjmować wiadomości od osób niezalogowanych również wtedy, gdy `group_is_public` jest wyłączone. Ustawienie to nie ma wyłączać kanału kontaktowego; wiadomość gościa jest przeznaczona do kontaktu z grupą, a nie do uzyskania członkostwa lub przeglądania jej zawartości. Link kontaktowy i endpoint gościnny pozostają dostępne. Ochrona przed spamem i nadużyciami powinna być oceniana osobno, bez zmiany tej funkcji.

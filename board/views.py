@@ -1,6 +1,7 @@
 from urllib.parse import quote_plus, urlencode
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
@@ -332,6 +333,11 @@ class PostCreateView(PostFormViewMixin, CreateView):
 class PostUpdateView(PostFormViewMixin, UpdateView):
     def get_queryset(self):
         return super().get_queryset().filter(Post.editable_filter_for_user(self.request.user))
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, gettext_lazy('Saved.'))
+        return response
 
 
 def _public_post_queryset():

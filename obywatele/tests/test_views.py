@@ -13,6 +13,7 @@ from unittest.mock import patch
 from allauth.account.models import EmailAddress, EmailConfirmationHMAC
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.messages import SUCCESS, get_messages
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection
 from django.db.models import QuerySet
@@ -865,6 +866,7 @@ class ProfileFormErrorViewTest(TestCase):
             response = self.client.post(upload_url, {'avatar': avatar})
 
             self.assertRedirects(response, reverse('obywatele:my_profile'))
+            self.assertEqual([message.level for message in get_messages(response.wsgi_request)], [SUCCESS])
             self.user.uzytkownik.refresh_from_db()
             self.assertTrue(self.user.uzytkownik.avatar)
             self.assertTrue(self.user.uzytkownik.avatar.storage.exists(self.user.uzytkownik.avatar.name))

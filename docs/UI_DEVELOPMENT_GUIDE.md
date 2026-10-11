@@ -175,7 +175,7 @@ Use the project Crispy/Tailwind form integration:
 
 When a field must be rendered separately, use `home/templates/tw/field.html` and the `crispy_classmap` filter. Do not hand-roll Bootstrap-style `form-control` or `is-invalid` wrappers.
 
-For file uploads, use the shared `tw-file-upload` pattern: keep the native input inside the drop target, use `data-file-upload-single` for a single featured image, preserve selected files when the user adds another attachment batch, render a removable file list, and use `textContent` for filenames. A selected image should render an immediate thumbnail, while attachments should show a clear paperclip icon, filename and size. Validate file size on the server as the authoritative check; client-side feedback is only an aid.
+For file uploads, use the shared `tw-file-upload` pattern: keep the native input inside the drop target, use `data-file-upload-single` for a single featured image, preserve selected files when the user adds another attachment batch, render a removable file list, and use `textContent` for filenames. A selected image should render an immediate thumbnail, while attachments should show a clear paperclip icon, filename and size. Validate file size on the server as the authoritative check; client-side feedback is only an aid. Avatar/featured-image limits use `UPLOAD_IMAGE_MAX_SIZE_MB`; Board attachment limits use `UPLOAD_ATTACHMENT_MAX_SIZE_MB`.
 
 Use semantic HTML:
 
@@ -187,7 +187,7 @@ Use semantic HTML:
 
 Wikikracja intentionally uses two submission channels, selected by the interaction type:
 
-- **Full-page forms** such as profile, survey, document, event, task and bookkeeping forms use standard Django POST handling. Validation errors re-render the bound form with field data and errors; successful submissions use the established redirect and message flow.
+- **Full-page forms** such as profile, survey, document, event, task and bookkeeping forms use standard Django POST handling. Validation errors re-render the bound form with field data and errors; successful submissions use the established redirect and message flow. Generic saves reuse the existing translated `Saved.` message; keep action-specific message IDs where they already exist.
 - **Contextual modals and asynchronous controls** such as category management and notification/theme toggles use JSON requests through `window.apiFetch`. They return structured success/error data, keep the current page context and update the component in place.
 
 This separation is intentional, not a temporary inconsistency. Do not convert a substantial full-page form to JSON only for uniformity. Do not implement a modal/API operation as a full-page redirect. In both channels, use the same validation rules, translated messages, CSRF protection, accessible error presentation and disabled state during submission.
@@ -354,14 +354,15 @@ For a broad UI change, also run:
 .venv\Scripts\python.exe scripts\ui_guard.py --all --strict
 ```
 
-## 11. Current edit-flow audit baseline
+## 11. Current edit-flow baseline
 
-The edit-flow UI review covers Board, Bookkeeping, Events, Tasks, Surveys, Voting, citizen profile/settings and group settings. The current baseline is:
+The edit-flow review covers Board, Bookkeeping, Events, Tasks, Surveys, Voting, citizen profile/settings and group settings. Durable authorization exceptions and redirect rules are recorded in [`SECURITY_EXCEPTIONS.md`](SECURITY_EXCEPTIONS.md); parameter-proposal snapshot and logo semantics are documented in [`Glosowanie_nad_parametrami_systemu-dla_developerow.md`](Glosowanie_nad_parametrami_systemu-dla_developerow.md). This section records only the UI baseline:
 
 - all inventoried edit surfaces use the shared `tw-*` page/card/form patterns or a documented domain-specific component;
 - focused and integration tests cover the reviewed GET, successful POST and validation-error paths, including profile errors, Board uploads, category APIs and modal argument editing;
+- edit endpoints have focused access tests for their accepted authenticated scope, anonymous requests and denied users where applicable;
 - the shared category manager has disabled states, network-error handling, focus/ARIA support and API tests;
-- full verification has passed: Ruff, Django check, collectstatic, regression scan, Tailwind freshness, 932 Python tests, 276 Jest tests and 33 Playwright E2E tests, with 12 intentionally skipped tests;
+- run the repository verification scripts for current test counts; avoid keeping a stale numerical test-count snapshot here;
 - Playwright uses a dedicated E2E account from the ignored `.env.local` file and must never use administrator, developer or personal accounts.
 
 Error channels are intentionally split by interaction type. Full-page Django forms preserve submitted values and render field errors before the established redirect-on-success flow. Contextual modals and asynchronous controls use `window.apiFetch`, structured JSON responses and in-place error presentation. This is an intentional UI architecture decision, not an unfinished migration.

@@ -29,7 +29,9 @@ Marka/logo (`SiteParameters.brand_mark`) jest przechowywana w tym samym modelu, 
 
 ## Złożenie i edycja propozycji
 
-`ParametersProposalForm` wymaga uzasadnienia i co najmniej jednej zmiany parametru albo nowego pliku marki. Wartości numeryczne są ograniczane przez zakresy z `PARAM_SPECS`. Formularz tworzenia/edycji zapisuje zmienione parametry w `Decyzja.proposed_parameters`; nowy plik trafia do `proposed_brand_mark`. Przy edycji tworzy się migawkę poprzedniej wersji decyzji.
+`ParametersProposalForm` wymaga uzasadnienia i co najmniej jednej zmiany parametru albo nowego pliku marki. Wartości numeryczne są ograniczane przez zakresy z `PARAM_SPECS`. Formularz tworzenia/edycji zapisuje zmienione parametry w `Decyzja.proposed_parameters`; nowy plik trafia do `proposed_brand_mark`. Edycja jest dostępna wyłącznie autorowi, dopóki decyzja ma status propozycji.
+
+Migawka `DecyzjaWersja` i aktualizacja `Decyzja` są zapisywane w jednej transakcji. Migawka zachowuje poprzednie wartości parametrów i kopię proponowanego logo. Brak nowego pliku zachowuje logo; jawne usunięcie wycofuje je tylko z referendum i nie zmienia bieżącego logo witryny. Po zatwierdzonym zastąpieniu lub usunięciu oryginalny plik propozycji jest usuwany, a kopia pozostaje w historii. Pliki utworzone podczas nieudanej edycji są sprzątane. Starsze wersje, sprzed dodania pól `proposed_parameters` i `proposed_brand_mark` do `DecyzjaWersja`, mają je puste, ponieważ dawnych danych nie da się odtworzyć.
 
 Proponowana marka w formularzu referendum musi być plikiem PNG o rozmiarze do 5 MB i najdłuższym boku 64–4096 px. Po normalizacji jest zapisywana jako kwadratowy PNG 1024×1024 px. Model i pipeline marki generują z niej favicon oraz ikony PWA; ograniczenie formularza referendum do PNG wynika z jego walidacji, mimo że niższa warstwa modelu obsługuje też inne formaty wejściowe.
 

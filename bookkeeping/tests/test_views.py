@@ -9,6 +9,7 @@ from datetime import date
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
+from django.contrib.messages import SUCCESS, get_messages
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -106,6 +107,7 @@ class BookkeepingViewTests(TestCase):
 
     def test_category_and_partner_update_saves_changes(self):
         response = self.client.post(reverse('bookkeeping:category_update', args=[self.category.pk]), {'name': 'Updated category'})
+        self.assertEqual([message.level for message in get_messages(response.wsgi_request)], [SUCCESS])
         self.assertRedirects(response, reverse('bookkeeping:category_list'))
         self.category.refresh_from_db()
         self.assertEqual(self.category.name, 'Updated category')
@@ -272,6 +274,7 @@ class BookkeepingViewTests(TestCase):
                 )
 
         self.assertEqual(response.status_code, 302)
+        self.assertEqual([message.level for message in get_messages(response.wsgi_request)], [SUCCESS])
         dispatch.assert_called_once()
         self.assertEqual(dispatch.call_args.kwargs['push_event'], 'transaction.updated')
 

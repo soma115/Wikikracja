@@ -513,6 +513,7 @@ def upload_avatar(request: HttpRequest):
         form = AvatarForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
+            success(request, _('Saved.'))
         else:
             message = next(iter(form.errors.get('avatar', [])), _('Please correct the highlighted errors.'))
             error(request, message)

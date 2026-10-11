@@ -5,6 +5,7 @@ from unittest.mock import patch
 from urllib.parse import urlencode
 
 from django.contrib.auth.models import User
+from django.contrib.messages import SUCCESS, get_messages
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -194,6 +195,7 @@ class EventViewTest(TestCase):
             },
         )
         self.assertEqual(response.status_code, 302)
+        self.assertEqual([message.level for message in get_messages(response.wsgi_request)], [SUCCESS])
         self.event.refresh_from_db()
         self.assertEqual(self.event.title, 'Updated by other')
 
@@ -218,6 +220,7 @@ class EventViewTest(TestCase):
                 response = self.client.post(reverse('events:edit', args=[self.event.pk]), data)
 
         self.assertEqual(response.status_code, 302)
+        self.assertEqual([message.level for message in get_messages(response.wsgi_request)], [SUCCESS])
         dispatch.assert_called_once()
         self.assertEqual(dispatch.call_args.kwargs['push_event'], 'event.updated')
 
