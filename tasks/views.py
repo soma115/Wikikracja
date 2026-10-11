@@ -89,6 +89,8 @@ TASK_SORT_FIELDS = {"date": "created_at", "score": "votes_up", "buzz": "chat_msg
 # Klucze wtórne = kanoniczna kolejność, jaką zachowywał stabilny sorted() przy remisach.
 TASK_SORT_TIEBREAK = ("-votes_score", "-updated_at")
 
+TASK_PRIORITY_ORDERING = ("-votes_up", "created_at", "id")
+
 
 def _task_list_queryset(user, categories, sort, order, search_query=''):
     """Annotated task queryset for the list view, with category filter and display sort."""
@@ -98,7 +100,7 @@ def _task_list_queryset(user, categories, sort, order, search_query=''):
     if search_query:
         qs = qs.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
     if sort == 'none':
-        return qs
+        return qs.order_by(*TASK_PRIORITY_ORDERING)
     direction = "-" if order == "desc" else ""
     return qs.order_by(direction + TASK_SORT_FIELDS[sort], *TASK_SORT_TIEBREAK)
 
@@ -145,7 +147,7 @@ def _priority_map(active: bool):
         qs = qs.filter(status=Task.Status.ACTIVE)
     else:
         qs = qs.filter(status__in=(Task.Status.COMPLETED, Task.Status.CANCELLED))
-    task_ids = list(qs.order_by("-votes_up", "created_at", "id").values_list("id", flat=True))
+    task_ids = list(qs.order_by(*TASK_PRIORITY_ORDERING).values_list("id", flat=True))
     return _compute_priority_map(task_ids)
 
 

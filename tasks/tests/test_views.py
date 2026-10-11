@@ -9,7 +9,6 @@ from django.utils.translation import gettext
 from chat.models import Message, Room
 from tasks.models import Category, Task, TaskEvaluation, TaskVote
 from tasks.tests.utils import make_task, make_user
-from tasks.views import _priority_map
 
 
 class TaskNotificationSignalTest(TestCase):
@@ -203,11 +202,11 @@ class TaskListFilteringTest(TestCase):
         Task.objects.filter(pk=older.pk).update(created_at="2020-01-01T00:00:00Z", updated_at="2026-01-01T00:00:00Z")
         Task.objects.filter(pk=newer.pk).update(created_at="2024-01-01T00:00:00Z", updated_at="2020-01-01T00:00:00Z")
 
-        priority_map = _priority_map(active=True)
+        response = self.get_list("?tab=awaiting&sort=none")
+        ordered_tasks = response.context["awaiting_tasks"]
 
-        self.assertEqual(priority_map[highest.pk][1], "critical")
-        self.assertEqual(priority_map[older.pk][1], "important")
-        self.assertEqual(priority_map[newer.pk][1], "beneficial")
+        self.assertEqual([task.pk for task in ordered_tasks], [highest.pk, older.pk, newer.pk])
+        self.assertEqual([task.priority_category for task in ordered_tasks], ["critical", "important", "beneficial"])
 
     def test_sort_by_date_asc(self):
         old = make_task(title="Starsze")
