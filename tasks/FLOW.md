@@ -25,7 +25,7 @@ Starsze zadania bez liczby osób traktują koordynatora jako minimum jednego cz�
 - Pól zasadniczej specyfikacji (tytułu, opisu, kosztu, liczby osób, zgody zewnętrznej i miary sukcesu) nie można edytować bezpośrednio. Koordynator może użyć akcji „Cofnij do propozycji”. Potwierdzenie tej akcji od razu zeruje głosy, usuwa koordynatora i zatwierdzonych pomocników oraz przywraca fazę `proposal`.
 - Termin i kategorię koordynator może aktualizować również podczas realizacji; zmiany te nie resetują głosów.
 - Po cofnięciu ktoś musi ponownie przejąć koordynację, zanim edycja zasadniczej specyfikacji będzie dostępna. Edycja w propozycji nie zeruje głosów.
-- Koordynator i zatwierdzeni pomocnicy mogą dodawać, edytować, porządkować, odhaczać i usuwać podzadania. Podzadania mają jeden poziom zagnieżdżenia; przeciągnięcie do wciętej listy lub przyciski Wciąć/Odwciąć zmieniają relację rodzic–dziecko. Rodzic przesuwa się razem z dziećmi.
+- Koordynator i zatwierdzeni pomocnicy mogą dodawać, edytować, porządkować, odhaczać i usuwać podzadania. Podzadania mają jeden poziom zagnieżdżenia; ręczne przeciąganie między listą główną i zagnieżdżoną zmienia relację rodzic–dziecko. Rodzic przesuwa się razem z dziećmi.
 - Zaznaczenie rodzica zaznacza jego dzieci; odznaczenie dziecka odznacza rodzica, a zaznaczenie wszystkich dzieci zaznacza rodzica. Rodzica z dziećmi nie można usunąć, dopóki dzieci nie zostaną przeniesione lub usunięte.
 - Checklistę można zmieniać do zamknięcia zadania; jej zmiany nie wpływają na głosy.
 
