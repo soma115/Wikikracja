@@ -44,6 +44,10 @@
 - [x] Wykorzystać istniejący SortableJS i wspólny helper projektu, bez dodawania nowej biblioteki.
 - [x] Walidować uprawnienia i kolejność po stronie serwera.
 - [x] Nie resetować głosów po zmianie checklisty.
+- [x] Dodać jeden poziom relacji rodzic–podzadanie; dotychczasowe pozycje pozostawić na poziomie głównym.
+- [x] Umożliwić wcięcie/odwcięcie poziomym przeciągnięciem i przyciskami klawiaturowymi; przenoszenie rodzica ma przenosić cały blok dzieci.
+- [x] Kaskadowo aktualizować checkboxy: zaznaczenie rodzica zaznacza dzieci, a ukończenie wszystkich dzieci zaznacza rodzica.
+- [x] Blokować usunięcie rodzica, dopóki ma dzieci.
 
 ## Etap 4 — Ranking koordynatorów
 
@@ -60,4 +64,4 @@
 - [x] Przed cofnięciem do propozycji wyjaśniać skutki: reset głosów, wyczyszczenie zespołu i konieczność ponownego przejęcia koordynacji.
 - [x] Dodać testy wymaganych pól, faz i progów rozpoczęcia, wyjątków dla starszych zadań, resetu głosów, ponownego otwarcia, uprawnień checklisty, sortowania oraz rankingu.
 - [x] Po zmianach UI uruchomić budowanie CSS i skany regresji zgodnie z zasadami projektu.
-- [ ] Uruchomić Playwright po skonfigurowaniu `E2E_BASE_URL` i uruchomieniu dedykowanego lokalnego serwera E2E.
+- [x] Uruchomić Playwright przez pełny runner na dedykowanym lokalnym serwerze E2E.

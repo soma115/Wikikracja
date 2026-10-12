@@ -454,6 +454,13 @@ def return_to_proposal(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect(next_url or "tasks:detail", pk=task.pk)
 
 
+def _normalize_subtask_orders(task, parent_id):
+    siblings = TaskSubtask.objects.filter(task=task, parent_id=parent_id).order_by("order", "pk")
+    for order, subtask in enumerate(siblings):
+        if subtask.order != order:
+            TaskSubtask.objects.filter(pk=subtask.pk).update(order=order)
+
+
 @require_POST
 @login_required
 def add_subtask(request: HttpRequest, pk: int) -> HttpResponse:
@@ -466,7 +473,7 @@ def add_subtask(request: HttpRequest, pk: int) -> HttpResponse:
             messages.error(request, gettext_lazy("Enter a subtask title of at most 240 characters."))
             return redirect("tasks:detail", pk=task.pk)
 
-        max_order = task.subtasks.aggregate(max_order=Max("order"))["max_order"]
+        max_order = task.subtasks.filter(parent__isnull=True).aggregate(max_order=Max("order"))["max_order"]
         TaskSubtask.objects.create(task=task, title=title, order=(max_order + 1) if max_order is not None else 0)
         task.save(update_fields=["updated_at"])
     return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
@@ -502,7 +509,22 @@ def toggle_subtask(request: HttpRequest, pk: int, subtask_pk: int) -> HttpRespon
         subtask = get_object_or_404(TaskSubtask.objects.select_for_update(), pk=subtask_pk, task=task)
         subtask.is_completed = not subtask.is_completed
         subtask.save(update_fields=["is_completed"])
+        updated = {subtask.pk: subtask}
+        if subtask.parent_id:
+            parent = get_object_or_404(TaskSubtask.objects.select_for_update(), pk=subtask.parent_id, task=task)
+            parent.is_completed = not parent.children.filter(is_completed=False).exists()
+            parent.save(update_fields=["is_completed"])
+            updated[parent.pk] = parent
+        else:
+            children = list(subtask.children.select_for_update())
+            for child in children:
+                child.is_completed = subtask.is_completed
+                child.save(update_fields=["is_completed"])
+                updated[child.pk] = child
         task.save(update_fields=["updated_at"])
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse({"ok": True, "states": [{"id": item.pk, "is_completed": item.is_completed} for item in updated.values()]})
     return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
 
 
@@ -514,7 +536,11 @@ def delete_subtask(request: HttpRequest, pk: int, subtask_pk: int) -> HttpRespon
         if not task.can_manage_subtasks(request.user):
             return _task_action_denied(request, task)
 
-        get_object_or_404(TaskSubtask.objects.select_for_update(), pk=subtask_pk, task=task).delete()
+        subtask = get_object_or_404(TaskSubtask.objects.select_for_update(), pk=subtask_pk, task=task)
+        if subtask.children.exists():
+            messages.error(request, gettext_lazy("Move or remove this subtask's children before deleting it."))
+            return redirect("tasks:detail", pk=task.pk)
+        subtask.delete()
         task.save(update_fields=["updated_at"])
     return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
 
@@ -527,8 +553,9 @@ def move_subtask(request: HttpRequest, pk: int, subtask_pk: int, direction: str)
         if not task.can_manage_subtasks(request.user) or direction not in ("up", "down"):
             return _task_action_denied(request, task)
 
-        subtasks = list(task.subtasks.select_for_update())
-        index = next((i for i, item in enumerate(subtasks) if item.pk == subtask_pk), None)
+        current = get_object_or_404(TaskSubtask.objects.select_for_update(), pk=subtask_pk, task=task)
+        subtasks = list(TaskSubtask.objects.select_for_update().filter(task=task, parent_id=current.parent_id))
+        index = next((i for i, item in enumerate(subtasks) if item.pk == current.pk), None)
         if index is None:
             return _task_action_denied(request, task)
         target = index - 1 if direction == "up" else index + 1
@@ -542,14 +569,79 @@ def move_subtask(request: HttpRequest, pk: int, subtask_pk: int, direction: str)
 
 @require_POST
 @login_required
+def indent_subtask(request: HttpRequest, pk: int, subtask_pk: int) -> HttpResponse:
+    with transaction.atomic():
+        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
+        if not task.can_manage_subtasks(request.user):
+            return _task_action_denied(request, task)
+
+        roots = list(TaskSubtask.objects.select_for_update().filter(task=task, parent__isnull=True))
+        index = next((i for i, item in enumerate(roots) if item.pk == subtask_pk), None)
+        if index is None or index == 0:
+            return _task_action_denied(request, task)
+
+        subtask = roots[index]
+        if subtask.children.exists():
+            messages.error(request, gettext_lazy("Move this subtask's children before indenting it."))
+            return redirect("tasks:detail", pk=task.pk)
+
+        parent = roots[index - 1]
+        next_order = parent.children.aggregate(max_order=Max("order"))["max_order"]
+        subtask.parent = parent
+        subtask.order = (next_order + 1) if next_order is not None else 0
+        subtask.save(update_fields=["parent", "order"])
+        _normalize_subtask_orders(task, None)
+        task.save(update_fields=["updated_at"])
+    return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
+
+
+@require_POST
+@login_required
+def outdent_subtask(request: HttpRequest, pk: int, subtask_pk: int) -> HttpResponse:
+    with transaction.atomic():
+        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
+        if not task.can_manage_subtasks(request.user):
+            return _task_action_denied(request, task)
+
+        subtask = get_object_or_404(TaskSubtask.objects.select_for_update(), pk=subtask_pk, task=task)
+        if not subtask.parent_id:
+            return _task_action_denied(request, task)
+
+        parent_id = subtask.parent_id
+        roots = list(TaskSubtask.objects.select_for_update().filter(task=task, parent__isnull=True))
+        parent_index = next((i for i, item in enumerate(roots) if item.pk == parent_id), None)
+        if parent_index is None:
+            return _task_action_denied(request, task)
+
+        subtask.parent = None
+        roots.insert(parent_index + 1, subtask)
+        for order, item in enumerate(roots):
+            item_order = order
+            if item.pk == subtask.pk:
+                item.order = item_order
+                item.save(update_fields=["parent", "order"])
+            elif item.order != item_order:
+                TaskSubtask.objects.filter(pk=item.pk).update(order=item_order)
+        _normalize_subtask_orders(task, parent_id)
+        task.save(update_fields=["updated_at"])
+    return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
+
+
+@require_POST
+@login_required
 def reorder_subtasks(request: HttpRequest, pk: int) -> JsonResponse:
     try:
         items = json.loads(request.body)
         if not isinstance(items, list) or any(not isinstance(item, dict) for item in items):
             raise ValueError
-        ordered_ids = [item["id"] for item in items]
+        if any(set(item) != {"id", "parent_id", "order"} for item in items):
+            raise ValueError
+        item_ids = [item["id"] for item in items]
+        parent_ids = [item["parent_id"] for item in items]
         orders = [item["order"] for item in items]
-        if any(type(value) is not int for value in ordered_ids + orders):
+        if any(type(value) is not int for value in item_ids + orders):
+            raise ValueError
+        if any(parent_id is not None and type(parent_id) is not int for parent_id in parent_ids):
             raise ValueError
     except (json.JSONDecodeError, KeyError, TypeError, ValueError):
         return JsonResponse({"ok": False, "error": "invalid order"}, status=400)
@@ -558,11 +650,29 @@ def reorder_subtasks(request: HttpRequest, pk: int) -> JsonResponse:
         task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
         if not task.can_manage_subtasks(request.user):
             return JsonResponse({"ok": False, "error": "not allowed"}, status=403)
-        current_ids = set(task.subtasks.select_for_update().values_list("pk", flat=True))
-        if len(ordered_ids) != len(current_ids) or set(ordered_ids) != current_ids or sorted(orders) != list(range(len(items))):
+        subtasks = list(TaskSubtask.objects.select_for_update().filter(task=task))
+        subtasks_by_id = {subtask.pk: subtask for subtask in subtasks}
+        if len(item_ids) != len(subtasks_by_id) or set(item_ids) != set(subtasks_by_id):
             return JsonResponse({"ok": False, "error": "invalid order"}, status=400)
-        for item_id, order in zip(ordered_ids, orders, strict=True):
-            TaskSubtask.objects.filter(task=task, pk=item_id).update(order=order)
+
+        items_by_id = {item["id"]: item for item in items}
+        sibling_orders = {}
+        for item in items:
+            item_id, parent_id, order = item["id"], item["parent_id"], item["order"]
+            if parent_id is not None:
+                parent = items_by_id.get(parent_id)
+                if parent is None or parent_id == item_id or parent["parent_id"] is not None:
+                    return JsonResponse({"ok": False, "error": "invalid hierarchy"}, status=400)
+            sibling_orders.setdefault(parent_id, []).append(order)
+
+        if any(sorted(orders) != list(range(len(orders))) for orders in sibling_orders.values()):
+            return JsonResponse({"ok": False, "error": "invalid order"}, status=400)
+
+        for item in items:
+            subtask = subtasks_by_id[item["id"]]
+            subtask.parent_id = item["parent_id"]
+            subtask.order = item["order"]
+        TaskSubtask.objects.bulk_update(subtasks, ("parent", "order"))
         task.save(update_fields=["updated_at"])
     return JsonResponse({"ok": True})
 
@@ -634,6 +744,7 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
         context["team_size"] = task.get_team_size()
         context["required_team_size"] = task.required_people or 1
         context["can_manage_subtasks"] = task.can_manage_subtasks(self.request.user)
+        context["subtask_roots"] = task.subtasks.filter(parent__isnull=True).prefetch_related("children")
         sort, order, tab, categories = _task_sort_context(self.request)
         search_query = self.request.GET.get("q", "").strip()
         navigation_queryset = _task_list_queryset(self.request.user, categories, sort, order, search_query)

@@ -40,9 +40,81 @@
     </div>
   </section>
 
-  <div class="tw-task-actions tw-flex tw-flex-wrap tw-gap-2 tw-items-center tw-mb-4">
+  <section class="tw-card tw-mb-4" aria-labelledby="task-subtasks-heading">
+    <div class="tw-card-header">
+      <h2 id="task-subtasks-heading" class="tw-text-lg tw-font-semibold tw-mb-0">{% trans "Subtasks" %}</h2>
+    </div>
+    <div class="tw-card-body">
+      <ul class="tw-list-unstyled tw-space-y-2 tw-mb-0"{% if can_manage_subtasks %} data-subtask-sort-list data-parent-id=""{% endif %}>
+        {% for subtask in subtask_roots %}
+          <li class="tw-p-2 tw-border tw-rounded" data-id="{{ subtask.pk }}" data-parent-id="">
+            <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+              {% if can_manage_subtasks %}<span class="tw-drag-handle" data-subtask-handle aria-hidden="true"><i class="fas fa-grip-vertical" aria-hidden="true"></i></span>{% endif %}
+              {% if can_manage_subtasks %}
+                <form method="post" action="{% url 'tasks:subtask_toggle' task.pk subtask.pk %}" class="tw-flex tw-items-center tw-gap-2" data-subtask-toggle-form>
+                  {% csrf_token %}
+                  <input type="checkbox" id="subtask-{{ subtask.pk }}" data-subtask-toggle{% if subtask.is_completed %} checked{% endif %}>
+                  <label for="subtask-{{ subtask.pk }}" class="{% if subtask.is_completed %}tw-line-through tw-text-muted{% endif %}">{{ subtask.title }}</label>
+                </form>
+                <div class="tw-flex tw-items-center tw-flex-wrap tw-gap-1 tw-ms-auto">
+                  <button type="button" class="tw-btn tw-btn-secondary" data-subtask-edit data-edit-url="{% url 'tasks:subtask_edit' task.pk subtask.pk %}" data-subtask-title="{{ subtask.title }}" data-tw-toggle="modal" data-tw-target="#editSubtaskModal" aria-label="{% trans 'Edit subtask' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></button>
+                  <form method="post" action="{% url 'tasks:subtask_delete' task.pk subtask.pk %}">{% csrf_token %}<button type="button" class="tw-btn tw-btn-outline-danger" data-subtask-delete data-subtask-title="{{ subtask.title }}" aria-label="{% trans 'Delete subtask' %}"{% if subtask.children.all %} disabled{% endif %}><i class="fas fa-trash fa-fw" aria-hidden="true"></i></button></form>
+                </div>
+              {% else %}
+                <div class="tw-flex tw-items-center tw-gap-2">
+                  <input type="checkbox" disabled{% if subtask.is_completed %} checked{% endif %} aria-label="{{ subtask.title }}">
+                  <span class="{% if subtask.is_completed %}tw-line-through tw-text-muted{% endif %}">{{ subtask.title }}</span>
+                </div>
+              {% endif %}
+            </div>
+            {% if can_manage_subtasks or subtask.children.all %}
+              <ul class="tw-list-unstyled tw-space-y-2 tw-mt-2 tw-ms-6 tw-border-l tw-border-subtle tw-ps-3 tw-min-h-8"{% if can_manage_subtasks %} data-subtask-sort-list data-parent-id="{{ subtask.pk }}"{% endif %}>
+                {% for child in subtask.children.all %}
+                  <li class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-p-2 tw-border tw-rounded" data-id="{{ child.pk }}" data-parent-id="{{ subtask.pk }}">
+                    {% if can_manage_subtasks %}
+                      <span class="tw-drag-handle" data-subtask-handle aria-hidden="true"><i class="fas fa-grip-vertical" aria-hidden="true"></i></span>
+                      <form method="post" action="{% url 'tasks:subtask_toggle' task.pk child.pk %}" class="tw-flex tw-items-center tw-gap-2" data-subtask-toggle-form>
+                        {% csrf_token %}
+                        <input type="checkbox" id="subtask-{{ child.pk }}" data-subtask-toggle{% if child.is_completed %} checked{% endif %}>
+                        <label for="subtask-{{ child.pk }}" class="{% if child.is_completed %}tw-line-through tw-text-muted{% endif %}">{{ child.title }}</label>
+                      </form>
+                      <div class="tw-flex tw-items-center tw-flex-wrap tw-gap-1 tw-ms-auto">
+                        <button type="button" class="tw-btn tw-btn-secondary" data-subtask-edit data-edit-url="{% url 'tasks:subtask_edit' task.pk child.pk %}" data-subtask-title="{{ child.title }}" data-tw-toggle="modal" data-tw-target="#editSubtaskModal" aria-label="{% trans 'Edit subtask' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></button>
+                        <form method="post" action="{% url 'tasks:subtask_delete' task.pk child.pk %}">{% csrf_token %}<button type="button" class="tw-btn tw-btn-outline-danger" data-subtask-delete data-subtask-title="{{ child.title }}" aria-label="{% trans 'Delete subtask' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></button></form>
+                      </div>
+                    {% else %}
+                      <div class="tw-flex tw-items-center tw-gap-2">
+                        <input type="checkbox" disabled{% if child.is_completed %} checked{% endif %} aria-label="{{ child.title }}">
+                        <span class="{% if child.is_completed %}tw-line-through tw-text-muted{% endif %}">{{ child.title }}</span>
+                      </div>
+                    {% endif %}
+                  </li>
+                {% empty %}
+                  {% if can_manage_subtasks %}<li class="tw-text-muted tw-text-sm" data-subtask-drop-hint>{% trans "Drop a subtask here to nest it." %}</li>{% endif %}
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </li>
+        {% empty %}
+          <li class="tw-text-muted">{% trans "No subtasks yet." %}</li>
+        {% endfor %}
+      </ul>
+      {% if can_manage_subtasks %}
+        <div class="tw-mt-3">
+          <button type="button" class="tw-btn tw-btn-primary" data-subtask-add data-add-url="{% url 'tasks:subtask_add' task.pk %}" data-tw-toggle="modal" data-tw-target="#editSubtaskModal">
+            <i class="fas fa-plus fa-fw" aria-hidden="true"></i> {% trans "Add a subtask" %}
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <div class="tw-mb-4 tw-space-y-3">
     {% if task.is_active %}
-      {% with vote_value=user_vote_value %}
+      <section class="tw-flex tw-flex-col sm:tw-flex-row sm:tw-items-center tw-gap-2 tw-border-b tw-border-subtle tw-pb-3">
+        <div class="tw-detail-section-label tw-shrink-0 sm:tw-w-32">{% trans "Votes" %}</div>
+        <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+          {% with vote_value=user_vote_value %}
       <form class="tw-inline" method="post" action="{% url 'tasks:vote' task.pk %}">
         {% csrf_token %}
         <input type="hidden" name="value" value="1">
@@ -86,9 +158,29 @@
           {% endif %}
         </button>
       </form>
-      {% endwith %}
+          {% endwith %}
+          {% if task.phase == 'proposal' %}
+            <span class="tw-badge-status tw-badge-light">{{ task.get_phase_display }}</span>
+            <span class="tw-badge-status tw-badge-light">{% trans "Votes" %}: <span data-realization-vote-score>{{ task.votes_score|default:0 }}</span>/2</span>
+            <span class="tw-badge-status tw-badge-light">{% trans "Team" %}: <span data-team-size>{{ team_size }}</span>/{{ required_team_size }}</span>
+            <div class="tw-flex tw-flex-col tw-items-start tw-gap-1">
+              <form class="tw-inline" method="post" action="{% url 'tasks:start' task.pk %}" data-coord-state="me"{% if not is_coordinator %} hidden{% endif %}>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" class="tw-btn tw-btn-primary">
+                  <i class="fas fa-rocket fa-fw" aria-hidden="true"></i> {% trans "Start realization" %}
+                </button>
+              </form>
+              <span class="tw-text-muted tw-text-sm">{% trans "Starting requires a vote balance of at least 2 and the full team." %}</span>
+            </div>
+          {% endif %}
+        </div>
+      </section>
 
       {% if not task.assigned_to or task.assigned_to == request.user %}
+      <section class="tw-flex tw-flex-col sm:tw-flex-row sm:tw-items-center tw-gap-2 tw-border-b tw-border-subtle tw-pb-3">
+        <div class="tw-detail-section-label tw-shrink-0 sm:tw-w-32">{% trans "Coordinator" %}</div>
+        <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
         {# Pre-render both states; JS toggles `hidden` after AJAX take/resign #}
         <form class="tw-inline" method="post" action="{% url 'tasks:take' task.pk %}" data-coord-state="empty"{% if task.assigned_to %} hidden{% endif %}>
           {% csrf_token %}
@@ -118,22 +210,20 @@
            title="{% trans "Mark activity as completed or cancelled" %}">
           <i class="fas fa-check-circle fa-fw"></i> {% trans "Close activity" %}
         </a>
+        </div>
+      </section>
       {% endif %}
-      {% if task.phase == 'proposal' %}
-        <span class="tw-badge-status tw-badge-light">{% trans "Votes" %}: <span data-realization-vote-score>{{ task.votes_score|default:0 }}</span>/2</span>
-        <span class="tw-badge-status tw-badge-light">{% trans "Team" %}: <span data-team-size>{{ team_size }}</span>/{{ required_team_size }}</span>
-        <span class="tw-text-muted tw-text-sm">{% trans "Starting requires a vote balance of at least 2 and the full team." %}</span>
-        <form class="tw-inline" method="post" action="{% url 'tasks:start' task.pk %}" data-coord-state="me"{% if not is_coordinator %} hidden{% endif %}>
-          {% csrf_token %}
-          <input type="hidden" name="next" value="{{ request.get_full_path }}">
-          <button type="submit" class="tw-btn tw-btn-primary">
-            <i class="fas fa-rocket fa-fw" aria-hidden="true"></i> {% trans "Start realization" %}
-          </button>
-        </form>
-      {% elif task.phase == 'realization' %}
-        <button type="button" class="tw-btn tw-btn-outline-danger" data-coord-state="me"{% if not is_coordinator %} hidden{% endif %} data-tw-toggle="modal" data-tw-target="#returnToProposalModal">
-          <i class="fas fa-rotate-left fa-fw" aria-hidden="true"></i> {% trans "Return to proposal" %}
-        </button>
+
+      {% if task.phase == 'realization' %}
+        <section class="tw-flex tw-flex-col sm:tw-flex-row sm:tw-items-center tw-gap-2">
+          <div class="tw-detail-section-label tw-shrink-0 sm:tw-w-32">{% trans "Phase" %}</div>
+          <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+            <span class="tw-badge-status tw-badge-light">{{ task.get_phase_display }}</span>
+            <button type="button" class="tw-btn tw-btn-outline-danger" data-coord-state="me"{% if not is_coordinator %} hidden{% endif %} data-tw-toggle="modal" data-tw-target="#returnToProposalModal">
+              <i class="fas fa-rotate-left fa-fw" aria-hidden="true"></i> {% trans "Return to proposal" %}
+            </button>
+          </div>
+        </section>
       {% endif %}
     {% endif %}
 
@@ -225,55 +315,42 @@
     </div>
   </div>
 
-  <section class="tw-card tw-mb-4" aria-labelledby="task-subtasks-heading">
-    <div class="tw-card-header">
-      <h2 id="task-subtasks-heading" class="tw-text-lg tw-font-semibold tw-mb-0">{% trans "Subtasks" %}</h2>
+
+  {% if can_manage_subtasks %}
+    {% trans "Add a subtask" as subtask_modal_title %}
+    <div class="tw-modal tw-fade" id="editSubtaskModal" tabindex="-1" role="dialog" aria-labelledby="editSubtaskModalLabel" aria-hidden="true">
+      <div class="tw-modal-dialog" role="document">
+        <div class="tw-modal-content">
+          {% include 'home/includes/modal_header.html' with title=subtask_modal_title title_id='editSubtaskModalLabel' %}
+          <form id="editSubtaskForm" method="post" action="{% url 'tasks:subtask_add' task.pk %}">
+            {% csrf_token %}
+            <div class="tw-modal-body">
+              <label class="tw-form-label" for="editSubtaskTitle">{% trans "Subtask title" %}</label>
+              <input id="editSubtaskTitle" class="tw-form-control" type="text" name="title" maxlength="240" required>
+            </div>
+            <div class="tw-modal-footer">
+              <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal">{% trans "Cancel" %}</button>
+              <button type="submit" class="tw-btn tw-btn-primary"><i data-subtask-save-icon class="fas fa-plus fa-fw" aria-hidden="true"></i> <span data-subtask-save-label>{% trans "Add" %}</span></button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    <div class="tw-card-body">
-      <ul class="tw-list-unstyled tw-space-y-2 tw-mb-0"{% if can_manage_subtasks %} data-subtask-list data-reorder-url="{% url 'tasks:subtask_reorder' task.pk %}"{% endif %}>
-        {% for subtask in task.subtasks.all %}
-          <li class="tw-flex tw-flex-col md:tw-flex-row md:tw-items-center tw-gap-2 tw-p-2 tw-border tw-rounded" data-id="{{ subtask.pk }}">
-            {% if can_manage_subtasks %}
-              <span class="tw-drag-handle" data-subtask-handle aria-hidden="true"><i class="fas fa-grip-vertical" aria-hidden="true"></i></span>
-              <form method="post" action="{% url 'tasks:subtask_toggle' task.pk subtask.pk %}" class="tw-flex tw-items-center tw-gap-2" data-subtask-toggle-form>
-                {% csrf_token %}
-                <input type="checkbox" id="subtask-{{ subtask.pk }}" data-subtask-toggle{% if subtask.is_completed %} checked{% endif %}>
-                <label for="subtask-{{ subtask.pk }}" class="{% if subtask.is_completed %}tw-line-through tw-text-muted{% endif %}">{{ subtask.title }}</label>
-              </form>
-              <form method="post" action="{% url 'tasks:subtask_edit' task.pk subtask.pk %}" class="tw-flex tw-flex-1 tw-items-center tw-gap-2">
-                {% csrf_token %}
-                <label class="tw-sr-only" for="subtask-title-{{ subtask.pk }}">{% trans "Subtask title" %}</label>
-                <input id="subtask-title-{{ subtask.pk }}" class="tw-form-control" type="text" name="title" value="{{ subtask.title }}" maxlength="240" required>
-                <button type="submit" class="tw-btn tw-btn-secondary" aria-label="{% trans 'Save subtask' %}"><i class="fas fa-floppy-disk fa-fw" aria-hidden="true"></i></button>
-              </form>
-              <div class="tw-flex tw-gap-1">
-                <form method="post" action="{% url 'tasks:subtask_move' task.pk subtask.pk 'up' %}">{% csrf_token %}<button type="submit" class="tw-btn tw-btn-secondary" aria-label="{% trans 'Move subtask up' %}"{% if forloop.first %} disabled{% endif %}><i class="fas fa-arrow-up" aria-hidden="true"></i></button></form>
-                <form method="post" action="{% url 'tasks:subtask_move' task.pk subtask.pk 'down' %}">{% csrf_token %}<button type="submit" class="tw-btn tw-btn-secondary" aria-label="{% trans 'Move subtask down' %}"{% if forloop.last %} disabled{% endif %}><i class="fas fa-arrow-down" aria-hidden="true"></i></button></form>
-                <form method="post" action="{% url 'tasks:subtask_delete' task.pk subtask.pk %}">{% csrf_token %}<button type="submit" class="tw-btn tw-btn-outline-danger" aria-label="{% trans 'Delete subtask' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></button></form>
-              </div>
-            {% else %}
-              <div class="tw-flex tw-items-center tw-gap-2">
-                <input type="checkbox" disabled{% if subtask.is_completed %} checked{% endif %} aria-label="{{ subtask.title }}">
-                <span class="{% if subtask.is_completed %}tw-line-through tw-text-muted{% endif %}">{{ subtask.title }}</span>
-              </div>
-            {% endif %}
-          </li>
-        {% empty %}
-          <li class="tw-text-muted">{% trans "No subtasks yet." %}</li>
-        {% endfor %}
-      </ul>
-      {% if can_manage_subtasks %}
-        <form method="post" action="{% url 'tasks:subtask_add' task.pk %}" class="tw-flex tw-flex-wrap tw-items-end tw-gap-2 tw-mt-3">
-          {% csrf_token %}
-          <div class="tw-flex-1">
-            <label class="tw-form-label" for="new-subtask-title">{% trans "Add a subtask" %}</label>
-            <input id="new-subtask-title" class="tw-form-control" type="text" name="title" maxlength="240" required>
-          </div>
-          <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-plus fa-fw" aria-hidden="true"></i> {% trans "Add" %}</button>
-        </form>
-      {% endif %}
-    </div>
-  </section>
+    <script>
+      window.TASK_SUBTASK_I18N = {
+        add_title: "{% trans 'Add a subtask' %}",
+        edit_title: "{% trans 'Edit subtask' %}",
+        add_label: "{% trans 'Add' %}",
+        save_label: "{% trans 'Save' %}",
+        delete_title: "{% trans 'Delete subtask' %}",
+        delete_message: "{% trans 'Are you sure you want to delete this subtask?' %}",
+        delete_confirm_label: "{% trans 'Yes, delete' %}",
+        cancel_label: "{% trans 'Cancel' %}",
+        item_title_label: "{% trans 'Item' %}",
+        irreversible_message: "{% trans 'This action cannot be undone.' %}",
+      };
+    </script>
+  {% endif %}
 
   {% if not task.is_active %}
     <div class="tw-task-actions tw-flex tw-flex-wrap tw-gap-2 tw-items-center tw-mb-4">

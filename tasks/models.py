@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import Count, F, Max, Q
 from django.utils.text import slugify
@@ -171,12 +172,20 @@ class TaskVote(models.Model):
 
 class TaskSubtask(models.Model):
     task = models.ForeignKey(Task, related_name="subtasks", on_delete=models.CASCADE)
+    parent = models.ForeignKey("self", null=True, blank=True, related_name="children", on_delete=models.SET_NULL)
     title = models.CharField(max_length=240)
     is_completed = models.BooleanField(default=False)
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ("order", "pk")
+
+    def clean(self):
+        super().clean()
+        if self.parent_id and self.parent.task_id != self.task_id:
+            raise ValidationError({"parent": _("A subtask parent must belong to the same task.")})
+        if self.parent_id and self.parent.parent_id:
+            raise ValidationError({"parent": _("Subtasks can only be nested one level deep.")})
 
     def __str__(self):
         return self.title

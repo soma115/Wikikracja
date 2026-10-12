@@ -36,6 +36,8 @@ Moduł `tasks` obsługuje propozycje działań, ich realizację, checklisty zesp
 
 - Koordynator zatwierdza chętnych do zespołu; koordynator i zatwierdzeni pomocnicy mogą pisać w czacie trybu zespołowego.
 - Koordynator i zatwierdzeni pomocnicy mogą dodawać, edytować, porządkować, odhaczać oraz usuwać podzadania w obu aktywnych fazach.
+- Podzadania mogą być zagnieżdżone o jeden poziom; przeciągnięcie do wciętej listy lub przyciski Wciąć/Odwciąć zmieniają relację rodzic–dziecko. Przeniesienie rodzica przenosi cały blok dzieci.
+- Zaznaczenie rodzica zaznacza dzieci; rodzic staje się ukończony, gdy wszystkie jego dzieci są ukończone. Usunięcie rodzica z dziećmi jest blokowane.
 - Zmiany checklisty nie resetują głosów. Po zamknięciu zadania checklista jest tylko do odczytu.
 - Kolejność podzadań można zmieniać przez przeciąganie lub dostępne kontrolki klawiaturowe.
 

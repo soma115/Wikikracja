@@ -10441,6 +10441,10 @@ body.tw-chat-page .tw-main-area {
   margin-inline-start: 0.5rem;
 }
 
+.tw-ms-6 {
+  margin-inline-start: 1.5rem;
+}
+
 .tw-ms-auto {
   margin-inline-start: auto;
 }
@@ -10543,6 +10547,10 @@ body.tw-chat-page .tw-main-area {
 
 .tw-min-h-0 {
   min-height: 0px;
+}
+
+.tw-min-h-8 {
+  min-height: 2rem;
 }
 
 .tw-w-10 {
@@ -10820,6 +10828,10 @@ body.tw-chat-page .tw-main-area {
   border-bottom-width: 1px;
 }
 
+.tw-border-l {
+  border-left-width: 1px;
+}
+
 .tw-border-r-0 {
   border-right-width: 0px;
 }
@@ -10918,6 +10930,10 @@ body.tw-chat-page .tw-main-area {
 
 .tw-pb-3 {
   padding-bottom: 0.75rem;
+}
+
+.tw-ps-3 {
+  padding-inline-start: 0.75rem;
 }
 
 .tw-pt-0 {
@@ -11103,8 +11119,20 @@ body.tw-chat-page .tw-main-area {
     display: none;
   }
 
+  .sm\:tw-w-32 {
+    width: 8rem;
+  }
+
   .sm\:tw-grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sm\:tw-flex-row {
+    flex-direction: row;
+  }
+
+  .sm\:tw-items-center {
+    align-items: center;
   }
 
   .sm\:tw-p-6 {
@@ -11155,14 +11183,6 @@ body.tw-chat-page .tw-main-area {
 
   .md\:tw-grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .md\:tw-flex-row {
-    flex-direction: row;
-  }
-
-  .md\:tw-items-center {
-    align-items: center;
   }
 }
 

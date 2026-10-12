@@ -10,14 +10,17 @@
     var opts = options || {};
 
     return Sortable.create(listEl, {
+      group: opts.group || undefined,
       handle: opts.handle || undefined,
       animation: 150,
       ghostClass: 'tw-sortable-ghost',
       chosenClass: 'tw-sortable-chosen',
-      onEnd: function () {
-        var items = Array.from(listEl.children).map(function (li, idx) {
-          return { id: parseInt(li.dataset.id, 10), order: idx };
-        });
+      onEnd: function (event) {
+        var items = opts.serialize
+          ? opts.serialize(listEl, event)
+          : Array.from(listEl.children).map(function (li, idx) {
+              return { id: parseInt(li.dataset.id, 10), order: idx };
+            });
         window.apiFetch(opts.reorderUrl, {
           method: 'POST',
           body: items,

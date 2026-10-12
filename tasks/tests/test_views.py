@@ -823,6 +823,21 @@ class TaskSubtaskViewTest(TestCase):
         self.task.approve_helper(self.helper)
         self.subtask = TaskSubtask.objects.create(task=self.task, title="Pierwsze", order=0)
 
+    def test_subtask_name_editing_uses_a_modal_and_renders_nested_items(self):
+        child = TaskSubtask.objects.create(task=self.task, parent=self.subtask, title="Dziecko", order=0)
+        self.client.force_login(self.helper)
+        response = self.client.get(reverse("tasks:detail", kwargs={"pk": self.task.pk}))
+        self.assertContains(response, 'id="editSubtaskModal"')
+        self.assertContains(response, "data-subtask-edit")
+        self.assertContains(response, "data-subtask-delete")
+        self.assertNotContains(response, "/indent/")
+        self.assertNotContains(response, "/outdent/")
+        self.assertNotContains(response, "/move/up/")
+        self.assertNotContains(response, "/move/down/")
+        self.assertContains(response, f'data-parent-id="{self.subtask.pk}"')
+        self.assertContains(response, child.title)
+        self.assertNotContains(response, 'id="subtask-title-')
+
     def test_team_member_can_add_edit_toggle_and_delete_subtask(self):
         self.client.force_login(self.helper)
         self.client.post(reverse("tasks:subtask_add", kwargs={"pk": self.task.pk}), {"title": "Drugie"})
@@ -834,6 +849,68 @@ class TaskSubtaskViewTest(TestCase):
         self.assertTrue(second.is_completed)
         self.client.post(reverse("tasks:subtask_delete", kwargs={"pk": self.task.pk, "subtask_pk": second.pk}))
         self.assertFalse(TaskSubtask.objects.filter(pk=second.pk).exists())
+
+    def test_parent_completion_cascades_and_children_update_parent(self):
+        child = TaskSubtask.objects.create(task=self.task, parent=self.subtask, title="Dziecko", order=0)
+        self.client.force_login(self.helper)
+        self.client.post(reverse("tasks:subtask_toggle", kwargs={"pk": self.task.pk, "subtask_pk": self.subtask.pk}))
+        self.subtask.refresh_from_db()
+        child.refresh_from_db()
+        self.assertTrue(self.subtask.is_completed)
+        self.assertTrue(child.is_completed)
+
+        self.client.post(reverse("tasks:subtask_toggle", kwargs={"pk": self.task.pk, "subtask_pk": child.pk}))
+        self.subtask.refresh_from_db()
+        child.refresh_from_db()
+        self.assertFalse(self.subtask.is_completed)
+        self.assertFalse(child.is_completed)
+
+    def test_indent_outdent_and_parent_group_reorder(self):
+        second = TaskSubtask.objects.create(task=self.task, title="Drugie", order=1)
+        self.client.force_login(self.coordinator)
+
+        self.client.post(reverse("tasks:subtask_indent", kwargs={"pk": self.task.pk, "subtask_pk": second.pk}))
+        second.refresh_from_db()
+        self.assertEqual(second.parent_id, self.subtask.pk)
+
+        self.client.post(reverse("tasks:subtask_outdent", kwargs={"pk": self.task.pk, "subtask_pk": second.pk}))
+        second.refresh_from_db()
+        self.assertIsNone(second.parent_id)
+        self.assertEqual(second.order, 1)
+        child = TaskSubtask.objects.create(task=self.task, parent=second, title="Dziecko", order=0)
+
+        url = reverse("tasks:subtask_reorder", kwargs={"pk": self.task.pk})
+        response = self.client.post(
+            url,
+            json.dumps([{"id": second.pk, "parent_id": None, "order": 0}, {"id": child.pk, "parent_id": second.pk, "order": 0}, {"id": self.subtask.pk, "parent_id": None, "order": 1}]),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.subtask.refresh_from_db()
+        second.refresh_from_db()
+        child.refresh_from_db()
+        self.assertEqual((second.order, self.subtask.order), (0, 1))
+        self.assertEqual(child.parent_id, second.pk)
+
+    def test_reorder_rejects_nesting_beyond_one_level(self):
+        child = TaskSubtask.objects.create(task=self.task, parent=self.subtask, title="Dziecko", order=0)
+        grandchild = TaskSubtask.objects.create(task=self.task, title="Wnuk", order=1)
+        self.client.force_login(self.coordinator)
+        response = self.client.post(
+            reverse("tasks:subtask_reorder", kwargs={"pk": self.task.pk}),
+            json.dumps([{"id": self.subtask.pk, "parent_id": None, "order": 0}, {"id": child.pk, "parent_id": self.subtask.pk, "order": 0}, {"id": grandchild.pk, "parent_id": child.pk, "order": 0}]),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 400)
+        grandchild.refresh_from_db()
+        self.assertIsNone(grandchild.parent_id)
+
+    def test_parent_with_children_cannot_be_deleted(self):
+        child = TaskSubtask.objects.create(task=self.task, parent=self.subtask, title="Dziecko", order=0)
+        self.client.force_login(self.coordinator)
+        self.client.post(reverse("tasks:subtask_delete", kwargs={"pk": self.task.pk, "subtask_pk": self.subtask.pk}))
+        self.assertTrue(TaskSubtask.objects.filter(pk=self.subtask.pk).exists())
+        self.assertTrue(TaskSubtask.objects.filter(pk=child.pk).exists())
 
     def test_unapproved_member_cannot_change_subtasks(self):
         self.client.force_login(self.outsider)
@@ -862,7 +939,7 @@ class TaskSubtaskViewTest(TestCase):
         second = TaskSubtask.objects.create(task=self.task, title="Drugie", order=1)
         self.client.force_login(self.coordinator)
         url = reverse("tasks:subtask_reorder", kwargs={"pk": self.task.pk})
-        response = self.client.post(url, json.dumps([{"id": second.pk, "order": 0}, {"id": self.subtask.pk, "order": 1}]), content_type="application/json")
+        response = self.client.post(url, json.dumps([{"id": second.pk, "parent_id": None, "order": 0}, {"id": self.subtask.pk, "parent_id": None, "order": 1}]), content_type="application/json")
         self.assertEqual(response.status_code, 200)
         self.subtask.refresh_from_db()
         second.refresh_from_db()

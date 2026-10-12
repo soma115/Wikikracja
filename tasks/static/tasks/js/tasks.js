@@ -69,7 +69,7 @@
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        var row = form.closest('.tw-task-vote-row, .tw-task-actions');
+        var row = form.closest('.tw-task-vote-row, .tw-task-actions') || form.closest('section');
         if (!row) return;
         var upBtn = row.querySelector('.tw-task-vote-btn--up');
         var downBtn = row.querySelector('.tw-task-vote-btn--down');
@@ -328,6 +328,59 @@
 
   document.addEventListener('submit', handleCoordSubmit, true);
 
+  function handleSubtaskEdit(e) {
+    var editButton = e.target.closest && e.target.closest('[data-subtask-edit]');
+    var addButton = e.target.closest && e.target.closest('[data-subtask-add]');
+    if (!editButton && !addButton) return;
+
+    var form = document.getElementById('editSubtaskForm');
+    var title = document.getElementById('editSubtaskTitle');
+    var modalTitle = document.getElementById('editSubtaskModalLabel');
+    var submitLabel = document.querySelector('[data-subtask-save-label]');
+    var submitIcon = document.querySelector('[data-subtask-save-icon]');
+    if (!form || !title || !modalTitle || !submitLabel || !submitIcon) return;
+
+    var i18n = window.TASK_SUBTASK_I18N || {};
+    if (editButton) {
+      form.action = editButton.dataset.editUrl;
+      title.value = editButton.dataset.subtaskTitle || '';
+      modalTitle.textContent = i18n.edit_title || '';
+      submitLabel.textContent = i18n.save_label || '';
+      submitIcon.className = 'fas fa-floppy-disk fa-fw';
+    } else {
+      form.action = addButton.dataset.addUrl;
+      title.value = '';
+      modalTitle.textContent = i18n.add_title || '';
+      submitLabel.textContent = i18n.add_label || '';
+      submitIcon.className = 'fas fa-plus fa-fw';
+    }
+  }
+
+  document.addEventListener('click', handleSubtaskEdit, true);
+
+  function handleSubtaskDelete(e) {
+    var deleteButton = e.target.closest && e.target.closest('[data-subtask-delete]');
+    if (!deleteButton) return;
+
+    var form = deleteButton.closest('form');
+    var i18n = window.TASK_SUBTASK_I18N || {};
+    if (!form) return;
+
+    window.TwModal.confirm({
+      title: i18n.delete_title || '',
+      message: i18n.delete_message || '',
+      itemTitle: deleteButton.dataset.subtaskTitle || '',
+      itemTitleLabel: i18n.item_title_label || '',
+      irreversible: true,
+      irreversibleLabel: i18n.irreversible_message || '',
+      confirmLabel: i18n.delete_confirm_label || '',
+      cancelLabel: i18n.cancel_label || '',
+      onConfirm: function () { form.requestSubmit(); },
+    });
+  }
+
+  document.addEventListener('click', handleSubtaskDelete, true);
+
   function handleSubtaskToggle(e) {
     var checkbox = e.target.closest && e.target.closest('[data-subtask-toggle]');
     if (!checkbox) return;
@@ -337,14 +390,25 @@
 
     var checked = checkbox.checked;
     checkbox.disabled = true;
-    window.apiFetch(form.action, { method: 'POST', body: new URLSearchParams() })
-      .then(function (response) {
-        if (!response.ok) checkbox.checked = !checked;
-        else {
-          var label = form.querySelector('label');
-          if (label) label.classList.toggle('tw-line-through', checked);
-          if (label) label.classList.toggle('tw-text-muted', checked);
+    window.apiFetch(form.action, {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body: new URLSearchParams(),
+    })
+      .then(function (response) { return response.json().then(function (data) { return { ok: response.ok, data: data }; }); })
+      .then(function (result) {
+        if (!result.ok || !result.data.ok) {
+          checkbox.checked = !checked;
+          return;
         }
+        result.data.states.forEach(function (state) {
+          var input = document.getElementById('subtask-' + state.id);
+          if (!input) return;
+          input.checked = state.is_completed;
+          var label = input.closest('form').querySelector('label');
+          if (label) label.classList.toggle('tw-line-through', state.is_completed);
+          if (label) label.classList.toggle('tw-text-muted', state.is_completed);
+        });
       })
       .catch(function () { checkbox.checked = !checked; })
       .finally(function () { checkbox.disabled = false; });
@@ -352,13 +416,41 @@
 
   document.addEventListener('change', handleSubtaskToggle, true);
 
+  function serializeSubtaskTree() {
+    var items = [];
+    document.querySelectorAll('[data-subtask-sort-list]').forEach(function (list) {
+      var parentId = list.dataset.parentId ? parseInt(list.dataset.parentId, 10) : null;
+      Array.from(list.children).filter(function (item) { return item.dataset.id; }).forEach(function (item, order) {
+        item.dataset.parentId = parentId === null ? '' : String(parentId);
+        items.push({ id: parseInt(item.dataset.id, 10), parent_id: parentId, order: order });
+      });
+    });
+    return items;
+  }
+
   function initSubtaskSorting() {
-    var list = document.querySelector('[data-subtask-list]');
-    if (!list || !window.TASK_SUBTASK_REORDER_URL || typeof window.initSortableList !== 'function') return;
-    window.initSortableList(list, {
-      reorderUrl: window.TASK_SUBTASK_REORDER_URL,
-      handle: '[data-subtask-handle]',
-      onError: function () { window.location.reload(); },
+    var lists = Array.from(document.querySelectorAll('[data-subtask-sort-list]'));
+    if (!lists.length || !window.TASK_SUBTASK_REORDER_URL || typeof window.initSortableList !== 'function') return;
+
+    lists.forEach(function (list) {
+      window.initSortableList(list, {
+        reorderUrl: window.TASK_SUBTASK_REORDER_URL,
+        handle: '[data-subtask-handle]',
+        group: {
+          name: 'task-subtasks-' + window.TASK_ID,
+          pull: true,
+          put: function (to, from, dragEl) {
+            if (!to.el.dataset.parentId) return true;
+            var parentItem = to.el.closest('li[data-id]');
+            if (!parentItem || parentItem.dataset.parentId) return false;
+            var childList = Array.from(dragEl.children).find(function (el) { return el.matches('[data-subtask-sort-list]'); });
+            return !childList || !Array.from(childList.children).some(function (child) { return child.dataset.id; });
+          },
+        },
+        serialize: serializeSubtaskTree,
+        onSaved: function () { window.location.reload(); },
+        onError: function () { window.location.reload(); },
+      });
     });
   }
 
