@@ -78,32 +78,36 @@
       <div class="tw-flex tw-flex-col tw-gap-3">
         {% for room in federated_rooms %}
         <div class="tw-flex tw-flex-col tw-gap-3{% if not forloop.first %} tw-pt-3 tw-section-divider{% endif %}">
-          <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
-            <span class="tw-font-semibold">{{ room.federated_instance_name|default:room.title }}</span>
-            <span class="tw-text-muted tw-text-sm">{{ room.federated_instance_url }}</span>
-            {% if room.federation_peer_configured %}
-              <span class="tw-badge-status tw-badge-success tw-whitespace-nowrap" title="{% trans 'The other group has added this instance' %}"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Mutual connection" %}</span>
-            {% elif room.federation_peer_configured == False %}
-              <span class="tw-badge-status tw-badge-warning tw-whitespace-nowrap" title="{% trans 'The other group has not added this instance' %}"><i class="fas fa-hourglass-half fa-fw tw-me-1"></i>{% trans "Waiting for the other group" %}</span>
-            {% else %}
-              <span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap">{% trans "Not checked" %}</span>
-            {% endif %}
-            {% if room.has_federation_outbound_secret %}<span class="tw-badge-status tw-badge-success tw-whitespace-nowrap">{% trans "Outgoing secret ready" %}</span>{% endif %}
-            {% if room.has_federation_inbound_secret %}<span class="tw-badge-status tw-badge-success tw-whitespace-nowrap">{% trans "Peer secret received" %}</span>{% endif %}
-            {% if room.federation_communication_ok %}
-              <span class="tw-badge-status tw-badge-success tw-whitespace-nowrap" title="{% trans 'The last status check succeeded' %}"><i class="fas fa-link fa-fw tw-me-1"></i>{% trans "Communication works" %}</span>
-            {% elif room.federation_communication_ok == False %}
-              <span class="tw-badge-status tw-badge-danger tw-whitespace-nowrap" title="{% trans 'The last status check failed' %}"><i class="fas fa-times-circle fa-fw tw-me-1"></i>{% trans "No communication" %}</span>
-            {% else %}
-              <span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap">{% trans "Not checked" %}</span>
-            {% endif %}
-            {% if room.archived %}<span class="tw-badge tw-badge-secondary">{% trans "Archived" %}</span>{% endif %}
-            {% if not room.archived %}
-            <form method="post" class="tw-inline">
-              {% csrf_token %}
-              <button type="submit" name="delete_federated_instance" value="{{ room.federated_instance_url }}" class="tw-btn tw-btn-sm tw-btn-outline-danger"><i class="fas fa-archive fa-fw tw-me-1"></i>{% trans "Archive" %}</button>
-            </form>
-            {% endif %}
+          <div class="tw-flex tw-flex-col tw-gap-2">
+            <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+              <span class="tw-font-semibold">{{ room.federated_instance_name|default:room.title }}</span>
+              <span class="tw-text-muted tw-text-sm">{{ room.federated_instance_url }}</span>
+            </div>
+            <div class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
+              {% if room.federation_peer_configured %}
+                <span class="tw-badge-status tw-badge-success tw-whitespace-nowrap" title="{% trans 'The other group has added this instance' %}"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans "Mutual connection" %}</span>
+              {% elif room.federation_peer_configured == False %}
+                <span class="tw-badge-status tw-badge-warning tw-whitespace-nowrap" title="{% trans 'The other group has not added this instance' %}"><i class="fas fa-hourglass-half fa-fw tw-me-1"></i>{% trans "Waiting for the other group" %}</span>
+              {% else %}
+                <span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap">{% trans "Not checked" %}</span>
+              {% endif %}
+              {% if room.has_federation_outbound_secret %}<span class="tw-badge-status tw-badge-success tw-whitespace-nowrap">{% trans "Outgoing secret ready" %}</span>{% endif %}
+              {% if room.has_federation_inbound_secret %}<span class="tw-badge-status tw-badge-success tw-whitespace-nowrap">{% trans "Peer secret received" %}</span>{% endif %}
+              {% if room.federation_communication_ok %}
+                <span class="tw-badge-status tw-badge-success tw-whitespace-nowrap" title="{% trans 'The last status check succeeded' %}"><i class="fas fa-link fa-fw tw-me-1"></i>{% trans "Communication works" %}</span>
+              {% elif room.federation_communication_ok == False %}
+                <span class="tw-badge-status tw-badge-danger tw-whitespace-nowrap" title="{% trans 'The last status check failed' %}"><i class="fas fa-times-circle fa-fw tw-me-1"></i>{% trans "No communication" %}</span>
+              {% else %}
+                <span class="tw-badge-status tw-badge-secondary tw-whitespace-nowrap">{% trans "Not checked" %}</span>
+              {% endif %}
+              {% if room.archived %}<span class="tw-badge tw-badge-secondary">{% trans "Archived" %}</span>{% endif %}
+              {% if not room.archived %}
+              <form method="post" class="tw-inline">
+                {% csrf_token %}
+                <button type="submit" name="delete_federated_instance" value="{{ room.federated_instance_url }}" class="tw-btn tw-btn-sm tw-btn-outline-danger"><i class="fas fa-archive fa-fw tw-me-1"></i>{% trans "Archive" %}</button>
+              </form>
+              {% endif %}
+            </div>
           </div>
           <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
             <div class="tw-flex tw-flex-col tw-gap-1 tw-min-w-0">
@@ -135,6 +139,9 @@
       </div>
       {% endif %}
       <div class="{% if federated_rooms %}tw-mt-4 tw-pt-4 tw-section-divider{% else %}tw-mt-0{% endif %}">
+        <div class="tw-font-semibold tw-mb-2 tw-text-md">
+          <i class="fas fa-plus tw-me-2 tw-text-accent tw-opacity-70"></i>{% trans "Add address of a new group" %}
+        </div>
         <p class="tw-text-muted tw-text-sm">{% trans "Add the HTTPS address of another Wikikracja instance. The other group must add this instance as well." %}</p>
         <form method="post" class="tw-flex tw-items-center tw-gap-2 tw-flex-wrap">
           {% csrf_token %}
