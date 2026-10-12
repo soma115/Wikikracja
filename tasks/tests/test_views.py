@@ -1,4 +1,5 @@
-from datetime import timedelta
+import json
+from datetime import date, timedelta
 from unittest.mock import patch
 
 # Third party imports
@@ -10,8 +11,8 @@ from django.utils.translation import gettext
 
 # Local folder imports
 from chat.models import Message, Room
-from tasks.models import Category, Task, TaskEvaluation, TaskVote
-from tasks.tests.utils import make_task, make_user
+from tasks.models import Category, Task, TaskEvaluation, TaskSubtask, TaskVote
+from tasks.tests.utils import make_task, make_user, task_form_data
 
 
 class TaskNotificationSignalTest(TestCase):
@@ -126,7 +127,7 @@ class TaskListFilteringTest(TestCase):
 
     def test_awaiting_tab_shows_unassigned_and_low_score(self):
         make_task(title="Oczekujące")
-        active = make_task(title="W realizacji", assigned_to=self.other)
+        active = make_task(title="W realizacji", assigned_to=self.other, phase=Task.Phase.REALIZATION)
         self.upvote(active, self.user)
         self.upvote(active, self.other)
         response = self.get_list("?tab=awaiting")
@@ -134,22 +135,20 @@ class TaskListFilteringTest(TestCase):
         self.assertIn("Oczekujące", titles)
         self.assertNotIn("W realizacji", titles)
 
-    def test_active_tab_requires_coordinator_and_score_2(self):
+    def test_active_tab_uses_explicit_realization_phase(self):
         no_owner = make_task(title="Bez koordynatora")
-        owned = make_task(title="Z koordynatorem", assigned_to=self.other)
-        self.upvote(no_owner, self.user)
-        self.upvote(no_owner, self.other)
-        self.upvote(owned, self.user)
-        self.upvote(owned, self.other)
+        owned_proposal = make_task(title="Propozycja z koordynatorem", assigned_to=self.other)
+        realizing = make_task(title="Zadanie w realizacji", assigned_to=self.other, phase=Task.Phase.REALIZATION)
+        for task in (no_owner, owned_proposal, realizing):
+            self.upvote(task, self.user)
+            self.upvote(task, self.other)
         response = self.get_list("?tab=active")
-        titles = [t.title for t in response.context["active_tasks"]]
-        self.assertIn("Z koordynatorem", titles)
-        # score>=2 ale bez koordynatora → nadal oczekujące
-        self.assertNotIn("Bez koordynatora", titles)
+        titles = [task.title for task in response.context["active_tasks"]]
+        self.assertEqual(titles, ["Zadanie w realizacji"])
 
     def test_task_detail_links_preserve_current_tab(self):
         awaiting = make_task(title="Oczekujące")
-        active = make_task(title="W realizacji", assigned_to=self.other)
+        active = make_task(title="W realizacji", assigned_to=self.other, phase=Task.Phase.REALIZATION)
         self.upvote(active, self.user)
         self.upvote(active, self.other)
         finished = make_task(title="Zakończone", status=Task.Status.COMPLETED)
@@ -243,7 +242,7 @@ class TaskListFilteringTest(TestCase):
     def test_stepper_contains_counts_for_each_task_tab(self):
         make_task(title="Moje", assigned_to=self.user)
         make_task(title="Oczekujące")
-        active = make_task(title="Aktywne", assigned_to=self.other)
+        active = make_task(title="Aktywne", assigned_to=self.other, phase=Task.Phase.REALIZATION)
         self.upvote(active, self.user)
         self.upvote(active, self.other)
         finished = make_task(title="Zakończone")
@@ -270,22 +269,23 @@ class TaskCreateViewTest(TestCase):
         self.client.login(username=self.user.username, password=self.user._plain_password)
         response = self.client.get(reverse("tasks:add"))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'type="radio"', count=2)
 
     def test_post_creates_task(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)
-        self.client.post(reverse("tasks:add"), {"title": "Nowe zadanie", "description": "Opis"})
+        self.client.post(reverse("tasks:add"), task_form_data(title="Nowe zadanie", description="Opis"))
         self.assertTrue(Task.objects.filter(title="Nowe zadanie").exists())
 
     def test_post_assigns_creator_as_created_by_and_assigned_to(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)
-        self.client.post(reverse("tasks:add"), {"title": "Moje zadanie", "description": "Opis"})
+        self.client.post(reverse("tasks:add"), task_form_data(title="Moje zadanie", description="Opis"))
         task = Task.objects.get(title="Moje zadanie")
         self.assertEqual(task.created_by, self.user)
         self.assertEqual(task.assigned_to, self.user)
 
     def test_post_creates_upvote_for_creator(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)
-        self.client.post(reverse("tasks:add"), {"title": "Auto-vote", "description": "Opis"})
+        self.client.post(reverse("tasks:add"), task_form_data(title="Auto-vote", description="Opis"))
         task = Task.objects.get(title="Auto-vote")
         vote = TaskVote.objects.filter(task=task, user=self.user).first()
         self.assertIsNotNone(vote)
@@ -293,7 +293,7 @@ class TaskCreateViewTest(TestCase):
 
     def test_post_empty_title_returns_form(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)
-        response = self.client.post(reverse("tasks:add"), {"title": "", "description": "Opis"})
+        response = self.client.post(reverse("tasks:add"), task_form_data(title="", description="Opis"))
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Task.objects.exists())
 
@@ -328,7 +328,8 @@ class TaskDetailViewTest(TestCase):
     def test_detail_labels_assigned_supported_task_as_in_progress(self):
         coordinator = make_user("detailcoordinator")
         self.task.assigned_to = coordinator
-        self.task.save(update_fields=["assigned_to"])
+        self.task.phase = Task.Phase.REALIZATION
+        self.task.save(update_fields=["assigned_to", "phase"])
         TaskVote.objects.create(task=self.task, user=self.user, value=TaskVote.Value.UP)
         TaskVote.objects.create(task=self.task, user=coordinator, value=TaskVote.Value.UP)
         self.client.login(username=self.user.username, password=self.user._plain_password)
@@ -390,14 +391,41 @@ class TaskEditViewTest(TestCase):
 
     def test_edit_updates_title(self):
         self.client.login(username=self.owner.username, password=self.owner._plain_password)
-        response = self.client.post(reverse("tasks:edit", kwargs={"pk": self.task.pk}), {"title": "Zmieniony tytuł", "description": "Nowy opis"})
+        response = self.client.post(reverse("tasks:edit", kwargs={"pk": self.task.pk}), task_form_data(title="Zmieniony tytuł", description="Nowy opis"))
         self.assertEqual([message.level for message in get_messages(response.wsgi_request)], [SUCCESS])
         self.task.refresh_from_db()
         self.assertEqual(self.task.title, "Zmieniony tytuł")
 
+    def test_realization_edit_form_only_exposes_planning_metadata(self):
+        self.task.phase = Task.Phase.REALIZATION
+        self.task.save(update_fields=["phase"])
+        self.client.force_login(self.owner)
+        response = self.client.get(reverse("tasks:edit", kwargs={"pk": self.task.pk}))
+        self.assertEqual(set(response.context["form"].fields), {"due_date", "category"})
+
+    def test_realization_edit_only_updates_planning_details_without_resetting_votes(self):
+        self.task.phase = Task.Phase.REALIZATION
+        self.task.save(update_fields=["phase"])
+        TaskVote.objects.create(task=self.task, user=self.owner, value=TaskVote.Value.UP)
+        self.client.force_login(self.owner)
+        response = self.client.post(reverse("tasks:edit", kwargs={"pk": self.task.pk}), {"due_date": "2026-11-20", "category": "", "title": "Nie zmieniaj"})
+        self.assertEqual(response.status_code, 302, response.context["form"].errors if response.status_code == 200 else "")
+        self.assertEqual(response.url, reverse("tasks:detail", kwargs={"pk": self.task.pk}))
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.title, "Zadanie")
+        self.assertEqual(self.task.phase, Task.Phase.REALIZATION)
+        self.assertEqual(self.task.due_date, date(2026, 11, 20))
+        self.assertTrue(TaskVote.objects.filter(task=self.task, user=self.owner).exists())
+
+    def test_proposal_edit_does_not_reset_votes(self):
+        TaskVote.objects.create(task=self.task, user=self.owner, value=TaskVote.Value.UP)
+        self.client.force_login(self.owner)
+        self.client.post(reverse("tasks:edit", kwargs={"pk": self.task.pk}), task_form_data(title="Nowy tytuł"))
+        self.assertTrue(TaskVote.objects.filter(task=self.task, user=self.owner, value=TaskVote.Value.UP).exists())
+
     def test_edit_invalid_title_rerenders_form_without_saving(self):
         self.client.login(username=self.owner.username, password=self.owner._plain_password)
-        response = self.client.post(reverse("tasks:edit", kwargs={"pk": self.task.pk}), {"title": "", "description": "Nowy opis"})
+        response = self.client.post(reverse("tasks:edit", kwargs={"pk": self.task.pk}), task_form_data(title="", description="Nowy opis"))
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context["form"].errors)
@@ -629,6 +657,19 @@ class VoteTaskTest(TestCase):
         self.task.refresh_from_db()
         self.assertEqual(self.task.status, Task.Status.REJECTED)
 
+    def test_minus_2_votes_still_reject_task_during_realization(self):
+        self.task.phase = Task.Phase.REALIZATION
+        self.task.assigned_to = self.user
+        self.task.save(update_fields=["phase", "assigned_to"])
+        user2 = make_user("realization-voter2")
+        self.client.force_login(self.user)
+        self.client.post(reverse("tasks:vote", kwargs={"pk": self.task.pk}), {"value": -1})
+        self.client.force_login(user2)
+        self.client.post(reverse("tasks:vote", kwargs={"pk": self.task.pk}), {"value": -1})
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.status, Task.Status.REJECTED)
+        self.assertEqual(self.task.phase, Task.Phase.REALIZATION)
+
     def test_invalid_vote_value_redirects_without_saving(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)
         self.client.post(reverse("tasks:vote", kwargs={"pk": self.task.pk}), {"value": 99})
@@ -651,6 +692,24 @@ class ReopenDeleteTaskTest(TestCase):
         self.client.post(reverse("tasks:reopen", kwargs={"pk": self.task.pk}))
         self.task.refresh_from_db()
         self.assertEqual(self.task.status, Task.Status.ACTIVE)
+
+    def test_reopen_resets_votes_and_phase_but_preserves_team(self):
+        helper = make_user("reopen-helper")
+        self.task.assigned_to = self.user
+        self.task.phase = Task.Phase.REALIZATION
+        self.task.save(update_fields=["assigned_to", "phase"])
+        self.task.approved_helpers.add(helper)
+        TaskVote.objects.create(task=self.task, user=self.user, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=self.task, user=helper, value=TaskVote.Value.DOWN)
+        self.client.force_login(self.user)
+
+        self.client.post(reverse("tasks:reopen", kwargs={"pk": self.task.pk}))
+
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.phase, Task.Phase.PROPOSAL)
+        self.assertEqual(self.task.assigned_to, self.user)
+        self.assertTrue(self.task.approved_helpers.filter(pk=helper.pk).exists())
+        self.assertFalse(TaskVote.objects.filter(task=self.task).exists())
 
     def test_reopen_already_active_task_does_nothing(self):
         active_task = make_task(created_by=self.user, status=Task.Status.ACTIVE)
@@ -686,6 +745,172 @@ class ReopenDeleteTaskTest(TestCase):
         self.client.login(username=other.username, password=other._plain_password)
         self.client.post(reverse("tasks:delete", kwargs={"pk": active_task.pk}))
         self.assertTrue(Task.objects.filter(pk=active_task.pk).exists())
+
+
+class TaskPhaseTransitionTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.coordinator = make_user("phase-coordinator")
+        self.helper = make_user("phase-helper")
+        self.other = make_user("phase-other")
+        self.task = make_task(created_by=self.coordinator, assigned_to=self.coordinator, required_people=2)
+
+    def test_start_requires_vote_balance_of_two(self):
+        self.client.force_login(self.coordinator)
+        response = self.client.post(reverse("tasks:start", kwargs={"pk": self.task.pk}), follow=True)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.phase, Task.Phase.PROPOSAL)
+        self.assertEqual(response.status_code, 200)
+
+    def test_start_requires_enough_approved_team_members(self):
+        TaskVote.objects.create(task=self.task, user=self.coordinator, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
+        self.client.force_login(self.coordinator)
+        self.client.post(reverse("tasks:start", kwargs={"pk": self.task.pk}))
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.phase, Task.Phase.PROPOSAL)
+
+    def test_coordinator_can_start_when_vote_and_team_requirements_are_met(self):
+        TaskVote.objects.create(task=self.task, user=self.coordinator, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
+        self.task.approve_helper(self.helper)
+        self.client.force_login(self.coordinator)
+        self.client.post(reverse("tasks:start", kwargs={"pk": self.task.pk}))
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.phase, Task.Phase.REALIZATION)
+
+    def test_legacy_task_without_people_requirement_counts_coordinator(self):
+        self.task.required_people = None
+        self.task.save(update_fields=["required_people"])
+        TaskVote.objects.create(task=self.task, user=self.coordinator, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
+        self.client.force_login(self.coordinator)
+        self.client.post(reverse("tasks:start", kwargs={"pk": self.task.pk}))
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.phase, Task.Phase.REALIZATION)
+
+    def test_only_coordinator_can_start_realization(self):
+        TaskVote.objects.create(task=self.task, user=self.coordinator, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
+        self.client.force_login(self.other)
+        self.client.post(reverse("tasks:start", kwargs={"pk": self.task.pk}))
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.phase, Task.Phase.PROPOSAL)
+
+    def test_return_to_proposal_resets_votes_and_clears_team(self):
+        self.task.phase = Task.Phase.REALIZATION
+        self.task.save(update_fields=["phase"])
+        TaskVote.objects.create(task=self.task, user=self.coordinator, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.DOWN)
+        self.task.approved_helpers.add(self.helper)
+        self.client.force_login(self.coordinator)
+        self.client.post(reverse("tasks:return_to_proposal", kwargs={"pk": self.task.pk}))
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.phase, Task.Phase.PROPOSAL)
+        self.assertIsNone(self.task.assigned_to)
+        self.assertFalse(self.task.approved_helpers.exists())
+        self.assertFalse(TaskVote.objects.filter(task=self.task).exists())
+
+
+class TaskSubtaskViewTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.coordinator = make_user("subtask-coordinator")
+        self.helper = make_user("subtask-helper")
+        self.outsider = make_user("subtask-outsider")
+        self.task = make_task(created_by=self.coordinator, assigned_to=self.coordinator, team_mode=True)
+        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
+        self.task.approve_helper(self.helper)
+        self.subtask = TaskSubtask.objects.create(task=self.task, title="Pierwsze", order=0)
+
+    def test_team_member_can_add_edit_toggle_and_delete_subtask(self):
+        self.client.force_login(self.helper)
+        self.client.post(reverse("tasks:subtask_add", kwargs={"pk": self.task.pk}), {"title": "Drugie"})
+        second = self.task.subtasks.get(title="Drugie")
+        self.client.post(reverse("tasks:subtask_edit", kwargs={"pk": self.task.pk, "subtask_pk": second.pk}), {"title": "Zmienione"})
+        self.client.post(reverse("tasks:subtask_toggle", kwargs={"pk": self.task.pk, "subtask_pk": second.pk}))
+        second.refresh_from_db()
+        self.assertEqual(second.title, "Zmienione")
+        self.assertTrue(second.is_completed)
+        self.client.post(reverse("tasks:subtask_delete", kwargs={"pk": self.task.pk, "subtask_pk": second.pk}))
+        self.assertFalse(TaskSubtask.objects.filter(pk=second.pk).exists())
+
+    def test_unapproved_member_cannot_change_subtasks(self):
+        self.client.force_login(self.outsider)
+        response = self.client.post(reverse("tasks:subtask_toggle", kwargs={"pk": self.task.pk, "subtask_pk": self.subtask.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(response.status_code, 403)
+        self.subtask.refresh_from_db()
+        self.assertFalse(self.subtask.is_completed)
+
+    def test_closed_task_locks_subtasks(self):
+        self.task.status = Task.Status.COMPLETED
+        self.task.save(update_fields=["status"])
+        self.client.force_login(self.coordinator)
+        self.client.post(reverse("tasks:subtask_toggle", kwargs={"pk": self.task.pk, "subtask_pk": self.subtask.pk}))
+        self.subtask.refresh_from_db()
+        self.assertFalse(self.subtask.is_completed)
+
+    def test_keyboard_move_changes_subtask_order(self):
+        second = TaskSubtask.objects.create(task=self.task, title="Drugie", order=1)
+        self.client.force_login(self.coordinator)
+        self.client.post(reverse("tasks:subtask_move", kwargs={"pk": self.task.pk, "subtask_pk": second.pk, "direction": "up"}))
+        self.subtask.refresh_from_db()
+        second.refresh_from_db()
+        self.assertEqual((second.order, self.subtask.order), (0, 1))
+
+    def test_reorder_requires_exact_task_subtask_ids(self):
+        second = TaskSubtask.objects.create(task=self.task, title="Drugie", order=1)
+        self.client.force_login(self.coordinator)
+        url = reverse("tasks:subtask_reorder", kwargs={"pk": self.task.pk})
+        response = self.client.post(url, json.dumps([{"id": second.pk, "order": 0}, {"id": self.subtask.pk, "order": 1}]), content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.subtask.refresh_from_db()
+        second.refresh_from_db()
+        self.assertEqual((second.order, self.subtask.order), (0, 1))
+        response = self.client.post(url, json.dumps([{"id": second.pk, "order": 0}]), content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+
+
+class CoordinatorRankingTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.coordinator_a = make_user("ranking-a")
+        self.coordinator_b = make_user("ranking-b")
+        self.coordinator_c = make_user("ranking-c")
+        self.client.force_login(self.coordinator_a)
+
+    def test_ranking_rewards_successful_outcomes_for_each_terminal_status(self):
+        completed_a = make_task(status=Task.Status.COMPLETED, assigned_to=self.coordinator_a)
+        cancelled_a = make_task(status=Task.Status.CANCELLED, assigned_to=self.coordinator_a)
+        completed_b = make_task(status=Task.Status.COMPLETED, assigned_to=self.coordinator_b)
+        cancelled_b1 = make_task(status=Task.Status.CANCELLED, assigned_to=self.coordinator_b)
+        make_task(status=Task.Status.CANCELLED, assigned_to=self.coordinator_b)
+        rejected = make_task(status=Task.Status.REJECTED, assigned_to=self.coordinator_b)
+        unassigned = make_task(status=Task.Status.COMPLETED)
+        completed_c = make_task(status=Task.Status.COMPLETED, assigned_to=self.coordinator_c)
+        make_task(status=Task.Status.CANCELLED, assigned_to=self.coordinator_c)
+        make_task(status=Task.Status.CANCELLED, assigned_to=self.coordinator_c)
+
+        TaskEvaluation.objects.create(task=completed_a, user=self.coordinator_a, value=TaskEvaluation.Value.SUCCESS)
+        TaskEvaluation.objects.create(task=completed_a, user=self.coordinator_b, value=TaskEvaluation.Value.SUCCESS)
+        TaskEvaluation.objects.create(task=cancelled_a, user=self.coordinator_a, value=TaskEvaluation.Value.SUCCESS)
+        TaskEvaluation.objects.create(task=cancelled_a, user=self.coordinator_b, value=TaskEvaluation.Value.FAILURE)
+        TaskEvaluation.objects.create(task=completed_b, user=self.coordinator_a, value=TaskEvaluation.Value.SUCCESS)
+        TaskEvaluation.objects.create(task=cancelled_b1, user=self.coordinator_a, value=TaskEvaluation.Value.FAILURE)
+        TaskEvaluation.objects.create(task=rejected, user=self.coordinator_a, value=TaskEvaluation.Value.SUCCESS)
+        TaskEvaluation.objects.create(task=unassigned, user=self.coordinator_a, value=TaskEvaluation.Value.SUCCESS)
+        TaskEvaluation.objects.create(task=completed_c, user=self.coordinator_a, value=TaskEvaluation.Value.SUCCESS)
+
+        response = self.client.get(reverse("tasks:stats"))
+        ranking = response.context["coordinator_ranking"]
+        self.assertEqual([row["coordinator"] for row in ranking], [self.coordinator_b, self.coordinator_c, self.coordinator_a])
+        self.assertEqual(ranking[0]["successful_outcomes"], 2)
+        self.assertEqual(ranking[0]["total_closed"], 4)
+        self.assertEqual(ranking[0]["outcomes"][Task.Status.REJECTED]["success"], 1)
+        self.assertEqual(ranking[0]["outcomes"][Task.Status.CANCELLED]["failure"], 1)
+        self.assertEqual(ranking[0]["outcomes"][Task.Status.CANCELLED]["no_evaluations"], 1)
+        self.assertEqual(ranking[2]["outcomes"][Task.Status.CANCELLED]["mixed"], 1)
+        self.assertEqual(ranking[2]["successful_outcomes"], 1)
 
 
 class EvaluateTaskTest(TestCase):
@@ -874,13 +1099,13 @@ class TaskCreateTeamModeTest(TestCase):
 
     def test_create_sets_team_mode_true(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)
-        self.client.post(reverse("tasks:add"), {"title": "Nowe", "description": "Opis"})
+        self.client.post(reverse("tasks:add"), task_form_data(title="Nowe", description="Opis"))
         task = Task.objects.get(title="Nowe")
         self.assertTrue(task.team_mode)
 
     def test_create_assigns_creator_as_coordinator(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)
-        self.client.post(reverse("tasks:add"), {"title": "Kierowane", "description": "Opis"})
+        self.client.post(reverse("tasks:add"), task_form_data(title="Kierowane", description="Opis"))
         task = Task.objects.get(title="Kierowane")
         self.assertEqual(task.assigned_to, self.user)
 

@@ -20,6 +20,13 @@
     <span class="tw-detail-meta-label">{% trans "Status" %}</span>
     <strong class="tw-detail-meta-value tw-detail-meta-status-{{ task.status }}">{{ task_status_label }}</strong>
   </span>
+  {% if task.is_active %}
+    <span class="tw-detail-meta-item" title="{% trans 'Phase' %}">
+      <i class="fas fa-circle-info tw-detail-meta-icon" aria-hidden="true"></i>
+      <span class="tw-detail-meta-label">{% trans "Phase" %}</span>
+      <strong class="tw-detail-meta-value">{{ task.get_phase_display }}</strong>
+    </span>
+  {% endif %}
   {% if task.category %}
     <span class="tw-detail-meta-item" title="{% trans 'Category' %}">
       <i class="fas fa-tag tw-detail-meta-icon" aria-hidden="true"></i>

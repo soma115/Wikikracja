@@ -16,8 +16,8 @@
        href="{% url 'tasks:edit' task.pk %}"
        data-coord-state="me"{% if not task.assigned_to %} hidden{% endif %}
        data-tw-toggle="tooltip"
-       title="{% trans 'Edit title, description and category' %}"
-       aria-label="{% trans 'Edit title, description and category' %}">
+       title="{% if task.phase == 'realization' %}{% trans 'Edit deadline and category' %}{% else %}{% trans 'Edit task specification' %}{% endif %}"
+       aria-label="{% if task.phase == 'realization' %}{% trans 'Edit deadline and category' %}{% else %}{% trans 'Edit task specification' %}{% endif %}">
       <i class="fas fa-pen fa-fw" aria-hidden="true"></i>
     </a>
     {% endif %}

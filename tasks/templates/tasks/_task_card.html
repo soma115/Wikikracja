@@ -68,6 +68,7 @@
         {% elif task.priority_category == 'rejected' %}
           <span class="tw-badge-status tw-badge-rejected">{% trans 'Rejected' %}</span>
         {% endif %}
+        {% if task.is_active %}<span class="tw-badge-status tw-badge-light">{{ task.get_phase_display }}</span>{% endif %}
         {% if task.status == 'completed' %}<span class="tw-badge-status tw-badge-approved">{% trans 'Completed' %}</span>{% elif task.status == 'cancelled' %}<span class="tw-badge-status tw-badge-discussion">{% trans 'Cancelled' %}</span>{% endif %}
         {% if task.chat_room_url %}
           <a href="{{ task.chat_room_url }}" class="tw-chat-link {{ task.chat_room_pulse_class|default:'' }}" data-tw-stop-propagation>

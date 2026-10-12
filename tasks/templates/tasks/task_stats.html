@@ -1,10 +1,12 @@
 {% extends 'tasks/menu.html' %}
 {% load i18n %}
+{% load feed_filters %}
 
 {% block tasks %}
 
 <div class="tw-container tw-mt-4">
   <h2 class="tw-text-2xl tw-font-bold tw-mb-4">{% trans 'Activity Statistics' %}</h2>
+  <p class="tw-text-muted">{% trans "The summary cards cover completed activities; the coordinator ranking separates completed, cancelled and rejected outcomes." %}</p>
 
   <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-3 tw-mt-4">
     <div class="tw-card tw-text-center tw-h-full">
@@ -53,6 +55,56 @@
       </div>
     </div>
   </div>
+
+  <section class="tw-card tw-mt-4" aria-labelledby="coordinator-ranking-heading">
+    <div class="tw-card-header">
+      <h2 id="coordinator-ranking-heading" class="tw-text-lg tw-font-semibold tw-mb-0">{% trans "Coordinator ranking" %}</h2>
+      <p class="tw-text-muted tw-mb-0 tw-mt-1">{% trans "Ranked by successful evaluations across completed, cancelled and rejected activities; ties are broken by total activities." %}</p>
+    </div>
+    <div class="tw-card-body">
+      {% if coordinator_ranking %}
+        <div class="tw-overflow-x-auto">
+          <table class="tw-table tw-table-striped tw-table-hover tw-table-sm">
+            <thead>
+              <tr>
+                <th scope="col">{% trans "Coordinator" %}</th>
+                <th scope="col">{% trans "Completed" %}</th>
+                <th scope="col">{% trans "Cancelled" %}</th>
+                <th scope="col">{% trans "Rejected" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in coordinator_ranking %}
+                <tr>
+                  <td>
+                    <div class="tw-flex tw-items-center tw-gap-2">
+                      <span class="tw-badge-status tw-badge-light">#{{ forloop.counter }}</span>
+                      <div>
+                        <a href="{% url 'obywatele:obywatele_szczegoly' row.coordinator.pk %}">{{ row.coordinator|display_name }}</a>
+                        <p class="tw-text-muted tw-text-sm tw-mb-0">{% trans "Successful outcomes" %}: {{ row.successful_outcomes }} · {% trans "Total terminal activities" %}: {{ row.total_closed }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  {% for status, outcome in row.outcomes.items %}
+                    <td>
+                      <div class="tw-grid tw-grid-cols-2 tw-gap-x-2 tw-gap-y-1 tw-text-sm">
+                        <span>{% trans "Success" %}: {{ outcome.success }}</span>
+                        <span>{% trans "Failure" %}: {{ outcome.failure }}</span>
+                        <span>{% trans "Mixed" %}: {{ outcome.mixed }}</span>
+                        <span>{% trans "No evaluations" %}: {{ outcome.no_evaluations }}</span>
+                      </div>
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="tw-text-muted tw-mb-0">{% trans "No closed activities with a coordinator yet." %}</p>
+      {% endif %}
+    </div>
+  </section>
 </div>
 
 {% endblock tasks %}

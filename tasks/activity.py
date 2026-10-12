@@ -12,13 +12,9 @@ def get_task_status_label(task):
     """Return the workflow label shown for a task outside its detail view."""
     if not task.is_active:
         return task.get_status_display()
-
-    votes_score = getattr(task, "votes_score", 0) or 0
-    if task.assigned_to_id and votes_score >= 2:
+    if task.phase == Task.Phase.REALIZATION:
         return _("In progress")
-    if votes_score >= -1 and (task.assigned_to_id is None or votes_score < 2):
-        return _("Awaiting")
-    return task.get_status_display()
+    return _("Awaiting")
 
 
 def get_user_tasks(user):

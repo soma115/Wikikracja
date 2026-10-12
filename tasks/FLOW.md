@@ -1,32 +1,41 @@
-# Task workflow
+# Przepływ zadań
 
-Poniżej opis przepływu w czystym Markdown prezentujący decyzje i możliwe stany.
+## 1. Propozycja
 
-1. **Start: nowe zadanie**
-   - Status: `active`
-   - `assigned_to`: `None`
-   - Warunek przejścia:
-     - Jeśli nikt nie przejmuje zadania → pozostaje w tym stanie.
-     - Jeśli zalogowany użytkownik wybiera akcję **„Weź zadanie”** → przejście do kroku 2.
+- Status: `active`, faza: `proposal`.
+- Przy utworzeniu autor zostaje koordynatorem i otrzymuje głos „Pomogę”.
+- Nowe zadanie wymaga kwoty, liczby osób, odpowiedzi tak/nie o zgodzie spoza grupy oraz miary sukcesu. Termin jest opcjonalny; przy kwocie `0` waluta może pozostać pusta.
+- Koordynator może edytować specyfikację w propozycji bez resetowania głosów.
+- Głosowanie pozostaje otwarte. Bilans `<= -2` automatycznie ustawia status `rejected`.
 
-2. **Zadanie aktywne z właścicielem**
-   - Status: `active`
-   - `assigned_to`: użytkownik, który przejął zadanie (`take_task`)
-   - Właściciel ma trzy opcje:
-     1. **Edycja** – można edytować treść zadania; po zapisie pozostaje w tym samym stanie.
-     2. **Rezygnacja** – akcja **„Resign”** przekazuje koordynację pierwszej innej osobie z aktualnym głosem „za”, według kolejności `TaskVote.updated_at` i ID. Osoba rezygnująca jest pomijana tylko przy tym przekazaniu; jej głos pozostaje w kolejce. Jeśli nie ma innych chętnych, `assigned_to=None` i działanie wraca do puli oczekujących, pozostając w stanie `active`.
-     3. **Zamknięcie** – uruchamia formularz `TaskStatusForm`, który zezwala tylko na status `completed` lub `cancelled`. Przejście do kroku 3.
+## 2. Rozpoczęcie realizacji
 
-3. **Zamknięcie zadania**
-   - Formularz wymusza wybór jednego z dwóch stanów:
-     - `completed` → zadanie uznane za ukończone, przypisanie zostaje zachowane.
-     - `cancelled` → zadanie anulowane, przypisanie również pozostaje.
-   - Zadanie przechodzi do sekcji zadań zamkniętych; pojawia się możliwość oceny oraz **reopen**.
+Koordynator uruchamia osobną akcję. System rozpoczyna realizację tylko wtedy, gdy:
 
-4. **Ponowne otwarcie (dowolny użytkownik)**
-   - Dla zadania ze statusem `completed` lub `cancelled` każdy zalogowany użytkownik może wybrać akcję **„Reopen task”**.
-   - Efekty:
-     - Status wraca do `active`.
-     - Wszystkie głosy (`TaskVote`) są usuwane, więc ranking startuje od zera.
-     - `assigned_to` pozostaje bez zmian (czyli może wskazywać poprzedniego właściciela lub `None`).
-   - Po reopen zadanie wraca do kroku 2 (aktywny stan z właścicielem albo oczekujące na przypisanie).
+- zadanie ma status `active` i fazę `proposal`;
+- bilans głosów wynosi co najmniej `2`;
+- zespół osiągnął wymaganą liczbę osób; koordynator wlicza się do zespołu, a zatwierdzeni pomocnicy uzupełniają skład.
+
+Starsze zadania bez liczby osób traktują koordynatora jako minimum jednego członka zespołu. Pozostałe brakujące dane starszych zadań nie blokują rozpoczęcia; trzeba je uzupełnić przy edycji.
+
+## 3. Realizacja
+
+- Status: `active`, faza: `realization`.
+- Głosowanie nadal jest otwarte; bilans `<= -2` może ustawić status `rejected`.
+- Pól zasadniczej specyfikacji (tytułu, opisu, kosztu, liczby osób, zgody zewnętrznej i miary sukcesu) nie można edytować bezpośrednio. Koordynator może użyć akcji „Cofnij do propozycji”. Potwierdzenie tej akcji od razu zeruje głosy, usuwa koordynatora i zatwierdzonych pomocników oraz przywraca fazę `proposal`.
+- Termin i kategorię koordynator może aktualizować również podczas realizacji; zmiany te nie resetują głosów.
+- Po cofnięciu ktoś musi ponownie przejąć koordynację, zanim edycja zasadniczej specyfikacji będzie dostępna. Edycja w propozycji nie zeruje głosów.
+- Koordynator i zatwierdzeni pomocnicy mogą dodawać, edytować, porządkować, odhaczać i usuwać podzadania. Checklistę można zmieniać do zamknięcia zadania; jej zmiany nie wpływają na głosy.
+
+## 4. Zamknięcie
+
+- Koordynator zamyka zadanie ze statusem `completed` albo `cancelled`.
+- Zespół zostaje przypisany do zadania; checklistę blokujemy.
+- Po zamknięciu każdy użytkownik może oceniać wynik jako sukces lub porażkę. Oceny pozostają zmienialne.
+- Ranking obejmuje wszystkie `completed`, `cancelled` i `rejected` z całego okresu, a zadanie przypisuje koordynatorowi obecnemu przy zamknięciu lub odrzuceniu. Oceny sukcesu, porażki, mieszane i brak ocen są liczone osobno dla każdego statusu. Sortowanie: liczba sukcesów ze wszystkich trzech statusów, potem liczba wszystkich zadań końcowych, potem nazwa koordynatora.
+
+## 5. Ponowne otwarcie
+
+- Obecne uprawnienie do ponownego otwarcia pozostaje przy twórcy lub koordynatorze.
+- Zadanie `completed`, `cancelled` albo `rejected` wraca do statusu `active` i fazy `proposal`.
+- Głosy Pomogę/Nie róbmy są zerowane, a koordynator i zatwierdzeni pomocnicy pozostają przypisani.

@@ -25,6 +25,21 @@
     </div>
   </div>
 
+  <section class="tw-card tw-mb-4" aria-labelledby="task-specification-heading">
+    <div class="tw-card-header">
+      <h2 id="task-specification-heading" class="tw-text-lg tw-font-semibold tw-mb-0">{% trans "Task specification" %}</h2>
+    </div>
+    <div class="tw-card-body">
+      <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-3">
+        <div><strong>{% trans "Estimated cost" %}</strong><p class="tw-mb-0">{% if task.estimated_cost != None %}{{ task.estimated_cost|floatformat:2 }}{% if task.currency %} {{ task.currency }}{% endif %}{% else %}—{% endif %}</p></div>
+        <div><strong>{% trans "People required" %}</strong><p class="tw-mb-0">{% if task.required_people %}{{ task.required_people }}{% else %}—{% endif %}</p></div>
+        <div><strong>{% trans "External approval required" %}</strong><p class="tw-mb-0">{% if task.requires_external_approval == None %}—{% elif task.requires_external_approval %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</p></div>
+        <div class="sm:tw-col-span-2 lg:tw-col-span-3"><strong>{% trans "What will be achieved? (measure of success)" %}</strong><p class="tw-mb-0">{{ task.success_criteria|default:"—"|linebreaksbr }}</p></div>
+        <div><strong>{% trans "Due date" %}</strong><p class="tw-mb-0">{% if task.due_date %}{{ task.due_date|date:"Y-m-d" }}{% else %}—{% endif %}</p></div>
+      </div>
+    </div>
+  </section>
+
   <div class="tw-task-actions tw-flex tw-flex-wrap tw-gap-2 tw-items-center tw-mb-4">
     {% if task.is_active %}
       {% with vote_value=user_vote_value %}
@@ -104,9 +119,50 @@
           <i class="fas fa-check-circle fa-fw"></i> {% trans "Close activity" %}
         </a>
       {% endif %}
+      {% if task.phase == 'proposal' %}
+        <span class="tw-badge-status tw-badge-light">{% trans "Votes" %}: <span data-realization-vote-score>{{ task.votes_score|default:0 }}</span>/2</span>
+        <span class="tw-badge-status tw-badge-light">{% trans "Team" %}: <span data-team-size>{{ team_size }}</span>/{{ required_team_size }}</span>
+        <span class="tw-text-muted tw-text-sm">{% trans "Starting requires a vote balance of at least 2 and the full team." %}</span>
+        <form class="tw-inline" method="post" action="{% url 'tasks:start' task.pk %}" data-coord-state="me"{% if not is_coordinator %} hidden{% endif %}>
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <button type="submit" class="tw-btn tw-btn-primary">
+            <i class="fas fa-rocket fa-fw" aria-hidden="true"></i> {% trans "Start realization" %}
+          </button>
+        </form>
+      {% elif task.phase == 'realization' %}
+        <button type="button" class="tw-btn tw-btn-outline-danger" data-coord-state="me"{% if not is_coordinator %} hidden{% endif %} data-tw-toggle="modal" data-tw-target="#returnToProposalModal">
+          <i class="fas fa-rotate-left fa-fw" aria-hidden="true"></i> {% trans "Return to proposal" %}
+        </button>
+      {% endif %}
     {% endif %}
 
   </div>
+
+  {% if task.is_active and task.phase == 'realization' %}
+    {% trans "Return to proposal?" as return_title %}
+    {% trans "This resets all Pomogę/Nie róbmy votes and removes the coordinator and approved helpers. Someone must take coordination again before editing the specification." as return_message %}
+    {% trans "Return to proposal" as return_confirm_label %}
+    <div class="tw-modal tw-fade" id="returnToProposalModal" tabindex="-1" role="dialog" aria-labelledby="returnToProposalModalLabel" aria-hidden="true">
+      <div class="tw-modal-dialog" role="document">
+        <div class="tw-modal-content">
+          {% include 'home/includes/modal_header.html' with title=return_title title_icon='fa-rotate-left' title_id='returnToProposalModalLabel' %}
+          <div class="tw-modal-body">
+            <p>{{ return_message }}</p>
+            <div class="tw-alert tw-alert-warning" role="alert">{% trans "The reset happens when you confirm, even if you do not later edit the specification." %}</div>
+          </div>
+          <div class="tw-modal-footer">
+            <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal">{% trans "Cancel" %}</button>
+            <form method="post" action="{% url 'tasks:return_to_proposal' task.pk %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <button type="submit" class="tw-btn tw-btn-danger"><i class="fas fa-rotate-left fa-fw" aria-hidden="true"></i> {{ return_confirm_label }}</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
 
   <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4 tw-mb-4">
     <div>
@@ -169,6 +225,56 @@
     </div>
   </div>
 
+  <section class="tw-card tw-mb-4" aria-labelledby="task-subtasks-heading">
+    <div class="tw-card-header">
+      <h2 id="task-subtasks-heading" class="tw-text-lg tw-font-semibold tw-mb-0">{% trans "Subtasks" %}</h2>
+    </div>
+    <div class="tw-card-body">
+      <ul class="tw-list-unstyled tw-space-y-2 tw-mb-0"{% if can_manage_subtasks %} data-subtask-list data-reorder-url="{% url 'tasks:subtask_reorder' task.pk %}"{% endif %}>
+        {% for subtask in task.subtasks.all %}
+          <li class="tw-flex tw-flex-col md:tw-flex-row md:tw-items-center tw-gap-2 tw-p-2 tw-border tw-rounded" data-id="{{ subtask.pk }}">
+            {% if can_manage_subtasks %}
+              <span class="tw-drag-handle" data-subtask-handle aria-hidden="true"><i class="fas fa-grip-vertical" aria-hidden="true"></i></span>
+              <form method="post" action="{% url 'tasks:subtask_toggle' task.pk subtask.pk %}" class="tw-flex tw-items-center tw-gap-2" data-subtask-toggle-form>
+                {% csrf_token %}
+                <input type="checkbox" id="subtask-{{ subtask.pk }}" data-subtask-toggle{% if subtask.is_completed %} checked{% endif %}>
+                <label for="subtask-{{ subtask.pk }}" class="{% if subtask.is_completed %}tw-line-through tw-text-muted{% endif %}">{{ subtask.title }}</label>
+              </form>
+              <form method="post" action="{% url 'tasks:subtask_edit' task.pk subtask.pk %}" class="tw-flex tw-flex-1 tw-items-center tw-gap-2">
+                {% csrf_token %}
+                <label class="tw-sr-only" for="subtask-title-{{ subtask.pk }}">{% trans "Subtask title" %}</label>
+                <input id="subtask-title-{{ subtask.pk }}" class="tw-form-control" type="text" name="title" value="{{ subtask.title }}" maxlength="240" required>
+                <button type="submit" class="tw-btn tw-btn-secondary" aria-label="{% trans 'Save subtask' %}"><i class="fas fa-floppy-disk fa-fw" aria-hidden="true"></i></button>
+              </form>
+              <div class="tw-flex tw-gap-1">
+                <form method="post" action="{% url 'tasks:subtask_move' task.pk subtask.pk 'up' %}">{% csrf_token %}<button type="submit" class="tw-btn tw-btn-secondary" aria-label="{% trans 'Move subtask up' %}"{% if forloop.first %} disabled{% endif %}><i class="fas fa-arrow-up" aria-hidden="true"></i></button></form>
+                <form method="post" action="{% url 'tasks:subtask_move' task.pk subtask.pk 'down' %}">{% csrf_token %}<button type="submit" class="tw-btn tw-btn-secondary" aria-label="{% trans 'Move subtask down' %}"{% if forloop.last %} disabled{% endif %}><i class="fas fa-arrow-down" aria-hidden="true"></i></button></form>
+                <form method="post" action="{% url 'tasks:subtask_delete' task.pk subtask.pk %}">{% csrf_token %}<button type="submit" class="tw-btn tw-btn-outline-danger" aria-label="{% trans 'Delete subtask' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></button></form>
+              </div>
+            {% else %}
+              <div class="tw-flex tw-items-center tw-gap-2">
+                <input type="checkbox" disabled{% if subtask.is_completed %} checked{% endif %} aria-label="{{ subtask.title }}">
+                <span class="{% if subtask.is_completed %}tw-line-through tw-text-muted{% endif %}">{{ subtask.title }}</span>
+              </div>
+            {% endif %}
+          </li>
+        {% empty %}
+          <li class="tw-text-muted">{% trans "No subtasks yet." %}</li>
+        {% endfor %}
+      </ul>
+      {% if can_manage_subtasks %}
+        <form method="post" action="{% url 'tasks:subtask_add' task.pk %}" class="tw-flex tw-flex-wrap tw-items-end tw-gap-2 tw-mt-3">
+          {% csrf_token %}
+          <div class="tw-flex-1">
+            <label class="tw-form-label" for="new-subtask-title">{% trans "Add a subtask" %}</label>
+            <input id="new-subtask-title" class="tw-form-control" type="text" name="title" maxlength="240" required>
+          </div>
+          <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-plus fa-fw" aria-hidden="true"></i> {% trans "Add" %}</button>
+        </form>
+      {% endif %}
+    </div>
+  </section>
+
   {% if not task.is_active %}
     <div class="tw-task-actions tw-flex tw-flex-wrap tw-gap-2 tw-items-center tw-mb-4">
       <form method="post" action="{% url 'tasks:reopen' task.pk %}">
@@ -221,6 +327,7 @@
 
 {% load static %}
 {% block extra_js %}
+{% if can_manage_subtasks %}{% include 'home/includes/sortable_scripts.html' %}{% endif %}
 <script>
   window.CURRENT_USER = {};
   const currentUserId = "{{ request.user.id|default:'' }}";
@@ -237,6 +344,7 @@
   };
   window.IS_COORDINATOR = "{{ is_coordinator|yesno:'true,false' }}" === "true";
   window.TASK_ID = Number("{{ task.pk }}");
+  {% if can_manage_subtasks %}window.TASK_SUBTASK_REORDER_URL = "{% url 'tasks:subtask_reorder' task.pk %}";{% endif %}
 </script>
 <script src="{% static 'tasks/js/tasks.js' %}"></script>
 {% endblock %}

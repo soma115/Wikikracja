@@ -68,7 +68,7 @@ def test_generate_feed_raw_sorts_events_ascending_others_descending(feed_user, a
 @pytest.mark.django_db
 def test_task_activity_feed_uses_workflow_status_labels(feed_user, another_user):
     awaiting = Task.objects.create(title='Awaiting task', description='Task body', created_by=feed_user)
-    in_progress = Task.objects.create(title='In progress task', description='Task body', created_by=feed_user, assigned_to=another_user)
+    in_progress = Task.objects.create(title='In progress task', description='Task body', created_by=feed_user, assigned_to=another_user, phase=Task.Phase.REALIZATION)
     TaskVote.objects.create(task=in_progress, user=feed_user, value=TaskVote.Value.UP)
     TaskVote.objects.create(task=in_progress, user=another_user, value=TaskVote.Value.UP)
 

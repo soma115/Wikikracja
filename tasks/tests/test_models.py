@@ -119,6 +119,13 @@ class TaskModelTest(TestCase):
         self.assertTrue(task.is_user_approved(other))
         self.assertFalse(task.is_user_approved(self.user))
 
+    def test_team_size_counts_coordinator_once(self):
+        helper = make_user("team-helper")
+        self.task.assigned_to = self.user
+        self.task.save(update_fields=["assigned_to"])
+        self.task.approved_helpers.add(self.user, helper)
+        self.assertEqual(self.task.get_team_size(), 2)
+
     def test_task_not_saved_when_chat_room_creation_fails(self):
         with patch("chat.signals.Room.objects.create", side_effect=RuntimeError("DB unavailable")):
             with self.assertRaises(RuntimeError):

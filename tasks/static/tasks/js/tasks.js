@@ -46,6 +46,8 @@
     if (badge) {
       badge.textContent = badge.dataset.votesBadge + data.votes_score;
     }
+    var realizationScore = document.querySelector('[data-realization-vote-score]');
+    if (realizationScore) realizationScore.textContent = data.votes_score;
   }
 
   function handleVoteClick(e) {
@@ -227,7 +229,7 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (!data || !data.ok) return;
-        if (/\/resign\/?$/.test(action)) {
+        if (/\/resign\/?$/.test(action) || !form.closest('.tw-content-card')) {
           window.location.reload();
           return;
         }
@@ -288,6 +290,8 @@
 
   function updateCoordinatorUI(form, data) {
     var isAssigned = data.assigned_to !== null;
+    var teamSize = document.querySelector('[data-team-size]');
+    if (teamSize && /\/take\/?$/.test(form.action)) teamSize.textContent = (parseInt(teamSize.textContent, 10) || 0) + 1;
     // Scope to enclosing card on task list; document elsewhere (detail page has no task content-card)
     var card = form.closest('.tw-content-card[data-card-type="task"]');
     var scope = card || document;
@@ -296,7 +300,7 @@
       el.hidden = isAssigned;
     });
     scope.querySelectorAll('[data-coord-state="me"]').forEach(function (el) {
-      el.hidden = !isAssigned;
+      el.hidden = data.is_coordinator !== true;
     });
 
     // Card body "Coordinator:" row — link + name or 'n/a'
@@ -324,8 +328,44 @@
 
   document.addEventListener('submit', handleCoordSubmit, true);
 
+  function handleSubtaskToggle(e) {
+    var checkbox = e.target.closest && e.target.closest('[data-subtask-toggle]');
+    if (!checkbox) return;
+
+    var form = checkbox.closest('form[data-subtask-toggle-form]');
+    if (!form) return;
+
+    var checked = checkbox.checked;
+    checkbox.disabled = true;
+    window.apiFetch(form.action, { method: 'POST', body: new URLSearchParams() })
+      .then(function (response) {
+        if (!response.ok) checkbox.checked = !checked;
+        else {
+          var label = form.querySelector('label');
+          if (label) label.classList.toggle('tw-line-through', checked);
+          if (label) label.classList.toggle('tw-text-muted', checked);
+        }
+      })
+      .catch(function () { checkbox.checked = !checked; })
+      .finally(function () { checkbox.disabled = false; });
+  }
+
+  document.addEventListener('change', handleSubtaskToggle, true);
+
+  function initSubtaskSorting() {
+    var list = document.querySelector('[data-subtask-list]');
+    if (!list || !window.TASK_SUBTASK_REORDER_URL || typeof window.initSortableList !== 'function') return;
+    window.initSortableList(list, {
+      reorderUrl: window.TASK_SUBTASK_REORDER_URL,
+      handle: '[data-subtask-handle]',
+      onError: function () { window.location.reload(); },
+    });
+  }
+
   // ─── Coordinator helper approval toggle live update ─────────────────────
   function updateHelperApproval(userId, approved) {
+    var teamSize = document.querySelector('[data-team-size]');
+    if (teamSize) teamSize.textContent = Math.max(0, (parseInt(teamSize.textContent, 10) || 0) + (approved ? 1 : -1));
     var item = document.querySelector('.tw-helpers-voter-item[data-user-id="' + userId + '"]');
     if (!item) return;
 
@@ -379,6 +419,7 @@
 
   window.wkOnReady(function () {
     if (typeof window.reinitTaskCards === 'function') window.reinitTaskCards();
+    initSubtaskSorting();
 
     // Single document-level click listener closes any open voter popover when
     // clicking outside it (touch devices). Replaces N per-button listeners.

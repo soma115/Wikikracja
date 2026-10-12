@@ -1,4 +1,4 @@
-### Tablica zadań – stan na dziś
+### Tablica zadań — stan modułu
 
 #### Do zrobienia
 
@@ -6,60 +6,41 @@
 
 ---
 
-Poniżej spis aktualnie działających funkcji modułu **tasks** wraz z kluczowymi ograniczeniami.
+Moduł `tasks` obsługuje propozycje działań, ich realizację, checklisty zespołów oraz ocenę wyników.
 
-#### Struktura widoku
-1. **Actively handled** – aktywne zadania posiadające właściciela.
-2. **Awaiting pickup** – aktywne zadania bez przypisanego użytkownika (z przyciskiem „Biorę na siebie”).
-3. **Finished** – trzy podsekcje:
-   - *Completed* (`completed`)
-   - *Cancelled* (`cancelled`)
-   - *Rejected* – każde zadanie, któremu algorytm przydzieli kategorię `rejected` (również te z sekcji aktywnych, aby było jasne, że mają ujemny bilans głosów).
+#### Fazy i widoki
 
-Wszystkie listy bazują na jednym zapytaniu `Task.objects.with_metrics()` i sortowaniu `-votes_score`, następnie `-updated_at`.
+1. **Awaiting** — aktywne zadania w fazie `proposal`.
+2. **In progress** — aktywne zadania w fazie `realization`.
+3. **Finished** — ukończone (`completed`), anulowane (`cancelled`) oraz automatycznie odrzucone (`rejected`).
+4. **Mine** — aktywne zadania utworzone, przypisane lub poparte przez bieżącego użytkownika.
 
----
+#### Specyfikacja i cykl życia
 
-#### Model i lifecycle
-- Pola: `title`, `description`, `status` (Active/Completed/Cancelled), `created_by`, `assigned_to`, znaczniki czasu.
-- `assigned_to` jest jedynym źródłem prawdy o właścicielu – nie prowadzimy historii przejęć.
-- Formularz **Add task**: dostępny dla zalogowanych; zapis ustawia `created_by`.
-- Przycisk **Biorę na siebie** w widoku listy/szczegółów przypisuje bieżącego użytkownika (dowolna osoba może przejąć zadanie).
-- Edycja treści lub zamknięcie zadania (`completed` lub `cancelled`) są zablokowane dla osób innych niż aktualny właściciel (walidacja w `TaskEditView` i `TaskCloseView`).
-
----
+- Zadanie ma status (`active`, `completed`, `cancelled`, `rejected`) oraz osobną fazę (`proposal`, `realization`).
+- Specyfikacja obejmuje tytuł, opis zasadniczy, szacowany koszt i walutę, wymaganą liczbę osób, wymóg zgody spoza grupy, miarę sukcesu i opcjonalny termin.
+- Przy tworzeniu wymagane są wszystkie dane poza terminem. Kwota może wynosić `0`; waluta jest wtedy opcjonalna. Starsze zadania mogą zachować brakujące dane do czasu edycji; bez liczby osób ich minimalny skład to koordynator.
+- Autor nowego zadania zostaje koordynatorem i dostaje głos „Pomogę”.
+- Rozpoczęcie realizacji wymaga jawnej akcji koordynatora, bilansu głosów co najmniej `2` oraz zespołu o wymaganej liczebności. Koordynator wlicza się do zespołu, a zatwierdzeni pomocnicy uzupełniają skład.
+- Zasadnicza specyfikacja (tytuł, opis, koszt, liczba osób, zgoda zewnętrzna i miara sukcesu) jest edytowalna przez koordynatora w fazie propozycji; edycja w tej fazie nie resetuje głosów. Termin i kategorię można zmieniać również podczas realizacji, bez resetu głosów.
+- Powrót z realizacji do propozycji wymaga potwierdzenia; zeruje głosy, usuwa koordynatora i zatwierdzonych pomocników. Ponowne przejęcie koordynacji jest konieczne przed edycją zasadniczej specyfikacji.
+- Zamknięcie przez koordynatora ustawia `completed` albo `cancelled`. Ponowne otwarcie przez twórcę lub koordynatora ustawia fazę `proposal`, zeruje głosy i zachowuje zespół.
 
 #### Głosowanie i priorytety
-- Każdy zalogowany użytkownik ma dokładnie jeden głos **za** (`+1`) lub **przeciw** (`-1`) na zadanie; ponowne głosowanie nadpisuje wcześniejszy wybór (`TaskVote` z `unique_together`).
-- Bilans `votes_score` (suma głosów) decyduje o:
-  1. Kolejności wyświetlania.
-  2. Kategorii priorytetu:
-     - `critical` – górne 20% zadań o nieujemnym wyniku.
-     - `important` – kolejne 30%.
-     - `beneficial` – pozostałe zadania o wyniku ≥ 0.
-     - `rejected` – każde zadanie z ujemnym wynikiem.
-- Priorytety obliczane są przy każdym renderowaniu listy – brak cache’u ani ręcznych override’ów.
 
----
+- Każdy zalogowany użytkownik ma jeden głos „Pomogę” (`+1`) albo „Nie róbmy” (`-1`) na zadanie; ponowne głosowanie nadpisuje poprzedni wybór, a ponowne kliknięcie wycofuje głos.
+- Głosowanie pozostaje otwarte również podczas realizacji. Bilans `<= -2` automatycznie ustawia status `rejected`.
+- Głosy „Pomogę” wyznaczają priorytet listy; sprzeciwy są osobnym sygnałem odrzucenia.
 
-#### Interakcje w UI
-- Widok listy pokazuje kafelki z nazwą, skrótem opisu, właścicielem i bilansem głosów. Dla sekcji „Awaiting pickup” dostępny jest formularz POST przypinający zadanie.
-- Widok szczegółowy:
-  - Pełny opis, właściciel, status, znaczniki czasu, liczniki głosów oraz badgie z kategorią priorytetu.
-  - Formularze głosowania `Vote up / Vote down` dostępne tylko dla zadań aktywnych.
-  - Przycisk „Take task” widoczny tylko, gdy zadanie nie ma właściciela.
-  - Przyciski „Edit” oraz „Close task” wyłącznie dla właściciela i tylko w statusie aktywnym.
+#### Zespół i podzadania
 
----
+- Koordynator zatwierdza chętnych do zespołu; koordynator i zatwierdzeni pomocnicy mogą pisać w czacie trybu zespołowego.
+- Koordynator i zatwierdzeni pomocnicy mogą dodawać, edytować, porządkować, odhaczać oraz usuwać podzadania w obu aktywnych fazach.
+- Zmiany checklisty nie resetują głosów. Po zamknięciu zadania checklista jest tylko do odczytu.
+- Kolejność podzadań można zmieniać przez przeciąganie lub dostępne kontrolki klawiaturowe.
 
-#### Ocena sukcesu/porażki
-- Po zamknięciu zadania udostępniany jest panel „Evaluate outcome”.
-- Każdy użytkownik może oddać głos `success` lub `failure`; decyzję można zmieniać bez ograniczeń czasowych (`TaskEvaluation` z `unique_together`).
-- Wynik prezentowany jest jako liczniki w widoku szczegółowym (badge „Success votes” / „Failure votes”).
+#### Statystyki
 
----
-
-#### Ograniczenia i brakujące elementy
-1. Brak drag&drop oraz jakiegokolwiek API – obsługa wyłącznie przez widoki Django.
-2. Brak automatycznego logowania zmian właściciela i brak powiadomień/monitoringu.
-3. Brak testów automatycznych dla całego modułu.
+- Statystyki pokazują ukończone zadania, oceny i wskaźnik sukcesu.
+- Ranking koordynatorów obejmuje zadania ukończone, anulowane i odrzucone z całego okresu; przypisuje je koordynatorowi obecnemu przy zamknięciu albo odrzuceniu.
+- Sukcesy, porażki, wyniki mieszane i brak ocen są pokazywane osobno dla każdego statusu, według bieżących ocen. Ranking sortuje po sukcesach ze wszystkich statusów, potem po liczbie wszystkich zadań końcowych i nazwie koordynatora.

@@ -55,9 +55,20 @@ class Task(ChatRoomModel, models.Model):
         CANCELLED = "cancelled", _("Cancelled")
         REJECTED = "rejected", _("Rejected")
 
+    class Phase(models.TextChoices):
+        PROPOSAL = "proposal", _("Proposal")
+        REALIZATION = "realization", _("Realization")
+
     title = models.CharField(max_length=200)
     description = models.TextField()
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
+    phase = models.CharField(max_length=16, choices=Phase.choices, default=Phase.PROPOSAL)
+    estimated_cost = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name=_("Estimated cost"))
+    currency = models.CharField(max_length=16, blank=True, verbose_name=_("Currency"))
+    required_people = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name=_("People required"))
+    requires_external_approval = models.BooleanField(null=True, blank=True, verbose_name=_("External approval required"))
+    success_criteria = models.TextField(blank=True, verbose_name=_("Success criteria"))
+    due_date = models.DateField(null=True, blank=True, verbose_name=_("Due date"))
     category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL, related_name="tasks")
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="tasks_created", null=True, blank=True)
     assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="tasks_assigned", null=True, blank=True)
@@ -100,6 +111,14 @@ class Task(ChatRoomModel, models.Model):
         if self.assigned_to_id == user.id:
             return True
         return self.approved_helpers.filter(id=user.id).exists()
+
+    def get_team_size(self):
+        coordinator_count = int(self.assigned_to_id is not None)
+        helper_count = self.approved_helpers.exclude(pk=self.assigned_to_id).count() if self.assigned_to_id else self.approved_helpers.count()
+        return coordinator_count + helper_count
+
+    def can_manage_subtasks(self, user):
+        return self.is_active and self.is_user_approved(user)
 
     def can_user_post(self, user):
         """Return True if the user may write in the task chat room.
@@ -148,6 +167,19 @@ class TaskVote(models.Model):
 
     def __str__(self):
         return f"{self.user} -> {self.task} ({self.get_value_display()})"
+
+
+class TaskSubtask(models.Model):
+    task = models.ForeignKey(Task, related_name="subtasks", on_delete=models.CASCADE)
+    title = models.CharField(max_length=240)
+    is_completed = models.BooleanField(default=False)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ("order", "pk")
+
+    def __str__(self):
+        return self.title
 
 
 class TaskEvaluation(models.Model):

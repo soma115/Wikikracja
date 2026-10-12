@@ -1,3 +1,4 @@
+import json
 import math
 from functools import wraps
 from urllib.parse import quote_plus
@@ -8,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import models, transaction
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, Max, Q, Sum
 from django.db.models.functions import Coalesce
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -29,8 +30,8 @@ from home.navigation import default_toolbar_views
 from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
 
 from .activity import get_task_status_label
-from .forms import TaskForm, TaskStatusForm
-from .models import Category, Task, TaskEvaluation, TaskVote
+from .forms import TaskForm, TaskMetadataForm, TaskStatusForm
+from .models import Category, Task, TaskEvaluation, TaskSubtask, TaskVote
 
 User = get_user_model()
 
@@ -117,8 +118,8 @@ def _task_tab_counts(user, categories, search_query=''):
     supported = TaskVote.objects.filter(user=user, value=TaskVote.Value.UP).values('task_id')
     return {
         'mine': qs.filter(status=Task.Status.ACTIVE).filter(Q(assigned_to=user) | Q(pk__in=supported)).distinct().count(),
-        'awaiting': qs.filter(status=Task.Status.ACTIVE, votes_score__gte=-1).filter(Q(assigned_to__isnull=True) | Q(votes_score__lt=2)).count(),
-        'active': qs.filter(status=Task.Status.ACTIVE, assigned_to__isnull=False, votes_score__gte=2).count(),
+        'awaiting': qs.filter(status=Task.Status.ACTIVE, phase=Task.Phase.PROPOSAL).count(),
+        'active': qs.filter(status=Task.Status.ACTIVE, phase=Task.Phase.REALIZATION).count(),
         'finished': qs.filter(Q(status__in=(Task.Status.COMPLETED, Task.Status.CANCELLED), votes_score__gte=-1) | Q(votes_score__lte=-2)).count(),
     }
 
@@ -213,11 +214,9 @@ class TaskListView(LoginRequiredMixin, TemplateView):
             mine = _prepare_task_cards(list(qs.filter(Q(assigned_to=user) | Q(pk__in=supported), status=Task.Status.ACTIVE)), pulse_room_ids)
             lists = {"my_tasks_own": [t for t in mine if t.assigned_to_id == user.id], "my_tasks_supporting": [t for t in mine if t.assigned_to_id != user.id]}
         elif tab == "awaiting":
-            lists["awaiting_tasks"] = _prepare_task_cards(
-                list(qs.filter(status=Task.Status.ACTIVE, votes_score__gte=-1).filter(Q(assigned_to__isnull=True) | Q(votes_score__lt=2))), pulse_room_ids, _priority_map(active=True)
-            )
+            lists["awaiting_tasks"] = _prepare_task_cards(list(qs.filter(status=Task.Status.ACTIVE, phase=Task.Phase.PROPOSAL)), pulse_room_ids, _priority_map(active=True))
         elif tab == "active":
-            lists["active_tasks"] = _prepare_task_cards(list(qs.filter(status=Task.Status.ACTIVE, assigned_to__isnull=False, votes_score__gte=2)), pulse_room_ids, _priority_map(active=True))
+            lists["active_tasks"] = _prepare_task_cards(list(qs.filter(status=Task.Status.ACTIVE, phase=Task.Phase.REALIZATION)), pulse_room_ids, _priority_map(active=True))
         else:  # finished
             priority_map = _priority_map(active=False)
             lists["finished_completed"] = _prepare_task_cards(list(qs.filter(status=Task.Status.COMPLETED, votes_score__gte=-1)), pulse_room_ids, priority_map)
@@ -415,6 +414,161 @@ def take_task(request: HttpRequest, pk: int) -> HttpResponse:
 
 @require_POST
 @login_required
+def start_task(request: HttpRequest, pk: int) -> HttpResponse:
+    next_url = _safe_next_url(request)
+    with transaction.atomic():
+        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
+        if not task.is_active or task.phase != Task.Phase.PROPOSAL or task.assigned_to_id != request.user.id:
+            return _task_action_denied(request, task)
+
+        vote_score = task.votes.aggregate(score=Coalesce(Sum("value"), 0))["score"] or 0
+        required_people = task.required_people or 1
+        if vote_score < 2:
+            messages.error(request, gettext_lazy("A vote balance of at least 2 is required to start realization."))
+        elif task.get_team_size() < required_people:
+            messages.error(request, gettext_lazy("The required number of team members has not been reached."))
+        else:
+            task.phase = Task.Phase.REALIZATION
+            task.save(update_fields=["phase", "updated_at"])
+            messages.success(request, gettext_lazy("Realization started."))
+
+    return redirect(next_url or "tasks:detail", pk=task.pk)
+
+
+@require_POST
+@login_required
+def return_to_proposal(request: HttpRequest, pk: int) -> HttpResponse:
+    next_url = _safe_next_url(request)
+    with transaction.atomic():
+        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
+        if not task.is_active or task.phase != Task.Phase.REALIZATION or task.assigned_to_id != request.user.id:
+            return _task_action_denied(request, task)
+
+        TaskVote.objects.filter(task=task).delete()
+        task.approved_helpers.clear()
+        task.assigned_to = None
+        task.phase = Task.Phase.PROPOSAL
+        task.save(update_fields=["assigned_to", "phase", "updated_at"])
+        messages.success(request, gettext_lazy("Returned to proposal; votes and team were reset."))
+
+    return redirect(next_url or "tasks:detail", pk=task.pk)
+
+
+@require_POST
+@login_required
+def add_subtask(request: HttpRequest, pk: int) -> HttpResponse:
+    title = request.POST.get("title", "").strip()
+    with transaction.atomic():
+        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
+        if not task.can_manage_subtasks(request.user):
+            return _task_action_denied(request, task)
+        if not title or len(title) > 240:
+            messages.error(request, gettext_lazy("Enter a subtask title of at most 240 characters."))
+            return redirect("tasks:detail", pk=task.pk)
+
+        max_order = task.subtasks.aggregate(max_order=Max("order"))["max_order"]
+        TaskSubtask.objects.create(task=task, title=title, order=(max_order + 1) if max_order is not None else 0)
+        task.save(update_fields=["updated_at"])
+    return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
+
+
+@require_POST
+@login_required
+def edit_subtask(request: HttpRequest, pk: int, subtask_pk: int) -> HttpResponse:
+    title = request.POST.get("title", "").strip()
+    with transaction.atomic():
+        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
+        if not task.can_manage_subtasks(request.user):
+            return _task_action_denied(request, task)
+        if not title or len(title) > 240:
+            messages.error(request, gettext_lazy("Enter a subtask title of at most 240 characters."))
+            return redirect("tasks:detail", pk=task.pk)
+
+        subtask = get_object_or_404(TaskSubtask.objects.select_for_update(), pk=subtask_pk, task=task)
+        subtask.title = title
+        subtask.save(update_fields=["title"])
+        task.save(update_fields=["updated_at"])
+    return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
+
+
+@require_POST
+@login_required
+def toggle_subtask(request: HttpRequest, pk: int, subtask_pk: int) -> HttpResponse:
+    with transaction.atomic():
+        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
+        if not task.can_manage_subtasks(request.user):
+            return _task_action_denied(request, task)
+
+        subtask = get_object_or_404(TaskSubtask.objects.select_for_update(), pk=subtask_pk, task=task)
+        subtask.is_completed = not subtask.is_completed
+        subtask.save(update_fields=["is_completed"])
+        task.save(update_fields=["updated_at"])
+    return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
+
+
+@require_POST
+@login_required
+def delete_subtask(request: HttpRequest, pk: int, subtask_pk: int) -> HttpResponse:
+    with transaction.atomic():
+        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
+        if not task.can_manage_subtasks(request.user):
+            return _task_action_denied(request, task)
+
+        get_object_or_404(TaskSubtask.objects.select_for_update(), pk=subtask_pk, task=task).delete()
+        task.save(update_fields=["updated_at"])
+    return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
+
+
+@require_POST
+@login_required
+def move_subtask(request: HttpRequest, pk: int, subtask_pk: int, direction: str) -> HttpResponse:
+    with transaction.atomic():
+        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
+        if not task.can_manage_subtasks(request.user) or direction not in ("up", "down"):
+            return _task_action_denied(request, task)
+
+        subtasks = list(task.subtasks.select_for_update())
+        index = next((i for i, item in enumerate(subtasks) if item.pk == subtask_pk), None)
+        if index is None:
+            return _task_action_denied(request, task)
+        target = index - 1 if direction == "up" else index + 1
+        if 0 <= target < len(subtasks):
+            subtasks[index], subtasks[target] = subtasks[target], subtasks[index]
+            for order, item in enumerate(subtasks):
+                TaskSubtask.objects.filter(pk=item.pk, task=task).update(order=order)
+            task.save(update_fields=["updated_at"])
+    return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
+
+
+@require_POST
+@login_required
+def reorder_subtasks(request: HttpRequest, pk: int) -> JsonResponse:
+    try:
+        items = json.loads(request.body)
+        if not isinstance(items, list) or any(not isinstance(item, dict) for item in items):
+            raise ValueError
+        ordered_ids = [item["id"] for item in items]
+        orders = [item["order"] for item in items]
+        if any(type(value) is not int for value in ordered_ids + orders):
+            raise ValueError
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+        return JsonResponse({"ok": False, "error": "invalid order"}, status=400)
+
+    with transaction.atomic():
+        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
+        if not task.can_manage_subtasks(request.user):
+            return JsonResponse({"ok": False, "error": "not allowed"}, status=403)
+        current_ids = set(task.subtasks.select_for_update().values_list("pk", flat=True))
+        if len(ordered_ids) != len(current_ids) or set(ordered_ids) != current_ids or sorted(orders) != list(range(len(items))):
+            return JsonResponse({"ok": False, "error": "invalid order"}, status=400)
+        for item_id, order in zip(ordered_ids, orders, strict=True):
+            TaskSubtask.objects.filter(task=task, pk=item_id).update(order=order)
+        task.save(update_fields=["updated_at"])
+    return JsonResponse({"ok": True})
+
+
+@require_POST
+@login_required
 def resign_task(request: HttpRequest, pk: int) -> HttpResponse:
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     next_url = _safe_next_url(request)
@@ -477,6 +631,9 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
             context["can_post_in_chat"] = False
         context["task"] = task
         context["task_status_label"] = get_task_status_label(task)
+        context["team_size"] = task.get_team_size()
+        context["required_team_size"] = task.required_people or 1
+        context["can_manage_subtasks"] = task.can_manage_subtasks(self.request.user)
         sort, order, tab, categories = _task_sort_context(self.request)
         search_query = self.request.GET.get("q", "").strip()
         navigation_queryset = _task_list_queryset(self.request.user, categories, sort, order, search_query)
@@ -484,9 +641,9 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
             supported = TaskVote.objects.filter(user=self.request.user, value=TaskVote.Value.UP).values("task_id")
             navigation_queryset = navigation_queryset.filter(Q(assigned_to=self.request.user) | Q(pk__in=supported), status=Task.Status.ACTIVE).distinct()
         elif tab == "awaiting":
-            navigation_queryset = navigation_queryset.filter(status=Task.Status.ACTIVE, votes_score__gte=-1).filter(Q(assigned_to__isnull=True) | Q(votes_score__lt=2))
+            navigation_queryset = navigation_queryset.filter(status=Task.Status.ACTIVE, phase=Task.Phase.PROPOSAL)
         elif tab == "active":
-            navigation_queryset = navigation_queryset.filter(status=Task.Status.ACTIVE, assigned_to__isnull=False, votes_score__gte=2)
+            navigation_queryset = navigation_queryset.filter(status=Task.Status.ACTIVE, phase=Task.Phase.REALIZATION)
         else:
             navigation_queryset = navigation_queryset.filter(Q(status=Task.Status.COMPLETED, votes_score__gte=-1) | Q(status=Task.Status.CANCELLED, votes_score__gte=-1) | Q(votes_score__lte=-2))
         context.update({"current_tab": tab, "current_sort": sort, "current_order": order, "current_categories": categories, "task_counts": _task_tab_counts(self.request.user, categories, search_query)})
@@ -506,6 +663,11 @@ class TaskEditView(CategoryContextMixin, LoginRequiredMixin, UpdateView):
         if task.assigned_to != request.user or not task.is_active:
             return redirect("tasks:detail", pk=task.pk)
         return super().dispatch(request, *args, **kwargs)
+
+    def get_form_class(self):
+        if self.object.phase == Task.Phase.REALIZATION:
+            return TaskMetadataForm
+        return super().get_form_class()
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -589,15 +751,18 @@ def vote_task(request: HttpRequest, pk: int) -> HttpResponse:
 @require_POST
 @login_required
 def reopen_task(request: HttpRequest, pk: int) -> HttpResponse:
-    task = get_object_or_404(Task, pk=pk)
     next_url = _safe_next_url(request)
-    if task.is_active:
-        return redirect(next_url or "tasks:detail", pk=pk)
-    if task.created_by_id != request.user.id and task.assigned_to_id != request.user.id:
-        return _task_action_denied(request, task, "only the creator or coordinator may reopen a task")
+    with transaction.atomic():
+        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
+        if task.is_active:
+            return redirect(next_url or "tasks:detail", pk=pk)
+        if task.created_by_id != request.user.id and task.assigned_to_id != request.user.id:
+            return _task_action_denied(request, task, "only the creator or coordinator may reopen a task")
 
-    task.status = Task.Status.ACTIVE
-    task.save(update_fields=["status", "updated_at"])
+        TaskVote.objects.filter(task=task).delete()
+        task.status = Task.Status.ACTIVE
+        task.phase = Task.Phase.PROPOSAL
+        task.save(update_fields=["status", "phase", "updated_at"])
     return redirect(next_url or "tasks:list")
 
 
@@ -674,6 +839,40 @@ class TaskCategoryReorderAPI(CategoryReorderAPI):
     order_field = "order"
 
 
+def _coordinator_ranking():
+    statuses = (Task.Status.COMPLETED, Task.Status.CANCELLED, Task.Status.REJECTED)
+    coordinators = {}
+    closed_tasks = Task.objects.filter(status__in=statuses, assigned_to__isnull=False).with_metrics().select_related("assigned_to", "assigned_to__uzytkownik")
+    for task in closed_tasks:
+        coordinator_id = task.assigned_to_id
+        row = coordinators.setdefault(
+            coordinator_id,
+            {
+                "coordinator": task.assigned_to,
+                "total_closed": 0,
+                "successful_outcomes": 0,
+                "outcomes": {status: {"total": 0, "success": 0, "failure": 0, "mixed": 0, "no_evaluations": 0} for status in statuses},
+            },
+        )
+        outcome = row["outcomes"][task.status]
+        row["total_closed"] += 1
+        outcome["total"] += 1
+
+        success = task.eval_success or 0
+        failure = task.eval_failure or 0
+        if success > failure:
+            row["successful_outcomes"] += 1
+            outcome["success"] += 1
+        elif failure > success:
+            outcome["failure"] += 1
+        elif success:
+            outcome["mixed"] += 1
+        else:
+            outcome["no_evaluations"] += 1
+
+    return sorted(coordinators.values(), key=lambda row: (-row["successful_outcomes"], -row["total_closed"], user_display_name(row["coordinator"]).casefold(), row["coordinator"].pk))
+
+
 class TaskStatsView(LoginRequiredMixin, TaskFilterContextMixin, TemplateView):
     template_name = "tasks/task_stats.html"
 
@@ -706,6 +905,7 @@ class TaskStatsView(LoginRequiredMixin, TaskFilterContextMixin, TemplateView):
                 "no_eval_count": no_eval_count,
                 "success_rate": int(success_rate),
                 "completed_last_week": completed_last_week,
+                "coordinator_ranking": _coordinator_ranking(),
             }
         )
         return context
