@@ -5,15 +5,11 @@ from urllib.parse import urlsplit
 
 import phonenumbers
 import pycountry
-from allauth.account import app_settings as allauth_app_settings
-from allauth.account.adapter import get_adapter
-from allauth.account.forms import RequestLoginCodeForm, ResetPasswordForm, SignupForm
+from allauth.account.forms import SignupForm
 from allauth.account.models import EmailAddress
-from allauth.core import context, ratelimit
 from captcha.fields import CaptchaField, CaptchaTextInput
 from django import forms
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.db import IntegrityError
@@ -27,51 +23,6 @@ log = logging.getLogger(__name__)
 
 
 PHONE_COUNTRY_NAME_OVERRIDES = {'AC': 'Ascension Island', 'TA': 'Tristan da Cunha', 'XK': 'Kosovo'}
-
-
-def filter_users_by_email_case_insensitive(email, *, is_active=None, prefer_verified=False):
-    """Find users by e-mail without depending on the address's stored casing."""
-    email = email.strip().lower()
-    email_addresses = list(EmailAddress.objects.filter(email__iexact=email).select_related('user'))
-    verified_addresses = [address for address in email_addresses if address.verified]
-    prefer_verified_matches = prefer_verified and bool(verified_addresses)
-    if prefer_verified_matches:
-        email_addresses = verified_addresses
-
-    users = {address.user_id: address.user for address in email_addresses}
-    email_field = allauth_app_settings.USER_MODEL_EMAIL_FIELD
-    if email_field and not prefer_verified_matches:
-        user_model = get_user_model()
-        matching_users = user_model._default_manager.filter(**{f'{email_field}__iexact': email})
-        users.update((user.pk, user) for user in matching_users)
-
-    if is_active is not None:
-        users = {pk: user for pk, user in users.items() if user.is_active == is_active}
-    return list(users.values())
-
-
-class CaseInsensitiveResetPasswordForm(ResetPasswordForm):
-    def clean_email(self):
-        email = self.cleaned_data['email'].lower()
-        email = get_adapter().clean_email(email)
-        self.users = filter_users_by_email_case_insensitive(email, is_active=True, prefer_verified=True)
-        if not self.users and not allauth_app_settings.PREVENT_ENUMERATION:
-            raise get_adapter().validation_error('unknown_email')
-        return self.cleaned_data['email']
-
-
-class CaseInsensitiveRequestLoginCodeForm(RequestLoginCodeForm):
-    def clean_email(self):
-        adapter = get_adapter()
-        email = self.cleaned_data['email']
-        if email:
-            users = filter_users_by_email_case_insensitive(email, is_active=True, prefer_verified=True)
-            if not users and not allauth_app_settings.PREVENT_ENUMERATION:
-                raise adapter.validation_error('unknown_email')
-            if not ratelimit.consume(context.request, action='request_login_code', key=email.lower()):
-                raise adapter.validation_error('too_many_login_attempts')
-            self._user = users[0] if users else None
-        return email
 
 
 def phone_country_choices():
@@ -130,9 +81,6 @@ class UserForm(forms.ModelForm):
         self.fields['last_name'].error_messages['required'] = _('Last name is required.')
         self.fields['email'].error_messages['required'] = _('Email is required.')
 
-    def clean_email(self):
-        return self.cleaned_data['email'].lower()
-
 
 class UsernameChangeForm(forms.ModelForm):
     class Meta:
@@ -182,7 +130,7 @@ class EmailChangeForm(forms.Form):
             User.objects.filter(email__iexact=new_email1).exclude(pk=self.user.pk).exists() or EmailAddress.objects.filter(email__iexact=new_email1, verified=True).exclude(user=self.user).exists()
         ):
             raise forms.ValidationError(self.error_messages['already_exists'], code='already_exists')
-        return new_email1.lower() if new_email1 else new_email1
+        return new_email1
 
     def clean_new_email2(self):
         new_email1 = self.cleaned_data.get('new_email1')
@@ -190,7 +138,7 @@ class EmailChangeForm(forms.Form):
         if new_email1 and new_email2:
             if new_email1.casefold() != new_email2.casefold():
                 raise forms.ValidationError(self.error_messages['email_mismatch'], code='email_mismatch')
-        return new_email2.lower() if new_email2 else new_email2
+        return new_email2
 
     def clean_password(self):
         password = self.cleaned_data['password']
@@ -423,7 +371,7 @@ class CustomSignupForm(SignupForm):
             else:
                 raise forms.ValidationError(_('An account with this email address already exists.'))
 
-        return email.lower()
+        return email
 
     def clean_password1(self):
         """

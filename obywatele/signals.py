@@ -1,10 +1,26 @@
-from django.db.models.signals import post_save
+from allauth.account.models import EmailAddress
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
 from core.signals import citizen_blocked
 
 from .models import CitizenActivity, Uzytkownik
+
+
+def _lowercase_email(value):
+    return value.lower() if value else value
+
+
+@receiver(pre_save, sender=User)
+def normalize_user_email(sender, instance, **kwargs):
+    instance.email = _lowercase_email(instance.email)
+
+
+@receiver(pre_save, sender=EmailAddress)
+def normalize_email_address(sender, instance, **kwargs):
+    instance.email = _lowercase_email(instance.email)
 
 
 @receiver(post_save, sender=Uzytkownik)

@@ -16,6 +16,8 @@ from django.contrib.auth.models import User
 from django.contrib.messages import SUCCESS, get_messages
 from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.db import connection
 from django.db.models import QuerySet
 from django.shortcuts import resolve_url
@@ -32,7 +34,7 @@ from chat.services import get_user_public_message_rows
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 from obywatele.adapter import CustomAccountAdapter
 from obywatele.auth_backends import CaseInsensitiveEmailBackend
-from obywatele.forms import ProfileForm, UserForm, phone_country_choices
+from obywatele.forms import EmailChangeForm, ProfileForm, UserForm, phone_country_choices
 from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, ResourceAssignment, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items
 from obywatele.views import is_email_confirmed_for_candidate
@@ -124,45 +126,137 @@ class LoginByCodePageTest(TestCase):
         self.assertEqual(self.client.session['_auth_user_id'], str(self.user.pk))
         self.assertTrue(EmailAddress.objects.get(user=self.user, email=self.user.email).verified)
 
-    def test_email_code_finds_user_when_stored_email_has_different_case(self):
+    def test_email_code_accepts_mixed_case_input_and_stores_lowercase(self):
         user = User.objects.create_user(username='mixed-case-code', email='Wojciech.antczak@example.com', password='secret', is_active=True)
         EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
 
         with patch.object(CustomAccountAdapter, 'generate_login_code', return_value='HHQ-BRS'):
-            response = self.client.post(reverse('account_request_login_code'), {'email': 'wojciech.antczak@example.com'})
+            response = self.client.post(reverse('account_request_login_code'), {'email': 'WOJCIECH.ANTCZAK@EXAMPLE.COM'})
 
         self.assertRedirects(response, reverse('account_confirm_login_code'))
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn('HHQ-BRS', mail.outbox[0].body)
+        user.refresh_from_db()
+        address = EmailAddress.objects.get(user=user)
+        self.assertEqual(user.email, 'wojciech.antczak@example.com')
+        self.assertEqual(address.email, 'wojciech.antczak@example.com')
 
 
-class CaseInsensitiveEmailResetTest(TestCase):
-    def test_password_login_accepts_mixed_case_verified_email_address(self):
+class EmailCanonicalizationIntegrationTest(TestCase):
+    def test_password_login_accepts_mixed_case_input_after_canonicalizing_storage(self):
         user = User.objects.create_user(username='mixed-case-login', email='Wojciech.antczak@example.com', password='secret', is_active=True)
         EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
 
-        response = self.client.post(reverse('account_login'), {'login': 'wojciech.antczak@example.com', 'password': 'secret'})
+        response = self.client.post(reverse('account_login'), {'login': 'WOJCIECH.ANTCZAK@EXAMPLE.COM', 'password': 'secret'})
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'], '/')
         self.assertEqual(self.client.session['_auth_user_id'], str(user.pk))
+        user.refresh_from_db()
+        address = EmailAddress.objects.get(user=user)
+        self.assertEqual(user.email, 'wojciech.antczak@example.com')
+        self.assertEqual(address.email, 'wojciech.antczak@example.com')
 
-    def test_password_reset_finds_user_when_stored_email_has_different_case(self):
+    def test_password_reset_accepts_mixed_case_input_after_canonicalizing_storage(self):
         user = User.objects.create_user(username='mixed-case-reset', email='Wojciech.antczak@example.com', password='secret', is_active=True)
         EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
 
-        response = self.client.post(reverse('account_reset_password'), {'email': 'wojciech.antczak@example.com'})
+        response = self.client.post(reverse('account_reset_password'), {'email': 'WOJCIECH.ANTCZAK@EXAMPLE.COM'})
 
         self.assertRedirects(response, reverse('account_reset_password_done'))
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn('/accounts/password/reset/key/', mail.outbox[0].body)
         self.assertNotIn('/accounts/signup/', mail.outbox[0].body)
+        user.refresh_from_db()
+        address = EmailAddress.objects.get(user=user)
+        self.assertEqual(user.email, 'wojciech.antczak@example.com')
+        self.assertEqual(address.email, 'wojciech.antczak@example.com')
 
     def test_invited_user_email_is_stored_lowercase(self):
         form = UserForm(data={'username': 'mixed-case-invite', 'email': 'Wojciech.antczak@example.com', 'first_name': 'Wojciech', 'last_name': 'Antczak'})
 
         self.assertTrue(form.is_valid(), form.errors)
-        self.assertEqual(form.cleaned_data['email'], 'wojciech.antczak@example.com')
+        user = form.save()
+        self.assertEqual(user.email, 'wojciech.antczak@example.com')
+
+
+class EmailCaseNormalizationTest(TestCase):
+    def test_user_and_emailaddress_saves_lowercase_email(self):
+        user = User.objects.create_user(username='email-normalization', email='New.User@Example.com', password='secret')
+        self.assertEqual(user.email, 'new.user@example.com')
+
+        user.email = 'Changed.Address@Example.com'
+        user.save()
+        user.refresh_from_db()
+        self.assertEqual(user.email, 'changed.address@example.com')
+
+        address = EmailAddress.objects.create(user=user, email='Verified.Address@Example.com', verified=True, primary=True)
+        self.assertEqual(address.email, 'verified.address@example.com')
+
+        address.email = 'Changed.Verified@Example.com'
+        address.save()
+        address.refresh_from_db()
+        self.assertEqual(address.email, 'changed.verified@example.com')
+
+    def test_email_change_form_persists_new_address_in_lowercase(self):
+        user = User.objects.create_user(username='email-change-normalization', email='old@example.com', password='secret')
+        form = EmailChangeForm(user, data={'new_email1': 'New.Address@Example.com', 'new_email2': 'NEW.ADDRESS@example.COM', 'password': 'secret'})
+
+        self.assertTrue(form.is_valid(), form.errors)
+        request = RequestFactory().post('/change_email/')
+        with patch('allauth.account.internal.flows.email_verification.send_verification_email_to_address'):
+            address = form.save(request)
+
+        self.assertEqual(address.email, 'new.address@example.com')
+
+    def test_normalize_email_case_command_is_dry_run_by_default(self):
+        user = User.objects.create_user(username='email-normalization-dry-run', email='dry.run@example.com', password='secret')
+        User.objects.filter(pk=user.pk).update(email='Dry.Run@example.com')
+        output = io.StringIO()
+
+        call_command('normalize_email_case', stdout=output)
+
+        user.refresh_from_db()
+        self.assertEqual(user.email, 'Dry.Run@example.com')
+        self.assertIn('No data changed', output.getvalue())
+
+    def test_normalize_email_case_command_updates_both_email_tables(self):
+        user = User.objects.create_user(username='email-normalization-apply', email='apply@example.com', password='secret')
+        address = EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
+        User.objects.filter(pk=user.pk).update(email='Apply@Example.com')
+        EmailAddress.objects.filter(pk=address.pk).update(email='Apply@Example.com')
+
+        call_command('normalize_email_case', apply=True, confirm=True, stdout=io.StringIO())
+
+        user.refresh_from_db()
+        address.refresh_from_db()
+        self.assertEqual(user.email, 'apply@example.com')
+        self.assertEqual(address.email, 'apply@example.com')
+        self.assertTrue(address.verified)
+        self.assertTrue(address.primary)
+
+    def test_normalize_email_case_command_requires_explicit_confirmation(self):
+        user = User.objects.create_user(username='email-normalization-confirmation', email='confirm@example.com', password='secret')
+        User.objects.filter(pk=user.pk).update(email='Confirm@Example.com')
+
+        with self.assertRaises(CommandError):
+            call_command('normalize_email_case', apply=True, stdout=io.StringIO())
+
+        user.refresh_from_db()
+        self.assertEqual(user.email, 'Confirm@Example.com')
+
+    def test_normalize_email_case_command_refuses_case_insensitive_duplicates(self):
+        first = User.objects.create_user(username='email-normalization-first', email='duplicate@example.com', password='secret')
+        second = User.objects.create_user(username='email-normalization-second', email='other@example.com', password='secret')
+        User.objects.filter(pk=second.pk).update(email='DUPLICATE@example.com')
+
+        with self.assertRaises(CommandError):
+            call_command('normalize_email_case', apply=True, confirm=True, stdout=io.StringIO(), stderr=io.StringIO())
+
+        first.refresh_from_db()
+        second.refresh_from_db()
+        self.assertEqual(first.email, 'duplicate@example.com')
+        self.assertEqual(second.email, 'DUPLICATE@example.com')
 
 
 class LoginRedirectSafetyTest(TestCase):
