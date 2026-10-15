@@ -20,7 +20,7 @@ class CaseInsensitiveEmailBackend(ModelBackend):
         UserModel = get_user_model()
 
         if username is None:
-            username = kwargs.get(UserModel.USERNAME_FIELD)
+            username = kwargs.get('email') or kwargs.get(UserModel.USERNAME_FIELD)
 
         if username is None or password is None:
             return None

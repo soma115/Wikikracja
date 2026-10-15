@@ -137,6 +137,16 @@ class LoginByCodePageTest(TestCase):
 
 
 class CaseInsensitiveEmailResetTest(TestCase):
+    def test_password_login_accepts_mixed_case_verified_email_address(self):
+        user = User.objects.create_user(username='mixed-case-login', email='Wojciech.antczak@example.com', password='secret', is_active=True)
+        EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
+
+        response = self.client.post(reverse('account_login'), {'login': 'wojciech.antczak@example.com', 'password': 'secret'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/')
+        self.assertEqual(self.client.session['_auth_user_id'], str(user.pk))
+
     def test_password_reset_finds_user_when_stored_email_has_different_case(self):
         user = User.objects.create_user(username='mixed-case-reset', email='Wojciech.antczak@example.com', password='secret', is_active=True)
         EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)

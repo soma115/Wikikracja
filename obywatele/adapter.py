@@ -1,13 +1,46 @@
 import logging
 from urllib.parse import urlencode
 
-from allauth.account.adapter import DefaultAccountAdapter
+from allauth.account.adapter import DefaultAccountAdapter, get_adapter
+from allauth.account.app_settings import EmailVerificationMethod
+from allauth.account.internal.flows.email_verification import send_verification_email_to_address
+from allauth.account.models import EmailAddress
+from allauth.account.stages import EmailVerificationStage
 from django.core.signing import TimestampSigner
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 
 log = logging.getLogger(__name__)
 signer = TimestampSigner()
+
+
+class CaseInsensitiveEmailVerificationStage(EmailVerificationStage):
+    def handle(self):
+        login = self.login
+        if not login.user or not login.email:
+            return super().handle()
+
+        address = EmailAddress.objects.filter(user_id=login.user.pk, email__iexact=login.email).first()
+        if not address:
+            return super().handle()
+
+        adapter = get_adapter()
+        response = None
+        if login.email_verification == EmailVerificationMethod.OPTIONAL:
+            if not address.verified and login.signup:
+                self._send_confirmation(adapter, address, login.signup)
+        elif login.email_verification == EmailVerificationMethod.MANDATORY:
+            if not address.verified:
+                self._send_confirmation(adapter, address, login.signup)
+                response = adapter.respond_email_verification_sent(self.request, login.user)
+        elif login.email_verification != EmailVerificationMethod.NONE:
+            return super().handle()
+
+        return response, True
+
+    def _send_confirmation(self, adapter, address, signup):
+        if adapter.should_send_confirmation_mail(self.request, address, signup):
+            send_verification_email_to_address(self.request, address, signup=signup)
 
 
 class CustomAccountAdapter(DefaultAccountAdapter):
@@ -53,6 +86,11 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         from site_settings.params import get_param
 
         return get_param('group_is_public')
+
+    def get_login_stages(self):
+        default_stage = f'{EmailVerificationStage.__module__}.{EmailVerificationStage.__qualname__}'
+        custom_stage = f'{__name__}.{CaseInsensitiveEmailVerificationStage.__name__}'
+        return [custom_stage if stage == default_stage else stage for stage in super().get_login_stages()]
 
     def get_login_redirect_url(self, request):
         """

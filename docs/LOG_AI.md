@@ -1,12 +1,12 @@
 # LOG_AI
 
-## 2026-10-15: Odporne wyszukiwanie e-maili na wielkość liter
+## 2026-10-15: Odporne logowanie i reset e-maili na wielkość liter
 
-- **Zmienione obszary:** formularze uwierzytelniania django-allauth, formularze zaproszeń/rejestracji i testy `obywatele`.
-- **Co się zmieniło:** wyszukiwanie kont przy resecie hasła i żądaniu kodu logowania używa dopasowania bez uwzględniania wielkości liter w `User.email` i `EmailAddress.email`. Nowe konta zakładane przez formularze zaproszeń i rejestracji zapisują adres e-mail małymi literami.
-- **Uzasadnienie:** allauth normalizował wpisany adres do małych liter, ale wykonywał dokładne zapytania do bazy; historyczne adresy z wielkimi literami nie były znajdowane, mimo aktywnego konta i zweryfikowanego e-maila.
-- **Weryfikacja:** 9 testów `DebugSkipAuthTest`, `LoginByCodePageTest` i `CaseInsensitiveEmailResetTest`, Django check, Ruff check/format oraz `git diff --check` przeszły. Testy działały przez `.venv` na bazie testowej w pamięci, z lokalnym backendem poczty i wyłączonym schedulerem.
-- **Spodziewany efekt:** logowanie hasłem, reset hasła i logowanie kodem akceptują adres niezależnie od wielkości liter; nowe adresy są zapisywane w postaci kanonicznej.
+- **Zmienione obszary:** backend logowania, formularze i etap weryfikacji e-maila django-allauth, formularze zaproszeń/rejestracji oraz testy `obywatele`.
+- **Co się zmieniło:** logowanie hasłem przyjmuje pole `email` przekazywane przez allauth; wyszukiwanie przy resecie hasła i żądaniu kodu dopasowuje bez uwzględniania wielkości liter w `User.email` i `EmailAddress.email`. Etap weryfikacji allauth również rozpoznaje zweryfikowane adresy zapisane z inną wielkością liter. Nowe konta z formularzy zaproszeń i rejestracji zapisują e-mail małymi literami.
+- **Uzasadnienie:** allauth normalizował wpisany adres do małych liter, ale wykonywał dokładne zapytania. W efekcie istniało konto i zweryfikowany e-mail, lecz hasło mogło nie zostać uwierzytelnione, a po odzyskaniu dostępu weryfikacja mogła przekierować użytkownika do onboardingu bez tokenu.
+- **Weryfikacja:** 10 testów `DebugSkipAuthTest`, `LoginByCodePageTest` i `CaseInsensitiveEmailResetTest`, Django check, Ruff check/format oraz `git diff --check` przeszły. Testy działały przez `.venv` na bazie testowej w pamięci, z lokalnym backendem poczty i wyłączonym schedulerem.
+- **Spodziewany efekt:** logowanie hasłem, reset hasła i logowanie kodem akceptują adres niezależnie od wielkości liter; zaakceptowane logowanie nie trafia błędnie do potwierdzenia e-maila; nowe adresy są zapisywane w postaci kanonicznej.
 
 ## 2026-10-11: Anonimizacja autora w zdarzeniu edycji czatu
 
