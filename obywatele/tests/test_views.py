@@ -10,7 +10,7 @@ from datetime import datetime, timedelta, timezone
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from allauth.account.models import EmailAddress, EmailConfirmationHMAC
+from allauth.account.models import EmailAddress, EmailConfirmation, EmailConfirmationHMAC
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.messages import SUCCESS, get_messages
@@ -234,6 +234,45 @@ class EmailCaseNormalizationTest(TestCase):
         self.assertEqual(address.email, 'apply@example.com')
         self.assertTrue(address.verified)
         self.assertTrue(address.primary)
+
+    def test_normalize_email_case_command_merges_safe_duplicate_email_addresses(self):
+        user = User.objects.create_user(username='email-normalization-merge', email='Wojciech.antczak@example.com', password='secret')
+        primary = EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
+        duplicate = EmailAddress.objects.create(user=user, email='pending@example.com', verified=False, primary=False)
+        User.objects.filter(pk=user.pk).update(email='Wojciech.antczak@example.com')
+        EmailAddress.objects.filter(pk=primary.pk).update(email='Wojciech.antczak@example.com')
+        EmailAddress.objects.filter(pk=duplicate.pk).update(email='wojciech.antczak@example.com')
+
+        output = io.StringIO()
+        call_command('normalize_email_case', stdout=output)
+
+        self.assertIn('merge 1 duplicate EmailAddress records', output.getvalue())
+        self.assertEqual(EmailAddress.objects.filter(user=user).count(), 2)
+
+        call_command('normalize_email_case', apply=True, confirm=True, stdout=io.StringIO())
+
+        user.refresh_from_db()
+        addresses = list(EmailAddress.objects.filter(user=user))
+        self.assertEqual(user.email, 'wojciech.antczak@example.com')
+        self.assertEqual(len(addresses), 1)
+        self.assertEqual(addresses[0].pk, primary.pk)
+        self.assertEqual(addresses[0].email, 'wojciech.antczak@example.com')
+        self.assertTrue(addresses[0].verified)
+        self.assertTrue(addresses[0].primary)
+
+    def test_normalize_email_case_command_blocks_duplicate_with_pending_confirmation(self):
+        user = User.objects.create_user(username='email-normalization-pending', email='pending@example.com', password='secret')
+        primary = EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
+        duplicate = EmailAddress.objects.create(user=user, email='pending-alias@example.com', verified=False, primary=False)
+        EmailAddress.objects.filter(pk=primary.pk).update(email='Pending@Example.com')
+        EmailAddress.objects.filter(pk=duplicate.pk).update(email='pending@example.com')
+        confirmation = EmailConfirmation.objects.create(email_address=duplicate, key='pending-email-confirmation-key')
+
+        with self.assertRaises(CommandError):
+            call_command('normalize_email_case', apply=True, confirm=True, stdout=io.StringIO(), stderr=io.StringIO())
+
+        self.assertTrue(EmailAddress.objects.filter(pk=duplicate.pk).exists())
+        self.assertTrue(EmailConfirmation.objects.filter(pk=confirmation.pk).exists())
 
     def test_normalize_email_case_command_requires_explicit_confirmation(self):
         user = User.objects.create_user(username='email-normalization-confirmation', email='confirm@example.com', password='secret')
