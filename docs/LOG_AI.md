@@ -1,5 +1,13 @@
 # LOG_AI
 
+## 2026-10-15: Odporne wyszukiwanie e-maili na wielkość liter
+
+- **Zmienione obszary:** formularze uwierzytelniania django-allauth, formularze zaproszeń/rejestracji i testy `obywatele`.
+- **Co się zmieniło:** wyszukiwanie kont przy resecie hasła i żądaniu kodu logowania używa dopasowania bez uwzględniania wielkości liter w `User.email` i `EmailAddress.email`. Nowe konta zakładane przez formularze zaproszeń i rejestracji zapisują adres e-mail małymi literami.
+- **Uzasadnienie:** allauth normalizował wpisany adres do małych liter, ale wykonywał dokładne zapytania do bazy; historyczne adresy z wielkimi literami nie były znajdowane, mimo aktywnego konta i zweryfikowanego e-maila.
+- **Weryfikacja:** 9 testów `DebugSkipAuthTest`, `LoginByCodePageTest` i `CaseInsensitiveEmailResetTest`, Django check, Ruff check/format oraz `git diff --check` przeszły. Testy działały przez `.venv` na bazie testowej w pamięci, z lokalnym backendem poczty i wyłączonym schedulerem.
+- **Spodziewany efekt:** logowanie hasłem, reset hasła i logowanie kodem akceptują adres niezależnie od wielkości liter; nowe adresy są zapisywane w postaci kanonicznej.
+
 ## 2026-10-11: Anonimizacja autora w zdarzeniu edycji czatu
 
 - **Zmienione obszary:** payload WebSocket `chat.edit` i testy `chat`.

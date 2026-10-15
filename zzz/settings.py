@@ -309,7 +309,9 @@ if not DEBUG and EMAIL_BACKEND == "django.core.mail.backends.smtp.EmailBackend":
 #########################
 # CRITICAL: Custom signup form and adapter for Wikikracja onboarding flow
 ACCOUNT_FORMS = {
-    'signup': 'obywatele.forms.CustomSignupForm'  # Custom form: email + captcha only
+    'signup': 'obywatele.forms.CustomSignupForm',  # Custom form: email + captcha only
+    'reset_password': 'obywatele.forms.CaseInsensitiveResetPasswordForm',
+    'request_login_code': 'obywatele.forms.CaseInsensitiveRequestLoginCodeForm',
 }
 ACCOUNT_ADAPTER = 'obywatele.adapter.CustomAccountAdapter'  # Handles session and redirects
 LOGIN_URL = 'login'

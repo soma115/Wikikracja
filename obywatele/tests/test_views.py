@@ -32,7 +32,7 @@ from chat.services import get_user_public_message_rows
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 from obywatele.adapter import CustomAccountAdapter
 from obywatele.auth_backends import CaseInsensitiveEmailBackend
-from obywatele.forms import ProfileForm, phone_country_choices
+from obywatele.forms import ProfileForm, UserForm, phone_country_choices
 from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, ResourceAssignment, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items
 from obywatele.views import is_email_confirmed_for_candidate
@@ -70,6 +70,11 @@ class DebugSkipAuthTest(TestCase):
     @override_settings(DEBUG=True, DEBUG_SKIP_AUTH=True)
     def test_skip_auth_still_works_in_debug_mode(self):
         authenticated = self.backend.authenticate(None, username=self.user.email, password='wrong-password')
+
+        self.assertEqual(authenticated, self.user)
+
+    def test_password_login_accepts_different_email_casing(self):
+        authenticated = self.backend.authenticate(None, username='DEBUG@EXAMPLE.COM', password='correct-password')
 
         self.assertEqual(authenticated, self.user)
 
@@ -118,6 +123,36 @@ class LoginByCodePageTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(self.client.session['_auth_user_id'], str(self.user.pk))
         self.assertTrue(EmailAddress.objects.get(user=self.user, email=self.user.email).verified)
+
+    def test_email_code_finds_user_when_stored_email_has_different_case(self):
+        user = User.objects.create_user(username='mixed-case-code', email='Wojciech.antczak@example.com', password='secret', is_active=True)
+        EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
+
+        with patch.object(CustomAccountAdapter, 'generate_login_code', return_value='HHQ-BRS'):
+            response = self.client.post(reverse('account_request_login_code'), {'email': 'wojciech.antczak@example.com'})
+
+        self.assertRedirects(response, reverse('account_confirm_login_code'))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('HHQ-BRS', mail.outbox[0].body)
+
+
+class CaseInsensitiveEmailResetTest(TestCase):
+    def test_password_reset_finds_user_when_stored_email_has_different_case(self):
+        user = User.objects.create_user(username='mixed-case-reset', email='Wojciech.antczak@example.com', password='secret', is_active=True)
+        EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
+
+        response = self.client.post(reverse('account_reset_password'), {'email': 'wojciech.antczak@example.com'})
+
+        self.assertRedirects(response, reverse('account_reset_password_done'))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('/accounts/password/reset/key/', mail.outbox[0].body)
+        self.assertNotIn('/accounts/signup/', mail.outbox[0].body)
+
+    def test_invited_user_email_is_stored_lowercase(self):
+        form = UserForm(data={'username': 'mixed-case-invite', 'email': 'Wojciech.antczak@example.com', 'first_name': 'Wojciech', 'last_name': 'Antczak'})
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['email'], 'wojciech.antczak@example.com')
 
 
 class LoginRedirectSafetyTest(TestCase):
