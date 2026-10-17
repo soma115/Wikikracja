@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import redirect_to_login
 from django.db.models import Q
 from django.http import FileResponse, Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -419,13 +420,21 @@ def _post_detail_context(request: HttpRequest, post: Post):
 
 def view_post(request: HttpRequest, pk: int):
     include_archive = request.user.is_authenticated
-    post = get_object_or_404(_post_queryset_for_user(request.user, include_archive=include_archive).select_related('chat_room'), pk=pk)
+    post = _post_queryset_for_user(request.user, include_archive=include_archive).select_related('chat_room').filter(pk=pk).first()
+    if post is None:
+        if not request.user.is_authenticated:
+            return redirect_to_login(request.get_full_path(), login_url=reverse('account_login'))
+        raise Http404
     return render(request, 'board/post_detail.html', _post_detail_context(request, post))
 
 
 def view_post_by_slug(request: HttpRequest, slug: str):
     include_archive = request.user.is_authenticated
-    post = get_object_or_404(_post_queryset_for_user(request.user, include_archive=include_archive).select_related('chat_room'), slug=slug)
+    post = _post_queryset_for_user(request.user, include_archive=include_archive).select_related('chat_room').filter(slug=slug).first()
+    if post is None:
+        if not request.user.is_authenticated:
+            return redirect_to_login(request.get_full_path(), login_url=reverse('account_login'))
+        raise Http404
     return render(request, 'board/post_detail.html', _post_detail_context(request, post))
 
 

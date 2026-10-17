@@ -1,5 +1,7 @@
 from unittest.mock import patch
+from urllib.parse import urlencode
 
+from allauth.account.models import EmailAddress
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
@@ -18,8 +20,35 @@ class BoardDetailNavigationTests(TestCase):
         self.other_category = PostCategory.objects.create(name='Other')
         self.client.force_login(self.user)
 
-    def _post(self, title, category=None):
-        return Post.objects.create(title=title, text=f'{title} text', author=self.user, category=category, visibility=Post.Visibility.PUBLIC)
+    def _post(self, title, category=None, visibility=Post.Visibility.PUBLIC, slug=None):
+        return Post.objects.create(title=title, text=f'{title} text', author=self.user, category=category, visibility=visibility, slug=slug)
+
+    def test_anonymous_private_document_link_returns_to_document_after_login(self):
+        post = self._post('Internal document', visibility=Post.Visibility.GROUP, slug='internal-document')
+        recipient = User.objects.create_user(username='mail-recipient', email='recipient@example.com', password='pass', is_active=True)
+        EmailAddress.objects.create(user=recipient, email=recipient.email, verified=True, primary=True)
+        document_urls = [reverse('board:view_post', kwargs={'pk': post.pk}), reverse('board:view_post_by_slug', kwargs={'slug': post.slug})]
+        self.client.logout()
+
+        for document_url in document_urls:
+            response = self.client.get(document_url)
+            expected_login_url = f"{reverse('account_login')}?{urlencode({'next': document_url})}"
+
+            self.assertRedirects(response, expected_login_url)
+
+        response = self.client.post(reverse('account_login'), {'login': recipient.email, 'password': 'pass', 'next': document_urls[0]})
+
+        self.assertRedirects(response, document_urls[0])
+        self.assertContains(self.client.get(document_urls[0]), 'Internal document')
+
+    def test_anonymous_public_document_remains_accessible(self):
+        post = self._post('Public document')
+        self.client.logout()
+
+        response = self.client.get(reverse('board:view_post', kwargs={'pk': post.pk}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Public document')
 
     def test_new_visible_document_emits_push_event(self):
         with patch('core.notifications._dispatch_notification') as dispatch:
