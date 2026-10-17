@@ -6,7 +6,8 @@ from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from bookkeeping.models import Asset, Category, Partner, Transaction
+from bookkeeping.dashboard import get_context as bookkeeping_dashboard_context
+from bookkeeping.models import Asset, Category, Partner, ResourceListing, Transaction
 from bookkeeping.services import asset_balances, category_breakdown
 
 User = get_user_model()
@@ -453,3 +454,21 @@ class CategoryBreakdownTests(TestCase):
         finally:
             # Remove rows with invalid FKs so teardown doesn't trip FK integrity checks
             Transaction.objects.filter(pk__in=[txn_a.pk, txn_b.pk]).delete()
+
+
+class ResourceDashboardTests(TestCase):
+    def test_resource_counts_live_in_bookkeeping_and_survive_an_empty_financial_asset_list(self):
+        Asset.objects.all().delete()
+        first_user = User.objects.create_user(username='resource-dashboard-first')
+        second_user = User.objects.create_user(username='resource-dashboard-second')
+        ResourceListing.objects.create(profile=first_user.uzytkownik, name='Bike 1', kind=ResourceListing.Kind.GIVE)
+        ResourceListing.objects.create(profile=first_user.uzytkownik, name='Bike 2', kind=ResourceListing.Kind.GIVE)
+        ResourceListing.objects.create(profile=second_user.uzytkownik, name='Drill', kind=ResourceListing.Kind.BORROW)
+        ResourceListing.objects.create(profile=second_user.uzytkownik, name='Closed bike', kind=ResourceListing.Kind.GIVE, is_closed=True)
+
+        context = bookkeeping_dashboard_context(first_user)
+
+        self.assertIsNone(context['default_asset'])
+        self.assertEqual(context['give_away_count'], 1)
+        self.assertEqual(context['borrow_count'], 1)
+        self.assertEqual(context['for_sale_count'], 0)

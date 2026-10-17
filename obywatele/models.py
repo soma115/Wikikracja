@@ -5,7 +5,6 @@ from datetime import datetime
 import phonenumbers
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models.functions import Lower
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -207,28 +206,6 @@ class Uzytkownik(models.Model):
         if created:
             # no, there should be no 'self':
             Uzytkownik.objects.create(uid=instance)
-
-
-class ResourceAssignment(models.Model):
-    class Kind(models.TextChoices):
-        GIVE = 'give', _('Give away')
-        BORROW = 'borrow', _('Lend')
-        SALE = 'sale', _('For sale')
-        NEED = 'need', _('I need')
-
-    profile = models.ForeignKey(Uzytkownik, on_delete=models.CASCADE, related_name='resource_assignments', verbose_name=_('Profile'))
-    name = models.CharField(max_length=200, verbose_name=_('Name'))
-    description = models.TextField(max_length=1866, blank=True, default='', verbose_name=_('Description'))
-    kind = models.CharField(max_length=10, choices=Kind.choices, verbose_name=_('Type'))
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
-    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
-
-    class Meta:
-        ordering = ('kind', 'name')
-        constraints = [models.UniqueConstraint(Lower('name'), 'profile', 'kind', name='unique_resource_assignment_name_ci')]
-
-    def __str__(self):
-        return f'{self.profile} — {self.name} ({self.get_kind_display()})'
 
 
 class PrivateNote(models.Model):

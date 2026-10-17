@@ -1,0 +1,97 @@
+{% extends 'bookkeeping/menu.html' %}
+{% load i18n %}
+{% load feed_filters %}
+{% load static %}
+
+{% block extra_js %}
+<script src="{% static 'bookkeeping/js/resource-search.js' %}?v=1"></script>
+{% endblock %}
+
+{% block prefs_scope %}bookkeeping{% endblock %}
+{% block prefs_tab %}resources{% endblock %}
+
+{% block bookkeeping %}
+<div class="tw-section tw-space-y-4">
+  <h1 class="tw-section-heading">{% trans "Resources" %}</h1>
+  {% include 'home/includes/toolbar.html' with cta_url=cta_url cta_label=cta_label cta_icon='plus' cta_end=True search_include='bookkeeping/_resource_search.html' %}
+
+  {% if location_profiles %}
+  <section>
+    <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-3">
+      <h2 class="tw-section-heading tw-mb-0">{% trans "People in selected location" %}</h2>
+      <span class="tw-badge-status tw-badge-info">{{ location_profiles|length }}</span>
+    </div>
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-3">
+      {% for profile in location_profiles %}
+      <article class="tw-card">
+        <div class="tw-card-body tw-space-y-2">
+          <a href="{{ profile.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ profile.uid|display_name }}</a>
+          <div class="tw-text-sm tw-text-muted"><span class="tw-font-semibold">{% trans "City / Commune" %}:</span> {{ profile.city|default:"—"|title }}<br><span class="tw-font-semibold">{% trans "Voivodeship" %}:</span> {{ profile.voivodeship.name|default:"—" }}</div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if offer_listings or not offer_count %}
+  <section>
+    <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-3">
+      <h2 class="tw-section-heading tw-mb-0">{% trans "Offers" %}</h2>
+      <span class="tw-badge-status tw-badge-success">{{ offer_count }}</span>
+    </div>
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-3">
+      {% for listing in offer_listings %}
+      <article class="tw-card">
+        <div class="tw-card-header tw-flex tw-items-start tw-justify-between tw-gap-2">
+          <h3 class="tw-font-semibold tw-mb-0">{{ listing.name }}</h3>
+          <span class="tw-badge-status {% if listing.kind == 'borrow' %}tw-badge-info{% elif listing.kind == 'give' %}tw-badge-success{% elif listing.kind == 'sale' %}tw-badge-danger{% else %}tw-badge-warning{% endif %}">{{ listing.get_kind_display }}</span>
+        </div>
+        <div class="tw-card-body tw-space-y-2">
+          {% if listing.description %}<p class="tw-mb-0 tw-whitespace-pre-wrap tw-text-sm">{{ listing.description|urlize|linebreaksbr }}</p>{% endif %}
+          <a href="{{ listing.profile.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ listing.profile.uid|display_name }}</a>
+          <div class="tw-text-sm tw-text-muted"><span class="tw-font-semibold">{% trans "City / Commune" %}:</span> {{ listing.profile.city|default:"-"|title }}<br><span class="tw-font-semibold">{% trans "Voivodeship" %}:</span> {{ listing.profile.voivodeship.name|default:"-" }}</div>
+        </div>
+      </article>
+      {% empty %}
+      <div class="tw-alert tw-alert-info md:tw-col-span-2 lg:tw-col-span-3">{% trans "No offers match your search." %}</div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if need_listings or not need_count %}
+  <section>
+    <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-3">
+      <h2 class="tw-section-heading tw-mb-0">{% trans "Needs" %}</h2>
+      <span class="tw-badge-status tw-badge-warning">{{ need_count }}</span>
+    </div>
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-3">
+      {% for listing in need_listings %}
+      <article class="tw-card">
+        <div class="tw-card-header tw-flex tw-items-start tw-justify-between tw-gap-2">
+          <h3 class="tw-font-semibold tw-mb-0">{{ listing.name }}</h3>
+          <span class="tw-badge-status tw-badge-warning">{{ listing.get_kind_display }}</span>
+        </div>
+        <div class="tw-card-body tw-space-y-2">
+          {% if listing.description %}<p class="tw-mb-0 tw-whitespace-pre-wrap tw-text-sm">{{ listing.description|urlize|linebreaksbr }}</p>{% endif %}
+          <a href="{{ listing.profile.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ listing.profile.uid|display_name }}</a>
+          <div class="tw-text-sm tw-text-muted"><span class="tw-font-semibold">{% trans "City / Commune" %}:</span> {{ listing.profile.city|default:"-"|title }}<br><span class="tw-font-semibold">{% trans "Voivodeship" %}:</span> {{ listing.profile.voivodeship.name|default:"-" }}</div>
+        </div>
+      </article>
+      {% empty %}
+      <div class="tw-alert tw-alert-info md:tw-col-span-2 lg:tw-col-span-3">{% trans "No needs match your search." %}</div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if is_paginated %}
+  <nav class="tw-flex tw-items-center tw-justify-between tw-gap-3" aria-label="{% trans 'Resource pages' %}">
+    {% if page_obj.has_previous %}<a class="tw-btn tw-btn-outline-secondary tw-btn-sm" href="{% querystring page=page_obj.previous_page_number %}">{% trans "Previous" %}</a>{% else %}<span></span>{% endif %}
+    <span class="tw-text-sm tw-text-muted">{% blocktrans with current=page_obj.number total=page_obj.paginator.num_pages %}Page {{ current }} of {{ total }}{% endblocktrans %}</span>
+    {% if page_obj.has_next %}<a class="tw-btn tw-btn-outline-secondary tw-btn-sm" href="{% querystring page=page_obj.next_page_number %}">{% trans "Next" %}</a>{% else %}<span></span>{% endif %}
+  </nav>
+  {% endif %}
+</div>
+{% endblock bookkeeping %}

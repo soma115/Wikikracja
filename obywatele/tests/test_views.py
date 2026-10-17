@@ -29,13 +29,14 @@ from django.utils.translation import gettext as _
 from django.utils.translation import override, pgettext
 from PIL import Image
 
+from bookkeeping.models import ResourceListing
 from chat.models import Message, MessageReadBy, Room
 from chat.services import get_user_public_message_rows
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 from obywatele.adapter import CustomAccountAdapter
 from obywatele.auth_backends import CaseInsensitiveEmailBackend
 from obywatele.forms import EmailChangeForm, ProfileForm, UserForm, phone_country_choices
-from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, ResourceAssignment, Uzytkownik
+from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items
 from obywatele.views import is_email_confirmed_for_candidate
 from tasks.activity import get_user_tasks
@@ -1114,7 +1115,7 @@ class ProfileFormErrorViewTest(TestCase):
 
 
 class MyAssetsViewTest(TestCase):
-    """my_assets manages resource assignments, not profile details."""
+    """Legacy resource URLs redirect into Bookkeeping."""
 
     def setUp(self):
         self.user = User.objects.create_user(username='assets', password='secret', is_active=True)
@@ -1132,14 +1133,21 @@ class MyAssetsViewTest(TestCase):
         self.profile.refresh_from_db()
         self.assertEqual(self.profile.city, 'Stare miasto')
 
-    def test_get_shows_resource_form_without_profile_fields(self):
+    def test_get_redirects_to_bookkeeping_resource_manager(self):
         response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('resource_form', response.context)
-        self.assertNotIn('form', response.context)
-        self.assertNotContains(response, 'name="first_name"')
-        self.assertContains(response, 'name="kind"')
+        self.assertRedirects(response, reverse('bookkeeping:resource_manage'))
+
+    def test_legacy_resource_catalog_redirects_with_search_parameters(self):
+        response = self.client.get(reverse('obywatele:assets'), {'q': 'Rower'})
+
+        self.assertRedirects(response, f"{reverse('bookkeeping:resource_list')}?q=Rower")
+
+    def test_legacy_create_endpoint_preserves_post_method(self):
+        response = self.client.post(reverse('obywatele:save_resource_assignment'), {'kind': 'give', 'name': 'Rower'})
+
+        self.assertEqual(response.status_code, 307)
+        self.assertEqual(response['Location'], reverse('bookkeeping:resource_create'))
 
     def test_post_to_resource_page_does_not_update_profile_details(self):
         response = self.client.post(self.url, PROFILE_POST_DATA)
@@ -1202,6 +1210,14 @@ class MyProfileDetailsViewTest(TestCase):
         self.assertEqual(response.context['profile_form']['city'].value(), '')
         self.profile.refresh_from_db()
         self.assertEqual(self.profile.city, 'Stare miasto')
+
+    def test_profile_shows_only_a_link_to_resource_management(self):
+        ResourceListing.objects.create(profile=self.profile, name='Only-in-finance', kind=ResourceListing.Kind.GIVE)
+
+        response = self.client.get(self.url)
+
+        self.assertContains(response, reverse('bookkeeping:resource_manage'))
+        self.assertNotContains(response, 'Only-in-finance')
 
 
 class ContactPreferenceFormTest(TestCase):
@@ -1312,155 +1328,6 @@ class ContactPreferenceFormTest(TestCase):
         self.assertEqual(self.profile.preferred_contact_method, 'signal')
         response = self.client.get(edit_url)
         self.assertEqual(response.context['profile_form']['preferred_contact_method'].value(), 'signal')
-
-
-class ResourceAssignmentViewTest(TestCase):
-    def setUp(self):
-        self.owner = User.objects.create_user(username='resource-owner', password='secret', is_active=True)
-        self.assignment_url = reverse('obywatele:save_resource_assignment')
-        self.client.force_login(self.owner)
-
-    def test_owner_can_edit_resource_without_changing_another_users_copy(self):
-        assignment = ResourceAssignment.objects.create(profile=self.owner.uzytkownik, name='Rower', description='Stary opis', kind=ResourceAssignment.Kind.GIVE)
-        other_user = User.objects.create_user(username='other-resource-owner', password='secret', is_active=True)
-        other_assignment = ResourceAssignment.objects.create(profile=other_user.uzytkownik, name='Rower', description='Opis drugiej osoby', kind=ResourceAssignment.Kind.GIVE)
-        edit_url = reverse('obywatele:edit_resource_assignment', kwargs={'pk': assignment.pk})
-
-        response = self.client.get(edit_url)
-
-        self.assertEqual(response.context['resource_form']['name'].value(), 'Rower')
-        self.assertEqual(response.context['resource_form']['description'].value(), 'Stary opis')
-        response = self.client.post(edit_url, {'name': 'Rower miejski', 'description': 'Nowy opis', 'kind': ResourceAssignment.Kind.SALE})
-
-        self.assertRedirects(response, reverse('obywatele:my_assets'))
-        assignment.refresh_from_db()
-        other_assignment.refresh_from_db()
-        self.assertEqual((assignment.name, assignment.description, assignment.kind), ('Rower miejski', 'Nowy opis', ResourceAssignment.Kind.SALE))
-        self.assertEqual((other_assignment.name, other_assignment.description, other_assignment.kind), ('Rower', 'Opis drugiej osoby', ResourceAssignment.Kind.GIVE))
-
-    def test_new_resource_description_is_saved(self):
-        response = self.client.post(self.assignment_url, {'kind': 'give', 'name': 'Rower', 'description': 'Dostępny po południu'})
-
-        self.assertRedirects(response, reverse('obywatele:my_assets'))
-        assignment = ResourceAssignment.objects.get(profile=self.owner.uzytkownik, name='Rower')
-        self.assertEqual(assignment.description, 'Dostępny po południu')
-
-    def test_edit_rejects_duplicate_name_for_same_type(self):
-        assignment = ResourceAssignment.objects.create(profile=self.owner.uzytkownik, name='Rower', kind=ResourceAssignment.Kind.GIVE)
-        ResourceAssignment.objects.create(profile=self.owner.uzytkownik, name='Wiertarka', kind=ResourceAssignment.Kind.GIVE)
-
-        response = self.client.post(reverse('obywatele:edit_resource_assignment', kwargs={'pk': assignment.pk}), {'name': 'Wiertarka', 'description': 'Nowy opis', 'kind': ResourceAssignment.Kind.GIVE})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('name', response.context['resource_form'].errors)
-        assignment.refresh_from_db()
-        self.assertEqual(assignment.name, 'Rower')
-
-    def test_owner_cannot_edit_another_users_assignment(self):
-        other_user = User.objects.create_user(username='other-resource-owner', password='secret', is_active=True)
-        assignment = ResourceAssignment.objects.create(profile=other_user.uzytkownik, name='Wiertarka', kind=ResourceAssignment.Kind.BORROW)
-
-        response = self.client.get(reverse('obywatele:edit_resource_assignment', kwargs={'pk': assignment.pk}))
-
-        self.assertEqual(response.status_code, 404)
-
-    def test_owner_can_delete_assignment(self):
-        assignment = ResourceAssignment.objects.create(profile=self.owner.uzytkownik, name='Wiertarka', kind=ResourceAssignment.Kind.BORROW)
-
-        response = self.client.post(reverse('obywatele:delete_resource_assignment', kwargs={'pk': assignment.pk}))
-
-        self.assertRedirects(response, reverse('obywatele:my_assets'))
-        self.assertFalse(ResourceAssignment.objects.filter(pk=assignment.pk).exists())
-
-    def test_resource_name_field_has_no_suggestions(self):
-        response = self.client.get(reverse('obywatele:my_assets'))
-
-        self.assertNotContains(response, 'data-resource-suggestions')
-        self.assertNotContains(response, 'data-resource-search-url')
-
-
-class ResourceSearchViewTest(TestCase):
-    def setUp(self):
-        self.viewer = User.objects.create_user(username='resource-search-viewer', password='secret', is_active=True)
-        self.offer_user = User.objects.create_user(username='resource-offer', first_name='Offer', password='secret', is_active=True)
-        self.need_user = User.objects.create_user(username='resource-need', first_name='Need', password='secret', is_active=True)
-        self.other_user = User.objects.create_user(username='resource-no-assignment', first_name='Other', password='secret', is_active=True)
-        self.other_user.uzytkownik.city = 'Kraków'
-        self.other_user.uzytkownik.save(update_fields=['city'])
-        self.offer_user.uzytkownik.city = 'Gdańsk'
-        self.offer_user.uzytkownik.job = 'Product designer'
-        self.offer_user.uzytkownik.save(update_fields=['city', 'job'])
-        ResourceAssignment.objects.create(profile=self.offer_user.uzytkownik, name='Rower', description='Można odebrać w centrum miasta', kind=ResourceAssignment.Kind.GIVE)
-        ResourceAssignment.objects.create(profile=self.need_user.uzytkownik, name='Rower', description='Szukam roweru miejskiego', kind=ResourceAssignment.Kind.NEED)
-        self.client.force_login(self.viewer)
-
-    def test_resource_autocomplete_respects_selected_kind(self):
-        ResourceAssignment.objects.create(profile=self.offer_user.uzytkownik, name='Wiertarka', kind=ResourceAssignment.Kind.GIVE)
-
-        response = self.client.get(reverse('obywatele:search_resource_items'), {'q': 'Wiert', 'kind': 'need'})
-
-        self.assertEqual(response.json()['items'], [])
-
-    def test_assets_separates_offers_and_needs(self):
-        response = self.client.get(reverse('obywatele:assets'), {'q': 'Rower'})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['offer_assignments']), 1)
-        self.assertEqual(len(response.context['need_assignments']), 1)
-        self.assertContains(response, _('Offers'))
-        self.assertContains(response, _('Needs'))
-        self.assertContains(response, 'data-resource-suggestions')
-        self.assertContains(response, 'Gdańsk')
-        self.assertContains(response, 'Kraków')
-        self.assertContains(response, 'Można odebrać w centrum miasta')
-        self.assertNotContains(response, 'Product designer')
-
-    def test_asset_card_orders_description_before_owner_and_location(self):
-        response = self.client.get(reverse('obywatele:assets'), {'q': 'Rower', 'kind': ResourceAssignment.Kind.GIVE})
-        html = response.content.decode()
-        card_start = html.index('<h3 class="tw-font-semibold tw-mb-0">Rower</h3>')
-        card_end = html.index('</article>', card_start)
-        card = html[card_start:card_end]
-        positions = [card.index('Można odebrać w centrum miasta'), card.index('Offer'), card.index('Gdańsk'), card.index(_('Voivodeship'))]
-
-        self.assertEqual(positions, sorted(positions))
-
-    def test_resource_description_links_are_clickable_and_text_is_escaped(self):
-        assignment = ResourceAssignment.objects.get(profile=self.offer_user.uzytkownik, kind=ResourceAssignment.Kind.GIVE)
-        assignment.description = '<script>alert(1)</script> https://example.com'
-        assignment.save(update_fields=['description'])
-
-        response = self.client.get(reverse('obywatele:assets'), {'q': 'Rower', 'kind': ResourceAssignment.Kind.GIVE})
-
-        self.assertContains(response, 'href="https://example.com"')
-        self.assertContains(response, '&lt;script&gt;alert(1)&lt;/script&gt;')
-        self.assertNotContains(response, '<script>alert(1)</script>')
-
-    def test_assets_stepper_counts_all_active_resource_assignments(self):
-        for index, kind in enumerate((ResourceAssignment.Kind.BORROW, ResourceAssignment.Kind.SALE, ResourceAssignment.Kind.GIVE)):
-            ResourceAssignment.objects.create(profile=self.offer_user.uzytkownik, name=f'Additional resource {index}', kind=kind)
-
-        inactive_user = User.objects.create_user(username='inactive-resource-owner', password='secret', is_active=False)
-        ResourceAssignment.objects.create(profile=inactive_user.uzytkownik, name='Inactive resource', kind=ResourceAssignment.Kind.GIVE)
-
-        response = self.client.get(reverse('obywatele:assets'), {'kind': ResourceAssignment.Kind.NEED})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'class="tw-stepper-step-count">5</span>')
-
-    def test_assets_shows_people_when_searching_by_location(self):
-        response = self.client.get(reverse('obywatele:assets'), {'city': 'Kraków'})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual([profile.pk for profile in response.context['location_profiles']], [self.other_user.uzytkownik.pk])
-        self.assertContains(response, 'Other')
-
-    def test_assets_filters_by_kind_and_city(self):
-        response = self.client.get(reverse('obywatele:assets'), {'kind': 'give', 'city': 'Gdańsk'})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['offer_assignments']), 1)
-        self.assertEqual(len(response.context['need_assignments']), 0)
 
 
 class DodajViewTest(TestCase):

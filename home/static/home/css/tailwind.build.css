@@ -11123,6 +11123,14 @@ body.tw-chat-page .tw-main-area {
     width: 8rem;
   }
 
+  .sm\:tw-w-auto {
+    width: auto;
+  }
+
+  .sm\:tw-shrink-0 {
+    flex-shrink: 0;
+  }
+
   .sm\:tw-grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

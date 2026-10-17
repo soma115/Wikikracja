@@ -1,0 +1,53 @@
+{% extends 'bookkeeping/menu.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block bookkeeping %}
+<div class="tw-section tw-max-w-640">
+  <div class="tw-card">
+    <div class="tw-card-header tw-flex tw-items-center tw-justify-between tw-gap-2">
+      <div class="tw-flex tw-items-center tw-gap-2">
+        <i class="fas fa-boxes-stacked tw-text-accent" aria-hidden="true"></i>
+        <h1 class="tw-section-heading tw-mb-0">{% trans 'Resources' %}</h1>
+      </div>
+      <a href="{% url 'bookkeeping:resource_list' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">{% trans 'Search resources' %}</a>
+    </div>
+    <div class="tw-card-body">
+      <section class="tw-border-t tw-border-subtle tw-pt-4 tw-mb-4">
+        <h2 class="tw-section-heading tw-mb-3">{% trans 'Active' %}</h2>
+        <div class="tw-flex tw-flex-col tw-gap-2">
+          {% for listing in active_listings %}
+          {% include 'bookkeeping/_resource_manage_card.html' with listing=listing %}
+          {% empty %}
+          {% include 'home/includes/empty_state.html' with compact=True icon='fa-boxes-stacked' title=_('No records found.') %}
+          {% endfor %}
+        </div>
+      </section>
+      <section class="tw-border-t tw-border-subtle tw-pt-4">
+        <h2 class="tw-section-heading tw-mb-3">{% trans 'Archive' %}</h2>
+        <div class="tw-flex tw-flex-col tw-gap-2 tw-mb-4">
+          {% for listing in closed_listings %}
+          {% include 'bookkeeping/_resource_manage_card.html' with listing=listing %}
+          {% empty %}
+          {% include 'home/includes/empty_state.html' with compact=True icon='fa-archive' title=_('No records found.') %}
+          {% endfor %}
+        </div>
+      </section>
+      <section class="tw-border-t tw-border-subtle tw-pt-4">
+        {% if edit_listing %}<h3 class="tw-section-heading tw-mb-3">{% trans 'Edit' %}: {{ edit_listing.name }}</h3>{% endif %}
+        <form method="post" action="{% if edit_listing %}{% url 'bookkeeping:resource_update' pk=edit_listing.pk %}{% else %}{% url 'bookkeeping:resource_create' %}{% endif %}#resource-form" id="resource-form">
+          {% csrf_token %}
+          {{ resource_form.kind|as_crispy_field }}
+          {{ resource_form.name|as_crispy_field }}
+          {{ resource_form.description|as_crispy_field }}
+          {% if resource_form.non_field_errors %}<div class="tw-alert tw-alert-danger tw-mb-3" role="alert">{{ resource_form.non_field_errors }}</div>{% endif %}
+          <div class="tw-flex tw-gap-2">
+            {% if edit_listing %}<a href="{% url 'bookkeeping:resource_manage' %}" class="tw-btn tw-btn-secondary tw-btn-sm">{% trans 'Cancel' %}</a>{% endif %}
+            <button type="submit" class="tw-btn tw-btn-secondary tw-btn-sm">{% trans 'Save resource' %}</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock bookkeeping %}

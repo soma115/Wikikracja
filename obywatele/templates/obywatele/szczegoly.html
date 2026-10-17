@@ -148,14 +148,9 @@ window.wkOnReady(function() {
 
           <div class="tw-border-t tw-border-subtle tw-pt-4">
             <h3 class="tw-section-heading tw-mb-3">{% trans "Resources" %}</h3>
-            {% for assignment in b.resource_assignments.all %}
-            <div class="tw-border tw-border-subtle tw-rounded-card tw-p-3 tw-mb-3">
-              <div class="tw-font-semibold">{{ assignment.get_kind_display }}: {{ assignment.name }}</div>
-              {% if assignment.description %}<p class="tw-mt-1 tw-mb-0">{{ assignment.description|urlize|linebreaksbr }}</p>{% endif %}
-            </div>
-            {% empty %}
-            <p class="tw-text-muted">—</p>
-            {% endfor %}
+            <a href="{% url 'bookkeeping:resource_list' %}?profile={{ b.pk }}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+              <i class="fas fa-boxes-stacked fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Search resources" %}
+            </a>
           </div>
 
           <div class="tw-border-t tw-border-subtle tw-pt-4">

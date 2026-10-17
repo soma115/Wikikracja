@@ -1,9 +1,9 @@
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-CITIZEN_SETTINGS_PAGE_NAMES = frozenset({'my_profile', 'haslo', 'my_assets', 'change_email', 'change_username', 'upload_avatar', 'set_language', 'toggle_notification', 'request_deletion', 'cancel_deletion'})
+CITIZEN_SETTINGS_PAGE_NAMES = frozenset({'my_profile', 'haslo', 'change_email', 'change_username', 'upload_avatar', 'set_language', 'toggle_notification', 'request_deletion', 'cancel_deletion'})
 
-CITIZEN_SETTINGS_NAV_NAMES = frozenset({'my_profile', 'haslo', 'my_assets', 'change_email', 'change_username'})
+CITIZEN_SETTINGS_NAV_NAMES = frozenset({'my_profile', 'haslo', 'change_email', 'change_username'})
 
 
 def default_toolbar_views():

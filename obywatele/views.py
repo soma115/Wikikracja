@@ -9,13 +9,12 @@ from allauth.account.signals import email_confirmed, user_signed_up
 from django.conf import settings as s
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.messages import error, success
 from django.core.mail import send_mail
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
-from django.db import DatabaseError, IntegrityError, transaction
-from django.db.models import Case, Count, F, IntegerField, Min, Q, Sum, Value, When
+from django.db import DatabaseError, transaction
+from django.db.models import Case, Count, F, IntegerField, Q, Sum, Value, When
 from django.dispatch import receiver
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -26,7 +25,6 @@ from django.utils.translation import check_for_language, override
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods, require_POST
-from django.views.generic import ListView
 
 from chat.i18n import get_translations as get_chat_translations
 from chat.models import Room
@@ -35,8 +33,8 @@ from core.services.notifications import clear_notifications_unsubscribe, unsubsc
 from core.signals import citizen_proposed
 from core.utils import get_user_language
 from home.navigation import default_toolbar_views
-from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, ResourceAssignmentForm, UserForm, UsernameChangeForm
-from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, ResourceAssignment, Uzytkownik
+from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, UserForm, UsernameChangeForm
+from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items, invalidate_user_sessions, publish_deletion_feedback
 from site_settings.params import get_param
 from tasks.activity import get_active_coordinated_tasks_by_user_ids, get_user_tasks
@@ -232,7 +230,6 @@ def obywatele(request: HttpRequest):
     uid = (
         User.objects.filter(is_active=True)
         .select_related('uzytkownik', 'uzytkownik__voivodeship')
-        .prefetch_related('uzytkownik__resource_assignments')
         .annotate(
             username_is_blank=Case(When(Q(username__isnull=True) | Q(username__exact=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
             email_is_blank=Case(When(Q(email__isnull=True) | Q(email__exact=''), then=Value(1)), default=Value(0), output_field=IntegerField()),
@@ -463,7 +460,7 @@ def unsubscribe_notifications(request: HttpRequest, token: str):
 @login_required
 def my_profile(request: HttpRequest):
     user = request.user
-    profile = Uzytkownik.objects.prefetch_related('resource_assignments').get(pk=request.user.uzytkownik.pk)
+    profile = Uzytkownik.objects.get(pk=request.user.uzytkownik.pk)
     edit_profile = request.method == 'POST' or request.GET.get('edit') == 'details'
     profile_form = None
 
@@ -617,131 +614,48 @@ def toggle_notification(request: HttpRequest):
         return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 
-def _my_assets_context(user, profile, resource_form=None, edit_assignment=None):
-    return {
-        'user': user,
-        'profile': profile,
-        'resource_form': resource_form or ResourceAssignmentForm(profile=profile),
-        'resource_assignments': profile.resource_assignments.all(),
-        'edit_assignment': edit_assignment,
-    }
+def _legacy_resource_redirect(request, target, kwargs=None):
+    url = reverse(target, kwargs=kwargs or {})
+    if request.GET:
+        url = f'{url}?{request.GET.urlencode()}'
+    if request.method in ('GET', 'HEAD'):
+        return redirect(url)
+    response = HttpResponse(status=307)
+    response['Location'] = url
+    return response
 
 
 @login_required
 @require_http_methods(['GET'])
 def my_assets(request: HttpRequest):
-    user = request.user
-    profile = request.user.uzytkownik
-    return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile))
+    return _legacy_resource_redirect(request, 'bookkeeping:resource_manage')
 
 
 @login_required
 @require_POST
 def save_resource_assignment(request: HttpRequest):
-    user = request.user
-    profile = user.uzytkownik
-    form = ResourceAssignmentForm(request.POST, profile=profile)
-    if not form.is_valid():
-        return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, form))
-
-    try:
-        ResourceAssignment.objects.create(profile=profile, name=form.cleaned_data['name'], description=form.cleaned_data['description'], kind=form.cleaned_data['kind'])
-    except IntegrityError:
-        form.add_error('kind', _('This item is already assigned with this type.'))
-        return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, form))
-    return redirect('obywatele:my_assets')
+    return _legacy_resource_redirect(request, 'bookkeeping:resource_create')
 
 
 @login_required
 def edit_resource_assignment(request: HttpRequest, pk: int):
-    user = request.user
-    profile = user.uzytkownik
-    assignment = get_object_or_404(ResourceAssignment, pk=pk, profile=profile)
-    initial = {'kind': assignment.kind, 'name': assignment.name, 'description': assignment.description}
-    form = ResourceAssignmentForm(request.POST if request.method == 'POST' else None, initial=initial, profile=profile, assignment=assignment)
-
-    if request.method == 'POST' and form.is_valid():
-        assignment.name = form.cleaned_data['name']
-        assignment.description = form.cleaned_data['description']
-        assignment.kind = form.cleaned_data['kind']
-        try:
-            with transaction.atomic():
-                assignment.save(update_fields=['name', 'description', 'kind', 'updated_at'])
-        except IntegrityError:
-            form.add_error('kind', _('This item is already assigned with this type.'))
-        else:
-            return redirect('obywatele:my_assets')
-
-    return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, form, assignment))
+    return _legacy_resource_redirect(request, 'bookkeeping:resource_update', {'pk': pk})
 
 
 @login_required
 @require_POST
 def delete_resource_assignment(request: HttpRequest, pk: int):
-    assignment = get_object_or_404(ResourceAssignment, pk=pk, profile=request.user.uzytkownik)
-    assignment.delete()
-    return redirect('obywatele:my_assets')
+    return _legacy_resource_redirect(request, 'bookkeeping:resource_delete', {'pk': pk})
 
 
 @login_required
 def search_resource_items(request: HttpRequest):
-    query = (request.GET.get('q') or '').strip()
-    kind = request.GET.get('kind')
-    assignments = ResourceAssignment.objects.filter(profile__uid__is_active=True)
-    if kind in ResourceAssignment.Kind.values:
-        assignments = assignments.filter(kind=kind)
-    if query:
-        assignments = assignments.filter(name__icontains=query)
-    items = assignments.values('name').annotate(id=Min('pk')).order_by('name')[:20]
-    return JsonResponse({'items': [{'id': item['id'], 'name': item['name']} for item in items]})
+    return _legacy_resource_redirect(request, 'bookkeeping:resource_search')
 
 
-class AssetSearchView(LoginRequiredMixin, ListView):
-    model = ResourceAssignment
-    template_name = 'obywatele/assets.html'
-    context_object_name = 'resource_assignments'
-    paginate_by = 24
-
-    def get_queryset(self):
-        queryset = ResourceAssignment.objects.filter(profile__uid__is_active=True).select_related('profile__uid', 'profile__voivodeship')
-        query = (self.request.GET.get('q') or '').strip()
-        kind = self.request.GET.get('kind')
-        city = (self.request.GET.get('city') or '').strip()
-        voivodeship = (self.request.GET.get('voivodeship') or '').strip()
-        if query:
-            queryset = queryset.filter(name__icontains=query)
-        if kind in ResourceAssignment.Kind.values:
-            queryset = queryset.filter(kind=kind)
-        if city:
-            queryset = queryset.filter(profile__city=city)
-        if voivodeship:
-            queryset = queryset.filter(profile__voivodeship__name=voivodeship)
-        return queryset.order_by('kind', 'name', 'profile__uid__last_name', 'profile__uid__first_name')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        assignments = context['resource_assignments']
-        context['offer_assignments'] = [assignment for assignment in assignments if assignment.kind != ResourceAssignment.Kind.NEED]
-        context['need_assignments'] = [assignment for assignment in assignments if assignment.kind == ResourceAssignment.Kind.NEED]
-        active_profiles = Uzytkownik.objects.filter(uid__is_active=True)
-        context['resource_kinds'] = ResourceAssignment.Kind.choices
-        context['cities'] = active_profiles.exclude(city='').exclude(city__isnull=True).values_list('city', flat=True).distinct().order_by('city')
-        context['voivodeships'] = active_profiles.exclude(voivodeship__isnull=True).values_list('voivodeship__name', flat=True).distinct().order_by('voivodeship__name')
-        context['search_values'] = {key: self.request.GET.get(key, '') for key in ('q', 'kind', 'city', 'voivodeship')}
-        query = (self.request.GET.get('q') or '').strip()
-        kind = self.request.GET.get('kind')
-        city = (self.request.GET.get('city') or '').strip()
-        voivodeship = (self.request.GET.get('voivodeship') or '').strip()
-        if (city or voivodeship) and not query and kind not in ResourceAssignment.Kind.values:
-            location_profiles = active_profiles.select_related('uid', 'voivodeship')
-            if city:
-                location_profiles = location_profiles.filter(city=city)
-            if voivodeship:
-                location_profiles = location_profiles.filter(voivodeship__name=voivodeship)
-            context['location_profiles'] = location_profiles.order_by('uid__last_name', 'uid__first_name')
-        else:
-            context['location_profiles'] = []
-        return context
+@login_required
+def legacy_resource_catalog(request: HttpRequest):
+    return _legacy_resource_redirect(request, 'bookkeeping:resource_list')
 
 
 @login_required
@@ -781,7 +695,7 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
     '''
     # zliczaj_obywateli(request)  # run reputation counting because a lot can change in the meanwhile
 
-    candidate_profile = get_object_or_404(Uzytkownik.objects.prefetch_related('resource_assignments'), uid_id=pk)
+    candidate_profile = get_object_or_404(Uzytkownik.objects, uid_id=pk)
     candidate_user = User.objects.get(pk=pk)
     email_confirmed = is_email_confirmed_for_candidate(candidate_user, candidate_profile)
     form_completion_percent = candidate_profile.form_completion_percent

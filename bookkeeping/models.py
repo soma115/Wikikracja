@@ -3,6 +3,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.db import models, transaction
 from django.db.models import Q
+from django.db.models.functions import Lower
 from django.utils.translation import gettext_lazy as _
 
 
@@ -100,6 +101,29 @@ class Partner(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ResourceListing(models.Model):
+    class Kind(models.TextChoices):
+        GIVE = 'give', _('Give away')
+        BORROW = 'borrow', _('Lend')
+        SALE = 'sale', _('For sale')
+        NEED = 'need', _('I need')
+
+    profile = models.ForeignKey('obywatele.Uzytkownik', on_delete=models.CASCADE, related_name='resource_listings', verbose_name=_('Profile'))
+    name = models.CharField(max_length=200, verbose_name=_('Name'))
+    description = models.TextField(max_length=1866, blank=True, default='', verbose_name=_('Description'))
+    kind = models.CharField(max_length=10, choices=Kind.choices, verbose_name=_('Type'))
+    is_closed = models.BooleanField(default=False, verbose_name=_('Archive'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
+
+    class Meta:
+        ordering = ('kind', 'name')
+        constraints = [models.UniqueConstraint(Lower('name'), 'profile', 'kind', name='unique_bookkeeping_resource_listing_name_ci')]
+
+    def __str__(self):
+        return f'{self.profile} - {self.name} ({self.get_kind_display()})'
 
 
 class Transaction(models.Model):

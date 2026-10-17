@@ -17,12 +17,19 @@ from .views import (
     PartnerListView,
     PartnerUpdateView,
     ReportView,
+    ResourceListView,
     TransactionClaimView,
     TransactionCreateView,
     TransactionDeleteView,
     TransactionDetailView,
     TransactionListView,
     TransactionUpdateView,
+    resource_create,
+    resource_delete,
+    resource_manage,
+    resource_search,
+    resource_toggle_closed,
+    resource_update,
 )
 
 app_name = 'bookkeeping'
@@ -56,6 +63,14 @@ urlpatterns = [
     # Report URLs
     path('report/', ReportView.as_view(), name='report_list'),
     path('report/<int:year>/', ReportView.as_view(), name='report_by_year'),
+    # Member offers and needs, kept separate from financial Asset records.
+    path('resource/', ResourceListView.as_view(), name='resource_list'),
+    path('resource/manage/', resource_manage, name='resource_manage'),
+    path('resource/create/', resource_create, name='resource_create'),
+    path('resource/<int:pk>/update/', resource_update, name='resource_update'),
+    path('resource/<int:pk>/delete/', resource_delete, name='resource_delete'),
+    path('resource/<int:pk>/close/', resource_toggle_closed, name='resource_toggle_closed'),
+    path('resource/search/', resource_search, name='resource_search'),
     # Default view
     path('', TransactionListView.as_view(), name='index'),
 ]

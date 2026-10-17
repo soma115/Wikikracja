@@ -240,16 +240,9 @@
   <div class="tw-card">
     <div class="tw-card-header tw-flex tw-items-center tw-justify-between">
       <span class="tw-section-heading">{% trans "Resources" %}</span>
-      <a href="{% url 'obywatele:my_assets' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
-        <i class="fas fa-pen fa-fw tw-me-1"></i>{% trans "Edit" %}
+      <a href="{% url 'bookkeeping:resource_manage' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+        <i class="fas fa-plus fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Add resource" %}
       </a>
-    </div>
-    <div class="tw-card-body">
-      {% for assignment in profile.resource_assignments.all %}
-      <div class="tw-profile-row"><span class="tw-profile-key">{{ assignment.get_kind_display }}</span><span class="tw-profile-val"><strong>{{ assignment.name }}</strong>{% if assignment.description %}<br>{{ assignment.description|urlize|linebreaksbr }}{% endif %}</span></div>
-      {% empty %}
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Resources" %}</span><span class="tw-profile-val tw-profile-val--empty">—</span></div>
-      {% endfor %}
     </div>
   </div>
 

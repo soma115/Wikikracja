@@ -24,6 +24,14 @@ Przyjęte decyzje:
 - Fizyczne aktywo: nowe dane w `bookkeeping`, niezależne od modelu `Asset`. Wymagane: kraj i miasto. Opcjonalne: ulica, numer domu i numer mieszkania.
 - Brak miasta lub kraju oznacza brak punktu. Nie zgadujemy kraju z nazwy miasta ani numeru telefonu. Opcjonalny region musi być zgodny z wybranym krajem; nie jest źródłem zastępczym dla kraju.
 
+## Powiazanie z planem zasobow
+
+- Mapa pokazuje lokalizacje obywateli, partnerow i fizycznych aktywow. Wpisy ofert i potrzeb `bookkeeping.ResourceListing` z `docs/ongoing/PLAN_ZASOBY_UŻYTKOWNIKÓW.md` nie sa markerami mapy.
+- Fizyczne aktywa pozostaja odrebnym zrodlem w `bookkeeping`; nie utozsamiac ich ani z finansowym `Asset`, ani z wpisami `ResourceListing`.
+- Pola kraju i szczegolowego adresu obywatela sa czescia wspolnego profilu. Rozszerzyc istniejacy `ProfileForm` w ustawieniach oraz formularz onboardingu, zamiast tworzyc kolejny formularz danych kontaktowych.
+- Szczegolowy adres moze byc uzyty i pokazany na mapie wylacznie zgodnie z regulami dostepu tej mapy. Katalog zasobow nadal filtruje po miejscowosci i wojewodztwie i nie wyswietla adresu szczegolowego ani telefonu.
+- Lokalizacja profilu na mapie nie oznacza zasiegu oferty. Wyszukiwanie zasobow po zasiegu lub promieniu pozostaje poza zakresem tego planu i wymaga osobnej decyzji.
+
 ## Etap 1 — widoczność i dostawca mapy
 
 - [x] Używać miasta i kraju jako lokalizacji orientacyjnej, a szczegółowego adresu jako dokładniejszej lokalizacji, jeśli został podany i potwierdzony przez geokoder. Nie używać GPS.

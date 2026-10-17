@@ -4,6 +4,8 @@ from django import template
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from bookkeeping.models import ResourceListing
+
 register = template.Library()
 
 
@@ -21,7 +23,7 @@ def bookkeeping_active_tab(context):
     url_name = request.resolver_match.url_name or ''
     if url_name == 'index':
         return 'transactions'
-    for prefix, tab in (('transaction', 'transactions'), ('partner', 'partners'), ('category', 'categories'), ('asset', 'assets'), ('report', 'reports')):
+    for prefix, tab in (('transaction', 'transactions'), ('partner', 'partners'), ('category', 'categories'), ('asset', 'assets'), ('resource', 'resources'), ('report', 'reports')):
         if url_name.startswith(prefix):
             return tab
     return ''
@@ -58,7 +60,7 @@ def bookkeeping_stepper(context):
         active = 'transaction_list'
 
     tab = ''
-    for prefix, name in (('transaction', 'transactions'), ('partner', 'partners'), ('category', 'categories'), ('asset', 'assets'), ('report', 'reports')):
+    for prefix, name in (('transaction', 'transactions'), ('partner', 'partners'), ('category', 'categories'), ('asset', 'assets'), ('resource', 'resources'), ('report', 'reports')):
         if active.startswith(prefix):
             tab = name
             break
@@ -68,6 +70,13 @@ def bookkeeping_stepper(context):
         {'url': reverse('bookkeeping:partner_list'), 'icon': 'handshake', 'label': _('Partners'), 'active': tab == 'partners'},
         {'url': reverse('bookkeeping:category_list'), 'icon': 'tags', 'label': _('Categories'), 'active': tab == 'categories'},
         {'url': reverse('bookkeeping:asset_list'), 'icon': 'coins', 'label': _('Assets'), 'active': tab == 'assets'},
+        {
+            'url': reverse('bookkeeping:resource_list'),
+            'icon': 'boxes-stacked',
+            'label': _('Resources'),
+            'count': ResourceListing.objects.filter(profile__uid__is_active=True, is_closed=False).count(),
+            'active': tab == 'resources',
+        },
         {'url': reverse('bookkeeping:report_list'), 'icon': 'chart-pie', 'label': _('Reports'), 'active': tab == 'reports'},
     ]
 

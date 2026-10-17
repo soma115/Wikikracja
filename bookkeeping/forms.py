@@ -5,7 +5,7 @@ from crispy_forms.layout import Submit
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from .models import Asset, Category, Partner, Transaction
+from .models import Asset, Category, Partner, ResourceListing, Transaction
 
 
 class AssetForm(forms.ModelForm):
@@ -20,6 +20,35 @@ class AssetForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('submit', _('Save')))
+
+
+class ResourceListingForm(forms.Form):
+    kind = forms.ChoiceField(choices=(('', _('Select type')), *ResourceListing.Kind.choices), label=_('Type'))
+    name = forms.CharField(max_length=200, label=_('Name'))
+    description = forms.CharField(max_length=1866, required=False, label=_('Description'), widget=forms.Textarea(attrs={'rows': 3}))
+
+    def __init__(self, *args, profile=None, listing=None, **kwargs):
+        self.profile = profile
+        self.listing = listing
+        super().__init__(*args, **kwargs)
+
+    def clean_kind(self):
+        value = self.cleaned_data.get('kind')
+        if not value:
+            raise forms.ValidationError(_('Select a type.'))
+        return value
+
+    def clean_name(self):
+        value = ' '.join((self.cleaned_data.get('name') or '').split())
+        if not value:
+            raise forms.ValidationError(_('Enter a name.'))
+        if self.profile:
+            listings = ResourceListing.objects.filter(profile=self.profile, name__iexact=value, kind=self.cleaned_data.get('kind'))
+            if self.listing:
+                listings = listings.exclude(pk=self.listing.pk)
+            if listings.exists():
+                raise forms.ValidationError(_('This item is already assigned with this type.'))
+        return value
 
 
 class TransactionForm(forms.ModelForm):

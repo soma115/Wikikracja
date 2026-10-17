@@ -2,23 +2,27 @@ import json
 from urllib.parse import quote_plus
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db import IntegrityError, connection
 from django.db import transaction as db_transaction
-from django.db.models import Q
-from django.http import HttpResponseForbidden
+from django.db.models import Count, Min, Q
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
 
 from core.signals import transaction_created, transaction_updated
 from core.utils import build_detail_navigation, build_site_url
 from home.navigation import default_toolbar_views
+from obywatele.models import Uzytkownik
 
-from .forms import AssetForm, TransactionForm
-from .models import Asset, Category, Partner, Transaction
+from .forms import AssetForm, ResourceListingForm, TransactionForm
+from .models import Asset, Category, Partner, ResourceListing, Transaction
 from .services import category_breakdown
 
 
@@ -159,6 +163,159 @@ class AssetDeleteView(ProtectedDeleteView):
     success_url = reverse_lazy('bookkeeping:asset_list')
     protect_field = 'asset'
     protect_message = _("Cannot delete asset because it is in use. Remove all transactions that use it first.")
+
+
+# #########################  Resource listings ###########################
+
+
+class ResourceListView(BookkeepingListView):
+    model = ResourceListing
+    template_name = 'bookkeeping/resource_list.html'
+    context_object_name = 'resource_listings'
+    paginate_by = 24
+    create_url_name = 'bookkeeping:resource_manage'
+    create_label = _('Add resource')
+
+    def get_queryset(self):
+        queryset = ResourceListing.objects.filter(profile__uid__is_active=True, is_closed=False).select_related('profile__uid', 'profile__voivodeship')
+        query = (self.request.GET.get('q') or '').strip()
+        kind = self.request.GET.get('kind')
+        city = (self.request.GET.get('city') or '').strip()
+        voivodeship = (self.request.GET.get('voivodeship') or '').strip()
+        profile_id = (self.request.GET.get('profile') or '').strip()
+
+        if query:
+            queryset = queryset.filter(name__icontains=query)
+        if kind in ResourceListing.Kind.values:
+            queryset = queryset.filter(kind=kind)
+        if city:
+            queryset = queryset.filter(profile__city=city)
+        if voivodeship:
+            queryset = queryset.filter(profile__voivodeship__name=voivodeship)
+        if profile_id:
+            try:
+                profile_pk = int(profile_id) if profile_id.isascii() and profile_id.isdecimal() else 0
+            except ValueError:
+                profile_pk = 0
+            max_pk = connection.ops.integer_field_range(Uzytkownik._meta.pk.get_internal_type())[1]
+            queryset = queryset.filter(profile_id=profile_pk) if 0 < profile_pk <= max_pk else queryset.none()
+        return queryset.order_by('kind', 'name', 'profile__uid__last_name', 'profile__uid__first_name')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        listings = context['resource_listings']
+        totals = self.object_list.aggregate(total=Count('pk'), needs=Count('pk', filter=Q(kind=ResourceListing.Kind.NEED)))
+        active_profiles = Uzytkownik.objects.filter(uid__is_active=True)
+        context['offer_listings'] = [listing for listing in listings if listing.kind != ResourceListing.Kind.NEED]
+        context['need_listings'] = [listing for listing in listings if listing.kind == ResourceListing.Kind.NEED]
+        context['offer_count'] = totals['total'] - totals['needs']
+        context['need_count'] = totals['needs']
+        context['resource_kinds'] = ResourceListing.Kind.choices
+        context['cities'] = active_profiles.exclude(city='').exclude(city__isnull=True).values_list('city', flat=True).distinct().order_by('city')
+        context['voivodeships'] = active_profiles.exclude(voivodeship__isnull=True).values_list('voivodeship__name', flat=True).distinct().order_by('voivodeship__name')
+        context['search_values'] = {key: self.request.GET.get(key, '') for key in ('q', 'kind', 'city', 'voivodeship', 'profile')}
+
+        query = (self.request.GET.get('q') or '').strip()
+        kind = self.request.GET.get('kind')
+        city = (self.request.GET.get('city') or '').strip()
+        voivodeship = (self.request.GET.get('voivodeship') or '').strip()
+        if (city or voivodeship) and not query and kind not in ResourceListing.Kind.values and not self.request.GET.get('profile'):
+            location_profiles = active_profiles.select_related('uid', 'voivodeship')
+            if city:
+                location_profiles = location_profiles.filter(city=city)
+            if voivodeship:
+                location_profiles = location_profiles.filter(voivodeship__name=voivodeship)
+            context['location_profiles'] = location_profiles.order_by('uid__last_name', 'uid__first_name')
+        else:
+            context['location_profiles'] = []
+        return context
+
+
+def _resource_manage_context(profile, resource_form=None, edit_listing=None):
+    listings = ResourceListing.objects.filter(profile=profile).order_by('kind', 'name')
+    return {
+        'resource_form': resource_form if resource_form is not None else ResourceListingForm(profile=profile),
+        'active_listings': listings.filter(is_closed=False),
+        'closed_listings': listings.filter(is_closed=True),
+        'edit_listing': edit_listing,
+    }
+
+
+@login_required
+def resource_manage(request):
+    profile = request.user.uzytkownik
+    return render(request, 'bookkeeping/resource_manage.html', _resource_manage_context(profile))
+
+
+@login_required
+@require_POST
+def resource_create(request):
+    profile = request.user.uzytkownik
+    form = ResourceListingForm(request.POST, profile=profile)
+    if not form.is_valid():
+        return render(request, 'bookkeeping/resource_manage.html', _resource_manage_context(profile, form))
+
+    try:
+        ResourceListing.objects.create(profile=profile, name=form.cleaned_data['name'], description=form.cleaned_data['description'], kind=form.cleaned_data['kind'])
+    except IntegrityError:
+        form.add_error('kind', _('This item is already assigned with this type.'))
+        return render(request, 'bookkeeping/resource_manage.html', _resource_manage_context(profile, form))
+    return redirect('bookkeeping:resource_manage')
+
+
+@login_required
+def resource_update(request, pk):
+    profile = request.user.uzytkownik
+    listing = get_object_or_404(ResourceListing, pk=pk, profile=profile)
+    initial = {'kind': listing.kind, 'name': listing.name, 'description': listing.description}
+    form = ResourceListingForm(request.POST if request.method == 'POST' else None, initial=initial, profile=profile, listing=listing)
+
+    if request.method == 'POST' and form.is_valid():
+        listing.name = form.cleaned_data['name']
+        listing.description = form.cleaned_data['description']
+        listing.kind = form.cleaned_data['kind']
+        try:
+            with db_transaction.atomic():
+                listing.save(update_fields=['name', 'description', 'kind', 'updated_at'])
+        except IntegrityError:
+            form.add_error('kind', _('This item is already assigned with this type.'))
+        else:
+            return redirect('bookkeeping:resource_manage')
+
+    return render(request, 'bookkeeping/resource_manage.html', _resource_manage_context(profile, form, listing))
+
+
+@login_required
+@require_POST
+def resource_delete(request, pk):
+    listing = get_object_or_404(ResourceListing, pk=pk, profile=request.user.uzytkownik)
+    listing.delete()
+    return redirect('bookkeeping:resource_manage')
+
+
+@login_required
+@require_POST
+def resource_toggle_closed(request, pk):
+    listing = get_object_or_404(ResourceListing, pk=pk, profile=request.user.uzytkownik)
+    closed_value = request.POST.get('closed')
+    if closed_value not in ('0', '1'):
+        return HttpResponseBadRequest()
+    listing.is_closed = closed_value == '1'
+    listing.save(update_fields=['is_closed', 'updated_at'])
+    return redirect('bookkeeping:resource_manage')
+
+
+@login_required
+def resource_search(request):
+    query = (request.GET.get('q') or '').strip()
+    kind = request.GET.get('kind')
+    listings = ResourceListing.objects.filter(profile__uid__is_active=True, is_closed=False)
+    if kind in ResourceListing.Kind.values:
+        listings = listings.filter(kind=kind)
+    if query:
+        listings = listings.filter(name__icontains=query)
+    items = listings.values('name').annotate(id=Min('pk')).order_by('name')[:20]
+    return JsonResponse({'items': [{'id': item['id'], 'name': item['name']} for item in items]})
 
 
 # #########################  Category ###########################

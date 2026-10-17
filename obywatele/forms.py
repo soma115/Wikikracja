@@ -17,7 +17,7 @@ from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 
 from core.signals import citizen_proposed
-from obywatele.models import Region, ResourceAssignment, Uzytkownik
+from obywatele.models import Region, Uzytkownik
 
 log = logging.getLogger(__name__)
 
@@ -258,35 +258,6 @@ class ProfileForm(forms.ModelForm):
             cleaned_data['business_website'] = ''
             cleaned_data['business_description'] = ''
         return cleaned_data
-
-
-class ResourceAssignmentForm(forms.Form):
-    kind = forms.ChoiceField(choices=(('', _('Select type')), *ResourceAssignment.Kind.choices), label=_('Type'))
-    name = forms.CharField(max_length=200, label=_('Name'))
-    description = forms.CharField(max_length=1866, required=False, label=_('Description'), widget=forms.Textarea(attrs={'rows': 3}))
-
-    def __init__(self, *args, profile=None, assignment=None, **kwargs):
-        self.profile = profile
-        self.assignment = assignment
-        super().__init__(*args, **kwargs)
-
-    def clean_kind(self):
-        value = self.cleaned_data.get('kind')
-        if not value:
-            raise forms.ValidationError(_('Select a type.'))
-        return value
-
-    def clean_name(self):
-        value = ' '.join((self.cleaned_data.get('name') or '').split())
-        if not value:
-            raise forms.ValidationError(_('Enter a name.'))
-        if self.profile:
-            assignments = ResourceAssignment.objects.filter(profile=self.profile, name__iexact=value, kind=self.cleaned_data.get('kind'))
-            if self.assignment:
-                assignments = assignments.exclude(pk=self.assignment.pk)
-            if assignments.exists():
-                raise forms.ValidationError(_('This item is already assigned with this type.'))
-        return value
 
 
 class AvatarForm(forms.ModelForm):

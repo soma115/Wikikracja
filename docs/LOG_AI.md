@@ -1,5 +1,36 @@
 # LOG_AI
 
+## 2026-10-17: Poprawki po przeglądzie katalogu zasobów
+
+- **Zmienione obszary:** filtrowanie i paginacja katalogu `bookkeeping`, karta zarządzania, testy widoków, plan zasobów oraz wygenerowany CSS.
+- **Co się zmieniło:** Filtr `profile` odrzuca niepoprawne i przekraczające zakres identyfikatory zamiast kończyć żądanie błędem 500. Liczniki ofert i potrzeb dotyczą całego filtrowanego zbioru, a na stronach bez danego rodzaju wpisu nie pojawia się fałszywy komunikat o braku wyników. Akcje wpisu zawijają się i przechodzą pod opisem na małym ekranie; puste sekcje używają neutralnego tekstu o braku wpisów.
+- **Decyzja produktowa:** Sam filtr miejscowości nadal pokazuje także osoby bez żadnej oferty lub potrzeby, w oddzielnej sekcji. Zachowanie jest potwierdzone testem i opisane w planie.
+- **Weryfikacja:** 15 testów `ResourceListingViewTests`, Ruff check/format, build CSS, regression scan, UI guard i `git diff --check` przeszły. Nie uruchamiano ponownie pełnego runnera; ostatnio zatrzymał się na niezwiązanym teście `board`, więc Playwright pozostaje niesprawdzony.
+- **Spodziewany efekt:** Katalog nie kończy się błędem na błędnym filtrze, poprawnie opisuje wielostronicowe wyniki i jest czytelniejszy na telefonach bez zmiany widoczności osób filtrowanych po mieście.
+
+## 2026-10-17: Ręczne zamykanie wpisów zasobów
+
+- **Zmienione obszary:** model i migracja `bookkeeping.ResourceListing`, widoki oraz formularz zarządzania, testy i plan zasobów.
+- **Co się zmieniło:** Dodano `is_closed`, domyślnie `False`; właściciel może zamknąć lub przywrócić wpis. Katalog pokazuje tylko aktywne wpisy, a strona zarządzania rozdziela aktywne i zamknięte. Zamknięcie nie usuwa danych i nie wygasa automatycznie.
+- **Bezpieczeństwo i dane:** Tylko właściciel może zamykać, przywracać, edytować i usuwać wpis. Migracja `bookkeeping.0036` zachowuje dotychczasowe wpisy jako aktywne.
+- **Weryfikacja:** 35 testów dotkniętych widoków, migracji, dashboardu i profilu przeszło. CSS build, regression scan, UI guard, Ruff, Django check, kompilacja tłumaczeń i collectstatic przeszły. Pełny pytest: 1356 testów przeszło, jeden niezwiązany test `tests/test_board.py::test_system_post_visible_to_authenticated_users_regardless_of_author_or_private_flag` zawiódł (302 zamiast 404). Playwright nie został uruchomiony, bo runner zatrzymał się na tym błędzie; `E2E_BASE_URL` nie jest skonfigurowany.
+- **Spodziewany efekt:** Właściciel może wycofać nieaktualną ofertę z katalogu bez kasowania jej i przywrócić ją później.
+
+## 2026-10-17: Przeniesienie ofert i potrzeb użytkowników do bookkeeping
+
+- **Zmienione obszary:** modele i migracje `bookkeeping`/`obywatele`, katalog oraz formularz zasobów, ustawienia profilu, lista i szczegóły obywateli, nawigacja, dashboard, testy, wyjątki bezpieczeństwa i plany funkcji.
+- **Co się zmieniło:** `ResourceListing` w `bookkeeping` przechowuje cztery dotychczasowe typy wpisów wraz z nazwą, opisem, właścicielem i znacznikami czasu. Migracja kopiuje rekordy z `obywatele.ResourceAssignment`, zachowując identyfikatory i dane, a następnie usuwa stary model. Stare adresy przekierowują do nowych widoków. Własne wpisy nadal może edytować i usuwać wyłącznie ich właściciel.
+- **UI i granice domen:** katalog i formularz są w Finanse; profil osobisty zawiera tylko odnośnik do zarządzania wpisami. Listy i szczegóły obywateli również pokazują odnośnik, a nie treść wpisów. `ResourceListing` pozostaje oddzielony od finansowego `Asset`, transakcji i fizycznych markerów mapy; aktualizowano spójnie `PLAN_ZASOBY_UŻYTKOWNIKÓW.md` i `PLAN_MAPA.md`.
+- **Testy:** 33 testy widoków, formularzy, dashboardu i migracji przeszły. Build CSS, regression scan, UI guard, Ruff, Django check, kompilacja tłumaczeń, collectstatic i 315 testów Jest przeszły. Pełny pytest: 1354 testy przeszły, jeden niezwiązany test `tests/test_board.py::test_system_post_visible_to_authenticated_users_regardless_of_author_or_private_flag` zawiódł (anonimowe żądanie otrzymało 302 zamiast 404). Runner zakończył się na pytest, więc Playwright nie został uruchomiony; `E2E_BASE_URL` nie jest skonfigurowany.
+- **Spodziewany efekt:** użytkownicy dodają i przeglądają oferty oraz potrzeby w bookkeeping, a profil nie duplikuje ich treści. Dotychczasowe wpisy są zachowane w nowym modelu bez zmiany właściciela ani uprawnień.
+
+## 2026-10-17: Synchronizacja planów mapy i zasobów
+
+- **Zmienione pliki:** `docs/ongoing/PLAN_MAPA.md` oraz `docs/ongoing/PLAN_ZASOBY_UŻYTKOWNIKÓW.md`.
+- **Co się zmieniło:** Plany wskazują teraz wspólny `ProfileForm` jako miejsce przyszłych pól lokalizacji profilu. Mapa obsługuje kraj, szczegółowy adres i geokodowanie; katalog zasobów pozostaje przy filtrach miejscowości i województwa i nie ujawnia dokładnego adresu ani telefonu.
+- **Granice zakresu:** Wpisy ofert i potrzeb `ResourceAssignment` nie są markerami mapy. Fizyczne aktywa mapy pozostają odrębnymi rekordami `bookkeeping`, niezależnymi od finansowego `Asset` i zasobów użytkowników. Lokalizacja profilu na mapie nie stanowi zasięgu oferty.
+- **Spodziewany efekt:** Realizacja obu planów nie dubluje formularzy ani źródeł danych i zachowuje rozdział zasad widoczności mapy oraz katalogu zasobów.
+
 ## 2026-10-17: Oddzielenie edycji profilu od zarządzania zasobami
 
 - **Zmienione obszary:** widoki i szablony `obywatele`, testy widoków oraz plan zasobów.

@@ -13,13 +13,13 @@ from django.contrib.messages import SUCCESS, get_messages
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from bookkeeping.models import Asset, Category, Partner, Transaction
+from bookkeeping.models import Asset, Category, Partner, ResourceListing, Transaction
 from bookkeeping.views import AssetDeleteView
 
 User = get_user_model()
 
-LIST_URL_NAMES = ('bookkeeping:transaction_list', 'bookkeeping:partner_list', 'bookkeeping:category_list', 'bookkeeping:asset_list', 'bookkeeping:report_list')
-CTA_LIST_URL_NAMES = ('bookkeeping:transaction_list', 'bookkeeping:partner_list', 'bookkeeping:category_list', 'bookkeeping:asset_list')
+LIST_URL_NAMES = ('bookkeeping:transaction_list', 'bookkeeping:partner_list', 'bookkeeping:category_list', 'bookkeeping:asset_list', 'bookkeeping:resource_list', 'bookkeeping:report_list')
+CTA_LIST_URL_NAMES = ('bookkeeping:transaction_list', 'bookkeeping:partner_list', 'bookkeeping:category_list', 'bookkeeping:asset_list', 'bookkeeping:resource_list')
 
 
 class BookkeepingViewTests(TestCase):
@@ -298,3 +298,185 @@ class BookkeepingViewTests(TestCase):
         )
         self.assertEqual(res.status_code, 302)
         self.assertNotEqual(res.url, 'https://evil.example/')
+
+
+class ResourceListingViewTests(TestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(username='resource-owner', password='secret', is_active=True)
+        self.other_user = User.objects.create_user(username='resource-other', password='secret', is_active=True)
+        self.viewer = User.objects.create_user(username='resource-viewer', password='secret', is_active=True)
+        self.owner.uzytkownik.city = 'Gdansk'
+        self.owner.uzytkownik.save(update_fields=['city'])
+        self.client.force_login(self.owner)
+        self.list_url = reverse('bookkeeping:resource_list')
+        self.manage_url = reverse('bookkeeping:resource_manage')
+
+    def test_views_require_login(self):
+        client = Client()
+
+        for url in (self.list_url, self.manage_url, reverse('bookkeeping:resource_search')):
+            with self.subTest(url=url):
+                self.assertEqual(client.get(url).status_code, 302)
+
+        self.assertEqual(client.post(reverse('bookkeeping:resource_create'), {}).status_code, 302)
+
+    def test_create_and_edit_preserve_listing_owner(self):
+        response = self.client.post(reverse('bookkeeping:resource_create'), {'kind': 'give', 'name': 'Rower', 'description': 'Do oddania'})
+
+        self.assertRedirects(response, self.manage_url)
+        listing = ResourceListing.objects.get(name='Rower')
+        self.assertEqual(listing.profile, self.owner.uzytkownik)
+
+        other_listing = ResourceListing.objects.create(profile=self.other_user.uzytkownik, name='Rower', kind=ResourceListing.Kind.GIVE)
+        response = self.client.post(reverse('bookkeeping:resource_update', args=[listing.pk]), {'kind': 'sale', 'name': 'Rower miejski', 'description': 'Sprawny'})
+
+        self.assertRedirects(response, self.manage_url)
+        listing.refresh_from_db()
+        other_listing.refresh_from_db()
+        self.assertEqual((listing.profile, listing.kind, listing.name, listing.description), (self.owner.uzytkownik, ResourceListing.Kind.SALE, 'Rower miejski', 'Sprawny'))
+        self.assertEqual((other_listing.profile, other_listing.kind, other_listing.name), (self.other_user.uzytkownik, ResourceListing.Kind.GIVE, 'Rower'))
+
+    def test_listing_names_remain_unique_per_owner_and_kind(self):
+        listing = ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', kind=ResourceListing.Kind.GIVE)
+        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Wiertarka', kind=ResourceListing.Kind.GIVE)
+        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', kind=ResourceListing.Kind.SALE)
+
+        response = self.client.post(reverse('bookkeeping:resource_update', args=[listing.pk]), {'kind': 'give', 'name': ' WIERTARKA ', 'description': ''})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('name', response.context['resource_form'].errors)
+        listing.refresh_from_db()
+        self.assertEqual(listing.name, 'Rower')
+
+    def test_only_owner_can_edit_or_delete_listing(self):
+        listing = ResourceListing.objects.create(profile=self.other_user.uzytkownik, name='Wiertarka', kind=ResourceListing.Kind.BORROW)
+
+        self.assertEqual(self.client.get(reverse('bookkeeping:resource_update', args=[listing.pk])).status_code, 404)
+        self.assertEqual(self.client.post(reverse('bookkeeping:resource_delete', args=[listing.pk])).status_code, 404)
+        self.assertTrue(ResourceListing.objects.filter(pk=listing.pk).exists())
+
+    def test_owner_can_delete_listing(self):
+        listing = ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Wiertarka', kind=ResourceListing.Kind.BORROW)
+
+        response = self.client.post(reverse('bookkeeping:resource_delete', args=[listing.pk]))
+
+        self.assertRedirects(response, self.manage_url)
+        self.assertFalse(ResourceListing.objects.filter(pk=listing.pk).exists())
+
+    def test_owner_can_close_and_restore_listing(self):
+        listing = ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', kind=ResourceListing.Kind.GIVE)
+        toggle_url = reverse('bookkeeping:resource_toggle_closed', args=[listing.pk])
+
+        response = self.client.post(toggle_url, {'closed': '1'})
+
+        self.assertRedirects(response, self.manage_url)
+        listing.refresh_from_db()
+        self.assertTrue(listing.is_closed)
+        response = self.client.get(self.list_url, {'q': 'Rower'})
+        self.assertFalse(response.context['resource_listings'])
+        response = self.client.get(self.manage_url)
+        self.assertEqual([item.pk for item in response.context['closed_listings']], [listing.pk])
+
+        response = self.client.post(toggle_url, {'closed': '0'})
+
+        self.assertRedirects(response, self.manage_url)
+        listing.refresh_from_db()
+        self.assertFalse(listing.is_closed)
+
+    def test_only_owner_can_close_listing(self):
+        listing = ResourceListing.objects.create(profile=self.other_user.uzytkownik, name='Rower', kind=ResourceListing.Kind.GIVE)
+
+        response = self.client.post(reverse('bookkeeping:resource_toggle_closed', args=[listing.pk]), {'closed': '1'})
+
+        self.assertEqual(response.status_code, 404)
+        listing.refresh_from_db()
+        self.assertFalse(listing.is_closed)
+
+    def test_resource_catalog_filters_and_splits_offers_and_needs(self):
+        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', description='Do odebrania', kind=ResourceListing.Kind.GIVE)
+        ResourceListing.objects.create(profile=self.other_user.uzytkownik, name='Rower', description='Szukam roweru', kind=ResourceListing.Kind.NEED)
+        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Wiertarka', kind=ResourceListing.Kind.BORROW)
+        self.client.force_login(self.viewer)
+
+        response = self.client.get(self.list_url, {'q': 'Rower'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['offer_listings']), 1)
+        self.assertEqual(len(response.context['need_listings']), 1)
+        self.assertContains(response, 'Do odebrania')
+        self.assertContains(response, 'Szukam roweru')
+        self.assertContains(response, 'data-resource-search-url')
+        self.assertNotContains(response, 'Wiertarka')
+
+        response = self.client.get(self.list_url, {'kind': 'give', 'city': 'Gdansk'})
+        self.assertEqual(len(response.context['offer_listings']), 1)
+        self.assertEqual(len(response.context['need_listings']), 0)
+
+    def test_profile_link_can_filter_resource_catalog_to_that_owner(self):
+        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', kind=ResourceListing.Kind.GIVE)
+        ResourceListing.objects.create(profile=self.other_user.uzytkownik, name='Wiertarka', kind=ResourceListing.Kind.GIVE)
+
+        response = self.client.get(self.list_url, {'profile': self.owner.uzytkownik.pk})
+
+        self.assertEqual([item.name for item in response.context['resource_listings']], ['Rower'])
+        self.assertContains(response, f'name="profile" value="{self.owner.uzytkownik.pk}"')
+
+    def test_invalid_profile_filters_return_empty_results_without_error(self):
+        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', kind=ResourceListing.Kind.GIVE)
+
+        for profile_id in (chr(178), '9' * 20, '9' * 5000):
+            with self.subTest(profile_id=profile_id[:20]):
+                response = self.client.get(self.list_url, {'profile': profile_id})
+                self.assertEqual(response.status_code, 200)
+                self.assertFalse(response.context['resource_listings'])
+
+    def test_pagination_does_not_report_items_on_other_pages_as_missing(self):
+        for index in range(24):
+            ResourceListing.objects.create(profile=self.owner.uzytkownik, name=f'Offer {index:02d}', kind=ResourceListing.Kind.BORROW)
+        ResourceListing.objects.create(profile=self.other_user.uzytkownik, name='Need one', kind=ResourceListing.Kind.NEED)
+
+        first_page = self.client.get(self.list_url)
+        self.assertEqual((first_page.context['offer_count'], first_page.context['need_count']), (24, 1))
+        self.assertNotContains(first_page, 'class="tw-alert tw-alert-info md:tw-col-span-2 lg:tw-col-span-3"')
+
+        second_page = self.client.get(self.list_url, {'page': 2})
+        self.assertEqual((second_page.context['offer_count'], second_page.context['need_count']), (24, 1))
+        self.assertNotContains(second_page, 'class="tw-alert tw-alert-info md:tw-col-span-2 lg:tw-col-span-3"')
+        self.assertContains(second_page, 'Need one')
+
+    def test_city_only_filter_includes_people_without_any_listings(self):
+        self.other_user.uzytkownik.city = 'Krakow'
+        self.other_user.uzytkownik.save(update_fields=['city'])
+
+        response = self.client.get(self.list_url, {'city': 'Krakow'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual([profile.pk for profile in response.context['location_profiles']], [self.other_user.uzytkownik.pk])
+        self.assertFalse(response.context['resource_listings'])
+
+    def test_bookkeeping_stepper_counts_listings_of_active_profiles(self):
+        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', kind=ResourceListing.Kind.GIVE)
+        ResourceListing.objects.create(profile=self.other_user.uzytkownik, name='Wiertarka', kind=ResourceListing.Kind.BORROW)
+        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Closed listing', kind=ResourceListing.Kind.GIVE, is_closed=True)
+        inactive_user = User.objects.create_user(username='resource-inactive', password='secret', is_active=False)
+        ResourceListing.objects.create(profile=inactive_user.uzytkownik, name='Inactive listing', kind=ResourceListing.Kind.GIVE)
+
+        response = self.client.get(self.list_url)
+
+        self.assertContains(response, 'class="tw-stepper-step-count">2</span>')
+
+    def test_resource_search_respects_selected_kind(self):
+        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Wiertarka', kind=ResourceListing.Kind.GIVE)
+
+        response = self.client.get(reverse('bookkeeping:resource_search'), {'q': 'Wiert', 'kind': 'need'})
+
+        self.assertEqual(response.json()['items'], [])
+
+    def test_resource_descriptions_are_escaped_and_urls_clickable(self):
+        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', description='<script>alert(1)</script> https://example.com', kind=ResourceListing.Kind.GIVE)
+
+        response = self.client.get(self.list_url, {'q': 'Rower'})
+
+        self.assertContains(response, 'href="https://example.com"')
+        self.assertContains(response, '&lt;script&gt;alert(1)&lt;/script&gt;')
+        self.assertNotContains(response, '<script>alert(1)</script>')

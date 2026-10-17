@@ -1,0 +1,36 @@
+{% load i18n %}
+<form method="get" class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-2" data-resource-section data-resource-search-url="{% url 'bookkeeping:resource_search' %}" data-resource-kind-required="false">
+  {% if search_values.profile %}<input type="hidden" name="profile" value="{{ search_values.profile }}">{% endif %}
+  <div>
+    <label class="tw-form-label" for="resource-kind">{% trans "Type" %}</label>
+    <select id="resource-kind" name="kind" class="tw-form-select">
+      <option value="">{% trans "All types" %}</option>
+      {% for value, label in resource_kinds %}
+      <option value="{{ value }}"{% if search_values.kind == value %} selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="tw-dropdown">
+    <label class="tw-form-label" for="resource-search">{% trans "Resource" %}</label>
+    <input id="resource-search" name="q" type="search" value="{{ search_values.q }}" class="tw-form-control" data-resource-name="true" placeholder="{% trans 'What are you looking for?' %}" autocomplete="off">
+    <div class="tw-dropdown-menu tw-w-full" data-resource-suggestions></div>
+  </div>
+  <div>
+    <label class="tw-form-label" for="resource-city">{% trans "City / Commune" %}</label>
+    <select id="resource-city" name="city" class="tw-form-select">
+      <option value="">{% trans "All cities" %}</option>
+      {% for city in cities %}<option value="{{ city }}"{% if search_values.city == city %} selected{% endif %}>{{ city }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="tw-form-label" for="resource-voivodeship">{% trans "Voivodeship" %}</label>
+    <select id="resource-voivodeship" name="voivodeship" class="tw-form-select">
+      <option value="">{% trans "All voivodeships" %}</option>
+      {% for voivodeship in voivodeships %}<option value="{{ voivodeship }}"{% if search_values.voivodeship == voivodeship %} selected{% endif %}>{{ voivodeship }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="tw-flex tw-items-end tw-gap-2 sm:tw-col-span-2 lg:tw-col-span-4">
+    <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-magnifying-glass fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Search" %}</button>
+    <a href="{% url 'bookkeeping:resource_list' %}" class="tw-btn tw-btn-outline-secondary tw-btn-sm">{% trans "Clear" %}</a>
+  </div>
+</form>
