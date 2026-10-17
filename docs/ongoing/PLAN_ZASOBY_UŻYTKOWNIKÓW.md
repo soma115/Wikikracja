@@ -1,8 +1,21 @@
 # Plan przebudowy działu zasobów i pomocy
 
+## Stan wdrożenia
+
+Katalog zasobów działa już w uproszczonym wariancie, który różni się od pierwotnego projektu:
+
+- `ResourceAssignment` jest osobnym wpisem użytkownika: ma nazwę, opis i jeden z typów: do oddania, do pożyczenia, na sprzedaż albo potrzeba.
+- Wpisy można dodawać, edytować i usuwać. Nazwa jest unikalna bez rozróżniania wielkości liter w obrębie użytkownika i typu.
+- Katalog jest dostępny po zalogowaniu. Wyszukuje po nazwie i filtruje po typie, miejscowości oraz województwie; pokazuje oferty i potrzeby z odnośnikiem do profilu.
+- Sugestie nazw działają w wyszukiwarce katalogu, ale formularz wpisu nie ma autouzupełniania ani kontroli podobieństwa nazw między użytkownikami.
+- Wspólny słownik został świadomie odrzucony. Nie ma statusu zamknięcia, zakresu lokalizacji ani archiwum starych pól; dane profilu są już edytowane osobno w ustawieniach.
+- Migracja `0047_migrate_legacy_resources` przeniosła stare pola do wpisów, a migracja `0048` usunęła te pola z profilu. Nie zachowano ich jako osobnego, tylko do odczytu archiwum; migracja `0055` dodatkowo rozdzieliła wpisy od wspólnego słownika.
+
+Poniższe etapy opisują stan faktyczny i dalszy kierunek prac. Nie odtwarzamy usuniętych pól ani nie dodajemy archiwum bez osobnej decyzji i potwierdzenia dostępności danych źródłowych. Wspólny słownik został odrzucony jako zbędny.
+
 ## 1. Cel
 
-Przebudować dział `/obywatele/assets/` oraz powiązany formularz `/obywatele/my_assets/` z przeszukiwarki tekstowych pól profilu w katalog **ofert i potrzeb pomocy**.
+Rozwijać dział `/obywatele/assets/` oraz formularz `/obywatele/my_assets/` jako katalog ofert i potrzeb, zachowując prosty model osobnych wpisów.
 
 Użytkownik powinien móc przede wszystkim:
 
@@ -10,98 +23,76 @@ Użytkownik powinien móc przede wszystkim:
 - dodać własną ofertę pomocy;
 - zgłosić własną potrzebę;
 - przejść z wyniku wyszukiwania do profilu osoby i skontaktować się z nią;
-- korzystać ze wspólnego, standaryzowanego słownika umiejętności i zasobów.
+- wyszukiwać wpisy po nazwie, typie i dostępnej lokalizacji.
 
-Jednostką katalogu będzie oferta albo potrzeba, a nie cały profil obywatela.
+Jednostką katalogu jest pojedynczy wpis przypisany do profilu, a nie cały profil obywatela. Nazwy wpisów są swobodne; nie używamy wspólnego słownika.
 
-## 2. Ustalone decyzje projektowe
+## 2. Ustalone decyzje projektowe i stan
 
-- [ ] Imię, nazwisko, miejscowość, województwo oraz komunikator/telefon wydzielić do osobnego formularza „Podstawowe dane kontaktowe” w ustawieniach profilu.
-- [ ] Formularz pomocy będzie obsługiwał wiele osobnych wpisów, a nie jedno duże pole tekstowe.
-- [ ] W pierwszej wersji obsługiwane będą cztery typy wpisów:
-  - [ ] pomoc lub umiejętność;
-  - [ ] rzecz do oddania;
-  - [ ] rzecz do pożyczenia;
-  - [ ] potrzeba pomocy lub zasobu.
-- [ ] Jeden wpis może mieć przypisanych wiele pozycji ze słownika.
-- [ ] Każdy wpis może zawierać krótki opis, dostępność, formę pomocy i warunki.
-- [ ] Wpisy i lokalizacja będą widoczne wyłącznie dla zalogowanych członków.
-- [ ] Pierwsza wersja lokalizacji wykorzysta miejscowość/województwo oraz zasięg, np. zdalnie, miejscowość, gmina, województwo lub cała Polska.
-- [ ] Po znalezieniu wpisu użytkownik przechodzi do profilu osoby; nie wprowadzamy na tym etapie osobnego pośredniego systemu akceptowania kontaktu.
-- [ ] Wpisy będą zamykane ręcznie przez właściciela. Automatyczne wygaszanie nie jest częścią pierwszej wersji.
-- [ ] Każdy użytkownik może dodać nową pozycję do słownika, ale zapis podobnej pozycji zostaje zablokowany przez dynamiczne wyszukiwanie podobnych nazw.
-- [ ] Stare dane pozostaną przejściowo w osobnej sekcji archiwalnej, tylko do odczytu i z możliwością całkowitego usunięcia przez użytkownika.
-- [ ] Migracja starych danych będzie stopniowa. System może proponować nowe wpisy na podstawie starej treści, ale użytkownik zatwierdza propozycje.
+- [x] Edycja danych profilu jest oddzielona od zarządzania zasobami; formularz profilu jest w ustawieniach, a `/obywatele/my_assets/` zarządza wyłącznie wpisami.
+- [x] Formularz obsługuje wiele osobnych wpisów.
+- [x] Dostępne typy to: rzecz do oddania, rzecz do pożyczenia, rzecz na sprzedaż i potrzeba.
+- [x] Wspólny słownik nie jest potrzebny; wpis przechowuje jedną swobodną nazwę tekstową.
+- [x] Wpis może zawierać krótki opis; dostępność, formę pomocy i warunki należy rozważyć osobno.
+- [x] Katalog wymaga zalogowania; wyniki obejmują wyłącznie aktywne profile.
+- [ ] Rozszerzyć lokalizację poza istniejące filtry miejscowości i województwa, jeśli pojawi się uzasadniona potrzeba.
+- [x] Wynik prowadzi do profilu osoby; kontakt odbywa się poza katalogiem.
+- [ ] Dodać ręczne zamykanie wpisu; obecnie można go edytować lub usunąć.
+- [x] Wspólny słownik i globalna kontrola podobieństwa nazw są poza zakresem; unikalność obowiązuje dla tego samego użytkownika i typu.
+- [x] Stare pola zostały przeniesione do wpisów migracją i usunięte; nie utworzono archiwum ani migracji zatwierdzanej przez użytkownika.
 
-## 3. Etap 1 — rozdzielenie danych podstawowych
+## 3. Etap 1 - rozdzielenie danych podstawowych
 
-- [ ] Zaprojektować osobny formularz podstawowych danych kontaktowych.
-- [ ] Przenieść do niego imię i nazwisko, miejscowość, województwo oraz komunikator/telefon.
-- [ ] Ustalić docelową nawigację między profilem podstawowym a formularzem pomocy.
-- [ ] Zachować dotychczasowe adresy URL lub przygotować bezpieczne przekierowania.
-- [ ] Nie usuwać jeszcze żadnych istniejących pól ani danych użytkowników.
-- [ ] Zaktualizować widok profilu tak, aby dane podstawowe i zasoby były wyraźnie rozdzielone.
-- [ ] Dodać testy zapisu i odczytu danych podstawowych.
+- [x] Użyć istniejącego `ProfileForm` jako osobnego formularza edycji profilu w ustawieniach.
+- [x] Przenieść edycję imienia i nazwiska, miejscowości, województwa, telefonu i sposobu kontaktu poza `my_assets.html`; pozostałe pola profilu są w tym samym formularzu.
+- [x] Rozdzielić nawigację: ustawienia profilu prowadzą do edycji danych i osobno do zarządzania zasobami.
+- [x] Zachować istniejący adres `/obywatele/my_assets/` dla zasobów oraz użyć istniejącego `/obywatele/settings/` do edycji profilu.
+- [x] Stare pola usunięto migracją `0048` po przeniesieniu ich wartości do wpisów migracją `0047`; nie ma osobnych kolumn archiwalnych.
+- [x] Widok ustawień pokazuje dane profilu i zasoby w osobnych sekcjach.
+- [x] Testy obejmują odczyt i zapis danych profilu w nowym przepływie.
 
-## 4. Etap 2 — model słownika i wpisów
+## 4. Etap 2 - model wpisów
 
-- [ ] Zaprojektować model kontrolowanego słownika umiejętności, usług i zasobów.
-- [ ] Przewidzieć nazwę wyświetlaną, opis, typ/kategorię nadrzędną oraz warianty wyszukiwania.
-- [ ] Zaprojektować model oferty pomocy.
-- [ ] Zaprojektować model potrzeby pomocy.
-- [ ] Dodać relację wiele-do-wielu między wpisem a pozycjami słownika.
-- [ ] Dodać status wpisu, co najmniej aktywny i zamknięty.
-- [ ] Dodać pola opisu, dostępności, formy pomocy i warunków.
-- [ ] Dodać zasięg lokalizacyjny bez zapisywania dokładnego adresu domowego.
-- [ ] Przygotować migracje oraz testy ograniczeń integralności.
+- [x] Model `ResourceAssignment` przechowuje osobny wpis z nazwą, opisem, typem i właścicielem.
+- [x] Oferta i potrzeba są typami wpisu, a nie osobnymi modelami.
+- [x] Integralność nazwy zabezpiecza ograniczenie unikalności (nazwa bez rozróżniania wielkości liter, właściciel, typ).
+- [x] Wspólny słownik odrzucono jako niepotrzebny; wpis pozostaje niezależny i ma jedną nazwę tekstową.
+- [ ] Rozważyć status aktywny/zamknięty oraz pola dostępności, formy pomocy i warunków.
+- [ ] Rozważyć zasięg lokalizacyjny bez zapisywania dokładnego adresu domowego.
 
-## 5. Etap 3 — słownik i ochrona przed duplikatami
+## 5. Etap 3 - wyszukiwanie nazw i duplikaty
 
-- [ ] Przygotować pierwszą, małą listę kategorii i pozycji, np. pomoc informatyczna, transport, naprawy, edukacja i opieka.
-- [ ] Zaimplementować dynamiczne wyszukiwanie podobnych pozycji podczas dodawania nowej.
-- [ ] Zablokować zapis, gdy nowa nazwa jest zbyt podobna do istniejącej.
-- [ ] Przed blokadą pokazać użytkownikowi znalezione podobne pozycje i umożliwić ich wybór.
-- [ ] Ustalić reguły normalizacji nazw, między innymi wielkości liter, białych znaków i podstawowych wariantów językowych.
-- [ ] Dodać ochronę przed wyścigiem dwóch równoczesnych zapisów tej samej pozycji.
-- [ ] Przygotować mechanizm późniejszego scalania lub korekty pozycji słownika, jeśli mimo zabezpieczeń powstanie duplikat.
+- [x] Kategorie i wspólny słownik nie są potrzebne w przyjętym wariancie.
+- [x] Wyszukiwarka katalogu podpowiada pasujące nazwy istniejących wpisów.
+- [ ] Dodać podpowiedzi do formularza wpisu tylko wtedy, gdy potwierdzi się taka potrzeba.
+- [x] Formularz normalizuje białe znaki; model blokuje duplikat nazwy bez rozróżniania wielkości liter u tego samego właściciela i typu.
+- [x] Nie stosujemy kontroli podobieństwa ani scalania nazw między użytkownikami; wspólny słownik i globalna unikalność nie są potrzebne.
 
-## 6. Etap 4 — nowy formularz pomocy
+## 6. Etap 4 - formularz wpisów
 
-- [ ] Zastąpić ręczne pola tekstowe ekranem zarządzania osobnymi wpisami.
-- [ ] Dodać przycisk „Dodaj ofertę pomocy”.
-- [ ] Dodać przycisk „Dodaj potrzebę”.
-- [ ] Pozwolić wybrać wiele pozycji ze słownika.
-- [ ] Dodać wybór typu zasobu: pomoc/umiejętność, rzecz do oddania, rzecz do pożyczenia lub potrzeba.
-- [ ] Dodać opis, dostępność, formę pomocy, warunki i zasięg.
-- [ ] Dodać możliwość edycji i ręcznego zamknięcia wpisu.
-- [ ] Pokazywać aktywne i zamknięte wpisy w osobnych sekcjach.
-- [ ] Zastosować wspólne komponenty UI i standardowy toolbar zamiast tworzyć modułowe, jednorazowe style.
-- [ ] Dodać testy formularzy, walidacji i uprawnień.
+- [x] Formularz zarządza osobnymi wpisami; pozwala wybrać jeden z czterech typów i dodać opis.
+- [x] Właściciel może edytować i usuwać własny wpis; operacje na cudzym wpisie są niedostępne.
+- [ ] Dodać zamykanie wpisu i podział na aktywne/zamknięte, jeśli zostaną przyjęte jako wymaganie.
+- [ ] Dostępność, forma pomocy, warunki i zasięg nie są jeszcze osobnymi polami.
+- [x] Widok korzysta ze wspólnych klas i komponentów UI.
+- [x] Istnieją testy tworzenia, edycji, usuwania, walidacji i uprawnień.
 
-## 7. Etap 5 — archiwum starych danych i migracja stopniowa
+## 7. Etap 5 - obsługa historycznych danych
 
-- [ ] Wyświetlić dotychczasowe pola tekstowe w osobnej sekcji „Stare dane”.
-- [ ] Ustawić te pola jako tylko do odczytu.
-- [ ] Dodać osobne usuwanie treści każdego starego pola.
-- [ ] Nie przepisywać ani nie usuwać danych automatycznie podczas wdrożenia.
-- [ ] Przygotować mechanizm analizy starego tekstu i proponowania pozycji słownika.
-- [ ] Pokazywać propozycje użytkownikowi przed utworzeniem nowych wpisów.
-- [ ] Pozwolić użytkownikowi odrzucić, poprawić albo zatwierdzić każdą propozycję.
-- [ ] Po zatwierdzeniu zachować stare pole do czasu ręcznego usunięcia przez użytkownika.
-- [ ] Rejestrować wyłącznie informacje potrzebne do bezpiecznej migracji; nie ujawniać starej treści innym użytkownikom po jej usunięciu.
-- [ ] Przygotować testy, że migracja nie powoduje utraty istniejących danych.
+- [x] Migracja `0047` przeniosła niepuste stare pola do wpisów; migracja `0048` usunęła stare pola z modelu profilu.
+- [x] Migracja `0055` rozdzieliła wpisy na niezależne rekordy z własną nazwą i opisem, bez wspólnego `ResourceItem`.
+- [ ] Nie ma archiwum ani zatwierdzania migracji przez użytkownika. Nie odtwarzać archiwum bez potwierdzenia, że stare dane są nadal dostępne i wymagane.
+- [ ] Sprawdzić i udokumentować dostępne procedury odtworzenia danych w środowiskach, w których migracje zostały już wykonane.
 
-## 8. Etap 6 — katalog i wyszukiwanie pomocy
+## 8. Etap 6 - katalog i wyszukiwanie
 
-- [ ] Zastąpić szeroką tabelę obywateli katalogiem ofert i potrzeb.
-- [ ] Dodać dwa główne wejścia: „Znajdź pomoc” oraz „Dodaj ofertę pomocy”.
-- [ ] Wyszukiwanie oprzeć na pozycjach słownika, a nie na dowolnych fragmentach pól tekstowych.
-- [ ] Dodać filtry typu wpisu, kategorii, formy pomocy, dostępności i zasięgu.
-- [ ] Pokazywać wyniki jako karty zawierające rodzaj pomocy, lokalizację/zasięg, dostępność i aktualność.
-- [ ] Dodać przejście do profilu osoby z wyniku wyszukiwania.
-- [ ] Zachować możliwość wyszukania ofert zdalnych niezależnie od miejscowości.
-- [ ] Dodać sortowanie według trafności, aktualności oraz — po wdrożeniu danych przestrzennych — odległości.
-- [ ] Dodać testy filtrów, widoczności i wyników wyszukiwania.
+- [x] Katalog pokazuje osobne wpisy ofert i potrzeb zamiast tabeli profili.
+- [x] Dostępne są wyszukiwanie po nazwie oraz filtry typu, miejscowości i województwa.
+- [x] Wyszukiwanie korzysta z nazwy wpisu; filtry kategorii nie są potrzebne bez słownika.
+- [ ] Filtry formy pomocy, dostępności i zasięgu nie istnieją.
+- [x] Karty pokazują typ wpisu, opis, właściciela i lokalizację; kontakt prowadzi przez profil.
+- [ ] Zdalny zasięg i sortowanie według trafności/odległości nie są obsługiwane.
+- [x] Widok katalogu ma paginację i testy wyszukiwania, filtrów, widoczności oraz wyników.
 
 ## 9. Etap 7 — dopasowania i dalszy rozwój
 
@@ -114,22 +105,19 @@ Jednostką katalogu będzie oferta albo potrzeba, a nie cały profil obywatela.
 
 ## 10. Zasady bezpieczeństwa i prywatności
 
-- [ ] Dane i wpisy widzą wyłącznie zalogowani członkowie.
-- [ ] Nie ujawniać dokładnego adresu ani dokładnego punktu zamieszkania.
-- [ ] Nie ujawniać numeru telefonu automatycznie na liście wyników.
-- [ ] Wszystkie operacje edycji i usuwania ograniczyć do właściciela wpisu lub odpowiednio uprawnionej osoby.
-- [ ] Walidować typ wpisu, pozycje słownika i zakres lokalizacyjny po stronie serwera.
-- [ ] Zabezpieczyć tworzenie pozycji słownika przed duplikatami również na poziomie bazy danych.
-- [ ] Nie wykonywać destrukcyjnej migracji istniejących danych.
+- [x] Widoki katalogu i zarządzania wpisami wymagają zalogowania.
+- [x] Katalog pokazuje miejscowość/województwo, nie dokładny adres ani numer telefonu.
+- [x] Edycja i usuwanie są ograniczone do właściciela wpisu.
+- [x] Serwer waliduje typ wpisu; ograniczenie bazy danych zapobiega duplikatom u jednego właściciela dla danego typu.
+- [x] Nie ma wspólnego słownika, więc walidacja jego pozycji nie dotyczy obecnego wariantu.
+- [x] Stare pola zostały usunięte migracją po przeniesieniu ich wartości do wpisów; nie planować kolejnych destrukcyjnych migracji bez uzgodnienia i weryfikacji danych.
 
-## 11. Kryteria zakończenia pierwszej wersji
+## 11. Kryteria obecnej wersji katalogu
 
-- [ ] Użytkownik może oddzielnie edytować podstawowe dane kontaktowe.
-- [ ] Użytkownik może utworzyć wiele ofert i potrzeb.
-- [ ] Każdy wpis używa pozycji ze wspólnego słownika.
-- [ ] Użytkownik może ręcznie zamknąć wpis.
-- [ ] Stare dane są zachowane, tylko do odczytu i możliwe do usunięcia.
-- [ ] System proponuje migrację starej treści, ale nie usuwa jej bez decyzji użytkownika.
-- [ ] Członek może znaleźć ofertę po ustandaryzowanej kategorii i przejść do profilu osoby.
-- [ ] Podstawowe filtry lokalizacji działają bez ujawniania dokładnego miejsca zamieszkania.
-- [ ] Logika migracji, uprawnień, słownika i wyszukiwania jest pokryta odpowiednimi testami.
+- [x] Użytkownik może utworzyć, edytować i usuwać wiele wpisów czterech typów.
+- [x] Wpis ma nazwę i opcjonalny opis; katalog ma wyszukiwanie po nazwie i filtry lokalizacji.
+- [x] Zalogowany użytkownik może przejść z wpisu do profilu autora bez ujawniania numeru telefonu w wynikach.
+- [x] Testy obejmują formularze, uprawnienia, filtry, widoczność i wyniki katalogu.
+- [x] Użytkownik edytuje dane profilu osobno od wpisów zasobów.
+- [ ] Zamykanie wpisów i archiwum historycznych pól pozostają poza obecną wersją.
+- [x] Wspólny słownik został świadomie wyłączony z zakresu.

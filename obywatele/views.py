@@ -464,6 +464,21 @@ def unsubscribe_notifications(request: HttpRequest, token: str):
 def my_profile(request: HttpRequest):
     user = request.user
     profile = Uzytkownik.objects.prefetch_related('resource_assignments').get(pk=request.user.uzytkownik.pk)
+    edit_profile = request.method == 'POST' or request.GET.get('edit') == 'details'
+    profile_form = None
+
+    if edit_profile:
+        profile_form = ProfileForm(
+            request.POST if request.method == 'POST' else None, request.FILES if request.method == 'POST' else None, instance=profile, initial={'first_name': user.first_name, 'last_name': user.last_name}
+        )
+        if request.method == 'POST' and profile_form.is_valid():
+            with transaction.atomic():
+                user.first_name = profile_form.cleaned_data['first_name']
+                user.last_name = profile_form.cleaned_data['last_name']
+                user.save(update_fields=['first_name', 'last_name'])
+                profile_form.save()
+            success(request, _('Changes was saved'))
+            return redirect('obywatele:my_profile')
 
     push_notifications = [
         {'type': 'push_task', 'title': _('Activities'), 'description': _('New activities'), 'enabled': profile.push_notifications_task},
@@ -502,6 +517,8 @@ def my_profile(request: HttpRequest):
             'email_form': EmailChangeForm(user),
             'username_form': UsernameChangeForm(user),
             'deletion_request': deletion_request,
+            'edit_profile': edit_profile,
+            'profile_form': profile_form,
         },
     )
 
@@ -600,11 +617,10 @@ def toggle_notification(request: HttpRequest):
         return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 
-def _my_assets_context(user, profile, form, resource_form=None, edit_assignment=None):
+def _my_assets_context(user, profile, resource_form=None, edit_assignment=None):
     return {
         'user': user,
         'profile': profile,
-        'form': form,
         'resource_form': resource_form or ResourceAssignmentForm(profile=profile),
         'resource_assignments': profile.resource_assignments.all(),
         'edit_assignment': edit_assignment,
@@ -612,23 +628,11 @@ def _my_assets_context(user, profile, form, resource_form=None, edit_assignment=
 
 
 @login_required
+@require_http_methods(['GET'])
 def my_assets(request: HttpRequest):
     user = request.user
     profile = request.user.uzytkownik
-
-    if request.method == 'POST':
-        form = ProfileForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            user.first_name = form.cleaned_data['first_name']
-            user.last_name = form.cleaned_data['last_name']
-            user.save()
-            form.save()
-            success(request, _('Changes was saved'))
-            return redirect('obywatele:my_profile')
-        return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, form))
-
-    form = ProfileForm(instance=profile, initial={'first_name': user.first_name, 'last_name': user.last_name})
-    return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, form))
+    return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile))
 
 
 @login_required
@@ -637,15 +641,14 @@ def save_resource_assignment(request: HttpRequest):
     user = request.user
     profile = user.uzytkownik
     form = ResourceAssignmentForm(request.POST, profile=profile)
-    profile_form = ProfileForm(instance=profile, initial={'first_name': user.first_name, 'last_name': user.last_name})
     if not form.is_valid():
-        return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, profile_form, form))
+        return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, form))
 
     try:
         ResourceAssignment.objects.create(profile=profile, name=form.cleaned_data['name'], description=form.cleaned_data['description'], kind=form.cleaned_data['kind'])
     except IntegrityError:
         form.add_error('kind', _('This item is already assigned with this type.'))
-        return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, profile_form, form))
+        return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, form))
     return redirect('obywatele:my_assets')
 
 
@@ -654,7 +657,6 @@ def edit_resource_assignment(request: HttpRequest, pk: int):
     user = request.user
     profile = user.uzytkownik
     assignment = get_object_or_404(ResourceAssignment, pk=pk, profile=profile)
-    profile_form = ProfileForm(instance=profile, initial={'first_name': user.first_name, 'last_name': user.last_name})
     initial = {'kind': assignment.kind, 'name': assignment.name, 'description': assignment.description}
     form = ResourceAssignmentForm(request.POST if request.method == 'POST' else None, initial=initial, profile=profile, assignment=assignment)
 
@@ -670,7 +672,7 @@ def edit_resource_assignment(request: HttpRequest, pk: int):
         else:
             return redirect('obywatele:my_assets')
 
-    return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, profile_form, form, assignment))
+    return render(request, 'obywatele/my_assets.html', _my_assets_context(user, profile, form, assignment))
 
 
 @login_required

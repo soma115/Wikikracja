@@ -1,5 +1,14 @@
 # LOG_AI
 
+## 2026-10-17: Oddzielenie edycji profilu od zarządzania zasobami
+
+- **Zmienione obszary:** widoki i szablony `obywatele`, testy widoków oraz plan zasobów.
+- **Co się zmieniło:** edycja `ProfileForm` jest dostępna w ustawieniach profilu (`/obywatele/settings/?edit=details`), a `/obywatele/my_assets/` służy wyłącznie do zarządzania wpisami zasobów. Widok ustawień prezentuje dane profilu i zasoby w osobnych sekcjach. Zapis danych profilu aktualizuje nazwę użytkownika i profil w jednej transakcji.
+- **Decyzja projektowa:** wspólny słownik zasobów został pominięty zgodnie z decyzją użytkownika; wpisy zachowują swobodne nazwy.
+- **Testy:** dodano testy osobnego formularza profilu, walidacji, uprawnień i braku zapisu profilu z widoku zasobów.
+- **Weryfikacja:** 17 testów dotkniętych widoków przeszło. Build CSS, regression scan, UI guard, Ruff, Django check, kompilacja tłumaczeń i collectstatic przeszły. Pełny pytest: 1351 testów przeszło, jeden niezwiązany test `tests/test_board.py::test_system_post_visible_to_authenticated_users_regardless_of_author_or_private_flag` zawiódł (anonimowe żądanie otrzymało przekierowanie logowania zamiast 404). Osobny Jest: 315 testów przeszło. Playwright nie został uruchomiony: pełny runner zatrzymał się na błędzie pytest, a `E2E_BASE_URL` nie jest skonfigurowany.
+- **Spodziewany efekt:** użytkownik edytuje dane kontaktowe i profil niezależnie od wpisów zasobów, bez zmiany modelu zasobów ani dodawania nowego endpointu.
+
 ## 2026-10-15: Kanoniczne maile i normalizacja instancji produkcyjnych
 
 - **Zmienione obszary:** sygnały `obywatele`, komenda i skrypt operacyjny oraz testy `obywatele`.

@@ -1114,7 +1114,7 @@ class ProfileFormErrorViewTest(TestCase):
 
 
 class MyAssetsViewTest(TestCase):
-    """my_assets zapisuje pola profilu przez form.save() oraz imię/nazwisko na User."""
+    """my_assets manages resource assignments, not profile details."""
 
     def setUp(self):
         self.user = User.objects.create_user(username='assets', password='secret', is_active=True)
@@ -1132,36 +1132,74 @@ class MyAssetsViewTest(TestCase):
         self.profile.refresh_from_db()
         self.assertEqual(self.profile.city, 'Stare miasto')
 
-    def test_get_prefills_form_from_instance(self):
+    def test_get_shows_resource_form_without_profile_fields(self):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
-        form = response.context['form']
+        self.assertIn('resource_form', response.context)
+        self.assertNotIn('form', response.context)
+        self.assertNotContains(response, 'name="first_name"')
+        self.assertContains(response, 'name="kind"')
+
+    def test_post_to_resource_page_does_not_update_profile_details(self):
+        response = self.client.post(self.url, PROFILE_POST_DATA)
+
+        self.assertEqual(response.status_code, 405)
+        self.profile.refresh_from_db()
+        self.user.refresh_from_db()
+        self.assertEqual(self.profile.city, 'Stare miasto')
+        self.assertEqual(self.user.first_name, '')
+        self.assertEqual(self.user.last_name, '')
+        self.assertEqual(Uzytkownik.objects.filter(uid=self.user).count(), 1)
+
+
+class MyProfileDetailsViewTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='profile-details', password='secret', is_active=True)
+        self.profile = self.user.uzytkownik
+        self.profile.city = 'Stare miasto'
+        self.profile.save()
+        self.client.force_login(self.user)
+        self.url = reverse('obywatele:my_profile')
+        self.edit_url = f'{self.url}?edit=details'
+
+    def test_anonymous_user_cannot_edit_profile_details(self):
+        client = Client()
+
+        self.assertEqual(client.get(self.edit_url).status_code, 302)
+        self.assertEqual(client.post(self.edit_url, PROFILE_POST_DATA).status_code, 302)
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.city, 'Stare miasto')
+
+    def test_get_prefills_profile_details_form(self):
+        response = self.client.get(self.edit_url)
+
+        self.assertEqual(response.status_code, 200)
+        form = response.context['profile_form']
         self.assertEqual(form.instance.pk, self.profile.pk)
         self.assertEqual(form['city'].value(), 'Stare miasto')
         self.assertEqual(form['first_name'].value(), self.user.first_name)
 
-    def test_post_updates_existing_profile_and_user_names(self):
-        response = self.client.post(self.url, PROFILE_POST_DATA)
+    def test_post_updates_profile_and_user_names(self):
+        response = self.client.post(self.edit_url, PROFILE_POST_DATA)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, self.url)
         self.profile.refresh_from_db()
         self.user.refresh_from_db()
         self.assertEqual(self.profile.city, 'Gdańsk')
         self.assertEqual(self.profile.phone, '+48123456789')
         self.assertEqual(self.user.first_name, 'Jan')
         self.assertEqual(self.user.last_name, 'Kowalski')
-        # Nadal ten sam rekord profilu — form.save() z instance= nie tworzy nowego.
         self.assertEqual(Uzytkownik.objects.filter(uid=self.user).count(), 1)
 
     def test_post_invalid_rerenders_form_without_saving(self):
         data = {**PROFILE_POST_DATA, 'city': ''}
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.edit_url, data)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context['form'].errors)
+        self.assertTrue(response.context['profile_form'].errors)
         self.assertContains(response, _('The form could not be saved. Please correct the following errors:'))
-        self.assertEqual(response.context['form']['city'].value(), '')
+        self.assertEqual(response.context['profile_form']['city'].value(), '')
         self.profile.refresh_from_db()
         self.assertEqual(self.profile.city, 'Stare miasto')
 
@@ -1266,13 +1304,14 @@ class ContactPreferenceFormTest(TestCase):
     def test_view_saves_and_restores_contact_preference(self):
         data = {**self.common, 'phone': '501 234 567', 'phone_country': 'PL', 'preferred_contact_method': 'signal', 'contact_link': ''}
 
-        response = self.client.post(reverse('obywatele:my_assets'), data)
+        edit_url = f'{reverse("obywatele:my_profile")}?edit=details'
+        response = self.client.post(edit_url, data)
 
         self.assertEqual(response.status_code, 302)
         self.profile.refresh_from_db()
         self.assertEqual(self.profile.preferred_contact_method, 'signal')
-        response = self.client.get(reverse('obywatele:my_assets'))
-        self.assertEqual(response.context['form']['preferred_contact_method'].value(), 'signal')
+        response = self.client.get(edit_url)
+        self.assertEqual(response.context['profile_form']['preferred_contact_method'].value(), 'signal')
 
 
 class ResourceAssignmentViewTest(TestCase):

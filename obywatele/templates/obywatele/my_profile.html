@@ -40,6 +40,58 @@
 </script>
 {% endblock %}
 {% block content %}
+{% if edit_profile %}
+<div class="tw-section tw-max-w-640">
+  <div class="tw-card">
+    <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
+      <i class="fas fa-user-pen tw-text-accent" aria-hidden="true"></i>
+      <h1 class="tw-section-heading tw-mb-0">{% trans "Profile" %}</h1>
+    </div>
+    <div class="tw-card-body">
+      {% if profile_form.errors %}
+      <div class="tw-alert tw-alert-danger tw-mb-4" role="alert">
+        <strong>{% trans 'The form could not be saved. Please correct the following errors:' %}</strong>
+        <div class="tw-mb-0" role="list">{% for field in profile_form %}{% for error in field.errors %}<div role="listitem">{{ field.label }}: {{ error }}</div>{% endfor %}{% endfor %}{% for error in profile_form.non_field_errors %}<div role="listitem">{{ error }}</div>{% endfor %}</div>
+      </div>
+      {% endif %}
+      <form method="post" action="{% url 'obywatele:my_profile' %}?edit=details" class="tw-flex tw-flex-col tw-gap-3">
+        {% csrf_token %}
+        <div class="tw-form-actions tw-form-actions--top">
+          <a href="{% url 'obywatele:my_profile' %}" class="tw-btn tw-btn-secondary tw-form-action-btn" data-autosave-clear>{% trans "Cancel" %}</a>
+          <button type="submit" class="tw-btn tw-btn-primary tw-form-action-btn"><i class="fas fa-floppy-disk fa-fw" aria-hidden="true"></i>{% trans "Save" %}</button>
+        </div>
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
+          <div>{{ profile_form.first_name|as_crispy_field }}</div>
+          <div>{{ profile_form.last_name|as_crispy_field }}</div>
+        </div>
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
+          <div>{{ profile_form.city|as_crispy_field }}</div>
+          <div>{{ profile_form.voivodeship|as_crispy_field }}</div>
+        </div>
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
+          <div data-contact-phone-field>{{ profile_form.phone_country|as_crispy_field }}</div>
+          <div data-contact-phone-field>{{ profile_form.phone|as_crispy_field }}</div>
+        </div>
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
+          <div>{{ profile_form.preferred_contact_method|as_crispy_field }}</div>
+          <div data-contact-link-field class="tw-d-none">{{ profile_form.contact_link|as_crispy_field }}</div>
+        </div>
+        <div>{{ profile_form.job|as_crispy_field }}</div>
+        <div>{{ profile_form.business_active|as_crispy_field }}</div>
+        <div data-business-fields class="tw-d-none tw-space-y-3">
+          <div>{{ profile_form.business_website|as_crispy_field }}</div>
+          <div>{{ profile_form.business_description|as_crispy_field }}</div>
+        </div>
+        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
+          <div>{{ profile_form.want_to_learn|as_crispy_field }}</div>
+          <div>{{ profile_form.skills_knowledge_hobby|as_crispy_field }}</div>
+        </div>
+        <div>{{ profile_form.why|as_crispy_field }}</div>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
 <div class="tw-section tw-flex tw-flex-col tw-gap-3 tw-max-w-640">
 
   {# ── PROFIL ── #}
@@ -160,11 +212,11 @@
     </div>
   </div>
 
-  {# ── ZASOBY I DANE ── #}
+  {# ── DANE PROFILU ── #}
   <div class="tw-card">
     <div class="tw-card-header tw-flex tw-items-center tw-justify-between">
-      <span class="tw-section-heading">{% trans "Contact & Resources" %}</span>
-      <a href="{% url 'obywatele:my_assets' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+      <span class="tw-section-heading">{% trans "Profile" %}</span>
+      <a href="{% url 'obywatele:my_profile' %}?edit=details" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
         <i class="fas fa-pen fa-fw tw-me-1"></i>{% trans "Edit" %}
       </a>
     </div>
@@ -181,12 +233,23 @@
       {% endif %}
       <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Skills / Knowledge / Hobby" %}</span><span class="tw-profile-val {% if not profile.skills_knowledge_hobby %}tw-profile-val--empty{% endif %}">{{ profile.skills_knowledge_hobby|default:"—" }}</span></div>
       <div class="tw-profile-row"><span class="tw-profile-key">{% trans "I want to learn" %}</span><span class="tw-profile-val {% if not profile.want_to_learn %}tw-profile-val--empty{% endif %}">{{ profile.want_to_learn|default:"—" }}</span></div>
+      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Why do you want to join?" %}</span><span class="tw-profile-val {% if not profile.why %}tw-profile-val--empty{% endif %}">{{ profile.why|default:"—" }}</span></div>
+    </div>
+  </div>
+
+  <div class="tw-card">
+    <div class="tw-card-header tw-flex tw-items-center tw-justify-between">
+      <span class="tw-section-heading">{% trans "Resources" %}</span>
+      <a href="{% url 'obywatele:my_assets' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">
+        <i class="fas fa-pen fa-fw tw-me-1"></i>{% trans "Edit" %}
+      </a>
+    </div>
+    <div class="tw-card-body">
       {% for assignment in profile.resource_assignments.all %}
       <div class="tw-profile-row"><span class="tw-profile-key">{{ assignment.get_kind_display }}</span><span class="tw-profile-val"><strong>{{ assignment.name }}</strong>{% if assignment.description %}<br>{{ assignment.description|urlize|linebreaksbr }}{% endif %}</span></div>
       {% empty %}
       <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Resources" %}</span><span class="tw-profile-val tw-profile-val--empty">—</span></div>
       {% endfor %}
-      <div class="tw-profile-row"><span class="tw-profile-key">{% trans "Why do you want to join?" %}</span><span class="tw-profile-val {% if not profile.why %}tw-profile-val--empty{% endif %}">{{ profile.why|default:"—" }}</span></div>
     </div>
   </div>
 
@@ -392,4 +455,5 @@
     </div>
   </div>
 </div>
+{% endif %}
 {% endblock %}

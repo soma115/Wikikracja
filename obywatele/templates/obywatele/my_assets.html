@@ -1,64 +1,20 @@
 {% extends 'home/base.html' %}
-{% load static %}
 {% load i18n %}
 {% load feed_filters %}
 {% load crispy_forms_tags %}
 
-{% block extra_js %}
-<script src="{% static 'obywatele/js/profile.js' %}?v=3"></script>
-{% endblock %}
-
 {% block content %}
 <div class="tw-section tw-max-w-640">
   <div class="tw-card">
-    <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
-      <i class="fas fa-user-pen tw-text-accent" aria-hidden="true"></i>
-      <h1 class="tw-section-heading tw-mb-0">{% trans 'Edit profile assets' %}</h1>
+    <div class="tw-card-header tw-flex tw-items-center tw-justify-between tw-gap-2">
+      <div class="tw-flex tw-items-center tw-gap-2">
+        <i class="fas fa-boxes-stacked tw-text-accent" aria-hidden="true"></i>
+        <h1 class="tw-section-heading tw-mb-0">{% trans 'Resources' %}</h1>
+      </div>
+      <a href="{% url 'obywatele:my_profile' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">{% trans 'Profile' %}</a>
     </div>
     <div class="tw-card-body">
       <p class="tw-mb-4 tw-text-sm tw-text-muted">{% trans 'Here you can edit your assets' %} <strong class="tw-text-primary">{{ user|display_name }}</strong></p>
-      {% if form.errors %}
-      <div class="tw-alert tw-alert-danger tw-mb-4" role="alert">
-        <strong>{% trans 'The form could not be saved. Please correct the following errors:' %}</strong>
-        <div class="tw-mb-0" role="list">{% for field in form %}{% for error in field.errors %}<div role="listitem">{{ field.label }}: {{ error }}</div>{% endfor %}{% endfor %}{% for error in form.non_field_errors %}<div role="listitem">{{ error }}</div>{% endfor %}</div>
-      </div>
-      {% endif %}
-      <form action="#" method="post" enctype="multipart/form-data" class="tw-flex tw-flex-col tw-gap-3">
-        {% csrf_token %}
-        <div class="tw-form-actions tw-form-actions--top">
-          <a href="{% url 'obywatele:my_profile' %}" class="tw-btn tw-btn-secondary tw-form-action-btn" data-autosave-clear title="{% trans 'Cancel' %}" aria-label="{% trans 'Cancel' %}"><i class="fas fa-rotate-left fa-fw" aria-hidden="true"></i>{% trans 'Cancel' %}</a>
-          <button type="submit" class="tw-btn tw-btn-primary tw-form-action-btn" title="{% trans 'Save' %}" aria-label="{% trans 'Save' %}"><i class="fas fa-floppy-disk fa-fw" aria-hidden="true"></i>{% trans 'Save' %}</button>
-        </div>
-
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
-          <div>{{ form.first_name|as_crispy_field }}</div>
-          <div>{{ form.last_name|as_crispy_field }}</div>
-        </div>
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
-          <div>{{ form.city|as_crispy_field }}</div>
-          <div>{{ form.voivodeship|as_crispy_field }}</div>
-        </div>
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
-          <div data-contact-phone-field>{{ form.phone_country|as_crispy_field }}</div>
-          <div data-contact-phone-field>{{ form.phone|as_crispy_field }}</div>
-        </div>
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
-          <div>{{ form.preferred_contact_method|as_crispy_field }}</div>
-          <div data-contact-link-field class="tw-d-none">{{ form.contact_link|as_crispy_field }}</div>
-        </div>
-        <div>{{ form.job|as_crispy_field }}</div>
-        <div>{{ form.business_active|as_crispy_field }}</div>
-        <div data-business-fields class="tw-d-none tw-space-y-3">
-          <div>{{ form.business_website|as_crispy_field }}</div>
-          <div>{{ form.business_description|as_crispy_field }}</div>
-        </div>
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
-          <div>{{ form.want_to_learn|as_crispy_field }}</div>
-          <div>{{ form.skills_knowledge_hobby|as_crispy_field }}</div>
-        </div>
-        <div>{{ form.why|as_crispy_field }}</div>
-      </form>
-
       <section class="tw-border-t tw-border-subtle tw-pt-4">
         <h2 class="tw-section-heading tw-mb-3">{% trans 'Resources' %}</h2>
         {% if resource_assignments %}
