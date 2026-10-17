@@ -21,7 +21,7 @@ Domyślnie wspólne zasoby grupy (wydarzenia, ankiety, aktywa, kategorie i partn
 - argument edytuje jego autor, dopóki głosowanie się nie zakończyło;
 - `TaskEditView` edytuje wyłącznie aktywne zadanie, w którym bieżący użytkownik jest wskazany przez `assigned_to`;
 - `candidate_edit` pozostaje dostępne każdemu zalogowanemu członkowi jako część onboardingu.
-- `bookkeeping.ResourceListing` jest widoczny dla zalogowanych członków, ale edycję, zamykanie, przywracanie i usuwanie wpisu może wykonać wyłącznie właściciel. Nie zmienia to wspólnych uprawnień do finansowego `bookkeeping.Asset`.
+- Oferty i potrzeby są rekordami `resources.Entity`. Widoczność aktywnych, zamkniętych i wspólnotowych wpisów pozostaje ograniczona przez reguły katalogu; edycję, zamykanie, przywracanie i usuwanie może wykonać autor, przypisany członek albo aktywny członek w przypadku zasobu wspólnotowego. Stare URL-e nadal rozwiązuje `LegacyEntityReference`.
 
 Nie wprowadzamy w tym zakresie uogólnionej własności ani mechanizmu przejmowania treści. Temat pozostaje odłożony w [`PLAN_PRZEJMOWANIE_WŁASNOŚCI_TREŚCI.md`](ongoing/PLAN_PRZEJMOWANIE_WŁASNOŚCI_TREŚCI.md).
 

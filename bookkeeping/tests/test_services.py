@@ -7,10 +7,9 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from bookkeeping.dashboard import get_context as bookkeeping_dashboard_context
-from bookkeeping.models import Asset, Category, Partner, ResourceListing, Transaction
+from bookkeeping.models import Category, Partner, Transaction
 from bookkeeping.services import asset_balances, category_breakdown
 from resources.models import Entity
-from resources.services import sync_financial_asset_entity
 
 User = get_user_model()
 
@@ -35,8 +34,6 @@ class AssetBalancesTests(TestCase):
     def setUp(self):
         Transaction.objects.all().delete()
         Entity.objects.filter(entity_type=Entity.Type.FINANCIAL_ASSET).delete()
-        Asset.objects.all().delete()
-        assert Asset.objects.count() == 0, "setUp musi gwarantować pustą bazę assetów"
 
         self.user = User.objects.create_user(username='bob', email='b@example.com', password='x')
         self.cat_skladki = Category.objects.create(name='Składki')
@@ -44,12 +41,9 @@ class AssetBalancesTests(TestCase):
         self.partner_a = Partner.objects.create(name='Partner A')
         self.partner_b = Partner.objects.create(name='Partner B')
 
-        self.pln_source = Asset.objects.create(code='PLN', name='Polish Zloty', symbol='zł', is_default=True)
-        self.btc_source = Asset.objects.create(code='BTC', name='Bitcoin', symbol='₿', decimal_places=8)
-        self.eur_source = Asset.objects.create(code='EUR', name='Euro', symbol='€')
-        self.pln = sync_financial_asset_entity(self.pln_source)
-        self.btc = sync_financial_asset_entity(self.btc_source)
-        self.eur = sync_financial_asset_entity(self.eur_source)
+        self.pln = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='PLN', name='Polish Zloty', symbol='zł', is_default=True)
+        self.btc = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='BTC', name='Bitcoin', symbol='₿', decimal_places=8)
+        self.eur = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='EUR', name='Euro', symbol='€')
 
     def _make_txn(self, asset, txn_type, amount, year=2026, category=None, partner=None):
         """Helper: tworzy transakcję z domyślnym category/partner z setUp."""
@@ -157,7 +151,6 @@ class AssetBalancesTests(TestCase):
     def test_no_default_asset_falls_back_to_alphabetical(self):
         """Gdy żaden asset nie jest oznaczony jako default → cała lista alfabetycznie."""
         # Odznaczamy PLN przez bezpośredni update (omija save() z auto-unset).
-        Asset.objects.filter(pk=self.pln_source.pk).update(is_default=False)
         Entity.objects.filter(pk=self.pln.pk).update(is_default=False)
 
         self._make_txn(self.pln, Transaction.INCOMING, 100)
@@ -253,8 +246,6 @@ class CategoryBreakdownTests(TestCase):
     def setUp(self):
         Transaction.objects.all().delete()
         Entity.objects.filter(entity_type=Entity.Type.FINANCIAL_ASSET).delete()
-        Asset.objects.all().delete()
-        assert Asset.objects.count() == 0, "setUp musi gwarantować pustą bazę assetów"
 
         self.user = User.objects.create_user(username='alice', email='a@example.com', password='x')
         self.cat_skladki = Category.objects.create(name='Składki')
@@ -262,12 +253,9 @@ class CategoryBreakdownTests(TestCase):
         self.cat_darowizny = Category.objects.create(name='Darowizny')
         self.partner = Partner.objects.create(name='Partner X')
 
-        self.pln_source = Asset.objects.create(code='PLN', name='Polish Zloty', symbol='zł', is_default=True)
-        self.btc_source = Asset.objects.create(code='BTC', name='Bitcoin', symbol='₿', decimal_places=8)
-        self.eur_source = Asset.objects.create(code='EUR', name='Euro', symbol='€')
-        self.pln = sync_financial_asset_entity(self.pln_source)
-        self.btc = sync_financial_asset_entity(self.btc_source)
-        self.eur = sync_financial_asset_entity(self.eur_source)
+        self.pln = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='PLN', name='Polish Zloty', symbol='zł', is_default=True)
+        self.btc = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='BTC', name='Bitcoin', symbol='₿', decimal_places=8)
+        self.eur = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='EUR', name='Euro', symbol='€')
 
     def _make_txn(self, asset, txn_type, amount, year=2026, category=None):
         return Transaction.objects.create(
@@ -471,13 +459,12 @@ class ResourceDashboardTests(TestCase):
     def test_resource_counts_live_in_bookkeeping_and_survive_an_empty_financial_asset_list(self):
         Transaction.objects.all().delete()
         Entity.objects.filter(entity_type=Entity.Type.FINANCIAL_ASSET).delete()
-        Asset.objects.all().delete()
         first_user = User.objects.create_user(username='resource-dashboard-first')
         second_user = User.objects.create_user(username='resource-dashboard-second')
-        ResourceListing.objects.create(profile=first_user.uzytkownik, name='Bike 1', kind=ResourceListing.Kind.GIVE)
-        ResourceListing.objects.create(profile=first_user.uzytkownik, name='Bike 2', kind=ResourceListing.Kind.GIVE)
-        ResourceListing.objects.create(profile=second_user.uzytkownik, name='Drill', kind=ResourceListing.Kind.BORROW)
-        ResourceListing.objects.create(profile=second_user.uzytkownik, name='Closed bike', kind=ResourceListing.Kind.GIVE, is_closed=True)
+        Entity.objects.create(entity_type=Entity.Type.RESOURCE, author=first_user, assigned_member=first_user.uzytkownik, name='Bike 1', resource_kind=Entity.ResourceKind.GIVE)
+        Entity.objects.create(entity_type=Entity.Type.RESOURCE, author=first_user, assigned_member=first_user.uzytkownik, name='Bike 2', resource_kind=Entity.ResourceKind.GIVE)
+        Entity.objects.create(entity_type=Entity.Type.RESOURCE, author=second_user, assigned_member=second_user.uzytkownik, name='Drill', resource_kind=Entity.ResourceKind.BORROW)
+        Entity.objects.create(entity_type=Entity.Type.RESOURCE, author=second_user, assigned_member=second_user.uzytkownik, name='Closed bike', resource_kind=Entity.ResourceKind.GIVE, is_closed=True)
 
         context = bookkeeping_dashboard_context(first_user)
 

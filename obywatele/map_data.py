@@ -1,9 +1,8 @@
 import math
 
-from django.db.models import Subquery
 from django.urls import reverse
 
-from bookkeeping.models import Partner, PhysicalAsset
+from bookkeeping.models import Partner
 from resources.models import LEGACY_PHYSICAL_ASSET_SOURCE, Entity, LegacyEntityReference
 from zzz.templatetags.citizen_filters import user_display_name
 
@@ -58,12 +57,12 @@ def _location(country_code, city, street='', house_number=''):
     return {'country_code': country_code or '', 'city': (city or '').strip(), 'street': (street or '').strip(), 'house_number': (house_number or '').strip()}
 
 
-def _physical_asset_map_record(asset, legacy_pk):
+def _physical_asset_map_record(asset, legacy_pk=None):
     return {
         'type': 'physical_asset',
         'name': asset.name,
         'address': _address_text(street=asset.street, house_number=asset.house_number, apartment_number=asset.apartment_number, city=asset.city, country=asset.country.name),
-        'url': reverse('bookkeeping:physical_asset_detail', kwargs={'pk': legacy_pk}),
+        'url': reverse('bookkeeping:physical_asset_detail' if legacy_pk is not None else 'bookkeeping:physical_asset_entity_detail', kwargs={'pk': legacy_pk if legacy_pk is not None else asset.pk}),
         'location': _location(asset.country.code, asset.city, asset.street, asset.house_number),
     }
 
@@ -113,22 +112,10 @@ def get_map_location_records():
     legacy_references = LegacyEntityReference.objects.filter(source_model=LEGACY_PHYSICAL_ASSET_SOURCE, entity__entity_type=Entity.Type.PHYSICAL_ASSET)
     legacy_pk_by_entity_id = dict(legacy_references.values_list('entity_id', 'source_pk'))
     physical_records = []
-    entities = (
-        Entity.objects.filter(entity_type=Entity.Type.PHYSICAL_ASSET, pk__in=legacy_pk_by_entity_id)
-        .select_related('country')
-        .only('id', 'name', 'country__code', 'country__name', 'city', 'street', 'house_number', 'apartment_number')
-    )
+    entities = Entity.objects.filter(entity_type=Entity.Type.PHYSICAL_ASSET).select_related('country').only('id', 'name', 'country__code', 'country__name', 'city', 'street', 'house_number', 'apartment_number')
     for entity in entities:
-        legacy_pk = legacy_pk_by_entity_id[entity.pk]
-        physical_records.append((entity.name, legacy_pk, _physical_asset_map_record(entity, legacy_pk)))
-
-    unmapped_assets = (
-        PhysicalAsset.objects.exclude(pk__in=Subquery(legacy_references.values('source_pk')))
-        .select_related('country')
-        .only('id', 'name', 'country__code', 'country__name', 'city', 'street', 'house_number', 'apartment_number')
-    )
-    for asset in unmapped_assets:
-        physical_records.append((asset.name, asset.pk, _physical_asset_map_record(asset, asset.pk)))
+        legacy_pk = legacy_pk_by_entity_id.get(entity.pk)
+        physical_records.append((entity.name, legacy_pk if legacy_pk is not None else entity.pk, _physical_asset_map_record(entity, legacy_pk)))
 
     records.extend(record for _, _, record in sorted(physical_records, key=lambda row: (row[0], row[1])))
 

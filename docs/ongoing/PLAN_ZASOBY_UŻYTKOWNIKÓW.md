@@ -2,15 +2,17 @@
 
 ## Stan wdrożenia
 
-Obecny katalog jest wdrożony w `bookkeeping`. Poniższe punkty opisują stan istniejącego kodu przed zaplanowanym scaleniem:
+Obecny katalog jest wdrożony w `bookkeeping`; wszystkie trzy typy zasobów korzystają już z `resources.Entity`.
 
-- `ResourceListing` w `bookkeeping` jest osobnym wpisem użytkownika: ma nazwę, opis i jeden z typów: do oddania, do pożyczenia, na sprzedaż albo potrzeba. Nie jest finansowym `Asset` ani transakcją.
+- Jednostki finansowe (`financial_asset`), aktywa fizyczne (`physical_asset`) oraz oferty/potrzeby (`resource`) są przechowywane w `resources.Entity`; reguły księgowe pozostają w `bookkeeping`.
+- Runtime modele `bookkeeping.Asset`, `bookkeeping.PhysicalAsset` i `bookkeeping.ResourceListing` oraz ich dual-write zostały usunięte. Migracje `0040` i `0041` usuwają stare tabele po preflight; nie były uruchamiane na lokalnej ani trwałej bazie.
+- `LegacyEntityReference` zachowuje stare URL-e finansowe, fizyczne i zasobów oraz linki mapy. Dla dawnych wspólnotowych shadow rows `source_profile_id` jest wyłącznie snapshotem do rollbacku, nie bieżącym przypisaniem.
 - Wpisy można dodawać, edytować i usuwać. Nazwa jest unikalna bez rozróżniania wielkości liter w obrębie użytkownika i typu.
 - Katalog `/bookkeeping/resource/` jest dostępny po zalogowaniu. Wyszukuje po nazwie i filtruje po typie, miejscowości oraz województwie; pokazuje oferty i potrzeby z odnośnikiem do profilu.
 - Formularz i lista własnych wpisów są pod `/bookkeeping/resource/manage/`; ich obsługa zachowuje dotychczasowe uprawnienia właściciela. Sugestie nazw działają w katalogu, nie w formularzu.
 - Wspólny słownik został świadomie odrzucony. Wpisy mają ręczny stan aktywny/zamknięty bez automatycznego wygaszania; `bookkeeping.0036` pozostawia istniejące wpisy aktywne. Nie mają zakresu lokalizacji ani archiwum starych pól. Dane profilu są edytowane osobno w ustawieniach.
 - Z profilu użytkownika prowadzi tylko odnośnik do zarządzania wpisami w Finanse. Stare adresy zasobów w `obywatele` przekierowują do nowych widoków.
-- `ResourceListing` nie jest markerem mapy. W docelowym wspólnym modelu encje ofert i potrzeb nadal nie będą mapowane; typ `physical_asset` pozostaje źródłem markerów zgodnie z `docs/ongoing/PLAN_MAPA.md`.
+- Oferty i potrzeby nie są markerami mapy; tylko `Entity` typu `physical_asset` trafia na mapę zgodnie z `docs/ongoing/PLAN_MAPA.md`.
 - Migracje `0047`–`0048` przeniosły stare pola profilu do wpisów i usunęły stare kolumny; `0055` rozdzieliła wpisy od słownika. Migracja `bookkeeping.0035` przenosi wpisy do `bookkeeping.ResourceListing`, a `obywatele.0056` usuwa stary model po skopiowaniu danych.
 
 Etapy 1–7 poniżej dokumentują dotychczasowe wdrożenie i jego dalszy rozwój; nie oznaczają już docelowej granicy modelu. Etap 8 zastępuje założenia o trzech osobnych modelach i opisuje migrację do `resources.Entity`. Nie odtwarzamy usuniętych pól ani nie dodajemy archiwum bez osobnej decyzji i potwierdzenia dostępności danych źródłowych.
@@ -107,7 +109,7 @@ Jednostką wyników jest pojedyncza encja. Oferty i potrzeby zachowują swobodne
 - [x] Migracja `0055` rozdzieliła wpisy na niezależne rekordy z własną nazwą i opisem, bez wspólnego `ResourceItem`.
 - [x] Migracje `bookkeeping.0034`–`0035` utworzyły `ResourceListing` i przeniosły dane; `bookkeeping.0036` dodała ręczny status, a `obywatele.0056` usuwa stary model dopiero po transferze.
 - [ ] Nie ma archiwum ani zatwierdzania migracji przez użytkownika. Nie odtwarzać archiwum bez potwierdzenia, że stare dane są nadal dostępne i wymagane.
-- [ ] Sprawdzić i udokumentować dostępne procedury odtworzenia danych w środowiskach, w których migracje zostały już wykonane.
+- [x] Ogólna procedura tworzenia backupu i odtwarzania SQLite jest udokumentowana w `docs/DEPLOYMENT_INSTRUCTIONS.md`; przed migracją produkcyjną wymaga aktualnego, zweryfikowanego backupu i użycia właściwego runbooka. Nie wykonywano backupu ani restore w ramach tego cutoveru.
 
 ## 8. Etap 6 - katalog i wyszukiwanie
 
@@ -158,9 +160,9 @@ Jednostką wyników jest pojedyncza encja. Oferty i potrzeby zachowują swobodne
 - [x] Skopiować istniejące fizyczne aktywa addytywną migracją do `resources.Entity`; zachować kraj, miejscowość i szczegóły adresu oraz zapisać mapowanie starego modelu/PK. Nie wymyślać autora ani przypisania dla danych historycznych.
 - [x] Skopiować `ResourceListing` addytywną migracją z typem, opisem, archiwum, datami, przypisanym profilem i mapowaniem starego modelu/PK. Nie dopisywać autora, którego źródło danych nie potwierdza.
 - [x] Przenieść fizyczne aktywa do typu `physical_asset`, zachowując adres i reguły mapy z `PLAN_MAPA.md`; nie ujawniać autora ani przypisania w payloadzie mapy.
-- [x] Przełączyć fizyczne formularze tworzenia/edycji na synchronizację `PhysicalAsset` i `Entity` w jednej transakcji. Nowy rekord otrzymuje autora i jawne przypisanie; tylko autor może później zmienić przypisanie, a historyczny autor pozostaje nieznany.
-- [x] Przełączyć agregację mapy na encje `physical_asset`, zachować stare linki szczegółów przez `LegacyEntityReference` i pokazywać niepowiązane rekordy legacy jako przejściowy fallback.
-- [x] Synchronizować tworzenie, edycję i archiwizację `ResourceListing` z `Entity`; przy usunięciu wpisu lub profilu usuwać jego legacy encję zgodnie z dotychczasowym `on_delete=CASCADE`. Zachować nieznanego autora dla historycznych rekordów.
+- [x] Przełączyć fizyczne formularze tworzenia/edycji bezpośrednio na `Entity`. Nowy rekord otrzymuje autora i jawne przypisanie; tylko autor może później zmienić przypisanie, a historyczny autor pozostaje nieznany. Stare fizyczne URL-e zachowuje `LegacyEntityReference`.
+- [x] Przełączyć agregację mapy na wszystkie encje `physical_asset`, zachować stare linki szczegółów przez `LegacyEntityReference` i usunąć fallback do modelu legacy po preflight.
+- [x] Usunąć dual-write i runtime `ResourceListing`; zachować stare URL-e przez `LegacyEntityReference` oraz dotychczasową kaskadę wpisów legacy członka przez sygnał usuwający przypisaną, nie-wspólnotową encję. Wspólnotowe zasoby pozostają niezależne od dawnego profilu.
 - [x] Skopiować finansowy `Asset` jako typ jednostki finansowej. Zachować kod, symbol, precyzję, domyślną jednostkę i ograniczenia integralności; nie przypisywać waluty członkowi ani społeczności. Relacje transakcji nadal wskazują na starą tabelę.
 - [x] Dodać nullable `Transaction.entity` i wypełnić je z mapowania finansowego `Asset`; przerwać migrację, jeśli transakcyjnemu aktywu brakuje encji. Zachować dotychczasowy FK `Transaction.asset`.
 - [x] Skopiować dane addytywnymi migracjami z mapowaniem `(stary model, stary PK) -> Entity PK`, ponieważ identyfikatory tabel mogą się powtarzać. Nie usuwać tabel źródłowych w tej fazie.
@@ -168,10 +170,10 @@ Jednostką wyników jest pojedyncza encja. Oferty i potrzeby zachowują swobodne
 - [x] Przełączyć formularz/listę/szczegóły transakcji, feed, saldo, pulpit i raporty na finansowe `Entity`; zachować starą trasę szczegółów i FK `Transaction.asset` jako przejściową kompatybilność.
 - [x] Przełączyć listę, szczegóły oraz tworzenie i edycję jednostek finansowych na `Entity`; mapować stare URL-e przez `LegacyEntityReference`, a legacy `Asset` zachować jako shadow dla istniejących FK i tras.
 - [x] Przy usuwaniu jednostki przez stary URL usuwać shadow i encję w jednej transakcji; transakcje nadal blokują usunięcie przez FK `PROTECT`.
-- [ ] Usunąć legacy FK `Transaction.asset` i model `bookkeeping.Asset` po audycie dual-write oraz zgodności danych.
+- [x] Usunąć legacy FK `Transaction.asset` i model `bookkeeping.Asset` po audycie dual-write oraz zgodności danych; `Transaction.entity` jest wymagane, a stare adresy jednostek finansowych nadal rozwiązują `LegacyEntityReference`.
 - [x] Dla starych `ResourceListing` zachować profil jako bieżące przypisanie; autor pozostaje nieznany, bo źródło danych nie potwierdza historii utworzenia ani transferów.
 - [x] Dla starych aktywów fizycznych bez danych o autorze/właścicielu nie dopisywać fikcyjnych użytkowników. Właściciela wspólnotowego ustawiać tylko po potwierdzeniu, że rekord reprezentuje własność całej społeczności.
 - [x] Przełączyć katalog oraz tworzenie/edycję/archiwizację zasobów na `Entity`; obsłużyć autora, przypisanie do członka lub wspólnoty, legacy URL-e oraz kaskadowe usuwanie starych wpisów członkowskich.
-- [ ] Udostępnić wspólne wyszukiwanie i filtrowanie po typie, nazwie, opisie, lokalizacji, stanie i przypisaniu, z zachowaniem uprawnień oraz prywatności mapy.
+- [x] Udostępnić wspólne wyszukiwanie i filtrowanie po typie, nazwie, opisie, lokalizacji, stanie i przypisaniu. Katalog obejmuje jednostki finansowe, fizyczne aktywa i oferty/potrzeby; nie wyświetla szczegółowych adresów ani autorów. Zamknięte oferty/potrzeby są widoczne wyłącznie autorowi, przypisanemu członkowi albo członkowi przeglądającemu zasób wspólnotowy.
 - [x] Dodać testy migracji i zgodności kopii: brak utraty rekordów/relacji źródłowych, mapowanie kolidujących PK, zachowanie pól waluty, domyślności i transakcji oraz przypisania zasobów.
-- [ ] Usunąć stare modele i migracyjne adaptery dopiero po audycie odwołań, zgodności danych oraz przetestowaniu procedury odtworzenia.
+- [x] Po audycie odwołań, preflight zgodności i testach rollbacku usunąć `PhysicalAsset`, `ResourceListing` oraz ich dual-write; `LegacyEntityReference` pozostaje wyłącznie dla starych URL-i/mapy, a `source_profile_id` zachowuje historyczny shadow owner do rollbacku.

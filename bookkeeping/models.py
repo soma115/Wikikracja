@@ -1,85 +1,9 @@
 from datetime import datetime
 
 from django.contrib.auth.models import User
-from django.db import models, transaction
-from django.db.models import Q
-from django.db.models.functions import Lower
+from django.core.exceptions import ValidationError
+from django.db import models
 from django.utils.translation import gettext_lazy as _
-
-
-class Asset(models.Model):
-    code = models.CharField(max_length=10, unique=True, verbose_name=_("Code"))
-    name = models.CharField(max_length=100, verbose_name=_("Name"))
-    symbol = models.CharField(max_length=10, verbose_name=_("Symbol"))
-    decimal_places = models.PositiveSmallIntegerField(default=2, verbose_name=_("Decimal places"))
-    is_currency = models.BooleanField(default=True, verbose_name=_("Is currency"))
-    is_default = models.BooleanField(
-        default=False,
-        verbose_name=_("Default asset"),
-        help_text=_("Main asset shown on the dashboard. Only one asset can be marked as default at a time — selecting a new one automatically unmarks the previous."),
-    )
-
-    def __str__(self):
-        return f"{self.code} ({self.symbol})"
-
-    def save(self, *args, **kwargs):
-        # Auto-unset: ustawienie is_default=True na tym instance odznacza poprzedniego defaulta.
-        # Wykluczamy self.pk, żeby nie odznaczyć samego siebie przy ponownym zapisie.
-        #
-        # Atomic: unset poprzedniego defaulta + zapis tego instance muszą być jedną transakcją.
-        # Bez tego, gdy super().save() rzuci PO update(), zostajemy z ZERO defaultów (poprzedni
-        # odznaczony, nowy niezapisany) bez rollbacku.
-        #
-        # Ograniczenia tej ścieżki (świadome trade-offy):
-        #  - QuerySet.update() / bulk_update() / bulk_create() omijają save() — można w ten sposób
-        #    obejść auto-unset i wymusić wiele defaultów. Bezpiecznikiem jest UniqueConstraint
-        #    w Meta poniżej (rzuci IntegrityError zamiast pozwolić na cichy bug).
-        #  - Race condition (dwóch userów zapisuje default jednocześnie) jest teoretycznie możliwy,
-        #    ale w praktyce nieosiągalny (admin assetów = jeden user, sporadyczne zmiany). Constraint
-        #    również go łapie.
-        with transaction.atomic():
-            if self.is_default:
-                Asset.objects.filter(is_default=True).exclude(pk=self.pk).update(is_default=False)
-            super().save(*args, **kwargs)
-
-    def validate_constraints(self, exclude=None):
-        # Pomijamy walidację constraintów dotyczących is_default na poziomie formularza.
-        # Powód: save() poniżej i tak zaspokoi 'unique_default_asset' przez auto-unset
-        # poprzedniego defaulta — ale validate_constraints() biegnie PRZED save(), więc bez
-        # tego override formularz promujący istniejący asset do default zawsze padałby z
-        # "Ograniczenie naruszone". Constraint nadal chroni przed bulk-bypass (QuerySet.update,
-        # bulk_create) na poziomie bazy — IntegrityError tam dalej leci.
-        # Uwaga: 'exclude' w Django to zbiór NAZW PÓL (nie nazw constrainów).
-        #
-        # TODO: to wyklucza is_default GLOBALNIE — każdy PRZYSZŁY constraint dotykający
-        # is_default też zostanie po cichu pominięty w walidacji formularza i wyjdzie dopiero
-        # jako IntegrityError na zapisie. Przy dodawaniu kolejnego constraintu na to pole
-        # zawęź exclude do konkretnej nazwy constraintu zamiast całego pola.
-        exclude = set(exclude or [])
-        exclude.add('is_default')
-        super().validate_constraints(exclude=exclude)
-
-    @classmethod
-    def get_default(cls):
-        """
-        Zwraca asset oznaczony jako domyślny (is_default=True).
-        Konsumenci: pulpit (karta finansów + badge), /transaction/ (default first w pasku sald),
-        /report/ (default first w pivot kolumn) — wszystko w trakcie wdrażania w ramach
-        multi-asset fix (kroki 3-5).
-
-        Fallback: pierwszy dodany (najmniejsze pk) — założenie, że user dodaje
-        najważniejszą walutę jako pierwszą. Zwraca None tylko gdy baza assetów jest pusta.
-        """
-        return cls.objects.filter(is_default=True).first() or cls.objects.order_by('pk').first()
-
-    class Meta:
-        ordering = ['code']
-        constraints = [
-            # Defense-in-depth dla auto-unset z save(). Łapie bypass (QuerySet.update,
-            # bulk_create) oraz teoretyczne race conditions. Partial unique index — tylko
-            # wiersze z is_default=True muszą być unique, False mogą się powtarzać.
-            models.UniqueConstraint(fields=['is_default'], condition=Q(is_default=True), name='unique_default_asset')
-        ]
 
 
 class Category(models.Model):
@@ -106,44 +30,6 @@ class Partner(models.Model):
         return self.name
 
 
-class PhysicalAsset(models.Model):
-    name = models.CharField(max_length=200, verbose_name=_("Name"))
-    country = models.ForeignKey('obywatele.Country', on_delete=models.PROTECT, related_name='physical_assets', verbose_name=_("Country"))
-    city = models.CharField(max_length=100, verbose_name=_("City"))
-    street = models.CharField(max_length=150, blank=True, default='', verbose_name=_("Street"))
-    house_number = models.CharField(max_length=32, blank=True, default='', verbose_name=_("House number"))
-    apartment_number = models.CharField(max_length=32, blank=True, default='', verbose_name=_("Apartment number"))
-
-    class Meta:
-        ordering = ('name', 'pk')
-
-    def __str__(self):
-        return self.name
-
-
-class ResourceListing(models.Model):
-    class Kind(models.TextChoices):
-        GIVE = 'give', _('Give away')
-        BORROW = 'borrow', _('Lend')
-        SALE = 'sale', _('For sale')
-        NEED = 'need', _('I need')
-
-    profile = models.ForeignKey('obywatele.Uzytkownik', on_delete=models.CASCADE, related_name='resource_listings', verbose_name=_('Profile'))
-    name = models.CharField(max_length=200, verbose_name=_('Name'))
-    description = models.TextField(max_length=1866, blank=True, default='', verbose_name=_('Description'))
-    kind = models.CharField(max_length=10, choices=Kind.choices, verbose_name=_('Type'))
-    is_closed = models.BooleanField(default=False, verbose_name=_('Archive'))
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
-    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
-
-    class Meta:
-        ordering = ('kind', 'name')
-        constraints = [models.UniqueConstraint(Lower('name'), 'profile', 'kind', name='unique_bookkeeping_resource_listing_name_ci')]
-
-    def __str__(self):
-        return f'{self.profile} - {self.name} ({self.get_kind_display()})'
-
-
 class Transaction(models.Model):
     INCOMING = 'I'
     OUTGOING = 'O'
@@ -154,8 +40,7 @@ class Transaction(models.Model):
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True, verbose_name=_("Last updated"))
     payment_received_date = models.DateField(null=True, blank=True, default=datetime.now, editable=True, verbose_name=_("Payment received date"))
 
-    asset = models.ForeignKey(Asset, on_delete=models.PROTECT, blank=False, verbose_name=_("Asset"))
-    entity = models.ForeignKey('resources.Entity', on_delete=models.PROTECT, null=True, blank=True, related_name='bookkeeping_transactions', verbose_name=_("Asset"))
+    entity = models.ForeignKey('resources.Entity', on_delete=models.PROTECT, related_name='bookkeeping_transactions', verbose_name=_("Asset"))
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Category"))
     partner = models.ForeignKey(Partner, on_delete=models.CASCADE, null=True, blank=False, verbose_name=_("Partner"))
     amount = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=False, verbose_name=_("Amount"))
@@ -164,24 +49,12 @@ class Transaction(models.Model):
 
     def save(self, *args, **kwargs):
         update_fields = kwargs.get('update_fields')
-        if update_fields is not None and not update_fields:
-            return super().save(*args, **kwargs)
-        if not (self._state.adding or self.entity_id is None or update_fields is None or {'asset', 'entity'}.intersection(update_fields)):
-            return super().save(*args, **kwargs)
+        if self.entity_id and (update_fields is None or {'entity', 'entity_id'}.intersection(update_fields)):
+            from resources.models import Entity
 
-        from resources.services import legacy_financial_asset_id_for_entity, sync_financial_asset_entity
-
-        with transaction.atomic():
-            legacy_asset_changed = update_fields is not None and 'asset' in update_fields and 'entity' not in update_fields
-            if self.entity_id and not legacy_asset_changed:
-                self.asset_id = legacy_financial_asset_id_for_entity(self.entity)
-            elif self.asset_id:
-                self.entity = sync_financial_asset_entity(self.asset)
-            else:
-                return super().save(*args, **kwargs)
-            if update_fields is not None:
-                kwargs['update_fields'] = set(update_fields) | {'asset', 'entity'}
-            return super().save(*args, **kwargs)
+            if not Entity.objects.filter(pk=self.entity_id, entity_type=Entity.Type.FINANCIAL_ASSET).exists():
+                raise ValidationError({'entity': _('Select a financial asset.')})
+        return super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.payment_received_date} - {self.partner} {self.type} {self.amount} {self.entity or self.asset}"
+        return f"{self.payment_received_date} - {self.partner} {self.type} {self.amount} {self.entity}"

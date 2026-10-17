@@ -34,6 +34,7 @@
   </section>
   {% endif %}
 
+  {% if search_values.entity_type == 'all' or search_values.entity_type == 'resource' %}
   {% if offer_listings or not offer_count %}
   <section>
     <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-3">
@@ -46,6 +47,7 @@
         <div class="tw-card-header tw-flex tw-items-start tw-justify-between tw-gap-2">
           <h3 class="tw-font-semibold tw-mb-0">{{ listing.name }}</h3>
           <span class="tw-badge-status {% if listing.resource_kind == 'borrow' %}tw-badge-info{% elif listing.resource_kind == 'give' %}tw-badge-success{% elif listing.resource_kind == 'sale' %}tw-badge-danger{% else %}tw-badge-warning{% endif %}">{{ listing.get_resource_kind_display }}</span>
+          {% if listing.is_closed %}<span class="tw-badge-status tw-badge-warning">{% trans "Archive" %}</span>{% endif %}
         </div>
         <div class="tw-card-body tw-space-y-2">
           {% if listing.description %}<p class="tw-mb-0 tw-whitespace-pre-wrap tw-text-sm">{{ listing.description|urlize|linebreaksbr }}</p>{% endif %}
@@ -76,6 +78,7 @@
         <div class="tw-card-header tw-flex tw-items-start tw-justify-between tw-gap-2">
           <h3 class="tw-font-semibold tw-mb-0">{{ listing.name }}</h3>
           <span class="tw-badge-status tw-badge-warning">{{ listing.get_resource_kind_display }}</span>
+          {% if listing.is_closed %}<span class="tw-badge-status tw-badge-warning">{% trans "Archive" %}</span>{% endif %}
         </div>
         <div class="tw-card-body tw-space-y-2">
           {% if listing.description %}<p class="tw-mb-0 tw-whitespace-pre-wrap tw-text-sm">{{ listing.description|urlize|linebreaksbr }}</p>{% endif %}
@@ -92,6 +95,62 @@
       {% endfor %}
     </div>
   </section>
+  {% endif %}
+  {% endif %}
+
+  {% if search_values.entity_type == 'all' or search_values.entity_type == 'physical_asset' %}
+  {% if physical_assets or not physical_asset_count %}
+  <section>
+    <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-3">
+      <h2 class="tw-section-heading tw-mb-0">{% trans "Physical assets" %}</h2>
+      <span class="tw-badge-status tw-badge-info">{{ physical_asset_count }}</span>
+    </div>
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-3">
+      {% for asset in physical_assets %}
+      <article class="tw-card">
+        <div class="tw-card-header"><h3 class="tw-font-semibold tw-mb-0">{{ asset.name }}</h3></div>
+        <div class="tw-card-body tw-space-y-2">
+          <p class="tw-mb-0 tw-text-sm tw-text-muted"><i class="fas fa-map-marker-alt fa-fw" aria-hidden="true"></i> {{ asset.city }} · {{ asset.country.name }}</p>
+          {% if asset.is_community_owned %}
+            <span class="tw-text-sm tw-text-muted">{% trans "Shared community ownership" %}</span>
+          {% elif asset.assigned_member %}
+            <a href="{{ asset.assigned_member.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ asset.assigned_member.uid|display_name }}</a>
+          {% else %}
+            <span class="tw-text-sm tw-text-muted">{% trans "Unassigned" %}</span>
+          {% endif %}
+        </div>
+      </article>
+      {% empty %}
+      <div class="tw-alert tw-alert-info md:tw-col-span-2 lg:tw-col-span-3">{% trans "No physical assets match your search." %}</div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+  {% endif %}
+
+  {% if search_values.entity_type == 'all' or search_values.entity_type == 'financial_asset' %}
+  {% if financial_assets or not financial_asset_count %}
+  <section>
+    <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-3">
+      <h2 class="tw-section-heading tw-mb-0">{% trans "Financial assets" %}</h2>
+      <span class="tw-badge-status tw-badge-info">{{ financial_asset_count }}</span>
+    </div>
+    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-3">
+      {% for asset in financial_assets %}
+      <article class="tw-card">
+        <div class="tw-card-header"><h3 class="tw-font-semibold tw-mb-0">{{ asset.name }}</h3></div>
+        <div class="tw-card-body tw-space-y-2">
+          <p class="tw-mb-0 tw-text-sm tw-text-muted"><i class="fas fa-coins fa-fw" aria-hidden="true"></i> {{ asset.code }} · {{ asset.symbol }}</p>
+          {% if asset.is_default %}<span class="tw-badge-status tw-badge-approved">{% trans "Default" %}</span>{% endif %}
+          {% if asset.is_currency %}<span class="tw-badge tw-badge-secondary">{% trans "Currency" %}</span>{% endif %}
+        </div>
+      </article>
+      {% empty %}
+      <div class="tw-alert tw-alert-info md:tw-col-span-2 lg:tw-col-span-3">{% trans "No financial assets match your search." %}</div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
   {% endif %}
 
   {% if is_paginated %}

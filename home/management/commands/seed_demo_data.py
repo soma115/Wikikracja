@@ -10,11 +10,12 @@ from PIL import Image, ImageDraw
 
 from ankiety.models import Survey, SurveyOption, SurveyVote
 from board.models import Post, PostCategory
-from bookkeeping.models import Asset, Partner, Transaction
 from bookkeeping.models import Category as BookkeepingCategory
+from bookkeeping.models import Partner, Transaction
 from events.models import Event
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, ZebranePodpisy
 from obywatele.models import Country, Region, Uzytkownik
+from resources.models import Entity
 from site_settings.models import SiteParameters
 from tasks.models import Category as TaskCategory
 from tasks.models import Task, TaskEvaluation, TaskVote
@@ -220,14 +221,18 @@ class Command(BaseCommand):
         decision.save(update_fields=["ile_osob_podpisalo"])
 
     def _create_bookkeeping(self, users):
-        asset, _ = Asset.objects.get_or_create(code="DEMO", defaults={"name": "Demo credits", "symbol": "DC", "is_default": not Asset.objects.filter(is_default=True).exists()})
+        asset, _ = Entity.objects.get_or_create(
+            entity_type=Entity.Type.FINANCIAL_ASSET,
+            code="DEMO",
+            defaults={"name": "Demo credits", "symbol": "DC", "is_currency": True, "is_default": not Entity.objects.filter(entity_type=Entity.Type.FINANCIAL_ASSET, is_default=True).exists()},
+        )
         category, _ = BookkeepingCategory.objects.get_or_create(name=DEMO_PREFIX + "Community operations")
         partner, _ = Partner.objects.get_or_create(name=DEMO_PREFIX + "Riverside Print Co.", defaults={"email": "hello@example.test", "city": "Portland", "country": "United States"})
         Transaction.objects.get_or_create(
-            note="Demo: printed meeting materials", defaults={"type": Transaction.OUTGOING, "asset": asset, "category": category, "partner": partner, "amount": Decimal("85.00"), "author": users["morgan"]}
+            note="Demo: printed meeting materials", defaults={"type": Transaction.OUTGOING, "entity": asset, "category": category, "partner": partner, "amount": Decimal("85.00"), "author": users["morgan"]}
         )
         Transaction.objects.get_or_create(
-            note="Demo: member contributions", defaults={"type": Transaction.INCOMING, "asset": asset, "category": category, "partner": partner, "amount": Decimal("240.00"), "author": users["morgan"]}
+            note="Demo: member contributions", defaults={"type": Transaction.INCOMING, "entity": asset, "category": category, "partner": partner, "amount": Decimal("240.00"), "author": users["morgan"]}
         )
 
     def _create_chat_messages(self, users, posts, tasks, surveys):

@@ -739,7 +739,7 @@ def on_important_post_published(sender, post, url, created=False, **kwargs):
 @receiver(transaction_created)
 def on_transaction_created(sender, transaction, url, **kwargs):
     title = _('New financial transaction')
-    body = f'{transaction.get_type_display()}: {transaction.amount} {transaction.asset.symbol}\n{transaction.partner}\n{url}'
+    body = f'{transaction.get_type_display()}: {transaction.amount} {transaction.entity.symbol}\n{transaction.partner}\n{url}'
     _dispatch_notification(
         title, body, url, f'transaction-{transaction.id}', notification_type='bookkeeping', push_event='transaction.created', ws_type='transaction.notification', send_email=False, transaction_id=transaction.id
     )
@@ -748,7 +748,7 @@ def on_transaction_created(sender, transaction, url, **kwargs):
 @receiver(transaction_updated)
 def on_transaction_updated(sender, transaction, url, **kwargs):
     title = _('Financial transaction updated')
-    body = f'{transaction.get_type_display()}: {transaction.amount} {transaction.asset.symbol}\n{transaction.partner}\n{url}'
+    body = f'{transaction.get_type_display()}: {transaction.amount} {transaction.entity.symbol}\n{transaction.partner}\n{url}'
     _dispatch_notification(
         title,
         body,

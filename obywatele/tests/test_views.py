@@ -32,7 +32,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import override, pgettext
 from PIL import Image
 
-from bookkeeping.models import Partner, PhysicalAsset, ResourceListing
+from bookkeeping.models import Partner
 from chat.models import Message, MessageReadBy, Room
 from chat.services import get_user_public_message_rows
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
@@ -506,7 +506,8 @@ class CitizenMapDataTests(TestCase):
             email='private@example.com',
             notes='private-notes',
         )
-        physical_asset = PhysicalAsset.objects.create(name='Map Hall', country=country, city='Boston', street='Main Street', house_number='14', apartment_number='3')
+        physical_asset = Entity.objects.create(entity_type=Entity.Type.PHYSICAL_ASSET, name='Map Hall', country=country, city='Boston', street='Main Street', house_number='14', apartment_number='3')
+        LegacyEntityReference.objects.create(entity=physical_asset, source_model=LEGACY_PHYSICAL_ASSET_SOURCE, source_pk=800001)
         Partner.objects.create(name='Unknown Country Partner', city='Portland', country='United Stetes')
 
         records = get_map_location_records()
@@ -524,7 +525,7 @@ class CitizenMapDataTests(TestCase):
         self.assertIn('Historic address', partner_record['address'])
         self.assertNotIn('apartment_number', partner_record['location'])
         physical_record = next(record for record in records if record['type'] == 'physical_asset')
-        self.assertEqual(physical_record['url'], reverse('bookkeeping:physical_asset_detail', args=[physical_asset.pk]))
+        self.assertEqual(physical_record['url'], reverse('bookkeeping:physical_asset_detail', args=[800001]))
         for record in records:
             self.assertNotIn('email', record)
             self.assertNotIn('phone', record)
@@ -535,13 +536,12 @@ class CitizenMapDataTests(TestCase):
         self.assertEqual(partner.name, 'Map Partner')
         self.assertFalse(inactive.is_active)
 
-    def test_map_uses_entity_for_migrated_physical_asset_and_legacy_id_for_link(self):
+    def test_map_includes_all_physical_entities_with_legacy_or_entity_urls(self):
         country = Country.objects.get(code='PL')
-        unmapped = PhysicalAsset.objects.create(name='Unmapped Hall', country=country, city='Kraków')
-        legacy_asset = PhysicalAsset.objects.create(name='Old physical title', country=country, city='Gdańsk')
+        unmapped = Entity.objects.create(entity_type=Entity.Type.PHYSICAL_ASSET, name='Unmapped Hall', country=country, city='Kraków')
         author = User.objects.create_user(username='entity-map-author')
         entity = Entity.objects.create(entity_type=Entity.Type.PHYSICAL_ASSET, name='Canonical physical title', country=country, city='Gdańsk', author=author, is_community_owned=True)
-        LegacyEntityReference.objects.create(entity=entity, source_model=LEGACY_PHYSICAL_ASSET_SOURCE, source_pk=legacy_asset.pk)
+        LegacyEntityReference.objects.create(entity=entity, source_model=LEGACY_PHYSICAL_ASSET_SOURCE, source_pk=800002)
         Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, name='Financial unit not mapped', code='MAP', symbol='M', is_currency=True)
         Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Offer not mapped', author=author, is_community_owned=True)
 
@@ -550,11 +550,12 @@ class CitizenMapDataTests(TestCase):
 
         self.assertEqual(len(physical_records), 2)
         canonical_record = next(record for record in physical_records if record['name'] == 'Canonical physical title')
-        self.assertEqual(canonical_record['url'], reverse('bookkeeping:physical_asset_detail', args=[legacy_asset.pk]))
+        self.assertEqual(canonical_record['url'], reverse('bookkeeping:physical_asset_detail', args=[800002]))
         self.assertEqual(canonical_record['location']['city'], 'Gdańsk')
         self.assertNotIn('author', canonical_record)
         self.assertNotIn('assigned_member', canonical_record)
-        self.assertIn(unmapped.name, {record['name'] for record in physical_records})
+        unmapped_record = next(record for record in physical_records if record['name'] == unmapped.name)
+        self.assertEqual(unmapped_record['url'], reverse('bookkeeping:physical_asset_entity_detail', args=[unmapped.pk]))
         self.assertNotIn('Financial unit not mapped', {record['name'] for record in records})
         self.assertNotIn('Offer not mapped', {record['name'] for record in records})
 
@@ -1585,7 +1586,7 @@ class MyProfileDetailsViewTest(TestCase):
         self.assertEqual(self.profile.city, 'Stare miasto')
 
     def test_profile_shows_only_a_link_to_resource_management(self):
-        ResourceListing.objects.create(profile=self.profile, name='Only-in-finance', kind=ResourceListing.Kind.GIVE)
+        Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Only-in-finance', author=self.user, assigned_member=self.profile)
 
         response = self.client.get(self.url)
 

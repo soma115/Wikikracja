@@ -14,11 +14,10 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from bookkeeping.models import Asset, Category, Partner, PhysicalAsset, ResourceListing, Transaction
+from bookkeeping.models import Category, Partner, Transaction
 from bookkeeping.views import AssetDeleteView
 from obywatele.models import Country
-from resources.models import Entity, LegacyEntityReference
-from resources.services import sync_financial_asset_entity
+from resources.models import LEGACY_FINANCIAL_ASSET_SOURCE, LEGACY_PHYSICAL_ASSET_SOURCE, LEGACY_RESOURCE_LISTING_SOURCE, Entity, LegacyEntityReference
 
 User = get_user_model()
 
@@ -38,18 +37,22 @@ class BookkeepingViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = User.objects.create_user(username='bk', email='bk@example.com', password='x')
-        cls.asset = Asset.objects.create(code='TST', name='Test Asset', symbol='T')
-        cls.entity = sync_financial_asset_entity(cls.asset)
+        cls.asset = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='TST', name='Test Asset', symbol='T')
+        cls.asset.legacy_asset_pk = 900000
+        LegacyEntityReference.objects.create(entity=cls.asset, source_model=LEGACY_FINANCIAL_ASSET_SOURCE, source_pk=cls.asset.legacy_asset_pk)
+        cls.entity = cls.asset
         cls.category = Category.objects.create(name='Test Cat')
         cls.partner = Partner.objects.create(name='Test Partner')
-        cls.physical_asset = PhysicalAsset.objects.create(name='Community garden', country=Country.objects.get(code='PL'), city='Warsaw')
+        cls.physical_asset = Entity.objects.create(entity_type=Entity.Type.PHYSICAL_ASSET, name='Community garden', country=Country.objects.get(code='PL'), city='Warsaw')
+        cls.physical_asset.legacy_physical_pk = 910000
+        LegacyEntityReference.objects.create(entity=cls.physical_asset, source_model=LEGACY_PHYSICAL_ASSET_SOURCE, source_pk=cls.physical_asset.legacy_physical_pk)
 
     def setUp(self):
         self.client = Client()
         self.client.force_login(self.user)
 
     def _transaction(self, author=None, payment_received_date=None, note=''):
-        data = {'type': 'I', 'asset': self.asset, 'category': self.category, 'partner': self.partner, 'amount': 10, 'author': author or self.user, 'note': note}
+        data = {'type': 'I', 'entity': self.asset, 'category': self.category, 'partner': self.partner, 'amount': 10, 'author': author or self.user, 'note': note}
         if payment_received_date is not None:
             data['payment_received_date'] = payment_received_date
         return Transaction.objects.create(**data)
@@ -71,15 +74,16 @@ class BookkeepingViewTests(TestCase):
         anonymous_client = Client()
         transaction = self._transaction()
         cases = (
-            ('bookkeeping:asset_update', self.asset),
+            ('bookkeeping:asset_update', self.asset.legacy_asset_pk),
             ('bookkeeping:category_update', self.category),
             ('bookkeeping:partner_update', self.partner),
-            ('bookkeeping:physical_asset_update', self.physical_asset),
+            ('bookkeeping:physical_asset_update', self.physical_asset.legacy_physical_pk),
             ('bookkeeping:transaction_update', transaction),
         )
 
         for url_name, instance in cases:
-            url = reverse(url_name, args=[instance.pk])
+            pk = instance if isinstance(instance, int) else instance.pk
+            url = reverse(url_name, args=[pk])
             with self.subTest(url_name=url_name, method='GET'):
                 self.assertEqual(anonymous_client.get(url).status_code, 302)
             with self.subTest(url_name=url_name, method='POST'):
@@ -88,30 +92,33 @@ class BookkeepingViewTests(TestCase):
     def test_asset_create_and_update(self):
         res = self.client.post(reverse('bookkeeping:asset_create'), {'code': 'PLN2', 'name': 'Złoty', 'symbol': 'zł', 'decimal_places': 2})
         self.assertEqual(res.status_code, 302)
-        asset = Asset.objects.get(code='PLN2')
-        entity = Entity.objects.get(entity_type=Entity.Type.FINANCIAL_ASSET, legacy_references__source_model='bookkeeping.Asset', legacy_references__source_pk=asset.pk)
-        self.assertEqual(entity.code, asset.code)
+        entity = Entity.objects.get(entity_type=Entity.Type.FINANCIAL_ASSET, code='PLN2')
         list_response = self.client.get(reverse('bookkeeping:asset_list'))
-        self.assertContains(list_response, f'data-detail-url="{reverse("bookkeeping:asset_detail", args=[asset.pk])}"')
+        self.assertContains(list_response, f'data-detail-url="{reverse("bookkeeping:asset_entity_detail", args=[entity.pk])}"')
 
-        res = self.client.post(reverse('bookkeeping:asset_update', args=[asset.pk]), {'code': 'PLN2', 'name': 'Polski złoty', 'symbol': 'zł', 'decimal_places': 2, 'is_currency': 'on', 'is_default': 'on'})
+        res = self.client.post(
+            reverse('bookkeeping:asset_entity_update', args=[entity.pk]), {'code': 'PLN2', 'name': 'Polski złoty', 'symbol': 'zł', 'decimal_places': 2, 'is_currency': 'on', 'is_default': 'on'}
+        )
         self.assertEqual(res.status_code, 302)
-        asset.refresh_from_db()
         entity.refresh_from_db()
-        self.assertEqual(asset.name, 'Polski złoty')
         self.assertEqual(entity.name, 'Polski złoty')
-        self.assertTrue(asset.is_default)
         self.assertTrue(entity.is_default)
 
-    def test_deleting_unused_asset_removes_its_entity_mirror(self):
-        self.client.post(reverse('bookkeeping:asset_create'), {'code': 'DEL', 'name': 'Delete unit', 'symbol': 'D', 'decimal_places': 2})
-        asset = Asset.objects.get(code='DEL')
-        entity = Entity.objects.get(entity_type=Entity.Type.FINANCIAL_ASSET, legacy_references__source_model='bookkeeping.Asset', legacy_references__source_pk=asset.pk)
-
-        response = self.client.post(reverse('bookkeeping:asset_delete', args=[asset.pk]))
+    def test_legacy_asset_url_updates_the_mapped_entity(self):
+        response = self.client.post(reverse('bookkeeping:asset_update', args=[self.asset.legacy_asset_pk]), {'code': 'TST', 'name': 'Legacy URL edit', 'symbol': 'T', 'decimal_places': 2, 'is_currency': 'on'})
 
         self.assertRedirects(response, reverse('bookkeeping:asset_list'))
-        self.assertFalse(Asset.objects.filter(pk=asset.pk).exists())
+        self.asset.refresh_from_db()
+        self.assertEqual(self.asset.name, 'Legacy URL edit')
+        self.assertTrue(LegacyEntityReference.objects.filter(entity=self.asset, source_model=LEGACY_FINANCIAL_ASSET_SOURCE, source_pk=self.asset.legacy_asset_pk).exists())
+
+    def test_deleting_unused_financial_entity(self):
+        self.client.post(reverse('bookkeeping:asset_create'), {'code': 'DEL', 'name': 'Delete unit', 'symbol': 'D', 'decimal_places': 2})
+        entity = Entity.objects.get(entity_type=Entity.Type.FINANCIAL_ASSET, code='DEL')
+
+        response = self.client.post(reverse('bookkeeping:asset_entity_delete', args=[entity.pk]))
+
+        self.assertRedirects(response, reverse('bookkeeping:asset_list'))
         self.assertFalse(Entity.objects.filter(pk=entity.pk).exists())
 
     def test_physical_asset_create_and_update(self):
@@ -119,23 +126,32 @@ class BookkeepingViewTests(TestCase):
         response = self.client.post(reverse('bookkeeping:physical_asset_create'), data)
 
         self.assertRedirects(response, reverse('bookkeeping:physical_asset_list'))
-        physical_asset = PhysicalAsset.objects.get(name='Community hall')
-        self.assertEqual(physical_asset.country.code, 'PL')
-        self.assertEqual(physical_asset.city, 'Gdańsk')
-        entity = Entity.objects.get(entity_type=Entity.Type.PHYSICAL_ASSET, legacy_references__source_model='bookkeeping.PhysicalAsset', legacy_references__source_pk=physical_asset.pk)
+        entity = Entity.objects.get(entity_type=Entity.Type.PHYSICAL_ASSET, name='Community hall')
+        self.assertEqual(entity.country.code, 'PL')
+        self.assertEqual(entity.city, 'Gdańsk')
         self.assertEqual(entity.author, self.user)
         self.assertEqual(entity.assignment_scope, Entity.AssignmentScope.COMMUNITY)
+        list_response = self.client.get(reverse('bookkeeping:physical_asset_list'))
+        self.assertContains(list_response, f'data-detail-url="{reverse("bookkeeping:physical_asset_entity_detail", args=[entity.pk])}"')
 
-        response = self.client.post(reverse('bookkeeping:physical_asset_update', args=[physical_asset.pk]), {**data, 'name': 'Community venue'})
+        response = self.client.post(reverse('bookkeeping:physical_asset_entity_update', args=[entity.pk]), {**data, 'name': 'Community venue'})
 
         self.assertRedirects(response, reverse('bookkeeping:physical_asset_list'))
-        physical_asset.refresh_from_db()
         entity.refresh_from_db()
-        self.assertEqual(physical_asset.name, 'Community venue')
-        self.assertEqual(physical_asset.apartment_number, '2')
         self.assertEqual(entity.name, 'Community venue')
+        self.assertEqual(entity.apartment_number, '2')
         self.assertEqual(entity.author, self.user)
         self.assertEqual(entity.assignment_scope, Entity.AssignmentScope.COMMUNITY)
+
+    def test_legacy_physical_asset_url_updates_the_mapped_entity(self):
+        data = {'name': 'Garden tools', 'country': 'PL', 'city': 'Warsaw', 'street': 'Old Street', 'house_number': '8', 'apartment_number': '1'}
+        response = self.client.post(reverse('bookkeeping:physical_asset_update', args=[self.physical_asset.legacy_physical_pk]), {**data, 'assignment_scope': Entity.AssignmentScope.COMMUNITY})
+
+        self.assertRedirects(response, reverse('bookkeeping:physical_asset_list'))
+        self.physical_asset.refresh_from_db()
+        self.assertEqual(self.physical_asset.name, 'Garden tools')
+        self.assertEqual(self.physical_asset.street, 'Old Street')
+        self.assertTrue(LegacyEntityReference.objects.filter(entity=self.physical_asset, source_model=LEGACY_PHYSICAL_ASSET_SOURCE, source_pk=self.physical_asset.legacy_physical_pk).exists())
 
     def test_physical_asset_creator_can_assign_another_active_member(self):
         assigned_user = User.objects.create_user(username='asset-assignee')
@@ -152,7 +168,6 @@ class BookkeepingViewTests(TestCase):
     def test_only_entity_author_can_change_its_assignment(self):
         create_data = {'name': 'Author-controlled asset', 'country': 'PL', 'city': 'Gdańsk', 'assignment_scope': Entity.AssignmentScope.COMMUNITY}
         self.client.post(reverse('bookkeeping:physical_asset_create'), create_data)
-        physical_asset = PhysicalAsset.objects.get(name='Author-controlled asset')
         entity = Entity.objects.get(name='Author-controlled asset', entity_type=Entity.Type.PHYSICAL_ASSET)
         other_user = User.objects.create_user(username='asset-non-author')
         assigned_user = User.objects.create_user(username='asset-non-author-assignee')
@@ -160,7 +175,7 @@ class BookkeepingViewTests(TestCase):
         other_client.force_login(other_user)
 
         response = other_client.post(
-            reverse('bookkeeping:physical_asset_update', args=[physical_asset.pk]), {**create_data, 'assignment_scope': Entity.AssignmentScope.MEMBER, 'assigned_member': assigned_user.uzytkownik.pk}
+            reverse('bookkeeping:physical_asset_entity_update', args=[entity.pk]), {**create_data, 'assignment_scope': Entity.AssignmentScope.MEMBER, 'assigned_member': assigned_user.uzytkownik.pk}
         )
 
         self.assertRedirects(response, reverse('bookkeeping:physical_asset_list'))
@@ -174,22 +189,22 @@ class BookkeepingViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('country', response.context['form'].errors)
         self.assertIn('city', response.context['form'].errors)
-        self.assertFalse(PhysicalAsset.objects.filter(name='Incomplete asset').exists())
+        self.assertFalse(Entity.objects.filter(entity_type=Entity.Type.PHYSICAL_ASSET, name='Incomplete asset').exists())
 
     def test_physical_asset_requires_an_explicit_assignment(self):
         response = self.client.post(reverse('bookkeeping:physical_asset_create'), {'name': 'Unassigned asset', 'country': 'PL', 'city': 'Gdańsk'})
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('assignment_scope', response.context['form'].errors)
-        self.assertFalse(PhysicalAsset.objects.filter(name='Unassigned asset').exists())
+        self.assertFalse(Entity.objects.filter(entity_type=Entity.Type.PHYSICAL_ASSET, name='Unassigned asset').exists())
 
     def test_edit_forms_render_prefilled_data(self):
         transaction = self._transaction()
         cases = (
-            ('bookkeeping:asset_update', self.asset.pk, self.entity, 'form'),
+            ('bookkeeping:asset_update', self.asset.legacy_asset_pk, self.entity, 'form'),
             ('bookkeeping:category_update', self.category.pk, self.category, 'form'),
             ('bookkeeping:partner_update', self.partner.pk, self.partner, 'form'),
-            ('bookkeeping:physical_asset_update', self.physical_asset.pk, self.physical_asset, 'form'),
+            ('bookkeeping:physical_asset_update', self.physical_asset.legacy_physical_pk, self.physical_asset, 'form'),
             ('bookkeeping:transaction_update', transaction.pk, transaction, 'transaction_form'),
         )
 
@@ -206,7 +221,7 @@ class BookkeepingViewTests(TestCase):
             ('bookkeeping:partner_create', None, ('name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes')),
             ('bookkeeping:partner_update', self.partner.pk, ('name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes')),
             ('bookkeeping:physical_asset_create', None, ('name', 'country', 'city', 'street', 'house_number', 'apartment_number', 'assignment_scope', 'assigned_member')),
-            ('bookkeeping:physical_asset_update', self.physical_asset.pk, ('name', 'country', 'city', 'street', 'house_number', 'apartment_number')),
+            ('bookkeeping:physical_asset_update', self.physical_asset.legacy_physical_pk, ('name', 'country', 'city', 'street', 'house_number', 'apartment_number')),
         )
 
         for url_name, pk, expected_fields in cases:
@@ -261,7 +276,8 @@ class BookkeepingViewTests(TestCase):
 
         for url_name, instance, data, context_name in cases:
             with self.subTest(url_name=url_name):
-                response = self.client.post(reverse(url_name, args=[instance.pk]), data)
+                pk = getattr(instance, 'legacy_asset_pk', getattr(instance, 'legacy_physical_pk', instance.pk))
+                response = self.client.post(reverse(url_name, args=[pk]), data)
                 self.assertEqual(response.status_code, 200)
                 self.assertTrue(response.context[context_name].errors)
 
@@ -277,11 +293,11 @@ class BookkeepingViewTests(TestCase):
     def test_protected_delete_blocks_object_with_transactions(self):
         self._transaction()
 
-        res = self.client.post(reverse('bookkeeping:asset_delete', args=[self.asset.pk]))
+        res = self.client.post(reverse('bookkeeping:asset_delete', args=[self.asset.legacy_asset_pk]))
         self.assertEqual(res.status_code, 302)
-        self.assertTrue(Asset.objects.filter(pk=self.asset.pk).exists())
+        self.assertTrue(Entity.objects.filter(pk=self.asset.pk).exists())
 
-        res = self.client.get(reverse('bookkeeping:asset_delete', args=[self.asset.pk]))
+        res = self.client.get(reverse('bookkeeping:asset_delete', args=[self.asset.legacy_asset_pk]))
         self.assertTrue(res.context['has_dependencies'])
         self.assertEqual(res.context['error'], str(AssetDeleteView.protect_message))
         self.assertEqual(list(res.context['related_transactions']), list(Transaction.objects.all()))
@@ -309,10 +325,10 @@ class BookkeepingViewTests(TestCase):
 
         self.assertContains(response, f'href="{reverse("bookkeeping:partner_detail", args=[self.partner.pk])}"')
         self.assertContains(response, f'href="{reverse("bookkeeping:category_detail", args=[self.category.pk])}"')
-        self.assertContains(response, f'href="{reverse("bookkeeping:asset_detail", args=[self.asset.pk])}"')
+        self.assertContains(response, f'href="{reverse("bookkeeping:asset_entity_detail", args=[self.asset.pk])}"')
 
     def test_asset_detail_does_not_repeat_code_as_badge(self):
-        response = self.client.get(reverse('bookkeeping:asset_detail', args=[self.asset.pk]))
+        response = self.client.get(reverse('bookkeeping:asset_detail', args=[self.asset.legacy_asset_pk]))
 
         self.assertNotContains(response, 'tw-badge tw-badge-secondary')
 
@@ -322,7 +338,7 @@ class BookkeepingViewTests(TestCase):
         self.physical_asset.apartment_number = '2'
         self.physical_asset.save()
 
-        response = self.client.get(reverse('bookkeeping:physical_asset_detail', args=[self.physical_asset.pk]))
+        response = self.client.get(reverse('bookkeeping:physical_asset_detail', args=[self.physical_asset.legacy_physical_pk]))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Warsaw')
@@ -331,7 +347,7 @@ class BookkeepingViewTests(TestCase):
 
         inactive_user = User.objects.create_user(username='inactive-member', is_active=False)
         self.client.force_login(inactive_user)
-        response = self.client.get(reverse('bookkeeping:physical_asset_detail', args=[self.physical_asset.pk]))
+        response = self.client.get(reverse('bookkeeping:physical_asset_detail', args=[self.physical_asset.legacy_physical_pk]))
         self.assertEqual(response.status_code, 302)
 
     def test_partner_detail_shows_apartment_only_to_active_members(self):
@@ -471,6 +487,11 @@ class ResourceListingViewTests(TestCase):
         self.list_url = reverse('bookkeeping:resource_list')
         self.manage_url = reverse('bookkeeping:resource_manage')
 
+    def _legacy_resource(self, profile, *, name, kind, description='', is_closed=False):
+        entity = Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=kind, name=name, description=description, is_closed=is_closed, assigned_member=profile)
+        LegacyEntityReference.objects.create(entity=entity, source_model=LEGACY_RESOURCE_LISTING_SOURCE, source_pk=entity.pk)
+        return entity
+
     def test_views_require_login(self):
         client = Client()
 
@@ -487,7 +508,7 @@ class ResourceListingViewTests(TestCase):
         self.assertRedirects(response, self.manage_url)
         entity = Entity.objects.get(entity_type=Entity.Type.RESOURCE, name='Rower')
         self.assertEqual((entity.author, entity.assigned_member, entity.resource_kind, entity.name, entity.description), (self.owner, self.owner.uzytkownik, 'give', 'Rower', 'Do oddania'))
-        self.assertFalse(ResourceListing.objects.filter(name='Rower').exists())
+        self.assertFalse(LegacyEntityReference.objects.filter(entity=entity, source_model=LEGACY_RESOURCE_LISTING_SOURCE).exists())
 
         other_entity = Entity.objects.create(entity_type=Entity.Type.RESOURCE, author=self.other_user, assigned_member=self.other_user.uzytkownik, name='Other bike', resource_kind=Entity.ResourceKind.GIVE)
         response = self.client.post(reverse('bookkeeping:resource_entity_update', args=[entity.pk]), {'kind': 'sale', 'name': 'Rower miejski', 'description': 'Sprawny', **member_assignment})
@@ -498,19 +519,15 @@ class ResourceListingViewTests(TestCase):
         self.assertTrue(Entity.objects.filter(pk=other_entity.pk).exists())
 
     def test_legacy_resource_url_updates_the_mapped_entity(self):
-        listing = ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Legacy drill', kind=ResourceListing.Kind.BORROW)
-        reference = LegacyEntityReference.objects.get(source_model='bookkeeping.ResourceListing', source_pk=listing.pk)
-        entity = reference.entity
+        entity = self._legacy_resource(self.owner.uzytkownik, name='Legacy drill', kind=Entity.ResourceKind.BORROW)
 
         response = self.client.post(
-            reverse('bookkeeping:resource_update', args=[listing.pk]),
+            reverse('bookkeeping:resource_update', args=[entity.pk]),
             {'kind': 'sale', 'name': 'Legacy drill', 'description': 'Available', 'assignment_scope': Entity.AssignmentScope.MEMBER, 'assigned_member': self.owner.uzytkownik.pk},
         )
 
         self.assertRedirects(response, self.manage_url)
-        listing.refresh_from_db()
         entity.refresh_from_db()
-        self.assertEqual((listing.kind, listing.description), ('sale', 'Available'))
         self.assertEqual((entity.resource_kind, entity.description), ('sale', 'Available'))
         self.assertIsNone(entity.author_id)
 
@@ -523,7 +540,7 @@ class ResourceListingViewTests(TestCase):
         self.assertRedirects(response, self.manage_url)
         entity = Entity.objects.get(entity_type=Entity.Type.RESOURCE, name='Shared bicycle')
         self.assertEqual((entity.author, entity.assigned_member), (self.owner, self.other_user.uzytkownik))
-        self.assertFalse(ResourceListing.objects.filter(name='Shared bicycle').exists())
+        self.assertFalse(LegacyEntityReference.objects.filter(entity=entity, source_model=LEGACY_RESOURCE_LISTING_SOURCE).exists())
 
         self.client.force_login(self.other_user)
         response = self.client.post(
@@ -552,17 +569,15 @@ class ResourceListingViewTests(TestCase):
         self.assertContains(self.client.get(self.list_url, {'q': 'Community drill'}), str(Entity.AssignmentScope.COMMUNITY.label))
 
     def test_legacy_resource_transferred_to_community_survives_profile_deletion(self):
-        listing = ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Shared legacy drill', kind=ResourceListing.Kind.BORROW)
-        reference = LegacyEntityReference.objects.get(source_model='bookkeeping.ResourceListing', source_pk=listing.pk)
-        entity = reference.entity
+        entity = self._legacy_resource(self.owner.uzytkownik, name='Shared legacy drill', kind=Entity.ResourceKind.BORROW)
+        reference = LegacyEntityReference.objects.get(source_model=LEGACY_RESOURCE_LISTING_SOURCE, source_pk=entity.pk)
 
         response = self.client.post(
-            reverse('bookkeeping:resource_update', args=[listing.pk]),
+            reverse('bookkeeping:resource_update', args=[entity.pk]),
             {'kind': 'borrow', 'name': 'Shared legacy drill', 'description': 'Community property', 'assignment_scope': Entity.AssignmentScope.COMMUNITY, 'assigned_member': ''},
         )
 
         self.assertRedirects(response, self.manage_url)
-        self.assertTrue(ResourceListing.objects.filter(pk=listing.pk).exists())
         self.assertTrue(LegacyEntityReference.objects.filter(pk=reference.pk).exists())
         entity.refresh_from_db()
         self.assertTrue(entity.is_community_owned)
@@ -570,7 +585,6 @@ class ResourceListingViewTests(TestCase):
 
         self.owner.delete()
         entity.refresh_from_db()
-        self.assertFalse(ResourceListing.objects.filter(pk=listing.pk).exists())
         self.assertTrue(LegacyEntityReference.objects.filter(pk=reference.pk).exists())
         self.assertTrue(entity.is_community_owned)
         self.assertIsNone(entity.author_id)
@@ -579,7 +593,7 @@ class ResourceListingViewTests(TestCase):
         response = self.client.get(self.manage_url)
         self.assertEqual([item.pk for item in response.context['active_listings']], [entity.pk])
         response = self.client.post(
-            reverse('bookkeeping:resource_update', args=[listing.pk]),
+            reverse('bookkeeping:resource_update', args=[entity.pk]),
             {'kind': 'borrow', 'name': 'Shared legacy drill', 'description': 'Assigned to a member', 'assignment_scope': Entity.AssignmentScope.MEMBER, 'assigned_member': self.other_user.uzytkownik.pk},
         )
         self.assertRedirects(response, self.manage_url)
@@ -589,9 +603,9 @@ class ResourceListingViewTests(TestCase):
         self.assertIsNone(entity.author_id)
 
     def test_listing_names_remain_unique_per_owner_and_kind(self):
-        listing = ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', kind=ResourceListing.Kind.GIVE)
-        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Wiertarka', kind=ResourceListing.Kind.GIVE)
-        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', kind=ResourceListing.Kind.SALE)
+        listing = self._legacy_resource(self.owner.uzytkownik, name='Rower', kind=Entity.ResourceKind.GIVE)
+        self._legacy_resource(self.owner.uzytkownik, name='Wiertarka', kind=Entity.ResourceKind.GIVE)
+        self._legacy_resource(self.owner.uzytkownik, name='Rower', kind=Entity.ResourceKind.SALE)
 
         response = self.client.post(
             reverse('bookkeeping:resource_update', args=[listing.pk]),
@@ -600,15 +614,14 @@ class ResourceListingViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn('name', response.context['resource_form'].errors)
-        listing.refresh_from_db()
         self.assertEqual(listing.name, 'Rower')
 
     def test_only_owner_can_edit_or_delete_listing(self):
-        listing = ResourceListing.objects.create(profile=self.other_user.uzytkownik, name='Wiertarka', kind=ResourceListing.Kind.BORROW)
+        listing = self._legacy_resource(self.other_user.uzytkownik, name='Wiertarka', kind=Entity.ResourceKind.BORROW)
 
         self.assertEqual(self.client.get(reverse('bookkeeping:resource_update', args=[listing.pk])).status_code, 404)
         self.assertEqual(self.client.post(reverse('bookkeeping:resource_delete', args=[listing.pk])).status_code, 404)
-        self.assertTrue(ResourceListing.objects.filter(pk=listing.pk).exists())
+        self.assertTrue(Entity.objects.filter(pk=listing.pk).exists())
 
     def test_owner_can_delete_listing(self):
         self.client.post(
@@ -622,16 +635,15 @@ class ResourceListingViewTests(TestCase):
         self.assertFalse(Entity.objects.filter(pk=entity.pk).exists())
 
     def test_deleting_profile_removes_its_legacy_entity_mirror(self):
-        listing = ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Profile drill', kind=ResourceListing.Kind.GIVE)
-        entity_id = LegacyEntityReference.objects.get(source_model='bookkeeping.ResourceListing', source_pk=listing.pk).entity_id
+        entity = self._legacy_resource(self.owner.uzytkownik, name='Profile drill', kind=Entity.ResourceKind.GIVE)
 
         self.owner.uzytkownik.delete()
 
-        self.assertFalse(ResourceListing.objects.filter(pk=listing.pk).exists())
-        self.assertFalse(Entity.objects.filter(pk=entity_id).exists())
+        self.assertFalse(Entity.objects.filter(pk=entity.pk).exists())
+        self.assertFalse(LegacyEntityReference.objects.filter(source_model=LEGACY_RESOURCE_LISTING_SOURCE, source_pk=entity.pk).exists())
 
     def test_owner_can_close_and_restore_listing(self):
-        listing = ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', kind=ResourceListing.Kind.GIVE)
+        listing = self._legacy_resource(self.owner.uzytkownik, name='Rower', kind=Entity.ResourceKind.GIVE)
         toggle_url = reverse('bookkeeping:resource_toggle_closed', args=[listing.pk])
 
         response = self.client.post(toggle_url, {'closed': '1'})
@@ -652,12 +664,10 @@ class ResourceListingViewTests(TestCase):
 
         self.assertRedirects(response, self.manage_url)
         listing.refresh_from_db()
-        entity.refresh_from_db()
         self.assertFalse(listing.is_closed)
-        self.assertFalse(entity.is_closed)
 
     def test_only_owner_can_close_listing(self):
-        listing = ResourceListing.objects.create(profile=self.other_user.uzytkownik, name='Rower', kind=ResourceListing.Kind.GIVE)
+        listing = self._legacy_resource(self.other_user.uzytkownik, name='Rower', kind=Entity.ResourceKind.GIVE)
 
         response = self.client.post(reverse('bookkeeping:resource_toggle_closed', args=[listing.pk]), {'closed': '1'})
 
@@ -666,9 +676,9 @@ class ResourceListingViewTests(TestCase):
         self.assertFalse(listing.is_closed)
 
     def test_resource_catalog_filters_and_splits_offers_and_needs(self):
-        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', description='Do odebrania', kind=ResourceListing.Kind.GIVE)
-        ResourceListing.objects.create(profile=self.other_user.uzytkownik, name='Rower', description='Szukam roweru', kind=ResourceListing.Kind.NEED)
-        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Wiertarka', kind=ResourceListing.Kind.BORROW)
+        self._legacy_resource(self.owner.uzytkownik, name='Rower', description='Do odebrania', kind=Entity.ResourceKind.GIVE)
+        self._legacy_resource(self.other_user.uzytkownik, name='Rower', description='Szukam roweru', kind=Entity.ResourceKind.NEED)
+        self._legacy_resource(self.owner.uzytkownik, name='Wiertarka', kind=Entity.ResourceKind.BORROW)
         self.client.force_login(self.viewer)
 
         response = self.client.get(self.list_url, {'q': 'Rower'})
@@ -685,9 +695,56 @@ class ResourceListingViewTests(TestCase):
         self.assertEqual(len(response.context['offer_listings']), 1)
         self.assertEqual(len(response.context['need_listings']), 0)
 
+    def test_common_resource_search_filters_entity_types_and_keeps_addresses_private(self):
+        country = Country.objects.get(code='PL')
+        physical_asset = Entity.objects.create(
+            entity_type=Entity.Type.PHYSICAL_ASSET,
+            name='Community greenhouse',
+            description='Shared food garden',
+            author=self.owner,
+            is_community_owned=True,
+            country=country,
+            city='Gdansk',
+            street='Secret Alley',
+            house_number='42',
+        )
+        financial_asset = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, name='Community credit', code='CMCR', symbol='C')
+        resource = Entity.objects.create(
+            entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Community tools', description='Tools for the garden', author=self.owner, assigned_member=self.owner.uzytkownik
+        )
+
+        response = self.client.get(self.list_url, {'entity_type': 'all', 'q': 'Community'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual({entity.pk for entity in response.context['entity_results']}, {physical_asset.pk, financial_asset.pk, resource.pk})
+        self.assertContains(response, 'Gdansk')
+        self.assertNotContains(response, 'Secret Alley')
+
+        response = self.client.get(self.list_url, {'entity_type': 'physical_asset', 'country': 'Poland', 'city': 'gdan', 'assignment': 'community'})
+        self.assertEqual([entity.pk for entity in response.context['entity_results']], [physical_asset.pk])
+
+    def test_common_search_limits_closed_resources_to_people_who_can_manage_them(self):
+        own_closed = Entity.objects.create(
+            entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='My archived resource', author=self.owner, assigned_member=self.owner.uzytkownik, is_closed=True
+        )
+        Entity.objects.create(
+            entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Other archived resource', author=self.other_user, assigned_member=self.other_user.uzytkownik, is_closed=True
+        )
+
+        owner_response = self.client.get(self.list_url, {'status': 'closed'})
+        self.assertEqual([entity.pk for entity in owner_response.context['resource_listings']], [own_closed.pk])
+        self.assertContains(owner_response, 'My archived resource')
+        self.assertNotContains(owner_response, 'Other archived resource')
+
+        self.client.force_login(self.viewer)
+        viewer_response = self.client.get(self.list_url, {'entity_type': 'all', 'status': 'all'})
+        self.assertFalse(viewer_response.context['resource_listings'])
+        self.assertNotContains(viewer_response, 'My archived resource')
+        self.assertNotContains(viewer_response, 'Other archived resource')
+
     def test_profile_link_can_filter_resource_catalog_to_that_owner(self):
-        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', kind=ResourceListing.Kind.GIVE)
-        ResourceListing.objects.create(profile=self.other_user.uzytkownik, name='Wiertarka', kind=ResourceListing.Kind.GIVE)
+        self._legacy_resource(self.owner.uzytkownik, name='Rower', kind=Entity.ResourceKind.GIVE)
+        self._legacy_resource(self.other_user.uzytkownik, name='Wiertarka', kind=Entity.ResourceKind.GIVE)
 
         response = self.client.get(self.list_url, {'profile': self.owner.uzytkownik.pk})
 
@@ -695,7 +752,7 @@ class ResourceListingViewTests(TestCase):
         self.assertContains(response, f'name="profile" value="{self.owner.uzytkownik.pk}"')
 
     def test_invalid_profile_filters_return_empty_results_without_error(self):
-        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', kind=ResourceListing.Kind.GIVE)
+        self._legacy_resource(self.owner.uzytkownik, name='Rower', kind=Entity.ResourceKind.GIVE)
 
         for profile_id in (chr(178), '9' * 20, '9' * 5000):
             with self.subTest(profile_id=profile_id[:20]):
@@ -705,8 +762,8 @@ class ResourceListingViewTests(TestCase):
 
     def test_pagination_does_not_report_items_on_other_pages_as_missing(self):
         for index in range(24):
-            ResourceListing.objects.create(profile=self.owner.uzytkownik, name=f'Offer {index:02d}', kind=ResourceListing.Kind.BORROW)
-        ResourceListing.objects.create(profile=self.other_user.uzytkownik, name='Need one', kind=ResourceListing.Kind.NEED)
+            self._legacy_resource(self.owner.uzytkownik, name=f'Offer {index:02d}', kind=Entity.ResourceKind.BORROW)
+        self._legacy_resource(self.other_user.uzytkownik, name='Need one', kind=Entity.ResourceKind.NEED)
 
         first_page = self.client.get(self.list_url)
         self.assertEqual((first_page.context['offer_count'], first_page.context['need_count']), (24, 1))
@@ -728,25 +785,32 @@ class ResourceListingViewTests(TestCase):
         self.assertFalse(response.context['resource_listings'])
 
     def test_bookkeeping_stepper_counts_listings_of_active_profiles(self):
-        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', kind=ResourceListing.Kind.GIVE)
-        ResourceListing.objects.create(profile=self.other_user.uzytkownik, name='Wiertarka', kind=ResourceListing.Kind.BORROW)
-        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Closed listing', kind=ResourceListing.Kind.GIVE, is_closed=True)
+        self._legacy_resource(self.owner.uzytkownik, name='Rower', kind=Entity.ResourceKind.GIVE)
+        self._legacy_resource(self.other_user.uzytkownik, name='Wiertarka', kind=Entity.ResourceKind.BORROW)
+        self._legacy_resource(self.owner.uzytkownik, name='Closed listing', kind=Entity.ResourceKind.GIVE, is_closed=True)
         inactive_user = User.objects.create_user(username='resource-inactive', password='secret', is_active=False)
-        ResourceListing.objects.create(profile=inactive_user.uzytkownik, name='Inactive listing', kind=ResourceListing.Kind.GIVE)
+        self._legacy_resource(inactive_user.uzytkownik, name='Inactive listing', kind=Entity.ResourceKind.GIVE)
 
         response = self.client.get(self.list_url)
 
         self.assertContains(response, 'class="tw-stepper-step-count">2</span>')
 
     def test_resource_search_respects_selected_kind(self):
-        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Wiertarka', kind=ResourceListing.Kind.GIVE)
+        self._legacy_resource(self.owner.uzytkownik, name='Wiertarka', kind=Entity.ResourceKind.GIVE)
 
         response = self.client.get(reverse('bookkeeping:resource_search'), {'q': 'Wiert', 'kind': 'need'})
 
         self.assertEqual(response.json()['items'], [])
 
+    def test_resource_search_does_not_suggest_resources_for_other_entity_types(self):
+        self._legacy_resource(self.owner.uzytkownik, name='Wiertarka', kind=Entity.ResourceKind.GIVE)
+
+        response = self.client.get(reverse('bookkeeping:resource_search'), {'q': 'Wiert', 'entity_type': 'physical_asset'})
+
+        self.assertEqual(response.json()['items'], [])
+
     def test_resource_descriptions_are_escaped_and_urls_clickable(self):
-        ResourceListing.objects.create(profile=self.owner.uzytkownik, name='Rower', description='<script>alert(1)</script> https://example.com', kind=ResourceListing.Kind.GIVE)
+        self._legacy_resource(self.owner.uzytkownik, name='Rower', description='<script>alert(1)</script> https://example.com', kind=Entity.ResourceKind.GIVE)
 
         response = self.client.get(self.list_url, {'q': 'Rower'})
 

@@ -21,7 +21,7 @@
         <span class="tw-proposal-meta-sep">·</span>
         <span class="tw-proposal-date tw-whitespace-nowrap"><i class="fas fa-calendar fa-fw"></i> {{ transaction.payment_received_date|date:"d.m.Y" }}</span>
         <span class="tw-proposal-meta-sep">·</span>
-        <span class="tw-whitespace-nowrap"><i class="fas fa-coins fa-fw"></i> {{ transaction.entity.code|default:transaction.asset.code }}</span>
+        <span class="tw-whitespace-nowrap"><i class="fas fa-coins fa-fw"></i> {{ transaction.entity.code }}</span>
       </div>
       <div class="tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 tw-flex-nowrap">
         {% if transaction.category %}<span class="tw-badge tw-badge-secondary"><i class="fas fa-tag fa-fw"></i><span class="tw-view-label">{{ transaction.category }}</span></span>{% endif %}
@@ -30,7 +30,7 @@
         {% else %}
           <span class="tw-badge-status tw-badge-danger" title="{% trans 'Outgoing' %}"><i class="fas fa-arrow-up fa-fw"></i><span class="tw-view-label">{% trans 'Outgoing' %}</span></span>
         {% endif %}
-        <span class="tw-badge tw-badge-secondary">{{ transaction.amount|normalize_decimal }} {{ transaction.entity.symbol|default:transaction.asset.symbol }}</span>
+        <span class="tw-badge tw-badge-secondary">{{ transaction.amount|normalize_decimal }} {{ transaction.entity.symbol }}</span>
       </div>
     </div>
   </div>

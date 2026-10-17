@@ -79,10 +79,11 @@ class Entity(models.Model):
     def clean(self):
         super().clean()
         errors = {}
+        is_new = self._state.adding
 
         if self.assigned_member_id and self.is_community_owned:
             errors['assigned_member'] = _('An entity cannot be assigned to a member and the community at the same time.')
-        elif self.assigned_member_id:
+        elif self.assigned_member_id and is_new:
             assigned_user = self.assigned_member.uid
             if assigned_user is None or not assigned_user.is_active:
                 errors['assigned_member'] = _('Select an active member.')
@@ -107,7 +108,7 @@ class Entity(models.Model):
         if self.is_default and self.entity_type != self.Type.FINANCIAL_ASSET:
             errors['is_default'] = _('Only financial assets can be the default asset.')
 
-        if self.entity_type != self.Type.FINANCIAL_ASSET:
+        if self.entity_type != self.Type.FINANCIAL_ASSET and is_new:
             if not self.author_id:
                 errors['author'] = _('Select the author of this entity.')
             if not (self.assigned_member_id or self.is_community_owned):
@@ -153,6 +154,8 @@ class LegacyEntityReference(models.Model):
     entity = models.ForeignKey(Entity, on_delete=models.CASCADE, related_name='legacy_references')
     source_model = models.CharField(max_length=100)
     source_pk = models.PositiveBigIntegerField()
+    # Preserve an old resource-listing profile for shadow-row restoration, not as current ownership.
+    source_profile_id = models.PositiveBigIntegerField(null=True, blank=True)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=('source_model', 'source_pk'), name='entity_legacy_source_unique')]

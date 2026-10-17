@@ -126,6 +126,16 @@ class EntityModelTests(TestCase):
         self.assertIn('author', error.exception.message_dict)
         self.assertIn('assignment_scope', error.exception.message_dict)
 
+    def test_legacy_physical_entity_without_author_or_assignment_can_be_updated(self):
+        country, _ = Country.objects.get_or_create(code='ZZ', defaults={'name': 'Test country'})
+        entity = Entity.objects.create(entity_type=Entity.Type.PHYSICAL_ASSET, name='Legacy hall', country=country, city='Test City')
+
+        entity.name = 'Updated legacy hall'
+        entity.full_clean()
+
+        self.assertIsNone(entity.author_id)
+        self.assertEqual(entity.assignment_scope, Entity.AssignmentScope.UNASSIGNED)
+
     def test_physical_asset_requires_location_in_the_database(self):
         country, _ = Country.objects.get_or_create(code='ZZ', defaults={'name': 'Test country'})
 

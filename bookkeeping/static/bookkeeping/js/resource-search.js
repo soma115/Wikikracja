@@ -4,10 +4,12 @@ window.wkOnReady(function() {
 
 	const resourceName = resourceSection.querySelector('[data-resource-name]');
 	const resourceKind = resourceSection.querySelector('[name="kind"]');
+	const entityType = resourceSection.querySelector('[name="entity_type"]');
 	const resourceSuggestions = resourceSection.querySelector('[data-resource-suggestions]');
 	let searchTimer;
 
 	const resourceKindRequired = resourceSection.dataset.resourceKindRequired !== 'false';
+	const supportsResourceSuggestions = () => !entityType || ['all', 'resource'].includes(entityType.value);
 
 	function hideResourceSuggestions() {
 		resourceSuggestions.replaceChildren();
@@ -16,21 +18,25 @@ window.wkOnReady(function() {
 
 	function updateResourceSearchState() {
 		resourceName.disabled = resourceKindRequired && !resourceKind.value;
-		if (resourceKindRequired && !resourceKind.value) {
+		if ((resourceKindRequired && !resourceKind.value) || !supportsResourceSuggestions()) {
 			hideResourceSuggestions();
 		}
 	}
 
 	resourceKind.addEventListener('change', updateResourceSearchState);
+	entityType?.addEventListener('change', updateResourceSearchState);
 	resourceName.addEventListener('input', function() {
+		if (!supportsResourceSuggestions()) return;
 		if (resourceKindRequired && !resourceKind.value) return;
 		clearTimeout(searchTimer);
 		searchTimer = setTimeout(() => {
 			const params = new URLSearchParams({q: resourceName.value});
 			if (resourceKind.value) params.set('kind', resourceKind.value);
+			if (entityType) params.set('entity_type', entityType.value);
 			fetch(`${resourceSection.dataset.resourceSearchUrl}?${params}`)
 				.then(response => response.json())
 				.then(data => {
+					if (!supportsResourceSuggestions()) return;
 					resourceSuggestions.replaceChildren(...data.items.map(item => {
 						const option = document.createElement('button');
 						option.type = 'button';

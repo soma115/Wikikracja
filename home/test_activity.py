@@ -6,11 +6,12 @@ from django.utils import timezone
 from django.utils.translation import gettext
 
 from board.models import Post
-from bookkeeping.models import Asset, Partner, Transaction
+from bookkeeping.models import Partner, Transaction
 from chat.models import Message, MessageReadBy, Room
 from core.models import FeedBookmark, ReadStatus
 from core.services.feed import FEED_CACHE_KEY, generate_feed_items, generate_feed_raw, get_bookmarked_items
 from glosowania.models import Argument, Decyzja
+from resources.models import Entity
 from tasks.models import Task, TaskVote
 from tests.factories import DecyzjaFactory, PostCategoryFactory, PostFactory, UserFactory
 
@@ -221,8 +222,8 @@ def test_mark_as_read_and_unread_endpoints_work_for_post(client, activity_user):
 @pytest.mark.django_db
 def test_finance_activity_items_can_be_marked_read_and_unread(client, activity_user):
     client.force_login(activity_user)
-    asset = Asset.objects.create(code='READ', name='Read status currency', symbol='READ')
-    transaction = Transaction.objects.create(asset=asset, amount=25)
+    asset = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='READ', name='Read status currency', symbol='READ')
+    transaction = Transaction.objects.create(entity=asset, amount=25)
 
     response = client.post(reverse('mark_as_read'), {'content_type': 'transaction', 'object_id': transaction.pk})
 
@@ -304,12 +305,12 @@ def test_activity_includes_public_guest_inbox_messages(client, activity_user):
 @pytest.mark.django_db
 def test_activity_items_can_be_filtered_by_finances(client, activity_user):
     client.force_login(activity_user)
-    asset = Asset.objects.create(code='ACT', name='Activity currency', symbol='ACT')
+    asset = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='ACT', name='Activity currency', symbol='ACT')
     partner = Partner.objects.create(name='Activity finance partner')
     post = PostFactory(author=activity_user, title='Excluded document', text='<p>body</p>')
     Post.objects.filter(pk=post.pk).update(updated=timezone.now())
     generate_feed_raw()
-    transaction = Transaction.objects.create(asset=asset, partner=partner, amount=25)
+    transaction = Transaction.objects.create(entity=asset, partner=partner, amount=25)
 
     response = client.get(reverse('activity'), {'filtered': '1', 'type': 'transaction'})
     content = response.content.decode()
@@ -323,10 +324,10 @@ def test_activity_items_can_be_filtered_by_finances(client, activity_user):
 @pytest.mark.django_db
 def test_activity_finances_sort_and_display_by_last_modified_time(client, activity_user):
     client.force_login(activity_user)
-    asset = Asset.objects.create(code='ACT', name='Activity currency', symbol='ACT')
+    asset = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='ACT', name='Activity currency', symbol='ACT')
     partner = Partner.objects.create(name='Activity finance partner')
-    latest = Transaction.objects.create(asset=asset, partner=partner, amount=20)
-    previous = Transaction.objects.create(asset=asset, partner=partner, amount=10)
+    latest = Transaction.objects.create(entity=asset, partner=partner, amount=20)
+    previous = Transaction.objects.create(entity=asset, partner=partner, amount=10)
     now = timezone.now()
     latest_update = now - timezone.timedelta(minutes=10)
     previous_update = now - timezone.timedelta(minutes=20)

@@ -6,9 +6,9 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from obywatele.models import Country, Uzytkownik
-from resources.models import LEGACY_FINANCIAL_ASSET_SOURCE, Entity
+from resources.models import Entity
 
-from .models import Category, Partner, PhysicalAsset, Transaction
+from .models import Category, Partner, Transaction
 
 
 class AssetForm(forms.ModelForm):
@@ -30,9 +30,11 @@ class AssetForm(forms.ModelForm):
 class PhysicalAssetForm(forms.ModelForm):
     country = forms.ModelChoiceField(queryset=Country.objects.all(), to_field_name='code', label=_('Country'), empty_label=None)
 
-    def __init__(self, *args, can_assign=True, assignment_entity=None, **kwargs):
+    def __init__(self, *args, can_assign=True, assignment_entity=None, author=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.can_assign = can_assign
+        if author and not self.instance.pk:
+            self.instance.author = author
 
         if not can_assign:
             self.fields.pop('assignment_scope', None)
@@ -53,7 +55,7 @@ class PhysicalAssetForm(forms.ModelForm):
             self.initial['assigned_member'] = assignment_entity.assigned_member_id
 
     class Meta:
-        model = PhysicalAsset
+        model = Entity
         fields = ('name', 'country', 'city', 'street', 'house_number', 'apartment_number')
 
     def clean(self):
@@ -67,6 +69,12 @@ class PhysicalAssetForm(forms.ModelForm):
             self.add_error('assigned_member', _('Select a member for this assignment.'))
         elif assignment_scope == Entity.AssignmentScope.COMMUNITY and assigned_member:
             self.add_error('assigned_member', _('Community ownership cannot also be assigned to an individual.'))
+        elif assignment_scope == Entity.AssignmentScope.MEMBER:
+            self.instance.is_community_owned = False
+            self.instance.assigned_member = assigned_member
+        elif assignment_scope == Entity.AssignmentScope.COMMUNITY:
+            self.instance.is_community_owned = True
+            self.instance.assigned_member = None
         return cleaned_data
 
 
@@ -159,9 +167,7 @@ class TransactionForm(forms.ModelForm):
 
     type = forms.ChoiceField(choices=TYPE_CHOICES, label=_('Type'), widget=forms.RadioSelect(attrs={'class': 'tw-form-check-inline'}))
 
-    entity = forms.ModelChoiceField(
-        queryset=Entity.objects.filter(entity_type=Entity.Type.FINANCIAL_ASSET, legacy_references__source_model=LEGACY_FINANCIAL_ASSET_SOURCE).distinct().order_by('code'), label=_('Asset'), empty_label=None
-    )
+    entity = forms.ModelChoiceField(queryset=Entity.objects.filter(entity_type=Entity.Type.FINANCIAL_ASSET).order_by('code'), label=_('Asset'), empty_label=None)
 
     partner = forms.ModelChoiceField(queryset=Partner.objects.all().order_by('name'), label=_('Partner'), empty_label=_('Select partner'))
 

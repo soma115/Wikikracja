@@ -35,10 +35,10 @@
         </dd>
 
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Asset' %}</dt>
-        <dd class="tw-col-span-12 sm:tw-col-span-9"><a href="{% url 'bookkeeping:asset_detail' transaction.asset.pk %}">{{ transaction.entity|default:transaction.asset }}</a></dd>
+        <dd class="tw-col-span-12 sm:tw-col-span-9"><a href="{% url 'bookkeeping:asset_entity_detail' transaction.entity.pk %}">{{ transaction.entity }}</a></dd>
 
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Amount' %}</dt>
-        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.amount|normalize_decimal }} {{ transaction.entity.symbol|default:transaction.asset.symbol }}</dd>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.amount|normalize_decimal }} {{ transaction.entity.symbol }}</dd>
 
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Author' %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9 tw-flex tw-items-center tw-gap-2">

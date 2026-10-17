@@ -2,7 +2,7 @@
 
 <div class="tw-content-card">
   <div class="tw-content-card-header"
-       data-detail-url="{% url 'bookkeeping:asset_detail' asset.legacy_asset_pk|default:asset.pk %}"
+       data-detail-url="{{ asset.detail_url }}"
        role="link"
        tabindex="0">
     <div class="tw-content-card-title-row">

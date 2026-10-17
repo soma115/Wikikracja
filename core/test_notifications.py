@@ -337,7 +337,7 @@ def test_domain_handlers_use_registered_push_event_keys():
     event = SimpleNamespace(id=3, title='Event')
     survey = SimpleNamespace(id=4, title='Survey')
     task = SimpleNamespace(id=5, title='Task', assigned_to_id=9, status='completed', get_status_display=lambda: 'Completed')
-    transaction = SimpleNamespace(id=6, get_type_display=lambda: 'Incoming', amount='12', asset=SimpleNamespace(symbol='PLN'), partner='Partner')
+    transaction = SimpleNamespace(id=6, get_type_display=lambda: 'Incoming', amount='12', entity=SimpleNamespace(symbol='PLN'), partner='Partner')
     helper = SimpleNamespace(id=8, username='helper', get_full_name=lambda: 'Helper')
     decision = SimpleNamespace(id=10, title='Proposal')
     argument = SimpleNamespace(id=11, decyzja=decision, get_argument_type_display=lambda: 'Positive')

@@ -12,10 +12,11 @@ from django.db import IntegrityError
 from django.test import TestCase
 
 from board.models import Post
-from bookkeeping.models import Asset, Category, Partner, Transaction
+from bookkeeping.models import Category, Partner, Transaction
 from obywatele.management.commands.count_citizens import Command as CountCitizensCommand
 from obywatele.models import Rate, Uzytkownik
 from obywatele.services import release_blocked_user_resources
+from resources.models import Entity
 from tasks.models import Task, TaskVote
 
 User = get_user_model()
@@ -102,10 +103,10 @@ class BlockedUserResourcesTest(TestCase):
         down_task = Task.objects.create(title='Down task', description='Description')
         TaskVote.objects.create(task=down_task, user=blocked, value=TaskVote.Value.DOWN)
         post = Post.objects.create(title='Group document', text='Text', author=blocked, visibility=Post.Visibility.GROUP)
-        asset = Asset.objects.create(code='BLK', name='Blocked asset', symbol='B')
+        asset = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='BLK', name='Blocked asset', symbol='B')
         category = Category.objects.create(name='Blocked category')
         partner = Partner.objects.create(name='Blocked partner')
-        transaction = Transaction.objects.create(type='I', asset=asset, category=category, partner=partner, amount=10, author=blocked)
+        transaction = Transaction.objects.create(type='I', entity=asset, category=category, partner=partner, amount=10, author=blocked)
 
         release_blocked_user_resources(blocked)
 

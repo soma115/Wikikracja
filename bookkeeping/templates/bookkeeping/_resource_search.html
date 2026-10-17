@@ -2,7 +2,15 @@
 <form method="get" class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 lg:tw-grid-cols-4 tw-gap-2" data-resource-section data-resource-search-url="{% url 'bookkeeping:resource_search' %}" data-resource-kind-required="false">
   {% if search_values.profile %}<input type="hidden" name="profile" value="{{ search_values.profile }}">{% endif %}
   <div>
-    <label class="tw-form-label" for="resource-kind">{% trans "Type" %}</label>
+    <label class="tw-form-label" for="entity-type">{% trans "Entity type" %}</label>
+    <select id="entity-type" name="entity_type" class="tw-form-select">
+      {% for value, label in entity_types %}
+      <option value="{{ value }}"{% if search_values.entity_type == value %} selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="tw-form-label" for="resource-kind">{% trans "Offer or need type" %}</label>
     <select id="resource-kind" name="kind" class="tw-form-select">
       <option value="">{% trans "All types" %}</option>
       {% for value, label in resource_kinds %}
@@ -11,22 +19,39 @@
     </select>
   </div>
   <div class="tw-dropdown">
-    <label class="tw-form-label" for="resource-search">{% trans "Resource" %}</label>
+    <label class="tw-form-label" for="resource-search">{% trans "Name or description" %}</label>
     <input id="resource-search" name="q" type="search" value="{{ search_values.q }}" class="tw-form-control" data-resource-name="true" placeholder="{% trans 'What are you looking for?' %}" autocomplete="off">
     <div class="tw-dropdown-menu tw-w-full" data-resource-suggestions></div>
   </div>
   <div>
     <label class="tw-form-label" for="resource-city">{% trans "City / Commune" %}</label>
-    <select id="resource-city" name="city" class="tw-form-select">
-      <option value="">{% trans "All cities" %}</option>
-      {% for city in cities %}<option value="{{ city }}"{% if search_values.city == city %} selected{% endif %}>{{ city }}</option>{% endfor %}
-    </select>
+    <input id="resource-city" name="city" type="search" value="{{ search_values.city }}" class="tw-form-control">
   </div>
   <div>
     <label class="tw-form-label" for="resource-voivodeship">{% trans "Voivodeship" %}</label>
     <select id="resource-voivodeship" name="voivodeship" class="tw-form-select">
       <option value="">{% trans "All voivodeships" %}</option>
       {% for voivodeship in voivodeships %}<option value="{{ voivodeship }}"{% if search_values.voivodeship == voivodeship %} selected{% endif %}>{{ voivodeship }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="tw-form-label" for="resource-country">{% trans "Country" %}</label>
+    <input id="resource-country" name="country" type="search" value="{{ search_values.country }}" class="tw-form-control">
+  </div>
+  <div>
+    <label class="tw-form-label" for="resource-status">{% trans "Status" %}</label>
+    <select id="resource-status" name="status" class="tw-form-select">
+      {% for value, label in status_choices %}
+      <option value="{{ value }}"{% if search_values.status == value %} selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="tw-form-label" for="resource-assignment">{% trans "Assignment" %}</label>
+    <select id="resource-assignment" name="assignment" class="tw-form-select">
+      {% for value, label in assignment_choices %}
+      <option value="{{ value }}"{% if search_values.assignment == value %} selected{% endif %}>{{ label }}</option>
+      {% endfor %}
     </select>
   </div>
   <div class="tw-flex tw-items-end tw-gap-2 sm:tw-col-span-2 lg:tw-col-span-4">

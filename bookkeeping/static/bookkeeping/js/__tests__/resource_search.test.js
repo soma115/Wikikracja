@@ -105,4 +105,34 @@ describe('resource item search', () => {
 
         expect(global.fetch).toHaveBeenCalledWith('/search/?q=dri&kind=need');
     });
+
+    test('only suggests resources when searching all entities or resources', async () => {
+        document.body.innerHTML = `
+            <form data-resource-section data-resource-search-url="/search/" data-resource-kind-required="false">
+                <select name="entity_type">
+                    <option value="all">All</option>
+                    <option value="resource">Resources</option>
+                    <option value="physical_asset">Physical assets</option>
+                </select>
+                <select name="kind"><option value="">All types</option></select>
+                <input data-resource-name="true">
+                <div data-resource-suggestions></div>
+            </form>
+        `;
+        global.fetch = jest.fn().mockResolvedValue({json: async () => ({items: []})});
+        loadProfileScript();
+
+        const entityType = document.querySelector('[name="entity_type"]');
+        const input = document.querySelector('[data-resource-name]');
+        const suggestions = suggestionsMenu();
+        entityType.value = 'physical_asset';
+        entityType.dispatchEvent(new Event('change'));
+        input.value = 'garage';
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+        jest.advanceTimersByTime(250);
+        await flushFetch();
+
+        expect(global.fetch).not.toHaveBeenCalled();
+        expect(suggestions.classList.contains('tw-show')).toBe(false);
+    });
 });

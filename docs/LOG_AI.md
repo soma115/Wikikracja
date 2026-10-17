@@ -1,5 +1,30 @@
 # LOG_AI
 
+## 2026-10-18: Cutover PhysicalAsset i ResourceListing do Entity
+
+- **Zmienione obszary:** fizyczny CRUD i formularz, agregacja mapy, zarządzanie ofertami/potrzebami, sygnały profilu, `LegacyEntityReference`, migracja `bookkeeping.0041`, testy i plany mapy/zasobów.
+- **Co się zmieniło:** usunięto runtime modele `bookkeeping.PhysicalAsset` i `bookkeeping.ResourceListing` oraz dual-write. Fizyczne formularze i mapa korzystają wyłącznie z `Entity`; zarządzanie ofertami/potrzebami aktualizuje encje bez shadow rows. Stare URL-e i markery mapy nadal rozwiązują dawne ID przez `LegacyEntityReference`; nowe aktywa fizyczne mają trasy kanoniczne.
+- **Integralność danych:** migracja dopisuje brakujące mapowania, zachowuje pełne lokalizacje i pola wpisów oraz zatrzymuje się przed usunięciem tabel przy błędnych lokalizacjach, rozbieżności danych lub osieroconych referencjach. Nie dopisuje historycznych autorów/właścicieli. `source_profile_id` przechowuje dawny profil shadow row wyłącznie na potrzeby rollbacku; bieżące przypisanie wspólnotowe pozostaje w `Entity`. Daty istniejących mapowanych encji pozostają autorytatywne, a daty niesparowanych wpisów są kopiowane.
+- **Kaskada i prywatność:** `pre_delete` profilu usuwa wyłącznie przypisane mu, nie-wspólnotowe encje z legacy referencją; zasoby wspólnotowe pozostają. Mapa zachowuje dotychczasowy payload i nie pokazuje autora ani przypisania.
+- **Odtworzenie:** rollback odtwarza stare wiersze oraz URL referencje bez wymyślania profilu. Jeśli historyczny profil wpisu wspólnotowego został już usunięty, pełne odtworzenie wymaga backupu SQLite. Migracji nie uruchamiano na lokalnej ani trwałej bazie.
+- **Weryfikacja:** 82 testy widoków, encji, mapy i migracji oraz 69 testów migracji/resources/usług przechodzą. `makemigrations --check`, Django check i Ruff przechodzą. CSS build, regression scan i UI guard przechodzą. Playwright nie był uruchamiany bez `E2E_BASE_URL`.
+
+## 2026-10-17: Cutover finansów z Asset do Entity
+
+- **Zmienione obszary:** model transakcji i formularze, CRUD jednostek finansowych, raporty/salda, feed/powiadomienia, seed demo, testy i migracja `bookkeeping.0040`.
+- **Co się zmieniło:** `Transaction.entity` jest jedynym wymaganym FK, a `bookkeeping.Asset` nie istnieje już w modelu runtime. Migracja usuwa tabelę shadow oraz stary FK po preflight zgodności kodu, nazwy, symbolu, precyzji, waluty, domyślności i mapowań transakcji.
+- **Bezpieczeństwo danych i kompatybilność:** preflight przerywa migrację przed zmianą schematu przy braku lub rozbieżności mapowania. Migracja wstecz odtwarza shadow rows i FK z zachowaniem PK; nowe encje otrzymują mapowane legacy ID. Stare URL-e nadal rozwiązują istniejące ID przez `LegacyEntityReference`; nowe jednostki mają kanoniczne URL-e encji. Migracji nie uruchamiano na lokalnej ani trwałej bazie.
+- **Pozostałe reguły finansowe:** transakcja nadal chroni używaną jednostkę przez `PROTECT`; zapis odrzuca encję niefinansową; kod, waluta, precyzja i pojedyncza jednostka domyślna pozostają w `resources.Entity`.
+- **Weryfikacja:** 32 testy migracji `bookkeeping/resources`, 100 testów modeli/usług/widoków bookkeeping i 163 testy cross-cutting przeszły. `makemigrations --check`, Django check, Ruff check/format, kompilacja tłumaczeń, build CSS, regression scan i UI guard przeszły.
+
+## 2026-10-17: Wspólne wyszukiwanie encji zasobów
+
+- **Zmienione obszary:** katalog `/bookkeeping/resource/`, współdzielona usługa zapytań `resources`, filtry UI oraz testy.
+- **Co się zmieniło:** katalog może przeszukiwać encje finansowe, fizyczne i oferty/potrzeby po typie, nazwie/opisie, mieście/kraju/województwie, stanie i zakresie przypisania. Domyślny widok ofert i potrzeb pozostaje zgodny wstecznie.
+- **Prywatność i uprawnienia:** wyniki fizyczne pokazują wyłącznie miasto i kraj, nigdy ulicę ani numer domu; autor nie jest ujawniany. Zamknięte oferty/potrzeby widzi wyłącznie osoba uprawniona do zarządzania nimi. Sugestie nazw pozostają ograniczone do typów zasobów.
+- **Weryfikacja:** 54 testy `bookkeeping.tests.test_views`, testy Jest wyszukiwarki, Django check, Ruff, kompilacja polskich tłumaczeń, build CSS, regression scan i UI guard przechodzą.
+- **Spodziewany efekt:** jeden katalog umożliwia wspólne wyszukiwanie typów `resources.Entity` bez dublowania modeli ani ujawniania szczegółowych lokalizacji.
+
 ## 2026-10-17: Katalog i CRUD zasobów na Entity
 
 - **Zmienione obszary:** katalog publiczny, zarządzanie zasobami, filtry lokalizacji i właściciela oraz akcje archiwizacji/usuwania.

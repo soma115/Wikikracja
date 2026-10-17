@@ -17,14 +17,15 @@ from django.utils.translation import gettext as _
 
 from ankiety.models import Survey
 from board.models import Post
-from bookkeeping.models import Asset, Partner, Transaction
+from bookkeeping.models import Partner, Transaction
 from chat.models import Message, MessageReadBy, Room
 from core.models import ReadStatus
 from core.services.feed import build_user_digest
 from events.models import Event
 from glosowania.models import Argument, Decyzja
 from home.management.commands.send_email_digest import Command, _collapse_excess_newlines, _period_start
-from obywatele.models import CitizenActivity, Uzytkownik
+from obywatele.models import CitizenActivity, Country, Uzytkownik
+from resources.models import Entity
 from tasks.models import Task, TaskVote
 from tests.factories import DecyzjaFactory, PostCategoryFactory, PostFactory, UserFactory
 
@@ -131,9 +132,9 @@ def test_build_user_digest_includes_modified_survey(digest_user, another_user):
 
 @pytest.mark.django_db
 def test_build_user_digest_includes_modified_transaction(digest_user, another_user):
-    asset = Asset.objects.create(code='DIG', name='Digest currency', symbol='DIG')
+    asset = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='DIG', name='Digest currency', symbol='DIG')
     partner = Partner.objects.create(name='Digest finance partner')
-    transaction = Transaction.objects.create(asset=asset, partner=partner, amount=25, author=another_user)
+    transaction = Transaction.objects.create(entity=asset, partner=partner, amount=25, author=another_user)
     since = timezone.now() - td(hours=1)
     Transaction.objects.filter(pk=transaction.pk).update(created_date=since.date() - td(days=1), updated_at=None)
     transaction.refresh_from_db()
@@ -348,10 +349,10 @@ def test_digest_sorts_newest_posts_first_then_upcoming_events(digest_user):
 @pytest.mark.django_db
 def test_digest_sorts_transactions_by_newest_first_when_timestamps_match(digest_user):
     now = timezone.now()
-    asset = Asset.objects.create(code='DIG', name='Digest currency', symbol='DIG')
+    asset = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='DIG', name='Digest currency', symbol='DIG')
     partner = Partner.objects.create(name='Digest finance partner')
-    older = Transaction.objects.create(asset=asset, partner=partner, amount=10)
-    newer = Transaction.objects.create(asset=asset, partner=partner, amount=20)
+    older = Transaction.objects.create(entity=asset, partner=partner, amount=10)
+    newer = Transaction.objects.create(entity=asset, partner=partner, amount=20)
     Transaction.objects.filter(pk__in=(older.pk, newer.pk)).update(created_date=timezone.localdate(), updated_at=None)
 
     items = build_user_digest(digest_user, now - td(days=1))
@@ -418,6 +419,9 @@ def test_digest_context_uses_initials_for_authors_but_not_intro(digest_user, ano
 
 @override_settings(**FAST_EMAIL_SETTINGS)
 class SendEmailDigestCommandTest(TransactionTestCase):
+    def setUp(self):
+        Country.objects.get_or_create(code='PL', defaults={'name': 'Poland'})
+
     def _make_active_user(self, username, email):
         password = secrets.token_urlsafe(16)
         user = User.objects.create_user(username=username, email=email, password=password)

@@ -4,9 +4,9 @@ Status: w realizacji
 
 ## Stan obecny i kierunek docelowy
 
-Obecnie fizyczne aktywa są przechowywane w `bookkeeping.PhysicalAsset`. Planowane scalenie przeniesie ich wspólne dane do `resources.Entity`, gdzie będą jednym z typów wyszukiwanych encji. Do czasu migracji mapa nadal korzysta z obecnego modelu.
+Fizyczne aktywa są przechowywane w `resources.Entity` typu `physical_asset`. Stare identyfikatory URL-i pozostają obsługiwane przez `LegacyEntityReference`; mapa nie czyta już z modelu legacy.
 
-Jednostki finansowe (`bookkeeping.Asset`) także zostaną objęte wspólnym modelem encji, ale zachowają osobne dane i reguły księgowe. Nie będą punktami mapy. Wpisy ofert i potrzeb również będą encjami, lecz nie staną się markerami mapy bez odrębnej decyzji.
+Jednostki finansowe także są przechowywane w `resources.Entity`, ale zachowują osobne dane i reguły księgowe. Nie są punktami mapy. Wpisy ofert i potrzeb również korzystają z `Entity`, lecz nie są markerami mapy.
 
 ## Cel i zasady MVP
 
@@ -27,7 +27,7 @@ Przyjęte decyzje:
 
 - Partner: istniejące `Partner.city`, `Partner.country` i tekstowe `Partner.address`; plan zakłada opcjonalne pola ulicy, numeru domu i numeru mieszkania, bez utraty dotychczasowych adresów. Stare wartości rozdzielać tylko wtedy, gdy można to zrobić jednoznacznie.
 - Obywatel: `Uzytkownik.city` + nowe pole `Uzytkownik.country` (relacja do istniejącego modelu `Country`), domyślnie Polska, oraz opcjonalne pola ulicy, numeru domu i numeru mieszkania. `phone_country` dotyczy wyłącznie numeru telefonu i nie może być użyte jako kraj lokalizacji.
-- Fizyczne aktywo: docelowo `resources.Entity` typu `physical_asset`. Wymagane: kraj i miasto. Opcjonalne: ulica, numer domu i numer mieszkania. Do migracji źródłem pozostaje `bookkeeping.PhysicalAsset`.
+- Fizyczne aktywo: `resources.Entity` typu `physical_asset`. Wymagane: kraj i miasto. Opcjonalne: ulica, numer domu i numer mieszkania. Historyczne źródło `bookkeeping.PhysicalAsset` usunięto po weryfikacji mapowań.
 - Brak miasta lub kraju oznacza brak punktu. Nie zgadujemy kraju z nazwy miasta ani numeru telefonu. Opcjonalny region musi być zgodny z wybranym krajem; nie jest źródłem zastępczym dla kraju.
 
 ## Powiazanie z planem zasobow
@@ -121,9 +121,9 @@ Przyjęte decyzje:
 - [x] Dodać do aplikacji `resources` centralny model `Entity` i typ `physical_asset`; zachować lokalizację strukturalną oraz walidację kraju i miasta.
 - [x] Przenieść rekordy `PhysicalAsset` migracją danych z jawnym mapowaniem starych identyfikatorów. Nie przypisywać historycznym rekordom autora ani wspólnego właściciela bez potwierdzonych danych.
 - [x] Przed przełączeniem mapy dostosować tworzenie i edycję fizycznych aktywów tak, by zapisywały `Entity` z autorem i jawnym przypisaniem członek/społeczność; dotychczasowe trasy szczegółów pozostawić kompatybilne.
-- [x] Przełączyć agregację mapy na `resources.Entity` filtrowane po typie `physical_asset`; zachować obecny payload, prywatność oraz linki do szczegółów. Niepowiązane rekordy legacy pozostają tymczasowym fallbackiem.
+- [x] Przełączyć agregację mapy na wszystkie `resources.Entity` typu `physical_asset`; zachować obecny payload, prywatność i stare linki przez `LegacyEntityReference`. Nowe encje używają kanonicznych tras.
 - [x] Zachować dotychczasowe adresy stron szczegółów jako kompatybilne przekierowania lub równoważne trasy; mapowanie encji wskazuje dotychczasowy identyfikator URL.
-- [ ] Usunąć stary model i źródło mapy z `bookkeeping` dopiero po sprawdzeniu wszystkich relacji, odwołań i danych po migracji.
+- [x] Usunąć model `bookkeeping.PhysicalAsset` i fallback źródła mapy po preflight mapowań, zachowując historyczne identyfikatory URL w `LegacyEntityReference`.
 - [x] Dodać testy migracji, filtracji typów, geokodowania i widoczności mapy; sprawdzić, że oferty/potrzeby oraz jednostki finansowe nie trafiają na mapę.
 
 ## Konfiguracja dostawcy kafelków

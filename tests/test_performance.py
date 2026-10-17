@@ -34,10 +34,10 @@ def test_bulk_create_transactions_uses_minimal_queries(bookkeeping_category, boo
     from bookkeeping.models import Transaction
 
     user = UserFactory()
-    from bookkeeping.models import Asset
+    from resources.models import Entity
 
-    asset = Asset.get_default()
-    transactions = [Transaction(type='I', category=bookkeeping_category, partner=bookkeeping_partner, asset=asset, amount=100.00, note=f'Bulk {i}', author=user) for i in range(150)]
+    asset = Entity.get_default_financial_asset()
+    transactions = [Transaction(type='I', category=bookkeeping_category, partner=bookkeeping_partner, entity=asset, amount=100.00, note=f'Bulk {i}', author=user) for i in range(150)]
 
     with CaptureQueriesContext(connection) as ctx:
         Transaction.objects.bulk_create(transactions)

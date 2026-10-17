@@ -10,18 +10,9 @@ from decimal import Decimal
 
 from django.db.models import Count, Q, Sum
 
-from resources.models import LEGACY_FINANCIAL_ASSET_SOURCE, Entity, LegacyEntityReference
+from resources.models import Entity
 
-from .models import Asset, Category, Transaction
-
-
-def _financial_entity(asset):
-    if isinstance(asset, Entity):
-        return asset if asset.entity_type == Entity.Type.FINANCIAL_ASSET else None
-    if isinstance(asset, Asset):
-        reference = LegacyEntityReference.objects.filter(source_model=LEGACY_FINANCIAL_ASSET_SOURCE, source_pk=asset.pk).select_related('entity').first()
-        return reference.entity if reference else None
-    return None
+from .models import Category, Transaction
 
 
 def asset_balances(year=None, category=None, partner=None, asset=None):
@@ -42,8 +33,7 @@ def asset_balances(year=None, category=None, partner=None, asset=None):
       - Encje bez ŻADNEJ transakcji w danym filtrze są pomijane (nie zaśmiecamy UI).
       - Sortowanie: default asset (is_default=True) pierwszy, reszta wg code alfabetycznie.
 
-    Parametr asset przyjmuje finansową encję; stary obiekt Asset jest akceptowany
-    przejściowo przez mapowanie LegacyEntityReference.
+    Parametr asset przyjmuje finansową encję.
     Filtry łączą się AND: asset_balances(year=2026, asset=pln) → tylko 2026 + tylko PLN.
     """
     qs = Transaction.objects.all()
@@ -54,10 +44,9 @@ def asset_balances(year=None, category=None, partner=None, asset=None):
     if partner is not None:
         qs = qs.filter(partner=partner)
     if asset is not None:
-        entity = _financial_entity(asset)
-        if entity is None:
+        if not isinstance(asset, Entity) or asset.entity_type != Entity.Type.FINANCIAL_ASSET:
             return []
-        qs = qs.filter(entity=entity)
+        qs = qs.filter(entity=asset)
 
     # Jedno zapytanie group-by entity, conditional sum dla I/O — żeby nie robić 2 query per entity.
     aggregated = qs.values('entity').annotate(income=Sum('amount', filter=Q(type=Transaction.INCOMING)), expenses=Sum('amount', filter=Q(type=Transaction.OUTGOING)), txn_count=Count('id'))
