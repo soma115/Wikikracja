@@ -2,6 +2,12 @@
 
 Status: w realizacji
 
+## Stan obecny i kierunek docelowy
+
+Obecnie fizyczne aktywa są przechowywane w `bookkeeping.PhysicalAsset`. Planowane scalenie przeniesie ich wspólne dane do `resources.Entity`, gdzie będą jednym z typów wyszukiwanych encji. Do czasu migracji mapa nadal korzysta z obecnego modelu.
+
+Jednostki finansowe (`bookkeeping.Asset`) także zostaną objęte wspólnym modelem encji, ale zachowają osobne dane i reguły księgowe. Nie będą punktami mapy. Wpisy ofert i potrzeb również będą encjami, lecz nie staną się markerami mapy bez odrębnej decyzji.
+
 ## Cel i zasady MVP
 
 Jedna mapa pokazuje obywateli, partnerów i fizyczne aktywa. Dla każdego typu, jeśli podano szczegółowy adres, mapa używa lokalizacji adresowej; w przeciwnym razie pokazuje lokalizację orientacyjną na poziomie miasta. Szczegółowe pola adresowe są opcjonalne. Nie używamy GPS.
@@ -13,23 +19,23 @@ Przyjęte decyzje:
 - Kraj profilu wybiera się z katalogu `Country`; domyślnie Polska.
 - Stos mapowy: Leaflet + kafelki OpenStreetMap + geokodowanie Nominatim.
 - Obywatele i partnerzy mają osobne markery grupowane według najdokładniejszej dostępnej lokalizacji.
-- Fizyczne aktywa są odrębnym typem danych w `bookkeeping`, niezależnym od istniejącego `Asset`, który oznacza jednostkę finansową. Kraj i miasto fizycznego aktywa są wymagane; ulica, numer domu i numer mieszkania są opcjonalne.
-- Kraj i miasto są podstawą lokalizacji wszystkich typów. Ulica, numer domu i numer mieszkania są opcjonalnymi szczegółami adresu obywatela, partnera i fizycznego aktywa.
+- Fizyczne aktywa są typem `physical_asset` w docelowym `resources.Entity`. Jednostki finansowe są osobnym typem encji z zachowanymi regułami księgowymi, ale nie są fizycznymi aktywami ani markerami.
+- Kraj i miasto są podstawą lokalizacji obywateli, partnerów i fizycznych aktywów. Ulica, numer domu i numer mieszkania są opcjonalnymi szczegółami adresu.
 - Pełny adres używa punktu adresowego, jeśli geokoder potwierdzi dopasowanie; bez szczegółowego adresu używany jest środek miasta. Numer mieszkania nie wpływa na współrzędne.
 
 Źródła danych:
 
 - Partner: istniejące `Partner.city`, `Partner.country` i tekstowe `Partner.address`; plan zakłada opcjonalne pola ulicy, numeru domu i numeru mieszkania, bez utraty dotychczasowych adresów. Stare wartości rozdzielać tylko wtedy, gdy można to zrobić jednoznacznie.
 - Obywatel: `Uzytkownik.city` + nowe pole `Uzytkownik.country` (relacja do istniejącego modelu `Country`), domyślnie Polska, oraz opcjonalne pola ulicy, numeru domu i numeru mieszkania. `phone_country` dotyczy wyłącznie numeru telefonu i nie może być użyte jako kraj lokalizacji.
-- Fizyczne aktywo: nowe dane w `bookkeeping`, niezależne od modelu `Asset`. Wymagane: kraj i miasto. Opcjonalne: ulica, numer domu i numer mieszkania.
+- Fizyczne aktywo: docelowo `resources.Entity` typu `physical_asset`. Wymagane: kraj i miasto. Opcjonalne: ulica, numer domu i numer mieszkania. Do migracji źródłem pozostaje `bookkeeping.PhysicalAsset`.
 - Brak miasta lub kraju oznacza brak punktu. Nie zgadujemy kraju z nazwy miasta ani numeru telefonu. Opcjonalny region musi być zgodny z wybranym krajem; nie jest źródłem zastępczym dla kraju.
 
 ## Powiazanie z planem zasobow
 
-- Mapa pokazuje lokalizacje obywateli, partnerow i fizycznych aktywow. Wpisy ofert i potrzeb `bookkeeping.ResourceListing` z `docs/ongoing/PLAN_ZASOBY_UŻYTKOWNIKÓW.md` nie sa markerami mapy.
-- Fizyczne aktywa pozostaja odrebnym zrodlem w `bookkeeping`; nie utozsamiac ich ani z finansowym `Asset`, ani z wpisami `ResourceListing`.
+- Mapa pokazuje lokalizacje obywateli, partnerów i encji typu `physical_asset`. Encje ofert i potrzeb z `docs/ongoing/PLAN_ZASOBY_UŻYTKOWNIKÓW.md` nie są markerami mapy.
+- Docelowo fizyczne aktywa i oferty/potrzeby korzystają ze wspólnego modelu `resources.Entity`; typ encji decyduje o obecności na mapie. Jednostki finansowe nie są mapowane.
 - Pola kraju i szczegolowego adresu obywatela sa czescia wspolnego profilu. Rozszerzyc istniejacy `ProfileForm` w ustawieniach oraz formularz onboardingu, zamiast tworzyc kolejny formularz danych kontaktowych.
-- Szczegolowy adres moze byc uzyty i pokazany na mapie wylacznie zgodnie z regulami dostepu tej mapy. Katalog zasobow nadal filtruje po miejscowosci i wojewodztwie i nie wyswietla adresu szczegolowego ani telefonu.
+- Szczegółowy adres może być użyty i pokazany na mapie wyłącznie zgodnie z regułami dostępu tej mapy. Katalog zasobów może korzystać ze wspólnych filtrów encji, ale nie wyświetla szczegółowego adresu ani telefonu; nie traktuje adresu profilu jako zasięgu oferty.
 - Lokalizacja profilu na mapie nie oznacza zasiegu oferty. Wyszukiwanie zasobow po zasiegu lub promieniu pozostaje poza zakresem tego planu i wymaga osobnej decyzji.
 
 ## Etap 1 — widoczność i dostawca mapy
@@ -49,7 +55,7 @@ Przyjęte decyzje:
 - [x] Zapewnić dostępność obsługiwanych krajów w katalogu `Country`; region pozostawić opcjonalny i ograniczać jego wybór do regionów wybranego kraju.
 - [x] Dodać migrację pola kraju: istniejącym profilom przypisać kraj ich regionu, jeśli go mają, a pozostałym Polskę. Użyć stabilnego kodu kraju (`PL`), nie identyfikatora rekordu.
 - [x] Walidować zgodność wybranego regionu z krajem; zmiana kraju nie może pozostawić regionu z innego kraju.
-- [x] Dodać osobny model fizycznego aktywa w `bookkeeping`, bez zmiany istniejącego `Asset` (jednostki finansowej); użyć wspólnego katalogu krajów zamiast duplikować dane krajów.
+- [x] Stan przed scaleniem: dodać osobny model fizycznego aktywa w `bookkeeping`, bez zmiany istniejącego `Asset` (jednostki finansowej); użyć wspólnego katalogu krajów zamiast duplikować dane krajów.
 - [x] Dodać do fizycznego aktywa wymagane pola kraju i miasta oraz opcjonalne pola ulicy, numeru domu i numeru mieszkania.
 - [x] Dodać takie same opcjonalne pola adresu szczegółowego do partnera. Zachować istniejące wartości `Partner.address`; przenosić je do nowych pól tylko wtedy, gdy da się je rozdzielić jednoznacznie.
 - [x] Utworzyć migrację dla nowego modelu i pól adresowych.
@@ -109,6 +115,16 @@ Przyjęte decyzje:
 - [x] Testować linki do istniejących profili, partnerów i szczegółów aktywów.
 - [x] Udokumentować atrybucję OSM i ustawienia/limity Nominatim wymagane przez wybraną usługę.
 - [x] Po implementacji UI uruchomić `npm run build:css`, `python scripts/regression_scan.py` i `python scripts/ui_guard.py` (jeśli istnieje), a potem testy dotkniętego fragmentu.
+
+## Etap 6 — migracja fizycznych aktywów do wspólnej encji
+
+- [x] Dodać do aplikacji `resources` centralny model `Entity` i typ `physical_asset`; zachować lokalizację strukturalną oraz walidację kraju i miasta.
+- [x] Przenieść rekordy `PhysicalAsset` migracją danych z jawnym mapowaniem starych identyfikatorów. Nie przypisywać historycznym rekordom autora ani wspólnego właściciela bez potwierdzonych danych.
+- [x] Przed przełączeniem mapy dostosować tworzenie i edycję fizycznych aktywów tak, by zapisywały `Entity` z autorem i jawnym przypisaniem członek/społeczność; dotychczasowe trasy szczegółów pozostawić kompatybilne.
+- [x] Przełączyć agregację mapy na `resources.Entity` filtrowane po typie `physical_asset`; zachować obecny payload, prywatność oraz linki do szczegółów. Niepowiązane rekordy legacy pozostają tymczasowym fallbackiem.
+- [x] Zachować dotychczasowe adresy stron szczegółów jako kompatybilne przekierowania lub równoważne trasy; mapowanie encji wskazuje dotychczasowy identyfikator URL.
+- [ ] Usunąć stary model i źródło mapy z `bookkeeping` dopiero po sprawdzeniu wszystkich relacji, odwołań i danych po migracji.
+- [x] Dodać testy migracji, filtracji typów, geokodowania i widoczności mapy; sprawdzić, że oferty/potrzeby oraz jednostki finansowe nie trafiają na mapę.
 
 ## Konfiguracja dostawcy kafelków
 

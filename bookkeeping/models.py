@@ -155,11 +155,33 @@ class Transaction(models.Model):
     payment_received_date = models.DateField(null=True, blank=True, default=datetime.now, editable=True, verbose_name=_("Payment received date"))
 
     asset = models.ForeignKey(Asset, on_delete=models.PROTECT, blank=False, verbose_name=_("Asset"))
+    entity = models.ForeignKey('resources.Entity', on_delete=models.PROTECT, null=True, blank=True, related_name='bookkeeping_transactions', verbose_name=_("Asset"))
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("Category"))
     partner = models.ForeignKey(Partner, on_delete=models.CASCADE, null=True, blank=False, verbose_name=_("Partner"))
     amount = models.DecimalField(max_digits=20, decimal_places=8, null=True, blank=False, verbose_name=_("Amount"))
     note = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Note"))
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Author"), related_name='transactions')
 
+    def save(self, *args, **kwargs):
+        update_fields = kwargs.get('update_fields')
+        if update_fields is not None and not update_fields:
+            return super().save(*args, **kwargs)
+        if not (self._state.adding or self.entity_id is None or update_fields is None or {'asset', 'entity'}.intersection(update_fields)):
+            return super().save(*args, **kwargs)
+
+        from resources.services import legacy_financial_asset_id_for_entity, sync_financial_asset_entity
+
+        with transaction.atomic():
+            legacy_asset_changed = update_fields is not None and 'asset' in update_fields and 'entity' not in update_fields
+            if self.entity_id and not legacy_asset_changed:
+                self.asset_id = legacy_financial_asset_id_for_entity(self.entity)
+            elif self.asset_id:
+                self.entity = sync_financial_asset_entity(self.asset)
+            else:
+                return super().save(*args, **kwargs)
+            if update_fields is not None:
+                kwargs['update_fields'] = set(update_fields) | {'asset', 'entity'}
+            return super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.payment_received_date} - {self.partner} {self.type} {self.amount} {self.asset}"
+        return f"{self.payment_received_date} - {self.partner} {self.type} {self.amount} {self.entity or self.asset}"

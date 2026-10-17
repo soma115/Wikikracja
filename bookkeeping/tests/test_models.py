@@ -30,6 +30,7 @@ class TransactionModelTest(TestCase):
         self.assertEqual(txn.category, self.category)
         self.assertEqual(txn.partner, self.partner)
         self.assertEqual(txn.author, self.user)
+        self.assertEqual(txn.entity.code, self.asset.code)
         self.assertEqual(float(txn.amount), 1500.50)
         self.assertEqual(txn.type, 'I')
 

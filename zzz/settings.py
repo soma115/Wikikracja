@@ -227,6 +227,7 @@ INSTALLED_APPS = [
     'obywatele',
     'glosowania',
     'bookkeeping',
+    'resources.apps.ResourcesConfig',
     'chat',
     'home',
     'categories',

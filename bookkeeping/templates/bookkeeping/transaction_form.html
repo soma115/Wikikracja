@@ -28,7 +28,7 @@
                 {{ transaction_form.type|as_crispy_field }}
               </div>
               <div class="tw-col-span-12 md:tw-col-span-4">
-                {{ transaction_form.asset|as_crispy_field }}
+                {{ transaction_form.entity|as_crispy_field }}
               </div>
               <div class="tw-col-span-12 md:tw-col-span-4">
                 {{ transaction_form.partner|as_crispy_field }}
@@ -65,21 +65,21 @@
 </script>
 <script>
   (function () {
-    var assetDecimalPlaces = window.readJsonScript('asset-decimal-places', {});
-    var assetSelect = document.getElementById('id_asset');
+    var entityDecimalPlaces = window.readJsonScript('asset-decimal-places', {});
+    var entitySelect = document.getElementById('id_entity');
     var amountInput = document.getElementById('id_amount');
 
     function updateAmountStep() {
-      if (!assetSelect || !amountInput) return;
-      var assetId = assetSelect.value;
-      var dp = assetDecimalPlaces[assetId];
+      if (!entitySelect || !amountInput) return;
+      var entityId = entitySelect.value;
+      var dp = entityDecimalPlaces[entityId];
       if (dp === undefined) dp = 2;
       var step = dp === 0 ? '1' : ('0.' + '0'.repeat(dp - 1) + '1');
       amountInput.setAttribute('step', step);
     }
 
-    if (assetSelect) {
-      assetSelect.addEventListener('change', updateAmountStep);
+    if (entitySelect) {
+      entitySelect.addEventListener('change', updateAmountStep);
       updateAmountStep();
     }
   })();

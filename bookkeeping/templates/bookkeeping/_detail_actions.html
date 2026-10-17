@@ -1,8 +1,8 @@
 {% load i18n %}
 <div class="tw-detail-nav tw-flex tw-flex-wrap tw-gap-1">
   {% if asset %}
-    <a href="{% url 'bookkeeping:asset_delete' asset.pk %}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></a>
-    <a href="{% url 'bookkeeping:asset_update' asset.pk %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
+    <a href="{% url 'bookkeeping:asset_delete' asset.legacy_asset_pk|default:asset.pk %}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></a>
+    <a href="{% url 'bookkeeping:asset_update' asset.legacy_asset_pk|default:asset.pk %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
   {% elif category %}
     <a href="{% url 'bookkeeping:category_delete' category.pk %}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></a>
     <a href="{% url 'bookkeeping:category_update' category.pk %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>

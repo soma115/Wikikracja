@@ -10,6 +10,7 @@ from bookkeeping.models import Asset
 from core.models import ReadStatus
 from glosowania.models import Decyzja
 from home.services.dashboard import build_dashboard_context
+from resources.models import Entity
 from site_settings.models import QuickLink
 from tests.factories import UserFactory
 
@@ -21,6 +22,7 @@ def dashboard_user(db):
 
 @pytest.mark.django_db
 def test_dashboard_default_asset_none(dashboard_user):
+    Entity.objects.filter(entity_type=Entity.Type.FINANCIAL_ASSET).delete()
     Asset.objects.all().delete()
     ctx = build_dashboard_context(dashboard_user)
     assert ctx['default_asset'] is None

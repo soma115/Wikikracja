@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-17 20:14+0200\n"
+"POT-Creation-Date: 2026-10-17 22:58+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -91,11 +91,11 @@ msgid "Title"
 msgstr "Tytuł"
 
 #: .\ankiety\models.py:13 .\ankiety\templates\ankiety\survey_detail.html:19
-#: .\ankiety\templates\ankiety\survey_form.html:35 .\bookkeeping\forms.py:38
+#: .\ankiety\templates\ankiety\survey_form.html:35 .\bookkeeping\forms.py:88
 #: .\bookkeeping\models.py:133
 #: .\categories\templates\categories\_category_manager_init.html:25
 #: .\events\models.py:20 .\events\templates\events\_event_card.html:72
-#: .\tasks\templates\tasks\_task_card.html:91
+#: .\resources\models.py:32 .\tasks\templates\tasks\_task_card.html:91
 #: .\tasks\templates\tasks\task_detail.html:15 .\zzz\scheduler.py:179
 msgid "Description"
 msgstr "Opis"
@@ -116,7 +116,8 @@ msgstr "Po tym czasie ankieta zostanie zamknięta."
 #: .\ankiety\templates\ankiety\_survey_detail_meta.html:19
 #: .\ankiety\templates\ankiety\_survey_detail_meta.html:21 .\board\models.py:45
 #: .\board\templates\board\_post_detail_meta.html:5
-#: .\board\templates\board\_post_detail_meta.html:7 .\bookkeeping\models.py:162
+#: .\board\templates\board\_post_detail_meta.html:7 .\bookkeeping\models.py:170
+#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:17
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:43
 #: .\glosowania\models.py:132
 #: .\glosowania\templates\glosowania\_detail_meta.html:6
@@ -124,7 +125,7 @@ msgstr "Po tym czasie ankieta zostanie zamknięta."
 #: .\obywatele\models.py:221
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:32
 #: .\obywatele\templates\obywatele\citizen_zadania.html:56
-#: .\tasks\templates\tasks\_task_detail_meta.html:4
+#: .\resources\models.py:39 .\tasks\templates\tasks\_task_detail_meta.html:4
 #: .\tasks\templates\tasks\_task_detail_meta.html:6
 msgid "Author"
 msgstr "Autor"
@@ -205,7 +206,7 @@ msgstr "Ankiety"
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:4
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:7
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:19
-#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:22
+#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:31
 #: .\categories\templates\categories\_category_manager_init.html:23
 #: .\events\templates\events\_event_detail_actions.html:4
 #: .\glosowania\templates\glosowania\_argument_actions.html:18
@@ -223,7 +224,7 @@ msgstr "Usuń"
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:10
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:12
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:20
-#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:12
+#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:21
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:47
 #: .\bookkeeping\templates\bookkeeping\resource_manage.html:37
 #: .\categories\templates\categories\_category_manager_init.html:20
@@ -344,8 +345,8 @@ msgid "Add survey"
 msgstr "Dodaj ankietę"
 
 #: .\ankiety\templates\ankiety\survey_form.html:20 .\board\forms.py:31
-#: .\board\templates\board\post_form.html:18 .\bookkeeping\forms.py:24
-#: .\bookkeeping\forms.py:91
+#: .\board\templates\board\post_form.html:18 .\bookkeeping\forms.py:27
+#: .\bookkeeping\forms.py:202
 #: .\bookkeeping\templates\bookkeeping\physical_asset_form.html:15
 #: .\bookkeeping\templates\bookkeeping\physical_asset_form.html:16
 #: .\categories\templates\categories\_category_manager_init.html:22
@@ -475,7 +476,7 @@ msgid "Maximum file size: %(max_size)s MB."
 msgstr "Maksymalny rozmiar pliku: %(max_size)s MB."
 
 #: .\board\forms.py:51 .\obywatele\forms.py:282
-#: .\obywatele\tests\test_views.py:1460
+#: .\obywatele\tests\test_views.py:1503
 #, python-format
 msgid "Image is too large (max %(max_size)s MB)."
 msgstr "Obraz jest za duży (maks. %(max_size)s MB)."
@@ -511,9 +512,9 @@ msgstr "Publiczne"
 #: .\board\templates\board\_post_detail_meta.html:51
 #: .\board\templates\board\board.html:68 .\board\templates\board\board.html:92
 #: .\board\views.py:225 .\bookkeeping\models.py:135
-#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:7
+#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:8
 #: .\bookkeeping\templates\bookkeeping\resource_manage.html:27
-#: .\home\templates\home\site_admin.html:107
+#: .\home\templates\home\site_admin.html:107 .\resources\models.py:52
 msgid "Archive"
 msgstr "Archiwum"
 
@@ -565,7 +566,7 @@ msgstr "Utworzone"
 msgid "Updated"
 msgstr "Zaktualizowane"
 
-#: .\board\models.py:49 .\bookkeeping\forms.py:75 .\bookkeeping\models.py:158
+#: .\board\models.py:49 .\bookkeeping\forms.py:186 .\bookkeeping\models.py:166
 #: .\bookkeeping\templates\bookkeeping\_category_card.html:15
 #: .\bookkeeping\templates\bookkeeping\_category_card.html:18
 #: .\bookkeeping\templates\bookkeeping\_report_pivot.html:23
@@ -654,7 +655,7 @@ msgid "I've updated Important document: %(link)s"
 msgstr "Zaktualizowałem ważny dokument: %(link)s"
 
 #: .\board\templates\board\_post_detail_actions.html:8
-#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:17
+#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:26
 msgid "Restore"
 msgstr "Przywróć"
 
@@ -741,7 +742,7 @@ msgstr "Utwórz ogłoszenie"
 #: .\bookkeeping\templates\bookkeeping\partner_form.html:13
 #: .\bookkeeping\templates\bookkeeping\physical_asset_form.html:12
 #: .\bookkeeping\templates\bookkeeping\physical_asset_form.html:13
-#: .\bookkeeping\templates\bookkeeping\resource_manage.html:45
+#: .\bookkeeping\templates\bookkeeping\resource_manage.html:49
 #: .\bookkeeping\templates\bookkeeping\transaction_form.html:14
 #: .\bookkeeping\templates\bookkeeping\transaction_form.html:16
 #: .\categories\templates\categories\_category_manager_init.html:21
@@ -869,13 +870,13 @@ msgstr "A-Z"
 msgid "Date"
 msgstr "Data"
 
-#: .\board\views.py:341 .\bookkeeping\views.py:119 .\bookkeeping\views.py:623
+#: .\board\views.py:341 .\bookkeeping\views.py:122 .\bookkeeping\views.py:905
 #: .\events\views.py:211 .\glosowania\views.py:153 .\glosowania\views.py:752
 #: .\obywatele\views.py:565 .\tasks\views.py:785
 msgid "Saved."
 msgstr "Zapisane."
 
-#: .\bookkeeping\feed.py:16 .\bookkeeping\forms.py:67
+#: .\bookkeeping\feed.py:16 .\bookkeeping\forms.py:172
 #: .\bookkeeping\models.py:150
 #: .\bookkeeping\templates\bookkeeping\_transaction_card.html:29
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:37
@@ -884,7 +885,7 @@ msgstr "Zapisane."
 msgid "Incoming"
 msgstr "Przychodzący"
 
-#: .\bookkeeping\feed.py:16 .\bookkeeping\forms.py:67
+#: .\bookkeeping\feed.py:16 .\bookkeeping\forms.py:172
 #: .\bookkeeping\models.py:150
 #: .\bookkeeping\templates\bookkeeping\_transaction_card.html:31
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:39
@@ -893,20 +894,47 @@ msgstr "Przychodzący"
 msgid "Outgoing"
 msgstr "Wychodzący"
 
-#: .\bookkeeping\forms.py:28 .\bookkeeping\models.py:99
+#: .\bookkeeping\forms.py:31 .\bookkeeping\models.py:99
 #: .\bookkeeping\models.py:111
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:38
 #: .\bookkeeping\templates\bookkeeping\physical_asset_detail.html:13
 #: .\obywatele\forms.py:157 .\obywatele\models.py:22 .\obywatele\models.py:35
 #: .\obywatele\models.py:88 .\obywatele\templates\obywatele\szczegoly.html:140
+#: .\resources\models.py:66
 msgid "Country"
 msgstr "Kraj"
 
-#: .\bookkeeping\forms.py:36
+#: .\bookkeeping\forms.py:44 .\bookkeeping\forms.py:99
+msgid "Select assignment"
+msgstr "Wybierz przypisanie"
+
+#: .\bookkeeping\forms.py:48 .\bookkeeping\forms.py:103
+msgid "Current assignment"
+msgstr "Bieżące przypisanie"
+
+#: .\bookkeeping\forms.py:54 .\bookkeeping\forms.py:109
+#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:15
+#: .\resources\models.py:48
+msgid "Assigned member"
+msgstr "Osoba przypisana"
+
+#: .\bookkeeping\forms.py:55 .\bookkeeping\forms.py:110
+msgid "Select a member"
+msgstr "Wybierz członka"
+
+#: .\bookkeeping\forms.py:74 .\bookkeeping\forms.py:141
+msgid "Select a member for this assignment."
+msgstr "Wybierz członka, któremu przypisać zasób."
+
+#: .\bookkeeping\forms.py:76 .\bookkeeping\forms.py:143
+msgid "Community ownership cannot also be assigned to an individual."
+msgstr "Zasób będący współwłasnością społeczności nie może być jednocześnie przypisany jednej osobie."
+
+#: .\bookkeeping\forms.py:86
 msgid "Select type"
 msgstr "Wybierz typ"
 
-#: .\bookkeeping\forms.py:36 .\bookkeeping\forms.py:69
+#: .\bookkeeping\forms.py:86 .\bookkeeping\forms.py:174
 #: .\bookkeeping\models.py:134 .\bookkeeping\models.py:151
 #: .\bookkeeping\templates\bookkeeping\_resource_search.html:5
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:24
@@ -914,10 +942,11 @@ msgstr "Wybierz typ"
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:13
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:8
 #: .\obywatele\templates\obywatele\_citizen_zalozono_partial.html:8
+#: .\resources\models.py:30
 msgid "Type"
 msgstr "Rodzaj"
 
-#: .\bookkeeping\forms.py:37 .\bookkeeping\models.py:12
+#: .\bookkeeping\forms.py:87 .\bookkeeping\models.py:12
 #: .\bookkeeping\models.py:86 .\bookkeeping\models.py:93
 #: .\bookkeeping\models.py:110 .\bookkeeping\models.py:132
 #: .\bookkeeping\templates\bookkeeping\asset_confirm_delete.html:13
@@ -926,32 +955,40 @@ msgstr "Rodzaj"
 #: .\bookkeeping\templates\bookkeeping\partner_confirm_delete.html:12
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:10
 #: .\bookkeeping\templates\bookkeeping\physical_asset_detail.html:10
-#: .\bookkeeping\views.py:437
+#: .\bookkeeping\views.py:717 .\resources\models.py:31
 msgid "Name"
 msgstr "Nazwa"
 
-#: .\bookkeeping\forms.py:48
-msgid "Select a type."
-msgstr "Wybierz typ."
-
-#: .\bookkeeping\forms.py:54
+#: .\bookkeeping\forms.py:127
 msgid "Enter a name."
 msgstr "Wprowadź nazwę."
 
-#: .\bookkeeping\forms.py:60 .\bookkeeping\views.py:296
-#: .\bookkeeping\views.py:316
+#: .\bookkeeping\forms.py:134
+msgid "Select a type."
+msgstr "Wybierz typ."
+
+#: .\bookkeeping\forms.py:145
+#, fuzzy
+#| msgid "Select assignment"
+msgid "Select assignment."
+msgstr "Wybierz przypisanie"
+
+#: .\bookkeeping\forms.py:165 .\bookkeeping\views.py:465
+#: .\bookkeeping\views.py:493
 msgid "This item is already assigned with this type."
 msgstr "Ten zasób jest już przypisany z tym typem."
 
-#: .\bookkeeping\forms.py:71 .\bookkeeping\models.py:157
+#: .\bookkeeping\forms.py:180 .\bookkeeping\models.py:157
+#: .\bookkeeping\models.py:164
 #: .\bookkeeping\templates\bookkeeping\_asset_card.html:21
 #: .\bookkeeping\templates\bookkeeping\_asset_card.html:28
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:15
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:37
+#: .\resources\models.py:15
 msgid "Asset"
 msgstr "Aktywo"
 
-#: .\bookkeeping\forms.py:73 .\bookkeeping\models.py:159
+#: .\bookkeeping\forms.py:184 .\bookkeeping\models.py:167
 #: .\bookkeeping\templates\bookkeeping\_partner_card.html:19
 #: .\bookkeeping\templates\bookkeeping\asset_confirm_delete.html:6
 #: .\bookkeeping\templates\bookkeeping\category_confirm_delete.html:6
@@ -961,22 +998,22 @@ msgstr "Aktywo"
 msgid "Partner"
 msgstr "Partner"
 
-#: .\bookkeeping\forms.py:73
+#: .\bookkeeping\forms.py:184
 msgid "Select partner"
 msgstr "Wybierz partnera"
 
-#: .\bookkeeping\forms.py:77 .\bookkeeping\models.py:160
+#: .\bookkeeping\forms.py:188 .\bookkeeping\models.py:168
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:26
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:16
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:40
 msgid "Amount"
 msgstr "Kwota"
 
-#: .\bookkeeping\forms.py:79 .\bookkeeping\models.py:155
+#: .\bookkeeping\forms.py:190 .\bookkeeping\models.py:155
 msgid "Payment received date"
 msgstr "Data otrzymania płatności"
 
-#: .\bookkeeping\forms.py:81 .\bookkeeping\models.py:161
+#: .\bookkeeping\forms.py:192 .\bookkeeping\models.py:169
 #: .\bookkeeping\templates\bookkeeping\_transaction_card.html:45
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:27
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:53
@@ -987,11 +1024,13 @@ msgstr "Notatka"
 #: .\bookkeeping\models.py:11
 #: .\bookkeeping\templates\bookkeeping\asset_confirm_delete.html:12
 #: .\bookkeeping\templates\bookkeeping\asset_detail.html:10
+#: .\resources\models.py:54
 msgid "Code"
 msgstr "Kod"
 
 #: .\bookkeeping\models.py:13
 #: .\bookkeeping\templates\bookkeeping\asset_detail.html:11
+#: .\resources\models.py:55
 msgid "Symbol"
 msgstr "Symbol"
 
@@ -999,15 +1038,17 @@ msgstr "Symbol"
 #: .\bookkeeping\templates\bookkeeping\_asset_card.html:17
 #: .\bookkeeping\templates\bookkeeping\_asset_card.html:29
 #: .\bookkeeping\templates\bookkeeping\asset_detail.html:12
+#: .\resources\models.py:56
 msgid "Decimal places"
 msgstr "Miejsca dziesiętne"
 
 #: .\bookkeeping\models.py:15
 #: .\bookkeeping\templates\bookkeeping\asset_detail.html:13
+#: .\resources\models.py:57
 msgid "Is currency"
 msgstr "Jest walutą"
 
-#: .\bookkeeping\models.py:18
+#: .\bookkeeping\models.py:18 .\resources\models.py:58
 msgid "Default asset"
 msgstr "Domyślne aktywo"
 
@@ -1038,7 +1079,7 @@ msgstr "Adres"
 #: .\bookkeeping\models.py:98 .\bookkeeping\models.py:112
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:35
 #: .\bookkeeping\templates\bookkeeping\physical_asset_detail.html:16
-#: .\bookkeeping\views.py:437 .\obywatele\models.py:89
+#: .\bookkeeping\views.py:717 .\obywatele\models.py:89 .\resources\models.py:68
 msgid "City"
 msgstr "Miejscowość"
 
@@ -1046,45 +1087,47 @@ msgstr "Miejscowość"
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:41
 #: .\bookkeeping\templates\bookkeeping\physical_asset_detail.html:19
 #: .\obywatele\models.py:90 .\obywatele\templates\obywatele\szczegoly.html:141
+#: .\resources\models.py:69
 msgid "Street"
 msgstr "Ulica"
 
 #: .\bookkeeping\models.py:101 .\bookkeeping\models.py:114
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:44
 #: .\bookkeeping\templates\bookkeeping\physical_asset_detail.html:22
-#: .\obywatele\models.py:91
+#: .\obywatele\models.py:91 .\resources\models.py:70
 msgid "House number"
 msgstr "Numer domu"
 
 #: .\bookkeeping\models.py:102 .\bookkeeping\models.py:115
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:47
 #: .\bookkeeping\templates\bookkeeping\physical_asset_detail.html:25
-#: .\bookkeeping\tests\test_views.py:275 .\obywatele\models.py:92
+#: .\bookkeeping\tests\test_views.py:384 .\obywatele\models.py:92
 #: .\obywatele\templates\obywatele\szczegoly.html:142
-#: .\obywatele\tests\test_views.py:810 .\obywatele\tests\test_views.py:826
+#: .\obywatele\tests\test_views.py:853 .\obywatele\tests\test_views.py:869
+#: .\resources\models.py:71
 msgid "Apartment number"
 msgstr "Numer mieszkania"
 
 #: .\bookkeeping\models.py:103
 #: .\bookkeeping\templates\bookkeeping\_partner_card.html:32
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:50
-#: .\bookkeeping\views.py:437
+#: .\bookkeeping\views.py:717
 msgid "Notes"
 msgstr "Notatki"
 
-#: .\bookkeeping\models.py:126
+#: .\bookkeeping\models.py:126 .\resources\models.py:20
 msgid "Give away"
 msgstr "Do oddania"
 
-#: .\bookkeeping\models.py:127
+#: .\bookkeeping\models.py:127 .\resources\models.py:21
 msgid "Lend"
 msgstr "Do pożyczenia"
 
-#: .\bookkeeping\models.py:128
+#: .\bookkeeping\models.py:128 .\resources\models.py:22
 msgid "For sale"
 msgstr "Do sprzedania"
 
-#: .\bookkeeping\models.py:129
+#: .\bookkeeping\models.py:129 .\resources\models.py:23
 msgid "I need"
 msgstr "Potrzeby"
 
@@ -1094,11 +1137,11 @@ msgstr "Potrzeby"
 msgid "Profile"
 msgstr "Profil"
 
-#: .\bookkeeping\models.py:136
+#: .\bookkeeping\models.py:136 .\resources\models.py:73
 msgid "Created at"
 msgstr "Utworzono"
 
-#: .\bookkeeping\models.py:137
+#: .\bookkeeping\models.py:137 .\resources\models.py:74
 msgid "Updated at"
 msgstr "Zaktualizowano"
 
@@ -1123,28 +1166,28 @@ msgid "Take ownership"
 msgstr "Przejmij własność"
 
 #: .\bookkeeping\templates\bookkeeping\_nav.html:5
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:85
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:86
 msgid "Transactions"
 msgstr "Transakcje"
 
 #: .\bookkeeping\templates\bookkeeping\_nav.html:6
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:86
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:87
 msgid "Partners"
 msgstr "Partnerzy"
 
 #: .\bookkeeping\templates\bookkeeping\_nav.html:7
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:87
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:88
 #: .\tasks\templates\tasks\task_form.html:96
 msgid "Categories"
 msgstr "Kategorie"
 
 #: .\bookkeeping\templates\bookkeeping\_nav.html:8
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:88
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:89
 msgid "Assets"
 msgstr "Aktywa"
 
 #: .\bookkeeping\templates\bookkeeping\_nav.html:9
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:97
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:98
 msgid "Reports"
 msgstr "Raporty"
 
@@ -1155,7 +1198,7 @@ msgstr "Strona internetowa"
 
 #: .\bookkeeping\templates\bookkeeping\_partner_detail_navigation.html:4
 #: .\bookkeeping\templates\bookkeeping\_partner_detail_navigation.html:6
-#: .\bookkeeping\templates\bookkeeping\resource_list.html:91
+#: .\bookkeeping\templates\bookkeeping\resource_list.html:99
 #: .\glosowania\templates\glosowania\_detail_navigation.html:4
 #: .\glosowania\templates\glosowania\_detail_navigation.html:6
 #: .\home\templates\home\home.html:222
@@ -1170,7 +1213,7 @@ msgstr "Poprzedni"
 
 #: .\bookkeeping\templates\bookkeeping\_partner_detail_navigation.html:9
 #: .\bookkeeping\templates\bookkeeping\_partner_detail_navigation.html:11
-#: .\bookkeeping\templates\bookkeeping\resource_list.html:93
+#: .\bookkeeping\templates\bookkeeping\resource_list.html:101
 #: .\glosowania\templates\glosowania\_detail_navigation.html:9
 #: .\glosowania\templates\glosowania\_detail_navigation.html:11
 #: .\home\templates\home\home.html:225
@@ -1187,7 +1230,14 @@ msgstr "Następny"
 msgid "Sum"
 msgstr "Suma"
 
-#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:17
+#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:13
+#: .\bookkeeping\templates\bookkeeping\resource_list.html:56
+#: .\bookkeeping\templates\bookkeeping\resource_list.html:86
+#: .\resources\models.py:28
+msgid "Shared community ownership"
+msgstr "Wspólna własność społeczności"
+
+#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:26
 #: .\chat\i18n.py:18 .\chat\templates\chat\chat.html:307
 #: .\chat\templates\chat\chat.html:391
 #: .\home\templates\home\includes\modal_header.html:14
@@ -1199,6 +1249,7 @@ msgid "All types"
 msgstr "Wszystkie typy"
 
 #: .\bookkeeping\templates\bookkeeping\_resource_search.html:14
+#: .\resources\models.py:17
 msgid "Resource"
 msgstr "Zasób"
 
@@ -1208,8 +1259,8 @@ msgstr "Czego szukasz?"
 
 #: .\bookkeeping\templates\bookkeeping\_resource_search.html:19
 #: .\bookkeeping\templates\bookkeeping\resource_list.html:29
-#: .\bookkeeping\templates\bookkeeping\resource_list.html:53
-#: .\bookkeeping\templates\bookkeeping\resource_list.html:79
+#: .\bookkeeping\templates\bookkeeping\resource_list.html:54
+#: .\bookkeeping\templates\bookkeeping\resource_list.html:84
 #: .\obywatele\templates\obywatele\my_profile.html:228
 #: .\obywatele\templates\obywatele\szczegoly.html:139
 msgid "City / Commune"
@@ -1221,8 +1272,8 @@ msgstr "Wszystkie miasta"
 
 #: .\bookkeeping\templates\bookkeeping\_resource_search.html:26
 #: .\bookkeeping\templates\bookkeeping\resource_list.html:29
-#: .\bookkeeping\templates\bookkeeping\resource_list.html:53
-#: .\bookkeeping\templates\bookkeeping\resource_list.html:79
+#: .\bookkeeping\templates\bookkeeping\resource_list.html:54
+#: .\bookkeeping\templates\bookkeeping\resource_list.html:84
 #: .\obywatele\forms.py:206 .\obywatele\models.py:93
 #: .\obywatele\templates\obywatele\my_profile.html:229
 #: .\obywatele\templates\obywatele\szczegoly.html:143
@@ -1394,7 +1445,7 @@ msgid "Phone number"
 msgstr "Numer telefonu"
 
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:19
-#: .\bookkeeping\views.py:437
+#: .\bookkeeping\views.py:717
 msgid "Web Page"
 msgstr "www"
 
@@ -1463,7 +1514,7 @@ msgstr "Suma wszystkie lata"
 
 #: .\bookkeeping\templates\bookkeeping\resource_list.html:15
 #: .\bookkeeping\templates\bookkeeping\resource_manage.html:11
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:93
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:94 .\home\navigation.py:20
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:68
 #: .\obywatele\templates\obywatele\my_profile.html:246
 #: .\obywatele\templates\obywatele\szczegoly.html:153
@@ -1478,23 +1529,23 @@ msgstr "Osoby w wybranej lokalizacji"
 msgid "Offers"
 msgstr "Oferty"
 
-#: .\bookkeeping\templates\bookkeeping\resource_list.html:57
+#: .\bookkeeping\templates\bookkeeping\resource_list.html:61
 msgid "No offers match your search."
 msgstr "Żadna oferta nie pasuje do wyszukiwania."
 
-#: .\bookkeeping\templates\bookkeeping\resource_list.html:66
+#: .\bookkeeping\templates\bookkeeping\resource_list.html:70
 msgid "Needs"
 msgstr "Potrzeby"
 
-#: .\bookkeeping\templates\bookkeeping\resource_list.html:83
+#: .\bookkeeping\templates\bookkeeping\resource_list.html:91
 msgid "No needs match your search."
 msgstr "Żadna potrzeba nie pasuje do wyszukiwania."
 
-#: .\bookkeeping\templates\bookkeeping\resource_list.html:90
+#: .\bookkeeping\templates\bookkeeping\resource_list.html:98
 msgid "Resource pages"
 msgstr "Strony zasobów"
 
-#: .\bookkeeping\templates\bookkeeping\resource_list.html:92
+#: .\bookkeeping\templates\bookkeeping\resource_list.html:100
 #, python-format
 msgid "Page %(current)s of %(total)s"
 msgstr "Strona %(current)s z %(total)s"
@@ -1511,7 +1562,7 @@ msgstr "Szukaj zasobów"
 msgid "Active"
 msgstr "Aktywne"
 
-#: .\bookkeeping\templates\bookkeeping\resource_manage.html:46
+#: .\bookkeeping\templates\bookkeeping\resource_manage.html:50
 msgid "Save resource"
 msgstr "Zapisz zasób"
 
@@ -1547,39 +1598,39 @@ msgstr "Nowa Transakcja"
 msgid "No transactions yet."
 msgstr "Nie ma jeszcze transakcji."
 
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:89
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:90
 msgid "Physical assets"
 msgstr "Aktywa fizyczne"
 
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:101
-#: .\bookkeeping\views.py:525
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:102
+#: .\bookkeeping\views.py:806
 msgid "Add transaction"
 msgstr "Dodaj Transakcję"
 
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:102
-#: .\bookkeeping\views.py:406
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:103
+#: .\bookkeeping\views.py:686
 msgid "Add partner"
 msgstr "Dodaj Partnera"
 
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:103
-#: .\bookkeeping\views.py:363
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:104
+#: .\bookkeeping\views.py:643
 #: .\categories\templates\categories\_category_modal.html:14
 msgid "Add category"
 msgstr "Dodaj kategorię"
 
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:104
-#: .\bookkeeping\views.py:130 .\home\templates\home\home.html:371
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:105
+#: .\bookkeeping\views.py:133 .\home\templates\home\home.html:371
 msgid "Add asset"
 msgstr "Dodaj aktywo"
 
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:105
-#: .\bookkeeping\views.py:173
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:106
+#: .\bookkeeping\views.py:240
 #, fuzzy
 #| msgid "Add asset"
 msgid "Add physical asset"
 msgstr "Dodaj aktywo fizyczne"
 
-#: .\bookkeeping\views.py:78
+#: .\bookkeeping\views.py:81
 #: .\glosowania\templates\glosowania\szczegoly.html:160
 #: .\glosowania\templates\glosowania\szczegoly.html:200
 #: .\glosowania\templatetags\glosowania_stepper.py:53
@@ -1590,20 +1641,20 @@ msgstr "Dodaj aktywo fizyczne"
 msgid "Add"
 msgstr "Dodaj"
 
-#: .\bookkeeping\views.py:165
+#: .\bookkeeping\views.py:223
 msgid "Cannot delete asset because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć zasobu, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które go wykorzystują."
 
-#: .\bookkeeping\views.py:212
+#: .\bookkeeping\views.py:316
 #: .\obywatele\templates\obywatele\my_profile.html:248
 msgid "Add resource"
 msgstr "Dodaj zasób"
 
-#: .\bookkeeping\views.py:395
+#: .\bookkeeping\views.py:675
 msgid "Cannot delete category because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć kategorii, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które ją wykorzystują."
 
-#: .\bookkeeping\views.py:501
+#: .\bookkeeping\views.py:781
 msgid "Cannot delete partner because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć partnera, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które go wykorzystują."
 
@@ -1968,8 +2019,8 @@ msgid "No access to this chat."
 msgstr "Brak dostępu do tego czatu."
 
 #: .\chat\models.py:80 .\chat\services.py:183
-#: .\obywatele\tests\test_views.py:1080 .\obywatele\tests\test_views.py:1081
-#: .\obywatele\tests\test_views.py:1084
+#: .\obywatele\tests\test_views.py:1123 .\obywatele\tests\test_views.py:1124
+#: .\obywatele\tests\test_views.py:1127
 msgid "Chat room"
 msgstr "Pokój czatu"
 
@@ -2208,7 +2259,7 @@ msgid "The public inbox is not available at the moment."
 msgstr "Publiczna skrzynka nie jest obecnie dostępna."
 
 #: .\core\models.py:14 .\home\models.py:14
-#: .\home\templatetags\feed_filters.py:38 .\obywatele\tests\test_views.py:1082
+#: .\home\templatetags\feed_filters.py:38 .\obywatele\tests\test_views.py:1125
 #: .\tasks\activity.py:45 .\tasks\search.py:18
 msgctxt "task"
 msgid "Activity"
@@ -2529,20 +2580,20 @@ msgstr "Brak wydarzeń w tym przedziale czasu"
 msgid "Add the first event"
 msgstr "Stwórz pierwsze wydarzenie"
 
-#: .\glosowania\activity.py:13 .\obywatele\tests\test_views.py:1007
+#: .\glosowania\activity.py:13 .\obywatele\tests\test_views.py:1050
 msgid "Added argument"
 msgstr "Dodano argument"
 
-#: .\glosowania\activity.py:17 .\obywatele\tests\test_views.py:1013
+#: .\glosowania\activity.py:17 .\obywatele\tests\test_views.py:1056
 msgid "Signed proposal"
 msgstr "Podpisano propozycję"
 
-#: .\glosowania\activity.py:20 .\obywatele\tests\test_views.py:1026
+#: .\glosowania\activity.py:20 .\obywatele\tests\test_views.py:1069
 msgid "Voted in referendum"
 msgstr "Zagłosowano w referendum"
 
-#: .\glosowania\activity.py:32 .\obywatele\tests\test_views.py:1083
-#: .\obywatele\tests\test_views.py:1085
+#: .\glosowania\activity.py:32 .\obywatele\tests\test_views.py:1126
+#: .\obywatele\tests\test_views.py:1128
 msgid "Voting proposal"
 msgstr "Propozycja głosowania"
 
@@ -3480,10 +3531,6 @@ msgstr "Ludzie"
 msgid "Votings"
 msgstr "Głosowania"
 
-#: .\home\navigation.py:20 .\home\views.py:128 .\obywatele\views.py:522
-msgid "Finance"
-msgstr "Finanse"
-
 #: .\home\navigation.py:42 .\home\navigation.py:52
 msgid "…"
 msgstr "…"
@@ -4185,6 +4232,10 @@ msgstr "Oczekujące"
 msgid "In progress"
 msgstr "W realizacji"
 
+#: .\home\views.py:128 .\obywatele\views.py:522
+msgid "Finance"
+msgstr "Finanse"
+
 #: .\home\views.py:308
 msgid "Your password has been changed."
 msgstr "Twoje hasło zostało zmienione."
@@ -4526,7 +4577,7 @@ msgstr "Wykonywany zawód"
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:69
 #: .\obywatele\templates\obywatele\my_profile.html:233
 #: .\obywatele\templates\obywatele\szczegoly.html:138
-#: .\obywatele\tests\test_views.py:786
+#: .\obywatele\tests\test_views.py:829
 msgid "Job"
 msgstr "Zawód"
 
@@ -4741,7 +4792,7 @@ msgstr ""
 "\n"
 "%(reason)s"
 
-#: .\obywatele\services.py:59 .\obywatele\tests\test_views.py:1009
+#: .\obywatele\services.py:59 .\obywatele\tests\test_views.py:1052
 msgid "Citizenship event"
 msgstr "Zdarzenie obywatelskie"
 
@@ -4853,32 +4904,32 @@ msgstr "Nieaktywni 7+ dni"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:14
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:48
-#: .\obywatele\tests\test_views.py:857
+#: .\obywatele\tests\test_views.py:900
 msgid "You support this person"
 msgstr "Popierasz tę osobę"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:14
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:48
-#: .\obywatele\tests\test_views.py:858
+#: .\obywatele\tests\test_views.py:901
 msgid "You do not support this person"
 msgstr "Nie popierasz tej osoby"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:14
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:48
-#: .\obywatele\tests\test_views.py:859
+#: .\obywatele\tests\test_views.py:902
 msgid "You are neutral about this person"
 msgstr "Masz neutralny stosunek do tej osoby"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:15
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:57
-#: .\obywatele\tests\test_views.py:839
+#: .\obywatele\tests\test_views.py:882
 msgid "This person has low reputation points"
 msgstr "Ta osoba ma mało punktów reputacji"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:16
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:58
 #: .\obywatele\templates\obywatele\szczegoly.html:34
-#: .\obywatele\tests\test_views.py:874
+#: .\obywatele\tests\test_views.py:917
 msgid "This person has requested account deletion"
 msgstr "Ta osoba zażądała usunięcia swojego konta"
 
@@ -4905,12 +4956,12 @@ msgid "This is you"
 msgstr "To jesteś Ty"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:67
-#: .\obywatele\tests\test_views.py:785
+#: .\obywatele\tests\test_views.py:828
 msgid "Business"
 msgstr "Biznes"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:70
-#: .\obywatele\tests\test_views.py:787
+#: .\obywatele\tests\test_views.py:830
 msgid "Hobby"
 msgstr "Hobby"
 
@@ -5008,7 +5059,7 @@ msgstr "Brak lokalizacji dostępnych na mapie."
 msgid "Locations not marked on the map"
 msgstr "Lokalizacje nieoznaczone na mapie"
 
-#: .\obywatele\templates\obywatele\map_canvas.html:25
+#: .\obywatele\templates\obywatele\map_canvas.html:25 .\resources\models.py:16
 msgid "Physical asset"
 msgstr "Aktywo fizyczne"
 
@@ -5018,7 +5069,7 @@ msgstr "Szczegóły"
 
 #: .\obywatele\templates\obywatele\my_profile.html:53
 #: .\obywatele\templates\obywatele\onboarding_details.html:21
-#: .\obywatele\tests\test_views.py:1558
+#: .\obywatele\tests\test_views.py:1601
 msgid "The form could not be saved. Please correct the following errors:"
 msgstr "Nie udało się zapisać formularza. Popraw następujące błędy:"
 
@@ -5348,19 +5399,19 @@ msgstr "Zaproś"
 msgid "Parameters"
 msgstr "Parametry"
 
-#: .\obywatele\tests\test_views.py:1008 .\tasks\activity.py:53
+#: .\obywatele\tests\test_views.py:1051 .\tasks\activity.py:53
 msgid "Assigned activity"
 msgstr "Przydzielone działanie"
 
-#: .\obywatele\tests\test_views.py:1010 .\tasks\activity.py:56
+#: .\obywatele\tests\test_views.py:1053 .\tasks\activity.py:56
 msgid "Voted on activity"
 msgstr "Zagłosowano na działanie"
 
-#: .\obywatele\tests\test_views.py:1011 .\tasks\activity.py:59
+#: .\obywatele\tests\test_views.py:1054 .\tasks\activity.py:59
 msgid "Evaluated activity"
 msgstr "Oceniono działanie"
 
-#: .\obywatele\tests\test_views.py:1012 .\tasks\activity.py:50
+#: .\obywatele\tests\test_views.py:1055 .\tasks\activity.py:50
 msgid "Created activity"
 msgstr "Utworzone działanie"
 
@@ -5507,6 +5558,82 @@ msgstr "Twoje żądanie usunięcia konta zostało anulowane."
 #: .\obywatele\views.py:1040
 msgid "No active deletion request found."
 msgstr "Brak aktywnego żądania usunięcia."
+
+#: .\resources\models.py:26
+msgid "Unassigned"
+msgstr "Nieprzypisane"
+
+#: .\resources\models.py:27
+msgid "Assigned to a member"
+msgstr "Przypisane członkowi"
+
+#: .\resources\models.py:41
+msgid "Owned by the community"
+msgstr "Należy do całej społeczności"
+
+#: .\resources\models.py:51
+msgid "Resource type"
+msgstr "Typ zasobu"
+
+#: .\resources\models.py:153
+msgid "An entity cannot be assigned to a member and the community at the same time."
+msgstr "Encji nie można jednocześnie przypisać członkowi i całej społeczności."
+
+#: .\resources\models.py:157
+msgid "Select an active member."
+msgstr "Wybierz aktywnego członka."
+
+#: .\resources\models.py:161
+msgid "Enter a code for the financial asset."
+msgstr "Wpisz kod jednostki finansowej."
+
+#: .\resources\models.py:163
+msgid "Enter a symbol for the financial asset."
+msgstr "Wpisz symbol jednostki finansowej."
+
+#: .\resources\models.py:165
+msgid "Financial assets cannot be assigned to a member or the community."
+msgstr "Jednostek finansowych nie przypisuje się członkom ani całej społeczności."
+
+#: .\resources\models.py:167
+msgid "Financial assets cannot have a physical location."
+msgstr "Jednostki finansowe nie mogą mieć lokalizacji fizycznej."
+
+#: .\resources\models.py:170
+msgid "Select a country for the physical asset."
+msgstr "Wybierz kraj fizycznego aktywa."
+
+#: .\resources\models.py:172
+msgid "Enter a city for the physical asset."
+msgstr "Wpisz miejscowość fizycznego aktywa."
+
+#: .\resources\models.py:174
+msgid "Select a resource type."
+msgstr "Wybierz typ zasobu."
+
+#: .\resources\models.py:177
+msgid "Only financial assets can be the default asset."
+msgstr "Tylko jednostka finansowa może być ustawiona jako domyślna."
+
+#: .\resources\models.py:181
+msgid "Select the author of this entity."
+msgstr "Wybierz autora tej encji."
+
+#: .\resources\models.py:183
+msgid "Assign this entity to a member or the community."
+msgstr "Przypisz encję członkowi albo całej społeczności."
+
+#: .\resources\services.py:61
+#, fuzzy
+#| msgid "Select a country for the physical asset."
+msgid "Select a financial asset."
+msgstr "Wybierz kraj fizycznego aktywa."
+
+#: .\resources\services.py:69
+#, fuzzy
+#| msgid "Only financial assets can be the default asset."
+msgid "The financial asset has no legacy record yet."
+msgstr "Tylko jednostka finansowa może być ustawiona jako domyślna."
 
 #: .\site_settings\models.py:24
 msgid "Graphic mark (PNG/JPEG/WebP/GIF, max 5 MB, source 64-4096 px). Resized to 1024×1024 px PNG with letterbox and converted to favicon/PWA icons on save."

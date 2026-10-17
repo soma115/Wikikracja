@@ -45,12 +45,16 @@
       <article class="tw-card">
         <div class="tw-card-header tw-flex tw-items-start tw-justify-between tw-gap-2">
           <h3 class="tw-font-semibold tw-mb-0">{{ listing.name }}</h3>
-          <span class="tw-badge-status {% if listing.kind == 'borrow' %}tw-badge-info{% elif listing.kind == 'give' %}tw-badge-success{% elif listing.kind == 'sale' %}tw-badge-danger{% else %}tw-badge-warning{% endif %}">{{ listing.get_kind_display }}</span>
+          <span class="tw-badge-status {% if listing.resource_kind == 'borrow' %}tw-badge-info{% elif listing.resource_kind == 'give' %}tw-badge-success{% elif listing.resource_kind == 'sale' %}tw-badge-danger{% else %}tw-badge-warning{% endif %}">{{ listing.get_resource_kind_display }}</span>
         </div>
         <div class="tw-card-body tw-space-y-2">
           {% if listing.description %}<p class="tw-mb-0 tw-whitespace-pre-wrap tw-text-sm">{{ listing.description|urlize|linebreaksbr }}</p>{% endif %}
-          <a href="{{ listing.profile.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ listing.profile.uid|display_name }}</a>
-          <div class="tw-text-sm tw-text-muted"><span class="tw-font-semibold">{% trans "City / Commune" %}:</span> {{ listing.profile.city|default:"-"|title }}<br><span class="tw-font-semibold">{% trans "Voivodeship" %}:</span> {{ listing.profile.voivodeship.name|default:"-" }}</div>
+          {% if listing.assigned_member %}
+            <a href="{{ listing.assigned_member.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ listing.assigned_member.uid|display_name }}</a>
+            <div class="tw-text-sm tw-text-muted"><span class="tw-font-semibold">{% trans "City / Commune" %}:</span> {{ listing.assigned_member.city|default:"-"|title }}<br><span class="tw-font-semibold">{% trans "Voivodeship" %}:</span> {{ listing.assigned_member.voivodeship.name|default:"-" }}</div>
+          {% elif listing.is_community_owned %}
+            <span class="tw-text-sm tw-text-muted">{% trans "Shared community ownership" %}</span>
+          {% endif %}
         </div>
       </article>
       {% empty %}
@@ -71,12 +75,16 @@
       <article class="tw-card">
         <div class="tw-card-header tw-flex tw-items-start tw-justify-between tw-gap-2">
           <h3 class="tw-font-semibold tw-mb-0">{{ listing.name }}</h3>
-          <span class="tw-badge-status tw-badge-warning">{{ listing.get_kind_display }}</span>
+          <span class="tw-badge-status tw-badge-warning">{{ listing.get_resource_kind_display }}</span>
         </div>
         <div class="tw-card-body tw-space-y-2">
           {% if listing.description %}<p class="tw-mb-0 tw-whitespace-pre-wrap tw-text-sm">{{ listing.description|urlize|linebreaksbr }}</p>{% endif %}
-          <a href="{{ listing.profile.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ listing.profile.uid|display_name }}</a>
-          <div class="tw-text-sm tw-text-muted"><span class="tw-font-semibold">{% trans "City / Commune" %}:</span> {{ listing.profile.city|default:"-"|title }}<br><span class="tw-font-semibold">{% trans "Voivodeship" %}:</span> {{ listing.profile.voivodeship.name|default:"-" }}</div>
+          {% if listing.assigned_member %}
+            <a href="{{ listing.assigned_member.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ listing.assigned_member.uid|display_name }}</a>
+            <div class="tw-text-sm tw-text-muted"><span class="tw-font-semibold">{% trans "City / Commune" %}:</span> {{ listing.assigned_member.city|default:"-"|title }}<br><span class="tw-font-semibold">{% trans "Voivodeship" %}:</span> {{ listing.assigned_member.voivodeship.name|default:"-" }}</div>
+          {% elif listing.is_community_owned %}
+            <span class="tw-text-sm tw-text-muted">{% trans "Shared community ownership" %}</span>
+          {% endif %}
         </div>
       </article>
       {% empty %}

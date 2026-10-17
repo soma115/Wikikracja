@@ -1,4 +1,4 @@
-"""Testy serwisów aplikacji bookkeeping (agregacje per asset)."""
+"""Testy serwisów aplikacji bookkeeping (agregacje per financial Entity)."""
 
 from datetime import date
 from decimal import Decimal
@@ -9,6 +9,8 @@ from django.test import TestCase
 from bookkeeping.dashboard import get_context as bookkeeping_dashboard_context
 from bookkeeping.models import Asset, Category, Partner, ResourceListing, Transaction
 from bookkeeping.services import asset_balances, category_breakdown
+from resources.models import Entity
+from resources.services import sync_financial_asset_entity
 
 User = get_user_model()
 
@@ -19,7 +21,7 @@ class AssetBalancesTests(TestCase):
 
     Kontrakt: zwraca listę dictów per asset
       [
-        {'asset': Asset, 'income': Decimal, 'expenses': Decimal,
+        {'asset': Entity, 'income': Decimal, 'expenses': Decimal,
          'balance': Decimal, 'txn_count': int},
         ...
       ]
@@ -32,6 +34,7 @@ class AssetBalancesTests(TestCase):
 
     def setUp(self):
         Transaction.objects.all().delete()
+        Entity.objects.filter(entity_type=Entity.Type.FINANCIAL_ASSET).delete()
         Asset.objects.all().delete()
         assert Asset.objects.count() == 0, "setUp musi gwarantować pustą bazę assetów"
 
@@ -41,14 +44,17 @@ class AssetBalancesTests(TestCase):
         self.partner_a = Partner.objects.create(name='Partner A')
         self.partner_b = Partner.objects.create(name='Partner B')
 
-        self.pln = Asset.objects.create(code='PLN', name='Polish Zloty', symbol='zł', is_default=True)
-        self.btc = Asset.objects.create(code='BTC', name='Bitcoin', symbol='₿', decimal_places=8)
-        self.eur = Asset.objects.create(code='EUR', name='Euro', symbol='€')
+        self.pln_source = Asset.objects.create(code='PLN', name='Polish Zloty', symbol='zł', is_default=True)
+        self.btc_source = Asset.objects.create(code='BTC', name='Bitcoin', symbol='₿', decimal_places=8)
+        self.eur_source = Asset.objects.create(code='EUR', name='Euro', symbol='€')
+        self.pln = sync_financial_asset_entity(self.pln_source)
+        self.btc = sync_financial_asset_entity(self.btc_source)
+        self.eur = sync_financial_asset_entity(self.eur_source)
 
     def _make_txn(self, asset, txn_type, amount, year=2026, category=None, partner=None):
         """Helper: tworzy transakcję z domyślnym category/partner z setUp."""
         return Transaction.objects.create(
-            type=txn_type, asset=asset, amount=Decimal(str(amount)), payment_received_date=date(year, 6, 15), category=category or self.cat_skladki, partner=partner or self.partner_a, author=self.user
+            type=txn_type, entity=asset, amount=Decimal(str(amount)), payment_received_date=date(year, 6, 15), category=category or self.cat_skladki, partner=partner or self.partner_a, author=self.user
         )
 
     # ─── core behavior ────────────────────────────────────────────────
@@ -151,7 +157,8 @@ class AssetBalancesTests(TestCase):
     def test_no_default_asset_falls_back_to_alphabetical(self):
         """Gdy żaden asset nie jest oznaczony jako default → cała lista alfabetycznie."""
         # Odznaczamy PLN przez bezpośredni update (omija save() z auto-unset).
-        Asset.objects.filter(pk=self.pln.pk).update(is_default=False)
+        Asset.objects.filter(pk=self.pln_source.pk).update(is_default=False)
+        Entity.objects.filter(pk=self.pln.pk).update(is_default=False)
 
         self._make_txn(self.pln, Transaction.INCOMING, 100)
         self._make_txn(self.btc, Transaction.INCOMING, '0.1')
@@ -245,6 +252,7 @@ class CategoryBreakdownTests(TestCase):
 
     def setUp(self):
         Transaction.objects.all().delete()
+        Entity.objects.filter(entity_type=Entity.Type.FINANCIAL_ASSET).delete()
         Asset.objects.all().delete()
         assert Asset.objects.count() == 0, "setUp musi gwarantować pustą bazę assetów"
 
@@ -254,14 +262,17 @@ class CategoryBreakdownTests(TestCase):
         self.cat_darowizny = Category.objects.create(name='Darowizny')
         self.partner = Partner.objects.create(name='Partner X')
 
-        self.pln = Asset.objects.create(code='PLN', name='Polish Zloty', symbol='zł', is_default=True)
-        self.btc = Asset.objects.create(code='BTC', name='Bitcoin', symbol='₿', decimal_places=8)
-        self.eur = Asset.objects.create(code='EUR', name='Euro', symbol='€')
+        self.pln_source = Asset.objects.create(code='PLN', name='Polish Zloty', symbol='zł', is_default=True)
+        self.btc_source = Asset.objects.create(code='BTC', name='Bitcoin', symbol='₿', decimal_places=8)
+        self.eur_source = Asset.objects.create(code='EUR', name='Euro', symbol='€')
+        self.pln = sync_financial_asset_entity(self.pln_source)
+        self.btc = sync_financial_asset_entity(self.btc_source)
+        self.eur = sync_financial_asset_entity(self.eur_source)
 
     def _make_txn(self, asset, txn_type, amount, year=2026, category=None):
         return Transaction.objects.create(
             type=txn_type,
-            asset=asset,
+            entity=asset,
             amount=Decimal(str(amount)),
             payment_received_date=date(year, 6, 15),
             category=category if category is not None else self.cat_skladki,
@@ -458,6 +469,8 @@ class CategoryBreakdownTests(TestCase):
 
 class ResourceDashboardTests(TestCase):
     def test_resource_counts_live_in_bookkeeping_and_survive_an_empty_financial_asset_list(self):
+        Transaction.objects.all().delete()
+        Entity.objects.filter(entity_type=Entity.Type.FINANCIAL_ASSET).delete()
         Asset.objects.all().delete()
         first_user = User.objects.create_user(username='resource-dashboard-first')
         second_user = User.objects.create_user(username='resource-dashboard-second')

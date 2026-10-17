@@ -1,5 +1,106 @@
 # LOG_AI
 
+## 2026-10-17: Katalog i CRUD zasobów na Entity
+
+- **Zmienione obszary:** katalog publiczny, zarządzanie zasobami, filtry lokalizacji i właściciela oraz akcje archiwizacji/usuwania.
+- **Co się zmieniło:** Katalog i nowy CRUD czytają/zapisują `resources.Entity`; formularz pozwala autorowi wybrać aktywnego członka albo całą wspólnotę. Publiczne filtrowanie nadal rozdziela oferty od potrzeb i respektuje lokalizację przypisanego członka.
+- **Kompatybilność:** Stare URL-e `bookkeeping:resource_*` rozwiązują legacy PK przez `LegacyEntityReference`. Historyczne wpisy `ResourceListing` są synchronizowane; usunięcie starego wpisu/profilu usuwa jego encję członkowską, a zasób wspólnotowy pozostaje.
+- **Uprawnienia:** Autor i przypisany członek mogą zarządzać treścią; przypisanie może zmieniać autor, a przy historycznym wpisie bez autora — dotychczasowy właściciel. Zasób wspólnotowy może zarządzać aktywny członek instancji.
+- **Weryfikacja:** Przeszło 128 testów bookkeeping/resources/dashboard; Ruff, Django check i kontrola migracji przechodzą. CSS build, regression scan i UI guard przechodzą.
+- **Zakres przejściowy:** `ResourceListing` pozostaje jako adapter dla starych rekordów i URL-i; wspólne wyszukiwanie wszystkich typów `Entity` oraz usunięcie modeli legacy są kolejnymi etapami.
+
+## 2026-10-17: Synchronizacja ResourceListing z Entity
+
+- **Zmienione obszary:** zapis ofert/potrzeb, archiwizacja, usuwanie wpisów oraz usuwanie profilu.
+- **Co się zmieniło:** Dotychczasowe tworzenie, edycja i zamykanie `ResourceListing` aktualizują również przypisaną `Entity`; nowe wpisy dostają autora, a bieżący profil jest przypisaniem. Autor skopiowanych historycznych rekordów nadal pozostaje nieznany.
+- **Usuwanie:** Odbiornik `post_delete` usuwa encję legacy, gdy źródłowy wpis znika — także przy kaskadowym usunięciu profilu — zachowując dotychczasowy `on_delete=CASCADE`.
+- **Zakres przejściowy:** Katalog i formularze nadal czytają `ResourceListing`; pełne przełączenie widoczności, transferu przypisania do członka/społeczności i starych URL-i pozostaje następnym etapem.
+- **Weryfikacja:** 124 testy bookkeeping/resources/dashboard przechodzą; Ruff, Django check i kontrola migracji przechodzą.
+
+## 2026-10-17: CRUD jednostek finansowych przez Entity
+
+- **Zmienione obszary:** formularz, lista, szczegóły, aktualizacja i usuwanie jednostek finansowych.
+- **Co się zmieniło:** Lista oraz formularze tworzenia i edycji pracują na `resources.Entity`. Stare ścieżki URL przyjmują legacy PK i odnajdują encję przez `LegacyEntityReference`.
+- **Zgodność:** Przy tworzeniu i edycji utrzymywany jest shadow `bookkeeping.Asset`, potrzebny jeszcze dla legacy FK transakcji i starych adresów. Usunięcie pod starym URL usuwa shadow i encję atomowo; używane jednostki nadal chroni `PROTECT`.
+- **Weryfikacja:** 123 testy bookkeeping/resources/dashboard przechodzą; Ruff, Django check i kontrola migracji przechodzą. CSS build, regression scan i UI guard przechodzą.
+- **Zakres przejściowy:** Model `Asset` i `Transaction.asset` pozostają do czasu końcowego audytu dual-write, relacji i kompatybilnych URL-i.
+
+## 2026-10-17: Odczyt finansów przez Entity
+
+- **Zmienione obszary:** formularz transakcji, agregacje sald i raportów, pulpit, feed oraz prezentacja transakcji.
+- **Co się zmieniło:** Formularz wybiera `Entity`, a salda, pivot raportu, pulpit, feed i widoki transakcji czytają dane finansowe z tego samego modelu. Zapis mapuje wybraną encję z powrotem na stare `Asset` przez `LegacyEntityReference`, dzięki czemu dotychczasowy FK pozostaje spójny.
+- **Zachowana semantyka:** Nie zmieniono sumowania wpływów/wydatków, filtrów, sortowania jednostki domyślnej, dokładności kwot ani ochrony przed usuwaniem aktywa użytego w transakcji.
+- **Weryfikacja:** 102 testy dotkniętych modeli, usług, widoków, dashboardu i migracji przechodzą; Ruff, Django check, kontrola migracji, build CSS, regression scan i UI guard przechodzą.
+- **Zakres przejściowy:** Legacy `Transaction.asset` i zarządzanie `bookkeeping.Asset` pozostają dla zgodności. Ich usunięcie wymaga osobnego końcowego cutoveru.
+
+## 2026-10-17: Dual-write aktywów finansowych i transakcji
+
+- **Zmienione obszary:** synchronizacja finansowego `Asset`, zapis `Transaction` i testy CRUD/finansów.
+- **Co się zmieniło:** CRUD jednostek finansowych synchronizuje `Entity` przy tworzeniu, edycji i usuwaniu. Zapis `Transaction` ustawia nowe `entity_id` na podstawie legacy `asset`, również dla transakcji tworzonych przez dotychczasowy interfejs.
+- **Ochrona zgodności:** Stary FK `Transaction.asset`, formularze, raporty i usługi pozostają aktywne; transakcje nadal chronią używaną jednostkę. Ustawienie domyślne jest synchronizowane z zachowaniem istniejącej reguły pojedynczej jednostki.
+- **Weryfikacja:** 116 testów wybranych z modeli, usług, widoków i migracji przechodzi; Django check, kontrola migracji i Ruff przechodzą.
+- **Spodziewany efekt:** Nowe i edytowane dane finansowe są gotowe do późniejszego odczytu z `Entity`, bez jednoczesnego przełączania raportów i rozliczeń.
+
+## 2026-10-17: Wstępne powiązanie transakcji z Entity
+
+- **Zmienione obszary:** model `Transaction`, migracje `bookkeeping.0038`–`0039` i testy migracji.
+- **Co się zmieniło:** Dodano nullable FK `Transaction.entity` do finansowej encji i jednorazowo wypełniono go przez mapowanie starego `Asset`/PK. Migracja zatrzymuje się, jeśli nie potrafi znaleźć encji dla któregokolwiek aktywa transakcji.
+- **Bezpieczeństwo finansów:** Istniejący FK `Transaction.asset`, kwoty i zachowanie dotychczasowych usług pozostają bez zmian. Migracja odwrotna czyści wyłącznie nowe powiązanie.
+- **Zakres przejściowy:** Dotychczasowy kod tworzący transakcje jeszcze nie uzupełnia `entity`; trzeba wdrożyć dual-write albo przełączyć formularze i usługi przed uczynieniem pola wymaganym.
+- **Weryfikacja:** 26 testów dotkniętych migracji i encji przechodzi, w tym brak mapowania, rollback, zachowanie kwoty i starego FK; Ruff, Django check i kontrola migracji przechodzą.
+- **Spodziewany efekt:** Każda istniejąca transakcja ma sprawdzalne powiązanie z Entity, bez odcięcia aktualnej ścieżki finansowej.
+
+## 2026-10-17: Kopia finansowych Asset do Entity
+
+- **Zmienione obszary:** ograniczenia unikalności zasobów, migracja finansowych `Asset` oraz testy danych i relacji.
+- **Co się zmieniło:** Jednostki finansowe są kopiowane do `resources.Entity` z kodem, nazwą, symbolem, precyzją, flagą waluty i ustawieniem domyślnym. Mapowanie starego modelu/PK rozróżnia ich identyfikatory od zasobów i aktywów fizycznych.
+- **Bezpieczeństwo finansów:** Transakcje nadal wskazują starą tabelę `Asset`; migracja ich nie przepisuje ani nie usuwa danych źródłowych. Test potwierdza zachowanie relacji i kwoty.
+- **Zakres przejściowy:** Formularze, raporty i usługi finansowe nadal używają `bookkeeping.Asset`. Przełączenie klucza `Transaction.asset` pozostaje osobnym etapem.
+- **Weryfikacja:** 21 testów `resources` przechodzi, w tym trzy migracje danych w przód/wstecz; Ruff, Django check i kontrola migracji przechodzą.
+- **Spodziewany efekt:** Dane wszystkich trzech starych modeli mają addytywne kopie w `Entity`; dotychczasowe CRUD i rozliczenia działają bez zmian.
+
+## 2026-10-17: Kopia ResourceListing do Entity
+
+- **Zmienione obszary:** ograniczenia unikalności encji, migracja `bookkeeping.ResourceListing` oraz testy migracji.
+- **Co się zmieniło:** Istniejące wpisy ofert/potrzeb są kopiowane do `resources.Entity` z typem, opisem, statusem zamknięcia, datami i bieżącym profilem jako przypisanym członkiem. Mapowanie modelu/PK zachowuje tożsamość źródła; historyczny autor pozostaje nieznany.
+- **Integralność:** Unikalność nazwy bez rozróżniania wielkości liter obowiązuje w obrębie przypisanego członka i typu, a dla współwłasności społeczności — w obrębie typu. Migracja zachowuje tabelę źródłową i jest odwracalna.
+- **Zakres przejściowy:** Katalog i CRUD nadal używają `ResourceListing`; kopia `Entity` nie jest jeszcze udostępniana jako druga lista. Przed cutoverem trzeba synchronizować zmiany legacy oraz zachować dotychczasowe usuwanie wpisów przy usunięciu profilu.
+- **Weryfikacja:** 19 testów `resources` przechodzi, w tym migracje fizycznych aktywów i wpisów w przód/wstecz; Ruff i kontrola migracji przechodzą.
+- **Spodziewany efekt:** Dane ofert i potrzeb mają kopię w wspólnym modelu, bez zmiany aktualnego katalogu ani polityki usuwania kont.
+
+## 2026-10-17: Cutover fizycznych aktywów i mapy
+
+- **Zmienione obszary:** formularz i widoki fizycznych aktywów, synchronizacja `resources.Entity`, agregacja mapy, tłumaczenia i testy.
+- **Co się zmieniło:** Nowe fizyczne aktywo zapisuje równolegle stary rekord i encję z autorem oraz jawnym przypisaniem do aktywnego członka albo całej społeczności w jednej transakcji. Aktualizacja synchronizuje pola lokalizacji; przypisanie może zmienić tylko autor encji.
+- **Mapa:** Rekordy z mapowaniem są renderowane z `Entity`; rekordy legacy bez mapowania pozostają fallbackiem. Link do szczegółów nadal korzysta ze starego PK, a autor i przypisanie nie trafiają do payloadu.
+- **Zakres przejściowy:** Stara tabela nie została usunięta. Zwykli zalogowani zachowują dotychczasową edycję pól aktywa, ale pola przypisania nie są dostępne osobom innym niż autor.
+- **Weryfikacja:** 36 wybranych testów dotkniętych modułów, Django check, kontrola migracji, Ruff, build CSS, regression scan, UI guard i kompilacja tłumaczeń przeszły.
+- **Spodziewany efekt:** Mapa i nowe zapisy korzystają z `Entity`, stare linki i rekordy bez mapowania nadal działają, a przyszłe odcięcie tabeli legacy pozostaje osobnym etapem.
+
+## 2026-10-17: Migracja fizycznych aktywów do Entity
+
+- **Zmienione obszary:** model mapowania `resources.LegacyEntityReference`, migracja danych oraz testy migracji.
+- **Co się zmieniło:** Istniejące `bookkeeping.PhysicalAsset` są kopiowane do `resources.Entity` typu `physical_asset` wraz z krajem i pełnymi polami adresowymi. Mapowanie `(model źródłowy, PK)` zachowuje identyfikator potrzebny do kompatybilności; stary rekord pozostaje bez zmian.
+- **Integralność danych:** Migracja zatrzymuje się na pustej miejscowości zamiast tworzyć niewalidowalną encję. Nie przypisuje historycznych autora ani właściciela; migracja odwrotna usuwa wyłącznie skopiowane encje.
+- **Bezpieczne przełączenie:** Mapa nadal czyta `PhysicalAsset`, ponieważ bieżące formularze zapisują stary model i nie zbierają autora ani przypisania. Przełączenie źródła mapy nastąpi po dostosowaniu zapisu, by nowe i edytowane obiekty nie znikały ani nie miały wymyślonej własności.
+- **Weryfikacja:** 15 testów `resources` przechodzi, w tym migracja w przód/wstecz i kolizje PK między modelami; Ruff, kontrola migracji i `git diff --check` przechodzą.
+- **Spodziewany efekt:** Dane fizycznych aktywów mają bezpieczną kopię w nowym modelu, bez zmiany obecnego UI, mapy ani tabel źródłowych.
+
+## 2026-10-17: Pierwszy etap wspólnego modelu Entity
+
+- **Zmienione obszary:** nowa aplikacja `resources`, konfiguracja Django i test discovery.
+- **Co się zmieniło:** Dodano `resources.Entity` z typami finansowym, fizycznym i ofertowo-potrzebowym, autorem, przypisaniem członkowi lub całej społeczności oraz walidacją pól specyficznych dla typów. Własność wspólnotowa jest flagą instancji, nie rekordem `auth.Group`; usunięcie przypisanego profilu nie usuwa encji.
+- **Integralność finansów:** Zachowano kod, symbol, jednostkę domyślną i jej zachowanie awaryjne (najstarsza jednostka). Ograniczenia bazy pilnują pojedynczej jednostki domyślnej, poprawnego przypisania i wymaganej lokalizacji aktywa fizycznego.
+- **Zakres migracji:** Utworzono wyłącznie nową tabelę. Stare modele, dane, transakcje, raporty i mapa pozostają nietknięte do kolejnych etapów.
+- **Weryfikacja:** 12 testów `resources` przechodzi; Django check, Ruff, kontrola migracji (`makemigrations --check --dry-run`) i `git diff --check` przechodzą.
+- **Spodziewany efekt:** Istnieje przetestowany fundament pod etapowe przenoszenie danych i konsumentów bez zmiany bieżącego zachowania aplikacji.
+
+## 2026-10-17: Zmiana etykiety modułu w menu
+
+- **Zmienione obszary:** główna nawigacja.
+- **Co się zmieniło:** Etykieta pozycji prowadzącej do modułu rozliczeń używa teraz istniejącego tłumaczenia `Resources` („Zasoby”) zamiast `Finance`.
+- **Spodziewany efekt:** Menu główne i bieżąca nazwa modułu pokazują „Zasoby”; adres i działanie linku pozostają bez zmian.
+
 ## 2026-10-17: Naprawa uwierzytelniania kafelków mapy
 
 - **Przyczyna:** Stadia zwracała 401, a OSM blokował kafelki. Django używa globalnej polityki `same-origin`, więc przeglądarka pomijała Referer przy żądaniach międzydomenowych.

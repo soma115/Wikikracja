@@ -44,6 +44,7 @@ from obywatele.map_geocoding import geocode_location
 from obywatele.models import CitizenActivity, Country, DeletionRequest, PrivateNote, Rate, Region, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items
 from obywatele.views import is_email_confirmed_for_candidate
+from resources.models import LEGACY_PHYSICAL_ASSET_SOURCE, Entity, LegacyEntityReference
 from tasks.activity import get_user_tasks
 from tasks.models import Task, TaskEvaluation, TaskVote
 from tests.factories import DecyzjaFactory, RoomFactory
@@ -533,6 +534,29 @@ class CitizenMapDataTests(TestCase):
         self.assertIsNone(location_key(unknown_partner['location']))
         self.assertEqual(partner.name, 'Map Partner')
         self.assertFalse(inactive.is_active)
+
+    def test_map_uses_entity_for_migrated_physical_asset_and_legacy_id_for_link(self):
+        country = Country.objects.get(code='PL')
+        unmapped = PhysicalAsset.objects.create(name='Unmapped Hall', country=country, city='Kraków')
+        legacy_asset = PhysicalAsset.objects.create(name='Old physical title', country=country, city='Gdańsk')
+        author = User.objects.create_user(username='entity-map-author')
+        entity = Entity.objects.create(entity_type=Entity.Type.PHYSICAL_ASSET, name='Canonical physical title', country=country, city='Gdańsk', author=author, is_community_owned=True)
+        LegacyEntityReference.objects.create(entity=entity, source_model=LEGACY_PHYSICAL_ASSET_SOURCE, source_pk=legacy_asset.pk)
+        Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, name='Financial unit not mapped', code='MAP', symbol='M', is_currency=True)
+        Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Offer not mapped', author=author, is_community_owned=True)
+
+        records = get_map_location_records()
+        physical_records = [record for record in records if record['type'] == 'physical_asset']
+
+        self.assertEqual(len(physical_records), 2)
+        canonical_record = next(record for record in physical_records if record['name'] == 'Canonical physical title')
+        self.assertEqual(canonical_record['url'], reverse('bookkeeping:physical_asset_detail', args=[legacy_asset.pk]))
+        self.assertEqual(canonical_record['location']['city'], 'Gdańsk')
+        self.assertNotIn('author', canonical_record)
+        self.assertNotIn('assigned_member', canonical_record)
+        self.assertIn(unmapped.name, {record['name'] for record in physical_records})
+        self.assertNotIn('Financial unit not mapped', {record['name'] for record in records})
+        self.assertNotIn('Offer not mapped', {record['name'] for record in records})
 
     def test_map_payload_deduplicates_guest_points_and_groups_member_markers_by_kind(self):
         records = [

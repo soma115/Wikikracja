@@ -4,10 +4,11 @@ from urllib.parse import quote_plus
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError, connection
 from django.db import transaction as db_transaction
-from django.db.models import Count, Min, Q
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
+from django.db.models import Count, Min, OuterRef, Q, Subquery
+from django.http import Http404, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -20,8 +21,10 @@ from core.signals import transaction_created, transaction_updated
 from core.utils import build_detail_navigation, build_site_url
 from home.navigation import default_toolbar_views
 from obywatele.models import Uzytkownik
+from resources.models import LEGACY_FINANCIAL_ASSET_SOURCE, LEGACY_PHYSICAL_ASSET_SOURCE, LEGACY_RESOURCE_LISTING_SOURCE, Entity, LegacyEntityReference
+from resources.services import delete_financial_asset_entity, sync_financial_asset_entity, sync_physical_asset_entity
 
-from .forms import AssetForm, PhysicalAssetForm, ResourceListingForm, TransactionForm
+from .forms import AssetForm, PhysicalAssetForm, ResourceEntityForm, TransactionForm
 from .models import Asset, Category, Partner, PhysicalAsset, ResourceListing, Transaction
 from .services import category_breakdown
 
@@ -124,37 +127,82 @@ class BookkeepingUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class AssetListView(BookkeepingListView):
-    model = Asset
+    model = Entity
     template_name = 'bookkeeping/asset_list.html'
     create_url_name = 'bookkeeping:asset_create'
     create_label = _('Add asset')
 
     def get_queryset(self):
         search_query = self.request.GET.get('q', '').strip()
-        queryset = Asset.objects.all()
+        legacy_asset_pk = LegacyEntityReference.objects.filter(source_model=LEGACY_FINANCIAL_ASSET_SOURCE, entity_id=OuterRef('pk')).values('source_pk')[:1]
+        queryset = Entity.objects.filter(entity_type=Entity.Type.FINANCIAL_ASSET).annotate(legacy_asset_pk=Subquery(legacy_asset_pk)).filter(legacy_asset_pk__isnull=False)
         if search_query:
             queryset = queryset.filter(Q(code__icontains=search_query) | Q(name__icontains=search_query) | Q(symbol__icontains=search_query))
-        return queryset
+        return queryset.order_by('code', 'pk')
+
+
+def _financial_entity_for_legacy_asset_pk(source_pk):
+    reference = get_object_or_404(LegacyEntityReference.objects.select_related('entity'), source_model=LEGACY_FINANCIAL_ASSET_SOURCE, source_pk=source_pk, entity__entity_type=Entity.Type.FINANCIAL_ASSET)
+    entity = reference.entity
+    entity.legacy_asset_pk = source_pk
+    return entity
 
 
 class AssetDetailView(BookkeepingDetailView):
-    model = Asset
+    model = Entity
     template_name = 'bookkeeping/asset_detail.html'
     context_object_name = 'asset'
 
+    def get_object(self, queryset=None):
+        return _financial_entity_for_legacy_asset_pk(self.kwargs['pk'])
+
 
 class AssetCreateView(BookkeepingCreateView):
-    model = Asset
+    model = Entity
     form_class = AssetForm
     template_name = 'bookkeeping/asset_form.html'
     success_url_name = 'bookkeeping:asset_list'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = Entity(entity_type=Entity.Type.FINANCIAL_ASSET)
+        return kwargs
+
+    def form_valid(self, form):
+        with db_transaction.atomic():
+            response = super().form_valid(form)
+            legacy_asset = Asset.objects.create(
+                code=self.object.code, name=self.object.name, symbol=self.object.symbol, decimal_places=self.object.decimal_places, is_currency=self.object.is_currency, is_default=self.object.is_default
+            )
+            sync_financial_asset_entity(legacy_asset)
+            self.object.legacy_asset_pk = legacy_asset.pk
+            return response
 
 
 class AssetUpdateView(BookkeepingUpdateView):
-    model = Asset
+    model = Entity
     form_class = AssetForm
     template_name = 'bookkeeping/asset_form.html'
     success_url_name = 'bookkeeping:asset_list'
+
+    def get_object(self, queryset=None):
+        return _financial_entity_for_legacy_asset_pk(self.kwargs['pk'])
+
+    def form_valid(self, form):
+        legacy_asset_pk = self.object.legacy_asset_pk
+        with db_transaction.atomic():
+            response = super().form_valid(form)
+            legacy_asset = get_object_or_404(Asset, pk=legacy_asset_pk)
+            legacy_asset.code = self.object.code
+            legacy_asset.name = self.object.name
+            legacy_asset.symbol = self.object.symbol
+            legacy_asset.decimal_places = self.object.decimal_places
+            legacy_asset.is_currency = self.object.is_currency
+            legacy_asset.is_default = self.object.is_default
+            legacy_asset.save()
+            sync_financial_asset_entity(legacy_asset)
+            self.object.legacy_asset_pk = legacy_asset_pk
+            return response
 
 
 class AssetDeleteView(ProtectedDeleteView):
@@ -163,6 +211,15 @@ class AssetDeleteView(ProtectedDeleteView):
     success_url = reverse_lazy('bookkeeping:asset_list')
     protect_field = 'asset'
     protect_message = _("Cannot delete asset because it is in use. Remove all transactions that use it first.")
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        source_pk = self.object.pk
+        with db_transaction.atomic():
+            response = super().post(request, *args, **kwargs)
+            if not Asset.objects.filter(pk=source_pk).exists():
+                delete_financial_asset_entity(source_pk)
+            return response
 
 
 class PhysicalAssetListView(BookkeepingListView):
@@ -192,6 +249,12 @@ class PhysicalAssetCreateView(BookkeepingCreateView):
     template_name = 'bookkeeping/physical_asset_form.html'
     success_url_name = 'bookkeeping:physical_asset_list'
 
+    def form_valid(self, form):
+        with db_transaction.atomic():
+            response = super().form_valid(form)
+            sync_physical_asset_entity(self.object, author=self.request.user, assignment_scope=form.cleaned_data['assignment_scope'], assigned_member=form.cleaned_data.get('assigned_member'))
+            return response
+
 
 class PhysicalAssetUpdateView(BookkeepingUpdateView):
     model = PhysicalAsset
@@ -199,12 +262,28 @@ class PhysicalAssetUpdateView(BookkeepingUpdateView):
     template_name = 'bookkeeping/physical_asset_form.html'
     success_url_name = 'bookkeeping:physical_asset_list'
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        reference = LegacyEntityReference.objects.select_related('entity').filter(source_model=LEGACY_PHYSICAL_ASSET_SOURCE, source_pk=self.object.pk).first()
+        entity = reference.entity if reference else None
+        kwargs.update(assignment_entity=entity, can_assign=bool(entity and entity.author_id == self.request.user.pk))
+        return kwargs
+
+    def form_valid(self, form):
+        with db_transaction.atomic():
+            response = super().form_valid(form)
+            sync_kwargs = {}
+            if form.can_assign:
+                sync_kwargs = {'assignment_scope': form.cleaned_data['assignment_scope'], 'assigned_member': form.cleaned_data.get('assigned_member')}
+            sync_physical_asset_entity(self.object, **sync_kwargs)
+            return response
+
 
 # #########################  Resource listings ###########################
 
 
 class ResourceListView(BookkeepingListView):
-    model = ResourceListing
+    model = Entity
     template_name = 'bookkeeping/resource_list.html'
     context_object_name = 'resource_listings'
     paginate_by = 24
@@ -212,7 +291,8 @@ class ResourceListView(BookkeepingListView):
     create_label = _('Add resource')
 
     def get_queryset(self):
-        queryset = ResourceListing.objects.filter(profile__uid__is_active=True, is_closed=False).select_related('profile__uid', 'profile__voivodeship')
+        queryset = Entity.objects.filter(entity_type=Entity.Type.RESOURCE, is_closed=False).filter(Q(is_community_owned=True) | Q(assigned_member__uid__is_active=True))
+        queryset = queryset.select_related('assigned_member__uid', 'assigned_member__voivodeship', 'author')
         query = (self.request.GET.get('q') or '').strip()
         kind = self.request.GET.get('kind')
         city = (self.request.GET.get('city') or '').strip()
@@ -220,32 +300,32 @@ class ResourceListView(BookkeepingListView):
         profile_id = (self.request.GET.get('profile') or '').strip()
 
         if query:
-            queryset = queryset.filter(name__icontains=query)
-        if kind in ResourceListing.Kind.values:
-            queryset = queryset.filter(kind=kind)
+            queryset = queryset.filter(Q(name__icontains=query) | Q(description__icontains=query))
+        if kind in Entity.ResourceKind.values:
+            queryset = queryset.filter(resource_kind=kind)
         if city:
-            queryset = queryset.filter(profile__city=city)
+            queryset = queryset.filter(assigned_member__city=city)
         if voivodeship:
-            queryset = queryset.filter(profile__voivodeship__name=voivodeship)
+            queryset = queryset.filter(assigned_member__voivodeship__name=voivodeship)
         if profile_id:
             try:
                 profile_pk = int(profile_id) if profile_id.isascii() and profile_id.isdecimal() else 0
             except ValueError:
                 profile_pk = 0
             max_pk = connection.ops.integer_field_range(Uzytkownik._meta.pk.get_internal_type())[1]
-            queryset = queryset.filter(profile_id=profile_pk) if 0 < profile_pk <= max_pk else queryset.none()
-        return queryset.order_by('kind', 'name', 'profile__uid__last_name', 'profile__uid__first_name')
+            queryset = queryset.filter(assigned_member_id=profile_pk) if 0 < profile_pk <= max_pk else queryset.none()
+        return queryset.order_by('resource_kind', 'name', 'assigned_member__uid__last_name', 'assigned_member__uid__first_name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         listings = context['resource_listings']
-        totals = self.object_list.aggregate(total=Count('pk'), needs=Count('pk', filter=Q(kind=ResourceListing.Kind.NEED)))
+        totals = self.object_list.aggregate(total=Count('pk'), needs=Count('pk', filter=Q(resource_kind=Entity.ResourceKind.NEED)))
         active_profiles = Uzytkownik.objects.filter(uid__is_active=True)
-        context['offer_listings'] = [listing for listing in listings if listing.kind != ResourceListing.Kind.NEED]
-        context['need_listings'] = [listing for listing in listings if listing.kind == ResourceListing.Kind.NEED]
+        context['offer_listings'] = [listing for listing in listings if listing.resource_kind != Entity.ResourceKind.NEED]
+        context['need_listings'] = [listing for listing in listings if listing.resource_kind == Entity.ResourceKind.NEED]
         context['offer_count'] = totals['total'] - totals['needs']
         context['need_count'] = totals['needs']
-        context['resource_kinds'] = ResourceListing.Kind.choices
+        context['resource_kinds'] = Entity.ResourceKind.choices
         context['cities'] = active_profiles.exclude(city='').exclude(city__isnull=True).values_list('city', flat=True).distinct().order_by('city')
         context['voivodeships'] = active_profiles.exclude(voivodeship__isnull=True).values_list('voivodeship__name', flat=True).distinct().order_by('voivodeship__name')
         context['search_values'] = {key: self.request.GET.get(key, '') for key in ('q', 'kind', 'city', 'voivodeship', 'profile')}
@@ -254,7 +334,7 @@ class ResourceListView(BookkeepingListView):
         kind = self.request.GET.get('kind')
         city = (self.request.GET.get('city') or '').strip()
         voivodeship = (self.request.GET.get('voivodeship') or '').strip()
-        if (city or voivodeship) and not query and kind not in ResourceListing.Kind.values and not self.request.GET.get('profile'):
+        if (city or voivodeship) and not query and kind not in Entity.ResourceKind.values and not self.request.GET.get('profile'):
             location_profiles = active_profiles.select_related('uid', 'voivodeship')
             if city:
                 location_profiles = location_profiles.filter(city=city)
@@ -266,77 +346,212 @@ class ResourceListView(BookkeepingListView):
         return context
 
 
-def _resource_manage_context(profile, resource_form=None, edit_listing=None):
-    listings = ResourceListing.objects.filter(profile=profile).order_by('kind', 'name')
+def _can_manage_resource_entity(entity, user, profile):
+    return entity.author_id == user.pk or entity.assigned_member_id == profile.pk or (entity.is_community_owned and user.is_active)
+
+
+def _can_assign_resource_entity(entity, user, profile):
+    return entity.author_id == user.pk or (entity.author_id is None and entity.assigned_member_id == profile.pk) or (entity.is_community_owned and user.is_active)
+
+
+def _resource_manage_context(user, profile, resource_form=None, edit_entity=None, form_action=None):
+    entities = list(
+        Entity.objects.filter(entity_type=Entity.Type.RESOURCE)
+        .filter(Q(author=user) | Q(assigned_member=profile) | Q(is_community_owned=True))
+        .select_related('author', 'assigned_member__uid')
+        .order_by('resource_kind', 'name', 'pk')
+    )
+    legacy_source_pks = dict(LegacyEntityReference.objects.filter(source_model=LEGACY_RESOURCE_LISTING_SOURCE, entity_id__in=[entity.pk for entity in entities]).values_list('entity_id', 'source_pk'))
+    for entity in entities:
+        source_pk = legacy_source_pks.get(entity.pk)
+        if source_pk is not None:
+            entity.edit_url = reverse('bookkeeping:resource_update', kwargs={'pk': source_pk})
+            entity.delete_url = reverse('bookkeeping:resource_delete', kwargs={'pk': source_pk})
+            entity.toggle_closed_url = reverse('bookkeeping:resource_toggle_closed', kwargs={'pk': source_pk})
+        else:
+            entity.edit_url = reverse('bookkeeping:resource_entity_update', kwargs={'pk': entity.pk})
+            entity.delete_url = reverse('bookkeeping:resource_entity_delete', kwargs={'pk': entity.pk})
+            entity.toggle_closed_url = reverse('bookkeeping:resource_entity_toggle_closed', kwargs={'pk': entity.pk})
+
     return {
-        'resource_form': resource_form if resource_form is not None else ResourceListingForm(profile=profile),
-        'active_listings': listings.filter(is_closed=False),
-        'closed_listings': listings.filter(is_closed=True),
-        'edit_listing': edit_listing,
+        'resource_form': resource_form if resource_form is not None else ResourceEntityForm(profile=profile),
+        'resource_form_action': form_action or reverse('bookkeeping:resource_create'),
+        'active_listings': [entity for entity in entities if not entity.is_closed],
+        'closed_listings': [entity for entity in entities if entity.is_closed],
+        'edit_listing': edit_entity,
     }
 
 
 @login_required
 def resource_manage(request):
     profile = request.user.uzytkownik
-    return render(request, 'bookkeeping/resource_manage.html', _resource_manage_context(profile))
+    return render(request, 'bookkeeping/resource_manage.html', _resource_manage_context(request.user, profile))
+
+
+def _save_resource_entity(entity, form, user, *, create=False):
+    entity.entity_type = Entity.Type.RESOURCE
+    entity.name = form.cleaned_data['name']
+    entity.description = form.cleaned_data['description']
+    entity.resource_kind = form.cleaned_data['kind']
+    if create:
+        entity.author = user
+    if form.can_assign:
+        if form.cleaned_data['assignment_scope'] == Entity.AssignmentScope.COMMUNITY:
+            entity.is_community_owned = True
+            entity.assigned_member = None
+        else:
+            entity.is_community_owned = False
+            entity.assigned_member = form.cleaned_data['assigned_member']
+    if create:
+        entity.full_clean()
+    entity.save()
+    return entity
+
+
+def _sync_legacy_resource_shadow(entity, listing):
+    ResourceListing.objects.filter(pk=listing.pk).update(
+        profile_id=entity.assigned_member_id if not entity.is_community_owned else listing.profile_id,
+        name=entity.name,
+        description=entity.description,
+        kind=entity.resource_kind,
+        is_closed=entity.is_closed,
+        updated_at=entity.updated_at,
+    )
+
+
+def _render_resource_update(request, entity, profile, *, legacy_listing=None, form_action):
+    can_assign = _can_assign_resource_entity(entity, request.user, profile)
+    form = ResourceEntityForm(request.POST if request.method == 'POST' else None, profile=profile, entity=entity, can_assign=can_assign)
+    if request.method == 'POST' and form.is_valid():
+        try:
+            with db_transaction.atomic():
+                _save_resource_entity(entity, form, request.user)
+                if legacy_listing:
+                    _sync_legacy_resource_shadow(entity, legacy_listing)
+        except (IntegrityError, ValidationError) as error:
+            if isinstance(error, IntegrityError):
+                form.add_error('name', _('This item is already assigned with this type.'))
+            else:
+                form.add_error(None, error)
+        else:
+            return redirect('bookkeeping:resource_manage')
+
+    context = _resource_manage_context(request.user, profile, resource_form=form, edit_entity=entity, form_action=form_action)
+    return render(request, 'bookkeeping/resource_manage.html', context)
 
 
 @login_required
 @require_POST
 def resource_create(request):
     profile = request.user.uzytkownik
-    form = ResourceListingForm(request.POST, profile=profile)
+    form = ResourceEntityForm(request.POST, profile=profile)
     if not form.is_valid():
-        return render(request, 'bookkeeping/resource_manage.html', _resource_manage_context(profile, form))
+        return render(request, 'bookkeeping/resource_manage.html', _resource_manage_context(request.user, profile, form))
 
     try:
-        ResourceListing.objects.create(profile=profile, name=form.cleaned_data['name'], description=form.cleaned_data['description'], kind=form.cleaned_data['kind'])
+        with db_transaction.atomic():
+            _save_resource_entity(Entity(entity_type=Entity.Type.RESOURCE), form, request.user, create=True)
     except IntegrityError:
-        form.add_error('kind', _('This item is already assigned with this type.'))
-        return render(request, 'bookkeeping/resource_manage.html', _resource_manage_context(profile, form))
+        form.add_error('name', _('This item is already assigned with this type.'))
+    except ValidationError as error:
+        form.add_error(None, error)
+    if form.errors:
+        return render(request, 'bookkeeping/resource_manage.html', _resource_manage_context(request.user, profile, form))
     return redirect('bookkeeping:resource_manage')
 
 
 @login_required
 def resource_update(request, pk):
     profile = request.user.uzytkownik
-    listing = get_object_or_404(ResourceListing, pk=pk, profile=profile)
-    initial = {'kind': listing.kind, 'name': listing.name, 'description': listing.description}
-    form = ResourceListingForm(request.POST if request.method == 'POST' else None, initial=initial, profile=profile, listing=listing)
+    reference = get_object_or_404(LegacyEntityReference.objects.select_related('entity'), source_model=LEGACY_RESOURCE_LISTING_SOURCE, source_pk=pk, entity__entity_type=Entity.Type.RESOURCE)
+    entity = reference.entity
+    if not _can_manage_resource_entity(entity, request.user, profile):
+        raise Http404
+    listing = ResourceListing.objects.filter(pk=pk).first()
+    return _render_resource_update(request, entity, profile, legacy_listing=listing, form_action=reverse('bookkeeping:resource_update', kwargs={'pk': pk}))
 
-    if request.method == 'POST' and form.is_valid():
-        listing.name = form.cleaned_data['name']
-        listing.description = form.cleaned_data['description']
-        listing.kind = form.cleaned_data['kind']
-        try:
-            with db_transaction.atomic():
-                listing.save(update_fields=['name', 'description', 'kind', 'updated_at'])
-        except IntegrityError:
-            form.add_error('kind', _('This item is already assigned with this type.'))
-        else:
-            return redirect('bookkeeping:resource_manage')
 
-    return render(request, 'bookkeeping/resource_manage.html', _resource_manage_context(profile, form, listing))
+@login_required
+def resource_entity_update(request, pk):
+    profile = request.user.uzytkownik
+    entity = get_object_or_404(Entity, pk=pk, entity_type=Entity.Type.RESOURCE)
+    if not _can_manage_resource_entity(entity, request.user, profile):
+        raise Http404
+    source_pk = LegacyEntityReference.objects.filter(source_model=LEGACY_RESOURCE_LISTING_SOURCE, entity_id=entity.pk).values_list('source_pk', flat=True).first()
+    legacy_listing = ResourceListing.objects.filter(pk=source_pk).first() if source_pk else None
+    return _render_resource_update(request, entity, profile, legacy_listing=legacy_listing, form_action=reverse('bookkeeping:resource_entity_update', kwargs={'pk': entity.pk}))
+
+
+def _delete_resource_entity(entity, legacy_listing=None):
+    with db_transaction.atomic():
+        entity.delete()
+        if legacy_listing:
+            legacy_listing.delete()
 
 
 @login_required
 @require_POST
 def resource_delete(request, pk):
-    listing = get_object_or_404(ResourceListing, pk=pk, profile=request.user.uzytkownik)
-    listing.delete()
+    profile = request.user.uzytkownik
+    reference = get_object_or_404(LegacyEntityReference.objects.select_related('entity'), source_model=LEGACY_RESOURCE_LISTING_SOURCE, source_pk=pk, entity__entity_type=Entity.Type.RESOURCE)
+    entity = reference.entity
+    if not _can_manage_resource_entity(entity, request.user, profile):
+        raise Http404
+    listing = ResourceListing.objects.filter(pk=pk).first()
+    _delete_resource_entity(entity, listing)
     return redirect('bookkeeping:resource_manage')
 
 
 @login_required
 @require_POST
+def resource_entity_delete(request, pk):
+    profile = request.user.uzytkownik
+    entity = get_object_or_404(Entity, pk=pk, entity_type=Entity.Type.RESOURCE)
+    if not _can_manage_resource_entity(entity, request.user, profile):
+        raise Http404
+    source_pk = LegacyEntityReference.objects.filter(source_model=LEGACY_RESOURCE_LISTING_SOURCE, entity_id=entity.pk).values_list('source_pk', flat=True).first()
+    legacy_listing = ResourceListing.objects.filter(pk=source_pk).first() if source_pk else None
+    _delete_resource_entity(entity, legacy_listing)
+    return redirect('bookkeeping:resource_manage')
+
+
+def _set_resource_closed(entity, closed_value, legacy_listing=None):
+    with db_transaction.atomic():
+        entity.is_closed = closed_value
+        entity.save(update_fields=['is_closed', 'updated_at'])
+        if legacy_listing:
+            ResourceListing.objects.filter(pk=legacy_listing.pk).update(is_closed=closed_value, updated_at=entity.updated_at)
+
+
+@login_required
+@require_POST
 def resource_toggle_closed(request, pk):
-    listing = get_object_or_404(ResourceListing, pk=pk, profile=request.user.uzytkownik)
+    profile = request.user.uzytkownik
+    reference = get_object_or_404(LegacyEntityReference.objects.select_related('entity'), source_model=LEGACY_RESOURCE_LISTING_SOURCE, source_pk=pk, entity__entity_type=Entity.Type.RESOURCE)
+    entity = reference.entity
+    if not _can_manage_resource_entity(entity, request.user, profile):
+        raise Http404
+    listing = ResourceListing.objects.filter(pk=pk).first()
     closed_value = request.POST.get('closed')
     if closed_value not in ('0', '1'):
         return HttpResponseBadRequest()
-    listing.is_closed = closed_value == '1'
-    listing.save(update_fields=['is_closed', 'updated_at'])
+    _set_resource_closed(entity, closed_value == '1', listing)
+    return redirect('bookkeeping:resource_manage')
+
+
+@login_required
+@require_POST
+def resource_entity_toggle_closed(request, pk):
+    profile = request.user.uzytkownik
+    entity = get_object_or_404(Entity, pk=pk, entity_type=Entity.Type.RESOURCE)
+    if not _can_manage_resource_entity(entity, request.user, profile):
+        raise Http404
+    closed_value = request.POST.get('closed')
+    if closed_value not in ('0', '1'):
+        return HttpResponseBadRequest()
+    source_pk = LegacyEntityReference.objects.filter(source_model=LEGACY_RESOURCE_LISTING_SOURCE, entity_id=entity.pk).values_list('source_pk', flat=True).first()
+    legacy_listing = ResourceListing.objects.filter(pk=source_pk).first() if source_pk else None
+    _set_resource_closed(entity, closed_value == '1', legacy_listing)
     return redirect('bookkeeping:resource_manage')
 
 
@@ -344,11 +559,11 @@ def resource_toggle_closed(request, pk):
 def resource_search(request):
     query = (request.GET.get('q') or '').strip()
     kind = request.GET.get('kind')
-    listings = ResourceListing.objects.filter(profile__uid__is_active=True, is_closed=False)
-    if kind in ResourceListing.Kind.values:
-        listings = listings.filter(kind=kind)
+    listings = Entity.objects.filter(entity_type=Entity.Type.RESOURCE, is_closed=False).filter(Q(is_community_owned=True) | Q(assigned_member__uid__is_active=True))
+    if kind in Entity.ResourceKind.values:
+        listings = listings.filter(resource_kind=kind)
     if query:
-        listings = listings.filter(name__icontains=query)
+        listings = listings.filter(Q(name__icontains=query) | Q(description__icontains=query))
     items = listings.values('name').annotate(id=Min('pk')).order_by('name')[:20]
     return JsonResponse({'items': [{'id': item['id'], 'name': item['name']} for item in items]})
 
@@ -505,11 +720,12 @@ class PartnerDeleteView(ProtectedDeleteView):
 
 
 def _transaction_queryset(search_query=''):
-    queryset = Transaction.objects.select_related('author', 'partner', 'category', 'asset')
+    queryset = Transaction.objects.select_related('author', 'partner', 'category', 'entity', 'asset')
     if search_query:
         queryset = queryset.filter(
             Q(partner__name__icontains=search_query)
             | Q(category__name__icontains=search_query)
+            | Q(entity__code__icontains=search_query)
             | Q(asset__code__icontains=search_query)
             | Q(note__icontains=search_query)
             | Q(author__username__icontains=search_query)
@@ -541,7 +757,7 @@ class TransactionDetailView(LoginRequiredMixin, DetailView):
     model = Transaction
 
     def get_queryset(self):
-        return Transaction.objects.select_related('author', 'partner', 'category', 'asset')
+        return Transaction.objects.select_related('author', 'partner', 'category', 'entity', 'asset')
 
     template_name = 'bookkeeping/transaction_detail.html'
     context_object_name = 'transaction'
@@ -554,7 +770,8 @@ class TransactionDetailView(LoginRequiredMixin, DetailView):
 
 
 def _asset_decimal_places_json():
-    return json.dumps({str(a.pk): a.decimal_places for a in Asset.objects.all()})
+    entities = Entity.objects.filter(entity_type=Entity.Type.FINANCIAL_ASSET, legacy_references__source_model=LEGACY_FINANCIAL_ASSET_SOURCE).distinct()
+    return json.dumps({str(entity.pk): entity.decimal_places for entity in entities})
 
 
 class TransactionCreateView(LoginRequiredMixin, View):
@@ -572,7 +789,7 @@ class TransactionCreateView(LoginRequiredMixin, View):
 
             transaction = Transaction(
                 type=transaction_data['type'],
-                asset=transaction_data['asset'],
+                entity=transaction_data['entity'],
                 partner=transaction_data['partner'],
                 category=transaction_data['category'],
                 amount=transaction_data['amount'],

@@ -17,7 +17,7 @@ NAVIGATION_ITEMS = (
     {'namespace': 'board', 'url_name': 'board:start', 'label': _('Documents'), 'icon': 'chalkboard', 'prefs_scope': 'board', 'active_class': 'active tw-active'},
     {'namespace': 'events', 'url_name': 'events:list', 'label': _('Calendar'), 'icon': 'calendar-days', 'prefs_scope': 'events', 'active_class': 'active tw-active'},
     {'namespace': 'glosowania', 'url_name': 'glosowania:proposition', 'label': _('Votings'), 'icon': 'landmark', 'prefs_scope': 'glosowania', 'active_class': 'active tw-active'},
-    {'namespace': 'bookkeeping', 'url_name': 'bookkeeping:transaction_list', 'label': _('Finance'), 'icon': 'wallet', 'prefs_scope': 'bookkeeping', 'active_class': 'active tw-active'},
+    {'namespace': 'bookkeeping', 'url_name': 'bookkeeping:transaction_list', 'label': _('Resources'), 'icon': 'wallet', 'prefs_scope': 'bookkeeping', 'active_class': 'active tw-active'},
     {'namespace': 'ankiety', 'url_name': 'ankiety:list', 'label': _('Surveys'), 'icon': 'clipboard-question', 'active_class': 'active tw-active'},
     {'namespace': 'chat', 'url_name': 'chat:chat', 'label': _('Chat'), 'icon': 'comment-dots', 'data_nav': 'chat', 'active_class': 'tw-active'},
 )

@@ -12,8 +12,8 @@
     {% endif %}
   </p>
   <p><strong>{% trans "Partner" %}:</strong> {{ object.partner }}</p>
-  <p><strong>{% trans "Asset" %}:</strong> {{ object.asset }}</p>
-  <p><strong>{% trans "Amount" %}:</strong> {{ object.amount }} {{ object.asset.symbol }}</p>
+  <p><strong>{% trans "Asset" %}:</strong> {{ object.entity|default:object.asset }}</p>
+  <p><strong>{% trans "Amount" %}:</strong> {{ object.amount }} {{ object.entity.symbol|default:object.asset.symbol }}</p>
   <p><strong>{% trans "Date" %}:</strong> {{ object.payment_received_date|date:"Y-m-d" }}</p>
 {% endblock %}
 {% block confirm_button %}{% trans "Yes, Delete Transaction" %}{% endblock %}

@@ -2,7 +2,7 @@
 
 ## Stan wdrożenia
 
-Katalog zasobów działa już w uproszczonym wariancie, który różni się od pierwotnego projektu:
+Obecny katalog jest wdrożony w `bookkeeping`. Poniższe punkty opisują stan istniejącego kodu przed zaplanowanym scaleniem:
 
 - `ResourceListing` w `bookkeeping` jest osobnym wpisem użytkownika: ma nazwę, opis i jeden z typów: do oddania, do pożyczenia, na sprzedaż albo potrzeba. Nie jest finansowym `Asset` ani transakcją.
 - Wpisy można dodawać, edytować i usuwać. Nazwa jest unikalna bez rozróżniania wielkości liter w obrębie użytkownika i typu.
@@ -10,31 +10,42 @@ Katalog zasobów działa już w uproszczonym wariancie, który różni się od p
 - Formularz i lista własnych wpisów są pod `/bookkeeping/resource/manage/`; ich obsługa zachowuje dotychczasowe uprawnienia właściciela. Sugestie nazw działają w katalogu, nie w formularzu.
 - Wspólny słownik został świadomie odrzucony. Wpisy mają ręczny stan aktywny/zamknięty bez automatycznego wygaszania; `bookkeeping.0036` pozostawia istniejące wpisy aktywne. Nie mają zakresu lokalizacji ani archiwum starych pól. Dane profilu są edytowane osobno w ustawieniach.
 - Z profilu użytkownika prowadzi tylko odnośnik do zarządzania wpisami w Finanse. Stare adresy zasobów w `obywatele` przekierowują do nowych widoków.
-- `ResourceListing` nie jest markerem mapy. Mapa społeczności i fizyczne aktywa pozostają osobnym zakresem w `docs/ongoing/PLAN_MAPA.md`.
+- `ResourceListing` nie jest markerem mapy. W docelowym wspólnym modelu encje ofert i potrzeb nadal nie będą mapowane; typ `physical_asset` pozostaje źródłem markerów zgodnie z `docs/ongoing/PLAN_MAPA.md`.
 - Migracje `0047`–`0048` przeniosły stare pola profilu do wpisów i usunęły stare kolumny; `0055` rozdzieliła wpisy od słownika. Migracja `bookkeeping.0035` przenosi wpisy do `bookkeeping.ResourceListing`, a `obywatele.0056` usuwa stary model po skopiowaniu danych.
 
-Poniższe etapy opisują stan faktyczny i dalszy kierunek prac. Nie odtwarzamy usuniętych pól ani nie dodajemy archiwum bez osobnej decyzji i potwierdzenia dostępności danych źródłowych. Wspólny słownik został odrzucony jako zbędny.
+Etapy 1–7 poniżej dokumentują dotychczasowe wdrożenie i jego dalszy rozwój; nie oznaczają już docelowej granicy modelu. Etap 8 zastępuje założenia o trzech osobnych modelach i opisuje migrację do `resources.Entity`. Nie odtwarzamy usuniętych pól ani nie dodajemy archiwum bez osobnej decyzji i potwierdzenia dostępności danych źródłowych.
 
 ## Powiązanie z planem mapy
 
-- Katalog zasobów nadal używa wyłącznie miejscowości i województwa z profilu; nie wyświetla ulicy, numeru domu, numeru mieszkania ani telefonu.
+- Obecny katalog używa miejscowości i województwa z profilu; nie wyświetla ulicy, numeru domu, numeru mieszkania ani telefonu. Po scaleniu nadal nie ujawnia szczegółowego adresu ani telefonu.
 - Kraj, szczegółowe pola adresowe, geokodowanie i ich widoczność na mapie należą do `docs/ongoing/PLAN_MAPA.md`. Nie dodawać tych pól ponownie ani nie traktować adresu profilu jako zasięgu oferty.
-- Wpisy ofert i potrzeb (`bookkeeping.ResourceListing`) nie są fizycznymi aktywami i nie trafiają na mapę w ramach obecnego zakresu. Fizyczne aktywa mapy są odrębnym źródłem danych w `bookkeeping`.
+- Docelowo oferty/potrzeby i fizyczne aktywa są typami `resources.Entity`; tylko encje typu `physical_asset` trafiają na mapę. Jednostki finansowe również korzystają z encji, ale nie są mapowane.
 - Rozszerzenia formularza profilu w planie mapy powinny korzystać z istniejącego `ProfileForm` w ustawieniach oraz formularza onboardingu; nie tworzyć równoległego formularza kontaktowego dla zasobów.
 
 ## 1. Cel
 
-Rozwijać w `bookkeeping` katalog ofert i potrzeb użytkowników, zachowując prosty model osobnych wpisów. `bookkeeping.Asset` nadal oznacza jednostkę finansową i nie jest używany do tych wpisów.
+Docelowo rozwijać w aplikacji `resources` wspólny katalog encji, łączący jednostki finansowe (`Asset`), fizyczne aktywa (`PhysicalAsset`) oraz wpisy ofert i potrzeb (`ResourceListing`). Każda encja ma typ, wspólne dane potrzebne do wyszukiwania oraz zachowane reguły właściwe dla jej rodzaju. Istniejące widoki i URL-e pozostają kompatybilne w trakcie etapowego przełączenia.
 
 Użytkownik powinien móc przede wszystkim:
 
 - znaleźć osobę, która oferuje potrzebną pomoc;
 - dodać własną ofertę pomocy;
 - zgłosić własną potrzebę;
+- wyszukiwać i filtrować encje według typu, nazwy, opisu, lokalizacji i bieżącego przypisania;
 - przejść z wyniku wyszukiwania do profilu osoby i skontaktować się z nią;
-- wyszukiwać wpisy po nazwie, typie i dostępnej lokalizacji.
+- odróżnić autora rekordu od aktualnej osoby lub społeczności, której przypisano zasób.
 
-Jednostką wyników ofert i potrzeb jest pojedynczy wpis przypisany do profilu. Wyjątkiem jest wyszukiwanie wyłącznie po lokalizacji: osobna sekcja pokazuje wtedy również aktywnych obywateli bez wpisów. Nazwy wpisów są swobodne; nie używamy wspólnego słownika.
+Jednostką wyników jest pojedyncza encja. Oferty i potrzeby zachowują swobodne nazwy oraz istniejące typy; nie wprowadzać wspólnego słownika bez osobnej potrzeby. Wyszukiwanie wyłącznie po lokalizacji nadal może pokazywać osobno aktywnych obywateli bez wpisów.
+
+## Docelowy model encji i własności
+
+- `resources.Entity` jest wspólnym, wyszukiwalnym rekordem z typem, nazwą, opisem, autorem, bieżącym przypisaniem oraz znacznikami czasu.
+- Typ encji rozróżnia co najmniej jednostkę finansową, fizyczne aktywo i wpis oferty/potrzeby. Pola specyficzne dla typu i ich ograniczenia pozostają właściwe dla domeny; nie dopuścić do przypadkowego wypełniania niezgodnych pól.
+- Autor oznacza osobę, która utworzyła wpis; bieżące przypisanie oznacza aktualnego posiadacza/odpowiedzialnego i może być zmieniane osobno. Autor może przypisać encję innemu aktywnemu członkowi społeczności.
+- Wariant A dla wspólnej własności: przypisanie ma zakres `community`, oznaczający całą społeczność tej instancji, albo wskazuje pojedynczego członka. Nie dodawać modelu nazwanych grup ani nie używać `auth.Group` do własności.
+- Walidować, że wybrane przypisanie jest jednoznaczne: dokładnie członek albo społeczność. Jednostki finansowe będące konfiguracją księgową nie wymagają przypisania członkowi ani społeczności.
+- Nowe encje tworzone przez członków wymagają autora. Dla historycznych rekordów bez wiarygodnej informacji o autorze lub właścicielu zachować nieznany stan zamiast dopisywać fikcyjne dane; autor systemowych jednostek finansowych może pozostać pusty.
+- Ustalić uprawnienia zmiany, zamknięcia i usunięcia encji: autor może ustawić początkowe przypisanie; operacje wykonywane później muszą respektować bieżące przypisanie i dotychczasowe ograniczenia edycji wpisów.
 
 ## 2. Ustalone decyzje projektowe i stan
 
@@ -116,7 +127,7 @@ Jednostką wyników ofert i potrzeb jest pojedynczy wpis przypisany do profilu. 
 - [ ] Dodać przypomnienie o potwierdzeniu aktualności wpisu bez automatycznego zamykania w pierwszej wersji.
 - [ ] Rozważyć powiadomienia o nowych dopasowaniach.
 - [ ] Rozważyć wyszukiwanie ofert po promieniu dopiero po potwierdzeniu potrzeby; współrzędne mapy profili z planu `PLAN_MAPA.md` nie są automatycznie używane do dopasowywania zasobów.
-- [x] Mapa społeczności ma osobny zakres i harmonogram w `docs/ongoing/PLAN_MAPA.md`; nie jest częścią katalogu ofert i potrzeb.
+- [x] Mapa społeczności ma osobny zakres i harmonogram w `docs/ongoing/PLAN_MAPA.md`; pozostaje osobnym widokiem, choć docelowo korzysta z `resources.Entity` typu `physical_asset`.
 
 ## 10. Zasady bezpieczeństwa i prywatności
 
@@ -137,3 +148,30 @@ Jednostką wyników ofert i potrzeb jest pojedynczy wpis przypisany do profilu. 
 - [x] Wpisy można ręcznie zamykać i ponownie otwierać.
 - [ ] Archiwum historycznych pól pozostaje poza obecną wersją.
 - [x] Wspólny słownik został świadomie wyłączony z zakresu.
+
+## Etap docelowy — scalenie modeli w resources
+
+- [x] Utworzyć aplikację `resources` i wspólny model `Entity`; zdefiniować typy encji, pola wspólne i walidację pól specyficznych dla typu.
+- [x] Rozdzielić autora od bieżącego przypisania. Nowe wpisy otrzymują autora; autor może przypisać zasób innemu aktywnemu członkowi.
+- [x] Wdrożyć wariant A własności wspólnej: zakres przypisania `community` oznacza całą społeczność instancji; nie tworzyć nazwanych grup ani nie używać `auth.Group`.
+- [x] Zachować oferty i potrzeby (`give`, `borrow`, `sale`, `need`), opis, stan zamknięcia, znaczniki czasu i unikalność nazw dla przypisania członek/społeczność.
+- [x] Skopiować istniejące fizyczne aktywa addytywną migracją do `resources.Entity`; zachować kraj, miejscowość i szczegóły adresu oraz zapisać mapowanie starego modelu/PK. Nie wymyślać autora ani przypisania dla danych historycznych.
+- [x] Skopiować `ResourceListing` addytywną migracją z typem, opisem, archiwum, datami, przypisanym profilem i mapowaniem starego modelu/PK. Nie dopisywać autora, którego źródło danych nie potwierdza.
+- [x] Przenieść fizyczne aktywa do typu `physical_asset`, zachowując adres i reguły mapy z `PLAN_MAPA.md`; nie ujawniać autora ani przypisania w payloadzie mapy.
+- [x] Przełączyć fizyczne formularze tworzenia/edycji na synchronizację `PhysicalAsset` i `Entity` w jednej transakcji. Nowy rekord otrzymuje autora i jawne przypisanie; tylko autor może później zmienić przypisanie, a historyczny autor pozostaje nieznany.
+- [x] Przełączyć agregację mapy na encje `physical_asset`, zachować stare linki szczegółów przez `LegacyEntityReference` i pokazywać niepowiązane rekordy legacy jako przejściowy fallback.
+- [x] Synchronizować tworzenie, edycję i archiwizację `ResourceListing` z `Entity`; przy usunięciu wpisu lub profilu usuwać jego legacy encję zgodnie z dotychczasowym `on_delete=CASCADE`. Zachować nieznanego autora dla historycznych rekordów.
+- [x] Skopiować finansowy `Asset` jako typ jednostki finansowej. Zachować kod, symbol, precyzję, domyślną jednostkę i ograniczenia integralności; nie przypisywać waluty członkowi ani społeczności. Relacje transakcji nadal wskazują na starą tabelę.
+- [x] Dodać nullable `Transaction.entity` i wypełnić je z mapowania finansowego `Asset`; przerwać migrację, jeśli transakcyjnemu aktywu brakuje encji. Zachować dotychczasowy FK `Transaction.asset`.
+- [x] Skopiować dane addytywnymi migracjami z mapowaniem `(stary model, stary PK) -> Entity PK`, ponieważ identyfikatory tabel mogą się powtarzać. Nie usuwać tabel źródłowych w tej fazie.
+- [x] Utrzymywać kopię jednostki finansowej przy tworzeniu/edycji/usuwaniu przez CRUD i uzupełniać `Transaction.entity` przy zapisie transakcji; pozostawić `Transaction.asset` jako dotychczasowe źródło odczytu na czas przejściowy.
+- [x] Przełączyć formularz/listę/szczegóły transakcji, feed, saldo, pulpit i raporty na finansowe `Entity`; zachować starą trasę szczegółów i FK `Transaction.asset` jako przejściową kompatybilność.
+- [x] Przełączyć listę, szczegóły oraz tworzenie i edycję jednostek finansowych na `Entity`; mapować stare URL-e przez `LegacyEntityReference`, a legacy `Asset` zachować jako shadow dla istniejących FK i tras.
+- [x] Przy usuwaniu jednostki przez stary URL usuwać shadow i encję w jednej transakcji; transakcje nadal blokują usunięcie przez FK `PROTECT`.
+- [ ] Usunąć legacy FK `Transaction.asset` i model `bookkeeping.Asset` po audycie dual-write oraz zgodności danych.
+- [x] Dla starych `ResourceListing` zachować profil jako bieżące przypisanie; autor pozostaje nieznany, bo źródło danych nie potwierdza historii utworzenia ani transferów.
+- [x] Dla starych aktywów fizycznych bez danych o autorze/właścicielu nie dopisywać fikcyjnych użytkowników. Właściciela wspólnotowego ustawiać tylko po potwierdzeniu, że rekord reprezentuje własność całej społeczności.
+- [x] Przełączyć katalog oraz tworzenie/edycję/archiwizację zasobów na `Entity`; obsłużyć autora, przypisanie do członka lub wspólnoty, legacy URL-e oraz kaskadowe usuwanie starych wpisów członkowskich.
+- [ ] Udostępnić wspólne wyszukiwanie i filtrowanie po typie, nazwie, opisie, lokalizacji, stanie i przypisaniu, z zachowaniem uprawnień oraz prywatności mapy.
+- [x] Dodać testy migracji i zgodności kopii: brak utraty rekordów/relacji źródłowych, mapowanie kolidujących PK, zachowanie pól waluty, domyślności i transakcji oraz przypisania zasobów.
+- [ ] Usunąć stare modele i migracyjne adaptery dopiero po audycie odwołań, zgodności danych oraz przetestowaniu procedury odtworzenia.

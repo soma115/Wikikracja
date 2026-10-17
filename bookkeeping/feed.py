@@ -10,11 +10,12 @@ from .models import Transaction
 
 def get_feed_items(since: timezone.datetime) -> list[dict]:
     """Return financial transactions created or modified since the previous feed period."""
-    transactions = Transaction.objects.filter(Q(created_date__gte=since.date()) | Q(updated_at__gte=since)).select_related('asset', 'category', 'partner', 'author')
+    transactions = Transaction.objects.filter(Q(created_date__gte=since.date()) | Q(updated_at__gte=since)).select_related('entity', 'asset', 'category', 'partner', 'author')
     items = []
     for transaction in transactions:
         direction = _('Incoming') if transaction.type == Transaction.INCOMING else _('Outgoing')
-        title = f'{direction}: {transaction.amount} {transaction.asset.symbol}'
+        financial_asset = transaction.entity or transaction.asset
+        title = f'{direction}: {transaction.amount} {financial_asset.symbol}'
         description = transaction.note or str(transaction.partner or '')
         timestamp = transaction.updated_at or timezone.make_aware(datetime.combine(transaction.created_date, time.min))
         items.append(

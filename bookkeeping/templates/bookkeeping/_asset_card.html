@@ -2,11 +2,11 @@
 
 <div class="tw-content-card">
   <div class="tw-content-card-header"
-       data-detail-url="{% url 'bookkeeping:asset_detail' asset.pk %}"
+       data-detail-url="{% url 'bookkeeping:asset_detail' asset.legacy_asset_pk|default:asset.pk %}"
        role="link"
        tabindex="0">
     <div class="tw-content-card-title-row">
-      <span class="tw-proposal-card-num">#{{ asset.pk }}</span>
+      <span class="tw-proposal-card-num">#{{ asset.legacy_asset_pk|default:asset.pk }}</span>
       <span class="tw-content-card-title">{{ asset.name }}</span>
     </div>
 

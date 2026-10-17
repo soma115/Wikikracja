@@ -1,10 +1,11 @@
 from decimal import Decimal, InvalidOperation
 
 from django import template
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from bookkeeping.models import ResourceListing
+from resources.models import Entity
 
 register = template.Library()
 
@@ -91,7 +92,7 @@ def bookkeeping_stepper(context):
             'url': reverse('bookkeeping:resource_list'),
             'icon': 'boxes-stacked',
             'label': _('Resources'),
-            'count': ResourceListing.objects.filter(profile__uid__is_active=True, is_closed=False).count(),
+            'count': Entity.objects.filter(entity_type=Entity.Type.RESOURCE, is_closed=False).filter(Q(is_community_owned=True) | Q(assigned_member__uid__is_active=True)).count(),
             'active': tab == 'resources',
         },
         {'url': reverse('bookkeeping:report_list'), 'icon': 'chart-pie', 'label': _('Reports'), 'active': tab == 'reports'},
