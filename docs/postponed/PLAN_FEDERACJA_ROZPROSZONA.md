@@ -2,7 +2,7 @@
 
 ## Status
 
-Plan szerszej federacji — **częściowo zaimplementowany**. Bezpośrednie wiadomości używają uwierzytelniania HMAC z osobnymi sekretami wychodzącym i przychodzącym dla każdego peera; discovery, katalog peerów, kryptograficzne parowanie i decyzje grupowe pozostają niezaimplementowane. Każdy peer musi otrzymać sekret wychodzący drugiej strony przez zatwierdzony kanał.
+Plan szerszej federacji — **częściowo zaimplementowany**. Transport bezpośrednich wiadomości używa uwierzytelniania HMAC z osobnymi sekretami wychodzącym i przychodzącym dla każdego peera. Połączenia wychodzące odrzucają niepubliczne adresy IP po rozwiązaniu DNS, łączą się z przypiętym adresem i nie podążają za przekierowaniami. Discovery, katalog peerów, kryptograficzne parowanie i decyzje grupowe pozostają niezaimplementowane. Każdy peer musi otrzymać sekret wychodzący drugiej strony przez zatwierdzony kanał.
 
 ## Cel
 
@@ -83,7 +83,7 @@ Każda migracja musi uwzględnić obecne rekordy `FederatedInstance`, unikalnoś
 - [ ] Instancja z katalogu nie jest automatycznie zaufana ani włączona dla grupy; wejście do sojuszu wymaga pozytywnego wyniku głosowania grupy.
 - [ ] Żądanie wiadomości bez poprawnego podpisu, z odtworzonym nonce lub z niezgodnym źródłem jest odrzucane przed zapisaniem wiadomości.
 - [ ] Propagowany wpis zachowuje weryfikowalne pochodzenie; błędny/niepodpisany wpis nie może aktywować peerów.
-- [ ] Testy potwierdzają ochronę SSRF także po DNS resolution i po redirectach.
+- [x] Testy potwierdzają ochronę SSRF po DNS resolution, przypięcie adresu połączenia HTTPS i niepodążanie za redirectami.
 - [ ] Jawne sekrety nie trafiają do API, logów, e-maili ani repozytorium; w bazie przechowywane są wyłącznie szyfrogramy.
 - [ ] Wyłączenie peerów przez grupę natychmiast zatrzymuje wysyłkę, nie kasując lokalnych danych.
 - [ ] Istniejące instancje mogą przejść na nowy protokół bez cichego przejścia na niezabezpieczone żądania.
@@ -93,6 +93,6 @@ Każda migracja musi uwzględnić obecne rekordy `FederatedInstance`, unikalnoś
 - Wiadomości federacyjne są podpisywane HMAC-SHA-256 kluczem przypisanym do konkretnego peera. Podpis obejmuje metodę, ścieżkę, kanoniczny URL źródła, timestamp, nonce i surowe body; timestamp ma ograniczone okno ważności, a nonce jest atomowo rejestrowany w cache Redis, aby odrzucać replay.
 - Żądania bez sekretu peera, z niepoprawnym podpisem, nieaktualnym timestampem lub powtórzonym nonce są odrzucane przed zapisaniem wiadomości. Nie ma fallbacku do niezabezpieczonego transportu.
 - Dla każdego peera grupa generuje klucz wychodzący o entropy 32 bajtów i przekazuje go peerowi; otrzymany klucz zapisuje jako przychodzący. Podpisywanie używa klucza wychodzącego, weryfikacja klucza przychodzącego, więc pełna komunikacja wymaga obu niezależnych wartości. Regeneracja klucza wychodzącego wymaga przekazania nowej wartości i aktualizacji pola przychodzącego na peerze. Migracja przenosi dotychczasowy szyfrogram do obu pól dla zgodności początkowej. W bazie przechowywane są wyłącznie szyfrogramy Fernet chronione kluczem wyprowadzonym z Django `SECRET_KEY`; po rotacji klucza aplikacji poprzednie klucze należy czasowo podać przez `SECRET_KEY_FALLBACKS`.
+- Wyjściowe żądania rozwiązują domenę przed połączeniem i odrzucają odpowiedź DNS zawierającą choć jeden niepubliczny adres. Połączenie TCP jest przypięte do sprawdzonego IP; HTTPS nadal używa oryginalnej domeny dla SNI i weryfikacji certyfikatu. Przekierowania nie są śledzone.
 - Zabezpieczenie dotyczy obecnego endpointu wiadomości; przyszłe endpointy reakcji/odczytu muszą korzystać z tej samej weryfikacji. Pozostałe etapy planu nadal wymagają osobnej realizacji.
-
 

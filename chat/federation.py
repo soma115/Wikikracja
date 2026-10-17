@@ -4,15 +4,15 @@ import asyncio
 import base64
 import hashlib
 import hmac
+import http.client
 import ipaddress
 import json
 import logging
 import re
 import secrets
+import socket
 import time
-from urllib.error import URLError
 from urllib.parse import urlencode, urlsplit, urlunsplit
-from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from channels.db import database_sync_to_async
 from cryptography.fernet import Fernet, InvalidToken, MultiFernet
@@ -44,12 +44,27 @@ FEDERATION_AUTH_NONCE_HEADER = 'X-Wikikracja-Nonce'
 FEDERATION_AUTH_SIGNATURE_HEADER = 'X-Wikikracja-Signature'
 
 
-class _NoRedirectHandler(HTTPRedirectHandler):
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        return None
+class _PinnedHTTPConnection(http.client.HTTPConnection):
+    def __init__(self, host, port, pinned_ip, *, timeout):
+        super().__init__(host, port, timeout=timeout)
+        self.pinned_ip = pinned_ip
+
+    def connect(self):
+        self.sock = socket.create_connection((self.pinned_ip, self.port), self.timeout, self.source_address)
 
 
-_federation_opener = build_opener(_NoRedirectHandler)
+class _PinnedHTTPSConnection(http.client.HTTPSConnection):
+    def __init__(self, host, port, pinned_ip, *, timeout):
+        super().__init__(host, port, timeout=timeout)
+        self.pinned_ip = pinned_ip
+
+    def connect(self):
+        sock = socket.create_connection((self.pinned_ip, self.port), self.timeout, self.source_address)
+        try:
+            self.sock = self._context.wrap_socket(sock, server_hostname=self.host)
+        except Exception:
+            sock.close()
+            raise
 
 
 def normalize_instance_url(value):
@@ -178,39 +193,74 @@ def local_instance_name():
     return get_param('site_name') or getattr(settings, 'SITE_NAME', '') or local_instance_url()
 
 
-def _is_private_hostname(hostname):
+def _is_non_public_ip(address):
     try:
-        return ipaddress.ip_address(hostname).is_private
+        return not ipaddress.ip_address(address).is_global
     except ValueError:
-        return hostname.lower() in {'localhost', 'localhost.localdomain'}
+        return True
 
 
 def validate_outbound_host(instance_url):
-    """Reject obvious SSRF targets before making a server-side request."""
-    hostname = urlsplit(instance_url).hostname
-    if not hostname or _is_private_hostname(hostname):
+    """Resolve and pin a globally routable address to prevent SSRF and DNS rebinding."""
+    parsed = urlsplit(instance_url)
+    allowed_schemes = {'https'} | ({'http'} if settings.DEBUG else set())
+    hostname = parsed.hostname
+    if parsed.scheme not in allowed_schemes or not hostname or '%' in hostname or parsed.username or parsed.password:
         raise ValueError(gettext('The instance address cannot point to a local network.'))
+
+    try:
+        port = parsed.port
+    except ValueError as exc:
+        raise ValueError(gettext('The instance address contains an invalid port.')) from exc
+    if port is None:
+        port = 443 if parsed.scheme == 'https' else 80
+    if not 1 <= port <= 65535:
+        raise ValueError(gettext('The instance address contains an invalid port.'))
+
+    try:
+        literal_ip = ipaddress.ip_address(hostname)
+    except ValueError:
+        try:
+            addresses = tuple(dict.fromkeys(result[4][0] for result in socket.getaddrinfo(hostname, port, type=socket.SOCK_STREAM)))
+        except OSError as exc:
+            raise ValueError(gettext('The instance address could not be resolved.')) from exc
+    else:
+        addresses = (str(literal_ip),)
+
+    if not addresses or any(_is_non_public_ip(address) for address in addresses):
+        raise ValueError(gettext('The instance address cannot point to a local network.'))
+    return addresses[0]
 
 
 def _read_json(url, payload=None, *, auth_source_url=None, auth_secret=None):
+    parsed = urlsplit(url)
+    pinned_ip = validate_outbound_host(url)
     data = None if payload is None else json.dumps(payload).encode('utf-8')
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json'} if data else {'Accept': 'application/json'}
     if auth_source_url is not None or auth_secret is not None:
         if data is None or auth_source_url is None or auth_secret is None:
             raise ValueError('Federation request authentication requires a POST body, source URL, and secret')
-        headers.update(create_federation_auth_headers('POST', urlsplit(url).path, auth_source_url, data, auth_secret))
-    request = Request(url, data=data, headers=headers, method='POST' if data else 'GET')
-    with _federation_opener.open(request, timeout=FEDERATION_TIMEOUT) as response:
+        headers.update(create_federation_auth_headers('POST', parsed.path or '/', auth_source_url, data, auth_secret))
+
+    connection_class = _PinnedHTTPSConnection if parsed.scheme == 'https' else _PinnedHTTPConnection
+    connection = connection_class(parsed.hostname, parsed.port if parsed.port is not None else (443 if parsed.scheme == 'https' else 80), pinned_ip, timeout=FEDERATION_TIMEOUT)
+    request_target = urlunsplit(('', '', parsed.path or '/', parsed.query, ''))
+    try:
+        connection.request('POST' if data else 'GET', request_target, body=data, headers=headers)
+        response = connection.getresponse()
         body = response.read(FEDERATION_MAX_BODY + 1)
         if len(body) > FEDERATION_MAX_BODY:
             raise ValueError('Federation response is too large')
         if response.status != 200:
             raise ValueError(f'Federation returned HTTP {response.status}')
         return json.loads(body.decode('utf-8'))
+    except http.client.HTTPException as exc:
+        raise ValueError('Federation returned an invalid HTTP response') from exc
+    finally:
+        connection.close()
 
 
 def discover_instance(instance_url):
-    validate_outbound_host(instance_url)
     response = _read_json(instance_endpoint(instance_url, FEDERATION_INFO_PATH))
     name = str(response.get('name') or '').strip()[:255]
     if not name:
@@ -233,14 +283,13 @@ def refresh_federated_status(room, force=False):
         source_url = local_instance_url()
         if not source_url:
             raise ValueError('Local instance URL is not configured')
-        validate_outbound_host(room.federated_instance_url)
         status_url = instance_endpoint(room.federated_instance_url, FEDERATION_INFO_PATH)
         status_url = f'{status_url}?{urlencode({"source_url": source_url})}'
         response = _read_json(status_url)
         peer_configured = bool(response.get('accepts_source_url'))
         communication_ok = True
         last_communication = now
-    except (OSError, URLError, ValueError, TimeoutError) as exc:
+    except (OSError, http.client.HTTPException, ValueError, TimeoutError) as exc:
         log.info('Federation status check failed for %s from %s: %s', room.federated_instance_url, local_instance_url(), exc)
 
     room.federation_peer_configured = peer_configured
@@ -319,7 +368,6 @@ def _message_federation_reference(message_id):
 async def _deliver_event(room, path, payload):
     if not room.federated_instance_url:
         return
-    validate_outbound_host(room.federated_instance_url)
     source_url = payload.get('source_url')
     secret = await database_sync_to_async(get_federation_outbound_secret)(room.federated_instance_url)
     if not source_url or secret is None:
