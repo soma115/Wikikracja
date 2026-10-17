@@ -246,14 +246,26 @@ def obywatele(request: HttpRequest):
         uid = uid.filter(presence_filters[aktywnosc])
 
     req_rep = required_reputation()
-    reputation_by_profile = {row['kandydat_id']: row['total'] or 0 for row in Rate.objects.filter(kandydat_id__in=[user.uzytkownik.id for user in uid]).values('kandydat_id').annotate(total=Sum('rate'))}
+    profile_ids = [user.uzytkownik.id for user in uid if hasattr(user, 'uzytkownik')]
+    reputation_by_profile = {row['kandydat_id']: row['total'] or 0 for row in Rate.objects.filter(kandydat_id__in=profile_ids).values('kandydat_id').annotate(total=Sum('rate'))}
+    try:
+        current_profile_id = request.user.uzytkownik.id
+    except Uzytkownik.DoesNotExist:
+        current_profile_id = None
+    personal_ratings = {}
+    if current_profile_id is not None:
+        personal_ratings = dict(Rate.objects.filter(obywatel_id=current_profile_id, kandydat_id__in=profile_ids).values_list('kandydat_id', 'rate'))
+
     users_with_reputation = []
     for user in uid:
         if hasattr(user, 'uzytkownik'):
             reputation = reputation_by_profile.get(user.uzytkownik.id, 0)
             user.near_threshold = reputation <= (req_rep + 1)
+            personal_rating = personal_ratings.get(user.uzytkownik.id) or 0
+            user.personal_acceptance = (personal_rating > 0) - (personal_rating < 0)
         else:
             user.near_threshold = False
+            user.personal_acceptance = 0
 
         user.pending_deletion = hasattr(user, 'deletion_request')
         users_with_reputation.append(user)

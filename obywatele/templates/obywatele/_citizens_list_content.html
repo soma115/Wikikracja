@@ -11,6 +11,7 @@
           <div class="tw-content-card-title-row tw-w-full tw-min-w-0">
             {% include "home/_user_avatar.html" with user=i size="sm" %}
             <span class="tw-content-card-title">{% if i.first_name or i.last_name %}{{ i.first_name|title }} {{ i.last_name|title }}{% else %}{{ i|display_name }}{% endif %}</span>
+            {% if i.personal_acceptance == 1 %}<span class="tw-badge-status tw-badge-approved" title="{% trans 'You support this person' %}"><i class="fas fa-check"></i></span>{% elif i.personal_acceptance == -1 %}<span class="tw-badge-status tw-badge-rejected" title="{% trans 'You do not support this person' %}"><i class="fas fa-times"></i></span>{% else %}<span class="tw-badge-status tw-badge-secondary" title="{% trans 'You are neutral about this person' %}"><i class="fas fa-circle"></i></span>{% endif %}
             {% if i.near_threshold %}<span class="tw-badge-status tw-badge-warning" title="{% trans 'This person has low reputation points' %}">!</span>{% endif %}
             {% if i.pending_deletion %}<span class="tw-badge-status tw-badge-danger" title="{% trans 'This person has requested account deletion' %}"><i class="fas fa-trash" aria-hidden="true"></i></span>{% endif %}
             <div class="tw-flex tw-items-center tw-gap-2 tw-ms-auto tw-shrink-0">
@@ -40,9 +41,12 @@
             <span class="tw-font-semibold tw-text-primary tw-truncate">
               {% if i.first_name %}{{ i.first_name|title }}{% else %}{{ i|display_name }}{% endif %}
             </span>
-            <span class="tw-font-semibold tw-text-primary tw-truncate">
-              {% if i.last_name %}{{ i.last_name|title }}{% else %}-{% endif %}
-            </span>
+            <div class="tw-flex tw-items-center tw-gap-2 tw-min-w-0">
+              <span class="tw-font-semibold tw-text-primary tw-truncate">
+                {% if i.last_name %}{{ i.last_name|title }}{% else %}-{% endif %}
+              </span>
+              {% if i.personal_acceptance == 1 %}<span class="tw-badge-status tw-badge-approved" title="{% trans 'You support this person' %}"><i class="fas fa-check"></i></span>{% elif i.personal_acceptance == -1 %}<span class="tw-badge-status tw-badge-rejected" title="{% trans 'You do not support this person' %}"><i class="fas fa-times"></i></span>{% else %}<span class="tw-badge-status tw-badge-secondary" title="{% trans 'You are neutral about this person' %}"><i class="fas fa-circle"></i></span>{% endif %}
+            </div>
           </div>
           {% if i.uzytkownik.city or i.uzytkownik.voivodeship or i.near_threshold or i.pending_deletion %}
           <div class="tw-flex tw-flex-col tw-items-end tw-justify-center tw-gap-1 tw-min-w-0 tw-shrink-0 tw-text-end tw-text-xs tw-text-muted">

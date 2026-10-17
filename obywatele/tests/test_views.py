@@ -514,6 +514,28 @@ class CitizenListViewTest(TestCase):
         self.assertTrue(citizens[viewer.username].near_threshold)
         self.assertFalse(citizens[citizen.username].near_threshold)
 
+    def test_list_and_grid_show_current_users_acceptance_of_each_citizen(self):
+        viewer = User.objects.create_user(username='acceptance-viewer', password='secret', is_active=True)
+        supported = User.objects.create_user(username='supported-citizen', is_active=True)
+        opposed = User.objects.create_user(username='opposed-citizen', is_active=True)
+        neutral = User.objects.create_user(username='neutral-citizen', is_active=True)
+        Rate.objects.create(kandydat=supported.uzytkownik, obywatel=viewer.uzytkownik, rate=2)
+        Rate.objects.create(kandydat=opposed.uzytkownik, obywatel=viewer.uzytkownik, rate=-2)
+        Rate.objects.create(kandydat=neutral.uzytkownik, obywatel=viewer.uzytkownik, rate=0)
+        self.client.force_login(viewer)
+
+        response = self.client.get(reverse('obywatele:obywatele'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'title="{_("You support this person")}"', count=2)
+        self.assertContains(response, f'title="{_("You do not support this person")}"', count=2)
+        self.assertContains(response, f'title="{_("You are neutral about this person")}"', count=4)
+        citizens = {user.username: user for user in response.context['uid']}
+        self.assertEqual(citizens[supported.username].personal_acceptance, 1)
+        self.assertEqual(citizens[opposed.username].personal_acceptance, -1)
+        self.assertEqual(citizens[neutral.username].personal_acceptance, 0)
+        self.assertEqual(citizens[viewer.username].personal_acceptance, 0)
+
     def test_list_and_grid_show_pending_deletion_badge(self):
         viewer = User.objects.create_user(username='deletion-viewer', password='secret', is_active=True)
         citizen = User.objects.create_user(username='deletion-citizen', password='secret', is_active=True)

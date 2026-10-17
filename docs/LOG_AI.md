@@ -1,5 +1,12 @@
 # LOG_AI
 
+## 2026-10-17: Akceptacja obywateli na aktywnej liście
+
+- **Zmienione obszary:** przygotowanie danych w widoku obywateli, lista i siatka aktywnych użytkowników, testy i tłumaczenia.
+- **Co się zmieniło:** Lista zbiorczo odczytuje ocenę bieżącego użytkownika dla aktywnych obywateli i pokazuje wspólny badge akceptacji, sprzeciwu lub neutralnego stosunku. Odczyt nie tworzy ani nie zmienia ocen, a ich wartość jest interpretowana po znaku.
+- **Testy:** Dodano test stanów dodatniego, ujemnego i neutralnego, w tym braku własnej oceny.
+- **Spodziewany efekt:** Na liście aktywnych obywateli użytkownik widzi swoją ocenę w obu układach, bez wpływu na reputację lub logikę członkostwa.
+
 ## 2026-10-17: Poprawki po przeglądzie katalogu zasobów
 
 - **Zmienione obszary:** filtrowanie i paginacja katalogu `bookkeeping`, karta zarządzania, testy widoków, plan zasobów oraz wygenerowany CSS.
