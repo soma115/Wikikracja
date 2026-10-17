@@ -61,6 +61,10 @@ coverage.xml
 
 # Lock files
 *.lock
+!package-lock.json
+
+# JavaScript dependencies are installed explicitly in the builder stage
+node_modules/
 
 # Media files (use volumes in production)
 /media/*

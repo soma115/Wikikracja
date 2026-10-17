@@ -6,6 +6,8 @@ app_name = 'obywatele'
 
 urlpatterns = (
     path('', v.obywatele, name='obywatele'),
+    path('mapa/', v.community_map, name='mapa'),
+    path('mapa/data/', v.community_map_data, name='mapa_data'),
     path('onboarding/', v.onboarding_details, name='onboarding_details'),
     path('onboarding/waiting/', v.onboarding_waiting, name='onboarding_waiting'),
     path('poczekalnia/', v.poczekalnia, name='poczekalnia'),

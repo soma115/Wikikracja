@@ -1,0 +1,10 @@
+{% extends "obywatele/menu.html" %}
+{% load static %}
+
+{% block extra_js %}
+  {% include "obywatele/map_scripts.html" %}
+{% endblock %}
+
+{% block citizens %}
+  {% include "obywatele/map_canvas.html" with is_active_member=True %}
+{% endblock %}

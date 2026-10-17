@@ -42,6 +42,8 @@ STATIC_ROOT = path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = path.join(BASE_DIR, 'media')
+_leaflet_static_dir = BASE_DIR / 'node_modules' / 'leaflet' / 'dist'
+STATICFILES_DIRS = [str(_leaflet_static_dir)] if _leaflet_static_dir.is_dir() else []
 
 load_dotenv(path.join(BASE_DIR, '.env'))
 
@@ -51,6 +53,20 @@ DATABASES['default']['NAME'] = getenv('SQLITE_DATABASE_PATH', str(BASE_DIR / 'db
 DEBUG = env_bool("DEBUG", False)
 DEBUG_TOOLBAR = env_bool("DEBUG_TOOLBAR", False)
 SITE_PROTOCOL = "http" if DEBUG else "https"
+
+DEFAULT_MAP_TILES_URL = 'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png' if DEBUG else 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+DEFAULT_MAP_TILES_ATTRIBUTION = (
+    '&copy; <a href="https://stadiamaps.com/attribution/">Stadia Maps</a> &copy; '
+    '<a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; '
+    '<a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+    if DEBUG
+    else '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+)
+MAP_TILES_URL = getenv('MAP_TILES_URL', DEFAULT_MAP_TILES_URL)
+MAP_TILES_ATTRIBUTION = getenv('MAP_TILES_ATTRIBUTION', DEFAULT_MAP_TILES_ATTRIBUTION)
+MAP_GEOCODER_URL = getenv('MAP_GEOCODER_URL', 'https://nominatim.openstreetmap.org/search')
+MAP_GEOCODER_USER_AGENT = getenv('MAP_GEOCODER_USER_AGENT', 'Wikikracja/1.0 (community map)')
+MAP_GEOCODING_ENABLED = env_bool('MAP_GEOCODING_ENABLED', False)
 
 SECRET_KEY = getenv("SECRET_KEY")
 SECRET_KEY_FALLBACKS = env_list('SECRET_KEY_FALLBACKS', default=[])

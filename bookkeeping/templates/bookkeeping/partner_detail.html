@@ -6,7 +6,7 @@
   {% include 'home/includes/detail_header.html' with title=partner.name navigation_include='bookkeeping/_partner_detail_navigation.html' actions_include='bookkeeping/_detail_actions.html' %}
   <div class="tw-card">
     <div class="tw-card-body">
-      <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-3">
+      {% spaceless %}<dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-3">
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Name' %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ partner.name }}</dd>
 
@@ -38,9 +38,18 @@
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Country' %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ partner.country|default:"—" }}</dd>
 
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Street' %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ partner.street|default:"—" }}</dd>
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'House number' %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ partner.house_number|default:"—" }}</dd>
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Apartment number' %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{% if request.user.is_active %}{{ partner.apartment_number|default:"—" }}{% else %}—{% endif %}</dd>
+
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Notes' %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ partner.notes|default:"—"|linebreaks }}</dd>
-      </dl>
+      </dl>{% endspaceless %}
 
     </div>
   </div>

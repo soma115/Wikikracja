@@ -12,14 +12,24 @@ from django.contrib.auth import get_user_model
 from django.contrib.messages import SUCCESS, get_messages
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
-from bookkeeping.models import Asset, Category, Partner, ResourceListing, Transaction
+from bookkeeping.models import Asset, Category, Partner, PhysicalAsset, ResourceListing, Transaction
 from bookkeeping.views import AssetDeleteView
+from obywatele.models import Country
 
 User = get_user_model()
 
-LIST_URL_NAMES = ('bookkeeping:transaction_list', 'bookkeeping:partner_list', 'bookkeeping:category_list', 'bookkeeping:asset_list', 'bookkeeping:resource_list', 'bookkeeping:report_list')
-CTA_LIST_URL_NAMES = ('bookkeeping:transaction_list', 'bookkeeping:partner_list', 'bookkeeping:category_list', 'bookkeeping:asset_list', 'bookkeeping:resource_list')
+LIST_URL_NAMES = (
+    'bookkeeping:transaction_list',
+    'bookkeeping:partner_list',
+    'bookkeeping:category_list',
+    'bookkeeping:asset_list',
+    'bookkeeping:physical_asset_list',
+    'bookkeeping:resource_list',
+    'bookkeeping:report_list',
+)
+CTA_LIST_URL_NAMES = ('bookkeeping:transaction_list', 'bookkeeping:partner_list', 'bookkeeping:category_list', 'bookkeeping:asset_list', 'bookkeeping:physical_asset_list', 'bookkeeping:resource_list')
 
 
 class BookkeepingViewTests(TestCase):
@@ -29,6 +39,7 @@ class BookkeepingViewTests(TestCase):
         cls.asset = Asset.objects.create(code='TST', name='Test Asset', symbol='T')
         cls.category = Category.objects.create(name='Test Cat')
         cls.partner = Partner.objects.create(name='Test Partner')
+        cls.physical_asset = PhysicalAsset.objects.create(name='Community garden', country=Country.objects.get(code='PL'), city='Warsaw')
 
     def setUp(self):
         self.client = Client()
@@ -56,7 +67,13 @@ class BookkeepingViewTests(TestCase):
     def test_shared_edit_views_require_login(self):
         anonymous_client = Client()
         transaction = self._transaction()
-        cases = (('bookkeeping:asset_update', self.asset), ('bookkeeping:category_update', self.category), ('bookkeeping:partner_update', self.partner), ('bookkeeping:transaction_update', transaction))
+        cases = (
+            ('bookkeeping:asset_update', self.asset),
+            ('bookkeeping:category_update', self.category),
+            ('bookkeeping:partner_update', self.partner),
+            ('bookkeeping:physical_asset_update', self.physical_asset),
+            ('bookkeeping:transaction_update', transaction),
+        )
 
         for url_name, instance in cases:
             url = reverse(url_name, args=[instance.pk])
@@ -75,12 +92,37 @@ class BookkeepingViewTests(TestCase):
         asset.refresh_from_db()
         self.assertEqual(asset.name, 'Polski złoty')
 
+    def test_physical_asset_create_and_update(self):
+        data = {'name': 'Community hall', 'country': 'PL', 'city': 'Gdańsk', 'street': 'Długa', 'house_number': '4', 'apartment_number': '2'}
+        response = self.client.post(reverse('bookkeeping:physical_asset_create'), data)
+
+        self.assertRedirects(response, reverse('bookkeeping:physical_asset_list'))
+        physical_asset = PhysicalAsset.objects.get(name='Community hall')
+        self.assertEqual(physical_asset.country.code, 'PL')
+        self.assertEqual(physical_asset.city, 'Gdańsk')
+
+        response = self.client.post(reverse('bookkeeping:physical_asset_update', args=[physical_asset.pk]), {**data, 'name': 'Community venue'})
+
+        self.assertRedirects(response, reverse('bookkeeping:physical_asset_list'))
+        physical_asset.refresh_from_db()
+        self.assertEqual(physical_asset.name, 'Community venue')
+        self.assertEqual(physical_asset.apartment_number, '2')
+
+    def test_physical_asset_requires_country_and_city(self):
+        response = self.client.post(reverse('bookkeeping:physical_asset_create'), {'name': 'Incomplete asset', 'country': '', 'city': ''})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('country', response.context['form'].errors)
+        self.assertIn('city', response.context['form'].errors)
+        self.assertFalse(PhysicalAsset.objects.filter(name='Incomplete asset').exists())
+
     def test_edit_forms_render_prefilled_data(self):
         transaction = self._transaction()
         cases = (
             ('bookkeeping:asset_update', self.asset, 'form'),
             ('bookkeeping:category_update', self.category, 'form'),
             ('bookkeeping:partner_update', self.partner, 'form'),
+            ('bookkeeping:physical_asset_update', self.physical_asset, 'form'),
             ('bookkeeping:transaction_update', transaction, 'transaction_form'),
         )
 
@@ -94,8 +136,10 @@ class BookkeepingViewTests(TestCase):
         cases = (
             ('bookkeeping:category_create', None, ('name',)),
             ('bookkeeping:category_update', self.category.pk, ('name',)),
-            ('bookkeeping:partner_create', None, ('name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'notes')),
-            ('bookkeeping:partner_update', self.partner.pk, ('name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'notes')),
+            ('bookkeeping:partner_create', None, ('name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes')),
+            ('bookkeeping:partner_update', self.partner.pk, ('name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes')),
+            ('bookkeeping:physical_asset_create', None, ('name', 'country', 'city', 'street', 'house_number', 'apartment_number')),
+            ('bookkeeping:physical_asset_update', self.physical_asset.pk, ('name', 'country', 'city', 'street', 'house_number', 'apartment_number')),
         )
 
         for url_name, pk, expected_fields in cases:
@@ -117,12 +161,29 @@ class BookkeepingViewTests(TestCase):
         self.partner.refresh_from_db()
         self.assertEqual(self.partner.name, 'Updated partner')
 
+    def test_partner_address_fields_save_without_rewriting_legacy_address(self):
+        self.partner.address = 'Old full address'
+        self.partner.save(update_fields=['address'])
+
+        response = self.client.post(
+            reverse('bookkeeping:partner_update', args=[self.partner.pk]),
+            {'name': self.partner.name, 'address': self.partner.address, 'city': 'Gdańsk', 'country': 'Poland', 'street': 'Długa', 'house_number': '12A', 'apartment_number': '4'},
+        )
+
+        self.assertRedirects(response, reverse('bookkeeping:partner_list'))
+        self.partner.refresh_from_db()
+        self.assertEqual(self.partner.address, 'Old full address')
+        self.assertEqual(self.partner.street, 'Długa')
+        self.assertEqual(self.partner.house_number, '12A')
+        self.assertEqual(self.partner.apartment_number, '4')
+
     def test_edit_forms_rerender_errors_without_saving(self):
         transaction = self._transaction()
         cases = (
             ('bookkeeping:asset_update', self.asset, {'code': '', 'name': 'Test Asset', 'symbol': 'T', 'decimal_places': 2}, 'form'),
             ('bookkeeping:category_update', self.category, {'name': ''}, 'form'),
             ('bookkeeping:partner_update', self.partner, {'name': ''}, 'form'),
+            ('bookkeeping:physical_asset_update', self.physical_asset, {'name': '', 'country': 'PL', 'city': 'Warsaw'}, 'form'),
             (
                 'bookkeeping:transaction_update',
                 transaction,
@@ -187,6 +248,37 @@ class BookkeepingViewTests(TestCase):
         response = self.client.get(reverse('bookkeeping:asset_detail', args=[self.asset.pk]))
 
         self.assertNotContains(response, 'tw-badge tw-badge-secondary')
+
+    def test_physical_asset_detail_shows_location_and_active_member_apartment_number(self):
+        self.physical_asset.street = 'Długa'
+        self.physical_asset.house_number = '4'
+        self.physical_asset.apartment_number = '2'
+        self.physical_asset.save()
+
+        response = self.client.get(reverse('bookkeeping:physical_asset_detail', args=[self.physical_asset.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Warsaw')
+        self.assertContains(response, 'Długa')
+        self.assertContains(response, '2')
+
+        inactive_user = User.objects.create_user(username='inactive-member', is_active=False)
+        self.client.force_login(inactive_user)
+        response = self.client.get(reverse('bookkeeping:physical_asset_detail', args=[self.physical_asset.pk]))
+        self.assertEqual(response.status_code, 302)
+
+    def test_partner_detail_shows_apartment_only_to_active_members(self):
+        self.partner.apartment_number = '8'
+        self.partner.save(update_fields=['apartment_number'])
+
+        response = self.client.get(reverse('bookkeeping:partner_detail', args=[self.partner.pk]))
+        self.assertContains(response, _('Apartment number'))
+        self.assertContains(response, '>8</dd>')
+
+        inactive_user = User.objects.create_user(username='inactive-partner-viewer', is_active=False)
+        self.client.force_login(inactive_user)
+        response = self.client.get(reverse('bookkeeping:partner_detail', args=[self.partner.pk]))
+        self.assertEqual(response.status_code, 302)
 
     def test_partner_detail_keeps_missing_navigation_directions_visible(self):
         first = self.partner

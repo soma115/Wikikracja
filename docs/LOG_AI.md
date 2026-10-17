@@ -1,5 +1,52 @@
 # LOG_AI
 
+## 2026-10-17: Naprawa uwierzytelniania kafelków mapy
+
+- **Przyczyna:** Stadia zwracała 401, a OSM blokował kafelki. Django używa globalnej polityki `same-origin`, więc przeglądarka pomijała Referer przy żądaniach międzydomenowych.
+- **Zmiana:** Warstwa Leaflet ustawia `referrerPolicy: 'origin'` tylko dla obrazów kafelków. Dostawca otrzymuje origin strony (host/port), bez ścieżki ani query; globalne ustawienia bezpieczeństwa pozostają niezmienione. W `DEBUG=True` domyślnie używamy Stadia Alidade Smooth (dopuszczone keyless na localhost); produkcja zachowuje domyślny OSM. URL i atrybucja są konfigurowalne.
+- **Weryfikacja:** Ustawienia wyboru providera sprawdzono w odizolowanych procesach dla `DEBUG=True` i `False`; test Jest sprawdza politykę Referer warstwy. Nie wykonywano żądań kafelków ani geokodera.
+
+## 2026-10-17: Integracja Leaflet i mapy społeczności
+
+- **Zmienione obszary:** widoki/routes mapy, stepper obywateli, Leaflet/webpack-free CSS build, geokodowanie, konfiguracja providerów, Docker, szablony oraz testy.
+- **Co się zmieniło:** Dodano publiczną stronę `/obywatele/mapa/` i endpoint danych. Strona członka używa steppera; strona gościa nie zawiera steppera ani danych o typach. Punkty gościa są nieklikalne i zawierają wyłącznie unikalne współrzędne; widok aktywnego użytkownika pokazuje grupowane typy, popupy i listę nieoznaczonych lokalizacji. Leaflet jest lokalnym assetem bundlowanym w Tailwind; mapa używa konfigurowalnych kafelków HTTPS i widocznej atrybucji OSM.
+- **Geokodowanie:** Nominatim dostaje wyłącznie kraj, miasto oraz opcjonalnie ulicę/numer domu; adres szczegółowy jest uznawany tylko po dokładnym dopasowaniu, w innym razie używany jest punkt miasta. Cache przechowuje sukces przez 30 dni, błąd przez 15 minut, a współdzielony limiter wymusza 1,1 s między żądaniami. Goście korzystają tylko z cache; `MAP_GEOCODING_ENABLED` jest domyślnie `False`, dopóki nie potwierdzimy ruchu i liczby lokalizacji.
+- **Warunki dostawcy:** Sprawdzono oficjalną politykę kafelków OSM i Nominatim; nie wykonano żądań geokodera ani kafelków. Przed włączeniem geokodowania trzeba jeszcze ocenić przewidywaną liczbę zapytań.
+- **Weryfikacja:** 14 testów Django mapy/adresu i 3 testy Jest, Django check, kontrola migracji, collectstatic do katalogu tymczasowego, Ruff, kompilacja tłumaczeń, build CSS, regression scan i UI guard przeszły. Playwright nie był uruchamiany, bo pełny runner modyfikuje `.env` i wykonuje `collectstatic --clear`.
+- **Uwaga o zależnościach:** `npm install leaflet` zgłosił 32 wysokie podatności w całym drzewie npm; nie uruchamiano automatycznego upgrade'u zależności poza zakresem mapy.
+- **Spodziewany efekt:** Mapa działa bez ujawniania danych lokalizacyjnych gościom poza współrzędnymi; ruch geokodera pozostaje wyłączony do chwili potwierdzenia skali.
+
+## 2026-10-17: Poprawa semantyki list adresowych w szczegółach
+
+- **Zmienione obszary:** szablony szczegółów obywatela, partnera i aktywa fizycznego.
+- **Co się zmieniło:** Listy `<dl>` są renderowane bez białych znaków między elementami; warunek aktywnego konta znajduje się wewnątrz wartości `<dd>`, a nie bezpośrednio w `<dl>`. Nieaktywni użytkownicy widzą kreskę zamiast numeru mieszkania.
+- **Weryfikacja:** Cztery testy widoków szczegółów, build CSS, UI guard i regression scan przeszły.
+- **Pozostałe ostrzeżenia:** Ostrzeżenia Edge Tools z `home.html` dotyczą surowych bloków Django wewnątrz list; ten plik nie został zmieniony.
+
+## 2026-10-17: Agregacja lokalizacji mapy i adresy szczegółów
+
+- **Zmienione obszary:** szczegóły profilu obywatela, nowy serwis `obywatele.map_data`, testy i checklistę planu mapy.
+- **Co się zmieniło:** Szczegóły profilu pokazują kraj, ulicę i numer domu; numer mieszkania jest widoczny tylko dla aktywnego konta. Serwis zbiera dozwolone pola aktywnych obywateli, partnerów i aktywów fizycznych, dokładnie normalizuje kraj partnera oraz normalizuje miasto wyłącznie do porównań. Budowniczy payloadu oddziela gościnne unikalne współrzędne od grupowanych markerów i nieoznaczonych wpisów dla aktywnych użytkowników.
+- **Granice zakresu:** Geokoder nie jest jeszcze podłączony, a payload nie jest wystawiony przez trasę mapy. Funkcja przyjmuje resolver współrzędnych, co pozwala testować prywatność i grupowanie bez połączeń sieciowych. Nie wyszukiwano ani nie wywoływano publicznego Nominatim.
+- **Weryfikacja:** 3 testy agregacji/payloadu oraz 2 testy szczegółów adresu przeszły; wcześniej przeszło 88 testów bookkeeping. Django check, kontrola migracji, Ruff, build CSS, regression scan i UI guard przeszły.
+- **Spodziewany efekt:** Kolejna warstwa mapy otrzymuje małe, allowlistowane rekordy z ustalonym podziałem gość/członek i bez kontaktów ani danych finansowych.
+
+## 2026-10-17: Model danych i CRUD aktywów fizycznych mapy
+
+- **Zmienione obszary:** modele i migracja `bookkeeping`, formularze partnera i aktywa fizycznego, widoki, routing, stepper, szablony, testy oraz plan mapy.
+- **Co się zmieniło:** Dodano odrębny `PhysicalAsset` z wymaganym krajem i miastem oraz opcjonalnym adresem szczegółowym, wraz z listą, stroną szczegółów, tworzeniem i edycją. `Partner` otrzymał analogiczne pola ulicy, numeru domu i mieszkania; dotychczasowy tekst `Partner.address` pozostaje bez zmian i nie jest automatycznie parsowany. Szczegóły obywatela pokazują teraz kraj i adres strukturalny, a numer mieszkania tylko przy aktywnym koncie.
+- **Dostęp i separacja:** Widoki fizycznych aktywów korzystają z istniejących uprawnień bookkeeping. Numer mieszkania pokazuje się wyłącznie aktywnemu użytkownikowi. Finansowy model `Asset` oraz transakcje nie zostały zmienione.
+- **Weryfikacja:** 88 testów bookkeeping, Ruff check/format, Django check, kontrola spójności migracji, kompilacja tłumaczeń, build CSS, regression scan i UI guard przeszły.
+- **Spodziewany efekt:** Partnerzy i fizyczne aktywa mogą przechowywać dane lokalizacyjne potrzebne do późniejszej agregacji mapy bez mieszania nieruchomości z jednostkami finansowymi.
+
+## 2026-10-17: Start realizacji planu mapy — lokalizacja profilu
+
+- **Zmienione obszary:** model i migracja profilu obywatela, katalog krajów, formularze i szablony ustawień/onboardingu/zaproszeń/edycji kandydata, dokumentacja onboardingu, testy oraz plan mapy.
+- **Co się zmieniło:** Profil przechowuje kraj z katalogu `Country` (domyślnie Polska) oraz opcjonalną ulicę, numer domu i numer mieszkania. Migracja uzupełnia kraje istniejących profili na podstawie regionu albo przypisuje Polskę oraz zasila katalog kodami ISO z `pycountry`. Formularze ustawień, onboardingu i zaproszenia zapisują te pola; wybór regionu pozostaje opcjonalny i ograniczony do kraju profilu.
+- **Granice zakresu:** Nie dodano jeszcze modelu fizycznych aktywów, pól lokalizacji partnerów, geokodowania, publicznego API ani widoku mapy. Adres profilu nie jest na tym etapie ujawniany w widokach publicznych.
+- **Weryfikacja:** 27 wybranych testów widoków/formularzy przeszło. Ruff check/format, Django check, kontrola spójności migracji, kompilacja tłumaczeń, build CSS, regression scan i UI guard przeszły.
+- **Spodziewany efekt:** Dane profilu mają spójne źródło kraju i miejsce na szczegóły adresowe, potrzebne do dalszej agregacji mapy, bez łączenia kraju lokalizacji z `phone_country`.
+
 ## 2026-10-17: Akceptacja obywateli na aktywnej liście
 
 - **Zmienione obszary:** przygotowanie danych w widoku obywateli, lista i siatka aktywnych użytkowników, testy i tłumaczenia.

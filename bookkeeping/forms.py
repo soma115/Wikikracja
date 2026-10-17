@@ -5,7 +5,9 @@ from crispy_forms.layout import Submit
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from .models import Asset, Category, Partner, ResourceListing, Transaction
+from obywatele.models import Country
+
+from .models import Asset, Category, Partner, PhysicalAsset, ResourceListing, Transaction
 
 
 class AssetForm(forms.ModelForm):
@@ -20,6 +22,14 @@ class AssetForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('submit', _('Save')))
+
+
+class PhysicalAssetForm(forms.ModelForm):
+    country = forms.ModelChoiceField(queryset=Country.objects.all(), to_field_name='code', label=_('Country'), empty_label=None)
+
+    class Meta:
+        model = PhysicalAsset
+        fields = ('name', 'country', 'city', 'street', 'house_number', 'apartment_number')
 
 
 class ResourceListingForm(forms.Form):

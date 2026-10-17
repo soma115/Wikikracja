@@ -8,13 +8,16 @@ import io
 import json
 from datetime import datetime, timedelta, timezone
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
+from urllib.error import URLError
+from urllib.parse import parse_qs, urlsplit
 
 from allauth.account.models import EmailAddress, EmailConfirmation, EmailConfirmationHMAC
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.messages import SUCCESS, get_messages
 from django.core import mail
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -29,14 +32,16 @@ from django.utils.translation import gettext as _
 from django.utils.translation import override, pgettext
 from PIL import Image
 
-from bookkeeping.models import ResourceListing
+from bookkeeping.models import Partner, PhysicalAsset, ResourceListing
 from chat.models import Message, MessageReadBy, Room
 from chat.services import get_user_public_message_rows
 from glosowania.models import Argument, Decyzja, KtoJuzGlosowal, VoteCode, ZebranePodpisy
 from obywatele.adapter import CustomAccountAdapter
 from obywatele.auth_backends import CaseInsensitiveEmailBackend
-from obywatele.forms import EmailChangeForm, ProfileForm, UserForm, phone_country_choices
-from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, Uzytkownik
+from obywatele.forms import EmailChangeForm, OnboardingDetailsForm, ProfileForm, UserForm, phone_country_choices
+from obywatele.map_data import build_map_payload, get_map_location_records, location_key, normalize_city, normalize_country
+from obywatele.map_geocoding import geocode_location
+from obywatele.models import CitizenActivity, Country, DeletionRequest, PrivateNote, Rate, Region, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items
 from obywatele.views import is_email_confirmed_for_candidate
 from tasks.activity import get_user_tasks
@@ -47,7 +52,11 @@ PROFILE_POST_DATA = {
     'first_name': 'Jan',
     'last_name': 'Kowalski',
     'phone': '123456789',
+    'country': 'PL',
     'city': 'Gdańsk',
+    'street': '',
+    'house_number': '',
+    'apartment_number': '',
     'job': 'Programista',
     'voivodeship': '',
     'skills_knowledge_hobby': 'Python',
@@ -420,6 +429,21 @@ class LanguageSwitcherRenderTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.switcher_url)
 
+    def test_onboarding_saves_profile_location(self):
+        user = User.objects.create_user(username='onb-location', email='onb-location@example.com', password='secret', is_active=False)
+        session = self.client.session
+        session['onboarding_user_id'] = user.id
+        session.save()
+
+        response = self.client.post(reverse('obywatele:onboarding_details'), {**PROFILE_POST_DATA, 'country': 'US', 'street': 'Main Street', 'house_number': '8', 'apartment_number': '2'})
+
+        self.assertRedirects(response, reverse('obywatele:onboarding_waiting'))
+        user.uzytkownik.refresh_from_db()
+        self.assertEqual(user.uzytkownik.country.code, 'US')
+        self.assertEqual(user.uzytkownik.street, 'Main Street')
+        self.assertEqual(user.uzytkownik.house_number, '8')
+        self.assertEqual(user.uzytkownik.apartment_number, '2')
+
 
 class CitizenZalozonoTemplateTest(TestCase):
     """Widok citizen_zalozono musi renderować inny szablon dla żądań AJAX i zwykłych."""
@@ -441,6 +465,286 @@ class CitizenZalozonoTemplateTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'obywatele/_citizen_zalozono_partial.html')
+
+
+class CitizenMapDataTests(TestCase):
+    def test_country_matching_is_exact_and_city_comparison_only_normalizes_whitespace_and_case(self):
+        self.assertEqual(normalize_country(' United States '), 'US')
+        self.assertEqual(normalize_country('US'), 'US')
+        self.assertIsNone(normalize_country('United Stetes'))
+        self.assertEqual(normalize_city('  New York '), 'new york')
+        self.assertEqual(location_key({'country_code': 'us', 'city': ' New York ', 'street': '', 'house_number': ''}), location_key({'country_code': 'US', 'city': 'new york'}))
+        self.assertNotEqual(location_key({'country_code': 'US', 'city': 'Springfield'}), location_key({'country_code': 'PL', 'city': 'Springfield'}))
+        self.assertIsNone(location_key({'country_code': '', 'city': 'New York'}))
+
+    def test_location_records_include_only_active_citizens_and_locality_fields(self):
+        country = Country.objects.get(code='US')
+        citizen = User.objects.create_user(username='map-citizen', first_name='Ada', last_name='Lovelace', is_active=True)
+        profile = citizen.uzytkownik
+        profile.country = country
+        profile.city = 'Boston'
+        profile.street = 'Main Street'
+        profile.house_number = '14'
+        profile.apartment_number = '3'
+        profile.phone = '+15555550100'
+        profile.save()
+
+        inactive = User.objects.create_user(username='map-candidate', is_active=False)
+        inactive.uzytkownik.city = 'Boston'
+        inactive.uzytkownik.save(update_fields=['city'])
+
+        partner = Partner.objects.create(
+            name='Map Partner',
+            address='Historic address',
+            city='Boston',
+            country=' united states ',
+            street='Main Street',
+            house_number='14',
+            apartment_number='3',
+            phone='private-phone',
+            email='private@example.com',
+            notes='private-notes',
+        )
+        physical_asset = PhysicalAsset.objects.create(name='Map Hall', country=country, city='Boston', street='Main Street', house_number='14', apartment_number='3')
+        Partner.objects.create(name='Unknown Country Partner', city='Portland', country='United Stetes')
+
+        records = get_map_location_records()
+
+        self.assertEqual([record['type'] for record in records].count('citizen'), 1)
+        citizen_record = next(record for record in records if record['type'] == 'citizen')
+        self.assertEqual(citizen_record['name'], 'Ada Lovelace')
+        self.assertEqual(citizen_record['url'], reverse('obywatele:obywatele_szczegoly', args=[citizen.pk]))
+        self.assertEqual(citizen_record['location'], {'country_code': 'US', 'city': 'Boston', 'street': 'Main Street', 'house_number': '14'})
+        self.assertIn('3', citizen_record['address'])
+
+        partner_record = next(record for record in records if record['type'] == 'partner')
+        self.assertEqual(partner_record['location']['country_code'], 'US')
+        self.assertEqual(partner_record['url'], reverse('bookkeeping:partner_detail', args=[partner.pk]))
+        self.assertIn('Historic address', partner_record['address'])
+        self.assertNotIn('apartment_number', partner_record['location'])
+        physical_record = next(record for record in records if record['type'] == 'physical_asset')
+        self.assertEqual(physical_record['url'], reverse('bookkeeping:physical_asset_detail', args=[physical_asset.pk]))
+        for record in records:
+            self.assertNotIn('email', record)
+            self.assertNotIn('phone', record)
+            self.assertNotIn('notes', record)
+
+        unknown_partner = next(record for record in records if record['name'] == 'Unknown Country Partner')
+        self.assertIsNone(location_key(unknown_partner['location']))
+        self.assertEqual(partner.name, 'Map Partner')
+        self.assertFalse(inactive.is_active)
+
+    def test_map_payload_deduplicates_guest_points_and_groups_member_markers_by_kind(self):
+        records = [
+            {'type': 'citizen', 'name': 'One', 'address': 'Private address', 'url': '/citizen/1/', 'location': {'country_code': 'PL', 'city': 'Warsaw'}},
+            {'type': 'citizen', 'name': 'Two', 'address': 'Another private address', 'url': '/citizen/2/', 'location': {'country_code': 'pl', 'city': ' warsaw '}},
+            {'type': 'partner', 'name': 'Partner', 'address': 'Partner address', 'url': '/partner/1/', 'location': {'country_code': 'PL', 'city': 'Warsaw'}},
+            {'type': 'physical_asset', 'name': 'Hall', 'address': 'Hall address', 'url': '/physical/1/', 'location': {'country_code': 'PL', 'city': 'Krakow'}},
+            {'type': 'partner', 'name': 'Unmapped', 'address': 'Unknown country', 'url': '/partner/2/', 'location': {'country_code': '', 'city': 'Nowhere'}},
+        ]
+        calls = []
+
+        def geocode(location):
+            calls.append(location.copy())
+            return {'warsaw': (52.23, 21.01), 'krakow': (50.06, 19.94)}.get(location['city'].strip().casefold())
+
+        guest_payload = build_map_payload(records, geocode, show_details=False)
+        self.assertEqual(guest_payload, {'points': [{'lat': 50.06, 'lon': 19.94}, {'lat': 52.23, 'lon': 21.01}]})
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(set(guest_payload['points'][0]), {'lat', 'lon'})
+        self.assertNotIn('unmapped', guest_payload)
+
+        calls.clear()
+        member_payload = build_map_payload(records, geocode, show_details=True)
+        citizens = [marker for marker in member_payload['markers'] if marker['type'] == 'citizen']
+        partners = [marker for marker in member_payload['markers'] if marker['type'] == 'partner']
+        physical_assets = [marker for marker in member_payload['markers'] if marker['type'] == 'physical_asset']
+        self.assertEqual(len(citizens), 1)
+        self.assertEqual(len(citizens[0]['items']), 2)
+        self.assertEqual(len(partners), 1)
+        self.assertEqual(len(physical_assets), 1)
+        self.assertEqual([item['name'] for item in member_payload['unmapped']], ['Unmapped'])
+        self.assertEqual(len(calls), 2)
+
+
+class CommunityMapViewTests(TestCase):
+    def setUp(self):
+        self.map_url = reverse('obywatele:mapa')
+        self.data_url = reverse('obywatele:mapa_data')
+        self.records = [
+            {
+                'type': 'citizen',
+                'name': 'Map Citizen',
+                'address': 'Main Street 4, Warsaw, Poland',
+                'url': '/obywatele/1/',
+                'location': {'country_code': 'PL', 'city': 'Warsaw', 'street': 'Main Street', 'house_number': '4'},
+            },
+            {
+                'type': 'partner',
+                'name': 'Map Partner',
+                'address': 'Main Street 4, Warsaw, Poland',
+                'url': '/bookkeeping/partner/1/',
+                'location': {'country_code': 'PL', 'city': 'Warsaw', 'street': 'Main Street', 'house_number': '4'},
+            },
+            {
+                'type': 'physical_asset',
+                'name': 'Map Hall',
+                'address': 'Hall Street 8, Warsaw, Poland',
+                'url': '/bookkeeping/physical-asset/1/',
+                'location': {'country_code': 'PL', 'city': 'Warsaw', 'street': 'Hall Street', 'house_number': '8'},
+            },
+        ]
+
+    def test_guest_page_does_not_render_the_citizen_stepper(self):
+        response = self.client.get(self.map_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="community-map"')
+        self.assertNotContains(response, 'tw-stepper-nav')
+        self.assertNotContains(response, 'data-map-citizen')
+        self.assertNotContains(response, 'data-map-partner')
+        self.assertNotContains(response, 'data-map-physical-asset')
+
+    def test_guest_data_response_contains_only_deduplicated_coordinates(self):
+        with patch('obywatele.views.get_map_location_records', return_value=self.records), patch('obywatele.views.get_cached_coordinates', return_value=(52.2, 21.0)):
+            response = self.client.get(self.data_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'points': [{'lat': 52.2, 'lon': 21.0}]})
+        self.assertIn('no-store', response.headers['Cache-Control'])
+
+    @override_settings(MAP_GEOCODING_ENABLED=True)
+    def test_active_member_page_uses_the_citizen_stepper_and_details_payload(self):
+        member = User.objects.create_user(username='map-member', is_active=True)
+        self.client.force_login(member)
+
+        page = self.client.get(self.map_url)
+        with patch('obywatele.views.get_map_location_records', return_value=self.records), patch('obywatele.views.geocode_location', return_value=(52.2, 21.0)):
+            response = self.client.get(self.data_url)
+
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, 'tw-stepper-nav')
+        self.assertContains(page, reverse('obywatele:mapa'))
+        self.assertContains(page, 'fa-map-marker-alt')
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual({marker['type'] for marker in payload['markers']}, {'citizen', 'partner', 'physical_asset'})
+        self.assertEqual(payload['unmapped'], [])
+        self.assertNotIn('email', response.content.decode())
+        self.assertNotIn('phone', response.content.decode())
+
+    @override_settings(MAP_GEOCODING_ENABLED=False)
+    def test_geocoding_stays_disabled_until_explicitly_configured(self):
+        member = User.objects.create_user(username='map-cache-only-member', is_active=True)
+        self.client.force_login(member)
+
+        with (
+            patch('obywatele.views.get_map_location_records', return_value=self.records),
+            patch('obywatele.views.get_cached_coordinates', return_value=None),
+            patch('obywatele.views.geocode_location', side_effect=AssertionError('external geocoding must be disabled')),
+        ):
+            response = self.client.get(self.data_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()['unmapped']), 3)
+
+
+class MapGeocodingTests(TestCase):
+    def response(self, payload):
+        response = MagicMock()
+        response.__enter__.return_value = response
+        response.read.return_value = json.dumps(payload).encode('utf-8')
+        return response
+
+    @override_settings(MAP_GEOCODER_URL='https://nominatim.example/search', MAP_GEOCODER_USER_AGENT='Wikikracja test/1.0')
+    def test_precise_address_uses_only_location_fields_and_is_cached(self):
+        cache.clear()
+        location = {'country_code': 'PL', 'city': 'Warsaw', 'street': 'Main Street', 'house_number': '14', 'apartment_number': '3'}
+        result = [{'lat': '52.1', 'lon': '21.1', 'name': 'Warsaw', 'address': {'country_code': 'pl', 'city': 'Warsaw', 'road': 'Main Street', 'house_number': '14'}}]
+        response = self.response(result)
+
+        with patch('obywatele.map_geocoding._wait_for_nominatim_slot', return_value=True), patch('obywatele.map_geocoding.urlopen', return_value=response) as open_url:
+            self.assertEqual(geocode_location(location), (52.1, 21.1))
+            self.assertEqual(geocode_location(location), (52.1, 21.1))
+
+        self.assertEqual(open_url.call_count, 1)
+        request = open_url.call_args.args[0]
+        query = parse_qs(urlsplit(request.full_url).query)
+        self.assertEqual(query['countrycodes'], ['pl'])
+        self.assertEqual(query['city'], ['Warsaw'])
+        self.assertEqual(query['street'], ['14 Main Street'])
+        self.assertNotIn('apartment_number', query)
+        self.assertNotIn('name', query)
+        self.assertEqual(request.get_header('User-agent'), 'Wikikracja test/1.0')
+
+    @override_settings(MAP_GEOCODER_URL='https://nominatim.example/search', MAP_GEOCODER_USER_AGENT='Wikikracja test/1.0')
+    def test_unconfirmed_address_falls_back_to_exact_city_result(self):
+        cache.clear()
+        location = {'country_code': 'PL', 'city': 'Warsaw', 'street': 'Unknown Road', 'house_number': '999'}
+        wrong_address = [{'lat': '52.1', 'lon': '21.1', 'name': 'Warsaw', 'address': {'country_code': 'pl', 'city': 'Warsaw', 'road': 'Other Road', 'house_number': '1'}}]
+        city_match = [{'lat': '52.2', 'lon': '21.2', 'name': 'Warsaw', 'address': {'country_code': 'pl', 'city': 'Warsaw'}}]
+
+        with (
+            patch('obywatele.map_geocoding._wait_for_nominatim_slot', return_value=True),
+            patch('obywatele.map_geocoding.urlopen', side_effect=[self.response(wrong_address), self.response(city_match)]) as open_url,
+        ):
+            self.assertEqual(geocode_location(location), (52.2, 21.2))
+
+        self.assertEqual(open_url.call_count, 2)
+        city_query = parse_qs(urlsplit(open_url.call_args_list[1].args[0].full_url).query)
+        self.assertNotIn('street', city_query)
+
+    @override_settings(MAP_GEOCODER_URL='https://nominatim.example/search', MAP_GEOCODER_USER_AGENT='Wikikracja test/1.0')
+    def test_changed_house_number_uses_a_new_cache_key(self):
+        cache.clear()
+        first_location = {'country_code': 'PL', 'city': 'Warsaw', 'street': 'Main Street', 'house_number': '14'}
+        second_location = {**first_location, 'house_number': '15'}
+        first_result = [{'lat': '52.1', 'lon': '21.1', 'address': {'country_code': 'pl', 'city': 'Warsaw', 'road': 'Main Street', 'house_number': '14'}}]
+        second_result = [{'lat': '52.2', 'lon': '21.2', 'address': {'country_code': 'pl', 'city': 'Warsaw', 'road': 'Main Street', 'house_number': '15'}}]
+
+        with (
+            patch('obywatele.map_geocoding._wait_for_nominatim_slot', return_value=True),
+            patch('obywatele.map_geocoding.urlopen', side_effect=[self.response(first_result), self.response(second_result)]) as open_url,
+        ):
+            self.assertEqual(geocode_location(first_location), (52.1, 21.1))
+            self.assertEqual(geocode_location(second_location), (52.2, 21.2))
+
+        self.assertEqual(open_url.call_count, 2)
+
+    @override_settings(MAP_GEOCODER_URL='https://nominatim.example/search', MAP_GEOCODER_USER_AGENT='Wikikracja test/1.0')
+    def test_ambiguous_city_results_are_left_unmapped_and_short_cached(self):
+        cache.clear()
+        location = {'country_code': 'PL', 'city': 'Springfield'}
+        ambiguous = [
+            {'lat': '52.1', 'lon': '21.1', 'name': 'Springfield', 'address': {'country_code': 'pl', 'city': 'Springfield'}},
+            {'lat': '52.2', 'lon': '21.2', 'name': 'Springfield', 'address': {'country_code': 'pl', 'city': 'Springfield'}},
+        ]
+
+        with (
+            patch('obywatele.map_geocoding._wait_for_nominatim_slot', return_value=True),
+            patch('obywatele.map_geocoding.urlopen', return_value=self.response(ambiguous)) as open_url,
+            patch('obywatele.map_geocoding.cache.set', wraps=cache.set) as cache_set,
+        ):
+            self.assertIsNone(geocode_location(location))
+
+        self.assertEqual(open_url.call_count, 1)
+        self.assertTrue(any(call.args[1] is None and call.args[2] == 15 * 60 for call in cache_set.call_args_list))
+
+    @override_settings(MAP_GEOCODER_URL='https://nominatim.example/search', MAP_GEOCODER_USER_AGENT='Wikikracja test/1.0')
+    def test_network_error_is_cached_briefly_without_repeating_the_request(self):
+        cache.clear()
+        location = {'country_code': 'PL', 'city': 'Nowhere'}
+
+        with (
+            patch('obywatele.map_geocoding._wait_for_nominatim_slot', return_value=True),
+            patch('obywatele.map_geocoding.urlopen', side_effect=URLError('offline')) as open_url,
+            patch('obywatele.map_geocoding.cache.set', wraps=cache.set) as cache_set,
+        ):
+            self.assertIsNone(geocode_location(location))
+            self.assertIsNone(geocode_location(location))
+
+        self.assertEqual(open_url.call_count, 1)
+        self.assertTrue(any(call.args[1] is None and call.args[2] == 15 * 60 for call in cache_set.call_args_list))
 
 
 class CitizenListViewTest(TestCase):
@@ -492,12 +796,35 @@ class CitizenListViewTest(TestCase):
 
     def test_citizen_detail_highlights_citizens_stepper(self):
         citizen = User.objects.create_user(username='stepper-citizen', password='secret', is_active=True)
+        citizen.uzytkownik.street = 'Długa'
+        citizen.uzytkownik.house_number = '12A'
+        citizen.uzytkownik.apartment_number = '4'
+        citizen.uzytkownik.save()
         viewer = User.objects.create_user(username='stepper-viewer', password='secret', is_active=True)
         self.client.force_login(viewer)
         response = self.client.get(reverse('obywatele:obywatele_szczegoly', kwargs={'pk': citizen.pk}))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="tw-stepper-step-wrap tw-active"')
+        self.assertContains(response, 'Długa 12A')
+        self.assertContains(response, _('Apartment number'))
+        self.assertContains(response, '>4</dd>')
+
+    def test_inactive_candidate_detail_hides_apartment_number(self):
+        candidate = User.objects.create_user(username='address-candidate', is_active=False)
+        candidate.uzytkownik.street = 'Main Street'
+        candidate.uzytkownik.house_number = '7'
+        candidate.uzytkownik.apartment_number = '9'
+        candidate.uzytkownik.save()
+        viewer = User.objects.create_user(username='candidate-detail-viewer', is_active=True)
+        self.client.force_login(viewer)
+
+        response = self.client.get(reverse('obywatele:obywatele_szczegoly', kwargs={'pk': candidate.pk}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Main Street 7')
+        self.assertContains(response, _('Apartment number'))
+        self.assertNotContains(response, '>9</dd>')
 
     def test_low_reputation_badge_is_shown_in_list_and_grid(self):
         viewer = User.objects.create_user(username='low-reputation-viewer', password='secret', is_active=True)
@@ -1339,6 +1666,41 @@ class ContactPreferenceFormTest(TestCase):
         self.assertEqual(profile.business_website, '')
         self.assertEqual(profile.business_description, '')
 
+    def test_profile_location_fields_are_saved_and_country_is_selected_by_iso_code(self):
+        data = {**self.common, 'country': 'PL', 'city': 'Gdańsk', 'street': 'Długa', 'house_number': '12A', 'apartment_number': '4'}
+        form = ProfileForm(data=data, instance=self.profile)
+
+        self.assertTrue(form.is_valid(), form.errors)
+        profile = form.save()
+        self.assertEqual(profile.country.code, 'PL')
+        self.assertEqual(profile.street, 'Długa')
+        self.assertEqual(profile.house_number, '12A')
+        self.assertEqual(profile.apartment_number, '4')
+
+    def test_country_catalog_contains_supported_iso_countries(self):
+        self.assertTrue(Country.objects.filter(code='US', name='United States').exists())
+
+    def test_new_profile_defaults_to_poland(self):
+        self.assertEqual(self.profile.country.code, 'PL')
+
+    def test_region_must_belong_to_selected_country(self):
+        other_country = Country.objects.exclude(code='PL').first()
+        other_region = Region.objects.create(name='Test region', country=other_country)
+        data = {**self.common, 'country': 'PL', 'voivodeship': str(other_region.pk)}
+
+        form = ProfileForm(data=data, instance=self.profile)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('voivodeship', form.errors)
+
+    def test_onboarding_form_contains_shared_location_fields(self):
+        form = OnboardingDetailsForm(instance=self.profile)
+
+        self.assertIn('country', form.fields)
+        self.assertIn('street', form.fields)
+        self.assertIn('house_number', form.fields)
+        self.assertIn('apartment_number', form.fields)
+
     def test_view_saves_and_restores_contact_preference(self):
         data = {**self.common, 'phone': '501 234 567', 'phone_country': 'PL', 'preferred_contact_method': 'signal', 'contact_link': ''}
 
@@ -1361,7 +1723,7 @@ class DodajViewTest(TestCase):
         self.url = reverse('obywatele:zaproponuj_osobe')
 
     def test_post_creates_inactive_candidate_with_profile(self):
-        data = {**PROFILE_POST_DATA, 'username': 'kandydat', 'email': 'kandydat@example.com'}
+        data = {**PROFILE_POST_DATA, 'country': 'US', 'street': 'Main Street', 'house_number': '8', 'apartment_number': '2', 'username': 'kandydat', 'email': 'kandydat@example.com'}
 
         with patch('obywatele.views.citizen_proposed'):
             response = self.client.post(self.url, data)
@@ -1375,6 +1737,10 @@ class DodajViewTest(TestCase):
         for field in Uzytkownik.ONBOARDING_FORM_FIELDS:
             expected = '+48123456789' if field == 'phone' else PROFILE_POST_DATA[field]
             self.assertEqual(getattr(profile, field) or '', expected)
+        self.assertEqual(profile.country.code, 'US')
+        self.assertEqual(profile.street, 'Main Street')
+        self.assertEqual(profile.house_number, '8')
+        self.assertEqual(profile.apartment_number, '2')
 
         self.assertTrue(Rate.objects.filter(kandydat=profile, obywatel=self.user.uzytkownik, rate=1).exists())
 
@@ -1386,6 +1752,19 @@ class DodajViewTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertFalse(User.objects.filter(username='kandydat').exists())
+
+    def test_candidate_forms_render_profile_location_fields(self):
+        candidate = User.objects.create_user(username='candidate-edit', email='candidate-edit@example.com', is_active=False)
+
+        invite_response = self.client.get(self.url)
+        edit_response = self.client.get(reverse('obywatele:candidate_edit', args=[candidate.pk]))
+
+        for response in (invite_response, edit_response):
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'name="country"')
+            self.assertContains(response, 'name="street"')
+            self.assertContains(response, 'name="house_number"')
+            self.assertContains(response, 'name="apartment_number"')
 
 
 class CitizenPresenceTemplateTest(TestCase):

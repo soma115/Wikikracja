@@ -67,7 +67,9 @@ Proces przyjmowania nowej osoby składa się z następujących etapów:
 
 **Pozostałe pola formularza:**
 - Telefon (`phone`) jest opcjonalny; formularz oferuje także kraj numeru, preferowaną metodę kontaktu i link do profilu. Wybrana metoda może wymagać numeru telefonu lub właściwego linku.
-- Województwo (`voivodeship`) — opcjonalna lista regionów Polski (`country__code='PL'`)
+- Kraj lokalizacji (`country`) pochodzi z katalogu `Country` i domyślnie wskazuje Polskę; jest niezależny od kraju numeru telefonu.
+- Ulica (`street`), numer domu (`house_number`) i numer mieszkania (`apartment_number`) są opcjonalnymi szczegółami adresu.
+- Województwo (`voivodeship`) pozostaje opcjonalne; lista regionów zależy od wybranego kraju.
 - Zawód (`job`), umiejętności/wiedza/hobby (`skills_knowledge_hobby`) i rzeczy do nauczenia (`want_to_learn`)
 - Prowadzę swój biznes (`business_active`), adres strony (`business_website`) i opis działalności (`business_description`)
 - Dlaczego chcesz dołączyć? (`why`)

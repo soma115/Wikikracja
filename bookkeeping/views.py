@@ -21,8 +21,8 @@ from core.utils import build_detail_navigation, build_site_url
 from home.navigation import default_toolbar_views
 from obywatele.models import Uzytkownik
 
-from .forms import AssetForm, ResourceListingForm, TransactionForm
-from .models import Asset, Category, Partner, ResourceListing, Transaction
+from .forms import AssetForm, PhysicalAssetForm, ResourceListingForm, TransactionForm
+from .models import Asset, Category, Partner, PhysicalAsset, ResourceListing, Transaction
 from .services import category_breakdown
 
 
@@ -163,6 +163,41 @@ class AssetDeleteView(ProtectedDeleteView):
     success_url = reverse_lazy('bookkeeping:asset_list')
     protect_field = 'asset'
     protect_message = _("Cannot delete asset because it is in use. Remove all transactions that use it first.")
+
+
+class PhysicalAssetListView(BookkeepingListView):
+    model = PhysicalAsset
+    template_name = 'bookkeeping/physical_asset_list.html'
+    context_object_name = 'physical_assets'
+    create_url_name = 'bookkeeping:physical_asset_create'
+    create_label = _('Add physical asset')
+
+    def get_queryset(self):
+        search_query = self.request.GET.get('q', '').strip()
+        queryset = PhysicalAsset.objects.select_related('country')
+        if search_query:
+            queryset = queryset.filter(Q(name__icontains=search_query) | Q(city__icontains=search_query) | Q(country__name__icontains=search_query))
+        return queryset
+
+
+class PhysicalAssetDetailView(BookkeepingDetailView):
+    model = PhysicalAsset
+    template_name = 'bookkeeping/physical_asset_detail.html'
+    context_object_name = 'physical_asset'
+
+
+class PhysicalAssetCreateView(BookkeepingCreateView):
+    model = PhysicalAsset
+    form_class = PhysicalAssetForm
+    template_name = 'bookkeeping/physical_asset_form.html'
+    success_url_name = 'bookkeeping:physical_asset_list'
+
+
+class PhysicalAssetUpdateView(BookkeepingUpdateView):
+    model = PhysicalAsset
+    form_class = PhysicalAssetForm
+    template_name = 'bookkeeping/physical_asset_form.html'
+    success_url_name = 'bookkeeping:physical_asset_list'
 
 
 # #########################  Resource listings ###########################
@@ -385,7 +420,13 @@ class PartnerListView(BookkeepingListView):
         queryset = Partner.objects.all()
         if search_query:
             queryset = queryset.filter(
-                Q(name__icontains=search_query) | Q(city__icontains=search_query) | Q(country__icontains=search_query) | Q(web_page__icontains=search_query) | Q(notes__icontains=search_query)
+                Q(name__icontains=search_query)
+                | Q(city__icontains=search_query)
+                | Q(country__icontains=search_query)
+                | Q(street__icontains=search_query)
+                | Q(house_number__icontains=search_query)
+                | Q(web_page__icontains=search_query)
+                | Q(notes__icontains=search_query)
             )
         return queryset if sort == 'none' else queryset.order_by(f'{prefix}{sort}')
 
@@ -443,13 +484,13 @@ class PartnerDetailView(BookkeepingDetailView):
 
 class PartnerCreateView(BookkeepingCreateView):
     model = Partner
-    fields = ['name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'notes']
+    fields = ['name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes']
     success_url_name = 'bookkeeping:partner_list'
 
 
 class PartnerUpdateView(BookkeepingUpdateView):
     model = Partner
-    fields = ['name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'notes']
+    fields = ['name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes']
     success_url_name = 'bookkeeping:partner_list'
 
 

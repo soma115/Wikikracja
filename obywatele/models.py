@@ -27,6 +27,10 @@ class Country(models.Model):
         return self.name
 
 
+def default_country_id():
+    return Country.objects.get(code='PL').pk
+
+
 class Region(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name='regions', verbose_name=_('Country'))
     name = models.CharField(max_length=100, verbose_name=_('Region name'))
@@ -81,7 +85,11 @@ class Uzytkownik(models.Model):
     phone_country = models.CharField(max_length=2, blank=True, default='PL', verbose_name=_('Phone country'))
     preferred_contact_method = models.CharField(max_length=16, choices=ContactMethod.choices, blank=True, default='', verbose_name=_('Preferred contact method'))
     contact_link = models.URLField(max_length=500, blank=True, default='', verbose_name=_('Contact profile link'))
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, default=default_country_id, related_name='citizens', verbose_name=_('Country'))
     city = models.CharField(null=True, blank=True, max_length=72, help_text=_('Where one spend most of their time'), verbose_name=_('City'))
+    street = models.CharField(max_length=150, blank=True, default='', verbose_name=_('Street'))
+    house_number = models.CharField(max_length=32, blank=True, default='', verbose_name=_('House number'))
+    apartment_number = models.CharField(max_length=32, blank=True, default='', verbose_name=_('Apartment number'))
     voivodeship = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True, blank=True, related_name='citizens', verbose_name=_('Voivodeship'))
     skills_knowledge_hobby = models.CharField(null=True, blank=True, max_length=1866, help_text=_('Skills, knowledge, and hobbies'), verbose_name=_('Skills / Knowledge / Hobby'))
     want_to_learn = models.CharField(null=True, blank=True, max_length=622, help_text=_('Things one would like to learn'), verbose_name=_('I want to learn'))
@@ -126,6 +134,7 @@ class Uzytkownik(models.Model):
     push_phone_enabled = models.BooleanField(default=True, help_text=_('Receive push notifications on phones and tablets'), verbose_name=_('Push on phone'))
     push_computer_enabled = models.BooleanField(default=True, help_text=_('Receive push notifications on desktop computers and laptops'), verbose_name=_('Push on computer'))
 
+    LOCATION_FIELDS = ('country', 'street', 'house_number', 'apartment_number')
     ONBOARDING_FORM_FIELDS = ('phone', 'city', 'voivodeship', 'skills_knowledge_hobby', 'want_to_learn', 'business_active', 'job', 'why')
 
     @property

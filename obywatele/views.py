@@ -23,8 +23,9 @@ from django.utils import timezone, translation
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import check_for_language, override
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods, require_POST
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from chat.i18n import get_translations as get_chat_translations
 from chat.models import Room
@@ -34,6 +35,8 @@ from core.signals import citizen_proposed
 from core.utils import get_user_language
 from home.navigation import default_toolbar_views
 from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, UserForm, UsernameChangeForm
+from obywatele.map_data import build_map_payload, get_map_location_records
+from obywatele.map_geocoding import geocode_location, get_cached_coordinates
 from obywatele.models import CitizenActivity, DeletionRequest, PrivateNote, Rate, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items, invalidate_user_sessions, publish_deletion_feedback
 from site_settings.params import get_param
@@ -141,6 +144,26 @@ def required_reputation():
     if pop < acceptance * 2:
         return pop - acceptance
     return acceptance
+
+
+@never_cache
+@require_GET
+def community_map(request: HttpRequest):
+    is_active_member = request.user.is_authenticated and request.user.is_active
+    template_name = 'obywatele/map.html' if is_active_member else 'obywatele/map_public.html'
+    return render(request, template_name, {'map_data_url': reverse('obywatele:mapa_data'), 'map_tiles_url': s.MAP_TILES_URL, 'map_tiles_attribution': s.MAP_TILES_ATTRIBUTION})
+
+
+@never_cache
+@require_GET
+def community_map_data(request: HttpRequest):
+    is_active_member = request.user.is_authenticated and request.user.is_active
+    records = get_map_location_records()
+    coordinate_resolver = get_cached_coordinates
+    if is_active_member and s.MAP_GEOCODING_ENABLED:
+        coordinate_resolver = geocode_location
+    payload = build_map_payload(records, coordinate_resolver, show_details=is_active_member)
+    return JsonResponse(payload)
 
 
 @login_required
@@ -409,7 +432,7 @@ def dodaj(request: HttpRequest):
                 # pola profilu kopiujemy po autorytatywnej liście z modelu.
                 candidate_profile = candidate.uzytkownik
                 candidate_profile.polecajacy = request.user.username
-                for field in Uzytkownik.ONBOARDING_FORM_FIELDS:
+                for field in (*Uzytkownik.ONBOARDING_FORM_FIELDS, *Uzytkownik.LOCATION_FIELDS):
                     setattr(candidate_profile, field, profile_form.cleaned_data[field])
                 candidate_profile.save()
 

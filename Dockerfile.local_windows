@@ -15,15 +15,22 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         gettext \
         mc \
+        nodejs \
+        npm \
         sqlite3 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY package.json package-lock.json /app/
+RUN npm ci
+
 COPY . /app/
 
 RUN mkdir -p /app/db /app/media /app/static
+
+RUN npm run build:css
 
 ENV DEBUG=True \
     SECRET_KEY=build-time-insecure-secret-key

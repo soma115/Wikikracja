@@ -5,6 +5,8 @@
    Component classes below are intentionally written in plain CSS with
    CSS variables so they do not require resolving prefixed Tailwind
    utilities inside @apply. */
+@import "leaflet/dist/leaflet.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

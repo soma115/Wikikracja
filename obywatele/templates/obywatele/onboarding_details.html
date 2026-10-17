@@ -38,7 +38,11 @@
   <div data-contact-phone-field>{{ form.phone|as_crispy_field }}</div>
   <div>{{ form.preferred_contact_method|as_crispy_field }}</div>
   <div data-contact-link-field class="tw-d-none">{{ form.contact_link|as_crispy_field }}</div>
+  {{ form.country|as_crispy_field }}
   {{ form.city|as_crispy_field }}
+  {{ form.street|as_crispy_field }}
+  {{ form.house_number|as_crispy_field }}
+  {{ form.apartment_number|as_crispy_field }}
   {{ form.voivodeship|as_crispy_field }}
   {{ form.job|as_crispy_field }}
   {{ form.skills_knowledge_hobby|as_crispy_field }}

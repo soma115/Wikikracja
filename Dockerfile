@@ -12,7 +12,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PATH=/root/.local/bin:$PATH
 
 # Install build dependencies only once
-RUN apk add --no-cache gettext-dev
+RUN apk add --no-cache gettext-dev nodejs npm
 
 # Install Python dependencies to user directory
 # AUTOBAHN_USE_NVX=0 forces pure-Python autobahn (its NVX C extension has no
@@ -20,11 +20,15 @@ RUN apk add --no-cache gettext-dev
 COPY requirements.txt /app/
 RUN AUTOBAHN_USE_NVX=0 pip install --no-cache-dir --no-compile --user -r requirements.txt
 
+COPY package.json package-lock.json /app/
+RUN npm ci
+
 # Copy application code (after dependencies for better caching)
 COPY . /app/
 RUN test -f /app/BUILD_SHA || echo "unknown" > /app/BUILD_SHA
 
 # Build-time operations
+RUN npm run build:css
 RUN SECRET_KEY=build-time-insecure-secret-key python manage.py collectstatic --noinput -v 2 \
     || (echo "Static collection failed, continuing..." && SECRET_KEY=build-time-insecure-secret-key python manage.py collectstatic --noinput -v 2 --clear)
 RUN SECRET_KEY=build-time-insecure-secret-key python manage.py compilemessages --ignore=.git/* --ignore=static/* --ignore=.mypy_cache/* --ignore=.venv/*

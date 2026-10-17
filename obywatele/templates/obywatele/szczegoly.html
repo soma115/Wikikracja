@@ -133,13 +133,16 @@ window.wkOnReady(function() {
           <h2 class="tw-section-heading tw-mb-0">{% trans 'Profile Details' %}</h2>
         </div>
         <div class="tw-card-body tw-space-y-5">
-          <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-x-6 tw-gap-y-4">
+          {% spaceless %}<dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-x-6 tw-gap-y-4">
             <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Communicator / Phone" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.phone|default:"—" }}</dd>
             <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Job" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.job|default:"—" }}</dd>
             <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "City / Commune" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.city|default:"—"|title }}</dd>
+            <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Country" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.country.name|default:"—" }}</dd>
+            <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Street" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{% if b.street %}{{ b.street }}{% else %}—{% endif %}{% if b.house_number %} {{ b.house_number }}{% endif %}</dd>
+            <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Apartment number" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{% if active %}{{ b.apartment_number|default:"—" }}{% else %}—{% endif %}</dd>
             <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Voivodeship" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.voivodeship.name|default:"—" }}</dd>
             <dt class="tw-col-span-12 md:tw-col-span-4">{% trans "Recommended by" %}</dt><dd class="tw-col-span-12 md:tw-col-span-8">{{ b.polecajacy|default:"—" }}</dd>
-          </dl>
+          </dl>{% endspaceless %}
 
           <div class="tw-border-t tw-border-subtle tw-pt-4">
             <h3 class="tw-section-heading tw-mb-3">{% trans "Skills / Knowledge / Hobby" %}</h3>

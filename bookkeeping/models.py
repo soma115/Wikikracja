@@ -97,7 +97,25 @@ class Partner(models.Model):
     address = models.CharField(max_length=200, null=True, blank=True, verbose_name=_("Address"))
     city = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("City"))
     country = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Country"))
+    street = models.CharField(max_length=150, blank=True, default='', verbose_name=_("Street"))
+    house_number = models.CharField(max_length=32, blank=True, default='', verbose_name=_("House number"))
+    apartment_number = models.CharField(max_length=32, blank=True, default='', verbose_name=_("Apartment number"))
     notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
+
+    def __str__(self):
+        return self.name
+
+
+class PhysicalAsset(models.Model):
+    name = models.CharField(max_length=200, verbose_name=_("Name"))
+    country = models.ForeignKey('obywatele.Country', on_delete=models.PROTECT, related_name='physical_assets', verbose_name=_("Country"))
+    city = models.CharField(max_length=100, verbose_name=_("City"))
+    street = models.CharField(max_length=150, blank=True, default='', verbose_name=_("Street"))
+    house_number = models.CharField(max_length=32, blank=True, default='', verbose_name=_("House number"))
+    apartment_number = models.CharField(max_length=32, blank=True, default='', verbose_name=_("Apartment number"))
+
+    class Meta:
+        ordering = ('name', 'pk')
 
     def __str__(self):
         return self.name

@@ -17,7 +17,7 @@ from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
 
 from core.signals import citizen_proposed
-from obywatele.models import Region, Uzytkownik
+from obywatele.models import Country, Region, Uzytkownik
 
 log = logging.getLogger(__name__)
 
@@ -154,6 +154,7 @@ class ProfileForm(forms.ModelForm):
     first_name = forms.CharField(max_length=150, label=_('First name'), required=True)
     last_name = forms.CharField(max_length=150, label=_('Last name'), required=True)
     phone_country = forms.ChoiceField(choices=phone_country_choices, label=_('Phone country'), required=False)
+    country = forms.ModelChoiceField(queryset=Country.objects.all(), to_field_name='code', label=_('Country'), empty_label=None)
     business_website = forms.CharField(max_length=500, label=_('Business website'), required=False, widget=forms.TextInput)
 
     class Meta:
@@ -163,7 +164,11 @@ class ProfileForm(forms.ModelForm):
             'phone',
             'preferred_contact_method',
             'contact_link',
+            'country',
             'city',
+            'street',
+            'house_number',
+            'apartment_number',
             'voivodeship',
             'skills_knowledge_hobby',
             'want_to_learn',
@@ -196,8 +201,8 @@ class ProfileForm(forms.ModelForm):
         self.fields['business_website'].widget.attrs['data-business-field'] = 'true'
         self.fields['business_description'].widget = forms.Textarea(attrs={'rows': 3, 'data-business-field': 'true'})
 
-        # Filter voivodeship to show regions from Poland (can be extended for other countries)
-        self.fields['voivodeship'].queryset = Region.objects.filter(country__code='PL').order_by('name')
+        selected_country = self.data.get('country') if self.is_bound else getattr(self.instance.country, 'code', 'PL')
+        self.fields['voivodeship'].queryset = Region.objects.filter(country__code=selected_country).order_by('name') if selected_country else Region.objects.none()
         self.fields['voivodeship'].label = _('Voivodeship')
         self.fields['voivodeship'].required = False
 
@@ -234,6 +239,11 @@ class ProfileForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        country = cleaned_data.get('country')
+        region = cleaned_data.get('voivodeship')
+        if country and region and region.country_id != country.pk:
+            self.add_error('voivodeship', _('Select a region from the selected country.'))
+
         method = cleaned_data.get('preferred_contact_method')
         phone = cleaned_data.get('phone')
         link = cleaned_data.get('contact_link')
@@ -296,7 +306,11 @@ class OnboardingDetailsForm(ProfileForm):
             'phone',
             'preferred_contact_method',
             'contact_link',
+            'country',
             'city',
+            'street',
+            'house_number',
+            'apartment_number',
             'voivodeship',
             'job',
             'skills_knowledge_hobby',

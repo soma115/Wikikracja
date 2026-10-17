@@ -60,6 +60,7 @@ def obywatele_stepper(context):
     counts = User.objects.aggregate(citizens=Count('id', filter=Q(is_active=True)), candidates=Count('id', filter=Q(is_active=False, uzytkownik__isnull=False)))
     steps = [
         {'url': _url('obywatele:obywatele'), 'icon': 'users', 'label': _('Citizens'), 'count': counts['citizens'], 'active': active in ('obywatele', 'obywatele_szczegoly')},
+        {'url': _url('obywatele:mapa'), 'icon': 'map-marker-alt', 'label': _('Map'), 'active': active == 'mapa'},
         {'url': _url('obywatele:poczekalnia'), 'icon': 'user-clock', 'label': _('Candidates'), 'count': counts['candidates'], 'active': active in ('poczekalnia', 'poczekalnia_szczegoly')},
     ]
 

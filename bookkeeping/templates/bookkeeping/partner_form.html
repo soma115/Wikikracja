@@ -53,6 +53,18 @@
             </div>
 
             <div class="tw-grid tw-grid-cols-12 tw-gap-3">
+              <div class="tw-col-span-12 md:tw-col-span-6">
+                {{ form.street|as_crispy_field }}
+              </div>
+              <div class="tw-col-span-12 md:tw-col-span-3">
+                {{ form.house_number|as_crispy_field }}
+              </div>
+              <div class="tw-col-span-12 md:tw-col-span-3">
+                {{ form.apartment_number|as_crispy_field }}
+              </div>
+            </div>
+
+            <div class="tw-grid tw-grid-cols-12 tw-gap-3">
               <div class="tw-col-span-12">
                 {{ form.notes|as_crispy_field }}
               </div>

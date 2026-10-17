@@ -30,6 +30,9 @@
 
 	<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-3 tw-mt-3">
 		<div>
+			{{ profile_form.country|as_crispy_field }}
+		</div>
+		<div>
 			{{ profile_form.phone|as_crispy_field }}
 		</div>
 		<div>
@@ -38,6 +41,11 @@
 		<div>
 			{{ profile_form.voivodeship|as_crispy_field }}
 		</div>
+	</div>
+	<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-3 tw-mt-3">
+		<div>{{ profile_form.street|as_crispy_field }}</div>
+		<div>{{ profile_form.house_number|as_crispy_field }}</div>
+		<div>{{ profile_form.apartment_number|as_crispy_field }}</div>
 	</div>
 
 	<div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-2 tw-gap-3 tw-mt-3">

@@ -1,0 +1,17 @@
+{% extends 'bookkeeping/menu.html' %}
+{% load i18n %}
+
+{% block prefs_tab %}physical_assets{% endblock %}
+{% block bookkeeping %}
+  {% include 'home/includes/toolbar.html' with cta_url='' views=toolbar_views search_include='bookkeeping/_list_search.html' %}
+
+  <div class="tw-proposals-list" data-view-container>
+    {% if physical_assets %}
+      {% for physical_asset in physical_assets %}
+        {% include 'bookkeeping/_physical_asset_card.html' %}
+      {% endfor %}
+    {% else %}
+      {% include 'home/includes/empty_state.html' with compact=True icon='fa-map-marker-alt' title=_('No physical assets yet.') %}
+    {% endif %}
+  </div>
+{% endblock %}
