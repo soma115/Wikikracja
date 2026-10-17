@@ -1,19 +1,32 @@
 # LOG_AI
 
+## 2026-10-18: Ograniczenie zakresu planu zasobów
+
+- **Zmiana zakresu:** usunięto z `PLAN_ZASOBY_UŻYTKOWNIKÓW.md` wskazane przez użytkownika, odłożone pola i funkcje. Nie zmieniano schematu ani logiki aplikacji w tym kroku.
+- **Pozostały zakres:** prywatne dopasowanie aktywnych ofert do aktywnych potrzeb pozostaje wdrożone; sugestie/powiadomienia dla oferentów i przypomnienia nie należą do aktualnej wersji. Read-only audyt migracji potwierdził, że archiwum historycznych pól nie istnieje w schemacie: `0047`–`0048` przeniosły wartości i usunęły źródłowe kolumny, a `0055` usuwa `ResourceItem` bez reverse. Pełne odtworzenie wymaga backupu sprzed migracji; jego dostępności nie sprawdzano.
+
+## 2026-10-18: Dopasowanie aktywnych ofert do potrzeb
+
+- **Zmienione obszary:** usługa dopasowań `resources`, ekran zarządzania zasobami, częściowa karta wpisu, tłumaczenia i testy.
+- **Co się zmieniło:** właściciel potrzeby widzi na ekranie zarządzania aktywne, publicznie widoczne oferty z taką samą nazwą po normalizacji Unicode, wielkości liter i białych znaków. Community-owned potrzeby są widoczne członkom; zamknięte wpisy i wpisy przypisane nieaktywnym profilom nie trafiają do sugestii. To wyłącznie lokalna sugestia — bez powiadomień.
+- **Prywatność:** karta dopasowanej oferty nie pokazuje autora ani akcji zarządzania; profil aktualnie przypisanego członka pozostaje linkiem kontaktowym zgodnym z katalogiem.
+- **Zakres dopasowania:** pierwsza wersja używa wyłącznie identycznej znormalizowanej nazwy. Nie stosuje dopasowania opisów, lokalizacji, promienia ani fuzzy matching.
+- **Weryfikacja:** 86 testów widoków/encj/mapy/dopasowań oraz 72 testy migracji/resources/usług przechodzą. Tłumaczenia skompilowane; Ruff, Django check, `makemigrations --check`, build CSS, regression scan i UI guard przechodzą. Playwright nie był uruchamiany bez `E2E_BASE_URL`.
+
 ## 2026-10-18: Cutover PhysicalAsset i ResourceListing do Entity
 
 - **Zmienione obszary:** fizyczny CRUD i formularz, agregacja mapy, zarządzanie ofertami/potrzebami, sygnały profilu, `LegacyEntityReference`, migracja `bookkeeping.0041`, testy i plany mapy/zasobów.
 - **Co się zmieniło:** usunięto runtime modele `bookkeeping.PhysicalAsset` i `bookkeeping.ResourceListing` oraz dual-write. Fizyczne formularze i mapa korzystają wyłącznie z `Entity`; zarządzanie ofertami/potrzebami aktualizuje encje bez shadow rows. Stare URL-e i markery mapy nadal rozwiązują dawne ID przez `LegacyEntityReference`; nowe aktywa fizyczne mają trasy kanoniczne.
 - **Integralność danych:** migracja dopisuje brakujące mapowania, zachowuje pełne lokalizacje i pola wpisów oraz zatrzymuje się przed usunięciem tabel przy błędnych lokalizacjach, rozbieżności danych lub osieroconych referencjach. Nie dopisuje historycznych autorów/właścicieli. `source_profile_id` przechowuje dawny profil shadow row wyłącznie na potrzeby rollbacku; bieżące przypisanie wspólnotowe pozostaje w `Entity`. Daty istniejących mapowanych encji pozostają autorytatywne, a daty niesparowanych wpisów są kopiowane.
 - **Kaskada i prywatność:** `pre_delete` profilu usuwa wyłącznie przypisane mu, nie-wspólnotowe encje z legacy referencją; zasoby wspólnotowe pozostają. Mapa zachowuje dotychczasowy payload i nie pokazuje autora ani przypisania.
-- **Odtworzenie:** rollback odtwarza stare wiersze oraz URL referencje bez wymyślania profilu. Jeśli historyczny profil wpisu wspólnotowego został już usunięty, pełne odtworzenie wymaga backupu SQLite. Migracji nie uruchamiano na lokalnej ani trwałej bazie.
+- **Odtworzenie:** rollback odtwarza stare wiersze oraz URL referencje bez wymyślania profilu. Jeśli historyczny profil wpisu wspólnotowego został już usunięty, pełne odtworzenie wymaga backupu SQLite. Agent nie uruchamiał migracji; później operator uruchomił `start_dev.py --full`. Read-only kontrola `db/db.sqlite3` potwierdziła zastosowanie `bookkeeping.0040`/`0041`, `resources.0007` i brak dawnych tabel. Produkcja nie była sprawdzana.
 - **Weryfikacja:** 82 testy widoków, encji, mapy i migracji oraz 69 testów migracji/resources/usług przechodzą. `makemigrations --check`, Django check i Ruff przechodzą. CSS build, regression scan i UI guard przechodzą. Playwright nie był uruchamiany bez `E2E_BASE_URL`.
 
 ## 2026-10-17: Cutover finansów z Asset do Entity
 
 - **Zmienione obszary:** model transakcji i formularze, CRUD jednostek finansowych, raporty/salda, feed/powiadomienia, seed demo, testy i migracja `bookkeeping.0040`.
 - **Co się zmieniło:** `Transaction.entity` jest jedynym wymaganym FK, a `bookkeeping.Asset` nie istnieje już w modelu runtime. Migracja usuwa tabelę shadow oraz stary FK po preflight zgodności kodu, nazwy, symbolu, precyzji, waluty, domyślności i mapowań transakcji.
-- **Bezpieczeństwo danych i kompatybilność:** preflight przerywa migrację przed zmianą schematu przy braku lub rozbieżności mapowania. Migracja wstecz odtwarza shadow rows i FK z zachowaniem PK; nowe encje otrzymują mapowane legacy ID. Stare URL-e nadal rozwiązują istniejące ID przez `LegacyEntityReference`; nowe jednostki mają kanoniczne URL-e encji. Migracji nie uruchamiano na lokalnej ani trwałej bazie.
+- **Bezpieczeństwo danych i kompatybilność:** preflight przerywa migrację przed zmianą schematu przy braku lub rozbieżności mapowania. Migracja wstecz odtwarza shadow rows i FK z zachowaniem PK; nowe encje otrzymują mapowane legacy ID. Stare URL-e nadal rozwiązują istniejące ID przez `LegacyEntityReference`; nowe jednostki mają kanoniczne URL-e encji. Agent nie uruchamiał migracji; późniejszy read-only odczyt po `start_dev.py --full` potwierdził `bookkeeping.0040` w lokalnym `db/db.sqlite3`; produkcja nie była sprawdzana.
 - **Pozostałe reguły finansowe:** transakcja nadal chroni używaną jednostkę przez `PROTECT`; zapis odrzuca encję niefinansową; kod, waluta, precyzja i pojedyncza jednostka domyślna pozostają w `resources.Entity`.
 - **Weryfikacja:** 32 testy migracji `bookkeeping/resources`, 100 testów modeli/usług/widoków bookkeeping i 163 testy cross-cutting przeszły. `makemigrations --check`, Django check, Ruff check/format, kompilacja tłumaczeń, build CSS, regression scan i UI guard przeszły.
 

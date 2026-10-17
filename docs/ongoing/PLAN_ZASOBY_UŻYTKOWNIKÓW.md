@@ -5,7 +5,7 @@
 Obecny katalog jest wdrożony w `bookkeeping`; wszystkie trzy typy zasobów korzystają już z `resources.Entity`.
 
 - Jednostki finansowe (`financial_asset`), aktywa fizyczne (`physical_asset`) oraz oferty/potrzeby (`resource`) są przechowywane w `resources.Entity`; reguły księgowe pozostają w `bookkeeping`.
-- Runtime modele `bookkeeping.Asset`, `bookkeeping.PhysicalAsset` i `bookkeeping.ResourceListing` oraz ich dual-write zostały usunięte. Migracje `0040` i `0041` usuwają stare tabele po preflight; nie były uruchamiane na lokalnej ani trwałej bazie.
+- Runtime modele `bookkeeping.Asset`, `bookkeeping.PhysicalAsset` i `bookkeeping.ResourceListing` oraz ich dual-write zostały usunięte. Użytkownik później uruchomił `start_dev.py --full`; read-only sprawdzenie `db/db.sqlite3` potwierdziło `0040`/`0041` oraz brak dawnych tabel. Stan produkcji nie był sprawdzany.
 - `LegacyEntityReference` zachowuje stare URL-e finansowe, fizyczne i zasobów oraz linki mapy. Dla dawnych wspólnotowych shadow rows `source_profile_id` jest wyłącznie snapshotem do rollbacku, nie bieżącym przypisaniem.
 - Wpisy można dodawać, edytować i usuwać. Nazwa jest unikalna bez rozróżniania wielkości liter w obrębie użytkownika i typu.
 - Katalog `/bookkeeping/resource/` jest dostępny po zalogowaniu. Wyszukuje po nazwie i filtruje po typie, miejscowości oraz województwie; pokazuje oferty i potrzeby z odnośnikiem do profilu.
@@ -55,7 +55,7 @@ Jednostką wyników jest pojedyncza encja. Oferty i potrzeby zachowują swobodne
 - [x] Formularz obsługuje wiele osobnych wpisów.
 - [x] Dostępne typy to: rzecz do oddania, rzecz do pożyczenia, rzecz na sprzedaż i potrzeba.
 - [x] Wspólny słownik nie jest potrzebny; wpis przechowuje jedną swobodną nazwę tekstową.
-- [x] Wpis może zawierać krótki opis; dostępność, formę pomocy i warunki należy rozważyć osobno.
+- [x] Wpis może zawierać krótki opis.
 - [x] Katalog wymaga zalogowania; wyniki obejmują wyłącznie aktywne profile.
 - [x] Katalog `bookkeeping` pozostaje przy filtrach miejscowości i województwa; szczegółową lokalizację profilu obsługuje osobno plan mapy.
 - [x] Sam filtr lokalizacji pokazuje osoby z wybranej miejscowości/województwa nawet wtedy, gdy nie wystawiły żadnego wpisu.
@@ -83,14 +83,11 @@ Jednostką wyników jest pojedyncza encja. Oferty i potrzeby zachowują swobodne
 - [x] Wpisy zostały przeniesione z `obywatele.ResourceAssignment` migracją danych z zachowaniem identyfikatorów, właścicieli, opisów i znaczników czasu; migracja jest odwracalna.
 - [x] `ResourceListing.is_closed` rozróżnia wpisy aktywne i zamknięte; migracja ustawia istniejące wpisy jako aktywne.
 - [x] Migracja `bookkeeping.0036` dodaje zamknięcie bez zmiany istniejącego właściciela i pozostałych danych wpisu.
-- [ ] Rozważyć osobne pola dostępności, formy pomocy i warunków.
-- [ ] Ewentualny zasięg oferty (np. zdalnie lub promień) wymaga osobnej decyzji; pola adresowe i geokodowanie z planu mapy nie oznaczają zasięgu oferty.
 
 ## 5. Etap 3 - wyszukiwanie nazw i duplikaty
 
 - [x] Kategorie i wspólny słownik nie są potrzebne w przyjętym wariancie.
 - [x] Wyszukiwarka katalogu podpowiada pasujące nazwy istniejących wpisów.
-- [ ] Dodać podpowiedzi do formularza wpisu tylko wtedy, gdy potwierdzi się taka potrzeba.
 - [x] Formularz normalizuje białe znaki; model blokuje duplikat nazwy bez rozróżniania wielkości liter u tego samego właściciela i typu.
 - [x] Nie stosujemy kontroli podobieństwa ani scalania nazw między użytkownikami; wspólny słownik i globalna unikalność nie są potrzebne.
 
@@ -99,7 +96,6 @@ Jednostką wyników jest pojedyncza encja. Oferty i potrzeby zachowują swobodne
 - [x] Formularz i katalog są częścią `bookkeeping`; profil prowadzi do osobnej strony zarządzania wpisami.
 - [x] Właściciel może edytować i usuwać własny wpis; operacje na cudzym wpisie są niedostępne.
 - [x] Właściciel może ręcznie zamykać i przywracać wpisy; zarządzanie pokazuje aktywne i zamknięte osobno, a katalog udostępnia tylko aktywne.
-- [ ] Dostępność, forma pomocy, warunki i zasięg nie są jeszcze osobnymi polami; brak automatycznego wygaszania.
 - [x] Widok korzysta ze wspólnych klas i komponentów UI.
 - [x] Istnieją testy tworzenia, edycji, usuwania, walidacji i zachowania uprawnień właściciela.
 
@@ -108,7 +104,7 @@ Jednostką wyników jest pojedyncza encja. Oferty i potrzeby zachowują swobodne
 - [x] Migracja `0047` przeniosła niepuste stare pola do wpisów; migracja `0048` usunęła stare pola z modelu profilu.
 - [x] Migracja `0055` rozdzieliła wpisy na niezależne rekordy z własną nazwą i opisem, bez wspólnego `ResourceItem`.
 - [x] Migracje `bookkeeping.0034`–`0035` utworzyły `ResourceListing` i przeniosły dane; `bookkeeping.0036` dodała ręczny status, a `obywatele.0056` usuwa stary model dopiero po transferze.
-- [ ] Nie ma archiwum ani zatwierdzania migracji przez użytkownika. Nie odtwarzać archiwum bez potwierdzenia, że stare dane są nadal dostępne i wymagane.
+- Archiwum historycznych pól nie istnieje w aplikacji: migracje `0047`–`0048` przeniosły wartości do wpisów i usunęły źródłowe kolumny, a `0055` usunęła wspólny `ResourceItem` bez bezpiecznego reverse. Odtworzenie wymaga zweryfikowanego backupu sprzed migracji i osobnej decyzji; backupu nie sprawdzano.
 - [x] Ogólna procedura tworzenia backupu i odtwarzania SQLite jest udokumentowana w `docs/DEPLOYMENT_INSTRUCTIONS.md`; przed migracją produkcyjną wymaga aktualnego, zweryfikowanego backupu i użycia właściwego runbooka. Nie wykonywano backupu ani restore w ramach tego cutoveru.
 
 ## 8. Etap 6 - katalog i wyszukiwanie
@@ -117,18 +113,12 @@ Jednostką wyników jest pojedyncza encja. Oferty i potrzeby zachowują swobodne
 - [x] Dostępne są wyszukiwanie po nazwie oraz filtry typu, miejscowości i województwa.
 - [x] Filtr samej lokalizacji pokazuje oddzielnie osoby bez wpisów; nie miesza ich z kartami ofert i potrzeb.
 - [x] Wyszukiwanie korzysta z nazwy wpisu; filtry kategorii nie są potrzebne bez słownika.
-- [ ] Filtry formy pomocy, dostępności i zasięgu nie istnieją.
 - [x] Karty pokazują typ wpisu, opis, właściciela i lokalizację; kontakt prowadzi przez profil.
-- [ ] Zdalny zasięg i sortowanie ofert według trafności/odległości nie są obsługiwane; plan mapy nie wprowadza ich do katalogu zasobów.
 - [x] Widok katalogu ma paginację i testy wyszukiwania, filtrów, widoczności oraz wyników; liczniki ofert i potrzeb odnoszą się do całego filtrowanego zbioru.
 
 ## 9. Etap 7 — dopasowania i dalszy rozwój
 
-- [ ] Pokazywać użytkownikowi oferty pasujące do aktywnych potrzeb.
-- [ ] Pokazywać osobom oferującym pomoc nowe pasujące potrzeby, jeśli użytkownik wyrazi na to zgodę.
-- [ ] Dodać przypomnienie o potwierdzeniu aktualności wpisu bez automatycznego zamykania w pierwszej wersji.
-- [ ] Rozważyć powiadomienia o nowych dopasowaniach.
-- [ ] Rozważyć wyszukiwanie ofert po promieniu dopiero po potwierdzeniu potrzeby; współrzędne mapy profili z planu `PLAN_MAPA.md` nie są automatycznie używane do dopasowywania zasobów.
+- [x] Pokazywać użytkownikowi aktywne, publicznie widoczne oferty pasujące do jego aktywnych potrzeb; pierwsza wersja porównuje nazwy bez rozróżniania wielkości liter i nadmiarowych spacji.
 - [x] Mapa społeczności ma osobny zakres i harmonogram w `docs/ongoing/PLAN_MAPA.md`; pozostaje osobnym widokiem, choć docelowo korzysta z `resources.Entity` typu `physical_asset`.
 
 ## 10. Zasady bezpieczeństwa i prywatności
@@ -148,7 +138,7 @@ Jednostką wyników jest pojedyncza encja. Oferty i potrzeby zachowują swobodne
 - [x] Testy obejmują formularze, uprawnienia, filtry, widoczność i wyniki katalogu.
 - [x] Użytkownik edytuje dane profilu osobno; w profilu widzi tylko odnośnik do wpisów w `bookkeeping`.
 - [x] Wpisy można ręcznie zamykać i ponownie otwierać.
-- [ ] Archiwum historycznych pól pozostaje poza obecną wersją.
+- [x] Archiwum historycznych pól pozostaje poza obecną wersją; po migracji nie ma osobnej kopii tych wartości w schemacie.
 - [x] Wspólny słownik został świadomie wyłączony z zakresu.
 
 ## Etap docelowy — scalenie modeli w resources

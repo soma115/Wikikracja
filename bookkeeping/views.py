@@ -22,7 +22,7 @@ from core.utils import build_detail_navigation, build_site_url
 from home.navigation import default_toolbar_views
 from obywatele.models import Uzytkownik
 from resources.models import LEGACY_FINANCIAL_ASSET_SOURCE, LEGACY_PHYSICAL_ASSET_SOURCE, LEGACY_RESOURCE_LISTING_SOURCE, Entity, LegacyEntityReference
-from resources.services import search_entities
+from resources.services import match_active_offers_for_needs, search_entities
 
 from .forms import AssetForm, PhysicalAssetForm, ResourceEntityForm, TransactionForm
 from .models import Category, Partner, Transaction
@@ -497,11 +497,13 @@ def _resource_manage_context(user, profile, resource_form=None, edit_entity=None
             entity.delete_url = reverse('bookkeeping:resource_entity_delete', kwargs={'pk': entity.pk})
             entity.toggle_closed_url = reverse('bookkeeping:resource_entity_toggle_closed', kwargs={'pk': entity.pk})
 
+    matching_needs = match_active_offers_for_needs(user, profile)
     return {
         'resource_form': resource_form if resource_form is not None else ResourceEntityForm(profile=profile),
         'resource_form_action': form_action or reverse('bookkeeping:resource_create'),
         'active_listings': [entity for entity in entities if not entity.is_closed],
         'closed_listings': [entity for entity in entities if entity.is_closed],
+        'matching_needs': matching_needs,
         'edit_listing': edit_entity,
     }
 

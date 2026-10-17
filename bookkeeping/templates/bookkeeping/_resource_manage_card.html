@@ -12,11 +12,12 @@
       {% if listing.is_community_owned %}
         <span>{% trans "Shared community ownership" %}</span>
       {% elif listing.assigned_member %}
-        <span><strong>{% trans "Assigned member" %}:</strong> {{ listing.assigned_member.uid|display_name }}</span>
+        <span><strong>{% trans "Assigned member" %}:</strong> {% if show_owner_link %}<a href="{{ listing.assigned_member.get_absolute_url }}" class="tw-text-primary">{{ listing.assigned_member.uid|display_name }}</a>{% else %}{{ listing.assigned_member.uid|display_name }}{% endif %}</span>
       {% endif %}
-      {% if listing.author %}<span><strong>{% trans "Author" %}:</strong> {{ listing.author|display_name }}</span>{% endif %}
+      {% if show_author and listing.author %}<span><strong>{% trans "Author" %}:</strong> {{ listing.author|display_name }}</span>{% endif %}
     </div>
   </div>
+  {% if can_manage %}
   <div class="tw-flex tw-flex-wrap tw-justify-end tw-gap-2 tw-w-full sm:tw-w-auto sm:tw-shrink-0">
     <a href="{{ listing.edit_url }}#resource-form" class="tw-btn tw-btn-sm tw-btn-secondary" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i>{% trans 'Edit' %}</a>
     <form method="post" action="{{ listing.toggle_closed_url }}">
@@ -31,4 +32,5 @@
       <button type="submit" class="tw-btn tw-btn-sm tw-btn-outline-danger">{% trans 'Delete' %}</button>
     </form>
   </div>
+  {% endif %}
 </article>

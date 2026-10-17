@@ -1,3 +1,6 @@
+import unicodedata
+from collections import defaultdict
+
 from django.db.models import Q
 
 from .models import Entity
@@ -51,3 +54,27 @@ def search_entities(user, *, entity_type='', query='', resource_kind='', city=''
         queryset = queryset.filter(assigned_member__isnull=True, is_community_owned=False)
 
     return queryset.order_by('entity_type', 'resource_kind', 'name', 'pk')
+
+
+def _normalized_resource_name(value):
+    return ' '.join(unicodedata.normalize('NFC', value or '').casefold().split())
+
+
+def match_active_offers_for_needs(user, profile):
+    """Return public active offers with the same normalized name as visible active needs."""
+    if not user.is_active or profile is None:
+        return []
+
+    public_active = Entity.objects.filter(entity_type=Entity.Type.RESOURCE, is_closed=False).filter(Q(is_community_owned=True) | Q(assigned_member__uid__is_active=True))
+    needs = list(public_active.filter(resource_kind=Entity.ResourceKind.NEED).filter(Q(author=user) | Q(assigned_member=profile) | Q(is_community_owned=True)).order_by('name', 'pk'))
+    if not needs:
+        return []
+
+    offers_by_name = defaultdict(list)
+    offers = public_active.exclude(resource_kind=Entity.ResourceKind.NEED).select_related('assigned_member__uid').order_by('name', 'pk')
+    for offer in offers:
+        normalized_name = _normalized_resource_name(offer.name)
+        if normalized_name:
+            offers_by_name[normalized_name].append(offer)
+
+    return [{'need': need, 'offers': offers_by_name[normalized_name]} for need in needs if (normalized_name := _normalized_resource_name(need.name)) in offers_by_name]

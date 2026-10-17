@@ -13,11 +13,32 @@
       <a href="{% url 'bookkeeping:resource_list' %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary">{% trans 'Search resources' %}</a>
     </div>
     <div class="tw-card-body">
+      {% if matching_needs %}
+      <section class="tw-border-t tw-border-subtle tw-pt-4 tw-mb-4" aria-labelledby="matching-offers-heading">
+        <h2 id="matching-offers-heading" class="tw-section-heading tw-mb-1">{% trans "Offers matching your needs" %}</h2>
+        <p class="tw-mb-3 tw-text-sm tw-text-muted">{% trans "Matches use the resource name. Only active public offers are shown." %}</p>
+        <div class="tw-flex tw-flex-col tw-gap-3">
+          {% for match in matching_needs %}
+          <article class="tw-card">
+            <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
+              <span class="tw-badge-status tw-badge-warning">{% trans "Needs" %}</span>
+              <h3 class="tw-font-semibold tw-mb-0">{{ match.need.name }}</h3>
+            </div>
+            <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
+              {% for listing in match.offers %}
+              {% include 'bookkeeping/_resource_manage_card.html' with listing=listing can_manage=False show_author=False show_owner_link=True %}
+              {% endfor %}
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
       <section class="tw-border-t tw-border-subtle tw-pt-4 tw-mb-4">
         <h2 class="tw-section-heading tw-mb-3">{% trans 'Active' %}</h2>
         <div class="tw-flex tw-flex-col tw-gap-2">
           {% for listing in active_listings %}
-          {% include 'bookkeeping/_resource_manage_card.html' with listing=listing %}
+          {% include 'bookkeeping/_resource_manage_card.html' with listing=listing can_manage=True show_author=True %}
           {% empty %}
           {% include 'home/includes/empty_state.html' with compact=True icon='fa-boxes-stacked' title=_('No records found.') %}
           {% endfor %}
@@ -27,7 +48,7 @@
         <h2 class="tw-section-heading tw-mb-3">{% trans 'Archive' %}</h2>
         <div class="tw-flex tw-flex-col tw-gap-2 tw-mb-4">
           {% for listing in closed_listings %}
-          {% include 'bookkeeping/_resource_manage_card.html' with listing=listing %}
+          {% include 'bookkeeping/_resource_manage_card.html' with listing=listing can_manage=True show_author=True %}
           {% empty %}
           {% include 'home/includes/empty_state.html' with compact=True icon='fa-archive' title=_('No records found.') %}
           {% endfor %}

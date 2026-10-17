@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-18 00:45+0200\n"
+"POT-Creation-Date: 2026-10-18 00:51+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -205,7 +205,7 @@ msgstr "Ankiety"
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:4
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:7
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:19
-#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:31
+#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:32
 #: .\categories\templates\categories\_category_manager_init.html:23
 #: .\events\templates\events\_event_detail_actions.html:4
 #: .\glosowania\templates\glosowania\_argument_actions.html:18
@@ -223,9 +223,9 @@ msgstr "Usuń"
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:10
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:12
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:20
-#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:21
+#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:22
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:47
-#: .\bookkeeping\templates\bookkeeping\resource_manage.html:37
+#: .\bookkeeping\templates\bookkeeping\resource_manage.html:58
 #: .\categories\templates\categories\_category_manager_init.html:20
 #: .\events\templates\events\_event_detail_actions.html:7
 #: .\glosowania\templates\glosowania\_argument_actions.html:21
@@ -515,7 +515,7 @@ msgstr "Publiczne"
 #: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:8
 #: .\bookkeeping\templates\bookkeeping\resource_list.html:50
 #: .\bookkeeping\templates\bookkeeping\resource_list.html:81
-#: .\bookkeeping\templates\bookkeeping\resource_manage.html:27
+#: .\bookkeeping\templates\bookkeeping\resource_manage.html:48
 #: .\home\templates\home\site_admin.html:107 .\resources\models.py:38
 msgid "Archive"
 msgstr "Archiwum"
@@ -657,7 +657,7 @@ msgid "I've updated Important document: %(link)s"
 msgstr "Zaktualizowałem ważny dokument: %(link)s"
 
 #: .\board\templates\board\_post_detail_actions.html:8
-#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:26
+#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:27
 msgid "Restore"
 msgstr "Przywróć"
 
@@ -744,7 +744,7 @@ msgstr "Utwórz ogłoszenie"
 #: .\bookkeeping\templates\bookkeeping\partner_form.html:13
 #: .\bookkeeping\templates\bookkeeping\physical_asset_form.html:12
 #: .\bookkeeping\templates\bookkeeping\physical_asset_form.html:13
-#: .\bookkeeping\templates\bookkeeping\resource_manage.html:49
+#: .\bookkeeping\templates\bookkeeping\resource_manage.html:70
 #: .\bookkeeping\templates\bookkeeping\transaction_form.html:14
 #: .\bookkeeping\templates\bookkeeping\transaction_form.html:16
 #: .\categories\templates\categories\_category_manager_init.html:21
@@ -873,7 +873,7 @@ msgid "Date"
 msgstr "Data"
 
 #: .\board\views.py:341 .\bookkeeping\views.py:122 .\bookkeeping\views.py:356
-#: .\bookkeeping\views.py:940 .\events\views.py:211 .\glosowania\views.py:153
+#: .\bookkeeping\views.py:942 .\events\views.py:211 .\glosowania\views.py:153
 #: .\glosowania\views.py:752 .\obywatele\views.py:565 .\tasks\views.py:785
 msgid "Saved."
 msgstr "Zapisane."
@@ -955,7 +955,7 @@ msgstr "Rodzaj"
 #: .\bookkeeping\templates\bookkeeping\partner_confirm_delete.html:12
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:10
 #: .\bookkeeping\templates\bookkeeping\physical_asset_detail.html:10
-#: .\bookkeeping\views.py:753 .\resources\models.py:31
+#: .\bookkeeping\views.py:755 .\resources\models.py:31
 msgid "Name"
 msgstr "Nazwa"
 
@@ -973,8 +973,8 @@ msgstr "Wybierz typ."
 msgid "Select assignment."
 msgstr "Wybierz przypisanie"
 
-#: .\bookkeeping\forms.py:159 .\bookkeeping\views.py:544
-#: .\bookkeeping\views.py:566
+#: .\bookkeeping\forms.py:159 .\bookkeeping\views.py:546
+#: .\bookkeeping\views.py:568
 msgid "This item is already assigned with this type."
 msgstr "Ten zasób jest już przypisany z tym typem."
 
@@ -1043,7 +1043,7 @@ msgstr "Adres"
 #: .\bookkeeping\models.py:22
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:35
 #: .\bookkeeping\templates\bookkeeping\physical_asset_detail.html:16
-#: .\bookkeeping\views.py:753 .\obywatele\models.py:89 .\resources\models.py:47
+#: .\bookkeeping\views.py:755 .\obywatele\models.py:89 .\resources\models.py:47
 msgid "City"
 msgstr "Miejscowość"
 
@@ -1075,7 +1075,7 @@ msgstr "Numer mieszkania"
 #: .\bookkeeping\models.py:27
 #: .\bookkeeping\templates\bookkeeping\_partner_card.html:32
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:50
-#: .\bookkeeping\views.py:753
+#: .\bookkeeping\views.py:755
 msgid "Notes"
 msgstr "Notatki"
 
@@ -1187,7 +1187,7 @@ msgstr "Suma"
 msgid "Shared community ownership"
 msgstr "Wspólna własność społeczności"
 
-#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:26
+#: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:27
 #: .\chat\i18n.py:18 .\chat\templates\chat\chat.html:307
 #: .\chat\templates\chat\chat.html:391
 #: .\home\templates\home\includes\modal_header.html:14
@@ -1418,7 +1418,7 @@ msgid "Phone number"
 msgstr "Numer telefonu"
 
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:19
-#: .\bookkeeping\views.py:753
+#: .\bookkeeping\views.py:755
 msgid "Web Page"
 msgstr "www"
 
@@ -1463,8 +1463,8 @@ msgstr "Podsumowanie roku"
 
 #: .\bookkeeping\templates\bookkeeping\report_list.html:30
 #: .\bookkeeping\templates\bookkeeping\report_list.html:44
-#: .\bookkeeping\templates\bookkeeping\resource_manage.html:22
-#: .\bookkeeping\templates\bookkeeping\resource_manage.html:32
+#: .\bookkeeping\templates\bookkeeping\resource_manage.html:43
+#: .\bookkeeping\templates\bookkeeping\resource_manage.html:53
 msgid "No records found."
 msgstr "Brak wpisów."
 
@@ -1507,6 +1507,7 @@ msgid "No offers match your search."
 msgstr "Żadna oferta nie pasuje do wyszukiwania."
 
 #: .\bookkeeping\templates\bookkeeping\resource_list.html:72
+#: .\bookkeeping\templates\bookkeeping\resource_manage.html:24
 msgid "Needs"
 msgstr "Potrzeby"
 
@@ -1550,7 +1551,15 @@ msgstr "Strona %(current)s z %(total)s"
 msgid "Search resources"
 msgstr "Szukaj zasobów"
 
-#: .\bookkeeping\templates\bookkeeping\resource_manage.html:17
+#: .\bookkeeping\templates\bookkeeping\resource_manage.html:18
+msgid "Offers matching your needs"
+msgstr "Oferty pasujące do Twoich potrzeb"
+
+#: .\bookkeeping\templates\bookkeeping\resource_manage.html:19
+msgid "Matches use the resource name. Only active public offers are shown."
+msgstr "Dopasowanie opiera się na nazwie zasobu. Pokazywane są tylko aktywne, publiczne oferty."
+
+#: .\bookkeeping\templates\bookkeeping\resource_manage.html:38
 #: .\bookkeeping\views.py:440 .\events\models.py:30
 #: .\events\templates\events\_event_detail_badges.html:8
 #: .\events\templates\events\_event_detail_badges.html:11
@@ -1558,7 +1567,7 @@ msgstr "Szukaj zasobów"
 msgid "Active"
 msgstr "Aktywne"
 
-#: .\bookkeeping\templates\bookkeeping\resource_manage.html:50
+#: .\bookkeeping\templates\bookkeeping\resource_manage.html:71
 msgid "Save resource"
 msgstr "Zapisz zasób"
 
@@ -1595,17 +1604,17 @@ msgid "No transactions yet."
 msgstr "Nie ma jeszcze transakcji."
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:102
-#: .\bookkeeping\views.py:841
+#: .\bookkeeping\views.py:843
 msgid "Add transaction"
 msgstr "Dodaj Transakcję"
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:103
-#: .\bookkeeping\views.py:722
+#: .\bookkeeping\views.py:724
 msgid "Add partner"
 msgstr "Dodaj Partnera"
 
 #: .\bookkeeping\templatetags\bookkeeping_extras.py:104
-#: .\bookkeeping\views.py:679
+#: .\bookkeeping\views.py:681
 #: .\categories\templates\categories\_category_modal.html:14
 msgid "Add category"
 msgstr "Dodaj kategorię"
@@ -1675,11 +1684,11 @@ msgstr "Wszystkie przypisania"
 msgid "Assigned to a member"
 msgstr "Przypisane członkowi"
 
-#: .\bookkeeping\views.py:711
+#: .\bookkeeping\views.py:713
 msgid "Cannot delete category because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć kategorii, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które ją wykorzystują."
 
-#: .\bookkeeping\views.py:817
+#: .\bookkeeping\views.py:819
 msgid "Cannot delete partner because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć partnera, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które go wykorzystują."
 

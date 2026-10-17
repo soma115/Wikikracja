@@ -9,6 +9,7 @@ from django.test import TestCase, TransactionTestCase
 
 from obywatele.models import Country
 from resources.models import Entity, LegacyEntityReference
+from resources.services import match_active_offers_for_needs
 
 
 class EntityModelTests(TestCase):
@@ -147,6 +148,42 @@ class EntityModelTests(TestCase):
             Entity.objects.create(
                 entity_type=Entity.Type.PHYSICAL_ASSET, name='Closed building', country=Country.objects.get_or_create(code='ZZ', defaults={'name': 'Test country'})[0], city='Test City', is_closed=True
             )
+
+
+class ResourceMatchingServiceTests(TestCase):
+    def test_matches_exact_normalized_names_for_visible_active_needs_and_offers(self):
+        User = get_user_model()
+        need_owner = User.objects.create_user(username='matching-need-owner')
+        offer_owner = User.objects.create_user(username='matching-offer-owner')
+        inactive_owner = User.objects.create_user(username='matching-inactive-owner', is_active=False)
+        unrelated_owner = User.objects.create_user(username='matching-unrelated-owner')
+
+        need = Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.NEED, name=' Rower   miejski ', author=need_owner, assigned_member=need_owner.uzytkownik)
+        matching_offer = Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='rower miejski', author=unrelated_owner, assigned_member=offer_owner.uzytkownik)
+        Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.BORROW, name='Rower', description='Rower miejski', author=offer_owner, assigned_member=offer_owner.uzytkownik)
+        Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.SALE, name='rower miejski', author=offer_owner, assigned_member=offer_owner.uzytkownik, is_closed=True)
+        Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='rower miejski', assigned_member=inactive_owner.uzytkownik)
+        Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.NEED, name='rower miejski', author=unrelated_owner, assigned_member=unrelated_owner.uzytkownik)
+
+        matches = match_active_offers_for_needs(need_owner, need_owner.uzytkownik)
+
+        self.assertEqual(len(matches), 1)
+        self.assertEqual(matches[0]['need'].pk, need.pk)
+        self.assertEqual([offer.pk for offer in matches[0]['offers']], [matching_offer.pk])
+
+    def test_active_community_need_and_offer_match_for_active_member(self):
+        user = get_user_model().objects.create_user(username='matching-community-member')
+        need = Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.NEED, name='Shared winter coats', is_community_owned=True)
+        offer = Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Shared winter coats', is_community_owned=True)
+
+        matches = match_active_offers_for_needs(user, user.uzytkownik)
+
+        self.assertEqual([(item['need'].pk, [entity.pk for entity in item['offers']]) for item in matches], [(need.pk, [offer.pk])])
+
+    def test_inactive_user_gets_no_matching_suggestions(self):
+        user = get_user_model().objects.create_user(username='matching-inactive-user', is_active=False)
+
+        self.assertEqual(match_active_offers_for_needs(user, user.uzytkownik), [])
 
 
 class PhysicalAssetMigrationTests(TransactionTestCase):

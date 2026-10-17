@@ -501,6 +501,28 @@ class ResourceListingViewTests(TestCase):
 
         self.assertEqual(client.post(reverse('bookkeeping:resource_create'), {}).status_code, 302)
 
+    def test_resource_manage_shows_public_offers_matching_active_needs_without_author(self):
+        self.other_user.first_name = 'Offer owner'
+        self.other_user.save(update_fields=['first_name'])
+        self.viewer.first_name = 'Private creator'
+        self.viewer.save(update_fields=['first_name'])
+        need = self._legacy_resource(self.owner.uzytkownik, name='Rower miejski', kind=Entity.ResourceKind.NEED)
+        offer = self._legacy_resource(self.other_user.uzytkownik, name='rower miejski', kind=Entity.ResourceKind.GIVE)
+        offer.author = self.viewer
+        offer.save(update_fields=['author'])
+
+        response = self.client.get(self.manage_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['matching_needs']), 1)
+        self.assertEqual(response.context['matching_needs'][0]['need'].pk, need.pk)
+        self.assertEqual([entity.pk for entity in response.context['matching_needs'][0]['offers']], [offer.pk])
+        self.assertContains(response, 'id="matching-offers-heading"')
+        self.assertContains(response, 'Offer owner')
+        match_section = response.content.decode().split('id="matching-offers-heading"', 1)[1].split('</section>', 1)[0]
+        self.assertNotIn('Author:', match_section)
+        self.assertNotIn('Private creator', match_section)
+
     def test_create_and_edit_preserve_listing_owner(self):
         member_assignment = {'assignment_scope': Entity.AssignmentScope.MEMBER, 'assigned_member': self.owner.uzytkownik.pk}
         response = self.client.post(reverse('bookkeeping:resource_create'), {'kind': 'give', 'name': 'Rower', 'description': 'Do oddania', **member_assignment})
