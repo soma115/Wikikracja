@@ -61,7 +61,7 @@ def bookkeeping_stepper(context):
         active = 'transaction_list'
 
     tab = ''
-    for prefix, name in (('transaction', 'transactions'), ('partner', 'partners'), ('category', 'categories'), ('asset', 'assets'), ('resource', 'resources'), ('report', 'reports')):
+    for prefix, name in (('transaction', 'transactions'), ('partner', 'partners'), ('asset', 'assets'), ('resource', 'resources'), ('report', 'reports')):
         if active.startswith(prefix):
             tab = name
             break
@@ -69,7 +69,6 @@ def bookkeeping_stepper(context):
     steps = [
         {'url': reverse('bookkeeping:transaction_list'), 'icon': 'money-bill-transfer', 'label': _('Transactions'), 'active': tab == 'transactions'},
         {'url': reverse('bookkeeping:partner_list'), 'icon': 'handshake', 'label': _('Partners'), 'active': tab == 'partners'},
-        {'url': reverse('bookkeeping:category_list'), 'icon': 'tags', 'label': _('Categories'), 'active': tab == 'categories'},
         {'url': reverse('bookkeeping:asset_list'), 'icon': 'coins', 'label': _('Currencies'), 'active': tab == 'assets'},
         {
             'url': reverse('bookkeeping:resource_list'),
@@ -81,12 +80,7 @@ def bookkeeping_stepper(context):
         {'url': reverse('bookkeeping:report_list'), 'icon': 'chart-pie', 'label': _('Reports'), 'active': tab == 'reports'},
     ]
 
-    cta_map = {
-        'transactions': ('bookkeeping:transaction_create', _('Add transaction')),
-        'partners': ('bookkeeping:partner_create', _('Add partner')),
-        'categories': ('bookkeeping:category_create', _('Add category')),
-        'assets': ('bookkeeping:asset_create', _('Add asset')),
-    }
+    cta_map = {'transactions': ('bookkeeping:transaction_create', _('Add transaction')), 'partners': ('bookkeeping:partner_create', _('Add partner')), 'assets': ('bookkeeping:asset_create', _('Add asset'))}
     cta_url = ''
     cta_label = ''
     if active.endswith('_list') and tab in cta_map:

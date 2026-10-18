@@ -405,3 +405,34 @@ describe('initCategoryFilter', () => {
         locationSpy.mockRestore();
     });
 });
+
+describe('search focus restoration', () => {
+    beforeEach(() => {
+        sessionStorage.clear();
+        document.body.innerHTML = `
+            <form data-restore-search-focus>
+                <input id="transaction-search" name="q" type="search" value="North South">
+            </form>
+        `;
+        window.initSearchFocusRestore(document);
+    });
+
+    test('restores the focused search input and caret after a GET reload', () => {
+        const form = document.querySelector('form');
+        const input = form.querySelector('input');
+        input.focus();
+        input.setSelectionRange(5, 5);
+        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+
+        document.body.innerHTML = `
+            <form data-restore-search-focus>
+                <input id="transaction-search" name="q" type="search" value="North South">
+            </form>
+        `;
+        window.initSearchFocusRestore(document);
+
+        const reloadedInput = document.querySelector('input');
+        expect(document.activeElement).toBe(reloadedInput);
+        expect(reloadedInput.selectionStart).toBe(5);
+    });
+});

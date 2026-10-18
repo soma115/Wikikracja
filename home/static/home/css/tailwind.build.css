@@ -12013,13 +12013,3 @@ body.tw-chat-page .tw-main-area {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
-
-@media (min-width: 1200px) {
-  .xl\:tw-col-span-5 {
-    grid-column: span 5 / span 5;
-  }
-
-  .xl\:tw-grid-cols-5 {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}

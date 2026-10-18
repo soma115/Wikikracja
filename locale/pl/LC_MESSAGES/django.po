@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-18 02:50+0200\n"
+"POT-Creation-Date: 2026-10-18 11:57+0200\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -863,7 +863,7 @@ msgstr "A-Z"
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:23
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:17
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:22
-#: .\bookkeeping\views.py:893 .\chat\i18n.py:48 .\home\views.py:161
+#: .\bookkeeping\views.py:940 .\chat\i18n.py:48 .\home\views.py:161
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:10
@@ -872,7 +872,7 @@ msgstr "A-Z"
 msgid "Date"
 msgstr "Data"
 
-#: .\board\views.py:341 .\bookkeeping\views.py:124 .\bookkeeping\views.py:1020
+#: .\board\views.py:341 .\bookkeeping\views.py:127 .\bookkeeping\views.py:1064
 #: .\events\views.py:211 .\glosowania\views.py:153 .\glosowania\views.py:752
 #: .\obywatele\views.py:565 .\tasks\views.py:785
 msgid "Saved."
@@ -918,7 +918,7 @@ msgstr "Rodzaj"
 #: .\bookkeeping\templates\bookkeeping\category_detail.html:11
 #: .\bookkeeping\templates\bookkeeping\partner_confirm_delete.html:12
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:10
-#: .\bookkeeping\views.py:725 .\resources\models.py:29
+#: .\bookkeeping\views.py:728 .\resources\models.py:29
 msgid "Name"
 msgstr "Nazwa"
 
@@ -933,7 +933,7 @@ msgstr "Kraj"
 
 #: .\bookkeeping\forms.py:40 .\bookkeeping\models.py:28
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:35
-#: .\bookkeeping\views.py:725 .\obywatele\models.py:89 .\resources\models.py:45
+#: .\bookkeeping\views.py:728 .\obywatele\models.py:89 .\resources\models.py:45
 msgid "City"
 msgstr "Miejscowość"
 
@@ -952,7 +952,7 @@ msgstr "Numer domu"
 
 #: .\bookkeeping\forms.py:43 .\bookkeeping\models.py:32
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:47
-#: .\bookkeeping\tests\test_views.py:288 .\obywatele\models.py:92
+#: .\bookkeeping\tests\test_views.py:299 .\obywatele\models.py:92
 #: .\obywatele\templates\obywatele\szczegoly.html:142
 #: .\obywatele\tests\test_views.py:807 .\obywatele\tests\test_views.py:823
 #: .\resources\models.py:48
@@ -997,8 +997,8 @@ msgstr "Zasób będący współwłasnością społeczności nie może być jedno
 msgid "Select assignment."
 msgstr "Wybierz przypisanie."
 
-#: .\bookkeeping\forms.py:120 .\bookkeeping\views.py:429
-#: .\bookkeeping\views.py:450
+#: .\bookkeeping\forms.py:120 .\bookkeeping\views.py:432
+#: .\bookkeeping\views.py:453
 msgid "This item is already assigned with this type."
 msgstr "Ten zasób jest już przypisany z tym typem."
 
@@ -1072,7 +1072,7 @@ msgstr "Adres"
 #: .\bookkeeping\models.py:33
 #: .\bookkeeping\templates\bookkeeping\_partner_card.html:32
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:50
-#: .\bookkeeping\views.py:725
+#: .\bookkeeping\views.py:728
 msgid "Notes"
 msgstr "Notatki"
 
@@ -1127,7 +1127,6 @@ msgid "Partners"
 msgstr "Partnerzy"
 
 #: .\bookkeeping\templates\bookkeeping\_nav.html:7
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:72
 #: .\tasks\templates\tasks\task_form.html:96
 msgid "Categories"
 msgstr "Kategorie"
@@ -1137,7 +1136,7 @@ msgid "Assets"
 msgstr "Aktywa"
 
 #: .\bookkeeping\templates\bookkeeping\_nav.html:9
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:81
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:80
 msgid "Reports"
 msgstr "Raporty"
 
@@ -1183,7 +1182,7 @@ msgstr "Suma"
 #: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:13
 #: .\bookkeeping\templates\bookkeeping\resource_list.html:84
 #: .\bookkeeping\templates\bookkeeping\resource_list.html:118
-#: .\bookkeeping\views.py:329 .\resources\models.py:26
+#: .\bookkeeping\views.py:332 .\resources\models.py:26
 msgid "Shared community ownership"
 msgstr "Wspólna własność społeczności"
 
@@ -1195,7 +1194,7 @@ msgid "Close"
 msgstr "Zamknij"
 
 #: .\bookkeeping\templates\bookkeeping\_resource_owner_actions.html:10
-#: .\bookkeeping\tests\test_views.py:484
+#: .\bookkeeping\tests\test_views.py:536
 msgid "Archive listing"
 msgstr "Archiwizuj wpis"
 
@@ -1247,7 +1246,6 @@ msgid "Assignment"
 msgstr "Przypisanie"
 
 #: .\bookkeeping\templates\bookkeeping\_resource_search.html:59
-#: .\bookkeeping\templates\bookkeeping\_transaction_search.html:29
 msgid "Clear"
 msgstr "Wyczyść"
 
@@ -1256,31 +1254,9 @@ msgstr "Wyczyść"
 msgid "Transaction"
 msgstr "Transakcja"
 
-#: .\bookkeeping\templates\bookkeeping\_transaction_search.html:4
-#: .\bookkeeping\templates\bookkeeping\_transaction_search.html:5
+#: .\bookkeeping\templates\bookkeeping\_transaction_search.html:3
 msgid "Search all fields..."
 msgstr "Przeszukaj wszystkie pola..."
-
-#: .\bookkeeping\templates\bookkeeping\_transaction_search.html:8
-msgid "Date from"
-msgstr "Od daty"
-
-#: .\bookkeeping\templates\bookkeeping\_transaction_search.html:12
-msgid "Date to"
-msgstr "Do daty"
-
-#: .\bookkeeping\templates\bookkeeping\_transaction_search.html:16
-msgid "Transaction type"
-msgstr "Rodzaj transakcji"
-
-#: .\bookkeeping\templates\bookkeeping\_transaction_search.html:18
-msgid "All transaction types"
-msgstr "Wszystkie typy transakcji"
-
-#: .\bookkeeping\templates\bookkeeping\_transaction_search.html:28
-#: .\bookkeeping\templates\bookkeeping\report_list.html:15
-msgid "Filter"
-msgstr "Filtruj"
 
 #: .\bookkeeping\templates\bookkeeping\asset_confirm_delete.html:4
 msgid "Delete asset"
@@ -1446,7 +1422,7 @@ msgid "Phone number"
 msgstr "Numer telefonu"
 
 #: .\bookkeeping\templates\bookkeeping\partner_detail.html:19
-#: .\bookkeeping\views.py:725
+#: .\bookkeeping\views.py:728
 msgid "Web Page"
 msgstr "www"
 
@@ -1469,6 +1445,10 @@ msgstr "Nie ma jeszcze partnerów."
 #: .\bookkeeping\templates\bookkeeping\report_list.html:9
 msgid "Select Year"
 msgstr "Wybierz rok"
+
+#: .\bookkeeping\templates\bookkeeping\report_list.html:15
+msgid "Filter"
+msgstr "Filtruj"
 
 #: .\bookkeeping\templates\bookkeeping\report_list.html:18
 #: .\bookkeeping\templates\bookkeeping\report_list.html:23
@@ -1502,7 +1482,7 @@ msgid "Total all years"
 msgstr "Suma wszystkie lata"
 
 #: .\bookkeeping\templates\bookkeeping\resource_list.html:16
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:77 .\home\navigation.py:20
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:76 .\home\navigation.py:20
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:68
 #: .\obywatele\templates\obywatele\my_profile.html:246
 #: .\obywatele\templates\obywatele\szczegoly.html:153
@@ -1539,7 +1519,7 @@ msgid "No needs match your search."
 msgstr "Żadna potrzeba nie pasuje do wyszukiwania."
 
 #: .\bookkeeping\templates\bookkeeping\resource_list.html:133
-#: .\bookkeeping\views.py:258
+#: .\bookkeeping\views.py:261
 #: .\obywatele\templates\obywatele\my_profile.html:248
 msgid "Add resource"
 msgstr "Dodaj zasób"
@@ -1601,33 +1581,27 @@ msgstr "Nowa Transakcja"
 msgid "No transactions yet."
 msgstr "Nie ma jeszcze transakcji."
 
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:73
-#: .\bookkeeping\tests\test_views.py:61
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:72
+#: .\bookkeeping\tests\test_views.py:62
 msgid "Currencies"
 msgstr "Waluty"
 
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:85
-#: .\bookkeeping\views.py:907
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:83
+#: .\bookkeeping\views.py:954
 msgid "Add transaction"
 msgstr "Dodaj Transakcję"
 
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:86
-#: .\bookkeeping\views.py:694
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:83
+#: .\bookkeeping\views.py:697
 msgid "Add partner"
 msgstr "Dodaj Partnera"
 
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:87
-#: .\bookkeeping\views.py:634
-#: .\categories\templates\categories\_category_modal.html:14
-msgid "Add category"
-msgstr "Dodaj kategorię"
-
-#: .\bookkeeping\templatetags\bookkeeping_extras.py:88
-#: .\bookkeeping\views.py:135 .\home\templates\home\home.html:371
+#: .\bookkeeping\templatetags\bookkeeping_extras.py:83
+#: .\bookkeeping\views.py:138 .\home\templates\home\home.html:371
 msgid "Add asset"
 msgstr "Dodaj aktywo"
 
-#: .\bookkeeping\views.py:83
+#: .\bookkeeping\views.py:86
 #: .\glosowania\templates\glosowania\szczegoly.html:160
 #: .\glosowania\templates\glosowania\szczegoly.html:200
 #: .\glosowania\templatetags\glosowania_stepper.py:53
@@ -1638,82 +1612,87 @@ msgstr "Dodaj aktywo"
 msgid "Add"
 msgstr "Dodaj"
 
-#: .\bookkeeping\views.py:235
+#: .\bookkeeping\views.py:238
 msgid "Cannot delete asset because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć zasobu, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które go wykorzystują."
 
-#: .\bookkeeping\views.py:322
+#: .\bookkeeping\views.py:325
 msgid "All entity types"
 msgstr "Wszystkie typy encji"
 
-#: .\bookkeeping\views.py:322
+#: .\bookkeeping\views.py:325
 msgid "Financial asset"
 msgstr "Zasób finansowy"
 
-#: .\bookkeeping\views.py:322 .\resources\models.py:15
+#: .\bookkeeping\views.py:325 .\resources\models.py:15
 msgid "Resource"
 msgstr "Zasób"
 
-#: .\bookkeeping\views.py:325 .\events\models.py:30
+#: .\bookkeeping\views.py:328 .\events\models.py:30
 #: .\events\templates\events\_event_detail_badges.html:8
 #: .\events\templates\events\_event_detail_badges.html:11
 #: .\home\templates\home\home.html:181 .\tasks\models.py:54
 msgid "Active"
 msgstr "Aktywne"
 
-#: .\bookkeeping\views.py:325
+#: .\bookkeeping\views.py:328
 msgid "Closed"
 msgstr "Zamknięte"
 
-#: .\bookkeeping\views.py:325
+#: .\bookkeeping\views.py:328
 msgid "All statuses"
 msgstr "Wszystkie stany"
 
-#: .\bookkeeping\views.py:327
+#: .\bookkeeping\views.py:330
 msgid "All assignments"
 msgstr "Wszystkie przypisania"
 
-#: .\bookkeeping\views.py:328 .\resources\models.py:25
+#: .\bookkeeping\views.py:331 .\resources\models.py:25
 msgid "Assigned to a member"
 msgstr "Przypisane członkowi"
 
-#: .\bookkeeping\views.py:330 .\resources\models.py:24
+#: .\bookkeeping\views.py:333 .\resources\models.py:24
 msgid "Unassigned"
 msgstr "Nieprzypisane"
 
-#: .\bookkeeping\views.py:561
+#: .\bookkeeping\views.py:564
 #: .\categories\templates\categories\_category_manager_init.html:29
 msgid "Category name is required."
 msgstr "Nazwa kategorii jest wymagana."
 
-#: .\bookkeeping\views.py:563
+#: .\bookkeeping\views.py:566
 msgid "Category name is too long."
 msgstr "Nazwa kategorii jest za długa."
 
-#: .\bookkeeping\views.py:568 .\bookkeeping\views.py:585
-#: .\bookkeeping\views.py:602
+#: .\bookkeeping\views.py:571 .\bookkeeping\views.py:588
+#: .\bookkeeping\views.py:605
 msgid "A category with this name already exists."
 msgstr "Kategoria o tej nazwie już istnieje."
 
-#: .\bookkeeping\views.py:594
+#: .\bookkeeping\views.py:597
 msgid "This category is protected and cannot be edited."
 msgstr "Ta kategoria jest chroniona i nie można jej edytować."
 
-#: .\bookkeeping\views.py:611
+#: .\bookkeeping\views.py:614
 msgid "This category is protected and cannot be deleted."
 msgstr "Ta kategoria jest chroniona i nie można jej usunąć."
 
-#: .\bookkeeping\views.py:645
+#: .\bookkeeping\views.py:637
+#: .\categories\templates\categories\_category_modal.html:14
+msgid "Add category"
+msgstr "Dodaj kategorię"
+
+#: .\bookkeeping\views.py:648
 #: .\categories\templates\categories\_category_filter.html:23
 #: .\categories\templates\categories\_category_modal.html:5
 msgid "Manage categories"
 msgstr "Zarządzaj kategoriami"
 
-#: .\bookkeeping\views.py:677
+#: .\bookkeeping\views.py:680
 msgid "Cannot delete category because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć kategorii, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które ją wykorzystują."
 
-#: .\bookkeeping\views.py:789
+#: .\bookkeeping\views.py:792
 msgid "Cannot delete partner because it is in use. Remove all transactions that use it first."
 msgstr "Nie można usunąć partnera, ponieważ jest w użyciu. Usuń najpierw wszystkie transakcje, które go wykorzystują."
 

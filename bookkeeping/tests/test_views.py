@@ -7,6 +7,7 @@ ochrona usuwania przez ProtectedDeleteView i własność transakcji.
 
 import json
 from datetime import date
+from decimal import Decimal
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
@@ -55,10 +56,12 @@ class BookkeepingViewTests(TestCase):
             res = self.client.get(reverse(url_name))
             self.assertIn('cta_url', res.context, url_name)
 
-    def test_bookkeeping_stepper_labels_financial_assets_as_currencies(self):
+    def test_bookkeeping_stepper_omits_categories_and_labels_financial_assets_as_currencies(self):
         response = self.client.get(reverse('bookkeeping:asset_list'))
 
         self.assertContains(response, _('Currencies'))
+        response = self.client.get(reverse('bookkeeping:transaction_list'))
+        self.assertNotContains(response, f'href="{reverse("bookkeeping:category_list")}"')
 
     def test_category_manager_modal_and_api_match_the_shared_activity_pattern(self):
         category_page = self.client.get(reverse('bookkeeping:category_list'))
@@ -67,6 +70,14 @@ class BookkeepingViewTests(TestCase):
         self.assertContains(category_page, 'data-tw-target="#manageCategoriesModal"')
         self.assertContains(transaction_page, 'id="catFilter"')
         self.assertContains(transaction_page, 'id="manageCategoriesModal"')
+        self.assertNotContains(transaction_page, 'data-live-search')
+        self.assertNotContains(transaction_page, 'id="transaction-type"')
+        self.assertNotContains(transaction_page, 'name="date_from"')
+        self.assertNotContains(transaction_page, 'name="date_to"')
+
+        category_list_response = self.client.get(reverse('bookkeeping:category_api'))
+        self.assertEqual(category_list_response.status_code, 200)
+        self.assertTrue(any(category['name'] == self.category.name for category in category_list_response.json()['categories']))
 
         response = self.client.post(reverse('bookkeeping:category_api'), {'name': 'Travel', 'description': 'Travel costs'})
 
@@ -374,6 +385,47 @@ class BookkeepingViewTests(TestCase):
         descending = self.client.get(reverse('bookkeeping:transaction_list'), {'sort': 'date', 'order': 'desc'})
         self.assertEqual([item.pk for item in ascending.context['transactions']], [older.pk, middle.pk, newer.pk])
         self.assertEqual([item.pk for item in descending.context['transactions']], [newer.pk, middle.pk, older.pk])
+
+    def test_transaction_list_search_matches_each_transaction_field(self):
+        incoming = self._transaction(payment_received_date=date(2026, 2, 14))
+        incoming.amount = Decimal('123.45')
+        incoming.note = 'North invoice'
+        incoming.category = Category.objects.create(name='Food')
+        incoming.author = User.objects.create_user(username='author-alex', email='author-alex@example.com', password='x', first_name='Alex', last_name='River')
+        incoming.save(update_fields=['amount', 'note', 'category', 'author'])
+
+        outgoing = self._transaction(payment_received_date=date(2026, 2, 15))
+        outgoing.type = Transaction.OUTGOING
+        outgoing.partner = Partner.objects.create(name='Greenfield Partner')
+        outgoing.category = Category.objects.create(name='Travel costs')
+        outgoing.note = 'South invoice'
+        outgoing.save(update_fields=['type', 'partner', 'category', 'note'])
+
+        def search_ids(query):
+            response = self.client.get(reverse('bookkeeping:transaction_list'), {'q': query})
+            self.assertEqual(response.status_code, 200)
+            return {transaction.pk for transaction in response.context['transactions']}
+
+        outgoing_label = str(dict(Transaction.TYPES)[Transaction.OUTGOING])
+        self.assertEqual(search_ids(outgoing_label[:3]), {outgoing.pk})
+        self.assertEqual(search_ids('123,45'), {incoming.pk})
+        self.assertEqual(search_ids('14.02.2026'), {incoming.pk})
+        self.assertEqual(search_ids('Greenfield'), {outgoing.pk})
+        self.assertEqual(search_ids('Travel costs'), {outgoing.pk})
+        self.assertEqual(search_ids('TST'), {incoming.pk, outgoing.pk})
+        self.assertEqual(search_ids('Test Asset'), {incoming.pk, outgoing.pk})
+        self.assertEqual(search_ids('Alex River'), {incoming.pk})
+        self.assertEqual(search_ids('North South'), {incoming.pk, outgoing.pk})
+        self.assertEqual(search_ids('Greenfield Food'), {incoming.pk, outgoing.pk})
+
+    def test_transaction_list_ignores_search_terms_shorter_than_two_characters(self):
+        first = self._transaction()
+        second = self._transaction()
+
+        response = self.client.get(reverse('bookkeeping:transaction_list'), {'q': 'x'})
+
+        self.assertEqual({transaction.pk for transaction in response.context['transactions']}, {first.pk, second.pk})
+        self.assertEqual(response.context['search_query'], '')
 
     def test_new_transaction_emits_push_event(self):
         with patch('core.notifications._dispatch_notification') as dispatch:

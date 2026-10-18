@@ -15,6 +15,52 @@ if (typeof window.wkOnReady !== 'function') {
 }
 
 (function() {
+    window.initSearchFocusRestore = function(root) {
+        (root || document).querySelectorAll('form[data-restore-search-focus]').forEach(function(form) {
+            if (form.dataset.searchFocusRestoreInitialized === 'true') return;
+            const input = form.querySelector('input[type="search"]');
+            if (!input) return;
+
+            form.dataset.searchFocusRestoreInitialized = 'true';
+            const storageKey = 'wikikracja:search-focus:' + window.location.pathname + ':' + (form.dataset.restoreSearchFocusKey || input.id || input.name);
+
+            try {
+                const state = JSON.parse(window.sessionStorage.getItem(storageKey));
+                window.sessionStorage.removeItem(storageKey);
+                if (state && state.path === window.location.pathname && state.query === input.value.trim()) {
+                    input.focus({ preventScroll: true });
+                    if (typeof input.setSelectionRange === 'function') {
+                        const start = Math.max(0, Math.min(state.selectionStart ?? input.value.length, input.value.length));
+                        const end = Math.max(start, Math.min(state.selectionEnd ?? start, input.value.length));
+                        input.setSelectionRange(start, end);
+                    }
+                }
+            } catch (_) {
+                // Storage may be unavailable in private browsing contexts.
+            }
+
+            form.addEventListener('submit', function() {
+                if (document.activeElement !== input) return;
+                try {
+                    window.sessionStorage.setItem(storageKey, JSON.stringify({
+                        path: window.location.pathname,
+                        query: input.value.trim(),
+                        selectionStart: input.selectionStart,
+                        selectionEnd: input.selectionEnd,
+                    }));
+                } catch (_) {
+                    // Storage may be unavailable in private browsing contexts.
+                }
+            });
+        });
+    };
+
+    window.wkOnReady(function() {
+        window.initSearchFocusRestore(document);
+    });
+})();
+
+(function() {
     const cache = new Map();
     const waiting = new Map();
     let scheduled = false;

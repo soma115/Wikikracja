@@ -1,4 +1,6 @@
 import json
+from datetime import datetime
+from decimal import Decimal, InvalidOperation
 from urllib.parse import quote_plus
 
 from django.contrib import messages
@@ -7,7 +9,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, connection
 from django.db import transaction as db_transaction
-from django.db.models import Count, Min, OuterRef, Q, Subquery
+from django.db.models import CharField, Count, Min, OuterRef, Q, Subquery
+from django.db.models.functions import Cast
 from django.http import Http404, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -571,7 +574,7 @@ def _category_name_error(name, *, exclude_pk=None):
 
 class BookkeepingCategoryAPI(CategoryAPIBase):
     model = Category
-    related_count_field = 'transaction_set'
+    related_count_field = 'transaction'
     order_field = 'order'
 
     def post(self, request):
@@ -826,8 +829,12 @@ def _transaction_list_filters(params):
     if sort == 'none':
         order = None
 
+    search_query = (params.get('q') or '').strip()
+    if len(search_query) < 2:
+        search_query = ''
+
     return {
-        'search_query': (params.get('q') or '').strip(),
+        'search_query': search_query,
         'category_ids': category_ids,
         'transaction_type': transaction_type,
         'date_from': date_value('date_from'),
@@ -842,13 +849,53 @@ def _transaction_list_filters(params):
 def _transaction_queryset(*, search_query='', category_ids=(), transaction_type='', date_from=None, date_to=None, sort='date', order='desc'):
     queryset = Transaction.objects.select_related('author', 'partner', 'category', 'entity')
     if search_query:
-        queryset = queryset.filter(
-            Q(partner__name__icontains=search_query)
-            | Q(category__name__icontains=search_query)
-            | Q(entity__code__icontains=search_query)
-            | Q(note__icontains=search_query)
-            | Q(author__username__icontains=search_query)
-        )
+        queryset = queryset.annotate(_search_amount=Cast('amount', output_field=CharField()), _search_payment_date=Cast('payment_received_date', output_field=CharField()))
+        search_filter = Q()
+        for term in search_query.split():
+            term_filter = (
+                Q(partner__name__icontains=term)
+                | Q(category__name__icontains=term)
+                | Q(entity__code__icontains=term)
+                | Q(entity__name__icontains=term)
+                | Q(entity__symbol__icontains=term)
+                | Q(note__icontains=term)
+                | Q(author__username__icontains=term)
+                | Q(author__first_name__icontains=term)
+                | Q(author__last_name__icontains=term)
+                | Q(_search_amount__icontains=term)
+                | Q(_search_payment_date__icontains=term)
+            )
+            amount_query = term.replace(',', '.')
+            if amount_query != term:
+                term_filter |= Q(_search_amount__icontains=amount_query)
+            try:
+                amount_value = Decimal(amount_query)
+                if amount_value.is_finite():
+                    term_filter |= Q(amount=amount_value)
+            except InvalidOperation:
+                pass
+
+            search_date = None
+            try:
+                search_date = parse_date(term)
+            except ValueError:
+                pass
+            if search_date is None:
+                for date_format in ('%d.%m.%Y', '%d/%m/%Y', '%d-%m-%Y'):
+                    try:
+                        search_date = datetime.strptime(term, date_format).date()
+                        break
+                    except ValueError:
+                        continue
+            if search_date is not None:
+                term_filter |= Q(payment_received_date=search_date)
+
+            normalized_term = term.casefold()
+            for type_value, type_label in Transaction.TYPES:
+                if normalized_term in str(type_label).casefold():
+                    term_filter |= Q(type=type_value)
+            search_filter |= term_filter
+        queryset = queryset.filter(search_filter)
     if category_ids:
         queryset = queryset.filter(category_id__in=category_ids)
     if transaction_type:
@@ -919,14 +966,11 @@ class TransactionListView(BookkeepingListView):
                 item.detail_url = f"{item.detail_url}?{detail_query}"
         context.update(
             {
+                'search_query': self.filter_values['search_query'],
                 'category_list': list(Category.objects.order_by('order', 'name', 'pk')),
                 'current_categories': self.filter_values['category_ids'],
                 'current_sort': self.filter_values['sort'],
                 'current_order': self.filter_values['order'],
-                'transaction_type_choices': Transaction.TYPES,
-                'transaction_type': self.filter_values['transaction_type'],
-                'date_from_value': self.filter_values['date_from_value'],
-                'date_to_value': self.filter_values['date_to_value'],
                 'toolbar_sort_items': _transaction_sort_items(self.request, self.filter_values),
             }
         )

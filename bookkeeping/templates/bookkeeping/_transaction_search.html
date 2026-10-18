@@ -1,31 +1,7 @@
 {% load i18n %}
-<form method="get" class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 xl:tw-grid-cols-5 tw-gap-2 tw-w-full">
-  <div class="sm:tw-col-span-2">
-    <label class="tw-form-label" for="transaction-search">{% trans "Search all fields..." %}</label>
-    <input id="transaction-search" type="search" name="q" value="{{ search_query }}" class="tw-form-control tw-w-full" placeholder="{% trans 'Search all fields...' %}">
-  </div>
-  <div>
-    <label class="tw-form-label" for="transaction-date-from">{% trans "Date from" %}</label>
-    <input id="transaction-date-from" type="date" name="date_from" value="{{ date_from_value }}" class="tw-form-control">
-  </div>
-  <div>
-    <label class="tw-form-label" for="transaction-date-to">{% trans "Date to" %}</label>
-    <input id="transaction-date-to" type="date" name="date_to" value="{{ date_to_value }}" class="tw-form-control">
-  </div>
-  <div>
-    <label class="tw-form-label" for="transaction-type">{% trans "Transaction type" %}</label>
-    <select id="transaction-type" name="type" class="tw-form-select">
-      <option value="">{% trans "All transaction types" %}</option>
-      {% for value, label in transaction_type_choices %}
-      <option value="{{ value }}"{% if transaction_type == value %} selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
-  </div>
+<form method="get" class="tw-w-full" data-restore-search-focus>
+  <input id="transaction-search" type="search" name="q" value="{{ search_query }}" class="tw-form-control tw-w-full" placeholder="{% trans 'Search all fields...' %}" aria-label="{% trans 'Search all fields...' %}">
   {% for category_id in current_categories %}<input type="hidden" name="category" value="{{ category_id }}">{% endfor %}
   <input type="hidden" name="sort" value="{{ current_sort }}">
   {% if current_order %}<input type="hidden" name="order" value="{{ current_order }}">{% endif %}
-  <div class="tw-flex tw-items-end tw-gap-2 sm:tw-col-span-2 xl:tw-col-span-5">
-    <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-magnifying-glass fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Filter" %}</button>
-    <a href="{% url 'bookkeeping:transaction_list' %}" class="tw-btn tw-btn-outline-secondary tw-btn-sm">{% trans "Clear" %}</a>
-  </div>
 </form>

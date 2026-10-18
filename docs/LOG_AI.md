@@ -1,8 +1,30 @@
 # LOG_AI
 
+## 2026-10-18: Zachowanie fokusu po wyszukiwaniu transakcji
+
+- **Co się zmieniło:** przy wysłaniu formularza wyszukiwania Enterem zapisywana jest pozycja kursora; po załadowaniu wyników fokus i pozycja kursora wracają do pola.
+- **Weryfikacja:** dodano test odtwarzania fokusu po przeładowaniu wyników.
+
+## 2026-10-18: Wyszukiwanie transakcji po Enter z dopasowaniem OR
+
+- **Co się zmieniło:** wyszukiwanie listy transakcji uruchamia się przez Enter. Wpisane słowa są osobnymi warunkami OR względem rodzaju, daty, partnera, kategorii, aktywa (kod, nazwa i symbol), kwoty, autora (login, imię i nazwisko) oraz notatki.
+- **Weryfikacja:** dodano regresję dopasowującą dwa różne słowa do dwóch transakcji.
+
+## 2026-10-18: Zarządzanie kategoriami bez osobnego kroku
+
+- **Zmienione obszary:** stepper bookkeeping oraz regresja API listy kategorii.
+- **Co się zmieniło:** usunięto kategorię ze steppera; zarządzanie pozostaje dostępne z listy transakcji. Poprawiono nazwę relacji reverse używaną do zliczania transakcji w API, która powodowała 500 przy pobieraniu kategorii.
+- **Spodziewany efekt:** krótsza nawigacja bez utraty dotychczasowych adresów kategorii ani ich API.
+
+## 2026-10-18: Uproszczenie filtrów listy transakcji
+
+- **Zmienione obszary:** formularz, wyszukiwanie listy transakcji oraz testy.
+- **Co się zmieniło:** wyszukiwanie dopasowuje partnera, kategorię, rodzaj, kwotę i datę. Usunięto selektor rodzaju oraz przyciski „Filtruj” i „Wyczyść”; sortowanie, kategorie i widok pozostają we wspólnym toolbarze.
+- **Spodziewany efekt:** szybsze wyszukiwanie bez dodatkowych kontrolek, z polem mieszczącym się w jednym rzędzie toolbaru, gdy pozwala na to szerokość ekranu.
+
 ## 2026-10-18: Konsolidacja dokumentacji zasobów
 
-- **Zmiana:** po zakończeniu cutoverów usunięto główny plik roboczy planu zasobów. Trwałe reguły modelu i prywatności są w `SECURITY_EXCEPTIONS.md`, wymagania dostawców mapy w `DEPLOYMENT_INSTRUCTIONS.md`, procedury kopii/odtworzenia w tym samym przewodniku, a szczegóły preflightu/rollbacku pozostają w dokumentach cutoverów.
+- **Zmiana:** po zakończeniu cutoverów usunięto robocze plany zasobów i cutoverów. Trwałe reguły modelu i prywatności są w `SECURITY_EXCEPTIONS.md`, wymagania dostawców mapy oraz procedury kopii/odtworzenia w `DEPLOYMENT_INSTRUCTIONS.md`, a historię, preflight i ograniczenia rollbacku zachowują wpisy tego dziennika.
 - **Zakres:** zakończone etapy zachowuje ten log; wycofane przez użytkownika propozycje nie są już listą otwartych zadań. Nie zmieniano kodu ani schematu.
 
 ## 2026-10-18: Zamknięcie planu mapy społeczności
@@ -36,7 +58,7 @@
 
 - **Zmienione obszary:** model transakcji i formularze, CRUD jednostek finansowych, raporty/salda, feed/powiadomienia, seed demo, testy i migracja `bookkeeping.0040`.
 - **Co się zmieniło:** `Transaction.entity` jest jedynym wymaganym FK, a `bookkeeping.Asset` nie istnieje już w modelu runtime. Migracja usuwa tabelę shadow oraz stary FK po preflight zgodności kodu, nazwy, symbolu, precyzji, waluty, domyślności i mapowań transakcji.
-- **Bezpieczeństwo danych i kompatybilność:** preflight przerywa migrację przed zmianą schematu przy braku lub rozbieżności mapowania. Migracja wstecz odtwarza shadow rows i FK z zachowaniem PK; nowe encje otrzymują mapowane legacy ID. Stare URL-e nadal rozwiązują istniejące ID przez `LegacyEntityReference`; nowe jednostki mają kanoniczne URL-e encji. Agent nie uruchamiał migracji; późniejszy read-only odczyt po `start_dev.py --full` potwierdził `bookkeeping.0040` w lokalnym `db/db.sqlite3`; produkcja nie była sprawdzana.
+- **Bezpieczeństwo danych i kompatybilność:** preflight wymaga dokładnie jednego mapowania każdej jednostki legacy do finansowej encji oraz zgodności `Transaction.entity` z jednostką wynikającą ze starego FK `asset`; brak lub konflikt zatrzymuje migrację przed zmianą schematu, bez automatycznego rozstrzygania ani nadpisywania danych. Kwoty i istniejące transakcje pozostają niezmienione. Migracja wstecz odtwarza shadow rows i FK z zachowaniem PK; nowe encje otrzymują mapowane legacy ID. Stare URL-e nadal rozwiązują istniejące ID przez `LegacyEntityReference`; nowe jednostki mają kanoniczne URL-e encji. Agent nie uruchamiał migracji; późniejszy read-only odczyt po `start_dev.py --full` potwierdził `bookkeeping.0040` w lokalnym `db/db.sqlite3`; produkcja nie była sprawdzana.
 - **Pozostałe reguły finansowe:** transakcja nadal chroni używaną jednostkę przez `PROTECT`; zapis odrzuca encję niefinansową; kod, waluta, precyzja i pojedyncza jednostka domyślna pozostają w `resources.Entity`.
 - **Weryfikacja:** 32 testy migracji `bookkeeping/resources`, 100 testów modeli/usług/widoków bookkeeping i 163 testy cross-cutting przeszły. `makemigrations --check`, Django check, Ruff check/format, kompilacja tłumaczeń, build CSS, regression scan i UI guard przeszły.
 
