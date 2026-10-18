@@ -3,7 +3,7 @@
 
 {% block prefs_tab %}categories{% endblock %}
 {% block bookkeeping %}
-  {% include 'home/includes/toolbar.html' with cta_url='' views=toolbar_views search_include='bookkeeping/_list_search.html' %}
+  {% include 'home/includes/toolbar.html' with cta_url=cta_url cta_button=cta_button cta_modal_id=cta_modal_id cta_label=cta_label cta_icon=cta_icon cta_end=True views=toolbar_views search_include='bookkeeping/_list_search.html' %}
 
   <div class="tw-proposals-list" data-view-container>
     {% if object_list %}
@@ -14,4 +14,5 @@
       {% include 'home/includes/empty_state.html' with compact=True icon='fa-tag' title=_('No categories yet.') %}
     {% endif %}
   </div>
+  {% include 'bookkeeping/_category_manager.html' %}
 {% endblock %}

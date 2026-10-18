@@ -370,6 +370,16 @@ class LegacyResourceEntityCutoverMigrationTest(TransactionTestCase):
         executor = MigrationExecutor(connection)
         self.apps = executor.loader.project_state(list(executor.loader.applied_migrations)).apps
 
+    def test_physical_asset_retirement_deletes_entities_and_legacy_references(self):
+        self.migrate([('resources', '0008_retire_physical_assets')])
+
+        Entity = self.apps.get_model('resources', 'Entity')
+        LegacyEntityReference = self.apps.get_model('resources', 'LegacyEntityReference')
+
+        self.assertFalse(Entity.objects.filter(entity_type='physical_asset').exists())
+        self.assertFalse(LegacyEntityReference.objects.filter(source_model='bookkeeping.PhysicalAsset').exists())
+        self.assertTrue(Entity.objects.filter(pk=self.mapped_listing_entity_id, entity_type='resource').exists())
+
     def test_forward_cutover_copies_missing_sources_and_preserves_community_profile_snapshot(self):
         Entity = self.apps.get_model('resources', 'Entity')
         LegacyEntityReference = self.apps.get_model('resources', 'LegacyEntityReference')

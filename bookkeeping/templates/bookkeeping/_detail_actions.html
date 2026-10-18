@@ -4,10 +4,10 @@
     <a href="{{ asset.delete_url }}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></a>
     <a href="{{ asset.update_url }}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
   {% elif category %}
-    <a href="{% url 'bookkeeping:category_delete' category.pk %}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></a>
-    <a href="{% url 'bookkeeping:category_update' category.pk %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
-  {% elif physical_asset %}
-    <a href="{{ physical_asset.update_url }}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
+    {% if not category.is_protected %}
+      <a href="{% url 'bookkeeping:category_delete' category.pk %}" class="tw-detail-nav-btn tw-text-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></a>
+      <a href="{% url 'bookkeeping:category_update' category.pk %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
+    {% endif %}
   {% elif partner %}
     <a href="{% url 'bookkeeping:partner_update' partner.pk %}" class="tw-detail-nav-btn" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
   {% elif transaction and not transaction.author and request.user.is_active %}

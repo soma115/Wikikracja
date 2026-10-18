@@ -36,7 +36,7 @@ window.initCategoryFilter = function(options) {
     var LABEL_ALL = labelEl.textContent;
 
     var pageScope = document.documentElement.dataset.prefsScope || '';
-    var reloadOnChange = options.reloadOnChange || pageScope === 'tasks';
+    var reloadOnChange = options.reloadOnChange || pageScope === 'tasks' || pageScope === 'bookkeeping';
     var onNavigate = options.onNavigate;
 
     function selected() {
@@ -211,7 +211,7 @@ window.initCategoryFilter = function(options) {
         });
     }
 
-    // Reopen the panel after a category-driven reload (tasks) so multi-select is easier.
+    // Reopen the panel after a category-driven reload so multi-select is easier.
     if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('catFilterOpen') === '1') {
         panel.hidden = false;
         btn.setAttribute('aria-expanded', 'true');

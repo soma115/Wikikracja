@@ -3,26 +3,21 @@ const { clusterMarkers } = require('../community-map');
 describe('community map marker grouping', () => {
   const project = ([latitude, longitude]) => [longitude * 1000, latitude * 1000];
 
-  test('groups nearby people and partners while keeping physical assets separate', () => {
+  test('groups nearby people and partners into mixed markers', () => {
     const markers = [
       { type: 'citizen', latitude: 52, longitude: 21, items: [{ name: 'A' }] },
       { type: 'citizen', latitude: 52, longitude: 21.01, items: [{ name: 'B' }] },
       { type: 'partner', latitude: 52, longitude: 21.01, items: [{ name: 'C' }] },
-      { type: 'physical_asset', latitude: 52, longitude: 21.01, items: [{ name: 'D' }] },
-      { type: 'physical_asset', latitude: 52, longitude: 21.02, items: [{ name: 'E' }] },
     ];
 
     const clusters = clusterMarkers(markers, project, 20);
 
     expect(clusters.filter((cluster) => cluster.type === 'mixed')).toHaveLength(1);
     expect(clusters.find((cluster) => cluster.type === 'mixed').markers).toHaveLength(3);
-    expect(clusters.filter((cluster) => cluster.type === 'physical_asset')).toHaveLength(2);
     expect(markers.map(({ latitude, longitude }) => [latitude, longitude])).toEqual([
       [52, 21],
       [52, 21.01],
       [52, 21.01],
-      [52, 21.01],
-      [52, 21.02],
     ]);
   });
 

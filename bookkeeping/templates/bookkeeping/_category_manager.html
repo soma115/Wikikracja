@@ -1,0 +1,9 @@
+{% load i18n %}
+
+{% include 'categories/_category_modal.html' %}
+
+{% url 'bookkeeping:category_api' as category_api_url %}
+{% url 'bookkeeping:category_api_reorder' as category_reorder_url %}
+{% trans "transactions" as category_items_suffix %}
+{% trans "This category is used by {n} transaction(s). Reassign them before deleting." as category_delete_confirmation %}
+{% include 'categories/_category_manager_init.html' with list_url=category_api_url reorder_url=category_reorder_url with_items=True items_suffix=category_items_suffix confirm_del=category_delete_confirmation %}

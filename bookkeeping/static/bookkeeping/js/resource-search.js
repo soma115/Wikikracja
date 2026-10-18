@@ -1,4 +1,9 @@
 window.wkOnReady(function() {
+	const resourceModal = document.getElementById('resource-form');
+	if (resourceModal?.dataset.openOnLoad === 'true' && window.TwModal) {
+		window.TwModal.show(resourceModal);
+	}
+
 	const resourceSection = document.querySelector('[data-resource-section]');
 	if (!resourceSection) return;
 

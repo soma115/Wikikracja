@@ -12,7 +12,14 @@
         </div>
         <div class="tw-detail-section-text">{{ category.name }}</div>
       </div>
+      {% if category.description %}
+      <div class="tw-detail-subsection tw-mt-3">
+        <div class="tw-detail-section-label">
+          <i class="fas fa-file-lines fa-fw"></i> {% trans 'Description' %}
+        </div>
+        <div class="tw-detail-section-text">{{ category.description|linebreaksbr }}</div>
+      </div>
+      {% endif %}
     </div>
   </div>
-</div>
 {% endblock %}

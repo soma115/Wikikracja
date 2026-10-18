@@ -215,6 +215,8 @@ Prefer these existing components before writing new markup:
 
 Repeated empty states, card structures, counters, toolbars and modals should be extended centrally instead of copied into each application.
 
+For an add CTA that opens a contextual modal, pass `cta_modal_id` to the shared toolbar. It retains the round CTA treatment while binding the standard `data-tw-toggle="modal"` / `data-tw-target` contract.
+
 ### 3.6 Full-page form actions
 
 Full-page create/edit forms place Cancel/View first and Save second in the upper-right action row, before the fields. Use `tw-form-actions tw-form-actions--top` inside the form and apply `tw-form-action-btn` to each action. The shared action buttons are compact 30px square icon controls, matching detail-header actions; provide localized `title` and `aria-label` values even when the visible text is visually hidden. Modal and inline edit actions keep their contextual footer placement.

@@ -2,7 +2,7 @@
 {% load bookkeeping_extras %}
 {% load feed_filters %}
 
-<div class="tw-content-card" data-status="{{ transaction.type }}">
+<div class="tw-content-card" data-status="{{ transaction.type }}" data-category="{{ transaction.category_id|default:'' }}">
   <div class="tw-content-card-header"
        data-detail-url="{{ transaction.detail_url }}"
        role="link"

@@ -7,7 +7,6 @@ from django.db import IntegrityError, connection, transaction
 from django.db.migrations.executor import MigrationExecutor
 from django.test import TestCase, TransactionTestCase
 
-from obywatele.models import Country
 from resources.models import Entity, LegacyEntityReference
 from resources.services import match_active_offers_for_needs
 
@@ -81,16 +80,16 @@ class EntityModelTests(TestCase):
         with self.assertRaises(IntegrityError), transaction.atomic():
             Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, name='Second unit', code='TOK', symbol='T2')
 
+    def test_retired_physical_asset_type_is_rejected(self):
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Entity.objects.create(entity_type='physical_asset', name='Retired physical type')
+
     def test_legacy_identity_is_unique_per_source_model(self):
-        physical_entity = Entity.objects.create(
-            entity_type=Entity.Type.PHYSICAL_ASSET, name='Legacy physical item', country=Country.objects.get_or_create(code='ZZ', defaults={'name': 'Test country'})[0], city='Test City'
-        )
         resource_entity = Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Legacy resource item', is_community_owned=True)
-        LegacyEntityReference.objects.create(entity=physical_entity, source_model='bookkeeping.PhysicalAsset', source_pk=1)
         LegacyEntityReference.objects.create(entity=resource_entity, source_model='bookkeeping.ResourceListing', source_pk=1)
 
         with self.assertRaises(IntegrityError), transaction.atomic():
-            LegacyEntityReference.objects.create(entity=physical_entity, source_model='bookkeeping.PhysicalAsset', source_pk=1)
+            LegacyEntityReference.objects.create(entity=resource_entity, source_model='bookkeeping.ResourceListing', source_pk=1)
 
     def test_resource_names_are_unique_per_member_and_kind(self):
         first_user = get_user_model().objects.create_user(username='resource-owner-first')
@@ -109,15 +108,6 @@ class EntityModelTests(TestCase):
         with self.assertRaises(IntegrityError), transaction.atomic():
             Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='shared tool', is_community_owned=True)
 
-    def test_physical_asset_requires_a_country_and_city(self):
-        entity = Entity(entity_type=Entity.Type.PHYSICAL_ASSET, name='Community hall')
-
-        with self.assertRaises(ValidationError) as error:
-            entity.full_clean()
-
-        self.assertIn('country', error.exception.message_dict)
-        self.assertIn('city', error.exception.message_dict)
-
     def test_user_entity_requires_author_and_assignment(self):
         entity = Entity(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Community drill')
 
@@ -127,27 +117,9 @@ class EntityModelTests(TestCase):
         self.assertIn('author', error.exception.message_dict)
         self.assertIn('assignment_scope', error.exception.message_dict)
 
-    def test_legacy_physical_entity_without_author_or_assignment_can_be_updated(self):
-        country, _ = Country.objects.get_or_create(code='ZZ', defaults={'name': 'Test country'})
-        entity = Entity.objects.create(entity_type=Entity.Type.PHYSICAL_ASSET, name='Legacy hall', country=country, city='Test City')
-
-        entity.name = 'Updated legacy hall'
-        entity.full_clean()
-
-        self.assertIsNone(entity.author_id)
-        self.assertEqual(entity.assignment_scope, Entity.AssignmentScope.UNASSIGNED)
-
-    def test_physical_asset_requires_location_in_the_database(self):
-        country, _ = Country.objects.get_or_create(code='ZZ', defaults={'name': 'Test country'})
-
-        with self.assertRaises(IntegrityError), transaction.atomic():
-            Entity.objects.create(entity_type=Entity.Type.PHYSICAL_ASSET, name='Location missing', country=country)
-
     def test_non_resource_entity_cannot_be_closed(self):
         with self.assertRaises(IntegrityError), transaction.atomic():
-            Entity.objects.create(
-                entity_type=Entity.Type.PHYSICAL_ASSET, name='Closed building', country=Country.objects.get_or_create(code='ZZ', defaults={'name': 'Test country'})[0], city='Test City', is_closed=True
-            )
+            Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, name='Closed unit', code='CLOSE', symbol='C', is_closed=True)
 
 
 class ResourceMatchingServiceTests(TestCase):

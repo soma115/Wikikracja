@@ -1,5 +1,15 @@
 # LOG_AI
 
+## 2026-10-18: Konsolidacja dokumentacji zasobów
+
+- **Zmiana:** po zakończeniu cutoverów usunięto główny plik roboczy planu zasobów. Trwałe reguły modelu i prywatności są w `SECURITY_EXCEPTIONS.md`, wymagania dostawców mapy w `DEPLOYMENT_INSTRUCTIONS.md`, procedury kopii/odtworzenia w tym samym przewodniku, a szczegóły preflightu/rollbacku pozostają w dokumentach cutoverów.
+- **Zakres:** zakończone etapy zachowuje ten log; wycofane przez użytkownika propozycje nie są już listą otwartych zadań. Nie zmieniano kodu ani schematu.
+
+## 2026-10-18: Zamknięcie planu mapy społeczności
+
+- **Zmiana:** uznano plan mapy za wykonany i usunięto `docs/ongoing/PLAN_MAPA.md`. Zasady zakresu danych, widoczności i prywatności mapy są w `SECURITY_EXCEPTIONS.md`; konfiguracja oraz ograniczenia dostawców są w `DEPLOYMENT_INSTRUCTIONS.md`.
+- **Zakres:** potwierdzono przyjęte założenia dostawców dla bieżącego MVP; przed zwiększeniem ruchu należy ponownie sprawdzić aktualne warunki usług i przewidywane użycie. Nie zmieniano kodu ani schematu.
+
 ## 2026-10-18: Ograniczenie zakresu planu zasobów
 
 - **Zmiana zakresu:** usunięto z `PLAN_ZASOBY_UŻYTKOWNIKÓW.md` wskazane przez użytkownika, odłożone pola i funkcje. Nie zmieniano schematu ani logiki aplikacji w tym kroku.

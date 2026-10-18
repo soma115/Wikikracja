@@ -7,7 +7,13 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=50, unique=True, verbose_name=_("Name"))
+    name = models.CharField(max_length=100, unique=True, verbose_name=_("Name"))
+    description = models.TextField(blank=True, default="", verbose_name=_("Description"))
+    is_protected = models.BooleanField(default=False, verbose_name=_("Protected"))
+    order = models.PositiveIntegerField(default=0, verbose_name=_("Order"))
+
+    class Meta:
+        ordering = ("order", "name", "pk")
 
     def __str__(self):
         return self.name

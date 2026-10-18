@@ -31,5 +31,5 @@ Migracja nie może usuwać danych, jeśli brakuje mapowania shadow `Asset` → f
 
 - [x] Uruchomić testy modeli, usług, widoków, feedu, powiadomień i migracji przez `.venv` na bazie testowej w pamięci.
 - [x] Uruchomić Ruff, Django check i kontrolę migracji.
-- [x] Zaktualizować `PLAN_ZASOBY_UŻYTKOWNIKÓW.md` i `LOG_AI.md`.
+- [x] Utrwalić reguły modelu, prywatności i kompatybilności w `SECURITY_EXCEPTIONS.md` oraz historię wdrożenia w `LOG_AI.md`.
 - [x] Agent nie uruchamiał migracji. Operator później wykonał `start_dev.py --full`; odczyt `db/db.sqlite3` potwierdza `bookkeeping.0040` i `0041` oraz brak tabel legacy. Stan produkcji pozostaje niezweryfikowany.

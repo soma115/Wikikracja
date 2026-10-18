@@ -14,7 +14,7 @@ def search_entities(user, *, entity_type='', query='', resource_kind='', city=''
     resource_visibility = Q(entity_type=Entity.Type.RESOURCE, is_closed=False) & (Q(is_community_owned=True) | Q(assigned_member__uid__is_active=True))
     if profile and user.is_active:
         resource_visibility |= Q(entity_type=Entity.Type.RESOURCE, is_closed=True) & (Q(author=user) | Q(assigned_member=profile) | Q(is_community_owned=True))
-    queryset = queryset.filter(Q(entity_type__in=(Entity.Type.FINANCIAL_ASSET, Entity.Type.PHYSICAL_ASSET)) | resource_visibility)
+    queryset = queryset.filter(Q(entity_type=Entity.Type.FINANCIAL_ASSET) | resource_visibility)
 
     valid_entity_types = {value for value, _ in Entity.Type.choices}
     if entity_type in valid_entity_types:

@@ -1,0 +1,21 @@
+{% load i18n %}
+{% if listing.can_manage %}
+<div class="tw-flex tw-shrink-0 tw-items-center tw-gap-1">
+  <a href="{{ listing.edit_url }}#resource-form" class="tw-btn tw-btn-sm tw-btn-secondary" title="{% trans 'Edit' %}" aria-label="{% trans 'Edit' %}">
+    <i class="fas fa-pen fa-fw" aria-hidden="true"></i>
+  </a>
+  <form method="post" action="{{ listing.toggle_closed_url }}">
+    {% csrf_token %}
+    <input type="hidden" name="closed" value="{% if listing.is_closed %}0{% else %}1{% endif %}">
+    <button type="submit" class="tw-btn tw-btn-sm tw-btn-secondary" title="{% if listing.is_closed %}{% trans 'Restore' %}{% else %}{% trans 'Archive listing' %}{% endif %}" aria-label="{% if listing.is_closed %}{% trans 'Restore' %}{% else %}{% trans 'Archive listing' %}{% endif %}">
+      {% if listing.is_closed %}<i class="fas fa-rotate-left fa-fw" aria-hidden="true"></i>{% else %}<i class="fas fa-archive fa-fw" aria-hidden="true"></i>{% endif %}
+    </button>
+  </form>
+  <form method="post" action="{{ listing.delete_url }}">
+    {% csrf_token %}
+    <button type="submit" class="tw-btn tw-btn-sm tw-btn-outline-danger" title="{% trans 'Delete' %}" aria-label="{% trans 'Delete' %}">
+      <i class="fas fa-trash fa-fw" aria-hidden="true"></i>
+    </button>
+  </form>
+</div>
+{% endif %}

@@ -24,15 +24,7 @@ def bookkeeping_active_tab(context):
     url_name = request.resolver_match.url_name or ''
     if url_name == 'index':
         return 'transactions'
-    for prefix, tab in (
-        ('transaction', 'transactions'),
-        ('partner', 'partners'),
-        ('category', 'categories'),
-        ('physical_asset', 'physical_assets'),
-        ('asset', 'assets'),
-        ('resource', 'resources'),
-        ('report', 'reports'),
-    ):
+    for prefix, tab in (('transaction', 'transactions'), ('partner', 'partners'), ('category', 'categories'), ('asset', 'assets'), ('resource', 'resources'), ('report', 'reports')):
         if url_name.startswith(prefix):
             return tab
     return ''
@@ -69,15 +61,7 @@ def bookkeeping_stepper(context):
         active = 'transaction_list'
 
     tab = ''
-    for prefix, name in (
-        ('transaction', 'transactions'),
-        ('partner', 'partners'),
-        ('category', 'categories'),
-        ('physical_asset', 'physical_assets'),
-        ('asset', 'assets'),
-        ('resource', 'resources'),
-        ('report', 'reports'),
-    ):
+    for prefix, name in (('transaction', 'transactions'), ('partner', 'partners'), ('category', 'categories'), ('asset', 'assets'), ('resource', 'resources'), ('report', 'reports')):
         if active.startswith(prefix):
             tab = name
             break
@@ -86,8 +70,7 @@ def bookkeeping_stepper(context):
         {'url': reverse('bookkeeping:transaction_list'), 'icon': 'money-bill-transfer', 'label': _('Transactions'), 'active': tab == 'transactions'},
         {'url': reverse('bookkeeping:partner_list'), 'icon': 'handshake', 'label': _('Partners'), 'active': tab == 'partners'},
         {'url': reverse('bookkeeping:category_list'), 'icon': 'tags', 'label': _('Categories'), 'active': tab == 'categories'},
-        {'url': reverse('bookkeeping:asset_list'), 'icon': 'coins', 'label': _('Assets'), 'active': tab == 'assets'},
-        {'url': reverse('bookkeeping:physical_asset_list'), 'icon': 'map-marker-alt', 'label': _('Physical assets'), 'active': tab == 'physical_assets'},
+        {'url': reverse('bookkeeping:asset_list'), 'icon': 'coins', 'label': _('Currencies'), 'active': tab == 'assets'},
         {
             'url': reverse('bookkeeping:resource_list'),
             'icon': 'boxes-stacked',
@@ -103,7 +86,6 @@ def bookkeeping_stepper(context):
         'partners': ('bookkeeping:partner_create', _('Add partner')),
         'categories': ('bookkeeping:category_create', _('Add category')),
         'assets': ('bookkeeping:asset_create', _('Add asset')),
-        'physical_assets': ('bookkeeping:physical_asset_create', _('Add physical asset')),
     }
     cta_url = ''
     cta_label = ''

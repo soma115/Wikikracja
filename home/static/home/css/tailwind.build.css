@@ -11400,6 +11400,10 @@ body.tw-chat-page .tw-main-area {
   cursor: default;
 }
 
+.tw-cursor-pointer {
+  cursor: pointer;
+}
+
 .tw-list-none {
   list-style-type: none;
 }
@@ -12007,5 +12011,15 @@ body.tw-chat-page .tw-main-area {
 
   .lg\:tw-grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .xl\:tw-col-span-5 {
+    grid-column: span 5 / span 5;
+  }
+
+  .xl\:tw-grid-cols-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }

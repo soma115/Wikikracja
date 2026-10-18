@@ -3,12 +3,11 @@ import math
 from django.urls import reverse
 
 from bookkeeping.models import Partner
-from resources.models import LEGACY_PHYSICAL_ASSET_SOURCE, Entity, LegacyEntityReference
 from zzz.templatetags.citizen_filters import user_display_name
 
 from .models import Country, Uzytkownik
 
-MAP_TYPES = frozenset({'citizen', 'partner', 'physical_asset'})
+MAP_TYPES = frozenset({'citizen', 'partner'})
 
 
 def normalize_country(value, countries=None):
@@ -57,16 +56,6 @@ def _location(country_code, city, street='', house_number=''):
     return {'country_code': country_code or '', 'city': (city or '').strip(), 'street': (street or '').strip(), 'house_number': (house_number or '').strip()}
 
 
-def _physical_asset_map_record(asset, legacy_pk=None):
-    return {
-        'type': 'physical_asset',
-        'name': asset.name,
-        'address': _address_text(street=asset.street, house_number=asset.house_number, apartment_number=asset.apartment_number, city=asset.city, country=asset.country.name),
-        'url': reverse('bookkeeping:physical_asset_detail' if legacy_pk is not None else 'bookkeeping:physical_asset_entity_detail', kwargs={'pk': legacy_pk if legacy_pk is not None else asset.pk}),
-        'location': _location(asset.country.code, asset.city, asset.street, asset.house_number),
-    }
-
-
 def get_map_location_records():
     """Collect explicit, non-financial map records; never include contact or notes fields."""
     records = []
@@ -109,16 +98,6 @@ def get_map_location_records():
             }
         )
 
-    legacy_references = LegacyEntityReference.objects.filter(source_model=LEGACY_PHYSICAL_ASSET_SOURCE, entity__entity_type=Entity.Type.PHYSICAL_ASSET)
-    legacy_pk_by_entity_id = dict(legacy_references.values_list('entity_id', 'source_pk'))
-    physical_records = []
-    entities = Entity.objects.filter(entity_type=Entity.Type.PHYSICAL_ASSET).select_related('country').only('id', 'name', 'country__code', 'country__name', 'city', 'street', 'house_number', 'apartment_number')
-    for entity in entities:
-        legacy_pk = legacy_pk_by_entity_id.get(entity.pk)
-        physical_records.append((entity.name, legacy_pk if legacy_pk is not None else entity.pk, _physical_asset_map_record(entity, legacy_pk)))
-
-    records.extend(record for _, _, record in sorted(physical_records, key=lambda row: (row[0], row[1])))
-
     return records
 
 
@@ -154,12 +133,9 @@ def build_map_payload(records, coordinate_for_location, *, show_details):
             continue
 
         entry = {key: record[key] for key in ('name', 'address', 'url')}
-        if record['type'] == 'physical_asset':
-            markers[(record['type'], latitude, longitude, record['url'])] = {'type': record['type'], 'latitude': latitude, 'longitude': longitude, 'items': [entry]}
-        else:
-            marker_key = (record['type'], latitude, longitude)
-            marker = markers.setdefault(marker_key, {'type': record['type'], 'latitude': latitude, 'longitude': longitude, 'items': []})
-            marker['items'].append(entry)
+        marker_key = (record['type'], latitude, longitude)
+        marker = markers.setdefault(marker_key, {'type': record['type'], 'latitude': latitude, 'longitude': longitude, 'items': []})
+        marker['items'].append(entry)
 
     if not show_details:
         return {'points': [{'lat': latitude, 'lon': longitude} for latitude, longitude in sorted(guest_points)]}

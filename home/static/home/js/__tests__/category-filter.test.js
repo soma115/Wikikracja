@@ -236,6 +236,29 @@ describe('initCategoryFilter', () => {
         expect(cards[1].classList.contains('tw-d-none')).toBe(true);
     });
 
+    test('bookkeeping scope reloads while preserving date and sort filters', () => {
+        document.documentElement.setAttribute('data-prefs-scope', 'bookkeeping');
+        document.body.innerHTML = `
+            <div class="tw-content-card" data-category="7">Transaction</div>
+        `;
+        const items = document.querySelectorAll('.tw-content-card');
+        document.body.insertAdjacentHTML('beforeend', buildCatFilter(items));
+        const locationSpy = jest.spyOn(window, 'location', 'get');
+        locationSpy.mockReturnValue({
+            search: '?date_from=2026-01-01&sort=date&order=asc',
+            pathname: '/bookkeeping/transaction/',
+            href: 'http://localhost/bookkeeping/transaction/?date_from=2026-01-01&sort=date&order=asc',
+        });
+        const onNavigate = jest.fn();
+        const row = document.querySelector('.tw-cat-filter-item:not(.tw-cat-filter-all)');
+
+        window.initCategoryFilter({ onNavigate });
+        click(row);
+
+        expect(onNavigate).toHaveBeenCalledWith('/bookkeeping/transaction/?date_from=2026-01-01&sort=date&order=asc&category=7');
+        locationSpy.mockRestore();
+    });
+
     test('updates the task list over HTTP while preserving navigation and page preferences', async () => {
         document.documentElement.setAttribute('data-prefs-scope', 'tasks');
         document.body.innerHTML = `

@@ -27,57 +27,6 @@ class AssetForm(forms.ModelForm):
         self.helper.add_input(Submit('submit', _('Save')))
 
 
-class PhysicalAssetForm(forms.ModelForm):
-    country = forms.ModelChoiceField(queryset=Country.objects.all(), to_field_name='code', label=_('Country'), empty_label=None)
-
-    def __init__(self, *args, can_assign=True, assignment_entity=None, author=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.can_assign = can_assign
-        if author and not self.instance.pk:
-            self.instance.author = author
-
-        if not can_assign:
-            self.fields.pop('assignment_scope', None)
-            self.fields.pop('assigned_member', None)
-            return
-
-        self.fields['assignment_scope'] = forms.ChoiceField(
-            choices=(('', _('Select assignment')), (Entity.AssignmentScope.MEMBER, Entity.AssignmentScope.MEMBER.label), (Entity.AssignmentScope.COMMUNITY, Entity.AssignmentScope.COMMUNITY.label)),
-            label=_('Current assignment'),
-        )
-        member_queryset = Uzytkownik.objects.filter(uid__is_active=True).select_related('uid')
-        self.fields['assigned_member'] = ActiveMemberChoiceField(
-            queryset=member_queryset.order_by('uid__first_name', 'uid__last_name', 'uid__username'), required=False, label=_('Assigned member'), empty_label=_('Select a member')
-        )
-
-        if assignment_entity:
-            self.initial['assignment_scope'] = assignment_entity.assignment_scope
-            self.initial['assigned_member'] = assignment_entity.assigned_member_id
-
-    class Meta:
-        model = Entity
-        fields = ('name', 'country', 'city', 'street', 'house_number', 'apartment_number')
-
-    def clean(self):
-        cleaned_data = super().clean()
-        if not self.can_assign:
-            return cleaned_data
-
-        assignment_scope = cleaned_data.get('assignment_scope')
-        assigned_member = cleaned_data.get('assigned_member')
-        if assignment_scope == Entity.AssignmentScope.MEMBER and not assigned_member:
-            self.add_error('assigned_member', _('Select a member for this assignment.'))
-        elif assignment_scope == Entity.AssignmentScope.COMMUNITY and assigned_member:
-            self.add_error('assigned_member', _('Community ownership cannot also be assigned to an individual.'))
-        elif assignment_scope == Entity.AssignmentScope.MEMBER:
-            self.instance.is_community_owned = False
-            self.instance.assigned_member = assigned_member
-        elif assignment_scope == Entity.AssignmentScope.COMMUNITY:
-            self.instance.is_community_owned = True
-            self.instance.assigned_member = None
-        return cleaned_data
-
-
 class ActiveMemberChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, profile):
         return profile.uid.get_full_name() or profile.uid.get_username()
@@ -87,6 +36,11 @@ class ResourceEntityForm(forms.Form):
     kind = forms.ChoiceField(choices=(('', _('Select type')), *Entity.ResourceKind.choices), label=_('Type'))
     name = forms.CharField(max_length=200, label=_('Name'))
     description = forms.CharField(max_length=1866, required=False, label=_('Description'), widget=forms.Textarea(attrs={'rows': 3}))
+    country = forms.ModelChoiceField(queryset=Country.objects.all(), required=False, label=_('Country'))
+    city = forms.CharField(max_length=100, required=False, label=_('City'))
+    street = forms.CharField(max_length=150, required=False, label=_('Street'))
+    house_number = forms.CharField(max_length=32, required=False, label=_('House number'))
+    apartment_number = forms.CharField(max_length=32, required=False, label=_('Apartment number'))
 
     def __init__(self, *args, profile=None, entity=None, can_assign=True, **kwargs):
         self.profile = profile
@@ -97,7 +51,7 @@ class ResourceEntityForm(forms.Form):
         if can_assign:
             self.fields['assignment_scope'] = forms.ChoiceField(
                 choices=(('', _('Select assignment')), (Entity.AssignmentScope.MEMBER, Entity.AssignmentScope.MEMBER.label), (Entity.AssignmentScope.COMMUNITY, Entity.AssignmentScope.COMMUNITY.label)),
-                label=_('Current assignment'),
+                label=_('Owner'),
             )
             member_queryset = Uzytkownik.objects.filter(uid__is_active=True).select_related('uid')
             self.fields['assigned_member'] = ActiveMemberChoiceField(
@@ -108,12 +62,19 @@ class ResourceEntityForm(forms.Form):
             self.initial.setdefault('kind', entity.resource_kind)
             self.initial.setdefault('name', entity.name)
             self.initial.setdefault('description', entity.description)
+            self.initial.setdefault('country', entity.country_id)
+            self.initial.setdefault('city', entity.city)
+            self.initial.setdefault('street', entity.street)
+            self.initial.setdefault('house_number', entity.house_number)
+            self.initial.setdefault('apartment_number', entity.apartment_number)
             if can_assign:
                 self.initial.setdefault('assignment_scope', entity.assignment_scope)
                 self.initial.setdefault('assigned_member', entity.assigned_member_id)
         elif profile and can_assign:
             self.initial.setdefault('assignment_scope', Entity.AssignmentScope.MEMBER)
             self.initial.setdefault('assigned_member', profile.pk)
+
+        self.show_address = any(self.data.get(field) if self.is_bound else self.initial.get(field) for field in ('country', 'city', 'street', 'house_number', 'apartment_number'))
 
     def clean_name(self):
         value = ' '.join((self.cleaned_data.get('name') or '').split())

@@ -107,6 +107,7 @@
       <ul class="rules">
         <li>Toolbar ma opcjonalne grupy filtrów/sortowania, wyszukiwarki oraz przełącznika widoku. Każda grupa jest renderowana tylko wtedy, gdy moduł przekazuje dane.</li>
         <li>W module bez steppera główne CTA może znajdować się w osobnym wierszu nad toolbar’em. W module ze stepperem CTA należy do steppera i nie jest powielane w toolbarze.</li>
+        <li>CTA toolbara, które otwiera modal dla formularza dodawania, przekazuje <code>cta_modal_id</code>; toolbar renderuje wtedy okrągły przycisk CTA z <code>data-tw-toggle="modal"</code> i <code>data-tw-target</code>.</li>
         <li>Przełączniki widoku są w osobnym <code>.tw-toolbar-view</code>, z ikonami <code>fa-list</code> / <code>fa-grip</code> i etykietami <code>List</code> / <code>Grid</code>.</li>
         <li>Etykiety przełączników widoku nie znikają tylko dlatego, że ekran jest mały; gdy grupa przechodzi do własnego wiersza i ma miejsce, przyciski zachowują pełny rozmiar z napisami.</li>
         <li>Dane widoku: <code>{'name': 'list'|'grid', 'icon': 'list'|'grip', 'title': _('List')|_('Grid')}</code>.</li>

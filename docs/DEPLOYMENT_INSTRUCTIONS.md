@@ -489,6 +489,12 @@ links and notification names in the affected instance.
 
 Technical and deployment configuration is supplied through environment variables; `.env.example` lists the repository-supported options. User-governed site parameters are stored separately in the `SiteParameters` database singleton and are changed through referenda.
 
+### Map tile and geocoding providers
+
+With `DEBUG=True`, the map uses Stadia Alidade Smooth for local development. With `DEBUG=False`, it defaults to OpenStreetMap tiles; `MAP_TILES_URL` and `MAP_TILES_ATTRIBUTION` can select and attribute another provider. Use HTTPS, show the provider's required attribution, honor tile-cache headers, and do not prefetch tiles or bypass caching. If a provider does not supply suitable cache headers, use a compliant cache/proxy. Review the [OSM tile policy](https://operations.osmfoundation.org/policies/tiles/) and the selected provider's current terms and projected traffic before scaling; switch providers if the expected usage exceeds their limits.
+
+Nominatim geocoding is disabled by default through `MAP_GEOCODING_ENABLED`. When enabled, follow the [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/), use a recognizable `User-Agent`, limit requests to at most one per second, and cache results so the same location is not geocoded repeatedly. Reassess the number of unique locations and expected request volume before enabling or increasing use.
+
 ### Essential Settings in `.env`
 
 The following values illustrate configuration; do not use placeholders as production

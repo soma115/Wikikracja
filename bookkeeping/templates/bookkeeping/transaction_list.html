@@ -1,11 +1,12 @@
 {% extends 'bookkeeping/menu.html' %}
 {% load i18n %}
+{% load static %}
 
 {% block prefs_scope %}bookkeeping{% endblock %}
 {% block prefs_tab %}transactions{% endblock %}
 {% block bookkeeping %}
 
-  {% include 'home/includes/toolbar.html' with cta_url='' views=toolbar_views search_include='bookkeeping/_transaction_search.html' %}
+  {% include 'home/includes/toolbar.html' with sort_items=toolbar_sort_items show_category_filter=True categories=category_list key_attr='pk' views=toolbar_views search_include='bookkeeping/_transaction_search.html' %}
 
   <div class="tw-proposals-list" data-view-container>
     {% if transactions %}
@@ -16,4 +17,9 @@
       {% include 'home/includes/empty_state.html' with compact=True icon='fa-money-bill-transfer' title=_('No transactions yet.') %}
     {% endif %}
   </div>
+  {% include 'bookkeeping/_category_manager.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'home/js/category-filter.js' %}"></script>
 {% endblock %}

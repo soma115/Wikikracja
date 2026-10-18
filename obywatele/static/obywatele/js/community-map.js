@@ -6,7 +6,6 @@
   const ICONS = {
     citizen: 'fa-user',
     partner: 'fa-handshake',
-    physical_asset: 'fa-map-marker-alt',
     mixed: 'fa-layer-group',
   };
   const INITIAL_CENTER = [52.1, 19.4];
@@ -20,8 +19,7 @@
     const clusters = [];
     for (const marker of markers) {
       const projected = projectPoint(project([marker.latitude, marker.longitude]));
-      const cluster = marker.type === 'physical_asset' ? null : clusters.find((candidate) => {
-        if (candidate.type === 'physical_asset') return false;
+      const cluster = clusters.find((candidate) => {
         const point = projectPoint(candidate.projected);
         return Math.hypot(point[0] - projected[0], point[1] - projected[1]) <= radius;
       });
@@ -45,7 +43,7 @@
     const marker = document.createElement('span');
     marker.className = 'tw-w-8 tw-h-8 tw-rounded-full tw-bg-accent tw-text-white tw-flex tw-items-center tw-justify-center tw-border-2 tw-border-white tw-shadow-lg';
     const icon = document.createElement('i');
-    icon.className = `fas ${ICONS[type] || ICONS.physical_asset} fa-fw`;
+    icon.className = `fas ${ICONS[type] || 'fa-map-marker-alt'} fa-fw`;
     icon.setAttribute('aria-hidden', 'true');
     marker.appendChild(icon);
     return leaflet.divIcon({

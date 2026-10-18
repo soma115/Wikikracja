@@ -28,5 +28,5 @@ Przy istniejących mapowaniach `Entity` pozostaje źródłem prawdy o czasie ost
 
 - [x] Testować transfer i rollback, niezgodne/osierocone mapowania, niepoprawną lokalizację, stare URL-e, payload mapy i kaskadę usunięcia profilu.
 - [x] Uruchomić dotknięte testy przez `.venv` na bazie tymczasowej, Django check, kontrolę migracji i Ruff.
-- [x] Zaktualizować `PLAN_ZASOBY_UŻYTKOWNIKÓW.md`, `PLAN_MAPA.md`, `SECURITY_EXCEPTIONS.md` i `LOG_AI.md`.
+- [x] Utrwalić reguły modelu, prywatności i mapy w `SECURITY_EXCEPTIONS.md`, wymagania dostawców mapy w `DEPLOYMENT_INSTRUCTIONS.md`, a historię cutoveru w `LOG_AI.md`.
 - [x] Agent nie uruchamiał migracji. Operator później wykonał `start_dev.py --full`; read-only sprawdzenie `db/db.sqlite3` potwierdziło `bookkeeping.0040`/`0041`, `resources.0007` oraz brak tabel legacy. Produkcja nie była sprawdzana.

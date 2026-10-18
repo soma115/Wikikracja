@@ -40,9 +40,9 @@
       {% if cta_label %}<span class="tw-btn-cta-label">{{ cta_label }}</span>{% endif %}
     </a>
     {% elif cta_button and not cta_end %}
-    <button type="button" class="tw-sort-btn {{ cta_button_class|default:'' }}" id="{{ cta_button }}"{% if cta_label %} title="{{ cta_label }}" aria-label="{{ cta_label }}"{% endif %}>
+    <button type="button" class="{% if cta_modal_id %}tw-btn-cta tw-btn-cta--round{% else %}tw-sort-btn {{ cta_button_class|default:'' }}{% endif %}" id="{{ cta_button }}"{% if cta_modal_id %} data-tw-toggle="modal" data-tw-target="#{{ cta_modal_id }}"{% endif %}{% if cta_label %} title="{{ cta_label }}" aria-label="{{ cta_label }}"{% endif %}>
       <i class="fas fa-{{ cta_icon|default:'plus' }}"></i>
-      <span class="tw-sort-btn-label">{{ cta_label }}</span>
+      {% if cta_modal_id %}<span class="tw-btn-cta-label">{{ cta_label }}</span>{% else %}<span class="tw-sort-btn-label">{{ cta_label }}</span>{% endif %}
     </button>
     {% endif %}
 
@@ -70,9 +70,9 @@
       {% if cta_label %}<span class="tw-btn-cta-label">{{ cta_label }}</span>{% endif %}
     </a>
     {% elif cta_button and cta_end %}
-    <button type="button" class="tw-sort-btn{% if not views %} tw-ms-auto{% endif %} {{ cta_button_class|default:'' }}"{% if cta_label %} title="{{ cta_label }}" aria-label="{{ cta_label }}"{% endif %}>
+    <button type="button" class="{% if cta_modal_id %}tw-btn-cta tw-btn-cta--round{% else %}tw-sort-btn{% if not views %} tw-ms-auto{% endif %} {{ cta_button_class|default:'' }}{% endif %}" id="{{ cta_button }}"{% if cta_modal_id %} data-tw-toggle="modal" data-tw-target="#{{ cta_modal_id }}"{% endif %}{% if cta_label %} title="{{ cta_label }}" aria-label="{{ cta_label }}"{% endif %}>
       <i class="fas fa-{{ cta_icon|default:'plus' }}"></i>
-      <span class="tw-sort-btn-label">{{ cta_label }}</span>
+      {% if cta_modal_id %}<span class="tw-btn-cta-label">{{ cta_label }}</span>{% else %}<span class="tw-sort-btn-label">{{ cta_label }}</span>{% endif %}
     </button>
     {% endif %}
   </div>

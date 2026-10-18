@@ -44,7 +44,7 @@ from obywatele.map_geocoding import geocode_location
 from obywatele.models import CitizenActivity, Country, DeletionRequest, PrivateNote, Rate, Region, Uzytkownik
 from obywatele.services import get_citizen_activity, get_citizen_created_items
 from obywatele.views import is_email_confirmed_for_candidate
-from resources.models import LEGACY_PHYSICAL_ASSET_SOURCE, Entity, LegacyEntityReference
+from resources.models import Entity
 from tasks.activity import get_user_tasks
 from tasks.models import Task, TaskEvaluation, TaskVote
 from tests.factories import DecyzjaFactory, RoomFactory
@@ -506,8 +506,6 @@ class CitizenMapDataTests(TestCase):
             email='private@example.com',
             notes='private-notes',
         )
-        physical_asset = Entity.objects.create(entity_type=Entity.Type.PHYSICAL_ASSET, name='Map Hall', country=country, city='Boston', street='Main Street', house_number='14', apartment_number='3')
-        LegacyEntityReference.objects.create(entity=physical_asset, source_model=LEGACY_PHYSICAL_ASSET_SOURCE, source_pk=800001)
         Partner.objects.create(name='Unknown Country Partner', city='Portland', country='United Stetes')
 
         records = get_map_location_records()
@@ -524,8 +522,7 @@ class CitizenMapDataTests(TestCase):
         self.assertEqual(partner_record['url'], reverse('bookkeeping:partner_detail', args=[partner.pk]))
         self.assertIn('Historic address', partner_record['address'])
         self.assertNotIn('apartment_number', partner_record['location'])
-        physical_record = next(record for record in records if record['type'] == 'physical_asset')
-        self.assertEqual(physical_record['url'], reverse('bookkeeping:physical_asset_detail', args=[800001]))
+        self.assertEqual({record['type'] for record in records}, {'citizen', 'partner'})
         for record in records:
             self.assertNotIn('email', record)
             self.assertNotIn('phone', record)
@@ -536,35 +533,20 @@ class CitizenMapDataTests(TestCase):
         self.assertEqual(partner.name, 'Map Partner')
         self.assertFalse(inactive.is_active)
 
-    def test_map_includes_all_physical_entities_with_legacy_or_entity_urls(self):
-        country = Country.objects.get(code='PL')
-        unmapped = Entity.objects.create(entity_type=Entity.Type.PHYSICAL_ASSET, name='Unmapped Hall', country=country, city='Kraków')
+    def test_map_excludes_financial_assets_and_resources(self):
         author = User.objects.create_user(username='entity-map-author')
-        entity = Entity.objects.create(entity_type=Entity.Type.PHYSICAL_ASSET, name='Canonical physical title', country=country, city='Gdańsk', author=author, is_community_owned=True)
-        LegacyEntityReference.objects.create(entity=entity, source_model=LEGACY_PHYSICAL_ASSET_SOURCE, source_pk=800002)
         Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, name='Financial unit not mapped', code='MAP', symbol='M', is_currency=True)
         Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Offer not mapped', author=author, is_community_owned=True)
 
         records = get_map_location_records()
-        physical_records = [record for record in records if record['type'] == 'physical_asset']
-
-        self.assertEqual(len(physical_records), 2)
-        canonical_record = next(record for record in physical_records if record['name'] == 'Canonical physical title')
-        self.assertEqual(canonical_record['url'], reverse('bookkeeping:physical_asset_detail', args=[800002]))
-        self.assertEqual(canonical_record['location']['city'], 'Gdańsk')
-        self.assertNotIn('author', canonical_record)
-        self.assertNotIn('assigned_member', canonical_record)
-        unmapped_record = next(record for record in physical_records if record['name'] == unmapped.name)
-        self.assertEqual(unmapped_record['url'], reverse('bookkeeping:physical_asset_entity_detail', args=[unmapped.pk]))
-        self.assertNotIn('Financial unit not mapped', {record['name'] for record in records})
-        self.assertNotIn('Offer not mapped', {record['name'] for record in records})
+        self.assertEqual(records, [])
 
     def test_map_payload_deduplicates_guest_points_and_groups_member_markers_by_kind(self):
         records = [
             {'type': 'citizen', 'name': 'One', 'address': 'Private address', 'url': '/citizen/1/', 'location': {'country_code': 'PL', 'city': 'Warsaw'}},
             {'type': 'citizen', 'name': 'Two', 'address': 'Another private address', 'url': '/citizen/2/', 'location': {'country_code': 'pl', 'city': ' warsaw '}},
             {'type': 'partner', 'name': 'Partner', 'address': 'Partner address', 'url': '/partner/1/', 'location': {'country_code': 'PL', 'city': 'Warsaw'}},
-            {'type': 'physical_asset', 'name': 'Hall', 'address': 'Hall address', 'url': '/physical/1/', 'location': {'country_code': 'PL', 'city': 'Krakow'}},
+            {'type': 'resource', 'name': 'Offer', 'address': 'Offer address', 'url': '/resource/1/', 'location': {'country_code': 'PL', 'city': 'Krakow'}},
             {'type': 'partner', 'name': 'Unmapped', 'address': 'Unknown country', 'url': '/partner/2/', 'location': {'country_code': '', 'city': 'Nowhere'}},
         ]
         calls = []
@@ -574,8 +556,8 @@ class CitizenMapDataTests(TestCase):
             return {'warsaw': (52.23, 21.01), 'krakow': (50.06, 19.94)}.get(location['city'].strip().casefold())
 
         guest_payload = build_map_payload(records, geocode, show_details=False)
-        self.assertEqual(guest_payload, {'points': [{'lat': 50.06, 'lon': 19.94}, {'lat': 52.23, 'lon': 21.01}]})
-        self.assertEqual(len(calls), 2)
+        self.assertEqual(guest_payload, {'points': [{'lat': 52.23, 'lon': 21.01}]})
+        self.assertEqual(len(calls), 1)
         self.assertEqual(set(guest_payload['points'][0]), {'lat', 'lon'})
         self.assertNotIn('unmapped', guest_payload)
 
@@ -583,13 +565,11 @@ class CitizenMapDataTests(TestCase):
         member_payload = build_map_payload(records, geocode, show_details=True)
         citizens = [marker for marker in member_payload['markers'] if marker['type'] == 'citizen']
         partners = [marker for marker in member_payload['markers'] if marker['type'] == 'partner']
-        physical_assets = [marker for marker in member_payload['markers'] if marker['type'] == 'physical_asset']
         self.assertEqual(len(citizens), 1)
         self.assertEqual(len(citizens[0]['items']), 2)
         self.assertEqual(len(partners), 1)
-        self.assertEqual(len(physical_assets), 1)
         self.assertEqual([item['name'] for item in member_payload['unmapped']], ['Unmapped'])
-        self.assertEqual(len(calls), 2)
+        self.assertEqual(len(calls), 1)
 
 
 class CommunityMapViewTests(TestCase):
@@ -611,13 +591,6 @@ class CommunityMapViewTests(TestCase):
                 'url': '/bookkeeping/partner/1/',
                 'location': {'country_code': 'PL', 'city': 'Warsaw', 'street': 'Main Street', 'house_number': '4'},
             },
-            {
-                'type': 'physical_asset',
-                'name': 'Map Hall',
-                'address': 'Hall Street 8, Warsaw, Poland',
-                'url': '/bookkeeping/physical-asset/1/',
-                'location': {'country_code': 'PL', 'city': 'Warsaw', 'street': 'Hall Street', 'house_number': '8'},
-            },
         ]
 
     def test_guest_page_does_not_render_the_citizen_stepper(self):
@@ -628,7 +601,6 @@ class CommunityMapViewTests(TestCase):
         self.assertNotContains(response, 'tw-stepper-nav')
         self.assertNotContains(response, 'data-map-citizen')
         self.assertNotContains(response, 'data-map-partner')
-        self.assertNotContains(response, 'data-map-physical-asset')
 
     def test_guest_data_response_contains_only_deduplicated_coordinates(self):
         with patch('obywatele.views.get_map_location_records', return_value=self.records), patch('obywatele.views.get_cached_coordinates', return_value=(52.2, 21.0)):
@@ -653,7 +625,7 @@ class CommunityMapViewTests(TestCase):
         self.assertContains(page, 'fa-map-marker-alt')
         self.assertEqual(response.status_code, 200)
         payload = response.json()
-        self.assertEqual({marker['type'] for marker in payload['markers']}, {'citizen', 'partner', 'physical_asset'})
+        self.assertEqual({marker['type'] for marker in payload['markers']}, {'citizen', 'partner'})
         self.assertEqual(payload['unmapped'], [])
         self.assertNotIn('email', response.content.decode())
         self.assertNotIn('phone', response.content.decode())
@@ -671,7 +643,7 @@ class CommunityMapViewTests(TestCase):
             response = self.client.get(self.data_url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json()['unmapped']), 3)
+        self.assertEqual(len(response.json()['unmapped']), 2)
 
 
 class MapGeocodingTests(TestCase):
@@ -1507,10 +1479,10 @@ class MyAssetsViewTest(TestCase):
         self.profile.refresh_from_db()
         self.assertEqual(self.profile.city, 'Stare miasto')
 
-    def test_get_redirects_to_bookkeeping_resource_manager(self):
+    def test_get_redirects_to_bookkeeping_resource_list(self):
         response = self.client.get(self.url)
 
-        self.assertRedirects(response, reverse('bookkeeping:resource_manage'))
+        self.assertRedirects(response, reverse('bookkeeping:resource_list'))
 
     def test_legacy_resource_catalog_redirects_with_search_parameters(self):
         response = self.client.get(reverse('obywatele:assets'), {'q': 'Rower'})
@@ -1585,12 +1557,12 @@ class MyProfileDetailsViewTest(TestCase):
         self.profile.refresh_from_db()
         self.assertEqual(self.profile.city, 'Stare miasto')
 
-    def test_profile_shows_only_a_link_to_resource_management(self):
+    def test_profile_shows_only_a_link_to_resource_list(self):
         Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Only-in-finance', author=self.user, assigned_member=self.profile)
 
         response = self.client.get(self.url)
 
-        self.assertContains(response, reverse('bookkeeping:resource_manage'))
+        self.assertContains(response, f"{reverse('bookkeeping:resource_list')}?add_resource=1#resource-form")
         self.assertNotContains(response, 'Only-in-finance')
 
 

@@ -1,6 +1,7 @@
 {% extends 'bookkeeping/menu.html' %}
 {% load i18n %}
 {% load feed_filters %}
+{% load crispy_forms_tags %}
 {% load static %}
 
 {% block extra_js %}
@@ -13,7 +14,29 @@
 {% block bookkeeping %}
 <div class="tw-section tw-space-y-4">
   <h1 class="tw-section-heading">{% trans "Resources" %}</h1>
-  {% include 'home/includes/toolbar.html' with cta_url=cta_url cta_label=cta_label cta_icon='plus' cta_end=True search_include='bookkeeping/_resource_search.html' %}
+  {% include 'home/includes/toolbar.html' with cta_url=cta_url cta_button=cta_button cta_modal_id=cta_modal_id cta_label=cta_label cta_icon=cta_icon cta_end=True search_include='bookkeeping/_resource_search.html' %}
+
+  {% if matching_needs %}
+  <section class="tw-space-y-3" aria-labelledby="matching-offers-heading">
+    <div>
+      <h2 id="matching-offers-heading" class="tw-section-heading tw-mb-1">{% trans "Offers matching your needs" %}</h2>
+      <p class="tw-mb-0 tw-text-sm tw-text-muted">{% trans "Matches use the resource name. Only active public offers are shown." %}</p>
+    </div>
+    {% for match in matching_needs %}
+    <article class="tw-card">
+      <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
+        <span class="tw-badge-status tw-badge-warning">{% trans "Needs" %}</span>
+        <h3 class="tw-font-semibold tw-mb-0">{{ match.need.name }}</h3>
+      </div>
+      <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
+        {% for listing in match.offers %}
+        {% include 'bookkeeping/_resource_manage_card.html' with listing=listing can_manage=False show_author=False show_owner_link=True %}
+        {% endfor %}
+      </div>
+    </article>
+    {% endfor %}
+  </section>
+  {% endif %}
 
   {% if location_profiles %}
   <section>
@@ -45,9 +68,12 @@
       {% for listing in offer_listings %}
       <article class="tw-card">
         <div class="tw-card-header tw-flex tw-items-start tw-justify-between tw-gap-2">
-          <h3 class="tw-font-semibold tw-mb-0">{{ listing.name }}</h3>
-          <span class="tw-badge-status {% if listing.resource_kind == 'borrow' %}tw-badge-info{% elif listing.resource_kind == 'give' %}tw-badge-success{% elif listing.resource_kind == 'sale' %}tw-badge-danger{% else %}tw-badge-warning{% endif %}">{{ listing.get_resource_kind_display }}</span>
-          {% if listing.is_closed %}<span class="tw-badge-status tw-badge-warning">{% trans "Archive" %}</span>{% endif %}
+          <div class="tw-flex tw-min-w-0 tw-flex-wrap tw-items-center tw-gap-2">
+            <h3 class="tw-font-semibold tw-mb-0">{{ listing.name }}</h3>
+            <span class="tw-badge-status {% if listing.resource_kind == 'borrow' %}tw-badge-info{% elif listing.resource_kind == 'give' %}tw-badge-success{% elif listing.resource_kind == 'sale' %}tw-badge-danger{% else %}tw-badge-warning{% endif %}">{{ listing.get_resource_kind_display }}</span>
+            {% if listing.is_closed %}<span class="tw-badge-status tw-badge-warning">{% trans "Archive" %}</span>{% endif %}
+          </div>
+          {% include 'bookkeeping/_resource_owner_actions.html' with listing=listing %}
         </div>
         <div class="tw-card-body tw-space-y-2">
           {% if listing.description %}<p class="tw-mb-0 tw-whitespace-pre-wrap tw-text-sm">{{ listing.description|urlize|linebreaksbr }}</p>{% endif %}
@@ -76,9 +102,12 @@
       {% for listing in need_listings %}
       <article class="tw-card">
         <div class="tw-card-header tw-flex tw-items-start tw-justify-between tw-gap-2">
-          <h3 class="tw-font-semibold tw-mb-0">{{ listing.name }}</h3>
-          <span class="tw-badge-status tw-badge-warning">{{ listing.get_resource_kind_display }}</span>
-          {% if listing.is_closed %}<span class="tw-badge-status tw-badge-warning">{% trans "Archive" %}</span>{% endif %}
+          <div class="tw-flex tw-min-w-0 tw-flex-wrap tw-items-center tw-gap-2">
+            <h3 class="tw-font-semibold tw-mb-0">{{ listing.name }}</h3>
+            <span class="tw-badge-status tw-badge-warning">{{ listing.get_resource_kind_display }}</span>
+            {% if listing.is_closed %}<span class="tw-badge-status tw-badge-warning">{% trans "Archive" %}</span>{% endif %}
+          </div>
+          {% include 'bookkeeping/_resource_owner_actions.html' with listing=listing %}
         </div>
         <div class="tw-card-body tw-space-y-2">
           {% if listing.description %}<p class="tw-mb-0 tw-whitespace-pre-wrap tw-text-sm">{{ listing.description|urlize|linebreaksbr }}</p>{% endif %}
@@ -98,35 +127,42 @@
   {% endif %}
   {% endif %}
 
-  {% if search_values.entity_type == 'all' or search_values.entity_type == 'physical_asset' %}
-  {% if physical_assets or not physical_asset_count %}
-  <section>
-    <div class="tw-flex tw-items-center tw-justify-between tw-gap-2 tw-mb-3">
-      <h2 class="tw-section-heading tw-mb-0">{% trans "Physical assets" %}</h2>
-      <span class="tw-badge-status tw-badge-info">{{ physical_asset_count }}</span>
-    </div>
-    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-3">
-      {% for asset in physical_assets %}
-      <article class="tw-card">
-        <div class="tw-card-header"><h3 class="tw-font-semibold tw-mb-0">{{ asset.name }}</h3></div>
-        <div class="tw-card-body tw-space-y-2">
-          <p class="tw-mb-0 tw-text-sm tw-text-muted"><i class="fas fa-map-marker-alt fa-fw" aria-hidden="true"></i> {{ asset.city }} · {{ asset.country.name }}</p>
-          {% if asset.is_community_owned %}
-            <span class="tw-text-sm tw-text-muted">{% trans "Shared community ownership" %}</span>
-          {% elif asset.assigned_member %}
-            <a href="{{ asset.assigned_member.get_absolute_url }}" class="tw-text-primary tw-font-medium">{{ asset.assigned_member.uid|display_name }}</a>
-          {% else %}
-            <span class="tw-text-sm tw-text-muted">{% trans "Unassigned" %}</span>
-          {% endif %}
+  <div class="tw-modal tw-fade" id="resource-form" tabindex="-1" role="dialog" aria-labelledby="resource-formLabel" aria-hidden="true"{% if open_resource_modal or edit_listing %} data-open-on-load="true"{% endif %}>
+    <div class="tw-modal-dialog tw-modal-dialog-scrollable" role="document">
+      <div class="tw-modal-content">
+        {% if edit_listing %}{% trans 'Edit' as resource_modal_title %}{% else %}{% trans 'Add resource' as resource_modal_title %}{% endif %}
+        {% include 'home/includes/modal_header.html' with title=resource_modal_title title_icon='fa-boxes-stacked' title_id='resource-formLabel' %}
+        <div class="tw-modal-body">
+          {% if edit_listing %}<p class="tw-text-muted">{{ edit_listing.name }}</p>{% endif %}
+          <form method="post" action="{{ resource_form_action }}">
+            {% csrf_token %}
+            {{ resource_form.kind|as_crispy_field }}
+            {{ resource_form.name|as_crispy_field }}
+            {{ resource_form.description|as_crispy_field }}
+            {% if resource_form.can_assign %}
+              {{ resource_form.assignment_scope|as_crispy_field }}
+              {{ resource_form.assigned_member|as_crispy_field }}
+            {% endif %}
+            <details class="tw-mb-3"{% if resource_form.show_address %} open{% endif %}>
+              <summary class="tw-cursor-pointer tw-font-medium tw-text-primary">{% trans "Add address" %}</summary>
+              <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3 tw-mt-3">
+                {{ resource_form.country|as_crispy_field }}
+                {{ resource_form.city|as_crispy_field }}
+                {{ resource_form.street|as_crispy_field }}
+                {{ resource_form.house_number|as_crispy_field }}
+                {{ resource_form.apartment_number|as_crispy_field }}
+              </div>
+            </details>
+            {% if resource_form.non_field_errors %}<div class="tw-alert tw-alert-danger tw-mb-3" role="alert">{{ resource_form.non_field_errors }}</div>{% endif %}
+            <div class="tw-flex tw-justify-end tw-gap-2">
+              <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal"><i class="fas fa-times fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Cancel" %}</button>
+              <button type="submit" class="tw-btn tw-btn-primary"><i class="fas fa-floppy-disk fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Save resource" %}</button>
+            </div>
+          </form>
         </div>
-      </article>
-      {% empty %}
-      <div class="tw-alert tw-alert-info md:tw-col-span-2 lg:tw-col-span-3">{% trans "No physical assets match your search." %}</div>
-      {% endfor %}
+      </div>
     </div>
-  </section>
-  {% endif %}
-  {% endif %}
+  </div>
 
   {% if search_values.entity_type == 'all' or search_values.entity_type == 'financial_asset' %}
   {% if financial_assets or not financial_asset_count %}

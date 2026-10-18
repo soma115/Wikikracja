@@ -663,7 +663,7 @@ def _legacy_resource_redirect(request, target, kwargs=None):
 @login_required
 @require_http_methods(['GET'])
 def my_assets(request: HttpRequest):
-    return _legacy_resource_redirect(request, 'bookkeeping:resource_manage')
+    return _legacy_resource_redirect(request, 'bookkeeping:resource_list')
 
 
 @login_required

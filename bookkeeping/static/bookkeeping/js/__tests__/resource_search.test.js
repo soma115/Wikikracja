@@ -20,8 +20,11 @@ async function flushFetch() {
 }
 
 describe('resource item search', () => {
+    let originalTwModal;
+
     beforeEach(() => {
         jest.useFakeTimers();
+        originalTwModal = window.TwModal;
         window.wkOnReady = callback => callback();
     });
 
@@ -29,6 +32,16 @@ describe('resource item search', () => {
         jest.clearAllTimers();
         jest.useRealTimers();
         jest.restoreAllMocks();
+        if (typeof originalTwModal === 'undefined') delete window.TwModal;
+        else window.TwModal = originalTwModal;
+    });
+
+    test('opens the resource modal after a form validation error', () => {
+        document.body.innerHTML = '<div id="resource-form" data-open-on-load="true"></div>';
+        window.TwModal = {show: jest.fn()};
+        loadProfileScript();
+
+        expect(window.TwModal.show).toHaveBeenCalledWith(document.getElementById('resource-form'));
     });
 
     // resource_list.html: the <form> element itself is the resource section -
@@ -112,7 +125,7 @@ describe('resource item search', () => {
                 <select name="entity_type">
                     <option value="all">All</option>
                     <option value="resource">Resources</option>
-                    <option value="physical_asset">Physical assets</option>
+                    <option value="financial_asset">Financial assets</option>
                 </select>
                 <select name="kind"><option value="">All types</option></select>
                 <input data-resource-name="true">
@@ -125,7 +138,7 @@ describe('resource item search', () => {
         const entityType = document.querySelector('[name="entity_type"]');
         const input = document.querySelector('[data-resource-name]');
         const suggestions = suggestionsMenu();
-        entityType.value = 'physical_asset';
+        entityType.value = 'financial_asset';
         entityType.dispatchEvent(new Event('change'));
         input.value = 'garage';
         input.dispatchEvent(new Event('input', {bubbles: true}));

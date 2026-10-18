@@ -5,7 +5,6 @@ from django.db.models import Q
 from django.db.models.functions import Lower
 from django.utils.translation import gettext_lazy as _
 
-LEGACY_PHYSICAL_ASSET_SOURCE = 'bookkeeping.PhysicalAsset'
 LEGACY_RESOURCE_LISTING_SOURCE = 'bookkeeping.ResourceListing'
 LEGACY_FINANCIAL_ASSET_SOURCE = 'bookkeeping.Asset'
 
@@ -13,7 +12,6 @@ LEGACY_FINANCIAL_ASSET_SOURCE = 'bookkeeping.Asset'
 class Entity(models.Model):
     class Type(models.TextChoices):
         FINANCIAL_ASSET = 'financial_asset', _('Asset')
-        PHYSICAL_ASSET = 'physical_asset', _('Physical asset')
         RESOURCE = 'resource', _('Resource')
 
     class ResourceKind(models.TextChoices):
@@ -55,11 +53,10 @@ class Entity(models.Model):
     class Meta:
         ordering = ('entity_type', 'name', 'pk')
         constraints = [
-            models.CheckConstraint(condition=Q(entity_type__in=('financial_asset', 'physical_asset', 'resource')), name='entity_known_type'),
+            models.CheckConstraint(condition=Q(entity_type__in=('financial_asset', 'resource')), name='entity_known_type'),
             models.CheckConstraint(condition=(Q(assigned_member__isnull=True) | Q(is_community_owned=False)), name='entity_one_assignee'),
             models.CheckConstraint(condition=(~Q(entity_type='financial_asset') | (Q(assigned_member__isnull=True) & Q(is_community_owned=False))), name='entity_financial_unassigned'),
             models.CheckConstraint(condition=(~Q(entity_type='financial_asset') | (~Q(code='') & ~Q(symbol=''))), name='entity_financial_fields'),
-            models.CheckConstraint(condition=(~Q(entity_type='physical_asset') | (Q(country__isnull=False) & ~Q(city=''))), name='entity_physical_location'),
             models.CheckConstraint(condition=(~Q(entity_type='resource') | Q(resource_kind__in=('give', 'borrow', 'sale', 'need'))), name='entity_resource_kind'),
             models.CheckConstraint(condition=(Q(entity_type='resource') | Q(resource_kind='')), name='entity_nonresource_kind_empty'),
             models.CheckConstraint(condition=(Q(entity_type='resource') | Q(is_closed=False)), name='entity_nonresource_open'),
@@ -97,11 +94,6 @@ class Entity(models.Model):
                 errors['assignment_scope'] = _('Financial assets cannot be assigned to a member or the community.')
             if self.country_id or self.city or self.street or self.house_number or self.apartment_number:
                 errors['country'] = _('Financial assets cannot have a physical location.')
-        elif self.entity_type == self.Type.PHYSICAL_ASSET:
-            if not self.country_id:
-                errors['country'] = _('Select a country for the physical asset.')
-            if not self.city.strip():
-                errors['city'] = _('Enter a city for the physical asset.')
         elif self.entity_type == self.Type.RESOURCE and self.resource_kind not in self.ResourceKind.values:
             errors['resource_kind'] = _('Select a resource type.')
 

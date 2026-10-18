@@ -23,6 +23,16 @@ Domyślnie wspólne zasoby grupy (wydarzenia, ankiety, aktywa, kategorie i partn
 - `candidate_edit` pozostaje dostępne każdemu zalogowanemu członkowi jako część onboardingu.
 - Oferty i potrzeby są rekordami `resources.Entity`. Widoczność aktywnych, zamkniętych i wspólnotowych wpisów pozostaje ograniczona przez reguły katalogu; edycję, zamykanie, przywracanie i usuwanie może wykonać autor, przypisany członek albo aktywny członek w przypadku zasobu wspólnotowego. Stare URL-e nadal rozwiązuje `LegacyEntityReference`.
 
+## Wspólny model zasobów i prywatność
+
+`resources.Entity` jest jedynym modelem runtime dla jednostek finansowych (`financial_asset`) i ofert/potrzeb (`resource`). Stare modele `bookkeeping.Asset`, `PhysicalAsset` i `ResourceListing` zostały usunięte po preflightach migracji `bookkeeping.0040`/`0041`; encje `physical_asset` zostały następnie trwale usunięte w migracji `resources.0008`. `LegacyEntityReference` zachowuje stare identyfikatory URL-i dla nadal istniejących typów; `source_profile_id` jest historycznym snapshotem używanym wyłącznie przy rollbacku, nie bieżącym przypisaniem.
+
+Autor encji i jej bieżące przypisanie są odrębne. Nieznanego autora ani właściciela danych historycznych nie uzupełniamy domysłem. Katalog ofert i potrzeb nie pokazuje autora, ulicy, numerów adresowych ani telefonu.
+
+Mapa społeczności (`/obywatele/mapa/`) pokazuje aktywnych obywateli z lokalizacją i partnerów z lokalizacją. Jednostki finansowe oraz oferty i potrzeby nie są markerami. Goście otrzymują wyłącznie unikalne współrzędne — bez typów, nazw, adresów, liczników, identyfikatorów, linków ani interakcji. Zalogowani, aktywni obywatele widzą kwalifikujące się typy, nazwy, zapisane adresy i linki, ale nie transakcje, kwoty ani dane kontaktowe.
+
+Kraj i miasto wyznaczają lokalizację orientacyjną; brak któregoś z nich wyklucza punkt. Dokładny punkt adresowy jest używany tylko po potwierdzeniu dopasowania ulicy i numeru domu przez geokoder, w przeciwnym razie mapa używa lokalizacji miasta. Numer mieszkania nie wpływa na współrzędne i nie jest wysyłany do geokodera. Kraju nie wywodzimy z nazwy miasta ani numeru telefonu. Szczegółowy adres profilu można wykorzystać i pokazać na mapie wyłącznie w widoku zalogowanym, zgodnie z jej regułami dostępu; katalog zasobów nie traktuje go jako zasięgu oferty.
+
 Nie wprowadzamy w tym zakresie uogólnionej własności ani mechanizmu przejmowania treści. Temat pozostaje odłożony w [`PLAN_PRZEJMOWANIE_WŁASNOŚCI_TREŚCI.md`](ongoing/PLAN_PRZEJMOWANIE_WŁASNOŚCI_TREŚCI.md).
 
 `PostCategoryEditAPI` i `TaskCategoryEditAPI` wymagają zalogowania, ale nie stosują ograniczeń właściciela ani roli. Ustawienia grupy i quick linki również wymagają logowania.
