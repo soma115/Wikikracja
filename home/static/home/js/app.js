@@ -501,7 +501,7 @@ window.wkOnReady(function() {
     if (btn) {
         btn.addEventListener('click', function() {
             const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'light' ? 'tokyo-night' : 'light';
+            const next = current === 'light' ? 'dark' : 'light';
             applyTheme(next);
             const url = btn.dataset.url;
             if (url) {

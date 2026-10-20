@@ -1391,6 +1391,34 @@ class ProfileFormErrorViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'name="password"')
 
+    def test_profile_renders_saved_theme_preference(self):
+        profile = self.user.uzytkownik
+        profile.theme = Uzytkownik.Theme.DARK
+        profile.save(update_fields=['theme'])
+
+        response = self.client.get(reverse('obywatele:my_profile'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-theme-preference="dark"')
+        self.assertContains(response, 'data-initial-theme="dark"')
+        content = response.content.decode()
+        head_start = content.index('<head>')
+        head_end = content.index('</head>')
+        for element in ('<meta charset=', '<meta name="viewport"', '<link rel="apple-touch-icon"'):
+            element_position = content.index(element)
+            self.assertLess(head_start, element_position)
+            self.assertLess(element_position, head_end)
+
+    def test_theme_toggle_persists_database_value(self):
+        url = f"{reverse('obywatele:toggle_notification')}?type=theme"
+
+        response = self.client.post(url, data=json.dumps({'value': 'dark'}), content_type='application/json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['success'])
+        self.user.uzytkownik.refresh_from_db()
+        self.assertEqual(self.user.uzytkownik.theme, Uzytkownik.Theme.DARK)
+
     def test_finance_push_setting_renders_and_can_be_toggled(self):
         response = self.client.get(reverse('obywatele:my_profile'))
 

@@ -159,6 +159,12 @@ class BoardDetailNavigationTests(TestCase):
         self.assertEqual(response.context['current_tab'], 'important')
         self.assertTrue(response.context['stepper']['steps'][2]['active'])
 
+    def test_active_sort_link_uses_link_appropriate_aria_state(self):
+        response = self.client.get(reverse('board:start'), {'sort': 'title', 'order': 'asc'})
+
+        self.assertContains(response, 'aria-current="true"')
+        self.assertNotContains(response, 'aria-pressed=')
+
     def test_archived_document_can_be_opened_without_archive_tab(self):
         post = self._post('Archived')
         post.visibility = Post.Visibility.ARCHIVE

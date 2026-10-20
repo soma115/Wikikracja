@@ -1,5 +1,17 @@
 # LOG_AI
 
+## 2026-10-20: Poprawna semantyka ARIA w linkach sortowania
+
+- **Przyczyna:** `aria-pressed` nie jest obsługiwane przez elementy `<a>`; wzorzec występował w przykładzie standardów i wspólnym toolbarze.
+- **Zmiana:** aktywny link sortowania używa teraz `aria-current="true"`, a nieaktywne linki nie deklarują bieżącego elementu.
+- **Weryfikacja:** sprawdzono przykład dokumentacji i wspólny partial toolbaru; test widoku potwierdza stan aktywnego sortowania, a test strony ustawień potwierdza położenie metadanych wewnątrz `<head>`.
+
+## 2026-10-20: Ładowanie motywu z preferencji profilu
+
+- **Przyczyna:** inicjalizacja przed renderem brała motyw wyłącznie z `localStorage`, a globalny przełącznik wysyłał do serwera `tokyo-night` zamiast zapisanego wariantu `dark`.
+- **Zmiana:** dla zalogowanych użytkowników serwerowa preferencja profilu jest źródłem motywu już przed załadowaniem CSS; przełącznik zapisuje do bazy wartość zgodną z modelem. Deklaracje `{% load %}` są umieszczone wewnątrz `<head>`, żeby narzędzia HTML nie interpretowały ich jako treści przed `<!DOCTYPE html>`.
+- **Weryfikacja:** test renderowania ustawień z zapisaną preferencją oraz test zapisu wariantu ciemnego.
+
 ## 2026-10-20: Tailwind skanuje tylko źródła JS aplikacji
 
 - **Przyczyna:** glob `./**/static/**/*.js` obejmował również ignorowany katalog `static/` z wynikiem `collectstatic`. Stary, scalony plik `community-map.js` utrzymywał nieużywaną klasę `tw-bg-accent` lokalnie, ale nie w czystym CI.

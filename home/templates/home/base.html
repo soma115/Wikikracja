@@ -1,12 +1,12 @@
-{% load i18n %}
-{% load static %}
-{% load filters %}
-{% load feed_filters %}
-{% load citizen_filters %}
-
 <!DOCTYPE html>
-<html lang="{{ request.LANGUAGE_CODE }}" data-theme="tokyo-night" data-prefs-scope="{% block prefs_scope %}{% endblock %}" data-prefs-tab="{% block prefs_tab %}{% endblock %}" data-presence-green-minutes="{{ presence_green_minutes }}" data-presence-yellow-days="{{ presence_yellow_days }}" data-user-id="{{ request.user.id|default:'anonymous' }}">
+<html lang="{{ request.LANGUAGE_CODE }}" data-theme="tokyo-night" data-theme-preference="{% if request.user.is_authenticated %}{{ request.user.uzytkownik.theme }}{% endif %}" data-prefs-scope="{% block prefs_scope %}{% endblock %}" data-prefs-tab="{% block prefs_tab %}{% endblock %}" data-presence-green-minutes="{{ presence_green_minutes }}" data-presence-yellow-days="{{ presence_yellow_days }}" data-user-id="{{ request.user.id|default:'anonymous' }}">
 <head>
+	{% load i18n %}
+	{% load static %}
+	{% load filters %}
+	{% load feed_filters %}
+	{% load citizen_filters %}
+
 	<title>{{ site_name }}</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
@@ -24,7 +24,7 @@
 	<meta name="apple-mobile-web-app-title" content="{{ site_name }}">
 
 	<!-- Anti-FOUC: restore theme before CSS loads -->
-	<script>(function(){var t=localStorage.getItem('app-theme')||'auto';if(t==='auto'){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'tokyo-night':'light';}else if(t!=='light'){t='tokyo-night';}document.documentElement.setAttribute('data-theme',t);})();</script>
+	<script>(function(){var root=document.documentElement;var p=root.dataset.themePreference;if(p){localStorage.setItem('app-theme',p);}else{p=localStorage.getItem('app-theme')||'auto';}var t=p==='auto'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'tokyo-night':'light'):p==='light'?'light':'tokyo-night';root.setAttribute('data-theme',t);})();</script>
 	<!-- Anti-FOUC: restore saved activity filters when no query string is present -->
 	<script>
 	(function() {
