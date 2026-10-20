@@ -35,7 +35,7 @@ test.describe('desktop', () => {
         await dismissNotificationBanner(page);
 
         const before = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
-        expect(['dark', 'light']).toContain(before);
+        expect(['tokyo-night', 'light']).toContain(before);
 
         await page.evaluate(() => document.getElementById('theme-toggle-btn').click());
 

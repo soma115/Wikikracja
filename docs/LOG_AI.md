@@ -1,5 +1,11 @@
 # LOG_AI
 
+## 2026-10-20: Poprawki błędów CI dla GitHub Pages i testu motywu
+
+- **Przyczyna:** Jekyll interpretował wzmiankę o tagu Django `load` w tym pliku jako własny tag Liquid, a test E2E oczekiwał `dark`, chociaż aplikacja renderuje motyw ciemny jako `tokyo-night`.
+- **Zmiana:** opis tagów Django nie zawiera już składni Liquid, a test przełącznika akceptuje rzeczywistą nazwę motywu.
+- **Weryfikacja:** sprawdzono brak składni Liquid w logu i poprawność diffu.
+
 ## 2026-10-20: Poprawna semantyka ARIA w linkach sortowania
 
 - **Przyczyna:** `aria-pressed` nie jest obsługiwane przez elementy `<a>`; wzorzec występował w przykładzie standardów i wspólnym toolbarze.
@@ -9,7 +15,7 @@
 ## 2026-10-20: Ładowanie motywu z preferencji profilu
 
 - **Przyczyna:** inicjalizacja przed renderem brała motyw wyłącznie z `localStorage`, a globalny przełącznik wysyłał do serwera `tokyo-night` zamiast zapisanego wariantu `dark`.
-- **Zmiana:** dla zalogowanych użytkowników serwerowa preferencja profilu jest źródłem motywu już przed załadowaniem CSS; przełącznik zapisuje do bazy wartość zgodną z modelem. Deklaracje `{% load %}` są umieszczone wewnątrz `<head>`, żeby narzędzia HTML nie interpretowały ich jako treści przed `<!DOCTYPE html>`.
+- **Zmiana:** dla zalogowanych użytkowników serwerowa preferencja profilu jest źródłem motywu już przed załadowaniem CSS; przełącznik zapisuje do bazy wartość zgodną z modelem. Tagi `load` Django są umieszczone wewnątrz `<head>`, żeby narzędzia HTML nie interpretowały ich jako treści przed `<!DOCTYPE html>`.
 - **Weryfikacja:** test renderowania ustawień z zapisaną preferencją oraz test zapisu wariantu ciemnego.
 
 ## 2026-10-20: Tailwind skanuje tylko źródła JS aplikacji
