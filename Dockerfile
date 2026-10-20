@@ -66,6 +66,7 @@ COPY --from=builder /app/tasks /app/tasks
 COPY --from=builder /app/ankiety /app/ankiety
 COPY --from=builder /app/glosowania /app/glosowania
 COPY --from=builder /app/bookkeeping /app/bookkeeping
+COPY --from=builder /app/resources /app/resources
 COPY --from=builder /app/site_settings /app/site_settings
 COPY --from=builder /app/categories /app/categories
 COPY --from=builder /app/core /app/core
