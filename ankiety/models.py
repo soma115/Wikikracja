@@ -12,7 +12,7 @@ class Survey(ChatRoomModel, models.Model):
     title = models.CharField(max_length=200, verbose_name=_("Title"))
     description = models.TextField(blank=True, verbose_name=_("Description"), validators=[MaxLengthValidator(3000)])
     end_date = models.DateTimeField(verbose_name=_("End date"), help_text=_("After this moment the survey will be closed."))
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="surveys", verbose_name=_("Author"))
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="surveys", verbose_name=_("Author"))
     allow_multiple_choice = models.BooleanField(default=False, verbose_name=_("Allow multiple choice"), help_text=_("If enabled, users can select more than one option when voting."))
     allow_custom_options = models.BooleanField(default=False, verbose_name=_("Allow participants to add options"), help_text=_("If enabled, participants can add their own options while the survey is active."))
     created_at = models.DateTimeField(auto_now_add=True)
@@ -58,7 +58,7 @@ class SurveyOption(models.Model):
 
 class SurveyVote(models.Model):
     survey = models.ForeignKey(Survey, on_delete=models.CASCADE, related_name="votes", verbose_name=_("Survey"))
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="survey_votes", verbose_name=_("User"))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="survey_votes", verbose_name=_("User"))
     option = models.ForeignKey(SurveyOption, on_delete=models.CASCADE, related_name="votes", verbose_name=_("Chosen option"))
     created_at = models.DateTimeField(auto_now_add=True)
 

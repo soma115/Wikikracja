@@ -180,7 +180,7 @@ class ZebranePodpisy(models.Model):
 
 class KtoJuzGlosowal(models.Model):
     projekt = models.ForeignKey(Decyzja, on_delete=models.CASCADE)
-    ktory_uzytkownik_juz_zaglosowal = models.ForeignKey(User, on_delete=models.CASCADE)
+    ktory_uzytkownik_juz_zaglosowal = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     # odnotowujemy tylko fakt głosowania
 

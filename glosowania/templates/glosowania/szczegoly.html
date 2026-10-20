@@ -70,7 +70,7 @@
         <div class="tw-result-bar-track"><div class="tw-result-bar-fill" data-progress="{{ fill_pct }}"></div></div>
       </div>
       {% endif %}{% endwith %}
-      {% if voters %}<div class="tw-text-muted tw-text-xs"><i class="fas fa-users tw-me-1"></i>{% for voter in voters %}{{ voter.ktory_uzytkownik_juz_zaglosowal|display_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+      {% if voters %}<div class="tw-text-muted tw-text-xs"><i class="fas fa-users tw-me-1"></i>{% for voter in voters %}{% if voter.ktory_uzytkownik_juz_zaglosowal %}{{ voter.ktory_uzytkownik_juz_zaglosowal|display_name }}{% else %}{% trans "Former group member" %}{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
       {% if report %}<div class="tw-protocol-list tw-text-xs">{% for r in report %}<span class="{% if r.vote %}tw-protocol-yes{% else %}tw-protocol-no{% endif %}">{% if r.vote %}✓{% else %}✗{% endif %} {{ r.code }}</span><br>{% endfor %}</div>{% endif %}
       {% endif %}
 

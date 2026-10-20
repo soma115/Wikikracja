@@ -18,6 +18,7 @@ from django.contrib.auth.models import User
 from django.contrib.messages import SUCCESS, get_messages
 from django.core import mail
 from django.core.cache import cache
+from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -32,6 +33,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import override, pgettext
 from PIL import Image
 
+from ankiety.models import Survey, SurveyOption, SurveyVote
 from bookkeeping.models import Partner
 from chat.models import Message, MessageReadBy, Room
 from chat.services import get_user_public_message_rows
@@ -1888,3 +1890,44 @@ class AccountDeletionFeedbackTest(TestCase):
         publish.assert_called_once_with('Nie odnajduję się już w tej formule.', anonymous=False, author_name='Leaving Member')
         self.assertFalse(User.objects.filter(pk=user_id).exists())
         self.assertFalse(DeletionRequest.objects.exists())
+
+    def test_account_deletion_preserves_votes_and_surveys_and_removes_avatar(self):
+        from obywatele.management.commands.count_citizens import Command
+
+        other = User.objects.create_user(username='survey-voter', password='secret')
+        survey = Survey.objects.create(title='Retained survey', description='', end_date=django_timezone.now(), author=self.user)
+        option = SurveyOption.objects.create(survey=survey, text='Yes')
+        own_vote = SurveyVote.objects.create(survey=survey, user=self.user, option=option)
+        other_vote = SurveyVote.objects.create(survey=survey, user=other, option=option)
+        decision = DecyzjaFactory(author=other, status=Decyzja.Status.APPROVED)
+        referendum_vote = KtoJuzGlosowal.objects.create(projekt=decision, ktory_uzytkownik_juz_zaglosowal=self.user)
+        ballot = VoteCode.objects.create(project=decision, code='anonymous-ballot', vote=True)
+        DeletionRequest.objects.create(user=self.user, scheduled_for=django_timezone.now() - timedelta(days=1))
+
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            profile = self.user.uzytkownik
+            profile.avatar.save('account-avatar.png', ContentFile(b'avatar image'), save=True)
+            avatar_storage = profile.avatar.storage
+            avatar_name = profile.avatar.name
+            self.assertTrue(avatar_storage.exists(avatar_name))
+
+            with self.captureOnCommitCallbacks(execute=True):
+                Command().process_deletion_requests()
+
+            survey.refresh_from_db()
+            own_vote.refresh_from_db()
+            other_vote.refresh_from_db()
+            referendum_vote.refresh_from_db()
+            ballot.refresh_from_db()
+            self.assertIsNone(survey.author)
+            self.assertEqual(survey.options.count(), 1)
+            self.assertEqual(survey.votes.count(), 2)
+            self.assertIsNone(own_vote.user)
+            self.assertEqual(other_vote.user, other)
+            self.assertIsNone(referendum_vote.ktory_uzytkownik_juz_zaglosowal)
+            self.assertTrue(ballot.vote)
+            self.assertFalse(avatar_storage.exists(avatar_name))
+
+        self.client.force_login(other)
+        response = self.client.get(reverse('glosowania:details', kwargs={'pk': decision.pk}))
+        self.assertContains(response, _('Former group member'))

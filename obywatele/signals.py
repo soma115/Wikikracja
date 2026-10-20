@@ -1,6 +1,7 @@
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save, pre_save
+from django.db import transaction
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
@@ -30,6 +31,16 @@ def track_citizen_activities(sender, instance, created, **kwargs):
     if created:
         # New candidate registered
         CitizenActivity.objects.create(uzytkownik=instance, activity_type=CitizenActivity.ActivityType.NEW_CANDIDATE, description=_('New candidate has registered'))
+
+
+@receiver(post_delete, sender=Uzytkownik)
+def delete_profile_avatar(sender, instance, using, **kwargs):
+    if not instance.avatar:
+        return
+
+    storage = instance.avatar.storage
+    name = instance.avatar.name
+    transaction.on_commit(lambda: storage.delete(name), using=using)
 
 
 @receiver(citizen_blocked)
