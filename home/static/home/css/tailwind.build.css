@@ -11637,10 +11637,6 @@ body.tw-chat-page .tw-main-area {
   background-color: var(--color-success);
 }
 
-.tw-bg-accent {
-  background-color: var(--accent);
-}
-
 .tw-bg-bg-card {
   background-color: var(--bg-card);
 }

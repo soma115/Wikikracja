@@ -17,9 +17,9 @@ module.exports = {
     './templates/**/*.html',
     // UI standards reference uses the same tokens and components.
     './docs/UI_STANDARDS.html',
-    // JS builds markup dynamically (chat, embedded widgets, toasts), so
-    // custom classes living in @layer must be detected there as well.
-    './**/static/**/*.js',
+    // Scan app source JS, but not the root `static/` collectstatic output.
+    // That generated directory can contain stale assets locally and is absent in CI.
+    './*/static/**/*.js',
   ],
   // Always generate these component classes, even if no template uses them yet.
   safelist: [

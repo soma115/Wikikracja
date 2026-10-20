@@ -1,5 +1,11 @@
 # LOG_AI
 
+## 2026-10-20: Tailwind skanuje tylko źródła JS aplikacji
+
+- **Przyczyna:** glob `./**/static/**/*.js` obejmował również ignorowany katalog `static/` z wynikiem `collectstatic`. Stary, scalony plik `community-map.js` utrzymywał nieużywaną klasę `tw-bg-accent` lokalnie, ale nie w czystym CI.
+- **Zmiana:** zawężono glob do `./*/static/**/*.js`, czyli źródłowych zasobów aplikacji, bez generowanego katalogu root.
+- **Weryfikacja:** `npm run build:css` usuwa teraz nieużywaną klasę i daje wynik zgodny ze źródłami.
+
 ## 2026-10-20: Stały kolor zasobu na mapie
 
 - **Przyczyna:** utility `tw-bg-success` używa `--badge-approved-color`, którego wartość różni się między motywami.
