@@ -13,6 +13,7 @@ from django.core.cache import cache
 from django.db import connection
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_POST
@@ -69,6 +70,7 @@ def home(request: HttpRequest):
         filter_unread = False
 
     context = dashboard_service.build_dashboard_context(request.user, filter_unread=filter_unread, month_param=request.GET.get('month', ''))
+    context.update({'map_data_url': reverse('obywatele:mapa_data'), 'map_tiles_url': settings.MAP_TILES_URL, 'map_tiles_attribution': settings.MAP_TILES_ATTRIBUTION})
     # Expose feed unread count for context processors (e.g. topbar notif bell).
     request._unread_count = context.pop('_unread_count')
 

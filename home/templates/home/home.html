@@ -108,6 +108,15 @@
     </div>
   </div>
 
+  <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="community-map">
+    <div class="tw-card tw-card--no-hover tw-dashboard-tile tw-h-full tw-overflow-hidden">
+      <div class="tw-dashboard-tile-header tw-absolute tw-top-2 tw-right-2 tw-z-[700] tw-w-auto" aria-hidden="true"></div>
+      <div class="tw-card-body tw-p-0 tw-flex tw-flex-col tw-min-h-0">
+        {% include "obywatele/map_canvas.html" with is_active_member=user.is_active dashboard_tile=True map_data_url=map_data_url map_tiles_url=map_tiles_url map_tiles_attribution=map_tiles_attribution %}
+      </div>
+    </div>
+  </div>
+
 
   {# Najbliższe wydarzenia #}
   <div class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="upcoming-events">
@@ -553,5 +562,11 @@
 })();
 </script>
 {% endif %}
+
+{% block extra_js %}
+{% if user.is_authenticated %}
+  {% include "obywatele/map_scripts.html" %}
+{% endif %}
+{% endblock %}
 
 {% endblock %}

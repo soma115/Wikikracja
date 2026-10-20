@@ -27,6 +27,17 @@ test.describe('desktop', () => {
         await expect(page.locator('#sidebar')).toBeVisible();
         await expect(page.locator('.tw-topbar')).toBeVisible();
         await expect(page.locator('.tw-dashboard-grid')).toBeVisible();
+        await expect(page.locator('[data-tile-id="community-map"]')).toBeVisible();
+        await expect(page.locator('#community-map')).toBeVisible();
+        await expect(page.locator('#community-map')).toHaveAttribute('data-map-display-only', 'true');
+        const mapDragHandle = page.locator('[data-tile-id="community-map"] .tw-dashboard-tile-header .tw-drag-handle');
+        await expect(mapDragHandle).toBeVisible();
+        await mapDragHandle.hover({ trial: true });
+
+        await expect(page.locator('#community-map')).toHaveClass(/leaflet-container/);
+        const mapBounds = await page.locator('#community-map').boundingBox();
+        await page.mouse.click(mapBounds.x + mapBounds.width / 2, mapBounds.y + mapBounds.height / 2);
+        await expect(page).toHaveURL(/\/obywatele\/mapa\/$/);
     });
 
     test('theme toggle switches data-theme', async ({ page }) => {

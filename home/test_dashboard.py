@@ -128,6 +128,32 @@ def test_home_renders_featured_documents_tile(dashboard_user, client):
 
 
 @pytest.mark.django_db
+def test_home_renders_community_map_tile_with_member_visibility(dashboard_user, client):
+    QuickLink.objects.create(title='Test link', url='/help/', order=0)
+    client.force_login(dashboard_user)
+    response = client.get('/')
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert 'class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="community-map"' in content
+    assert 'tw-z-[700]' in content
+    assert content.index('data-tile-id="onboarding"') < content.index('data-tile-id="activity"')
+    assert content.index('data-tile-id="activity"') < content.index('data-tile-id="community-map"')
+    assert content.index('data-tile-id="community-map"') < content.index('data-tile-id="upcoming-events"')
+    assert f'data-map-data-url="{reverse("obywatele:mapa_data")}"' in content
+    assert f'data-map-full-url="{reverse("obywatele:mapa")}"' in content
+    assert f'href="{reverse("obywatele:mapa")}" class="tw-sr-only"' in content
+    assert 'data-map-member="true"' in content
+    assert 'data-map-display-only="true"' in content
+    assert 'data-map-details=' not in content
+    assert 'data-map-error=' not in content
+    assert 'id="community-map-empty"' not in content
+    assert 'id="community-map-unmapped"' not in content
+    assert 'id="community-map-status"' not in content
+    assert 'obywatele/js/community-map.js' in content
+
+
+@pytest.mark.django_db
 def test_group_settings_uses_public_name_and_handles_invalid_reorder(dashboard_user, client):
     client.force_login(dashboard_user)
 

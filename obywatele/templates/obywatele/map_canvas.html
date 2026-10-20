@@ -1,37 +1,45 @@
 {% load i18n %}
 
+{% if not dashboard_tile %}
 <div class="tw-container tw-my-4 tw-space-y-3">
   <div class="tw-card">
     <div class="tw-card-header">
       <h1 class="tw-section-heading tw-mb-0">{% trans "Community map" %}</h1>
     </div>
     <div class="tw-card-body">
-      <p class="tw-text-muted tw-mb-0">{% trans "Map locations are approximate unless a detailed address has been confirmed." %}</p>
+      <p class="tw-text-muted tw-mb-0">{% trans "Map locations are approximate unless a detailed address has been entered." %}</p>
     </div>
-    <div id="community-map"
-         class="tw-theme-aware-map tw-h-[65vh] tw-min-h-72 tw-w-full tw-overflow-hidden"
-         role="application"
-         aria-label="{% trans 'Community map' %}"
-         data-map-data-url="{{ map_data_url }}"
-         data-map-tiles-url="{{ map_tiles_url }}"
-         data-map-tiles-attribution="{{ map_tiles_attribution }}"
-         data-map-member="{% if is_active_member %}true{% else %}false{% endif %}"
-         data-map-error="{% trans 'Map data could not be loaded.' %}"
-         data-map-no-locations="{% trans 'No locations are available on the map right now.' %}"
-         {% if is_active_member %}
-           data-map-unmapped-title="{% trans 'Locations not marked on the map' %}"
-           data-map-citizen="{% trans 'Citizen' %}"
-           data-map-partner="{% trans 'Partner' %}"
-           data-map-resource="{% trans 'Resource' %}"
-           data-map-details="{% trans 'Details' %}"
-         {% endif %}></div>
+    <div class="tw-card-body tw-p-0">
+{% endif %}
+<div id="community-map"
+     class="tw-theme-aware-map {% if dashboard_tile %}tw-flex-1 tw-min-h-60{% else %}tw-h-[65vh] tw-min-h-72{% endif %} tw-w-full tw-overflow-hidden"
+     role="application"
+     aria-label="{% trans 'Community map' %}"
+     data-map-data-url="{{ map_data_url }}"
+     data-map-tiles-url="{{ map_tiles_url }}"
+     data-map-tiles-attribution="{{ map_tiles_attribution }}"
+     data-map-member="{% if is_active_member %}true{% else %}false{% endif %}"
+     data-map-display-only="{% if dashboard_tile %}true{% else %}false{% endif %}"
+     {% if dashboard_tile %}data-map-full-url="{% url 'obywatele:mapa' %}"{% endif %}
+     {% if not dashboard_tile %}
+       data-map-error="{% trans 'Map data could not be loaded.' %}"
+       data-map-no-locations="{% trans 'No locations are available on the map right now.' %}"
+     {% endif %}
+     {% if is_active_member and not dashboard_tile %}
+       data-map-unmapped-title="{% trans 'Locations not marked on the map' %}"
+       data-map-citizen="{% trans 'Citizen' %}"
+       data-map-partner="{% trans 'Partner' %}"
+       data-map-resource="{% trans 'Resource' %}"
+       data-map-details="{% trans 'Details' %}"
+     {% endif %}></div>
+{% if not dashboard_tile %}
   </div>
-
+  </div>
   <div id="community-map-empty" class="tw-d-none">
     {% include "home/includes/empty_state.html" with compact=True icon="fa-map-marker-alt" title=_("No locations are available on the map right now.") %}
   </div>
 
-  {% if is_active_member %}
+  {% if is_active_member and not dashboard_tile %}
     <section id="community-map-unmapped" class="tw-card tw-d-none">
       <div class="tw-card-header">
         <h2 class="tw-section-heading tw-mb-0">{% trans "Locations not marked on the map" %}</h2>
@@ -44,3 +52,6 @@
 
   <p id="community-map-status" class="tw-alert tw-alert-info tw-d-none" role="status" aria-live="polite"></p>
 </div>
+{% else %}
+<a href="{% url 'obywatele:mapa' %}" class="tw-sr-only">{% trans "Community map" %}</a>
+{% endif %}

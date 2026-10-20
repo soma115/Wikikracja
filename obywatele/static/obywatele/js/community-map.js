@@ -15,6 +15,7 @@
   };
   const INITIAL_CENTER = [52.1, 19.4];
   const INITIAL_ZOOM = 6;
+  const DASHBOARD_TILE_ZOOM = 5;
 
   function projectPoint(point) {
     return Array.isArray(point) ? point : [point.x, point.y];
@@ -160,8 +161,10 @@
 
     const status = document.getElementById('community-map-status');
     const empty = document.getElementById('community-map-empty');
-    const showDetails = root.dataset.mapMember === 'true';
+    const displayOnly = root.dataset.mapDisplayOnly === 'true';
+    const showDetails = root.dataset.mapMember === 'true' && !displayOnly;
     const reportError = () => {
+      if (!status) return;
       status.textContent = root.dataset.mapError;
       status.classList.remove('tw-d-none');
     };
@@ -179,11 +182,18 @@
         if (!leaflet) {
           reportError();
           if (showDetails) renderDetailsList(records, root, { allRecords: true });
-          empty.classList.toggle('tw-d-none', records.length > 0);
+          if (empty) empty.classList.toggle('tw-d-none', records.length > 0);
           return;
         }
 
-        const map = leaflet.map(root, { scrollWheelZoom: false }).setView(INITIAL_CENTER, INITIAL_ZOOM);
+        const initialZoom = displayOnly ? DASHBOARD_TILE_ZOOM : INITIAL_ZOOM;
+        const map = leaflet.map(root, { scrollWheelZoom: false }).setView(INITIAL_CENTER, initialZoom);
+        if (displayOnly && root.dataset.mapFullUrl) {
+          map.on('click', (event) => {
+            if (event.originalEvent?.target?.closest?.('.leaflet-control')) return;
+            window.location.assign(root.dataset.mapFullUrl);
+          });
+        }
         leaflet.tileLayer(root.dataset.mapTilesUrl, {
           maxZoom: 19,
           noWrap: true,
@@ -218,9 +228,11 @@
             reportError();
             renderDetailsList(records, root, { allRecords: true });
           });
-          empty.classList.toggle('tw-d-none', markers.length + (data.unmapped || []).length > 0);
+          if (empty) empty.classList.toggle('tw-d-none', markers.length + (data.unmapped || []).length > 0);
         } else {
-          const points = data.points || [];
+          const points = data.points || (displayOnly
+            ? (data.markers || []).map((marker) => ({ lat: marker.latitude, lon: marker.longitude }))
+            : []);
           for (const point of points) {
             leaflet.circleMarker([point.lat, point.lon], {
               radius: 5,
@@ -231,7 +243,7 @@
               interactive: false,
             }).addTo(markersLayer);
           }
-          empty.classList.toggle('tw-d-none', points.length > 0);
+          if (empty) empty.classList.toggle('tw-d-none', points.length > 0);
         }
       })
       .catch(() => {

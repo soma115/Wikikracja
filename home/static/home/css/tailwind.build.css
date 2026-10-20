@@ -1365,6 +1365,11 @@ html[data-theme="tokyo-night"] .tw-theme-aware-map .leaflet-tile-pane,
   filter: invert(1) hue-rotate(180deg) brightness(.9) contrast(.9);
 }
 
+.tw-theme-aware-map[data-map-display-only="true"] .leaflet-control-attribution {
+  font-size: 0.1rem;
+  line-height: 0.8;
+}
+
 /* -- Parity rules: old-class rules covered by tw-* twins lacked these
      states; kept under the tw-* names actually used in markup. -- */
 
@@ -11106,8 +11111,20 @@ body.tw-chat-page .tw-main-area {
   inset-inline-end: 0px;
 }
 
+.tw-right-2 {
+  right: 0.5rem;
+}
+
+.tw-top-2 {
+  top: 0.5rem;
+}
+
 .tw-z-50 {
   z-index: 50;
+}
+
+.tw-z-\[700\] {
+  z-index: 700;
 }
 
 .tw-col-span-12 {
@@ -11314,6 +11331,10 @@ body.tw-chat-page .tw-main-area {
 
 .tw-min-h-0 {
   min-height: 0px;
+}
+
+.tw-min-h-60 {
+  min-height: 15rem;
 }
 
 .tw-min-h-72 {

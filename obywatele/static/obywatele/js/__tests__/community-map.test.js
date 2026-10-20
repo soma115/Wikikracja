@@ -130,4 +130,49 @@ describe('community map marker positioning', () => {
     clickHandlers[0]();
     expect(map.setView).toHaveBeenLastCalledWith([52.1, 19.4], 12, { animate: true });
   });
+
+  test('renders an active member dashboard preview as points without details', async () => {
+    document.body.innerHTML = `
+      <div id="community-map"
+        data-map-data-url="/obywatele/mapa/data/"
+        data-map-tiles-url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+        data-map-member="true"
+        data-map-display-only="true"
+        data-map-full-url="/obywatele/mapa/"></div>
+    `;
+    const map = { setView: jest.fn().mockReturnThis(), on: jest.fn() };
+    const layerGroup = { addTo: jest.fn().mockReturnThis() };
+    const circleMarker = jest.fn(() => ({ addTo: jest.fn() }));
+    window.L = {
+      map: jest.fn(() => map),
+      tileLayer: jest.fn(() => ({ addTo: jest.fn() })),
+      layerGroup: jest.fn(() => layerGroup),
+      circleMarker,
+      marker: jest.fn(),
+    };
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        markers: [{
+          latitude: 52.1,
+          longitude: 19.4,
+          items: [{ name: 'Private name', address: 'Private address' }],
+        }],
+        unmapped: [{ name: 'Unmapped name' }],
+      }),
+    });
+
+    await window.WikikracjaCommunityMap.initializeMap();
+
+    expect(map.setView).toHaveBeenCalledWith([52.1, 19.4], 5);
+    expect(map.on).toHaveBeenCalledWith('click', expect.any(Function));
+    expect(circleMarker).toHaveBeenCalledWith(
+      [52.1, 19.4],
+      expect.objectContaining({ interactive: false }),
+    );
+    expect(window.L.marker).not.toHaveBeenCalled();
+    expect(document.body.textContent).not.toContain('Private name');
+    expect(document.body.textContent).not.toContain('Unmapped name');
+    expect(document.getElementById('community-map-status')).toBeNull();
+  });
 });
