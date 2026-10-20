@@ -11119,6 +11119,10 @@ body.tw-chat-page .tw-main-area {
   top: 0.5rem;
 }
 
+.tw-z-0 {
+  z-index: 0;
+}
+
 .tw-z-50 {
   z-index: 50;
 }

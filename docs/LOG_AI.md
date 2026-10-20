@@ -4,7 +4,7 @@
 
 - **Przyczyna:** pulpit nie udostępniał szybkiego podglądu istniejącej Mapy społeczności.
 - **Zmiana:** dodano kafelek 1×1 w trzeciej pozycji, korzystający ze wspólnego endpointu mapy i oddalony o jeden poziom. Kliknięcie podglądu otwiera pełną mapę; kliknięcia w kontrolki i atrybucję Leaflet zachowują ich działanie. Kafelek pokazuje wyłącznie mapę z markerami — bez etykiet, popupów, list i stopki. Atrybucja dostawcy pozostała widoczna, a jej tekst zmniejszono do 10 px.
-- **Weryfikacja:** testy renderowania kafelka i trybu mapy bez szczegółów, build CSS, regression scan i UI guard. Uchwyt sortowania jest zakotwiczony nad warstwami Leaflet, a mapa wypełnia wysokość kafelka.
+- **Weryfikacja:** testy renderowania kafelka i trybu mapy bez szczegółów, build CSS, regression scan i UI guard. Uchwyt sortowania jest zakotwiczony nad warstwami Leaflet, mapa wypełnia wysokość kafelka, a pełna mapa nie zasłania mobilnego menu.
 
 ## 2026-10-20: Poprawki błędów CI dla GitHub Pages i testu motywu
 

@@ -138,6 +138,16 @@ test.describe('mobile', () => {
         const isOpen = await sidebar.evaluate((el) => el.classList.contains('tw-sidebar-open'));
         expect(isOpen).toBe(!wasOpen);
 
+        if (!wasOpen) {
+            await page.waitForTimeout(250);
+            const mapBounds = await page.locator('#community-map').boundingBox();
+            const mapIsUnderSidebar = await page.evaluate(({ x, y }) => {
+                const sidebar = document.getElementById('sidebar');
+                return sidebar.contains(document.elementFromPoint(x, y));
+            }, { x: mapBounds.x + 10, y: mapBounds.y + 10 });
+            expect(mapIsUnderSidebar).toBe(true);
+        }
+
         await page.locator('#sidebar-close-btn, #sidebar-toggle').first().click();
         await page.waitForTimeout(200);
         const isOpenAgain = await sidebar.evaluate((el) => el.classList.contains('tw-sidebar-open'));
@@ -150,5 +160,25 @@ test.describe('mobile', () => {
 
         await expect(page.locator('.tw-main-content')).toBeVisible();
         await expect(page.locator('.tw-topbar')).toBeVisible();
+    });
+
+    test('full community map stays under the mobile sidebar', async ({ page }) => {
+        await page.goto('/obywatele/mapa/');
+        await waitForLayout(page);
+
+        const map = page.locator('#community-map');
+        await expect(map).toHaveClass(/leaflet-container/);
+        const bounds = await map.boundingBox();
+
+        await page.locator('#sidebar-toggle').click();
+        await expect(page.locator('#sidebar')).toHaveClass(/tw-sidebar-open/);
+        await page.waitForTimeout(250);
+
+        const sidebarCoversMap = await page.evaluate(({ x, y }) => {
+            const sidebar = document.getElementById('sidebar');
+            return sidebar.contains(document.elementFromPoint(x, y));
+        }, { x: bounds.x + 10, y: bounds.y + 10 });
+
+        expect(sidebarCoversMap).toBe(true);
     });
 });

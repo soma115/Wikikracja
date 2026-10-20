@@ -12,7 +12,7 @@
     <div class="tw-card-body tw-p-0">
 {% endif %}
 <div id="community-map"
-     class="tw-theme-aware-map {% if dashboard_tile %}tw-flex-1 tw-min-h-60{% else %}tw-h-[65vh] tw-min-h-72{% endif %} tw-w-full tw-overflow-hidden"
+     class="tw-theme-aware-map tw-relative tw-z-0 {% if dashboard_tile %}tw-flex-1 tw-min-h-60{% else %}tw-h-[65vh] tw-min-h-72{% endif %} tw-w-full tw-overflow-hidden"
      role="application"
      aria-label="{% trans 'Community map' %}"
      data-map-data-url="{{ map_data_url }}"

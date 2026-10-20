@@ -135,7 +135,7 @@ def test_home_renders_community_map_tile_with_member_visibility(dashboard_user, 
     content = response.content.decode()
 
     assert response.status_code == 200
-    assert 'class="tw-dashboard-tile tw-dashboard-tile--1x1" data-tile-id="community-map"' in content
+    assert 'class="tw-dashboard-tile tw-dashboard-tile--1x1 tw-relative tw-z-0" data-tile-id="community-map"' in content
     assert 'tw-z-[700]' in content
     assert content.index('data-tile-id="onboarding"') < content.index('data-tile-id="activity"')
     assert content.index('data-tile-id="activity"') < content.index('data-tile-id="community-map"')

@@ -636,6 +636,7 @@ class CommunityMapViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="community-map"')
         self.assertContains(response, 'tw-theme-aware-map')
+        self.assertContains(response, 'tw-z-0')
         self.assertNotContains(response, 'tw-stepper-nav')
         self.assertNotContains(response, 'data-map-citizen')
         self.assertNotContains(response, 'data-map-partner')
