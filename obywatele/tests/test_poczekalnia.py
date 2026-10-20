@@ -96,7 +96,7 @@ class CandidateEditRenderTest(TestCase):
     def test_candidate_edit_ignores_unsupported_avatar_upload(self):
         response = self.client.post(
             reverse('obywatele:candidate_edit', kwargs={'pk': self.candidate_user.pk}),
-            {'first_name': 'Candidate', 'last_name': 'Profile', 'city': 'Warsaw', 'avatar': SimpleUploadedFile('avatar.txt', b'not an image', content_type='text/plain')},
+            {'first_name': 'Candidate', 'last_name': 'Profile', 'country': 'PL', 'city': 'Warsaw', 'avatar': SimpleUploadedFile('avatar.txt', b'not an image', content_type='text/plain')},
         )
 
         self.assertEqual(response.status_code, 302)

@@ -22,6 +22,13 @@ class UserFactory(DjangoModelFactory):
     is_staff = False
     is_superuser = False
 
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        from obywatele.models import Country
+
+        Country.objects.get_or_create(code='PL', defaults={'name': 'Poland'})
+        return super()._create(model_class, *args, **kwargs)
+
     @factory.post_generation
     def password(obj, create, extracted, **kwargs):
         """Hashuje hasło — domyślnie 'testpass123'. Pozwala UserFactory(password='X').

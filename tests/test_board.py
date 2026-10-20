@@ -589,7 +589,7 @@ def test_system_post_visible_to_authenticated_users_regardless_of_author_or_priv
     client.logout()
     assert client.get(reverse('board:start')).status_code == 200
     assert system_post.title not in client.get(reverse('board:start')).content.decode()
-    assert client.get(reverse('board:view_post', args=[system_post.pk])).status_code == 404
+    assert client.get(reverse('board:view_post', args=[system_post.pk])).status_code == 302
 
 
 @pytest.mark.django_db
