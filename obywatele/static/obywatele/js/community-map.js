@@ -6,7 +6,12 @@
   const ICONS = {
     citizen: 'fa-user',
     partner: 'fa-handshake',
-    mixed: 'fa-layer-group',
+    resource: 'fa-boxes-stacked',
+  };
+  const MARKER_STYLES = {
+    citizen: 'tw-citizen-color-9 tw-text-white',
+    partner: 'tw-bg-warning tw-text-gray-900',
+    resource: 'tw-bg-[var(--color-success)] tw-text-gray-900',
   };
   const INITIAL_CENTER = [52.1, 19.4];
   const INITIAL_ZOOM = 6;
@@ -15,33 +20,47 @@
     return Array.isArray(point) ? point : [point.x, point.y];
   }
 
-  function clusterMarkers(markers, project, radius = 32) {
-    const clusters = [];
+  function spreadOverlappingMarkers(markers, project, unproject, radius = 32) {
+    const groups = [];
     for (const marker of markers) {
       const projected = projectPoint(project([marker.latitude, marker.longitude]));
-      const cluster = clusters.find((candidate) => {
-        const point = projectPoint(candidate.projected);
-        return Math.hypot(point[0] - projected[0], point[1] - projected[1]) <= radius;
-      });
+      const entry = { marker, projected };
+      const matches = groups.filter((group) => group.some((candidate) => Math.hypot(candidate.projected[0] - projected[0], candidate.projected[1] - projected[1]) <= radius));
 
-      if (cluster) {
-        cluster.markers.push(marker);
-        if (cluster.type !== marker.type) cluster.type = 'mixed';
-      } else {
-        clusters.push({
-          type: marker.type,
-          position: [marker.latitude, marker.longitude],
-          projected,
-          markers: [marker],
-        });
+      if (!matches.length) {
+        groups.push([entry]);
+        continue;
+      }
+
+      matches[0].push(entry);
+      for (const duplicate of matches.slice(1)) {
+        matches[0].push(...duplicate);
+        groups.splice(groups.indexOf(duplicate), 1);
       }
     }
-    return clusters;
+
+    return groups.flatMap((group) => {
+      if (group.length === 1) {
+        const { marker } = group[0];
+        return [{ marker, position: [marker.latitude, marker.longitude] }];
+      }
+
+      const center = group.reduce(
+        (point, entry) => [point[0] + entry.projected[0] / group.length, point[1] + entry.projected[1] / group.length],
+        [0, 0],
+      );
+      const offsetRadius = (radius + 4) / (2 * Math.sin(Math.PI / group.length));
+      return group.map(({ marker }, index) => {
+        const angle = -Math.PI / 2 + (index * 2 * Math.PI) / group.length;
+        const point = [center[0] + Math.cos(angle) * offsetRadius, center[1] + Math.sin(angle) * offsetRadius];
+        return { marker, position: unproject(point) };
+      });
+    });
   }
 
   function createMarkerIcon(leaflet, type) {
     const marker = document.createElement('span');
-    marker.className = 'tw-w-8 tw-h-8 tw-rounded-full tw-bg-accent tw-text-white tw-flex tw-items-center tw-justify-center tw-border-2 tw-border-white tw-shadow-lg';
+    marker.className = `tw-w-8 tw-h-8 tw-rounded-full ${MARKER_STYLES[type] || 'tw-bg-info tw-text-gray-900'} tw-flex tw-items-center tw-justify-center tw-border-2 tw-border-white tw-shadow-lg`;
     const icon = document.createElement('i');
     icon.className = `fas ${ICONS[type] || 'fa-map-marker-alt'} fa-fw`;
     icon.setAttribute('aria-hidden', 'true');
@@ -180,16 +199,21 @@
           const markers = data.markers || [];
           const drawMarkers = () => {
             markersLayer.clearLayers();
-            const clusters = clusterMarkers(markers, (coordinates) => map.latLngToLayerPoint(coordinates));
-            for (const cluster of clusters) {
-              const entries = cluster.markers.flatMap((marker) => (marker.items || []).map((item) => ({ ...item, type: marker.type })));
-              const marker = leaflet.marker(cluster.position, { icon: createMarkerIcon(leaflet, cluster.type) })
+            const positionedMarkers = spreadOverlappingMarkers(
+              markers,
+              (coordinates) => map.latLngToLayerPoint(coordinates),
+              (point) => map.layerPointToLatLng(point),
+            );
+            for (const { marker: mapMarker, position } of positionedMarkers) {
+              const entries = (mapMarker.items || []).map((item) => ({ ...item, type: mapMarker.type }));
+              const marker = leaflet.marker(position, { icon: createMarkerIcon(leaflet, mapMarker.type) })
                 .bindPopup(makePopup(leaflet, entries, root))
                 .addTo(markersLayer);
-              marker.on('click', () => map.setView(cluster.position, Math.max(map.getZoom(), 12), { animate: true }));
+              marker.on('click', () => map.setView(position, Math.max(map.getZoom(), 12), { animate: true }));
             }
           };
           drawMarkers();
+          map.on('zoomend', drawMarkers);
           map.on('tileerror', () => {
             reportError();
             renderDetailsList(records, root, { allRecords: true });
@@ -216,7 +240,7 @@
       });
   }
 
-  return { clusterMarkers, initializeMap };
+  return { spreadOverlappingMarkers, initializeMap };
 });
 
 if (typeof window !== 'undefined') {

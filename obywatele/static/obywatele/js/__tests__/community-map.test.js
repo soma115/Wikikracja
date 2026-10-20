@@ -1,24 +1,27 @@
-const { clusterMarkers } = require('../community-map');
+const { spreadOverlappingMarkers } = require('../community-map');
 
-describe('community map marker grouping', () => {
+describe('community map marker positioning', () => {
   const project = ([latitude, longitude]) => [longitude * 1000, latitude * 1000];
+  const unproject = ([x, y]) => [y / 1000, x / 1000];
 
-  test('groups nearby people and partners into mixed markers', () => {
+  test('keeps overlapping citizens, partners, and resources as separate markers', () => {
     const markers = [
       { type: 'citizen', latitude: 52, longitude: 21, items: [{ name: 'A' }] },
-      { type: 'citizen', latitude: 52, longitude: 21.01, items: [{ name: 'B' }] },
-      { type: 'partner', latitude: 52, longitude: 21.01, items: [{ name: 'C' }] },
+      { type: 'partner', latitude: 52, longitude: 21, items: [{ name: 'Partner' }] },
+      { type: 'resource', latitude: 52, longitude: 21, items: [{ name: 'Drill' }] },
     ];
 
-    const clusters = clusterMarkers(markers, project, 20);
+    const positioned = spreadOverlappingMarkers(markers, project, unproject);
 
-    expect(clusters.filter((cluster) => cluster.type === 'mixed')).toHaveLength(1);
-    expect(clusters.find((cluster) => cluster.type === 'mixed').markers).toHaveLength(3);
-    expect(markers.map(({ latitude, longitude }) => [latitude, longitude])).toEqual([
-      [52, 21],
-      [52, 21.01],
-      [52, 21.01],
-    ]);
+    expect(positioned.map(({ marker }) => marker)).toEqual(markers);
+    expect(positioned.map(({ marker }) => marker.type)).toEqual(['citizen', 'partner', 'resource']);
+    expect(new Set(positioned.map(({ position }) => position.join(','))).size).toBe(3);
+  });
+
+  test('leaves non-overlapping marker locations unchanged', () => {
+    const marker = { type: 'resource', latitude: 52, longitude: 21, items: [{ name: 'Drill' }] };
+
+    expect(spreadOverlappingMarkers([marker], project, unproject)).toEqual([{ marker, position: [52, 21] }]);
   });
 
   test('starts over Poland and renders guest locations as non-interactive points', async () => {
@@ -71,6 +74,7 @@ describe('community map marker grouping', () => {
         data-map-member="true"
         data-map-error="Map data could not be loaded."
         data-map-citizen="Citizen"
+        data-map-resource="Resource"
         data-map-details="Details"></div>
       <div id="community-map-empty" class="tw-d-none"></div>
       <section id="community-map-unmapped" class="tw-d-none"><h2></h2><div id="community-map-location-list"></div></section>
@@ -87,6 +91,7 @@ describe('community map marker grouping', () => {
       on: jest.fn(),
       getZoom: jest.fn(() => 6),
       latLngToLayerPoint: ([latitude, longitude]) => ({ x: longitude * 1000, y: latitude * 1000 }),
+      layerPointToLatLng: ([x, y]) => [y / 1000, x / 1000],
     };
     const layerGroup = { addTo: jest.fn().mockReturnThis(), clearLayers: jest.fn() };
     window.L = {
@@ -100,17 +105,28 @@ describe('community map marker grouping', () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        markers: [{ type: 'citizen', latitude: 52.1, longitude: 19.4, items: [{ name: '<Jan>', address: 'Długa 4', url: '/obywatele/1/' }] }],
+        markers: [
+          { type: 'citizen', latitude: 52.1, longitude: 19.4, items: [{ name: '<Jan>', address: 'Długa 4', url: '/obywatele/1/' }] },
+          { type: 'resource', latitude: 50.1, longitude: 20.4, items: [{ name: 'Drill', address: 'Krakow', url: '/bookkeeping/resource/?q=Drill' }] },
+          { type: 'partner', latitude: 53.1, longitude: 18.4, items: [{ name: 'Shop', address: 'Torun', url: '/bookkeeping/partner/1/' }] },
+        ],
         unmapped: [],
       }),
     });
 
     await window.WikikracjaCommunityMap.initializeMap();
 
-    expect(marker.bindPopup).toHaveBeenCalledTimes(1);
+    expect(marker.bindPopup).toHaveBeenCalledTimes(3);
     const popup = marker.bindPopup.mock.calls[0][0];
     expect(popup.textContent).toContain('<Jan>');
     expect(popup.querySelector('script')).toBeNull();
+    expect(marker.bindPopup.mock.calls[1][0].textContent).toContain('Resource');
+    const markerIcons = window.L.divIcon.mock.calls.map(([options]) => options.html);
+    expect(markerIcons[0]).toContain('tw-citizen-color-9');
+    expect(markerIcons[0]).toContain('tw-text-white');
+    expect(markerIcons[1]).toContain('tw-bg-[var(--color-success)]');
+    expect(markerIcons[2]).toContain('tw-bg-warning');
+    expect(markerIcons[1]).toContain('fa-boxes-stacked');
     clickHandlers[0]();
     expect(map.setView).toHaveBeenLastCalledWith([52.1, 19.4], 12, { animate: true });
   });

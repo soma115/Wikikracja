@@ -21,6 +21,11 @@
 
 @layer components {
 
+  html[data-theme="tokyo-night"] .tw-theme-aware-map .leaflet-tile-pane,
+  html[data-theme="dark"] .tw-theme-aware-map .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(.9) contrast(.9);
+  }
+
   /* -- Parity rules: old-class rules covered by tw-* twins lacked these
      states; kept under the tw-* names actually used in markup. -- */
   select.tw-form-select option {

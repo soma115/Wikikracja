@@ -495,6 +495,8 @@ With `DEBUG=True`, the map uses Stadia Alidade Smooth for local development. Wit
 
 Nominatim geocoding is disabled by default through `MAP_GEOCODING_ENABLED`. When enabled, follow the [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/), use a recognizable `User-Agent`, limit requests to at most one per second, and cache results so the same location is not geocoded repeatedly. Reassess the number of unique locations and expected request volume before enabling or increasing use.
 
+If map tiles load but markers do not, check the response to `/obywatele/mapa/data/` in the browser's Network panel. An active member receives `markers` and `unmapped`; a guest receives only `points`. Empty arrays for both roles usually mean there are no cached coordinates: with `MAP_GEOCODING_ENABLED=False`, neither role makes geocoder requests, and guests never initiate geocoding even when it is enabled. Check the effective production setting, Redis connectivity and whether entries have both country and city before changing providers. Do not publish member JSON responses, which contain names and addresses. Once provider terms and expected volume are verified, enable geocoding for the web service with a recognizable contact-bearing `MAP_GEOCODER_USER_AGENT`; an active member's request populates the shared cache and later guest requests can use it. Large numbers of distinct locations may exceed a web request timeout; do not bulk-query the public Nominatim service.
+
 ### Essential Settings in `.env`
 
 The following values illustrate configuration; do not use placeholders as production
@@ -615,4 +617,3 @@ python manage.py update_site        # Update site domain and name from environme
 │ one per instance    │      │ one per instance         │
 └─────────────────────┘      └──────────────────────────┘
 ```
-

@@ -9,7 +9,7 @@
       <p class="tw-text-muted tw-mb-0">{% trans "Map locations are approximate unless a detailed address has been confirmed." %}</p>
     </div>
     <div id="community-map"
-         class="tw-h-[65vh] tw-min-h-72 tw-w-full tw-overflow-hidden"
+         class="tw-theme-aware-map tw-h-[65vh] tw-min-h-72 tw-w-full tw-overflow-hidden"
          role="application"
          aria-label="{% trans 'Community map' %}"
          data-map-data-url="{{ map_data_url }}"
@@ -22,6 +22,7 @@
            data-map-unmapped-title="{% trans 'Locations not marked on the map' %}"
            data-map-citizen="{% trans 'Citizen' %}"
            data-map-partner="{% trans 'Partner' %}"
+           data-map-resource="{% trans 'Resource' %}"
            data-map-details="{% trans 'Details' %}"
          {% endif %}></div>
   </div>

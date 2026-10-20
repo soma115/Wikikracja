@@ -209,7 +209,7 @@ class BookkeepingViewTests(TestCase):
 
         response = self.client.post(
             reverse('bookkeeping:partner_update', args=[self.partner.pk]),
-            {'name': self.partner.name, 'address': self.partner.address, 'city': 'Gdańsk', 'country': 'Poland', 'street': 'Długa', 'house_number': '12A', 'apartment_number': '4'},
+            {'name': self.partner.name, 'address': self.partner.address, 'city': 'Gdańsk', 'country': 'PL', 'street': 'Długa', 'house_number': '12A', 'apartment_number': '4'},
         )
 
         self.assertRedirects(response, reverse('bookkeeping:partner_list'))
@@ -248,6 +248,24 @@ class BookkeepingViewTests(TestCase):
         res = self.client.post(reverse('bookkeeping:partner_create'), {'name': 'Nowy Partner'})
         self.assertRedirects(res, reverse('bookkeeping:partner_list'))
         self.assertTrue(Partner.objects.filter(name='Nowy Partner').exists())
+
+    def test_partner_country_defaults_to_catalog_poland_and_preserves_stored_value(self):
+        poland = Country.objects.get(code='PL')
+        create_form = self.client.get(reverse('bookkeeping:partner_create')).context['form']
+        self.assertEqual(create_form['country'].value(), 'PL')
+        self.assertIn('<select', str(create_form['country']))
+
+        self.partner.country = 'Polska'
+        self.partner.save(update_fields=['country'])
+        edit_form = self.client.get(reverse('bookkeeping:partner_update', args=[self.partner.pk])).context['form']
+        self.assertEqual(edit_form['country'].value(), 'PL')
+
+        self.client.post(reverse('bookkeeping:partner_update', args=[self.partner.pk]), {'name': self.partner.name})
+        self.partner.refresh_from_db()
+        self.assertEqual(self.partner.country, poland.name)
+
+        self.client.post(reverse('bookkeeping:partner_create'), {'name': 'Partner without country'})
+        self.assertEqual(Partner.objects.get(name='Partner without country').country, poland.name)
 
     def test_protected_delete_blocks_object_with_transactions(self):
         self._transaction()
@@ -501,6 +519,31 @@ class ResourceListingViewTests(TestCase):
 
     def test_resource_manage_url_is_removed(self):
         self.assertEqual(self.client.get('/bookkeeping/resource/manage/').status_code, 404)
+
+    def test_resource_country_defaults_to_poland_and_retains_stored_country(self):
+        poland = Country.objects.get(code='PL')
+        resource_form = self.client.get(self.list_url).context['resource_form']
+        self.assertEqual(resource_form['country'].value(), poland.pk)
+
+        response = self.client.post(
+            reverse('bookkeeping:resource_create'), {'kind': 'give', 'name': 'Resource without country', 'assignment_scope': Entity.AssignmentScope.MEMBER, 'assigned_member': self.owner.uzytkownik.pk}
+        )
+        self.assertRedirects(response, self.list_url)
+        entity = Entity.objects.get(name='Resource without country')
+        self.assertEqual(entity.country, poland)
+
+        us = Country.objects.get(code='US')
+        entity.country = us
+        entity.save(update_fields=['country'])
+        edit_form = self.client.get(reverse('bookkeeping:resource_entity_update', args=[entity.pk])).context['resource_form']
+        self.assertEqual(edit_form['country'].value(), us.pk)
+
+        response = self.client.post(
+            reverse('bookkeeping:resource_entity_update', args=[entity.pk]), {'kind': 'give', 'name': entity.name, 'assignment_scope': Entity.AssignmentScope.MEMBER, 'assigned_member': self.owner.uzytkownik.pk}
+        )
+        self.assertRedirects(response, self.list_url)
+        entity.refresh_from_db()
+        self.assertEqual(entity.country, us)
 
     def test_resource_list_shows_public_offers_matching_active_needs_without_author(self):
         self.other_user.first_name = 'Offer owner'

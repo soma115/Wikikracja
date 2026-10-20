@@ -474,6 +474,7 @@ class CitizenMapDataTests(TestCase):
     def test_country_matching_is_exact_and_city_comparison_only_normalizes_whitespace_and_case(self):
         self.assertEqual(normalize_country(' United States '), 'US')
         self.assertEqual(normalize_country('US'), 'US')
+        self.assertEqual(normalize_country(' Polska '), 'PL')
         self.assertIsNone(normalize_country('United Stetes'))
         self.assertEqual(normalize_city('  New York '), 'new york')
         self.assertEqual(location_key({'country_code': 'us', 'city': ' New York ', 'street': '', 'house_number': ''}), location_key({'country_code': 'US', 'city': 'new york'}))
@@ -508,6 +509,7 @@ class CitizenMapDataTests(TestCase):
             email='private@example.com',
             notes='private-notes',
         )
+        Partner.objects.create(name='Polish Partner', city='Kielce', country='Polska')
         Partner.objects.create(name='Unknown Country Partner', city='Portland', country='United Stetes')
 
         records = get_map_location_records()
@@ -524,6 +526,9 @@ class CitizenMapDataTests(TestCase):
         self.assertEqual(partner_record['url'], reverse('bookkeeping:partner_detail', args=[partner.pk]))
         self.assertIn('Historic address', partner_record['address'])
         self.assertNotIn('apartment_number', partner_record['location'])
+        polish_partner_record = next(record for record in records if record['name'] == 'Polish Partner')
+        self.assertEqual(polish_partner_record['location']['country_code'], 'PL')
+        self.assertEqual(polish_partner_record['location']['city'], 'Kielce')
         self.assertEqual({record['type'] for record in records}, {'citizen', 'partner'})
         for record in records:
             self.assertNotIn('email', record)
@@ -535,13 +540,42 @@ class CitizenMapDataTests(TestCase):
         self.assertEqual(partner.name, 'Map Partner')
         self.assertFalse(inactive.is_active)
 
-    def test_map_excludes_financial_assets_and_resources(self):
-        author = User.objects.create_user(username='entity-map-author')
+    def test_map_includes_only_public_active_resources_with_own_city(self):
+        author = User.objects.create_user(username='entity-map-author', is_active=True)
+        country = Country.objects.get(code='US')
+        author.uzytkownik.country = country
+        author.uzytkownik.city = 'Boston'
+        author.uzytkownik.save(update_fields=['country', 'city'])
         Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, name='Financial unit not mapped', code='MAP', symbol='M', is_currency=True)
-        Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Offer not mapped', author=author, is_community_owned=True)
+        offer = Entity.objects.create(
+            entity_type=Entity.Type.RESOURCE,
+            resource_kind=Entity.ResourceKind.GIVE,
+            name='Community drill',
+            author=author,
+            is_community_owned=True,
+            country=country,
+            city='Boston',
+            street='Private Road',
+            house_number='12',
+            apartment_number='3',
+        )
+        need = Entity.objects.create(
+            entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.NEED, name='Bike needed', author=author, assigned_member=author.uzytkownik, country=country, city='New York'
+        )
+        Entity.objects.create(
+            entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Closed offer', author=author, is_community_owned=True, country=country, city='Boston', is_closed=True
+        )
+        Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='No own location', author=author, assigned_member=author.uzytkownik)
+        inactive = User.objects.create_user(username='entity-map-inactive', is_active=False)
+        Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Inactive owner', author=author, assigned_member=inactive.uzytkownik, country=country, city='Boston')
 
         records = get_map_location_records()
-        self.assertEqual(records, [])
+        resources = [record for record in records if record['type'] == 'resource']
+        self.assertEqual({record['name'] for record in resources}, {offer.name, need.name})
+        self.assertEqual(next(record for record in resources if record['name'] == offer.name)['location'], {'country_code': 'US', 'city': 'Boston', 'street': '', 'house_number': ''})
+        self.assertEqual(next(record for record in resources if record['name'] == offer.name)['address'], 'Boston, United States')
+        self.assertIn('q=Community+drill', next(record for record in resources if record['name'] == offer.name)['url'])
+        self.assertNotIn('Private Road', str(resources))
 
     def test_map_payload_deduplicates_guest_points_and_groups_member_markers_by_kind(self):
         records = [
@@ -558,8 +592,8 @@ class CitizenMapDataTests(TestCase):
             return {'warsaw': (52.23, 21.01), 'krakow': (50.06, 19.94)}.get(location['city'].strip().casefold())
 
         guest_payload = build_map_payload(records, geocode, show_details=False)
-        self.assertEqual(guest_payload, {'points': [{'lat': 52.23, 'lon': 21.01}]})
-        self.assertEqual(len(calls), 1)
+        self.assertEqual(guest_payload, {'points': [{'lat': 50.06, 'lon': 19.94}, {'lat': 52.23, 'lon': 21.01}]})
+        self.assertEqual(len(calls), 2)
         self.assertEqual(set(guest_payload['points'][0]), {'lat', 'lon'})
         self.assertNotIn('unmapped', guest_payload)
 
@@ -570,8 +604,9 @@ class CitizenMapDataTests(TestCase):
         self.assertEqual(len(citizens), 1)
         self.assertEqual(len(citizens[0]['items']), 2)
         self.assertEqual(len(partners), 1)
+        self.assertEqual([marker['type'] for marker in member_payload['markers']].count('resource'), 1)
         self.assertEqual([item['name'] for item in member_payload['unmapped']], ['Unmapped'])
-        self.assertEqual(len(calls), 1)
+        self.assertEqual(len(calls), 2)
 
 
 class CommunityMapViewTests(TestCase):
@@ -600,6 +635,7 @@ class CommunityMapViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="community-map"')
+        self.assertContains(response, 'tw-theme-aware-map')
         self.assertNotContains(response, 'tw-stepper-nav')
         self.assertNotContains(response, 'data-map-citizen')
         self.assertNotContains(response, 'data-map-partner')
@@ -611,6 +647,20 @@ class CommunityMapViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {'points': [{'lat': 52.2, 'lon': 21.0}]})
         self.assertIn('no-store', response.headers['Cache-Control'])
+
+    @override_settings(MAP_GEOCODING_ENABLED=False)
+    def test_resource_is_visible_to_members_but_guest_receives_only_coordinates(self):
+        member = User.objects.create_user(username='map-resource-member', is_active=True)
+        country = Country.objects.get(code='US')
+        Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Shared drill', author=member, is_community_owned=True, country=country, city='Boston')
+        with patch('obywatele.views.get_cached_coordinates', return_value=(42.36, -71.06)):
+            guest = self.client.get(self.data_url).json()
+            self.client.force_login(member)
+            member_data = self.client.get(self.data_url).json()
+
+        self.assertEqual(guest, {'points': [{'lat': 42.36, 'lon': -71.06}]})
+        self.assertEqual([marker['type'] for marker in member_data['markers']], ['resource'])
+        self.assertEqual(member_data['markers'][0]['items'][0]['name'], 'Shared drill')
 
     @override_settings(MAP_GEOCODING_ENABLED=True)
     def test_active_member_page_uses_the_citizen_stepper_and_details_payload(self):
@@ -692,6 +742,25 @@ class MapGeocodingTests(TestCase):
         self.assertEqual(open_url.call_count, 2)
         city_query = parse_qs(urlsplit(open_url.call_args_list[1].args[0].full_url).query)
         self.assertNotIn('street', city_query)
+        self.assertEqual(city_query['limit'], ['1'])
+
+    @override_settings(MAP_GEOCODER_URL='https://nominatim.example/search', MAP_GEOCODER_USER_AGENT='Wikikracja test/1.0')
+    def test_city_only_location_uses_city_center_without_a_street_address(self):
+        cache.clear()
+        location = {'country_code': 'PL', 'city': 'Kielce'}
+        city_center = [
+            {'lat': '50.87', 'lon': '20.63', 'name': 'Kielce', 'class': 'place', 'type': 'city', 'address': {'country_code': 'pl', 'city': 'Kielce'}},
+            {'lat': '50.88', 'lon': '20.64', 'name': 'Cafe', 'class': 'amenity', 'type': 'cafe', 'address': {'country_code': 'pl', 'city': 'Kielce'}},
+        ]
+
+        with patch('obywatele.map_geocoding._wait_for_nominatim_slot', return_value=True), patch('obywatele.map_geocoding.urlopen', return_value=self.response(city_center)) as open_url:
+            self.assertEqual(geocode_location(location), (50.87, 20.63))
+
+        query = parse_qs(urlsplit(open_url.call_args.args[0].full_url).query)
+        self.assertEqual(query['city'], ['Kielce'])
+        self.assertEqual(query['countrycodes'], ['pl'])
+        self.assertEqual(query['limit'], ['1'])
+        self.assertNotIn('street', query)
 
     @override_settings(MAP_GEOCODER_URL='https://nominatim.example/search', MAP_GEOCODER_USER_AGENT='Wikikracja test/1.0')
     def test_changed_house_number_uses_a_new_cache_key(self):
@@ -1681,6 +1750,18 @@ class ContactPreferenceFormTest(TestCase):
 
     def test_new_profile_defaults_to_poland(self):
         self.assertEqual(self.profile.country.code, 'PL')
+
+    def test_profile_and_onboarding_forms_select_stored_country_or_poland(self):
+        self.profile.country = Country.objects.get(code='US')
+        self.profile.save(update_fields=['country'])
+        for form_class in (ProfileForm, OnboardingDetailsForm):
+            with self.subTest(form=form_class.__name__):
+                form = form_class(instance=self.profile)
+                self.assertEqual(form['country'].value(), 'US')
+                self.assertIn('value="US" selected', str(form['country']))
+                self.profile.country_id = None
+                self.assertEqual(form_class(instance=self.profile)['country'].value(), 'PL')
+                self.profile.refresh_from_db()
 
     def test_region_must_belong_to_selected_country(self):
         other_country = Country.objects.exclude(code='PL').first()

@@ -1360,6 +1360,11 @@ video {
   }
 }
 
+html[data-theme="tokyo-night"] .tw-theme-aware-map .leaflet-tile-pane,
+  html[data-theme="dark"] .tw-theme-aware-map .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(.9) contrast(.9);
+}
+
 /* -- Parity rules: old-class rules covered by tw-* twins lacked these
      states; kept under the tw-* names actually used in markup. -- */
 
@@ -11628,6 +11633,10 @@ body.tw-chat-page .tw-main-area {
   border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
 }
 
+.tw-bg-\[var\(--color-success\)\] {
+  background-color: var(--color-success);
+}
+
 .tw-bg-accent {
   background-color: var(--accent);
 }
@@ -11638,6 +11647,10 @@ body.tw-chat-page .tw-main-area {
 
 .tw-bg-danger {
   background-color: var(--badge-rejected-color);
+}
+
+.tw-bg-info {
+  background-color: var(--color-info);
 }
 
 .tw-bg-success {
@@ -11821,6 +11834,11 @@ body.tw-chat-page .tw-main-area {
 
 .tw-text-danger {
   color: var(--badge-rejected-color);
+}
+
+.tw-text-gray-900 {
+  --tw-text-opacity: 1;
+  color: rgb(17 24 39 / var(--tw-text-opacity, 1));
 }
 
 .tw-text-info {

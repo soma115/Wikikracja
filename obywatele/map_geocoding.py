@@ -90,8 +90,9 @@ def _search_nominatim(location):
     if parsed_endpoint.scheme != 'https' or not parsed_endpoint.netloc or not user_agent:
         return []
 
-    query = {'format': 'jsonv2', 'addressdetails': 1, 'limit': 5, 'countrycodes': location['country_code'].lower(), 'city': location['city']}
-    if location.get('street') and location.get('house_number'):
+    has_exact_address = bool(location.get('street') and location.get('house_number'))
+    query = {'format': 'jsonv2', 'addressdetails': 1, 'limit': 5 if has_exact_address else 1, 'countrycodes': location['country_code'].lower(), 'city': location['city']}
+    if has_exact_address:
         query['street'] = f"{location['house_number']} {location['street']}"
 
     if not _wait_for_nominatim_slot():
@@ -109,6 +110,7 @@ def _search_nominatim(location):
 def _select_result(results, location):
     exact_matches = []
     city_matches = []
+    city_centers = []
     for result in results:
         if not isinstance(result, dict):
             continue
@@ -122,12 +124,20 @@ def _select_result(results, location):
         if coordinates is None:
             continue
         city_matches.append(coordinates)
+        if result.get('class') == 'place' and result.get('type') in {'city', 'town', 'village', 'municipality', 'hamlet'}:
+            city_centers.append(coordinates)
 
         if location.get('street') and location.get('house_number') and _result_matches_address(address, location['street'], location['house_number']):
             exact_matches.append(coordinates)
 
-    confirmed = set(exact_matches) if location.get('street') and location.get('house_number') else set(city_matches)
-    return next(iter(confirmed)) if len(confirmed) == 1 else None
+    if location.get('street') and location.get('house_number'):
+        confirmed = set(exact_matches)
+        return next(iter(confirmed)) if len(confirmed) == 1 else None
+    if city_centers:
+        return city_centers[0]
+    if len(city_matches) == 1:
+        return city_matches[0]
+    return None
 
 
 def _result_matches_city(result, address, city):

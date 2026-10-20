@@ -1,13 +1,17 @@
 import math
+from urllib.parse import urlencode
 
+from django.db.models import Q
 from django.urls import reverse
 
 from bookkeeping.models import Partner
+from resources.models import Entity
 from zzz.templatetags.citizen_filters import user_display_name
 
 from .models import Country, Uzytkownik
 
-MAP_TYPES = frozenset({'citizen', 'partner'})
+MAP_TYPES = frozenset({'citizen', 'partner', 'resource'})
+COUNTRY_CODE_ALIASES = {'polska': 'PL'}
 
 
 def normalize_country(value, countries=None):
@@ -15,6 +19,8 @@ def normalize_country(value, countries=None):
     normalized = (value or '').strip().casefold()
     if not normalized:
         return None
+    if normalized in COUNTRY_CODE_ALIASES:
+        return COUNTRY_CODE_ALIASES[normalized]
 
     if countries is None:
         countries = Country.objects.values_list('code', 'name')
@@ -95,6 +101,27 @@ def get_map_location_records():
                 ),
                 'url': reverse('bookkeeping:partner_detail', kwargs={'pk': partner.pk}),
                 'location': _location(country_code, partner.city, partner.street, partner.house_number),
+            }
+        )
+
+    resources = (
+        Entity.objects.filter(entity_type=Entity.Type.RESOURCE, is_closed=False)
+        .filter(Q(is_community_owned=True) | Q(assigned_member__uid__is_active=True))
+        .exclude(country__isnull=True)
+        .exclude(city='')
+        .select_related('country')
+        .only('name', 'city', 'country__code', 'country__name')
+    )
+    for resource in resources:
+        if not resource.city.strip():
+            continue
+        records.append(
+            {
+                'type': 'resource',
+                'name': resource.name,
+                'address': _address_text(city=resource.city, country=resource.country.name),
+                'url': f"{reverse('bookkeeping:resource_list')}?{urlencode({'q': resource.name})}",
+                'location': _location(resource.country.code, resource.city),
             }
         )
 

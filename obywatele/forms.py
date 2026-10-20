@@ -201,7 +201,9 @@ class ProfileForm(forms.ModelForm):
         self.fields['business_website'].widget.attrs['data-business-field'] = 'true'
         self.fields['business_description'].widget = forms.Textarea(attrs={'rows': 3, 'data-business-field': 'true'})
 
-        selected_country = self.data.get('country') if self.is_bound else getattr(self.instance.country, 'code', 'PL')
+        selected_country = self.data.get('country') if self.is_bound else (self.instance.country.code if self.instance.country_id else 'PL')
+        if not self.is_bound:
+            self.initial['country'] = selected_country
         self.fields['voivodeship'].queryset = Region.objects.filter(country__code=selected_country).order_by('name') if selected_country else Region.objects.none()
         self.fields['voivodeship'].label = _('Voivodeship')
         self.fields['voivodeship'].required = False

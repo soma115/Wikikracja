@@ -29,7 +29,7 @@ from obywatele.models import Uzytkownik
 from resources.models import LEGACY_FINANCIAL_ASSET_SOURCE, LEGACY_RESOURCE_LISTING_SOURCE, Entity, LegacyEntityReference
 from resources.services import match_active_offers_for_needs, search_entities
 
-from .forms import AssetForm, ResourceEntityForm, TransactionForm
+from .forms import AssetForm, PartnerForm, ResourceEntityForm, TransactionForm
 from .models import Category, Partner, Transaction
 from .services import category_breakdown
 
@@ -775,13 +775,13 @@ class PartnerDetailView(BookkeepingDetailView):
 
 class PartnerCreateView(BookkeepingCreateView):
     model = Partner
-    fields = ['name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes']
+    form_class = PartnerForm
     success_url_name = 'bookkeeping:partner_list'
 
 
 class PartnerUpdateView(BookkeepingUpdateView):
     model = Partner
-    fields = ['name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes']
+    form_class = PartnerForm
     success_url_name = 'bookkeeping:partner_list'
 
 

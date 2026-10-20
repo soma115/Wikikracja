@@ -5,10 +5,32 @@ from crispy_forms.layout import Submit
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
+from obywatele.map_data import normalize_country
 from obywatele.models import Country, Uzytkownik
 from resources.models import Entity
 
 from .models import Category, Partner, Transaction
+
+
+class PartnerForm(forms.ModelForm):
+    country = forms.ChoiceField(choices=(), required=False, label=_('Country'))
+
+    class Meta:
+        model = Partner
+        fields = ('name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        countries = list(Country.objects.order_by('name'))
+        self.countries_by_code = {country.code: country for country in countries}
+        country_rows = [(country.code, country.name) for country in countries]
+        self.fields['country'].choices = country_rows
+        if not self.is_bound:
+            self.initial['country'] = normalize_country(self.instance.country, country_rows) or 'PL'
+
+    def clean_country(self):
+        country_code = self.cleaned_data.get('country') or normalize_country(self.instance.country) or 'PL'
+        return self.countries_by_code[country_code].name
 
 
 class AssetForm(forms.ModelForm):
@@ -75,6 +97,11 @@ class ResourceEntityForm(forms.Form):
             self.initial.setdefault('assigned_member', profile.pk)
 
         self.show_address = any(self.data.get(field) if self.is_bound else self.initial.get(field) for field in ('country', 'city', 'street', 'house_number', 'apartment_number'))
+        if not self.is_bound and not self.initial.get('country'):
+            self.initial['country'] = Country.objects.get(code='PL').pk
+
+    def clean_country(self):
+        return self.cleaned_data['country'] or (self.entity.country if self.entity and self.entity.country_id else Country.objects.get(code='PL'))
 
     def clean_name(self):
         value = ' '.join((self.cleaned_data.get('name') or '').split())

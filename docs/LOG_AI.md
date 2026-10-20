@@ -1,5 +1,45 @@
 # LOG_AI
 
+## 2026-10-20: Stały kolor zasobu na mapie
+
+- **Przyczyna:** utility `tw-bg-success` używa `--badge-approved-color`, którego wartość różni się między motywami.
+- **Zmiana:** znacznik zasobu korzysta bezpośrednio ze wspólnego, niezmiennego między motywami tokenu `--color-success`.
+- **Testy:** test Jest sprawdza klasę tokenu znacznika zasobu.
+
+## 2026-10-20: Podkład mapy zależny od motywu
+
+- **Zmiana:** w motywie ciemnym filtrowana jest wyłącznie warstwa kafelków Leaflet; jasny motyw pozostawia oryginalny podkład. Znaczniki, kontrolki i atrybucja nie są przyciemniane. Motyw przełącza się natychmiast wraz ze zmianą atrybutu `data-theme`.
+- **Testy:** kontrola renderowania mapy, build CSS, regression scan i UI guard.
+
+## 2026-10-20: Kontrast niebieskiego znacznika osoby
+
+- **Zmiana:** jaśniejszy niebieski `info` zastąpiono w znaczniku osoby ciemnym tokenem `citizen-color-9` i białą ikoną. Kolory partnera i zasobu pozostają bez zmian.
+- **Testy:** regresja sprawdza przypisanie ciemnoniebieskiego znacznika osobie.
+
+## 2026-10-20: Oddzielne znaczniki dla nakładających się typów
+
+- **Zmiana:** mapa nie łączy już obywateli, partnerów i zasobów w jeden mieszany znacznik. Nakładające się ikony są rozsuwane minimalnie w pikselach bieżącego zoomu; każdy zachowuje osobny typ i popup. Po zmianie zoomu układ jest przeliczany.
+- **Testy:** dodano regresję nakładających się obywatela, partnera i zasobu oraz niezmienionych pozycji dla niezachodzących punktów.
+
+## 2026-10-20: Geokodowanie punktów miejskich i lista krajów partnera
+
+- **Zmiana mapy:** lokalizacja z samym krajem i miastem korzysta z najlepszego wyniku geokodera dla osady; wyszukiwanie bez ulicy ogranicza liczbę wyników do jednego. Pełny adres nadal używa precyzyjnego dopasowania, a w razie braku wyniku wraca do miasta.
+- **Zmiana formularza:** kraj partnera jest wybierany z katalogu krajów, domyślnie Polska; zapisane wartości ISO i nazwy są odtwarzane, a historyczne `Polska` mapuje się na `PL`.
+- **Weryfikacja:** testy wyboru kraju partnera, rozpoznawania `Polska` oraz geokodowania punktu Kielc bez ulicy i numeru.
+
+## 2026-10-20: Kraj w formularzach ludzi, zasobów i partnerów
+
+- **Przyczyna:** profil wysyła kraj jako kod ISO, ale formularz Django inicjalizował wybór kluczem obcym (liczbą). Brak dopasowanej opcji w przeglądarce pokazywał pierwszy kraj na liście, Afganistan.
+- **Zmiana:** formularze profilu i onboardingu wybierają kod kraju zapisanego w bazie (lub `PL`, gdy go nie ma). Formularze zasobów i partnerów zachowują zapisany kraj; brak kraju w nowym lub edytowanym wpisie domyślnie daje Polskę z katalogu `Country`, bez zmiany schematu ani istniejących rekordów.
+- **Weryfikacja:** testy inicjalizacji i zapisu formularzy, Ruff, Django check i kontrole UI.
+
+## 2026-10-20: Znaczniki zasobów na mapie społeczności
+
+- **Zmiana:** mapa zbiera aktywne oferty i potrzeby z kanonicznego `resources.Entity`, gdy mają własny kraj i miasto oraz są wspólnotowe lub przypisane do aktywnego członka. Zasoby otrzymują znacznik i odnośnik do katalogu; jednostki finansowe, wpisy zamknięte i bez lokalizacji pozostają wykluczone.
+- **Prywatność:** zasoby są geokodowane i opisywane wyłącznie na poziomie miasta; adres zasobu i lokalizacja właściciela nie są udostępniane. Publiczny payload nadal zawiera tylko unikalne współrzędne.
+- **Diagnoza produkcji:** dopisano do instrukcji wdrożenia sposób sprawdzenia odpowiedzi endpointu i cache. Sam kod nie włącza geokodowania: przy `MAP_GEOCODING_ENABLED=False` i pustym Redisie żadne punkty nadal się nie pojawią. Zewnętrzny ruch wymaga osobnej decyzji operatora.
+- **Weryfikacja:** testy mapy po stronie Django i Jest, Ruff, build CSS, skan regresji i UI guard.
+
 ## 2026-10-18: Zachowanie fokusu po wyszukiwaniu transakcji
 
 - **Co się zmieniło:** przy wysłaniu formularza wyszukiwania Enterem zapisywana jest pozycja kursora; po załadowaniu wyników fokus i pozycja kursora wracają do pola.
