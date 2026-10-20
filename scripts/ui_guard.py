@@ -39,6 +39,9 @@ EXEMPT_FILES = {'docs/UI_STANDARDS.html'}
 # the container in the future; keep exceptions explicit rather than implicit.
 DETAIL_CONTAINER_EXEMPTIONS = set()
 
+# Public publication gallery is a read-only landing page without list controls.
+TOOLBAR_EXEMPTIONS = {'board/templates/board/public_board.html'}
+
 # Allow-list for non-tw-* semantic hooks. Each entry is a regex.
 FONTAWESOME_PREFIXES = {'fas', 'far', 'fab', 'fal', 'fa-fw'}
 
@@ -232,6 +235,8 @@ class UIGuard:
         """Shared toolbar is only mandatory on main module list views."""
         name = path.name
         rel = '/'.join(path.relative_to(BASE_DIR).parts)
+        if rel in TOOLBAR_EXEMPTIONS:
+            return False
         if name.startswith('_') or name.startswith('base'):
             return False
         if not (name.endswith('list.html') or name.endswith('board.html')):
