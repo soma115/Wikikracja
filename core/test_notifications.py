@@ -365,6 +365,28 @@ def test_domain_handlers_use_registered_push_event_keys():
         assert dispatch.call_args.kwargs['push_event'] == event_key
 
 
+def test_event_starting_notification_converts_html_body_to_plain_text():
+    event = SimpleNamespace(id=3, title='Forum', link='/events/3/', get_absolute_url=lambda: '/events/3/')
+    body = 'Godzina: 21:00 | Opis: Oficjalna&nbsp;część<br><br>Agenda: <a href="https://example.test">dokument</a>'
+
+    with patch.object(notify, '_dispatch_notification') as dispatch:
+        notify.on_event_starting(sender=None, event=event, body=body)
+
+    assert dispatch.call_args.args[1] == 'Godzina: 21:00 | Opis: Oficjalna część\n\nAgenda: dokument'
+
+
+def test_event_starting_notification_converts_html_description_to_plain_text(monkeypatch):
+    event = SimpleNamespace(
+        id=3, title='Forum', link='/events/3/', start_date='21:00', place='Online', description='Agenda:<br><a href="https://example.test">dokument</a>&nbsp;— plan', get_absolute_url=lambda: '/events/3/'
+    )
+    monkeypatch.setattr(notify.formats, 'localize', lambda value, use_l10n: value)
+
+    with patch.object(notify, '_dispatch_notification') as dispatch:
+        notify.on_event_starting(sender=None, event=event)
+
+    assert dispatch.call_args.args[1] == '21:00 | Online\n\nAgenda:\ndokument — plan'
+
+
 @pytest.mark.parametrize('push,websocket', [(True, False), (False, True), (False, False), (True, True)])
 def test_dispatch_honors_independent_channel_flags(push, websocket, transport):
     with patch.object(notify, 'send_fcm_to_all_sync') as fcm, patch.object(notify, 'send_websocket_to_all_sync') as ws:

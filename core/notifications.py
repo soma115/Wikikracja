@@ -1,7 +1,6 @@
 import html
 import logging
 import os
-import re
 import threading
 import time
 import uuid
@@ -22,7 +21,7 @@ from django.utils.translation import override
 from firebase_admin import messaging
 from push_notifications.models import GCMDevice
 
-from core.richtext import strip_tags
+from core.richtext import plain_text, strip_tags
 from core.services.notifications import notifications_unsubscribed, unsubscribe_headers
 from core.signals import (
     citizen_accepted,
@@ -615,14 +614,14 @@ def on_event_starting(sender, event, body=None, **kwargs):
     click_action = event.link or build_site_url(event.get_absolute_url())
 
     if body:
-        notification_body = body
+        notification_body = plain_text(body).replace('\xa0', ' ')
     else:
         start = formats.localize(event.start_date, use_l10n=True)
         notification_body = html.unescape(str(start)).replace('\xa0', ' ')
         if event.place:
             notification_body = f"{notification_body} | {event.place}"
         if event.description:
-            description = re.sub(r'(?i)<br\s*/?>', '\n', html.unescape(str(event.description))).replace('\xa0', ' ')
+            description = plain_text(str(event.description)).replace('\xa0', ' ')
             notification_body = f"{notification_body}\n\n{description}"
 
     title = f"{event.title} — {_('starting now')}"

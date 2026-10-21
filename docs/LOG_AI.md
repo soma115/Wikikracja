@@ -1,5 +1,12 @@
 # LOG_AI
 
+## 2026-10-21: Usuwanie HTML z powiadomień o wydarzeniach
+
+- **Przyczyna:** powiadomienia push otrzymywały HTML z opisu wydarzenia jako zwykły tekst, przez co Windows wyświetlał tagi i encje.
+- **Zmiana:** opisy i gotowe treści powiadomień są konwertowane istniejącym helperem `plain_text`, który usuwa znaczniki, dekoduje encje i zachowuje podziały `<br>`/akapitów jako nowe linie.
+- **Testy:** dodano regresje dla treści przygotowanej przez scheduler oraz opisu budowanego bezpośrednio w handlerze.
+- **Spodziewany efekt:** powiadomienia systemowe pokazują czytelny tekst bez HTML, z zachowanym formatowaniem wierszy.
+
 ## 2026-10-20: Kafelek mapy społeczności na pulpicie
 
 - **Przyczyna:** pulpit nie udostępniał szybkiego podglądu istniejącej Mapy społeczności.
