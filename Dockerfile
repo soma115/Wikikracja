@@ -2,7 +2,7 @@
 # check=skip=SecretsUsedInArgOrEnv
 
 # 1. Builder stage - dependencies first (better cache utilization)
-FROM python:3.14-alpine AS builder
+FROM python:3.14.9-alpine AS builder
 WORKDIR /app
 
 # Build environment
@@ -18,7 +18,9 @@ RUN apk add --no-cache gettext-dev nodejs npm
 # AUTOBAHN_USE_NVX=0 forces pure-Python autobahn (its NVX C extension has no
 # musllinux wheel and would otherwise need a full C toolchain to compile)
 COPY requirements.txt /app/
-RUN AUTOBAHN_USE_NVX=0 pip install --no-cache-dir --no-compile --user -r requirements.txt
+# Replace pip's compromised bundled CA before downloading application dependencies.
+RUN python -m pip install --no-cache-dir --upgrade "pip @ https://files.pythonhosted.org/packages/3f/06/3e4420302363fbb71be3c7f35ce042f54bfca330e3e66b3a2e3c4cca579f/pip-26.2.2-py3-none-any.whl#sha256=fd7f4dfa8190e014013b9f08f3e973f4e4c26ffd179a204895533a7254813a70" \
+    && AUTOBAHN_USE_NVX=0 pip install --no-cache-dir --no-compile --user -r requirements.txt
 
 COPY package.json package-lock.json /app/
 RUN npm ci
@@ -34,7 +36,7 @@ RUN SECRET_KEY=build-time-insecure-secret-key python manage.py collectstatic --n
 RUN SECRET_KEY=build-time-insecure-secret-key python manage.py compilemessages --ignore=.git/* --ignore=static/* --ignore=.mypy_cache/* --ignore=.venv/*
 
 # 2. Runtime stage - minimal Alpine image
-FROM python:3.14-alpine AS runtime
+FROM python:3.14.9-alpine AS runtime
 WORKDIR /app
 
 # Runtime environment

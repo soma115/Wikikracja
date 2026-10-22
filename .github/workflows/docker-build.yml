@@ -63,8 +63,8 @@ jobs:
           push: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.event != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          pull: true
+          no-cache: true
           platforms: linux/amd64,linux/arm64
 
       - name: Generate artifact attestation
