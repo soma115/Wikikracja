@@ -83,7 +83,7 @@ def ensure_system_rooms():
     return rooms
 
 
-# Matches @username in message text. User must type the exact nickname; no autocomplete.
+# Matches @username in message text; recipient lookup ignores letter case.
 _MENTION_RE = re.compile(r'(?<!\w)@([\w@.+-]+)')
 
 
@@ -751,10 +751,13 @@ def _create_message(room, sender, text, anonymous, guest_email, guest_name, send
 
 
 def _get_mentioned_users_sync(room, usernames):
-    """Return active room members whose username is in usernames."""
+    """Return active room members whose username matches a mention."""
     if not usernames:
         return []
-    return list(room.allowed.filter(username__in=usernames, is_active=True))
+    username_filter = Q()
+    for username in usernames:
+        username_filter |= Q(username__iexact=username)
+    return list(room.allowed.filter(username_filter, is_active=True))
 
 
 def _create_and_build_message(

@@ -385,7 +385,7 @@ def test_digest_author_follows_latest_message_anonymity(digest_user, another_use
 @pytest.mark.django_db
 def test_digest_mentions_are_prominent_in_html_and_text(digest_user, another_user):
     room = Room.objects.create(title='Mentioned room', public=True)
-    Message.objects.create(room=room, sender=another_user, text=f'Hej @{digest_user.username}')
+    Message.objects.create(room=room, sender=another_user, text=f'Hej @{digest_user.username.upper()}')
     item = next(item for item in build_user_digest(digest_user, timezone.now() - td(hours=1)) if item['content_type'] == 'room_messages' and item['room_id'] == room.pk)
     assert item['is_mentioned']
 

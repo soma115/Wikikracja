@@ -161,6 +161,7 @@ class ChatViewsTest(TestCase):
         self.assertEqual(self.client.get(url, {"q": "ann"}).json(), {"user": {"username": "candidate", "name": "Anna Nowak"}})
         self.assertEqual(self.client.get(url, {"q": "now"}).json()["user"]["username"], "candidate")
         self.assertEqual(self.client.get(url, {"q": "candi"}).json()["user"]["username"], "candidate")
+        self.assertEqual(self.client.get(url, {"q": "CANDI"}).json()["user"]["username"], "candidate")
 
     def test_mention_suggestion_only_uses_members_of_selected_private_room(self):
         candidate = make_user("privatecandidate")

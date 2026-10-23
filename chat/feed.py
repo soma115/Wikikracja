@@ -83,11 +83,12 @@ def _chat_digest_stats(user, room_ids, since):
 
     counts = {}
     mentioned_rooms = set()
+    username = user.username.casefold()
     messages = Message.objects.filter(room_id__in=room_ids, time__gte=since).exclude(sender=user).exclude(room__is_inbox=True).exclude(room__system_key='inbox').values('room_id', 'text')
     for msg in messages:
         room_id = msg['room_id']
         counts[room_id] = counts.get(room_id, 0) + 1
-        if user.username in extract_mentions(msg['text']):
+        if any(mention.casefold() == username for mention in extract_mentions(msg['text'])):
             mentioned_rooms.add(room_id)
     return counts, mentioned_rooms
 

@@ -188,6 +188,17 @@ class PostSendProcessingUnseenTest(TestCase):
         self.push.assert_called_once()
         self.assertEqual(self.push.call_args.args[0], self.receiver)
 
+    async def test_mention_ignores_case_and_notifies_muted_member_once(self):
+        self.receiver.username = 'ReCeIvEr'
+        await database_sync_to_async(self.receiver.save)(update_fields=['username'])
+        await database_sync_to_async(self.room.muted_by.add)(self.receiver)
+
+        await self._run(None, '@receiver @RECEIVER')
+
+        self.assertEqual([(group, event['type']) for group, event in self._notifications()], [(f'user_{self.receiver.id}', 'chat.mention')])
+        self.push.assert_called_once()
+        self.assertEqual(self.push.call_args.args[0], self.receiver)
+
     async def test_anonymous_sender_hidden_in_ordinary_and_mention_ws_and_fcm(self):
         self.room.public = True
         await database_sync_to_async(self.room.save)(update_fields=['public'])
