@@ -97,11 +97,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(model_name='transaction', name='asset', field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='bookkeeping.asset', verbose_name='Asset')),
         migrations.RunPython(migrations.RunPython.noop, restore_financial_assets),
         migrations.RemoveField(model_name='transaction', name='asset'),
-        # Obsolete unmanaged associations still reference Asset on some databases.
-        migrations.RunSQL(
-            'DROP TABLE IF EXISTS "bookkeeping_associateasset"',
-            reverse_sql=migrations.RunSQL.noop,
-        ),
+        # Obsolete physical tables still reference Asset on some databases.
+        migrations.RunSQL('DROP TABLE IF EXISTS "bookkeeping_associateasset"', reverse_sql=migrations.RunSQL.noop),
+        migrations.RunSQL('DROP TABLE IF EXISTS "bookkeeping_report"', reverse_sql=migrations.RunSQL.noop),
         migrations.DeleteModel(name='Asset'),
         migrations.AlterField(
             model_name='transaction', name='entity', field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='bookkeeping_transactions', to='resources.entity', verbose_name='Asset')
