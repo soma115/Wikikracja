@@ -182,6 +182,9 @@ class FinancialEntityCutoverMigrationTest(TransactionTestCase):
         transaction = Transaction.objects.create(type='I', asset_id=self.asset.pk, entity_id=entity.pk, category_id=category.pk, partner_id=partner.pk, amount=Decimal('27.50'))
         self.transaction_pk = transaction.pk
         self.asset_pk = self.asset.pk
+        with connection.cursor() as cursor:
+            cursor.execute('CREATE TABLE bookkeeping_associateasset (id INTEGER PRIMARY KEY, associate_id INTEGER NOT NULL, asset_id INTEGER NOT NULL REFERENCES bookkeeping_asset(id))')
+            cursor.execute('INSERT INTO bookkeeping_associateasset (id, associate_id, asset_id) VALUES (%s, %s, %s)', [1, 1, self.asset.pk])
         self.migrate(self.migrate_to)
 
     def migrate(self, targets):
@@ -202,6 +205,9 @@ class FinancialEntityCutoverMigrationTest(TransactionTestCase):
         self.assertEqual((transaction.entity_id, transaction.amount), (entity.pk, Decimal('27.50')))
         self.assertEqual((entity.code, entity.name, entity.symbol, entity.decimal_places, entity.is_currency, entity.is_default), ('CUT', 'Cutover unit', 'C', 3, False, True))
         self.assertTrue(self.apps.get_model('resources', 'LegacyEntityReference').objects.filter(pk=self.reference.pk).exists())
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='bookkeeping_associateasset'")
+            self.assertIsNone(cursor.fetchone())
 
     def test_cutover_aborts_on_shadow_entity_field_mismatch(self):
         self.migrate(self.migrate_from)
@@ -256,6 +262,9 @@ class FinancialEntityCutoverMigrationTest(TransactionTestCase):
 
         self.assertEqual((asset.code, asset.name, asset.symbol, asset.decimal_places, asset.is_currency, asset.is_default), ('CUT', 'Cutover unit', 'C', 3, False, True))
         self.assertEqual((transaction.asset_id, transaction.entity_id), (self.asset_pk, self.entity_pk))
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='bookkeeping_associateasset'")
+            self.assertIsNone(cursor.fetchone())
         self.migrate(self.migrate_to)
 
     def test_reverse_cutover_assigns_legacy_ids_to_new_financial_entities(self):
