@@ -7,6 +7,9 @@
 // Fix: data-raw="<%=raw_message%>" jako atrybut template'u .msg-text — single source of truth
 // dla każdej ścieżki renderu (addMessage, batch insert, replaceMessages, history scroll-back).
 const { test, expect } = require('@playwright/test');
+const path = require('path');
+
+const imageFixture = path.join(__dirname, '..', 'home', 'static', 'home', 'images', 'icon-192.png');
 
 async function enterFirstRoom(page) {
     await page.goto('/chat/?view=rooms');
@@ -48,7 +51,7 @@ async function editOwnMessage(page, originalText, appendedText) {
     await page.locator('.tw-send-message').click();
 }
 
-test.describe('chat — edycja wiadomości nie wstrzykuje markera "pokaż więcej" do treści', () => {
+test.describe('chat — edycja wiadomości zachowuje treść i załączniki', () => {
     test.use({ viewport: { width: 1280, height: 800 } });
 
     test('desktop: edycja wiadomości wysłanej w tej sesji nie zostawia "pokaż więcej" w treści', async ({ page }, testInfo) => {
@@ -90,5 +93,40 @@ test.describe('chat — edycja wiadomości nie wstrzykuje markera "pokaż więce
         const text = await edited.locator('.tw-expandable-body').innerText();
         expect(text).not.toContain('pokaż więcej');
         expect(text.trim()).toBe(`${original}${appended}`);
+    });
+
+    test('desktop: edycja wiadomosci dodaje i usuwa obrazy bez utraty tekstu', async ({ page }, testInfo) => {
+        test.skip(testInfo.project.name !== 'desktop-chromium', 'Desktop-only test');
+        await enterFirstRoom(page);
+
+        const original = `E2E Playwright: edycja obrazu ${Date.now()}`;
+        await sendMessage(page, original);
+        const message = page.locator('.tw-chat-message.tw-chat-message--own')
+            .filter({ has: page.locator('.tw-msg-text', { hasText: original }) })
+            .last();
+
+        await message.locator('.tw-edit-message').click();
+        await page.locator('#file-input').setInputFiles(imageFixture);
+        await expect(page.locator('.tw-preview-images .tw-new-attachment')).toHaveCount(1);
+        await page.locator('.tw-send-message').click();
+        await expect(message.locator('.tw-attached-image')).toHaveCount(1, { timeout: 10000 });
+        await expect(message.locator('.tw-msg-text')).toContainText(original);
+
+        await message.locator('.tw-edit-message').click();
+        await page.locator('.tw-remove-existing-attachment').click();
+        await page.locator('.tw-send-message').click();
+        await expect(message.locator('.tw-attached-image')).toHaveCount(0, { timeout: 10000 });
+        await expect(message.locator('.tw-msg-text')).toContainText(original);
+
+        await message.locator('.tw-edit-message').click();
+        await page.locator('#file-input').setInputFiles(imageFixture);
+        await page.locator('.tw-send-message').click();
+        await expect(message.locator('.tw-attached-image')).toHaveCount(1, { timeout: 10000 });
+
+        await message.locator('.tw-edit-message').click();
+        await page.locator('.tw-delete-images-preview').click();
+        await page.locator('.tw-send-message').click();
+        await expect(message.locator('.tw-attached-image')).toHaveCount(0, { timeout: 10000 });
+        await expect(message.locator('.tw-msg-text')).toContainText(original);
     });
 });

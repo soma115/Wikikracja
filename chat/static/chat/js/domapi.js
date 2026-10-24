@@ -163,11 +163,14 @@ export default class DomApi {
     }
 
     editMessageText(message_id, text, ts) {
-        this.getMessageTimeDiv(message_id).textContent = formatTime(ts);
         const msgDiv = this.getMessageDiv(message_id);
+        const timestamp = this.getMessageTimeDiv(message_id);
+        if (timestamp && ts !== null && ts !== undefined && Number.isFinite(Number(ts))) {
+            timestamp.textContent = formatTime(ts);
+        }
         if (msgDiv) {
             const msgText = $(".tw-msg-text", msgDiv);
-            if (msgText) {
+            if (msgText && typeof text === 'string') {
                 msgText.dataset.raw = text;
                 msgText.innerHTML = this.wrapExpandable(this.formatMessage(text));
                 // Re-evaluate overflow after content change
@@ -389,6 +392,11 @@ export default class DomApi {
     clearFiles() {
         const fileInput = $(`#file-input`);
         if (fileInput) fileInput.value = "";
+        if (this.isEditing()) {
+            this.getPreviewDiv()?.querySelectorAll('.tw-remove-existing-attachment').forEach(button => {
+                this.addRemovedAttachment(button.dataset.filename);
+            });
+        }
         this.getPreviewContainer().classList.add('tw-d-none');
         this.getPreviewDiv().innerHTML = '';
     }

@@ -31,6 +31,17 @@ from .services import dashboard as dashboard_service
 log = logging.getLogger(__name__)
 
 ALL_SEARCH_CATS = ['post', 'task', 'decision', 'survey', 'event', 'citizen', 'chat']
+ACTIVITY_CONTENT_TYPES = (
+    ('', _('All')),
+    ('post', _('Documents')),
+    ('task', _('Activities')),
+    ('decision', _('Votings')),
+    ('survey', _('Ankiety')),
+    ('event', _('Calendar')),
+    ('transaction', _('Finance')),
+    ('citizen', _('Citizens')),
+    ('room_messages', _('Chat')),
+)
 
 
 @require_GET
@@ -99,20 +110,15 @@ def _build_activity_query(sort, order, is_filtered, active_types, filter_unread,
     return '?' + '&'.join(parts)
 
 
-@login_required
-def activity_page(request):
-    all_items = feed_service.generate_feed_items(request.user)
-    unread_count = feed_service.get_unread_count(request.user, all_items)
+def _get_filtered_activity_items(user, params, all_items=None):
+    all_items = all_items if all_items is not None else feed_service.generate_feed_items(user)
     recent_decision_ids = {item['object_id'] for item in all_items if item['content_type'] == 'decision' and item.get('activity_kind') == 'decision'}
     older_bookmarked_decisions = [
-        item for item in feed_service.get_bookmarked_items(request.user) if item['content_type'] == 'decision' and item.get('activity_kind') == 'decision' and item['object_id'] not in recent_decision_ids
+        item for item in feed_service.get_bookmarked_items(user) if item['content_type'] == 'decision' and item.get('activity_kind') == 'decision' and item['object_id'] not in recent_decision_ids
     ]
-    bookmark_count = sum(1 for item in all_items if item.get('is_bookmarked')) + len(older_bookmarked_decisions)
-    request._unread_count = unread_count
 
-    filter_unread = request.GET.get('unread') == '1'
-    filter_bookmarks = request.GET.get('bookmarks') == '1'
-
+    filter_unread = params.get('unread') == '1'
+    filter_bookmarks = params.get('bookmarks') == '1'
     feed_items = all_items
     if filter_unread:
         feed_items = [item for item in feed_items if not item['is_read']]
@@ -120,29 +126,31 @@ def activity_page(request):
         feed_items = [item for item in feed_items if item.get('is_bookmarked')]
         feed_items.extend(item for item in older_bookmarked_decisions if not filter_unread or not item['is_read'])
 
-    content_types = [
-        ('', _('All')),
-        ('post', _('Documents')),
-        ('task', _('Activities')),
-        ('decision', _('Votings')),
-        ('survey', _('Ankiety')),
-        ('event', _('Calendar')),
-        ('transaction', _('Finance')),
-        ('citizen', _('Citizens')),
-        ('room_messages', _('Chat')),
-    ]
-
-    selectable_types = [ct for ct in content_types if ct[0]]
-    all_type_values = {ct[0] for ct in selectable_types}
-
-    # Filter by content_type(s) (multi-select)
-    is_filtered = request.GET.get('filtered') == '1'
-    active_types = [t for t in request.GET.getlist('type') if t in all_type_values]
-    # When the filter form was not used, an empty selection means "all".
-    selected_types = list(active_types) if is_filtered else (list(all_type_values) if not active_types else list(active_types))
+    all_type_values = {content_type for content_type, _label in ACTIVITY_CONTENT_TYPES if content_type}
+    active_types = [content_type for content_type in params.getlist('type') if content_type in all_type_values]
     if active_types:
         active_types_set = set(active_types)
-        feed_items = [i for i in feed_items if i['content_type'] in active_types_set]
+        feed_items = [item for item in feed_items if item['content_type'] in active_types_set]
+
+    return feed_items, older_bookmarked_decisions, active_types
+
+
+@login_required
+def activity_page(request):
+    all_items = feed_service.generate_feed_items(request.user)
+    unread_count = feed_service.get_unread_count(request.user, all_items)
+    feed_items, older_bookmarked_decisions, active_types = _get_filtered_activity_items(request.user, request.GET, all_items)
+    bookmark_count = sum(1 for item in all_items if item.get('is_bookmarked')) + len(older_bookmarked_decisions)
+    request._unread_count = unread_count
+
+    filter_unread = request.GET.get('unread') == '1'
+    filter_bookmarks = request.GET.get('bookmarks') == '1'
+
+    is_filtered = request.GET.get('filtered') == '1'
+    selectable_types = [content_type for content_type in ACTIVITY_CONTENT_TYPES if content_type[0]]
+    all_type_values = {content_type for content_type, _label in selectable_types}
+    # When the filter form was not used, an empty selection means "all".
+    selected_types = list(active_types) if is_filtered else (list(all_type_values) if not active_types else list(active_types))
     all_types_selected = set(selected_types) == all_type_values
 
     # Sort
@@ -181,7 +189,7 @@ def activity_page(request):
             'bookmarks_filter_url': bookmarks_filter_url,
             'unread_count': unread_count,
             'bookmark_count': bookmark_count,
-            'content_types': content_types,
+            'content_types': ACTIVITY_CONTENT_TYPES,
             'toolbar_sort_items': toolbar_sort_items,
             'toolbar_views': toolbar_views,
         },
@@ -210,9 +218,10 @@ def mark_as_read(request):
 @login_required
 @require_POST
 def mark_all_read(request):
-    """Mark all feed items as read for the current user"""
+    """Mark the activity items matching the current view filters as read."""
     try:
-        count = feed_service.mark_all_feed_items_as_read(request.user)
+        feed_items, _older_bookmarked_decisions, _active_types = _get_filtered_activity_items(request.user, request.GET)
+        count = feed_service.mark_all_feed_items_as_read(request.user, feed_items)
         return JsonResponse({'success': True, 'marked_count': count})
 
     except Exception as e:

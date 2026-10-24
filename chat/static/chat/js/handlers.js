@@ -503,7 +503,9 @@ window.wkOnReady(function() {
         if (!e.target.classList.contains("tw-file-input")) return;
         const files = e.target.files;
         const preview_container = DOM_API.getPreviewDiv();
-        if (!DOM_API.isEditing() && preview_container) preview_container.innerHTML = '';
+        preview_container?.querySelectorAll('.tw-new-attachment').forEach(image => {
+            image.closest('.tw-image-preview-wrapper')?.remove();
+        });
         if (files.length > 0) DOM_API.getPreviewContainer().classList.remove('tw-d-none');
         for (let i = 0; i < files.length; ++i) {
             const file = files.item(i);
@@ -512,7 +514,7 @@ window.wkOnReady(function() {
             preview_container?.insertAdjacentHTML('beforeend', `<div class="tw-image-preview-wrapper">
                 <img class='tw-image-preview tw-new-attachment' id='${preview_id}'>
                 <button class="tw-btn tw-btn-sm tw-btn-danger tw-remove-new-attachment tw-image-preview-remove"
-                    data-preview-id="${preview_id}" type="button">×</button>
+                    data-preview-id="${preview_id}" data-file-index="${i}" type="button">×</button>
             </div>`);
             fr.onload = (e) => {
                 document.getElementById(preview_id).src = e.target.result;
@@ -559,10 +561,22 @@ window.wkOnReady(function() {
         if (btn) {
             e.preventDefault();
             e.stopPropagation();
+            const fileInput = DOM_API.getFileInput();
+            const removedIndex = Number(btn.dataset.fileIndex);
+            if (fileInput?.files && Number.isInteger(removedIndex)) {
+                const remainingFiles = Array.from(fileInput.files).filter((_, index) => index !== removedIndex);
+                const transfer = new DataTransfer();
+                remainingFiles.forEach(file => transfer.items.add(file));
+                fileInput.files = transfer.files;
+            }
             btn.closest('.tw-image-preview-wrapper')?.remove();
             const previewDiv = DOM_API.getPreviewDiv();
+            previewDiv?.querySelectorAll('.tw-new-attachment').forEach((image, index) => {
+                const removeButton = image.closest('.tw-image-preview-wrapper')?.querySelector('.tw-remove-new-attachment');
+                if (removeButton) removeButton.dataset.fileIndex = index;
+            });
             if (previewDiv && $$('.tw-new-attachment', previewDiv).length === 0) {
-                DOM_API.getFileInput().value = "";
+                if (fileInput) fileInput.value = "";
             }
             if (previewDiv?.children.length === 0) {
                 DOM_API.getPreviewContainer().classList.add('tw-d-none');

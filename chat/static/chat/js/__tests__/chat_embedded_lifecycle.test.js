@@ -32,8 +32,8 @@ function makeWs() {
 
 /**
  * Wierna kopia lifecycle z chat-embedded.js — synchronizowac przy zmianie!
- * Stubowane są tylko renderery (appendMessage/updateMessage zbierają wywołania)
- * oraz elementy UI; reszta logiki jest identyczna z produkcją.
+ * Stubowany jest renderer appendMessage oraz elementy UI; obsługa edycji
+ * odtwarza mapowanie payloadu WebSocket na treść, czas i załączniki.
  */
 function makeEmbeddedHarness({ roomId = 7 } = {}) {
     const ws = makeWs();
@@ -47,7 +47,25 @@ function makeEmbeddedHarness({ roomId = 7 } = {}) {
     let selectedFiles = [];
 
     const appendMessage = (msg) => appended.push(msg);
-    const updateMessage = () => {};
+    const updateMessage = ({ message_id, message, text, latest_timestamp, timestamp, attachments }) => {
+        const msgDiv = messagesEl.querySelector(`.tw-chat-message[data-message-id="${message_id}"]`);
+        if (!msgDiv) return;
+        const textEl = msgDiv.querySelector('.tw-msg-text');
+        const timeEl = msgDiv.querySelector('.tw-message-timestamp');
+        const updatedText = message ?? text;
+        if (textEl && typeof updatedText === 'string') {
+            textEl.dataset.raw = updatedText;
+            textEl.textContent = updatedText;
+        }
+        const messageTime = latest_timestamp ?? timestamp;
+        if (timeEl && messageTime !== null && messageTime !== undefined && Number.isFinite(Number(messageTime))) {
+            timeEl.textContent = String(messageTime);
+        }
+        if (attachments !== undefined) {
+            const attachmentContainer = msgDiv.querySelector('.tw-attachment-image-container');
+            if (attachmentContainer) attachmentContainer.dataset.images = JSON.stringify(attachments?.images ?? []);
+        }
+    };
     const updateReactions = () => {};
     const updateVotes = () => {};
 
@@ -296,4 +314,32 @@ describe('embedded chat — preview załączników (kontrakt tw-d-none)', () => 
         expect(h.fileInput.value).toBe('');
         expect(h.selectedFiles.length).toBe(0);
     });
+});
+
+test('embedded chat maps edit payload fields and keeps content for incomplete updates', () => {
+    const h = makeEmbeddedHarness();
+    h.messagesEl.innerHTML = `
+        <div class="tw-chat-message" data-message-id="44">
+            <span class="tw-message-timestamp">12:30</span>
+            <div class="tw-msg-text">Original</div>
+            <div class="tw-attachment-image-container"></div>
+        </div>
+    `;
+
+    h.onMessage({
+        edit_message: {
+            message_id: 44,
+            text: 'Updated',
+            timestamp: 123456,
+            attachments: { images: ['new.webp'] },
+        },
+    });
+
+    expect(h.messagesEl.querySelector('.tw-msg-text').textContent).toBe('Updated');
+    expect(h.messagesEl.querySelector('.tw-message-timestamp').textContent).toBe('123456');
+    expect(h.messagesEl.querySelector('.tw-attachment-image-container').dataset.images).toBe('["new.webp"]');
+
+    h.onMessage({ edit_message: { message_id: 44, timestamp: Number.NaN } });
+    expect(h.messagesEl.querySelector('.tw-msg-text').textContent).toBe('Updated');
+    expect(h.messagesEl.querySelector('.tw-message-timestamp').textContent).toBe('123456');
 });

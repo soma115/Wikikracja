@@ -1,5 +1,19 @@
 # LOG_AI
 
+## 2026-10-24: Usuwanie wszystkich obrazow podczas edycji czatu
+
+- **Przyczyna:** przycisk czyszczenia podgladu usuwal istniejace obrazy tylko z DOM; nie dodawal ich nazw do listy `removed_attachments`, wiec zapis pozostawial je przy wiadomosci.
+- **Zmiana:** `clearFiles()` oznacza teraz wszystkie widoczne, istniejace zalaczniki jako usuniete w aktywnym trybie edycji przed wyczyszczeniem podgladu.
+- **Testy:** dodano regresje DOM API potwierdzajaca, ze czyszczenie podgladu przekazuje nazwe istniejacego obrazu do zapisu.
+- **Spodziewany efekt:** przycisk usuwania wszystkich obrazow zapisuje ich usuniecie z wiadomosci.
+
+## 2026-10-24: Stabilizacja edycji wiadomosci czatu
+
+- **Przyczyna:** embedded chat odczytywal edytowana tresc i czas z pol `message`/`latest_timestamp`, podczas gdy serwer wysyla `text`/`timestamp`; powodowalo to wyczyszczenie tresci oraz `NaN:NaN`. Edytory nie obslugiwaly rowniez zmian zalacznikow w pelnym i osadzonym czacie.
+- **Zmiana:** oba edytory synchronizuja podglady z wybranymi plikami, oznaczaja usuniete zalaczniki i wysylaja zmiany obrazow. Embedded chat aktualizuje widok z pol serwerowego payloadu, a interfejs nie nadpisuje tekstu ani czasu wartosciami brakujacymi lub niepoprawnymi. Poprawiono usuwanie koncowych pustych linii `<br>` po sanitizacji.
+- **Testy:** dodano regresje backendu potwierdzajaca, ze edycja samych zalacznikow zachowuje tekst i nie zapisuje wpisu historii tekstu, test odpornosci DOM API oraz E2E dodawania i usuwania obrazu.
+- **Spodziewany efekt:** obraz mozna dodac lub usunac podczas edycji w obu wariantach czatu, a tekst wiadomosci pozostaje widoczny po zapisie.
+
 ## 2026-10-21: Usuwanie HTML z powiadomień o wydarzeniach
 
 - **Przyczyna:** powiadomienia push otrzymywały HTML z opisu wydarzenia jako zwykły tekst, przez co Windows wyświetlał tagi i encje.

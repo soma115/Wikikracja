@@ -173,9 +173,10 @@ def mark_feed_item_as_unread(content_type: str, object_id: int, user) -> None:
     provider.mark_as_unread(object_id, user)
 
 
-def mark_all_feed_items_as_read(user) -> int:
-    """Mark every unread feed item for the user as read and return the count."""
-    feed_items = generate_feed_items(user)
+def mark_all_feed_items_as_read(user, feed_items=None) -> int:
+    """Mark unread feed items for the user as read and return the count."""
+    if feed_items is None:
+        feed_items = generate_feed_items(user)
     count = 0
     for item in feed_items:
         if not item['is_read']:

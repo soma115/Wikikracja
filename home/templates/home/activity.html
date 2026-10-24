@@ -116,7 +116,7 @@
 
 <script>
 document.getElementById('tw-btn-mark-all')?.addEventListener('click', function() {
-  window.apiFetch("{% url 'mark_all_read' %}", { method: 'POST' }).then(function(r) { return r.json(); }).then(function(data) {
+  window.apiFetch("{% url 'mark_all_read' %}" + window.location.search, { method: 'POST' }).then(function(r) { return r.json(); }).then(function(data) {
     if (data.success) location.reload();
   });
 });

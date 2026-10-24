@@ -22,9 +22,10 @@ const ejs = require('../ejs.min.js');
 const domSource = fs.readFileSync(path.join(__dirname, '..', 'domapi.js'), 'utf8')
     .replace(/^import\s+[\s\S]*?from\s+['"][^'"]+['"];\s*/gm, '')
     .replace('export default class DomApi', 'class DomApi');
-const DomApi = new Function('$', '$$', `${domSource}; return DomApi;`)(
+const DomApi = new Function('$', '$$', 'formatTime', `${domSource}; return DomApi;`)(
     (selector, context = document) => context.querySelector(selector),
-    (selector, context = document) => context.querySelectorAll(selector)
+    (selector, context = document) => context.querySelectorAll(selector),
+    ts => Number.isFinite(Number(ts)) ? `time-${ts}` : 'NaN:NaN'
 );
 const templateSource = fs.readFileSync(path.join(__dirname, '..', 'templates.js'), 'utf8')
     .replace(/^import[^\n]+\n/gm, '').replace(/export const /g, 'const ');
@@ -84,6 +85,27 @@ test('clearFiles czyści podgląd i chowa kontener', () => {
 
 const unsafeFilename = `folder' data-review='marker/image.webp`;
 
+test('clearFiles records existing images for removal while editing', () => {
+    document.body.innerHTML = `
+        <input id="message-input" data-edit-message="7">
+        <input id="file-input" type="file">
+        <div class="tw-image-preview-container">
+            <div class="tw-preview-images">
+                <div class="tw-image-preview-wrapper">
+                    <button class="tw-remove-existing-attachment" data-filename="old.webp"></button>
+                </div>
+            </div>
+        </div>
+    `;
+    const api = new DomApi();
+
+    api.clearFiles();
+
+    expect(api.getRemovedAttachments()).toEqual(['old.webp']);
+    expect(document.querySelector('.tw-preview-images').children).toHaveLength(0);
+    expect(document.querySelector('.tw-image-preview-container').classList.contains('tw-d-none')).toBe(true);
+});
+
 function expectSafeImage(image, filename) {
     expect(image.hasAttribute('data-review')).toBe(false);
     const encoded = image.getAttribute('src').slice('/media/uploads/'.length);
@@ -108,6 +130,27 @@ test('live attachment updates encode filenames and do not inject attributes', ()
     api.updateMessageAttachments(1, { images: [unsafeFilename] });
     expectSafeImage(document.querySelector('img'), unsafeFilename);
     expect(api.getMessageAttachments(1)).toEqual({ images: [unsafeFilename] });
+});
+
+test('message edits preserve text and timestamp when the update omits them or has an invalid timestamp', () => {
+    document.body.innerHTML = `
+        <div class="tw-chat-message" data-message-id="1">
+            <span class="tw-message-timestamp" data-message-id="1">12:30</span>
+            <div class="tw-msg-text" data-raw="Original">Original</div>
+        </div>
+    `;
+    const api = new DomApi();
+    api.formatMessage = text => text;
+    api.wrapExpandable = html => html;
+    api.markOverflow = jest.fn();
+
+    api.editMessageText(1, undefined, undefined);
+    expect(document.querySelector('.tw-msg-text').textContent).toBe('Original');
+    expect(document.querySelector('.tw-message-timestamp').textContent).toBe('12:30');
+
+    api.editMessageText(1, 'Updated', Number.NaN);
+    expect(document.querySelector('.tw-msg-text').textContent).toBe('Updated');
+    expect(document.querySelector('.tw-message-timestamp').textContent).toBe('12:30');
 });
 
 test('initial message template safely renders attachment filenames', () => {

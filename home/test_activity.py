@@ -439,6 +439,24 @@ def test_mark_all_read_endpoint_works(client, activity_user):
 
 
 @pytest.mark.django_db
+def test_mark_all_read_endpoint_respects_activity_content_type_filter(client, activity_user):
+    client.force_login(activity_user)
+    asset = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='FILTERED', name='Filtered currency', symbol='FILTERED')
+    partner = Partner.objects.create(name='Filtered finance partner')
+    transaction = Transaction.objects.create(entity=asset, partner=partner, amount=25)
+    post = PostFactory(author=activity_user, title='Unfiltered document', text='<p>body</p>')
+    Post.objects.filter(pk=post.pk).update(updated=timezone.now())
+    cache.delete(FEED_CACHE_KEY)
+
+    response = client.post(reverse('mark_all_read') + '?filtered=1&type=transaction')
+
+    assert response.status_code == 200
+    assert response.json()['success'] is True
+    assert ReadStatus.objects.filter(user=activity_user, content_type='transaction', object_id=transaction.pk).exists()
+    assert not ReadStatus.objects.filter(user=activity_user, content_type='post', object_id=post.pk).exists()
+
+
+@pytest.mark.django_db
 def test_activity_filter_unread_and_bookmarks_intersection(client, activity_user):
     client.force_login(activity_user)
     category = PostCategoryFactory()

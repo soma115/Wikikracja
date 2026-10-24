@@ -219,6 +219,28 @@ class ChatCommandHandlersTest(SimpleTestCase):
         self.assertEqual(event['edit_message']['user_id'], self.user.id)
         self.assertEqual(event['edit_message']['username'], self.user.username)
 
+    async def test_edit_message_updates_attachments_without_changing_text(self):
+        message = SimpleNamespace(text='Keep this text', anonymous=False)
+        room = SimpleNamespace(id=3, group_name='room-3')
+        self.repo.get_message = AsyncMock(return_value=message)
+        self.repo.get_message_sender = AsyncMock(return_value=self.user)
+        self.repo.edit_message_and_history = AsyncMock()
+        self.repo.remove_attachments = AsyncMock()
+        self.repo.save_attachments = AsyncMock()
+        self.repo.load_attachments = AsyncMock(return_value={'images': ['new.webp']})
+        self.repo.get_room_by_message = AsyncMock(return_value=room)
+        self.repo.is_last_message_in_room = AsyncMock(return_value=True)
+
+        with patch.object(self.handlers, '_validate_edit_attachments', return_value={'images': ['new.webp']}):
+            await self.handlers.edit_message(4, attachments={'images': ['new.webp']}, removed_attachments=['old.webp'])
+
+        self.repo.remove_attachments.assert_awaited_once_with(4, ['old.webp'])
+        self.repo.save_attachments.assert_awaited_once_with(4, {'images': ['new.webp']})
+        self.repo.edit_message_and_history.assert_not_awaited()
+        _, event = self.channel_layer.group_send.await_args.args
+        self.assertEqual(event['edit_message']['text'], 'Keep this text')
+        self.assertEqual(event['edit_message']['attachments'], {'images': ['new.webp']})
+
     async def test_edit_anonymous_message_redacts_author_from_broadcast(self):
         message = SimpleNamespace(text='Old', anonymous=True)
         room = SimpleNamespace(id=3, group_name='room-3')

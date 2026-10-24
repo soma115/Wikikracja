@@ -92,6 +92,7 @@ async function initEmbeddedChat(container) {
     let lastDateBanner = null;
     let isAnonymous = false;
     let selectedFiles = [];
+    let removedAttachments = [];
     const canPost = container.dataset.canPost !== 'false';
 
     if (!canPost) {
@@ -151,17 +152,36 @@ async function initEmbeddedChat(container) {
         messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    function updateMessage({ message_id, message, latest_timestamp }) {
+    function updateMessage({ message_id, message, text, latest_timestamp, timestamp, attachments }) {
         const msgDiv = messagesEl.querySelector(`.tw-chat-message[data-message-id="${message_id}"]`);
         if (!msgDiv) return;
         const textEl = msgDiv.querySelector('.tw-msg-text');
         const timeEl = msgDiv.querySelector('.tw-message-timestamp');
-        if (textEl) {
-            // data-raw musi nadążać za innerHTML — następna edycja czyta dataset.raw jako "oryginalny tekst do edytowania".
-            textEl.dataset.raw = message;
-            textEl.innerHTML = formatMessage(message);
+        const updatedText = message ?? text;
+        if (textEl && typeof updatedText === 'string') {
+            textEl.dataset.raw = updatedText;
+            textEl.innerHTML = formatMessage(updatedText);
         }
-        if (timeEl) timeEl.textContent = formatTime(latest_timestamp);
+        const messageTime = latest_timestamp ?? timestamp;
+        if (timeEl && messageTime !== null && messageTime !== undefined && Number.isFinite(Number(messageTime))) {
+            timeEl.textContent = formatTime(messageTime);
+        }
+        if (attachments !== undefined) {
+            const attachmentContainer = msgDiv.querySelector('.tw-attachment-image-container');
+            if (attachmentContainer) {
+                attachmentContainer.innerHTML = '';
+                for (const filename of attachments?.images ?? []) {
+                    const image = document.createElement('img');
+                    image.className = 'tw-attached-image';
+                    image.loading = 'lazy';
+                    image.src = `/media/uploads/${encodeURIComponent(filename).replace(/'/g, '%27')}`;
+                    attachmentContainer.appendChild(image);
+                }
+            }
+        }
+        if (inputEl.dataset.editMessage === String(message_id)) {
+            clearEditing();
+        }
     }
 
     let ecSendLockTimeout = null;
@@ -174,6 +194,20 @@ async function initEmbeddedChat(container) {
     function unlockSendBtn() {
         sendBtn.disabled = false;
         clearTimeout(ecSendLockTimeout);
+    }
+
+    function clearEditing() {
+        delete inputEl.dataset.editMessage;
+        delete inputEl.dataset.originalMessageText;
+        inputEl.innerHTML = '';
+        inputEl.classList.remove('tw-editing');
+        selectedFiles = [];
+        removedAttachments = [];
+        fileInput.value = '';
+        previewImagesDiv.innerHTML = '';
+        previewContainer.classList.add('tw-d-none');
+        updateCounter(inputEl, counterEl, counterVal, sendBtn, EC_MAX);
+        unlockSendBtn();
     }
 
     function sendMessage() {
@@ -340,7 +374,9 @@ async function initEmbeddedChat(container) {
 
         selectedFiles = Array.from(files);
         if (previewContainer) previewContainer.classList.remove('tw-d-none');
-        if (previewImagesDiv) previewImagesDiv.innerHTML = '';
+        previewImagesDiv?.querySelectorAll('.tw-new-attachment').forEach(image => {
+            image.closest('.tw-image-preview-wrapper')?.remove();
+        });
 
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -354,6 +390,7 @@ async function initEmbeddedChat(container) {
                         <button class="tw-btn tw-btn-sm tw-btn-danger tw-ec-remove-preview tw-image-preview-remove" data-preview-id="${previewId}" type="button">×</button>
                     </div>
                 `);
+                previewImagesDiv.lastElementChild.querySelector('.tw-ec-remove-preview').dataset.fileIndex = i;
             }
 
             fr.onload = (event) => {
@@ -366,6 +403,11 @@ async function initEmbeddedChat(container) {
 
     // Delete images preview
     deleteImagesBtn?.addEventListener('click', () => {
+        previewImagesDiv?.querySelectorAll('.tw-ec-remove-existing').forEach(button => {
+            if (!removedAttachments.includes(button.dataset.filename)) {
+                removedAttachments.push(button.dataset.filename);
+            }
+        });
         selectedFiles = [];
         fileInput.value = '';
         if (previewContainer) previewContainer.classList.add('tw-d-none');
@@ -376,9 +418,25 @@ async function initEmbeddedChat(container) {
     container.addEventListener('click', (e) => {
         const removeBtn = e.target.closest('.tw-ec-remove-preview');
         if (removeBtn) {
-            const previewId = removeBtn.dataset.previewId;
+            if (removeBtn.classList.contains('tw-ec-remove-existing')) {
+                const filename = removeBtn.dataset.filename;
+                if (!removedAttachments.includes(filename)) removedAttachments.push(filename);
+            } else {
+                const removedIndex = Number(removeBtn.dataset.fileIndex);
+                if (Number.isInteger(removedIndex)) {
+                    const transfer = new DataTransfer();
+                    selectedFiles.filter((_, index) => index !== removedIndex)
+                        .forEach(file => transfer.items.add(file));
+                    fileInput.files = transfer.files;
+                    selectedFiles = Array.from(transfer.files);
+                }
+            }
             removeBtn.closest('.tw-image-preview-wrapper')?.remove();
-            // Update selectedFiles by reading from input again
+            previewImagesDiv?.querySelectorAll('.tw-new-attachment').forEach((image, index) => {
+                const remainingRemoveButton = image.closest('.tw-image-preview-wrapper')
+                    ?.querySelector('.tw-ec-remove-preview');
+                if (remainingRemoveButton) remainingRemoveButton.dataset.fileIndex = index;
+            });
             if (previewImagesDiv && previewImagesDiv.children.length === 0) {
                 selectedFiles = [];
                 fileInput.value = '';
@@ -443,8 +501,34 @@ async function initEmbeddedChat(container) {
 
     function startEdit(messageId, inputElRef) {
         const msgDiv = messagesEl.querySelector(`.tw-chat-message[data-message-id="${messageId}"]`);
-        const msgText = msgDiv?.querySelector('.tw-msg-text')?.innerHTML ?? '';
+        const textEl = msgDiv?.querySelector('.tw-msg-text');
+        const msgText = textEl?.dataset.raw ?? textEl?.innerHTML ?? '';
+        selectedFiles = [];
+        removedAttachments = [];
+        fileInput.value = '';
+        previewImagesDiv.innerHTML = '';
+        const existingImages = msgDiv?.querySelectorAll('.tw-attached-image') ?? [];
+        existingImages.forEach(image => {
+            const filename = decodeURIComponent(image.getAttribute('src').split('/').pop());
+            const wrapper = document.createElement('div');
+            wrapper.className = 'tw-image-preview-wrapper tw-ec-image-preview-wrapper';
+
+            const preview = document.createElement('img');
+            preview.className = 'tw-image-preview';
+            preview.src = image.src;
+
+            const removeButton = document.createElement('button');
+            removeButton.className = 'tw-btn tw-btn-sm tw-btn-danger tw-ec-remove-preview tw-ec-remove-existing tw-image-preview-remove';
+            removeButton.type = 'button';
+            removeButton.dataset.filename = filename;
+            removeButton.textContent = 'x';
+
+            wrapper.append(preview, removeButton);
+            previewImagesDiv.appendChild(wrapper);
+        });
+        previewContainer.classList.toggle('tw-d-none', existingImages.length === 0);
         inputElRef.dataset.editMessage = messageId;
+        inputElRef.dataset.originalMessageText = msgText;
         inputElRef.innerHTML = msgText;
         inputElRef.classList.add('tw-editing');
         inputElRef.focus();
@@ -472,13 +556,33 @@ async function initEmbeddedChat(container) {
     messagesEl.addEventListener('click', quoteJumpHandler);
     messagesEl.addEventListener('click', createImageClickHandler());
 
-    function submitInput() {
+    async function submitInput() {
         if (inputEl.dataset.editMessage) {
-            ws.sendJson({ command: 'edit-message', message_id: parseInt(inputEl.dataset.editMessage), new_message: getInputHtml(inputEl) });
-            delete inputEl.dataset.editMessage;
-            inputEl.innerHTML = '';
-            inputEl.classList.remove('tw-editing');
-            updateCounter(inputEl, counterEl, counterVal, sendBtn, EC_MAX);
+            if (!joined) return;
+            const message = getInputHtml(inputEl);
+            const payload = {
+                command: 'edit-message',
+                message_id: parseInt(inputEl.dataset.editMessage, 10),
+            };
+            if (message !== inputEl.dataset.originalMessageText) payload.new_message = message;
+            if (removedAttachments.length) payload.removed_attachments = [...removedAttachments];
+
+            lockSendBtn();
+            try {
+                if (selectedFiles.length) {
+                    const uploaded = await uploadFiles(selectedFiles);
+                    if (uploaded.filenames.length) payload.attachments = { images: uploaded.filenames };
+                }
+                if (!payload.new_message && !payload.attachments && !payload.removed_attachments) {
+                    clearEditing();
+                    return;
+                }
+                ws.sendJson(payload);
+            } catch (error) {
+                console.error('Upload error:', error);
+                window.showToast?.(error.message);
+                unlockSendBtn();
+            }
         } else {
             sendMessage();
         }
@@ -488,10 +592,7 @@ async function initEmbeddedChat(container) {
 
     inputEl.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && inputEl.dataset.editMessage) {
-            delete inputEl.dataset.editMessage;
-            inputEl.innerHTML = '';
-            inputEl.classList.remove('tw-editing');
-            updateCounter(inputEl, counterEl, counterVal, sendBtn, EC_MAX);
+            clearEditing();
         }
     });
 

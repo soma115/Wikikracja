@@ -266,7 +266,7 @@ class ChatCommandHandlers:
         if new_message is None:
             new_message = message.text
         else:
-            new_message = re.sub(r'(<br\\s*/?>)+$', '', sanitize(new_message, linkify=False)).rstrip()
+            new_message = re.sub(r'(<br\s*/?>)+$', '', sanitize(new_message, linkify=False)).rstrip()
 
         attachments = self._validate_edit_attachments(attachments)
         if removed_attachments is not None and not isinstance(removed_attachments, (list, tuple)):
