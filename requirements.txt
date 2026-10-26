@@ -2,6 +2,8 @@ APScheduler==3.11.2
 asgiref==3.11.1
 bleach==6.4.0
 tinycss2==1.5.1
+# Trivy reports this release candidate as fixed for CVE-2026-115775/6/8.
+Twisted==26.10.0rc1
 channels==4.3.2
 channels_redis==4.3.0
 msgpack==1.2.1
@@ -25,6 +27,7 @@ django-watchfiles==1.4.0
 firebase-admin==7.4.0
 python-dotenv==1.2.2
 redis==7.4.0
+setuptools==80.9.0
 urllib3==2.8.0
 whitenoise==6.12.0
 pytest==9.0.3
