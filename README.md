@@ -53,7 +53,7 @@ Try the live demo: **https://demo.wikikracja.pl/**
 3. **Install Python dependencies**
    ```bash
    python -m pip install --upgrade pip
-   python -m pip install --no-build-isolation -r requirements.txt
+   python -m pip install -r requirements.txt
    ```
 
 4. **Start Redis 7** (for example, with Docker)
