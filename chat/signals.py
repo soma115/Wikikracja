@@ -10,6 +10,7 @@ from django.dispatch import Signal, receiver
 from django.utils import timezone
 
 from core.signals import citizen_accepted, citizen_deleted
+from zzz.templatetags.citizen_filters import user_initials
 
 from .models import Message, Room
 from .services import ensure_system_rooms, send_message
@@ -257,6 +258,8 @@ def cleanup_user_chat_rooms(sender, user, **kwargs):
     Deletes private one-to-one rooms and removes the user from all remaining
     room memberships (allowed, muted, seen).
     """
+    Message.objects.filter(sender=user, anonymous=False).update(sender_display_name=user_initials(user))
+
     private_rooms = Room.objects.one_to_one().filter(allowed=user)
     for room in private_rooms:
         log.info(f'Room {room} deleted.')

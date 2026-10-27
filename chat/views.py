@@ -13,7 +13,7 @@ from django.core.cache import cache
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import IntegrityError
-from django.db.models import Count, Exists, OuterRef, Prefetch, Q
+from django.db.models import Count, Exists, OuterRef, Prefetch, Q, Subquery
 from django.db.models.functions import Lower
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -121,6 +121,7 @@ def chat(request: HttpRequest):
         .annotate(
             messages_count=Count('messages'),
             is_seen=~Exists(Message.objects.filter(room_id=OuterRef('pk')).exclude(room__seen_by=request.user).exclude(sender_id=request.user.id).exclude(read_by__user_id=request.user.id)),
+            last_message_author_label=Subquery(Message.objects.filter(room_id=OuterRef('pk')).order_by('-pk').values('sender_display_name')[:1]),
         )
         .order_by(Lower('title'))
     )

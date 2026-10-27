@@ -77,6 +77,23 @@ class ChatViewsTest(TestCase):
         self.assertContains(response, '<span class="tw-chat-count">1</span>')
         self.assertContains(response, '<span class="tw-chat-count tw-chat-count--section">3</span>')
 
+    def test_room_list_keeps_deleted_sender_initials_for_last_message(self):
+        former_member = make_user('former-room-member')
+        former_member.first_name = 'Jan'
+        former_member.last_name = 'Kowalski'
+        former_member.save(update_fields=['first_name', 'last_name'])
+        Message.objects.create(room=self.room, sender=former_member, text='Last message')
+
+        from chat.signals import cleanup_user_chat_rooms
+
+        cleanup_user_chat_rooms(sender=type(former_member), user=former_member)
+        former_member.delete()
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('chat:chat'))
+
+        self.assertContains(response, 'tw-room-link-sender">JK:')
+
     def test_room_list_does_not_count_own_messages_as_unread(self):
         Message.objects.create(room=self.room, sender=self.user, text="My message")
         self.client.force_login(self.user)

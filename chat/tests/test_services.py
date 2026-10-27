@@ -22,9 +22,12 @@ from chat.models import Message, MessageReadBy, Room
 from chat.notifications import ChatNotificationService
 from chat.permissions import _room_permission_checkers, get_room_permission_checker, register_room_permission_checker
 from chat.room_repository import ChatRoomRepository
+from chat.serializers import build_chat_message_payload
 from chat.services import (
     CHAT_UNREAD_CACHE_KEY,
     ChatRepository,
+    _get_reply_to_data_sync,
+    build_chat_message_event,
     can_user_post_in_room,
     extract_mentions,
     get_avatar_url,
@@ -811,6 +814,9 @@ class RoomNotificationNameTest(TestCase):
 class CleanupUserChatRoomsTest(TestCase):
     def test_deleting_citizen_only_deletes_direct_messages(self):
         user = make_user('deleted-citizen')
+        user.first_name = 'Jan'
+        user.last_name = 'Kowalski'
+        user.save(update_fields=['first_name', 'last_name'])
         other = make_user('remaining-citizen')
         third = make_user('third-citizen')
         dm = Room.objects.create(title='deleted-citizen-remaining-citizen', public=False)
@@ -819,12 +825,31 @@ class CleanupUserChatRoomsTest(TestCase):
         document_room.allowed.set([user, other])
         unclassified_group = Room.objects.create(title='Unclassified group room', public=False)
         unclassified_group.allowed.set([user, other, third])
+        message = Message.objects.create(room=unclassified_group, sender=user, text='Visible after deletion')
+        anonymous_message = Message.objects.create(room=unclassified_group, sender=user, text='Still anonymous', anonymous=True)
 
         cleanup_user_chat_rooms(sender=type(user), user=user)
 
+        message.refresh_from_db()
+        anonymous_message.refresh_from_db()
+        self.assertEqual(message.sender_display_name, 'JK')
+        self.assertEqual(anonymous_message.sender_display_name, '')
         self.assertFalse(Room.objects.filter(pk=dm.pk).exists())
         self.assertTrue(Room.objects.filter(pk=document_room.pk).exists())
         self.assertFalse(document_room.allowed.filter(pk=user.pk).exists())
         self.assertTrue(document_room.allowed.filter(pk=other.pk).exists())
         self.assertTrue(Room.objects.filter(pk=unclassified_group.pk).exists())
         self.assertFalse(unclassified_group.allowed.filter(pk=user.pk).exists())
+
+        user.delete()
+        message.refresh_from_db()
+        event = {'user_id': None, 'anonymous': False, 'author_display_name': message.sender_display_name, 'new': False}
+        payload = build_chat_message_payload(event, user=None, vote_value=None, current_user=other)
+        self.assertIsNone(message.sender)
+        self.assertEqual(payload['display_name'], 'JK')
+
+        reply = Message.objects.create(room=unclassified_group, sender=other, text='Reply', reply_to=message)
+        reply_event = build_chat_message_event(reply)
+        reply_data = _get_reply_to_data_sync(message.pk, unclassified_group.pk, user=other)
+        self.assertEqual(reply_event['reply_to']['display_name'], 'JK')
+        self.assertEqual(reply_data['display_name'], 'JK')

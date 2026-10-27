@@ -33,6 +33,15 @@ class BuildChatMessagePayloadTest(TestCase):
     def test_payload_user_id_is_none_when_user_missing(self):
         payload = build_chat_message_payload(self.base_event, user=None, vote_value=None, current_user=self.viewer)
         self.assertIsNone(payload["user_id"])
+        self.assertEqual(payload["username"], "System")
+
+    def test_deleted_anonymous_sender_remains_anonymous(self):
+        event = {**self.base_event, "anonymous": True, "user_id": None}
+
+        payload = build_chat_message_payload(event, user=None, vote_value=None, current_user=self.viewer)
+
+        self.assertEqual(payload["username"], "Anonymous")
+        self.assertIsNone(payload["user_id"])
 
     def test_system_message_has_system_username(self):
         # Wiadomości systemowe: sender=None, anonymous=False (np. rename pokoju).

@@ -210,6 +210,17 @@ def _username_to_color(username: str) -> str:
     return f"hsl({hue}, 60%, 55%)"
 
 
+def _message_author_labels(message: Message) -> tuple[str, str]:
+    """Return the username and display label, including snapshots for deleted authors."""
+    if message.anonymous:
+        label = message.sender_display_name if message.sender is None and message.sender_display_name else 'Anonymous'
+        return label, label
+    if message.sender is None:
+        label = message.sender_display_name or 'System'
+        return label, label
+    return message.sender.username, user_display_name(message.sender)
+
+
 def get_avatar_url(user):
     """Get user's uploaded avatar URL, or None when user has no avatar.
 
@@ -246,8 +257,7 @@ def build_chat_message_event(message: Message, *, new: bool = False, temp_id: st
     reply_to_data = reply_to
     if reply_to_data is None and message.reply_to_id and message.reply_to:
         rm = message.reply_to
-        ru = 'System' if rm.sender is None else ('Anonymous' if rm.anonymous else rm.sender.username)
-        rd = user_display_name(rm.sender) if (rm.sender and not rm.anonymous) else ru
+        ru, rd = _message_author_labels(rm)
         reply_to_data = {'id': rm.id, 'username': ru, 'display_name': rd, 'text_snippet': _reply_snippet(rm.text), 'author_color': _username_to_color(ru)}
 
     read_by_data = []
@@ -697,8 +707,7 @@ def _get_reply_to_data_sync(reply_to_id, room_id, user=None):
         raise ClientError("ACCESS_DENIED") from None
     if user is not None and user.is_authenticated and not _can_access_room_sync(msg.room, user):
         raise ClientError("ACCESS_DENIED") from None
-    username = 'System' if msg.sender is None else ('Anonymous' if msg.anonymous else msg.sender.username)
-    display_name = user_display_name(msg.sender) if (msg.sender and not msg.anonymous) else username
+    username, display_name = _message_author_labels(msg)
     return {'id': msg.id, 'username': username, 'display_name': display_name, 'text_snippet': _reply_snippet(msg.text), 'author_color': _username_to_color(username)}
 
 
