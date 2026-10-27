@@ -52,7 +52,7 @@ Try the live demo: **https://demo.wikikracja.pl/**
 
 3. **Install Python dependencies**
    ```bash
-   python -m pip install --upgrade pip setuptools==80.9.0
+   python -m pip install --upgrade pip
    python -m pip install --no-build-isolation -r requirements.txt
    ```
 
