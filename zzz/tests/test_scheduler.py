@@ -35,6 +35,17 @@ class MeetingNotificationTest(DjangoTestCase):
         self.assertEqual(notify.call_args.args[0].pk, event.pk)
         self.assertIn('10:15', notify.call_args.kwargs['body'])
 
+    def test_notifies_weekly_event_at_local_time_after_dst_ends(self):
+        event = Event.objects.create(title='Weekly DST meeting', start_date=timezone.make_aware(datetime(2026, 4, 15, 21)), frequency='weekly')
+        current = timezone.make_aware(datetime(2026, 11, 4, 21, 0, 30))
+
+        with patch('django.utils.timezone.now', return_value=current), patch('events.services.notify_event_starting') as notify:
+            run_meeting_notification()
+
+        notify.assert_called_once()
+        self.assertEqual(notify.call_args.args[0].pk, event.pk)
+        self.assertIn('21:00', notify.call_args.kwargs['body'])
+
 
 class SchedulerStartGuardTest(TestCase):
     def test_schedules_archived_document_cleanup(self):

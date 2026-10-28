@@ -43,6 +43,12 @@ class Event(models.Model):
     def get_absolute_url(self):
         return reverse('events:detail', kwargs={'pk': self.pk})
 
+    def _get_local_start_date(self):
+        default_timezone = timezone.get_default_timezone()
+        if timezone.is_naive(self.start_date):
+            return timezone.make_aware(self.start_date, default_timezone)
+        return timezone.localtime(self.start_date, default_timezone)
+
     def _get_nth_weekday_of_month(self, year, month, weekday, nth):
         """
         Get the date of the nth occurrence of a weekday in a month.
@@ -56,6 +62,7 @@ class Event(models.Model):
         """
         # Get all days in the month
         month_calendar = calendar.monthcalendar(year, month)
+        local_start_date = self._get_local_start_date()
 
         if nth == -1:
             # Get the last occurrence
@@ -63,11 +70,7 @@ class Event(models.Model):
                 if week[weekday] != 0:
                     day = week[weekday]
                     # Combine with the time from start_date
-                    result = self.start_date.replace(year=year, month=month, day=day)
-                    # Ensure timezone-aware after replace
-                    if timezone.is_naive(result):
-                        result = timezone.make_aware(result)
-                    return result
+                    return local_start_date.replace(year=year, month=month, day=day)
         else:
             # Get the nth occurrence (1-indexed)
             occurrence_count = 0
@@ -77,11 +80,7 @@ class Event(models.Model):
                     if occurrence_count == nth:
                         day = week[weekday]
                         # Combine with the time from start_date
-                        result = self.start_date.replace(year=year, month=month, day=day)
-                        # Ensure timezone-aware after replace
-                        if timezone.is_naive(result):
-                            result = timezone.make_aware(result)
-                        return result
+                        return local_start_date.replace(year=year, month=month, day=day)
 
         return None
 
@@ -96,8 +95,10 @@ class Event(models.Model):
             return self.start_date if self.start_date > timezone.now() else None
 
         now = timezone.now()
-        next_date = self.start_date
-        anchor_day = self.start_date.day
+        default_timezone = timezone.get_default_timezone()
+        local_now = timezone.localtime(now, default_timezone)
+        next_date = self._get_local_start_date()
+        anchor_day = next_date.day
 
         if self.frequency == 'daily':
             while next_date <= now:
@@ -120,8 +121,8 @@ class Event(models.Model):
                 return None
 
             # Start from the current month
-            year = now.year
-            month = now.month
+            year = local_now.year
+            month = local_now.month
 
             # Find the next occurrence
             while True:
@@ -138,7 +139,7 @@ class Event(models.Model):
                     month += 1
 
                 # Safety check to avoid infinite loop
-                if year > now.year + 10:
+                if year > local_now.year + 10:
                     return None
         elif self.frequency == 'yearly':
             while next_date <= now:
@@ -172,11 +173,13 @@ class Event(models.Model):
             return []
 
         occurrences = []
+        default_timezone = timezone.get_default_timezone()
+        local_range_start = timezone.localtime(range_start, default_timezone)
 
         if self.frequency == 'daily':
-            current = self.start_date
+            current = self._get_local_start_date()
             if current < range_start:
-                days_diff = (range_start - current).days
+                days_diff = (local_range_start - current).days
                 current = current + timedelta(days=days_diff)
             safety = 0
             while current <= range_end and safety < 5000:
@@ -186,9 +189,9 @@ class Event(models.Model):
                 safety += 1
 
         elif self.frequency == 'weekly':
-            current = self.start_date
+            current = self._get_local_start_date()
             if current < range_start:
-                weeks_diff = (range_start - current).days // 7
+                weeks_diff = (local_range_start - current).days // 7
                 current = current + timedelta(weeks=weeks_diff)
             safety = 0
             while current <= range_end and safety < 1000:
@@ -198,8 +201,8 @@ class Event(models.Model):
                 safety += 1
 
         elif self.frequency == 'monthly':
-            current = self.start_date
-            anchor_day = self.start_date.day
+            current = self._get_local_start_date()
+            anchor_day = current.day
             safety = 0
             while current <= range_end and safety < 1200:
                 if current >= range_start:
@@ -216,7 +219,7 @@ class Event(models.Model):
         elif self.frequency == 'monthly_ordinal':
             if self.monthly_ordinal is None or self.monthly_weekday is None:
                 return []
-            iter_from = self.start_date if self.start_date > range_start else range_start
+            iter_from = self._get_local_start_date() if self.start_date > range_start else local_range_start
             year = iter_from.year
             month = iter_from.month
             safety = 0
@@ -238,8 +241,8 @@ class Event(models.Model):
                 safety += 1
 
         elif self.frequency == 'yearly':
-            current = self.start_date
-            anchor_day = self.start_date.day
+            current = self._get_local_start_date()
+            anchor_day = current.day
             safety = 0
             while current <= range_end and safety < 100:
                 if current >= range_start:

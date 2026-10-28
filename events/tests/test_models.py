@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from unittest.mock import patch
 
 from django.test import TestCase
 from django.utils import timezone
@@ -53,6 +54,48 @@ class EventModelTest(TestCase):
         occurrences = event.get_occurrences(timezone.make_aware(datetime(2026, 2, 1)), timezone.make_aware(datetime(2026, 4, 1)))
 
         self.assertEqual([occurrence.day for occurrence in occurrences], [28, 31])
+
+    def test_weekly_occurrences_keep_local_time_after_dst_ends(self):
+        event = Event.objects.create(title='Weekly DST', start_date=timezone.make_aware(datetime(2026, 4, 15, 21)), frequency='weekly')
+        event.refresh_from_db()
+
+        occurrences = event.get_occurrences(timezone.make_aware(datetime(2026, 11, 4)), timezone.make_aware(datetime(2026, 11, 19, 23, 59)))
+
+        self.assertEqual(
+            [timezone.localtime(occurrence) for occurrence in occurrences],
+            [timezone.make_aware(datetime(2026, 11, 4, 21)), timezone.make_aware(datetime(2026, 11, 11, 21)), timezone.make_aware(datetime(2026, 11, 18, 21))],
+        )
+
+    def test_next_weekly_occurrence_keeps_local_time_after_dst_ends(self):
+        event = Event.objects.create(title='Weekly next DST', start_date=timezone.make_aware(datetime(2026, 4, 15, 21)), frequency='weekly')
+        event.refresh_from_db()
+        now = timezone.make_aware(datetime(2026, 11, 1, 12))
+
+        with patch('django.utils.timezone.now', return_value=now):
+            next_occurrence = event.get_next_occurrence()
+
+        self.assertEqual(timezone.localtime(next_occurrence), timezone.make_aware(datetime(2026, 11, 4, 21)))
+
+    def test_weekly_occurrences_keep_local_time_after_dst_starts(self):
+        event = Event.objects.create(title='Weekly spring DST', start_date=timezone.make_aware(datetime(2026, 3, 18, 21)), frequency='weekly')
+        event.refresh_from_db()
+
+        occurrences = event.get_occurrences(timezone.make_aware(datetime(2026, 4, 1)), timezone.make_aware(datetime(2026, 4, 15, 23, 59)))
+
+        self.assertEqual(
+            [timezone.localtime(occurrence) for occurrence in occurrences],
+            [timezone.make_aware(datetime(2026, 4, 1, 21)), timezone.make_aware(datetime(2026, 4, 8, 21)), timezone.make_aware(datetime(2026, 4, 15, 21))],
+        )
+
+    def test_next_weekly_occurrence_keeps_local_time_after_dst_starts(self):
+        event = Event.objects.create(title='Weekly next spring DST', start_date=timezone.make_aware(datetime(2026, 3, 18, 21)), frequency='weekly')
+        event.refresh_from_db()
+        now = timezone.make_aware(datetime(2026, 3, 29, 12))
+
+        with patch('django.utils.timezone.now', return_value=now):
+            next_occurrence = event.get_next_occurrence()
+
+        self.assertEqual(timezone.localtime(next_occurrence), timezone.make_aware(datetime(2026, 4, 1, 21)))
 
     def test_yearly_occurrences_clamp_february_29_in_non_leap_years(self):
         event = Event.objects.create(title='Leap Day', start_date=timezone.make_aware(datetime(2024, 2, 29, 10)), frequency='yearly')
