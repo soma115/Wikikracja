@@ -2001,6 +2001,51 @@ class AccountDeletionFeedbackTest(TestCase):
         self.assertFalse(User.objects.filter(pk=user_id).exists())
         self.assertFalse(DeletionRequest.objects.exists())
 
+    @patch('obywatele.management.commands.count_citizens.citizen_deleted.send')
+    def test_inactive_cleanup_skips_users_with_deletion_requests(self, deleted_signal):
+        from obywatele.management.commands.count_citizens import Command
+
+        self.user.is_active = False
+        self.user.last_login = django_timezone.now() - timedelta(days=1)
+        self.user.save(update_fields=['is_active', 'last_login'])
+        DeletionRequest.objects.create(user=self.user, scheduled_for=django_timezone.now() + timedelta(days=1))
+
+        with patch('site_settings.params.get_param', return_value=0):
+            Command().delete_inactive_users()
+
+        self.assertTrue(User.objects.filter(pk=self.user.pk).exists())
+        deleted_signal.assert_not_called()
+
+    @patch('obywatele.management.commands.count_citizens.citizen_deleted.send')
+    def test_inactive_deletion_failure_logs_traceback(self, deleted_signal):
+        from obywatele.management.commands.count_citizens import Command
+
+        self.user.is_active = False
+        self.user.last_login = django_timezone.now() - timedelta(days=1)
+        self.user.save(update_fields=['is_active', 'last_login'])
+
+        with (
+            patch('site_settings.params.get_param', return_value=0),
+            patch.object(Uzytkownik, 'delete', side_effect=RuntimeError('simulated delete failure')),
+            self.assertLogs('obywatele.management.commands.count_citizens', level='ERROR') as logs,
+        ):
+            Command().delete_inactive_users()
+
+        self.assertTrue(any(record.exc_info for record in logs.records))
+        self.assertTrue(User.objects.filter(pk=self.user.pk).exists())
+
+    @patch('obywatele.management.commands.count_citizens.citizen_deleted.send')
+    def test_requested_deletion_failure_logs_traceback(self, deleted_signal):
+        from obywatele.management.commands.count_citizens import Command
+
+        DeletionRequest.objects.create(user=self.user, scheduled_for=django_timezone.now() - timedelta(days=1))
+
+        with patch.object(Uzytkownik, 'delete', side_effect=RuntimeError('simulated delete failure')), self.assertLogs('obywatele.management.commands.count_citizens', level='ERROR') as logs:
+            Command().process_deletion_requests()
+
+        self.assertTrue(any(record.exc_info for record in logs.records))
+        self.assertTrue(User.objects.filter(pk=self.user.pk).exists())
+
     def test_account_deletion_preserves_votes_and_surveys_and_removes_avatar(self):
         from obywatele.management.commands.count_citizens import Command
 

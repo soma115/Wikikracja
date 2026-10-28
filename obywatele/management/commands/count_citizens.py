@@ -263,7 +263,7 @@ class Command(BaseCommand):
                     publish_deletion_feedback(reason, anonymous=publish_anonymously, author_name=author_name)
                 log.info(f'Deleted account (user-requested): {username}')
             except Exception as e:
-                log.error(f'Failed to delete user {username} (user-requested): {str(e)}')
+                log.exception(f'Failed to delete user {username} (user-requested): {str(e)}')
 
     def delete_inactive_users(self):
         """Delete inactive users who haven't logged in for a while"""
@@ -271,7 +271,8 @@ class Command(BaseCommand):
 
         inactive_period = get_param('delete_inactive_user_after')
 
-        for user in User.objects.filter(is_active=False):
+        inactive_users = User.objects.filter(is_active=False).exclude(deletion_request__isnull=False)
+        for user in inactive_users:
             if user.last_login is None:
                 user.last_login = now()  # Set to current date
                 user.save()
@@ -286,4 +287,4 @@ class Command(BaseCommand):
                     user.delete()
                     log.info(f'Deleted inactive user: {user.username}')
                 except Exception as e:
-                    log.error(f'Failed to delete user {user.id}: {str(e)}')
+                    log.exception(f'Failed to delete user {user.id}: {str(e)}')

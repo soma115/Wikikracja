@@ -1,3 +1,11 @@
+## 2026-10-28: Diagnostyka bledow usuwania kont
+
+- **Zmienione obszary:** `obywatele.management.commands.count_citizens` oraz testy usuwania kont.
+- **Co sie zmienilo:** Sprzatanie nieaktywnych kont pomija uzytkownikow z `DeletionRequest`, pozostawiajac ich wylacznie sciezce realizujacej prosbe po terminie. Bledy usuwania kont nieaktywnych i zadanych przez uzytkownika uzywaja `log.exception`, dzieki czemu logi zawieraja traceback.
+- **Testy:** Dodano regresje pomijania konta z prosba oraz sprawdzenia, ze oba bledy usuwania zachowuja traceback w logu.
+- **Uzasadnienie:** Jedno konto nie powinno byc probowane przez dwa niezalezne mechanizmy w tym samym przebiegu, a traceback pomoze wskazac konkretna operacje naruszajaca FK.
+- **Spodziewany efekt:** Brak powtorzonej proby usuniecia konta z wnioskiem oraz latwiejsza diagnoza przyszlych bledow FK bez zmiany semantyki terminu prosby.
+
 # LOG_AI
 
 ## 2026-10-24: Usuwanie wszystkich obrazow podczas edycji czatu
