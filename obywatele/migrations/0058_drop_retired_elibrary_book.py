@@ -6,5 +6,6 @@ class Migration(migrations.Migration):
 
     operations = [
         # eLibrary was removed from the app registry without dropping its legacy table.
-        migrations.RunSQL('DROP TABLE IF EXISTS "elibrary_book"')
+        # A rollback must not recreate this obsolete table or its discarded data.
+        migrations.RunSQL('DROP TABLE IF EXISTS "elibrary_book"', reverse_sql=migrations.RunSQL.noop)
     ]

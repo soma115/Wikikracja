@@ -4,6 +4,8 @@ from django.db.migrations.executor import MigrationExecutor
 from django.db.migrations.recorder import MigrationRecorder
 from django.test import TransactionTestCase
 
+from obywatele.models import Country
+
 
 class DropRetiredElibraryBookMigrationTest(TransactionTestCase):
     migration = ('obywatele', '0058_drop_retired_elibrary_book')
@@ -24,6 +26,7 @@ class DropRetiredElibraryBookMigrationTest(TransactionTestCase):
         executor.migrate(executor.loader.graph.leaf_nodes())
 
     def test_drops_legacy_book_table_and_preserves_uploader_account(self):
+        Country.objects.get_or_create(code='PL', defaults={'name': 'Poland'})
         user = get_user_model().objects.create_user(username='legacy-elibrary-uploader')
         user_table = connection.ops.quote_name(get_user_model()._meta.db_table)
         with connection.cursor() as cursor:
