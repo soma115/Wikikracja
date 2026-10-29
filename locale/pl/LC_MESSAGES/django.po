@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-24 13:32+0200\n"
+"POT-Creation-Date: 2026-10-29 20:33+0100\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -155,7 +155,7 @@ msgstr "Ankieta"
 
 #: .\ankiety\models.py:24 .\chat\templates\chat\chat.html:217
 #: .\home\navigation.py:21 .\home\services\dashboard.py:35
-#: .\home\templates\home\home.html:156 .\home\views.py:305
+#: .\home\templates\home\home.html:156 .\home\views.py:298
 #: .\obywatele\views.py:521
 msgid "Surveys"
 msgstr "Ankiety"
@@ -384,7 +384,7 @@ msgstr "Zapisz"
 #: .\home\navigation.py:22 .\home\services\dashboard.py:34
 #: .\home\templates\home\home.html:312 .\home\templates\home\home.html:321
 #: .\home\templates\home\home.html:344 .\home\templatetags\feed_filters.py:41
-#: .\home\views.py:43 .\home\views.py:305 .\obywatele\views.py:523
+#: .\home\views.py:43 .\home\views.py:298 .\obywatele\views.py:523
 #: .\tasks\templates\tasks\_task_card.html:75
 msgid "Chat"
 msgstr "Czat"
@@ -863,7 +863,7 @@ msgstr "A-Z"
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:23
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:17
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:22
-#: .\bookkeeping\views.py:940 .\chat\i18n.py:48 .\home\views.py:178
+#: .\bookkeeping\views.py:940 .\chat\i18n.py:48 .\home\views.py:171
 #: .\obywatele\templates\obywatele\_citizen_aktywnosc_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_czaty_partial.html:9
 #: .\obywatele\templates\obywatele\_citizen_zadania_partial.html:10
@@ -1301,7 +1301,7 @@ msgstr "Jest walutą"
 
 #: .\bookkeeping\templates\bookkeeping\asset_detail.html:13
 #: .\bookkeeping\templates\bookkeeping\asset_detail.html:14 .\chat\i18n.py:14
-#: .\glosowania\templates\glosowania\parameters.html:45
+#: .\glosowania\templates\glosowania\parameters.html:49
 #: .\glosowania\templates\glosowania\szczegoly.html:45
 #: .\obywatele\templates\obywatele\szczegoly.html:67
 #: .\site_settings\params.py:144 .\tasks\forms.py:14
@@ -1311,7 +1311,7 @@ msgstr "Tak"
 
 #: .\bookkeeping\templates\bookkeeping\asset_detail.html:13
 #: .\bookkeeping\templates\bookkeeping\asset_detail.html:14
-#: .\glosowania\templates\glosowania\parameters.html:45
+#: .\glosowania\templates\glosowania\parameters.html:49
 #: .\glosowania\templates\glosowania\szczegoly.html:46
 #: .\obywatele\templates\obywatele\szczegoly.html:67
 #: .\site_settings\params.py:144 .\tasks\forms.py:14
@@ -2132,7 +2132,7 @@ msgstr "Inne grupy Wikikracji"
 
 #: .\chat\templates\chat\chat.html:136 .\chat\templates\chat\chat.html:370
 #: .\home\navigation.py:15 .\home\services\dashboard.py:27 .\home\views.py:37
-#: .\home\views.py:305
+#: .\home\views.py:298
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:72
 #: .\obywatele\templates\obywatele\szczegoly.html:201 .\obywatele\views.py:516
 msgid "Activities"
@@ -2144,7 +2144,7 @@ msgstr "Głosowania"
 
 #: .\chat\templates\chat\chat.html:190 .\chat\templates\chat\chat.html:378
 #: .\home\navigation.py:17 .\home\services\dashboard.py:21 .\home\views.py:36
-#: .\home\views.py:305 .\obywatele\views.py:518
+#: .\home\views.py:298 .\obywatele\views.py:518
 msgid "Documents"
 msgstr "Dokumenty"
 
@@ -2244,7 +2244,7 @@ msgstr "Archiwa"
 msgid "Click the archive button (folder icon) next to each category to show archived rooms."
 msgstr "Kliknij przycisk archiwum (ikona folderu) obok każdej kategorii, aby pokazać zarchiwizowane pokoje."
 
-#: .\chat\templates\chat\guest_message.html:5 .\chat\tests\test_views.py:381
+#: .\chat\templates\chat\guest_message.html:5 .\chat\tests\test_views.py:398
 msgid "Send a message"
 msgstr "Wyślij wiadomość"
 
@@ -2279,11 +2279,11 @@ msgstr "Oznacz jako nieprzeczytane"
 msgid "Invalid room name."
 msgstr "Nieprawidłowa nazwa pokoju."
 
-#: .\chat\views.py:323
+#: .\chat\views.py:324
 msgid "Too many messages. Please try again later."
 msgstr "Zbyt wiele wiadomości. Spróbuj ponownie później."
 
-#: .\chat\views.py:327
+#: .\chat\views.py:328
 msgid "The public inbox is not available at the moment."
 msgstr "Publiczna skrzynka nie jest obecnie dostępna."
 
@@ -2296,7 +2296,7 @@ msgstr "Działanie"
 
 #: .\core\models.py:15 .\events\models.py:37 .\events\search.py:18
 #: .\events\templates\events\_event_detail_actions.html:15 .\home\models.py:15
-#: .\home\views.py:305
+#: .\home\views.py:298
 msgid "Event"
 msgstr "Wydarzenie"
 
@@ -3141,64 +3141,68 @@ msgstr "zaznaczonych"
 msgid "parameters - create referendum."
 msgstr "parametrów - utwórz referendum."
 
-#: .\glosowania\templates\glosowania\parameters.html:33
+#: .\glosowania\templates\glosowania\parameters.html:31
+msgid "After the author signs a proposal and it gathers the required signatures, it moves to discussion no earlier than two calendar days after its last modification. The status changes when the voting process next runs."
+msgstr "Po podpisaniu propozycji przez autora i zebraniu wymaganej liczby podpisów przechodzi ona do fazy dyskusji nie wcześniej niż po upływie dwóch dni kalendarzowych od ostatniej modyfikacji. Status zmienia się przy najbliższym uruchomieniu procesu głosowań."
+
+#: .\glosowania\templates\glosowania\parameters.html:37
 #: .\obywatele\templates\obywatele\parameters.html:48
 msgid "Create referendum on system parameters"
 msgstr "Utwórz referendum dotyczące zmiany parametrów systemu"
 
-#: .\glosowania\templates\glosowania\parameters.html:35
+#: .\glosowania\templates\glosowania\parameters.html:39
 msgid "Open the form to start a referendum changing system parameters."
 msgstr "Otwórz formularz, aby rozpocząć referendum zmieniające parametry systemu."
 
-#: .\glosowania\templates\glosowania\parameters.html:65
+#: .\glosowania\templates\glosowania\parameters.html:69
 msgid "Vote storage reliability"
 msgstr "Niezawodność zapisywania głosów"
 
-#: .\glosowania\templates\glosowania\parameters.html:69
+#: .\glosowania\templates\glosowania\parameters.html:73
 msgid "While a referendum is open, votes are stored outside the main database."
 msgstr "W trakcie trwania referendum głosy przechowywane są poza bazą danych."
 
-#: .\glosowania\templates\glosowania\parameters.html:70
+#: .\glosowania\templates\glosowania\parameters.html:74
 msgid "This way nobody can see who voted for what, or the running result."
 msgstr "W ten sposób nikt nie może zobaczyć, kto na co głosował, ani jakie były wyniki."
 
-#: .\glosowania\templates\glosowania\parameters.html:71
+#: .\glosowania\templates\glosowania\parameters.html:75
 msgid "Votes are written to the database and counted only after the referendum closes."
 msgstr "Głosy trafiają do bazy danych i są liczone dopiero po zamknięciu referendum."
 
-#: .\glosowania\templates\glosowania\parameters.html:74
+#: .\glosowania\templates\glosowania\parameters.html:78
 msgid "If that storage fails before the referendum closes, the votes cast so far are lost."
 msgstr "Jeśli ta pamięć ulegnie awarii przed zamknięciem referendum, dotychczas oddane głosy zostają utracone."
 
-#: .\glosowania\templates\glosowania\parameters.html:75
+#: .\glosowania\templates\glosowania\parameters.html:79
 msgid "The system does not count a partial result in that case."
 msgstr "W takim przypadku system nie liczy częściowego wyniku."
 
-#: .\glosowania\templates\glosowania\parameters.html:76
+#: .\glosowania\templates\glosowania\parameters.html:80
 msgid "Everyone who voted is removed from the list of people who already voted."
 msgstr "Wszyscy, którzy oddali głos, zostają usunięci z listy osób, które już głosowały."
 
-#: .\glosowania\templates\glosowania\parameters.html:77
+#: .\glosowania\templates\glosowania\parameters.html:81
 msgid "All verification codes issued so far become invalid."
 msgstr "Wszystkie dotychczas wydane kody weryfikacyjne tracą ważność."
 
-#: .\glosowania\templates\glosowania\parameters.html:78
+#: .\glosowania\templates\glosowania\parameters.html:82
 msgid "Voting restarts from scratch for a full new period."
 msgstr "Głosowanie zaczyna się od nowa na pełny nowy okres."
 
-#: .\glosowania\templates\glosowania\parameters.html:79
+#: .\glosowania\templates\glosowania\parameters.html:83
 msgid "Everyone is notified by email."
 msgstr "Wszyscy zostają o tym powiadomieni e-mailem."
 
-#: .\glosowania\templates\glosowania\parameters.html:86
+#: .\glosowania\templates\glosowania\parameters.html:90
 msgid "Restarts so far:"
 msgstr "Liczba restartów dotychczas:"
 
-#: .\glosowania\templates\glosowania\parameters.html:92
+#: .\glosowania\templates\glosowania\parameters.html:96
 msgid "Restarts:"
 msgstr "Restarty:"
 
-#: .\glosowania\templates\glosowania\parameters.html:100
+#: .\glosowania\templates\glosowania\parameters.html:104
 msgid "No referendum has ever had to restart because of a vote storage failure."
 msgstr "Nigdy dotąd nie zdarzyło się, aby referendum musiało zostać przeprowadzone ponownie z powodu awarii pamięci zapisu głosów."
 
@@ -3295,7 +3299,7 @@ msgid "Against"
 msgstr "Przeciw"
 
 #: .\glosowania\templates\glosowania\szczegoly.html:73
-#: .\obywatele\services.py:44 .\obywatele\tests\test_views.py:2043
+#: .\obywatele\services.py:44 .\obywatele\tests\test_views.py:2088
 msgid "Former group member"
 msgstr "Były członek grupy"
 
@@ -3554,12 +3558,12 @@ msgid "Desktop"
 msgstr "Pulpit"
 
 #: .\home\navigation.py:16 .\home\services\dashboard.py:19 .\home\views.py:42
-#: .\home\views.py:305 .\obywatele\models.py:153
+#: .\home\views.py:298 .\obywatele\models.py:153
 #: .\obywatele\templatetags\profile_tags.py:62
 msgid "Citizens"
 msgstr "Ludzie"
 
-#: .\home\navigation.py:19 .\home\views.py:38 .\home\views.py:305
+#: .\home\navigation.py:19 .\home\views.py:38 .\home\views.py:298
 msgid "Votings"
 msgstr "Głosowania"
 
@@ -4264,60 +4268,60 @@ msgstr "W realizacji"
 msgid "Finance"
 msgstr "Finanse"
 
-#: .\home\views.py:326
+#: .\home\views.py:319
 msgid "Your password has been changed."
 msgstr "Twoje hasło zostało zmienione."
 
-#: .\home\views.py:329
+#: .\home\views.py:322
 msgid "You typed something wrong. See what error appeared above and try again."
 msgstr "Coś źle wpisałeś. Zobacz, jaki błąd pojawił się powyżej i spróbuj ponownie."
 
-#: .\home\views.py:436 .\home\views.py:440 .\home\views.py:449
-#: .\home\views.py:457 .\home\views.py:479
+#: .\home\views.py:429 .\home\views.py:433 .\home\views.py:442
+#: .\home\views.py:450 .\home\views.py:472
 msgid "Invalid instance address."
 msgstr "Nieprawidłowy adres instancji."
 
-#: .\home\views.py:442
+#: .\home\views.py:435
 msgid "Federation secret generated."
 msgstr "Wygenerowano sekret federacji."
 
-#: .\home\views.py:454
+#: .\home\views.py:447
 msgid "Federation secret must contain between 32 and 512 bytes."
 msgstr "Sekret federacji musi mieć od 32 do 512 bajtów."
 
-#: .\home\views.py:459
+#: .\home\views.py:452
 msgid "Federation secret saved."
 msgstr "Zapisano sekret federacji."
 
-#: .\home\views.py:467
+#: .\home\views.py:460
 msgid "Could not connect to a valid Wikikracja instance."
 msgstr "Nie można połączyć się z prawidłową instancją Wikikracji."
 
-#: .\home\views.py:470
+#: .\home\views.py:463
 msgid "Other group added."
 msgstr "Dodano inną grupę."
 
-#: .\home\views.py:477
+#: .\home\views.py:470
 msgid "Other group archived."
 msgstr "Zarchiwizowano inną grupę."
 
-#: .\home\views.py:485 .\home\views.py:499
+#: .\home\views.py:478 .\home\views.py:492
 msgid "Enter a valid title and URL."
 msgstr "Wprowadź prawidłowy tytuł i adres URL."
 
-#: .\home\views.py:491
+#: .\home\views.py:484
 msgid "Link added."
 msgstr "Link dodany."
 
-#: .\home\views.py:503
+#: .\home\views.py:496
 msgid "Link updated."
 msgstr "Link zaktualizowany."
 
-#: .\home\views.py:505 .\home\views.py:531
+#: .\home\views.py:498 .\home\views.py:524
 msgid "Link doesn't exist."
 msgstr "Link nie istnieje."
 
-#: .\home\views.py:529
+#: .\home\views.py:522
 msgid "Link deleted."
 msgstr "Link usunięty."
 
