@@ -14,6 +14,7 @@ from django.db import OperationalError
 from django.utils import timezone
 
 from glosowania.models import Decyzja, KtoJuzGlosowal, ReferendumEffect, VoteCode
+from site_settings.models import SiteParameters
 
 
 @pytest.fixture(autouse=True)
@@ -94,9 +95,26 @@ def test_closing_referendum_rejects_when_no_votes_cast(sample_users):
 
     decyzja.refresh_from_db()
     assert decyzja.status == Decyzja.Status.REJECTED
+    assert decyzja.data_odrzucenia == today
     assert decyzja.za == 0
     assert decyzja.przeciw == 0
     assert VoteCode.objects.filter(project=decyzja).count() == 0
+
+
+@pytest.mark.django_db
+def test_proposal_rejected_for_missing_signatures_records_rejection_date(sample_users):
+    author = sample_users[0]
+    today = timezone.localdate()
+    parameters = SiteParameters.get()
+    decision = Decyzja.objects.create(title='Unsigned proposal', tresc='x', author=author, path='Proposition')
+    Decyzja.objects.filter(pk=decision.pk).update(data_powstania=today - timedelta(days=parameters.czas_na_zebranie_podpisow))
+
+    with patch('core.notifications.send_notification_to_all_sync'), patch('glosowania.management.commands.vote.Room.create_all_one2one_rooms'):
+        call_command('vote')
+
+    decision.refresh_from_db()
+    assert decision.status == Decyzja.Status.REJECTED
+    assert decision.data_odrzucenia == today
 
 
 @pytest.mark.django_db

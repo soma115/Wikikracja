@@ -1,6 +1,7 @@
 """Tests for glosowania views."""
 
 import io
+import re
 from datetime import date, timedelta
 from unittest.mock import AsyncMock, call, patch
 
@@ -57,6 +58,23 @@ def _parameter_decision_with_logo(author):
     decision = Decyzja.objects.create(title='Parameter proposal', tresc='Old parameters', uzasadnienie='Old reason', status=Decyzja.Status.PROPOSITION, author=author, proposed_parameters={'acceptance': 10})
     decision.proposed_brand_mark.save('old.png', _image_upload('old.png', 'PNG'), save=True)
     return decision
+
+
+def _detail_meta_labels(response):
+    content = response.content.decode()
+    meta = content.split('<div class="tw-detail-meta">', 1)[1].split('</div>', 1)[0]
+    translations = {
+        'Autor': 'Author',
+        'Utworzone': 'Created',
+        'Utworzono': 'Created',
+        'Podpisy': 'Signatures',
+        'Start dyskusji': 'Discussion start',
+        'Referendum': 'Referendum',
+        'Zatwierdzone': 'Approved',
+        'Odrzucone': 'Rejected',
+        'Status': 'Status',
+    }
+    return [translations.get(label, label) for label in re.findall(r'tw-detail-meta-label">([^<]+)</span>', meta)]
 
 
 @pytest.mark.django_db
@@ -923,6 +941,88 @@ def test_signing_rejected_when_not_proposition(sample_users):
     assert response.status_code == 302
     assert response.url == f'/glosowania/details/{decyzja.pk}/'
     assert not ZebranePodpisy.objects.filter(projekt=decyzja, podpis_uzytkownika=signer).exists()
+
+
+@pytest.mark.django_db
+def test_signature_collection_date_tracks_the_required_threshold(sample_users):
+    author, signer = sample_users[:2]
+    parameters = SiteParameters.get()
+    parameters.wymaganych_podpisow = 2
+    parameters.save(update_fields=['wymaganych_podpisow'])
+    decision = Decyzja.objects.create(title='Signature date', tresc='x', author=author)
+    client = Client()
+    collected_on = date(2026, 2, 10)
+
+    with patch('glosowania.views.timezone.localdate', return_value=collected_on):
+        client.force_login(author)
+        client.post(f'/glosowania/details/{decision.pk}/', {'sign': '1'})
+        decision.refresh_from_db()
+        assert decision.ile_osob_podpisalo == 1
+        assert decision.data_zebrania_wymaganej_liczby_podpisow is None
+
+        client.force_login(signer)
+        client.post(f'/glosowania/details/{decision.pk}/', {'sign': '1'})
+        decision.refresh_from_db()
+        assert decision.data_zebrania_wymaganej_liczby_podpisow == collected_on
+
+        client.post(f'/glosowania/details/{decision.pk}/', {'withdraw': '1'})
+        decision.refresh_from_db()
+        assert decision.ile_osob_podpisalo == 1
+        assert decision.data_zebrania_wymaganej_liczby_podpisow is None
+
+
+@pytest.mark.django_db
+def test_detail_meta_order_and_dates_match_each_status(sample_users):
+    author = sample_users[0]
+    client = Client()
+    client.force_login(author)
+    today = date(2026, 2, 10)
+    cases = (
+        (Decyzja.Status.PROPOSITION, ['Author', 'Created', 'Signatures', 'Discussion start', 'Status']),
+        (Decyzja.Status.DISCUSSION, ['Author', 'Discussion start', 'Referendum', 'Status']),
+        (Decyzja.Status.REFERENDUM, ['Author', 'Referendum', 'Status']),
+        (Decyzja.Status.APPROVED, ['Author', 'Created', 'Approved', 'Status']),
+        (Decyzja.Status.REJECTED, ['Author', 'Created', 'Referendum', 'Rejected', 'Status']),
+    )
+
+    for status, expected_labels in cases:
+        decision = Decyzja.objects.create(
+            title=f'Decision dates {status}',
+            tresc='x',
+            author=author,
+            status=status,
+            data_zebrania_wymaganej_liczby_podpisow=today,
+            data_zebrania_podpisow=today + timedelta(days=1),
+            data_referendum_start=today + timedelta(days=2),
+            data_referendum_stop=today + timedelta(days=4),
+            data_odrzucenia=today + timedelta(days=5),
+        )
+        ZebranePodpisy.objects.create(projekt=decision, podpis_uzytkownika=author)
+
+        response = client.get(f'/glosowania/details/{decision.pk}/')
+
+        assert _detail_meta_labels(response) == expected_labels
+        content = response.content.decode()
+        if status == Decyzja.Status.PROPOSITION:
+            assert decision.earliest_discussion_date.strftime('%d.%m.%Y') in content
+        elif status == Decyzja.Status.APPROVED:
+            assert decision.data_referendum_stop.strftime('%d.%m.%Y') in content
+        elif status == Decyzja.Status.REJECTED:
+            assert decision.data_odrzucenia.strftime('%d.%m.%Y') in content
+
+
+@pytest.mark.django_db
+def test_proposal_freeze_period_explanation_is_not_displayed(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Proposal freeze', tresc='x', author=author)
+    client = Client()
+    client.force_login(author)
+
+    response = client.get(f'/glosowania/details/{decision.pk}/')
+    content = response.content.decode()
+
+    assert 'After the author signs a proposal' not in content
+    assert 'Po podpisaniu propozycji przez autora' not in content
 
 
 @pytest.mark.django_db

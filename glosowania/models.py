@@ -1,4 +1,5 @@
 import re
+from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -22,6 +23,8 @@ def does_it_exist(value):
 
 
 class Decyzja(ChatRoomModel, models.Model):
+    DISCUSSION_FREEZE_PERIOD_DAYS = 2
+
     class Status(models.IntegerChoices):
         PROPOSITION = 1, _('Proposition')
         DISCUSSION = 2, _('Discussion')
@@ -56,11 +59,13 @@ class Decyzja(ChatRoomModel, models.Model):
     )
     path = models.CharField(max_length=1000, null=True, verbose_name=_('The path this bill took.'))
     ile_osob_podpisalo = models.SmallIntegerField(editable=False, default=0)
+    data_zebrania_wymaganej_liczby_podpisow = models.DateField(editable=False, null=True, verbose_name=_('Date required signatures were collected'))
     data_powstania = models.DateField(auto_now_add=True, editable=False, null=True)
     data_ostatniej_modyfikacji = models.DateTimeField(auto_now=True, editable=False, null=True)
     data_zebrania_podpisow = models.DateField(editable=False, null=True)
     data_referendum_start = models.DateField(editable=False, null=True)
     data_referendum_stop = models.DateField(editable=False, null=True)
+    data_odrzucenia = models.DateField(editable=False, null=True)
     za = models.SmallIntegerField(default=0, editable=False)
     przeciw = models.SmallIntegerField(default=0, editable=False)
     status = models.SmallIntegerField(choices=Status.choices, default=Status.PROPOSITION, editable=False)
@@ -106,6 +111,12 @@ class Decyzja(ChatRoomModel, models.Model):
         """True once the decision has been rejected or approved (arguments
         can no longer be added/edited/deleted)."""
         return self.status in (self.Status.REJECTED, self.Status.APPROVED)
+
+    @property
+    def earliest_discussion_date(self):
+        if not self.data_ostatniej_modyfikacji:
+            return None
+        return self.data_ostatniej_modyfikacji.date() + timedelta(days=self.DISCUSSION_FREEZE_PERIOD_DAYS)
 
 
 class ReferendumEffect(models.Model):

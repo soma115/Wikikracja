@@ -301,6 +301,9 @@ def details(request: HttpRequest, pk: int):
             __, created = ZebranePodpisy.objects.get_or_create(projekt=nowy_projekt, podpis_uzytkownika=osoba_podpisujaca)
             if created:
                 Decyzja.objects.filter(pk=pk).update(ile_osob_podpisalo=F('ile_osob_podpisalo') + 1)
+            nowy_projekt.refresh_from_db(fields=['ile_osob_podpisalo', 'data_zebrania_wymaganej_liczby_podpisow'])
+            if nowy_projekt.ile_osob_podpisalo >= SiteParameters.get().wymaganych_podpisow and not nowy_projekt.data_zebrania_wymaganej_liczby_podpisow:
+                Decyzja.objects.filter(pk=pk, data_zebrania_wymaganej_liczby_podpisow__isnull=True).update(data_zebrania_wymaganej_liczby_podpisow=timezone.localdate())
         message = _('You signed this motion for a referendum.')
         messages.success(request, (message))
         return redirect('glosowania:details', pk)
@@ -314,6 +317,9 @@ def details(request: HttpRequest, pk: int):
             deleted, __ = ZebranePodpisy.objects.filter(projekt=nowy_projekt, podpis_uzytkownika=osoba_podpisujaca).delete()
             if deleted:
                 Decyzja.objects.filter(pk=pk).update(ile_osob_podpisalo=F('ile_osob_podpisalo') - 1)
+                nowy_projekt.refresh_from_db(fields=['ile_osob_podpisalo', 'data_zebrania_wymaganej_liczby_podpisow'])
+                if nowy_projekt.ile_osob_podpisalo < SiteParameters.get().wymaganych_podpisow:
+                    Decyzja.objects.filter(pk=pk).update(data_zebrania_wymaganej_liczby_podpisow=None)
         message = _('Not signed.')
         messages.success(request, (message))
         return redirect('glosowania:details', pk)

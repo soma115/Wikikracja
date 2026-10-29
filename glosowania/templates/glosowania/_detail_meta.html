@@ -9,15 +9,44 @@
       <strong class="tw-detail-meta-value tw-flex tw-items-center tw-gap-1">{% include "home/_user_avatar.html" with user=id.author size="xs" %}{{ id.author|display_name }}</strong>
     </span>
   {% endif %}
-  {% if id.data_powstania %}
-    <span class="tw-detail-meta-item" title="{% trans 'Creation date' %}"><i class="fas fa-calendar-plus tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Created' %}</span><strong class="tw-detail-meta-value">{{ id.data_powstania|date:"d.m.Y" }}</strong></span>
-  {% endif %}
-  {% if id.data_ostatniej_modyfikacji and id.data_ostatniej_modyfikacji|date:"d.m.Y" != id.data_powstania|date:"d.m.Y" %}
-    <span class="tw-detail-meta-item" title="{% trans 'Last modification date' %}"><i class="fas fa-calendar-check tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Updated' %}</span><strong class="tw-detail-meta-value">{{ id.data_ostatniej_modyfikacji|date:"d.m.Y" }}</strong></span>
-  {% endif %}
-  <span class="tw-detail-meta-item" title="{% trans 'Signatures collected' %}"><i class="fas fa-pen-nib tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Signatures' %}</span><strong class="tw-detail-meta-value">{{ id.ile_osob_podpisalo|default:"0" }}{% if id.data_zebrania_podpisow %} · {{ id.data_zebrania_podpisow|date:"d.m.Y" }}{% endif %}</strong></span>
-  {% if id.data_referendum_start %}
-    <span class="tw-detail-meta-item" title="{% trans 'Referendum period' %}"><i class="fas fa-person-booth tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Referendum' %}</span><strong class="tw-detail-meta-value">{{ id.data_referendum_start|date:"d.m.Y" }}{% if data_referendum_stop %}–{{ data_referendum_stop|date:"d.m.Y" }}{% endif %}</strong></span>
+  {% if id.status == id.Status.PROPOSITION %}
+    {% if id.data_powstania %}
+      <span class="tw-detail-meta-item" title="{% trans 'Creation date' %}"><i class="fas fa-calendar-plus tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Created' %}</span><strong class="tw-detail-meta-value">{{ id.data_powstania|date:"d.m.Y" }}</strong></span>
+    {% endif %}
+    <span class="tw-detail-meta-item" title="{% trans 'Signatures collected' %}"><i class="fas fa-pen-nib tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Signatures' %}</span><strong class="tw-detail-meta-value">{{ id.ile_osob_podpisalo|default:"0" }}{% if id.data_zebrania_wymaganej_liczby_podpisow %} · {{ id.data_zebrania_wymaganej_liczby_podpisow|date:"d.m.Y" }}{% endif %}</strong></span>
+    {% if id.earliest_discussion_date %}
+      <span class="tw-detail-meta-item" title="{% trans 'Earliest discussion date' %}"><i class="fas fa-comments tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Discussion start' %}</span><strong class="tw-detail-meta-value">{{ id.earliest_discussion_date|date:"d.m.Y" }}</strong></span>
+    {% endif %}
+  {% elif id.status == id.Status.DISCUSSION %}
+    {% if id.data_zebrania_podpisow %}
+      <span class="tw-detail-meta-item" title="{% trans 'Discussion start date' %}"><i class="fas fa-comments tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Discussion started' %}</span><strong class="tw-detail-meta-value">{{ id.data_zebrania_podpisow|date:"d.m.Y" }}</strong></span>
+    {% endif %}
+    {% if id.data_referendum_start %}
+      <span class="tw-detail-meta-item" title="{% trans 'Referendum period' %}"><i class="fas fa-person-booth tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Referendum' %}</span><strong class="tw-detail-meta-value">{{ id.data_referendum_start|date:"d.m.Y" }}{% if id.data_referendum_stop %}–{{ id.data_referendum_stop|date:"d.m.Y" }}{% endif %}</strong></span>
+    {% endif %}
+  {% elif id.status == id.Status.REFERENDUM %}
+    {% if id.data_referendum_start %}
+      <span class="tw-detail-meta-item" title="{% trans 'Referendum period' %}"><i class="fas fa-person-booth tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Referendum' %}</span><strong class="tw-detail-meta-value">{{ id.data_referendum_start|date:"d.m.Y" }}{% if id.data_referendum_stop %}–{{ id.data_referendum_stop|date:"d.m.Y" }}{% endif %}</strong></span>
+    {% endif %}
+  {% elif id.status == id.Status.APPROVED %}
+    {% if id.data_powstania %}
+      <span class="tw-detail-meta-item" title="{% trans 'Creation date' %}"><i class="fas fa-calendar-plus tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Created' %}</span><strong class="tw-detail-meta-value">{{ id.data_powstania|date:"d.m.Y" }}</strong></span>
+    {% endif %}
+    {% if id.data_referendum_stop %}
+      <span class="tw-detail-meta-item" title="{% trans 'Approval date' %}"><i class="fas fa-calendar-check tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Approved' %}</span><strong class="tw-detail-meta-value">{{ id.data_referendum_stop|date:"d.m.Y" }}</strong></span>
+    {% endif %}
+  {% elif id.status == id.Status.REJECTED %}
+    {% if id.data_powstania %}
+      <span class="tw-detail-meta-item" title="{% trans 'Creation date' %}"><i class="fas fa-calendar-plus tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Created' %}</span><strong class="tw-detail-meta-value">{{ id.data_powstania|date:"d.m.Y" }}</strong></span>
+    {% endif %}
+    {% if id.data_referendum_start %}
+      <span class="tw-detail-meta-item" title="{% trans 'Referendum period' %}"><i class="fas fa-person-booth tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Referendum' %}</span><strong class="tw-detail-meta-value">{{ id.data_referendum_start|date:"d.m.Y" }}{% if id.data_referendum_stop %}–{{ id.data_referendum_stop|date:"d.m.Y" }}{% endif %}</strong></span>
+    {% endif %}
+    {% if id.data_odrzucenia %}
+      <span class="tw-detail-meta-item" title="{% trans 'Rejection date' %}"><i class="fas fa-calendar-xmark tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Rejected' %}</span><strong class="tw-detail-meta-value">{{ id.data_odrzucenia|date:"d.m.Y" }}</strong></span>
+    {% elif id.data_ostatniej_modyfikacji %}
+      <span class="tw-detail-meta-item" title="{% trans 'Rejection date' %}"><i class="fas fa-calendar-xmark tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Rejected' %}</span><strong class="tw-detail-meta-value">{{ id.data_ostatniej_modyfikacji|date:"d.m.Y" }}</strong></span>
+    {% endif %}
   {% endif %}
   <span class="tw-detail-meta-item" title="{{ id.get_status_display }}"><i class="fas fa-circle-info tw-detail-meta-icon" aria-hidden="true"></i><span class="tw-detail-meta-label">{% trans 'Status' %}</span><strong class="tw-detail-meta-value">{{ id.get_status_display }}</strong></span>
 </div>

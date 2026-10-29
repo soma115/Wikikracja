@@ -118,11 +118,11 @@ class Command(TranslatedCommand):
                     if not i.is_author_signed:
                         log.info(f"Proposition {i.id} is still a draft because the author has not signed it yet.")
                     elif i.ile_osob_podpisalo >= sp.wymaganych_podpisow:
-                        # Check if 2 days have passed since last modification
+                        # Wait for the shared edit-freeze period before discussion.
                         if i.data_ostatniej_modyfikacji:
                             days_since_modification = (dzisiaj - i.data_ostatniej_modyfikacji.date()).days
-                            if days_since_modification < 2:
-                                log.info(f"Proposition {i.id} has enough signatures but waiting for 2-day freeze period (modified {days_since_modification} days ago).")
+                            if days_since_modification < Decyzja.DISCUSSION_FREEZE_PERIOD_DAYS:
+                                log.info(f"Proposition {i.id} has enough signatures but is still in its {Decyzja.DISCUSSION_FREEZE_PERIOD_DAYS}-day freeze period (modified {days_since_modification} days ago).")
                                 return
 
                         i.status = discussion
@@ -145,6 +145,7 @@ class Command(TranslatedCommand):
                     # When elif was True and proposal moved to discussion - the return above skips this block.
                     if i.data_powstania + timedelta(days=sp.czas_na_zebranie_podpisow) <= dzisiaj:
                         i.status = rejected
+                        i.data_odrzucenia = dzisiaj
                         i.path = str(i.path) + " -> " + _("Not enough signatures")
                         i.save()
                         details_url = build_site_url(f'/glosowania/details/{i.id}')
@@ -230,6 +231,7 @@ class Command(TranslatedCommand):
                             for z in separated:
                                 abolish = Decyzja.objects.select_for_update().get(pk=str(z))
                                 abolish.status = rejected
+                                abolish.data_odrzucenia = dzisiaj
                                 abolish.save()
                                 log.info(f"Proposition {z} was rejected in {i.id}")
                         i.save()
@@ -240,6 +242,7 @@ class Command(TranslatedCommand):
                         log.info("Proposition {i.id} changed status from REFERENDUM to VALID.")
                     else:
                         i.status = rejected
+                        i.data_odrzucenia = dzisiaj
                         i.path = i.path + " -> " + _("Rejected")
                         i.save()
                         details_url = build_site_url(f'/glosowania/details/{i.id}')
