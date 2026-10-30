@@ -50,6 +50,16 @@
     if (realizationScore) realizationScore.textContent = data.votes_score;
   }
 
+  function reloadOnTaskPhaseChange(data) {
+    var taskEl = document.querySelector('[data-task-phase]');
+    if (!taskEl) return false;
+    var phaseChanged = data.phase && taskEl.dataset.taskPhase !== data.phase;
+    var statusChanged = data.status && taskEl.dataset.taskStatus !== data.status;
+    if (!phaseChanged && !statusChanged) return false;
+    window.location.reload();
+    return true;
+  }
+
   function handleVoteClick(e) {
     var btn = e.target.closest('.tw-task-vote-btn');
     if (!btn) return;
@@ -66,9 +76,10 @@
       method: 'POST',
       headers: { 'X-Requested-With': 'XMLHttpRequest' },
       body: new URLSearchParams({ value: value }),
-    })
+      })
       .then(function (r) { return r.json(); })
       .then(function (data) {
+        if (reloadOnTaskPhaseChange(data)) return;
         var row = form.closest('.tw-task-vote-row, .tw-task-actions') || form.closest('section');
         if (!row) return;
         var upBtn = row.querySelector('.tw-task-vote-btn--up');
@@ -229,6 +240,7 @@
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (!data || !data.ok) return;
+        if (reloadOnTaskPhaseChange(data)) return;
         if (/\/resign\/?$/.test(action) || !form.closest('.tw-content-card')) {
           window.location.reload();
           return;
@@ -432,6 +444,18 @@
     var lists = Array.from(document.querySelectorAll('[data-subtask-sort-list]'));
     if (!lists.length || !window.TASK_SUBTASK_REORDER_URL || typeof window.initSortableList !== 'function') return;
 
+    function showEmptyNestedDropTargets() {
+      document.querySelectorAll('[data-subtask-drop-target]').forEach(function (target) {
+        target.classList.remove('tw-hidden');
+      });
+    }
+
+    function hideEmptyNestedDropTargets() {
+      document.querySelectorAll('[data-subtask-drop-target]').forEach(function (target) {
+        target.classList.add('tw-hidden');
+      });
+    }
+
     lists.forEach(function (list) {
       window.initSortableList(list, {
         reorderUrl: window.TASK_SUBTASK_REORDER_URL,
@@ -442,12 +466,14 @@
           put: function (to, from, dragEl) {
             if (!to.el.dataset.parentId) return true;
             var parentItem = to.el.closest('li[data-id]');
-            if (!parentItem || parentItem.dataset.parentId) return false;
+            if (!parentItem || parentItem.dataset.parentId || parentItem === dragEl) return false;
             var childList = Array.from(dragEl.children).find(function (el) { return el.matches('[data-subtask-sort-list]'); });
             return !childList || !Array.from(childList.children).some(function (child) { return child.dataset.id; });
           },
         },
         serialize: serializeSubtaskTree,
+        onStart: showEmptyNestedDropTargets,
+        onEnd: hideEmptyNestedDropTargets,
         onSaved: function () { window.location.reload(); },
         onError: function () { window.location.reload(); },
       });
@@ -500,6 +526,7 @@
           checkbox.checked = !checkbox.checked;
           return;
         }
+        if (reloadOnTaskPhaseChange(data)) return;
         updateHelperApproval(data.user_id, data.approved);
       })
       .catch(function () {

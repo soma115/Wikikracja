@@ -366,6 +366,19 @@
           </tr>
           <tr>
             <td class="email-content">
+              {% if team_requests %}
+              <div class="email-intro-panel">
+                <p class="email-intro"><strong>{{ team_requests_title }}</strong></p>
+                <p class="email-intro">{{ team_requests_intro }}</p>
+                {% for request in team_requests %}
+                <div class="email-item">
+                  <a class="email-item-title" href="{{ request.url }}">{{ request.task_title }}</a>
+                  <span class="email-item-meta"> — {{ request.helper_name }}</span>
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+
               {% if restarted_votes %}
               <div class="email-critical">
                 <p class="email-critical-title">{{ restarted_votes_title }}</p>

@@ -84,7 +84,7 @@ class TaskFilterContextMixin:
 PRIORITY_LABELS = {"critical": gettext_lazy("Critical"), "important": gettext_lazy("Important"), "beneficial": gettext_lazy("Beneficial"), "rejected": gettext_lazy("Rejected")}
 
 # 'Poparcie' (score) = liczba helpers (votes_up), nie netto. Głosy sprzeciwu
-# są osobnym sygnałem (próg rejection przy votes_score <= -2), nie obniżają
+# są osobnym sygnałem blokującym (votes_score <= TASK_REJECTION_SCORE), nie obniżają
 # rankingu helpers.
 TASK_SORT_FIELDS = {"date": "created_at", "score": "votes_up", "buzz": "chat_msg_count"}
 
@@ -92,6 +92,7 @@ TASK_SORT_FIELDS = {"date": "created_at", "score": "votes_up", "buzz": "chat_msg
 TASK_SORT_TIEBREAK = ("-votes_score", "-updated_at")
 
 TASK_PRIORITY_ORDERING = ("-votes_up", "created_at", "id")
+TASK_REJECTION_SCORE = -1
 
 
 def _task_list_queryset(user, categories, sort, order, search_query=''):
@@ -120,7 +121,7 @@ def _task_tab_counts(user, categories, search_query=''):
         'mine': qs.filter(status=Task.Status.ACTIVE).filter(Q(assigned_to=user) | Q(pk__in=supported)).distinct().count(),
         'awaiting': qs.filter(status=Task.Status.ACTIVE, phase=Task.Phase.PROPOSAL).count(),
         'active': qs.filter(status=Task.Status.ACTIVE, phase=Task.Phase.REALIZATION).count(),
-        'finished': qs.filter(Q(status__in=(Task.Status.COMPLETED, Task.Status.CANCELLED), votes_score__gte=-1) | Q(votes_score__lte=-2)).count(),
+        'finished': qs.filter(Q(status__in=(Task.Status.COMPLETED, Task.Status.CANCELLED), votes_score__gt=TASK_REJECTION_SCORE) | Q(votes_score__lte=TASK_REJECTION_SCORE)).count(),
     }
 
 
@@ -219,9 +220,9 @@ class TaskListView(LoginRequiredMixin, TemplateView):
             lists["active_tasks"] = _prepare_task_cards(list(qs.filter(status=Task.Status.ACTIVE, phase=Task.Phase.REALIZATION)), pulse_room_ids, _priority_map(active=True))
         else:  # finished
             priority_map = _priority_map(active=False)
-            lists["finished_completed"] = _prepare_task_cards(list(qs.filter(status=Task.Status.COMPLETED, votes_score__gte=-1)), pulse_room_ids, priority_map)
-            lists["finished_cancelled"] = _prepare_task_cards(list(qs.filter(status=Task.Status.CANCELLED, votes_score__gte=-1)), pulse_room_ids, priority_map)
-            rejected = _prepare_task_cards(list(qs.filter(votes_score__lte=-2)), pulse_room_ids)
+            lists["finished_completed"] = _prepare_task_cards(list(qs.filter(status=Task.Status.COMPLETED, votes_score__gt=TASK_REJECTION_SCORE)), pulse_room_ids, priority_map)
+            lists["finished_cancelled"] = _prepare_task_cards(list(qs.filter(status=Task.Status.CANCELLED, votes_score__gt=TASK_REJECTION_SCORE)), pulse_room_ids, priority_map)
+            rejected = _prepare_task_cards(list(qs.filter(votes_score__lte=TASK_REJECTION_SCORE)), pulse_room_ids)
             for task in rejected:
                 task.priority_label = PRIORITY_LABELS["rejected"]
                 task.priority_category = "rejected"
@@ -358,8 +359,9 @@ def approve_helper(request: HttpRequest, task: Task, user_id: int, is_ajax: bool
         return redirect("tasks:detail", pk=task.pk)
 
     task.approve_helper(helper)
+    task.sync_realization_phase()
     if is_ajax:
-        return JsonResponse({"ok": True, "user_id": helper.id, "approved": True})
+        return JsonResponse({"ok": True, "user_id": helper.id, "approved": True, "phase": task.phase})
     return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
 
 
@@ -369,8 +371,9 @@ def approve_helper(request: HttpRequest, task: Task, user_id: int, is_ajax: bool
 def remove_helper(request: HttpRequest, task: Task, user_id: int, is_ajax: bool) -> HttpResponse:
     helper = get_object_or_404(User, pk=user_id)
     task.remove_helper(helper)
+    task.sync_realization_phase()
     if is_ajax:
-        return JsonResponse({"ok": True, "user_id": helper.id, "approved": False})
+        return JsonResponse({"ok": True, "user_id": helper.id, "approved": False, "phase": task.phase})
     return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
 
 
@@ -390,68 +393,29 @@ def toggle_helper(request: HttpRequest, task: Task, user_id: int, is_ajax: bool)
             return redirect("tasks:detail", pk=task.pk)
         task.approve_helper(helper)
         approved = True
+    task.sync_realization_phase()
 
     if is_ajax:
-        return JsonResponse({"ok": True, "user_id": helper.id, "approved": approved})
+        return JsonResponse({"ok": True, "user_id": helper.id, "approved": approved, "phase": task.phase})
     return redirect(_safe_next_url(request) or "tasks:detail", pk=task.pk)
 
 
 @require_POST
 @login_required
 def take_task(request: HttpRequest, pk: int) -> HttpResponse:
-    task = get_object_or_404(Task, pk=pk)
-    if not task.is_active:
-        return _task_action_denied(request, task, "task is not active")
-    if task.assigned_to_id and task.assigned_to_id != request.user.id:
-        return _task_action_denied(request, task, "task already has a coordinator")
+    with transaction.atomic():
+        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
+        if not task.is_active:
+            return _task_action_denied(request, task, "task is not active")
+        if task.assigned_to_id and task.assigned_to_id != request.user.id:
+            return _task_action_denied(request, task, "task already has a coordinator")
 
-    task.assigned_to = request.user
-    task.save(update_fields=["assigned_to", "updated_at"])
+        task.assigned_to = request.user
+        task.save(update_fields=["assigned_to", "updated_at"])
+        task.sync_realization_phase()
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return JsonResponse({"ok": True, "assigned_to": _serialize_user(request.user), "is_coordinator": True})
+        return JsonResponse({"ok": True, "assigned_to": _serialize_user(request.user), "is_coordinator": True, "phase": task.phase})
     return redirect(_safe_next_url(request) or "tasks:list")
-
-
-@require_POST
-@login_required
-def start_task(request: HttpRequest, pk: int) -> HttpResponse:
-    next_url = _safe_next_url(request)
-    with transaction.atomic():
-        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
-        if not task.is_active or task.phase != Task.Phase.PROPOSAL or task.assigned_to_id != request.user.id:
-            return _task_action_denied(request, task)
-
-        vote_score = task.votes.aggregate(score=Coalesce(Sum("value"), 0))["score"] or 0
-        required_people = task.required_people or 1
-        if vote_score < 2:
-            messages.error(request, gettext_lazy("A vote balance of at least 2 is required to start realization."))
-        elif task.get_team_size() < required_people:
-            messages.error(request, gettext_lazy("The required number of team members has not been reached."))
-        else:
-            task.phase = Task.Phase.REALIZATION
-            task.save(update_fields=["phase", "updated_at"])
-            messages.success(request, gettext_lazy("Realization started."))
-
-    return redirect(next_url or "tasks:detail", pk=task.pk)
-
-
-@require_POST
-@login_required
-def return_to_proposal(request: HttpRequest, pk: int) -> HttpResponse:
-    next_url = _safe_next_url(request)
-    with transaction.atomic():
-        task = get_object_or_404(Task.objects.select_for_update(), pk=pk)
-        if not task.is_active or task.phase != Task.Phase.REALIZATION or task.assigned_to_id != request.user.id:
-            return _task_action_denied(request, task)
-
-        TaskVote.objects.filter(task=task).delete()
-        task.approved_helpers.clear()
-        task.assigned_to = None
-        task.phase = Task.Phase.PROPOSAL
-        task.save(update_fields=["assigned_to", "phase", "updated_at"])
-        messages.success(request, gettext_lazy("Returned to proposal; votes and team were reset."))
-
-    return redirect(next_url or "tasks:detail", pk=task.pk)
 
 
 def _normalize_subtask_orders(task, parent_id):
@@ -470,7 +434,7 @@ def add_subtask(request: HttpRequest, pk: int) -> HttpResponse:
         if not task.can_manage_subtasks(request.user):
             return _task_action_denied(request, task)
         if not title or len(title) > 240:
-            messages.error(request, gettext_lazy("Enter a subtask title of at most 240 characters."))
+            messages.error(request, gettext_lazy("Enter a task title of at most 240 characters."))
             return redirect("tasks:detail", pk=task.pk)
 
         max_order = task.subtasks.filter(parent__isnull=True).aggregate(max_order=Max("order"))["max_order"]
@@ -488,7 +452,7 @@ def edit_subtask(request: HttpRequest, pk: int, subtask_pk: int) -> HttpResponse
         if not task.can_manage_subtasks(request.user):
             return _task_action_denied(request, task)
         if not title or len(title) > 240:
-            messages.error(request, gettext_lazy("Enter a subtask title of at most 240 characters."))
+            messages.error(request, gettext_lazy("Enter a task title of at most 240 characters."))
             return redirect("tasks:detail", pk=task.pk)
 
         subtask = get_object_or_404(TaskSubtask.objects.select_for_update(), pk=subtask_pk, task=task)
@@ -538,7 +502,7 @@ def delete_subtask(request: HttpRequest, pk: int, subtask_pk: int) -> HttpRespon
 
         subtask = get_object_or_404(TaskSubtask.objects.select_for_update(), pk=subtask_pk, task=task)
         if subtask.children.exists():
-            messages.error(request, gettext_lazy("Move or remove this subtask's children before deleting it."))
+            messages.error(request, gettext_lazy("Move or remove this task's nested tasks before deleting it."))
             return redirect("tasks:detail", pk=task.pk)
         subtask.delete()
         task.save(update_fields=["updated_at"])
@@ -582,7 +546,7 @@ def indent_subtask(request: HttpRequest, pk: int, subtask_pk: int) -> HttpRespon
 
         subtask = roots[index]
         if subtask.children.exists():
-            messages.error(request, gettext_lazy("Move this subtask's children before indenting it."))
+            messages.error(request, gettext_lazy("Move this task's nested tasks before nesting it."))
             return redirect("tasks:detail", pk=task.pk)
 
         parent = roots[index - 1]
@@ -697,9 +661,10 @@ def resign_task(request: HttpRequest, pk: int) -> HttpResponse:
         successor = successor_vote.user if successor_vote else None
         task.assigned_to = successor
         task.save(update_fields=["assigned_to", "updated_at"])
+        task.sync_realization_phase()
 
     if is_ajax:
-        return JsonResponse({"ok": True, "assigned_to": _serialize_user(successor) if successor else None, "is_coordinator": False, "in_team": task.is_user_approved(request.user)})
+        return JsonResponse({"ok": True, "assigned_to": _serialize_user(successor) if successor else None, "is_coordinator": False, "in_team": task.is_user_approved(request.user), "phase": task.phase})
     if next_url:
         return redirect(next_url)
     return redirect("tasks:list")
@@ -743,6 +708,7 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
         context["task_status_label"] = get_task_status_label(task)
         context["team_size"] = task.get_team_size()
         context["required_team_size"] = task.required_people or 1
+        context["realization_vote_threshold"] = Task.REALIZATION_VOTE_THRESHOLD
         context["can_manage_subtasks"] = task.can_manage_subtasks(self.request.user)
         context["subtask_roots"] = task.subtasks.filter(parent__isnull=True).prefetch_related("children")
         sort, order, tab, categories = _task_sort_context(self.request)
@@ -756,7 +722,9 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
         elif tab == "active":
             navigation_queryset = navigation_queryset.filter(status=Task.Status.ACTIVE, phase=Task.Phase.REALIZATION)
         else:
-            navigation_queryset = navigation_queryset.filter(Q(status=Task.Status.COMPLETED, votes_score__gte=-1) | Q(status=Task.Status.CANCELLED, votes_score__gte=-1) | Q(votes_score__lte=-2))
+            navigation_queryset = navigation_queryset.filter(
+                Q(status=Task.Status.COMPLETED, votes_score__gt=TASK_REJECTION_SCORE) | Q(status=Task.Status.CANCELLED, votes_score__gt=TASK_REJECTION_SCORE) | Q(votes_score__lte=TASK_REJECTION_SCORE)
+            )
         context.update({"current_tab": tab, "current_sort": sort, "current_order": order, "current_categories": categories, "task_counts": _task_tab_counts(self.request.user, categories, search_query)})
         context.update(build_detail_navigation(self.request, navigation_queryset, task.pk, "tasks:detail"))
         context["MESSAGE_MAX_LENGTH"] = settings.MESSAGE_MAX_LENGTH
@@ -782,6 +750,7 @@ class TaskEditView(CategoryContextMixin, LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        self.object.sync_realization_phase()
         messages.success(self.request, gettext_lazy("Saved."))
         return response
 
@@ -837,7 +806,7 @@ def vote_task(request: HttpRequest, pk: int) -> HttpResponse:
                 vote.save(update_fields=["value", "updated_at"])
             new_vote = value
 
-        # Refresh score and set rejected if sum of votes <= -2
+        # Reject once votes against outnumber votes for by at least one.
         task.refresh_from_db(fields=["status", "updated_at"])
         metrics = (
             Task.objects.filter(pk=task.pk)
@@ -848,14 +817,16 @@ def vote_task(request: HttpRequest, pk: int) -> HttpResponse:
         votes_score = metrics["votes_score"] if metrics else 0
         votes_up = metrics["votes_up"] if metrics else 0
         votes_down = metrics["votes_down"] if metrics else 0
-        if votes_score <= -2 and task.status != Task.Status.REJECTED:
+        if votes_score <= TASK_REJECTION_SCORE and task.status != Task.Status.REJECTED:
             previous_status = task.status
             Task.objects.filter(pk=task.pk).update(status=Task.Status.REJECTED, updated_at=models.F("updated_at"))
             task.status = Task.Status.REJECTED
             transaction.on_commit(lambda: task_status_changed.send(sender=Task, task=task, previous_status=previous_status))
+        else:
+            task.sync_realization_phase()
 
     if is_ajax:
-        return JsonResponse({"vote": new_vote, "votes_score": votes_score, "votes_up": votes_up, "votes_down": votes_down})
+        return JsonResponse({"vote": new_vote, "votes_score": votes_score, "votes_up": votes_up, "votes_down": votes_down, "phase": task.phase, "status": task.status})
     return redirect(_safe_next_url(request) or "tasks:list")
 
 

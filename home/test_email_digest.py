@@ -472,6 +472,32 @@ class SendEmailDigestCommandTest(TransactionTestCase):
         assert email.body.index(str(_('Important: voting was restarted after a technical failure'))) < email.body.index('Restarted referendum')
         assert 'Restarted referendum' in email.alternatives[0][0]
 
+    def test_digest_puts_pending_team_requests_first_and_sends_without_other_activity(self):
+        coordinator = self._make_active_user('team-coordinator', 'coordinator@example.com')
+        helper = self._make_active_user('team-helper', 'helper@example.com')
+        approved_helper = self._make_active_user('approved-helper', 'approved@example.com')
+        task = Task.objects.create(title='Digest team task', description='', created_by=coordinator, assigned_to=coordinator)
+        TaskVote.objects.create(task=task, user=helper, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=task, user=approved_helper, value=TaskVote.Value.UP)
+        task.approved_helpers.add(approved_helper)
+
+        with patch('home.management.commands.send_email_digest.build_user_digest', return_value=[]):
+            self._run_digest()
+
+        email = next(email for email in mail.outbox if coordinator.email in email.to)
+        html = email.alternatives[0][0]
+        assert str(_('People who want to join your teams')) in email.body
+        assert str(_('Open an activity page and approve each person if you want them to join its team.')) in email.body
+        assert 'Digest team task' in email.body
+        assert helper.username in email.body
+        assert f'/tasks/{task.pk}/' in email.body
+        digest_intro_index = email.body.rindex(str(_('Activity digest')))
+        request_section = email.body[:digest_intro_index]
+        assert str(_('People who want to join your teams')) in request_section
+        assert approved_helper.username not in request_section
+        assert 'Digest team task' in html
+        assert f'/tasks/{task.pk}/' in html
+
     def test_digest_no_email_when_not_due(self):
         user = self._make_active_user('notdue', 'notdue@example.com')
         Uzytkownik.objects.filter(uid=user).update(email_frequency='daily', last_email_digest_at=FIXED_NOW)

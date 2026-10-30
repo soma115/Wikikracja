@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
-from django.db.models import Count, F, Max, Q
+from django.db.models import Count, F, Max, Q, Sum
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
@@ -50,6 +50,8 @@ class TaskQuerySet(ChatRoomQuerySet):
 
 
 class Task(ChatRoomModel, models.Model):
+    REALIZATION_VOTE_THRESHOLD = 2
+
     class Status(models.TextChoices):
         ACTIVE = "active", _("Active")
         COMPLETED = "completed", _("Completed")
@@ -64,8 +66,7 @@ class Task(ChatRoomModel, models.Model):
     description = models.TextField()
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
     phase = models.CharField(max_length=16, choices=Phase.choices, default=Phase.PROPOSAL)
-    estimated_cost = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name=_("Estimated cost"))
-    currency = models.CharField(max_length=16, blank=True, verbose_name=_("Currency"))
+    cost_estimate = models.CharField(max_length=255, blank=True, default="", verbose_name=_("Estimated cost and currency"))
     required_people = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name=_("People required"))
     requires_external_approval = models.BooleanField(null=True, blank=True, verbose_name=_("External approval required"))
     success_criteria = models.TextField(blank=True, verbose_name=_("Success criteria"))
@@ -117,6 +118,31 @@ class Task(ChatRoomModel, models.Model):
         coordinator_count = int(self.assigned_to_id is not None)
         helper_count = self.approved_helpers.exclude(pk=self.assigned_to_id).count() if self.assigned_to_id else self.approved_helpers.count()
         return coordinator_count + helper_count
+
+    def sync_realization_phase(self):
+        """Keep an active task's phase aligned with its vote and approved-team requirements."""
+        if not self.pk:
+            return False
+
+        with transaction.atomic():
+            task = Task.objects.select_for_update().get(pk=self.pk)
+            if not task.is_active:
+                self.phase = task.phase
+                return False
+
+            vote_score = task.votes.aggregate(score=Sum("value"))["score"] or 0
+            required_people = task.required_people or 1
+            is_ready = task.assigned_to_id and vote_score >= self.REALIZATION_VOTE_THRESHOLD and task.get_team_size() >= required_people
+            target_phase = self.Phase.REALIZATION if is_ready else self.Phase.PROPOSAL
+            if task.phase == target_phase:
+                self.phase = task.phase
+                return False
+
+            task.phase = target_phase
+            task.save(update_fields=["phase", "updated_at"])
+            self.phase = task.phase
+            self.updated_at = task.updated_at
+            return True
 
     def can_manage_subtasks(self, user):
         return self.is_active and self.is_user_approved(user)
@@ -183,9 +209,9 @@ class TaskSubtask(models.Model):
     def clean(self):
         super().clean()
         if self.parent_id and self.parent.task_id != self.task_id:
-            raise ValidationError({"parent": _("A subtask parent must belong to the same task.")})
+            raise ValidationError({"parent": _("A task and its nested tasks must belong to the same activity.")})
         if self.parent_id and self.parent.parent_id:
-            raise ValidationError({"parent": _("Subtasks can only be nested one level deep.")})
+            raise ValidationError({"parent": _("Tasks can only be nested one level deep.")})
 
     def __str__(self):
         return self.title

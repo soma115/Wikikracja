@@ -11103,6 +11103,10 @@ body.tw-chat-page .tw-main-area {
   position: relative;
 }
 
+.tw-inset-0 {
+  inset: 0px;
+}
+
 .tw-bottom-0 {
   bottom: 0px;
 }
@@ -11121,6 +11125,10 @@ body.tw-chat-page .tw-main-area {
 
 .tw-z-0 {
   z-index: 0;
+}
+
+.tw-z-10 {
+  z-index: 10;
 }
 
 .tw-z-50 {
@@ -11343,10 +11351,6 @@ body.tw-chat-page .tw-main-area {
 
 .tw-min-h-72 {
   min-height: 18rem;
-}
-
-.tw-min-h-8 {
-  min-height: 2rem;
 }
 
 .tw-w-10 {
@@ -11647,6 +11651,10 @@ body.tw-chat-page .tw-main-area {
 
 .tw-border-t {
   border-top-width: 1px;
+}
+
+.tw-border-dashed {
+  border-style: dashed;
 }
 
 .tw-border-danger {

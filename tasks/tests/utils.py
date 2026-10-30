@@ -25,8 +25,7 @@ def task_form_data(**overrides):
     data = {
         "title": "Zadanie",
         "description": "Opis zadania",
-        "estimated_cost": "0",
-        "currency": "",
+        "cost_estimate": "0",
         "required_people": "1",
         "requires_external_approval": "false",
         "success_criteria": "Osiągnięto cel.",

@@ -197,14 +197,16 @@ def test_concurrent_task_votes_have_deterministic_rejection_status():
 
     user_model = get_user_model()
     with _temporary_application_database() as database_path:
-        users = [user_model.objects.create_user(username=f'task-race-{index}') for index in range(2)]
+        users = [user_model.objects.create_user(username=f'task-race-{index}') for index in range(3)]
         task = Task.objects.create(title='Concurrency task', description='Concurrency test', created_by=users[0])
-        jobs = [('task', users[0].id, task.id, None, int(TaskVote.Value.DOWN)), ('task', users[1].id, task.id, None, int(TaskVote.Value.DOWN))]
+        TaskVote.objects.create(task=task, user=users[0], value=TaskVote.Value.UP)
+        jobs = [('task', users[1].id, task.id, None, int(TaskVote.Value.DOWN)), ('task', users[2].id, task.id, None, int(TaskVote.Value.DOWN))]
 
         results = _run_workers(database_path, jobs)
 
         task.refresh_from_db()
-        assert TaskVote.objects.filter(task=task).count() == 2
-        assert sum(TaskVote.objects.filter(task=task).values_list('value', flat=True)) == -2
+        assert TaskVote.objects.filter(task=task).count() == 3
+        assert TaskVote.objects.filter(task=task, value=TaskVote.Value.DOWN).count() == 2
+        assert sum(TaskVote.objects.filter(task=task).values_list('value', flat=True)) == -1
         assert task.status == Task.Status.REJECTED
         print(f'task_votes_elapsed={max(result["elapsed"] for result in results):.4f}s')

@@ -1,5 +1,11 @@
 {% autoescape off %}[{{ site_name }}] {{ title }}
 
+{% if team_requests %}{{ team_requests_title }}
+{{ team_requests_intro }}
+{% for request in team_requests %}- {{ request.task_title }} — {{ request.helper_name }}
+  {{ request.url }}
+{% endfor %}
+{% endif %}
 {% if restarted_votes %}!!! {{ restarted_votes_title }} !!!
 {{ restarted_votes_intro }}
 {% for vote in restarted_votes %}- {{ vote.title }}

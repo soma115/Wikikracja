@@ -8,8 +8,10 @@ from datetime import timedelta as td
 
 from django.conf import settings as s
 from django.contrib.auth import get_user_model
+from django.db.models import F
 from django.template.defaultfilters import linebreaksbr
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import escape, mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -21,6 +23,7 @@ from core.services.notifications import build_unsubscribe_url, unsubscribe_heade
 from core.utils import build_site_url, get_site_domain, get_user_language
 from glosowania.models import Decyzja
 from home.templatetags.feed_filters import content_type_label
+from tasks.models import TaskVote
 from zzz.email import send_bulk_email_in_thread
 from zzz.management.base_command import TranslatedCommand
 from zzz.templatetags.citizen_filters import user_initials
@@ -123,9 +126,10 @@ class Command(TranslatedCommand):
 
             since = profile.last_email_digest_at or now
             restarted_votes = self._get_restarted_votes(since)
+            team_requests = self._get_pending_team_requests(user)
             items = build_user_digest(user, since)
 
-            if not items and not restarted_votes:
+            if not items and not restarted_votes and not team_requests:
                 profile.last_email_digest_at = now
                 profile.save(update_fields=['last_email_digest_at'])
                 skipped += 1
@@ -133,7 +137,7 @@ class Command(TranslatedCommand):
                 continue
 
             with override(get_user_language(user)):
-                context = self._build_digest_context(user, items, restarted_votes)
+                context = self._build_digest_context(user, items, restarted_votes, team_requests)
                 subject = _('[{HOST}] Activity digest').format(HOST=self.host)
                 text = _collapse_excess_newlines(render_to_string('emails/digest.txt', context))
                 html = render_to_string('emails/digest.html', context)
@@ -156,11 +160,30 @@ class Command(TranslatedCommand):
                 profile.save(update_fields=['last_email_digest_at'])
 
                 sent += 1
-                log.info(f'Sent digest to user {user.id} ({user.email}); {len(items)} items')
+                log.info(f'Sent digest to user {user.id} ({user.email}); {len(items)} activity items and {len(team_requests)} pending team requests')
             except Exception as e:
                 log.error(f'Failed to send digest to user {user.id}: {e}', exc_info=True)
 
         log.info(f'Digest run finished: sent={sent}, skipped={skipped}, now={now}')
+
+    @staticmethod
+    def _get_pending_team_requests(user):
+        """Return willing helpers who have not been approved by this coordinator."""
+        votes = (
+            TaskVote.objects.filter(task__assigned_to=user, user__is_active=True, value=TaskVote.Value.UP)
+            .exclude(user=user)
+            .exclude(task__approved_helpers=F('user_id'))
+            .select_related('task', 'user')
+            .order_by('task__title', 'user__username', 'pk')
+        )
+        return [
+            {
+                'helper_name': one_line_snippet(vote.user.get_full_name() or vote.user.username, 120),
+                'task_title': one_line_snippet(vote.task.title, 200),
+                'url': build_site_url(reverse('tasks:detail', args=[vote.task_id])),
+            }
+            for vote in votes
+        ]
 
     @staticmethod
     def _get_restarted_votes(since):
@@ -170,7 +193,7 @@ class Command(TranslatedCommand):
             for decision in Decyzja.objects.filter(referendum_restart_count__gt=0, data_ostatniej_modyfikacji__gte=since).order_by('-data_ostatniej_modyfikacji', 'pk')
         ]
 
-    def _build_digest_context(self, user, items, restarted_votes=None):
+    def _build_digest_context(self, user, items, restarted_votes=None, team_requests=None):
         since_dt = user.uzytkownik.last_email_digest_at
         since_str = since_dt.strftime('%d.%m.%Y %H:%M') if since_dt else '-'
 
@@ -201,7 +224,7 @@ class Command(TranslatedCommand):
                 if content_type == 'room_messages':
                     description = one_line_snippet(raw_description, 120)
                 else:
-                    description = html.unescape(strip_tags(raw_description)).strip()
+                    description = html.unescape(strip_tags(str(raw_description or ''))).strip()
                 description = _collapse_excess_newlines(description)
 
                 section['items'].append(
@@ -224,6 +247,9 @@ class Command(TranslatedCommand):
             'restarted_votes': restarted_votes or [],
             'restarted_votes_title': _('Important: voting was restarted after a technical failure'),
             'restarted_votes_intro': _('Votes cast before the failure were lost and these referenda have started again. Please vote again:'),
+            'team_requests': team_requests or [],
+            'team_requests_title': _('People who want to join your teams'),
+            'team_requests_intro': _('Open an activity page and approve each person if you want them to join its team.'),
             'no_activity_text': _('No activity in this section.'),
             'manage_button_text': _('Manage email notifications'),
             'unsubscribe_text': _('Unsubscribe from all notifications'),

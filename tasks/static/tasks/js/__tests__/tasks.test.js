@@ -31,15 +31,15 @@ describe('task detail interactions', () => {
     window.initSortableList = jest.fn();
     window.TASK_SUBTASK_REORDER_URL = '';
     window.TASK_SUBTASK_I18N = {
-      add_title: 'Add subtask', edit_title: 'Edit subtask', add_label: 'Add', save_label: 'Save',
-      delete_title: 'Delete subtask', delete_message: 'Are you sure you want to delete this subtask?',
+      add_title: 'Add a task', edit_title: 'Edit task', add_label: 'Add', save_label: 'Save',
+      delete_title: 'Delete task', delete_message: 'Are you sure you want to delete this task?',
       delete_confirm_label: 'Yes, delete', cancel_label: 'Cancel', item_title_label: 'Item',
       irreversible_message: 'This action cannot be undone.',
     };
   });
 
   test('updates detail-page voting buttons and counts without submitting the form', async () => {
-    document.body.innerHTML = '<section><span data-votes-badge="Votes: ">Votes: 0</span><span data-realization-vote-score>0</span><div><form action="/tasks/1/vote/"><input name="value" value="1"><button class="tw-task-vote-btn tw-task-vote-btn--up" data-text-active="Helping" data-text-inactive="I want to help" data-icon-active="fa-check" data-icon-inactive="fa-plus" data-tooltip-active="Withdraw" data-tooltip-inactive="Vote to help"><i class="fas fa-plus"></i> I want to help</button></form><form action="/tasks/1/vote/"><input name="value" value="-1"><button class="tw-task-vote-btn tw-task-vote-btn--down" data-text-active="Against" data-text-inactive="Not helping" data-icon-active="fa-check" data-icon-inactive="fa-minus" data-tooltip-active="Withdraw" data-tooltip-inactive="Vote against"><i class="fas fa-minus"></i> Let\'s not do that</button></form></div></section>';
+    document.body.innerHTML = '<section><span data-votes-badge="Votes: ">Votes: 0</span><span data-realization-vote-score>0</span><div><form action="/tasks/1/vote/"><input name="value" value="1"><button class="tw-task-vote-btn tw-task-vote-btn--up" data-text-active="Helping" data-text-inactive="I want to help" data-icon-active="fa-check" data-icon-inactive="fa-plus" data-tooltip-active="Withdraw" data-tooltip-inactive="Vote to help"><i class="fas fa-plus"></i> I want to help</button></form><form action="/tasks/1/vote/"><input name="value" value="-1"><button class="tw-task-vote-btn tw-task-vote-btn--down" data-text-active="Against" data-text-inactive="Block" data-icon-active="fa-check" data-icon-inactive="fa-minus" data-tooltip-active="Withdraw" data-tooltip-inactive="Vote against"><i class="fas fa-minus"></i> Block</button></form></div></section>';
     window.apiFetch
       .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ vote: 1, votes_score: 1, votes_up: 1, votes_down: 0 }) })
       .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ vote: -1, votes_score: -1, votes_up: 0, votes_down: 1 }) });
@@ -118,7 +118,7 @@ describe('task detail interactions', () => {
 
     expect(document.getElementById('editSubtaskForm').action).toBe('http://localhost/tasks/1/subtasks/7/edit/');
     expect(document.getElementById('editSubtaskTitle').value).toBe('Fix "quotes" and <markup>');
-    expect(document.getElementById('editSubtaskModalLabel').textContent).toBe('Edit subtask');
+    expect(document.getElementById('editSubtaskModalLabel').textContent).toBe('Edit task');
     expect(document.querySelector('[data-subtask-save-label]').textContent).toBe('Save');
   });
 
@@ -131,8 +131,8 @@ describe('task detail interactions', () => {
     document.querySelector('[data-subtask-delete]').click();
 
     expect(confirm).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Delete subtask',
-      message: 'Are you sure you want to delete this subtask?',
+      title: 'Delete task',
+      message: 'Are you sure you want to delete this task?',
       itemTitle: 'Prepare materials',
       irreversible: true,
       confirmLabel: 'Yes, delete',
@@ -151,28 +151,38 @@ describe('task detail interactions', () => {
 
     expect(document.getElementById('editSubtaskForm').action).toBe('http://localhost/tasks/1/subtasks/add/');
     expect(document.getElementById('editSubtaskTitle').value).toBe('');
-    expect(document.getElementById('editSubtaskModalLabel').textContent).toBe('Add subtask');
+    expect(document.getElementById('editSubtaskModalLabel').textContent).toBe('Add a task');
     expect(document.querySelector('[data-subtask-save-label]').textContent).toBe('Add');
   });
 
   test('initializes nested sortable lists and serializes parent and sibling order', () => {
-    document.body.innerHTML = '<ul data-subtask-sort-list data-parent-id=""><li data-id="1" data-parent-id=""><ul data-subtask-sort-list data-parent-id="1"><li data-id="2" data-parent-id="1"></li></ul></li><li data-id="3" data-parent-id=""></li></ul>';
+    document.body.innerHTML = '<ul data-subtask-sort-list data-parent-id=""><li data-id="1" data-parent-id=""><ul data-subtask-sort-list data-parent-id="1"><li data-id="2" data-parent-id="1"></li></ul></li><li data-id="3" data-parent-id=""><ul class="tw-hidden" data-subtask-sort-list data-parent-id="3" data-subtask-drop-target></ul></li><li data-id="4" data-parent-id=""></li></ul>';
     window.TASK_SUBTASK_REORDER_URL = '/tasks/1/subtasks/reorder/';
     readyCallback();
 
-    expect(window.initSortableList).toHaveBeenCalledTimes(2);
+    expect(window.initSortableList).toHaveBeenCalledTimes(3);
     const [rootList, rootOptions] = window.initSortableList.mock.calls[0];
     const childList = document.querySelector('[data-parent-id="1"][data-subtask-sort-list]');
+    const emptyDropTarget = document.querySelector('[data-subtask-drop-target]');
     expect(rootList.dataset.parentId).toBe('');
     expect(rootOptions.reorderUrl).toBe('/tasks/1/subtasks/reorder/');
     expect(rootOptions.handle).toBe('[data-subtask-handle]');
     expect(rootOptions.group.name).toBe('task-subtasks-1');
+    expect(rootOptions.onStart).toBeInstanceOf(Function);
+    expect(rootOptions.onEnd).toBeInstanceOf(Function);
     expect(rootOptions.serialize()).toEqual([
       { id: 1, parent_id: null, order: 0 },
       { id: 3, parent_id: null, order: 1 },
+      { id: 4, parent_id: null, order: 2 },
       { id: 2, parent_id: 1, order: 0 },
     ]);
     expect(rootOptions.group.put({ el: childList }, rootList, document.querySelector('li[data-id="1"]'))).toBe(false);
-    expect(rootOptions.group.put({ el: childList }, rootList, document.querySelector('li[data-id="3"]'))).toBe(true);
+    expect(rootOptions.group.put({ el: emptyDropTarget }, rootList, document.querySelector('li[data-id="3"]'))).toBe(false);
+    expect(rootOptions.group.put({ el: emptyDropTarget }, rootList, document.querySelector('li[data-id="4"]'))).toBe(true);
+
+    rootOptions.onStart();
+    expect(emptyDropTarget.classList.contains('tw-hidden')).toBe(false);
+    rootOptions.onEnd();
+    expect(emptyDropTarget.classList.contains('tw-hidden')).toBe(true);
   });
 });

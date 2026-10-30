@@ -1,9 +1,13 @@
 import json
 from datetime import date, timedelta
+from importlib import import_module
+from types import SimpleNamespace
 from unittest.mock import patch
 
 # Third party imports
+from django.apps import apps
 from django.contrib.messages import SUCCESS, get_messages
+from django.db import connection
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -159,13 +163,16 @@ class TaskListFilteringTest(TestCase):
                 detail_url = reverse("tasks:detail", kwargs={"pk": task.pk})
                 self.assertContains(response, f'data-detail-url="{detail_url}?tab={tab}"')
 
-    def test_finished_tab_collects_all_rejected(self):
+    def test_finished_tab_collects_tasks_with_one_more_opposing_vote(self):
         rejected = make_task(title="Odrzucone")
         self.upvote(rejected, self.user, TaskVote.Value.DOWN)
-        self.upvote(rejected, self.other, TaskVote.Value.DOWN)
+        supported = make_task(title="Równe głosy")
+        self.upvote(supported, self.user, TaskVote.Value.DOWN)
+        self.upvote(supported, self.other, TaskVote.Value.UP)
         response = self.get_list("?tab=finished")
         titles = [t.title for t in response.context["finished_rejected"]]
         self.assertIn("Odrzucone", titles)
+        self.assertNotIn("Równe głosy", titles)
         self.assertEqual(response.context["finished_rejected"][0].priority_category, "rejected")
 
     def test_category_filter(self):
@@ -313,6 +320,24 @@ class TaskDetailViewTest(TestCase):
         response = self.client.get(reverse("tasks:detail", kwargs={"pk": self.task.pk}))
         self.assertEqual(response.status_code, 200)
 
+    def test_proposal_explains_automatic_start_without_a_manual_button(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("tasks:detail", kwargs={"pk": self.task.pk}))
+        message = gettext("Realization starts automatically when the vote balance reaches %(threshold)s and the full team is assembled.")
+        self.assertContains(response, message % {"threshold": Task.REALIZATION_VOTE_THRESHOLD})
+        self.assertNotContains(response, f"/tasks/{self.task.pk}/start/")
+        self.assertContains(response, gettext("Tasks"))
+        self.assertNotContains(response, "Subtasks")
+
+    def test_realization_explains_automatic_return_without_a_manual_button(self):
+        self.task.phase = Task.Phase.REALIZATION
+        self.task.save(update_fields=["phase"])
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("tasks:detail", kwargs={"pk": self.task.pk}))
+        message = gettext("The activity automatically returns to proposal if vote, coordinator, or team requirements are no longer met; votes and team are kept.")
+        self.assertContains(response, message)
+        self.assertNotContains(response, "returnToProposalModal")
+
     def test_nonexistent_task_returns_404(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)
         response = self.client.get(reverse("tasks:detail", kwargs={"pk": 99999}))
@@ -407,6 +432,7 @@ class TaskEditViewTest(TestCase):
         self.task.phase = Task.Phase.REALIZATION
         self.task.save(update_fields=["phase"])
         TaskVote.objects.create(task=self.task, user=self.owner, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=self.task, user=self.other, value=TaskVote.Value.UP)
         self.client.force_login(self.owner)
         response = self.client.post(reverse("tasks:edit", kwargs={"pk": self.task.pk}), {"due_date": "2026-11-20", "category": "", "title": "Nie zmieniaj"})
         self.assertEqual(response.status_code, 302, response.context["form"].errors if response.status_code == 200 else "")
@@ -641,30 +667,33 @@ class VoteTaskTest(TestCase):
         self.assertEqual(vote.value, TaskVote.Value.DOWN)
 
     def test_flip_vote_down_to_up(self):
+        helper = make_user("flip-vote-helper")
+        TaskVote.objects.create(task=self.task, user=helper, value=TaskVote.Value.UP)
         self.client.login(username=self.user.username, password=self.user._plain_password)
         self.client.post(reverse("tasks:vote", kwargs={"pk": self.task.pk}), {"value": -1})
         self.client.post(reverse("tasks:vote", kwargs={"pk": self.task.pk}), {"value": 1})
         vote = TaskVote.objects.get(task=self.task, user=self.user)
         self.assertEqual(vote.value, TaskVote.Value.UP)
 
-    def test_score_minus_2_rejects_task(self):
-        user2 = make_user("voter2")
+    def test_one_more_opposing_vote_rejects_task(self):
         self.client.login(username=self.user.username, password=self.user._plain_password)
-        self.client.post(reverse("tasks:vote", kwargs={"pk": self.task.pk}), {"value": -1})
-        self.client.logout()
-        self.client.login(username=user2.username, password=user2._plain_password)
         self.client.post(reverse("tasks:vote", kwargs={"pk": self.task.pk}), {"value": -1})
         self.task.refresh_from_db()
         self.assertEqual(self.task.status, Task.Status.REJECTED)
 
-    def test_minus_2_votes_still_reject_task_during_realization(self):
+    def test_equal_support_and_opposition_do_not_reject_task(self):
+        helper = make_user("supporting-voter")
+        TaskVote.objects.create(task=self.task, user=helper, value=TaskVote.Value.UP)
+        self.client.force_login(self.user)
+        self.client.post(reverse("tasks:vote", kwargs={"pk": self.task.pk}), {"value": -1})
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.status, Task.Status.ACTIVE)
+
+    def test_one_more_opposing_vote_rejects_task_during_realization(self):
         self.task.phase = Task.Phase.REALIZATION
         self.task.assigned_to = self.user
         self.task.save(update_fields=["phase", "assigned_to"])
-        user2 = make_user("realization-voter2")
         self.client.force_login(self.user)
-        self.client.post(reverse("tasks:vote", kwargs={"pk": self.task.pk}), {"value": -1})
-        self.client.force_login(user2)
         self.client.post(reverse("tasks:vote", kwargs={"pk": self.task.pk}), {"value": -1})
         self.task.refresh_from_db()
         self.assertEqual(self.task.status, Task.Status.REJECTED)
@@ -755,61 +784,130 @@ class TaskPhaseTransitionTest(TestCase):
         self.other = make_user("phase-other")
         self.task = make_task(created_by=self.coordinator, assigned_to=self.coordinator, required_people=2)
 
-    def test_start_requires_vote_balance_of_two(self):
-        self.client.force_login(self.coordinator)
-        response = self.client.post(reverse("tasks:start", kwargs={"pk": self.task.pk}), follow=True)
-        self.task.refresh_from_db()
-        self.assertEqual(self.task.phase, Task.Phase.PROPOSAL)
-        self.assertEqual(response.status_code, 200)
+    def cast_support_vote(self, user):
+        self.client.force_login(user)
+        return self.client.post(reverse("tasks:vote", kwargs={"pk": self.task.pk}), {"value": TaskVote.Value.UP}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
 
-    def test_start_requires_enough_approved_team_members(self):
-        TaskVote.objects.create(task=self.task, user=self.coordinator, value=TaskVote.Value.UP)
-        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
-        self.client.force_login(self.coordinator)
-        self.client.post(reverse("tasks:start", kwargs={"pk": self.task.pk}))
+    def test_vote_threshold_automatically_starts_when_team_is_ready(self):
+        self.task.required_people = 1
+        self.task.save(update_fields=["required_people"])
+        self.cast_support_vote(self.coordinator)
         self.task.refresh_from_db()
         self.assertEqual(self.task.phase, Task.Phase.PROPOSAL)
 
-    def test_coordinator_can_start_when_vote_and_team_requirements_are_met(self):
-        TaskVote.objects.create(task=self.task, user=self.coordinator, value=TaskVote.Value.UP)
-        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
-        self.task.approve_helper(self.helper)
-        self.client.force_login(self.coordinator)
-        self.client.post(reverse("tasks:start", kwargs={"pk": self.task.pk}))
+        response = self.cast_support_vote(self.helper)
         self.task.refresh_from_db()
         self.assertEqual(self.task.phase, Task.Phase.REALIZATION)
+        self.assertEqual(response.json()["phase"], Task.Phase.REALIZATION)
 
-    def test_legacy_task_without_people_requirement_counts_coordinator(self):
+    def test_waits_for_approved_team_then_starts_automatically(self):
+        self.cast_support_vote(self.coordinator)
+        self.cast_support_vote(self.helper)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.phase, Task.Phase.PROPOSAL)
+
+        self.client.force_login(self.coordinator)
+        response = self.client.post(reverse("tasks:toggle_helper", kwargs={"pk": self.task.pk, "user_id": self.helper.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.phase, Task.Phase.REALIZATION)
+        self.assertEqual(response.json()["phase"], Task.Phase.REALIZATION)
+
+    def test_legacy_task_without_people_requirement_uses_coordinator_as_team(self):
         self.task.required_people = None
         self.task.save(update_fields=["required_people"])
-        TaskVote.objects.create(task=self.task, user=self.coordinator, value=TaskVote.Value.UP)
-        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
-        self.client.force_login(self.coordinator)
-        self.client.post(reverse("tasks:start", kwargs={"pk": self.task.pk}))
+        self.cast_support_vote(self.coordinator)
+        self.cast_support_vote(self.helper)
         self.task.refresh_from_db()
         self.assertEqual(self.task.phase, Task.Phase.REALIZATION)
 
-    def test_only_coordinator_can_start_realization(self):
-        TaskVote.objects.create(task=self.task, user=self.coordinator, value=TaskVote.Value.UP)
-        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
-        self.client.force_login(self.other)
-        self.client.post(reverse("tasks:start", kwargs={"pk": self.task.pk}))
+    def test_coordinator_assignment_can_complete_start_requirements(self):
+        self.task.assigned_to = None
+        self.task.required_people = 1
+        self.task.save(update_fields=["assigned_to", "required_people"])
+        self.task.approved_helpers.add(self.helper)
+        self.cast_support_vote(self.helper)
+        self.cast_support_vote(self.other)
         self.task.refresh_from_db()
         self.assertEqual(self.task.phase, Task.Phase.PROPOSAL)
 
-    def test_return_to_proposal_resets_votes_and_clears_team(self):
+        self.client.force_login(self.coordinator)
+        response = self.client.post(reverse("tasks:take", kwargs={"pk": self.task.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.phase, Task.Phase.REALIZATION)
+        self.assertEqual(response.json()["phase"], Task.Phase.REALIZATION)
+
+    def test_editing_team_size_can_complete_start_requirements(self):
+        self.cast_support_vote(self.coordinator)
+        self.cast_support_vote(self.helper)
+        self.client.force_login(self.coordinator)
+        self.client.post(reverse("tasks:edit", kwargs={"pk": self.task.pk}), task_form_data(required_people="1"))
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.phase, Task.Phase.REALIZATION)
+
+    def test_vote_and_team_requirements_must_both_be_met(self):
+        self.client.force_login(self.coordinator)
+        self.client.post(reverse("tasks:vote", kwargs={"pk": self.task.pk}), {"value": TaskVote.Value.UP})
+        self.client.force_login(self.helper)
+        self.client.post(reverse("tasks:vote", kwargs={"pk": self.task.pk}), {"value": TaskVote.Value.UP})
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.phase, Task.Phase.PROPOSAL)
+
+    def test_losing_vote_support_returns_to_proposal_and_preserves_team(self):
         self.task.phase = Task.Phase.REALIZATION
         self.task.save(update_fields=["phase"])
         TaskVote.objects.create(task=self.task, user=self.coordinator, value=TaskVote.Value.UP)
-        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.DOWN)
+        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
         self.task.approved_helpers.add(self.helper)
-        self.client.force_login(self.coordinator)
-        self.client.post(reverse("tasks:return_to_proposal", kwargs={"pk": self.task.pk}))
+
+        response = self.cast_support_vote(self.helper)
         self.task.refresh_from_db()
         self.assertEqual(self.task.phase, Task.Phase.PROPOSAL)
-        self.assertIsNone(self.task.assigned_to)
+        self.assertEqual(response.json()["phase"], Task.Phase.PROPOSAL)
+        self.assertEqual(self.task.assigned_to, self.coordinator)
+        self.assertTrue(self.task.approved_helpers.filter(pk=self.helper.pk).exists())
+        self.assertEqual(TaskVote.objects.filter(task=self.task).count(), 1)
+
+        response = self.cast_support_vote(self.helper)
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.phase, Task.Phase.REALIZATION)
+        self.assertEqual(response.json()["phase"], Task.Phase.REALIZATION)
+
+    def test_losing_approved_team_member_returns_to_proposal_and_preserves_votes(self):
+        self.task.phase = Task.Phase.REALIZATION
+        self.task.save(update_fields=["phase"])
+        self.task.approved_helpers.add(self.helper)
+        TaskVote.objects.create(task=self.task, user=self.coordinator, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
+        self.client.force_login(self.coordinator)
+
+        response = self.client.post(reverse("tasks:toggle_helper", kwargs={"pk": self.task.pk, "user_id": self.helper.pk}), HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.phase, Task.Phase.PROPOSAL)
+        self.assertEqual(response.json()["phase"], Task.Phase.PROPOSAL)
+        self.assertEqual(self.task.assigned_to, self.coordinator)
         self.assertFalse(self.task.approved_helpers.exists())
-        self.assertFalse(TaskVote.objects.filter(task=self.task).exists())
+        self.assertEqual(TaskVote.objects.filter(task=self.task).count(), 2)
+
+    def test_phase_migration_reconciles_existing_tasks_without_clearing_votes_or_team(self):
+        ready = make_task(title="Ready", assigned_to=self.coordinator, required_people=2)
+        ready.approved_helpers.add(self.helper)
+        TaskVote.objects.create(task=ready, user=self.coordinator, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=ready, user=self.helper, value=TaskVote.Value.UP)
+
+        no_longer_ready = make_task(title="No longer ready", assigned_to=self.coordinator, phase=Task.Phase.REALIZATION, required_people=2)
+        TaskVote.objects.create(task=no_longer_ready, user=self.coordinator, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=no_longer_ready, user=self.helper, value=TaskVote.Value.UP)
+
+        migration = import_module("tasks.migrations.0018_reconcile_task_phases")
+        migration.reconcile_active_task_phases(apps, SimpleNamespace(connection=connection))
+
+        ready.refresh_from_db()
+        no_longer_ready.refresh_from_db()
+        self.assertEqual(ready.phase, Task.Phase.REALIZATION)
+        self.assertEqual(no_longer_ready.phase, Task.Phase.PROPOSAL)
+        self.assertEqual(no_longer_ready.assigned_to, self.coordinator)
+        self.assertEqual(TaskVote.objects.filter(task=no_longer_ready).count(), 2)
 
 
 class TaskSubtaskViewTest(TestCase):
@@ -822,6 +920,14 @@ class TaskSubtaskViewTest(TestCase):
         TaskVote.objects.create(task=self.task, user=self.helper, value=TaskVote.Value.UP)
         self.task.approve_helper(self.helper)
         self.subtask = TaskSubtask.objects.create(task=self.task, title="Pierwsze", order=0)
+
+    def test_empty_nested_task_list_is_a_hidden_drag_target(self):
+        self.client.force_login(self.coordinator)
+        response = self.client.get(reverse("tasks:detail", kwargs={"pk": self.task.pk}))
+        self.assertNotContains(response, "Drop a task here to nest it.")
+        self.assertNotContains(response, "tw-min-h-8")
+        self.assertContains(response, "data-subtask-drop-target")
+        self.assertContains(response, "tw-hidden tw-absolute tw-inset-0")
 
     def test_subtask_name_editing_uses_a_modal_and_renders_nested_items(self):
         child = TaskSubtask.objects.create(task=self.task, parent=self.subtask, title="Dziecko", order=0)

@@ -19,7 +19,8 @@ Obowiązujące szczegóły zakresu:
 
 - „Ludzie” oznacza zdarzenia członkowskie, takie jak propozycja, przyjęcie lub blokada. Zwykłe edycje profilu nie są aktywnością ani wpisem digestu.
 - Aktywność Głosowań obejmuje dodane argumenty Za/Przeciw; nie ujawnia wyboru ani kodu głosującego.
-- Aktywność Działań i digest uwzględniają głosy Pomogę/Nie róbmy.
+- Aktywność Działań i digest uwzględniają głosy Pomogę/Blokuj.
+- Digest koordynatora zaczyna się od listy osób, które chcą dołączyć do jego zespołów, ale nie zostały jeszcze zatwierdzone. Każda pozycja prowadzi do działania i przypomina, że koordynator może zaakceptować tę osobę, jeśli chce.
 - Zmiany wydarzeń są uwzględniane niezależnie od tego, czy wydarzenie zaczyna się w najbliższych dniach. Przypomnienia o nadchodzących terminach są osobnym mechanizmem.
 - Uwzględniane są utworzenia i edycje Ankiet oraz transakcji. Dla historycznych transakcji bez `updated_at` data utworzenia pozostaje datą wpisu.
 - Dodatkowe zdarzenia, takie jak wznowione głosowania po awarii, są składane osobno w digescie.

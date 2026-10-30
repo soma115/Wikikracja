@@ -26,14 +26,16 @@ class TaskFormTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("description", form.errors)
 
-    def test_positive_cost_requires_currency(self):
-        form = TaskForm(data=task_form_data(estimated_cost="10", currency=""))
-        self.assertFalse(form.is_valid())
-        self.assertIn("currency", form.errors)
-
-    def test_zero_cost_does_not_require_currency(self):
-        form = TaskForm(data=task_form_data(estimated_cost="0", currency=""))
+    def test_free_text_cost_estimate_is_accepted(self):
+        value = "Approximately 120 PLN; materials donated"
+        form = TaskForm(data=task_form_data(cost_estimate=value))
         self.assertTrue(form.is_valid())
+        self.assertEqual(form.save().cost_estimate, value)
+
+    def test_cost_estimate_is_required(self):
+        form = TaskForm(data=task_form_data(cost_estimate=""))
+        self.assertFalse(form.is_valid())
+        self.assertIn("cost_estimate", form.errors)
 
     def test_people_required_must_be_positive(self):
         form = TaskForm(data=task_form_data(required_people="0"))
@@ -45,17 +47,30 @@ class TaskFormTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("required_people", form.errors)
 
+    def test_people_required_is_mandatory(self):
+        form = TaskForm(data=task_form_data(required_people=""))
+        self.assertFalse(form.is_valid())
+        self.assertIn("required_people", form.errors)
+
+    def test_new_task_defaults_required_people_to_one(self):
+        form = TaskForm()
+        self.assertEqual(form["required_people"].value(), 1)
+
+    def test_legacy_empty_people_count_stays_empty_but_is_required_on_edit(self):
+        task = Task.objects.create(title="Legacy task", description="Old task", required_people=None)
+        form = TaskForm(instance=task)
+        self.assertIsNone(form["required_people"].value())
+
+        form = TaskForm(data=task_form_data(required_people=""), instance=task)
+        self.assertFalse(form.is_valid())
+        self.assertIn("required_people", form.errors)
+
     def test_external_approval_requires_yes_or_no(self):
         data = task_form_data()
         data.pop("requires_external_approval")
         form = TaskForm(data=data)
         self.assertFalse(form.is_valid())
         self.assertIn("requires_external_approval", form.errors)
-
-    def test_cost_is_limited_to_two_decimal_places(self):
-        form = TaskForm(data=task_form_data(estimated_cost="1.234", currency="PLN"))
-        self.assertFalse(form.is_valid())
-        self.assertIn("estimated_cost", form.errors)
 
     def test_external_approval_choice_is_selected_when_editing(self):
         task = Task.objects.create(title="Zadanie", description="Opis", requires_external_approval=True)

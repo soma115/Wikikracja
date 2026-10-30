@@ -19,7 +19,7 @@
     <div class="tw-card-body">
       <h6 class="tw-text-base tw-font-semibold tw-mb-2"><i class="fas fa-inbox tw-me-2 tw-text-accent"></i>{% trans "Pending" %}</h6>
       <p class="tw-mb-0">
-        {% blocktrans %}Proposals that have not started realization. Anyone can take coordination. To start realization, the coordinator needs a vote balance of at least 2 and the required number of people in the team; the coordinator counts as one team member.{% endblocktrans %}
+        {% blocktrans %}Proposals move to realization automatically when the vote balance reaches 2 and the required team size is met. A coordinator must be assigned and counts as one team member.{% endblocktrans %}
       </p>
     </div>
   </div>
@@ -28,7 +28,7 @@
     <div class="tw-card-body">
       <h6 class="tw-text-base tw-font-semibold tw-mb-2"><i class="fas fa-spinner tw-me-2 tw-text-accent"></i>{% trans "In progress" %}</h6>
       <p class="tw-mb-0">
-        {% blocktrans %}Activities explicitly started by their coordinator after the vote and team requirements have been met. Voting remains open, and a balance of −2 or lower automatically rejects the activity. The coordinator can return it to proposal; this resets votes and clears the team.{% endblocktrans %}
+        {% blocktrans %}Activities move automatically to realization once the vote and team requirements have been met. If those requirements stop being met, the activity automatically returns to proposal and keeps its votes and team. Voting remains open, and the activity is automatically rejected when votes against outnumber votes for by at least one.{% endblocktrans %}
       </p>
     </div>
   </div>
@@ -37,7 +37,7 @@
     <div class="tw-card-body">
       <h6 class="tw-text-base tw-font-semibold tw-mb-2"><i class="fas fa-check-circle tw-me-2 tw-text-accent"></i>{% trans "Completed" %}</h6>
       <p class="tw-mb-0">
-        {% blocktrans %}Activities closed as completed or cancelled, plus activities automatically rejected at a vote balance of −2 or lower. Reopening returns an activity to proposal, resets votes, and keeps the coordinator and approved helpers.{% endblocktrans %}
+        {% blocktrans %}Activities closed as completed or cancelled, plus activities automatically rejected when votes against outnumber votes for by at least one. Reopening returns an activity to proposal, resets votes, and keeps the coordinator and approved helpers.{% endblocktrans %}
       </p>
     </div>
   </div>
@@ -46,7 +46,7 @@
     <div class="tw-card-body">
       <h6 class="tw-text-base tw-font-semibold tw-mb-2"><i class="fas fa-hand-holding-heart tw-me-2 tw-text-accent"></i>{% trans "Declaration of aid" %}</h6>
       <p class="tw-mb-0">
-        {% blocktrans %}The "I want to help" button is a declaration of commitment - not a like. The number of people who clicked it is visible on the activity tile. Starting realization requires a vote balance of at least 2 and enough approved team members.{% endblocktrans %}
+        {% blocktrans %}The "I want to help" button is a declaration of commitment - not a like. The number of people who clicked it is visible on the activity tile. The coordinator and approved volunteers carry out the activity, not the whole group. Realization starts automatically when the vote balance reaches 2 and the required approved team size is met.{% endblocktrans %}
       </p>
     </div>
   </div>

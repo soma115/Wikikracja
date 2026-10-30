@@ -41,15 +41,10 @@
             </div>
             <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
               <div>
-                <label class="tw-form-label" for="{{ form.estimated_cost.id_for_label }}">{% trans "Estimated cost" %}</label>
-                {{ form.estimated_cost }}
-                {% if form.estimated_cost.errors %}<div class="tw-alert tw-alert-danger tw-mt-1" role="alert">{{ form.estimated_cost.errors }}</div>{% endif %}
-              </div>
-              <div>
-                <label class="tw-form-label" for="{{ form.currency.id_for_label }}">{% trans "Currency" %}</label>
-                {{ form.currency }}
-                <p class="tw-text-muted tw-text-sm tw-mt-1">{% trans "Enter a currency when the cost is greater than zero." %}</p>
-                {% if form.currency.errors %}<div class="tw-alert tw-alert-danger tw-mt-1" role="alert">{{ form.currency.errors }}</div>{% endif %}
+                <label class="tw-form-label" for="{{ form.cost_estimate.id_for_label }}">{{ form.cost_estimate.label }}</label>
+                {{ form.cost_estimate }}
+                <p class="tw-text-muted tw-text-sm tw-mt-1">{{ form.cost_estimate.help_text }}</p>
+                {% if form.cost_estimate.errors %}<div class="tw-alert tw-alert-danger tw-mt-1" role="alert">{{ form.cost_estimate.errors }}</div>{% endif %}
               </div>
               <div>
                 <label class="tw-form-label" for="{{ form.required_people.id_for_label }}">{% trans "People required" %}</label>

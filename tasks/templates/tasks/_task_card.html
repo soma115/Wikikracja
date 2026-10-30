@@ -6,7 +6,7 @@
   Oczekiwana zmienna: task — obiekt Task (z with_metrics + chat_msg_count + chat_unread_count)
 {% endcomment %}
 
-<div class="tw-content-card" data-card-type="task" data-category="{{ task.category.slug }}">
+<div class="tw-content-card" data-card-type="task" data-category="{{ task.category.slug }}" data-task-phase="{{ task.phase }}" data-task-status="{{ task.status }}">
 
   {# ── NAGŁÓWEK (klikalny → szczegóły) ── #}
   <div class="tw-content-card-header" data-detail-url="{% url 'tasks:detail' pk=task.pk %}{% if detail_query %}?{{ detail_query }}{% endif %}" role="link" tabindex="0">
@@ -140,17 +140,17 @@
                 class="tw-task-vote-btn tw-task-vote-btn--down{% if task.user_vote_value == -1 %} tw-active{% endif %}"
                 data-tw-stop-propagation
                 data-text-active="{% trans 'Against' %}"
-                data-text-inactive="{% trans "Let's not do that" %}"
+                data-text-inactive="{% trans 'Block' %}"
                 data-icon-active="fa-check"
                 data-icon-inactive="fa-minus"
                 data-tooltip-active="{% trans 'Click to withdraw your vote' %}"
-                data-tooltip-inactive="{% trans 'Vote against this activity. At -2 votes the activity is rejected.' %}"
+                data-tooltip-inactive="{% trans 'Vote to block this activity. It is rejected when votes against outnumber votes for by at least one.' %}"
                 data-tw-toggle="tooltip"
-                title="{% if task.user_vote_value == -1 %}{% trans 'Click to withdraw your vote' %}{% else %}{% trans 'Vote against this activity. At -2 votes the activity is rejected.' %}{% endif %}">
+                title="{% if task.user_vote_value == -1 %}{% trans 'Click to withdraw your vote' %}{% else %}{% trans 'Vote to block this activity. It is rejected when votes against outnumber votes for by at least one.' %}{% endif %}">
           {% if task.user_vote_value == -1 %}
             <i class="fas fa-check"></i> {% trans 'Against' %}
           {% else %}
-            <i class="fas fa-minus"></i> {% trans "Let's not do that" %}
+            <i class="fas fa-minus"></i> {% trans "Block" %}
           {% endif %}
         </button>
       </form>

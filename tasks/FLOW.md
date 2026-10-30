@@ -4,30 +4,31 @@
 
 - Status: `active`, faza: `proposal`.
 - Przy utworzeniu autor zostaje koordynatorem i otrzymuje głos „Pomogę”.
-- Nowe zadanie wymaga kwoty, liczby osób, odpowiedzi tak/nie o zgodzie spoza grupy oraz miary sukcesu. Termin jest opcjonalny; przy kwocie `0` waluta może pozostać pusta.
+- Nowe zadanie wymaga tekstowego szacunku kosztu, liczby osób, odpowiedzi tak/nie o zgodzie spoza grupy oraz miary sukcesu. Liczba osób domyślnie wynosi `1`; termin jest opcjonalny.
 - Koordynator może edytować specyfikację w propozycji bez resetowania głosów.
-- Głosowanie pozostaje otwarte. Bilans `<= -2` automatycznie ustawia status `rejected`.
+- Głosowanie pozostaje otwarte. Gdy głosów przeciw jest co najmniej o jeden więcej niż głosów „Pomogę”, status zmienia się automatycznie na `rejected`.
 
 ## 2. Rozpoczęcie realizacji
 
-Koordynator uruchamia osobną akcję. System rozpoczyna realizację tylko wtedy, gdy:
+System automatycznie rozpoczyna realizację, gdy:
 
 - zadanie ma status `active` i fazę `proposal`;
+- ma przypisanego koordynatora;
 - bilans głosów wynosi co najmniej `2`;
 - zespół osiągnął wymaganą liczbę osób; koordynator wlicza się do zespołu, a zatwierdzeni pomocnicy uzupełniają skład.
 
-Starsze zadania bez liczby osób traktują koordynatora jako minimum jednego członka zespołu. Pozostałe brakujące dane starszych zadań nie blokują rozpoczęcia; trzeba je uzupełnić przy edycji.
+Starsze zadania bez liczby osób traktują koordynatora jako minimum jednego członka zespołu i nie są automatycznie uzupełniane. Przy edycji zadania w fazie propozycji trzeba podać brakującą liczbę osób. Pozostałe brakujące dane starszych zadań nie blokują rozpoczęcia.
 
 ## 3. Realizacja
 
 - Status: `active`, faza: `realization`.
-- Głosowanie nadal jest otwarte; bilans `<= -2` może ustawić status `rejected`.
-- Pól zasadniczej specyfikacji (tytułu, opisu, kosztu, liczby osób, zgody zewnętrznej i miary sukcesu) nie można edytować bezpośrednio. Koordynator może użyć akcji „Cofnij do propozycji”. Potwierdzenie tej akcji od razu zeruje głosy, usuwa koordynatora i zatwierdzonych pomocników oraz przywraca fazę `proposal`.
+- Głosowanie nadal jest otwarte; przewaga głosów przeciw o co najmniej jeden może ustawić status `rejected`.
+- Pól zasadniczej specyfikacji (tytułu, opisu, kosztu, liczby osób, zgody zewnętrznej i miary sukcesu) nie można edytować bezpośrednio. Jeśli bilans głosów spadnie poniżej `2`, zniknie koordynator albo zatwierdzony zespół będzie mniejszy od wymaganego, faza automatycznie wraca do `proposal`; głosy, koordynator i pozostali zatwierdzeni pomocnicy są zachowywani.
 - Termin i kategorię koordynator może aktualizować również podczas realizacji; zmiany te nie resetują głosów.
-- Po cofnięciu ktoś musi ponownie przejąć koordynację, zanim edycja zasadniczej specyfikacji będzie dostępna. Edycja w propozycji nie zeruje głosów.
-- Koordynator i zatwierdzeni pomocnicy mogą dodawać, edytować, porządkować, odhaczać i usuwać podzadania. Podzadania mają jeden poziom zagnieżdżenia; ręczne przeciąganie między listą główną i zagnieżdżoną zmienia relację rodzic–dziecko. Rodzic przesuwa się razem z dziećmi.
-- Zaznaczenie rodzica zaznacza jego dzieci; odznaczenie dziecka odznacza rodzica, a zaznaczenie wszystkich dzieci zaznacza rodzica. Rodzica z dziećmi nie można usunąć, dopóki dzieci nie zostaną przeniesione lub usunięte.
-- Checklistę można zmieniać do zamknięcia zadania; jej zmiany nie wpływają na głosy.
+- Koordynator musi być przypisany, zanim zasadnicza specyfikacja będzie dostępna do edycji. Edycja w fazie propozycji nie zeruje głosów.
+- Koordynator i zatwierdzeni pomocnicy mogą dodawać, edytować, porządkować, odhaczać i usuwać zadania. Zadania mają jeden poziom zagnieżdżenia; ręczne przeciąganie między listą główną i zagnieżdżoną zmienia relację nadrzędne–podrzędne. Przeniesienie zadania nadrzędnego przesuwa cały blok zadań zagnieżdżonych.
+- Zaznaczenie zadania nadrzędnego zaznacza zadania zagnieżdżone; odznaczenie zagnieżdżonego odznacza zadanie nadrzędne, a zaznaczenie wszystkich zagnieżdżonych zaznacza zadanie nadrzędne. Zadania nadrzędnego z zagnieżdżonymi nie można usunąć, dopóki nie zostaną przeniesione lub usunięte.
+- Listę zadań można zmieniać do zamknięcia działania; jej zmiany nie wpływają na głosy.
 
 ## 4. Zamknięcie
 
@@ -40,4 +41,4 @@ Starsze zadania bez liczby osób traktują koordynatora jako minimum jednego cz�
 
 - Obecne uprawnienie do ponownego otwarcia pozostaje przy twórcy lub koordynatorze.
 - Zadanie `completed`, `cancelled` albo `rejected` wraca do statusu `active` i fazy `proposal`.
-- Głosy Pomogę/Nie róbmy są zerowane, a koordynator i zatwierdzeni pomocnicy pozostają przypisani.
+- Głosy Pomogę/Blokuj są zerowane, a koordynator i zatwierdzeni pomocnicy pozostają przypisani.

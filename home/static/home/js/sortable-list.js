@@ -3,7 +3,7 @@
 
 
 
-  // options: { reorderUrl, handle (CSS selector), onSaved, onError, msg: { reorder_error, network_error } }
+  // options: { reorderUrl, handle (CSS selector), onStart, onEnd, onSaved, onError, msg: { reorder_error, network_error } }
   window.initSortableList = function (listEl, options) {
     if (!listEl || typeof Sortable === 'undefined') return;
 
@@ -15,7 +15,9 @@
       animation: 150,
       ghostClass: 'tw-sortable-ghost',
       chosenClass: 'tw-sortable-chosen',
+      onStart: opts.onStart || undefined,
       onEnd: function (event) {
+        if (opts.onEnd) opts.onEnd(event);
         var items = opts.serialize
           ? opts.serialize(listEl, event)
           : Array.from(listEl.children).map(function (li, idx) {
