@@ -221,7 +221,7 @@ def on_chat_room_requested(sender, instance, title, founder, allowed_users, welc
 
 
 @receiver(chat_message_requested)
-def on_chat_message_requested(sender, message_text='', from_user=None, anonymous=True, guest_email='', guest_name='', system_key='', room_id=None, push_event=None, **kwargs):
+def on_chat_message_requested(sender, message_text='', from_user=None, anonymous=True, guest_email='', guest_name='', system_key='', room_id=None, push_event=None, notify_members=True, **kwargs):
     """Deliver a message to a chat room on behalf of another app."""
     room = Room.objects.filter(pk=room_id).first() if room_id else None
     if room is None and system_key:
@@ -230,7 +230,7 @@ def on_chat_message_requested(sender, message_text='', from_user=None, anonymous
         log.error("Chat room '%s' does not exist", room_id or system_key)
         return
 
-    async_to_sync(send_message)(room, message_text, sender=from_user, anonymous=anonymous, guest_email=guest_email, guest_name=guest_name, linkify=False, push_event=push_event)
+    async_to_sync(send_message)(room, message_text, sender=from_user, anonymous=anonymous, guest_email=guest_email, guest_name=guest_name, linkify=False, push_event=push_event, notify_members=notify_members)
 
 
 @receiver(citizen_accepted)

@@ -495,7 +495,7 @@ PUSH_EVENTS = {
     'event.starting': {'module': 'events', 'fcm': True, 'websocket': True},
     'vote.proposed': {'module': 'glosowania', 'fcm': True, 'websocket': True},
     'vote.modified': {'module': 'glosowania', 'fcm': False, 'websocket': False},
-    'vote.argument_added': {'module': 'glosowania', 'fcm': False, 'websocket': False},
+    'vote.argument_added': {'module': 'glosowania', 'fcm': True, 'websocket': True},
     'vote.discussion_started': {'module': 'glosowania', 'fcm': True, 'websocket': True},
     'vote.started': {'module': 'glosowania', 'fcm': True, 'websocket': True},
     'vote.approved': {'module': 'glosowania', 'fcm': True, 'websocket': True},

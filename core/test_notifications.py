@@ -248,8 +248,9 @@ def test_push_event_registry_starts_with_all_requested_keys(settings):
         'chat.mention',
     }
     assert set(settings.PUSH_EVENTS) == expected
-    omitted_until_enabled = {'citizen.accepted', 'citizen.blocked', 'document.important_updated', 'event.updated', 'vote.modified', 'vote.argument_added', 'transaction.updated', 'survey.updated'}
+    omitted_until_enabled = {'citizen.accepted', 'citizen.blocked', 'document.important_updated', 'event.updated', 'vote.modified', 'transaction.updated', 'survey.updated'}
     assert all(settings.PUSH_EVENTS[key]['fcm'] is False and settings.PUSH_EVENTS[key]['websocket'] is False for key in omitted_until_enabled)
+    assert settings.PUSH_EVENTS['vote.argument_added'] == {'module': 'glosowania', 'fcm': True, 'websocket': True}
 
 
 def test_websocket_failure_does_not_skip_remaining_recipients(users, payload, transport):

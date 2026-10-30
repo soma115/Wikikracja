@@ -577,18 +577,20 @@ def test_add_argument_notifies_referendum_chat_once(sample_users):
     client = Client()
     client.force_login(author)
 
-    with patch('glosowania.views.chat_message_requested.send') as send_message:
+    with patch('glosowania.views.chat_message_requested.send') as send_message, patch('glosowania.views.vote_argument_added.send') as send_vote_notification:
         response = client.post(f'/glosowania/details/{decision.pk}/add-argument/', {'argument_type': 'FOR', 'content': 'Argument text'})
 
     assert response.status_code == 302
     assert Argument.objects.filter(decyzja=decision, content='Argument text').exists()
+    send_vote_notification.assert_called_once()
+    assert send_vote_notification.call_args.kwargs['argument'].content == 'Argument text'
     send_message.assert_called_once()
     call_kwargs = send_message.call_args.kwargs
     assert call_kwargs['sender'] is Argument
     assert call_kwargs['room_id'] == decision.chat_room_id
     assert call_kwargs['from_user'] is None
     assert call_kwargs['anonymous'] is False
-    assert call_kwargs['push_event'] == 'vote.argument_added'
+    assert call_kwargs['notify_members'] is False
     assert call_kwargs['message_text'].startswith(f"{_('A new argument was added to this referendum:')} <a href='")
     assert call_kwargs['message_text'].endswith('>Referendum</a>')
 
@@ -601,10 +603,11 @@ def test_add_argument_persists_system_message_in_referendum_chat(sample_users):
     client = Client()
     client.force_login(author)
 
-    with patch('chat.notifications.ChatNotificationService.dispatch_message', new_callable=AsyncMock):
+    with patch('chat.notifications.ChatNotificationService.dispatch_message', new_callable=AsyncMock) as dispatch_message, patch('glosowania.views.vote_argument_added.send'):
         response = client.post(f'/glosowania/details/{decision.pk}/add-argument/', {'argument_type': 'FOR', 'content': 'Argument text'})
 
     assert response.status_code == 302
+    assert dispatch_message.call_args.kwargs['notify_members'] is False
     assert decision.chat_room.messages.count() == initial_message_count + 1
     chat_message = Message.objects.filter(room=decision.chat_room).latest('pk')
     assert chat_message.sender is None

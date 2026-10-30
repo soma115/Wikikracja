@@ -842,6 +842,7 @@ async def send_message(
     federation_source_message_id='',
     propagate_federated=True,
     push_event=None,
+    notify_members=True,
 ):
     """Create a chat message, broadcast it, and dispatch notifications.
 
@@ -878,7 +879,7 @@ async def send_message(
 
     from .notifications import ChatNotificationService
 
-    await ChatNotificationService(channel_layer, online_registry).dispatch_message(room, message, sender, mentioned_users, push_event=push_event)
+    await ChatNotificationService(channel_layer, online_registry).dispatch_message(room, message, sender, mentioned_users, push_event=push_event, notify_members=notify_members)
     if propagate_federated and room.federated_instance_url:
         from .federation import deliver_message
 

@@ -30,7 +30,7 @@ class ChatNotificationService:
         self.channel_layer = channel_layer
         self.online_registry = online_registry
 
-    async def dispatch_message(self, room, message, sender, mentioned_users, push_event=None):
+    async def dispatch_message(self, room, message, sender, mentioned_users, push_event=None, notify_members=True):
         mentioned_user_ids = {user.id for user in mentioned_users}
         room_members = await database_sync_to_async(lambda: list(room.allowed.all()))()
         other_members = [member for member in room_members if member.id != (sender.id if sender else None)]
@@ -57,7 +57,7 @@ class ChatNotificationService:
 
             await self.channel_layer.group_send(f"user_{member.id}", {"type": "chat.room_unread", "room_id": room.id, "delta": 1})
 
-            if not prefs['muted'] and not is_mentioned:
+            if notify_members and not prefs['muted'] and not is_mentioned:
                 await self._enqueue_delivery(member.id, room.id, notification, 'notification', push_event or 'chat.message')
 
             if consumer and not is_present and prefs['seen']:
@@ -66,9 +66,10 @@ class ChatNotificationService:
                 await consumer.send_json({"unsee_room": room.id})
 
         mention_notification = {**notification, 'title': f'[{_("mentioned you")}] {room_name or _("Chat")}'}
-        for user in mentioned_users:
-            if user.id != (sender.id if sender else None):
-                await self._enqueue_delivery(user.id, room.id, mention_notification, 'mention', push_event or 'chat.mention')
+        if notify_members:
+            for user in mentioned_users:
+                if user.id != (sender.id if sender else None):
+                    await self._enqueue_delivery(user.id, room.id, mention_notification, 'mention', push_event or 'chat.mention')
 
     async def _enqueue_delivery(self, user_id, room_id, notification, kind, push_event):
         try:

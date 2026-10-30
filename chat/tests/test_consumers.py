@@ -102,7 +102,7 @@ class PostSendProcessingUnseenTest(TestCase):
         registry.get_consumer = MagicMock(return_value=consumer)
         return registry
 
-    async def _run(self, receiver_consumer, text="hello", *, anonymous=False, online=True):
+    async def _run(self, receiver_consumer, text="hello", *, anonymous=False, online=True, notify_members=True):
         self.queued_notifications.clear()
         self.push.reset_mock()
         self.channel_layer = AsyncMock()
@@ -110,7 +110,7 @@ class PostSendProcessingUnseenTest(TestCase):
         if not online:
             online_registry.get_online.return_value = []
         with patch('chat.services.log') as log:
-            await send_message(self.room, text, self.sender, anonymous=anonymous, channel_layer=self.channel_layer, online_registry=online_registry)
+            await send_message(self.room, text, self.sender, anonymous=anonymous, channel_layer=self.channel_layer, online_registry=online_registry, notify_members=notify_members)
         log.error.assert_not_called()
         return self.push
 
@@ -124,6 +124,13 @@ class PostSendProcessingUnseenTest(TestCase):
         await self._run(None)
 
         self.assertEqual(self._room_unread_events(), [(f'user_{self.receiver.id}', {'type': 'chat.room_unread', 'room_id': self.room.id, 'delta': 1})])
+
+    async def test_suppressed_member_notifications_still_update_room_unread_counter(self):
+        await self._run(None, notify_members=False)
+
+        self.assertEqual(self._room_unread_events(), [(f'user_{self.receiver.id}', {'type': 'chat.room_unread', 'room_id': self.room.id, 'delta': 1})])
+        self.assertEqual(self._notifications(), [])
+        self.push.assert_not_called()
 
     async def test_seen_receiver_gets_unseen_count_and_push(self):
         """Receiver had seen the room — repo.unsee_room, push_unread_count and push must be called."""
