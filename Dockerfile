@@ -50,6 +50,11 @@ ENV PYTHONUNBUFFERED=1 \
 RUN apk add --no-cache sqlite \
     && mkdir -p /app/db /app/media /app/static
 
+# The base image's global site-packages can retain older copies of app packages.
+# The patched versions are installed in the builder's user site and copied below.
+RUN python -m pip uninstall --yes msgpack setuptools urllib3 \
+    && python -m pip uninstall --yes pip
+
 # Copy only what's needed from builder
 COPY --from=builder /root/.local /root/.local
 COPY --from=builder /app/static /app/static
@@ -78,6 +83,15 @@ COPY --from=builder /app/templates /app/templates
 COPY --from=builder /app/docs /app/docs
 COPY --from=builder /app/locale /app/locale
 COPY --from=builder /app/pyproject.toml /app/
+
+# Fail the image build if stale global packages or the installer remain in runtime.
+RUN python -c 'import importlib.metadata as m, importlib.util, shutil; \
+    import msgpack, setuptools, urllib3; \
+    expected = {"msgpack": "1.2.4", "setuptools": "84.1.0", "urllib3": "2.8.0"}; \
+    assert {name: m.version(name) for name in expected} == expected; \
+    modules = (msgpack, setuptools, urllib3); \
+    assert all(module.__file__.startswith("/root/.local/lib/python3.14/site-packages/") for module in modules); \
+    assert not any(shutil.which(name) for name in ("pip", "pip3", "pip3.14")) and importlib.util.find_spec("pip") is None'
 
 EXPOSE 8000
 

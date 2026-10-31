@@ -737,3 +737,11 @@
 - **Uzasadnienie:** VulnerabilityReport dla aktywnego digestu Wikikracji zglaszal High dla msgpack oraz vendored `jaraco.context`/`wheel` powiazanych z setuptools. Poprawki wymagaja nowego obrazu; aktywnego obrazu ani wdrozen nie zmieniano.
 - **Weryfikacja:** `.venv` uzywa Python `3.14.3`; `pip check` nie wykryl niespojnosci, a parser potwierdzil zadane piny. `.venv` nadal zawiera poprzednie wersje bibliotek, wiec nie jest to test nowych pakietow. Nie instalowano pakietow, nie uruchamiano testow ani builda.
 - **Spodziewany efekt:** Nastepny obraz bedzie zawieral poprawione wersje zaleznosci aplikacyjnej; CI, skan nowego digestu i rollout pozostaja do wykonania.
+
+## 2026-10-31: Usuniecie starych globalnych pakietow z runtime Wikikracji
+
+- **Zmienione obszary:** `Dockerfile`.
+- **Co sie zmienilo:** Etap runtime usuwa globalne kopie `msgpack`, `setuptools`, `urllib3` i `pip` z obrazu bazowego przed skopiowaniem zaleznosci aplikacji. Build sprawdza, ze pozostaja poprawione wersje z user-site i ze `pip` nie jest dostepny w runtime.
+- **Uzasadnienie:** Trivy nadal raportowal stare wersje z warstwy bazowej aktywnego digestu, mimo ze aplikacja importowala poprawione kopie z `/root/.local`. Runtime nie potrzebuje menedzera pakietow.
+- **Weryfikacja:** `docker buildx build --check --pull=false --network=none` nie zglosil bledow Dockerfile. Nie zbudowano ani nie przeskanowano obrazu lokalnie; pelny build i SBOM wymagaja CI po pushu. `git diff --check` przechodzi.
+- **Spodziewany efekt:** Nowy obraz powinien zawierac tylko poprawione kopie tych pakietow, ograniczyc skanerowe residual findings i usunac `pip` z runtime. Flux image automation wdrozy go tylko na instancjach 1-2.
