@@ -6,7 +6,7 @@ tinycss2==1.5.1
 Twisted==26.10.0rc1
 channels==4.3.2
 channels_redis==4.3.0
-msgpack==1.2.1
+msgpack==1.2.4
 cryptography==50.0.2
 daphne==4.2.2
 Django==6.0.9
@@ -27,7 +27,7 @@ django-watchfiles==1.4.0
 firebase-admin==7.4.0
 python-dotenv==1.2.2
 redis==7.4.0
-setuptools==80.9.0
+setuptools==84.1.0
 urllib3==2.8.0
 whitenoise==6.12.0
 pytest==9.0.3

@@ -729,3 +729,11 @@
 - **UI:** Statyczny wariant `.tw-chat-count--section` umieszcza sumę bezpośrednio po nazwie działu i jest ukrywany dla zera.
 - **Testy:** Test widoku czatu sprawdza sumę trzech nieprzeczytanych wiadomości z dwóch pokoi oraz osobny licznik pokoju.
 - **Spodziewany efekt:** Użytkownik może ocenić liczbę nowych wiadomości w każdym obszarze jeszcze przed rozwinięciem działu.
+
+## 2026-10-31: Aktualizacja pinow zaleznosci bezpieczenstwa Wikikracji
+
+- **Zmienione obszary:** `requirements.txt`.
+- **Co sie zmienilo:** `msgpack` zaktualizowano z `1.2.1` do `1.2.4`, a `setuptools` z `80.9.0` do `84.1.0`; `urllib3==2.8.0` pozostawiono bez zmian.
+- **Uzasadnienie:** VulnerabilityReport dla aktywnego digestu Wikikracji zglaszal High dla msgpack oraz vendored `jaraco.context`/`wheel` powiazanych z setuptools. Poprawki wymagaja nowego obrazu; aktywnego obrazu ani wdrozen nie zmieniano.
+- **Weryfikacja:** `.venv` uzywa Python `3.14.3`; `pip check` nie wykryl niespojnosci, a parser potwierdzil zadane piny. `.venv` nadal zawiera poprzednie wersje bibliotek, wiec nie jest to test nowych pakietow. Nie instalowano pakietow, nie uruchamiano testow ani builda.
+- **Spodziewany efekt:** Nastepny obraz bedzie zawieral poprawione wersje zaleznosci aplikacyjnej; CI, skan nowego digestu i rollout pozostaja do wykonania.
