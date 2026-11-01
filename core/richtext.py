@@ -129,7 +129,7 @@ _TAG_RE = re.compile(r'<[^>]+>')
 
 def strip_tags(text: str) -> str:
     """Remove all HTML tags — for plain-text snippets (notifications, quotes)."""
-    return _TAG_RE.sub('', text or '')
+    return _TAG_RE.sub('', str(text or ''))
 
 
 def plain_text(html: str, max_length: int | None = None) -> str:

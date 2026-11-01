@@ -7,6 +7,7 @@ filter / RichTextWidget initial value nie produkował ghost empty lines.
 """
 
 from django.test import TestCase
+from django.utils.translation import gettext_lazy
 
 from core.richtext import one_line_snippet, plain_text, sanitize, sanitize_tinymce, strip_tags
 
@@ -128,6 +129,9 @@ class StripTagsTests(TestCase):
     def test_empty(self):
         self.assertEqual(strip_tags(''), '')
         self.assertEqual(strip_tags(None), '')
+
+    def test_lazy_translation(self):
+        self.assertEqual(strip_tags(gettext_lazy('<b>Translated</b>')), 'Translated')
 
 
 class PlainTextTests(TestCase):
