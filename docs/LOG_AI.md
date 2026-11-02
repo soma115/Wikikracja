@@ -6,6 +6,14 @@
 - **Uzasadnienie:** Jedno konto nie powinno byc probowane przez dwa niezalezne mechanizmy w tym samym przebiegu, a traceback pomoze wskazac konkretna operacje naruszajaca FK.
 - **Spodziewany efekt:** Brak powtorzonej proby usuniecia konta z wnioskiem oraz latwiejsza diagnoza przyszlych bledow FK bez zmiany semantyki terminu prosby.
 
+# 2026-11-02: Inicjaly osob w codziennym e-mailu
+
+- **Zmienione obszary:** sekcja prosb o dolaczenie do zespolow w codziennym e-mailu oraz jej test regresji.
+- **Co sie zmienilo:** zamiast pelnego imienia i nazwiska sekcja wykorzystuje istniejacy helper `user_initials`.
+- **Testy:** zaktualizowano test wysylki e-maila, aby sprawdzal inicjaly i brak pelnego nazwiska.
+- **Uzasadnienie:** ograniczenie ujawnianych danych osobowych w e-mailu bez dodawania nowej logiki formatowania.
+- **Spodziewany efekt:** osoby chcace dolaczyc do zespolu sa identyfikowane inicjalami.
+
 # LOG_AI
 
 ## 2026-10-24: Usuwanie wszystkich obrazow podczas edycji czatu

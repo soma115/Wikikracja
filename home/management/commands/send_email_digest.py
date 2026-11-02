@@ -176,14 +176,7 @@ class Command(TranslatedCommand):
             .select_related('task', 'user')
             .order_by('task__title', 'user__username', 'pk')
         )
-        return [
-            {
-                'helper_name': one_line_snippet(vote.user.get_full_name() or vote.user.username, 120),
-                'task_title': one_line_snippet(vote.task.title, 200),
-                'url': build_site_url(reverse('tasks:detail', args=[vote.task_id])),
-            }
-            for vote in votes
-        ]
+        return [{'helper_name': user_initials(vote.user), 'task_title': one_line_snippet(vote.task.title, 200), 'url': build_site_url(reverse('tasks:detail', args=[vote.task_id]))} for vote in votes]
 
     @staticmethod
     def _get_restarted_votes(since):

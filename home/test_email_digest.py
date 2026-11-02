@@ -475,6 +475,9 @@ class SendEmailDigestCommandTest(TransactionTestCase):
     def test_digest_puts_pending_team_requests_first_and_sends_without_other_activity(self):
         coordinator = self._make_active_user('team-coordinator', 'coordinator@example.com')
         helper = self._make_active_user('team-helper', 'helper@example.com')
+        helper.first_name = 'Jan'
+        helper.last_name = 'Kowalski'
+        helper.save(update_fields=['first_name', 'last_name'])
         approved_helper = self._make_active_user('approved-helper', 'approved@example.com')
         task = Task.objects.create(title='Digest team task', description='', created_by=coordinator, assigned_to=coordinator)
         TaskVote.objects.create(task=task, user=helper, value=TaskVote.Value.UP)
@@ -489,7 +492,8 @@ class SendEmailDigestCommandTest(TransactionTestCase):
         assert str(_('People who want to join your teams')) in email.body
         assert str(_('Open an activity page and approve each person if you want them to join its team.')) in email.body
         assert 'Digest team task' in email.body
-        assert helper.username in email.body
+        assert 'JK' in email.body
+        assert 'Jan Kowalski' not in email.body
         assert f'/tasks/{task.pk}/' in email.body
         digest_intro_index = email.body.rindex(str(_('Activity digest')))
         request_section = email.body[:digest_intro_index]
