@@ -13,9 +13,11 @@
       group: opts.group || undefined,
       handle: opts.handle || undefined,
       animation: 150,
+      forceFallback: opts.forceFallback === true,
       ghostClass: 'tw-sortable-ghost',
       chosenClass: 'tw-sortable-chosen',
       onStart: opts.onStart || undefined,
+      onMove: opts.onMove || undefined,
       onEnd: function (event) {
         if (opts.onEnd) opts.onEnd(event);
         var items = opts.serialize

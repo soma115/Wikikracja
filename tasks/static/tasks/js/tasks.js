@@ -444,15 +444,76 @@
     var lists = Array.from(document.querySelectorAll('[data-subtask-sort-list]'));
     if (!lists.length || !window.TASK_SUBTASK_REORDER_URL || typeof window.initSortableList !== 'function') return;
 
-    function showEmptyNestedDropTargets() {
-      document.querySelectorAll('[data-subtask-drop-target]').forEach(function (target) {
-        target.classList.remove('tw-hidden');
-      });
+    var expandedParent = null;
+    var expandedParentPaddingClass = 'tw-pb-[var(--subtask-drag-space)]';
+
+    function canNestIn(targetList, dragEl) {
+      if (!targetList.dataset.parentId) return false;
+      var parentItem = targetList.closest('li[data-id]');
+      if (!parentItem || parentItem.dataset.parentId || parentItem === dragEl) return false;
+
+      var childList = Array.from(dragEl.children).find(function (el) { return el.matches('[data-subtask-sort-list]'); });
+      return !childList || !Array.from(childList.children).some(function (child) { return child.dataset.id; });
     }
 
-    function hideEmptyNestedDropTargets() {
+    function getNestingTargetList(event) {
+      if (event.to && event.to.dataset.parentId) return event.to;
+
+      var related = event.related;
+      if (!related || typeof related.closest !== 'function') return null;
+      var relatedList = related.closest('[data-subtask-drop-target]');
+      if (relatedList) return relatedList;
+
+      var parentItem = related.closest('li[data-id]');
+      if (!parentItem || parentItem.dataset.parentId) return null;
+      return Array.from(parentItem.children).find(function (el) { return el.matches('[data-subtask-drop-target]'); });
+    }
+
+    function clearExpandedParent() {
+      if (!expandedParent) return;
+      expandedParent.classList.remove(expandedParentPaddingClass);
+      expandedParent.style.removeProperty('--subtask-drag-space');
+      expandedParent = null;
+    }
+
+    function updateExpandedParent(event) {
+      var targetList = event && getNestingTargetList(event);
+      var dragEl = event && event.dragged;
+      var nextParent = targetList && dragEl && canNestIn(targetList, dragEl)
+        ? targetList.closest('li[data-id]')
+        : null;
+
+      if (expandedParent === nextParent) return;
+      clearExpandedParent();
+      if (!nextParent) return;
+
+      var basePadding = parseFloat(window.getComputedStyle(nextParent).paddingBottom) || 0;
+      var reservedSpace = basePadding + dragEl.offsetHeight;
+      nextParent.style.setProperty('--subtask-drag-space', reservedSpace + 'px');
+      nextParent.classList.add(expandedParentPaddingClass);
+      expandedParent = nextParent;
+    }
+
+    function updateNestedDropTargets(dragEl, isDragging) {
+      var draggedItemHasChildren = dragEl && Array.from(dragEl.children).some(function (el) {
+        return el.matches('[data-subtask-sort-list]') &&
+          Array.from(el.children).some(function (child) { return child.dataset.id; });
+      });
+
       document.querySelectorAll('[data-subtask-drop-target]').forEach(function (target) {
-        target.classList.add('tw-hidden');
+        var parentItem = target.closest('li[data-id]');
+        var isEmpty = !Array.from(target.children).some(function (child) { return child.dataset.id; });
+        var canNest = isDragging && !draggedItemHasChildren && parentItem !== dragEl;
+
+        if (canNest) {
+          target.classList.remove('tw-hidden');
+          target.classList.add('tw-border-2', 'tw-border-dashed', 'tw-border-subtle', 'tw-rounded', 'tw-max-h-[var(--subtask-drop-target-height)]');
+          target.style.setProperty('--subtask-drop-target-height', target.offsetHeight + 'px');
+        } else {
+          target.classList.remove('tw-border-2', 'tw-border-dashed', 'tw-border-subtle', 'tw-rounded', 'tw-max-h-[var(--subtask-drop-target-height)]');
+          target.style.removeProperty('--subtask-drop-target-height');
+          if (isEmpty) target.classList.add('tw-hidden');
+        }
       });
     }
 
@@ -460,20 +521,22 @@
       window.initSortableList(list, {
         reorderUrl: window.TASK_SUBTASK_REORDER_URL,
         handle: '[data-subtask-handle]',
+        forceFallback: true,
         group: {
           name: 'task-subtasks-' + window.TASK_ID,
           pull: true,
           put: function (to, from, dragEl) {
             if (!to.el.dataset.parentId) return true;
-            var parentItem = to.el.closest('li[data-id]');
-            if (!parentItem || parentItem.dataset.parentId || parentItem === dragEl) return false;
-            var childList = Array.from(dragEl.children).find(function (el) { return el.matches('[data-subtask-sort-list]'); });
-            return !childList || !Array.from(childList.children).some(function (child) { return child.dataset.id; });
+            return canNestIn(to.el, dragEl);
           },
         },
         serialize: serializeSubtaskTree,
-        onStart: showEmptyNestedDropTargets,
-        onEnd: hideEmptyNestedDropTargets,
+        onStart: function (event) { updateNestedDropTargets(event.item, true); },
+        onMove: updateExpandedParent,
+        onEnd: function () {
+          updateNestedDropTargets(null, false);
+          clearExpandedParent();
+        },
         onSaved: function () { window.location.reload(); },
         onError: function () { window.location.reload(); },
       });

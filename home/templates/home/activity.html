@@ -57,7 +57,7 @@
               <span class="tw-feed-avatar">
                 {% include "home/_user_avatar.html" with user=item.author size="sm" %}
               </span>
-              <span>{{ item.author|display_name }}</span>
+              <span class="tw-hidden md:tw-inline">{{ item.author|display_name }}</span>
             </span>
             {% endif %}
             {% if item.status_label %}

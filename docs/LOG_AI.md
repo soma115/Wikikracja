@@ -753,3 +753,11 @@
 - **Uzasadnienie:** Trivy nadal raportowal stare wersje z warstwy bazowej aktywnego digestu, mimo ze aplikacja importowala poprawione kopie z `/root/.local`. Runtime nie potrzebuje menedzera pakietow.
 - **Weryfikacja:** `docker buildx build --check --pull=false --network=none` nie zglosil bledow Dockerfile. Nie zbudowano ani nie przeskanowano obrazu lokalnie; pelny build i SBOM wymagaja CI po pushu. `git diff --check` przechodzi.
 - **Spodziewany efekt:** Nowy obraz powinien zawierac tylko poprawione kopie tych pakietow, ograniczyc skanerowe residual findings i usunac `pip` z runtime. Flux image automation wdrozy go tylko na instancjach 1-2.
+
+## 2026-11-03: Strefy zagnieżdżania podzadań
+
+- **Zmienione obszary:** widok szczegółów zadania, interakcje drag-and-drop podzadań i testy.
+- **Co się zmieniło:** Podczas przeciągania dostępne listy zagnieżdżonych podzadań otrzymują przerywaną ramkę w kolorze subtelnego obramowania. Jej rozmiar pozostaje stały także wtedy, gdy Sortable umieszcza w niej przeciągane zadanie, a puste cele zachowują takie samo wcięcie jak zagnieżdżone podzadania. Ramka nadrzędnego zadania rezerwuje wysokość przeciąganego podzadania po najechaniu na jego strefę zagnieżdżenia. Sortowanie podzadań używa trybu fallback Sortable, aby pokazywać placeholder podczas przeciągania. Tag `spaceless` usuwa białe znaki tworzące tekstowe węzły bezpośrednio w listach HTML.
+- **Fokus formularza:** Pole tytułu podzadania otrzymało `autofocus`, obsługiwane przez wspólny modal po otwarciu.
+- **Uzasadnienie:** Rozszerzenie widocznych celów drag-and-drop ułatwia przenoszenie podzadań bez zmiany obowiązującego limitu jednego poziomu zagnieżdżenia.
+- **Weryfikacja:** Przeszły testy Jest dla interakcji podzadań, 11 testów Django `TaskSubtaskViewTest`, `regression_scan.py` i `ui_guard.py`; przebudowano CSS Tailwind.

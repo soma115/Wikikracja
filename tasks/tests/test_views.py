@@ -921,13 +921,15 @@ class TaskSubtaskViewTest(TestCase):
         self.task.approve_helper(self.helper)
         self.subtask = TaskSubtask.objects.create(task=self.task, title="Pierwsze", order=0)
 
-    def test_empty_nested_task_list_is_a_hidden_drag_target(self):
+    def test_nested_task_drop_targets_expand_for_empty_and_populated_parents(self):
+        TaskSubtask.objects.create(task=self.task, parent=self.subtask, title="Dziecko", order=0)
+        TaskSubtask.objects.create(task=self.task, title="Drugie", order=1)
         self.client.force_login(self.coordinator)
         response = self.client.get(reverse("tasks:detail", kwargs={"pk": self.task.pk}))
         self.assertNotContains(response, "Drop a task here to nest it.")
-        self.assertNotContains(response, "tw-min-h-8")
-        self.assertContains(response, "data-subtask-drop-target")
-        self.assertContains(response, "tw-hidden tw-absolute tw-inset-0")
+        self.assertEqual(response.content.count(b"data-subtask-drop-target"), 2)
+        self.assertContains(response, "tw-hidden tw-min-h-10 tw-mt-2 tw-ms-6 tw-border-l tw-border-subtle tw-ps-3")
+        self.assertContains(response, "tw-border-l tw-border-subtle")
 
     def test_subtask_name_editing_uses_a_modal_and_renders_nested_items(self):
         child = TaskSubtask.objects.create(task=self.task, parent=self.subtask, title="Dziecko", order=0)
@@ -936,6 +938,9 @@ class TaskSubtaskViewTest(TestCase):
         self.assertContains(response, 'id="editSubtaskModal"')
         self.assertContains(response, "data-subtask-edit")
         self.assertContains(response, "data-subtask-delete")
+        self.assertContains(response, 'id="editSubtaskTitle" class="tw-form-control" type="text" name="title" maxlength="240" required autofocus')
+        self.assertContains(response, 'data-parent-id=""><li')
+        self.assertContains(response, f'data-parent-id="{self.subtask.pk}" data-subtask-drop-target><li')
         self.assertNotContains(response, "/indent/")
         self.assertNotContains(response, "/outdent/")
         self.assertNotContains(response, "/move/up/")

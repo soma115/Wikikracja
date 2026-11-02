@@ -155,20 +155,40 @@ describe('task detail interactions', () => {
     expect(document.querySelector('[data-subtask-save-label]').textContent).toBe('Add');
   });
 
+  test('enables Sortable fallback mode for visible subtask placeholders', () => {
+    const sortableListSource = fs.readFileSync(
+      path.resolve(__dirname, '../../../../../home/static/home/js/sortable-list.js'),
+      'utf8'
+    );
+    window.Sortable = { create: jest.fn() };
+    new Function(sortableListSource)();
+    const list = document.createElement('ul');
+
+    window.initSortableList(list, { forceFallback: true });
+
+    expect(window.Sortable.create).toHaveBeenCalledWith(
+      list,
+      expect.objectContaining({ forceFallback: true, ghostClass: 'tw-sortable-ghost' })
+    );
+    delete window.Sortable;
+  });
+
   test('initializes nested sortable lists and serializes parent and sibling order', () => {
-    document.body.innerHTML = '<ul data-subtask-sort-list data-parent-id=""><li data-id="1" data-parent-id=""><ul data-subtask-sort-list data-parent-id="1"><li data-id="2" data-parent-id="1"></li></ul></li><li data-id="3" data-parent-id=""><ul class="tw-hidden" data-subtask-sort-list data-parent-id="3" data-subtask-drop-target></ul></li><li data-id="4" data-parent-id=""></li></ul>';
+    document.body.innerHTML = '<ul data-subtask-sort-list data-parent-id=""><li data-id="1" data-parent-id=""><ul data-subtask-sort-list data-parent-id="1" data-subtask-drop-target><li data-id="2" data-parent-id="1"></li></ul></li><li data-id="3" data-parent-id=""><ul class="tw-hidden tw-min-h-10" data-subtask-sort-list data-parent-id="3" data-subtask-drop-target></ul></li><li data-id="4" data-parent-id=""><ul class="tw-hidden tw-min-h-10" data-subtask-sort-list data-parent-id="4" data-subtask-drop-target></ul></li></ul>';
     window.TASK_SUBTASK_REORDER_URL = '/tasks/1/subtasks/reorder/';
     readyCallback();
 
-    expect(window.initSortableList).toHaveBeenCalledTimes(3);
+    expect(window.initSortableList).toHaveBeenCalledTimes(4);
     const [rootList, rootOptions] = window.initSortableList.mock.calls[0];
     const childList = document.querySelector('[data-parent-id="1"][data-subtask-sort-list]');
-    const emptyDropTarget = document.querySelector('[data-subtask-drop-target]');
+    const emptyDropTarget = document.querySelector('[data-subtask-drop-target][data-parent-id="3"]');
     expect(rootList.dataset.parentId).toBe('');
     expect(rootOptions.reorderUrl).toBe('/tasks/1/subtasks/reorder/');
     expect(rootOptions.handle).toBe('[data-subtask-handle]');
+    expect(rootOptions.forceFallback).toBe(true);
     expect(rootOptions.group.name).toBe('task-subtasks-1');
     expect(rootOptions.onStart).toBeInstanceOf(Function);
+    expect(rootOptions.onMove).toBeInstanceOf(Function);
     expect(rootOptions.onEnd).toBeInstanceOf(Function);
     expect(rootOptions.serialize()).toEqual([
       { id: 1, parent_id: null, order: 0 },
@@ -179,10 +199,37 @@ describe('task detail interactions', () => {
     expect(rootOptions.group.put({ el: childList }, rootList, document.querySelector('li[data-id="1"]'))).toBe(false);
     expect(rootOptions.group.put({ el: emptyDropTarget }, rootList, document.querySelector('li[data-id="3"]'))).toBe(false);
     expect(rootOptions.group.put({ el: emptyDropTarget }, rootList, document.querySelector('li[data-id="4"]'))).toBe(true);
+    Object.defineProperty(childList, 'offsetHeight', { configurable: true, value: 72 });
 
-    rootOptions.onStart();
+    const emptyParent = emptyDropTarget.closest('li[data-id]');
+    const draggedItem = document.querySelector('li[data-id="2"]');
+    const expandedParentClass = 'tw-pb-[var(--subtask-drag-space)]';
+    Object.defineProperty(draggedItem, 'offsetHeight', { configurable: true, value: 48 });
+    const occupiedParent = childList.closest('li[data-id]');
+    const getComputedStyle = jest.spyOn(window, 'getComputedStyle').mockReturnValue({ paddingBottom: '8px' });
+
+    rootOptions.onMove({ to: rootList, related: emptyParent, dragged: draggedItem });
+    expect(emptyParent.classList.contains(expandedParentClass)).toBe(true);
+    expect(emptyParent.style.getPropertyValue('--subtask-drag-space')).toBe('56px');
+    rootOptions.onMove({ to: childList, dragged: draggedItem });
+    expect(emptyParent.classList.contains(expandedParentClass)).toBe(false);
+    expect(emptyParent.style.getPropertyValue('--subtask-drag-space')).toBe('');
+    expect(occupiedParent.classList.contains(expandedParentClass)).toBe(true);
+
+    rootOptions.onStart({ item: document.querySelector('li[data-id="2"]') });
     expect(emptyDropTarget.classList.contains('tw-hidden')).toBe(false);
-    rootOptions.onEnd();
+    expect(childList.classList.contains('tw-border-dashed')).toBe(true);
+    expect(childList.classList.contains('tw-border-subtle')).toBe(true);
+    expect(childList.classList.contains('tw-max-h-[var(--subtask-drop-target-height)]')).toBe(true);
+    expect(childList.style.getPropertyValue('--subtask-drop-target-height')).toBe('72px');
+    rootOptions.onEnd({});
+    expect(occupiedParent.classList.contains(expandedParentClass)).toBe(false);
+    expect(occupiedParent.style.getPropertyValue('--subtask-drag-space')).toBe('');
     expect(emptyDropTarget.classList.contains('tw-hidden')).toBe(true);
+    expect(childList.classList.contains('tw-border-dashed')).toBe(false);
+    expect(childList.classList.contains('tw-border-subtle')).toBe(false);
+    expect(childList.classList.contains('tw-max-h-[var(--subtask-drop-target-height)]')).toBe(false);
+    expect(childList.style.getPropertyValue('--subtask-drop-target-height')).toBe('');
+    getComputedStyle.mockRestore();
   });
 });

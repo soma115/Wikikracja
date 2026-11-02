@@ -45,9 +45,8 @@
       <h2 id="task-items-heading" class="tw-text-lg tw-font-semibold tw-mb-0">{% trans "Tasks" %}</h2>
     </div>
     <div class="tw-card-body">
-      <ul class="tw-list-unstyled tw-space-y-2 tw-mb-0"{% if can_manage_subtasks %} data-subtask-sort-list data-parent-id=""{% endif %}>
-        {% for subtask in subtask_roots %}
-          <li class="tw-p-2 tw-border tw-rounded tw-relative" data-id="{{ subtask.pk }}" data-parent-id="">
+      {% spaceless %}
+      <ul class="tw-list-unstyled tw-space-y-2 tw-mb-0"{% if can_manage_subtasks %} data-subtask-sort-list data-parent-id=""{% endif %}>{% for subtask in subtask_roots %}<li class="tw-p-2 tw-border tw-rounded tw-relative" data-id="{{ subtask.pk }}" data-parent-id="">
             <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
               {% if can_manage_subtasks %}<span class="tw-drag-handle" data-subtask-handle aria-hidden="true"><i class="fas fa-grip-vertical" aria-hidden="true"></i></span>{% endif %}
               {% if can_manage_subtasks %}
@@ -68,9 +67,7 @@
               {% endif %}
             </div>
             {% if can_manage_subtasks or subtask.children.all %}
-              <ul class="tw-list-unstyled{% if subtask.children.all %} tw-space-y-2 tw-mt-2 tw-ms-6 tw-border-l tw-border-subtle tw-ps-3{% elif can_manage_subtasks %} tw-hidden tw-absolute tw-inset-0 tw-z-10 tw-rounded tw-border-2 tw-border-dashed tw-border-subtle{% endif %}"{% if can_manage_subtasks %} data-subtask-sort-list data-parent-id="{{ subtask.pk }}"{% if not subtask.children.all %} data-subtask-drop-target{% endif %}{% endif %}>
-                {% for child in subtask.children.all %}
-                  <li class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-p-2 tw-border tw-rounded" data-id="{{ child.pk }}" data-parent-id="{{ subtask.pk }}">
+              <ul class="tw-list-unstyled{% if subtask.children.all %} tw-space-y-2 tw-mt-2 tw-ms-6 tw-border-l tw-border-subtle tw-ps-3{% elif can_manage_subtasks %} tw-hidden tw-min-h-10 tw-mt-2 tw-ms-6 tw-border-l tw-border-subtle tw-ps-3 tw-rounded{% endif %}"{% if can_manage_subtasks %} data-subtask-sort-list data-parent-id="{{ subtask.pk }}" data-subtask-drop-target{% endif %}>{% for child in subtask.children.all %}<li class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-p-2 tw-border tw-rounded" data-id="{{ child.pk }}" data-parent-id="{{ subtask.pk }}">
                     {% if can_manage_subtasks %}
                       <span class="tw-drag-handle" data-subtask-handle aria-hidden="true"><i class="fas fa-grip-vertical" aria-hidden="true"></i></span>
                       <form method="post" action="{% url 'tasks:subtask_toggle' task.pk child.pk %}" class="tw-flex tw-items-center tw-gap-2" data-subtask-toggle-form>
@@ -88,16 +85,10 @@
                         <span class="{% if child.is_completed %}tw-line-through tw-text-muted{% endif %}">{{ child.title }}</span>
                       </div>
                     {% endif %}
-                  </li>
-                {% empty %}
-                {% endfor %}
-              </ul>
+                  </li>{% empty %}{% endfor %}</ul>
             {% endif %}
-          </li>
-        {% empty %}
-          <li class="tw-text-muted">{% trans "No tasks yet." %}</li>
-        {% endfor %}
-      </ul>
+          </li>{% empty %}<li class="tw-text-muted">{% trans "No tasks yet." %}</li>{% endfor %}</ul>
+      {% endspaceless %}
       {% if can_manage_subtasks %}
         <div class="tw-mt-3">
           <button type="button" class="tw-btn tw-btn-primary" data-subtask-add data-add-url="{% url 'tasks:subtask_add' task.pk %}" data-tw-toggle="modal" data-tw-target="#editSubtaskModal">
@@ -290,7 +281,7 @@
             {% csrf_token %}
             <div class="tw-modal-body">
               <label class="tw-form-label" for="editSubtaskTitle">{% trans "Task title" %}</label>
-              <input id="editSubtaskTitle" class="tw-form-control" type="text" name="title" maxlength="240" required>
+              <input id="editSubtaskTitle" class="tw-form-control" type="text" name="title" maxlength="240" required autofocus>
             </div>
             <div class="tw-modal-footer">
               <button type="button" class="tw-btn tw-btn-secondary" data-tw-dismiss="modal">{% trans "Cancel" %}</button>

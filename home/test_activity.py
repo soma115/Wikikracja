@@ -185,7 +185,9 @@ def test_activity_renders_author_avatar(client, activity_user, settings, tmp_pat
 
     response = client.get(reverse('activity'))
 
-    assert 'src="/media/avatars/activity-avatar.png"' in response.content.decode()
+    content = response.content.decode()
+    assert 'src="/media/avatars/activity-avatar.png"' in content
+    assert 'class="tw-hidden md:tw-inline"' in content
 
 
 @pytest.mark.django_db

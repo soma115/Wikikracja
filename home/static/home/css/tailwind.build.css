@@ -11103,10 +11103,6 @@ body.tw-chat-page .tw-main-area {
   position: relative;
 }
 
-.tw-inset-0 {
-  inset: 0px;
-}
-
 .tw-bottom-0 {
   bottom: 0px;
 }
@@ -11125,10 +11121,6 @@ body.tw-chat-page .tw-main-area {
 
 .tw-z-0 {
   z-index: 0;
-}
-
-.tw-z-10 {
-  z-index: 10;
 }
 
 .tw-z-50 {
@@ -11341,8 +11333,16 @@ body.tw-chat-page .tw-main-area {
   max-height: 24rem;
 }
 
+.tw-max-h-\[var\(--subtask-drop-target-height\)\] {
+  max-height: var(--subtask-drop-target-height);
+}
+
 .tw-min-h-0 {
   min-height: 0px;
+}
+
+.tw-min-h-10 {
+  min-height: 2.5rem;
 }
 
 .tw-min-h-60 {
@@ -11762,6 +11762,10 @@ body.tw-chat-page .tw-main-area {
   padding-bottom: 0.75rem;
 }
 
+.tw-pb-\[var\(--subtask-drag-space\)\] {
+  padding-bottom: var(--subtask-drag-space);
+}
+
 .tw-ps-3 {
   padding-inline-start: 0.75rem;
 }
@@ -12016,6 +12020,10 @@ body.tw-chat-page .tw-main-area {
 
   .md\:tw-block {
     display: block;
+  }
+
+  .md\:tw-inline {
+    display: inline;
   }
 
   .md\:tw-hidden {
