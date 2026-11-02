@@ -472,6 +472,28 @@ class SendEmailDigestCommandTest(TransactionTestCase):
         assert email.body.index(str(_('Important: voting was restarted after a technical failure'))) < email.body.index('Restarted referendum')
         assert 'Restarted referendum' in email.alternatives[0][0]
 
+    def test_digest_includes_referenda_ending_today_without_other_activity(self):
+        user = self._make_active_user('ending-vote-recipient', 'ending-vote@example.com')
+        today = timezone.localdate(FIXED_NOW)
+        ending_today = Decyzja.objects.create(title='Referendum ending today', status=Decyzja.Status.REFERENDUM, data_referendum_stop=today)
+        Decyzja.objects.create(title='Referendum ending yesterday', status=Decyzja.Status.REFERENDUM, data_referendum_stop=today - td(days=1))
+        Decyzja.objects.create(title='Referendum ending tomorrow', status=Decyzja.Status.REFERENDUM, data_referendum_stop=today + td(days=1))
+        Decyzja.objects.create(title='Discussion ending today', status=Decyzja.Status.DISCUSSION, data_referendum_stop=today)
+
+        with patch('home.management.commands.send_email_digest.build_user_digest', return_value=[]):
+            self._run_digest()
+
+        email = next(email for email in mail.outbox if user.email in email.to)
+        html = email.alternatives[0][0]
+        assert 'Referendum ending today' in email.body
+        assert f'/glosowania/details/{ending_today.pk}/' in email.body
+        assert 'Referendum ending today' in html
+        assert f'/glosowania/details/{ending_today.pk}/' in html
+        assert str(_('This is the last day to vote!')) in email.body
+        assert 'Referendum ending yesterday' not in email.body
+        assert 'Referendum ending tomorrow' not in email.body
+        assert 'Discussion ending today' not in email.body
+
     def test_digest_puts_pending_team_requests_first_and_sends_without_other_activity(self):
         coordinator = self._make_active_user('team-coordinator', 'coordinator@example.com')
         helper = self._make_active_user('team-helper', 'helper@example.com')

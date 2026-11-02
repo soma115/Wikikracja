@@ -389,6 +389,15 @@
               </div>
               {% endif %}
 
+              {% if ending_votes %}
+              <div class="email-critical">
+                <p class="email-critical-title">{{ ending_votes_title }}</p>
+                {% for vote in ending_votes %}
+                <div class="email-critical-item">&bull; <a href="{{ vote.url }}">{{ vote.title }}</a></div>
+                {% endfor %}
+              </div>
+              {% endif %}
+
               <div class="email-intro-panel">
                 <p class="email-intro">{{ digest_intro }}</p>
               </div>

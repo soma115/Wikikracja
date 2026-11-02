@@ -12,6 +12,11 @@
   {{ vote.url }}
 {% endfor %}
 {% endif %}
+{% if ending_votes %}!!! {{ ending_votes_title }} !!!
+{% for vote in ending_votes %}- {{ vote.title }}
+  {{ vote.url }}
+{% endfor %}
+{% endif %}
 {{ digest_intro }}
 
 {% for section in sections %}=== {{ section.label }} ===

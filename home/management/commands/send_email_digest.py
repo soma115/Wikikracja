@@ -117,6 +117,7 @@ class Command(TranslatedCommand):
 
         sent = 0
         skipped = 0
+        ending_votes = self._get_referenda_ending_today(timezone.localdate(now))
 
         for user in profiles:
             profile = user.uzytkownik
@@ -129,7 +130,7 @@ class Command(TranslatedCommand):
             team_requests = self._get_pending_team_requests(user)
             items = build_user_digest(user, since)
 
-            if not items and not restarted_votes and not team_requests:
+            if not items and not restarted_votes and not ending_votes and not team_requests:
                 profile.last_email_digest_at = now
                 profile.save(update_fields=['last_email_digest_at'])
                 skipped += 1
@@ -137,7 +138,7 @@ class Command(TranslatedCommand):
                 continue
 
             with override(get_user_language(user)):
-                context = self._build_digest_context(user, items, restarted_votes, team_requests)
+                context = self._build_digest_context(user, items, restarted_votes, team_requests, ending_votes=ending_votes)
                 subject = _('[{HOST}] Activity digest').format(HOST=self.host)
                 text = _collapse_excess_newlines(render_to_string('emails/digest.txt', context))
                 html = render_to_string('emails/digest.html', context)
@@ -186,7 +187,15 @@ class Command(TranslatedCommand):
             for decision in Decyzja.objects.filter(referendum_restart_count__gt=0, data_ostatniej_modyfikacji__gte=since).order_by('-data_ostatniej_modyfikacji', 'pk')
         ]
 
-    def _build_digest_context(self, user, items, restarted_votes=None, team_requests=None):
+    @staticmethod
+    def _get_referenda_ending_today(today):
+        """Return active referenda whose final voting day is today."""
+        return [
+            {'title': decision.title or _('Untitled referendum'), 'url': build_site_url(f'/glosowania/details/{decision.pk}/')}
+            for decision in Decyzja.objects.filter(status=Decyzja.Status.REFERENDUM, data_referendum_stop=today).order_by('title', 'pk')
+        ]
+
+    def _build_digest_context(self, user, items, restarted_votes=None, team_requests=None, ending_votes=None):
         since_dt = user.uzytkownik.last_email_digest_at
         since_str = since_dt.strftime('%d.%m.%Y %H:%M') if since_dt else '-'
 
@@ -240,6 +249,8 @@ class Command(TranslatedCommand):
             'restarted_votes': restarted_votes or [],
             'restarted_votes_title': _('Important: voting was restarted after a technical failure'),
             'restarted_votes_intro': _('Votes cast before the failure were lost and these referenda have started again. Please vote again:'),
+            'ending_votes': ending_votes or [],
+            'ending_votes_title': _('This is the last day to vote!'),
             'team_requests': team_requests or [],
             'team_requests_title': _('People who want to join your teams'),
             'team_requests_intro': _('Open an activity page and approve each person if you want them to join its team.'),
