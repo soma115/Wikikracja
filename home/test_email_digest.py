@@ -487,6 +487,20 @@ class SendEmailDigestCommandTest(TransactionTestCase):
         assert email.body.index(str(_('Important: voting was restarted after a technical failure'))) < email.body.index('Restarted referendum')
         assert 'Restarted referendum' in email.alternatives[0][0]
 
+    def test_digest_includes_only_restarts_since_previous_digest(self):
+        user = self._make_active_user('restart-window', 'restart-window@example.com')
+        old_restart = Decyzja.objects.create(title='Old restarted referendum', referendum_restart_count=1)
+        recent_restart = Decyzja.objects.create(title='Recent restarted referendum', referendum_restart_count=1)
+        since = FIXED_NOW - td(days=1)
+        Decyzja.objects.filter(pk=old_restart.pk).update(data_ostatniej_modyfikacji=since - td(seconds=1))
+        Decyzja.objects.filter(pk=recent_restart.pk).update(data_ostatniej_modyfikacji=since + td(seconds=1))
+
+        self._run_digest()
+
+        email = next(e for e in mail.outbox if user.email in e.to)
+        assert 'Recent restarted referendum' in email.body
+        assert 'Old restarted referendum' not in email.body
+
     def test_digest_includes_referenda_ending_today_without_other_activity(self):
         user = self._make_active_user('ending-vote-recipient', 'ending-vote@example.com')
         today = timezone.localdate(FIXED_NOW)

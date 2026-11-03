@@ -9,6 +9,23 @@
 
 <div class="tw-container tw-my-4">
 {% include 'home/includes/detail_header.html' with title=id.display_title meta_include='glosowania/_detail_meta.html' navigation_include='glosowania/_detail_navigation.html' actions_include='glosowania/_detail_actions.html' %}
+{% if id.referendum_restart_count %}
+<div class="tw-alert tw-alert-warning tw-flex tw-items-start tw-gap-2" role="alert">
+  <i class="fas fa-triangle-exclamation tw-mt-1" aria-hidden="true"></i>
+  <div>
+    <strong>{% trans 'This referendum was restarted after a technical failure.' %}</strong>
+    {% if id.status == id.Status.REFERENDUM %}
+    <p class="tw-mb-0">
+      {% with end_date=id.data_referendum_stop|date:"d.m.Y" %}
+      {% blocktrans %}Votes and verification codes from before the restart are no longer valid. If you voted earlier, please vote again before {{ end_date }}.{% endblocktrans %}
+      {% endwith %}
+    </p>
+    {% else %}
+    <p class="tw-mb-0">{% trans 'Votes and verification codes from earlier rounds were discarded. The result reflects only the final round.' %}</p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
 <div class="tw-flex tw-flex-col tw-gap-3 tw-mb-3">
 
   {# Karta: info + akcja #}

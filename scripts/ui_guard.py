@@ -32,8 +32,9 @@ IGNORED_DIRS = {'.git', '.venv', 'venv', 'node_modules', '__pycache__', '.ruff_c
 # Repo-root directory produced by collectstatic — generated, never scanned.
 GENERATED_DIRS = {'static'}
 
-# Paths intentionally exempt from full UI guard (self-styled docs page).
-EXEMPT_FILES = {'docs/UI_STANDARDS.html'}
+# Self-styled documentation pages and standalone e-mail mockups are outside the
+# production Tailwind pipeline and use their own embedded styles.
+EXEMPT_FILES = {'docs/UI_STANDARDS.html', 'docs/mock_daily_digest_restart.html'}
 
 # Detail pages share a header and page container. Parent templates may provide
 # the container in the future; keep exceptions explicit rather than implicit.

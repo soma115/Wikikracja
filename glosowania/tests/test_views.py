@@ -132,9 +132,38 @@ def test_details_highlights_stepper_for_decision_status(sample_users):
 
     assert response.status_code == 200
     assert response.context['stepper_status'] == Decyzja.Status.REFERENDUM
+    assert str(_('This referendum was restarted after a technical failure.')) not in response.content.decode()
     stepper = glosowania_stepper({'request': response.wsgi_request, 'stepper_status': Decyzja.Status.REFERENDUM})
     assert stepper['steps'][2]['active'] is True
     assert not stepper['info_active']
+
+
+@pytest.mark.django_db
+def test_details_shows_restart_notice_during_open_referendum(sample_users):
+    client = Client()
+    client.force_login(sample_users[0])
+    stop_date = timezone.localdate() + timedelta(days=5)
+    decyzja = Decyzja.objects.create(title='Restarted referendum', tresc='Text', status=Decyzja.Status.REFERENDUM, data_referendum_stop=stop_date, referendum_restart_count=1, author=sample_users[0])
+
+    response = client.get(f'/glosowania/details/{decyzja.pk}/')
+    content = response.content.decode()
+
+    assert str(_('This referendum was restarted after a technical failure.')) in content
+    assert (
+        str(_('Votes and verification codes from before the restart are no longer valid. If you voted earlier, please vote again before %(end_date)s.')) % {'end_date': stop_date.strftime('%d.%m.%Y')} in content
+    )
+
+
+@pytest.mark.django_db
+def test_details_shows_restart_history_after_referendum_closes(sample_users):
+    client = Client()
+    client.force_login(sample_users[0])
+    decyzja = Decyzja.objects.create(title='Restarted referendum', tresc='Text', status=Decyzja.Status.APPROVED, referendum_restart_count=1, author=sample_users[0])
+
+    response = client.get(f'/glosowania/details/{decyzja.pk}/')
+    content = response.content.decode()
+
+    assert str(_('Votes and verification codes from earlier rounds were discarded. The result reflects only the final round.')) in content
 
 
 @pytest.mark.django_db

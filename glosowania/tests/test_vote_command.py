@@ -12,6 +12,7 @@ import pytest
 from django.core.management import call_command
 from django.db import OperationalError
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from glosowania.models import Decyzja, KtoJuzGlosowal, ReferendumEffect, VoteCode
 from site_settings.models import SiteParameters
@@ -143,13 +144,23 @@ def test_closing_referendum_restarts_on_buffer_mismatch(sample_users, caplog):
 
     with (
         patch('glosowania.management.commands.vote.claim_pending_votes', return_value=[{'code': 'aaaaa', 'vote': True}]),
-        patch('core.notifications.send_notification_to_all_sync'),
+        patch('core.notifications.send_notification_to_all_sync') as send_notification,
         patch('glosowania.management.commands.vote.Room.create_all_one2one_rooms'),
         caplog.at_level('WARNING'),
     ):
         call_command('vote')
 
     assert any('vote buffer' in message.lower() for message in caplog.messages)
+    send_notification.assert_called_once()
+    notification = send_notification.call_args.args[0]
+    assert str(_('please vote again')) in notification['body']
+    restart_stop = today + timedelta(days=SiteParameters.get().czas_trwania_referendum)
+    assert str(restart_stop) in notification['body']
+    assert notification['click_action'].endswith(f'/glosowania/details/{decyzja.pk}')
+    assert notification['vote_id'] == decyzja.pk
+    assert send_notification.call_args.kwargs['notification_type'] == 'glosowania'
+    assert send_notification.call_args.kwargs['send_push'] is True
+    assert send_notification.call_args.kwargs['send_websocket'] is True
 
     decyzja.refresh_from_db()
     # No result was ever tallied or revealed.

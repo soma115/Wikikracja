@@ -37,16 +37,12 @@
 
     {% for label, items in parameter_groups %}
       <h6 class="tw-mt-3 tw-text-base tw-font-semibold">{{ label }}</h6>
-      {% spaceless %}<ul class="tw-list-group tw-mb-2">
-        {% for spec, value in items %}
-          <li class="tw-list-group-item">
+      <ul class="tw-list-group tw-mb-2">{% for spec, value in items %}<li class="tw-list-group-item">
             <span>{{ spec.label }}</span>
             <span class="tw-badge-status tw-badge-primary tw-rounded-full">
               {% if spec.kind == 'bool' %}{% if value %}{% trans 'Yes' %}{% else %}{% trans 'No' %}{% endif %}{% else %}{{ value }}{% if spec.unit %} {{ spec.unit }}{% endif %}{% endif %}
             </span>
-          </li>
-        {% endfor %}
-      </ul>{% endspaceless %}
+      </li>{% endfor %}</ul>
     {% endfor %}
   </div>
 
@@ -76,7 +72,7 @@
           {% trans "Everyone who voted is removed from the list of people who already voted." %}
           {% trans "All verification codes issued so far become invalid." %}
           {% trans "Voting restarts from scratch for a full new period." %}
-          {% trans "Everyone is notified by email." %}
+          {% trans "A restart is announced by push notification (if enabled) and included in the Daily Digest according to each user's settings." %}
         </p>
 
         {% if restarted_referendums %}

@@ -210,7 +210,7 @@ class Command(TranslatedCommand):
                             f"{buffer_lost_restart}. {buffer_lost_please_vote}.\n"
                             f"{ends_at} {i.data_referendum_stop}\n{click}: {details_url}"
                         )
-                        _queue_vote_signal(vote_state_changed, i, 'buffer_restart', subject, i.title, subject, body, details_url)
+                        _queue_vote_signal(vote_state_changed, i, 'buffer_restart', subject, body, subject, body, details_url)
                         return
 
                     random.SystemRandom().shuffle(pending_votes)
