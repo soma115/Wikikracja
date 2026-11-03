@@ -924,10 +924,13 @@ def test_double_voting_is_still_blocked_without_writing_a_second_pending_vote(sa
     client.force_login(voter)
 
     with patch('glosowania.views.push_pending_vote') as mock_push:
-        client.post(f'/glosowania/details/{decyzja.pk}/', {'nie': '1'})
+        response = client.post(f'/glosowania/details/{decyzja.pk}/', {'nie': '1'}, follow=True)
 
     mock_push.assert_not_called()
     assert KtoJuzGlosowal.objects.filter(projekt=decyzja, ktory_uzytkownik_juz_zaglosowal=voter).count() == 1
+    message = next(message for message in response.context['messages'] if str(_('You have already voted in this referendum. Your second vote was not saved.')) == str(message))
+    assert 'persist' in message.tags
+    assert 'tw-toast-close' in response.content.decode()
 
 
 @pytest.mark.django_db

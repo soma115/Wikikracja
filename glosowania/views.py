@@ -226,10 +226,14 @@ def _handle_locked_vote(request, pk):
         voted = False
 
     if voted:
-        messages.info(request, _('You have already voted in this referendum'))
+        _add_already_voted_message(request)
     else:
         messages.error(request, _('Voting is temporarily unavailable. Please try again in a moment.'))
     return redirect('glosowania:details', pk)
+
+
+def _add_already_voted_message(request):
+    messages.warning(request, _('You have already voted in this referendum. Your second vote was not saved.'), extra_tags='persist')
 
 
 def _cast_vote(request, pk, vote):
@@ -257,6 +261,7 @@ def _cast_vote(request, pk, vote):
                 voter = request.user
                 already_voted = KtoJuzGlosowal.objects.filter(projekt=decision, ktory_uzytkownik_juz_zaglosowal=voter).exists()
                 if already_voted:
+                    _add_already_voted_message(request)
                     return None, redirect('glosowania:details', pk)
 
                 glos = KtoJuzGlosowal(projekt=decision, ktory_uzytkownik_juz_zaglosowal=voter)
@@ -279,6 +284,7 @@ def _cast_vote(request, pk, vote):
             except redis.RedisError:
                 log.error('Could not discard an uncommitted vote buffer entry for decyzja %s', pk, exc_info=True)
                 raise
+            _add_already_voted_message(request)
             return None, redirect('glosowania:details', pk)
         except OperationalError as error:
             if not _is_database_locked(error) or attempt == max_retries - 1:
