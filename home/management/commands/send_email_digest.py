@@ -23,7 +23,7 @@ from core.services.notifications import build_unsubscribe_url, unsubscribe_heade
 from core.utils import build_site_url, get_site_domain, get_user_language
 from glosowania.models import Decyzja
 from home.templatetags.feed_filters import content_type_label
-from tasks.models import TaskVote
+from tasks.models import Task, TaskVote
 from zzz.email import send_bulk_email_in_thread
 from zzz.management.base_command import TranslatedCommand
 from zzz.templatetags.citizen_filters import user_initials
@@ -95,6 +95,10 @@ def _build_sections_html(sections: list[dict]) -> str:
             parts.append(f'<span class="email-item-meta">&nbsp;[{escape(item["timestamp"])}]</span>')
             if item['meta']:
                 parts.append(f'<span class="email-item-count">&nbsp;({escape(item["meta"])})</span>')
+            if item.get('team_requests'):
+                request_label = escape(_('People who want to join your teams'))
+                helper_names = escape(', '.join(item['team_requests']))
+                parts.append(f'<p class="email-item-desc"><strong>{request_label}:</strong> {helper_names}</p>')
             if item['description_html']:
                 parts.append(f'<p class="email-item-desc">{item["description_html"]}</p>')
             parts.append('</div>')
@@ -171,13 +175,22 @@ class Command(TranslatedCommand):
     def _get_pending_team_requests(user):
         """Return willing helpers who have not been approved by this coordinator."""
         votes = (
-            TaskVote.objects.filter(task__assigned_to=user, user__is_active=True, value=TaskVote.Value.UP)
+            TaskVote.objects.filter(task__assigned_to=user, task__status=Task.Status.ACTIVE, user__is_active=True, value=TaskVote.Value.UP)
             .exclude(user=user)
             .exclude(task__approved_helpers=F('user_id'))
             .select_related('task', 'user')
             .order_by('task__title', 'user__username', 'pk')
         )
-        return [{'helper_name': user_initials(vote.user), 'task_title': one_line_snippet(vote.task.title, 200), 'url': build_site_url(reverse('tasks:detail', args=[vote.task_id]))} for vote in votes]
+        return [
+            {
+                'task_id': vote.task_id,
+                'helper_name': user_initials(vote.user),
+                'task_title': one_line_snippet(vote.task.title, 200),
+                'timestamp': vote.updated_at,
+                'url': reverse('tasks:detail', args=[vote.task_id]),
+            }
+            for vote in votes
+        ]
 
     @staticmethod
     def _get_restarted_votes(since):
@@ -199,13 +212,42 @@ class Command(TranslatedCommand):
         since_dt = user.uzytkownik.last_email_digest_at
         since_str = since_dt.strftime('%d.%m.%Y %H:%M') if since_dt else '-'
 
+        requests_by_task = {}
+        for request in team_requests or []:
+            requests_by_task.setdefault(request['task_id'], []).append(request)
+
+        digest_items = [dict(item) for item in items]
+        included_task_ids = set()
+        for item in digest_items:
+            task_id = item.get('object_id') if item.get('content_type') == 'task' else None
+            if task_id in requests_by_task:
+                item['team_requests'] = list(dict.fromkeys(request['helper_name'] for request in requests_by_task[task_id]))
+                included_task_ids.add(task_id)
+
+        for task_id, requests in requests_by_task.items():
+            if task_id in included_task_ids:
+                continue
+            request = requests[0]
+            digest_items.append(
+                {
+                    'content_type': 'task',
+                    'object_id': task_id,
+                    'title': request['task_title'],
+                    'url': request['url'],
+                    'timestamp': max(item['timestamp'] for item in requests),
+                    'description': '',
+                    'team_requests': list(dict.fromkeys(item['helper_name'] for item in requests)),
+                }
+            )
+
         by_type = {}
-        for item in items:
+        for item in digest_items:
             by_type.setdefault(item['content_type'], []).append(item)
 
         sections = []
         for content_type, type_items in by_type.items():
-            section = {'label': str(content_type_label(content_type)), 'items': []}
+            section_label = _('Activities') if content_type == 'task' else content_type_label(content_type)
+            section = {'label': str(section_label), 'items': []}
             for item in type_items:
                 title = item['title'] or '—'
                 author = item.get('author')
@@ -237,6 +279,7 @@ class Command(TranslatedCommand):
                         'description': description,
                         'description_html': linebreaksbr(description) if description else '',
                         'meta': meta,
+                        'team_requests': item.get('team_requests', []),
                     }
                 )
             sections.append(section)
@@ -251,9 +294,7 @@ class Command(TranslatedCommand):
             'restarted_votes_intro': _('Votes cast before the failure were lost and these referenda have started again. Please vote again:'),
             'ending_votes': ending_votes or [],
             'ending_votes_title': _('This is the last day to vote!'),
-            'team_requests': team_requests or [],
             'team_requests_title': _('People who want to join your teams'),
-            'team_requests_intro': _('Open an activity page and approve each person if you want them to join its team.'),
             'no_activity_text': _('No activity in this section.'),
             'manage_button_text': _('Manage email notifications'),
             'unsubscribe_text': _('Unsubscribe from all notifications'),

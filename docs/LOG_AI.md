@@ -754,6 +754,20 @@
 - **Weryfikacja:** `docker buildx build --check --pull=false --network=none` nie zglosil bledow Dockerfile. Nie zbudowano ani nie przeskanowano obrazu lokalnie; pelny build i SBOM wymagaja CI po pushu. `git diff --check` przechodzi.
 - **Spodziewany efekt:** Nowy obraz powinien zawierac tylko poprawione kopie tych pakietow, ograniczyc skanerowe residual findings i usunac `pip` z runtime. Flux image automation wdrozy go tylko na instancjach 1-2.
 
+## 2026-11-03: Umieszczenie próśb o dołączenie przy działaniach w digest
+
+- **Zmienione obszary:** HTML i tekstowy szablon digestu, składanie jego sekcji, testy oraz przykład `test.html`.
+- **Co się zmieniło:** tytuł digestu jest pierwszym elementem nagłówka; oczekujący pomocnicy są wyświetlani przy odpowiadającym im działaniu w sekcji działań, także gdy digest nie zawiera innej aktywności.
+- **Weryfikacja:** przeszły testy `home/test_email_digest.py` (38 testów) oraz Ruff dla zmienionych plików Pythona.
+- **Spodziewany efekt:** powiadomienie o chęci dołączenia wskazuje bezpośrednio działanie, którego dotyczy.
+
+## 2026-11-03: Digest pomija zakończone działania w prośbach o dołączenie do zespołu
+
+- **Zmienione obszary:** sekcja próśb o dołączenie do zespołów w daily digest oraz jej test integracyjny.
+- **Co się zmieniło:** lista głosujących za dołączeniem uwzględnia tylko aktywne działania; test sprawdza pominięcie działań ukończonych i anulowanych.
+- **Uzasadnienie:** zakończone działania nie przyjmują już nowych członków zespołu, więc nie powinny generować nieaktualnych powiadomień.
+- **Spodziewany efekt:** digest zawiera prośby tylko dla aktywnych działań.
+
 ## 2026-11-03: Strefy zagnieżdżania podzadań
 
 - **Zmienione obszary:** widok szczegółów zadania, interakcje drag-and-drop podzadań i testy.

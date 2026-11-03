@@ -1,11 +1,6 @@
-{% autoescape off %}[{{ site_name }}] {{ title }}
+{% autoescape off %}{{ title }}
+[{{ site_name }}]
 
-{% if team_requests %}{{ team_requests_title }}
-{{ team_requests_intro }}
-{% for request in team_requests %}- {{ request.task_title }} — {{ request.helper_name }}
-  {{ request.url }}
-{% endfor %}
-{% endif %}
 {% if restarted_votes %}!!! {{ restarted_votes_title }} !!!
 {{ restarted_votes_intro }}
 {% for vote in restarted_votes %}- {{ vote.title }}
@@ -23,6 +18,8 @@
 {% for item in section.items %}
 - {{ item.title }} [{{ item.timestamp }}]{% if item.meta %} ({{ item.meta }}){% endif %}
   {{ item.url }}
+{% if item.team_requests %}  {{ team_requests_title }}: {{ item.team_requests|join:", " }}
+{% endif %}
 {% if item.description %}{% for line in item.description.splitlines %}  {{ line }}
 {% endfor %}{% endif %}
 {% empty %}

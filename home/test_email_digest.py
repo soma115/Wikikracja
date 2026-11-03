@@ -14,6 +14,7 @@ from django.template.loader import render_to_string
 from django.test import TransactionTestCase, override_settings
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from django.utils.translation import override
 
 from ankiety.models import Survey
 from board.models import Post
@@ -417,6 +418,20 @@ def test_digest_context_uses_initials_for_authors_but_not_intro(digest_user, ano
     assert 'AN' not in context['digest_intro']
 
 
+@pytest.mark.django_db
+def test_digest_context_attaches_team_requests_to_the_matching_task(digest_user):
+    timestamp = timezone.now()
+    item = {'content_type': 'task', 'object_id': 42, 'title': 'Join task', 'url': '/tasks/42/', 'timestamp': timestamp, 'description': '', 'update_count': 1}
+    request = {'task_id': 42, 'task_title': 'Join task', 'helper_name': 'JK', 'timestamp': timestamp, 'url': '/tasks/42/'}
+
+    context = Command()._build_digest_context(digest_user, [item], team_requests=[request])
+
+    task_items = [item for section in context['sections'] for item in section['items']]
+    assert len(task_items) == 1
+    assert task_items[0]['team_requests'] == ['JK']
+    assert 'JK</p>' in context['sections_html']
+
+
 @override_settings(**FAST_EMAIL_SETTINGS)
 class SendEmailDigestCommandTest(TransactionTestCase):
     def setUp(self):
@@ -494,35 +509,53 @@ class SendEmailDigestCommandTest(TransactionTestCase):
         assert 'Referendum ending tomorrow' not in email.body
         assert 'Discussion ending today' not in email.body
 
-    def test_digest_puts_pending_team_requests_first_and_sends_without_other_activity(self):
+    def test_digest_places_pending_team_requests_with_the_activity(self):
         coordinator = self._make_active_user('team-coordinator', 'coordinator@example.com')
         helper = self._make_active_user('team-helper', 'helper@example.com')
         helper.first_name = 'Jan'
         helper.last_name = 'Kowalski'
         helper.save(update_fields=['first_name', 'last_name'])
         approved_helper = self._make_active_user('approved-helper', 'approved@example.com')
-        task = Task.objects.create(title='Digest team task', description='', created_by=coordinator, assigned_to=coordinator)
+        task = Task.objects.create(title='Digest team task', description='', created_by=coordinator, assigned_to=coordinator, phase=Task.Phase.PROPOSAL)
         TaskVote.objects.create(task=task, user=helper, value=TaskVote.Value.UP)
         TaskVote.objects.create(task=task, user=approved_helper, value=TaskVote.Value.UP)
         task.approved_helpers.add(approved_helper)
+        completed_task = Task.objects.create(title='Completed team task', description='', created_by=coordinator, assigned_to=coordinator, status=Task.Status.COMPLETED)
+        cancelled_task = Task.objects.create(title='Cancelled team task', description='', created_by=coordinator, assigned_to=coordinator, status=Task.Status.CANCELLED)
+        TaskVote.objects.create(task=completed_task, user=helper, value=TaskVote.Value.UP)
+        TaskVote.objects.create(task=cancelled_task, user=helper, value=TaskVote.Value.UP)
 
         with patch('home.management.commands.send_email_digest.build_user_digest', return_value=[]):
             self._run_digest()
 
         email = next(email for email in mail.outbox if coordinator.email in email.to)
         html = email.alternatives[0][0]
-        assert str(_('People who want to join your teams')) in email.body
-        assert str(_('Open an activity page and approve each person if you want them to join its team.')) in email.body
+        with override('pl'):
+            request_title = str(_('People who want to join your teams'))
+            activity_label = str(_('Activities'))
+        activity_section = f'=== {activity_label} ==='
+        assert email.body.startswith('Podsumowanie aktywności')
+        assert email.body.index('Podsumowanie aktywności') < email.body.index(activity_section)
+        assert email.body.index(activity_section) < email.body.index('Digest team task') < email.body.index(request_title)
         assert 'Digest team task' in email.body
         assert 'JK' in email.body
         assert 'Jan Kowalski' not in email.body
         assert f'/tasks/{task.pk}/' in email.body
-        digest_intro_index = email.body.rindex(str(_('Activity digest')))
-        request_section = email.body[:digest_intro_index]
-        assert str(_('People who want to join your teams')) in request_section
-        assert approved_helper.username not in request_section
+        assert approved_helper.username not in email.body
+        assert 'Completed team task' not in email.body
+        assert 'Cancelled team task' not in email.body
+
+        title_index = html.index('<h1 class="email-title">')
+        site_name_index = html.index('<p class="email-kicker">')
+        activity_section_index = html.index(f'<h2 class="email-section-title">{activity_label}</h2>')
+        task_title_index = html.index('Digest team task', activity_section_index)
+        request_title_index = html.index(request_title, task_title_index)
+        assert title_index < site_name_index < activity_section_index < task_title_index < request_title_index
+        assert 'Open an activity page and approve each person' not in html
         assert 'Digest team task' in html
         assert f'/tasks/{task.pk}/' in html
+        assert 'Completed team task' not in html
+        assert 'Cancelled team task' not in html
 
     def test_digest_no_email_when_not_due(self):
         user = self._make_active_user('notdue', 'notdue@example.com')
