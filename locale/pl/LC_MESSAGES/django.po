@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-03 14:40+0100\n"
+"POT-Creation-Date: 2026-11-05 20:24+0100\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -1300,7 +1300,7 @@ msgstr "Jest walutą"
 
 #: .\bookkeeping\templates\bookkeeping\asset_detail.html:13
 #: .\bookkeeping\templates\bookkeeping\asset_detail.html:14 .\chat\i18n.py:14
-#: .\glosowania\templates\glosowania\parameters.html:45
+#: .\glosowania\templates\glosowania\parameters.html:43
 #: .\glosowania\templates\glosowania\szczegoly.html:62
 #: .\obywatele\templates\obywatele\szczegoly.html:67
 #: .\site_settings\params.py:144 .\tasks\forms.py:15
@@ -1310,7 +1310,7 @@ msgstr "Tak"
 
 #: .\bookkeeping\templates\bookkeeping\asset_detail.html:13
 #: .\bookkeeping\templates\bookkeeping\asset_detail.html:14
-#: .\glosowania\templates\glosowania\parameters.html:45
+#: .\glosowania\templates\glosowania\parameters.html:43
 #: .\glosowania\templates\glosowania\szczegoly.html:63
 #: .\obywatele\templates\obywatele\szczegoly.html:67
 #: .\site_settings\params.py:144 .\tasks\forms.py:15
@@ -2630,7 +2630,7 @@ msgstr "Propozycja głosowania"
 #: .\glosowania\templates\glosowania\_detail_meta.html:29
 #: .\glosowania\templates\glosowania\_detail_meta.html:43
 #: .\glosowania\templatetags\glosowania_stepper.py:44
-#: .\glosowania\tests\test_views.py:657 .\glosowania\views.py:506
+#: .\glosowania\tests\test_views.py:646 .\glosowania\views.py:506
 msgid "Referendum"
 msgstr "Referendum"
 
@@ -3187,55 +3187,55 @@ msgstr "Utwórz referendum dotyczące zmiany parametrów systemu"
 msgid "Open the form to start a referendum changing system parameters."
 msgstr "Otwórz formularz, aby rozpocząć referendum zmieniające parametry systemu."
 
-#: .\glosowania\templates\glosowania\parameters.html:65
+#: .\glosowania\templates\glosowania\parameters.html:61
 msgid "Vote storage reliability"
 msgstr "Niezawodność zapisywania głosów"
 
-#: .\glosowania\templates\glosowania\parameters.html:69
+#: .\glosowania\templates\glosowania\parameters.html:65
 msgid "While a referendum is open, votes are stored outside the main database."
 msgstr "W trakcie trwania referendum głosy przechowywane są poza bazą danych."
 
-#: .\glosowania\templates\glosowania\parameters.html:70
+#: .\glosowania\templates\glosowania\parameters.html:66
 msgid "This way nobody can see who voted for what, or the running result."
 msgstr "W ten sposób nikt nie może zobaczyć, kto na co głosował, ani jakie były wyniki."
 
-#: .\glosowania\templates\glosowania\parameters.html:71
+#: .\glosowania\templates\glosowania\parameters.html:67
 msgid "Votes are written to the database and counted only after the referendum closes."
 msgstr "Głosy trafiają do bazy danych i są liczone dopiero po zamknięciu referendum."
 
-#: .\glosowania\templates\glosowania\parameters.html:74
+#: .\glosowania\templates\glosowania\parameters.html:70
 msgid "If that storage fails before the referendum closes, the votes cast so far are lost."
 msgstr "Jeśli ta pamięć ulegnie awarii przed zamknięciem referendum, dotychczas oddane głosy zostają utracone."
 
-#: .\glosowania\templates\glosowania\parameters.html:75
+#: .\glosowania\templates\glosowania\parameters.html:71
 msgid "The system does not count a partial result in that case."
 msgstr "W takim przypadku system nie liczy częściowego wyniku."
 
-#: .\glosowania\templates\glosowania\parameters.html:76
+#: .\glosowania\templates\glosowania\parameters.html:72
 msgid "Everyone who voted is removed from the list of people who already voted."
 msgstr "Wszyscy, którzy oddali głos, zostają usunięci z listy osób, które już głosowały."
 
-#: .\glosowania\templates\glosowania\parameters.html:77
+#: .\glosowania\templates\glosowania\parameters.html:73
 msgid "All verification codes issued so far become invalid."
 msgstr "Wszystkie dotychczas wydane kody weryfikacyjne tracą ważność."
 
-#: .\glosowania\templates\glosowania\parameters.html:78
+#: .\glosowania\templates\glosowania\parameters.html:74
 msgid "Voting restarts from scratch for a full new period."
 msgstr "Głosowanie zaczyna się od nowa na pełny nowy okres."
 
-#: .\glosowania\templates\glosowania\parameters.html:79
+#: .\glosowania\templates\glosowania\parameters.html:75
 msgid "A restart is announced by push notification (if enabled) and included in the Daily Digest according to each user's settings."
 msgstr "Informacja o restarcie trafia do powiadomień push (jeśli są włączone) oraz do Daily Digest zgodnie z ustawieniami użytkownika."
 
-#: .\glosowania\templates\glosowania\parameters.html:86
+#: .\glosowania\templates\glosowania\parameters.html:82
 msgid "Restarts so far:"
 msgstr "Liczba restartów dotychczas:"
 
-#: .\glosowania\templates\glosowania\parameters.html:92
+#: .\glosowania\templates\glosowania\parameters.html:88
 msgid "Restarts:"
 msgstr "Restarty:"
 
-#: .\glosowania\templates\glosowania\parameters.html:100
+#: .\glosowania\templates\glosowania\parameters.html:96
 msgid "No referendum has ever had to restart because of a vote storage failure."
 msgstr "Nigdy dotąd nie zdarzyło się, aby referendum musiało zostać przeprowadzone ponownie z powodu awarii pamięci zapisu głosów."
 
@@ -3265,18 +3265,18 @@ msgid "Create referendum"
 msgstr "Utwórz referendum"
 
 #: .\glosowania\templates\glosowania\szczegoly.html:16
-#: .\glosowania\tests\test_views.py:135 .\glosowania\tests\test_views.py:158
+#: .\glosowania\tests\test_views.py:135 .\glosowania\tests\test_views.py:151
 msgid "This referendum was restarted after a technical failure."
 msgstr "To referendum zostało uruchomione ponownie po awarii technicznej."
 
 #: .\glosowania\templates\glosowania\szczegoly.html:20
-#: .\glosowania\tests\test_views.py:159
+#: .\glosowania\tests\test_views.py:153
 #, python-format
 msgid "Votes and verification codes from before the restart are no longer valid. If you voted earlier, please vote again before %(end_date)s."
 msgstr "Głosy oddane przed restartem i ich kody weryfikacyjne są już nieważne. Jeśli głosowałeś wcześniej, zagłosuj ponownie przed %(end_date)s."
 
 #: .\glosowania\templates\glosowania\szczegoly.html:24
-#: .\glosowania\tests\test_views.py:177
+#: .\glosowania\tests\test_views.py:166
 msgid "Votes and verification codes from earlier rounds were discarded. The result reflects only the final round."
 msgstr "Głosy i kody weryfikacyjne z poprzednich rund zostały unieważnione. Wynik obejmuje wyłącznie ostatnią rundę."
 
@@ -3395,16 +3395,16 @@ msgstr "Propozycje"
 msgid "How do votes work?"
 msgstr "Jak działają głosowania?"
 
-#: .\glosowania\tests\test_views.py:634 .\glosowania\tests\test_views.py:655
+#: .\glosowania\tests\test_views.py:623 .\glosowania\tests\test_views.py:644
 #: .\glosowania\views.py:505
 msgid "A new argument was added to this referendum:"
 msgstr "Dodano nowy argument do tego głosowania:"
 
-#: .\glosowania\tests\test_views.py:971 .\glosowania\views.py:236
+#: .\glosowania\tests\test_views.py:960 .\glosowania\views.py:236
 msgid "You have already voted in this referendum. Your second vote was not saved."
 msgstr "Twój głos w tym referendum został już zapisany. Drugi głos nie został zapisany."
 
-#: .\glosowania\tests\test_views.py:1166 .\glosowania\views.py:108
+#: .\glosowania\tests\test_views.py:1155 .\glosowania\views.py:108
 msgid "Please correct the errors below."
 msgstr "Popraw poniższe błędy."
 

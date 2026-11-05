@@ -833,30 +833,19 @@ window.wkOnReady(function() {
             });
         }
 
-        // Swipe: right opens the sidebar, left on open sidebar closes it (mobile only).
+        // Swipe left on the open sidebar closes it (mobile only).
         (function() {
             const MIN_DX = 60;
-            // Android edge-back gestures can reach the page well past the
-            // nominal system inset, so keep a wider activation-free zone.
-            const LEFT_EDGE_GUARD_RATIO = 0.20;
-            const LEFT_EDGE_GUARD_MIN = 48;
             const mobileQuery = window.wkMobileMedia || { matches: false };
             let startX = 0;
             let startY = 0;
             let tracking = false;
-            let openedAtStart = false;
 
             document.addEventListener('touchstart', function(e) {
                 if (!sidebar || !mobileQuery.matches || e.touches.length !== 1) return;
                 if (e.target.closest('input, textarea, select, [contenteditable]')) return;
+                if (!sidebar.classList.contains('tw-sidebar-open') || !sidebar.contains(e.target)) return;
                 const t = e.touches[0];
-                openedAtStart = sidebar.classList.contains('tw-sidebar-open');
-                if (openedAtStart && !sidebar.contains(e.target)) return;
-                const leftEdgeGuard = Math.max(
-                    LEFT_EDGE_GUARD_MIN,
-                    window.innerWidth * LEFT_EDGE_GUARD_RATIO,
-                );
-                if (!openedAtStart && t.clientX <= leftEdgeGuard) return;
                 tracking = true;
                 startX = t.clientX;
                 startY = t.clientY;
@@ -869,8 +858,7 @@ window.wkOnReady(function() {
                 const dx = t.clientX - startX;
                 const dy = t.clientY - startY;
                 if (Math.abs(dy) > Math.abs(dx)) return;
-                if (!openedAtStart && dx >= MIN_DX) setSidebarOpen(true);
-                else if (openedAtStart && dx <= -MIN_DX) setSidebarOpen(false);
+                if (dx <= -MIN_DX) setSidebarOpen(false);
             }, {passive: true});
         })();
     })();

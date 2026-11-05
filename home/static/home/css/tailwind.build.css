@@ -7818,6 +7818,7 @@ main.tw-main-content.tw-pt-3 {
   line-height: 1.8;
   font-size: 1.1rem;
   padding: 1rem 0;
+  overflow-wrap: anywhere;
 }
 
 body.tw-post-content {
@@ -10356,7 +10357,6 @@ body.tw-chat-page .tw-main-area {
   border-radius: .25rem;
   border-left-width: 3px;
   border-left-color: var(--chat-cat-accent, transparent);
-  border-left-color: color-mix(in srgb, var(--chat-cat-accent, transparent) 50%, transparent);
 }
 
 .tw-room-link .tw-avatar:not(.tw-avatar-fallback) {
