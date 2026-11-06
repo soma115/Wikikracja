@@ -8,7 +8,9 @@ Członkowie działają w modelu wzajemnego zaufania i współdecydowania; aplika
 
 Treści dokumentów korzystają z HTML i stylów tworzonych w TinyMCE. Nadmierne ograniczenie dozwolonych tagów i atrybutów powoduje utratę formatowania i nieprawidłowe wyświetlanie dokumentów. Obecna szeroka obsługa HTML jest świadomym kompromisem opartym na założeniu, że zalogowani członkowie są zaufani. Nie należy zawężać jej ani odbierać członkom wspólnej edycji bez decyzji produktowej i migracji/naprawy istniejących treści.
 
-Stopka systemowa jest wspólną treścią edytowaną w tym samym modelu. Jej renderowanie zachowujące HTML jest częścią tego założenia. Zmiana sposobu jej wyświetlania wymaga zachowania dotychczasowego formatowania i nie jest objęta bieżącymi poprawkami.
+Sanitizer zachowuje również elementy aktywne, takie jak `iframe`, `form` i `meta refresh`, jeśli są częścią treści. W tym modelu zaufania członkowie mogą więc osadzać zewnętrzną zawartość lub przekierowywać odwiedzających publiczne dokumenty. Jest to zaakceptowany skutek wspólnej edycji, a nie gwarancja bezpiecznego renderowania niezaufanego HTML.
+
+Stopka systemowa jest wspólną treścią edytowaną w tym samym modelu i renderowaną jako surowy HTML. Członek może umieścić w niej również skrypt wykonywany na stronach serwisu. To świadomie zaakceptowane ryzyko modelu zaufania członków; zmiana wymaga decyzji produktowej i zachowania dotychczasowego formatowania.
 
 To założenie dotyczy wyłącznie członków dopuszczonych do aplikacji. Nie stanowi podstawy do logowania haseł, przyjmowania nieuwierzytelnionych żądań federacyjnych ani omijania walidacji przekierowań, sesji czy formularzy.
 
@@ -38,6 +40,10 @@ Nie wprowadzamy w tym zakresie uogólnionej własności ani mechanizmu przejmowa
 `PostCategoryEditAPI` i `TaskCategoryEditAPI` wymagają zalogowania, ale nie stosują ograniczeń właściciela ani roli. Ustawienia grupy i quick linki również wymagają logowania.
 
 Przekierowanie z parametru `next` musi być walidowane przez `url_has_allowed_host_and_scheme`; nie przekierowuj bezpośrednio na wartość z żądania. URL quick linku może być ścieżką względną (bez `//`) albo bezwzględnym `http`/`https`.
+
+## Kody weryfikacyjne głosów
+
+Kod weryfikacyjny głosu ma pięć losowanych znaków i nie jest wymuszony jako unikalny w ramach referendum. Kolizja może sprawić, że ten sam kod będzie przypisany do więcej niż jednego wyniku i utrudni indywidualną weryfikację. To zaakceptowany kompromis dla obecnego formatu kodu; nie traktować samej możliwości kolizji jako regresji bez zmiany wymagania produktowego.
 
 ## Publiczna skrzynka kontaktowa
 

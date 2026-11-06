@@ -11,11 +11,14 @@ from django.http import FileResponse, Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy
+from django.views.decorators.http import require_safe
 from django.views.generic import CreateView, UpdateView
 
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryItemsAPI, CategoryReorderAPI
 from chat.i18n import get_translations as get_chat_translations
+from chat.models import MessageAttachment
 from chat.services import get_unread_message_counts_for_rooms
+from chat.utils import get_upload_path
 from core.utils import build_detail_navigation
 from home.navigation import default_toolbar_views
 
@@ -381,6 +384,11 @@ def _board_file_response(file_field, *, filename=None):
         file_object = file_field.open('rb')
     except OSError as error:
         raise Http404 from error
+    return _private_media_response(file_object, content_type, filename=filename)
+
+
+def _private_media_response(file_object, content_type, *, filename=None):
+    as_attachment = filename is not None
     response = FileResponse(file_object, as_attachment=as_attachment, filename=filename, content_type=content_type)
     response['Cache-Control'] = 'private, no-store'
     response['X-Content-Type-Options'] = 'nosniff'
@@ -389,6 +397,34 @@ def _board_file_response(file_field, *, filename=None):
     else:
         response['Content-Disposition'] = 'inline'
     return response
+
+
+@require_safe
+def serve_uploaded_media(request: HttpRequest, path: str):
+    """Serve uploaded images only when an accessible message or document uses them."""
+    file_path = get_upload_path(path)
+    if file_path is None or not file_path.is_file():
+        raise Http404
+
+    content_type = mimetypes.guess_type(file_path.name)[0]
+    if not content_type or not content_type.startswith('image/') or content_type == 'image/svg+xml':
+        raise Http404
+
+    include_archive = request.user.is_authenticated
+    visible_post_uses_image = Post.objects.filter(Post.visibility_filter_for_user(request.user, include_archive=include_archive), text__contains=path).exists()
+
+    accessible_message_uses_image = False
+    if request.user.is_authenticated:
+        accessible_message_uses_image = MessageAttachment.objects.filter(filename=path, type='images').filter(Q(message__room__public=True) | Q(message__room__allowed=request.user)).exists()
+
+    if not visible_post_uses_image and not accessible_message_uses_image:
+        raise Http404
+
+    try:
+        file_object = file_path.open('rb')
+    except OSError as error:
+        raise Http404 from error
+    return _private_media_response(file_object, content_type)
 
 
 def serve_featured_image(request: HttpRequest, path: str):

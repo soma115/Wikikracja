@@ -55,6 +55,7 @@ if settings.DEBUG:
 urlpatterns += [
     re_path(r'^media/board/featured/(?P<path>.*)$', bv.serve_featured_image, name='board_featured_image'),
     re_path(r'^media/board/attachments/(?P<path>.*)$', bv.serve_post_attachment, name='board_post_attachment'),
+    re_path(r'^media/uploads/(?P<path>.*)$', bv.serve_uploaded_media, name='uploaded_media'),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 '''

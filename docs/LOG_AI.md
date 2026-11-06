@@ -775,3 +775,12 @@
 - **Fokus formularza:** Pole tytułu podzadania otrzymało `autofocus`, obsługiwane przez wspólny modal po otwarciu.
 - **Uzasadnienie:** Rozszerzenie widocznych celów drag-and-drop ułatwia przenoszenie podzadań bez zmiany obowiązującego limitu jednego poziomu zagnieżdżenia.
 - **Weryfikacja:** Przeszły testy Jest dla interakcji podzadań, 11 testów Django `TaskSubtaskViewTest`, `regression_scan.py` i `ui_guard.py`; przebudowano CSS Tailwind.
+
+## 2026-11-06: Ochrona obrazów używanych w czacie i dokumentach
+
+- **Zmienione obszary:** obsługa mediów Board, routing mediów oraz testy dostępu.
+- **Co się zmieniło:** Dodano dedykowany endpoint dla `/media/uploads/`. Obraz jest serwowany tylko wtedy, gdy jest używany przez dokument widoczny dla bieżącego użytkownika albo wiadomość z dostępnego mu pokoju czatu. Niepowiązane uploady i pliki spoza dozwolonych typów obrazu zwracają 404. Odpowiedzi mają `private, no-store` i `X-Content-Type-Options: nosniff`.
+- **Dokumentacja wyjątków:** Doprecyzowano świadomie zaakceptowane ryzyka dotyczące aktywnego HTML/stopki oraz kolizji kodów weryfikacyjnych; te decyzje produktowe pozostają poza zakresem tej poprawki.
+- **Testy:** `tests/test_board.py` — 77 testów; Ruff i `manage.py check` przechodzą.
+- **Uzasadnienie:** Ogólny fallback `MEDIA_ROOT` nie znał widoczności dokumentu ani członkostwa w pokoju, przez co URL obrazu omijał te kontrole.
+- **Spodziewany efekt:** Osoby niezalogowane nadal widzą obrazy z publicznych dokumentów, a obrazy z dokumentów grupowych i prywatnych wiadomości nie są dostępne poza właściwym zakresem.

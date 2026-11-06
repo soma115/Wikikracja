@@ -20,7 +20,7 @@ from django.utils import timezone
 from django.utils.translation import gettext, override
 
 from board.models import Post, PostAttachment
-from chat.models import Message, MessageReadBy, Room
+from chat.models import Message, MessageAttachment, MessageReadBy, Room
 from tests.factories import PostCategoryFactory, PostFactory, UserFactory
 
 
@@ -536,6 +536,78 @@ def test_orphaned_board_media_is_not_served_by_public_media_fallback(settings, t
     orphaned_attachment.write_text('<script>alert(1)</script>', encoding='utf-8')
 
     assert Client().get('/media/board/attachments/orphan.html').status_code == 404
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ('visibility', 'authenticated', 'status_code'),
+    [(Post.Visibility.PUBLIC, False, 200), (Post.Visibility.GROUP, False, 404), (Post.Visibility.GROUP, True, 200), (Post.Visibility.ARCHIVE, False, 404), (Post.Visibility.ARCHIVE, True, 200)],
+)
+def test_uploaded_image_access_obeys_document_visibility(settings, tmp_path, visibility, authenticated, status_code):
+    from django.test import Client
+
+    settings.MEDIA_ROOT = tmp_path
+    filename = 'article.webp'
+    upload_path = tmp_path / 'uploads' / filename
+    upload_path.parent.mkdir(parents=True)
+    upload_path.write_bytes(b'image-bytes')
+    PostFactory(visibility=visibility, text=f'<p><img src="/media/uploads/{filename}"></p>')
+
+    client = Client()
+    if authenticated:
+        client.force_login(UserFactory(username=f'upload-reader-{visibility}-{authenticated}'))
+
+    response = client.get(f'/media/uploads/{filename}')
+
+    assert response.status_code == status_code
+    if status_code == 200:
+        assert response['Content-Type'] == 'image/webp'
+        assert response['Content-Disposition'] == 'inline'
+        assert response['X-Content-Type-Options'] == 'nosniff'
+        assert response['Cache-Control'] == 'private, no-store'
+        assert b''.join(response.streaming_content) == b'image-bytes'
+
+
+@pytest.mark.django_db
+def test_uploaded_chat_image_requires_room_membership(settings, tmp_path):
+    from django.test import Client
+
+    settings.MEDIA_ROOT = tmp_path
+    filename = 'private.webp'
+    upload_path = tmp_path / 'uploads' / filename
+    upload_path.parent.mkdir(parents=True)
+    upload_path.write_bytes(b'image-bytes')
+
+    sender = UserFactory(username='media-sender')
+    recipient = UserFactory(username='media-recipient')
+    outsider = UserFactory(username='media-outsider')
+    room = Room.objects.create(title='Private Media Room', public=False)
+    room.allowed.set([sender, recipient])
+    message = Message.objects.create(room=room, sender=sender, text='')
+    MessageAttachment.objects.create(message=message, type='images', filename=filename)
+
+    anonymous_client = Client()
+    outsider_client = Client()
+    outsider_client.force_login(outsider)
+    recipient_client = Client()
+    recipient_client.force_login(recipient)
+    media_url = f'/media/uploads/{filename}'
+
+    assert anonymous_client.get(media_url).status_code == 404
+    assert outsider_client.get(media_url).status_code == 404
+    assert recipient_client.get(media_url).status_code == 200
+
+
+@pytest.mark.django_db
+def test_unreferenced_upload_is_not_served(settings, tmp_path):
+    from django.test import Client
+
+    settings.MEDIA_ROOT = tmp_path
+    upload_path = tmp_path / 'uploads' / 'orphan.webp'
+    upload_path.parent.mkdir(parents=True)
+    upload_path.write_bytes(b'image-bytes')
+
+    assert Client().get('/media/uploads/orphan.webp').status_code == 404
 
 
 @pytest.mark.django_db
