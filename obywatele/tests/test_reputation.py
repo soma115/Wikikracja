@@ -4,12 +4,14 @@ Reputation jest pochodną sumy Rate.rate gdzie kandydat = ten user. Test sprawdz
 zbudować ten flow w ORM i że unique_together(kandydat, obywatel) zabezpiecza przed multi-vote.
 """
 
+from datetime import timedelta
 from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.test import TestCase
+from django.utils import timezone
 
 from board.models import Post
 from bookkeeping.models import Category, Partner, Transaction
@@ -69,7 +71,8 @@ class ActivationPasswordTest(TestCase):
         user = User.objects.create_user(username='activation-password', email='activation@example.com', password='hidden-random-secret', is_active=False)
         profile = user.uzytkownik
         profile.reputation = 1
-        profile.save(update_fields=['reputation'])
+        profile.reputation_blocked_at = timezone.now() - timedelta(days=1)
+        profile.save(update_fields=['reputation', 'reputation_blocked_at'])
         welcome_post = SimpleNamespace(text='Login: {login_url}; legacy password: {password}', get_display_title=lambda: 'Welcome')
         command = CountCitizensCommand()
 
@@ -85,7 +88,9 @@ class ActivationPasswordTest(TestCase):
             command.activate_eligible_users()
 
         user.refresh_from_db()
+        profile.refresh_from_db()
         self.assertTrue(user.is_active)
+        self.assertIsNone(profile.reputation_blocked_at)
         self.assertTrue(user.has_usable_password())
         self.assertTrue(user.check_password('hidden-random-secret'))
         email_body = accepted.call_args.kwargs['recipient_body']
@@ -118,3 +123,70 @@ class BlockedUserResourcesTest(TestCase):
         self.assertFalse(TaskVote.objects.filter(user=blocked).exists())
         self.assertEqual(post.visibility, Post.Visibility.GROUP)
         self.assertIsNone(transaction.author)
+
+
+class ReputationBlockedGracePeriodTest(TestCase):
+    def make_inactive_user(self, username, *, blocked_at=None, last_login=None, accepted=False):
+        user = User.objects.create_user(username=username, email=f'{username}@example.com', password='x', is_active=False, last_login=last_login)
+        profile = user.uzytkownik
+        profile.reputation_blocked_at = blocked_at
+        if accepted:
+            profile.data_przyjecia = timezone.now().date()
+        profile.save(update_fields=['reputation_blocked_at', 'data_przyjecia'])
+        return user
+
+    def test_blocking_starts_grace_period_and_prevents_same_run_deletion(self):
+        user = User.objects.create_user(username='blocked-grace', email='blocked-grace@example.com', password='x')
+        user.uzytkownik.reputation = 0
+        user.uzytkownik.save(update_fields=['reputation'])
+        started_before = timezone.now()
+
+        with (
+            patch('obywatele.management.commands.count_citizens.required_reputation', return_value=1),
+            patch('obywatele.management.commands.count_citizens.invalidate_user_sessions'),
+            patch('obywatele.management.commands.count_citizens.release_blocked_user_resources'),
+            patch('obywatele.management.commands.count_citizens.get_site_domain', return_value='example.test'),
+            patch('obywatele.management.commands.count_citizens.get_user_language', return_value='en'),
+            patch('obywatele.management.commands.count_citizens.build_site_url', side_effect=lambda path: f'https://example.test{path}'),
+            patch('obywatele.management.commands.count_citizens.citizen_blocked.send'),
+            patch('site_settings.params.get_param', return_value=30),
+            patch('obywatele.management.commands.count_citizens.citizen_deleted.send') as deleted_signal,
+        ):
+            command = CountCitizensCommand()
+            command.block_ineligible_users()
+            command.delete_inactive_users()
+
+        user.refresh_from_db()
+        profile = user.uzytkownik
+        profile.refresh_from_db()
+        self.assertFalse(user.is_active)
+        self.assertGreaterEqual(profile.reputation_blocked_at, started_before)
+        self.assertTrue(User.objects.filter(pk=user.pk).exists())
+        deleted_signal.assert_not_called()
+
+    def test_cleanup_uses_reputation_block_time_and_preserves_candidate_cleanup(self):
+        current_time = timezone.now()
+        within_grace = self.make_inactive_user('within-grace', blocked_at=current_time - timedelta(days=29), last_login=current_time - timedelta(days=90), accepted=True)
+        expired_block = self.make_inactive_user('expired-block', blocked_at=current_time - timedelta(days=31), last_login=current_time, accepted=True)
+        expired_candidate = self.make_inactive_user('expired-candidate', last_login=current_time - timedelta(days=31))
+
+        with patch('site_settings.params.get_param', return_value=30), patch('obywatele.management.commands.count_citizens.citizen_deleted.send'):
+            CountCitizensCommand().delete_inactive_users()
+
+        self.assertTrue(User.objects.filter(pk=within_grace.pk).exists())
+        self.assertFalse(User.objects.filter(pk=expired_block.pk).exists())
+        self.assertFalse(User.objects.filter(pk=expired_candidate.pk).exists())
+
+    def test_existing_inactive_former_member_receives_full_grace_period(self):
+        old_login = timezone.now() - timedelta(days=365)
+        user = self.make_inactive_user('legacy-blocked', last_login=old_login, accepted=True)
+
+        with patch('site_settings.params.get_param', return_value=30), patch('obywatele.management.commands.count_citizens.citizen_deleted.send') as deleted_signal:
+            CountCitizensCommand().delete_inactive_users()
+
+        user.refresh_from_db()
+        profile = user.uzytkownik
+        profile.refresh_from_db()
+        self.assertTrue(User.objects.filter(pk=user.pk).exists())
+        self.assertGreaterEqual(profile.reputation_blocked_at, timezone.now() - timedelta(minutes=1))
+        deleted_signal.assert_not_called()

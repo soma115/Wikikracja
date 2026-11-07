@@ -16,6 +16,14 @@
 
 # LOG_AI
 
+## 2026-11-07: Karencja po blokadzie reputacyjnej
+
+- **Zmienione obszary:** model `Uzytkownik`, komenda `count_citizens` i testy reputacji oraz czyszczenia kont.
+- **Co się zmieniło:** dodano `reputation_blocked_at`; przy utracie statusu obywatela zapisuje czas rozpoczęcia karencji, a po ponownej aktywacji znacznik jest czyszczony. Usuwanie byłych obywateli liczy okres od blokady, a istniejącym nieaktywnym byłym obywatelom przy pierwszym przebiegu przyznaje pełny okres karencji. Kandydaci, którzy nie byli wcześniej obywatelami, zachowują dotychczasową regułę opartą na `last_login`.
+- **Uzasadnienie:** `last_login` może poprzedzać utratę obywatelstwa o wiele miesięcy i prowadzić do usunięcia kandydata w tym samym przebiegu schedulera.
+- **Weryfikacja:** testy sprawdzają rozpoczęcie, wygaśnięcie i wyzerowanie karencji oraz zachowanie czyszczenia kandydatów.
+- **Spodziewany efekt:** osoba odebrana z grupy z powodu reputacji pozostaje kandydatem przez skonfigurowany okres, niezależnie od daty logowania.
+
 ## 2026-11-07: Read/unread w ChatRoomRepository
 
 - **Zmienione obszary:** repozytorium pokoi, usługi czatu, feed, dashboard oraz widoki aplikacji korzystających z liczników czatu.

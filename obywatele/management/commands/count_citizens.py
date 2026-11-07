@@ -160,6 +160,7 @@ class Command(BaseCommand):
                 # User was successfully activated by THIS process
                 log.info(f'ACTIVATING: user_id={i.uid.id}, email={i.uid.email}, username={i.uid.username}, uzytkownik_id={i.id}')
                 i.data_przyjecia = now()
+                i.reputation_blocked_at = None
                 i.save()
 
                 CitizenActivity.objects.create(uzytkownik=i, activity_type=CitizenActivity.ActivityType.USER_ACTIVATED, description=_('Candidate has been accepted as a citizen'))
@@ -208,6 +209,7 @@ class Command(BaseCommand):
                 i.uid.is_active = False
                 i.uid.save()
                 invalidate_user_sessions(i.uid)
+                i.reputation_blocked_at = now()
                 i.save()
                 release_blocked_user_resources(i.uid)
                 log.info(f'Blocking user {i.uid}')
@@ -266,18 +268,28 @@ class Command(BaseCommand):
                 log.exception(f'Failed to delete user {username} (user-requested): {str(e)}')
 
     def delete_inactive_users(self):
-        """Delete inactive users who haven't logged in for a while"""
+        """Delete inactive users after the applicable grace period."""
         from site_settings.params import get_param
 
-        inactive_period = get_param('delete_inactive_user_after')
+        inactive_cutoff = now() - td(days=get_param('delete_inactive_user_after'))
 
         inactive_users = User.objects.filter(is_active=False).exclude(deletion_request__isnull=False)
         for user in inactive_users:
-            if user.last_login is None:
-                user.last_login = now()  # Set to current date
-                user.save()
+            profile = getattr(user, 'uzytkownik', None)
+            inactive_since = profile.reputation_blocked_at if profile else None
 
-            if user.last_login < (now() - td(days=inactive_period)):
+            if profile and inactive_since is None and profile.data_przyjecia is not None:
+                inactive_since = now()
+                profile.reputation_blocked_at = inactive_since
+                profile.save(update_fields=['reputation_blocked_at'])
+
+            if inactive_since is None:
+                if user.last_login is None:
+                    user.last_login = now()
+                    user.save(update_fields=['last_login'])
+                inactive_since = user.last_login
+
+            if inactive_since < inactive_cutoff:
                 citizen_deleted.send(sender='count_citizens', user=user)
                 try:
                     if hasattr(user, 'uzytkownik'):

@@ -77,6 +77,7 @@ class Uzytkownik(models.Model):
     uid = models.OneToOneField(User, on_delete=models.CASCADE, editable=False, null=True, verbose_name=_('Username'))
 
     reputation = models.SmallIntegerField(null=True, default=0)
+    reputation_blocked_at = models.DateTimeField(null=True, blank=True, editable=False)
     onboarding_status = models.CharField(max_length=32, choices=OnboardingStatus.choices, default=OnboardingStatus.EMAIL_ENTERED)
     polecajacy = models.CharField(editable=False, null=True, max_length=64)
     data_przyjecia = models.DateField(null=True, editable=False)
