@@ -15,8 +15,7 @@ from django.views.decorators.http import require_POST
 from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unread_message_counts_for_rooms
 from core.signals import survey_created, survey_updated
-from core.utils import build_detail_navigation, build_site_url
-from home.navigation import default_toolbar_views
+from core.utils import build_detail_navigation, build_site_url, default_toolbar_views
 
 from .forms import CustomSurveyOptionForm, SurveyForm
 from .models import Survey, SurveyOption, SurveyVote

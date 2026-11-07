@@ -23,8 +23,8 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as gettext
 
 from core.richtext import strip_tags
+from core.utils import user_display_name
 from site_settings.params import get_param
-from zzz.templatetags.citizen_filters import user_display_name
 
 from .models import Message, Room
 
@@ -460,7 +460,7 @@ def _find_federated_message(source_url, message_source_url, message_source_id):
 
 def _federated_read_by_payload(message):
     from core.presence import presence_data
-    from zzz.templatetags.citizen_filters import citizen_color_class, user_initials
+    from core.utils import citizen_color_class, user_initials
 
     entries = []
     for entry in message.read_by.select_related('user__uzytkownik').order_by('id'):

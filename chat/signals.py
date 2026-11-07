@@ -10,7 +10,7 @@ from django.dispatch import Signal, receiver
 from django.utils import timezone
 
 from core.signals import citizen_accepted, citizen_deleted
-from zzz.templatetags.citizen_filters import user_initials
+from core.utils import user_initials
 
 from .models import Message, Room
 from .services import ensure_system_rooms, send_message

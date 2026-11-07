@@ -1,5 +1,5 @@
 from core.presence import presence_data
-from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
+from core.utils import citizen_color_class, user_display_name, user_initials
 
 
 def build_chat_message_payloads(batch_data, current_user, avatar_url_for_user):

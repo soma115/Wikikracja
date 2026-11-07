@@ -40,6 +40,10 @@ def test_activity_includes_new_voting_arguments_and_invalidates_feed_cache(clien
     content = response.content.decode()
     assert f'data-object-id="{decision.pk}"' in content
     assert 'A new supporting argument' in content
+    assert 'data-view="list"' in content
+    assert 'data-view="grid"' in content
+    assert 'fas fa-list' in content
+    assert 'fas fa-grip' in content
 
 
 @pytest.mark.django_db

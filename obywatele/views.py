@@ -32,8 +32,7 @@ from chat.models import Room
 from chat.services import get_unread_message_counts_for_rooms, get_user_public_message_rows
 from core.services.notifications import clear_notifications_unsubscribe, unsubscribe_user_notifications, user_from_unsubscribe_token
 from core.signals import citizen_proposed
-from core.utils import get_user_language
-from home.navigation import default_toolbar_views
+from core.utils import default_toolbar_views, get_user_language
 from obywatele.forms import AvatarForm, EmailChangeForm, OnboardingDetailsForm, ProfileForm, UserForm, UsernameChangeForm
 from obywatele.map_data import build_map_payload, get_map_location_records
 from obywatele.map_geocoding import geocode_location, get_cached_coordinates

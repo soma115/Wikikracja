@@ -9,8 +9,7 @@ from django.utils.translation import gettext as _
 from chat.models import Room
 from chat.signals import chat_message_created, chat_message_requested, delete_linked_chat_room, request_discussion_room
 from core.signals import citizen_accepted, document_created, important_post_published
-from core.utils import build_site_url
-from zzz.templatetags.citizen_filters import user_display_name
+from core.utils import build_site_url, user_display_name
 
 from .models import Post, PostCategory
 

@@ -19,8 +19,7 @@ from chat.i18n import get_translations as get_chat_translations
 from chat.models import MessageAttachment
 from chat.services import get_unread_message_counts_for_rooms
 from chat.utils import get_upload_path
-from core.utils import build_detail_navigation
-from home.navigation import default_toolbar_views
+from core.utils import build_detail_navigation, default_toolbar_views
 
 from .forms import PostForm
 from .models import Post, PostAttachment, PostCategory

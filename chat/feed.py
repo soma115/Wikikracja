@@ -2,7 +2,7 @@ from django.utils import timezone
 
 from core.feed_registry import DIGEST_GROUP_ID
 from core.richtext import plain_text
-from zzz.templatetags.citizen_filters import user_display_name
+from core.utils import user_display_name
 
 from .models import Message, MessageReadBy, Room
 from .services import extract_mentions, mark_message_read_for_user, mark_message_unread_for_user

@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from zzz.templatetags.citizen_filters import user_display_name
+from core.utils import user_display_name
 
 from .models import CitizenActivity
 

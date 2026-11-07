@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy
 
 from core.presence import presence_data
 from core.richtext import sanitize, strip_tags
-from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
+from core.utils import citizen_color_class, user_display_name, user_initials
 
 from .exceptions import ClientError
 from .models import Message, MessageAttachment, MessageHistory, MessageHistoryEntry, MessageReadBy, Room

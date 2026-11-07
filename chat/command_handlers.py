@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from core.presence import PRESENCE_GROUP
 from core.richtext import sanitize
-from zzz.templatetags.citizen_filters import user_display_name
+from core.utils import user_display_name
 
 from .exceptions import ClientError
 from .notification_queue import clear_room_notification_state

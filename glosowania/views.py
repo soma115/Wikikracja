@@ -25,15 +25,13 @@ from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unread_message_counts_for_rooms
 from chat.signals import chat_message_requested
 from core.signals import vote_argument_added, vote_state_changed
-from core.utils import build_site_url
+from core.utils import build_site_url, default_toolbar_views, user_display_name
 from glosowania.dashboard import get_vote_storage_reliability_context
 from glosowania.forms import ArgumentForm, DecyzjaForm, ParametersProposalForm
 from glosowania.models import Argument, Decyzja, DecyzjaWersja, KtoJuzGlosowal, VoteCode, ZebranePodpisy, author_signed_exists
 from glosowania.vote_buffer import discard_pending_vote, push_pending_vote
-from home.navigation import default_toolbar_views
 from site_settings.models import SiteParameters
 from site_settings.params import describe_changes, specs_by_category
-from zzz.templatetags.citizen_filters import user_display_name
 
 log = logging.getLogger(__name__)
 
@@ -424,28 +422,11 @@ def details(request: HttpRequest, pk: int):
     chat_room_pulse_class = "tw-chat-room-pulse" if chat_unread_count else ""
 
     # Query arguments for this decision
-    arguments = Argument.objects.filter(decyzja=pk).select_related('author')
-
-    # Custom sorting: prioritize concise arguments, then by author's argument count
-    # First, get all arguments as a list to apply custom sorting
-    all_arguments = list(arguments)
-
-    # Count arguments per author for this decision
-    from collections import Counter
-
-    author_counts = Counter(arg.author_id for arg in all_arguments if arg.author_id)
-
-    # Sort by: 1) content length (shorter first), 2) author's argument count (fewer first)
-    def sort_key(arg):
-        content_length = len(arg.content)
-        author_arg_count = author_counts.get(arg.author_id, 0) if arg.author_id else 0
-        return (content_length, author_arg_count)
-
-    sorted_arguments = sorted(all_arguments, key=sort_key)
+    arguments = list(Argument.objects.filter(decyzja=pk).select_related('author').order_by('created_at', 'pk'))
 
     # Separate into positive and negative
-    positive_arguments = [arg for arg in sorted_arguments if arg.argument_type == 'FOR']
-    negative_arguments = [arg for arg in sorted_arguments if arg.argument_type == 'AGAINST']
+    positive_arguments = [arg for arg in arguments if arg.argument_type == 'FOR']
+    negative_arguments = [arg for arg in arguments if arg.argument_type == 'AGAINST']
 
     # Create argument form for adding new arguments
     argument_form = ArgumentForm()

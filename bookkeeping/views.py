@@ -23,8 +23,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryItemsAPI, CategoryReorderAPI
 from core.signals import transaction_created, transaction_updated
-from core.utils import build_detail_navigation, build_site_url
-from home.navigation import default_toolbar_views
+from core.utils import build_detail_navigation, build_site_url, default_toolbar_views
 from obywatele.models import Uzytkownik
 from resources.models import LEGACY_FINANCIAL_ASSET_SOURCE, LEGACY_RESOURCE_LISTING_SOURCE, Entity, LegacyEntityReference
 from resources.services import match_active_offers_for_needs, search_entities

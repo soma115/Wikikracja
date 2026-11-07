@@ -16,6 +16,30 @@
 
 # LOG_AI
 
+## 2026-11-07: Chronologiczna kolejność argumentów w głosowaniach
+
+- **Zmienione obszary:** widok szczegółów głosowania i test widoku.
+- **Co się zmieniło:** argumenty za i przeciw są osobno wyświetlane od najstarszych do najnowszych; przy identycznym czasie utworzenia kolejność rozstrzyga ID argumentu.
+- **Uzasadnienie:** najnowsze wypowiedzi powinny pojawiać się na dole, niezależnie od długości treści i liczby argumentów autora.
+- **Weryfikacja:** ukierunkowany test widoku i Ruff dla zmienionych plików Pythona przechodzą.
+- **Spodziewany efekt:** obie listy argumentów zachowują ten sam chronologiczny porządek, a nowe argumenty trafiają na dół.
+
+## 2026-11-07: Wspólna konfiguracja widoków toolbaru
+
+- **Zmienione obszary:** `core.utils`, widoki aplikacji, nawigacja i test aktywności.
+- **Co się zmieniło:** `default_toolbar_views()` przeniesiono z `home.navigation` do `core.utils`; aplikacje domenowe pobierają opcje listy i siatki ze wspólnej warstwy. Test strony aktywności sprawdza, że oba przyciski nadal są renderowane.
+- **Uzasadnienie:** widoki domenowe nie powinny zależeć od modułu nawigacji strony głównej tylko po wspólne dane toolbaru.
+- **Weryfikacja:** Ruff, `manage.py check` oraz ukierunkowany test aktywności przechodzą.
+- **Spodziewany efekt:** brak zmiany UI i preferencji użytkownika; usunięcie zależności modułów domenowych od `home.navigation`.
+
+## 2026-11-07: Wspólne helpery prezentacji obywateli
+
+- **Zmienione obszary:** `core.utils`, tagi szablonowe, importy w czacie i innych aplikacjach oraz testy helperów.
+- **Co się zmieniło:** `user_display_name`, `user_initials` i `citizen_color_class` przeniesiono do współdzielonych `core.utils`. Tagi Django nadal rejestrują te same filtry, a konsumenci Pythona importują helpery z warstwy core zamiast z `zzz.templatetags`.
+- **Uzasadnienie:** logika używana przez serializację czatu, federację i aplikacje domenowe nie powinna zależeć od modułu rejestrującego filtry szablonowe.
+- **Weryfikacja:** Ruff dla zmienionych plików oraz 57 testów `zzz/tests/test_citizen_filters.py`, `chat/tests/test_serializers.py` i `chat/tests/test_federation.py` przeszły.
+- **Spodziewany efekt:** bez zmian zachowania nazw, inicjałów, klas kolorów i payloadów; usunięcie zależności aplikacji od modułu tagów szablonowych.
+
 ## 2026-11-07: Sekcja uchylanych przepisów przed treścią
 
 - **Zmienione obszary:** szczegóły przepisu i test widoku.

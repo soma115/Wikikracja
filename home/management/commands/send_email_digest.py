@@ -20,13 +20,12 @@ from django.utils.translation import override
 from core.richtext import one_line_snippet, strip_tags
 from core.services.feed import build_user_digest
 from core.services.notifications import build_unsubscribe_url, unsubscribe_headers
-from core.utils import build_site_url, get_site_domain, get_user_language
+from core.utils import build_site_url, get_site_domain, get_user_language, user_initials
 from glosowania.models import Decyzja
 from home.templatetags.feed_filters import content_type_label
 from tasks.models import Task, TaskVote
 from zzz.email import send_bulk_email_in_thread
 from zzz.management.base_command import TranslatedCommand
-from zzz.templatetags.citizen_filters import user_initials
 
 log = logging.getLogger(__name__)
 

@@ -21,11 +21,11 @@ from django.views.decorators.http import require_GET, require_POST
 from chat.federation import deactivate_federated_room, discover_instance, ensure_federated_room, generate_federation_outbound_secret, normalize_instance_url, set_federation_inbound_secret
 from core.search_registry import collect_search_results
 from core.services import feed as feed_service
+from core.utils import default_toolbar_views
 from site_settings.models import QuickLink, SiteParameters
 from site_settings.services import get_branding_version
 
 from .link_titles import resolve_link_titles
-from .navigation import default_toolbar_views
 from .services import dashboard as dashboard_service
 
 log = logging.getLogger(__name__)

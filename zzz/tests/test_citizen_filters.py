@@ -2,7 +2,8 @@ from types import SimpleNamespace
 
 from django.test import SimpleTestCase
 
-from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
+from core.utils import citizen_color_class, user_display_name, user_initials
+from zzz.templatetags.citizen_filters import register
 
 
 def _user(username='jkowalski', first_name='', last_name=''):
@@ -55,3 +56,10 @@ class CitizenColorStabilityTest(SimpleTestCase):
     def test_color_depends_only_on_username(self):
         assert citizen_color_class('jkowalski') == citizen_color_class('jkowalski')
         assert citizen_color_class('jkowalski').startswith('tw-citizen-color-')
+
+
+class CitizenTemplateFiltersTest(SimpleTestCase):
+    def test_shared_helpers_remain_registered_as_template_filters(self):
+        assert register.filters['citizen_color_class'] is citizen_color_class
+        assert register.filters['user_display_name'] is user_display_name
+        assert register.filters['user_initials'] is user_initials

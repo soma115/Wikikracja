@@ -14,8 +14,7 @@ from django.utils.translation import gettext_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from core.signals import event_created, event_updated
-from core.utils import build_detail_navigation, build_site_url
-from home.navigation import default_toolbar_views
+from core.utils import build_detail_navigation, build_site_url, default_toolbar_views
 
 from .calendar import adjacent_months, build_calendar_grid, month_bounds, parse_month_param, year_options
 from .forms import EventForm

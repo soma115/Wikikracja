@@ -25,9 +25,7 @@ from chat.i18n import get_translations as get_chat_translations
 from chat.services import get_unread_message_counts_for_rooms, get_unseen_room_ids
 from core.presence import presence_data
 from core.signals import task_status_changed
-from core.utils import build_detail_navigation
-from home.navigation import default_toolbar_views
-from zzz.templatetags.citizen_filters import citizen_color_class, user_display_name, user_initials
+from core.utils import build_detail_navigation, citizen_color_class, default_toolbar_views, user_display_name, user_initials
 
 from .activity import get_task_status_label
 from .forms import TaskForm, TaskMetadataForm, TaskStatusForm

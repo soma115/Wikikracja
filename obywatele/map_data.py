@@ -5,8 +5,8 @@ from django.db.models import Q
 from django.urls import reverse
 
 from bookkeeping.models import Partner
+from core.utils import user_display_name
 from resources.models import Entity
-from zzz.templatetags.citizen_filters import user_display_name
 
 from .models import Country, Uzytkownik
 

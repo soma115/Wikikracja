@@ -633,6 +633,30 @@ def test_edit_argument_uses_responsive_actions(sample_users):
 
 
 @pytest.mark.django_db
+def test_arguments_are_displayed_oldest_first(sample_users):
+    author = sample_users[0]
+    decision = Decyzja.objects.create(title='Argument ordering', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author)
+    arguments = {
+        'for_new': Argument.objects.create(decyzja=decision, author=author, argument_type='FOR', content='FOR newer'),
+        'against_old': Argument.objects.create(decyzja=decision, author=author, argument_type='AGAINST', content='AGAINST older and longer'),
+        'for_old': Argument.objects.create(decyzja=decision, author=author, argument_type='FOR', content='FOR older and longer'),
+        'against_new': Argument.objects.create(decyzja=decision, author=author, argument_type='AGAINST', content='AGAINST newer'),
+    }
+    oldest = timezone.now()
+    for name, timestamp in (('for_old', oldest), ('against_old', oldest), ('for_new', oldest + timedelta(seconds=1)), ('against_new', oldest + timedelta(seconds=1))):
+        Argument.objects.filter(pk=arguments[name].pk).update(created_at=timestamp)
+
+    client = Client()
+    client.force_login(author)
+    response = client.get(f'/glosowania/details/{decision.pk}/')
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert content.index('FOR older and longer') < content.index('FOR newer')
+    assert content.index('AGAINST older and longer') < content.index('AGAINST newer')
+
+
+@pytest.mark.django_db
 def test_add_argument_notifies_referendum_chat_once(sample_users):
     author = sample_users[0]
     decision = Decyzja.objects.create(title='Argument proposal', tresc='Text', status=Decyzja.Status.PROPOSITION, author=author)

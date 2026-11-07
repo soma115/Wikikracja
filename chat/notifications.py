@@ -13,8 +13,7 @@ from django.utils.translation import gettext as _
 
 from core import notifications as core_notifications
 from core.notifications import NOTIF_LOG_TAG
-from core.utils import get_site_domain
-from zzz.templatetags.citizen_filters import user_initials
+from core.utils import get_site_domain, user_initials
 
 from .models import MessageReadBy, Room
 from .notification_queue import enqueue_notification
