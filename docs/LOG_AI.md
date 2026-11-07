@@ -16,6 +16,14 @@
 
 # LOG_AI
 
+## 2026-11-07: Przyszłe transakcje dla planów cyklicznych
+
+- **Zmienione obszary:** modele i migracja bookkeeping, widoki/formularze/templates Finansów, dispatcher powiadomień, scheduler, tłumaczenia i testy.
+- **Co się zmieniło:** plany są miesięczne lub roczne, a każdy wygenerowany termin tworzy planowaną `Transaction` widoczną w Transakcjach, lecz pomijaną w saldach/raportach. Propagacja uzupełnia też brakujące planowane transakcje dla terminów wygenerowanych wcześniej. Potwierdzenie płatności atomowo aktualizuje ten sam rekord do zaksięgowanej transakcji; jej usunięcie odtwarza planowaną pozycję. Lista Cykliczne pokazuje pojedynczy wpis na plan. Nieopłacone składki trafiają na początek każdego wysyłanego Daily Digest aż do zapłaty (bez osobnego e-maila, z zachowaniem push w terminie); opłaty grupy przypominają e-mailem i pushem wyłącznie jednemu skarbnikowi wybranemu w planie.
+- **Uzasadnienie:** składki członkowskie i rachunki zewnętrzne wymagają wspólnego śledzenia przyszłych terminów, zaległości i potwierdzeń księgowych.
+- **Weryfikacja:** wcześniejszy pełny runner zaliczył 1542 testy pytest i 328 testów Jest; po zmianie digestu i odbiorcy 58 testów bookkeeping/digest przeszło, a build CSS, regression scan, UI guard i kompilacja tłumaczeń również. Playwright nie uruchomił się, bo `.env.local` nie zawiera `E2E_BASE_URL`.
+- **Spodziewany efekt:** skarbnik i członkowie widzą należności w Finansach; potwierdzenie płatności od razu ujmuje ją w transakcjach i raportach.
+
 ## 2026-11-07: Karencja po blokadzie reputacyjnej
 
 - **Zmienione obszary:** model `Uzytkownik`, komenda `count_citizens` i testy reputacji oraz czyszczenia kont.

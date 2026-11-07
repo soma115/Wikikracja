@@ -370,6 +370,19 @@
                 <p class="email-intro">{{ digest_intro }}</p>
               </div>
 
+              {% if payment_reminders %}
+              <div class="email-critical">
+                <p class="email-critical-title">{{ payment_reminders_title }}</p>
+                <p>{{ payment_reminders_intro }}</p>
+                {% for reminder in payment_reminders %}
+                <div class="email-critical-item">
+                  &bull; <a href="{{ reminder.url }}">{{ reminder.title }}</a> — {{ reminder.amount }} {{ reminder.symbol }} · {{ reminder.due_date }}
+                  {% if reminder.is_overdue %} · {{ payment_reminders_overdue }}{% endif %}
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+
               {% if restarted_votes %}
               <div class="email-critical">
                 <p class="email-critical-title">{{ restarted_votes_title }}</p>

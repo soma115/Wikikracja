@@ -1,0 +1,63 @@
+{% extends 'bookkeeping/menu.html' %}
+{% load i18n %}
+{% load bookkeeping_extras %}
+
+{% block prefs_tab %}dues{% endblock %}
+{% block bookkeeping %}
+<div class="tw-container tw-my-4">
+  {% include 'home/includes/detail_header.html' with title=payment_due.name back_url=payment_plan_url back_label=_('Back to recurring payments') actions_include='bookkeeping/_payment_due_actions.html' %}
+  <div class="tw-card">
+    <div class="tw-card-body">
+      <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-3">
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Status" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">
+          {% if payment_due.status == 'paid' %}<span class="tw-badge-status tw-badge-success">{% trans "Paid" %}</span>
+          {% elif payment_due.status == 'cancelled' %}<span class="tw-badge-status tw-badge-secondary">{% trans "Cancelled" %}</span>
+          {% elif payment_due.is_overdue %}<span class="tw-badge-status tw-badge-danger">{% trans "Overdue" %}</span>
+          {% else %}<span class="tw-badge-status tw-badge-warning">{% trans "Unpaid" %}</span>{% endif %}
+        </dd>
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Direction" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{% if payment_due.direction == 'I' %}{% trans "To receive" %}{% else %}{% trans "To pay" %}{% endif %}</dd>
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Due date" context "payment due" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_due.due_date|date:"d.m.Y" }}</dd>
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Amount" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_due.amount|normalize_decimal }} {{ payment_due.entity.symbol }} · {{ payment_due.entity.code }}</dd>
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Category" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_due.category.name }}</dd>
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Recipient" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_due.partner.name|default:"—" }}</dd>
+
+        {% if payment_due.debtor or payment_due.debtor_partner %}
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Payer" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{% if payment_due.debtor %}{{ payment_due.debtor.get_full_name|default:payment_due.debtor.username }}{% else %}{{ payment_due.debtor_partner.name }}{% endif %}</dd>
+        {% endif %}
+
+        {% if not payment_due.debtor and not payment_due.debtor_partner %}
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Treasurer" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_due.treasurer.get_full_name|default:payment_due.treasurer.username|default:"—" }}</dd>
+        {% endif %}
+
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Payment plan" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9"><a href="{% url 'bookkeeping:payment_plan_detail' payment_due.plan_id %}" class="tw-text-primary">{{ payment_due.plan.name }}</a></dd>
+
+        {% if payment_due.transaction %}
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Transaction" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">
+          <a href="{% url 'bookkeeping:transaction_detail' payment_due.transaction_id %}" class="tw-text-primary">#{{ payment_due.transaction_id }} · {{ payment_due.transaction.get_status_display }}</a>
+          {% if payment_due.is_paid %}<span class="tw-text-muted">· {{ payment_due.paid_at|date:"d.m.Y" }} · {{ payment_due.paid_by.get_full_name|default:payment_due.paid_by.username|default:_('Unknown') }}</span>{% endif %}
+        </dd>
+        {% endif %}
+        {% if payment_due.cancelled_at %}
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Cancelled by" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_due.cancelled_by|default:"—" }}</dd>
+        {% endif %}
+      </dl>
+    </div>
+  </div>
+</div>
+{% endblock bookkeeping %}

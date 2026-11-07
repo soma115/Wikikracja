@@ -294,22 +294,22 @@ def send_fcm_to_all_sync(notification, user_ids=None, notification_type=None):
     return 0
 
 
-def send_websocket_to_user_sync(user_id, notification, ws_type='notification', notification_type=None, push_event=None):
+def send_websocket_to_user_sync(user_id, notification, ws_type='notification', notification_type=None, push_event=None, *, return_status=False):
     """Send a WebSocket notification to a single user's personal group."""
     notification_id = notification.get('notification_id', '?')
     if push_event:
         config = get_push_event_config(push_event)
         if not config or not config['websocket'] or (notification_type and notification_type != config['module']):
-            return
+            return False if return_status else None
         notification_type = config['module']
     if notification_type:
         user = get_user_model().objects.filter(pk=user_id, is_active=True).first()
         if not user or not _push_enabled_for_user(user, notification_type):
-            return
+            return False if return_status else None
     channel_layer = get_channel_layer()
     if channel_layer is None:
         log.warning(f"{NOTIF_LOG_TAG} Channel layer not configured; skipping WebSocket notification_id={notification_id} for user {user_id}")
-        return
+        return False if return_status else None
 
     try:
         log.debug(f"{NOTIF_LOG_TAG} group_send notification_id={notification_id} to user_{user_id} (type={ws_type})")
@@ -317,8 +317,32 @@ def send_websocket_to_user_sync(user_id, notification, ws_type='notification', n
         if "room_id" in notification:
             event["room_id"] = notification["room_id"]
         async_to_sync(channel_layer.group_send)(f"user_{user_id}", event)
+        return True if return_status else None
     except Exception as e:
         log.warning(f"{NOTIF_LOG_TAG} WebSocket notification_id={notification_id} failed for user {user_id}: {e}")
+        return False if return_status else None
+
+
+def send_payment_due_email(user, subject, body):
+    if not user.email or notifications_unsubscribed(user):
+        return False
+    with override(get_user_language(user)):
+        send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False, headers=unsubscribe_headers(user))
+    return True
+
+
+def send_payment_due_push(user, title, body, click_action, due_id):
+    push_event = 'bookkeeping.payment_due'
+    config = get_push_event_config(push_event)
+    if not config:
+        return False
+    with override(get_user_language(user)):
+        notification = build_notification(str(title), body, click_action, f'payment-due-{due_id}', payment_due_id=due_id)
+    fcm_sent = send_fcm_to_user_sync(user, notification, notification_type='bookkeeping', push_event=push_event) if config['fcm'] else 0
+    websocket_sent = (
+        send_websocket_to_user_sync(user.pk, notification, ws_type='transaction.notification', notification_type='bookkeeping', push_event=push_event, return_status=True) if config['websocket'] else False
+    )
+    return bool(fcm_sent or websocket_sent)
 
 
 def send_websocket_to_all_sync(notification, ws_type='notification', notification_type=None, user_ids=None):

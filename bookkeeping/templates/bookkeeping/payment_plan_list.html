@@ -1,0 +1,21 @@
+{% extends 'bookkeeping/menu.html' %}
+{% load i18n %}
+
+{% block prefs_tab %}dues{% endblock %}
+{% block bookkeeping %}
+<div class="tw-section tw-space-y-3">
+  <h1 class="tw-section-heading">{% trans "Recurring payments" %}</h1>
+
+  {% include 'home/includes/toolbar.html' with views=toolbar_views %}
+
+  <div class="tw-proposals-list" data-view-container>
+    {% if payment_plans %}
+      {% for payment_plan in payment_plans %}
+        {% include 'bookkeeping/_payment_plan_card.html' %}
+      {% endfor %}
+    {% else %}
+      {% include 'home/includes/empty_state.html' with compact=True icon='fa-repeat' title=_('No payment plans yet.') %}
+    {% endif %}
+  </div>
+</div>
+{% endblock bookkeeping %}

@@ -17,6 +17,7 @@
       {% if has_dependencies %}
         <div class="tw-alert tw-alert-warning">
           <p><strong>{% block dependencies_header %}{% endblock %}</strong></p>
+          {% if related_transactions %}
           <table class="tw-citizens-table">
             <thead>
               <tr>
@@ -51,6 +52,8 @@
               {% endfor %}
             </tbody>
           </table>
+          {% endif %}
+          {% block additional_dependencies %}{% endblock %}
           <p class="tw-mt-3">{% block dependencies_footer %}{% endblock %}</p>
         </div>
 

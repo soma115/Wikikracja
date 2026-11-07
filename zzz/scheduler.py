@@ -81,6 +81,7 @@ def _start_scheduler():
     - 5 8 * * * -> vote
     - */5 * * * * -> count_citizens (every 5 minutes)
     - 2 * * * * -> update_site (every hour)
+    - 15 8 * * * -> process_payment_reminders
     """
     global _scheduler_lock_fd
 
@@ -107,6 +108,9 @@ def _start_scheduler():
 
     scheduler.add_job(run_delete_archived_posts, trigger=CronTrigger(hour=8, minute=10), id='delete_archived_posts', name='Delete expired archived documents', replace_existing=True)
     log.info("Scheduled job: delete_archived_posts at 08:10 daily")
+
+    scheduler.add_job(run_process_payment_reminders, trigger=CronTrigger(hour=8, minute=15), id='process_payment_reminders', name='Generate payment periods and send payment reminders', replace_existing=True)
+    log.info("Scheduled job: process_payment_reminders at 08:15 daily")
 
     # Count citizens - runs every 5 minutes
     scheduler.add_job(run_count_citizens, trigger=CronTrigger(minute='*/5'), id='count_citizens', name='Count citizens and manage reputation', replace_existing=True)
@@ -224,6 +228,11 @@ def run_delete_archived_posts():
     """Execute delete_archived_posts management command"""
     with _db_lock:
         _run_command('delete_archived_posts')
+
+
+def run_process_payment_reminders():
+    with _db_lock:
+        _run_command('process_payment_reminders')
 
 
 def run_update_site():

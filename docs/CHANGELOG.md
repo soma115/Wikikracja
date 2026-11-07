@@ -5,6 +5,12 @@
 
 ## Unreleased
 
+### Features
+
+- **bookkeeping**: Dodano Finansy → Cykliczne: miesięczne i roczne plany składek oraz opłat zewnętrznych, bez planów jednorazowych. Plan wpłat wymaga co najmniej jednego aktywnego członka i/lub partnera; każdy płatnik ma osobny termin i planowaną transakcję, a termin zachowuje migawkę płatnika. Plan określa kierunek, kwotę, walutę/aktywo, kategorię, odbiorcę i termin; dla płatności grupowej wskazuje jednego skarbnika. Partner składki członka jest wybierany ręcznie przy potwierdzeniu.
+- **bookkeeping**: Planowana transakcja nie wpływa na salda, raporty ani feed. Potwierdzenie aktualizuje ten sam rekord, a jego kierunek pozostaje zgodny z planem. Generator jest idempotentny, utrzymuje jeden kolejny okres i przesuwa nieistniejący dzień terminu na ostatni dzień miesiąca. Edycja zmienia najbliższy przyszły termin nieopłacony, zachowując opłacone; zakończenie planu zachowuje terminy, a usunięcie kasuje nieopłacone i odłącza zachowane opłacone transakcje.
+- **bookkeeping/notifications**: Nieopłacone składki są pierwszą sekcją każdego wysyłanego Daily Digest aż do zapłaty; push zostaje w dniu terminu. Opłaty grupy e-mailem/pushem trafiają wyłącznie do jednego skarbnika wybranego w planie. Scheduler generuje okres i uzupełnia brakujące transakcje planowane.
+
 ### Refactor
 
 - **board/editor**: Dokumenty korzystają z osobnego renderowania treści TinyMCE, zachowują strukturę HTML5 (w tym listy, nagłówki, tabele i formatowanie), a obszar edycji i widok artykułu używają wspólnego stylowania UI. Prosty `RichTextWidget` pozostaje niezależny. Minimalne filtrowanie usuwa tylko skrypty, event handlery i niebezpieczne protokoły URL. Projekt używa `django-tinymce==5.0.0` z TinyMCE 7.8.0; `tinycss2==1.5.1` obsługuje bezpieczne style CSS.

@@ -5,11 +5,24 @@
 
 {% block bookkeeping %}
 <div class="tw-container tw-my-4">
-  {% trans "Transaction" as transaction_title %}
-  {% include 'home/includes/detail_header.html' with title=transaction_title navigation_include='home/includes/detail_navigation.html' actions_include='bookkeeping/_detail_actions.html' %}
+  {% if transaction.status == 'planned' and transaction.payment_due %}
+    {% include 'home/includes/detail_header.html' with title=transaction.payment_due.name navigation_include='home/includes/detail_navigation.html' actions_include='bookkeeping/_detail_actions.html' %}
+  {% else %}
+    {% trans "Transaction" as transaction_title %}
+    {% include 'home/includes/detail_header.html' with title=transaction_title navigation_include='home/includes/detail_navigation.html' actions_include='bookkeeping/_detail_actions.html' %}
+  {% endif %}
   <div class="tw-card">
     <div class="tw-card-body">
       <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-3">
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Payment status' %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">
+          {% if transaction.status == 'planned' %}
+            <span class="tw-badge-status tw-badge-warning">{% trans "Planned" %}</span>
+          {% else %}
+            <span class="tw-badge-status tw-badge-success">{% trans "Recorded" %}</span>
+          {% endif %}
+        </dd>
+
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Type' %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">
           {% if transaction.type == 'I' %}
@@ -19,11 +32,16 @@
           {% endif %}
         </dd>
 
-        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Date' %}</dt>
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% if transaction.status == 'planned' %}{% trans "Due date" context "payment due" %}{% else %}{% trans 'Date' %}{% endif %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.payment_received_date|date:"Y-m-d" }}</dd>
 
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Partner' %}</dt>
-        <dd class="tw-col-span-12 sm:tw-col-span-9"><a href="{% url 'bookkeeping:partner_detail' transaction.partner.pk %}">{{ transaction.partner }}</a></dd>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{% if transaction.partner %}<a href="{% url 'bookkeeping:partner_detail' transaction.partner.pk %}">{{ transaction.partner }}</a>{% else %}—{% endif %}</dd>
+
+        {% if transaction.payment_due.debtor or transaction.payment_due.debtor_partner %}
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Payer' %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{% if transaction.payment_due.debtor %}{{ transaction.payment_due.debtor.get_full_name|default:transaction.payment_due.debtor.username }}{% else %}{{ transaction.payment_due.debtor_partner.name }}{% endif %}</dd>
+        {% endif %}
 
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Category' %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">
@@ -52,6 +70,11 @@
 
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans 'Note' %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ transaction.note|default:"—"|linebreaks }}</dd>
+
+        {% if transaction.payment_due %}
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Recurring payment" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9"><a href="{% url 'bookkeeping:payment_due_detail' transaction.payment_due_id %}" class="tw-text-primary">{{ transaction.payment_due.plan.name }}</a></dd>
+        {% endif %}
       </dl>
 
     </div>

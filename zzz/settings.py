@@ -505,6 +505,7 @@ PUSH_EVENTS = {
     'vote.buffer_restarted': {'module': 'glosowania', 'fcm': True, 'websocket': True},
     'transaction.created': {'module': 'bookkeeping', 'fcm': True, 'websocket': True},
     'transaction.updated': {'module': 'bookkeeping', 'fcm': False, 'websocket': False},
+    'bookkeeping.payment_due': {'module': 'bookkeeping', 'fcm': True, 'websocket': True},
     'survey.created': {'module': 'survey', 'fcm': True, 'websocket': True},
     'survey.updated': {'module': 'survey', 'fcm': False, 'websocket': False},
     'chat.message': {'module': 'chat', 'fcm': True, 'websocket': True},

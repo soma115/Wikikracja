@@ -38,6 +38,10 @@ Kontrakty:
 - Wyłączona preferencja modułu lub globalne wypisanie ma pierwszeństwo przed konfiguracją zdarzenia. FCM dodatkowo respektuje ustawienia urządzeń (telefon/tablet i komputer); powiadomienia czatu respektują wyciszenie nadawcy w danym pokoju.
 - Preferencja PUSH dla Finansów (`push_notifications_bookkeeping`) jest domyślnie wyłączona i ma przełącznik w `/obywatele/settings/`.
 - Brak konfiguracji Firebase wyłącza FCM bez wyłączania niezależnego kanału WebSocket.
+- Przypomnienie o składce członka (`bookkeeping.payment_due`) trafia na początku każdego wysyłanego temu członkowi Daily Digest, jeśli termin jest dziś lub minął i należność nie została opłacona. Powtarza się w kolejnych digestach aż do zapłaty; nie jest wysyłany osobny e-mail dla każdej składki. Częstotliwość digestu i globalne wypisanie nadal obowiązują. Push pozostaje osobnym przypomnieniem w dniu terminu i respektuje preferencję Finansów oraz ustawienia urządzeń.
+- Przypomnienie o płatności grupy jest kierowane e-mailem i pushem wyłącznie do jednego skarbnika wskazanego w planie. `process_payment_reminders` generuje najwyżej jeden kolejny okres i obsługuje takie przypomnienia w dniu terminu.
+- Dostawa push oraz e-maila skarbnika jest śledzona osobno dla terminu, odbiorcy i kanału. Udana lub pominięta dostawa nie jest ponawiana; błąd kanału pozostawia go do ponowienia, nie blokując drugiego kanału. Brak Firebase nie blokuje e-maila skarbnika.
+- Każdy termin ma planowaną transakcję widoczną w Finansach/Transakcjach, ale pomijaną w saldach, raportach i feedzie. Potwierdzenie płatności zmienia jej status na zaksięgowany i emituje standardowe zdarzenie utworzenia transakcji.
 
 ## Restart referendum po utracie głosów
 
@@ -85,6 +89,7 @@ Wysłanie wiadomości przez użytkownika ponownie włącza powiadomienia w tym p
 
 - Preferencje, globalne wypisanie i tokeny wypisania: `obywatele/models.py`, `obywatele/views.py`, `core/services/notifications.py`.
 - Dispatcher, reguły PUSH i odbiorcy: `core/notifications.py`, konfiguracja `zzz/settings.py`.
+- Przypomnienia o należnościach: `bookkeeping.services.process_payment_reminders`, `bookkeeping/management/commands/process_payment_reminders.py`, `PaymentReminderDelivery` oraz zadanie schedulera o 08:15 czasu lokalnego.
 - Feed i agregacja digestu: `core/services/feed.py` oraz providery `board/feed.py`, `bookkeeping/feed.py`, `chat/feed.py`, `events/feed.py`, `glosowania/feed.py`, `tasks/feed.py`, `ankiety/feed.py` i `obywatele/feed.py`.
 - Wysyłka digestu: `home/management/commands/send_email_digest.py`; harmonogram: `zzz/scheduler.py`.
 - Kolejka i zachowanie powiadomień czatu: `chat/notification_queue.py`, `chat/notifications.py`, `chat/command_handlers.py`.

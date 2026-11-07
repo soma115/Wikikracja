@@ -18,7 +18,7 @@ from django.utils.translation import override
 
 from ankiety.models import Survey
 from board.models import Post
-from bookkeeping.models import Partner, Transaction
+from bookkeeping.models import Category, Partner, PaymentDue, PaymentPlan, Transaction
 from chat.models import Message, MessageReadBy, Room
 from core.models import ReadStatus
 from core.services.feed import build_user_digest
@@ -456,6 +456,43 @@ class SendEmailDigestCommandTest(TransactionTestCase):
         with patch('home.management.commands.send_email_digest.timezone.now', return_value=FIXED_NOW):
             call_command('send_email_digest')
         _drain_threads()
+
+    def test_unpaid_member_payment_is_first_digest_section_until_posted(self):
+        user = self._make_active_user('member-due', 'member-due@example.com')
+        asset = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='DUE', name='Due asset', symbol='D')
+        category = Category.objects.create(name='Due category')
+        plan = PaymentPlan.objects.create(
+            name='Annual membership',
+            direction=PaymentPlan.Direction.INCOMING,
+            amount=100,
+            entity=asset,
+            category=category,
+            recurrence=PaymentPlan.Recurrence.YEARLY,
+            first_due_date=timezone.localdate(FIXED_NOW),
+            author=user,
+        )
+        due = PaymentDue.objects.create(plan=plan, name=plan.name, direction=plan.direction, amount=plan.amount, entity=asset, category=category, due_date=timezone.localdate(FIXED_NOW), debtor=user)
+        transaction = Transaction.objects.create(
+            type=Transaction.INCOMING, status=Transaction.Status.PLANNED, entity=asset, category=category, amount=due.amount, payment_received_date=due.due_date, note=due.name, author=user, payment_due=due
+        )
+        decision = Decyzja.objects.create(title='Restarted after reminder', referendum_restart_count=1)
+        Decyzja.objects.filter(pk=decision.pk).update(data_ostatniej_modyfikacji=FIXED_NOW - td(hours=1))
+
+        with patch('home.management.commands.send_email_digest.build_user_digest', return_value=[]):
+            self._run_digest()
+
+        email = next(item for item in mail.outbox if user.email in item.to)
+        with override('pl'):
+            payment_title = str(_('Important: unpaid membership payments'))
+            restart_title = str(_('Important: voting was restarted after a technical failure'))
+        assert payment_title in email.body
+        assert email.body.index(payment_title) < email.body.index(restart_title)
+        assert email.body.index(payment_title) < email.body.index('Annual membership')
+        assert 'Annual membership' in email.alternatives[0][0]
+        assert Command._get_unpaid_member_payment_dues(user, timezone.localdate(FIXED_NOW))
+        transaction.status = Transaction.Status.POSTED
+        transaction.save(update_fields=['status'])
+        assert Command._get_unpaid_member_payment_dues(user, timezone.localdate(FIXED_NOW)) == []
 
     def test_digest_sends_email_to_due_user(self):
         user = self._make_active_user('citizen', 'citizen@example.com')

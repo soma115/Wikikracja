@@ -24,7 +24,16 @@ def bookkeeping_active_tab(context):
     url_name = request.resolver_match.url_name or ''
     if url_name == 'index':
         return 'transactions'
-    for prefix, tab in (('transaction', 'transactions'), ('partner', 'partners'), ('category', 'categories'), ('asset', 'assets'), ('resource', 'resources'), ('report', 'reports')):
+    for prefix, tab in (
+        ('transaction', 'transactions'),
+        ('payment_due', 'dues'),
+        ('payment_plan', 'dues'),
+        ('partner', 'partners'),
+        ('category', 'categories'),
+        ('asset', 'assets'),
+        ('resource', 'resources'),
+        ('report', 'reports'),
+    ):
         if url_name.startswith(prefix):
             return tab
     return ''
@@ -61,13 +70,14 @@ def bookkeeping_stepper(context):
         active = 'transaction_list'
 
     tab = ''
-    for prefix, name in (('transaction', 'transactions'), ('partner', 'partners'), ('asset', 'assets'), ('resource', 'resources'), ('report', 'reports')):
+    for prefix, name in (('transaction', 'transactions'), ('payment_due', 'dues'), ('payment_plan', 'dues'), ('partner', 'partners'), ('asset', 'assets'), ('resource', 'resources'), ('report', 'reports')):
         if active.startswith(prefix):
             tab = name
             break
 
     steps = [
         {'url': reverse('bookkeeping:transaction_list'), 'icon': 'money-bill-transfer', 'label': _('Transactions'), 'active': tab == 'transactions'},
+        {'url': reverse('bookkeeping:payment_plan_list'), 'icon': 'repeat', 'label': _('Recurring'), 'active': tab == 'dues'},
         {'url': reverse('bookkeeping:partner_list'), 'icon': 'handshake', 'label': _('Partners'), 'active': tab == 'partners'},
         {'url': reverse('bookkeeping:asset_list'), 'icon': 'coins', 'label': _('Currencies'), 'active': tab == 'assets'},
         {
@@ -80,7 +90,12 @@ def bookkeeping_stepper(context):
         {'url': reverse('bookkeeping:report_list'), 'icon': 'chart-pie', 'label': _('Reports'), 'active': tab == 'reports'},
     ]
 
-    cta_map = {'transactions': ('bookkeeping:transaction_create', _('Add transaction')), 'partners': ('bookkeeping:partner_create', _('Add partner')), 'assets': ('bookkeeping:asset_create', _('Add asset'))}
+    cta_map = {
+        'transactions': ('bookkeeping:transaction_create', _('Add transaction')),
+        'dues': ('bookkeeping:payment_plan_create', _('Add recurring payment')),
+        'partners': ('bookkeeping:partner_create', _('Add partner')),
+        'assets': ('bookkeeping:asset_create', _('Add asset')),
+    }
     cta_url = ''
     cta_label = ''
     if active.endswith('_list') and tab in cta_map:

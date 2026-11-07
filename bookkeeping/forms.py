@@ -3,13 +3,15 @@ from datetime import datetime
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from obywatele.map_data import normalize_country
 from obywatele.models import Country, Uzytkownik
 from resources.models import Entity
 
-from .models import Category, Partner, Transaction
+from .models import Category, Partner, PaymentPlan, Transaction
 
 
 class PartnerForm(forms.ModelForm):
@@ -52,6 +54,25 @@ class AssetForm(forms.ModelForm):
 class ActiveMemberChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, profile):
         return profile.uid.get_full_name() or profile.uid.get_username()
+
+
+class ActiveUserChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, user):
+        return user.get_full_name() or user.get_username()
+
+
+class ActiveMemberMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, user):
+        return user.get_full_name() or user.get_username()
+
+
+class SelectAllCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
+    select_all_label = _('Select all')
+    deselect_all_label = _('Deselect all')
+
+
+def _active_member_user_queryset():
+    return get_user_model().objects.filter(is_active=True, uzytkownik__uid__is_active=True).order_by('first_name', 'last_name', 'username')
 
 
 class ResourceEntityForm(forms.Form):
@@ -184,3 +205,80 @@ class TransactionForm(forms.ModelForm):
         # Format the existing date for editing instances
         elif self.instance.payment_received_date:
             self.initial['payment_received_date'] = self.instance.payment_received_date.strftime('%Y-%m-%d')
+
+
+class PaymentPlanForm(forms.ModelForm):
+    debtors = ActiveMemberMultipleChoiceField(
+        queryset=_active_member_user_queryset(),
+        required=False,
+        label=_('Members who pay'),
+        help_text=_('Select members and/or partners; each selected payer gets a separate payment due and transaction. Hold Shift and click another option to select a range.'),
+        widget=SelectAllCheckboxSelectMultiple(attrs={'data-shift-range-select': 'true'}),
+    )
+    debtor_partners = forms.ModelMultipleChoiceField(
+        queryset=Partner.objects.order_by('name'),
+        required=False,
+        label=_('Partners who pay'),
+        help_text=_('Hold Shift and click another option to select a range.'),
+        widget=SelectAllCheckboxSelectMultiple(attrs={'data-shift-range-select': 'true'}),
+    )
+    treasurer = ActiveUserChoiceField(
+        queryset=_active_member_user_queryset(),
+        required=False,
+        label=_('Treasurer'),
+        help_text=_('This person receives reminders for payments made by the group. Member dues are sent through the Daily Digest.'),
+        widget=forms.Select(attrs={'class': 'tw-form-control'}),
+    )
+
+    class Meta:
+        model = PaymentPlan
+        fields = ('name', 'description', 'direction', 'amount', 'entity', 'category', 'partner', 'debtors', 'debtor_partners', 'recurrence', 'first_due_date', 'treasurer')
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3, 'class': 'tw-form-control'}),
+            'direction': forms.RadioSelect(attrs={'class': 'tw-form-check-inline'}),
+            'amount': forms.NumberInput(attrs={'class': 'tw-form-control', 'step': 'any'}),
+            'first_due_date': forms.DateInput(attrs={'type': 'date', 'class': 'tw-form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['entity'].queryset = Entity.objects.filter(entity_type=Entity.Type.FINANCIAL_ASSET).order_by('code')
+        self.fields['entity'].label = _('Currency')
+        self.fields['category'].queryset = Category.objects.order_by('order', 'name', 'pk')
+        partners = Partner.objects.order_by('name')
+        self.fields['partner'].queryset = partners
+        self.fields['debtor_partners'].queryset = partners
+        self.fields['entity'].empty_label = None
+        self.fields['recurrence'].choices = [choice for choice in self.fields['recurrence'].choices if choice[0] != PaymentPlan.Recurrence.ONCE]
+        if not self.is_bound and not self.instance.pk:
+            self.initial.setdefault('entity', Entity.get_default_financial_asset())
+            self.initial.setdefault('first_due_date', timezone.localdate())
+        if self.instance.pk:
+            self.fields['debtors'].queryset = (self.fields['debtors'].queryset | self.instance.debtors.all()).order_by('first_name', 'last_name', 'username')
+            self.initial['debtors'] = self.instance.debtors.all()
+            self.initial['debtor_partners'] = self.instance.debtor_partners.all()
+            if self.instance.direction == PaymentPlan.Direction.INCOMING and not self.instance.debtors.exists() and not self.instance.debtor_partners.exists():
+                self.initial['debtors'] = self.fields['debtors'].queryset
+            for field_name in ('direction', 'recurrence', 'first_due_date'):
+                self.fields[field_name].disabled = True
+            if self.instance.recurrence == PaymentPlan.Recurrence.ONCE:
+                self.fields['recurrence'].choices = [(PaymentPlan.Recurrence.ONCE, PaymentPlan.Recurrence.ONCE.label), *self.fields['recurrence'].choices]
+
+    def clean_first_due_date(self):
+        due_date = self.cleaned_data['first_due_date']
+        if not self.instance.pk and due_date < timezone.localdate():
+            raise forms.ValidationError(_('The first due date cannot be in the past.'))
+        return due_date
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get('direction') == PaymentPlan.Direction.OUTGOING:
+            if not cleaned_data.get('treasurer'):
+                self.add_error('treasurer', _('Select a treasurer for an outgoing payment.'))
+            cleaned_data['debtors'] = []
+            cleaned_data['debtor_partners'] = []
+        else:
+            cleaned_data['treasurer'] = None
+            if not cleaned_data.get('debtors') and not cleaned_data.get('debtor_partners'):
+                self.add_error('debtors', _('Select at least one member or partner who will pay.'))
+        return cleaned_data

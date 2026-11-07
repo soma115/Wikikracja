@@ -1,0 +1,42 @@
+{% extends 'bookkeeping/menu.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block prefs_tab %}dues{% endblock %}
+{% block bookkeeping %}
+<div class="tw-container tw-my-4">
+  <div class="tw-card">
+    <div class="tw-card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="tw-form-actions tw-form-actions--top">
+          <a href="{% url 'bookkeeping:payment_plan_list' %}" class="tw-btn tw-btn-secondary tw-form-action-btn" data-autosave-clear title="{% trans 'Cancel' %}" aria-label="{% trans 'Cancel' %}"><i class="fas fa-rotate-left fa-fw" aria-hidden="true"></i>{% trans "Cancel" %}</a>
+          <button type="submit" class="tw-btn tw-btn-primary tw-form-action-btn" title="{% trans 'Save payment plan' %}" aria-label="{% trans 'Save payment plan' %}"><i class="fas fa-floppy-disk fa-fw" aria-hidden="true"></i>{% trans "Save payment plan" %}</button>
+        </div>
+        <div class="tw-card tw-mb-3">
+          <div class="tw-card-header">
+            <h1 class="tw-mb-0">{% if plan %}{% trans "Update payment plan" %}{% else %}{% trans "New payment plan" %}{% endif %}</h1>
+          </div>
+          <div class="tw-card-body">
+            {{ form.name|as_crispy_field }}
+            {{ form.description|as_crispy_field }}
+            {{ form.direction|as_crispy_field }}
+            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
+              {{ form.amount|as_crispy_field }}
+              {{ form.entity|as_crispy_field }}
+              {{ form.category|as_crispy_field }}
+              {{ form.partner|as_crispy_field }}
+              {{ form.debtors|as_crispy_field }}
+              {{ form.debtor_partners|as_crispy_field }}
+              {{ form.recurrence|as_crispy_field }}
+              {{ form.first_due_date|as_crispy_field }}
+            </div>
+            {{ form.treasurer|as_crispy_field }}
+            {% if form.non_field_errors %}<div class="tw-alert tw-alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock bookkeeping %}

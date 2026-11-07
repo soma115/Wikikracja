@@ -1,0 +1,49 @@
+{% extends 'bookkeeping/menu.html' %}
+{% load i18n %}
+{% load bookkeeping_extras %}
+
+{% block prefs_tab %}dues{% endblock %}
+{% block bookkeeping %}
+<div class="tw-container tw-my-4">
+  {% include 'home/includes/detail_header.html' with title=payment_plan.name back_url=payment_plans_url back_label=_('Back to payment plans') actions_include='bookkeeping/_payment_plan_actions.html' %}
+  <div class="tw-card tw-mb-4">
+    <div class="tw-card-body">
+      <dl class="tw-detail-fields tw-grid tw-grid-cols-12 tw-gap-3">
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Status" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{% if payment_plan.is_active %}<span class="tw-badge-status tw-badge-success">{% trans "Active" %}</span>{% else %}<span class="tw-badge-status tw-badge-secondary">{% trans "Ended" %}</span>{% endif %}</dd>
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Direction" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{% if payment_plan.direction == 'I' %}{% trans "To receive" %}{% else %}{% trans "To pay" %}{% endif %}</dd>
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Amount" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_plan.amount|normalize_decimal }} {{ payment_plan.entity.symbol }} · {{ payment_plan.entity.code }}</dd>
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Category" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_plan.category.name }}</dd>
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Recipient" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_plan.partner.name|default:"—" }}</dd>
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Recurrence" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_plan.get_recurrence_display }}</dd>
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "First due date" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_plan.first_due_date|date:"d.m.Y" }}</dd>
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Last generated period" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_plan.last_generated_date|date:"d.m.Y"|default:"—" }}</dd>
+        {% if payment_plan.description %}
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Description" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9 tw-whitespace-pre-wrap">{{ payment_plan.description }}</dd>
+        {% endif %}
+        {% if payment_plan.direction == 'O' %}
+        <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Treasurer" %}</dt>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_plan.treasurer.get_full_name|default:payment_plan.treasurer.username|default:"—" }}</dd>
+        {% endif %}
+      </dl>
+    </div>
+  </div>
+
+  <h2 class="tw-section-heading">{% trans "Recent payment dues" %}</h2>
+  <div class="tw-proposals-list">
+    {% for payment_due in payment_dues %}
+      {% include 'bookkeeping/_payment_due_card.html' %}
+    {% empty %}
+      {% include 'home/includes/empty_state.html' with compact=True icon='fa-calendar' title=_('No payment periods generated yet.') %}
+    {% endfor %}
+  </div>
+</div>
+{% endblock bookkeeping %}

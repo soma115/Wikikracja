@@ -61,6 +61,89 @@ if (typeof window.wkOnReady !== 'function') {
 })();
 
 (function() {
+    const lastCheckedByForm = new WeakMap();
+    const shiftedLabels = new WeakSet();
+
+    window.initShiftRangeCheckboxes = function(root) {
+        (root || document).querySelectorAll('input[type="checkbox"][data-shift-range-select]').forEach(function(input) {
+            if (input.dataset.shiftRangeInitialized === 'true') return;
+            input.dataset.shiftRangeInitialized = 'true';
+            Array.from(input.labels || []).forEach(function(label) {
+                label.addEventListener('click', function(event) {
+                    if (event.shiftKey) shiftedLabels.add(input);
+                });
+            });
+            input.addEventListener('click', function(event) {
+                const form = input.form;
+                if (!form) return;
+                const shiftRange = event.shiftKey || shiftedLabels.has(input);
+                shiftedLabels.delete(input);
+
+                let lastCheckedByName = lastCheckedByForm.get(form);
+                if (!lastCheckedByName) {
+                    lastCheckedByName = new Map();
+                    lastCheckedByForm.set(form, lastCheckedByName);
+                }
+
+                const previous = lastCheckedByName.get(input.name);
+                if (shiftRange && previous) {
+                    const options = Array.from(form.querySelectorAll('input[type="checkbox"][data-shift-range-select]'))
+                        .filter(function(option) { return option.name === input.name; });
+                    const previousIndex = options.indexOf(previous);
+                    const currentIndex = options.indexOf(input);
+                    if (previousIndex !== -1 && currentIndex !== -1) {
+                        const start = Math.min(previousIndex, currentIndex);
+                        const end = Math.max(previousIndex, currentIndex);
+                        for (let index = start; index <= end; index++) {
+                            const option = options[index];
+                            if (option.checked === input.checked) continue;
+                            option.checked = input.checked;
+                            option.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    }
+                }
+                lastCheckedByName.set(input.name, input);
+            });
+        });
+    };
+
+    window.initSelectAllCheckboxes = function(root) {
+        (root || document).querySelectorAll('button[data-select-all-checkboxes]').forEach(function(button) {
+            if (button.dataset.selectAllCheckboxesInitialized === 'true') return;
+            button.dataset.selectAllCheckboxesInitialized = 'true';
+            const form = button.closest('form');
+            if (!form) return;
+            const name = button.dataset.selectAllCheckboxes;
+            const options = Array.from(form.querySelectorAll('input[type="checkbox"][data-shift-range-select]'))
+                .filter(function(input) { return input.name === name; });
+            function updateLabel() {
+                const allChecked = options.length > 0 && options.every(function(input) { return input.checked; });
+                button.textContent = allChecked ? button.dataset.deselectAllLabel : button.dataset.selectAllLabel;
+            }
+            options.forEach(function(input) {
+                input.addEventListener('change', updateLabel);
+            });
+            updateLabel();
+            button.addEventListener('click', function() {
+                const checkAll = !options.every(function(input) { return input.checked; });
+                options.forEach(function(input) {
+                    if (input.checked === checkAll) return;
+                    input.checked = checkAll;
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+                updateLabel();
+            });
+        });
+    };
+
+    window.wkOnReady(function() {
+        window.initShiftRangeCheckboxes(document);
+        window.initSelectAllCheckboxes(document);
+    });
+})();
+
+(function() {
     const cache = new Map();
     const waiting = new Map();
     let scheduled = false;

@@ -1,0 +1,13 @@
+{% extends 'bookkeeping/confirm_delete.html' %}
+{% load i18n %}
+
+{% block header_title %}{% trans "Delete payment plan" %}: {{ object.name }}{% endblock %}
+{% block back_label %}{% trans "Back to recurring payments" %}{% endblock %}
+{% block confirm_question %}{% trans "Are you sure you want to delete this payment plan?" %}{% endblock %}
+{% block object_details %}
+  <p><strong>{% trans "Name" %}:</strong> {{ object.name }}</p>
+  <p><strong>{% trans "Unpaid payment dues to delete" %}:</strong> {{ unpaid_due_count }}</p>
+  <p><strong>{% trans "Paid transactions to preserve" %}:</strong> {{ preserved_transaction_count }}</p>
+  <p>{% trans "Unpaid dues and planned transactions will be deleted. Paid transactions will be kept without a link to the plan." %}</p>
+{% endblock %}
+{% block confirm_button %}{% trans "Yes, Delete Payment Plan" %}{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'bookkeeping/menu.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load bookkeeping_extras %}
+
+{% block prefs_tab %}dues{% endblock %}
+{% block bookkeeping %}
+<div class="tw-container tw-my-4">
+  <div class="tw-detail-header">
+    <a href="{% url 'bookkeeping:payment_due_detail' payment_due.pk %}" class="tw-btn tw-btn-sm tw-btn-outline-secondary tw-mb-2"><i class="fas fa-arrow-left fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Back to payment due" %}</a>
+    <h1 class="tw-detail-title tw-text-2xl tw-font-bold">{% trans "Confirm payment" %}</h1>
+  </div>
+  <div class="tw-card">
+    <div class="tw-card-body">
+      <p class="tw-text-muted">{{ payment_due.name }} · {{ payment_due.amount|normalize_decimal }} {{ payment_due.entity.symbol }} · {{ payment_due.due_date|date:"d.m.Y" }}</p>
+      <form method="post">
+        {% csrf_token %}
+        {% if transaction_form.non_field_errors %}<div class="tw-alert tw-alert-danger" role="alert">{{ transaction_form.non_field_errors }}</div>{% endif %}
+        <div class="tw-form-actions tw-form-actions--top">
+          <a href="{% url 'bookkeeping:payment_due_detail' payment_due.pk %}" class="tw-btn tw-btn-secondary tw-form-action-btn" data-autosave-clear title="{% trans 'Cancel' %}" aria-label="{% trans 'Cancel' %}"><i class="fas fa-rotate-left fa-fw" aria-hidden="true"></i>{% trans "Cancel" %}</a>
+          <button type="submit" class="tw-btn tw-btn-primary tw-form-action-btn" title="{% trans 'Save transaction and confirm payment' %}" aria-label="{% trans 'Save transaction and confirm payment' %}"><i class="fas fa-floppy-disk fa-fw" aria-hidden="true"></i>{% trans "Save transaction and confirm payment" %}</button>
+        </div>
+        <div class="tw-card tw-mb-3">
+          <div class="tw-card-header"><h2 class="tw-mb-0">{% trans "Transaction details" %}</h2></div>
+          <div class="tw-card-body">
+            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-3">
+              {{ transaction_form.type|as_crispy_field }}
+              {{ transaction_form.entity|as_crispy_field }}
+              {{ transaction_form.partner|as_crispy_field }}
+              {{ transaction_form.category|as_crispy_field }}
+              {{ transaction_form.amount|as_crispy_field }}
+              {{ transaction_form.payment_received_date|as_crispy_field }}
+            </div>
+            {{ transaction_form.note|as_crispy_field }}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock bookkeeping %}

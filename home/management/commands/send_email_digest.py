@@ -8,15 +8,16 @@ from datetime import timedelta as td
 
 from django.conf import settings as s
 from django.contrib.auth import get_user_model
-from django.db.models import F
+from django.db.models import F, Q
 from django.template.defaultfilters import linebreaksbr
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import formats, timezone
 from django.utils.html import escape, mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import override
 
+from bookkeeping.models import PaymentDue, Transaction
 from core.richtext import one_line_snippet, strip_tags
 from core.services.feed import build_user_digest
 from core.services.notifications import build_unsubscribe_url, unsubscribe_headers
@@ -131,9 +132,10 @@ class Command(TranslatedCommand):
             since = profile.last_email_digest_at or now
             restarted_votes = self._get_restarted_votes(since)
             team_requests = self._get_pending_team_requests(user)
+            payment_dues = self._get_unpaid_member_payment_dues(user, timezone.localdate(now))
             items = build_user_digest(user, since)
 
-            if not items and not restarted_votes and not ending_votes and not team_requests:
+            if not items and not restarted_votes and not ending_votes and not team_requests and not payment_dues:
                 profile.last_email_digest_at = now
                 profile.save(update_fields=['last_email_digest_at'])
                 skipped += 1
@@ -141,7 +143,7 @@ class Command(TranslatedCommand):
                 continue
 
             with override(get_user_language(user)):
-                context = self._build_digest_context(user, items, restarted_votes, team_requests, ending_votes=ending_votes)
+                context = self._build_digest_context(user, items, restarted_votes, team_requests, ending_votes=ending_votes, payment_dues=payment_dues)
                 subject = _('[{HOST}] Activity digest').format(HOST=self.host)
                 text = _collapse_excess_newlines(render_to_string('emails/digest.txt', context))
                 html = render_to_string('emails/digest.html', context)
@@ -169,6 +171,15 @@ class Command(TranslatedCommand):
                 log.error(f'Failed to send digest to user {user.id}: {e}', exc_info=True)
 
         log.info(f'Digest run finished: sent={sent}, skipped={skipped}, now={now}')
+
+    @staticmethod
+    def _get_unpaid_member_payment_dues(user, today):
+        return list(
+            PaymentDue.objects.filter(debtor=user, due_date__lte=today, cancelled_at__isnull=True)
+            .filter(Q(payment_transaction__isnull=True) | Q(payment_transaction__status=Transaction.Status.PLANNED))
+            .select_related('entity', 'payment_transaction')
+            .order_by('due_date', 'pk')
+        )
 
     @staticmethod
     def _get_pending_team_requests(user):
@@ -207,9 +218,23 @@ class Command(TranslatedCommand):
             for decision in Decyzja.objects.filter(status=Decyzja.Status.REFERENDUM, data_referendum_stop=today).order_by('title', 'pk')
         ]
 
-    def _build_digest_context(self, user, items, restarted_votes=None, team_requests=None, ending_votes=None):
+    def _build_digest_context(self, user, items, restarted_votes=None, team_requests=None, ending_votes=None, payment_dues=None):
         since_dt = user.uzytkownik.last_email_digest_at
         since_str = since_dt.strftime('%d.%m.%Y %H:%M') if since_dt else '-'
+        payment_reminders = []
+        for due in payment_dues or []:
+            transaction = due.transaction
+            detail_url = reverse('bookkeeping:transaction_detail', kwargs={'pk': transaction.pk}) if transaction else reverse('bookkeeping:payment_due_detail', kwargs={'pk': due.pk})
+            payment_reminders.append(
+                {
+                    'title': due.name,
+                    'amount': formats.number_format(due.amount, decimal_pos=due.entity.decimal_places),
+                    'symbol': due.entity.symbol,
+                    'due_date': formats.date_format(due.due_date, 'DATE_FORMAT'),
+                    'is_overdue': due.due_date < timezone.localdate(),
+                    'url': build_site_url(detail_url),
+                }
+            )
 
         requests_by_task = {}
         for request in team_requests or []:
@@ -293,6 +318,10 @@ class Command(TranslatedCommand):
             'restarted_votes_intro': _('Votes cast before the failure were lost and these referenda have started again. Please vote again:'),
             'ending_votes': ending_votes or [],
             'ending_votes_title': _('This is the last day to vote!'),
+            'payment_reminders': payment_reminders,
+            'payment_reminders_title': _('Important: unpaid membership payments'),
+            'payment_reminders_intro': _('Please settle the following membership payments:'),
+            'payment_reminders_overdue': _('Overdue'),
             'team_requests_title': _('People who want to join your teams'),
             'no_activity_text': _('No activity in this section.'),
             'manage_button_text': _('Manage email notifications'),

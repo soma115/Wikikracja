@@ -4,6 +4,12 @@
 
 <div {% if field_class %}class="{{ field_class|crispy_classmap }}"{% endif %}{% if flat_attrs %} {{ flat_attrs }}{% endif %}>
 
+    {% if field.field.widget.select_all_label %}
+    <div class="tw-flex tw-justify-end tw-mb-2">
+      <button type="button" class="tw-btn tw-btn-sm tw-btn-secondary" data-select-all-checkboxes="{{ field.html_name }}" data-select-all-label="{{ field.field.widget.select_all_label }}" data-deselect-all-label="{{ field.field.widget.deselect_all_label }}">{{ field.field.widget.select_all_label }}</button>
+    </div>
+    {% endif %}
+
     {% for group, options, index in field|optgroups %}
     {% if group %}<strong>{{ group }}</strong>{% endif %}
     {% for option in options %}

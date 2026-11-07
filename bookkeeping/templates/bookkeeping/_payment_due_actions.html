@@ -1,0 +1,13 @@
+{% load i18n %}
+
+<div class="tw-flex tw-items-center tw-gap-2">
+  {% if payment_due.status == 'pending' %}
+    <a href="{% url 'bookkeeping:payment_due_confirm' payment_due.pk %}" class="tw-btn tw-btn-primary"><i class="fas fa-check fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Confirm payment" %}</a>
+    <form method="post" action="{% url 'bookkeeping:payment_due_cancel' payment_due.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="tw-btn tw-btn-secondary" title="{% trans 'Cancel payment due' %}" aria-label="{% trans 'Cancel payment due' %}"><i class="fas fa-ban fa-fw" aria-hidden="true"></i></button>
+    </form>
+  {% elif payment_due.status == 'paid' %}
+    <a href="{% url 'bookkeeping:transaction_detail' payment_due.transaction_id %}" class="tw-btn tw-btn-secondary"><i class="fas fa-money-bill-transfer fa-fw tw-me-1" aria-hidden="true"></i>{% trans "View transaction" %}</a>
+  {% endif %}
+</div>

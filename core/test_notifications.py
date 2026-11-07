@@ -242,6 +242,7 @@ def test_push_event_registry_starts_with_all_requested_keys(settings):
         'vote.buffer_restarted',
         'transaction.created',
         'transaction.updated',
+        'bookkeeping.payment_due',
         'survey.created',
         'survey.updated',
         'chat.message',
@@ -525,6 +526,41 @@ def test_email_backend_failure_respects_raise_on_error(transport, raise_on_error
     transport.mail.assert_called_once()
     transport.fcm.assert_not_called()
     transport.channel.group_send.assert_not_awaited()
+
+
+def test_payment_due_email_uses_existing_unsubscribe_contract(users, transport, settings):
+    user = users('payment-email')
+    user.email = 'payment@example.test'
+    user.save(update_fields=['email'])
+    settings.DEFAULT_FROM_EMAIL = 'no-reply@example.test'
+    with patch.object(notify, 'notifications_unsubscribed', return_value=False), patch.object(notify, 'unsubscribe_headers', return_value={'List-Unsubscribe': '<https://example.test/unsubscribe>'}):
+        assert notify.send_payment_due_email(user, 'Payment due', 'Please pay.')
+
+    transport.mail.assert_called_once_with(
+        'Payment due', 'Please pay.', 'no-reply@example.test', ['payment@example.test'], fail_silently=False, headers={'List-Unsubscribe': '<https://example.test/unsubscribe>'}
+    )
+
+
+def test_payment_due_email_skips_globally_unsubscribed_user(users, transport):
+    user = users('payment-unsubscribed')
+    user.email = 'payment@example.test'
+    user.save(update_fields=['email'])
+    with patch.object(notify, 'notifications_unsubscribed', return_value=True):
+        assert not notify.send_payment_due_email(user, 'Payment due', 'Please pay.')
+    transport.mail.assert_not_called()
+
+
+def test_payment_due_push_uses_the_targeted_bookkeeping_event(users, settings):
+    user = users('payment-push')
+    settings.PUSH_EVENTS = {'bookkeeping.payment_due': {'module': 'bookkeeping', 'fcm': True, 'websocket': True}}
+    with patch.object(notify, 'send_fcm_to_user_sync', return_value=1) as send_fcm, patch.object(notify, 'send_websocket_to_user_sync', return_value=True) as send_websocket:
+        assert notify.send_payment_due_push(user, 'Payment due', 'Please pay.', '/bookkeeping/payment-due/7/', 7)
+
+    send_fcm.assert_called_once()
+    notification = send_fcm.call_args.args[1]
+    assert notification['click_action'] == '/bookkeeping/payment-due/7/'
+    assert notification['payment_due_id'] == 7
+    send_websocket.assert_called_once_with(user.pk, notification, ws_type='transaction.notification', notification_type='bookkeeping', push_event='bookkeeping.payment_due', return_status=True)
 
 
 @pytest.mark.parametrize(

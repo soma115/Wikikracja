@@ -2,14 +2,14 @@
 {% load bookkeeping_extras %}
 {% load feed_filters %}
 
-<div class="tw-content-card" data-status="{{ transaction.type }}" data-category="{{ transaction.category_id|default:'' }}">
+<div class="tw-content-card" data-status="{{ transaction.type }}" data-payment-status="{{ transaction.status }}" data-category="{{ transaction.category_id|default:'' }}">
   <div class="tw-content-card-header"
        data-detail-url="{{ transaction.detail_url }}"
        role="link"
        tabindex="0">
     <div class="tw-content-card-title-row">
       <span class="tw-proposal-card-num">#{{ transaction.id }}</span>
-      <span class="tw-content-card-title">{{ transaction.partner|default:_('Transaction') }}</span>
+      <span class="tw-content-card-title">{% if transaction.payment_due %}{{ transaction.payment_due.name }}{% if transaction.payment_due.debtor %} — {{ transaction.payment_due.debtor.get_full_name|default:transaction.payment_due.debtor.username }}{% elif transaction.payment_due.debtor_partner %} — {{ transaction.payment_due.debtor_partner.name }}{% endif %}{% else %}{{ transaction.partner|default:_('Transaction') }}{% endif %}</span>
     </div>
 
     <div class="tw-content-card-meta tw-flex-nowrap">
@@ -24,6 +24,7 @@
         <span class="tw-whitespace-nowrap"><i class="fas fa-coins fa-fw"></i> {{ transaction.entity.code }}</span>
       </div>
       <div class="tw-flex tw-items-center tw-gap-2 tw-flex-shrink-0 tw-flex-nowrap">
+        {% if transaction.status == 'planned' %}<span class="tw-badge-status tw-badge-warning"><i class="fas fa-calendar-check fa-fw" aria-hidden="true"></i><span class="tw-view-label">{% trans "Planned" %}</span></span>{% endif %}
         {% if transaction.category %}<span class="tw-badge tw-badge-secondary"><i class="fas fa-tag fa-fw"></i><span class="tw-view-label">{{ transaction.category }}</span></span>{% endif %}
         {% if transaction.type == 'I' %}
           <span class="tw-badge-status tw-badge-success" title="{% trans 'Incoming' %}"><i class="fas fa-arrow-down fa-fw"></i><span class="tw-view-label">{% trans 'Incoming' %}</span></span>

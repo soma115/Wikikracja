@@ -28,9 +28,9 @@ from obywatele.models import Uzytkownik
 from resources.models import LEGACY_FINANCIAL_ASSET_SOURCE, LEGACY_RESOURCE_LISTING_SOURCE, Entity, LegacyEntityReference
 from resources.services import match_active_offers_for_needs, search_entities
 
-from .forms import AssetForm, PartnerForm, ResourceEntityForm, TransactionForm
-from .models import Category, Partner, Transaction
-from .services import category_breakdown
+from .forms import AssetForm, PartnerForm, PaymentPlanForm, ResourceEntityForm, TransactionForm
+from .models import Category, Partner, PaymentDue, PaymentPlan, Transaction
+from .services import cancel_payment_due, category_breakdown, confirm_payment_due, delete_payment_plan, ensure_next_payment_periods, restore_planned_transaction, update_next_payment_period
 
 
 class ProtectedDeleteView(LoginRequiredMixin, DeleteView):
@@ -576,6 +576,14 @@ class BookkeepingCategoryAPI(CategoryAPIBase):
     related_count_field = 'transaction'
     order_field = 'order'
 
+    def _get_queryset(self):
+        return super()._get_queryset().annotate(payment_plan_count=Count('payment_plans', distinct=True), payment_due_count=Count('payment_dues', distinct=True))
+
+    def serialize(self, category):
+        data = super().serialize(category)
+        data['item_count'] += getattr(category, 'payment_plan_count', 0) + getattr(category, 'payment_due_count', 0)
+        return data
+
     def post(self, request):
         name = (request.POST.get('name') or '').strip()
         error = _category_name_error(name)
@@ -611,7 +619,7 @@ class BookkeepingCategoryDeleteAPI(CategoryDeleteAPI):
         category = get_object_or_404(Category, pk=pk)
         if category.is_protected:
             return JsonResponse({'error': str(_('This category is protected and cannot be deleted.'))}, status=403)
-        if category.transaction_set.exists():
+        if category.transaction_set.exists() or category.payment_plans.exists() or category.payment_dues.exists():
             return JsonResponse({'error': str(CategoryDeleteView.protect_message)}, status=409)
         category.delete()
         self.after_write()
@@ -622,6 +630,19 @@ class BookkeepingCategoryItemsAPI(CategoryItemsAPI):
     model = Category
     related_field = 'transaction_set'
     item_label_field = 'partner__name'
+
+    def get(self, request, pk):
+        category = get_object_or_404(Category, pk=pk)
+        transactions = category.transaction_set.order_by('partner__name', 'pk')
+        plans = category.payment_plans.order_by('name', 'pk')
+        dues = category.payment_dues.order_by('due_date', 'name', 'pk')
+        total = transactions.count() + plans.count() + dues.count()
+        items = [f'{_("Transaction")}: {name or _("Unknown")}' for name in transactions.values_list('partner__name', flat=True)[: self.limit]]
+        if len(items) < self.limit:
+            items.extend(f'{_("Payment plan")}: {name}' for name in plans.values_list('name', flat=True)[: self.limit - len(items)])
+        if len(items) < self.limit:
+            items.extend(f'{_("Payment due")}: {name}' for name in dues.values_list('name', flat=True)[: self.limit - len(items)])
+        return JsonResponse({'items': items, 'count': total})
 
 
 class BookkeepingCategoryReorderAPI(CategoryReorderAPI):
@@ -676,13 +697,20 @@ class CategoryDeleteView(ProtectedDeleteView):
     model = Category
     success_url = reverse_lazy('bookkeeping:category_list')
     protect_field = 'category'
-    protect_message = _("Cannot delete category because it is in use. Remove all transactions that use it first.")
+    protect_message = _("Cannot delete category because it is used by transactions or payment plans. Reassign or remove those items first.")
 
     def get_object(self, queryset=None):
         category = super().get_object(queryset)
         if category.is_protected:
             raise Http404
         return category
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.payment_plans.exists() or self.object.payment_dues.exists():
+            request.session['delete_error'] = str(self.protect_message)
+            return redirect(request.path)
+        return super().post(request, *args, **kwargs)
 
 
 # #########################  Partner ###########################
@@ -788,7 +816,29 @@ class PartnerDeleteView(ProtectedDeleteView):
     model = Partner
     success_url = reverse_lazy('bookkeeping:partner_list')
     protect_field = 'partner'
-    protect_message = _("Cannot delete partner because it is in use. Remove all transactions that use it first.")
+    protect_message = _('Cannot delete partner while it is referenced by transactions, payment plans, or payment dues. Reassign or remove those references first.')
+
+    def _payment_plan_dependencies(self):
+        return PaymentPlan.objects.filter(Q(partner=self.object) | Q(debtor_partners=self.object)).distinct()
+
+    def _payment_due_dependencies(self):
+        return PaymentDue.objects.filter(Q(partner=self.object) | Q(debtor_partner=self.object)).distinct()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['related_payment_plans'] = list(self._payment_plan_dependencies())
+        context['related_payment_dues'] = list(self._payment_due_dependencies().select_related('plan'))
+        if context['related_payment_plans'] or context['related_payment_dues']:
+            context['has_dependencies'] = True
+            context['error'] = context.get('error') or str(self.protect_message)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self._payment_plan_dependencies().exists() or self._payment_due_dependencies().exists():
+            request.session['delete_error'] = str(self.protect_message)
+            return redirect(request.path)
+        return super().post(request, *args, **kwargs)
 
 
 # #########################  Transaction ###########################
@@ -846,13 +896,14 @@ def _transaction_list_filters(params):
 
 
 def _transaction_queryset(*, search_query='', category_ids=(), transaction_type='', date_from=None, date_to=None, sort='date', order='desc'):
-    queryset = Transaction.objects.select_related('author', 'partner', 'category', 'entity')
+    queryset = Transaction.objects.select_related('author', 'partner', 'category', 'entity', 'payment_due', 'payment_due__plan', 'payment_due__debtor', 'payment_due__debtor_partner')
     if search_query:
         queryset = queryset.annotate(_search_amount=Cast('amount', output_field=CharField()), _search_payment_date=Cast('payment_received_date', output_field=CharField()))
         search_filter = Q()
         for term in search_query.split():
             term_filter = (
                 Q(partner__name__icontains=term)
+                | Q(payment_due__name__icontains=term)
                 | Q(category__name__icontains=term)
                 | Q(entity__code__icontains=term)
                 | Q(entity__name__icontains=term)
@@ -945,6 +996,179 @@ def _transaction_sort_items(request, filters):
     ]
 
 
+class PaymentPlanListView(BookkeepingListView):
+    model = PaymentPlan
+    template_name = 'bookkeeping/payment_plan_list.html'
+    context_object_name = 'payment_plans'
+
+    def get_queryset(self):
+        return PaymentPlan.objects.select_related('entity', 'category', 'partner', 'author', 'treasurer').order_by('-is_active', 'first_due_date', 'name', 'pk')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_plan_count'] = PaymentPlan.objects.filter(is_active=True).count()
+        context['cta_url'] = reverse('bookkeeping:payment_plan_create')
+        context['cta_label'] = _('Add recurring payment')
+        context['cta_icon'] = 'plus'
+        context['cta_end'] = True
+        return context
+
+
+class PaymentPlanDetailView(BookkeepingDetailView):
+    model = PaymentPlan
+    template_name = 'bookkeeping/payment_plan_detail.html'
+    context_object_name = 'payment_plan'
+
+    def get_queryset(self):
+        return PaymentPlan.objects.select_related('entity', 'category', 'partner', 'author', 'treasurer')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['payment_dues'] = self.object.dues.select_related('debtor', 'debtor_partner', 'entity', 'payment_transaction').order_by('-due_date', '-pk')[:12]
+        context['payment_plans_url'] = reverse('bookkeeping:payment_plan_list')
+        return context
+
+
+class PaymentDueDetailView(BookkeepingDetailView):
+    model = PaymentDue
+    template_name = 'bookkeeping/payment_due_detail.html'
+    context_object_name = 'payment_due'
+
+    def get_queryset(self):
+        return PaymentDue.objects.select_related('plan', 'entity', 'category', 'partner', 'debtor', 'debtor_partner', 'treasurer', 'cancelled_by', 'payment_transaction', 'payment_transaction__author')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['payment_plan_url'] = reverse('bookkeeping:payment_plan_detail', kwargs={'pk': self.object.plan_id})
+        return context
+
+
+class PaymentPlanCreateView(LoginRequiredMixin, View):
+    template_name = 'bookkeeping/payment_plan_form.html'
+
+    def get(self, request):
+        form = PaymentPlanForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = PaymentPlanForm(request.POST)
+        if form.is_valid():
+            with db_transaction.atomic():
+                plan = form.save(commit=False)
+                plan.author = request.user
+                plan.next_due_date = plan.first_due_date
+                plan.save()
+                form.save_m2m()
+                ensure_next_payment_periods(plan.pk)
+            messages.success(request, _('Payment plan created.'))
+            return redirect('bookkeeping:payment_plan_list')
+        return render(request, self.template_name, {'form': form})
+
+
+class PaymentPlanUpdateView(LoginRequiredMixin, View):
+    template_name = 'bookkeeping/payment_plan_form.html'
+
+    def get(self, request, pk):
+        plan = get_object_or_404(PaymentPlan, pk=pk)
+        return render(request, self.template_name, {'form': PaymentPlanForm(instance=plan), 'plan': plan})
+
+    def post(self, request, pk):
+        plan = get_object_or_404(PaymentPlan, pk=pk)
+        form = PaymentPlanForm(request.POST, instance=plan)
+        if form.is_valid():
+            with db_transaction.atomic():
+                plan = form.save()
+                update_next_payment_period(plan)
+                if plan.is_active:
+                    ensure_next_payment_periods(plan.pk)
+            messages.success(request, _('Payment plan saved.'))
+            return redirect('bookkeeping:payment_plan_list')
+        return render(request, self.template_name, {'form': form, 'plan': plan})
+
+
+class PaymentPlanEndView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        PaymentPlan.objects.filter(pk=pk, is_active=True).update(is_active=False, next_due_date=None, updated_at=timezone.now())
+        messages.success(request, _('Payment plan ended. Existing payment dues were preserved.'))
+        return redirect('bookkeeping:payment_plan_list')
+
+
+class PaymentPlanDeleteView(LoginRequiredMixin, View):
+    template_name = 'bookkeeping/payment_plan_confirm_delete.html'
+
+    def get(self, request, pk):
+        plan = get_object_or_404(PaymentPlan, pk=pk)
+        dues = plan.dues.all()
+        return render(
+            request,
+            self.template_name,
+            {
+                'object': plan,
+                'cancel_url': reverse('bookkeeping:payment_plan_detail', kwargs={'pk': plan.pk}),
+                'unpaid_due_count': dues.exclude(payment_transaction__status=Transaction.Status.POSTED).count(),
+                'preserved_transaction_count': dues.filter(payment_transaction__status=Transaction.Status.POSTED).count(),
+            },
+        )
+
+    def post(self, request, pk):
+        try:
+            delete_payment_plan(pk)
+        except PaymentPlan.DoesNotExist as error:
+            raise Http404 from error
+        messages.success(request, _('Payment plan deleted. Paid transactions were preserved without the plan.'))
+        return redirect('bookkeeping:payment_plan_list')
+
+
+class PaymentDueConfirmView(LoginRequiredMixin, View):
+    template_name = 'bookkeeping/payment_due_confirm.html'
+
+    def _get_due(self, pk):
+        return get_object_or_404(PaymentDue.objects.select_related('plan', 'entity', 'category', 'partner', 'payment_transaction'), pk=pk)
+
+    def _transaction_form(self, due, data=None):
+        initial = {'type': due.direction, 'entity': due.entity_id, 'partner': due.partner_id, 'category': due.category_id, 'amount': due.amount, 'payment_received_date': timezone.localdate(), 'note': due.name}
+        form = TransactionForm(data, initial=initial)
+        form.fields['type'].disabled = True
+        return form
+
+    def get(self, request, pk):
+        due = self._get_due(pk)
+        if due.is_paid:
+            return redirect('bookkeeping:transaction_detail', pk=due.transaction.pk)
+        if due.cancelled_at:
+            return redirect('bookkeeping:payment_due_detail', pk=due.pk)
+        return render(request, self.template_name, {'payment_due': due, 'transaction_form': self._transaction_form(due)})
+
+    def post(self, request, pk):
+        due = self._get_due(pk)
+        if due.is_paid:
+            return redirect('bookkeeping:transaction_detail', pk=due.transaction.pk)
+        if due.cancelled_at:
+            return redirect('bookkeeping:payment_due_detail', pk=due.pk)
+        form = self._transaction_form(due, request.POST)
+        if form.is_valid():
+            try:
+                transaction, created = confirm_payment_due(due.pk, form.cleaned_data, request.user)
+            except ValidationError as error:
+                form.add_error(None, error)
+            else:
+                if created:
+                    messages.success(request, _('Payment confirmed and transaction recorded.'))
+                return redirect('bookkeeping:transaction_detail', pk=transaction.pk)
+        return render(request, self.template_name, {'payment_due': due, 'transaction_form': form})
+
+
+class PaymentDueCancelView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        try:
+            cancel_payment_due(pk, request.user)
+        except ValidationError as error:
+            messages.error(request, error)
+        else:
+            messages.success(request, _('Payment due cancelled.'))
+        return redirect('bookkeeping:payment_due_detail', pk=pk)
+
+
 class TransactionListView(BookkeepingListView):
     model = Transaction
     template_name = 'bookkeeping/transaction_list.html'
@@ -980,7 +1204,7 @@ class TransactionDetailView(LoginRequiredMixin, DetailView):
     model = Transaction
 
     def get_queryset(self):
-        return Transaction.objects.select_related('author', 'partner', 'category', 'entity')
+        return Transaction.objects.select_related('author', 'partner', 'category', 'entity', 'payment_due', 'payment_due__plan', 'payment_due__debtor', 'payment_due__debtor_partner')
 
     template_name = 'bookkeeping/transaction_detail.html'
     context_object_name = 'transaction'
@@ -1036,7 +1260,7 @@ class TransactionClaimView(LoginRequiredMixin, View):
             return HttpResponseForbidden()
         with db_transaction.atomic():
             transaction = get_object_or_404(Transaction.objects.select_for_update(), pk=pk)
-            if transaction.author_id is not None:
+            if transaction.author_id is not None or transaction.status == Transaction.Status.PLANNED:
                 return redirect('bookkeeping:transaction_detail', pk=pk)
             transaction.author = request.user
             transaction.save(update_fields=['author'])
@@ -1050,7 +1274,7 @@ class TransactionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
 
     def test_func(self):
         transaction = self.get_object()
-        return self.request.user == transaction.author
+        return self.request.user == transaction.author and transaction.status == Transaction.Status.POSTED
 
     def get_success_url(self):
         next_url = self.request.GET.get('next')
@@ -1086,7 +1310,14 @@ class TransactionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView)
 
     def test_func(self):
         transaction = self.get_object()
-        return self.request.user == transaction.author
+        return self.request.user == transaction.author and transaction.status == Transaction.Status.POSTED
+
+    def form_valid(self, form):
+        payment_due_id = self.object.payment_due_id
+        response = super().form_valid(form)
+        if payment_due_id:
+            restore_planned_transaction(payment_due_id)
+        return response
 
 
 # #########################  Report ###########################
@@ -1104,7 +1335,13 @@ class ReportView(LoginRequiredMixin, View):
         year_pivot, year_assets, year_totals = category_breakdown(year=year)
         all_pivot, all_assets, all_totals = category_breakdown()
 
-        available_years = Transaction.objects.dates('payment_received_date', 'year').values_list('payment_received_date__year', flat=True).distinct().order_by('-payment_received_date__year')
+        available_years = (
+            Transaction.objects.filter(status=Transaction.Status.POSTED)
+            .dates('payment_received_date', 'year')
+            .values_list('payment_received_date__year', flat=True)
+            .distinct()
+            .order_by('-payment_received_date__year')
+        )
 
         context = {
             'year_pivot': year_pivot,

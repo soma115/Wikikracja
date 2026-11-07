@@ -1,0 +1,12 @@
+{% load i18n %}
+
+<div class="tw-flex tw-items-center tw-gap-2">
+  <a href="{% url 'bookkeeping:payment_plan_update' payment_plan.pk %}" class="tw-btn tw-btn-secondary" title="{% trans 'Edit payment plan' %}" aria-label="{% trans 'Edit payment plan' %}"><i class="fas fa-pen fa-fw" aria-hidden="true"></i></a>
+  {% if payment_plan.is_active %}
+  <form method="post" action="{% url 'bookkeeping:payment_plan_end' payment_plan.pk %}">
+    {% csrf_token %}
+    <button type="submit" class="tw-btn tw-btn-secondary" title="{% trans 'End payment plan' %}" aria-label="{% trans 'End payment plan' %}"><i class="fas fa-ban fa-fw" aria-hidden="true"></i></button>
+  </form>
+  {% endif %}
+  <a href="{% url 'bookkeeping:payment_plan_delete' payment_plan.pk %}" class="tw-btn tw-btn-danger" title="{% trans 'Delete payment plan' %}" aria-label="{% trans 'Delete payment plan' %}"><i class="fas fa-trash fa-fw" aria-hidden="true"></i></a>
+</div>

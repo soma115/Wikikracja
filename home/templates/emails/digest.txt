@@ -1,6 +1,14 @@
 {% autoescape off %}{{ title }}
 [{{ site_name }}]
 
+{{ digest_intro }}
+
+{% if payment_reminders %}!!! {{ payment_reminders_title }} !!!
+{{ payment_reminders_intro }}
+{% for reminder in payment_reminders %}- {{ reminder.title }} — {{ reminder.amount }} {{ reminder.symbol }} — {{ reminder.due_date }}{% if reminder.is_overdue %} ({{ payment_reminders_overdue }}){% endif %}
+  {{ reminder.url }}
+{% endfor %}
+{% endif %}
 {% if restarted_votes %}!!! {{ restarted_votes_title }} !!!
 {{ restarted_votes_intro }}
 {% for vote in restarted_votes %}- {{ vote.title }}
@@ -12,7 +20,6 @@
   {{ vote.url }}
 {% endfor %}
 {% endif %}
-{{ digest_intro }}
 
 {% for section in sections %}=== {{ section.label }} ===
 {% for item in section.items %}
