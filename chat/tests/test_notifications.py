@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 from django.test import TestCase
 
 from chat.management.commands.run_chat_notifications_worker import Command
+from chat.models import Message, MessageReadBy, Room
 from chat.notification_queue import (
     CHAT_PUSH_COOLDOWN_SECONDS,
     CHAT_PUSH_DELAYED_KEY,
@@ -14,6 +15,7 @@ from chat.notification_queue import (
     enqueue_notification,
     read_notifications,
 )
+from chat.notifications import ChatNotificationService
 from chat.tests.utils import make_user
 
 
@@ -98,6 +100,21 @@ class ChatNotificationThrottleTest(TestCase):
 
         self.assertEqual([job['job_id'] for job in delivered], ['first', 'after-open'])
         self.assertEqual(client.sorted_sets.get(CHAT_PUSH_DELAYED_KEY, {}), {})
+
+
+class ChatNotificationUnreadStateTest(TestCase):
+    def test_clearing_offline_unread_state_preserves_message_read_receipts(self):
+        reader = make_user('offline-reader')
+        sender = make_user('offline-reader-message-sender')
+        room = Room.objects.create(title='Offline reader room', public=True)
+        message = Message.objects.create(room=room, sender=sender, text='Previously read')
+        MessageReadBy.objects.create(message=message, user=reader)
+        room.seen_by.add(reader)
+
+        ChatNotificationService._clear_unread_state(room.id, [reader.id])
+
+        self.assertTrue(MessageReadBy.objects.filter(message=message, user=reader).exists())
+        self.assertFalse(room.seen_by.filter(pk=reader.id).exists())
 
 
 class NotificationQueueTest(TestCase):

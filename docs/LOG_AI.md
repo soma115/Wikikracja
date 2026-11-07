@@ -877,3 +877,11 @@
 - **Testy:** `tests/test_board.py` — 77 testów; Ruff i `manage.py check` przechodzą.
 - **Uzasadnienie:** Ogólny fallback `MEDIA_ROOT` nie znał widoczności dokumentu ani członkostwa w pokoju, przez co URL obrazu omijał te kontrole.
 - **Spodziewany efekt:** Osoby niezalogowane nadal widzą obrazy z publicznych dokumentów, a obrazy z dokumentów grupowych i prywatnych wiadomości nie są dostępne poza właściwym zakresem.
+
+## 2026-11-07: Zachowanie historycznych potwierdzeń odczytu w czacie
+
+- **Zmienione obszary:** `chat.notifications` oraz testy powiadomień czatu.
+- **Co się zmieniło:** Przy obsłudze nowej wiadomości dla offline’owych uczestników czyszczony jest stan przeczytania pokoju (`Room.seen_by`), ale nie są już usuwane ich historyczne wpisy `MessageReadBy`.
+- **Testy:** Dodano regresję sprawdzającą zachowanie potwierdzenia wiadomości i wyczyszczenie stanu pokoju; `chat/tests/test_notifications.py` — 10 testów, Ruff dla zmienionych plików przechodzi.
+- **Uzasadnienie:** Usuwanie wszystkich potwierdzeń odbiorcy w pokoju powodowało, że po powrocie do czatu w liczniku przeczytań zostawały tylko wpisy dodane ponownie przez aktualnie czytające osoby.
+- **Spodziewany efekt:** Licznik nadal uwzględnia osoby, które przeczytały starsze wiadomości; nowa wiadomość pozostaje nieprzeczytana dla offline’owego odbiorcy.

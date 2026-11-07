@@ -15,7 +15,7 @@ from core import notifications as core_notifications
 from core.notifications import NOTIF_LOG_TAG
 from core.utils import get_site_domain, user_initials
 
-from .models import MessageReadBy, Room
+from .models import Room
 from .notification_queue import enqueue_notification
 from .room_repository import CHAT_UNREAD_CACHE_KEY
 
@@ -78,7 +78,6 @@ class ChatNotificationService:
 
     @staticmethod
     def _clear_unread_state(room_id, user_ids):
-        MessageReadBy.objects.filter(message__room_id=room_id, user_id__in=user_ids).delete()
         Room.seen_by.through.objects.filter(room_id=room_id, user_id__in=user_ids).delete()
 
     @staticmethod
