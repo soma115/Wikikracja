@@ -22,7 +22,7 @@ from django.views.generic import CreateView, DetailView, TemplateView, UpdateVie
 
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryReorderAPI
 from chat.i18n import get_translations as get_chat_translations
-from chat.services import get_unread_message_counts_for_rooms, get_unseen_room_ids
+from chat.room_repository import ChatRoomRepository
 from core.presence import presence_data
 from core.signals import task_status_changed
 from core.utils import build_detail_navigation, citizen_color_class, default_toolbar_views, user_display_name, user_initials
@@ -203,7 +203,8 @@ class TaskListView(LoginRequiredMixin, TemplateView):
         user = self.request.user
 
         qs = _task_list_queryset(user, categories, sort, order, search_query)
-        pulse_room_ids = get_unseen_room_ids(user)
+        room_repository = ChatRoomRepository(user)
+        pulse_room_ids = room_repository.get_unseen_room_ids_sync()
 
         # Szablon renderuje wyłącznie aktywną zakładkę — budujemy tylko jej listy.
         lists = {}
@@ -227,7 +228,7 @@ class TaskListView(LoginRequiredMixin, TemplateView):
             lists["finished_rejected"] = rejected
 
         displayed_tasks = [task for task_list in lists.values() for task in task_list]
-        unread_counts = get_unread_message_counts_for_rooms(user, [task.chat_room_id for task in displayed_tasks])
+        unread_counts = room_repository.get_unread_message_counts_for_rooms_sync([task.chat_room_id for task in displayed_tasks])
         for task in displayed_tasks:
             task.chat_unread_count = unread_counts.get(task.chat_room_id, 0)
 
@@ -697,7 +698,7 @@ class TaskDetailView(LoginRequiredMixin, DetailView):
             vote = TaskVote.objects.filter(task=task, user=self.request.user).first()
             context["user_vote_value"] = vote.value if vote else None
 
-            task.chat_unread_count = get_unread_message_counts_for_rooms(self.request.user, [task.chat_room_id]).get(task.chat_room_id, 0)
+            task.chat_unread_count = ChatRoomRepository(self.request.user).get_unread_message_counts_for_rooms_sync([task.chat_room_id]).get(task.chat_room_id, 0)
             task.chat_room_pulse_class = "tw-chat-room-pulse" if task.chat_unread_count else ""
             context["can_post_in_chat"] = task.can_user_post(self.request.user)
         else:

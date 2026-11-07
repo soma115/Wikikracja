@@ -8,7 +8,7 @@ from django.urls import resolve, reverse
 from django.utils.translation import gettext as _
 
 from chat.models import Message, Room
-from chat.services import get_unread_count_for_user
+from chat.room_repository import ChatRoomRepository
 from core.services.feed import FEED_CACHE_KEY, generate_feed_items
 from home.navigation import get_navigation_context
 from site_settings.models import QuickLink
@@ -285,7 +285,7 @@ class UnreadCountConsistencyTest(TestCase):
         room.allowed.add(self.user)
         Message.objects.create(sender=self.other_user, text='hej', room=room)
 
-        self.assertEqual(get_unread_count_for_user(self.user), 1)
+        self.assertEqual(ChatRoomRepository(self.user).get_unread_count_sync(), 1)
         self.assertEqual(self._unread_chat_rooms(self.user), 1)
 
     def test_feed_and_chat_agree_after_see_room(self):
@@ -297,7 +297,7 @@ class UnreadCountConsistencyTest(TestCase):
 
         room.seen_by.add(self.user)
 
-        self.assertEqual(get_unread_count_for_user(self.user), 0)
+        self.assertEqual(ChatRoomRepository(self.user).get_unread_count_sync(), 0)
         self.assertEqual(self._unread_chat_rooms(self.user), 0)
 
     def test_mark_as_read_from_feed_updates_chat_count(self):
@@ -311,7 +311,7 @@ class UnreadCountConsistencyTest(TestCase):
         response = self.client.post(reverse('mark_as_read'), {'content_type': 'room_messages', 'object_id': message.id})
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(get_unread_count_for_user(self.user), 0)
+        self.assertEqual(ChatRoomRepository(self.user).get_unread_count_sync(), 0)
         self.assertEqual(self._unread_chat_rooms(self.user), 0)
 
     def test_mark_unread_from_feed_updates_chat_count(self):
@@ -326,5 +326,5 @@ class UnreadCountConsistencyTest(TestCase):
         response = self.client.post(reverse('mark_unread'), {'content_type': 'room_messages', 'object_id': message.id})
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(get_unread_count_for_user(self.user), 1)
+        self.assertEqual(ChatRoomRepository(self.user).get_unread_count_sync(), 1)
         self.assertEqual(self._unread_chat_rooms(self.user), 1)

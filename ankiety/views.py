@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from chat.i18n import get_translations as get_chat_translations
-from chat.services import get_unread_message_counts_for_rooms
+from chat.room_repository import ChatRoomRepository
 from core.signals import survey_created, survey_updated
 from core.utils import build_detail_navigation, build_site_url, default_toolbar_views
 
@@ -153,7 +153,7 @@ def survey_list(request):
         _survey_queryset(tab, search_query).prefetch_related(Prefetch("options", queryset=SurveyOption.objects.select_related("created_by").annotate(vote_count=Count("votes")).order_by("order", "id")))
     )
 
-    unread_counts = get_unread_message_counts_for_rooms(request.user, [survey.chat_room_id for survey in surveys if survey.chat_room_id])
+    unread_counts = ChatRoomRepository(request.user).get_unread_message_counts_for_rooms_sync([survey.chat_room_id for survey in surveys if survey.chat_room_id])
     for survey in surveys:
         survey.chat_unread_count = unread_counts.get(survey.chat_room_id, 0)
         survey.chat_room_pulse_class = "tw-chat-room-pulse" if survey.chat_unread_count else ""
@@ -261,7 +261,7 @@ def survey_detail(request, pk):
             _cast_vote(request, survey)
             return redirect("ankiety:detail", pk=survey.pk)
 
-    chat_unread_count = get_unread_message_counts_for_rooms(request.user, [survey.chat_room_id]).get(survey.chat_room_id, 0)
+    chat_unread_count = ChatRoomRepository(request.user).get_unread_message_counts_for_rooms_sync([survey.chat_room_id]).get(survey.chat_room_id, 0)
     chat_room_pulse_class = "tw-chat-room-pulse" if chat_unread_count else ""
 
     return render(

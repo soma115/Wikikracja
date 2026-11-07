@@ -27,7 +27,8 @@ from PIL import Image
 from chat.forms import GuestMessageForm, RoomForm
 from chat.i18n import get_translations
 from chat.models import Message, Room
-from chat.services import get_unread_message_counts_for_rooms, send_message
+from chat.room_repository import ChatRoomRepository
+from chat.services import send_message
 from site_settings.params import get_param
 
 from .federation import FEDERATION_MAX_BODY, FEDERATION_SOURCE, get_configured_room, get_federation_inbound_secret, make_federation_message_id, validate_incoming_payload, verify_federation_request
@@ -157,7 +158,7 @@ def chat(request: HttpRequest):
         'private': (private_active, private_archived),
     }
     rooms = [room for groups in room_sections.values() for group in groups for room in group]
-    unread_counts = get_unread_message_counts_for_rooms(request.user, [room.pk for room in rooms])
+    unread_counts = ChatRoomRepository(request.user).get_unread_message_counts_for_rooms_sync([room.pk for room in rooms])
     for room in rooms:
         room.unread_message_count = unread_counts.get(room.pk, 0)
     chat_section_unread_counts = {section: sum(room.unread_message_count for group in groups for room in group) for section, groups in room_sections.items()}
@@ -231,9 +232,7 @@ def upload_image(request: HttpRequest):
 
 @login_required
 def unread_count(request: HttpRequest):
-    from chat.services import get_unread_count_for_user
-
-    count = get_unread_count_for_user(request.user)
+    count = ChatRoomRepository(request.user).get_unread_count_sync()
     return JsonResponse({"count": count})
 
 

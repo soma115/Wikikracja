@@ -22,7 +22,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from chat.i18n import get_translations as get_chat_translations
-from chat.services import get_unread_message_counts_for_rooms
+from chat.room_repository import ChatRoomRepository
 from chat.signals import chat_message_requested
 from core.signals import vote_argument_added, vote_state_changed
 from core.utils import build_site_url, default_toolbar_views, user_display_name
@@ -417,7 +417,7 @@ def details(request: HttpRequest, pk: int):
     chat_room = szczegoly.chat_room
 
     # Check if chat room has unseen messages
-    chat_unread_counts = get_unread_message_counts_for_rooms(request.user, [chat_room.id] if chat_room else [])
+    chat_unread_counts = ChatRoomRepository(request.user).get_unread_message_counts_for_rooms_sync([chat_room.id] if chat_room else [])
     chat_unread_count = chat_unread_counts.get(chat_room.id, 0) if chat_room else 0
     chat_room_pulse_class = "tw-chat-room-pulse" if chat_unread_count else ""
 
@@ -803,7 +803,7 @@ def _status_list(request: HttpRequest, status, *, author_signed=False, pulse=Fal
     if author_signed:
         qs = qs.annotate(_signed=author_signed_exists()).filter(_signed=True)
     votings = list(_apply_sort(qs, sort, order))
-    unread_counts = get_unread_message_counts_for_rooms(request.user, [voting.chat_room_id for voting in votings])
+    unread_counts = ChatRoomRepository(request.user).get_unread_message_counts_for_rooms_sync([voting.chat_room_id for voting in votings])
     parameters = SiteParameters.get() if status == Decyzja.Status.PROPOSITION else None
     for voting in votings:
         voting.chat_unread_count = unread_counts.get(voting.chat_room_id, 0)

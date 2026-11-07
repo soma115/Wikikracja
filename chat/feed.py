@@ -5,7 +5,8 @@ from core.richtext import plain_text
 from core.utils import user_display_name
 
 from .models import Message, MessageReadBy, Room
-from .services import extract_mentions, mark_message_read_for_user, mark_message_unread_for_user
+from .room_repository import ChatRoomRepository
+from .services import extract_mentions
 
 
 def get_feed_items(since: timezone.datetime) -> list[dict]:
@@ -119,7 +120,7 @@ def prepare_digest_items(items, user, since) -> list[dict | None]:
 def mark_as_read(object_id: int, user) -> None:
     try:
         message = Message.objects.select_related('room').get(pk=object_id)
-        mark_message_read_for_user(user, message)
+        ChatRoomRepository(user).mark_message_read_for_user_sync(message)
     except Message.DoesNotExist:
         pass
 
@@ -127,6 +128,6 @@ def mark_as_read(object_id: int, user) -> None:
 def mark_as_unread(object_id: int, user) -> None:
     try:
         message = Message.objects.select_related('room').get(pk=object_id)
-        mark_message_unread_for_user(user, message)
+        ChatRoomRepository(user).mark_message_unread_for_user_sync(message)
     except Message.DoesNotExist:
         pass

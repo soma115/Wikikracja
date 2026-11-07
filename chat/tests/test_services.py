@@ -18,25 +18,14 @@ from firebase_admin import messaging as firebase_messaging
 from push_notifications.models import GCMDevice
 
 from chat.exceptions import ClientError
+from chat.message_repository import ChatMessageRepository
 from chat.models import Message, MessageReadBy, Room
 from chat.notifications import ChatNotificationService
 from chat.permissions import _room_permission_checkers, get_room_permission_checker, register_room_permission_checker
-from chat.room_repository import ChatRoomRepository
-from chat.serializers import build_chat_message_payload
-from chat.services import (
-    CHAT_UNREAD_CACHE_KEY,
-    ChatRepository,
-    _get_reply_to_data_sync,
-    build_chat_message_event,
-    can_user_post_in_room,
-    extract_mentions,
-    get_avatar_url,
-    get_unread_count_for_user,
-    get_unseen_room_ids,
-    mark_room_read_for_user,
-    mark_room_unread_for_user,
-    send_message,
-)
+from chat.reaction_repository import ChatReactionRepository
+from chat.room_repository import CHAT_UNREAD_CACHE_KEY, ChatRoomRepository
+from chat.serializers import build_chat_message_event, build_chat_message_payload, get_avatar_url
+from chat.services import _get_reply_to_data_sync, can_user_post_in_room, extract_mentions, send_message
 from chat.signals import cleanup_user_chat_rooms
 from chat.tests.utils import make_user
 from core import signals
@@ -304,6 +293,7 @@ class GetUnseenRoomIdsTest(TestCase):
         self.user = make_user("unseen-user")
         self.other = make_user("other-unseen-user")
         self.third = make_user("third-unseen-user")
+        self.room_repository = ChatRoomRepository(self.user)
         for user in (self.user, self.other):
             user.seen_rooms.set(Room.objects.all())
             key = CHAT_UNREAD_CACHE_KEY.format(user_id=user.id)
@@ -329,45 +319,57 @@ class GetUnseenRoomIdsTest(TestCase):
         seen.seen_by.add(self.user)
         empty = Room.objects.create(title="Empty")
         empty.allowed.add(self.user)
-        self.assertEqual(get_unseen_room_ids(self.user), {regular.id, archived.id, inbox.id, unlisted.id, private.id})
+        self.assertEqual(self.room_repository.get_unseen_room_ids_sync(), {regular.id, archived.id, inbox.id, unlisted.id, private.id})
         # Kafelek/badge liczy to, co lista czatu pokazuje jako nieprzeczytane:
         # niezarchiwizowane pokoje z listy usera — Inbox wliczony, bo jest na liście.
-        self.assertEqual(get_unread_count_for_user(self.user), 2)
+        self.assertEqual(self.room_repository.get_unread_count_sync(), 2)
 
     def test_seen_flags_are_independent_per_user_and_recomputed(self):
         first = self.make_message_room("First")
         second = self.make_message_room("Second")
         first.seen_by.add(self.user)
         second.seen_by.add(self.other)
-        self.assertEqual(get_unseen_room_ids(self.user), {second.id})
-        self.assertEqual(get_unseen_room_ids(self.other), {first.id})
+        self.assertEqual(self.room_repository.get_unseen_room_ids_sync(), {second.id})
+        self.assertEqual(ChatRoomRepository(self.other).get_unseen_room_ids_sync(), {first.id})
         first.seen_by.remove(self.user)
         second.seen_by.add(self.user)
-        self.assertEqual(get_unseen_room_ids(self.user), {first.id})
-        self.assertEqual(get_unseen_room_ids(self.other), {first.id})
+        self.assertEqual(self.room_repository.get_unseen_room_ids_sync(), {first.id})
+        self.assertEqual(ChatRoomRepository(self.other).get_unseen_room_ids_sync(), {first.id})
 
     def test_unseen_ids_ignore_stale_unread_count_cache(self):
         room = self.make_message_room("Cached count")
         key = CHAT_UNREAD_CACHE_KEY.format(user_id=self.user.id)
         cache.set(key, 777)
-        self.assertEqual(get_unread_count_for_user(self.user), 777)
-        self.assertEqual(get_unseen_room_ids(self.user), {room.id})
+        self.assertEqual(self.room_repository.get_unread_count_sync(), 777)
+        self.assertEqual(self.room_repository.get_unseen_room_ids_sync(), {room.id})
         room.seen_by.add(self.user)
-        self.assertEqual(get_unseen_room_ids(self.user), set())
+        self.assertEqual(self.room_repository.get_unseen_room_ids_sync(), set())
         self.assertEqual(cache.get(key), 777)
+
+    def test_unread_message_counts_include_only_requested_unread_rooms(self):
+        unread = self.make_message_room("Counted")
+        seen = self.make_message_room("Seen count")
+        seen.seen_by.add(self.user)
+        already_read = self.make_message_room("Already read")
+        MessageReadBy.objects.create(message=already_read.messages.first(), user=self.user)
+
+        counts = self.room_repository.get_unread_message_counts_for_rooms_sync([unread.id, seen.id, already_read.id, None])
+
+        self.assertEqual(counts, {unread.id: 1})
+        self.assertEqual(self.room_repository.get_unread_message_counts_for_rooms_sync([]), {})
 
     def test_mark_room_read_and_unread_updates_both_read_states(self):
         room = self.make_message_room("Read state")
 
-        mark_room_read_for_user(self.user, room)
+        self.room_repository.mark_room_read_sync(room)
 
-        self.assertEqual(get_unseen_room_ids(self.user), set())
+        self.assertEqual(self.room_repository.get_unseen_room_ids_sync(), set())
         self.assertTrue(room.seen_by.filter(pk=self.user.pk).exists())
         self.assertTrue(MessageReadBy.objects.filter(message__room=room, user=self.user).exists())
 
-        mark_room_unread_for_user(self.user, room)
+        self.room_repository.mark_room_unread_sync(room)
 
-        self.assertEqual(get_unseen_room_ids(self.user), {room.id})
+        self.assertEqual(self.room_repository.get_unseen_room_ids_sync(), {room.id})
         self.assertFalse(room.seen_by.filter(pk=self.user.pk).exists())
         self.assertFalse(MessageReadBy.objects.filter(message__room=room, user=self.user).exists())
 
@@ -378,7 +380,7 @@ class GetUnseenRoomIdsTest(TestCase):
             Message.objects.create(room=room, sender=self.other, text="Second unread message")
             room_ids.add(room.id)
             with self.subTest(room_count=len(room_ids)), self.assertNumQueries(1):
-                self.assertEqual(get_unseen_room_ids(self.user), room_ids)
+                self.assertEqual(self.room_repository.get_unseen_room_ids_sync(), room_ids)
 
 
 class DomainNotificationSignalTest(TestCase):
@@ -626,20 +628,20 @@ class TargetMessageBatchTest(TestCase):
         for index, message in enumerate(self.messages):
             message.time = start + timedelta(seconds=index)
         Message.objects.bulk_update(self.messages, ['time'])
-        self.repo = ChatRepository(self.user)
+        self.repository = ChatMessageRepository(self.user)
 
     async def test_target_message_is_centered_in_chronological_batch(self):
         target = self.messages[20]
 
-        batch = await self.repo.get_recent_messages_batch(self.room.id, self.user.id, limit=20, target_message_id=target.id)
-        short_room_batch = await self.repo.get_recent_messages_batch(self.room.id, self.user.id, limit=100, target_message_id=target.id)
+        batch = await self.repository.get_recent_messages_batch(self.room.id, limit=20, target_message_id=target.id)
+        short_room_batch = await self.repository.get_recent_messages_batch(self.room.id, limit=100, target_message_id=target.id)
 
         self.assertEqual([item['message_id'] for item in batch['messages']], [message.id for message in self.messages[10:30]])
         self.assertEqual([item['message_id'] for item in short_room_batch['messages']], [message.id for message in self.messages])
 
     async def test_target_near_room_edges_fills_batch_from_available_side(self):
-        first = await self.repo.get_recent_messages_batch(self.room.id, self.user.id, limit=20, target_message_id=self.messages[0].id)
-        last = await self.repo.get_recent_messages_batch(self.room.id, self.user.id, limit=20, target_message_id=self.messages[-1].id)
+        first = await self.repository.get_recent_messages_batch(self.room.id, limit=20, target_message_id=self.messages[0].id)
+        last = await self.repository.get_recent_messages_batch(self.room.id, limit=20, target_message_id=self.messages[-1].id)
 
         self.assertEqual([item['message_id'] for item in first['messages']], [message.id for message in self.messages[:20]])
         self.assertEqual([item['message_id'] for item in last['messages']], [message.id for message in self.messages[-20:]])
@@ -650,7 +652,7 @@ class TargetMessageBatchTest(TestCase):
 
         for target_id in (foreign_message.id, 999999):
             with self.subTest(target_id=target_id):
-                batch = await self.repo.get_recent_messages_batch(self.room.id, self.user.id, limit=20, target_message_id=target_id)
+                batch = await self.repository.get_recent_messages_batch(self.room.id, limit=20, target_message_id=target_id)
                 self.assertEqual([item['message_id'] for item in batch['messages']], [message.id for message in self.messages[-20:]])
 
 
@@ -667,39 +669,40 @@ class TaskRoomVoterNamesTest(TestCase):
         self.msg = Message.objects.create(room=self.room, sender=self.author, text="Propozycja")
         self.msg.reactions = {'upvotes': [self.voter_up.id], 'downvotes': [self.voter_down.id]}
         self.msg.save(update_fields=['reactions'])
-        self.repo = ChatRepository(self.author)
+        self.repository = ChatMessageRepository(self.author)
+        self.reaction_repo = ChatReactionRepository(self.author)
 
     async def test_batch_includes_voter_names_when_include_voters(self):
-        batch = await self.repo.get_recent_messages_batch(self.room.id, self.author.id, include_voters=True)
+        batch = await self.repository.get_recent_messages_batch(self.room.id, include_voters=True)
         msg = batch['messages'][-1]
         self.assertEqual(msg['upvoters'], ['upvoter'])
         self.assertEqual(msg['downvoters'], ['downvoter'])
 
     async def test_batch_omits_voter_names_by_default(self):
-        batch = await self.repo.get_recent_messages_batch(self.room.id, self.author.id)
+        batch = await self.repository.get_recent_messages_batch(self.room.id)
         msg = batch['messages'][-1]
         self.assertNotIn('upvoters', msg)
         self.assertNotIn('downvoters', msg)
 
     async def test_batch_marks_current_users_read_state(self):
-        batch = await self.repo.get_recent_messages_batch(self.room.id, self.author.id)
+        batch = await self.repository.get_recent_messages_batch(self.room.id)
         self.assertFalse(batch['messages'][-1]['read_by_current_user'])
 
         await database_sync_to_async(MessageReadBy.objects.create)(message=self.msg, user=self.author)
-        batch = await self.repo.get_recent_messages_batch(self.room.id, self.author.id)
+        batch = await self.repository.get_recent_messages_batch(self.room.id)
         self.assertTrue(batch['messages'][-1]['read_by_current_user'])
 
     async def test_get_vote_voters_returns_names(self):
-        voters = await self.repo.get_vote_voters(self.msg.id)
+        voters = await self.reaction_repo.get_vote_voters(self.msg.id)
         self.assertEqual(voters, {'upvoters': ['upvoter'], 'downvoters': ['downvoter']})
 
     async def test_get_vote_voters_missing_message(self):
-        voters = await self.repo.get_vote_voters(999999)
+        voters = await self.reaction_repo.get_vote_voters(999999)
         self.assertEqual(voters, {'upvoters': [], 'downvoters': []})
 
     async def test_voter_lists_skip_deleted_users(self):
         await database_sync_to_async(self.voter_up.delete)()
-        voters = await self.repo.get_vote_voters(self.msg.id)
+        voters = await self.reaction_repo.get_vote_voters(self.msg.id)
         self.assertEqual(voters, {'upvoters': [], 'downvoters': ['downvoter']})
 
 

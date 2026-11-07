@@ -29,7 +29,8 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from chat.i18n import get_translations as get_chat_translations
 from chat.models import Room
-from chat.services import get_unread_message_counts_for_rooms, get_user_public_message_rows
+from chat.room_repository import ChatRoomRepository
+from chat.services import get_user_public_message_rows
 from core.services.notifications import clear_notifications_unsubscribe, unsubscribe_user_notifications, user_from_unsubscribe_token
 from core.signals import citizen_proposed
 from core.utils import default_toolbar_views, get_user_language
@@ -294,7 +295,7 @@ def obywatele(request: HttpRequest):
 
     coordinated_tasks = get_active_coordinated_tasks_by_user_ids(user.pk for user in users_with_reputation)
     private_rooms = Room.find_private_rooms_for_user_pairs(request.user, [user.pk for user in users_with_reputation if user.pk != request.user.pk])
-    unread_counts = get_unread_message_counts_for_rooms(request.user, [room.pk for room in private_rooms.values()])
+    unread_counts = ChatRoomRepository(request.user).get_unread_message_counts_for_rooms_sync([room.pk for room in private_rooms.values()])
     for user in users_with_reputation:
         user.coordinated_tasks = coordinated_tasks.get(user.pk, [])
         room = private_rooms.get(user.pk)
@@ -832,7 +833,7 @@ def obywatele_szczegoly(request: HttpRequest, pk: int):
         if dm_room.archived:
             dm_room.archived = False
             dm_room.save(update_fields=['archived'])
-    dm_unread_counts = get_unread_message_counts_for_rooms(request.user, [dm_room.pk] if dm_room else [])
+    dm_unread_counts = ChatRoomRepository(request.user).get_unread_message_counts_for_rooms_sync([dm_room.pk] if dm_room else [])
     dm_unread_count = dm_unread_counts.get(dm_room.pk, 0) if dm_room else 0
 
     return render(

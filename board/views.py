@@ -17,7 +17,7 @@ from django.views.generic import CreateView, UpdateView
 from categories.views import CategoryAPIBase, CategoryDeleteAPI, CategoryEditAPI, CategoryItemsAPI, CategoryReorderAPI
 from chat.i18n import get_translations as get_chat_translations
 from chat.models import MessageAttachment
-from chat.services import get_unread_message_counts_for_rooms
+from chat.room_repository import ChatRoomRepository
 from chat.utils import get_upload_path
 from core.utils import build_detail_navigation, default_toolbar_views
 
@@ -139,7 +139,7 @@ def _board_listing(request, *, include_chat_counts=True):
     posts_all = list(posts_all)
 
     if include_chat_counts:
-        unread_counts = get_unread_message_counts_for_rooms(request.user, [post.chat_room_id for post in posts_all])
+        unread_counts = ChatRoomRepository(request.user).get_unread_message_counts_for_rooms_sync([post.chat_room_id for post in posts_all])
         for post in posts_all:
             post.chat_room_unread_count = unread_counts.get(post.chat_room_id, 0)
             post.chat_room_pulse_class = 'tw-chat-room-pulse' if post.chat_room_unread_count else ''

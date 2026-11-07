@@ -16,6 +16,46 @@
 
 # LOG_AI
 
+## 2026-11-07: Read/unread w ChatRoomRepository
+
+- **Zmienione obszary:** repozytorium pokoi, usługi czatu, feed, dashboard oraz widoki aplikacji korzystających z liczników czatu.
+- **Co się zmieniło:** logikę oznaczania pokoi/wiadomości, ustalania stanu seen/unread, liczników i unieważniania cache przeniesiono do `ChatRoomRepository`. Widoki używają jego synchronicznych metod; feed zachowuje osobną semantykę oznaczania wiadomości jako przeczytanej wraz z `seen_by`. Funkcje pomocnicze usunięto z `chat.services`.
+- **Uzasadnienie:** repozytorium pokoi było już publiczną granicą read/unread, ale wcześniej tylko delegowało do `chat.services`.
+- **Weryfikacja:** 552 ukierunkowane testy feedu, dashboardu, repozytorium i dotkniętych widoków oraz Ruff check i format check przechodzą.
+- **Spodziewany efekt:** jedno źródło prawdy dla cache i zapytań unread przy zachowaniu dotychczasowych filtrów, `MessageReadBy` i `seen_by`.
+
+## 2026-11-07: Usunięcie ChatRepository
+
+- **Zmienione obszary:** pobieranie paczek wiadomości, serializacja zdarzeń czatu, WebSocket i testy.
+- **Co się zmieniło:** `get_recent_messages_batch` i pobieranie autora przeniesiono do `ChatMessageRepository`; `build_chat_message_event` oraz helpery prezentacji wiadomości przeniesiono do `chat.serializers`. Handlerzy i consumer używają dedykowanych repozytoriów, a ogólny `ChatRepository` usunięto.
+- **Uzasadnienie:** po wydzieleniu obsługi pokoi, reakcji, read receipt i trwałości wiadomości ogólna fasada nie miała już odrębnej odpowiedzialności.
+- **Weryfikacja:** 154 ukierunkowane testy czatu oraz Ruff check i format check przechodzą.
+- **Spodziewany efekt:** jednoznaczne granice repozytoriów i serializacji bez zmiany kolejności wiadomości, payloadów ani protokołu WebSocket.
+
+## 2026-11-07: Potwierdzenia przeczytania w ChatRoomRepository
+
+- **Zmienione obszary:** repozytorium pokoi, repozytorium wiadomości, obsługa komend czatu i testy.
+- **Co się zmieniło:** oznaczanie pojedynczych i wielu wiadomości jako przeczytanych oraz payload listy czytających przeniesiono z `ChatRepository` do `ChatRoomRepository`. Kontrola dostępu do wiadomości została scentralizowana w repozytorium pokoi i jest współdzielona przez `ChatMessageRepository`.
+- **Uzasadnienie:** wszystkie operacje read/unread są dostępne przez kanoniczne repozytorium stanu pokoju.
+- **Weryfikacja:** testy repozytorium pokoi, handlerów i powiązanych usług czatu oraz Ruff.
+- **Spodziewany efekt:** mniej przeplatania odpowiedzialności repozytoriów bez zmiany zapisów `MessageReadBy`, `seen_by` ani cache unread.
+
+## 2026-11-07: Repozytorium danych reakcji czatu
+
+- **Zmienione obszary:** odczyt i zapis głosów/reakcji, handler WebSocket, consumer i testy.
+- **Co się zmieniło:** operacje bazodanowe głosów i reakcji przeniesiono z `ChatRepository` do `ChatReactionRepository`; `ChatReactionService` i konsument czatu korzystają teraz z tej warstwy. Wspólne helpery odczytu reakcji mają jedno źródło prawdy.
+- **Uzasadnienie:** oddzielenie zapisu reakcji od odczytu wiadomości i potwierdzeń przeczytania domyka granicę odpowiedzialności już istniejącego serwisu reakcji.
+- **Weryfikacja:** ukierunkowane testy repozytorium reakcji, handlerów, consumerów i usług czatu oraz Ruff.
+- **Spodziewany efekt:** zmiana sposobu przechowywania reakcji może być testowana niezależnie od obsługi innych danych wiadomości, bez zmiany kontraktu WebSocketu.
+
+## 2026-11-07: Repozytorium wiadomości czatu
+
+- **Zmienione obszary:** dostęp do wiadomości, historia edycji i załączniki czatu; handler WebSocket i testy.
+- **Co się zmieniło:** operacje te przeniesiono z `ChatRepository` do `ChatMessageRepository`. Handler używa nowej granicy bezpośrednio, a pozostałe operacje repozytorium korzystają ze wspólnego sprawdzania dostępu przez `ChatRoomRepository`.
+- **Uzasadnienie:** oddzielenie zapisu i odczytu wiadomości od reakcji oraz stanu odczytu ogranicza zakres odpowiedzialności repozytorium.
+- **Weryfikacja:** 98 ukierunkowanych testów czatu oraz Ruff check i format check przechodzą.
+- **Spodziewany efekt:** łatwiejsze testowanie i rozwijanie operacji wiadomości bez zmiany zachowania WebSocketu, danych ani zasad dostępu.
+
 ## 2026-11-07: Chronologiczna kolejność argumentów w głosowaniach
 
 - **Zmienione obszary:** widok szczegółów głosowania i test widoku.

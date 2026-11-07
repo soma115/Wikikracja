@@ -11,9 +11,12 @@ from django.utils.translation import gettext as _
 from chat.command_handlers import ChatCommandHandlers
 from chat.consumers import ChatConsumer
 from chat.exceptions import ClientError
+from chat.message_repository import ChatMessageRepository
 from chat.models import Message, Room
 from chat.notifications import ChatNotificationService
-from chat.services import CHAT_UNREAD_CACHE_KEY, ChatRepository, send_message
+from chat.reaction_repository import ChatReactionRepository
+from chat.room_repository import CHAT_UNREAD_CACHE_KEY, ChatRoomRepository
+from chat.services import send_message
 from chat.tests.utils import make_user
 from tasks.models import TaskVote
 from tasks.tests.utils import make_task
@@ -63,7 +66,7 @@ class InactiveWebSocketAccessTest(TestCase):
 class PostSendProcessingUnseenTest(TestCase):
     """
     Regression tests for _dispatch_message_notifications: ensures the correct call path
-    consumer.repo.unsee_room(room) is used, and that push_unread_count is called iff
+    consumer.room_repo.unsee_room(room) is used, and that push_unread_count is called iff
     the receiver had previously seen the room.
     """
 
@@ -89,9 +92,8 @@ class PostSendProcessingUnseenTest(TestCase):
         consumer.scope = {'user': self.receiver}
         consumer.rooms = MagicMock()
         consumer.rooms.present = MagicMock(return_value=False)
-        consumer.repo = AsyncMock()
-        consumer.room_repo = consumer.repo
-        consumer.repo.unsee_room = AsyncMock()
+        consumer.room_repo = AsyncMock()
+        consumer.room_repo.unsee_room = AsyncMock()
         consumer.push_unread_count = AsyncMock()
         consumer.send_json = AsyncMock()
         return consumer
@@ -139,7 +141,7 @@ class PostSendProcessingUnseenTest(TestCase):
 
         mock_send_push = await self._run(receiver)
 
-        receiver.repo.unsee_room.assert_awaited_once_with(self.room)
+        receiver.room_repo.unsee_room.assert_awaited_once_with(self.room)
         receiver.push_unread_count.assert_awaited_once()
         mock_send_push.assert_called_once()
 
@@ -149,14 +151,14 @@ class PostSendProcessingUnseenTest(TestCase):
 
         mock_send_push = await self._run(receiver)
 
-        receiver.repo.unsee_room.assert_not_awaited()
+        receiver.room_repo.unsee_room.assert_not_awaited()
         receiver.push_unread_count.assert_not_awaited()
         mock_send_push.assert_called_once()
 
     async def test_race_no_consumer_muted_seen_does_not_crash(self):
         """Regression: race condition where online_registry reports member as online
         but get_consumer() returns None (e.g. disconnect between registry check and lookup),
-        with muted=True and seen=True. Must not reach consumer.repo (None → AttributeError).
+        with muted=True and seen=True. Must not reach consumer.room_repo (None → AttributeError).
         No push (muted), no crash."""
         await database_sync_to_async(self.room.seen_by.add)(self.receiver)
         await database_sync_to_async(self.room.muted_by.add)(self.receiver)
@@ -265,7 +267,7 @@ class PostSendProcessingUnseenTest(TestCase):
                 self.push.assert_called_once()
                 [(group, event)] = self._notifications()
                 self.assertEqual(group, f'user_{self.receiver.id}')
-                receiver.repo.unsee_room.assert_not_awaited()
+                receiver.room_repo.unsee_room.assert_not_awaited()
                 receiver.push_unread_count.assert_not_awaited()
                 receiver.send_json.assert_not_awaited()
                 receiver.rooms.items.return_value = [self.room.id]
@@ -351,11 +353,9 @@ class BroadcastVoteUpdateTest(TestCase):
         self.msg_plain.save(update_fields=['reactions'])
 
     def _handler(self):
-        repo = SimpleNamespace(
-            get_room_by_message=AsyncMock(side_effect=lambda message_id: self.task_room if message_id == self.msg_task.id else self.plain_room),
-            get_vote_voters=AsyncMock(return_value={'upvoters': ['voter'], 'downvoters': []}),
-        )
-        consumer = SimpleNamespace(scope={'user': self.voter}, repo=repo, channel_layer=AsyncMock())
+        message_repo = SimpleNamespace(get_room_by_message=AsyncMock(side_effect=lambda message_id: self.task_room if message_id == self.msg_task.id else self.plain_room))
+        reaction_repo = SimpleNamespace(get_vote_voters=AsyncMock(return_value={'upvoters': ['voter'], 'downvoters': []}))
+        consumer = SimpleNamespace(scope={'user': self.voter}, message_repo=message_repo, reaction_repo=reaction_repo, channel_layer=AsyncMock())
         return ChatCommandHandlers(consumer, MagicMock())
 
     async def test_task_room_includes_voter_names(self):
@@ -395,7 +395,10 @@ class TaskRoomSendPermissionTest(TestCase):
         consumer.rooms = MagicMock()
         consumer.rooms.items.return_value = [self.room.id]
         consumer.channel_layer = AsyncMock()
-        self.assertIsInstance(consumer.repo, ChatRepository)
+        self.assertIsInstance(consumer.message_repo, ChatMessageRepository)
+        self.assertIsInstance(consumer.room_repo, ChatRoomRepository)
+        self.assertIsInstance(consumer.reaction_repo, ChatReactionRepository)
+        self.assertFalse(hasattr(consumer, 'repo'))
         handler = ChatCommandHandlers(consumer, ChatConsumer.online_registry)
 
         with patch('chat.notifications.ChatNotificationService.dispatch_message', new_callable=AsyncMock) as notifications:

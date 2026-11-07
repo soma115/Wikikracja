@@ -1,6 +1,29 @@
 """Domain rules for message votes and reactions."""
 
+from django.contrib.auth.models import User
+
+from core.utils import user_display_name
+
 from .exceptions import ClientError
+
+
+def _reactions(message) -> dict:
+    return message.reactions if isinstance(message.reactions, dict) else {}
+
+
+def _voter_names_by_id(user_ids) -> dict:
+    """Return {user_id: display name} for the given ids (skips deleted users)."""
+    if not user_ids:
+        return {}
+    return {user.id: user_display_name(user) for user in User.objects.filter(id__in=user_ids)}
+
+
+def _voter_lists(reactions_dict: dict, names_by_id: dict) -> dict:
+    """Map vote id-lists in reactions to usernames."""
+    return {
+        'upvoters': [names_by_id[user_id] for user_id in reactions_dict.get('upvotes', []) if user_id in names_by_id],
+        'downvoters': [names_by_id[user_id] for user_id in reactions_dict.get('downvotes', []) if user_id in names_by_id],
+    }
 
 
 class ChatReactionService:

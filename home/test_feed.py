@@ -6,7 +6,7 @@ from django.utils.translation import gettext
 
 from board.models import Post
 from chat.models import Message, MessageReadBy, Room
-from chat.services import CHAT_UNREAD_CACHE_KEY
+from chat.room_repository import CHAT_UNREAD_CACHE_KEY
 from core.models import ReadStatus
 from core.richtext import plain_text
 from core.services import feed as feed_service

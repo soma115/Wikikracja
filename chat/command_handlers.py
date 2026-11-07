@@ -14,8 +14,8 @@ from core.utils import user_display_name
 from .exceptions import ClientError
 from .notification_queue import clear_room_notification_state
 from .reactions import ChatReactionService
-from .serializers import build_chat_message_payloads
-from .services import get_avatar_url, send_message
+from .serializers import build_chat_message_payloads, get_avatar_url
+from .services import send_message
 from .utils import get_upload_path
 
 
@@ -66,11 +66,11 @@ class ChatCommandHandlers:
 
     @property
     def room_repo(self):
-        return getattr(self.consumer, 'room_repo', self.consumer.repo)
+        return self.consumer.room_repo
 
     @property
     def reaction_service(self):
-        return ChatReactionService(self.consumer.repo)
+        return ChatReactionService(self.consumer.reaction_repo)
 
     async def _clear_room_notification_state(self, room_id):
         await sync_to_async(clear_room_notification_state, thread_sensitive=False)(self.consumer.scope['user'].id, room_id)
@@ -114,7 +114,7 @@ class ChatCommandHandlers:
                 'source_url': getattr(room, 'source_url', None),
             }
         ]
-        batch = await self.consumer.repo.get_recent_messages_batch(room_id, self.consumer.scope['user'].id, limit=100, target_message_id=message_id, include_voters=room.source_app == 'tasks')
+        batch = await self.consumer.message_repo.get_recent_messages_batch(room_id, limit=100, target_message_id=message_id, include_voters=room.source_app == 'tasks')
         messages = build_message_payloads(batch, self.consumer.scope['user'])
         if messages:
             responses.append({'messages': messages})
@@ -124,9 +124,7 @@ class ChatCommandHandlers:
         room = await self.room_repo.get_room_or_error(room_id)
         sort_by = sort_by if sort_by in ('date', 'likes', None) else 'date'
         order = order if order in ('asc', 'desc', None) else 'desc'
-        batch = await self.consumer.repo.get_recent_messages_batch(
-            room_id, self.consumer.scope['user'].id, limit=100, sort_by=sort_by, order=order, popular_only=bool(popular_only), include_voters=room.source_app == 'tasks'
-        )
+        batch = await self.consumer.message_repo.get_recent_messages_batch(room_id, limit=100, sort_by=sort_by, order=order, popular_only=bool(popular_only), include_voters=room.source_app == 'tasks')
         return CommandResult([{'replace_messages': True, 'room_id': str(room_id), 'messages': build_message_payloads(batch, self.consumer.scope['user'])}])
 
     async def send(self, room_id, message, is_anonymous, attachments, reply_to_id=None, temp_id=None):
@@ -199,37 +197,37 @@ class ChatCommandHandlers:
         return CommandResult()
 
     async def _broadcast_vote_update(self, message_id, vote, upvotes, downvotes, add):
-        room = await self.consumer.repo.get_room_by_message(message_id)
+        room = await self.consumer.message_repo.get_room_by_message(message_id)
         update_votes = {'message_id': message_id, 'upvotes': upvotes, 'downvotes': downvotes, 'user_id': self.consumer.scope['user'].id, 'vote': vote, 'add': add}
         if room.source_app == 'tasks':
-            update_votes.update(await self.consumer.repo.get_vote_voters(message_id))
+            update_votes.update(await self.consumer.reaction_repo.get_vote_voters(message_id))
         await self.consumer.channel_layer.group_send(room.group_name, {'type': 'chat.vote', 'update_votes': update_votes})
 
     async def react(self, reaction, message_id):
         added, counts = await self.reaction_service.toggle_reaction(reaction, message_id)
-        room = await self.consumer.repo.get_room_by_message(message_id)
+        room = await self.consumer.message_repo.get_room_by_message(message_id)
         await self.consumer.channel_layer.group_send(
             room.group_name, {'type': 'chat.reaction', 'update_reactions': {'message_id': message_id, 'reaction': reaction, 'counts': counts, 'user_id': self.consumer.scope['user'].id, 'added': added}}
         )
         return CommandResult()
 
     async def mark_read(self, message_id):
-        await self.consumer.repo.mark_message_read(message_id)
-        read_by = await self.consumer.repo.get_read_by_data(message_id)
-        room = await self.consumer.repo.get_room_by_message(message_id)
+        await self.room_repo.mark_message_read(message_id)
+        read_by = await self.room_repo.get_read_by_data(message_id)
+        room = await self.consumer.message_repo.get_room_by_message(message_id)
         await self.consumer.channel_layer.group_send(room.group_name, {'type': 'chat.read', 'messages_read': {'message_id': message_id, 'read_by': read_by}})
         return CommandResult()
 
     async def mark_read_bulk(self, message_ids, room_id):
         room = await self.room_repo.get_room_or_error(room_id)
-        new_ids = await self.consumer.repo.mark_messages_read_bulk(message_ids, room.id)
+        new_ids = await self.room_repo.mark_messages_read_bulk(message_ids, room.id)
         for message_id in new_ids:
-            read_by = await self.consumer.repo.get_read_by_data(message_id)
+            read_by = await self.room_repo.get_read_by_data(message_id)
             await self.consumer.channel_layer.group_send(room.group_name, {'type': 'chat.read', 'messages_read': {'message_id': message_id, 'read_by': read_by}})
         return CommandResult()
 
     async def get_message_history(self, message_id):
-        states = await self.consumer.repo.get_message_states(message_id)
+        states = await self.consumer.message_repo.get_message_states(message_id)
         return CommandResult([{'message_history': states}])
 
     async def toggle_notifications(self, room_id, enabled):
@@ -259,8 +257,8 @@ class ChatCommandHandlers:
             await target.send_json({'online_data': [{'user_id': updated_user.id, 'room_id': room.id, 'online': is_online}]})
 
     async def edit_message(self, message_id, new_message=None, attachments=None, removed_attachments=None):
-        message = await self.consumer.repo.get_message(message_id)
-        if await self.consumer.repo.get_message_sender(message) != self.consumer.scope['user']:
+        message = await self.consumer.message_repo.get_message(message_id)
+        if await self.consumer.message_repo.get_message_sender(message) != self.consumer.scope['user']:
             raise ClientError('ACCESS_DENIED')
 
         if new_message is None:
@@ -272,23 +270,23 @@ class ChatCommandHandlers:
         if removed_attachments is not None and not isinstance(removed_attachments, (list, tuple)):
             raise ClientError('BAD_ATTACHMENT_TYPE')
         if removed_attachments:
-            await self.consumer.repo.remove_attachments(message_id, removed_attachments)
+            await self.consumer.message_repo.remove_attachments(message_id, removed_attachments)
         if attachments:
-            await self.consumer.repo.save_attachments(message_id, attachments)
+            await self.consumer.message_repo.save_attachments(message_id, attachments)
 
-        updated_attachments = await self.consumer.repo.load_attachments(message_id)
+        updated_attachments = await self.consumer.message_repo.load_attachments(message_id)
         text_changed = message.text != new_message
         attachments_changed = bool(attachments) or bool(removed_attachments)
         if not text_changed and not attachments_changed:
             return CommandResult()
 
-        room = await self.consumer.repo.get_room_by_message(message_id)
+        room = await self.consumer.message_repo.get_room_by_message(message_id)
         if text_changed:
-            state = await self.consumer.repo.edit_message_and_history(message_id, new_message)
+            state = await self.consumer.message_repo.edit_message_and_history(message_id, new_message)
             timestamp = int(state.time.timestamp()) * 1000
         else:
             timestamp = int(timezone.now().timestamp()) * 1000
-        is_last = await self.consumer.repo.is_last_message_in_room(message_id, room.id)
+        is_last = await self.consumer.message_repo.is_last_message_in_room(message_id, room.id)
         await self.consumer.channel_layer.group_send(
             room.group_name,
             {

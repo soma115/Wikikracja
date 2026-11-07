@@ -9,9 +9,10 @@ from core.presence import PRESENCE_GROUP, get_presence_status, record_presence
 
 from .command_handlers import ChatCommandHandlers
 from .exceptions import ClientError
+from .message_repository import ChatMessageRepository
+from .reaction_repository import ChatReactionRepository
 from .room_repository import ChatRoomRepository
-from .serializers import build_chat_message_payload
-from .services import ChatRepository, get_avatar_url
+from .serializers import build_chat_message_payload, get_avatar_url
 from .utils import OnlineUserRegistry, RoomRegistry
 
 log = logging.getLogger(__name__)
@@ -25,12 +26,16 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
     online_registry = OnlineUserRegistry()
 
     @property
-    def repo(self):
-        return ChatRepository(self.scope['user'])
-
-    @property
     def room_repo(self):
         return ChatRoomRepository(self.scope['user'])
+
+    @property
+    def message_repo(self):
+        return ChatMessageRepository(self.scope['user'])
+
+    @property
+    def reaction_repo(self):
+        return ChatReactionRepository(self.scope['user'], self.message_repo)
 
     @database_sync_to_async
     def _user_is_active(self):
@@ -232,8 +237,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json({'presence_update': {'user_id': event['user_id'], 'status': event['status'], 'source': event['source'], 'timestamp': event['timestamp']}})
 
     async def chat_message(self, event):
-        user = await self.repo.get_user_by_id(event["user_id"])
-        vote = await self.repo.get_vote(event['message_id'])
+        user = await self.message_repo.get_user_by_id(event["user_id"])
+        vote = await self.reaction_repo.get_vote(event['message_id'])
         vote_value = vote.vote if vote is not None else None
         avatar_url = get_avatar_url(user)
         message = build_chat_message_payload(event, user=user, vote_value=vote_value, current_user=self.scope['user'], avatar_url=avatar_url)

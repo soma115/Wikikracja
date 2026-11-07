@@ -17,7 +17,7 @@ from core.utils import get_site_domain, user_initials
 
 from .models import MessageReadBy, Room
 from .notification_queue import enqueue_notification
-from .services import CHAT_UNREAD_CACHE_KEY
+from .room_repository import CHAT_UNREAD_CACHE_KEY
 
 log = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ class ChatNotificationService:
                 await self._enqueue_delivery(member.id, room.id, notification, 'notification', push_event or 'chat.message')
 
             if consumer and not is_present and prefs['seen']:
-                await getattr(consumer, 'room_repo', consumer.repo).unsee_room(room)
+                await consumer.room_repo.unsee_room(room)
                 await consumer.push_unread_count()
                 await consumer.send_json({"unsee_room": room.id})
 

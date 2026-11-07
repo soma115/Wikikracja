@@ -16,10 +16,17 @@
 - **chat**: Martwy transport FCM został usunięty z `ChatRepository`; transport push ma jedno
   źródło prawdy w `core.notifications` i workerze powiadomień.
 - **chat**: Dostęp do pokoi, membership, mute i read/unread ma kanoniczny
-  `ChatRoomRepository`. Publiczne pokojowe adaptery usunięto z `ChatRepository`; jego
-  prywatny mostek autoryzacji wiadomości pozostaje, aby nie dublować reguł dostępu.
+  `ChatRoomRepository`, w tym potwierdzenia przeczytania wiadomości i lista czytających.
+  `ChatMessageRepository` deleguje sprawdzanie dostępu do tej warstwy; logika unread,
+  cache i liczniki również są w repozytorium pokoi.
 - **chat**: Reguły zmiany głosów i toggle reakcji zostały wydzielone do
-  `ChatReactionService`; repozytorium pozostaje warstwą danych dla tych operacji.
+  `ChatReactionService`; zapis i odczyt ich danych obsługuje `ChatReactionRepository`.
+- **chat**: Odczyt wiadomości, historia edycji i operacje na załącznikach mają
+  osobne `ChatMessageRepository`; handler komend korzysta z niego bezpośrednio,
+  a sprawdzanie dostępu nadal współdzieli kanoniczne `ChatRoomRepository`.
+- **chat**: `ChatRepository` został usunięty. Pobieranie paczek i wyszukiwanie autora
+  wiadomości należą do `ChatMessageRepository`, a budowanie zdarzenia transportowego
+  do `chat.serializers`.
 - **chat**: Osobista dostawa powiadomień wiadomości, wzmianek i push została wydzielona
   do `chat/notifications.py`. Web zapisuje wiadomość, aktualizuje unread i broadcastuje
   ją do pokoju bezpośrednio, a powiadomienia użytkowników trafiają do Redis Streama
