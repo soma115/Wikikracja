@@ -101,6 +101,12 @@
       <h2 class="tw-section-heading tw-mb-0"><i class="fas fa-scroll tw-text-accent tw-me-1"></i>{% trans 'Law text' %}</h2>
     </div>
     <div class="tw-card-body tw-flex tw-flex-col tw-gap-2">
+      {% if id.znosi %}
+      <div class="tw-detail-subsection">
+        <div class="tw-detail-section-label"><i class="fas fa-ban"></i>{% trans 'Abolishes regulations' %}</div>
+        <div class="tw-detail-section-text tw-text-sm">{% for abolished_id in abolished_ids %}<a href="{% url 'glosowania:details' pk=abolished_id %}" class="tw-text-primary-link">{{ abolished_id }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</div>
+      </div>
+      {% endif %}
       {% if id.tresc %}
       <div class="tw-detail-subsection">
         <div class="tw-detail-section-label"><i class="fas fa-file-lines fa-fw"></i>{% trans 'Content' %}</div>
@@ -117,12 +123,6 @@
       <div class="tw-detail-subsection">
         <div class="tw-detail-section-label"><i class="fas fa-lightbulb"></i>{% trans 'Reasoning' %}</div>
         <div class="tw-detail-section-text tw-text-sm">{{ id.uzasadnienie|richtext }}</div>
-      </div>
-      {% endif %}
-      {% if id.znosi %}
-      <div class="tw-detail-subsection">
-        <div class="tw-detail-section-label"><i class="fas fa-ban"></i>{% trans 'Abolishes regulations' %}</div>
-        <div class="tw-detail-section-text tw-text-sm">{{ id.znosi }}</div>
       </div>
       {% endif %}
       {% if id.proposed_brand_mark %}

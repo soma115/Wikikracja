@@ -20,13 +20,12 @@
       </div>
       {% if form.non_field_errors %}<div class="tw-alert tw-alert-danger tw-mb-3" role="alert">{{ form.non_field_errors }}</div>{% endif %}
       {{ form.title|as_crispy_field }}
+      {{ form.znosi|as_crispy_field }}
       {{ form.tresc|as_crispy_field }}
       {{ form.uzasadnienie|as_crispy_field }}
       {{ form.kara|as_crispy_field }}
-      {{ form.znosi|as_crispy_field }}
     </form>
   </div>
 </div>
 </div>
 {% endblock glosowania %}
-

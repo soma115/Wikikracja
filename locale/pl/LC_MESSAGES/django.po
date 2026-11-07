@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-05 20:24+0100\n"
+"POT-Creation-Date: 2026-11-07 10:38+0100\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -496,7 +496,7 @@ msgstr "Tylko ja"
 #: .\board\templates\board\_post_detail_meta.html:44
 #: .\board\templates\board\_post_detail_meta.html:46
 #: .\board\templates\board\board.html:67 .\board\templates\board\board.html:91
-#: .\board\views.py:215
+#: .\board\views.py:218
 msgid "Group"
 msgstr "Grupa"
 
@@ -504,7 +504,7 @@ msgstr "Grupa"
 #: .\board\templates\board\_post_detail_meta.html:39
 #: .\board\templates\board\_post_detail_meta.html:41
 #: .\board\templates\board\board.html:66 .\board\templates\board\board.html:90
-#: .\board\views.py:216 .\chat\templates\chat\chat.html:82
+#: .\board\views.py:219 .\chat\templates\chat\chat.html:82
 #: .\events\models.py:31 .\events\templates\events\_event_detail_badges.html:15
 msgid "Public"
 msgstr "Publiczne"
@@ -513,7 +513,7 @@ msgstr "Publiczne"
 #: .\board\templates\board\_post_detail_meta.html:49
 #: .\board\templates\board\_post_detail_meta.html:51
 #: .\board\templates\board\board.html:68 .\board\templates\board\board.html:92
-#: .\board\views.py:225
+#: .\board\views.py:228
 #: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:8
 #: .\bookkeeping\templates\bookkeeping\resource_list.html:74
 #: .\bookkeeping\templates\bookkeeping\resource_list.html:108
@@ -587,7 +587,7 @@ msgid "Category"
 msgstr "Kategoria"
 
 #: .\board\models.py:51 .\board\templates\board\board.html:69
-#: .\board\templates\board\board.html:93 .\board\views.py:221
+#: .\board\templates\board\board.html:93 .\board\views.py:224
 #: .\tasks\templates\tasks\_task_card.html:65 .\tasks\views.py:84
 msgid "Important"
 msgstr "Ważne"
@@ -638,17 +638,17 @@ msgstr "Załączniki"
 msgid "New important document by %(username)s: %(link)s"
 msgstr "Nowy ważny dokument od %(username)s: %(link)s"
 
-#: .\board\signals.py:48 .\tests\test_board.py:861
+#: .\board\signals.py:48 .\tests\test_board.py:933
 #, python-format
 msgid "Document is no longer marked as important: %(link)s"
 msgstr "Dokument nie jest już oznaczony jako ważny: %(link)s"
 
-#: .\board\signals.py:50 .\tests\test_board.py:906
+#: .\board\signals.py:50 .\tests\test_board.py:978
 #, python-format
 msgid "Important document was archived: %(link)s"
 msgstr "Ważny dokument został zarchiwizowany: %(link)s"
 
-#: .\board\signals.py:52 .\tests\test_board.py:907
+#: .\board\signals.py:52 .\tests\test_board.py:979
 #, python-format
 msgid "Important document was made visible again: %(link)s"
 msgstr "Ważny dokument został ponownie udostępniony: %(link)s"
@@ -855,11 +855,11 @@ msgstr "Nie ma jeszcze publikacji."
 msgid "Back to publications"
 msgstr "Powrót do publikacji"
 
-#: .\board\views.py:255
+#: .\board\views.py:258
 msgid "A-Z"
 msgstr "A-Z"
 
-#: .\board\views.py:263
+#: .\board\views.py:266
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:23
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:17
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:22
@@ -872,7 +872,7 @@ msgstr "A-Z"
 msgid "Date"
 msgstr "Data"
 
-#: .\board\views.py:341 .\bookkeeping\views.py:127 .\bookkeeping\views.py:1064
+#: .\board\views.py:344 .\bookkeeping\views.py:127 .\bookkeeping\views.py:1064
 #: .\events\views.py:211 .\glosowania\views.py:153 .\glosowania\views.py:767
 #: .\obywatele\views.py:565 .\tasks\views.py:754
 msgid "Saved."

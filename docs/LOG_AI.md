@@ -16,6 +16,27 @@
 
 # LOG_AI
 
+## 2026-11-07: Sekcja uchylanych przepisów przed treścią
+
+- **Zmienione obszary:** szczegóły przepisu i test widoku.
+- **Co się zmieniło:** sekcja `znosi` została przeniesiona nad treść przepisu.
+- **Weryfikacja:** test widoku sprawdza położenie sekcji uchylanych przepisów przed treścią.
+- **Spodziewany efekt:** na stronie szczegółów najpierw widać przepisy uchylane przez propozycję.
+
+## 2026-11-07: Pole uchylanych przepisów przed treścią propozycji
+
+- **Zmienione obszary:** formularze dodawania i edycji przepisu oraz testy widoków.
+- **Co się zmieniło:** pole `znosi` pojawia się po tytule i przed treścią przepisu.
+- **Weryfikacja:** testy sprawdzają kolejność pól w obu formularzach.
+- **Spodziewany efekt:** informacja o przepisach uchylanych jest widoczna przed edycją treści propozycji.
+
+## 2026-11-07: Linki do przepisów uchylanych przez propozycję
+
+- **Zmienione obszary:** widok i szablon szczegółów przepisu oraz test widoku.
+- **Co się zmieniło:** numery przepisów wskazanych w `znosi` są renderowane jako linki do ich stron szczegółów.
+- **Testy:** dodano regresję sprawdzającą linki dla wielu uchylanych przepisów.
+- **Spodziewany efekt:** z propozycji można bezpośrednio przejść do każdego przepisu, który ma zostać uchylony.
+
 ## 2026-10-24: Usuwanie wszystkich obrazow podczas edycji czatu
 
 - **Przyczyna:** przycisk czyszczenia podgladu usuwal istniejace obrazy tylko z DOM; nie dodawal ich nazw do listy `removed_attachments`, wiec zapis pozostawial je przy wiadomosci.

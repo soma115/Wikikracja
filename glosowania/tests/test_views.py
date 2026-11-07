@@ -167,6 +167,25 @@ def test_details_shows_restart_history_after_referendum_closes(sample_users):
 
 
 @pytest.mark.django_db
+def test_details_links_to_abolished_decisions(sample_users):
+    author = sample_users[0]
+    first = Decyzja.objects.create(title='First rule', tresc='Text', author=author)
+    second = Decyzja.objects.create(title='Second rule', tresc='Text', author=author)
+    proposal = Decyzja.objects.create(title='Replacement rule', tresc='Text', znosi=f'{first.pk},{second.pk}', author=author)
+    client = Client()
+    client.force_login(author)
+
+    with override('en'):
+        response = client.get(f'/glosowania/details/{proposal.pk}/')
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert f'<a href="/glosowania/details/{first.pk}/" class="tw-text-primary-link">{first.pk}</a>' in content
+    assert f'<a href="/glosowania/details/{second.pk}/" class="tw-text-primary-link">{second.pk}</a>' in content
+    assert content.index('fa-ban') < content.index('fa-file-lines fa-fw')
+
+
+@pytest.mark.django_db
 def test_details_does_not_show_edit_action_for_orphaned_proposition(sample_users):
     client = Client()
     client.force_login(sample_users[0])
@@ -229,11 +248,25 @@ def test_edit_proposal_uses_shared_form_layout(sample_users):
     client.force_login(author)
 
     response = client.get(f'/glosowania/edit/{decision.pk}/')
+    content = response.content.decode()
 
     assert response.status_code == 200
-    assert 'tw-section-heading tw-mb-0' in response.content.decode()
-    assert 'tw-alert tw-alert-danger' not in response.content.decode()
-    assert 'tw-flex tw-flex-wrap tw-gap-2' in response.content.decode()
+    assert 'tw-section-heading tw-mb-0' in content
+    assert 'tw-alert tw-alert-danger' not in content
+    assert 'tw-flex tw-flex-wrap tw-gap-2' in content
+    assert content.index('name="znosi"') < content.index('name="tresc"')
+
+
+@pytest.mark.django_db
+def test_add_proposal_places_abolished_field_before_law_text(sample_users):
+    client = Client()
+    client.force_login(sample_users[0])
+
+    response = client.get('/glosowania/nowy/')
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert content.index('name="znosi"') < content.index('name="tresc"')
 
 
 @pytest.mark.django_db

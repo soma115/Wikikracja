@@ -400,6 +400,8 @@ def details(request: HttpRequest, pk: int):
                 continue
             raise
 
+    abolished_ids = [int(value) for value in (szczegoly.znosi or '').split(',') if value.strip().isdigit()]
+
     # check if already signed and voted in single query
     signed = ZebranePodpisy.objects.filter(projekt=pk, podpis_uzytkownika=request.user).exists()
     voted = KtoJuzGlosowal.objects.filter(projekt=pk, ktory_uzytkownik_juz_zaglosowal=request.user).exists()
@@ -453,6 +455,7 @@ def details(request: HttpRequest, pk: int):
         'glosowania/szczegoly.html',
         {
             'id': szczegoly,
+            'abolished_ids': abolished_ids,
             'signed': signed,
             'voted': voted,
             'report': report,

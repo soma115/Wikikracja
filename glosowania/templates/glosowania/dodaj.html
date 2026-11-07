@@ -18,14 +18,13 @@
     {% csrf_token %}
     <div class="tw-grid tw-grid-cols-1 tw-gap-3">
       {{ form.title|as_crispy_field }}
+      {{ form.znosi|as_crispy_field }}
       {{ form.tresc|as_crispy_field }}
       {{ form.uzasadnienie|as_crispy_field }}
       {{ form.kara|as_crispy_field }}
-      {{ form.znosi|as_crispy_field }}
     </div>
     <div class="tw-flex tw-gap-2 tw-mt-4">
       <button type="submit" class="tw-btn tw-btn-primary tw-btn-sm"><i class="fas fa-check fa-fw tw-me-1"></i>{% trans 'Save' %}</button>
     </div>
 </form>
 {% endblock glosowania %}
-
