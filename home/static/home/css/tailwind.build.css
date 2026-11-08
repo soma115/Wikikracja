@@ -9679,7 +9679,7 @@ body.tw-chat-page .tw-main-area {
 }
 
 .tw-chat-message .tw-chat-message-content .tw-msg-body {
-  margin-bottom: .2rem;
+  margin-bottom: 0.8rem;
   display: flex;
   flex-direction: column;
 }
