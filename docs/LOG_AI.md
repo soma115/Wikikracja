@@ -893,3 +893,11 @@
 - **Testy:** Dodano regresję sprawdzającą zachowanie potwierdzenia wiadomości i wyczyszczenie stanu pokoju; `chat/tests/test_notifications.py` — 10 testów, Ruff dla zmienionych plików przechodzi.
 - **Uzasadnienie:** Usuwanie wszystkich potwierdzeń odbiorcy w pokoju powodowało, że po powrocie do czatu w liczniku przeczytań zostawały tylko wpisy dodane ponownie przez aktualnie czytające osoby.
 - **Spodziewany efekt:** Licznik nadal uwzględnia osoby, które przeczytały starsze wiadomości; nowa wiadomość pozostaje nieprzeczytana dla offline’owego odbiorcy.
+
+## 2026-11-08: Uporządkowanie odnośników i helperów frontendowych
+
+- **Zmienione obszary:** README oraz globalny skrypt `home/static/home/js/app.js`.
+- **Co się zmieniło:** Zaktualizowano wersję Django i poprawiono odnośnik do dokumentacji powiadomień; usunięto nieaktualny odnośnik TODO. `app.js` korzysta teraz ze wspólnego `wkOnReady` z `dom-utils.js` bez lokalnego fallbacku. Usunięto nieużywany w repozytorium alias `initSortButtonResponsiveness`.
+- **Uzasadnienie:** README wskazywał niezgodną wersję zależności i nieistniejące ścieżki, a wspólny helper był już ładowany przed `app.js`. Alias nie miał lokalnych wywołań.
+- **Weryfikacja:** 6 ukierunkowanych zestawów Jest (48 testów), `scripts/regression_scan.py`, `scripts/ui_guard.py` oraz `git diff --check` przechodzą.
+- **Spodziewany efekt:** Mniej nieaktualnych odnośników i jedna lokalna definicja `wkOnReady`, bez zmiany zachowania przy standardowym ładowaniu strony.

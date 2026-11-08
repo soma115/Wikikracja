@@ -19,7 +19,7 @@ Try the live demo: **https://demo.wikikracja.pl/**
 
 ## Tech Stack
 
-- **Backend**: Django ~6.0.4, Django Channels 4.3.2 + Daphne (ASGI), Python >=3.14, JavaScript, CSS
+- **Backend**: Django 6.0.9, Django Channels 4.3.2 + Daphne (ASGI), Python >=3.14, JavaScript, CSS
 - **Frontend**: Tailwind CSS 3.4 (prefixed `tw-`), django-crispy-forms, TinyMCE
 - **Database**: SQLite in development and production (one database per deployed instance)
 - **Cache/Channels**: Redis (cache, channel layer and notification queue)
@@ -112,10 +112,9 @@ It also runs Playwright end-to-end tests, so install the Node dependencies and C
 - [Onboarding Process](docs/ONBOARDING_PROCESS.md)
 - [System Parameters Voting - Users](docs/Glosowanie_nad_parametrami_systemu-dla_uzytkownikow.md)
 - [System Parameters Voting - Developers](docs/Glosowanie_nad_parametrami_systemu-dla_developerow.md)
-- [Notifications](docs/POWIADOMIENIA.md)
+- [Notifications](docs/POWIADOMIENIA_EMAIL_PUSH_AKTYWNOSC.md)
 - [Contributing](docs/CONTRIBUTING.md)
 - [Changelog](docs/CHANGELOG.md)
-- [Roadmap / TODO](docs/TODO.md)
 
 ## Support
 

@@ -3,17 +3,6 @@
  * Consolidates inline scripts from various templates
  */
 
-if (typeof window.wkOnReady !== 'function') {
-    window.wkOnReady = function(callback) {
-        if (typeof callback !== 'function') return;
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', callback, {once: true});
-        } else {
-            callback();
-        }
-    };
-}
-
 (function() {
     window.initSearchFocusRestore = function(root) {
         (root || document).querySelectorAll('form[data-restore-search-focus]').forEach(function(form) {
@@ -376,9 +365,6 @@ if (typeof window.wkOnReady !== 'function') {
         root.querySelectorAll?.('[data-responsive-toolbar]').forEach(observeToolbar);
         scheduleRelayout();
     };
-    // Kept as a compatibility alias for dynamically rendered chat markup.
-    window.initSortButtonResponsiveness = window.initResponsiveControls;
-
     window.wkOnReady(function() {
         window.initResponsiveControls(document);
         const mutationObserver = new MutationObserver(function(mutations) {
