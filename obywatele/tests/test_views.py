@@ -498,16 +498,7 @@ class CitizenMapDataTests(TestCase):
         inactive.uzytkownik.save(update_fields=['city'])
 
         partner = Partner.objects.create(
-            name='Map Partner',
-            address='Historic address',
-            city='Boston',
-            country=' united states ',
-            street='Main Street',
-            house_number='14',
-            apartment_number='3',
-            phone='private-phone',
-            email='private@example.com',
-            notes='private-notes',
+            name='Map Partner', city='Boston', country=' united states ', street='Main Street', house_number='14', apartment_number='3', phone='private-phone', email='private@example.com', notes='private-notes'
         )
         Partner.objects.create(name='Polish Partner', city='Kielce', country='Polska')
         Partner.objects.create(name='Unknown Country Partner', city='Portland', country='United Stetes')
@@ -523,8 +514,10 @@ class CitizenMapDataTests(TestCase):
 
         partner_record = next(record for record in records if record['type'] == 'partner')
         self.assertEqual(partner_record['location']['country_code'], 'US')
+        self.assertEqual(partner_record['location']['street'], 'Main Street')
+        self.assertEqual(partner_record['location']['house_number'], '14')
         self.assertEqual(partner_record['url'], reverse('bookkeeping:partner_detail', args=[partner.pk]))
-        self.assertIn('Historic address', partner_record['address'])
+        self.assertEqual(partner_record['address'], 'Main Street 14, 3, Boston, United States')
         self.assertNotIn('apartment_number', partner_record['location'])
         polish_partner_record = next(record for record in records if record['name'] == 'Polish Partner')
         self.assertEqual(polish_partner_record['location']['country_code'], 'PL')
@@ -572,10 +565,10 @@ class CitizenMapDataTests(TestCase):
         records = get_map_location_records()
         resources = [record for record in records if record['type'] == 'resource']
         self.assertEqual({record['name'] for record in resources}, {offer.name, need.name})
-        self.assertEqual(next(record for record in resources if record['name'] == offer.name)['location'], {'country_code': 'US', 'city': 'Boston', 'street': '', 'house_number': ''})
-        self.assertEqual(next(record for record in resources if record['name'] == offer.name)['address'], 'Boston, United States')
+        offer_record = next(record for record in resources if record['name'] == offer.name)
+        self.assertEqual(offer_record['location'], {'country_code': 'US', 'city': 'Boston', 'street': 'Private Road', 'house_number': '12'})
+        self.assertEqual(offer_record['address'], 'Private Road 12, Boston, United States')
         self.assertIn('q=Community+drill', next(record for record in resources if record['name'] == offer.name)['url'])
-        self.assertNotIn('Private Road', str(resources))
 
     def test_map_payload_deduplicates_guest_points_and_groups_member_markers_by_kind(self):
         records = [
@@ -630,38 +623,55 @@ class CommunityMapViewTests(TestCase):
             },
         ]
 
-    def test_guest_page_does_not_render_the_citizen_stepper(self):
+    def test_guest_is_redirected_from_map_page(self):
         response = self.client.get(self.map_url)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'id="community-map"')
-        self.assertContains(response, 'tw-theme-aware-map')
-        self.assertContains(response, 'tw-z-0')
-        self.assertNotContains(response, 'tw-stepper-nav')
-        self.assertNotContains(response, 'data-map-citizen')
-        self.assertNotContains(response, 'data-map-partner')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(parse_qs(urlsplit(response.url).query)['next'], [self.map_url])
 
-    def test_guest_data_response_contains_only_deduplicated_coordinates(self):
-        with patch('obywatele.views.get_map_location_records', return_value=self.records), patch('obywatele.views.get_cached_coordinates', return_value=(52.2, 21.0)):
+    def test_guest_is_redirected_from_map_data_endpoint(self):
+        with patch('obywatele.views.get_map_location_records') as get_records:
             response = self.client.get(self.data_url)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {'points': [{'lat': 52.2, 'lon': 21.0}]})
-        self.assertIn('no-store', response.headers['Cache-Control'])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(parse_qs(urlsplit(response.url).query)['next'], [self.data_url])
+        get_records.assert_not_called()
 
-    @override_settings(MAP_GEOCODING_ENABLED=False)
-    def test_resource_is_visible_to_members_but_guest_receives_only_coordinates(self):
+    def test_inactive_user_is_redirected_from_map_and_data_endpoint(self):
+        inactive = User.objects.create_user(username='map-inactive-user', is_active=False)
+        self.client.force_login(inactive)
+
+        for url in (self.map_url, self.data_url):
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 302)
+                self.assertEqual(parse_qs(urlsplit(response.url).query), {'next': [url]})
+
+    @override_settings(MAP_GEOCODING_ENABLED=True)
+    def test_resource_exact_location_is_geocoded_for_members(self):
         member = User.objects.create_user(username='map-resource-member', is_active=True)
         country = Country.objects.get(code='US')
-        Entity.objects.create(entity_type=Entity.Type.RESOURCE, resource_kind=Entity.ResourceKind.GIVE, name='Shared drill', author=member, is_community_owned=True, country=country, city='Boston')
-        with patch('obywatele.views.get_cached_coordinates', return_value=(42.36, -71.06)):
-            guest = self.client.get(self.data_url).json()
-            self.client.force_login(member)
+        Entity.objects.create(
+            entity_type=Entity.Type.RESOURCE,
+            resource_kind=Entity.ResourceKind.GIVE,
+            name='Shared drill',
+            author=member,
+            is_community_owned=True,
+            country=country,
+            city='Boston',
+            street='Private Road',
+            house_number='12',
+            apartment_number='3',
+        )
+        self.client.force_login(member)
+
+        with patch('obywatele.views.geocode_location', return_value=(42.36, -71.06)) as geocode_location:
             member_data = self.client.get(self.data_url).json()
 
-        self.assertEqual(guest, {'points': [{'lat': 42.36, 'lon': -71.06}]})
+        geocode_location.assert_called_once_with({'country_code': 'US', 'city': 'Boston', 'street': 'Private Road', 'house_number': '12'})
         self.assertEqual([marker['type'] for marker in member_data['markers']], ['resource'])
         self.assertEqual(member_data['markers'][0]['items'][0]['name'], 'Shared drill')
+        self.assertEqual(member_data['markers'][0]['items'][0]['address'], 'Private Road 12, Boston, United States')
 
     @override_settings(MAP_GEOCODING_ENABLED=True)
     def test_active_member_page_uses_the_citizen_stepper_and_details_payload(self):
@@ -726,6 +736,17 @@ class MapGeocodingTests(TestCase):
         self.assertNotIn('apartment_number', query)
         self.assertNotIn('name', query)
         self.assertEqual(request.get_header('User-agent'), 'Wikikracja test/1.0')
+
+    @override_settings(MAP_GEOCODER_URL='https://nominatim.example/search', MAP_GEOCODER_USER_AGENT='Wikikracja test/1.0')
+    def test_precise_address_matches_street_prefix_and_diacritic_variants(self):
+        cache.clear()
+        location = {'country_code': 'PL', 'city': 'Gdynia', 'street': 'ul. Świętojańska', 'house_number': '12'}
+        result = [{'lat': '54.52', 'lon': '18.54', 'address': {'country_code': 'pl', 'city': 'Gdynia', 'road': 'Swietojanska', 'house_number': '12'}}]
+
+        with patch('obywatele.map_geocoding._wait_for_nominatim_slot', return_value=True), patch('obywatele.map_geocoding.urlopen', return_value=self.response(result)) as open_url:
+            self.assertEqual(geocode_location(location), (54.52, 18.54))
+
+        self.assertEqual(open_url.call_count, 1)
 
     @override_settings(MAP_GEOCODER_URL='https://nominatim.example/search', MAP_GEOCODER_USER_AGENT='Wikikracja test/1.0')
     def test_unconfirmed_address_falls_back_to_exact_city_result(self):

@@ -2,6 +2,7 @@ import hashlib
 import json
 import math
 import time
+import unicodedata
 import uuid
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlsplit
@@ -19,6 +20,7 @@ NOMINATIM_LOCK_KEY = 'wikikracja:map-geocode:request-lock'
 NOMINATIM_NEXT_REQUEST_KEY = 'wikikracja:map-geocode:next-request'
 CACHE_MISS = object()
 RATE_LIMITED = object()
+STREET_TYPE_PREFIXES = frozenset({'al', 'aleja', 'pl', 'plac', 'ul', 'ulica'})
 
 
 def geocode_location(location):
@@ -149,8 +151,20 @@ def _result_matches_city(result, address, city):
 
 def _result_matches_address(address, street, house_number):
     street_fields = ('road', 'residential', 'pedestrian', 'footway', 'path')
-    matched_street = any(_normalize_geocoder_text(address.get(field)) == normalize_city(street) for field in street_fields if address.get(field))
+    expected_street = _normalize_street_name(street)
+    matched_street = any(_normalize_street_name(address.get(field)) == expected_street for field in street_fields if address.get(field))
     return matched_street and _normalize_geocoder_text(address.get('house_number')) == normalize_city(house_number)
+
+
+def _normalize_street_name(value):
+    if not isinstance(value, str):
+        return ''
+    normalized = unicodedata.normalize('NFKD', value.casefold())
+    normalized = ''.join(char for char in normalized if not unicodedata.combining(char))
+    parts = ''.join(char if char.isalnum() else ' ' for char in normalized).split()
+    if parts and parts[0] in STREET_TYPE_PREFIXES:
+        parts = parts[1:]
+    return ' '.join(parts)
 
 
 def _normalize_geocoder_text(value):

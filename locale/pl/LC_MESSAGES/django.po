@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-08 23:18+0100\n"
+"POT-Creation-Date: 2026-11-09 00:23+0100\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -92,7 +92,7 @@ msgstr "Tytuł"
 
 #: .\ankiety\models.py:13 .\ankiety\templates\ankiety\survey_detail.html:19
 #: .\ankiety\templates\ankiety\survey_form.html:35 .\bookkeeping\forms.py:81
-#: .\bookkeeping\models.py:17 .\bookkeeping\models.py:56
+#: .\bookkeeping\models.py:17 .\bookkeeping\models.py:55
 #: .\bookkeeping\templates\bookkeeping\category_detail.html:18
 #: .\bookkeeping\templates\bookkeeping\payment_plan_detail.html:29
 #: .\categories\templates\categories\_category_manager_init.html:25
@@ -118,8 +118,8 @@ msgstr "Po tym czasie ankieta zostanie zamknięta."
 #: .\ankiety\templates\ankiety\_survey_detail_meta.html:19
 #: .\ankiety\templates\ankiety\_survey_detail_meta.html:21 .\board\models.py:45
 #: .\board\templates\board\_post_detail_meta.html:5
-#: .\board\templates\board\_post_detail_meta.html:7 .\bookkeeping\models.py:70
-#: .\bookkeeping\models.py:207
+#: .\board\templates\board\_post_detail_meta.html:7 .\bookkeeping\models.py:69
+#: .\bookkeeping\models.py:206
 #: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:17
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:61
 #: .\glosowania\models.py:143
@@ -158,7 +158,7 @@ msgstr "Ankieta"
 #: .\ankiety\models.py:24 .\chat\templates\chat\chat.html:217
 #: .\home\navigation.py:16 .\home\services\dashboard.py:35
 #: .\home\templates\home\home.html:156 .\home\views.py:298
-#: .\obywatele\views.py:521
+#: .\obywatele\views.py:520
 msgid "Surveys"
 msgstr "Ankiety"
 
@@ -274,7 +274,7 @@ msgid "Finished"
 msgstr "Zakończone"
 
 #: .\ankiety\templates\ankiety\_survey_detail_meta.html:16
-#: .\bookkeeping\models.py:196
+#: .\bookkeeping\models.py:195
 #: .\bookkeeping\templates\bookkeeping\_resource_search.html:42
 #: .\bookkeeping\templates\bookkeeping\payment_due_detail.html:12
 #: .\bookkeeping\templates\bookkeeping\payment_plan_detail.html:12
@@ -389,7 +389,7 @@ msgstr "Zapisz"
 #: .\home\navigation.py:17 .\home\services\dashboard.py:34
 #: .\home\templates\home\home.html:312 .\home\templates\home\home.html:321
 #: .\home\templates\home\home.html:344 .\home\templatetags\feed_filters.py:41
-#: .\home\views.py:43 .\home\views.py:298 .\obywatele\views.py:523
+#: .\home\views.py:43 .\home\views.py:298 .\obywatele\views.py:522
 #: .\tasks\templates\tasks\_task_card.html:75
 msgid "Chat"
 msgstr "Czat"
@@ -483,7 +483,7 @@ msgid "Maximum file size: %(max_size)s MB."
 msgstr "Maksymalny rozmiar pliku: %(max_size)s MB."
 
 #: .\board\forms.py:51 .\obywatele\forms.py:284
-#: .\obywatele\tests\test_views.py:1557
+#: .\obywatele\tests\test_views.py:1586
 #, python-format
 msgid "Image is too large (max %(max_size)s MB)."
 msgstr "Obraz jest za duży (maks. %(max_size)s MB)."
@@ -557,8 +557,8 @@ msgid "Updated by"
 msgstr "Zaktualizowane przez"
 
 #: .\board\models.py:47 .\board\templates\board\_post_detail_meta.html:28
-#: .\board\templates\board\_post_detail_meta.html:30 .\bookkeeping\models.py:71
-#: .\bookkeeping\models.py:107 .\bookkeeping\models.py:198
+#: .\board\templates\board\_post_detail_meta.html:30 .\bookkeeping\models.py:70
+#: .\bookkeeping\models.py:106 .\bookkeeping\models.py:197
 #: .\events\templates\events\event_detail.html:83
 #: .\glosowania\templates\glosowania\_detail_meta.html:14
 #: .\glosowania\templates\glosowania\_detail_meta.html:33
@@ -576,8 +576,8 @@ msgstr "Utworzone"
 msgid "Updated"
 msgstr "Zaktualizowane"
 
-#: .\board\models.py:49 .\bookkeeping\forms.py:183 .\bookkeeping\models.py:60
-#: .\bookkeeping\models.py:99 .\bookkeeping\models.py:203
+#: .\board\models.py:49 .\bookkeeping\forms.py:183 .\bookkeeping\models.py:59
+#: .\bookkeeping\models.py:98 .\bookkeeping\models.py:202
 #: .\bookkeeping\templates\bookkeeping\_category_card.html:15
 #: .\bookkeeping\templates\bookkeeping\_category_card.html:18
 #: .\bookkeeping\templates\bookkeeping\_report_pivot.html:23
@@ -885,12 +885,12 @@ msgstr "Data"
 
 #: .\board\views.py:343 .\bookkeeping\views.py:126 .\bookkeeping\views.py:1287
 #: .\events\views.py:210 .\glosowania\views.py:151 .\glosowania\views.py:751
-#: .\obywatele\views.py:565 .\tasks\views.py:753
+#: .\obywatele\views.py:564 .\tasks\views.py:753
 msgid "Saved."
 msgstr "Zapisane."
 
 #: .\bookkeeping\feed.py:16 .\bookkeeping\forms.py:175
-#: .\bookkeeping\models.py:47 .\bookkeeping\models.py:194
+#: .\bookkeeping\models.py:46 .\bookkeeping\models.py:193
 #: .\bookkeeping\templates\bookkeeping\_payment_due_card.html:34
 #: .\bookkeeping\templates\bookkeeping\_transaction_card.html:30
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:38
@@ -900,7 +900,7 @@ msgid "Incoming"
 msgstr "Przychodzący"
 
 #: .\bookkeeping\feed.py:16 .\bookkeeping\forms.py:175
-#: .\bookkeeping\models.py:48 .\bookkeeping\models.py:194
+#: .\bookkeeping\models.py:47 .\bookkeeping\models.py:193
 #: .\bookkeeping\templates\bookkeeping\_payment_due_card.html:36
 #: .\bookkeeping\templates\bookkeeping\_transaction_card.html:32
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:40
@@ -910,9 +910,9 @@ msgid "Outgoing"
 msgstr "Wychodzący"
 
 #: .\bookkeeping\forms.py:18 .\bookkeeping\forms.py:82
-#: .\bookkeeping\models.py:35
+#: .\bookkeeping\models.py:34
 #: .\bookkeeping\templates\bookkeeping\_resource_search.html:38
-#: .\bookkeeping\templates\bookkeeping\partner_detail.html:38
+#: .\bookkeeping\templates\bookkeeping\partner_detail.html:35
 #: .\obywatele\forms.py:157 .\obywatele\models.py:22 .\obywatele\models.py:35
 #: .\obywatele\models.py:89 .\obywatele\templates\obywatele\szczegoly.html:140
 #: .\resources\models.py:44
@@ -932,7 +932,7 @@ msgid "Select type"
 msgstr "Wybierz typ"
 
 #: .\bookkeeping\forms.py:79 .\bookkeeping\forms.py:177
-#: .\bookkeeping\models.py:195
+#: .\bookkeeping\models.py:194
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:25
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:7
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:26
@@ -943,8 +943,8 @@ msgid "Type"
 msgstr "Rodzaj"
 
 #: .\bookkeeping\forms.py:80 .\bookkeeping\models.py:16
-#: .\bookkeeping\models.py:29 .\bookkeeping\models.py:55
-#: .\bookkeeping\models.py:95
+#: .\bookkeeping\models.py:29 .\bookkeeping\models.py:54
+#: .\bookkeeping\models.py:94
 #: .\bookkeeping\templates\bookkeeping\asset_confirm_delete.html:13
 #: .\bookkeeping\templates\bookkeeping\category_confirm_delete.html:12
 #: .\bookkeeping\templates\bookkeeping\category_detail.html:11
@@ -955,30 +955,30 @@ msgstr "Rodzaj"
 msgid "Name"
 msgstr "Nazwa"
 
-#: .\bookkeeping\forms.py:83 .\bookkeeping\models.py:34
-#: .\bookkeeping\templates\bookkeeping\partner_detail.html:35
+#: .\bookkeeping\forms.py:83 .\bookkeeping\models.py:33
+#: .\bookkeeping\templates\bookkeeping\partner_detail.html:32
 #: .\bookkeeping\views.py:755 .\obywatele\models.py:90 .\resources\models.py:45
 msgid "City"
 msgstr "Miejscowość"
 
-#: .\bookkeeping\forms.py:84 .\bookkeeping\models.py:36
-#: .\bookkeeping\templates\bookkeeping\partner_detail.html:41
+#: .\bookkeeping\forms.py:84 .\bookkeeping\models.py:35
+#: .\bookkeeping\templates\bookkeeping\partner_detail.html:38
 #: .\obywatele\models.py:91 .\obywatele\templates\obywatele\szczegoly.html:141
 #: .\resources\models.py:46
 msgid "Street"
 msgstr "Ulica"
 
-#: .\bookkeeping\forms.py:85 .\bookkeeping\models.py:37
-#: .\bookkeeping\templates\bookkeeping\partner_detail.html:44
+#: .\bookkeeping\forms.py:85 .\bookkeeping\models.py:36
+#: .\bookkeeping\templates\bookkeeping\partner_detail.html:41
 #: .\obywatele\models.py:92 .\resources\models.py:47
 msgid "House number"
 msgstr "Numer domu"
 
-#: .\bookkeeping\forms.py:86 .\bookkeeping\models.py:38
-#: .\bookkeeping\templates\bookkeeping\partner_detail.html:47
-#: .\bookkeeping\tests\test_views.py:317 .\obywatele\models.py:93
+#: .\bookkeeping\forms.py:86 .\bookkeeping\models.py:37
+#: .\bookkeeping\templates\bookkeeping\partner_detail.html:44
+#: .\bookkeeping\tests\test_views.py:313 .\obywatele\models.py:93
 #: .\obywatele\templates\obywatele\szczegoly.html:142
-#: .\obywatele\tests\test_views.py:879 .\obywatele\tests\test_views.py:895
+#: .\obywatele\tests\test_views.py:908 .\obywatele\tests\test_views.py:924
 #: .\resources\models.py:48
 msgid "Apartment number"
 msgstr "Numer mieszkania"
@@ -1026,7 +1026,7 @@ msgstr "Wybierz przypisanie."
 msgid "This item is already assigned with this type."
 msgstr "Ten zasób jest już przypisany z tym typem."
 
-#: .\bookkeeping\forms.py:179 .\bookkeeping\models.py:202
+#: .\bookkeeping\forms.py:179 .\bookkeeping\models.py:201
 #: .\bookkeeping\templates\bookkeeping\_asset_card.html:21
 #: .\bookkeeping\templates\bookkeeping\_asset_card.html:28
 #: .\bookkeeping\templates\bookkeeping\transaction_confirm_delete.html:15
@@ -1035,7 +1035,7 @@ msgstr "Ten zasób jest już przypisany z tym typem."
 msgid "Asset"
 msgstr "Aktywo"
 
-#: .\bookkeeping\forms.py:181 .\bookkeeping\models.py:204
+#: .\bookkeeping\forms.py:181 .\bookkeeping\models.py:203
 #: .\bookkeeping\templates\bookkeeping\_partner_card.html:19
 #: .\bookkeeping\templates\bookkeeping\asset_confirm_delete.html:6
 #: .\bookkeeping\templates\bookkeeping\category_confirm_delete.html:6
@@ -1049,8 +1049,8 @@ msgstr "Partner"
 msgid "Select partner"
 msgstr "Wybierz partnera"
 
-#: .\bookkeeping\forms.py:185 .\bookkeeping\models.py:58
-#: .\bookkeeping\models.py:97 .\bookkeeping\models.py:205
+#: .\bookkeeping\forms.py:185 .\bookkeeping\models.py:57
+#: .\bookkeeping\models.py:96 .\bookkeeping\models.py:204
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:27
 #: .\bookkeeping\templates\bookkeeping\payment_due_detail.html:26
 #: .\bookkeeping\templates\bookkeeping\payment_plan_detail.html:16
@@ -1059,11 +1059,11 @@ msgstr "Wybierz partnera"
 msgid "Amount"
 msgstr "Kwota"
 
-#: .\bookkeeping\forms.py:187 .\bookkeeping\models.py:200
+#: .\bookkeeping\forms.py:187 .\bookkeeping\models.py:199
 msgid "Payment received date"
 msgstr "Data otrzymania płatności"
 
-#: .\bookkeeping\forms.py:189 .\bookkeeping\models.py:206
+#: .\bookkeeping\forms.py:189 .\bookkeeping\models.py:205
 #: .\bookkeeping\templates\bookkeeping\_transaction_card.html:46
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:28
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:71
@@ -1071,7 +1071,7 @@ msgstr "Data otrzymania płatności"
 msgid "Note"
 msgstr "Notatka"
 
-#: .\bookkeeping\forms.py:214 .\bookkeeping\models.py:62
+#: .\bookkeeping\forms.py:214 .\bookkeeping\models.py:61
 msgid "Members who pay"
 msgstr "Członkowie płacący"
 
@@ -1079,7 +1079,7 @@ msgstr "Członkowie płacący"
 msgid "Select members and/or partners; each selected payer gets a separate payment due and transaction. Hold Shift and click another option to select a range."
 msgstr "Wybierz członków i/lub partnerów. Dla każdego wskazanego płatnika powstanie osobny termin płatności i transakcja. Przytrzymaj Shift i kliknij inną pozycję, aby zaznaczyć zakres."
 
-#: .\bookkeeping\forms.py:221 .\bookkeeping\models.py:63
+#: .\bookkeeping\forms.py:221 .\bookkeeping\models.py:62
 msgid "Partners who pay"
 msgstr "Partnerzy płacący"
 
@@ -1087,8 +1087,8 @@ msgstr "Partnerzy płacący"
 msgid "Hold Shift and click another option to select a range."
 msgstr "Przytrzymaj Shift i kliknij inną pozycję, aby zaznaczyć zakres."
 
-#: .\bookkeeping\forms.py:228 .\bookkeeping\models.py:68
-#: .\bookkeeping\models.py:104
+#: .\bookkeeping\forms.py:228 .\bookkeeping\models.py:67
+#: .\bookkeeping\models.py:103
 #: .\bookkeeping\templates\bookkeeping\payment_due_detail.html:41
 #: .\bookkeeping\templates\bookkeeping\payment_plan_detail.html:33
 msgid "Treasurer"
@@ -1128,7 +1128,7 @@ msgstr "email"
 
 #: .\bookkeeping\models.py:31
 #: .\bookkeeping\templates\bookkeeping\partner_confirm_delete.html:35
-#: .\obywatele\views.py:527
+#: .\obywatele\views.py:526
 msgid "Phone"
 msgstr "Telefon"
 
@@ -1136,67 +1136,62 @@ msgstr "Telefon"
 msgid "Web page"
 msgstr "Strona www"
 
-#: .\bookkeeping\models.py:33
-#: .\bookkeeping\templates\bookkeeping\partner_detail.html:32
-msgid "Address"
-msgstr "Adres"
-
-#: .\bookkeeping\models.py:39
+#: .\bookkeeping\models.py:38
 #: .\bookkeeping\templates\bookkeeping\_partner_card.html:32
-#: .\bookkeeping\templates\bookkeeping\partner_detail.html:50
+#: .\bookkeeping\templates\bookkeeping\partner_detail.html:47
 #: .\bookkeeping\views.py:755
 msgid "Notes"
 msgstr "Notatki"
 
-#: .\bookkeeping\models.py:51
+#: .\bookkeeping\models.py:50
 msgid "One time"
 msgstr "Jednorazowo"
 
-#: .\bookkeeping\models.py:52 .\events\models.py:13 .\obywatele\models.py:57
+#: .\bookkeeping\models.py:51 .\events\models.py:13 .\obywatele\models.py:57
 msgid "Monthly"
 msgstr "Miesięcznie"
 
-#: .\bookkeeping\models.py:53 .\events\models.py:13
+#: .\bookkeeping\models.py:52 .\events\models.py:13
 msgid "Yearly"
 msgstr "Rocznie"
 
-#: .\bookkeeping\models.py:57 .\bookkeeping\models.py:96
+#: .\bookkeeping\models.py:56 .\bookkeeping\models.py:95
 #: .\bookkeeping\templates\bookkeeping\payment_due_detail.html:20
 #: .\bookkeeping\templates\bookkeeping\payment_plan_detail.html:14
 msgid "Direction"
 msgstr "Kierunek"
 
-#: .\bookkeeping\models.py:59 .\bookkeeping\models.py:98
+#: .\bookkeeping\models.py:58 .\bookkeeping\models.py:97
 #: .\bookkeeping\views.py:324
 msgid "Financial asset"
 msgstr "Zasób finansowy"
 
-#: .\bookkeeping\models.py:61 .\bookkeeping\models.py:100
+#: .\bookkeeping\models.py:60 .\bookkeeping\models.py:99
 #: .\bookkeeping\templates\bookkeeping\payment_due_detail.html:32
 #: .\bookkeeping\templates\bookkeeping\payment_plan_detail.html:20
 msgid "Recipient"
 msgstr "Odbiorca"
 
-#: .\bookkeeping\models.py:64
+#: .\bookkeeping\models.py:63
 #: .\bookkeeping\templates\bookkeeping\payment_plan_detail.html:22
 msgid "Recurrence"
 msgstr "Częstotliwość"
 
-#: .\bookkeeping\models.py:65
+#: .\bookkeeping\models.py:64
 #: .\bookkeeping\templates\bookkeeping\payment_plan_detail.html:24
 msgid "First due date"
 msgstr "Pierwszy termin płatności"
 
-#: .\bookkeeping\models.py:66
+#: .\bookkeeping\models.py:65
 msgid "Next period to generate"
 msgstr "Następny okres do wygenerowania"
 
-#: .\bookkeeping\models.py:67
+#: .\bookkeeping\models.py:66
 #: .\bookkeeping\templates\bookkeeping\payment_plan_detail.html:26
 msgid "Last generated period"
 msgstr "Ostatnio wygenerowany okres"
 
-#: .\bookkeeping\models.py:69
+#: .\bookkeeping\models.py:68
 #: .\bookkeeping\templates\bookkeeping\_payment_plan_card.html:21
 #: .\bookkeeping\templates\bookkeeping\payment_plan_detail.html:13
 #: .\bookkeeping\views.py:327 .\events\models.py:30
@@ -1206,100 +1201,100 @@ msgstr "Ostatnio wygenerowany okres"
 msgid "Active"
 msgstr "Aktywne"
 
-#: .\bookkeeping\models.py:72 .\bookkeeping\models.py:108
-#: .\bookkeeping\models.py:199
+#: .\bookkeeping\models.py:71 .\bookkeeping\models.py:107
+#: .\bookkeeping\models.py:198
 msgid "Last updated"
 msgstr "Ostatnia aktualizacja"
 
-#: .\bookkeeping\models.py:87 .\bookkeeping\models.py:233
+#: .\bookkeeping\models.py:86 .\bookkeeping\models.py:232
 msgid "Select a financial asset."
 msgstr "Wybierz aktywo finansowe."
 
-#: .\bookkeeping\models.py:94
+#: .\bookkeeping\models.py:93
 #: .\bookkeeping\templates\bookkeeping\payment_due_detail.html:45
 #: .\bookkeeping\views.py:642
 msgid "Payment plan"
 msgstr "Plan opłat"
 
-#: .\bookkeeping\models.py:101
+#: .\bookkeeping\models.py:100
 #: .\bookkeeping\templates\bookkeeping\payment_due_detail.html:23
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:35
 msgctxt "payment due"
 msgid "Due date"
 msgstr "Termin płatności"
 
-#: .\bookkeeping\models.py:102
+#: .\bookkeeping\models.py:101
 msgid "Member"
 msgstr "Członek"
 
-#: .\bookkeeping\models.py:103
+#: .\bookkeeping\models.py:102
 msgid "Partner who pays"
 msgstr "Partner płacący"
 
-#: .\bookkeeping\models.py:105
+#: .\bookkeeping\models.py:104
 msgid "Cancelled at"
 msgstr "Anulowano"
 
-#: .\bookkeeping\models.py:106
+#: .\bookkeeping\models.py:105
 #: .\bookkeeping\templates\bookkeeping\payment_due_detail.html:56
 msgid "Cancelled by"
 msgstr "Anulował(a)"
 
-#: .\bookkeeping\models.py:164
+#: .\bookkeeping\models.py:163
 msgid "E-mail"
 msgstr "E-mail"
 
-#: .\bookkeeping\models.py:165
+#: .\bookkeeping\models.py:164
 msgid "Push"
 msgstr "Push"
 
-#: .\bookkeeping\models.py:168 .\tasks\templates\tasks\task_detail.html:234
+#: .\bookkeeping\models.py:167 .\tasks\templates\tasks\task_detail.html:234
 #: .\tasks\templates\tasks\task_detail.html:373
 #: .\tasks\templates\tasks\task_help.html:20
 msgid "Pending"
 msgstr "Oczekujące"
 
-#: .\bookkeeping\models.py:169
+#: .\bookkeeping\models.py:168
 msgid "Sending"
 msgstr "Wysyłanie"
 
-#: .\bookkeeping\models.py:170
+#: .\bookkeeping\models.py:169
 msgid "Sent"
 msgstr "Wysłano"
 
-#: .\bookkeeping\models.py:171
+#: .\bookkeeping\models.py:170
 msgid "Skipped"
 msgstr "Pominięto"
 
-#: .\bookkeeping\models.py:189
+#: .\bookkeeping\models.py:188
 #: .\bookkeeping\templates\bookkeeping\_transaction_card.html:27
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:20
 msgid "Planned"
 msgstr "Planowana"
 
-#: .\bookkeeping\models.py:190
+#: .\bookkeeping\models.py:189
 msgid "Posted"
 msgstr "Zaksięgowana"
 
-#: .\bookkeeping\models.py:208 .\bookkeeping\services.py:379
+#: .\bookkeeping\models.py:207 .\bookkeeping\services.py:379
 #: .\bookkeeping\views.py:644
 msgid "Payment due"
 msgstr "Należność"
 
-#: .\bookkeeping\models.py:219
+#: .\bookkeeping\models.py:218
 msgid "A planned transaction must have a payment due."
 msgstr "Planowana transakcja musi mieć przypisany termin płatności."
 
-#: .\bookkeeping\models.py:223 .\bookkeeping\models.py:237
+#: .\bookkeeping\models.py:222 .\bookkeeping\models.py:236
 #: .\bookkeeping\services.py:318
 msgid "Transaction direction must match the payment due."
 msgstr "Kierunek transakcji musi być zgodny z kierunkiem należności."
 
-#: .\bookkeeping\models.py:225 .\bookkeeping\models.py:239
+#: .\bookkeeping\models.py:224 .\bookkeeping\models.py:238
 msgid "A planned transaction date must match its payment due date."
 msgstr "Data planowanej transakcji musi być zgodna z terminem płatności."
 
-#: .\bookkeeping\models.py:243
+#: .\bookkeeping\models.py:242
 #: .\bookkeeping\templates\bookkeeping\_transaction_card.html:12
 #: .\bookkeeping\templates\bookkeeping\payment_due_detail.html:49
 #: .\bookkeeping\templates\bookkeeping\transaction_detail.html:11
@@ -1497,7 +1492,7 @@ msgid "Close"
 msgstr "Zamknij"
 
 #: .\bookkeeping\templates\bookkeeping\_resource_owner_actions.html:10
-#: .\bookkeeping\tests\test_views.py:579
+#: .\bookkeeping\tests\test_views.py:575
 msgid "Archive listing"
 msgstr "Archiwizuj wpis"
 
@@ -2467,8 +2462,8 @@ msgid "No access to this chat."
 msgstr "Brak dostępu do tego czatu."
 
 #: .\chat\models.py:80 .\chat\services.py:102
-#: .\obywatele\tests\test_views.py:1149 .\obywatele\tests\test_views.py:1150
-#: .\obywatele\tests\test_views.py:1153
+#: .\obywatele\tests\test_views.py:1178 .\obywatele\tests\test_views.py:1179
+#: .\obywatele\tests\test_views.py:1182
 msgid "Chat room"
 msgstr "Pokój czatu"
 
@@ -2554,7 +2549,7 @@ msgstr "Inne grupy Wikikracji"
 #: .\home\services\dashboard.py:27 .\home\test_email_digest.py:599
 #: .\home\views.py:37 .\home\views.py:298
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:72
-#: .\obywatele\templates\obywatele\szczegoly.html:201 .\obywatele\views.py:516
+#: .\obywatele\templates\obywatele\szczegoly.html:201 .\obywatele\views.py:515
 msgid "Activities"
 msgstr "Działania"
 
@@ -2564,7 +2559,7 @@ msgstr "Głosowania"
 
 #: .\chat\templates\chat\chat.html:190 .\chat\templates\chat\chat.html:378
 #: .\home\navigation.py:12 .\home\services\dashboard.py:21 .\home\views.py:36
-#: .\home\views.py:298 .\obywatele\views.py:518
+#: .\home\views.py:298 .\obywatele\views.py:517
 msgid "Documents"
 msgstr "Dokumenty"
 
@@ -2708,7 +2703,7 @@ msgid "The public inbox is not available at the moment."
 msgstr "Publiczna skrzynka nie jest obecnie dostępna."
 
 #: .\core\models.py:14 .\home\models.py:14
-#: .\home\templatetags\feed_filters.py:38 .\obywatele\tests\test_views.py:1151
+#: .\home\templatetags\feed_filters.py:38 .\obywatele\tests\test_views.py:1180
 #: .\tasks\activity.py:45 .\tasks\search.py:18
 msgctxt "task"
 msgid "Activity"
@@ -2958,7 +2953,7 @@ msgstr "Dodaj do swojego Kalendarza Google"
 #: .\events\templates\events\_event_card.html:59 .\events\views.py:30
 #: .\home\navigation.py:13 .\home\services\dashboard.py:26
 #: .\home\templates\home\base.html:273 .\home\templates\home\home.html:464
-#: .\home\views.py:40 .\obywatele\views.py:519
+#: .\home\views.py:40 .\obywatele\views.py:518
 msgid "Calendar"
 msgstr "Kalendarz"
 
@@ -3027,20 +3022,20 @@ msgstr "Brak wydarzeń w tym przedziale czasu"
 msgid "Add the first event"
 msgstr "Stwórz pierwsze wydarzenie"
 
-#: .\glosowania\activity.py:13 .\obywatele\tests\test_views.py:1076
+#: .\glosowania\activity.py:13 .\obywatele\tests\test_views.py:1105
 msgid "Added argument"
 msgstr "Dodano argument"
 
-#: .\glosowania\activity.py:17 .\obywatele\tests\test_views.py:1082
+#: .\glosowania\activity.py:17 .\obywatele\tests\test_views.py:1111
 msgid "Signed proposal"
 msgstr "Podpisano propozycję"
 
-#: .\glosowania\activity.py:20 .\obywatele\tests\test_views.py:1095
+#: .\glosowania\activity.py:20 .\obywatele\tests\test_views.py:1124
 msgid "Voted in referendum"
 msgstr "Zagłosowano w referendum"
 
-#: .\glosowania\activity.py:32 .\obywatele\tests\test_views.py:1152
-#: .\obywatele\tests\test_views.py:1154
+#: .\glosowania\activity.py:32 .\obywatele\tests\test_views.py:1181
+#: .\obywatele\tests\test_views.py:1183
 msgid "Voting proposal"
 msgstr "Propozycja głosowania"
 
@@ -3419,7 +3414,7 @@ msgstr "argumenty przeciw"
 
 #: .\glosowania\search.py:36 .\glosowania\search.py:54
 #: .\home\services\dashboard.py:14 .\home\templates\home\home.html:285
-#: .\obywatele\views.py:520
+#: .\obywatele\views.py:519
 msgid "Voting"
 msgstr "Głosowania"
 
@@ -3763,7 +3758,7 @@ msgid "Against"
 msgstr "Przeciw"
 
 #: .\glosowania\templates\glosowania\szczegoly.html:90
-#: .\obywatele\services.py:44 .\obywatele\tests\test_views.py:2097
+#: .\obywatele\services.py:44 .\obywatele\tests\test_views.py:2131
 msgid "Former group member"
 msgstr "Były członek grupy"
 
@@ -4745,7 +4740,7 @@ msgstr "Oczekujące"
 msgid "In progress"
 msgstr "W realizacji"
 
-#: .\home\views.py:41 .\obywatele\views.py:522
+#: .\home\views.py:41 .\obywatele\views.py:521
 msgid "Finance"
 msgstr "Finanse"
 
@@ -5090,7 +5085,7 @@ msgstr "Wykonywany zawód"
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:69
 #: .\obywatele\templates\obywatele\my_profile.html:233
 #: .\obywatele\templates\obywatele\szczegoly.html:138
-#: .\obywatele\tests\test_views.py:855
+#: .\obywatele\tests\test_views.py:884
 msgid "Job"
 msgstr "Zawód"
 
@@ -5299,7 +5294,7 @@ msgstr ""
 "\n"
 "%(reason)s"
 
-#: .\obywatele\services.py:59 .\obywatele\tests\test_views.py:1078
+#: .\obywatele\services.py:59 .\obywatele\tests\test_views.py:1107
 msgid "Citizenship event"
 msgstr "Zdarzenie obywatelskie"
 
@@ -5411,32 +5406,32 @@ msgstr "Nieaktywni 7+ dni"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:14
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:48
-#: .\obywatele\tests\test_views.py:926
+#: .\obywatele\tests\test_views.py:955
 msgid "You support this person"
 msgstr "Popierasz tę osobę"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:14
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:48
-#: .\obywatele\tests\test_views.py:927
+#: .\obywatele\tests\test_views.py:956
 msgid "You do not support this person"
 msgstr "Nie popierasz tej osoby"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:14
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:48
-#: .\obywatele\tests\test_views.py:928
+#: .\obywatele\tests\test_views.py:957
 msgid "You are neutral about this person"
 msgstr "Masz neutralny stosunek do tej osoby"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:15
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:57
-#: .\obywatele\tests\test_views.py:908
+#: .\obywatele\tests\test_views.py:937
 msgid "This person has low reputation points"
 msgstr "Ta osoba ma mało punktów reputacji"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:16
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:58
 #: .\obywatele\templates\obywatele\szczegoly.html:34
-#: .\obywatele\tests\test_views.py:943
+#: .\obywatele\tests\test_views.py:972
 msgid "This person has requested account deletion"
 msgstr "Ta osoba zażądała usunięcia swojego konta"
 
@@ -5463,12 +5458,12 @@ msgid "This is you"
 msgstr "To jesteś Ty"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:67
-#: .\obywatele\tests\test_views.py:854
+#: .\obywatele\tests\test_views.py:883
 msgid "Business"
 msgstr "Biznes"
 
 #: .\obywatele\templates\obywatele\_citizens_list_content.html:70
-#: .\obywatele\tests\test_views.py:856
+#: .\obywatele\tests\test_views.py:885
 msgid "Hobby"
 msgstr "Hobby"
 
@@ -5578,7 +5573,7 @@ msgstr "Profil"
 
 #: .\obywatele\templates\obywatele\my_profile.html:53
 #: .\obywatele\templates\obywatele\onboarding_details.html:21
-#: .\obywatele\tests\test_views.py:1655
+#: .\obywatele\tests\test_views.py:1684
 msgid "The form could not be saved. Please correct the following errors:"
 msgstr "Nie udało się zapisać formularza. Popraw następujące błędy:"
 
@@ -5910,140 +5905,140 @@ msgstr "Zaproś"
 msgid "Parameters"
 msgstr "Parametry"
 
-#: .\obywatele\tests\test_views.py:1077 .\tasks\activity.py:53
+#: .\obywatele\tests\test_views.py:1106 .\tasks\activity.py:53
 msgid "Assigned activity"
 msgstr "Przydzielone działanie"
 
-#: .\obywatele\tests\test_views.py:1079 .\tasks\activity.py:56
+#: .\obywatele\tests\test_views.py:1108 .\tasks\activity.py:56
 msgid "Voted on activity"
 msgstr "Zagłosowano na działanie"
 
-#: .\obywatele\tests\test_views.py:1080 .\tasks\activity.py:59
+#: .\obywatele\tests\test_views.py:1109 .\tasks\activity.py:59
 msgid "Evaluated activity"
 msgstr "Oceniono działanie"
 
-#: .\obywatele\tests\test_views.py:1081 .\tasks\activity.py:50
+#: .\obywatele\tests\test_views.py:1110 .\tasks\activity.py:50
 msgid "Created activity"
 msgstr "Utworzone działanie"
 
-#: .\obywatele\views.py:181
+#: .\obywatele\views.py:180
 msgid "A confirmation link has been sent to your new email address."
 msgstr "Link potwierdzający został wysłany na nowy adres e-mail."
 
-#: .\obywatele\views.py:192
+#: .\obywatele\views.py:191
 msgid "Your name has been saved."
 msgstr "Twój imię i nazwisko zostały zapisane."
 
-#: .\obywatele\views.py:327
+#: .\obywatele\views.py:326
 msgid "Your profile does not exist. Please contact administrator."
 msgstr "Twój profil nie istnieje. Skontaktuj się z grupą."
 
-#: .\obywatele\views.py:378 .\obywatele\views.py:405
+#: .\obywatele\views.py:377 .\obywatele\views.py:404
 msgid "Could not find your onboarding account."
 msgstr "Nie udało się znaleźć Twojego konta rejestracyjnego."
 
-#: .\obywatele\views.py:394
+#: .\obywatele\views.py:393
 msgid "Your onboarding form has been saved."
 msgstr "Twoje zgłoszenie zostało zapisane."
 
-#: .\obywatele\views.py:421
+#: .\obywatele\views.py:420
 msgid "Email already exist"
 msgstr "Email już istnieje"
 
-#: .\obywatele\views.py:451
+#: .\obywatele\views.py:450
 msgid "The new user has been saved"
 msgstr "Nowy użytkownik został zapisany."
 
-#: .\obywatele\views.py:455
+#: .\obywatele\views.py:454
 msgid "New citizen has been proposed"
 msgstr "Został zaproponowany nowy użytkownik"
 
-#: .\obywatele\views.py:469 .\obywatele\views.py:567 .\obywatele\views.py:885
+#: .\obywatele\views.py:468 .\obywatele\views.py:566 .\obywatele\views.py:884
 msgid "Please correct the highlighted errors."
 msgstr "Popraw podświetlone błędy."
 
-#: .\obywatele\views.py:484
+#: .\obywatele\views.py:483
 msgid "This unsubscribe link is invalid or has expired."
 msgstr "Ten link do wyłączenia powiadomień jest nieprawidłowy lub wygasł."
 
-#: .\obywatele\views.py:488
+#: .\obywatele\views.py:487
 msgid "Invalid unsubscribe request."
 msgstr "Nieprawidłowe żądanie wyłączenia powiadomień."
 
-#: .\obywatele\views.py:512
+#: .\obywatele\views.py:511
 msgid "Changes was saved"
 msgstr "Zmiany zostały zapisane"
 
-#: .\obywatele\views.py:516
+#: .\obywatele\views.py:515
 msgid "New activities"
 msgstr "Nowe działania"
 
-#: .\obywatele\views.py:517
+#: .\obywatele\views.py:516
 msgid "Citizenship"
 msgstr "Ludzie"
 
-#: .\obywatele\views.py:517
+#: .\obywatele\views.py:516
 msgid "New citizens, membership requests"
 msgstr "Nowi obywatele, prośby o członkostwo"
 
-#: .\obywatele\views.py:518
+#: .\obywatele\views.py:517
 msgid "New and updated documents"
 msgstr "Nowe i zaktualizowane dokumenty"
 
-#: .\obywatele\views.py:519
+#: .\obywatele\views.py:518
 msgid "Upcoming events, reminders"
 msgstr "Nadchodzące wydarzenia, powiadomienia"
 
-#: .\obywatele\views.py:520
+#: .\obywatele\views.py:519
 msgid "Law proposals, voting reminders, results"
 msgstr "Propozycje głosowań, przypomnienia o głosowaniu, wyniki"
 
-#: .\obywatele\views.py:521
+#: .\obywatele\views.py:520
 msgid "New surveys"
 msgstr "Nowe ankiety"
 
-#: .\obywatele\views.py:522
+#: .\obywatele\views.py:521
 msgid "New financial transactions"
 msgstr "Nowe transakcje finansowe"
 
-#: .\obywatele\views.py:523
+#: .\obywatele\views.py:522
 msgid "New messages from rooms you haven't muted"
 msgstr "Nowe wiadomości z pokoi, których nie wyciszyłeś"
 
-#: .\obywatele\views.py:527
+#: .\obywatele\views.py:526
 msgid "Mobile phones and tablets"
 msgstr "Telefony i tablety"
 
-#: .\obywatele\views.py:528
+#: .\obywatele\views.py:527
 msgid "Computer"
 msgstr "Komputer"
 
-#: .\obywatele\views.py:528
+#: .\obywatele\views.py:527
 msgid "Desktop browsers and PWAs"
 msgstr "Przeglądarki i aplikacje PWA na komputerze"
 
-#: .\obywatele\views.py:702
+#: .\obywatele\views.py:701
 msgid "You cannot create a note about yourself."
 msgstr "Nie możesz utworzyć notatki o sobie."
 
-#: .\obywatele\views.py:707
+#: .\obywatele\views.py:706
 msgid "The note cannot exceed 500 characters."
 msgstr "Notatka nie może przekraczać 500 znaków."
 
-#: .\obywatele\views.py:882
+#: .\obywatele\views.py:881
 msgid "Candidate profile has been updated."
 msgstr "Profil kandydata został zaktualizowany."
 
-#: .\obywatele\views.py:914
+#: .\obywatele\views.py:913
 #, python-format
 msgid "You have confirmed %(email)s."
 msgstr "Potwierdziłeś adres e-mail %(email)s."
 
-#: .\obywatele\views.py:922
+#: .\obywatele\views.py:921
 msgid "Fill out your onboarding form"
 msgstr "Wypełnij formularz rejestracyjny"
 
-#: .\obywatele\views.py:923
+#: .\obywatele\views.py:922
 #, python-format
 msgid ""
 "Your email has been confirmed.\n"
@@ -6054,19 +6049,19 @@ msgstr ""
 "\n"
 "Wypełnij proszę swój formularz rejestracyjny tutaj: %(link)s"
 
-#: .\obywatele\views.py:1013
+#: .\obywatele\views.py:1012
 msgid "A deletion request already exists for your account."
 msgstr "Żądanie usunięcia konta już istnieje."
 
-#: .\obywatele\views.py:1026
+#: .\obywatele\views.py:1025
 msgid "Your account deletion has been scheduled. Your data will be permanently removed in 30 days. You can cancel this request at any time before then."
 msgstr "Usunięcie Twojego konta zostało zaplanowane. Twoje dane zostaną trwale usunięte za 30 dni. Możesz anulować to żądanie w dowolnym momencie przed tym czasem."
 
-#: .\obywatele\views.py:1038
+#: .\obywatele\views.py:1037
 msgid "Your account deletion request has been cancelled."
 msgstr "Twoje żądanie usunięcia konta zostało anulowane."
 
-#: .\obywatele\views.py:1040
+#: .\obywatele\views.py:1039
 msgid "No active deletion request found."
 msgstr "Brak aktywnego żądania usunięcia."
 

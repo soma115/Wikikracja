@@ -47,12 +47,12 @@ def location_key(location):
     return country_code, city, '', ''
 
 
-def _address_text(*, street='', house_number='', apartment_number='', city='', country='', legacy_address=''):
+def _address_text(*, street='', house_number='', apartment_number='', city='', country=''):
     structured = ' '.join(part for part in (street.strip(), house_number.strip()) if part)
     if apartment_number:
         structured = f'{structured}, {apartment_number.strip()}' if structured else apartment_number.strip()
 
-    parts = [part for part in (legacy_address.strip(), structured, city.strip(), country.strip()) if part]
+    parts = [part for part in (structured, city.strip(), country.strip()) if part]
     return ', '.join(dict.fromkeys(parts))
 
 
@@ -88,7 +88,7 @@ def get_map_location_records():
 
     country_rows = list(Country.objects.values_list('code', 'name'))
     countries_by_code = {code: name for code, name in country_rows}
-    partners = Partner.objects.only('id', 'name', 'address', 'city', 'country', 'street', 'house_number', 'apartment_number')
+    partners = Partner.objects.only('id', 'name', 'city', 'country', 'street', 'house_number', 'apartment_number')
     for partner in partners:
         country_code = normalize_country(partner.country, country_rows)
         country_name = countries_by_code.get(country_code, partner.country or '')
@@ -96,9 +96,7 @@ def get_map_location_records():
             {
                 'type': 'partner',
                 'name': partner.name,
-                'address': _address_text(
-                    street=partner.street, house_number=partner.house_number, apartment_number=partner.apartment_number, city=partner.city or '', country=country_name, legacy_address=partner.address or ''
-                ),
+                'address': _address_text(street=partner.street, house_number=partner.house_number, apartment_number=partner.apartment_number, city=partner.city or '', country=country_name),
                 'url': reverse('bookkeeping:partner_detail', kwargs={'pk': partner.pk}),
                 'location': _location(country_code, partner.city, partner.street, partner.house_number),
             }
@@ -110,7 +108,7 @@ def get_map_location_records():
         .exclude(country__isnull=True)
         .exclude(city='')
         .select_related('country')
-        .only('name', 'city', 'country__code', 'country__name')
+        .only('name', 'city', 'street', 'house_number', 'country__code', 'country__name')
     )
     for resource in resources:
         if not resource.city.strip():
@@ -119,9 +117,9 @@ def get_map_location_records():
             {
                 'type': 'resource',
                 'name': resource.name,
-                'address': _address_text(city=resource.city, country=resource.country.name),
+                'address': _address_text(street=resource.street, house_number=resource.house_number, city=resource.city, country=resource.country.name),
                 'url': f"{reverse('bookkeeping:resource_list')}?{urlencode({'q': resource.name})}",
-                'location': _location(resource.country.code, resource.city),
+                'location': _location(resource.country.code, resource.city, resource.street, resource.house_number),
             }
         )
 

@@ -92,6 +92,8 @@ describe('community map marker positioning', () => {
       getZoom: jest.fn(() => 6),
       latLngToLayerPoint: ([latitude, longitude]) => ({ x: longitude * 1000, y: latitude * 1000 }),
       layerPointToLatLng: ([x, y]) => [y / 1000, x / 1000],
+      project: ([latitude, longitude], zoom) => ({ x: longitude * 1000 * 2 ** (zoom - 6), y: latitude * 1000 * 2 ** (zoom - 6) }),
+      unproject: ([x, y], zoom) => [y / (1000 * 2 ** (zoom - 6)), x / (1000 * 2 ** (zoom - 6))],
     };
     const layerGroup = { addTo: jest.fn().mockReturnThis(), clearLayers: jest.fn() };
     window.L = {
@@ -107,7 +109,7 @@ describe('community map marker positioning', () => {
       json: async () => ({
         markers: [
           { type: 'citizen', latitude: 52.1, longitude: 19.4, items: [{ name: '<Jan>', address: 'Długa 4', url: '/obywatele/1/' }] },
-          { type: 'resource', latitude: 50.1, longitude: 20.4, items: [{ name: 'Drill', address: 'Krakow', url: '/bookkeeping/resource/?q=Drill' }] },
+          { type: 'resource', latitude: 52.1, longitude: 19.4, items: [{ name: 'Drill', address: 'Krakow', url: '/bookkeeping/resource/?q=Drill' }] },
           { type: 'partner', latitude: 53.1, longitude: 18.4, items: [{ name: 'Shop', address: 'Torun', url: '/bookkeeping/partner/1/' }] },
         ],
         unmapped: [],
@@ -116,6 +118,7 @@ describe('community map marker positioning', () => {
 
     await window.WikikracjaCommunityMap.initializeMap();
 
+    expect(window.L.map).toHaveBeenCalledWith(document.getElementById('community-map'), { scrollWheelZoom: true });
     expect(marker.bindPopup).toHaveBeenCalledTimes(3);
     const popup = marker.bindPopup.mock.calls[0][0];
     expect(popup.textContent).toContain('<Jan>');
@@ -128,7 +131,7 @@ describe('community map marker positioning', () => {
     expect(markerIcons[2]).toContain('tw-bg-warning');
     expect(markerIcons[1]).toContain('fa-boxes-stacked');
     clickHandlers[0]();
-    expect(map.setView).toHaveBeenLastCalledWith([52.1, 19.4], 12, { animate: true });
+    expect(map.setView).toHaveBeenLastCalledWith([52.09971875, 19.4], 12, { animate: true });
   });
 
   test('renders an active member dashboard preview as points without details', async () => {
@@ -164,6 +167,7 @@ describe('community map marker positioning', () => {
 
     await window.WikikracjaCommunityMap.initializeMap();
 
+    expect(window.L.map).toHaveBeenCalledWith(document.getElementById('community-map'), { scrollWheelZoom: false });
     expect(map.setView).toHaveBeenCalledWith([52.1, 19.4], 5);
     expect(map.on).toHaveBeenCalledWith('click', expect.any(Function));
     expect(circleMarker).toHaveBeenCalledWith(

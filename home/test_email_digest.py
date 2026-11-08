@@ -475,7 +475,7 @@ class SendEmailDigestCommandTest(TransactionTestCase):
         transaction = Transaction.objects.create(
             type=Transaction.INCOMING, status=Transaction.Status.PLANNED, entity=asset, category=category, amount=due.amount, payment_received_date=due.due_date, note=due.name, author=user, payment_due=due
         )
-        decision = Decyzja.objects.create(title='Restarted after reminder', referendum_restart_count=1)
+        decision = Decyzja.objects.create(title='Restarted after reminder', referendum_restart_count=1, status=Decyzja.Status.REFERENDUM, data_referendum_stop=timezone.localdate(FIXED_NOW))
         Decyzja.objects.filter(pk=decision.pk).update(data_ostatniej_modyfikacji=FIXED_NOW - td(hours=1))
 
         with patch('home.management.commands.send_email_digest.build_user_digest', return_value=[]):

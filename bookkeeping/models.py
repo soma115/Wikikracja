@@ -30,7 +30,6 @@ class Partner(models.Model):
     email = models.EmailField(null=True, blank=True, verbose_name=_("email"))
     phone = models.CharField(max_length=200, null=True, blank=True, verbose_name=_("Phone"))
     web_page = models.CharField(max_length=200, null=True, blank=True, verbose_name=_("Web page"))
-    address = models.CharField(max_length=200, null=True, blank=True, verbose_name=_("Address"))
     city = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("City"))
     country = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Country"))
     street = models.CharField(max_length=150, blank=True, default='', verbose_name=_("Street"))

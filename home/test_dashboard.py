@@ -173,6 +173,15 @@ def test_home_renders_community_map_tile_with_member_visibility(dashboard_user, 
 
 
 @pytest.mark.django_db
+def test_public_home_hides_community_map_tile(client):
+    response = client.get('/')
+
+    assert response.status_code == 200
+    assert 'data-tile-id="community-map"' not in response.content.decode()
+    assert 'id="community-map"' not in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_group_settings_uses_public_name_and_handles_invalid_reorder(dashboard_user, client):
     client.force_login(dashboard_user)
 

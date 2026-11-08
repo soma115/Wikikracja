@@ -180,8 +180,8 @@ class BookkeepingViewTests(TestCase):
         cases = (
             ('bookkeeping:category_create', None, ('name', 'description')),
             ('bookkeeping:category_update', self.category.pk, ('name', 'description')),
-            ('bookkeeping:partner_create', None, ('name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes')),
-            ('bookkeeping:partner_update', self.partner.pk, ('name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes')),
+            ('bookkeeping:partner_create', None, ('name', 'email', 'phone', 'web_page', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes')),
+            ('bookkeeping:partner_update', self.partner.pk, ('name', 'email', 'phone', 'web_page', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes')),
         )
 
         for url_name, pk, expected_fields in cases:
@@ -203,18 +203,13 @@ class BookkeepingViewTests(TestCase):
         self.partner.refresh_from_db()
         self.assertEqual(self.partner.name, 'Updated partner')
 
-    def test_partner_address_fields_save_without_rewriting_legacy_address(self):
-        self.partner.address = 'Old full address'
-        self.partner.save(update_fields=['address'])
-
+    def test_partner_structured_address_fields_save(self):
         response = self.client.post(
-            reverse('bookkeeping:partner_update', args=[self.partner.pk]),
-            {'name': self.partner.name, 'address': self.partner.address, 'city': 'Gdańsk', 'country': 'PL', 'street': 'Długa', 'house_number': '12A', 'apartment_number': '4'},
+            reverse('bookkeeping:partner_update', args=[self.partner.pk]), {'name': self.partner.name, 'city': 'Gdańsk', 'country': 'PL', 'street': 'Długa', 'house_number': '12A', 'apartment_number': '4'}
         )
 
         self.assertRedirects(response, reverse('bookkeeping:partner_list'))
         self.partner.refresh_from_db()
-        self.assertEqual(self.partner.address, 'Old full address')
         self.assertEqual(self.partner.street, 'Długa')
         self.assertEqual(self.partner.house_number, '12A')
         self.assertEqual(self.partner.apartment_number, '4')

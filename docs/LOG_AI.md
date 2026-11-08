@@ -901,3 +901,51 @@
 - **Uzasadnienie:** README wskazywał niezgodną wersję zależności i nieistniejące ścieżki, a wspólny helper był już ładowany przed `app.js`. Alias nie miał lokalnych wywołań.
 - **Weryfikacja:** 6 ukierunkowanych zestawów Jest (48 testów), `scripts/regression_scan.py`, `scripts/ui_guard.py` oraz `git diff --check` przechodzą.
 - **Spodziewany efekt:** Mniej nieaktualnych odnośników i jedna lokalna definicja `wkOnReady`, bez zmiany zachowania przy standardowym ładowaniu strony.
+
+## 2026-11-08: Poprawny stan głosowania w teście digestu
+
+- **Zmienione obszary:** fixture testu e-maila o nieopłaconej składce.
+- **Co się zmieniło:** Dane referendum w teście ustawiają aktywny status głosowania i termin końcowy równy bieżącemu dniu testowemu.
+- **Uzasadnienie:** Test oczekiwał sekcji o restarcie, ale tworzył obiekt z domyślnym statusem propozycji i bez daty końca. Produkcyjny digest prawidłowo pomija takie obiekty.
+- **Weryfikacja:** pełny runner z `--no-playwright`: Ruff, Django check, kompilacja tłumaczeń, collectstatic do katalogu tymczasowego, 1554 testy pytest oraz 335 testów Jest przechodzą. Playwright pominięty, ponieważ `.env.local` nie zawiera `E2E_BASE_URL`.
+- **Spodziewany efekt:** Test sprawdza kolejność sekcji digestu przy użyciu referendum kwalifikującego się do przypomnienia.
+
+## 2026-11-08: Usunięcie zbędnego pola adresu partnera i dokładniejsze geokodowanie
+
+- **Zmienione obszary:** model, migracja, formularze i widok szczegółów partnera, mapa oraz dopasowywanie ulic w geokoderze.
+- **Co się zmieniło:** Usunięto zbędne pole „Address” z modelu partnera, bazy danych, formularzy, widoku szczegółów i danych mapy. Dopasowanie ulic obsługuje teraz prefiksy typu „ul.”/„al.” oraz różnice w polskich znakach.
+- **Uzasadnienie:** Adres lokalizacji jest wprowadzany w osobnych polach miejscowości, ulicy i numeru domu. Geokoder odrzucał poprawny wynik, gdy nazwa ulicy w odpowiedzi różniła się tylko prefiksem lub diakrytykami, po czym używał współrzędnych miasta.
+- **Weryfikacja:** 13 ukierunkowanych testów pytest, `makemigrations --check`, Django check, Ruff, budowanie CSS, `regression_scan.py` i `ui_guard.py` przechodzą.
+- **Spodziewany efekt:** Formularz ma jedno źródło adresu, a potwierdzone lokalizacje uliczne częściej trafiają na dokładne współrzędne zamiast centrum miasta.
+
+## 2026-11-09: Dokładne lokalizacje zasobów na mapie
+
+- **Zmienione obszary:** rekordy zasobów przekazywane do mapy i testy mapy.
+- **Co się zmieniło:** Rekord zasobu uwzględnia ulicę i numer domu w zapytaniu geokodera oraz etykiecie widocznej dla członka. Goście otrzymują znaczniki z dokładnymi współrzędnymi; numer mieszkania nie jest ujawniany.
+- **Uzasadnienie:** Użytkownik zdecydował, że mapa ma pokazywać dokładne lokalizacje zasobów.
+- **Weryfikacja:** 16 testów mapy, Django check, Ruff, budowanie CSS, `regression_scan.py` i `ui_guard.py` przechodzą.
+- **Spodziewany efekt:** Zasoby z pełnym adresem są geokodowane na poziomie ulicy i numeru domu, bez zmiany filtrów widoczności zasobów.
+
+## 2026-11-09: Ograniczenie mapy do aktywnych członków
+
+- **Zmienione obszary:** widok mapy społeczności i endpoint danych mapy.
+- **Co się zmieniło:** Strona mapy i endpoint przekierowują niezalogowanych oraz użytkowników nieaktywnych do logowania. Goście nie otrzymują już nawet samych współrzędnych.
+- **Uzasadnienie:** Użytkownik zdecydował o wyłączeniu mapy dla gości.
+- **Weryfikacja:** 8 ukierunkowanych testów mapy i strony głównej, Django check oraz Ruff przechodzą.
+- **Spodziewany efekt:** Dokładne lokalizacje są dostępne wyłącznie dla aktywnych członków; publiczna strona główna nadal nie renderuje mapy.
+
+## 2026-11-09: Centrowanie znacznika w nakładającym się klastrze
+
+- **Zmienione obszary:** interakcja pojedynczego kliknięcia znacznika na mapie społeczności.
+- **Co się zmieniło:** Pozycja klikniętego znacznika jest ponownie wyliczana dla docelowego poziomu przybliżenia, zanim mapa ustawi ten punkt jako środek widoku.
+- **Uzasadnienie:** Odsunięte znaczniki klastra zmieniają położenie podczas powiększania, więc użycie ich starej pozycji przesuwało wycentrowanie.
+- **Weryfikacja:** 5 testów Jest dla mapy oraz `build:css`, `regression_scan.py` i `ui_guard.py` przechodzą.
+- **Spodziewany efekt:** Kliknięty znacznik klastra pozostaje w centrum po powiększeniu.
+
+## 2026-11-09: Zoom kółkiem na dużej mapie
+
+- **Zmienione obszary:** inicjalizacja mapy społeczności i testy interakcji mapy.
+- **Co się zmieniło:** Włączono `scrollWheelZoom` na pełnej mapie; w podglądzie mapy na pulpicie pozostał wyłączony.
+- **Uzasadnienie:** Użytkownik poprosił o przybliżanie i oddalanie dużej mapy kółkiem myszy.
+- **Weryfikacja:** 5 testów Jest dla mapy, `build:css`, `regression_scan.py` i `ui_guard.py` przechodzą.
+- **Spodziewany efekt:** Kółko myszy przybliża i oddala pełną mapę bez przechwytywania przewijania strony w kafelku pulpitu.

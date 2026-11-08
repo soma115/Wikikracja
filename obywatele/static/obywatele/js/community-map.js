@@ -59,6 +59,15 @@
     });
   }
 
+  function markerPositionAtZoom(markers, target, map, zoom) {
+    const positionedMarkers = spreadOverlappingMarkers(
+      markers,
+      (coordinates) => map.project(coordinates, zoom),
+      (point) => map.unproject(point, zoom),
+    );
+    return positionedMarkers.find(({ marker }) => marker === target)?.position || [target.latitude, target.longitude];
+  }
+
   function createMarkerIcon(leaflet, type) {
     const marker = document.createElement('span');
     marker.className = `tw-w-8 tw-h-8 tw-rounded-full ${MARKER_STYLES[type] || 'tw-bg-info tw-text-gray-900'} tw-flex tw-items-center tw-justify-center tw-border-2 tw-border-white tw-shadow-lg`;
@@ -187,7 +196,7 @@
         }
 
         const initialZoom = displayOnly ? DASHBOARD_TILE_ZOOM : INITIAL_ZOOM;
-        const map = leaflet.map(root, { scrollWheelZoom: false }).setView(INITIAL_CENTER, initialZoom);
+        const map = leaflet.map(root, { scrollWheelZoom: !displayOnly }).setView(INITIAL_CENTER, initialZoom);
         if (displayOnly && root.dataset.mapFullUrl) {
           map.on('click', (event) => {
             if (event.originalEvent?.target?.closest?.('.leaflet-control')) return;
@@ -219,7 +228,10 @@
               const marker = leaflet.marker(position, { icon: createMarkerIcon(leaflet, mapMarker.type) })
                 .bindPopup(makePopup(leaflet, entries, root))
                 .addTo(markersLayer);
-              marker.on('click', () => map.setView(position, Math.max(map.getZoom(), 12), { animate: true }));
+              marker.on('click', () => {
+                const zoom = Math.max(map.getZoom(), 12);
+                map.setView(markerPositionAtZoom(markers, mapMarker, map, zoom), zoom, { animate: true });
+              });
             }
           };
           drawMarkers();

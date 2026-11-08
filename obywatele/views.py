@@ -7,7 +7,7 @@ import django.contrib.messages as messages
 from allauth.account.models import EmailAddress
 from allauth.account.signals import email_confirmed, user_signed_up
 from django.conf import settings as s
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from django.contrib.messages import error, success
@@ -148,21 +148,20 @@ def required_reputation():
 
 @never_cache
 @require_GET
+@user_passes_test(lambda user: user.is_authenticated and user.is_active)
 def community_map(request: HttpRequest):
-    is_active_member = request.user.is_authenticated and request.user.is_active
-    template_name = 'obywatele/map.html' if is_active_member else 'obywatele/map_public.html'
-    return render(request, template_name, {'map_data_url': reverse('obywatele:mapa_data'), 'map_tiles_url': s.MAP_TILES_URL, 'map_tiles_attribution': s.MAP_TILES_ATTRIBUTION})
+    return render(request, 'obywatele/map.html', {'map_data_url': reverse('obywatele:mapa_data'), 'map_tiles_url': s.MAP_TILES_URL, 'map_tiles_attribution': s.MAP_TILES_ATTRIBUTION})
 
 
 @never_cache
 @require_GET
+@user_passes_test(lambda user: user.is_authenticated and user.is_active)
 def community_map_data(request: HttpRequest):
-    is_active_member = request.user.is_authenticated and request.user.is_active
     records = get_map_location_records()
     coordinate_resolver = get_cached_coordinates
-    if is_active_member and s.MAP_GEOCODING_ENABLED:
+    if s.MAP_GEOCODING_ENABLED:
         coordinate_resolver = geocode_location
-    payload = build_map_payload(records, coordinate_resolver, show_details=is_active_member)
+    payload = build_map_payload(records, coordinate_resolver, show_details=True)
     return JsonResponse(payload)
 
 

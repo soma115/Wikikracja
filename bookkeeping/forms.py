@@ -19,7 +19,7 @@ class PartnerForm(forms.ModelForm):
 
     class Meta:
         model = Partner
-        fields = ('name', 'email', 'phone', 'web_page', 'address', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes')
+        fields = ('name', 'email', 'phone', 'web_page', 'city', 'country', 'street', 'house_number', 'apartment_number', 'notes')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
