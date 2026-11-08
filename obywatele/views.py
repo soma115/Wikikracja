@@ -162,6 +162,9 @@ def community_map_data(request: HttpRequest):
     if s.MAP_GEOCODING_ENABLED:
         coordinate_resolver = geocode_location
     payload = build_map_payload(records, coordinate_resolver, show_details=True)
+    profile_url = reverse('obywatele:obywatele_szczegoly', kwargs={'pk': request.user.pk})
+    origin_marker = next((marker for marker in payload['markers'] if any(item.get('url') == profile_url for item in marker['items'])), None)
+    payload['origin'] = {'lat': origin_marker['latitude'], 'lon': origin_marker['longitude']} if origin_marker else None
     return JsonResponse(payload)
 
 

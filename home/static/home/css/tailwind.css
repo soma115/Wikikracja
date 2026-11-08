@@ -26,6 +26,29 @@
     filter: invert(1) hue-rotate(180deg) brightness(.9) contrast(.9);
   }
 
+  .tw-theme-aware-map .leaflet-popup-content-wrapper,
+  .tw-theme-aware-map .leaflet-popup-tip {
+    background: var(--bg-card);
+    color: var(--text-primary);
+  }
+
+  .tw-theme-aware-map .leaflet-popup-content {
+    color: var(--text-primary);
+  }
+
+  .tw-theme-aware-map .leaflet-popup-content a {
+    color: var(--accent);
+  }
+
+  .tw-theme-aware-map .leaflet-popup-content a:hover,
+  .tw-theme-aware-map .leaflet-popup-content a:focus {
+    color: var(--accent-hover);
+  }
+
+  .tw-theme-aware-map.leaflet-container a.leaflet-popup-close-button {
+    color: var(--text-primary);
+  }
+
   .tw-theme-aware-map[data-map-display-only="true"] .leaflet-control-attribution {
     font-size: 0.1rem;
     line-height: 0.8;

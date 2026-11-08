@@ -942,6 +942,14 @@
 - **Weryfikacja:** 5 testów Jest dla mapy oraz `build:css`, `regression_scan.py` i `ui_guard.py` przechodzą.
 - **Spodziewany efekt:** Pojedynczy klik pokazuje informacje; ponowny klik lub dwuklik przybliża mapę z klikniętym znacznikiem w centrum.
 
+## 2026-11-09: Odległość od adresu profilu
+
+- **Zmienione obszary:** payload mapy dla aktywnego członka, obliczenia frontendowe, dymki znaczników i tłumaczenie.
+- **Co się zmieniło:** API przekazuje współrzędne własnego profilu, a mapa oblicza odległość w linii prostej wzorem Haversine i pokazuje ją w dymkach z etykietą „Przybliżona odległość w linii prostej”. Współrzędne nie są zapisywane ani wysyłane dodatkowo przez przeglądarkę.
+- **Uzasadnienie:** Użytkownik wskazał adres profilu jako punkt odniesienia i zaakceptował przybliżoną odległość.
+- **Weryfikacja:** 11 ukierunkowanych testów pytest, 6 testów Jest, kompilacja tłumaczeń, Django check, Ruff, budowanie CSS, `regression_scan.py` i `ui_guard.py` przechodzą.
+- **Spodziewany efekt:** Aktywny członek widzi przy znacznikach dystans od lokalizacji wynikającej z jego adresu profilowego; gdy nie ma współrzędnych profilu, dystans nie jest pokazywany.
+
 ## 2026-11-09: Zoom kółkiem na dużej mapie
 
 - **Zmienione obszary:** inicjalizacja mapy społeczności i testy interakcji mapy.
@@ -949,3 +957,11 @@
 - **Uzasadnienie:** Użytkownik poprosił o przybliżanie i oddalanie dużej mapy kółkiem myszy.
 - **Weryfikacja:** 5 testów Jest dla mapy, `build:css`, `regression_scan.py` i `ui_guard.py` przechodzą.
 - **Spodziewany efekt:** Kółko myszy przybliża i oddala pełną mapę bez przechwytywania przewijania strony w kafelku pulpitu.
+
+## 2026-11-09: Kontrast i motyw dymków mapy
+
+- **Zmienione obszary:** wspólne style Leaflet w pipeline Tailwind oraz treść dymków mapy.
+- **Co się zmieniło:** Tło i tekst dymków korzystają z tokenów motywu; linki używają koloru akcentu, a opisy w dymku mocniejszego koloru tekstu zamiast bladego `text-muted`.
+- **Uzasadnienie:** Domyślne białe tło Leaflet nie zmieniało się wraz z motywem, przez co jasne opisy traciły kontrast.
+- **Weryfikacja:** 6 testów Jest, `build:css`, `regression_scan.py` i `ui_guard.py` przechodzą.
+- **Spodziewany efekt:** Dymek pozostaje czytelny w jasnym i ciemnym motywie.

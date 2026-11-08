@@ -1,4 +1,4 @@
-const { spreadOverlappingMarkers } = require('../community-map');
+const { spreadOverlappingMarkers, haversineDistanceKm } = require('../community-map');
 
 describe('community map marker positioning', () => {
   const project = ([latitude, longitude]) => [longitude * 1000, latitude * 1000];
@@ -22,6 +22,10 @@ describe('community map marker positioning', () => {
     const marker = { type: 'resource', latitude: 52, longitude: 21, items: [{ name: 'Drill' }] };
 
     expect(spreadOverlappingMarkers([marker], project, unproject)).toEqual([{ marker, position: [52, 21] }]);
+  });
+
+  test('calculates straight-line distance between coordinates in kilometers', () => {
+    expect(haversineDistanceKm({ lat: 0, lon: 0 }, { lat: 0, lon: 1 })).toBeCloseTo(111.2, 1);
   });
 
   test('starts over Poland and renders guest locations as non-interactive points', async () => {
@@ -75,7 +79,8 @@ describe('community map marker positioning', () => {
         data-map-error="Map data could not be loaded."
         data-map-citizen="Citizen"
         data-map-resource="Resource"
-        data-map-details="Details"></div>
+        data-map-details="Details"
+        data-map-distance-label="Approximate straight-line distance"></div>
       <div id="community-map-empty" class="tw-d-none"></div>
       <section id="community-map-unmapped" class="tw-d-none"><h2></h2><div id="community-map-location-list"></div></section>
       <p id="community-map-status"></p>
@@ -117,6 +122,7 @@ describe('community map marker positioning', () => {
           { type: 'resource', latitude: 52.1, longitude: 19.4, items: [{ name: 'Drill', address: 'Krakow', url: '/bookkeeping/resource/?q=Drill' }] },
           { type: 'partner', latitude: 53.1, longitude: 18.4, items: [{ name: 'Shop', address: 'Torun', url: '/bookkeeping/partner/1/' }] },
         ],
+        origin: { lat: 52.1, lon: 19.4 },
         unmapped: [],
       }),
     });
@@ -127,6 +133,9 @@ describe('community map marker positioning', () => {
     expect(marker.bindPopup).toHaveBeenCalledTimes(3);
     const popup = marker.bindPopup.mock.calls[0][0];
     expect(popup.textContent).toContain('<Jan>');
+    expect(popup.textContent).toContain('Approximate straight-line distance: 0 km');
+    expect(popup.querySelectorAll('.tw-text-primary')).toHaveLength(2);
+    expect(popup.querySelector('.tw-text-muted')).toBeNull();
     expect(popup.querySelector('script')).toBeNull();
     expect(marker.bindPopup.mock.calls[1][0].textContent).toContain('Resource');
     const markerIcons = window.L.divIcon.mock.calls.map(([options]) => options.html);

@@ -693,6 +693,34 @@ class CommunityMapViewTests(TestCase):
         self.assertNotIn('email', response.content.decode())
         self.assertNotIn('phone', response.content.decode())
 
+    @override_settings(MAP_GEOCODING_ENABLED=True)
+    def test_map_data_includes_coordinates_from_the_active_users_profile_marker(self):
+        member = User.objects.create_user(username='map-origin-member', is_active=True)
+        self.client.force_login(member)
+        own_profile_url = reverse('obywatele:obywatele_szczegoly', args=[member.pk])
+        records = [
+            {
+                'type': 'citizen',
+                'name': 'Map origin',
+                'address': 'Own Street 12, Warsaw',
+                'url': own_profile_url,
+                'location': {'country_code': 'PL', 'city': 'Warsaw', 'street': 'Own Street', 'house_number': '12'},
+            },
+            {
+                'type': 'partner',
+                'name': 'Map destination',
+                'address': 'Other Street 4, Warsaw',
+                'url': '/bookkeeping/partner/1/',
+                'location': {'country_code': 'PL', 'city': 'Warsaw', 'street': 'Other Street', 'house_number': '4'},
+            },
+        ]
+
+        with patch('obywatele.views.get_map_location_records', return_value=records), patch('obywatele.views.geocode_location', side_effect=[(52.0, 20.0), (52.1, 20.1)]):
+            response = self.client.get(self.data_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['origin'], {'lat': 52.0, 'lon': 20.0})
+
     @override_settings(MAP_GEOCODING_ENABLED=False)
     def test_geocoding_stays_disabled_until_explicitly_configured(self):
         member = User.objects.create_user(username='map-cache-only-member', is_active=True)

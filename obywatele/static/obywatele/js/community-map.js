@@ -16,9 +16,23 @@
   const INITIAL_CENTER = [52.1, 19.4];
   const INITIAL_ZOOM = 6;
   const DASHBOARD_TILE_ZOOM = 5;
+  const EARTH_RADIUS_KM = 6371;
 
   function projectPoint(point) {
     return Array.isArray(point) ? point : [point.x, point.y];
+  }
+
+  function haversineDistanceKm(origin, target) {
+    const toRadians = (degrees) => (degrees * Math.PI) / 180;
+    const latitudeDelta = toRadians(target.lat - origin.lat);
+    const longitudeDelta = toRadians(target.lon - origin.lon);
+    const originLatitude = toRadians(origin.lat);
+    const targetLatitude = toRadians(target.lat);
+    const haversine = Math.min(
+      1,
+      Math.sin(latitudeDelta / 2) ** 2 + Math.cos(originLatitude) * Math.cos(targetLatitude) * Math.sin(longitudeDelta / 2) ** 2,
+    );
+    return 2 * EARTH_RADIUS_KM * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
   }
 
   function spreadOverlappingMarkers(markers, project, unproject, radius = 32) {
@@ -84,16 +98,24 @@
     });
   }
 
-  function makePopup(leaflet, entries, root) {
+  function makePopup(leaflet, entries, root, distanceKm) {
     const content = document.createElement('div');
     content.className = 'tw-flex tw-flex-col tw-gap-2';
+    if (Number.isFinite(distanceKm)) {
+      const distance = document.createElement('span');
+      distance.className = 'tw-text-xs tw-text-primary';
+      const formattedDistance = new Intl.NumberFormat(document.documentElement.lang || undefined, { maximumFractionDigits: 1 }).format(distanceKm);
+      distance.textContent = `${root.dataset.mapDistanceLabel}: ${formattedDistance} km`;
+      content.appendChild(distance);
+    }
+
     for (const entry of entries) {
       const item = document.createElement('div');
       item.className = 'tw-flex tw-flex-col tw-gap-1';
 
       if (entry.type) {
         const typeLabel = document.createElement('span');
-        typeLabel.className = 'tw-text-xs tw-text-muted';
+        typeLabel.className = 'tw-text-xs tw-text-primary';
         const labelKey = `map${entry.type.replace(/(^|_)([a-z])/g, (_, __, letter) => letter.toUpperCase())}`;
         typeLabel.textContent = root.dataset[labelKey] || '';
         item.appendChild(typeLabel);
@@ -226,12 +248,13 @@
             for (const { marker: mapMarker, position } of positionedMarkers) {
               const entries = (mapMarker.items || []).map((item) => ({ ...item, type: mapMarker.type }));
               const marker = leaflet.marker(position, { icon: createMarkerIcon(leaflet, mapMarker.type) });
+              const distanceKm = data.origin ? haversineDistanceKm(data.origin, { lat: mapMarker.latitude, lon: mapMarker.longitude }) : null;
               marker.on('click', () => {
                 if (!marker.isPopupOpen()) return;
                 const zoom = Math.max(map.getZoom(), 12);
                 map.setView(markerPositionAtZoom(markers, mapMarker, map, zoom), zoom, { animate: true });
               });
-              marker.bindPopup(makePopup(leaflet, entries, root)).addTo(markersLayer);
+              marker.bindPopup(makePopup(leaflet, entries, root, distanceKm)).addTo(markersLayer);
             }
           };
           drawMarkers();
@@ -264,7 +287,7 @@
       });
   }
 
-  return { spreadOverlappingMarkers, initializeMap };
+  return { spreadOverlappingMarkers, haversineDistanceKm, initializeMap };
 });
 
 if (typeof window !== 'undefined') {
