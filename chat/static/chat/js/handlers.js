@@ -12,6 +12,7 @@ import {
     createReactionHandler,
     createReplyHandler,
     createVoteHandler,
+    handleEnterKey,
     initFormattingToolbar,
     initGlobalPasteImageHandler,
     insertPlainTextAtCaret,
@@ -392,17 +393,16 @@ window.wkOnReady(function() {
             if (mod && e.key === 'b') { e.preventDefault(); document.execCommand('bold'); updateToolbarState(); return; }
             if (mod && e.key === 'i') { e.preventDefault(); document.execCommand('italic'); updateToolbarState(); return; }
             if (mod && e.key === 'u') { e.preventDefault(); document.execCommand('underline'); updateToolbarState(); return; }
-            // Enter = wyślij; nowa linia przez Ctrl+Enter lub Shift+Enter
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                if (mod || e.shiftKey) { document.execCommand('insertLineBreak'); }
-                else { onSubmitMessage(DOM_API.getEnteredText(), DOM_API.getEditedMessageId()); }
-                return;
-            }
+            // Enter sends on desktop; on mobile it inserts a new line.
+            if (handleEnterKey(
+                e,
+                () => onSubmitMessage(DOM_API.getEnteredText(), DOM_API.getEditedMessageId()),
+                mobileMedia.matches
+            )) return;
             return;
         }
 
-        if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        if (e.key === 'Enter' && !mobileMedia.matches && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
             e.preventDefault();
             onSubmitMessage(DOM_API.getEnteredText(), DOM_API.getEditedMessageId());
         }
@@ -850,4 +850,3 @@ window.wkOnReady(function() {
         }
     });
 });
-

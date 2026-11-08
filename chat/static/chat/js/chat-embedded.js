@@ -9,7 +9,7 @@
 
 import { clearReplyTarget, createEditHandler, createImageClickHandler, createQuoteJumpHandler, createReactionHandler, createReplyHandler, createVoteHandler, formatMessage, getInputHtml, handleEnterKey, initFormattingToolbar, initGlobalPasteImageHandler, initMentionSuggestion, insertPlainTextAtCaret, setReplyTarget, updateCounter, uploadFiles, voteButtonTitle } from './chat-core.js';
 import { Message } from './templates.js';
-import { _, dateBannerHtml, formatDate, formatTime } from './utility.js';
+import { _, dateBannerHtml, formatDate, formatTime, mobileMedia } from './utility.js';
 import { getSharedWebSocket } from './websocket-manager.js';
 
 /**
@@ -472,8 +472,8 @@ async function initEmbeddedChat(container) {
         if (mod && e.key === 'b') { e.preventDefault(); document.execCommand('bold'); updateToolbarState(); return; }
         if (mod && e.key === 'i') { e.preventDefault(); document.execCommand('italic'); updateToolbarState(); return; }
         if (mod && e.key === 'u') { e.preventDefault(); document.execCommand('underline'); updateToolbarState(); return; }
-        // Enter = wyślij, Shift/Ctrl+Enter = nowa linia
-        if (handleEnterKey(e, submitInput)) return;
+        // Enter sends on desktop; on mobile it inserts a new line.
+        if (handleEnterKey(e, submitInput, mobileMedia.matches)) return;
     });
 
     // Anuluj odpowiedź

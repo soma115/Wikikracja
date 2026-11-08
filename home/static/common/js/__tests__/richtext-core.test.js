@@ -422,3 +422,29 @@ describe('insertPlainTextAtCaret + getInputHtml — paste flow E2E', () => {
         expect(core.getInputHtml(el)).toBe('A<br>B<br>C');
     });
 });
+
+describe('handleEnterKey', () => {
+    beforeEach(() => {
+        document.execCommand = jest.fn();
+    });
+
+    test('plain Enter inserts a line break when configured for mobile chat', () => {
+        const submit = jest.fn();
+        const event = { key: 'Enter', preventDefault: jest.fn() };
+
+        expect(core.handleEnterKey(event, submit, true)).toBe(true);
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(document.execCommand).toHaveBeenCalledWith('insertLineBreak');
+        expect(submit).not.toHaveBeenCalled();
+    });
+
+    test('plain Enter submits on desktop by default', () => {
+        const submit = jest.fn();
+        const event = { key: 'Enter', preventDefault: jest.fn() };
+
+        expect(core.handleEnterKey(event, submit)).toBe(true);
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(submit).toHaveBeenCalled();
+        expect(document.execCommand).not.toHaveBeenCalled();
+    });
+});
