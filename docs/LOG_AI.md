@@ -934,13 +934,13 @@
 - **Weryfikacja:** 8 ukierunkowanych testów mapy i strony głównej, Django check oraz Ruff przechodzą.
 - **Spodziewany efekt:** Dokładne lokalizacje są dostępne wyłącznie dla aktywnych członków; publiczna strona główna nadal nie renderuje mapy.
 
-## 2026-11-09: Centrowanie znacznika w nakładającym się klastrze
+## 2026-11-09: Interakcja ze znacznikami w nakładającym się klastrze
 
-- **Zmienione obszary:** interakcja pojedynczego kliknięcia znacznika na mapie społeczności.
-- **Co się zmieniło:** Pozycja klikniętego znacznika jest ponownie wyliczana dla docelowego poziomu przybliżenia, zanim mapa ustawi ten punkt jako środek widoku.
+- **Zmienione obszary:** interakcja kliknięć znacznika na mapie społeczności.
+- **Co się zmieniło:** Pierwszy klik otwiera dymek; kolejny klik przybliża mapę i centruje kliknięty znacznik, którego pozycja jest wyliczana dla docelowego poziomu zoomu.
 - **Uzasadnienie:** Odsunięte znaczniki klastra zmieniają położenie podczas powiększania, więc użycie ich starej pozycji przesuwało wycentrowanie.
 - **Weryfikacja:** 5 testów Jest dla mapy oraz `build:css`, `regression_scan.py` i `ui_guard.py` przechodzą.
-- **Spodziewany efekt:** Kliknięty znacznik klastra pozostaje w centrum po powiększeniu.
+- **Spodziewany efekt:** Pojedynczy klik pokazuje informacje; ponowny klik lub dwuklik przybliża mapę z klikniętym znacznikiem w centrum.
 
 ## 2026-11-09: Zoom kółkiem na dużej mapie
 

@@ -66,7 +66,7 @@ describe('community map marker positioning', () => {
     expect(window.L.marker).toBeUndefined();
   });
 
-  test('zooms to a member marker and shows its details in a safe popup', async () => {
+  test('opens a marker popup on first click and zooms on the next click', async () => {
     document.body.innerHTML = `
       <div id="community-map"
         data-map-data-url="/obywatele/mapa/data/"
@@ -81,9 +81,14 @@ describe('community map marker positioning', () => {
       <p id="community-map-status"></p>
     `;
     const clickHandlers = [];
+    let popupOpen = false;
     const marker = {
-      bindPopup: jest.fn().mockReturnThis(),
+      bindPopup: jest.fn(function () {
+        clickHandlers.push(() => { popupOpen = !popupOpen; });
+        return this;
+      }),
       addTo: jest.fn().mockReturnThis(),
+      isPopupOpen: jest.fn(() => popupOpen),
       on: jest.fn((event, handler) => clickHandlers.push(handler)),
     };
     const map = {
@@ -131,7 +136,13 @@ describe('community map marker positioning', () => {
     expect(markerIcons[2]).toContain('tw-bg-warning');
     expect(markerIcons[1]).toContain('fa-boxes-stacked');
     clickHandlers[0]();
+    expect(map.setView).toHaveBeenCalledTimes(1);
+    clickHandlers[1]();
+    expect(popupOpen).toBe(true);
+    clickHandlers[0]();
     expect(map.setView).toHaveBeenLastCalledWith([52.09971875, 19.4], 12, { animate: true });
+    clickHandlers[1]();
+    expect(popupOpen).toBe(false);
   });
 
   test('renders an active member dashboard preview as points without details', async () => {

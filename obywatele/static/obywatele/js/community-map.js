@@ -225,13 +225,13 @@
             );
             for (const { marker: mapMarker, position } of positionedMarkers) {
               const entries = (mapMarker.items || []).map((item) => ({ ...item, type: mapMarker.type }));
-              const marker = leaflet.marker(position, { icon: createMarkerIcon(leaflet, mapMarker.type) })
-                .bindPopup(makePopup(leaflet, entries, root))
-                .addTo(markersLayer);
+              const marker = leaflet.marker(position, { icon: createMarkerIcon(leaflet, mapMarker.type) });
               marker.on('click', () => {
+                if (!marker.isPopupOpen()) return;
                 const zoom = Math.max(map.getZoom(), 12);
                 map.setView(markerPositionAtZoom(markers, mapMarker, map, zoom), zoom, { animate: true });
               });
+              marker.bindPopup(makePopup(leaflet, entries, root)).addTo(markersLayer);
             }
           };
           drawMarkers();
