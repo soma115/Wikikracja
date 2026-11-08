@@ -44,7 +44,7 @@ module.exports = {
     'tw-toast-container', 'tw-toast-msg', 'tw-toast-close', 'tw-toast-success', 'tw-toast-error', 'tw-toast-danger', 'tw-toast-warning', 'tw-toast-info',
     'tw-tile-carousel-wrapper', 'tw-featured-carousel', 'tw-featured-carousel-title', 'tw-link-more',
     'tw-dot-public', 'tw-dot-private',
-    'tw-card--no-hover', 'tw-hr-subtle', 'tw-tile-text-muted', 'tw-balance-positive', 'tw-balance-negative', 'tw-activity-pulse', 'tw-activity-pulse-ring', 'tw-activity-pulse-value', 'tw-activity-pulse-bar', 'tw-activity-pulse-segment', 'tw-activity-pulse-segment--green', 'tw-activity-pulse-segment--yellow', 'tw-activity-pulse-segment--muted',
+    'tw-card--no-hover', 'tw-hr-subtle', 'tw-tile-text-muted', 'tw-balance-positive', 'tw-balance-negative', 'tw-activity-pulse', 'tw-activity-pulse-ring', 'tw-activity-pulse-value', 'tw-activity-pulse-label--info',
     'tw-cursor-default',
     // Events/calendar dynamic component classes.
     'tw-cal-day-link--selected', 'tw-cal-day-today', 'tw-cal-day-has-event',

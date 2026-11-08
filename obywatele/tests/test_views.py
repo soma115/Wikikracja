@@ -1922,6 +1922,7 @@ class CitizenPresenceTemplateTest(TestCase):
         green = User.objects.create_user(username='dashboard-green', is_active=True)
         yellow = User.objects.create_user(username='dashboard-yellow', is_active=True)
         recent = User.objects.create_user(username='dashboard-recent', is_active=True)
+        stale = User.objects.create_user(username='dashboard-stale', is_active=True)
         now = django_timezone.now()
         green.uzytkownik.last_presence_at = now
         green.uzytkownik.save(update_fields=['last_presence_at'])
@@ -1929,6 +1930,8 @@ class CitizenPresenceTemplateTest(TestCase):
         yellow.uzytkownik.save(update_fields=['last_presence_at'])
         recent.uzytkownik.last_presence_at = now - timedelta(days=10)
         recent.uzytkownik.save(update_fields=['last_presence_at'])
+        stale.uzytkownik.last_presence_at = now - timedelta(days=31)
+        stale.uzytkownik.save(update_fields=['last_presence_at'])
 
         context = get_context(viewer)
 
@@ -1936,6 +1939,17 @@ class CitizenPresenceTemplateTest(TestCase):
         self.assertEqual(context['active_yellow'], 1)
         self.assertEqual(context['active_recent'], 1)
         self.assertEqual(context['active_last_month'], 3)
+        self.assertEqual(context['inactive'], 2)
+        self.assertEqual(context['active_pct'], 60)
+        self.assertEqual(context['active_green_end_pct'], 20)
+        self.assertEqual(context['active_yellow_end_pct'], 40)
+        self.assertEqual(context['active_recent_end_pct'], 60)
+
+        self.client.force_login(viewer)
+        response = self.client.get('/')
+
+        self.assertContains(response, '--activity-green-end: 40%;')
+        self.assertNotContains(response, 'tw-activity-pulse-bar')
 
 
 class AccountDeletionFeedbackTest(TestCase):

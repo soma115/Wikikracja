@@ -480,23 +480,19 @@
         <div class="tw-dashboard-tile-header tw-mb-1">
           <i class="fas fa-chart-line"></i>
           <span class="tw-section-heading tw-tile-heading">{% trans "Activity pulse" %}</span>
-          <i class="fas fa-circle-info tw-text-muted" title="{% trans 'Green means activity within 15 minutes. Yellow means activity within 7 days. Red means no recent activity.' %}" aria-label="{% trans 'How activity status works' %}"></i>
+          <i class="fas fa-circle-info tw-text-muted" title="{% trans 'Green means activity within 15 minutes. Yellow means activity more than 15 minutes ago, but within 7 days. Blue means activity more than 7 days ago, but within 30 days. Gray means no activity for over 30 days or no recorded activity.' %}" aria-label="{% trans 'How activity status works' %}"></i>
         </div>
         <div class="tw-activity-pulse tw-flex tw-items-center tw-gap-3 tw-flex-1">
-          <div class="tw-activity-pulse-ring" style="--activity-pct: {{ active_pct }}%" aria-label="{{ active_pct }}% {% trans 'active within 30 days' %}">
+          <div class="tw-activity-pulse-ring" style="--activity-green-end: {{ active_green_end_pct }}%; --activity-yellow-end: {{ active_yellow_end_pct }}%; --activity-recent-end: {{ active_recent_end_pct }}%; --activity-population-end: {{ population_end_pct }}%" aria-label="{{ active_pct }}% {% trans 'active within 30 days' %}">
             <span class="tw-activity-pulse-value">{{ active_pct }}%</span>
           </div>
           <div class="tw-flex tw-flex-col tw-gap-1 tw-text-xs tw-min-w-0">
             <span class="tw-text-muted">{{ active_last_month }} {% trans "active within 30 days" %}</span>
             <span class="tw-text-success"><i class="fas fa-circle tw-me-1"></i>{{ active_green }} {% trans "now" %}</span>
             <span class="tw-text-warning"><i class="fas fa-circle tw-me-1"></i>{{ active_yellow }} {% trans "this week" %}</span>
-            <span class="tw-text-muted"><i class="fas fa-circle tw-me-1"></i>{{ active_recent }} {% trans "earlier this month" %}</span>
+            <span class="tw-activity-pulse-label--info"><i class="fas fa-circle tw-me-1"></i>{{ active_recent }} {% trans "7–30 days ago" %}</span>
+            <span class="tw-text-muted"><i class="fas fa-circle tw-me-1"></i>{{ inactive }} {% trans "no activity for over 30 days" %}</span>
           </div>
-        </div>
-        <div class="tw-activity-pulse-bar" aria-hidden="true">
-          <span class="tw-activity-pulse-segment tw-activity-pulse-segment--green" style="--activity-segment: {{ active_green_pct }}%"></span>
-          <span class="tw-activity-pulse-segment tw-activity-pulse-segment--yellow" style="--activity-segment: {{ active_yellow_pct }}%"></span>
-          <span class="tw-activity-pulse-segment tw-activity-pulse-segment--muted" style="--activity-segment: {{ active_recent_pct }}%"></span>
         </div>
       </div>
     </a>

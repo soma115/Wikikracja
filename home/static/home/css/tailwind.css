@@ -4148,7 +4148,18 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: conic-gradient(var(--accent) var(--activity-pct, 0%), var(--progress-bg) 0);
+    background: conic-gradient(
+      var(--badge-approved-color) 0%,
+      var(--badge-approved-color) var(--activity-green-end, 0%),
+      var(--status-warning-color) var(--activity-green-end, 0%),
+      var(--status-warning-color) var(--activity-yellow-end, 0%),
+      var(--badge-info-color) var(--activity-yellow-end, 0%),
+      var(--badge-info-color) var(--activity-recent-end, 0%),
+      var(--text-muted) var(--activity-recent-end, 0%),
+      var(--text-muted) var(--activity-population-end, 0%),
+      var(--progress-bg) var(--activity-population-end, 0%),
+      var(--progress-bg) 100%
+    );
     position: relative;
   }
   .tw-activity-pulse-ring::after {
@@ -4164,22 +4175,7 @@
     font-weight: 700;
     color: var(--text-primary);
   }
-  .tw-activity-pulse-bar {
-    display: flex;
-    width: 100%;
-    height: 8px;
-    overflow: hidden;
-    border-radius: 9999px;
-    background: var(--progress-bg);
-  }
-  .tw-activity-pulse-segment {
-    width: var(--activity-segment, 0%);
-    min-width: 0;
-    transition: width 0.4s ease;
-  }
-  .tw-activity-pulse-segment--green { background: var(--badge-approved-color); }
-  .tw-activity-pulse-segment--yellow { background: var(--status-warning-color); }
-  .tw-activity-pulse-segment--muted { background: var(--text-muted); }
+  .tw-activity-pulse-label--info { color: var(--badge-info-color); }
 
   /* ── Dashboard list rows / activity feed tile ────────────── */
   .tw-task-dash-row {

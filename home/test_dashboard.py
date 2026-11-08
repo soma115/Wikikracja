@@ -91,6 +91,25 @@ def test_dashboard_feed_filter_unread(dashboard_user):
 
 
 @pytest.mark.django_db
+def test_dashboard_activity_shows_only_latest_message_per_chat_room(dashboard_user):
+    now = timezone.now()
+    feed_items = [
+        {'content_type': 'room_messages', 'room_id': 1, 'object_id': 3, 'timestamp': now, 'is_read': False},
+        {'content_type': 'room_messages', 'room_id': 1, 'object_id': 2, 'timestamp': now - timezone.timedelta(minutes=1), 'is_read': False},
+        {'content_type': 'post', 'object_id': 1, 'timestamp': now - timezone.timedelta(minutes=2), 'is_read': False},
+        {'content_type': 'room_messages', 'room_id': 2, 'object_id': 5, 'timestamp': now - timezone.timedelta(minutes=3), 'is_read': False},
+        {'content_type': 'room_messages', 'room_id': 2, 'object_id': 4, 'timestamp': now - timezone.timedelta(minutes=4), 'is_read': False},
+        {'content_type': 'transaction', 'object_id': 1, 'timestamp': now - timezone.timedelta(minutes=5), 'is_read': False},
+        {'content_type': 'room_messages', 'room_id': 3, 'object_id': 6, 'timestamp': now - timezone.timedelta(minutes=6), 'is_read': False},
+        {'content_type': 'post', 'object_id': 2, 'timestamp': now - timezone.timedelta(minutes=7), 'is_read': False},
+    ]
+
+    context = build_dashboard_context(dashboard_user, feed_items=feed_items)
+
+    assert [(item['content_type'], item['object_id']) for item in context['last_feed_items']] == [('room_messages', 3), ('post', 1), ('room_messages', 5), ('transaction', 1), ('room_messages', 6), ('post', 2)]
+
+
+@pytest.mark.django_db
 def test_dashboard_featured_documents(dashboard_user):
     from board.models import Post
 

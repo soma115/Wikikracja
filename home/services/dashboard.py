@@ -36,6 +36,22 @@ DASHBOARD_MODULES = [
 ]
 
 
+def _get_last_feed_items(feed_items):
+    last_feed_items = []
+    seen_room_ids = set()
+    for item in feed_items:
+        if item['content_type'] == 'event':
+            continue
+        if item['content_type'] == 'room_messages':
+            if item['room_id'] in seen_room_ids:
+                continue
+            seen_room_ids.add(item['room_id'])
+        last_feed_items.append(item)
+        if len(last_feed_items) == 6:
+            break
+    return last_feed_items
+
+
 def build_dashboard_context(user, feed_items=None, filter_unread=False, month_param=''):
     """Build the full context dict for the home/dashboard view."""
     if feed_items is None:
@@ -51,7 +67,7 @@ def build_dashboard_context(user, feed_items=None, filter_unread=False, month_pa
         {
             'feed_items': feed_items,
             'filter_unread': filter_unread,
-            'last_feed_items': [i for i in feed_items if i['content_type'] != 'event'][:6],
+            'last_feed_items': _get_last_feed_items(feed_items),
             'bookmarked_items': get_bookmarked_items(user),
             '_unread_count': request_unread_count,
             'quick_links': list(QuickLink.objects.order_by('order')),

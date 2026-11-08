@@ -21,7 +21,11 @@ def get_context(user, month_param: str = '') -> dict:
     active_yellow = presence_qs.filter(last_presence_at__lt=green_since, last_presence_at__gte=yellow_since).count()
     active_recent = presence_qs.filter(last_presence_at__lt=yellow_since, last_presence_at__gte=thirty_days_ago).count()
     active_last_month = active_green + active_yellow + active_recent
+    inactive = pop - active_last_month
     active_pct = round(active_last_month / pop * 100) if pop else 0
+    active_green_end_pct = round(active_green / pop * 100) if pop else 0
+    active_yellow_end_pct = round((active_green + active_yellow) / pop * 100) if pop else 0
+    active_recent_end_pct = active_pct
 
     skills_knowledge_hobby_count = Uzytkownik.objects.exclude(skills_knowledge_hobby__isnull=True).exclude(skills_knowledge_hobby='').count()
 
@@ -32,9 +36,11 @@ def get_context(user, month_param: str = '') -> dict:
         'active_green': active_green,
         'active_yellow': active_yellow,
         'active_recent': active_recent,
-        'active_green_pct': round(active_green / pop * 100, 1) if pop else 0,
-        'active_yellow_pct': round(active_yellow / pop * 100, 1) if pop else 0,
-        'active_recent_pct': round(active_recent / pop * 100, 1) if pop else 0,
+        'inactive': inactive,
+        'active_green_end_pct': active_green_end_pct,
+        'active_yellow_end_pct': active_yellow_end_pct,
+        'active_recent_end_pct': active_recent_end_pct,
+        'population_end_pct': 100 if pop else 0,
         'skills_knowledge_hobby_count': skills_knowledge_hobby_count,
         'skills_count': skills_knowledge_hobby_count,
         'knowledge_count': skills_knowledge_hobby_count,

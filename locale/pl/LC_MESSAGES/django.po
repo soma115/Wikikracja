@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-08 16:01+0100\n"
+"POT-Creation-Date: 2026-11-08 23:18+0100\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -3763,7 +3763,7 @@ msgid "Against"
 msgstr "Przeciw"
 
 #: .\glosowania\templates\glosowania\szczegoly.html:90
-#: .\obywatele\services.py:44 .\obywatele\tests\test_views.py:2088
+#: .\obywatele\services.py:44 .\obywatele\tests\test_views.py:2097
 msgid "Former group member"
 msgstr "Były członek grupy"
 
@@ -4476,8 +4476,8 @@ msgid "Activity pulse"
 msgstr "Puls aktywności"
 
 #: .\home\templates\home\home.html:483
-msgid "Green means activity within 15 minutes. Yellow means activity within 7 days. Red means no recent activity."
-msgstr "Zielony oznacza aktywność w ciągu 15 minut. Żółty oznacza aktywność w ciągu 7 dni. Czerwony oznacza brak świeżej aktywności."
+msgid "Green means activity within 15 minutes. Yellow means activity more than 15 minutes ago, but within 7 days. Blue means activity more than 7 days ago, but within 30 days. Gray means no activity for over 30 days or no recorded activity."
+msgstr "Zielony oznacza aktywność w ciągu 15 minut. Żółty oznacza aktywność sprzed ponad 15 minut, ale nie dawniej niż 7 dni. Niebieski oznacza aktywność sprzed ponad 7 dni, ale nie dawniej niż 30 dni. Szary oznacza brak aktywności od ponad 30 dni lub brak zarejestrowanej aktywności."
 
 #: .\home\templates\home\home.html:483
 msgid "How activity status works"
@@ -4496,8 +4496,12 @@ msgid "this week"
 msgstr "w tym tygodniu"
 
 #: .\home\templates\home\home.html:493
-msgid "earlier this month"
-msgstr "wcześniej w tym miesiącu"
+msgid "7–30 days ago"
+msgstr "7–30 dni temu"
+
+#: .\home\templates\home\home.html:494
+msgid "no activity for over 30 days"
+msgstr "brak aktywności od ponad 30 dni"
 
 #: .\home\templates\home\includes\delete_modal.html:8
 #: .\tasks\templates\tasks\task_detail.html:304
