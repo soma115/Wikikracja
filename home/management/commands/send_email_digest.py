@@ -130,9 +130,10 @@ class Command(TranslatedCommand):
                 continue
 
             since = profile.last_email_digest_at or now
-            restarted_votes = self._get_restarted_votes(since)
+            today = timezone.localdate(now)
+            restarted_votes = self._get_restarted_votes(since, today)
             team_requests = self._get_pending_team_requests(user)
-            payment_dues = self._get_unpaid_member_payment_dues(user, timezone.localdate(now))
+            payment_dues = self._get_unpaid_member_payment_dues(user, today)
             items = build_user_digest(user, since)
 
             if not items and not restarted_votes and not ending_votes and not team_requests and not payment_dues:
@@ -203,11 +204,13 @@ class Command(TranslatedCommand):
         ]
 
     @staticmethod
-    def _get_restarted_votes(since):
-        """Return referenda restarted after the previous digest period."""
+    def _get_restarted_votes(since, today):
+        """Return active restarted referenda through their final voting day."""
         return [
             {'title': decision.title or _('Untitled referendum'), 'url': build_site_url(f'/glosowania/details/{decision.pk}/')}
-            for decision in Decyzja.objects.filter(referendum_restart_count__gt=0, data_ostatniej_modyfikacji__gte=since).order_by('-data_ostatniej_modyfikacji', 'pk')
+            for decision in Decyzja.objects.filter(referendum_restart_count__gt=0, status=Decyzja.Status.REFERENDUM, data_referendum_stop__gte=today, data_ostatniej_modyfikacji__gte=since).order_by(
+                '-data_ostatniej_modyfikacji', 'pk'
+            )
         ]
 
     @staticmethod

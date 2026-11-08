@@ -512,7 +512,7 @@ class SendEmailDigestCommandTest(TransactionTestCase):
 
     def test_digest_puts_restarted_votes_first_with_links(self):
         user = self._make_active_user('restart-recipient', 'restart@example.com')
-        decision = Decyzja.objects.create(title='Restarted referendum', referendum_restart_count=1)
+        decision = Decyzja.objects.create(title='Restarted referendum', referendum_restart_count=1, status=Decyzja.Status.REFERENDUM, data_referendum_stop=timezone.localdate(FIXED_NOW))
         Decyzja.objects.filter(pk=decision.pk).update(data_ostatniej_modyfikacji=FIXED_NOW - td(hours=1))
 
         self._run_digest()
@@ -526,8 +526,9 @@ class SendEmailDigestCommandTest(TransactionTestCase):
 
     def test_digest_includes_only_restarts_since_previous_digest(self):
         user = self._make_active_user('restart-window', 'restart-window@example.com')
-        old_restart = Decyzja.objects.create(title='Old restarted referendum', referendum_restart_count=1)
-        recent_restart = Decyzja.objects.create(title='Recent restarted referendum', referendum_restart_count=1)
+        stop_date = timezone.localdate(FIXED_NOW) + td(days=1)
+        old_restart = Decyzja.objects.create(title='Old restarted referendum', referendum_restart_count=1, status=Decyzja.Status.REFERENDUM, data_referendum_stop=stop_date)
+        recent_restart = Decyzja.objects.create(title='Recent restarted referendum', referendum_restart_count=1, status=Decyzja.Status.REFERENDUM, data_referendum_stop=stop_date)
         since = FIXED_NOW - td(days=1)
         Decyzja.objects.filter(pk=old_restart.pk).update(data_ostatniej_modyfikacji=since - td(seconds=1))
         Decyzja.objects.filter(pk=recent_restart.pk).update(data_ostatniej_modyfikacji=since + td(seconds=1))
@@ -537,6 +538,18 @@ class SendEmailDigestCommandTest(TransactionTestCase):
         email = next(e for e in mail.outbox if user.email in e.to)
         assert 'Recent restarted referendum' in email.body
         assert 'Old restarted referendum' not in email.body
+
+    def test_digest_does_not_include_restarted_votes_after_last_voting_day(self):
+        today = timezone.localdate(FIXED_NOW)
+        since = FIXED_NOW - td(days=1)
+        active_until_today = Decyzja.objects.create(title='Restarted vote ending today', referendum_restart_count=1, status=Decyzja.Status.REFERENDUM, data_referendum_stop=today)
+        ended_yesterday = Decyzja.objects.create(title='Restarted vote ended yesterday', referendum_restart_count=1, status=Decyzja.Status.REJECTED, data_referendum_stop=today - td(days=1))
+        closed_early = Decyzja.objects.create(title='Restarted vote already closed', referendum_restart_count=1, status=Decyzja.Status.APPROVED, data_referendum_stop=today + td(days=1))
+        Decyzja.objects.filter(pk__in=[active_until_today.pk, ended_yesterday.pk, closed_early.pk]).update(data_ostatniej_modyfikacji=since + td(hours=1))
+
+        restarted_votes = Command._get_restarted_votes(since, today)
+
+        assert [vote['title'] for vote in restarted_votes] == ['Restarted vote ending today']
 
     def test_digest_includes_referenda_ending_today_without_other_activity(self):
         user = self._make_active_user('ending-vote-recipient', 'ending-vote@example.com')
