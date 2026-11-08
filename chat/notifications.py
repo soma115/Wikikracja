@@ -17,7 +17,7 @@ from core.utils import get_site_domain, user_initials
 
 from .models import Room
 from .notification_queue import enqueue_notification
-from .room_repository import CHAT_UNREAD_CACHE_KEY
+from .room_repository import CHAT_UNREAD_CACHE_KEY, ChatRoomRepository
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class ChatNotificationService:
         online_ids = set(self.online_registry.get_online())
         offline_ids = [user_id for user_id in other_member_ids if user_id not in online_ids]
         if offline_ids:
-            await database_sync_to_async(self._clear_unread_state)(room.id, offline_ids)
+            await database_sync_to_async(self._clear_unread_state)(room.id, offline_ids, message.id)
         await database_sync_to_async(self._clear_unread_caches)(other_member_ids)
 
         membership_prefs = await database_sync_to_async(Room.get_membership_preferences_bulk)(room.id, other_member_ids)
@@ -60,7 +60,7 @@ class ChatNotificationService:
                 await self._enqueue_delivery(member.id, room.id, notification, 'notification', push_event or 'chat.message')
 
             if consumer and not is_present and prefs['seen']:
-                await consumer.room_repo.unsee_room(room)
+                await consumer.room_repo.unsee_room(room, message.id)
                 await consumer.push_unread_count()
                 await consumer.send_json({"unsee_room": room.id})
 
@@ -77,8 +77,8 @@ class ChatNotificationService:
             log.error("%s Failed to queue %s notification for user %s in room %s", NOTIF_LOG_TAG, kind, user_id, room_id, exc_info=True)
 
     @staticmethod
-    def _clear_unread_state(room_id, user_ids):
-        Room.seen_by.through.objects.filter(room_id=room_id, user_id__in=user_ids).delete()
+    def _clear_unread_state(room_id, user_ids, unread_message_id):
+        ChatRoomRepository.mark_room_unread_for_users_sync(room_id, user_ids, unread_message_id)
 
     @staticmethod
     def _clear_unread_caches(user_ids):

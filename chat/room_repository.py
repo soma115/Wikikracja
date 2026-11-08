@@ -68,7 +68,10 @@ class ChatRoomRepository:
         message.room.seen_by.add(self.user)
         self._invalidate_unread_cache()
 
-    def mark_room_unread_sync(self, room):
+    def mark_room_unread_sync(self, room, unread_message_id=None):
+        if unread_message_id is not None:
+            self.mark_room_unread_for_users_sync(room.id, [self.user.id], unread_message_id)
+            return
         MessageReadBy.objects.filter(message__room=room, user_id=self.user.id).exclude(message__sender_id=self.user.id).delete()
         room.seen_by.remove(self.user)
         self._invalidate_unread_cache()
@@ -77,6 +80,23 @@ class ChatRoomRepository:
         MessageReadBy.objects.filter(message=message, user_id=self.user.id).delete()
         message.room.seen_by.remove(self.user)
         self._invalidate_unread_cache()
+
+    @staticmethod
+    def mark_room_unread_for_users_sync(room_id, user_ids, unread_message_id):
+        user_ids = set(user_ids)
+        if not user_ids:
+            return
+
+        seen_user_ids = set(Room.seen_by.through.objects.filter(room_id=room_id, user_id__in=user_ids).values_list('user_id', flat=True))
+        if seen_user_ids:
+            messages = Message.objects.filter(room_id=room_id).exclude(pk=unread_message_id).values_list('id', 'sender_id')
+            MessageReadBy.objects.bulk_create(
+                [MessageReadBy(message_id=message_id, user_id=user_id) for message_id, sender_id in messages for user_id in seen_user_ids if sender_id != user_id], ignore_conflicts=True
+            )
+
+        MessageReadBy.objects.filter(message_id=unread_message_id, user_id__in=user_ids).delete()
+        Room.seen_by.through.objects.filter(room_id=room_id, user_id__in=user_ids).delete()
+        cache.delete_many([CHAT_UNREAD_CACHE_KEY.format(user_id=user_id) for user_id in user_ids])
 
     def room_is_seen_sync(self, room) -> bool:
         return not self._unread_messages([room.id]).exists()
@@ -151,8 +171,8 @@ class ChatRoomRepository:
         self.mark_room_read_sync(room)
 
     @database_sync_to_async
-    def unsee_room(self, room):
-        self.mark_room_unread_sync(room)
+    def unsee_room(self, room, unread_message_id=None):
+        self.mark_room_unread_sync(room, unread_message_id)
 
     @database_sync_to_async
     def mark_message_read(self, message_id: int):

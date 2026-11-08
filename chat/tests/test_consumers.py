@@ -1,7 +1,7 @@
 import asyncio
 import json
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
 from channels.db import database_sync_to_async
 from django.core.cache import cache
@@ -141,7 +141,7 @@ class PostSendProcessingUnseenTest(TestCase):
 
         mock_send_push = await self._run(receiver)
 
-        receiver.room_repo.unsee_room.assert_awaited_once_with(self.room)
+        receiver.room_repo.unsee_room.assert_awaited_once_with(self.room, ANY)
         receiver.push_unread_count.assert_awaited_once()
         mock_send_push.assert_called_once()
 

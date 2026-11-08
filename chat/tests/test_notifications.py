@@ -17,6 +17,7 @@ from chat.notification_queue import (
 )
 from chat.notifications import ChatNotificationService
 from chat.tests.utils import make_user
+from core.services.feed import generate_feed_items
 
 
 class MemoryLock:
@@ -103,18 +104,36 @@ class ChatNotificationThrottleTest(TestCase):
 
 
 class ChatNotificationUnreadStateTest(TestCase):
-    def test_clearing_offline_unread_state_preserves_message_read_receipts(self):
+    def test_new_message_is_the_only_unread_item_after_room_was_seen(self):
         reader = make_user('offline-reader')
         sender = make_user('offline-reader-message-sender')
         room = Room.objects.create(title='Offline reader room', public=True)
-        message = Message.objects.create(room=room, sender=sender, text='Previously read')
-        MessageReadBy.objects.create(message=message, user=reader)
+        old_message = Message.objects.create(room=room, sender=sender, text='Previously read')
         room.seen_by.add(reader)
+        new_message = Message.objects.create(room=room, sender=sender, text='New message')
 
-        ChatNotificationService._clear_unread_state(room.id, [reader.id])
+        ChatNotificationService._clear_unread_state(room.id, [reader.id], new_message.id)
 
-        self.assertTrue(MessageReadBy.objects.filter(message=message, user=reader).exists())
+        self.assertTrue(MessageReadBy.objects.filter(message=old_message, user=reader).exists())
+        self.assertFalse(MessageReadBy.objects.filter(message=new_message, user=reader).exists())
         self.assertFalse(room.seen_by.filter(pk=reader.id).exists())
+        states = {item['object_id']: item['is_read'] for item in generate_feed_items(reader) if item['content_type'] == 'room_messages' and item['room_id'] == room.id}
+        self.assertEqual(states, {old_message.id: True, new_message.id: False})
+
+    def test_unseeing_room_for_new_message_preserves_prior_read_messages(self):
+        reader = make_user('online-reader')
+        sender = make_user('online-reader-message-sender')
+        room = Room.objects.create(title='Online reader room', public=True)
+        old_message = Message.objects.create(room=room, sender=sender, text='Previously read')
+        room.seen_by.add(reader)
+        new_message = Message.objects.create(room=room, sender=sender, text='New message')
+
+        from chat.room_repository import ChatRoomRepository
+
+        ChatRoomRepository(reader).mark_room_unread_sync(room, new_message.id)
+
+        states = {item['object_id']: item['is_read'] for item in generate_feed_items(reader) if item['content_type'] == 'room_messages' and item['room_id'] == room.id}
+        self.assertEqual(states, {old_message.id: True, new_message.id: False})
 
 
 class NotificationQueueTest(TestCase):
