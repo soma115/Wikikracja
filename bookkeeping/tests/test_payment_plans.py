@@ -221,24 +221,24 @@ class PaymentPlanServiceTests(TestCase):
         with patch('core.notifications.send_payment_due_email', return_value=True) as email, patch('core.notifications.send_payment_due_push', return_value=True) as push:
             process_payment_reminders(today=date(2026, 1, 1))
 
-        self.assertEqual(email.call_args.args[0], self.user)
+        email.assert_not_called()
         self.assertEqual(push.call_args.args[0], self.user)
-        self.assertEqual(PaymentReminderDelivery.objects.filter(due=due).count(), 2)
+        self.assertEqual(PaymentReminderDelivery.objects.filter(due=due).count(), 1)
 
-    def test_failed_channel_can_retry_without_resending_successful_channel(self):
+    def test_failed_push_reminder_can_retry(self):
         plan = self.make_plan(direction=PaymentPlan.Direction.OUTGOING, recurrence=PaymentPlan.Recurrence.ONCE, first_due_date=date(2026, 1, 1), next_due_date=None, is_active=False)
         plan.treasurer = self.user
         plan.save(update_fields=['treasurer'])
         due = PaymentDue.objects.create(
             plan=plan, name=plan.name, direction=PaymentPlan.Direction.OUTGOING, amount=plan.amount, entity=self.asset, category=self.category, due_date=date(2026, 1, 1), treasurer=self.user
         )
-        with patch('core.notifications.send_payment_due_email', side_effect=[RuntimeError('mail unavailable'), True]) as email, patch('core.notifications.send_payment_due_push', return_value=True) as push:
+        with patch('core.notifications.send_payment_due_email') as email, patch('core.notifications.send_payment_due_push', side_effect=[RuntimeError('push unavailable'), True]) as push:
             process_payment_reminders(today=date(2026, 1, 1))
             process_payment_reminders(today=date(2026, 1, 2))
 
-        self.assertEqual(email.call_count, 2)
-        self.assertEqual(push.call_count, 1)
-        self.assertTrue(PaymentReminderDelivery.objects.get(due=due, channel=PaymentReminderDelivery.Channel.EMAIL).status == PaymentReminderDelivery.Status.SENT)
+        email.assert_not_called()
+        self.assertEqual(push.call_count, 2)
+        self.assertEqual(PaymentReminderDelivery.objects.get(due=due, channel=PaymentReminderDelivery.Channel.PUSH).status, PaymentReminderDelivery.Status.SENT)
 
     def test_cannot_cancel_a_paid_due(self):
         plan = self.make_plan()

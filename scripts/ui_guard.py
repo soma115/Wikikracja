@@ -34,7 +34,7 @@ GENERATED_DIRS = {'static'}
 
 # Self-styled documentation pages and standalone e-mail mockups are outside the
 # production Tailwind pipeline and use their own embedded styles.
-EXEMPT_FILES = {'docs/UI_STANDARDS.html', 'docs/mock_daily_digest_restart.html'}
+EXEMPT_FILES = {'docs/UI_STANDARDS.html', 'docs/mock_daily_digest_restart.html', 'docs/DAILY_DIGEST_MOCK.html'}
 
 # Detail pages share a header and page container. Parent templates may provide
 # the container in the future; keep exceptions explicit rather than implicit.

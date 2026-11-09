@@ -355,7 +355,7 @@ def cancel_payment_due(due_id, user):
 
 
 def process_payment_reminders(today=None):
-    from core.notifications import send_payment_due_email, send_payment_due_push
+    from core.notifications import send_payment_due_push
 
     today = today or timezone.localdate()
     for plan_id in PaymentPlan.objects.values_list('pk', flat=True):
@@ -379,7 +379,7 @@ def process_payment_reminders(today=None):
         title = _('Payment due')
         body = f'{due.name}: {due.amount} {due.entity.symbol} — {due.due_date:%d.%m.%Y}\n{build_site_url(due_url)}'
         for recipient in recipients:
-            channels = (PaymentReminderDelivery.Channel.PUSH,) if due.debtor_id else PaymentReminderDelivery.Channel.values
+            channels = (PaymentReminderDelivery.Channel.PUSH,)
             for channel in channels:
                 now = timezone.now()
                 stale_before = now - timedelta(minutes=15)
@@ -395,10 +395,7 @@ def process_payment_reminders(today=None):
                     delivery.attempts += 1
                     delivery.save(update_fields=['status', 'claimed_at', 'attempts'])
                 try:
-                    if channel == PaymentReminderDelivery.Channel.EMAIL:
-                        sent = send_payment_due_email(recipient, title, body)
-                    else:
-                        sent = send_payment_due_push(recipient, title, body, due_url, due.pk)
+                    sent = send_payment_due_push(recipient, title, body, due_url, due.pk)
                     PaymentReminderDelivery.objects.filter(pk=delivery.pk).update(
                         status=PaymentReminderDelivery.Status.SENT if sent else PaymentReminderDelivery.Status.SKIPPED, claimed_at=None, sent_at=timezone.now() if sent else None, last_error=''
                     )

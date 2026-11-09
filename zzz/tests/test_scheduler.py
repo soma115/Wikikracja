@@ -57,6 +57,23 @@ class SchedulerStartGuardTest(TestCase):
         self.assertEqual(len(cleanup_jobs), 1)
         self.assertIs(cleanup_jobs[0].args[0], run_delete_archived_posts)
 
+    def test_schedules_digest_after_daily_processing(self):
+        scheduler = MagicMock()
+        with patch('zzz.scheduler._acquire_scheduler_lock', return_value=object()), patch('zzz.scheduler.BackgroundScheduler', return_value=scheduler), patch('zzz.scheduler._scheduler_lock_fd', None):
+            _start_scheduler()
+
+        now = timezone.make_aware(datetime(2026, 1, 8, 7, 59))
+        run_times = {
+            call.kwargs['id']: call.kwargs['trigger'].get_next_fire_time(None, now)
+            for call in scheduler.add_job.call_args_list
+            if call.kwargs.get('id') in {'vote', 'delete_archived_posts', 'process_payment_reminders', 'send_email_digest'}
+        }
+
+        self.assertEqual((run_times['vote'].hour, run_times['vote'].minute), (8, 5))
+        self.assertEqual((run_times['delete_archived_posts'].hour, run_times['delete_archived_posts'].minute), (8, 10))
+        self.assertEqual((run_times['process_payment_reminders'].hour, run_times['process_payment_reminders'].minute), (8, 15))
+        self.assertEqual((run_times['send_email_digest'].hour, run_times['send_email_digest'].minute), (8, 30))
+
     def test_management_commands_do_not_start_scheduler(self):
         with patch.dict(os.environ, {'SCHEDULER_ENABLED': 'true', 'RUN_MAIN': 'false'}), patch('zzz.scheduler.sys.argv', ['manage.py', 'migrate']):
             self.assertFalse(should_start_scheduler())

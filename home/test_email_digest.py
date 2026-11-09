@@ -489,10 +489,36 @@ class SendEmailDigestCommandTest(TransactionTestCase):
         assert email.body.index(payment_title) < email.body.index(restart_title)
         assert email.body.index(payment_title) < email.body.index('Annual membership')
         assert 'Annual membership' in email.alternatives[0][0]
-        assert Command._get_unpaid_member_payment_dues(user, timezone.localdate(FIXED_NOW))
+        assert Command._get_unpaid_payment_dues(user, timezone.localdate(FIXED_NOW))
         transaction.status = Transaction.Status.POSTED
         transaction.save(update_fields=['status'])
-        assert Command._get_unpaid_member_payment_dues(user, timezone.localdate(FIXED_NOW)) == []
+        assert Command._get_unpaid_payment_dues(user, timezone.localdate(FIXED_NOW)) == []
+
+    def test_unassigned_payment_is_in_treasurers_digest(self):
+        user = self._make_active_user('treasurer-due', 'treasurer-due@example.com')
+        asset = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='TREAS', name='Treasurer asset', symbol='T')
+        category = Category.objects.create(name='Treasurer category')
+        plan = PaymentPlan.objects.create(
+            name='Shared expense',
+            direction=PaymentPlan.Direction.OUTGOING,
+            amount=75,
+            entity=asset,
+            category=category,
+            recurrence=PaymentPlan.Recurrence.ONCE,
+            first_due_date=timezone.localdate(FIXED_NOW),
+            author=user,
+            treasurer=user,
+            is_active=False,
+        )
+        due = PaymentDue.objects.create(plan=plan, name=plan.name, direction=plan.direction, amount=plan.amount, entity=asset, category=category, due_date=timezone.localdate(FIXED_NOW), treasurer=user)
+
+        with patch('home.management.commands.send_email_digest.build_user_digest', return_value=[]):
+            self._run_digest()
+
+        email = next(item for item in mail.outbox if user.email in item.to)
+        assert 'Shared expense' in email.body
+        assert 'Shared expense' in email.alternatives[0][0]
+        assert Command._get_unpaid_payment_dues(user, timezone.localdate(FIXED_NOW)) == [due]
 
     def test_digest_sends_email_to_due_user(self):
         user = self._make_active_user('citizen', 'citizen@example.com')
@@ -523,6 +549,24 @@ class SendEmailDigestCommandTest(TransactionTestCase):
         assert f'/glosowania/details/{decision.pk}/' in email.body
         assert email.body.index(str(_('Important: voting was restarted after a technical failure'))) < email.body.index('Restarted referendum')
         assert 'Restarted referendum' in email.alternatives[0][0]
+
+    def test_citizen_candidate_full_name_is_replaced_with_initials(self):
+        recipient = self._make_active_user('citizen-digest-recipient', 'citizen-digest@example.com')
+        candidate = self._make_active_user('candidate-user', 'candidate@example.com')
+        candidate.first_name = 'Anna'
+        candidate.last_name = 'Nowak'
+        candidate.save(update_fields=['first_name', 'last_name'])
+        Uzytkownik.objects.filter(uid=candidate).update(email_frequency='never')
+        activity = CitizenActivity.objects.create(uzytkownik=candidate.uzytkownik, activity_type=CitizenActivity.ActivityType.NEW_CANDIDATE, description='jest kandydatem na obywatela')
+        CitizenActivity.objects.filter(pk=activity.pk).update(timestamp=FIXED_NOW - td(hours=1))
+
+        self._run_digest()
+
+        email = next(item for item in mail.outbox if recipient.email in item.to)
+        assert 'Anna Nowak' not in email.body
+        assert 'AN -' in email.body
+        assert 'Anna Nowak' not in email.alternatives[0][0]
+        assert 'AN -' in email.alternatives[0][0]
 
     def test_digest_includes_only_restarts_since_previous_digest(self):
         user = self._make_active_user('restart-window', 'restart-window@example.com')

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mock — Daily Digest</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #1e2030;
+      background: #f0f2f5;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 32px 12px;
+    }
+
+    .mock-note {
+      max-width: 600px;
+      margin: 0 auto 14px;
+      color: #53566b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .email-card {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, .1);
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 12px 32px rgba(30, 32, 48, .12);
+    }
+
+    .email-header,
+    .email-content,
+    .email-footer {
+      padding-right: 32px;
+      padding-left: 32px;
+    }
+
+    .email-header { padding-top: 32px; }
+
+    .email-header-panel {
+      padding: 22px 24px;
+      border-radius: 7px;
+      background: #eef0ff;
+    }
+
+    .email-title {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.25;
+    }
+
+    .email-kicker {
+      margin: 12px 0 0;
+      color: #37306b;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .email-content { padding-top: 32px; }
+
+    .email-intro-panel {
+      margin-bottom: 28px;
+      padding: 16px 18px;
+      border-left: 4px solid #059984;
+      border-radius: 7px;
+      background: #e8f7f4;
+    }
+
+    .email-intro {
+      margin: 0;
+      color: #53566b;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .email-critical {
+      margin-bottom: 24px;
+      padding: 16px 18px;
+      border: 2px solid #c62828;
+      border-radius: 7px;
+      background: #fff1f1;
+      color: #8b0000;
+    }
+
+    .email-critical-title {
+      margin: 0 0 10px;
+      color: #b71c1c;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .email-critical-item { margin-top: 8px; }
+
+    .email-critical a {
+      color: #b71c1c;
+      font-weight: 700;
+    }
+
+    .email-section-title {
+      margin: 30px 0 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0, 0, 0, .1);
+      color: #059984;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .email-item {
+      margin-bottom: 12px;
+      padding: 15px 16px;
+      border: 1px solid rgba(0, 0, 0, .08);
+      border-left: 3px solid #059984;
+      border-radius: 7px;
+      background: #fbfcfc;
+    }
+
+    .email-item-title {
+      color: #047a6a;
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .email-item-meta,
+    .email-item-count {
+      color: #666978;
+      font-size: 13px;
+    }
+
+    .email-item-desc {
+      margin: 8px 0 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .email-footer {
+      margin-top: 12px;
+      padding-top: 24px;
+      padding-bottom: 28px;
+      border-top: 1px solid rgba(0, 0, 0, .1);
+      text-align: center;
+    }
+
+    .email-button {
+      display: inline-block;
+      padding: 12px 24px;
+      border-radius: 7px;
+      background: #047a6a;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .email-footer-text {
+      margin: 18px 0 0;
+      color: #666978;
+      font-size: 12px;
+    }
+
+    .email-footer-link { color: inherit; }
+
+    @media (max-width: 620px) {
+      body { padding: 20px 10px; }
+      .email-header,
+      .email-content,
+      .email-footer { padding-right: 20px; padding-left: 20px; }
+      .email-title { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <p class="mock-note">Makieta pokazuje jednocześnie wszystkie rodzaje sekcji i przykładowe warianty. W prawdziwym mailu pojawiają się tylko te, dla których użytkownik ma aktualne pozycje.</p>
+
+  <main class="email-card">
+    <header class="email-header">
+      <div class="email-header-panel">
+        <h1 class="email-title">Podsumowanie aktywności</h1>
+        <p class="email-kicker">Wikikracja</p>
+      </div>
+    </header>
+
+    <section class="email-content">
+      <div class="email-intro-panel">
+        <p class="email-intro">Aktywność od 08.11.2026 08:00</p>
+      </div>
+
+      <section class="email-critical">
+        <h2 class="email-critical-title">Ważne: nieopłacone należności</h2>
+        <p>Prosimy uregulować poniższe płatności:</p>
+        <div class="email-critical-item">
+          • <a href="#">Składka członkowska</a> — 120,00 PLN · 08.11.2026 · Zaległe
+        </div>
+        <div class="email-critical-item">
+          • <a href="#">Zakup materiałów</a> — 75,00 PLN · 09.11.2026
+        </div>
+      </section>
+
+      <section class="email-critical">
+        <h2 class="email-critical-title">Ważne: głosowanie wznowiono po awarii technicznej</h2>
+        <p>Głosy oddane przed awarią zostały utracone. Te głosowania rozpoczęły się ponownie — zagłosuj ponownie:</p>
+        <div class="email-critical-item">• <a href="#">Czy przyjąć nowy regulamin?</a></div>
+        <div class="email-critical-item">• <a href="#">Zmiana zasad członkostwa</a></div>
+      </section>
+
+      <section class="email-critical">
+        <h2 class="email-critical-title">To ostatni dzień na głosowanie!</h2>
+        <div class="email-critical-item">• <a href="#">Budżet wspólnoty na kolejny rok</a></div>
+      </section>
+
+      <h2 class="email-section-title">Dokumenty</h2>
+      <article class="email-item">
+        <a class="email-item-title" href="#">Zaktualizowany regulamin grupy — AK</a>
+        <span class="email-item-meta">&nbsp;[09.11 08:22]</span>
+        <span class="email-item-count">&nbsp;(2 aktualizacje)</span>
+        <p class="email-item-desc">Dodano zasady dotyczące podejmowania wspólnych decyzji.</p>
+      </article>
+
+      <h2 class="email-section-title">Aktywności</h2>
+      <article class="email-item">
+        <a class="email-item-title" href="#">Przygotować spotkanie społeczności — JK</a>
+        <span class="email-item-meta">&nbsp;[09.11 08:18]</span>
+        <p class="email-item-desc"><strong>Osoby chętne do dołączenia do Twoich zespołów:</strong> MN, PW</p>
+        <p class="email-item-desc">Zebrać propozycje tematów i przygotować agendę.</p>
+      </article>
+
+      <h2 class="email-section-title">Kalendarz</h2>
+      <article class="email-item">
+        <a class="email-item-title" href="#">Spotkanie organizacyjne</a>
+        <span class="email-item-meta">&nbsp;[09.11 o 08:20]</span>
+        <p class="email-item-desc">Zmieniono miejsce spotkania na salę główną.</p>
+      </article>
+      <article class="email-item">
+        <a class="email-item-title" href="#">Otwarte zebranie grupy</a>
+        <span class="email-item-meta">&nbsp;[10.11 o 18:30]</span>
+        <p class="email-item-desc">Omówienie bieżących wniosków i planów.</p>
+      </article>
+
+      <h2 class="email-section-title">Czat</h2>
+      <article class="email-item">
+        <a class="email-item-title" href="#">[wspomniano o Tobie] Organizacja wydarzenia</a>
+        <span class="email-item-meta">&nbsp;[09.11 08:16]</span>
+        <span class="email-item-count">&nbsp;(4 wiadomości)</span>
+        <p class="email-item-desc">Czy możesz przygotować krótkie podsumowanie ustaleń?</p>
+      </article>
+
+      <h2 class="email-section-title">Głosowania</h2>
+      <article class="email-item">
+        <a class="email-item-title" href="#">Czy przyjąć propozycję nowego budżetu? — MK</a>
+        <span class="email-item-meta">&nbsp;[09.11 08:12]</span>
+        <p class="email-item-desc">Argumenty za i przeciw oraz aktualizacja treści wniosku.</p>
+      </article>
+
+      <h2 class="email-section-title">Obywatel</h2>
+      <article class="email-item">
+        <a class="email-item-title" href="#">Dołączyła nowa osoba do społeczności</a>
+        <span class="email-item-meta">&nbsp;[09.11 08:10]</span>
+        <p class="email-item-desc">AN - nowa członkini grupy.</p>
+      </article>
+
+      <h2 class="email-section-title">Finanse</h2>
+      <article class="email-item">
+        <a class="email-item-title" href="#">Wpływ: 250,00 PLN — AB</a>
+        <span class="email-item-meta">&nbsp;[09.11 08:05]</span>
+        <p class="email-item-desc">Wpłata na wspólne materiały.</p>
+      </article>
+
+      <h2 class="email-section-title">Ankiety</h2>
+      <article class="email-item">
+        <a class="email-item-title" href="#">Wybór terminu następnego spotkania — PW</a>
+        <span class="email-item-meta">&nbsp;[09.11 08:02]</span>
+        <p class="email-item-desc">Dodano nową propozycję terminu.</p>
+      </article>
+    </section>
+
+    <footer class="email-footer">
+      <a class="email-button" href="#">Zarządzaj powiadomieniami</a>
+      <p class="email-footer-text"><a class="email-footer-link" href="#">Wypisz się ze wszystkich powiadomień</a></p>
+    </footer>
+  </main>
+</body>
+</html>

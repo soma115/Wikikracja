@@ -965,3 +965,11 @@
 - **Uzasadnienie:** Domyślne białe tło Leaflet nie zmieniało się wraz z motywem, przez co jasne opisy traciły kontrast.
 - **Weryfikacja:** 6 testów Jest, `build:css`, `regression_scan.py` i `ui_guard.py` przechodzą.
 - **Spodziewany efekt:** Dymek pozostaje czytelny w jasnym i ciemnym motywie.
+
+## 2026-11-09: Wyjątek UI guard dla mockupu digestu
+
+- **Zmienione obszary:** lista wyjątków w `scripts/ui_guard.py`.
+- **Co się zmieniło:** Dodano `docs/DAILY_DIGEST_MOCK.html` do istniejącej listy samodzielnych mockupów e-mailowych, które używają osadzonych stylów poza produkcyjnym pipeline'em Tailwind.
+- **Uzasadnienie:** UI guard zgłaszał style i lokalną klasę prezentacyjną w mockupie, mimo że takie mockupy są już objęte wyjątkiem.
+- **Weryfikacja:** Ruff, regression scan, UI guard, kontrola Django, kompilacja tłumaczeń, collectstatic, 1561 testów pytest i 336 testów Jest przeszły w `scripts/run_tests.py`. Playwright nie wystartował, bo nie ustawiono `E2E_BASE_URL`.
+- **Spodziewany efekt:** Mockup przechodzi kontrolę UI bez przenoszenia izolowanych styli e-maila do produkcyjnego arkusza Tailwind.

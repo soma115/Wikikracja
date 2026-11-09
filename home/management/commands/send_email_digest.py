@@ -21,7 +21,7 @@ from bookkeeping.models import PaymentDue, Transaction
 from core.richtext import one_line_snippet, strip_tags
 from core.services.feed import build_user_digest
 from core.services.notifications import build_unsubscribe_url, unsubscribe_headers
-from core.utils import build_site_url, get_site_domain, get_user_language, user_initials
+from core.utils import build_site_url, get_site_domain, get_user_language, user_display_name, user_initials
 from glosowania.models import Decyzja
 from home.templatetags.feed_filters import content_type_label
 from tasks.models import Task, TaskVote
@@ -133,7 +133,7 @@ class Command(TranslatedCommand):
             today = timezone.localdate(now)
             restarted_votes = self._get_restarted_votes(since, today)
             team_requests = self._get_pending_team_requests(user)
-            payment_dues = self._get_unpaid_member_payment_dues(user, today)
+            payment_dues = self._get_unpaid_payment_dues(user, today)
             items = build_user_digest(user, since)
 
             if not items and not restarted_votes and not ending_votes and not team_requests and not payment_dues:
@@ -174,9 +174,9 @@ class Command(TranslatedCommand):
         log.info(f'Digest run finished: sent={sent}, skipped={skipped}, now={now}')
 
     @staticmethod
-    def _get_unpaid_member_payment_dues(user, today):
+    def _get_unpaid_payment_dues(user, today):
         return list(
-            PaymentDue.objects.filter(debtor=user, due_date__lte=today, cancelled_at__isnull=True)
+            PaymentDue.objects.filter(Q(debtor=user) | Q(debtor__isnull=True, treasurer=user), due_date__lte=today, cancelled_at__isnull=True)
             .filter(Q(payment_transaction__isnull=True) | Q(payment_transaction__status=Transaction.Status.PLANNED))
             .select_related('entity', 'payment_transaction')
             .order_by('due_date', 'pk')
@@ -296,6 +296,8 @@ class Command(TranslatedCommand):
                     description = one_line_snippet(raw_description, 120)
                 else:
                     description = html.unescape(strip_tags(str(raw_description or ''))).strip()
+                if content_type == 'citizen' and author:
+                    description = description.replace(user_display_name(author), user_initials(author))
                 description = _collapse_excess_newlines(description)
 
                 section['items'].append(

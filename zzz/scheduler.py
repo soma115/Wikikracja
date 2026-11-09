@@ -76,7 +76,7 @@ def _start_scheduler():
     Start APScheduler to run management commands on schedule.
     Uses file-based lock to ensure only one scheduler instance runs across multiple workers.
     Replaces cron jobs:
-    - 0 8 * * * -> send_email_digest
+    - 30 8 * * * -> send_email_digest
     - */5 * * * * -> chat_rooms (every 5 minutes)
     - 5 8 * * * -> vote
     - */5 * * * * -> count_citizens (every 5 minutes)
@@ -94,10 +94,6 @@ def _start_scheduler():
 
     scheduler = BackgroundScheduler(timezone=settings.TIME_ZONE)
 
-    # Email activity digest - runs daily at 08:00
-    scheduler.add_job(run_send_email_digest, trigger=CronTrigger(hour=8, minute=0), id='send_email_digest', name='Send email activity digests', replace_existing=True)
-    log.info("Scheduled job: send_email_digest at 08:00 daily")
-
     # Chat rooms - runs every 5 minutes
     scheduler.add_job(run_chat_rooms, trigger=CronTrigger(minute='*/5'), id='chat_rooms', name='Create/Delete/Archive chat rooms', replace_existing=True)
     log.info("Scheduled job: chat_rooms every 5 minutes")
@@ -111,6 +107,10 @@ def _start_scheduler():
 
     scheduler.add_job(run_process_payment_reminders, trigger=CronTrigger(hour=8, minute=15), id='process_payment_reminders', name='Generate payment periods and send payment reminders', replace_existing=True)
     log.info("Scheduled job: process_payment_reminders at 08:15 daily")
+
+    # Email activity digest - runs after daily processing and payment reminders
+    scheduler.add_job(run_send_email_digest, trigger=CronTrigger(hour=8, minute=30), id='send_email_digest', name='Send email activity digests', replace_existing=True)
+    log.info("Scheduled job: send_email_digest at 08:30 daily")
 
     # Count citizens - runs every 5 minutes
     scheduler.add_job(run_count_citizens, trigger=CronTrigger(minute='*/5'), id='count_citizens', name='Count citizens and manage reputation', replace_existing=True)
