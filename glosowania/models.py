@@ -192,6 +192,7 @@ class ZebranePodpisy(models.Model):
 class KtoJuzGlosowal(models.Model):
     projekt = models.ForeignKey(Decyzja, on_delete=models.CASCADE)
     ktory_uzytkownik_juz_zaglosowal = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    voter_initials = models.CharField(max_length=2, blank=True, default='')
 
     # odnotowujemy tylko fakt głosowania
 

@@ -139,6 +139,48 @@ def test_details_highlights_stepper_for_decision_status(sample_users):
 
 
 @pytest.mark.django_db
+def test_details_shows_deleted_voter_initials(sample_users):
+    voter = sample_users[0]
+    viewer = sample_users[1]
+    voter.first_name = 'Alice'
+    voter.last_name = 'Example'
+    voter.save(update_fields=['first_name', 'last_name'])
+    decision = Decyzja.objects.create(title='Closed referendum', tresc='Text', status=Decyzja.Status.APPROVED, author=viewer)
+    participation = KtoJuzGlosowal.objects.create(projekt=decision, ktory_uzytkownik_juz_zaglosowal=voter)
+
+    voter.delete()
+
+    participation.refresh_from_db()
+    assert participation.ktory_uzytkownik_juz_zaglosowal is None
+    assert participation.voter_initials == 'AE'
+
+    client = Client()
+    client.force_login(viewer)
+    with override('en'):
+        response = client.get(f'/glosowania/details/{decision.pk}/')
+
+    assert response.status_code == 200
+    content = response.content.decode()
+    assert 'AE' in content
+    assert 'Former group member' not in content
+
+
+@pytest.mark.django_db
+def test_details_keeps_fallback_for_voters_without_saved_initials(sample_users):
+    viewer = sample_users[0]
+    decision = Decyzja.objects.create(title='Closed referendum', tresc='Text', status=Decyzja.Status.APPROVED, author=viewer)
+    KtoJuzGlosowal.objects.create(projekt=decision, ktory_uzytkownik_juz_zaglosowal=None)
+    client = Client()
+    client.force_login(viewer)
+
+    with override('en'):
+        response = client.get(f'/glosowania/details/{decision.pk}/')
+
+    assert response.status_code == 200
+    assert 'Former group member' in response.content.decode()
+
+
+@pytest.mark.django_db
 def test_details_shows_restart_notice_during_open_referendum(sample_users):
     client = Client()
     client.force_login(sample_users[0])
