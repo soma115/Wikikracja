@@ -168,6 +168,8 @@ def test_details_shows_deleted_voter_initials(sample_users):
 @pytest.mark.django_db
 def test_details_keeps_fallback_for_voters_without_saved_initials(sample_users):
     viewer = sample_users[0]
+    viewer.uzytkownik.language = 'en'
+    viewer.uzytkownik.save(update_fields=['language'])
     decision = Decyzja.objects.create(title='Closed referendum', tresc='Text', status=Decyzja.Status.APPROVED, author=viewer)
     KtoJuzGlosowal.objects.create(projekt=decision, ktory_uzytkownik_juz_zaglosowal=None)
     client = Client()
@@ -177,6 +179,7 @@ def test_details_keeps_fallback_for_voters_without_saved_initials(sample_users):
         response = client.get(f'/glosowania/details/{decision.pk}/')
 
     assert response.status_code == 200
+    assert response.context['voters'].count() == 1
     assert 'Former group member' in response.content.decode()
 
 

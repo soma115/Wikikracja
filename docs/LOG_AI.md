@@ -3,7 +3,7 @@
 - **Zmienione obszary:** rejestr uczestnictwa w głosowaniu, obsługa usunięcia konta i lista osób głosujących w wynikach referendum.
 - **Co się zmieniło:** przed usunięciem konta inicjały są zapisywane przy rekordzie uczestnictwa. Lista wyników pokazuje te inicjały zamiast ogólnej etykiety; starsze rekordy bez zapisanych inicjałów zachowują dotychczasowy fallback.
 - **Uzasadnienie:** użytkownik ma pozostać widoczny na liście osób, które zagłosowały, po usunięciu konta, ale bez zachowywania powiązania z kontem.
-- **Weryfikacja:** oczekująca.
+- **Weryfikacja:** 95 testów modułu `glosowania`, Ruff, kontrola Django i migracji, budowanie CSS, regression scan oraz UI guard przechodzą. Playwright nie został uruchomiony, ponieważ `.env.local` nie zawiera `E2E_BASE_URL`.
 - **Spodziewany efekt:** wyniki zachowują listę uczestnictwa i pokazują inicjały usuniętych członków.
 
 ## 2026-10-28: Diagnostyka bledow usuwania kont
