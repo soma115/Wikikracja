@@ -78,6 +78,8 @@ def get_onboarding_user_from_request(request: HttpRequest):
             request.session.modified = True
         except (BadSignature, SignatureExpired, ValueError):
             onboarding_user_id = None
+    elif request.user.is_authenticated and request.user.is_active:
+        onboarding_user_id = request.user.pk
 
     if not onboarding_user_id:
         return None
@@ -408,6 +410,19 @@ def onboarding_waiting(request: HttpRequest):
         return redirect('account_signup')
 
     return render(request, 'obywatele/onboarding_waiting.html', {'email_confirmed': is_email_confirmed_for_candidate(user, user.uzytkownik)})
+
+
+@require_POST
+def resend_email_confirmation(request: HttpRequest):
+    from allauth.account.internal.flows.email_verification import send_verification_email_at_login
+    from allauth.account.stages import EmailVerificationStage, LoginStageController
+
+    stage = LoginStageController.enter(request, EmailVerificationStage.key)
+    if not stage or not stage.login.user:
+        return redirect('account_login')
+
+    send_verification_email_at_login(request, stage.login)
+    return redirect('account_email_verification_sent')
 
 
 @login_required
@@ -908,12 +923,11 @@ def DeactivateNewUser(sender, **kwargs):
 def set_onboarding_email_confirmed(sender, request, email_address, **kwargs):
     user = email_address.user
     profile = user.uzytkownik
+    messages.success(request, _('You have confirmed %(email)s.') % {'email': email_address.email})
 
     if profile.onboarding_status == Uzytkownik.OnboardingStatus.EMAIL_ENTERED:
         profile.onboarding_status = Uzytkownik.OnboardingStatus.EMAIL_CONFIRMED
         profile.save()
-
-        messages.success(request, _('You have confirmed %(email)s.') % {'email': email_address.email})
 
         # Send onboarding email with link to form
         onboarding_token = signer.sign(str(user.id))

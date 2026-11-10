@@ -170,6 +170,45 @@ class EmailCanonicalizationIntegrationTest(TestCase):
         self.assertEqual(user.email, 'wojciech.antczak@example.com')
         self.assertEqual(address.email, 'wojciech.antczak@example.com')
 
+    def test_unverified_active_user_sees_verification_page_instead_of_onboarding_error(self):
+        user = User.objects.create_user(username='unverified-login', email='unverified-login@example.com', password='secret', is_active=True)
+        EmailAddress.objects.create(user=user, email=user.email, verified=False, primary=False)
+
+        response = self.client.post(reverse('account_login'), {'login': user.email, 'password': 'secret'}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Could not find your onboarding account.')
+        self.assertEqual(response.redirect_chain, [(reverse('account_email_verification_sent'), 302)])
+        self.assertContains(response, reverse('obywatele:resend_email_confirmation'))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('/accounts/confirm-email/', mail.outbox[0].body)
+
+        response = self.client.post(reverse('obywatele:resend_email_confirmation'), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.redirect_chain, [(reverse('account_email_verification_sent'), 302)])
+        self.assertEqual(len(mail.outbox), 2)
+
+    def test_resend_confirmation_requires_a_pending_login(self):
+        response = self.client.post(reverse('obywatele:resend_email_confirmation'))
+
+        self.assertRedirects(response, reverse('account_login'))
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_confirming_email_for_completed_active_user_shows_success_message(self):
+        user = User.objects.create_user(username='confirmed-active', email='confirmed-active@example.com', password='secret', is_active=True)
+        user.uzytkownik.onboarding_status = Uzytkownik.OnboardingStatus.FORM_COMPLETED
+        user.uzytkownik.save(update_fields=['onboarding_status'])
+        address = EmailAddress.objects.create(user=user, email=user.email, verified=False, primary=False)
+        confirmation = EmailConfirmationHMAC.create(address)
+
+        response = self.client.get(reverse('account_confirm_email', kwargs={'key': confirmation.key}), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'Potwierdziłeś adres e-mail {user.email}.')
+        user.uzytkownik.refresh_from_db()
+        self.assertEqual(user.uzytkownik.onboarding_status, Uzytkownik.OnboardingStatus.FORM_COMPLETED)
+
     def test_password_reset_accepts_mixed_case_input_after_canonicalizing_storage(self):
         user = User.objects.create_user(username='mixed-case-reset', email='Wojciech.antczak@example.com', password='secret', is_active=True)
         EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
@@ -446,6 +485,16 @@ class LanguageSwitcherRenderTest(TestCase):
         self.assertEqual(user.uzytkownik.street, 'Main Street')
         self.assertEqual(user.uzytkownik.house_number, '8')
         self.assertEqual(user.uzytkownik.apartment_number, '2')
+
+
+class OnboardingAccessTest(TestCase):
+    def test_active_authenticated_user_can_open_onboarding_without_session_id(self):
+        user = User.objects.create_user(username='active-onb', email='active-onb@example.com', password='secret', is_active=True)
+        self.client.force_login(user)
+
+        response = self.client.get(reverse('obywatele:onboarding_details'))
+
+        self.assertEqual(response.status_code, 200)
 
 
 class CitizenZalozonoTemplateTest(TestCase):

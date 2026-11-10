@@ -10,6 +10,7 @@ urlpatterns = (
     path('mapa/data/', v.community_map_data, name='mapa_data'),
     path('onboarding/', v.onboarding_details, name='onboarding_details'),
     path('onboarding/waiting/', v.onboarding_waiting, name='onboarding_waiting'),
+    path('resend-email-confirmation/', v.resend_email_confirmation, name='resend_email_confirmation'),
     path('poczekalnia/', v.poczekalnia, name='poczekalnia'),
     path('poczekalnia/<int:pk>/', v.obywatele_szczegoly, name='poczekalnia_szczegoly'),
     path('poczekalnia/<int:pk>/edit/', v.candidate_edit, name='candidate_edit'),

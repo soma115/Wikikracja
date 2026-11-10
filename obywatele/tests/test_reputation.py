@@ -7,11 +7,15 @@ zbudować ten flow w ORM i że unique_together(kandydat, obywatel) zabezpiecza p
 from datetime import timedelta
 from types import SimpleNamespace
 from unittest.mock import patch
+from urllib.parse import urlsplit
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
 from django.db import IntegrityError
 from django.test import TestCase
+from django.urls import resolve
 from django.utils import timezone
+from django.utils.http import urlsafe_base64_decode
 
 from board.models import Post
 from bookkeeping.models import Category, Partner, Transaction
@@ -67,13 +71,16 @@ class RateAndReputationTest(TestCase):
 
 
 class ActivationPasswordTest(TestCase):
-    def test_activated_account_keeps_password_reset_eligible_without_emailing_password(self):
+    def test_activation_email_includes_one_time_password_setup_link(self):
         user = User.objects.create_user(username='activation-password', email='activation@example.com', password='hidden-random-secret', is_active=False)
         profile = user.uzytkownik
         profile.reputation = 1
         profile.reputation_blocked_at = timezone.now() - timedelta(days=1)
         profile.save(update_fields=['reputation', 'reputation_blocked_at'])
-        welcome_post = SimpleNamespace(text='Login: {login_url}; legacy password: {password}', get_display_title=lambda: 'Welcome')
+        welcome_post = SimpleNamespace(
+            text='Welcome {username}<br><br>Your account on {host} is now active<br><br>Login: {email}<br>Password: {password}<br><br>You may login here: {login_url}<br><br>You may change password here: {password_url}',
+            get_display_title=lambda: 'Welcome',
+        )
         command = CountCitizensCommand()
 
         with (
@@ -94,9 +101,19 @@ class ActivationPasswordTest(TestCase):
         self.assertTrue(user.has_usable_password())
         self.assertTrue(user.check_password('hidden-random-secret'))
         email_body = accepted.call_args.kwargs['recipient_body']
-        self.assertIn('legacy password: ', email_body)
+        self.assertNotIn('Login:', email_body)
+        self.assertNotIn('Password:', email_body)
         self.assertNotIn('hidden-random-secret', email_body)
-        self.assertIn('https://example.test/password_reset/', email_body)
+        self.assertNotIn('/login/', email_body)
+        self.assertEqual(email_body.count('https://example.test/reset/'), 1)
+        reset_url = next(word for word in email_body.split() if word.startswith('https://example.test/reset/'))
+        reset_match = resolve(urlsplit(reset_url).path)
+        self.assertEqual(urlsafe_base64_decode(reset_match.kwargs['uidb64']).decode(), str(user.pk))
+        self.assertTrue(default_token_generator.check_token(user, reset_match.kwargs['token']))
+        user.set_password('new-user-password')
+        self.assertFalse(default_token_generator.check_token(user, reset_match.kwargs['token']))
+        self.assertIn('Set your password now using the one-time link below:', email_body)
+        self.assertIn('used only once and expires automatically', email_body)
 
 
 class BlockedUserResourcesTest(TestCase):

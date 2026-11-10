@@ -4,9 +4,13 @@ from datetime import timedelta as td
 
 from django.conf import settings as s
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from django.db.models import Sum
+from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import override
@@ -174,6 +178,7 @@ class Command(BaseCommand):
 
                 # Get the domain from django_site table
                 host = get_site_domain()
+                password_url = build_site_url(reverse('password_reset_confirm', kwargs={'uidb64': urlsafe_base64_encode(force_bytes(i.uid.pk)), 'token': default_token_generator.make_token(i.uid)}))
 
                 with override(get_user_language(i.uid)):
                     # Get welcome email content from system post
@@ -182,9 +187,11 @@ class Command(BaseCommand):
                     if welcome_post and welcome_post.text:
                         # Use system post content with placeholders
                         try:
-                            message = welcome_post.text.format(username=uname, email=uemail, password='', host=host, login_url=f"{host}/login/", password_url=build_site_url('/password_reset/'))
-                            message = message.replace('<br>', '\n').replace('<p>', '').replace('</p>', '')
-                            message += '\n\n' + _('Set your password by requesting a password reset: %(link)s') % {'link': build_site_url('/password_reset/')}
+                            welcome_text = welcome_post.text.replace('<br>', '\n').replace('<p>', '').replace('</p>', '')
+                            auth_placeholders = ('{email}', '{password}', '{login_url}', '{password_url}')
+                            welcome_text = '\n'.join(line for line in welcome_text.splitlines() if not any(placeholder in line for placeholder in auth_placeholders))
+                            message = welcome_text.format(username=uname, host=host).strip()
+                            message += '\n\n' + _('Set your password now using the one-time link below:\n%(link)s\n\nThe link can be used only once and expires automatically.') % {'link': password_url}
                             subject = f"[{host}] {welcome_post.get_display_title()}"
                             log.info(f'Using welcome email from system post for user {uemail}')
                         except KeyError as e:

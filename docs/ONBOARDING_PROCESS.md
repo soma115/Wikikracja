@@ -122,7 +122,7 @@ Widok `obywatele.views.dodaj` ("Zaproponuj osobę") używa pełnego `ProfileForm
   - Konto jest aktywowane (`is_active = True`)
   - Data przyjęcia jest zapisywana (`data_przyjecia`)
   - Odbiorcy sygnału `citizen_accepted` tworzą pokoje 1-to-1 i przyznają dostęp do istniejących pokoi publicznych
-  - Wysyłany jest email powitalny na podstawie postu systemowego `welcome_email`, z linkiem do ustawienia hasła przez reset hasła; komenda nie generuje ani nie wysyła nowego hasła
+  - Wysyłany jest email powitalny na podstawie postu systemowego `welcome_email`, z jednorazowym, wygasającym linkiem do ustawienia hasła; komenda nie wysyła hasła
   - Pozostali obywatele zyskują +1 punkt reputacji, ale tylko gdy populacja nie przekracza 2 × `acceptance` (`grant_automatic_reputation`)
 - Użytkownik otrzymuje pełny dostęp do funkcji platformy
 

@@ -19,7 +19,6 @@ urlpatterns: List[URLPattern | URLResolver] = [
     path('haslo/', hv.haslo, name='haslo'),
     path('change_email/', ov.change_email, name='change_email'),
     path('kandydaci/', RedirectView.as_view(url='/obywatele/poczekalnia/'), name='kandydaci'),
-    path('accounts/confirm-email/', RedirectView.as_view(url='/obywatele/onboarding/', permanent=False)),
     path('accounts/', include('allauth.urls')),
     path('favicon.ico', RedirectView.as_view(url='/static/home/images/favicon.ico')),
     path('captcha/', include('captcha.urls')),

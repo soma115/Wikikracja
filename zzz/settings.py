@@ -336,10 +336,7 @@ LOGOUT_REDIRECT_URL = '/login/'
 # CRITICAL: Redirect to onboarding form immediately after signup
 # Without this, users get stuck or redirected to wrong pages
 ACCOUNT_SIGNUP_REDIRECT_URL = '/obywatele/onboarding/'
-ACCOUNT_RATE_LIMITS = {
-    'login_failed': '5/m',
-    'confirm_email': '0/m',  # Disable cooldown (0 per minute = no cooldown)
-}
+ACCOUNT_RATE_LIMITS = {'login_failed': '5/m', 'confirm_email': '5/m'}
 ACCOUNT_INACTIVE_REDIRECT_URL = '/obywatele/onboarding/'
 ACCOUNT_LOGIN_METHODS = set(env_list("ACCOUNT_LOGIN_METHODS", default=["email"]))
 ACCOUNT_LOGIN_BY_CODE_ENABLED = True
@@ -389,6 +386,11 @@ WHITENOISE_KEEP_ONLY_HASHED_FILES = False
 WHITENOISE_MANIFEST_STRICT = False  # Allow missing manifest in dev mode
 
 DEBUG_SKIP_AUTH = env_bool("DEBUG_SKIP_AUTH", False)
+
+# Local AI pilot API. The client key is required separately on the server and client.
+LOCAL_AI_ACCOUNT_ID = env_int("LOCAL_AI_ACCOUNT_ID", None)
+LOCAL_AI_API_KEY = getenv("LOCAL_AI_API_KEY", "")
+LOCAL_AI_NOTES_POST_ID = env_int("LOCAL_AI_NOTES_POST_ID", None)
 
 (BASE_DIR / "media" / "uploads").mkdir(parents=True, exist_ok=True)
 

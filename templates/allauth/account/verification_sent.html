@@ -5,11 +5,20 @@
 {% block head_title %}{% trans "Verify Your E-mail Address" %}{% endblock %}
 
 {% block content %}
-  <h1>{% trans "Verify Your E-mail Address" %}</h1>
-
-  <p><b>{% blocktrans %}We have sent an e-mail to you for verification. Follow the link provided to finalize the signup process.{% endblocktrans %}</b></p>
-  <p>{% blocktrans %}After you verify your email, you will receive another email with a special link to fill out your onboarding form.{% endblocktrans %}</p>
-  <p>{% blocktrans %}The onboarding form link will contain the required access token. Please check your inbox after email verification.{% endblocktrans %}</p>
-  <p>{% blocktrans %}After verifying your email and submitting the onboarding form, you still need to wait for group approval.{% endblocktrans %}</p>
-
+  <div class="tw-container tw-my-4">
+    <div class="tw-flex tw-justify-center">
+      <div class="tw-w-full tw-max-w-md">
+        <h1>{% trans "Verify Your E-mail Address" %}</h1>
+        <div class="tw-alert tw-alert-warning" role="status">
+          <p><strong>{% trans "Your e-mail address is not confirmed yet, so you cannot sign in." %}</strong></p>
+          <p>{% trans "We sent a confirmation link to your e-mail address. Open the message and follow the link. Check your spam folder if it is not in your inbox." %}</p>
+          <p>{% trans "If you are signing up, we will send you a separate message with the onboarding form link after confirmation." %}</p>
+        </div>
+        <form method="post" action="{% url 'obywatele:resend_email_confirmation' %}">
+          {% csrf_token %}
+          <button class="tw-btn tw-btn-primary tw-mt-3" type="submit"><i class="fas fa-envelope fa-fw tw-me-1" aria-hidden="true"></i>{% trans "Send me a link to confirm my e-mail" %}</button>
+        </form>
+      </div>
+    </div>
+  </div>
 {% endblock %}
