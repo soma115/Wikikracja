@@ -317,6 +317,11 @@ class BookkeepingViewTests(TestCase):
         response = self.client.get(reverse('bookkeeping:partner_detail', args=[self.partner.pk]))
         self.assertEqual(response.status_code, 302)
 
+    def test_partner_detail_links_to_delete_confirmation(self):
+        response = self.client.get(reverse('bookkeeping:partner_detail', args=[self.partner.pk]))
+
+        self.assertContains(response, f'href="{reverse("bookkeeping:partner_delete", args=[self.partner.pk])}"')
+
     def test_partner_detail_keeps_missing_navigation_directions_visible(self):
         first = self.partner
         middle = Partner.objects.create(name='Middle Partner')

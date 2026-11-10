@@ -20,7 +20,10 @@
           <div class="tw-card-body">
             {{ form.name|as_crispy_field }}
             {{ form.description|as_crispy_field }}
-            {{ form.direction|as_crispy_field }}
+            {% if plan %}
+              <div class="tw-alert tw-alert-info" role="note">{% trans "The payment direction, recurrence, and first due date cannot be changed after the plan is created. They determine the schedule and generated payments. To change them, end this plan and create a new one." %}</div>
+            {% endif %}
+            <div{% if plan %} class="tw-disabled"{% endif %}>{{ form.direction|as_crispy_field }}</div>
             <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-3">
               {{ form.amount|as_crispy_field }}
               {{ form.entity|as_crispy_field }}
@@ -28,8 +31,8 @@
               {{ form.partner|as_crispy_field }}
               {{ form.debtors|as_crispy_field }}
               {{ form.debtor_partners|as_crispy_field }}
-              {{ form.recurrence|as_crispy_field }}
-              {{ form.first_due_date|as_crispy_field }}
+              <div{% if plan %} class="tw-disabled"{% endif %}>{{ form.recurrence|as_crispy_field }}</div>
+              <div{% if plan %} class="tw-disabled"{% endif %}>{{ form.first_due_date|as_crispy_field }}</div>
             </div>
             {{ form.treasurer|as_crispy_field }}
             {% if form.non_field_errors %}<div class="tw-alert tw-alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}

@@ -298,6 +298,25 @@ class PaymentPlanViewTests(TestCase):
         self.assertIn('data-deselect-all-label="Odznacz wszystkich"', html)
         self.assertEqual(html.count('>Zaznacz wszystkich</button>'), 2)
 
+    def test_edit_form_explains_and_disables_immutable_schedule_fields(self):
+        plan = PaymentPlan.objects.create(
+            name='Fixed schedule',
+            direction=PaymentPlan.Direction.INCOMING,
+            amount=Decimal('25'),
+            entity=self.asset,
+            category=self.category,
+            recurrence=PaymentPlan.Recurrence.MONTHLY,
+            first_due_date=timezone.localdate(),
+        )
+
+        response = self.client.get(reverse('bookkeeping:payment_plan_update', args=[plan.pk]))
+        html = response.content.decode()
+
+        self.assertContains(response, 'Po utworzeniu reguły nie można zmienić kierunku płatności')
+        self.assertEqual(html.count('class="tw-disabled"'), 3)
+        for field_name in ('direction', 'recurrence', 'first_due_date'):
+            self.assertTrue(response.context['form'].fields[field_name].disabled)
+
     def test_active_members_can_create_and_view_payment_plans_and_dues(self):
         response = self.client.post(
             reverse('bookkeeping:payment_plan_create'),

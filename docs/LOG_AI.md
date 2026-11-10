@@ -999,6 +999,22 @@
 - **Weryfikacja:** 13 ukierunkowanych testów pytest, `makemigrations --check`, Django check, Ruff, budowanie CSS, `regression_scan.py` i `ui_guard.py` przechodzą.
 - **Spodziewany efekt:** Formularz ma jedno źródło adresu, a potwierdzone lokalizacje uliczne częściej trafiają na dokładne współrzędne zamiast centrum miasta.
 
+## 2026-11-10: Wyjaśnienie zablokowanych pól reguły cyklicznej
+
+- **Zmienione obszary:** formularz reguły cyklicznej, polskie tłumaczenie i test widoku.
+- **Co się zmieniło:** Pola kierunku, częstotliwości i pierwszej daty pozostają nieedytowalne; są teraz wyszarzone, a formularz wyjaśnia, że ich zmiana wymaga zakończenia reguły i utworzenia nowej.
+- **Uzasadnienie:** Wcześniejszy formularz blokował te pola bez widocznego wyjaśnienia.
+- **Weryfikacja:** Ukierunkowany test formularza (1 zaliczony), kompilacja tłumaczeń, `npm run build:css`, `regression_scan.py`, `ui_guard.py` i `git diff --check` przechodzą.
+- **Spodziewany efekt:** Ograniczenie jest widoczne i zrozumiałe, bez zmiany logiki harmonogramu.
+
+## 2026-11-10: Opcja usuwania partnera w zasobach
+
+- **Zmienione obszary:** akcje na stronie szczegółów partnera i test widoku.
+- **Co się zmieniło:** Dodano ikonę usuwania prowadzącą do istniejącego ekranu potwierdzenia.
+- **Uzasadnienie:** Brakowało dostępnej z interfejsu akcji, mimo że endpoint usuwania oraz ochrona rekordów powiązanych z finansami już istniały.
+- **Weryfikacja:** Ukierunkowany test widoku (1 zaliczony), `npm run build:css`, `scripts/regression_scan.py`, `scripts/ui_guard.py` i `git diff --check` przechodzą.
+- **Spodziewany efekt:** Partnera można usunąć z poziomu szczegółów, a dotychczasowe zabezpieczenia usunięcia pozostają aktywne.
+
 ## 2026-11-09: Dokładne lokalizacje zasobów na mapie
 
 - **Zmienione obszary:** rekordy zasobów przekazywane do mapy i testy mapy.

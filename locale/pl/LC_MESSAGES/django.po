@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 22:44+0100\n"
+"POT-Creation-Date: 2026-11-10 20:14+0100\n"
 "PO-Revision-Date: 2025-04-14 01:32+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Polish <LL@li.org>\n"
@@ -209,7 +209,8 @@ msgstr "Ankiety"
 #: .\board\templates\board\_post_detail_actions.html:15
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:4
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:8
-#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:22
+#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:12
+#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:23
 #: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:32
 #: .\bookkeeping\templates\bookkeeping\_resource_owner_actions.html:16
 #: .\categories\templates\categories\_category_manager_init.html:23
@@ -226,8 +227,8 @@ msgstr "Usuń"
 #: .\board\templates\board\_post_detail_actions.html:25
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:5
 #: .\bookkeeping\templates\bookkeeping\_detail_actions.html:9
-#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:12
-#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:23
+#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:13
+#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:24
 #: .\bookkeeping\templates\bookkeeping\_resource_manage_card.html:22
 #: .\bookkeeping\templates\bookkeeping\_resource_owner_actions.html:4
 #: .\bookkeeping\templates\bookkeeping\confirm_delete.html:48
@@ -1332,17 +1333,17 @@ msgstr "wpisy finansowe"
 msgid "This category is used by {n} financial record(s). Reassign or remove them before deleting."
 msgstr "Kategoria jest używana przez {n} wpisów finansowych. Przed usunięciem zmień im kategorię lub usuń te wpisy."
 
-#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:14
+#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:15
 #: .\bookkeeping\templates\bookkeeping\_payment_due_actions.html:5
 #: .\bookkeeping\templates\bookkeeping\payment_due_confirm.html:11
 msgid "Confirm payment"
 msgstr "Potwierdź płatność"
 
-#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:15
+#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:16
 msgid "Recurring payment details"
 msgstr "Szczegóły płatności cyklicznej"
 
-#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:19
+#: .\bookkeeping\templates\bookkeeping\_detail_actions.html:20
 msgid "Take ownership"
 msgstr "Przejmij własność"
 
@@ -1492,7 +1493,7 @@ msgid "Close"
 msgstr "Zamknij"
 
 #: .\bookkeeping\templates\bookkeeping\_resource_owner_actions.html:10
-#: .\bookkeeping\tests\test_views.py:574
+#: .\bookkeeping\tests\test_views.py:579
 msgid "Archive listing"
 msgstr "Archiwizuj wpis"
 
@@ -1814,6 +1815,10 @@ msgstr "Edytuj plan opłat"
 #: .\bookkeeping\templates\bookkeeping\payment_plan_form.html:18
 msgid "New payment plan"
 msgstr "Nowy plan opłat"
+
+#: .\bookkeeping\templates\bookkeeping\payment_plan_form.html:24
+msgid "The payment direction, recurrence, and first due date cannot be changed after the plan is created. They determine the schedule and generated payments. To change them, end this plan and create a new one."
+msgstr "Po utworzeniu reguły nie można zmienić kierunku płatności, częstotliwości ani pierwszej daty płatności. Te ustawienia określają harmonogram i generowane płatności. Aby je zmienić, zakończ tę regułę i utwórz nową."
 
 #: .\bookkeeping\templates\bookkeeping\payment_plan_list.html:7
 msgid "Recurring payments"
@@ -3758,7 +3763,7 @@ msgid "Against"
 msgstr "Przeciw"
 
 #: .\glosowania\templates\glosowania\szczegoly.html:90
-#: .\obywatele\services.py:44 .\obywatele\tests\test_views.py:2200
+#: .\obywatele\services.py:44
 msgid "Former group member"
 msgstr "Były członek grupy"
 
@@ -4098,12 +4103,12 @@ msgid "Change language"
 msgstr "Zmień język"
 
 #: .\home\templates\home\_language_switcher.html:21
-#: .\home\templates\home\base.html:291 .\zzz\settings.py:128
+#: .\home\templates\home\base.html:291 .\zzz\settings.py:125
 msgid "Polish"
 msgstr "Polski"
 
 #: .\home\templates\home\_language_switcher.html:31
-#: .\home\templates\home\base.html:291 .\zzz\settings.py:128
+#: .\home\templates\home\base.html:291 .\zzz\settings.py:125
 msgid "English"
 msgstr "Angielski"
 
