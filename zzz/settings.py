@@ -387,11 +387,6 @@ WHITENOISE_MANIFEST_STRICT = False  # Allow missing manifest in dev mode
 
 DEBUG_SKIP_AUTH = env_bool("DEBUG_SKIP_AUTH", False)
 
-# Local AI pilot API. The client key is required separately on the server and client.
-LOCAL_AI_ACCOUNT_ID = env_int("LOCAL_AI_ACCOUNT_ID", None)
-LOCAL_AI_API_KEY = getenv("LOCAL_AI_API_KEY", "")
-LOCAL_AI_NOTES_POST_ID = env_int("LOCAL_AI_NOTES_POST_ID", None)
-
 (BASE_DIR / "media" / "uploads").mkdir(parents=True, exist_ok=True)
 
 #########################

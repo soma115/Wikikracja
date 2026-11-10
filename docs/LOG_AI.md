@@ -1,3 +1,68 @@
+## 2026-11-10: Wstrzymanie rozwoju lokalnego AI
+
+- **Zmienione obszary:** plan projektu i ten dziennik; porządkowanie dotyczyło wyłącznie prototypu AI.
+- **Co się zmieniło:** na prośbę użytkownika wstrzymano dalszy development. Podczas kontroli bieżącego worktree prototypowe moduły API/klienta/testów i trasa API były już usunięte; ustawienia API w `zzz/settings.py` oraz wpisy AI w ignorowanym `.env` również nie występowały. Zachowano historyczny projekt i wyniki prób w dokumentacji. Konto `36`, dokument `34`, baza danych i katalog lokalnego stanu `~/.wikikracja-ai/` nie były usuwane.
+- **Ważne ustalenia:** lokalny test rejestracji nie wymaga aliasu e-mail; konsolowy backend wystarcza dla adresu testowego. Wybrano `google/gemma-4-31b-qat` w prywatnej sieci. Syntetyczne żądanie narzędzi do tego modelu działało, natomiast pełny kontekst zwracał HTTP 400 bez uzyskania szczegółu błędu. Odczyt starych wiadomości po ID mógł zagłuszać nowe DM; sortowanie aktywnością i porcje na pokój ograniczały ten problem, ale długi backlog nadal może opóźniać najnowsze wiadomości. Użytkownik chce zachować indywidualną decyzję o odpowiedzi, z większą skłonnością do reakcji na DM i publiczne `@bot`.
+- **Dane i bezpieczeństwo:** poprzednie cykle oznaczyły część wiadomości jako przeczytane; logi pokazywały `actions_considered=0` i czasem `1`, lecz nie wykonano audytu wszystkich ewentualnych zapisów. Nie przywracano kursorów ani nie zmieniano danych. Ujawniony lokalny klucz API był obrócony, a konfigurację AI usunięto z `.env`; wartość sekretu nie jest zapisana w dokumentacji.
+- **Weryfikacja:** przed usunięciem prototypu 26 testów API/klienta, 10 testów głosowania, Ruff i Django check przechodziły. Po wstrzymaniu kodu tych testów już nie ma; należy je odtworzyć przy wznowieniu.
+- **Spodziewany efekt:** obecne repozytorium nie udostępnia klienta ani API lokalnego AI. Można wrócić do zadania na podstawie planu i tych ustaleń, bez ponownego odkrywania ograniczeń pilota.
+
+## 2026-11-10: Listener lokalnego klienta AI
+
+- **Zmienione obszary:** pętla klienta `scripts/local_ai_client.py`, lokalny stan cykli, plan pilota i testy.
+- **Co się zmieniło:** zwykłe uruchomienie klienta teraz synchronicznie odpytuje API co 15 sekund i nie rozpoczyna następnego cyklu, dopóki nie skończy się poprzedni. Klucz kontekstu zapobiega ponownemu wywoływaniu modelu bez zmian w wiadomościach, referendach, notatkach, modelu lub promptcie; błędy używają rosnącego odstępu ponowień. `--once` zachowuje pojedynczy cykl, `--dry-run` pozostaje jednorazowym podglądem bez zapisów.
+- **Uzasadnienie:** utrzymywać nasłuch bez ręcznego restartowania, nie nakładać wolnych odpowiedzi LM Studio i nie marnować inferencji na niezmieniony kontekst.
+- **Weryfikacja:** testy sprawdzają pomijanie niezmienionego kontekstu, ponowne uruchomienie modelu po zmianie notatek oraz brak zapisów w dry-run.
+- **Spodziewany efekt:** klient stale nasłuchuje zdarzeń; pojedynczy proces wykonuje najwyżej jedną inferencję naraz.
+
+## 2026-11-09: Większa responsywność na wywołanie bota
+
+- **Zmienione obszary:** system prompt lokalnego klienta i ustalone zasady w planie pilota.
+- **Co się zmieniło:** DM skierowany do bota oraz jawne `@bot` wywołanie w pokoju publicznym są opisane jako silniejszy powód do odpowiedzi. Bot nadal samodzielnie ocenia, czy ma użyteczny i bezpieczny wkład, i może wybrać brak działania.
+- **Uzasadnienie:** poprawić responsywność na bezpośrednie zwroty bez wymuszania odpowiedzi na każdą wiadomość i bez zmiany autonomii.
+- **Weryfikacja:** testy klienta i kontrola Ruff przechodzą.
+- **Spodziewany efekt:** przy jasnym pytaniu w DM lub publicznym `@bot` Gemma częściej odpowiada albo prosi o doprecyzowanie.
+
+## 2026-11-09: Diagnostyka Gemma 31B i rotacja klucza
+
+- **Zmienione obszary:** ignorowany lokalny `.env`, diagnostyka błędów klienta, plan pilota.
+- **Co się zmieniło:** po ujawnieniu `LOCAL_AI_API_KEY` w wiadomości wygenerowano nowy klucz i zapisano go wyłącznie w `.env` (wartość nie jest zapisana w logu). Użytkownik wybrał `google/gemma-4-31b-qat`. Syntetyczny POST bez prywatnego kontekstu i bez klucza zwrócił HTTP 200 oraz wywołanie narzędzia `note`; klient klasyfikuje teraz błędy LM Studio bez wypisywania treści błędu.
+- **Uzasadnienie:** unieważnić ujawniony sekret oraz odróżnić błąd obsługi narzędzi od możliwego przekroczenia okna kontekstu.
+- **Weryfikacja:** 25 testów API/klienta, Ruff i `py_compile` przechodzą. Pełny kontekst aplikacji nie był wysyłany w syntetycznym teście; poprzedni HTTP 400 nie zawierał udostępnionego szczegółowego komunikatu.
+- **Spodziewany efekt:** po restarcie Django klient uwierzytelni się nowym kluczem; tryb `--dry-run` pokaże bez zapisów, czy pełny kontekst Gemmy 31B mieści się w jej oknie.
+
+## 2026-11-09: Pierwszy cykl lokalnego AI
+
+- **Zmienione obszary:** stan lokalnego pilota, priorytetyzacja pobierania czatu, tryb podglądu i plan testów.
+- **Co się stało:** początkowo klient zużył limit 20 wiadomości na starszy pokój i pominął DM. Po poprawce read-only kontrola potwierdziła, że późniejszy cykl oznaczył najnowszą wiadomość w DM jako przeczytaną, ale nadal zwrócił 0 obsługiwanych działań; nie wysłał wiadomości, notatki ani głosu. Użytkownik potwierdził, że bot ma nadal samodzielnie decydować o odpowiedzi nawet na bezpośrednie DM. Nazwisko modelu zostało zaktualizowane przed wywołaniem LM Studio.
+- **Uzasadnienie:** rozdzielić błąd dostarczania wiadomości od decyzji modelu o abstencji i nie zakładać, że brak odpowiedzi wynika z promptu.
+- **Weryfikacja:** sprawdzono wyłącznie metadane wiadomości i lokalny kursor, bez odczytywania tekstu DM. Testy potwierdzają priorytetyzację aktywnych pokoi; pełna ocena odpowiedzi modelu nadal wymaga ręcznego testu.
+- **Spodziewany efekt:** kolejny nowy DM trafi do modelu; `--dry-run` pozwala podejrzeć jego propozycje bez zapisów. Wiadomości już oznaczone jako przeczytane nie będą ponownie pobrane.
+
+## 2026-11-09: Dopasowanie Gemma do LM Studio
+
+- **Zmienione obszary:** żądanie OpenAI-compatible w `scripts/local_ai_client.py` i test klienta.
+- **Co się zmieniło:** potwierdzono przez `GET /v1/models`, że LM Studio udostępnia `google/gemma-4-e2b`. Syntetyczne żądanie z `response_format=json_object` zwracało HTTP 400, a bez niego HTTP 200. Logi pokazały też odpowiedź Gemmy w formie `tool_calls`, więc klient wysyła jawne narzędzia `send_message`, `vote` i `note`, parsuje ich argumenty z allowlistą i zachowuje JSON jako alternatywną odpowiedź bez działania. Dodałem też `--dry-run` i odmowę cichego kontynuowania, jeśli LM Studio zgłosi `finish_reason=tool_calls`, ale nie zwróci danych wywołań. Później read-only analiza wykazała starvation DM przez limit wiadomości; API zwraca czas aktywności pokoju, a klient pobiera wiadomości sprawiedliwie.
+- **Uzasadnienie:** zachować zgodność z załadowanym modelem bez przekazywania do LM Studio rzeczywistych wiadomości podczas diagnozy.
+- **Weryfikacja:** dwa żądania użyły wyłącznie syntetycznego promptu; nie wysłano klucza ani kontekstu grupy. 24 testy API/klienta, w tym parsowanie `tool_calls`, sprawiedliwy podział wiadomości i brak zapisów w trybie podglądu, przechodzą. Pełnego cyklu klienta nie uruchomiono.
+- **Spodziewany efekt:** klient może odczytać działania Gemmy jako ograniczone wywołania narzędzi i wykonać je wyłącznie po walidacji.
+
+## 2026-11-09: Konfiguracja lokalnego pilota AI
+
+- **Zmienione obszary:** ignorowany lokalny `.env`, walidacja adresu LM Studio, plan pilota.
+- **Co się zmieniło:** skonfigurowano konto `36`, dokument notatek `34`, nazwę `google/gemma-4-e2b` i endpoint LM Studio w prywatnej sieci. Wygenerowany klucz API zapisano wyłącznie w `.env`; nie jest ujawniany ani commitowany. Potwierdzenie e-maila oznaczono zgodnie z informacją użytkownika.
+- **Uzasadnienie:** przygotować lokalny test bez aliasu pocztowego i bez umieszczania sekretu w repozytorium.
+- **Weryfikacja:** sprawdzono obecność i format wymaganych ustawień bez wyświetlania klucza. Nie nawiązywano połączenia z LM Studio ani nie uruchamiano cyklu AI.
+- **Spodziewany efekt:** klient może łączyć się z wybranym modelem po uruchomieniu serwera aplikacji i LM Studio.
+
+## 2026-11-09: Lokalny klient AI jako członek
+
+- **Zmienione obszary:** nowe API pilota AI w `core`, lokalny klient LM Studio, konfiguracja środowiskowa, routing, testy oraz plan pilota.
+- **Co się zmieniło:** API autoryzuje wyłącznie skonfigurowanym kluczem Bearer i przypisuje żądania do jednego skonfigurowanego aktywnego konta. Udostępnia dostępne pokoje i wiadomości, otwarte referenda, wskazany dokument grupowy, dopisywanie notatek jako escapowanego tekstu, jawne wiadomości czatu przez istniejącą usługę, głosowanie przez istniejący przepływ oraz aktualizację nazwiska modelu. Jednorazowy klient wykonuje lokalny cykl przez LM Studio, wymaga HTTPS dla zdalnego API, dopuszcza lokalny/private-network endpoint modelu, zapamiętuje kursory i próby zapisów, a kody weryfikacyjne trzyma lokalnie oddzielnie od wyborów.
+- **Uzasadnienie:** umożliwić ograniczony pilotaż lokalny bez tworzenia osobnej logiki członkostwa, uprawnień czatu ani głosowania oraz bez przekazywania klucza API do modelu.
+- **Weryfikacja:** 21 testów `core/test_local_ai_api.py` i 10 istniejących testów przepływu głosowania, Ruff, `py_compile` i Django check przechodzą. Nie wykonano pełnej sesji z danymi aplikacji ani zapisów przez lokalny serwer.
+- **Spodziewany efekt:** po dodaniu `LOCAL_AI_ACCOUNT_ID`, `LOCAL_AI_NOTES_POST_ID` i wspólnego lokalnego `LOCAL_AI_API_KEY` do ignorowanego `.env` można uruchomić pojedynczy cykl poleceniem `.venv\Scripts\python.exe scripts\local_ai_client.py`.
+
 ## 2026-11-09: Inicjały usuniętych głosujących
 
 - **Zmienione obszary:** rejestr uczestnictwa w głosowaniu, obsługa usunięcia konta i lista osób głosujących w wynikach referendum.
