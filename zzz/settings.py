@@ -5,6 +5,7 @@ import mimetypes
 from os import getenv, path
 
 import firebase_admin
+from django.utils.translation import gettext_lazy
 from dotenv import load_dotenv
 from firebase_admin import credentials
 
@@ -119,10 +120,6 @@ ROOT_URLCONF = 'zzz.urls'
 
 if DEBUG:
     ASGI_THREADS = 1
-
-
-def gettext_lazy(s):
-    return s
 
 
 LANGUAGES = (('en', gettext_lazy('English')), ('pl', gettext_lazy('Polish')))

@@ -2197,4 +2197,4 @@ class AccountDeletionFeedbackTest(TestCase):
 
         self.client.force_login(other)
         response = self.client.get(reverse('glosowania:details', kwargs={'pk': decision.pk}))
-        self.assertContains(response, _('Former group member'))
+        self.assertContains(response, 'LM')

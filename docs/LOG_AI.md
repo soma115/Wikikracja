@@ -1,3 +1,11 @@
+## 2026-11-10: Uproszczenie konfiguracji Ruff i lazy gettext
+
+- **Zmienione obszary:** selektory lintingu Ruff i etykiety języków w ustawieniach Django.
+- **Co się zmieniło:** usunięto selektory Ruff `E4`, `E7` i `E9`, które są objęte przez `E`; lokalna atrapa `gettext_lazy` została zastąpiona funkcją Django. Poprawiono też przestarzałe oczekiwanie testu usunięcia konta: głosujący z zachowanymi inicjałami jest wyświetlany inicjałami, zgodnie z istniejącą obsługą anonimowości.
+- **Uzasadnienie:** ograniczyć redundantną konfigurację i zapewnić poprawne, leniwe tłumaczenie nazw języków.
+- **Weryfikacja:** pełny pipeline przeszedł: Ruff, formatowanie, skany UI, build Tailwind, Django check, kompilacja tłumaczeń, collectstatic, 1567 testów pytest i 336 testów Jest. Playwright pominięto, bo nie skonfigurowano `E2E_BASE_URL`; poprawiono nieaktualne oczekiwanie testu inicjałów.
+- **Spodziewany efekt:** brak zmiany zakresu reguł lintingu; nazwy języków są obsługiwane przez system tłumaczeń Django.
+
 ## 2026-11-10: Wstrzymanie rozwoju lokalnego AI
 
 - **Zmienione obszary:** plan projektu i ten dziennik; porządkowanie dotyczyło wyłącznie prototypu AI.
