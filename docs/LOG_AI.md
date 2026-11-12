@@ -6,6 +6,14 @@
 - **Weryfikacja:** `npm run build:css`, regression scan, pełny UI guard, `git diff --check` i wszystkie 336 testów Jest przeszły. Pełny runner przeszedł Ruff, Django check, kompilację tłumaczeń, collectstatic i kontrolę świeżości Tailwinda; pytest zakończył się wynikiem 1572 zaliczonych i 1 niezaliczonym (`SurveyViewsTests.test_active_detail_shows_current_results_by_option`, brak oczekiwanego tekstu „Voters:”). Playwright pominięto, ponieważ nie skonfigurowano `E2E_BASE_URL`.
 - **Spodziewany efekt:** długie treści zawijają się w dostępnej szerokości; nie są przycinane ani ukrywane.
 
+## 2026-11-12: Wyniki ankiet według opcji
+
+- **Zmienione obszary:** widok szczegółów ankiety, wspólny partial wyników, lista zakończonych ankiet i testy widoków ankiet.
+- **Co się zmieniło:** głosujący są wyświetlani pod wybraną opcją zamiast jako lista osób z przypisanymi opcjami. Szczegóły ankiety pokazują bieżące liczby głosów, procenty i paski, a wyniki na szczegółach i liście są sortowane malejąco według popularności; formularz zachowuje dotychczasową kolejność opcji.
+- **Uzasadnienie:** długie treści opcji utrudniały odczytanie wyników w układzie przypisującym opcje do osób.
+- **Weryfikacja:** 42 testy `ankiety/tests/test_views.py`, Ruff, budowanie CSS, `regression_scan.py`, `ui_guard.py` i `git diff --check` przechodzą.
+- **Spodziewany efekt:** popularność i osoby głosujące są czytelne bez utraty czytelności długich nazw opcji.
+
 ## 2026-11-10: Uproszczenie konfiguracji Ruff i lazy gettext
 
 - **Zmienione obszary:** selektory lintingu Ruff i etykiety języków w ustawieniach Django.

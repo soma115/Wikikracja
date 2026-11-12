@@ -1,20 +1,32 @@
 {% load i18n %}
 {% load l10n %}
+{% load feed_filters %}
 {% for option in options %}
-  <div class="tw-mb-2">
-    <div class="tw-flex tw-justify-between tw-text-sm">
-      <span>
+  <div class="tw-mb-3">
+    <div class="tw-flex tw-items-start tw-justify-between tw-gap-2 tw-text-sm">
+      <span class="tw-min-w-0 tw-break-words">
         {{ option.text }}
         {% if option.created_by %}<i class="fas fa-user-plus tw-text-muted tw-ms-1" title="{% trans 'Added by a participant' %}" aria-label="{% trans 'Added by a participant' %}"></i>{% endif %}
       </span>
-      <span>
+      <span class="tw-whitespace-nowrap">
         <strong class="tw-font-semibold">{{ option.vote_count }}</strong>
         {% if total_votes %}
           <span class="tw-text-muted">({{ option.percentage }}%)</span>
         {% endif %}
       </span>
     </div>
-    <div class="tw-result-bar-track tw-w-full"><div class="tw-result-bar-fill" data-progress="{{ option.percentage|unlocalize }}"></div></div>
+    <div class="tw-result-bar-track tw-w-full tw-mt-1"><div class="tw-result-bar-fill" data-progress="{{ option.percentage|unlocalize }}"></div></div>
+    {% if option.voters %}
+      <div class="tw-flex tw-flex-wrap tw-gap-2 tw-mt-2 tw-text-sm">
+        <span class="tw-text-muted">{% trans 'Voters' %}:</span>
+        {% for user in option.voters %}
+          <span class="tw-flex tw-items-center tw-gap-2">
+            {% include "home/_user_avatar.html" with user=user size="sm" %}
+            <span class="tw-break-words">{{ user|display_name }}</span>
+          </span>
+        {% endfor %}
+      </div>
+    {% endif %}
   </div>
 {% empty %}
   <p class="tw-text-muted tw-text-sm tw-mb-0">{% trans 'No options' %}</p>

@@ -391,7 +391,12 @@ class SurveyViewsTests(TestCase):
         self.assertEqual(response.context["total_votes"], 3)
         percentages = {opt.text: opt.percentage for opt in response.context["options"]}
         self.assertEqual(percentages, {"Yes": 66.7, "No": 33.3})
+        self.assertEqual([option.text for option in response.context["result_options"]], ["Yes", "No"])
+        self.assertEqual([user.username for user in response.context["result_options"][0].voters], ["author", "other"])
         self.assertContains(response, 'data-progress="66.7"')
+        self.assertContains(response, "author")
+        self.assertContains(response, "other")
+        self.assertNotIn("voter_choices", response.context)
 
     def test_detail_results_zero_votes(self):
         survey = self._create_survey(self.author, end_delta=timedelta(days=-1))
@@ -454,15 +459,36 @@ class SurveyViewsTests(TestCase):
         survey = self._create_survey(self.author, end_delta=timedelta(days=-1))
         yes = survey.options.get(text="Yes")
         SurveyVote.objects.create(survey=survey, user=self.other, option=yes)
+        third = User.objects.create_user(username="third", email="third@example.com", password="pass")
+        SurveyVote.objects.create(survey=survey, user=third, option=yes)
+        SurveyVote.objects.create(survey=survey, user=self.author, option=survey.options.get(text="No"))
 
         self.client.login(username="author", password="pass")
         response = self.client.get(reverse("ankiety:list"), {"tab": "finished"})
         self.assertEqual(response.status_code, 200)
         listed = {s.pk: s for s in response.context["surveys"]}
-        self.assertEqual(listed[survey.pk].total_votes, 1)
+        self.assertEqual(listed[survey.pk].total_votes, 3)
         percentages = {opt.text: opt.percentage for opt in listed[survey.pk].options.all()}
-        self.assertEqual(percentages, {"Yes": 100.0, "No": 0})
-        self.assertContains(response, 'data-progress="100.0"')
+        self.assertEqual(percentages, {"Yes": 66.7, "No": 33.3})
+        self.assertEqual([option.text for option in listed[survey.pk].result_options], ["Yes", "No"])
+        self.assertContains(response, 'data-progress="66.7"')
+
+    def test_active_detail_shows_current_results_by_option(self):
+        survey = self._create_survey(self.author)
+        yes = survey.options.get(text="Yes")
+        no = survey.options.get(text="No")
+        third = User.objects.create_user(username="third", email="third@example.com", password="pass")
+        SurveyVote.objects.create(survey=survey, user=self.author, option=yes)
+        SurveyVote.objects.create(survey=survey, user=self.other, option=yes)
+        SurveyVote.objects.create(survey=survey, user=third, option=no)
+        self.client.login(username="author", password="pass")
+
+        response = self.client.get(reverse("ankiety:detail", args=[survey.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual([option.text for option in response.context["result_options"]], ["Yes", "No"])
+        self.assertContains(response, 'data-progress="66.7"')
+        self.assertContains(response, "third")
 
     def test_delete_only_by_author(self):
         survey = self._create_survey(self.author)

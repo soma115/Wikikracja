@@ -29,6 +29,10 @@ def _compute_vote_results(options):
     return total_votes
 
 
+def _sort_vote_results(options):
+    return sorted(options, key=lambda option: (-option.vote_count, option.order, option.pk))
+
+
 def _cast_vote(request, survey, custom_option_id=None):
     """Handle a voting POST for the given survey. Returns True on success."""
     if not survey.is_active:
@@ -164,6 +168,7 @@ def survey_list(request):
 
     for survey in surveys:
         survey.total_votes = _compute_vote_results(survey.options.all())
+        survey.result_options = _sort_vote_results(survey.options.all())
         survey_votes = user_votes_by_survey.get(survey.pk, [])
         if survey.allow_multiple_choice:
             survey.user_vote_ids = {v.option_id for v in survey_votes}
@@ -237,6 +242,7 @@ def survey_detail(request, pk):
     navigation = build_detail_navigation(request, _survey_queryset(tab, search_query), survey.pk, "ankiety:detail")
     options = list(survey.options.select_related("created_by").annotate(vote_count=Count("votes")).order_by("order", "id"))
     total_votes = _compute_vote_results(options)
+    result_options = _sort_vote_results(options)
 
     user_votes = list(SurveyVote.objects.filter(survey=survey, user=request.user).select_related("option").order_by("-created_at"))
     if survey.allow_multiple_choice:
@@ -244,11 +250,13 @@ def survey_detail(request, pk):
     else:
         user_vote_ids = {user_votes[0].option_id} if user_votes else set()
 
-    all_votes = list(SurveyVote.objects.filter(survey=survey).select_related("user", "option"))
-    voter_choices = {}
+    all_votes = list(SurveyVote.objects.filter(survey=survey).select_related("user"))
+    voters_by_option = {option.pk: [] for option in options}
     for v in all_votes:
-        voter_choices.setdefault(v.user, []).append(v.option.text)
-    voter_choices = dict(sorted(voter_choices.items(), key=lambda item: (item[0].get_full_name() or item[0].username).lower()))
+        if v.user_id:
+            voters_by_option[v.option_id].append(v.user)
+    for option in options:
+        option.voters = sorted(voters_by_option[option.pk], key=lambda user: (user.get_full_name() or user.username).lower())
 
     custom_option_form = CustomSurveyOptionForm(survey=survey)
     if request.method == "POST":
@@ -272,10 +280,10 @@ def survey_detail(request, pk):
             "stepper": _survey_stepper(tab, search_query, list_url=reverse("ankiety:list")),
             **navigation,
             "options": options,
+            "result_options": result_options,
             "total_votes": total_votes,
             "user_votes": user_votes,
             "user_vote_ids": user_vote_ids,
-            "voter_choices": voter_choices,
             "has_voted": bool(user_votes),
             "can_edit": request.user.is_authenticated and survey.is_active,
             "can_delete": request.user == survey.author,

@@ -130,7 +130,7 @@
               {% endif %}
             </form>
           {% else %}
-            {% include 'ankiety/_survey_results.html' with options=survey.options.all total_votes=survey.total_votes %}
+            {% include 'ankiety/_survey_results.html' with options=survey.result_options total_votes=survey.total_votes %}
           {% endif %}
         </div>
       </div>

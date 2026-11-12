@@ -2,7 +2,6 @@
 {% load i18n %}
 {% load l10n %}
 {% load richtext %}
-{% load feed_filters %}
 
 {% block content %}
 {% include 'home/includes/stepper.html' with stepper=stepper %}
@@ -69,45 +68,21 @@
   {% endif %}
 
   {# ── RESULTS ── #}
-  {% if not is_active %}
-    <div class="tw-card tw-mb-4">
-      <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
-        <h2 class="tw-section-heading tw-mb-0"><i class="fas fa-chart-bar fa-fw tw-me-1"></i>{% trans 'Results' %}</h2>
-      </div>
-      <div class="tw-card-body">
-        {% if options %}
-          {% include 'ankiety/_survey_results.html' with options=options total_votes=total_votes %}
-          <div class="tw-mt-2 tw-text-muted tw-text-end">
-            {% trans 'Total votes' %}: {{ total_votes }}
-          </div>
-        {% else %}
-          {% include 'home/includes/empty_state.html' with compact=True icon='fa-list-ul' title=_('No options.') %}
-        {% endif %}
-      </div>
+  <div class="tw-card tw-mb-4">
+    <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
+      <h2 class="tw-section-heading tw-mb-0"><i class="fas fa-chart-bar fa-fw tw-me-1"></i>{% trans 'Results' %}</h2>
     </div>
-  {% endif %}
-
-  {# ── VOTERS ── #}
-  {% if voter_choices %}
-    <div class="tw-card tw-mb-4">
-      <div class="tw-card-header tw-flex tw-items-center tw-gap-2">
-        <h2 class="tw-section-heading tw-mb-0"><i class="fas fa-users fa-fw tw-me-1"></i>{% trans 'Voters' %}</h2>
-      </div>
-      <div class="tw-card-body tw-p-0">
-        <div class="tw-list-group">
-          {% for user, choices in voter_choices.items %}
-            <div class="tw-list-group-item tw-flex tw-items-center tw-gap-2">
-              <div class="tw-flex tw-items-center tw-gap-2">
-                {% include "home/_user_avatar.html" with user=user size="sm" %}
-                <span>{{ user|display_name }}</span>
-              </div>
-              <span class="tw-text-muted tw-text-end">{{ choices|join:", " }}</span>
-            </div>
-          {% endfor %}
+    <div class="tw-card-body">
+      {% if options %}
+        {% include 'ankiety/_survey_results.html' with options=result_options total_votes=total_votes %}
+        <div class="tw-mt-2 tw-text-muted tw-text-end">
+          {% trans 'Total votes' %}: {{ total_votes }}
         </div>
-      </div>
+      {% else %}
+        {% include 'home/includes/empty_state.html' with compact=True icon='fa-list-ul' title=_('No options.') %}
+      {% endif %}
     </div>
-  {% endif %}
+  </div>
 
   {% with chat_room=chat_room %}
     {% include 'chat/_embedded_chat.html' %}
