@@ -1,3 +1,11 @@
+## 2026-11-12: Zawijanie długich treści na małych ekranach
+
+- **Zmienione obszary:** wspólny arkusz Tailwind i standardy UI.
+- **Co się zmieniło:** dodano globalne `overflow-wrap: anywhere` dla treści aplikacji oraz opisano wymóg zawijania długich URL-i i ciągów bez spacji.
+- **Uzasadnienie:** linki i inne nieprzerywane ciągi nie mogą poszerzać widoku poza ekran w ankietach ani w pozostałych modułach.
+- **Weryfikacja:** `npm run build:css`, regression scan, pełny UI guard, `git diff --check` i wszystkie 336 testów Jest przeszły. Pełny runner przeszedł Ruff, Django check, kompilację tłumaczeń, collectstatic i kontrolę świeżości Tailwinda; pytest zakończył się wynikiem 1572 zaliczonych i 1 niezaliczonym (`SurveyViewsTests.test_active_detail_shows_current_results_by_option`, brak oczekiwanego tekstu „Voters:”). Playwright pominięto, ponieważ nie skonfigurowano `E2E_BASE_URL`.
+- **Spodziewany efekt:** długie treści zawijają się w dostępnej szerokości; nie są przycinane ani ukrywane.
+
 ## 2026-11-10: Uproszczenie konfiguracji Ruff i lazy gettext
 
 - **Zmienione obszary:** selektory lintingu Ruff i etykiety języków w ustawieniach Django.
