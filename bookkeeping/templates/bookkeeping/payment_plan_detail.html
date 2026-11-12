@@ -14,7 +14,7 @@
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Direction" %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">{% if payment_plan.direction == 'I' %}{% trans "To receive" %}{% else %}{% trans "To pay" %}{% endif %}</dd>
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Amount" %}</dt>
-        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_plan.amount|normalize_decimal }} {{ payment_plan.entity.symbol }} · {{ payment_plan.entity.code }}</dd>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_plan.amount|normalize_decimal:payment_plan.entity.decimal_places }} {{ payment_plan.entity.symbol }} · {{ payment_plan.entity.code }}</dd>
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Category" %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_plan.category.name }}</dd>
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Recipient" %}</dt>

@@ -1,4 +1,5 @@
 import tempfile
+from decimal import Decimal
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -6,6 +7,7 @@ from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+from bookkeeping.models import Transaction
 from core.models import ReadStatus
 from glosowania.models import Decyzja
 from home.services.dashboard import build_dashboard_context
@@ -144,6 +146,19 @@ def test_home_renders_featured_documents_tile(dashboard_user, client):
             assert response.status_code == 200
             assert 'featured-docs-carousel' in content
             assert 'Featured doc' in content
+
+
+@pytest.mark.django_db
+def test_home_financial_summary_uses_default_asset_precision(dashboard_user, client):
+    Entity.objects.filter(entity_type=Entity.Type.FINANCIAL_ASSET, is_default=True).update(is_default=False)
+    asset = Entity.objects.create(entity_type=Entity.Type.FINANCIAL_ASSET, code='DASH', name='Dashboard asset', symbol='D', decimal_places=3, is_default=True)
+    Transaction.objects.create(type=Transaction.INCOMING, entity=asset, amount=Decimal('12.34567'), author=dashboard_user)
+    client.force_login(dashboard_user)
+
+    response = client.get('/')
+
+    assert response.status_code == 200
+    assert '12.346 D' in response.content.decode()
 
 
 @pytest.mark.django_db

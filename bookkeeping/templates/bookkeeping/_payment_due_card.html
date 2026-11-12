@@ -35,7 +35,7 @@
         {% else %}
           <span class="tw-badge-status tw-badge-danger" title="{% trans 'Outgoing' %}"><i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i><span class="tw-view-label">{% trans "To pay" %}</span></span>
         {% endif %}
-        <span class="tw-badge tw-badge-secondary">{{ payment_due.amount|normalize_decimal }} {{ payment_due.entity.symbol }}</span>
+        <span class="tw-badge tw-badge-secondary">{{ payment_due.amount|normalize_decimal:payment_due.entity.decimal_places }} {{ payment_due.entity.symbol }}</span>
       </div>
     </div>
   </div>

@@ -31,7 +31,7 @@
                 <tr>
                   <td>{{ row.category_name }}</td>
                   <td class="tw-text-end {% if value > 0 %} tw-text-success {% elif value < 0 %} tw-text-danger {% endif %}">
-                    {{ value|normalize_decimal }} {{ asset.symbol }}
+                    {{ value|normalize_decimal:asset.decimal_places }} {{ asset.symbol }}
                   </td>
                 </tr>
               {% endif %}
@@ -43,7 +43,7 @@
             <tr>
               <td>{{ totals_label }}</td>
               <td class="tw-text-end {% if total > 0 %} tw-text-success {% elif total < 0 %} tw-text-danger {% endif %}">
-                {{ total|normalize_decimal }} {{ asset.symbol }}
+                {{ total|normalize_decimal:asset.decimal_places }} {{ asset.symbol }}
               </td>
             </tr>
           {% endwith %}
@@ -72,7 +72,7 @@
               {% with value=row.by_asset|get_item:asset.pk %}
                 {% if value is not None %}
                   <td class="tw-text-end {% if value > 0 %} tw-text-success {% elif value < 0 %} tw-text-danger {% endif %}">
-                    {{ value|normalize_decimal }} {{ asset.symbol }}
+                    {{ value|normalize_decimal:asset.decimal_places }} {{ asset.symbol }}
                   </td>
                 {% else %}
                   <td class="tw-text-end tw-text-muted">—</td>
@@ -88,7 +88,7 @@
           {% for asset in asset_columns %}
             {% with total=asset_totals|get_item:asset.pk %}
               <td class="tw-text-end {% if total > 0 %} tw-text-success {% elif total < 0 %} tw-text-danger {% endif %}">
-                {{ total|normalize_decimal }} {{ asset.symbol }}
+                {{ total|normalize_decimal:asset.decimal_places }} {{ asset.symbol }}
               </td>
             {% endwith %}
           {% endfor %}
@@ -109,7 +109,7 @@
                 <div class="tw-flex tw-justify-between">
                   <span class="tw-text-muted">{{ asset.code }}</span>
                   <span class="{% if value > 0 %} tw-text-success {% elif value < 0 %} tw-text-danger {% endif %}">
-                    {{ value|normalize_decimal }} {{ asset.symbol }}
+                    {{ value|normalize_decimal:asset.decimal_places }} {{ asset.symbol }}
                   </span>
                 </div>
               {% endif %}
@@ -127,7 +127,7 @@
             <div class="tw-flex tw-justify-between">
               <span class="tw-text-muted">{{ asset.code }}</span>
               <span class="tw-font-semibold {% if total > 0 %} tw-text-success {% elif total < 0 %} tw-text-danger {% endif %}">
-                {{ total|normalize_decimal }} {{ asset.symbol }}
+                {{ total|normalize_decimal:asset.decimal_places }} {{ asset.symbol }}
               </span>
             </div>
           {% endwith %}

@@ -999,6 +999,14 @@
 - **Weryfikacja:** 13 ukierunkowanych testów pytest, `makemigrations --check`, Django check, Ruff, budowanie CSS, `regression_scan.py` i `ui_guard.py` przechodzą.
 - **Spodziewany efekt:** Formularz ma jedno źródło adresu, a potwierdzone lokalizacje uliczne częściej trafiają na dokładne współrzędne zamiast centrum miasta.
 
+## 2026-11-10: Precyzja kwot i nazwa modułu Zasoby
+
+- **Zmienione obszary:** aktywność finansowa, widoki transakcji i płatności, raporty, kafel podsumowania finansów, etykiety modułu oraz polskie tłumaczenia.
+- **Co się zmieniło:** Kwoty są formatowane zgodnie z `decimal_places` waluty w aktywności, transakcjach, płatnościach, raportach i podsumowaniu. Nazwa modułu, etykiety transakcji w aktywności oraz kategoria powiadomień zmieniły się z „Finanse” na „Zasoby”; tytuł podsumowania finansowego pozostaje bez zmian.
+- **Uzasadnienie:** Poprzednie formatowanie nie korzystało z precyzji skonfigurowanej dla danej waluty, a użytkownik poprosił o zmianę nazwy modułu.
+- **Weryfikacja:** 90 testów `bookkeeping/tests/test_payment_plans.py` i `bookkeeping/tests/test_views.py`, test podsumowania dashboardu, Ruff, kompilacja tłumaczeń, `npm run build:css`, regression scan, UI guard i `git diff --check` przechodzą.
+- **Spodziewany efekt:** Kwoty mają właściwą liczbę miejsc dziesiętnych, a moduł i jego etykiety aktywności/powiadomień nazywają się „Zasoby”.
+
 ## 2026-11-10: Wyjaśnienie zablokowanych pól reguły cyklicznej
 
 - **Zmienione obszary:** formularz reguły cyklicznej, polskie tłumaczenie i test widoku.

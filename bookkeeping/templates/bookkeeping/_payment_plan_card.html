@@ -24,7 +24,7 @@
         {% else %}
           <span class="tw-badge-status tw-badge-danger">{% trans "To pay" %}</span>
         {% endif %}
-        <span class="tw-badge tw-badge-secondary">{{ payment_plan.amount|normalize_decimal }} {{ payment_plan.entity.symbol }}</span>
+        <span class="tw-badge tw-badge-secondary">{{ payment_plan.amount|normalize_decimal:payment_plan.entity.decimal_places }} {{ payment_plan.entity.symbol }}</span>
       </div>
     </div>
   </div>

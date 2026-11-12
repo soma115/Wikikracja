@@ -12,7 +12,7 @@
   </div>
   <div class="tw-card">
     <div class="tw-card-body">
-      <p class="tw-text-muted">{{ payment_due.name }} · {{ payment_due.amount|normalize_decimal }} {{ payment_due.entity.symbol }} · {{ payment_due.due_date|date:"d.m.Y" }}</p>
+<p class="tw-text-muted">{{ payment_due.name }} · {{ payment_due.amount|normalize_decimal:payment_due.entity.decimal_places }} {{ payment_due.entity.symbol }} · {{ payment_due.due_date|date:"d.m.Y" }}</p>
       <form method="post">
         {% csrf_token %}
         {% if transaction_form.non_field_errors %}<div class="tw-alert tw-alert-danger" role="alert">{{ transaction_form.non_field_errors }}</div>{% endif %}

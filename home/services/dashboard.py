@@ -26,7 +26,7 @@ DASHBOARD_MODULES = [
     {'name': _('Calendar'), 'icon': 'fa-calendar-days', 'url': 'events:list', 'description': _('Upcoming community events — one-off and recurring. Stay informed about meetings, deadlines and activities.')},
     {'name': _('Activities'), 'icon': 'fa-list-check', 'url': 'tasks:list', 'description': _('Activity management — create, assign and track activities within the community. See who is responsible for what.')},
     {
-        'name': _('Bookkeeping'),
+        'name': _('Resources'),
         'icon': 'fa-coins',
         'url': 'bookkeeping:transaction_list',
         'description': _('Community finances — record income and expenses, maintain transparency over shared funds and budgets.'),

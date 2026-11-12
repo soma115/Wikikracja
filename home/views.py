@@ -38,7 +38,7 @@ ACTIVITY_CONTENT_TYPES = (
     ('decision', _('Votings')),
     ('survey', _('Ankiety')),
     ('event', _('Calendar')),
-    ('transaction', _('Finance')),
+    ('transaction', _('Resources')),
     ('citizen', _('Citizens')),
     ('room_messages', _('Chat')),
 )

@@ -40,11 +40,13 @@ def bookkeeping_active_tab(context):
 
 
 @register.filter
-def normalize_decimal(value):
+def normalize_decimal(value, decimal_places=None):
     try:
-        normalized = Decimal(value).normalize()
-        return f"{normalized:f}"
-    except (InvalidOperation, TypeError):
+        decimal = Decimal(value)
+        if decimal_places is not None:
+            return f'{decimal:.{int(decimal_places)}f}'
+        return f'{decimal.normalize():f}'
+    except (InvalidOperation, TypeError, ValueError):
         return value
 
 

@@ -2,6 +2,7 @@
 {% block title %}Desktop{% endblock %}
 {% load i18n %}
 {% load feed_filters %}
+{% load bookkeeping_extras %}
 {% load richtext %}
 
 {% block content %}
@@ -359,16 +360,16 @@
           <div class="tw-flex tw-flex-col tw-gap-1 tw-text-sm">
             <div class="tw-flex tw-justify-between tw-items-center">
               <span class="tw-tile-text-muted"><i class="fas fa-arrow-down tw-me-1 tw-text-success"></i>{% trans "Revenues" %}</span>
-              <span class="tw-text-success tw-font-medium">{{ default_income|floatformat:2 }} {{ default_symbol }}</span>
+              <span class="tw-text-success tw-font-medium">{{ default_income|normalize_decimal:default_asset.decimal_places }} {{ default_symbol }}</span>
             </div>
             <div class="tw-flex tw-justify-between tw-items-center">
               <span class="tw-tile-text-muted"><i class="fas fa-arrow-up tw-me-1 tw-text-danger"></i>{% trans "Expenses" %}</span>
-              <span class="tw-text-danger tw-font-medium">{{ default_expenses|floatformat:2 }} {{ default_symbol }}</span>
+              <span class="tw-text-danger tw-font-medium">{{ default_expenses|normalize_decimal:default_asset.decimal_places }} {{ default_symbol }}</span>
             </div>
             <hr class="tw-hr-subtle tw-my-1">
             <div class="tw-flex tw-justify-between tw-items-center">
               <span class="tw-tile-text-muted">{% trans "Balance" %}</span>
-              <span class="{% if default_balance >= 0 %}tw-balance-positive{% else %}tw-balance-negative{% endif %}">{{ default_balance|floatformat:2 }} {{ default_symbol }}</span>
+              <span class="{% if default_balance >= 0 %}tw-balance-positive{% else %}tw-balance-negative{% endif %}">{{ default_balance|normalize_decimal:default_asset.decimal_places }} {{ default_symbol }}</span>
             </div>
           </div>
           <a href="{% url 'bookkeeping:report_list' %}" class="tw-stretched-link" aria-label="{% trans 'Finances' %}" title="{% trans 'Finances' %}"></a>

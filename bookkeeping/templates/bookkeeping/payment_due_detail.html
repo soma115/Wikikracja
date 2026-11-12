@@ -24,7 +24,7 @@
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_due.due_date|date:"d.m.Y" }}</dd>
 
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Amount" %}</dt>
-        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_due.amount|normalize_decimal }} {{ payment_due.entity.symbol }} · {{ payment_due.entity.code }}</dd>
+        <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_due.amount|normalize_decimal:payment_due.entity.decimal_places }} {{ payment_due.entity.symbol }} · {{ payment_due.entity.code }}</dd>
 
         <dt class="tw-col-span-12 sm:tw-col-span-3">{% trans "Category" %}</dt>
         <dd class="tw-col-span-12 sm:tw-col-span-9">{{ payment_due.category.name }}</dd>

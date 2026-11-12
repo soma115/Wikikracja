@@ -42,7 +42,7 @@ def content_type_label(content_type):
         'decision': _('Głosowania'),
         'citizen': _('Citizen'),
         'membership': _('Membership'),
-        'transaction': _('Finanse'),
+        'transaction': _('Resources'),
         'survey': _('Ankiety'),
     }
     return label_map.get(content_type, content_type.title())

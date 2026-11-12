@@ -97,8 +97,10 @@
         <div class="tw-list-group">
           {% for user, choices in voter_choices.items %}
             <div class="tw-list-group-item tw-flex tw-items-center tw-gap-2">
-              {% include "home/_user_avatar.html" with user=user size="sm" %}
-              <span>{{ user|display_name }}</span>
+              <div class="tw-flex tw-items-center tw-gap-2">
+                {% include "home/_user_avatar.html" with user=user size="sm" %}
+                <span>{{ user|display_name }}</span>
+              </div>
               <span class="tw-text-muted tw-text-end">{{ choices|join:", " }}</span>
             </div>
           {% endfor %}

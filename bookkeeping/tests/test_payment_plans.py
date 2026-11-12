@@ -63,6 +63,15 @@ class PaymentPlanServiceTests(TestCase):
         self.assertEqual(plan.next_due_date, date(2027, 3, 31))
         self.assertEqual(ensure_next_payment_periods(plan.pk, today=date(2027, 1, 31)), 0)
 
+    def test_transaction_activity_formats_amount_using_asset_precision(self):
+        self.asset.decimal_places = 3
+        self.asset.save(update_fields=['decimal_places'])
+        transaction = Transaction.objects.create(type=Transaction.INCOMING, entity=self.asset, category=self.category, partner=self.partner, amount=Decimal('12.34567'), author=self.user)
+
+        item = next(item for item in get_feed_items(timezone.now() - timedelta(days=1)) if item['object_id'] == transaction.pk)
+
+        self.assertTrue(item['title'].endswith('12.346 P'))
+
     def test_generation_creates_a_due_and_transaction_for_each_selected_payer(self):
         partner_payer = Partner.objects.create(name='Selected payer')
         plan = self.make_plan(recurrence=PaymentPlan.Recurrence.ONCE, first_due_date=date(2027, 1, 15), next_due_date=date(2027, 1, 15))
@@ -269,6 +278,17 @@ class PaymentPlanViewTests(TestCase):
 
         self.assertEqual(recurrence_values, {PaymentPlan.Recurrence.MONTHLY, PaymentPlan.Recurrence.YEARLY})
         self.assertEqual(str(form.fields['entity'].label), 'Waluta')
+
+    def test_transaction_list_and_detail_format_amount_using_asset_precision(self):
+        self.asset.decimal_places = 3
+        self.asset.save(update_fields=['decimal_places'])
+        transaction = Transaction.objects.create(type=Transaction.INCOMING, entity=self.asset, category=self.category, partner=self.partner, amount=Decimal('12.34567'), author=self.user)
+
+        list_response = self.client.get(reverse('bookkeeping:transaction_list'))
+        detail_response = self.client.get(reverse('bookkeeping:transaction_detail', args=[transaction.pk]))
+
+        self.assertContains(list_response, '12.346 V')
+        self.assertContains(detail_response, '12.346 V')
 
     def test_edit_form_preselects_saved_member_and_partner_payers(self):
         inactive_payer = User.objects.create_user(username='inactive-payer', email='inactive-payer@example.com', password='x')

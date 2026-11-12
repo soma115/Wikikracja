@@ -15,7 +15,8 @@ def get_feed_items(since: timezone.datetime) -> list[dict]:
     for transaction in transactions:
         direction = _('Incoming') if transaction.type == Transaction.INCOMING else _('Outgoing')
         financial_asset = transaction.entity
-        title = f'{direction}: {transaction.amount} {financial_asset.symbol}'
+        amount = str(transaction.amount) if transaction.amount is None else f'{transaction.amount:.{financial_asset.decimal_places}f}'
+        title = f'{direction}: {amount} {financial_asset.symbol}'
         description = transaction.note or str(transaction.partner or '')
         timestamp = transaction.updated_at or timezone.make_aware(datetime.combine(transaction.created_date, time.min))
         items.append(
